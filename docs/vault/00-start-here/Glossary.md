@@ -5,9 +5,10 @@
 | Promise | What the icon, title and first minute tell a player they will get to do | GAME_DESIGN 1, 18 |
 | FTUE / first 8 minutes | The opening that decides whether a player stays; scripted beat by beat | PRE_PRODUCTION 3.1 |
 | Funnel | The chain of steps (join, first catch, first module, launch) and how many players get through each | PRE_PRODUCTION 3.3, 8 |
-| Bounce | Leaving within the first moments of a first visit | GAME_DESIGN 18 |
-| Play-through | Share of people who see the tile and actually press play | GAME_DESIGN 18 |
-| D1 / D7 / D30 | Share of new players who come back 1, 7 or 30 days later | GAME_DESIGN 18 |
+| Bounce | First play bounce rate: leaving within 60 s, or within 61 to 180 s, of a first visit. High rates cut Home recommendation exposure | PRE_PRODUCTION 10.9 |
+| Play-through (PTR) | Share of people who see the tile and actually press play; driven by icon, thumbnails and the trailer | PRE_PRODUCTION 10.9 |
+| D1 / D7 / D30 | Share of new players who come back 1, 7 or 30 days later; Creator Hub shows a genre benchmark band (50th to 90th percentile) to compare against | PRE_PRODUCTION 10.9 |
+| Genre benchmark | Creator Hub's 50th to 90th percentile band for a metric in your genre; the bar to beat | PRE_PRODUCTION 10.9 |
 | Co-play | Playing in the same server as friends; a discovery signal | GAME_DESIGN 13 |
 | Three gates | Scrap cost, key material, assembly time; every ship module needs all three | GAME_DESIGN 3 |
 | Scrap | The one currency; earned only, never sold | GAME_DESIGN 14 |
