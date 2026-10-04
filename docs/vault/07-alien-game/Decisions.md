@@ -20,3 +20,13 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | 14 | UI palette and dialect | Stud dialect modelled on Steal an Egg; hex values in UI-Playbook.md | 2026-10-04 |
 | 15 | Icon pack | Placeholder icons until chosen; references in 05-ui-design/refs | 2026-10-04 |
 | 16 | Group ownership | Roblox group co-owned by Ethan and collaborator | 2026-10-04 |
+
+## Build decisions (code, not product)
+
+| # | Decision | Choice | Date |
+|---|---|---|---|
+| B1 | Camp rendering | Each player's stations, workers and ship are rendered on their own client at the shared camp pad (`Workspace.ClientCamp`). The server owns the state; nothing of the camp replicates. Plots per player come later with the home planet | 2026-10-04 |
+| B2 | Module order | Modules build strictly in order; only the first incomplete module accepts Scrap and parts | 2026-10-04 |
+| B3 | Assembly speed | `Config.AssemblyPlayerSpeed` (1x, the player's own crew) plus the summed work speed of the aliens at the module's job station. Assembly extrapolates by wall clock from `ModuleProgress.updatedAt`, so it continues offline with no extra code | 2026-10-04 |
+| B4 | Offline income | `OfflineRate` (50%) of the live rate, counting at most `OfflineCapSeconds`; shown once on join as a toast when the absence is at least `OfflineMinSeconds` | 2026-10-04 |
+| B5 | Key materials | Shared per-server nodes, first come first served, respawn per `KeyMaterials` row; collected into the player's inventory and moved into the module from the Ship screen | 2026-10-04 |

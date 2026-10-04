@@ -24,6 +24,15 @@ return {
 	LeavesColor = "3F9B3A",
 	LeavesRadiusMin = 3,
 	LeavesRadiusMax = 5,
-	ScatterMinFromCamp = 24, -- rocks and trees keep this far from the origin
+	ScatterMinFromCamp = 36, -- rocks and trees keep this far from the origin (the ship and stations sit inside)
 	ScatterEdgeMargin = 15, -- and this far from the floor edge
+	-- key material nodes (Materials service), scattered with their own seed
+	NodeSeed = 20261005,
+	WreckPlateNodes = 6,
+	NodeMinFromCamp = 40,
+	NodeMaxFromCamp = 85, -- close enough that the tutorial's three plates are a short walk
+	NodeMinSeparation = 8,
+	NodeSize = 3,
+	NodeColor = "8A9BA8",
+	NodeHoverStuds = 0.5,
 }

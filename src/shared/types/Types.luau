@@ -56,6 +56,7 @@ export type ModuleProgress = {
 	progress: number, -- 0..1 assembly progress
 	started: boolean,
 	completedAt: number?,
+	updatedAt: number, -- os.time() of the last progress write; both sides extrapolate from here
 }
 
 export type OutpostState = { level: number, lastCollect: number }
@@ -140,5 +141,13 @@ export type CaptureHitResult = {
 	scrapGained: number?,
 	scrap: number?,
 }
+
+-- Camp -------------------------------------------------------------------
+
+-- Economy -> client whenever an assignment or a work speed changes (RateChanged). assemblySpeed is by job.
+export type CampState = { ratePerSecond: number, assemblySpeed: { [string]: number } }
+
+-- Economy -> client once on join when the player was away long enough (OfflineSummary).
+export type OfflineSummary = { awaySeconds: number, scrap: number, completedModules: { string } }
 
 return {}

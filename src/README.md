@@ -1,7 +1,7 @@
 # Source layout (Rojo)
 
-- `shared/` → ReplicatedStorage.Shared: `types/`, `data/` (every number), `strings/` (every string), `Theme.luau`, `Net.luau`, `Capture.luau` (ticker math shared by server and client).
-- `server/` → ServerScriptService.Server: `init.server.luau` bootstrap and `Services/*.luau`.
-- `client/` → StarterPlayerScripts.Client: `init.client.luau` bootstrap, `UI/` (Builder, Hud, CaptureBar, Reveal) and `World/WildRenderer.luau`.
+- `shared/` → ReplicatedStorage.Shared: `types/`, `data/` (every number, including `Camp.luau` for the camp layout), `strings/` (every string), `Theme.luau`, `Net.luau`, `Capture.luau` (ticker math shared by server and client), `Economy.luau` (work speed, station rates, assembly progress; shared so the client extrapolates exactly what the server computes).
+- `server/` → ServerScriptService.Server: `init.server.luau` bootstrap and `Services/*.luau` (PlayerData, WorldClock, Meadow, Materials, Spawner, Economy, Catching).
+- `client/` → StarterPlayerScripts.Client: `init.client.luau` bootstrap, `State.luau` (the profile mirror fed by server pushes), `UI/` (Builder, Hud, CaptureBar, Reveal, Toast, ShipScreen) and `World/` (WildRenderer, CampRenderer, NodeRenderer).
 
-Run `rojo serve` in the repo, connect the Rojo plugin in Studio, press Play, and read the Output window.
+Run `rojo serve` in the repo, connect the Rojo plugin in Studio, press Play, and read the Output window. Test scripts per milestone are in `docs/TESTING.md`.

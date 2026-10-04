@@ -24,6 +24,14 @@ return {
 	StationMaxSlots = 3,
 	StationStartSlots = 1,
 
+	-- camp (stations and ship assembly)
+	IncomeTickSeconds = 1, -- the server accrues station Scrap this often
+	AssemblyPlayerSpeed = 1, -- the player's own crew assembles at this work speed even with no aliens at the station
+	CampInteractDistance = 14, -- studs from the ship to show the Build button
+	MaterialInteractDistance = 8, -- studs from a material node to show Collect
+	MaterialDistanceSlack = 3, -- extra studs the server allows for movement between the tap and the check
+	OfflineMinSeconds = 60, -- absences shorter than this show no welcome-back
+
 	-- offline
 	OfflineRate = 0.5,
 	OfflineCapSeconds = 3600, -- cap on accrued income time (about 60 min of income)
@@ -61,7 +69,7 @@ return {
 	SpawnRadius = 90, -- studs around each player
 	SpawnMinDistanceFromPlayer = 10, -- never spawn right on top of someone
 	SpawnMinSeparation = 5, -- studs between wild aliens
-	SpawnCampClearance = 12, -- studs beyond the camp pad edge kept free of spawns
+	SpawnCampClearance = 20, -- studs beyond the camp pad edge kept free of spawns (the ship and stations sit here)
 	SpawnCullDistance = 180, -- spawns farther than this from every player are removed
 	SpawnTickSeconds = 1,
 	ShadowRevealDistance = 40,

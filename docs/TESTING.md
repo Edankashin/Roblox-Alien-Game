@@ -18,3 +18,19 @@ Press Play. Output should show `[AlienGame] server started: ...`, the Studio in-
 8. Check the HUD, bar and reveal at iPhone SE and iPad sizes in the device emulator.
 
 Known gaps in this milestone: no lure bonus yet, no per-catch Scrap, no camera zoom on capture, placeholder shapes and silent sounds.
+
+## Milestone 3: camp, Scrap income, materials, ship modules
+
+1. Press Play. Output shows `server started: PlayerData, WorldClock, Meadow, Materials, Spawner, Economy, Catching`, the memory-profile warning, the Economy tick line, and the client profile line.
+2. HUD: a gold "Ship 0%" bar sits top centre between the Scrap pill and the clock chip, with four thin tick marks. No "+N/min" line under the Scrap pill yet (nothing is assigned).
+3. Camp, straight ahead of the spawn: a grey landing slab with a ghost ship (five translucent parts; the hull pulses because it is the module being built). Left of the pad a gold Picnic Table, right a brown Treehouse Bench, behind a glowing purple Glow Flower, each with a nameplate. No wild aliens, rocks or trees inside about 32 studs of the pad.
+4. Six grey cubes labelled "Wreck Plate" float 40 to 85 studs from the pad. Inside 8 studs the bottom-right button reads "Collect". Press it: a toast "+1 Wreck Plate" slides in top centre, the cube vanishes and returns 30 s later.
+5. Catch a Mossbop (Gather) and a Puffpuff (Build). Each appears beside its station as a small bobbing copy with a nameplate; the station plate shows "+60/min"; the HUD rate line shows the total; the Scrap pill ticks up about once a second.
+6. Walk to the ship. Inside 14 studs the button reads "Build". Press it, or tap the ship bar: the Ship screen opens (cream panel, "Your Ship", red close top right). Row 1 Hull Frame is active with "Pay 300", "0/3 Wreck Plate" and "Add Wreck Plate"; rows 2 to 5 are dimmed with "Finish the module above first".
+7. Press Pay with under 300 Scrap: toast "Not enough Scrap". Collect three plates and press Add: "3/3 Wreck Plate". When Scrap reaches 300 press Pay: it becomes "Paid" and the status reads "Assembling, 0m 59s left" at "Crew speed x1" (x2 with a Puffpuff at the Bench). The bar fills; when it completes the ghost hull turns solid and pops, a toast "Hull Frame complete!" shows, and the ship bar reads "Ship 10%".
+8. Row 2 Thrusters becomes active. Its Add button is grey; pressing it toasts "Find Glowroot in the Forest" (the Forest arrives with the biomes milestone).
+9. The Optimize button re-sorts the camp; with two aliens nothing visible changes.
+10. Offline accrual needs real saves: set `Config.UseDataStoreInStudio = true` with Studio API access on, leave, rejoin after more than 60 s, and expect a "Welcome back!" toast naming the Scrap gained and any module that finished.
+11. Check the ship bar, Ship screen and toasts at iPhone SE and iPad sizes.
+
+Known gaps in this milestone: Forest and Cave biomes and their materials, launch, lures, per-catch Scrap, placeholder art, silent sounds.
