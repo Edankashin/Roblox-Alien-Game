@@ -234,6 +234,16 @@ function PlayerData.Init()
 end
 
 function PlayerData.Start()
+	-- The client may start after ProfileLoaded already fired (Studio loads memory profiles instantly),
+	-- so it can also pull the sanitized profile once its scripts are running.
+	Net.func("GetProfile").OnServerInvoke = function(player: Player)
+		if not Net.allow(player, "GetProfile", 2) then
+			return nil
+		end
+		local profile = profiles[player.UserId]
+		return if profile then sanitized(profile) else nil
+	end
+
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 	for _, player in ipairs(Players:GetPlayers()) do

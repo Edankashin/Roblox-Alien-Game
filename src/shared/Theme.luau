@@ -36,5 +36,10 @@ Theme.Stroke = { Text = 2.5, Button = 3, Panel = 4 }
 Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5 }
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
+Theme.Backdrop = 0.6 -- modal backdrops dim the world by this much
+Theme.ButtonLip = 0.1 -- the darker "lip" under a button, as a fraction of its height
+Theme.Lighten = 0.25 -- gradient top: how far toward white
+Theme.Darken = 0.35 -- strokes and lips: how far toward black
+Theme.Shadow = Color3.new(0.1, 0.1, 0.12) -- uncaught species silhouette
 
 return Theme

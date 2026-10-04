@@ -83,4 +83,62 @@ export type Profile = {
 	lock: { jobId: string, time: number }?,
 }
 
+-- Net payloads ------------------------------------------------------------
+
+-- WorldClock -> clients on every day/night or weather change, and from GetClock.
+export type ClockState = { isNight: boolean, weather: string, secondsLeft: number }
+
+-- One sweep set of the capture bar. The client draws from these; the server judges from these.
+export type SweepParams = {
+	tickerSpeed: number, -- full left-right-left cycles per second
+	goodZone: number, -- fraction of bar width
+	perfectZone: number,
+	zoneCenter: number, -- 0..1 along the bar
+	roundsTotal: number,
+	round: number, -- 1-based
+	sweepsLeft: number,
+	startClock: number, -- workspace:GetServerTimeNow() when this sweep's ticker leaves 0
+}
+
+export type CaptureStartResult = {
+	token: string,
+	species: string,
+	tier: Tier,
+	tickerSpeed: number,
+	goodZone: number,
+	perfectZone: number,
+	zoneCenter: number,
+	roundsTotal: number,
+	round: number,
+	sweepsLeft: number,
+	startClock: number,
+}
+
+export type HitOutcome = "Perfect" | "Good" | "Miss"
+
+-- "Round": a multi-round catch won this round; the next sweep set follows.
+export type CaptureOutcome = "Caught" | "Fled" | "Wiggle" | "Miss" | "Round"
+
+export type CaptureHitResult = {
+	outcome: CaptureOutcome,
+	hit: HitOutcome?, -- what the tap scored, present on every outcome but Fled-by-timeout
+	pos: number?, -- where the server placed the ticker for that tap
+	-- continued sweeps (Wiggle, Miss, Round)
+	sweepsLeft: number?,
+	round: number?,
+	roundsTotal: number?,
+	nextStartClock: number?,
+	zoneCenter: number?,
+	goodZone: number?,
+	perfectZone: number?,
+	-- Caught
+	perfect: boolean?,
+	species: string?,
+	tier: Tier?,
+	overlay: Overlay?,
+	isNew: boolean?,
+	scrapGained: number?,
+	scrap: number?,
+}
+
 return {}
