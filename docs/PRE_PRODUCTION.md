@@ -50,6 +50,7 @@ From `GAME_DESIGN.md` section 19, plus a few the build needs. Each needs a one-l
 | 13 | UI palette (six colors) | Answered: stud dialect, playbook values | Day 1 |
 | 14 | Icon pack | Answered: placeholders until chosen | First UI pass |
 | 15 | Who owns the Roblox group and the experience | Answered: co-owned by both team members | Day 1 |
+| 16 | Free station slot growth | Proposed: slot 2 on every station unlocks with the Thrusters, slot 3 with the Nav Array; passes add a 4th and 5th. The simulator (section 3.3) shows one slot per station leaves 100+ aliens idle by module 5 and makes the Nav Array the only Scrap-blocked module | Before the Ship screen is tuned |
 
 Answers so far are logged in `docs/vault/07-alien-game/Decisions.md`.
 
@@ -99,7 +100,25 @@ Each of these is a file the build reads. The design doc has the shape; the full 
 
 ### 3.3 Economy sanity check
 
-Before the first playtest, a small simulator should run a bot through World 1 with the proposed numbers and report: time to each module, Scrap balance over time, catches per minute, how often the player is Scrap-blocked versus key-material-blocked versus assembly-blocked. The target is that the key material is the usual blocker and Scrap almost never is. This can be a 200-line script in the repo.
+`tools/econ_sim.py` runs a bot through World 1 on the real data tables (read by `tools/luau_tables.py`) with the server's own rules: tier roll by share, species by biome and condition, auto-assign to the station slots, Scrap per second from work speed, three gates per module, assembly at player speed plus the matching crew. It reports when each module completes and how long the bot was blocked by Scrap, by key material, or by assembly. The target is that the key material is the usual blocker and Scrap almost never is. Re-run after every number change: `python3 tools/econ_sim.py [--slots 3] [--catch-every 60] [--trace]`.
+
+First run (2026-10-04, median of 20 runs, continuous play, one catch attempt every 30 s, one slot per station):
+
+| Module | Done at | Blocked by key | Blocked by Scrap | Assembling | Scrap/s at done | Aliens caught |
+|---|---|---|---|---|---|---|
+| Hull Frame | 1m | 0m | 0m | 0m | 3.0 | 2 |
+| Thrusters | 5m | 3m | 0m | 1m | 6.9 | 5 |
+| Life Pod | 16m | 7m | 0m | 3m | 9.0 | 18 |
+| Nav Array | 40m | 1m | 10m | 3m | 12.4 | 54 |
+| Engine Core | 1h17m | 21m | 4m | 6m | 24.0 | 116 |
+
+What it says:
+
+1. **Key material is the blocker on four of five modules**, as intended: night-only crystals hold the Life Pod about 7 minutes and the Warden holds the Engine Core 20 to 50 minutes depending on pace.
+2. **The Nav Array is the one Scrap-blocked module.** With one slot per station, income caps near 12 Scrap/s, and 12,000 Scrap takes about 10 minutes of waiting with nothing to do but catch duplicates. Either the Nav Array's Scrap cost drops (8,000 keeps the curve), or the second station slot arrives before it (see 3).
+3. **Slots never grow in the free loop.** `StationStartSlots` is 1 and nothing in the design unlocks slot 2 or 3 except passes. By the Engine Core the bot has caught over a hundred aliens and three of them work; the rest are idle until fusion (P1). Three slots per station move the Nav Array to 25 minutes and remove the Scrap block entirely. Proposed: slot 2 on every station unlocks with the Thrusters, slot 3 with the Nav Array; passes then add a fourth and fifth. Decision 16 in section 2.
+4. **World 1 runs about 1h15m to 1h40m of continuous play** against the 2 to 3 hour target. The bot does not walk to hidden spots, craft lures or play the Field Notes steps, so this is a floor. Re-run after the biomes milestone and again after the first cold playtest before touching any cost.
+5. Pace barely matters above one catch every 30 seconds; a casual player (one a minute) finishes about 25 minutes later, almost all of it waiting for Rain and Night windows. That is the intended shape: the clock gates, not the grind.
 
 ### 3.4 Sound list
 
