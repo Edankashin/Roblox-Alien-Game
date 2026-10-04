@@ -1,7 +1,9 @@
 --!strict
--- StarterPlayerScripts.Client: the client bootstrap. Waits for the profile, builds the HUD, starts the
--- wild-alien renderer, and runs the capture flow: nearest alien -> CaptureStart -> CaptureBar taps ->
--- CaptureHit results -> Reveal. The client only draws and reports tap times; every outcome is the server's.
+-- StarterPlayerScripts.Client: the client bootstrap. Waits for the profile, mirrors it in State, builds
+-- the HUD, starts the world renderers (wild aliens, the player's own camp, material nodes) and runs
+-- the capture flow: nearest alien -> CaptureStart -> CaptureBar taps -> CaptureHit results -> Reveal.
+-- The contextual button shows one verb at a time: Catch!, Collect, Build or Launch. The client only
+-- draws and reports tap times and ids; every outcome is the server's.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -12,23 +14,49 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local Theme = require(Shared:WaitForChild("Theme"))
+local Economy = require(Shared:WaitForChild("Economy"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local State = require(script:WaitForChild("State"))
 local Builder = require(script:WaitForChild("UI"):WaitForChild("Builder"))
 local Hud = require(script:WaitForChild("UI"):WaitForChild("Hud"))
 local CaptureBar = require(script:WaitForChild("UI"):WaitForChild("CaptureBar"))
 local Reveal = require(script:WaitForChild("UI"):WaitForChild("Reveal"))
+local Toast = require(script:WaitForChild("UI"):WaitForChild("Toast"))
+local ShipScreen = require(script:WaitForChild("UI"):WaitForChild("ShipScreen"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
+local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
+local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
+
+local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
+local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 
 local localPlayer = Players.LocalPlayer
 local started = false
 local inCapture = false
 local captureToken: string? = nil
+local collecting = false
+
+type Action = "Catch" | "Collect" | "Build" | "Launch"
+local currentAction: Action? = nil
+local ACTION_TEXT: { [string]: string } = {
+	Catch = Strings.ACTION_CATCH,
+	Collect = Strings.ACTION_COLLECT,
+	Build = Strings.ACTION_BUILD,
+	Launch = Strings.ACTION_LAUNCH,
+}
 
 local captureStart = Net.func("CaptureStart")
 local captureHit = Net.func("CaptureHit")
 local captureCancel = Net.event("CaptureCancel")
+local collectMaterial = Net.func("CollectMaterial")
+
+-- A catch in progress or a modal screen blocks every other action.
+local function modalOpen(): boolean
+	return inCapture or Reveal.IsOpen() or ShipScreen.IsOpen()
+end
 
 -- Capture flow ------------------------------------------------------------
 
@@ -87,7 +115,7 @@ local function sendTap(tapTime: number)
 end
 
 local function beginCapture(part: Part)
-	if inCapture or Reveal.IsOpen() then
+	if modalOpen() then
 		return
 	end
 	local spawnId = part:GetAttribute("SpawnId")
@@ -127,6 +155,116 @@ local function tryCatchNearest(): boolean
 	return false
 end
 
+-- Materials ---------------------------------------------------------------
+
+-- Asks the server for the nearest available node. Returns true when a request went out.
+local function tryCollectNearest(): boolean
+	if collecting then
+		return false
+	end
+	local part = NodeRenderer.Nearest(Config.MaterialInteractDistance)
+	if not part then
+		return false
+	end
+	local nodeId = NodeRenderer.NodeIdOf(part)
+	if not nodeId then
+		return false
+	end
+	collecting = true
+	task.spawn(function()
+		local ok, reason = collectMaterial:InvokeServer(nodeId)
+		collecting = false
+		if ok == true then
+			return -- the server's MaterialCollected push shows the toast
+		end
+		if reason == "Taken" then
+			Toast.Show(Strings.TOAST_NODE_EMPTY, Theme.Colors.Close)
+		else
+			print(("[%s] collect refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+	return true
+end
+
+-- Ship --------------------------------------------------------------------
+
+local function refreshShip()
+	if not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	Hud.SetShip(Economy.shipPercent(profile, profile.world.current, State.Now()))
+end
+
+local function shipComplete(): boolean
+	local profile = State.Get()
+	return Economy.activeModuleIndex(profile, profile.world.current) == nil
+end
+
+-- Contextual action ---------------------------------------------------------
+
+-- One verb at a time, nearest thing first: a wild alien in reach, then a material node, then the ship.
+local function decideAction(): Action?
+	if modalOpen() or not State.Has() then
+		return nil
+	end
+	if WildRenderer.Nearest(Config.CaptureInteractDistance) then
+		return "Catch"
+	end
+	if NodeRenderer.Nearest(Config.MaterialInteractDistance) then
+		return "Collect"
+	end
+	if CampRenderer.DistanceToShip() <= Config.CampInteractDistance then
+		return if shipComplete() then "Launch" else "Build"
+	end
+	return nil
+end
+
+local function performAction()
+	local action = currentAction
+	if action == "Catch" then
+		tryCatchNearest()
+	elseif action == "Collect" then
+		tryCollectNearest()
+	elseif action == "Build" then
+		ShipScreen.Open()
+	elseif action == "Launch" then
+		-- Launching arrives with World 2; the complete ship is the milestone for now.
+		Toast.Show(Strings.SHIP_COMPLETE, Theme.Colors.Featured)
+	end
+end
+
+-- Server pushes that only need a toast ----------------------------------------
+-- Each wait runs in its own thread so a remote the server has not created yet never blocks the boot.
+
+local function connectToasts()
+	task.spawn(function()
+		Net.event("MaterialCollected").OnClientEvent:Connect(function(material: string, count: number)
+			Toast.Show(Strings.TOAST_MATERIAL:format(count, Builder.text("MATERIAL_" .. material)), Theme.Colors.Featured)
+		end)
+	end)
+	task.spawn(function()
+		Net.event("ModuleCompleted").OnClientEvent:Connect(function(_worldId: number, moduleId: string)
+			Toast.Show(Strings.TOAST_MODULE_DONE:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
+		end)
+	end)
+	-- The offline settlement is claimed rather than pushed, so it is never missed on a slow boot.
+	task.spawn(function()
+		local raw = Net.func("ClaimOfflineSummary"):InvokeServer()
+		local summary = raw :: Types.OfflineSummary?
+		if not summary then
+			return
+		end
+		Toast.Show(Strings.OFFLINE_TITLE, Theme.Colors.Featured)
+		if summary.scrap > 0 then
+			Toast.Show(Strings.OFFLINE_BODY:format(Builder.formatNumber(summary.scrap)), Theme.Colors.Featured)
+		end
+		for _, moduleId in ipairs(summary.completedModules) do
+			Toast.Show(Strings.OFFLINE_MODULES:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
+		end
+	end)
+end
+
 -- Boot ---------------------------------------------------------------------
 
 local function start(profile: Types.Profile)
@@ -135,10 +273,19 @@ local function start(profile: Types.Profile)
 	end
 	started = true
 
+	State.Set(profile)
+	State.Start()
+
 	Hud.Build()
 	Hud.SetScrap(profile.scrap)
-	Hud.OnAction(function()
-		tryCatchNearest()
+	Hud.SetShipTicks(Economy.milestones(profile.world.current))
+	Hud.SetRate(State.GetRate().ratePerSecond)
+	refreshShip()
+	Hud.OnAction(performAction)
+	Hud.OnShipTapped(function()
+		if not inCapture and not Reveal.IsOpen() then
+			ShipScreen.Toggle()
+		end
 	end)
 
 	local known: { [string]: boolean } = {}
@@ -148,10 +295,18 @@ local function start(profile: Types.Profile)
 		end
 	end
 	WildRenderer.Start(known)
+	CampRenderer.Start()
+	NodeRenderer.Start()
 
-	Net.event("ScrapChanged").OnClientEvent:Connect(function(scrap: number)
-		Hud.SetScrap(scrap)
+	State.OnChanged("scrap", function()
+		Hud.SetScrap(State.Get().scrap)
 	end)
+	State.OnChanged("rate", function()
+		Hud.SetRate(State.GetRate().ratePerSecond)
+		refreshShip()
+	end)
+	State.OnChanged("modules", refreshShip)
+
 	Net.event("ClockChanged").OnClientEvent:Connect(function(state: Types.ClockState)
 		Hud.SetClock(state)
 	end)
@@ -161,27 +316,31 @@ local function start(profile: Types.Profile)
 			Hud.SetClock(state)
 		end
 	end)
+	connectToasts()
 
-	-- Contextual button: Catch! while a wild alien is in reach and nothing modal is up.
-	local accumulator = 0
+	-- Contextual button and ship bar polls.
+	local actionAccumulator = 0
+	local shipAccumulator = 0
 	RunService.Heartbeat:Connect(function(dt: number)
-		accumulator += dt
-		if accumulator < 0.1 then
+		actionAccumulator += dt
+		shipAccumulator += dt
+		if shipAccumulator >= SHIP_POLL_SECONDS then
+			shipAccumulator = 0
+			refreshShip()
+		end
+		if actionAccumulator < ACTION_POLL_SECONDS then
 			return
 		end
-		accumulator = 0
-		if inCapture or Reveal.IsOpen() then
-			Hud.SetAction(nil)
-			return
-		end
-		local part = WildRenderer.Nearest(Config.CaptureInteractDistance)
-		Hud.SetAction(if part then Strings.ACTION_CATCH else nil)
+		actionAccumulator = 0
+		local action: Action? = decideAction() -- annotated: the checker widens singleton unions otherwise
+		currentAction = action
+		Hud.SetAction(if action then ACTION_TEXT[action] else nil)
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).
 	-- Sunk only when a catch starts, so Space still jumps when nothing is in reach.
 	ContextActionService:BindAction("StartCapture", function(_name: string, state: Enum.UserInputState, _input: InputObject)
-		if state == Enum.UserInputState.Begin and not inCapture and not Reveal.IsOpen() then
+		if state == Enum.UserInputState.Begin and not modalOpen() then
 			if tryCatchNearest() then
 				return Enum.ContextActionResult.Sink
 			end
@@ -191,7 +350,7 @@ local function start(profile: Types.Profile)
 
 	-- Tapping or clicking an alien itself also starts a catch when it is in reach.
 	UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
-		if gameProcessed or inCapture or Reveal.IsOpen() then
+		if gameProcessed or modalOpen() then
 			return
 		end
 		local kind = input.UserInputType

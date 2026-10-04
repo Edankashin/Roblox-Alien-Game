@@ -235,7 +235,8 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	face.TextScaled = true
 	face.ZIndex = (props.zIndex or 1) + 1
 	Builder.corner(face, Theme.Corner.Button)
-	Builder.stroke(face, Theme.Stroke.Button, lipColor)
+	local border = Builder.stroke(face, Theme.Stroke.Button, lipColor)
+	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border -- Builder.stroke picks Contextual for text objects
 	Builder.gradient(face, props.color)
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min

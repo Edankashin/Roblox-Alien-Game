@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local Economy = require(Shared:WaitForChild("Economy"))
 
 local State = {}
 
@@ -18,6 +19,7 @@ export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "p
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
+local ratePushed = false -- until the server's first RateChanged, the rate is derived from the profile
 local changed = Instance.new("BindableEvent")
 local started = false
 
@@ -27,6 +29,10 @@ end
 
 function State.Set(p: Types.Profile)
 	profile = p
+	if not ratePushed then
+		-- A client that booted after the server's pushes still shows the right rate: same shared maths.
+		rate = Economy.campState(p)
+	end
 	fire("profile")
 end
 
@@ -100,6 +106,7 @@ function State.Start()
 	task.spawn(function()
 		Net.event("RateChanged").OnClientEvent:Connect(function(state: Types.CampState)
 			rate = state
+			ratePushed = true
 			fire("rate")
 		end)
 	end)

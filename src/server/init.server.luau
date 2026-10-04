@@ -1,14 +1,15 @@
 --!strict
 -- Server bootstrap. Loads every service under Services, calls Init on all, then Start on all.
 -- Order matters for a few: PlayerData must come first so other services can read profiles;
--- WorldClock before Spawner (conditions), Meadow before Spawner (floor), Spawner before Catching.
+-- WorldClock before Spawner (conditions), Meadow before Materials and Spawner (floor), Economy
+-- before Catching (a catch seats the alien), Economy after PlayerData (it listens for loads).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "WorldClock", "Meadow", "Spawner", "Catching" }
+local ORDER = { "PlayerData", "WorldClock", "Meadow", "Materials", "Spawner", "Economy", "Catching" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

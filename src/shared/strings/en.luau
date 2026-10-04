@@ -108,4 +108,7 @@ return {
 	BIOME_Meadow = "Meadow",
 	BIOME_Forest = "Forest",
 	BIOME_Cave = "Cave",
+	-- shared UI glyphs and number formats
+	UI_CLOSE = "X",
+	UI_PERCENT = "%d%%",
 }

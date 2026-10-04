@@ -17,6 +17,7 @@ local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
+local Economy = require(script.Parent.Economy)
 
 local Catching = {}
 
@@ -122,14 +123,16 @@ local function overlayRank(overlay: Types.Overlay): number
 	return table.find(Overlays.Order, overlay) or 0
 end
 
--- Write the catch into the profile. Returns isNew and the Scrap paid.
-local function recordCatch(player: Player, encounter: Encounter, overlay: Types.Overlay, perfect: boolean): (boolean, number, number)
+-- Write the catch into the profile. Returns isNew, the Scrap paid, the Scrap total and the new alien's uid.
+local function recordCatch(player: Player, encounter: Encounter, overlay: Types.Overlay, perfect: boolean): (boolean, number, number, string)
 	local isNew = false
 	local scrapGained = 0
 	local scrapNow = 0
+	local newUid = ""
 	local caughtAt = os.time()
 	PlayerData.Update(player, function(profile)
 		local uid = HttpService:GenerateGUID(false)
+		newUid = uid
 		local record: Types.AlienRecord = {
 			uid = uid,
 			species = encounter.species,
@@ -161,7 +164,7 @@ local function recordCatch(player: Player, encounter: Encounter, overlay: Types.
 		end
 		scrapNow = profile.scrap
 	end)
-	return isNew, scrapGained, scrapNow
+	return isNew, scrapGained, scrapNow, newUid
 end
 
 -- Remotes ----------------------------------------------------------------
@@ -289,10 +292,11 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			local tier: Types.Tier = spawn.tier
 			Spawner.RemoveSpawn(encounter.spawnId, "caught")
 			endEncounter(player.UserId)
-			local isNew, scrapGained, scrapNow = recordCatch(player, encounter, overlay, perfect)
+			local isNew, scrapGained, scrapNow, uid = recordCatch(player, encounter, overlay, perfect)
 			if scrapGained > 0 then
 				Net.event("ScrapChanged"):FireClient(player, scrapNow)
 			end
+			Economy.OnCaught(player, uid)
 			return {
 				outcome = "Caught",
 				hit = hit,
