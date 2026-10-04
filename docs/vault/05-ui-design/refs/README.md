@@ -26,3 +26,14 @@ Cropped from the reference videos (`media/tiktok/NOTES.md`). Two UI "dialects" a
 Thick-outlined cartoon icons with a single bold colour each: red shop bag, blue book for the index, striped ball for rebirth, gift box, egg, four-leaf clover for luck, cash stack, blue sneaker for speed. One pack, one style, never mixed with emoji.
 
 Add our own screens here as they are built, named by what they show.
+
+## Pastel dialect (upcoming dinosaur ranch game, batch 3, `ZPL8MtkYu`)
+Not our base dialect, but several components are worth copying. Frames at 540 px.
+| File | Shows |
+|---|---|
+| `dino-event-banner.jpg` | Top centre event banner: dark pill, lightning icon, "THUNDERSTORM" with "3:39 left" under it, a green "1.5x LUCK" chip on the right; compass strip above it with cardinal letters, a heading number pill and coloured diamond waypoint markers; a 4-slot round hotbar bottom centre; "PERFECT THROW!" feedback text |
+| `dino-nameplates.jpg` | Creature nameplate: species name, life stage tag (ADULT), weight in kg, a mutation tag (NORMAL), a belly bar; event banner with 0:19 left |
+| `dino-codex-entry.jpg` | Codex entry: top tabs (Fossils, Shop, Map), a 3D rotatable model on a round pedestal ("Drag to rotate"), IDLE / MOVE animation toggle, rarity tag, habitat and "found by" panels on the right, vertical colour tabs on the left |
+| `dino-codex-unknown.jpg` | The same entry for an uncaught species: black silhouette with "?", name "???", purple (Epic) backdrop, a hint line on how to find it |
+| `dino-dig-markers.jpg` | Floating "✦ DIG" verb markers over resource spots, readable from far away; the ground is a tiled grid so placeholder geometry reads as intentional |
+| `dino-fishing-hook.jpg` | Fishing minigame: "HOOKED 2/3" at the top, the hook descends a water column past labelled fish; steer with A/D or mouse, click to reel |

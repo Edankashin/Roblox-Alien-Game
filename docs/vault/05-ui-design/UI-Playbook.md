@@ -57,6 +57,11 @@ The look, written to the level Claude can build from. Hex values here are the st
 - Toasts top centre, slide down with a small bounce, icon left, gone in 2.5 s, at most three stacked.
 - Reveal: backdrop dims 60%, scale in with Back ease, radial burst behind, tier name in its colour, confetti for Epic and above, "Tap anywhere".
 
+## Event banner and compass (reference: `refs/dino-event-banner.jpg`)
+- Event banner: top centre under the compass strip, a dark navy pill with the outline colour, aspect about 5:1. Event icon in a rounded square on the left, event name in bold white outlined text with the time left ("3:39 left") in smaller text beneath it, and a green (`#51DF51`) pill chip on the right reading "1.5x LUCK" whenever the event changes luck. Same slot for the Meteor Shower countdown and weather events; never more than one banner.
+- Compass strip: a thin band along the top edge with cardinal letters in white outlined text, tick marks between them, the heading number in a small dark pill at the centre, and coloured diamond markers for the camp, the quest target, the Peddler and any live event. Under it, the nearest waypoint as "Camp 42m".
+- Verb markers: floating "✦ Collect" labels over nodes, white outlined text with a small glyph, visible from far away; the noun appears within nameplate distance.
+
 ## Featured banner
 - Full width, aspect about 2.6:1, illustrated background themed to the item, darkened, timer and odds visible.
 

@@ -174,3 +174,35 @@ Bonus: watch Tizzy_RBLX.
 **Shown, in order:** a Times Square cover; a three-monitor setup (a 3D generator with a rigged orange character, Studio with a forest camp, VS Code with Claude) captioned "Connect VS Code w/ claude or codex to roblox studio"; "Gemini for icons and 3D model references" over a finished wood-and-parchment "Casebook" UI (patient card, assessment checklist, recipe materials with three item icons); "3daistudio > meshi.ai, better control over target polygon counts" over three rigged cylinder characters with bandages standing in Studio; two pages of a Meshy library (GLB models tagged ANIM and RIG, "Meshy Rigging", "Prism 3.1", an animated suit-wearing rat, decorative keys, a chest); "Befriend a roblox dev" (creator of "Ball Drop Game"); a Before shot of placeholder blocks (a plank jeep, a casket, a text-only HUD, errors in Output, place named "medical brainrot"); an After shot of a stylized ambulance jeep with lanterns at "Night 10" with a glowing tree monster boss, "Game dropping this week".
 
 **Lessons:** the pipeline a beginner used was exactly ours (Rojo-style editor link, Claude or Codex, Studio) plus three asset tools: an image model for icons and model reference sheets, 3D AI Studio for meshes with a polygon budget, and Meshy for rigged and animated GLBs. The before/after is the clearest argument in any of the ten references that placeholder blocks must be replaced by stylized assets before launch.
+
+# Batch 3: a pre-release competitor worth copying from
+
+## ZPL8MtkYu: "this might be better than Steal an Egg" (humblesuperior.s)
+
+A 41-second creator preview of an unnamed dinosaur ranch game, posted the day before its release. 465.8K views and 38.9K likes before the game existed, with a Discord link in the caption. Watched from contact sheets and a Whisper transcript; frames saved under `media/tiktok/out/ZPL8MtkYu/` and six crops in `docs/vault/05-ui-design/refs/dino-*.jpg`.
+
+**What the game is.** Dig fossils at marked spots, hatch the egg in an incubator, raise the dinosaur from baby to elder "taking up your whole ranch", ride the ones you raised, fish for money and dinosaur food, and chase map-wide live events. "Over five maps, each in a different time period", "hundreds of dinosaurs with unique models and traits". Voxel-brick art: every surface, including the ground, is a tiled brick grid, so even simple geometry looks deliberate.
+
+**Timeline.**
+- 0 to 2 s: rowing a wooden boat; a huge sea dinosaur breaches beside it. Spectacle as an event.
+- 3 to 7 s: desert and meadow with floating "✦ DIG" markers over resource spots; a 4-slot round hotbar bottom centre (shovel, rod, two eggs).
+- 8 to 9 s: night, meteor streaks over ruins, big dinosaurs roaming.
+- 10 to 12 s: "THUNDERSTORM 3:39 left · 1.5x LUCK" banner, rain. Fishing: "PERFECT THROW!" on the cast, then an underwater view where the hook sinks past labelled fish (Coelacanth, Pufferfish, Sardine, Mackerel) with "HOOKED 2/3" at the top; steer with A/D or mouse, click to reel.
+- 13 to 17 s: more biomes (red desert, pine forest), the boat at night, a sky shot.
+- 18 to 22 s: the incubator: a brick egg under a lamp dome, close-ups as it cracks.
+- 23 to 26 s: nameplates on grown dinosaurs: name, ADULT, weight in kg (17,857 kg), a NORMAL mutation tag, a belly bar.
+- 27 to 32 s: riding a dinosaur across the ranch; a "Your Ranch 42m" waypoint under the compass strip.
+- 33 to 36 s: codex ("Fossils" tab): a 3D rotatable model on a pedestal, IDLE / MOVE toggle, rarity tag, habitat and found-by panels; an uncaught Epic shown as a black "?" silhouette named "???" with a hint on how to find it.
+- 37 to 40 s: hub with physical stalls: SHOVELS, RANCH 1, DNA LAB.
+
+**What we take (added to the plan, none of it changes the current milestone).**
+1. Size rolls and growth stages (P1): every catch rolls a size shown on the nameplate, and a working alien grows Hatchling to Grown to Elder by time worked, with no feeding. Cheap variance that keeps duplicates interesting; growth without upkeep keeps our "no hunger" rule.
+2. Compass strip with waypoint distance (P1): cardinal letters, a heading number, coloured markers for camp, quest target, Peddler and event, plus a "Camp 42m" label. Better on a phone than a minimap.
+3. Verb markers over nodes: our key-material nodes get a floating "Collect" marker with a glyph visible from far away; the material name appears up close.
+4. Event banner anatomy: dark pill, icon, name, time left, green luck chip. Written into the UI Playbook; our Meteor Shower and weather events use it.
+5. Warden sightings: the Warden crosses the map on a timer as an uncatchable spectacle before the Field Notes finale, the way the sea dinosaur breaches by the boat.
+6. Codex entry layout: 3D rotatable viewport, Idle / Move toggle, rarity tag, "Found: Meadow, Rain" line, a hint for uncaught entries drawn as a black "?" silhouette on the rarity colour.
+7. Launch marketing: a Discord before launch, a release date announced in advance, and one creator teaser framed against the current number one. The teaser alone reached 466K views.
+8. Placeholder look: a tiled grid material on our placeholder floor and pads so grey-box builds read as a style rather than a gap.
+
+**What we skip.** Hunger (the belly bar) is upkeep and against pillar 3. Breeding and the DNA lab are already decided out. The fishing minigame is a second core mechanic; our timing bar stays the one catch verb, and a steer-the-hook variant is parked as a P2 idea for the Tidepool world.

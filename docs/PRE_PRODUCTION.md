@@ -198,6 +198,8 @@ Exit criteria: three people outside the team play it cold, finish the tutorial w
 - Genre set correctly in the experience settings so the new genre sorts can place it.
 - A short list of mid-size Roblox creators who cover sim and pet games, contacted with a private-server link two weeks before launch.
 - Sponsored ads only after D1 is above 20%, because paid traffic drags down the engagement signals discovery uses.
+- A Discord server before launch, linked from every teaser, so the pre-launch audience has somewhere to land. The dinosaur-ranch teaser in `media/tiktok/NOTES.md` batch 3 reached 466K views and 39K likes the day before release with nothing but a Discord link and a release date.
+- A release date announced in advance and one creator teaser cut from real gameplay, framed against the current number one ("this might be better than Steal an Egg"). Spectacle beats (a Warden sighting, a Meteor Shower, a ship launch) are what the teaser needs, so they are built before the trailer is cut.
 
 ---
 
