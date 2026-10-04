@@ -35,20 +35,20 @@ From `GAME_DESIGN.md` section 19, plus a few the build needs. Each needs a one-l
 
 | # | Decision | Recommendation | Needed by |
 |---|---|---|---|
-| 1 | Game name | pick one of the placeholders or a new one | Day 1 (place name, strings) |
-| 2 | Art style | smooth low-poly | Before any modeling |
-| 3 | Number of jobs at launch | 4 | Day 1 (data tables) |
-| 4 | Companions following the player | yes, 3 slots | Day 1 |
-| 5 | Splicing consumes parents | no | P1 |
-| 6 | Theft or borrow | borrow only | P2 |
-| 7 | World order | Verdant, Frostbyte, Neon Grid | P1 |
-| 8 | Event rerun policy | annual Vault Reopening | P1 |
-| 9 | Permanent personal luck pass | not at launch | Launch |
-| 10 | Mounts use a companion slot | yes | P1 |
-| 11 | Scrap for Robux | never | Day 1 (shop data) |
-| 12 | UI font | Fredoka One | Day 1 (theme module) |
-| 13 | UI palette (six colors) | pick hex values, or accept a default set in the theme module | Day 1 |
-| 14 | Icon pack | pick one on the Creator Store | First UI pass |
+| 1 | Game name | Undecided; working title AlienGame in code | Day 1 (place name, strings) |
+| 2 | Art style | Answered: smooth low-poly | Before any modeling |
+| 3 | Number of jobs at launch | Answered: 3 (Gather, Build, Spark) | Day 1 (data tables) |
+| 4 | Companions following the player | Answered: yes, 3 slots | Day 1 |
+| 5 | Splicing | Answered: none; Secrets come from codex Sets | P1 |
+| 6 | Theft or borrow | Answered: borrow only; raid parked | P2 |
+| 7 | World order | Answered: Verdant, Frostbyte, Neon Grid | P1 |
+| 8 | Event rerun policy | Answered: monthly Vault Rotation plus annual reopening | P1 |
+| 9 | Permanent personal luck pass | Answered: not at launch | Launch |
+| 10 | Mounts use a companion slot | Answered: yes | P1 |
+| 11 | Scrap for Robux | Answered: never | Day 1 (shop data) |
+| 12 | UI font | Answered: Fredoka One | Day 1 (theme module) |
+| 13 | UI palette (six colors) | Answered: stud dialect, playbook values | Day 1 |
+| 14 | Icon pack | Answered: placeholders until chosen | First UI pass |
 | 15 | Who owns the Roblox group and the experience | Answered: co-owned by both team members | Day 1 |
 
 Answers so far are logged in `docs/vault/07-alien-game/Decisions.md`.
@@ -66,10 +66,10 @@ The tutorial decides D1 and it is not scripted yet. It needs a step list with: t
 | Step | Time | Beat | Unlock |
 |---|---|---|---|
 | 1 | 0:00 | Crash landing cinematic, 8 seconds, skippable after the first time | |
-| 2 | 0:10 | "Drag 3 wreck plates to the frame." Player hauls by hand. Ship bar appears at the first plate | Ship bar |
+| 2 | 0:10 | "Drag 3 wreck plates to the frame." Player gathers by hand. Ship bar appears at the first plate | Ship bar |
 | 3 | 1:00 | Mossbop waddles up, "!" bubble. First capture, zone 40% wide, cannot fail (ticker slows near the zone) | Capture bar, codex |
-| 4 | 1:30 | Mossbop auto-walks to the Haul station and takes over hauling. Timer visibly drops | Stations |
-| 5 | 2:00 | "Weld a panel." Player holds a button. Puffpuff appears, same ritual, takes over welding | Second job |
+| 4 | 1:30 | Mossbop auto-walks to the Gather station and takes over gathering. Timer visibly drops | Stations |
+| 5 | 2:00 | "Build a panel." Player holds a button. Puffpuff appears, same ritual, takes over building | Second job |
 | 6 | 3:00 | Scrap counter appears with "+" text. First module hits 50%. "Catch 3 more aliens while they work" | Scrap |
 | 7 | 3:30 to 6:30 | Free catching in the Meadow with the Nearby panel on. A Rare (Sparkfox) is guaranteed to spawn once in this window | Nearby panel |
 | 8 | 7:00 | Module 1 completes. Camera pan, part snaps, bass hit. Field Notes step 1 appears with Speed Boots as the reward | Quests, gear |
@@ -133,7 +133,7 @@ Profile = {
   version = 1,
   scrap = 0,
   aliens = { [uid] = { species, level, overlay, caughtAt, slot } },
-  stations = { Mine = { slots = 1, assigned = { uid } }, ... },
+  stations = { Gather = { slots = 1, assigned = { uid } }, Build = {...}, Spark = {...} },
   modules = { [worldId] = { [1] = { scrapPaid, keyPaid, progress, completedAt } } },
   world = { current = 1, unlocked = { 1 }, outposts = { [worldId] = { level, lastCollect } } },
   codex = { [speciesId] = { count, bestOverlay, firstCaughtAt } },
@@ -164,7 +164,7 @@ Prove the loop is fun before building the roster. Scope:
 - Meadow biome only, with day and night.
 - 6 species: Mossbop, Pebblet, Puffpuff, Buzzlebee, Sparkfox, Thunderhog (Common, Common, Common, Uncommon, Rare, Epic).
 - Capture bar with tier difficulty, lures tier 1, hidden kindness.
-- Two jobs (Haul, Weld), one station each, auto-assign.
+- Two jobs (Gather, Build), one station each, auto-assign. Spark arrives with module 2.
 - Two modules with all three gates, the ship bar, the assembling ship.
 - Scrap, offline accrual, offline assembly.
 - Codex with first-catch payouts and shadow silhouettes.

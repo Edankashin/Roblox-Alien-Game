@@ -12,7 +12,7 @@
 2. **Aliens everywhere, secrets hidden.** Like Pokémon GO: the world is never empty, commons are a tap away, and rares live behind biome, time, weather, and skill.
 3. **Playable with one thumb while eating.** No fail state that loses progress. No upkeep. Auto-assign by default. Idle income and assembly continue offline. Every tap does something.
 4. **Dopamine at every step.** Every action has a feedback beat within two seconds, every session has a reward beat in the first ten seconds, and every world ends in a climax.
-5. **Nothing you did is wasted.** Old worlds become outposts, old aliens become splicing parents, the codex never resets.
+5. **Nothing you did is wasted.** Old worlds become outposts, every alien stays in the codex forever, Sets reward the whole collection.
 
 The plot stays one sentence: *catch aliens, build the ship, reach the next world.* Depth lives in the aliens, not the story.
 
@@ -43,8 +43,8 @@ The plot stays one sentence: *catch aliens, build the ship, reach the next world
 1. Five modules, each with three gates (Scrap, key material, assembly time).
 2. The Field Notes quest chain leads to the world's Warden, a Legendary with a three-round capture.
 3. Launch cinematic. The camp becomes an Outpost. The ship and roster fly to the next world.
-4. The home planet grows (house, habitats, trophy ship, splicing lab).
-5. Codex pages fill; secrets unlock through quests and splicing.
+4. The home planet grows (house, habitats, trophy ship).
+5. Codex pages fill; secrets unlock through quests and completed Sets.
 
 ### Dopamine map
 
@@ -108,7 +108,7 @@ World pacing target: World 1 takes 2 to 3 hours of play across 2 to 3 days. Worl
 
 Every alien is a **worker** and a **companion**.
 
-- **Worker:** has one or two jobs at a level. At a station it produces Scrap; in a module slot it assembles. Four jobs at launch: Mine, Haul, Weld, Wire. Auto-assign puts every new catch in its best open slot. A single "Optimize" button re-sorts the camp. Manual placement exists for players who want it.
+- **Worker:** has one or two jobs at a level. At a station it produces Scrap; in a module slot it assembles. Three jobs at launch, named to feel like play rather than a factory: Gather (collect materials), Build (assemble), Spark (power things up). Auto-assign puts every new catch in its best open slot. A single "Optimize" button re-sorts the camp. Manual placement exists for players who want it.
 - **Companion:** up to three aliens follow the player (Pet Simulator pattern) and each gives one small perk while following: slower timing ticker, wider zone, longer radar range, more Scrap from catches, higher luck. Companions are how aliens matter during exploration, not only at camp.
 
 No hunger, no happiness, no upkeep. Aliens never leave, never die, never need feeding.
@@ -128,11 +128,11 @@ Overlays roll on any body, one per alien, multiplicative: Shiny 1.25x (~5%), Gol
 
 ### Why commons never become trash
 
-- **Slots:** each station starts with one slot and grows to three. Three Common welders beat an empty slot. A full slot always beats an empty one.
+- **Slots:** each station starts with one slot and grows to three. Three Common builders beat an empty slot. A full slot always beats an empty one.
 - **Fusion:** four duplicates of a species fuse into +1 level on one copy (max +2). Surplus always has a destination.
 - **Codex payout:** the first catch of any species pays Scrap and a decoration. A late Common is worthless as a unit but valuable as an entry.
-- **Haul is commons-only:** one job is held only by Common and Uncommon species, so the camp cannot run without them.
-- **Splicing parents:** secrets require specific commons from specific worlds (section 9).
+- **Gather is commons-only:** one job is held only by Common and Uncommon species, so the camp cannot run without them.
+- **Sets need them:** every Set in the codex includes commons, so a Set reward is impossible without them (section 9).
 
 ### How value is shown
 
@@ -144,21 +144,21 @@ Naming rule: each alien is an alien-plus-object or alien-plus-tool hybrid descri
 
 | Name | Concept (3 words) | Tier | Job | Where / when |
 |---|---|---|---|---|
-| Mossbop | moss ball, eyes | Common | Haul | Meadow, any |
-| Pebblet | pebble with legs | Common | Mine | Cave mouth, any |
-| Glimmo | jelly firefly | Common | Wire | Forest, any |
-| Twiglet | stick bug, leaf hat | Common | Haul | Forest, any |
-| Puffpuff | dandelion puff, face | Common | Weld | Meadow, any |
-| Snailbyte | snail, metal shell | Uncommon | Mine | Cave, any |
-| Buzzlebee | bee, tiny backpack | Uncommon | Haul | Meadow, day |
-| Lanternewt | newt, glowing tail | Uncommon | Wire | Forest, night |
-| Rocklobber | crab, boulder claws | Rare | Mine L3 | Cave, any |
-| Zapfinch | bird, antenna crest | Rare | Wire L3 | Forest, any |
-| Sparkfox | fox, welding-torch tail | Rare | Weld L3 | Meadow, any |
-| Thunderhog | hedgehog, lightning quills | Epic | Wire/Weld | Meadow, Rain only |
-| Gloomoth | moth, crystal wings | Epic | Mine/Wire | Cave, night only |
+| Mossbop | moss ball, eyes | Common | Gather | Meadow, any |
+| Pebblet | pebble with legs | Common | Gather | Cave mouth, any |
+| Glimmo | jelly firefly | Common | Spark | Forest, any |
+| Twiglet | stick bug, leaf hat | Common | Gather | Forest, any |
+| Puffpuff | dandelion puff, face | Common | Build | Meadow, any |
+| Snailbyte | snail, metal shell | Uncommon | Gather | Cave, any |
+| Buzzlebee | bee, tiny backpack | Uncommon | Gather | Meadow, day |
+| Lanternewt | newt, glowing tail | Uncommon | Spark | Forest, night |
+| Rocklobber | crab, boulder claws | Rare | Gather L3 | Cave, any |
+| Zapfinch | bird, antenna crest | Rare | Spark L3 | Forest, any |
+| Sparkfox | fox, glowing paintbrush tail | Rare | Build L3 | Meadow, any |
+| Thunderhog | hedgehog, lightning quills | Epic | Spark/Build | Meadow, Rain only |
+| Gloomoth | moth, crystal wings | Epic | Gather/Spark | Cave, night only |
 | Gaiabloom (Verdant Warden) | stag, tree antlers, flowers bloom where it steps; echo of Gaia | Legendary | all | Field Notes finale |
-| ??? (splice secret) | hint: "the goat-flute of the meadows" (Pan); recipe: Twiglet + Puffpuff | Secret | all | Splicing lab |
+| Panpipe (secret) | goat, reed pipes; echo of Pan | Secret | all | Unlocked by completing the Verdant codex page |
 
 ### The Pantheon: ancient beings as the epic end of the ladder
 
@@ -170,7 +170,7 @@ Three bands use it:
 |---|---|---|---|
 | **Wardens** | Legendary, one per world | A god or spirit matching the world's theme | The world's finale catch and ship pilot (section 3) |
 | **Star-born** | Cosmic, Meteor Shower only | Primordial and cosmic beings: sun, sky, time, world-serpents | The rarest wild finds; "fallen from the old sky" |
-| **Chimeras** | Secret, splicing only | Mythic hybrids: griffin, pegasus, chimera, hydra, cerberus | The reward for the right combination of aliens (section 9) |
+| **Chimeras** | Secret, Set rewards only | Mythic hybrids: griffin, pegasus, chimera, hydra, cerberus | The reward for completing a Set in the codex (section 9) |
 
 Proposed Wardens and Star-born (placeholders; the pun is the point):
 
@@ -184,14 +184,14 @@ Proposed Wardens and Star-born (placeholders; the pun is the point):
 | Dreamdrift | Morpheep | Morpheus, Greek dreams | a sheep that floats | Kronosnail | Kronos, Greek time; a snail with a clock shell |
 | Void Hub | Nyxling | Nyx, Greek night | star-speckled | Sphinxie | the Sphinx; a cat that asks riddles |
 
-Chimera recipes for the Splicing Lab, written as codex riddles: Pegasus from a horse alien and a bird alien ("wings for the one who gallops"), Griffin from eagle and lion ("the king of beasts meets the king of birds"), Cerberus from three Vulcanine duplicates fused then spliced with a Common Haul alien ("three heads to guard one door"), Hydra from a serpent chain spliced twice ("cut one, two grow back"), Minotaur from a bull and a maze-themed Neon Grid alien. Each Chimera is all-jobs, has a unique silhouette, and is never sold.
+Chimeras are Set rewards: complete the Greek Set and a quest leads to Pegasus; the Norse Set to Fenrir's cub; the Egyptian Set to the Sphinx; the Myth Beasts Set to Cerberus. Each Chimera is all-jobs, has a unique silhouette, and is never sold.
 
 Rules for the Pantheon:
 
 - **Public domain only.** Greek, Roman, Norse, Egyptian, Mesopotamian, Aztec and Maya, and Celtic figures are free to use. The designs must be original: no Marvel Thor, no Disney Hercules or Maui, no God of War Kratos, no Percy Jackson art. The name pun and one attribute carry the reference; the body is this game's.
 - **Ancient pantheons, not living religions.** Avoid deities and sacred figures from religions with large living communities (Hindu, Buddhist, Shinto, Abrahamic). Roblox's Community Standards prohibit content that mocks religion, and the audience is children. Treat the figures used with affection: they are "echoes" the aliens carry, not the gods themselves.
 - **Keep the body cute.** The god attribute is one accessory or one silhouette add. Everything else follows the common-tier recipe (round body, big eyes, short limbs). A pompous god voice line in a squeaky little body is the joke and the charm.
-- **Ruins as landmarks.** Each world has one ruined shrine to its Warden, a hidden spot with glyphs that hint at that world's splice recipes. The Field Notes finale happens at the shrine. This gives every world a landmark worth filming and a reason to read the codex.
+- **Ruins as landmarks.** Each world has one ruined shrine to its Warden, a hidden spot with glyphs that hint at the world's other hidden spots and its Set rewards. The Field Notes finale happens at the shrine. This gives every world a landmark worth filming and a reason to read the codex.
 
 ---
 
@@ -276,7 +276,7 @@ No radar tier is Robux-only. The Mk1 early unlock is deterministic and the same 
 
 Luck is one visible number, "Luck x1.0," under the ship bar. Tapping it shows the exact tier odds with current luck applied, which is both a dopamine readout and the disclosure Roblox requires for any paid modifier.
 
-**What luck affects.** Wild aliens spawn around players, and the server rolls each spawn's tier using the **highest luck among the players nearby**. That makes luck social: standing next to a lucky friend makes your spawns better, which is Steal a Brainrot's shared server luck turned into a reason to explore together. Luck also raises the overlay roll on your own catches and improves Peddler stock quality. It never touches the spin wheel or splicing, whose odds stay fixed and published.
+**What luck affects.** Wild aliens spawn around players, and the server rolls each spawn's tier using the **highest luck among the players nearby**. That makes luck social: standing next to a lucky friend makes your spawns better, which is Steal a Brainrot's shared server luck turned into a reason to explore together. Luck also raises the overlay roll on your own catches and improves Peddler stock quality. It never touches the spin wheel, whose odds stay fixed and published.
 
 **How it scales.** Each tier's share above Common is multiplied by Luck and Common absorbs the difference. At 4x luck, Legendary goes from 1.5% to 6% and Epic from 6% to 24%. Total luck is capped at 8x, the same ceiling Steal a Brainrot's stacked server luck reaches.
 
@@ -344,7 +344,7 @@ Each world is a separate Roblox place in one universe, handcrafted, with three b
 |---|---|---|---|---|---|
 | 1 | Verdant Crash Site | Meadow, Forest, Cave | Day/night, Rain | Glowroot, Cave Crystal, Storm Shard, Warden's Core | Gentle tutorial world. Warden: Gaiabloom |
 | 2 | Frostbyte | Snowfield, Ice Cave, Geyser Field | Blizzards hide aliens; place a Heater (Scrap) to reveal them for 60 s | Frost Core, Geyser Pearl | Introduces placing a tool in the world. Warden: Skaddle |
-| 3 | Neon Grid | Rooftops, Server Farm, Undercity | Day is dim; night is neon and busy; Power Surges (weather) spawn Epics; new job: Code | Data Shard, Surge Cell | Adds the 5th job and a 5th station. Warden: Hephaestron |
+| 3 | Neon Grid | Rooftops, Server Farm, Undercity | Day is dim; night is neon and busy; Power Surges (weather) spawn Epics; new job: Tinker | Data Shard, Surge Cell | Adds a 4th job and a 4th station. Warden: Hephaestron |
 | 4 | Emberfall | Lava Fields, Obsidian Caves, Ash Forest | Heat meter: stay near Cooling Vents or return to camp; eruptions are the weather event | Magma Core, Obsidian Lens | First world with a light pressure mechanic. Warden: Vulcanine |
 | 5 | Tidepool | Reef, Kelp Forest, Trench | Swimming and diving; tides as the weather cycle | Pearl Core, Abyss Glass | Warden: Poseidolphin |
 | 6 | Dreamdrift | Candy Cliffs, Cloud Sea, Music Box Hollow | Gravity flips as the weather event | Dream Core | Warden: Morpheep |
@@ -360,13 +360,13 @@ When the player launches, the camp converts into an **Outpost**. Outposts:
 - can be upgraded with Scrap for higher output;
 - are needed because later ships require earlier worlds' materials (World 3's Nav Array needs Frost Cores from World 2 and Glowroot from World 1);
 - host a rotating **daily world quest** ("catch a night alien on Frostbyte") that pays Scrap and spins;
-- are where world-exclusive aliens live, which later splicing recipes need.
+- are where world-exclusive aliens live, which later Sets need.
 
 A **Star Chart** on the ship lets the player fly back to any unlocked world instantly. Returning to World 1 as a veteran with Epics and a wide-zone lure should feel like a victory lap, and the codex should still have something there to find.
 
 ---
 
-## 9. Codex, quests, and splicing (the Dragon City model)
+## 9. Codex, quests, and Sets (the Dragon City index without the breeding)
 
 ### Codex
 
@@ -388,15 +388,14 @@ Each world's Field Notes is written as a short legend the aliens tell about thei
 
 Later worlds add a twist to step 5 (sound the horn during a Blizzard, during a Power Surge).
 
-### Splicing (secret aliens from the right combination)
+### Sets (secret aliens from completing the right group)
 
-The Splicing Lab on the home planet takes two parent aliens and a Scrap fee and, after a timer (4 hours, Dragon City's breeding cadence), produces a new alien. Parents are **not consumed**; players should never lose a creature they love.
+No breeding and no lab. The team decided the game stays a simple, low-maintenance collection loop, so Secrets come from the codex itself.
 
-- Recipes are deterministic (same parents always give the same child), but hidden. The codex drops hints ("a child of frost and circuitry"). Discovery is the puzzle; the overlay roll on the child is the dice.
-- Secrets need parents from different worlds (a World 2 Frostbyte alien plus a World 3 Neon Grid alien), which sends players back to old worlds.
-- Some secrets need a chain: splice A and B, then splice the result with C.
-- The Secrets are the Chimeras of the Pantheon (section 4): Pegasus, Griffin, Cerberus, Hydra, Minotaur and their kin, each a mythic hybrid whose recipe is a riddle on its shrine's glyphs. Mythology is already a book of hybrids, which is why it fits a splicing lab so well.
-- Rushing the timer is a deterministic Robux purchase (allowed; no randomness), but the free timer must feel fine on its own.
+- Every Set is a themed page of silhouettes that cuts across worlds: the Greek Set, the Norse Set, the Egyptian Set, the Myth Beasts Set, plus small flavour Sets (Night Owls, Rain Chasers, Hoverboard Riders).
+- Each Set shows its own completion bar and reward. Milestones at 50% pay Scrap and a cosmetic; 100% unlocks a short quest that ends in a guaranteed Secret encounter.
+- Sets send players back to earlier worlds, because every Set includes commons from more than one planet.
+- Nothing about a Set is random: the player can see exactly which silhouettes are missing and where each one lives.
 
 Secrets are the top of the codex, the long-term goal for collectors, and never sold.
 
@@ -409,7 +408,7 @@ Unlocks on the first launch, as the reward for finishing World 1. It is the play
 - **House (Bloxburg-lite):** modular prefab rooms and furniture on a grid, paid in Scrap. Plot size and furniture caps are the monetized capacity. No free-form building (data size and scope).
 - **Habitats:** themed enclosures per world (a frost habitat, a neon habitat). Displayed aliens roam and produce a little Scrap passively (Dragon City habitats). Habitat count is a capacity upgrade.
 - **Trophy Hangar:** a scaled model of every ship the player has launched, with the Warden pilot in each cockpit.
-- **Splicing Lab, Spin Wheel kiosk, Mailbox** (gifts from friends and events), **Visitor Book.**
+- **Spin Wheel kiosk, Mailbox** (gifts from friends and events), **Visitor Book.**
 - **Visiting:** friends can visit when the owner is online or offline (loaded from the owner's save). Lock levels: owner only, friends, anyone. Visitors can "Wave" at displayed aliens for a tiny bonus to both players.
 
 Keep Scrap as the only spendable currency. Home decor is priced below ship parts so building a house never blocks a launch.
@@ -464,7 +463,8 @@ The pieces the hits reuse: weekly exclusives that leave after seven days, event-
 | February | Starlight Bloom | Blossom (2x, petals) | Pollinator species | Weather is always Clear with aurora |
 | April | Egg Hunt | Speckled (2x) | Hatchling species found as eggs hidden in biomes | Eggs replace spawns; find-and-tap hunt |
 | June | Solar Flare | Solar (2x, heat shimmer) | Sun species | Meteor Showers twice as often |
-| Anniversary | Vault Reopening | none | Every Vaulted alien returns for one week | The kindness rerun (see below) |
+| Every seasonal event | Vault Rotation | none | Two or three Vaulted aliens return for the event | A rerun every month (see below) |
+| Anniversary | Vault Reopening | none | Every Vaulted alien returns for one week | The big rerun |
 
 Each world launch (section 8) is also treated as an event: a "First Landing" week with double key material drops and a launch-week limited alien.
 
@@ -481,8 +481,8 @@ Each world launch (section 8) is also treated as an event: a "First Landing" wee
 
 - **Announce the end date on day one** and never run a "last chance" countdown louder than the normal banner. The EU KIDS Act proposal names pressure loops and login streaks; a visible calendar is not a pressure loop, a flashing countdown is.
 - **Nothing event-exclusive is ever sold.** Event aliens come from the quest track and spawns. Event cosmetics may be sold. Event overlays roll only on free catches.
-- **Prestige over power.** Event aliens and overlays are never required for a module, a splice, or a Warden. Players who skip an event lose nothing on the ship bar.
-- **Reruns are kind.** Vaulted aliens return once a year at the anniversary. Adopt Me's permanent retirement creates trading value, but this game has no trading at launch, so permanent retirement would only create regret.
+- **Prestige over power.** Event aliens and overlays are never required for a module, a Set, or a Warden. Players who skip an event lose nothing on the ship bar.
+- **Reruns are regular.** Two or three Vaulted aliens come back with every monthly seasonal event, and all of them return for the anniversary week. Adopt Me's permanent retirement creates trading value, but this game has no trading at launch, so permanent retirement would only create regret.
 - **Events boost the free loop first.** Doubled key materials, more Showers, longer nights: the best event rewards are things players would have wanted anyway, arriving faster.
 
 ### Tooling for two people
@@ -506,7 +506,7 @@ Events spike concurrency about tenfold for a day; they do not set the baseline. 
 - **Co-op:** platform Party (up to 6) plus the Party API and reserved servers for a private world instance. Progress stays per player; only the instance is shared.
 - **Home planet visiting:** friends load the owner's home from the save, online or offline.
 - **No trading at launch.** Add a gated system later (license quiz, 30-day log, two-step confirm, item caps).
-- **Visit and borrow instead of steal:** a friend lends an alien to your module slot for a timed window, keeps ownership, both get a bonus. An opt-in raid mode can come later behind Steal a Brainrot's guardrails. Given the 2025 to 2026 lawsuits around Roblox and kids, theft is not the launch hook.
+- **Visit and borrow instead of steal:** a friend lends an alien to your module slot for a timed window, keeps ownership, both get a bonus. A raid mode is parked: the team likes it but worries it is too close to other games, so it waits for a later decision. Given the 2025 to 2026 lawsuits around Roblox and kids, theft is not the launch hook.
 - **Design for no chat.** Roblox segments chat by age group since January 2026. Waves, emotes, gifts, visible camps, and server announcements carry the social load.
 - **Co-play is a first-class metric.** The share of play that happens with friends is something Roblox's discovery system rewards, and a creator who nearly reached number one named its absence as the thing that stopped them. Design it in and show it: a **Friend Boost** readout on the HUD (+5% Scrap and +5% luck per friend on the planet, up to three, the pattern Steal an Egg shows as "Friend Boost +0%"), a daily quest that needs a friend ("catch five aliens on the same planet as a friend"), one Field Notes step per world that is faster with a party, the shared Meteor Shower, borrowing, and home visits. Log friend-in-server, party size, visits and borrows from day one so co-play can be read off the dashboard.
 
@@ -526,7 +526,7 @@ A single Shop button on the HUD opens a store with six tabs. The Featured tab ro
 | Aliens | direct-buy Rare and Epic aliens, alien hats, trails, name colors, companion slot |
 | Camp & Ship | station slots, auto-collect, auto-optimize, longer offline shift, hull skins, module rush |
 | Gear & Style | Explorer Pack, hoverboard and glider skins, trick packs, saddles, radar skins, emotes |
-| Boosts | power-up bundles, server luck, splice rush |
+| Boosts | power-up bundles, server luck, module rush |
 | Home | plot expansion, habitat slots, furniture cap, house themes, visitor fireworks |
 | Spins | spin bundles with full odds shown, hidden where restricted |
 
@@ -580,7 +580,6 @@ Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,69
 | Scrap Magnet x3 | Dev Product | 99 | Peddler, spins | Catch bonus, not station income |
 | Server luck 2x, 15 min | Dev Product | 249 | Meteor Shower, events | Shared by all 8 players; odds shown live; PolicyService gated |
 | Server luck 4x, 15 min | Dev Product | 999 | | Same rules |
-| Splice rush | Dev Product | 49 to 99 | 4-hour timer | Deterministic |
 
 **Home**
 
@@ -647,6 +646,7 @@ Roblox's Q2 2026 letter blamed a bookings shortfall on engagement shifting towar
 ## 15. Art and audio direction
 
 - **Cute baseline:** round compact body, big eyes, tiny mouth, short limbs, one bold saturated color, drawable by a child. Stylized low-poly, clean shading.
+- **The camp is cozy, not industrial.** Stations look like a picnic table, a treehouse workbench, and a glowing flower, not a mine and a forge. Colours stay bright and soft so the game reads as welcoming to girls and boys alike.
 - **Same body, escalating overlays:** tier and overlay are scale, material, glow, particles, and attachments on the same mesh family. This is the only way two people ship 15 species x 6 tiers x 4 overlays per world.
 
 | Tier | Silhouette | Material / glow | Extras | Sound | Reveal |
@@ -759,8 +759,8 @@ Build the UI in code from one theme module (font, palette, corner radius, stroke
 | Phase | Scope | Why |
 |---|---|---|
 | **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel, Radar Mk1, shadow silhouettes for uncaught species, Speed Boots, the Luck readout, and three power-ups through the Peddler; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; the launch shop: Starter Pack, four passes, hoverboard skin shelf, boost bundles, and gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
-| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Hoverboard with tricks and skins, Glider Pack, Radar Mk2, Epic mounts with the Ride trait, the full power-up set; Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
-| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job, Jet Boost, Mag Boots, and Radar Mk3; world gear for each later world; decision on a permanent luck pass; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
+| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, visiting); Hoverboard with tricks and skins, Glider Pack, Radar Mk2, Epic mounts with the Ride trait, the full power-up set; Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
+| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Tinker job, Jet Boost, Mag Boots, and Radar Mk3; world gear for each later world; decision on a permanent luck pass; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
 
 **Launch targets:** D1 above 20%, D7 above 8% (the top-1% band on Roblox), median session above 10 minutes, tutorial completion above 60%, Meteor Shower attendance above 30% of online players. If D1 is under 15% after week one, the problem is the first eight minutes, not the roster.
 
@@ -772,10 +772,10 @@ Build the UI in code from one theme module (font, palette, corner radius, stroke
 2. **Art style.** Smooth low-poly (Adopt Me) or chunkier blocky (Pet Simulator)? Smooth low-poly reads better for cute-to-epic overlays.
 3. **Jobs count.** Four at launch is the recommendation. Two would be simpler; six adds micromanagement.
 4. **Companions.** Three following aliens with perks, or keep aliens camp-only for simplicity? The recommendation is three, because it gives aliens a role during exploration.
-5. **Splicing parents.** Not consumed is the recommendation. Consuming parents is a bigger Scrap sink but risks grief.
-6. **Theft.** Borrow-only at launch is the recommendation. Opt-in raids later.
+5. **Splicing.** Decided: none. Secrets come from Sets.
+6. **Theft.** Decided: borrow only. Raid mode parked for a later look.
 7. **World order.** Verdant, Frostbyte, Neon Grid is the proposed first three. Candy or ocean could swap into slot 3 if the team prefers a brighter third world.
-8. **Event rerun policy.** Annual Vault Reopening is the recommendation. Permanent retirement (Adopt Me) only makes sense once trading exists.
+8. **Event rerun policy.** Decided: a Vault Rotation in every monthly event plus the annual full reopening. Something is always on: weekly alien, biweekly content drop, monthly seasonal event.
 9. **Permanent luck pass.** Launch without it and sell shared server luck only; revisit after the first month of revenue data.
 10. **Mounts and companion slots.** Riding uses a companion slot is the recommendation, so riding your best alien is a visible choice rather than a free bonus.
 11. **Scrap for Robux.** The recommendation is never, because it would pull every Scrap-priced random item under the paid random items policy. If revenue demands it later, the Peddler eggs and the Welcome Week egg must get odds disclosure and regional gating first.

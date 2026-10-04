@@ -14,6 +14,7 @@
 | Overlay | Shiny, Gold, Crystal, Rainbow; a multiplier that rolls on any body | GAME_DESIGN 4 |
 | Warden | Each world's Legendary, a mythology echo, the finale catch and ship pilot | GAME_DESIGN 4 |
 | Outpost | What a camp becomes after launch; keeps producing that world's materials | GAME_DESIGN 8 |
+| Set | A themed codex page spanning worlds; completing it unlocks a Secret quest | GAME_DESIGN 9 |
 | Vaulted | A limited alien that has left; silhouette stays visible, never stronger than current ones | GAME_DESIGN 12 |
 | Paid random item | Anything bought with Robux whose result is random; odds shown per item, no dud, hidden where restricted | GAME_DESIGN 14 |
 | Stud dialect / wood dialect | The two UI looks seen in hit games: bright stud-texture panels, or parchment and planks. Ours is defined in the UI Playbook | 05-ui-design |
