@@ -508,6 +508,7 @@ Events spike concurrency about tenfold for a day; they do not set the baseline. 
 - **No trading at launch.** Add a gated system later (license quiz, 30-day log, two-step confirm, item caps).
 - **Visit and borrow instead of steal:** a friend lends an alien to your module slot for a timed window, keeps ownership, both get a bonus. An opt-in raid mode can come later behind Steal a Brainrot's guardrails. Given the 2025 to 2026 lawsuits around Roblox and kids, theft is not the launch hook.
 - **Design for no chat.** Roblox segments chat by age group since January 2026. Waves, emotes, gifts, visible camps, and server announcements carry the social load.
+- **Co-play is a first-class metric.** The share of play that happens with friends is something Roblox's discovery system rewards, and a creator who nearly reached number one named its absence as the thing that stopped them. Design it in and show it: a **Friend Boost** readout on the HUD (+5% Scrap and +5% luck per friend on the planet, up to three, the pattern Steal an Egg shows as "Friend Boost +0%"), a daily quest that needs a friend ("catch five aliens on the same planet as a friend"), one Field Notes step per world that is faster with a party, the shared Meteor Shower, borrowing, and home visits. Log friend-in-server, party size, visits and borrows from day one so co-play can be read off the dashboard.
 
 ---
 
@@ -737,7 +738,7 @@ Design for landscape phones first and let tablets and PC breathe. Minimum touch 
 
 ### Build notes for the UI
 
-Build the UI in code from one theme module (font, palette, corner radius, stroke widths, tween durations), so a change to the look is a one-file change. Keep every player-facing string in a strings table for Roblox's automatic translation. Build each screen as a component that takes data and renders, so the Shop, Codex, and Aliens screens share one card component and one tab component. Icons are the one UI asset that cannot be generated in code; pick one cartoon icon pack on the Creator Store before the first UI pass and stick to it.
+Build the UI in code from one theme module (font, palette, corner radius, stroke widths, tween durations), so a change to the look is a one-file change. The theme module is generated from the UI Playbook in `docs/vault/05-ui-design/`, which holds reference screenshots of the hit games and the look written down to hex codes and proportions, so Claude builds every panel from the same written standard and corrections go back into the playbook (see `docs/PRE_PRODUCTION.md` section 10). Keep every player-facing string in a strings table for Roblox's automatic translation. Build each screen as a component that takes data and renders, so the Shop, Codex, and Aliens screens share one card component and one tab component. Icons are the one UI asset that cannot be generated in code; pick one cartoon icon pack on the Creator Store before the first UI pass and stick to it.
 
 ---
 

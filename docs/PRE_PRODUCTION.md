@@ -215,3 +215,89 @@ When the decisions in section 2 are answered, a prompt like this starts the buil
 > Build the vertical slice described in `docs/PRE_PRODUCTION.md` section 5 for the game in `docs/GAME_DESIGN.md`. Use Rojo with the project layout in section 4, Luau strict, ProfileStore for saves, server-authoritative logic, and code-built UI from a theme module following `GAME_DESIGN.md` section 16. Use placeholder part-based aliens and ship modules. Put every number in data tables under `src/shared/data`. Decisions: [name], [art style], [palette hexes], [icon pack asset ids]. Start with the Rojo project, the data tables, and the save system, then the capture bar, then the ship bar and stations, then the HUD.
 
 The build will come back with a repo the team syncs into Studio, tests, and reports on. Expect three or four rounds of "here is what happened, here is a screenshot" before the slice is playable end to end.
+
+---
+
+## 10. Build workflow, learned from the reference videos
+
+Seven creator videos were processed frame by frame and transcribed (`media/tiktok/NOTES.md`). They describe how small teams are actually shipping Roblox games with Claude in 2026, and they change the workflow in sections 1 and 4 in concrete ways.
+
+### 10.1 The workspace
+
+Three connections, all on at once:
+
+| Piece | What it carries | Setup |
+|---|---|---|
+| **Rojo** | All code and data tables, synced from this repo into Studio | `default.project.json` maps `src/server`, `src/client`, `src/shared` to their services; Rojo plugin in Studio; `rojo serve` in the repo |
+| **Claude Code** in the repo | Writes the code, reads the vault and `CLAUDE.md` | Run in a terminal inside the repo folder (local), or this cloud session pushing to the branch |
+| **Studio MCP** | Lets Claude read and edit the live place: instances, UI trees, properties, and run installers | In Studio: AI Assistant button, three dots, Settings, MCP servers, turn on "Enable Studio as MCP server," toggle the client under Quick connect. In the Claude desktop app: Settings, Developer, Local MCP servers, toggle Roblox Studio to running. Fully restart both. The Assistant settings should show one client connected |
+
+Rojo is for code. MCP is for the things code is bad at describing: placing a UI tree, inspecting an instance that misbehaves, running a model installer in the command bar.
+
+### 10.2 CLAUDE.md, the one file that changes everything
+
+A `CLAUDE.md` now sits at the repo root. It states what the project is, the rules (strict Luau, server authority, Scale not Offset, one currency, data in tables, strings in a table), the folder layout, how to run and test, and where the vault is. Every session reads it automatically, so the rules never need repeating.
+
+### 10.3 The knowledge vault, inside the repo
+
+The vault is what makes "train Claude on good UI" repeatable. The reference creator keeps it in Obsidian; we keep it as markdown under `docs/vault/` so every session, local or cloud, reads it, and so Claude can write back to it when it learns something. Structure, mirrored from the video:
+
+```
+docs/vault/
+  00-start-here/   Glossary.md (Promise, FTUE, Funnel, Bounce, Play-through, D1/D7/D30,
+                   Cohort, Co-play, LiveOps, Three-goal ladder, Source/sink, Prestige,
+                   Paid random item, each linked to the design doc section)
+  01-game-design/  one note per system, pointing into GAME_DESIGN.md
+  02-how-we-work/  prompt rules, review loop, commit habits
+  03-studio-and-mcp/  the MCP connection, Rojo layout, plugin list
+  04-roblox-engine/   Scale vs Offset, UIStroke, StreamingEnabled, DataStore limits, remote patterns
+  05-ui-design/
+      refs/        named screenshots: hud-stack, currency-pill, shop-featured, shop-passes,
+                   index-cells, reveal-popup, capture-bar, toast, from Steal an Egg,
+                   Pet Simulator 99, Grow a Garden, Adopt Me, plus our own screens
+      UI-Playbook.md   the look, to the level of hex codes and proportions
+      UI-Checklist.md  what every screen must pass before it ships
+      UI-Recipes.md    how to build each component in code from the theme module
+      User-UI-Taste.md what the team likes and dislikes, updated after every review
+  06-art-pipelines/  creature generation prompts, installer workflow, Blender notes, Open Cloud upload
+  07-alien-game/     anything specific to this project that is not design
+```
+
+The UI Playbook is the part to write first, and to the level the reference showed: close button is red, square-ish, white X with a black stroke, about 80% of the header height, top right, same place on every panel; at least 2% inner margin; header colours as hex values; section headings as "— FEATURED —" in a named yellow with a black stroke at about 7% of panel height; index cells coloured by rarity with the exact hex per tier; banners with a stated aspect ratio. Rules written that precisely are rules Claude follows.
+
+### 10.4 Prompting discipline
+
+From the three-month build in the videos, and the free guide the creator published:
+
+- **One system per prompt.** One button, one panel, one service. Never "make the game" or "make a UI system."
+- **Name the instance path and say where scripts go.** The example that worked: "inside StarterGui.MainGui.Button, make it so when the player clicks the button, it triggers this action. put the client code in the right place, use a remote event if the server needs to handle anything, and explain where each script goes."
+- **Paste the error with the action.** "I clicked Build with two aliens assigned and got this error," not "it broke."
+- **Plan first for anything multi-file.** Ask for the plan, correct it, then let it build.
+- **Ask it to explain** what it changed, so the team can test and debug it.
+- **Record corrections in the vault.** When a review says "the close button is in the wrong place," the fix goes into the playbook, not only into the code.
+
+### 10.5 Training the UI
+
+1. Collect screenshots of the three or four most popular games closest to ours into `docs/vault/05-ui-design/refs/`, named by what they show.
+2. Write the UI Playbook from them and from `GAME_DESIGN.md` section 16, with hex values and proportions.
+3. Build one panel (the Shop) first, review it against the refs, correct it, and write every correction back into the playbook.
+4. Then build the rest from the playbook and the theme module.
+5. **Scale, never Offset**, for Position and Size on every element. Check every screen in Studio's device emulator at an iPhone SE size and an iPad size before it ships.
+
+### 10.6 Generating the aliens
+
+The model-generation video shows a creature pipeline a two-person team can run: one prompt per species, a generated model with VFX and a set of animations, a `.lua` installer pasted into Studio's command bar (or handed to Claude through MCP) that rigs the model and imports the animations, then a wiring prompt. The creator reports that ten enemies cost about 30% of a usage allowance, and that asking the tool to ask its own questions first improves the result.
+
+Our prompt template per species, built from `GAME_DESIGN.md` sections 4 and 15:
+
+> Generate a Roblox-ready creature called [name]: [three-word concept]. Round compact body, big eyes, tiny mouth, short limbs, one bold [colour], stylized low-poly, drawable by a child. One accessory: [attribute]. Animations: idle (looping, job-tied: [job]), walk, work-at-station ([job] loop), catch-reveal (shake, pop, pose), ride ([traversal] if rideable), flee. Tier [tier]: [overlay notes from the table]. Low particle count, mobile-safe. Import 1:1 with an installer .lua. Ask me every question you need before generating.
+
+Generate commons first in batches, review silhouettes in greyscale at thumbnail size, and keep the one goofy element at every tier. Verify the current name and availability of the generation tool before planning around it; the video calls it Claude Design.
+
+### 10.7 Studio plugins to install before building
+
+GapFill and ResizeAlign (ship module seams, snapping parts), Brushtool 2 (scattering biome props), Redupe (station rows, fence lines, codex pedestals, repeated hull plates), Archimedes v3 (round camp pads, curved hull pieces, arches). The four are the ones "all the devs had." An AI scripting plugin that reads the place is optional once the MCP connection is in.
+
+### 10.8 Co-play, measured and designed
+
+One creator's single biggest regret was not designing for co-play, the share of play that happens with friends, which the discovery algorithm rewards. The design doc now treats it as a first-class metric (section 13). For the build: log friend-in-server, party size, visits, borrows and shared Showers from day one, and show a "Friend Boost" on the HUD so players can see co-play paying off.
