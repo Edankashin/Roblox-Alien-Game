@@ -136,3 +136,41 @@ Seven TikToks sent as references, processed with `tools/watch_video.py` (one fra
 5. Fully restart both Studio and Claude. The Assistant settings should then show "1 client connected."
 
 **Takeaway for us:** Rojo carries the code; the Studio MCP connection lets Claude read and edit the live place (instances, UI trees, properties) and run things in Studio. Both belong in the setup checklist.
+
+---
+
+# Batch 2: three photo slideshows (read slide by slide)
+
+| Code | Creator | Slides | Topic |
+|---|---|---|---|
+| ZPL8MPnyV | okviky3 | 8 | "Tips I used to get 1,000 CCU on my game" (Spidey Bomb Tag) |
+| ZPL8MSTwW | larpe_r | 4 | Party and casual games vs simulators, with real Creator Hub charts (Guess the Flag Color 2) |
+| ZPL8MNKUy | ayaangiggy | 9 | "How I (almost) made a Roblox game with 0 experience" (a 99 Nights-style medical game) |
+
+## ZPL8MPnyV: tips for 1,000 CCU (okviky3)
+
+**Shown:** the Creator Hub realtime page for Spidey Bomb Tag (Ascending Studiozz): 1,014 concurrent users (+38.5%), session time 8.7 min, client crash rate 0.24%, client frame rate 39; Audience Reach "All ages". Retention page: Day 1 retention 14.55% at the 97th percentile of its genre benchmark (50th = 6.16%, 90th = 11.93%), Day 7 retention 1.18% at the 73rd percentile (50th = 0.51%, 90th = 2.01%). The game page with a video trailer thumbnail and 1,869 likes to 185 dislikes. A Robux transactions page (about 3.59M Robux total).
+
+**The six tips, verbatim:**
+1. Create something unique and only release something if you find it fun and genuinely think players will enjoy.
+2. Don't slack on sound design and VFX; this stuff helps pretty much every stat and makes the game feel sooo good.
+3. Use video trailers and good PTR thumbnails. (PTR = play-through rate: the share of people who see the tile and press play.)
+4. Onboarding is a must for simulator games, and use funnel systems to guide you where your game lacks.
+5. Use real-world trends and add a unique twist.
+6. Study other games that are similar to yours (and feel free to study mine, 99th percentile in D1 retention).
+Bonus: watch Tizzy_RBLX.
+
+## ZPL8MSTwW: party and casual games vs simulators (larpe_r)
+
+**Shown:** Creator Hub charts for Guess the Flag Color 2: peak concurrent players about 1,000 in late August 2026 decaying to about 100 to 200 by mid September; Day 1 retention 12.53% against the Party & Casual genre benchmark band of 6.19% to 11.84% (50th to 90th percentile); First play bounce rate 10.94% under 60 s and 16.37% at 61 to 180 s, with the Creator Hub warning "High rates lower your home recommendations exposure"; New user first session retention 57.84% still playing after 5 minutes.
+
+**Said, verbatim:**
+- "Party and casual games are much easier to get players than simulators. This is because they are so much simpler to make, and the benchmark for stats is much lower, since the genre as a whole has lower standards than the simulator genre for example."
+- "Players are very likely to stay early on if you have a good concept, keeping your bounce rate low, and allowing for home rec exposure."
+- "A great tip for high payer conversion and monetization is to mix your party games with elements from a simulator, like coins you earn each match to get new cosmetics."
+
+## ZPL8MNKUy: zero-experience build with AI tools (ayaangiggy)
+
+**Shown, in order:** a Times Square cover; a three-monitor setup (a 3D generator with a rigged orange character, Studio with a forest camp, VS Code with Claude) captioned "Connect VS Code w/ claude or codex to roblox studio"; "Gemini for icons and 3D model references" over a finished wood-and-parchment "Casebook" UI (patient card, assessment checklist, recipe materials with three item icons); "3daistudio > meshi.ai, better control over target polygon counts" over three rigged cylinder characters with bandages standing in Studio; two pages of a Meshy library (GLB models tagged ANIM and RIG, "Meshy Rigging", "Prism 3.1", an animated suit-wearing rat, decorative keys, a chest); "Befriend a roblox dev" (creator of "Ball Drop Game"); a Before shot of placeholder blocks (a plank jeep, a casket, a text-only HUD, errors in Output, place named "medical brainrot"); an After shot of a stylized ambulance jeep with lanterns at "Night 10" with a glowing tree monster boss, "Game dropping this week".
+
+**Lessons:** the pipeline a beginner used was exactly ours (Rojo-style editor link, Claude or Codex, Studio) plus three asset tools: an image model for icons and model reference sheets, 3D AI Studio for meshes with a polygon budget, and Meshy for rigged and animated GLBs. The before/after is the clearest argument in any of the ten references that placeholder blocks must be replaced by stylized assets before launch.

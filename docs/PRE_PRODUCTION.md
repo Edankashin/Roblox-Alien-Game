@@ -303,3 +303,43 @@ GapFill and ResizeAlign (ship module seams, snapping parts), Brushtool 2 (scatte
 ### 10.8 Co-play, measured and designed
 
 One creator's single biggest regret was not designing for co-play, the share of play that happens with friends, which the discovery algorithm rewards. The design doc now treats it as a first-class metric (section 13). For the build: log friend-in-server, party size, visits, borrows and shared Showers from day one, and show a "Friend Boost" on the HUD so players can see co-play paying off.
+
+### 10.9 Real benchmarks and the metrics Roblox actually shows
+
+Three creators posted their Creator Hub pages (`media/tiktok/NOTES.md`, batch 2). They give real 2026 numbers to aim at, and they name the metrics the Home algorithm reads:
+
+| Metric | What it is | Reference values seen | Our target |
+|---|---|---|---|
+| Day 1 retention | share of new players back the next day | Party & Casual benchmark band 6.19% to 11.84% (50th to 90th); a 1K-CCU tag game at 14.55% was the 97th percentile | above the 90th percentile of our genre band in Creator Hub; 12% good, 15% great |
+| Day 7 retention | back after a week | 50th 0.51%, 90th 2.01%; 1.18% was the 73rd | above 2%, stretch 4% |
+| First play bounce rate | left within 60 s, and within 61 to 180 s, of a first visit. Creator Hub warns high rates cut Home recommendation exposure | 10.94% and 16.37% on a healthy party game | under 10% and under 15% |
+| New user first session retention | still playing after 5 minutes | 57.84% | above 55% |
+| Play-through rate (PTR) | saw the tile, pressed play | not shown; depends on icon, thumbnails and the video trailer | track from launch; change thumbnails when it drops |
+| Session time | | 8.7 min on a party game; Roblox median about 7 | above 10 min |
+| Client crash rate, client frame rate | | 0.24%, 39 fps | under 0.5%, 30+ fps on phones |
+
+The genre-benchmark bands are what Roblox compares us against, so the `D1 > 20%` target in `GAME_DESIGN.md` section 18 is the top-1% stretch, not the launch bar. Build the Roblox onboarding funnel with `AnalyticsService` funnel events from the first tutorial step so the Creator Hub funnel chart shows where players drop.
+
+### 10.10 Sound, VFX, trailer
+
+Two creators who reached 1K CCU said the same thing: sound design and VFX "help pretty much every stat," and a video trailer with good thumbnails is what drives play-through rate. So the sound list in section 3.4 and the reveal and catch VFX are launch requirements, not polish, and the 10-second gameplay trailer is a launch asset alongside the icon.
+
+### 10.11 Asset tools seen working in 2026
+
+| Tool | Used for | Note |
+|---|---|---|
+| Claude Design | models with VFX and animation sets plus a Lua installer (batch 1) | paid Claude plans |
+| 3D AI Studio | meshes with a target polygon count | the creator preferred it to Meshy for poly control, which matters on phones |
+| Meshy | rigged and animated GLB characters and props; large example library | import GLB through Studio's 3D importer |
+| Gemini or another image model | icon sets and 3D model reference sheets | solves the icon pack question: generate one consistent set from the UI playbook description |
+| Studio MCP `generate_mesh`, `generate_material` | quick placeholders and materials from inside Claude Code | free |
+
+Pick one tool per asset type and record settings in `docs/vault/06-art-pipelines/`.
+
+### 10.12 Mixing in a party beat
+
+A party-game creator's advice runs both ways: party games get players more easily because they are simple and the genre bar is lower, and they monetise better when they borrow a simulator's coin-and-cosmetic loop. Our loop is the simulator side. The cheap party beat to add is a short, shared, timed round that any newcomer understands in five seconds: the Meteor Shower already is one, and a "Catch Rush" (90 seconds, most catches wins a cosmetic, every 10 minutes on the server clock) is a P1 experiment worth trying for bounce rate.
+
+### 10.13 Befriend a Roblox dev
+
+Every creator in both batches credits other developers. Two concrete asks for the first month: join one Roblox developer community (DevForum plus one Discord), and get three developers with a shipped game to play the vertical slice and tell us the first thing that confused them.
