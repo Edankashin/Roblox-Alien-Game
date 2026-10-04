@@ -32,6 +32,7 @@ local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRend
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
+local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 
 local localPlayer = Players.LocalPlayer
 local started = false
@@ -388,9 +389,14 @@ Net.event("ProfileLoaded").OnClientEvent:Connect(function(profile: Types.Profile
 	start(profile)
 end)
 task.spawn(function()
-	local profile = Net.func("GetProfile"):InvokeServer() :: Types.Profile?
-	if profile then
-		start(profile)
+	-- Real saves can take seconds (or a retry while another server releases the lock), so keep asking.
+	while not started do
+		local profile = Net.func("GetProfile"):InvokeServer() :: Types.Profile?
+		if profile then
+			start(profile)
+			return
+		end
+		task.wait(PROFILE_PULL_SECONDS)
 	end
 end)
 

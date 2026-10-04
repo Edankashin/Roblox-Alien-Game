@@ -402,7 +402,8 @@ end
 
 -- Join -------------------------------------------------------------------
 
--- The profile a BindableEvent hands over is a copy, so every change goes through PlayerData instead.
+-- Runs before the join payload is sent, so the client boots from a settled profile. Changes still go
+-- through PlayerData.Update so every mutation has one door.
 local function onLoaded(player: Player, _profile: Types.Profile)
 	local live = PlayerData.Get(player)
 	if not live then
@@ -429,7 +430,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	if summary then
 		pendingOffline[player.UserId] = summary
 	end
-	-- ProfileLoaded went out before these states existed; resend so the client mirror matches.
+	-- The join payload carries all of this; the pushes cover a client that pulled its profile early.
 	pushCamp(player, live)
 	if live.scrap ~= scrapBefore then
 		pushScrap(player, live)

@@ -297,7 +297,7 @@ function Hud.SetClock(state: Types.ClockState)
 	end
 	local phase = if state.isNight then Strings.HUD_NIGHT else Strings.HUD_DAY
 	local weather = Builder.text("WEATHER_" .. state.weather)
-	clockLabel.Text = ("%s · %s"):format(phase, weather)
+	clockLabel.Text = Strings.HUD_CLOCK:format(phase, weather)
 	local color = if state.isNight then Theme.Colors.Select else Theme.Colors.Featured
 	TweenService:Create(clockChip, TweenInfo.new(Theme.Tween.Open), { BackgroundColor3 = color }):Play()
 	local gradient = clockChip:FindFirstChildOfClass("UIGradient")

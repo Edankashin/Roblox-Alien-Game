@@ -25,6 +25,7 @@ return {
 	UNKNOWN_NAME = "???",
 	HUD_DAY = "Day",
 	HUD_NIGHT = "Night",
+	HUD_CLOCK = "%s · %s",
 	WEATHER_Clear = "Clear",
 	WEATHER_Rain = "Rain",
 	WEATHER_Fog = "Fog",

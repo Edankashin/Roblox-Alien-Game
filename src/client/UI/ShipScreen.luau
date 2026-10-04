@@ -499,7 +499,7 @@ local function build()
 	local body = Builder.frame({
 		parent = root,
 		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.5),
+		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,

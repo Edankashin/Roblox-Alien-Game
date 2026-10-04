@@ -224,10 +224,9 @@ local function refreshModules()
 	end
 	local profile = State.Get()
 	local world = builtWorld
-	local defs = Economy.moduleDefs(world)
 	local activeSeen = false
-	for index, record in ipairs(modules) do
-		local def = defs[index]
+	for _, record in ipairs(modules) do
+		local def = Economy.moduleDef(world, record.id)
 		if not def then
 			continue
 		end

@@ -22,7 +22,9 @@ local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
 local profiles: { [number]: Types.Profile } = {}
-local loadedEvent = Instance.new("BindableEvent")
+-- Plain callbacks, not a BindableEvent: they run synchronously, before the join payload is sent, on the
+-- live profile (a BindableEvent would hand them a copy and run after the client already has stale data).
+local loadedCallbacks: { (Player, Types.Profile) -> () } = {}
 local store: DataStore? = nil
 local memoryOnly = false
 
@@ -181,8 +183,21 @@ local function onPlayerAdded(player: Player)
 		profile.firstSeen = now
 	end
 	profiles[player.UserId] = profile
+	-- Other services settle the profile first (module states, offline income), so the one payload the
+	-- client boots from is already current. A failing callback must not keep the player from loading.
+	for _, callback in ipairs(loadedCallbacks) do
+		local ok, err = pcall(function(): any
+			callback(player, profile)
+			return nil
+		end)
+		if not ok then
+			warn(("[%s] OnLoaded callback failed for %s: %s"):format(Config.WorkingTitle, player.Name, tostring(err)))
+		end
+	end
+	if player.Parent ~= Players then
+		return
+	end
 	Net.event("ProfileLoaded"):FireClient(player, sanitized(profile))
-	loadedEvent:Fire(player, profile)
 	print(("[%s] profile loaded for %s (scrap=%d, memoryOnly=%s)"):format(Config.WorkingTitle, player.Name, profile.scrap, tostring(memoryOnly)))
 end
 
@@ -208,8 +223,9 @@ function PlayerData.Update(player: Player, fn: (Types.Profile) -> ()): boolean
 	return true
 end
 
-function PlayerData.OnLoaded(callback: (Player, Types.Profile) -> ()): RBXScriptConnection
-	return loadedEvent.Event:Connect(callback)
+-- Register a callback that runs on the live profile when it loads, before the client receives it.
+function PlayerData.OnLoaded(callback: (Player, Types.Profile) -> ())
+	table.insert(loadedCallbacks, callback)
 end
 
 function PlayerData.IsMemoryOnly(): boolean
@@ -217,6 +233,8 @@ function PlayerData.IsMemoryOnly(): boolean
 end
 
 function PlayerData.Init()
+	-- Created up front so a client that joins before its profile loads can already be listening.
+	Net.event("ProfileLoaded")
 	if RunService:IsStudio() and not Config.UseDataStoreInStudio then
 		memoryOnly = true
 		warn(("[%s] Studio: using in-memory profiles. Set Config.UseDataStoreInStudio = true after enabling Studio API access to test real saves."):format(Config.WorkingTitle))
