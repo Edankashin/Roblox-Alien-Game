@@ -157,8 +157,41 @@ Naming rule: each alien is an alien-plus-object or alien-plus-tool hybrid descri
 | Sparkfox | fox, welding-torch tail | Rare | Weld L3 | Meadow, any |
 | Thunderhog | hedgehog, lightning quills | Epic | Wire/Weld | Meadow, Rain only |
 | Gloomoth | moth, crystal wings | Epic | Mine/Wire | Cave, night only |
-| Verdant Warden | stag, tree antlers, moss cape | Legendary | all | Field Notes finale |
-| ??? (splice secret) | hint: "a child of moss and lightning" | Secret | all | Splicing lab |
+| Gaiabloom (Verdant Warden) | stag, tree antlers, flowers bloom where it steps; echo of Gaia | Legendary | all | Field Notes finale |
+| ??? (splice secret) | hint: "the goat-flute of the meadows" (Pan); recipe: Twiglet + Puffpuff | Secret | all | Splicing lab |
+
+### The Pantheon: ancient beings as the epic end of the ladder
+
+The top of every world's roster references a figure from ancient mythology, drawn in the same round, big-eyed body as everything else. A tiny chubby sky god with a lightning quill is both cute and epic in one silhouette, which is exactly the ladder this game needs, and the names are instantly recognizable to kids who know these figures from school, books, and games. The pun names also travel well on TikTok.
+
+Three bands use it:
+
+| Band | Tier | Myth source | Role |
+|---|---|---|---|
+| **Wardens** | Legendary, one per world | A god or spirit matching the world's theme | The world's finale catch and ship pilot (section 3) |
+| **Star-born** | Cosmic, Meteor Shower only | Primordial and cosmic beings: sun, sky, time, world-serpents | The rarest wild finds; "fallen from the old sky" |
+| **Chimeras** | Secret, splicing only | Mythic hybrids: griffin, pegasus, chimera, hydra, cerberus | The reward for the right combination of aliens (section 9) |
+
+Proposed Wardens and Star-born (placeholders; the pun is the point):
+
+| World | Warden (Legendary) | Echo of | Attribute kept | Star-born example (Cosmic) | Echo of |
+|---|---|---|---|---|---|
+| Verdant | Gaiabloom | Gaia, Greek earth | flowers bloom in its footprints | Ra-dish | Ra, Egyptian sun; a radiant radish with a sun disk |
+| Frostbyte | Skaddle | Skadi, Norse winter | tiny skis, snow-owl body | Fenripup | Fenrir, Norse wolf; a puppy with a moon on its forehead |
+| Neon Grid | Hephaestron | Hephaestus, Greek forge | hammer tail, glowing seams | Thothbyte | Thoth, Egyptian knowledge; an ibis with a data-scroll |
+| Emberfall | Vulcanine | Vulcan, Roman fire | lava-dog with an ember mane | Quetzalcoodle | Quetzalcoatl, Aztec feathered serpent; a noodle with feathers |
+| Tidepool | Poseidolphin | Poseidon, Greek sea | a tiny trident on its nose | Jormungeel | Jormungandr, Norse sea serpent; an eel eating its own tail |
+| Dreamdrift | Morpheep | Morpheus, Greek dreams | a sheep that floats | Kronosnail | Kronos, Greek time; a snail with a clock shell |
+| Void Hub | Nyxling | Nyx, Greek night | star-speckled | Sphinxie | the Sphinx; a cat that asks riddles |
+
+Chimera recipes for the Splicing Lab, written as codex riddles: Pegasus from a horse alien and a bird alien ("wings for the one who gallops"), Griffin from eagle and lion ("the king of beasts meets the king of birds"), Cerberus from three Vulcanine duplicates fused then spliced with a Common Haul alien ("three heads to guard one door"), Hydra from a serpent chain spliced twice ("cut one, two grow back"), Minotaur from a bull and a maze-themed Neon Grid alien. Each Chimera is all-jobs, has a unique silhouette, and is never sold.
+
+Rules for the Pantheon:
+
+- **Public domain only.** Greek, Roman, Norse, Egyptian, Mesopotamian, Aztec and Maya, and Celtic figures are free to use. The designs must be original: no Marvel Thor, no Disney Hercules or Maui, no God of War Kratos, no Percy Jackson art. The name pun and one attribute carry the reference; the body is this game's.
+- **Ancient pantheons, not living religions.** Avoid deities and sacred figures from religions with large living communities (Hindu, Buddhist, Shinto, Abrahamic). Roblox's Community Standards prohibit content that mocks religion, and the audience is children. Treat the figures used with affection: they are "echoes" the aliens carry, not the gods themselves.
+- **Keep the body cute.** The god attribute is one accessory or one silhouette add. Everything else follows the common-tier recipe (round body, big eyes, short limbs). A pompous god voice line in a squeaky little body is the joke and the charm.
+- **Ruins as landmarks.** Each world has one ruined shrine to its Warden, a hidden spot with glyphs that hint at that world's splice recipes. The Field Notes finale happens at the shrine. This gives every world a landmark worth filming and a reason to read the codex.
 
 ---
 
@@ -203,7 +236,7 @@ Some species carry a **Ride** trait: every Cosmic and every Warden, plus one or 
 
 | Traversal | What it does | Example (placeholder) |
 |---|---|---|
-| Sprint | fastest ground movement, big leap | Thunderhog (World 1 Epic), Verdant Warden |
+| Sprint | fastest ground movement, big leap | Thunderhog (World 1 Epic), Gaiabloom |
 | Hover | ignores slow terrain, crosses small gaps and ice | a yeti-slug on Frostbyte |
 | Glide | long glide from any height | a drone-cat on Neon Grid |
 | Swim | fast swimming and diving | a manta on Tidepool |
@@ -309,13 +342,13 @@ Each world is a separate Roblox place in one universe, handcrafted, with three b
 
 | # | World (placeholder) | Biomes | New rule | Key materials | Notes |
 |---|---|---|---|---|---|
-| 1 | Verdant Crash Site | Meadow, Forest, Cave | Day/night, Rain | Glowroot, Cave Crystal, Storm Shard, Warden's Core | Gentle tutorial world |
-| 2 | Frostbyte | Snowfield, Ice Cave, Geyser Field | Blizzards hide aliens; place a Heater (Scrap) to reveal them for 60 s | Frost Core, Geyser Pearl | Introduces placing a tool in the world |
-| 3 | Neon Grid | Rooftops, Server Farm, Undercity | Day is dim; night is neon and busy; Power Surges (weather) spawn Epics; new job: Code | Data Shard, Surge Cell | Adds the 5th job and a 5th station |
-| 4 | Emberfall | Lava Fields, Obsidian Caves, Ash Forest | Heat meter: stay near Cooling Vents or return to camp; eruptions are the weather event | Magma Core, Obsidian Lens | First world with a light pressure mechanic |
-| 5 | Tidepool | Reef, Kelp Forest, Trench | Swimming and diving; tides as the weather cycle | Pearl Core, Abyss Glass | |
-| 6 | Dreamdrift | Candy Cliffs, Cloud Sea, Music Box Hollow | Gravity flips as the weather event | Dream Core | |
-| 7 | The Void Hub | Endgame | All Wardens needed to open the gate | | Long-term goal |
+| 1 | Verdant Crash Site | Meadow, Forest, Cave | Day/night, Rain | Glowroot, Cave Crystal, Storm Shard, Warden's Core | Gentle tutorial world. Warden: Gaiabloom |
+| 2 | Frostbyte | Snowfield, Ice Cave, Geyser Field | Blizzards hide aliens; place a Heater (Scrap) to reveal them for 60 s | Frost Core, Geyser Pearl | Introduces placing a tool in the world. Warden: Skaddle |
+| 3 | Neon Grid | Rooftops, Server Farm, Undercity | Day is dim; night is neon and busy; Power Surges (weather) spawn Epics; new job: Code | Data Shard, Surge Cell | Adds the 5th job and a 5th station. Warden: Hephaestron |
+| 4 | Emberfall | Lava Fields, Obsidian Caves, Ash Forest | Heat meter: stay near Cooling Vents or return to camp; eruptions are the weather event | Magma Core, Obsidian Lens | First world with a light pressure mechanic. Warden: Vulcanine |
+| 5 | Tidepool | Reef, Kelp Forest, Trench | Swimming and diving; tides as the weather cycle | Pearl Core, Abyss Glass | Warden: Poseidolphin |
+| 6 | Dreamdrift | Candy Cliffs, Cloud Sea, Music Box Hollow | Gravity flips as the weather event | Dream Core | Warden: Morpheep |
+| 7 | The Void Hub | Endgame | All Wardens needed to open the gate | | Long-term goal. Warden: Nyxling |
 
 What carries forward: the ship, the roster, the codex, Scrap, the home planet. What stays behind becomes an Outpost.
 
@@ -349,7 +382,9 @@ Example for World 1:
 2. Catch a night alien and find the Cave's hidden pool. Reward: 500 Scrap.
 3. Craft a Tier 2 lure and catch a Rare. Reward: a spin.
 4. Catch an Epic during Rain. Reward: the Warden's call (a horn item).
-5. Sound the horn at the Great Tree at night. Reward: guaranteed Verdant Warden encounter.
+5. Sound the horn at the Shrine of Gaiabloom at night. Reward: guaranteed Gaiabloom encounter.
+
+Each world's Field Notes is written as a short legend the aliens tell about their Warden ("the earth mother sleeps where the flowers never close"), and the shrine where it ends is that world's landmark.
 
 Later worlds add a twist to step 5 (sound the horn during a Blizzard, during a Power Surge).
 
@@ -360,6 +395,7 @@ The Splicing Lab on the home planet takes two parent aliens and a Scrap fee and,
 - Recipes are deterministic (same parents always give the same child), but hidden. The codex drops hints ("a child of frost and circuitry"). Discovery is the puzzle; the overlay roll on the child is the dice.
 - Secrets need parents from different worlds (a World 2 Frostbyte alien plus a World 3 Neon Grid alien), which sends players back to old worlds.
 - Some secrets need a chain: splice A and B, then splice the result with C.
+- The Secrets are the Chimeras of the Pantheon (section 4): Pegasus, Griffin, Cerberus, Hydra, Minotaur and their kin, each a mythic hybrid whose recipe is a riddle on its shrine's glyphs. Mythology is already a book of hybrids, which is why it fits a splicing lab so well.
 - Rushing the timer is a deterministic Robux purchase (allowed; no randomness), but the free timer must feel fine on its own.
 
 Secrets are the top of the codex, the long-term goal for collectors, and never sold.
@@ -742,6 +778,7 @@ Build the UI in code from one theme module (font, palette, corner radius, stroke
 9. **Permanent luck pass.** Launch without it and sell shared server luck only; revisit after the first month of revenue data.
 10. **Mounts and companion slots.** Riding uses a companion slot is the recommendation, so riding your best alien is a visible choice rather than a free bonus.
 11. **Scrap for Robux.** The recommendation is never, because it would pull every Scrap-priced random item under the paid random items policy. If revenue demands it later, the Peddler eggs and the Welcome Week egg must get odds disclosure and regional gating first.
+12. **Pantheon scope.** Greek, Roman, Norse, Egyptian, Mesopotamian, Aztec and Maya, Celtic is the recommended set. Confirm the team is comfortable excluding living religions' figures.
 
 ---
 
