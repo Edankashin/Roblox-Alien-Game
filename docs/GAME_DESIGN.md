@@ -475,29 +475,135 @@ Events spike concurrency about tenfold for a day; they do not set the baseline. 
 
 ---
 
-## 14. Monetization
+## 14. Monetization and the Robux Shop
 
-Rule: keep randomness in the free loop; sell certainty, capacity, convenience, and cosmetics.
+Rule: keep randomness in the free loop; sell certainty, capacity, convenience, and cosmetics. Everything that affects the ship bar is earnable. Robux buys things faster, prettier, or bigger, never things that are otherwise impossible.
 
-| SKU | Type | Price (R$) | Notes |
+### The shop
+
+A single Shop button on the HUD opens a store with six tabs. The Featured tab rotates weekly with the event calendar. Every price shows its real-currency equivalent beneath it. Regional pricing is on from day one (Roblox reports 4 to 10% more total spend and 43 to 52% more pass purchases in discounted regions).
+
+| Tab | What lives there |
+|---|---|
+| Featured | Starter Pack, this week's hoverboard skin, the current event's cosmetics, one bundle |
+| Aliens | direct-buy Rare and Epic aliens, alien hats, trails, name colors, companion slot |
+| Camp & Ship | station slots, auto-collect, auto-optimize, longer offline shift, hull skins, module rush |
+| Gear & Style | Explorer Pack, hoverboard and glider skins, trick packs, saddles, radar skins, emotes |
+| Boosts | power-up bundles, server luck, splice rush |
+| Home | plot expansion, habitat slots, furniture cap, house themes, visitor fireworks |
+| Spins | spin bundles with full odds shown, hidden where restricted |
+
+### Catalog
+
+Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,699). Items under 50 Robux are impulse buys; passes are the recurring earners. The research's developer-education sources report that games with five or more passes earn about 2.3x more than games with fewer, with the caveat that the methodology was not disclosed.
+
+**Aliens**
+
+| Item | Type | R$ | Earnable alternative | Notes |
+|---|---|---|---|---|
+| Direct-buy Rare alien (choose species) | Dev Product | 99 | wild catch | Deterministic; the player picks the species |
+| Direct-buy Epic alien (choose species) | Dev Product | 199 | wild catch | Never Legendary or above; event aliens never |
+| Alien hats and accessories | Cosmetic | 49 to 99 | some from codex milestones | Per-alien or account-wide |
+| Alien trails and auras | Cosmetic | 99 to 149 | event tracks | Cosmetic only; never confused with overlays (different VFX language) |
+| Name color and nameplate | Cosmetic | 49 | | |
+| +1 companion slot (3 to 4) | Pass | 249 | | Capacity; a 4th perk, not a stronger one |
+
+**Camp & Ship**
+
+| Item | Type | R$ | Earnable alternative | Notes |
+|---|---|---|---|---|
+| +1 slot on one station | Pass | 149 | slots grow with worlds | Capacity |
+| +1 slot on every station | Pass | 399 | | The best-value pass; expect it to be the top earner |
+| +2 slots on every station | Pass | 799 | | |
+| Auto-collect | Pass | 199 | tap to collect | Convenience |
+| Auto-optimize (always best assignment) | Pass | 299 | Optimize button | Convenience |
+| Longer offline shift (cap 60 to 180 min) | Pass | 299 | | Same rate, longer cap. Convenience for kids who play once a day |
+| Module rush | Dev Product | 29 / 59 / 99 | wait or add aliens | Priced by remaining time; deterministic |
+| Hull skins | Cosmetic | 99 to 299 | one per world from codex 100% | The ship is on screen all the time; this is prime cosmetic space |
+| Landing and launch VFX | Cosmetic | 99 to 199 | | Seen by the whole server at launch |
+| Camp decor packs | Cosmetic | 49 to 199 | codex decorations | |
+
+**Gear & Style**
+
+| Item | Type | R$ | Earnable alternative | Notes |
+|---|---|---|---|---|
+| Explorer Pack (gear tiers 1 to 3 now) | Pass | 399 | Scrap and quests | Paid speed equals earned speed |
+| Hoverboard skins | Cosmetic | 99 to 299 | one from codex 50% | The cosmetic headline; new skin weekly |
+| Trick packs (3 new trick animations) | Cosmetic | 99 | | Clip fuel |
+| Glider skins, radar skins | Cosmetic | 99 to 149 | | |
+| Mount saddles and harnesses | Cosmetic | 99 to 199 | | Mounts themselves never sold |
+| Emotes and dances | Cosmetic | 49 to 99 | some from quests | The no-chat social layer |
+
+**Boosts**
+
+| Item | Type | R$ | Earnable alternative | Notes |
+|---|---|---|---|---|
+| Speed Burst x5 | Dev Product | 49 | Peddler, spins | Fixed bundle |
+| Steady Hands x3 | Dev Product | 79 | Peddler, quests | Fixed bundle |
+| Scrap Magnet x3 | Dev Product | 99 | Peddler, spins | Catch bonus, not station income |
+| Server luck 2x, 15 min | Dev Product | 249 | Meteor Shower, events | Shared by all 8 players; odds shown live; PolicyService gated |
+| Server luck 4x, 15 min | Dev Product | 999 | | Same rules |
+| Splice rush | Dev Product | 49 to 99 | 4-hour timer | Deterministic |
+
+**Home**
+
+| Item | Type | R$ | Earnable alternative | Notes |
+|---|---|---|---|---|
+| Plot expansion (two steps) | Pass | 199 / 399 | | Bloxburg's 30x30 to 50x50 pattern |
+| Habitat slot | Pass | 149 each, 499 for four | one per world launched | Dragon City habitats |
+| Furniture cap (double) | Pass | 199 | | Adopt Me's 4,000 to 8,000 pattern |
+| House themes (frost, neon, candy) | Cosmetic | 99 to 299 | | Matches world themes |
+| Visitor fireworks and welcome signs | Cosmetic | 49 to 99 | | Seen by visitors |
+
+**Spins and offers**
+
+| Item | Type | R$ | Notes |
 |---|---|---|---|
-| Direct-buy Rare or Epic alien | Dev Product | 99 to 199 | Never Legendary or above |
-| +1 station slot, slot bundles | Pass | 149 to 799 | Capacity, not power |
-| Auto-collect / auto-optimize | Pass | 199 to 299 | Convenience |
-| Home plot expansion, habitat slots | Pass | 199 to 499 | Capacity |
-| Hull skins, alien hats and trails, decor | Cosmetics | 49 to 299 | |
-| Splice rush, module rush | Dev Product | 29 to 99 | Deterministic timer skip |
-| Explorer Pack (gear tiers 1 to 3 early unlock) | Pass | 399 | Every piece also earnable; paid speed equals earned speed |
-| Gear, mount saddle, radar, hoverboard skins | Cosmetics | 49 to 299 | The hoverboard skin shelf is the cosmetic headline |
-| Radar Mk1 early unlock | Dev Product | 149 | Deterministic; same item earned in the first half hour |
-| Speed Burst, Steady Hands, Scrap Magnet bundles | Dev Product | 49 to 149 | Fixed bundles, no randomness |
-| Permanent x1.5 personal luck (later, optional) | Pass | 299 to 399 | Probability modifier: disclosure, PolicyService gate; not a launch SKU |
-| Server-wide luck, 15 min | Consumable | 249 / 999 | Probability modifier: full disclosure, PolicyService gated |
-| Paid spins | Consumable | 49 to 199 | Section 11 rules |
-| Private world | Subscription | free or minimal | Don't price friends out |
-| **Not sold** | | | 2x Scrap income, Double Shift, Lucky Charms, mounts, pay-to-steal, Robux-only aliens or gear, exclusive aliens in spins |
+| 1 spin / 5 spins / 12 spins | Dev Product | 49 / 199 / 399 | Full numeric odds, no dud segment, hidden where restricted, cosmetics and consumables only |
+| Starter Pack (one per account) | Dev Product | 199 | A chosen Rare alien, a hoverboard skin, 5 spins, Speed Boots now. Always available; no countdown |
+| Launch Pack (unlocks at first launch) | Dev Product | 299 | Home plot expansion step 1, a habitat slot, a house theme. Appears once, at the moment the home planet unlocks |
+| Supporter tip (badge) | Dev Product | 25 / 100 / 500 | A cosmetic supporter badge and a thank-you in the credits wall |
+| Roblox Premium perks | Built in | | Cosmetic aura, one extra free spin per day, an exclusive hoverboard skin |
+| Private world | Subscription | free | Roblox's own guidance: do not price friends out |
 
-Show the real-currency equivalent next to every Robux price, never add a second premium currency, and turn on regional pricing from day one.
+**Not sold, and why**
+
+| Item | Why |
+|---|---|
+| 2x Scrap income passes, Double Shift | Developers report income passes drive players away; income is the ship bar |
+| Scrap for Robux | If Scrap can be bought with Robux it becomes Robux-derived currency, and every Scrap-priced random item (Peddler eggs, Welcome Week egg) becomes a paid random item under Roblox policy. Keeping Scrap earn-only keeps the whole free loop out of that regime |
+| Lucky Charms | Personal probability modifier; keep earned |
+| Any alien above Epic, any event alien, any mount | Aliens are the game; the top of the codex is earned |
+| Gear that cannot be earned, speed above earned speed | Pay-to-explore |
+| A second premium currency | Currency opacity is the most-cited child harm and a named target of the EU KIDS Act proposal |
+| Pay-to-steal | Named backlash target in Grow a Garden |
+
+### When offers appear
+
+Offers show up at the moment they make sense and never more than once per session each. No pop-up on login. No countdown timers on offers, except event cosmetics, which carry the event's announced end date.
+
+| Moment | Offer |
+|---|---|
+| First shop open | Starter Pack on Featured |
+| All station slots full and an alien is waiting | +1 slot on every station |
+| A module has more than 10 minutes left and the player is idle at camp | Module rush, once |
+| Perfect catch on a Rare or Epic | "Dress up [name]?" hat shelf for that alien |
+| First Hoverboard ride | Skin shelf |
+| First launch | Launch Pack, as the home planet unlocks |
+| Meteor Shower in under 5 minutes | Server luck, with the shared benefit stated: "everyone on this planet gets it" |
+| Codex page hits 100% | Hull skin for that world, half earned (free) and half sold (variants) |
+
+### Rules that keep it safe
+
+- Every random purchase shows per-item odds summing to 100%, every outcome has value, active luck is disclosed live, and `PolicyService.ArePaidRandomItemsRestricted` hides the item and offers a deterministic alternative.
+- Every price shows its real-currency equivalent. One currency, Scrap, and it is never sold.
+- All under-16 accounts sit in Roblox Kids or Select tiers with parent spend limits as of June 2026; price points should be ones a parent approves without a second thought, which is why the catalog clusters at 49 to 399.
+- Cosmetics do not change stats. Overlays (earned) and trails (bought) use visibly different VFX so a bought trail is never mistaken for a Rainbow.
+- The US 18+ DevEx rate applies only to experiences rated R15, which this game will not be; plan revenue on the standard rate. Creator Rewards start paying after 100 DAU sustained for 60 days.
+
+### What to expect
+
+Roblox's Q2 2026 letter blamed a bookings shortfall on engagement shifting toward games "with lower hourly monetization" than the 2025 viral hits, especially among younger US and Canadian players. This catalog will not match a paid-egg economy's peak revenue per hour, and that is the trade. What it buys is a game that stays sellable in the UK, Australia, and Brazil today, needs no re-architecture if the EU acts, converts steadily rather than in spikes, and ranks better under an algorithm that now scores retention and monetization together.
 
 ---
 
@@ -538,7 +644,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 | Phase | Scope | Why |
 |---|---|---|
-| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel, Radar Mk1, shadow silhouettes for uncaught species, Speed Boots, the Luck readout, and three power-ups through the Peddler; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; 3 to 4 passes plus gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
+| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel, Radar Mk1, shadow silhouettes for uncaught species, Speed Boots, the Luck readout, and three power-ups through the Peddler; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; the launch shop: Starter Pack, four passes, hoverboard skin shelf, boost bundles, and gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
 | **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Hoverboard with tricks and skins, Glider Pack, Radar Mk2, Epic mounts with the Ride trait, the full power-up set; Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
 | **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job, Jet Boost, Mag Boots, and Radar Mk3; world gear for each later world; decision on a permanent luck pass; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
 
@@ -558,6 +664,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 8. **Event rerun policy.** Annual Vault Reopening is the recommendation. Permanent retirement (Adopt Me) only makes sense once trading exists.
 9. **Permanent luck pass.** Launch without it and sell shared server luck only; revisit after the first month of revenue data.
 10. **Mounts and companion slots.** Riding uses a companion slot is the recommendation, so riding your best alien is a visible choice rather than a free bonus.
+11. **Scrap for Robux.** The recommendation is never, because it would pull every Scrap-priced random item under the paid random items policy. If revenue demands it later, the Peddler eggs and the Welcome Week egg must get odds disclosure and regional gating first.
 
 ---
 
