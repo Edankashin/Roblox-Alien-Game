@@ -628,7 +628,84 @@ Roblox's Q2 2026 letter blamed a bookings shortfall on engagement shifting towar
 
 ---
 
-## 16. Technical notes (for the build)
+## 16. UI and UX direction (how the hits do it)
+
+The fastest way for a Roblox game to look amateur or machine-made is a clean, flat, grey interface with a modern web font and no outlines, no sound, and no motion. The hits look the opposite: chunky, saturated, outlined, bouncy, and loud. Pet Simulator 99, Grow a Garden, Steal a Brainrot, and Adopt Me share one visual language, and players read it as "a real Roblox game" before they have touched anything. This section copies that language on purpose.
+
+### HUD layout (landscape, mobile first)
+
+| Zone | What sits there | Reference |
+|---|---|---|
+| Top center | The **ship bar**: wide pill, dark trough, gradient fill, a small ship icon at the left end, "62%" in white outlined text in the middle, five tick marks for modules. Under it, a thin row of active buff rings and the Luck readout "Luck x1.4" | Steal a Brainrot's top-center timers, every sim's XP bar |
+| Top left | **Scrap counter** as a gradient pill: Scrap icon, rolling-digit number, a green round "+" that opens the shop. Beneath it, small "+24/min" | Pet Sim 99 and Grow a Garden currency pills |
+| Top right | Weather icon and day/night dial; **Meteor Shower countdown chip**; event banner when one is on. Toasts stack beneath | Grow a Garden weather banner and restock timer |
+| Left edge | **Vertical icon stack**, 6 square rounded buttons with labels under them: Shop, Aliens, Codex, Quests, Gifts & Spin, Settings. Red notification dots and diagonal "NEW!" ribbons | Pet Sim 99, Adopt Me, Bubble Gum Simulator Infinity |
+| Right edge | Circular **radar minimap** on top; **gear quick-slots** under it (hoverboard toggle, two power-up slots) | Fisch and Pet Catchers minimaps |
+| Bottom center | **Companion bar**: three slots showing the following aliens, tap to swap | Pet Sim 99 pet equip bar |
+| Bottom right | One big **contextual action button** that changes with context: Catch!, Build, Ride, Collect, Launch. It gently "breathes" when there is something to do | Steal a Brainrot's steal prompt, Adopt Me's task button |
+| Bottom left | Star Chart button at camp; Roblox chat bubble stays where the platform puts it | |
+| Center | Capture bar, reveal popups, module-complete camera pan. Never more than one modal at a time | |
+
+Each alien in the world carries a floating **nameplate**: name in white outlined text, tier label in its rarity color, job icon, and for station aliens a "+1.2/s" line. Steal a Brainrot's over-head income labels are the model; they make every neighbor's camp readable from a distance.
+
+### Component language
+
+- **Font:** Fredoka One for everything, with Builder Sans only for long body text in settings. Fredoka One is the de facto sim-game font and reads as "Roblox" instantly. Sizes: 14 minimum on mobile, 18 body, 24 labels, 36 titles, 48 reveal text. Every piece of text that sits over the world gets a 2 to 3 px dark UIStroke outline.
+- **Buttons:** rounded rectangles (UICorner about 12 px), saturated fill with a vertical gradient lighter at the top, 3 px darker outline, and a 4 to 6 px darker "lip" at the bottom so the button looks like a physical block. White outlined text. Press scales to 0.92 and springs back; hover on PC scales to 1.05. Every press plays a click.
+- **Color roles:** one palette of six UI colors and stick to it. Green is buy, confirm, positive. Red is close, alert, notification. Blue is select, info. Gold is featured, premium. Purple is codex and rarity. Cream or pale sky is panel background. Dark navy is outline and trough.
+- **Rarity colors:** use the platform conventions players already know, each paired with a shape icon for colorblind readers. Common grey, Uncommon green, Rare blue, Epic purple, Legendary orange-gold, Cosmic animated rainbow, Secret black with a rainbow outline. Do not invent a new scheme; recognition is the point.
+- **Panels:** solid light panel, thick colored border, rounded corners, a header tab with the title in white outlined text, a red round X top right, and tabs down the left side with the active tab raised and brighter. No transparency, no blur, no glassmorphism.
+- **Item cards:** square, rarity-colored gradient background, the item rendered large, the name underneath, small stat chips, a diagonal "NEW!" ribbon, an "x3" count badge bottom right, and uncaught items as dark silhouettes with a small lock.
+- **Progress bars:** pill shaped, dark trough, gradient fill, a highlight sweep across the fill every two seconds, white outlined text centered, tick marks at milestones.
+- **Toasts:** top center, slide down with a small bounce, icon on the left, bold short text, gone in 2.5 seconds, at most three stacked. Server announcements are a full-width colored banner with their own sound.
+- **Reveal popup:** backdrop dims 60%, the alien scales in with a Back ease, a radial burst spins behind it, the tier name appears in its rarity color, confetti for Epic and above, "Tap anywhere" at the bottom. This exact ritual appears in every egg-hatching game and players expect it.
+- **Counters:** digits roll rather than snap, and gains appear as "+25" floating text that flies from the source to the counter.
+
+### Motion and sound rules
+
+- Every window opens by scaling from 0.85 to 1 over 0.25 seconds with a Back ease and closes in 0.15 seconds.
+- Buttons wobble slightly when a notification lands on them.
+- The action button breathes (scale 1.0 to 1.04) when there is something to do and sits still when there is not.
+- Every tap makes a sound: click for buttons, pop for cards, a tick per Scrap milestone, a ding per toast, a rising ladder per rarity on reveal, a bass hit when a ship part snaps on.
+- Respect the player's reduced-motion setting by shortening tweens, never by removing feedback.
+
+### Screens and the game each one copies
+
+| Screen | Copies | Notes |
+|---|---|---|
+| Shop | Pet Sim 99 shop with left tabs and a Featured tab | Section 14 |
+| Aliens (camp view) | Pet Sim 99 inventory grid with rarity frames; a station strip at the top showing slots and who is in them; an Optimize button | Drag or tap-to-assign |
+| Codex | Pokémon GO Pokédex meets Pet Sim 99 Index: a page per world, silhouettes for uncaught, a completion bar per page, milestone chests on the bar | Section 9 |
+| Ship | A side view of the ship with five module cards, each showing its three gates as three small bars (Scrap, Key material, Assembly) | Section 3 |
+| Capture bar | A single wide bar in the lower third with the ticker and zones; the alien stays visible above it | Fisch and Pet Catchers minigame framing |
+| Quests | A vertical list of three daily, three weekly, and the Field Notes step with a big claim button that turns green when ready | Grow a Garden quest board |
+| Gifts & Spin | A 7-tile gift calendar on the left, the spin wheel on the right, free spin count in a pill | Standard sim daily rewards layout |
+| Star Chart | A simple orbit map, unlocked worlds lit, the current one pulsing, outposts showing a small output number | Astroneer's planet view simplified |
+| Home | Build mode with a bottom catalog strip and a grid snap, like Bloxburg's | Section 10 |
+| Launch | A full-screen countdown, camera orbit, the Warden in the cockpit, liftoff, and a "World 2" title card | |
+
+### Mobile rules
+
+Design for landscape phones first and let tablets and PC breathe. Minimum touch target 44 px using Scale sizing and a UIScale that steps by viewport width. Keep the thumb zones (bottom corners and edges) for the things players tap most. Keep text at or above 14 px. Respect safe-area insets. Use UIAspectRatioConstraint on cards so grids stay square. Test on an iPhone SE-sized viewport and an iPad viewport in Studio's device emulator before every release, because the median Roblox session is on a phone.
+
+### What to avoid, because it reads as generic or machine-made
+
+- Roblox default grey buttons and Source Sans text.
+- Modern web fonts (Inter, Montserrat, Roboto) and thin weights.
+- Dark glassy panels with blur and transparency.
+- Flat card grids with no outlines, no gradients, and identical spacing everywhere.
+- Emoji or mixed-style icons. Use one icon pack with thick cartoon outlines, bought or commissioned, or none.
+- Gradient text, heavy drop shadows, and center-stacked layouts where every element is the same size.
+- Silence and stillness. If a tap does nothing visible and audible, it feels broken.
+- Invented rarity colors or tier names players have to learn.
+
+### Build notes for the UI
+
+Build the UI in code from one theme module (font, palette, corner radius, stroke widths, tween durations), so a change to the look is a one-file change. Keep every player-facing string in a strings table for Roblox's automatic translation. Build each screen as a component that takes data and renders, so the Shop, Codex, and Aliens screens share one card component and one tab component. Icons are the one UI asset that cannot be generated in code; pick one cartoon icon pack on the Creator Store before the first UI pass and stick to it.
+
+---
+
+## 17. Technical notes (for the build)
 
 - **Places:** one universe; one place per world; one home-planet place; the World 1 place is the start place and "Fully open" so friends land together; private co-op planets are non-start places set to "Secure within universe only."
 - **Saves:** one DataStore key per player (`User_{UserId}`), written with `UpdateAsync` and session locking, autosave every 3 minutes, under 100 KB (slot-based camps and homes keep it small; the per-key cap is 4 MB).
@@ -640,7 +717,7 @@ Roblox's Q2 2026 letter blamed a bookings shortfall on engagement shifting towar
 
 ---
 
-## 17. Roadmap for two people
+## 18. Roadmap for two people
 
 | Phase | Scope | Why |
 |---|---|---|
@@ -652,7 +729,7 @@ Roblox's Q2 2026 letter blamed a bookings shortfall on engagement shifting towar
 
 ---
 
-## 18. Decisions for the team
+## 19. Decisions for the team
 
 1. **Name.** Placeholders to react to: *Starhoppers*, *Catch & Launch*, *Alien Odyssey*, *Little Astronauts*, *Blastoff Buddies*.
 2. **Art style.** Smooth low-poly (Adopt Me) or chunkier blocky (Pet Simulator)? Smooth low-poly reads better for cute-to-epic overlays.
