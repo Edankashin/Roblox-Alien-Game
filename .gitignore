@@ -4,3 +4,4 @@ media/tiktok/out/*/frames/
 
 # local tool cache
 .cache/
+__pycache__/
