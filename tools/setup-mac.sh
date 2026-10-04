@@ -37,11 +37,14 @@ if [ "${WITH_OBSIDIAN:-0}" = "1" ]; then
   brew install --cask obsidian || true
 fi
 
-say "Studio MCP for Claude Code (project-scoped via .mcp.json, plus user-scoped fallback)"
+say "Studio MCP for Claude Code (project-scoped via .mcp.json)"
 STUDIO_MCP="/Applications/RobloxStudio.app/Contents/MacOS/StudioMCP"
 if [ -x "$STUDIO_MCP" ]; then
-  claude mcp add --transport stdio --scope user Roblox_Studio -- "$STUDIO_MCP" || true
-  echo "Registered Roblox_Studio for Claude Code. .mcp.json in the repo covers project scope."
+  # The repo's .mcp.json is the single registration. Remove duplicates in other scopes so
+  # Claude Code does not report conflicting endpoints.
+  claude mcp remove Roblox_Studio -s user >/dev/null 2>&1 || true
+  claude mcp remove Roblox_Studio -s local >/dev/null 2>&1 || true
+  echo "Studio MCP binary found. Claude Code will offer to enable the project server (.mcp.json) when started in this folder; answer yes."
 else
   echo "Roblox Studio not found at /Applications/RobloxStudio.app. Install Studio, open it once, then re-run."
 fi
@@ -51,8 +54,8 @@ cat <<'MANUAL'
 Remaining manual steps (GUI):
  1. Roblox Studio: https://create.roblox.com/docs/studio/setup  (install, sign in, open once)
  2. In Studio: Assistant > ... > Manage MCP Servers > turn on "Enable Studio as MCP server",
-    then Quick connect > toggle "Claude Code" (and "Claude Desktop" if you use it).
-    Fully restart Studio and Claude. The panel shows a green indicator with the client count.
+    (Quick connect is optional; the repo's .mcp.json already points Claude Code at Studio.)
+    The green indicator appears only while a Claude Code session is running in this folder.
  3. Plugins (Toolbox > Creator Store > Plugins, or the links in docs/SETUP.md):
     Rojo, Stravant GapFill & Extrude, Stravant ResizeAlign, Stravant Redupe, Brushtool 2.1, Archimedes v3.
  4. Claude Desktop (optional, for Claude Design and Desktop MCP): https://claude.ai/download

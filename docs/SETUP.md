@@ -30,23 +30,16 @@ Studio ships its own MCP server. Any MCP client can read the game tree, read and
 4. Expand **Quick connect** and toggle **Claude Code**. Toggle **Claude Desktop** too if you use it. If a client is missing from the list, install it and restart Studio.
 5. Fully restart Studio and the client. Back in the same panel, a green indicator shows how many clients are connected.
 
-**Fallbacks if Quick connect does not list your client**
+**One registration only.** The repo's `.mcp.json` already points Claude Code at the Mac server path, so when Claude Code starts inside the repo it offers to enable the project server; answer yes. Do not also register it at user or local scope, and do not paste Studio's "Startup Command" after another `claude mcp add`: that line is already a complete command. If `/mcp` reports conflicting scopes, run:
 
-- Claude Code, from the repo folder: the checked-in `.mcp.json` already points at the Mac server path, so Claude Code picks it up when started inside the repo. To register it for every project instead:
+```bash
+claude mcp remove Roblox_Studio -s local
+claude mcp remove Roblox_Studio -s user
+```
 
-  ```bash
-  claude mcp add --transport stdio --scope user Roblox_Studio -- /Applications/RobloxStudio.app/Contents/MacOS/StudioMCP
-  ```
+then restart Claude Code in the repo. Claude Desktop users add the JSON from Roblox's docs under Settings, Developer, Edit Config instead.
 
-- Claude Desktop: Settings, Developer, Edit Config, and add
-
-  ```json
-  { "mcpServers": { "Roblox_Studio": { "command": "/Applications/RobloxStudio.app/Contents/MacOS/StudioMCP" } } }
-  ```
-
-- Windows uses `cmd.exe /c %LOCALAPPDATA%\Roblox\mcp.bat` instead of the Mac path.
-
-**Verify**: in Claude Code type `/mcp` and confirm `Roblox_Studio` is connected, then ask it to "list the connected Studio instances" (the `list_roblox_studios` tool). Every tool call targets a `studio_id`, so one client can drive several open Studio windows.
+**Verify**: the green dot in Studio appears only while a Claude Code session is running in the repo. Start one (`cd ~/Roblox-Alien-Game && claude`), type `/mcp` and confirm `Roblox_Studio` is connected, then ask it to "list the connected Studio instances" (the `list_roblox_studios` tool). Every tool call targets a `studio_id`, so one client can drive several open Studio windows.
 
 Docs: https://create.roblox.com/docs/studio/mcp. Roblox's older open-source server (`Roblox/studio-rust-mcp-server`) is no longer developed; use the built-in one.
 
