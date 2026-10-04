@@ -56,7 +56,8 @@ The plot stays one sentence: *catch aliens, build the ship, reach the next world
 | Every session | Return reward | Offline chest, daily gift, daily quest complete, one free spin |
 | Every 2 h (server clock) | Meteor Shower | Server banner, sky changes, beacons, Epic+ spawns, Cosmic chance |
 | Every 2 to 7 days | Launch | Warden capture, countdown, liftoff cinematic, new world reveal |
-| Weekly | Limited alien or event | New silhouette in the codex with a 7-day timer |
+| Weekly | Alien of the Week, Weekly Weather, one hosted Shower Storm | New silhouette in the codex with a 7-day timer, event-only overlay, server-wide banner |
+| Monthly | Themed seasonal event or a new world | Sky, music, and camp decor change; event quest track; Vaulted alien |
 
 Juice rules: every number that goes up animates going up; every bar that fills pulses when it fills; every tier has a louder sound than the one below it; every near-miss on the timing bar is shown (the ticker stops just outside the zone and the zone flashes) so the player feels they almost had it.
 
@@ -297,8 +298,7 @@ Keep Scrap as the only spendable currency. Home decor is priced below ship parts
 - **Welcome Week:** seven gifts that unlock by *days played*, not consecutive days. Missing a day loses nothing. Day 7 is an Epic alien egg hatched in the free loop with odds shown. (Login *streaks* are a named target in the EU's September 2026 KIDS Act proposal, so the track is built as "seven gifts" rather than "seven days in a row" from the start.)
 - **Daily quests (3) and weekly quests (3):** Scrap, lures, spins.
 - **Spin Wheel:** one free spin per day plus spins earned from quests and codex milestones. Every segment has value (Scrap, lures, a temporary Shiny charm, a cosmetic, a rare companion-slot token). No "nothing" segment.
-- **Meteor Shower** every 2 hours; **Limited Alien of the Week** with a visible 7-day timer; seasonal overlays with announced end dates.
-- **Update cadence for two people:** one scheduled in-game event per week and one content drop every two weeks. Loop depth, not feature velocity.
+- **Limited-time events** at four cadences, from the 5-minute Peddler to monthly seasonal events. See section 11.
 
 ### Paid spins: how to do them within the rules
 
@@ -314,7 +314,69 @@ Build the wheel so that the paid path can be switched off per region without tou
 
 ---
 
-## 11. Multiplayer
+## 11. Limited-time events
+
+Grow a Garden is the right model. Every record it set was an event: 8.9M concurrent during the "Monster Mash World Record" weekend in June 2025, 22.3M during the Admin War against Steal a Brainrot on August 23, 2025 (the day Roblox itself hit a 47.4M platform record). Steal a Brainrot's 24.1M came during its "Extinct Event." Both games' *average* concurrency at their height was roughly a tenth of their event peaks. Events are the single biggest lever on player count, and they are also what creators stream, which is where new players come from.
+
+The pieces the hits reuse: weekly exclusives that leave after seven days, event-only mutations that exist only during a themed window (Steal a Brainrot's Bloodrot, Candy, Galaxy, and Lava are event-limited; Gold, Diamond, and Rainbow are permanent), weather that mutates things in front of the whole server, a shop that restocks on a five-minute clock so every visit is a lottery ticket, retired content that becomes prestige (Adopt Me's 2019 Shadow and Frost Dragons are its most valuable pets because supply stopped), live developer-hosted windows with drops for everyone logged in, and head-to-head "world record" framing that streamers can rally around.
+
+### Four cadences
+
+| Cadence | Event | What happens | Cost to build |
+|---|---|---|---|
+| **Every 5 min (always on)** | The Peddler | A small alien merchant ship lands at camp with three rotating offers for Scrap: lures, a Scrap bundle, decor, and a small chance of a Rare or Epic alien egg. Stock is server-wide and shared, so players tell each other what landed. Grow a Garden's seed shop, re-skinned. | Low: one data table, one landing animation |
+| **Every 2 h (always on)** | Meteor Shower | Already in section 5. The only Cosmic spawn. | In P0 |
+| **Weekly (Friday, fixed time)** | Alien of the Week + Weekly Weather + one hosted Shower Storm | One limited species spawns for seven days, then is Vaulted. One themed weather state exists only that week and applies a week-only overlay. One Meteor Shower that week is hosted live by the developers with server luck gifted to everyone and a guaranteed Cosmic somewhere on every server. | Medium: one species and one overlay per week; the hosted hour is scheduling, not code |
+| **Monthly (2 weeks on, 2 off)** | Themed seasonal event | A theme layered over existing worlds, not a new world: sky, music, camp decor, an event quest track with milestone rewards, two to three event aliens, one event overlay, limited cosmetics. Alternates with new-world launches so there is always something on. | High: this is the two-week content drop |
+| **Quarterly or at milestones** | Live record attempt | A streamed weekend with a community goal ("catch 10 million aliens together"), celebrity and creator servers, and a one-time Cosmic. This is the Admin War pattern. | Low in code (global counter plus boosted tables), high in coordination |
+
+### Event theme calendar (first year, placeholders)
+
+| Month | Theme | Overlay (event-only) | Event aliens | Hook |
+|---|---|---|---|---|
+| Launch month | First Landing | Launch Gold (1.5x, retired after) | 1 launch-week alien | Players who were there first keep proof |
+| October | Haunted Nebula | Spectral (2x, translucent, trails) | Ghost-themed species on World 1 | Night lasts twice as long all event |
+| December | Frostfall | Frosted (2x, ice shell) | Snow species across worlds | Snow falls on every world, including Verdant |
+| February | Starlight Bloom | Blossom (2x, petals) | Pollinator species | Weather is always Clear with aurora |
+| April | Egg Hunt | Speckled (2x) | Hatchling species found as eggs hidden in biomes | Eggs replace spawns; find-and-tap hunt |
+| June | Solar Flare | Solar (2x, heat shimmer) | Sun species | Meteor Showers twice as often |
+| Anniversary | Vault Reopening | none | Every Vaulted alien returns for one week | The kindness rerun (see below) |
+
+Each world launch (section 7) is also treated as an event: a "First Landing" week with double key material drops and a launch-week limited alien.
+
+### Event mechanics the whole system reuses
+
+- **Event quest track:** a free milestone track (catch 20 event aliens, catch one with the event overlay, finish three Showers) that pays Scrap, lures, spins, decor, and finally the event's rarest alien. No second currency. Everything is earnable in roughly 2 to 3 hours of total play across the two weeks.
+- **Event overlays:** multiplicative like permanent overlays, tier-sized (2x) because they are scarce, and they stop rolling when the event ends. An alien caught with a Spectral overlay in October is permanently proof of October.
+- **Vaulting:** when an event or weekly alien leaves, its codex entry gets a "Vaulted" stamp and the silhouette stays visible to everyone. Vaulted aliens never get stronger than current ones; their value is prestige, not power, so missing one does not cost progress.
+- **Server-wide luck, gifted:** developers can grant every server a free luck window during hosted events. It is the same mechanic sold in section 13, which makes the hosted hour feel generous.
+- **Global counter:** a universe-wide tally (MemoryStore plus a DataStore checkpoint) drives community goals and unlocks a shared reward when the number is hit. Pokémon GO's Global Challenges and Grow a Garden's record attempts both run on this.
+- **Event banner:** a persistent HUD banner with the event name, the end date, and the next hosted window, in the same slot the Shower countdown uses. Players always know what is on and when it ends.
+
+### Rules for a young audience
+
+- **Announce the end date on day one** and never run a "last chance" countdown louder than the normal banner. The EU KIDS Act proposal names pressure loops and login streaks; a visible calendar is not a pressure loop, a flashing countdown is.
+- **Nothing event-exclusive is ever sold.** Event aliens come from the quest track and spawns. Event cosmetics may be sold. Event overlays roll only on free catches.
+- **Prestige over power.** Event aliens and overlays are never required for a module, a splice, or a Warden. Players who skip an event lose nothing on the ship bar.
+- **Reruns are kind.** Vaulted aliens return once a year at the anniversary. Adopt Me's permanent retirement creates trading value, but this game has no trading at launch, so permanent retirement would only create regret.
+- **Events boost the free loop first.** Doubled key materials, more Showers, longer nights: the best event rewards are things players would have wanted anyway, arriving faster.
+
+### Tooling for two people
+
+Build events as data, not code, from day one:
+
+- An **event config** (start and end timestamps, spawn table overrides, overlay table, weather override, banner text, quest track) loaded through Configs so an event can be scheduled, extended, or ended without a restart.
+- A **developer panel** that triggers server-wide effects (luck window, forced Shower, forced weather, announcement) across all servers through MessagingService. This is what "admin abuse" is mechanically.
+- A **content checklist per weekly drop:** one species (mesh family plus overlay variants), one voice line, one idle, one codex entry, one spawn rule. If a weekly alien takes more than two days of work, it is too elaborate.
+- **Scheduled, not improvised.** Publish the month's calendar in-game and on socials. Creators plan streams around known windows; a surprise event only reaches players who were already online.
+
+### What events are not
+
+Events spike concurrency about tenfold for a day; they do not set the baseline. 99 Nights in the Forest held its chart position after pausing weekly updates because the loop was deep, and Roblox's 2026 discovery algorithm scores 28 days of return behavior, which weekly and monthly events feed directly. Events are how the game gets seen. The ship bar, the catch, and the codex are why players stay.
+
+---
+
+## 12. Multiplayer
 
 - **World servers:** MaxPlayers 8, PreferredPlayers 6, eight fixed camp slots, one or two social slots reserved for friends. Camps restore from the player's save on join.
 - **Co-op:** platform Party (up to 6) plus the Party API and reserved servers for a private world instance. Progress stays per player; only the instance is shared.
@@ -325,7 +387,7 @@ Build the wheel so that the paid path can be switched off per region without tou
 
 ---
 
-## 12. Monetization
+## 13. Monetization
 
 Rule: keep randomness in the free loop; sell certainty, capacity, convenience, and cosmetics.
 
@@ -346,7 +408,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 ---
 
-## 13. Art and audio direction
+## 14. Art and audio direction
 
 - **Cute baseline:** round compact body, big eyes, tiny mouth, short limbs, one bold saturated color, drawable by a child. Stylized low-poly, clean shading.
 - **Same body, escalating overlays:** tier and overlay are scale, material, glow, particles, and attachments on the same mesh family. This is the only way two people ship 15 species x 6 tiers x 4 overlays per world.
@@ -367,7 +429,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 ---
 
-## 14. Technical notes (for the build)
+## 15. Technical notes (for the build)
 
 - **Places:** one universe; one place per world; one home-planet place; the World 1 place is the start place and "Fully open" so friends land together; private co-op planets are non-start places set to "Secure within universe only."
 - **Saves:** one DataStore key per player (`User_{UserId}`), written with `UpdateAsync` and session locking, autosave every 3 minutes, under 100 KB (slot-based camps and homes keep it small; the per-key cap is 4 MB).
@@ -379,19 +441,19 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 ---
 
-## 15. Roadmap for two people
+## 16. Roadmap for two people
 
 | Phase | Scope | Why |
 |---|---|---|
-| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel and scanner; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; 8-player servers with camp restore; client-rendered aliens; 3 to 4 passes plus gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
-| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Limited Alien of the Week | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
-| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; seasonal overlays; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
+| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel and scanner; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; 3 to 4 passes plus gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
+| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
+| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
 
 **Launch targets:** D1 above 20%, D7 above 8% (the top-1% band on Roblox), median session above 10 minutes, tutorial completion above 60%, Meteor Shower attendance above 30% of online players. If D1 is under 15% after week one, the problem is the first eight minutes, not the roster.
 
 ---
 
-## 16. Decisions for the team
+## 17. Decisions for the team
 
 1. **Name.** Placeholders to react to: *Starhoppers*, *Catch & Launch*, *Alien Odyssey*, *Little Astronauts*, *Blastoff Buddies*.
 2. **Art style.** Smooth low-poly (Adopt Me) or chunkier blocky (Pet Simulator)? Smooth low-poly reads better for cute-to-epic overlays.
@@ -400,6 +462,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 5. **Splicing parents.** Not consumed is the recommendation. Consuming parents is a bigger Scrap sink but risks grief.
 6. **Theft.** Borrow-only at launch is the recommendation. Opt-in raids later.
 7. **World order.** Verdant, Frostbyte, Neon Grid is the proposed first three. Candy or ocean could swap into slot 3 if the team prefers a brighter third world.
+8. **Event rerun policy.** Annual Vault Reopening is the recommendation. Permanent retirement (Adopt Me) only makes sense once trading exists.
 
 ---
 
