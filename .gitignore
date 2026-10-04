@@ -1,3 +1,6 @@
 # video processing byproducts (large); sheets, transcripts and info are kept
 media/tiktok/out/*/audio.wav
 media/tiktok/out/*/frames/
+
+# local tool cache
+.cache/

@@ -23,6 +23,10 @@ A Roblox collection game for a two-person team: players crash-land on planets, c
 - `src/shared/` ReplicatedStorage: data tables, strings, types, theme module, net wrapper.
 - `docs/` design, plan, vault. `tools/` scripts. `media/` reference material.
 
+## Before committing code
+
+- `./tools/analyze.sh` must print `analyze: clean` (strict Luau analysis with Roblox definitions through the Rojo sourcemap).
+
 ## How to run
 
 - `rojo serve` in the repo, connect the Rojo plugin in Studio, press Play.

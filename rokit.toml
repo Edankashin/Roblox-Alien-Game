@@ -1,3 +1,4 @@
 # Toolchain for this repo. Install Rokit once, then run `rokit install` here.
 [tools]
 rojo = "rojo-rbx/rojo@7.7.1"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.70.1"

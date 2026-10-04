@@ -14,7 +14,9 @@ It installs Node and Claude Code, Rokit and Rojo 7.7.1 (pinned in `rokit.toml`),
 
 ## 1. Roblox Studio
 
-Install from https://create.roblox.com/docs/studio/setup, sign in with the account that will own the experience, and open it once. The MCP server is built into Studio; keep Studio on the latest version.
+Install from https://create.roblox.com/docs/studio/setup (click **Download Studio**; on a Mac the file is `RobloxStudio.dmg`, open it and drag Studio to Applications). Sign in with the account that will own the experience and open it once. The MCP server is built into Studio; keep Studio on the latest version. Minimum macOS 10.14, 14+ recommended.
+
+After Studio has been opened once, re-run `./tools/setup-mac.sh`. It is safe to re-run and will now succeed at the two steps that need Studio: installing the Rojo plugin and registering the MCP server with Claude Code.
 
 ## 2. Attach Claude to Studio (the important one)
 
@@ -47,6 +49,14 @@ Studio ships its own MCP server. Any MCP client can read the game tree, read and
 **Verify**: in Claude Code type `/mcp` and confirm `Roblox_Studio` is connected, then ask it to "list the connected Studio instances" (the `list_roblox_studios` tool). Every tool call targets a `studio_id`, so one client can drive several open Studio windows.
 
 Docs: https://create.roblox.com/docs/studio/mcp. Roblox's older open-source server (`Roblox/studio-rust-mcp-server`) is no longer developed; use the built-in one.
+
+## 2b. Type check before every commit
+
+```bash
+./tools/analyze.sh
+```
+
+Runs the Luau language server in strict mode over `src/` with the Roblox API definitions, resolving requires through the Rojo sourcemap. It must print `analyze: clean`. Rokit installs `luau-lsp` alongside Rojo from `rokit.toml`.
 
 ## 3. Rojo (code sync)
 
