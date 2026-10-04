@@ -52,6 +52,7 @@ The plot stays one sentence: *catch aliens, build the ship, reach the next world
 |---|---|---|
 | Every 1 to 5 s | Scrap ticks, aliens work | Floating numbers, work-loop animations, soft chime on round numbers |
 | Every 30 to 90 s | A catch | Timing-bar hit sound, catch burst, rarity-colored card, codex "NEW" stamp |
+| First sight of a new species | A shadow silhouette resolves into color as you approach | "Who's that?" chime, radar blip turns from shadow to icon |
 | Every 3 to 10 min | Module sub-bar completes | Aliens swarm, part snaps on, camera pan, ship bar jumps with a bass hit |
 | Every session | Return reward | Offline chest, daily gift, daily quest complete, one free spin |
 | Every 2 h (server clock) | Meteor Shower | Server banner, sky changes, beacons, Epic+ spawns, Cosmic chance |
@@ -95,7 +96,7 @@ Income reference: a Common at level 1 produces about 1 Scrap/s at a station. Two
 
 ### "A little challenging": the Warden finale
 
-The last module of every world needs that world's Core, and the Core comes from catching the world's Warden. The Warden is a Legendary with a unique three-round timing capture (see section 6). The Field Notes quest chain (section 8) leads to a guaranteed Warden encounter, so the challenge is skill and persistence, never luck. If the player fails the capture, the Warden retreats and returns at the next Meteor Shower or after a 15-minute cooldown; nothing is lost. When caught, the Warden becomes the ship's pilot, visible in the cockpit, and its silhouette appears on the launch cinematic. It is the cute-to-epic payoff of the whole world.
+The last module of every world needs that world's Core, and the Core comes from catching the world's Warden. The Warden is a Legendary with a unique three-round timing capture (see section 7). The Field Notes quest chain (section 9) leads to a guaranteed Warden encounter, so the challenge is skill and persistence, never luck. If the player fails the capture, the Warden retreats and returns at the next Meteor Shower or after a 15-minute cooldown; nothing is lost. When caught, the Warden becomes the ship's pilot, visible in the cockpit, and its silhouette appears on the launch cinematic. It is the cute-to-epic payoff of the whole world.
 
 World pacing target: World 1 takes 2 to 3 hours of play across 2 to 3 days. World 2 about 4 to 5 days. World 3 about a week. The offline systems make every return feel like progress even when the player only has five minutes.
 
@@ -108,7 +109,7 @@ World pacing target: World 1 takes 2 to 3 hours of play across 2 to 3 days. Worl
 Every alien is a **worker** and a **companion**.
 
 - **Worker:** has one or two jobs at a level. At a station it produces Scrap; in a module slot it assembles. Four jobs at launch: Mine, Haul, Weld, Wire. Auto-assign puts every new catch in its best open slot. A single "Optimize" button re-sorts the camp. Manual placement exists for players who want it.
-- **Companion:** up to three aliens follow the player (Pet Simulator pattern) and each gives one small perk while following: slower timing ticker, wider zone, longer scanner range, more Scrap from catches, higher Shiny chance. Companions are how aliens matter during exploration, not only at camp.
+- **Companion:** up to three aliens follow the player (Pet Simulator pattern) and each gives one small perk while following: slower timing ticker, wider zone, longer radar range, more Scrap from catches, higher luck. Companions are how aliens matter during exploration, not only at camp.
 
 No hunger, no happiness, no upkeep. Aliens never leave, never die, never need feeding.
 
@@ -131,7 +132,7 @@ Overlays roll on any body, one per alien, multiplicative: Shiny 1.25x (~5%), Gol
 - **Fusion:** four duplicates of a species fuse into +1 level on one copy (max +2). Surplus always has a destination.
 - **Codex payout:** the first catch of any species pays Scrap and a decoration. A late Common is worthless as a unit but valuable as an entry.
 - **Haul is commons-only:** one job is held only by Common and Uncommon species, so the camp cannot run without them.
-- **Splicing parents:** secrets require specific commons from specific worlds (section 8).
+- **Splicing parents:** secrets require specific commons from specific worlds (section 9).
 
 ### How value is shown
 
@@ -168,13 +169,100 @@ Naming rule: each alien is an alien-plus-object or alien-plus-tool hybrid descri
 - **Gating ladder:** rarity is gated by *where* (biome), *when* (day/night, weather), and *how* (lure tier, companion perks). Day/night cycle is 3 minutes day and 90 seconds night (a 15-minute session gets three nights). Weather rolls randomly for 2 to 5 minutes: Rain, Fog, Clear, and later world-specific states.
 - **Hidden places:** rares spawn in nested spots: cave depths, treetops, behind a waterfall, under ice. Finding the spot is a one-time discovery that the codex remembers.
 - **Secret cues:** a secret alien in the area plays a unique chirp and shows a glint on the horizon. The Nearby panel shows "???". Nothing else is told.
-- **Scanner:** a Scrap-upgradable radar that pings rares within range and shows the next Meteor Shower countdown.
+- **Radar:** a tiered, Scrap-upgradable radar that shows nearby aliens as blips, with uncaught species drawn as shadow silhouettes. Full spec in section 6.
+- **Gear:** speed boots, a hoverboard, a glider, and rideable aliens make the map bigger as the player gets stronger. Section 6.
 - **Meteor Shower:** every 2 hours on a fixed server clock, a 3-minute window. Server-wide banner, sky turns, beacons mark spawns, Epic+ rates rise, Cosmics can appear. It is the only place Cosmics spawn, which turns the rarest find into a shared appointment rather than a private slot machine.
 - **Server announcements:** Legendary and Cosmic spawns announce to the whole server with location, the pattern Steal a Brainrot and Steal an Egg use. Seeing someone else's catch is content.
 
 ---
 
-## 6. The capture minigame
+## 6. Gear, mounts, power-ups, radar, and luck
+
+Exploration tools are the second progression track beside the ship. They make the map bigger as the player gets stronger (speed, height, water), they are the most natural things to sell on Roblox (speed coils, hoverboards, and vehicles are platform staples in Pet Simulator 99, Adopt Me, and Bloxburg), and they live exactly where the research says monetization belongs: convenience and cosmetics, never income.
+
+Two rules govern everything in this section. **Everything is earnable with Scrap or quests**; Robux buys skins or an early unlock of something a player would get anyway. **Nothing here is required to catch commons or to finish a module.** Gear opens shortcuts and hidden spots. It never gates the ship bar.
+
+### Movement gear (permanent unlocks)
+
+| Tier | Gear | Effect | How to earn | Robux |
+|---|---|---|---|---|
+| 0 | Walk | base speed, single jump | | |
+| 1 | Speed Boots | +25% speed | Field Notes step 1, or 800 Scrap | skins only |
+| 2 | Hoverboard (the skateboard) | +60% speed, trick animations on jumps, dismounts in caves | 5,000 Scrap, or codex 50% on World 1 | skins (neon, flame, pizza, cardboard box) 99 to 299 |
+| 3 | Glider Pack | hold jump to glide; reaches treetops and rooftops, which is where several Rares and hidden spots live | 15,000 Scrap, or first launch | skins |
+| 4 | Jet Boost | short vertical burst on a cooldown | World 3 Field Notes | skins |
+| World gear | Ice Skates (Frostbyte), Swim Fins (Tidepool), Heat Suit (Emberfall), Mag Boots (Neon Grid) | the traversal each world's rule needs | that world's Field Notes step 2 | skins |
+
+The Hoverboard is the one to get right. It is the thing players will film: a cute alien riding behind a kid on a pizza-skinned board doing a kickflip over a crater is a ten-second clip. Give it three trick animations and a landing sound.
+
+An "Explorer Pack" that unlocks tiers 1 to 3 at once for about 399 Robux is acceptable because every piece is also earnable and the paid speed equals the earned speed. Never sell a speed that cannot be earned.
+
+### Mounts (rideable aliens)
+
+Some species carry a **Ride** trait: every Cosmic and every Warden, plus one or two Epic species per world. Riding an alien gives a traversal type and a speed set by its tier:
+
+| Traversal | What it does | Example (placeholder) |
+|---|---|---|
+| Sprint | fastest ground movement, big leap | Thunderhog (World 1 Epic), Verdant Warden |
+| Hover | ignores slow terrain, crosses small gaps and ice | a yeti-slug on Frostbyte |
+| Glide | long glide from any height | a drone-cat on Neon Grid |
+| Swim | fast swimming and diving | a manta on Tidepool |
+| Climb | runs up walls | a gecko-bot on Neon Grid |
+
+Epic mounts match Hoverboard speed. Legendary mounts are 20% faster. Cosmic mounts are 40% faster with a unique trail and the "????" stat card. Riding uses one of the three companion slots, so a mounted alien is a visible, deliberate choice. Mounts are the biggest social flex in the game: everyone on the server sees what you ride, and the Warden you fought for becomes the thing you arrive on. Saddle and harness cosmetics are sold; the mounts themselves are never sold.
+
+### Power-ups (consumables)
+
+| Power-up | Effect | Duration | Sources |
+|---|---|---|---|
+| Speed Burst | +50% speed | 60 s | Peddler, spins, event tracks |
+| Steady Hands | timing zones +30% wider | 10 min | Peddler, quests |
+| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins |
+| Lucky Charm | +50% personal luck | 10 min | quests, spins, Welcome Week, events. Earned only |
+| Scrap Magnet | catches pay +50% Scrap | 10 min | Peddler, spins |
+| Double Shift | stations produce 2x Scrap | 10 min | spins and event tracks only. Never sold |
+
+Rules: one active per type, timers run only while online so a kid never wastes one by closing the app, active buffs show as small rings under the ship bar, and activation has a sound and a brief screen tint. Speed Burst, Steady Hands, and Scrap Magnet may be sold in fixed bundles (no randomness). Lucky Charm and Double Shift stay earned-only: one is a probability modifier and the other is the income multiplier the research warns against selling.
+
+### The Radar
+
+The radar is the shadow idea made into a progression item. Uncaught species always appear as **shadow silhouettes**, both on the radar and in the world, and the silhouettes are the same art the codex uses, so the radar is literally a to-do list for the codex.
+
+| Tier | Radar | Range | What it shows | How to earn | Robux |
+|---|---|---|---|---|---|
+| 0 | Nearby panel (free) | this biome | species present now: caught in color, uncaught as shadows, secrets as "???"; compass direction only | always | |
+| 1 | Radar Mk1 | 120 studs | minimap blips; uncaught species as shadow silhouettes with a rarity-colored outline; tap a blip to set a waypoint | Field Notes step 2, or 1,500 Scrap | early unlock 149; skins |
+| 2 | Radar Mk2 | 250 studs | hidden spots once you have passed within 50 studs; for rares that are not here right now, the condition they need ("appears: night, Rain"); a "???" ping and a heartbeat sound that quickens as you approach a secret | 8,000 Scrap, or World 2 | skins |
+| 3 | Radar Mk3 | whole biome | Meteor Shower spawn preview 30 seconds early; a glint icon on any spawn carrying an overlay within 60 studs | 25,000 Scrap, or World 3 | skins |
+
+**Shadow reveal in the world:** uncaught species render as dark silhouettes beyond about 40 studs and resolve into full color as the player approaches. Every first sighting becomes a small "Who's that?" moment, and it costs almost nothing to build: a client-side material swap keyed on the player's codex. An accessibility toggle turns it off.
+
+No radar tier is Robux-only. The Mk1 early unlock is deterministic and the same item players earn in the first half hour.
+
+### Luck
+
+Luck is one visible number, "Luck x1.0," under the ship bar. Tapping it shows the exact tier odds with current luck applied, which is both a dopamine readout and the disclosure Roblox requires for any paid modifier.
+
+**What luck affects.** Wild aliens spawn around players, and the server rolls each spawn's tier using the **highest luck among the players nearby**. That makes luck social: standing next to a lucky friend makes your spawns better, which is Steal a Brainrot's shared server luck turned into a reason to explore together. Luck also raises the overlay roll on your own catches and improves Peddler stock quality. It never touches the spin wheel or splicing, whose odds stay fixed and published.
+
+**How it scales.** Each tier's share above Common is multiplied by Luck and Common absorbs the difference. At 4x luck, Legendary goes from 1.5% to 6% and Epic from 6% to 24%. Total luck is capped at 8x, the same ceiling Steal a Brainrot's stacked server luck reaches.
+
+| Source | Bonus | Duration | Notes |
+|---|---|---|---|
+| Companion perks | +10% to +25% each, up to three | while following | the main permanent source |
+| Lucky Charm | +50% | 10 min | earned only |
+| Night, for night-conditional species | +25% | while night | shows on the readout |
+| Weekly Weather and seasonal events | +100% | event window | section 12 |
+| Meteor Shower | +200% server-wide | 3 min | section 5 |
+| Codex page complete | +5% permanent per world page | forever | the collector's reward |
+| Server Luck (purchased) | 2x or 4x, shared by all eight players | 15 min | 249 / 999 Robux, full disclosure, PolicyService gated |
+| Soft pity ("scanner charge") | rises each catch without a Rare+, resets on one | until a Rare+ | shown inside the readout |
+
+**Monetization stance.** Sell shared server luck at launch, as the monetization section already does. A permanent personal luck pass (x1.5 for 299 to 399 Robux) is the Roblox norm and converts well, but it is a probability modifier bought by a kids-skewed audience, so it is listed as a later option, not a launch SKU. If it ships, it needs the same disclosure and PolicyService gate as server luck, and the readout must show it.
+
+---
+
+## 7. The capture minigame
 
 The team's instinct is right: a timing bar is the single best fit for one-thumb play and it adds skill expression without stress.
 
@@ -185,7 +273,7 @@ The team's instinct is right: a timing bar is the single best fit for one-thumb 
 3. Zones: outer grey (Miss), green (Good), gold center (Perfect). Tap, click, or space to stop the ticker.
 4. **Perfect:** guaranteed catch, bonus Scrap, "PERFECT" stamp, a slightly louder reveal.
 5. **Good:** catch roll by tier (Common 100%, Uncommon 90%, Rare 75%, Epic 60%, Legendary 50%). On a failed roll the alien wiggles free and the ticker sweeps again. Up to 3 sweeps per encounter.
-6. **Miss:** costs one sweep. After 3 failed sweeps the alien flees. Commons reappear nearby in 60 seconds. Rares vanish until their condition next returns, but the scanner marks the spot.
+6. **Miss:** costs one sweep. After 3 failed sweeps the alien flees. Commons reappear nearby in 60 seconds. Rares vanish until their condition next returns, but the radar marks the spot.
 
 ### Difficulty by tier
 
@@ -215,7 +303,7 @@ The server owns the encounter: it generates the ticker speed, zone position, and
 
 ---
 
-## 7. Worlds
+## 8. Worlds
 
 Each world is a separate Roblox place in one universe, handcrafted, with three biomes, 12 to 15 species, one Warden, one or two secrets, and one new rule. Themes change the constraint, not just the skin.
 
@@ -245,7 +333,7 @@ A **Star Chart** on the ship lets the player fly back to any unlocked world inst
 
 ---
 
-## 8. Codex, quests, and splicing (the Dragon City model)
+## 9. Codex, quests, and splicing (the Dragon City model)
 
 ### Codex
 
@@ -278,7 +366,7 @@ Secrets are the top of the codex, the long-term goal for collectors, and never s
 
 ---
 
-## 9. The home planet
+## 10. The home planet
 
 Unlocks on the first launch, as the reward for finishing World 1. It is the player's persistent showcase and the place friends visit.
 
@@ -292,13 +380,13 @@ Keep Scrap as the only spendable currency. Home decor is priced below ship parts
 
 ---
 
-## 10. Retention systems
+## 11. Retention systems
 
 - **Offline accrual:** Scrap accrues at 50% rate while away, capped at about 60 minutes of income; module assembly continues at full speed. The return is always a chest and often a snapped-on part.
 - **Welcome Week:** seven gifts that unlock by *days played*, not consecutive days. Missing a day loses nothing. Day 7 is an Epic alien egg hatched in the free loop with odds shown. (Login *streaks* are a named target in the EU's September 2026 KIDS Act proposal, so the track is built as "seven gifts" rather than "seven days in a row" from the start.)
 - **Daily quests (3) and weekly quests (3):** Scrap, lures, spins.
 - **Spin Wheel:** one free spin per day plus spins earned from quests and codex milestones. Every segment has value (Scrap, lures, a temporary Shiny charm, a cosmetic, a rare companion-slot token). No "nothing" segment.
-- **Limited-time events** at four cadences, from the 5-minute Peddler to monthly seasonal events. See section 11.
+- **Limited-time events** at four cadences, from the 5-minute Peddler to monthly seasonal events. See section 12.
 
 ### Paid spins: how to do them within the rules
 
@@ -314,7 +402,7 @@ Build the wheel so that the paid path can be switched off per region without tou
 
 ---
 
-## 11. Limited-time events
+## 12. Limited-time events
 
 Grow a Garden is the right model. Every record it set was an event: 8.9M concurrent during the "Monster Mash World Record" weekend in June 2025, 22.3M during the Admin War against Steal a Brainrot on August 23, 2025 (the day Roblox itself hit a 47.4M platform record). Steal a Brainrot's 24.1M came during its "Extinct Event." Both games' *average* concurrency at their height was roughly a tenth of their event peaks. Events are the single biggest lever on player count, and they are also what creators stream, which is where new players come from.
 
@@ -342,14 +430,14 @@ The pieces the hits reuse: weekly exclusives that leave after seven days, event-
 | June | Solar Flare | Solar (2x, heat shimmer) | Sun species | Meteor Showers twice as often |
 | Anniversary | Vault Reopening | none | Every Vaulted alien returns for one week | The kindness rerun (see below) |
 
-Each world launch (section 7) is also treated as an event: a "First Landing" week with double key material drops and a launch-week limited alien.
+Each world launch (section 8) is also treated as an event: a "First Landing" week with double key material drops and a launch-week limited alien.
 
 ### Event mechanics the whole system reuses
 
 - **Event quest track:** a free milestone track (catch 20 event aliens, catch one with the event overlay, finish three Showers) that pays Scrap, lures, spins, decor, and finally the event's rarest alien. No second currency. Everything is earnable in roughly 2 to 3 hours of total play across the two weeks.
 - **Event overlays:** multiplicative like permanent overlays, tier-sized (2x) because they are scarce, and they stop rolling when the event ends. An alien caught with a Spectral overlay in October is permanently proof of October.
 - **Vaulting:** when an event or weekly alien leaves, its codex entry gets a "Vaulted" stamp and the silhouette stays visible to everyone. Vaulted aliens never get stronger than current ones; their value is prestige, not power, so missing one does not cost progress.
-- **Server-wide luck, gifted:** developers can grant every server a free luck window during hosted events. It is the same mechanic sold in section 13, which makes the hosted hour feel generous.
+- **Server-wide luck, gifted:** developers can grant every server a free luck window during hosted events. It is the same mechanic sold in section 14, which makes the hosted hour feel generous.
 - **Global counter:** a universe-wide tally (MemoryStore plus a DataStore checkpoint) drives community goals and unlocks a shared reward when the number is hit. Pokémon GO's Global Challenges and Grow a Garden's record attempts both run on this.
 - **Event banner:** a persistent HUD banner with the event name, the end date, and the next hosted window, in the same slot the Shower countdown uses. Players always know what is on and when it ends.
 
@@ -376,7 +464,7 @@ Events spike concurrency about tenfold for a day; they do not set the baseline. 
 
 ---
 
-## 12. Multiplayer
+## 13. Multiplayer
 
 - **World servers:** MaxPlayers 8, PreferredPlayers 6, eight fixed camp slots, one or two social slots reserved for friends. Camps restore from the player's save on join.
 - **Co-op:** platform Party (up to 6) plus the Party API and reserved servers for a private world instance. Progress stays per player; only the instance is shared.
@@ -387,7 +475,7 @@ Events spike concurrency about tenfold for a day; they do not set the baseline. 
 
 ---
 
-## 13. Monetization
+## 14. Monetization
 
 Rule: keep randomness in the free loop; sell certainty, capacity, convenience, and cosmetics.
 
@@ -399,16 +487,21 @@ Rule: keep randomness in the free loop; sell certainty, capacity, convenience, a
 | Home plot expansion, habitat slots | Pass | 199 to 499 | Capacity |
 | Hull skins, alien hats and trails, decor | Cosmetics | 49 to 299 | |
 | Splice rush, module rush | Dev Product | 29 to 99 | Deterministic timer skip |
+| Explorer Pack (gear tiers 1 to 3 early unlock) | Pass | 399 | Every piece also earnable; paid speed equals earned speed |
+| Gear, mount saddle, radar, hoverboard skins | Cosmetics | 49 to 299 | The hoverboard skin shelf is the cosmetic headline |
+| Radar Mk1 early unlock | Dev Product | 149 | Deterministic; same item earned in the first half hour |
+| Speed Burst, Steady Hands, Scrap Magnet bundles | Dev Product | 49 to 149 | Fixed bundles, no randomness |
+| Permanent x1.5 personal luck (later, optional) | Pass | 299 to 399 | Probability modifier: disclosure, PolicyService gate; not a launch SKU |
 | Server-wide luck, 15 min | Consumable | 249 / 999 | Probability modifier: full disclosure, PolicyService gated |
-| Paid spins | Consumable | 49 to 199 | Section 10 rules |
+| Paid spins | Consumable | 49 to 199 | Section 11 rules |
 | Private world | Subscription | free or minimal | Don't price friends out |
-| **Not sold** | | | 2x Scrap income, pay-to-steal, Robux-only aliens, exclusive aliens in spins |
+| **Not sold** | | | 2x Scrap income, Double Shift, Lucky Charms, mounts, pay-to-steal, Robux-only aliens or gear, exclusive aliens in spins |
 
 Show the real-currency equivalent next to every Robux price, never add a second premium currency, and turn on regional pricing from day one.
 
 ---
 
-## 14. Art and audio direction
+## 15. Art and audio direction
 
 - **Cute baseline:** round compact body, big eyes, tiny mouth, short limbs, one bold saturated color, drawable by a child. Stylized low-poly, clean shading.
 - **Same body, escalating overlays:** tier and overlay are scale, material, glow, particles, and attachments on the same mesh family. This is the only way two people ship 15 species x 6 tiers x 4 overlays per world.
@@ -429,7 +522,7 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 ---
 
-## 15. Technical notes (for the build)
+## 16. Technical notes (for the build)
 
 - **Places:** one universe; one place per world; one home-planet place; the World 1 place is the start place and "Fully open" so friends land together; private co-op planets are non-start places set to "Secure within universe only."
 - **Saves:** one DataStore key per player (`User_{UserId}`), written with `UpdateAsync` and session locking, autosave every 3 minutes, under 100 KB (slot-based camps and homes keep it small; the per-key cap is 4 MB).
@@ -441,19 +534,19 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 
 ---
 
-## 16. Roadmap for two people
+## 17. Roadmap for two people
 
 | Phase | Scope | Why |
 |---|---|---|
-| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel and scanner; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; 3 to 4 passes plus gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
-| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
-| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
+| **P0: Launch (weeks 1 to 6)** | World 1 with three biomes; 12 to 15 species across 4 jobs, Common to Legendary; 5 modules with three gates each; ship bar and assembling 3D ship; timing capture minigame with tiers, lures, hidden kindness; trainee tutorial (first Common takes over a task you just did by hand); Nearby panel, Radar Mk1, shadow silhouettes for uncaught species, Speed Boots, the Luck readout, and three power-ups through the Peddler; 3:00 / 1:30 day-night and 2 to 5 min weather; Meteor Shower on a 2-hour clock; Field Notes chain and the Verdant Warden; codex with first-catch payouts; offline accrual and offline assembly; Welcome Week (days-played) and one free daily spin; the Peddler on a 5-minute clock; event config and HUD banner so events are data from day one; 8-player servers with camp restore; client-rendered aliens; 3 to 4 passes plus gated server luck; analytics | Everything D1 and week one depend on. One place, no cross-server systems |
+| **P1: Weeks 7 to 12** | Overlays (Shiny, Gold, Crystal); 4-duplicate fusion; home planet (house, habitats, trophy hangar, splicing lab, visiting); Hoverboard with tricks and skins, Glider Pack, Radar Mk2, Epic mounts with the Ride trait, the full power-up set; Outposts and the Star Chart; World 2 Frostbyte with the Heater rule; Party co-op reserved servers; daily and weekly quests; paid spins with full compliance; Alien of the Week and Weekly Weather; developer panel for hosted Shower Storms; first themed seasonal event (Haunted Nebula) | D7 to D28 depth, which Roblox's 2026 discovery algorithm scores on a 28-day window |
+| **P2: After traction (100+ DAU sustained)** | World 3 Neon Grid with the Code job, Jet Boost, Mag Boots, and Radar Mk3; world gear for each later world; decision on a permanent luck pass; secret aliens via splicing chains; visit-and-borrow, then opt-in raids; gated trading; guilds; monthly seasonal calendar and the first live record attempt; Worlds 4 to 6 one at a time | Each adds moderation or economy burden to carry only once there is an audience |
 
 **Launch targets:** D1 above 20%, D7 above 8% (the top-1% band on Roblox), median session above 10 minutes, tutorial completion above 60%, Meteor Shower attendance above 30% of online players. If D1 is under 15% after week one, the problem is the first eight minutes, not the roster.
 
 ---
 
-## 17. Decisions for the team
+## 18. Decisions for the team
 
 1. **Name.** Placeholders to react to: *Starhoppers*, *Catch & Launch*, *Alien Odyssey*, *Little Astronauts*, *Blastoff Buddies*.
 2. **Art style.** Smooth low-poly (Adopt Me) or chunkier blocky (Pet Simulator)? Smooth low-poly reads better for cute-to-epic overlays.
@@ -463,6 +556,8 @@ Show the real-currency equivalent next to every Robux price, never add a second 
 6. **Theft.** Borrow-only at launch is the recommendation. Opt-in raids later.
 7. **World order.** Verdant, Frostbyte, Neon Grid is the proposed first three. Candy or ocean could swap into slot 3 if the team prefers a brighter third world.
 8. **Event rerun policy.** Annual Vault Reopening is the recommendation. Permanent retirement (Adopt Me) only makes sense once trading exists.
+9. **Permanent luck pass.** Launch without it and sell shared server luck only; revisit after the first month of revenue data.
+10. **Mounts and companion slots.** Riding uses a companion slot is the recommendation, so riding your best alien is a visible choice rather than a free bonus.
 
 ---
 
