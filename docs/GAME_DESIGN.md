@@ -370,7 +370,7 @@ A **Star Chart** on the ship lets the player fly back to any unlocked world inst
 
 ### Codex
 
-One page per world. Each species has an entry with a silhouette until caught, then the model, its voice line, its jobs, where it was found, how many caught, and the best overlay owned. First catch pays Scrap and a camp decoration. Page completion milestones (50%, 100%) pay cosmetics, spins, and the title for that world. The codex also tracks discovered hidden spots and discovered splicing recipes. Completion percent is shown everywhere a bar can fit.
+One page per world. Each species has an entry with a silhouette until caught, then the model, its voice line, its jobs, where it was found, how many caught, and the best overlay owned. The codex also has **Sets**: themed groups that cut across worlds, such as the Greek Set, the Norse Set, the Egyptian Set, and the Myth Beasts Set (Pegasus, Cerberus, Hydra, Griffin). Each Set is a page of silhouettes with its own completion bar and a reward (a title, a cosmetic, and for the mythology Sets a Cosmic quest), so a kid who recognises Zeus and Thor has a reason to chase the whole family. First catch pays Scrap and a camp decoration. Page completion milestones (50%, 100%) pay cosmetics, spins, and the title for that world. The codex also tracks discovered hidden spots and discovered splicing recipes. Completion percent is shown everywhere a bar can fit.
 
 ### Field Notes (per-world quest chain)
 

@@ -49,7 +49,9 @@ From `GAME_DESIGN.md` section 19, plus a few the build needs. Each needs a one-l
 | 12 | UI font | Fredoka One | Day 1 (theme module) |
 | 13 | UI palette (six colors) | pick hex values, or accept a default set in the theme module | Day 1 |
 | 14 | Icon pack | pick one on the Creator Store | First UI pass |
-| 15 | Who owns the Roblox group and the experience | one account; the other is a collaborator with edit access | Day 1 |
+| 15 | Who owns the Roblox group and the experience | Answered: co-owned by both team members | Day 1 |
+
+Answers so far are logged in `docs/vault/07-alien-game/Decisions.md`.
 
 ---
 
