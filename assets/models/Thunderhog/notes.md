@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #8E44AD, placeholder scale 1.2
 - Accessory: quills (keyword match on the concept; colour rule: complement, #A7BF4B)
 - Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 1250 (budget 500 to 1500, detail level 0)
+- Triangles: 1450 (look pass 2026-10-05 over the 1250-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 3.37 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #8E44AD, BodyDark #5C2C70, EyeWhite, Pupil, Mouth, Accessory #A7BF4B, Trim #C026D3
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.

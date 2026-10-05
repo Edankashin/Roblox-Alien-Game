@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #1A1A1A, placeholder scale 1.3
 - Accessory: horns (keyword match on the concept; colour rule: sky, #33B6FF, emissive)
 - Tier dressing: tier size 150% (carried by placeholder.scale), emissive accessory, black body
-- Triangles: 960 (budget 500 to 1500, detail level 0)
+- Triangles: 1318 (look pass 2026-10-05 over the 960-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 3.40 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #1A1A1A, BodyDark #525252, EyeWhite, Pupil, Mouth, Accessory #33B6FF
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
