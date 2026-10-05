@@ -22,7 +22,7 @@ local Prefs = require(script.Parent.Parent.Prefs)
 
 local NotifyCard = {}
 
-local DISPLAY_ORDER = 25 -- over every panel (20), under the reveal (30) and the toasts (40)
+local DISPLAY_ORDER = 45 -- above the toasts and banners (40), under the launch fade (50): a modal ask is never covered
 local CARD_W = 0.5 -- the box the card fits inside, as fractions of the screen
 local CARD_H = 0.6
 local CARD_ASPECT = 1.5

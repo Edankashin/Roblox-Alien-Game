@@ -384,8 +384,12 @@ function Social.DevReset(player: Player)
 	end
 end
 
-function Social.DevCredit(player: Player, count: number)
+function Social.DevCredit(player: Player, count: number): number
+	local before = PlayerData.Get(player)
+	local was = if before then before.social.referralsRewarded else 0
 	creditInviter(player, count)
+	local after = PlayerData.Get(player)
+	return (if after then after.social.referralsRewarded else was) - was
 end
 
 function Social.Init()

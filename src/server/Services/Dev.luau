@@ -327,8 +327,8 @@ local function socialCommand(player: Player, text: string)
 		print(("[%s] dev: %s social flags reset"):format(Config.WorkingTitle, player.Name))
 	elseif sub == "credit" then
 		local count = tonumber(string.match(text, "%d+%s*$") or "") or 1
-		Social.DevCredit(player, count)
-		print(("[%s] dev: %s credited %d referral(s)"):format(Config.WorkingTitle, player.Name, count))
+		local granted = Social.DevCredit(player, count)
+		print(("[%s] dev: %s credited %d of %d referral(s) (the lifetime cap drops the rest)"):format(Config.WorkingTitle, player.Name, granted, count))
 	elseif sub == "ask" then
 		Net.event("NotifyAsk"):FireClient(player)
 		print(("[%s] dev: %s notifications card sent"):format(Config.WorkingTitle, player.Name))

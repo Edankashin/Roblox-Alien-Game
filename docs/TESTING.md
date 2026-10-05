@@ -269,7 +269,7 @@ Memory profiles in Studio; the referral bank and the group check need a live pla
 5. `/social credit 2`: two inviter grants, toasts "A friend joined through your link: 500 Scrap, 2 free spins" twice, Scrap +1000, spins +4, Analytics Referral role inviter twice; `/social credit 100` stops at the lifetime cap of 50 rewarded. `/social reset` clears the group gift, the referral state and the ask stamp.
 6. Second session: rejoin. `social.sessions` is 2, and after 120 s the NotifyAsk event fires once (the card itself depends on step 4's platform rule). No card during a capture, the reveal or a launch; the card waits and retries.
 
-Known gaps in this milestone: the invitee path (joining through a referral link) and the offline inviter bank can only be tested on a live place with two accounts; no cosmetic in the group gift until cosmetics render; the leave-with-timer nudge is not built (the Ship screen already shows module timers).
+Known gaps in this milestone: the invitee path (joining through a referral link) and the offline inviter bank can only be tested on a live place with two accounts; no cosmetic in the group gift until cosmetics render; the leave-with-timer nudge is not built (the Ship screen already shows module timers). Seen in the Studio pass: the Scrap and toast icons are placeholder squares until the icon pack (Look pass L5); the Friend Boost chip sits under stacked toasts while they show.
 
 ## Milestone 20: the weekly Catches leaderboard (World 1 place)
 

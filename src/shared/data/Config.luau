@@ -128,6 +128,8 @@ return {
 	FriendBoostMaxFriends = 3,
 	FriendCheckRetrySeconds = 300, -- a friendship lookup that failed is asked again after this long
 
+	BannerDeferSeconds = 0.5, -- a server-wide catch banner waits in steps of this while the Reveal is open, up to AnnounceSeconds
+
 	-- lighting looks (data/Lighting): the client tweens between looks over this long; snaps under Reduced Motion
 	LightingTweenSeconds = 2.5,
 

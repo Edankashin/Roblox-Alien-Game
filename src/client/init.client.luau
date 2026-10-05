@@ -555,7 +555,15 @@ local function connectToasts()
 			local text = if note.overlay ~= "None"
 				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
 				else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
-			Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+			-- The Reveal owns the screen while it is up (its NEW ribbon sits where the banner lands): wait for it.
+			task.spawn(function()
+				local waited = 0
+				while Reveal.IsOpen() and waited < Config.AnnounceSeconds do
+					task.wait(Config.BannerDeferSeconds)
+					waited += Config.BannerDeferSeconds
+				end
+				Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+			end)
 		end)
 	end)
 	task.spawn(function()
