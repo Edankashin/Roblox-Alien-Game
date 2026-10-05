@@ -283,7 +283,7 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 end
 
 -- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
--- outline stroke, left-aligned inside a scale padding. The text is kept when it gains focus (typing
+-- no text stroke (navy on cream), left-aligned inside a scale padding. The text is kept when it gains focus (typing
 -- edits it); the caller reads .Text and listens to FocusLost for Enter.
 function Builder.textBox(props: TextBoxProps): TextBox
 	local box = Instance.new("TextBox")
@@ -298,7 +298,7 @@ function Builder.textBox(props: TextBoxProps): TextBox
 	box.Text = ""
 	box.PlaceholderText = props.placeholder
 	box.PlaceholderColor3 = Theme.Rarity.Common
-	box.TextColor3 = Theme.Colors.White
+	box.TextColor3 = Theme.Colors.Outline -- navy on the cream panel, no text stroke: an input field, not a title
 	box.TextScaled = true
 	box.TextXAlignment = Enum.TextXAlignment.Left
 	box.ClearTextOnFocus = false
@@ -307,11 +307,6 @@ function Builder.textBox(props: TextBoxProps): TextBox
 	Builder.corner(box, Theme.Corner.Button)
 	local border = Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline)
 	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border -- Builder.stroke picks Contextual for text objects
-	local textStroke = Instance.new("UIStroke")
-	textStroke.Thickness = Theme.Stroke.Text
-	textStroke.Color = Theme.Colors.Outline
-	textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-	textStroke.Parent = box
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min
 	sizes.MaxTextSize = math.max(Theme.TextSize.Min, props.textSize or Theme.TextSize.Body)

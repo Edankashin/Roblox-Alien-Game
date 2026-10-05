@@ -85,3 +85,7 @@ The look, written to the level Claude can build from. Hex values here are the st
 ## Layers and banners (2026-10-05)
 
 Display orders: HUD 10, tutorial hint 15, modal panels 20, the notifications ask card 45, toasts and server-wide banners 40, the launch fade 50. Toasts stay above panels because refusals from inside a panel must show. A wide banner (rare catch, Peddler landing) would cover a panel's header, so while any panel is open a banner slides up from the bottom edge instead of the top stack; with no panel open it stacks at the top as before. The toast stack itself starts lower while a panel is open.
+
+## Input fields and hints (2026-10-05)
+
+A text box is navy Fredoka on the cream panel colour with the outline border stroke only, no text stroke, placeholder in the Common grey. A hint line under a panel's rows is Fredoka too, navy, no stroke: the outlined white style is for titles and anything drawn over the world, never for fields or helper text.
