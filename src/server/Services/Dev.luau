@@ -2,7 +2,8 @@
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
--- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect). Nothing
+-- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
+-- (forget the social flags, pay N inviter rewards, show the notifications card at once). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -21,6 +22,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
+local Social = require(script.Parent.Social)
 local Shop = require(script.Parent.Shop)
 local Outposts = require(script.Parent.Outposts)
 local Tutorial = require(script.Parent.Tutorial)
@@ -312,6 +314,25 @@ local function backdateOutpost(player: Player, text: string)
 	print(("[%s] dev: %s world %d outpost has %g hours to collect%s"):format(Config.WorkingTitle, player.Name, worldId, hours, if unlocked then " (world unlocked)" else ""))
 end
 
+-- /social reset: forget the group, referral and notifications flags. /social credit N: pay N inviter rewards
+-- (capped by the lifetime limit). /social ask: show the notifications card at once.
+local function socialCommand(player: Player, text: string)
+	local sub = string.match(text, "^%s*/?social%s+(%a+)") or ""
+	if sub == "reset" then
+		Social.DevReset(player)
+		print(("[%s] dev: %s social flags reset"):format(Config.WorkingTitle, player.Name))
+	elseif sub == "credit" then
+		local count = tonumber(string.match(text, "%d+%s*$") or "") or 1
+		Social.DevCredit(player, count)
+		print(("[%s] dev: %s credited %d referral(s)"):format(Config.WorkingTitle, player.Name, count))
+	elseif sub == "ask" then
+		Net.event("NotifyAsk"):FireClient(player)
+		print(("[%s] dev: %s notifications card sent"):format(Config.WorkingTitle, player.Name))
+	else
+		print(("[%s] dev: /social reset | credit N | ask"):format(Config.WorkingTitle))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -365,11 +386,12 @@ function Dev.Init()
 	command("world", setWorld)
 	command("complete", completeModules)
 	command("outpost", backdateOutpost)
+	command("social", socialCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H])"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask)"):format(Config.WorkingTitle))
 	end
 end
 

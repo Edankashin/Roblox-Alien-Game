@@ -17,7 +17,7 @@
 -- Materials (both report to it, and Economy's offline settlement must run before the tutorial's own
 -- load step), Peddler after Economy and Catching (eggs are granted through Economy; the visit clock
 -- starts last), Gifts after Economy and Spawner (the Welcome Week egg is granted through Economy with
--- Spawner's overlay roll) and after PlayerData (it counts the day on load), Settings after PlayerData
+-- Spawner's overlay roll) and after PlayerData (it counts the day on load), Social after Gifts (rewards go through Gifts.GrantRewards; its load hook counts the session and pays referrals after Gifts' day count) and Analytics, Settings after PlayerData
 -- (it writes profile.settings) and before Dev (which stays last), Outposts after Economy and Analytics and before Launch (Launch banks a flight's outpost through it), Launch after Economy (both move the
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
 -- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
@@ -28,7 +28,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

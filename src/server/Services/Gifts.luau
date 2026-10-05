@@ -317,6 +317,45 @@ function Gifts.DevAddSpins(player: Player, count: number)
 	pushGifts(player, profile)
 end
 
+-- Applies a list of rewards (the Reward rows of data/Social.luau or any other table of the same shape) to
+-- a loaded profile in one PlayerData.Update with the same applyReward a gift claim uses, then pushes Scrap,
+-- the inventory and the spin balance exactly as a claim does. Kinds: scrap, lure, powerUp, spin; a row of
+-- any other kind, or one whose id resolves to nothing in the data tables, is skipped with a warn. Returns
+-- false when the player has no loaded profile (nothing is written).
+local GRANTABLE_KINDS: { [string]: boolean } = { scrap = true, lure = true, powerUp = true, spin = true }
+
+function Gifts.GrantRewards(player: Player, rewards: { any }): boolean
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return false
+	end
+	local scrapChanged = false
+	local inventoryChanged = false
+	local ok = PlayerData.Update(player, function(p)
+		for _, row in ipairs(rewards) do
+			local reward: Reward? = if type(row) == "table" then (row :: any) :: Reward else nil
+			if reward and GRANTABLE_KINDS[reward.kind] and isKnownReward(reward) then
+				local scrap, inventory = applyReward(p, reward)
+				scrapChanged = scrapChanged or scrap
+				inventoryChanged = inventoryChanged or inventory
+			else
+				warn(("[%s] Gifts.GrantRewards: skipped a reward of unknown kind or id (%s)"):format(Config.WorkingTitle, if reward then tostring(reward.kind) else typeof(row)))
+			end
+		end
+	end)
+	if not ok then
+		return false
+	end
+	if scrapChanged then
+		pushScrap(player, profile)
+	end
+	if inventoryChanged then
+		pushInventory(player, profile)
+	end
+	pushGifts(player, profile)
+	return true
+end
+
 function Gifts.Init()
 	for _, name in ipairs({ "GiftsChanged", "ScrapChanged", "InventoryChanged" }) do
 		Net.event(name)
