@@ -21,6 +21,7 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
+local Screens = require(script.Parent.Screens)
 
 local ShipScreen = {}
 
@@ -46,6 +47,7 @@ type Row = {
 }
 
 local REFRESH_SECONDS = 0.25 -- live progress and time-left refresh while open
+local FOOTER_W = 0.24 -- of the panel: the width of the Star Chart and Optimize buttons
 local ROW_COMPACT = 0.125 -- of the list height
 local ROW_EXPANDED = 0.425
 local ROW_GAP = 0.0175
@@ -583,8 +585,8 @@ local function build()
 		name = "Complete",
 		text = Strings.SHIP_COMPLETE,
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(Theme.Margin, 1 - Theme.Margin),
-		size = UDim2.fromScale(0.7, 0.08),
+		position = UDim2.fromScale(FOOTER_W + 2 * Theme.Margin, 1 - Theme.Margin), -- between the Star Chart and Optimize buttons
+		size = UDim2.fromScale(1 - 2 * FOOTER_W - 4 * Theme.Margin, 0.1),
 		anchor = Vector2.new(0, 1),
 		color = Theme.Colors.Featured,
 		xAlign = Enum.TextXAlignment.Left,
@@ -593,13 +595,28 @@ local function build()
 	complete.Visible = false
 	completeLabel = complete
 
+	-- Star Chart, bottom left: closes this screen and opens the chart. Mirrors Optimize on the right.
+	Builder.button({
+		parent = body,
+		name = "StarChart",
+		text = Strings.STARCHART_OPEN,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(Theme.Margin, 1 - Theme.Margin),
+		size = UDim2.fromScale(FOOTER_W, 0.1),
+		anchor = Vector2.new(0, 1),
+		textSize = Theme.TextSize.Label,
+		zIndex = 4,
+	}, function()
+		Screens.Open("StarChart") -- closes the Ship screen on the way
+	end)
+
 	Builder.button({
 		parent = body,
 		name = "Optimize",
 		text = Strings.OPTIMIZE,
 		color = Theme.Colors.Select,
 		position = UDim2.fromScale(1 - Theme.Margin, 1 - Theme.Margin),
-		size = UDim2.fromScale(0.24, 0.1),
+		size = UDim2.fromScale(FOOTER_W, 0.1),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
 		zIndex = 4,

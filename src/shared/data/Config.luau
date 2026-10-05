@@ -123,6 +123,7 @@ return {
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
 	-- Star Chart and outposts (data/Outposts has the production numbers)
+	TeleportGraceSeconds = 10, -- with a live place, how long the black screen waits for a launch or fly teleport before lifting as a safety net
 	FlyTeleportDelaySeconds = 1.5, -- the client fades for this long before the server teleports a Fly
 	StarChartPulseSeconds = 1.2, -- the current world's card pulses with this period (off under Reduced Motion)
 	StarChartTickSeconds = 1, -- the pending numbers on the chart refresh this often while it is open

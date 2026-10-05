@@ -7,7 +7,7 @@
 --   lift end  the LaunchFade ScreenGui (DisplayOrder 50, over the toasts) fades a black frame in over
 --             Config.LaunchFadeSeconds with "Next stop: <world>" centred in white outlined Title text.
 --   black     placeLive: stay black, the server's teleport takes over. Should nothing happen for
---             Config.LaunchHoldSeconds + TELEPORT_GRACE_SECONDS, the camp comes back as a safety net.
+--             Config.LaunchHoldSeconds + Config.TeleportGraceSeconds, the camp comes back as a safety net.
 --             not placeLive (Studio, or an unpublished place): hold Config.LaunchHoldSeconds, the
 --             LAUNCH_NO_PLACE toast, and the camp comes back.
 --   return    the ship is put back and the camera handed back while the screen is still black, then
@@ -33,7 +33,6 @@ local Vfx = require(script.Parent:WaitForChild("Vfx"))
 local LaunchSequence = {}
 
 local DISPLAY_ORDER = 50 -- above the toasts (40) and every panel
-local TELEPORT_GRACE_SECONDS = 10 -- with a live place, how long past the hold the black screen waits for the teleport before giving up
 local LINE_WIDTH = 0.8 -- the "Next stop" line, in screen Scale
 local LINE_HEIGHT = 0.14
 
@@ -124,6 +123,34 @@ function LaunchSequence.IsPlaying(): boolean
 	return playing
 end
 
+-- A plain fade of the LaunchFade screen for the Star Chart's Fly: to black (toBlack) or back up over
+-- `seconds`, then onDone. Does nothing while a launch sequence owns the screen (onDone still runs).
+function LaunchSequence.Fade(seconds: number, toBlack: boolean, onDone: (() -> ())?)
+	build()
+	local root, frame = gui, black
+	if playing or not root or not frame then
+		if onDone then
+			onDone()
+		end
+		return
+	end
+	root.Enabled = true
+	local info = TweenInfo.new(math.max(seconds, 0), Enum.EasingStyle.Quad, if toBlack then Enum.EasingDirection.In else Enum.EasingDirection.Out)
+	local tween = TweenService:Create(frame, info, { BackgroundTransparency = if toBlack then 0 else 1 })
+	tween.Completed:Once(function(state: Enum.PlaybackState)
+		if state ~= Enum.PlaybackState.Completed then
+			return -- a newer fade took over the frame
+		end
+		if not toBlack then
+			root.Enabled = false
+		end
+		if onDone then
+			onDone()
+		end
+	end)
+	tween:Play()
+end
+
 -- Plays the departure for `nextWorldId`. With placeLive the screen stays black for the server's
 -- teleport; without it the camp returns after the hold. onDone runs once the fade has lifted.
 function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: () -> ())
@@ -156,8 +183,8 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 			if placeLive then
 				-- The teleport takes over from here; this thread dies with the place. Should the
 				-- teleport never come, bring the camp back rather than leave the player in the dark.
-				task.wait(Config.LaunchHoldSeconds + TELEPORT_GRACE_SECONDS)
-				print(("[%s] launch: no teleport after %d s, returning to the camp"):format(Config.WorkingTitle, Config.LaunchHoldSeconds + TELEPORT_GRACE_SECONDS))
+				task.wait(Config.LaunchHoldSeconds + Config.TeleportGraceSeconds)
+				print(("[%s] launch: no teleport after %d s, returning to the camp"):format(Config.WorkingTitle, Config.LaunchHoldSeconds + Config.TeleportGraceSeconds))
 			else
 				task.wait(Config.LaunchHoldSeconds)
 				Toast.Show(Strings.LAUNCH_NO_PLACE:format(name), Theme.Colors.Featured)

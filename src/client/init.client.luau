@@ -53,6 +53,7 @@ local CameraDirector = require(script:WaitForChild("World"):WaitForChild("Camera
 local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("LaunchSequence"))
 local Prefs = require(script:WaitForChild("Prefs"))
 local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsScreen"))
+local StarChartScreen = require(script:WaitForChild("UI"):WaitForChild("StarChartScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -336,6 +337,7 @@ local function decideAction(): Action?
 end
 
 local launching = false -- one Launch request in flight at a time
+local flying = false -- a Star Chart Fly's fade is under way
 
 local function performAction()
 	local action = currentAction
@@ -447,6 +449,56 @@ local function connectToasts()
 			end)
 		end)
 	end)
+	-- The outposts table the server holds (a collect, an upgrade, a launch that opens one) replaces the mirror's.
+	task.spawn(function()
+		Net.event("OutpostsChanged").OnClientEvent:Connect(function(outposts: { [string]: Types.OutpostState })
+			State.SetOutposts(outposts)
+		end)
+	end)
+	-- The server accepted a Fly from the Star Chart: the screens close, the banner names the world and the
+	-- screen fades to black over Config.FlyTeleportDelaySeconds. With a live place the server teleports
+	-- then; without one the fade lifts again, the mirror already moved to the new world by the WorldChanged
+	-- and ModulesChanged pushes, exactly as after a non-live Launch.
+	task.spawn(function()
+		Net.event("Flew").OnClientEvent:Connect(function(worldId: number, placeLive: boolean)
+			if flying or LaunchSequence.IsPlaying() then
+				return
+			end
+			flying = true
+			cinematic = true
+			Hud.SetVisible(false)
+			Screens.CloseAll()
+			local worldKey = "WORLD_" .. tostring(worldId)
+			local worldDef = Worlds[worldId]
+			local name = if Builder.text(worldKey) ~= worldKey then Builder.text(worldKey) elseif worldDef then worldDef.name else worldKey
+			Toast.Banner(Strings.FLY_LINE:format(name), Theme.Colors.Select, Config.FlyTeleportDelaySeconds)
+			local function lift(afterwards: (() -> ())?)
+				LaunchSequence.Fade(Config.FlyTeleportDelaySeconds, false, function()
+					flying = false
+					cinematic = false
+					Hud.SetVisible(true)
+					if afterwards then
+						afterwards()
+					end
+				end)
+			end
+			LaunchSequence.Fade(Config.FlyTeleportDelaySeconds, true, function()
+				if placeLive then
+					-- The teleport takes over from here; should it never come, lift the fade rather than leave
+					-- the player in the dark.
+					task.delay(Config.TeleportGraceSeconds, function()
+						if flying then
+							lift(nil)
+						end
+					end)
+				else
+					lift(function()
+						Toast.Show(Strings.TOAST_FLY_NOT_LIVE:format(name), Theme.Colors.Featured)
+					end)
+				end
+			end)
+		end)
+	end)
 	-- Server-wide catch banners for rare finds, in the tier's colour.
 	task.spawn(function()
 		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
@@ -549,6 +601,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Quests", QuestsScreen)
 	Screens.Register("Gifts", GiftsScreen)
 	Screens.Register("Settings", SettingsScreen)
+	Screens.Register("StarChart", StarChartScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]

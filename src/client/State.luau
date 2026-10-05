@@ -134,6 +134,14 @@ function State.GetConditions(): { Types.Condition }
 	return out
 end
 
+-- OutpostsChanged carries the whole outposts table (world id string -> level and lastCollect).
+function State.SetOutposts(outposts: { [string]: Types.OutpostState })
+	if profile then
+		profile.world.outposts = outposts
+		fire("world")
+	end
+end
+
 -- The biome the local player stands in (the bootstrap polls Biomes.At and feeds it in).
 function State.GetBiome(): Types.Biome
 	return biome
