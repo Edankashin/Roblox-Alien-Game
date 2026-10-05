@@ -11,13 +11,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local SettingsData = require(Shared.data.Settings)
 local Jobs = require(Shared.data.Jobs)
 local Net = require(Shared.Net)
 
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 2
+local SCHEMA_VERSION = 3
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -30,6 +31,15 @@ local memoryOnly = false
 
 local function keyFor(player: Player): string
 	return "User_" .. tostring(player.UserId)
+end
+
+-- Every preference at its data default (data/Settings.luau).
+local function defaultSettings(): { [string]: number }
+	local out: { [string]: number } = {}
+	for _, def in ipairs(SettingsData.Order) do
+		out[def.key] = def.default
+	end
+	return out
 end
 
 local function template(): Types.Profile
@@ -55,6 +65,7 @@ local function template(): Types.Profile
 		buffs = {},
 		inventory = { keyMaterials = {}, lures = {}, powerUps = {}, items = {} },
 		stats = { catches = 0, perfects = 0, playSeconds = 0 },
+		settings = defaultSettings(),
 		tutorialStep = 1,
 		tutorialCounter = 0,
 		lastSeen = 0,
@@ -71,6 +82,18 @@ local migrations: { [number]: (any) -> any } = {
 		data.quests.progress = data.quests.progress or {}
 		data.inventory = data.inventory or {}
 		data.inventory.items = data.inventory.items or {}
+		return data
+	end,
+	-- v3: player preferences (the Settings screen); unknown keys are dropped, missing ones take the default
+	[3] = function(data)
+		local saved = if type(data.settings) == "table" then data.settings else {}
+		local settings = defaultSettings()
+		for key, value in pairs(saved) do
+			if settings[key] ~= nil and type(value) == "number" then
+				settings[key] = value
+			end
+		end
+		data.settings = settings
 		return data
 	end,
 }

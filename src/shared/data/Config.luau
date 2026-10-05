@@ -98,6 +98,8 @@ return {
 	VfxShowerStreaksPerSecond = 6, -- meteor streaks over the camp during a shower
 	GainFlySeconds = 0.6, -- a "+25" flies from the action button to the Scrap pill over this
 	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
+	AnalyticsEnabled = true, -- AnalyticsService events (funnel, custom, economy); off in Studio by default below
+	AnalyticsInStudio = false, -- Studio sessions only print what they would send
 	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
