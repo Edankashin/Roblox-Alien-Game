@@ -102,3 +102,15 @@ Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (ear
 8. Fast path for testing the finale: `/step 5` jumps the Field Notes to the last step and `/horn` grants the Warden's Horn; then `/night`, walk to the shrine and press "Sound the horn". Claiming step 5 is refused with "Finish every objective first" until Gaiabloom is in the codex, so a fled Warden can always be summoned again after the cooldown.
 
 Known gaps in this milestone: daily and weekly quests, the shrine's art, the Warden's three attack patterns (only the shrink is in), riding.
+
+## Milestone 8: the tutorial (first eight minutes)
+
+Play as a fresh profile (Studio memory profiles reset every Play).
+1. Press Play. Boot adds a Tutorial line and `server started: ..., Quests, Tutorial, Catching, Peddler, Dev`. A gold pill above the bottom edge reads "Collect 3 wreck plates for the hull." with "0/3", and a bobbing "v" marker with "Wreck Plate 32m" floats over the nearest plate. Collecting hands the marker to the next plate; at 3/3 the pill slides to "A Mossbop wants to help! Walk up and tap Catch!" and the marker points at a Mossbop standing left of the camp (visible only to you; it never despawns, and comes back 20 s after a fled catch).
+2. Catch it: the pill reads "Mossbop is gathering for you. Walk to the ship and pay for the Hull Frame." with the marker on the ship. Pay 300 Scrap (first-catch bonus plus income gets there in about two minutes; `/scrap 300` to skip): the pill reads "Puffpuff wants to help!..." and a Puffpuff waits at the same spot.
+3. Catch the Puffpuff: "Catch 3 more aliens while they work." with "0/3" counting any catch. Then "Your crew is building the Hull Frame. Watch the ship bar." with the marker on the ship until the module completes (about 30 s at crew speed x2).
+4. "Thrusters need Glowroot from the Forest. Follow the marker." points at the Forest centre; stepping into the Forest ends the tutorial: the pill reads "You know the loop: catch, build, fly." for a moment and disappears for good (tutorialStep is saved).
+5. The hint and the marker hide during a capture, a reveal and any open panel, and come back after.
+6. `/step` does not touch the tutorial; a rejoin resumes at the saved step with its trainee alien re-spawned.
+
+Known gaps in this milestone: the crash-landing cinematic, the camera pan on module completion, the guaranteed Sparkfox in step 5, analytics funnel events.
