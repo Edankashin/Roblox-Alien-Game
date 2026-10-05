@@ -128,3 +128,16 @@ Play as a fresh profile.
 7. Second client: the shower, its banner and the luck chip are the same for everyone; the Gifts panel is per player.
 
 Known gaps in this milestone: the Cosmic Ra-dish uses the placeholder shape; the Companion Token has no use until the companions milestone; no gift calendar artwork.
+
+## Milestone 10: Radar Mk1
+
+Play as a fresh profile.
+1. No minimap at boot: the right edge shows the clock, biome and (when due) shower chips, then the Nearby column from 0.225 down to 0.63, as before. Boot's Dev line ends with `/radar`.
+2. Shop, Gear tab: a "Radar Mk1" row between the Hoverboard and the Glider reads "Aliens within 120m on a minimap. Tap a blip to mark it." for 1,500 Scrap. With less Scrap the tap toasts "Not enough Scrap". `/scrap 1500` and buy: Scrap drops by 1,500, the row reads "Owned", and a dark round minimap with a navy outline appears at the right edge under the chips in place of the Nearby column, which hides while a radar is owned. Buying again does nothing (AlreadyOwned).
+3. The disc: "N" at the top, a faint blue range ring with "60m" at half radius, a gold diamond at the centre that turns with the camera. Every wild alien within 120 studs is a blip: caught species are filled in their rarity colour; uncaught species are dark with a rarity-coloured ring (a Secret has a white ring). Walk toward a blip and it slides to the centre; aliens past 120 studs are not drawn. A cream square marks the camp and sits pinned to the disc edge when the camp is out of range; during a Peddler visit a gold diamond marks the ship the same way.
+4. Tap a blip (tutorial finished: `/step` does not end the tutorial, so either play through it or use a profile that has): the floating waypoint marker jumps to that alien with its name (or "???" for an uncaught species) and a toast "Marked: Mossbop". Walk to it: within 8 studs the marker clears. Catch it instead and the marker clears when the alien is gone. A tap during the tutorial toasts "Finish the first steps before marking aliens" and leaves the tutorial's marker alone.
+5. The minimap hides during a capture, a reveal and while any panel is open, and comes back after; the Nearby column stays hidden while the radar is owned.
+6. `/radar` on a fresh profile grants the Radar Mk1 free (the Field Notes step 2 reward does the same; the Quests panel lists "Radar Mk1" first among its rewards). The radar survives a rejoin (gear.radar is saved).
+7. Device check: at iPhone SE the disc is about 93 px wide and its blips still show their colours; the "N" and ring label stay legible. At iPad the disc does not touch the shower chip or the action button.
+
+Known gaps in this milestone: Radar Mk2 and Mk3 answer "unlocks later"; no minimap on the nodes or hidden spots; no compass strip yet.

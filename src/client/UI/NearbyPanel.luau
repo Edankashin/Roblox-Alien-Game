@@ -47,6 +47,8 @@ local ROW_GAP = 0.015
 local ICON_SHARE = 0.62 -- of the row height; the name takes the rest
 
 local gui: ScreenGui? = nil
+local column: Frame? = nil
+local columnTop = COLUMN_TOP -- SetTop moves this; the column's bottom edge stays at COLUMN_TOP + COLUMN_HEIGHT
 local list: Frame? = nil
 local emptyLabel: TextLabel? = nil
 local rows: { Row } = {}
@@ -209,21 +211,22 @@ local function build()
 	local root = Builder.screen("Nearby", 10)
 	gui = root
 
-	local column = Builder.pill({
+	local frame = Builder.pill({
 		parent = root,
 		name = "Column",
-		position = UDim2.fromScale(COLUMN_X, COLUMN_TOP),
-		size = UDim2.fromScale(COLUMN_WIDTH, COLUMN_HEIGHT),
+		position = UDim2.fromScale(COLUMN_X, columnTop),
+		size = UDim2.fromScale(COLUMN_WIDTH, COLUMN_TOP + COLUMN_HEIGHT - columnTop),
 		anchor = Vector2.new(1, 0),
 		color = Theme.Colors.Trough,
 		stroke = Theme.Stroke.Button,
 		strokeColor = Theme.Colors.Outline,
 		zIndex = 1,
 	})
-	Builder.gradient(column, Theme.Colors.Trough)
+	Builder.gradient(frame, Theme.Colors.Trough)
+	column = frame
 
 	Builder.label({
-		parent = column,
+		parent = frame,
 		name = "Title",
 		text = Strings.NEARBY_TITLE,
 		textSize = Theme.TextSize.Body,
@@ -234,7 +237,7 @@ local function build()
 	})
 
 	local holder = Builder.frame({
-		parent = column,
+		parent = frame,
 		name = "List",
 		position = UDim2.fromScale(0.5, LIST_TOP),
 		size = UDim2.fromScale(0.9, LIST_HEIGHT),
@@ -251,7 +254,7 @@ local function build()
 	list = holder
 
 	local empty = Builder.label({
-		parent = column,
+		parent = frame,
 		name = "Empty",
 		text = Strings.NEARBY_NONE,
 		textSize = Theme.TextSize.Body,
@@ -300,6 +303,29 @@ function NearbyPanel.SetVisible(show: boolean)
 	else
 		stopTicking()
 	end
+end
+
+-- Moves the column's top edge (screen Scale) and shrinks it so its bottom edge stays where it is
+-- (COLUMN_TOP + COLUMN_HEIGHT). The bootstrap feeds in the Radar minimap's bottom edge while the
+-- disc shows above the column, and DefaultTop() when it hides. No-op when unchanged; a value outside
+-- the column's own span is clamped to it.
+function NearbyPanel.SetTop(top: number)
+	local bottom = COLUMN_TOP + COLUMN_HEIGHT
+	local next = math.clamp(top, COLUMN_TOP, bottom)
+	if next == columnTop then
+		return
+	end
+	columnTop = next
+	local frame = column
+	if frame then
+		frame.Position = UDim2.fromScale(COLUMN_X, next)
+		frame.Size = UDim2.fromScale(COLUMN_WIDTH, bottom - next)
+	end
+end
+
+-- The column's top edge with nothing above it: the slot under the HUD's shower chip.
+function NearbyPanel.DefaultTop(): number
+	return COLUMN_TOP
 end
 
 return NearbyPanel

@@ -43,6 +43,9 @@ local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
 local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHint"))
 local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
+local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
+local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
+local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -59,6 +62,7 @@ local started = false
 local inCapture = false
 local captureToken: string? = nil
 local collecting = false
+local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
 
 type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn"
 local currentAction: Action? = nil
@@ -547,6 +551,35 @@ local function start(profile: Types.Profile)
 	end)
 	NearbyPanel.Start()
 
+	-- Radar Mk1: the minimap takes the Nearby column's slot once a radar is owned; the free column (tier 0)
+	-- hides, since its rows would not fit under the disc.
+	Radar.Build()
+	local function refreshRadarTier()
+		local tier = if State.Has() then State.Get().gear.radar else 0
+		Radar.SetTier(tier)
+		NearbyPanel.SetVisible(tier < 1)
+	end
+	refreshRadarTier()
+	State.OnChanged("gear", refreshRadarTier)
+	-- A tapped blip marks that alien until the player reaches it or it is gone. The tutorial owns the
+	-- marker while it runs, so a tap then only explains.
+	Radar.OnBlipTapped(function(part: Part)
+		local step = State.GetTutorial()
+		if step <= #TutorialData.Steps then
+			Toast.Show(Strings.TOAST_RADAR_TUTORIAL, Theme.Rarity.Common)
+			return
+		end
+		local speciesId = part:GetAttribute("SpeciesId")
+		local def = if type(speciesId) == "string" then Species.ById[speciesId] else nil
+		local entry = if type(speciesId) == "string" and State.Has() then State.Get().codex[speciesId] else nil
+		local name = if def and entry and entry.count > 0 then def.name else Strings.UI_UNKNOWN_GLYPH
+		radarTarget = part
+		Waypoint.Show(function()
+			return if part.Parent then part.Position else nil
+		end, name)
+		Toast.Show(Strings.TOAST_RADAR_MARKED:format(name), Theme.Colors.Select)
+	end)
+
 	local known: { [string]: boolean } = {}
 	for species, entry in pairs(profile.codex) do
 		if entry.count > 0 then
@@ -620,7 +653,19 @@ local function start(profile: Types.Profile)
 		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen()) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen())
+		Radar.SetVisible(not modalOpen())
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active then TOAST_TOP_WITH_BANNER else nil)
+		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
+		local target = radarTarget
+		if target then
+			local character = localPlayer.Character
+			local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+			local arrived = root and root:IsA("BasePart") and (root.Position - target.Position).Magnitude <= Config.RadarWaypointArriveStuds
+			if not target.Parent or arrived then
+				radarTarget = nil
+				Waypoint.Clear()
+			end
+		end
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).

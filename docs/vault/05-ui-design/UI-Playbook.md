@@ -62,6 +62,15 @@ The look, written to the level Claude can build from. Hex values here are the st
 - Compass strip: a thin band along the top edge with cardinal letters in white outlined text, tick marks between them, the heading number in a small dark pill at the centre, and coloured diamond markers for the camp, the quest target, the Peddler and any live event. Under it, the nearest waypoint as "Camp 42m".
 - Verb markers: floating "✦ Collect" labels over nodes, white outlined text with a small glyph, visible from far away; the noun appears within nameplate distance.
 
+## Radar minimap (Radar Mk1 and up; `src/client/UI/Radar.luau`)
+- Where: right edge under the Meteor Shower chip, in the slot the free Nearby column otherwise starts in (right edge 0.985, top 0.225). A square holder 14% of the screen width, kept square by an aspect constraint, so its height follows the viewport. The free Nearby column hides while a radar is held (the blips carry the same caught/uncaught reading, placed; the column's remaining 0.14 of height would not fit its rows) and comes back if the tier ever reads 0. Hidden with the other HUD extras during a capture, a reveal or an open panel, and absent altogether until the server says a radar tier is held.
+- Disc: a navy (`#1B1F3B`) circle with the 3 px outline stroke and the usual vertical gradient. The cardinal "N" sits at the top in white outlined Fredoka One (label size). The map is north-up and never rotates: world -Z is up, +X is right, and the tier's range is the disc radius.
+- Range ring: a faint blue (`#68C9FE`, 60% transparent, text-stroke thickness) circle at half the radius with a small "60m" label on its top edge (half the range), so distances read at a glance.
+- Player: a gold (`#FFC83D`) diamond at the centre with a small white dot on its tip; the whole marker turns to the camera's look yaw, so the dot shows which way the player faces while the map stays put.
+- Alien blips: one round dot per wild alien within range, 10% of the disc, with an invisible tap area twice that. Caught species: filled in the tier colour with the navy outline. Uncaught species: the silhouette rule, a dark fill with the ring in the tier colour (white for a Secret, whose tier colour is near black). An alien the server reserved for this player (a trainee, the summoned Warden) gets a gold ring; one reserved for someone else is not drawn at all. Blips at the edge of the range are kept fully inside the disc.
+- Camp and Peddler: a small cream (`#FFF4DC`) square for the ship and a gold diamond for the Peddler while it visits, both pinned to the rim when out of range so they point the way. Nothing else on Mk1; nodes and hidden spots come with Mk2.
+- Tap to mark: tapping a blip clicks and hands the alien to the bootstrap, which sets the world waypoint on it ("Marked: Mossbop") and clears it on arrival. The client only draws: which radar is held, which aliens stand where and who may see them are the server's.
+
 ## Featured banner
 - Full width, aspect about 2.6:1, illustrated background themed to the item, darkened, timer and odds visible.
 

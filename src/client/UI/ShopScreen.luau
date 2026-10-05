@@ -2,7 +2,8 @@
 -- StarterPlayerScripts.Client.UI.ShopScreen: the Shop panel. Three tabs down the left (Lures, Gear,
 -- Robux); the active one is brighter and nudged right so it reads as raised. Lures: one row card per
 -- lure with its zone bonus, how many are held, the price and a Craft button. Gear: one row card per
--- item with its speed bonus, the price and a Buy button that becomes an Owned chip. Robux: a single
+-- item with its speed bonus (or, for a radar, its minimap range), the price and a Buy button that
+-- becomes an Owned chip. Robux: a single
 -- "coming with the launch shop" line. Every value shown is read from the profile mirror in State and
 -- the shared data tables; every Craft or Buy tap asks the server (ShopBuy) and a refusal becomes a
 -- toast. Nothing here decides an outcome: the server pushes the new Scrap, inventory and gear.
@@ -16,6 +17,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Lures = require(Shared:WaitForChild("data"):WaitForChild("Lures"))
 local Gear = require(Shared:WaitForChild("data"):WaitForChild("Gear"))
+local Radar = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -26,20 +28,27 @@ local ShopScreen = {}
 
 type LureDef = { name: string, tier: number, scrap: number, zoneBonus: number }
 type GearDef = { name: string, speedMultiplier: number, scrap: number, unlock: string }
-type GearField = "boots" | "hoverboard" | "glider"
-type GearItem = { id: string, field: GearField, def: GearDef }
+type RadarTier = { name: string, range: number, scrap: number, unlock: string? }
+type GearField = "boots" | "hoverboard" | "glider" | "radar"
+-- A Gear tab row. Movement gear carries its Gear def (the speed bonus); a radar carries the tier it
+-- grants, and its range is read from the Radar table. `scrap` is the price either way.
+type GearItem = { id: string, field: GearField, scrap: number, def: GearDef?, radarTier: number? }
 type Tab = "Lures" | "Gear" | "Robux"
 type Kind = "lure" | "gear"
 
 local lureDefs: { [string]: LureDef } = Lures.Lures
 local lureOrder: { string } = Lures.Order
+-- Literal number keys, some rows without `unlock`: cast through any the way the server's Shop does.
+local radarTiers: { [number]: RadarTier } = (Radar :: any) :: { [number]: RadarTier }
+local RADAR_MK1 = 1
 
 -- The gear the shop sells, in display order, each with the profile.gear field that marks it owned.
 -- Literal keys: the Gear table also carries BaseWalkSpeed, so it cannot be cast to a dictionary.
 local GEAR_ITEMS: { GearItem } = {
-	{ id = "Boots", field = "boots", def = Gear.Boots },
-	{ id = "Hoverboard", field = "hoverboard", def = Gear.Hoverboard },
-	{ id = "Glider", field = "glider", def = Gear.Glider },
+	{ id = "Boots", field = "boots", scrap = Gear.Boots.scrap, def = Gear.Boots },
+	{ id = "Hoverboard", field = "hoverboard", scrap = Gear.Hoverboard.scrap, def = Gear.Hoverboard },
+	{ id = "Radar1", field = "radar", scrap = radarTiers[RADAR_MK1].scrap, radarTier = RADAR_MK1 },
+	{ id = "Glider", field = "glider", scrap = Gear.Glider.scrap, def = Gear.Glider },
 }
 -- Gear the server answers Locked for until its unlock lands (Glider: first launch). Drawn grey; the
 -- tap still goes to the server, which refuses, and the refusal becomes the TOAST_LOCKED_GEAR toast.
@@ -114,14 +123,30 @@ local function priceText(scrap: number): string
 	return Strings.SHOP_SCRAP_PRICE:format(Builder.formatNumber(scrap))
 end
 
-local function ownsGear(profile: Types.Profile, field: GearField): boolean
+-- Owned as the server's profile says: a flag for movement gear, the held tier for a radar.
+local function ownsGear(profile: Types.Profile, item: GearItem): boolean
 	local gear = profile.gear
-	if field == "boots" then
+	if item.field == "boots" then
 		return gear.boots == true
-	elseif field == "hoverboard" then
+	elseif item.field == "hoverboard" then
 		return gear.hoverboard == true
+	elseif item.field == "radar" then
+		return gear.radar >= (item.radarTier or RADAR_MK1)
 	end
 	return gear.glider == true
+end
+
+-- The effect line: the minimap range for a radar, the walk-speed bonus for movement gear, or the
+-- unlock note for gear that does nothing yet (the Glider).
+local function effectText(item: GearItem): string
+	local radarTier = item.radarTier
+	if radarTier then
+		local row = radarTiers[radarTier]
+		return Strings.SHOP_GEAR_RADAR:format(if row then row.range else 0)
+	end
+	local def = item.def
+	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0
+	return if bonus > 0 then Strings.SHOP_GEAR_SPEED:format(bonus) else Strings.SHOP_GEAR_LOCKED
 end
 
 -- Server calls -------------------------------------------------------------
@@ -361,17 +386,15 @@ local function refreshGear(profile: Types.Profile)
 			continue
 		end
 		row.card.Visible = true
-		local def = item.def
-		local bonus = math.floor((def.speedMultiplier - 1) * 100)
 		row.effect.Visible = true
-		row.effect.Text = if bonus > 0 then Strings.SHOP_GEAR_SPEED:format(bonus) else Strings.SHOP_GEAR_LOCKED
-		row.price.Text = priceText(def.scrap)
-		local isOwned = ownsGear(profile, item.field)
+		row.effect.Text = effectText(item)
+		row.price.Text = priceText(item.scrap)
+		local isOwned = ownsGear(profile, item)
 		row.button.Visible = not isOwned
 		if row.owned then
 			row.owned.Visible = isOwned
 		end
-		local affordable = profile.scrap >= def.scrap and not LOCKED_GEAR[item.id]
+		local affordable = profile.scrap >= item.scrap and not LOCKED_GEAR[item.id]
 		recolorButton(row.button, if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
 	end
 end
