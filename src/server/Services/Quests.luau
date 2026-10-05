@@ -24,6 +24,7 @@ local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Spawner = require(script.Parent.Spawner)
+local DailyQuests = require(script.Parent.DailyQuests)
 
 local Quests = {}
 
@@ -365,6 +366,7 @@ end
 
 -- Materials reports a collected node. Counts collect objectives for that material.
 function Quests.OnCollect(player: Player, materialId: string)
+	DailyQuests.OnCollect(player)
 	advance(player, function(objective: QuestData.Objective): boolean
 		return objective.kind == "collect" and objective.material == materialId
 	end)
@@ -372,6 +374,7 @@ end
 
 -- Shop reports a crafted (bought) lure. Counts craft objectives for that lure.
 function Quests.OnCraft(player: Player, lureId: string)
+	DailyQuests.OnCraft(player, lureId)
 	advance(player, function(objective: QuestData.Objective): boolean
 		return objective.kind == "craft" and objective.lure == lureId
 	end)

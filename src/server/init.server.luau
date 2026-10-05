@@ -11,14 +11,15 @@
 -- before Catching (a catch is granted and seated there), Economy after PlayerData (it listens for
 -- loads), Buffs before Shop (Shop registers its WalkSpeed setter with Buffs) and before Catching
 -- (Steady Hands widens the zones), Shop after Economy (it shares ScrapChanged and InventoryChanged)
--- and before Catching (lures bought there are spent in a catch), Quests after Meadow, Spawner and
+-- and before Catching (lures bought there are spent in a catch), DailyQuests right before Quests (Quests
+-- forwards every catch, pickup and craft to it; it requires no service that requires Quests), Quests after Meadow, Spawner and
 -- Shop (the horn summons the Warden at the shrine through Spawner.SpawnAt; Shop registers its gear
 -- grant with Quests) and before Catching (a lost Warden encounter is reported to Quests), Tutorial
 -- after Spawner (its trainee aliens are placed through Spawner.SpawnAt) and after Economy and
 -- Materials (both report to it, and Economy's offline settlement must run before the tutorial's own
 -- load step), Peddler after Economy and Catching (eggs are granted through Economy; the visit clock
 -- starts last), Gifts after Economy and Spawner (the Welcome Week egg is granted through Economy with
--- Spawner's overlay roll) and after PlayerData (it counts the day on load), Social after Gifts (rewards go through Gifts.GrantRewards; its load hook counts the session and pays referrals after Gifts' day count) and Analytics, Settings after PlayerData
+-- Spawner's overlay roll) and after PlayerData (it counts the day on load), Social after Gifts (rewards go through Gifts.GrantRewards; its load hook counts the session and pays referrals after Gifts' day count) and Analytics, Codes right after Social (it pays through Gifts.GrantRewards and hands that to DailyQuests at Init), Settings after PlayerData
 -- (it writes profile.settings) and before Dev (which stays last), Outposts after Economy and Analytics and before Launch (Launch banks a flight's outpost through it), Launch after Economy (both move the
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
 -- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
@@ -29,7 +30,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

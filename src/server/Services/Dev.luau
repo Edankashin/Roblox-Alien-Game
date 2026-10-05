@@ -4,7 +4,8 @@
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
--- weekly board through its per-minute cap; send them to the store now and refresh the board). Nothing
+-- weekly board through its per-minute cap; send them to the store now and refresh the board), /dq reset | done (deal the
+-- daily and weekly quests again with empty progress; finish every dealt one). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -25,6 +26,7 @@ local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
 local Social = require(script.Parent.Social)
 local Leaderboard = require(script.Parent.Leaderboard)
+local DailyQuests = require(script.Parent.DailyQuests)
 local Shop = require(script.Parent.Shop)
 local Outposts = require(script.Parent.Outposts)
 local Tutorial = require(script.Parent.Tutorial)
@@ -352,6 +354,21 @@ local function leaderboardCommand(player: Player, text: string)
 	end
 end
 
+-- /dq reset | done: deal the daily and weekly quests again with empty progress, or set every dealt,
+-- unclaimed one to its count so the claim buttons can be tested.
+local function dailyQuestsCommand(player: Player, text: string)
+	local sub = string.match(text, "^%s*/?dq%s+(%S+)") or ""
+	if sub == "reset" then
+		DailyQuests.DevReset(player)
+		print(("[%s] dev: %s has fresh daily and weekly quests"):format(Config.WorkingTitle, player.Name))
+	elseif sub == "done" then
+		DailyQuests.DevComplete(player)
+		print(("[%s] dev: %s has every dealt daily and weekly quest finished"):format(Config.WorkingTitle, player.Name))
+	else
+		print(("[%s] dev: /dq reset | done"):format(Config.WorkingTitle))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -407,11 +424,12 @@ function Dev.Init()
 	command("outpost", backdateOutpost)
 	command("social", socialCommand)
 	command("lb", leaderboardCommand)
+	command("dq", dailyQuestsCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

@@ -27,6 +27,7 @@ local AnalyticsData = require(Shared.data.Analytics)
 local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local DailyQuests = require(script.Parent.DailyQuests)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Analytics = require(script.Parent.Analytics)
@@ -357,6 +358,8 @@ function Gifts.GrantRewards(player: Player, rewards: { any }): boolean
 end
 
 function Gifts.Init()
+	-- Daily quests pay through the same reward grant (DailyQuests cannot require Gifts: Gifts -> Economy -> Quests -> DailyQuests).
+	DailyQuests.SetRewardGranter(Gifts.GrantRewards)
 	for _, name in ipairs({ "GiftsChanged", "ScrapChanged", "InventoryChanged" }) do
 		Net.event(name)
 	end
