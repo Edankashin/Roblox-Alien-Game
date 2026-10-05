@@ -72,3 +72,14 @@ Known gaps in this milestone: Shop, Quests and Settings are not built; no compas
 10. Finish the Thrusters (module 2): toasts "Thrusters complete!" and "Every station now has 2 slots!"; the Aliens screen's station cards read 0/2 or 1/2 and a second slot square opens. The Nav Array raises them to 3.
 
 Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and skins, Radar Mk1.
+
+## Milestone 6b: the Peddler, power-ups, luck
+
+1. Press Play. Boot adds Buffs and Peddler lines and `server started: PlayerData, WorldClock, Meadow, Materials, Spawner, Economy, Buffs, Shop, Catching, Peddler, Dev`. About 20 s in, a gold ship descends to the right of the camp with a toast "The Peddler has landed!" and a nameplate "The Peddler / Leaves in 1:30".
+2. Within 12 studs the button reads "Trade". Open it: a gold "The Peddler" panel with three offer cards (kind chip, name, description, price or Free, Buy). `/scrap 5000` then buy a Speed Burst: toast, Scrap drops, the card reads "Sold"; buy it again is refused with "Already bought this visit". A Scrap bundle offer is Free and adds 500 Scrap. A Rare or Epic egg hatches through the reveal card with a NEW! ribbon when new, and posts the server banner like a wild catch.
+3. After 90 s the ship lifts off, the panel closes if open with "The Peddler has left", and the Trade button disappears. The next visit comes 5 minutes after the last one started.
+4. Bottom-left a "Power-ups" row appears once you hold any: a square per power-up with a count badge. Tap Speed Burst: toast "Speed Burst on!", a blue timer under the slot counts down from 1m 0s, and you move faster; tapping it again while active says "Speed Burst is already running". Leave and rejoin: the timer resumes from where it was (it only runs while online).
+5. Luck: under the ship bar a "Luck x1.3" readout appears at night (x1.0 is hidden); a Lucky Charm adds +0.5 while it runs; catching Commons in a row raises it slowly (pity), and a Rare resets it. Spawns near a lucky player roll better tiers.
+6. Steady Hands: the capture zones are visibly 30% wider for 10 minutes. Scrap Magnet: catch Scrap pays +50%.
+
+Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (earned only, no source yet), Peddler ship art and landing sound.
