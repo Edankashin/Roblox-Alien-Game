@@ -270,3 +270,14 @@ Memory profiles in Studio; the referral bank and the group check need a live pla
 6. Second session: rejoin. `social.sessions` is 2, and after 120 s the NotifyAsk event fires once (the card itself depends on step 4's platform rule). No card during a capture, the reveal or a launch; the card waits and retries.
 
 Known gaps in this milestone: the invitee path (joining through a referral link) and the offline inviter bank can only be tested on a live place with two accounts; no cosmetic in the group gift until cosmetics render; the leave-with-timer nudge is not built (the Ship screen already shows module timers).
+
+## Milestone 20: the weekly Catches leaderboard (World 1 place)
+
+In Studio with memory profiles the board is this server only (DataStore off); the shared store needs Studio API access and `Config.UseDataStoreInStudio = true`, or a live place.
+1. Boot lists Leaderboard before Catching. A "Ranks" button (glyph #) sits in the top row left of Settings. Tap: the screen "Top catchers this week" with "Resets in Nd Nh" counting down to Friday 16:00 UTC, the note "Studio: this server only (DataStore off)" in memory mode, the list empty with "No catches yet this week. Be the first!", and the bottom row "You: 0 catches this week, rank 100+".
+2. Catch three aliens (or `/lb 3`): within a minute the list shows your display name with 3 and the bottom row reads "You: 3 catches this week, rank 1". Catches from a Starter Pack or `/spawn` grants without a catch do not count (only a real catch increments). `/lb 50`: the count climbs by at most 30 in any minute (the cap), the rest is dropped with a print.
+3. Multi-client test (two players): both appear, sorted by count, ranks 1 and 2; the loser's bottom row shows rank 2. The list refreshes within 60 s of a catch without reopening.
+4. With `Config.UseDataStoreInStudio = true` and API access: the key `Catches_<period id>` in the OrderedDataStore "Catches" holds the counts; rejoin and the count persists; a second Studio server sees the same board within a minute. Leaving flushes at once (no catches lost on a quick rejoin).
+5. Reduced Motion on: no list stagger. iPhone SE: 10 rows visible, scrolling to 100.
+
+Known gaps in this milestone: no camp-side board part (the screen is the chart), no all-time board, no rewards for ranks (decide with the event quest track), the all-time codex count is the Codex screen's existing count.
