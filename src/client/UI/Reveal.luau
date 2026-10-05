@@ -53,7 +53,7 @@ local TIER_Y = 0.8
 local NAME_Y_STAMPED = 0.745
 local TIER_Y_STAMPED = 0.845
 local STAMP_Y = 0.655
-local STAMP_SCRAP_Y = 0.935
+local STAMP_SCRAP_Y = 0.905 -- of the screen, on the root like the Scrap and Perfect lines, under both
 local STAMP_PEAK = 1.5 -- the stamp slams in from this scale
 
 local gui: ScreenGui? = nil
@@ -261,15 +261,15 @@ local function build()
 	stamp.Visible = false
 	stampLabel = stamp
 	local stampScrap = Builder.label({
-		parent = panel,
+		parent = root,
 		name = "SizeScrap",
 		text = "",
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, STAMP_SCRAP_Y),
-		size = UDim2.fromScale(0.9, 0.055),
+		size = UDim2.fromScale(0.5, 0.05),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Featured,
-		zIndex = 4,
+		zIndex = 8,
 	})
 	stampScrap.Visible = false
 	stampScrapLabel = stampScrap

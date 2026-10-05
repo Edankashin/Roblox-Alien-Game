@@ -150,6 +150,8 @@ local function build(name: string, sheet: Weather.Sheet): Live
 	emitter.EmissionDirection = Enum.NormalId.Top
 	emitter.SpreadAngle = Vector2.new(sheet.spread, sheet.spread)
 	emitter.LightEmission = sheet.lightEmission
+	emitter.Squash = NumberSequence.new(sheet.squash)
+	emitter.Orientation = if sheet.velocityParallel then Enum.ParticleOrientation.VelocityParallel else Enum.ParticleOrientation.FacingCamera
 	emitter.Drag = sheet.drag
 	if drift then
 		-- Wisps start at about the row's speed and are pushed along the drift; drag balances the push at speed max.
