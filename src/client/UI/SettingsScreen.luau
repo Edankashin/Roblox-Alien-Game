@@ -413,7 +413,7 @@ local function build()
 	end
 	buildCodesRow(holder, count, share)
 
-	-- The hint: the one long line, in the body font, navy, no stroke.
+	-- The hint: the one long line, Fredoka like every other label (the playbook's one font), navy, no stroke.
 	Builder.label({
 		parent = body,
 		name = "Hint",
@@ -421,7 +421,6 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Outline,
 		stroke = 0,
-		font = Theme.BodyFont,
 		position = UDim2.fromScale(Theme.Margin, HINT_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, HINT_H),
 		zIndex = 3,
