@@ -10,6 +10,13 @@
 -- client-made Workspace.ClientWild folder, feet where the placeholder's bottom sits, bobbing with the
 -- part; the server part is then invisible locally but stays what Nearest and PartAtScreenPoint return.
 -- Without a mesh the placeholder part shows exactly as before.
+-- The Heater rule (World 2): while State.GetConditions() holds "Blizzard", a tracked alien farther
+-- (flat distance) than Config.BlizzardHideStuds from the player is hidden locally, unless it stands
+-- within Radius of a lit Heater (a Part under Workspace.World.Heaters with the attributes Radius and
+-- ExpiresAt, made by the server). Hidden means the server part and the mesh clone get a
+-- LocalTransparencyModifier of 1 and the nameplate is disabled; a hidden alien stays tracked, so
+-- Nearest still finds it (the catch distance is inside the hide distance, so a catchable alien is
+-- always drawn). The state is computed in `evaluate`, on every visibility tick, on arrival and on a clock change.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -26,11 +33,15 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
+local State = require(script.Parent.Parent:WaitForChild("State"))
 
 local WildRenderer = {}
 
 local VISUAL_FOLDER = "ClientWild" -- client-made Workspace folder for the mesh clones; nothing in it replicates
 local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and its nameplate
+local EVALUATE_SECONDS = 0.25 -- how often the blizzard hide rule is re-judged for every tracked alien
+local BLIZZARD = "Blizzard" -- the condition (the world's special weather) under which the hide rule runs
+local HEATER_FOLDER = "Heaters" -- Workspace.World.Heaters, made by the server's Heaters service
 
 type Record = {
 	part: Part,
@@ -40,6 +51,7 @@ type Record = {
 	phase: number,
 	realColor: Color3,
 	shadowed: boolean,
+	hidden: boolean, -- the blizzard hide rule: out of sight beyond BlizzardHideStuds and outside every Heater
 	plate: BillboardGui,
 	nameLabel: TextLabel,
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
@@ -53,6 +65,10 @@ local wildFolder: Folder? = nil
 local visualFolder: Folder? = nil
 local renderConn: RBXScriptConnection? = nil
 local prefsConn: RBXScriptConnection? = nil
+local clockConn: RBXScriptConnection? = nil
+local blizzard = false -- State.GetConditions() holds "Blizzard"
+local heaterSpots: { { x: number, z: number, radius: number } } = {} -- lit heaters as of the last evaluate
+local lastEvaluate = 0
 local localPlayer = Players.LocalPlayer
 
 local function rootPosition(): Vector3?
@@ -151,6 +167,100 @@ local function reveal(record: Record)
 	end
 end
 
+-- Blizzard hide rule ---------------------------------------------------------
+
+local function refreshBlizzard()
+	local on = false
+	for _, condition in ipairs(State.GetConditions()) do
+		if condition == BLIZZARD then
+			on = true
+			break
+		end
+	end
+	blizzard = on
+end
+
+-- The lit heaters under Workspace.World.Heaters as flat spots. FindFirstChild only, so it never yields;
+-- a heater past its ExpiresAt (server wall clock) is ignored even if its part has not been removed yet.
+local function readHeaters()
+	table.clear(heaterSpots)
+	local world = Workspace:FindFirstChild("World")
+	local folder = if world then world:FindFirstChild(HEATER_FOLDER) else nil
+	if not folder then
+		return
+	end
+	local now = State.Now()
+	for _, child in ipairs(folder:GetChildren()) do
+		if not child:IsA("BasePart") then
+			continue
+		end
+		local radius = child:GetAttribute("Radius")
+		local expires = child:GetAttribute("ExpiresAt")
+		if type(radius) ~= "number" or (type(expires) == "number" and expires < now) then
+			continue
+		end
+		table.insert(heaterSpots, { x = child.Position.X, z = child.Position.Z, radius = radius })
+	end
+end
+
+-- Whether a point is out of sight under the current rule: during a blizzard, farther than
+-- BlizzardHideStuds from the player (flat distance) and outside every lit heater's radius.
+local function hiddenAt(point: Vector3, at: Vector3): boolean
+	if not blizzard then
+		return false
+	end
+	local dx, dz = point.X - at.X, point.Z - at.Z
+	if math.sqrt(dx * dx + dz * dz) <= Config.BlizzardHideStuds then
+		return false
+	end
+	for _, spot in ipairs(heaterSpots) do
+		local hx, hz = point.X - spot.x, point.Z - spot.z
+		if math.sqrt(hx * hx + hz * hz) <= spot.radius then
+			return false
+		end
+	end
+	return true
+end
+
+-- Draws or hides one record from its `hidden` flag: the server part (always invisible locally when a
+-- mesh clone stands in for it), every part of the clone, and the nameplate.
+local function applyVisibility(record: Record)
+	local hide = record.hidden
+	record.part.LocalTransparencyModifier = if hide or record.model then 1 else 0
+	local model = record.model
+	if model then
+		local value = if hide then 1 else 0
+		for _, descendant in ipairs(model:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				descendant.LocalTransparencyModifier = value
+			end
+		end
+	end
+	if record.plate.Parent then
+		record.plate.Enabled = not hide
+	end
+end
+
+-- Re-judges the hide rule for every tracked alien. Without a blizzard everything is shown; with no
+-- character yet nothing changes.
+local function evaluate()
+	lastEvaluate = os.clock()
+	local at = rootPosition()
+	if blizzard then
+		if not at then
+			return
+		end
+		readHeaters()
+	end
+	for _, record in pairs(records) do
+		local hide = if at then hiddenAt(record.base.Position, at) else false
+		if hide ~= record.hidden then
+			record.hidden = hide
+			applyVisibility(record)
+		end
+	end
+end
+
 local function track(instance: Instance)
 	if not instance:IsA("Part") or records[instance] then
 		return
@@ -180,6 +290,7 @@ local function track(instance: Instance)
 		phase = rng:NextNumber(0, math.pi * 2),
 		realColor = instance.Color,
 		shadowed = false,
+		hidden = false,
 		plate = plate,
 		nameLabel = nameLabel,
 		model = model,
@@ -250,7 +361,13 @@ local function consider(instance: Instance)
 	end
 	track(instance)
 	local record = records[instance]
-	instance.LocalTransparencyModifier = if record and record.model then 1 else 0
+	if record then
+		local at = rootPosition()
+		record.hidden = if at then hiddenAt(record.base.Position, at) else false -- a new arrival never flashes into view
+		applyVisibility(record)
+	else
+		instance.LocalTransparencyModifier = 0
+	end
 end
 
 local function watch(instance: Instance)
@@ -278,6 +395,9 @@ local function onRender()
 	local now = os.clock()
 	local at = rootPosition()
 	local omega = math.pi * 2 * Config.WildBobHz
+	if now - lastEvaluate >= EVALUATE_SECONDS then
+		evaluate()
+	end
 	for part, record in pairs(records) do
 		if not part.Parent then
 			continue
@@ -319,6 +439,13 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	if not prefsConn then
 		prefsConn = Prefs.OnChanged(applySilhouettes)
 	end
+	if not clockConn then
+		clockConn = State.OnChanged("clock", function()
+			refreshBlizzard()
+			evaluate()
+		end)
+	end
+	refreshBlizzard()
 	if renderConn then
 		renderConn:Disconnect()
 	end
@@ -355,6 +482,13 @@ function WildRenderer.Nearest(maxDistance: number): (Part?, number)
 	return best, bestDistance
 end
 
+-- True while the blizzard hide rule has this alien out of sight (the radar skips it). An untracked part
+-- is not hidden by this rule.
+function WildRenderer.IsHidden(part: Part): boolean
+	local record = records[part]
+	return record ~= nil and record.hidden
+end
+
 -- The wild part under a screen point, if any (tap-to-catch on the alien itself). Mesh clones have
 -- CanQuery off, so the ray only ever meets the server parts, visible or not.
 function WildRenderer.PartAtScreenPoint(x: number, y: number): Part?
@@ -365,8 +499,8 @@ function WildRenderer.PartAtScreenPoint(x: number, y: number): Part?
 	end
 	-- Only tracked parts are candidates, so an invisible reserved spawn never shadows the alien behind it.
 	local tracked: { Instance } = {}
-	for part in pairs(records) do
-		if part.Parent == wild then
+	for part, record in pairs(records) do
+		if part.Parent == wild and not record.hidden then
 			table.insert(tracked, part)
 		end
 	end

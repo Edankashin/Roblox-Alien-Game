@@ -223,3 +223,14 @@ World 2's place id is 0 until it is published, and Studio never teleports, so th
 7. World 2 place: `rojo serve world2.project.json`, Play with a profile moved by `/world 2`: the Frostbyte camp with the five modules at 0%, the Launch line names world 2 and next world 3.
 
 Known gaps in this milestone: the real teleport (needs the published World 2 place id in Worlds.luau and a published universe), outposts producing materials, the Launch Pack offer, the Star Chart to fly back.
+
+## Milestone 16: the Heater rule (World 2)
+
+On the World 2 place (`rojo serve world2.project.json`), with a profile moved by `/world 2`.
+1. Boot adds a Heaters line after Economy: "Heaters: rule on for this world" (on World 1 it reads "off"). The remote `PlaceHeater` exists on both.
+2. `/weather Blizzard`: the weather banner names Frostfang, a blue hint banner "Blizzard! Aliens hide beyond 25m. Place a Heater to reveal them." shows once, and every wild alien farther than 25 studs disappears (parts and meshes fully transparent, nameplates off, radar blips gone, taps ignored); the ones within 25 studs stay. Walk toward a hidden one: it appears at 25 studs. The Nearby column still lists species (by design).
+3. With nothing else in reach the action button reads "Place Heater". With under 150 Scrap: toast "A Heater costs 150 Scrap". `/scrap 500` and tap: Scrap drops by 150, a glowing orange disc appears 6 studs ahead under `Workspace.World.Heaters` with attributes OwnerId, ExpiresAt, Radius 40, toast "Heater lit: 60s of clear air around it", and every alien within 40 studs of the disc shows even beyond 25 studs from you. Analytics prints a Sink line with sku Heater.
+4. A third Heater while two burn: toast "Two heaters are burning already". After 60 s the disc vanishes and the aliens it revealed hide again if still beyond 25 studs. `/clear`: the blizzard ends, everything shows, the action button no longer offers the Heater, and tapping the remote answers NoBlizzard.
+5. World 1 place: `/weather Rain` never hides anything and `PlaceHeater` answers NotThisWorld.
+
+Known gaps in this milestone: the heater's look (a plain disc; particles and a warmth ring later), the disc size, colour and the 0.25 s check interval live as module constants until moved into Config, and the Nearby column does not reflect hidden aliens.

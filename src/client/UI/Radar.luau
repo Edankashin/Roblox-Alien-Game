@@ -5,7 +5,8 @@
 -- pushes the panel's top down under it. One blip per wild alien part under Workspace.World.Wild
 -- within the tier's range of the player's HumanoidRootPart: tier-coloured for a caught species, a
 -- dark silhouette ringed in the tier colour for one not yet in the codex (the world's shadow rule),
--- gold-ringed for an alien the server reserved for this player. A cream square marks the camp and a
+-- gold-ringed for an alien the server reserved for this player; an alien the Blizzard rule hides has
+-- no blip. A cream square marks the camp and a
 -- gold diamond the Peddler while it visits, both pinned to the disc edge when out of range so they
 -- point the way. A tap on a blip hands the wild part to the bootstrap, which sets the waypoint.
 -- Client-only and pure presentation: the server owns which tier is held (profile.gear.radar, pushed
@@ -29,6 +30,7 @@ local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
 local CampRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CampRenderer"))
 local PeddlerRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
+local WildRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WildRenderer"))
 
 local Radar = {}
 
@@ -231,7 +233,8 @@ local function refreshMarkers(at: Vector3?)
 end
 
 -- One blip per wild part within range, measured flat (XZ) since the disc is a flat map. Parts the
--- server reserved for another player are skipped: they are hidden for this player everywhere.
+-- server reserved for another player are skipped: they are hidden for this player everywhere. So are
+-- aliens the Blizzard rule hides (WildRenderer.IsHidden): the radar never shows what the world does not.
 local function refreshBlips()
 	local face = disc
 	if not face then
@@ -248,6 +251,9 @@ local function refreshBlips()
 			local reservedFor = child:GetAttribute("ReservedFor")
 			local reserved = type(reservedFor) == "number"
 			if reserved and reservedFor ~= localPlayer.UserId then
+				continue
+			end
+			if WildRenderer.IsHidden(child) then
 				continue
 			end
 			local species = child:GetAttribute("SpeciesId")

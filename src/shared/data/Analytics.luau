@@ -22,7 +22,7 @@ return {
 	Economy = {
 		Currency = "Scrap",
 		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline" },
-		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler" },
+		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds
 }

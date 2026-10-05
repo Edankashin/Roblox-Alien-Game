@@ -20,14 +20,15 @@
 -- Spawner's overlay roll) and after PlayerData (it counts the day on load), Settings after PlayerData
 -- (it writes profile.settings) and before Dev (which stays last), Launch after Economy (both move the
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
--- that Launch reads for completeness) and after Analytics (it reports each launch).
+-- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
+-- (and so after Meadow, whose Workspace.World its folder lives in, WorldClock, PlayerData and Analytics).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Launch", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Heaters", "Launch", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

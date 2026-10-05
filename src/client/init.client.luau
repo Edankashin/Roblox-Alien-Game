@@ -72,9 +72,10 @@ local collecting = false
 local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
 local capturePart: Part? = nil -- the wild part the current catch is for
 local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
-local cinematic = false -- the crash-landing opener is running: the HUD, hint and radar stay hidden
+local cinematic = false
+local radarTier = 0 -- the Nearby column shows only without a radar and outside a cinematic -- the crash-landing opener is running: the HUD, hint and radar stay hidden
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -83,14 +84,36 @@ local ACTION_TEXT: { [string]: string } = {
 	Launch = Strings.ACTION_LAUNCH,
 	Trade = Strings.ACTION_TRADE,
 	Horn = Strings.ACTION_HORN,
+	Heater = Strings.ACTION_HEATER,
 }
 local soundHorn = Net.func("SoundHorn")
 local horning = false
+local placeHeater = Net.func("PlaceHeater")
+local placingHeater = false -- one PlaceHeater request in flight at a time
+local BLIZZARD = "Blizzard" -- the Frostbyte world's rule and the special weather it names
 
 local captureStart = Net.func("CaptureStart")
 local captureHit = Net.func("CaptureHit")
 local captureCancel = Net.event("CaptureCancel")
 local collectMaterial = Net.func("CollectMaterial")
+
+-- The Heater rule is live: the player's world runs the Blizzard rule and the blizzard is on right now
+-- (State.GetConditions mirrors the server clock).
+local function blizzardActive(): boolean
+	if not State.Has() then
+		return false
+	end
+	local world = Worlds[State.Get().world.current]
+	if not world or world.rule ~= BLIZZARD then
+		return false
+	end
+	for _, condition in ipairs(State.GetConditions()) do
+		if condition == BLIZZARD then
+			return true
+		end
+	end
+	return false
+end
 
 -- A catch in progress or a modal screen blocks every other action.
 local function modalOpen(): boolean
@@ -305,6 +328,10 @@ local function decideAction(): Action?
 	if shrineDistance <= Config.ShrineInteractDistance and shrineDistance < bestDistance and (State.Get().inventory.items[Quests.HornItem] or 0) > 0 then
 		best = "Horn"
 	end
+	-- The Heater is the lowest priority: offered during a blizzard only when nothing else is in reach.
+	if best == nil and blizzardActive() then
+		best = "Heater"
+	end
 	return best
 end
 
@@ -360,6 +387,23 @@ local function performAction()
 				Toast.Show(Strings.TOAST_HORN_COOLDOWN, Theme.Colors.Select)
 			else
 				print(("[%s] horn refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+			end
+		end)
+	elseif action == "Heater" and not placingHeater then
+		placingHeater = true
+		task.spawn(function()
+			local ok, reason = placeHeater:InvokeServer()
+			placingHeater = false
+			if ok == true then
+				Toast.Show(Strings.TOAST_HEATER_PLACED:format(Config.HeaterSeconds), Theme.Colors.Featured)
+			elseif reason == "NotEnoughScrap" then
+				Toast.Show(Strings.TOAST_HEATER_NOT_ENOUGH:format(Builder.formatNumber(Config.HeaterScrap)), Theme.Colors.Close)
+			elseif reason == "Limit" then
+				Toast.Show(Strings.TOAST_HEATER_LIMIT, Theme.Colors.Select)
+			elseif reason == "NoBlizzard" then
+				Toast.Show(Strings.TOAST_HEATER_NO_BLIZZARD, Theme.Colors.Select)
+			else
+				print(("[%s] heater refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 			end
 		end)
 	end
@@ -484,6 +528,11 @@ local function start(profile: Types.Profile)
 	Hud.Build()
 	Hud.SetScrap(profile.scrap)
 	Hud.SetShipTicks(Economy.milestones(profile.world.current))
+	State.OnChanged("world", function()
+		Hud.SetShipTicks(Economy.milestones(State.Get().world.current))
+		refreshShip()
+		Screens.CloseAll()
+	end)
 	Hud.SetRate(State.GetRate().ratePerSecond)
 	refreshShip()
 	Hud.OnAction(performAction)
@@ -686,7 +735,8 @@ local function start(profile: Types.Profile)
 	local function refreshRadarTier()
 		local tier = if State.Has() then State.Get().gear.radar else 0
 		Radar.SetTier(tier)
-		NearbyPanel.SetVisible(tier < 1)
+		radarTier = tier
+		NearbyPanel.SetVisible(tier < 1 and not cinematic)
 	end
 	refreshRadarTier()
 	State.OnChanged("gear", refreshRadarTier)
@@ -742,9 +792,19 @@ local function start(profile: Types.Profile)
 
 	-- The world's special weather gets a banner naming its signature alien when it starts.
 	local lastWeather: string? = nil
+	local blizzardHinted = false -- the hide-and-Heater hint shows once per blizzard
 	local function onClock(state: Types.ClockState)
 		Hud.SetClock(state)
 		State.SetClock(state)
+		-- A blizzard on a Blizzard-rule world hides far aliens; say so once, and say it again next blizzard.
+		if blizzardActive() then
+			if not blizzardHinted then
+				blizzardHinted = true
+				Toast.Banner(Strings.BLIZZARD_HINT:format(Config.BlizzardHideStuds), Theme.Colors.Select, Config.AnnounceSeconds)
+			end
+		else
+			blizzardHinted = false
+		end
 		local world = Worlds[State.Get().world.current]
 		if world and state.weather == world.weather.special.id and lastWeather ~= nil and lastWeather ~= state.weather then
 			local def = Species.ById[world.weather.special.speciesId]
@@ -795,6 +855,7 @@ local function start(profile: Types.Profile)
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen() and not cinematic) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
+		NearbyPanel.SetVisible(radarTier < 1 and not cinematic)
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
 		local target = radarTarget
