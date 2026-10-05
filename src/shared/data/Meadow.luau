@@ -17,8 +17,8 @@ export type Region = {
 }
 
 local Regions: { [string]: Region } = {
-	Forest = { x = 130, z = 120, radius = 70, floorColor = "3F8F3A", treeCount = 40, rockCount = 4 },
-	Cave = { x = -130, z = -120, radius = 60, floorColor = "5A5A66", treeCount = 0, rockCount = 28, roofHeight = 14, roofColor = "4A4A55", wallCount = 10, wallColor = "6E6E7A" },
+	Forest = { x = 130, z = 120, radius = 70, floorColor = "2E6B2B", treeCount = 40, rockCount = 4 },
+	Cave = { x = -130, z = -120, radius = 60, floorColor = "5A5A66", treeCount = 0, rockCount = 28, roofHeight = 14, roofColor = "4A4A55", wallCount = 26, wallColor = "6E6E7A" },
 }
 
 return {
@@ -26,7 +26,7 @@ return {
 	RegionPatchThickness = 0.3, -- the coloured floor patch sits this high on the floor
 	RegionRoofThickness = 1, -- the flat slab over a roofed region (the Cave ceiling)
 	RegionEdgeMargin = 6, -- nodes and region scatter stay this far inside the region edge
-	RegionWallRadius = 3,
+	RegionWallRadius = 4, -- 26 pillars of this radius around the Cave rim leave gaps of about 5 studs
 	Seed = 20261004, -- deterministic scatter so every server builds the same meadow
 	FloorSize = 400,
 	FloorThickness = 1,

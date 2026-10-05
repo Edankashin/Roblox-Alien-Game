@@ -109,7 +109,7 @@ local function buildNode(materialId: string, def: KeyMaterials.KeyMaterialDef, f
 	end
 	part.CFrame = cframe
 	part.Color = Color3.fromHex(def.color)
-	part.Material = Enum.Material.SmoothPlastic
+	part.Material = if def.glows then Enum.Material.Neon else Enum.Material.SmoothPlastic
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
