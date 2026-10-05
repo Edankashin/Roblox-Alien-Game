@@ -219,7 +219,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | queued; meshes wait on a hand import |
 | 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | queued |
 
-Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`.
+Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
 **Waits on the team** (nothing else blocks these):
 - Import one model by hand (File > Import 3D, `assets/models/Mossbop/Mossbop.fbx`, into `ReplicatedStorage.Models`) to finish the milestone 12 test, then the rest.
