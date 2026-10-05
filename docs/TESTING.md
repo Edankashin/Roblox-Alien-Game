@@ -316,3 +316,13 @@ Needs Studio's multi-client test with two accounts that are Roblox friends; with
 5. Daily quests: the "with a friend" objectives count catches while the chip is above +0% (the same friend check).
 
 Known gaps in this milestone: no party or private-server bonus beyond friends present, the chip has no icon, and co-play analytics only record the friend count (party size and visits come with the home planet).
+
+## Milestone 24: weather particles (Look pass L3, both places)
+
+1. World 1, `/weather Rain`: within 1.5 s rain streaks fall around the player from a sheet above the camera, slanted slightly, and keep falling while walking (the sheet follows); `/clear` ramps them off over 1.5 s. `/weather Fog`: slow drifting pale wisps at ground level, few and large. Output clean; no sheet part is visible as geometry.
+2. World 2: `/weather Snow`: large slow flakes drifting and spinning; `/weather Blizzard`: dense fast sideways flakes; `/clear` ends them. The Heater still reveals aliens as before (the sheet never blocks taps: CanQuery off).
+3. The Meteor Shower sky sheet (milestone 11) still works alongside: `/shower` during Rain shows both.
+4. Budget: Output prints one line per sheet with its rate x max lifetime (the on-screen count); none above 200. On the iPhone SE emulator frame rate stays above 50 under Blizzard; if not, lower the rate in data/Weather.luau, never in code.
+5. Reduced Motion on: particles still run (they are weather, not motion), unchanged.
+
+Known gaps in this milestone: default square particle textures until the icon pack (raindrop, flake, wisp sprites), no ground splash or snow cover, no sound change per weather.
