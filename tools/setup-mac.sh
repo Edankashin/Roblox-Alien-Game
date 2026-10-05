@@ -34,7 +34,17 @@ have yt-dlp || brew install yt-dlp
 # Blender through MCP (docs/vault/06-art-pipelines/Blender-MCP.md)
 have uv || brew install uv
 [ -d /Applications/Blender.app ] || brew install --cask blender || true
-have uvx && uvx mcp-for-blender install-addon || true
+# The add-on installer needs Blender's user add-ons folder, which exists only after Blender has been opened
+# once; create it for the installed version so a fresh machine works in one pass.
+if [ -d /Applications/Blender.app ]; then
+  BLENDER_VER="$(/Applications/Blender.app/Contents/MacOS/Blender --version 2>/dev/null | head -1 | sed -E 's/Blender ([0-9]+\.[0-9]+).*/\1/')"
+  if [ -n "$BLENDER_VER" ]; then
+    ADDONS_DIR="$HOME/Library/Application Support/Blender/$BLENDER_VER/scripts/addons"
+    mkdir -p "$ADDONS_DIR"
+    have uvx && BLENDERMCP_ADDONS_DIR="$ADDONS_DIR" uvx mcp-for-blender install-addon || true
+  fi
+fi
+echo "Then in Blender: Edit > Preferences > Add-ons, enable 'Interface: MCP for Blender'; in the 3D viewport press N, open the MCP for Blender tab, click Start MCP Server."
 
 say "Claude Code add-ons (docs/vault/02-how-we-work/Claude-Plugins.md, verdicts of 2026-10-05)"
 # Team plugins are declared in .claude/settings.json (Claude Code offers to install them when this folder
@@ -43,8 +53,8 @@ claude plugin install claude-code-setup@claude-plugins-official || true
 claude plugin marketplace add thedotmack/claude-mem >/dev/null 2>&1 || true
 claude plugin install claude-mem@thedotmack || echo "claude-mem: pick its memory provider deliberately on first run (local or your own key); see the vault page."
 # Spend measurement first, then one compression trial judged against it.
-have ccusage || npm install -g ccusage
-echo "Weekly: run 'ccusage daily' and 'ccusage session'. Status line with context and cost: 'npx -y ccstatusline@3' once, interactive."
+# ccusage: no global install (npm -g fails with EACCES on a stock Homebrew Node); run it through npx.
+echo "Weekly: run 'npx -y ccusage daily' and 'npx -y ccusage session'. Status line with context and cost: 'npx -y ccstatusline@3' once, interactive."
 if [ "${WITH_RTK:-0}" = "1" ]; then
   have rtk || brew install rtk
   echo "rtk installed: a one-week trial, keep it only if ccusage shows the saving."
