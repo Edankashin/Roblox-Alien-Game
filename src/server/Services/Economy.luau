@@ -123,6 +123,13 @@ local function snapshotModules(profile: Types.Profile): { string }
 		state.progress = 1
 		state.completedAt = now
 		table.insert(completed, def.id)
+		-- Free slot growth: a finished module can raise every station's slot count (never above the cap).
+		local unlocks = def.unlocksSlots
+		if unlocks then
+			for _, station in pairs(profile.stations) do
+				station.slots = math.clamp(math.max(station.slots, unlocks), 1, Config.StationMaxSlots)
+			end
+		end
 	else
 		state.progress = progress
 	end
@@ -393,7 +400,7 @@ local function tickIncome(dt: number)
 				pushScrap(player, profile)
 			end
 			if #completed > 0 then
-				pushModules(player, profile)
+				pushCamp(player, profile) -- a completed module can also have grown the station slots
 				announceCompleted(player, profile.world.current, completed)
 			end
 		end

@@ -11,7 +11,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "WorldClock", "Meadow", "Materials", "Spawner", "Economy", "Shop", "Catching" }
+local ORDER = { "PlayerData", "WorldClock", "Meadow", "Materials", "Spawner", "Economy", "Shop", "Catching", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

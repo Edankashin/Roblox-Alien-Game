@@ -213,28 +213,6 @@ local function announceCatch(player: Player, species: string, tier: Types.Tier, 
 	Net.event("Announcement"):FireAllClients(note)
 end
 
--- Tiers.Order index of a tier name; 0 when the name is unknown.
-local function tierRank(tier: string): number
-	return table.find(Tiers.Order, tier) or 0
-end
-
--- Tells every client about a catch of Config.AnnounceMinTier or above. An unknown tier name in Config
--- announces nothing rather than everything.
-local function announceCatch(player: Player, species: string, tier: Types.Tier, overlay: Types.Overlay)
-	local minRank = tierRank(Config.AnnounceMinTier)
-	if minRank == 0 or tierRank(tier) < minRank then
-		return
-	end
-	local payload: Types.Announcement = {
-		kind = "catch",
-		playerName = player.DisplayName,
-		species = species,
-		tier = tier,
-		overlay = overlay,
-	}
-	Net.event("Announcement"):FireAllClients(payload)
-end
-
 -- Remotes ----------------------------------------------------------------
 
 local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStartResult?, string?)
@@ -379,7 +357,6 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			end
 			announceCatch(player, species, tier, overlay)
 			Economy.OnCaught(player, uid)
-			announceCatch(player, species, tier, overlay)
 			return {
 				outcome = "Caught",
 				hit = hit,
@@ -423,7 +400,6 @@ end
 
 function Catching.Init()
 	Net.event("ScrapChanged")
-	Net.event("Announcement")
 	Net.event("Announcement")
 	Net.func("CaptureStart").OnServerInvoke = onCaptureStart
 	Net.func("CaptureHit").OnServerInvoke = onCaptureHit

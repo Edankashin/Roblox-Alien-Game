@@ -79,6 +79,7 @@ return {
 	CAMP_WORKER = "%s is %s",
 	TOAST_MATERIAL = "+%d %s",
 	TOAST_MODULE_DONE = "%s complete!",
+	TOAST_SLOT_UNLOCKED = "Every station now has %d slots!",
 	TOAST_NOT_ENOUGH_SCRAP = "Not enough Scrap",
 	TOAST_NO_MATERIAL = "Find %s in the %s",
 	TOAST_NODE_EMPTY = "Nothing here yet",

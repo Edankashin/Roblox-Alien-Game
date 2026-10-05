@@ -1,0 +1,92 @@
+--!strict
+-- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear. Nothing here exists in a live
+-- server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared.data.Config)
+local Net = require(Shared.Net)
+local PlayerData = require(script.Parent.PlayerData)
+local WorldClock = require(script.Parent.WorldClock)
+
+local Dev = {}
+
+local enabled = false
+
+local function playerFrom(source: TextSource?): Player?
+	if not source then
+		return nil
+	end
+	return Players:GetPlayerByUserId(source.UserId)
+end
+
+local function command(alias: string, onTriggered: (Player, string) -> ())
+	local folder = TextChatService:FindFirstChild("TextChatCommands")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "TextChatCommands"
+		folder.Parent = TextChatService
+	end
+	local cmd = Instance.new("TextChatCommand")
+	cmd.Name = "Dev" .. alias
+	cmd.PrimaryAlias = "/" .. alias
+	cmd.Triggered:Connect(function(source: TextSource, text: string)
+		local player = playerFrom(source)
+		if player then
+			onTriggered(player, text)
+		end
+	end)
+	cmd.Parent = folder
+end
+
+local function grantScrap(player: Player, text: string)
+	local amount = tonumber(string.match(text, "%-?%d+") or "") or 0
+	if amount == 0 then
+		return
+	end
+	local scrap = 0
+	local ok = PlayerData.Update(player, function(profile)
+		profile.scrap = math.max(0, profile.scrap + amount)
+		scrap = profile.scrap
+	end)
+	if ok then
+		Net.event("ScrapChanged"):FireClient(player, scrap)
+		print(("[%s] dev: %s now has %d Scrap"):format(Config.WorkingTitle, player.Name, scrap))
+	end
+end
+
+-- Public API -------------------------------------------------------------
+
+function Dev.Init()
+	if not RunService:IsStudio() then
+		return
+	end
+	enabled = true
+	Net.event("ScrapChanged")
+	command("scrap", grantScrap)
+	command("night", function()
+		WorldClock.Force(true, nil)
+	end)
+	command("day", function()
+		WorldClock.Force(false, nil)
+	end)
+	command("rain", function()
+		WorldClock.Force(nil, "Rain")
+	end)
+	command("clear", function()
+		WorldClock.Force(nil, "Clear")
+	end)
+end
+
+function Dev.Start()
+	if enabled then
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear)"):format(Config.WorkingTitle))
+	end
+end
+
+return Dev

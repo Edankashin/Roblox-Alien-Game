@@ -50,7 +50,7 @@ From `GAME_DESIGN.md` section 19, plus a few the build needs. Each needs a one-l
 | 13 | UI palette (six colors) | Answered: stud dialect, playbook values | Day 1 |
 | 14 | Icon pack | Answered: placeholders until chosen | First UI pass |
 | 15 | Who owns the Roblox group and the experience | Answered: co-owned by both team members | Day 1 |
-| 16 | Free station slot growth | Proposed: slot 2 on every station unlocks with the Thrusters, slot 3 with the Nav Array; passes add a 4th and 5th. The simulator (section 3.3) shows one slot per station leaves 100+ aliens idle by module 5 and makes the Nav Array the only Scrap-blocked module | Before the Ship screen is tuned |
+| 16 | Free station slot growth | Built as the default on 2026-10-05: slot 2 on every station unlocks with the Thrusters, slot 3 with the Nav Array (`unlocksSlots` in `Modules.luau`); passes would add a 4th and 5th. The simulator (section 3.3) showed one slot per station leaves 100+ aliens idle by module 5 and makes the Nav Array the only Scrap-blocked module. Change the two numbers in the data table if the team prefers another curve | Confirm or change |
 
 Answers so far are logged in `docs/vault/07-alien-game/Decisions.md`.
 

@@ -279,8 +279,12 @@ local function connectToasts()
 		end)
 	end)
 	task.spawn(function()
-		Net.event("ModuleCompleted").OnClientEvent:Connect(function(_worldId: number, moduleId: string)
+		Net.event("ModuleCompleted").OnClientEvent:Connect(function(worldId: number, moduleId: string)
 			Toast.Show(Strings.TOAST_MODULE_DONE:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
+			local def = Economy.moduleDef(worldId, moduleId)
+			if def and def.unlocksSlots then
+				Toast.Show(Strings.TOAST_SLOT_UNLOCKED:format(def.unlocksSlots), Theme.Colors.Featured)
+			end
 		end)
 	end)
 	-- Server-wide catch banners for rare finds, in the tier's colour.

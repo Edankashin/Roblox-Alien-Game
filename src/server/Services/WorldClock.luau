@@ -85,6 +85,26 @@ function WorldClock.OnChanged(callback: (Types.Condition) -> ())
 	table.insert(listeners, callback)
 end
 
+-- Developer override (Studio commands): force night or day and/or a weather state now. The forced
+-- phase keeps its normal length from this moment, so the cycle resumes on its own.
+function WorldClock.Force(night: boolean?, state: string?)
+	local now = os.clock()
+	if night ~= nil then
+		isNight = night
+		phaseEndsAt = now + (if isNight then Config.NightSeconds else Config.DaySeconds)
+		applyLighting(false)
+	end
+	if state and table.find(Config.WeatherStates, state) then
+		weather = state
+		weatherEndsAt = now + rng:NextNumber(Config.WeatherMinSeconds, Config.WeatherMaxSeconds)
+	end
+	broadcast()
+	local condition: Types.Condition = WorldClock.GetCondition()
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, condition)
+	end
+end
+
 function WorldClock.Init()
 	Net.event("ClockChanged")
 	local now = os.clock()

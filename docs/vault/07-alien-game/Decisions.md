@@ -33,3 +33,5 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | B6 | Biomes as regions | World 1's Forest and Cave are circular regions on the one Meadow floor (`data/Meadow.luau` Regions), not separate places; `Shared/Biomes.At` decides the biome of any point for spawns, nodes and the HUD chip | 2026-10-05 |
 | B7 | Condition-gated nodes | A node whose material needs Night or Rain stays visible but dim with "Only at night" on its plate while the condition is not met; a collected node vanishes until it respawns | 2026-10-05 |
 | B8 | Catch announcements | Catches of `Config.AnnounceMinTier` (Rare) and above post a server-wide banner naming player, rarity and species; lower tiers stay private | 2026-10-05 |
+| B9 | Studio chat commands | `/scrap N`, `/night`, `/day`, `/rain`, `/clear` exist only when `RunService:IsStudio()`; the Dev service never runs live | 2026-10-05 |
+| B10 | Slot growth | Thrusters completion raises every station to 2 slots, Nav Array to 3 (`Modules.unlocksSlots`), per decision 16's proposal, pending the team's confirmation | 2026-10-05 |

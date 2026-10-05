@@ -68,4 +68,7 @@ Known gaps in this milestone: Shop, Quests and Settings are not built; no compas
 7. Economy check: with two Commons working and catching steadily, Scrap climbs noticeably faster than in milestone 3.
 8. Catch a Rare (Sparkfox) or better: a wide banner in the tier colour slides in top centre for 4 s reading "<you> caught a Rare Sparkfox!" (with the overlay named when it has one). Commons and Uncommons post no banner. In a multi-client test the banner shows on every client.
 
+9. Studio-only chat commands exist for testing (the Dev service prints a line at boot and does nothing in a live server): type `/scrap 5000` in the chat to add Scrap, `/night`, `/day`, `/rain`, `/clear` to force the clock. Use them to buy Speed Boots and to test the Cave Crystal and Storm Shard nodes without waiting.
+10. Finish the Thrusters (module 2): toasts "Thrusters complete!" and "Every station now has 2 slots!"; the Aliens screen's station cards read 0/2 or 1/2 and a second slot square opens. The Nav Array raises them to 3.
+
 Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and skins, Radar Mk1.
