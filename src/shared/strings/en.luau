@@ -401,6 +401,7 @@ return {
 	SHOP_STARTER_PICKED = "Your Rare: %s",
 	SHOP_ITEM_StarterPack = "Starter Pack",
 	SHOP_DESC_StarterPack = "A Rare alien of your choice, Speed Boots now, 5 spins and a hoverboard skin. Once per account.",
+	SHOP_ITEM_HoverSkinStarter = "Starter hoverboard skin",
 	SHOP_ITEM_SlotEveryStation1 = "+1 Slot on Every Station",
 	SHOP_DESC_SlotEveryStation1 = "One more alien working at every station, forever.",
 	SHOP_ITEM_AutoOptimize = "Auto-Optimize",

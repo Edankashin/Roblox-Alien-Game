@@ -678,7 +678,7 @@ function EconomyService.AddSlots(player: Player, amount: number): (boolean, stri
 end
 
 function EconomyService.Init()
-	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement" }) do
+	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted" }) do
 		Net.event(name)
 	end
 	Net.func("ModulePay").OnServerInvoke = onModulePay
@@ -699,6 +699,9 @@ function EconomyService.Init()
 			return false, "WrongTier"
 		end
 		local result = EconomyService.GrantAlien(player, species, Spawner.RollOverlay(), false)
+		if result then
+			Net.event("AlienGranted"):FireClient(player, result) -- the client plays the Reveal for it
+		end
 		return result ~= nil, if result then nil else "NoProfile"
 	end)
 	Monetization.SetGranter("slots", function(player: Player, grant: Monetization.Grant): (boolean, string?)

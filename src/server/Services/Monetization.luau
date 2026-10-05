@@ -179,10 +179,12 @@ local function startServerLuck(player: Player, bonus: number, seconds: number)
 	if current and current.endsAt > now then
 		if bonus > current.bonus then
 			serverLuck = { bonus = bonus, endsAt = math.max(current.endsAt, now + seconds), playerName = player.DisplayName }
+			broadcastLuck()
+			fireLuckListeners(true) -- the number everyone carries changed, so Buffs re-sends LuckChanged
 		else
 			current.endsAt += seconds
+			broadcastLuck()
 		end
-		broadcastLuck()
 		return
 	end
 	serverLuck = { bonus = bonus, endsAt = now + seconds, playerName = player.DisplayName }
