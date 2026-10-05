@@ -16,6 +16,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -386,6 +387,33 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			size = UDim2.fromScale(0.86, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
 			zIndex = 6,
+		})
+	end
+
+	-- A band that names itself (Tiny, Big, HUGE: data/Sizes label) gets a small gold chip under the top
+	-- row, over the shape's corner; Normal and Small show nothing.
+	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
+	if band.label then
+		local sizeChip = Builder.pill({
+			parent = card,
+			name = "Size",
+			position = UDim2.fromScale(0.04, 0.23),
+			size = UDim2.fromScale(0.4, 0.17), -- the height of the top chips; wide enough for "HUGE" at the minimum size
+			color = Theme.Colors.Trough,
+			stroke = Theme.Stroke.Text,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = 6,
+		})
+		Builder.label({
+			parent = sizeChip,
+			name = "Text",
+			text = Builder.text("SIZE_" .. band.id),
+			textSize = Theme.TextSize.Body,
+			color = Theme.Colors.Featured,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.86, 0.75),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = 7,
 		})
 	end
 

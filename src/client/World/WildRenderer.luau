@@ -92,14 +92,19 @@ local function rootPosition(): Vector3?
 	return nil
 end
 
+-- Where the nameplate floats above its adornee, from the distance up to the top of what the player sees.
+local function plateOffset(topOffset: number): Vector3
+	return Vector3.new(0, topOffset + Config.WildBobStuds + PLATE_LIFT, 0)
+end
+
 -- `topOffset` is the distance from the part's centre up to the top of what the player sees: half the
--- part for a placeholder, the mesh's top for a model.
+-- part for a placeholder, the mesh's top for a model (both after the size band).
 local function buildPlate(part: Part, name: string, tier: string, topOffset: number): (BillboardGui, TextLabel)
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
 	plate.Size = UDim2.fromScale(7, 2) -- studs
-	plate.StudsOffsetWorldSpace = Vector3.new(0, topOffset + Config.WildBobStuds + PLATE_LIFT, 0)
+	plate.StudsOffsetWorldSpace = plateOffset(topOffset)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = false
 	plate.LightInfluence = 0
@@ -286,10 +291,6 @@ local function topOffsetOf(part: Part, model: Model?): number
 	return part.Size.Y / 2
 end
 
-local function plateOffset(topOffset: number): Vector3
-	return Vector3.new(0, topOffset + Config.WildBobStuds + PLATE_LIFT, 0)
-end
-
 -- Re-reads the part's Size attribute for a tracked alien (the server may set it after the part
 -- appears) and moves the part, the clone and the plate to the new band, bottom unchanged.
 local function applySize(record: Record)
@@ -393,6 +394,7 @@ end
 -- else never tracks it: no plate, no bob, out of Nearest and PartAtScreenPoint, and locally invisible.
 
 local reservedConns: { [Part]: RBXScriptConnection } = {}
+local sizeConns: { [Part]: RBXScriptConnection } = {}
 
 local function reservedForOther(part: Part): boolean
 	local reservedFor = part:GetAttribute("ReservedFor")
@@ -408,7 +410,8 @@ local function consider(instance: Instance)
 	if reservedForOther(instance) then
 		local record = records[instance]
 		if record then
-			instance.CFrame = record.base -- park it so a later reveal starts from rest
+			instance.CFrame = record.restBase -- park it so a later reveal starts from rest,
+			instance.Size = record.baseSize -- at the server's size, so the band is not applied twice
 			untrack(instance)
 		end
 		instance.LocalTransparencyModifier = 1
@@ -434,6 +437,14 @@ local function watch(instance: Instance)
 			consider(instance)
 		end)
 	end
+	if not sizeConns[instance] then
+		sizeConns[instance] = instance:GetAttributeChangedSignal("Size"):Connect(function()
+			local record = records[instance]
+			if record then
+				applySize(record)
+			end
+		end)
+	end
 	consider(instance)
 end
 
@@ -443,6 +454,11 @@ local function unwatch(instance: Instance)
 	if connection then
 		connection:Disconnect()
 		reservedConns[instance :: any] = nil
+	end
+	local sizeConnection = sizeConns[instance :: any]
+	if sizeConnection then
+		sizeConnection:Disconnect()
+		sizeConns[instance :: any] = nil
 	end
 end
 
