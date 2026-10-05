@@ -36,6 +36,20 @@ have uv || brew install uv
 [ -d /Applications/Blender.app ] || brew install --cask blender || true
 have uvx && uvx mcp-for-blender install-addon || true
 
+say "Claude Code add-ons (docs/vault/02-how-we-work/Claude-Plugins.md, verdicts of 2026-10-05)"
+# Team plugins are declared in .claude/settings.json (Claude Code offers to install them when this folder
+# is trusted); these lines install the same two explicitly and are safe to re-run.
+claude plugin install claude-code-setup@claude-plugins-official || true
+claude plugin marketplace add thedotmack/claude-mem >/dev/null 2>&1 || true
+claude plugin install claude-mem@thedotmack || echo "claude-mem: pick its memory provider deliberately on first run (local or your own key); see the vault page."
+# Spend measurement first, then one compression trial judged against it.
+have ccusage || npm install -g ccusage
+echo "Weekly: run 'ccusage daily' and 'ccusage session'. Status line with context and cost: 'npx -y ccstatusline@3' once, interactive."
+if [ "${WITH_RTK:-0}" = "1" ]; then
+  have rtk || brew install rtk
+  echo "rtk installed: a one-week trial, keep it only if ccusage shows the saving."
+fi
+
 if [ "${WITH_OBSIDIAN:-0}" = "1" ]; then
   say "Obsidian (optional; open docs/vault as a vault)"
   brew install --cask obsidian || true
