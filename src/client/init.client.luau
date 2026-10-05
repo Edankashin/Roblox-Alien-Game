@@ -204,21 +204,28 @@ end
 
 -- Contextual action ---------------------------------------------------------
 
--- One verb at a time, nearest thing first: a wild alien in reach, then a material node, then the ship.
+-- One verb at a time: of the targets in reach (a wild alien, a material node, the ship), the nearest wins,
+-- so standing next to a node beside an alien still offers Collect.
 local function decideAction(): Action?
 	if modalOpen() or not State.Has() then
 		return nil
 	end
-	if WildRenderer.Nearest(Config.CaptureInteractDistance) then
-		return "Catch"
+	local best: Action? = nil
+	local bestDistance = math.huge
+	-- Nearest returns the cap as the distance when nothing is in range, so the part decides, not the number.
+	local wildPart, wildDistance = WildRenderer.Nearest(Config.CaptureInteractDistance)
+	if wildPart then
+		best, bestDistance = "Catch", wildDistance
 	end
-	if NodeRenderer.Nearest(Config.MaterialInteractDistance) then
-		return "Collect"
+	local nodePart, nodeDistance = NodeRenderer.Nearest(Config.MaterialInteractDistance)
+	if nodePart and nodeDistance < bestDistance then
+		best, bestDistance = "Collect", nodeDistance
 	end
-	if CampRenderer.DistanceToShip() <= Config.CampInteractDistance then
-		return if shipComplete() then "Launch" else "Build"
+	local shipDistance = CampRenderer.DistanceToShip()
+	if shipDistance <= Config.CampInteractDistance and shipDistance < bestDistance then
+		best = if shipComplete() then "Launch" else "Build"
 	end
-	return nil
+	return best
 end
 
 local function performAction()
