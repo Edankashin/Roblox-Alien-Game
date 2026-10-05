@@ -340,7 +340,7 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 		pushModules(player, profile)
 	end
 	if startedId then
-		Tutorial.OnModulePaid(player, startedId)
+		Tutorial.OnModuleStarted(player, startedId)
 	end
 	return true
 end
@@ -385,7 +385,7 @@ local function onModuleInsertKey(player: Player, moduleId: any): (boolean, strin
 		pushModules(player, profile)
 	end
 	if startedId then
-		Tutorial.OnModulePaid(player, startedId)
+		Tutorial.OnModuleStarted(player, startedId)
 	end
 	return true
 end

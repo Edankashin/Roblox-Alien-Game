@@ -1,7 +1,7 @@
 --!strict
 -- ServerScriptService.Server.Services.Tutorial: the first eight minutes (Shared/data/Tutorial.Steps),
 -- one step at a time. Other services report what the player did (OnCollect from Materials; OnCatch,
--- OnModulePaid and OnModuleComplete from Economy) and this service counts it into
+-- OnModuleStarted and OnModuleComplete from Economy) and this service counts it into
 -- profile.tutorialCounter for the current step's trigger, advances profile.tutorialStep when the count
 -- is reached, and pushes TutorialChanged(step, counter). A poll every Config.TutorialPollSeconds
 -- handles the one trigger nobody reports, standing in a biome. A step with `spawn` keeps one wild
@@ -224,11 +224,11 @@ function Tutorial.OnCatch(player: Player, species: string)
 	end)
 end
 
--- Economy reports a module whose clock just started (both gates paid). Completes a modulePaid step
--- for that module.
-function Tutorial.OnModulePaid(player: Player, moduleId: string)
+-- Economy reports a module whose clock just started (Scrap paid and every key part in). Completes a
+-- moduleStarted step for that module; the Scrap payment alone does not, so the hint names both gates.
+function Tutorial.OnModuleStarted(player: Player, moduleId: string)
 	report(player, function(trigger: TutorialData.Trigger): boolean
-		return trigger.kind == "modulePaid" and trigger.moduleId == moduleId
+		return trigger.kind == "moduleStarted" and trigger.moduleId == moduleId
 	end)
 end
 

@@ -63,7 +63,7 @@ return {
 	OFFLINE_BODY = "Your aliens gathered %s Scrap while you were away.",
 	TUT_1 = "Collect 3 wreck plates for the hull.",
 	TUT_2 = "A Mossbop wants to help! Walk up and tap Catch!",
-	TUT_3 = "Mossbop is gathering for you. Walk to the ship and pay for the Hull Frame.",
+	TUT_3 = "Mossbop is gathering for you. Walk to the ship, pay for the Hull Frame and add your 3 wreck plates.",
 	TUT_4 = "Puffpuff wants to help! Catch it and it will build.",
 	TUT_5 = "Catch 3 more aliens while they work.",
 	TUT_6 = "Your crew is building the Hull Frame. Watch the ship bar.",
