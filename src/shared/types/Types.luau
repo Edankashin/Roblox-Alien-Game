@@ -49,6 +49,7 @@ export type AlienRecord = {
 	level: number, -- 1..7 (base level plus fusion)
 	overlay: Overlay,
 	caughtAt: number,
+	size: string, -- data/Sizes band id (Tiny .. Huge); "Normal" for records from before sizes
 	station: Job?, -- which station it is assigned to, if any
 	slot: number?,
 }
@@ -174,7 +175,7 @@ export type PeddlerOffer = { id: string, kind: string, scrap: number, amount: nu
 export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsAt on the server wall clock (os.time())
 
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
-export type GrantResult = { species: string, tier: Tier, overlay: Overlay, isNew: boolean, scrapGained: number, scrap: number }
+export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size: string, isNew: boolean, scrapGained: number, scrap: number }
 
 -- Gifts -> client (GiftsChanged): Welcome Week progress and the spin balance.
 export type GiftState = { daysPlayed: number, claimed: { [string]: boolean }, freeSpins: number, bankedSpins: number }

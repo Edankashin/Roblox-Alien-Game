@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 6
+local SCHEMA_VERSION = 7
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -138,6 +138,17 @@ local migrations: { [number]: (any) -> any } = {
 		quests.progress = if type(quests.progress) == "table" then quests.progress else {}
 		data.quests = quests
 		data.codes = if type(data.codes) == "table" then data.codes else {}
+		return data
+	end,
+	-- v7: every alien record carries a size band (data/Sizes); older records are Normal
+	[7] = function(data)
+		local aliens = if type(data.aliens) == "table" then data.aliens else {}
+		for _, record in pairs(aliens) do
+			if type(record) == "table" and type(record.size) ~= "string" then
+				record.size = "Normal"
+			end
+		end
+		data.aliens = aliens
 		return data
 	end,
 }
