@@ -122,6 +122,9 @@ return {
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
+	-- lighting looks (data/Lighting): the client tweens between looks over this long; snaps under Reduced Motion
+	LightingTweenSeconds = 2.5,
+
 	-- Star Chart and outposts (data/Outposts has the production numbers)
 	TeleportGraceSeconds = 10, -- with a live place, how long the black screen waits for a launch or fly teleport before lifting as a safety net
 	FlyTeleportDelaySeconds = 1.5, -- the client fades for this long before the server teleports a Fly
