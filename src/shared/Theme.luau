@@ -33,7 +33,7 @@ Theme.Rarity = {
 Theme.TextSize = { Min = 14, Body = 18, Label = 24, Title = 36, Reveal = 48 }
 Theme.Corner = { Button = 12, Panel = 16, Card = 10, Pill = 999 }
 Theme.Stroke = { Text = 2.5, Button = 3, Panel = 4 }
-Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5 }
+Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
 Theme.Backdrop = 0.6 -- modal backdrops dim the world by this much

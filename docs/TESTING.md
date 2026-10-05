@@ -281,3 +281,14 @@ In Studio with memory profiles the board is this server only (DataStore off); th
 5. Reduced Motion on: no list stagger. iPhone SE: 10 rows visible, scrolling to 100.
 
 Known gaps in this milestone: no camp-side board part (the screen is the chart), no all-time board, no rewards for ranks (decide with the event quest track), the all-time codex count is the Codex screen's existing count.
+
+## Milestone 21: daily and weekly quests, promo codes (World 1 place)
+
+1. Boot lists DailyQuests before Quests and Codes after Social. Quests screen: two header tabs, "Field Notes" and "Daily & Weekly". The second tab shows "Today" with three quests and "Resets in Nh Nm" (to 00:00 UTC) and "This week" with three quests and "Resets in Nd Nh" (to Friday 16:00 UTC). Rejoin: the same six quests (the deal is seeded by period and player).
+2. Progress: catch aliens until a "Catch 5 aliens" style quest fills (or `/dq done` to fill every dealt quest). Claim: the reward lands (Scrap, lures or spins as the row says), toast "Quest done: <quest text>", the row reads "Claimed", Analytics prints DailyQuest with action claim; a second Claim answers AlreadyClaimed. Claiming a daily quest bumps a weekly "Claim 5 daily quests" quest when dealt.
+3. Reroll on an unclaimed daily quest: it is replaced by a quest not on the board, progress 0, toast "New quest dealt"; the button then reads "Rerolled" and a second reroll answers NoRerolls ("No rerolls left today"). Reroll on a claimed quest answers AlreadyClaimed.
+4. `/dq reset` then any catch: a fresh deal for both periods with the same ids as step 1 (same period, same player).
+5. Settings screen: a "Promo code" field with Redeem. "welcome" (any case, spaces around it) redeems: +500 Scrap, +2 Twig Lure, toast "Code redeemed: 500 Scrap, 2 x Twig Lure", Analytics Code id WELCOME; again: "You already used that code"; "NOPE": "That code does not exist"; a 30-character string: refused before lookup (TooLong, no toast needed beyond the unknown one).
+6. Objective kinds to spot-check with `/weather Rain` (catchSpecial counts during Rain on World 1), `/night` (catchCondition Night), a perfect-zone catch (perfectCount), a material pickup (collectAny), crafting a Twig Lure (craft). The friend kind needs a multi-client test with two friended accounts, or stays untested.
+
+Known gaps in this milestone: no quest icons, the friend objective is unverifiable without two friended accounts, codes have no expiry in the table yet (the field exists), and claiming does not animate the row.

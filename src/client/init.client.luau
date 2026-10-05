@@ -55,6 +55,7 @@ local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("Launch
 local Prefs = require(script:WaitForChild("Prefs"))
 local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsScreen"))
 local StarChartScreen = require(script:WaitForChild("UI"):WaitForChild("StarChartScreen"))
+local LeaderboardScreen = require(script:WaitForChild("UI"):WaitForChild("LeaderboardScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
@@ -549,6 +550,12 @@ local function connectToasts()
 			GiftsScreen.SetSocial(snapshot)
 		end)
 	end)
+	-- The weekly board: the server pushes it when it refreshes; the Ranks screen draws it while open.
+	task.spawn(function()
+		Net.event("LeaderboardChanged").OnClientEvent:Connect(function(payload: LeaderboardScreen.Payload)
+			LeaderboardScreen.SetPayload(payload)
+		end)
+	end)
 	-- A referral paid out (the invitee on joining through a link, the inviter per friend): a toast naming the reward.
 	task.spawn(function()
 		Net.event("ReferralGranted").OnClientEvent:Connect(function(role: string)
@@ -631,6 +638,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Gifts", GiftsScreen)
 	Screens.Register("Settings", SettingsScreen)
 	Screens.Register("StarChart", StarChartScreen)
+	Screens.Register("Ranks", LeaderboardScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -671,6 +679,8 @@ local function start(profile: Types.Profile)
 	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
 	Hud.AddMenuButton("Gifts", Theme.Colors.Close, menu("Gifts"))
 	Hud.AddTopButton("Settings", Theme.Colors.Select, menu("Settings"))
+	-- Top buttons stack leftwards from the clock in the order added, so Settings (first) stays rightmost.
+	Hud.AddTopButton("Ranks", Theme.Colors.Featured, menu("Ranks"))
 	-- A gift egg hatches through the same reveal as a wild catch.
 	GiftsScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
