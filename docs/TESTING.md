@@ -85,3 +85,15 @@ Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and sk
 7. Special weather: `/rain` (or `/weather Rain`) forces World 1's special weather: a purple banner "Rain! Thunderhog is out!" slides in, the clock chip reads "Day · Rain", Thunderhogs can spawn in the Meadow and the Storm Shard nodes light up. `/clear` ends it. Weather now rolls from the world's list (Clear, Fog, Rain) with Rain at a 34% chance per change.
 
 Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (earned only, no source yet), Peddler ship art and landing sound.
+
+## Milestone 7: Field Notes and the Warden
+
+1. Press Play. Boot adds a Quests line and `server started: ..., Shop, Quests, Catching, Peddler, Dev`. A fifth menu button "Quests" ("!") opens the Field Notes panel: "Step 1 of 5", "First Friends" with its legend, "Catch 5 aliens 0/5", reward "Speed Boots", a grey Claim button; steps 2 to 5 dimmed below.
+2. Catch five aliens: the objective counts up; at 5/5 a toast "Field Notes: First Friends complete!" and a red dot on the Quests button. Claim: toast "Reward claimed: Speed Boots", the Shop shows Boots Owned, step 2 "Night Walk" becomes current.
+3. Step 2: `/night`, catch anything (1/1) and collect a Cave Crystal (1/1); claim pays 500 Scrap and three Twig Lures. Step 3: craft a Glow Lure in the Shop and catch a Rare (Sparkfox); claim banks a spin and a Glow Lure. Step 4: `/rain` and catch a Thunderhog; claim gives the Warden's Horn (inventory item).
+4. Walk to the Shrine of Gaiabloom (straight behind the camp, +Z about 155 studs: a stone ring with a glowing pedestal and a nameplate). By day the button reads "Sound the horn" and refuses with "The horn only works at night"; `/night` then press it: a gold banner "Gaiabloom has come to the shrine!" and a Legendary Gaiabloom appears beside the pedestal, visible only to you.
+5. Catch it: three rounds; after each won round "Round 2: the zone shrinks!" and the zones are 15% narrower. On a catch: the reveal with the Legendary colour, the server banner, Gaiabloom seated at a station, and "Warden's Core" in the Ship screen's Engine Core row. Three failed sweeps: "Gaiabloom retreats into the flowers" and the horn refuses with "The Warden rests" for 15 minutes. An unanswered Warden retreats after 3 minutes.
+6. Step 5 claims as done: the panel reads "The Field Notes are complete. The Warden rides with you."
+7. Other players never see your summoned Warden and cannot catch it.
+
+Known gaps in this milestone: daily and weekly quests, the shrine's art, the Warden's three attack patterns (only the shrink is in), riding.

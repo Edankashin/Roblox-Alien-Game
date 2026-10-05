@@ -225,7 +225,7 @@ return {
 	TOAST_QUEST_CLAIMED = "Reward claimed: %s",
 	TOAST_HORN_NOT_NIGHT = "The horn only works at night",
 	TOAST_HORN_TOO_FAR = "Stand at the shrine to sound the horn",
-	TOAST_HORN_COOLDOWN = "The Warden rests. Try again in %s",
+	TOAST_HORN_COOLDOWN = "The Warden rests. Try again later",
 	TOAST_WARDEN_AWAKE = "Gaiabloom has come to the shrine!",
 	TOAST_WARDEN_RETREAT = "Gaiabloom retreats into the flowers",
 	CATCH_ROUND_INTRO = "Round %d: the zone shrinks!",
