@@ -61,6 +61,17 @@ export type ButtonProps = {
 	aspect: number?,
 }
 
+export type TextBoxProps = {
+	parent: Instance?,
+	name: string?,
+	placeholder: string,
+	position: UDim2?,
+	size: UDim2?,
+	anchor: Vector2?,
+	textSize: number?, -- max px from Theme.TextSize; scales down to Theme.TextSize.Min
+	zIndex: number?,
+}
+
 -- Strings lookup by key for dynamic names (tiers, weather). Falls back to the key so nothing is blank.
 local stringsByKey: { [string]: string } = {}
 for key, value in pairs(Strings) do
@@ -269,6 +280,50 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 		onClick()
 	end)
 	return container
+end
+
+-- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
+-- outline stroke, left-aligned inside a scale padding. The text is kept when it gains focus (typing
+-- edits it); the caller reads .Text and listens to FocusLost for Enter.
+function Builder.textBox(props: TextBoxProps): TextBox
+	local box = Instance.new("TextBox")
+	box.Name = props.name or "TextBox"
+	box.Position = props.position or UDim2.fromScale(0, 0)
+	box.Size = props.size or UDim2.fromScale(1, 1)
+	box.AnchorPoint = props.anchor or Vector2.zero
+	box.BorderSizePixel = 0
+	box.BackgroundColor3 = Theme.Colors.Panel
+	box.ZIndex = props.zIndex or 1
+	box.FontFace = Font.fromEnum(Theme.Font)
+	box.Text = ""
+	box.PlaceholderText = props.placeholder
+	box.PlaceholderColor3 = Theme.Rarity.Common
+	box.TextColor3 = Theme.Colors.White
+	box.TextScaled = true
+	box.TextXAlignment = Enum.TextXAlignment.Left
+	box.ClearTextOnFocus = false
+	box.MultiLine = false
+	box.ClipsDescendants = true
+	Builder.corner(box, Theme.Corner.Button)
+	local border = Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline)
+	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border -- Builder.stroke picks Contextual for text objects
+	local textStroke = Instance.new("UIStroke")
+	textStroke.Thickness = Theme.Stroke.Text
+	textStroke.Color = Theme.Colors.Outline
+	textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	textStroke.Parent = box
+	local sizes = Instance.new("UITextSizeConstraint")
+	sizes.MinTextSize = Theme.TextSize.Min
+	sizes.MaxTextSize = math.max(Theme.TextSize.Min, props.textSize or Theme.TextSize.Body)
+	sizes.Parent = box
+	local padding = Instance.new("UIPadding")
+	padding.PaddingLeft = UDim.new(0.05, 0)
+	padding.PaddingRight = UDim.new(0.05, 0)
+	padding.PaddingTop = UDim.new(0.12, 0)
+	padding.PaddingBottom = UDim.new(0.12, 0)
+	padding.Parent = box
+	box.Parent = props.parent
+	return box
 end
 
 -- Sounds -----------------------------------------------------------------

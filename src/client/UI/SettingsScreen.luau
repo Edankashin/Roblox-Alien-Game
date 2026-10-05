@@ -6,7 +6,9 @@
 -- (SetSetting, one request in flight); the server stores the value and pushes SettingsChanged, State
 -- mirrors it and the rows redraw from the mirror. Nothing here decides anything: the buttons show
 -- what the server said last, and a refusal is printed. The hint at the bottom is the one place the
--- body font is allowed (a long sentence, UI Playbook).
+-- body font is allowed (a long sentence, UI Playbook). The last row is the promo-code field: a text box
+-- and a Redeem button (tap or Enter) that ask the server (RedeemCode, one request in flight); the server
+-- decides and pays, the toast names what the code paid or why it did not.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -14,10 +16,13 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Codes = require(Shared:WaitForChild("data"):WaitForChild("Codes"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
+local Toast = require(script.Parent.Toast)
+local QuestsScreen = require(script.Parent.QuestsScreen)
 local State = require(script.Parent.Parent.State)
 
 local SettingsScreen = {}
@@ -26,12 +31,14 @@ local SettingsScreen = {}
 type Row = { def: Settings.SettingDef, levelButtons: { Frame }, toggle: Frame? }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the rows start under it; the hint takes the bottom.
+-- reaches down to 0.155, so the rows start under it; the hint takes the bottom. The rows frame shares its
+-- height between the settings and the promo-code row (five at the moment), so the rows are slim.
+local PANEL_H = 0.78
 local ROWS_Y = 0.17
-local ROWS_H = 0.66
-local HINT_Y = 0.85
-local HINT_H = 0.11
-local ROW_GAP = 0.045 -- of the rows frame, between rows
+local ROWS_H = 0.68
+local HINT_Y = 0.87
+local HINT_H = 0.1
+local ROW_GAP = 0.03 -- of the rows frame, between rows
 local LABEL_X = 0.03 -- of a row
 local LABEL_W = 0.35
 local CONTROLS_X = 0.39
@@ -39,6 +46,8 @@ local CONTROLS_W = 0.59
 local CONTROL_H = 0.78 -- of a row: with four rows that is over 0.11 of the panel, thumb-sized
 local LEVEL_GAP = 0.03 -- of the controls frame, between level buttons
 local TOGGLE_W = 0.4 -- of the controls frame
+local CODE_BOX_W = 0.62 -- of the controls frame: the text box; the Redeem button takes the rest after the gap
+local CODE_GAP = 0.03
 
 local ACTIVE = Theme.Colors.Confirm
 local INACTIVE = Theme.Rarity.Common
@@ -48,6 +57,8 @@ local panel: Frame? = nil
 local rows: { Row } = {}
 local open = false
 local pending = false -- one SetSetting in flight at a time
+local redeeming = false -- one RedeemCode in flight at a time
+local codeBox: TextBox? = nil
 
 -- Helpers ----------------------------------------------------------------
 
@@ -128,6 +139,42 @@ local function send(key: string, value: number)
 	end)
 end
 
+-- The code as the server reads it: spaces dropped, upper case (Services/Codes does the same before its lookup).
+local function normalizedCode(text: string): string
+	return string.upper((string.gsub(text, "%s+", "")))
+end
+
+-- Sends the box text to the server. Runs in its own thread: callers are taps and Enter. The server has
+-- already granted on ok; the toast names the rewards from the shared data table, and the box is emptied.
+local function redeem()
+	local box = codeBox
+	if redeeming or not box then
+		return
+	end
+	local typed = box.Text
+	redeeming = true
+	task.spawn(function()
+		local ok, reason = Net.func("RedeemCode"):InvokeServer(typed)
+		redeeming = false
+		if ok == true then
+			local def = Codes.Codes[normalizedCode(typed)]
+			local summary = if def then QuestsScreen.RewardsText(def.rewards) else ""
+			Toast.Show(Strings.TOAST_CODE_OK:format(summary), Theme.Colors.Confirm)
+			if box.Text == typed then
+				box.Text = ""
+			end
+		elseif reason == "Unknown" or reason == "TooLong" then
+			Toast.Show(Strings.TOAST_CODE_UNKNOWN, Theme.Colors.Select)
+		elseif reason == "Used" then
+			Toast.Show(Strings.TOAST_CODE_USED, Theme.Colors.Select)
+		elseif reason == "Expired" then
+			Toast.Show(Strings.TOAST_CODE_EXPIRED, Theme.Colors.Select)
+		else
+			print(("[%s] RedeemCode refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+end
+
 -- Rows -------------------------------------------------------------------
 
 -- One chunky button per level, laid out right to left inside the controls frame.
@@ -184,11 +231,11 @@ local function buildToggleControl(controls: Frame, row: Row)
 	end)
 end
 
--- A white card: the setting's name on the left, its control on the right.
-local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, share: number): Row
+-- A white card: a name on the left and an empty controls frame on the right. Returns the controls frame.
+local function buildCard(parent: Frame, name: string, index: number, share: number, labelText: string): Frame
 	local card = Builder.frame({
 		parent = parent,
-		name = "Row_" .. def.key,
+		name = name,
 		size = UDim2.fromScale(1, share),
 		color = Theme.Colors.White,
 		corner = Theme.Corner.Card,
@@ -200,7 +247,7 @@ local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, 
 	Builder.label({
 		parent = card,
 		name = "Label",
-		text = Builder.text("SETTINGS_" .. def.key),
+		text = labelText,
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(LABEL_X, 0.5),
 		size = UDim2.fromScale(LABEL_W, 0.84),
@@ -208,7 +255,7 @@ local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, 
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
 	})
-	local controls = Builder.frame({
+	return Builder.frame({
 		parent = card,
 		name = "Controls",
 		position = UDim2.fromScale(CONTROLS_X, 0.5),
@@ -216,6 +263,11 @@ local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, 
 		anchor = Vector2.new(0, 0.5),
 		zIndex = 4,
 	})
+end
+
+-- One setting: its name on the left, its control on the right.
+local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, share: number): Row
+	local controls = buildCard(parent, "Row_" .. def.key, index, share, Builder.text("SETTINGS_" .. def.key))
 	local row: Row = { def = def, levelButtons = {}, toggle = nil }
 	if def.kind == "level" then
 		buildLevelControls(controls, row)
@@ -223,6 +275,39 @@ local function buildRow(parent: Frame, index: number, def: Settings.SettingDef, 
 		buildToggleControl(controls, row)
 	end
 	return row
+end
+
+-- The promo-code row: the text box on the left of the controls, the green Redeem button on the right.
+-- Enter in the box does what the button does.
+local function buildCodesRow(parent: Frame, index: number, share: number)
+	local controls = buildCard(parent, "Row_Codes", index, share, Strings.CODES_LABEL)
+	local box = Builder.textBox({
+		parent = controls,
+		name = "Code",
+		placeholder = Strings.CODES_PLACEHOLDER,
+		position = UDim2.fromScale(0, 0.5),
+		size = UDim2.fromScale(CODE_BOX_W, 1),
+		anchor = Vector2.new(0, 0.5),
+		textSize = Theme.TextSize.Body,
+		zIndex = 4,
+	})
+	codeBox = box
+	box.FocusLost:Connect(function(enterPressed: boolean)
+		if enterPressed then
+			redeem()
+		end
+	end)
+	Builder.button({
+		parent = controls,
+		name = "Redeem",
+		text = Strings.CODES_REDEEM,
+		color = ACTIVE,
+		position = UDim2.fromScale(1, 0.5),
+		size = UDim2.fromScale(1 - CODE_BOX_W - CODE_GAP, 1),
+		anchor = Vector2.new(1, 0.5),
+		textSize = Theme.TextSize.Body,
+		zIndex = 4,
+	}, redeem)
 end
 
 -- Build ----------------------------------------------------------------------
@@ -254,7 +339,7 @@ local function build()
 		parent = root,
 		name = "Panel",
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.6, 0.7),
+		size = UDim2.fromScale(0.6, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
 		corner = Theme.Corner.Panel,
@@ -320,12 +405,13 @@ local function build()
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 	layout.Padding = UDim.new(ROW_GAP, 0)
 	layout.Parent = holder
-	local count = #Settings.Order
-	local share = if count > 0 then (1 - ROW_GAP * (count - 1)) / count else 1
+	local count = #Settings.Order + 1 -- the settings, then the promo-code row
+	local share = (1 - ROW_GAP * (count - 1)) / count
 	rows = {}
 	for index, def in ipairs(Settings.Order) do
 		table.insert(rows, buildRow(holder, index, def, share))
 	end
+	buildCodesRow(holder, count, share)
 
 	-- The hint: the one long line, in the body font, navy, no stroke.
 	Builder.label({

@@ -550,6 +550,12 @@ local function connectToasts()
 			GiftsScreen.SetSocial(snapshot)
 		end)
 	end)
+	-- The daily and weekly quest sets: dealt, progressed, claimed and rerolled on the server, mirrored into State.
+	task.spawn(function()
+		Net.event("DailyQuestsChanged").OnClientEvent:Connect(function(snapshot: State.DailyQuestsSnapshot)
+			State.SetDailyQuests(snapshot)
+		end)
+	end)
 	-- The weekly board: the server pushes it when it refreshes; the Ranks screen draws it while open.
 	task.spawn(function()
 		Net.event("LeaderboardChanged").OnClientEvent:Connect(function(payload: LeaderboardScreen.Payload)

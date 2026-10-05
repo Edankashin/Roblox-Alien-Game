@@ -19,6 +19,9 @@ local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 
 local State = {}
 
+-- The daily and weekly quest sets with the instants (server wall clock, os.time scale) each one rolls over.
+export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
+
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
 export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "profile"
 
@@ -33,6 +36,8 @@ local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSecon
 local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
+local dailyResetsAt = 0 -- the last DailyQuests snapshot's reset instants; 0 until one arrives
+local weeklyResetsAt = 0
 -- Robux products granted and passes owned (PurchasesChanged). Until the first push the table is seeded
 -- from the profile, which knows the products and the Starter Pack choice but not the passes.
 local purchases: Types.PurchasesState = { purchases = {}, passes = {}, starterSpecies = nil }
@@ -231,6 +236,24 @@ function State.GetQuests(): Types.QuestState
 		return { fieldNotes = p.quests.fieldNotes, progress = p.quests.progress }
 	end
 	return { fieldNotes = {}, progress = {} }
+end
+
+-- Applies a daily/weekly quest snapshot (GetDailyQuests result or a DailyQuestsChanged push): the two
+-- period tables go into the profile mirror, the reset instants are remembered, and "quests" fires.
+function State.SetDailyQuests(snapshot: DailyQuestsSnapshot)
+	dailyResetsAt = snapshot.dailyResetsAt
+	weeklyResetsAt = snapshot.weeklyResetsAt
+	local p = profile
+	if p then
+		p.quests.daily = snapshot.daily
+		p.quests.weekly = snapshot.weekly
+	end
+	fire("quests")
+end
+
+-- When the daily and the weekly set roll over, on the server wall clock (compare with State.Now()).
+function State.GetQuestResets(): (number, number)
+	return dailyResetsAt, weeklyResetsAt
 end
 
 -- Active power-ups as end times on the server wall clock; compare with State.Now().

@@ -358,6 +358,8 @@ return {
 	OBJ_collect = "Collect a %s",
 	OBJ_craft = "Craft a %s",
 	OBJ_soundHorn = "Sound the horn at the shrine %s",
+	OBJ_catchCondition_many = "Catch %d aliens %s",
+	OBJ_catchTier_many = "Catch %d %s aliens",
 	OBJ_PROGRESS = "%d/%d",
 	-- daily and weekly quests (data/DailyQuests) and promo codes (data/Codes)
 	OBJ_catchSpecial = "Catch %d aliens in %s weather",
