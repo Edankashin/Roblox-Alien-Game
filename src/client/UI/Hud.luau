@@ -47,6 +47,7 @@ local shipTicks: Frame? = nil
 local shipTween: Tween? = nil
 local onShipTapped: (() -> ())? = nil
 local rateLabel: TextLabel? = nil
+local luckLabel: TextLabel? = nil
 
 local function buildScrapPill(root: ScreenGui)
 	local pill = Builder.pill({
@@ -280,6 +281,22 @@ local function buildRateLine(root: ScreenGui)
 	rateLabel = label
 end
 
+-- "Luck xN.N" under the ship bar; hidden while luck is exactly 1.
+local function buildLuckLine(root: ScreenGui)
+	local label = Builder.label({
+		parent = root,
+		name = "Luck",
+		text = Strings.HUD_LUCK:format(("%.1f"):format(1)),
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.105),
+		size = UDim2.fromScale(0.3, 0.045),
+		anchor = Vector2.new(0.5, 0),
+		color = Theme.Colors.Featured,
+	})
+	label.Visible = false
+	luckLabel = label
+end
+
 local function buildActionButton(root: ScreenGui)
 	local button = Builder.button({
 		parent = root,
@@ -315,6 +332,7 @@ function Hud.Build()
 	buildBiomeChip(root)
 	buildShipBar(root)
 	buildRateLine(root)
+	buildLuckLine(root)
 	buildActionButton(root)
 end
 
@@ -376,6 +394,20 @@ function Hud.SetRate(perSecond: number)
 		return
 	end
 	label.Text = Strings.HUD_SCRAP_PER_MIN:format(Builder.formatNumber(perSecond * 60))
+	label.Visible = true
+end
+
+-- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck is exactly 1.
+function Hud.SetLuck(luck: number)
+	local label = luckLabel
+	if not label then
+		return
+	end
+	if luck == 1 then
+		label.Visible = false
+		return
+	end
+	label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
 	label.Visible = true
 end
 

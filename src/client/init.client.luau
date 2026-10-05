@@ -36,6 +36,9 @@ local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
+local PeddlerRenderer = require(script:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
+local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScreen"))
+local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
@@ -48,13 +51,14 @@ local inCapture = false
 local captureToken: string? = nil
 local collecting = false
 
-type Action = "Catch" | "Collect" | "Build" | "Launch"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
 	Collect = Strings.ACTION_COLLECT,
 	Build = Strings.ACTION_BUILD,
 	Launch = Strings.ACTION_LAUNCH,
+	Trade = Strings.ACTION_TRADE,
 }
 
 local captureStart = Net.func("CaptureStart")
@@ -251,7 +255,11 @@ local function decideAction(): Action?
 	end
 	local shipDistance = CampRenderer.DistanceToShip()
 	if shipDistance <= Config.CampInteractDistance and shipDistance < bestDistance then
-		best = if shipComplete() then "Launch" else "Build"
+		best, bestDistance = if shipComplete() then "Launch" else "Build", shipDistance
+	end
+	local peddlerDistance = PeddlerRenderer.DistanceToShip()
+	if peddlerDistance <= Config.PeddlerInteractDistance and peddlerDistance < bestDistance then
+		best = "Trade"
 	end
 	return best
 end
@@ -267,6 +275,8 @@ local function performAction()
 	elseif action == "Launch" then
 		-- Launching arrives with World 2; the complete ship is the milestone for now.
 		Toast.Show(Strings.SHIP_COMPLETE, Theme.Colors.Featured)
+	elseif action == "Trade" then
+		Screens.Open("Peddler")
 	end
 end
 
@@ -343,6 +353,30 @@ local function start(profile: Types.Profile)
 	-- Modal screens: one open at a time, each behind a left-edge menu button.
 	Screens.Register("Ship", ShipScreen)
 	Screens.Register("Shop", ShopScreen)
+	Screens.Register("Peddler", PeddlerScreen)
+	-- An egg from the Peddler hatches through the same reveal as a wild catch.
+	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
+		local def = Species.ById[grant.species]
+		WildRenderer.MarkKnown(grant.species)
+		State.ApplyCatch(grant.species, grant.overlay)
+		Screens.CloseAll()
+		Reveal.Show({
+			speciesName = if def then def.name else grant.species,
+			shape = if def then def.placeholder.shape else "Ball",
+			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
+			tier = grant.tier,
+			overlay = grant.overlay,
+			isNew = grant.isNew,
+			scrapGained = grant.scrapGained,
+			perfect = false,
+		})
+	end)
+	PeddlerRenderer.Start()
+	PowerUpBar.Build()
+	State.OnChanged("luck", function()
+		Hud.SetLuck(State.GetLuck())
+	end)
+	Hud.SetLuck(State.GetLuck())
 	Screens.Register("Aliens", AliensScreen)
 	Screens.Register("Codex", CodexScreen)
 	local function menu(name: string)
