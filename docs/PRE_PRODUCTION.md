@@ -225,7 +225,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 21 | Daily and weekly quests with a reroll, promo codes | pass |
 | 22 | Look pass L1: lighting and atmosphere looks per world and condition, tweened on the client | pass after three fixes (foreign effects, grey fog, chat in built places); re-check queued |
 | 23 | Friend Boost: +5% Scrap and luck per friend in the server (cap 3), HUD chip, friend analytics | step 1 pass; friends need a multi-client test |
-| 24 | Look pass L3 particles: weather sheets per condition following the camera | building |
+| 24 | Look pass L3 particles: weather sheets per condition following the camera | queued |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 

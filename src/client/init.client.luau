@@ -52,6 +52,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
 local LightingDirector = require(script:WaitForChild("World"):WaitForChild("LightingDirector"))
+local WeatherFx = require(script:WaitForChild("World"):WaitForChild("WeatherFx"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
 local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("LaunchSequence"))
 local Prefs = require(script:WaitForChild("Prefs"))
@@ -923,6 +924,7 @@ local function start(profile: Types.Profile)
 	NodeRenderer.Start()
 	Ambience.Start()
 	LightingDirector.Start()
+	WeatherFx.Start()
 
 	-- A brand-new profile opens with the crash landing: the camera drops from the sky to the wreck while
 	-- the HUD waits. Anything already started (a plate collected, a rejoin) skips it.
