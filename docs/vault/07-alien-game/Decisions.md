@@ -36,3 +36,4 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | B9 | Studio chat commands | `/scrap N`, `/night`, `/day`, `/rain`, `/clear` exist only when `RunService:IsStudio()`; the Dev service never runs live | 2026-10-05 |
 | B10 | Slot growth | Thrusters completion raises every station to 2 slots, Nav Array to 3 (`Modules.unlocksSlots`), per decision 16's proposal, pending the team's confirmation | 2026-10-05 |
 | B11 | Blender via MCP | Models are built and edited in Blender through the `mcp-for-blender` server registered in `.mcp.json`; exports go to `assets/models/` and into Studio through Import 3D. Save before any code-executing session | 2026-10-05 |
+| B12 | Special weather per world | Each world rolls one special weather at its own chance with one signature alien that spawns only then (World 1: Rain, Thunderhog); a banner announces it. All data in `Worlds.luau` | 2026-10-05 |

@@ -76,16 +76,22 @@ function Dev.Init()
 		WorldClock.Force(false, nil)
 	end)
 	command("rain", function()
-		WorldClock.Force(nil, "Rain")
+		WorldClock.Force(nil, WorldClock.GetSpecialWeather().id) -- this world's special weather, Rain on World 1
 	end)
 	command("clear", function()
 		WorldClock.Force(nil, "Clear")
+	end)
+	command("weather", function(_player: Player, text: string)
+		local state = string.match(text, "(%S+)%s*$")
+		if state then
+			WorldClock.Force(nil, state)
+		end
 	end)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>)"):format(Config.WorkingTitle))
 	end
 end
 

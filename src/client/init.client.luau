@@ -19,6 +19,7 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local Biomes = require(Shared:WaitForChild("Biomes"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script:WaitForChild("State"))
 local Builder = require(script:WaitForChild("UI"):WaitForChild("Builder"))
@@ -376,15 +377,24 @@ local function start(profile: Types.Profile)
 	end)
 	State.OnChanged("modules", refreshShip)
 
-	Net.event("ClockChanged").OnClientEvent:Connect(function(state: Types.ClockState)
+	-- The world's special weather gets a banner naming its signature alien when it starts.
+	local lastWeather: string? = nil
+	local function onClock(state: Types.ClockState)
 		Hud.SetClock(state)
 		State.SetClock(state)
-	end)
+		local world = Worlds[State.Get().world.current]
+		if world and state.weather == world.weather.special.id and lastWeather ~= nil and lastWeather ~= state.weather then
+			local def = Species.ById[world.weather.special.speciesId]
+			local text = Strings.WEATHER_SPECIAL_BANNER:format(Builder.text("WEATHER_" .. state.weather), if def then def.name else world.weather.special.speciesId)
+			Toast.Banner(text, if def then Builder.tierColor(def.tier) else Theme.Colors.Select, Config.AnnounceSeconds)
+		end
+		lastWeather = state.weather
+	end
+	Net.event("ClockChanged").OnClientEvent:Connect(onClock)
 	task.spawn(function()
 		local state = Net.func("GetClock"):InvokeServer() :: Types.ClockState?
 		if state then
-			Hud.SetClock(state)
-			State.SetClock(state)
+			onClock(state)
 		end
 	end)
 	connectToasts()

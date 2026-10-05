@@ -13,6 +13,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
+local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 
 local State = {}
 
@@ -22,7 +23,7 @@ export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "r
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
 local ratePushed = false -- until the server's first RateChanged, the rate is derived from the profile
-local clock: Types.ClockState = { isNight = false, weather = "Clear", secondsLeft = 0 }
+local clock: Types.ClockState = { isNight = false, weather = "Clear", secondsLeft = 0, weatherSecondsLeft = 0 }
 local biome: Types.Biome = "Meadow"
 local buffs: { [string]: number } = {} -- id -> server wall-clock time (os.time scale) the buff ends at
 local peddler: Types.PeddlerVisit? = nil
@@ -67,10 +68,13 @@ function State.SetClock(state: Types.ClockState)
 	fire("clock")
 end
 
--- The single spawn condition the server judges by: Rain beats Night beats Day (mirrors WorldClock).
+-- The single spawn condition the server judges by: the world's special weather beats Night beats Day
+-- (mirrors WorldClock.GetCondition).
 function State.GetCondition(): Types.Condition
-	if clock.weather == "Rain" then
-		return "Rain"
+	local p = profile
+	local world = Worlds[if p then p.world.current else 1]
+	if world and clock.weather == world.weather.special.id then
+		return (clock.weather :: any) :: Types.Condition
 	end
 	return if clock.isNight then "Night" else "Day"
 end

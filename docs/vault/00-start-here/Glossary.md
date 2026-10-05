@@ -26,3 +26,4 @@
 | Client-rendered camp | Each player's ship, stations and workers drawn only on their own client at the shared pad; the server owns the state | Decisions B1 |
 | Claim pattern | A join-time result (the offline summary) the client fetches once it is listening, instead of a push that can arrive before the client script runs | Economy service |
 | Economy simulator | `tools/econ_sim.py`, a bot run through World 1 on the real data tables; re-run after any number change | PRE_PRODUCTION 3.3 |
+| Special weather | The one weather state only that world rolls (Rain, Blizzard, Power Surge...), with a signature alien that spawns only while it runs | GAME_DESIGN 8; Worlds.luau |

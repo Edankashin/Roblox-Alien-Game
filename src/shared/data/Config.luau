@@ -8,7 +8,7 @@ return {
 	NightSeconds = 90,
 	WeatherMinSeconds = 120,
 	WeatherMaxSeconds = 300,
-	WeatherStates = { "Clear", "Rain", "Fog" },
+	CurrentWorld = 1, -- the world this place runs; its weather list and special weather come from data/Worlds.luau
 	ClockTweenSeconds = 3, -- Lighting.ClockTime eases between day (12) and night (0) over this
 	DayClockTime = 12,
 	NightClockTime = 0,
@@ -89,9 +89,11 @@ return {
 	LuckCap = 8.0,
 	PityStepPerCatch = 0.05, -- added to luck for each catch without a Rare+
 	PityMax = 1.0,
+	PityResetMinTier = "Rare", -- a catch of this tier or above resets the pity bonus to 0
 
 	-- Peddler
 	PeddlerIntervalSeconds = 300, -- a visit starts this often, measured from the previous visit's start
+	PeddlerFirstVisitSeconds = 20, -- the first visit after a server boots lands this soon
 	PeddlerVisitSeconds = 90, -- how long the ship stays
 	PeddlerInteractDistance = 12, -- studs from the ship to show Trade
 	PeddlerDescendSeconds = 2.5, -- client landing and take-off tween

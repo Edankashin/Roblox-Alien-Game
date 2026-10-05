@@ -10,13 +10,16 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local Worlds = require(Shared.data.Worlds)
 local Net = require(Shared.Net)
+
+local world: Worlds.WorldDef = Worlds[Config.CurrentWorld]
 
 local WorldClock = {}
 
 local rng = Random.new()
 local isNight = false
-local weather: string = Config.WeatherStates[1]
+local weather: string = world.weather.normal[1]
 local phaseEndsAt = 0 -- os.clock() when day flips to night or back
 local weatherEndsAt = 0
 local listeners: { (Types.Condition) -> () } = {} -- server services told on every change (Materials gates nodes by condition)
@@ -26,6 +29,7 @@ local function snapshot(): Types.ClockState
 		isNight = isNight,
 		weather = weather,
 		secondsLeft = math.max(0, math.floor(phaseEndsAt - os.clock())),
+		weatherSecondsLeft = math.max(0, math.floor(weatherEndsAt - os.clock())),
 	}
 end
 
@@ -44,12 +48,17 @@ local function broadcast()
 	Net.event("ClockChanged"):FireAllClients(snapshot())
 end
 
+-- The world's special weather rolls with its own chance (never twice in a row); otherwise any normal
+-- state other than the current one, so a roll always reads as a change.
 local function rollWeather(): string
-	local states = Config.WeatherStates
+	local special = world.weather.special
+	if weather ~= special.id and rng:NextNumber() < special.chance then
+		return special.id
+	end
+	local states = world.weather.normal
 	if #states <= 1 then
 		return states[1]
 	end
-	-- pick any state other than the current one so a roll always reads as a change
 	local choice = weather
 	while choice == weather do
 		choice = states[rng:NextInteger(1, #states)]
@@ -57,14 +66,24 @@ local function rollWeather(): string
 	return choice
 end
 
+local function isKnownWeather(state: string): boolean
+	return state == world.weather.special.id or table.find(world.weather.normal, state) ~= nil
+end
+
 -- Public API -------------------------------------------------------------
 
--- The single condition the spawn tables are judged against: Rain beats Night beats Day.
+-- The single condition the spawn tables are judged against: the world's special weather beats Night
+-- beats Day (World 1: Rain).
 function WorldClock.GetCondition(): Types.Condition
-	if weather == "Rain" then
-		return "Rain"
+	if weather == world.weather.special.id then
+		return (weather :: any) :: Types.Condition
 	end
 	return if isNight then "Night" else "Day"
+end
+
+-- The special weather of the world this place runs (for banners and the Dev commands).
+function WorldClock.GetSpecialWeather(): Worlds.SpecialWeather
+	return world.weather.special
 end
 
 function WorldClock.IsNight(): boolean
@@ -94,7 +113,7 @@ function WorldClock.Force(night: boolean?, state: string?)
 		phaseEndsAt = now + (if isNight then Config.NightSeconds else Config.DaySeconds)
 		applyLighting(false)
 	end
-	if state and table.find(Config.WeatherStates, state) then
+	if state and isKnownWeather(state) then
 		weather = state
 		weatherEndsAt = now + rng:NextNumber(Config.WeatherMinSeconds, Config.WeatherMaxSeconds)
 	end

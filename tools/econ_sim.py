@@ -28,6 +28,7 @@ Modules = load(DATA / "Modules.luau")["Worlds"][0]
 KeyMaterials = load(DATA / "KeyMaterials.luau")
 Overlays = load(DATA / "Overlays.luau")
 Jobs = load(DATA / "Jobs.luau")
+World = load(DATA / "Worlds.luau")[0]  # the first world's row; weather.normal plus weather.special
 
 TRAVEL_SECONDS = 40        # walking between biomes
 CAPTURE_SECONDS = 8        # one capture encounter, start to reveal
@@ -56,7 +57,12 @@ class Clock:
         self.roll_weather()
 
     def roll_weather(self):
-        self.weather = self.rng.choice(Config["WeatherStates"])
+        special = World["weather"]["special"]
+        if self.weather != special["id"] and self.rng.random() < special["chance"]:
+            self.weather = special["id"]
+        else:
+            choices = [w for w in World["weather"]["normal"] if w != self.weather] or World["weather"]["normal"]
+            self.weather = self.rng.choice(choices)
         self.weather_until = self.t + self.rng.uniform(Config["WeatherMinSeconds"], Config["WeatherMaxSeconds"])
 
     def tick(self):
@@ -70,8 +76,8 @@ class Clock:
 
     @property
     def condition(self):
-        if self.weather == "Rain":
-            return "Rain"
+        if self.weather == World["weather"]["special"]["id"]:
+            return self.weather
         return "Night" if self.is_night else "Day"
 
 

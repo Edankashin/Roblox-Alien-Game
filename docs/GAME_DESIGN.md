@@ -202,7 +202,7 @@ Rules for the Pantheon:
 - **Nearby panel:** a small panel lists the species present in this biome right now as silhouettes. Caught species show in color, uncaught as dark silhouettes, secrets as "???". Tapping one shows a compass direction, not a pin. The chase is the content.
 - **Compass strip (P1):** a thin strip along the top edge with cardinal letters, the heading number in a small pill, and coloured diamond markers for the camp, the current Field Notes target, the Peddler and any live event, with a "Camp 42m" label under it. Reads better on a phone than a minimap and is what the dinosaur-ranch reference (batch 3) uses for its waypoints.
 - **Node markers:** key-material nodes carry a floating verb marker ("✦ Collect") readable from far away; the material name shows only up close. Verbs over nouns at distance tell the player what to do before they know what it is.
-- **Gating ladder:** rarity is gated by *where* (biome), *when* (day/night, weather), and *how* (lure tier, companion perks). Day/night cycle is 3 minutes day and 90 seconds night (a 15-minute session gets three nights). Weather rolls randomly for 2 to 5 minutes: Rain, Fog, Clear, and later world-specific states.
+- **Gating ladder:** rarity is gated by *where* (biome), *when* (day/night, weather), and *how* (lure tier, companion perks). Day/night cycle is 3 minutes day and 90 seconds night (a 15-minute session gets three nights). Weather rolls randomly for 2 to 5 minutes from the world's own list, and each world has one special weather with a signature alien (section 8).
 - **Hidden places:** rares spawn in nested spots: cave depths, treetops, behind a waterfall, under ice. Finding the spot is a one-time discovery that the codex remembers.
 - **Secret cues:** a secret alien in the area plays a unique chirp and shows a glint on the horizon. The Nearby panel shows "???". Nothing else is told.
 - **Radar:** a tiered, Scrap-upgradable radar that shows nearby aliens as blips, with uncaught species drawn as shadow silhouettes. Full spec in section 6.
@@ -352,6 +352,22 @@ Each world is a separate Roblox place in one universe, handcrafted, with three b
 | 5 | Tidepool | Reef, Kelp Forest, Trench | Swimming and diving; tides as the weather cycle | Pearl Core, Abyss Glass | Warden: Poseidolphin |
 | 6 | Dreamdrift | Candy Cliffs, Cloud Sea, Music Box Hollow | Gravity flips as the weather event | Dream Core | Warden: Morpheep |
 | 7 | The Void Hub | Endgame | All Wardens needed to open the gate | | Long-term goal. Warden: Nyxling |
+
+### One special weather per world
+
+Every world has exactly one special weather state that only it rolls, and one signature alien that spawns only while it runs. The clock rolls the special weather at its own chance whenever the weather changes, so it is an appointment players learn to wait for, and its arrival posts a server-wide banner naming the alien ("Blizzard! Frostfang is out!"). This is `Worlds.luau` data, so adding a world's weather is a row, not code. Placeholders until each world is built:
+
+| World | Normal weathers | Special weather | Signature alien |
+|---|---|---|---|
+| Verdant Crash Site | Clear, Fog | Rain | Thunderhog (Epic) |
+| Frostbyte | Clear, Snow | Blizzard | Frostfang |
+| Neon Grid | Clear, Smog | Power Surge | Voltwisp |
+| Emberfall | Clear, Haze | Ashfall | Cinderling |
+| Tidepool | Clear, Mist | King Tide | Pearlback |
+| Dreamdrift | Clear, Drift | Gravity Flip | Floatling |
+| The Void Hub | Clear | Eclipse | Shadeling |
+
+The special weather also gates one key material per world where that fits (Storm Shards fall only in Rain), so the same window serves the collector and the ship builder.
 
 What carries forward: the ship, the roster, the codex, Scrap, the home planet. What stays behind becomes an Outpost.
 

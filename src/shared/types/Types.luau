@@ -5,7 +5,8 @@ export type Tier = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "Cosm
 export type Job = "Gather" | "Build" | "Spark" | "Tinker"
 export type Overlay = "None" | "Shiny" | "Gold" | "Crystal" | "Rainbow"
 export type Biome = "Meadow" | "Forest" | "Cave"
-export type Condition = "Any" | "Day" | "Night" | "Rain" | "Shower" | "Quest"
+-- Conditions a spawn or node can need. The world-specific ones are each world's special weather (Worlds.luau).
+export type Condition = "Any" | "Day" | "Night" | "Rain" | "Shower" | "Quest" | "Blizzard" | "PowerSurge" | "Ashfall" | "KingTide" | "GravityFlip" | "Eclipse"
 export type Traversal = "Sprint" | "Hover" | "Glide" | "Swim" | "Climb"
 
 export type JobLevel = { job: Job, level: number }
@@ -89,7 +90,7 @@ export type Profile = {
 -- Net payloads ------------------------------------------------------------
 
 -- WorldClock -> clients on every day/night or weather change, and from GetClock.
-export type ClockState = { isNight: boolean, weather: string, secondsLeft: number }
+export type ClockState = { isNight: boolean, weather: string, secondsLeft: number, weatherSecondsLeft: number }
 
 -- One sweep set of the capture bar. The client draws from these; the server judges from these.
 export type SweepParams = {

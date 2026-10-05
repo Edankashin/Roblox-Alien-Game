@@ -82,4 +82,6 @@ Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and sk
 5. Luck: under the ship bar a "Luck x1.3" readout appears at night (x1.0 is hidden); a Lucky Charm adds +0.5 while it runs; catching Commons in a row raises it slowly (pity), and a Rare resets it. Spawns near a lucky player roll better tiers.
 6. Steady Hands: the capture zones are visibly 30% wider for 10 minutes. Scrap Magnet: catch Scrap pays +50%.
 
+7. Special weather: `/rain` (or `/weather Rain`) forces World 1's special weather: a purple banner "Rain! Thunderhog is out!" slides in, the clock chip reads "Day · Rain", Thunderhogs can spawn in the Meadow and the Storm Shard nodes light up. `/clear` ends it. Weather now rolls from the world's list (Clear, Fog, Rain) with Rain at a 34% chance per change.
+
 Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (earned only, no source yet), Peddler ship art and landing sound.
