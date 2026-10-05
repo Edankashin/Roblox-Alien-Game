@@ -182,9 +182,9 @@ local function setPass(player: Player, text: string)
 	print(("[%s] dev: %s pass %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then (if owned then "owned" else "dropped") else "refused: " .. tostring(reason)))
 end
 
--- /world N: move the profile to world N (clamped to a world in Worlds) and unlock it. Only the profile
--- changes: the place itself is fixed by its WorldId attribute, so rejoin the World N place
--- (rojo serve world2.project.json) to stand in it.
+-- /world N: move the profile to world N (clamped to a world in Worlds) and unlock it, and tell the client
+-- (WorldChanged, ModulesChanged) the way Launch does. Only the profile changes: the place itself is fixed
+-- by its WorldId attribute, so rejoin the World N place (rojo serve world2.project.json) to stand in it.
 local function setWorld(player: Player, text: string)
 	local requested = tonumber(string.match(text, "%d+") or "")
 	if not requested then
@@ -203,6 +203,13 @@ local function setWorld(player: Player, text: string)
 		end
 	end)
 	if ok then
+		-- The client mirrors keep the old world until told, exactly as after a launch: the new current world
+		-- and its modules, so the Ship screen, the condition filter and the tutorial pill follow the profile.
+		local moved = PlayerData.Get(player)
+		if moved then
+			Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
+			Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
+		end
 		print(("[%s] dev: %s is now on world %d (%s); this place runs world %d, rejoin the matching place"):format(Config.WorkingTitle, player.Name, target, Worlds[target].name, Place.WorldId()))
 	end
 end
