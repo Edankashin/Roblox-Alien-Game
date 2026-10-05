@@ -4,18 +4,24 @@
 -- on join, and pushes each result to the owning client. All the maths comes from the shared
 -- ReplicatedStorage.Shared.Economy module so the client extrapolates with the same formulas; this
 -- service only decides when the real profile changes. Clients send module ids and nothing else.
+-- It is also the one door an alien enters a profile through (GrantAlien): a wild catch from Catching
+-- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer.
 
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Species = require(Shared.data.Species)
+local Tiers = require(Shared.data.Tiers)
+local Overlays = require(Shared.data.Overlays)
 local Modules = require(Shared.data.Modules)
 local Economy = require(Shared.Economy)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Buffs = require(script.Parent.Buffs)
 
 local EconomyService = {}
 
@@ -60,6 +66,17 @@ local function pushCamp(player: Player, profile: Types.Profile)
 	pushStations(player, profile)
 	pushRate(player, profile)
 	pushModules(player, profile)
+end
+
+-- Server-wide banner for catches of Config.AnnounceMinTier and above, so rarity is read out to everyone.
+local function announceCatch(player: Player, species: string, tier: Types.Tier, overlay: Types.Overlay)
+	local rank = table.find(Tiers.Order, tier) or 0
+	local minRank = table.find(Tiers.Order, Config.AnnounceMinTier) or math.huge
+	if rank < minRank then
+		return
+	end
+	local note: Types.Announcement = { kind = "catch", playerName = player.DisplayName, species = species, tier = tier, overlay = overlay }
+	Net.event("Announcement"):FireAllClients(note)
 end
 
 -- Module state -----------------------------------------------------------
@@ -383,14 +400,16 @@ end
 -- Income -----------------------------------------------------------------
 
 -- Pays dt seconds of station income to every loaded player, whole Scrap only, and re-bases assembly.
+-- An active Double Shift multiplies the tick by Buffs.StationMultiplier (1 otherwise).
 local function tickIncome(dt: number)
 	for _, player in ipairs(Players:GetPlayers()) do
 		local profile = PlayerData.Get(player)
 		if profile then
 			local before = profile.scrap
 			local completed: { string } = {}
+			local multiplier = Buffs.StationMultiplier(player)
 			PlayerData.Update(player, function(p)
-				local carry = (carries[player.UserId] or 0) + Economy.totalRate(p) * dt
+				local carry = (carries[player.UserId] or 0) + Economy.totalRate(p) * multiplier * dt
 				local whole = math.floor(carry)
 				carries[player.UserId] = carry - whole
 				p.scrap += whole
@@ -444,10 +463,15 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	end
 end
 
--- Public API -------------------------------------------------------------
+-- Granting ---------------------------------------------------------------
 
--- Called by Catching once the catch is written: seat the newcomer and tell the client.
-function EconomyService.OnCaught(player: Player, uid: string)
+local function overlayRank(overlay: Types.Overlay): number
+	return table.find(Overlays.Order, overlay) or 0
+end
+
+-- Seats an alien already in the profile and tells the client about the camp. Banks assembly progress
+-- at the old speed first so the crew change never rewrites history.
+local function seatAndPush(player: Player, uid: string)
 	local completed: { string } = {}
 	local ok = PlayerData.Update(player, function(profile)
 		local record = profile.aliens[uid]
@@ -465,8 +489,83 @@ function EconomyService.OnCaught(player: Player, uid: string)
 	announceCompleted(player, profile.world.current, completed)
 end
 
+-- Public API -------------------------------------------------------------
+
+-- An alien enters the profile: a new level-1 record, the codex entry (count, best overlay, first
+-- catch), the Scrap it pays (the tier's catch pay, times Config.PerfectScrapMultiplier on a Perfect,
+-- times an active Scrap Magnet, whole Scrap, plus the codex payout on a first catch) and the catch
+-- stats, in one profile update. Then the newcomer is seated, the client hears ScrapChanged and the
+-- camp pushes, pity moves, and a rare enough tier is announced to the whole server. Returns the
+-- Reveal payload, or nil when the player has no profile (or the species id is unknown).
+function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean): Types.GrantResult?
+	local def = Species.ById[species]
+	if not def then
+		return nil
+	end
+	local tier: Types.Tier = def.tier
+	local tierDef = Tiers.Tiers[tier]
+	local magnet = Buffs.CatchScrapMultiplier(player)
+	local uid = HttpService:GenerateGUID(false)
+	local caughtAt = os.time()
+	local isNew = false
+	local scrapGained = 0
+	local scrapNow = 0
+	local ok = PlayerData.Update(player, function(profile)
+		local record: Types.AlienRecord = {
+			uid = uid,
+			species = species,
+			level = 1,
+			overlay = overlay,
+			caughtAt = caughtAt,
+		}
+		profile.aliens[uid] = record
+
+		local entry = profile.codex[species]
+		if not entry then
+			entry = { count = 0, bestOverlay = "None", firstCaughtAt = 0 }
+			profile.codex[species] = entry
+		end
+		isNew = entry.count == 0
+		entry.count += 1
+		if overlayRank(overlay) > overlayRank(entry.bestOverlay) then
+			entry.bestOverlay = overlay
+		end
+
+		local pay = tierDef.catchScrap
+		if perfect then
+			pay *= Config.PerfectScrapMultiplier
+		end
+		scrapGained = math.floor(pay * magnet)
+		if isNew then
+			entry.firstCaughtAt = caughtAt
+			scrapGained += tierDef.codexScrap
+		end
+		profile.scrap += scrapGained
+
+		profile.stats.catches += 1
+		if perfect then
+			profile.stats.perfects += 1
+		end
+		scrapNow = profile.scrap
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not profile then
+		return nil
+	end
+	pushScrap(player, profile)
+	seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
+	Buffs.OnCatch(player, tier)
+	announceCatch(player, species, tier, overlay)
+	return { species = species, tier = tier, overlay = overlay, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
+end
+
+-- Seat an alien another service has already written into the profile and tell the client.
+function EconomyService.OnCaught(player: Player, uid: string)
+	seatAndPush(player, uid)
+end
+
 function EconomyService.Init()
-	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted" }) do
+	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement" }) do
 		Net.event(name)
 	end
 	Net.func("ModulePay").OnServerInvoke = onModulePay

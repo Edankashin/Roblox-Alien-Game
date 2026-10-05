@@ -5,6 +5,8 @@
 -- animation: the client bobs and labels them. The server owns which species exist where and when,
 -- so the tier roll, the overlay roll and the condition gating all live here. A spawn's biome is the
 -- one its landing point is in (Shared/Biomes), so the Forest grove and the Cave get their own tables.
+-- The tier roll uses the highest luck (Buffs.Luck) among the players within SpawnRadius of the spawn
+-- point, so standing next to a lucky friend makes everyone's spawns better.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -21,6 +23,7 @@ local Overlays = require(Shared.data.Overlays)
 local Biomes = require(Shared.Biomes)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
+local Buffs = require(script.Parent.Buffs)
 
 local Spawner = {}
 
@@ -38,6 +41,7 @@ export type WildSpawn = {
 export type RemoveReason = "caught" | "fled" | "despawn" | "cull"
 
 type PendingRespawn = { position: Vector3, readyAt: number }
+type Presence = { player: Player, position: Vector3 } -- a player with a character this tick
 
 local SHAPES: { [string]: Enum.PartType } = {
 	Ball = Enum.PartType.Ball,
@@ -189,14 +193,26 @@ local function findPosition(around: Vector3, size: number): Vector3?
 	return nil
 end
 
-local function createSpawn(around: Vector3, condition: Types.Condition): WildSpawn?
+-- The highest luck among the players within SpawnRadius of `around`. The player being topped up is
+-- always one of them (distance 0), so this is at least their own.
+local function luckAround(around: Vector3, present: { Presence }): number
+	local best = 1
+	for _, entry in ipairs(present) do
+		if flatDistance(entry.position, around) <= Config.SpawnRadius then
+			best = math.max(best, Buffs.Luck(entry.player))
+		end
+	end
+	return best
+end
+
+local function createSpawn(around: Vector3, condition: Types.Condition, luck: number): WildSpawn?
 	-- where it lands decides which biome's table it rolls from
 	local flat = findPosition(around, BASE_SIZE)
 	if not flat then
 		return nil
 	end
 	local biome: Types.Biome = Biomes.At(flat)
-	local tier = rollTier(1.0) -- luck hook: server luck, showers and charms plug in here later
+	local tier = rollTier(luck)
 	local def = chooseSpecies(biome, tier, condition)
 	if not def then
 		return nil
@@ -271,10 +287,12 @@ local function tick()
 		end
 	end
 
+	local present: { Presence } = {}
 	local roots: { Vector3 } = {}
 	for _, player in ipairs(Players:GetPlayers()) do
 		local root = rootOf(player)
 		if root then
+			table.insert(present, { player = player, position = root.Position })
 			table.insert(roots, root.Position)
 		end
 	end
@@ -294,12 +312,16 @@ local function tick()
 		end
 	end
 
-	-- top up density around each player
-	for _, at in ipairs(roots) do
+	-- top up density around each player, rolling tiers with the best luck nearby
+	for _, entry in ipairs(present) do
+		local at = entry.position
 		local missing = Config.SpawnDensityTarget - nearCount(at, now)
-		for _ = 1, missing do
-			if not createSpawn(at, condition) then
-				break
+		if missing > 0 then
+			local luck = luckAround(at, present)
+			for _ = 1, missing do
+				if not createSpawn(at, condition, luck) then
+					break
+				end
 			end
 		end
 	end
@@ -309,6 +331,12 @@ end
 
 function Spawner.GetSpawn(spawnId: string): WildSpawn?
 	return spawns[spawnId]
+end
+
+-- The overlay roll every wild spawn gets, for aliens granted outside the wild (Peddler eggs) so they
+-- carry the same odds (Overlays chances).
+function Spawner.RollOverlay(): Types.Overlay
+	return rollOverlay()
 end
 
 function Spawner.RemoveSpawn(spawnId: string, reason: RemoveReason)

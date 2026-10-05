@@ -2,7 +2,8 @@
 -- ServerScriptService.Server.Services.Catching: the server-authoritative capture minigame.
 -- The server generates every parameter (ticker speed, zones, zone centre, start clock), hands them
 -- to the client, and judges each tap from the client's tap TIME only, using the shared Capture math.
--- The client never reports an outcome. Catches write to the profile here and nowhere else.
+-- The client never reports an outcome. A won encounter hands the alien to Economy.GrantAlien, the one
+-- door an alien enters a profile through; this service decides only whether the catch was won.
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -13,16 +14,17 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Tiers = require(Shared.data.Tiers)
 local Lures = require(Shared.data.Lures)
-local Overlays = require(Shared.data.Overlays)
 local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
+local Buffs = require(script.Parent.Buffs)
 
 local Catching = {}
 
 type Encounter = {
+	player: Player, -- for the buff reads each sweep (Steady Hands)
 	userId: number,
 	spawnId: string,
 	species: string,
@@ -82,12 +84,18 @@ local function rollZoneCenter(): number
 	return rng:NextNumber(Config.CaptureZoneCenterMin, Config.CaptureZoneCenterMax)
 end
 
--- Zone widths for this encounter: tier base, plus the bonus of the lure spent on it, plus hidden
--- kindness once the player has missed enough times.
+-- Zone widths for this encounter: tier base, plus the bonus of the lure spent on it, grown by an
+-- active Steady Hands, plus hidden kindness once the player has missed enough times. Read every
+-- sweep, so a power-up that ends mid-encounter stops helping on the next sweep.
 local function applyZones(encounter: Encounter)
 	local tier = Tiers.Tiers[encounter.tier]
 	local good = tier.goodZone + encounter.lureBonus
 	local perfect = tier.perfectZone + encounter.lureBonus
+	local steady = Buffs.ZoneBonus(encounter.player)
+	if steady > 0 then
+		good *= 1 + steady
+		perfect *= 1 + steady
+	end
 	if encounter.kindnessApplied then
 		good *= 1 + Config.HiddenKindnessZoneBonus
 		perfect *= 1 + Config.HiddenKindnessZoneBonus
@@ -121,10 +129,6 @@ local function continued(encounter: Encounter, outcome: Types.CaptureOutcome, hi
 	}
 end
 
-local function overlayRank(overlay: Types.Overlay): number
-	return table.find(Overlays.Order, overlay) or 0
-end
-
 -- Spends the best lure the player holds (Lures.Order runs weakest to strongest, so walk it from the
 -- end) and tells the client. Returns the id spent, or nil when the player holds none. The lure is not
 -- refunded if the alien flees or the player cancels: it bought the wider zones for this attempt, win
@@ -149,68 +153,6 @@ local function consumeBestLure(player: Player): string?
 		end
 	end
 	return used
-end
-
--- Write the catch into the profile. Returns isNew, the Scrap paid (the tier's catch pay, doubled by
--- Config.PerfectScrapMultiplier on a Perfect, plus the codex payout on a first catch), the Scrap total
--- and the new alien's uid.
-local function recordCatch(player: Player, encounter: Encounter, overlay: Types.Overlay, perfect: boolean): (boolean, number, number, string)
-	local isNew = false
-	local scrapGained = 0
-	local scrapNow = 0
-	local newUid = ""
-	local caughtAt = os.time()
-	PlayerData.Update(player, function(profile)
-		local uid = HttpService:GenerateGUID(false)
-		newUid = uid
-		local record: Types.AlienRecord = {
-			uid = uid,
-			species = encounter.species,
-			level = 1,
-			overlay = overlay,
-			caughtAt = caughtAt,
-		}
-		profile.aliens[uid] = record
-
-		local entry = profile.codex[encounter.species]
-		if not entry then
-			entry = { count = 0, bestOverlay = "None", firstCaughtAt = 0 }
-			profile.codex[encounter.species] = entry
-		end
-		isNew = entry.count == 0
-		entry.count += 1
-		if overlayRank(overlay) > overlayRank(entry.bestOverlay) then
-			entry.bestOverlay = overlay
-		end
-		local tierDef = Tiers.Tiers[encounter.tier]
-		scrapGained = tierDef.catchScrap
-		if perfect then
-			scrapGained *= Config.PerfectScrapMultiplier
-		end
-		if isNew then
-			entry.firstCaughtAt = caughtAt
-			scrapGained += tierDef.codexScrap
-		end
-		profile.scrap += scrapGained
-
-		profile.stats.catches += 1
-		if perfect then
-			profile.stats.perfects += 1
-		end
-		scrapNow = profile.scrap
-	end)
-	return isNew, scrapGained, scrapNow, newUid
-end
-
--- Server-wide banner for catches of Config.AnnounceMinTier and above, so rarity is read out to everyone.
-local function announceCatch(player: Player, species: string, tier: Types.Tier, overlay: Types.Overlay)
-	local rank = table.find(Tiers.Order, tier) or 0
-	local minRank = table.find(Tiers.Order, Config.AnnounceMinTier) or math.huge
-	if rank < minRank then
-		return
-	end
-	local note: Types.Announcement = { kind = "catch", playerName = player.DisplayName, species = species, tier = tier, overlay = overlay }
-	Net.event("Announcement"):FireAllClients(note)
 end
 
 -- Remotes ----------------------------------------------------------------
@@ -265,6 +207,7 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 
 	local tier = Tiers.Tiers[spawn.tier]
 	local encounter: Encounter = {
+		player = player,
 		userId = player.UserId,
 		spawnId = spawnId,
 		species = spawn.species,
@@ -351,23 +294,23 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			local tier: Types.Tier = spawn.tier
 			Spawner.RemoveSpawn(encounter.spawnId, "caught")
 			endEncounter(player.UserId)
-			local isNew, scrapGained, scrapNow, uid = recordCatch(player, encounter, overlay, perfect)
-			if scrapGained > 0 then -- every catch pays, so this always fires; the guard keeps the push honest
-				Net.event("ScrapChanged"):FireClient(player, scrapNow)
+			-- GrantAlien writes the record, codex, Scrap and stats, seats the alien, pushes ScrapChanged
+			-- and the camp, moves pity and announces a rare enough tier. Nil only if the profile is gone.
+			local grant = Economy.GrantAlien(player, species, overlay, perfect)
+			if not grant then
+				return nil
 			end
-			announceCatch(player, species, tier, overlay)
-			Economy.OnCaught(player, uid)
 			return {
 				outcome = "Caught",
 				hit = hit,
 				pos = pos,
 				perfect = perfect,
-				species = species,
+				species = grant.species,
 				tier = tier,
-				overlay = overlay,
-				isNew = isNew,
-				scrapGained = scrapGained,
-				scrap = scrapNow,
+				overlay = grant.overlay,
+				isNew = grant.isNew,
+				scrapGained = grant.scrapGained,
+				scrap = grant.scrap,
 			}
 		end
 		encounter.round += 1
@@ -399,8 +342,7 @@ end
 -- Public API -------------------------------------------------------------
 
 function Catching.Init()
-	Net.event("ScrapChanged")
-	Net.event("Announcement")
+	Net.event("InventoryChanged") -- consumeBestLure
 	Net.func("CaptureStart").OnServerInvoke = onCaptureStart
 	Net.func("CaptureHit").OnServerInvoke = onCaptureHit
 	Net.event("CaptureCancel").OnServerEvent:Connect(onCaptureCancel)

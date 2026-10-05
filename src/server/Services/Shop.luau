@@ -5,8 +5,10 @@
 -- profile, deducts, grants, and pushes the result (ScrapChanged, InventoryChanged, GearChanged).
 -- Scrap is never sold for Robux; the Robux catalog in Shared/data/Shop is a later service's job.
 -- This service also owns WalkSpeed: a character runs at Gear.BaseWalkSpeed times the best movement
--- multiplier its player owns, set from the server on spawn, on profile load and on purchase. The
--- client never sets it.
+-- multiplier its player owns times an active Speed Burst (Buffs.SpeedMultiplier), set from the server
+-- on spawn, on profile load, on purchase and when a speed buff starts or ends. The client never sets
+-- it. The require runs one way: Shop requires Buffs for the multiplier and hands Buffs its
+-- ApplyMovement through Buffs.OnMovementChanged, so Buffs never requires Shop back.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +20,7 @@ local Lures = require(Shared.data.Lures)
 local Gear = require(Shared.data.Gear)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Buffs = require(script.Parent.Buffs)
 
 local Shop = {}
 
@@ -63,8 +66,10 @@ end
 
 -- Movement ---------------------------------------------------------------
 
--- Gear.BaseWalkSpeed times the best speedMultiplier among the gear this profile owns (none -> 1).
-local function walkSpeedFor(profile: Types.Profile?): number
+-- Gear.BaseWalkSpeed times the best speedMultiplier among the gear this player owns (none -> 1),
+-- times an active Speed Burst (none -> 1).
+local function walkSpeedFor(player: Player): number
+	local profile = PlayerData.Get(player)
 	local best = 1
 	if profile then
 		for id, field in pairs(GEAR_FLAG) do
@@ -74,18 +79,19 @@ local function walkSpeedFor(profile: Types.Profile?): number
 			end
 		end
 	end
-	return Gear.BaseWalkSpeed * best
+	return Gear.BaseWalkSpeed * best * Buffs.SpeedMultiplier(player)
 end
 
--- Sets the current character's WalkSpeed from the profile. Safe to call with no character.
-local function applyMovement(player: Player)
+-- Sets the current character's WalkSpeed from the profile and buffs. Safe to call with no character.
+-- Public so Buffs can re-apply it (through OnMovementChanged) when a speed buff starts or ends.
+function Shop.ApplyMovement(player: Player)
 	local character = player.Character
 	if not character then
 		return
 	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
-		humanoid.WalkSpeed = walkSpeedFor(PlayerData.Get(player))
+		humanoid.WalkSpeed = walkSpeedFor(player)
 	end
 end
 
@@ -93,7 +99,7 @@ end
 local function onCharacterAdded(player: Player, character: Model)
 	local humanoid = character:WaitForChild("Humanoid", HUMANOID_WAIT_SECONDS)
 	if humanoid and humanoid:IsA("Humanoid") and player.Character == character then
-		humanoid.WalkSpeed = walkSpeedFor(PlayerData.Get(player))
+		humanoid.WalkSpeed = walkSpeedFor(player)
 	end
 end
 
@@ -176,7 +182,7 @@ local function buyGear(player: Player, id: string): (boolean, string?)
 		pushScrap(player, profile)
 		pushGear(player, profile)
 	end
-	applyMovement(player)
+	Shop.ApplyMovement(player)
 	return true, nil
 end
 
@@ -209,7 +215,11 @@ function Shop.Init()
 	Net.func("ShopBuy").OnServerInvoke = onShopBuy
 	-- The character can spawn before the profile loads (base speed); once it loads, the speed catches up.
 	PlayerData.OnLoaded(function(player: Player, _profile: Types.Profile)
-		applyMovement(player)
+		Shop.ApplyMovement(player)
+	end)
+	-- A Speed Burst starting or ending re-applies the speed (see the header for the one-way require).
+	Buffs.OnMovementChanged(function(player: Player)
+		Shop.ApplyMovement(player)
 	end)
 end
 
