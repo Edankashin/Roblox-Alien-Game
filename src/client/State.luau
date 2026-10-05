@@ -20,7 +20,7 @@ local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -299,6 +299,13 @@ function State.Start()
 		end)
 	end)
 	task.spawn(function()
+		Net.event("WorldChanged").OnClientEvent:Connect(function(current: number, unlocked: { number })
+			if profile then
+				profile.world.current = current
+				profile.world.unlocked = unlocked
+				fire("world")
+			end
+		end)
 		Net.event("ModulesChanged").OnClientEvent:Connect(function(worldId: number, modules: { [string]: Types.ModuleProgress })
 			if profile then
 				profile.modules[tostring(worldId)] = modules

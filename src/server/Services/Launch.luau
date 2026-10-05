@@ -111,6 +111,12 @@ local function onLaunch(player: Player): (boolean, string?)
 	local placeLive = placeIsLive(nextWorld)
 	Analytics.Event(player, AnalyticsData.Events.Launch, 1, { from = tostring(here), to = tostring(nextId) })
 	Net.event("Launched"):FireClient(player, nextId, placeLive)
+	-- The client mirrors keep the old world until told: the new current world and its (empty) modules.
+	local moved = PlayerData.Get(player)
+	if moved then
+		Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
+		Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
+	end
 	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
 	teleportLater(player, nextWorld, placeLive)
 	return true, nil
@@ -118,6 +124,8 @@ end
 
 function Launch.Init()
 	Net.event("Launched")
+	Net.event("WorldChanged")
+	Net.event("ModulesChanged")
 	Net.func("Launch").OnServerInvoke = onLaunch
 end
 

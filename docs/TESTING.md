@@ -214,7 +214,7 @@ Known gaps in this milestone: launching between places (15c), outposts, the Heat
 ## Milestone 15c: the launch
 
 World 2's place id is 0 until it is published, and Studio never teleports, so the launch is tested up to the fade and back. Play on World 1 (`rojo serve`) as a fresh profile.
-1. Boot adds a Launch line after Economy: "Launch: this is world 1 (Verdant Crash Site); next world 2 place not published (Studio: no teleport)". The Dev line lists `/complete`.
+1. Boot adds a Launch line after Economy: "Launch: this is world 1 (Verdant Crash Site); next world 2 place not published; Studio: teleports are skipped". The Dev line lists `/world N` and `/complete`.
 2. With a module unfinished, walk to the ship: the button reads "Build" (the Ship screen). `/complete`: every module card reads "Done!", the ship bar reads 100%, and the button by the ship reads "Launch".
 3. Press Launch: the HUD hides, the ship lifts over 4 s while the camera glides to it, a gold burst plays at the base, then the screen fades to black with "Next stop: Frostbyte". After 2 s a toast "Frostbyte opens when it is published. The ship is ready.", the screen fades back, the ship sits where it was and the HUD returns. CameraType reads Custom afterwards.
 4. The profile moved: the Aliens and Ship screens now show World 2's modules (Heat Shield first, 0%), and Launch on World 1 now refuses with "Your ship is on another world" (the ship stays). Analytics prints `event Launch from=1 to=2`.
