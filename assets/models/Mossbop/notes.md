@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #6BCB3F, placeholder scale 1
 - Accessory: tuft (keyword match on the concept; colour rule: complement, #593FCB)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 946 (budget 500 to 1500, detail level 0)
+- Triangles: 1390 (final-look pass 2026-10-05 over the 946-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 2.64 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #6BCB3F, BodyDark #468429, EyeWhite, Pupil, Mouth, Accessory #593FCB
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
