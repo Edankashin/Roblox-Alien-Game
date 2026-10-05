@@ -1,0 +1,15 @@
+{
+  "video": "media/tiktok/ZPL8umT3M.mp4",
+  "width": 1080,
+  "height": 1920,
+  "duration_s": 61.2,
+  "frames": 61,
+  "sheets": [
+    "sheet_01.jpg",
+    "sheet_02.jpg",
+    "sheet_03.jpg",
+    "sheet_04.jpg"
+  ],
+  "seconds_per_sheet": 16.0,
+  "stt_backend": "sherpa-onnx whisper"
+}

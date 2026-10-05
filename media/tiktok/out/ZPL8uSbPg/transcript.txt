@@ -1,0 +1,2 @@
+[   0s] What other plugins do you suggest? Okay plugins to use for anything to do with 3d So whatever gaming engine that you're using Unity CLI got at CLI roll blocks mcp Unreal engine mcp four different ones you can connect directly to your AI Then whatever 3d modeling thing that you're using matchy api or mcp Tripo API or mcp those will create the 3d mesh and assets if you're using codecs You don't need anything with image generation, but you do if you're not using codecs so for image generation, which is the two
+[  30s] You need either Nano Banana Pro or Higgsfield CLI.

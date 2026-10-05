@@ -206,3 +206,57 @@ A 41-second creator preview of an unnamed dinosaur ranch game, posted the day be
 8. Placeholder look: a tiled grid material on our placeholder floor and pads so grey-box builds read as a style rather than a gap.
 
 **What we skip.** Hunger (the belly bar) is upkeep and against pillar 3. Breeding and the DNA lab are already decided out. The fishing minigame is a second core mechanic; our timing bar stays the one catch verb, and a steer-the-hook variant is parked as a P2 idea for the Tidepool world.
+
+
+---
+
+# Batch 4: tool stacks, prompting, Claude plugins for Roblox (2026-10-05)
+
+Four more TikToks, processed the same way (`media/tiktok/out/<code>/`, contact sheets and Whisper transcripts; full-resolution crops of the on-screen document in the plugins video were read frame by frame).
+
+| Code | Creator | Length | Topic |
+|---|---|---|---|
+| ZPL8uSbPg | ashenbot | 0:34 | The 2026 AI game-dev tool stack: engine CLIs and MCPs, 3D and image generators |
+| ZPL8umT3M | dontrunsamurairoblox | 1:01 | The best prompting tip: make the AI ask you questions, then ask again |
+| ZPL8uaNaS | lihfolk | 9:12 | "Opus is insane" pt. 2: how a solo dev builds a Roblox game with Claude end to end |
+| ZPL8Hb7yS | lihfolk | 3:25 | "Optimize Claude for Roblox Studio" pt. 1: the plugins and skills, with install prompts |
+
+## ZPL8uSbPg: the tool stack (ashenbot)
+
+A rapid list, read off the caption and the transcript. Engines: Godot CLI, Unreal Engine MCP, Unity CLI, Roblox MCP ("connect directly to your AI"). 3D meshes: Meshy (API or MCP) and Tripo (API or MCP). Image generation: not needed inside Codex; otherwise Nano Banana Pro (Gemini image API) or Higgsfield CLI. "Then go crazy."
+
+**What we take.** Our stack already has the Roblox and Blender MCPs. Meshy and Tripo are the mesh generators to try first for the species that the procedural blockouts (`tools/blender/alien_base.py`) do not carry far enough; both export GLB, which Studio imports. For UI icons and reference sheets the image model is Nano Banana (Gemini), which the art pipeline notes already name. No new engine tooling.
+
+## ZPL8umT3M: make it ask you questions (dontrunsamurairoblox)
+
+"If you're struggling because the AI is not following your prompt: make it ask you questions." Give the system request (his example: a global message system triggered by /globalmessage), end with "do you have any questions for me to implement this?", answer them, then ask again: "what questions can you ask me to make this follow through easier?" A broad prompt to an AI is "trying to get your idea to a toddler: they know the language but cannot read your mind." Explain it step by step.
+
+**What we take.** Added to `docs/vault/02-how-we-work/Prompting.md` and the plan's prompting discipline: every milestone brief starts with a questions round, and a second round after the answers, before any code.
+
+## ZPL8uaNaS: building a Roblox game with Claude, end to end (lihfolk)
+
+A nine-minute walkthrough of an RNG "roll a blade" game. The usable lessons, in his order:
+- **Start from an existing loop.** "It's hard to create your own sort of game. Most games are a repetitive loop: progression, something to wait for and monetise, a good core loop." Generate the game idea in any model, then paste it into Claude with "ask me as many questions as you need" (5 to 10 questions come back) before anything is built. His own idea generator produced "Steal a Cryptid", which he rejected because kids do not know the word: **the title must be understood by a ten-year-old.**
+- **One step at a time, map first.** "A bad map, no one plays the game." Claude builds the basic structures and layout of a map, but placing props (trees, bushes) is where it is weakest; he places those by hand. The cliffs were generated, the volcano was a toolbox asset, colours changed by hand.
+- **GUI.** Screenshot another game's GUI and ask an image model for the PNGs; "make sure all your icons are black-stroked, thick, or it just doesn't look good" (he points at thin-stroked upgrade arrows next to thick ones). Shop layout: large tiles for bundles and big purchases, small tiles for singles; "a nice shop goes such a long way" for monetisation.
+- **3D models and animation** come from Claude Design: a model with animations and effects plus a Lua installer. Download the GLB and the Lua, paste the Lua into the command bar (or hand it to Claude through MCP) and it rigs and imports. A "model importing" skill he wrote cut the import from three to five minutes of Claude work to a single named step.
+- **Usage.** Claude Max; medium effort by default; Opus 5.5 rather than Fable for usage; work in the five-hour windows; a game takes weeks, not a day. Image generation through ChatGPT for PNGs.
+- **Finishing is on you.** "Everything the AI can do, but making things ready for the public is on you a little bit": fix jagged cliffs, tidy what players will look at.
+
+**What we take.** The title test (a ten-year-old must understand it: our working title is checked against this in PRE_PRODUCTION decisions), the "map first, props by hand" order for World 2, the thick-black-stroke icon rule in the UI Playbook, large-tile-for-bundles in the shop layout, the import-model skill (`.claude/skills/import-model/SKILL.md`), and Claude Design as the candidate for rigged, animated species once the blockouts are in.
+
+## ZPL8Hb7yS: the plugins and skills, with install prompts (lihfolk)
+
+He shares a text document with one section per tool: what it does, when it activates, a "download prompt" to paste into Claude, and the exact commands. Read from the frames:
+- **Agent Skills**: a large general skills collection, not Roblox-specific; "makes Claude smarter overall". Activation automatic.
+- **Graphify**: builds a knowledge graph of the project so Claude "runs through it faster" on big games. `pip install graphifyy`, `graphify install`, then `/graphify`; run it again after big changes.
+- **Ponytail** (Dietrich Gebert): "lazy senior dev mode", forces the simplest shortest solution (YAGNI); claimed 50% token saving, he reckons 20%.
+- **Roblox Dev** (Ivar): "Roblox/Luau game development toolkit: exploit-proof remotes, safe DataStores, strict typing, performance, client/server code"; activates automatically when working on Roblox. `/plugin marketplace add ivar-anon/roblox-dev`, `/plugin install roblox-dev@roblox-dev`.
+- **Roblox Claude Skills**: map building, UI building, debugging, API help, code cleanup, game setup; aimed at Rojo users; it conflicted with his other skills, so he does not insist on it.
+- **Roblox Studio skill** (ShiroKSH): building and placement (maps, arenas, object placement, level design, playtesting); `/plugin marketplace add ShiroKSH/skills`, `/plugin install roblox-studio@skills`, then connect it to the open Studio and test by inspecting Workspace without changing anything.
+- **Roblox Studio MCP**: "lets Claude actually see and edit your Studio game; without it Claude mostly gives you code."
+- **Superpowers**: makes Claude plan more before big features; `/plugin install superpowers@claude-plugins-official`; "probably unnecessary for tiny changes"; you can say "use Superpowers for this".
+- **Blender MCP**: the `uvx` server, "in case I want it".
+His closing rule: with about 40 skills installed you do not call them; they activate on their own.
+
+**What we take.** Decided per tool in `docs/vault/02-how-we-work/Claude-Plugins.md`: adopt Roblox Dev and the ShiroKSH Studio skill (both project-scope, after a dry run that proves no conflict with our `.mcp.json` and CLAUDE.md rules), keep Blender MCP and Studio MCP (already in), skip Graphify and Ponytail (our vault and CLAUDE.md do that job and the token saving is unproven), try Superpowers only for the World 2 build. Nothing is installed by a script; each is one deliberate `/plugin` command on the Mac.

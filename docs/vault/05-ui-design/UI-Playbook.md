@@ -45,6 +45,11 @@ The look, written to the level Claude can build from. Hex values here are the st
 ## Section headings
 - "— FEATURED —", "— PASSES —": yellow text with black stroke, centred, about 7% of panel height; the dashes are part of the text.
 
+## Icons (batch 4)
+- Every icon PNG carries a thick black stroke (about 6% of its width); a thin stroke next to a thick one reads as broken.
+- Make icon sets with one image model from a screenshot of a reference shop, one style per game; never mix packs.
+- Shop layout: large tiles for bundles and the biggest purchases, small tiles for singles.
+
 ## Cards
 - Square, rarity-coloured gradient background, item rendered large, name underneath, small stat chips, diagonal "NEW!" ribbon, "x3" count badge bottom right.
 - Uncaught: dark silhouette plus a small lock.

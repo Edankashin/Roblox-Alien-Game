@@ -298,6 +298,8 @@ From the three-month build in the videos, and the free guide the creator publish
 - **Plan first for anything multi-file.** Ask for the plan, correct it, then let it build.
 - **Ask it to explain** what it changed, so the team can test and debug it.
 - **Record corrections in the vault.** When a review says "the close button is in the wrong place," the fix goes into the playbook, not only into the code.
+- **Make it ask questions, twice.** (batch 4) End a system brief with "do you have any questions for me?", answer, then ask what else it could ask. The answers become part of the brief before any code.
+- **Map first, props by hand.** (batch 4) For a new world, generate the layout and structures first and place trees and bushes by hand; AI placement of scattered props is the weak spot every creator names.
 
 ### 10.5 Training the UI
 
@@ -320,6 +322,8 @@ Generate commons first in batches, review silhouettes in greyscale at thumbnail 
 ### 10.7 Studio plugins to install before building
 
 GapFill and ResizeAlign (ship module seams, snapping parts), Brushtool 2 (scattering biome props), Redupe (station rows, fence lines, codex pedestals, repeated hull plates), Archimedes v3 (round camp pads, curved hull pieces, arches). The four are the ones "all the devs had." An AI scripting plugin that reads the place is optional once the MCP connection is in.
+
+Claude Code plugins and skills (batch 4, the "optimize Claude for Roblox Studio" video) are a separate list: Roblox Dev (ivar-anon), the ShiroKSH Roblox Studio skill, Superpowers, Graphify, Ponytail, Agent Skills, plus the two MCPs we already run. Decisions and the exact install commands are in `docs/vault/02-how-we-work/Claude-Plugins.md`; nothing is installed by a script.
 
 ### 10.8 Co-play, measured and designed
 
