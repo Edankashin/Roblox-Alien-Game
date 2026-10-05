@@ -2,7 +2,7 @@
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
--- can be tested in minutes). Nothing
+-- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -22,6 +22,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
 local Shop = require(script.Parent.Shop)
+local Outposts = require(script.Parent.Outposts)
 local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Monetization = require(script.Parent.Monetization)
@@ -270,6 +271,47 @@ local function completeModules(player: Player, _text: string)
 	print(("[%s] dev: %s completed %d of %d modules on world %d (%d were already done); the ship is complete"):format(Config.WorkingTitle, player.Name, finished, #defs, worldId, #defs - finished))
 end
 
+-- /outpost N [H]: world N's outpost exists (level 1) with H hours (default 1) uncollected, and world N is
+-- unlocked, so the Star Chart has something to collect and fly to. Fractions are fine (/outpost 2 0.5).
+local function backdateOutpost(player: Player, text: string)
+	local numbers: { number } = {}
+	for token in string.gmatch(text, "%d+%.?%d*") do
+		local value = tonumber(token)
+		if value then
+			table.insert(numbers, value)
+		end
+	end
+	local requested = numbers[1]
+	if not requested then
+		print(("[%s] dev: /outpost needs a world number (Shared/data/Worlds) and optionally hours"):format(Config.WorkingTitle))
+		return
+	end
+	local worldId = math.floor(requested)
+	if not Worlds[worldId] then
+		print(("[%s] dev: /outpost: no world %d in Shared/data/Worlds"):format(Config.WorkingTitle, worldId))
+		return
+	end
+	local hours = math.max(0, numbers[2] or 1)
+	local unlocked = false
+	local ok = PlayerData.Update(player, function(profile)
+		if not table.find(profile.world.unlocked, worldId) then
+			table.insert(profile.world.unlocked, worldId)
+			unlocked = true
+		end
+	end)
+	if not ok then
+		return
+	end
+	if unlocked then
+		local live = PlayerData.Get(player)
+		if live then
+			Net.event("WorldChanged"):FireClient(player, live.world.current, live.world.unlocked)
+		end
+	end
+	Outposts.DevBackdate(player, worldId, hours)
+	print(("[%s] dev: %s world %d outpost has %g hours to collect%s"):format(Config.WorkingTitle, player.Name, worldId, hours, if unlocked then " (world unlocked)" else ""))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -322,11 +364,12 @@ function Dev.Init()
 	command("pass", setPass)
 	command("world", setWorld)
 	command("complete", completeModules)
+	command("outpost", backdateOutpost)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H])"):format(Config.WorkingTitle))
 	end
 end
 

@@ -12,6 +12,10 @@
 -- teleports (TeleportAsync errors there), so Studio counts every place as not live and says so at Start.
 -- A failed teleport warns and leaves the player where they are: the profile already says the next
 -- world, so the next join of that world's place carries on from there.
+-- FlyTo(worldId) is the Star Chart's flight to any unlocked world other than the one the ship is on: the
+-- destination outpost's production is banked (Outposts.Collect with force), the world being left is
+-- stamped (Outposts.Touch), the profile moves, the client hears Flew (the fade) and, after
+-- Config.FlyTeleportDelaySeconds, the same teleport as a launch runs.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -27,6 +31,7 @@ local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
 local Tutorial = require(script.Parent.Tutorial)
+local Outposts = require(script.Parent.Outposts)
 local Analytics = require(script.Parent.Analytics)
 local AnalyticsData = require(Shared.data.Analytics)
 
@@ -43,10 +48,11 @@ local function placeIsLive(world: Worlds.WorldDef): boolean
 	return world.placeId > 0 and not RunService:IsStudio()
 end
 
--- The move itself, Config.LaunchTeleportDelaySeconds after the launch was accepted: the player is still
--- here and the place is live, or nothing happens (the client has already shown the fade and the camp).
-local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLive: boolean)
-	task.delay(Config.LaunchTeleportDelaySeconds, function()
+-- The move itself, `delay` seconds after the launch or flight was accepted (Config.LaunchTeleportDelaySeconds
+-- or Config.FlyTeleportDelaySeconds): the player is still here and the place is live, or nothing happens
+-- (the client has already shown the fade and the camp).
+local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLive: boolean, delay: number)
+	task.delay(delay, function()
 		if player.Parent ~= Players then
 			inFlight[player.UserId] = nil
 			return
@@ -100,8 +106,14 @@ local function onLaunch(player: Player): (boolean, string?)
 		if not table.find(p.world.unlocked, nextId) then
 			table.insert(p.world.unlocked, nextId)
 		end
+		-- The camp left behind is an outpost from now: opened at level 1 the first time, and on a later launch
+		-- from the same world (after a Star Chart flight back) its clock restarts so the time the ship spent
+		-- here, paid by the stations, is not paid again by the outpost.
 		local key = tostring(here)
-		if not p.world.outposts[key] then
+		local outpost = p.world.outposts[key]
+		if outpost then
+			outpost.lastCollect = now
+		else
 			p.world.outposts[key] = { level = 1, lastCollect = now }
 		end
 	end)
@@ -112,23 +124,87 @@ local function onLaunch(player: Player): (boolean, string?)
 	local placeLive = placeIsLive(nextWorld)
 	Analytics.Event(player, AnalyticsData.Events.Launch, 1, { from = tostring(here), to = tostring(nextId) })
 	Net.event("Launched"):FireClient(player, nextId, placeLive)
-	-- The client mirrors keep the old world until told: the new current world and its (empty) modules.
+	-- The client mirrors keep the old world until told: the new current world, its (empty) modules and the
+	-- outpost just opened (the Star Chart shows it without a rejoin when no teleport follows).
+	local moved = PlayerData.Get(player)
+	if moved then
+		Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
+		Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
+		Net.event("OutpostsChanged"):FireClient(player, moved.world.outposts)
+	end
+	Tutorial.OnWorldChanged(player) -- off World 1 the tutorial is over: its hint and trainee go
+	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
+	teleportLater(player, nextWorld, placeLive, Config.LaunchTeleportDelaySeconds)
+	return true, nil
+end
+
+-- FlyTo(worldId) -> (ok, reason). Reasons: RateLimited, NoProfile, Busy (a launch or flight is already in
+-- flight), NoWorld (not a world in Shared/data/Worlds), Locked (not in profile.world.unlocked), SameWorld
+-- (the ship is already on it).
+local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
+	if not Net.allow(player, "FlyTo", REMOTE_RATE_PER_SECOND) then
+		return false, "RateLimited"
+	end
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return false, "NoProfile"
+	end
+	if inFlight[player.UserId] then
+		return false, "Busy"
+	end
+	if typeof(worldArg) ~= "number" then
+		return false, "NoWorld"
+	end
+	local worldId: number = worldArg
+	local destination: Worlds.WorldDef? = if worldId == worldId and worldId % 1 == 0 then Worlds[worldId] else nil
+	if not destination then
+		return false, "NoWorld"
+	end
+	if not table.find(profile.world.unlocked, worldId) then
+		return false, "Locked"
+	end
+	local origin = profile.world.current
+	if worldId == origin then
+		return false, "SameWorld"
+	end
+	inFlight[player.UserId] = true
+	local now = os.time()
+	-- The destination's production is banked before the ship arrives; the world being left starts its clock.
+	local banked, bankReason = Outposts.Collect(player, worldId, true)
+	if not banked then
+		inFlight[player.UserId] = nil
+		return false, bankReason or "NoProfile"
+	end
+	Outposts.Touch(player, origin, now)
+	local ok = PlayerData.Update(player, function(p: Types.Profile)
+		p.world.current = worldId
+	end)
+	if not ok then
+		inFlight[player.UserId] = nil
+		return false, "NoProfile"
+	end
+	local placeLive = placeIsLive(destination)
+	Analytics.Event(player, AnalyticsData.Events.Fly, 1, { from = tostring(origin), to = tostring(worldId) })
+	Net.event("Flew"):FireClient(player, worldId, placeLive)
+	-- The client mirrors keep the old world until told, exactly as after a launch.
 	local moved = PlayerData.Get(player)
 	if moved then
 		Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
 		Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
 	end
-	Tutorial.OnWorldChanged(player) -- off World 1 the tutorial is over: its hint and trainee go
-	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
-	teleportLater(player, nextWorld, placeLive)
+	Tutorial.OnWorldChanged(player)
+	print(("[%s] Launch: %s flies from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, origin, worldId, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))
+	teleportLater(player, destination, placeLive, Config.FlyTeleportDelaySeconds)
 	return true, nil
 end
 
 function Launch.Init()
 	Net.event("Launched")
+	Net.event("Flew")
 	Net.event("WorldChanged")
 	Net.event("ModulesChanged")
 	Net.func("Launch").OnServerInvoke = onLaunch
+	Net.func("FlyTo").OnServerInvoke = onFlyTo
 end
 
 function Launch.Start()
