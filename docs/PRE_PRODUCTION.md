@@ -214,10 +214,10 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 12 | Mesh models in the world (placeholder fallback) | step 1 pass; the rest waits on a hand import |
 | 13 | Settings, preferences, analytics funnel | pass |
 | 14 | Robux launch shop (Starter Pack, four passes, boosts, server luck) | pass with grants; receipts wait on live ids |
-| 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | queued |
-| 16 | The Heater rule for blizzards (World 2) | queued |
-| 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | queued; meshes wait on a hand import |
-| 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | queued |
+| 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect) |
+| 16 | The Heater rule for blizzards (World 2) | pass |
+| 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | step 1 pass; the rest waits on a hand import |
+| 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | pass on World 2; step 5 waits on the World 1 place |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
