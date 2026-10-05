@@ -103,6 +103,12 @@ return {
 	ReceiptMemory = 100, -- receipt ids remembered per profile so a repeated ProcessReceipt never grants twice
 	ServerLuckPushSeconds = 10, -- how often the server-luck countdown is refreshed on clients
 	PassCheckRetries = 3, -- UserOwnsGamePassAsync attempts on join before giving up for this session
+	-- launch: the complete ship lifts off and the player moves to the next world's place
+	LaunchLiftSeconds = 4, -- the ship rises over this (client animation)
+	LaunchLiftStuds = 80, -- and this high before the screen fades
+	LaunchFadeSeconds = 1.2, -- the fade to black at the end of the lift
+	LaunchTeleportDelaySeconds = 5.5, -- the server teleports this long after Launch is accepted (lift + fade)
+	LaunchHoldSeconds = 2, -- without a live place id the fade holds this long, then the camp returns
 	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
