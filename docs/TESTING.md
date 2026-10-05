@@ -303,3 +303,14 @@ By hand first, once per place: select Lighting in the Explorer and set Technolog
 5. Screenshots for the review: each world at day, night and its special weather at iPhone SE size, into `docs/vault/05-ui-design/refs/look-l1/` (not committed until reviewed). Frame rate on the SE emulator stays above 50 with Future lighting; if not, lower ShadowSoftness or Bloom size in the data table, never in code.
 
 Known gaps in this milestone: skyboxes (six ids per world) are still 0 so the default sky stays; no per-biome variation inside a world; particles for rain and snow are pass L3.
+
+## Milestone 23: the Friend Boost (World 1 place, multi-client)
+
+Needs Studio's multi-client test with two accounts that are Roblox friends; with one client the chip reads +0%.
+1. Boot lists Friends before Buffs. The HUD shows a "Friend Boost +0%" chip beside the luck line, dim at 0. Tap it: the native invite prompt (or the "Invites are not available right now" toast in Studio).
+2. A friend joins the server: toast "<name> is here! Friend Boost +5%", the chip reads +5% and brightens, the luck line shows x1.1 (luck 1 + 0.05, rounded to one decimal; with pity it adds), station income per minute rises by 5% on the Ship screen, and a catch pays 5% more Scrap. Analytics prints FriendsInServer with value 1 for both players.
+3. A third and fourth friend: +10%, +15%; a fifth friend stays at +15% (the cap of 3). A friend leaving: toast "Friend Boost +10%" and the numbers fall.
+4. Non-friends joining change nothing. The friendship lookup failing (offline Studio) prints one warn and retries after 300 s, never spamming.
+5. Daily quests: the "with a friend" objectives count catches while the chip is above +0% (the same friend check).
+
+Known gaps in this milestone: no party or private-server bonus beyond friends present, the chip has no icon, and co-play analytics only record the friend count (party size and visits come with the home planet).

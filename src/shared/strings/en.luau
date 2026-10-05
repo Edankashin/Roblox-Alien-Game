@@ -5,6 +5,8 @@ return {
 	HUD_SCRAP_PER_MIN = "+%s/min",
 	HUD_LUCK = "Luck x%s",
 	HUD_FRIEND_BOOST = "Friend Boost +%d%%",
+	TOAST_FRIEND_JOINED = "%s is here! Friend Boost +%d%%",
+	TOAST_FRIEND_LEFT = "Friend Boost +%d%%",
 	HUD_SHIP = "Ship %d%%",
 	ACTION_CATCH = "Catch!",
 	ACTION_BUILD = "Build",
