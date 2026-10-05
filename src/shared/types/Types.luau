@@ -82,7 +82,8 @@ export type Profile = {
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
-	purchases: { [string]: number },
+	purchases: { [string]: number }, -- Robux products granted, by item id -> count (passes are read live)
+	shop: { starterSpecies: string?, receipts: { [string]: number } }, -- the Starter Pack's chosen Rare; receipt ids already granted -> os.time()
 	buffs: { [string]: number }, -- active power-ups: id -> seconds remaining (ticks down only while online)
 	inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number }, items: { [string]: number } },
 	stats: { catches: number, perfects: number, playSeconds: number },
@@ -99,6 +100,11 @@ export type Profile = {
 
 -- Settings -> the player after SetSetting (and in the profile): every key with its current value.
 export type SettingsState = { [string]: number }
+
+-- Monetization -> the player: products granted so far and the passes owned right now.
+export type PurchasesState = { purchases: { [string]: number }, passes: { [string]: boolean }, starterSpecies: string? }
+-- Monetization -> everyone: the shared luck a player bought (bonus added to every luck number), or nil when none runs.
+export type ServerLuckState = { bonus: number, secondsLeft: number, playerName: string }?
 
 -- WorldClock -> clients on every day/night or weather change, and from GetClock.
 export type ClockState = { isNight: boolean, weather: string, secondsLeft: number, weatherSecondsLeft: number }

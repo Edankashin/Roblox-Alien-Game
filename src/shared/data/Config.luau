@@ -39,6 +39,7 @@ return {
 	-- offline
 	OfflineRate = 0.5,
 	OfflineCapSeconds = 3600, -- cap on accrued income time (about 60 min of income)
+	OfflineCapSecondsPass = 10800, -- the cap with the Longer Offline pass (180 min)
 
 	-- companions and gear
 	CompanionSlots = 3,
@@ -100,6 +101,9 @@ return {
 	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
 	AnalyticsEnabled = true, -- AnalyticsService events (funnel, custom, economy); off in Studio by default below
 	AnalyticsInStudio = false, -- Studio sessions only print what they would send
+	ReceiptMemory = 100, -- receipt ids remembered per profile so a repeated ProcessReceipt never grants twice
+	ServerLuckPushSeconds = 10, -- how often the server-luck countdown is refreshed on clients
+	PassCheckRetries = 3, -- UserOwnsGamePassAsync attempts on join before giving up for this session
 	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,

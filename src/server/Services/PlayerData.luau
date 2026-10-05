@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 3
+local SCHEMA_VERSION = 4
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -62,6 +62,7 @@ local function template(): Types.Profile
 		spins = { free = 1, banked = 0, lastFree = 0 },
 		luck = { pity = 0 },
 		purchases = {},
+		shop = { starterSpecies = nil, receipts = {} },
 		buffs = {},
 		inventory = { keyMaterials = {}, lures = {}, powerUps = {}, items = {} },
 		stats = { catches = 0, perfects = 0, playSeconds = 0 },
@@ -94,6 +95,13 @@ local migrations: { [number]: (any) -> any } = {
 			end
 		end
 		data.settings = settings
+		return data
+	end,
+	-- v4: the Robux shop's receipt memory and the Starter Pack choice
+	[4] = function(data)
+		local shop = if type(data.shop) == "table" then data.shop else {}
+		shop.receipts = if type(shop.receipts) == "table" then shop.receipts else {}
+		data.shop = shop
 		return data
 	end,
 }
