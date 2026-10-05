@@ -18,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local AnalyticsData = require(Shared.data.Analytics)
 local Camp = require(Shared.data.Camp)
 local TutorialData = require(Shared.data.Tutorial)
 local Biomes = require(Shared.Biomes)
@@ -313,7 +314,9 @@ function Tutorial.Init()
 			pushTutorial(player, live)
 			local step, index = currentStep(live)
 			ensureTrainee(player, step, index)
-			reportFunnel(player, live)
+			if live.world.current == TutorialData.World then
+				reportFunnel(player, live) -- off the tutorial's world the steps were finished or skipped earlier
+			end
 		end
 	end)
 
@@ -325,7 +328,9 @@ end
 -- own world or once the tutorial is over.
 function Tutorial.OnWorldChanged(player: Player)
 	local moved = false
+	local before = DONE_STEP
 	local ok = PlayerData.Update(player, function(p)
+		before = p.tutorialStep
 		moved = skipSatisfied(p)
 	end)
 	local profile = PlayerData.Get(player)
@@ -335,7 +340,9 @@ function Tutorial.OnWorldChanged(player: Player)
 	pushTutorial(player, profile)
 	local step, stepIndex = currentStep(profile)
 	ensureTrainee(player, step, stepIndex)
-	reportFunnel(player, profile)
+	-- Not a funnel advance: the steps were left behind, not reached, so the funnel is not walked (it would
+	-- count every skipped step as reached). One event records the step the player was on.
+	Analytics.Event(player, AnalyticsData.Events.TutorialSkipped, before, { world = tostring(profile.world.current) })
 end
 
 -- Developer override (Studio commands): jump to step `index` (clamped to [first, done]) with an empty

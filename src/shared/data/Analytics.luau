@@ -18,6 +18,7 @@ return {
 		ShopBuy = "ShopBuy", -- value 1; fields kind, id
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
 		Launch = "Launch", -- value 1; fields from, to (world ids)
+		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
 		Currency = "Scrap",
