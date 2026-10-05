@@ -21,6 +21,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Species = require(Shared.data.Species)
 local Tiers = require(Shared.data.Tiers)
+local Sizes = require(Shared.data.Sizes)
 local Overlays = require(Shared.data.Overlays)
 local Modules = require(Shared.data.Modules)
 local AnalyticsData = require(Shared.data.Analytics)
@@ -595,6 +596,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 			level = 1,
 			overlay = overlay,
 			caughtAt = caughtAt,
+			size = Sizes.Default, -- milestone 25 replaces this with the rolled or passed band
 		}
 		profile.aliens[uid] = record
 
@@ -647,7 +649,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	if profile.stats.catches == 1 then
 		Analytics.Event(player, AnalyticsData.Events.FirstCatchSeconds, os.time() - profile.firstSeen)
 	end
-	return { species = species, tier = tier, overlay = overlay, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
+	return { species = species, tier = tier, overlay = overlay, size = Sizes.Default, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 
 -- Seat an alien another service has already written into the profile and tell the client.
