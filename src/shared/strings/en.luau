@@ -270,6 +270,7 @@ return {
 	STARCHART_LOCKED = "Locked",
 	STARCHART_NEXT = "Next stop: finish the ship",
 	STARCHART_OUTPOST = "Outpost Lv %d",
+	STARCHART_LEVEL_CHIP = "Lv %d",
 	STARCHART_OUTPUT = "%d Scrap/h, %d materials/h",
 	STARCHART_PENDING = "Ready: %d Scrap, %d materials",
 	STARCHART_COLLECT = "Collect",
