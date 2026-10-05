@@ -46,6 +46,10 @@ local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"
 local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
 local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
+local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
+local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
+local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -63,6 +67,8 @@ local inCapture = false
 local captureToken: string? = nil
 local collecting = false
 local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
+local capturePart: Part? = nil -- the wild part the current catch is for (the burst plays where it stood)
+local cinematic = false -- the crash-landing opener is running: the HUD, hint and radar stay hidden
 
 type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn"
 local currentAction: Action? = nil
@@ -104,6 +110,14 @@ local function onCaught(result: Types.CaptureHitResult)
 	end
 	if result.scrap then
 		Hud.SetScrap(result.scrap)
+	end
+	local tierColor = Builder.tierColor(result.tier or "Common")
+	local target = capturePart
+	if target and target.Parent then
+		Vfx.CatchBurst(target.Position, tierColor)
+	end
+	if (result.scrapGained or 0) > 0 then
+		Hud.FlyGain(result.scrapGained or 0)
 	end
 	task.delay(0.6, function()
 		finishCapture()
@@ -154,6 +168,8 @@ local function beginCapture(part: Part)
 		return
 	end
 	inCapture = true
+	capturePart = part
+	CameraDirector.Cancel() -- a catch takes priority over any camera moment
 	Hud.SetAction(nil)
 	-- Own thread: InvokeServer yields, and callers are input callbacks.
 	task.spawn(function()
@@ -304,6 +320,7 @@ local function performAction()
 			local ok, reason = soundHorn:InvokeServer()
 			horning = false
 			if ok == true then
+				Builder.playSound(Sounds.HornCall)
 				return -- WardenSummoned carries the toast
 			elseif reason == "NotNight" then
 				Toast.Show(Strings.TOAST_HORN_NOT_NIGHT, Theme.Colors.Select)
@@ -329,6 +346,11 @@ local function connectToasts()
 	end)
 	task.spawn(function()
 		Net.event("ModuleCompleted").OnClientEvent:Connect(function(worldId: number, moduleId: string)
+			Builder.playSound(Sounds.ModuleComplete)
+			Vfx.ModuleBurst(CampRenderer.ShipPosition(), Theme.Colors.Confirm)
+			if not modalOpen() and not cinematic then
+				CameraDirector.PanTo(CampRenderer.ShipPosition())
+			end
 			Toast.Show(Strings.TOAST_MODULE_DONE:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
 			local def = Economy.moduleDef(worldId, moduleId)
 			if def and def.unlocksSlots then
@@ -349,6 +371,7 @@ local function connectToasts()
 	end)
 	task.spawn(function()
 		Net.event("WardenSummoned").OnClientEvent:Connect(function()
+			Builder.playSound(Sounds.WardenAppear)
 			Toast.Banner(Strings.TOAST_WARDEN_AWAKE, Builder.tierColor("Legendary"), Config.AnnounceSeconds)
 		end)
 	end)
@@ -489,6 +512,8 @@ local function start(profile: Types.Profile)
 			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(State.GetLuck())))
 			Hud.SetShowerCountdown(nil)
 			if not showerWasActive then
+				Builder.playSound(Sounds.ShowerHorn)
+				Vfx.SetShowerSky(true)
 				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
 			end
 			showerWasActive = true
@@ -496,6 +521,7 @@ local function start(profile: Types.Profile)
 		end
 		Hud.SetEventBanner(nil, nil, nil)
 		if showerWasActive then
+			Vfx.SetShowerSky(false)
 			Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
 		end
 		showerWasActive = false
@@ -589,6 +615,18 @@ local function start(profile: Types.Profile)
 	WildRenderer.Start(known)
 	CampRenderer.Start()
 	NodeRenderer.Start()
+	Ambience.Start()
+
+	-- A brand-new profile opens with the crash landing: the camera drops from the sky to the wreck while
+	-- the HUD waits. Anything already started (a plate collected, a rejoin) skips it.
+	if profile.tutorialStep == 1 and profile.tutorialCounter == 0 then
+		cinematic = true
+		Hud.SetVisible(false)
+		CameraDirector.CrashLanding(function()
+			cinematic = false
+			Hud.SetVisible(true)
+		end)
+	end
 
 	State.OnChanged("scrap", function()
 		Hud.SetScrap(State.Get().scrap)
@@ -650,10 +688,10 @@ local function start(profile: Types.Profile)
 		local action: Action? = decideAction() -- annotated: the checker widens singleton unions otherwise
 		currentAction = action
 		Hud.SetAction(if action then ACTION_TEXT[action] else nil)
-		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
-		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen()) -- it shares the lower third with the capture bar
-		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen())
-		Radar.SetVisible(not modalOpen())
+		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen() and not cinematic)
+		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen() and not cinematic) -- it shares the lower third with the capture bar
+		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
+		Radar.SetVisible(not modalOpen() and not cinematic)
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
 		local target = radarTarget

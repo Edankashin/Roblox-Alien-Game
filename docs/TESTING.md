@@ -141,3 +141,17 @@ Play as a fresh profile.
 7. Device check: at iPhone SE the disc is about 93 px wide and its blips still show their colours; the "N" and ring label stay legible. At iPad the disc does not touch the shower chip or the action button.
 
 Known gaps in this milestone: Radar Mk2 and Mk3 answer "unlocks later"; no minimap on the nodes or hidden spots; no compass strip yet.
+
+## Milestone 11: juice (sounds, particles, ambience, camera moments)
+
+Every sound id in `src/shared/data/Sounds.luau` is still `rbxassetid://0`, so nothing is audible yet: this milestone tests that every hook fires without errors and that the camera always comes back. Play as a fresh profile.
+1. Crash landing: on a brand-new profile the HUD is hidden and the camera starts about 140 studs above the camp looking down, a red banner "Mayday! We're going down!" plays, the camera drops over 4 s to a spot behind the character, shakes briefly, a gold banner "...Everyone okay? The ship is not." follows, and the HUD, menu and tutorial pill appear. Walking is possible throughout. A rejoin or any profile past step 1 (`/tutorial 2` then rejoin, or a collected plate) skips it. Console: no errors.
+2. Catch burst: catch any alien. Where it stood a burst of particles in its tier colour plays for under a second, and a gold "+10" (or the catch's Scrap) flies from the action button to the Scrap pill before the Reveal opens. `Workspace.ClientVfx` holds the emitter parts briefly and empties itself.
+3. Module complete: build the Hull Frame (plates, `/scrap 300`, Pay and Add). On completion a green burst plus gold sparkles rise over the ship, the camera glides to look at the ship for about 2.5 s, rests 1.2 s and glides back, and the usual "Hull Frame complete" toast shows. If a capture starts or a panel is open at that moment the pan is skipped (or cancelled). The camera always returns to the character with normal control.
+4. Shower: `/shower`. Meteor streaks (purple dots falling at an angle) appear over the camp for the 180 s and stop with "The sky clears". `Workspace.ClientVfx.ShowerSky` exists only while the shower runs.
+5. Peddler: at its next visit (or wait for the 300 s clock) the ship lands with a cream dust puff at the landing spot.
+6. Ambience: `SoundService.Ambience` (a SoundGroup) exists; with every id empty it holds no Sounds and nothing errors across `/night`, `/day`, `/rain`, `/clear`, `/shower`.
+7. Sound hooks fire silently (no errors) on: any toast, a server banner, Add Wreck Plate, a gift claim, the wheel turning and stopping, sounding the horn, the Warden appearing.
+8. Reduced motion: with Roblox's Reduced Motion setting on, the pan and the crash drop take half the time and the shake is skipped.
+
+Known gaps in this milestone: real sound assets (the team picks about 40 ids into Sounds.luau), the day/night ambience cross-fade is untestable until ids exist, no particle textures (round default dots), the launch sequence waits for World 2.
