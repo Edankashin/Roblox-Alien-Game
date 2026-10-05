@@ -1,6 +1,6 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar. Nothing
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6. Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -17,6 +17,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
 local Shop = require(script.Parent.Shop)
+local Tutorial = require(script.Parent.Tutorial)
 
 local Dev = {}
 
@@ -152,6 +153,14 @@ function Dev.Init()
 	end)
 	command("shower", forceShower)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
+	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
+	command("tutorial", function(player: Player, text: string)
+		local index = tonumber(string.match(text, "%d+") or "")
+		if index then
+			Tutorial.DevSetStep(player, index)
+			print(("[%s] dev: %s is on tutorial step %d"):format(Config.WorkingTitle, player.Name, index))
+		end
+	end)
 	command("radar", function(player: Player)
 		local ok, reason = Shop.GrantGear(player, "Radar1")
 		print(("[%s] dev: %s radar grant %s"):format(Config.WorkingTitle, player.Name, if ok then "ok" else tostring(reason)))
@@ -162,7 +171,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N, /radar)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N, /radar, /tutorial N)"):format(Config.WorkingTitle))
 	end
 end
 

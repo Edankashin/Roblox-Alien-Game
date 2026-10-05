@@ -112,7 +112,7 @@ Play as a fresh profile (Studio memory profiles reset every Play).
 3. Catch the Puffpuff: "Catch 3 more aliens while they work." with "0/3" counting any catch. Then "Your crew is building the Hull Frame. Watch the ship bar." with the marker on the ship until the module completes (about 30 s at crew speed x2).
 4. "Thrusters need Glowroot from the Forest. Follow the marker." points at the Forest centre; stepping into the Forest ends the tutorial: the pill reads "You know the loop: catch, build, fly." for a moment and disappears for good (tutorialStep is saved).
 5. The hint and the marker hide during a capture, a reveal and any open panel, and come back after.
-6. `/step` does not touch the tutorial; a rejoin resumes at the saved step with its trainee alien re-spawned.
+6. `/step` does not touch the tutorial; `/tutorial N` jumps to step N (8 ends it). A rejoin resumes at the saved step with its trainee alien re-spawned. A step whose module trigger already happened (the Hull Frame finished while you were still catching, or offline) is skipped the moment it begins.
 
 Known gaps in this milestone: the crash-landing cinematic, the camera pan on module completion, the guaranteed Sparkfox in step 5, analytics funnel events.
 

@@ -152,10 +152,46 @@ end
 
 -- Advancing ----------------------------------------------------------------
 
+-- A module trigger can be met before its step begins: the Hull Frame finishes while the player is still
+-- catching, or completes offline. These two kinds read the profile, so a step that begins already
+-- satisfied is skipped at once instead of waiting for a report that will never come again. The other
+-- kinds are events (a collect, a catch) or polled (the biome), so they need no catch-up.
+local function alreadySatisfied(profile: Types.Profile, trigger: TutorialData.Trigger): boolean
+	local kind = trigger.kind
+	if kind ~= "moduleStarted" and kind ~= "moduleComplete" then
+		return false
+	end
+	local world = profile.modules[tostring(profile.world.current)]
+	local state = if world and trigger.moduleId then world[trigger.moduleId] else nil
+	if not state then
+		return false
+	end
+	if kind == "moduleStarted" then
+		return state.started or state.completedAt ~= nil
+	end
+	return state.completedAt ~= nil
+end
+
+-- Moves past every step, from the current one, whose trigger the profile already meets. Runs inside a
+-- PlayerData.Update; returns whether anything moved.
+local function skipSatisfied(profile: Types.Profile): boolean
+	local skipped = false
+	while true do
+		local step = STEPS[profile.tutorialStep]
+		if not step or not alreadySatisfied(profile, step.trigger) then
+			return skipped
+		end
+		profile.tutorialStep += 1
+		profile.tutorialCounter = 0
+		skipped = true
+	end
+end
+
 -- Counts one toward the current step when its trigger `matches`, moves to the next step once the
--- count (SINGLE when the trigger has none) is reached, and pushes TutorialChanged when anything moved.
--- A new step with `spawn` places its trainee; one without clears any stale trainee. A no-op once the
--- tutorial is done or when the trigger does not match.
+-- count (SINGLE when the trigger has none) is reached (and on past any step already met, see
+-- skipSatisfied), and pushes TutorialChanged when anything moved. A new step with `spawn` places its
+-- trainee; one without clears any stale trainee. A no-op once the tutorial is done or when the
+-- trigger does not match.
 local function report(player: Player, matches: (TutorialData.Trigger) -> boolean)
 	local changed = false
 	local advanced = false
@@ -170,6 +206,7 @@ local function report(player: Player, matches: (TutorialData.Trigger) -> boolean
 			profile.tutorialStep += 1
 			profile.tutorialCounter = 0
 			advanced = true
+			skipSatisfied(profile)
 		end
 	end)
 	if not ok or not changed then
@@ -251,6 +288,7 @@ function Tutorial.Init()
 		PlayerData.Update(player, function(p)
 			p.tutorialStep = math.clamp(p.tutorialStep, FIRST_STEP, DONE_STEP)
 			p.tutorialCounter = math.max(p.tutorialCounter, 0)
+			skipSatisfied(p) -- a module that finished offline (Economy settles before this runs)
 		end)
 		local live = PlayerData.Get(player)
 		if live then
@@ -261,6 +299,23 @@ function Tutorial.Init()
 	end)
 
 	Spawner.OnRemoved(onSpawnRemoved)
+end
+
+-- Developer override (Studio commands): jump to step `index` (clamped to [first, done]) with an empty
+-- count, place that step's trainee, and push. Skips on past steps already met, like a real advance.
+function Tutorial.DevSetStep(player: Player, index: number)
+	local ok = PlayerData.Update(player, function(p)
+		p.tutorialStep = math.clamp(math.floor(index), FIRST_STEP, DONE_STEP)
+		p.tutorialCounter = 0
+		skipSatisfied(p)
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not profile then
+		return
+	end
+	pushTutorial(player, profile)
+	local step, stepIndex = currentStep(profile)
+	ensureTrainee(player, step, stepIndex)
 end
 
 function Tutorial.Start()
