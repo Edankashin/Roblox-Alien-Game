@@ -29,6 +29,8 @@ export type BeginInfo = {
 }
 
 local ACTION_NAME = "CaptureTap"
+local ROUND_INTRO_DELAY = 0.3 -- seconds the hit's own feedback (Perfect! / Good!) shows before the round intro replaces it
+local ROUND_INTRO_SHAKE = 0.006 -- half the miss shake, in Scale: a nudge, not a rebuke
 
 local gui: ScreenGui? = nil
 local nameLabel: TextLabel? = nil
@@ -428,6 +430,21 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 	end
 	if result.outcome == "Caught" then
 		return
+	end
+
+	-- A won round of a multi-round catch: after the hit lands, name the next round and nudge the bar
+	-- before its sweep starts (the server waits CaptureSweepLeadSeconds, so the intro fits in between).
+	if result.outcome == "Round" and result.round then
+		local nextRound = result.round
+		task.delay(ROUND_INTRO_DELAY, function()
+			if not active then
+				return
+			end
+			showFeedback(Strings.CATCH_ROUND_INTRO:format(nextRound), Theme.Colors.Featured)
+			if bar then
+				Builder.shake(bar, ROUND_INTRO_SHAKE)
+			end
+		end)
 	end
 
 	-- continued sweeps: new zone (new round) or same zone, ticker restarts at nextStartClock

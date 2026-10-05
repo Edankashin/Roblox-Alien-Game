@@ -3,7 +3,8 @@
 -- Workspace.World.Wild. The server places a plain anchored part with attributes; this module adds the
 -- nameplate (name + tier in its colour, visible within NameplateDistance), bobs the part locally
 -- (the server never moves it, so a local CFrame does not fight replication), and renders species
--- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance.
+-- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance. A part
+-- reserved for another player (ReservedFor, a summoned Warden) is hidden locally and never tracked.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -144,6 +145,56 @@ local function untrack(instance: Instance)
 	end
 end
 
+-- Reserved spawns -----------------------------------------------------------
+-- A summoned Warden for one player carries the number attribute ReservedFor (their UserId). Everyone
+-- else never tracks it: no plate, no bob, out of Nearest and PartAtScreenPoint, and locally invisible.
+
+local reservedConns: { [Part]: RBXScriptConnection } = {}
+
+local function reservedForOther(part: Part): boolean
+	local reservedFor = part:GetAttribute("ReservedFor")
+	return type(reservedFor) == "number" and reservedFor ~= localPlayer.UserId
+end
+
+-- Tracks or hides a wild part by its reservation; runs on arrival and whenever ReservedFor changes.
+local function consider(instance: Instance)
+	if not instance:IsA("Part") then
+		return
+	end
+	if reservedForOther(instance) then
+		local record = records[instance]
+		if record then
+			instance.CFrame = record.base -- park it so a later reveal starts from rest
+			untrack(instance)
+		end
+		instance.LocalTransparencyModifier = 1
+		return
+	end
+	instance.LocalTransparencyModifier = 0
+	track(instance)
+end
+
+local function watch(instance: Instance)
+	if not instance:IsA("Part") then
+		return
+	end
+	if not reservedConns[instance] then
+		reservedConns[instance] = instance:GetAttributeChangedSignal("ReservedFor"):Connect(function()
+			consider(instance)
+		end)
+	end
+	consider(instance)
+end
+
+local function unwatch(instance: Instance)
+	untrack(instance)
+	local connection = reservedConns[instance :: any]
+	if connection then
+		connection:Disconnect()
+		reservedConns[instance :: any] = nil
+	end
+end
+
 local function onRender()
 	local now = os.clock()
 	local at = rootPosition()
@@ -169,10 +220,10 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	local wild = world:WaitForChild("Wild") :: Folder
 	wildFolder = wild
 	for _, child in ipairs(wild:GetChildren()) do
-		track(child)
+		watch(child)
 	end
-	wild.ChildAdded:Connect(track)
-	wild.ChildRemoved:Connect(untrack)
+	wild.ChildAdded:Connect(watch)
+	wild.ChildRemoved:Connect(unwatch)
 	if renderConn then
 		renderConn:Disconnect()
 	end
@@ -216,10 +267,20 @@ function WildRenderer.PartAtScreenPoint(x: number, y: number): Part?
 	if not camera or not wild then
 		return nil
 	end
+	-- Only tracked parts are candidates, so an invisible reserved spawn never shadows the alien behind it.
+	local tracked: { Instance } = {}
+	for part in pairs(records) do
+		if part.Parent == wild then
+			table.insert(tracked, part)
+		end
+	end
+	if #tracked == 0 then
+		return nil
+	end
 	local ray = camera:ScreenPointToRay(x, y) -- input positions include the GUI inset
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = { wild }
+	params.FilterDescendantsInstances = tracked
 	local hit = Workspace:Raycast(ray.Origin, ray.Direction * 200, params)
 	if hit and hit.Instance:IsA("Part") and records[hit.Instance] then
 		return hit.Instance
