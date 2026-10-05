@@ -21,6 +21,7 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local Biomes = require(Shared:WaitForChild("Biomes"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script:WaitForChild("State"))
@@ -147,6 +148,10 @@ local function onCaught(result: Types.CaptureHitResult)
 	end
 	local tierColor = Builder.tierColor(result.tier or "Common")
 	local target = capturePart
+	-- The Caught result carries no size field; the band is the one the server wrote on the spawn part
+	-- (the same roll the catch Scrap used), read before the part is gone.
+	local sizeAttribute = if target then target:GetAttribute("Size") else nil
+	local sizeId = if type(sizeAttribute) == "string" then sizeAttribute else Sizes.Default
 	local at = if target and target.Parent then target.Position else capturePosition
 	if at then
 		Vfx.CatchBurst(at, tierColor)
@@ -163,6 +168,7 @@ local function onCaught(result: Types.CaptureHitResult)
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(result.tier or "Common"),
 			tier = result.tier or "Common",
 			overlay = result.overlay or "None",
+			size = sizeId,
 			isNew = result.isNew == true,
 			scrapGained = result.scrapGained or 0,
 			perfect = result.perfect == true,
@@ -581,6 +587,7 @@ local function connectToasts()
 				color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
 				tier = grant.tier,
 				overlay = grant.overlay,
+				size = grant.size,
 				isNew = grant.isNew,
 				scrapGained = grant.scrapGained,
 				perfect = false,
@@ -714,6 +721,7 @@ local function start(profile: Types.Profile)
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
 			tier = grant.tier,
 			overlay = grant.overlay,
+			size = grant.size,
 			isNew = grant.isNew,
 			scrapGained = grant.scrapGained,
 			perfect = false,
@@ -756,6 +764,7 @@ local function start(profile: Types.Profile)
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
 			tier = grant.tier,
 			overlay = grant.overlay,
+			size = grant.size,
 			isNew = grant.isNew,
 			scrapGained = grant.scrapGained,
 			perfect = false,

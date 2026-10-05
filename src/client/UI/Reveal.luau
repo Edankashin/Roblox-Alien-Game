@@ -2,6 +2,9 @@
 -- StarterPlayerScripts.Client.UI.Reveal: the catch reveal ritual. Backdrop dims, the card scales in
 -- with a Back ease, a radial burst spins behind it, the tier name shows in its colour, confetti for
 -- Epic and above, "+N Scrap" floats up, "Tap anywhere" closes. Pure presentation of a server result.
+-- A size band that names itself (data/Sizes label: Tiny, Big, HUGE) stamps "HUGE Zorp!" in the Featured
+-- colour above the species name with its Scrap multiplier beneath the tier, and pops the card by the
+-- band's revealPop (no pop under Reduced Motion).
 -- The card's Shape area shows the species mesh (World.Models) turning in a ViewportFrame when one
 -- exists, the placeholder colour-and-shape frame otherwise.
 
@@ -17,7 +20,9 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Builder)
+local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 
 local Reveal = {}
@@ -29,6 +34,7 @@ export type RevealInfo = {
 	color: Color3,
 	tier: string,
 	overlay: string, -- "None" hides the badge
+	size: string, -- the size band id (data/Sizes); the labelled bands get the stamp and the pop
 	isNew: boolean,
 	scrapGained: number,
 	perfect: boolean?, -- the server scored a Perfect hit: show the Scrap multiplier line
@@ -40,6 +46,15 @@ local VIEW_FOV = 40 -- the model viewport's camera
 local VIEW_FIT = 1.15 -- camera distance margin over the model's bounding radius
 local VIEW_DIRECTION = Vector3.new(-0.6, 0.45, -1) -- from the model's front-left, slightly above
 local VIEW_SPIN = math.rad(30) -- radians per second while the reveal is open
+-- Card layout (fractions of the card's height): the species and tier lines drop a little under a size
+-- stamp, which takes the gap between the model and the name.
+local NAME_Y = 0.7
+local TIER_Y = 0.8
+local NAME_Y_STAMPED = 0.745
+local TIER_Y_STAMPED = 0.845
+local STAMP_Y = 0.655
+local STAMP_SCRAP_Y = 0.935
+local STAMP_PEAK = 1.5 -- the stamp slams in from this scale
 
 local gui: ScreenGui? = nil
 local card: Frame? = nil
@@ -54,6 +69,8 @@ local spinAngle = 0
 local speciesByName: { [string]: Types.SpeciesDef }? = nil
 local nameLabel: TextLabel? = nil
 local tierLabel: TextLabel? = nil
+local stampLabel: TextLabel? = nil
+local stampScrapLabel: TextLabel? = nil
 local overlayBadge: Frame? = nil
 local overlayLabel: TextLabel? = nil
 local newRibbon: Frame? = nil
@@ -213,7 +230,7 @@ local function build()
 		name = "Species",
 		text = "",
 		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.7),
+		position = UDim2.fromScale(0.5, NAME_Y),
 		size = UDim2.fromScale(0.9, 0.12),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 4,
@@ -223,11 +240,39 @@ local function build()
 		name = "Tier",
 		text = "",
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, 0.8),
+		position = UDim2.fromScale(0.5, TIER_Y),
 		size = UDim2.fromScale(0.9, 0.08),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 4,
 	})
+	-- Size stamp (shown only for the bands that name themselves): the band and the species in gold over
+	-- the model's foot, then the Scrap multiplier small beneath the tier.
+	local stamp = Builder.label({
+		parent = panel,
+		name = "SizeStamp",
+		text = "",
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.5, STAMP_Y),
+		size = UDim2.fromScale(0.94, 0.07),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Featured,
+		zIndex = 6,
+	})
+	stamp.Visible = false
+	stampLabel = stamp
+	local stampScrap = Builder.label({
+		parent = panel,
+		name = "SizeScrap",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, STAMP_SCRAP_Y),
+		size = UDim2.fromScale(0.9, 0.055),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Featured,
+		zIndex = 4,
+	})
+	stampScrap.Visible = false
+	stampScrapLabel = stampScrap
 	overlayBadge = Builder.pill({
 		parent = panel,
 		name = "Overlay",
@@ -420,6 +465,67 @@ local function showModel(def: Types.SpeciesDef?)
 	end)
 end
 
+-- Size stamp --------------------------------------------------------------
+
+-- A whole multiplier prints bare ("2"), a fractional one with its decimals trimmed ("1.5", "1.25").
+local function formatMultiplier(multiplier: number): string
+	if multiplier == math.floor(multiplier) then
+		return tostring(math.floor(multiplier))
+	end
+	return (string.format("%.2f", multiplier):gsub("0+$", ""))
+end
+
+-- Shows or hides the size stamp for a band, and moves the name and tier lines to suit. A band without
+-- a label (Normal, Small) leaves the card exactly as it was.
+local function showStamp(info: RevealInfo, band: Sizes.Band)
+	local stamp, stampScrap = stampLabel, stampScrapLabel
+	local stamped = band.label
+	if nameLabel then
+		nameLabel.Position = UDim2.fromScale(0.5, if stamped then NAME_Y_STAMPED else NAME_Y)
+	end
+	if tierLabel then
+		tierLabel.Position = UDim2.fromScale(0.5, if stamped then TIER_Y_STAMPED else TIER_Y)
+	end
+	if stamp then
+		stamp.Visible = stamped
+		if stamped then
+			stamp.Text = Strings.REVEAL_SIZE:format(Builder.text("SIZE_" .. band.id), info.speciesName)
+			local scale = stamp:FindFirstChildOfClass("UIScale")
+			if Prefs.ReducedMotion() then
+				if scale then
+					scale.Scale = 1
+				end
+			else
+				Builder.pop(stamp, STAMP_PEAK)
+			end
+		end
+	end
+	if stampScrap then
+		local bonus = stamped and band.scrapMultiplier ~= 1
+		stampScrap.Visible = bonus
+		if bonus then
+			stampScrap.Text = Strings.REVEAL_SIZE_SCRAP:format(formatMultiplier(band.scrapMultiplier))
+		end
+	end
+end
+
+-- The card's pop-in for a band with its own revealPop: up from the usual start to `peak` times the
+-- resting size with the Back ease, then settling to 1. Normal (1) keeps the plain open.
+local function popCard(panel: GuiObject, peak: number)
+	local scale = panel:FindFirstChildOfClass("UIScale")
+	if not scale then
+		return
+	end
+	scale.Scale = 0.85
+	local rise = TweenService:Create(scale, TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = peak })
+	rise.Completed:Once(function(state: Enum.PlaybackState)
+		if state == Enum.PlaybackState.Completed and open then
+			TweenService:Create(scale, TweenInfo.new(Theme.Tween.Open * 0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		end
+	end)
+	rise:Play()
+end
+
 -- Public API -------------------------------------------------------------
 
 function Reveal.IsOpen(): boolean
@@ -438,6 +544,7 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 
 	local tierColor = Builder.tierColor(info.tier)
 	local tierIndex = table.find(Tiers.Order, info.tier) or 1
+	local band = Sizes.ById[info.size] or Sizes.ById[Sizes.Default]
 	local epicIndex = table.find(Tiers.Order, "Epic") or 4
 
 	local panelStroke = panel:FindFirstChildOfClass("UIStroke")
@@ -458,6 +565,7 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		tierLabel.Text = Builder.text("TIER_" .. info.tier)
 		tierLabel.TextColor3 = tierColor
 	end
+	showStamp(info, band)
 	if overlayBadge and overlayLabel then
 		overlayBadge.Visible = info.overlay ~= "None"
 		overlayLabel.Text = Builder.text("OVERLAY_" .. info.overlay)
@@ -479,6 +587,9 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 
 	root.Enabled = true
 	Builder.open(panel)
+	if band.revealPop ~= 1 and not Prefs.ReducedMotion() then
+		popCard(panel, band.revealPop)
+	end
 	Builder.playSound(Sounds.Reveal[info.tier] or Sounds.Reveal.Common)
 	flyScrap(info.scrapGained)
 	local bonus = perfectLabel

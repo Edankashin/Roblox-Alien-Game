@@ -34,6 +34,7 @@ local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
@@ -78,6 +79,7 @@ type WorkerRecord = {
 	job: string,
 	slot: number,
 	species: string,
+	size: string, -- the record's size band id the worker is drawn at (data/Sizes)
 	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate and the bob
 	base: CFrame,
 	phase: number,
@@ -385,7 +387,9 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 	local feet = Vector3.new(at.X, groundY(), at.Z) -- the slot pad; the placeholder's bottom rests here
 	local part: Part
 	local base: CFrame
-	local model: Model? = Models.Clone(def, Config.ModelWorkerScale * Camp.WorkerScale)
+	-- A worker is drawn at the band its record was caught at, on top of the worker scale.
+	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
+	local model: Model? = Models.Clone(def, Config.ModelWorkerScale * Camp.WorkerScale * band.scale)
 	local modelBase: CFrame? = nil
 	if model then
 		-- The mesh stands on the pad facing its station. An invisible anchor part as tall as the mesh
@@ -400,7 +404,7 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 		model.Parent = parent
 		modelBase = facing
 	else
-		local size = 2 * def.placeholder.scale * Camp.WorkerScale
+		local size = 2 * def.placeholder.scale * Camp.WorkerScale * band.scale
 		base = CFrame.new(feet + Vector3.new(0, size / 2, 0))
 		if def.placeholder.shape == "Cylinder" then
 			base = base * CFrame.Angles(0, 0, math.rad(90)) -- stand it upright
@@ -416,6 +420,7 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 		job = job,
 		slot = slot,
 		species = record.species,
+		size = record.size,
 		part = part,
 		base = base,
 		phase = rng:NextNumber(0, math.pi * 2),
@@ -445,7 +450,7 @@ local function refreshWorkers()
 			end
 			wanted[uid] = true
 			local existing: WorkerRecord? = workers[uid]
-			if existing and (existing.job ~= job or existing.slot ~= slot or existing.species ~= record.species) then
+			if existing and (existing.job ~= job or existing.slot ~= slot or existing.species ~= record.species or existing.size ~= record.size) then
 				removeWorker(uid)
 				existing = nil
 			end
