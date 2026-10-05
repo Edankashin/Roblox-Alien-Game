@@ -122,6 +122,12 @@ return {
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
+	-- Friend Boost (docs/GAME_DESIGN.md, co-play): per Roblox friend in the same server, up to the cap,
+	-- added to station income, catch Scrap and luck; shown on the HUD as "Friend Boost +N%"
+	FriendBoostPerFriend = 0.05,
+	FriendBoostMaxFriends = 3,
+	FriendCheckRetrySeconds = 300, -- a friendship lookup that failed is asked again after this long
+
 	-- lighting looks (data/Lighting): the client tweens between looks over this long; snaps under Reduced Motion
 	LightingTweenSeconds = 2.5,
 

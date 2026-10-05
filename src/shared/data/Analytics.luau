@@ -24,6 +24,7 @@ return {
 		NotifyAsk = "NotifyAsk", -- value 1; field answer (yes, no)
 		DailyQuest = "DailyQuest", -- value 1; fields period (daily, weekly), id, action (claim, reroll)
 		Code = "Code", -- value 1; field id
+		FriendsInServer = "FriendsInServer", -- value: friends of the player in this server, on every change
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
