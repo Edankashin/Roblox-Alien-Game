@@ -1,7 +1,7 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear. Nothing here exists in a live
--- server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3. Nothing
+-- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -14,6 +14,8 @@ local Quests = require(Shared.data.Quests)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
+local Events = require(script.Parent.Events)
+local Gifts = require(script.Parent.Gifts)
 
 local Dev = {}
 
@@ -92,6 +94,30 @@ local function setStep(player: Player, text: string)
 	end
 end
 
+-- /shower [end]: start a Meteor Shower now (it runs its normal length), or end the current one.
+local function forceShower(_player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	Events.Force(word ~= "end" and word ~= "off")
+end
+
+-- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
+local function setDays(player: Player, text: string)
+	local days = tonumber(string.match(text, "%d+") or "")
+	if days then
+		Gifts.DevSetDays(player, math.floor(days))
+		print(("[%s] dev: %s has played %d days"):format(Config.WorkingTitle, player.Name, days))
+	end
+end
+
+-- /spins N: bank N spins for the wheel.
+local function addSpins(player: Player, text: string)
+	local count = tonumber(string.match(text, "%d+") or "")
+	if count then
+		Gifts.DevAddSpins(player, math.floor(count))
+		print(("[%s] dev: %s banked %d spins"):format(Config.WorkingTitle, player.Name, count))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -123,11 +149,14 @@ function Dev.Init()
 			WorldClock.Force(nil, state)
 		end
 	end)
+	command("shower", forceShower)
+	command("days", setDays)
+	command("spins", addSpins)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N)"):format(Config.WorkingTitle))
 	end
 end
 

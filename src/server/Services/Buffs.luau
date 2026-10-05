@@ -4,12 +4,16 @@
 -- counts down here, while the player is online (design: a kid never wastes one by closing the app).
 -- Other services read the live effects through the query API below (Shop for speed, Catching for
 -- zones, Economy for Scrap and income, Spawner for luck); none of them read profile.buffs directly.
--- Luck is one number per player: 1, plus an active Lucky Charm, plus the night bonus, plus the soft
--- pity that rises with every catch below Config.PityResetMinTier, capped at Config.LuckCap.
+-- Luck is one number per player: 1, plus an active Lucky Charm, plus the night bonus, plus the server's
+-- Meteor Shower bonus (Events.ServerLuckBonus), plus the soft pity that rises with every catch below
+-- Config.PityResetMinTier, capped at Config.LuckCap.
 --
 -- Shop owns WalkSpeed and requires this module for the speed multiplier, so this module never requires
 -- Shop back: Shop registers Shop.ApplyMovement through Buffs.OnMovementChanged at Init and that
--- callback runs whenever a speed buff starts or ends.
+-- callback runs whenever a speed buff starts or ends. The shower runs the other way: this module
+-- requires Events for the bonus (Events requires only WorldClock, Net and Config, so the graph stays
+-- acyclic) and registers Buffs.PushLuckAll through Events.OnShowerChanged at Init, so every player's
+-- LuckChanged is re-sent when a shower starts or ends without Events ever requiring Buffs.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,6 +26,7 @@ local PowerUps = require(Shared.data.PowerUps)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
+local Events = require(script.Parent.Events)
 
 local Buffs = {}
 
@@ -114,7 +119,7 @@ function Buffs.StationMultiplier(player: Player): number
 end
 
 -- The one luck number the Spawner rolls tiers with and the HUD shows: 1 + Lucky Charm + night bonus
--- + soft pity, capped at Config.LuckCap.
+-- + the server's shower bonus + soft pity, capped at Config.LuckCap.
 function Buffs.Luck(player: Player): number
 	local profile = PlayerData.Get(player)
 	local luck = 1 + activeValue(profile, "luck")
@@ -124,7 +129,17 @@ function Buffs.Luck(player: Player): number
 	if WorldClock.IsNight() then
 		luck += Config.LuckNightBonus
 	end
+	luck += Events.ServerLuckBonus()
 	return math.min(luck, Config.LuckCap)
+end
+
+-- Re-sends LuckChanged to every loaded player: for the server-wide parts of luck (night, the shower).
+function Buffs.PushLuckAll()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if PlayerData.Get(player) then
+			pushLuck(player)
+		end
+	end
 end
 
 -- Pity -------------------------------------------------------------------
@@ -244,6 +259,11 @@ function Buffs.Init()
 		pushBuffs(player, profile)
 		pushLuck(player)
 	end)
+	-- The shower bonus is part of every player's luck, so a start or end re-sends the number to all
+	-- (registered here rather than required from Events; see the header).
+	Events.OnShowerChanged(function()
+		Buffs.PushLuckAll()
+	end)
 end
 
 function Buffs.Start()
@@ -255,11 +275,7 @@ function Buffs.Start()
 			return
 		end
 		wasNight = night
-		for _, player in ipairs(Players:GetPlayers()) do
-			if PlayerData.Get(player) then
-				pushLuck(player)
-			end
-		end
+		Buffs.PushLuckAll()
 	end)
 
 	Players.PlayerRemoving:Connect(function(player: Player)

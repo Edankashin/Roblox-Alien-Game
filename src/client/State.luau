@@ -44,7 +44,11 @@ function State.Set(p: Types.Profile)
 		-- A client that booted after the server's pushes still shows the right rate: same shared maths.
 		rate = Economy.campState(p)
 	end
+	-- The gift state is part of the profile; the join-time GiftsChanged push can land before this
+	-- client listens, so the mirror is rebuilt from the profile and later pushes overwrite it.
+	gifts = { daysPlayed = p.gifts.daysPlayed, claimed = p.gifts.claimed, freeSpins = p.spins.free, bankedSpins = p.spins.banked }
 	fire("profile")
+	fire("gifts")
 end
 
 function State.Has(): boolean
@@ -114,6 +118,16 @@ end
 -- The shower clock as pushed, plus the seconds elapsed since, so countdowns run between pushes.
 function State.GetShower(): (Types.ShowerState, number)
 	return shower, math.max(0, Workspace:GetServerTimeNow() - showerAt)
+end
+
+-- A late joiner's GetShower answer; a push that already arrived is newer and wins.
+function State.SeedShower(state: Types.ShowerState)
+	if showerAt > 0 then
+		return
+	end
+	shower = state
+	showerAt = Workspace:GetServerTimeNow()
+	fire("shower")
 end
 
 -- Tutorial step (TutorialChanged) and the count toward a counted step.

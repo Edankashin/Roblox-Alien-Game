@@ -8,7 +8,10 @@
 -- so the Forest grove and the Cave get their own tables. Conditions are a set (WorldClock.GetConditions:
 -- the special weather while it runs, plus Night or Day), so a rainy night offers both Rain and Night
 -- species. The tier roll uses the highest luck (Buffs.Luck) among the players within SpawnRadius of
--- the spawn point, so standing next to a lucky friend makes everyone's spawns better.
+-- the spawn point, so standing next to a lucky friend makes everyone's spawns better. During a Meteor
+-- Shower (Events.IsShowerActive) the Cosmic tier, 0 in the Tiers data, gets Config.ShowerCosmicShare
+-- percent times luck, taken out of the Common remainder like every other tier; chooseSpecies falls
+-- back down the tiers in a biome with no Cosmic available.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
 -- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
 
@@ -28,6 +31,7 @@ local Biomes = require(Shared.Biomes)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
 local Buffs = require(script.Parent.Buffs)
+local Events = require(script.Parent.Events)
 
 local Spawner = {}
 
@@ -79,13 +83,19 @@ local function folder(): Folder
 end
 
 -- Luck scales every share above Common; Common takes what is left (or 0 if luck pushes past 100%).
+-- Cosmic has no wild share of its own: it spawns only while a Meteor Shower runs (Config.ShowerCosmicShare).
 local function rollTier(luck: number): string
 	luck = math.clamp(luck, 1, Config.LuckCap)
+	local cosmicShare = if Events.IsShowerActive() then Config.ShowerCosmicShare else 0
 	local weights: { [string]: number } = {}
 	local upperTotal = 0
 	for _, tier in ipairs(Tiers.Order) do
 		if tier ~= "Common" then
-			local w = Tiers.Tiers[tier].share * luck
+			local share = Tiers.Tiers[tier].share
+			if tier == "Cosmic" then
+				share += cosmicShare
+			end
+			local w = share * luck
 			weights[tier] = w
 			upperTotal += w
 		end
