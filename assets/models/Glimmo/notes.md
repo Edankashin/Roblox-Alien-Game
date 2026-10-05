@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #FFE066, placeholder scale 0.8
 - Accessory: glow_bulb (keyword match on the concept; colour rule: complement, #66D2FF, emissive)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1012 (budget 500 to 1500, detail level 0)
+- Triangles: 1342 (look pass 2026-10-05 over the 1012-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 2.70 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #FFE066, BodyDark #A69242, EyeWhite, Pupil, Mouth, Accessory #66D2FF
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
