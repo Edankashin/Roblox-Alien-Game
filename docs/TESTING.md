@@ -66,5 +66,6 @@ Known gaps in this milestone: Shop, Quests and Settings are not built; no compas
 5. Gear tab: Speed Boots 800 "+25% walk speed, forever", Hoverboard 5,000 "+60%", Glider Pack grey (locked). Buy Speed Boots: toast "Speed Boots bought", the button becomes "Owned", and you walk faster at once and after a reset.
 6. Robux tab reads "Robux items come with the launch shop".
 7. Economy check: with two Commons working and catching steadily, Scrap climbs noticeably faster than in milestone 3.
+8. Catch a Rare (Sparkfox) or better: a wide banner in the tier colour slides in top centre for 4 s reading "<you> caught a Rare Sparkfox!" (with the overlay named when it has one). Commons and Uncommons post no banner. In a multi-client test the banner shows on every client.
 
 Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and skins, Radar Mk1.

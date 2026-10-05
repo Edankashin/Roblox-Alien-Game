@@ -208,7 +208,7 @@ Rules for the Pantheon:
 - **Radar:** a tiered, Scrap-upgradable radar that shows nearby aliens as blips, with uncaught species drawn as shadow silhouettes. Full spec in section 6.
 - **Gear:** speed boots, a hoverboard, a glider, and rideable aliens make the map bigger as the player gets stronger. Section 6.
 - **Meteor Shower:** every 2 hours on a fixed server clock, a 3-minute window. Server-wide banner, sky turns, beacons mark spawns, Epic+ rates rise, Cosmics can appear. It is the only place Cosmics spawn, which turns the rarest find into a shared appointment rather than a private slot machine.
-- **Server announcements:** Legendary and Cosmic spawns announce to the whole server with location, the pattern Steal a Brainrot and Steal an Egg use. Seeing someone else's catch is content.
+- **Server announcements:** Legendary and Cosmic spawns announce to the whole server with location, the pattern Steal a Brainrot and Steal an Egg use. Seeing someone else's catch is content. Every catch of Rare and above (the threshold is `Config.AnnounceMinTier`) also posts a server-wide banner in the tier's colour naming the player, the rarity and the species ("Ethan caught a Shiny Epic Thunderhog!"), so rarity is read aloud to the whole server, not just to the catcher.
 
 ---
 

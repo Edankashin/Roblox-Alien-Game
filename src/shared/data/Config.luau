@@ -61,6 +61,8 @@ return {
 	CaptureSweepLeadSeconds = 0.45, -- pause between a result and the next sweep so feedback can land
 	CaptureEncounterTimeoutSeconds = 30, -- an idle encounter is dropped after this
 	CaptureNearMissWidth = 0.05, -- a miss within this fraction of the Good zone edge flashes the zone
+	PerfectScrapMultiplier = 2, -- a Perfect hit multiplies the catch Scrap by this
+	LureAutoUse = true, -- the best lure held is spent automatically when a catch starts
 
 	-- spawning
 	SpawnDensityTarget = 14,
@@ -78,6 +80,10 @@ return {
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
+
+	-- announcements
+	AnnounceMinTier = "Rare", -- catches of this tier and above are announced to the whole server
+	AnnounceSeconds = 4, -- how long the server-wide banner stays up
 
 	-- luck
 	LuckCap = 8.0,

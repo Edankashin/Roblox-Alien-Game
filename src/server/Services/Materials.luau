@@ -160,7 +160,8 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	if not Net.allow(player, "CollectMaterial", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
 	end
-	if not PlayerData.Get(player) then
+	local profile = PlayerData.Get(player)
+	if not profile then
 		return false, "NoProfile"
 	end
 	local node = nodes[nodeId]
@@ -179,13 +180,11 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	end
 	local def = node.def
 	local materialId = node.materialId
-	local keyMaterials: { [string]: number } = {}
-	PlayerData.Update(player, function(profile)
-		profile.inventory.keyMaterials[materialId] = (profile.inventory.keyMaterials[materialId] or 0) + def.dropCount
-		keyMaterials = profile.inventory.keyMaterials
+	PlayerData.Update(player, function(p)
+		p.inventory.keyMaterials[materialId] = (p.inventory.keyMaterials[materialId] or 0) + def.dropCount
 	end)
 	take(node)
-	Net.event("InventoryChanged"):FireClient(player, keyMaterials)
+	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 	Net.event("MaterialCollected"):FireClient(player, materialId, def.dropCount)
 	return true
 end

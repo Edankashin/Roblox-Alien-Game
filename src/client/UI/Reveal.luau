@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
+local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -23,6 +24,7 @@ export type RevealInfo = {
 	overlay: string, -- "None" hides the badge
 	isNew: boolean,
 	scrapGained: number,
+	perfect: boolean?, -- the server scored a Perfect hit: show the Scrap multiplier line
 }
 
 local CONFETTI_COUNT = 20
@@ -39,6 +41,7 @@ local overlayBadge: Frame? = nil
 local overlayLabel: TextLabel? = nil
 local newRibbon: Frame? = nil
 local scrapLabel: TextLabel? = nil
+local perfectLabel: TextLabel? = nil
 local burstTween: Tween? = nil
 local onClose: (() -> ())? = nil
 local open = false
@@ -228,6 +231,20 @@ local function build()
 		color = Theme.Colors.Featured,
 		zIndex = 8,
 	})
+	-- Perfect bonus line under the Scrap line: gold outlined text, shown only for a Perfect catch.
+	local bonus = Builder.label({
+		parent = root,
+		name = "PerfectBonus",
+		text = Strings.CATCH_PERFECT_BONUS:format(Config.PerfectScrapMultiplier),
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.5, 0.875),
+		size = UDim2.fromScale(0.4, 0.06),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Featured,
+		zIndex = 8,
+	})
+	bonus.Visible = false
+	perfectLabel = bonus
 	Builder.label({
 		parent = root,
 		name = "Footer",
@@ -352,6 +369,15 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	Builder.open(panel)
 	Builder.playSound(Sounds.Reveal[info.tier] or Sounds.Reveal.Common)
 	flyScrap(info.scrapGained)
+	local bonus = perfectLabel
+	if bonus then
+		local perfect = info.perfect == true
+		bonus.Visible = perfect
+		if perfect then
+			bonus.Text = Strings.CATCH_PERFECT_BONUS:format(Config.PerfectScrapMultiplier)
+			Builder.pop(bonus)
+		end
+	end
 	if tierIndex >= epicIndex then
 		confetti(root, tierColor)
 	end

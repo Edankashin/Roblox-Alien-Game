@@ -32,3 +32,4 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | B5 | Key materials | Shared per-server nodes, first come first served, respawn per `KeyMaterials` row; collected into the player's inventory and moved into the module from the Ship screen | 2026-10-04 |
 | B6 | Biomes as regions | World 1's Forest and Cave are circular regions on the one Meadow floor (`data/Meadow.luau` Regions), not separate places; `Shared/Biomes.At` decides the biome of any point for spawns, nodes and the HUD chip | 2026-10-05 |
 | B7 | Condition-gated nodes | A node whose material needs Night or Rain stays visible but dim with "Only at night" on its plate while the condition is not met; a collected node vanishes until it respawns | 2026-10-05 |
+| B8 | Catch announcements | Catches of `Config.AnnounceMinTier` (Rare) and above post a server-wide banner naming player, rarity and species; lower tiers stay private | 2026-10-05 |

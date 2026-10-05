@@ -40,6 +40,8 @@ local bar: Frame? = nil
 local goodZone: Frame? = nil
 local perfectZone: Frame? = nil
 local ticker: Frame? = nil
+local lureChip: Frame? = nil
+local lureLabel: TextLabel? = nil
 local dots: { Frame } = {}
 
 local active = false
@@ -157,6 +159,33 @@ local function build()
 		stroke = Theme.Stroke.Text,
 		strokeColor = Theme.Colors.Outline,
 		zIndex = 5,
+	})
+
+	-- Lure chip above the bar's left end, in the clear column beside the centred tier label. Shown only
+	-- for an encounter the server says consumed a lure.
+	local chip = Builder.pill({
+		parent = root,
+		name = "Lure",
+		position = UDim2.fromScale(0.2, 0.74),
+		size = UDim2.fromScale(0.2, 0.05),
+		anchor = Vector2.new(0, 0.5),
+		color = Theme.Colors.Select,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = 2,
+	})
+	Builder.gradient(chip, Theme.Colors.Select)
+	chip.Visible = false
+	lureChip = chip
+	lureLabel = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.75),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 3,
 	})
 
 	-- Sweeps left as three dots under the bar.
@@ -337,6 +366,15 @@ function CaptureBar.Begin(info: BeginInfo)
 	if hint then
 		hint.Visible = true
 	end
+	local chip, chipLabel = lureChip, lureLabel
+	if chip and chipLabel then
+		local lure = params.lure
+		chip.Visible = lure ~= nil
+		if lure then
+			chipLabel.Text = Strings.CATCH_LURE_USED:format(Builder.text("LURE_" .. lure))
+			Builder.pop(chip)
+		end
+	end
 	root.Enabled = true
 	if bar then
 		Builder.open(bar)
@@ -425,6 +463,9 @@ function CaptureBar.End()
 	if renderConn then
 		renderConn:Disconnect()
 		renderConn = nil
+	end
+	if lureChip then
+		lureChip.Visible = false
 	end
 	local root = gui
 	if bar and root then

@@ -56,6 +56,8 @@ return {
 	ERR_LOCKED = "Your progress is still saving from another server. Please rejoin in a minute.",
 	ERR_LOAD = "We couldn't load your progress. Please rejoin.",
 	PEDDLER_ARRIVED = "The Peddler has landed!",
+	ANNOUNCE_CATCH = "%s caught a %s %s!", -- player, tier, species
+	ANNOUNCE_CATCH_OVERLAY = "%s caught a %s %s %s!", -- player, overlay, tier, species
 	SHOWER_INCOMING = "Meteor Shower in %s",
 	SHOWER_NOW = "Meteor Shower!",
 	-- camp, ship and materials
@@ -164,4 +166,29 @@ return {
 	-- Nearby panel
 	NEARBY_TITLE = "Nearby",
 	NEARBY_NONE = "Nothing out right now",
+	-- Scrap shop
+	SHOP_TITLE = "Shop",
+	SHOP_TAB_Lures = "Lures",
+	SHOP_TAB_Gear = "Gear",
+	SHOP_TAB_Robux = "Robux",
+	SHOP_CRAFT = "Craft %s",
+	SHOP_BUY = "Buy %s",
+	SHOP_OWNED = "Owned",
+	SHOP_HELD = "Held: %d",
+	SHOP_LURE_EFFECT = "+%d%% catch zones, used on your next catch",
+	SHOP_GEAR_SPEED = "+%d%% walk speed, forever",
+	SHOP_ROBUX_SOON = "Robux items come with the launch shop",
+	SHOP_SCRAP_PRICE = "%s Scrap",
+	LURE_Lure1 = "Twig Lure",
+	LURE_Lure2 = "Glow Lure",
+	LURE_Lure3 = "Star Lure",
+	GEAR_Boots = "Speed Boots",
+	GEAR_Hoverboard = "Hoverboard",
+	GEAR_Glider = "Glider Pack",
+	GEAR_JetBoost = "Jet Boost",
+	TOAST_CRAFTED = "%s crafted",
+	TOAST_BOUGHT = "%s bought",
+	TOAST_LOCKED_GEAR = "%s unlocks later",
+	CATCH_LURE_USED = "%s used",
+	CATCH_PERFECT_BONUS = "x%d Scrap!",
 }

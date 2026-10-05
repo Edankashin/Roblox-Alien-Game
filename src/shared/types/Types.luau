@@ -35,6 +35,7 @@ export type TierDef = {
 	perfectZone: number,
 	rounds: number,
 	codexScrap: number, -- first-catch payout
+	catchScrap: number, -- every catch pays this; a Perfect multiplies it by Config.PerfectScrapMultiplier
 	color: string,
 }
 
@@ -113,6 +114,7 @@ export type CaptureStartResult = {
 	round: number,
 	sweepsLeft: number,
 	startClock: number,
+	lure: string?, -- the lure consumed for this encounter (Lures.Lures id), if any
 }
 
 export type HitOutcome = "Perfect" | "Good" | "Miss"
@@ -141,6 +143,9 @@ export type CaptureHitResult = {
 	scrapGained: number?,
 	scrap: number?,
 }
+
+-- Server-wide banner (Announcement event, FireAllClients) when someone catches a rare enough alien.
+export type Announcement = { kind: "catch", playerName: string, species: string, tier: Tier, overlay: Overlay }
 
 -- Camp -------------------------------------------------------------------
 

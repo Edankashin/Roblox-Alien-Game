@@ -46,7 +46,7 @@ local function pushModules(player: Player, profile: Types.Profile)
 end
 
 local function pushInventory(player: Player, profile: Types.Profile)
-	Net.event("InventoryChanged"):FireClient(player, profile.inventory.keyMaterials)
+	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 end
 
 local function announceCompleted(player: Player, worldId: number, completed: { string })

@@ -28,6 +28,7 @@ local Reveal = require(script:WaitForChild("UI"):WaitForChild("Reveal"))
 local Toast = require(script:WaitForChild("UI"):WaitForChild("Toast"))
 local Screens = require(script:WaitForChild("UI"):WaitForChild("Screens"))
 local ShipScreen = require(script:WaitForChild("UI"):WaitForChild("ShipScreen"))
+local ShopScreen = require(script:WaitForChild("UI"):WaitForChild("ShopScreen"))
 local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScreen"))
 local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
@@ -93,6 +94,7 @@ local function onCaught(result: Types.CaptureHitResult)
 			overlay = result.overlay or "None",
 			isNew = result.isNew == true,
 			scrapGained = result.scrapGained or 0,
+			perfect = result.perfect == true,
 		})
 	end)
 end
@@ -281,6 +283,18 @@ local function connectToasts()
 			Toast.Show(Strings.TOAST_MODULE_DONE:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
 		end)
 	end)
+	-- Server-wide catch banners for rare finds, in the tier's colour.
+	task.spawn(function()
+		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
+			local def = Species.ById[note.species]
+			local speciesName = if def then def.name else note.species
+			local tierName = Builder.text("TIER_" .. note.tier)
+			local text = if note.overlay ~= "None"
+				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_" .. note.overlay), tierName, speciesName)
+				else Strings.ANNOUNCE_CATCH:format(note.playerName, tierName, speciesName)
+			Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+		end)
+	end)
 	-- The offline settlement is claimed rather than pushed, so it is never missed on a slow boot.
 	task.spawn(function()
 		local raw = Net.func("ClaimOfflineSummary"):InvokeServer()
@@ -323,6 +337,7 @@ local function start(profile: Types.Profile)
 
 	-- Modal screens: one open at a time, each behind a left-edge menu button.
 	Screens.Register("Ship", ShipScreen)
+	Screens.Register("Shop", ShopScreen)
 	Screens.Register("Aliens", AliensScreen)
 	Screens.Register("Codex", CodexScreen)
 	local function menu(name: string)
@@ -332,9 +347,7 @@ local function start(profile: Types.Profile)
 			end
 		end
 	end
-	Hud.AddMenuButton("Shop", Theme.Colors.Confirm, function()
-		Toast.Show(Strings.COMING_SOON, Theme.Colors.Confirm)
-	end)
+	Hud.AddMenuButton("Shop", Theme.Colors.Confirm, menu("Shop"))
 	Hud.AddMenuButton("Aliens", Theme.Colors.Featured, menu("Aliens"))
 	Hud.AddMenuButton("Codex", Theme.Colors.Codex, menu("Codex"))
 	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))

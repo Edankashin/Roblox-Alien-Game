@@ -2,7 +2,8 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
--- anything; it only remembers what the server said last.
+-- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
+-- table (key materials, lures, power-ups); GearChanged carries the gear table.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +17,7 @@ local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "clock" | "biome" | "codex" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -153,10 +154,18 @@ function State.Start()
 		end)
 	end)
 	task.spawn(function()
-		Net.event("InventoryChanged").OnClientEvent:Connect(function(keyMaterials: { [string]: number })
+		Net.event("InventoryChanged").OnClientEvent:Connect(function(inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number } })
 			if profile then
-				profile.inventory.keyMaterials = keyMaterials
+				profile.inventory = inventory
 				fire("inventory")
+			end
+		end)
+	end)
+	task.spawn(function()
+		Net.event("GearChanged").OnClientEvent:Connect(function(gear: { boots: boolean, hoverboard: boolean, glider: boolean, radar: number })
+			if profile then
+				profile.gear = gear
+				fire("gear")
 			end
 		end)
 	end)
