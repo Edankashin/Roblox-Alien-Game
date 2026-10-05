@@ -33,6 +33,7 @@ TRAVEL_SECONDS = 40        # walking between biomes
 CAPTURE_SECONDS = 8        # one capture encounter, start to reveal
 COLLECT_SECONDS = 10       # walking node to node inside a biome
 GOOD_HIT_RATE = 0.9        # the bot lands Good or Perfect on this share of sweeps
+PERFECT_RATE = 0.15        # share of catches that land Perfect (pays Config.PerfectScrapMultiplier x catch Scrap)
 NODES = {"WreckPlate": 6, "Glowroot": 4, "CaveCrystal": 3, "StormShard": 3}
 WARDEN_ATTEMPT_SUCCESS = 0.4
 WARDEN_COOLDOWN = 900
@@ -182,6 +183,8 @@ class Bot:
         if species not in self.codex:
             self.codex.add(species)
             self.scrap += tier["codexScrap"]
+        perfect = self.rng.random() < PERFECT_RATE
+        self.scrap += tier["catchScrap"] * (Config["PerfectScrapMultiplier"] if perfect else 1)
         if TRACE:
             print(f"  t={self.clock.t:5d} caught {species} ({Species[species]['tier']}, {overlay}) scrap={self.scrap:.0f} rate={self.rate():.1f} biome={self.biome} cond={self.clock.condition}")
         if Species[species]["tier"] == "Epic" and self.clock.condition == "Rain":

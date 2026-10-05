@@ -56,3 +56,15 @@ Known gaps in this milestone: the Warden's Core (quest) is not obtainable, so th
 5. Check all three panels and the Nearby column at iPhone SE and iPad sizes; nothing overlaps the top row or the action button.
 
 Known gaps in this milestone: Shop, Quests and Settings are not built; no compass direction from the Nearby panel yet; placeholder icons (first letters) until the icon pack is chosen.
+
+## Milestone 6a: catch Scrap, lures, the Scrap shop, Speed Boots
+
+1. Press Play. Output adds a Shop line to the boot and `server started: PlayerData, WorldClock, Meadow, Materials, Spawner, Economy, Shop, Catching`.
+2. Catch a Common: the reveal shows "+60 Scrap" (10 catch Scrap plus the 50 first-catch bonus); catch it again: "+10 Scrap". A Perfect hit shows "x2 Scrap!" under the Scrap line and pays double the catch part.
+3. Shop button opens the Shop panel (green header). Lures tab: Twig Lure 150 Scrap "+4% catch zones", Glow Lure 900, Star Lure 4,000, each with "Held: 0" and a Craft button (grey when you cannot afford it; tapping it then toasts "Not enough Scrap"). Craft a Twig Lure: toast "Twig Lure crafted", Scrap drops, Held: 1.
+4. Start a catch: a blue chip above the bar reads "Twig Lure used", the green zone is visibly wider, and the shop shows Held: 0 afterwards (the lure is spent on the attempt, caught or not).
+5. Gear tab: Speed Boots 800 "+25% walk speed, forever", Hoverboard 5,000 "+60%", Glider Pack grey (locked). Buy Speed Boots: toast "Speed Boots bought", the button becomes "Owned", and you walk faster at once and after a reset.
+6. Robux tab reads "Robux items come with the launch shop".
+7. Economy check: with two Commons working and catching steadily, Scrap climbs noticeably faster than in milestone 3.
+
+Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and skins, Radar Mk1.
