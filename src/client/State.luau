@@ -18,7 +18,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -102,6 +102,15 @@ function State.SetBiome(b: Types.Biome)
 		biome = b
 		fire("biome")
 	end
+end
+
+-- Tutorial step (TutorialChanged) and the count toward a counted step.
+function State.GetTutorial(): (number, number)
+	local p = profile
+	if p then
+		return p.tutorialStep, p.tutorialCounter
+	end
+	return 1, 0
 end
 
 -- Field Notes step per world and objective counts (QuestsChanged); also readable from the profile.
@@ -229,6 +238,15 @@ function State.Start()
 		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?)
 			peddler = visit
 			fire("peddler")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("TutorialChanged").OnClientEvent:Connect(function(step: number, counter: number)
+			if profile then
+				profile.tutorialStep = step
+				profile.tutorialCounter = counter
+				fire("tutorial")
+			end
 		end)
 	end)
 	task.spawn(function()

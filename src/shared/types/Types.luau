@@ -83,7 +83,8 @@ export type Profile = {
 	buffs: { [string]: number }, -- active power-ups: id -> seconds remaining (ticks down only while online)
 	inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number }, items: { [string]: number } },
 	stats: { catches: number, perfects: number, playSeconds: number },
-	tutorialStep: number,
+	tutorialStep: number, -- index into data/Tutorial.luau Steps; past the last step means done
+	tutorialCounter: number, -- catches (or other counted events) since the current step started
 	lastSeen: number,
 	firstSeen: number,
 	lock: { jobId: string, time: number }?,

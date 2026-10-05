@@ -89,6 +89,10 @@ return {
 	WardenRetreatSeconds = 900, -- after a failed or expired encounter the horn works again after this
 	WardenZoneShrinkPerRound = 0.85, -- a multi-round capture multiplies both zones by this each round after the first
 
+	-- tutorial
+	TutorialPollSeconds = 1, -- the server checks position-based steps (the Forest walk) this often
+	TutorialSpawnRespawnSeconds = 20, -- a guaranteed trainee alien that fled comes back after this
+
 	-- announcements
 	AnnounceMinTier = "Rare", -- catches of this tier and above are announced to the whole server
 	AnnounceSeconds = 4, -- how long the server-wide banner stays up

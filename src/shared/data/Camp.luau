@@ -25,6 +25,7 @@ local Stations: { [string]: StationLayout } = {
 return {
 	ShipOffset = Vector3.new(0, 0, -20), -- from the camp pad centre; the spawn faces -Z so the ship is straight ahead
 	PeddlerOffset = Vector3.new(26, 0, -8), -- the merchant ship lands here, right of the camp
+	TutorialSpawnOffset = Vector3.new(-30, 0, 4), -- the tutorial's guaranteed aliens wait here, left of the camp, outside the spawn clearance
 	PeddlerSize = Vector3.new(8, 3, 6),
 	PeddlerColor = "FFC83D",
 	ShipBaseSize = Vector3.new(12, 0.5, 20), -- a landing pad under the ship
