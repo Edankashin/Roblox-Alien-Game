@@ -74,6 +74,7 @@ return {
 	SpawnTickSeconds = 1,
 	ShadowRevealDistance = 40,
 	NameplateDistance = 60, -- nameplates render inside this
+	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground

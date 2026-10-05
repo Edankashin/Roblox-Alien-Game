@@ -15,11 +15,13 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "clock" | "biome" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
 local ratePushed = false -- until the server's first RateChanged, the rate is derived from the profile
+local clock: Types.ClockState = { isNight = false, weather = "Clear", secondsLeft = 0 }
+local biome: Types.Biome = "Meadow"
 local changed = Instance.new("BindableEvent")
 local started = false
 
@@ -48,6 +50,36 @@ end
 
 function State.GetRate(): Types.CampState
 	return rate
+end
+
+-- The last ClockChanged state the HUD received (the bootstrap feeds it in).
+function State.GetClock(): Types.ClockState
+	return clock
+end
+
+function State.SetClock(state: Types.ClockState)
+	clock = state
+	fire("clock")
+end
+
+-- The single spawn condition the server judges by: Rain beats Night beats Day (mirrors WorldClock).
+function State.GetCondition(): Types.Condition
+	if clock.weather == "Rain" then
+		return "Rain"
+	end
+	return if clock.isNight then "Night" else "Day"
+end
+
+-- The biome the local player stands in (the bootstrap polls Biomes.At and feeds it in).
+function State.GetBiome(): Types.Biome
+	return biome
+end
+
+function State.SetBiome(b: Types.Biome)
+	if b ~= biome then
+		biome = b
+		fire("biome")
+	end
 end
 
 -- Server-synced wall clock, comparable with ModuleProgress.updatedAt (os.time() on the server).
