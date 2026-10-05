@@ -27,6 +27,7 @@ local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
+local Leaderboard = require(script.Parent.Leaderboard)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Buffs = require(script.Parent.Buffs)
@@ -352,6 +353,8 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			if not grant then
 				return nil
 			end
+			-- Only a wild catch counts on the weekly board: eggs and shop aliens go through GrantAlien too.
+			Leaderboard.OnCatch(player)
 			if species == WARDEN_SPECIES then
 				grantWardenCore(player)
 			end

@@ -12,4 +12,9 @@ return {
 	FlushSeconds = 60, -- a player's pending catches reach the store at most this often
 	CatchCapPerMinute = 30, -- catches counted per player per minute (a bug or exploit cannot top the board)
 	NameBatch = 100, -- display names looked up per UserService call
+	CapWindowSeconds = 60, -- the catch cap counts catches in this sliding window
+	NameRetrySeconds = 300, -- a name lookup that failed is not repeated for this long
+	NameCacheMax = 1000, -- the display-name cache is emptied past this many names
+	CloseWaitSeconds = 25, -- BindToClose waits at most this long for the final flush
+	RetryWaitSeconds = 2, -- the one retry after a failed store call waits this long
 }

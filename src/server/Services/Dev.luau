@@ -3,7 +3,8 @@
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
--- (forget the social flags, pay N inviter rewards, show the notifications card at once). Nothing
+-- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
+-- weekly board through its per-minute cap; send them to the store now and refresh the board). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -23,6 +24,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
 local Social = require(script.Parent.Social)
+local Leaderboard = require(script.Parent.Leaderboard)
 local Shop = require(script.Parent.Shop)
 local Outposts = require(script.Parent.Outposts)
 local Tutorial = require(script.Parent.Tutorial)
@@ -333,6 +335,23 @@ local function socialCommand(player: Player, text: string)
 	end
 end
 
+-- /lb N: count N catches on the weekly board (through its per-minute cap). /lb flush: send them and refresh.
+local function leaderboardCommand(player: Player, text: string)
+	local sub = string.match(text, "^%s*/?lb%s+(%S+)") or ""
+	if sub == "flush" then
+		Leaderboard.DevFlush()
+		print(("[%s] dev: leaderboard flushed and refreshed"):format(Config.WorkingTitle))
+		return
+	end
+	local count = tonumber(sub)
+	if count and count >= 1 then
+		local added = Leaderboard.DevAdd(player, count)
+		print(("[%s] dev: %s counted %d of %d catches on the weekly board"):format(Config.WorkingTitle, player.Name, added, math.floor(count)))
+	else
+		print(("[%s] dev: /lb N | flush"):format(Config.WorkingTitle))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -387,11 +406,12 @@ function Dev.Init()
 	command("complete", completeModules)
 	command("outpost", backdateOutpost)
 	command("social", socialCommand)
+	command("lb", leaderboardCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush)"):format(Config.WorkingTitle))
 	end
 end
 
