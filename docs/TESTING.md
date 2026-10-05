@@ -210,3 +210,16 @@ Two Rojo projects now describe the same code for two places: `default.project.js
 6. Switch back to `rojo serve` (World 1): everything is as before, with the biome chip reading "Meadow" and the Verdant layout. A profile moved with `/world 2` on World 1 keeps its World 1 camp data and shows World 2's modules only in the World 2 place.
 
 Known gaps in this milestone: launching between places (15c), outposts, the Heater rule for blizzards, World 2's tutorial beats (the tutorial is World 1 only), a place id per world in the data for the teleport.
+
+## Milestone 15c: the launch
+
+World 2's place id is 0 until it is published, and Studio never teleports, so the launch is tested up to the fade and back. Play on World 1 (`rojo serve`) as a fresh profile.
+1. Boot adds a Launch line after Economy: "Launch: this is world 1 (Verdant Crash Site); next world 2 place not published (Studio: no teleport)". The Dev line lists `/complete`.
+2. With a module unfinished, walk to the ship: the button reads "Build" (the Ship screen). `/complete`: every module card reads "Done!", the ship bar reads 100%, and the button by the ship reads "Launch".
+3. Press Launch: the HUD hides, the ship lifts over 4 s while the camera glides to it, a gold burst plays at the base, then the screen fades to black with "Next stop: Frostbyte". After 2 s a toast "Frostbyte opens when it is published. The ship is ready.", the screen fades back, the ship sits where it was and the HUD returns. CameraType reads Custom afterwards.
+4. The profile moved: the Aliens and Ship screens now show World 2's modules (Heat Shield first, 0%), and Launch on World 1 now refuses with "Your ship is on another world" (the ship stays). Analytics prints `event Launch from=1 to=2`.
+5. The Glider: Shop > Gear shows the Glider Pack as buyable (R$ price in Scrap, 15,000) now that two worlds are unlocked; before the launch it read "Unlocks with your first launch".
+6. Refusals: on a fresh profile with modules unfinished, calling the Launch remote returns (false, "NotComplete") and the toast "Finish every module first"; a profile already on the last world gets "This is the last world for now".
+7. World 2 place: `rojo serve world2.project.json`, Play with a profile moved by `/world 2`: the Frostbyte camp with the five modules at 0%, the Launch line names world 2 and next world 3.
+
+Known gaps in this milestone: the real teleport (needs the published World 2 place id in Worlds.luau and a published universe), outposts producing materials, the Launch Pack offer, the Star Chart to fly back.

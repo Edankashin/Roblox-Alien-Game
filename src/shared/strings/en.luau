@@ -144,7 +144,7 @@ return {
 	SHIP_ASSEMBLING = "Assembling, %s left",
 	SHIP_DONE = "Done!",
 	SHIP_CREW_SPEED = "Crew speed x%s",
-	SHIP_COMPLETE = "Ship complete! Launch comes with World 2.",
+	SHIP_COMPLETE = "Ship complete! Walk to the ship and launch.",
 	LAUNCH_GO = "Launch!",
 	LAUNCH_NEXT_STOP = "Next stop: %s",
 	LAUNCH_NO_PLACE = "%s opens when it is published. The ship is ready.",

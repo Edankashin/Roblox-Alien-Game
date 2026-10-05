@@ -57,9 +57,16 @@ local GEAR_ITEMS: { GearItem } = {
 	{ id = "Radar1", field = "radar", scrap = radarTiers[RADAR_MK1].scrap, radarTier = RADAR_MK1 },
 	{ id = "Glider", field = "glider", scrap = Gear.Glider.scrap, def = Gear.Glider },
 }
--- Gear the server answers Locked for until its unlock lands (Glider: first launch). Drawn grey; the
--- tap still goes to the server, which refuses, and the refusal becomes the TOAST_LOCKED_GEAR toast.
-local LOCKED_GEAR: { [string]: boolean } = { Glider = true }
+-- Gear the server answers Locked for until its unlock lands. FirstLaunch gear (the Glider) is drawn
+-- grey while only the starting world is unlocked and buyable once a second world is. The tap still
+-- goes to the server, which decides, and a refusal becomes the TOAST_LOCKED_GEAR toast.
+local function gearLocked(profile: Types.Profile, item: GearItem): boolean
+	local def = item.def
+	if def and def.unlock == "FirstLaunch" then
+		return #profile.world.unlocked <= 1
+	end
+	return false
+end
 
 local TABS: { Tab } = { "Lures", "Gear", "Robux" }
 
@@ -909,7 +916,7 @@ local function refreshGear(profile: Types.Profile)
 		if row.owned then
 			row.owned.Visible = isOwned
 		end
-		local affordable = profile.scrap >= item.scrap and not LOCKED_GEAR[item.id]
+		local affordable = profile.scrap >= item.scrap and not gearLocked(profile, item)
 		recolorButton(row.button, if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
 	end
 end

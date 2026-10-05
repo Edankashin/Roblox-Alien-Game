@@ -87,6 +87,9 @@ local floorTop: number? = nil
 local builtWorld: number? = nil
 local shipCentre: Vector3 = Camp.ShipOffset
 local modules: { ModuleRecord } = {}
+local shipBase: Part? = nil -- the landing slab; the module parts live in `modules`
+local liftRest: { [Part]: CFrame }? = nil -- where each ship part rested before LiftShip; nil while landed
+local liftTweens: { Tween } = {}
 local stations: { [string]: StationRecord } = {}
 local workers: { [string]: WorkerRecord } = {}
 local connections: { RBXScriptConnection } = {}
@@ -249,7 +252,7 @@ local function buildShip(parent: Folder, world: number)
 	local base = Camp.ShipBaseSize
 	local baseCentre = Vector3.new(Camp.ShipOffset.X, groundY() + Camp.ShipOffset.Y + base.Y / 2, Camp.ShipOffset.Z)
 	shipCentre = baseCentre
-	newPart("ShipBase", Enum.PartType.Block, base, CFrame.new(baseCentre), Camp.ShipBaseColor, parent)
+	shipBase = newPart("ShipBase", Enum.PartType.Block, base, CFrame.new(baseCentre), Camp.ShipBaseColor, parent)
 	local baseTop = baseCentre + Vector3.new(0, base.Y / 2, 0)
 
 	for _, def in ipairs(Economy.moduleDefs(world)) do
@@ -264,6 +267,31 @@ local function buildShip(parent: Folder, world: number)
 		part.CanQuery = false
 		table.insert(modules, { id = def.id, part = part, targetSize = size, visual = nil, pulse = nil })
 	end
+end
+
+-- Lift-off ----------------------------------------------------------------------
+-- The launch sequence raises the whole ship (the slab and every module part) and puts it back. The
+-- rest CFrames are remembered on the first lift so a reset lands exactly where buildShip put them.
+
+local function shipParts(): { Part }
+	local parts: { Part } = {}
+	local base = shipBase
+	if base and base.Parent then
+		table.insert(parts, base)
+	end
+	for _, record in ipairs(modules) do
+		if record.part.Parent then
+			table.insert(parts, record.part)
+		end
+	end
+	return parts
+end
+
+local function cancelLift()
+	for _, tween in ipairs(liftTweens) do
+		tween:Cancel()
+	end
+	liftTweens = {}
 end
 
 -- Stations ---------------------------------------------------------------------
@@ -425,6 +453,9 @@ end
 -- Lifecycle --------------------------------------------------------------------
 
 local function teardownCamp()
+	cancelLift()
+	liftRest = nil
+	shipBase = nil
 	for _, record in ipairs(modules) do
 		stopPulse(record)
 	end
@@ -508,6 +539,58 @@ end
 -- World position of the ship (the centre of its landing slab), for the Build button's distance check.
 function CampRenderer.ShipPosition(): Vector3
 	return shipCentre
+end
+
+-- Raises every ship part (the slab and the module parts) by `studs` over `seconds`, Quad In, so the
+-- take-off starts slow and leaves fast. onDone runs when the lift ends (at once with no ship built;
+-- also when a rebuild cancels it, so a sequence never stalls). A lift while already lifted restarts
+-- from the remembered rest frames; ResetShip puts the ship back.
+function CampRenderer.LiftShip(studs: number, seconds: number, onDone: (() -> ())?)
+	cancelLift()
+	local rest = liftRest or {}
+	liftRest = rest
+	local parts = shipParts()
+	if #parts == 0 then
+		if onDone then
+			task.spawn(onDone)
+		end
+		return
+	end
+	local info = TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	local lift = Vector3.new(0, studs, 0)
+	local first: Tween? = nil
+	for _, part in ipairs(parts) do
+		local from = rest[part] or part.CFrame
+		rest[part] = from
+		part.CFrame = from
+		local tween = TweenService:Create(part, info, { CFrame = from + lift })
+		table.insert(liftTweens, tween)
+		tween:Play()
+		if not first then
+			first = tween
+		end
+	end
+	if first and onDone then
+		-- Every tween shares the duration, so the first one's end is the lift's end, cancelled or not.
+		first.Completed:Connect(function()
+			onDone()
+		end)
+	end
+end
+
+-- Stops any lift and puts every ship part back on its rest CFrame. Nothing to do while landed.
+function CampRenderer.ResetShip()
+	cancelLift()
+	local rest = liftRest
+	liftRest = nil
+	if not rest then
+		return
+	end
+	for part, cframe in pairs(rest) do
+		if part.Parent then
+			part.CFrame = cframe
+		end
+	end
 end
 
 -- Distance from the local character to the ship, or math.huge without a character.

@@ -50,6 +50,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
+local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("LaunchSequence"))
 local Prefs = require(script:WaitForChild("Prefs"))
 local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
@@ -307,6 +308,8 @@ local function decideAction(): Action?
 	return best
 end
 
+local launching = false -- one Launch request in flight at a time
+
 local function performAction()
 	local action = currentAction
 	if action == "Catch" then
@@ -316,8 +319,29 @@ local function performAction()
 	elseif action == "Build" then
 		Screens.Open("Ship")
 	elseif action == "Launch" then
-		-- Launching arrives with World 2; the complete ship is the milestone for now.
-		Toast.Show(Strings.SHIP_COMPLETE, Theme.Colors.Featured)
+		-- The server judges the ship, the world and the next place; an accepted launch comes back as the
+		-- Launched event, which plays the sequence. One request in flight at a time.
+		if launching or LaunchSequence.IsPlaying() then
+			return
+		end
+		launching = true
+		task.spawn(function()
+			local ok, reason = Net.func("Launch"):InvokeServer()
+			launching = false
+			if ok == true then
+				return -- Launched carries the sequence
+			elseif reason == "NotComplete" then
+				Toast.Show(Strings.TOAST_LAUNCH_NOT_READY, Theme.Colors.Select)
+			elseif reason == "NoNextWorld" then
+				Toast.Show(Strings.TOAST_LAUNCH_LAST_WORLD, Theme.Colors.Featured)
+			elseif reason == "WrongWorld" then
+				Toast.Show(Strings.TOAST_LAUNCH_WRONG_WORLD, Theme.Colors.Close)
+			elseif reason == "Busy" then
+				return -- a launch is already under way
+			else
+				print(("[%s] launch refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+			end
+		end)
 	elseif action == "Trade" then
 		Screens.Open("Peddler")
 	elseif action == "Horn" and not horning then
@@ -364,6 +388,21 @@ local function connectToasts()
 			end
 		end)
 	end)
+	-- The server accepted a launch: the lift-off plays with the HUD hidden, like the crash opener. With
+	-- a live place the server teleports the player before the sequence ends; otherwise the camp returns.
+	task.spawn(function()
+		Net.event("Launched").OnClientEvent:Connect(function(nextWorldId: number, placeLive: boolean)
+			if LaunchSequence.IsPlaying() then
+				return
+			end
+			cinematic = true
+			Hud.SetVisible(false)
+			LaunchSequence.Play(nextWorldId, placeLive, function()
+				cinematic = false
+				Hud.SetVisible(true)
+			end)
+		end)
+	end)
 	-- Server-wide catch banners for rare finds, in the tier's colour.
 	task.spawn(function()
 		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
@@ -373,6 +412,26 @@ local function connectToasts()
 				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
 				else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
 			Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+		end)
+	end)
+	task.spawn(function()
+		-- An alien granted outside a catch (the Starter Pack's Rare) gets the same reveal as a catch.
+		Net.event("AlienGranted").OnClientEvent:Connect(function(grant: Types.GrantResult)
+			local def = Species.ById[grant.species]
+			WildRenderer.MarkKnown(grant.species)
+			State.ApplyCatch(grant.species, grant.overlay)
+			Screens.CloseAll()
+			Reveal.Show({
+				speciesId = grant.species,
+				speciesName = if def then def.name else grant.species,
+				shape = if def then def.placeholder.shape else "Ball",
+				color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
+				tier = grant.tier,
+				overlay = grant.overlay,
+				isNew = grant.isNew,
+				scrapGained = grant.scrapGained,
+				perfect = false,
+			})
 		end)
 	end)
 	task.spawn(function()
@@ -520,7 +579,7 @@ local function start(profile: Types.Profile)
 			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
-			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(State.GetLuck())))
+			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
 			Hud.SetShowerCountdown(nil)
 			if not showerWasActive then
 				Builder.playSound(Sounds.ShowerHorn)
@@ -542,7 +601,7 @@ local function start(profile: Types.Profile)
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
 			local multiplier = ("%d"):format(1 + luckState.bonus)
-			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(State.GetLuck())))
+			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
 		else
 			Hud.SetEventBanner(nil, nil, nil)
 		end
