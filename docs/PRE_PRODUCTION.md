@@ -244,6 +244,8 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 
 **Decision 20 (open): rejoin notifications.** Experience Notifications are opt-in and 13+ only; the ask comes on session 2 or later with our own card first, event text only (part ready, Alien of the Week, hosted Shower), three a week at most, behind a Config flag so it can be turned off for a market. Sending needs an Open Cloud key on the Mac, never in the repo.
 
+**Decision 21 (proposed yes): world signatures.** Every world adds one verb, one special area, one super-rare through a harder bar, and one secret spot (`docs/GAME_DESIGN.md` section 8, "World signatures"). Tidepool becomes the fishing world with a bioluminescent Trench fountain; Neon Grid the rooftop-parkour cyberpunk world with robotic aliens; Dreamdrift the gravity-flip parkour world. First builds: the cast-and-reel bar and the rooftop chase as catch variants, then the special areas as layout regions with their own spawn tables and buffs.
+
 **Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
 
 **Not built yet (P1 from section 18, after 19 to 21):** the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.

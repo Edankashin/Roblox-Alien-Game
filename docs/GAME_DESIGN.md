@@ -353,6 +353,22 @@ Each world is a separate Roblox place in one universe, handcrafted, with three b
 | 6 | Dreamdrift | Candy Cliffs, Cloud Sea, Music Box Hollow | Gravity flips as the weather event | Dream Core | Warden: Morpheep |
 | 7 | The Void Hub | Endgame | All Wardens needed to open the gate | | Long-term goal. Warden: Nyxling |
 
+### World signatures: every world adds one verb (2026-10-05)
+
+A world is not a palette swap. Each one adds a way of playing the other worlds do not have, one special area that changes the rules inside it, one super-rare alien caught through a harder version of the minigame, and one secret spot reached by movement (a short obby, a glide, a dive). The first two worlds keep their built mechanics; the rest are the design intent for their builds.
+
+| World | Signature verb (how you catch and move) | Special area | Super-rare and its harder minigame | Secret spot |
+|---|---|---|---|---|
+| 1 Verdant Crash Site | The baseline: walk, tap, timing bar | The Shrine of the Warden (built) | Gaiabloom through the Field Notes finale (built) | A treetop hollow reached by a log-hop obby; Glider later |
+| 2 Frostbyte | Place Heaters to reveal (built); ice patches slide you | A geyser that lifts you to a ledge on its timer | Fenripup in a Meteor Shower (built); Skaddle finale (built) | An ice cave behind a waterfall of snow, a timed jump across geyser plumes |
+| 3 Neon Grid | Rooftop parkour: jumps, zip lines, vents that launch you; robotic and cyberpunk aliens that only power up at night | The Server Farm core room: a Power Surge boosts luck and spawn speed inside while it runs | A chrome Legendary that flees across rooftops: the bar moves while you chase it on a timer | A hidden arcade under the Undercity, entered by a three-part vent obby |
+| 4 Emberfall | Heat runs: dash between Cooling Vents before the meter fills | The Obsidian Caves' crystal garden: cool, slow, where Rares nest | A lava Warden whose zone shrinks with the heat meter: a two-stage catch | A magma bridge that only forms during Ashfall |
+| 5 Tidepool | Fishing: aliens are fish; cast from the shore or dive, then a cast-and-reel bar (the zone drifts like a bobber; hold to reel, release to let it run) | A bioluminescent fountain in the Trench: everything glows, catches inside give +luck, and the fountain's own glowing fish spawn only there | A Cosmic deep-sea fish caught through a double bar (reel plus a second tension bar) during King Tide | A sunken ship's hold reached by a breath-limited dive through a kelp maze |
+| 6 Dreamdrift | A parkour world: gravity flips (built as weather) turn the Candy Cliffs into ceilings; whole routes are obbies | The Music Box Hollow: a rhythm floor where catches land on the beat for a perfect | A Legendary that only appears mid-flip, caught upside down on a timer | A cloud stair that exists only while you keep jumping |
+| 7 The Void Hub | Everything learned: a gauntlet that reuses each world's verb | The Gate | The Eclipse alien through the hardest bar, every mechanic at once | None: the world is the secret |
+
+Rules: a signature verb never gates the ship bar (the modules are still built from catches and materials), a special area is visible from far away so it pulls players across the map, the harder minigame is a variant of the one bar (new rules on the same control), and secret spots are logged in the codex as hidden spots with a Scanner Pulse hint. Build order: the fishing bar (Tidepool) and the rooftop chase (Neon Grid) are the two new catch variants and come first; the obbies use the engine's own movement and need level design more than code.
+
 ### One special weather per world
 
 Every world has exactly one special weather state that only it rolls, and one signature alien that spawns only while it runs. The clock rolls the special weather at its own chance whenever the weather changes, so it is an appointment players learn to wait for, and its arrival posts a server-wide banner naming the alien ("Blizzard! Frostfang is out!"). This is `Worlds.luau` data, so adding a world's weather is a row, not code. Placeholders until each world is built:
