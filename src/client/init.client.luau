@@ -26,7 +26,11 @@ local Hud = require(script:WaitForChild("UI"):WaitForChild("Hud"))
 local CaptureBar = require(script:WaitForChild("UI"):WaitForChild("CaptureBar"))
 local Reveal = require(script:WaitForChild("UI"):WaitForChild("Reveal"))
 local Toast = require(script:WaitForChild("UI"):WaitForChild("Toast"))
+local Screens = require(script:WaitForChild("UI"):WaitForChild("Screens"))
 local ShipScreen = require(script:WaitForChild("UI"):WaitForChild("ShipScreen"))
+local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScreen"))
+local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
+local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
@@ -58,7 +62,7 @@ local collectMaterial = Net.func("CollectMaterial")
 
 -- A catch in progress or a modal screen blocks every other action.
 local function modalOpen(): boolean
-	return inCapture or Reveal.IsOpen() or ShipScreen.IsOpen()
+	return inCapture or Reveal.IsOpen() or Screens.IsAnyOpen()
 end
 
 -- Capture flow ------------------------------------------------------------
@@ -74,6 +78,7 @@ local function onCaught(result: Types.CaptureHitResult)
 	local def = Species.ById[species]
 	if species ~= "" then
 		WildRenderer.MarkKnown(species)
+		State.ApplyCatch(species, result.overlay or "None")
 	end
 	if result.scrap then
 		Hud.SetScrap(result.scrap)
@@ -201,7 +206,7 @@ end
 
 -- Biome chip ----------------------------------------------------------------
 
-local currentBiome: string? = nil
+local currentBiome: Types.Biome? = nil
 
 local function refreshBiome()
 	local character = localPlayer.Character
@@ -209,10 +214,11 @@ local function refreshBiome()
 	if not root or not root:IsA("BasePart") then
 		return
 	end
-	local biome = Biomes.At(root.Position)
+	local biome: Types.Biome = Biomes.At(root.Position) -- annotated: the checker widens singleton unions
 	if biome ~= currentBiome then
 		currentBiome = biome
 		Hud.SetBiome(biome)
+		State.SetBiome(biome)
 	end
 end
 
@@ -254,7 +260,7 @@ local function performAction()
 	elseif action == "Collect" then
 		tryCollectNearest()
 	elseif action == "Build" then
-		ShipScreen.Open()
+		Screens.Open("Ship")
 	elseif action == "Launch" then
 		-- Launching arrives with World 2; the complete ship is the milestone for now.
 		Toast.Show(Strings.SHIP_COMPLETE, Theme.Colors.Featured)
@@ -311,9 +317,28 @@ local function start(profile: Types.Profile)
 	Hud.OnAction(performAction)
 	Hud.OnShipTapped(function()
 		if not inCapture and not Reveal.IsOpen() then
-			ShipScreen.Toggle()
+			Screens.Toggle("Ship")
 		end
 	end)
+
+	-- Modal screens: one open at a time, each behind a left-edge menu button.
+	Screens.Register("Ship", ShipScreen)
+	Screens.Register("Aliens", AliensScreen)
+	Screens.Register("Codex", CodexScreen)
+	local function menu(name: string)
+		return function()
+			if not inCapture and not Reveal.IsOpen() then
+				Screens.Toggle(name)
+			end
+		end
+	end
+	Hud.AddMenuButton("Shop", Theme.Colors.Confirm, function()
+		Toast.Show(Strings.COMING_SOON, Theme.Colors.Confirm)
+	end)
+	Hud.AddMenuButton("Aliens", Theme.Colors.Featured, menu("Aliens"))
+	Hud.AddMenuButton("Codex", Theme.Colors.Codex, menu("Codex"))
+	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
+	NearbyPanel.Start()
 
 	local known: { [string]: boolean } = {}
 	for species, entry in pairs(profile.codex) do
@@ -336,11 +361,13 @@ local function start(profile: Types.Profile)
 
 	Net.event("ClockChanged").OnClientEvent:Connect(function(state: Types.ClockState)
 		Hud.SetClock(state)
+		State.SetClock(state)
 	end)
 	task.spawn(function()
 		local state = Net.func("GetClock"):InvokeServer() :: Types.ClockState?
 		if state then
 			Hud.SetClock(state)
+			State.SetClock(state)
 		end
 	end)
 	connectToasts()

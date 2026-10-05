@@ -11,11 +11,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "clock" | "biome" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "rate" | "clock" | "biome" | "codex" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -80,6 +81,30 @@ function State.SetBiome(b: Types.Biome)
 		biome = b
 		fire("biome")
 	end
+end
+
+-- Mirrors the server's codex write for a catch the server just confirmed (the CaptureHit result is
+-- authoritative; this only keeps the local copy current until the next full profile).
+function State.ApplyCatch(species: string, overlay: Types.Overlay)
+	local p = profile
+	if not p then
+		return
+	end
+	local entry = p.codex[species]
+	if not entry then
+		entry = { count = 0, bestOverlay = "None", firstCaughtAt = 0 }
+		p.codex[species] = entry
+	end
+	if entry.count == 0 then
+		entry.firstCaughtAt = Workspace:GetServerTimeNow()
+	end
+	entry.count += 1
+	local rank = table.find(Overlays.Order, overlay) or 0
+	local bestRank = table.find(Overlays.Order, entry.bestOverlay) or 0
+	if rank > bestRank then
+		entry.bestOverlay = overlay
+	end
+	fire("codex")
 end
 
 -- Server-synced wall clock, comparable with ModuleProgress.updatedAt (os.time() on the server).
