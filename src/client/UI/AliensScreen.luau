@@ -289,8 +289,12 @@ local function layoutGrid()
 	local contentPx = rows * cellPx + rows * gapPx -- one gap of breathing room under the last row
 	local pages = math.max(1, contentPx / abs.Y)
 	frame.CanvasSize = UDim2.fromScale(0, pages)
-	layout.CellSize = UDim2.fromScale(CELL_W, cellPx / (pages * abs.Y))
-	layout.CellPadding = UDim2.fromScale(CELL_GAP, gapPx / (pages * abs.Y))
+	-- The cell height is the cell width in pixels, derived from the frame on every resize. A Scale height
+	-- inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content,
+	-- so a Scale cell fed back into a taller canvas until one card sat 150 px down a 565 px canvas (Studio,
+	-- 2026-10-05). Width and padding stay Scale.
+	layout.CellSize = UDim2.new(CELL_W, 0, 0, cellPx)
+	layout.CellPadding = UDim2.new(CELL_GAP, 0, 0, gapPx)
 end
 
 local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)

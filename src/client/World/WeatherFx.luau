@@ -12,6 +12,7 @@
 -- clock and the weather are the server's.
 
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
@@ -80,8 +81,15 @@ local function sheetFrame(position: Vector3, direction: Vector3, drift: boolean)
 	return frameWithUp(position, direction)
 end
 
--- The point `height` studs above the camera, or nil while there is no camera yet.
+-- The point `height` studs above the player's character (the camera looks at it from behind and above, so
+-- a sheet over the lens fell beside the view), or above the camera while there is no character; nil
+-- while there is no camera yet.
 local function anchorPoint(height: number): Vector3?
+	local character = Players.LocalPlayer and Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if root and root:IsA("BasePart") then
+		return root.Position + Vector3.new(0, height, 0)
+	end
 	local camera = Workspace.CurrentCamera
 	if not camera then
 		return nil

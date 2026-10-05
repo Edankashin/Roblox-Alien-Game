@@ -94,7 +94,7 @@ return {
 	SIZE_Big = "Big",
 	SIZE_Huge = "HUGE",
 	REVEAL_SIZE = "%s %s!",
-	REVEAL_SIZE_SCRAP = "x%s Scrap for the size",
+	REVEAL_SIZE_SCRAP = "%s %s! x%s Scrap",
 	TUT_1 = "Collect 3 wreck plates for the hull.",
 	TUT_2 = "A Mossbop wants to help! Walk up and tap Catch!",
 	TUT_3 = "Mossbop is gathering for you. Walk to the ship, pay for the Hull Frame and add your 3 wreck plates.",

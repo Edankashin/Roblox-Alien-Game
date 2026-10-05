@@ -489,7 +489,9 @@ local function showStamp(info: RevealInfo, band: Sizes.Band)
 	if stamp then
 		stamp.Visible = stamped
 		if stamped then
-			stamp.Text = Strings.REVEAL_SIZE:format(Builder.text("SIZE_" .. band.id), info.speciesName)
+			stamp.Text = if band.scrapMultiplier ~= 1
+				then Strings.REVEAL_SIZE_SCRAP:format(Builder.text("SIZE_" .. band.id), info.speciesName, formatMultiplier(band.scrapMultiplier))
+				else Strings.REVEAL_SIZE:format(Builder.text("SIZE_" .. band.id), info.speciesName)
 			local scale = stamp:FindFirstChildOfClass("UIScale")
 			if Prefs.ReducedMotion() then
 				if scale then
@@ -504,7 +506,7 @@ local function showStamp(info: RevealInfo, band: Sizes.Band)
 		local bonus = stamped and band.scrapMultiplier ~= 1
 		stampScrap.Visible = bonus
 		if bonus then
-			stampScrap.Text = Strings.REVEAL_SIZE_SCRAP:format(formatMultiplier(band.scrapMultiplier))
+			stampScrap.Text = "" -- the multiplier rides on the stamp line; the root's Scrap, Perfect and Tap lines keep their slots
 		end
 	end
 end

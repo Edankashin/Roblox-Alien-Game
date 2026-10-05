@@ -330,7 +330,7 @@ Known gaps in this milestone: default square particle textures until the icon pa
 ## Milestone 25: size rolls (World 1 place)
 
 1. Wild spawns carry a Size attribute (Tiny, Small, Normal, Big, Huge) and the rendered alien is scaled by the band (Huge reads clearly larger than its neighbours; Tiny clearly smaller); nameplates and tap targets follow the scale. Over about 50 spawns the mix is roughly 3 / 17 / 60 / 17 / 3 percent. `/spawn Mossbop huge` forces a band for testing (Dev: `/spawn <id> [band]`).
-2. Catch a Big or Huge one: the Reveal stamps "HUGE Mossbop!" (or "Big Mossbop!") above the name with a bigger card pop, a second line "x2 Scrap for the size", and the catch Scrap is multiplied (Huge x2, Big x1.25, Tiny x1.5 as a rare treat, Small and Normal x1). Normal and Small show no stamp.
+2. Catch a Big or Huge one: the Reveal stamps "HUGE Mossbop! x2 Scrap" (or "Big Mossbop! x1.25 Scrap") above the name with a bigger card pop, and the catch Scrap is multiplied (Huge x2, Big x1.25, Tiny x1.5 as a rare treat, Small and Normal x1). Normal and Small show no stamp.
 3. The record keeps the band: the Aliens screen row shows a size chip for Tiny, Big and Huge, the worker at its station is drawn at the band's scale, and a rejoin keeps it. Old profiles migrate to Normal (schema v7).
 4. Eggs and shop aliens (Peddler, gifts, Starter Pack) roll a size too, with the same odds, and the reveal stamps them the same way.
 5. The server-wide catch banner is unchanged (size is not announced); analytics Catch keeps its three fields.
