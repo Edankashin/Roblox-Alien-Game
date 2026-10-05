@@ -1,9 +1,10 @@
 --!strict
 -- ServerScriptService.Server.Services.Spawner: keeps wild aliens around every player.
 -- Each wild alien is a lightweight record here plus one anchored Part under Workspace.World.Wild
--- carrying attributes (SpeciesId, Tier, Overlay, SpawnId, Condition, Biome, and ReservedFor when one
+-- carrying attributes (SpeciesId, Tier, Overlay, Size, SpawnId, Condition, Biome, and ReservedFor when one
 -- player alone may catch it). No Humanoids, no server animation: the client bobs and labels them. The
--- server owns which species exist where and when, so the tier roll, the overlay roll and the
+-- server owns which species exist where and when, so the tier roll, the overlay roll, the size roll
+-- (Shared/data/Sizes: a band id the catch carries into the record and its Scrap) and the
 -- condition gating all live here. A spawn's biome is the one its landing point is in (Shared/Biomes),
 -- so the Forest grove and the Cave get their own tables. Conditions are a set (WorldClock.GetConditions:
 -- the special weather while it runs, plus Night or Day), so a rainy night offers both Rain and Night
@@ -27,6 +28,7 @@ local Tiers = require(Shared.data.Tiers)
 local Species = require(Shared.data.Species)
 local Spawns = require(Shared.data.Spawns)
 local Overlays = require(Shared.data.Overlays)
+local Sizes = require(Shared.data.Sizes)
 local Biomes = require(Shared.Biomes)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
@@ -40,6 +42,7 @@ export type WildSpawn = {
 	species: string,
 	tier: Types.Tier,
 	overlay: Types.Overlay,
+	size: string, -- the size band id (Shared/data/Sizes), rolled once when it spawns
 	condition: Types.Condition, -- the condition it needs; "Any" never despawns for weather
 	biome: Types.Biome, -- where it landed; its species came from this biome's table
 	position: Vector3,
@@ -166,6 +169,19 @@ local function rollOverlay(): Types.Overlay
 	return "None"
 end
 
+-- A weighted pick over the Sizes bands in roll order (their odds sum to 100); luck does not touch it.
+local function rollSize(): string
+	local roll = rng:NextNumber(0, 100)
+	local acc = 0
+	for _, band in ipairs(Sizes.Bands) do
+		acc += band.odds
+		if roll < acc then
+			return band.id
+		end
+	end
+	return Sizes.Default
+end
+
 local function rootOf(player: Player): BasePart?
 	local character = player.Character
 	if not character then
@@ -226,9 +242,9 @@ local function luckAround(around: Vector3, present: { Presence }): number
 end
 
 -- Seats one wild part at a flat point (Y re-read from the surface there) and records it. The caller
--- has already chosen the species and the overlay; everything the client reads is an attribute on the
+-- has already chosen the species, the overlay and the size band; everything the client reads is an attribute on the
 -- part. A reservedFor UserId is written as the ReservedFor attribute so the client can label it.
-local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overlay, reservedFor: number?): WildSpawn
+local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overlay, sizeBand: string, reservedFor: number?): WildSpawn
 	local biome: Types.Biome = Biomes.At(flat)
 	local size = BASE_SIZE * def.placeholder.scale
 	local position = Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + Config.WildHoverStuds + size / 2, flat.Z)
@@ -253,6 +269,7 @@ local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overla
 	part:SetAttribute("SpeciesId", def.id)
 	part:SetAttribute("Tier", def.tier)
 	part:SetAttribute("Overlay", overlay)
+	part:SetAttribute("Size", sizeBand)
 	part:SetAttribute("SpawnId", spawnId)
 	part:SetAttribute("Condition", def.condition)
 	part:SetAttribute("Biome", biome)
@@ -266,6 +283,7 @@ local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overla
 		species = def.id,
 		tier = def.tier,
 		overlay = overlay,
+		size = sizeBand,
 		condition = def.condition,
 		biome = biome,
 		position = position,
@@ -288,7 +306,7 @@ local function createSpawn(around: Vector3, conditions: { Types.Condition }, luc
 	if not def then
 		return nil
 	end
-	return place(def, flat, rollOverlay(), nil)
+	return place(def, flat, rollOverlay(), rollSize(), nil)
 end
 
 -- Wild spawns within SpawnRadius of a point; a reserved spawn takes no density slot.
@@ -373,17 +391,25 @@ function Spawner.RollOverlay(): Types.Overlay
 	return rollOverlay()
 end
 
+-- The size roll every wild spawn gets (Sizes odds), for aliens granted outside the wild (eggs, gifts,
+-- shop grants) so they carry the same odds. Returns a Sizes band id.
+function Spawner.RollSize(): string
+	return rollSize()
+end
+
 -- Places one spawn of a known species exactly where asked (a flat point; Y comes from the surface
 -- there), with the species' tier and the given overlay, outside the camp-clearance and density rules.
 -- reservedFor restricts the catch to that UserId (Catching refuses everyone else). lifetimeSeconds,
 -- when given, removes it with reason "despawn" once it runs out, unless it was caught or removed first.
+-- size is a Sizes band id (an unknown id falls back to the default band); nil rolls one.
 -- Nil only when the species id is unknown.
-function Spawner.SpawnAt(position: Vector3, speciesId: string, overlay: Types.Overlay, reservedFor: number?, lifetimeSeconds: number?): WildSpawn?
+function Spawner.SpawnAt(position: Vector3, speciesId: string, overlay: Types.Overlay, reservedFor: number?, lifetimeSeconds: number?, size: string?): WildSpawn?
 	local def = Species.ById[speciesId]
 	if not def then
 		return nil
 	end
-	local spawn = place(def, position, overlay, reservedFor)
+	local band: string = if size == nil then rollSize() elseif Sizes.ById[size] then size else Sizes.Default
+	local spawn = place(def, position, overlay, band, reservedFor)
 	if lifetimeSeconds and lifetimeSeconds > 0 then
 		local spawnId = spawn.spawnId
 		task.delay(lifetimeSeconds, function()

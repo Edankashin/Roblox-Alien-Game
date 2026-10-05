@@ -77,7 +77,7 @@ local Conditions: { [string]: Look } = {
 		SunRays = { Intensity = 0 },
 	},
 	Fog = { Atmosphere = { Density = 0.5, Color = { 190, 195, 200 }, Decay = { 180, 180, 180 }, Haze = 4, Glare = 0 }, ColorCorrection = { Saturation = -0.1 } },
-	Snow = { Atmosphere = { Density = 0.4, Color = { 230, 235, 240 }, Haze = 3 } },
+	Snow = { Atmosphere = { Density = 0.5, Offset = 0.35, Color = { 230, 235, 240 }, Decay = { 200, 210, 220 }, Haze = 5 } },
 	Rain = {
 		Brightness = 1.4,
 		Atmosphere = { Density = 0.45, Color = { 150, 160, 170 }, Decay = { 120, 130, 140 }, Glare = 0, Haze = 3 },
@@ -86,8 +86,9 @@ local Conditions: { [string]: Look } = {
 	},
 	Blizzard = {
 		Brightness = 1.2,
-		Atmosphere = { Density = 0.6, Color = { 235, 240, 245 }, Decay = { 220, 225, 235 }, Glare = 0, Haze = 6 },
-		ColorCorrection = { Brightness = 0.1, Saturation = -0.4, TintColor = { 245, 250, 255 } },
+		-- a white-out: density near the top of the range and full haze so the sky itself goes white
+		Atmosphere = { Density = 0.9, Offset = 0.6, Color = { 245, 248, 250 }, Decay = { 235, 240, 245 }, Glare = 0, Haze = 10 },
+		ColorCorrection = { Brightness = 0.15, Saturation = -0.5, TintColor = { 248, 250, 255 } },
 		SunRays = { Intensity = 0 },
 	},
 	Shower = {

@@ -33,6 +33,7 @@ local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Monetization = require(script.Parent.Monetization)
 local Species = require(Shared.data.Species)
+local Sizes = require(Shared.data.Sizes)
 local Worlds = require(Shared.data.Worlds)
 
 local Dev = {}
@@ -130,13 +131,28 @@ end
 local SPAWN_OFFSET_STUDS = 8 -- a /spawn alien appears this far in front of the player
 local SPAWN_LIFETIME_SECONDS = 180
 
--- /spawn <speciesId>: place one wild alien of that species beside the player (any tier, no luck roll),
--- so a Cosmic catch or a reserved-spawn rule can be tested on demand.
+-- /spawn <speciesId> [band]: place one wild alien of that species beside the player (any tier, no luck
+-- roll), so a Cosmic catch or a reserved-spawn rule can be tested on demand. The optional band (tiny,
+-- small, normal, big, huge; any case) forces its size, otherwise the size rolls like a wild spawn.
 local function spawnSpecies(player: Player, text: string)
 	local id = string.match(text, "^/%S+%s+(%S+)")
 	if not id or not Species.ById[id] then
 		print(("[%s] dev: unknown species %s"):format(Config.WorkingTitle, tostring(id)))
 		return
+	end
+	local bandWord = string.match(text, "^/%S+%s+%S+%s+(%S+)")
+	local band: string? = nil
+	if bandWord then
+		for bandId in pairs(Sizes.ById) do
+			if string.lower(bandId) == string.lower(bandWord) then
+				band = bandId
+				break
+			end
+		end
+		if not band then
+			print(("[%s] dev: unknown size %s (tiny, small, normal, big, huge)"):format(Config.WorkingTitle, bandWord))
+			return
+		end
 	end
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
@@ -144,7 +160,7 @@ local function spawnSpecies(player: Player, text: string)
 		return
 	end
 	local at = root.Position + root.CFrame.LookVector * SPAWN_OFFSET_STUDS
-	local spawn = Spawner.SpawnAt(Vector3.new(at.X, 0, at.Z), id, Spawner.RollOverlay(), nil, SPAWN_LIFETIME_SECONDS)
+	local spawn = Spawner.SpawnAt(Vector3.new(at.X, 0, at.Z), id, Spawner.RollOverlay(), nil, SPAWN_LIFETIME_SECONDS, band)
 	print(("[%s] dev: spawned %s for %s: %s"):format(Config.WorkingTitle, id, player.Name, if spawn then spawn.spawnId else "failed"))
 end
 
@@ -429,7 +445,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

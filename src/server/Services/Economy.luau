@@ -570,13 +570,14 @@ end
 
 -- An alien enters the profile: a new level-1 record, the codex entry (count, best overlay, first
 -- catch), the Scrap it pays (the tier's catch pay, times Config.PerfectScrapMultiplier on a Perfect,
--- times an active Scrap Magnet, whole Scrap, plus the codex payout on a first catch) and the catch
+-- times the size band's Scrap multiplier, times an active Scrap Magnet, whole Scrap, plus the codex payout on a first catch) and the catch
 -- stats, in one profile update. Then the newcomer is seated, the client hears ScrapChanged and the
 -- camp pushes, pity moves, a rare enough tier is announced to the whole server, and the Field Notes
 -- count the catch under every condition active now (a rainy night is both Rain and Night), and the
 -- Tutorial hears the species. Returns the Reveal payload, or nil when the player has no profile (or
--- the species id is unknown).
-function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean): Types.GrantResult?
+-- the species id is unknown). size is a Sizes band id from the wild spawn that was caught; nil (eggs,
+-- gifts, shop grants) rolls one with Spawner.RollSize, and an unknown id falls back to the default band.
+function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean, size: string?): Types.GrantResult?
 	local def = Species.ById[species]
 	if not def then
 		return nil
@@ -584,6 +585,8 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	local tier: Types.Tier = def.tier
 	local tierDef = Tiers.Tiers[tier]
 	local magnet = Buffs.CatchScrapMultiplier(player)
+	local sizeId: string = if size == nil then Spawner.RollSize() elseif Sizes.ById[size] then size else Sizes.Default
+	local band = Sizes.ById[sizeId]
 	local uid = HttpService:GenerateGUID(false)
 	local caughtAt = os.time()
 	local isNew = false
@@ -596,7 +599,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 			level = 1,
 			overlay = overlay,
 			caughtAt = caughtAt,
-			size = Sizes.Default, -- milestone 25 replaces this with the rolled or passed band
+			size = sizeId,
 		}
 		profile.aliens[uid] = record
 
@@ -611,7 +614,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 			entry.bestOverlay = overlay
 		end
 
-		local pay = tierDef.catchScrap
+		local pay = math.floor(tierDef.catchScrap * band.scrapMultiplier + 0.5) -- the size band's multiplier, rounded half up, before the Perfect and Magnet buffs
 		if perfect then
 			pay *= Config.PerfectScrapMultiplier
 		end
@@ -649,7 +652,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	if profile.stats.catches == 1 then
 		Analytics.Event(player, AnalyticsData.Events.FirstCatchSeconds, os.time() - profile.firstSeen)
 	end
-	return { species = species, tier = tier, overlay = overlay, size = Sizes.Default, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
+	return { species = species, tier = tier, overlay = overlay, size = sizeId, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 
 -- Seat an alien another service has already written into the profile and tell the client.

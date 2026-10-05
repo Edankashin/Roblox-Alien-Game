@@ -346,12 +346,13 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			local overlay: Types.Overlay = spawn.overlay
 			local species: string = spawn.species
 			local tier: Types.Tier = spawn.tier
+			local size: string = spawn.size
 			Spawner.RemoveSpawn(encounter.spawnId, "caught")
 			endEncounter(player.UserId)
 			-- GrantAlien writes the record, codex, Scrap and stats, seats the alien, pushes ScrapChanged
 			-- and the camp, moves pity, counts the Field Notes and announces a rare enough tier. Nil only
 			-- if the profile is gone.
-			local grant = Economy.GrantAlien(player, species, overlay, perfect)
+			local grant = Economy.GrantAlien(player, species, overlay, perfect, size)
 			if not grant then
 				return nil
 			end

@@ -10,6 +10,11 @@
 -- client-made Workspace.ClientWild folder, feet where the placeholder's bottom sits, bobbing with the
 -- part; the server part is then invisible locally but stays what Nearest and PartAtScreenPoint return.
 -- Without a mesh the placeholder part shows exactly as before.
+-- Sizes (data/Sizes): the server rolls a band per spawn and writes its id as the part's Size attribute
+-- (missing means Sizes.Default). The alien is drawn at the band's `scale` on top of its own: the mesh
+-- clone is built at Config.ModelWildScale * scale, and the server part (the placeholder, or the invisible
+-- tap target behind a mesh) is resized locally by the same factor with its bottom held where it was, so the
+-- tap target, the nameplate height and the visual always agree. A change of the attribute re-applies it.
 -- The Heater rule (World 2): while State.GetConditions() holds "Blizzard", a tracked alien farther
 -- (flat distance) than Config.BlizzardHideStuds from the player is hidden locally, unless it stands
 -- within Radius of a lit Heater (a Part under Workspace.World.Heaters with the attributes Radius and
@@ -29,6 +34,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
@@ -56,6 +62,9 @@ type Record = {
 	nameLabel: TextLabel,
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
 	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
+	baseSize: Vector3, -- the part's Size as the server made it, before the size band
+	restBase: CFrame, -- the part's CFrame as the server placed it; `base` is this raised for the band
+	sizeFactor: number, -- the band scale currently applied to the part and the clone
 }
 
 local records: { [Part]: Record } = {}
@@ -117,19 +126,26 @@ local function buildPlate(part: Part, name: string, tier: string, topOffset: num
 	return plate, nameLabel
 end
 
--- The mesh clone for a wild part, stood where the placeholder's bottom sits. The Spawner centres the
--- part Size.Y / 2 above WildHoverStuds over the surface, so the feet go at the part's centre minus
--- half its height; the facing is a random yaw so a field of one species does not stand in formation.
-local function buildModel(part: Part, def: Types.SpeciesDef): (Model?, CFrame?)
+-- The band for a wild part's Size attribute; a missing or unknown id is the default band.
+local function bandOf(part: Part): Sizes.Band
+	local id = part:GetAttribute("Size")
+	local band = if type(id) == "string" then Sizes.ById[id] else nil
+	return band or Sizes.ById[Sizes.Default]
+end
+
+-- The mesh clone for a wild part, at the species' wild scale times the size band's, stood where the
+-- placeholder's bottom sits. The Spawner centres the part Size.Y / 2 above WildHoverStuds over the
+-- surface, so `feet` is the part's centre minus half its (unscaled) height; the facing is a random yaw
+-- so a field of one species does not stand in formation.
+local function buildModel(def: Types.SpeciesDef, feet: Vector3, factor: number): (Model?, CFrame?)
 	local parent = visualFolder
 	if not parent then
 		return nil, nil
 	end
-	local clone = Models.Clone(def, Config.ModelWildScale)
+	local clone = Models.Clone(def, Config.ModelWildScale * factor)
 	if not clone then
 		return nil, nil
 	end
-	local feet = part.CFrame.Position - Vector3.new(0, part.Size.Y / 2, 0)
 	local base = CFrame.new(feet) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
 	clone:PivotTo(base)
 	clone.Parent = parent
@@ -261,6 +277,38 @@ local function evaluate()
 	end
 end
 
+-- Distance from a part's centre up to the top of what the player sees: half the part for a placeholder,
+-- the mesh's top for a model (its feet are the part's bottom, which the band never moves).
+local function topOffsetOf(part: Part, model: Model?): number
+	if model then
+		return Models.Height(model) - part.Size.Y / 2
+	end
+	return part.Size.Y / 2
+end
+
+local function plateOffset(topOffset: number): Vector3
+	return Vector3.new(0, topOffset + Config.WildBobStuds + PLATE_LIFT, 0)
+end
+
+-- Re-reads the part's Size attribute for a tracked alien (the server may set it after the part
+-- appears) and moves the part, the clone and the plate to the new band, bottom unchanged.
+local function applySize(record: Record)
+	local factor = bandOf(record.part).scale
+	if factor == record.sizeFactor then
+		return
+	end
+	local ratio = factor / record.sizeFactor
+	record.sizeFactor = factor
+	local part = record.part
+	part.Size = record.baseSize * factor
+	record.base = record.restBase + Vector3.new(0, (part.Size.Y - record.baseSize.Y) / 2, 0)
+	local model = record.model
+	if model then
+		model:ScaleTo(model:GetScale() * ratio)
+	end
+	record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(part, model))
+end
+
 local function track(instance: Instance)
 	if not instance:IsA("Part") or records[instance] then
 		return
@@ -274,19 +322,26 @@ local function track(instance: Instance)
 	local displayName = if def then def.name else species
 	local model: Model? = nil
 	local modelBase: CFrame? = nil
-	local topOffset = instance.Size.Y / 2
+	-- The band scales the server part itself (the placeholder, or the tap target behind a mesh) with its
+	-- bottom held at the same height, so the part's top, the clone's top and the plate all follow.
+	local baseSize = instance.Size
+	local restBase = instance.CFrame
+	local feet = restBase.Position - Vector3.new(0, baseSize.Y / 2, 0)
+	local factor = bandOf(instance).scale
+	instance.Size = baseSize * factor
+	local base = restBase + Vector3.new(0, (instance.Size.Y - baseSize.Y) / 2, 0)
 	if def then
-		model, modelBase = buildModel(instance, def)
-		if model then
-			topOffset = Models.Height(model) - instance.Size.Y / 2
-		end
+		model, modelBase = buildModel(def, feet, factor)
 	end
-	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffset)
+	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
 	local record: Record = {
 		part = instance,
 		species = species,
 		tier = tier,
-		base = instance.CFrame,
+		base = base,
+		baseSize = baseSize,
+		restBase = restBase,
+		sizeFactor = factor,
 		phase = rng:NextNumber(0, math.pi * 2),
 		realColor = instance.Color,
 		shadowed = false,
