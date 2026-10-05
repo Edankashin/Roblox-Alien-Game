@@ -223,6 +223,7 @@ return {
 	FN_W1S5_LEGEND = "Sound the horn at the shrine when the stars are out. Gaiabloom will answer.",
 	TOAST_QUEST_STEP_DONE = "Field Notes: %s complete!",
 	TOAST_QUEST_CLAIMED = "Reward claimed: %s",
+	TOAST_QUEST_NOT_COMPLETE = "Finish every objective first",
 	TOAST_HORN_NOT_NIGHT = "The horn only works at night",
 	TOAST_HORN_TOO_FAR = "Stand at the shrine to sound the horn",
 	TOAST_HORN_COOLDOWN = "The Warden rests. Try again later",

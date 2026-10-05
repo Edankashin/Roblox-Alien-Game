@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
+local Quests = require(Shared.data.Quests)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
@@ -60,6 +61,37 @@ local function grantScrap(player: Player, text: string)
 	end
 end
 
+-- /horn: hand over the Warden's Horn so the shrine can be tested without the four earlier steps.
+local function grantHorn(player: Player)
+	local inventory: any = nil
+	local ok = PlayerData.Update(player, function(profile)
+		profile.inventory.items[Quests.HornItem] = (profile.inventory.items[Quests.HornItem] or 0) + 1
+		inventory = profile.inventory
+	end)
+	if ok then
+		Net.event("InventoryChanged"):FireClient(player, inventory)
+		print(("[%s] dev: %s holds the %s"):format(Config.WorkingTitle, player.Name, Quests.HornItem))
+	end
+end
+
+-- /step N: jump the current world's Field Notes to step N with empty progress.
+local function setStep(player: Player, text: string)
+	local step = tonumber(string.match(text, "%d+") or "")
+	if not step then
+		return
+	end
+	local state: any = nil
+	local ok = PlayerData.Update(player, function(profile)
+		profile.quests.fieldNotes[tostring(profile.world.current)] = math.max(1, math.floor(step))
+		profile.quests.progress = {}
+		state = { fieldNotes = profile.quests.fieldNotes, progress = profile.quests.progress }
+	end)
+	if ok then
+		Net.event("QuestsChanged"):FireClient(player, state)
+		print(("[%s] dev: %s is on Field Notes step %d"):format(Config.WorkingTitle, player.Name, step))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -81,6 +113,10 @@ function Dev.Init()
 	command("clear", function()
 		WorldClock.Force(nil, "Clear")
 	end)
+	command("horn", function(player: Player)
+		grantHorn(player)
+	end)
+	command("step", setStep)
 	command("weather", function(_player: Player, text: string)
 		local state = string.match(text, "(%S+)%s*$")
 		if state then
@@ -91,7 +127,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N)"):format(Config.WorkingTitle))
 	end
 end
 

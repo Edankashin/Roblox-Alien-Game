@@ -7,8 +7,10 @@
 -- This service also owns WalkSpeed: a character runs at Gear.BaseWalkSpeed times the best movement
 -- multiplier its player owns times an active Speed Burst (Buffs.SpeedMultiplier), set from the server
 -- on spawn, on profile load, on purchase and when a speed buff starts or ends. The client never sets
--- it. The require runs one way: Shop requires Buffs for the multiplier and hands Buffs its
--- ApplyMovement through Buffs.OnMovementChanged, so Buffs never requires Shop back.
+-- it. The requires run one way: Shop requires Buffs for the multiplier and hands Buffs its
+-- ApplyMovement through Buffs.OnMovementChanged, so Buffs never requires Shop back; and Shop requires
+-- Quests to report a crafted lure (Quests.OnCraft) and hands Quests its GrantGear through
+-- Quests.SetGearGranter (the Field Notes pay gear), so Quests never requires Shop back.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,6 +23,7 @@ local Gear = require(Shared.data.Gear)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
+local Quests = require(script.Parent.Quests)
 
 local Shop = {}
 
@@ -151,6 +154,7 @@ local function buyLure(player: Player, id: string): (boolean, string?)
 		pushScrap(player, profile)
 		pushInventory(player, profile)
 	end
+	Quests.OnCraft(player, id) -- a bought lure is a crafted lure for the Field Notes
 	return true, nil
 end
 
@@ -208,11 +212,40 @@ end
 
 -- Public API -------------------------------------------------------------
 
+-- Hands a player a gear row for free (a Field Notes reward): sets its profile flag, pushes GearChanged
+-- and re-applies WalkSpeed. Unlock rules do not apply; the reward is the unlock. Returns false with
+-- Unknown (no row, or no flag yet), NoProfile, or AlreadyOwned (nothing changes; a caller may treat
+-- that as done).
+function Shop.GrantGear(player: Player, id: string): (boolean, string?)
+	local field = GEAR_FLAG[id]
+	if not GEAR_ROWS[id] or not field then
+		return false, "Unknown"
+	end
+	local ok, reason = mutate(player, function(profile)
+		if hasGear(profile, field) then
+			return "AlreadyOwned"
+		end
+		grantGear(profile, field)
+		return nil
+	end)
+	if not ok then
+		return false, reason
+	end
+	local profile = PlayerData.Get(player)
+	if profile then
+		pushGear(player, profile)
+	end
+	Shop.ApplyMovement(player)
+	return true, nil
+end
+
 function Shop.Init()
 	for _, name in ipairs({ "ScrapChanged", "InventoryChanged", "GearChanged" }) do
 		Net.event(name)
 	end
 	Net.func("ShopBuy").OnServerInvoke = onShopBuy
+	-- The Field Notes pay gear through this service so the flag, the push and the speed stay in one place.
+	Quests.SetGearGranter(Shop.GrantGear)
 	-- The character can spawn before the profile loads (base speed); once it loads, the speed catches up.
 	PlayerData.OnLoaded(function(player: Player, _profile: Types.Profile)
 		Shop.ApplyMovement(player)

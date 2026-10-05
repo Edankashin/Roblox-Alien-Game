@@ -169,6 +169,11 @@ local function claim()
 			Toast.Show(Strings.TOAST_QUEST_CLAIMED:format(summary), Theme.Colors.Confirm)
 			return
 		end
+		if reason == "NotComplete" then
+			-- also the case while the Warden is summoned but not yet caught: the step reads complete, the claim waits
+			Toast.Show(Strings.TOAST_QUEST_NOT_COMPLETE, Theme.Colors.Select)
+			return
+		end
 		print(("[%s] QuestClaim refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 	end)
 end

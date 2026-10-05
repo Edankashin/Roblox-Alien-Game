@@ -5,7 +5,8 @@
 -- ReplicatedStorage.Shared.Economy module so the client extrapolates with the same formulas; this
 -- service only decides when the real profile changes. Clients send module ids and nothing else.
 -- It is also the one door an alien enters a profile through (GrantAlien): a wild catch from Catching
--- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer.
+-- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer and
+-- report the catch to Quests for the Field Notes.
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -22,6 +23,8 @@ local Economy = require(Shared.Economy)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
+local WorldClock = require(script.Parent.WorldClock)
+local Quests = require(script.Parent.Quests)
 
 local EconomyService = {}
 
@@ -495,8 +498,9 @@ end
 -- catch), the Scrap it pays (the tier's catch pay, times Config.PerfectScrapMultiplier on a Perfect,
 -- times an active Scrap Magnet, whole Scrap, plus the codex payout on a first catch) and the catch
 -- stats, in one profile update. Then the newcomer is seated, the client hears ScrapChanged and the
--- camp pushes, pity moves, and a rare enough tier is announced to the whole server. Returns the
--- Reveal payload, or nil when the player has no profile (or the species id is unknown).
+-- camp pushes, pity moves, a rare enough tier is announced to the whole server, and the Field Notes
+-- count the catch under every condition active now (a rainy night is both Rain and Night). Returns
+-- the Reveal payload, or nil when the player has no profile (or the species id is unknown).
 function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean): Types.GrantResult?
 	local def = Species.ById[species]
 	if not def then
@@ -556,6 +560,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
 	Buffs.OnCatch(player, tier)
 	announceCatch(player, species, tier, overlay)
+	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
 	return { species = species, tier = tier, overlay = overlay, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 

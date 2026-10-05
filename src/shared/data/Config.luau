@@ -83,6 +83,8 @@ return {
 
 	-- Field Notes and the Warden
 	ShrineInteractDistance = 14, -- studs from the shrine centre to offer "Sound the horn"
+	ShrineScatterClearance = 6, -- rocks and trees keep this far outside the shrine ring
+	WardenSummonOffset = 6, -- the summoned Warden appears this far from the shrine centre, toward the camp
 	WardenEncounterSeconds = 180, -- a summoned Warden waits this long before it retreats
 	WardenRetreatSeconds = 900, -- after a failed or expired encounter the horn works again after this
 	WardenZoneShrinkPerRound = 0.85, -- a multi-round capture multiplies both zones by this each round after the first

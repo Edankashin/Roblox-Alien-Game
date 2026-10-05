@@ -1,15 +1,17 @@
 --!strict
 -- ServerScriptService.Server.Services.Meadow: builds the placeholder World 1 under Workspace.World
 -- so a fresh baseplate has ground, a camp pad with a SpawnLocation, a few landmarks to walk between,
--- and the two biome regions from data/Meadow.luau (a Forest grove and a roofed Cave) drawn as coloured
--- floor patches with their own scatter. Server-side so every client sees the same world; parts only,
--- no scripts attached. Skips entirely when Workspace.World already exists (a hand-built or saved
--- world wins).
+-- the two biome regions from data/Meadow.luau (a Forest grove and a roofed Cave) drawn as coloured
+-- floor patches with their own scatter, and the Shrine of the Warden (a stone ring with a glowing
+-- pedestal under Workspace.World.Landmarks, where the Field Notes horn is sounded). Server-side so
+-- every client sees the same world; parts only, no scripts attached. Skips entirely when
+-- Workspace.World already exists (a hand-built or saved world wins).
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared.data.Config)
 local Layout = require(Shared.data.Meadow)
 local Biomes = require(Shared.Biomes)
 
@@ -17,8 +19,16 @@ local Meadow = {}
 
 local WORLD_FOLDER = "World"
 local WILD_FOLDER = "Wild"
+local LANDMARKS_FOLDER = "Landmarks"
+local SHRINE_NAME = "Shrine" -- the Model's name and its LandmarkId attribute
 local ROCK_HEIGHT_FACTOR = 0.7 -- rocks are squatter than they are wide
 local LEAVES_SINK_FACTOR = 0.6 -- the leaf ball sits this fraction of its radius above the trunk top
+-- Shrine proportions, all relative to Layout.Shrine (stoneHeight and radius) so one data change rescales it.
+local STONE_WIDTH_FACTOR = 0.4 -- a standing stone is this fraction of its height wide
+local STONE_DEPTH_FACTOR = 0.25 -- and this fraction deep
+local PEDESTAL_RADIUS_FACTOR = 0.25 -- pedestal radius as a fraction of the shrine radius
+local PEDESTAL_HEIGHT_FACTOR = 0.3 -- pedestal height as a fraction of the stone height
+local GLOW_RADIUS_FACTOR = 0.15 -- the glow ball's radius as a fraction of the stone height
 
 local function basePart(name: string, shape: Enum.PartType, size: Vector3, cframe: CFrame, hex: string, parent: Instance): Part
 	local part = Instance.new("Part")
@@ -53,15 +63,30 @@ local function regionLift(position: Vector3): number
 	return 0
 end
 
--- A random flat point on the open floor, clear of the camp and of the edge, and never inside `avoid`
--- (so no trees under the Cave roof and no rocks in the Forest grove).
+local function flatDistance(a: Vector3, b: Vector3): number
+	local dx, dz = a.X - b.X, a.Z - b.Z
+	return math.sqrt(dx * dx + dz * dz)
+end
+
+local function shrineFlat(): Vector3
+	return Vector3.new(Layout.Shrine.x, 0, Layout.Shrine.z)
+end
+
+local function pedestalHeight(): number
+	return Layout.Shrine.stoneHeight * PEDESTAL_HEIGHT_FACTOR
+end
+
+-- A random flat point on the open floor, clear of the camp, of the edge and of the shrine ring, and
+-- never inside `avoid` (so no trees under the Cave roof and no rocks in the Forest grove).
 local function scatterPoint(rng: Random, avoid: string): Vector3
 	local half = Layout.FloorSize / 2 - Layout.ScatterEdgeMargin
+	local shrineClear = Layout.Shrine.radius + Config.ShrineScatterClearance
+	local shrine = shrineFlat()
 	while true do
 		local x = rng:NextNumber(-half, half)
 		local z = rng:NextNumber(-half, half)
 		local point = Vector3.new(x, 0, z)
-		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and Biomes.At(point) ~= avoid then
+		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and flatDistance(point, shrine) >= shrineClear and Biomes.At(point) ~= avoid then
 			return point
 		end
 	end
@@ -122,6 +147,36 @@ local function buildRegion(name: string, region: Layout.Region, floorTop: number
 	end
 end
 
+-- The Shrine of the Warden: a ring of upright stones facing a central pedestal with a Neon glow ball
+-- on top. One Model named Shrine whose PrimaryPart (the pedestal) carries LandmarkId = "Shrine", so the
+-- client finds it under Workspace.World.Landmarks without knowing the layout.
+local function buildShrine(groundY: number, parent: Instance)
+	local shrine = Layout.Shrine
+	local model = Instance.new("Model")
+	model.Name = SHRINE_NAME
+
+	local height = pedestalHeight()
+	local pedestal = uprightCylinder("Pedestal", shrine.radius * PEDESTAL_RADIUS_FACTOR, height, Vector3.new(shrine.x, groundY + height / 2, shrine.z), shrine.pedestalColor, model)
+	pedestal:SetAttribute("LandmarkId", SHRINE_NAME)
+	model.PrimaryPart = pedestal
+
+	local glowRadius = shrine.stoneHeight * GLOW_RADIUS_FACTOR
+	local glow = basePart("Glow", Enum.PartType.Ball, Vector3.one * (glowRadius * 2), CFrame.new(shrine.x, groundY + height + glowRadius, shrine.z), shrine.glowColor, model)
+	glow.Material = Enum.Material.Neon
+	glow.CanCollide = false
+
+	local stoneSize = Vector3.new(shrine.stoneHeight * STONE_WIDTH_FACTOR, shrine.stoneHeight, shrine.stoneHeight * STONE_DEPTH_FACTOR)
+	for i = 1, shrine.stoneCount do
+		local angle = (i - 1) / shrine.stoneCount * math.pi * 2
+		local at = Vector3.new(shrine.x + math.cos(angle) * shrine.radius, groundY + shrine.stoneHeight / 2, shrine.z + math.sin(angle) * shrine.radius)
+		-- yaw the block so its depth axis points at the centre: the broad face looks inward
+		local cframe = CFrame.new(at) * CFrame.Angles(0, math.pi / 2 - angle, 0)
+		basePart("Stone" .. i, Enum.PartType.Block, stoneSize, cframe, shrine.stoneColor, model)
+	end
+
+	model.Parent = parent
+end
+
 function Meadow.Init()
 	if Workspace:FindFirstChild(WORLD_FOLDER) then
 		return
@@ -132,6 +187,10 @@ function Meadow.Init()
 	local wild = Instance.new("Folder")
 	wild.Name = WILD_FOLDER
 	wild.Parent = world
+
+	local landmarks = Instance.new("Folder")
+	landmarks.Name = LANDMARKS_FOLDER
+	landmarks.Parent = world
 
 	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
 	local floorTop = Layout.FloorThickness / 2
@@ -179,6 +238,10 @@ function Meadow.Init()
 		buildTree("Tree" .. i, at, floorTop + regionLift(at), rng, world)
 	end
 
+	-- The world's landmark. Scatter already kept clear of its ring (scatterPoint).
+	local shrineAt = shrineFlat()
+	buildShrine(floorTop + regionLift(shrineAt), landmarks)
+
 	world.Parent = Workspace
 end
 
@@ -206,6 +269,14 @@ end
 
 function Meadow.GetCampRadius(): number
 	return Layout.CampPadRadius
+end
+
+-- The top of the shrine's pedestal: where the horn is sounded (Quests measures ShrineInteractDistance
+-- from here) and where the Warden is summoned next to. Derived from the layout, so it is right even
+-- when a hand-built world skipped the build.
+function Meadow.GetShrinePosition(): Vector3
+	local flat = shrineFlat()
+	return Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + pedestalHeight(), flat.Z)
 end
 
 return Meadow

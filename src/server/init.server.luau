@@ -5,15 +5,17 @@
 -- before Catching (a catch is granted and seated there), Economy after PlayerData (it listens for
 -- loads), Buffs before Shop (Shop registers its WalkSpeed setter with Buffs) and before Catching
 -- (Steady Hands widens the zones), Shop after Economy (it shares ScrapChanged and InventoryChanged)
--- and before Catching (lures bought there are spent in a catch), Peddler after Economy and Catching
--- (eggs are granted through Economy; the visit clock starts last).
+-- and before Catching (lures bought there are spent in a catch), Quests after Meadow, Spawner and
+-- Shop (the horn summons the Warden at the shrine through Spawner.SpawnAt; Shop registers its gear
+-- grant with Quests) and before Catching (a lost Warden encounter is reported to Quests), Peddler
+-- after Economy and Catching (eggs are granted through Economy; the visit clock starts last).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "WorldClock", "Meadow", "Materials", "Spawner", "Economy", "Buffs", "Shop", "Catching", "Peddler", "Dev" }
+local ORDER = { "PlayerData", "WorldClock", "Meadow", "Materials", "Spawner", "Economy", "Buffs", "Shop", "Quests", "Catching", "Peddler", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

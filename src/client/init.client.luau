@@ -40,6 +40,9 @@ local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRend
 local PeddlerRenderer = require(script:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
 local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScreen"))
 local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
+local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
+local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
+local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
@@ -53,7 +56,7 @@ local inCapture = false
 local captureToken: string? = nil
 local collecting = false
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -61,7 +64,10 @@ local ACTION_TEXT: { [string]: string } = {
 	Build = Strings.ACTION_BUILD,
 	Launch = Strings.ACTION_LAUNCH,
 	Trade = Strings.ACTION_TRADE,
+	Horn = Strings.ACTION_HORN,
 }
+local soundHorn = Net.func("SoundHorn")
+local horning = false
 
 local captureStart = Net.func("CaptureStart")
 local captureHit = Net.func("CaptureHit")
@@ -261,7 +267,12 @@ local function decideAction(): Action?
 	end
 	local peddlerDistance = PeddlerRenderer.DistanceToShip()
 	if peddlerDistance <= Config.PeddlerInteractDistance and peddlerDistance < bestDistance then
-		best = "Trade"
+		best, bestDistance = "Trade", peddlerDistance
+	end
+	-- The horn is offered at the shrine whenever the player holds it; the server judges night and step.
+	local shrineDistance = LandmarkRenderer.DistanceTo("Shrine")
+	if shrineDistance <= Config.ShrineInteractDistance and shrineDistance < bestDistance and (State.Get().inventory.items[Quests.HornItem] or 0) > 0 then
+		best = "Horn"
 	end
 	return best
 end
@@ -279,6 +290,23 @@ local function performAction()
 		Toast.Show(Strings.SHIP_COMPLETE, Theme.Colors.Featured)
 	elseif action == "Trade" then
 		Screens.Open("Peddler")
+	elseif action == "Horn" and not horning then
+		horning = true
+		task.spawn(function()
+			local ok, reason = soundHorn:InvokeServer()
+			horning = false
+			if ok == true then
+				return -- WardenSummoned carries the toast
+			elseif reason == "NotNight" then
+				Toast.Show(Strings.TOAST_HORN_NOT_NIGHT, Theme.Colors.Select)
+			elseif reason == "TooFar" then
+				Toast.Show(Strings.TOAST_HORN_TOO_FAR, Theme.Colors.Select)
+			elseif reason == "Cooldown" then
+				Toast.Show(Strings.TOAST_HORN_COOLDOWN, Theme.Colors.Select)
+			else
+				print(("[%s] horn refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+			end
+		end)
 	end
 end
 
@@ -310,6 +338,16 @@ local function connectToasts()
 				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_" .. note.overlay), tierName, speciesName)
 				else Strings.ANNOUNCE_CATCH:format(note.playerName, tierName, speciesName)
 			Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+		end)
+	end)
+	task.spawn(function()
+		Net.event("WardenSummoned").OnClientEvent:Connect(function()
+			Toast.Banner(Strings.TOAST_WARDEN_AWAKE, Builder.tierColor("Legendary"), Config.AnnounceSeconds)
+		end)
+	end)
+	task.spawn(function()
+		Net.event("WardenRetreated").OnClientEvent:Connect(function()
+			Toast.Show(Strings.TOAST_WARDEN_RETREAT, Builder.tierColor("Legendary"))
 		end)
 	end)
 	-- The offline settlement is claimed rather than pushed, so it is never missed on a slow boot.
@@ -363,6 +401,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Ship", ShipScreen)
 	Screens.Register("Shop", ShopScreen)
 	Screens.Register("Peddler", PeddlerScreen)
+	Screens.Register("Quests", QuestsScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -399,6 +438,39 @@ local function start(profile: Types.Profile)
 	Hud.AddMenuButton("Aliens", Theme.Colors.Featured, menu("Aliens"))
 	Hud.AddMenuButton("Codex", Theme.Colors.Codex, menu("Codex"))
 	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
+	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
+	LandmarkRenderer.Start()
+
+	-- Field Notes: a badge and a toast when the current step's objectives are all met; cleared on claim.
+	local function currentStepComplete(): (boolean, string?)
+		local profile = State.Get()
+		local chain = Quests.FieldNotes[profile.world.current]
+		if not chain then
+			return false, nil
+		end
+		local index = profile.quests.fieldNotes[tostring(profile.world.current)] or 1
+		local step = chain[index]
+		if not step then
+			return false, nil
+		end
+		for _, objective in ipairs(step.objectives) do
+			if (profile.quests.progress[objective.id] or 0) < objective.count then
+				return false, step.id
+			end
+		end
+		return true, step.id
+	end
+	local announcedStep: string? = nil
+	State.OnChanged("quests", function()
+		local complete, stepId = currentStepComplete()
+		Hud.SetBadge("Quests", if complete then 1 else 0)
+		if complete and stepId and announcedStep ~= stepId then
+			announcedStep = stepId
+			Toast.Show(Strings.TOAST_QUEST_STEP_DONE:format(Builder.text("FN_" .. stepId .. "_TITLE")), Theme.Colors.Featured)
+		elseif not complete then
+			announcedStep = nil
+		end
+	end)
 	NearbyPanel.Start()
 
 	local known: { [string]: boolean } = {}

@@ -5,7 +5,9 @@
 -- the server to take it. Nodes are shared by everyone on the server, first come first served, and
 -- come back after the material's respawnSeconds. Every KeyMaterials row with nodes > 0 is scattered
 -- in its own biome (Shared/Biomes); a row with a condition (Night, Rain) is only available while the
--- WorldClock says so and shows as a ghost otherwise, so a player can find it by day and come back.
+-- WorldClock says so (WorldClock.HasCondition: a rainy night is both Rain and Night) and shows as a
+-- ghost otherwise, so a player can find it by day and come back. Every collect is reported to Quests
+-- for the Field Notes.
 
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
@@ -20,6 +22,7 @@ local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Meadow = require(script.Parent.Meadow)
 local WorldClock = require(script.Parent.WorldClock)
+local Quests = require(script.Parent.Quests)
 
 local Materials = {}
 
@@ -74,7 +77,7 @@ end
 -- Availability -------------------------------------------------------------
 
 local function conditionMet(def: KeyMaterials.KeyMaterialDef): boolean
-	return def.condition == "Any" or def.condition == WorldClock.GetCondition()
+	return def.condition == "Any" or WorldClock.HasCondition(def.condition)
 end
 
 local function isAvailable(node: Node): boolean
@@ -186,6 +189,7 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	take(node)
 	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 	Net.event("MaterialCollected"):FireClient(player, materialId, def.dropCount)
+	Quests.OnCollect(player, materialId)
 	return true
 end
 

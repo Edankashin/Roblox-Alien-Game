@@ -1,12 +1,16 @@
 --!strict
 -- ServerScriptService.Server.Services.Spawner: keeps wild aliens around every player.
 -- Each wild alien is a lightweight record here plus one anchored Part under Workspace.World.Wild
--- carrying attributes (SpeciesId, Tier, Overlay, SpawnId, Condition, Biome). No Humanoids, no server
--- animation: the client bobs and labels them. The server owns which species exist where and when,
--- so the tier roll, the overlay roll and the condition gating all live here. A spawn's biome is the
--- one its landing point is in (Shared/Biomes), so the Forest grove and the Cave get their own tables.
--- The tier roll uses the highest luck (Buffs.Luck) among the players within SpawnRadius of the spawn
--- point, so standing next to a lucky friend makes everyone's spawns better.
+-- carrying attributes (SpeciesId, Tier, Overlay, SpawnId, Condition, Biome, and ReservedFor when one
+-- player alone may catch it). No Humanoids, no server animation: the client bobs and labels them. The
+-- server owns which species exist where and when, so the tier roll, the overlay roll and the
+-- condition gating all live here. A spawn's biome is the one its landing point is in (Shared/Biomes),
+-- so the Forest grove and the Cave get their own tables. Conditions are a set (WorldClock.GetConditions:
+-- the special weather while it runs, plus Night or Day), so a rainy night offers both Rain and Night
+-- species. The tier roll uses the highest luck (Buffs.Luck) among the players within SpawnRadius of
+-- the spawn point, so standing next to a lucky friend makes everyone's spawns better.
+-- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
+-- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -36,9 +40,11 @@ export type WildSpawn = {
 	biome: Types.Biome, -- where it landed; its species came from this biome's table
 	position: Vector3,
 	part: Part,
+	reservedFor: number?, -- UserId of the one player who may catch it (a summoned Warden); nil for wild spawns
 }
 
-export type RemoveReason = "caught" | "fled" | "despawn" | "cull"
+-- "retreat" is a despawn the caller asked for (a reserved encounter was abandoned), so a listener can tell.
+export type RemoveReason = "caught" | "fled" | "despawn" | "cull" | "retreat"
 
 type PendingRespawn = { position: Vector3, readyAt: number }
 type Presence = { player: Player, position: Vector3 } -- a player with a character this tick
@@ -55,6 +61,7 @@ local rng = Random.new()
 local spawns: { [string]: WildSpawn } = {}
 local pending: { PendingRespawn } = {}
 local wildFolder: Folder? = nil
+local removedListeners: { (WildSpawn, RemoveReason) -> () } = {} -- Quests tracks the Warden through these
 
 local function folder(): Folder
 	if wildFolder then
@@ -96,7 +103,8 @@ local function rollTier(luck: number): string
 	return "Common"
 end
 
-local function availableSpecies(biome: Types.Biome, condition: Types.Condition): { string }
+-- The biome's "Any" list plus the list of every condition active right now.
+local function availableSpecies(biome: Types.Biome, conditions: { Types.Condition }): { string }
 	local table_ = Spawns.Biomes[biome]
 	local out: { string } = {}
 	if not table_ then
@@ -105,9 +113,11 @@ local function availableSpecies(biome: Types.Biome, condition: Types.Condition):
 	for _, id in ipairs(table_.Any or {}) do
 		table.insert(out, id)
 	end
-	if condition ~= "Any" then
-		for _, id in ipairs(table_[condition] or {}) do
-			table.insert(out, id)
+	for _, condition in ipairs(conditions) do
+		if condition ~= "Any" then
+			for _, id in ipairs(table_[condition] or {}) do
+				table.insert(out, id)
+			end
 		end
 	end
 	return out
@@ -115,8 +125,8 @@ end
 
 -- Choose a species of the rolled tier that can appear in the biome now; fall back down the tier order
 -- if none can.
-local function chooseSpecies(biome: Types.Biome, tier: string, condition: Types.Condition): Types.SpeciesDef?
-	local available = availableSpecies(biome, condition)
+local function chooseSpecies(biome: Types.Biome, tier: string, conditions: { Types.Condition }): Types.SpeciesDef?
+	local available = availableSpecies(biome, conditions)
 	local tierIndex = table.find(Tiers.Order, tier) or 1
 	for index = tierIndex, 1, -1 do
 		local wanted = Tiers.Order[index]
@@ -205,22 +215,14 @@ local function luckAround(around: Vector3, present: { Presence }): number
 	return best
 end
 
-local function createSpawn(around: Vector3, condition: Types.Condition, luck: number): WildSpawn?
-	-- where it lands decides which biome's table it rolls from
-	local flat = findPosition(around, BASE_SIZE)
-	if not flat then
-		return nil
-	end
+-- Seats one wild part at a flat point (Y re-read from the surface there) and records it. The caller
+-- has already chosen the species and the overlay; everything the client reads is an attribute on the
+-- part. A reservedFor UserId is written as the ReservedFor attribute so the client can label it.
+local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overlay, reservedFor: number?): WildSpawn
 	local biome: Types.Biome = Biomes.At(flat)
-	local tier = rollTier(luck)
-	local def = chooseSpecies(biome, tier, condition)
-	if not def then
-		return nil
-	end
 	local size = BASE_SIZE * def.placeholder.scale
 	local position = Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + Config.WildHoverStuds + size / 2, flat.Z)
 	local spawnId = HttpService:GenerateGUID(false)
-	local overlay: Types.Overlay = rollOverlay()
 
 	local part = Instance.new("Part")
 	part.Name = def.id
@@ -244,6 +246,9 @@ local function createSpawn(around: Vector3, condition: Types.Condition, luck: nu
 	part:SetAttribute("SpawnId", spawnId)
 	part:SetAttribute("Condition", def.condition)
 	part:SetAttribute("Biome", biome)
+	if reservedFor then
+		part:SetAttribute("ReservedFor", reservedFor)
+	end
 	part.Parent = folder()
 
 	local spawn: WildSpawn = {
@@ -255,15 +260,32 @@ local function createSpawn(around: Vector3, condition: Types.Condition, luck: nu
 		biome = biome,
 		position = position,
 		part = part,
+		reservedFor = reservedFor,
 	}
 	spawns[spawnId] = spawn
 	return spawn
 end
 
+local function createSpawn(around: Vector3, conditions: { Types.Condition }, luck: number): WildSpawn?
+	-- where it lands decides which biome's table it rolls from
+	local flat = findPosition(around, BASE_SIZE)
+	if not flat then
+		return nil
+	end
+	local biome: Types.Biome = Biomes.At(flat)
+	local tier = rollTier(luck)
+	local def = chooseSpecies(biome, tier, conditions)
+	if not def then
+		return nil
+	end
+	return place(def, flat, rollOverlay(), nil)
+end
+
+-- Wild spawns within SpawnRadius of a point; a reserved spawn takes no density slot.
 local function nearCount(around: Vector3, now: number): number
 	local count = 0
 	for _, spawn in pairs(spawns) do
-		if flatDistance(spawn.position, around) <= Config.SpawnRadius then
+		if not spawn.reservedFor and flatDistance(spawn.position, around) <= Config.SpawnRadius then
 			count += 1
 		end
 	end
@@ -278,7 +300,7 @@ end
 
 local function tick()
 	local now = os.clock()
-	local condition: Types.Condition = WorldClock.GetCondition()
+	local conditions: { Types.Condition } = WorldClock.GetConditions()
 
 	-- expire respawn timers
 	for index = #pending, 1, -1 do
@@ -297,11 +319,13 @@ local function tick()
 		end
 	end
 
-	-- conditional spawns leave when their condition ends; far spawns are culled
+	-- conditional spawns leave when their condition ends; far spawns are culled. A reserved spawn lives
+	-- on its own lifetime (SpawnAt) and is left alone by both.
 	for spawnId, spawn in pairs(spawns) do
-		if spawn.condition ~= "Any" and spawn.condition ~= condition then
+		local wild = spawn.reservedFor == nil
+		if wild and spawn.condition ~= "Any" and not table.find(conditions, spawn.condition) then
 			Spawner.RemoveSpawn(spawnId, "despawn")
-		elseif #roots > 0 then
+		elseif wild and #roots > 0 then
 			local nearest = math.huge
 			for _, at in ipairs(roots) do
 				nearest = math.min(nearest, flatDistance(spawn.position, at))
@@ -319,7 +343,7 @@ local function tick()
 		if missing > 0 then
 			local luck = luckAround(at, present)
 			for _ = 1, missing do
-				if not createSpawn(at, condition, luck) then
+				if not createSpawn(at, conditions, luck) then
 					break
 				end
 			end
@@ -339,6 +363,28 @@ function Spawner.RollOverlay(): Types.Overlay
 	return rollOverlay()
 end
 
+-- Places one spawn of a known species exactly where asked (a flat point; Y comes from the surface
+-- there), with the species' tier and the given overlay, outside the camp-clearance and density rules.
+-- reservedFor restricts the catch to that UserId (Catching refuses everyone else). lifetimeSeconds,
+-- when given, removes it with reason "despawn" once it runs out, unless it was caught or removed first.
+-- Nil only when the species id is unknown.
+function Spawner.SpawnAt(position: Vector3, speciesId: string, overlay: Types.Overlay, reservedFor: number?, lifetimeSeconds: number?): WildSpawn?
+	local def = Species.ById[speciesId]
+	if not def then
+		return nil
+	end
+	local spawn = place(def, position, overlay, reservedFor)
+	if lifetimeSeconds and lifetimeSeconds > 0 then
+		local spawnId = spawn.spawnId
+		task.delay(lifetimeSeconds, function()
+			if spawns[spawnId] == spawn then
+				Spawner.RemoveSpawn(spawnId, "despawn")
+			end
+		end)
+	end
+	return spawn
+end
+
 function Spawner.RemoveSpawn(spawnId: string, reason: RemoveReason)
 	local spawn = spawns[spawnId]
 	if not spawn then
@@ -348,12 +394,24 @@ function Spawner.RemoveSpawn(spawnId: string, reason: RemoveReason)
 	if spawn.part.Parent then
 		spawn.part:Destroy()
 	end
-	if reason == "caught" or reason == "fled" then
+	-- a caught or fled wild alien keeps its density slot until the respawn timer runs out; a placed
+	-- (reserved) spawn never held one
+	if (reason == "caught" or reason == "fled") and not spawn.reservedFor then
 		table.insert(pending, {
 			position = spawn.position,
 			readyAt = os.clock() + rng:NextNumber(Config.SpawnRespawnMinSeconds, Config.SpawnRespawnMaxSeconds),
 		})
 	end
+	-- each listener runs in its own thread so one failing service cannot stall a removal
+	for _, callback in ipairs(removedListeners) do
+		task.spawn(callback, spawn, reason)
+	end
+end
+
+-- Server-side hook: `callback` runs with the record and the reason every time a spawn is removed, for
+-- any reason. Quests follows the Warden it summoned through this (caught, fled, lifetime, retreat).
+function Spawner.OnRemoved(callback: (WildSpawn, RemoveReason) -> ())
+	table.insert(removedListeners, callback)
 end
 
 function Spawner.Init()

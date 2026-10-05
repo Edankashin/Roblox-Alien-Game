@@ -99,4 +99,6 @@ Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (ear
 6. Step 5 claims as done: the panel reads "The Field Notes are complete. The Warden rides with you."
 7. Other players never see your summoned Warden and cannot catch it.
 
+8. Fast path for testing the finale: `/step 5` jumps the Field Notes to the last step and `/horn` grants the Warden's Horn; then `/night`, walk to the shrine and press "Sound the horn". Claiming step 5 is refused with "Finish every objective first" until Gaiabloom is in the codex, so a fled Warden can always be summoned again after the cooldown.
+
 Known gaps in this milestone: daily and weekly quests, the shrine's art, the Warden's three attack patterns (only the shrink is in), riding.
