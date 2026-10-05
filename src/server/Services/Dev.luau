@@ -1,6 +1,7 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6. Nothing
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
+-- /buy StarterPack, /pass AutoOptimize [off]. Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -19,6 +20,7 @@ local Gifts = require(script.Parent.Gifts)
 local Shop = require(script.Parent.Shop)
 local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
+local Monetization = require(script.Parent.Monetization)
 local Species = require(Shared.data.Species)
 
 local Dev = {}
@@ -152,6 +154,29 @@ local function addSpins(player: Player, text: string)
 	end
 end
 
+-- /buy <itemId>: grant a Robux catalog item as if its receipt had arrived (no Robux, no prompt).
+local function buyItem(player: Player, text: string)
+	local id = string.match(text, "^/%S+%s+(%S+)")
+	if not id then
+		print(("[%s] dev: /buy needs an item id (Shared/data/Shop)"):format(Config.WorkingTitle))
+		return
+	end
+	local ok, reason = Monetization.DevGrant(player, id)
+	print(("[%s] dev: %s buy %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
+end
+
+-- /pass <itemId> [off]: own (or drop) a game pass for this session; owning applies its one-time grants.
+local function setPass(player: Player, text: string)
+	local id, flag = string.match(text, "^/%S+%s+(%S+)%s*(%S*)")
+	if not id then
+		print(("[%s] dev: /pass needs an item id (Shared/data/Shop)"):format(Config.WorkingTitle))
+		return
+	end
+	local owned = flag ~= "off"
+	local ok, reason = Monetization.DevSetPass(player, id, owned)
+	print(("[%s] dev: %s pass %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then (if owned then "owned" else "dropped") else "refused: " .. tostring(reason)))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -200,11 +225,13 @@ function Dev.Init()
 	end)
 	command("days", setDays)
 	command("spins", addSpins)
+	command("buy", buyItem)
+	command("pass", setPass)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off])"):format(Config.WorkingTitle))
 	end
 end
 

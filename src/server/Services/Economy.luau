@@ -8,6 +8,9 @@
 -- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer and
 -- report the catch to Quests for the Field Notes and to the Tutorial, which also hears every module
 -- start (both gates paid) and completion from here.
+-- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
+-- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
+-- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -29,6 +32,8 @@ local Buffs = require(script.Parent.Buffs)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
 local Tutorial = require(script.Parent.Tutorial)
+local Spawner = require(script.Parent.Spawner)
+local Monetization = require(script.Parent.Monetization)
 
 local EconomyService = {}
 
@@ -429,10 +434,9 @@ local function onClaimOfflineSummary(player: Player): Types.OfflineSummary?
 	return summary
 end
 
-local function onStationOptimize(player: Player): (boolean, string?)
-	if not Net.allow(player, "StationOptimize", REMOTE_RATE_PER_SECOND) then
-		return false, "RateLimited"
-	end
+-- Banks progress at the old speed, reseats every alien fastest first and pushes the camp. The remote
+-- below and the Auto Optimize pass (after every alien that enters the profile) both run this.
+local function optimize(player: Player): (boolean, string?)
 	local completed: { string } = {}
 	local ok = PlayerData.Update(player, function(profile)
 		completed = snapshotModules(profile) -- bank progress at the old speed before the crew moves
@@ -447,6 +451,13 @@ local function onStationOptimize(player: Player): (boolean, string?)
 		announceCompleted(player, profile.world.current, completed)
 	end
 	return true
+end
+
+local function onStationOptimize(player: Player): (boolean, string?)
+	if not Net.allow(player, "StationOptimize", REMOTE_RATE_PER_SECOND) then
+		return false, "RateLimited"
+	end
+	return optimize(player)
 end
 
 -- Income -----------------------------------------------------------------
@@ -502,7 +513,10 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 		if away < Config.OfflineMinSeconds then
 			return
 		end
-		local gain = Economy.offlineScrap(profile, away)
+		-- Shared Economy.offlineScrap's formula, with the cap the Longer Offline pass raises
+		-- (Config.OfflineCapSecondsPass instead of Config.OfflineCapSeconds).
+		local cap = if Monetization.OwnsPass(player, "LongerOffline") then Config.OfflineCapSecondsPass else Config.OfflineCapSeconds
+		local gain = math.floor(Economy.totalRate(profile) * Config.OfflineRate * math.clamp(away, 0, cap))
 		profile.scrap += gain
 		local completed = snapshotModules(profile) -- assembly ran on the wall clock while away
 		completedAway = completed
@@ -618,6 +632,9 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	end
 	pushScrap(player, profile)
 	seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
+	if Monetization.OwnsPass(player, "AutoOptimize") then
+		optimize(player) -- the Auto Optimize pass: the whole crew is reseated fastest first after every newcomer
+	end
 	Buffs.OnCatch(player, tier)
 	announceCatch(player, species, tier, overlay)
 	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
@@ -638,6 +655,28 @@ function EconomyService.OnCaught(player: Player, uid: string)
 	seatAndPush(player, uid)
 end
 
+-- The StationOptimize remote's work without its rate limit: bank progress, reseat everyone fastest
+-- first, push the camp. NoProfile is the only refusal.
+function EconomyService.Optimize(player: Player): (boolean, string?)
+	return optimize(player)
+end
+
+-- Every station gains `amount` slots (a Robux pass), never above Config.StationMaxSlots or below 1;
+-- the client hears StationsChanged. NoProfile is the only refusal.
+function EconomyService.AddSlots(player: Player, amount: number): (boolean, string?)
+	local ok = PlayerData.Update(player, function(profile)
+		for _, station in pairs(profile.stations) do
+			station.slots = math.clamp(station.slots + math.floor(amount), 1, Config.StationMaxSlots)
+		end
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not profile then
+		return false, "NoProfile"
+	end
+	pushStations(player, profile)
+	return true, nil
+end
+
 function EconomyService.Init()
 	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement" }) do
 		Net.event(name)
@@ -647,6 +686,24 @@ function EconomyService.Init()
 	Net.func("StationOptimize").OnServerInvoke = onStationOptimize
 	Net.func("ClaimOfflineSummary").OnServerInvoke = onClaimOfflineSummary
 	PlayerData.OnLoaded(onLoaded)
+	-- Robux grants that land in the camp, registered with Monetization rather than required from it (see
+	-- its header): an alien of the species the grant names, which must exist and be of the grant's tier,
+	-- with the wild overlay odds and no Perfect pay; and slots on every station.
+	Monetization.SetGranter("alien", function(player: Player, grant: Monetization.Grant): (boolean, string?)
+		local species = grant.id
+		local def = if species then Species.ById[species] else nil
+		if not species or not def then
+			return false, "Unknown"
+		end
+		if grant.tier ~= nil and def.tier ~= grant.tier then
+			return false, "WrongTier"
+		end
+		local result = EconomyService.GrantAlien(player, species, Spawner.RollOverlay(), false)
+		return result ~= nil, if result then nil else "NoProfile"
+	end)
+	Monetization.SetGranter("slots", function(player: Player, grant: Monetization.Grant): (boolean, string?)
+		return EconomyService.AddSlots(player, grant.amount or 0)
+	end)
 end
 
 function EconomyService.Start()

@@ -10,6 +10,8 @@
 -- is a paid random item. Rewards write into the profile here; an egg goes through Economy.GrantAlien
 -- like a catch or a Peddler egg (record, codex, Scrap, seating, Reveal) with the wild overlay odds
 -- (Spawner.RollOverlay). The client renders the calendar and the wheel; it sends a day or nothing.
+-- Spins bought with Robux (a Starter Pack's five) are banked here too: Gifts registers its "spins"
+-- granter with Monetization at Init, so the balance and its GiftsChanged push stay in one place.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -27,6 +29,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Analytics = require(script.Parent.Analytics)
+local Monetization = require(script.Parent.Monetization)
 
 local Gifts = {}
 
@@ -320,6 +323,19 @@ function Gifts.Init()
 	Net.func("ClaimGift").OnServerInvoke = onClaimGift
 	Net.func("Spin").OnServerInvoke = onSpin
 	PlayerData.OnLoaded(onLoaded)
+	-- Robux spins bank like gifted ones and the wheel screen hears the new balance at once.
+	Monetization.SetGranter("spins", function(player: Player, grant: Monetization.Grant): (boolean, string?)
+		local profile = PlayerData.Get(player)
+		if not profile then
+			return false, "NoProfile"
+		end
+		local amount = math.max(0, math.floor(grant.amount or 0))
+		PlayerData.Update(player, function(p)
+			p.spins.banked += amount
+		end)
+		pushGifts(player, profile)
+		return true, nil
+	end)
 end
 
 function Gifts.Start()

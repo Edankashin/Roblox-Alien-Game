@@ -5,8 +5,11 @@
 -- Other services read the live effects through the query API below (Shop for speed, Catching for
 -- zones, Economy for Scrap and income, Spawner for luck); none of them read profile.buffs directly.
 -- Luck is one number per player: 1, plus an active Lucky Charm, plus the night bonus, plus the server's
--- Meteor Shower bonus (Events.ServerLuckBonus), plus the soft pity that rises with every catch below
--- Config.PityResetMinTier, capped at Config.LuckCap.
+-- Meteor Shower bonus (Events.ServerLuckBonus), plus a bought Server Luck running on this server
+-- (Monetization.ServerLuckBonus), plus the soft pity that rises with every catch below
+-- Config.PityResetMinTier, capped at Config.LuckCap. Monetization is wired like Events: this module
+-- requires it for the bonus and registers Buffs.PushLuckAll through Monetization.OnServerLuckChanged
+-- at Init, and hands it the "powerUp" granter (Robux power-up bundles land in inventory.powerUps here).
 --
 -- Shop owns WalkSpeed and requires this module for the speed multiplier, so this module never requires
 -- Shop back: Shop registers Shop.ApplyMovement through Buffs.OnMovementChanged at Init and that
@@ -27,6 +30,7 @@ local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
+local Monetization = require(script.Parent.Monetization)
 
 local Buffs = {}
 
@@ -119,7 +123,7 @@ function Buffs.StationMultiplier(player: Player): number
 end
 
 -- The one luck number the Spawner rolls tiers with and the HUD shows: 1 + Lucky Charm + night bonus
--- + the server's shower bonus + soft pity, capped at Config.LuckCap.
+-- + the server's shower bonus + a bought Server Luck + soft pity, capped at Config.LuckCap.
 function Buffs.Luck(player: Player): number
 	local profile = PlayerData.Get(player)
 	local luck = 1 + activeValue(profile, "luck")
@@ -130,6 +134,7 @@ function Buffs.Luck(player: Player): number
 		luck += Config.LuckNightBonus
 	end
 	luck += Events.ServerLuckBonus()
+	luck += Monetization.ServerLuckBonus()
 	return math.min(luck, Config.LuckCap)
 end
 
@@ -263,6 +268,27 @@ function Buffs.Init()
 	-- (registered here rather than required from Events; see the header).
 	Events.OnShowerChanged(function()
 		Buffs.PushLuckAll()
+	end)
+	-- A bought Server Luck is part of every player's luck the same way.
+	Monetization.OnServerLuckChanged(function()
+		Buffs.PushLuckAll()
+	end)
+	-- Robux power-up bundles: the id must be a PowerUps row; the count lands in the inventory.
+	Monetization.SetGranter("powerUp", function(player: Player, grant: Monetization.Grant): (boolean, string?)
+		local id = grant.id
+		if not id or not DEFS[id] then
+			return false, "Unknown"
+		end
+		local profile = PlayerData.Get(player)
+		if not profile then
+			return false, "NoProfile"
+		end
+		local amount = math.max(0, math.floor(grant.amount or 0))
+		PlayerData.Update(player, function(p)
+			p.inventory.powerUps[id] = (p.inventory.powerUps[id] or 0) + amount
+		end)
+		pushInventory(player, profile)
+		return true, nil
 	end)
 end
 

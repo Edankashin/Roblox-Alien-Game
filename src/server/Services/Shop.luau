@@ -11,7 +11,8 @@
 -- it. The requires run one way: Shop requires Buffs for the multiplier and hands Buffs its
 -- ApplyMovement through Buffs.OnMovementChanged, so Buffs never requires Shop back; and Shop requires
 -- Quests to report a crafted lure (Quests.OnCraft) and hands Quests its GrantGear through
--- Quests.SetGearGranter (the Field Notes pay gear), so Quests never requires Shop back.
+-- Quests.SetGearGranter (the Field Notes pay gear), so Quests never requires Shop back. The Robux shop
+-- (Monetization) pays gear the same way: Shop registers GrantGear as its "gear" granter at Init.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +29,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
 local Quests = require(script.Parent.Quests)
 local Analytics = require(script.Parent.Analytics)
+local Monetization = require(script.Parent.Monetization)
 
 local Shop = {}
 
@@ -322,6 +324,15 @@ function Shop.Init()
 	Net.func("ShopBuy").OnServerInvoke = onShopBuy
 	-- The Field Notes pay gear through this service so the flag, the push and the speed stay in one place.
 	Quests.SetGearGranter(Shop.GrantGear)
+	-- Robux gear (an Explorer Pack, a Starter Pack's Boots) lands through the same door. Gear already owned
+	-- counts as granted, so a pack whose first piece the player bought for Scrap still completes.
+	Monetization.SetGranter("gear", function(player: Player, grant: Monetization.Grant): (boolean, string?)
+		local ok, reason = Shop.GrantGear(player, grant.id or "")
+		if not ok and reason == "AlreadyOwned" then
+			return true, nil
+		end
+		return ok, reason
+	end)
 	-- The character can spawn before the profile loads (base speed); once it loads, the speed catches up.
 	PlayerData.OnLoaded(function(player: Player, _profile: Types.Profile)
 		Shop.ApplyMovement(player)
