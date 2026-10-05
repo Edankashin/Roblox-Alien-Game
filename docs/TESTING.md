@@ -46,3 +46,13 @@ Known gaps in this milestone: Forest and Cave biomes and their materials, launch
 7. Check the biome chip does not collide with the clock chip or toasts at iPhone SE and iPad sizes.
 
 Known gaps in this milestone: the Warden's Core (quest) is not obtainable, so the Engine Core cannot be built yet; no lures, Peddler or tutorial; placeholder art.
+
+## Milestone 5: menu stack, Aliens screen, Codex screen, Nearby panel
+
+1. Press Play. Down the left edge sit four square buttons with labels: Shop (green), Aliens (gold), Codex (purple), Ship (blue). Shop shows a "Coming soon" toast. The other three open their panels; opening one closes another; while any panel is open the Catch!/Collect/Build button is hidden and Space does not start a catch.
+2. Aliens: with nothing caught the panel reads "Catch an alien and it will work here" under three station cards (Picnic Table 0/1, Treehouse Bench 0/1, Glow Flower 0/1, each with one open slot and two locked squares). Catch two aliens: cards appear sorted by speed with a rarity-coloured frame, speed chip "x1" or "x1.6", and "gathering at the Picnic Table" or "Resting". The station card fills and shows "+60/min". Optimize re-sorts.
+3. Codex: "Verdant Crash Site: 2/15" with a purple bar; a grid of 15 cells, caught ones in colour, uncaught as dark silhouettes with "?" (Panpipe reads "???"). Tap a cell: the right card shows a rotating 3D placeholder, name, tier in its colour, "Jobs: Gather L1", and either "Found: Meadow, any time" with the caught count or "Appears in the Meadow in the rain" with "First catch pays 1,500 Scrap" for an uncaught Thunderhog.
+4. Nearby: a dark column under the biome chip lists what can appear here now: in the Meadow by day Mossbop, Puffpuff, Sparkfox and Buzzlebee; at night Buzzlebee drops out; in Rain Thunderhog joins. Walk into the Forest and the list becomes Glimmo, Twiglet, Zapfinch (Lanternewt at night). Caught species show in colour, uncaught as silhouettes.
+5. Check all three panels and the Nearby column at iPhone SE and iPad sizes; nothing overlaps the top row or the action button.
+
+Known gaps in this milestone: Shop, Quests and Settings are not built; no compass direction from the Nearby panel yet; placeholder icons (first letters) until the icon pack is chosen.

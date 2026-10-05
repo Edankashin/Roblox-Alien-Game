@@ -27,6 +27,13 @@ local setScrapValue: ((number) -> ())? = nil
 local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
+local menuButtons: { [string]: Frame } = {}
+local menuCount = 0
+
+local MENU_TOP = 0.2 -- the icon stack starts here, under the Scrap pill and its rate line
+local MENU_SLOT = 0.15 -- vertical space per entry: the square button plus its label
+local MENU_BUTTON = 0.105 -- square button height (width follows through the aspect constraint)
+local MENU_LEFT = 0.015
 local actionButton: Frame? = nil
 local actionFace: TextButton? = nil
 local breathe: Tween? = nil
@@ -123,6 +130,67 @@ local function buildBiomeChip(root: ScreenGui)
 		size = UDim2.fromScale(0.86, 0.7),
 		anchor = Vector2.new(0.5, 0.5),
 	})
+end
+
+-- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. Until the
+-- icon pack is chosen the face shows the label's first letter.
+local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onClick: () -> ()): Frame
+	local label = Builder.text("MENU_" .. id)
+	local top = MENU_TOP + menuCount * MENU_SLOT
+	menuCount += 1
+	local slot = Builder.frame({
+		parent = root,
+		name = "Menu_" .. id,
+		position = UDim2.fromScale(MENU_LEFT, top),
+		size = UDim2.fromScale(0.12, MENU_SLOT),
+		aspect = 0.8,
+	})
+	local button = Builder.button({
+		parent = slot,
+		name = "Button",
+		text = string.upper(string.sub(label, 1, 1)),
+		color = color,
+		position = UDim2.fromScale(0.5, 0),
+		size = UDim2.fromScale(1, MENU_BUTTON / MENU_SLOT),
+		anchor = Vector2.new(0.5, 0),
+		textSize = Theme.TextSize.Title,
+		aspect = 1,
+	}, onClick)
+	Builder.label({
+		parent = slot,
+		name = "Label",
+		text = label,
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 1),
+		size = UDim2.fromScale(1.3, 1 - MENU_BUTTON / MENU_SLOT),
+		anchor = Vector2.new(0.5, 1),
+	})
+	-- Red notification dot, hidden until SetBadge
+	local badge = Builder.frame({
+		parent = button,
+		name = "Badge",
+		position = UDim2.fromScale(0.98, 0.02),
+		size = UDim2.fromScale(0.34, 0.34),
+		anchor = Vector2.new(0.8, 0.2),
+		color = Theme.Colors.Close,
+		corner = Theme.Corner.Pill,
+		stroke = Theme.Stroke.Text,
+		aspect = 1,
+		zIndex = 5,
+	})
+	Builder.label({
+		parent = badge,
+		name = "Count",
+		text = "",
+		textSize = Theme.TextSize.Min,
+		size = UDim2.fromScale(0.9, 0.9),
+		position = UDim2.fromScale(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 6,
+	})
+	badge.Visible = false
+	menuButtons[id] = button
+	return button
 end
 
 -- Cumulative module weights for the default world, until the bootstrap calls SetShipTicks.
@@ -315,6 +383,35 @@ function Hud.SetScrap(amount: number)
 		Builder.playSound(Sounds.ScrapTick)
 	end
 	lastScrap = amount
+end
+
+-- Adds an entry to the left icon stack. Call after Hud.Build, once per screen, in display order.
+function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
+	local root = gui
+	if not root or menuButtons[id] then
+		return
+	end
+	buildMenuButton(root, id, color, onClick)
+end
+
+-- Shows a red dot with a count on a menu button; 0 hides it.
+function Hud.SetBadge(id: string, count: number)
+	local button = menuButtons[id]
+	if not button then
+		return
+	end
+	local badge = button:FindFirstChild("Badge")
+	if not badge or not badge:IsA("Frame") then
+		return
+	end
+	badge.Visible = count > 0
+	local label = badge:FindFirstChild("Count")
+	if label and label:IsA("TextLabel") then
+		label.Text = if count > 0 then tostring(count) else ""
+	end
+	if count > 0 then
+		Builder.pop(button, 1.15)
+	end
 end
 
 function Hud.SetBiome(biome: string)
