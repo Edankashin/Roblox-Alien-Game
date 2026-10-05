@@ -92,6 +92,10 @@ Claude Design is an Anthropic Labs product launched April 17, 2026, in research 
 
 Free fallback built into Studio: the MCP server's `generate_mesh` (textured mesh from a text prompt), `generate_material` and `generate_procedural_model` tools, which Claude Code can call directly once connected.
 
+## 6b. Blender through MCP (models)
+
+Claude builds and edits models in Blender the same way it works in Studio. Setup once: `brew install uv`, `brew install --cask blender`, `uvx mcp-for-blender install-addon`, enable "Interface: MCP for Blender" under Edit → Preferences → Add-ons, then in the 3D viewport press `N`, open the "MCP for Blender" tab and click "Start MCP Server" (port 9876). The repo's `.mcp.json` already registers the server; do not add it again in user or local scope. Pipeline, rules and limits: `docs/vault/06-art-pipelines/Blender-MCP.md`. Exports land in `assets/models/`.
+
 ## 7. Reference videos in future
 
 Save the TikTok, then from the repo:

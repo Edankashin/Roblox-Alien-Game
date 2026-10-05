@@ -31,6 +31,10 @@ rojo plugin install || echo "If this fails, install 'Rojo' from the Creator Stor
 say "Media tools for future reference videos"
 have ffmpeg || brew install ffmpeg
 have yt-dlp || brew install yt-dlp
+# Blender through MCP (docs/vault/06-art-pipelines/Blender-MCP.md)
+have uv || brew install uv
+[ -d /Applications/Blender.app ] || brew install --cask blender || true
+have uvx && uvx mcp-for-blender install-addon || true
 
 if [ "${WITH_OBSIDIAN:-0}" = "1" ]; then
   say "Obsidian (optional; open docs/vault as a vault)"

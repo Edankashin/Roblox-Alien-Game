@@ -2,6 +2,12 @@
   "mcpServers": {
     "Roblox_Studio": {
       "command": "/Applications/RobloxStudio.app/Contents/MacOS/StudioMCP"
+    },
+    "blender": {
+      "command": "uvx",
+      "args": [
+        "mcp-for-blender"
+      ]
     }
   }
 }
