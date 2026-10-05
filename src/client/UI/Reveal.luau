@@ -53,7 +53,7 @@ local TIER_Y = 0.8
 local NAME_Y_STAMPED = 0.745
 local TIER_Y_STAMPED = 0.845
 local STAMP_Y = 0.655
-local STAMP_SCRAP_Y = 0.905 -- of the screen, on the root like the Scrap and Perfect lines, under both
+local STAMP_SCRAP_Y = 0.945 -- of the screen, on the root like the Scrap (0.815) and Perfect (0.885) lines, under both
 local STAMP_PEAK = 1.5 -- the stamp slams in from this scale
 
 local gui: ScreenGui? = nil
