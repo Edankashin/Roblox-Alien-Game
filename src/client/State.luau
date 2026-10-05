@@ -20,7 +20,7 @@ local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -135,10 +135,12 @@ function State.GetConditions(): { Types.Condition }
 end
 
 -- OutpostsChanged carries the whole outposts table (world id string -> level and lastCollect).
+-- Its own topic, not "world": a world change closes every screen (the ship moved), an outpost update
+-- only redraws the Star Chart.
 function State.SetOutposts(outposts: { [string]: Types.OutpostState })
 	if profile then
 		profile.world.outposts = outposts
-		fire("world")
+		fire("outposts")
 	end
 end
 

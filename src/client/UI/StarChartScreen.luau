@@ -607,7 +607,7 @@ local function build()
 	end
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "world", "scrap" }) do
+	for _, topic in ipairs({ "world", "scrap", "outposts" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
 	-- Reduced Motion turned on or off while open: restart the pulse the new way.
