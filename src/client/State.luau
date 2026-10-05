@@ -79,6 +79,19 @@ function State.GetCondition(): Types.Condition
 	return if clock.isNight then "Night" else "Day"
 end
 
+-- Every condition active right now (mirrors WorldClock.GetConditions): the special weather while it
+-- runs, plus Night or Day.
+function State.GetConditions(): { Types.Condition }
+	local out: { Types.Condition } = {}
+	local p = profile
+	local world = Worlds[if p then p.world.current else 1]
+	if world and clock.weather == world.weather.special.id then
+		table.insert(out, (clock.weather :: any) :: Types.Condition)
+	end
+	table.insert(out, if clock.isNight then "Night" else "Day")
+	return out
+end
+
 -- The biome the local player stands in (the bootstrap polls Biomes.At and feeds it in).
 function State.GetBiome(): Types.Biome
 	return biome

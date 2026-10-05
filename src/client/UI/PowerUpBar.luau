@@ -41,7 +41,7 @@ type Slot = {
 
 -- Screen layout. The bar sits in the bottom-left corner, under the left menu stack (which ends near
 -- y 0.8) and clear of the action button bottom-right.
-local LEFT = 0.015
+local CENTRE = 0.5 -- bottom centre, clear of the chat window (bottom-left) and the action button (bottom-right)
 local BOTTOM = 0.975
 local WIDTH = 0.6
 local HEIGHT = 0.17 -- caption plus slot row
@@ -266,9 +266,9 @@ function PowerUpBar.Build()
 	local bar = Builder.frame({
 		parent = root,
 		name = "Bar",
-		position = UDim2.fromScale(LEFT, BOTTOM),
+		position = UDim2.fromScale(CENTRE, BOTTOM),
 		size = UDim2.fromScale(WIDTH, HEIGHT),
-		anchor = Vector2.new(0, 1),
+		anchor = Vector2.new(0.5, 1),
 	})
 	Builder.label({
 		parent = bar,
@@ -276,7 +276,7 @@ function PowerUpBar.Build()
 		text = Strings.HUD_POWERUPS,
 		textSize = Theme.TextSize.Min,
 		size = UDim2.fromScale(1, CAPTION_H),
-		xAlign = Enum.TextXAlignment.Left,
+		xAlign = Enum.TextXAlignment.Center,
 	})
 	local row = Builder.frame({
 		parent = bar,
@@ -287,7 +287,7 @@ function PowerUpBar.Build()
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	layout.Padding = UDim.new(SLOT_GAP, 0)
 	layout.Parent = row

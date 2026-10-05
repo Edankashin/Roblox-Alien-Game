@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
+local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -41,6 +42,7 @@ local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScr
 local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
+local TOAST_TOP_WITH_PANEL = 0.215 -- toasts start under an open panel's header tab instead of over it
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
@@ -338,6 +340,13 @@ local function start(profile: Types.Profile)
 	State.Set(profile)
 	State.Start()
 
+	-- The default chat window sits top-left over the Scrap pill and the menu stack; move it bottom-left.
+	local chatWindow = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+	if chatWindow then
+		chatWindow.HorizontalAlignment = Enum.HorizontalAlignment.Left
+		chatWindow.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	end
+
 	Hud.Build()
 	Hud.SetScrap(profile.scrap)
 	Hud.SetShipTicks(Economy.milestones(profile.world.current))
@@ -456,6 +465,8 @@ local function start(profile: Types.Profile)
 		local action: Action? = decideAction() -- annotated: the checker widens singleton unions otherwise
 		currentAction = action
 		Hud.SetAction(if action then ACTION_TEXT[action] else nil)
+		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
+		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil)
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).

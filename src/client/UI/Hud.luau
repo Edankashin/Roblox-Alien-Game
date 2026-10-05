@@ -430,6 +430,13 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	buildMenuButton(root, id, color, onClick)
 end
 
+-- The icon stack hides during a capture or a reveal (it sits above those dims) and shows otherwise.
+function Hud.SetMenuVisible(visible: boolean)
+	if menuGui and menuGui.Enabled ~= visible then
+		menuGui.Enabled = visible
+	end
+end
+
 -- Shows a red dot with a count on a menu button; 0 hides it.
 function Hud.SetBadge(id: string, count: number)
 	local button = menuButtons[id]

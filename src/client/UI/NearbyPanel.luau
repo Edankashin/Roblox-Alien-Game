@@ -113,8 +113,8 @@ end
 
 -- Refresh ----------------------------------------------------------------------
 
--- The species that can spawn here now: the biome's "Any" list plus the list for the single condition the
--- server judges by (State.GetCondition mirrors the server's Rain > Night > Day rule).
+-- The species that can spawn here now: the biome's "Any" list plus the lists for every active condition
+-- (State.GetConditions mirrors WorldClock: the special weather while it runs, plus Night or Day).
 local function nearbyIds(): { string }
 	local tables: { [string]: Spawns.BiomeTable } = Spawns.Biomes
 	local biomeTable = tables[State.GetBiome()]
@@ -125,8 +125,10 @@ local function nearbyIds(): { string }
 	for _, id in ipairs(biomeTable.Any or {}) do
 		table.insert(ids, id)
 	end
-	for _, id in ipairs(biomeTable[State.GetCondition()] or {}) do
-		table.insert(ids, id)
+	for _, condition in ipairs(State.GetConditions()) do
+		for _, id in ipairs(biomeTable[condition] or {}) do
+			table.insert(ids, id)
+		end
 	end
 	return ids
 end

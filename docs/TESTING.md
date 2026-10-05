@@ -84,6 +84,9 @@ Known gaps in this milestone: Peddler, power-ups, luck, Hoverboard tricks and sk
 
 7. Special weather: `/rain` (or `/weather Rain`) forces World 1's special weather: a purple banner "Rain! Thunderhog is out!" slides in, the clock chip reads "Day · Rain", Thunderhogs can spawn in the Meadow and the Storm Shard nodes light up. `/clear` ends it. Weather now rolls from the world's list (Clear, Fog, Rain) with Rain at a 34% chance per change.
 
+8. Layout checks from the 6a test: the chat window now sits bottom-left (the menu stack and Scrap pill are clear of it), the power-up bar is bottom centre, the menu stack hides during a capture and a reveal, toasts stack below an open panel's header, and the Glider row reads "Unlocks with your first launch".
+9. Rainy night: `/rain` then `/night`: Cave Crystals are Available (night is still night in the rain) and Storm Shards too; the Nearby column lists both the Night and the Rain species.
+
 Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (earned only, no source yet), Peddler ship art and landing sound.
 
 ## Milestone 7: Field Notes and the Warden

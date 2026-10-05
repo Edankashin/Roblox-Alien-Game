@@ -363,8 +363,8 @@ local function refreshGear(profile: Types.Profile)
 		row.card.Visible = true
 		local def = item.def
 		local bonus = math.floor((def.speedMultiplier - 1) * 100)
-		row.effect.Visible = bonus > 0 -- Glider: name and price only
-		row.effect.Text = Strings.SHOP_GEAR_SPEED:format(bonus)
+		row.effect.Visible = true
+		row.effect.Text = if bonus > 0 then Strings.SHOP_GEAR_SPEED:format(bonus) else Strings.SHOP_GEAR_LOCKED
 		row.price.Text = priceText(def.scrap)
 		local isOwned = ownsGear(profile, item.field)
 		row.button.Visible = not isOwned

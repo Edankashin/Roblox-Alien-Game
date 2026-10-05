@@ -280,6 +280,7 @@ return {
 	SHOP_LURE_EFFECT = "+%d%% catch zones, used on your next catch",
 	SHOP_GEAR_SPEED = "+%d%% walk speed, forever",
 	SHOP_ROBUX_SOON = "Robux items come with the launch shop",
+	SHOP_GEAR_LOCKED = "Unlocks with your first launch",
 	SHOP_SCRAP_PRICE = "%s Scrap",
 	LURE_Lure1 = "Twig Lure",
 	LURE_Lure2 = "Glow Lure",

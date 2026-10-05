@@ -81,6 +81,29 @@ function WorldClock.GetCondition(): Types.Condition
 	return if isNight then "Night" else "Day"
 end
 
+-- Every condition active right now: the special weather while it runs, plus Night or Day. Spawns and
+-- nodes gate on this set, so a rainy night still counts as night.
+function WorldClock.GetConditions(): { Types.Condition }
+	local out: { Types.Condition } = {}
+	if weather == world.weather.special.id then
+		table.insert(out, (weather :: any) :: Types.Condition)
+	end
+	table.insert(out, if isNight then "Night" else "Day")
+	return out
+end
+
+function WorldClock.HasCondition(condition: string): boolean
+	if condition == "Any" then
+		return true
+	end
+	for _, active in ipairs(WorldClock.GetConditions()) do
+		if active == condition then
+			return true
+		end
+	end
+	return false
+end
+
 -- The special weather of the world this place runs (for banners and the Dev commands).
 function WorldClock.GetSpecialWeather(): Worlds.SpecialWeather
 	return world.weather.special

@@ -16,7 +16,8 @@ local Builder = require(script.Parent.Builder)
 local Toast = {}
 
 local MAX_VISIBLE = 3
-local TOP = 0.12 -- first slot, below the HUD's top row
+local TOP_DEFAULT = 0.12 -- first slot, below the HUD's top row
+local top = TOP_DEFAULT -- the bootstrap lowers it while a panel is open so toasts clear the header tab
 local GAP = 0.012 -- between stacked toasts, in screen height
 local WIDTH = 0.42 -- of the screen; the aspect constraint derives the height from this
 local MAX_HEIGHT = 0.2 -- generous cap so the width stays the binding side of the aspect fit
@@ -41,7 +42,7 @@ end
 
 -- The slot a given entry occupies: the heights of everything above it, plus gaps.
 local function slotPosition(index: number): UDim2
-	local y = TOP
+	local y = top
 	for i = 1, index - 1 do
 		y += entries[i].height + GAP
 	end
@@ -171,6 +172,15 @@ end
 
 function Toast.Show(text: string, color: Color3?)
 	push(text, color or Theme.Colors.Featured, false, Theme.Tween.Toast)
+end
+
+-- Where the stack starts, in screen Scale; nil restores the default. Live toasts re-flow.
+function Toast.SetTop(y: number?)
+	local next = y or TOP_DEFAULT
+	if next ~= top then
+		top = next
+		reflow()
+	end
 end
 
 -- Server-wide announcement: a wide banner in the given colour (usually the tier colour).
