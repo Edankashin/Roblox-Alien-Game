@@ -90,6 +90,8 @@ export type Profile = {
 	-- player preferences (data/Settings.luau names the keys and their allowed values); the client applies them
 	settings: { [string]: number },
 	tutorialStep: number, -- index into data/Tutorial.luau Steps; past the last step means done
+	-- social rewards (data/Social.luau): sessions counts loads; referredBy is the inviter's UserId or 0
+	social: { sessions: number, groupClaimed: boolean, referredBy: number, referralClaimed: boolean, referralsRewarded: number, notifyAskedAt: number },
 	tutorialCounter: number, -- catches (or other counted events) since the current step started
 	lastSeen: number,
 	firstSeen: number,

@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 4
+local SCHEMA_VERSION = 5
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -40,6 +40,12 @@ local function defaultSettings(): { [string]: number }
 		out[def.key] = def.default
 	end
 	return out
+end
+
+-- The social block (data/Social.luau): session count, the one-time group gift, referral state, the last
+-- notifications ask.
+local function defaultSocial()
+	return { sessions = 0, groupClaimed = false, referredBy = 0, referralClaimed = false, referralsRewarded = 0, notifyAskedAt = 0 }
 end
 
 local function template(): Types.Profile
@@ -68,6 +74,7 @@ local function template(): Types.Profile
 		stats = { catches = 0, perfects = 0, playSeconds = 0 },
 		settings = defaultSettings(),
 		tutorialStep = 1,
+		social = defaultSocial(),
 		tutorialCounter = 0,
 		lastSeen = 0,
 		firstSeen = 0,
@@ -102,6 +109,18 @@ local migrations: { [number]: (any) -> any } = {
 		local shop = if type(data.shop) == "table" then data.shop else {}
 		shop.receipts = if type(shop.receipts) == "table" then shop.receipts else {}
 		data.shop = shop
+		return data
+	end,
+	-- v5: the social block (group gift, referrals, the notifications ask)
+	[5] = function(data)
+		local saved = if type(data.social) == "table" then data.social else {}
+		local social = defaultSocial()
+		for key, value in pairs(saved) do
+			if social[key] ~= nil and type(value) == type(social[key]) then
+				social[key] = value
+			end
+		end
+		data.social = social
 		return data
 	end,
 }

@@ -19,6 +19,9 @@ return {
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
 		Launch = "Launch", -- value 1; fields from, to (world ids)
 		Fly = "Fly", -- value 1; fields from, to (world ids): a Star Chart flight
+		GroupReward = "GroupReward", -- value 1: the group gift claimed
+		Referral = "Referral", -- value 1; field role (invitee, inviter)
+		NotifyAsk = "NotifyAsk", -- value 1; field answer (yes, no)
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
