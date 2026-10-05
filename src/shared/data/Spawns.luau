@@ -10,18 +10,21 @@ local Biomes: { [string]: BiomeTable } = {
 		Day = { "Buzzlebee" },
 		Night = {},
 		Rain = { "Thunderhog" },
+		Shower = { "Radish" }, -- Cosmics only exist during a Meteor Shower
 	},
 	Forest = {
 		Any = { "Glimmo", "Twiglet", "Zapfinch" },
 		Day = {},
 		Night = { "Lanternewt" },
 		Rain = {},
+		Shower = { "Radish" },
 	},
 	Cave = {
 		Any = { "Pebblet", "Snailbyte", "Rocklobber" },
 		Day = {},
 		Night = { "Gloomoth" },
 		Rain = {},
+		Shower = { "Radish" },
 	},
 }
 

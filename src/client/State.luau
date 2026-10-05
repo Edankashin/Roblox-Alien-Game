@@ -18,7 +18,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -26,6 +26,9 @@ local ratePushed = false -- until the server's first RateChanged, the rate is de
 local clock: Types.ClockState = { isNight = false, weather = "Clear", secondsLeft = 0, weatherSecondsLeft = 0 }
 local biome: Types.Biome = "Meadow"
 local buffs: { [string]: number } = {} -- id -> server wall-clock time (os.time scale) the buff ends at
+local gifts: Types.GiftState = { daysPlayed = 0, claimed = {}, freeSpins = 0, bankedSpins = 0 }
+local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSeconds = 0 }
+local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
 local changed = Instance.new("BindableEvent")
@@ -102,6 +105,15 @@ function State.SetBiome(b: Types.Biome)
 		biome = b
 		fire("biome")
 	end
+end
+
+function State.GetGifts(): Types.GiftState
+	return gifts
+end
+
+-- The shower clock as pushed, plus the seconds elapsed since, so countdowns run between pushes.
+function State.GetShower(): (Types.ShowerState, number)
+	return shower, math.max(0, Workspace:GetServerTimeNow() - showerAt)
 end
 
 -- Tutorial step (TutorialChanged) and the count toward a counted step.
@@ -238,6 +250,25 @@ function State.Start()
 		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?)
 			peddler = visit
 			fire("peddler")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("GiftsChanged").OnClientEvent:Connect(function(state: Types.GiftState)
+			gifts = state
+			if profile then
+				profile.gifts.daysPlayed = state.daysPlayed
+				profile.gifts.claimed = state.claimed
+				profile.spins.free = state.freeSpins
+				profile.spins.banked = state.bankedSpins
+			end
+			fire("gifts")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("ShowerChanged").OnClientEvent:Connect(function(state: Types.ShowerState)
+			shower = state
+			showerAt = Workspace:GetServerTimeNow()
+			fire("shower")
 		end)
 	end)
 	task.spawn(function()

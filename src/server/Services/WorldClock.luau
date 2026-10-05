@@ -23,6 +23,7 @@ local weather: string = world.weather.normal[1]
 local phaseEndsAt = 0 -- os.clock() when day flips to night or back
 local weatherEndsAt = 0
 local listeners: { (Types.Condition) -> () } = {} -- server services told on every change (Materials gates nodes by condition)
+local extras: { [string]: boolean } = {} -- conditions other services switch on (Events: "Shower")
 
 local function snapshot(): Types.ClockState
 	return {
@@ -89,7 +90,25 @@ function WorldClock.GetConditions(): { Types.Condition }
 		table.insert(out, (weather :: any) :: Types.Condition)
 	end
 	table.insert(out, if isNight then "Night" else "Day")
+	for name, on in pairs(extras) do
+		if on then
+			table.insert(out, (name :: any) :: Types.Condition)
+		end
+	end
 	return out
+end
+
+-- Switches an extra condition on or off (the Meteor Shower) and tells every listener, so spawn tables
+-- and nodes gated on it react at once.
+function WorldClock.SetCondition(name: string, on: boolean)
+	if (extras[name] == true) == on then
+		return
+	end
+	extras[name] = on
+	local condition: Types.Condition = WorldClock.GetCondition()
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, condition)
+	end
 end
 
 function WorldClock.HasCondition(condition: string): boolean

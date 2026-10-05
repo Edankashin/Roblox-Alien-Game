@@ -14,9 +14,13 @@ return {
 	NightClockTime = 0,
 
 	-- Meteor Shower (server clock)
-	ShowerIntervalSeconds = 7200,
+	ShowerIntervalSeconds = 7200, -- fixed server clock: showers start at multiples of this since the epoch
 	ShowerDurationSeconds = 180,
-	ShowerLuckBonus = 2.0, -- +200%
+	ShowerLuckBonus = 2.0, -- +200% luck for everyone on the server while it runs
+	ShowerCosmicShare = 0.2, -- percent of spawns that roll Cosmic during a shower (0 outside one)
+	ShowerWarnSeconds = 300, -- the countdown chip appears this long before a shower
+	ShowerPushSeconds = 10, -- how often the server refreshes the shower clock on clients
+	GiftDaySeconds = 86400, -- a "day played" ticks over every this many seconds of wall clock (UTC days)
 
 	-- economy
 	BaseScrapPerSecond = 1, -- a Common at level 1 in a station

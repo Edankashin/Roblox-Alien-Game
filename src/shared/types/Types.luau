@@ -156,6 +156,15 @@ export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsA
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
 export type GrantResult = { species: string, tier: Tier, overlay: Overlay, isNew: boolean, scrapGained: number, scrap: number }
 
+-- Gifts -> client (GiftsChanged): Welcome Week progress and the spin balance.
+export type GiftState = { daysPlayed: number, claimed: { [string]: boolean }, freeSpins: number, bankedSpins: number }
+
+-- Spin() answer: the segment the server rolled; the client animates the wheel to it.
+export type SpinResult = { segmentId: string, index: number }
+
+-- Events -> clients (ShowerChanged, FireAllClients): the Meteor Shower clock.
+export type ShowerState = { active: boolean, secondsLeft: number, nextInSeconds: number }
+
 -- Quests -> client (QuestsChanged): the Field Notes step per world and the objective counts.
 export type QuestState = { fieldNotes: { [string]: number }, progress: { [string]: number } }
 
