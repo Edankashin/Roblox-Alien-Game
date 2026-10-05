@@ -42,7 +42,7 @@ local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScr
 local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
-local TOAST_TOP_WITH_PANEL = 0.215 -- toasts start under an open panel's header tab instead of over it
+local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
@@ -466,6 +466,7 @@ local function start(profile: Types.Profile)
 		currentAction = action
 		Hud.SetAction(if action then ACTION_TEXT[action] else nil)
 		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
+		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen()) -- it shares the lower third with the capture bar
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil)
 	end)
 

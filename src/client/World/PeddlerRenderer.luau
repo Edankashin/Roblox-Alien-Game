@@ -245,7 +245,7 @@ local function apply(visit: Types.PeddlerVisit?)
 	current = visit
 	if visit then
 		shownEndsAt = visit.endsAt
-		Toast.Show(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured)
+		Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds) -- an event, so it stays up
 		land()
 	elseif shownEndsAt ~= nil then
 		shownEndsAt = nil
