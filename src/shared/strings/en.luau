@@ -248,6 +248,17 @@ return {
 	MENU_GLYPH_Ship = "^",
 	MENU_GLYPH_Quests = "!",
 	MENU_Gifts = "Gifts",
+	MENU_Ranks = "Ranks",
+	MENU_GLYPH_Ranks = "#",
+	-- weekly leaderboard (data/Leaderboard)
+	LB_TITLE = "Top catchers this week",
+	LB_RESETS = "Resets in %s",
+	LB_ROW = "%d. %s",
+	LB_COUNT = "%d",
+	LB_YOU = "You: %d catches this week, rank %s",
+	LB_RANK_OUT = "100+",
+	LB_EMPTY = "No catches yet this week. Be the first!",
+	LB_LOCAL_ONLY = "Studio: this server only (DataStore off)",
 	-- Star Chart (opened from the Ship screen) and outposts
 	STARCHART_OPEN = "Star Chart",
 	STARCHART_TITLE = "Star Chart",
