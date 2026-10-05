@@ -598,7 +598,7 @@ local function start(profile: Types.Profile)
 		local speciesId = part:GetAttribute("SpeciesId")
 		local def = if type(speciesId) == "string" then Species.ById[speciesId] else nil
 		local entry = if type(speciesId) == "string" and State.Has() then State.Get().codex[speciesId] else nil
-		local name = if def and entry and entry.count > 0 then def.name else Strings.UI_UNKNOWN_GLYPH
+		local name = if def and entry and entry.count > 0 then def.name else Strings.CODEX_UNKNOWN
 		radarTarget = part
 		Waypoint.Show(function()
 			return if part.Parent then part.Position else nil
