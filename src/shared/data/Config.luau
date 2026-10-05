@@ -124,6 +124,9 @@ return {
 
 	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
 	ModelFolderName = "Models",
+	PropsFolderName = "Props", -- ReplicatedStorage.<ModelFolderName>.<PropsFolderName>.<Name>: imported scenery Models (trees, rocks, ship hull, station and heater meshes), by hand; builders fall back to part-built placeholders
+	HeaterPropName = "HeaterLamp", -- the Props entry the Heaters service stands on its disc, when imported
+	PropScaleJitter = 0.1, -- scattered props (trees, rocks, geyser cones) are scaled 1 +- this
 	ModelFacesPlusZ = false, -- true when the imported meshes face +Z: clones turn 180 degrees so the eyes face -Z, the Roblox front
 	ModelWildScale = 1, -- multiplier on the mesh's own size for wild aliens
 	ModelWorkerScale = 1, -- multiplier on the mesh's own size for station workers, on top of Camp.WorkerScale

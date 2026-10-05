@@ -22,6 +22,13 @@ local Stations: { [string]: StationLayout } = {
 	Spark = { offset = Vector3.new(0, 0, 19), size = Vector3.new(2, 4, 2), color = "A855F7", slotDirection = Vector3.new(1, 0, 0) },
 }
 
+-- Imported camp meshes (Shared/Props names): the ship's hull stands on the landing slab and one model per
+-- station job; the renderer uses the placeholder parts above wherever a name was never imported.
+local Props: { ship: string, stations: { [string]: string } } = {
+	ship = "ShipHull",
+	stations = { Gather = "GatherStation", Build = "BuildStation", Spark = "SparkStation" },
+}
+
 return {
 	ShipOffset = Vector3.new(0, 0, -20), -- from the camp pad centre; the spawn faces -Z so the ship is straight ahead
 	PeddlerOffset = Vector3.new(26, 0, -8), -- the merchant ship lands here, right of the camp
@@ -35,6 +42,7 @@ return {
 	SnapPopScale = 1.3, -- a completed module pops in from this scale
 	Modules = Modules,
 	Stations = Stations,
+	Props = Props,
 	SlotSpacing = 3, -- studs between worker slots beside a station
 	SlotOffsetFromStation = 3.5, -- the slot row sits this far from the station centre
 	WorkerScale = 0.7, -- workers render smaller than wild aliens

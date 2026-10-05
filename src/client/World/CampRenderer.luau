@@ -10,6 +10,11 @@
 -- the same way the Ship screen does, by extrapolating progress with Economy.progressAt, so a module
 -- snaps in the moment the clock says it is done, before the server's push arrives.
 -- Stations: one block per unlocked job with a nameplate (station name and its Scrap per minute).
+-- Imported meshes (Shared/Props, named in Camp.Props): the ship's hull stands on the slab and each
+-- station has its own model; the part-built slab and station blocks stay as invisible anchors under them
+-- (nameplates, collision and the lift read the parts) and are the visible fallback when a mesh was never
+-- imported. The module parts stay placeholders either way: their ghost, pulse and snap-pop visuals are
+-- part-based.
 -- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally,
 -- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists.
 
@@ -23,6 +28,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Props = require(Shared:WaitForChild("Props"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
@@ -88,7 +94,7 @@ local builtWorld: number? = nil
 local shipCentre: Vector3 = Camp.ShipOffset
 local modules: { ModuleRecord } = {}
 local shipBase: Part? = nil -- the landing slab; the module parts live in `modules`
-local liftRest: { [Part]: CFrame }? = nil -- where each ship part rested before LiftShip; nil while landed
+local liftRest: { [BasePart]: CFrame }? = nil -- where each ship part rested before LiftShip; nil while landed
 local liftTweens: { Tween } = {}
 local stations: { [string]: StationRecord } = {}
 local workers: { [string]: WorkerRecord } = {}
@@ -252,7 +258,13 @@ local function buildShip(parent: Folder, world: number)
 	local base = Camp.ShipBaseSize
 	local baseCentre = Vector3.new(Camp.ShipOffset.X, groundY() + Camp.ShipOffset.Y + base.Y / 2, Camp.ShipOffset.Z)
 	shipCentre = baseCentre
-	shipBase = newPart("ShipBase", Enum.PartType.Block, base, CFrame.new(baseCentre), Camp.ShipBaseColor, parent)
+	local slab = newPart("ShipBase", Enum.PartType.Block, base, CFrame.new(baseCentre), Camp.ShipBaseColor, parent)
+	shipBase = slab
+	-- The imported hull stands on the ground under the slab's centre; the slab stays as its invisible anchor.
+	-- Modules stay placeholder parts below (their ghost and snap visuals are part-based).
+	if Props.Place(Camp.Props.ship, CFrame.new(baseCentre.X, baseCentre.Y - base.Y / 2, baseCentre.Z), 1, slab, true) then
+		slab.Transparency = 1
+	end
 	local baseTop = baseCentre + Vector3.new(0, base.Y / 2, 0)
 
 	for _, def in ipairs(Economy.moduleDefs(world)) do
@@ -273,11 +285,17 @@ end
 -- The launch sequence raises the whole ship (the slab and every module part) and puts it back. The
 -- rest CFrames are remembered on the first lift so a reset lands exactly where buildShip put them.
 
-local function shipParts(): { Part }
-	local parts: { Part } = {}
+local function shipParts(): { BasePart }
+	local parts: { BasePart } = {}
 	local base = shipBase
 	if base and base.Parent then
 		table.insert(parts, base)
+		-- the imported hull's meshes ride with the slab
+		for _, descendant in ipairs(base:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				table.insert(parts, descendant)
+			end
+		end
 	end
 	for _, record in ipairs(modules) do
 		if record.part.Parent then
@@ -328,6 +346,12 @@ local function buildStations(parent: Folder, world: number)
 		part.CanCollide = true
 		if job == "Spark" then
 			part.Material = Enum.Material.Neon -- the Glow Flower glows
+		end
+		-- The imported model stands on the ground under the block's centre; the block stays as its invisible
+		-- anchor (collision and nameplate), and is the visible placeholder when the mesh was never imported.
+		local propName = Camp.Props.stations[job]
+		if propName and Props.Place(propName, CFrame.new(centre.X, centre.Y - layout.size.Y / 2, centre.Z), 1, part, false) then
+			part.Transparency = 1
 		end
 		local _, rateLabel = buildPlate(part, 0, Builder.text("STATION_" .. job), "", Theme.Colors.Featured)
 		rateLabel.Visible = false

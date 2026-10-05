@@ -22,3 +22,12 @@ The repo keeps one folder per asset under `assets/models/<Id>/` with `<Id>.glb`,
 - Do not upload to the Creator Store or change any asset id in the place from this skill; Open Cloud upload is a later, separate step.
 - A rigged FBX with animations: import with "Rig type: Custom" and keep the AnimationController; the animation ids are added to the data row, not to code.
 - Never commit `.rbxm` exports; the GLB/FBX in `assets/models` is the source.
+
+## Props
+
+Scenery and camp props (`assets/models/props/<Name>/`, from `tools/blender/props_base.py`) follow the same steps with these differences:
+
+- Destination: `ReplicatedStorage.Models.Props.<Name>` (create `Models` and `Props` if missing), never `Models.<Name>`.
+- Name rule: the Model's name is exactly the prop name in the layout's `Props` table, `Camp.Props` or `Config.HeaterPropName` (name = file name = instance name); a missing or misspelt name silently keeps the part placeholder.
+- Keep scale 1, Anchored on for every part; set the `Glow` MeshPart's Material to Neon. No wiring step: the data tables already hold the names. Footprints must match `notes.md` (the placeholders use the same sizes).
+- Test by pressing Play and checking Output for nothing red. Full workflow: `docs/vault/06-art-pipelines/Map-Dressing.md`.

@@ -9,6 +9,12 @@
 -- so every client sees the same world; parts only, no scripts attached. Skips entirely when
 -- Workspace.World already exists (a hand-built or saved world wins). The service keeps its World 1
 -- name: it is the one world builder, whichever world the place is.
+--
+-- Imported meshes: every landmark first tries the layout's prop (Shared/Props, named by Layout.Props) and
+-- keeps its part-built placeholder as the fallback. Pure scenery (trees, rocks, cones) is replaced
+-- outright by the mesh; the shrine's pedestal stays as an invisible anchor (it is the PrimaryPart and
+-- carries LandmarkId) with the mesh as its child. A scattered landmark draws the same random numbers
+-- whether or not its mesh exists, so the seeded world is laid out identically with and without imports.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,10 +24,13 @@ local Config = require(Shared.data.Config)
 local Layouts = require(Shared.data.Layouts)
 local Place = require(Shared.Place)
 local Biomes = require(Shared.Biomes)
+local Props = require(Shared.Props)
 
 local Meadow = {}
 
 local Layout: Layouts.Layout = Place.Layout() -- this place's world; fixed for the server's lifetime
+local propNames: Layouts.PropNames? = Layout.Props -- nil: this world imports nothing, every landmark is a placeholder
+local NO_NAMES: { string } = {}
 
 local WORLD_FOLDER = "World"
 local WILD_FOLDER = "Wild"
@@ -115,31 +124,75 @@ local function scatterPoint(rng: Random, avoid: (Layouts.Region) -> boolean): Ve
 	end
 end
 
--- A rock resting on `groundY` at a flat point; size and turn come from the shared rng.
-local function buildRock(name: string, at: Vector3, groundY: number, rng: Random, parent: Instance): Part
+-- The three draws every scattered landmark makes, always, in this order: which of its kinds to use, its
+-- turn, and its scale jitter. They are taken whether or not an imported mesh exists, so the shared rng
+-- (and with it every later position) is the same with and without imports.
+local function drawProp(rng: Random, kinds: { string }): (number, number, number)
+	local pick = rng:NextInteger(1, math.max(1, #kinds))
+	local yaw = rng:NextNumber(0, math.pi * 2)
+	local jitter = rng:NextNumber(-Config.PropScaleJitter, Config.PropScaleJitter)
+	return pick, yaw, jitter
+end
+
+-- Stands the picked mesh on the ground at a flat point, named as its placeholder would have been; nil when
+-- the layout lists no kind or the mesh was never imported (the caller builds the placeholder).
+local function placeScenery(kinds: { string }, pick: number, name: string, at: Vector3, groundY: number, yaw: number, jitter: number, parent: Instance): Model?
+	if #kinds == 0 then
+		return nil
+	end
+	local model = Props.Place(kinds[pick], CFrame.new(at.X, groundY, at.Z) * CFrame.Angles(0, yaw, 0), 1 + jitter, parent, true)
+	if model then
+		model.Name = name
+	end
+	return model
+end
+
+-- A rock resting on `groundY` at a flat point; size and turn come from the shared rng. The imported mesh
+-- is authored at the layout's rock size, so it is only jittered, not sized.
+local function buildRock(name: string, at: Vector3, groundY: number, rng: Random, parent: Instance): Instance
 	local size = Vector3.new(
 		rng:NextNumber(Layout.RockSizeMin, Layout.RockSizeMax),
 		rng:NextNumber(Layout.RockSizeMin, Layout.RockSizeMax) * ROCK_HEIGHT_FACTOR,
 		rng:NextNumber(Layout.RockSizeMin, Layout.RockSizeMax)
 	)
-	local cframe = CFrame.new(at.X, groundY + size.Y / 2, at.Z) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
+	local kinds = if propNames then propNames.rock else NO_NAMES
+	local pick, yaw, jitter = drawProp(rng, kinds)
+	local model = placeScenery(kinds, pick, name, at, groundY, yaw, jitter, parent)
+	if model then
+		return model
+	end
+	local cframe = CFrame.new(at.X, groundY + size.Y / 2, at.Z) * CFrame.Angles(0, yaw, 0)
 	return basePart(name, Enum.PartType.Block, size, cframe, Layout.RockColor, parent)
 end
 
 -- A trunk resting on `groundY` with a leaf ball on top; the leaves are a child of the trunk. The layout's
--- trunk and leaf colours make it a meadow oak or a snow pine.
-local function buildTree(name: string, at: Vector3, groundY: number, rng: Random, parent: Instance): Part
+-- trunk and leaf colours make it a meadow oak or a snow pine. An imported tree replaces both outright.
+local function buildTree(name: string, at: Vector3, groundY: number, rng: Random, parent: Instance): Instance
 	local height = rng:NextNumber(Layout.TrunkHeightMin, Layout.TrunkHeightMax)
-	local trunk = uprightCylinder(name, Layout.TrunkRadius, height, Vector3.new(at.X, groundY + height / 2, at.Z), Layout.TrunkColor, parent)
 	local leavesRadius = rng:NextNumber(Layout.LeavesRadiusMin, Layout.LeavesRadiusMax)
+	local kinds = if propNames then propNames.tree else NO_NAMES
+	local pick, yaw, jitter = drawProp(rng, kinds)
+	local model = placeScenery(kinds, pick, name, at, groundY, yaw, jitter, parent)
+	if model then
+		return model
+	end
+	local trunk = uprightCylinder(name, Layout.TrunkRadius, height, Vector3.new(at.X, groundY + height / 2, at.Z), Layout.TrunkColor, parent)
 	local leaves = basePart("Leaves", Enum.PartType.Ball, Vector3.one * (leavesRadius * 2), CFrame.new(at.X, groundY + height + leavesRadius * LEAVES_SINK_FACTOR, at.Z), Layout.LeavesColor, trunk)
 	leaves.CanCollide = false
 	return trunk
 end
 
 -- A geyser cone resting on `groundY`: CONE_TIERS upright cylinders stacked to `height`, each tier
--- narrower than the one below so the stack tapers. The upper tiers are children of the base.
-local function buildCone(name: string, at: Vector3, groundY: number, radius: number, height: number, hex: string, parent: Instance): Part
+-- narrower than the one below so the stack tapers. The upper tiers are children of the base. An imported
+-- cone replaces the stack (its mesh is authored at the layout's cone size; radius and height are only the
+-- placeholder's).
+local function buildCone(name: string, at: Vector3, groundY: number, radius: number, height: number, hex: string, rng: Random, parent: Instance): Instance
+	local kinds = if propNames then propNames.cone else NO_NAMES
+	local pick, yaw, jitter = drawProp(rng, kinds)
+	local model = placeScenery(kinds, pick, name, at, groundY, yaw, jitter, parent)
+	if model then
+		return model
+	end
 	local tierHeight = height / CONE_TIERS
 	local function tier(index: number, tierParent: Instance): Part
 		local tierRadius = radius * (CONE_TIERS - index + 1) / CONE_TIERS
@@ -182,7 +235,7 @@ local function buildRegion(name: string, region: Layouts.Region, floorTop: numbe
 		local coneColor = region.coneColor or region.floorColor
 		for i = 1, coneCount do
 			local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
-			buildCone(name .. "Cone" .. i, at, patchTop, coneRadius, coneHeight, coneColor, parent)
+			buildCone(name .. "Cone" .. i, at, patchTop, coneRadius, coneHeight, coneColor, rng, parent)
 		end
 	end
 
@@ -205,7 +258,9 @@ end
 
 -- The Shrine of the Warden: a ring of upright stones facing a central pedestal with a Neon glow ball
 -- on top. One Model named Shrine whose PrimaryPart (the pedestal) carries LandmarkId = "Shrine", so the
--- client finds it under Workspace.World.Landmarks without knowing the layout.
+-- client finds it under Workspace.World.Landmarks without knowing the layout. With imported meshes the
+-- pedestal cylinder stays as an invisible, still solid anchor (it is the PrimaryPart) and the mesh is its
+-- child; each stone is the mesh or, failing that, a block. Meshes are tinted to the layout's colours.
 local function buildShrine(groundY: number, parent: Instance)
 	local shrine = Layout.Shrine
 	local model = Instance.new("Model")
@@ -215,6 +270,13 @@ local function buildShrine(groundY: number, parent: Instance)
 	local pedestal = uprightCylinder("Pedestal", shrine.radius * PEDESTAL_RADIUS_FACTOR, height, Vector3.new(shrine.x, groundY + height / 2, shrine.z), shrine.pedestalColor, model)
 	pedestal:SetAttribute("LandmarkId", SHRINE_NAME)
 	model.PrimaryPart = pedestal
+	if propNames then
+		local mesh = Props.Place(propNames.pedestal, CFrame.new(shrine.x, groundY, shrine.z), 1, pedestal, true)
+		if mesh then
+			pedestal.Transparency = 1
+			Props.Tint(mesh, shrine.pedestalColor)
+		end
+	end
 
 	local glowRadius = shrine.stoneHeight * GLOW_RADIUS_FACTOR
 	local glow = basePart("Glow", Enum.PartType.Ball, Vector3.one * (glowRadius * 2), CFrame.new(shrine.x, groundY + height + glowRadius, shrine.z), shrine.glowColor, model)
@@ -225,9 +287,15 @@ local function buildShrine(groundY: number, parent: Instance)
 	for i = 1, shrine.stoneCount do
 		local angle = (i - 1) / shrine.stoneCount * math.pi * 2
 		local at = Vector3.new(shrine.x + math.cos(angle) * shrine.radius, groundY + shrine.stoneHeight / 2, shrine.z + math.sin(angle) * shrine.radius)
-		-- yaw the block so its depth axis points at the centre: the broad face looks inward
-		local cframe = CFrame.new(at) * CFrame.Angles(0, math.pi / 2 - angle, 0)
-		basePart("Stone" .. i, Enum.PartType.Block, stoneSize, cframe, shrine.stoneColor, model)
+		-- yaw the stone so its depth axis points at the centre: the broad face looks inward
+		local yaw = CFrame.Angles(0, math.pi / 2 - angle, 0)
+		local mesh = if propNames then Props.Place(propNames.shrineStone, CFrame.new(at.X, groundY, at.Z) * yaw, 1, model, true) else nil
+		if mesh then
+			mesh.Name = "Stone" .. i
+			Props.Tint(mesh, shrine.stoneColor)
+		else
+			basePart("Stone" .. i, Enum.PartType.Block, stoneSize, CFrame.new(at) * yaw, shrine.stoneColor, model)
+		end
 	end
 
 	model.Parent = parent

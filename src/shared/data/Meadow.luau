@@ -35,6 +35,8 @@ return {
 	RegionWallRadius = 4, -- 26 pillars of this radius around the Cave rim leave gaps of about 5 studs
 	-- the Shrine of the Warden: a stone ring with a pedestal, the world's landmark (Field Notes finale)
 	Shrine = { x = 0, z = 155, radius = 10, stoneCount = 8, stoneHeight = 5, stoneColor = "9E9E8E", pedestalColor = "C8C4A8", glowColor = "2ECC71" },
+	-- imported prop names (Shared/Props); the placeholder parts below are the fallback when one is missing
+	Props = { tree = { "MeadowTree", "MeadowTreeB" }, rock = { "MeadowRock", "MeadowRockB" }, cone = {}, shrineStone = "ShrineStone", pedestal = "Pedestal" },
 	Seed = 20261004, -- deterministic scatter so every server builds the same meadow
 	FloorSize = 400,
 	FloorThickness = 1,

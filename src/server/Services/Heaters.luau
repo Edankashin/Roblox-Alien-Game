@@ -17,6 +17,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Worlds = require(Shared.data.Worlds)
 local Place = require(Shared.Place)
+local Props = require(Shared.Props)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
@@ -102,6 +103,11 @@ local function light(owner: Player, flat: Vector3)
 			burning[ownerId] = nil
 		end
 	end)
+	-- The imported lamp (Config.HeaterPropName) stands on the surface as a child of the disc, which stays as
+	-- its invisible anchor with the attributes, expiry and Neon material; Near still iterates the disc.
+	if Props.Place(Config.HeaterPropName, CFrame.new(flat.X, surface, flat.Z), 1, part, false) then
+		part.Transparency = 1
+	end
 	part.Parent = folder()
 	task.delay(Config.HeaterSeconds, function()
 		if part.Parent then

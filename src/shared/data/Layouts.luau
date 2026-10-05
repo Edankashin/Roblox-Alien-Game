@@ -37,6 +37,17 @@ export type Shrine = {
 	glowColor: string,
 }
 
+-- The imported prop names (ReplicatedStorage.<Config.ModelFolderName>.<Config.PropsFolderName>) a world's
+-- builder tries before its part-built placeholders: scattered kinds are lists (one is picked at random
+-- per landmark; an empty list keeps the placeholder), the shrine's two pieces are single names.
+export type PropNames = {
+	tree: { string },
+	rock: { string },
+	cone: { string },
+	shrineStone: string,
+	pedestal: string,
+}
+
 export type Layout = {
 	WorldId: number, -- the world this layout belongs to (Worlds.luau)
 	BaseBiome: string, -- the biome everywhere outside a region (Types.Biome)
@@ -46,6 +57,7 @@ export type Layout = {
 	RegionEdgeMargin: number, -- nodes and region scatter stay this far inside the region edge
 	RegionWallRadius: number, -- the rim pillars' radius
 	Shrine: Shrine,
+	Props: PropNames?, -- imported meshes to use where they exist; nil or a missing prop means the placeholder
 	Seed: number, -- deterministic scatter so every server builds the same world
 	FloorSize: number,
 	FloorThickness: number,

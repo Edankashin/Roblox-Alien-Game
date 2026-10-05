@@ -215,12 +215,15 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 13 | Settings, preferences, analytics funnel | pass |
 | 14 | Robux launch shop (Starter Pack, four passes, boosts, server luck) | pass with grants; receipts wait on live ids |
 | 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | queued |
+| 16 | The Heater rule for blizzards (World 2) | queued |
+| 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | queued; meshes wait on a hand import |
 
-Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists.
+Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`.
 
 **Waits on the team** (nothing else blocks these):
 - Import one model by hand (File > Import 3D, `assets/models/Mossbop/Mossbop.fbx`, into `ReplicatedStorage.Models`) to finish the milestone 12 test, then the rest.
 - Blender, `uv` and the MCP add-on on the Mac (`tools/setup-mac.sh`), for the next modelling pass.
+- Import the 16 props (`assets/models/props/<Name>/<Name>.glb`) into `ReplicatedStorage.Models.Props` and install Brushtool 2, Redupe, GapFill, ResizeAlign and Archimedes from the Creator Store for the dressing pass (`Map-Dressing.md`).
 - Developer products and game passes in the Creator Dashboard; paste the ids into `src/shared/data/Shop.luau` (all 0 now, so Buy refuses safely).
 - Studio API access on the place, then `Config.UseDataStoreInStudio = true`, to test real saves and the schema migrations (v4).
 - Publish the World 2 place and put its id in `src/shared/data/Worlds.luau` so the launch teleports.
@@ -229,7 +232,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 
 **Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
 
-**Not built yet (P1 from section 18):** the Heater rule for blizzards, outposts producing materials, the Star Chart, the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
+**Not built yet (P1 from section 18):** outposts producing materials, the Star Chart, the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
 
 ---
 
