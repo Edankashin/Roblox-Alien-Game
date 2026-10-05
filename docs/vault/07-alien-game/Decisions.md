@@ -37,3 +37,32 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | B10 | Slot growth | Thrusters completion raises every station to 2 slots, Nav Array to 3 (`Modules.unlocksSlots`), per decision 16's proposal, pending the team's confirmation | 2026-10-05 |
 | B11 | Blender via MCP | Models are built and edited in Blender through the `mcp-for-blender` server registered in `.mcp.json`; exports go to `assets/models/` and into Studio through Import 3D. Save before any code-executing session | 2026-10-05 |
 | B12 | Special weather per world | Each world rolls one special weather at its own chance with one signature alien that spawns only then (World 1: Rain, Thunderhog); a banner announces it. All data in `Worlds.luau` | 2026-10-05 |
+| B13 | World 2 roster | Frostbyte's 16 species, modules, key materials and Field Notes are data only (see "World 2 roster" below); its regions, Heater tool and shrine arrive with the layout | 2026-10-05 |
+
+## World 2 roster (2026-10-05)
+
+Frostbyte's content data, authored in the World 1 voice: 16 species (5 Common, 4 Uncommon, 3 Rare, 2 Epic, 1 Legendary, 1 Cosmic), five modules, five key materials and a five-step Field Notes chain. Data only; no service or client code changed. The biome regions, the Heater tool (place it to reveal aliens hidden by a Blizzard for 60 s) and the Shrine of Skaddle arrive with the Frostbyte layout.
+
+| Species | Tier | Jobs | Biome | Condition | The one goofy thing |
+|---|---|---|---|---|---|
+| Flufflet | Common | Gather 1 | Snowfield | Any | Its knitted scarf is longer than it is |
+| Snowbun | Common | Build 1 | Snowfield | Any | Snowball tail that keeps growing as it hops |
+| Pengoo | Uncommon | Gather 2 | Snowfield | Day | Belly-slides everywhere, even uphill |
+| Reindazzle | Rare | Spark 3 | Snowfield | Any | Icicle antlers; its nose blinks |
+| Drippo | Common | Gather 1 | Ice Cave | Any | An icicle drop that drips when nervous |
+| Chipmole | Common | Build 1 | Ice Cave | Any | Ice-pick claws; chips the floor wherever it stands |
+| Flapsicle | Uncommon | Spark 2 | Ice Cave | Night | Icicle wings; hangs upside down from nothing |
+| Shellberg | Rare | Gather 3 | Ice Cave | Any | Iceberg shell, nine-tenths of it hidden |
+| Shimmerlynx | Epic | Gather 3, Spark 4 | Ice Cave | Night | Aurora crest; purrs in colours |
+| Kettlepuff | Common | Spark 1 | Geyser Field | Any | A kettle that whistles when excited |
+| Toastoad | Uncommon | Gather 2 | Geyser Field | Any | Soaks in the hot spring till it wrinkles |
+| Emberchin | Uncommon | Spark 2 | Geyser Field | Any | Ember-quilled urchin that hops between pools |
+| Capybubble | Rare | Build 3 | Geyser Field | Any | Tangerine hat; snores bubbles |
+| Frostfang | Epic (Blizzard signature) | Build 4, Spark 3 | Snowfield | Blizzard | Sabre-tooth cub with icicle fangs that sneezes snowflakes; rideable |
+| Skaddle | Legendary (Warden) | all 5 | Snowfield | Quest | Snow owl on tiny skis; echo of Skadi, Norse winter; rideable |
+| Fenripup | Cosmic (Star-born) | all 5 | Snowfield | Shower | A puppy with a glowing moon on its forehead; echo of Fenrir; rideable |
+
+- Modules (Scrap 1.6x World 1, assembly 1.5x): Heat Shield (Ice Plate x3) -> Ice Drill (Geyser Pearl x3, 2 slots) -> Cryo Pod (Frost Core x3) -> Beacon Array (Blizzard Shard x2, 3 slots) -> Frost Engine (Skaddle's Core).
+- Key materials: Ice Plate (Snowfield, any), Geyser Pearl (Geyser Field, any, glows), Frost Core (Ice Cave, night, glows), Blizzard Shard (Snowfield, Blizzard, glows), Skaddle's Core (finale only). Frost Cores also feed World 3's Nav Array through the Outpost.
+- Field Notes W2S1..W2S5: catch 8; a night catch plus a Frost Core; craft a Glow Lure plus a Rare; the Epic in a Blizzard (pays the shared Warden's Horn); sound the horn at night for Skaddle. No gear rewards because Radar2 is not buyable yet; Scrap, lures and spins instead.
+- Frostfang is the only Blizzard species, per the one-signature-alien rule. Fenripup rolls in all three biomes during a Meteor Shower, like Ra-dish.

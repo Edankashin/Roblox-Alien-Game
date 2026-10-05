@@ -1,0 +1,17 @@
+# Capybubble blockout
+
+- Date: 2026-10-05
+- Tool: tools/blender/alien_base.py, bpy 5.0.1
+- Name: Capybubble (Rare)
+- Concept: capybara, tangerine hat, snores bubbles
+- Body: Ball, placeholder colour #E0C3A0, placeholder scale 1.1
+- Accessory: leaf_hat (keyword match on the concept; colour rule: complement, #65DAE0, metallic)
+- Tier dressing: tier size 110% (carried by placeholder.scale), metallic accessory
+- Triangles: 1012 (budget 500 to 1500, detail level 0)
+- Height: 2.98 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
+- Materials (one per colour, flat, no textures): Body #E0C3A0, BodyDark #927F68, EyeWhite, Pupil, Mouth, Accessory #65DAE0
+- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
+- Files: Capybubble.glb (37696 bytes), Capybubble.fbx (40140 bytes)
+- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+
+Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.

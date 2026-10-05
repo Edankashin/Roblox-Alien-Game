@@ -1,7 +1,7 @@
 --!strict
 local Types = require(script.Parent.Parent.types.Types)
 
--- World 1 roster. The vertical slice spawns the six marked in Spawns.luau; the rest are defined so the codex can show silhouettes.
+-- World 1 roster, then World 2. The vertical slice spawns the six marked in Spawns.luau; the rest are defined so the codex can show silhouettes.
 local list: { Types.SpeciesDef } = {
 	{ id = "Mossbop", name = "Mossbop", concept = "moss ball, eyes", tier = "Common", jobs = { { job = "Gather", level = 1 } }, biome = "Meadow", condition = "Any", world = 1, placeholder = { shape = "Ball", color = "6BCB3F", scale = 1 }, voiceLine = "bop" },
 	{ id = "Pebblet", name = "Pebblet", concept = "pebble with legs", tier = "Common", jobs = { { job = "Gather", level = 1 } }, biome = "Cave", condition = "Any", world = 1, placeholder = { shape = "Block", color = "9A9A9A", scale = 0.9 }, voiceLine = "tik" },
@@ -19,6 +19,27 @@ local list: { Types.SpeciesDef } = {
 	{ id = "Gaiabloom", name = "Gaiabloom", concept = "stag, tree antlers, flowers bloom where it steps", tier = "Legendary", jobs = { { job = "Gather", level = 5 }, { job = "Build", level = 5 }, { job = "Spark", level = 5 } }, biome = "Meadow", condition = "Quest", world = 1, ride = "Sprint", placeholder = { shape = "Ball", color = "2ECC71", scale = 1.25 }, voiceLine = "bloom" },
 	{ id = "Radish", name = "Ra-dish", concept = "radiant radish, sun disk; echo of Ra", tier = "Cosmic", jobs = { { job = "Gather", level = 5 }, { job = "Build", level = 5 }, { job = "Spark", level = 5 } }, biome = "Meadow", condition = "Shower", world = 1, ride = "Sprint", placeholder = { shape = "Ball", color = "FFB347", scale = 1.2 }, voiceLine = "raa" },
 	{ id = "Panpipe", name = "Panpipe", concept = "goat, reed pipes", tier = "Secret", jobs = { { job = "Gather", level = 5 }, { job = "Build", level = 5 }, { job = "Spark", level = 5 } }, biome = "Meadow", condition = "Quest", world = 1, placeholder = { shape = "Ball", color = "222222", scale = 1.3 }, voiceLine = "toot" },
+	-- World 2, Frostbyte. Blizzards hide aliens; Frostfang is the only Blizzard species (Worlds[2].weather.special).
+	-- Snowfield
+	{ id = "Flufflet", name = "Flufflet", concept = "snowball, knitted scarf, mitten ears", tier = "Common", jobs = { { job = "Gather", level = 1 } }, biome = "Snowfield", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "F2F6FA", scale = 1 }, voiceLine = "fluff" },
+	{ id = "Snowbun", name = "Snowbun", concept = "snow bunny, snowball tail that keeps growing", tier = "Common", jobs = { { job = "Build", level = 1 } }, biome = "Snowfield", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "DDEBF7", scale = 0.9 }, voiceLine = "bun" },
+	{ id = "Pengoo", name = "Pengoo", concept = "round penguin, tiny backpack, belly-slides everywhere", tier = "Uncommon", jobs = { { job = "Gather", level = 2 } }, biome = "Snowfield", condition = "Day", world = 2, placeholder = { shape = "Ball", color = "2B3F5C", scale = 0.9 }, voiceLine = "goo" },
+	{ id = "Reindazzle", name = "Reindazzle", concept = "reindeer, icicle antlers, nose blinks", tier = "Rare", jobs = { { job = "Spark", level = 3 } }, biome = "Snowfield", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "C9D6E8", scale = 1.1 }, voiceLine = "dzz" },
+	-- Ice Cave
+	{ id = "Drippo", name = "Drippo", concept = "icicle drop, stubby legs, drips when nervous", tier = "Common", jobs = { { job = "Gather", level = 1 } }, biome = "IceCave", condition = "Any", world = 2, placeholder = { shape = "Cylinder", color = "A9D6F5", scale = 0.8 }, voiceLine = "drip" },
+	{ id = "Chipmole", name = "Chipmole", concept = "mole, ice-pick claws, chips the floor", tier = "Common", jobs = { { job = "Build", level = 1 } }, biome = "IceCave", condition = "Any", world = 2, placeholder = { shape = "Block", color = "5B6B85", scale = 0.9 }, voiceLine = "chip" },
+	{ id = "Flapsicle", name = "Flapsicle", concept = "bat, icicle wings, hangs upside down from nothing", tier = "Uncommon", jobs = { { job = "Spark", level = 2 } }, biome = "IceCave", condition = "Night", world = 2, placeholder = { shape = "Ball", color = "4A5A9C", scale = 0.8 }, voiceLine = "eek" },
+	{ id = "Shellberg", name = "Shellberg", concept = "tortoise, iceberg shell, nine-tenths hidden", tier = "Rare", jobs = { { job = "Gather", level = 3 } }, biome = "IceCave", condition = "Any", world = 2, placeholder = { shape = "Block", color = "3FBFB0", scale = 1.1 }, voiceLine = "brg" },
+	{ id = "Shimmerlynx", name = "Shimmerlynx", concept = "lynx, glowing aurora crest, purrs in colours", tier = "Epic", jobs = { { job = "Gather", level = 3 }, { job = "Spark", level = 4 } }, biome = "IceCave", condition = "Night", world = 2, placeholder = { shape = "Ball", color = "C8C2F0", scale = 1.2 }, voiceLine = "prrl" },
+	-- Geyser Field
+	{ id = "Kettlepuff", name = "Kettlepuff", concept = "kettle, steam puff ring, whistles when excited", tier = "Common", jobs = { { job = "Spark", level = 1 } }, biome = "GeyserField", condition = "Any", world = 2, placeholder = { shape = "Cylinder", color = "F5EDE0", scale = 1 }, voiceLine = "fweee" },
+	{ id = "Toastoad", name = "Toastoad", concept = "toad, pebble backpack, soaks till it wrinkles", tier = "Uncommon", jobs = { { job = "Gather", level = 2 } }, biome = "GeyserField", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "E8713A", scale = 0.9 }, voiceLine = "mlorp" },
+	{ id = "Emberchin", name = "Emberchin", concept = "sea urchin, ember quills, hops between pools", tier = "Uncommon", jobs = { { job = "Spark", level = 2 } }, biome = "GeyserField", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "FF9E4A", scale = 0.8 }, voiceLine = "tss" },
+	{ id = "Capybubble", name = "Capybubble", concept = "capybara, tangerine hat, snores bubbles", tier = "Rare", jobs = { { job = "Build", level = 3 } }, biome = "GeyserField", condition = "Any", world = 2, placeholder = { shape = "Ball", color = "E0C3A0", scale = 1.1 }, voiceLine = "mlem" },
+	-- Blizzard signature, Warden and Star-born
+	{ id = "Frostfang", name = "Frostfang", concept = "sabre-tooth cub, icicle fangs, quill ruff, sneezes snowflakes", tier = "Epic", jobs = { { job = "Build", level = 4 }, { job = "Spark", level = 3 } }, biome = "Snowfield", condition = "Blizzard", world = 2, ride = "Sprint", placeholder = { shape = "Ball", color = "6FB7E9", scale = 1.2 }, voiceLine = "grrf" },
+	{ id = "Skaddle", name = "Skaddle", concept = "snow owl, tiny skis, frosty crest; echo of Skadi", tier = "Legendary", jobs = { { job = "Gather", level = 5 }, { job = "Build", level = 5 }, { job = "Spark", level = 5 } }, biome = "Snowfield", condition = "Quest", world = 2, ride = "Sprint", placeholder = { shape = "Ball", color = "F7F9FC", scale = 1.25 }, voiceLine = "hoo" },
+	{ id = "Fenripup", name = "Fenripup", concept = "puppy, glowing moon on its forehead; echo of Fenrir", tier = "Cosmic", jobs = { { job = "Gather", level = 5 }, { job = "Build", level = 5 }, { job = "Spark", level = 5 } }, biome = "Snowfield", condition = "Shower", world = 2, ride = "Sprint", placeholder = { shape = "Ball", color = "3B2E6B", scale = 1.2 }, voiceLine = "awoo" },
 }
 
 local byId: { [string]: Types.SpeciesDef } = {}
