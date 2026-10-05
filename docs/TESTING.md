@@ -99,7 +99,8 @@ Known gaps in this milestone: Scanner Pulse (needs the radar), Double Shift (ear
 6. Step 5 claims as done: the panel reads "The Field Notes are complete. The Warden rides with you."
 7. Other players never see your summoned Warden and cannot catch it.
 
-8. Fast path for testing the finale: `/step 5` jumps the Field Notes to the last step and `/horn` grants the Warden's Horn; then `/night`, walk to the shrine and press "Sound the horn". Claiming step 5 is refused with "Finish every objective first" until Gaiabloom is in the codex, so a fled Warden can always be summoned again after the cooldown.
+8. Fast path for testing the finale: `/step 5` jumps the Field Notes to the last step and `/horn` grants the Warden's Horn; then `/night`, walk to the shrine and press "Sound the horn". The step reads 0/1 while the Warden is out and 1/1 only once it is caught; claiming is refused with "Finish every objective first" until then, so a fled Warden can always be summoned again after the cooldown.
+9. Automation notes: send one chat command per execute_luau call (back-to-back SendAsync calls from one thread are dropped silently). The wild count rises above 14 right after a teleport because spawns around the old spot stay until they are 180 studs away; that is the cull distance, not a leak.
 
 Known gaps in this milestone: daily and weekly quests, the shrine's art, the Warden's three attack patterns (only the shrink is in), riding.
 

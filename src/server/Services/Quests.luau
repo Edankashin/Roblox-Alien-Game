@@ -170,6 +170,7 @@ local function retreat(userId: number, notify: boolean)
 		pushQuests(player, profile)
 	end
 	if notify then
+		print(("[%s] Quests: the Warden retreats from %s"):format(Config.WorkingTitle, player.Name))
 		Net.event("WardenRetreated"):FireClient(player)
 	end
 end
@@ -324,11 +325,8 @@ local function onSoundHorn(player: Player): (boolean, string?)
 		return false, "Unknown"
 	end
 	summons[player.UserId] = { spawnId = spawn.spawnId }
-	-- the horn objective counts now, so the finale reads complete while the Warden is out; the catch
-	-- itself is the reward and QuestClaim waits for it (see onQuestClaim)
-	advance(player, function(candidate: QuestData.Objective): boolean
-		return candidate.kind == "soundHorn"
-	end)
+	-- The horn objective counts when the Warden is caught (see OnCatch), so the step only reads complete
+	-- once the catch has happened; a fled Warden leaves nothing to undo.
 	Net.event("WardenSummoned"):FireClient(player)
 	return true, nil
 end
@@ -339,12 +337,14 @@ end
 -- Economy.GrantAlien reports every alien that enters a profile with the conditions active at the time
 -- (WorldClock.GetConditions: a rainy night is both Rain and Night). Counts catchCount, catchCondition,
 -- catchTier and catchTierCondition. The species is not an objective kind yet.
-function Quests.OnCatch(player: Player, _species: string, tier: Types.Tier, conditions: { Types.Condition })
+function Quests.OnCatch(player: Player, species: string, tier: Types.Tier, conditions: { Types.Condition })
 	advance(player, function(objective: QuestData.Objective): boolean
 		local kind = objective.kind
 		local tierMatches = objective.tier == tier
 		local conditionMatches = objective.condition ~= nil and table.find(conditions, objective.condition) ~= nil
-		if kind == "catchCount" then
+		if kind == "soundHorn" then
+			return species == WARDEN_SPECIES -- the finale completes on the catch the horn made possible
+		elseif kind == "catchCount" then
 			return true
 		elseif kind == "catchCondition" then
 			return conditionMatches

@@ -18,7 +18,7 @@ local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Bu
 local LandmarkRenderer = {}
 
 local FOLDER_NAME = "Landmarks"
-local PLATE_LIFT = 1.2 -- studs between the top of the primary part and its nameplate (as NodeRenderer)
+local PLATE_LIFT = 7 -- studs above the primary part: clear of the shrine's standing stones from every side
 
 type Record = { id: string, model: Model, part: BasePart, plate: BillboardGui }
 
@@ -48,7 +48,7 @@ local function buildPlate(part: BasePart, id: string): BillboardGui
 	plate.Size = UDim2.fromScale(7, 2) -- studs
 	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + PLATE_LIFT, 0)
 	plate.MaxDistance = Config.NameplateDistance
-	plate.AlwaysOnTop = false
+	plate.AlwaysOnTop = true -- a landmark is a destination; it must read through the stones
 	plate.LightInfluence = 0
 	plate.ResetOnSpawn = false
 	Builder.label({

@@ -7,7 +7,7 @@
 -- in its own biome (Shared/Biomes); a row with a condition (Night, Rain) is only available while the
 -- WorldClock says so (WorldClock.HasCondition: a rainy night is both Rain and Night) and shows as a
 -- ghost otherwise, so a player can find it by day and come back. Every collect is reported to Quests
--- for the Field Notes.
+-- for the Field Notes and to the Tutorial.
 
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
@@ -23,6 +23,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local Meadow = require(script.Parent.Meadow)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
+local Tutorial = require(script.Parent.Tutorial)
 
 local Materials = {}
 
@@ -190,6 +191,7 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 	Net.event("MaterialCollected"):FireClient(player, materialId, def.dropCount)
 	Quests.OnCollect(player, materialId)
+	Tutorial.OnCollect(player, materialId)
 	return true
 end
 

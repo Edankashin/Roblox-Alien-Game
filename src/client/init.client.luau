@@ -41,6 +41,7 @@ local PeddlerRenderer = require(script:WaitForChild("World"):WaitForChild("Peddl
 local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScreen"))
 local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
+local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHint"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -440,6 +441,7 @@ local function start(profile: Types.Profile)
 	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
 	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
 	LandmarkRenderer.Start()
+	TutorialHint.Start()
 
 	-- Field Notes: a badge and a toast when the current step's objectives are all met; cleared on claim.
 	local function currentStepComplete(): (boolean, string?)
@@ -539,6 +541,7 @@ local function start(profile: Types.Profile)
 		Hud.SetAction(if action then ACTION_TEXT[action] else nil)
 		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen()) -- it shares the lower third with the capture bar
+		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen())
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil)
 	end)
 

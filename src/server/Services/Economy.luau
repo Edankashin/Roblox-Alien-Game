@@ -6,7 +6,8 @@
 -- service only decides when the real profile changes. Clients send module ids and nothing else.
 -- It is also the one door an alien enters a profile through (GrantAlien): a wild catch from Catching
 -- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer and
--- report the catch to Quests for the Field Notes.
+-- report the catch to Quests for the Field Notes and to the Tutorial, which also hears every module
+-- start (both gates paid) and completion from here.
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -25,6 +26,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
+local Tutorial = require(script.Parent.Tutorial)
 
 local EconomyService = {}
 
@@ -58,9 +60,11 @@ local function pushInventory(player: Player, profile: Types.Profile)
 	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 end
 
+-- Tells the client about each module that just finished, and the Tutorial (a moduleComplete step).
 local function announceCompleted(player: Player, worldId: number, completed: { string })
 	for _, moduleId in ipairs(completed) do
 		Net.event("ModuleCompleted"):FireClient(player, worldId, moduleId)
+		Tutorial.OnModuleComplete(player, moduleId)
 	end
 end
 
@@ -305,6 +309,7 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 	if not Net.allow(player, "ModulePay", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
 	end
+	local startedId: string? = nil -- the module whose clock started with this payment (the Tutorial hears it)
 	local ok, reason = mutate(player, function(profile)
 		local def, state = activeModule(profile)
 		if not def or not state or def.id ~= moduleId then
@@ -319,7 +324,11 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 		end
 		profile.scrap -= remaining
 		state.scrapPaid = def.scrap
+		local wasStarted = state.started
 		maybeStart(def, state)
+		if state.started and not wasStarted then
+			startedId = def.id
+		end
 		return nil
 	end)
 	if not ok then
@@ -329,6 +338,9 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 	if profile then
 		pushScrap(player, profile)
 		pushModules(player, profile)
+	end
+	if startedId then
+		Tutorial.OnModulePaid(player, startedId)
 	end
 	return true
 end
@@ -340,6 +352,7 @@ local function onModuleInsertKey(player: Player, moduleId: any): (boolean, strin
 	if not Net.allow(player, "ModuleInsertKey", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
 	end
+	local startedId: string? = nil -- the module whose clock started with these keys (the Tutorial hears it)
 	local ok, reason = mutate(player, function(profile)
 		local def, state = activeModule(profile)
 		if not def or not state or def.id ~= moduleId then
@@ -356,7 +369,11 @@ local function onModuleInsertKey(player: Player, moduleId: any): (boolean, strin
 		end
 		profile.inventory.keyMaterials[def.keyMaterial] = held - move
 		state.keyPaid += move
+		local wasStarted = state.started
 		maybeStart(def, state)
+		if state.started and not wasStarted then
+			startedId = def.id
+		end
 		return nil
 	end)
 	if not ok then
@@ -366,6 +383,9 @@ local function onModuleInsertKey(player: Player, moduleId: any): (boolean, strin
 	if profile then
 		pushInventory(player, profile)
 		pushModules(player, profile)
+	end
+	if startedId then
+		Tutorial.OnModulePaid(player, startedId)
 	end
 	return true
 end
@@ -440,6 +460,9 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	end
 	local scrapBefore = live.scrap
 	local summary: Types.OfflineSummary? = nil
+	-- Modules that finished while away reach the client in the summary, not as ModuleCompleted
+	-- events; the Tutorial still hears each one below.
+	local completedAway: { string } = {}
 	PlayerData.Update(player, function(profile)
 		ensureWorldModules(profile)
 		if profile.lastSeen <= 0 then
@@ -452,6 +475,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 		local gain = Economy.offlineScrap(profile, away)
 		profile.scrap += gain
 		local completed = snapshotModules(profile) -- assembly ran on the wall clock while away
+		completedAway = completed
 		if gain > 0 or #completed > 0 then
 			summary = { awaySeconds = away, scrap = gain, completedModules = completed }
 		end
@@ -463,6 +487,9 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	pushCamp(player, live)
 	if live.scrap ~= scrapBefore then
 		pushScrap(player, live)
+	end
+	for _, moduleId in ipairs(completedAway) do
+		Tutorial.OnModuleComplete(player, moduleId)
 	end
 end
 
@@ -499,8 +526,9 @@ end
 -- times an active Scrap Magnet, whole Scrap, plus the codex payout on a first catch) and the catch
 -- stats, in one profile update. Then the newcomer is seated, the client hears ScrapChanged and the
 -- camp pushes, pity moves, a rare enough tier is announced to the whole server, and the Field Notes
--- count the catch under every condition active now (a rainy night is both Rain and Night). Returns
--- the Reveal payload, or nil when the player has no profile (or the species id is unknown).
+-- count the catch under every condition active now (a rainy night is both Rain and Night), and the
+-- Tutorial hears the species. Returns the Reveal payload, or nil when the player has no profile (or
+-- the species id is unknown).
 function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean): Types.GrantResult?
 	local def = Species.ById[species]
 	if not def then
@@ -561,6 +589,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	Buffs.OnCatch(player, tier)
 	announceCatch(player, species, tier, overlay)
 	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
+	Tutorial.OnCatch(player, species)
 	return { species = species, tier = tier, overlay = overlay, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 

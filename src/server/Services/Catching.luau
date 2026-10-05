@@ -188,8 +188,9 @@ end
 
 -- A reserved encounter that ends without a catch (fled, despawned under the player, or cancelled) is
 -- the Warden retreating: Quests starts the horn's cooldown and tells the client.
+-- Reserved spawns are the Warden and the tutorial's trainee aliens; only the Warden's loss is a retreat.
 local function reportLoss(player: Player, encounter: Encounter)
-	if encounter.reserved then
+	if encounter.reserved and encounter.species == WARDEN_SPECIES then
 		Quests.OnWardenRetreat(player)
 	end
 end
