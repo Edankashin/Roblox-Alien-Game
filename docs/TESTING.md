@@ -154,4 +154,6 @@ Every sound id in `src/shared/data/Sounds.luau` is still `rbxassetid://0`, so no
 7. Sound hooks fire silently (no errors) on: any toast, a server banner, Add Wreck Plate, a gift claim, the wheel turning and stopping, sounding the horn, the Warden appearing.
 8. Reduced motion: with Roblox's Reduced Motion setting on, the pan and the crash drop take half the time and the shake is skipped.
 
+Harness note: Studio's MCP `execute_luau` records the camera type when a call starts and restores it when the call ends, so a call that straddles a camera sequence (the opener, a pan) leaves the camera Scriptable afterwards. Start such calls only while the camera is Custom.
+
 Known gaps in this milestone: real sound assets (the team picks about 40 ids into Sounds.luau), the day/night ambience cross-fade is untestable until ids exist, no particle textures (round default dots), the launch sequence waits for World 2.

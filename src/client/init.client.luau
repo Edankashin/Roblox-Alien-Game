@@ -67,7 +67,8 @@ local inCapture = false
 local captureToken: string? = nil
 local collecting = false
 local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
-local capturePart: Part? = nil -- the wild part the current catch is for (the burst plays where it stood)
+local capturePart: Part? = nil -- the wild part the current catch is for
+local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
 local cinematic = false -- the crash-landing opener is running: the HUD, hint and radar stay hidden
 
 type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn"
@@ -113,8 +114,9 @@ local function onCaught(result: Types.CaptureHitResult)
 	end
 	local tierColor = Builder.tierColor(result.tier or "Common")
 	local target = capturePart
-	if target and target.Parent then
-		Vfx.CatchBurst(target.Position, tierColor)
+	local at = if target and target.Parent then target.Position else capturePosition
+	if at then
+		Vfx.CatchBurst(at, tierColor)
 	end
 	if (result.scrapGained or 0) > 0 then
 		Hud.FlyGain(result.scrapGained or 0)
@@ -169,6 +171,7 @@ local function beginCapture(part: Part)
 	end
 	inCapture = true
 	capturePart = part
+	capturePosition = part.Position
 	CameraDirector.Cancel() -- a catch takes priority over any camera moment
 	Hud.SetAction(nil)
 	-- Own thread: InvokeServer yields, and callers are input callbacks.
