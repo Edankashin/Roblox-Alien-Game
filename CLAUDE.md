@@ -33,6 +33,10 @@ A Roblox collection game for a two-person team: players crash-land on planets, c
 - Studio MCP for live instance edits: enable Studio as MCP server in the AI Assistant settings and connect the client.
 - Test multiplayer with Studio's multi-client test. Check every screen in the device emulator at iPhone SE and iPad sizes.
 
+## Token economy
+
+- Build workers run on Sonnet with a complete brief; the coordinator plans, reviews and wires. Workers read their files in one or two commands, write whole files, and report in under 300 words. Rules and tools in `docs/vault/02-how-we-work/Token-Economy.md`.
+
 ## Working with the team
 
 - Commit on the working branch; never commit audio or raw frame dumps from `media/tiktok/out/`.
