@@ -1,6 +1,6 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3. Nothing
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar. Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -16,6 +16,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
+local Shop = require(script.Parent.Shop)
 
 local Dev = {}
 
@@ -150,13 +151,18 @@ function Dev.Init()
 		end
 	end)
 	command("shower", forceShower)
+	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
+	command("radar", function(player: Player)
+		local ok, reason = Shop.GrantGear(player, "Radar1")
+		print(("[%s] dev: %s radar grant %s"):format(Config.WorkingTitle, player.Name, if ok then "ok" else tostring(reason)))
+	end)
 	command("days", setDays)
 	command("spins", addSpins)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N, /radar)"):format(Config.WorkingTitle))
 	end
 end
 

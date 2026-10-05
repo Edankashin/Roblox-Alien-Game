@@ -1,6 +1,7 @@
 --!strict
--- ServerScriptService.Server.Services.Shop: the Scrap shop. Sells lures (Shared/data/Lures) and the
--- movement gear Scrap can buy (Shared/data/Gear) for the one currency. Every purchase is decided here:
+-- ServerScriptService.Server.Services.Shop: the Scrap shop. Sells lures (Shared/data/Lures), the
+-- movement gear Scrap can buy (Shared/data/Gear) and the radar tiers (Shared/data/Radar) for the one
+-- currency. Every purchase is decided here:
 -- the client sends a kind and an id and nothing else; the server checks the price against the live
 -- profile, deducts, grants, and pushes the result (ScrapChanged, InventoryChanged, GearChanged).
 -- Scrap is never sold for Robux; the Robux catalog in Shared/data/Shop is a later service's job.
@@ -20,6 +21,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Lures = require(Shared.data.Lures)
 local Gear = require(Shared.data.Gear)
+local Radar = require(Shared.data.Radar)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
@@ -28,6 +30,7 @@ local Quests = require(script.Parent.Quests)
 local Shop = {}
 
 type GearRow = { name: string, speedMultiplier: number, scrap: number, unlock: string }
+type RadarRow = { name: string, range: number, scrap: number, unlock: string? }
 
 local REMOTE_RATE_PER_SECOND = 4 -- ShopBuy calls per player per second
 local HUMANOID_WAIT_SECONDS = 10 -- a fresh character gets this long to grow its Humanoid before the speed set is skipped
@@ -40,6 +43,11 @@ local GEAR_FLAG: { [string]: string } = { Boots = "boots", Hoverboard = "hoverbo
 -- Gear Scrap can buy today: the rows whose unlock is an alternative route, not a requirement. The Glider
 -- waits on the first launch and Jet Boost on World 3 field notes, so both answer "Locked" for now.
 local SCRAP_BUYABLE: { [string]: boolean } = { Boots = true, Hoverboard = true }
+-- The radar is one number on the profile (gear.radar, the tier owned), bought or granted one tier at a
+-- time under the ids Radar1..Radar3. Only Mk1 exists as a feature yet, so the higher tiers answer Locked.
+local RADAR_TIER: { [string]: number } = { Radar1 = 1, Radar2 = 2, Radar3 = 3 }
+local RADAR_BUYABLE: { [number]: boolean } = { [1] = true }
+local RADAR_ROWS: { [number]: RadarRow } = (Radar :: any) :: { [number]: RadarRow }
 
 -- profile.gear is a fixed-shape table and the id arrives as a string, so its flags are read and written
 -- through these two helpers and nowhere else.
@@ -158,7 +166,45 @@ local function buyLure(player: Player, id: string): (boolean, string?)
 	return true, nil
 end
 
+-- Radar tiers are bought in order: the next tier only, for its Scrap price.
+local function buyRadar(player: Player, tier: number): (boolean, string?)
+	local row = RADAR_ROWS[tier]
+	if not row then
+		return false, "Unknown"
+	end
+	if not RADAR_BUYABLE[tier] then
+		return false, "Locked"
+	end
+	local ok, reason = mutate(player, function(profile)
+		if profile.gear.radar >= tier then
+			return "AlreadyOwned"
+		end
+		if profile.gear.radar ~= tier - 1 then
+			return "Locked"
+		end
+		if profile.scrap < row.scrap then
+			return "NotEnoughScrap"
+		end
+		profile.scrap -= row.scrap
+		profile.gear.radar = tier
+		return nil
+	end)
+	if not ok then
+		return false, reason
+	end
+	local profile = PlayerData.Get(player)
+	if profile then
+		pushScrap(player, profile)
+		pushGear(player, profile)
+	end
+	return true, nil
+end
+
 local function buyGear(player: Player, id: string): (boolean, string?)
+	local radarTier = RADAR_TIER[id]
+	if radarTier then
+		return buyRadar(player, radarTier)
+	end
 	local row = GEAR_ROWS[id]
 	if not row then
 		return false, "Unknown"
@@ -192,8 +238,9 @@ end
 
 -- Remotes ----------------------------------------------------------------
 
--- ShopBuy(kind, id) -> (ok, reason). kind is "lure" or "gear"; id is a Lures.Lures or Gear row id.
--- Reasons: BadArgs, RateLimited, NoProfile, Unknown, Locked, AlreadyOwned, NotEnoughScrap.
+-- ShopBuy(kind, id) -> (ok, reason). kind is "lure" or "gear"; id is a Lures.Lures or Gear row id, or
+-- Radar1..Radar3 for a radar tier. Reasons: BadArgs, RateLimited, NoProfile, Unknown, Locked,
+-- AlreadyOwned, NotEnoughScrap.
 local function onShopBuy(player: Player, kind: any, id: any): (boolean, string?)
 	if (kind ~= "lure" and kind ~= "gear") or type(id) ~= "string" then
 		return false, "BadArgs"
@@ -213,10 +260,31 @@ end
 -- Public API -------------------------------------------------------------
 
 -- Hands a player a gear row for free (a Field Notes reward): sets its profile flag, pushes GearChanged
--- and re-applies WalkSpeed. Unlock rules do not apply; the reward is the unlock. Returns false with
--- Unknown (no row, or no flag yet), NoProfile, or AlreadyOwned (nothing changes; a caller may treat
--- that as done).
+-- and re-applies WalkSpeed. Unlock rules do not apply; the reward is the unlock. A radar id raises
+-- gear.radar to that tier (never lowers it). Returns false with Unknown (no row, or no flag yet),
+-- NoProfile, or AlreadyOwned (nothing changes; a caller may treat that as done).
 function Shop.GrantGear(player: Player, id: string): (boolean, string?)
+	local radarTier = RADAR_TIER[id]
+	if radarTier then
+		if not RADAR_ROWS[radarTier] then
+			return false, "Unknown"
+		end
+		local ok, reason = mutate(player, function(profile)
+			if profile.gear.radar >= radarTier then
+				return "AlreadyOwned"
+			end
+			profile.gear.radar = radarTier
+			return nil
+		end)
+		if not ok then
+			return false, reason
+		end
+		local profile = PlayerData.Get(player)
+		if profile then
+			pushGear(player, profile)
+		end
+		return true, nil
+	end
 	local field = GEAR_FLAG[id]
 	if not GEAR_ROWS[id] or not field then
 		return false, "Unknown"

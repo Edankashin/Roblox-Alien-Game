@@ -327,8 +327,7 @@ function TutorialHint.SetVisible(visible: boolean)
 	wanted = visible
 	applyVisible()
 	if finished then
-		Waypoint.Clear()
-		return
+		return -- the marker is someone else's now (a radar blip); showDone cleared the tutorial's
 	end
 	local index = shownStep
 	local step = if index then Tutorial.Steps[index] else nil

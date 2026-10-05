@@ -18,7 +18,7 @@ export type Step = { id: string, objectives: { Objective }, rewards: { Reward } 
 local FieldNotes: { [number]: { Step } } = {
 	[1] = {
 		{ id = "W1S1", objectives = { { id = "w1s1_catch", kind = "catchCount", count = 5 } }, rewards = { { kind = "gear", id = "Boots" } } },
-		{ id = "W1S2", objectives = { { id = "w1s2_night", kind = "catchCondition", count = 1, condition = "Night" }, { id = "w1s2_crystal", kind = "collect", count = 1, material = "CaveCrystal" } }, rewards = { { kind = "scrap", amount = 500 }, { kind = "lure", id = "Lure1", amount = 3 } } },
+		{ id = "W1S2", objectives = { { id = "w1s2_night", kind = "catchCondition", count = 1, condition = "Night" }, { id = "w1s2_crystal", kind = "collect", count = 1, material = "CaveCrystal" } }, rewards = { { kind = "gear", id = "Radar1" }, { kind = "scrap", amount = 500 }, { kind = "lure", id = "Lure1", amount = 3 } } },
 		{ id = "W1S3", objectives = { { id = "w1s3_craft", kind = "craft", count = 1, lure = "Lure2" }, { id = "w1s3_rare", kind = "catchTier", count = 1, tier = "Rare" } }, rewards = { { kind = "spin", amount = 1 }, { kind = "lure", id = "Lure2", amount = 1 } } },
 		{ id = "W1S4", objectives = { { id = "w1s4_epic", kind = "catchTierCondition", count = 1, tier = "Epic", condition = "Rain" } }, rewards = { { kind = "item", id = "WardenHorn", amount = 1 } } },
 		{ id = "W1S5", objectives = { { id = "w1s5_horn", kind = "soundHorn", count = 1, condition = "Night" } }, rewards = { { kind = "encounter", id = "Gaiabloom" } } },
