@@ -220,7 +220,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 16 | The Heater rule for blizzards (World 2) | pass |
 | 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | step 1 pass; the rest waits on a hand import |
 | 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | pass on World 2; step 5 waits on the World 1 place |
-| 19 | Group-join reward, referral rewards, rejoin nudges, notification opt-in card (Growth Playbook) | next |
+| 19 | Group-join reward, referral rewards, rejoin nudges, notification opt-in card (Growth Playbook) | building |
 | 20 | Weekly "Catches this week" leaderboard, all-time codex count | next |
 | 21 | Daily and weekly quests with a reroll, promo codes | next |
 
