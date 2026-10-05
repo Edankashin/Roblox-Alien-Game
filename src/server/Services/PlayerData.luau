@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 5
+local SCHEMA_VERSION = 6
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -44,6 +44,11 @@ end
 
 -- The social block (data/Social.luau): session count, the one-time group gift, referral state, the last
 -- notifications ask.
+-- One period's dealt quests (data/DailyQuests): empty until the service deals the first set.
+local function emptyPeriodQuests()
+	return { period = "", ids = {}, progress = {}, claimed = {}, rerolls = 0 }
+end
+
 local function defaultSocial()
 	return { sessions = 0, groupClaimed = false, referredBy = 0, referralClaimed = false, referralsRewarded = 0, notifyAskedAt = 0 }
 end
@@ -63,7 +68,7 @@ local function template(): Types.Profile
 		codex = {},
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
-		quests = { daily = {}, weekly = {}, fieldNotes = {}, progress = {} },
+		quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
 		luck = { pity = 0 },
@@ -75,6 +80,7 @@ local function template(): Types.Profile
 		settings = defaultSettings(),
 		tutorialStep = 1,
 		social = defaultSocial(),
+		codes = {},
 		tutorialCounter = 0,
 		lastSeen = 0,
 		firstSeen = 0,
@@ -121,6 +127,17 @@ local migrations: { [number]: (any) -> any } = {
 			end
 		end
 		data.social = social
+		return data
+	end,
+	-- v6: dealt daily and weekly quests replace the old count maps; redeemed promo codes
+	[6] = function(data)
+		local quests = if type(data.quests) == "table" then data.quests else {}
+		quests.daily = emptyPeriodQuests()
+		quests.weekly = emptyPeriodQuests()
+		quests.fieldNotes = if type(quests.fieldNotes) == "table" then quests.fieldNotes else {}
+		quests.progress = if type(quests.progress) == "table" then quests.progress else {}
+		data.quests = quests
+		data.codes = if type(data.codes) == "table" then data.codes else {}
 		return data
 	end,
 }

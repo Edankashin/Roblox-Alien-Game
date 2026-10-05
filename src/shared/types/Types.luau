@@ -65,6 +65,7 @@ export type ModuleProgress = {
 }
 
 export type OutpostState = { level: number, lastCollect: number }
+export type PeriodQuests = { period: string, ids: { string }, progress: { [string]: number }, claimed: { [string]: boolean }, rerolls: number }
 
 export type Profile = {
 	version: number,
@@ -78,7 +79,10 @@ export type Profile = {
 	companions: { string },
 	-- fieldNotes[worldId] = the current step index (1-based; past the last step means the chain is done);
 	-- progress[objectiveId] = count so far for objectives of the current step
-	quests: { daily: { [string]: number }, weekly: { [string]: number }, fieldNotes: { [string]: number }, progress: { [string]: number } },
+	-- daily and weekly (data/DailyQuests): the dealt quest ids for `period`, progress and claims by quest id,
+	-- rerolls used this period; the Field Notes keep their own step index and objective progress
+	quests: { daily: PeriodQuests, weekly: PeriodQuests, fieldNotes: { [string]: number }, progress: { [string]: number } },
+	codes: { [string]: boolean }, -- promo codes already redeemed (data/Codes)
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
