@@ -150,11 +150,16 @@ local function build(name: string, sheet: Weather.Sheet): Live
 	emitter.Speed = NumberRange.new(sheet.speed[1] or 0, sheet.speed[2] or sheet.speed[1] or 0)
 	emitter.Size = NumberSequence.new(sheet.sizeStart, sheet.sizeEnd)
 	emitter.Color = ColorSequence.new(Color3.fromHex(sheet.color))
-	emitter.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.5, sheet.transparency),
-		NumberSequenceKeypoint.new(1, 1),
-	})
+	-- A drop or flake lives well under a second: fading it in and out left it near-invisible for most of
+	-- that (Studio captures showed two streaks per frame), so falling sheets hold their transparency
+	-- flat and only the slow drifting wisps fade in and out.
+	emitter.Transparency = if sheet.mode == "drift"
+		then NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.5, sheet.transparency),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		else NumberSequence.new(sheet.transparency)
 	emitter.EmissionDirection = Enum.NormalId.Top
 	emitter.SpreadAngle = Vector2.new(sheet.spread, sheet.spread)
 	emitter.LightEmission = sheet.lightEmission

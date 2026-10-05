@@ -283,12 +283,12 @@ local function layoutGrid()
 	if abs.X <= 0 or abs.Y <= 0 then
 		return
 	end
-	local rows = math.max(1, math.ceil(cardCount / COLUMNS))
 	local cellPx = CELL_W * abs.X
 	local gapPx = CELL_GAP * abs.X
-	local contentPx = rows * cellPx + rows * gapPx -- one gap of breathing room under the last row
-	local pages = math.max(1, contentPx / abs.Y)
-	frame.CanvasSize = UDim2.fromScale(0, pages)
+	-- With pixel cell heights the canvas can follow the content exactly (no feedback), so the page maths
+	-- that ran against a not-yet-final frame height (a 1020 px canvas for 336 px of cards) is gone.
+	frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	frame.CanvasSize = UDim2.fromScale(0, 0)
 	-- The cell height is the cell width in pixels, derived from the frame on every resize. A Scale height
 	-- inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content,
 	-- so a Scale cell fed back into a taller canvas until one card sat 150 px down a 565 px canvas (Studio,
@@ -401,8 +401,9 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		local sizeChip = Builder.pill({
 			parent = card,
 			name = "Size",
-			position = UDim2.fromScale(0.04, 0.23),
-			size = UDim2.fromScale(0.4, 0.17), -- the height of the top chips; wide enough for "HUGE" at the minimum size
+			position = UDim2.fromScale(0.02, 0.42),
+			size = UDim2.fromScale(0.26, 0.14), -- mid-left, clear of the shape in the centre and the chips in the top row
+			anchor = Vector2.new(0, 0.5),
 			color = Theme.Colors.Trough,
 			stroke = Theme.Stroke.Text,
 			strokeColor = Theme.Colors.Outline,
@@ -608,8 +609,8 @@ local function build()
 	scroller.Size = UDim2.fromScale(1 - Theme.Margin * 2, GRID_H)
 	scroller.ZIndex = 3
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
-	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
-	scroller.CanvasSize = UDim2.fromScale(0, 1)
+	scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	scroller.CanvasSize = UDim2.fromScale(0, 0)
 	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 	scroller.ScrollBarThickness = SCROLLBAR_PX
 	scroller.ScrollBarImageColor3 = Theme.Colors.Trough
