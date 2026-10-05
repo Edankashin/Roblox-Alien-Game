@@ -292,3 +292,14 @@ Known gaps in this milestone: no camp-side board part (the screen is the chart),
 6. Objective kinds to spot-check with `/weather Rain` (catchSpecial counts during Rain on World 1), `/night` (catchCondition Night), a perfect-zone catch (perfectCount), a material pickup (collectAny), crafting a Twig Lure (craft). The friend kind needs a multi-client test with two friended accounts, or stays untested.
 
 Known gaps in this milestone: no quest icons, the friend objective is unverifiable without two friended accounts, codes have no expiry in the table yet (the field exists), and claiming does not animate the row.
+
+## Milestone 22: lighting and atmosphere per world (Look pass L1, both places)
+
+By hand first, once per place: select Lighting in the Explorer and set Technology to Future (a script cannot). Everything else is data (`src/shared/data/Lighting.luau`) applied by the client.
+1. Play on World 1: Lighting gains LookAtmosphere, LookBloom, LookColorCorrection and LookSunRays (no LookSky while the sky ids are 0). The meadow reads warm: golden haze at the horizon, a touch of bloom on the Neon glow flower and shrine ball, slightly raised saturation. Output clean.
+2. `/night`: over about 2.5 s the ambient falls to a blue night, the sun rays go, the glow ball blooms more and the tint cools. `/day` reverses it. With Reduced Motion on in Settings, the change snaps instead of tweening.
+3. `/weather Rain`: grey, dense, desaturated haze with the sun rays off; `/weather Fog`: thicker grey haze; `/clear`: back to the warm look. `/shower`: a warm orange glow with strong bloom layered over the night look; `/shower end` returns to night or day.
+4. World 2 place: cold blue-white light, hazier, flat saturation, soft sun. `/weather Blizzard`: near white-out haze (Density 0.6, Haze 6) and a strongly desaturated tint; `/weather Snow`: a lighter pale haze; `/clear` returns.
+5. Screenshots for the review: each world at day, night and its special weather at iPhone SE size, into `docs/vault/05-ui-design/refs/look-l1/` (not committed until reviewed). Frame rate on the SE emulator stays above 50 with Future lighting; if not, lower ShadowSoftness or Bloom size in the data table, never in code.
+
+Known gaps in this milestone: skyboxes (six ids per world) are still 0 so the default sky stays; no per-biome variation inside a world; particles for rain and snow are pass L3.

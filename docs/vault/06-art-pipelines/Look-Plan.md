@@ -24,7 +24,7 @@ The mechanics are in and testable with placeholders. This is the plan for the lo
 
 Core-loop milestones come first (19 group reward and rejoin nudges, 20 global leaderboard). The look passes start after those, cheapest and widest first.
 
-### L1. Lighting and atmosphere per world (one milestone, mostly code)
+### L1. Lighting and atmosphere per world (one milestone, mostly code) — building as milestone 22 (2026-10-05)
 
 - `data/Lighting.luau`: per world a sky (six skybox ids), Atmosphere (density, haze, colour, glare), ColorCorrection (tint, contrast, saturation), Bloom, SunRays, ambient and outdoor ambient, clock time range, and a per-weather override (Rain darker and bluer, Blizzard white and dense, Shower a warm night with extra bloom).
 - `client/World/LightingDirector.luau` applies the table on join and tweens between weather looks over `Config.LightingTweenSeconds`; respects Reduced Motion by snapping.

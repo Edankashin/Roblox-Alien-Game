@@ -223,6 +223,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 19 | Group-join reward, referral rewards, rejoin nudges, notification opt-in card (Growth Playbook) | queued |
 | 20 | Weekly "Catches this week" leaderboard | queued |
 | 21 | Daily and weekly quests with a reroll, promo codes | queued |
+| 22 | Look pass L1: lighting and atmosphere looks per world and condition, tweened on the client | building |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
