@@ -114,3 +114,5 @@ The cloud session processes it with `tools/watch_video.py`.
 1. Run the script, install Studio and the plugins, connect Rojo and MCP, see the green indicator.
 2. Answer the decisions list in `docs/PRE_PRODUCTION.md` section 2.
 3. Send the build prompt from section 9. The first deliverable is the vertical slice in section 5.
+
+> Note (2026-10-05): `tools/setup-mac.sh` is a whole-machine script. It runs `rokit install --no-trust-check` (trusts the pinned tools without the prompt), `rojo plugin install`, removes any user- or local-scope Studio MCP registration, installs Blender and the two Claude add-ons, one of which (claude-mem) records sessions locally. Run single lines from it when you want to approve each step; run it whole only on a machine you set up for this project.
