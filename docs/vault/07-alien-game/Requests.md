@@ -19,3 +19,5 @@ Every ask from the team, in order, and where it landed, so nothing said in a ses
 | 2026-10-05 | Use any mix of plugins and tools for an amazing-looking game; Blender mandatory | relayed to the Mac session with the quote; Look plan passes L2 to L6 | ongoing |
 | 2026-10-05 | Every world unique: a fishing water world with a glowing fountain area and a super-rare fish through a harder minigame, secret parkour areas, a parkour world, a cyberpunk robot world | design section 8 "World signatures"; decision 21 | designed; builds after the look passes |
 | 2026-10-05 | "Incorporate raw alone into the UI making and animation" | unclear which tool is meant; asked | open |
+| 2026-10-05 | Handle everything in Studio; the key is in the zshrc | Lighting and chat set by the Rojo project files, the Mac builds and opens places itself, 48 models uploaded and installed by script; the colour re-upload waits on Ethan's approval in the Mac session | ongoing |
+| 2026-10-05 | Where to find File and Import 3D; what the files are | answered in chat; superseded by the Open Cloud bulk upload (`Map-Dressing.md`) | done |
