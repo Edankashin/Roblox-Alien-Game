@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #2B3F5C, placeholder scale 0.9
 - Accessory: backpack (keyword match on the concept; colour rule: complement, #BF6056)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1370 (look pass 2026-10-05 over the 1012-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
+- Triangles: 1476 (look pass 2026-10-05 over the 1012-triangle blockout plus a Belly patch and a wedge beak; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 1.98 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #2B3F5C, BodyDark #1C293C, EyeWhite, Pupil, Mouth, Accessory #BF6056
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.

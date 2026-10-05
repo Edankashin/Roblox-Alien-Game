@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #C8C2F0, placeholder scale 1.2
 - Accessory: crest (keyword match on the concept; colour rule: gold, #FFC83D)
 - Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 1200 (budget 500 to 1500, detail level 0)
+- Triangles: 1448 (look pass 2026-10-05 over the 1200-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 3.82 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #C8C2F0, BodyDark #827E9C, EyeWhite, Pupil, Mouth, Accessory #FFC83D, Trim #C026D3
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.

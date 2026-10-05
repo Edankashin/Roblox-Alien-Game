@@ -7,7 +7,7 @@
 - Body: Block, placeholder colour #3FBFB0, placeholder scale 1.1
 - Accessory: shell (keyword match on the concept; colour rule: complement, #BF3F8E, metallic)
 - Tier dressing: tier size 110% (carried by placeholder.scale), metallic accessory
-- Triangles: 954 (budget 500 to 1500, detail level 0)
+- Triangles: 1450 (look pass 2026-10-05 over the 954-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 2.76 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #3FBFB0, BodyDark #297C72, EyeWhite, Pupil, Mouth, Accessory #BF3F8E
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.

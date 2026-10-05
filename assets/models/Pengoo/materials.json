@@ -54,5 +54,13 @@
     "roughness": 0.3,
     "metallic": 0.0,
     "emission": 0.0
+  },
+  {
+    "slot": 8,
+    "name": "Belly",
+    "hex": "DDE6F0",
+    "roughness": 0.7,
+    "metallic": 0.0,
+    "emission": 0.0
   }
 ]
