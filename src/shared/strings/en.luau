@@ -295,7 +295,7 @@ return {
 	TOAST_WARDEN_AWAKE = "Gaiabloom has come to the shrine!",
 	TOAST_WARDEN_RETREAT = "Gaiabloom retreats into the flowers",
 	CATCH_ROUND_INTRO = "Round %d: the zone shrinks!",
-	MENU_GLYPH_Settings = "*",
+	MENU_GLYPH_Settings = "=",
 	SETTINGS_TITLE = "Settings",
 	SETTINGS_Ambience = "World sounds",
 	SETTINGS_Sounds = "Button and catch sounds",
