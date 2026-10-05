@@ -1,0 +1,10 @@
+[
+  {
+    "slot": 1,
+    "name": "Rock",
+    "hex": "8E8E8E",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

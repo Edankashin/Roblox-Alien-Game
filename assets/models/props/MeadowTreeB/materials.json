@@ -1,0 +1,18 @@
+[
+  {
+    "slot": 1,
+    "name": "Trunk",
+    "hex": "7B4A2D",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Leaves",
+    "hex": "3F9B3A",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

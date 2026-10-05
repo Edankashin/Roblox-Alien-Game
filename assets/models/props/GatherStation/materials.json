@@ -1,0 +1,18 @@
+[
+  {
+    "slot": 1,
+    "name": "Top",
+    "hex": "FFC83D",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Legs",
+    "hex": "A0722C",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "slot": 1,
+    "name": "Stem",
+    "hex": "3F9B3A",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Petal",
+    "hex": "A855F7",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Glow",
+    "hex": "FFC83D",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]

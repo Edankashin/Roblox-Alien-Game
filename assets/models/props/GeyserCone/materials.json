@@ -1,0 +1,26 @@
+[
+  {
+    "slot": 1,
+    "name": "Cone",
+    "hex": "8C5A3C",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Rim",
+    "hex": "B07A55",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Crater",
+    "hex": "4A2E1E",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

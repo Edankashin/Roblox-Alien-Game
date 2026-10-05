@@ -1,0 +1,18 @@
+[
+  {
+    "slot": 1,
+    "name": "Ice",
+    "hex": "A9D8EA",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "IceTip",
+    "hex": "E8F7FD",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

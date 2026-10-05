@@ -1,0 +1,26 @@
+[
+  {
+    "slot": 1,
+    "name": "Plate",
+    "hex": "5B6472",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Lip",
+    "hex": "8A93A0",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Feet",
+    "hex": "3A4049",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]

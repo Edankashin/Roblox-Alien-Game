@@ -16,12 +16,15 @@ Usage (plain Python with the bpy module, or inside a Blender binary):
     python3 tools/blender/alien_base.py [--species Mossbop,Radish] [--out assets/models] [--all]
     blender -b -P tools/blender/alien_base.py -- --all
 
-Output per species: assets/models/<SpeciesId>/<SpeciesId>.glb, <SpeciesId>.fbx, notes.md.
+Output per species: assets/models/<SpeciesId>/<SpeciesId>.glb, <SpeciesId>.fbx, notes.md, materials.json.
+materials.json lists the material slots in order (colour, roughness, metallic, emission) because an Open Cloud
+upload of the GLB keeps one MeshPart per slot but drops the colours; the Studio installer colours each part by index.
 Exit code is non-zero if any species exceeds 1,500 triangles after all detail reductions.
 """
 import argparse
 import colorsys
 import datetime
+import json
 import math
 import os
 import pathlib
@@ -125,6 +128,65 @@ def make_material(name, rgb, roughness=0.8, metallic=0.0, emission=0.0):
     mat.roughness = roughness
     mat.metallic = metallic
     return mat
+
+
+# ----------------------------------------------------------------------------------- materials.json
+MATERIALS_JSON = "materials.json"
+_SUFFIX = re.compile(r"\.\d{3}$")
+
+
+def _principled(mat):
+    """The Principled BSDF of a material, found by type (node names are localised)."""
+    if mat is None or mat.node_tree is None:
+        return None
+    return next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+
+
+def material_entries(objs):
+    """One entry per material slot, object by object then slot by slot, for materials.json.
+
+    hex is the Principled Base Color default value written back through rgb_to_hex. make_material stores
+    hex_to_rgb(hex) as the Base Color with no transfer function, and the glTF exporter writes that number as
+    baseColorFactor, so the importer returns it unchanged: rgb_to_hex is the exact inverse and a Body written
+    as 7FBF5A reads back as 7FBF5A. A sRGB curve here would shift every colour.
+    """
+    entries = []
+    for obj in objs:
+        for slot in obj.material_slots:
+            mat = slot.material
+            if mat is None:
+                continue
+            bsdf = _principled(mat)
+            if bsdf is not None:
+                colour = tuple(bsdf.inputs["Base Color"].default_value)[:3]
+                roughness = float(bsdf.inputs["Roughness"].default_value)
+                metallic = float(bsdf.inputs["Metallic"].default_value)
+                emission = float(bsdf.inputs["Emission Strength"].default_value) if "Emission Strength" in bsdf.inputs else 0.0
+            else:
+                colour = tuple(mat.diffuse_color)[:3]
+                roughness, metallic, emission = float(mat.roughness), float(mat.metallic), 0.0
+            entries.append({
+                "slot": len(entries) + 1,
+                "name": _SUFFIX.sub("", mat.name),
+                "hex": rgb_to_hex(colour),
+                "roughness": round(roughness, 4),
+                "metallic": round(metallic, 4),
+                "emission": round(emission, 4),
+            })
+    return entries
+
+
+def write_materials_entries(entries, out_dir):
+    out_dir = pathlib.Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / MATERIALS_JSON
+    path.write_text(json.dumps(entries, indent=2) + "\n")
+    return path
+
+
+def write_materials_json(obj, out_dir):
+    """Write out_dir/materials.json from the joined object's material_slots (slot 1 = the first MeshPart)."""
+    return write_materials_entries(material_entries([obj]), out_dir)
 
 
 # ----------------------------------------------------------------------------------------------- bodies
@@ -522,6 +584,7 @@ def export(obj, out_dir, species_id):
                               export_yup=True, use_selection=False, export_materials="EXPORT", export_lights=False, export_cameras=False)
     bpy.ops.export_scene.fbx(filepath=str(fbx), use_selection=False, apply_scale_options="FBX_SCALE_ALL",
                              mesh_smooth_type="FACE", bake_anim=False, add_leaf_bones=False, path_mode="AUTO")
+    write_materials_json(obj, out_dir)  # props_base.py reaches this through export() as well
     return glb, fbx
 
 

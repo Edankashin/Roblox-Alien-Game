@@ -1,0 +1,18 @@
+[
+  {
+    "slot": 1,
+    "name": "Metal",
+    "hex": "3A4049",
+    "roughness": 0.5,
+    "metallic": 0.4,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Glow",
+    "hex": "FF8C42",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]

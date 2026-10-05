@@ -17,7 +17,8 @@ Usage (plain Python with the bpy module, or inside a Blender binary):
     python3 tools/blender/props_base.py [--props MeadowTree,IceRock] [--out assets/models/props] [--all]
     blender -b -P tools/blender/props_base.py -- --all
 
-Output per prop: assets/models/props/<Name>/<Name>.glb, <Name>.fbx, notes.md.
+Output per prop: assets/models/props/<Name>/<Name>.glb, <Name>.fbx, notes.md, materials.json (written by
+alien_base.export through write_materials_json, so species and props share one format).
 Budget 40 to 600 triangles per prop (trees are placed about 30 times per world). Exit code 1 when any prop is over
 600, 3 when a footprint misses the size the game's placeholders use, 2 for an unknown prop name.
 """

@@ -1,0 +1,58 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "FF8C42",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "EyeWhite",
+    "hex": "FFFFFF",
+    "roughness": 0.5,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Pupil",
+    "hex": "08080A",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 4,
+    "name": "Mouth",
+    "hex": "2E0D14",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 5,
+    "name": "BodyDark",
+    "hex": "A65B2B",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 6,
+    "name": "Accessory",
+    "hex": "FFC83D",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 7,
+    "name": "EyeHighlight",
+    "hex": "FFFFFF",
+    "roughness": 0.3,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]
