@@ -89,3 +89,7 @@ Display orders: HUD 10, tutorial hint 15, modal panels 20, the notifications ask
 ## Input fields and hints (2026-10-05)
 
 A text box is navy Fredoka on the cream panel colour with the outline border stroke only, no text stroke, placeholder in the Common grey. A hint line under a panel's rows is Fredoka too, navy, no stroke: the outlined white style is for titles and anything drawn over the world, never for fields or helper text.
+
+## Grids inside scrolling frames (2026-10-05)
+
+A UIGridLayout cell with a Scale height inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content, so the two feed back until the canvas is three pages tall and one card sits 150 px down. Inside a ScrollingFrame the cell height is therefore derived in pixels from the frame's width on every resize (the one place a pixel value is set), width and padding stay Scale, and the canvas is set to the page count from the row count. The Scale-only rule still holds for positions and sizes everywhere else.
