@@ -217,6 +217,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | queued |
 | 16 | The Heater rule for blizzards (World 2) | queued |
 | 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | queued; meshes wait on a hand import |
+| 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | queued |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`.
 
@@ -232,7 +233,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 
 **Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
 
-**Not built yet (P1 from section 18):** outposts producing materials, the Star Chart, the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
+**Not built yet (P1 from section 18):** the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
 
 ---
 

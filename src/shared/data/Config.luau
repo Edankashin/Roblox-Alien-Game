@@ -122,6 +122,11 @@ return {
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
+	-- Star Chart and outposts (data/Outposts has the production numbers)
+	FlyTeleportDelaySeconds = 1.5, -- the client fades for this long before the server teleports a Fly
+	StarChartPulseSeconds = 1.2, -- the current world's card pulses with this period (off under Reduced Motion)
+	StarChartTickSeconds = 1, -- the pending numbers on the chart refresh this often while it is open
+
 	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
 	ModelFolderName = "Models",
 	PropsFolderName = "Props", -- ReplicatedStorage.<ModelFolderName>.<PropsFolderName>.<Name>: imported scenery Models (trees, rocks, ship hull, station and heater meshes), by hand; builders fall back to part-built placeholders

@@ -18,12 +18,13 @@ return {
 		ShopBuy = "ShopBuy", -- value 1; fields kind, id
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
 		Launch = "Launch", -- value 1; fields from, to (world ids)
+		Fly = "Fly", -- value 1; fields from, to (world ids): a Star Chart flight
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline" },
-		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost" },
+		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds
 }
