@@ -1,6 +1,6 @@
 --!strict
 -- StarterPlayerScripts.Client.World.PeddlerRenderer: the Peddler's merchant ship, drawn locally under
--- Workspace.ClientCamp (the same client-only folder CampRenderer uses) from the visit the server pushes
+-- its own client-only folder Workspace.ClientPeddler from the visit the server pushes
 -- (PeddlerChanged, mirrored in State) or answers to GetPeddler for a late joiner. Between visits the
 -- ship waits invisible Config.PeddlerHoverHeight above its landing spot (Camp.PeddlerOffset, resting
 -- on Workspace.World.MeadowFloor). When a visit starts it appears and tweens down over
@@ -26,7 +26,7 @@ local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toas
 
 local PeddlerRenderer = {}
 
-local FOLDER_NAME = "ClientCamp" -- shared with CampRenderer; whichever starts first creates it
+local FOLDER_NAME = "ClientPeddler" -- its own folder: CampRenderer clears every child of ClientCamp when it rebuilds
 local PLATE_LIFT = 1.2 -- studs between the top of the hull and its nameplate
 local TICK_SECONDS = 1 -- the countdown line and the clock check refresh this often
 local TRIM_THICKNESS = 0.4 -- studs; the Neon band around the hull's waist
@@ -64,7 +64,7 @@ local function formatTime(seconds: number): string
 	return Strings.TIME_S:format(total)
 end
 
--- Workspace.ClientCamp: CampRenderer makes it with Instance.new; reuse it, or make it the same way.
+-- Workspace.ClientPeddler, created on first use (client-side only, never replicates).
 local function folder(): Folder
 	local existing = Workspace:FindFirstChild(FOLDER_NAME)
 	if existing and existing:IsA("Folder") then

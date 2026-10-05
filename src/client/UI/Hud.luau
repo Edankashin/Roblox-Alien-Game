@@ -407,6 +407,8 @@ function Hud.SetLuck(luck: number)
 		label.Visible = false
 		return
 	end
+	-- Round half up to one decimal before formatting (1.25 must read x1.3, and %.1f would print 1.2).
+	luck = math.floor(luck * 10 + 0.5) / 10
 	label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
 	label.Visible = true
 end
