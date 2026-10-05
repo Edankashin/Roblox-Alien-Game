@@ -33,9 +33,9 @@ local menuButtons: { [string]: Frame } = {}
 local menuCount = 0
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
-local MENU_TOP = 0.2 -- the icon stack starts here, under the Scrap pill and its rate line
-local MENU_SLOT = 0.15 -- vertical space per entry: the square button plus its label
-local MENU_BUTTON = 0.105 -- square button height (width follows through the aspect constraint)
+local MENU_TOP = 0.19 -- the icon stack starts here, under the Scrap pill and its rate line
+local MENU_SLOT = 0.13 -- vertical space per entry: the square button plus its label; six entries end at 0.97
+local MENU_BUTTON = 0.095 -- square button height (width follows through the aspect constraint)
 local MENU_LEFT = 0.015
 local actionButton: Frame? = nil
 local actionFace: TextButton? = nil
