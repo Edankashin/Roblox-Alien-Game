@@ -18,7 +18,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -89,6 +89,15 @@ function State.SetBiome(b: Types.Biome)
 		biome = b
 		fire("biome")
 	end
+end
+
+-- Field Notes step per world and objective counts (QuestsChanged); also readable from the profile.
+function State.GetQuests(): Types.QuestState
+	local p = profile
+	if p then
+		return { fieldNotes = p.quests.fieldNotes, progress = p.quests.progress }
+	end
+	return { fieldNotes = {}, progress = {} }
 end
 
 -- Active power-ups as end times on the server wall clock; compare with State.Now().
@@ -175,7 +184,7 @@ function State.Start()
 		end)
 	end)
 	task.spawn(function()
-		Net.event("InventoryChanged").OnClientEvent:Connect(function(inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number } })
+		Net.event("InventoryChanged").OnClientEvent:Connect(function(inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number }, items: { [string]: number } })
 			if profile then
 				profile.inventory = inventory
 				fire("inventory")
@@ -207,6 +216,15 @@ function State.Start()
 		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?)
 			peddler = visit
 			fire("peddler")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("QuestsChanged").OnClientEvent:Connect(function(state: Types.QuestState)
+			if profile then
+				profile.quests.fieldNotes = state.fieldNotes
+				profile.quests.progress = state.progress
+				fire("quests")
+			end
 		end)
 	end)
 	task.spawn(function()

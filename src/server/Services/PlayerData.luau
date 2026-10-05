@@ -17,7 +17,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 1
+local SCHEMA_VERSION = 2
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -47,13 +47,13 @@ local function template(): Types.Profile
 		codex = {},
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
-		quests = { daily = {}, weekly = {}, fieldNotes = {} },
+		quests = { daily = {}, weekly = {}, fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
 		luck = { pity = 0 },
 		purchases = {},
 		buffs = {},
-		inventory = { keyMaterials = {}, lures = {}, powerUps = {} },
+		inventory = { keyMaterials = {}, lures = {}, powerUps = {}, items = {} },
 		stats = { catches = 0, perfects = 0, playSeconds = 0 },
 		tutorialStep = 0,
 		lastSeen = 0,
@@ -64,7 +64,14 @@ end
 
 -- Migrations run in order from the saved version up to SCHEMA_VERSION. Add one entry per bump.
 local migrations: { [number]: (any) -> any } = {
-	-- [2] = function(data) data.newField = data.newField or {} ; return data end,
+	-- v2: quest objective progress and a general item bag (the Warden's Horn)
+	[2] = function(data)
+		data.quests = data.quests or {}
+		data.quests.progress = data.quests.progress or {}
+		data.inventory = data.inventory or {}
+		data.inventory.items = data.inventory.items or {}
+		return data
+	end,
 }
 
 local function migrate(data: any): Types.Profile

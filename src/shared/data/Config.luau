@@ -81,6 +81,12 @@ return {
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
+	-- Field Notes and the Warden
+	ShrineInteractDistance = 14, -- studs from the shrine centre to offer "Sound the horn"
+	WardenEncounterSeconds = 180, -- a summoned Warden waits this long before it retreats
+	WardenRetreatSeconds = 900, -- after a failed or expired encounter the horn works again after this
+	WardenZoneShrinkPerRound = 0.85, -- a multi-round capture multiplies both zones by this each round after the first
+
 	-- announcements
 	AnnounceMinTier = "Rare", -- catches of this tier and above are announced to the whole server
 	AnnounceSeconds = 4, -- how long the server-wide banner stays up

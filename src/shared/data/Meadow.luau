@@ -27,6 +27,8 @@ return {
 	RegionRoofThickness = 1, -- the flat slab over a roofed region (the Cave ceiling)
 	RegionEdgeMargin = 6, -- nodes and region scatter stay this far inside the region edge
 	RegionWallRadius = 4, -- 26 pillars of this radius around the Cave rim leave gaps of about 5 studs
+	-- the Shrine of the Warden: a stone ring with a pedestal, the world's landmark (Field Notes finale)
+	Shrine = { x = 0, z = 155, radius = 10, stoneCount = 8, stoneHeight = 5, stoneColor = "9E9E8E", pedestalColor = "C8C4A8", glowColor = "2ECC71" },
 	Seed = 20261004, -- deterministic scatter so every server builds the same meadow
 	FloorSize = 400,
 	FloorThickness = 1,

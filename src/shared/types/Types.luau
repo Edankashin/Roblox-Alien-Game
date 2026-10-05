@@ -73,13 +73,15 @@ export type Profile = {
 	codex: { [string]: { count: number, bestOverlay: Overlay, firstCaughtAt: number } },
 	gear: { boots: boolean, hoverboard: boolean, glider: boolean, radar: number },
 	companions: { string },
-	quests: { daily: { [string]: number }, weekly: { [string]: number }, fieldNotes: { [string]: number } },
+	-- fieldNotes[worldId] = the current step index (1-based; past the last step means the chain is done);
+	-- progress[objectiveId] = count so far for objectives of the current step
+	quests: { daily: { [string]: number }, weekly: { [string]: number }, fieldNotes: { [string]: number }, progress: { [string]: number } },
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
 	purchases: { [string]: number },
 	buffs: { [string]: number }, -- active power-ups: id -> seconds remaining (ticks down only while online)
-	inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number } },
+	inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number }, items: { [string]: number } },
 	stats: { catches: number, perfects: number, playSeconds: number },
 	tutorialStep: number,
 	lastSeen: number,
@@ -152,6 +154,9 @@ export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsA
 
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
 export type GrantResult = { species: string, tier: Tier, overlay: Overlay, isNew: boolean, scrapGained: number, scrap: number }
+
+-- Quests -> client (QuestsChanged): the Field Notes step per world and the objective counts.
+export type QuestState = { fieldNotes: { [string]: number }, progress: { [string]: number } }
 
 -- Server-wide banner (Announcement event, FireAllClients) when someone catches a rare enough alien.
 export type Announcement = { kind: "catch", playerName: string, species: string, tier: Tier, overlay: Overlay }
