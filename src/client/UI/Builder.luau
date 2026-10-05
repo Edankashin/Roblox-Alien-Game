@@ -274,6 +274,21 @@ end
 -- Sounds -----------------------------------------------------------------
 
 local soundCache: { [string]: Sound } = {}
+local uiGroup: SoundGroup? = nil
+
+-- The SoundGroup every UI cue plays through, at Sounds.Volume.UI (the Ambience module owns its own).
+local function soundGroup(): SoundGroup
+	local existing = uiGroup
+	if existing then
+		return existing
+	end
+	local created = Instance.new("SoundGroup")
+	created.Name = "UI"
+	created.Volume = Sounds.Volume.UI
+	created.Parent = SoundService
+	uiGroup = created
+	return created
+end
 
 -- Plays a UI sound by asset id. Placeholder ids (rbxassetid://0) are skipped silently.
 function Builder.playSound(id: string)
@@ -285,6 +300,7 @@ function Builder.playSound(id: string)
 		local created = Instance.new("Sound")
 		created.Name = "UI"
 		created.SoundId = id
+		created.SoundGroup = soundGroup()
 		created.Parent = SoundService
 		soundCache[id] = created
 		sound = created

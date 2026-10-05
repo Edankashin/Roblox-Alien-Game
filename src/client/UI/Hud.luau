@@ -14,6 +14,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Builder = require(script.Parent.Builder)
 
@@ -22,9 +23,15 @@ local Hud = {}
 local SHIP_FILL_SECONDS = 0.4 -- the ship bar's fill eases to a new value over this
 local TICK_WIDTH = 0.004 -- milestone tick marks, as a fraction of the bar width
 local DEFAULT_TICK_WORLD = 1 -- every player starts here; SetShipTicks replaces these once the profile is in
+local FLY_SIZE = Vector2.new(0.2, 0.08) -- a flying "+N" label, in screen Scale
+local FLY_SHRINK = 0.7 -- it ends this fraction of its start size at the pill
+local FLY_FADE_SECONDS = 0.15 -- then fades out over this
+local FLY_FALLBACK_Y = 0.9 -- where a "+N" starts (bottom centre) while the action button is hidden
+local FLY_ZINDEX = 20 -- over every other HUD element
 
 local gui: ScreenGui? = nil
 local menuGui: ScreenGui? = nil -- the icon stack sits above modal dims (MENU_DISPLAY_ORDER) so panels can be switched
+local scrapPill: Frame? = nil
 local setScrapValue: ((number) -> ())? = nil
 local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
@@ -74,6 +81,22 @@ local function formatCountdown(seconds: number): string
 	return Strings.TIME_S:format(total)
 end
 
+-- Tween lengths shrink by Config.ReducedMotionFactor when the player's reduced-motion setting is on.
+-- The read is guarded: the setting is missing on some clients, and then motion stays full.
+local function motionFactor(): number
+	local ok, reduced = pcall(function()
+		return UserSettings():GetService("UserGameSettings").ReducedMotion
+	end)
+	return if ok and reduced == true then Config.ReducedMotionFactor else 1
+end
+
+-- A GuiObject's centre in a ScreenGui's Scale space, from the absolute layout.
+local function centreScale(root: ScreenGui, target: GuiObject): (number, number)
+	local screen = root.AbsoluteSize
+	local centre = target.AbsolutePosition + target.AbsoluteSize / 2 - root.AbsolutePosition
+	return centre.X / screen.X, centre.Y / screen.Y
+end
+
 local function buildScrapPill(root: ScreenGui)
 	local pill = Builder.pill({
 		parent = root,
@@ -85,6 +108,7 @@ local function buildScrapPill(root: ScreenGui)
 		strokeColor = Theme.Colors.Outline,
 		aspect = 3.6,
 	})
+	scrapPill = pill
 	Builder.gradient(pill, Theme.Colors.Trough)
 	-- icon placeholder: a gold rounded square until the Scrap icon exists
 	local icon = Builder.frame({
@@ -613,6 +637,60 @@ function Hud.SetScrap(amount: number)
 		Builder.playSound(Sounds.ScrapTick)
 	end
 	lastScrap = amount
+end
+
+-- A gold outlined "+N" that pops at the action button (or bottom centre while it is hidden), flies to
+-- the Scrap pill over Config.GainFlySeconds while shrinking a little, then fades and is destroyed.
+-- Every call makes its own label, so several in flight never interfere. Pure presentation: the amount
+-- is whatever the server granted.
+function Hud.FlyGain(amount: number)
+	local root, pill = gui, scrapPill
+	if not root or not pill then
+		return
+	end
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return
+	end
+	local fromX, fromY = 0.5, FLY_FALLBACK_Y
+	local button = actionButton
+	if button and button.Visible then
+		fromX, fromY = centreScale(root, button)
+	end
+	local toX, toY = centreScale(root, pill)
+
+	local label = Builder.label({
+		parent = root,
+		name = "Gain",
+		text = Strings.GAIN_FLY:format(Builder.formatNumber(amount)),
+		textSize = Theme.TextSize.Title,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(fromX, fromY),
+		size = UDim2.fromScale(FLY_SIZE.X, FLY_SIZE.Y),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = FLY_ZINDEX,
+	})
+	Builder.pop(label, 1.3)
+
+	local factor = motionFactor()
+	local flyInfo = TweenInfo.new(Config.GainFlySeconds * factor, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	local fly = TweenService:Create(label, flyInfo, {
+		Position = UDim2.fromScale(toX, toY),
+		Size = UDim2.fromScale(FLY_SIZE.X * FLY_SHRINK, FLY_SIZE.Y * FLY_SHRINK),
+	})
+	fly.Completed:Once(function()
+		local fadeInfo = TweenInfo.new(FLY_FADE_SECONDS * factor, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local stroke = label:FindFirstChildOfClass("UIStroke")
+		if stroke then
+			TweenService:Create(stroke, fadeInfo, { Transparency = 1 }):Play()
+		end
+		local fade = TweenService:Create(label, fadeInfo, { TextTransparency = 1 })
+		fade.Completed:Once(function()
+			label:Destroy()
+		end)
+		fade:Play()
+	end)
+	fly:Play()
 end
 
 -- Adds an entry to the left icon stack. Call after Hud.Build, once per screen, in display order.

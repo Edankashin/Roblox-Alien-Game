@@ -141,6 +141,8 @@ local function ask(name: string, moduleId: string?)
 		pending = false
 		if ok ~= true then
 			handleRefusal(name, moduleId, reason)
+		elseif name == "ModuleInsertKey" then
+			Builder.playSound(Sounds.PartSnap) -- the key part went in; the server's push redraws the row
 		end
 	end)
 end

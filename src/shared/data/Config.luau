@@ -82,6 +82,22 @@ return {
 	NameplateDistance = 60, -- nameplates render inside this
 	RadarRefreshSeconds = 0.1, -- the minimap re-places its blips this often
 	RadarWaypointArriveStuds = 8, -- a blip's waypoint clears once the player is this close
+
+	-- juice: presentation timings and sizes (client only; nothing here decides an outcome)
+	CameraPanSeconds = 2.5, -- the camera glides to a finished module over this
+	CameraPanHoldSeconds = 1.2, -- and rests on it this long before gliding back
+	CameraPanDistance = 26, -- studs the pan looks at the ship from
+	CameraPanHeight = 14, -- studs above the ship the pan looks down from
+	CrashCinematicSeconds = 4, -- the opening drop from the sky to the character
+	CrashStartHeight = 140, -- studs above the camp the opening starts at
+	CrashShakeStuds = 0.6, -- camera shake amplitude at touchdown
+	CrashLineSeconds = 2.2, -- each crash line stays this long
+	AmbienceFadeSeconds = 2, -- ambience loops crossfade over this
+	VfxCatchBurstSeconds = 0.8, -- the burst where a caught alien stood
+	VfxModuleBurstSeconds = 1.5, -- the burst over a finished module
+	VfxShowerStreaksPerSecond = 6, -- meteor streaks over the camp during a shower
+	GainFlySeconds = 0.6, -- a "+25" flies from the action button to the Scrap pill over this
+	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
 	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,

@@ -1,8 +1,29 @@
 --!strict
--- Sound ids for every UI and capture cue. All placeholders (rbxassetid://0) until the audio pass;
--- Builder.playSound skips an id of 0 so nothing errors while they are empty.
+-- Sound ids for every UI, capture, event and ambience cue (the launch list in PRE_PRODUCTION 3.4). All
+-- placeholders (rbxassetid://0) until the audio pass; Builder.playSound and the Ambience loops skip an
+-- id of 0 so nothing errors while they are empty. Volumes are 0..1 per SoundGroup.
 return {
+	Volume = { UI = 0.6, Ambience = 0.35 },
 	Click = "rbxassetid://0",
+	ToastDing = "rbxassetid://0", -- every toast
+	Banner = "rbxassetid://0", -- server-wide announcement banners
+	PartSnap = "rbxassetid://0", -- a key part goes into a module (the bass hit)
+	ModuleComplete = "rbxassetid://0", -- the fanfare when a module finishes
+	ShowerHorn = "rbxassetid://0", -- a Meteor Shower begins
+	PeddlerLanding = "rbxassetid://0",
+	GiftClaim = "rbxassetid://0",
+	WheelTick = "rbxassetid://0", -- the wheel passes a wedge
+	WheelStop = "rbxassetid://0",
+	HornCall = "rbxassetid://0", -- the Warden's Horn is sounded
+	WardenAppear = "rbxassetid://0",
+	Launch = "rbxassetid://0", -- reserved for the launch sequence (World 2)
+	-- looping ambiences, crossfaded by the client as the conditions change
+	Ambience = {
+		Day = "rbxassetid://0",
+		Night = "rbxassetid://0",
+		Rain = "rbxassetid://0",
+		Shower = "rbxassetid://0",
+	} :: { [string]: string },
 	CatchHit = "rbxassetid://0", -- the ticker stops in the Good zone
 	Perfect = "rbxassetid://0", -- the ticker stops in the Perfect zone
 	Miss = "rbxassetid://0",

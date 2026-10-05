@@ -267,6 +267,7 @@ local function claim(row: GiftRow)
 		pending = false
 		if ok == true then
 			claimedLocal[tostring(row.day)] = true
+			Builder.playSound(Sounds.GiftClaim)
 			Toast.Show(Strings.TOAST_GIFT_CLAIMED:format(row.day, rewardLabel(row)), giftAccent(row))
 			refresh()
 			local grant = raw :: Types.GrantResult?
@@ -296,8 +297,18 @@ local function spinTo(index: number, onDone: () -> ())
 	local final = start + delta + turns * 360
 	disc.Rotation = start
 	setLabelsUpright(start)
+	-- The dividers sit half a wedge either side of each segment's centre, so the pointer crosses one
+	-- whenever floor((rotation + step / 2) / step) changes; each crossing is a tick.
+	local step = 360 / math.max(1, #segments)
+	local lastWedge = math.floor((start + step / 2) / step)
 	local upright = RunService.RenderStepped:Connect(function()
-		setLabelsUpright(disc.Rotation)
+		local rotation = disc.Rotation
+		setLabelsUpright(rotation)
+		local wedge = math.floor((rotation + step / 2) / step)
+		if wedge ~= lastWedge then
+			lastWedge = wedge
+			Builder.playSound(Sounds.WheelTick)
+		end
 	end)
 	local info = TweenInfo.new(SPIN_SECONDS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 	local tween = TweenService:Create(disc, info, { Rotation = final })
@@ -305,6 +316,7 @@ local function spinTo(index: number, onDone: () -> ())
 		upright:Disconnect()
 		disc.Rotation = final % 360
 		setLabelsUpright(disc.Rotation)
+		Builder.playSound(Sounds.WheelStop)
 		onDone()
 	end)
 	tween:Play()

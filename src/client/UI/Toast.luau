@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
+local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Builder = require(script.Parent.Builder)
 
 local Toast = {}
@@ -171,6 +172,7 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 end
 
 function Toast.Show(text: string, color: Color3?)
+	Builder.playSound(Sounds.ToastDing)
 	push(text, color or Theme.Colors.Featured, false, Theme.Tween.Toast)
 end
 
@@ -185,6 +187,7 @@ end
 
 -- Server-wide announcement: a wide banner in the given colour (usually the tier colour).
 function Toast.Banner(text: string, color: Color3, seconds: number?)
+	Builder.playSound(Sounds.Banner)
 	push(text, color, true, seconds or Theme.Tween.Toast)
 end
 

@@ -19,10 +19,12 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
+local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
+local Vfx = require(script.Parent:WaitForChild("Vfx"))
 
 local PeddlerRenderer = {}
 
@@ -150,6 +152,9 @@ local function land()
 	fly(built, 0, Enum.EasingDirection.Out, function()
 		built.hull.CanCollide = true
 		built.hull.CanQuery = true
+		-- Touchdown: the landing thud and a dust puff on the ground under the hull.
+		Builder.playSound(Sounds.PeddlerLanding)
+		Vfx.PeddlerDust(Vector3.new(landingCentre.X, landingCentre.Y - built.hull.Size.Y / 2, landingCentre.Z))
 	end)
 end
 
