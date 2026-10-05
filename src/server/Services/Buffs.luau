@@ -6,8 +6,10 @@
 -- zones, Economy for Scrap and income, Spawner for luck); none of them read profile.buffs directly.
 -- Luck is one number per player: 1, plus an active Lucky Charm, plus the night bonus, plus the server's
 -- Meteor Shower bonus (Events.ServerLuckBonus), plus a bought Server Luck running on this server
--- (Monetization.ServerLuckBonus), plus the soft pity that rises with every catch below
--- Config.PityResetMinTier, capped at Config.LuckCap. Monetization is wired like Events: this module
+-- (Monetization.ServerLuckBonus), plus the Friend Boost (Friends.Boost: Config.FriendBoostPerFriend per
+-- friend present, up to Config.FriendBoostMaxFriends), plus the soft pity that rises with every catch below
+-- Config.PityResetMinTier, capped at Config.LuckCap. The same boost multiplies station income and catch
+-- Scrap by 1 + boost, on top of any power-up; Friends.OnChanged re-sends LuckChanged when it moves. Monetization is wired like Events: this module
 -- requires it for the bonus and registers Buffs.PushLuckAll through Monetization.OnServerLuckChanged
 -- at Init, and hands it the "powerUp" granter (Robux power-up bundles land in inventory.powerUps here).
 --
@@ -31,6 +33,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Monetization = require(script.Parent.Monetization)
+local Friends = require(script.Parent.Friends)
 
 local Buffs = {}
 
@@ -111,19 +114,20 @@ function Buffs.ZoneBonus(player: Player): number
 	return activeValue(PlayerData.Get(player), "zone")
 end
 
--- Catch pay factor: 1 + the value of an active "catchScrap" buff, else 1.
+-- Catch pay factor: (1 + the value of an active "catchScrap" buff) times (1 + the Friend Boost).
 function Buffs.CatchScrapMultiplier(player: Player): number
-	return 1 + activeValue(PlayerData.Get(player), "catchScrap")
+	return (1 + activeValue(PlayerData.Get(player), "catchScrap")) * (1 + Friends.Boost(player))
 end
 
--- Station income factor: the value of an active "stationScrap" buff (Double Shift is 2), else 1.
+-- Station income factor: the value of an active "stationScrap" buff (Double Shift is 2), else 1, times
+-- (1 + the Friend Boost): Double Shift with one friend is 2.1.
 function Buffs.StationMultiplier(player: Player): number
 	local value = activeValue(PlayerData.Get(player), "stationScrap")
-	return if value > 0 then value else 1
+	return (if value > 0 then value else 1) * (1 + Friends.Boost(player))
 end
 
 -- The one luck number the Spawner rolls tiers with and the HUD shows: 1 + Lucky Charm + night bonus
--- + the server's shower bonus + a bought Server Luck + soft pity, capped at Config.LuckCap.
+-- + the server's shower bonus + a bought Server Luck + the Friend Boost + soft pity, capped at Config.LuckCap.
 function Buffs.Luck(player: Player): number
 	local profile = PlayerData.Get(player)
 	local luck = 1 + activeValue(profile, "luck")
@@ -135,6 +139,7 @@ function Buffs.Luck(player: Player): number
 	end
 	luck += Events.ServerLuckBonus()
 	luck += Monetization.ServerLuckBonus()
+	luck += Friends.Boost(player)
 	return math.min(luck, Config.LuckCap)
 end
 
@@ -272,6 +277,12 @@ function Buffs.Init()
 	-- A bought Server Luck is part of every player's luck the same way.
 	Monetization.OnServerLuckChanged(function()
 		Buffs.PushLuckAll()
+	end)
+	-- The Friend Boost is part of that player's luck: a friend arriving or leaving re-sends the number.
+	Friends.OnChanged(function(player: Player)
+		if PlayerData.Get(player) then
+			pushLuck(player)
+		end
 	end)
 	-- Robux power-up bundles: the id must be a PowerUps row; the count lands in the inventory.
 	Monetization.SetGranter("powerUp", function(player: Player, grant: Monetization.Grant): (boolean, string?)

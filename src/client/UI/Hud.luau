@@ -75,6 +75,14 @@ local bannerText: TextLabel? = nil
 local bannerSub: TextLabel? = nil -- the smaller second line (the time left)
 local bannerChip: Frame? = nil
 local bannerChipLabel: TextLabel? = nil
+local friendChip: Frame? = nil
+local friendLabel: TextLabel? = nil
+local friendCountShown = 0
+local onFriendChipTapped: (() -> ())? = nil
+
+local FRIEND_CHIP_TOP = 0.18 -- under the luck line / event banner slot (the banner ends at 0.175), centred
+local FRIEND_CHIP_SIZE = Vector2.new(0.3, 0.055) -- Size bounds; the aspect constraint derives the width from the height
+local FRIEND_CHIP_ASPECT = 5.5
 
 local BANNER_TEXT_LEFT = 0.14 -- the banner text starts after the icon square
 local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
@@ -460,6 +468,50 @@ local function buildEventBanner(root: ScreenGui)
 	})
 end
 
+-- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", dim navy at 0 and
+-- green above it; a tap opens the invite sheet (the bootstrap's callback).
+local function buildFriendChip(root: ScreenGui)
+	local chip = Builder.pill({
+		parent = root,
+		name = "FriendChip",
+		position = UDim2.fromScale(0.5, FRIEND_CHIP_TOP),
+		size = UDim2.fromScale(FRIEND_CHIP_SIZE.X, FRIEND_CHIP_SIZE.Y),
+		anchor = Vector2.new(0.5, 0),
+		color = Theme.Colors.Trough,
+		stroke = Theme.Stroke.Button,
+		strokeColor = Theme.Colors.Outline,
+		aspect = FRIEND_CHIP_ASPECT,
+	})
+	Builder.gradient(chip, Theme.Colors.Trough)
+	friendChip = chip
+	friendLabel = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = Strings.HUD_FRIEND_BOOST:format(0),
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.9, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Rarity.Common,
+	})
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.AutoButtonColor = false
+	tap.Text = ""
+	tap.BorderSizePixel = 0
+	tap.BackgroundTransparency = 1
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = 5
+	tap.Parent = chip
+	tap.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		Builder.pop(chip, 1.1)
+		if onFriendChipTapped then
+			onFriendChipTapped()
+		end
+	end)
+end
+
 -- The luck line shows by its own rule (luck is not exactly 1) unless the event banner has its slot.
 local function applyLuckLine()
 	local label = luckLabel
@@ -547,6 +599,7 @@ function Hud.Build()
 	buildRateLine(root)
 	buildLuckLine(root)
 	buildEventBanner(root)
+	buildFriendChip(root)
 	buildActionButton(root)
 	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutTopButtons)
 end
@@ -626,6 +679,32 @@ function Hud.SetLuck(luck: number)
 		label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
 	end
 	applyLuckLine()
+end
+
+-- The Friend Boost (FriendBoostChanged): `boost` is a fraction, shown as a whole percent. The chip
+-- is dim at 0, green above it, and pops when the friend count grows.
+function Hud.SetFriendBoost(count: number, boost: number)
+	local chip, label = friendChip, friendLabel
+	if not chip or not label then
+		return
+	end
+	label.Text = Strings.HUD_FRIEND_BOOST:format(math.floor(boost * 100 + 0.5))
+	local active = boost > 0
+	local color = if active then Theme.Colors.Confirm else Theme.Colors.Trough
+	label.TextColor3 = if active then Theme.Colors.White else Theme.Rarity.Common
+	TweenService:Create(chip, TweenInfo.new(Theme.Tween.Open), { BackgroundColor3 = color }):Play()
+	local gradient = chip:FindFirstChildOfClass("UIGradient")
+	if gradient then
+		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
+	end
+	if count > friendCountShown then
+		Builder.pop(chip, 1.1)
+	end
+	friendCountShown = count
+end
+
+function Hud.OnFriendChipTapped(callback: () -> ())
+	onFriendChipTapped = callback
 end
 
 -- The event banner in the luck line's slot: `text` is the event name (SHOWER_NOW), `subtitle` the

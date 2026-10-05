@@ -10,7 +10,6 @@
 -- Requires run one way: Quests requires this module to forward, so this module never requires Gifts
 -- (Gifts -> Economy -> Quests -> here). Codes hands over Gifts.GrantRewards through SetRewardGranter at Init.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -24,6 +23,7 @@ local Net = require(Shared.Net)
 local LeaderboardMath = require(Shared.LeaderboardMath)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
+local Friends = require(script.Parent.Friends)
 
 local DailyQuests = {}
 
@@ -54,9 +54,6 @@ for _, quest in ipairs(DailyQuestsData.Weekly) do
 	weeklyById[quest.id] = quest
 end
 
--- Friendship answers for this session, friendCache[askerUserId][otherUserId]. Filled on a catch, cleared
--- when either player leaves.
-local friendCache: { [number]: { [number]: boolean } } = {}
 -- Gifts.GrantRewards, registered by Codes at Init (see the header).
 local rewardGranter: ((Player, { any }) -> boolean)? = nil
 
@@ -199,62 +196,28 @@ local function hasCondition(conditions: { Types.Condition }, wanted: string?): b
 	return false
 end
 
--- Whether any Roblox friend of `player` is in this server. IsFriendsWithAsync yields and can fail, so each
--- pair is asked once per session (a failure is not cached and counts as no friend).
-local function friendInServer(player: Player): boolean
-	local mine = friendCache[player.UserId]
-	if not mine then
-		mine = {}
-		friendCache[player.UserId] = mine
-	end
-	for _, other in ipairs(Players:GetPlayers()) do
-		if other ~= player then
-			local known: boolean? = mine[other.UserId]
-			if known == nil then
-				local theirs = friendCache[other.UserId]
-				known = if theirs then theirs[player.UserId] else nil
-			end
-			if known == nil then
-				local ok, result = pcall(function()
-					return player:IsFriendsWithAsync(other.UserId)
-				end)
-				if ok then
-					known = result
-					mine[other.UserId] = result
-				end
-			end
-			if known == true then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 -- Economy.GrantAlien reports every alien that enters a profile (through Quests.OnCatch): its tier, the
 -- conditions active at the time and whether the catch was perfect. Counts catchCount, catchCondition,
--- catchTier, catchSpecial, catchWithFriend and perfectCount. Runs in its own thread: the friend check
--- can yield, and the catch must not wait for it.
+-- catchTier, catchSpecial, catchWithFriend and perfectCount. The friend check is
+-- Friends.AnyInServer, a cache read that never yields.
 function DailyQuests.OnCatch(player: Player, tier: Types.Tier, conditions: { Types.Condition }, perfect: boolean)
-	task.spawn(function()
-		local friend = friendInServer(player)
-		advance(player, function(objective: DailyQuestsData.Objective): boolean
-			local kind = objective.kind
-			if kind == "catchCount" then
-				return true
-			elseif kind == "catchCondition" then
-				return hasCondition(conditions, objective.condition)
-			elseif kind == "catchTier" then
-				return objective.tier == tier
-			elseif kind == "catchSpecial" then
-				return hasCondition(conditions, SPECIAL_WEATHER)
-			elseif kind == "catchWithFriend" then
-				return friend
-			elseif kind == "perfectCount" then
-				return perfect
-			end
-			return false
-		end)
+	local friend = Friends.AnyInServer(player)
+	advance(player, function(objective: DailyQuestsData.Objective): boolean
+		local kind = objective.kind
+		if kind == "catchCount" then
+			return true
+		elseif kind == "catchCondition" then
+			return hasCondition(conditions, objective.condition)
+		elseif kind == "catchTier" then
+			return objective.tier == tier
+		elseif kind == "catchSpecial" then
+			return hasCondition(conditions, SPECIAL_WEATHER)
+		elseif kind == "catchWithFriend" then
+			return friend
+		elseif kind == "perfectCount" then
+			return perfect
+		end
+		return false
 	end)
 end
 
@@ -462,13 +425,6 @@ function DailyQuests.Init()
 			ensureDealt(player.UserId, profile, os.time())
 		end)
 		push(player)
-	end)
-
-	Players.PlayerRemoving:Connect(function(player: Player)
-		friendCache[player.UserId] = nil
-		for _, theirs in pairs(friendCache) do
-			theirs[player.UserId] = nil
-		end
 	end)
 end
 

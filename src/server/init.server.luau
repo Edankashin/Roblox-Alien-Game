@@ -2,7 +2,8 @@
 -- Server bootstrap. Loads every service under Services, calls Init on all, then Start on all.
 -- Order matters for a few: PlayerData must come first so other services can read profiles;
 -- Analytics right after it (every service reports to it, and it only requires shared data);
--- Monetization right after Analytics (it requires only those two and shared data; Economy, Buffs,
+-- Friends right after Analytics (the one friendship cache: it needs PlayerData.OnLoaded and Analytics, and Buffs and DailyQuests read it);
+-- Monetization right after Friends (it requires only those two and shared data; Economy, Buffs,
 -- Shop and Gifts register their Robux granters with it at Init, and its pass check must run before
 -- Economy's offline settlement on load); WorldClock before Spawner (conditions), Events right after WorldClock (it switches the Shower
 -- condition on that clock and Buffs and Spawner read its luck and Cosmic share), Meadow before
@@ -30,7 +31,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

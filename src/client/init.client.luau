@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
 local TextChatService = game:GetService("TextChatService")
+local SocialService = game:GetService("SocialService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -418,7 +419,50 @@ end
 -- Server pushes that only need a toast ----------------------------------------
 -- Each wait runs in its own thread so a remote the server has not created yet never blocks the boot.
 
+local friendBoostSeen = false -- the first FriendBoostChanged after joining is only the starting state
+local invitePending = false
+
+-- The Friend Boost chip's tap: the native invite sheet when the platform allows it, otherwise a toast
+-- (the Gifts screen's invite button does the same).
+local function onFriendChipTap()
+	if invitePending then
+		return
+	end
+	invitePending = true
+	task.spawn(function()
+		local askedOk, canInvite = pcall(function()
+			return SocialService:CanSendGameInviteAsync(localPlayer)
+		end)
+		local prompted = false
+		if askedOk and canInvite == true then
+			prompted = pcall(function()
+				SocialService:PromptGameInvite(localPlayer)
+			end)
+		end
+		if not prompted then
+			Toast.Show(Strings.TOAST_INVITE_UNAVAILABLE, Theme.Rarity.Common)
+		end
+		invitePending = false
+	end)
+end
+
 local function connectToasts()
+	-- Friends joined or left this server: the server sends the count and the boost (a fraction), and the
+	-- arriving friend's name when one just joined.
+	task.spawn(function()
+		Net.event("FriendBoostChanged").OnClientEvent:Connect(function(count: number, boost: number, arrivedName: string?)
+			State.SetFriends(count, boost)
+			Hud.SetFriendBoost(count, boost)
+			local percent = math.floor(boost * 100 + 0.5)
+			local first = not friendBoostSeen
+			friendBoostSeen = true
+			if arrivedName then
+				Toast.Show(Strings.TOAST_FRIEND_JOINED:format(arrivedName, percent), Theme.Colors.Confirm)
+			elseif not (first and count == 0) then
+				Toast.Show(Strings.TOAST_FRIEND_LEFT:format(percent), Theme.Colors.Select)
+			end
+		end)
+	end)
 	task.spawn(function()
 		Net.event("MaterialCollected").OnClientEvent:Connect(function(material: string, count: number)
 			Toast.Show(Strings.TOAST_MATERIAL:format(count, Builder.text("MATERIAL_" .. material)), Theme.Colors.Featured)
@@ -631,6 +675,7 @@ local function start(profile: Types.Profile)
 	Hud.SetRate(State.GetRate().ratePerSecond)
 	refreshShip()
 	Hud.OnAction(performAction)
+	Hud.OnFriendChipTapped(onFriendChipTap)
 	Hud.OnShipTapped(function()
 		if not inCapture and not Reveal.IsOpen() then
 			Screens.Toggle("Ship")

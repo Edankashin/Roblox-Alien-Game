@@ -23,7 +23,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -36,6 +36,8 @@ local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSecon
 local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
+local friendCount = 0 -- friends in this server and the luck boost they give (FriendBoostChanged), a fraction
+local friendBoost = 0
 local dailyResetsAt = 0 -- the last DailyQuests snapshot's reset instants; 0 until one arrives
 local weeklyResetsAt = 0
 -- Robux products granted and passes owned (PurchasesChanged). Until the first push the table is seeded
@@ -268,6 +270,17 @@ end
 
 function State.GetLuck(): number
 	return luck
+end
+
+-- Friends in this server and the Friend Boost they give (a fraction), as the server last said.
+function State.SetFriends(count: number, boost: number)
+	friendCount = count
+	friendBoost = boost
+	fire("friends")
+end
+
+function State.GetFriends(): (number, number)
+	return friendCount, friendBoost
 end
 
 -- Mirrors the server's codex write for a catch the server just confirmed (the CaptureHit result is
