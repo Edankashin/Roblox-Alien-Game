@@ -44,9 +44,22 @@ local HUMANOID_WAIT_SECONDS = 10 -- a fresh character gets this long to grow its
 local GEAR_ROWS: { [string]: GearRow } = { Boots = Gear.Boots, Hoverboard = Gear.Hoverboard, Glider = Gear.Glider, JetBoost = Gear.JetBoost }
 -- The profile.gear flag each gear id sets. Jet Boost has no flag yet (World 3 traversal, a later milestone).
 local GEAR_FLAG: { [string]: string } = { Boots = "boots", Hoverboard = "hoverboard", Glider = "glider" }
--- Gear Scrap can buy today: the rows whose unlock is an alternative route, not a requirement. The Glider
--- waits on the first launch and Jet Boost on World 3 field notes, so both answer "Locked" for now.
-local SCRAP_BUYABLE: { [string]: boolean } = { Boots = true, Hoverboard = true }
+-- The profile starts with one unlocked world (PlayerData's template), so a second one means the ship has
+-- launched at least once: the Glider's unlock (Gear.Glider.unlock = "FirstLaunch", paid by Launch).
+local FIRST_LAUNCH_UNLOCKED_WORLDS = 2
+
+local function hasLaunched(profile: Types.Profile): boolean
+	return #profile.world.unlocked >= FIRST_LAUNCH_UNLOCKED_WORLDS
+end
+
+local function always(_profile: Types.Profile): boolean
+	return true
+end
+
+-- Gear Scrap can buy, by id, as a rule read on the live profile: Boots and Hoverboard always (their
+-- unlock is an alternative route, not a requirement), the Glider once the profile has launched at least
+-- once. Jet Boost waits on World 3 field notes, so it has no rule here and answers "Locked".
+local SCRAP_BUYABLE: { [string]: (Types.Profile) -> boolean } = { Boots = always, Hoverboard = always, Glider = hasLaunched }
 -- The radar is one number on the profile (gear.radar, the tier owned), bought or granted one tier at a
 -- time under the ids Radar1..Radar3. Only Mk1 exists as a feature yet, so the higher tiers answer Locked.
 local RADAR_TIER: { [string]: number } = { Radar1 = 1, Radar2 = 2, Radar3 = 3 }
@@ -218,12 +231,16 @@ local function buyGear(player: Player, id: string): (boolean, string?)
 		return false, "Unknown"
 	end
 	local field = GEAR_FLAG[id]
-	if not SCRAP_BUYABLE[id] or not field then
+	local buyable = SCRAP_BUYABLE[id]
+	if not buyable or not field then
 		return false, "Locked"
 	end
 	local ok, reason = mutate(player, function(profile)
 		if hasGear(profile, field) then
 			return "AlreadyOwned"
+		end
+		if not buyable(profile) then
+			return "Locked"
 		end
 		if profile.scrap < row.scrap then
 			return "NotEnoughScrap"
@@ -353,7 +370,7 @@ function Shop.Start()
 	for _ in pairs(SCRAP_BUYABLE) do
 		gearCount += 1
 	end
-	print(("[%s] Shop: %d lures and %d gear for Scrap"):format(Config.WorkingTitle, #Lures.Order, gearCount))
+	print(("[%s] Shop: %d lures and %d gear for Scrap (the Glider after the first launch)"):format(Config.WorkingTitle, #Lures.Order, gearCount))
 end
 
 return Shop

@@ -17,6 +17,7 @@ return {
 		Spin = "Spin", -- value 1; field segmentId
 		ShopBuy = "ShopBuy", -- value 1; fields kind, id
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
+		Launch = "Launch", -- value 1; fields from, to (world ids)
 	},
 	Economy = {
 		Currency = "Scrap",

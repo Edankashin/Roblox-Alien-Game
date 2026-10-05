@@ -1,7 +1,8 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
--- /buy StarterPack, /pass AutoOptimize [off], /world 2. Nothing
+-- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
+-- can be tested in minutes). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -10,10 +11,12 @@ local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Quests = require(Shared.data.Quests)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
+local Economy = require(Shared.Economy)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
@@ -204,6 +207,61 @@ local function setWorld(player: Player, text: string)
 	end
 end
 
+-- /complete: mark every module of this place's world complete on the profile, written the way the Economy
+-- service writes a completion (both gates paid, started, progress 1, completedAt, updatedAt, and the free
+-- slot growth a module unlocks), creating the world's table and states when missing. The client hears
+-- ModulesChanged with the same payload Economy pushes, and StationsChanged for the slots. The ship is then
+-- complete, so the Launch button and the Launch remote can be tested without the real build.
+local function completeModules(player: Player, _text: string)
+	local worldId = Place.WorldId()
+	local defs = Economy.moduleDefs(worldId)
+	local finished = 0 -- modules that were not complete before this call
+	local modulesNow: { [string]: Types.ModuleProgress } = {}
+	local stationsNow: { [string]: Types.StationState } = {}
+	local aliensNow: { [string]: Types.AlienRecord } = {}
+	local ok = PlayerData.Update(player, function(profile)
+		local key = tostring(worldId)
+		local world = profile.modules[key]
+		if not world then
+			world = {}
+			profile.modules[key] = world
+		end
+		local now = os.time()
+		for _, def in ipairs(defs) do
+			local state = world[def.id]
+			if not state then
+				local fresh: Types.ModuleProgress = { scrapPaid = 0, keyPaid = 0, progress = 0, started = false, completedAt = nil, updatedAt = now }
+				world[def.id] = fresh
+				state = fresh
+			end
+			state.scrapPaid = def.scrap
+			state.keyPaid = def.keyCount
+			state.started = true
+			state.progress = 1
+			if state.completedAt == nil then
+				state.completedAt = now
+				finished += 1
+			end
+			state.updatedAt = now
+			local unlocks = def.unlocksSlots
+			if unlocks then
+				for _, station in pairs(profile.stations) do
+					station.slots = math.clamp(math.max(station.slots, unlocks), 1, Config.StationMaxSlots)
+				end
+			end
+		end
+		modulesNow = world
+		stationsNow = profile.stations
+		aliensNow = profile.aliens
+	end)
+	if not ok then
+		return
+	end
+	Net.event("ModulesChanged"):FireClient(player, worldId, modulesNow)
+	Net.event("StationsChanged"):FireClient(player, stationsNow, aliensNow)
+	print(("[%s] dev: %s completed %d of %d modules on world %d (%d were already done); the ship is complete"):format(Config.WorkingTitle, player.Name, finished, #defs, worldId, #defs - finished))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -255,11 +313,12 @@ function Dev.Init()
 	command("buy", buyItem)
 	command("pass", setPass)
 	command("world", setWorld)
+	command("complete", completeModules)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete)"):format(Config.WorkingTitle))
 	end
 end
 
