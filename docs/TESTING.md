@@ -115,3 +115,16 @@ Play as a fresh profile (Studio memory profiles reset every Play).
 6. `/step` does not touch the tutorial; a rejoin resumes at the saved step with its trainee alien re-spawned.
 
 Known gaps in this milestone: the crash-landing cinematic, the camera pan on module completion, the guaranteed Sparkfox in step 5, analytics funnel events.
+
+## Milestone 9: Welcome Week gifts, the spin wheel, the Meteor Shower
+
+Play as a fresh profile.
+1. Press Play. Boot adds Events and Gifts lines: `server started: PlayerData, WorldClock, Events, Meadow, ..., Peddler, Gifts, Dev`, with Events printing the seconds to the next shower. A red "Gifts" button joins the left menu with a badge of 1 (day 1 unclaimed).
+2. Gifts: a panel titled "Gifts & Spin". Left: "Welcome Week", "Days played: 1", seven tiles in rows of three. Day 1 ("Welcome Pack") has a green Claim button; days 2 to 7 are grey with "Play another day"; day 7 ("Epic Egg") is in the Epic colour. Claim day 1: Scrap rises by 300, the tile turns to "Claimed", a toast "Day 1 gift: Welcome Pack", the badge clears.
+3. `/days 7` then reopen: six Claim buttons and the badge reads 6. Claim day 2 (two Twig Lures in the Shop's lure count), day 3 (two Speed Bursts on the power-up bar), day 5 ("Banked spins: 2"), day 7: the panel closes and the alien reveal plays for an Epic alien, which then sits in a station or the Aliens list. Claiming a claimed day does nothing; `/days 0` locks every tile again (claimed ones stay "Claimed").
+4. Spin: the right half shows the wheel with eight labelled wedges, every label carrying its odds, and "Odds: ..." listing all eight summing to 100%. "Free spins: 1" on a fresh day. Tap Spin!: the wheel turns three to four times and stops with the pointer on the won wedge, then "You won <segment>!" and the reward lands (Scrap, a lure, a power-up, or the Companion Token in inventory). Free spins goes to 0 and a second tap toasts "Come back tomorrow for a free spin". `/spins 3` banks three; each spin consumes one. The button is disabled while the wheel turns.
+5. Meteor Shower: `/shower`. A gold banner "Meteor Shower!" plays, the luck label is replaced by an event banner "Meteor Shower! 2m 59s left" with a green "x3.0 LUCK" chip (x3.3 at night) counting down, and the Nearby panel lists the Ra-dish Cosmic as a Shower species. Catch during the shower: Cosmic rolls at roughly 20% of spawns; the announcement banner names the Cosmic rarity. After 180 s (or `/shower end`) a toast "The sky clears", the luck label returns at x1.0, and Cosmic spawns stop.
+6. Countdown chip: with a real clock the purple "Shower in 4m 59s" chip appears under the biome chip 5 minutes before each shower (showers start on the two-hour marks of the server clock; the Events boot line says how long). The chip is hidden otherwise and never overlaps the Nearby panel.
+7. Second client: the shower, its banner and the luck chip are the same for everyone; the Gifts panel is per player.
+
+Known gaps in this milestone: the Cosmic Ra-dish uses the placeholder shape; the Companion Token has no use until the companions milestone; no gift calendar artwork.

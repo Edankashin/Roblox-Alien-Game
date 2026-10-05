@@ -42,6 +42,7 @@ local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScr
 local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
 local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHint"))
+local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -50,6 +51,7 @@ local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimm
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
+local SHOWER_POLL_SECONDS = 1 -- the shower chip and banner count down between server pushes
 
 local localPlayer = Players.LocalPlayer
 local started = false
@@ -403,6 +405,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Shop", ShopScreen)
 	Screens.Register("Peddler", PeddlerScreen)
 	Screens.Register("Quests", QuestsScreen)
+	Screens.Register("Gifts", GiftsScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -440,6 +443,75 @@ local function start(profile: Types.Profile)
 	Hud.AddMenuButton("Codex", Theme.Colors.Codex, menu("Codex"))
 	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
 	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
+	Hud.AddMenuButton("Gifts", Theme.Colors.Close, menu("Gifts"))
+	-- A gift egg hatches through the same reveal as a wild catch.
+	GiftsScreen.OnGrant(function(grant: Types.GrantResult)
+		local def = Species.ById[grant.species]
+		WildRenderer.MarkKnown(grant.species)
+		State.ApplyCatch(grant.species, grant.overlay)
+		Screens.CloseAll()
+		Reveal.Show({
+			speciesName = if def then def.name else grant.species,
+			shape = if def then def.placeholder.shape else "Ball",
+			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
+			tier = grant.tier,
+			overlay = grant.overlay,
+			isNew = grant.isNew,
+			scrapGained = grant.scrapGained,
+			perfect = false,
+		})
+	end)
+	-- Unclaimed gifts show as a badge on the menu.
+	local function refreshGiftBadge()
+		local gifts = State.GetGifts()
+		local waiting = 0
+		for day = 1, math.min(gifts.daysPlayed, 7) do
+			if not gifts.claimed[tostring(day)] then
+				waiting += 1
+			end
+		end
+		Hud.SetBadge("Gifts", waiting)
+	end
+	State.OnChanged("gifts", refreshGiftBadge)
+
+	-- Meteor Shower: countdown chip before, event banner with the luck chip during, toasts at the edges.
+	local showerWasActive = false
+	local function refreshShower()
+		local shower, elapsed = State.GetShower()
+		if shower.active then
+			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
+			local minutes, seconds = left // 60, left % 60
+			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
+			Hud.SetEventBanner(Strings.SHOWER_BANNER:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(State.GetLuck())))
+			Hud.SetShowerCountdown(nil)
+			if not showerWasActive then
+				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
+			end
+			showerWasActive = true
+			return
+		end
+		Hud.SetEventBanner(nil, nil)
+		if showerWasActive then
+			Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
+		end
+		showerWasActive = false
+		local nextIn = math.max(0, shower.nextInSeconds - elapsed)
+		if shower.nextInSeconds > 0 and nextIn <= Config.ShowerWarnSeconds then
+			Hud.SetShowerCountdown(nextIn)
+		else
+			Hud.SetShowerCountdown(nil)
+		end
+	end
+	State.OnChanged("shower", refreshShower)
+	State.OnChanged("luck", refreshShower)
+	-- A late joiner missed the last ShowerChanged push; the answer seeds State unless a push beat it.
+	task.spawn(function()
+		local raw = Net.func("GetShower"):InvokeServer()
+		local state = raw :: Types.ShowerState?
+		if state then
+			State.SeedShower(state)
+		end
+	end)
 	LandmarkRenderer.Start()
 	TutorialHint.Start()
 
@@ -520,10 +592,16 @@ local function start(profile: Types.Profile)
 	local actionAccumulator = 0
 	local shipAccumulator = 0
 	local biomeAccumulator = 0
+	local showerAccumulator = 0
 	RunService.Heartbeat:Connect(function(dt: number)
 		actionAccumulator += dt
 		shipAccumulator += dt
 		biomeAccumulator += dt
+		showerAccumulator += dt
+		if showerAccumulator >= SHOWER_POLL_SECONDS then
+			showerAccumulator = 0
+			refreshShower()
+		end
 		if shipAccumulator >= SHIP_POLL_SECONDS then
 			shipAccumulator = 0
 			refreshShip()

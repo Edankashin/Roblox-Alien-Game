@@ -32,11 +32,11 @@ type Row = {
 -- The mark on a silhouette. CODEX_UNKNOWN ("???") until a single-glyph key exists in the strings table.
 local UNKNOWN_MARK = Strings.UI_UNKNOWN_GLYPH
 
--- Right edge, between the biome chip (ends near y 0.16) and the action button (starts near y 0.83).
+-- Right edge, between the HUD's shower chip (ends near y 0.215) and the action button (starts near y 0.83).
 local COLUMN_X = 0.985
-local COLUMN_TOP = 0.19
+local COLUMN_TOP = 0.225
 local COLUMN_WIDTH = 0.1
-local COLUMN_HEIGHT = 0.44
+local COLUMN_HEIGHT = 0.405
 local TITLE_TOP = 0.02
 local TITLE_HEIGHT = 0.085
 local LIST_TOP = 0.12

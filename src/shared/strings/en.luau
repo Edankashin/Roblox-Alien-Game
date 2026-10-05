@@ -181,6 +181,7 @@ return {
 	-- shared UI glyphs and number formats
 	UI_CLOSE = "X",
 	UI_PERCENT = "%d%%",
+	UI_LIST_SEPARATOR = ", ",
 	-- left menu stack
 	MENU_Shop = "Shop",
 	MENU_Aliens = "Aliens",

@@ -1,9 +1,10 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
 -- number) with the Scrap-per-minute line under it, the ship bar top centre (tap opens the ship
--- panel), the Day/Night + weather chip top-right, and the contextual action button bottom-right that
--- shows "Catch!" near a wild alien. A dumb view: every value shown is pushed in by the bootstrap
--- from server state; nothing here computes anything that matters.
+-- panel) with the luck line or the event banner under it, the Day/Night + weather chip top-right with
+-- the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
+-- button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
+-- in by the bootstrap from server state; nothing here computes anything that matters.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -48,6 +49,29 @@ local shipTween: Tween? = nil
 local onShipTapped: (() -> ())? = nil
 local rateLabel: TextLabel? = nil
 local luckLabel: TextLabel? = nil
+local luckShown = false -- the luck line's own rule (luck is not exactly 1); the event banner overrides it
+local showerChip: Frame? = nil
+local showerLabel: TextLabel? = nil
+local banner: Frame? = nil
+local bannerText: TextLabel? = nil
+local bannerChip: Frame? = nil
+local bannerChipLabel: TextLabel? = nil
+
+local BANNER_TEXT_LEFT = 0.14 -- the banner text starts after the icon square
+local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
+local BANNER_TEXT_WIDTH_FULL = 0.82 -- without a chip
+
+-- m:ss for the shower countdown chip (TIME_MS past a minute, TIME_S under it).
+local function formatCountdown(seconds: number): string
+	if seconds ~= seconds or seconds == math.huge then
+		seconds = 0
+	end
+	local total = math.max(0, math.ceil(seconds))
+	if total >= 60 then
+		return Strings.TIME_MS:format(total // 60, total % 60)
+	end
+	return Strings.TIME_S:format(total)
+end
 
 local function buildScrapPill(root: ScreenGui)
 	local pill = Builder.pill({
@@ -128,6 +152,33 @@ local function buildBiomeChip(root: ScreenGui)
 		parent = chip,
 		name = "Text",
 		text = Strings.HUD_BIOME:format(Strings.BIOME_Meadow),
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+	})
+end
+
+-- Meteor Shower countdown chip under the biome chip: "Shower in m:ss", purple, hidden until the
+-- bootstrap feeds a countdown in (Config.ShowerWarnSeconds before a shower).
+local function buildShowerChip(root: ScreenGui)
+	local chip = Builder.pill({
+		parent = root,
+		name = "ShowerChip",
+		position = UDim2.fromScale(0.985, 0.165),
+		size = UDim2.fromScale(0.2, 0.05),
+		anchor = Vector2.new(1, 0),
+		color = Theme.Colors.Codex,
+		stroke = Theme.Stroke.Button,
+		aspect = 4.2,
+	})
+	Builder.gradient(chip, Theme.Colors.Codex)
+	chip.Visible = false
+	showerChip = chip
+	showerLabel = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = Strings.SHOWER_CHIP:format(formatCountdown(0)),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.7),
@@ -297,6 +348,85 @@ local function buildLuckLine(root: ScreenGui)
 	luckLabel = label
 end
 
+-- Event banner in the luck line's slot under the ship bar (UI Playbook, "Event banner and compass"):
+-- a dark navy pill with the event's icon square on the left, the event text left-aligned, and a green
+-- chip on the right for the luck multiplier. Hidden until SetEventBanner; while it shows, the luck
+-- line stays hidden (the chip carries the number).
+local function buildEventBanner(root: ScreenGui)
+	local pill = Builder.pill({
+		parent = root,
+		name = "EventBanner",
+		position = UDim2.fromScale(0.5, 0.105),
+		size = UDim2.fromScale(0.36, 0.055),
+		anchor = Vector2.new(0.5, 0),
+		color = Theme.Colors.Trough,
+		stroke = Theme.Stroke.Button,
+		strokeColor = Theme.Colors.Outline,
+		aspect = 7,
+	})
+	Builder.gradient(pill, Theme.Colors.Trough)
+	pill.Visible = false
+	banner = pill
+	-- icon placeholder: a purple rounded square until the event icons exist
+	local icon = Builder.frame({
+		parent = pill,
+		name = "Icon",
+		position = UDim2.fromScale(0.025, 0.5),
+		size = UDim2.fromScale(0.1, 0.66),
+		anchor = Vector2.new(0, 0.5),
+		color = Theme.Colors.Codex,
+		corner = Theme.Corner.Card,
+		stroke = Theme.Stroke.Text,
+		aspect = 1,
+		zIndex = 2,
+	})
+	Builder.gradient(icon, Theme.Colors.Codex)
+	bannerText = Builder.label({
+		parent = pill,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.5),
+		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.7),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 2,
+	})
+	local chip = Builder.pill({
+		parent = pill,
+		name = "Chip",
+		position = UDim2.fromScale(0.975, 0.5),
+		size = UDim2.fromScale(0.25, 0.68),
+		anchor = Vector2.new(1, 0.5),
+		color = Theme.Colors.Confirm,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = 2,
+	})
+	Builder.gradient(chip, Theme.Colors.Confirm)
+	bannerChip = chip
+	bannerChipLabel = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.75),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 3,
+	})
+end
+
+-- The luck line shows by its own rule (luck is not exactly 1) unless the event banner has its slot.
+local function applyLuckLine()
+	local label = luckLabel
+	if not label then
+		return
+	end
+	local pill = banner
+	label.Visible = luckShown and not (pill ~= nil and pill.Visible)
+end
+
 local function buildActionButton(root: ScreenGui)
 	local button = Builder.button({
 		parent = root,
@@ -330,9 +460,11 @@ function Hud.Build()
 	buildScrapPill(root)
 	buildClockChip(root)
 	buildBiomeChip(root)
+	buildShowerChip(root)
 	buildShipBar(root)
 	buildRateLine(root)
 	buildLuckLine(root)
+	buildEventBanner(root)
 	buildActionButton(root)
 end
 
@@ -397,20 +529,64 @@ function Hud.SetRate(perSecond: number)
 	label.Visible = true
 end
 
--- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck is exactly 1.
+-- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck is exactly 1,
+-- and stays hidden while the event banner holds its slot (the banner's chip carries the number).
 function Hud.SetLuck(luck: number)
 	local label = luckLabel
 	if not label then
 		return
 	end
-	if luck == 1 then
-		label.Visible = false
+	luckShown = luck ~= 1
+	if luckShown then
+		-- Round half up to one decimal before formatting (1.25 must read x1.3, and %.1f would print 1.2).
+		luck = math.floor(luck * 10 + 0.5) / 10
+		label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
+	end
+	applyLuckLine()
+end
+
+-- Event banner in the luck line's slot: `text` is the event line (already formatted by the caller,
+-- e.g. SHOWER_BANNER with the time left) and `chip` the green chip's text (SHOWER_LUCK formatted),
+-- or nil for no chip. nil text hides the banner and gives the luck line its own rule back.
+function Hud.SetEventBanner(text: string?, chip: string?)
+	local pill, label = banner, bannerText
+	if not pill or not label then
 		return
 	end
-	-- Round half up to one decimal before formatting (1.25 must read x1.3, and %.1f would print 1.2).
-	luck = math.floor(luck * 10 + 0.5) / 10
-	label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
-	label.Visible = true
+	if text then
+		label.Text = text
+		label.Size = UDim2.fromScale(if chip then BANNER_TEXT_WIDTH else BANNER_TEXT_WIDTH_FULL, 0.7)
+		if bannerChip then
+			bannerChip.Visible = chip ~= nil
+		end
+		if bannerChipLabel then
+			bannerChipLabel.Text = chip or ""
+		end
+		if not pill.Visible then
+			pill.Visible = true
+			Builder.pop(pill, 1.1)
+		end
+	else
+		pill.Visible = false
+	end
+	applyLuckLine()
+end
+
+-- Meteor Shower countdown chip under the biome chip: seconds until the shower, or nil to hide it.
+function Hud.SetShowerCountdown(seconds: number?)
+	local chip, label = showerChip, showerLabel
+	if not chip or not label then
+		return
+	end
+	if seconds then
+		label.Text = Strings.SHOWER_CHIP:format(formatCountdown(seconds))
+		if not chip.Visible then
+			chip.Visible = true
+			Builder.pop(chip, 1.1)
+		end
+	else
+		chip.Visible = false
+	end
 end
 
 function Hud.SetScrap(amount: number)
