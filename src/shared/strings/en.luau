@@ -125,6 +125,13 @@ return {
 	MENU_Quests = "Quests",
 	MENU_Settings = "Settings",
 	COMING_SOON = "Coming soon",
+	-- placeholder glyphs on the menu buttons until the icon pack is chosen
+	MENU_GLYPH_Shop = "$",
+	MENU_GLYPH_Aliens = "A",
+	MENU_GLYPH_Codex = "?",
+	MENU_GLYPH_Ship = "^",
+	MENU_GLYPH_Quests = "!",
+	MENU_GLYPH_Settings = "*",
 	-- Aliens screen
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",

@@ -23,6 +23,7 @@ local TICK_WIDTH = 0.004 -- milestone tick marks, as a fraction of the bar width
 local DEFAULT_TICK_WORLD = 1 -- every player starts here; SetShipTicks replaces these once the profile is in
 
 local gui: ScreenGui? = nil
+local menuGui: ScreenGui? = nil -- the icon stack sits above modal dims (MENU_DISPLAY_ORDER) so panels can be switched
 local setScrapValue: ((number) -> ())? = nil
 local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
@@ -30,6 +31,7 @@ local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {}
 local menuCount = 0
 
+local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
 local MENU_TOP = 0.2 -- the icon stack starts here, under the Scrap pill and its rate line
 local MENU_SLOT = 0.15 -- vertical space per entry: the square button plus its label
 local MENU_BUTTON = 0.105 -- square button height (width follows through the aspect constraint)
@@ -133,9 +135,10 @@ local function buildBiomeChip(root: ScreenGui)
 end
 
 -- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. Until the
--- icon pack is chosen the face shows the label's first letter.
+-- icon pack is chosen the face shows a placeholder glyph from the strings table.
 local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onClick: () -> ()): Frame
 	local label = Builder.text("MENU_" .. id)
+	local glyph = Builder.text("MENU_GLYPH_" .. id)
 	local top = MENU_TOP + menuCount * MENU_SLOT
 	menuCount += 1
 	local slot = Builder.frame({
@@ -148,7 +151,7 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 	local button = Builder.button({
 		parent = slot,
 		name = "Button",
-		text = string.upper(string.sub(label, 1, 1)),
+		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
 		color = color,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(1, MENU_BUTTON / MENU_SLOT),
@@ -306,6 +309,7 @@ function Hud.Build()
 	end
 	local root = Builder.screen("HUD", 10)
 	gui = root
+	menuGui = Builder.screen("Menu", MENU_DISPLAY_ORDER)
 	buildScrapPill(root)
 	buildClockChip(root)
 	buildBiomeChip(root)
@@ -387,7 +391,7 @@ end
 
 -- Adds an entry to the left icon stack. Call after Hud.Build, once per screen, in display order.
 function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
-	local root = gui
+	local root = menuGui
 	if not root or menuButtons[id] then
 		return
 	end
@@ -479,6 +483,9 @@ end
 function Hud.SetVisible(visible: boolean)
 	if gui then
 		gui.Enabled = visible
+	end
+	if menuGui then
+		menuGui.Enabled = visible
 	end
 end
 
