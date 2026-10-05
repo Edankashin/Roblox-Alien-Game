@@ -21,10 +21,12 @@ local Spins = require(Shared.data.Spins)
 local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
 local Species = require(Shared.data.Species)
+local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
+local Analytics = require(script.Parent.Analytics)
 
 local Gifts = {}
 
@@ -233,6 +235,10 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 		pushInventory(player, profile)
 	end
 	pushGifts(player, profile)
+	Analytics.Event(player, AnalyticsData.Events.GiftClaim, day)
+	if scrapChanged then
+		Analytics.Economy(player, "Source", reward.amount or 0, profile.scrap, "TimedReward", AnalyticsData.Economy.Sources.Gift)
+	end
 	return true, nil, grant
 end
 
@@ -274,6 +280,10 @@ local function onSpin(player: Player): (boolean, string?, Types.SpinResult?)
 		pushInventory(player, profile)
 	end
 	pushGifts(player, profile) -- the spin balance moved (and a "spin" reward would bank more)
+	Analytics.Event(player, AnalyticsData.Events.Spin, 1, { segmentId = segment.id })
+	if scrapChanged then
+		Analytics.Economy(player, "Source", segment.reward.amount or 0, profile.scrap, "Gameplay", AnalyticsData.Economy.Sources.Spin)
+	end
 	return true, nil, { segmentId = segment.id, index = index }
 end
 

@@ -22,10 +22,12 @@ local Config = require(Shared.data.Config)
 local Lures = require(Shared.data.Lures)
 local Gear = require(Shared.data.Gear)
 local Radar = require(Shared.data.Radar)
+local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Buffs = require(script.Parent.Buffs)
 local Quests = require(script.Parent.Quests)
+local Analytics = require(script.Parent.Analytics)
 
 local Shop = {}
 
@@ -161,6 +163,8 @@ local function buyLure(player: Player, id: string): (boolean, string?)
 	if profile then
 		pushScrap(player, profile)
 		pushInventory(player, profile)
+		Analytics.Event(player, AnalyticsData.Events.ShopBuy, 1, { kind = "lure", id = id })
+		Analytics.Economy(player, "Sink", def.scrap, profile.scrap, "Shop", AnalyticsData.Economy.Sinks.Shop)
 	end
 	Quests.OnCraft(player, id) -- a bought lure is a crafted lure for the Field Notes
 	return true, nil
@@ -196,6 +200,8 @@ local function buyRadar(player: Player, tier: number): (boolean, string?)
 	if profile then
 		pushScrap(player, profile)
 		pushGear(player, profile)
+		Analytics.Event(player, AnalyticsData.Events.ShopBuy, 1, { kind = "gear", id = "Radar" .. tostring(tier) })
+		Analytics.Economy(player, "Sink", row.scrap, profile.scrap, "Shop", AnalyticsData.Economy.Sinks.Shop)
 	end
 	return true, nil
 end
@@ -231,6 +237,8 @@ local function buyGear(player: Player, id: string): (boolean, string?)
 	if profile then
 		pushScrap(player, profile)
 		pushGear(player, profile)
+		Analytics.Event(player, AnalyticsData.Events.ShopBuy, 1, { kind = "gear", id = id })
+		Analytics.Economy(player, "Sink", row.scrap, profile.scrap, "Shop", AnalyticsData.Economy.Sinks.Shop)
 	end
 	Shop.ApplyMovement(player)
 	return true, nil

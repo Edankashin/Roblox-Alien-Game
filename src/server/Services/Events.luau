@@ -12,17 +12,21 @@
 -- Events.Force (Studio commands, guarded by Dev) overrides the clock for one run: a forced shower runs
 -- ShowerDurationSeconds from now; a forced end mutes the clock's own shower until it would have ended.
 --
--- Requires run one way: this module requires WorldClock, Net and Config only. Buffs requires this
--- module for ServerLuckBonus and registers its LuckChanged broadcast through Events.OnShowerChanged
--- at Init, so this module never requires Buffs back.
+-- Requires run one way: this module requires WorldClock, Net, Config and Analytics (every player online
+-- at a start is counted as attending) only. Buffs requires this module for ServerLuckBonus and
+-- registers its LuckChanged broadcast through Events.OnShowerChanged at Init, so this module never
+-- requires Buffs back.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
 local WorldClock = require(script.Parent.WorldClock)
+local Analytics = require(script.Parent.Analytics)
 
 local Events = {}
 
@@ -91,6 +95,11 @@ local function flip(state: Types.ShowerState)
 	broadcast(state)
 	for _, callback in ipairs(listeners) do
 		task.spawn(callback, state.active)
+	end
+	if state.active then
+		for _, player in ipairs(Players:GetPlayers()) do
+			Analytics.Event(player, AnalyticsData.Events.ShowerAttend)
+		end
 	end
 end
 

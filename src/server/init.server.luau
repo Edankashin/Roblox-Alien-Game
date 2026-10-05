@@ -1,6 +1,7 @@
 --!strict
 -- Server bootstrap. Loads every service under Services, calls Init on all, then Start on all.
 -- Order matters for a few: PlayerData must come first so other services can read profiles;
+-- Analytics right after it (every service reports to it, and it only requires shared data);
 -- WorldClock before Spawner (conditions), Events right after WorldClock (it switches the Shower
 -- condition on that clock and Buffs and Spawner read its luck and Cosmic share), Meadow before
 -- Materials and Spawner (floor), Economy
@@ -14,14 +15,15 @@
 -- Materials (both report to it, and Economy's offline settlement must run before the tutorial's own
 -- load step), Peddler after Economy and Catching (eggs are granted through Economy; the visit clock
 -- starts last), Gifts after Economy and Spawner (the Welcome Week egg is granted through Economy with
--- Spawner's overlay roll) and after PlayerData (it counts the day on load).
+-- Spawner's overlay roll) and after PlayerData (it counts the day on load), Settings after PlayerData
+-- (it writes profile.settings) and before Dev (which stays last).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Economy", "Buffs", "Shop", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

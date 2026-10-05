@@ -24,6 +24,7 @@ local Biomes = require(Shared.Biomes)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
+local Analytics = require(script.Parent.Analytics)
 
 local Tutorial = {}
 
@@ -49,6 +50,16 @@ end
 
 local function pushTutorial(player: Player, profile: Types.Profile)
 	Net.event("TutorialChanged"):FireClient(player, profile.tutorialStep, profile.tutorialCounter)
+end
+
+-- Analytics only: every onboarding funnel step up to the current one, named by its step id ("Done" past
+-- the last). Analytics sends each step once per session, so a skip over several steps still reports
+-- each in order and a returning player lands on every step already passed.
+local function reportFunnel(player: Player, profile: Types.Profile)
+	for step = FIRST_STEP, profile.tutorialStep do
+		local def = STEPS[step]
+		Analytics.Funnel(player, step, if def then def.id else "Done")
+	end
 end
 
 local function rootPosition(player: Player): Vector3?
@@ -220,6 +231,7 @@ local function report(player: Player, matches: (TutorialData.Trigger) -> boolean
 	if advanced then
 		local step, index = currentStep(profile)
 		ensureTrainee(player, step, index)
+		reportFunnel(player, profile)
 	end
 end
 
@@ -295,6 +307,7 @@ function Tutorial.Init()
 			pushTutorial(player, live)
 			local step, index = currentStep(live)
 			ensureTrainee(player, step, index)
+			reportFunnel(player, live)
 		end
 	end)
 
@@ -316,6 +329,7 @@ function Tutorial.DevSetStep(player: Player, index: number)
 	pushTutorial(player, profile)
 	local step, stepIndex = currentStep(profile)
 	ensureTrainee(player, step, stepIndex)
+	reportFunnel(player, profile)
 end
 
 function Tutorial.Start()

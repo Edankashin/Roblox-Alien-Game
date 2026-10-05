@@ -21,9 +21,11 @@ local Tiers = require(Shared.data.Tiers)
 local Lures = require(Shared.data.Lures)
 local KeyMaterials = require(Shared.data.KeyMaterials)
 local Worlds = require(Shared.data.Worlds)
+local AnalyticsData = require(Shared.data.Analytics)
 local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Analytics = require(script.Parent.Analytics)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Buffs = require(script.Parent.Buffs)
@@ -378,11 +380,13 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 		if not encounter.kindnessApplied and encounter.misses >= Config.HiddenKindnessAfterMisses then
 			encounter.kindnessApplied = true
 		end
+		Analytics.Event(player, AnalyticsData.Events.CatchMiss, 1, { tier = encounter.tier :: string })
 	end
 	if encounter.sweepsLeft <= 0 then
 		Spawner.RemoveSpawn(encounter.spawnId, "fled")
 		endEncounter(player.UserId)
 		reportLoss(player, encounter)
+		Analytics.Event(player, AnalyticsData.Events.Flee, 1, { tier = encounter.tier :: string })
 		return { outcome = "Fled", hit = hit, pos = pos }
 	end
 	startSweep(encounter, false)

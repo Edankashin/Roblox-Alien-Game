@@ -17,10 +17,12 @@ local PeddlerData = require(Shared.data.Peddler)
 local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
 local Species = require(Shared.data.Species)
+local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
+local Analytics = require(script.Parent.Analytics)
 
 local Peddler = {}
 
@@ -199,6 +201,8 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 	end
 
 	mine[index] = true -- once per offer per visit
+	Analytics.Event(player, AnalyticsData.Events.PeddlerBuy, 1, { kind = kind })
+	Analytics.Economy(player, "Sink", offer.scrap, profile.scrap, "Shop", AnalyticsData.Economy.Sinks.Peddler)
 
 	if eggSpecies then
 		-- GrantAlien pushes ScrapChanged (the price is already off) and the camp, and returns the Reveal.

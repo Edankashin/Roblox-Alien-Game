@@ -20,9 +20,11 @@ local Species = require(Shared.data.Species)
 local Tiers = require(Shared.data.Tiers)
 local Overlays = require(Shared.data.Overlays)
 local Modules = require(Shared.data.Modules)
+local AnalyticsData = require(Shared.data.Analytics)
 local Economy = require(Shared.Economy)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Analytics = require(script.Parent.Analytics)
 local Buffs = require(script.Parent.Buffs)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
@@ -60,11 +62,35 @@ local function pushInventory(player: Player, profile: Types.Profile)
 	Net.event("InventoryChanged"):FireClient(player, profile.inventory)
 end
 
+-- Analytics only: how many modules this profile has ever finished, across worlds.
+local function completedModuleCount(profile: Types.Profile): number
+	local count = 0
+	for _, world in pairs(profile.modules) do
+		for _, state in pairs(world) do
+			if state.completedAt ~= nil then
+				count += 1
+			end
+		end
+	end
+	return count
+end
+
+-- Analytics only: a finished module, and for the first one this profile ever finished, the seconds since
+-- firstSeen. Modules finish one at a time (snapshotModules completes the active one only).
+local function reportModuleComplete(player: Player, worldId: number, moduleId: string)
+	Analytics.Event(player, AnalyticsData.Events.ModuleComplete, 1, { moduleId = moduleId, worldId = tostring(worldId) })
+	local profile = PlayerData.Get(player)
+	if profile and completedModuleCount(profile) == 1 then
+		Analytics.Event(player, AnalyticsData.Events.FirstModuleSeconds, os.time() - profile.firstSeen)
+	end
+end
+
 -- Tells the client about each module that just finished, and the Tutorial (a moduleComplete step).
 local function announceCompleted(player: Player, worldId: number, completed: { string })
 	for _, moduleId in ipairs(completed) do
 		Net.event("ModuleCompleted"):FireClient(player, worldId, moduleId)
 		Tutorial.OnModuleComplete(player, moduleId)
+		reportModuleComplete(player, worldId, moduleId)
 	end
 end
 
@@ -310,6 +336,7 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 		return false, "RateLimited"
 	end
 	local startedId: string? = nil -- the module whose clock started with this payment (the Tutorial hears it)
+	local paid = 0 -- the Scrap this call took (Analytics)
 	local ok, reason = mutate(player, function(profile)
 		local def, state = activeModule(profile)
 		if not def or not state or def.id ~= moduleId then
@@ -323,6 +350,7 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 			return "NotEnoughScrap"
 		end
 		profile.scrap -= remaining
+		paid = remaining
 		state.scrapPaid = def.scrap
 		local wasStarted = state.started
 		maybeStart(def, state)
@@ -338,6 +366,7 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 	if profile then
 		pushScrap(player, profile)
 		pushModules(player, profile)
+		Analytics.Economy(player, "Sink", paid, profile.scrap, "ModulePay", AnalyticsData.Economy.Sinks.Module)
 	end
 	if startedId then
 		Tutorial.OnModuleStarted(player, startedId)
@@ -440,6 +469,7 @@ local function tickIncome(dt: number)
 			end)
 			if profile.scrap ~= before then
 				pushScrap(player, profile)
+				Analytics.Income(player, profile.scrap - before, profile.scrap)
 			end
 			if #completed > 0 then
 				pushCamp(player, profile) -- a completed module can also have grown the station slots
@@ -487,9 +517,11 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	pushCamp(player, live)
 	if live.scrap ~= scrapBefore then
 		pushScrap(player, live)
+		Analytics.Economy(player, "Source", live.scrap - scrapBefore, live.scrap, "Gameplay", AnalyticsData.Economy.Sources.Offline)
 	end
 	for _, moduleId in ipairs(completedAway) do
 		Tutorial.OnModuleComplete(player, moduleId)
+		reportModuleComplete(player, live.world.current, moduleId)
 	end
 end
 
@@ -590,6 +622,14 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	announceCatch(player, species, tier, overlay)
 	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
 	Tutorial.OnCatch(player, species)
+	-- Analytics: the catch, its Scrap split into the catch pay and the codex payout, and the first catch ever.
+	local codexScrap = if isNew then tierDef.codexScrap else 0
+	Analytics.Event(player, AnalyticsData.Events.Catch, 1, { tier = tier :: string, species = species, perfect = tostring(perfect) })
+	Analytics.Economy(player, "Source", scrapGained - codexScrap, scrapNow - codexScrap, "Gameplay", AnalyticsData.Economy.Sources.Catch)
+	Analytics.Economy(player, "Source", codexScrap, scrapNow, "Gameplay", AnalyticsData.Economy.Sources.Codex)
+	if profile.stats.catches == 1 then
+		Analytics.Event(player, AnalyticsData.Events.FirstCatchSeconds, os.time() - profile.firstSeen)
+	end
 	return { species = species, tier = tier, overlay = overlay, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 
