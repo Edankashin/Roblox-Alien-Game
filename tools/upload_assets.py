@@ -1,26 +1,38 @@
 #!/usr/bin/env python3
 """Upload the repo's generated models to Roblox through the Open Cloud Assets API.
 
-Replaces File > Import 3D, one file at a time, for the 48 models:
-  assets/models/<SpeciesId>/<SpeciesId>.fbx          (32 aliens)
-  assets/models/props/<Name>/<Name>.fbx              (16 props)
+Replaces File > Import 3D, one file at a time, for the 48 models (--format glb, the default,
+picks the .glb files; --format fbx picks the .fbx files):
+  assets/models/<SpeciesId>/<SpeciesId>.glb          (32 aliens)
+  assets/models/props/<Name>/<Name>.glb              (16 props)
 Each upload becomes a Model asset owned by your user or group. The asset ids are kept in
-assets/models/asset_ids.json ({ name: { assetId, uploadedAt, file } }) and a Studio script
-(tools/studio/install_models.luau) turns them into instances. Workflow and Dashboard steps:
-docs/vault/06-art-pipelines/Map-Dressing.md, section "Bulk import through Open Cloud".
+assets/models/asset_ids.json ({ name: { assetId, uploadedAt, file, format } }) and a Studio
+script (tools/studio/install_models.luau) turns them into instances. Workflow and Dashboard
+steps: docs/vault/06-art-pipelines/Map-Dressing.md, section "Bulk import through Open Cloud".
+
+Why GLB (found in Studio on 2026-10-05): an FBX upload arrives as ONE grey MeshPart (the
+materials are merged). A GLB upload arrives as one MeshPart per material slot, named <Name>,
+<Name>2, <Name>3... in slot order, but every part is grey (163,162,165) with no TextureID.
+So each model folder also holds materials.json, a list in slot order of
+{ "slot", "name", "hex", "roughness", "metallic", "emission" }; --emit-luau turns every
+materials.json into the MATERIALS table that the installer uses to colour the parts.
 
 Usage:
   export ROBLOX_OPEN_CLOUD_KEY=...            # never put the key in the repo
   export ROBLOX_CREATOR_USER_ID=1234567       # or ROBLOX_CREATOR_GROUP_ID=7654321
-  python3 tools/upload_assets.py --dry-run                      # list what would upload
-  python3 tools/upload_assets.py                                # everything not yet in the JSON
+  python3 tools/upload_assets.py --dry-run                      # list what would upload (format, file)
+  python3 tools/upload_assets.py                                # every .glb not yet in the JSON
+  python3 tools/upload_assets.py --format fbx                   # the .fbx files instead
+  python3 tools/upload_assets.py --redo                         # upload again, overwrite the JSON entries
   python3 tools/upload_assets.py --props                        # only the 16 props
   python3 tools/upload_assets.py --species                      # only the 32 aliens
   python3 tools/upload_assets.py --only Mossbop,MeadowTree      # only these names
-  python3 tools/upload_assets.py --emit-luau | pbcopy           # Luau tables to paste into Studio
+  python3 tools/upload_assets.py --emit-luau | pbcopy           # ASSET_IDS, PROP_NAMES, MATERIALS for Studio
 
 Exit status: 0 all done (or nothing to do), 1 at least one model failed, 2 bad usage or setup.
 Names already in the JSON are skipped, so a re-run after a failure retries only the failures.
+--redo ignores those names and overwrites their entries (the old assets stay on the account,
+harmless; this is how the FBX ids of the first run are replaced by GLB ids).
 The JSON is rewritten after every success, so a crash or Ctrl+C loses nothing.
 Only the Python standard library is used (urllib), so the stock Python 3 on a Mac runs it.
 
@@ -76,6 +88,9 @@ GAME_NAME = "Roblox Alien Game"
 API_BASE = os.environ.get("ROBLOX_ASSETS_API_BASE", "https://apis.roblox.com/assets/v1").rstrip("/")
 USER_AGENT = "alien-game-upload-assets/1.0"
 MAX_FILE_BYTES = 20 * 1024 * 1024  # documented per-call limit
+CONTENT_TYPES = {"glb": "model/gltf-binary", "fbx": "model/fbx"}
+DEFAULT_FORMAT = "glb"
+MATERIALS_FILE = "materials.json"
 
 CREATE_ATTEMPTS = 6        # tries for the create call on 429 / gateway errors
 POLL_MAX_SECONDS = 300     # give up on one operation after this long
@@ -106,18 +121,18 @@ def die(msg: str, code: int = 2) -> "typing.NoReturn":
 
 # --------------------------------------------------------------------------- discovery
 
-def discover() -> "tuple[dict[str, pathlib.Path], dict[str, pathlib.Path]]":
-    """Return (species, props), each name -> .fbx path, from assets/models."""
+def discover(fmt: str = DEFAULT_FORMAT) -> "tuple[dict[str, pathlib.Path], dict[str, pathlib.Path]]":
+    """Return (species, props), each name -> <Name>.<fmt> path, from assets/models."""
     species: "dict[str, pathlib.Path]" = {}
     props: "dict[str, pathlib.Path]" = {}
     if MODELS_DIR.is_dir():
         for d in sorted(MODELS_DIR.iterdir()):
-            if d.is_dir() and d.name != "props" and (d / (d.name + ".fbx")).is_file():
-                species[d.name] = d / (d.name + ".fbx")
+            if d.is_dir() and d.name != "props" and (d / (d.name + "." + fmt)).is_file():
+                species[d.name] = d / (d.name + "." + fmt)
     if PROPS_DIR.is_dir():
         for d in sorted(PROPS_DIR.iterdir()):
-            if d.is_dir() and (d / (d.name + ".fbx")).is_file():
-                props[d.name] = d / (d.name + ".fbx")
+            if d.is_dir() and (d / (d.name + "." + fmt)).is_file():
+                props[d.name] = d / (d.name + "." + fmt)
     clash = sorted(set(species) & set(props))
     if clash:
         die("a name is both a species and a prop: " + ", ".join(clash))
@@ -125,8 +140,19 @@ def discover() -> "tuple[dict[str, pathlib.Path], dict[str, pathlib.Path]]":
 
 
 def prop_names() -> "list[str]":
-    """Names of the folders under assets/models/props (every prop that has an .fbx)."""
-    return sorted(discover()[1])
+    """Names of the folders under assets/models/props (every prop that has a .glb or an .fbx)."""
+    found: "set[str]" = set()
+    for fmt in CONTENT_TYPES:
+        found.update(discover(fmt)[1])
+    return sorted(found)
+
+
+def entry_format(entry: dict) -> str:
+    """Format of an ids-file entry: its "format" field, else the suffix of its "file" (old FBX runs)."""
+    fmt = entry.get("format")
+    if isinstance(fmt, str) and fmt:
+        return fmt
+    return pathlib.Path(str(entry.get("file", ""))).suffix.lstrip(".") or "?"
 
 
 # --------------------------------------------------------------------------- ids file
@@ -150,6 +176,48 @@ def save_ids(path: pathlib.Path, ids: "dict[str, dict]") -> None:
     os.replace(str(tmp), str(path))
 
 
+def load_materials() -> "dict[str, list[tuple[str, str, float, float, float]]]":
+    """name -> [(material name, hex, roughness, metallic, emission)] in slot order.
+
+    Read from <model folder>/materials.json for every species and prop folder that has one;
+    a model without the file gets no entry.
+    """
+    out: "dict[str, list[tuple[str, str, float, float, float]]]" = {}
+    folders: "list[pathlib.Path]" = []
+    if MODELS_DIR.is_dir():
+        folders += [d for d in sorted(MODELS_DIR.iterdir()) if d.is_dir() and d.name != "props"]
+    if PROPS_DIR.is_dir():
+        folders += [d for d in sorted(PROPS_DIR.iterdir()) if d.is_dir()]
+    for d in folders:
+        path = d / MATERIALS_FILE
+        if not path.is_file():
+            continue
+        try:
+            rows = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            die("cannot read %s (%s)" % (path, exc))
+        if not isinstance(rows, list) or not rows or not all(isinstance(r, dict) for r in rows):
+            die("%s must be a non-empty JSON list of { slot, name, hex, roughness, metallic, emission }" % path)
+        ordered = sorted(enumerate(rows), key=lambda ir: (ir[1].get("slot", ir[0] + 1), ir[0]))
+        entries = []
+        for i, (_, row) in enumerate(ordered, start=1):
+            hex_ = str(row.get("hex", "")).lstrip("#")
+            if len(hex_) != 6 or any(c not in "0123456789abcdefABCDEF" for c in hex_):
+                die("%s slot %d: hex must be 6 hex digits, got %r" % (path, i, row.get("hex")))
+            try:
+                rough, metal, emit = (float(row.get(k, 0)) for k in ("roughness", "metallic", "emission"))
+            except (TypeError, ValueError):
+                die("%s slot %d: roughness, metallic and emission must be numbers" % (path, i))
+            entries.append((str(row.get("name") or "Part%d" % i), hex_.upper(), rough, metal, emit))
+        out[d.name] = entries
+    return out
+
+
+def luau_num(value: float) -> str:
+    """0.8 -> '0.8', 0.0 -> '0', 1.0 -> '1' (no trailing zeros)."""
+    return ("%.4f" % value).rstrip("0").rstrip(".") or "0"
+
+
 def emit_luau(ids: "dict[str, dict]") -> str:
     """Luau literals for the top of tools/studio/install_models.luau."""
     lines = ["local ASSET_IDS: { [string]: number } = {"]
@@ -159,6 +227,13 @@ def emit_luau(ids: "dict[str, dict]") -> str:
     lines.append("local PROP_NAMES: { [string]: boolean } = {")
     for name in prop_names():
         lines.append("\t%s = true," % name)
+    lines.append("}")
+    lines.append("local MATERIALS: { [string]: { { string | number } } } = {")
+    materials = load_materials()
+    for name in sorted(materials):
+        rows = ", ".join('{ %s, "%s", %s, %s, %s }' % (json.dumps(n), h, luau_num(r), luau_num(m), luau_num(e))
+                         for n, h, r, m, e in materials[name])
+        lines.append("\t%s = { %s }," % (name, rows))
     lines.append("}")
     return "\n".join(lines)
 
@@ -236,12 +311,12 @@ def http(method: str, url: str, key: str, body: "bytes | None" = None,
 
 # --------------------------------------------------------------------------- upload
 
-def upload_one(name: str, fbx: pathlib.Path, key: str, creator: "dict[str, str]",
-               poll_interval: float) -> "tuple[int, str]":
+def upload_one(name: str, model: pathlib.Path, key: str, creator: "dict[str, str]",
+               poll_interval: float, fmt: str = DEFAULT_FORMAT) -> "tuple[int, str]":
     """Create the asset, poll its operation. Returns (assetId, moderation state or '')."""
-    data = fbx.read_bytes()
+    data = model.read_bytes()
     if len(data) > MAX_FILE_BYTES:
-        raise UploadError("%s is %.1f MB, over the 20 MB limit" % (fbx.name, len(data) / 1048576.0))
+        raise UploadError("%s is %.1f MB, over the 20 MB limit" % (model.name, len(data) / 1048576.0))
     today = datetime.date.today().isoformat()
     meta = {
         "assetType": "Model",
@@ -251,7 +326,7 @@ def upload_one(name: str, fbx: pathlib.Path, key: str, creator: "dict[str, str]"
     }
     body, ctype = multipart([
         ("request", None, None, json.dumps(meta).encode("utf-8")),
-        ("fileContent", fbx.name, "model/fbx", data),
+        ("fileContent", model.name, CONTENT_TYPES[fmt], data),
     ])
     op = http("POST", API_BASE + "/assets", key, body, ctype, RETRYABLE_CREATE, CREATE_ATTEMPTS)
     path = op.get("path")
@@ -289,13 +364,20 @@ def upload_one(name: str, fbx: pathlib.Path, key: str, creator: "dict[str, str]"
 # --------------------------------------------------------------------------- main
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Upload generated .fbx models through the Open Cloud Assets API.")
+    ap = argparse.ArgumentParser(description="Upload generated .glb (or .fbx) models through the Open Cloud Assets API.")
     ap.add_argument("--props", action="store_true", help="only the props under assets/models/props")
     ap.add_argument("--species", action="store_true", help="only the species (aliens)")
     ap.add_argument("--only", metavar="A,B", help="comma-separated names to upload (others are ignored)")
+    ap.add_argument("--format", choices=sorted(CONTENT_TYPES), default=DEFAULT_FORMAT,
+                    help="which model files to upload: <Name>.glb (default; one MeshPart per material slot) "
+                         "or <Name>.fbx (one merged grey MeshPart)")
+    ap.add_argument("--redo", action="store_true",
+                    help="ignore names already in asset_ids.json and overwrite their entries "
+                         "(the old assets stay on the account)")
     ap.add_argument("--dry-run", action="store_true", help="list what would upload; send nothing")
     ap.add_argument("--emit-luau", action="store_true",
-                    help="print the Luau tables for tools/studio/install_models.luau and exit")
+                    help="print the ASSET_IDS, PROP_NAMES and MATERIALS tables for "
+                         "tools/studio/install_models.luau and exit")
     ap.add_argument("--ids-file", type=pathlib.Path, default=DEFAULT_IDS_FILE, help=argparse.SUPPRESS)
     ap.add_argument("--poll-interval", type=float, default=1.0, help=argparse.SUPPRESS)
     args = ap.parse_args()
@@ -308,9 +390,10 @@ def main() -> int:
         print(emit_luau(ids))
         return 0
 
-    species, props = discover()
+    fmt = args.format
+    species, props = discover(fmt)
     if not species and not props:
-        die("no .fbx files found under %s" % MODELS_DIR)
+        die("no .%s files found under %s" % (fmt, MODELS_DIR))
     wanted: "dict[str, pathlib.Path]" = {}
     if args.species or not args.props:
         wanted.update(species)
@@ -325,19 +408,25 @@ def main() -> int:
             die("unknown model name(s): %s (names are the folder names under assets/models)" % ", ".join(unknown))
         wanted = {n: known[n] for n in names}
 
-    todo = {n: p for n, p in wanted.items() if n not in ids}
-    for name in sorted(wanted):
-        if name in ids:
-            log("skip   %-14s already uploaded (asset %s)" % (name, ids[name].get("assetId")))
+    todo = dict(wanted) if args.redo else {n: p for n, p in wanted.items() if n not in ids}
+    if not args.redo:
+        for name in sorted(wanted):
+            if name in ids:
+                old_fmt = entry_format(ids[name])
+                log("skip   %-14s already uploaded (asset %s, %s)%s" % (
+                    name, ids[name].get("assetId"), old_fmt,
+                    "  use --redo to replace it with the " + fmt if old_fmt != fmt else ""))
 
     if args.dry_run:
         for name in sorted(todo):
-            log("would  %-14s %s" % (name, todo[name].relative_to(REPO)))
-        log("dry run: %d to upload, %d already done" % (len(todo), len(wanted) - len(todo)))
+            replaces = "  (replaces asset %s, %s)" % (ids[name].get("assetId"), entry_format(ids[name])) \
+                if name in ids else ""
+            log("would  %-14s %-4s %s%s" % (name, fmt, todo[name].relative_to(REPO), replaces))
+        log("dry run: %d to upload as %s, %d already done" % (len(todo), fmt, len(wanted) - len(todo)))
         return 0
 
     if not todo:
-        log("nothing to upload (%d already in %s)" % (len(wanted), args.ids_file.name))
+        log("nothing to upload (%d already in %s; --redo uploads them again)" % (len(wanted), args.ids_file.name))
         return 0
 
     key = os.environ.get("ROBLOX_OPEN_CLOUD_KEY", "").strip()
@@ -357,9 +446,9 @@ def main() -> int:
     done = 0
     try:
         for name in sorted(todo):
-            fbx = todo[name]
+            model = todo[name]
             try:
-                asset_id, state = upload_one(name, fbx, key, creator, args.poll_interval)
+                asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt)
             except UploadError as exc:
                 failed.append(name)
                 log("FAIL   %-14s %s" % (name, exc))
@@ -370,11 +459,12 @@ def main() -> int:
             ids[name] = {
                 "assetId": asset_id,
                 "uploadedAt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "file": str(fbx.relative_to(REPO)),
+                "file": str(model.relative_to(REPO)),
+                "format": fmt,
             }
             save_ids(args.ids_file, ids)
             done += 1
-            log("ok     %-14s asset %d%s" % (name, asset_id, "  moderation: " + state if state else ""))
+            log("ok     %-14s %-4s asset %d%s" % (name, fmt, asset_id, "  moderation: " + state if state else ""))
     except KeyboardInterrupt:
         log("interrupted; %d uploaded this run are saved in %s" % (done, args.ids_file.name))
         return 130

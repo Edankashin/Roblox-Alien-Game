@@ -48,7 +48,9 @@ Each prop is one mesh, flat shaded, one flat material per colour, no textures, s
 
 ## Bulk import through Open Cloud
 
-Skips File -> Import 3D for all 48 models (32 aliens, 16 props). `tools/upload_assets.py` uploads each `.fbx` as a Model through the Open Cloud Assets API (checked 2026-10-05 against `cloud/guides/usage-assets.md` in Roblox's creator-docs: assetType `Model` accepts `.fbx`, one file per call, 20 MB max), then `tools/studio/install_models.luau` places them in Studio.
+Skips File -> Import 3D for all 48 models (32 aliens, 16 props). `tools/upload_assets.py` uploads each `.glb` (default; `--format fbx` for the `.fbx`) as a Model through the Open Cloud Assets API (checked 2026-10-05 against `cloud/guides/usage-assets.md` in Roblox's creator-docs: assetType `Model` accepts `.fbx` and `.glb`, one file per call, 20 MB max), then `tools/studio/install_models.luau` places them in Studio and colours them.
+
+**Why GLB plus `materials.json` (found in Studio, 2026-10-05).** An FBX upload arrives as ONE grey MeshPart: the materials are merged. A GLB upload arrives as one MeshPart per material slot, named `<Name>`, `<Name>2`, `<Name>3`... in slot order, but every part is grey (163,162,165) with no TextureID, so the colours are lost. Each model folder therefore holds `materials.json` (slot order: `slot`, `name`, `hex`, `roughness`, `metallic`, `emission`); `--emit-luau` turns them into a `MATERIALS` table and the installer restores the colours (below).
 
 **Make the API key, once.** Creator Dashboard (create.roblox.com) -> Open Cloud -> API Keys -> Create API Key.
 1. Name it (`alien-game-assets`). Under Access Permissions pick the **Assets** API and add the operations **Read** and **Write** (scopes `asset:read`, `asset:write`).
@@ -60,17 +62,20 @@ Skips File -> Import 3D for all 48 models (32 aliens, 16 props). `tools/upload_a
 ```
 export ROBLOX_OPEN_CLOUD_KEY=...            # the key string
 export ROBLOX_CREATOR_USER_ID=1234567       # or ROBLOX_CREATOR_GROUP_ID=7654321
-python3 tools/upload_assets.py --dry-run    # list what would upload (needs no key)
-python3 tools/upload_assets.py              # upload; add --props, --species or --only Mossbop,MeadowTree
-python3 tools/upload_assets.py --emit-luau | pbcopy
+python3 tools/upload_assets.py --dry-run    # list the .glb files that would upload (needs no key)
+python3 tools/upload_assets.py              # upload GLBs; add --props, --species or --only Mossbop,MeadowTree
+python3 tools/upload_assets.py --redo       # rerun over names already in the JSON (e.g. replace the FBX ids)
+python3 tools/upload_assets.py --emit-luau | pbcopy   # ASSET_IDS, PROP_NAMES and MATERIALS
 ```
-The upload writes each asset id to `assets/models/asset_ids.json` as it succeeds (commit that file; ids are not secrets), skips names already in it, and exits non-zero if any model failed; re-run to retry only those.
+The upload writes each asset id to `assets/models/asset_ids.json` as it succeeds, with its `"format"` (commit that file; ids are not secrets), skips names already in it, and exits non-zero if any model failed; re-run to retry only those. `--redo` ignores those names and overwrites their entries; the old FBX assets stay on the account, harmless. `--format fbx` picks the `.fbx` files instead.
 
-**Place them in Studio.** Open `tools/studio/install_models.luau`, paste the clipboard over the two tables between the PASTE markers, and run it in the command bar (or the Studio MCP `execute_luau`). Studio must be signed in as the owning user or a group member. It loads each id with `InsertService:LoadAsset`, names the Model exactly the key, puts aliens in `ReplicatedStorage.Models` and props in `ReplicatedStorage.Models.Props` (folders created, same-name children replaced), anchors every part (creatures also CanCollide and CanQuery off) and sets a prop MeshPart named Glow to Neon, then prints a line per model and a count.
+**Place them in Studio.** Open `tools/studio/install_models.luau`, paste the clipboard over the three tables between the PASTE markers, and run it in the command bar (or the Studio MCP `execute_luau`). Studio must be signed in as the owning user or a group member. It loads each id with `InsertService:LoadAsset`, names the Model exactly the key, puts aliens in `ReplicatedStorage.Models` and props in `ReplicatedStorage.Models.Props` (folders created, same-name children replaced), colours the parts from `MATERIALS`, anchors every part (creatures also CanCollide and CanQuery off), then prints a line per model and a count.
+
+**How the colours come back.** The installer sorts the Model's MeshParts by the numeric suffix of their name (no suffix = 1, `Name2` = 2, ...) and gives part i the material row i: `Color` from the hex; `Neon` when emission > 0, `Metal` when metallic >= 0.5, else `SmoothPlastic`. It renames the part to the material name (Body, EyeWhite, Glow...) so the name-based rules still work (a part named Glow, `Props.Tint` skipping Neon). Roughness is carried in the table but not applied (Roblox has no per-part roughness). When the part count and row count differ, the parts that exist are coloured and a warn names the model and both counts. A model with no `MATERIALS` entry keeps the old rule (a prop MeshPart named Glow becomes Neon).
 
 **Moderation.** Uploads are moderated by Roblox "generally within a few hours"; an asset still in review cannot load in games, and the installer prints FAIL for it until it is approved. Run the installer again later; it is safe to repeat.
 
-**Still by hand.** The API imports with default settings and no preview (Roblox points to the Studio Importer for that) and stores Models as packages. After the first install check one alien and one prop: height against `notes.md`, facing -Z, Glow Neon, and that `LoadAsset` returns the Model. Not run against Roblox yet (see Record).
+**Still by hand.** The API imports with default settings and no preview (Roblox points to the Studio Importer for that) and stores Models as packages. After the first install check one alien and one prop: height against `notes.md`, facing -Z, the colours and Glow Neon, and that `LoadAsset` returns the Model. Not run against Roblox yet (see Record).
 
 ## Dress by hand with the pro plugins
 
