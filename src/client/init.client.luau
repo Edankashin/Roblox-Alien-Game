@@ -691,6 +691,7 @@ local function start(profile: Types.Profile)
 	end)
 
 	-- Modal screens: one open at a time, each behind a left-edge menu button.
+	Toast.SetPanelProbe(Screens.IsAnyOpen) -- banners drop to the bottom slot while a panel is open
 	Screens.Register("Ship", ShipScreen)
 	Screens.Register("Shop", ShopScreen)
 	Screens.Register("Peddler", PeddlerScreen)

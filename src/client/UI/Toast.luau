@@ -25,11 +25,13 @@ local MAX_HEIGHT = 0.2 -- generous cap so the width stays the binding side of th
 local ASPECT = 7
 local BANNER_WIDTH = 0.7 -- the server-wide banner is wider and in the accent colour
 local BANNER_ASPECT = 9
+local BANNER_BOTTOM_MARGIN = 0.06 -- while a panel is open a banner lands this far above the bottom edge instead of over the panel's header
 
 type Entry = { group: CanvasGroup, leaving: boolean, height: number }
 
 local gui: ScreenGui? = nil
 local entries: { Entry } = {} -- live toasts, oldest first
+local panelOpen: (() -> boolean)? = nil -- the bootstrap's Screens.IsAnyOpen; a banner pushed while it answers true takes the bottom slot
 
 -- Height of one toast in screen Scale, from the width-bound aspect fit (so slots stack tightly).
 local function heightScale(root: ScreenGui, width: number, aspect: number): number
@@ -163,9 +165,16 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 	end
 
 	local entry: Entry = { group = group, leaving = false, height = height }
-	table.insert(entries, entry)
 	local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-	TweenService:Create(group, info, { Position = slotPosition(#entries) }):Play()
+	if banner and panelOpen ~= nil and panelOpen() then
+		-- A wide banner over an open panel hides its header: slide it up from the bottom edge instead,
+		-- outside the stack (dismiss tolerates an entry the stack never held).
+		group.Position = UDim2.fromScale(0.5, 1 + height)
+		TweenService:Create(group, info, { Position = UDim2.fromScale(0.5, 1 - BANNER_BOTTOM_MARGIN - height) }):Play()
+	else
+		table.insert(entries, entry)
+		TweenService:Create(group, info, { Position = slotPosition(#entries) }):Play()
+	end
 	task.delay(seconds, function()
 		dismiss(entry)
 	end)
@@ -185,7 +194,13 @@ function Toast.SetTop(y: number?)
 	end
 end
 
--- Server-wide announcement: a wide banner in the given colour (usually the tier colour).
+-- The bootstrap hands in Screens.IsAnyOpen so banners know when a panel owns the top of the screen.
+function Toast.SetPanelProbe(probe: (() -> boolean)?)
+	panelOpen = probe
+end
+
+-- Server-wide announcement: a wide banner in the given colour (usually the tier colour). While a panel
+-- is open it takes the bottom slot so the panel's header stays readable.
 function Toast.Banner(text: string, color: Color3, seconds: number?)
 	Builder.playSound(Sounds.Banner)
 	push(text, color, true, seconds or Theme.Tween.Toast)
