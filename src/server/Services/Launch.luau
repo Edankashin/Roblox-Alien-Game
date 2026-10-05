@@ -26,6 +26,7 @@ local Economy = require(Shared.Economy)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
+local Tutorial = require(script.Parent.Tutorial)
 local Analytics = require(script.Parent.Analytics)
 local AnalyticsData = require(Shared.data.Analytics)
 
@@ -117,6 +118,7 @@ local function onLaunch(player: Player): (boolean, string?)
 		Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
 		Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
 	end
+	Tutorial.OnWorldChanged(player) -- off World 1 the tutorial is over: its hint and trainee go
 	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
 	teleportLater(player, nextWorld, placeLive)
 	return true, nil

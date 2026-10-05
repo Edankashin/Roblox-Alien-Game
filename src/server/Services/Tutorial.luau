@@ -183,10 +183,16 @@ local function alreadySatisfied(profile: Types.Profile, trigger: TutorialData.Tr
 	return state.completedAt ~= nil
 end
 
--- Moves past every step, from the current one, whose trigger the profile already meets. Runs inside a
--- PlayerData.Update; returns whether anything moved.
+-- Moves past every step, from the current one, whose trigger the profile already meets, and past all of
+-- them when the profile has left the tutorial's world (TutorialData.World: the steps name that world's
+-- nodes, trainees and biomes). Runs inside a PlayerData.Update; returns whether anything moved.
 local function skipSatisfied(profile: Types.Profile): boolean
 	local skipped = false
+	if profile.world.current ~= TutorialData.World and profile.tutorialStep < DONE_STEP then
+		profile.tutorialStep = DONE_STEP
+		profile.tutorialCounter = 0
+		return true
+	end
 	while true do
 		local step = STEPS[profile.tutorialStep]
 		if not step or not alreadySatisfied(profile, step.trigger) then
@@ -312,6 +318,24 @@ function Tutorial.Init()
 	end)
 
 	Spawner.OnRemoved(onSpawnRemoved)
+end
+
+-- The profile moved to another world (Launch, or the /world command): a profile off the tutorial's world
+-- is done with it (skipSatisfied), so the hint clears and any trainee goes. A no-op on the tutorial's
+-- own world or once the tutorial is over.
+function Tutorial.OnWorldChanged(player: Player)
+	local moved = false
+	local ok = PlayerData.Update(player, function(p)
+		moved = skipSatisfied(p)
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not moved or not profile then
+		return
+	end
+	pushTutorial(player, profile)
+	local step, stepIndex = currentStep(profile)
+	ensureTrainee(player, step, stepIndex)
+	reportFunnel(player, profile)
 end
 
 -- Developer override (Studio commands): jump to step `index` (clamped to [first, done]) with an empty

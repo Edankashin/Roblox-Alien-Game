@@ -30,4 +30,8 @@ local Steps: { Step } = {
 	{ id = "T7", hint = "TUT_7", trigger = { kind = "biome", biome = "Forest" }, waypoint = "biome", waypointTarget = "Forest" },
 }
 
-return { Steps = Steps }
+-- The tutorial is this world's script (its nodes, trainees and biomes are World 1's); a profile whose
+-- current world is any other is past the tutorial and is marked done.
+local World = 1
+
+return { Steps = Steps, World = World }

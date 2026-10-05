@@ -210,6 +210,7 @@ local function setWorld(player: Player, text: string)
 			Net.event("WorldChanged"):FireClient(player, moved.world.current, moved.world.unlocked)
 			Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
 		end
+		Tutorial.OnWorldChanged(player)
 		print(("[%s] dev: %s is now on world %d (%s); this place runs world %d, rejoin the matching place"):format(Config.WorkingTitle, player.Name, target, Worlds[target].name, Place.WorldId()))
 	end
 end
