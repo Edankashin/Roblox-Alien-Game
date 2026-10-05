@@ -46,5 +46,13 @@
     "roughness": 0.8,
     "metallic": 0.0,
     "emission": 0.0
+  },
+  {
+    "slot": 7,
+    "name": "EyeHighlight",
+    "hex": "FFFFFF",
+    "roughness": 0.3,
+    "metallic": 0.0,
+    "emission": 0.0
   }
 ]

@@ -7,7 +7,7 @@
 - Body: Ball, placeholder colour #4A5A9C, placeholder scale 0.8
 - Accessory: wings (keyword match on the concept; colour rule: complement, #BF7656)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1064 (budget 500 to 1500, detail level 0)
+- Triangles: 1422 (look pass 2026-10-05 over the 1064-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 1.76 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #4A5A9C, BodyDark #303B65, EyeWhite, Pupil, Mouth, Accessory #BF7656
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.

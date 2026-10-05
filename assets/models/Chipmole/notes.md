@@ -7,7 +7,7 @@
 - Body: Block, placeholder colour #5B6B85, placeholder scale 0.9
 - Accessory: claws (keyword match on the concept; colour rule: complement, #BF6356)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 892 (budget 500 to 1500, detail level 0)
+- Triangles: 1422 (look pass 2026-10-05 over the 892-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
 - Height: 1.98 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #5B6B85, BodyDark #3B4656, EyeWhite, Pupil, Mouth, Accessory #BF6356
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
