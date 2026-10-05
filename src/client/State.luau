@@ -1,7 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
--- SettingsChanged);
+-- SettingsChanged, PurchasesChanged, ServerLuckChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -20,7 +20,7 @@ local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -33,6 +33,12 @@ local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSecon
 local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
+-- Robux products granted and passes owned (PurchasesChanged). Until the first push the table is seeded
+-- from the profile, which knows the products and the Starter Pack choice but not the passes.
+local purchases: Types.PurchasesState = { purchases = {}, passes = {}, starterSpecies = nil }
+local purchasesPushed = false
+local serverLuck: Types.ServerLuckState = nil -- the shared luck someone bought (ServerLuckChanged); nil when none runs
+local serverLuckAt = 0 -- State.Now() when it arrived, so a banner counts down between pushes
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
 local function settingsWithDefaults(source: { [string]: number }?): Types.SettingsState
@@ -65,6 +71,14 @@ function State.Set(p: Types.Profile)
 	-- reaches the "settings" listeners too, so Prefs applies them from here.
 	settings = settingsWithDefaults(p.settings)
 	p.settings = settings
+	-- Purchases: the profile knows the products and the Starter Pack choice; a PurchasesChanged push that
+	-- already arrived also knows the passes and wins, so the profile takes its copy instead.
+	if purchasesPushed then
+		p.purchases = purchases.purchases
+		p.shop.starterSpecies = purchases.starterSpecies
+	else
+		purchases = { purchases = p.purchases, passes = {}, starterSpecies = p.shop.starterSpecies }
+	end
 	fire("profile")
 	fire("gifts")
 end
@@ -155,6 +169,40 @@ function State.SeedShower(state: Types.ShowerState)
 	shower = state
 	showerAt = Workspace:GetServerTimeNow()
 	fire("shower")
+end
+
+-- Robux products granted (id -> count), passes owned and the Starter Pack's Rare, plus whether the
+-- server has sent them (PurchasesChanged or GetPurchases); before that the passes are unknown.
+function State.GetPurchases(): (Types.PurchasesState, boolean)
+	return purchases, purchasesPushed
+end
+
+-- The server's purchases state (a PurchasesChanged push or a GetPurchases answer) replaces the mirror
+-- and is written back into the profile so profile readers agree.
+function State.SetPurchases(state: Types.PurchasesState)
+	purchases = state
+	purchasesPushed = true
+	local p = profile
+	if p then
+		p.purchases = state.purchases
+		p.shop.starterSpecies = state.starterSpecies
+	end
+	fire("purchases")
+end
+
+-- A late GetPurchases answer; a push that already arrived is newer and wins.
+function State.SeedPurchases(state: Types.PurchasesState)
+	if purchasesPushed then
+		return
+	end
+	State.SetPurchases(state)
+end
+
+-- The shared luck someone bought (nil when none runs) and the seconds since the server said so, so a
+-- banner can count down between pushes.
+function State.GetServerLuck(): (Types.ServerLuckState, number)
+	local elapsed = if serverLuckAt > 0 then math.max(0, Workspace:GetServerTimeNow() - serverLuckAt) else 0
+	return serverLuck, elapsed
 end
 
 -- Tutorial step (TutorialChanged) and the count toward a counted step.
@@ -350,6 +398,18 @@ function State.Start()
 			rate = state
 			ratePushed = true
 			fire("rate")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("PurchasesChanged").OnClientEvent:Connect(function(state: Types.PurchasesState)
+			State.SetPurchases(state)
+		end)
+	end)
+	task.spawn(function()
+		Net.event("ServerLuckChanged").OnClientEvent:Connect(function(state: Types.ServerLuckState)
+			serverLuck = state
+			serverLuckAt = Workspace:GetServerTimeNow()
+			fire("serverLuck")
 		end)
 	end)
 end

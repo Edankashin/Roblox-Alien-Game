@@ -530,12 +530,22 @@ local function start(profile: Types.Profile)
 			showerWasActive = true
 			return
 		end
-		Hud.SetEventBanner(nil, nil, nil)
 		if showerWasActive then
 			Vfx.SetShowerSky(false)
 			Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
 		end
 		showerWasActive = false
+		-- Server luck someone bought takes the banner slot while no shower runs.
+		local luckState, luckElapsed = State.GetServerLuck()
+		if luckState and luckState.secondsLeft - luckElapsed > 0 then
+			local left = math.ceil(luckState.secondsLeft - luckElapsed)
+			local minutes, seconds = left // 60, left % 60
+			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
+			local multiplier = ("%d"):format(1 + luckState.bonus)
+			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(State.GetLuck())))
+		else
+			Hud.SetEventBanner(nil, nil, nil)
+		end
 		local nextIn = math.max(0, shower.nextInSeconds - elapsed)
 		if shower.nextInSeconds > 0 and nextIn <= Config.ShowerWarnSeconds then
 			Hud.SetShowerCountdown(nextIn)
@@ -545,6 +555,29 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("shower", refreshShower)
 	State.OnChanged("luck", refreshShower)
+	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
+	local serverLuckShown: string? = nil
+	State.OnChanged("serverLuck", function()
+		local luckState = State.GetServerLuck()
+		if luckState then
+			local key = luckState.playerName .. ":" .. tostring(luckState.bonus)
+			if serverLuckShown ~= key then
+				serverLuckShown = key
+				Toast.Banner(Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, ("%d"):format(1 + luckState.bonus)), Theme.Colors.Featured, Config.AnnounceSeconds)
+			end
+		else
+			serverLuckShown = nil
+		end
+		refreshShower()
+	end)
+	-- A late joiner missed the PurchasesChanged push; the answer seeds State unless a push beat it.
+	task.spawn(function()
+		local raw = Net.func("GetPurchases"):InvokeServer()
+		local state = raw :: Types.PurchasesState?
+		if state then
+			State.SeedPurchases(state)
+		end
+	end)
 	-- A late joiner missed the last ShowerChanged push; the answer seeds State unless a push beat it.
 	task.spawn(function()
 		local raw = Net.func("GetShower"):InvokeServer()
@@ -703,7 +736,7 @@ local function start(profile: Types.Profile)
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen() and not cinematic) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
-		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active then TOAST_TOP_WITH_BANNER else nil)
+		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
 		local target = radarTarget
 		if target then
