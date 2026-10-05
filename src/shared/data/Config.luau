@@ -109,6 +109,14 @@ return {
 	LaunchFadeSeconds = 1.2, -- the fade to black at the end of the lift
 	LaunchTeleportDelaySeconds = 5.5, -- the server teleports this long after Launch is accepted (lift + fade)
 	LaunchHoldSeconds = 2, -- without a live place id the fade holds this long, then the camp returns
+	-- the Heater rule (worlds whose rule is "Blizzard"): the special weather hides wild aliens beyond a short
+	-- distance; a Heater placed for Scrap reveals everything inside its radius for a while
+	BlizzardHideStuds = 25, -- wild aliens farther than this from the player are hidden during the blizzard
+	HeaterScrap = 150,
+	HeaterRadius = 40,
+	HeaterSeconds = 60,
+	HeaterMaxActive = 2, -- heaters one player may have burning at once
+	HeaterPlaceStuds = 6, -- placed this far in front of the player
 	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
