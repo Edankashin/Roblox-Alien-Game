@@ -76,6 +76,8 @@ The tutorial decides D1 and it is not scripted yet. It needs a step list with: t
 | 8 | 7:00 | Module 1 completes. Camera pan, part snaps, bass hit. Field Notes step 1 appears with Speed Boots as the reward | Quests, gear |
 | 9 | 8:00 | "Thrusters need Glowroot from the Forest." Waypoint set. Peddler lands for the first time. Welcome Week gift 1 pops | Peddler, gifts |
 
+The Growth Playbook (section 6) tightens this to a five-minute script against the tutorial steps T1 to T7: first catch by 0:45, first module by about 4:30, Welcome Week gift 1 at the module payoff instead of minute 8, nothing else (Peddler, Shower, shop, notification card) before minute 5. That needs a tutorial-only assembly time of about 90 s in data (decision 18).
+
 ### 3.2 Data tables to author
 
 Each of these is a file the build reads. The design doc has the shape; the full rows need writing.
@@ -218,6 +220,9 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 16 | The Heater rule for blizzards (World 2) | pass |
 | 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | step 1 pass; the rest waits on a hand import |
 | 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | pass on World 2; step 5 waits on the World 1 place |
+| 19 | Group-join reward, referral rewards, rejoin nudges, notification opt-in card (Growth Playbook) | next |
+| 20 | Weekly "Catches this week" leaderboard, all-time codex count | next |
+| 21 | Daily and weekly quests with a reroll, promo codes | next |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
@@ -231,9 +236,15 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 - About 40 sound ids into `src/shared/data/Sounds.luau` and one icon pack (section 3.4 and the UI build notes).
 - Decide the slot-pass stacking rule (decision 17 below) before that pass goes live.
 
+**Decision 18 (open): the five-minute script.** Move Welcome Week gift 1 to the first module's payoff (about 4:30) and give the tutorial's Hull Frame a 90 s assembly time in data, so the first module lands before the 180 s bounce window closes on the first catch and the first "come back tomorrow" line shows inside five minutes. Proposed yes.
+
+**Decision 19 (open): the name.** Candidates from the playbook: "Crash Planet: Catch Aliens", "Alien Pals: Build a Rocket", "Planet Hoppers: Alien Collector". Check Roblox search for collisions before locking; no reward words in the title.
+
+**Decision 20 (open): rejoin notifications.** Experience Notifications are opt-in and 13+ only; the ask comes on session 2 or later with our own card first, event text only (part ready, Alien of the Week, hosted Shower), three a week at most, behind a Config flag so it can be turned off for a market. Sending needs an Open Cloud key on the Mac, never in the repo.
+
 **Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
 
-**Not built yet (P1 from section 18):** the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
+**Not built yet (P1 from section 18, after 19 to 21):** the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
 
 ---
 
@@ -242,6 +253,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 - Complete the Experience Questionnaire honestly; expect a rating suitable for all ages or 9+, which rules out the US 18+ DevEx rate.
 - Every paid random item shows per-item odds summing to 100%, no dud outcome, live-updating odds under luck, and is hidden where `PolicyService.ArePaidRandomItemsRestricted` returns true, with a deterministic alternative shown.
 - Scrap is never sold for Robux (see decision 11).
+- No reward for a like, favorite or follow: there is no engine API to verify one and the practice is treated as prohibited (Growth Playbook, section 3). A group-join reward is allowed and verifiable (`Player:IsInGroupAsync`); the official referral system rewards invites.
 - Real-currency equivalent beside every Robux price.
 - No login streaks; gifts unlock by days played.
 - A privacy-respecting analytics setup: no personal data beyond Roblox user ids.
@@ -255,7 +267,9 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 - A one-paragraph description that says the loop in the first sentence.
 - Genre set correctly in the experience settings so the new genre sorts can place it.
 - A short list of mid-size Roblox creators who cover sim and pet games, contacted with a private-server link two weeks before launch.
-- Sponsored ads only after D1 is above 20%, because paid traffic drags down the engagement signals discovery uses.
+- Sponsored ads only after D1 is above 20%. Not because paid traffic hurts ranking: Roblox's discovery page says users first acquired from ads, curation, friends, search or social are simply not counted in the ranking stage of Recommended For You, so ads buy players, never rank (`docs/vault/01-game-design/Growth-Playbook.md`, S1). The gate stays because ad spend only returns once the game keeps the players it buys.
+- What Home actually scores, per user over 28 days (verified 2026-10-05 in the Growth Playbook): play-through rate from the tile, first-play bounce under 60 s and 61 to 180 s, distinct play days in the Day 1, Day 2 to 7 and Day 8 to 28 windows, playtime capped at 60 min per day, co-play days, spend days. No official page names "the first three games played that day" or a 5-minute threshold; the 5 minutes is Roblox's onboarding advice, not a scoring rule. Design to the bounce windows and to return days, not to session length.
+- Thumbnails: ship three and keep all three live; Roblox personalises per user group by qualified play-through rate. Keep text out of the bottom band. Icon tests are by hand, one change per two weeks. Name candidates and thumbnail briefs are in the playbook, section 2.
 - A Discord server before launch, linked from every teaser, so the pre-launch audience has somewhere to land. The dinosaur-ranch teaser in `media/tiktok/NOTES.md` batch 3 reached 466K views and 39K likes the day before release with nothing but a Discord link and a release date.
 - A release date announced in advance and one creator teaser cut from real gameplay, framed against the current number one ("this might be better than Steal an Egg"). Spectacle beats (a Warden sighting, a Meteor Shower, a ship launch) are what the teaser needs, so they are built before the trailer is cut.
 
