@@ -76,7 +76,7 @@ local Conditions: { [string]: Look } = {
 		ColorCorrection = { Saturation = -0.1, TintColor = { 210, 220, 255 } },
 		SunRays = { Intensity = 0 },
 	},
-	Fog = { Atmosphere = { Density = 0.5, Decay = { 180, 180, 180 }, Haze = 4, Glare = 0 }, ColorCorrection = { Saturation = -0.1 } },
+	Fog = { Atmosphere = { Density = 0.5, Color = { 190, 195, 200 }, Decay = { 180, 180, 180 }, Haze = 4, Glare = 0 }, ColorCorrection = { Saturation = -0.1 } },
 	Snow = { Atmosphere = { Density = 0.4, Color = { 230, 235, 240 }, Haze = 3 } },
 	Rain = {
 		Brightness = 1.4,

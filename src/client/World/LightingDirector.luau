@@ -246,12 +246,29 @@ end
 
 -- Finds or creates the effect instances, applies the look at once, then follows the clock, the shower and
 -- the world.
+-- A place file can carry its own Atmosphere and post-effects from before the looks existed; two Atmospheres
+-- fight (the older one won in Studio) and foreign effects stack on ours. The looks own Lighting on the
+-- client: a stray Atmosphere goes, other effects are switched off and left in place. The Sky stays.
+local function retireForeignEffects()
+	for _, child in ipairs(Lighting:GetChildren()) do
+		if child.Name:sub(1, 4) == "Look" then
+			continue
+		end
+		if child:IsA("Atmosphere") then
+			child:Destroy()
+		elseif child:IsA("PostEffect") then
+			child.Enabled = false
+		end
+	end
+end
+
 function LightingDirector.Start()
 	if started then
 		return
 	end
 	started = true
 
+	retireForeignEffects()
 	atmosphere = findOrCreate("Atmosphere", "LookAtmosphere")
 	bloom = findOrCreate("BloomEffect", "LookBloom")
 	colorCorrection = findOrCreate("ColorCorrectionEffect", "LookColorCorrection")

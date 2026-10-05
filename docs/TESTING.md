@@ -302,6 +302,8 @@ By hand first, once per place: select Lighting in the Explorer and set Technolog
 4. World 2 place: cold blue-white light, hazier, flat saturation, soft sun. `/weather Blizzard`: near white-out haze (Density 0.6, Haze 6) and a strongly desaturated tint; `/weather Snow`: a lighter pale haze; `/clear` returns.
 5. Screenshots for the review: each world at day, night and its special weather at iPhone SE size, into `docs/vault/05-ui-design/refs/look-l1/` (not committed until reviewed). Frame rate on the SE emulator stays above 50 with Future lighting; if not, lower ShadowSoftness or Bloom size in the data table, never in code.
 
+A place file's own Atmosphere is removed and its other post-effects are switched off by the client on start (they fought the looks in the first Studio pass); a built place file (`rojo build`) carries Future lighting and the modern chat from the project files.
+
 Known gaps in this milestone: skyboxes (six ids per world) are still 0 so the default sky stays; no per-biome variation inside a world; particles for rain and snow are pass L3.
 
 ## Milestone 23: the Friend Boost (World 1 place, multi-client)
