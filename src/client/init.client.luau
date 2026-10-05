@@ -48,6 +48,7 @@ local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
+local TOAST_TOP_WITH_BANNER = 0.19 -- while the event banner has the luck line's slot, toasts stack beneath it
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
@@ -336,10 +337,9 @@ local function connectToasts()
 		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
 			local def = Species.ById[note.species]
 			local speciesName = if def then def.name else note.species
-			local tierName = Builder.text("TIER_" .. note.tier)
 			local text = if note.overlay ~= "None"
-				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_" .. note.overlay), tierName, speciesName)
-				else Strings.ANNOUNCE_CATCH:format(note.playerName, tierName, speciesName)
+				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
+				else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
 			Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
 		end)
 	end)
@@ -482,7 +482,7 @@ local function start(profile: Types.Profile)
 			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
-			Hud.SetEventBanner(Strings.SHOWER_BANNER:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(State.GetLuck())))
+			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(State.GetLuck())))
 			Hud.SetShowerCountdown(nil)
 			if not showerWasActive then
 				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
@@ -490,7 +490,7 @@ local function start(profile: Types.Profile)
 			showerWasActive = true
 			return
 		end
-		Hud.SetEventBanner(nil, nil)
+		Hud.SetEventBanner(nil, nil, nil)
 		if showerWasActive then
 			Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
 		end
@@ -620,7 +620,7 @@ local function start(profile: Types.Profile)
 		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen())
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen()) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen())
-		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil)
+		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active then TOAST_TOP_WITH_BANNER else nil)
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).

@@ -265,14 +265,13 @@ local function buildRow(parent: Frame, index: number): Row
 		zIndex = 4,
 	})
 
-	-- Expanded-only children: the legend in the body font (navy, no stroke: long text on a white card),
+	-- Expanded-only children: the legend (navy, no stroke: long text on a light card),
 	-- the objectives under a yellow heading, the rewards line and the Claim button.
 	local legend = Builder.label({
 		parent = card,
 		name = "Legend",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		font = Theme.BodyFont,
 		color = Theme.Colors.Outline,
 		stroke = 0,
 		position = UDim2.fromScale(0.09, 0.2),

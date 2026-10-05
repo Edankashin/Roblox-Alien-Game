@@ -18,6 +18,8 @@ local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
 local Shop = require(script.Parent.Shop)
 local Tutorial = require(script.Parent.Tutorial)
+local Spawner = require(script.Parent.Spawner)
+local Species = require(Shared.data.Species)
 
 local Dev = {}
 
@@ -96,10 +98,40 @@ local function setStep(player: Player, text: string)
 	end
 end
 
--- /shower [end]: start a Meteor Shower now (it runs its normal length), or end the current one.
-local function forceShower(_player: Player, text: string)
+-- /shower [end | in N]: start a Meteor Shower now (it runs its normal length), end the current one, or
+-- schedule the next start N seconds from now so the countdown chip can be seen.
+local function forceShower(player: Player, text: string)
 	local word = string.match(text, "^/%S+%s+(%S+)")
-	Events.Force(word ~= "end" and word ~= "off")
+	if word == "in" then
+		local seconds = tonumber(string.match(text, "in%s+(%d+)") or "") or 0
+		Events.ForceNext(seconds)
+		print(("[%s] dev: %s set the next shower %ds from now"):format(Config.WorkingTitle, player.Name, seconds))
+		return
+	end
+	local on = word ~= "end" and word ~= "off"
+	Events.Force(on)
+	print(("[%s] dev: %s %s the Meteor Shower"):format(Config.WorkingTitle, player.Name, if on then "started" else "ended"))
+end
+
+local SPAWN_OFFSET_STUDS = 8 -- a /spawn alien appears this far in front of the player
+local SPAWN_LIFETIME_SECONDS = 180
+
+-- /spawn <speciesId>: place one wild alien of that species beside the player (any tier, no luck roll),
+-- so a Cosmic catch or a reserved-spawn rule can be tested on demand.
+local function spawnSpecies(player: Player, text: string)
+	local id = string.match(text, "^/%S+%s+(%S+)")
+	if not id or not Species.ById[id] then
+		print(("[%s] dev: unknown species %s"):format(Config.WorkingTitle, tostring(id)))
+		return
+	end
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not root or not root:IsA("BasePart") then
+		return
+	end
+	local at = root.Position + root.CFrame.LookVector * SPAWN_OFFSET_STUDS
+	local spawn = Spawner.SpawnAt(Vector3.new(at.X, 0, at.Z), id, Spawner.RollOverlay(), nil, SPAWN_LIFETIME_SECONDS)
+	print(("[%s] dev: spawned %s for %s: %s"):format(Config.WorkingTitle, id, player.Name, if spawn then spawn.spawnId else "failed"))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -152,6 +184,7 @@ function Dev.Init()
 		end
 	end)
 	command("shower", forceShower)
+	command("spawn", spawnSpecies)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
@@ -171,7 +204,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end], /days N, /spins N, /radar, /tutorial N)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N)"):format(Config.WorkingTitle))
 	end
 end
 

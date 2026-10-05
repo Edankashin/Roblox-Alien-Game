@@ -87,7 +87,7 @@ function State.GetCondition(): Types.Condition
 end
 
 -- Every condition active right now (mirrors WorldClock.GetConditions): the special weather while it
--- runs, plus Night or Day.
+-- runs, plus Night or Day, plus Shower while a Meteor Shower runs.
 function State.GetConditions(): { Types.Condition }
 	local out: { Types.Condition } = {}
 	local p = profile
@@ -96,6 +96,9 @@ function State.GetConditions(): { Types.Condition }
 		table.insert(out, (clock.weather :: any) :: Types.Condition)
 	end
 	table.insert(out, if clock.isNight then "Night" else "Day")
+	if shower.active then
+		table.insert(out, "Shower")
+	end
 	return out
 end
 

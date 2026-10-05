@@ -54,6 +54,7 @@ local showerChip: Frame? = nil
 local showerLabel: TextLabel? = nil
 local banner: Frame? = nil
 local bannerText: TextLabel? = nil
+local bannerSub: TextLabel? = nil -- the smaller second line (the time left)
 local bannerChip: Frame? = nil
 local bannerChipLabel: TextLabel? = nil
 
@@ -357,12 +358,12 @@ local function buildEventBanner(root: ScreenGui)
 		parent = root,
 		name = "EventBanner",
 		position = UDim2.fromScale(0.5, 0.105),
-		size = UDim2.fromScale(0.36, 0.055),
+		size = UDim2.fromScale(0.4, 0.07),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Trough,
 		stroke = Theme.Stroke.Button,
 		strokeColor = Theme.Colors.Outline,
-		aspect = 7,
+		aspect = 6,
 	})
 	Builder.gradient(pill, Theme.Colors.Trough)
 	pill.Visible = false
@@ -381,14 +382,24 @@ local function buildEventBanner(root: ScreenGui)
 		zIndex = 2,
 	})
 	Builder.gradient(icon, Theme.Colors.Codex)
+	-- Two lines, per the Playbook: the event name bold on top, the time left smaller beneath it.
 	bannerText = Builder.label({
 		parent = pill,
 		name = "Text",
 		text = "",
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.1),
+		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.46),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 2,
+	})
+	bannerSub = Builder.label({
+		parent = pill,
+		name = "Sub",
+		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.5),
-		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.7),
-		anchor = Vector2.new(0, 0.5),
+		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.56),
+		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.34),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 2,
 	})
@@ -545,17 +556,22 @@ function Hud.SetLuck(luck: number)
 	applyLuckLine()
 end
 
--- Event banner in the luck line's slot: `text` is the event line (already formatted by the caller,
--- e.g. SHOWER_BANNER with the time left) and `chip` the green chip's text (SHOWER_LUCK formatted),
--- or nil for no chip. nil text hides the banner and gives the luck line its own rule back.
-function Hud.SetEventBanner(text: string?, chip: string?)
-	local pill, label = banner, bannerText
-	if not pill or not label then
+-- The event banner in the luck line's slot: `text` is the event name (SHOWER_NOW), `subtitle` the
+-- smaller line beneath it (the time left, SHOWER_LEFT formatted) and `chip` the green chip's text
+-- (SHOWER_LUCK formatted); nil text hides the banner and gives the luck line its slot back.
+function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?)
+	local pill, label, sub = banner, bannerText, bannerSub
+	if not pill or not label or not sub then
 		return
 	end
 	if text then
 		label.Text = text
-		label.Size = UDim2.fromScale(if chip then BANNER_TEXT_WIDTH else BANNER_TEXT_WIDTH_FULL, 0.7)
+		sub.Text = subtitle or ""
+		sub.Visible = subtitle ~= nil
+		local width = if chip then BANNER_TEXT_WIDTH else BANNER_TEXT_WIDTH_FULL
+		label.Size = UDim2.fromScale(width, if subtitle then 0.46 else 0.7)
+		label.Position = UDim2.fromScale(BANNER_TEXT_LEFT, if subtitle then 0.1 else 0.15)
+		sub.Size = UDim2.fromScale(width, 0.34)
 		if bannerChip then
 			bannerChip.Visible = chip ~= nil
 		end

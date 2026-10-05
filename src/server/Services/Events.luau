@@ -35,6 +35,7 @@ local wasActive = false -- the last state the loop acted on
 local lastPush = 0 -- os.clock() of the last ShowerChanged broadcast
 local forcedEndsAt: number? = nil -- os.time() a forced shower (Events.Force) ends; beats the clock while in the future
 local mutedUntil: number? = nil -- os.time() until which the clock's own shower is ignored (a forced end)
+local forcedStartAt: number? = nil -- os.time() a forced shower starts (Events.ForceNext); it then runs its normal length
 
 -- Clock maths -------------------------------------------------------------
 -- phase = seconds since the most recent start (os.time() modulo the interval). The shower is active
@@ -51,6 +52,15 @@ end
 
 local function snapshot(): Types.ShowerState
 	local now = os.time()
+	local forcedStart = forcedStartAt
+	if forcedStart then
+		if now < forcedStart then
+			return { active = false, secondsLeft = 0, nextInSeconds = forcedStart - now }
+		elseif now < forcedStart + Config.ShowerDurationSeconds then
+			return { active = true, secondsLeft = forcedStart + Config.ShowerDurationSeconds - now, nextInSeconds = 0 }
+		end
+		forcedStartAt = nil -- ran its course; the clock takes over again
+	end
 	local forcedEnd = forcedEndsAt
 	if forcedEnd and now < forcedEnd then
 		return { active = true, secondsLeft = forcedEnd - now, nextInSeconds = 0 }
@@ -135,6 +145,7 @@ end
 -- the start or end handling runs at once (condition, ShowerChanged, luck pushes).
 function Events.Force(active: boolean)
 	local now = os.time()
+	forcedStartAt = nil
 	if active then
 		forcedEndsAt = now + Config.ShowerDurationSeconds
 		mutedUntil = nil
@@ -145,6 +156,14 @@ function Events.Force(active: boolean)
 			mutedUntil = now + (Config.ShowerDurationSeconds - p)
 		end
 	end
+	tick()
+end
+
+-- Developer override: the next shower starts `seconds` from now (so the countdown chip and its pushes can
+-- be seen without waiting for the two-hour mark) and then runs its normal length.
+function Events.ForceNext(seconds: number)
+	forcedEndsAt = nil
+	forcedStartAt = os.time() + math.max(1, math.floor(seconds))
 	tick()
 end
 

@@ -50,10 +50,24 @@ return {
 	TIER_Legendary = "Legendary",
 	TIER_Cosmic = "Cosmic",
 	TIER_Secret = "Secret",
+	OVERLAY_None = "Normal",
 	OVERLAY_Shiny = "Shiny",
 	OVERLAY_Gold = "Gold",
 	OVERLAY_Crystal = "Crystal",
 	OVERLAY_Rainbow = "Rainbow",
+	-- The tier or overlay with its article, for sentences ("caught an Epic", "caught a Shiny"); a language
+	-- without articles sets these to the bare word.
+	TIER_A_Common = "a Common",
+	TIER_A_Uncommon = "an Uncommon",
+	TIER_A_Rare = "a Rare",
+	TIER_A_Epic = "an Epic",
+	TIER_A_Legendary = "a Legendary",
+	TIER_A_Cosmic = "a Cosmic",
+	TIER_A_Secret = "a Secret",
+	OVERLAY_A_Shiny = "a Shiny",
+	OVERLAY_A_Gold = "a Gold",
+	OVERLAY_A_Crystal = "a Crystal",
+	OVERLAY_A_Rainbow = "a Rainbow",
 	SHAPE_Ball = "Ball",
 	SHAPE_Block = "Block",
 	SHAPE_Cylinder = "Cylinder",
@@ -111,8 +125,8 @@ return {
 	TOAST_POWERUP_USED = "%s on!",
 	TOAST_POWERUP_ACTIVE = "%s is already running",
 	HUD_POWERUPS = "Power-ups",
-	ANNOUNCE_CATCH = "%s caught a %s %s!", -- player, tier, species
-	ANNOUNCE_CATCH_OVERLAY = "%s caught a %s %s %s!", -- player, overlay, tier, species
+	ANNOUNCE_CATCH = "%s caught %s %s!", -- player, TIER_A_<tier>, species
+	ANNOUNCE_CATCH_OVERLAY = "%s caught %s %s %s!", -- player, OVERLAY_A_<overlay>, tier, species
 	SHOWER_INCOMING = "Meteor Shower in %s",
 	SHOWER_NOW = "Meteor Shower!",
 	-- camp, ship and materials
@@ -205,7 +219,7 @@ return {
 	GIFTS_DAY = "Day %d",
 	GIFTS_CLAIM = "Claim",
 	GIFTS_CLAIMED = "Claimed",
-	GIFTS_LOCKED = "Play another day",
+	GIFTS_LOCKED = "Locked",
 	GIFTS_HINT = "A gift for every day you play. Missing a day loses nothing.",
 	GIFT_LABEL_WelcomePack = "Welcome Pack",
 	GIFT_LABEL_ScrapBundle = "Scrap Bundle",
@@ -231,7 +245,7 @@ return {
 	TOAST_NEW_DAY = "Day %d! A new gift is waiting",
 	-- Meteor Shower
 	SHOWER_CHIP = "Shower in %s",
-	SHOWER_BANNER = "Meteor Shower! %s left",
+	SHOWER_LEFT = "%s left",
 	SHOWER_LUCK = "x%s LUCK",
 	SHOWER_OVER = "The sky clears",
 	-- Field Notes (quest chain)
