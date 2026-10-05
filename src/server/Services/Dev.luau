@@ -1,7 +1,7 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
--- /buy StarterPack, /pass AutoOptimize [off]. Nothing
+-- /buy StarterPack, /pass AutoOptimize [off], /world 2. Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -13,6 +13,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 local Quests = require(Shared.data.Quests)
 local Net = require(Shared.Net)
+local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
@@ -22,6 +23,7 @@ local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Monetization = require(script.Parent.Monetization)
 local Species = require(Shared.data.Species)
+local Worlds = require(Shared.data.Worlds)
 
 local Dev = {}
 
@@ -177,6 +179,31 @@ local function setPass(player: Player, text: string)
 	print(("[%s] dev: %s pass %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then (if owned then "owned" else "dropped") else "refused: " .. tostring(reason)))
 end
 
+-- /world N: move the profile to world N (clamped to a world in Worlds) and unlock it. Only the profile
+-- changes: the place itself is fixed by its WorldId attribute, so rejoin the World N place
+-- (rojo serve world2.project.json) to stand in it.
+local function setWorld(player: Player, text: string)
+	local requested = tonumber(string.match(text, "%d+") or "")
+	if not requested then
+		print(("[%s] dev: /world needs a world number (Shared/data/Worlds)"):format(Config.WorkingTitle))
+		return
+	end
+	local last = 0
+	for id in pairs(Worlds) do
+		last = math.max(last, id)
+	end
+	local target = math.clamp(math.floor(requested), 1, last)
+	local ok = PlayerData.Update(player, function(profile)
+		profile.world.current = target
+		if not table.find(profile.world.unlocked, target) then
+			table.insert(profile.world.unlocked, target)
+		end
+	end)
+	if ok then
+		print(("[%s] dev: %s is now on world %d (%s); this place runs world %d, rejoin the matching place"):format(Config.WorkingTitle, player.Name, target, Worlds[target].name, Place.WorldId()))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -227,11 +254,12 @@ function Dev.Init()
 	command("spins", addSpins)
 	command("buy", buyItem)
 	command("pass", setPass)
+	command("world", setWorld)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off])"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N)"):format(Config.WorkingTitle))
 	end
 end
 

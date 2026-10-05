@@ -16,7 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
-local Layout = require(Shared:WaitForChild("data"):WaitForChild("Meadow"))
+local Place = require(Shared:WaitForChild("Place"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 
@@ -165,7 +165,7 @@ end
 local function onRender()
 	local now = os.clock()
 	local omega = math.pi * 2 * Config.WildBobHz
-	local spin = math.pi * 2 / Layout.NodeSpinSeconds
+	local spin = math.pi * 2 / Place.Layout().NodeSpinSeconds
 	for part, record in pairs(records) do
 		if not part.Parent or not record.available then
 			continue

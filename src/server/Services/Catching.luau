@@ -22,6 +22,7 @@ local Lures = require(Shared.data.Lures)
 local KeyMaterials = require(Shared.data.KeyMaterials)
 local Worlds = require(Shared.data.Worlds)
 local AnalyticsData = require(Shared.data.Analytics)
+local Place = require(Shared.Place)
 local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
@@ -58,7 +59,7 @@ type Encounter = {
 }
 
 -- The world this place runs: catching its warden drops the Warden's Core, the key material no node holds.
-local WARDEN_SPECIES: string = Worlds[Config.CurrentWorld].warden
+local WARDEN_SPECIES: string = Worlds[Place.WorldId()].warden
 local WARDEN_CORE = "WardenCore" -- KeyMaterials row (condition "Quest", nodes 0)
 
 local rng = Random.new()

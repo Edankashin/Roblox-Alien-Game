@@ -198,3 +198,15 @@ Product and pass ids in `src/shared/data/Shop.luau` are 0 until they exist in th
 8. Analytics prints `event ShopBuy kind=robux id=<item>` for every grant, pass grants included.
 
 Known gaps in this milestone: the +1 slot pass does not yet stack on top of a module unlock of the same size and `Config.StationMaxSlots` (3) caps it, so the stacking rule is a design decision before that pass goes live; hoverboard skins (no hoverboard yet), the Home tab, direct-buy aliens, paid spins (P1, with the compliance pass), real-currency equivalents under prices (needs Roblox's regional pricing data), offers that appear at a moment ("all slots full", "shower in under 5 minutes").
+
+## Milestone 15b: one place per world (the Frostbyte layout)
+
+Two Rojo projects now describe the same code for two places: `default.project.json` (World 1) and `world2.project.json` (World 2), differing only in the Workspace attribute `WorldId`. Stop `rojo serve`, run `rojo serve world2.project.json`, connect, and press Play.
+1. Boot lines name World 2: "Quests: Field Notes for world 2, 5 steps; warden Skaddle", Materials places the Frostbyte nodes (4 kinds), WorldClock rolls Clear/Snow with Blizzard as the special weather. No errors; `Workspace:GetAttribute("WorldId")` reads 2.
+2. The world: a snow-white floor, the cream camp pad, white-and-blue pine scatter, a roofed pale-blue Ice Cave at (-130, -120) with pillar walls, an orange-brown Geyser Field at (130, 120) with 14 dark cone geysers, and the shrine at z 155 in ice colours. The biome chip reads "Snowfield", then "Ice Cave" and "Geyser Field" inside the regions.
+3. Spawns are World 2 species only (Flufflet, Snowbun, Pengoo and the rest; Nearby lists them), with the blockout meshes if their Models are imported. `/weather Blizzard`: the banner names Frostfang and it spawns in the Snowfield; `/spawn Fenripup` places the Star-born.
+4. Nodes: Ice Plates in the Snowfield ring, Geyser Pearls in the Geyser Field, Frost Cores in the Ice Cave at night, Blizzard Shards in the Snowfield during a Blizzard; the Ship screen shows the five Frostbyte modules (Heat Shield first) and their key parts.
+5. Quests: the Field Notes panel shows the W2 chain; `/step 5` and `/horn` at night summon Skaddle at the shrine.
+6. Switch back to `rojo serve` (World 1): everything is as before, with the biome chip reading "Meadow" and the Verdant layout. A profile moved with `/world 2` on World 1 keeps its World 1 camp data and shows World 2's modules only in the World 2 place.
+
+Known gaps in this milestone: launching between places (15c), outposts, the Heater rule for blizzards, World 2's tutorial beats (the tutorial is World 1 only), a place id per world in the data for the teleport.

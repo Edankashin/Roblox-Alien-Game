@@ -14,6 +14,10 @@ export type Region = {
 	roofColor: string?,
 	wallCount: number?, -- upright pillars around the rim, leaving gaps to walk through
 	wallColor: string?,
+	coneCount: number?, -- geyser cones (World 2's Geyser Field); none in the meadow
+	coneRadius: number?,
+	coneHeight: number?,
+	coneColor: string?,
 }
 
 local Regions: { [string]: Region } = {
@@ -22,6 +26,8 @@ local Regions: { [string]: Region } = {
 }
 
 return {
+	WorldId = 1,
+	BaseBiome = "Meadow", -- everywhere outside a region
 	Regions = Regions,
 	RegionPatchThickness = 0.3, -- the coloured floor patch sits this high on the floor
 	RegionRoofThickness = 1, -- the flat slab over a roofed region (the Cave ceiling)

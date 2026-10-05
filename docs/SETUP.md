@@ -63,6 +63,8 @@ In Studio, open the Rojo plugin (Plugins tab), connect to `localhost:34872`, and
 
 If `rojo plugin install` fails, install "Rojo" from the Creator Store inside Studio.
 
+**Worlds are places.** Every world is its own Roblox place in one universe running the same code; the place says which world it is through the Workspace attribute `WorldId`, which each Rojo project file sets (`default.project.json` is World 1, `world2.project.json` is World 2). `rojo serve world2.project.json` opens World 2 (Frostbyte) in Studio: the server builds the Frostbyte layout, scatters its nodes and runs its Field Notes chain, with no code change. `Shared/Place.luau` reads the attribute (`Place.WorldId()`, `Place.Layout()`); a missing or unknown value means World 1. In Studio, `/world 2` moves your profile to World 2 for testing.
+
 ## 4. Studio plugins (Creator Store, install from inside Studio or the links)
 
 | Plugin | Use here | Link |

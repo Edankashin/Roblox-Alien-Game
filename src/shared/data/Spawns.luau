@@ -52,7 +52,10 @@ local Biomes: { [string]: BiomeTable } = {
 
 return {
 	Biomes = Biomes,
-	-- World 1 biomes that exist as regions on the floor (see data/Meadow.luau Regions).
-	-- World 2's Snowfield, IceCave and GeyserField arrive here with the Frostbyte layout; their spawn tables above are ready.
-	LiveBiomes = { "Meadow", "Forest", "Cave" },
+	-- The biomes each world's layout draws, by world id: the base biome first, then its two regions
+	-- (data/Meadow.luau and data/Frostbyte.luau Regions; Shared/Place picks the world the place runs).
+	LiveBiomes = {
+		[1] = { "Meadow", "Forest", "Cave" },
+		[2] = { "Snowfield", "IceCave", "GeyserField" },
+	},
 }

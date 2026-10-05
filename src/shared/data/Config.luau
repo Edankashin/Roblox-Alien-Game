@@ -8,7 +8,6 @@ return {
 	NightSeconds = 90,
 	WeatherMinSeconds = 120,
 	WeatherMaxSeconds = 300,
-	CurrentWorld = 1, -- the world this place runs; its weather list and special weather come from data/Worlds.luau
 	ClockTweenSeconds = 3, -- Lighting.ClockTime eases between day (12) and night (0) over this
 	DayClockTime = 12,
 	NightClockTime = 0,

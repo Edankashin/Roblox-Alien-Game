@@ -24,6 +24,7 @@ local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
 local Species = require(Shared.data.Species)
 local AnalyticsData = require(Shared.data.Analytics)
+local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
@@ -210,7 +211,7 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 	local reward = ROWS[day].reward
 	local eggSpecies: string? = nil
 	if reward.kind == "egg" then
-		eggSpecies = pickEggSpecies(reward.tier, Config.CurrentWorld)
+		eggSpecies = pickEggSpecies(reward.tier, Place.WorldId())
 		if not eggSpecies then
 			return false, "Unknown"
 		end

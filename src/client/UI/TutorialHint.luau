@@ -18,7 +18,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Tutorial = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
-local Meadow = require(Shared:WaitForChild("data"):WaitForChild("Meadow"))
+local Place = require(Shared:WaitForChild("Place"))
 local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
 local CampRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CampRenderer"))
@@ -68,7 +68,7 @@ end
 -- Waypoint targets -----------------------------------------------------------
 
 local function floorTop(): number
-	return Waypoint.FloorTop() or Meadow.FloorThickness / 2
+	return Waypoint.FloorTop() or Place.Layout().FloorThickness / 2
 end
 
 local function nodePosition(materialId: string): Vector3?
@@ -105,7 +105,7 @@ local function applyWaypoint(step: Tutorial.Step?)
 		end, Strings.WAYPOINT_ship)
 	elseif kind == "biome" then
 		local name = step.waypointTarget or ""
-		local region = Meadow.Regions[name]
+		local region = Place.Layout().Regions[name]
 		if not region then
 			Waypoint.Clear()
 			return

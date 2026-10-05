@@ -11,9 +11,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Worlds = require(Shared.data.Worlds)
+local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 
-local world: Worlds.WorldDef = Worlds[Config.CurrentWorld]
+local world: Worlds.WorldDef = Worlds[Place.WorldId()] -- the place's world: its weather list and special weather
 
 local WorldClock = {}
 

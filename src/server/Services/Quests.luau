@@ -4,8 +4,8 @@
 -- OnCraft) and this service counts it into profile.quests.progress for the objectives of the current
 -- step, pushes QuestsChanged, pays the step's rewards when the client claims it, and advances
 -- profile.quests.fieldNotes[world]. It also owns the finale: SoundHorn summons the world's warden
--- (Worlds[CurrentWorld].warden) as a spawn reserved for that player next to the shrine
--- (Meadow.GetShrinePosition, Spawner.SpawnAt), and a lost, cancelled or expired encounter is a retreat
+-- (Worlds[Place.WorldId()].warden) as a spawn reserved for that player next to the shrine
+-- (Place.Layout().Shrine, Spawner.SpawnAt), and a lost, cancelled or expired encounter is a retreat
 -- that starts the horn's cooldown. The client renders the screen and the toasts; every count and
 -- every grant is decided here.
 -- Requires run one way: Economy, Materials, Shop and Catching require this module to report; this
@@ -19,10 +19,10 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local QuestData = require(Shared.data.Quests)
 local Worlds = require(Shared.data.Worlds)
+local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local WorldClock = require(script.Parent.WorldClock)
-local Meadow = require(script.Parent.Meadow)
 local Spawner = require(script.Parent.Spawner)
 
 local Quests = {}
@@ -31,7 +31,7 @@ type Summon = { spawnId: string } -- this player's Warden, out at the shrine
 
 local REMOTE_RATE_PER_SECOND = 4 -- QuestClaim and SoundHorn calls per player per second
 local FIRST_STEP = 1 -- fieldNotes[world] for a profile that has not started the chain
-local WORLD_ID = Config.CurrentWorld -- the chain this place runs
+local WORLD_ID = Place.WorldId() -- the chain this place runs
 local WORLD_KEY = tostring(WORLD_ID)
 local WARDEN_SPECIES: string = Worlds[WORLD_ID].warden
 local CHAIN: { QuestData.Step } = QuestData.FieldNotes[WORLD_ID] or {}
@@ -134,9 +134,15 @@ end
 
 -- Where the summoned Warden stands: WardenSummonOffset studs from the shrine centre toward the camp
 -- (the origin), so it steps out of the ring in front of a player who walked in from the camp.
+-- The shrine's centre on the floor plane, from this world's layout (the pedestal's height is irrelevant
+-- here: the horn and the summon are judged flat).
+local function shrineFlat(): Vector3
+	local shrine = Place.Layout().Shrine
+	return Vector3.new(shrine.x, 0, shrine.z)
+end
+
 local function summonPosition(): Vector3
-	local shrine = Meadow.GetShrinePosition()
-	local flat = Vector3.new(shrine.X, 0, shrine.Z)
+	local flat = shrineFlat()
 	local toCamp = if flat.Magnitude > 0 then -flat.Unit else Vector3.new(0, 0, -1)
 	return flat + toCamp * Config.WardenSummonOffset
 end
@@ -305,7 +311,7 @@ local function onSoundHorn(player: Player): (boolean, string?)
 	if not at then
 		return false, "NoCharacter"
 	end
-	if flatDistance(at, Meadow.GetShrinePosition()) > Config.ShrineInteractDistance then
+	if flatDistance(at, shrineFlat()) > Config.ShrineInteractDistance then
 		return false, "TooFar"
 	end
 	local since = retreatAt[player.UserId]

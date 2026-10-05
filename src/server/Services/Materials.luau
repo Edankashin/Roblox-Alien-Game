@@ -1,5 +1,6 @@
 --!strict
--- ServerScriptService.Server.Services.Materials: key material nodes scattered over World 1.
+-- ServerScriptService.Server.Services.Materials: key material nodes scattered over this place's world
+-- (Shared/Place: the rows whose world is Place.WorldId(), placed by the layout Place.Layout()).
 -- Each node is one anchored Part under Workspace.World.Materials carrying attributes (MaterialId,
 -- NodeId, Available, WaitingFor); the client shows Collect inside MaterialInteractDistance and asks
 -- the server to take it. Nodes are shared by everyone on the server, first come first served, and
@@ -16,7 +17,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 local KeyMaterials = require(Shared.data.KeyMaterials)
-local Layout = require(Shared.data.Meadow)
+local Layouts = require(Shared.data.Layouts)
+local Place = require(Shared.Place)
 local Biomes = require(Shared.Biomes)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
@@ -36,7 +38,8 @@ type Node = {
 }
 
 local FOLDER_NAME = "Materials"
-local WORLD_ID = 1 -- the placeholder Meadow is World 1; later worlds scatter their own rows
+local WORLD_ID = Place.WorldId() -- only this world's KeyMaterials rows are scattered
+local Layout: Layouts.Layout = Place.Layout() -- the node ring and seed for this world
 local PLACEMENT_ATTEMPTS = 40 -- tries to find a point clear of other nodes before giving up on one
 local REMOTE_RATE_PER_SECOND = 4
 
@@ -63,7 +66,7 @@ local function clearOfNodes(position: Vector3): boolean
 	return true
 end
 
--- A point inside the material's biome (the camp ring for the Meadow, the region circle otherwise),
+-- A point inside the material's biome (the camp ring for the base biome, the region circle otherwise),
 -- clear of the nodes placed so far.
 local function scatterPoint(biome: string, rng: Random): Vector3?
 	for _ = 1, PLACEMENT_ATTEMPTS do

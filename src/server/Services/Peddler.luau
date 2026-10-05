@@ -18,6 +18,7 @@ local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
 local Species = require(Shared.data.Species)
 local AnalyticsData = require(Shared.data.Analytics)
+local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Spawner = require(script.Parent.Spawner)
@@ -173,7 +174,7 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 			return false, "Unknown"
 		end
 	elseif kind == "egg" then
-		eggSpecies = pickEggSpecies(offer.tier, Config.CurrentWorld)
+		eggSpecies = pickEggSpecies(offer.tier, Place.WorldId())
 		if not eggSpecies then
 			return false, "Unknown"
 		end

@@ -1,28 +1,38 @@
 --!strict
--- ServerScriptService.Server.Services.Meadow: builds the placeholder World 1 under Workspace.World
--- so a fresh baseplate has ground, a camp pad with a SpawnLocation, a few landmarks to walk between,
--- the two biome regions from data/Meadow.luau (a Forest grove and a roofed Cave) drawn as coloured
--- floor patches with their own scatter, and the Shrine of the Warden (a stone ring with a glowing
--- pedestal under Workspace.World.Landmarks, where the Field Notes horn is sounded). Server-side so
--- every client sees the same world; parts only, no scripts attached. Skips entirely when
--- Workspace.World already exists (a hand-built or saved world wins).
+-- ServerScriptService.Server.Services.Meadow: builds the placeholder world this place runs under
+-- Workspace.World, from the layout Shared/Place picks by the Workspace attribute WorldId
+-- (data/Layouts.luau: Meadow for World 1, Frostbyte for World 2). A fresh baseplate gets ground, a camp
+-- pad with a SpawnLocation, scattered rocks and trees, the layout's biome regions drawn as coloured
+-- floor patches with their own scatter (a grove of trees, a roofed and walled cave, a field of geyser
+-- cones: whichever fields the region carries) and the Shrine of the Warden (a stone ring with a
+-- glowing pedestal under Workspace.World.Landmarks, where the Field Notes horn is sounded). Server-side
+-- so every client sees the same world; parts only, no scripts attached. Skips entirely when
+-- Workspace.World already exists (a hand-built or saved world wins). The service keeps its World 1
+-- name: it is the one world builder, whichever world the place is.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
-local Layout = require(Shared.data.Meadow)
+local Layouts = require(Shared.data.Layouts)
+local Place = require(Shared.Place)
 local Biomes = require(Shared.Biomes)
 
 local Meadow = {}
 
+local Layout: Layouts.Layout = Place.Layout() -- this place's world; fixed for the server's lifetime
+
 local WORLD_FOLDER = "World"
 local WILD_FOLDER = "Wild"
 local LANDMARKS_FOLDER = "Landmarks"
+-- The floor part's name is historical (the World 1 placeholder was "the Meadow"); it is the same in
+-- every world because clients wait for it by name (World.Waypoint reads the floor top from it).
+local FLOOR_NAME = "MeadowFloor"
 local SHRINE_NAME = "Shrine" -- the Model's name and its LandmarkId attribute
 local ROCK_HEIGHT_FACTOR = 0.7 -- rocks are squatter than they are wide
 local LEAVES_SINK_FACTOR = 0.6 -- the leaf ball sits this fraction of its radius above the trunk top
+local CONE_TIERS = 3 -- a geyser cone is this many stacked cylinders, each narrower than the one below
 -- Shrine proportions, all relative to Layout.Shrine (stoneHeight and radius) so one data change rescales it.
 local STONE_WIDTH_FACTOR = 0.4 -- a standing stone is this fraction of its height wide
 local STONE_DEPTH_FACTOR = 0.25 -- and this fraction deep
@@ -52,7 +62,7 @@ local function uprightCylinder(name: string, radius: number, height: number, pos
 end
 
 -- How far the walkable surface sits above the floor top at a flat point: the patch thickness inside a
--- region, nothing on the open meadow.
+-- region, nothing on the open floor.
 local function regionLift(position: Vector3): number
 	for _, region in pairs(Layout.Regions) do
 		local dx, dz = position.X - region.x, position.Z - region.z
@@ -76,9 +86,19 @@ local function pedestalHeight(): number
 	return Layout.Shrine.stoneHeight * PEDESTAL_HEIGHT_FACTOR
 end
 
+-- Where the open-floor scatter may not land. Trees stay out of roofed regions and geyser fields (no
+-- pines under a cave roof or among the cones); rocks stay out of groves (a region with its own trees).
+local function treesAvoid(region: Layouts.Region): boolean
+	return region.roofHeight ~= nil or (region.coneCount or 0) > 0
+end
+
+local function rocksAvoid(region: Layouts.Region): boolean
+	return region.treeCount > 0
+end
+
 -- A random flat point on the open floor, clear of the camp, of the edge and of the shrine ring, and
--- never inside `avoid` (so no trees under the Cave roof and no rocks in the Forest grove).
-local function scatterPoint(rng: Random, avoid: string): Vector3
+-- never inside a region that `avoid` rejects.
+local function scatterPoint(rng: Random, avoid: (Layouts.Region) -> boolean): Vector3
 	local half = Layout.FloorSize / 2 - Layout.ScatterEdgeMargin
 	local shrineClear = Layout.Shrine.radius + Config.ShrineScatterClearance
 	local shrine = shrineFlat()
@@ -86,8 +106,11 @@ local function scatterPoint(rng: Random, avoid: string): Vector3
 		local x = rng:NextNumber(-half, half)
 		local z = rng:NextNumber(-half, half)
 		local point = Vector3.new(x, 0, z)
-		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and flatDistance(point, shrine) >= shrineClear and Biomes.At(point) ~= avoid then
-			return point
+		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and flatDistance(point, shrine) >= shrineClear then
+			local region = Biomes.Region(Biomes.At(point))
+			if region == nil or not avoid(region) then
+				return point
+			end
 		end
 	end
 end
@@ -103,7 +126,8 @@ local function buildRock(name: string, at: Vector3, groundY: number, rng: Random
 	return basePart(name, Enum.PartType.Block, size, cframe, Layout.RockColor, parent)
 end
 
--- A trunk resting on `groundY` with a leaf ball on top; the leaves are a child of the trunk.
+-- A trunk resting on `groundY` with a leaf ball on top; the leaves are a child of the trunk. The layout's
+-- trunk and leaf colours make it a meadow oak or a snow pine.
 local function buildTree(name: string, at: Vector3, groundY: number, rng: Random, parent: Instance): Part
 	local height = rng:NextNumber(Layout.TrunkHeightMin, Layout.TrunkHeightMax)
 	local trunk = uprightCylinder(name, Layout.TrunkRadius, height, Vector3.new(at.X, groundY + height / 2, at.Z), Layout.TrunkColor, parent)
@@ -113,21 +137,53 @@ local function buildTree(name: string, at: Vector3, groundY: number, rng: Random
 	return trunk
 end
 
--- One biome region: a coloured floor patch, its own trees and rocks on the patch top and, when the
--- region has a roofHeight, a roof slab held up by pillars around the rim with open gaps between them.
-local function buildRegion(name: string, region: Layout.Region, floorTop: number, rng: Random, parent: Instance)
+-- A geyser cone resting on `groundY`: CONE_TIERS upright cylinders stacked to `height`, each tier
+-- narrower than the one below so the stack tapers. The upper tiers are children of the base.
+local function buildCone(name: string, at: Vector3, groundY: number, radius: number, height: number, hex: string, parent: Instance): Part
+	local tierHeight = height / CONE_TIERS
+	local function tier(index: number, tierParent: Instance): Part
+		local tierRadius = radius * (CONE_TIERS - index + 1) / CONE_TIERS
+		local tierName = if index == 1 then name else "Tier" .. index
+		return uprightCylinder(tierName, tierRadius, tierHeight, Vector3.new(at.X, groundY + tierHeight * (index - 0.5), at.Z), hex, tierParent)
+	end
+	local base = tier(1, parent)
+	for index = 2, CONE_TIERS do
+		tier(index, base)
+	end
+	return base
+end
+
+-- One biome region: a coloured floor patch, its own trees, rocks and geyser cones on the patch top
+-- and, when the region has a roofHeight, a roof slab held up by pillars around the rim with open gaps
+-- between them.
+local function buildRegion(name: string, region: Layouts.Region, floorTop: number, rng: Random, parent: Instance)
 	local patchTop = floorTop + Layout.RegionPatchThickness
 	uprightCylinder(name .. "Floor", region.radius, Layout.RegionPatchThickness, Vector3.new(region.x, floorTop + Layout.RegionPatchThickness / 2, region.z), region.floorColor, parent)
 
 	-- Biomes.RandomPointIn keeps region points RegionEdgeMargin inside the rim; the camp ring arguments
-	-- only apply to the Meadow and are never reached for a named region.
+	-- only apply to the base biome and are never reached for a named region.
+	local minFromCamp = Layout.ScatterMinFromCamp
+	local maxFromCamp = Layout.FloorSize / 2 - Layout.ScatterEdgeMargin
 	for i = 1, region.treeCount do
-		local at = Biomes.RandomPointIn(name, rng, Layout.ScatterMinFromCamp, Layout.FloorSize / 2 - Layout.ScatterEdgeMargin)
+		local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
 		buildTree(name .. "Tree" .. i, at, patchTop, rng, parent)
 	end
 	for i = 1, region.rockCount do
-		local at = Biomes.RandomPointIn(name, rng, Layout.ScatterMinFromCamp, Layout.FloorSize / 2 - Layout.ScatterEdgeMargin)
+		local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
 		buildRock(name .. "Rock" .. i, at, patchTop, rng, parent)
+	end
+
+	-- Geyser cones (the Geyser Field): the layout gives count, radius, height and colour; a region that
+	-- names a count but not a shape borrows the tree trunk's radius and shortest height, and the floor's colour.
+	local coneCount = region.coneCount or 0
+	if coneCount > 0 then
+		local coneRadius = region.coneRadius or Layout.TrunkRadius
+		local coneHeight = region.coneHeight or Layout.TrunkHeightMin
+		local coneColor = region.coneColor or region.floorColor
+		for i = 1, coneCount do
+			local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+			buildCone(name .. "Cone" .. i, at, patchTop, coneRadius, coneHeight, coneColor, parent)
+		end
 	end
 
 	local roofHeight = region.roofHeight
@@ -194,7 +250,7 @@ function Meadow.Init()
 
 	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
 	local floorTop = Layout.FloorThickness / 2
-	basePart("MeadowFloor", Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world)
+	basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world)
 
 	-- Camp pad at the origin with the SpawnLocation on top.
 	local padY = floorTop + Layout.CampPadThickness / 2
@@ -216,7 +272,7 @@ function Meadow.Init()
 	spawn.Parent = world
 
 	-- Deterministic scatter so every server (and every reconnect) sees the same landmarks. One rng
-	-- feeds the regions and then the open meadow; regions go in name order because pairs() order is
+	-- feeds the regions and then the open floor; regions go in name order because pairs() order is
 	-- not stable between servers.
 	local rng = Random.new(Layout.Seed)
 	local regionNames: { string } = {}
@@ -228,13 +284,13 @@ function Meadow.Init()
 		buildRegion(name, Layout.Regions[name], floorTop, rng, world)
 	end
 
-	-- Open-meadow scatter. A landmark that lands on a region patch rests on the patch, not the floor.
+	-- Open-floor scatter. A landmark that lands on a region patch rests on the patch, not the floor.
 	for i = 1, Layout.RockCount do
-		local at = scatterPoint(rng, "Forest")
+		local at = scatterPoint(rng, rocksAvoid)
 		buildRock("Rock" .. i, at, floorTop + regionLift(at), rng, world)
 	end
 	for i = 1, Layout.TreeCount do
-		local at = scatterPoint(rng, "Cave")
+		local at = scatterPoint(rng, treesAvoid)
 		buildTree("Tree" .. i, at, floorTop + regionLift(at), rng, world)
 	end
 
@@ -250,7 +306,7 @@ end
 -- Height of the floor's top face; the camp pad and anything at the origin sit on this.
 function Meadow.GetFloorTop(): number
 	local world = Workspace:FindFirstChild(WORLD_FOLDER)
-	local floor = if world then world:FindFirstChild("MeadowFloor") else nil
+	local floor = if world then world:FindFirstChild(FLOOR_NAME) else nil
 	if floor and floor:IsA("BasePart") then
 		return floor.Position.Y + floor.Size.Y / 2
 	end
