@@ -171,3 +171,16 @@ Needs one model imported by hand first: File > Import 3D on `assets/models/Mossb
 8. Nearby, Radar, catch distance and the tap-to-catch on the alien all still work on the server Part (the mesh parts are not queryable).
 
 Known gaps in this milestone: models are imported by hand into the place (no Open Cloud upload yet), no idle animation, overlays (Shiny, Gold) still tint only the placeholder.
+
+## Milestone 13: Settings and the analytics funnel
+
+Play as a fresh profile.
+1. Boot adds Analytics (right after PlayerData) and Settings (after Gifts) lines: `server started: PlayerData, Analytics, WorldClock, ..., Gifts, Settings, Dev`, with "Analytics: Studio print mode" (Studio never sends; it prints each event) and "Settings: 4 preferences". A round blue "*" button sits left of the clock chip at the top right; it hides with the HUD during the crash opener and comes back.
+2. Tap it: a panel "Settings" with four rows: World sounds (Off/Low/Mid/High, Mid active), Button and catch sounds (High active), Reduced motion (Off), Shadow silhouettes for uncaught aliens (On), and the hint line at the bottom. Each control is at least 44 px tall at iPhone SE.
+3. Tap "Low" on World sounds: the button turns green at once after the server's push (SettingsChanged), SoundService.Ambience.Volume reads 0.35 x 0.33 (about 0.12). Tap "Off" on Button and catch sounds: SoundService.UI.Volume reads 0. A bad call `SetSetting("Ambience", 9)` from the client returns (false, "BadArgs"); `SetSetting("Nope", 1)` the same.
+4. Reduced motion On: a module completion's camera pan takes half as long (about 3 s out and back instead of 6) and the crash opener on a later fresh profile skips the shake; the "+N" Scrap fly is quicker.
+5. Shadow silhouettes Off: every uncaught wild alien renders in colour at any distance and the codex pedestal shows uncaught species in colour (the name stays "???"); On again re-shadows them beyond 40 studs.
+6. Rejoin (memory profiles reset in Studio; with DataStores on, the saved choices come back): the panel opens with the stored values. A v2 profile (no settings) loads with the defaults and no error.
+7. Analytics prints, in order, as you play: `analytics: funnel Onboarding 1 T1` at load, then one per tutorial step reached (2 T2 ... 8 Done); `analytics: event Catch` with tier, species and perfect fields on every catch and `FirstCatchSeconds` once; `CatchMiss` on a missed sweep, `Flee` when an alien flees; `ModuleComplete` and `FirstModuleSeconds` on the Hull Frame; `ShowerAttend` for each player when `/shower` starts; `GiftClaim`, `Spin`, `PeddlerBuy`, `ShopBuy` on those actions; economy lines for catch and codex Scrap (Source), module pay, shop and Peddler (Sink), and one Income source line about every 60 s; `SessionSeconds` when the player leaves (stop Play and read the server log). No event prints twice for the same funnel step in one session.
+
+Known gaps in this milestone: no master volume slider (levels instead); analytics are print-only in Studio until the place is published and `Config.AnalyticsInStudio` is turned on; daily quests and the Robux shop are later milestones.

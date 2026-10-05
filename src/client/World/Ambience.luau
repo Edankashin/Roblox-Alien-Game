@@ -1,7 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.World.Ambience: the looping background sound. One looped Sound per
 -- Sounds.Ambience entry that has a real id, all under a SoundGroup "Ambience" in SoundService whose
--- Volume is Sounds.Volume.Ambience. The active loop follows State.GetConditions() by PRIORITY (a
+-- Volume is Sounds.Volume.Ambience times the player's Ambience level (SetVolumeScale, from Prefs). The active loop follows State.GetConditions() by PRIORITY (a
 -- Meteor Shower beats the world's special weather beats Night beats Day), and a change crossfades the
 -- old loop out and the new one in over Config.AmbienceFadeSeconds. With every id still a placeholder
 -- (rbxassetid://0) nothing is created and nothing plays. Pure presentation: the conditions are the
@@ -31,6 +31,7 @@ local fades: { [string]: Tween } = {} -- the volume tween in flight per loop
 local active: string? = nil
 local connections: { RBXScriptConnection } = {}
 local running = false
+local volumeScale = 1 -- the player's Ambience level (Prefs.Multiplier), on top of Sounds.Volume.Ambience
 
 -- Helpers ----------------------------------------------------------------
 
@@ -114,7 +115,7 @@ function Ambience.Start()
 
 	local soundGroup = Instance.new("SoundGroup")
 	soundGroup.Name = GROUP_NAME
-	soundGroup.Volume = Sounds.Volume.Ambience
+	soundGroup.Volume = Sounds.Volume.Ambience * volumeScale
 	soundGroup.Parent = SoundService
 	group = soundGroup
 
@@ -138,6 +139,16 @@ function Ambience.Start()
 	table.insert(connections, State.OnChanged("clock", apply))
 	table.insert(connections, State.OnChanged("shower", apply))
 	apply()
+end
+
+-- The player's Ambience level: the group's volume becomes Sounds.Volume.Ambience * scale, now and
+-- whenever Start builds the group later.
+function Ambience.SetVolumeScale(scale: number)
+	volumeScale = math.max(0, scale)
+	local existing = group
+	if existing then
+		existing.Volume = Sounds.Volume.Ambience * volumeScale
+	end
 end
 
 -- Stops every loop at once and removes the group.

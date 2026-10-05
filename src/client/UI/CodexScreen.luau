@@ -25,6 +25,7 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local CodexScreen = {}
 
@@ -188,9 +189,11 @@ local function setPart(d: Detail, def: Types.SpeciesDef, caught: boolean)
 		previous:Destroy()
 		d.model = nil
 	end
+	-- Uncaught species stand as silhouettes only while the Silhouettes preference is on.
+	local shadowed = not caught and Prefs.Silhouettes()
 	local model = Models.Clone(def, Config.ModelViewportScale)
 	if model then
-		Models.SetShadow(model, not caught)
+		Models.SetShadow(model, shadowed)
 		model.Parent = d.viewport
 		d.model = model
 		d.part.Transparency = 1
@@ -202,7 +205,7 @@ local function setPart(d: Detail, def: Types.SpeciesDef, caught: boolean)
 	local size = PART_STUDS * def.placeholder.scale
 	d.part.Shape = SHAPES[def.placeholder.shape] or Enum.PartType.Ball
 	d.part.Size = Vector3.one * size
-	d.part.Color = if caught then Color3.fromHex(def.placeholder.color) else Theme.Shadow
+	d.part.Color = if shadowed then Theme.Shadow else Color3.fromHex(def.placeholder.color)
 	partUpright = def.placeholder.shape == "Cylinder"
 	partBaseY = PEDESTAL_TOP + size / 2
 	frameCamera(d, size)
@@ -543,9 +546,10 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number)
 		cell.mark.Text = Builder.text("SHAPE_" .. def.placeholder.shape)
 		cell.name.TextColor3 = Theme.Colors.White
 	else
-		-- Dark silhouette on a dimmed card, the name in grey.
+		-- Dimmed card, the name in grey, the unknown mark; the square is a dark silhouette while the
+		-- Silhouettes preference is on and the species colour otherwise.
 		cell.card.BackgroundColor3 = Builder.lighter(Theme.Rarity.Common, 0.6)
-		cell.square.BackgroundColor3 = Theme.Shadow
+		cell.square.BackgroundColor3 = if Prefs.Silhouettes() then Theme.Shadow else Color3.fromHex(def.placeholder.color)
 		cell.mark.Text = UNKNOWN_MARK
 		cell.name.TextColor3 = Theme.Rarity.Common
 	end
@@ -771,6 +775,7 @@ local function build()
 	-- A catch changes the codex counts; the server pushes aliens with stations (cheap while closed).
 	State.OnChanged("stations", refresh)
 	State.OnChanged("codex", refresh)
+	Prefs.OnChanged(refresh) -- the Silhouettes preference changes how uncaught species draw
 end
 
 -- Public API -------------------------------------------------------------

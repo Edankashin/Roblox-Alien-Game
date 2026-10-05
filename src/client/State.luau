@@ -1,6 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
--- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged);
+-- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
+-- SettingsChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -14,11 +15,12 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
+local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -31,6 +33,18 @@ local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSecon
 local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
+
+-- Every data/Settings key with its value in `source`, or the data default where it is missing.
+local function settingsWithDefaults(source: { [string]: number }?): Types.SettingsState
+	local out: Types.SettingsState = {}
+	for _, def in ipairs(Settings.Order) do
+		local value = if source then source[def.key] else nil
+		out[def.key] = if type(value) == "number" then value else def.default
+	end
+	return out
+end
+
+local settings: Types.SettingsState = settingsWithDefaults(nil) -- the data defaults until the profile arrives
 local changed = Instance.new("BindableEvent")
 local started = false
 
@@ -47,6 +61,10 @@ function State.Set(p: Types.Profile)
 	-- The gift state is part of the profile; the join-time GiftsChanged push can land before this
 	-- client listens, so the mirror is rebuilt from the profile and later pushes overwrite it.
 	gifts = { daysPlayed = p.gifts.daysPlayed, claimed = p.gifts.claimed, freeSpins = p.spins.free, bankedSpins = p.spins.banked }
+	-- Preferences: the profile's table filled out with the data defaults so every key reads; "profile"
+	-- reaches the "settings" listeners too, so Prefs applies them from here.
+	settings = settingsWithDefaults(p.settings)
+	p.settings = settings
 	fire("profile")
 	fire("gifts")
 end
@@ -116,6 +134,12 @@ end
 
 function State.GetGifts(): Types.GiftState
 	return gifts
+end
+
+-- Every data/Settings key with the value the server holds (SettingsChanged, seeded from the profile);
+-- the data defaults until either arrives.
+function State.GetSettings(): Types.SettingsState
+	return settings
 end
 
 -- The shower clock as pushed, plus the seconds elapsed since, so countdowns run between pushes.
@@ -310,6 +334,15 @@ function State.Start()
 		Net.event("LuckChanged").OnClientEvent:Connect(function(value: number)
 			luck = value
 			fire("luck")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("SettingsChanged").OnClientEvent:Connect(function(state: Types.SettingsState)
+			settings = settingsWithDefaults(state)
+			if profile then
+				profile.settings = settings
+			end
+			fire("settings")
 		end)
 	end)
 	task.spawn(function()

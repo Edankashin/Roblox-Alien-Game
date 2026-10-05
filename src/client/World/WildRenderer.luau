@@ -3,7 +3,8 @@
 -- Workspace.World.Wild. The server places a plain anchored part with attributes; this module adds the
 -- nameplate (name + tier in its colour, visible within NameplateDistance), bobs the part locally
 -- (the server never moves it, so a local CFrame does not fight replication), and renders species
--- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance. A part
+-- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance (only while
+-- the Silhouettes preference is on, Prefs.Silhouettes; off, every alien shows in colour). A part
 -- reserved for another player (ReservedFor, a summoned Warden) is hidden locally and never tracked.
 -- A species with a mesh in ReplicatedStorage.Models (World.Models) is drawn as a clone of it under the
 -- client-made Workspace.ClientWild folder, feet where the placeholder's bottom sits, bobbing with the
@@ -24,6 +25,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local WildRenderer = {}
 
@@ -50,6 +52,7 @@ local rng = Random.new()
 local wildFolder: Folder? = nil
 local visualFolder: Folder? = nil
 local renderConn: RBXScriptConnection? = nil
+local prefsConn: RBXScriptConnection? = nil
 local localPlayer = Players.LocalPlayer
 
 local function rootPosition(): Vector3?
@@ -183,8 +186,25 @@ local function track(instance: Instance)
 		modelBase = modelBase,
 	}
 	records[instance] = record
-	if not known[species] then
+	if not known[species] and Prefs.Silhouettes() then
 		applyShadow(record)
+	end
+end
+
+-- The Silhouettes preference changed: off un-shadows everything at once; on re-shadows the uncaught
+-- species standing beyond the reveal distance (the nearer ones would reveal on the next frame anyway).
+local function applySilhouettes()
+	local on = Prefs.Silhouettes()
+	local at = rootPosition()
+	for _, record in pairs(records) do
+		if not on then
+			reveal(record)
+		elseif not known[record.species] and not record.shadowed then
+			local far = at == nil or (record.base.Position - at).Magnitude > Config.ShadowRevealDistance
+			if far then
+				applyShadow(record)
+			end
+		end
 	end
 end
 
@@ -286,7 +306,7 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 		visualFolder = created
 	end
 	if not Models.Available() then
-		warn(("WildRenderer: ReplicatedStorage.%s is missing; placeholder shapes in use"):format(Config.ModelFolderName))
+		warn(("[%s] WildRenderer: ReplicatedStorage.%s is missing; placeholder shapes in use"):format(Config.WorkingTitle, Config.ModelFolderName))
 	end
 	local world = Workspace:WaitForChild("World")
 	local wild = world:WaitForChild("Wild") :: Folder
@@ -296,6 +316,9 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	end
 	wild.ChildAdded:Connect(watch)
 	wild.ChildRemoved:Connect(unwatch)
+	if not prefsConn then
+		prefsConn = Prefs.OnChanged(applySilhouettes)
+	end
 	if renderConn then
 		renderConn:Disconnect()
 	end

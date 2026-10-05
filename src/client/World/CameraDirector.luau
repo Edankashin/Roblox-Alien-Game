@@ -10,7 +10,7 @@
 -- frozen; the bootstrap hides the HUD), and goes back to Custom with the Humanoid as subject after.
 -- Cancel stops whatever runs at once (a capture started, the player left) and still runs the pending
 -- onDone. One generation counter retires every later step of a cancelled sequence. Reduced motion
--- (UserGameSettings.ReducedMotion) shortens the glides by Config.ReducedMotionFactor and skips the
+-- (Prefs.ReducedMotion: the profile toggle or UserGameSettings.ReducedMotion) shortens the glides by Config.ReducedMotionFactor and skips the
 -- shake. Nothing here decides anything: callers say when, and only one sequence runs at a time.
 
 local Players = game:GetService("Players")
@@ -25,6 +25,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
 local CampRenderer = require(script.Parent:WaitForChild("CampRenderer"))
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local CameraDirector = {}
 
@@ -72,12 +73,9 @@ local function humanoid(): Humanoid?
 	return nil
 end
 
--- The player's reduced-motion setting; false when it cannot be read.
+-- The player's reduced-motion preference (Prefs folds the profile toggle and the system switch together).
 local function reducedMotion(): boolean
-	local ok, value = pcall(function(): boolean
-		return UserSettings():GetService("UserGameSettings").ReducedMotion
-	end)
-	return ok and value == true
+	return Prefs.ReducedMotion()
 end
 
 -- Unit XZ direction from `target` towards `from`, or nil when they share a vertical column.

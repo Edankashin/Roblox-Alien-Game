@@ -308,6 +308,11 @@ function Builder.playSound(id: string)
 	SoundService:PlayLocalSound(sound)
 end
 
+-- The player's Sounds level (Prefs applies it): the UI group's volume becomes Sounds.Volume.UI * scale.
+function Builder.SetSoundVolume(scale: number)
+	soundGroup().Volume = Sounds.Volume.UI * math.max(0, scale)
+end
+
 -- Motion -----------------------------------------------------------------
 
 local function scaleOf(target: GuiObject): UIScale

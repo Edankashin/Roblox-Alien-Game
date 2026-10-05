@@ -1,7 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
 -- number) with the Scrap-per-minute line under it, the ship bar top centre (tap opens the ship
--- panel) with the luck line or the event banner under it, the Day/Night + weather chip top-right with
+-- panel) with the luck line or the event banner under it, the Day/Night + weather chip top-right (round
+-- buttons such as the Settings gear sit just left of it, AddTopButton) with
 -- the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
 -- button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
 -- in by the bootstrap from server state; nothing here computes anything that matters.
@@ -17,6 +18,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Builder = require(script.Parent.Builder)
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local Hud = {}
 
@@ -38,6 +40,15 @@ local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {}
 local menuCount = 0
+local topButtons: { Frame } = {} -- round buttons left of the clock chip, in the order added (the first sits nearest the chip)
+local topButtonIds: { [string]: boolean } = {}
+
+local CLOCK_RIGHT = 0.985 -- the clock chip's right edge, in screen Scale
+local CLOCK_TOP = 0.025
+local CLOCK_SIZE = Vector2.new(0.3, 0.075) -- the chip's Size bounds; its aspect constraint derives the width from the height
+local CLOCK_ASPECT = 4.2
+local TOP_BUTTON_H = 0.075 -- the round buttons share the chip's height
+local TOP_GAP = 0.01 -- between the chip and the first button, and between buttons
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
 local MENU_TOP = 0.19 -- the icon stack starts here, under the Scrap pill and its rate line
@@ -81,13 +92,10 @@ local function formatCountdown(seconds: number): string
 	return Strings.TIME_S:format(total)
 end
 
--- Tween lengths shrink by Config.ReducedMotionFactor when the player's reduced-motion setting is on.
--- The read is guarded: the setting is missing on some clients, and then motion stays full.
+-- Tween lengths shrink by Config.ReducedMotionFactor when reduced motion is on (Prefs folds the
+-- profile toggle and the system switch together).
 local function motionFactor(): number
-	local ok, reduced = pcall(function()
-		return UserSettings():GetService("UserGameSettings").ReducedMotion
-	end)
-	return if ok and reduced == true then Config.ReducedMotionFactor else 1
+	return if Prefs.ReducedMotion() then Config.ReducedMotionFactor else 1
 end
 
 -- A GuiObject's centre in a ScreenGui's Scale space, from the absolute layout.
@@ -140,12 +148,12 @@ local function buildClockChip(root: ScreenGui)
 	local chip = Builder.pill({
 		parent = root,
 		name = "ClockChip",
-		position = UDim2.fromScale(0.985, 0.025),
-		size = UDim2.fromScale(0.3, 0.075),
+		position = UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
+		size = UDim2.fromScale(CLOCK_SIZE.X, CLOCK_SIZE.Y),
 		anchor = Vector2.new(1, 0),
 		color = Theme.Colors.Featured,
 		stroke = Theme.Stroke.Button,
-		aspect = 4.2,
+		aspect = CLOCK_ASPECT,
 	})
 	Builder.gradient(chip, Theme.Colors.Featured)
 	clockChip = chip
@@ -483,6 +491,45 @@ local function buildActionButton(root: ScreenGui)
 	actionFace = button:FindFirstChild("Face") :: TextButton
 end
 
+-- Top buttons (left of the clock chip) ----------------------------------------
+
+-- The clock chip's width in screen Scale. Its aspect constraint derives the width from the height
+-- (never past its Size bound), so the width in Scale depends on the screen's shape.
+local function clockChipWidth(root: ScreenGui): number
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return CLOCK_SIZE.X
+	end
+	return math.min(CLOCK_SIZE.X, CLOCK_SIZE.Y * CLOCK_ASPECT * screen.Y / screen.X)
+end
+
+-- Places the top buttons in a row leftwards from the chip. Each is a square of TOP_BUTTON_H, so its
+-- width in Scale is TOP_BUTTON_H * (screen height / screen width); anchored (1, 0), its x is its right edge.
+local function layoutTopButtons()
+	local root = gui
+	if not root then
+		return
+	end
+	local screen = root.AbsoluteSize
+	local ratio = if screen.X > 0 then screen.Y / screen.X else 1
+	local buttonW = TOP_BUTTON_H * ratio
+	local right = CLOCK_RIGHT - clockChipWidth(root) - TOP_GAP
+	for _, button in ipairs(topButtons) do
+		button.Position = UDim2.fromScale(right, CLOCK_TOP)
+		right -= buttonW + TOP_GAP
+	end
+end
+
+-- A Builder.button's lip and face become circles.
+local function makeRound(container: Frame)
+	for _, child in ipairs(container:GetChildren()) do
+		local corner = child:FindFirstChildOfClass("UICorner")
+		if corner then
+			corner.CornerRadius = UDim.new(0.5, 0)
+		end
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Hud.Build()
@@ -501,6 +548,7 @@ function Hud.Build()
 	buildLuckLine(root)
 	buildEventBanner(root)
 	buildActionButton(root)
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutTopButtons)
 end
 
 -- Ship completion 0..1: eases the fill and shows the whole percent.
@@ -700,6 +748,33 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 		return
 	end
 	buildMenuButton(root, id, color, onClick)
+end
+
+-- A round chunky button just left of the clock chip (then left of the previous one), with the
+-- MENU_GLYPH_<id> placeholder glyph as its face. It lives in the HUD gui, so it hides with SetVisible.
+-- Call after Hud.Build, once per id.
+function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
+	local root = gui
+	if not root or topButtonIds[id] then
+		return
+	end
+	topButtonIds[id] = true
+	local label = Builder.text("MENU_" .. id)
+	local glyph = Builder.text("MENU_GLYPH_" .. id)
+	local button = Builder.button({
+		parent = root,
+		name = "Top_" .. id,
+		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
+		color = color,
+		position = UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
+		size = UDim2.fromScale(CLOCK_SIZE.X, TOP_BUTTON_H),
+		anchor = Vector2.new(1, 0),
+		textSize = Theme.TextSize.Label,
+		aspect = 1,
+	}, onClick)
+	makeRound(button)
+	table.insert(topButtons, button)
+	layoutTopButtons()
 end
 
 -- The icon stack hides during a capture or a reveal (it sits above those dims) and shows otherwise.

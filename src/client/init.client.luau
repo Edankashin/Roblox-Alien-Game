@@ -50,6 +50,8 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
+local Prefs = require(script:WaitForChild("Prefs"))
+local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 
@@ -411,6 +413,7 @@ local function start(profile: Types.Profile)
 
 	State.Set(profile)
 	State.Start()
+	Prefs.Start() -- applies volumes, motion and silhouette preferences before anything plays or renders
 
 	-- The default chat window sits top-left over the Scrap pill and the menu stack; move it bottom-left.
 	local chatWindow = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
@@ -437,6 +440,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Peddler", PeddlerScreen)
 	Screens.Register("Quests", QuestsScreen)
 	Screens.Register("Gifts", GiftsScreen)
+	Screens.Register("Settings", SettingsScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -476,6 +480,7 @@ local function start(profile: Types.Profile)
 	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
 	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
 	Hud.AddMenuButton("Gifts", Theme.Colors.Close, menu("Gifts"))
+	Hud.AddTopButton("Settings", Theme.Colors.Select, menu("Settings"))
 	-- A gift egg hatches through the same reveal as a wild catch.
 	GiftsScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
