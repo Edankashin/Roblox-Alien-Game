@@ -198,6 +198,41 @@ Exit criteria: three people outside the team play it cold, finish the tutorial w
 
 ---
 
+## 5b. Build status (2026-10-05)
+
+What the branch `claude/alien-system-research` holds, by milestone, and how far each was verified in Studio through the Mac session. Test scripts per milestone are in `docs/TESTING.md`.
+
+| # | Milestone | Studio test |
+|---|---|---|
+| 1 to 2 | Bootstrap, saves (memory profiles in Studio), meadow, spawns, capture bar, reveal | pass |
+| 3 to 4 | Camp, Scrap income, materials, ship modules, Forest and Cave, condition-gated nodes | pass |
+| 5 to 6 | Menu stack, Aliens, Codex, Nearby, catch Scrap, lures, Scrap shop, Speed Boots, Peddler, power-ups, luck | pass |
+| 7 to 8 | Field Notes, shrine, reserved Warden; the tutorial | pass |
+| 9 | Welcome Week gifts, spin wheel, Meteor Shower | pass |
+| 10 | Radar Mk1 minimap, blip waypoints | pass |
+| 11 | Sound hooks (placeholder ids), particles, ambience, camera pan, crash opener | pass |
+| 12 | Mesh models in the world (placeholder fallback) | step 1 pass; the rest waits on a hand import |
+| 13 | Settings, preferences, analytics funnel | pass |
+| 14 | Robux launch shop (Starter Pack, four passes, boosts, server luck) | pass with grants; receipts wait on live ids |
+| 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | queued |
+
+Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists.
+
+**Waits on the team** (nothing else blocks these):
+- Import one model by hand (File > Import 3D, `assets/models/Mossbop/Mossbop.fbx`, into `ReplicatedStorage.Models`) to finish the milestone 12 test, then the rest.
+- Blender, `uv` and the MCP add-on on the Mac (`tools/setup-mac.sh`), for the next modelling pass.
+- Developer products and game passes in the Creator Dashboard; paste the ids into `src/shared/data/Shop.luau` (all 0 now, so Buy refuses safely).
+- Studio API access on the place, then `Config.UseDataStoreInStudio = true`, to test real saves and the schema migrations (v4).
+- Publish the World 2 place and put its id in `src/shared/data/Worlds.luau` so the launch teleports.
+- About 40 sound ids into `src/shared/data/Sounds.luau` and one icon pack (section 3.4 and the UI build notes).
+- Decide the slot-pass stacking rule (decision 17 below) before that pass goes live.
+
+**Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
+
+**Not built yet (P1 from section 18):** the Heater rule for blizzards, outposts producing materials, the Star Chart, the Hoverboard model and skins, daily quests, the compass strip, size rolls and growth, the home planet, paid spins.
+
+---
+
 ## 6. Compliance and store readiness
 
 - Complete the Experience Questionnaire honestly; expect a rating suitable for all ages or 9+, which rules out the US 18+ DevEx rate.
