@@ -127,6 +127,8 @@ return {
 	FlyTeleportDelaySeconds = 1.5, -- the client fades for this long before the server teleports a Fly
 	StarChartPulseSeconds = 1.2, -- the current world's card pulses with this period (off under Reduced Motion)
 	StarChartTickSeconds = 1, -- the pending numbers on the chart refresh this often while it is open
+	NotifyRetrySeconds = 5, -- a notifications card waiting for a clear screen (no catch, reveal, launch, fly or panel) re-checks this often
+	NotifyRetryCount = 12, -- and gives up after this many re-checks (the server asks again on a later session)
 
 	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
 	ModelFolderName = "Models",

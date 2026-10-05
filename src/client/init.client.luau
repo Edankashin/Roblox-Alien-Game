@@ -43,6 +43,7 @@ local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
 local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHint"))
 local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
+local NotifyCard = require(script:WaitForChild("UI"):WaitForChild("NotifyCard"))
 local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
 local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
@@ -56,6 +57,7 @@ local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsS
 local StarChartScreen = require(script:WaitForChild("UI"):WaitForChild("StarChartScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
+local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
@@ -539,6 +541,33 @@ local function connectToasts()
 	task.spawn(function()
 		Net.event("WardenRetreated").OnClientEvent:Connect(function()
 			Toast.Show(Strings.TOAST_WARDEN_RETREAT, Builder.tierColor("Legendary"))
+		end)
+	end)
+	-- The group gift's state: the server pushes it whenever membership or the claim changes.
+	task.spawn(function()
+		Net.event("SocialChanged").OnClientEvent:Connect(function(snapshot: GiftsScreen.SocialSnapshot)
+			GiftsScreen.SetSocial(snapshot)
+		end)
+	end)
+	-- A referral paid out (the invitee on joining through a link, the inviter per friend): a toast naming the reward.
+	task.spawn(function()
+		Net.event("ReferralGranted").OnClientEvent:Connect(function(role: string)
+			if role == "invitee" then
+				Builder.playSound(Sounds.GiftClaim)
+				Toast.Show(Strings.TOAST_REFERRAL_INVITEE:format(GiftsScreen.RewardText(Social.ReferralInvitee)), Theme.Colors.Featured)
+			elseif role == "inviter" then
+				Builder.playSound(Sounds.GiftClaim)
+				Toast.Show(Strings.TOAST_REFERRAL_INVITER:format(GiftsScreen.RewardText(Social.ReferralInviter)), Theme.Colors.Featured)
+			end
+		end)
+	end)
+	-- The server says it is time to ask about notifications; the card waits for a clear screen (never over a
+	-- catch, a reveal, a launch or fly sequence, the crash opener or an open panel).
+	task.spawn(function()
+		Net.event("NotifyAsk").OnClientEvent:Connect(function()
+			NotifyCard.Show(function()
+				return not inCapture and not Reveal.IsOpen() and not LaunchSequence.IsPlaying() and not flying and not cinematic and not Screens.IsAnyOpen()
+			end)
 		end)
 	end)
 	-- The offline settlement is claimed rather than pushed, so it is never missed on a slow boot.

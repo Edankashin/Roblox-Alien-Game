@@ -349,7 +349,7 @@ return {
 	REWARD_gear = "%s",
 	REWARD_lure = "%d x %s",
 	REWARD_scrap = "%s Scrap",
-	REWARD_spin = "%d free spin",
+	REWARD_spin = "%d free spins",
 	REWARD_item = "%s",
 	REWARD_encounter = "A guaranteed %s encounter",
 	ITEM_WardenHorn = "Warden's Horn",

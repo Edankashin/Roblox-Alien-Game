@@ -7,9 +7,15 @@
 -- is read from the gift state mirrored in State (GiftsChanged) and the shared data tables; every tap
 -- asks the server (ClaimGift, Spin) and a refusal becomes a toast. Nothing here decides an outcome:
 -- the server rolls the segment and the client only turns the wheel to the index it is told, and an
--- egg comes back as a GrantResult the bootstrap turns into a Reveal.
+-- egg comes back as a GrantResult the bootstrap turns into a Reveal. A "Tomorrow" line names the next
+-- gift. A third column holds the social asks: join the team's group (the native prompt, then the
+-- server checks membership and pays) and invite friends (the native invite sheet); the server owns
+-- who is a member and what a referral pays, this only prompts, asks and shows the answer.
 
 local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local GroupService = game:GetService("GroupService")
+local SocialService = game:GetService("SocialService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -20,6 +26,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Gifts = require(Shared:WaitForChild("data"):WaitForChild("Gifts"))
 local Spins = require(Shared:WaitForChild("data"):WaitForChild("Spins"))
+local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -31,6 +38,15 @@ local GiftsScreen = {}
 type Reward = { kind: string, id: string?, amount: number?, tier: string? }
 type GiftRow = { day: number, label: string, reward: Reward }
 type Segment = { id: string, label: string, odds: number, reward: Reward }
+
+-- The server's answer to GetSocial and the body of the SocialChanged push.
+export type SocialSnapshot = {
+	groupId: number,
+	inGroup: boolean,
+	groupClaimed: boolean,
+	referralsRewarded: number,
+	referredBy: number,
+}
 
 -- The rows carry rewards of different shapes, so the data tables are read through a loose type.
 local giftRows: { GiftRow } = (Gifts :: any)
@@ -50,21 +66,27 @@ type Tile = {
 -- One wheel segment: a block of name and odds labels that orbits the hub and is kept upright.
 type Wedge = { block: Frame, name: TextLabel, odds: TextLabel }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so both halves start under it.
+-- Panel layout, as fractions of the panel. The panel is wide (PANEL_ASPECT) so three columns sit side by
+-- side on a phone: Welcome Week, the wheel and the social column. The header tab straddles the top edge
+-- and the close button reaches down to 0.155, so every column starts under it.
+local PANEL_ASPECT = 1.8
 local BODY_Y = 0.16
 local HEADING_H = 0.065
+local COL_GAP = Theme.Margin
 local LEFT_X = Theme.Margin
-local LEFT_W = 0.46
-local RIGHT_X = 0.52
-local RIGHT_W = 1 - Theme.Margin - RIGHT_X
-local DAYS_Y = 0.23
+local LEFT_W = 0.34
+local MID_X = LEFT_X + LEFT_W + COL_GAP
+local MID_W = 0.32
+local SOCIAL_X = MID_X + MID_W + COL_GAP
+local SOCIAL_W = 1 - Theme.Margin - SOCIAL_X
+local DAYS_Y = 0.225
 local DAYS_H = 0.045
-local HINT_Y = 0.28
-local HINT_H = 0.055
+local NEXT_Y = 0.272 -- the Tomorrow line, under Days played
+local NEXT_H = 0.068
 local GRID_Y = 0.345
-local GRID_H = 1 - Theme.Margin - GRID_Y
-local GRID_COLS = 3 -- 3 + 3 + 1: square tiles that fill the left half's height; Day 7 ends the row alone
+local GRID_COLS = 3 -- 3 + 3 + 1: Day 7 ends the last row alone and the hint fills the two free cells beside it
+local GRID_ROWS = 3
+local GRID_H = LEFT_W * PANEL_ASPECT * GRID_ROWS / GRID_COLS -- square cells at any panel size
 local TILE_INSET = 0.92 -- the card inside its grid slot; the rest is the gap
 local WHEEL_Y = 0.235
 local WHEEL_H = 0.5
@@ -72,6 +94,14 @@ local LINES_Y = 0.75
 local LINES_H = 0.045
 local ODDS_Y = 0.81
 local ODDS_H = 1 - Theme.Margin - ODDS_Y
+-- The social column: the group block (button over the line saying what it pays), then the invite block.
+-- With no group (Social.GroupId == 0) the invite block takes the top slot.
+local SOCIAL_Y = 0.17
+local SOCIAL_BUTTON_H = 0.1
+local SOCIAL_LINE_GAP = 0.01
+local GROUP_LINE_H = 0.19
+local INVITE_LINE_H = 0.3
+local SOCIAL_BLOCK_GAP = 0.04
 
 -- Wheel geometry, as fractions of the wheel square (the ring reads at any size).
 local LABEL_RADIUS = 0.34 -- where each segment block sits
@@ -94,6 +124,12 @@ local wedges: { Wedge } = {}
 local spinButton: Frame? = nil
 local freeLabel: TextLabel? = nil
 local bankedLabel: TextLabel? = nil
+local nextLabel: TextLabel? = nil -- the Tomorrow line
+local groupButton: Frame? = nil -- absent while Social.GroupId is 0
+local social: SocialSnapshot? = nil -- the server's last word on the group gift (GetSocial, SocialChanged)
+local socialSeq = 0 -- bumped by every fetch and push so a slow answer never overwrites a newer one
+local groupPending = false -- one group request in flight at a time: the prompt, the claim and the re-fetch
+local invitePending = false
 local open = false
 local pending = false -- one server request in flight at a time
 local spinning = false -- the wheel is turning; the Spin button stays grey until it settles
@@ -132,18 +168,55 @@ local function recolorChip(chip: Frame, color: Color3)
 	end
 end
 
+-- Sets the label of a Builder.button (its "Face" child).
+local function setButtonText(container: Frame, text: string)
+	local face = container:FindFirstChild("Face")
+	if face and face:IsA("TextButton") then
+		face.Text = text
+	end
+end
+
+-- A lure's or power-up's name from its id key (LURE_Lure1, POWERUP_SpeedBurst); nil for other kinds.
+local function itemName(kind: string, id: string?): string?
+	if kind == "lure" and id then
+		return Builder.text("LURE_" .. id)
+	elseif kind == "powerUp" and id then
+		return Builder.text("POWERUP_" .. id)
+	end
+	return nil
+end
+
 -- The reward's name: lures and power-ups by their id keys, everything else by the row's label with
 -- the spaces removed (GIFT_LABEL_WelcomePack), falling back to the raw label if no key exists.
 local function rewardLabel(row: GiftRow): string
 	local reward = row.reward
-	if reward.kind == "lure" and reward.id then
-		return Builder.text("LURE_" .. reward.id)
-	elseif reward.kind == "powerUp" and reward.id then
-		return Builder.text("POWERUP_" .. reward.id)
+	local name = itemName(reward.kind, reward.id)
+	if name then
+		return name
 	end
 	local key = "GIFT_LABEL_" .. row.label:gsub("%s+", "")
 	local text = Builder.text(key)
 	return if text == key then row.label else text
+end
+
+-- One social reward through the existing REWARD_ templates ("500 Scrap", "3 x Twig Lure", "2 free spin");
+-- a power-up reads like a lure, count then name.
+local function socialRewardText(reward: Social.Reward): string
+	if reward.kind == "scrap" then
+		return Strings.REWARD_scrap:format(Builder.formatNumber(reward.amount))
+	elseif reward.kind == "spin" then
+		return Strings.REWARD_spin:format(reward.amount)
+	end
+	return Strings.REWARD_lure:format(reward.amount, itemName(reward.kind, reward.id) or (reward.id or ""))
+end
+
+-- A whole reward list, joined with the translated separator.
+local function rewardListText(rewards: { Social.Reward }): string
+	local parts: { string } = {}
+	for _, reward in ipairs(rewards) do
+		table.insert(parts, socialRewardText(reward))
+	end
+	return table.concat(parts, Strings.SOCIAL_REWARD_SEPARATOR)
 end
 
 -- The tile's accent: an egg takes its tier colour (Day 7's Epic egg reads Epic), the rest gold.
@@ -224,6 +297,59 @@ local function refreshSpin()
 	end
 end
 
+-- The Tomorrow line: the first gift whose day is still ahead, or the all-claimed line. Hidden when every
+-- day is reached but some gifts still wait (there is no tomorrow to name and the week is not done).
+local function refreshNext(gifts: Types.GiftState)
+	local label = nextLabel
+	if not label then
+		return
+	end
+	local upcoming: GiftRow? = nil
+	local allClaimed = true
+	for _, row in ipairs(giftRows) do
+		local key = tostring(row.day)
+		if gifts.claimed[key] ~= true and claimedLocal[key] ~= true then
+			allClaimed = false
+		end
+		if upcoming == nil and row.day > gifts.daysPlayed then
+			upcoming = row
+		end
+	end
+	if upcoming then
+		label.Text = Strings.GIFTS_NEXT:format(rewardLabel(upcoming))
+		label.Visible = true
+	elseif allClaimed then
+		label.Text = Strings.GIFTS_NEXT_DONE
+		label.Visible = true
+	else
+		label.Visible = false
+	end
+end
+
+-- The group button's state from the server's snapshot: Join, then Claim once a member, then a dimmed
+-- Claimed. It greys while a request is in flight.
+local function refreshSocial()
+	local button = groupButton
+	if not button then
+		return
+	end
+	local snap = social
+	local text: string
+	local color: Color3
+	if snap and snap.groupClaimed then
+		text, color = Strings.SOCIAL_GROUP_CLAIMED, Theme.Rarity.Common
+	elseif snap and snap.inGroup then
+		text, color = Strings.SOCIAL_GROUP_CLAIM, Theme.Colors.Confirm
+	else
+		text, color = Strings.SOCIAL_GROUP_JOIN, Theme.Colors.Select
+	end
+	if groupPending then
+		color = Theme.Rarity.Common
+	end
+	setButtonText(button, text)
+	recolorButton(button, color)
+end
+
 local function refresh()
 	if not open then
 		return
@@ -238,7 +364,9 @@ local function refresh()
 			refreshTile(tile, row, gifts)
 		end
 	end
+	refreshNext(gifts)
 	refreshSpin()
+	refreshSocial()
 end
 
 -- Server calls -------------------------------------------------------------
@@ -360,6 +488,98 @@ local function spin()
 			end
 			refreshSpin()
 		end
+	end)
+end
+
+-- Social ------------------------------------------------------------------
+
+-- Asks the server where the player stands with the group gift and redraws. Yields: callers run it in a task.
+local function fetchSocial()
+	socialSeq += 1
+	local seq = socialSeq
+	local ok, raw = pcall(function()
+		return Net.func("GetSocial"):InvokeServer()
+	end)
+	if not ok or seq ~= socialSeq or type(raw) ~= "table" then
+		return
+	end
+	social = raw :: SocialSnapshot
+	refreshSocial()
+end
+
+-- The native join prompt for the team's group: client-only, yields until the player answers. Whatever the
+-- answer, the server is asked again afterwards because it alone says who is a member.
+local function promptJoin()
+	local ok, err = pcall(function()
+		return GroupService:PromptJoinAsync(Social.GroupId)
+	end)
+	if not ok then
+		print(("[%s] PromptJoinAsync failed: %s"):format(Config.WorkingTitle, tostring(err)))
+	end
+end
+
+-- Asks the server to pay the group gift and toasts the answer; the server pushes Scrap, inventory and spins.
+local function claimGroup()
+	local called, ok, reason = pcall(function()
+		return Net.func("ClaimGroupReward"):InvokeServer()
+	end)
+	if called and ok == true then
+		Builder.playSound(Sounds.GiftClaim)
+		Toast.Show(Strings.TOAST_GROUP_CLAIMED:format(rewardListText(Social.GroupReward)), Theme.Colors.Featured)
+	elseif called and reason == "NotMember" then
+		Toast.Show(Strings.TOAST_GROUP_NOT_MEMBER, Theme.Colors.Select)
+	elseif called and reason == "AlreadyClaimed" then
+		Toast.Show(Strings.TOAST_GROUP_ALREADY, Theme.Rarity.Common)
+	else
+		print(("[%s] ClaimGroupReward refused: %s"):format(Config.WorkingTitle, tostring(if called then reason else ok)))
+	end
+end
+
+-- The group button: Join prompts, Claim asks the server, Claimed only says so. One request at a time.
+local function onGroupTap()
+	if groupPending then
+		return
+	end
+	local snap = social
+	if snap and snap.groupClaimed then
+		Toast.Show(Strings.TOAST_GROUP_ALREADY, Theme.Rarity.Common)
+		return
+	end
+	groupPending = true
+	refreshSocial()
+	task.spawn(function()
+		if snap and snap.inGroup then
+			claimGroup()
+		else
+			promptJoin()
+		end
+		fetchSocial()
+		groupPending = false
+		refreshSocial()
+	end)
+end
+
+-- The invite button: the native invite sheet when the platform allows it, otherwise a toast.
+local function onInviteTap()
+	if invitePending then
+		return
+	end
+	invitePending = true
+	task.spawn(function()
+		local player = Players.LocalPlayer
+		local askedOk, canInvite = pcall(function()
+			return SocialService:CanSendGameInviteAsync(player)
+		end)
+		local prompted = false
+		if askedOk and canInvite == true then
+			prompted = pcall(function()
+				SocialService:PromptGameInvite(player)
+			end)
+		end
+		if not prompted then
+			Toast.Show(Strings.TOAST_INVITE_UNAVAILABLE, Theme.Rarity.Common)
+		end
+		invitePending = false
 	end)
 end
 
@@ -522,8 +742,8 @@ local function buildWheel(parent: Frame): Frame
 	local holder = Builder.frame({
 		parent = parent,
 		name = "Wheel",
-		position = UDim2.fromScale(RIGHT_X + RIGHT_W / 2, WHEEL_Y),
-		size = UDim2.fromScale(RIGHT_W, WHEEL_H),
+		position = UDim2.fromScale(MID_X + MID_W / 2, WHEEL_Y),
+		size = UDim2.fromScale(MID_W, WHEEL_H),
 		anchor = Vector2.new(0.5, 0),
 		aspect = 1,
 		zIndex = 3,
@@ -610,6 +830,61 @@ local function oddsLine(): string
 	return Strings.SPIN_ODDS:format(table.concat(parts, Strings.UI_LIST_SEPARATOR))
 end
 
+-- The social column: the group gift (button, then what it pays) when the team has a group, then the
+-- invite button and what a referral pays. The labels start at the top so a long line grows downwards.
+local function buildSocial(body: Frame)
+	local y = SOCIAL_Y
+	if Social.GroupId ~= 0 then
+		groupButton = Builder.button({
+			parent = body,
+			name = "GroupGift",
+			text = Strings.SOCIAL_GROUP_JOIN,
+			color = Theme.Colors.Select,
+			position = UDim2.fromScale(SOCIAL_X, y),
+			size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
+			textSize = Theme.TextSize.Body,
+			zIndex = 3,
+		}, onGroupTap)
+		y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
+		local groupLine = Builder.label({
+			parent = body,
+			name = "GroupLine",
+			text = Strings.SOCIAL_GROUP_LINE:format(rewardListText(Social.GroupReward)),
+			textSize = Theme.TextSize.Body,
+			color = Theme.Colors.Outline,
+			stroke = 0,
+			position = UDim2.fromScale(SOCIAL_X, y),
+			size = UDim2.fromScale(SOCIAL_W, GROUP_LINE_H),
+			zIndex = 3,
+		})
+		groupLine.TextYAlignment = Enum.TextYAlignment.Top
+		y += GROUP_LINE_H + SOCIAL_BLOCK_GAP
+	end
+	Builder.button({
+		parent = body,
+		name = "InviteFriends",
+		text = Strings.SOCIAL_INVITE,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(SOCIAL_X, y),
+		size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
+		textSize = Theme.TextSize.Body,
+		zIndex = 3,
+	}, onInviteTap)
+	y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
+	local inviteLine = Builder.label({
+		parent = body,
+		name = "InviteLine",
+		text = Strings.SOCIAL_INVITE_LINE:format(rewardListText(Social.ReferralInviter), rewardListText(Social.ReferralInvitee)),
+		textSize = Theme.TextSize.Body,
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		position = UDim2.fromScale(SOCIAL_X, y),
+		size = UDim2.fromScale(SOCIAL_W, INVITE_LINE_H),
+		zIndex = 3,
+	})
+	inviteLine.TextYAlignment = Enum.TextYAlignment.Top
+end
+
 -- Build ----------------------------------------------------------------------
 
 local function build()
@@ -639,13 +914,13 @@ local function build()
 		parent = root,
 		name = "Panel",
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
+		size = UDim2.fromScale(0.86, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
 		corner = Theme.Corner.Panel,
 		stroke = Theme.Stroke.Panel,
 		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
@@ -655,7 +930,7 @@ local function build()
 		parent = body,
 		name = "Header",
 		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
+		size = UDim2.fromScale(0.34, 0.11),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Featured,
 		corner = Theme.Corner.Card,
@@ -711,6 +986,18 @@ local function build()
 		size = UDim2.fromScale(LEFT_W, DAYS_H),
 		zIndex = 3,
 	})
+	nextLabel = Builder.label({
+		parent = body,
+		name = "Tomorrow",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		position = UDim2.fromScale(LEFT_X, NEXT_Y),
+		size = UDim2.fromScale(LEFT_W, NEXT_H),
+		zIndex = 3,
+	})
+	-- The hint fills the two free cells beside Day 7, the last row's only tile.
 	Builder.label({
 		parent = body,
 		name = "Hint",
@@ -718,8 +1005,8 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Outline,
 		stroke = 0,
-		position = UDim2.fromScale(LEFT_X, HINT_Y),
-		size = UDim2.fromScale(LEFT_W, HINT_H),
+		position = UDim2.fromScale(LEFT_X + LEFT_W / GRID_COLS, GRID_Y + GRID_H * (GRID_ROWS - 1) / GRID_ROWS),
+		size = UDim2.fromScale(LEFT_W * (GRID_COLS - 1) / GRID_COLS, GRID_H / GRID_ROWS),
 		zIndex = 3,
 	})
 
@@ -738,7 +1025,7 @@ local function build()
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 	layout.CellPadding = UDim2.fromScale(0, 0) -- the gap is the inset of each card inside its slot
-	layout.CellSize = UDim2.fromScale(1 / GRID_COLS, 1 / GRID_COLS)
+	layout.CellSize = UDim2.fromScale(1 / GRID_COLS, 1 / GRID_ROWS)
 	layout.Parent = grid
 	local squareCells = Instance.new("UIAspectRatioConstraint")
 	squareCells.AspectRatio = 1
@@ -750,7 +1037,7 @@ local function build()
 		table.insert(tiles, buildTile(grid, index, row))
 	end
 
-	-- Right half: the spin wheel --------------------------------------------
+	-- Middle column: the spin wheel -----------------------------------------
 	Builder.label({
 		parent = body,
 		name = "SpinHeading",
@@ -758,8 +1045,8 @@ local function build()
 		textSize = Theme.TextSize.Label,
 		color = Theme.Colors.Heading,
 		strokeColor = Theme.Colors.Black,
-		position = UDim2.fromScale(RIGHT_X, BODY_Y),
-		size = UDim2.fromScale(RIGHT_W, HEADING_H),
+		position = UDim2.fromScale(MID_X, BODY_Y),
+		size = UDim2.fromScale(MID_W, HEADING_H),
 		zIndex = 3,
 	})
 	buildWheel(body)
@@ -768,8 +1055,8 @@ local function build()
 		name = "FreeSpins",
 		text = Strings.SPIN_FREE:format(0),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(RIGHT_X, LINES_Y),
-		size = UDim2.fromScale(RIGHT_W / 2, LINES_H),
+		position = UDim2.fromScale(MID_X, LINES_Y),
+		size = UDim2.fromScale(MID_W / 2, LINES_H),
 		zIndex = 3,
 	})
 	bankedLabel = Builder.label({
@@ -777,8 +1064,8 @@ local function build()
 		name = "BankedSpins",
 		text = Strings.SPIN_BANKED:format(0),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(RIGHT_X + RIGHT_W / 2, LINES_Y),
-		size = UDim2.fromScale(RIGHT_W / 2, LINES_H),
+		position = UDim2.fromScale(MID_X + MID_W / 2, LINES_Y),
+		size = UDim2.fromScale(MID_W / 2, LINES_H),
 		zIndex = 3,
 	})
 	Builder.label({
@@ -788,10 +1075,12 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Outline,
 		stroke = 0,
-		position = UDim2.fromScale(RIGHT_X, ODDS_Y),
-		size = UDim2.fromScale(RIGHT_W, ODDS_H),
+		position = UDim2.fromScale(MID_X, ODDS_Y),
+		size = UDim2.fromScale(MID_W, ODDS_H),
 		zIndex = 3,
 	})
+
+	buildSocial(body)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
 	State.OnChanged("gifts", function()
@@ -816,6 +1105,7 @@ function GiftsScreen.Open()
 	refresh()
 	root.Enabled = true
 	Builder.open(body)
+	task.spawn(fetchSocial)
 end
 
 function GiftsScreen.Close()
@@ -841,6 +1131,19 @@ function GiftsScreen.Toggle()
 	else
 		GiftsScreen.Open()
 	end
+end
+
+-- A reward list as one line ("500 Scrap, 3 x Twig Lure, 2 free spin"), for the group line, the invite line
+-- and the bootstrap's referral toasts.
+function GiftsScreen.RewardText(rewards: { Social.Reward }): string
+	return rewardListText(rewards)
+end
+
+-- The bootstrap's hook for SocialChanged: the server's new group state, drawn at once if the screen is up.
+function GiftsScreen.SetSocial(snapshot: SocialSnapshot)
+	socialSeq += 1
+	social = snapshot
+	refreshSocial()
 end
 
 -- The bootstrap's hook for an egg: the server's GrantResult for a hatched alien, to show as a Reveal.
