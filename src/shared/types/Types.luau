@@ -77,6 +77,7 @@ export type Profile = {
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
 	purchases: { [string]: number },
+	buffs: { [string]: number }, -- active power-ups: id -> seconds remaining (ticks down only while online)
 	inventory: { keyMaterials: { [string]: number }, lures: { [string]: number }, powerUps: { [string]: number } },
 	stats: { catches: number, perfects: number, playSeconds: number },
 	tutorialStep: number,
@@ -143,6 +144,13 @@ export type CaptureHitResult = {
 	scrapGained: number?,
 	scrap: number?,
 }
+
+-- Peddler visit (PeddlerChanged event to all clients, GetPeddler for late joiners); nil between visits.
+export type PeddlerOffer = { id: string, kind: string, scrap: number, amount: number?, tier: string? }
+export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsAt on the server wall clock (os.time())
+
+-- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
+export type GrantResult = { species: string, tier: Tier, overlay: Overlay, isNew: boolean, scrapGained: number, scrap: number }
 
 -- Server-wide banner (Announcement event, FireAllClients) when someone catches a rare enough alien.
 export type Announcement = { kind: "catch", playerName: string, species: string, tier: Tier, overlay: Overlay }

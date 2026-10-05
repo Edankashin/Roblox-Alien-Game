@@ -91,5 +91,14 @@ return {
 	PityMax = 1.0,
 
 	-- Peddler
-	PeddlerIntervalSeconds = 300,
+	PeddlerIntervalSeconds = 300, -- a visit starts this often, measured from the previous visit's start
+	PeddlerVisitSeconds = 90, -- how long the ship stays
+	PeddlerInteractDistance = 12, -- studs from the ship to show Trade
+	PeddlerDescendSeconds = 2.5, -- client landing and take-off tween
+	PeddlerHoverHeight = 60, -- where the ship waits in the sky between visits
+
+	-- power-ups
+	BuffTickSeconds = 1, -- the server counts active power-ups down this often, only while the player is online
+	BuffPushSeconds = 5, -- and tells the client the remaining seconds this often (the client counts between pushes)
+	LuckNightBonus = 0.25, -- luck bonus while it is night (design: night, for night-conditional species)
 }

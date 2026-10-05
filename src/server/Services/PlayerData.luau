@@ -52,6 +52,7 @@ local function template(): Types.Profile
 		spins = { free = 1, banked = 0, lastFree = 0 },
 		luck = { pity = 0 },
 		purchases = {},
+		buffs = {},
 		inventory = { keyMaterials = {}, lures = {}, powerUps = {} },
 		stats = { catches = 0, perfects = 0, playSeconds = 0 },
 		tutorialStep = 0,

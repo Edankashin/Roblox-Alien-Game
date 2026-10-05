@@ -17,13 +17,16 @@ local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local State = {}
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
 local ratePushed = false -- until the server's first RateChanged, the rate is derived from the profile
 local clock: Types.ClockState = { isNight = false, weather = "Clear", secondsLeft = 0 }
 local biome: Types.Biome = "Meadow"
+local buffs: { [string]: number } = {} -- id -> server wall-clock time (os.time scale) the buff ends at
+local peddler: Types.PeddlerVisit? = nil
+local luck = 1
 local changed = Instance.new("BindableEvent")
 local started = false
 
@@ -82,6 +85,20 @@ function State.SetBiome(b: Types.Biome)
 		biome = b
 		fire("biome")
 	end
+end
+
+-- Active power-ups as end times on the server wall clock; compare with State.Now().
+function State.GetBuffs(): { [string]: number }
+	return buffs
+end
+
+-- The current Peddler visit, or nil between visits.
+function State.GetPeddler(): Types.PeddlerVisit?
+	return peddler
+end
+
+function State.GetLuck(): number
+	return luck
 end
 
 -- Mirrors the server's codex write for a catch the server just confirmed (the CaptureHit result is
@@ -167,6 +184,31 @@ function State.Start()
 				profile.gear = gear
 				fire("gear")
 			end
+		end)
+	end)
+	task.spawn(function()
+		-- BuffsChanged carries seconds remaining per active power-up; stored as end times so the client
+		-- can count down between pushes with State.Now().
+		Net.event("BuffsChanged").OnClientEvent:Connect(function(remaining: { [string]: number })
+			local now = Workspace:GetServerTimeNow()
+			local next: { [string]: number } = {}
+			for id, seconds in pairs(remaining) do
+				next[id] = now + seconds
+			end
+			buffs = next
+			fire("buffs")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?)
+			peddler = visit
+			fire("peddler")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("LuckChanged").OnClientEvent:Connect(function(value: number)
+			luck = value
+			fire("luck")
 		end)
 	end)
 	task.spawn(function()
