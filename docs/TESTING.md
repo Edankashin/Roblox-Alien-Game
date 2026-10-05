@@ -157,3 +157,17 @@ Every sound id in `src/shared/data/Sounds.luau` is still `rbxassetid://0`, so no
 Harness note: Studio's MCP `execute_luau` records the camera type when a call starts and restores it when the call ends, so a call that straddles a camera sequence (the opener, a pan) leaves the camera Scriptable afterwards. Start such calls only while the camera is Custom.
 
 Known gaps in this milestone: real sound assets (the team picks about 40 ids into Sounds.luau), the day/night ambience cross-fade is untestable until ids exist, no particle textures (round default dots), the launch sequence waits for World 2.
+
+## Milestone 12: mesh models in the world
+
+Needs one model imported by hand first: File > Import 3D on `assets/models/Mossbop/Mossbop.fbx` (scale 1), then move the "Mossbop" Model into a folder `ReplicatedStorage.Models` (create it). Everything else keeps its placeholder, which is the point of the test.
+1. Press Play. No warning about a missing Models folder (with no folder at all the client warns once, "placeholders in use", and nothing else changes).
+2. Wild Mossbops render as the mesh: a green round body with eyes, feet on the ground where the placeholder ball sat, bobbing, each turned a different way, facing -Z of its own frame (the eyes point along the Model's front). The server's Part is invisible but still carries the nameplate, now lifted above the mesh's top. Every other species is still a placeholder shape.
+3. Shadow: on a fresh profile a Mossbop beyond 40 studs is a dark silhouette (every MeshPart in the shadow colour, SmoothPlastic); walking within 40 studs restores its exact colours. Catching one keeps it in colour everywhere after.
+4. Catch a Mossbop: the Reveal card shows the mesh in a slowly turning viewport instead of the green square; the "NEW!" ribbon, tier and Scrap lines are unchanged. Catch any other species: the placeholder square still shows.
+5. Codex: the Mossbop entry shows the mesh on the pedestal, turning; uncaught it is the dark silhouette. A placeholder species shows its shape as before.
+6. Camp: a Mossbop seated at a station is the mesh at worker scale, facing its station, bobbing, with its nameplate; a placeholder species beside it is the old shape.
+7. Facing check: if the eyes point away from the Model's front (toward +Z), set `Config.ModelFacesPlusZ = true` and confirm the clone turns 180 degrees; the FBX import should not need it.
+8. Nearby, Radar, catch distance and the tap-to-catch on the alien all still work on the server Part (the mesh parts are not queryable).
+
+Known gaps in this milestone: models are imported by hand into the place (no Open Cloud upload yet), no idle animation, overlays (Shiny, Gold) still tint only the placeholder.

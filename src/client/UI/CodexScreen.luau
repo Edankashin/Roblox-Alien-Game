@@ -4,7 +4,8 @@
 -- grid of one square card per species (Tiers.Order, then name). Caught species show their placeholder
 -- colour and shape; uncaught ones are dark silhouettes with the unknown mark, named unless Secret so
 -- players know what to chase. The right third is the detail card: a slowly turning ViewportFrame of
--- the placeholder part on a pedestal, the name, the tier in its colour, the jobs, and either where it
+-- the species mesh (World.Models; shadowed while uncaught) or, without one, the placeholder part on a
+-- pedestal, the name, the tier in its colour, the jobs, and either where it
 -- was found, the caught count and the best overlay, or a hint line and the first-catch payout.
 -- Everything shown is read from the profile mirror in State and the shared data tables; nothing here
 -- decides an outcome.
@@ -15,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
@@ -22,6 +24,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
+local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 
 local CodexScreen = {}
 
@@ -47,7 +50,9 @@ type Detail = {
 	content: Frame,
 	viewport: ViewportFrame,
 	viewStroke: UIStroke,
-	part: Part,
+	camera: Camera,
+	part: Part, -- the placeholder; hidden while a mesh clone stands on the pedestal
+	model: Model?,
 	mark: TextLabel,
 	name: TextLabel,
 	tier: TextLabel,
@@ -75,6 +80,10 @@ local PEDESTAL_THICKNESS = 0.25
 local PEDESTAL_TOP = -1.2 -- studs; the alien part stands on this
 local ROTATE_SPEED = math.rad(40) -- radians per second while the screen is open
 local CAMERA_FOV = 45
+local CAMERA_DISTANCE = 6 -- studs from the look-at point along the line of sight, for aliens that fit
+local CAMERA_HEIGHT = 1.3 -- camera height at that distance; the line of sight keeps this slope when it pulls back
+local CAMERA_TARGET_Y = 0.1 -- the look-at point, just above the pedestal centre
+local CAMERA_FIT = 1.15 -- margin over the exact fit when a tall mesh pushes the camera back
 
 local SHAPES: { [string]: Enum.PartType } = {
 	Ball = Enum.PartType.Ball,
@@ -148,7 +157,14 @@ end
 
 -- Detail card ----------------------------------------------------------------
 
+-- Turns whatever stands on the pedestal: the mesh clone by its pivot (its feet, on the pedestal top),
+-- or the placeholder part about its centre, upright for cylinders.
 local function placePart(d: Detail)
+	local model = d.model
+	if model then
+		model:PivotTo(CFrame.new(0, PEDESTAL_TOP, 0) * CFrame.Angles(0, angle, 0))
+		return
+	end
 	local cf = CFrame.new(0, partBaseY, 0) * CFrame.Angles(0, angle, 0)
 	if partUpright then
 		cf = cf * CFrame.Angles(0, 0, math.rad(90))
@@ -156,13 +172,40 @@ local function placePart(d: Detail)
 	d.part.CFrame = cf
 end
 
+-- The camera keeps its line of sight and pulls back only when something taller than the default
+-- framing stands on the pedestal (meshes run to about twice the placeholder height).
+local function frameCamera(d: Detail, height: number)
+	local target = Vector3.new(0, CAMERA_TARGET_Y, 0)
+	local direction = Vector3.new(0, CAMERA_HEIGHT - CAMERA_TARGET_Y, CAMERA_DISTANCE).Unit
+	local halfSpan = math.max(PEDESTAL_TOP + height - CAMERA_TARGET_Y, CAMERA_TARGET_Y - (PEDESTAL_TOP - PEDESTAL_THICKNESS))
+	local distance = math.max(CAMERA_DISTANCE, halfSpan / math.tan(math.rad(CAMERA_FOV) / 2) * CAMERA_FIT)
+	d.camera.CFrame = CFrame.lookAt(target + direction * distance, target)
+end
+
 local function setPart(d: Detail, def: Types.SpeciesDef, caught: boolean)
+	local previous = d.model
+	if previous then
+		previous:Destroy()
+		d.model = nil
+	end
+	local model = Models.Clone(def, Config.ModelViewportScale)
+	if model then
+		Models.SetShadow(model, not caught)
+		model.Parent = d.viewport
+		d.model = model
+		d.part.Transparency = 1
+		frameCamera(d, Models.Height(model))
+		placePart(d)
+		return
+	end
+	d.part.Transparency = 0
 	local size = PART_STUDS * def.placeholder.scale
 	d.part.Shape = SHAPES[def.placeholder.shape] or Enum.PartType.Ball
 	d.part.Size = Vector3.one * size
 	d.part.Color = if caught then Color3.fromHex(def.placeholder.color) else Theme.Shadow
 	partUpright = def.placeholder.shape == "Cylinder"
 	partBaseY = PEDESTAL_TOP + size / 2
+	frameCamera(d, size)
 	placePart(d)
 end
 
@@ -280,7 +323,7 @@ local function buildDetail(parent: Frame): Detail
 
 	local camera = Instance.new("Camera")
 	camera.FieldOfView = CAMERA_FOV
-	camera.CFrame = CFrame.lookAt(Vector3.new(0, 1.3, 6), Vector3.new(0, 0.1, 0))
+	camera.CFrame = CFrame.lookAt(Vector3.new(0, CAMERA_HEIGHT, CAMERA_DISTANCE), Vector3.new(0, CAMERA_TARGET_Y, 0))
 	camera.Parent = viewport
 	viewport.CurrentCamera = camera
 
@@ -333,7 +376,9 @@ local function buildDetail(parent: Frame): Detail
 		content = content,
 		viewport = viewport,
 		viewStroke = viewStroke,
+		camera = camera,
 		part = part,
+		model = nil,
 		mark = mark,
 		name = line("Name", 0.46, 0.09, Theme.TextSize.Label),
 		tier = line("Tier", 0.55, 0.06, Theme.TextSize.Body),

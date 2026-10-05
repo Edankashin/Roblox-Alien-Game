@@ -5,6 +5,10 @@
 -- (the server never moves it, so a local CFrame does not fight replication), and renders species
 -- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance. A part
 -- reserved for another player (ReservedFor, a summoned Warden) is hidden locally and never tracked.
+-- A species with a mesh in ReplicatedStorage.Models (World.Models) is drawn as a clone of it under the
+-- client-made Workspace.ClientWild folder, feet where the placeholder's bottom sits, bobbing with the
+-- part; the server part is then invisible locally but stays what Nearest and PartAtScreenPoint return.
+-- Without a mesh the placeholder part shows exactly as before.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,13 +17,18 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
+local Models = require(script.Parent:WaitForChild("Models"))
 
 local WildRenderer = {}
+
+local VISUAL_FOLDER = "ClientWild" -- client-made Workspace folder for the mesh clones; nothing in it replicates
+local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and its nameplate
 
 type Record = {
 	part: Part,
@@ -31,12 +40,15 @@ type Record = {
 	shadowed: boolean,
 	plate: BillboardGui,
 	nameLabel: TextLabel,
+	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
+	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
 }
 
 local records: { [Part]: Record } = {}
 local known: { [string]: boolean } = {}
 local rng = Random.new()
 local wildFolder: Folder? = nil
+local visualFolder: Folder? = nil
 local renderConn: RBXScriptConnection? = nil
 local localPlayer = Players.LocalPlayer
 
@@ -52,12 +64,14 @@ local function rootPosition(): Vector3?
 	return nil
 end
 
-local function buildPlate(part: Part, name: string, tier: string): (BillboardGui, TextLabel)
+-- `topOffset` is the distance from the part's centre up to the top of what the player sees: half the
+-- part for a placeholder, the mesh's top for a model.
+local function buildPlate(part: Part, name: string, tier: string, topOffset: number): (BillboardGui, TextLabel)
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
 	plate.Size = UDim2.fromScale(7, 2) -- studs
-	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + Config.WildBobStuds + 1.2, 0)
+	plate.StudsOffsetWorldSpace = Vector3.new(0, topOffset + Config.WildBobStuds + PLATE_LIFT, 0)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = false
 	plate.LightInfluence = 0
@@ -84,10 +98,33 @@ local function buildPlate(part: Part, name: string, tier: string): (BillboardGui
 	return plate, nameLabel
 end
 
+-- The mesh clone for a wild part, stood where the placeholder's bottom sits. The Spawner centres the
+-- part Size.Y / 2 above WildHoverStuds over the surface, so the feet go at the part's centre minus
+-- half its height; the facing is a random yaw so a field of one species does not stand in formation.
+local function buildModel(part: Part, def: Types.SpeciesDef): (Model?, CFrame?)
+	local parent = visualFolder
+	if not parent then
+		return nil, nil
+	end
+	local clone = Models.Clone(def, Config.ModelWildScale)
+	if not clone then
+		return nil, nil
+	end
+	local feet = part.CFrame.Position - Vector3.new(0, part.Size.Y / 2, 0)
+	local base = CFrame.new(feet) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
+	clone:PivotTo(base)
+	clone.Parent = parent
+	return clone, base
+end
+
 local function applyShadow(record: Record)
 	record.shadowed = true
 	record.part.Color = Theme.Shadow
 	record.part.Material = Enum.Material.SmoothPlastic
+	local model = record.model
+	if model then
+		Models.SetShadow(model, true)
+	end
 	record.nameLabel.Text = Strings.UNKNOWN_NAME
 end
 
@@ -98,7 +135,12 @@ local function reveal(record: Record)
 	record.shadowed = false
 	local def = Species.ById[record.species]
 	record.nameLabel.Text = if def then def.name else record.species
-	TweenService:Create(record.part, TweenInfo.new(Theme.Tween.Open * 2, Enum.EasingStyle.Quad), { Color = record.realColor }):Play()
+	local model = record.model
+	if model then
+		Models.SetShadow(model, false)
+	else
+		TweenService:Create(record.part, TweenInfo.new(Theme.Tween.Open * 2, Enum.EasingStyle.Quad), { Color = record.realColor }):Play()
+	end
 	local scale = record.plate:FindFirstChildOfClass("UIScale")
 	if scale then
 		scale.Scale = 1.35
@@ -115,9 +157,18 @@ local function track(instance: Instance)
 	if type(species) ~= "string" or type(tier) ~= "string" then
 		return
 	end
-	local def = Species.ById[species]
+	local def: Types.SpeciesDef? = Species.ById[species]
 	local displayName = if def then def.name else species
-	local plate, nameLabel = buildPlate(instance, displayName, tier)
+	local model: Model? = nil
+	local modelBase: CFrame? = nil
+	local topOffset = instance.Size.Y / 2
+	if def then
+		model, modelBase = buildModel(instance, def)
+		if model then
+			topOffset = Models.Height(model) - instance.Size.Y / 2
+		end
+	end
+	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffset)
 	local record: Record = {
 		part = instance,
 		species = species,
@@ -128,6 +179,8 @@ local function track(instance: Instance)
 		shadowed = false,
 		plate = plate,
 		nameLabel = nameLabel,
+		model = model,
+		modelBase = modelBase,
 	}
 	records[instance] = record
 	if not known[species] then
@@ -141,6 +194,10 @@ local function untrack(instance: Instance)
 		records[instance :: any] = nil
 		if record.plate.Parent then
 			record.plate:Destroy()
+		end
+		local model = record.model
+		if model then
+			model:Destroy()
 		end
 	end
 end
@@ -157,6 +214,7 @@ local function reservedForOther(part: Part): boolean
 end
 
 -- Tracks or hides a wild part by its reservation; runs on arrival and whenever ReservedFor changes.
+-- A tracked part stays invisible when a mesh clone stands in for it.
 local function consider(instance: Instance)
 	if not instance:IsA("Part") then
 		return
@@ -170,8 +228,9 @@ local function consider(instance: Instance)
 		instance.LocalTransparencyModifier = 1
 		return
 	end
-	instance.LocalTransparencyModifier = 0
 	track(instance)
+	local record = records[instance]
+	instance.LocalTransparencyModifier = if record and record.model then 1 else 0
 end
 
 local function watch(instance: Instance)
@@ -203,8 +262,12 @@ local function onRender()
 		if not part.Parent then
 			continue
 		end
-		local dy = math.sin(now * omega + record.phase) * Config.WildBobStuds
-		part.CFrame = record.base + Vector3.new(0, dy, 0)
+		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Config.WildBobStuds, 0)
+		part.CFrame = record.base + lift
+		local model, modelBase = record.model, record.modelBase
+		if model and modelBase then
+			model:PivotTo(modelBase + lift)
+		end
 		if at and record.shadowed and (record.base.Position - at).Magnitude <= Config.ShadowRevealDistance then
 			reveal(record)
 		end
@@ -216,6 +279,15 @@ end
 -- `knownSpecies` is the set of species the player has caught (from the profile's codex).
 function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	known = knownSpecies
+	if not visualFolder then
+		local created = Instance.new("Folder")
+		created.Name = VISUAL_FOLDER
+		created.Parent = Workspace
+		visualFolder = created
+	end
+	if not Models.Available() then
+		warn(("WildRenderer: ReplicatedStorage.%s is missing; placeholder shapes in use"):format(Config.ModelFolderName))
+	end
 	local world = Workspace:WaitForChild("World")
 	local wild = world:WaitForChild("Wild") :: Folder
 	wildFolder = wild
@@ -260,7 +332,8 @@ function WildRenderer.Nearest(maxDistance: number): (Part?, number)
 	return best, bestDistance
 end
 
--- The wild part under a screen point, if any (tap-to-catch on the alien itself).
+-- The wild part under a screen point, if any (tap-to-catch on the alien itself). Mesh clones have
+-- CanQuery off, so the ray only ever meets the server parts, visible or not.
 function WildRenderer.PartAtScreenPoint(x: number, y: number): Part?
 	local camera = Workspace.CurrentCamera
 	local wild = wildFolder

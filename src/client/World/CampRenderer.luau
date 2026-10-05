@@ -10,7 +10,8 @@
 -- the same way the Ship screen does, by extrapolating progress with Economy.progressAt, so a module
 -- snaps in the moment the clock says it is done, before the server's push arrives.
 -- Stations: one block per unlocked job with a nameplate (station name and its Scrap per minute).
--- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally.
+-- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally,
+-- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -29,6 +30,7 @@ local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
+local Models = require(script.Parent:WaitForChild("Models"))
 
 local CampRenderer = {}
 
@@ -70,9 +72,11 @@ type WorkerRecord = {
 	job: string,
 	slot: number,
 	species: string,
-	part: Part,
+	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate and the bob
 	base: CFrame,
 	phase: number,
+	model: Model?, -- the mesh clone when the species has one
+	modelBase: CFrame?, -- its rest pivot: feet on the slot pad, facing the station
 }
 
 local localPlayer = Players.LocalPlayer
@@ -311,6 +315,10 @@ local function removeWorker(uid: string)
 	if record then
 		workers[uid] = nil
 		record.part:Destroy()
+		local model = record.model
+		if model then
+			model:Destroy()
+		end
 	end
 end
 
@@ -320,20 +328,48 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 	if not layout or not def then
 		return
 	end
-	local size = 2 * def.placeholder.scale * Camp.WorkerScale
 	local along = Camp.SlotOffsetFromStation + (slot - 1) * Camp.SlotSpacing
 	local at = layout.offset + layout.slotDirection * along
-	local centre = Vector3.new(at.X, groundY() + size / 2, at.Z)
-	local base = CFrame.new(centre)
-	if def.placeholder.shape == "Cylinder" then
-		base = base * CFrame.Angles(0, 0, math.rad(90)) -- stand it upright
+	local feet = Vector3.new(at.X, groundY(), at.Z) -- the slot pad; the placeholder's bottom rests here
+	local part: Part
+	local base: CFrame
+	local model: Model? = Models.Clone(def, Config.ModelWorkerScale * Camp.WorkerScale)
+	local modelBase: CFrame? = nil
+	if model then
+		-- The mesh stands on the pad facing its station. An invisible anchor part as tall as the mesh
+		-- carries the nameplate and the bob exactly as the placeholder part does.
+		local height = Models.Height(model)
+		base = CFrame.new(feet + Vector3.new(0, height / 2, 0))
+		part = newPart(uid, Enum.PartType.Block, Vector3.one * height, base, def.placeholder.color, parent)
+		part.Transparency = 1
+		local facing = CFrame.lookAt(feet, feet - layout.slotDirection)
+		model:PivotTo(facing)
+		model.Name = uid .. "Model"
+		model.Parent = parent
+		modelBase = facing
+	else
+		local size = 2 * def.placeholder.scale * Camp.WorkerScale
+		base = CFrame.new(feet + Vector3.new(0, size / 2, 0))
+		if def.placeholder.shape == "Cylinder" then
+			base = base * CFrame.Angles(0, 0, math.rad(90)) -- stand it upright
+		end
+		part = newPart(uid, SHAPES[def.placeholder.shape] or Enum.PartType.Ball, Vector3.one * size, base, def.placeholder.color, parent)
 	end
-	local part = newPart(uid, SHAPES[def.placeholder.shape] or Enum.PartType.Ball, Vector3.one * size, base, def.placeholder.color, parent)
 	part.CanCollide = false
 	part.CanQuery = false
 	part.CanTouch = false
 	buildPlate(part, Camp.WorkerBobStuds, def.name, Builder.text("TIER_" .. def.tier), Builder.tierColor(def.tier))
-	workers[uid] = { uid = uid, job = job, slot = slot, species = record.species, part = part, base = base, phase = rng:NextNumber(0, math.pi * 2) }
+	workers[uid] = {
+		uid = uid,
+		job = job,
+		slot = slot,
+		species = record.species,
+		part = part,
+		base = base,
+		phase = rng:NextNumber(0, math.pi * 2),
+		model = model,
+		modelBase = modelBase,
+	}
 end
 
 -- Workers that still stand where the profile says keep their part (and their bob phase); the rest
@@ -377,8 +413,12 @@ local function onRender()
 	local now = os.clock()
 	local omega = math.pi * 2 * Camp.WorkerBobHz
 	for _, record in pairs(workers) do
-		local dy = math.sin(now * omega + record.phase) * Camp.WorkerBobStuds
-		record.part.CFrame = record.base + Vector3.new(0, dy, 0)
+		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Camp.WorkerBobStuds, 0)
+		record.part.CFrame = record.base + lift
+		local model, modelBase = record.model, record.modelBase
+		if model and modelBase then
+			model:PivotTo(modelBase + lift)
+		end
 	end
 end
 

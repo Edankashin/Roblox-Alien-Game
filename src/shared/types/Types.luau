@@ -23,6 +23,9 @@ export type SpeciesDef = {
 	ride: Traversal?,
 	-- placeholder rendering until real meshes exist
 	placeholder: { shape: "Ball" | "Block" | "Cylinder", color: string, scale: number },
+	-- ReplicatedStorage.<Config.ModelFolderName> child to render instead of the placeholder when it exists;
+	-- defaults to id (the client's World.Models looks it up)
+	model: string?,
 	voiceLine: string,
 }
 

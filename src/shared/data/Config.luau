@@ -103,6 +103,13 @@ return {
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground
 
+	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
+	ModelFolderName = "Models",
+	ModelFacesPlusZ = false, -- true when the imported meshes face +Z: clones turn 180 degrees so the eyes face -Z, the Roblox front
+	ModelWildScale = 1, -- multiplier on the mesh's own size for wild aliens
+	ModelWorkerScale = 1, -- multiplier on the mesh's own size for station workers, on top of Camp.WorkerScale
+	ModelViewportScale = 1, -- multiplier on the mesh's own size in the Reveal card and the Codex pedestal
+
 	-- Field Notes and the Warden
 	ShrineInteractDistance = 14, -- studs from the shrine centre to offer "Sound the horn"
 	ShrineScatterClearance = 6, -- rocks and trees keep this far outside the shrine ring

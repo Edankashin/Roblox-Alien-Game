@@ -124,6 +124,7 @@ local function onCaught(result: Types.CaptureHitResult)
 	task.delay(0.6, function()
 		finishCapture()
 		Reveal.Show({
+			speciesId = species,
 			speciesName = if def then def.name else species,
 			shape = if def then def.placeholder.shape else "Ball",
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(result.tier or "Common"),
@@ -443,6 +444,7 @@ local function start(profile: Types.Profile)
 		State.ApplyCatch(grant.species, grant.overlay)
 		Screens.CloseAll()
 		Reveal.Show({
+			speciesId = grant.species,
 			speciesName = if def then def.name else grant.species,
 			shape = if def then def.placeholder.shape else "Ball",
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
@@ -481,6 +483,7 @@ local function start(profile: Types.Profile)
 		State.ApplyCatch(grant.species, grant.overlay)
 		Screens.CloseAll()
 		Reveal.Show({
+			speciesId = grant.species,
 			speciesName = if def then def.name else grant.species,
 			shape = if def then def.placeholder.shape else "Ball",
 			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
