@@ -10,7 +10,7 @@ The repo keeps one folder per asset under `assets/models/<Id>/` with `<Id>.glb`,
 ## Steps
 
 1. Read `assets/models/<Id>/notes.md` for the triangle count, the height in studs and the material list. Aliens are 2 to 3 studs tall at 1 unit = 1 stud.
-2. In Studio: File > Import 3D, pick `<Id>.fbx` (or the GLB), keep scale 1, uncheck "Anchor" only if the model is a creature. One MeshPart per material comes in as a Model named `<Id>`.
+2. In Studio: File > Import 3D, pick `<Id>.fbx` (the FBX faces -Z, Roblox's front; the GLB faces +Z and needs `Config.ModelFacesPlusZ = true`), keep scale 1, uncheck "Anchor" only if the model is a creature. One MeshPart per material comes in as a Model named `<Id>`.
 3. Check the import: the Model's bounding box height matches `notes.md`, the MeshParts carry their Color from the material, nothing is transparent, the pivot sits at the feet (`Model.WorldPivot` at the bottom centre; set it if not).
 4. Move the Model to `ReplicatedStorage.Models.<Id>` (create the folder once). Anchored true, CanCollide false, CanQuery false on every part: the client renderer positions it.
 5. Wire the data row: `src/shared/data/Species.luau` (or the prop's table) gets `model = "<Id>"` on that row; the client renderer looks up `ReplicatedStorage.Models[model]` and falls back to the placeholder shape when it is missing. Never put an asset id in logic.

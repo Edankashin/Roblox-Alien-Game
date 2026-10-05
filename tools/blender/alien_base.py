@@ -540,8 +540,10 @@ def write_notes(path, species, builder, accessory, dressing, tris, height, detai
         "- Tier dressing: %s" % (", ".join(dressing) if dressing else "none (Common/Uncommon: the accessory is the prop)"),
         "- Triangles: %d (budget %d to %d, detail level %d)" % (tris, TRI_MIN, TRI_MAX, detail),
         "- Height: %.2f units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up" % height,
-        "- Materials (one per colour, flat, no textures): Body #%s, BodyDark #%s, EyeWhite, Pupil, Mouth, Accessory #%s, Trim #%s" % (
-            builder.colours["Body"], builder.colours["BodyDark"], builder.colours["Accessory"], builder.colours["Trim"]),
+        "- Materials (one per colour, flat, no textures): Body #%s, BodyDark #%s, EyeWhite, Pupil, Mouth, Accessory #%s%s" % (
+            builder.colours["Body"], builder.colours["BodyDark"], builder.colours["Accessory"],
+            (", Trim #%s" % builder.colours["Trim"]) if builder.tier in ("Epic", "Legendary") else ""),
+        "- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.",
         "- Files: %s (%d bytes), %s (%d bytes)" % (glb.name, glb.stat().st_size, fbx.name, fbx.stat().st_size),
         "- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).",
         "",

@@ -9,7 +9,8 @@
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
 - Triangles: 1012 (budget 500 to 1500, detail level 0)
 - Height: 1.76 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #F4C542, BodyDark #9F802B, EyeWhite, Pupil, Mouth, Accessory #42CAF4, Trim #57F96C
+- Materials (one per colour, flat, no textures): Body #F4C542, BodyDark #9F802B, EyeWhite, Pupil, Mouth, Accessory #42CAF4
+- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
 - Files: Buzzlebee.glb (41472 bytes), Buzzlebee.fbx (41132 bytes)
 - Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
 

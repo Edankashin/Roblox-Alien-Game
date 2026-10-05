@@ -10,6 +10,7 @@
 - Triangles: 920 (budget 500 to 1500, detail level 1)
 - Height: 4.14 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #2ECC71, BodyDark #1E8549, EyeWhite, Pupil, Mouth, Accessory #C02ECC, Trim #F59E0B
+- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
 - Files: Gaiabloom.glb (38136 bytes), Gaiabloom.fbx (39484 bytes)
 - Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
 
