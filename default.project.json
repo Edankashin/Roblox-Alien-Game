@@ -37,6 +37,12 @@
       "$properties": {
         "RespectFilteringEnabled": true
       }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future"
+      }
     }
   }
 }
