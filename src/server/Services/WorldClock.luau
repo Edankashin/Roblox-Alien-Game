@@ -19,6 +19,7 @@ local isNight = false
 local weather: string = Config.WeatherStates[1]
 local phaseEndsAt = 0 -- os.clock() when day flips to night or back
 local weatherEndsAt = 0
+local listeners: { (Types.Condition) -> () } = {} -- server services told on every change (Materials gates nodes by condition)
 
 local function snapshot(): Types.ClockState
 	return {
@@ -78,6 +79,12 @@ function WorldClock.GetState(): Types.ClockState
 	return snapshot()
 end
 
+-- Server-side hook: `callback` runs with the new GetCondition() value each time the clock broadcasts a
+-- day/night or weather change. Plain callbacks, not a BindableEvent, so the argument keeps its type.
+function WorldClock.OnChanged(callback: (Types.Condition) -> ())
+	table.insert(listeners, callback)
+end
+
 function WorldClock.Init()
 	Net.event("ClockChanged")
 	local now = os.clock()
@@ -114,6 +121,11 @@ function WorldClock.Start()
 			end
 			if changed then
 				broadcast()
+				-- each listener runs in its own thread so one slow or failing service cannot stall the clock
+				local condition: Types.Condition = WorldClock.GetCondition()
+				for _, callback in ipairs(listeners) do
+					task.spawn(callback, condition)
+				end
 			end
 		end
 	end)

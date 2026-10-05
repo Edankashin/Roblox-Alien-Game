@@ -24,8 +24,7 @@ local State = require(script.Parent.Parent.State)
 
 local ShipScreen = {}
 
-type MaterialDef = { name: string, world: number, biome: string, condition: string, dropCount: number, respawnSeconds: number }
-local materials: { [string]: MaterialDef } = KeyMaterials
+local materials: { [string]: KeyMaterials.KeyMaterialDef } = KeyMaterials
 
 -- One module row. Children are built once and re-laid-out for the compact or expanded shape.
 type Row = {

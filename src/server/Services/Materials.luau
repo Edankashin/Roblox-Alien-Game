@@ -1,10 +1,11 @@
 --!strict
--- ServerScriptService.Server.Services.Materials: key material nodes scattered over the world.
+-- ServerScriptService.Server.Services.Materials: key material nodes scattered over World 1.
 -- Each node is one anchored Part under Workspace.World.Materials carrying attributes (MaterialId,
--- NodeId, Available); the client shows Collect inside MaterialInteractDistance and asks the server
--- to take it. Nodes are shared by everyone on the server, first come first served, and come back
--- after the material's respawnSeconds. Only WreckPlate is placed in the Meadow for now; the node
--- builder takes any material id so later biomes can add their own.
+-- NodeId, Available, WaitingFor); the client shows Collect inside MaterialInteractDistance and asks
+-- the server to take it. Nodes are shared by everyone on the server, first come first served, and
+-- come back after the material's respawnSeconds. Every KeyMaterials row with nodes > 0 is scattered
+-- in its own biome (Shared/Biomes); a row with a condition (Night, Rain) is only available while the
+-- WorldClock says so and shows as a ghost otherwise, so a player can find it by day and come back.
 
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
@@ -14,21 +15,34 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 local KeyMaterials = require(Shared.data.KeyMaterials)
 local Layout = require(Shared.data.Meadow)
+local Biomes = require(Shared.Biomes)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Meadow = require(script.Parent.Meadow)
+local WorldClock = require(script.Parent.WorldClock)
 
 local Materials = {}
 
-type MaterialDef = { name: string, world: number, biome: string, condition: string, dropCount: number, respawnSeconds: number }
-type Node = { nodeId: string, materialId: string, part: Part, available: boolean }
+type Node = {
+	nodeId: string,
+	materialId: string,
+	def: KeyMaterials.KeyMaterialDef,
+	part: Part,
+	taken: boolean, -- collected and waiting on its respawn timer
+}
 
 local FOLDER_NAME = "Materials"
-local MEADOW_MATERIAL = "WreckPlate" -- the one material the placeholder Meadow scatters
+local WORLD_ID = 1 -- the placeholder Meadow is World 1; later worlds scatter their own rows
 local PLACEMENT_ATTEMPTS = 40 -- tries to find a point clear of other nodes before giving up on one
 local REMOTE_RATE_PER_SECOND = 4
 
-local defs: { [string]: MaterialDef } = KeyMaterials
+local SHAPES: { [string]: Enum.PartType } = {
+	Ball = Enum.PartType.Ball,
+	Block = Enum.PartType.Block,
+	Cylinder = Enum.PartType.Cylinder,
+}
+
+local defs: { [string]: KeyMaterials.KeyMaterialDef } = KeyMaterials
 local nodes: { [string]: Node } = {}
 
 local function flatDistance(a: Vector3, b: Vector3): number
@@ -45,12 +59,11 @@ local function clearOfNodes(position: Vector3): boolean
 	return true
 end
 
--- A point in the ring between NodeMinFromCamp and NodeMaxFromCamp, clear of the nodes placed so far.
-local function scatterPoint(rng: Random): Vector3?
+-- A point inside the material's biome (the camp ring for the Meadow, the region circle otherwise),
+-- clear of the nodes placed so far.
+local function scatterPoint(biome: string, rng: Random): Vector3?
 	for _ = 1, PLACEMENT_ATTEMPTS do
-		local angle = rng:NextNumber(0, math.pi * 2)
-		local radius = rng:NextNumber(Layout.NodeMinFromCamp, Layout.NodeMaxFromCamp)
-		local position = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+		local position = Biomes.RandomPointIn(biome, rng, Layout.NodeMinFromCamp, Layout.NodeMaxFromCamp)
 		if clearOfNodes(position) then
 			return position
 		end
@@ -58,48 +71,70 @@ local function scatterPoint(rng: Random): Vector3?
 	return nil
 end
 
-local function setAvailable(node: Node, available: boolean)
-	node.available = available
-	node.part:SetAttribute("Available", available)
-	node.part.Transparency = if available then 0 else 1
-	node.part.CanQuery = available -- the client finds nodes by raycast; a taken one is not a target
+-- Availability -------------------------------------------------------------
+
+local function conditionMet(def: KeyMaterials.KeyMaterialDef): boolean
+	return def.condition == "Any" or def.condition == WorldClock.GetCondition()
 end
 
--- One node of any material at a flat position; the part floats NodeHoverStuds over the floor.
-local function buildNode(materialId: string, flat: Vector3, parent: Instance): Node
+local function isAvailable(node: Node): boolean
+	return not node.taken and conditionMet(node.def)
+end
+
+-- Everything the client reads is derived here from the two inputs, taken and conditionMet:
+--   taken            -> invisible, not a raycast target, WaitingFor ""
+--   condition unmet  -> ghosted, not a raycast target, WaitingFor = the condition name
+--   available        -> solid, raycast target, WaitingFor ""
+local function applyVisual(node: Node)
+	local met = conditionMet(node.def)
+	local available = not node.taken and met
+	local part = node.part
+	part:SetAttribute("Available", available)
+	part:SetAttribute("WaitingFor", if not node.taken and not met then node.def.condition else "")
+	part.Transparency = if node.taken then 1 elseif not met then Layout.NodeWaitingTransparency else 0
+	part.CanQuery = available -- the client finds nodes by raycast; only an available one is a target
+end
+
+-- One node at a flat position; the part floats NodeHoverStuds over the surface it stands on.
+local function buildNode(materialId: string, def: KeyMaterials.KeyMaterialDef, flat: Vector3, parent: Instance): Node
 	local nodeId = HttpService:GenerateGUID(false)
-	local y = Meadow.GetFloorTop() + Layout.NodeHoverStuds + Layout.NodeSize / 2
+	local y = Meadow.GetSurfaceTop(flat) + Layout.NodeHoverStuds + Layout.NodeSize / 2
 	local part = Instance.new("Part")
 	part.Name = materialId
-	part.Shape = Enum.PartType.Block
+	part.Shape = SHAPES[def.shape] or Enum.PartType.Block
 	part.Size = Vector3.one * Layout.NodeSize
-	part.CFrame = CFrame.new(flat.X, y, flat.Z)
-	part.Color = Color3.fromHex(Layout.NodeColor)
+	local cframe = CFrame.new(flat.X, y, flat.Z)
+	if def.shape == "Cylinder" then
+		cframe = cframe * CFrame.Angles(0, 0, math.rad(90)) -- stand it upright
+	end
+	part.CFrame = cframe
+	part.Color = Color3.fromHex(def.color)
 	part.Material = Enum.Material.SmoothPlastic
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
-	part.CanQuery = true
 	part:SetAttribute("MaterialId", materialId)
 	part:SetAttribute("NodeId", nodeId)
-	part:SetAttribute("Available", true)
+	local node: Node = { nodeId = nodeId, materialId = materialId, def = def, part = part, taken = false }
+	applyVisual(node)
 	part.Parent = parent
-	local node: Node = { nodeId = nodeId, materialId = materialId, part = part, available = true }
 	nodes[nodeId] = node
 	return node
 end
 
 -- Hides the node and brings it back after the material's respawn time (0 means it never returns).
+-- The timer runs regardless of the condition; the condition gate is re-applied when it fires.
 local function take(node: Node)
-	setAvailable(node, false)
-	local def = defs[node.materialId]
-	local seconds = if def then def.respawnSeconds else 0
+	node.taken = true
+	applyVisual(node)
+	local seconds = node.def.respawnSeconds
 	if seconds <= 0 then
 		return
 	end
 	task.delay(seconds, function()
 		if node.part.Parent then
-			setAvailable(node, true)
+			node.taken = false
+			applyVisual(node)
 		end
 	end)
 end
@@ -132,7 +167,7 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	if not node then
 		return false, "NoNode"
 	end
-	if not node.available then
+	if not isAvailable(node) then
 		return false, "Taken"
 	end
 	local at = rootPosition(player)
@@ -142,10 +177,7 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	if (at - node.part.Position).Magnitude > Config.MaterialInteractDistance + Config.MaterialDistanceSlack then
 		return false, "TooFar"
 	end
-	local def = defs[node.materialId]
-	if not def then
-		return false, "NoNode"
-	end
+	local def = node.def
 	local materialId = node.materialId
 	local keyMaterials: { [string]: number } = {}
 	PlayerData.Update(player, function(profile)
@@ -173,17 +205,37 @@ function Materials.Init()
 		folder.Name = FOLDER_NAME
 		folder.Parent = world
 	end
-	-- Deterministic scatter: every server places the same plates, so directions between players stay true.
+
+	-- Deterministic scatter: one rng for every material, materials in id order (pairs() order is not
+	-- stable between servers), so every server places the same nodes and directions between players
+	-- stay true.
+	local materialIds: { string } = {}
+	for materialId in pairs(defs) do
+		table.insert(materialIds, materialId)
+	end
+	table.sort(materialIds)
 	local rng = Random.new(Layout.NodeSeed)
-	for _ = 1, Layout.WreckPlateNodes do
-		local at = scatterPoint(rng)
-		if at then
-			buildNode(MEADOW_MATERIAL, at, folder)
+	for _, materialId in ipairs(materialIds) do
+		local def = defs[materialId]
+		if def.world == WORLD_ID and def.nodes > 0 then
+			for _ = 1, def.nodes do
+				local at = scatterPoint(def.biome, rng)
+				if at then
+					buildNode(materialId, def, at, folder)
+				end
+			end
 		end
 	end
 end
 
 function Materials.Start()
+	-- Night and Rain nodes appear and ghost with the clock; respawn timers run on their own.
+	WorldClock.OnChanged(function()
+		for _, node in pairs(nodes) do
+			applyVisual(node)
+		end
+	end)
+
 	local count = 0
 	for _ in pairs(nodes) do
 		count += 1

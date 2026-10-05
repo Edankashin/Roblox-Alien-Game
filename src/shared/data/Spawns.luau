@@ -27,6 +27,6 @@ local Biomes: { [string]: BiomeTable } = {
 
 return {
 	Biomes = Biomes,
-	-- vertical slice: only the Meadow is live
-	LiveBiomes = { "Meadow" },
+	-- World 1 biomes that exist as regions on the floor (see data/Meadow.luau Regions)
+	LiveBiomes = { "Meadow", "Forest", "Cave" },
 }

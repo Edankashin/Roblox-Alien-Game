@@ -80,6 +80,10 @@ return {
 	TOAST_NOT_ENOUGH_SCRAP = "Not enough Scrap",
 	TOAST_NO_MATERIAL = "Find %s in the %s",
 	TOAST_NODE_EMPTY = "Nothing here yet",
+	NODE_HIDDEN_HINT = "Only at %s", -- shown on a node's plate while its condition is not met
+	CONDITION_Day = "day",
+	CONDITION_Night = "night",
+	CONDITION_Rain = "rain",
 	OFFLINE_MODULES = "%s finished while you were away!",
 	TIME_HM = "%dh %dm",
 	TIME_MS = "%dm %ds",
@@ -106,6 +110,7 @@ return {
 	MATERIAL_CaveCrystal = "Cave Crystal",
 	MATERIAL_StormShard = "Storm Shard",
 	MATERIAL_WardenCore = "Warden's Core",
+	HUD_BIOME = "%s", -- the biome chip; a prefix can be added here for other languages
 	BIOME_Meadow = "Meadow",
 	BIOME_Forest = "Forest",
 	BIOME_Cave = "Cave",

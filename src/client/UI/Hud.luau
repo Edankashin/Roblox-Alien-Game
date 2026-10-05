@@ -26,6 +26,7 @@ local gui: ScreenGui? = nil
 local setScrapValue: ((number) -> ())? = nil
 local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
+local biomeLabel: TextLabel? = nil
 local actionButton: Frame? = nil
 local actionFace: TextButton? = nil
 local breathe: Tween? = nil
@@ -93,6 +94,30 @@ local function buildClockChip(root: ScreenGui)
 		parent = chip,
 		name = "Text",
 		text = Strings.HUD_DAY,
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+	})
+end
+
+-- Biome chip under the clock chip: which part of the world the player is standing in.
+local function buildBiomeChip(root: ScreenGui)
+	local chip = Builder.pill({
+		parent = root,
+		name = "BiomeChip",
+		position = UDim2.fromScale(0.985, 0.108),
+		size = UDim2.fromScale(0.2, 0.05),
+		anchor = Vector2.new(1, 0),
+		color = Theme.Colors.Select,
+		stroke = Theme.Stroke.Button,
+		aspect = 4.2,
+	})
+	Builder.gradient(chip, Theme.Colors.Select)
+	biomeLabel = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = Strings.HUD_BIOME:format(Strings.BIOME_Meadow),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.7),
@@ -215,6 +240,7 @@ function Hud.Build()
 	gui = root
 	buildScrapPill(root)
 	buildClockChip(root)
+	buildBiomeChip(root)
 	buildShipBar(root)
 	buildRateLine(root)
 	buildActionButton(root)
@@ -289,6 +315,12 @@ function Hud.SetScrap(amount: number)
 		Builder.playSound(Sounds.ScrapTick)
 	end
 	lastScrap = amount
+end
+
+function Hud.SetBiome(biome: string)
+	if biomeLabel then
+		biomeLabel.Text = Strings.HUD_BIOME:format(Builder.text("BIOME_" .. biome))
+	end
 end
 
 function Hud.SetClock(state: Types.ClockState)

@@ -16,6 +16,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Biomes = require(Shared:WaitForChild("Biomes"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -33,6 +34,7 @@ local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRend
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
+local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
 
 local localPlayer = Players.LocalPlayer
 local started = false
@@ -197,6 +199,23 @@ local function refreshShip()
 	Hud.SetShip(Economy.shipPercent(profile, profile.world.current, State.Now()))
 end
 
+-- Biome chip ----------------------------------------------------------------
+
+local currentBiome: string? = nil
+
+local function refreshBiome()
+	local character = localPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not root or not root:IsA("BasePart") then
+		return
+	end
+	local biome = Biomes.At(root.Position)
+	if biome ~= currentBiome then
+		currentBiome = biome
+		Hud.SetBiome(biome)
+	end
+end
+
 local function shipComplete(): boolean
 	local profile = State.Get()
 	return Economy.activeModuleIndex(profile, profile.world.current) == nil
@@ -329,12 +348,18 @@ local function start(profile: Types.Profile)
 	-- Contextual button and ship bar polls.
 	local actionAccumulator = 0
 	local shipAccumulator = 0
+	local biomeAccumulator = 0
 	RunService.Heartbeat:Connect(function(dt: number)
 		actionAccumulator += dt
 		shipAccumulator += dt
+		biomeAccumulator += dt
 		if shipAccumulator >= SHIP_POLL_SECONDS then
 			shipAccumulator = 0
 			refreshShip()
+		end
+		if biomeAccumulator >= BIOME_POLL_SECONDS then
+			biomeAccumulator = 0
+			refreshBiome()
 		end
 		if actionAccumulator < ACTION_POLL_SECONDS then
 			return

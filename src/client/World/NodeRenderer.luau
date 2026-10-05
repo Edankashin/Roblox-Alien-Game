@@ -1,11 +1,12 @@
 --!strict
 -- StarterPlayerScripts.Client.World.NodeRenderer: presentation for the key-material nodes the server
 -- places under Workspace.World.Materials. Each node is a plain anchored part with attributes
--- (MaterialId, NodeId, Available); the server hides it (Transparency 1, Available false) while it is
--- collected and restores it on respawn. This module adds the nameplate (the material's name, visible
--- within NameplateDistance and only while available) and a gentle bob and slow spin, both local: the
--- server never moves a node, so a local CFrame does not fight replication. Both pause while a node
--- is unavailable. Nothing here decides anything; the Collect flow asks the server.
+-- (MaterialId, NodeId, Available, WaitingFor); the server hides it while it is collected and dims it
+-- while its condition is not met (WaitingFor names the condition, e.g. "Night"). This module adds the
+-- nameplate (the material's name, plus "Only at night" while waiting, visible within NameplateDistance)
+-- and a gentle bob and slow spin, both local: the server never moves a node, so a local CFrame does
+-- not fight replication. Both pause while a node is unavailable. Nothing here decides anything; the
+-- Collect flow asks the server.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -15,13 +16,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Layout = require(Shared:WaitForChild("data"):WaitForChild("Meadow"))
+local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 
 local NodeRenderer = {}
 
 local FOLDER_NAME = "Materials"
 local PLATE_LIFT = 1.2 -- studs between the top of the node (plus its bob) and its nameplate
-local SPIN_SECONDS = 8 -- one full turn about Y takes this long; see the report note on moving it to data
 
 type Record = {
 	part: Part,
@@ -31,7 +33,9 @@ type Record = {
 	phase: number,
 	available: boolean,
 	plate: BillboardGui,
+	hintLabel: TextLabel,
 	availableConn: RBXScriptConnection,
+	waitingConn: RBXScriptConnection,
 }
 
 local records: { [Part]: Record } = {}
@@ -53,11 +57,11 @@ local function rootPosition(): Vector3?
 	return nil
 end
 
-local function buildPlate(part: Part, materialId: string): BillboardGui
+local function buildPlate(part: Part, materialId: string): (BillboardGui, TextLabel)
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
-	plate.Size = UDim2.fromScale(7, 1.2) -- studs
+	plate.Size = UDim2.fromScale(7, 2) -- studs
 	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + Config.WildBobStuds + PLATE_LIFT, 0)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = false
@@ -69,9 +73,20 @@ local function buildPlate(part: Part, materialId: string): BillboardGui
 		text = Builder.text("MATERIAL_" .. materialId),
 		textSize = Theme.TextSize.Label,
 		color = Theme.Colors.Featured,
+		size = UDim2.fromScale(1, 0.55),
 	})
+	local hint = Builder.label({
+		parent = plate,
+		name = "Hint",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		color = Theme.Colors.Select,
+		position = UDim2.fromScale(0, 0.55),
+		size = UDim2.fromScale(1, 0.45),
+	})
+	hint.Visible = false
 	plate.Parent = part
-	return plate
+	return plate, hint
 end
 
 local function readAvailable(part: Part): boolean
@@ -79,9 +94,22 @@ local function readAvailable(part: Part): boolean
 	return if type(value) == "boolean" then value else true
 end
 
-local function setAvailable(record: Record, available: boolean)
+local function readWaitingFor(part: Part): string
+	local value = part:GetAttribute("WaitingFor")
+	return if type(value) == "string" then value else ""
+end
+
+-- Available: plate on, bob and spin run. Waiting on a condition: plate on with the hint, parked still.
+-- Taken: plate off, parked still.
+local function refresh(record: Record)
+	local available = readAvailable(record.part)
+	local waitingFor = readWaitingFor(record.part)
 	record.available = available
-	record.plate.Enabled = available
+	record.plate.Enabled = available or waitingFor ~= ""
+	record.hintLabel.Visible = not available and waitingFor ~= ""
+	if waitingFor ~= "" then
+		record.hintLabel.Text = Strings.NODE_HIDDEN_HINT:format(Builder.text("CONDITION_" .. waitingFor))
+	end
 	if not available then
 		record.part.CFrame = record.base -- park it so the respawn starts from rest
 	end
@@ -96,7 +124,13 @@ local function track(instance: Instance)
 	if type(materialId) ~= "string" or type(nodeId) ~= "string" then
 		return
 	end
-	local plate = buildPlate(instance, materialId)
+	local plate, hint = buildPlate(instance, materialId)
+	local function onAttribute()
+		local current = records[instance]
+		if current then
+			refresh(current)
+		end
+	end
 	local record: Record = {
 		part = instance,
 		materialId = materialId,
@@ -105,15 +139,12 @@ local function track(instance: Instance)
 		phase = rng:NextNumber(0, math.pi * 2),
 		available = true,
 		plate = plate,
-		availableConn = instance:GetAttributeChangedSignal("Available"):Connect(function()
-			local current = records[instance]
-			if current then
-				setAvailable(current, readAvailable(instance))
-			end
-		end),
+		hintLabel = hint,
+		availableConn = instance:GetAttributeChangedSignal("Available"):Connect(onAttribute),
+		waitingConn = instance:GetAttributeChangedSignal("WaitingFor"):Connect(onAttribute),
 	}
 	records[instance] = record
-	setAvailable(record, readAvailable(instance))
+	refresh(record)
 end
 
 local function untrack(instance: Instance)
@@ -124,6 +155,7 @@ local function untrack(instance: Instance)
 	if record then
 		records[instance] = nil
 		record.availableConn:Disconnect()
+		record.waitingConn:Disconnect()
 		if record.plate.Parent then
 			record.plate:Destroy()
 		end
@@ -133,7 +165,7 @@ end
 local function onRender()
 	local now = os.clock()
 	local omega = math.pi * 2 * Config.WildBobHz
-	local spin = math.pi * 2 / SPIN_SECONDS
+	local spin = math.pi * 2 / Layout.NodeSpinSeconds
 	for part, record in pairs(records) do
 		if not part.Parent or not record.available then
 			continue

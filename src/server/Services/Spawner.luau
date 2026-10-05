@@ -1,9 +1,10 @@
 --!strict
 -- ServerScriptService.Server.Services.Spawner: keeps wild aliens around every player.
 -- Each wild alien is a lightweight record here plus one anchored Part under Workspace.World.Wild
--- carrying attributes (SpeciesId, Tier, Overlay, SpawnId, Condition). No Humanoids, no server
+-- carrying attributes (SpeciesId, Tier, Overlay, SpawnId, Condition, Biome). No Humanoids, no server
 -- animation: the client bobs and labels them. The server owns which species exist where and when,
--- so the tier roll, the overlay roll and the condition gating all live here.
+-- so the tier roll, the overlay roll and the condition gating all live here. A spawn's biome is the
+-- one its landing point is in (Shared/Biomes), so the Forest grove and the Cave get their own tables.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -17,6 +18,7 @@ local Tiers = require(Shared.data.Tiers)
 local Species = require(Shared.data.Species)
 local Spawns = require(Shared.data.Spawns)
 local Overlays = require(Shared.data.Overlays)
+local Biomes = require(Shared.Biomes)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
 
@@ -28,6 +30,7 @@ export type WildSpawn = {
 	tier: Types.Tier,
 	overlay: Types.Overlay,
 	condition: Types.Condition, -- the condition it needs; "Any" never despawns for weather
+	biome: Types.Biome, -- where it landed; its species came from this biome's table
 	position: Vector3,
 	part: Part,
 }
@@ -42,12 +45,12 @@ local SHAPES: { [string]: Enum.PartType } = {
 	Cylinder = Enum.PartType.Cylinder,
 }
 local PLACEMENT_ATTEMPTS = 12
+local BASE_SIZE = 2 -- studs across at placeholder scale 1; also the nominal size a point is seated with before the species is known
 
 local rng = Random.new()
 local spawns: { [string]: WildSpawn } = {}
 local pending: { PendingRespawn } = {}
 local wildFolder: Folder? = nil
-local biome = Spawns.LiveBiomes[1]
 
 local function folder(): Folder
 	if wildFolder then
@@ -89,9 +92,12 @@ local function rollTier(luck: number): string
 	return "Common"
 end
 
-local function availableSpecies(condition: Types.Condition): { string }
+local function availableSpecies(biome: Types.Biome, condition: Types.Condition): { string }
 	local table_ = Spawns.Biomes[biome]
 	local out: { string } = {}
+	if not table_ then
+		return out
+	end
 	for _, id in ipairs(table_.Any or {}) do
 		table.insert(out, id)
 	end
@@ -103,9 +109,10 @@ local function availableSpecies(condition: Types.Condition): { string }
 	return out
 end
 
--- Choose a species of the rolled tier that can appear now; fall back down the tier order if none can.
-local function chooseSpecies(tier: string, condition: Types.Condition): Types.SpeciesDef?
-	local available = availableSpecies(condition)
+-- Choose a species of the rolled tier that can appear in the biome now; fall back down the tier order
+-- if none can.
+local function chooseSpecies(biome: Types.Biome, tier: string, condition: Types.Condition): Types.SpeciesDef?
+	local available = availableSpecies(biome, condition)
 	local tierIndex = table.find(Tiers.Order, tier) or 1
 	for index = tierIndex, 1, -1 do
 		local wanted = Tiers.Order[index]
@@ -161,7 +168,8 @@ local function tooCloseToOthers(position: Vector3): boolean
 	return false
 end
 
--- A random walkable point within SpawnRadius of `around`, clear of the camp pad and other spawns.
+-- A random walkable point within SpawnRadius of `around`, clear of the camp pad and other spawns. The
+-- caller re-seats Y once it knows the species; separation is judged on the flat distance only.
 local function findPosition(around: Vector3, size: number): Vector3?
 	local half = Meadow.GetHalfSize() - 2
 	local floorTop = Meadow.GetFloorTop()
@@ -182,16 +190,19 @@ local function findPosition(around: Vector3, size: number): Vector3?
 end
 
 local function createSpawn(around: Vector3, condition: Types.Condition): WildSpawn?
+	-- where it lands decides which biome's table it rolls from
+	local flat = findPosition(around, BASE_SIZE)
+	if not flat then
+		return nil
+	end
+	local biome: Types.Biome = Biomes.At(flat)
 	local tier = rollTier(1.0) -- luck hook: server luck, showers and charms plug in here later
-	local def = chooseSpecies(tier, condition)
+	local def = chooseSpecies(biome, tier, condition)
 	if not def then
 		return nil
 	end
-	local size = 2 * def.placeholder.scale
-	local position = findPosition(around, size)
-	if not position then
-		return nil
-	end
+	local size = BASE_SIZE * def.placeholder.scale
+	local position = Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + Config.WildHoverStuds + size / 2, flat.Z)
 	local spawnId = HttpService:GenerateGUID(false)
 	local overlay: Types.Overlay = rollOverlay()
 
@@ -216,6 +227,7 @@ local function createSpawn(around: Vector3, condition: Types.Condition): WildSpa
 	part:SetAttribute("Overlay", overlay)
 	part:SetAttribute("SpawnId", spawnId)
 	part:SetAttribute("Condition", def.condition)
+	part:SetAttribute("Biome", biome)
 	part.Parent = folder()
 
 	local spawn: WildSpawn = {
@@ -224,6 +236,7 @@ local function createSpawn(around: Vector3, condition: Types.Condition): WildSpa
 		tier = def.tier,
 		overlay = overlay,
 		condition = def.condition,
+		biome = biome,
 		position = position,
 		part = part,
 	}

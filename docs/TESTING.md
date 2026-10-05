@@ -34,3 +34,15 @@ Known gaps in this milestone: no lure bonus yet, no per-catch Scrap, no camera z
 11. Check the ship bar, Ship screen and toasts at iPhone SE and iPad sizes.
 
 Known gaps in this milestone: Forest and Cave biomes and their materials, launch, lures, per-catch Scrap, placeholder art, silent sounds.
+
+## Milestone 4: Forest and Cave, condition-gated materials, biome chip
+
+1. Press Play. Output shows `[AlienGame] Materials: 16 nodes placed` (6 Wreck Plate, 4 Glowroot, 3 Cave Crystal, 3 Storm Shard) and the same service list as milestone 3. A blue chip under the clock chip reads "Meadow".
+2. Walk towards the far corner ahead-right (about 130 studs out, +X +Z): a darker green patch with dense trees. The chip flips to "Forest" at the patch edge. Wild aliens here are Glimmo, Twiglet, Zapfinch (and Lanternewt at night); none of the Meadow species. Four green cylinders labelled "Glowroot" float inside; Collect works on them.
+3. Walk to the opposite corner (-X -Z): a grey patch under a flat roof with pillars around the rim. The chip reads "Cave". Wild aliens: Pebblet, Snailbyte, Rocklobber (Gloomoth at night). Three blue balls labelled "Cave Crystal" are dim by day with "Only at night" under the name and no Collect button; at night they turn solid and collect normally.
+4. Back in the Meadow, three yellow cubes labelled "Storm Shard" are dim with "Only at rain" until the weather chip reads Rain, then they collect.
+5. With Hull Frame done, the Ship screen's row 2 (Thrusters) accepts Glowroot: collect 3, press "Add Glowroot", pay 1,500, and the module assembles. Row 3 (Life Pod) then asks for Cave Crystal.
+6. Wild aliens never spawn inside the camp clearance or on top of each other; a conditional spawn (Buzzlebee, Thunderhog, Lanternewt, Gloomoth) despawns when its condition ends.
+7. Check the biome chip does not collide with the clock chip or toasts at iPhone SE and iPad sizes.
+
+Known gaps in this milestone: the Warden's Core (quest) is not obtainable, so the Engine Core cannot be built yet; no lures, Peddler or tutorial; placeholder art.
