@@ -53,15 +53,34 @@ Do: a Python 3 standard-library simulator that reads `Tiers`, `Species`, `Spawns
 
 ### C5. Headless tests for the newer shared maths — open
 
-Goal: the suite from C3 covers `WeeklyMath` (the week index from the epoch, a dated override, IsLimited, IsCurrent), the fusion fodder rule as a pure function (move the "copies at or below the kept copy's level" selection from `Economy.Fuse` into `Shared/FusionMath.luau` with the same behaviour, then test it: a capped Lv 3 over four plain copies refuses, five plain copies fuse, resting before seated), `Growth.StageAt` at the thresholds, and `OutpostMath.Pending` at the cap. Keep production behaviour identical; `./tools/analyze.sh` clean, `./tools/test.sh` green with the new specs listed in its output.
+Goal: `WeeklyMath` and the fusion fodder rule covered by headless specs. (`Growth`, `OutpostMath`, `SeasonMath` and `VisitRules` already have specs; extend `Growth.spec.luau` only if a threshold edge is missing.)
 
-Files: `src/shared/FusionMath.luau` (new), `src/server/Services/Economy.luau` (call the shared function; no other change), `tests/WeeklyMath.spec.luau`, `tests/FusionMath.spec.luau`, `tests/Growth.spec.luau` (extend).
+Do: (1) `tests/WeeklyMath.spec.luau`: `IndexAt` from `Weekly.Epoch` (week 0 is index 1, it wraps at `#Rotation`, a negative offset wraps too), `Current` one second before and at the Friday `ResetHourUtc` boundary, an `Overrides` entry winning only with offset 0, `IsLimited` and `IsCurrent`. Derive every expected value from the data tables and `tests/Fixtures.luau`, never from literals (the C3 convention). (2) Move the fusion selection (which copy is kept, which copies are fodder) out of `Economy.Fuse` into `src/shared/FusionMath.luau` as a pure function, with `Economy.Fuse` calling it and behaving identically: same reasons, same kept copy, the same order of preference between resting and seated copies, never a copy above the kept copy's level as fodder (the milestone 35 fodder fix, `docs/PRE_PRODUCTION.md` row 35), the same level cap from `data/Fusion`. Read `Economy.Fuse` and `docs/TESTING.md` "Milestone 35" first and encode today's behaviour exactly. `tests/FusionMath.spec.luau` covers each reason and each preference.
 
-### C6. Data lint: table shapes code can walk — open
+Files: `src/shared/FusionMath.luau` (new), `src/server/Services/Economy.luau` (`Fuse` calls it; no other change), `tests/WeeklyMath.spec.luau`, `tests/FusionMath.spec.luau`, `tests/Growth.spec.luau` (only if extended).
 
-Goal: the lesson in `docs/vault/04-roblox-engine/Data-Tables.md` as lint rules in `tools/lint_data.py`: a table whose keys are numbers (`Radar`, `Layouts`, `Worlds`) must not carry string keys other than the ones listed in an allow-list in the script (`Radar.Mk2`), every `Order` list and `Rotation` list is dense (no holes) and every id in it exists in its table, every `Spawns` biome key is in the Biome union (already), every `Species.ride` is a Traversal with a `Mounts.Traversals` row, every `HomeBuild` habitat row has `worldId` and `capacity`, and every `Weekly.Rotation` species exists with `limited` species listed in no Spawns table. Report in `Data-Lint.md`; the lint must stay green on the current data.
+Done when: `analyze: clean`, `./tools/test.sh` green with both new spec names in its output, and the `Economy.luau` diff limited to `Fuse`.
+
+### C6. Data lint: the rules the code relies on — open
+
+Goal: every data-shape assumption the code makes is checked before Studio ever sees it (the lesson in `docs/vault/04-roblox-engine/Data-Tables.md`).
+
+Do, in `tools/lint_data.py`:
+- A table keyed by numbers (`Radar`, `Layouts`, `Worlds`) carries no string keys except an allow-list in the script (`Radar.Mk2`).
+- Every `Order` and `Rotation` list is dense, and every id in it exists in its table.
+- `Species.ride` is a Traversal with a `Mounts.Traversals` row; every `Mounts.SeatStuds` key is a species.
+- `HomeBuild`: every habitat row has a built `worldId` and `capacity` above 0; every item's `cellsX` and `cellsZ` are between 1 and `Home.PlotCells`; `Caps` has every kind the items use.
+- `Weekly.Rotation`: species exist; a `limited` species is in no `Spawns` table.
+- `Seasons`: `startsAt` before `endsAt`; windows never overlap; event `species` exist and are in no `Spawns` table; `returns` exist; `overlay` is an `Overlays` row; track quest ids unique within a season; every reward row is valid (`alien` ids are species, `lure` and `powerUp` ids exist).
+- `Shop`: item ids unique; every `Launch` id exists in `Items`; every `Launch` item has a `Grants` row or is on an allow-list of passes a service reads live (`CompanionSlot4`); no `Grants` row hands out anything named in `NeverSold` (Scrap, DoubleShift, LuckyCharm, a Legendary or event alien).
+- `Settings`: a `levelKeys` list is as long as `levels` and every key is in `strings/en.luau`; every `default` is in range.
+- `Codes`: every reward id exists.
+
+If a rule finds a real problem in today's data, do not change the data: print that rule's finding as a warning (not a failure), list it under "Found" in the report, and the coordinator fixes the data.
 
 Files: `tools/lint_data.py`, `docs/vault/02-how-we-work/Data-Lint.md`.
+
+Done when: `python3 -I tools/lint_data.py` prints `data lint: clean` (warnings allowed only for listed findings), and each new rule has a one-line entry in `Data-Lint.md`.
 
 ### C7. Balance report, second pass — open
 
@@ -69,6 +88,78 @@ Goal: extend `tools/balance.py` with the systems that landed after the plan's se
 
 Files: `tools/balance.py`, `docs/vault/01-game-design/Balance-Report.md`.
 
-### C8 and later — not open yet
+### C8. String coverage lint — open
+
+Goal: no raw string key ever shows on screen. Direct `Strings.X` references are already checked by the type checker; the dynamic families (`Builder.text("TIER_" .. id)`) are not.
+
+Do: `tools/lint_strings.py` (standard library; reuse C2's table reader). (1) Find every `Builder.text("PREFIX_" .. expr)` and every `("PREFIX_%s"):format` in `src/client` and `src/server`. (2) Map each prefix to the ids it is fed from, in one mapping table at the top of the script (for example `TIER_` to `Tiers`, `LURE_` to `Lures`, `SEASON_` to `Seasons.List`, `OVERLAY_` to `Overlays.Order` plus `None`, `MATERIAL_` to `KeyMaterials`, `WORLD_` to built `Worlds`, `WEATHER_` to every weather state in `Worlds` and `Weekly`, `POWERUP_` to `PowerUps`, `BIOME_`, `COND_PHRASE_`, `JOB_` and `STATION_`, `STAGE_`, `SIZE_`, `OBJ_` to every objective kind in `Quests`, `DailyQuests` and `Seasons`, `MODULE_`, `FN_`, `SHOP_DESC_`, `SHOP_TAB_`, `SHOP_SECTION_`, `SEGMENT_`, `HOME_ITEM_`, `BUILD_KIND_`, `MENU_` and `MENU_GLYPH_`). A prefix found in code with no mapping fails the lint, so a new family cannot slip through. (3) Every mapped id must have its key in `src/shared/strings/en.luau`: a missing key fails. (4) Keys in `en.luau` that nothing uses, directly or through a family, are printed as warnings and listed in the report (do not delete any). (5) Create `tools/lint.sh`, a runner for the extra lints (this card's now; later cards append theirs); CI already runs `tools/lint.sh` when it exists. If today's code has missing keys, add them to `en.luau` (adding keys only, in the voice of their neighbours) and list them in the report.
+
+Files: `tools/lint_strings.py`, `tools/lint.sh`, `src/shared/strings/en.luau` (new keys only), `docs/vault/02-how-we-work/Data-Lint.md` (a section).
+
+Done when: `./tools/lint.sh` passes, the report lists the families found, the keys added and the unused keys.
+
+### C9. Remote contract lint and server-authority audit — open
+
+Goal: a client that waits for a remote the server never creates hangs with no error; a handler without a rate limit or an argument check breaks the server-authority rule in `CLAUDE.md`. Both should be caught by a script, not by a playtest.
+
+Do: `tools/lint_remotes.py`. (1) Collect every remote name created through `Net.event("X")` or `Net.func("X")` in `src/server`, every name the client uses (`Net.event`, `Net.func`, `OnClientEvent`, `InvokeServer`, `FireServer`) and every name the server fires (`FireClient`, `FireAllClients`). (2) Fail when the client uses a name no server module creates. Warn when the server creates a name no client uses, or fires one no client listens to. (3) For every `OnServerInvoke` and `OnServerEvent` handler, report whether it calls `Net.allow` before reading a profile, and whether every argument it receives is checked (`type`, `typeof`, an integer or NaN check) before use; this part is a heuristic and only reports. (4) `--write` regenerates `docs/vault/04-roblox-engine/Remotes.md` deterministically: one table row per remote (name, kind, created in, client users, rate limit, argument checks). (5) Append the contract check to `tools/lint.sh`.
+
+Then fix what the audit flags: every flagged handler gets the missing guard at its very top, following that file's own pattern (a named local rate constant with a comment, then the file's existing refusal convention such as `return false, "BadArgs"`). No other change in those files; one commit per service file; `analyze: clean` after each.
+
+Files: `tools/lint_remotes.py`, `tools/lint.sh`, `docs/vault/04-roblox-engine/Remotes.md` (new), and only the `src/server/Services/*.luau` handlers the audit flags.
+
+Done when: `./tools/lint.sh` passes, `Remotes.md` lists every remote, and the audit reports no handler without a rate limit.
+
+### C10. Save migration tests — open
+
+Goal: the save migrations (schema v1 to v15) are tested before real saves are switched on, so an old player's save can never come back broken.
+
+Do: move `template`, `migrations`, `migrate` and the helpers they call (`defaultSettings`, `defaultSocial`, `emptyPeriodQuests`, `SCHEMA_VERSION`) out of `src/server/Services/PlayerData.luau` into `src/server/ProfileSchema.luau`, a pure module (no services, no yields, no DataStore). `PlayerData` requires it and behaves identically. Extend `tools/test.sh` to bundle that one server file next to `src/shared` so specs can require it. `tests/ProfileSchema.spec.luau`: (a) a minimal v1 save migrates to `SCHEMA_VERSION` with every `Types.Profile` field present and of the right type; (b) `migrate(template())` leaves every field of a current profile unchanged; (c) each step is idempotent; (d) the specific rules: a save with two unlocked worlds gets `home.unlocked` (v10), `habitatSettled` is set (v12), mail and visitors start empty (v13), the wave tally exists (v14), `seasons` exists (v15), unknown settings keys are dropped and missing ones take their defaults (v3); (e) a save whose version is above `SCHEMA_VERSION` is left alone. Read the migrations to infer what a v1 save held.
+
+Files: `src/server/ProfileSchema.luau` (new), `src/server/Services/PlayerData.luau` (require it; remove the moved code only), `tools/test.sh`, `tests/ProfileSchema.spec.luau`.
+
+Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its output, and a review of the `PlayerData.luau` diff shows only moved code.
+
+### C11. UI rules lint — open
+
+Goal: the UI rules in `CLAUDE.md` and the UI Playbook enforced by a script: Scale never Offset, colours from the Theme, the one font, no silent taps.
+
+Do: `tools/lint_ui.py` over `src/client`. (1) Offset: `UDim2.fromOffset`, a `UDim2.new` with a non-zero second or fourth argument, or a non-zero `UDim.new(0, n)` in a Size or Position fails (today there are none; keep it at none). (2) Colours: `Color3.fromRGB`, `Color3.fromHex` or `Color3.new` outside `src/shared/Theme.luau`. Today about six exist in `src/client/UI`; record them in `tools/lint_ui_baseline.json` and fail only on new ones (a ratchet: the baseline may only shrink). (3) Fonts: any `Enum.Font` or `Font.new` outside `Theme` and `Builder` fails. (4) Silent taps: every `TextButton` or `ImageButton` made with `Instance.new` in `src/client/UI` must connect `Activated` (or `MouseButton1Click`) to a handler that plays a sound (`Builder.playSound`), unless it is built by `Builder.button`; report-only, with the list. Append to `tools/lint.sh`.
+
+Files: `tools/lint_ui.py`, `tools/lint_ui_baseline.json`, `tools/lint.sh`, `docs/vault/04-roblox-engine/UI-Rules.md` (a short "Lint" section).
+
+Done when: `./tools/lint.sh` passes and the report lists the baseline entries and the silent taps found.
+
+### C12. TESTING.md consistency lint — open
+
+Goal: the Mac's Studio runs read `docs/TESTING.md` word for word; a stale command or toast text there costs a whole re-run. The code is the truth.
+
+Do: `tools/lint_testing.py`. (1) Every chat command written in `docs/TESTING.md` (a word starting with `/` inside backticks) is registered in `src/server/Services/Dev.luau` or `Admin.luau`. (2) Every quoted player-facing line in the script ("Scanner Pulse on!", "Welcome to Player1's home!") matches a string in `en.luau`, allowing `%s`, `%d` and `%g` to match any value; lines that are not game strings (Output lines in backticks, explanations) are skipped by rule, and the rule is documented in the script. Print each mismatch with its milestone section. Then fix the wording in `TESTING.md` where the string changed in the code (edit `TESTING.md` only, never the strings), and list every fix. Append the lint to `tools/lint.sh` as warnings only.
+
+Files: `tools/lint_testing.py`, `tools/lint.sh`, `docs/TESTING.md` (wording fixes only).
+
+Done when: the lint runs in `tools/lint.sh`, and the report lists the mismatches found and fixed and any left for the coordinator (a line that may describe intended behaviour not yet built).
+
+### C13. Dead code and dead data report — open (report only)
+
+Goal: a list for the coordinator's polish pass of everything built and never used.
+
+Do: `tools/deadcode.py`. (1) Public functions of every `src/server/Services` module (`function X.Y`) never referenced outside their module. (2) Public functions of `src/client/UI` and `src/client/World` modules never called. (3) Data never read: `Shop.Items` rows with no `Grants` and not in `Launch`, `Icons` ids no row points at, `Sounds` ids nothing plays, strings nothing uses (from C8), remotes no client uses (from C9). Write `docs/vault/02-how-we-work/Dead-Code.md` with each finding and a one-line suggestion (delete, keep for a named milestone in `docs/PRE_PRODUCTION.md`, or wire up). Change no code and no data.
+
+Files: `tools/deadcode.py`, `docs/vault/02-how-we-work/Dead-Code.md`.
+
+Done when: the report exists, every finding has a suggestion, and the script runs in under ten seconds.
+
+### C14. Performance budget report — open (report only)
+
+Goal: Roblox players are mostly on phones; find the per-frame work and instance counts that could hurt before the visual pass adds more.
+
+Do: `tools/perf_report.py`. (1) Every `RenderStepped`, `Heartbeat` and `Stepped` connection in `src/client` and `src/server`: the file, what it loops over each frame, and whether that loop is bounded (a fixed count) or grows with players, spawns or records. (2) Instance counts per world from the data: the world builder's scatter, regions and landmarks (`data/Layouts`, `data/Meadow`, `data/Frostbyte`, `data/Home`), the spawn cap (`Config` and `data/Spawns` density), weather particle rates (`data/Weather`), and the camp. Estimate parts per world, particles per second at peak (a Shower plus Rain), and the per-frame loop sizes at 8 players. (3) Flag anything above these budgets: more than 4,000 parts in a world, more than 2,000 particles alive, a per-frame loop over more than 200 items, a per-frame loop that allocates tables. Write `docs/vault/04-roblox-engine/Performance.md`: the table, the flags and a fix suggestion for each. Change no code.
+
+Files: `tools/perf_report.py`, `docs/vault/04-roblox-engine/Performance.md`.
+
+Done when: the report exists with numbers derived from the data (not guessed), and each flag has a suggestion.
+
+### C15 and later — not open yet
 
 The look replication pass (icons v2 rendered in Eevee, the soft sprite set, 9-slice plates, species texture passes, world dressing) comes after the mechanics are polished and tested, with Ethan's collaborator on the design; those cards are written then.

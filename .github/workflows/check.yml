@@ -31,3 +31,8 @@ jobs:
           if [ -f tools/test.sh ]; then
             ./tools/test.sh
           fi
+      - name: Run extra lints when available
+        run: |
+          if [ -f tools/lint.sh ]; then
+            ./tools/lint.sh
+          fi
