@@ -173,6 +173,143 @@ def walk(value, path=''):
             yield from walk(child, location)
 
 
+# Explicit shape exception: legacy Radar.Mk2 is skipped by numeric-row consumers.
+NUMERIC_STRING_KEYS = {'Radar': {'Mk2'}, 'Layouts': set(), 'Worlds': set()}
+# CompanionSlot4 is read live by Companions, rather than granted at purchase.
+LIVE_PASSES = {'CompanionSlot4'}
+# Exact existing findings only; new findings must fail. Empty after baseline inspection.
+SHAPE_WARNINGS = set()
+
+
+def lint_shapes(tables, strings, types):
+    failures = []
+    def check(ok, message):
+        if not ok:
+            failures.append(message)
+    def finite(value):
+        return type(value) in (int, float) and math.isfinite(value)
+    def dense(value):
+        return (isinstance(value, dict) and set(value) == set(range(1, len(value) + 1))
+                and all(type(k) is int and v is not None for k, v in value.items()))
+    def unique(rows, key, where):
+        ids = [row.get(key) for row in rows.values()]
+        check(None not in ids and len(ids) == len(set(ids)), f'{where}: {key} values must be present and unique')
+    species = tables['Species']['ById']
+    worlds = tables['Worlds']
+    spawns = {v for _, _, v, _ in walk(tables['Spawns']['Biomes']) if isinstance(v, str)}
+    for name, allowed in NUMERIC_STRING_KEYS.items():
+        for key in tables[name]:
+            check(type(key) is int or key in allowed, f'{name}.{key}: unexpected non-numeric row key')
+    # Explicit owners prevent a new Order family silently validating against unrelated ids.
+    owners = {'CatchVariants': 'Rows', 'Jobs': 'Jobs', 'Lures': 'Lures',
+              'Overlays': 'Overlays', 'Tiers': 'Tiers', 'Settings': 'Order', 'Weekly': 'Rotation'}
+    for name, table in sorted(tables.items()):
+        for path, key, values, parent in walk(table):
+            if key not in ('Order', 'Rotation'):
+                continue
+            check(dense(values), f'{name}.{path}: list must be dense without nil entries')
+            check(name in owners, f'{name}.{path}: no declared row owner')
+            if not isinstance(values, dict) or name not in owners:
+                continue
+            if name == 'Weekly':
+                for i, row in values.items():
+                    check(isinstance(row, dict) and row.get('species') in species,
+                          f'Weekly.Rotation.{i}: unknown species')
+            elif name == 'Settings':
+                unique(values, 'key', 'Settings.Order')
+            else:
+                for i, value in values.items():
+                    check(value in parent[owners[name]], f'{name}.{path}.{i}: unknown row {value!r}')
+    match = re.search(r'export\s+type\s+Traversal\s*=\s*((?:"[^"]+"\s*\|?\s*)+)', types)
+    traversals = set(re.findall(r'"([^"]+)"', match[1])) if match else set()
+    check(bool(match), 'Types.Traversal: union unavailable')
+    for sid, row in species.items():
+        ride = row.get('ride')
+        check(ride is None or (ride in traversals and ride in tables['Mounts']['Traversals']),
+              f'Species.{sid}.ride: unknown traversal {ride!r}')
+    for sid in tables['Mounts']['SeatStuds']:
+        check(sid in species, f'Mounts.SeatStuds.{sid}: unknown species')
+    for i, row in tables['HomeBuild']['Items'].items():
+        where = f'HomeBuild.Items.{i}'
+        if row['kind'] == 'habitat':
+            world = worlds.get(row.get('worldId'), {})
+            check(world.get('built') is True, f'{where}: habitat worldId must name a built world')
+            check(finite(row.get('capacity')) and row['capacity'] > 0, f'{where}: capacity must be positive')
+        for key in ('cellsX', 'cellsZ'):
+            check(finite(row.get(key)) and 1 <= row[key] <= tables['Home']['PlotCells'], f'{where}.{key}: outside plot')
+        check(row['kind'] in tables['HomeBuild']['Caps'], f'{where}: missing kind cap')
+    for collection in ('Rotation', 'Overrides'):
+        for i, row in tables['Weekly'][collection].items():
+            check(row['species'] in species, f'Weekly.{collection}.{i}: unknown species')
+            check(not row['limited'] or row['species'] not in spawns, f'Weekly.{collection}.{i}: limited species in Spawns')
+    def rewards(rows, where, kinds):
+        for i, row in rows.items():
+            kind = row.get('kind')
+            check(kind in kinds, f'{where}.{i}: unknown reward kind {kind!r}')
+            check(finite(row.get('amount')) and row['amount'] > 0, f'{where}.{i}: reward amount must be positive')
+            ids = {'alien': species, 'lure': tables['Lures']['Lures'], 'powerUp': tables['PowerUps']}
+            if kind in ids:
+                check(row.get('id') in ids[kind], f'{where}.{i}: unknown {kind} id {row.get("id")!r}')
+            elif row.get('id') is not None:
+                check(False, f'{where}.{i}: {kind} reward must not have an id')
+    windows = []
+    event_ids = set()
+    for row in tables['Seasons']['List'].values():
+        where = 'Seasons.' + row['id']
+        valid = finite(row.get('startsAt')) and finite(row.get('endsAt')) and row['startsAt'] < row['endsAt']
+        check(valid, f'{where}: startsAt must precede endsAt')
+        if valid:
+            windows.append((row['startsAt'], row['endsAt'], row['id']))
+        event_ids.update(row['species'].values())
+        for sid in row['species'].values():
+            check(sid in species, f'{where}: unknown event species {sid!r}')
+            check(sid not in spawns, f'{where}: event species {sid!r} in Spawns')
+        for sid in row['returns'].values():
+            check(sid in species, f'{where}: unknown returning species {sid!r}')
+        overlay = row.get('overlay')
+        check(overlay is None or overlay in tables['Overlays']['Overlays'], f'{where}: unknown overlay {overlay!r}')
+        unique(row['track'], 'id', where + '.track')
+        for quest in row['track'].values():
+            rewards(quest['rewards'], where + '.' + quest['id'], {'alien', 'lure', 'powerUp', 'scrap', 'spin'})
+            event_ids.update(r.get('id') for r in quest['rewards'].values() if r['kind'] == 'alien')
+    windows.sort()
+    for i, (start, end, sid) in enumerate(windows):
+        for other_start, other_end, other in windows[:i]:
+            check(start >= other_end, f'Seasons.{sid}: window overlaps {other}')
+    shop = tables['Shop']
+    unique(shop['Items'], 'id', 'Shop.Items')
+    items = {r['id']: r for r in shop['Items'].values()}
+    for section in shop['Launch'].values():
+        for sid in section['items'].values():
+            check(sid in items, f'Shop.Launch: unknown item {sid!r}')
+            check(sid in shop['Grants'] or (sid in LIVE_PASSES and items.get(sid, {}).get('kind') == 'pass'),
+                  f'Shop.Launch.{sid}: missing grant or live-pass allowance')
+    never = set(shop['NeverSold'].values())
+    for sid, grants in shop['Grants'].items():
+        for i, grant in grants.items():
+            kind, gid = grant['kind'], grant.get('id')
+            alien = species.get(gid, {})
+            prohibited = (gid in never or kind.lower() in {s.lower() for s in never}
+                          or ('LegendaryAliens' in never and kind == 'alien' and
+                              (grant.get('tier') == 'Legendary' or alien.get('tier') == 'Legendary'))
+                          or ('EventAliens' in never and kind == 'alien' and gid in event_ids)
+                          or ('Mounts' in never and kind == 'alien' and alien.get('ride') is not None))
+            check(not prohibited, f'Shop.Grants.{sid}.{i}: violates NeverSold')
+    for row in tables['Settings']['Order'].values():
+        where = 'Settings.' + row['key']
+        levels = row.get('levels') or {}
+        if row.get('levelKeys') is not None:
+            keys = row['levelKeys']
+            check(dense(keys) and dense(levels) and len(keys) == len(levels), f'{where}: levelKeys must match levels')
+            for key in keys.values():
+                check(key in strings, f'{where}: missing level string {key!r}')
+        maximum = len(levels) - 1 if row['kind'] == 'level' else 1
+        check(type(row['default']) is int and 0 <= row['default'] <= maximum, f'{where}: default out of range')
+    for name, row in tables['Codes']['Codes'].items():
+        rewards(row['rewards'], 'Codes.' + name, {'scrap', 'spin', 'lure', 'powerUp'})
+    return sorted(set(failures))
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -187,7 +324,8 @@ def lint(root: Path = ROOT) -> list[str]:
     except (OSError, ParseError) as exc:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
-                'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers'}
+                'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers',
+                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
     if not required <= tables.keys():
@@ -198,7 +336,7 @@ def lint(root: Path = ROOT) -> list[str]:
             failures.append(f'{where}: unknown {kind} {value!r}')
 
     species = {row['id']: row for row in tables['Species']['List'].values()}
-    worlds = {row['id']: row for row in tables['Worlds'].values()}
+    worlds = {row['id']: row for row in tables['Worlds'].values() if isinstance(row, dict) and 'id' in row}
     types = uncomment((root / 'src/shared/types/Types.luau').read_text())
     union = re.search(r'export\s+type\s+Biome\s*=\s*((?:"[^"]+"\s*\|?\s*)+)', types)
     if union is None:
@@ -261,6 +399,11 @@ def lint(root: Path = ROOT) -> list[str]:
     for name, row in tables['Tiers']['Tiers'].items():
         if type(row.get('aura')) not in (int, float) or not math.isfinite(row['aura']):
             failures.append(f'Tiers.{name}.aura: expected a finite number')
+    for finding in lint_shapes(tables, strings, types):
+        if finding in SHAPE_WARNINGS:
+            print('warning: ' + finding)
+        else:
+            failures.append(finding)
     return failures
 
 
