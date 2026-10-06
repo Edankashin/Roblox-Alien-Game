@@ -1,0 +1,42 @@
+[
+  {
+    "slot": 1,
+    "name": "Scorch",
+    "hex": "2E2620",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Hull",
+    "hex": "8A93A0",
+    "roughness": 0.5,
+    "metallic": 0.4,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Plate",
+    "hex": "4A5160",
+    "roughness": 0.6,
+    "metallic": 0.3,
+    "emission": 0.0
+  },
+  {
+    "slot": 4,
+    "name": "Ember",
+    "hex": "FF7A1A",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  },
+  {
+    "slot": 5,
+    "name": "EmberB",
+    "hex": "FFC83D",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]

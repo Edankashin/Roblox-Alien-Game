@@ -1,0 +1,34 @@
+[
+  {
+    "slot": 1,
+    "name": "Ice",
+    "hex": "CFEAF7",
+    "roughness": 0.3,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "IceBlue",
+    "hex": "6EC6F0",
+    "roughness": 0.25,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Snow",
+    "hex": "F7FBFF",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 4,
+    "name": "Dark",
+    "hex": "0E1A26",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  }
+]
