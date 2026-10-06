@@ -29,6 +29,8 @@ describe("SeasonMath", function()
 		expect(Math.IsLimited(first.returns[F.one])).toEqual(false)
 		local last = first.track[#first.track].rewards[F.one]
 		expect(Math.IsLimited(last.id or "")).toEqual(false)
+		expect(Math.IsTrackReward(last.id or "")).toEqual(true)
+		expect(Math.IsTrackReward(first.species[F.one])).toEqual(false)
 	end)
 	it("IsCurrent and IsReturning follow the window", function()
 		expect(Math.IsCurrent(first.species[F.one], inside)).toEqual(true)

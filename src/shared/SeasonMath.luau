@@ -48,6 +48,20 @@ function SeasonMath.IsLimited(species: string): boolean
 	return false
 end
 
+-- Whether a species is paid by some season's track (an `alien` reward row): it never spawns, so the Codex says so.
+function SeasonMath.IsTrackReward(species: string): boolean
+	for _, season in ipairs(Seasons.List) do
+		for _, quest in ipairs(season.track) do
+			for _, reward in ipairs(quest.rewards) do
+				if reward.kind == "alien" and reward.id == species then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 -- Whether `species` spawns because of the season running at `now`: an event alien of it, or one it brings back.
 function SeasonMath.IsCurrent(species: string, now: number, override: string?): boolean
 	local current = SeasonMath.Current(now, override)

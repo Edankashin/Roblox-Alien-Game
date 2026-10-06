@@ -1318,7 +1318,9 @@ local function start(profile: Types.Profile)
 				-- subtitle's species line already names the world) and the week's weather, which only that world has, stays off it.
 				local dropWorld = Worlds[current.drop.worldId]
 				local elsewhere = current.drop.worldId ~= Place.WorldId() and dropWorld ~= nil
-				local subtitle = Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
+				local subtitle = if elsewhere
+					then Strings.WEEKLY_LEFT_ELSEWHERE:format(weeklyName(current), current.drop.worldId, weeklyLeftText(current))
+					else Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
 				local chip = if elsewhere then nil elseif weather then Strings.WEEKLY_CHIP:format(weather) else nil
 				Hud.SetEventBanner(Strings.WEEKLY_BANNER, subtitle, chip, nil)
 			else

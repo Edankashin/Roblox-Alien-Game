@@ -1017,8 +1017,10 @@ local function claimEvent(row: EventRow)
 		eventPending = false
 		if ok == true then
 			Builder.playSound(Sounds.GiftClaim)
-			Toast.Show(Strings.TOAST_SEASON_CLAIMED:format(summary), Theme.Colors.Confirm)
 			local grant = raw :: Types.GrantResult?
+			if not grant then
+				Toast.Show(Strings.TOAST_SEASON_CLAIMED:format(summary), Theme.Colors.Confirm) -- an alien's Reveal says it instead
+			end
 			local callback = onGrant
 			if grant and callback then
 				callback(grant)

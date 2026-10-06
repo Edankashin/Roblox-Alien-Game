@@ -626,7 +626,7 @@ return {
 	CODEX_VAULTED_HINT = "Vaulted: back in a later week",
 	SEASON_HauntedNebula = "Haunted Nebula",
 	SEASON_LEFT = "%s left",
-	SEASON_CHIP = "%s x%s", -- the event overlay and its multiplier
+	SEASON_CHIP = "%s", -- the event overlay's name alone: the chip is narrow ("Spectral x2" clipped), the multiplier is the Codex's
 	SEASON_NOW = "%s has begun! Event aliens roam %s",
 	SEASON_OVER = "%s is over. Thanks for playing!",
 	DQ_TAB_EVENT = "Event",
@@ -643,10 +643,11 @@ return {
 	CODEX_EVENT = "Event",
 	CODEX_EVENT_HINT = "Event alien: %s left",
 	CODEX_RETURNING_HINT = "Back for %s: %s left",
+	CODEX_TRACK_HINT = "An event track reward",
 	WEEKLY_BANNER = "Alien of the Week",
 	WEEKLY_LEFT = "%s · %s left", -- species, days and hours
-	WEEKLY_LEFT_ELSEWHERE = "%s on %s · %s left", -- species, world, days and hours (the drop is on another world)
-	WEEKLY_CHIP = "%s week",
+	WEEKLY_LEFT_ELSEWHERE = "%s on World %d · %s left", -- species, world number, days and hours (a world's name clipped at phone width)
+	WEEKLY_CHIP = "%s", -- the weather alone ("Aurora week" clipped)
 	WEEKLY_CHIP_WORLD = "%s", -- the chip when the drop is on another world: the world's name alone (the chip is narrow)
 	WEEKLY_NOW = "Alien of the Week: %s! Look for it all week",
 	WEEKLY_NOW_WEATHER = "Alien of the Week: %s! %s skies all week",

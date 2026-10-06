@@ -309,6 +309,8 @@ local function fillDetail(profile: Types.Profile)
 			end
 		elseif state == "vaulted" then
 			d.lineA.Text = Strings.CODEX_VAULTED_HINT
+		elseif SeasonMath.IsTrackReward(def.id) then
+			d.lineA.Text = Strings.CODEX_TRACK_HINT -- it never spawns: "by quest" would send players looking
 		else
 			d.lineA.Text = Strings.CODEX_HINT:format(biome, phrase)
 		end
