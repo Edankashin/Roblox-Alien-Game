@@ -107,12 +107,20 @@ export type Layout = {
 	NodeHoverStuds: number,
 	NodeSpinSeconds: number, -- client-side slow turn
 	NodeWaitingTransparency: number, -- a node whose condition is not met shows as a ghost, not a target
+	-- the home planet's plot (world 0 only; the world builder draws it when PlotCells is set)
+	PlotCells: number?,
+	PlotCellStuds: number?,
+	PlotOffsetStuds: number?,
+	PlotColor: string?,
+	PlotThickness: number?,
 }
 
 local Meadow = require(script.Parent.Meadow)
 local Frostbyte = require(script.Parent.Frostbyte)
+local Home = require(script.Parent.Home)
 
 local list: { [number]: Layout } = {
+	[0] = Home, -- the home planet (section 10): no regions, no scatter, a plot for the house grid
 	[1] = Meadow,
 	[2] = Frostbyte,
 }

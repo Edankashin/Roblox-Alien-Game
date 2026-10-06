@@ -4,12 +4,15 @@
 export type Tier = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "Cosmic" | "Secret"
 export type Job = "Gather" | "Build" | "Spark" | "Tinker"
 export type Overlay = "None" | "Shiny" | "Gold" | "Crystal" | "Rainbow" | "Spectral"
-export type Biome = "Meadow" | "Forest" | "Cave" | "Snowfield" | "IceCave" | "GeyserField"
+export type Biome = "Meadow" | "Forest" | "Cave" | "Snowfield" | "IceCave" | "GeyserField" | "Home"
 -- Conditions a spawn or node can need. The world-specific ones are each world's special weather (Worlds.luau).
 export type Condition = "Any" | "Day" | "Night" | "Rain" | "Shower" | "Quest" | "Blizzard" | "PowerSurge" | "Ashfall" | "KingTide" | "GravityFlip" | "Eclipse"
 export type Traversal = "Sprint" | "Hover" | "Glide" | "Swim" | "Climb"
 
 export type JobLevel = { job: Job, level: number }
+
+-- The home planet on the profile: whether it is unlocked and, later, the house grid (rooms and furniture by cell).
+export type HomeState = { unlocked: boolean, visits: number }
 
 export type SpeciesDef = {
 	id: string,
@@ -85,6 +88,7 @@ export type Profile = {
 	gear: { boots: boolean, hoverboard: boolean, glider: boolean, radar: number },
 	companions: { string }, -- uids of the aliens following the player (data/Companions), in slot order
 	companionSlots: number, -- extra slots unlocked with Companion Tokens (the pass adds its own at read time)
+	home: HomeState, -- the home planet (data/Home): unlocked by the first launch; the house grid comes in 42a's second part
 	-- fieldNotes[worldId] = the current step index (1-based; past the last step means the chain is done);
 	-- progress[objectiveId] = count so far for objectives of the current step
 	-- daily and weekly (data/DailyQuests): the dealt quest ids for `period`, progress and claims by quest id,

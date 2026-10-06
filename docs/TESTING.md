@@ -537,6 +537,18 @@ Commands the team's accounts (`data/Admin.luau` DeveloperUserIds) can type in an
 
 Known gaps in this milestone: no web dashboard (chat commands only), no scheduled hosted Shower (the team types it at the time), no per-world targeting (every server of every world applies it).
 
+## Milestone 42a: the home place (home.project.json; World 1 place for the unlock)
+
+The home planet is world 0, its own place (`home.project.json`, WorldId 0; `data/Home.luau`, `data/Worlds.luau` row 0): a small floor with the camp pad and the plot square, no spawns, nodes, shrine, Field Notes, Peddler, sightings, weekly share or launches; the ship and the stations work there. It unlocks on the first launch (profile `home.unlocked`, schema v10; a save that had launched already owns it on migration) and the Star Chart gains a Home planet to fly to and back. Dev: `/world 0` sets the current world to home.
+
+1. World 1 place: open the Star Chart before any launch: a "Home" planet sits at the map's centre, grey, with "Launch once to unlock your home". `/complete` then launch: the toast "Your home planet is yours! Find it on the Star Chart" shows after the launch toast; `/world 1` back; the Star Chart's Home now reads "Your own planet. The ship and the stations work here too." with a Fly button; Fly: "Flew" as for a world (no teleport in Studio), the HUD world name reads "Home Planet". Output: `analytics: event Fly from=1 to=0`.
+2. Home place (`rojo serve home.project.json`, connect, Play with a profile on world 0 via `/world 0` on World 1 first, or a fresh profile with `/world 0`): the floor is small and pale blue with the camp pad, the ship and the stations; a sand-coloured plot square sits past the pad on +Z (6 by 6 cells of 4 studs); no wild aliens ever spawn, no nodes, no shrine, no Peddler landing, no sightings (`/sighting` prints that this world has none), the weekly banner names the drop's world ("Panpipe on Verdant Crash Site · ..."), the biome chip reads "Home", `/rain` and `/night` still work (lighting only). Launch at home is refused (the Ship screen's launch button is hidden or the server answers NoNextWorld); Fly back to World 1 works from the Star Chart.
+3. Stations at home: seated aliens keep earning (Scrap/min on the HUD), offline earnings settle on a rejoin as on any world; companions follow and mounts ride as elsewhere.
+4. A profile below schema v10 (memory profiles start at the current version; skip unless real saves are on): one with two unlocked worlds migrates with `home.unlocked = true`. Output clean on both places.
+
+Known gaps in this milestone: the house grid, habitats, the hangar, the kiosk, the mailbox and visiting come in 42a's second part and 42b to 42d; the home has no look pass yet (a plain floor).
+
+
 
 
 

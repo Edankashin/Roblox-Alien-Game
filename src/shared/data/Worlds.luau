@@ -17,6 +17,9 @@ export type WorldDef = {
 }
 
 local list: { [number]: WorldDef } = {
+	-- The home planet (section 10): the player's own place, unlocked by the first launch; no warden, no spawns, no
+	-- special weather (an empty warden and species id are skipped by the data lint). ipairs and # never see [0].
+	[0] = { id = 0, name = "Home Planet", biomes = { "Home" }, warden = "", rule = "Home", weather = { normal = { "Clear" }, special = { id = "Clear", speciesId = "", chance = 0 } }, placeId = 0, built = true },
 	[1] = { id = 1, name = "Verdant Crash Site", biomes = { "Meadow", "Forest", "Cave" }, warden = "Gaiabloom", rule = "DayNightRain", weather = { normal = { "Clear", "Fog" }, special = { id = "Rain", speciesId = "Thunderhog", chance = 0.34 } } , placeId = 0, built = true },
 	[2] = { id = 2, name = "Frostbyte", biomes = { "Snowfield", "IceCave", "GeyserField" }, warden = "Skaddle", rule = "Blizzard", weather = { normal = { "Clear", "Snow" }, special = { id = "Blizzard", speciesId = "Frostfang", chance = 0.3 } } , placeId = 0, built = true },
 	[3] = { id = 3, name = "Neon Grid", biomes = { "Rooftops", "ServerFarm", "Undercity" }, warden = "Hephaestron", rule = "PowerSurge", weather = { normal = { "Clear", "Smog" }, special = { id = "PowerSurge", speciesId = "Voltwisp", chance = 0.3 } } , placeId = 0, built = false, catchVariant = "Chase" },

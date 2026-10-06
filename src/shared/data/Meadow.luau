@@ -77,4 +77,10 @@ return {
 	NodeHoverStuds = 0.5,
 	NodeSpinSeconds = 8, -- client-side slow turn
 	NodeWaitingTransparency = 0.6, -- a node whose condition is not met shows as a ghost, not a target
+	-- no house plot on a wild world (the home planet's layout sets these); spelled out so the Layout shape matches
+	PlotCells = nil,
+	PlotCellStuds = nil,
+	PlotOffsetStuds = nil,
+	PlotColor = nil,
+	PlotThickness = nil,
 }

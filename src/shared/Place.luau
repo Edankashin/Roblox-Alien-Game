@@ -34,6 +34,12 @@ function Place.WorldId(): number
 	return id
 end
 
+-- Whether this place is the home planet (world 0): no wild spawns, nodes, Field Notes, Peddler, sightings or
+-- launches here; the camp's stations still pay. Every service that is about a wild world checks this once.
+function Place.IsHome(): boolean
+	return Place.WorldId() == 0
+end
+
 -- The layout the world builder, Biomes and the node scatter read for this place. A world whose layout
 -- is not written yet (data/Layouts.luau lists them) falls back to World 1's so the place still boots.
 function Place.Layout(): Layouts.Layout
