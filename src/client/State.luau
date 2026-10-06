@@ -51,6 +51,7 @@ local purchases: Types.PurchasesState = { purchases = {}, passes = {}, starterSp
 local purchasesPushed = false
 local serverLuck: Types.ServerLuckState = nil -- the shared luck someone bought (ServerLuckChanged); nil when none runs
 local serverLuckAt = 0 -- State.Now() when it arrived, so a banner counts down between pushes
+local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
 local function settingsWithDefaults(source: { [string]: number }?): Types.SettingsState
@@ -247,6 +248,12 @@ function State.GetCompanionSlots(): number
 		slots += Companions.PassSlots
 	end
 	return math.min(slots, Companions.MaxSlots)
+end
+
+-- The uid of the follower the local player rides, as the server last said (CompanionsChanged); nil on foot. The
+-- Aliens screen labels the ridden card and its Ride button from it; the server alone decides who may ride.
+function State.GetRiding(): string?
+	return riding
 end
 
 -- The shared luck someone bought (nil when none runs) and the seconds since the server said so, so a
@@ -508,7 +515,8 @@ function State.Start()
 	end)
 	task.spawn(function()
 		-- Every client gets every player's followers; only the local player's own list is kept here (the
-		-- companion renderer draws everyone's from the same push). The rows' order is the slot order.
+		-- companion renderer draws everyone's from the same push). The rows' order is the slot order. The push
+		-- also names the uid the owner rides (nil on foot), kept the same way.
 		Net.event("CompanionsChanged").OnClientEvent:Connect(function(snapshot: Types.CompanionsSnapshot)
 			if profile and snapshot.userId == Players.LocalPlayer.UserId then
 				local uids: { string } = {}
@@ -516,6 +524,7 @@ function State.Start()
 					table.insert(uids, row.uid)
 				end
 				profile.companions = uids
+				riding = snapshot.riding
 				fire("companions")
 			end
 		end)

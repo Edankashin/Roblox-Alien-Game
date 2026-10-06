@@ -3,13 +3,14 @@
 -- the top (one per unlocked job: name, slots, rate and a row of slot squares), the owned count, a
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
 -- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
--- its next stage, where it is working or that it follows you), a count row (aliens owned, companion slots in
--- use) with a perks line under it, and a footer with Optimize and Fuse buttons, a Companion Token button while a
--- token is held, and a one-line fuse hint.
+-- its next stage, where it is working or that it follows you; a following mount shows a Ride button in the status
+-- slot instead), a count row (aliens owned, companion slots in use) with a perks line under it, and a footer
+-- with Optimize and Fuse buttons, a Companion Token button while a token is held, and a one-line fuse hint.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
--- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, UseCompanionToken). Nothing
--- here decides an outcome: Fuse only picks which species to ask about, a card tap only asks to follow or stop, and
--- the cards redraw from the camp and companion pushes the server sends back.
+-- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, UseCompanionToken).
+-- Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only asks to follow or
+-- stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, and the cards redraw from
+-- the camp and companion pushes the server sends back.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -38,7 +39,14 @@ local jobDefs: { [string]: JobDef } = Jobs.Jobs
 local jobOrder: { string } = Jobs.Order
 
 -- One grid entry, sorted before the cards are built.
-type Entry = { record: Types.AlienRecord, def: Types.SpeciesDef?, speed: number, name: string, following: boolean }
+type Entry = {
+	record: Types.AlienRecord,
+	def: Types.SpeciesDef?,
+	speed: number,
+	name: string,
+	following: boolean,
+	riding: boolean, -- the local player rides this one (State.GetRiding)
+}
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
 -- button reaches down to 0.155, so the body starts under it. Top to bottom: the station strip, the count row
@@ -92,6 +100,13 @@ local CORNER_H = 0.17
 local SPEED_W = 0.36
 local BADGE_W = 0.5
 local CORNER_GAP = 0.01
+
+-- The Ride button of a following mount (a species with `ride`) takes the status label's place exactly: the status
+-- row is the card's full width, so "Hop off" (49.5 px at the 14 px minimum, Fredoka) fits one line even on a 78 px
+-- card (73 px of button). Its ZIndex sits above the invisible Tap overlay, so a tap on it asks to ride or hop off and
+-- never reaches the card.
+local TAP_Z = 8
+local RIDE_Z = TAP_Z + 1
 
 -- The perk kinds in the order the perks line lists them (the kinds of data/Companions PerkByJob).
 local PERK_ORDER: { string } = { "catchScrap", "zone", "luck", "radar" }
@@ -254,11 +269,43 @@ local function setCompanion(uid: string, follow: boolean, name: string)
 	end)
 end
 
--- A tap on an alien card. A follower is asked to stop; a seated alien and a full set of slots are told to the player
--- here (the server would refuse both, so no request is spent); a resting alien with a free slot is asked to follow.
+-- Asks the server to ride the follower `uid`, or to hop off when `uid` is nil. The mirror is never touched here: the
+-- server's CompanionsChanged push carries the riding uid into State and the "companions" topic redraws the cards.
+-- One request in flight at a time.
+local function setMount(uid: string?, name: string)
+	if pending then
+		return
+	end
+	pending = true
+	task.spawn(function()
+		local ok, reason = invoke("SetMount", uid)
+		pending = false
+		if ok then
+			if uid then
+				Builder.playSound(Sounds.Mount)
+				Toast.Show(Strings.TOAST_MOUNT_ON:format(name), Theme.Colors.Featured)
+			else
+				Builder.playSound(Sounds.Dismount)
+				Toast.Show(Strings.TOAST_MOUNT_OFF:format(name), Theme.Rarity.Common)
+			end
+		elseif reason == "NotFollowing" then
+			Toast.Show(Strings.TOAST_MOUNT_FOLLOW_FIRST:format(name), Theme.Rarity.Common)
+		else
+			print(("[%s] SetMount refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+end
+
+-- A tap on an alien card. The ridden card hops off first (the next tap, on a plain follower, unfollows); a follower
+-- is asked to stop; a seated alien and a full set of slots are told to the player here (the server would refuse
+-- both, so no request is spent); a resting alien with a free slot is asked to follow.
 local function onCardTapped(uid: string, name: string)
 	Builder.playSound(Sounds.Click)
 	if not State.Has() then
+		return
+	end
+	if State.GetRiding() == uid then
+		setMount(nil, name)
 		return
 	end
 	local profile = State.Get()
@@ -762,7 +809,9 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 
 	-- What it is doing, one line: where it works as the station's name alone ("Picnic Table"; one line at the
 	-- minimum size is all a square card has, and the job verb is the station's), that it follows the player, or
-	-- that a resting one can be tapped to follow.
+	-- that a resting one can be tapped to follow. A following mount has a Ride button in this slot instead (below),
+	-- so it gets no status label: "Ride" says it follows, and "Hop off" says it is ridden.
+	local rideable = entry.following and def ~= nil and def.ride ~= nil
 	local statusText = Strings.ALIENS_TAP_FOLLOW
 	local statusColor = Theme.Rarity.Common
 	if job then
@@ -772,19 +821,41 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		statusText = Strings.ALIENS_FOLLOWING
 		statusColor = Theme.Colors.Confirm
 	end
-	Builder.label({
-		parent = card,
-		name = "Status",
-		text = statusText,
-		textSize = Theme.TextSize.Body,
-		color = statusColor,
-		position = UDim2.fromScale(0.5, STATUS_Y),
-		size = UDim2.fromScale(0.94, STATUS_H),
-		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
-	})
+	if not rideable then
+		Builder.label({
+			parent = card,
+			name = "Status",
+			text = statusText,
+			textSize = Theme.TextSize.Body,
+			color = statusColor,
+			position = UDim2.fromScale(0.5, STATUS_Y),
+			size = UDim2.fromScale(0.94, STATUS_H),
+			anchor = Vector2.new(0.5, 0),
+			zIndex = 4,
+		})
+	end
 
-	-- An invisible button over the whole card, above every chip: a tap asks to follow or stop (onCardTapped).
+	-- A following mount gets a Ride button (gold; blue "Hop off" on the ridden card) in the status slot, above the
+	-- Tap overlay. It only asks: the card redraws from the server's push. No other card has one: a resting
+	-- mount shows none until it follows.
+	if rideable then
+		Builder.button({
+			parent = card,
+			name = "Ride",
+			text = if entry.riding then Strings.ALIENS_HOP_OFF else Strings.ALIENS_RIDE,
+			color = if entry.riding then Theme.Colors.Select else Theme.Colors.Featured,
+			position = UDim2.fromScale(0.5, STATUS_Y),
+			size = UDim2.fromScale(0.94, STATUS_H),
+			anchor = Vector2.new(0.5, 0),
+			textSize = Theme.TextSize.Body,
+			zIndex = RIDE_Z,
+		}, function()
+			setMount(if entry.riding then nil else record.uid, entry.name)
+		end)
+	end
+
+	-- An invisible button over the whole card, above every chip: a tap asks to follow or stop (onCardTapped), or to
+	-- hop off on the ridden card.
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
 	tap.AutoButtonColor = false
@@ -792,16 +863,17 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	tap.BorderSizePixel = 0
 	tap.BackgroundTransparency = 1
 	tap.Size = UDim2.fromScale(1, 1)
-	tap.ZIndex = 8
+	tap.ZIndex = TAP_Z
 	tap.Parent = card
 	tap.Activated:Connect(function()
 		onCardTapped(record.uid, entry.name)
 	end)
 end
 
--- Owned aliens: followers first, then fastest first, then by name, then by uid so the order is stable between
--- refreshes.
+-- Owned aliens: the ridden one first, then followers, then fastest first, then by name, then by uid so the order is
+-- stable between refreshes.
 local function sortedEntries(profile: Types.Profile): { Entry }
+	local ridden = State.GetRiding()
 	local followers: { [string]: boolean } = {}
 	for _, uid in ipairs(profile.companions) do
 		followers[uid] = true
@@ -815,9 +887,13 @@ local function sortedEntries(profile: Types.Profile): { Entry }
 			speed = Economy.workSpeed(record),
 			name = speciesName(def, record.species),
 			following = followers[record.uid] == true,
+			riding = ridden ~= nil and record.uid == ridden,
 		})
 	end
 	table.sort(entries, function(a: Entry, b: Entry): boolean
+		if a.riding ~= b.riding then
+			return a.riding
+		end
 		if a.following ~= b.following then
 			return a.following
 		end
