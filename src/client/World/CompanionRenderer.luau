@@ -19,6 +19,12 @@
 -- Culling: the local player's followers are always drawn; another owner's are drawn only while that owner is
 -- within Companions.RenderDistance of the camera and fit, nearest owners first, inside Companions.MaxRendered.
 -- A hidden follower keeps its record, is parented to nil, and snaps to its spot when it is drawn again.
+-- Riding: a snapshot's `riding` uid names the follower its owner rides. That mount leaves the arc (the others
+-- spread as if it were not there, so nobody leaves a gap), is put under the rider's feet every frame with no lerp
+-- and no bob (the server already lifts the rider's HipHeight by the seat height, so the mount sits on the ground
+-- under the lifted character), faces the owner's flat look direction and hides its nameplate, since the rider's
+-- own name is above it. A riding change never rebuilds the model; on dismount the follower is already placed, so
+-- the follow code above lerps it back into the arc from where it stands.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -59,6 +65,7 @@ type Follower = {
 	size: string, -- the size band id it is drawn at (data/Sizes)
 	stage: string, -- the growth stage id it is drawn at (data/Growth)
 	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate
+	plate: BillboardGui, -- the nameplate on `part`, hidden while this follower is ridden
 	model: Model?, -- the mesh clone when the species has one
 	height: number, -- studs from the feet to the top of what is drawn
 	upright: CFrame, -- the roll that stands a placeholder cylinder up; identity otherwise
@@ -72,6 +79,7 @@ type Follower = {
 type Owner = {
 	userId: number,
 	followers: { Follower }, -- in slot order, which is the order of the arc
+	riding: string?, -- the uid of the follower the owner rides (it leaves the arc), nil on foot
 }
 
 local localPlayer = Players.LocalPlayer
@@ -158,7 +166,7 @@ end
 
 -- The species name over the alien, Fredoka One and outlined through Builder, shown inside NameplateDistance.
 -- `height` is the studs from the feet to the top of what is drawn; the part bobs, so the plate rides with it.
-local function buildPlate(part: Part, name: string, height: number)
+local function buildPlate(part: Part, name: string, height: number): BillboardGui
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
@@ -176,6 +184,7 @@ local function buildPlate(part: Part, name: string, height: number)
 		size = UDim2.fromScale(1, 1),
 	})
 	plate.Parent = part
+	return plate
 end
 
 -- One follower's parts, hidden (parent nil) until culling draws it. `from` is the follower this one replaces
@@ -206,13 +215,14 @@ local function build(row: Types.CompanionRow, def: Types.SpeciesDef, from: Follo
 			upright = CFrame.Angles(0, 0, math.rad(90)) -- stand it upright, as CampRenderer does
 		end
 	end
-	buildPlate(part, def.name, height)
+	local plate = buildPlate(part, def.name, height)
 	return {
 		uid = row.uid,
 		species = row.species,
 		size = row.size,
 		stage = stage.id,
 		part = part,
+		plate = plate,
 		model = model,
 		height = height,
 		upright = upright,
@@ -281,9 +291,14 @@ end
 
 -- A snapshot replaces its owner's whole list. A follower whose uid, species, size band and growth stage are
 -- unchanged keeps its model and its place; a changed one is rebuilt where it stood; a missing one is destroyed.
--- A row whose species is unknown is skipped.
+-- A row whose species is unknown is skipped. The `riding` uid is only kept: which follower is the mount is read
+-- per frame, so a riding change never rebuilds a model, and a uid that matches no follower leaves everyone in the arc.
 local function apply(snapshot: Types.CompanionsSnapshot)
 	local userId = snapshot.userId
+	local riding: string? = snapshot.riding
+	if type(riding) ~= "string" then
+		riding = nil
+	end
 	local owner = owners[userId]
 	local existing: { [string]: Follower } = {}
 	if owner then
@@ -323,7 +338,7 @@ local function apply(snapshot: Types.CompanionsSnapshot)
 	if #ordered == 0 then
 		owners[userId] = nil
 	else
-		owners[userId] = { userId = userId, followers = ordered }
+		owners[userId] = { userId = userId, followers = ordered, riding = riding }
 	end
 	lastEvaluate = -math.huge -- judge culling on the next frame, not in up to EVALUATE_SECONDS
 end
@@ -389,6 +404,16 @@ local function faceDirection(follower: Follower, travel: Vector3, ownerLook: Vec
 	return follower.turn.LookVector
 end
 
+-- Puts a follower's parts at its feet and facing; `bob` lifts the feet (0 for a ridden mount).
+local function place(follower: Follower, bob: number)
+	local pivot = CFrame.new(follower.feet + Vector3.new(0, bob, 0)) * follower.turn
+	follower.part.CFrame = pivot * CFrame.new(0, follower.height / 2, 0) * follower.upright
+	local model = follower.model
+	if model then
+		model:PivotTo(pivot)
+	end
+end
+
 local function onRender(dt: number)
 	local now = os.clock()
 	if now - lastEvaluate >= EVALUATE_SECONDS then
@@ -399,11 +424,15 @@ local function onRender(dt: number)
 	local filterReady = false
 	for userId, owner in pairs(owners) do
 		local followers = owner.followers
+		local mountUid = owner.riding
 		local anyShown = false
+		local count = 0 -- the arc's size: every follower but the mount
 		for _, follower in ipairs(followers) do
 			if follower.shown then
 				anyShown = true
-				break
+			end
+			if follower.uid ~= mountUid then
+				count += 1
 			end
 		end
 		local root = if anyShown then rootOf(userId) else nil
@@ -421,12 +450,29 @@ local function onRender(dt: number)
 		local look = rootFrame.LookVector
 		local flatLook = Vector3.new(look.X, 0, look.Z)
 		local ownerLook: Vector3? = if flatLook.Magnitude > 0 then flatLook.Unit else nil
-		local count = #followers
-		for index, follower in ipairs(followers) do
+		local ground = root.Position - Vector3.new(0, root.Size.Y / 2 + hipHeight, 0) -- under the (lifted) rider
+		local arcIndex = 0
+		for _, follower in ipairs(followers) do
+			local ridden = follower.uid == mountUid
+			if not ridden then
+				arcIndex += 1
+			end
 			if not follower.shown then
 				continue
 			end
-			local spot = (rootFrame * CFrame.new((index - (count + 1) / 2) * Companions.FollowSpacing, 0, Companions.FollowDistance)).Position
+			follower.plate.Enabled = not ridden
+			if ridden then
+				-- The mount moves with the character exactly: no lerp, no bob. It stays placed, so a dismount
+				-- lerps it back into the arc from here (or snaps it past CatchUpDistance).
+				follower.feet = ground
+				follower.placed = true
+				if ownerLook then
+					follower.turn = CFrame.lookAt(Vector3.zero, ownerLook)
+				end
+				place(follower, 0)
+				continue
+			end
+			local spot = (rootFrame * CFrame.new((arcIndex - (count + 1) / 2) * Companions.FollowSpacing, 0, Companions.FollowDistance)).Position
 			local target = Vector3.new(spot.X, groundAt(spot, root, hipHeight), spot.Z)
 			local remaining = target - follower.feet
 			local travel = Vector3.zero
@@ -443,12 +489,7 @@ local function onRender(dt: number)
 			-- The feet rest BobStuds above the ground and swing BobStuds either way, so they touch the
 			-- ground at the bob's low point and lift a little at the top, as WildRenderer's meshes do.
 			local bob = Companions.BobStuds + math.sin(now * omega + follower.phase) * Companions.BobStuds
-			local pivot = CFrame.new(follower.feet + Vector3.new(0, bob, 0)) * follower.turn
-			follower.part.CFrame = pivot * CFrame.new(0, follower.height / 2, 0) * follower.upright
-			local model = follower.model
-			if model then
-				model:PivotTo(pivot)
-			end
+			place(follower, bob)
 		end
 	end
 end
