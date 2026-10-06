@@ -25,7 +25,7 @@ local SpeedByTier: { [string]: number } = { Epic = 1.6, Legendary = 1.92, Cosmic
 -- How far the rider's hips are lifted over their normal hip height while riding, by species, in studs (the
 -- mount is drawn under the rider's feet at that lift); Default for a rideable species not listed.
 local SeatStuds: { [string]: number } = {
-	Thunderhog = 2.2,
+	Thunderhog = 2.6, -- its quills reach 0.4 studs over the body, so the rider sits above them
 	Gaiabloom = 3.2,
 	Radish = 2.4,
 	Frostfang = 2.2,

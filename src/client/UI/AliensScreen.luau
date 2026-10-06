@@ -91,6 +91,8 @@ local NAME_Y = 0.66
 local NAME_H = 0.14
 local STATUS_Y = 0.80
 local STATUS_H = 0.14
+local RIDE_Y = 0.78 -- the Ride button takes the status slot but stands taller (a 21 px tap target at the reference card, not 17)
+local RIDE_H = 0.18
 
 -- The card's top corners: the speed chip top right, the overlay badge top left, and a fused copy's level chip
 -- (the speed chip's size) in the top-left corner too, or directly under the badge when the badge holds it.
@@ -844,8 +846,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			name = "Ride",
 			text = if entry.riding then Strings.ALIENS_HOP_OFF else Strings.ALIENS_RIDE,
 			color = if entry.riding then Theme.Colors.Select else Theme.Colors.Featured,
-			position = UDim2.fromScale(0.5, STATUS_Y),
-			size = UDim2.fromScale(0.94, STATUS_H),
+			position = UDim2.fromScale(0.5, RIDE_Y),
+			size = UDim2.fromScale(0.94, RIDE_H),
 			anchor = Vector2.new(0.5, 0),
 			textSize = Theme.TextSize.Body,
 			zIndex = RIDE_Z,
