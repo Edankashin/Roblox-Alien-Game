@@ -453,7 +453,11 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 end
 
 -- Walking away from a Warden is giving up on it: the spawn is removed through Quests and the cooldown runs.
+local CANCEL_RATE_PER_SECOND = 2 -- CaptureCancel requests per player; cancellation has no result payload.
 local function onCaptureCancel(player: Player)
+	if not Net.allow(player, "CaptureCancel", CANCEL_RATE_PER_SECOND) then
+		return
+	end
 	local encounter = encounters[player.UserId]
 	endEncounter(player.UserId)
 	if encounter then
