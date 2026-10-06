@@ -26,6 +26,15 @@
 -- aura) and, once Icons.Particles.Glow is uploaded, a glow sprite behind the alien that breathes over
 -- Config.VfxAuraPulseSeconds (it holds its midpoint under Reduced Motion). Both follow the hide rule with
 -- the nameplate (applyVisibility) and go with the record (untrack), so a reserved spawn never has one.
+-- The Scanner Pulse (data/PowerUps ScannerPulse, effect "reveal"): while State.GetBuffs() holds it, every
+-- tracked alien whose Biome attribute is the player's biome counts as revealed whatever its distance, so
+-- no silhouette stands in that biome: `applyPulse` unshadows the shadowed ones (the ordinary `reveal`, its
+-- plate pop once) and a part that arrives meanwhile is never shadowed. `pulseRevealed` marks the records
+-- the pulse covers; when the pulse ends, or the player leaves the biome, each marked record the shadow rule
+-- would shadow (uncaught, Silhouettes on, beyond ShadowRevealDistance) is shadowed again by
+-- `reshadowIfFar`, the rule the Silhouettes preference re-applies. Judged on `applyPulse`, from the
+-- "buffs" topic and from every evaluate tick (the buff ends between server pushes; the client compares
+-- the end time with State.Now()). Client-only: the server owns the buff and its timer.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -53,6 +62,7 @@ local VISUAL_FOLDER = "ClientWild" -- client-made Workspace folder for the mesh 
 local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and its nameplate
 local EVALUATE_SECONDS = 0.25 -- how often the blizzard hide rule is re-judged for every tracked alien
 local BLIZZARD = "Blizzard" -- the condition (the world's special weather) under which the hide rule runs
+local SCANNER_PULSE = "ScannerPulse" -- the power-up id (data/PowerUps) whose buff reveals every alien in the biome
 local HEATER_FOLDER = "Heaters" -- Workspace.World.Heaters, made by the server's Heaters service
 local AURA_LIGHT_RANGE = 14 -- studs the tier light reaches (its Brightness is the tier's aura)
 local AURA_GLOW_STUDS = 6 -- the glow sprite's width and height in the world
@@ -67,6 +77,7 @@ type Record = {
 	phase: number,
 	realColor: Color3,
 	shadowed: boolean,
+	pulseRevealed: boolean, -- the Scanner Pulse covers this alien (or unshadowed it); re-judged when the pulse ends
 	hidden: boolean, -- the blizzard hide rule: out of sight beyond BlizzardHideStuds and outside every Heater
 	plate: BillboardGui,
 	nameLabel: TextLabel,
@@ -89,6 +100,7 @@ local visualFolder: Folder? = nil
 local renderConn: RBXScriptConnection? = nil
 local prefsConn: RBXScriptConnection? = nil
 local clockConn: RBXScriptConnection? = nil
+local buffsConn: RBXScriptConnection? = nil
 local blizzard = false -- State.GetConditions() holds "Blizzard"
 local heaterSpots: { { x: number, z: number, radius: number } } = {} -- lit heaters as of the last evaluate
 local lastEvaluate = 0
@@ -277,6 +289,50 @@ local function reveal(record: Record)
 	end
 end
 
+-- Shadows an uncaught alien again when the Silhouettes preference is on and it stands beyond the reveal
+-- distance (no character counts as beyond): the shadow rule, shared by the Silhouettes preference and the
+-- end of the Scanner Pulse. A caught species, an already shadowed one, or one in reach is left alone.
+local function reshadowIfFar(record: Record, at: Vector3?)
+	if known[record.species] or record.shadowed or not Prefs.Silhouettes() then
+		return
+	end
+	local far = at == nil or (record.base.Position - at).Magnitude > Config.ShadowRevealDistance
+	if far then
+		applyShadow(record)
+	end
+end
+
+-- Scanner Pulse -------------------------------------------------------------
+
+-- True while the player's Scanner Pulse runs: State holds the buff as an end time on the server wall clock.
+local function pulseRunning(): boolean
+	local endsAt = State.GetBuffs()[SCANNER_PULSE]
+	return endsAt ~= nil and endsAt > State.Now()
+end
+
+-- Whether the pulse covers this alien right now: it runs and the alien's Biome attribute is the player's.
+local function pulseCovers(record: Record, running: boolean): boolean
+	return running and record.part:GetAttribute("Biome") == State.GetBiome()
+end
+
+-- Judges the Scanner Pulse for every tracked alien: a covered alien is unshadowed (and marked), a marked
+-- one no longer covered (the pulse ended, or the player left the biome) goes back under the shadow rule.
+local function applyPulse()
+	local running = pulseRunning()
+	local at = rootPosition()
+	for _, record in pairs(records) do
+		if pulseCovers(record, running) then
+			if record.shadowed then
+				record.pulseRevealed = true
+				reveal(record)
+			end
+		elseif record.pulseRevealed then
+			record.pulseRevealed = false
+			reshadowIfFar(record, at)
+		end
+	end
+end
+
 -- Blizzard hide rule ---------------------------------------------------------
 
 local function refreshBlizzard()
@@ -358,10 +414,11 @@ local function applyVisibility(record: Record)
 	end
 end
 
--- Re-judges the hide rule for every tracked alien. Without a blizzard everything is shown; with no
--- character yet nothing changes.
+-- Re-judges the hide rule for every tracked alien (and the Scanner Pulse's reveal, via applyPulse). Without
+-- a blizzard everything is shown; with no character yet the hide rule changes nothing.
 local function evaluate()
 	lastEvaluate = os.clock()
+	applyPulse()
 	local at = rootPosition()
 	if blizzard then
 		if not at then
@@ -447,6 +504,7 @@ local function track(instance: Instance)
 		phase = rng:NextNumber(0, math.pi * 2),
 		realColor = instance.Color,
 		shadowed = false,
+		pulseRevealed = false,
 		hidden = false,
 		plate = plate,
 		nameLabel = nameLabel,
@@ -460,23 +518,28 @@ local function track(instance: Instance)
 	records[instance] = record
 	setPulse(record)
 	if not known[species] and Prefs.Silhouettes() then
-		applyShadow(record)
+		if pulseCovers(record, pulseRunning()) then
+			record.pulseRevealed = true -- an arrival in the pulsed biome is never shadowed; it is judged when the pulse ends
+		else
+			applyShadow(record)
+		end
 	end
 end
 
 -- The Silhouettes preference changed: off un-shadows everything at once; on re-shadows the uncaught
--- species standing beyond the reveal distance (the nearer ones would reveal on the next frame anyway).
+-- species standing beyond the reveal distance (the nearer ones would reveal on the next frame anyway),
+-- except those the Scanner Pulse covers, which stay revealed until it ends.
 local function applySilhouettes()
 	local on = Prefs.Silhouettes()
+	local running = pulseRunning()
 	local at = rootPosition()
 	for _, record in pairs(records) do
 		if not on then
 			reveal(record)
-		elseif not known[record.species] and not record.shadowed then
-			local far = at == nil or (record.base.Position - at).Magnitude > Config.ShadowRevealDistance
-			if far then
-				applyShadow(record)
-			end
+		elseif pulseCovers(record, running) then
+			record.pulseRevealed = true
+		else
+			reshadowIfFar(record, at)
 		end
 	end
 end
@@ -635,6 +698,9 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 			evaluate()
 		end)
 	end
+	if not buffsConn then
+		buffsConn = State.OnChanged("buffs", applyPulse)
+	end
 	refreshBlizzard()
 	if renderConn then
 		renderConn:Disconnect()
@@ -670,6 +736,12 @@ function WildRenderer.Nearest(maxDistance: number): (Part?, number)
 		end
 	end
 	return best, bestDistance
+end
+
+-- True while the player's Scanner Pulse runs (the buff's end time on the server clock is still ahead).
+-- The radar reads it too, so both draw the same pulse.
+function WildRenderer.ScannerPulseActive(): boolean
+	return pulseRunning()
 end
 
 -- True while the blizzard hide rule has this alien out of sight (the radar skips it). An untracked part

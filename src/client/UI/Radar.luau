@@ -16,6 +16,15 @@
 -- square marks the camp and a
 -- gold diamond the Peddler while it visits, both pinned to the disc edge when out of range so they
 -- point the way. A tap on a blip or a ping hands the wild part to the bootstrap, which sets the waypoint.
+-- The Scanner Pulse (data/PowerUps ScannerPulse): while the buff runs (WildRenderer.ScannerPulseActive,
+-- read on every refresh and on the "buffs" topic) the refresh also draws every wild part whose Biome
+-- attribute is the player's biome, whatever its distance; `place` clamps a far one to the rim, where it
+-- reads as a direction marker, and it is styled by tier and caught state like any blip. The Secret rule
+-- stands: below Mk2 a secret is not drawn, from Mk2 up it is a ping (on the rim when out of range), and
+-- only a secret within range feeds the heartbeat, so the beat still means "close". The range ring and the
+-- disc's stroke turn Theme.Colors.Codex while the pulse runs and breathe (their transparency tweens up and
+-- back over PowerUps.ScannerPulse.pulseSeconds; Reduced Motion holds the midpoint), then go back to
+-- Theme.Colors.Select (the ring) and Theme.Colors.Outline (the stroke) when it ends.
 -- Client-only and pure presentation: the server owns which tier is held (profile.gear.radar, pushed
 -- by GearChanged into State and fed in with SetTier) and the Spawner owns the wild parts; this module
 -- only reads positions and attributes and draws. It never decides what the player may see, mark or
@@ -32,6 +41,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local RadarTiers = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local PowerUps = require(Shared:WaitForChild("data"):WaitForChild("PowerUps"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -53,9 +63,11 @@ type Mk2Rules = {
 	AbsentRows: number,
 	AbsentMinTier: string,
 }
+type PulseRow = { pulseSeconds: number }
 -- Literal number keys, some rows without `unlock`: cast through any the way the server's Shop does.
 local tiers: { [number]: RadarTier } = (RadarTiers :: any) :: { [number]: RadarTier }
 local mk2: Mk2Rules = (RadarTiers :: any).Mk2
+local pulseRow: PulseRow = (PowerUps :: any).ScannerPulse -- the row is typed as the common shape; see data/PowerUps
 
 -- The highest tier the data knows; SetTier clamps to it so a save from a later build never asks for
 -- a row that is not there. The table also carries the Mk2 rules block under a string key: skipped.
@@ -88,6 +100,10 @@ local RADAR_WIDTH = 0.14 -- of the screen width; the aspect fit makes the holder
 local LAYOUT_GAP = 0.012 -- between the disc's bottom edge and the Nearby column's top
 local RING_SIZE = 0.5 -- the range ring's diameter, of the disc: half the radius, so half the range
 local RING_TRANSPARENCY = 0.6
+local DISC_TRANSPARENCY = 0 -- the disc stroke at rest: solid
+local PULSE_RING_BRIGHT = 0.2 -- the range ring's clearest point in the pulse's breath (its dim end is RING_TRANSPARENCY)
+local PULSE_DISC_DIM = 0.5 -- the disc stroke's faintest point in the breath (its clear end is DISC_TRANSPARENCY)
+local BREATH_PHASES = 2 -- one breath is out and back, so each way takes half the period
 local NORTH_TOP = 0.03
 local NORTH_SIZE = 0.2 -- the cardinal letter's box, of the disc
 local RANGE_LABEL_W = 0.4
@@ -111,6 +127,10 @@ local gui: ScreenGui? = nil
 local holder: Frame? = nil -- the square the aspect fit sizes; its height is the disc's height
 local disc: Frame? = nil
 local rangeLabel: TextLabel? = nil
+local ringStroke: UIStroke? = nil -- the range ring's stroke: Select at rest, Codex and breathing in the pulse
+local discStroke: UIStroke? = nil -- the disc's own outline: Outline at rest, Codex and breathing in the pulse
+local breathTweens: { Tween } = {}
+local pulseActive = false -- the Scanner Pulse runs, as of the last refresh
 local playerMarker: Frame? = nil
 local campMarker: Frame? = nil
 local peddlerMarker: Frame? = nil
@@ -187,6 +207,67 @@ end
 -- True from Radar.Mk2.Tier up: the tier that shows Secret-tier aliens as "???" pings.
 local function mk2Held(): boolean
 	return tier >= mk2.Tier
+end
+
+-- Scanner Pulse look -------------------------------------------------------
+
+local function stopBreath()
+	for _, tween in ipairs(breathTweens) do
+		tween:Cancel()
+	end
+	table.clear(breathTweens)
+end
+
+-- Dresses the range ring and the disc stroke for the pulse (Codex, breathing while the disc shows) or for
+-- rest (Select and Outline, their resting transparency). Safe to call again: a breath that should keep
+-- running is left alone; a Reduced Motion change stops it first (see the Prefs connection in Build).
+local function applyPulseLook()
+	local ring, outline = ringStroke, discStroke
+	if not ring or not outline then
+		return
+	end
+	if not pulseActive then
+		stopBreath()
+		ring.Color = Theme.Colors.Select
+		ring.Transparency = RING_TRANSPARENCY
+		outline.Color = Theme.Colors.Outline
+		outline.Transparency = DISC_TRANSPARENCY
+		return
+	end
+	ring.Color = Theme.Colors.Codex
+	outline.Color = Theme.Colors.Codex
+	if Prefs.ReducedMotion() then
+		stopBreath()
+		ring.Transparency = (RING_TRANSPARENCY + PULSE_RING_BRIGHT) / 2
+		outline.Transparency = (DISC_TRANSPARENCY + PULSE_DISC_DIM) / 2
+		return
+	end
+	if not shown then
+		stopBreath() -- a hidden disc does not need to breathe; applyShown dresses it again when it shows
+		return
+	end
+	if #breathTweens > 0 then
+		return
+	end
+	ring.Transparency = RING_TRANSPARENCY
+	outline.Transparency = DISC_TRANSPARENCY
+	local info = TweenInfo.new(pulseRow.pulseSeconds / BREATH_PHASES, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+	local ringTween = TweenService:Create(ring, info, { Transparency = PULSE_RING_BRIGHT })
+	local discTween = TweenService:Create(outline, info, { Transparency = PULSE_DISC_DIM })
+	table.insert(breathTweens, ringTween)
+	table.insert(breathTweens, discTween)
+	ringTween:Play()
+	discTween:Play()
+end
+
+-- Reads the buff (the WildRenderer's end-time check, so the world and the disc agree) and restyles the
+-- disc when it started or ended.
+local function readPulse()
+	local running = WildRenderer.ScannerPulseActive()
+	if running ~= pulseActive then
+		pulseActive = running
+		applyPulseLook()
+	end
 end
 
 -- Blips --------------------------------------------------------------------
@@ -319,16 +400,19 @@ local function refreshMarkers(at: Vector3?)
 	end
 end
 
--- One blip per wild part within range, measured flat (XZ) since the disc is a flat map. Parts the
+-- One blip per wild part within range, measured flat (XZ) since the disc is a flat map; while the Scanner
+-- Pulse runs, every part in the player's biome too, however far (place pins it to the rim). Parts the
 -- server reserved for another player are skipped: they are hidden for this player everywhere. So are
 -- aliens the Blizzard rule hides (WildRenderer.IsHidden): the radar never shows what the world does not.
 -- A Secret-tier part is a "???" ping on Mk2 and up and nothing below it; the nearest ping's flat distance
--- is kept for the heartbeat.
+-- is kept for the heartbeat, counting only pings within range (a pulsed ping beyond it is a rim marker).
 local function refreshBlips()
+	readPulse()
 	local face = disc
 	if not face then
 		return
 	end
+	local biome = State.GetBiome()
 	local at = rootPosition()
 	local wild = wildFolder()
 	local used = 0
@@ -353,7 +437,8 @@ local function refreshBlips()
 			end
 			local offset = child.Position - at
 			local flat = math.sqrt(offset.X * offset.X + offset.Z * offset.Z)
-			if flat > range then
+			local sensed = pulseActive and child:GetAttribute("Biome") == biome
+			if flat > range and not sensed then
 				continue
 			end
 			local def = Species.ById[species]
@@ -369,7 +454,7 @@ local function refreshBlips()
 			if secret then
 				stylePing(blip, reserved)
 				place(blip.frame, offset.X, offset.Z, PING_EDGE)
-				if nearest == nil or flat < nearest then
+				if flat <= range and (nearest == nil or flat < nearest) then
 					nearest = flat
 				end
 			else
@@ -531,6 +616,7 @@ local function applyShown()
 		else
 			stopTicking()
 		end
+		applyPulseLook() -- the breath runs only while the disc shows
 	end
 	notifyLayout()
 end
@@ -558,8 +644,10 @@ local function buildDisc(parent: Frame): Frame
 		aspect = 1,
 		zIndex = 2,
 	})
-	local ringStroke = Builder.stroke(ring, Theme.Stroke.Text, Theme.Colors.Select)
-	ringStroke.Transparency = RING_TRANSPARENCY
+	local ringLine = Builder.stroke(ring, Theme.Stroke.Text, Theme.Colors.Select)
+	ringLine.Transparency = RING_TRANSPARENCY
+	ringStroke = ringLine
+	discStroke = face:FindFirstChildOfClass("UIStroke") -- the disc's own outline, made by the pill's stroke prop
 	rangeLabel = Builder.label({
 		parent = face,
 		name = "Range",
@@ -689,8 +777,23 @@ function Radar.Build()
 	table.insert(connections, root:GetPropertyChangedSignal("AbsoluteSize"):Connect(notifyLayout))
 	table.insert(connections, square:GetPropertyChangedSignal("AbsoluteSize"):Connect(notifyLayout))
 	table.insert(connections, State.OnChanged("codex", readKnown))
+	table.insert(connections, State.OnChanged("buffs", function()
+		if shown then
+			refreshBlips() -- reads the buff and adds or drops the biome's far blips at once
+		end
+	end))
+	local stillBefore = Prefs.ReducedMotion()
+	table.insert(connections, Prefs.OnChanged(function()
+		local still = Prefs.ReducedMotion()
+		if still ~= stillBefore then -- only a Reduced Motion change restarts the breath (or holds it still)
+			stillBefore = still
+			stopBreath()
+			applyPulseLook()
+		end
+	end))
 	readKnown()
 	applyShown()
+	applyPulseLook() -- the disc is new: dress it for a pulse that is already running
 end
 
 -- The radar tier the server says the player holds (profile.gear.radar): 0 hides the minimap, 1 and
@@ -746,6 +849,10 @@ end
 -- Stops the loop, drops every connection and destroys the ScreenGui; Build may run again afterwards.
 function Radar.Stop()
 	stopTicking()
+	stopBreath()
+	pulseActive = false
+	ringStroke = nil
+	discStroke = nil
 	for _, connection in ipairs(connections) do
 		connection:Disconnect()
 	end
