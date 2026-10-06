@@ -526,6 +526,18 @@ Radar Mk2 (`data/Radar.luau`, 8,000 Scrap once World 2 is unlocked, or `/radar 2
 
 Known gaps in this milestone: no hidden spots yet (none are built in the worlds), the heartbeat and ping sounds are placeholder ids, Mk3's shower preview and overlay glint wait on World 3.
 
+## Milestone 41: the developer panel (World 1 place; step 4 multi-server needs a published game)
+
+Commands the team's accounts (`data/Admin.luau` DeveloperUserIds) can type in any server, sent to every server through MessagingService: `/admin luck [bonus] [minutes]` (a gifted luck window, like a bought Server Luck, named "the team"), `/admin shower` (a Meteor Shower now), `/admin weather <state>` (this world's weather now), `/admin say <text>` (a banner to everyone, 80 characters). A server that cannot publish (Studio without API access) applies the command to itself. The guard is the user id, not Studio; `/admin` from anyone else does nothing and prints nothing.
+
+1. Studio, your user id in DeveloperUserIds: `/admin luck`: the event slot shows "Server Luck x3" (1 + 2.0) with "the team" as the giver and 10:00 counting down, the HUD luck rises by 2.0, Output `analytics: event Admin value=1 action=luck by=<id>` and a line that the publish failed and the command was applied locally. `/admin luck 1 2`: x2 for 2 minutes (the bigger bonus wins while both run, as for bought luck).
+2. `/admin shower`: a shower starts now with its banner; `/admin weather Rain`: the clock reads Rain; `/admin say Hello from the team`: a purple banner "Hello from the team" to every client, once; a 100-character line is cut to 80.
+3. Your id removed from DeveloperUserIds (or another test user): `/admin say x` does nothing, no print, no analytics. Seven `/admin say` lines inside a minute: the seventh is dropped (CommandsPerMinute).
+4. Published game, two servers (Ethan): `/admin say` in one server reaches the other within a few seconds; a luck window shows in both; the message is ignored by a server that receives it more than 30 s late (replay guard). Output clean.
+
+Known gaps in this milestone: no web dashboard (chat commands only), no scheduled hosted Shower (the team types it at the time), no per-world targeting (every server of every world applies it).
+
+
 
 
 

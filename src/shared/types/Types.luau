@@ -221,12 +221,13 @@ export type QuestState = { fieldNotes: { [string]: number }, progress: { [string
 
 -- Server-wide banner (Announcement event, FireAllClients) when someone catches a rare enough alien.
 export type Announcement = {
-	kind: "catch" | "rush", -- a rare enough catch, or the Catch Rush winner (species, tier and overlay are then unused)
+	kind: "catch" | "rush" | "notice", -- a rare enough catch, the Catch Rush winner, or a line from the team (text; the rest unused)
 	playerName: string,
 	species: string,
 	tier: Tier,
 	overlay: Overlay,
 	catches: number?, -- rush: the winner's count
+	text: string?, -- notice: the line itself, already cut to Admin.AnnounceMaxChars
 }
 
 -- Camp -------------------------------------------------------------------

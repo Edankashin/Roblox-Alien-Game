@@ -375,6 +375,8 @@ return {
 	RUSH_PART_ONE = "Catch Rush: 1 catch! %s",
 	RUSH_NONE = "Catch Rush over: catch one next time!",
 	ANNOUNCE_RUSH = "%s won the Catch Rush with %d catches!",
+	ANNOUNCE_NOTICE = "%s", -- a line from the team, shown as typed
+	ADMIN_LUCK_NAME = "the team", -- who gifted a luck window from the developer panel
 	-- Field Notes (quest chain)
 	QUESTS_TITLE = "Field Notes",
 	QUESTS_STEP = "Step %d of %d",
