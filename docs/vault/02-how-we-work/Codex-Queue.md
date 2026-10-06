@@ -14,7 +14,7 @@ Card states: `open` (take it), `taken by codex <date>` (in progress), `review` (
 
 ## Cards
 
-### C1. Continuous integration on every push — open
+### C1. Continuous integration on every push — taken by codex 2026-10-06
 
 Goal: a GitHub Actions workflow that runs the repo's own checks so neither agent can push a red tree unnoticed.
 
