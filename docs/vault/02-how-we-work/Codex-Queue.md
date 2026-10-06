@@ -61,7 +61,7 @@ Files: `src/shared/FusionMath.luau` (new), `src/server/Services/Economy.luau` (`
 
 Done when: `analyze: clean`, `./tools/test.sh` green with both new spec names in its output, and the `Economy.luau` diff limited to `Fuse`.
 
-### C6. Data lint: the rules the code relies on — open
+### C6. Data lint: the rules the code relies on — taken by codex 2026-10-06
 
 Goal: every data-shape assumption the code makes is checked before Studio ever sees it (the lesson in `docs/vault/04-roblox-engine/Data-Tables.md`).
 
