@@ -51,6 +51,24 @@ Files: `tools/balance.py` (new), `docs/vault/01-game-design/Balance-Report.md` (
 
 Do: a Python 3 standard-library simulator that reads `Tiers`, `Species`, `Spawns`, `Modules`, `KeyMaterials`, `Growth`, `Sizes`, `Config` (the catch, income, offline and module numbers) and `Gifts` as text (reuse card C2's parser), then simulates a median player on World 1 and World 2: catches per minute from the capture numbers (assume a 60 percent Good rate and 15 percent Perfect), the tier mix from the shares, the station crew that results with the slot unlocks, Scrap per minute over time including growth stages, and the wall-clock time to each module with and without offline time (capped as in Config). Print and write a Markdown table per world: module, Scrap needed, minutes of active play, minutes with one offline session a day; then a short list of outliers (a module more than three times the previous one, a tier that never seats). Compare with the plan's targets (first module inside five minutes, World 1 ship in a few sessions, World 2 at 1.6x Scrap and 1.5x assembly) in the report. Change no data; list suggested changes for the coordinator.
 
-### C5 and later — not open yet
+### C5. Headless tests for the newer shared maths — open
+
+Goal: the suite from C3 covers `WeeklyMath` (the week index from the epoch, a dated override, IsLimited, IsCurrent), the fusion fodder rule as a pure function (move the "copies at or below the kept copy's level" selection from `Economy.Fuse` into `Shared/FusionMath.luau` with the same behaviour, then test it: a capped Lv 3 over four plain copies refuses, five plain copies fuse, resting before seated), `Growth.StageAt` at the thresholds, and `OutpostMath.Pending` at the cap. Keep production behaviour identical; `./tools/analyze.sh` clean, `./tools/test.sh` green with the new specs listed in its output.
+
+Files: `src/shared/FusionMath.luau` (new), `src/server/Services/Economy.luau` (call the shared function; no other change), `tests/WeeklyMath.spec.luau`, `tests/FusionMath.spec.luau`, `tests/Growth.spec.luau` (extend).
+
+### C6. Data lint: table shapes code can walk — open
+
+Goal: the lesson in `docs/vault/04-roblox-engine/Data-Tables.md` as lint rules in `tools/lint_data.py`: a table whose keys are numbers (`Radar`, `Layouts`, `Worlds`) must not carry string keys other than the ones listed in an allow-list in the script (`Radar.Mk2`), every `Order` list and `Rotation` list is dense (no holes) and every id in it exists in its table, every `Spawns` biome key is in the Biome union (already), every `Species.ride` is a Traversal with a `Mounts.Traversals` row, every `HomeBuild` habitat row has `worldId` and `capacity`, and every `Weekly.Rotation` species exists with `limited` species listed in no Spawns table. Report in `Data-Lint.md`; the lint must stay green on the current data.
+
+Files: `tools/lint_data.py`, `docs/vault/02-how-we-work/Data-Lint.md`.
+
+### C7. Balance report, second pass — open after C4 is reviewed
+
+Goal: extend `tools/balance.py` with the systems that landed after the plan's section 3.3: fusion (four spare copies per level; the share of catches that become fodder at the median), growth (the speed bonus by time seated), companions (perk sums for a median set of three), habitats (Scrap per hour by tier for three displayed), the Catch Rush payouts (per round, by rank), the weekly drop's share, and the outposts. Report the Scrap sources per hour of active play and per day of offline time, and flag any source above 30 percent of the total.
+
+Files: `tools/balance.py`, `docs/vault/01-game-design/Balance-Report.md`.
+
+### C8 and later — not open yet
 
 The look replication pass (icons v2 rendered in Eevee, the soft sprite set, 9-slice plates, species texture passes, world dressing) comes after the mechanics are polished and tested, with Ethan's collaborator on the design; those cards are written then.

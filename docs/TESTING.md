@@ -581,6 +581,17 @@ Three fixed features of the home (`data/Home.luau` points, `data/Mail.luau`): th
 
 Known gaps in this milestone: no Warden pilot in the cockpits until the hangar prop exists (a placeholder silhouette ball sits on each hull), no mail between players yet (42e), letters never expire.
 
+## Milestone 43: the Scanner Pulse (World 1 place)
+
+The Scanner Pulse power-up (`data/PowerUps`, effect "reveal", 60 s, from quests and spins, never sold) finally has a reader: while it runs, every wild alien in the player's biome shows on the radar whatever the range (beyond the disc's range a blip sits on the rim as a direction marker, like the camp square), every uncaught species in that biome resolves from its shadow silhouette at any distance, and the disc's ring pulses in the Codex purple. A radar of any tier shows it; the free Nearby panel (tier 0) is unchanged.
+
+1. `/radar 1`, then with a Scanner Pulse in the inventory (the spin wheel or quests; in Studio `/buy` has no Scrap row for it, so grant it through a code or a quest, or use `/spins` and spin until one lands) use it from the power-up bar: "Scanner Pulse on!", the ring turns purple and breathes; blips appear for wild aliens 150 and 250 studs away, pinned to the rim with the right bearing (compare the compass heading); a Forest alien does not show while you stand in the Meadow (the biome rule), and it appears when you cross into the Forest.
+2. An uncaught species 100 studs away is drawn in colour (no silhouette) while the pulse runs and shadows again when it ends; the Nearby panel on tier 0 lists the same species it always did.
+3. The buff ring under the ship bar counts the 60 s down; at the end the rim blips go, the ring returns to blue, the silhouettes return. Rejoin mid-pulse (memory profiles): the timer resumes and the reveal with it. Output clean.
+
+Known gaps in this milestone: "hidden spots" are not built in any world, so the pulse reveals aliens only; no sound on activation beyond the generic power-up cue.
+
+
 
 
 
