@@ -48,6 +48,7 @@ local lureOrder: { string } = Lures.Order
 -- Literal number keys, some rows without `unlock`: cast through any the way the server's Shop does.
 local radarTiers: { [number]: RadarTier } = (Radar :: any) :: { [number]: RadarTier }
 local RADAR_MK1 = 1
+local RADAR_MK2 = 2
 
 -- The gear the shop sells, in display order, each with the profile.gear field that marks it owned.
 -- Literal keys: the Gear table also carries BaseWalkSpeed, so it cannot be cast to a dictionary.
@@ -55,15 +56,20 @@ local GEAR_ITEMS: { GearItem } = {
 	{ id = "Boots", field = "boots", scrap = Gear.Boots.scrap, def = Gear.Boots },
 	{ id = "Hoverboard", field = "hoverboard", scrap = Gear.Hoverboard.scrap, def = Gear.Hoverboard },
 	{ id = "Radar1", field = "radar", scrap = radarTiers[RADAR_MK1].scrap, radarTier = RADAR_MK1 },
+	{ id = "Radar2", field = "radar", scrap = radarTiers[RADAR_MK2].scrap, radarTier = RADAR_MK2 },
 	{ id = "Glider", field = "glider", scrap = Gear.Glider.scrap, def = Gear.Glider },
 }
 -- Gear the server answers Locked for until its unlock lands. FirstLaunch gear (the Glider) is drawn
--- grey while only the starting world is unlocked and buyable once a second world is. The tap still
--- goes to the server, which decides, and a refusal becomes the TOAST_LOCKED_GEAR toast.
+-- grey while only the starting world is unlocked and buyable once a second world is; Radar Mk2 waits on
+-- the same second world and on Mk1 being held. The tap still goes to the server, which decides, and a
+-- refusal becomes the TOAST_LOCKED_GEAR toast.
 local function gearLocked(profile: Types.Profile, item: GearItem): boolean
 	local def = item.def
 	if def and def.unlock == "FirstLaunch" then
 		return #profile.world.unlocked <= 1
+	end
+	if item.radarTier == RADAR_MK2 then
+		return #profile.world.unlocked <= 1 or profile.gear.radar < RADAR_MK1
 	end
 	return false
 end
@@ -250,13 +256,18 @@ local function ownsGear(profile: Types.Profile, item: GearItem): boolean
 	return gear.glider == true
 end
 
--- The effect line: the minimap range for a radar, the walk-speed bonus for movement gear, or, for gear that
--- does nothing yet (the Glider), the unlock note while it is locked and what it will do once it is not.
+-- The effect line: the minimap range for a radar (Mk2 says what it adds, or the unlock note while it is
+-- locked), the walk-speed bonus for movement gear, or, for gear that does nothing yet (the Glider), the
+-- unlock note while it is locked and what it will do once it is not.
 local function effectText(profile: Types.Profile, item: GearItem): string
 	local radarTier = item.radarTier
 	if radarTier then
 		local row = radarTiers[radarTier]
-		return Strings.SHOP_GEAR_RADAR:format(if row then row.range else 0)
+		local range = if row then row.range else 0
+		if radarTier == RADAR_MK2 then
+			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED else Strings.SHOP_GEAR_RADAR2:format(range)
+		end
+		return Strings.SHOP_GEAR_RADAR:format(range)
 	end
 	local def = item.def
 	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0
@@ -380,7 +391,7 @@ end
 -- A white card with the name top left, the effect line and price beneath it, and the action button
 -- down the right. Lures also get a Held chip beside the name; gear also gets an Owned chip that
 -- stands in for the button once the server says it is owned.
-local function buildRow(parent: Frame, index: number, kind: Kind, id: string, buttonText: string): Row
+local function buildRow(parent: Instance, index: number, kind: Kind, id: string, buttonText: string): Row
 	local card = Builder.frame({
 		parent = parent,
 		name = id,
@@ -522,7 +533,7 @@ local function buildRow(parent: Frame, index: number, kind: Kind, id: string, bu
 	}
 end
 
-local function listLayout(parent: Frame)
+local function listLayout(parent: Instance): UIListLayout
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -530,6 +541,7 @@ local function listLayout(parent: Frame)
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 	layout.Padding = UDim.new(ROW_GAP, 0)
 	layout.Parent = parent
+	return layout
 end
 
 local function buildLuresPage(parent: Frame)
@@ -542,10 +554,33 @@ local function buildLuresPage(parent: Frame)
 	end
 end
 
+-- More than three gear rows of ROW_H do not fit the content height (five take 1.62 of it), so the Gear tab
+-- is a scrolling column with the thin dark bar, like the Robux page. Children of a ScrollingFrame scale
+-- against the canvas, which is `pages` visible heights tall, so each row's height and the gap are divided
+-- by `pages` and a row keeps exactly the size it had in the plain list. Rows are Scale-sized and the
+-- canvas needs no pixels: it only depends on how many items GEAR_ITEMS holds.
 local function buildGearPage(parent: Frame)
-	listLayout(parent)
+	local count = #GEAR_ITEMS
+	local pages = math.max(1, count * ROW_H + (count - 1) * ROW_GAP)
+	local scroller = Instance.new("ScrollingFrame")
+	scroller.Name = "Column"
+	scroller.BackgroundTransparency = 1
+	scroller.BorderSizePixel = 0
+	scroller.Size = UDim2.fromScale(1, 1)
+	scroller.ZIndex = 3
+	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
+	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
+	scroller.CanvasSize = UDim2.fromScale(0, pages)
+	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+	scroller.ScrollBarThickness = SCROLLBAR_PX
+	scroller.ScrollBarImageColor3 = Theme.Colors.Trough
+	scroller.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	scroller.Parent = parent
+	listLayout(scroller).Padding = UDim.new(ROW_GAP / pages, 0)
 	for index, item in ipairs(GEAR_ITEMS) do
-		table.insert(gearRows, buildRow(parent, index, "gear", item.id, Strings.SHOP_BUY:format(itemName("gear", item.id))))
+		local row = buildRow(scroller, index, "gear", item.id, Strings.SHOP_BUY:format(itemName("gear", item.id)))
+		row.card.Size = UDim2.fromScale(1, ROW_H / pages)
+		table.insert(gearRows, row)
 	end
 end
 

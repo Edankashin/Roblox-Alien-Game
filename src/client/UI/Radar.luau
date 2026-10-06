@@ -1,14 +1,21 @@
 --!strict
--- StarterPlayerScripts.Client.UI.Radar: the Radar Mk1 minimap (data/Radar, tier 1 and up). A round
--- north-up disc on the right edge under the HUD's shower chip, in the slot the free Nearby panel
+-- StarterPlayerScripts.Client.UI.Radar: the Radar Mk1 and Mk2 minimap (data/Radar, tier 1 and up). A
+-- round north-up disc on the right edge under the HUD's shower chip, in the slot the free Nearby panel
 -- (tier 0) otherwise starts in; the bootstrap hears the disc's bottom edge through OnLayout and
 -- pushes the panel's top down under it. One blip per wild alien part under Workspace.World.Wild
 -- within the tier's range of the player's HumanoidRootPart: tier-coloured for a caught species, a
 -- dark silhouette ringed in the tier colour for one not yet in the codex (the world's shadow rule),
 -- gold-ringed for an alien the server reserved for this player; an alien the Blizzard rule hides has
--- no blip. A cream square marks the camp and a
+-- no blip. A Secret-tier alien is never a blip: below Mk2 (data/Radar Mk2.Tier) nothing is drawn for it,
+-- on Mk2 and up it is a larger white-ringed "???" ping, tappable like a blip. While at least one ping is
+-- on the disc a heartbeat sounds (Sounds.Heartbeat) and every ping swells to Mk2.SecretPulseScale and
+-- back within the beat; the beat interval runs linearly from Mk2.SecretPingFarSeconds at the full range
+-- to Mk2.SecretPingNearSeconds at Mk2.SecretNearStuds or closer to the nearest secret (flat distance).
+-- The disc re-reads the wild parts every Config.RadarRefreshSeconds; the beat clock accumulates frame
+-- time in the same Heartbeat connection so a 0.4 s beat is not quantised to the 0.1 s refresh. A cream
+-- square marks the camp and a
 -- gold diamond the Peddler while it visits, both pinned to the disc edge when out of range so they
--- point the way. A tap on a blip hands the wild part to the bootstrap, which sets the waypoint.
+-- point the way. A tap on a blip or a ping hands the wild part to the bootstrap, which sets the waypoint.
 -- Client-only and pure presentation: the server owns which tier is held (profile.gear.radar, pushed
 -- by GearChanged into State and fed in with SetTier) and the Spawner owns the wild parts; this module
 -- only reads positions and attributes and draws. It never decides what the player may see, mark or
@@ -16,6 +23,7 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -27,6 +35,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
+local Prefs = require(script.Parent.Parent.Prefs)
 local State = require(script.Parent.Parent.State)
 local CampRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CampRenderer"))
 local PeddlerRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
@@ -35,15 +44,25 @@ local WildRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForC
 local Radar = {}
 
 type RadarTier = { name: string, range: number, scrap: number, unlock: string? }
+type Mk2Rules = {
+	Tier: number,
+	SecretPingFarSeconds: number,
+	SecretPingNearSeconds: number,
+	SecretNearStuds: number,
+	SecretPulseScale: number,
+	AbsentRows: number,
+	AbsentMinTier: string,
+}
 -- Literal number keys, some rows without `unlock`: cast through any the way the server's Shop does.
 local tiers: { [number]: RadarTier } = (RadarTiers :: any) :: { [number]: RadarTier }
+local mk2: Mk2Rules = (RadarTiers :: any).Mk2
 
 -- The highest tier the data knows; SetTier clamps to it so a save from a later build never asks for
--- a row that is not there.
+-- a row that is not there. The table also carries the Mk2 rules block under a string key: skipped.
 local maxTier = 0
-for tier in pairs(tiers) do
-	if tier > maxTier then
-		maxTier = tier
+for key in pairs(tiers) do
+	if type(key) == "number" and key > maxTier then
+		maxTier = key
 	end
 end
 
@@ -51,6 +70,11 @@ end
 type Blip = {
 	frame: Frame,
 	stroke: UIStroke,
+	hit: TextButton, -- the invisible tap area, a child so it follows the frame
+	label: TextLabel, -- the "???" of a secret ping; hidden on a plain blip
+	pulse: UIScale, -- the beat's swell; 1 at rest
+	pulseTween: Tween?,
+	ping: boolean, -- true while this blip is drawn as a Secret "???" ping
 	part: Part?, -- the wild part this blip stands for since the last refresh; nil while pooled
 }
 
@@ -70,11 +94,15 @@ local RANGE_LABEL_W = 0.4
 local RANGE_LABEL_H = 0.12
 local BLIP_SIZE = 0.1 -- of the disc
 local HIT_SCALE = 2 -- the invisible tap area is this many blips wide and tall
+local PING_SIZE = 0.32 -- the Secret ping, of the disc: wide enough for "???" at the minimum text size
+local PING_HIT_SCALE = 1.4 -- a ping is already big, so its tap area is only this many pings wide and tall
+local PULSE_PHASES = 2 -- the swell goes up and back down, so each phase takes half the beat
 local MARKER_SIZE = 0.09 -- the camp square and the Peddler diamond
 local PLAYER_SIZE = 0.14 -- the player marker's box
 local PLAYER_DIAMOND = 0.7 -- the square inside it; on its point (45 degrees) its corners reach the box
 local PLAYER_TIP = 0.28 -- the facing dot at the top of the box, of the box
 local EDGE = 0.5 - BLIP_SIZE / 2 -- how far a blip's centre may sit from the disc centre and stay inside
+local PING_EDGE = 0.5 - PING_SIZE / 2 -- the same for a ping
 local SILHOUETTE = Builder.darker(Theme.Colors.Trough) -- fill for a species not yet caught
 
 local localPlayer = Players.LocalPlayer
@@ -90,6 +118,8 @@ local blips: { Blip } = {}
 local connections: { RBXScriptConnection } = {}
 local heartbeat: RBXScriptConnection? = nil
 local accumulator = 0
+local beatClock = 0 -- seconds since the last heartbeat; primed to a full far interval while no secret is on the disc
+local nearestSecret: number? = nil -- flat distance to the nearest secret ping at the last refresh; nil when none
 local known: { [string]: boolean } = {} -- species with a catch in the codex: solid blips, not silhouettes
 local tier = 0 -- the radar tier the server says the player holds (SetTier); 0 is the free Nearby panel
 local range = 0 -- studs, from the tier's row; the disc radius
@@ -121,9 +151,9 @@ end
 
 -- Puts a marker on the disc for a world offset from the player. North-up: world -Z is up the disc,
 -- +X is right, and the range is the disc radius (0.5), so a blip at the full range sits on the rim.
--- The offset is clamped to EDGE, so a blip right at the range stays inside the disc and an
--- out-of-range camp or Peddler marker becomes a direction marker on the rim.
-local function place(object: GuiObject, dx: number, dz: number)
+-- The offset is clamped to EDGE (or the `edge` a larger marker passes), so a blip right at the range
+-- stays inside the disc and an out-of-range camp or Peddler marker becomes a direction marker on the rim.
+local function place(object: GuiObject, dx: number, dz: number, edge: number?)
 	if range <= 0 then
 		object.Position = UDim2.fromScale(0.5, 0.5)
 		return
@@ -131,8 +161,9 @@ local function place(object: GuiObject, dx: number, dz: number)
 	local ox = dx / range * 0.5
 	local oy = dz / range * 0.5
 	local magnitude = math.sqrt(ox * ox + oy * oy)
-	if magnitude > EDGE then
-		local shrink = EDGE / magnitude
+	local limit = edge or EDGE
+	if magnitude > limit then
+		local shrink = limit / magnitude
 		ox *= shrink
 		oy *= shrink
 	end
@@ -153,7 +184,22 @@ local function readKnown()
 	known = next
 end
 
+-- True from Radar.Mk2.Tier up: the tier that shows Secret-tier aliens as "???" pings.
+local function mk2Held(): boolean
+	return tier >= mk2.Tier
+end
+
 -- Blips --------------------------------------------------------------------
+
+-- Ends a ping's swell and puts its scale back to rest.
+local function stopPulse(blip: Blip)
+	local running = blip.pulseTween
+	if running then
+		running:Cancel()
+		blip.pulseTween = nil
+	end
+	blip.pulse.Scale = 1
+end
 
 local function newBlip(parent: Frame): Blip
 	local frame = Builder.pill({
@@ -180,7 +226,21 @@ local function newBlip(parent: Frame): Blip
 	hit.AnchorPoint = Vector2.new(0.5, 0.5)
 	hit.ZIndex = 6
 	hit.Parent = frame
-	local blip: Blip = { frame = frame, stroke = stroke, part = nil }
+	local pulse = Instance.new("UIScale") -- scales about the frame's centre, so the swell stays on the dot
+	pulse.Parent = frame
+	-- The "???" inside a ping's ring: minimum text size, white and outlined; only a ping shows it.
+	local label = Builder.label({
+		parent = frame,
+		name = "Unknown",
+		text = Strings.CODEX_UNKNOWN,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(1, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 6,
+	})
+	label.Visible = false
+	local blip: Blip = { frame = frame, stroke = stroke, hit = hit, label = label, pulse = pulse, pulseTween = nil, ping = false, part = nil }
 	hit.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
 		local part = blip.part
@@ -192,17 +252,44 @@ local function newBlip(parent: Frame): Blip
 	return blip
 end
 
+-- Draws a pooled blip as a Secret ping (true) or as a plain blip (false): the ping is bigger, carries the
+-- "???" and has a smaller tap area; a plain blip drops the swell. Only touches what changes.
+local function setPing(blip: Blip, ping: boolean)
+	if blip.ping == ping then
+		return
+	end
+	blip.ping = ping
+	local size = if ping then PING_SIZE else BLIP_SIZE
+	blip.frame.Size = UDim2.fromScale(size, size)
+	blip.label.Visible = ping
+	local hitScale = if ping then PING_HIT_SCALE else HIT_SCALE
+	blip.hit.Size = UDim2.fromScale(hitScale, hitScale)
+	if not ping then
+		stopPulse(blip)
+	end
+end
+
+-- A Secret ping: the silhouette fill, a white ring (the Featured ring for an alien reserved for this
+-- player), and the "???" in it. Nothing about the species is told.
+local function stylePing(blip: Blip, reservedForMe: boolean)
+	setPing(blip, true)
+	blip.frame.BackgroundColor3 = SILHOUETTE
+	blip.stroke.Color = if reservedForMe then Theme.Colors.Featured else Theme.Colors.White
+end
+
 -- Caught species: solid tier colour with the outline. Uncaught: the silhouette rule, a dark fill with
--- the ring in the tier colour (white for a Secret, whose tier colour is near black). An alien the
--- server reserved for this player (a trainee, the summoned Warden) gets the Featured ring either way.
+-- the ring in the tier colour. An alien the server reserved for this player (a trainee, the summoned
+-- Warden) gets the Featured ring either way. Secret-tier aliens never come through here: they are
+-- pings (stylePing) on Mk2 and up and not drawn below it.
 local function styleBlip(blip: Blip, tierName: string, caught: boolean, reservedForMe: boolean)
+	setPing(blip, false)
 	local tierColor = Builder.tierColor(tierName)
 	if caught then
 		blip.frame.BackgroundColor3 = tierColor
 		blip.stroke.Color = Theme.Colors.Outline
 	else
 		blip.frame.BackgroundColor3 = SILHOUETTE
-		blip.stroke.Color = if tierName == "Secret" then Theme.Colors.White else tierColor
+		blip.stroke.Color = tierColor
 	end
 	if reservedForMe then
 		blip.stroke.Color = Theme.Colors.Featured
@@ -235,6 +322,8 @@ end
 -- One blip per wild part within range, measured flat (XZ) since the disc is a flat map. Parts the
 -- server reserved for another player are skipped: they are hidden for this player everywhere. So are
 -- aliens the Blizzard rule hides (WildRenderer.IsHidden): the radar never shows what the world does not.
+-- A Secret-tier part is a "???" ping on Mk2 and up and nothing below it; the nearest ping's flat distance
+-- is kept for the heartbeat.
 local function refreshBlips()
 	local face = disc
 	if not face then
@@ -243,6 +332,8 @@ local function refreshBlips()
 	local at = rootPosition()
 	local wild = wildFolder()
 	local used = 0
+	local nearest: number? = nil
+	local secretsShown = mk2Held()
 	if at and wild and range > 0 then
 		for _, child in ipairs(wild:GetChildren()) do
 			if not child:IsA("Part") then
@@ -261,17 +352,30 @@ local function refreshBlips()
 				continue
 			end
 			local offset = child.Position - at
-			if math.sqrt(offset.X * offset.X + offset.Z * offset.Z) > range then
+			local flat = math.sqrt(offset.X * offset.X + offset.Z * offset.Z)
+			if flat > range then
 				continue
+			end
+			local def = Species.ById[species]
+			local tierAttribute = child:GetAttribute("Tier")
+			local tierName: string = if type(tierAttribute) == "string" then tierAttribute elseif def then def.tier else "Common"
+			local secret = tierName == "Secret"
+			if secret and not secretsShown then
+				continue -- Mk1 is told nothing about a secret
 			end
 			used += 1
 			local blip = blips[used] or newBlip(face)
 			blip.part = child
-			local def = Species.ById[species]
-			local tierAttribute = child:GetAttribute("Tier")
-			local tierName: string = if type(tierAttribute) == "string" then tierAttribute elseif def then def.tier else "Common"
-			styleBlip(blip, tierName, known[species] == true, reserved)
-			place(blip.frame, offset.X, offset.Z)
+			if secret then
+				stylePing(blip, reserved)
+				place(blip.frame, offset.X, offset.Z, PING_EDGE)
+				if nearest == nil or flat < nearest then
+					nearest = flat
+				end
+			else
+				styleBlip(blip, tierName, known[species] == true, reserved)
+				place(blip.frame, offset.X, offset.Z)
+			end
 			blip.frame.Visible = true
 		end
 	end
@@ -279,8 +383,58 @@ local function refreshBlips()
 		local blip = blips[index]
 		blip.part = nil
 		blip.frame.Visible = false
+		stopPulse(blip)
 	end
+	nearestSecret = nearest
 	refreshMarkers(at)
+end
+
+-- The heartbeat -------------------------------------------------------------------
+
+-- Seconds between beats for a nearest secret `distance` studs away: SecretPingFarSeconds at the full
+-- range, SecretPingNearSeconds at SecretNearStuds or closer, linear in between.
+local function beatInterval(distance: number): number
+	local near, far = mk2.SecretNearStuds, range
+	if far <= near or distance <= near then
+		return mk2.SecretPingNearSeconds
+	end
+	local share = math.clamp((distance - near) / (far - near), 0, 1)
+	return mk2.SecretPingNearSeconds + (mk2.SecretPingFarSeconds - mk2.SecretPingNearSeconds) * share
+end
+
+-- Swells every visible ping to SecretPulseScale and back to rest within one beat (the tween reverses,
+-- so each way takes half). Reduced Motion keeps the sound and skips the swell.
+local function pulsePings(interval: number)
+	if Prefs.ReducedMotion() then
+		return
+	end
+	local info = TweenInfo.new(interval / PULSE_PHASES, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, true)
+	for _, blip in ipairs(blips) do
+		if blip.ping and blip.frame.Visible then
+			stopPulse(blip)
+			local tween = TweenService:Create(blip.pulse, info, { Scale = mk2.SecretPulseScale })
+			blip.pulseTween = tween
+			tween:Play()
+		end
+	end
+end
+
+-- Advances the beat clock by one frame. Nothing plays while no secret ping is on the disc; the clock
+-- sits primed (a full far interval) so the first beat sounds the moment one appears.
+local function tickBeat(dt: number)
+	local nearest = nearestSecret
+	if not nearest then
+		beatClock = mk2.SecretPingFarSeconds
+		return
+	end
+	local interval = beatInterval(nearest)
+	beatClock += dt
+	if beatClock < interval then
+		return
+	end
+	beatClock = if beatClock - interval < interval then beatClock - interval else 0
+	Builder.playSound(Sounds.Heartbeat)
+	pulsePings(interval)
 end
 
 -- Turns the player marker to the camera's look yaw: north (-Z) is 0, east (+X) is 90, clockwise like
@@ -340,6 +494,7 @@ local function startTicking()
 	accumulator = Config.RadarRefreshSeconds -- place the blips on the first frame
 	heartbeat = RunService.Heartbeat:Connect(function(dt: number)
 		refreshHeading() -- one rotation write per frame keeps the marker smooth
+		tickBeat(dt)
 		accumulator += dt
 		if accumulator < Config.RadarRefreshSeconds then
 			return
@@ -353,6 +508,10 @@ local function stopTicking()
 	if heartbeat then
 		heartbeat:Disconnect()
 		heartbeat = nil
+	end
+	nearestSecret = nil -- no beat while the loop is down; the next refresh finds the secrets again
+	for _, blip in ipairs(blips) do
+		stopPulse(blip)
 	end
 end
 
@@ -535,7 +694,8 @@ function Radar.Build()
 end
 
 -- The radar tier the server says the player holds (profile.gear.radar): 0 hides the minimap, 1 and
--- up show it with that tier's range (clamped to the highest tier in the data).
+-- up show it with that tier's range (clamped to the highest tier in the data); Radar.Mk2.Tier and up
+-- also draw Secret-tier aliens as "???" pings.
 function Radar.SetTier(next: number)
 	if next ~= next then
 		next = 0
@@ -592,6 +752,7 @@ function Radar.Stop()
 	connections = {}
 	shown = false
 	blips = {}
+	nearestSecret = nil
 	holder = nil
 	disc = nil
 	rangeLabel = nil
