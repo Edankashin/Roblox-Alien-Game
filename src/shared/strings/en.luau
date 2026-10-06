@@ -354,7 +354,6 @@ return {
 	SEGMENT_DoubleShift = "Double Shift",
 	SEGMENT_CompanionToken = "Companion Token",
 	TOAST_GIFT_CLAIMED = "Day %d gift: %s",
-	TOAST_WELCOME_GIFT = "First part built! A gift is waiting.",
 	TOAST_NEW_DAY = "Day %d! A new gift is waiting",
 	-- Meteor Shower
 	SHOWER_CHIP = "Shower in %s",
@@ -460,7 +459,6 @@ return {
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
 	ALIENS_COUNT = "%d aliens",
-	ALIENS_WORKING = "%s at the %s",
 	ALIENS_RESTING = "Resting",
 	ALIENS_SPEED = "x%s",
 	STATION_SLOTS = "%d/%d",

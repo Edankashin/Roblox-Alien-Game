@@ -51,13 +51,20 @@ local CELL_W = 0.22
 local CELL_GAP = 0.02
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
 
--- The alien card's mid band: the shape square in the centre with a chip on each side (size on the left,
--- growth on the right). A chip is CHIP_W of the card so five characters ("Elder", "HUGE", "23h") fit at
--- the 14 px minimum on an iPhone SE card; the chips overlap the shape's edges, drawn above it.
+-- The alien card's mid band: the shape square in the centre, then a chip row across its lower edge (size
+-- on the left, growth on the right), then the name and the station. A chip is CHIP_W of the card so five
+-- characters ("Elder", "HUGE", "23h") fit at the 14 px minimum on an iPhone SE card; the chips sit on the
+-- shape's bottom edge, below its label, drawn above it. Every row is one line at the minimum size: a
+-- square card has no room for a second line anywhere.
+local SHAPE_Y = 0.38
 local SHAPE_W = 0.36
 local CHIP_W = 0.38
-local CHIP_Y = 0.42
+local CHIP_Y = 0.59
 local CHIP_H = 0.14
+local NAME_Y = 0.66
+local NAME_H = 0.14
+local STATUS_Y = 0.80
+local STATUS_H = 0.14
 
 -- Time units, in seconds, for the growth countdown.
 local MINUTE = 60
@@ -341,7 +348,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	local shape = Builder.frame({
 		parent = card,
 		name = "Shape",
-		position = UDim2.fromScale(0.5, 0.4),
+		position = UDim2.fromScale(0.5, SHAPE_Y),
 		size = UDim2.fromScale(SHAPE_W, SHAPE_W),
 		anchor = Vector2.new(0.5, 0.5),
 		color = speciesColor(def),
@@ -366,8 +373,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		name = "Name",
 		text = entry.name,
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, 0.64),
-		size = UDim2.fromScale(0.92, 0.16),
+		position = UDim2.fromScale(0.5, NAME_Y),
+		size = UDim2.fromScale(0.92, NAME_H),
 		anchor = Vector2.new(0.5, 0),
 		zIndex = 4,
 	})
@@ -418,8 +425,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
-	-- A band that names itself (Tiny, Big, HUGE: data/Sizes label) gets a small gold chip mid-left, over
-	-- the shape's edge; Normal and Small show nothing.
+	-- A band that names itself (Tiny, Big, HUGE: data/Sizes label) gets a small gold chip at the left of
+	-- the chip row; Normal and Small show nothing.
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
 	if band.label then
 		local sizeChip = Builder.pill({
@@ -446,7 +453,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
-	-- The growth chip (data/Growth) mirrors the size chip on the right of the shape. A seated alien with a
+	-- The growth chip (data/Growth) mirrors the size chip at the right of the chip row. A seated alien with a
 	-- stage ahead shows the work time left to it in white ("2h", "59m": only a working alien earns time); otherwise
 	-- a stage that names itself (Grown, Elder) shows its name in sky blue, and a resting Hatchling shows nothing.
 	local job = record.station
@@ -465,7 +472,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			parent = card,
 			name = "Stage",
 			position = UDim2.fromScale(0.98, CHIP_Y),
-			size = UDim2.fromScale(CHIP_W, CHIP_H), -- mid-right, the size chip's mirror
+			size = UDim2.fromScale(CHIP_W, CHIP_H), -- the size chip's mirror
 			anchor = Vector2.new(1, 0.5),
 			color = Theme.Colors.Trough,
 			stroke = Theme.Stroke.Text,
@@ -485,17 +492,17 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
+	-- Where it works, as the station's name alone ("Picnic Table"): one line at the minimum size is all a
+	-- square card has, and the job verb is the station's.
 	Builder.label({
 		parent = card,
 		name = "Status",
-		text = if job
-			then Strings.ALIENS_WORKING:format(Builder.text("VERB_" .. job), Builder.text("STATION_" .. job))
-			else Strings.ALIENS_RESTING,
+		text = if job then Builder.text("STATION_" .. job) else Strings.ALIENS_RESTING,
 		textSize = Theme.TextSize.Body,
 		color = if job then Theme.Colors.White else Theme.Rarity.Common,
-		position = UDim2.fromScale(0.5, 0.97),
-		size = UDim2.fromScale(0.94, 0.17), -- two short lines at the minimum size ("gathering at the" / "Picnic Table")
-		anchor = Vector2.new(0.5, 1),
+		position = UDim2.fromScale(0.5, STATUS_Y),
+		size = UDim2.fromScale(0.94, STATUS_H),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 4,
 	})
 end

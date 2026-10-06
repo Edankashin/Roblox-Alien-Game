@@ -36,7 +36,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Floors become Terrain (grass, snow, sand per biome patch) painted by a build script run once in Studio through MCP, or stay parts with MaterialService custom materials (a PBR set per world) when terrain costs too much on phones. Decide by measuring on the SE: terrain is the goal, materials the fallback.
 - A water plane where a world has one (Tidepool later). Patch edges get a soft blend (a second ring part with a gradient texture) so biomes stop looking like discs.
 
-### L3. World dressing and hero landmarks (one milestone per world) — weather particles done as milestone 24 (2026-10-05); drops and flakes wait on real textures
+### L3. World dressing and hero landmarks (one milestone per world) — weather particles done as milestone 24 (2026-10-05); five hero set pieces modelled (`tools/blender/heroes_base.py`, renders in `05-ui-design/refs/look-l3/`) and placed from layout data as milestone 29 (2026-10-06); the 16 scenery props get their look pass next; drops and flakes wait on real textures
 
 - Import the 16 props (`Map-Dressing.md`), then paint extra scatter with Brushtool 2, rows with Redupe, curves with Archimedes. Hand dressing lives in the place file.
 - Hero pieces modelled in Blender through MCP or generated: the crash site wreck, the shrine, the cave mouth, the geyser field vents, the ship hull per world. Each has a notes line in `Blender-MCP.md`.
