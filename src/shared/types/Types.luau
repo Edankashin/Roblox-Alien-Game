@@ -14,7 +14,7 @@ export type JobLevel = { job: Job, level: number }
 -- The home planet on the profile: whether it is unlocked, the visits, and the house grid (data/HomeBuild): one
 -- entry per placed item, keyed by its uid, at a plot cell (0-based from the plot's -X -Z corner) with a quarter-turn rotation.
 export type HomeItem = { uid: string, itemId: string, cellX: number, cellZ: number, rotation: number }
-export type HomeState = { unlocked: boolean, visits: number, items: { [string]: HomeItem } }
+export type HomeState = { unlocked: boolean, visits: number, items: { [string]: HomeItem }, habitatSettled: number } -- habitatSettled: os.time() of the last habitat payout
 
 export type SpeciesDef = {
 	id: string,
@@ -61,6 +61,7 @@ export type AlienRecord = {
 	workedSeconds: number, -- time at a station so far (data/Growth stages); 0 for records from before growth
 	station: Job?, -- which station it is assigned to, if any
 	slot: number?,
+	habitat: string?, -- the home habitat item (HomeItem uid) it is on display in; never seated or following while set
 }
 
 -- A station's open slots: what the modules have unlocked (data/Modules unlocksSlots, capped by Config.StationMaxSlots)

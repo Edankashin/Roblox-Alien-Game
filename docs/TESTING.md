@@ -559,6 +559,18 @@ Rooms and furniture (`data/HomeBuild.luau`) go on the plot's 6 by 6 cells for Sc
 
 Known gaps in this milestone: no plot upgrade yet (the caps and the 6 by 6 plot are fixed), items have placeholder shapes until their props exist, no doors or interiors (rooms are solid prefabs), visitors do not see a house until 42e.
 
+## Milestone 42c: habitats (home place; the display from the Aliens screen)
+
+A habitat is a house-grid item of its own kind (`data/HomeBuild`: Verdant Habitat 600, Frostbyte Habitat 800, 3 by 3 cells, 3 aliens each, two habitats at once) where resting aliens of that world go on display (`data/Habitats`): they roam inside for everyone to see and pay Scrap per hour by tier, lazily, settled when the player arrives home (capped at a day). A displayed alien is never seated and never follows.
+
+1. At home with a Verdant Habitat placed (the tray's Habitats row; "Habitats: 1/2"): the plot shows a green pad with a low fence ring. Open Aliens: a resting Mossbop's card shows a "Display" button (a World 1 alien at home with a Verdant habitat that has room); tap it: toast "Mossbop is on display", the card's status reads "On display" and the button "Bring back", the Mossbop walks about inside the fence (never through it), stopping now and then, with its name plate; Output `analytics: event Display value=1 action=on species=Mossbop`. Optimize never seats it; its card never offers Follow while displayed.
+2. Fill the habitat with three; a fourth resting World 1 alien's card still shows Display but the tap says "Every Verdant habitat is full"; a World 2 alien (Pengoo, `/world 2` catch or `/dupes`) with no Frostbyte habitat: "Build a Frostbyte habitat on your plot first". Bring back: "Mossbop comes back to camp", it leaves the pad and is seated again by Optimize.
+3. Income: with three displayed (two Common, one Uncommon: 6 + 6 + 10 = 22 Scrap/h), `/grow` does not apply (that is worked time); instead leave home (`/world 1`), set the settle clock back with `/habitat 2` (two hours owed), fly back home: toast "Your habitats made 44 Scrap while you were away", Scrap +44, Output `analytics: economy Source 44 ... Habitat`. A second arrival within a minute pays nothing. A day away caps at 24 hours' worth.
+4. Taking the habitat away (Take away in the tray) sends its aliens back to camp (their cards read "Tap to follow" again) and pays nothing. Fusing a displayed copy away clears it from the pad. Rejoin (memory profiles): the display persists. Output clean.
+
+Known gaps in this milestone: habitat placeholder pads until the props exist, no "Wave" for visitors yet (42e), no habitat upgrade (capacity 3 fixed), displayed aliens play no animation beyond the walk and bob.
+
+
 
 
 

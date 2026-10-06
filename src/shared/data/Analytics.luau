@@ -29,6 +29,7 @@ return {
 		Fuse = "Fuse", -- value: the kept copy's new level; field species
 		Companion = "Companion", -- value 1; fields action (follow, unfollow, token), species
 		Mount = "Mount", -- value 1; fields action (mount, dismount), species, traversal
+		Display = "Display", -- value 1; fields action (on, off), species
 		HomePlace = "HomePlace", -- value: the Scrap paid; fields item
 		HomeRemove = "HomeRemove", -- value 1; fields item
 		Admin = "Admin", -- value 1; fields action (luck, shower, weather, say), by (the developer's user id); once per server that applies it
@@ -38,7 +39,7 @@ return {
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat" },
 		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost", Home = "Home" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds
