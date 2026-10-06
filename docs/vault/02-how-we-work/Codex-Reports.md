@@ -100,3 +100,13 @@ Measured: **159 median fusions, 636 fodder copies, 83.6% of catches consumed**. 
 Proposal: carried income **3,917.1 Scrap/min** and savings **58,035** seed an increasing income-time curve (the first cost includes carried savings). World 2 costs **77,479 / 38,889 / 58,333 / 77,778 / 97,222**; cumulative times **5.1 / 14.3 / 28.1 / 47.3 / 69.2 min**, versus live **0.2 / 1.3 / 4.5 / 13.7 / 30.6**. World 1 is **46.7 min**: proposal **1.48×**, 1.2% below the 1.5× target.
 
 Left open: coordinator approval and cold playtest. Full Field Notes, human search/decision time and companion luck-to-catch uplift remain unmodeled; optional source snapshots are not injected into progression. Suite remains **71 passing tests**; analyze/data lint clean.
+
+## C8 — 2026-10-06 — review
+
+Implementation: `8767c2c`; claim: `490f762`.
+
+Added the isolated-mode string lint and executable extra-lint runner. **42 dynamic families**, **264 required keys**; the full family and **36 unused-candidate** lists are in Data-Lint.md. Families resolve from their input tables/types/UI call sites, not existing string keys. Unknown families fail; optional COND_SHORT overrides respect the consumer fallback. Direct lowercase strings aliases are counted too.
+
+Added **4 missing keys only**: LANDMARK_CrashSite, LANDMARK_CaveMouth, LANDMARK_GreatVent, LANDMARK_IceCaveMouth. No existing wording changed and no unused strings deleted.
+
+Measured: **2 isolated mutation checks** caught an unknown family and a deleted landmark key. String lint below one second; **0 hard failures**, **36 advisory unused candidates**. Analyze/data lint clean, extra lint clean, **71 tests pass** in **0.034 s**. Left open: coordinator reviews unused candidates before deletion; lexical analysis is not proof of runtime reachability.
