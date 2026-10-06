@@ -36,6 +36,8 @@ return {
 		Admin = "Admin", -- value 1; fields action (luck, shower, weather, say), by (the developer's user id); once per server that applies it
 		Sighting = "Sighting", -- value 1 per player online when a Warden sighting starts; field species
 		WeeklyFlip = "WeeklyFlip", -- value: the rotation index; fields species, weather; once per server when the week changes
+		SeasonStart = "SeasonStart", -- value 1 per player online when a season begins (or is forced on); field id
+		SeasonClaim = "SeasonClaim", -- value 1; fields id (the season), quest
 		Visit = "Visit", -- value 1; fields owner (the home's owner user id), how (here: the view switched in this server; trip: a reserved server)
 		Wave = "Wave", -- value: the Scrap paid the visitor; fields owner, species
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)

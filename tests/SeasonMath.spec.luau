@@ -1,0 +1,52 @@
+--!strict
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Math = require(Shared.SeasonMath)
+local Data = require(Shared.data.Seasons)
+local F = require(script.Parent.Fixtures)
+local first = Data.List[F.one]
+local before = first.startsAt - F.one
+local inside = first.startsAt + F.tick
+local after = first.endsAt
+describe("SeasonMath", function()
+	it("Current holds the window as [startsAt, endsAt)", function()
+		expect(Math.Current(before)).toEqual(nil)
+		local during = Math.Current(inside)
+		expect(during and during.season.id).toEqual(first.id)
+		expect(during and during.secondsLeft).toEqual(first.endsAt - inside)
+		expect(Math.Current(after)).toEqual(nil)
+		expect(Math.Current(first.startsAt) ~= nil).toEqual(true)
+	end)
+	it("an override forces the season on with its whole window left once the window is past", function()
+		local forced = Math.Current(after, first.id)
+		expect(forced and forced.season.id).toEqual(first.id)
+		expect(forced and forced.secondsLeft).toEqual(first.endsAt - first.startsAt)
+		local early = Math.Current(before, first.id)
+		expect(early and early.secondsLeft).toEqual(first.endsAt - before)
+		expect(Math.Current(before, "NoSuchSeason")).toEqual(nil)
+	end)
+	it("event aliens are limited, returning and track-only ones are not", function()
+		expect(Math.IsLimited(first.species[F.one])).toEqual(true)
+		expect(Math.IsLimited(first.returns[F.one])).toEqual(false)
+		local last = first.track[#first.track].rewards[F.one]
+		expect(Math.IsLimited(last.id or "")).toEqual(false)
+	end)
+	it("IsCurrent and IsReturning follow the window", function()
+		expect(Math.IsCurrent(first.species[F.one], inside)).toEqual(true)
+		expect(Math.IsCurrent(first.returns[F.one], inside)).toEqual(true)
+		expect(Math.IsReturning(first.returns[F.one], inside)).toEqual(true)
+		expect(Math.IsReturning(first.species[F.one], inside)).toEqual(false)
+		expect(Math.IsCurrent(first.species[F.one], before)).toEqual(false)
+		expect(Math.IsCurrent(first.species[F.one], before, first.id)).toEqual(true)
+	end)
+	it("NightScale is the season's inside the window and 1 outside", function()
+		expect(Math.NightScale(inside)).toEqual(first.nightScale)
+		expect(Math.NightScale(before)).toEqual(F.one)
+	end)
+	it("TrackDone compares the saved count with the objective", function()
+		local quest = first.track[F.one]
+		expect(Math.TrackDone(quest, {})).toEqual(false)
+		expect(Math.TrackDone(quest, { [quest.id] = quest.objective.count - F.one })).toEqual(false)
+		expect(Math.TrackDone(quest, { [quest.id] = quest.objective.count })).toEqual(true)
+	end)
+end)
+return true

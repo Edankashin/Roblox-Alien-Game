@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 14
+local SCHEMA_VERSION = 15
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -87,6 +87,7 @@ local function template(): Types.Profile
 		tutorialStep = 1,
 		social = defaultSocial(),
 		codes = {},
+		seasons = {},
 		tutorialCounter = 0,
 		lastSeen = 0,
 		firstSeen = 0,
@@ -226,6 +227,13 @@ local migrations: { [number]: (any) -> any } = {
 		end
 		if type(data.home.waves) ~= "table" then
 			data.home.waves = { day = 0, sent = 0, got = 0 }
+		end
+		return data
+	end,
+	-- v15: seasonal events; the tracks start empty
+	[15] = function(data)
+		if type(data.seasons) ~= "table" then
+			data.seasons = {}
 		end
 		return data
 	end,

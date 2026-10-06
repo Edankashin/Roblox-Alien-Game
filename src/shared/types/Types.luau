@@ -107,6 +107,8 @@ export type ModuleProgress = {
 }
 
 export type OutpostState = { level: number, lastCollect: number }
+-- A seasonal event's track on the profile (data/Seasons): counts by quest id and the quests already claimed.
+export type SeasonProgress = { progress: { [string]: number }, claimed: { [string]: boolean } }
 export type PeriodQuests = { period: string, ids: { string }, progress: { [string]: number }, claimed: { [string]: boolean }, rerolls: number }
 
 export type Profile = {
@@ -127,6 +129,7 @@ export type Profile = {
 	-- rerolls used this period; the Field Notes keep their own step index and objective progress
 	quests: { daily: PeriodQuests, weekly: PeriodQuests, fieldNotes: { [string]: number }, progress: { [string]: number } },
 	codes: { [string]: boolean }, -- promo codes already redeemed (data/Codes)
+	seasons: { [string]: SeasonProgress }, -- the event tracks, by season id (data/Seasons)
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
