@@ -1,10 +1,11 @@
 --!strict
 -- ServerScriptService.Server.Services.Spawner: keeps wild aliens around every player.
 -- Each wild alien is a lightweight record here plus one anchored Part under Workspace.World.Wild
--- carrying attributes (SpeciesId, Tier, Overlay, Size, SpawnId, Condition, Biome, and ReservedFor when one
+-- carrying attributes (SpeciesId, Tier, Overlay, Size, Variant, SpawnId, Condition, Biome, and ReservedFor when one
 -- player alone may catch it). No Humanoids, no server animation: the client bobs and labels them. The
 -- server owns which species exist where and when, so the tier roll, the overlay roll, the size roll
--- (Shared/data/Sizes: a band id the catch carries into the record and its Scrap) and the
+-- (Shared/data/Sizes: a band id the catch carries into the record and its Scrap), the catch variant
+-- (Shared/data/CatchVariants: the species' own, else this world's, else Standard) and the
 -- condition gating all live here. A spawn's biome is the one its landing point is in (Shared/Biomes),
 -- so the Forest grove and the Cave get their own tables. Conditions are a set (WorldClock.GetConditions:
 -- the special weather while it runs, plus Night or Day), so a rainy night offers both Rain and Night
@@ -29,7 +30,10 @@ local Species = require(Shared.data.Species)
 local Spawns = require(Shared.data.Spawns)
 local Overlays = require(Shared.data.Overlays)
 local Sizes = require(Shared.data.Sizes)
+local CatchVariants = require(Shared.data.CatchVariants)
+local Worlds = require(Shared.data.Worlds)
 local Biomes = require(Shared.Biomes)
+local Place = require(Shared.Place)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
 local Buffs = require(script.Parent.Buffs)
@@ -43,6 +47,7 @@ export type WildSpawn = {
 	tier: Types.Tier,
 	overlay: Types.Overlay,
 	size: string, -- the size band id (Shared/data/Sizes), rolled once when it spawns
+	variant: string, -- the CatchVariants row id its encounter runs: the species' variant, else this world's, else Standard
 	condition: Types.Condition, -- the condition it needs; "Any" never despawns for weather
 	biome: Types.Biome, -- where it landed; its species came from this biome's table
 	position: Vector3,
@@ -242,13 +247,21 @@ local function luckAround(around: Vector3, present: { Presence }): number
 end
 
 -- Seats one wild part at a flat point (Y re-read from the surface there) and records it. The caller
--- has already chosen the species, the overlay and the size band; everything the client reads is an attribute on the
+-- has already chosen the species, the overlay and the size band; the catch variant is resolved here from the
+-- species row, then the world, then the default. Everything the client reads is an attribute on the
 -- part. A reservedFor UserId is written as the ReservedFor attribute so the client can label it.
 local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overlay, sizeBand: string, reservedFor: number?): WildSpawn
 	local biome: Types.Biome = Biomes.At(flat)
 	local size = BASE_SIZE * def.placeholder.scale
 	local position = Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + Config.WildHoverStuds + size / 2, flat.Z)
 	local spawnId = HttpService:GenerateGUID(false)
+
+	-- the catch variant: the species' own, else this world's, else Standard; an unknown id falls back to Standard
+	local variant: string = def.variant or Worlds[Place.WorldId()].catchVariant or CatchVariants.Default
+	if not CatchVariants.Rows[variant] then
+		warn(("Spawner: species %s names unknown catch variant %s; using %s"):format(def.id, variant, CatchVariants.Default))
+		variant = CatchVariants.Default
+	end
 
 	local part = Instance.new("Part")
 	part.Name = def.id
@@ -270,6 +283,7 @@ local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overla
 	part:SetAttribute("Tier", def.tier)
 	part:SetAttribute("Overlay", overlay)
 	part:SetAttribute("Size", sizeBand)
+	part:SetAttribute("Variant", variant)
 	part:SetAttribute("SpawnId", spawnId)
 	part:SetAttribute("Condition", def.condition)
 	part:SetAttribute("Biome", biome)
@@ -284,6 +298,7 @@ local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overla
 		tier = def.tier,
 		overlay = overlay,
 		size = sizeBand,
+		variant = variant,
 		condition = def.condition,
 		biome = biome,
 		position = position,

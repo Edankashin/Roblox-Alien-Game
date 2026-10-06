@@ -42,7 +42,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Hero pieces modelled in Blender through MCP or generated: the crash site wreck, the shrine, the cave mouth, the geyser field vents, the ship hull per world. Each has a notes line in `Blender-MCP.md`.
 - Particles: catch burst and reveal sparkle (exist), weather (rain, snow, ash), shower meteors, geyser steam, heater warmth ring. Budgeted per the SE check.
 
-### L4. Creatures (the big spend, in batches of eight)
+### L4. Creatures (the big spend, in batches of eight) — first look pass done for all 32 species (batches 1 to 4, 2026-10-05 to 06, renders in `05-ui-design/refs/look-l1/*-v2.png`); the colour re-upload waits on Ethan
 
 - Pipeline in `Creature-Generation.md`: commons first, greyscale check, one accessory, one bold colour. Tools in order of cost: Blender through MCP from the blockout (free, Claude does the shaping), Meshy or 3D AI Studio for a textured rigged model with a target polygon count (paid, fastest), hand touch-ups in Blender.
 - Each model keeps its blockout's folder, file names and height, so it drops into the renderers unchanged (`import-model` skill). Four animations each (idle, walk, work-at-station, catch-reveal) as one animation set per body type, retargeted, so 32 species need about six rigs, not 32.

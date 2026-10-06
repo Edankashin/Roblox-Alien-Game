@@ -9,6 +9,10 @@
 -- Config.WardenZoneShrinkPerRound each round after the first; catching the world's warden also drops
 -- one Warden's Core (KeyMaterials) into the key materials; and a reserved encounter that is lost or
 -- cancelled is reported to Quests so the horn's cooldown starts.
+-- Catch variants (Shared/data/CatchVariants): the spawn's variant row sets the ticker speed scale, lets the
+-- zone centre drift over each sweep (Capture.driftCenter from a per-sweep phase the server rolls and sends),
+-- and can put the whole encounter on a clock: a tap stamped after the deadline loses the alien. The control
+-- (tap or release) is the client's business; the server judges whichever timestamp arrives the same way.
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -22,6 +26,7 @@ local Lures = require(Shared.data.Lures)
 local KeyMaterials = require(Shared.data.KeyMaterials)
 local Worlds = require(Shared.data.Worlds)
 local AnalyticsData = require(Shared.data.Analytics)
+local CatchVariants = require(Shared.data.CatchVariants)
 local Place = require(Shared.Place)
 local Capture = require(Shared.Capture)
 local Net = require(Shared.Net)
@@ -53,11 +58,14 @@ type Encounter = {
 	kindnessApplied: boolean,
 	lure: string?, -- the Lures.Lures id spent on this encounter, if any
 	lureBonus: number, -- its zoneBonus (0 with no lure), added to both zones
+	variant: CatchVariants.Row, -- the catch variant this encounter runs
 	tickerSpeed: number,
 	goodZone: number,
 	perfectZone: number,
-	zoneCenter: number,
+	zoneCenter: number, -- the rolled base; the zone sits at Capture.driftCenter of it at the tap
+	driftPhase: number, -- radians, rolled every sweep
 	startClock: number,
+	deadline: number?, -- server clock the whole encounter must end by (a time-limited variant); nil without one
 	lastActivity: number, -- os.clock()
 }
 
@@ -68,6 +76,7 @@ local WARDEN_CORE = "WardenCore" -- KeyMaterials row (condition "Quest", nodes 0
 local rng = Random.new()
 local encounters: { [number]: Encounter } = {} -- by UserId
 local claimedSpawns: { [string]: number } = {} -- spawnId -> UserId mid-encounter
+local forcedVariants: { [number]: string } = {} -- UserId -> CatchVariants row id; Studio Dev's /variant sets it
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -132,12 +141,14 @@ local function startSweep(encounter: Encounter, newRound: boolean)
 		encounter.zoneCenter = rollZoneCenter()
 		encounter.sweepsLeft = Config.CaptureSweepsPerEncounter
 	end
+	-- a fresh drift phase every sweep, so the swing cannot be memorised
+	encounter.driftPhase = rng:NextNumber(0, 2 * math.pi)
 	applyZones(encounter)
 	encounter.startClock = now() + Config.CaptureSweepLeadSeconds
 	encounter.lastActivity = os.clock()
 end
 
-local function continued(encounter: Encounter, outcome: Types.CaptureOutcome, hit: Types.HitOutcome, pos: number): Types.CaptureHitResult
+local function continued(encounter: Encounter, outcome: Types.CaptureOutcome, hit: Types.HitOutcome, pos: number, zoneAt: number): Types.CaptureHitResult
 	return {
 		outcome = outcome,
 		hit = hit,
@@ -149,6 +160,8 @@ local function continued(encounter: Encounter, outcome: Types.CaptureOutcome, hi
 		zoneCenter = encounter.zoneCenter,
 		goodZone = encounter.goodZone,
 		perfectZone = encounter.perfectZone,
+		driftPhase = encounter.driftPhase,
+		zoneAt = zoneAt,
 	}
 end
 
@@ -258,6 +271,9 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 	end
 
 	local tier = Tiers.Tiers[spawn.tier]
+	-- a forced variant (Studio Dev) beats the spawn's; an unknown id falls back to the default row
+	local variantId = forcedVariants[player.UserId] or spawn.variant
+	local row = CatchVariants.Rows[variantId] or CatchVariants.Rows[CatchVariants.Default]
 	local encounter: Encounter = {
 		player = player,
 		userId = player.UserId,
@@ -274,14 +290,19 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 		kindnessApplied = false,
 		lure = lure,
 		lureBonus = lureBonus,
-		tickerSpeed = tier.tickerSpeed,
+		variant = row,
+		tickerSpeed = tier.tickerSpeed * row.tickerSpeedScale,
 		goodZone = tier.goodZone,
 		perfectZone = tier.perfectZone,
 		zoneCenter = 0.5,
+		driftPhase = 0,
 		startClock = 0,
+		deadline = nil,
 		lastActivity = os.clock(),
 	}
 	startSweep(encounter, true)
+	-- the clock covers every round, counted from the first sweep's start
+	encounter.deadline = if row.timeLimitSeconds > 0 then encounter.startClock + row.timeLimitSeconds else nil
 	encounters[player.UserId] = encounter
 	claimedSpawns[spawnId] = player.UserId
 
@@ -298,6 +319,9 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 		sweepsLeft = encounter.sweepsLeft,
 		startClock = encounter.startClock,
 		lure = encounter.lure,
+		variant = row.id,
+		driftPhase = encounter.driftPhase,
+		deadline = encounter.deadline,
 	}, nil
 end
 
@@ -328,8 +352,29 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 		and tapTime <= serverNow + Config.LatencyAllowanceSeconds
 		and serverNow - tapTime <= Config.CaptureMaxTapLagSeconds
 	local pos = if valid then Capture.position(tapTime - encounter.startClock, encounter.tickerSpeed) else -1
+
+	-- The clock (a time-limited variant): a tap stamped after the deadline, or any tap that reaches the server
+	-- after the deadline plus the lag allowance, means the alien bolts. The raw stamp is used whenever it is a
+	-- number (valid or not); a missing or non-numeric stamp is read as arriving now.
+	local deadline = encounter.deadline
+	if deadline then
+		local stamp = if type(clientTapTime) == "number" and clientTapTime == clientTapTime then clientTapTime else serverNow
+		if stamp > deadline or serverNow > deadline + Config.CaptureMaxTapLagSeconds then
+			Spawner.RemoveSpawn(encounter.spawnId, "fled")
+			endEncounter(player.UserId)
+			reportLoss(player, encounter)
+			Analytics.Event(player, AnalyticsData.Events.Flee, 1, { tier = encounter.tier :: string })
+			return { outcome = "Fled", hit = "Miss", pos = pos }
+		end
+	end
+
+	-- Where the zone sits at the tap: the rolled centre drifted by the variant over the sweep so far.
+	local row = encounter.variant
+	local zoneAt = if valid
+		then Capture.driftCenter(tapTime - encounter.startClock, encounter.zoneCenter, row.driftAmplitude, row.driftPeriodSeconds, encounter.driftPhase, row.driftClampMin, row.driftClampMax)
+		else encounter.zoneCenter
 	local hit: Types.HitOutcome = if valid
-		then Capture.outcome(pos, encounter.zoneCenter, encounter.goodZone, encounter.perfectZone)
+		then Capture.outcome(pos, zoneAt, encounter.goodZone, encounter.perfectZone)
 		else "Miss"
 
 	local roundWon = false
@@ -374,12 +419,13 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 				isNew = grant.isNew,
 				scrapGained = grant.scrapGained,
 				scrap = grant.scrap,
+				zoneAt = zoneAt,
 			}
 		end
 		-- next round: a fresh zone centre and sweep count; applyZones shrinks the zones for the round
 		encounter.round += 1
 		startSweep(encounter, true)
-		return continued(encounter, "Round", hit, pos)
+		return continued(encounter, "Round", hit, pos, zoneAt)
 	end
 
 	-- Good that failed the roll wiggles free; a miss costs a sweep too. Both count toward kindness.
@@ -396,10 +442,10 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 		endEncounter(player.UserId)
 		reportLoss(player, encounter)
 		Analytics.Event(player, AnalyticsData.Events.Flee, 1, { tier = encounter.tier :: string })
-		return { outcome = "Fled", hit = hit, pos = pos }
+		return { outcome = "Fled", hit = hit, pos = pos, zoneAt = zoneAt }
 	end
 	startSweep(encounter, false)
-	return continued(encounter, if hit == "Miss" then "Miss" else "Wiggle", hit, pos)
+	return continued(encounter, if hit == "Miss" then "Miss" else "Wiggle", hit, pos, zoneAt)
 end
 
 -- Walking away from a Warden is giving up on it: the spawn is removed through Quests and the cooldown runs.
@@ -413,6 +459,16 @@ end
 
 -- Public API -------------------------------------------------------------
 
+-- Studio Dev's /variant: every encounter this player starts runs the CatchVariants row `id` instead of the
+-- spawn's own, until cleared with nil (or the player leaves). An unknown id falls back to the default row.
+function Catching.SetForcedVariant(player: Player, id: string?)
+	if id then
+		forcedVariants[player.UserId] = id
+	else
+		forcedVariants[player.UserId] = nil
+	end
+end
+
 function Catching.Init()
 	Net.event("InventoryChanged") -- consumeBestLure, grantWardenCore
 	Net.func("CaptureStart").OnServerInvoke = onCaptureStart
@@ -423,6 +479,7 @@ end
 function Catching.Start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		endEncounter(player.UserId)
+		forcedVariants[player.UserId] = nil
 	end)
 end
 

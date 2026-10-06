@@ -27,6 +27,8 @@ export type SpeciesDef = {
 	-- defaults to id (the client's World.Models looks it up)
 	model: string?,
 	voiceLine: string,
+	-- data/CatchVariants row this species is caught with; nil means its world's catchVariant (Worlds.luau), else Standard
+	variant: string?,
 }
 
 export type TierDef = {
@@ -141,6 +143,9 @@ export type CaptureStartResult = {
 	sweepsLeft: number,
 	startClock: number,
 	lure: string?, -- the lure consumed for this encounter (Lures.Lures id), if any
+	variant: string, -- data/CatchVariants row id the encounter runs (Standard, Reel, Chase)
+	driftPhase: number, -- radians; the zone centre swings from Capture.driftCenter(elapsed, zoneCenter, ...) with this phase
+	deadline: number?, -- server clock (workspace:GetServerTimeNow) after which the encounter flees; nil without a time limit
 }
 
 export type HitOutcome = "Perfect" | "Good" | "Miss"
@@ -160,6 +165,8 @@ export type CaptureHitResult = {
 	zoneCenter: number?,
 	goodZone: number?,
 	perfectZone: number?,
+	driftPhase: number?, -- the next sweep's drift phase (a new one every sweep)
+	zoneAt: number?, -- where the server placed the zone centre at the tap (the drifted value it scored against)
 	-- Caught
 	perfect: boolean?,
 	species: string?,

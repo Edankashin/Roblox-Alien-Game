@@ -5,7 +5,8 @@
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
 -- weekly board through its per-minute cap; send them to the store now and refresh the board), /dq reset | done (deal the
--- daily and weekly quests again with empty progress; finish every dealt one). Nothing
+-- daily and weekly quests again with empty progress; finish every dealt one), /variant <id|off> (force a catch
+-- variant from Shared/data/CatchVariants on every encounter you start, or go back to each spawn's own). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -31,10 +32,12 @@ local Shop = require(script.Parent.Shop)
 local Outposts = require(script.Parent.Outposts)
 local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
+local Catching = require(script.Parent.Catching)
 local Monetization = require(script.Parent.Monetization)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
 local Worlds = require(Shared.data.Worlds)
+local CatchVariants = require(Shared.data.CatchVariants)
 
 local Dev = {}
 
@@ -162,6 +165,25 @@ local function spawnSpecies(player: Player, text: string)
 	local at = root.Position + root.CFrame.LookVector * SPAWN_OFFSET_STUDS
 	local spawn = Spawner.SpawnAt(Vector3.new(at.X, 0, at.Z), id, Spawner.RollOverlay(), nil, SPAWN_LIFETIME_SECONDS, band)
 	print(("[%s] dev: spawned %s for %s: %s"):format(Config.WorkingTitle, id, player.Name, if spawn then spawn.spawnId else "failed"))
+end
+
+-- /variant <id|off>: force a catch variant (Standard, Reel, Chase; any case) on every encounter this player
+-- starts, so a world's bar can be played on any world. off, or no argument, clears it.
+local function setVariant(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if not word or string.lower(word) == "off" then
+		Catching.SetForcedVariant(player, nil)
+		print(("[%s] dev: %s variant forced: off"):format(Config.WorkingTitle, player.Name))
+		return
+	end
+	for _, id in ipairs(CatchVariants.Order) do
+		if string.lower(id) == string.lower(word) then
+			Catching.SetForcedVariant(player, id)
+			print(("[%s] dev: %s variant forced: %s"):format(Config.WorkingTitle, player.Name, id))
+			return
+		end
+	end
+	print(("[%s] dev: unknown variant %s (%s, off)"):format(Config.WorkingTitle, word, table.concat(CatchVariants.Order, ", ")))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -418,6 +440,7 @@ function Dev.Init()
 	end)
 	command("shower", forceShower)
 	command("spawn", spawnSpecies)
+	command("variant", setVariant)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
@@ -445,7 +468,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

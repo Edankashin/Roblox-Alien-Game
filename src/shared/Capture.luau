@@ -47,4 +47,17 @@ function Capture.zoneSpan(zoneCenter: number, width: number): (number, number)
 	return left, right - left
 end
 
+-- The zone's centre `elapsed` seconds into a sweep under a variant's drift (data/CatchVariants.luau):
+-- the rolled `base` plus a sine swing of `amplitude` over `periodSeconds`, offset by `phase` (radians,
+-- rolled by the server per sweep so the swing cannot be memorised), clamped to [clampMin, clampMax].
+-- An amplitude or period of 0 gives `base`. Negative elapsed (before the sweep starts) reads as 0.
+function Capture.driftCenter(elapsed: number, base: number, amplitude: number, periodSeconds: number, phase: number, clampMin: number, clampMax: number): number
+	if amplitude <= 0 or periodSeconds <= 0 then
+		return base
+	end
+	local t = math.max(elapsed, 0)
+	local center = base + amplitude * math.sin(phase + (t / periodSeconds) * 2 * math.pi)
+	return math.clamp(center, clampMin, clampMax)
+end
+
 return Capture

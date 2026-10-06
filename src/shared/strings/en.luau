@@ -558,4 +558,12 @@ return {
 	RADAR_RANGE = "%dm",
 	CATCH_LURE_USED = "%s used",
 	CATCH_PERFECT_BONUS = "x%d Scrap!",
+	-- catch variants (data/CatchVariants)
+	CATCH_VARIANT_REEL = "Cast!",
+	CATCH_HINT_REEL = "Hold to reel, let go on the fish!",
+	CATCH_HINT_REEL_HOLD = "Reeling... let go!",
+	CATCH_VARIANT_CHASE = "Chase!",
+	CATCH_HINT_CHASE = "Tap before it bolts!",
+	CATCH_TIME_LEFT = "%ds left",
+	CATCH_BOLTED = "It bolted!",
 }

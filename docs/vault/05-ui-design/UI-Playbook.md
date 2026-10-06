@@ -93,3 +93,10 @@ A text box is navy Fredoka on the cream panel colour with the outline border str
 ## Grids inside scrolling frames (2026-10-05)
 
 A UIGridLayout cell with a Scale height inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content, so the two feed back until the canvas is three pages tall and one card sits 150 px down. Inside a ScrollingFrame the cell height is therefore derived in pixels from the frame's width on every resize (the one place a pixel value is set), width and padding stay Scale, and the canvas is set to the page count from the row count. The Scale-only rule still holds for positions and sizes everywhere else.
+
+## Capture bar variants (2026-10-05)
+
+A variant (data/CatchVariants) changes how the one timing bar behaves, never how it is built. The drifting zone moves its centre along the bar with the shared sine from the server's phase while its widths stay put, and it freezes where the tap was scored while the verdict shows, so the player sees exactly what they hit.
+The reel is hold and release: pressing starts the hold, the hint swaps to the held line ("Reeling... let go!") and the ticker pops; letting go is the tap.
+The chase adds a countdown chip above the bar's right end, mirroring the lure chip on the left: Trough pill, white outlined text, turning red and popping once a second for the last three seconds.
+Zone and ticker colours come from the variant row's Theme keys (Select and Featured for the reel, Confirm and Featured for the chase), so no new colours were added; the Standard bar looks as it always did.

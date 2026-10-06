@@ -369,6 +369,8 @@ A world is not a palette swap. Each one adds a way of playing the other worlds d
 
 Rules: a signature verb never gates the ship bar (the modules are still built from catches and materials), a special area is visible from far away so it pulls players across the map, the harder minigame is a variant of the one bar (new rules on the same control), and secret spots are logged in the codex as hidden spots with a Scanner Pulse hint. Build order: the fishing bar (Tidepool) and the rooftop chase (Neon Grid) are the two new catch variants and come first; the obbies use the engine's own movement and need level design more than code.
 
+Built (milestone 26): both variants live in `src/shared/data/CatchVariants.luau` as rows over the one bar. The Reel bobs the zone on a slow sine (amplitude 0.18 of the bar, 2.6 s), slows the ticker to 0.85x and scores the release of a hold; the Chase darts it (0.3, 1.4 s), quickens the ticker to 1.1x and puts the whole encounter on a 12 s clock after which the alien bolts. The server rolls a fresh drift phase every sweep and scores against the drifted centre at the tap's timestamp, so the client still only reports a time.
+
 ### One special weather per world
 
 Every world has exactly one special weather state that only it rolls, and one signature alien that spawns only while it runs. The clock rolls the special weather at its own chance whenever the weather changes, so it is an appointment players learn to wait for, and its arrival posts a server-wide banner naming the alien ("Blizzard! Frostfang is out!"). This is `Worlds.luau` data, so adding a world's weather is a row, not code. Placeholders until each world is built:

@@ -336,3 +336,15 @@ Known gaps in this milestone: default square particle textures until the icon pa
 5. The server-wide catch banner is unchanged (size is not announced); analytics Catch keeps its three fields.
 
 Known gaps in this milestone: no growth over time, no codex "biggest caught" line, no size-based Set or quest yet.
+
+## Milestone 26: catch variants (World 1 place, Dev-forced)
+
+Variants are rules laid over the one timing bar (`src/shared/data/CatchVariants.luau`): the zone centre drifts over the sweep, the scoring input is a tap or the release of a hold, the ticker speed scales, and the encounter can run on a clock. A world sets its own (`Worlds.catchVariant`: Tidepool Reel, Neon Grid Chase) and a species can override it; until those worlds exist, `/variant <id>` forces one for your player.
+
+1. `/variant Reel`, then `/spawn Mossbop` and catch it: the bar opens with "Cast!", the Good zone is sky blue and the ticker yellow, and the zone bobs side to side (about one swing every 2.6 s) while the ticker runs slower than normal. The hint reads "Hold to reel, let go on the fish!"; pressing (mouse, touch, Space or A) swaps it to "Reeling... let go!" and the release is what scores. A release before the sweep starts is ignored, not a miss. The feedback shows the zone frozen where it was at the release, and the Reveal follows a win as usual.
+2. `/variant Chase`, `/spawn Mossbop`, catch: "Chase!", the zone darts faster and wider, a chip above the right end of the bar counts down from 12 s and turns red for the last 3 s. Let it run out: "It bolted!", the alien disappears (server-removed as fled; Output shows the Flee analytics line), and the bar closes. Catch one inside the time: the usual catch.
+3. `/variant off` (or `Standard`): the next catch is the plain bar, green zone, white ticker, "Tap to stop!", no chip, no drift.
+4. Server authority: with Reel forced, a tap that lands outside the drifted zone is a Miss even if it is inside where the zone was at the sweep's start (the server scores against `Capture.driftCenter` at the tap time, and the result's `zoneAt` is where the client freezes the zone). Multi-round (`/spawn Gaiabloom` with Reel): each round rolls a new base centre and each sweep a new drift phase; the Warden shrink still applies.
+5. Wild spawns carry a `Variant` attribute (Standard on World 1 and 2). Output stays clean through all of the above.
+
+Known gaps in this milestone: no fish or rooftop presentation (the ticker is still a bar ticker), no double bar for the Cosmic deep-sea fish yet, no world layouts for Tidepool or Neon Grid, and no per-variant sounds.

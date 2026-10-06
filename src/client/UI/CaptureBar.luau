@@ -2,7 +2,10 @@
 -- StarterPlayerScripts.Client.UI.CaptureBar: the timing-bar minigame screen. Draws the zones the
 -- server sent, animates the ticker with the shared Capture.position() from the server's startClock
 -- (workspace:GetServerTimeNow() keeps both clocks aligned), and reports only the tap TIME. Every
--- outcome shown here came back from the server.
+-- outcome shown here came back from the server. A catch variant (data/CatchVariants) changes only what
+-- is drawn and which input reports the time: the zones drift with the shared Capture.driftCenter() from
+-- the server's driftPhase, the reel scores on the release of a hold, and the chase shows a countdown
+-- and sends one last tap when it runs out so the server declares the loss.
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -16,6 +19,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Capture = require(Shared:WaitForChild("Capture"))
+local CatchVariants = require(Shared:WaitForChild("data"):WaitForChild("CatchVariants"))
 local Builder = require(script.Parent.Builder)
 
 local CaptureBar = {}
@@ -44,20 +48,31 @@ local perfectZone: Frame? = nil
 local ticker: Frame? = nil
 local lureChip: Frame? = nil
 local lureLabel: TextLabel? = nil
+local countdownChip: Frame? = nil
+local countdownLabel: TextLabel? = nil
 local dots: { Frame } = {}
 
 local active = false
 local awaiting = false -- a tap is in flight; ignore more until the server answers
 local tickerSpeed = 1
 local startClock = 0
-local zoneCenter = 0.5
+local zoneCenter = 0.5 -- the centre the zones are drawn at right now
+local baseCenter = 0.5 -- the sweep's rolled centre, before any drift
 local goodWidth = 0.4
+local perfectWidth = 0.12
+local row: CatchVariants.Row = CatchVariants.Rows[CatchVariants.Default]
+local driftPhase = 0
+local deadline: number? = nil -- server clock the chase runs out at; nil without a time limit
+local holding = false -- the reel's hold is down
+local shownSeconds = -1 -- whole seconds the countdown chip last drew
 local heldPos: number? = nil -- server-reported position shown while feedback plays
+local heldCenter: number? = nil -- where the zone centre was at that tap; the zones sit here while feedback plays
 local onTap: ((number) -> ())? = nil
 local renderConn: RBXScriptConnection? = nil
 local feedbackToken = 0
 
-local tap: () -> () -- defined below; build() wires the backdrop to it
+local press: () -> () -- defined below; build() wires the backdrop to them
+local release: () -> ()
 
 local function build()
 	if gui then
@@ -82,7 +97,13 @@ local function build()
 	backdrop.InputBegan:Connect(function(input: InputObject)
 		local kind = input.UserInputType
 		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
-			tap()
+			press()
+		end
+	end)
+	backdrop.InputEnded:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+			release()
 		end
 	end)
 
@@ -190,6 +211,31 @@ local function build()
 		zIndex = 3,
 	})
 
+	-- Chase clock above the bar's right end, mirroring the lure chip. Shown only for an encounter with a deadline.
+	local timer = Builder.pill({
+		parent = root,
+		name = "Countdown",
+		position = UDim2.fromScale(0.8, 0.74),
+		size = UDim2.fromScale(0.2, 0.05),
+		anchor = Vector2.new(1, 0.5),
+		color = Theme.Colors.Trough,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = 2,
+	})
+	timer.Visible = false
+	countdownChip = timer
+	countdownLabel = Builder.label({
+		parent = timer,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.75),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 3,
+	})
+
 	-- Sweeps left as three dots under the bar.
 	local dotRow = Builder.frame({
 		parent = root,
@@ -243,18 +289,43 @@ local function build()
 	})
 end
 
-local function setZones(center: number, good: number, perfect: number)
+-- Draw both zones centred on `center` at their current widths (the widths never drift, only the centre).
+local function placeZones(center: number)
 	zoneCenter = center
-	goodWidth = good
 	if goodZone then
-		local left, width = Capture.zoneSpan(center, good)
+		local left, width = Capture.zoneSpan(center, goodWidth)
 		goodZone.Position = UDim2.fromScale(left, 0)
 		goodZone.Size = UDim2.fromScale(width, 1)
 	end
 	if perfectZone then
-		local left, width = Capture.zoneSpan(center, perfect)
+		local left, width = Capture.zoneSpan(center, perfectWidth)
 		perfectZone.Position = UDim2.fromScale(left, 0)
 		perfectZone.Size = UDim2.fromScale(width, 1)
+	end
+end
+
+local function setZones(center: number, good: number, perfect: number)
+	baseCenter = center
+	goodWidth = good
+	perfectWidth = perfect
+	placeZones(center)
+end
+
+-- Where the variant's drift has the zone centre at server time `now` (the rolled centre when it is still).
+local function centerAt(now: number): number
+	if row.driftAmplitude <= 0 then
+		return baseCenter
+	end
+	return Capture.driftCenter(now - startClock, baseCenter, row.driftAmplitude, row.driftPeriodSeconds, driftPhase, row.driftClampMin, row.driftClampMax)
+end
+
+-- The hint under the bar: the row's own, or the hold hint while the reel's hold is down.
+local function setHolding(on: boolean)
+	holding = on
+	local label = hint
+	if label then
+		local holdKey = row.holdHintKey
+		label.Text = Builder.text(if on and holdKey ~= nil then holdKey else row.hintKey)
 	end
 end
 
@@ -297,7 +368,7 @@ local function flashZone()
 	TweenService:Create(zone, info, { BackgroundColor3 = Theme.Colors.White }):Play()
 end
 
-function tap()
+local function tap()
 	if not active or awaiting or not onTap then
 		return
 	end
@@ -307,7 +378,56 @@ function tap()
 	end
 	awaiting = true
 	heldPos = Capture.position(tapTime - startClock, tickerSpeed)
+	heldCenter = centerAt(tapTime)
 	onTap(tapTime)
+end
+
+-- A press scores at once on tap control; on the reel it starts the hold and the release scores.
+function press()
+	if not active then
+		return
+	end
+	if row.control ~= "release" then
+		tap()
+		return
+	end
+	if awaiting or holding then
+		return
+	end
+	setHolding(true)
+	if ticker then
+		Builder.pop(ticker)
+	end
+end
+
+-- The release is the reel's tap: tap() stamps the release time, so the server judges when the player let go.
+function release()
+	if not holding then
+		return
+	end
+	setHolding(false)
+	tap()
+end
+
+-- Redraw the countdown chip from the server clock; red and a pop each second for the last few.
+local function updateCountdown(now: number)
+	local limit = deadline
+	local label = countdownLabel
+	if limit == nil or not label then
+		return
+	end
+	local left = math.max(0, math.ceil(limit - now))
+	if left == shownSeconds then
+		return
+	end
+	shownSeconds = left
+	label.Text = Strings.CATCH_TIME_LEFT:format(left)
+	if left <= CatchVariants.CountdownUrgentSeconds then
+		label.TextColor3 = Theme.Colors.Close
+		Builder.pop(label)
+	else
+		label.TextColor3 = Theme.Colors.White
+	end
 end
 
 local function onRender()
@@ -315,15 +435,40 @@ local function onRender()
 	if not t then
 		return
 	end
+	local now = workspace:GetServerTimeNow()
 	local held = heldPos
-	local pos: number = if held ~= nil then held else Capture.position(workspace:GetServerTimeNow() - startClock, tickerSpeed)
+	local pos: number = if held ~= nil then held else Capture.position(now - startClock, tickerSpeed)
 	t.Position = UDim2.fromScale(pos, 0.5)
+	local center = centerAt(now)
+	if row.driftAmplitude > 0 then
+		-- While a tap's feedback shows, the zones stay where that tap was scored.
+		placeZones(if held ~= nil then heldCenter or zoneCenter else center)
+	end
+	updateCountdown(now)
+
+	-- The chase ran out: freeze the bar where it is and send one last tap a beat later; the server declares the loss.
+	local limit = deadline
+	if limit ~= nil and now >= limit and active and not awaiting then
+		awaiting = true
+		heldPos = pos
+		heldCenter = center
+		local send = onTap
+		task.delay(CatchVariants.DeadlineTapDelaySeconds, function()
+			if active and send ~= nil and onTap == send then
+				send(workspace:GetServerTimeNow())
+			end
+		end)
+	end
 end
 
 local function bindInput()
 	ContextActionService:BindAction(ACTION_NAME, function(_name: string, state: Enum.UserInputState, _input: InputObject)
 		if state == Enum.UserInputState.Begin then
-			tap()
+			press()
+		elseif state == Enum.UserInputState.End then
+			release()
+		elseif state == Enum.UserInputState.Cancel then
+			setHolding(false) -- the hold was interrupted (focus lost): drop it without scoring
 		end
 		return Enum.ContextActionResult.Sink
 	end, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
@@ -349,10 +494,20 @@ function CaptureBar.Begin(info: BeginInfo)
 	active = true
 	awaiting = false
 	heldPos = nil
+	heldCenter = nil
 	onTap = info.onTap
 	tickerSpeed = params.tickerSpeed
 	startClock = params.startClock
+	row = CatchVariants.Rows[params.variant] or CatchVariants.Rows[CatchVariants.Default]
+	driftPhase = params.driftPhase
+	deadline = params.deadline
 	setZones(params.zoneCenter, params.goodZone, params.perfectZone)
+	if goodZone then
+		goodZone.BackgroundColor3 = Theme.Colors[row.look.zone] or Theme.Colors.Confirm
+	end
+	if ticker then
+		ticker.BackgroundColor3 = Theme.Colors[row.look.ticker] or Theme.Colors.White
+	end
 	setSweeps(params.sweepsLeft)
 	setRound(params.round, params.roundsTotal)
 	if nameLabel then
@@ -368,6 +523,17 @@ function CaptureBar.Begin(info: BeginInfo)
 	if hint then
 		hint.Visible = true
 	end
+	setHolding(false)
+	shownSeconds = -1
+	local timer, timerLabel = countdownChip, countdownLabel
+	if timer and timerLabel then
+		timer.Visible = params.deadline ~= nil
+		timerLabel.TextColor3 = Theme.Colors.White
+		if params.deadline ~= nil then
+			updateCountdown(workspace:GetServerTimeNow())
+			Builder.pop(timer)
+		end
+	end
 	local chip, chipLabel = lureChip, lureLabel
 	if chip and chipLabel then
 		local lure = params.lure
@@ -381,6 +547,15 @@ function CaptureBar.Begin(info: BeginInfo)
 	if bar then
 		Builder.open(bar)
 	end
+	-- The variant's name lands as the bar opens ("Cast!", "Chase!").
+	local nameKey = row.nameKey
+	if nameKey ~= nil then
+		task.delay(Theme.Tween.Open, function()
+			if active then
+				showFeedback(Builder.text(nameKey), Theme.Colors.Featured)
+			end
+		end)
+	end
 	bindInput()
 	if renderConn then
 		renderConn:Disconnect()
@@ -393,12 +568,19 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 	if not active then
 		return
 	end
+	setHolding(false)
 	if result.pos ~= nil and result.pos >= 0 then
 		heldPos = result.pos
 	end
+	if result.zoneAt ~= nil then
+		heldCenter = result.zoneAt
+	end
 	local hit = result.hit
 	if result.outcome == "Fled" then
-		showFeedback(Strings.CATCH_ESCAPED, Theme.Colors.Close)
+		-- A chase whose clock ran out bolted; any other flight is the usual escape.
+		local limit = deadline
+		local bolted = limit ~= nil and workspace:GetServerTimeNow() >= limit
+		showFeedback(if bolted then Strings.CATCH_BOLTED else Strings.CATCH_ESCAPED, Theme.Colors.Close)
 		Builder.playSound(Sounds.Fled)
 		return
 	end
@@ -417,7 +599,7 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 		local pos = result.pos
 		local near = false
 		if pos ~= nil and pos >= 0 then
-			near = Capture.isNearMiss(pos, zoneCenter, goodWidth, Config.CaptureNearMissWidth)
+			near = Capture.isNearMiss(pos, heldCenter or zoneCenter, goodWidth, Config.CaptureNearMissWidth)
 		end
 		showFeedback(if near then Strings.CATCH_NEAR_MISS else Strings.CATCH_MISS, Theme.Colors.Close)
 		Builder.playSound(Sounds.Miss)
@@ -451,6 +633,9 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 	if result.zoneCenter and result.goodZone and result.perfectZone then
 		setZones(result.zoneCenter, result.goodZone, result.perfectZone)
 	end
+	if result.driftPhase ~= nil then
+		driftPhase = result.driftPhase
+	end
 	if result.sweepsLeft then
 		setSweeps(result.sweepsLeft)
 	end
@@ -464,6 +649,7 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 	task.delay(wait, function()
 		if active then
 			heldPos = nil
+			heldCenter = nil
 			awaiting = false
 		end
 	end)
@@ -475,6 +661,8 @@ function CaptureBar.End()
 	end
 	active = false
 	awaiting = false
+	deadline = nil
+	setHolding(false)
 	onTap = nil
 	unbindInput()
 	if renderConn then
@@ -483,6 +671,9 @@ function CaptureBar.End()
 	end
 	if lureChip then
 		lureChip.Visible = false
+	end
+	if countdownChip then
+		countdownChip.Visible = false
 	end
 	local root = gui
 	if bar and root then
