@@ -30,3 +30,15 @@ Every failure is an absent Species ID referenced by Worlds:
 - World 7: warden `Nyxling`; special species `Shadeling`.
 
 Left open: coordinator resolves these placeholder references; until then CI stops before the later test step. No exclusions for unpublished worlds were introduced.
+
+## C3 — 2026-10-06 — review
+
+Implementation: `59756cedc035037032fc1fef46506edfe9ce8848`.
+
+Added `tools/test.sh`, a dependency-free loader/runner, fixtures and five specs. The loader executes unchanged production source with cached path-tree modules, `script.Parent`, and a minimal ReplicatedStorage service. The installer pins official Luau **0.741** archives with checksums; Linux CI and macOS interpreter bootstrap are supported. No workflow or game files changed.
+
+Measured: **41 tests passed, 0 failed, 0.019 s** interpreter runtime across five specs on the Mac. Includes Capture edges/drift, Growth thresholds, LeaderboardMath reset boundaries, OutpostMath production/caps and Economy speed/offline caps. Expected numbers come from required data tables. In isolated copies, a broken production formula and an empty spec directory both exited 1. Shell syntax, diff checks and `analyze: clean` passed.
+
+Ethan clarified that OutpostMath should cover its existing production API, with period/reset tests reserved for LeaderboardMath.
+
+[CI run 37420699789](https://github.com/Edankashin/Roblox-Alien-Game/actions/runs/37420699789): pinned Linux installation and analysis passed; C2's known lint failures stopped the job, so headless tests were skipped on Linux. Left open: coordinator data cleanup, then a complete green CI run; Mac execution is verified.
