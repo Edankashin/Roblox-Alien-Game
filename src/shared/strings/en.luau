@@ -347,6 +347,7 @@ return {
 	SEGMENT_DoubleShift = "Double Shift",
 	SEGMENT_CompanionToken = "Companion Token",
 	TOAST_GIFT_CLAIMED = "Day %d gift: %s",
+	TOAST_WELCOME_GIFT = "First part built! A gift is waiting.",
 	TOAST_NEW_DAY = "Day %d! A new gift is waiting",
 	-- Meteor Shower
 	SHOWER_CHIP = "Shower in %s",

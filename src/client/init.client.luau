@@ -19,6 +19,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Biomes = require(Shared:WaitForChild("Biomes"))
+local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
@@ -126,6 +127,12 @@ end
 -- A catch in progress or a modal screen blocks every other action.
 local function modalOpen(): boolean
 	return inCapture or Reveal.IsOpen() or Screens.IsAnyOpen()
+end
+
+-- The tutorial is still running: this place is the tutorial's world and its last step is not behind
+-- the player yet. The five-minute script holds the server-wide event banners while this is true.
+local function tutorialActive(): boolean
+	return Place.WorldId() == TutorialData.World and State.GetTutorial() <= #TutorialData.Steps
 end
 
 -- Capture flow ------------------------------------------------------------
@@ -783,11 +790,68 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("gifts", refreshGiftBadge)
 
+	-- The five-minute script's payoff: when the step named by TutorialData.Script.GiftPopAfterStep falls
+	-- behind the player and the day-1 gift is unclaimed, the Gifts screen opens by itself, once a session.
+	-- It waits out the module-complete camera pan and any open panel, and gives up quietly after
+	-- Script.GiftPopWaitSeconds: the menu badge still shows the gift.
+	local giftPopStep: number? = nil
+	for index, step in ipairs(TutorialData.Steps) do
+		if step.id == TutorialData.Script.GiftPopAfterStep then
+			giftPopStep = index
+			break
+		end
+	end
+	local giftPopSpawned = false
+	local lastTutorialStep = State.GetTutorial() -- seeded now that the profile is live
+	local function welcomeGiftWaiting(): boolean
+		local gifts = State.GetGifts()
+		return gifts.daysPlayed >= 1 and not gifts.claimed["1"]
+	end
+	State.OnChanged("tutorial", function()
+		local step = State.GetTutorial()
+		local previous = lastTutorialStep
+		lastTutorialStep = step
+		local popAfter = giftPopStep
+		if giftPopSpawned or not popAfter or previous ~= popAfter or step <= popAfter or not welcomeGiftWaiting() then
+			return
+		end
+		giftPopSpawned = true
+		task.spawn(function()
+			local poll = TutorialData.Script.GiftPopPollSeconds
+			local deadline = os.clock() + TutorialData.Script.GiftPopWaitSeconds
+			-- Poll first, then test: a ModuleCompleted that lands just after this push still gets to start its pan.
+			repeat
+				task.wait(poll)
+				if not CameraDirector.IsBusy() and not modalOpen() and not cinematic then
+					if welcomeGiftWaiting() then -- it may have been claimed from the menu meanwhile
+						Toast.Show(Strings.TOAST_WELCOME_GIFT, Theme.Colors.Featured)
+						Screens.Open("Gifts")
+					end
+					return
+				end
+			until os.clock() >= deadline
+		end)
+	end)
+
 	-- Meteor Shower: countdown chip before, event banner with the luck chip during, toasts at the edges.
+	-- While the tutorial runs (data/Tutorial Script.HoldEventBannersWhileActive) the banner, the chip, the
+	-- countdown and the horn wait; the shower itself (sky streaks, luck) is real and runs as ever.
 	local showerWasActive = false
+	local showerBannerHeld = false -- a shower began under the hold, so its banner is still owed
 	local function refreshShower()
 		local shower, elapsed = State.GetShower()
+		local held = TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()
 		if shower.active then
+			if held then
+				if not showerWasActive then
+					Vfx.SetShowerSky(true)
+				end
+				showerWasActive = true
+				showerBannerHeld = true
+				Hud.SetEventBanner(nil, nil, nil)
+				Hud.SetShowerCountdown(nil)
+				return
+			end
 			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
@@ -797,15 +861,27 @@ local function start(profile: Types.Profile)
 				Builder.playSound(Sounds.ShowerHorn)
 				Vfx.SetShowerSky(true)
 				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
+			elseif showerBannerHeld then
+				-- The hold just lifted mid-shower: the banner it kept back shows now, without the horn.
+				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
 			end
+			showerBannerHeld = false
 			showerWasActive = true
 			return
 		end
 		if showerWasActive then
 			Vfx.SetShowerSky(false)
-			Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
+			if not showerBannerHeld then -- a shower the player never saw announced needs no goodbye
+				Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
+			end
 		end
 		showerWasActive = false
+		showerBannerHeld = false
+		if held then
+			Hud.SetEventBanner(nil, nil, nil)
+			Hud.SetShowerCountdown(nil)
+			return
+		end
 		-- Server luck someone bought takes the banner slot while no shower runs.
 		local luckState, luckElapsed = State.GetServerLuck()
 		if luckState and luckState.secondsLeft - luckElapsed > 0 then
@@ -826,6 +902,7 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("shower", refreshShower)
 	State.OnChanged("luck", refreshShower)
+	State.OnChanged("tutorial", refreshShower) -- the hold lifts the moment the last step completes
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
 	State.OnChanged("serverLuck", function()

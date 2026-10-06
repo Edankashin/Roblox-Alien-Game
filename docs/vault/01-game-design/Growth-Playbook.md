@@ -122,7 +122,7 @@ Roblox's own advice: fun inside the first five minutes, no long tutorials, learn
 | 3:45 | T6 moduleComplete | Watches | Swarm, camera pan, part snaps on, bar +20% | **Aha 2: my crew built part of the ship** | `FirstModuleSeconds` median 270 s or less |
 | 4:30 | T7 Forest and Glowroot | Taps Claim, follows the marker | Welcome Week gift 1 (300 Scrap) pops; tray says "Tomorrow: Twig Lure"; "Thrusters need Glowroot" | **Aha 3: a gift, a goal, a reason to return** | `GiftClaim` day 1; funnel done; first-session retention at 5 min above 55% |
 
-Proposed changes for the owner: move gift 1 from minute 8 to the T6 payoff; keep the Peddler and Meteor Shower after minute 5; no notification card or shop pop-up before minute 5. Hint strings TUT_1 to TUT_7 stay as written.
+Built as milestone 27 (decision 18, 2026-10-06): gift 1 opens as the T6 payoff (the Gifts screen with its "Tomorrow" line, after the fanfare and the pan); the Peddler's landing banner and the Shower chip and banner stay off a new player's screen until the tutorial ends, while the events themselves run server-wide as ever; the notification card already waits for session 2 and there is no shop pop-up. All of it is the `Script` block in `data/Tutorial.luau`. Hint strings TUT_1 to TUT_7 stay as written.
 
 ## Sources (all read 2026-10-05)
 

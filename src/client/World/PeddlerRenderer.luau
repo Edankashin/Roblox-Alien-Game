@@ -19,6 +19,8 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
+local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
+local Place = require(Shared:WaitForChild("Place"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
@@ -64,6 +66,12 @@ local function formatTime(seconds: number): string
 		return Strings.TIME_MS:format(total // 60, total % 60)
 	end
 	return Strings.TIME_S:format(total)
+end
+
+-- The tutorial is still running (the same test as the bootstrap's): this place is the tutorial's world and
+-- its last step is not behind the player yet. The five-minute script keeps the landing banner back until then.
+local function tutorialActive(): boolean
+	return Place.WorldId() == TutorialData.World and State.GetTutorial() <= #TutorialData.Steps
 end
 
 -- Workspace.ClientPeddler, created on first use (client-side only, never replicates).
@@ -250,7 +258,9 @@ local function apply(visit: Types.PeddlerVisit?)
 	current = visit
 	if visit then
 		shownEndsAt = visit.endsAt
-		Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds) -- an event, so it stays up
+		if not (TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()) then
+			Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds) -- an event, so it stays up
+		end
 		land()
 	elseif shownEndsAt ~= nil then
 		shownEndsAt = nil

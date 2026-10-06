@@ -34,4 +34,15 @@ local Steps: { Step } = {
 -- current world is any other is past the tutorial and is marked done.
 local World = 1
 
-return { Steps = Steps, World = World }
+-- The five-minute script (docs/vault/01-game-design/Growth-Playbook.md section 6, decision 18): the first
+-- Welcome Week gift lands as the payoff of the first finished module, and the server-wide events that would
+-- pull a new player off the loop (the Peddler's landing banner, the Meteor Shower chip and banner) stay
+-- quiet on the client until the tutorial is done. All presentation: the server's events and timers run as ever.
+local Script = {
+	GiftPopAfterStep = "T6", -- once this step completes, the Gifts screen opens if the day-1 gift is unclaimed
+	GiftPopWaitSeconds = 8, -- how long to wait for the module-complete camera pan and any open panel before giving up on the pop
+	GiftPopPollSeconds = 0.25, -- how often that wait re-checks
+	HoldEventBannersWhileActive = true, -- Peddler arrival banner, shower countdown chip and shower banner wait for the tutorial to end
+}
+
+return { Steps = Steps, World = World, Script = Script }

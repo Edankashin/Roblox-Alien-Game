@@ -228,6 +228,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 24 | Look pass L3 particles: weather sheets per condition following the camera | pass; rain visibility waits on real particle textures (L5) |
 | 25 | Size rolls: Tiny to Huge on every spawn and grant, scaled models, Scrap multiplier, reveal stamp | pass (steps 1 to 3); the 50-spawn mix and eggs not sampled |
 | 26 | Catch variants: the cast-and-reel bar (Tidepool) and the rooftop chase (Neon Grid) as data rows over the one bar; drifting zone, hold-and-release, encounter clock; `/variant` to force one | queued on the Mac |
+| 27 | The five-minute script: Welcome Week gift 1 opens as the first module's payoff, Peddler and Shower banners held on the client until the tutorial ends (`Tutorial.Script`) | queued on the Mac |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
@@ -241,7 +242,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 - About 40 sound ids into `src/shared/data/Sounds.luau` and one icon pack (section 3.4 and the UI build notes).
 - Decide the slot-pass stacking rule (decision 17 below) before that pass goes live.
 
-**Decision 18 (open): the five-minute script.** Move Welcome Week gift 1 to the first module's payoff (about 4:30) and give the tutorial's Hull Frame a 90 s assembly time in data, so the first module lands before the 180 s bounce window closes on the first catch and the first "come back tomorrow" line shows inside five minutes. Proposed yes.
+**Decision 18 (taken, milestone 27): the five-minute script.** Welcome Week gift 1 opens as the first module's payoff (the Gifts screen with its "Tomorrow" line, right after the fanfare), and the Peddler's landing banner and the Shower chip and banner stay off a new player's screen until the tutorial ends. The Hull Frame's 60 s assembly already lands the first module inside four minutes of normal play, so no tutorial-only assembly time was needed. Set in `data/Tutorial.luau` (`Script`), so the beats can move without code.
 
 **Decision 19 (open): the name.** Candidates from the playbook: "Crash Planet: Catch Aliens", "Alien Pals: Build a Rocket", "Planet Hoppers: Alien Collector". Check Roblox search for collisions before locking; no reward words in the title.
 

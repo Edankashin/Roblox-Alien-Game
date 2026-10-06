@@ -348,3 +348,16 @@ Variants are rules laid over the one timing bar (`src/shared/data/CatchVariants.
 5. Wild spawns carry a `Variant` attribute (Standard on World 1 and 2). Output stays clean through all of the above.
 
 Known gaps in this milestone: no fish or rooftop presentation (the ticker is still a bar ticker), no double bar for the Cosmic deep-sea fish yet, no world layouts for Tidepool or Neon Grid, and no per-variant sounds.
+
+## Milestone 27: the five-minute script (World 1 place, fresh profile)
+
+Decision 18 as built: the first Welcome Week gift is the payoff of the first finished module, and the server-wide events that would pull a brand-new player off the loop stay quiet on their screen until the tutorial ends (`data/Tutorial.luau`, the `Script` block). The server's Peddler clock and Shower clock run as ever; this is presentation.
+
+1. Play as a fresh profile (Studio memory profiles reset on Play). Crash opener, T1 plates, T2 Mossbop, T3 Hull Frame started, T4 Puffpuff, T5 three catches. Hull Frame assembly is 60 s in data, so the first module completes inside about four minutes of normal play.
+2. When the Hull Frame completes (T6 done, T7 shows): the fanfare and camera pan play first, then a toast "First part built! A gift is waiting." and the Gifts screen opens by itself on the Day 1 tile; the tray's "Tomorrow: Twig Lure" line is visible. Claim it (300 Scrap). Close it: the T7 hint (Forest, Glowroot) is on the pill.
+3. If a catch, a reveal or a panel is open at that moment, the pop waits up to 8 s for it to clear, then gives up quietly; the menu badge still shows the unclaimed gift.
+4. Peddler hold: on a fresh server the Peddler lands 20 s after boot. During T1 to T7 no "Peddler landed" banner shows for this player (the ship still lands and the Trade prompt still works at its ramp). After T7 (or `/tutorial 8`), the next landing shows the banner.
+5. Shower hold: `/shower` during the tutorial: the sky streaks and the luck apply, but no shower chip, banner or horn for this player. `/tutorial 8` mid-shower: the banner and chip appear at once without the horn. A second player past the tutorial sees everything as before.
+6. A rejoin after the gift was claimed never re-opens the Gifts screen; the pop fires once per session at most.
+
+Known gaps in this milestone: the story beats stay the two crash lines and the hints; `FirstModuleSeconds` lands in analytics but no in-game timer shows; no Catch Rush party beat yet.
