@@ -570,6 +570,18 @@ A habitat is a house-grid item of its own kind (`data/HomeBuild`: Verdant Habita
 
 Known gaps in this milestone: habitat placeholder pads until the props exist, no "Wave" for visitors yet (42e), no habitat upgrade (capacity 3 fixed), displayed aliens play no animation beyond the walk and bob.
 
+## Milestone 42d: the hangar, the kiosk and the mailbox (home place)
+
+Three fixed features of the home (`data/Home.luau` points, `data/Mail.luau`): the trophy hangar, a row of scaled ship hulls on -Z of the camp, one per world the player has launched from, each on a pad with the world's name plate; the spin wheel kiosk on -X of the pad, where "Spin" opens the Gifts screen's wheel; the mailbox on +X, where "Mail" opens the mailbox screen: letters with a line and rewards (claimed through the gifts' reward path) and the Visitor Book under them. Letters arrive from the developer panel for now (`/admin mail <text> [scrap N]`, to everyone online on every server); visitors are written by 42e.
+
+1. Home place, a profile that launched from World 1 (`/world 2` then `/world 0`, or a real launch): one hull at 0.35 scale on a grey pad at (0, -40) with the plate "Verdant Crash Site"; after a launch from World 2 as well, a second hull 14 studs along the row. A profile that never launched shows no hull (the hangar pads stay).
+2. The kiosk at (-22, 0): within 10 studs the action reads "Spin" and opens the Gifts screen on its wheel; the mailbox at (22, 0): "Mail" opens the Mailbox screen, "No letters yet", "Visitors: Nobody has visited yet".
+3. `/admin mail Welcome home scrap 250` (your id is a developer): every player online gets a letter; the toast "A letter is waiting in your mailbox at home" shows once (on any place); at the mailbox the letter reads "From the team", "Welcome home", "250 Scrap", a Claim button; Claim: toast "Claimed: 250 Scrap", Scrap +250, the letter goes, Output `analytics: event MailClaim value=1 from=the team` and a Mail economy source. A 100-character line is cut to 80; `scrap 9000` is capped at 5,000.
+4. Twenty-one letters: the oldest is dropped (`/admin mail` 21 times, or `/mail N` in Studio which writes N test letters to yourself); the screen scrolls. Rejoin (memory profiles): letters persist. On World 1 the Mailbox screen opens too (the menu has no entry; the action exists only at home) and Claim works there as well. Output clean.
+
+Known gaps in this milestone: no Warden pilot in the cockpits until the hangar prop exists (a placeholder silhouette ball sits on each hull), no mail between players yet (42e), letters never expire.
+
+
 
 
 

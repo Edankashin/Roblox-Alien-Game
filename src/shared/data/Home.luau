@@ -75,4 +75,15 @@ return {
 	PlotOffsetStuds = 24,
 	PlotColor = "E8DCC0",
 	PlotThickness = 0.3,
+	-- the trophy hangar (42d): one scaled ship per world the player has launched from, in a row on -Z of the camp
+	HangarCenterZ = -40, -- the row's centre, studs from the origin on -Z
+	HangarSpacingStuds = 14, -- between ships in the row
+	HangarScale = 0.35, -- over the ship hull's own size
+	HangarPadRadius = 5,
+	HangarPadColor = "B9B9C9",
+	-- the spin wheel kiosk and the mailbox (42d): fixed points off the camp pad on -X and +X
+	Kiosk = { x = -22, z = 0, yaw = 90 },
+	Mailbox = { x = 22, z = 0, yaw = -90 },
+	KioskInteractDistance = 10,
+	MailboxInteractDistance = 10,
 }

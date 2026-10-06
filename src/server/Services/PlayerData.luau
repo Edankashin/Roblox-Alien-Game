@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 12
+local SCHEMA_VERSION = 13
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -69,7 +69,7 @@ local function template(): Types.Profile
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
 		companionSlots = 0,
-		home = { unlocked = false, visits = 0, items = {}, habitatSettled = 0 },
+		home = { unlocked = false, visits = 0, items = {}, habitatSettled = 0, mail = {}, visitors = {} },
 		quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
@@ -199,6 +199,19 @@ local migrations: { [number]: (any) -> any } = {
 		end
 		if type(data.home.habitatSettled) ~= "number" then
 			data.home.habitatSettled = os.time()
+		end
+		return data
+	end,
+	-- v13: the mailbox and the Visitor Book start empty
+	[13] = function(data)
+		if type(data.home) ~= "table" then
+			data.home = { unlocked = false, visits = 0, items = {}, habitatSettled = os.time() }
+		end
+		if type(data.home.mail) ~= "table" then
+			data.home.mail = {}
+		end
+		if type(data.home.visitors) ~= "table" then
+			data.home.visitors = {}
 		end
 		return data
 	end,
