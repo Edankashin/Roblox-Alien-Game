@@ -3,10 +3,13 @@
 -- the top (one per unlocked job: name, slots, rate and a row of slot squares), the owned count, a
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
 -- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
--- its next stage, where it is working), and a footer with Optimize and Fuse buttons and a one-line fuse hint.
+-- its next stage, where it is working or that it follows you), a count row (aliens owned, companion slots in
+-- use) with a perks line under it, and a footer with Optimize and Fuse buttons, a Companion Token button while a
+-- token is held, and a one-line fuse hint.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
--- that leave the client ask the server (StationOptimize, FuseSpecies). Nothing here decides an outcome: Fuse
--- only picks which species to ask about, and the card redraws from the camp push the server sends back.
+-- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, UseCompanionToken). Nothing
+-- here decides an outcome: Fuse only picks which species to ask about, a card tap only asks to follow or stop, and
+-- the cards redraw from the camp and companion pushes the server sends back.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -16,6 +19,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local Companions = require(Shared:WaitForChild("data"):WaitForChild("Companions"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Fusion = require(Shared:WaitForChild("data"):WaitForChild("Fusion"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
@@ -34,20 +38,27 @@ local jobDefs: { [string]: JobDef } = Jobs.Jobs
 local jobOrder: { string } = Jobs.Order
 
 -- One grid entry, sorted before the cards are built.
-type Entry = { record: Types.AlienRecord, def: Types.SpeciesDef?, speed: number, name: string }
+type Entry = { record: Types.AlienRecord, def: Types.SpeciesDef?, speed: number, name: string, following: boolean }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
--- button reaches down to 0.155, so the body starts under it.
+-- button reaches down to 0.155, so the body starts under it. Top to bottom: the station strip, the count row
+-- (aliens owned on the left half, companion slots on the right), the one-line perks row, the grid, then the footer.
+-- The grid ends at 0.845, above the 0.855 where the footer's button row starts, and one row of square cards is
+-- about 0.285 tall, so a full row fits without scrolling.
 local STRIP_Y = 0.17
 local STRIP_H = 0.27
 local STRIP_GAP = 0.02 -- between station cards, of the strip width
 local COUNT_Y = 0.455
 local COUNT_H = 0.05
-local GRID_Y = 0.515
-local GRID_H = 0.33
+local COUNT_HALF_W = (1 - Theme.Margin * 2) / 2 -- each of the two count labels takes half the row
+local PERKS_Y = 0.50
+local PERKS_H = 0.04 -- one line of 14 px text
+local GRID_Y = 0.545
+local GRID_H = 0.30
 local FOOTER_H = 0.075 -- the button row; the one-line fuse hint sits under it
 local HINT_H = 0.05 -- one line of 14 px text
 local FOOTER_BUTTON_W = 0.24 -- Fuse and Optimize, side by side at the right
+local TOKEN_BUTTON_W = 0.30 -- the Companion Token button, left of Fuse while a token is held; wider than Fuse so "Use Token (1)" stays one line on a phone
 local FOOTER_GAP = 0.02 -- between them
 local FUSE_BUSY_ALPHA = 0.5 -- the Fuse button's face and text fade by this while a fusion is in flight
 
@@ -82,6 +93,9 @@ local SPEED_W = 0.36
 local BADGE_W = 0.5
 local CORNER_GAP = 0.01
 
+-- The perk kinds in the order the perks line lists them (the kinds of data/Companions PerkByJob).
+local PERK_ORDER: { string } = { "catchScrap", "zone", "luck", "radar" }
+
 -- Time units, in seconds, for the growth countdown.
 local MINUTE = 60
 local HOUR = 60 * MINUTE
@@ -90,6 +104,9 @@ local gui: ScreenGui? = nil
 local panel: Frame? = nil
 local strip: Frame? = nil
 local countLabel: TextLabel? = nil
+local companionsLabel: TextLabel? = nil
+local perksLabel: TextLabel? = nil
+local tokenButton: Frame? = nil
 local grid: ScrollingFrame? = nil
 local gridLayout: UIGridLayout? = nil
 local emptyLabel: TextLabel? = nil
@@ -164,25 +181,140 @@ local function ask(name: string)
 	end)
 end
 
+-- One RemoteFunction call that answers (ok, reason), guarded so a remote that errors never leaves `pending` set.
+-- It yields: callers run it inside task.spawn.
+local function invoke(name: string, ...: any): (boolean, string?)
+	local remote = Net.func(name)
+	local called, ok, reason = pcall(remote.InvokeServer, remote, ...)
+	if not called then
+		return false, tostring(ok)
+	end
+	return ok == true, if reason ~= nil then tostring(reason) else nil
+end
+
+-- Companions ---------------------------------------------------------------
+
+-- The perks line for the followers in the profile mirror, and whether any perk is active. The same sum the server
+-- makes (Companions.Perk): each follower gives the perk of its species' first job at its tier's factor, a kind's
+-- total is capped, and zero kinds are skipped. Display only; Buffs and the capture maths read the server's number.
+local function perksLine(profile: Types.Profile): (string, boolean)
+	local sums: { [string]: number } = {}
+	for _, uid in ipairs(profile.companions) do
+		local record = profile.aliens[uid]
+		local def = if record then Species.ById[record.species] else nil
+		local firstJob = if def then def.jobs[1] else nil
+		if def and firstJob then
+			local perk = Companions.PerkByJob[firstJob.job]
+			local factor = Companions.TierFactor[def.tier]
+			if perk and factor then
+				sums[perk.kind] = (sums[perk.kind] or 0) + perk.amount * factor
+			end
+		end
+	end
+	local parts: { string } = {}
+	for _, kind in ipairs(PERK_ORDER) do
+		local amount = sums[kind] or 0
+		local cap = Companions.PerkCap[kind]
+		if cap then
+			amount = math.min(amount, cap)
+		end
+		if amount > 0 then
+			table.insert(parts, Builder.text("PERK_" .. kind):format(math.floor(amount * 100 + 0.5)))
+		end
+	end
+	if #parts == 0 then
+		return Strings.ALIENS_PERKS_NONE, false
+	end
+	return Strings.ALIENS_PERKS:format(table.concat(parts, Strings.ALIENS_PERK_SEPARATOR)), true
+end
+
+-- Asks the server to start or stop a follow. The mirror is never touched here: the server's CompanionsChanged push
+-- lands in State and the "companions" topic redraws the screen. One request in flight at a time.
+local function setCompanion(uid: string, follow: boolean, name: string)
+	if pending then
+		return
+	end
+	pending = true
+	task.spawn(function()
+		local ok, reason = invoke("SetCompanion", uid, follow)
+		pending = false
+		if ok then
+			if follow then
+				Toast.Show(Strings.TOAST_COMPANION_ON:format(name), Theme.Colors.Confirm)
+			else
+				Toast.Show(Strings.TOAST_COMPANION_OFF:format(name), Theme.Rarity.Common)
+			end
+		elseif reason == "Full" then
+			Toast.Show(Strings.TOAST_COMPANION_FULL:format(State.GetCompanionSlots()), Theme.Rarity.Common)
+		elseif reason == "Seated" then
+			Toast.Show(Strings.TOAST_COMPANION_SEATED:format(name), Theme.Rarity.Common)
+		else
+			print(("[%s] SetCompanion refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+end
+
+-- A tap on an alien card. A follower is asked to stop; a seated alien and a full set of slots are told to the player
+-- here (the server would refuse both, so no request is spent); a resting alien with a free slot is asked to follow.
+local function onCardTapped(uid: string, name: string)
+	Builder.playSound(Sounds.Click)
+	if not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	local record = profile.aliens[uid]
+	if not record then
+		return
+	end
+	local slots = State.GetCompanionSlots()
+	if table.find(profile.companions, uid) then
+		setCompanion(uid, false, name)
+	elseif record.station ~= nil then
+		Toast.Show(Strings.TOAST_COMPANION_SEATED:format(name), Theme.Rarity.Common)
+	elseif #profile.companions >= slots then
+		Toast.Show(Strings.TOAST_COMPANION_FULL:format(slots), Theme.Rarity.Common)
+	else
+		setCompanion(uid, true, name)
+	end
+end
+
 -- Fusion -------------------------------------------------------------------
 
 -- A species worth asking the server to fuse, found in the profile mirror: how many copies are owned (each
 -- fusion consumes Fusion.DuplicatesPerLevel of them and keeps one) so the ask loop has a hard bound.
 type FuseCandidate = { species: string, copies: number }
 
--- Species with at least DuplicatesPerLevel + 1 copies whose best copy is still below the level cap, in id order.
--- The server re-checks everything; this only decides whether Fuse has anything to ask about.
+-- Species the server would fuse, in id order: the kept copy is the best one below the level cap, and only copies
+-- at or below its level are fodder (a capped Lv 3 is never consumed for a plain Lv 1), so a species counts when
+-- DuplicatesPerLevel such copies exist beside the kept one. `copies` is the kept copy plus its fodder, which bounds
+-- the ask loop. The server re-checks everything; this only decides whether Fuse has anything to ask about.
 local function fuseCandidates(profile: Types.Profile): { FuseCandidate }
-	local copies: { [string]: number } = {}
-	local best: { [string]: number } = {}
+	local cap = 1 + Fusion.MaxFusionLevels
+	local levels: { [string]: { number } } = {}
 	for _, record in pairs(profile.aliens) do
-		copies[record.species] = (copies[record.species] or 0) + 1
-		best[record.species] = math.max(best[record.species] or 0, record.level)
+		local list = levels[record.species]
+		if not list then
+			list = {}
+			levels[record.species] = list
+		end
+		table.insert(list, record.level)
 	end
 	local out: { FuseCandidate } = {}
-	for species, count in pairs(copies) do
-		if count >= Fusion.DuplicatesPerLevel + 1 and (best[species] or 0) < 1 + Fusion.MaxFusionLevels then
-			table.insert(out, { species = species, copies = count })
+	for species, list in pairs(levels) do
+		local keptLevel = 0
+		for _, level in ipairs(list) do
+			if level < cap and level > keptLevel then
+				keptLevel = level
+			end
+		end
+		local fodder = -1 -- the kept copy itself is counted below and taken back out
+		for _, level in ipairs(list) do
+			if level <= keptLevel then
+				fodder += 1
+			end
+		end
+		if keptLevel > 0 and fodder >= Fusion.DuplicatesPerLevel then
+			table.insert(out, { species = species, copies = fodder + 1 })
 		end
 	end
 	table.sort(out, function(a: FuseCandidate, b: FuseCandidate): boolean
@@ -628,23 +760,52 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
-	-- Where it works, as the station's name alone ("Picnic Table"): one line at the minimum size is all a
-	-- square card has, and the job verb is the station's.
+	-- What it is doing, one line: where it works as the station's name alone ("Picnic Table"; one line at the
+	-- minimum size is all a square card has, and the job verb is the station's), that it follows the player, or
+	-- that a resting one can be tapped to follow.
+	local statusText = Strings.ALIENS_TAP_FOLLOW
+	local statusColor = Theme.Rarity.Common
+	if job then
+		statusText = Builder.text("STATION_" .. job)
+		statusColor = Theme.Colors.White
+	elseif entry.following then
+		statusText = Strings.ALIENS_FOLLOWING
+		statusColor = Theme.Colors.Confirm
+	end
 	Builder.label({
 		parent = card,
 		name = "Status",
-		text = if job then Builder.text("STATION_" .. job) else Strings.ALIENS_RESTING,
+		text = statusText,
 		textSize = Theme.TextSize.Body,
-		color = if job then Theme.Colors.White else Theme.Rarity.Common,
+		color = statusColor,
 		position = UDim2.fromScale(0.5, STATUS_Y),
 		size = UDim2.fromScale(0.94, STATUS_H),
 		anchor = Vector2.new(0.5, 0),
 		zIndex = 4,
 	})
+
+	-- An invisible button over the whole card, above every chip: a tap asks to follow or stop (onCardTapped).
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.AutoButtonColor = false
+	tap.Text = ""
+	tap.BorderSizePixel = 0
+	tap.BackgroundTransparency = 1
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = 8
+	tap.Parent = card
+	tap.Activated:Connect(function()
+		onCardTapped(record.uid, entry.name)
+	end)
 end
 
--- Owned aliens, fastest first, then by name, then by uid so the order is stable between refreshes.
+-- Owned aliens: followers first, then fastest first, then by name, then by uid so the order is stable between
+-- refreshes.
 local function sortedEntries(profile: Types.Profile): { Entry }
+	local followers: { [string]: boolean } = {}
+	for _, uid in ipairs(profile.companions) do
+		followers[uid] = true
+	end
 	local entries: { Entry } = {}
 	for _, record in pairs(profile.aliens) do
 		local def = Species.ById[record.species]
@@ -653,9 +814,13 @@ local function sortedEntries(profile: Types.Profile): { Entry }
 			def = def,
 			speed = Economy.workSpeed(record),
 			name = speciesName(def, record.species),
+			following = followers[record.uid] == true,
 		})
 	end
 	table.sort(entries, function(a: Entry, b: Entry): boolean
+		if a.following ~= b.following then
+			return a.following
+		end
 		if a.speed ~= b.speed then
 			return a.speed > b.speed
 		end
@@ -687,6 +852,28 @@ local function rebuildGrid(profile: Types.Profile)
 	end
 end
 
+-- The count row's companion label, the perks line and the Companion Token button: slots in use, the perks they
+-- give, and the button shown only while a token is held (its label carries how many).
+local function updateCompanionRows(profile: Types.Profile)
+	if companionsLabel then
+		companionsLabel.Text = Strings.ALIENS_COMPANIONS:format(#profile.companions, State.GetCompanionSlots())
+	end
+	if perksLabel then
+		local text, any = perksLine(profile)
+		perksLabel.Text = text
+		perksLabel.TextColor3 = if any then Theme.Colors.Confirm else Theme.Rarity.Common
+	end
+	local button = tokenButton
+	if button then
+		local tokens = profile.inventory.items[Companions.TokenItem] or 0
+		button.Visible = tokens > 0
+		local face = button:FindFirstChild("Face")
+		if face and face:IsA("TextButton") then
+			face.Text = Strings.ALIENS_USE_TOKEN:format(tokens)
+		end
+	end
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
@@ -694,6 +881,38 @@ local function refresh()
 	local profile = State.Get()
 	rebuildStrip(profile)
 	rebuildGrid(profile)
+	updateCompanionRows(profile)
+end
+
+-- The inventory and the passes touch the companion rows only (a token arrived, a pass was bought), not the cards.
+local function refreshCompanionRows()
+	if open and State.Has() then
+		updateCompanionRows(State.Get())
+	end
+end
+
+-- Spends a Companion Token for one more slot. The server did exactly Companions.TokenSlots more slots when it says
+-- ok, so the mirror takes the same step (the inventory push brings the token count); a refusal only redraws.
+local function useToken()
+	if pending then
+		return
+	end
+	pending = true
+	task.spawn(function()
+		local ok, reason = invoke("UseCompanionToken")
+		pending = false
+		if ok then
+			if State.Has() then
+				local profile = State.Get()
+				profile.companionSlots += Companions.TokenSlots
+			end
+			refresh()
+			Toast.Show(Strings.TOAST_COMPANION_SLOT:format(State.GetCompanionSlots()), Theme.Colors.Confirm)
+		else
+			print(("[%s] UseCompanionToken refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+			refresh()
+		end
+	end)
 end
 
 -- Build ----------------------------------------------------------------------
@@ -793,14 +1012,37 @@ local function build()
 	stripLayout.Parent = stripFrame
 	strip = stripFrame
 
-	-- 2. Count line.
+	-- 2. Count row: aliens owned on the left half, companion slots in use on the right half, and the perks line
+	-- under it (one line at the minimum size).
 	countLabel = Builder.label({
 		parent = body,
 		name = "Count",
 		text = Strings.ALIENS_COUNT:format(0),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(Theme.Margin, COUNT_Y),
-		size = UDim2.fromScale(0.5, COUNT_H),
+		size = UDim2.fromScale(COUNT_HALF_W, COUNT_H),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 3,
+	})
+	companionsLabel = Builder.label({
+		parent = body,
+		name = "Companions",
+		text = Strings.ALIENS_COMPANIONS:format(0, Config.CompanionSlots),
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(1 - Theme.Margin, COUNT_Y),
+		size = UDim2.fromScale(COUNT_HALF_W, COUNT_H),
+		anchor = Vector2.new(1, 0),
+		xAlign = Enum.TextXAlignment.Right,
+		zIndex = 3,
+	})
+	perksLabel = Builder.label({
+		parent = body,
+		name = "Perks",
+		text = Strings.ALIENS_PERKS_NONE,
+		textSize = Theme.TextSize.Min,
+		color = Theme.Rarity.Common,
+		position = UDim2.fromScale(Theme.Margin, PERKS_Y),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, PERKS_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 3,
 	})
@@ -848,8 +1090,9 @@ local function build()
 	empty.Visible = false
 	emptyLabel = empty
 
-	-- 4. Footer: a button row (Fuse, then Optimize at the right edge) over a one-line hint in the minimum text size.
-	-- Optimize asks the server to reseat the crew; Fuse asks it to fuse every species with spare copies.
+	-- 4. Footer: a button row (Companion Token while one is held, Fuse, then Optimize at the right edge) over a
+	-- one-line hint in the minimum text size. Optimize asks the server to reseat the crew; Fuse asks it to fuse every
+	-- species with spare copies; the token button asks it to spend a Companion Token on a slot.
 	local buttonsBottom = 1 - Theme.Margin - HINT_H
 	Builder.button({
 		parent = body,
@@ -875,6 +1118,19 @@ local function build()
 		textSize = Theme.TextSize.Label,
 		zIndex = 4,
 	}, fuseAll)
+	local token = Builder.button({
+		parent = body,
+		name = "UseToken",
+		text = Strings.ALIENS_USE_TOKEN:format(0),
+		color = Theme.Colors.Select,
+		position = UDim2.fromScale(1 - Theme.Margin - 2 * (FOOTER_BUTTON_W + FOOTER_GAP), buttonsBottom), -- left of Fuse, a gap between
+		size = UDim2.fromScale(TOKEN_BUTTON_W, FOOTER_H),
+		anchor = Vector2.new(1, 1),
+		textSize = Theme.TextSize.Label,
+		zIndex = 4,
+	}, useToken)
+	token.Visible = false -- shown by updateCompanionRows while a token is held
+	tokenButton = token
 	Builder.label({
 		parent = body,
 		name = "FuseHint",
@@ -888,8 +1144,11 @@ local function build()
 	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "stations", "rate" }) do
+	for _, topic in ipairs({ "stations", "rate", "companions" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
+	end
+	for _, topic in ipairs({ "inventory", "purchases" }) do
+		State.OnChanged(topic :: State.Topic, refreshCompanionRows)
 	end
 end
 

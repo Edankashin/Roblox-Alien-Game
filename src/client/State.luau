@@ -1,11 +1,12 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
--- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged);
+-- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
 
+local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -13,6 +14,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Companions = require(Shared:WaitForChild("data"):WaitForChild("Companions"))
+local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
@@ -23,7 +26,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -231,6 +234,19 @@ function State.SeedPurchases(state: Types.PurchasesState)
 		return
 	end
 	State.SetPurchases(state)
+end
+
+local COMPANION_PASS = "CompanionSlot4" -- the data/Shop pass row that adds Companions.PassSlots (the server reads the same id)
+-- Companion slots the player has right now, as the server counts them: the base (Config.CompanionSlots), plus the
+-- slots Companion Tokens unlocked (profile.companionSlots), plus the pass's while it is owned, capped at
+-- Companions.MaxSlots. The server judges every follow against its own count; this one only labels the screen.
+function State.GetCompanionSlots(): number
+	local p = profile
+	local slots = Config.CompanionSlots + (if p then p.companionSlots else 0)
+	if purchases.passes[COMPANION_PASS] then
+		slots += Companions.PassSlots
+	end
+	return math.min(slots, Companions.MaxSlots)
 end
 
 -- The shared luck someone bought (nil when none runs) and the seconds since the server said so, so a
@@ -488,6 +504,20 @@ function State.Start()
 			serverLuck = state
 			serverLuckAt = Workspace:GetServerTimeNow()
 			fire("serverLuck")
+		end)
+	end)
+	task.spawn(function()
+		-- Every client gets every player's followers; only the local player's own list is kept here (the
+		-- companion renderer draws everyone's from the same push). The rows' order is the slot order.
+		Net.event("CompanionsChanged").OnClientEvent:Connect(function(snapshot: Types.CompanionsSnapshot)
+			if profile and snapshot.userId == Players.LocalPlayer.UserId then
+				local uids: { string } = {}
+				for _, row in ipairs(snapshot.rows) do
+					table.insert(uids, row.uid)
+				end
+				profile.companions = uids
+				fire("companions")
+			end
 		end)
 	end)
 end

@@ -41,6 +41,7 @@ local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
+local CompanionRenderer = require(script:WaitForChild("World"):WaitForChild("CompanionRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
 local PeddlerRenderer = require(script:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
 local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScreen"))
@@ -609,10 +610,17 @@ local function connectToasts()
 	-- it) or nothing to show (rank 0, which the tutorial hold also keeps quiet).
 	task.spawn(function()
 		Net.event("CatchRushResult").OnClientEvent:Connect(function(result: Types.CatchRushResult)
+			local rewardText = GiftsScreen.RewardText(result.rewards)
 			if result.rank >= 1 and result.rank <= CatchRush.TopCount then
-				Toast.Show(Strings.RUSH_RESULT:format(result.rank, result.catches, GiftsScreen.RewardText(result.rewards)), Theme.Colors.Featured)
+				local text = if result.catches == 1
+					then Strings.RUSH_RESULT_ONE:format(result.rank, rewardText)
+					else Strings.RUSH_RESULT:format(result.rank, result.catches, rewardText)
+				Toast.Show(text, Theme.Colors.Featured)
 			elseif result.rank > CatchRush.TopCount then
-				Toast.Show(Strings.RUSH_PART:format(result.catches, GiftsScreen.RewardText(result.rewards)), Theme.Colors.Featured)
+				local text = if result.catches == 1
+					then Strings.RUSH_PART_ONE:format(rewardText)
+					else Strings.RUSH_PART:format(result.catches, rewardText)
+				Toast.Show(text, Theme.Colors.Featured)
 			elseif not (TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()) then
 				Toast.Show(Strings.RUSH_NONE, Theme.Colors.Select)
 			end
@@ -1126,6 +1134,7 @@ local function start(profile: Types.Profile)
 	end
 	WildRenderer.Start(known)
 	CampRenderer.Start()
+	CompanionRenderer.Start()
 	NodeRenderer.Start()
 	Ambience.Start()
 	LightingDirector.Start()

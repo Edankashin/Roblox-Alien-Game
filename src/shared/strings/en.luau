@@ -476,12 +476,13 @@ return {
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
-	ALIENS_FOLLOWING = "Following you",
-	ALIENS_TAP_FOLLOW = "Resting · tap to follow",
+	ALIENS_FOLLOWING = "Following",
+	ALIENS_TAP_FOLLOW = "Tap to follow",
 	ALIENS_COMPANIONS = "Companions %d/%d",
 	ALIENS_PERKS = "Perks: %s",
 	ALIENS_PERKS_NONE = "Perks: none yet",
-	ALIENS_USE_TOKEN = "Use Companion Token (%d)",
+	ALIENS_PERK_SEPARATOR = ", ", -- between the perks on the perks line
+	ALIENS_USE_TOKEN = "Use Token (%d)",
 	TOAST_COMPANION_ON = "%s is following you",
 	TOAST_COMPANION_OFF = "%s stays at camp",
 	TOAST_COMPANION_FULL = "All %d companion slots are taken",
