@@ -14,6 +14,13 @@
 -- profile mirror (State, filled by GetDailyQuests when the tab opens and by DailyQuestsChanged pushes);
 -- the reset countdowns tick once a minute while the tab is showing. Claim and Reroll ask the server
 -- (ClaimDailyQuest, RerollDailyQuest, one request in flight) and the toast says what it answered.
+--
+-- A third tab, Event, exists only while a seasonal event runs (State.GetSeason, data/Seasons): a title, a hint
+-- that every row is free, then one card per quest of the season's track in the Daily & Weekly card's look. The
+-- counts and claims come from the mirror State keeps (SeasonProgressChanged, GetSeasonProgress); a Claim asks the
+-- server (ClaimSeasonQuest, one request in flight) and a row that paid an alien opens the Reveal through the
+-- bootstrap's hook (QuestsScreen.OnGrant), as a gift egg does. The tab goes, and the view falls back to Field Notes,
+-- when the season ends.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -25,6 +32,9 @@ local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 local DailyQuests = require(Shared:WaitForChild("data"):WaitForChild("DailyQuests"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Seasons = require(Shared:WaitForChild("data"):WaitForChild("Seasons"))
+local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
+local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -70,8 +80,24 @@ type DailyRow = {
 	claimReady: boolean,
 }
 
-type ViewName = "notes" | "daily"
-type Tab = { frame: Frame, color: Color3, x: number }
+-- One Event row: the shared card plus what its Claim tap needs. Built once per track position, refilled by refreshEvent.
+type EventRow = {
+	card: Frame,
+	objective: TextLabel,
+	reward: TextLabel,
+	fill: Frame,
+	count: TextLabel,
+	claim: Frame,
+	questId: string, -- the track quest this row shows now; "" while hidden
+	rewardsText: string, -- for the claimed toast, read before the call
+	claimed: boolean,
+	claimReady: boolean,
+}
+
+type ViewName = "notes" | "daily" | "event"
+-- A header tab: where it sits (x, with the anchor it pairs with) and whether it shows at all (the Event tab only
+-- while a season runs); layoutTabs sets the three, applyView raises the active one.
+type Tab = { frame: Frame, color: Color3, x: number, visible: boolean }
 
 local LIST_TOP = 0.155 -- below the step header line
 local ROW_COMPACT = 0.1 -- of the list height
@@ -80,13 +106,34 @@ local MIN_EXPANDED = 0.45 -- the current step's card never shrinks below this, w
 local DONE_HEIGHT = 0.3 -- the done line under a finished chain
 local OBJECTIVE_TEXT_WIDTH = 0.78 -- the rest of an objective line is its count
 
--- Header tabs, as fractions of the panel; both straddle the top edge, left and right of the centre line.
-local TAB_W = 0.33
+-- Header tabs, as fractions of the panel; they straddle the top edge. Two tabs (the usual look) sit left and right
+-- of the centre line; while a season runs the Event tab joins and the three take thirds of the span left of the
+-- Close button (which starts at 0.875). A third is 0.2767 of the panel: 109 px at iPhone SE size, where the longest
+-- label, "Daily & Weekly", is 100.6 px at the minimum text size (Fredoka metrics), so it still fits on one line.
+local TAB_W = 0.33 -- two tabs
+local TAB_CENTRE_GAP = 0.01
+local TAB_SPAN_LEFT = 0.02 -- three tabs: the span they share
+local TAB_SPAN_RIGHT = 0.87
+local TAB_GAP = 0.01
+local TAB_COUNT_WITH_EVENT = 3
+local TAB_W3 = (TAB_SPAN_RIGHT - TAB_SPAN_LEFT - (TAB_COUNT_WITH_EVENT - 1) * TAB_GAP) / TAB_COUNT_WITH_EVENT
 local TAB_H = 0.12
 local TAB_RAISED = 0 -- the active tab's centre sits on the panel's top edge
 local TAB_LOWERED = 0.02 -- the other one sits a little lower
 local NOTES_COLOR = Theme.Colors.Featured
 local DAILY_COLOR = Theme.Colors.Select
+local EVENT_COLOR = Theme.Colors.Codex
+local TAB_ORDER: { ViewName } = { "notes", "daily", "event" }
+
+-- Event list. Heights are in windows (1 = the scroller's visible height) and become fractions of the canvas by
+-- dividing by the page count; the canvas itself is `pages * EV_LIST_SHARE` of the body, because CanvasSize scales
+-- against the ScrollingFrame's parent, not against the frame (docs/vault/04-roblox-engine/UI-Rules.md). At iPhone SE
+-- size a window is about 240 px: the title, the hint and the first two rows show, the other three are a scroll away.
+local EV_LIST_SHARE = 1 - LIST_TOP - Theme.Margin -- the list's height as a share of its parent (the body)
+local EV_HEAD_H = 0.12
+local EV_HINT_H = 0.1
+local EV_ROW_H = 0.32
+local EV_GAP = 0.025
 
 -- Daily & Weekly list. Heights are in windows (1 = the scroller's visible height); the canvas is
 -- DQ_PAGES windows tall and every child of the scroller divides its height by that. One section (heading
@@ -119,6 +166,12 @@ local scroller: ScrollingFrame? = nil -- the Daily & Weekly list
 local dailyRows: { DailyRow } = {}
 local dailyCountdown: TextLabel? = nil
 local weeklyCountdown: TextLabel? = nil
+local eventScroller: ScrollingFrame? = nil -- the Event tab's list
+local eventTitle: TextLabel? = nil
+local eventHint: TextLabel? = nil
+local eventRows: { EventRow } = {}
+local eventPending = false -- one ClaimSeasonQuest in flight at a time
+local onGrant: ((Types.GrantResult) -> ())? = nil -- the bootstrap's hook: a row that paid an alien opens the Reveal
 local dailyPending = false -- one ClaimDailyQuest / RerollDailyQuest in flight at a time
 local fetching = false -- one GetDailyQuests in flight at a time
 local tickToken = 0 -- bumped to stop the countdown loop (tab switch, close)
@@ -160,12 +213,12 @@ local function objectiveText(objective: Quests.Objective): string
 	return template
 end
 
--- The REWARD_<kind> template filled by kind; an encounter names the species.
-local function rewardText(reward: Quests.Reward): string
-	local template = Builder.text("REWARD_" .. reward.kind)
-	local kind = reward.kind
-	local id = reward.id or ""
-	local amount = reward.amount or 0
+-- The REWARD_<kind> template filled by kind; an encounter and an alien name the species, one free spin reads
+-- singular. Takes the three fields, not a row, so every reward table (Field Notes, daily, event) can call it.
+local function rewardText(kind: string, rewardId: string?, rewardAmount: number?): string
+	local template = Builder.text("REWARD_" .. kind)
+	local id = rewardId or ""
+	local amount = rewardAmount or 0
 	if kind == "gear" then
 		return template:format(Builder.text("GEAR_" .. id))
 	elseif kind == "lure" then
@@ -173,12 +226,12 @@ local function rewardText(reward: Quests.Reward): string
 	elseif kind == "scrap" then
 		return template:format(Builder.formatNumber(amount))
 	elseif kind == "spin" then
-		return template:format(amount)
+		return if amount == 1 then Strings.REWARD_spin_ONE else template:format(amount)
 	elseif kind == "item" then
 		return template:format(Builder.text("ITEM_" .. id))
 	elseif kind == "powerUp" then
 		return template:format(amount, Builder.text("POWERUP_" .. id))
-	elseif kind == "encounter" then
+	elseif kind == "encounter" or kind == "alien" then
 		local def = Species.ById[id]
 		return template:format(if def then def.name else id)
 	end
@@ -188,7 +241,7 @@ end
 local function rewardsLine(step: Quests.Step): string
 	local parts: { string } = {}
 	for _, reward in ipairs(step.rewards) do
-		table.insert(parts, rewardText(reward))
+		table.insert(parts, rewardText(reward.kind, reward.id, reward.amount))
 	end
 	return table.concat(parts, ", ")
 end
@@ -197,10 +250,32 @@ end
 local function rewardsList(rewards: { DailyQuests.Reward }): string
 	local parts: { string } = {}
 	for _, reward in ipairs(rewards) do
-		local converted: Quests.Reward = { kind = reward.kind, id = reward.id, amount = reward.amount }
-		table.insert(parts, rewardText(converted))
+		table.insert(parts, rewardText(reward.kind, reward.id, reward.amount))
 	end
 	return table.concat(parts, ", ")
+end
+
+-- The same line for an event track row, whose rewards may also be an alien.
+local function seasonRewardsLine(rewards: { Seasons.Reward }): string
+	local parts: { string } = {}
+	for _, reward in ipairs(rewards) do
+		table.insert(parts, rewardText(reward.kind, reward.id, reward.amount))
+	end
+	return table.concat(parts, ", ")
+end
+
+-- The OBJ_<kind> line of an event track row: catchEvent and showerCount take the count, catchOverlay the count and
+-- the season's overlay by name, catchCount the count as the Field Notes line does.
+local function seasonObjectiveText(objective: Seasons.Objective, season: Seasons.Season): string
+	local template = Builder.text("OBJ_" .. objective.kind)
+	if objective.kind == "catchOverlay" then
+		local overlayName = Builder.text("OVERLAY_" .. (season.overlay or "None"))
+		if objective.count == 1 then
+			return Strings.OBJ_catchOverlay_ONE:format(overlayName) -- "Catch an alien with ...", not "1 aliens"
+		end
+		return template:format(objective.count, overlayName)
+	end
+	return template:format(objective.count)
 end
 
 -- The current world's special weather by name ("Rain", "Blizzard"), for the catchSpecial quests.
@@ -722,15 +797,17 @@ local function rowTop(section: number, slot: number): number
 	return (section * DQ_SECTION_H + DQ_HEAD_H + DQ_GAP + (slot - 1) * (DQ_ROW_H + DQ_GAP)) / DQ_PAGES
 end
 
--- One quest card: objective on top, the reward under it, the progress bar at the bottom; the buttons on the
--- right (Claim over Reroll on a daily, a single taller Claim on a weekly).
-local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly", slot: number): DailyRow
-	local daily = period == "daily"
+-- One quest card, the look of the Daily & Weekly list and of the Event tab: objective on top, the reward under it,
+-- the progress bar at the bottom; the Claim button on the right (over a Reroll on a daily; a single taller one,
+-- centred, when `tall`). `onClaim` is the tap.
+type CardParts = { card: Frame, objective: TextLabel, reward: TextLabel, fill: Frame, count: TextLabel, claim: Frame }
+
+local function buildQuestCard(parent: Instance, name: string, position: UDim2, size: UDim2, tall: boolean, claimText: string, onClaim: () -> ()): CardParts
 	local card = Builder.frame({
 		parent = parent,
-		name = (if daily then "Daily" else "Weekly") .. slot,
-		position = UDim2.fromScale(0, rowTop(if daily then 0 else 1, slot)),
-		size = UDim2.fromScale(1, DQ_ROW_H / DQ_PAGES),
+		name = name,
+		position = position,
+		size = size,
 		color = Theme.Colors.White,
 		corner = Theme.Corner.Card,
 		stroke = Theme.Stroke.Button,
@@ -784,28 +861,42 @@ local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly",
 		stroke = 2,
 		zIndex = 6,
 	})
-
-	local ref: DailyRow? = nil
 	local claim = Builder.button({
 		parent = card,
 		name = "Claim",
-		text = Strings.DQ_CLAIM,
+		text = claimText,
 		color = Theme.Rarity.Common,
-		position = UDim2.fromScale(0.98, if daily then 0.06 else 0.5),
-		size = UDim2.fromScale(0.34, if daily then 0.42 else 0.6),
-		anchor = Vector2.new(1, if daily then 0 else 0.5),
+		position = UDim2.fromScale(0.98, if tall then 0.5 else 0.06),
+		size = UDim2.fromScale(0.34, if tall then 0.6 else 0.42),
+		anchor = Vector2.new(1, if tall then 0.5 else 0),
 		textSize = Theme.TextSize.Body,
 		zIndex = 4,
-	}, function()
-		local row = ref
-		if row then
-			claimDaily(row)
+	}, onClaim)
+	return { card = card, objective = objective, reward = reward, fill = fill, count = count, claim = claim }
+end
+
+-- One daily or weekly card: the shared card, plus a Reroll button under the Claim of a daily.
+local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly", slot: number): DailyRow
+	local daily = period == "daily"
+	local ref: DailyRow? = nil
+	local parts = buildQuestCard(
+		parent,
+		(if daily then "Daily" else "Weekly") .. slot,
+		UDim2.fromScale(0, rowTop(if daily then 0 else 1, slot)),
+		UDim2.fromScale(1, DQ_ROW_H / DQ_PAGES),
+		not daily,
+		Strings.DQ_CLAIM,
+		function()
+			local row = ref
+			if row then
+				claimDaily(row)
+			end
 		end
-	end)
+	)
 	local reroll: Frame? = nil
 	if daily then
 		reroll = Builder.button({
-			parent = card,
+			parent = parts.card,
 			name = "Reroll",
 			text = Strings.DQ_REROLL,
 			color = Theme.Colors.Select,
@@ -825,12 +916,12 @@ local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly",
 	local row: DailyRow = {
 		period = period,
 		slot = slot,
-		card = card,
-		objective = objective,
-		reward = reward,
-		fill = fill,
-		count = count,
-		claim = claim,
+		card = parts.card,
+		objective = parts.objective,
+		reward = parts.reward,
+		fill = parts.fill,
+		count = parts.count,
+		claim = parts.claim,
 		reroll = reroll,
 		questId = "",
 		objectiveText = "",
@@ -908,12 +999,154 @@ local function refreshDaily()
 	updateCountdowns()
 end
 
+-- Event ---------------------------------------------------------------------
+
+-- Claim tap on an event row. A row that is not finished still asks (the dim button stays tappable): the server
+-- answers NotDone and the mirror is not touched. A row the mirror already shows as claimed sends nothing. The
+-- rewards line is read before the call, since the server's push can redraw the row before the answer lands. A
+-- row that paid an alien comes back with its GrantResult, which the bootstrap turns into the Reveal.
+local function claimEvent(row: EventRow)
+	if eventPending or row.questId == "" or row.claimed then
+		return
+	end
+	local id = row.questId
+	local summary = row.rewardsText
+	eventPending = true
+	task.spawn(function()
+		local ok, reason, raw = Net.func("ClaimSeasonQuest"):InvokeServer(id)
+		eventPending = false
+		if ok == true then
+			Builder.playSound(Sounds.GiftClaim)
+			Toast.Show(Strings.TOAST_SEASON_CLAIMED:format(summary), Theme.Colors.Confirm)
+			local grant = raw :: Types.GrantResult?
+			local callback = onGrant
+			if grant and callback then
+				callback(grant)
+			end
+		else
+			-- Claimed (the mirror was behind) and NotDone need no words: the row redraws from the server's push.
+			print(("[%s] ClaimSeasonQuest refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+end
+
+local function buildEventRow(parent: ScrollingFrame, index: number): EventRow
+	local ref: EventRow? = nil
+	local parts = buildQuestCard(
+		parent,
+		"Event" .. index,
+		UDim2.fromScale(0, 0), -- layoutEvent places it
+		UDim2.fromScale(1, 0.1),
+		true,
+		Strings.EVENT_CLAIM,
+		function()
+			local row = ref
+			if row then
+				claimEvent(row)
+			end
+		end
+	)
+	local row: EventRow = {
+		card = parts.card,
+		objective = parts.objective,
+		reward = parts.reward,
+		fill = parts.fill,
+		count = parts.count,
+		claim = parts.claim,
+		questId = "",
+		rewardsText = "",
+		claimed = false,
+		claimReady = false,
+	}
+	ref = row
+	return row
+end
+
+-- Sizes the canvas for `count` rows and places the title, the hint and every row (children are fractions of the
+-- canvas, no layout objects, so nothing feeds back into the canvas).
+local function layoutEvent(count: number)
+	local frame, title, hint = eventScroller, eventTitle, eventHint
+	if not frame or not title or not hint then
+		return
+	end
+	local pages = EV_HEAD_H + EV_HINT_H + count * (EV_ROW_H + EV_GAP)
+	frame.CanvasSize = UDim2.fromScale(0, pages * EV_LIST_SHARE)
+	title.Position = UDim2.fromScale(0.01, 0)
+	title.Size = UDim2.fromScale(0.98, EV_HEAD_H / pages)
+	hint.Position = UDim2.fromScale(0.01, EV_HEAD_H / pages)
+	hint.Size = UDim2.fromScale(0.98, EV_HINT_H / pages)
+	for index, row in ipairs(eventRows) do
+		row.card.Position = UDim2.fromScale(0, (EV_HEAD_H + EV_HINT_H + (index - 1) * (EV_ROW_H + EV_GAP)) / pages)
+		row.card.Size = UDim2.fromScale(1, EV_ROW_H / pages)
+	end
+end
+
+-- Fills the Event tab from the running season and the track mirror: one card per track quest in order, its
+-- objective, the rewards, n/N, and the Claim button (green when done and unclaimed, Common grey reading Done once
+-- claimed, dim otherwise but still tappable).
+local function refreshEvent()
+	local current = State.GetSeason()
+	local frame, title = eventScroller, eventTitle
+	if not current or not frame or not title then
+		return
+	end
+	local season = current.season
+	local track = season.track
+	title.Text = Strings.EVENT_TRACK_TITLE:format(Builder.text("SEASON_" .. season.id))
+	-- The saved counts count only for the season they belong to: after a change the old track stays in the mirror
+	-- until the answer for the new one lands.
+	local savedId, saved = State.GetSeasonProgress()
+	local progress: { [string]: number } = if savedId == season.id and saved then saved.progress else {}
+	local claimedIds: { [string]: boolean } = if savedId == season.id and saved then saved.claimed else {}
+	while #eventRows < #track do
+		table.insert(eventRows, buildEventRow(frame, #eventRows + 1))
+	end
+	layoutEvent(#track)
+	local dim = Builder.lighter(Theme.Rarity.Common, 0.45)
+	for index, row in ipairs(eventRows) do
+		local quest: Seasons.Quest? = track[index]
+		if not quest then
+			row.card.Visible = false
+			row.questId = ""
+			row.claimed = false
+			row.claimReady = false
+			continue
+		end
+		local need = quest.objective.count
+		local have = math.min(progress[quest.id] or 0, need)
+		local claimed = claimedIds[quest.id] == true
+		local ready = not claimed and SeasonMath.TrackDone(quest, progress)
+		row.card.Visible = true
+		row.questId = quest.id
+		row.rewardsText = seasonRewardsLine(quest.rewards)
+		row.objective.Text = seasonObjectiveText(quest.objective, season)
+		row.reward.Text = row.rewardsText
+		row.count.Text = Strings.OBJ_PROGRESS:format(have, need)
+		row.fill.Size = UDim2.fromScale(if need > 0 then have / need else 1, 1)
+		tintFill(row.fill, if have >= need then Theme.Colors.Confirm else Theme.Colors.Select)
+		row.card.BackgroundColor3 = if claimed then Builder.lighter(Theme.Rarity.Common, 0.6) else Theme.Colors.White
+		local stroke = row.card:FindFirstChildOfClass("UIStroke")
+		if stroke then
+			stroke.Color = if ready then Theme.Colors.Confirm else Theme.Rarity.Common
+		end
+		recolorButton(row.claim, if ready then Theme.Colors.Confirm elseif claimed then Theme.Rarity.Common else dim)
+		setFaceText(row.claim, if claimed then Strings.EVENT_CLAIMED else Strings.EVENT_CLAIM)
+		if ready and not row.claimReady then
+			Builder.pop(row.claim, 1.12) -- the button turning green is the moment the list asks for a tap
+		end
+		row.claimed = claimed
+		row.claimReady = ready
+	end
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
 	end
 	if view == "daily" then
 		refreshDaily()
+	elseif view == "event" then
+		refreshEvent()
 	else
 		refreshNotes()
 	end
@@ -958,9 +1191,40 @@ local function startTicker()
 	end)
 end
 
+-- Places the tabs that show. Without a season there are two, left and right of the centre line (the Event tab is
+-- hidden); with one there are three, in thirds of the span left of the Close button. Run whenever the season may
+-- have started or ended.
+local function layoutTabs()
+	local withEvent = State.GetSeason() ~= nil
+	local shown: { Tab } = {}
+	for _, key in ipairs(TAB_ORDER) do
+		local tab = tabs[key]
+		if not tab then
+			continue
+		end
+		tab.visible = key ~= "event" or withEvent
+		if tab.visible then
+			table.insert(shown, tab)
+		end
+	end
+	for index, tab in ipairs(shown) do
+		if #shown < TAB_COUNT_WITH_EVENT then
+			local left = index == 1
+			tab.x = if left then 0.5 - TAB_CENTRE_GAP / 2 else 0.5 + TAB_CENTRE_GAP / 2
+			tab.frame.AnchorPoint = Vector2.new(if left then 1 else 0, 0.5)
+			tab.frame.Size = UDim2.fromScale(TAB_W, TAB_H)
+		else
+			tab.x = TAB_SPAN_LEFT + (index - 1) * (TAB_W3 + TAB_GAP)
+			tab.frame.AnchorPoint = Vector2.new(0, 0.5)
+			tab.frame.Size = UDim2.fromScale(TAB_W3, TAB_H)
+		end
+	end
+end
+
 -- Shows the body of the current view and styles the tabs: the active one raised and in its colour, the
--- other lower and grey.
+-- other lower and grey; the Event tab only while a season runs.
 local function applyView()
+	layoutTabs()
 	local notes = view == "notes"
 	if stepLabel then
 		stepLabel.Visible = notes
@@ -969,10 +1233,14 @@ local function applyView()
 		list.Visible = notes
 	end
 	if scroller then
-		scroller.Visible = not notes
+		scroller.Visible = view == "daily"
+	end
+	if eventScroller then
+		eventScroller.Visible = view == "event"
 	end
 	for key, tab in pairs(tabs) do
 		local active = key == view
+		tab.frame.Visible = tab.visible
 		recolorButton(tab.frame, if active then tab.color else Theme.Rarity.Common)
 		tab.frame.Position = UDim2.fromScale(tab.x, if active then TAB_RAISED else TAB_LOWERED)
 	end
@@ -982,6 +1250,9 @@ local function setView(next: ViewName)
 	if view == next then
 		return
 	end
+	if next == "event" and State.GetSeason() == nil then
+		return -- the tab is hidden without a season
+	end
 	view = next
 	applyView()
 	if next == "daily" then
@@ -990,24 +1261,40 @@ local function setView(next: ViewName)
 	else
 		stopTicker()
 	end
+	if next == "event" and eventScroller then
+		eventScroller.CanvasPosition = Vector2.zero -- opens at the title
+	end
 	refresh()
 end
 
-local function buildTab(parent: Frame, key: ViewName, text: string, color: Color3, x: number, anchorX: number)
+local function buildTab(parent: Frame, key: ViewName, text: string, color: Color3)
 	local frame = Builder.button({
 		parent = parent,
-		name = if key == "notes" then "NotesTab" else "DailyTab",
+		name = if key == "notes" then "NotesTab" elseif key == "daily" then "DailyTab" else "EventTab",
 		text = text,
 		color = color,
-		position = UDim2.fromScale(x, TAB_LOWERED),
+		position = UDim2.fromScale(0.5, TAB_LOWERED), -- layoutTabs places it
 		size = UDim2.fromScale(TAB_W, TAB_H),
-		anchor = Vector2.new(anchorX, 0.5),
+		anchor = Vector2.new(0, 0.5),
 		textSize = Theme.TextSize.Label,
 		zIndex = 4,
 	}, function()
 		setView(key)
 	end)
-	tabs[key] = { frame = frame, color = color, x = x }
+	tabs[key] = { frame = frame, color = color, x = 0.5, visible = true }
+end
+
+-- The season started, moved or ended (or the track's counts changed): the Event tab comes or goes, and if it was
+-- the view when the season ended the screen falls back to Field Notes.
+local function onSeasonChanged()
+	if view == "event" and State.GetSeason() == nil then
+		view = "notes"
+		stopTicker()
+	end
+	if gui then
+		applyView()
+	end
+	refresh()
 end
 
 -- One section heading inside the scroller: the name on the left, the countdown on the right.
@@ -1069,6 +1356,52 @@ local function buildDailyList(body: Frame)
 	end
 end
 
+-- The Event tab's list: a ScrollingFrame with the same thin dark bar, the title in the section-heading yellow and
+-- the hint in helper text (navy, no outline) built once; the rows are added and placed by refreshEvent, since how
+-- many there are is the running season's track.
+local function buildEventList(body: Frame)
+	local frame = Instance.new("ScrollingFrame")
+	frame.Name = "EventList"
+	frame.BackgroundTransparency = 1
+	frame.BorderSizePixel = 0
+	frame.Position = UDim2.fromScale(Theme.Margin, LIST_TOP)
+	frame.Size = UDim2.fromScale(1 - Theme.Margin * 2, EV_LIST_SHARE)
+	frame.ZIndex = 3
+	frame.ScrollingDirection = Enum.ScrollingDirection.Y
+	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
+	frame.CanvasSize = UDim2.fromScale(0, EV_LIST_SHARE)
+	frame.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+	frame.ScrollBarThickness = SCROLLBAR_PX
+	frame.ScrollBarImageColor3 = Theme.Colors.Trough
+	frame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	frame.Visible = false
+	frame.Parent = body
+	eventScroller = frame
+
+	eventTitle = Builder.label({
+		parent = frame,
+		name = "EventTitle",
+		text = "",
+		textSize = Theme.TextSize.Label,
+		color = Theme.Colors.Heading,
+		strokeColor = Theme.Colors.Black,
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 3,
+	})
+	eventHint = Builder.label({
+		parent = frame,
+		name = "EventHint",
+		text = Strings.EVENT_TRACK_HINT,
+		textSize = Theme.TextSize.Body,
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 3,
+	})
+	eventRows = {}
+	layoutEvent(0)
+end
+
 -- Build ----------------------------------------------------------------------
 
 local function build()
@@ -1109,10 +1442,12 @@ local function build()
 	})
 	panel = body
 
-	-- Two header tabs straddling the top edge, either side of the centre line: Field Notes (gold) and
-	-- Daily & Weekly (blue). The tapped one is raised and bright, the other lower and grey (applyView).
-	buildTab(body, "notes", Strings.DQ_TAB_NOTES, NOTES_COLOR, 0.495, 1)
-	buildTab(body, "daily", Strings.DQ_TAB_DAILY, DAILY_COLOR, 0.505, 0)
+	-- Header tabs straddling the top edge: Field Notes (gold), Daily & Weekly (blue) and, while a season runs,
+	-- Event (Codex purple). The tapped one is raised and bright, the others lower and grey; layoutTabs spaces
+	-- them (applyView).
+	buildTab(body, "notes", Strings.DQ_TAB_NOTES, NOTES_COLOR)
+	buildTab(body, "daily", Strings.DQ_TAB_DAILY, DAILY_COLOR)
+	buildTab(body, "event", Strings.DQ_TAB_EVENT, EVENT_COLOR)
 
 	Builder.button({
 		parent = body,
@@ -1171,16 +1506,23 @@ local function build()
 	doneLabel = done
 
 	buildDailyList(body)
+	buildEventList(body)
 	applyView()
 
 	-- Server pushes: redraw whenever the quest mirror changes (cheap while closed: refresh returns early).
 	State.OnChanged("quests", refresh)
+	State.OnChanged("season", onSeasonChanged) -- the season starts or ends, or its track's counts change
 end
 
 -- Public API -------------------------------------------------------------
 
 function QuestsScreen.IsOpen(): boolean
 	return open
+end
+
+-- The bootstrap's hook for an alien an event row paid: the server's GrantResult, to show as a Reveal (as a gift egg).
+function QuestsScreen.OnGrant(callback: (Types.GrantResult) -> ())
+	onGrant = callback
 end
 
 -- The reward line ("500 Scrap, 2 x Twig Lure") for a daily quest's or a promo code's reward list.

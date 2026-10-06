@@ -81,6 +81,7 @@ local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local Weekly = require(Shared:WaitForChild("data"):WaitForChild("Weekly"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
+local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
@@ -1074,8 +1075,9 @@ local function start(profile: Types.Profile)
 	Screens.Register("Build", BuildScreen)
 	Screens.Register("Mail", MailScreen)
 	Screens.Register("Visit", VisitScreen)
-	-- An egg from the Peddler hatches through the same reveal as a wild catch.
-	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
+	-- An alien the server granted without a catch (a Peddler egg, a gift egg, an event track's last row) comes
+	-- back as a GrantResult and hatches through the same reveal as a wild catch.
+	local function showGrantReveal(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
 		WildRenderer.MarkKnown(grant.species)
 		State.ApplyCatch(grant.species, grant.overlay)
@@ -1092,7 +1094,9 @@ local function start(profile: Types.Profile)
 			scrapGained = grant.scrapGained,
 			perfect = false,
 		})
-	end)
+	end
+	PeddlerScreen.OnGrant(showGrantReveal)
+	QuestsScreen.OnGrant(showGrantReveal)
 	PeddlerRenderer.Start()
 	PowerUpBar.Build()
 	State.OnChanged("luck", function()
@@ -1117,25 +1121,7 @@ local function start(profile: Types.Profile)
 	Hud.AddTopButton("Settings", Theme.Colors.Select, menu("Settings"))
 	-- Top buttons stack leftwards from the clock in the order added, so Settings (first) stays rightmost.
 	Hud.AddTopButton("Ranks", Theme.Colors.Featured, menu("Ranks"))
-	-- A gift egg hatches through the same reveal as a wild catch.
-	GiftsScreen.OnGrant(function(grant: Types.GrantResult)
-		local def = Species.ById[grant.species]
-		WildRenderer.MarkKnown(grant.species)
-		State.ApplyCatch(grant.species, grant.overlay)
-		Screens.CloseAll()
-		Reveal.Show({
-			speciesId = grant.species,
-			speciesName = if def then def.name else grant.species,
-			shape = if def then def.placeholder.shape else "Ball",
-			color = if def then Color3.fromHex(def.placeholder.color) else Builder.tierColor(grant.tier),
-			tier = grant.tier,
-			overlay = grant.overlay,
-			size = grant.size,
-			isNew = grant.isNew,
-			scrapGained = grant.scrapGained,
-			perfect = false,
-		})
-	end)
+	GiftsScreen.OnGrant(showGrantReveal)
 	-- Unclaimed gifts show as a badge on the menu.
 	local function refreshGiftBadge()
 		local gifts = State.GetGifts()
@@ -1220,9 +1206,13 @@ local function start(profile: Types.Profile)
 		local def = Species.ById[current.drop.species]
 		return if def then def.name else current.drop.species
 	end
-	local function weeklyLeftText(current: WeeklyMath.Current): string
-		local left = math.max(0, math.floor(current.secondsLeft))
+	-- "Nd Nh" for the weekly's and the season's time left.
+	local function daysHoursText(seconds: number): string
+		local left = math.max(0, math.floor(seconds))
 		return Strings.TIME_DH:format(left // SECONDS_PER_DAY, (left % SECONDS_PER_DAY) // SECONDS_PER_HOUR)
+	end
+	local function weeklyLeftText(current: WeeklyMath.Current): string
+		return daysHoursText(current.secondsLeft)
 	end
 	local function weeklyWeather(current: WeeklyMath.Current): string?
 		local weather = current.drop.weather
@@ -1290,8 +1280,9 @@ local function start(profile: Types.Profile)
 			Hud.SetEventCountdown(nil)
 			return
 		end
-		-- No shower: a running Catch Rush takes the banner slot, else server luck someone bought.
+		-- No shower: a running Catch Rush takes the banner slot, else server luck someone bought, else the season.
 		local luckState, luckElapsed = State.GetServerLuck()
+		local season = State.GetSeason()
 		if rushState.active then
 			local own = 0
 			for _, row in ipairs(rushState.rows) do
@@ -1307,6 +1298,14 @@ local function start(profile: Types.Profile)
 			local multiplier = ("%d"):format(1 + luckState.bonus)
 			-- no icon for server luck yet: the banner shows its placeholder square
 			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
+		elseif season then
+			-- The seasonal event: its name, the days and hours left (the end is on the banner from the first day) and
+			-- the overlay it rolls with that overlay's multiplier ("Spectral x2"; %g drops a trailing .0). The weekly
+			-- drop waits for the season to end. No icon yet: the banner shows its placeholder square.
+			local overlay = season.season.overlay
+			local overlayRow = if overlay then Overlays.Overlays[overlay] else nil
+			local chip = if overlay and overlayRow then Strings.SEASON_CHIP:format(Builder.text("OVERLAY_" .. overlay), ("%g"):format(overlayRow.multiplier)) else nil
+			Hud.SetEventBanner(Builder.text("SEASON_" .. season.season.id), Strings.SEASON_LEFT:format(daysHoursText(season.secondsLeft)), chip, nil)
 		else
 			-- Nothing else claims the slot: the Alien of the Week, for as long as data/Weekly BannerDays says.
 			local current = weeklyCurrent()
@@ -1369,6 +1368,38 @@ local function start(profile: Types.Profile)
 	end)
 	State.OnChanged("tutorial", announceWeekly)
 	announceWeekly() -- the server's answer may already have landed
+	-- The seasonal event says when it starts and when it ends, with a toast. The first value after join (the
+	-- server's answer, State.HasSeason) is only remembered, so a player who joins mid-season is not told it began;
+	-- after that a different id is news: a new one begins, none after one is the end. A calendar flip reaches
+	-- here through State's own clock check, a Dev /season through SeasonChanged.
+	local seasonShown: string? = nil
+	local seasonShownSet = false
+	local function onSeason()
+		refreshEventBanner()
+		if not State.HasSeason() then
+			return
+		end
+		local current = State.GetSeason()
+		local id = if current then current.season.id else nil
+		if not seasonShownSet then
+			seasonShownSet = true
+			seasonShown = id
+			return
+		end
+		if id == seasonShown then
+			return
+		end
+		local previous = seasonShown
+		seasonShown = id
+		if current then
+			local firstWorld = current.season.worldIds[1]
+			Toast.Show(Strings.SEASON_NOW:format(Builder.text("SEASON_" .. current.season.id), Builder.text("WORLD_" .. tostring(firstWorld))), Theme.Colors.Codex)
+		elseif previous then
+			Toast.Show(Strings.SEASON_OVER:format(Builder.text("SEASON_" .. previous)), Theme.Colors.Select)
+		end
+	end
+	State.OnChanged("season", onSeason)
+	onSeason() -- the server's answer may already have landed
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
 	State.OnChanged("serverLuck", function()

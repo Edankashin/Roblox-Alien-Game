@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged, MailChanged, HomeView);
+-- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -21,6 +21,7 @@ local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local Place = require(Shared:WaitForChild("Place"))
+local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 
 local State = {}
 
@@ -28,7 +29,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "home" | "mail" | "visit" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "season" | "home" | "mail" | "visit" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -55,6 +56,14 @@ local serverLuck: Types.ServerLuckState = nil -- the shared luck someone bought 
 local serverLuckAt = 0 -- State.Now() when it arrived, so a banner counts down between pushes
 local weeklyOffset = 0 -- the Studio shift of the weekly rotation in whole weeks (WeeklyChanged, GetWeekly); 0 in play
 local weeklyKnown = false -- the server has said it (a push or the GetWeekly answer)
+local seasonOverride: string? = nil -- the season id Dev's /season forced on (SeasonChanged, GetSeason); nil follows the calendar, always so in play
+local seasonKnown = false -- the server has said the override (a push or the GetSeason answer, or the pull failed and the calendar stands)
+local seasonPushed = false -- a SeasonChanged push has landed, so a late GetSeason answer is older and is dropped
+local seasonSeen: string? = nil -- the season id the mirror last announced on "season", so a calendar start or end is announced once
+local seasonProgressId: string? = nil -- the season the saved track below belongs to
+local seasonProgress: Types.SeasonProgress? = nil -- the track's counts and claims (SeasonProgressChanged, GetSeasonProgress)
+local seasonProgressSeq = 0 -- bumped by every progress push, so a pull that started before one is older and is dropped
+local SEASON_POLL_SECONDS = 1 -- how often the mirror re-reads the clock for a calendar start or end (the server announces within data/Seasons PushSeconds, this keeps the banner and the tab exact)
 local homePushed = false -- a HomeChanged push has landed, so a late GetHome answer is older and is dropped
 local mailPushed = false -- a MailChanged push has landed, so a late GetMail answer's letters are older and are dropped
 local homeView: Types.HomeView? = nil -- the home planet of someone else this client is looking at (HomeView, GetVisit); nil at your own home
@@ -275,6 +284,44 @@ function State.HasWeekly(): boolean
 	return weeklyKnown
 end
 
+-- The season running now (data/Seasons through SeasonMath: the forced one when Dev's /season set an override, else
+-- the calendar's), or nil. Computed from the server clock on every call, which is cheap, so a banner counting down
+-- and a screen redrawing both read the same truth with nothing cached to go stale.
+function State.GetSeason(): SeasonMath.Current?
+	return SeasonMath.Current(Workspace:GetServerTimeNow(), seasonOverride)
+end
+
+-- The season id Dev's /season forced on, as the server last said (SeasonChanged, seeded by GetSeason); nil in
+-- play. Pass it to SeasonMath with State.Now() to judge a species or a moment.
+function State.GetSeasonOverride(): string?
+	return seasonOverride
+end
+
+-- Whether the server has said the override yet, so a toast for a season that began waits for the real value
+-- (the first value, at join, is never announced).
+function State.HasSeason(): boolean
+	return seasonKnown
+end
+
+-- The saved event track as the server last said: the season id it belongs to, and its counts and claimed flags
+-- (nil, nil while the server has said nothing or no season runs). Read the id before the counts: after a season
+-- change the old track stays until the answer for the new one lands.
+function State.GetSeasonProgress(): (string?, Types.SeasonProgress?)
+	return seasonProgressId, seasonProgress
+end
+
+-- Replaces the track mirror (a SeasonProgressChanged push or a GetSeasonProgress answer) and writes it into the
+-- profile's copy so profile readers agree; nil clears it. Fires "season".
+function State.SetSeasonProgress(id: string?, state: Types.SeasonProgress?)
+	seasonProgressId = id
+	seasonProgress = state
+	local p = profile
+	if p and id ~= nil and state ~= nil then
+		p.seasons[id] = state
+	end
+	fire("season")
+end
+
 -- The shared luck someone bought (nil when none runs) and the seconds since the server said so, so a
 -- banner can count down between pushes.
 function State.GetServerLuck(): (Types.ServerLuckState, number)
@@ -487,6 +534,43 @@ function State.RefreshVisitors()
 	task.spawn(pullMail)
 end
 
+-- The id of the season running now, or nil.
+local function currentSeasonId(): string?
+	local current = State.GetSeason()
+	return if current then current.season.id else nil
+end
+
+-- One pull of the saved track for the season running now. A malformed or failed answer leaves the mirror; a push
+-- that landed while the call was out is newer and wins. Runs in its own thread: the boot pull, and every change of
+-- season.
+local function pullSeasonProgress()
+	local seq = seasonProgressSeq
+	local ok, id, state = pcall(function(): (any, any)
+		return Net.func("GetSeasonProgress"):InvokeServer()
+	end)
+	if not ok or seq ~= seasonProgressSeq then
+		return
+	end
+	if type(id) == "string" and type(state) == "table" then
+		State.SetSeasonProgress(id, state :: Types.SeasonProgress)
+	elseif id == nil then
+		State.SetSeasonProgress(nil, nil) -- no season runs: the old track is not shown
+	end
+end
+
+-- The season may have moved (a push, the boot answer, or the clock crossing a window's edge): announce it once on
+-- "season" and fetch the track for the new one. A push or an answer is announced even when the id is the same
+-- (`force`: the override changed under it, and the first value must reach the listeners).
+local function seasonMoved(force: boolean)
+	local id = currentSeasonId()
+	if id == seasonSeen and not force then
+		return
+	end
+	seasonSeen = id
+	fire("season")
+	task.spawn(pullSeasonProgress)
+end
+
 -- Connects the server pushes. Each wait runs in its own thread so a remote the server has not
 -- created yet never blocks the others.
 function State.Start()
@@ -670,6 +754,48 @@ function State.Start()
 			weeklyOffset = answer
 			weeklyKnown = true
 			fire("weekly")
+		end
+	end)
+	task.spawn(function()
+		-- The seasonal event (data/Seasons): the season itself is a function of the clock and the override, so the
+		-- server pushes only the override (SeasonChanged, nil for the calendar) and one pull seeds a client that joined
+		-- after the last push (a push that already landed is newer and wins). Either way the first value is silent
+		-- for the bootstrap's toasts: HasSeason turns true with it.
+		Net.event("SeasonChanged").OnClientEvent:Connect(function(override: string?)
+			seasonPushed = true
+			seasonOverride = if type(override) == "string" then override else nil
+			seasonKnown = true
+			seasonMoved(true)
+		end)
+		local ok, answer = pcall(function(): any
+			return Net.func("GetSeason"):InvokeServer()
+		end)
+		if not seasonPushed then
+			if ok then
+				seasonOverride = if type(answer) == "string" then answer else nil
+			end
+			seasonKnown = true
+			seasonMoved(true)
+		end
+	end)
+	task.spawn(function()
+		-- The track's counts and claims: pushed whenever they change; the pull seeds the mirror at boot.
+		Net.event("SeasonProgressChanged").OnClientEvent:Connect(function(seasonId: string, state: Types.SeasonProgress)
+			if type(seasonId) ~= "string" or type(state) ~= "table" then
+				return
+			end
+			seasonProgressSeq += 1
+			State.SetSeasonProgress(seasonId, state)
+		end)
+		pullSeasonProgress()
+	end)
+	task.spawn(function()
+		-- A window's start or end by the calendar needs no push to show: the season is computed from the clock, so
+		-- this loop only notices the id changed ("season" fires, the track is pulled again).
+		seasonSeen = currentSeasonId()
+		while true do
+			task.wait(SEASON_POLL_SECONDS)
+			seasonMoved(false)
 		end
 	end)
 	task.spawn(function()

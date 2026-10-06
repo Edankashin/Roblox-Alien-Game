@@ -636,6 +636,7 @@ return {
 	EVENT_CLAIMED = "Done",
 	OBJ_catchEvent = "Catch %d event aliens",
 	OBJ_catchOverlay = "Catch %d aliens with the %s overlay",
+	OBJ_catchOverlay_ONE = "Catch an alien with the %s overlay",
 	OBJ_showerCount = "Be there when %d Meteor Showers end",
 	REWARD_alien = "%s",
 	TOAST_SEASON_CLAIMED = "Claimed: %s",

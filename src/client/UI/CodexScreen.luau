@@ -23,6 +23,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
+local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
@@ -40,7 +41,7 @@ type Cell = {
 	name: TextLabel,
 	badge: Frame,
 	badgeLabel: TextLabel,
-	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Vaulted" for a limited species out of its week
+	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Event" for an event alien (or a returning drop) while its season runs, "Vaulted" for a limited species out of its window
 	speciesId: string,
 	tier: string,
 }
@@ -83,8 +84,30 @@ local STAMP_Y = 0.03
 local STAMP_W = 0.84
 local STAMP_H = 0.14 -- one line of the minimum text; taller touched the unknown mark on an 81 px cell
 local STAMP_Z = 7 -- above the square (5) and its mark (6), below the tap button (9)
-local SECONDS_PER_HOUR = 3600 -- unit conversions for the "Nd Nh" time left of the Alien of the Week
+local SECONDS_PER_HOUR = 3600 -- unit conversions for the "Nd Nh" time left of the Alien of the Week and of the season
 local SECONDS_PER_DAY = 86400
+
+-- "Nd Nh" for the weekly's and the season's time left.
+local function daysHoursText(seconds: number): string
+	local left = math.max(0, math.floor(seconds))
+	return Strings.TIME_DH:format(left // SECONDS_PER_DAY, (left % SECONDS_PER_DAY) // SECONDS_PER_HOUR)
+end
+
+-- What a species' limited window reads as in the Codex: "week" (the Alien of the Week now), "event" (an event alien
+-- while its season runs, or a limited weekly drop the running season brings back: the Vault Rotation), "vaulted" (a
+-- limited species out of its window), nil (an ordinary species). The weekly's own "This week" wins when a returning
+-- species is also the week's drop. `override` is the season Dev's /season forced (nil in play).
+type LimitedState = "week" | "event" | "vaulted"
+local function limitedState(speciesId: string, now: number, offset: number, override: string?): LimitedState?
+	if WeeklyMath.IsCurrent(speciesId, now, offset) then
+		return "week"
+	elseif SeasonMath.IsLimited(speciesId) then
+		return if SeasonMath.IsCurrent(speciesId, now, override) then "event" else "vaulted"
+	elseif WeeklyMath.IsLimited(speciesId) then
+		return if SeasonMath.IsReturning(speciesId, now, override) then "event" else "vaulted"
+	end
+	return nil
+end
 
 local PART_STUDS = 2 -- placeholder part size at scale 1, as the Spawner builds them
 local PEDESTAL_RADIUS = 1.6
@@ -267,12 +290,24 @@ local function fillDetail(profile: Types.Profile)
 			d.lineC.Text = Strings.CODEX_BEST:format(Builder.text("OVERLAY_" .. best))
 		end
 	else
-		-- An uncaught Alien of the Week says how long it stays; an uncaught limited one out of its week says it is vaulted.
-		local weekly = WeeklyMath.Current(State.Now(), State.GetWeeklyOffset())
-		if weekly and weekly.drop.species == def.id then
-			local left = math.max(0, math.floor(weekly.secondsLeft))
-			d.lineA.Text = Strings.CODEX_WEEKLY_HINT:format(Strings.TIME_DH:format(left // SECONDS_PER_DAY, (left % SECONDS_PER_DAY) // SECONDS_PER_HOUR))
-		elseif WeeklyMath.IsLimited(def.id) then
+		-- An uncaught Alien of the Week says how long it stays; an uncaught event alien says its event is on and how
+		-- long (or, for a returning weekly drop, which event brought it back); an uncaught limited one out of its
+		-- window says it is vaulted.
+		local now = State.Now()
+		local override = State.GetSeasonOverride()
+		local state = limitedState(def.id, now, State.GetWeeklyOffset(), override)
+		local weekly = WeeklyMath.Current(now, State.GetWeeklyOffset())
+		local season = SeasonMath.Current(now, override)
+		if state == "week" and weekly then
+			d.lineA.Text = Strings.CODEX_WEEKLY_HINT:format(daysHoursText(weekly.secondsLeft))
+		elseif state == "event" and season then
+			local timeLeft = daysHoursText(season.secondsLeft)
+			if SeasonMath.IsLimited(def.id) then
+				d.lineA.Text = Strings.CODEX_EVENT_HINT:format(timeLeft)
+			else
+				d.lineA.Text = Strings.CODEX_RETURNING_HINT:format(Builder.text("SEASON_" .. season.season.id), timeLeft)
+			end
+		elseif state == "vaulted" then
 			d.lineA.Text = Strings.CODEX_VAULTED_HINT
 		else
 			d.lineA.Text = Strings.CODEX_HINT:format(biome, phrase)
@@ -569,7 +604,7 @@ local function ensureCells(count: number)
 	end
 end
 
-local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: number, offset: number)
+local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: number, offset: number, override: string?)
 	cell.speciesId = def.id
 	cell.tier = def.tier
 	cell.slot.Visible = true
@@ -592,12 +627,18 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	if count > 1 then
 		cell.badgeLabel.Text = Strings.CODEX_COUNT_BADGE:format(count)
 	end
-	-- The weekly stamp: the Alien of the Week now, else Vaulted for a limited species that is out of its week.
-	if WeeklyMath.IsCurrent(def.id, now, offset) then
+	-- The stamp: the Alien of the Week now, Event for an event alien while its season runs (and for a weekly drop it
+	-- brings back), else Vaulted for a limited species that is out of its window.
+	local state = limitedState(def.id, now, offset, override)
+	if state == "week" then
 		cell.stamp.Text = Strings.CODEX_THIS_WEEK
 		cell.stamp.TextColor3 = Theme.Colors.Featured
 		cell.stamp.Visible = true
-	elseif WeeklyMath.IsLimited(def.id) then
+	elseif state == "event" then
+		cell.stamp.Text = Strings.CODEX_EVENT
+		cell.stamp.TextColor3 = Theme.Colors.Codex
+		cell.stamp.Visible = true
+	elseif state == "vaulted" then
 		cell.stamp.Text = Strings.CODEX_VAULTED
 		cell.stamp.TextColor3 = Theme.Rarity.Common
 		cell.stamp.Visible = true
@@ -618,6 +659,7 @@ local function refresh()
 	ensureCells(#list)
 	local now = State.Now()
 	local offset = State.GetWeeklyOffset()
+	local override = State.GetSeasonOverride()
 
 	local caught = 0
 	for index, cell in ipairs(cells) do
@@ -630,7 +672,7 @@ local function refresh()
 		if count > 0 then
 			caught += 1
 		end
-		fillCell(cell, def, count, now, offset)
+		fillCell(cell, def, count, now, offset, override)
 	end
 
 	-- A selection only survives while it belongs to the page on show.
@@ -824,6 +866,7 @@ local function build()
 	State.OnChanged("stations", refresh)
 	State.OnChanged("codex", refresh)
 	State.OnChanged("weekly", refresh) -- the week flips or the Studio shift changes: stamps and detail lines follow
+	State.OnChanged("season", refresh) -- a season starts or ends: the Event and Vaulted stamps and the detail hint follow
 	Prefs.OnChanged(refresh) -- the Silhouettes preference changes how uncaught species draw
 end
 
