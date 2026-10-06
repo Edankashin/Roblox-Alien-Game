@@ -197,7 +197,9 @@ Product and pass ids in `src/shared/data/Shop.luau` are 0 until they exist in th
 7. Receipts: `ProcessReceipt` cannot be driven from Studio without live ids; once ids exist, Studio's test purchases (no charge) exercise it. A repeated receipt id is answered PurchaseGranted without a second grant (profile.shop.receipts remembers 100).
 8. Analytics prints `event ShopBuy kind=robux id=<item>` for every grant, pass grants included.
 
-Known gaps in this milestone: the +1 slot pass does not yet stack on top of a module unlock of the same size and `Config.StationMaxSlots` (3) caps it, so the stacking rule is a design decision before that pass goes live; hoverboard skins (no hoverboard yet), the Home tab, direct-buy aliens, paid spins (P1, with the compliance pass), real-currency equivalents under prices (needs Roblox's regional pricing data), offers that appear at a moment ("all slots full", "shower in under 5 minutes").
+Decision 17 (2026-10-06): `/pass SlotEveryStation1` then finish the Thrusters: every station reads 3 slots (2 unlocked + 1 bought), the Aliens screen station card shows a fourth square after the Nav Array (3 + 1), and the bought slot survives a rejoin.
+
+Known gaps in this milestone: hoverboard skins (no hoverboard yet), the Home tab, direct-buy aliens, paid spins (P1, with the compliance pass), real-currency equivalents under prices (needs Roblox's regional pricing data), offers that appear at a moment ("all slots full", "shower in under 5 minutes").
 
 ## Milestone 15b: one place per world (the Frostbyte layout)
 

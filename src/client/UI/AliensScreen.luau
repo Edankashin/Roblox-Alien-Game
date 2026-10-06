@@ -271,7 +271,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 	layout.Padding = UDim.new(STRIP_GAP, 0)
 	layout.Parent = slots
-	local max = Config.StationMaxSlots
+	local max = Config.StationMaxSlots + (station.bonus or 0) -- bought slots (the +1 pass) add a square past the cap
 	local slotWidth = (1 - STRIP_GAP * (max - 1)) / max
 	for slot = 1, max do
 		buildSlot(slots, slot, slotWidth, profile, station)

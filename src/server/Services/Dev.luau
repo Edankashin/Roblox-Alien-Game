@@ -309,7 +309,8 @@ local function completeModules(player: Player, _text: string)
 			local unlocks = def.unlocksSlots
 			if unlocks then
 				for _, station in pairs(profile.stations) do
-					station.slots = math.clamp(math.max(station.slots, unlocks), 1, Config.StationMaxSlots)
+					local bonus = station.bonus or 0 -- bought slots ride on top of the unlock (as in Economy)
+					station.slots = math.clamp(math.max(station.slots, unlocks + bonus), 1, Config.StationMaxSlots + bonus)
 				end
 			end
 		end

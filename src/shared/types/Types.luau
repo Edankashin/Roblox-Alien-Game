@@ -57,7 +57,9 @@ export type AlienRecord = {
 	slot: number?,
 }
 
-export type StationState = { slots: number, assigned: { string } }
+-- A station's open slots: what the modules have unlocked (data/Modules unlocksSlots, capped by Config.StationMaxSlots)
+-- plus `bonus`, the slots bought with the +1 slot pass, which sit on top of every unlock and raise the cap by as much.
+export type StationState = { slots: number, assigned: { string }, bonus: number? }
 
 export type ModuleProgress = {
 	scrapPaid: number,

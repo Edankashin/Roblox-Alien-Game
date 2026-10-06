@@ -251,7 +251,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 
 **Decision 21 (proposed yes): world signatures.** Every world adds one verb, one special area, one super-rare through a harder bar, and one secret spot (`docs/GAME_DESIGN.md` section 8, "World signatures"). Tidepool becomes the fishing world with a bioluminescent Trench fountain; Neon Grid the rooftop-parkour cyberpunk world with robotic aliens; Dreamdrift the gravity-flip parkour world. First builds: the cast-and-reel bar and the rooftop chase as catch variants, then the special areas as layout regions with their own spawn tables and buffs. Milestone 26 built the two variants as rows in `data/CatchVariants.luau` (worlds 3 and 5 select them in `Worlds.luau`); the special areas and the double bar come with those worlds' layouts.
 
-**Decision 17 (open): the +1 slot pass.** Module unlocks set station slots with `max(slots, unlocks)` and `Config.StationMaxSlots` is 3, so a bought slot can be swallowed by the next unlock. Proposed: the pass raises the cap by one and adds one on top of whatever modules grant, tracked as a separate bonus on the station state.
+**Decision 17 (taken, 2026-10-06): the +1 slot pass.** Bought slots are kept as a `bonus` on each station state: a module unlock sets `max(slots, unlocks + bonus)` and the cap is `Config.StationMaxSlots + bonus`, so the pass always adds its slot on top of whatever the modules grant, now and after every later unlock. The Aliens screen draws the extra square past the cap.
 
 **Not built yet (P1 from section 18, after 19 to 21):** the Hoverboard model and skins, the compass strip, the home planet, paid spins. Growth stages were built as milestone 28.
 

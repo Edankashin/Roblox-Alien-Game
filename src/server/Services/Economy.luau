@@ -186,10 +186,12 @@ local function snapshotModules(profile: Types.Profile): { string }
 		state.completedAt = now
 		table.insert(completed, def.id)
 		-- Free slot growth: a finished module can raise every station's slot count (never above the cap).
+		-- Bought slots (station.bonus, the +1 slot pass) ride on top of the unlock and lift the cap with them.
 		local unlocks = def.unlocksSlots
 		if unlocks then
 			for _, station in pairs(profile.stations) do
-				station.slots = math.clamp(math.max(station.slots, unlocks), 1, Config.StationMaxSlots)
+				local bonus = station.bonus or 0
+				station.slots = math.clamp(math.max(station.slots, unlocks + bonus), 1, Config.StationMaxSlots + bonus)
 			end
 		end
 	else
@@ -725,12 +727,17 @@ function EconomyService.Optimize(player: Player): (boolean, string?)
 	return optimize(player)
 end
 
--- Every station gains `amount` slots (a Robux pass), never above Config.StationMaxSlots or below 1;
+-- Every station gains `amount` slots (a Robux pass) on top of whatever the modules unlock, now and later:
+-- the amount is kept as the station's bonus, which lifts the cap by as much, so a later unlock never
+-- swallows a bought slot (plan decision 17). Never below 1 slot;
 -- the client hears StationsChanged. NoProfile is the only refusal.
 function EconomyService.AddSlots(player: Player, amount: number): (boolean, string?)
 	local ok = PlayerData.Update(player, function(profile)
 		for _, station in pairs(profile.stations) do
-			station.slots = math.clamp(station.slots + math.floor(amount), 1, Config.StationMaxSlots)
+			local added = math.floor(amount)
+			local bonus = (station.bonus or 0) + added
+			station.bonus = bonus
+			station.slots = math.clamp(station.slots + added, 1, Config.StationMaxSlots + bonus)
 		end
 	end)
 	local profile = PlayerData.Get(player)
