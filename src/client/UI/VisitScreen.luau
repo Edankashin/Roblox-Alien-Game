@@ -71,6 +71,7 @@ local CHIP_X, CHIP_W = 0.5, 0.2
 local CHIP_Y, CHIP_H = 0.27, 0.46
 local GO_X, GO_W = 0.73, 0.25
 local GO_Y, GO_H = 0.18, 0.64
+local DELETED_ACCOUNT_NAME = "Account Deleted" -- the name Roblox gives a deleted account in the friend pages
 local FLYING_TOAST_DELAY = 0.5 -- seconds a HomeView push has to arrive before the trip toast says the player is flying
 
 local localPlayer = Players.LocalPlayer
@@ -122,7 +123,9 @@ local function loadFriends()
 			while #list < VisitingData.FriendListMax do
 				for _, item in ipairs(pages:GetCurrentPage()) do
 					local entry = item :: any
-					if type(entry.Id) == "number" and #list < VisitingData.FriendListMax then
+					-- A deleted account stays in the friend pages under the name "Account Deleted": nobody to visit, skipped.
+					local deleted = entry.Username == DELETED_ACCOUNT_NAME or entry.DisplayName == DELETED_ACCOUNT_NAME
+					if type(entry.Id) == "number" and not deleted and #list < VisitingData.FriendListMax then
 						local display, user = entry.DisplayName, entry.Username
 						local name = if type(display) == "string" and display ~= ""
 							then display
@@ -360,7 +363,9 @@ function VisitScreen.Redraw(leaving: Player?)
 	end
 	local entries, total = plan(leaving)
 	local pages = math.max(1, total)
-	frame.CanvasSize = UDim2.fromScale(0, pages)
+	-- CanvasSize scales against the panel (the list's parent), not the list, so the pages are multiplied by the
+	-- list's share of it (UI-Rules.md); the children below are fractions of the canvas, which is `pages` lists tall.
+	frame.CanvasSize = UDim2.fromScale(0, pages * (LIST_BOTTOM - LIST_Y))
 	local holder = Builder.frame({
 		parent = frame,
 		name = "Content",
