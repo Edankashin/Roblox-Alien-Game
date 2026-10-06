@@ -188,7 +188,8 @@ end
 
 -- Follow appends the uid to the list; unfollow removes it. Idempotent: following a follower, or unfollowing
 -- a non-follower the player owns, succeeds and changes nothing. Reasons: NoProfile, NotOwned (no such record),
--- Seated (the record has a station), Full (no free slot). Validation of the arguments and the rate limit are
+-- Displayed (the record is on display in a home habitat; take it off display first), Seated (the record has a
+-- station), Full (no free slot). Validation of the arguments and the rate limit are
 -- the remote's; Dev calls this directly.
 function Companions.SetFollowing(player: Player, uid: string, follow: boolean): (boolean, string?)
 	local reason: string? = nil
@@ -215,6 +216,10 @@ function Companions.SetFollowing(player: Player, uid: string, follow: boolean): 
 			return
 		end
 		if at then
+			return
+		end
+		if record.habitat ~= nil then
+			reason = "Displayed"
 			return
 		end
 		if record.station ~= nil then
@@ -325,7 +330,7 @@ end
 
 -- Remotes ----------------------------------------------------------------
 
--- SetCompanion(uid, follow) -> (ok, reason). Reasons: BadArgs, RateLimited, NoProfile, NotOwned, Seated, Full.
+-- SetCompanion(uid, follow) -> (ok, reason). Reasons: BadArgs, RateLimited, NoProfile, NotOwned, Displayed, Seated, Full.
 local function onSetCompanion(player: Player, uid: any, follow: any): (boolean, string?)
 	if type(uid) ~= "string" or type(follow) ~= "boolean" then
 		return false, "BadArgs"

@@ -9,9 +9,11 @@
 -- Footprints: the cell (cellX, cellZ) is the item's corner with the lowest cell numbers (0-based from the plot's
 -- -X -Z corner); the item covers cellsX x cellsZ cells from there, the two swapped on a quarter or three-quarter
 -- turn, so its cells run cellX .. cellX + width - 1 and cellZ .. cellZ + depth - 1. Two items overlap when their
--- cell ranges meet on both axes. Removing an item pays RemoveRefund of its price (none today). Only the home
--- planet (Place.IsHome) builds; every other place answers NotAtHome. Requires PlayerData, Analytics, Meadow (the
--- plot exists) and Place, and nothing requires it back except the bootstrap's order.
+-- cell ranges meet on both axes. Removing an item pays RemoveRefund of its price (none today); removing a habitat
+-- also takes every alien on display in it off display, in the same update, and the camp is pushed after HomeChanged
+-- (the client draws the displayed aliens from the records). Only the home planet (Place.IsHome) builds; every other
+-- place answers NotAtHome. Requires PlayerData, Analytics, Meadow (the plot exists), Economy (PushCamp) and Place,
+-- and nothing requires it back except the bootstrap's order.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
@@ -26,6 +28,7 @@ local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
 local Meadow = require(script.Parent.Meadow)
+local Economy = require(script.Parent.Economy)
 
 local HomeBuild = {}
 
@@ -172,6 +175,7 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 	end
 	local removedId = ""
 	local refund = 0
+	local undisplayed = false -- an alien was on display in the removed item
 	local ok, reason = mutate(player, function(profile)
 		local placed = profile.home.items[uid]
 		if not placed then
@@ -184,6 +188,12 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 		end
 		profile.home.items[uid] = nil
 		profile.scrap += refund
+		for _, record in pairs(profile.aliens) do
+			if record.habitat == uid then
+				record.habitat = nil -- a removed habitat sends its aliens back to rest
+				undisplayed = true
+			end
+		end
 		return nil
 	end)
 	if not ok then
@@ -194,6 +204,9 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 		pushHome(player, profile)
 		if refund > 0 then
 			pushScrap(player, profile)
+		end
+		if undisplayed then
+			Economy.PushCamp(player) -- the records changed: the client stops drawing them in the habitat
 		end
 	end
 	Analytics.Event(player, AnalyticsData.Events.HomeRemove, 1, { item = removedId })

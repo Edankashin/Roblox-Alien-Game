@@ -19,6 +19,8 @@
 -- never hear it.
 -- A companion is never seated: seatNewcomer and reseatAll skip the uids in profile.companions, so their station
 -- and slot stay nil (the Companions service owns that list; it requires nothing that requires this module).
+-- An alien on display in a home habitat (record.habitat set, the Habitats service owns that field) is skipped the
+-- same way and counts like a seated copy for fusion fodder order; Habitats requires this module, never the reverse.
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
 -- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
@@ -303,10 +305,17 @@ local function isCompanion(profile: Types.Profile, record: Types.AlienRecord): b
 	return table.find(profile.companions, record.uid) ~= nil
 end
 
+-- Whether this record is off the crew: it follows the player or is on display in a home habitat. Such a record
+-- is never seated.
+local function isOffCrew(profile: Types.Profile, record: Types.AlienRecord): boolean
+	return record.habitat ~= nil or isCompanion(profile, record)
+end
+
 -- A newcomer takes an open slot at its best job, or bumps the slowest worker it beats. The bumped
--- alien only looks for open slots, so one catch never cascades through the whole camp. A companion is never seated.
+-- alien only looks for open slots, so one catch never cascades through the whole camp. A companion and an
+-- alien on display are never seated.
 local function seatNewcomer(profile: Types.Profile, record: Types.AlienRecord)
-	if isCompanion(profile, record) then
+	if isOffCrew(profile, record) then
 		return
 	end
 	local jobs = jobsOf(profile, record)
@@ -322,8 +331,8 @@ local function seatNewcomer(profile: Types.Profile, record: Types.AlienRecord)
 	placeInOpenSlot(profile, slow, jobsOf(profile, slow))
 end
 
--- Clears every station and reseats all aliens fastest first, each at its best job with room. Companions are
--- left out: they keep no station and no slot.
+-- Clears every station and reseats all aliens fastest first, each at its best job with room. Companions and
+-- displayed aliens are left out: they keep no station and no slot.
 local function reseatAll(profile: Types.Profile)
 	for _, station in pairs(profile.stations) do
 		table.clear(station.assigned)
@@ -332,7 +341,7 @@ local function reseatAll(profile: Types.Profile)
 	for _, record in pairs(profile.aliens) do
 		record.station = nil
 		record.slot = nil
-		if not isCompanion(profile, record) then
+		if not isOffCrew(profile, record) then
 			table.insert(ordered, record)
 		end
 	end
@@ -739,6 +748,16 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	return { species = species, tier = tier, overlay = overlay, size = sizeId, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
 end
 
+-- Re-sends the camp (stations with the records, rates, module progress) from the live profile. Habitats and
+-- HomeBuild call it after a record's habitat field changes, since the client draws the displayed aliens from the
+-- records. Nothing happens without a profile.
+function EconomyService.PushCamp(player: Player)
+	local profile = PlayerData.Get(player)
+	if profile then
+		pushCamp(player, profile)
+	end
+end
+
 -- Seat an alien another service has already written into the profile and tell the client.
 function EconomyService.OnCaught(player: Player, uid: string)
 	seatAndPush(player, uid)
@@ -824,8 +843,8 @@ end
 -- Fuses DuplicatesPerLevel spare copies of one species into +1 level on the best copy that is below the cap
 -- (STARTING_LEVEL + Fusion.MaxFusionLevels). The player's copies are sorted best first (betterCopy); the kept copy
 -- is the first below the cap; the consumed copies are the DuplicatesPerLevel worst of the others, resting ones
--- before seated ones when Fusion.ConsumeRestingFirst (a companion counts as seated here: it is taken only in the
--- second pass). A seated copy is unseated before its record goes, and when a seat was freed the whole crew is
+-- before seated ones when Fusion.ConsumeRestingFirst (a companion or a copy on display counts as seated here: it
+-- is taken only in the second pass). A seated copy is unseated before its record goes, and when a seat was freed the whole crew is
 -- reseated (the optimize pass) in the same update, after assembly progress is banked at the old speed. A consumed
 -- companion is removed from profile.companions in the same update; when one was consumed or the kept copy is a
 -- companion, Companions.Push re-sends the followers to every client. Scrap, the codex and the quests are
@@ -880,8 +899,9 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 					break
 				end
 				local record = others[index]
-				-- Pass 1 skips seated copies and followers when resting ones go first; pass 2 takes whatever is left.
-				local eligible = pass == 2 or (record.station == nil and not isCompanion(profile, record)) or not FusionData.ConsumeRestingFirst
+				-- Pass 1 skips seated copies, followers and displayed ones when resting ones go first; pass 2 takes
+				-- whatever is left.
+				local eligible = pass == 2 or (record.station == nil and not isOffCrew(profile, record)) or not FusionData.ConsumeRestingFirst
 				if eligible and not table.find(consumed, record) then
 					table.insert(consumed, record)
 				end

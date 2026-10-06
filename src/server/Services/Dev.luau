@@ -13,7 +13,8 @@
 -- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
 -- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
 -- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
--- in order), /homeclear (empty the house grid, no refund). Nothing
+-- in order), /homeclear (empty the house grid, no refund), /habitat [H] (the habitat payout clock back H hours,
+-- default 2, so the next arrival at the home planet pays) | settle (pay the habitats now, print the Scrap). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -46,6 +47,7 @@ local Spawner = require(script.Parent.Spawner)
 local Catching = require(script.Parent.Catching)
 local Monetization = require(script.Parent.Monetization)
 local Companions = require(script.Parent.Companions)
+local Habitats = require(script.Parent.Habitats)
 local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
@@ -669,6 +671,29 @@ local function homeClear(player: Player)
 	end
 end
 
+local HABITAT_BACK_HOURS_DEFAULT = 2 -- /habitat moves the payout clock back this many hours when H is missing
+
+-- /habitat [H]: move the habitat payout clock (profile.home.habitatSettled) back H hours (default 2, fractions
+-- are fine), so the next arrival at the home planet pays up to the cap; prints the new clock. /habitat settle:
+-- pay the habitats now (the same settle an arrival runs) and print the Scrap paid.
+local function habitatCommand(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "settle" then
+		local paid = Habitats.SettleIncome(player)
+		print(("[%s] dev: %s habitats paid %d Scrap"):format(Config.WorkingTitle, player.Name, paid))
+		return
+	end
+	local hours = math.max(0, tonumber(word or "") or HABITAT_BACK_HOURS_DEFAULT)
+	local clock = 0
+	local ok = PlayerData.Update(player, function(profile)
+		profile.home.habitatSettled -= math.floor(hours * 3600) -- hours to seconds, a unit conversion
+		clock = profile.home.habitatSettled
+	end)
+	if ok then
+		print(("[%s] dev: %s habitat clock moved back %g hours to %d (%d seconds ago); the next arrival at home pays"):format(Config.WorkingTitle, player.Name, hours, clock, os.time() - clock))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -733,11 +758,12 @@ function Dev.Init()
 	command("lb", leaderboardCommand)
 	command("dq", dailyQuestsCommand)
 	command("homeclear", homeClear)
+	command("habitat", habitatCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle)"):format(Config.WorkingTitle))
 	end
 end
 
