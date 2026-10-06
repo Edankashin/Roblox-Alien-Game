@@ -1080,7 +1080,13 @@ local function start(profile: Types.Profile)
 			local current = weeklyCurrent()
 			if current and current.secondsLeft <= Weekly.BannerDays * SECONDS_PER_DAY then
 				local weather = weeklyWeather(current)
-				Hud.SetEventBanner(Strings.WEEKLY_BANNER:format(weeklyName(current)), Strings.WEEKLY_LEFT:format(weeklyLeftText(current)), if weather then Strings.WEEKLY_CHIP:format(weather) else nil, nil)
+				-- The title is the fixed line (a name there clipped at phone width); the species goes under it, with its
+				-- world named when the drop is on another world, so a player on World 1 knows where to fly.
+				local dropWorld = Worlds[current.drop.worldId]
+				local subtitle = if current.drop.worldId == Place.WorldId() or not dropWorld
+					then Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
+					else Strings.WEEKLY_LEFT_ELSEWHERE:format(weeklyName(current), dropWorld.name, weeklyLeftText(current))
+				Hud.SetEventBanner(Strings.WEEKLY_BANNER, subtitle, if weather then Strings.WEEKLY_CHIP:format(weather) else nil, nil)
 			else
 				Hud.SetEventBanner(nil, nil, nil)
 			end

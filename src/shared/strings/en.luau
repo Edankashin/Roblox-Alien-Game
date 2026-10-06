@@ -532,8 +532,9 @@ return {
 	CODEX_VAULTED = "Vaulted",
 	CODEX_WEEKLY_HINT = "Alien of the Week: %s left",
 	CODEX_VAULTED_HINT = "Vaulted: back in a later week",
-	WEEKLY_BANNER = "Alien of the Week: %s",
-	WEEKLY_LEFT = "%s left",
+	WEEKLY_BANNER = "Alien of the Week",
+	WEEKLY_LEFT = "%s · %s left", -- species, days and hours
+	WEEKLY_LEFT_ELSEWHERE = "%s on %s · %s left", -- species, world, days and hours (the drop is on another world)
 	WEEKLY_CHIP = "%s week",
 	WEEKLY_NOW = "Alien of the Week: %s! Look for it all week",
 	WEEKLY_NOW_WEATHER = "Alien of the Week: %s! %s skies all week",
