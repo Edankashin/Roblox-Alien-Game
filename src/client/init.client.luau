@@ -592,6 +592,10 @@ local function connectToasts()
 			if note.kind == "rush" then
 				text = Strings.ANNOUNCE_RUSH:format(note.playerName, note.catches or 0)
 				color = Theme.Colors.Featured
+			elseif note.kind == "notice" then
+				-- A line from the team (the developer panel), shown as typed in the Codex purple.
+				text = Strings.ANNOUNCE_NOTICE:format(note.text or "")
+				color = Theme.Colors.Codex
 			else
 				local def = Species.ById[note.species]
 				local speciesName = if def then def.name else note.species
