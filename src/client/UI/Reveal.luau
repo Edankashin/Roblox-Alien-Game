@@ -7,6 +7,10 @@
 -- band's revealPop (no pop under Reduced Motion).
 -- The card's Shape area shows the species mesh (World.Models) turning in a ViewportFrame when one
 -- exists, the placeholder colour-and-shape frame otherwise.
+-- Sprites (Icons.Particles, id 0 = not uploaded, then nothing changes): a Shine sunburst turns behind the
+-- card in the tier colour (still under Reduced Motion), and the confetti pieces wear the Confetti sprite.
+-- A Perfect catch (info.perfect, not under Reduced Motion) also flashes the screen white for
+-- Config.VfxPerfectFlashSeconds; the flash takes no input.
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -15,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -56,6 +61,12 @@ local STAMP_Y = 0.655
 local STAMP_SCRAP_Y = 0.945 -- of the screen, on the root like the Scrap (0.815) and Perfect (0.885) lines, under both
 local STAMP_PEAK = 1.5 -- the stamp slams in from this scale
 local CARD_ASPECT = 0.8 -- the card's width over height
+local CARD_POSITION = UDim2.fromScale(0.5, 0.47)
+local CARD_SIZE = UDim2.fromScale(0.6, 0.56) -- ends at 0.75, clear of the Scrap line below
+local RAYS_WIDTH = 1.6 -- the sunburst sprite's width, in card widths
+local RAYS_TRANSPARENCY = 0.35
+local FLASH_START = 0.15 -- the Perfect flash's starting transparency; it fades from here to 1
+local FLASH_LAYER = 10 -- its ZIndex: over the card, the text lines (8) and the confetti (9)
 local TIER_LABEL_W = 0.9 -- the tier label's width, of the card
 local TIER_H = 0.08 -- its height, of the card; the rarity badge beside it is this tall and square
 local TIER_ICON_GAP = 0.015 -- of the card's width, between the badge and the tier text
@@ -82,6 +93,8 @@ local newRibbon: Frame? = nil
 local scrapLabel: TextLabel? = nil
 local perfectLabel: TextLabel? = nil
 local burstTween: Tween? = nil
+local raysFrame: Frame? = nil -- holds the sunburst sprite; made by Show, destroyed with the close
+local raysTween: Tween? = nil
 local onClose: (() -> ())? = nil
 local open = false
 
@@ -111,6 +124,22 @@ local function placeTierBadge()
 	badge.Position = UDim2.fromScale(0.5 - TIER_LABEL_W * share / 2 - TIER_ICON_GAP, label.Position.Y.Scale)
 end
 
+-- Stops the sunburst's turning; the sprite stays until clearRays.
+local function stopRays()
+	if raysTween then
+		raysTween:Cancel()
+		raysTween = nil
+	end
+end
+
+local function clearRays()
+	stopRays()
+	if raysFrame then
+		raysFrame:Destroy()
+		raysFrame = nil
+	end
+end
+
 local function close()
 	if not open then
 		return
@@ -121,15 +150,18 @@ local function close()
 		burstTween:Cancel()
 		burstTween = nil
 	end
+	stopRays()
 	if card and root then
 		Builder.close(card, function()
 			if not open then
 				clearModel()
+				clearRays()
 				root.Enabled = false
 			end
 		end)
 	elseif root then
 		clearModel()
+		clearRays()
 		root.Enabled = false
 	end
 	local callback = onClose
@@ -190,8 +222,8 @@ local function build()
 	local panel = Builder.frame({
 		parent = root,
 		name = "Card",
-		position = UDim2.fromScale(0.5, 0.47),
-		size = UDim2.fromScale(0.6, 0.56), -- ends at 0.75, clear of the Scrap line below
+		position = CARD_POSITION,
+		size = CARD_SIZE,
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
 		corner = Theme.Corner.Panel,
@@ -378,30 +410,111 @@ local function build()
 	})
 end
 
+-- The sunburst sprite (Icons.Particles.Shine) behind the card, built per reveal: a square in the tier
+-- colour, RAYS_WIDTH card widths wide, turning once per Config.VfxRevealRaysSeconds (still under Reduced
+-- Motion). Nothing is made while the sprite is not uploaded. Layered under the card, over the dim.
+local function showRays(root: ScreenGui, tierColor: Color3)
+	clearRays()
+	local sprite = Icons.Particles.Shine
+	if sprite == 0 then
+		return
+	end
+	-- A holder with the card's own place, size and shape, so the sprite is sized in card widths with Scale only.
+	local holder = Builder.frame({
+		parent = root,
+		name = "Sunburst",
+		position = CARD_POSITION,
+		size = CARD_SIZE,
+		anchor = Vector2.new(0.5, 0.5),
+		aspect = CARD_ASPECT,
+		zIndex = 2,
+	})
+	local image = Instance.new("ImageLabel")
+	image.Name = "Rays"
+	image.BackgroundTransparency = 1
+	image.BorderSizePixel = 0
+	image.Image = "rbxassetid://" .. sprite
+	image.ImageColor3 = tierColor
+	image.ImageTransparency = RAYS_TRANSPARENCY
+	image.ScaleType = Enum.ScaleType.Fit
+	image.AnchorPoint = Vector2.new(0.5, 0.5)
+	image.Position = UDim2.fromScale(0.5, 0.5)
+	image.Size = UDim2.fromScale(RAYS_WIDTH, RAYS_WIDTH * CARD_ASPECT) -- the holder is CARD_ASPECT wide per tall: this is square
+	image.ZIndex = 2
+	image.Parent = holder
+	raysFrame = holder
+	if not Prefs.ReducedMotion() then
+		local spin = TweenService:Create(image, TweenInfo.new(Config.VfxRevealRaysSeconds, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1), { Rotation = 360 })
+		raysTween = spin
+		spin:Play()
+	end
+end
+
+-- One confetti piece at the card's centre: the Confetti sprite (Icons.Particles) when it is uploaded,
+-- a plain frame otherwise. Also returns the property that fades it.
+local function confettiPiece(root: ScreenGui, color: Color3, sprite: number): (GuiObject, string)
+	if sprite ~= 0 then
+		local image = Instance.new("ImageLabel")
+		image.Name = "Confetti"
+		image.BackgroundTransparency = 1
+		image.BorderSizePixel = 0
+		image.Image = "rbxassetid://" .. sprite
+		image.ImageColor3 = color
+		image.ScaleType = Enum.ScaleType.Fit
+		image.Position = UDim2.fromScale(0.5, 0.47)
+		image.Size = UDim2.fromScale(0.012, 0.025)
+		image.AnchorPoint = Vector2.new(0.5, 0.5)
+		image.ZIndex = 9
+		image.Parent = root
+		return image, "ImageTransparency"
+	end
+	local piece = Builder.frame({
+		parent = root,
+		name = "Confetti",
+		position = UDim2.fromScale(0.5, 0.47),
+		size = UDim2.fromScale(0.012, 0.025),
+		anchor = Vector2.new(0.5, 0.5),
+		color = color,
+		zIndex = 9,
+	})
+	return piece, "BackgroundTransparency"
+end
+
 local function confetti(root: ScreenGui, tierColor: Color3)
 	local palette = { tierColor, Theme.Colors.Featured, Theme.Colors.Confirm, Theme.Colors.Select, Theme.Colors.Close, Theme.Colors.White }
 	local rng = Random.new()
 	local info = TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local sprite = Icons.Particles.Confetti
 	for _ = 1, CONFETTI_COUNT do
-		local piece = Builder.frame({
-			parent = root,
-			name = "Confetti",
-			position = UDim2.fromScale(0.5, 0.47),
-			size = UDim2.fromScale(0.012, 0.025),
-			anchor = Vector2.new(0.5, 0.5),
-			color = palette[rng:NextInteger(1, #palette)],
-			zIndex = 9,
-		})
+		local piece, fade = confettiPiece(root, palette[rng:NextInteger(1, #palette)], sprite)
 		piece.Rotation = rng:NextNumber(0, 360)
 		local angle = rng:NextNumber(0, math.pi * 2)
 		local distance = rng:NextNumber(0.18, 0.42)
 		local target = UDim2.fromScale(0.5 + math.cos(angle) * distance, 0.47 + math.sin(angle) * distance * 1.4)
-		local tween = TweenService:Create(piece, info, { Position = target, Rotation = piece.Rotation + rng:NextNumber(-360, 360), BackgroundTransparency = 1 })
+		local tween = TweenService:Create(piece, info, { Position = target, Rotation = piece.Rotation + rng:NextNumber(-360, 360), [fade] = 1 })
 		tween.Completed:Once(function()
 			piece:Destroy()
 		end)
 		tween:Play()
 	end
+end
+
+-- The white flash of a Perfect catch: a full-screen frame over everything on the reveal, fading out and
+-- then removed. A plain Frame that is not Active, so it takes no input and the tap that closes still lands.
+local function perfectFlash(root: ScreenGui)
+	local flash = Builder.frame({
+		parent = root,
+		name = "PerfectFlash",
+		color = Theme.Colors.White,
+		transparency = FLASH_START,
+		zIndex = FLASH_LAYER,
+	})
+	flash.Active = false
+	local tween = TweenService:Create(flash, TweenInfo.new(Config.VfxPerfectFlashSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+	tween.Completed:Once(function()
+		flash:Destroy()
+	end)
+	tween:Play()
 end
 
 local function flyScrap(amount: number)
@@ -623,6 +736,7 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		burstTween = spin
 		spin:Play()
 	end
+	showRays(root, tierColor)
 
 	root.Enabled = true
 	Builder.open(panel)
@@ -638,6 +752,9 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		if perfect then
 			bonus.Text = Strings.CATCH_PERFECT_BONUS:format(Config.PerfectScrapMultiplier)
 			Builder.pop(bonus)
+			if not Prefs.ReducedMotion() then
+				perfectFlash(root)
+			end
 		end
 	end
 	if tierIndex >= epicIndex then

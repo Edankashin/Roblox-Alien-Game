@@ -96,6 +96,9 @@ return {
 	VfxCatchBurstSeconds = 0.8, -- the burst where a caught alien stood
 	VfxModuleBurstSeconds = 1.5, -- the burst over a finished module
 	VfxShowerStreaksPerSecond = 6, -- meteor streaks over the camp during a shower
+	VfxPerfectFlashSeconds = 0.35, -- the white flash on a Perfect catch fades over this
+	VfxAuraPulseSeconds = 1.6, -- a rare spawn's glow sprite breathes over this (Tiers aura > 0)
+	VfxRevealRaysSeconds = 12, -- one full turn of the sunburst behind the reveal card
 	GainFlySeconds = 0.6, -- a "+25" flies from the action button to the Scrap pill over this
 	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
 	AnalyticsEnabled = true, -- AnalyticsService events (funnel, custom, economy); off in Studio by default below

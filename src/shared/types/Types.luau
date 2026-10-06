@@ -43,6 +43,7 @@ export type TierDef = {
 	codexScrap: number, -- first-catch payout
 	catchScrap: number, -- every catch pays this; a Perfect multiplies it by Config.PerfectScrapMultiplier
 	color: string,
+	aura: number, -- glow strength of a wild spawn of this tier (0 = none): a point light and a pulsing glow sprite (Vfx)
 }
 
 export type AlienRecord = {

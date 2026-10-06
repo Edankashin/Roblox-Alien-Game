@@ -22,6 +22,10 @@
 -- LocalTransparencyModifier of 1 and the nameplate is disabled; a hidden alien stays tracked, so
 -- Nearest still finds it (the catch distance is inside the hide distance, so a catchable alien is
 -- always drawn). The state is computed in `evaluate`, on every visibility tick, on arrival and on a clock change.
+-- Tier aura (data/Tiers `aura` > 0, Rare and up): a PointLight on the part in the tier colour (Brightness =
+-- aura) and, once Icons.Particles.Glow is uploaded, a glow sprite behind the alien that breathes over
+-- Config.VfxAuraPulseSeconds (it holds its midpoint under Reduced Motion). Both follow the hide rule with
+-- the nameplate (applyVisibility) and go with the record (untrack), so a reserved spawn never has one.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -34,6 +38,8 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
+local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
@@ -48,6 +54,10 @@ local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and 
 local EVALUATE_SECONDS = 0.25 -- how often the blizzard hide rule is re-judged for every tracked alien
 local BLIZZARD = "Blizzard" -- the condition (the world's special weather) under which the hide rule runs
 local HEATER_FOLDER = "Heaters" -- Workspace.World.Heaters, made by the server's Heaters service
+local AURA_LIGHT_RANGE = 14 -- studs the tier light reaches (its Brightness is the tier's aura)
+local AURA_GLOW_STUDS = 6 -- the glow sprite's width and height in the world
+local AURA_GLOW_DIM = 0.75 -- the glow's most transparent point in its breath
+local AURA_GLOW_BRIGHT = 0.35 -- and its least; under Reduced Motion it holds the midpoint
 
 type Record = {
 	part: Part,
@@ -65,6 +75,10 @@ type Record = {
 	baseSize: Vector3, -- the part's Size as the server made it, before the size band
 	restBase: CFrame, -- the part's CFrame as the server placed it; `base` is this raised for the band
 	sizeFactor: number, -- the band scale currently applied to the part and the clone
+	light: PointLight?, -- the tier aura's light (tier aura > 0)
+	glow: BillboardGui?, -- the aura's glow sprite; absent until Icons.Particles.Glow is uploaded
+	glowImage: ImageLabel?,
+	glowTween: Tween?, -- the breathing loop; nil while still (Reduced Motion) or without a glow
 }
 
 local records: { [Part]: Record } = {}
@@ -157,6 +171,81 @@ local function buildModel(def: Types.SpeciesDef, feet: Vector3, factor: number):
 	return clone, base
 end
 
+-- The aura of a spawn whose tier has `aura` > 0: a shadowless point light in the tier colour on the part,
+-- and (sprite uploaded) a glow billboard on it. Returns nothing for a tier without an aura.
+local function buildAura(part: Part, tier: string): (PointLight?, BillboardGui?, ImageLabel?)
+	local def = Tiers.Tiers[tier]
+	if not def or def.aura <= 0 then
+		return nil, nil, nil
+	end
+	local color = Builder.tierColor(tier)
+	local light = Instance.new("PointLight")
+	light.Name = "Aura"
+	light.Color = color
+	light.Brightness = def.aura
+	light.Range = AURA_LIGHT_RANGE
+	light.Shadows = false
+	light.Parent = part
+	local sprite = Icons.Particles.Glow
+	if sprite == 0 then
+		return light, nil, nil
+	end
+	local glow = Instance.new("BillboardGui")
+	glow.Name = "AuraGlow"
+	glow.Adornee = part
+	glow.Size = UDim2.fromScale(AURA_GLOW_STUDS, AURA_GLOW_STUDS) -- studs
+	glow.AlwaysOnTop = false
+	glow.LightInfluence = 0
+	glow.ResetOnSpawn = false
+	local image = Instance.new("ImageLabel")
+	image.Name = "Glow"
+	image.BackgroundTransparency = 1
+	image.BorderSizePixel = 0
+	image.Image = "rbxassetid://" .. sprite
+	image.ImageColor3 = color
+	image.ImageTransparency = (AURA_GLOW_DIM + AURA_GLOW_BRIGHT) / 2
+	image.ScaleType = Enum.ScaleType.Fit
+	image.Size = UDim2.fromScale(1, 1)
+	image.Parent = glow
+	glow.Parent = part
+	return light, glow, image
+end
+
+-- Starts the glow's breathing loop, or holds its midpoint under Reduced Motion. Safe to call again: a
+-- loop that should keep running is left alone, so a settings change does not restart every glow.
+local function setPulse(record: Record)
+	local image = record.glowImage
+	if not image then
+		return
+	end
+	local still = Prefs.ReducedMotion()
+	local running = record.glowTween
+	if running then
+		if not still then
+			return
+		end
+		running:Cancel()
+		record.glowTween = nil
+	end
+	if still then
+		image.ImageTransparency = (AURA_GLOW_DIM + AURA_GLOW_BRIGHT) / 2
+		return
+	end
+	image.ImageTransparency = AURA_GLOW_DIM
+	-- One breath is out and back, so each way takes half the pulse.
+	local info = TweenInfo.new(Config.VfxAuraPulseSeconds / 2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+	local tween = TweenService:Create(image, info, { ImageTransparency = AURA_GLOW_BRIGHT })
+	record.glowTween = tween
+	tween:Play()
+end
+
+-- The Reduced Motion setting may have changed: every glow follows it.
+local function applyAuraMotion()
+	for _, record in pairs(records) do
+		setPulse(record)
+	end
+end
+
 local function applyShadow(record: Record)
 	record.shadowed = true
 	record.part.Color = Theme.Shadow
@@ -244,7 +333,7 @@ local function hiddenAt(point: Vector3, at: Vector3): boolean
 end
 
 -- Draws or hides one record from its `hidden` flag: the server part (always invisible locally when a
--- mesh clone stands in for it), every part of the clone, and the nameplate.
+-- mesh clone stands in for it), every part of the clone, the nameplate and the aura.
 local function applyVisibility(record: Record)
 	local hide = record.hidden
 	record.part.LocalTransparencyModifier = if hide or record.model then 1 else 0
@@ -259,6 +348,13 @@ local function applyVisibility(record: Record)
 	end
 	if record.plate.Parent then
 		record.plate.Enabled = not hide
+	end
+	local light, glow = record.light, record.glow
+	if light then
+		light.Enabled = not hide
+	end
+	if glow then
+		glow.Enabled = not hide
 	end
 end
 
@@ -335,6 +431,7 @@ local function track(instance: Instance)
 		model, modelBase = buildModel(def, feet, factor)
 	end
 	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
+	local light, glow, glowImage = buildAura(instance, tier)
 	local record: Record = {
 		part = instance,
 		species = species,
@@ -351,8 +448,13 @@ local function track(instance: Instance)
 		nameLabel = nameLabel,
 		model = model,
 		modelBase = modelBase,
+		light = light,
+		glow = glow,
+		glowImage = glowImage,
+		glowTween = nil,
 	}
 	records[instance] = record
+	setPulse(record)
 	if not known[species] and Prefs.Silhouettes() then
 		applyShadow(record)
 	end
@@ -381,6 +483,16 @@ local function untrack(instance: Instance)
 		records[instance :: any] = nil
 		if record.plate.Parent then
 			record.plate:Destroy()
+		end
+		local pulse = record.glowTween
+		if pulse then
+			pulse:Cancel()
+		end
+		if record.light then
+			record.light:Destroy()
+		end
+		if record.glow then
+			record.glow:Destroy()
 		end
 		local model = record.model
 		if model then
@@ -508,7 +620,10 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	wild.ChildAdded:Connect(watch)
 	wild.ChildRemoved:Connect(unwatch)
 	if not prefsConn then
-		prefsConn = Prefs.OnChanged(applySilhouettes)
+		prefsConn = Prefs.OnChanged(function()
+			applySilhouettes()
+			applyAuraMotion()
+		end)
 	end
 	if not clockConn then
 		clockConn = State.OnChanged("clock", function()

@@ -57,8 +57,15 @@ local Icons: { [string]: number } = {
 }
 
 local Particles: { [string]: number } = {
+	Confetti = 0,
+	Ember = 0,
 	Flake = 0,
+	Glow = 0,
 	Raindrop = 0,
+	Ring = 0,
+	Shine = 0,
+	Sparkle = 0,
+	Star = 0,
 	Wisp = 0,
 }
 

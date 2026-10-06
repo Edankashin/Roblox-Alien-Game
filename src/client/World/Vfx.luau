@@ -4,7 +4,8 @@
 -- client, so nothing here replicates), and the part destroys itself once its particles have died. Pure
 -- presentation: callers already hold the server's result (a catch, a finished module, a shower, a
 -- landing) and only ask for the sparkle. Durations come from Config; counts, speeds and sizes are look
--- values and live here, like Theme.
+-- values and live here, like Theme. Each emitter wears its sprite from Icons.Particles; an id of 0 means
+-- not uploaded yet and the emitter keeps the soft default sprite, so the effects work with or without the pack.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local CampRenderer = require(script.Parent:WaitForChild("CampRenderer"))
 
 local Vfx = {}
@@ -24,6 +26,7 @@ local CATCH_COUNT = 24
 local CATCH_SPEED = NumberRange.new(8, 14)
 local CATCH_SIZE = 0.6
 local CATCH_GLOW = 0.5
+local CATCH_RING_SIZE = 16 -- studs: the ring sprite's final width, about where the burst's edge reaches
 
 local MODULE_COUNT = 60
 local MODULE_SPEED = NumberRange.new(14, 22)
@@ -103,6 +106,10 @@ local function shrink(from: number): NumberSequence
 	return NumberSequence.new({ NumberSequenceKeypoint.new(0, from), NumberSequenceKeypoint.new(1, 0) })
 end
 
+local function grow(from: number, to: number): NumberSequence
+	return NumberSequence.new({ NumberSequenceKeypoint.new(0, from), NumberSequenceKeypoint.new(1, to) })
+end
+
 type EmitterProps = {
 	color: ColorSequence,
 	speed: NumberRange,
@@ -114,10 +121,12 @@ type EmitterProps = {
 	drag: number?,
 	rotation: NumberRange?,
 	rotSpeed: NumberRange?,
+	texture: number?, -- an Icons.Particles id; nil or 0 keeps the default sprite
+	orientation: Enum.ParticleOrientation?,
 }
 
--- An emitter on `part` with the shared defaults: the soft default sprite (no texture yet), fading out
--- over its life, emitting nothing until Emit or Enabled.
+-- An emitter on `part` with the shared defaults: the soft default sprite (unless props.texture names an
+-- uploaded one), fading out over its life, emitting nothing until Emit or Enabled.
 local function emitter(part: Part, props: EmitterProps): ParticleEmitter
 	local e = Instance.new("ParticleEmitter")
 	e.Enabled = false
@@ -134,6 +143,13 @@ local function emitter(part: Part, props: EmitterProps): ParticleEmitter
 	e.Drag = props.drag or 0
 	e.Rotation = props.rotation or NumberRange.new(0)
 	e.RotSpeed = props.rotSpeed or NumberRange.new(0)
+	local texture = props.texture
+	if texture ~= nil and texture ~= 0 then
+		e.Texture = "rbxassetid://" .. texture
+	end
+	if props.orientation then
+		e.Orientation = props.orientation
+	end
 	e.Parent = part
 	return e
 end
@@ -149,7 +165,8 @@ end
 
 -- Public API -------------------------------------------------------------
 
--- Where a caught alien stood: a round burst in the species (or tier) colour that shrinks away.
+-- Where a caught alien stood: a round burst of sparkles in the species (or tier) colour that shrinks
+-- away, and (once the Ring sprite is uploaded) one ring in the same colour that grows wide and fades.
 function Vfx.CatchBurst(position: Vector3, color: Color3)
 	local lifetime = Config.VfxCatchBurstSeconds
 	local part = anchor("CatchBurst", CFrame.new(position), Vector3.one)
@@ -160,12 +177,26 @@ function Vfx.CatchBurst(position: Vector3, color: Color3)
 		size = shrink(CATCH_SIZE),
 		glow = CATCH_GLOW,
 		spread = Vector2.new(360, 360),
+		texture = Icons.Particles.Sparkle,
 	})
 	burst:Emit(CATCH_COUNT)
+	local ringSprite = Icons.Particles.Ring
+	if ringSprite ~= 0 then
+		local ring = emitter(part, {
+			color = ColorSequence.new(color),
+			speed = NumberRange.new(0),
+			lifetime = lifetime,
+			size = grow(CATCH_SIZE, CATCH_RING_SIZE),
+			glow = CATCH_GLOW,
+			spread = Vector2.zero,
+			texture = ringSprite,
+		})
+		ring:Emit(1)
+	end
 	expire(part, lifetime)
 end
 
--- Over a finished module: a wide ring in the module's colour plus slow gold sparkles drifting upward.
+-- Over a finished module: a wide ring of stars in the module's colour plus slow gold glows drifting upward.
 function Vfx.ModuleBurst(position: Vector3, color: Color3)
 	local lifetime = Config.VfxModuleBurstSeconds
 	local part = anchor("ModuleBurst", CFrame.new(position), Vector3.one)
@@ -176,6 +207,7 @@ function Vfx.ModuleBurst(position: Vector3, color: Color3)
 		size = shrink(MODULE_SIZE),
 		glow = CATCH_GLOW,
 		spread = Vector2.new(360, 360),
+		texture = Icons.Particles.Star,
 	})
 	local sparkles = emitter(part, {
 		color = ColorSequence.new(Theme.Colors.Featured),
@@ -185,6 +217,7 @@ function Vfx.ModuleBurst(position: Vector3, color: Color3)
 		glow = 1,
 		spread = MODULE_SPARKLE_SPREAD,
 		acceleration = MODULE_SPARKLE_RISE,
+		texture = Icons.Particles.Glow,
 	})
 	ring:Emit(MODULE_COUNT)
 	sparkles:Emit(MODULE_SPARKLE_COUNT)
@@ -193,13 +226,14 @@ end
 
 -- Meteor streaks over the camp while `on`: a sheet above the ship rains bright purple-to-white dots
 -- down at an angle at Config.VfxShowerStreaksPerSecond. Off lets the last streaks finish, then clears.
--- (A true stretched streak needs a texture; until the art pass these are bright dots.)
+-- With the Raindrop sprite uploaded each particle is a streak laid along its fall; until then bright dots.
 function Vfx.SetShowerSky(on: boolean)
 	local current = showerPart
 	if on then
 		if current and current.Parent then
 			return
 		end
+		local sprite = Icons.Particles.Raindrop
 		local origin = CampRenderer.ShipPosition() + Vector3.new(0, SHOWER_HEIGHT, 0)
 		local part = anchor("ShowerSky", frameWithUp(origin, SHOWER_DIRECTION), Vector3.new(SHOWER_SPAN, 1, SHOWER_SPAN))
 		local streaks = emitter(part, {
@@ -211,6 +245,8 @@ function Vfx.SetShowerSky(on: boolean)
 			spread = SHOWER_SPREAD,
 			rotation = SHOWER_ROTATION,
 			rotSpeed = SHOWER_ROT_SPEED,
+			texture = sprite,
+			orientation = if sprite ~= 0 then Enum.ParticleOrientation.VelocityParallel else nil,
 		})
 		streaks.Rate = Config.VfxShowerStreaksPerSecond
 		streaks.Enabled = true
@@ -237,6 +273,7 @@ function Vfx.PeddlerDust(position: Vector3)
 		glow = 0,
 		spread = DUST_SPREAD,
 		drag = DUST_DRAG,
+		texture = Icons.Particles.Wisp,
 	})
 	puff:Emit(DUST_COUNT)
 	expire(part, DUST_LIFETIME)

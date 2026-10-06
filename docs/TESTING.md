@@ -425,3 +425,14 @@ With the ids in (`data/Icons.luau` filled by `--images --emit-icons-luau`):
 6. With every id at 0 (before the upload) none of the above shows and nothing moved: letters, plain rows, plain tiles, plain toasts. Output clean in both states.
 
 Known gaps in this milestone: no icons on the Aliens and Codex cards, the Quests reward lines, the Peddler offers or the Star Chart yet; the clock chip has no weather icon.
+
+## Milestone 33: the VFX pass (World 1 place; sprites optional)
+
+Catch bursts, module bursts, meteor streaks and the Peddler's dust take the soft sprites (`data/Icons.luau` Particles) once uploaded; the Reveal gets rotating sunburst rays behind the card and sprite confetti; a Perfect catch flashes white; a Rare or better wild spawn carries a tier-coloured point light and a breathing glow sprite (`Tiers.aura`). With every sprite id at 0 the emitters keep the default particle, the rays and sprite confetti are skipped (frame confetti stays), and only the light and the flash are new.
+
+1. `/spawn Sparkfox` (Rare): a blue light on it at night and a soft glow that breathes about every 1.6 s; `/spawn Thunderhog` (Epic) brighter and purple; `/spawn Mossbop` nothing. Blizzard-hidden or reserved-for-another spawns carry no glow. 50 spawns on screen stay above 50 fps on the SE emulator.
+2. Catch with a Perfect: a quick white flash (0.35 s) before the Reveal; a Good hit: none. Reduced Motion on: no flash, no rays, confetti as before.
+3. With the sprite ids in: the catch burst is sparkles and one expanding ring in the tier colour, the module burst stars and glow, the shower streaks real streaks, the dust soft wisps; the Reveal shows slow sunburst rays behind the card in the tier colour and confetti pieces are the sprite.
+4. Output clean; no sprite part is visible as geometry.
+
+Known gaps in this milestone: no hoverboard trail, no screen-edge glow for a Legendary, no sound change with the effects.
