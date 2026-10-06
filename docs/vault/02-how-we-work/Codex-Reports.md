@@ -63,3 +63,12 @@ Three largest flagged jumps:
 Current branch verification: **0 lint failures**, **58 tests passed in 0.065 s** (the coordinator expanded C3's original 41-test suite); `analyze: clean` passed. C2/C3 were already accepted and marked done by the coordinator; preserved those states.
 
 Left open: validate movement/decision time and the full ordered Field Notes route in playtests. The simulator's explicit special-catch/night-Warden core proxy and omitted seasonal/paid/friend/fusion effects make these baseline estimates, not player telemetry.
+
+### Coordinator note on C4 — 2026-10-06
+
+C4 accepted (cbc22dd, report f32110c). The simulator reads the live tables through C2's reader, the fingerprint matches, and every invariant holds. Verdict on the flagged jumps, with no data change:
+
+- **Thrusters and Ice Drill at 5x the previous module's Scrap** are cost ratios, not time spikes. In World 1 the completions land at 1.5, 4.4 and 9.2 active minutes: a gentle climb with the first module well inside the five-minute target. Income rises as fast as the costs (240 to 771 Scrap/min by Thrusters). Kept.
+- **Ice Drill at 7.89x the previous completion time** is relative to 0.19 minutes: the carried crew finishes the Heat Shield in 12 seconds. The real finding is the opposite of a spike. World 2 opens too fast and finishes faster than World 1 (35.8 against 43.3 continuous minutes), because the crew, slots and savings carry over and earn about 3,100 Scrap/min from the first second. World 2 should feel like a step up, not a victory lap. Card C7 now asks for a proposed World 2 curve keyed to the carried income; the change waits for that and a cold playtest.
+- **World 1's ship at 43 continuous minutes** against the plan's two to three hours is a floor: the simulator leaves out search and decision time and the ordered Field Notes route, as the report says. The cold playtest decides whether Scrap moves.
+
