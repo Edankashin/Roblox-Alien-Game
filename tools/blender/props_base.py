@@ -19,8 +19,8 @@ Usage (plain Python with the bpy module, or inside a Blender binary):
 
 Output per prop: assets/models/props/<Name>/<Name>.glb, <Name>.fbx, notes.md, materials.json (written by
 alien_base.export through write_materials_json, so species and props share one format).
-Budget 40 to 600 triangles per prop (trees are placed about 30 times per world). Exit code 1 when any prop is over
-600, 3 when a footprint misses the size the game's placeholders use, 2 for an unknown prop name.
+Budget 300 to 900 triangles per prop since the 2026-10-06 look pass (trees are placed about 30 times per world). Exit code 1 when any prop is over
+900, 3 when a footprint misses the size the game's placeholders use, 2 for an unknown prop name.
 """
 import argparse
 import datetime
@@ -40,8 +40,8 @@ sys.path.insert(0, str(HERE))
 from alien_base import export, hex_to_rgb, make_material, triangle_count  # noqa: E402
 
 TOOL_NAME = "tools/blender/props_base.py, bpy %s" % bpy.app.version_string
-TRI_MIN = 40
-TRI_MAX = 600
+TRI_MIN = 300
+TRI_MAX = 900
 GLOW_STRENGTH = 2.0
 
 
@@ -213,58 +213,102 @@ class Prop:
 
 
 # ----------------------------------------------------------------------------------------------- recipes
-def trunk(p, height, r_base=1.2, r_top=1.0):
-    """An 8-sided trunk; the bottom cap sits on the ground and the top is inside the crown, so neither is built."""
-    p.loft([(0.0, circ(8, r_base)), (height, circ(8, r_top))], "Trunk", caps=(False, False))
+def trunk(p, height, r_base=1.2, r_top=1.0, flare=1.45):
+    """A 10-sided trunk with a root flare at the foot; the top is inside the crown, so no caps are built."""
+    p.loft([(0.0, circ(10, r_base * flare)), (0.5, circ(10, r_base * 1.08)), (1.4, circ(10, r_base)), (height, circ(10, r_top))],
+           "Trunk", caps=(False, False))
+
+
+def mark(p):
+    """The vertex count now; bmesh appends new vertices, so added(p, mark) is everything built since."""
+    return len(p.bm.verts)
+
+
+def added(p, start):
+    """The vertices created since mark() returned `start`. bmesh ops can invalidate vertex lists an earlier op
+    returned, so multi-part fits gather their verts by index instead."""
+    p.bm.verts.ensure_lookup_table()
+    return [p.bm.verts[i] for i in range(start, len(p.bm.verts))]
+
+
+def crown(p, lobes, size, centre):
+    """Several jittered leaf lobes fitted together to one bounding box, so the silhouette is lumpy, not a ball."""
+    before = mark(p)
+    for level, (cx, cy, cz), r, rot in lobes:
+        m = mark(p)
+        p.ico(level, "Leaves", jitter=0.07, rot=rot)
+        p.fit(added(p, m), (2 * r, 2 * r, 1.8 * r), (cx, cy, cz))
+    verts = added(p, before)
+    p.fit(verts, size, centre)
+    return verts
+
+
+def chip(verts, normal, keep):
+    """One chipped edge: every vertex beyond `keep` along `normal` is pushed back onto that plane (a flat facet)."""
+    n = Vector(normal).normalized()
+    for v in verts:
+        d = v.co.dot(n)
+        if d > keep:
+            v.co -= n * (d - keep)
 
 
 def meadow_tree(p):
     p.material("Trunk", "7B4A2D")
     p.material("Leaves", "3F9B3A")
     trunk(p, 8.0)
-    crown = p.ico(2, "Leaves", jitter=0.06, rot=11)
-    # centre at trunk top + 0.6 * 4 = 10.4; squashed to 90% so the top lands on 14.0
-    p.fit(crown, (8.0, 8.0, 7.2), (0.0, 0.0, 10.4))
+    crown(p, [(2, (0.0, 0.0, 0.0), 3.0, 11), (1, (-2.2, 0.8, -0.6), 2.0, 40), (1, (2.0, -0.9, -0.3), 2.1, 75)],
+          (8.0, 8.0, 7.2), (0.0, 0.0, 10.4))
 
 
 def meadow_tree_b(p):
     p.material("Trunk", "7B4A2D")
     p.material("Leaves", "3F9B3A")
     trunk(p, 10.0)
-    big = p.ico(2, "Leaves", jitter=0.06, rot=5)
-    p.fit(big, (7.0, 7.0, 6.3), (-1.0, 0.0, 12.1))   # radius 3.5, centre at trunk top + 0.6 * 3.5
-    small = p.ico(1, "Leaves", jitter=0.06, rot=20)
-    p.fit(small, (5.6, 5.6, 5.0), (1.9, 0.4, 13.6))  # radius 2.8, offset up and to the side
+    branch = p.loft([(0.0, circ(6, 0.45)), (2.6, circ(6, 0.3))], "Trunk", caps=(False, False))
+    p.place(branch, move(0.2, 0.0, 8.2) @ rot_y(42))
+    crown(p, [(2, (-1.0, 0.0, 0.0), 3.4, 5), (1, (2.4, 0.4, 1.4), 2.5, 20), (1, (0.6, -1.2, 2.4), 2.0, 60)],
+          (9.2, 7.0, 7.1), (0.1, 0.0, 12.55))
 
 
 def snow_pine(p):
     p.material("Trunk", "7A8C96")
     p.material("Snow", "DDEFF5")
-    trunk(p, 9.0)
-    # three stacked cones, lowest radius 4.5, each overlapping the one below; the apex of the top one is z = 15
-    for z0, radius, height, spin in ((2.8, 4.5, 5.2, 0.0), (6.2, 3.4, 4.8, 15.0), (9.4, 2.3, 5.6, 30.0)):
-        p.loft([(z0, circ(12, radius, rot=math.radians(spin))), (z0 + height, [(0.0, 0.0)])], "Snow", caps=(True, False))
+    trunk(p, 9.0, flare=1.6)
+    # four drooping tiers with a jagged sixteen-point fringe; the bottom tier reaches radius 4.5 (the footprint)
+    for z0, radius, height, spin in ((2.6, 4.5, 4.4, 0.0), (5.2, 3.7, 4.2, 11.0), (7.8, 2.9, 4.0, 22.0), (10.4, 2.0, 4.6, 33.0)):
+        star = [(x * (1.0 if k % 2 == 0 else 0.84), y * (1.0 if k % 2 == 0 else 0.84))
+                for k, (x, y) in enumerate(circ(16, radius, rot=math.radians(spin)))]
+        p.loft([(z0, star), (z0 + 0.35, scaled(star, 0.82)), (z0 + height, [(0.0, 0.0)])], "Snow", caps=(True, False))
+    mound = p.ico(1, "Snow", jitter=0.05, rot=7)
+    p.fit(mound, (4.2, 4.2, 1.2), (0.0, 0.0, 0.3))
+    p.flatten(mound, 0.3)
 
 
 def ice_spire(p):
     p.material("Ice", "A9D8EA")
     p.material("IceTip", "E8F7FD")
 
-    def shard(x, y, height, base, lean, spin):
-        # a 6-sided tapered prism with a pyramid tip in the lighter material; the lean shears the top away from the
+    def shard(x, y, height, base, lean, spin, sides=8):
+        # a tapered prism with a two-step faceted tip in the lighter material; the lean shears the top away from the
         # base, so the foot stays flat on z = 0
         lx, ly = lean
-        neck = 0.7 * height
         rings = [
-            (0.0, circ(6, base, cx=x, cy=y, rot=spin)),
-            (neck, circ(6, base * 0.58, cx=x + lx * 0.7, cy=y + ly * 0.7, rot=spin + 0.18)),
+            (0.0, circ(sides, base, cx=x, cy=y, rot=spin)),
+            (0.45 * height, circ(sides, base * 0.82, cx=x + lx * 0.45, cy=y + ly * 0.45, rot=spin + 0.1)),
+            (0.72 * height, circ(sides, base * 0.55, cx=x + lx * 0.72, cy=y + ly * 0.72, rot=spin + 0.18)),
+            (0.88 * height, circ(sides, base * 0.25, cx=x + lx * 0.88, cy=y + ly * 0.88, rot=spin + 0.25)),
             (height, [(x + lx, y + ly)]),
         ]
-        p.loft(rings, ["Ice", "IceTip"], caps=(True, False))
+        p.loft(rings, ["Ice", "Ice", "IceTip", "IceTip"], caps=(True, False))
 
     shard(0.0, 0.0, 10.0, 2.0, (0.25, 0.1), 0.0)
     shard(2.3, 0.7, 5.0, 1.1, (1.1, 0.4), 0.3)
     shard(-1.9, -1.0, 3.5, 0.85, (-0.9, -0.55), 0.6)
+    shard(0.9, -1.8, 2.6, 0.7, (0.5, -0.8), 0.9, sides=6)
+    shard(-1.1, 1.6, 4.2, 0.8, (-0.7, 0.9), 1.2, sides=6)
+    base = p.ico(1, "Ice", jitter=0.12, rot=17)
+    p.fit(base, (4.2, 3.4, 1.0), (0.0, 0.0, 0.3))
+    p.flatten(base, 0.3)
 
 
 def boulder(p, mat, level, size, jitter, flat, rot):
@@ -274,33 +318,53 @@ def boulder(p, mat, level, size, jitter, flat, rot):
     return verts
 
 
+def settle(p, verts, size):
+    """Fit a multi-part rock (every vertex of the prop) to its exact footprint, resting face on z = 0."""
+    p.fit(added(p, 0), size, (0.0, 0.0, size[2] / 2))
+
+
 def meadow_rock(p):
     p.material("Rock", "8E8E8E")
-    boulder(p, "Rock", 1, (4.0, 4.0, 2.8), 0.10, 0.25, 0)
+    v = boulder(p, "Rock", 2, (4.0, 4.0, 2.8), 0.09, 0.22, 0)
+    chip(v, (0.7, -0.5, 0.5), 1.9)
+    settle(p, v, (4.0, 4.0, 2.8))
 
 
 def meadow_rock_b(p):
     p.material("Rock", "8E8E8E")
     p.material("Moss", "3F9B3A")
-    verts = boulder(p, "Rock", 1, (5.0, 4.0, 2.0), 0.10, 0.25, 36)
-    p.retag(verts, "Moss", lambda f: f.normal.z > 0.55 and f.calc_center_median().z > 0.45 * 2.0)
+    v = boulder(p, "Rock", 2, (5.0, 4.0, 2.0), 0.09, 0.25, 36)
+    chip(v, (-0.6, 0.6, 0.4), 1.6)
+    m = mark(p)
+    p.ico(1, "Rock", jitter=0.12, rot=12)
+    pebble = added(p, m)
+    p.fit(pebble, (1.4, 1.2, 0.8), (2.0, -1.3, 0.35))
+    p.flatten(pebble, 0.15)
+    settle(p, None, (5.0, 4.0, 2.0))
+    p.bm.verts.ensure_lookup_table()
+    p.retag([p.bm.verts[i] for i in range(m)], "Moss", lambda f: f.normal.z > 0.55 and f.calc_center_median().z > 0.45 * 2.0)
 
 
 def ice_rock(p):
     p.material("IceRock", "A9B7C0")
-    boulder(p, "IceRock", 0, (4.0, 4.0, 3.0), 0.12, 0.4, 0)
+    v = boulder(p, "IceRock", 2, (4.0, 4.0, 3.0), 0.12, 0.35, 0)
+    chip(v, (0.4, 0.6, 0.7), 1.8)
+    chip(v, (-0.8, -0.2, 0.3), 1.5)
     for size, centre, rot in (((1.6, 1.5, 1.3), (1.05, -0.95, 0.65), 20), ((1.2, 1.2, 1.0), (-1.0, 1.0, 0.5), 50)):
-        chunk = p.ico(0, "IceRock", jitter=0.12, rot=rot)
+        m = mark(p)
+        p.ico(1, "IceRock", jitter=0.14, rot=rot)
+        chunk = added(p, m)
         p.fit(chunk, size, centre)
         p.flatten(chunk, 0.35 * size[2])
+    settle(p, None, (4.0, 4.0, 3.0))
 
 
 def ice_rock_b(p):
     p.material("IceRock", "A9B7C0")
-    boulder(p, "IceRock", 0, (3.0, 3.0, 4.0), 0.12, 0.3, 24)
-    chunk = p.ico(0, "IceRock", jitter=0.12, rot=40)
-    p.fit(chunk, (1.1, 1.0, 0.9), (0.85, 0.7, 0.45))
-    p.flatten(chunk, 0.3)
+    v = boulder(p, "IceRock", 2, (3.0, 3.0, 4.0), 0.1, 0.25, 24)
+    chip(v, (0.8, -0.5, 0.35), 2.2)
+    chip(v, (-0.7, 0.5, 0.2), 1.4)
+    settle(p, v, (3.0, 3.0, 4.0))
 
 
 def geyser_cone(p):
