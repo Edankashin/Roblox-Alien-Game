@@ -515,5 +515,17 @@ Every 20 minutes on the server clock (`data/Sightings.luau`) the world's Warden 
 
 Known gaps in this milestone: no walk animation (the mesh glides with a bob), no camera pull, the Warden walks through props on its path (the points keep clear of the landmarks and the camp).
 
+## Milestone 40: Radar Mk2 (World 1 place)
+
+Radar Mk2 (`data/Radar.luau`, 8,000 Scrap once World 2 is unlocked, or `/radar 2`): the disc reaches 250 studs; a Secret-tier alien in range shows as a pulsing "???" ping with a heartbeat that quickens as you near it (Mk1 shows nothing for a secret); the Nearby panel lists up to three rares of this biome that are not out right now, dimmed, with the condition they need. Mk3 stays locked.
+
+1. Shop > Gear with only World 1 unlocked: a "Radar Mk2" row reads "Unlocks with World 2", grey; after `/world 2` and back (two worlds unlocked) and with Mk1 owned it is buyable at 8,000 Scrap ("Aliens within 250m, secrets as ???, and who appears when"); without Mk1 the server refuses (Locked) and the toast says so. Buy it: the disc's ring reads 125m, blips appear out to 250 studs, `analytics: event ShopBuy kind=gear id=Radar2`.
+2. `/week off` (Panpipe week), find a Panpipe within range (or `/spawn Panpipe`): the disc shows a white "???" ping that swells on each beat; the heartbeat sound slot fires every 1.2 s at the edge and every 0.4 s within 20 studs (Output prints the sound cue while the id is 0); on Mk1 (`/radar 1` on a fresh profile) the same Panpipe shows no blip at all. Tap the ping: it marks the spot like any blip.
+3. Nearby panel in the Meadow by day on Mk2: after the present species, dimmed rows for Thunderhog ("in the rain") and any other Rare-plus species of the biome under a condition not active now, at most three; `/rain` moves Thunderhog up into the present list; on Mk1 the dimmed rows do not exist.
+4. `/radar 3`: refused (Mk3 is World 3). Rejoin: the tier persists (memory profiles in Studio). Output clean.
+
+Known gaps in this milestone: no hidden spots yet (none are built in the worlds), the heartbeat and ping sounds are placeholder ids, Mk3's shower preview and overlay glint wait on World 3.
+
+
 
 

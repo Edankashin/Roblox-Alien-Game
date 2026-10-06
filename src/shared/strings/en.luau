@@ -553,6 +553,8 @@ return {
 	-- Nearby panel
 	NEARBY_TITLE = "Nearby",
 	NEARBY_NONE = "Nothing out right now",
+	NEARBY_ABSENT_TAG = "not now",
+	NEARBY_APPEARS = "%s",
 	-- Scrap shop
 	SHOP_TITLE = "Shop",
 	SHOP_TAB_Lures = "Lures",
@@ -606,6 +608,8 @@ return {
 	SHOP_GEAR_LOCKED = "Unlocks with your first launch",
 	SHOP_GEAR_SOON = "Glide from any height (coming with World 3)",
 	SHOP_GEAR_RADAR = "Aliens within %dm on a minimap. Tap a blip to mark it.",
+	SHOP_GEAR_RADAR2 = "Aliens within %dm, secrets as ???, and who appears when",
+	SHOP_RADAR_LOCKED = "Unlocks with World 2",
 	SHOP_SCRAP_PRICE = "%s Scrap",
 	LURE_Lure1 = "Twig Lure",
 	LURE_Lure2 = "Glow Lure",
