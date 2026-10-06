@@ -282,7 +282,11 @@ end
 
 -- ClaimHabitatIncome() -> the Scrap the load-time settle paid and the client has not heard about yet (0 when none);
 -- cleared once answered.
+local CLAIM_INCOME_RATE_PER_SECOND = REMOTE_RATE_PER_SECOND -- Bound reads of the pending join summary.
 local function onClaimHabitatIncome(player: Player): number
+	if not Net.allow(player, "ClaimHabitatIncome", CLAIM_INCOME_RATE_PER_SECOND) then
+		return 0
+	end
 	local pending = pendingIncome[player.UserId] or 0
 	pendingIncome[player.UserId] = nil
 	return pending
