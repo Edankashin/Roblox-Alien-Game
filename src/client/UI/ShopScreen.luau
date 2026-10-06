@@ -1197,7 +1197,8 @@ local function build()
 	setTab(activeTab)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "inventory", "gear", "scrap" }) do
+	-- "world" too: a launch (or /world) unlocks a second world, which unlocks the Glider row while the Shop is open.
+	for _, topic in ipairs({ "inventory", "gear", "scrap", "world" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
 	-- Purchases: remember what the server has said so far, then thank the player for whatever a push adds.
