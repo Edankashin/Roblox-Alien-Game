@@ -57,3 +57,15 @@ Run `python3 -I tools/lint_data.py`; `--help` describes the entry point. The sam
 | Promo code reward kinds, amounts and ids are valid | Codes, Lures, PowerUps |
 
 Found: **none** on the current tree. The exact-finding warning baseline is empty; any new finding fails. No data values were changed. **31 isolated in-memory mutations** each produced diagnostics, covering holes/nil, unknown references, dimensions/caps, windows, duplicate ids, prohibited grants, reward shapes and settings. Lint runtime was below one second on the Mac.
+
+## Dynamic string coverage (C8)
+
+`./tools/lint.sh` runs `python3 -I tools/lint_strings.py`. The declared family map resolves ids from data, Types unions, HUD menu calls and the actual ShopScreen tabs/launch rows. Unknown dynamic prefixes or missing required keys fail. Literal keys and both Strings/strings aliases count as direct uses. COND_SHORT overrides are optional because NearbyPanel falls back to COND_PHRASE; gift labels follow Gifts data. This is conservative lexical coverage, not runtime reachability proof.
+
+Families found: `BIOME_`, `BUILD_KIND_`, `CONDITION_`, `COND_PHRASE_`, `COND_SHORT_`, `FN_`, `GEAR_`, `GIFT_LABEL_`, `HOME_ITEM_`, `ITEM_`, `JOB_`, `LANDMARK_`, `LURE_`, `MATERIAL_`, `MENU_`, `MENU_GLYPH_`, `MODULE_`, `OBJ_`, `OFFER_`, `OVERLAY_`, `OVERLAY_A_`, `PEDDLER_KIND_`, `PERK_`, `POWERUP_`, `POWERUP_DESC_`, `REWARD_`, `SEASON_`, `SEGMENT_`, `SETTINGS_`, `SETTINGS_LEVEL_`, `SHAPE_`, `SHOP_DESC_`, `SHOP_ITEM_`, `SHOP_SECTION_`, `SHOP_TAB_`, `SIZE_`, `STAGE_`, `STATION_`, `TIER_`, `TIER_A_`, `WEATHER_`, `WORLD_`.
+
+Added only: `LANDMARK_CrashSite`, `LANDMARK_CaveMouth`, `LANDMARK_GreatVent`, `LANDMARK_IceCaveMouth`.
+
+Unused candidates (36), retained for coordinator review: `ACTION_RIDE`, `ALIENS_RESTING`, `ALIENS_RIDING`, `CAMP_IDLE`, `CAMP_WORKER`, `COMING_SOON`, `CONDITION_Ashfall`, `CONDITION_Day`, `CONDITION_Eclipse`, `CONDITION_GravityFlip`, `CONDITION_KingTide`, `CONDITION_PowerSurge`, `HEATER_NAME`, `HUD_SCRAP`, `LAUNCH_GO`, `LAUNCH_WELCOME`, `MODULE_COMPLETE`, `MODULE_NEEDS_KEY`, `QUESTS_TITLE`, `RUSH_OVER`, `SHIP_TAB_BAR`, `SHOP_BUY_ROBUX`, `SHOP_ITEM_HoverSkinStarter`, `SHOP_ROBUX_SOON`, `SHOWER_INCOMING`, `TOAST_NEW_DAY`, `VERB_Build`, `VERB_Gather`, `VERB_Spark`, `VERB_Tinker`, `WEEKLY_CHIP_WORLD`, `WORLD_3`, `WORLD_4`, `WORLD_5`, `WORLD_6`, `WORLD_7`.
+
+Two isolated mutations verify unknown-family and missing-key failures; normal run is below one second. New dynamic lookups that use other code shapes need a scanner extension; direct Strings.X references also remain covered by Luau analysis.
