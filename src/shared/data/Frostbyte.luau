@@ -38,7 +38,13 @@ return {
 	-- the Shrine of the Warden Skaddle: a pale stone ring with an ice-blue glow
 	Shrine = { x = 0, z = 155, radius = 10, stoneCount = 8, stoneHeight = 5, stoneColor = "BFD9E6", pedestalColor = "E8F4F8", glowColor = "68C9FE" },
 	-- imported prop names (Shared/Props); the placeholder parts below are the fallback when one is missing
-	Props = { tree = { "SnowPine", "IceSpire" }, rock = { "IceRock", "IceRockB" }, cone = { "GeyserCone" }, shrineStone = "ShrineStone", pedestal = "Pedestal" },
+	Props = { tree = { "SnowPine", "IceSpire" }, rock = { "IceRock", "IceRockB" }, cone = { "GeyserCone" }, shrineStone = "ShrineStone", pedestal = "Pedestal", shrine = nil }, -- no hero shrine: its moss palette is World 1's
+	-- hero set pieces (Look plan L3): the great vent at the Geyser Field's heart (the cones scatter around it),
+	-- the ice cave mouth just outside the Ice Cave rim on the camp side, turned to face the camp
+	Landmarks = {
+		{ name = "GeyserVent", x = 130, z = 120, yaw = 0, scale = 1, clearRadius = 14, landmarkId = "GreatVent" },
+		{ name = "IceCaveMouth", x = -82, z = -75, yaw = 47, scale = 1, clearRadius = 14, landmarkId = "IceCaveMouth" },
+	},
 	Seed = 20261010, -- deterministic scatter so every server builds the same snowfield
 	FloorSize = 400,
 	FloorThickness = 1,

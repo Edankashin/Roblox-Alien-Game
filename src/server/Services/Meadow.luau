@@ -10,6 +10,12 @@
 -- Workspace.World already exists (a hand-built or saved world wins). The service keeps its World 1
 -- name: it is the one world builder, whichever world the place is.
 --
+-- Landmarks: the layout's Landmarks list stands each hero set piece (the crash wreck, a cave mouth, the
+-- great vent) from Shared/Props at its fixed point under Workspace.World.Landmarks, builds nothing when
+-- its prop is missing, and makes the open-floor and region scatter keep clear of its clearRadius. When
+-- Layout.Props names a hero shrine model it replaces the stone ring, the pedestal mesh and the glow ball
+-- (the invisible pedestal anchor still carries LandmarkId); a world without one keeps the part-built shrine.
+--
 -- Imported meshes: every landmark first tries the layout's prop (Shared/Props, named by Layout.Props) and
 -- keeps its part-built placeholder as the fallback. Pure scenery (trees, rocks, cones) is replaced
 -- outright by the mesh; the shrine's pedestal stays as an invisible anchor (it is the PrimaryPart and
@@ -31,6 +37,7 @@ local Meadow = {}
 local Layout: Layouts.Layout = Place.Layout() -- this place's world; fixed for the server's lifetime
 local propNames: Layouts.PropNames? = Layout.Props -- nil: this world imports nothing, every landmark is a placeholder
 local NO_NAMES: { string } = {}
+local landmarkList: { Layouts.Landmark } = Layout.Landmarks or {} -- hero set pieces; empty when the layout lists none
 
 local WORLD_FOLDER = "World"
 local WILD_FOLDER = "Wild"
@@ -42,6 +49,7 @@ local SHRINE_NAME = "Shrine" -- the Model's name and its LandmarkId attribute
 local ROCK_HEIGHT_FACTOR = 0.7 -- rocks are squatter than they are wide
 local LEAVES_SINK_FACTOR = 0.6 -- the leaf ball sits this fraction of its radius above the trunk top
 local CONE_TIERS = 3 -- a geyser cone is this many stacked cylinders, each narrower than the one below
+local REGION_POINT_TRIES = 20 -- a region draw that lands inside a landmark's clearance is redrawn this many times at most
 -- Shrine proportions, all relative to Layout.Shrine (stoneHeight and radius) so one data change rescales it.
 local STONE_WIDTH_FACTOR = 0.4 -- a standing stone is this fraction of its height wide
 local STONE_DEPTH_FACTOR = 0.25 -- and this fraction deep
@@ -91,6 +99,17 @@ local function shrineFlat(): Vector3
 	return Vector3.new(Layout.Shrine.x, 0, Layout.Shrine.z)
 end
 
+-- True when a flat point is at least every landmark's clearRadius away from that landmark's point. The
+-- check reads the layout, not the imported meshes, so the scatter is the same with and without imports.
+local function clearOfLandmarks(point: Vector3): boolean
+	for _, landmark in ipairs(landmarkList) do
+		if flatDistance(point, Vector3.new(landmark.x, 0, landmark.z)) < landmark.clearRadius then
+			return false
+		end
+	end
+	return true
+end
+
 local function pedestalHeight(): number
 	return Layout.Shrine.stoneHeight * PEDESTAL_HEIGHT_FACTOR
 end
@@ -105,8 +124,8 @@ local function rocksAvoid(region: Layouts.Region): boolean
 	return region.treeCount > 0
 end
 
--- A random flat point on the open floor, clear of the camp, of the edge and of the shrine ring, and
--- never inside a region that `avoid` rejects.
+-- A random flat point on the open floor, clear of the camp, of the edge, of the shrine ring and of every
+-- landmark, and never inside a region that `avoid` rejects.
 local function scatterPoint(rng: Random, avoid: (Layouts.Region) -> boolean): Vector3
 	local half = Layout.FloorSize / 2 - Layout.ScatterEdgeMargin
 	local shrineClear = Layout.Shrine.radius + Config.ShrineScatterClearance
@@ -115,7 +134,7 @@ local function scatterPoint(rng: Random, avoid: (Layouts.Region) -> boolean): Ve
 		local x = rng:NextNumber(-half, half)
 		local z = rng:NextNumber(-half, half)
 		local point = Vector3.new(x, 0, z)
-		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and flatDistance(point, shrine) >= shrineClear then
+		if math.sqrt(x * x + z * z) >= Layout.ScatterMinFromCamp and flatDistance(point, shrine) >= shrineClear and clearOfLandmarks(point) then
 			local region = Biomes.Region(Biomes.At(point))
 			if region == nil or not avoid(region) then
 				return point
@@ -206,6 +225,19 @@ local function buildCone(name: string, at: Vector3, groundY: number, radius: num
 	return base
 end
 
+-- A random point inside a region, redrawn while it falls inside a landmark's clearance (at most
+-- REGION_POINT_TRIES draws in all; the last one is kept). A point that is already clear costs one draw, so
+-- a region with no landmark near it scatters exactly as it would without any.
+local function regionPoint(name: string, rng: Random, minFromCamp: number, maxFromCamp: number): Vector3
+	local point = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+	local tries = 1
+	while not clearOfLandmarks(point) and tries < REGION_POINT_TRIES do
+		point = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+		tries += 1
+	end
+	return point
+end
+
 -- One biome region: a coloured floor patch, its own trees, rocks and geyser cones on the patch top
 -- and, when the region has a roofHeight, a roof slab held up by pillars around the rim with open gaps
 -- between them.
@@ -218,11 +250,11 @@ local function buildRegion(name: string, region: Layouts.Region, floorTop: numbe
 	local minFromCamp = Layout.ScatterMinFromCamp
 	local maxFromCamp = Layout.FloorSize / 2 - Layout.ScatterEdgeMargin
 	for i = 1, region.treeCount do
-		local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+		local at = regionPoint(name, rng, minFromCamp, maxFromCamp)
 		buildTree(name .. "Tree" .. i, at, patchTop, rng, parent)
 	end
 	for i = 1, region.rockCount do
-		local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+		local at = regionPoint(name, rng, minFromCamp, maxFromCamp)
 		buildRock(name .. "Rock" .. i, at, patchTop, rng, parent)
 	end
 
@@ -234,7 +266,7 @@ local function buildRegion(name: string, region: Layouts.Region, floorTop: numbe
 		local coneHeight = region.coneHeight or Layout.TrunkHeightMin
 		local coneColor = region.coneColor or region.floorColor
 		for i = 1, coneCount do
-			local at = Biomes.RandomPointIn(name, rng, minFromCamp, maxFromCamp)
+			local at = regionPoint(name, rng, minFromCamp, maxFromCamp)
 			buildCone(name .. "Cone" .. i, at, patchTop, coneRadius, coneHeight, coneColor, rng, parent)
 		end
 	end
@@ -261,6 +293,9 @@ end
 -- client finds it under Workspace.World.Landmarks without knowing the layout. With imported meshes the
 -- pedestal cylinder stays as an invisible, still solid anchor (it is the PrimaryPart) and the mesh is its
 -- child; each stone is the mesh or, failing that, a block. Meshes are tinted to the layout's colours.
+-- A hero shrine model (Layout.Props.shrine) replaces all of that but the anchor: the invisible, still
+-- solid pedestal stays as the PrimaryPart with LandmarkId, the hero model is its sibling, untinted (its
+-- palette is in its own materials), and no pedestal mesh, glow ball or stone ring is built.
 local function buildShrine(groundY: number, parent: Instance)
 	local shrine = Layout.Shrine
 	local model = Instance.new("Model")
@@ -270,6 +305,15 @@ local function buildShrine(groundY: number, parent: Instance)
 	local pedestal = uprightCylinder("Pedestal", shrine.radius * PEDESTAL_RADIUS_FACTOR, height, Vector3.new(shrine.x, groundY + height / 2, shrine.z), shrine.pedestalColor, model)
 	pedestal:SetAttribute("LandmarkId", SHRINE_NAME)
 	model.PrimaryPart = pedestal
+
+	local heroName = if propNames then propNames.shrine else nil
+	local hero = if heroName and Props.Find(heroName) then Props.Place(heroName, CFrame.new(shrine.x, groundY, shrine.z), 1, model, true) else nil
+	if hero then
+		pedestal.Transparency = 1
+		model.Parent = parent
+		return
+	end
+
 	if propNames then
 		local mesh = Props.Place(propNames.pedestal, CFrame.new(shrine.x, groundY, shrine.z), 1, pedestal, true)
 		if mesh then
@@ -299,6 +343,53 @@ local function buildShrine(groundY: number, parent: Instance)
 	end
 
 	model.Parent = parent
+end
+
+-- The first BasePart under a model, or nil when it has none.
+local function firstBasePart(model: Model): BasePart?
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			return descendant
+		end
+	end
+	return nil
+end
+
+-- Stands every hero landmark of the layout on the ground at its point, in list order, and prints one line
+-- saying how many were placed and which props were missing (nothing is built for those). A landmark with
+-- a landmarkId carries it as an attribute on the model's PrimaryPart (the first BasePart when the prop
+-- has none), which is how the client's LandmarkRenderer finds it.
+local function placeLandmarks(floorTop: number, parent: Instance)
+	local placed = 0
+	local missing: { string } = {}
+	for _, landmark in ipairs(landmarkList) do
+		local flat = Vector3.new(landmark.x, 0, landmark.z)
+		local ground = floorTop + regionLift(flat)
+		local frame = CFrame.new(landmark.x, ground, landmark.z) * CFrame.Angles(0, math.rad(landmark.yaw), 0)
+		local model = Props.Place(landmark.name, frame, landmark.scale, parent, true)
+		if model then
+			placed += 1
+			model.Name = landmark.name
+			local landmarkId = landmark.landmarkId
+			if landmarkId then
+				local anchor = model.PrimaryPart
+				if not anchor then
+					anchor = firstBasePart(model)
+					model.PrimaryPart = anchor
+				end
+				if anchor then
+					anchor:SetAttribute("LandmarkId", landmarkId)
+				end
+			end
+		else
+			table.insert(missing, landmark.name)
+		end
+	end
+	local line = ("[%s] world %d: landmarks placed %d of %d"):format(Config.WorkingTitle, Layout.WorldId, placed, #landmarkList)
+	if #missing > 0 then
+		line ..= (" (missing: %s)"):format(table.concat(missing, ", "))
+	end
+	print(line)
 end
 
 function Meadow.Init()
@@ -365,6 +456,9 @@ function Meadow.Init()
 	-- The world's landmark. Scatter already kept clear of its ring (scatterPoint).
 	local shrineAt = shrineFlat()
 	buildShrine(floorTop + regionLift(shrineAt), landmarks)
+
+	-- Hero set pieces from the layout; scatter already kept clear of each one (clearOfLandmarks).
+	placeLandmarks(floorTop, landmarks)
 
 	world.Parent = Workspace
 end

@@ -46,6 +46,20 @@ export type PropNames = {
 	cone: { string },
 	shrineStone: string,
 	pedestal: string,
+	shrine: string?, -- a hero Shrine model (Look plan L3) that replaces the stone ring and glow when it exists; the pedestal anchor stays
+}
+
+-- A hero landmark (Look plan L3): one imported set piece placed once at a fixed point. Nothing is built
+-- when its prop is missing (no placeholder), scatter keeps clear of it, and the client can find it by
+-- landmarkId when one is set. Yaw is degrees about the up axis; a model's front is +Z as exported.
+export type Landmark = {
+	name: string, -- the prop under ReplicatedStorage.<ModelFolderName>.<PropsFolderName> (Shared/Props)
+	x: number,
+	z: number,
+	yaw: number, -- degrees
+	scale: number,
+	clearRadius: number, -- open-floor and region scatter keep this far from the point
+	landmarkId: string?, -- LandmarkId attribute for the client's waypoints; nil for pure scenery
 }
 
 export type Layout = {
@@ -58,6 +72,7 @@ export type Layout = {
 	RegionWallRadius: number, -- the rim pillars' radius
 	Shrine: Shrine,
 	Props: PropNames?, -- imported meshes to use where they exist; nil or a missing prop means the placeholder
+	Landmarks: { Landmark }?, -- hero set pieces at fixed points, built only when their prop exists
 	Seed: number, -- deterministic scatter so every server builds the same world
 	FloorSize: number,
 	FloorThickness: number,
