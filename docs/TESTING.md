@@ -387,3 +387,16 @@ Hero set pieces are placed from each layout's `Landmarks` list (`data/Meadow.lua
 4. Output clean on both; the landmark line reads "placed N of M".
 
 Known gaps in this milestone: no placeholder for a missing hero, no client waypoint to the wreck or the mouths yet (their LandmarkIds are set for that), no terrain blending under the pieces (L2).
+
+## Milestone 30: the compass strip (World 1 place, then World 2)
+
+A thin band at the top centre of the HUD (`data/Compass.luau`): cardinal letters and ticks that slide as you turn, the heading in a small pill, a coloured diamond per marker in front of you, and one line under it naming the marker you are heading for with its distance. The ship bar and everything stacked under it moved down to make room; the Scrap pill and the clock chip did not.
+
+1. On spawn the strip shows N/E/S/W sliding as the camera turns, the heading pill counts 0 to 359 in the same sense as the Radar's north, and the ship bar sits just under the strip with the luck line, the event banner slot and the Friend Boost chip stacked below as before (nothing overlaps; the Scrap pill and the clock chip are where they were).
+2. Walk away from the camp: past 30 studs a green diamond for the camp appears at its bearing and the line reads "Camp 42m" (the number falling as you walk back); within 30 studs it hides. The gold Shrine diamond shows from 20 studs out with "Shrine 155m" when it is the nearest or highest-priority marker.
+3. Tutorial running: the gold waypoint diamond points at the marker's target and the line uses the waypoint's own label ("Wreck Plate 18m"); it beats the camp. Tap a radar blip (Radar Mk1): a sky-blue Target diamond appears and the line reads "Target 61m" until you reach it.
+4. `/shower` or any time the Peddler lands: a gold Peddler diamond from 14 studs out, "Peddler 48m". Turn until a marker leaves the field of view (90° to a side): it fades near the edge and disappears past it.
+5. World 2 place: the Great Vent diamond (red) and the Ice Cave diamond (purple) show once the hero props are imported (they read LandmarkIds); without them, no diamond and no error. The crash opener, a capture and a Reveal hide the strip with the rest of the HUD.
+6. iPhone SE emulator: the strip, its letters and the heading pill are readable and the line under it does not collide with the ship bar. Output clean.
+
+Known gaps in this milestone: no marker icons (diamonds only), no event marker for a Meteor Shower (it has no position), no tap on a diamond to set a waypoint yet.

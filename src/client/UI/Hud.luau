@@ -1,9 +1,9 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
--- number) with the Scrap-per-minute line under it, the ship bar top centre (tap opens the ship
--- panel) with the luck line or the event banner under it, the Day/Night + weather chip top-right (round
--- buttons such as the Settings gear sit just left of it, AddTopButton) with
--- the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
+-- number) with the Scrap-per-minute line under it, the ship bar top centre under the compass strip
+-- (UI/Compass; tap opens the ship panel) with the luck line or the event banner under it, the
+-- Day/Night + weather chip top-right (round buttons such as the Settings gear sit just left of it,
+-- AddTopButton) with the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
 -- button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
 -- in by the bootstrap from server state; nothing here computes anything that matters.
 
@@ -80,7 +80,11 @@ local friendLabel: TextLabel? = nil
 local friendCountShown = 0
 local onFriendChipTapped: (() -> ())? = nil
 
-local FRIEND_CHIP_TOP = 0.18 -- under the luck line / event banner slot (the banner ends at 0.175), centred
+-- The centre column (ship bar, luck line, event banner, Friend Boost chip) sits this far lower than the
+-- top row so the compass strip (UI/Compass: 0.008 to 0.038) has the top edge: the strip's height plus a gap.
+local CENTER_SHIFT = 0.046 -- the compass strip (0.006 + 0.04) over the centre column
+
+local FRIEND_CHIP_TOP = 0.18 + CENTER_SHIFT -- under the luck line / event banner slot (the banner ends at 0.175 + CENTER_SHIFT), centred
 local FRIEND_CHIP_SIZE = Vector2.new(0.3, 0.055) -- Size bounds; the aspect constraint derives the width from the height
 local FRIEND_CHIP_ASPECT = 5.5
 
@@ -306,7 +310,7 @@ local function buildShipBar(root: ScreenGui)
 	local trough = Builder.pill({
 		parent = root,
 		name = "ShipBar",
-		position = UDim2.fromScale(0.5, 0.025),
+		position = UDim2.fromScale(0.5, CLOCK_TOP + CENTER_SHIFT), -- the top row's y, shifted under the strip
 		size = UDim2.fromScale(0.3, 0.075),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Trough,
@@ -380,7 +384,7 @@ local function buildLuckLine(root: ScreenGui)
 		name = "Luck",
 		text = Strings.HUD_LUCK:format(("%.1f"):format(1)),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.105),
+		position = UDim2.fromScale(0.5, 0.105 + CENTER_SHIFT),
 		size = UDim2.fromScale(0.3, 0.045),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Featured,
@@ -397,7 +401,7 @@ local function buildEventBanner(root: ScreenGui)
 	local pill = Builder.pill({
 		parent = root,
 		name = "EventBanner",
-		position = UDim2.fromScale(0.5, 0.105),
+		position = UDim2.fromScale(0.5, 0.105 + CENTER_SHIFT),
 		size = UDim2.fromScale(0.4, 0.07),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Trough,

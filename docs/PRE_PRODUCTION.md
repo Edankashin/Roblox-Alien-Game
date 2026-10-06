@@ -231,6 +231,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 27 | The five-minute script: Welcome Week gift 1 opens as the first module's payoff, Peddler and Shower banners held on the client until the tutorial ends (`Tutorial.Script`) | pass (steps 2 to 5); the rejoin step waits on real saves |
 | 28 | Growth stages: aliens at a station grow Hatchling, Grown, Elder by time worked (offline counted, capped), a speed bump and a size step per stage, stage chip and countdown on the Aliens screen, grew toasts, `/grow H` | pass (steps 1 to 4, 6); the card chips were widened after the run; the away-time line waits on real saves |
 | 29 | Look pass L3 hero landmarks: five set pieces from Blender (`tools/blender/heroes_base.py`), placed from each layout's `Landmarks` list with scatter clearance; the hero Shrine replaces World 1's ring | built; Studio check waits on the colour re-upload |
+| 30 | The compass strip: cardinals, ticks, heading pill, coloured diamonds for the camp, the waypoint, the radar target, the Peddler, the shrine and the hero landmarks, a "Camp 42m" line; the HUD's centre column moved under it | queued on the Mac |
 
 Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 so far, `assets/models/`), the `import-model` skill brings one into Studio, and the renderers use a mesh when `ReplicatedStorage.Models.<SpeciesId>` exists. `tools/blender/props_base.py` does the same for scenery and camp props (`assets/models/props/`, looked up under `ReplicatedStorage.Models.Props.<Name>`); the by-hand dressing pass with the Stravant-era plugins is in `docs/vault/06-art-pipelines/Map-Dressing.md`. The order and tools of the look passes (lighting, ground, dressing, creatures, UI, store page) are in `docs/vault/06-art-pipelines/Look-Plan.md`.
 
@@ -254,7 +255,7 @@ Pipeline: `tools/blender/alien_base.py` builds a blockout mesh per species (32 s
 
 **Decision 17 (taken, 2026-10-06): the +1 slot pass.** Bought slots are kept as a `bonus` on each station state: a module unlock sets `max(slots, unlocks + bonus)` and the cap is `Config.StationMaxSlots + bonus`, so the pass always adds its slot on top of whatever the modules grant, now and after every later unlock. The Aliens screen draws the extra square past the cap.
 
-**Not built yet (P1 from section 18, after 19 to 21):** the Hoverboard model and skins, the compass strip, the home planet, paid spins. Growth stages were built as milestone 28.
+**Not built yet (P1 from section 18, after 19 to 21):** the Hoverboard model and skins, the home planet, paid spins. Growth stages were built as milestone 28 and the compass strip as milestone 30.
 
 ---
 
