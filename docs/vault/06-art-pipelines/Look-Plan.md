@@ -4,6 +4,8 @@ The mechanics are in and testable with placeholders. This is the plan for the lo
 
 ## Where the look stands (2026-10-05)
 
+**Order change (2026-10-06, Ethan):** the replication of the top games' look (icons v2, soft sprites, 9-slice plates, texture passes, world dressing) is the last pass, after every mechanism is in, polished and Studio-tested, and it is done together with Ethan's collaborator in Studio (Team Create) so the designs stay unique. Until then the visual work is limited to what the code already supports with fallbacks (gloss, auras, sprite slots at id 0). The sections below keep their content; their order of execution is: mechanics polish first.
+
 | Layer | Now | Target |
 |---|---|---|
 | Worlds | flat floor, coloured patches, part scatter; 16 generated props ready to import | lit, dressed, textured ground, hero landmarks, weather with particles |
