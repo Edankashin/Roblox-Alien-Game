@@ -31,6 +31,7 @@ return {
 	FollowSpacing = 3, -- between companions across the arc
 	FollowLerp = 0.12, -- fraction of the remaining distance closed each frame
 	CatchUpDistance = 40, -- farther than this (a teleport, a fly) the companion snaps to its spot
+	FaceTravelStuds = 0.5, -- a companion still farther than this from its spot faces its travel; nearer, it faces where the owner looks
 	Scale = 0.8, -- model scale over the species' own, times the size band and growth
 	BobStuds = 0.2,
 	BobHz = 0.8,
