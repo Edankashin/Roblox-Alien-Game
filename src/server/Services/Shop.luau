@@ -68,9 +68,11 @@ end
 -- once. Jet Boost waits on World 3 field notes, so it has no rule here and answers "Locked".
 local SCRAP_BUYABLE: { [string]: (Types.Profile) -> boolean } = { Boots = always, Hoverboard = always, Glider = hasLaunched }
 -- The radar is one number on the profile (gear.radar, the tier owned), bought or granted one tier at a
--- time under the ids Radar1..Radar3. Only Mk1 exists as a feature yet, so the higher tiers answer Locked.
+-- time under the ids Radar1..Radar3. Mk1 and Mk2 exist as features; Mk3 waits on World 3.
 local RADAR_TIER: { [string]: number } = { Radar1 = 1, Radar2 = 2, Radar3 = 3 }
-local RADAR_BUYABLE: { [number]: boolean } = { [1] = true }
+-- Radar tiers Scrap can buy, by tier, as a rule read on the live profile: Mk1 always, Mk2 once the profile
+-- has launched (Radar.Mk2 unlock = "World2": a second unlocked world). Mk3 has no rule yet, so it answers "Locked".
+local RADAR_BUYABLE: { [number]: (Types.Profile) -> boolean } = { [1] = always, [2] = hasLaunched }
 local RADAR_ROWS: { [number]: RadarRow } = (Radar :: any) :: { [number]: RadarRow }
 
 -- profile.gear is a fixed-shape table and the id arrives as a string, so its flags are read and written
@@ -245,12 +247,16 @@ local function buyRadar(player: Player, tier: number): (boolean, string?)
 	if not row then
 		return false, "Unknown"
 	end
-	if not RADAR_BUYABLE[tier] then
+	local buyable = RADAR_BUYABLE[tier]
+	if not buyable then
 		return false, "Locked"
 	end
 	local ok, reason = mutate(player, function(profile)
 		if profile.gear.radar >= tier then
 			return "AlreadyOwned"
+		end
+		if not buyable(profile) then
+			return "Locked"
 		end
 		if profile.gear.radar ~= tier - 1 then
 			return "Locked"

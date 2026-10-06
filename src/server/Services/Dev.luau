@@ -1,6 +1,6 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /sighting [end], /days 7, /spins 3, /radar, /tutorial 6,
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /sighting [end], /days 7, /spins 3, /radar [N], /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
@@ -12,7 +12,8 @@
 -- Companion Tokens, default 1, into the inventory), /follow <id> (your first resting copy of that species
 -- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
 -- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
--- offset N, one week on, or back to the real week). Nothing
+-- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
+-- in order). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -280,6 +281,26 @@ local function grantDupes(player: Player, text: string)
 		end
 	end
 	print(("[%s] dev: %s granted %d copies of %s"):format(Config.WorkingTitle, player.Name, granted, id))
+end
+
+local RADAR_DEFAULT_TIER = 1 -- /radar grants up to this tier when N is missing
+local RADAR_MAX_TIER = 3 -- Radar1..Radar3
+
+-- /radar [N]: raise the radar to tier N (1..3, default 1) through Shop.GrantGear, one tier at a time in order
+-- (each call raises gear.radar to that tier; AlreadyOwned counts as done), so the minimap, the Mk2 ping and the
+-- Nearby panel can be tested without the Scrap, the Field Notes step or a launch. Prints the final tier or the refusal.
+local function grantRadar(player: Player, text: string)
+	local asked = tonumber(string.match(text, "^/%S+%s+(%S+)") or "")
+	local target = math.clamp(math.floor(asked or RADAR_DEFAULT_TIER), 1, RADAR_MAX_TIER)
+	for tier = 1, target do
+		local ok, reason = Shop.GrantGear(player, "Radar" .. tostring(tier))
+		if not ok and reason ~= "AlreadyOwned" then
+			print(("[%s] dev: %s radar grant Mk%d refused: %s"):format(Config.WorkingTitle, player.Name, tier, tostring(reason)))
+			return
+		end
+	end
+	local profile = PlayerData.Get(player)
+	print(("[%s] dev: %s radar is now Mk%s"):format(Config.WorkingTitle, player.Name, if profile then tostring(profile.gear.radar) else "?"))
 end
 
 local TOKEN_DEFAULT = 1 -- /token grants this many Companion Tokens when N is missing
@@ -661,7 +682,6 @@ function Dev.Init()
 	command("token", grantTokens)
 	command("follow", followSpecies)
 	command("ride", rideSpecies)
-	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
 		local index = tonumber(string.match(text, "%d+") or "")
@@ -672,10 +692,7 @@ function Dev.Init()
 			print(("[%s] dev: %s asked for tutorial step %d and is on step %s"):format(Config.WorkingTitle, player.Name, index, tostring(landed)))
 		end
 	end)
-	command("radar", function(player: Player)
-		local ok, reason = Shop.GrantGear(player, "Radar1")
-		print(("[%s] dev: %s radar grant %s"):format(Config.WorkingTitle, player.Name, if ok then "ok" else tostring(reason)))
-	end)
+	command("radar", grantRadar)
 	command("days", setDays)
 	command("spins", addSpins)
 	command("buy", buyItem)
@@ -690,7 +707,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 
