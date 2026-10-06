@@ -16,6 +16,10 @@
 -- passFlag (nothing to grant: the owning service reads OwnsPass live) are handled here. Buffs adds
 -- ServerLuckBonus to every luck number and registers its LuckChanged broadcast through
 -- OnServerLuckChanged, so this module never requires Buffs back.
+--
+-- Monetization.GiftServerLuck opens the same window for a name instead of a buyer: the developer panel's
+-- gifted luck (Admin) is the same mechanic as a bought one, as the design says, so it shares the bonus and
+-- clock rules, the broadcast and the listeners. Nothing is sold or recorded for it.
 
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -173,12 +177,12 @@ end
 
 -- A bigger bonus takes over (its clock never shorter than what was left); the same bonus adds its time;
 -- a smaller one while a bigger runs adds its time to the bigger (nobody is ever downgraded).
-local function startServerLuck(player: Player, bonus: number, seconds: number)
+local function startServerLuck(playerName: string, bonus: number, seconds: number)
 	local now = os.time()
 	local current = serverLuck
 	if current and current.endsAt > now then
 		if bonus > current.bonus then
-			serverLuck = { bonus = bonus, endsAt = math.max(current.endsAt, now + seconds), playerName = player.DisplayName }
+			serverLuck = { bonus = bonus, endsAt = math.max(current.endsAt, now + seconds), playerName = playerName }
 			broadcastLuck()
 			fireLuckListeners(true) -- the number everyone carries changed, so Buffs re-sends LuckChanged
 		else
@@ -187,7 +191,7 @@ local function startServerLuck(player: Player, bonus: number, seconds: number)
 		end
 		return
 	end
-	serverLuck = { bonus = bonus, endsAt = now + seconds, playerName = player.DisplayName }
+	serverLuck = { bonus = bonus, endsAt = now + seconds, playerName = playerName }
 	broadcastLuck()
 	fireLuckListeners(true)
 	runLuckLoop()
@@ -199,7 +203,7 @@ end
 local function applyGrant(player: Player, grant: Grant): (boolean, string?)
 	local kind = grant.kind
 	if kind == "serverLuck" then
-		startServerLuck(player, grant.bonus or 0, grant.seconds or 0)
+		startServerLuck(player.DisplayName, grant.bonus or 0, grant.seconds or 0)
 		return true, nil
 	elseif kind == "cosmetic" then
 		local id = grant.id
@@ -558,6 +562,13 @@ function Monetization.ServerLuckBonus(): number
 		return running.bonus
 	end
 	return 0
+end
+
+-- A server luck window opened for `name` (the developer panel's gift): exactly what a bought Server Luck
+-- does for its buyer, a bigger bonus taking over and the same bonus adding its time. The caller owns the
+-- clamping; nothing is sold or saved.
+function Monetization.GiftServerLuck(bonus: number, seconds: number, name: string)
+	startServerLuck(name, bonus, seconds)
 end
 
 -- Server-side hook: `callback` runs with true when a server luck starts and false when it ends.
