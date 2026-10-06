@@ -25,7 +25,10 @@
 -- The home planet (Place.IsHome, world 0; data/Home) builds neither the shrine nor the landmarks. When the layout
 -- sets PlotCells it draws the plot for the house grid right after the camp pad: one flat block named "Plot" of
 -- PlotCells x PlotCellStuds studs a side, PlotOffsetStuds past the pad on +Z, resting on the floor; GetPlotCenter
--- says where it is for the house grid.
+-- says where it is for the house grid. After the plot the home also stands three trophy-hangar pads in a row on -Z
+-- of the camp (HangarPad1..3, flat cylinders the client draws the launched worlds' hulls on), a placeholder Kiosk
+-- block for the spin wheel and a placeholder Mailbox block, each only when the layout sets its fields; the
+-- placeholders' sizes and colours are layout data (data/Home).
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -54,6 +57,7 @@ local SHRINE_NAME = "Shrine" -- the Model's name and its LandmarkId attribute
 local ROCK_HEIGHT_FACTOR = 0.7 -- rocks are squatter than they are wide
 local LEAVES_SINK_FACTOR = 0.6 -- the leaf ball sits this fraction of its radius above the trunk top
 local CONE_TIERS = 3 -- a geyser cone is this many stacked cylinders, each narrower than the one below
+local HANGAR_PAD_COUNT = 3 -- the trophy hangar's row: HangarPad1..3, centred on the layout's HangarCenterZ
 local REGION_POINT_TRIES = 20 -- a region draw that lands inside a landmark's clearance is redrawn this many times at most
 -- Shrine proportions, all relative to Layout.Shrine (stoneHeight and radius) so one data change rescales it.
 local STONE_WIDTH_FACTOR = 0.4 -- a standing stone is this fraction of its height wide
@@ -115,6 +119,42 @@ local function plotShape(): PlotShape?
 	end
 	local side = cells * cellStuds
 	return { side = side, centerZ = Layout.CampPadRadius + offset + side / 2, thickness = thickness, color = color }
+end
+
+-- A placeholder block for the home's kiosk or mailbox: resting on the floor at the spot, turned by its yaw.
+local function standBlock(name: string, spot: Layouts.Spot, size: Layouts.Size3, hex: string, floorTop: number, parent: Instance)
+	local cframe = CFrame.new(spot.x, floorTop + size.y / 2, spot.z) * CFrame.Angles(0, math.rad(spot.yaw), 0)
+	basePart(name, Enum.PartType.Block, Vector3.new(size.x, size.y, size.z), cframe, hex, parent)
+end
+
+-- The home planet's trophy-hangar pads, kiosk and mailbox (42d), each built only when the layout sets its fields:
+-- HANGAR_PAD_COUNT upright cylinders HangarSpacingStuds apart in a row at z = HangarCenterZ (as thick as the plot),
+-- then the two placeholder blocks. A layout that sets part of a group warns and skips that group.
+local function buildHomeStands(floorTop: number, parent: Instance)
+	local centerZ = Layout.HangarCenterZ
+	if centerZ ~= nil then
+		local spacing, radius, color, thickness = Layout.HangarSpacingStuds, Layout.HangarPadRadius, Layout.HangarPadColor, Layout.PlotThickness
+		if spacing == nil or radius == nil or color == nil or thickness == nil then
+			warn(("[%s] Meadow: layout %d sets HangarCenterZ but not every Hangar field (or the plot's thickness); no hangar pads drawn"):format(Config.WorkingTitle, Layout.WorldId))
+		else
+			local middle = (HANGAR_PAD_COUNT + 1) / 2
+			for i = 1, HANGAR_PAD_COUNT do
+				uprightCylinder("HangarPad" .. i, radius, thickness, Vector3.new((i - middle) * spacing, floorTop + thickness / 2, centerZ), color, parent)
+			end
+		end
+	end
+	local kiosk, kioskSize, kioskColor = Layout.Kiosk, Layout.KioskSize, Layout.KioskColor
+	if kiosk and kioskSize and kioskColor then
+		standBlock("Kiosk", kiosk, kioskSize, kioskColor, floorTop, parent)
+	elseif kiosk or kioskSize or kioskColor then
+		warn(("[%s] Meadow: layout %d sets part of the Kiosk but not all of it; no kiosk drawn"):format(Config.WorkingTitle, Layout.WorldId))
+	end
+	local mailbox, mailboxSize, mailboxColor = Layout.Mailbox, Layout.MailboxSize, Layout.MailboxColor
+	if mailbox and mailboxSize and mailboxColor then
+		standBlock("Mailbox", mailbox, mailboxSize, mailboxColor, floorTop, parent)
+	elseif mailbox or mailboxSize or mailboxColor then
+		warn(("[%s] Meadow: layout %d sets part of the Mailbox but not all of it; no mailbox drawn"):format(Config.WorkingTitle, Layout.WorldId))
+	end
 end
 
 local function shrineFlat(): Vector3
@@ -457,6 +497,9 @@ function Meadow.Init()
 	if plot then
 		basePart("Plot", Enum.PartType.Block, Vector3.new(plot.side, plot.thickness, plot.side), CFrame.new(0, floorTop + plot.thickness / 2, plot.centerZ), plot.color, world)
 	end
+
+	-- The trophy hangar's pads, the spin wheel kiosk and the mailbox (home only: other layouts set none of them).
+	buildHomeStands(floorTop, world)
 
 	-- Deterministic scatter so every server (and every reconnect) sees the same landmarks. One rng
 	-- feeds the regions and then the open floor; regions go in name order because pairs() order is

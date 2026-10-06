@@ -62,6 +62,11 @@ export type Landmark = {
 	landmarkId: string?, -- LandmarkId attribute for the client's waypoints; nil for pure scenery
 }
 
+-- A fixed point on the floor with the way a placeholder faces (yaw in degrees about the up axis), and a box size
+-- in studs: the home planet's kiosk and mailbox.
+export type Spot = { x: number, z: number, yaw: number }
+export type Size3 = { x: number, y: number, z: number }
+
 export type Layout = {
 	WorldId: number, -- the world this layout belongs to (Worlds.luau)
 	BaseBiome: string, -- the biome everywhere outside a region (Types.Biome)
@@ -113,6 +118,21 @@ export type Layout = {
 	PlotOffsetStuds: number?,
 	PlotColor: string?,
 	PlotThickness: number?,
+	-- the home planet's trophy hangar, spin wheel kiosk and mailbox (world 0 only; the builder draws each when its
+	-- fields are set, the client reads the same numbers for the hulls and the interaction distances)
+	HangarCenterZ: number?,
+	HangarSpacingStuds: number?,
+	HangarScale: number?,
+	HangarPadRadius: number?,
+	HangarPadColor: string?,
+	Kiosk: Spot?,
+	KioskSize: Size3?,
+	KioskColor: string?,
+	KioskInteractDistance: number?,
+	Mailbox: Spot?,
+	MailboxSize: Size3?,
+	MailboxColor: string?,
+	MailboxInteractDistance: number?,
 }
 
 local Meadow = require(script.Parent.Meadow)

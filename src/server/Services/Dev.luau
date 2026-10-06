@@ -14,7 +14,8 @@
 -- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
 -- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
 -- in order), /homeclear (empty the house grid, no refund), /habitat [H] (the habitat payout clock back H hours,
--- default 2, so the next arrival at the home planet pays) | settle (pay the habitats now, print the Scrap). Nothing
+-- default 2, so the next arrival at the home planet pays) | settle (pay the habitats now, print the Scrap), /mail [N]
+-- (N test letters, default 1, to your own mailbox; one more than the mailbox holds shows the oldest dropped). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -48,11 +49,13 @@ local Catching = require(script.Parent.Catching)
 local Monetization = require(script.Parent.Monetization)
 local Companions = require(script.Parent.Companions)
 local Habitats = require(script.Parent.Habitats)
+local Mail = require(script.Parent.Mail)
 local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
 local Worlds = require(Shared.data.Worlds)
 local Home = require(Shared.data.Home)
+local MailData = require(Shared.data.Mail)
 local CatchVariants = require(Shared.data.CatchVariants)
 
 local Dev = {}
@@ -694,6 +697,25 @@ local function habitatCommand(player: Player, text: string)
 	end
 end
 
+local MAIL_DEFAULT_COUNT = 1 -- /mail with no N writes this many letters
+local MAIL_PAST_CAP = 1 -- and at most this many more than the mailbox holds, so the oldest being dropped can be seen
+
+-- /mail [N]: N test letters (default 1, at most MaxLetters + 1) from your own name to your own mailbox, each with
+-- the default Scrap, through Mail.Send, so the cap, the push and the claim can be tried without the developer panel.
+local function mailCommand(player: Player, text: string)
+	local requested = tonumber(string.match(text, "^/%S+%s+(%d+)") or "") or MAIL_DEFAULT_COUNT
+	local count = math.clamp(math.floor(requested), 1, MailData.MaxLetters + MAIL_PAST_CAP)
+	local sent = 0
+	for k = 1, count do
+		if Mail.Send(player, player.Name, ("Test letter %d"):format(k), { { kind = "scrap", amount = MailData.DefaultScrap } }) then
+			sent += 1
+		end
+	end
+	local profile = PlayerData.Get(player)
+	local waiting = if profile then #profile.home.mail else 0
+	print(("[%s] dev: %s sent %d test letter(s) to themselves (%d waiting)"):format(Config.WorkingTitle, player.Name, sent, waiting))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -759,11 +781,12 @@ function Dev.Init()
 	command("dq", dailyQuestsCommand)
 	command("homeclear", homeClear)
 	command("habitat", habitatCommand)
+	command("mail", mailCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N])"):format(Config.WorkingTitle))
 	end
 end
 

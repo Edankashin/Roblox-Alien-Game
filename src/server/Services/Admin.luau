@@ -1,8 +1,9 @@
 --!strict
 -- ServerScriptService.Server.Services.Admin: the developer panel's server half (Shared/data/Admin).
 -- One chat command in every server, live or Studio: /admin luck [bonus] [minutes] (a gifted Server Luck
--- window), /admin shower (a Meteor Shower now), /admin weather <state> (a weather state now) and
--- /admin say <text> (a line banner to everyone). Typed on one server, it is published through
+-- window), /admin shower (a Meteor Shower now), /admin weather <state> (a weather state now),
+-- /admin say <text> (a line banner to everyone) and /admin mail <text> [scrap N] (a letter with N Scrap, default
+-- Mail.DefaultScrap, in the mailbox of every player online). Typed on one server, it is published through
 -- MessagingService (Admin.Topic) and every server, the sender's included, applies what arrives, so one
 -- command reaches the whole game.
 --
@@ -18,10 +19,12 @@
 -- command is applied to this server alone and says so, so the panel can be tested without the service. With
 -- no DeveloperUserIds nothing is registered and nothing is subscribed.
 --
--- What it never does: touch a profile or Scrap, sell or record anything. Luck goes through
+-- What it never does: pay Scrap itself, sell or record anything. Luck goes through
 -- Monetization.GiftServerLuck (the same window a bought Server Luck opens), the shower through
--- Events.Force, the weather through WorldClock.Force (which ignores an unknown state) and the line
--- through the Announcement event. Each server that applies a command counts it once in Analytics.
+-- Events.Force, the weather through WorldClock.Force (which ignores an unknown state), the line
+-- through the Announcement event and a letter through Mail.Send (the Scrap is paid only when the player claims
+-- it at the mailbox; the MailArrived event then tells every client to toast once). A mail line is filtered like
+-- a say line. Each server that applies a command counts it once in Analytics.
 
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
@@ -36,10 +39,12 @@ local AdminData = require(Shared.data.Admin)
 local AnalyticsData = require(Shared.data.Analytics)
 local Strings = require(Shared.strings.en)
 local Net = require(Shared.Net)
+local MailData = require(Shared.data.Mail)
 local Monetization = require(script.Parent.Monetization)
 local Events = require(script.Parent.Events)
 local WorldClock = require(script.Parent.WorldClock)
 local Analytics = require(script.Parent.Analytics)
+local Mail = require(script.Parent.Mail)
 
 local Admin = {}
 
@@ -49,12 +54,13 @@ type Payload = {
 	minutes: number?,
 	state: string?,
 	text: string?,
+	scrap: number?,
 	by: number,
 	at: number,
 }
 
 local SECONDS_PER_MINUTE = 60 -- a unit, not a tunable: the rate window and the luck minutes
-local USAGE = "usage: /admin luck [bonus] [minutes] | shower | weather <state> | say <text>"
+local USAGE = "usage: /admin luck [bonus] [minutes] | shower | weather <state> | say <text> | mail <text> [scrap N]"
 
 local subscribed = false
 local recentCommands: { [number]: { number } } = {} -- os.clock() of each command in the last minute, by developer UserId
@@ -96,13 +102,40 @@ local function clampOrDefault(value: any, default: number, max: number): number
 	return math.min(value, max)
 end
 
--- At most AnnounceMaxChars characters (not bytes, so a multi-byte character is never split).
-local function cutText(text: string): string
-	local limit = utf8.offset(text, AdminData.AnnounceMaxChars + 1)
+-- At most `max` characters (not bytes, so a multi-byte character is never split).
+local function cutChars(text: string, max: number): string
+	local limit = utf8.offset(text, max + 1)
 	if limit then
 		return string.sub(text, 1, limit - 1)
 	end
 	return text
+end
+
+-- At most AnnounceMaxChars characters.
+local function cutText(text: string): string
+	return cutChars(text, AdminData.AnnounceMaxChars)
+end
+
+-- A mail letter's Scrap: a whole number from 1 to MaxScrap; nothing usable (missing, not a number, NaN) gives
+-- the default.
+local function mailScrap(value: any): number
+	if type(value) ~= "number" or value ~= value then
+		return MailData.DefaultScrap
+	end
+	return math.clamp(math.floor(value), 1, MailData.MaxScrap)
+end
+
+-- Text a person typed and everyone will read, through Roblox's text filter (team account or not): the filtered
+-- line, or nil with a log line when the filter failed (the line is dropped rather than shown unfiltered).
+local function filteredLine(line: string, userId: number, verb: string): string?
+	local filtered, result = pcall(function()
+		return TextService:FilterStringAsync(line, userId):GetNonChatStringForBroadcastAsync()
+	end)
+	if not filtered or type(result) ~= "string" or result == "" then
+		log(("%s dropped: the text filter failed (%s)"):format(verb, tostring(result)))
+		return nil
+	end
+	return result
 end
 
 -- Who the luck window is shown as: the data's strings key, falling back to the known key.
@@ -147,6 +180,26 @@ local function apply(payload: Payload): string?
 		local note: Types.Announcement = { kind = "notice", playerName = "", species = "", tier = "Common", overlay = "None", text = text }
 		Net.event("Announcement"):FireAllClients(note)
 		return ("say: %s"):format(text)
+	elseif action == "mail" then
+		local text = payload.text
+		if type(text) ~= "string" then
+			return nil
+		end
+		text = cutChars(text, MailData.TextMaxChars)
+		if text == "" then
+			return nil
+		end
+		local scrap = mailScrap(payload.scrap)
+		local sent = 0
+		for _, target in ipairs(Players:GetPlayers()) do
+			if Mail.Send(target, Strings.ADMIN_LUCK_NAME, text, { { kind = "scrap", amount = scrap } }) then
+				sent += 1
+			end
+		end
+		if sent > 0 then
+			Net.event("MailArrived"):FireAllClients()
+		end
+		return ("mail to %d player(s), %d Scrap: %s"):format(sent, scrap, text)
 	end
 	return nil
 end
@@ -167,7 +220,7 @@ local function receive(data: any)
 	if math.abs(os.time() - at) > AdminData.ReplayGuardSeconds then
 		return
 	end
-	local payload: Payload = { action = action, bonus = data.bonus, minutes = data.minutes, state = data.state, text = data.text, by = by, at = at }
+	local payload: Payload = { action = action, bonus = data.bonus, minutes = data.minutes, state = data.state, text = data.text, scrap = data.scrap, by = by, at = at }
 	local description = apply(payload)
 	if not description then
 		return
@@ -244,14 +297,34 @@ local function onCommand(player: Player, text: string)
 		end
 		-- A line typed by a person and shown to everyone goes through Roblox's text filter first, team account or
 		-- not; a filter failure drops the line rather than showing it unfiltered.
-		local filtered, result = pcall(function()
-			return TextService:FilterStringAsync(line, player.UserId):GetNonChatStringForBroadcastAsync()
-		end)
-		if not filtered or type(result) ~= "string" or result == "" then
-			log(("say dropped: the text filter failed (%s)"):format(tostring(result)))
+		local result = filteredLine(line, player.UserId, "say")
+		if not result then
 			return
 		end
 		payload.text = cutText(result)
+	elseif verb == "mail" then
+		-- The text is everything after "mail" up to an optional trailing "scrap N" (a number); without one the
+		-- whole rest is the text and the amount is the default. The amount is clamped to 1 .. MaxScrap.
+		local mailArgs = args or ""
+		local scrapAt, _, amountText = string.find(string.lower(mailArgs), "%f[%w]scrap%s+(%S+)%s*$")
+		local amount: number? = if amountText then tonumber(amountText) else nil
+		local body = mailArgs
+		if scrapAt and amount then
+			body = string.match(string.sub(mailArgs, 1, scrapAt - 1), "^(.-)%s*$") or ""
+		else
+			amount = nil
+		end
+		local line = cutChars(body, MailData.TextMaxChars)
+		if line == "" then
+			log(USAGE)
+			return
+		end
+		local result = filteredLine(line, player.UserId, "mail")
+		if not result then
+			return
+		end
+		payload.text = cutChars(result, MailData.TextMaxChars)
+		payload.scrap = mailScrap(amount)
 	else
 		log(USAGE)
 		return

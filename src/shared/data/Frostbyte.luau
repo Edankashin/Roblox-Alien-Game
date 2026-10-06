@@ -85,4 +85,18 @@ return {
 	PlotOffsetStuds = nil,
 	PlotColor = nil,
 	PlotThickness = nil,
+	-- no trophy hangar, kiosk or mailbox on a wild world (the home planet's layout sets these)
+	HangarCenterZ = nil,
+	HangarSpacingStuds = nil,
+	HangarScale = nil,
+	HangarPadRadius = nil,
+	HangarPadColor = nil,
+	Kiosk = nil,
+	KioskSize = nil,
+	KioskColor = nil,
+	KioskInteractDistance = nil,
+	Mailbox = nil,
+	MailboxSize = nil,
+	MailboxColor = nil,
+	MailboxInteractDistance = nil,
 }

@@ -84,6 +84,10 @@ return {
 	-- the spin wheel kiosk and the mailbox (42d): fixed points off the camp pad on -X and +X
 	Kiosk = { x = -22, z = 0, yaw = 90 },
 	Mailbox = { x = 22, z = 0, yaw = -90 },
+	KioskSize = { x = 3, y = 4, z = 3 }, -- the placeholder blocks the server builds until a mesh replaces them (Meadow)
+	KioskColor = "FFC83D",
+	MailboxSize = { x = 1, y = 3, z = 1 },
+	MailboxColor = "68C9FE",
 	KioskInteractDistance = 10,
 	MailboxInteractDistance = 10,
 }
