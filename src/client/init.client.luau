@@ -21,6 +21,7 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local Biomes = require(Shared:WaitForChild("Biomes"))
 local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local HomeBuild = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
@@ -38,9 +39,11 @@ local ShipScreen = require(script:WaitForChild("UI"):WaitForChild("ShipScreen"))
 local ShopScreen = require(script:WaitForChild("UI"):WaitForChild("ShopScreen"))
 local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScreen"))
 local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
+local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"))
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
+local HomeRenderer = require(script:WaitForChild("World"):WaitForChild("HomeRenderer"))
 local CompanionRenderer = require(script:WaitForChild("World"):WaitForChild("CompanionRenderer"))
 local SightingRenderer = require(script:WaitForChild("World"):WaitForChild("SightingRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
@@ -107,7 +110,7 @@ local function nearbyShows(): boolean
 	return radarTier >= RADAR_MK2_TIER and Radar.IsShown()
 end
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -117,6 +120,7 @@ local ACTION_TEXT: { [string]: string } = {
 	Trade = Strings.ACTION_TRADE,
 	Horn = Strings.ACTION_HORN,
 	Heater = Strings.ACTION_HEATER,
+	Decorate = Strings.ACTION_DECORATE,
 }
 local soundHorn = Net.func("SoundHorn")
 local horning = false
@@ -368,6 +372,13 @@ local function decideAction(): Action?
 	if peddlerDistance <= Config.PeddlerInteractDistance and peddlerDistance < bestDistance then
 		best, bestDistance = "Trade", peddlerDistance
 	end
+	-- At home the plot offers Decorate (the Build tray) from within DecorateInteractDistance of its centre.
+	if Place.IsHome() then
+		local plotDistance = HomeRenderer.PlotDistance()
+		if plotDistance <= HomeBuild.DecorateInteractDistance and plotDistance < bestDistance then
+			best, bestDistance = "Decorate", plotDistance
+		end
+	end
 	-- The horn is offered at the shrine whenever the player holds it; the server judges night and step.
 	local shrineDistance = LandmarkRenderer.DistanceTo("Shrine")
 	if shrineDistance <= Config.ShrineInteractDistance and shrineDistance < bestDistance and (State.Get().inventory.items[Quests.HornItem] or 0) > 0 then
@@ -417,6 +428,8 @@ local function performAction()
 		end)
 	elseif action == "Trade" then
 		Screens.Open("Peddler")
+	elseif action == "Decorate" then
+		Screens.Open("Build")
 	elseif action == "Horn" and not horning then
 		horning = true
 		task.spawn(function()
@@ -874,6 +887,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Settings", SettingsScreen)
 	Screens.Register("StarChart", StarChartScreen)
 	Screens.Register("Ranks", LeaderboardScreen)
+	Screens.Register("Build", BuildScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -1286,6 +1300,7 @@ local function start(profile: Types.Profile)
 	end
 	WildRenderer.Start(known)
 	CampRenderer.Start()
+	HomeRenderer.Start()
 	SightingRenderer.Start()
 	CompanionRenderer.Start()
 	NodeRenderer.Start()
@@ -1406,12 +1421,30 @@ local function start(profile: Types.Profile)
 		return Enum.ContextActionResult.Pass
 	end, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
 
+	-- While the Build tray is open a tap in the world goes to the plot instead of the capture flow. A click is the
+	-- press itself; a touch counts as a tap only when the engine says so (TouchTapInWorld fires on a lift without a
+	-- drag), so dragging the camera round the plot never previews or places anything.
+	UserInputService.TouchTapInWorld:Connect(function(position: Vector2, processedByUI: boolean)
+		if not processedByUI and BuildScreen.IsOpen() then
+			BuildScreen.OnWorldTap(position.X, position.Y)
+		end
+	end)
+
 	-- Tapping or clicking an alien itself also starts a catch when it is in reach.
 	UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
-		if gameProcessed or modalOpen() then
+		if gameProcessed then
 			return
 		end
 		local kind = input.UserInputType
+		if BuildScreen.IsOpen() then
+			if kind == Enum.UserInputType.MouseButton1 then
+				BuildScreen.OnWorldTap(input.Position.X, input.Position.Y)
+			end
+			return
+		end
+		if modalOpen() then
+			return
+		end
 		if kind ~= Enum.UserInputType.MouseButton1 and kind ~= Enum.UserInputType.Touch then
 			return
 		end
