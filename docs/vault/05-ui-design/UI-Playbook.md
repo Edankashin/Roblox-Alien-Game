@@ -100,3 +100,8 @@ A variant (data/CatchVariants) changes how the one timing bar behaves, never how
 The reel is hold and release: pressing starts the hold, the hint swaps to the held line ("Reeling... let go!") and the ticker pops; letting go is the tap.
 The chase adds a countdown chip above the bar's right end, mirroring the lure chip on the left: Trough pill, white outlined text, turning red and popping once a second for the last three seconds.
 Zone and ticker colours come from the variant row's Theme keys (Select and Featured for the reel, Confirm and Featured for the chase), so no new colours were added; the Standard bar looks as it always did.
+
+## Alien card chips (2026-10-06)
+
+A chip on the alien card is 0.38 of the card wide, with its text at 0.9 of that: the minimum text size is 14 px and an iPhone SE card is about 115 px, so anything narrower clips a five-letter word ("Elder" became "Elde" at 0.26). The shape square shrank to 0.36 so the two chips overlap only its edges, drawn above it. A chip never holds more than five characters: the growth countdown shows whole hours or whole minutes ("2h", "59m"), never both. The status under the name keeps its two-line slot (0.17 of the card); a third text row does not fit a square card at the minimum size, so the countdown lives in the chip.
+A message that accompanies a panel opening is a banner sent after the open, not a toast before it: banners take the bottom slot while a panel is open, so the panel header stays readable.

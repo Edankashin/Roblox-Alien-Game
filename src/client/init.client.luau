@@ -866,8 +866,10 @@ local function start(profile: Types.Profile)
 				task.wait(poll)
 				if not CameraDirector.IsBusy() and not modalOpen() and not cinematic then
 					if welcomeGiftWaiting() then -- it may have been claimed from the menu meanwhile
-						Toast.Show(Strings.TOAST_WELCOME_GIFT, Theme.Colors.Featured)
 						Screens.Open("Gifts")
+						-- a banner after the open, not a toast before it: with the panel open it takes the bottom slot
+						-- and leaves the Gifts header readable
+						Toast.Banner(Strings.TOAST_WELCOME_GIFT, Theme.Colors.Featured, Config.AnnounceSeconds)
 					end
 					return
 				end

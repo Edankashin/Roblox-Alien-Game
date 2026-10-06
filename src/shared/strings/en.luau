@@ -99,7 +99,6 @@ return {
 	STAGE_Hatchling = "Hatchling",
 	STAGE_Grown = "Grown",
 	STAGE_Elder = "Elder",
-	ALIENS_STAGE_NEXT = "%s in %s", -- next stage name, time of work left (TIME_DH or TIME_M)
 	TOAST_ALIEN_GREW = "%s grew up: %s!", -- species name, stage name
 	OFFLINE_GREW = "%d of your aliens grew while you were away!",
 	TUT_1 = "Collect 3 wreck plates for the hull.",
@@ -206,6 +205,7 @@ return {
 	OFFLINE_MODULES = "%s finished while you were away!",
 	TIME_DH = "%dd %dh",
 	TIME_HM = "%dh %dm",
+	TIME_H = "%dh",
 	TIME_MS = "%dm %ds",
 	TIME_S = "%ds",
 	TIME_M = "%dm",

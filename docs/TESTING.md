@@ -197,7 +197,7 @@ Product and pass ids in `src/shared/data/Shop.luau` are 0 until they exist in th
 7. Receipts: `ProcessReceipt` cannot be driven from Studio without live ids; once ids exist, Studio's test purchases (no charge) exercise it. A repeated receipt id is answered PurchaseGranted without a second grant (profile.shop.receipts remembers 100).
 8. Analytics prints `event ShopBuy kind=robux id=<item>` for every grant, pass grants included.
 
-Decision 17 (2026-10-06): `/pass SlotEveryStation1` then finish the Thrusters: every station reads 3 slots (2 unlocked + 1 bought), the Aliens screen station card shows a fourth square after the Nav Array (3 + 1), and the bought slot survives a rejoin.
+Decision 17 (2026-10-06): `/pass SlotEveryStation1` then finish the Thrusters: every station reads 3 slots (2 unlocked + 1 bought), the Aliens screen station card shows a fourth square after the Nav Array (3 + 1), and the bought slot survives a rejoin. Known gap: at four slots the slot squares truncate long names ("Mossbo").
 
 Known gaps in this milestone: hoverboard skins (no hoverboard yet), the Home tab, direct-buy aliens, paid spins (P1, with the compliance pass), real-currency equivalents under prices (needs Roblox's regional pricing data), offers that appear at a moment ("all slots full", "shower in under 5 minutes").
 
@@ -368,10 +368,10 @@ Known gaps in this milestone: the story beats stay the two crash lines and the h
 
 Aliens at a station grow Hatchling to Grown (2 h worked) to Elder (24 h worked), each a visible size step and a work-speed bump (`data/Growth.luau`). Time counts only while seated; time away counts for the aliens seated at leave, capped like offline Scrap. Profiles migrate to schema v8 (worked time 0).
 
-1. Catch three aliens so two are seated. The Aliens screen shows no stage chip yet (Hatchlings are unlabelled); a seated alien's card shows "Grown in 2h 0m" under its status and the line counts down as it works; a resting alien shows no line.
+1. Catch three aliens so two are seated. On the Aliens screen a seated alien's card shows a white "2h" chip mid-right (the work time to its next stage) that counts down as it works ("1h", then "59m" and under); a resting Hatchling shows no chip on the right.
 2. `/grow 2`: a toast "Mossbop grew up: Grown!" per seated alien (and Output's dev line names 2 crossings), each worker at the camp pops and stands a little taller, the Aliens screen shows a sky-blue "Grown" chip on the right of those cards and the station rate rose by 10% for each (Ship screen or HUD rate). The resting alien is unchanged.
-3. `/grow 22`: "Elder!" toasts, the chip reads "Elder", workers 16% taller than a Hatchling, the rate bump is 25%, the next-stage line is gone for them.
-4. Seat the resting alien and `/grow 1`: no crossing yet (one hour of two); the Aliens screen line reads "Grown in 1h 0m".
+3. `/grow 22`: "Elder!" toasts, the chip reads "Elder" in sky blue (no stage ahead, so no countdown), workers 16% taller than a Hatchling, the rate bump is 25%.
+4. Seat the resting alien and `/grow 1`: no crossing yet (one hour of two); its chip reads "1h" (never "60m").
 5. Rejoin after the server has run for over a minute with aliens seated: the welcome-back toast still reports Scrap; with `Config.UseDataStoreInStudio` off nothing persists, so the away-time growth and the "N of your aliens grew while you were away!" line need a real save (Ethan's Studio API access) to verify; note it as untested otherwise.
 6. Output stays clean through all of the above; no stage chip or line shows for an alien from before growth until it works (migration sets 0).
 
