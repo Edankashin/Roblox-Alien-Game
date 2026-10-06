@@ -27,7 +27,7 @@ Files: `.github/workflows/check.yml` (new), `tools/ci/install-tools.sh` (new).
 
 Do: on push and pull request to any branch, an `ubuntu-latest` job that (1) installs rojo 7.7.1 and luau-lsp 1.70.1 into `$HOME/.local/bin` from their GitHub release archives (pin the versions; cache the downloads with `actions/cache` keyed on the two version strings), (2) runs `./tools/analyze.sh`, (3) runs `python3 tools/lint_data.py` when that file exists (card C2), (4) runs `./tools/test.sh` when it exists (card C3). Fail the job on any non-zero exit. Keep the workflow under 60 lines; no third-party actions beyond `actions/checkout` and `actions/cache`. Test it by pushing and linking the green run in the report.
 
-### C2. Data lint — taken by codex 2026-10-06
+### C2. Data lint — review
 
 Goal: a script that proves the data tables agree with each other, so a typo in an id is caught before Studio.
 
