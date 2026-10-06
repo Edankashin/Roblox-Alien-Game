@@ -55,6 +55,7 @@ local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
 local Compass = require(script:WaitForChild("UI"):WaitForChild("Compass"))
 local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
+local RadarData = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
@@ -90,8 +91,21 @@ local collecting = false
 local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
 local capturePart: Part? = nil -- the wild part the current catch is for
 local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
-local cinematic = false
-local radarTier = 0 -- the Nearby column shows only without a radar and outside a cinematic -- the crash-landing opener is running: the HUD, hint and radar stay hidden
+local cinematic = false -- the crash-landing opener is running: the HUD, hint and radar stay hidden
+local radarTier = 0 -- the radar tier the server says the player holds (gear.radar), mirrored for the Nearby column
+local RADAR_MK2_TIER: number = (RadarData :: any).Mk2.Tier -- data/Radar: the tier from which the Nearby column lists what is not out now
+
+-- The Nearby column shows without a radar (the free list) and from Radar Mk2 up (the compact "not now" list
+-- under the disc, only while the disc itself shows); Mk1 has the disc alone. Never during a cinematic.
+local function nearbyShows(): boolean
+	if cinematic then
+		return false
+	end
+	if radarTier < 1 then
+		return true
+	end
+	return radarTier >= RADAR_MK2_TIER and Radar.IsShown()
+end
 
 type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater"
 local currentAction: Action? = nil
@@ -1213,14 +1227,19 @@ local function start(profile: Types.Profile)
 	NearbyPanel.Start()
 
 	-- Radar Mk1: the minimap takes the Nearby column's slot once a radar is owned; the free column (tier 0)
-	-- hides, since its rows would not fit under the disc.
+	-- hides at Mk1, since its rows would not fit under the disc. From Mk2 the column comes back under the
+	-- disc as the compact "not now" list: the disc's bottom edge moves its top (the slot's own top, the
+	-- default, while the disc is hidden or no radar is held).
 	Radar.Build()
+	Radar.OnLayout(function(bottom: number)
+		NearbyPanel.SetTop(if Radar.IsShown() then bottom else NearbyPanel.DefaultTop())
+	end)
 	Compass.Start() -- the strip along the top edge; the refresh below shows it with the other HUD extras
 	local function refreshRadarTier()
 		local tier = if State.Has() then State.Get().gear.radar else 0
 		Radar.SetTier(tier)
 		radarTier = tier
-		NearbyPanel.SetVisible(tier < 1 and not cinematic)
+		NearbyPanel.SetVisible(nearbyShows())
 	end
 	refreshRadarTier()
 	State.OnChanged("gear", refreshRadarTier)
@@ -1345,7 +1364,7 @@ local function start(profile: Types.Profile)
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
-		NearbyPanel.SetVisible(radarTier < 1 and not cinematic)
+		NearbyPanel.SetVisible(nearbyShows())
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
 		local target = radarTarget
