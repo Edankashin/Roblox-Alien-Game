@@ -5,13 +5,18 @@
 -- the client sends a kind and an id and nothing else; the server checks the price against the live
 -- profile, deducts, grants, and pushes the result (ScrapChanged, InventoryChanged, GearChanged).
 -- Scrap is never sold for Robux; the Robux catalog in Shared/data/Shop is a later service's job.
--- This service also owns WalkSpeed: a character runs at Gear.BaseWalkSpeed times the best movement
--- multiplier its player owns times an active Speed Burst (Buffs.SpeedMultiplier), set from the server
--- on spawn, on profile load, on purchase and when a speed buff starts or ends. The client never sets
--- it. The requires run one way: Shop requires Buffs for the multiplier and hands Buffs its
--- ApplyMovement through Buffs.OnMovementChanged, so Buffs never requires Shop back; and Shop requires
--- Quests to report a crafted lure (Quests.OnCraft) and hands Quests its GrantGear through
--- Quests.SetGearGranter (the Field Notes pay gear), so Quests never requires Shop back. The Robux shop
+-- This service also owns WalkSpeed, jump and hip height: a character runs at Gear.BaseWalkSpeed times the best
+-- movement multiplier its player owns times an active Speed Burst (Buffs.SpeedMultiplier), set from the server
+-- on spawn, on profile load, on purchase, when a speed buff starts or ends and when the player mounts or
+-- dismounts. The mount's speed (Mounts.SpeedByTier times its traversal's speedScale) is one more movement
+-- multiplier, and the best of them wins like gear. While riding, the hips are lifted by the mount's seat studs
+-- over the character's own HipHeight (read once per character, before any change, and restored on dismount) and
+-- the jump is the base jump times the traversal's jumpScale. The client never sets any of it. The requires run
+-- one way: Shop requires Buffs for the multiplier and hands Buffs its ApplyMovement through
+-- Buffs.OnMovementChanged, so Buffs never requires Shop back; and Shop requires Quests to report a crafted lure
+-- (Quests.OnCraft) and hands Quests its GrantGear through Quests.SetGearGranter (the Field Notes pay gear), so
+-- Quests never requires Shop back. Shop also requires Companions for the ridden mount and registers
+-- Companions.OnChanged, so Companions never requires Shop back. The Robux shop
 -- (Monetization) pays gear the same way: Shop registers GrantGear as its "gear" granter at Init.
 
 local Players = game:GetService("Players")
@@ -23,6 +28,7 @@ local Config = require(Shared.data.Config)
 local Lures = require(Shared.data.Lures)
 local Gear = require(Shared.data.Gear)
 local Radar = require(Shared.data.Radar)
+local Mounts = require(Shared.data.Mounts)
 local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
@@ -30,6 +36,7 @@ local Buffs = require(script.Parent.Buffs)
 local Quests = require(script.Parent.Quests)
 local Analytics = require(script.Parent.Analytics)
 local Monetization = require(script.Parent.Monetization)
+local Companions = require(script.Parent.Companions)
 
 local Shop = {}
 
@@ -94,8 +101,12 @@ end
 
 -- Movement ---------------------------------------------------------------
 
--- Gear.BaseWalkSpeed times the best speedMultiplier among the gear this player owns (none -> 1),
--- times an active Speed Burst (none -> 1).
+-- Each character's own HipHeight, read once before the first change, by UserId. It remembers the Humanoid it
+-- was read from, so a respawned character reads its own value again. Cleared when the player leaves.
+local baseHips: { [number]: { humanoid: Humanoid, hip: number } } = {}
+
+-- Gear.BaseWalkSpeed times the best speedMultiplier among the gear this player owns or the mount this
+-- player rides (none -> 1), times an active Speed Burst (none -> 1).
 local function walkSpeedFor(player: Player): number
 	local profile = PlayerData.Get(player)
 	local best = 1
@@ -107,11 +118,51 @@ local function walkSpeedFor(player: Player): number
 			end
 		end
 	end
+	local _, mountDef = Companions.Riding(player)
+	if mountDef and mountDef.ride then
+		local tierSpeed = Mounts.SpeedByTier[mountDef.tier]
+		local traversal = Mounts.Traversals[mountDef.ride]
+		local mountMultiplier = if tierSpeed and traversal then tierSpeed * traversal.speedScale else 0
+		best = math.max(best, mountMultiplier)
+	end
 	return Gear.BaseWalkSpeed * best * Buffs.SpeedMultiplier(player)
 end
 
--- Sets the current character's WalkSpeed from the profile and buffs. Safe to call with no character.
--- Public so Buffs can re-apply it (through OnMovementChanged) when a speed buff starts or ends.
+-- The character's own HipHeight. The first call for a Humanoid reads it, before anything here changes it.
+local function baseHipFor(player: Player, humanoid: Humanoid): number
+	local entry = baseHips[player.UserId]
+	if entry and entry.humanoid == humanoid then
+		return entry.hip
+	end
+	baseHips[player.UserId] = { humanoid = humanoid, hip = humanoid.HipHeight }
+	return humanoid.HipHeight
+end
+
+-- Lifts the hips by the mount's seat studs and scales the jump by its traversal while riding; on foot the
+-- hips go back to the character's own and the jump to the base (scale 1).
+local function applyHipAndJump(player: Player, humanoid: Humanoid)
+	local base = baseHipFor(player, humanoid)
+	local _, mountDef = Companions.Riding(player)
+	local lift = 0
+	local jumpScale = 1
+	if mountDef then
+		lift = Mounts.SeatStuds[mountDef.id] or Mounts.DefaultSeatStuds
+		local traversal = if mountDef.ride then Mounts.Traversals[mountDef.ride] else nil
+		if traversal then
+			jumpScale = traversal.jumpScale
+		end
+	end
+	humanoid.HipHeight = base + lift
+	if humanoid.UseJumpPower then
+		humanoid.JumpPower = Mounts.BaseJumpPower * jumpScale
+	else
+		humanoid.JumpHeight = Mounts.BaseJumpHeight * jumpScale
+	end
+end
+
+-- Sets the current character's WalkSpeed, hips and jump from the profile, buffs and mount. Safe to call with no
+-- character. Public so Buffs can re-apply it (through OnMovementChanged) when a speed buff starts or ends, and
+-- Companions (OnChanged) when the player mounts or dismounts.
 function Shop.ApplyMovement(player: Player)
 	local character = player.Character
 	if not character then
@@ -120,6 +171,7 @@ function Shop.ApplyMovement(player: Player)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.WalkSpeed = walkSpeedFor(player)
+		applyHipAndJump(player, humanoid)
 	end
 end
 
@@ -127,7 +179,9 @@ end
 local function onCharacterAdded(player: Player, character: Model)
 	local humanoid = character:WaitForChild("Humanoid", HUMANOID_WAIT_SECONDS)
 	if humanoid and humanoid:IsA("Humanoid") and player.Character == character then
+		baseHipFor(player, humanoid) -- the character's own hips, read before anything changes them
 		humanoid.WalkSpeed = walkSpeedFor(player)
+		applyHipAndJump(player, humanoid) -- a fresh character while riding is lifted at once
 	end
 end
 
@@ -358,10 +412,17 @@ function Shop.Init()
 	Buffs.OnMovementChanged(function(player: Player)
 		Shop.ApplyMovement(player)
 	end)
+	-- Mounting or dismounting (and a ridden follower going away) re-applies speed, hips and jump at once.
+	Companions.OnChanged(function(player: Player)
+		Shop.ApplyMovement(player)
+	end)
 end
 
 function Shop.Start()
 	Players.PlayerAdded:Connect(onPlayerAdded)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		baseHips[player.UserId] = nil
+	end)
 	for _, player in ipairs(Players:GetPlayers()) do
 		onPlayerAdded(player)
 	end

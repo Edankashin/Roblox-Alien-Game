@@ -10,7 +10,8 @@
 -- (H hours, default 2, of worked time for every seated alien, so a growth stage can be crossed), /dupes <id> [N]
 -- (N copies, default 5, of that species with no overlay, so a fusion can be tried in seconds), /token [N] (N
 -- Companion Tokens, default 1, into the inventory), /follow <id> (your first resting copy of that species
--- follows you, if a slot is free). Nothing
+-- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
+-- resting copy follow and ride it; off gets down). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -261,6 +262,18 @@ end
 
 -- /follow <speciesId>: the player's first resting copy of that species (lowest uid) that is not already a
 -- companion starts following, through the same call the SetCompanion remote makes.
+local function firstRestingCopy(profile: Types.Profile, id: string): string?
+	local pick: string? = nil
+	for uid, record in pairs(profile.aliens) do
+		if record.species == id and record.station == nil and not table.find(profile.companions, uid) then
+			if pick == nil or uid < pick then
+				pick = uid
+			end
+		end
+	end
+	return pick
+end
+
 local function followSpecies(player: Player, text: string)
 	local id = string.match(text, "^/%S+%s+(%S+)")
 	if not id or not Species.ById[id] then
@@ -271,20 +284,55 @@ local function followSpecies(player: Player, text: string)
 	if not profile then
 		return
 	end
-	local pick: string? = nil
-	for uid, record in pairs(profile.aliens) do
-		if record.species == id and record.station == nil and not table.find(profile.companions, uid) then
-			if pick == nil or uid < pick then
-				pick = uid
-			end
-		end
-	end
+	local pick = firstRestingCopy(profile, id)
 	if not pick then
 		print(("[%s] dev: no resting copy of %s"):format(Config.WorkingTitle, id))
 		return
 	end
 	local ok, reason = Companions.SetFollowing(player, pick, true)
 	print(("[%s] dev: %s follow %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
+end
+
+-- /ride <speciesId|off>: off gets down. A species id rides a copy of it that already follows the player; with
+-- none following, the first resting copy follows first (the same call /follow makes), then it is ridden through
+-- the call the SetMount remote makes.
+local function rideSpecies(player: Player, text: string)
+	local id = string.match(text, "^/%S+%s+(%S+)")
+	if id == "off" then
+		local ok, reason = Companions.SetRiding(player, nil)
+		print(("[%s] dev: %s dismount %s"):format(Config.WorkingTitle, player.Name, if ok then "ok" else "refused: " .. tostring(reason)))
+		return
+	end
+	if not id or not Species.ById[id] then
+		print(("[%s] dev: unknown species %s"):format(Config.WorkingTitle, tostring(id)))
+		return
+	end
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return
+	end
+	local pick: string? = nil
+	for _, uid in ipairs(profile.companions) do
+		local record = profile.aliens[uid]
+		if record and record.species == id then
+			pick = uid
+			break
+		end
+	end
+	if not pick then
+		pick = firstRestingCopy(profile, id)
+		if not pick then
+			print(("[%s] dev: no copy of %s to ride"):format(Config.WorkingTitle, id))
+			return
+		end
+		local followed, followReason = Companions.SetFollowing(player, pick, true)
+		print(("[%s] dev: %s follow %s %s"):format(Config.WorkingTitle, player.Name, id, if followed then "ok" else "refused: " .. tostring(followReason)))
+		if not followed then
+			return
+		end
+	end
+	local ok, reason = Companions.SetRiding(player, pick)
+	print(("[%s] dev: %s ride %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -558,6 +606,7 @@ function Dev.Init()
 	command("dupes", grantDupes)
 	command("token", grantTokens)
 	command("follow", followSpecies)
+	command("ride", rideSpecies)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
@@ -587,7 +636,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

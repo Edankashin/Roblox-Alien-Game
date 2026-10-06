@@ -5,6 +5,11 @@
 -- job and tier. This service owns the list: the slot count, follow and unfollow, the Companion Token, the
 -- perk sums Buffs reads, and the snapshot every client draws the followers from (CompanionsChanged to all
 -- clients on any change, GetAllCompanions for a late joiner). The client renders; it never decides who follows.
+-- Riding (data/Mounts): one follower whose species has a `ride` trait can be ridden by its owner. Which uid is
+-- ridden is runtime state by UserId, never saved (a rejoin is on foot): SetMount (remote) and SetRiding set it,
+-- Riding reads it for Shop (speed, jump, hips), and the snapshot carries it as `riding` while that uid is in the
+-- rows. When the ridden uid stops being a follower (a fusion consumed it, the owner unfollowed it) Push and
+-- SetFollowing clear the entry and tell the OnChanged listeners, so the rider is dropped to the ground at once.
 -- Slots: Config.CompanionSlots, plus PassSlots with the CompanionSlot4 pass, plus profile.companionSlots (one
 -- TokenSlots per token used), capped at MaxSlots. Perks: the sum over followers of PerkByJob[first job].amount
 -- times TierFactor[tier], per kind, capped by PerkCap[kind].
@@ -29,11 +34,13 @@ local Monetization = require(script.Parent.Monetization)
 
 local Companions = {}
 
-local REMOTE_RATE_PER_SECOND = 4 -- SetCompanion and UseCompanionToken calls per player per second
+local REMOTE_RATE_PER_SECOND = 4 -- SetCompanion, UseCompanionToken and SetMount calls per player per second
 local PASS_ID = "CompanionSlot4" -- the Shop.luau pass row that adds PassSlots
 local UNKNOWN_SPECIES = "Unknown" -- the analytics species field when the record is already gone
+local UNKNOWN_TRAVERSAL = "Unknown" -- the analytics traversal field when the record is already gone
 
-local listeners: { (Player) -> () } = {} -- Buffs: re-send luck and buffs when a list changes
+local listeners: { (Player) -> () } = {} -- Buffs: re-send luck and buffs when a list changes; Shop: re-apply movement
+local riding: { [number]: string } = {} -- UserId -> the uid that player rides (runtime only, never saved)
 
 -- Helpers ----------------------------------------------------------------
 
@@ -49,6 +56,21 @@ local function prune(profile: Types.Profile): boolean
 	return dropped
 end
 
+-- True when the uid is a follower whose record still exists.
+local function isFollower(profile: Types.Profile, uid: string): boolean
+	return profile.aliens[uid] ~= nil and table.find(profile.companions, uid) ~= nil
+end
+
+-- Forgets the ridden uid when it is no longer a follower (fused away, unfollowed). True when an entry went.
+local function dropStaleRiding(player: Player, profile: Types.Profile): boolean
+	local uid = riding[player.UserId]
+	if uid ~= nil and not isFollower(profile, uid) then
+		riding[player.UserId] = nil
+		return true
+	end
+	return false
+end
+
 -- The owner's snapshot as every client draws it. Prunes stale uids first (one Update, only when needed).
 local function snapshotOf(player: Player, profile: Types.Profile): Types.CompanionsSnapshot
 	local stale = false
@@ -62,9 +84,14 @@ local function snapshotOf(player: Player, profile: Types.Profile): Types.Compani
 		PlayerData.Update(player, prune)
 	end
 	local rows: { Types.CompanionRow } = {}
+	local ridden = riding[player.UserId]
+	local carried: string? = nil -- the ridden uid, only while it is one of the rows
 	for _, uid in ipairs(profile.companions) do
 		local record = profile.aliens[uid]
 		if record then
+			if uid == ridden then
+				carried = uid
+			end
 			table.insert(rows, {
 				uid = record.uid,
 				species = record.species,
@@ -75,7 +102,7 @@ local function snapshotOf(player: Player, profile: Types.Profile): Types.Compani
 			})
 		end
 	end
-	return { userId = player.UserId, rows = rows }
+	return { userId = player.UserId, rows = rows, riding = carried }
 end
 
 local function broadcast(player: Player, profile: Types.Profile)
@@ -120,7 +147,25 @@ function Companions.Perk(player: Player, kind: string): number
 	return total
 end
 
--- Server-side hook: `callback` runs with the owner after their list changes (Buffs re-sends luck).
+-- The uid this player rides and its species def, when that uid is still a follower whose species has a `ride`
+-- trait; otherwise nil, and a stale entry is forgotten (the caller reads the new state, no push here).
+function Companions.Riding(player: Player): (string?, Types.SpeciesDef?)
+	local uid = riding[player.UserId]
+	if uid == nil then
+		return nil, nil
+	end
+	local profile = PlayerData.Get(player)
+	local record = if profile and isFollower(profile, uid) then profile.aliens[uid] else nil
+	local def = if record then Species.ById[record.species] else nil
+	if def and def.ride then
+		return uid, def
+	end
+	riding[player.UserId] = nil
+	return nil, nil
+end
+
+-- Server-side hook: `callback` runs with the owner after their list or their mount changes (Buffs re-sends
+-- luck, Shop re-applies movement).
 function Companions.OnChanged(callback: (Player) -> ())
 	table.insert(listeners, callback)
 end
@@ -132,6 +177,7 @@ function Companions.Push(player: Player)
 	if not profile then
 		return
 	end
+	dropStaleRiding(player, profile) -- a fusion that consumed the mount ends the ride in this same push
 	broadcast(player, profile)
 	for _, callback in ipairs(listeners) do
 		callback(player)
@@ -188,10 +234,63 @@ function Companions.SetFollowing(player: Player, uid: string, follow: boolean): 
 	if reason then
 		return false, reason
 	end
+	-- An unfollowed mount (or one the prune dropped) ends the ride; that counts as a change for the listeners.
+	local profile = PlayerData.Get(player)
+	local dismounted = if profile then dropStaleRiding(player, profile) else false
 	if changed then
 		Analytics.Event(player, AnalyticsData.Events.Companion, 1, { action = if follow then "follow" else "unfollow", species = species })
+	end
+	if changed or dismounted then
 		Companions.Push(player)
 	end
+	return true, nil
+end
+
+-- Riding ------------------------------------------------------------------
+
+-- Mounts the follower with this uid, or dismounts with nil (ok even on foot). The same uid again is ok and
+-- changes nothing; another uid swaps the mount. Reasons: NoProfile, NotFollowing (not in the list after the
+-- prune), NotRideable (its species has no `ride`). Validation of the argument and the rate limit are the
+-- remote's; Dev calls this directly. A change logs the Mount event, then pushes the snapshot.
+function Companions.SetRiding(player: Player, uid: string?): (boolean, string?)
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return false, "NoProfile"
+	end
+	local current = riding[player.UserId]
+	local species = UNKNOWN_SPECIES
+	local traversal = UNKNOWN_TRAVERSAL
+	if uid == nil then
+		if current == nil then
+			return true, nil
+		end
+		local record = profile.aliens[current]
+		local def = if record then Species.ById[record.species] else nil
+		if def then
+			species = def.id
+			traversal = def.ride or UNKNOWN_TRAVERSAL
+		end
+		riding[player.UserId] = nil
+		Analytics.Event(player, AnalyticsData.Events.Mount, 1, { action = "dismount", species = species, traversal = traversal })
+		Companions.Push(player)
+		return true, nil
+	end
+	PlayerData.Update(player, prune)
+	local record = profile.aliens[uid]
+	if not record or not table.find(profile.companions, uid) then
+		return false, "NotFollowing"
+	end
+	local def = Species.ById[record.species]
+	if not def or not def.ride then
+		return false, "NotRideable"
+	end
+	if current == uid then
+		return true, nil
+	end
+	riding[player.UserId] = uid
+	traversal = def.ride
+	Analytics.Event(player, AnalyticsData.Events.Mount, 1, { action = "mount", species = def.id, traversal = traversal })
+	Companions.Push(player)
 	return true, nil
 end
 
@@ -237,6 +336,18 @@ local function onSetCompanion(player: Player, uid: any, follow: any): (boolean, 
 	return Companions.SetFollowing(player, uid, follow)
 end
 
+-- SetMount(uid) -> (ok, reason): uid is the follower to ride, or nil to get off. Reasons: BadArgs, RateLimited,
+-- NoProfile, NotFollowing, NotRideable.
+local function onSetMount(player: Player, uid: any): (boolean, string?)
+	if uid ~= nil and type(uid) ~= "string" then
+		return false, "BadArgs"
+	end
+	if not Net.allow(player, "SetMount", REMOTE_RATE_PER_SECOND) then
+		return false, "RateLimited"
+	end
+	return Companions.SetRiding(player, uid)
+end
+
 -- UseCompanionToken() -> (ok, reason). Reasons: RateLimited, NoProfile, NoToken, MaxSlots.
 local function onUseCompanionToken(player: Player): (boolean, string?)
 	if not Net.allow(player, "UseCompanionToken", REMOTE_RATE_PER_SECOND) then
@@ -265,6 +376,7 @@ function Companions.Init()
 	end
 	Net.func("SetCompanion").OnServerInvoke = onSetCompanion
 	Net.func("UseCompanionToken").OnServerInvoke = onUseCompanionToken
+	Net.func("SetMount").OnServerInvoke = onSetMount
 	Net.func("GetAllCompanions").OnServerInvoke = onGetAllCompanions
 	-- The owner's followers reach every client as soon as the profile loads (a client that is not listening
 	-- yet gets them from GetAllCompanions).
@@ -276,6 +388,7 @@ end
 function Companions.Start()
 	-- An empty snapshot on leave, so every client clears that player's followers.
 	Players.PlayerRemoving:Connect(function(player: Player)
+		riding[player.UserId] = nil
 		local empty: Types.CompanionsSnapshot = { userId = player.UserId, rows = {} }
 		Net.event("CompanionsChanged"):FireAllClients(empty)
 	end)
