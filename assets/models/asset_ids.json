@@ -1,242 +1,320 @@
 {
   "BuildStation": {
-    "assetId": 71841484152981,
-    "file": "assets/models/props/BuildStation/BuildStation.fbx",
-    "uploadedAt": "2026-10-05T21:57:28Z"
+    "assetId": 116557614446597,
+    "file": "assets/models/props/BuildStation/BuildStation.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:42:53Z"
   },
   "Buzzlebee": {
-    "assetId": 88312343533381,
-    "file": "assets/models/Buzzlebee/Buzzlebee.fbx",
-    "uploadedAt": "2026-10-05T21:57:37Z"
+    "assetId": 93289897027487,
+    "file": "assets/models/Buzzlebee/Buzzlebee.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:42:58Z"
   },
   "Capybubble": {
-    "assetId": 118785819297141,
-    "file": "assets/models/Capybubble/Capybubble.fbx",
-    "uploadedAt": "2026-10-05T21:57:46Z"
+    "assetId": 91020613872676,
+    "file": "assets/models/Capybubble/Capybubble.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:07Z"
+  },
+  "CaveMouth": {
+    "assetId": 139357272098761,
+    "file": "assets/models/props/CaveMouth/CaveMouth.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:17Z"
   },
   "Chipmole": {
-    "assetId": 116415285718913,
-    "file": "assets/models/Chipmole/Chipmole.fbx",
-    "uploadedAt": "2026-10-05T21:57:55Z"
+    "assetId": 113544770104398,
+    "file": "assets/models/Chipmole/Chipmole.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:31Z"
+  },
+  "CrashWreck": {
+    "assetId": 128799758462514,
+    "file": "assets/models/props/CrashWreck/CrashWreck.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:40Z"
   },
   "Drippo": {
-    "assetId": 132968896843991,
-    "file": "assets/models/Drippo/Drippo.fbx",
-    "uploadedAt": "2026-10-05T21:58:09Z"
+    "assetId": 121517821056634,
+    "file": "assets/models/Drippo/Drippo.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:45Z"
   },
   "Emberchin": {
-    "assetId": 117002896928472,
-    "file": "assets/models/Emberchin/Emberchin.fbx",
-    "uploadedAt": "2026-10-05T21:58:15Z"
+    "assetId": 116168141451244,
+    "file": "assets/models/Emberchin/Emberchin.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:43:54Z"
   },
   "Fenripup": {
-    "assetId": 128458850464368,
-    "file": "assets/models/Fenripup/Fenripup.fbx",
-    "uploadedAt": "2026-10-05T21:58:24Z"
+    "assetId": 106502871344181,
+    "file": "assets/models/Fenripup/Fenripup.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:03Z"
   },
   "Flapsicle": {
-    "assetId": 74126006882983,
-    "file": "assets/models/Flapsicle/Flapsicle.fbx",
-    "uploadedAt": "2026-10-05T21:58:29Z"
+    "assetId": 97331820420094,
+    "file": "assets/models/Flapsicle/Flapsicle.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:17Z"
   },
   "Flufflet": {
-    "assetId": 71427322162409,
-    "file": "assets/models/Flufflet/Flufflet.fbx",
-    "uploadedAt": "2026-10-05T21:58:44Z"
+    "assetId": 89419220122225,
+    "file": "assets/models/Flufflet/Flufflet.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:26Z"
   },
   "Frostfang": {
-    "assetId": 106549059040288,
-    "file": "assets/models/Frostfang/Frostfang.fbx",
-    "uploadedAt": "2026-10-05T21:58:49Z"
+    "assetId": 98224524799523,
+    "file": "assets/models/Frostfang/Frostfang.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:32Z"
   },
   "Gaiabloom": {
-    "assetId": 119819939062037,
-    "file": "assets/models/Gaiabloom/Gaiabloom.fbx",
-    "uploadedAt": "2026-10-05T21:59:11Z"
+    "assetId": 126155954713066,
+    "file": "assets/models/Gaiabloom/Gaiabloom.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:37Z"
   },
   "GatherStation": {
-    "assetId": 131146076942669,
-    "file": "assets/models/props/GatherStation/GatherStation.fbx",
-    "uploadedAt": "2026-10-05T21:59:25Z"
+    "assetId": 71653599018169,
+    "file": "assets/models/props/GatherStation/GatherStation.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:47Z"
   },
   "GeyserCone": {
-    "assetId": 95167593008344,
-    "file": "assets/models/props/GeyserCone/GeyserCone.fbx",
-    "uploadedAt": "2026-10-05T21:59:39Z"
+    "assetId": 105526893549220,
+    "file": "assets/models/props/GeyserCone/GeyserCone.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:44:56Z"
+  },
+  "GeyserVent": {
+    "assetId": 116657722898068,
+    "file": "assets/models/props/GeyserVent/GeyserVent.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:05Z"
   },
   "Glimmo": {
-    "assetId": 81746327531541,
-    "file": "assets/models/Glimmo/Glimmo.fbx",
-    "uploadedAt": "2026-10-05T21:59:48Z"
+    "assetId": 117109944435105,
+    "file": "assets/models/Glimmo/Glimmo.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:15Z"
   },
   "Gloomoth": {
-    "assetId": 119571917446181,
-    "file": "assets/models/Gloomoth/Gloomoth.fbx",
-    "uploadedAt": "2026-10-05T22:00:10Z"
+    "assetId": 108889147995169,
+    "file": "assets/models/Gloomoth/Gloomoth.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:20Z"
   },
   "HeaterLamp": {
-    "assetId": 114242165498092,
-    "file": "assets/models/props/HeaterLamp/HeaterLamp.fbx",
-    "uploadedAt": "2026-10-05T22:00:16Z"
+    "assetId": 97262154954837,
+    "file": "assets/models/props/HeaterLamp/HeaterLamp.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:26Z"
+  },
+  "IceCaveMouth": {
+    "assetId": 130501861307704,
+    "file": "assets/models/props/IceCaveMouth/IceCaveMouth.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:35Z"
   },
   "IceRock": {
-    "assetId": 112924370616190,
-    "file": "assets/models/props/IceRock/IceRock.fbx",
-    "uploadedAt": "2026-10-05T22:00:30Z"
+    "assetId": 78265443687401,
+    "file": "assets/models/props/IceRock/IceRock.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:40Z"
   },
   "IceRockB": {
-    "assetId": 112678169840848,
-    "file": "assets/models/props/IceRockB/IceRockB.fbx",
-    "uploadedAt": "2026-10-05T22:00:51Z"
+    "assetId": 77643303762233,
+    "file": "assets/models/props/IceRockB/IceRockB.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:45:54Z"
   },
   "IceSpire": {
-    "assetId": 98203972327875,
-    "file": "assets/models/props/IceSpire/IceSpire.fbx",
-    "uploadedAt": "2026-10-05T22:01:00Z"
+    "assetId": 140159828144638,
+    "file": "assets/models/props/IceSpire/IceSpire.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:46:09Z"
   },
   "Kettlepuff": {
-    "assetId": 114087558859719,
-    "file": "assets/models/Kettlepuff/Kettlepuff.fbx",
-    "uploadedAt": "2026-10-05T22:01:09Z"
+    "assetId": 73183285856938,
+    "file": "assets/models/Kettlepuff/Kettlepuff.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:46:23Z"
   },
   "Lanternewt": {
-    "assetId": 118057043685924,
-    "file": "assets/models/Lanternewt/Lanternewt.fbx",
-    "uploadedAt": "2026-10-05T22:01:15Z"
+    "assetId": 75678718938040,
+    "file": "assets/models/Lanternewt/Lanternewt.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:46:37Z"
   },
   "MeadowRock": {
-    "assetId": 74484453710473,
-    "file": "assets/models/props/MeadowRock/MeadowRock.fbx",
-    "uploadedAt": "2026-10-05T22:01:29Z"
+    "assetId": 126312792013094,
+    "file": "assets/models/props/MeadowRock/MeadowRock.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:46:41Z"
   },
   "MeadowRockB": {
-    "assetId": 95589978973116,
-    "file": "assets/models/props/MeadowRockB/MeadowRockB.fbx",
-    "uploadedAt": "2026-10-05T22:01:51Z"
+    "assetId": 85324815639574,
+    "file": "assets/models/props/MeadowRockB/MeadowRockB.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:47:03Z"
   },
   "MeadowTree": {
-    "assetId": 115248150125825,
-    "file": "assets/models/props/MeadowTree/MeadowTree.fbx",
-    "uploadedAt": "2026-10-05T21:57:10Z"
+    "assetId": 132093254516280,
+    "file": "assets/models/props/MeadowTree/MeadowTree.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:47:17Z"
   },
   "MeadowTreeB": {
-    "assetId": 116875886930580,
-    "file": "assets/models/props/MeadowTreeB/MeadowTreeB.fbx",
-    "uploadedAt": "2026-10-05T22:01:56Z"
+    "assetId": 107521506795657,
+    "file": "assets/models/props/MeadowTreeB/MeadowTreeB.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:47:31Z"
   },
   "Mossbop": {
-    "assetId": 75392166239469,
-    "file": "assets/models/Mossbop/Mossbop.fbx",
-    "uploadedAt": "2026-10-05T21:57:15Z"
+    "assetId": 109610812891190,
+    "file": "assets/models/Mossbop/Mossbop.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:47:36Z"
   },
   "Panpipe": {
-    "assetId": 78135237078182,
-    "file": "assets/models/Panpipe/Panpipe.fbx",
-    "uploadedAt": "2026-10-05T22:02:10Z"
+    "assetId": 107790361036773,
+    "file": "assets/models/Panpipe/Panpipe.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:47:58Z"
   },
   "Pebblet": {
-    "assetId": 113486299211607,
-    "file": "assets/models/Pebblet/Pebblet.fbx",
-    "uploadedAt": "2026-10-05T22:02:16Z"
+    "assetId": 128856924167302,
+    "file": "assets/models/Pebblet/Pebblet.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:48:07Z"
   },
   "Pedestal": {
-    "assetId": 79085049086276,
-    "file": "assets/models/props/Pedestal/Pedestal.fbx",
-    "uploadedAt": "2026-10-05T22:02:30Z"
+    "assetId": 84066445173923,
+    "file": "assets/models/props/Pedestal/Pedestal.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:48:16Z"
   },
   "Pengoo": {
-    "assetId": 95704667554643,
-    "file": "assets/models/Pengoo/Pengoo.fbx",
-    "uploadedAt": "2026-10-05T22:02:36Z"
+    "assetId": 107941440215053,
+    "file": "assets/models/Pengoo/Pengoo.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:48:25Z"
   },
   "Puffpuff": {
-    "assetId": 72546260324676,
-    "file": "assets/models/Puffpuff/Puffpuff.fbx",
-    "uploadedAt": "2026-10-05T22:02:50Z"
+    "assetId": 79276822839330,
+    "file": "assets/models/Puffpuff/Puffpuff.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:48:31Z"
   },
   "Radish": {
-    "assetId": 84584822467630,
-    "file": "assets/models/Radish/Radish.fbx",
-    "uploadedAt": "2026-10-05T22:02:55Z"
+    "assetId": 112682099542089,
+    "file": "assets/models/Radish/Radish.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:48:53Z"
   },
   "Reindazzle": {
-    "assetId": 106289045971403,
-    "file": "assets/models/Reindazzle/Reindazzle.fbx",
-    "uploadedAt": "2026-10-05T22:03:09Z"
+    "assetId": 112493062576105,
+    "file": "assets/models/Reindazzle/Reindazzle.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:07Z"
   },
   "Rocklobber": {
-    "assetId": 84724930364833,
-    "file": "assets/models/Rocklobber/Rocklobber.fbx",
-    "uploadedAt": "2026-10-05T22:03:24Z"
+    "assetId": 85738974385619,
+    "file": "assets/models/Rocklobber/Rocklobber.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:16Z"
   },
   "Shellberg": {
-    "assetId": 83475059423653,
-    "file": "assets/models/Shellberg/Shellberg.fbx",
-    "uploadedAt": "2026-10-05T22:03:29Z"
+    "assetId": 95689979583978,
+    "file": "assets/models/Shellberg/Shellberg.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:26Z"
   },
   "Shimmerlynx": {
-    "assetId": 128963124361953,
-    "file": "assets/models/Shimmerlynx/Shimmerlynx.fbx",
-    "uploadedAt": "2026-10-05T22:03:51Z"
+    "assetId": 98529028939594,
+    "file": "assets/models/Shimmerlynx/Shimmerlynx.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:35Z"
   },
   "ShipHull": {
-    "assetId": 89734888134185,
-    "file": "assets/models/props/ShipHull/ShipHull.fbx",
-    "uploadedAt": "2026-10-05T22:04:05Z"
+    "assetId": 123730962666508,
+    "file": "assets/models/props/ShipHull/ShipHull.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:44Z"
+  },
+  "Shrine": {
+    "assetId": 85357251439418,
+    "file": "assets/models/props/Shrine/Shrine.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:53Z"
   },
   "ShrineStone": {
-    "assetId": 74997505224230,
-    "file": "assets/models/props/ShrineStone/ShrineStone.fbx",
-    "uploadedAt": "2026-10-05T22:04:10Z"
+    "assetId": 119263598508312,
+    "file": "assets/models/props/ShrineStone/ShrineStone.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:49:58Z"
   },
   "Skaddle": {
-    "assetId": 79167335486827,
-    "file": "assets/models/Skaddle/Skaddle.fbx",
-    "uploadedAt": "2026-10-05T22:04:16Z"
+    "assetId": 94143662774874,
+    "file": "assets/models/Skaddle/Skaddle.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:04Z"
   },
   "Snailbyte": {
-    "assetId": 80661270931382,
-    "file": "assets/models/Snailbyte/Snailbyte.fbx",
-    "uploadedAt": "2026-10-05T22:04:30Z"
+    "assetId": 116686239921179,
+    "file": "assets/models/Snailbyte/Snailbyte.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:18Z"
   },
   "SnowPine": {
-    "assetId": 125698340054887,
-    "file": "assets/models/props/SnowPine/SnowPine.fbx",
-    "uploadedAt": "2026-10-05T22:04:44Z"
+    "assetId": 97187940926297,
+    "file": "assets/models/props/SnowPine/SnowPine.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:23Z"
   },
   "Snowbun": {
-    "assetId": 101344028973049,
-    "file": "assets/models/Snowbun/Snowbun.fbx",
-    "uploadedAt": "2026-10-05T22:04:50Z"
+    "assetId": 136695184273344,
+    "file": "assets/models/Snowbun/Snowbun.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:29Z"
   },
   "SparkStation": {
-    "assetId": 128207391519162,
-    "file": "assets/models/props/SparkStation/SparkStation.fbx",
-    "uploadedAt": "2026-10-05T22:04:58Z"
+    "assetId": 71629414883882,
+    "file": "assets/models/props/SparkStation/SparkStation.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:37Z"
   },
   "Sparkfox": {
-    "assetId": 74103422841124,
-    "file": "assets/models/Sparkfox/Sparkfox.fbx",
-    "uploadedAt": "2026-10-05T22:05:20Z"
+    "assetId": 79808205927193,
+    "file": "assets/models/Sparkfox/Sparkfox.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:52Z"
   },
   "Thunderhog": {
-    "assetId": 133800077744332,
-    "file": "assets/models/Thunderhog/Thunderhog.fbx",
-    "uploadedAt": "2026-10-05T22:05:29Z"
+    "assetId": 123300168621633,
+    "file": "assets/models/Thunderhog/Thunderhog.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:50:57Z"
   },
   "Toastoad": {
-    "assetId": 133730607533303,
-    "file": "assets/models/Toastoad/Toastoad.fbx",
-    "uploadedAt": "2026-10-05T22:05:43Z"
+    "assetId": 91758095099133,
+    "file": "assets/models/Toastoad/Toastoad.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:51:06Z"
   },
   "Twiglet": {
-    "assetId": 140179596727863,
-    "file": "assets/models/Twiglet/Twiglet.fbx",
-    "uploadedAt": "2026-10-05T22:05:48Z"
+    "assetId": 83597806195142,
+    "file": "assets/models/Twiglet/Twiglet.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:51:20Z"
   },
   "Zapfinch": {
-    "assetId": 85477205832415,
-    "file": "assets/models/Zapfinch/Zapfinch.fbx",
-    "uploadedAt": "2026-10-05T22:05:57Z"
+    "assetId": 131886607786861,
+    "file": "assets/models/Zapfinch/Zapfinch.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-06T04:51:42Z"
   }
 }
