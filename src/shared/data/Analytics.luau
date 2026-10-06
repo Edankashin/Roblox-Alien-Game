@@ -36,11 +36,13 @@ return {
 		Admin = "Admin", -- value 1; fields action (luck, shower, weather, say), by (the developer's user id); once per server that applies it
 		Sighting = "Sighting", -- value 1 per player online when a Warden sighting starts; field species
 		WeeklyFlip = "WeeklyFlip", -- value: the rotation index; fields species, weather; once per server when the week changes
+		Visit = "Visit", -- value 1; fields owner (the home's owner user id), how (here: the view switched in this server; trip: a reserved server)
+		Wave = "Wave", -- value: the Scrap paid the visitor; fields owner, species
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail", Wave = "Wave" },
 		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost", Home = "Home" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds

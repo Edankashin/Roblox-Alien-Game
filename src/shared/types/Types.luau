@@ -18,6 +18,9 @@ export type HomeItem = { uid: string, itemId: string, cellX: number, cellZ: numb
 export type MailItem = { uid: string, from: string, text: string, rewards: { SocialReward }, sentAt: number }
 export type SocialReward = { kind: "scrap" | "lure" | "powerUp" | "spin", id: string?, amount: number }
 export type Visitor = { name: string, at: number }
+-- Today's waves (data/Visiting, Shared/VisitRules): `day` is the gift day the counts are for, `sent` the waves the
+-- player made as a visitor, `got` the Scrap their aliens received from live waves as an owner.
+export type WaveTally = { day: number, sent: number, got: number }
 export type HomeState = {
 	unlocked: boolean,
 	visits: number,
@@ -25,7 +28,22 @@ export type HomeState = {
 	habitatSettled: number, -- os.time() of the last habitat payout
 	mail: { MailItem }, -- newest last; claimed letters are removed
 	visitors: { Visitor }, -- the Visitor Book, newest last
+	waves: WaveTally,
 }
+-- What a visitor sees of someone else's home (milestone 42e): the owner, their house grid, their aliens on display
+-- (the records whose `habitat` is set, by uid; the client draws them roaming) and the worlds they launched from
+-- (the hangar), ascending. The server builds it from the owner's live profile or their save read without a lock.
+export type HomeView = {
+	ownerId: number,
+	ownerName: string,
+	items: { [string]: HomeItem },
+	displayed: { [string]: AlienRecord },
+	launchedWorlds: { number },
+}
+-- What visitors left for an owner who was not in the server, kept in the HomeInbox DataStore under the owner's
+-- user id until their next load drains it: the Visitor Book lines (newest last) and the day's waves (count, Scrap owed).
+export type InboxWaves = { day: number, count: number, scrap: number }
+export type HomeInbox = { visitors: { Visitor }, waves: InboxWaves }
 
 export type SpeciesDef = {
 	id: string,

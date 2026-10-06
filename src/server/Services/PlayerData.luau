@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 13
+local SCHEMA_VERSION = 14
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -29,8 +29,12 @@ local loadedCallbacks: { (Player, Types.Profile) -> () } = {}
 local store: DataStore? = nil
 local memoryOnly = false
 
+local function keyOf(userId: number): string
+	return "User_" .. tostring(userId)
+end
+
 local function keyFor(player: Player): string
-	return "User_" .. tostring(player.UserId)
+	return keyOf(player.UserId)
 end
 
 -- Every preference at its data default (data/Settings.luau).
@@ -69,7 +73,7 @@ local function template(): Types.Profile
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
 		companionSlots = 0,
-		home = { unlocked = false, visits = 0, items = {}, habitatSettled = 0, mail = {}, visitors = {} },
+		home = { unlocked = false, visits = 0, items = {}, habitatSettled = 0, mail = {}, visitors = {}, waves = { day = 0, sent = 0, got = 0 } },
 		quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
@@ -212,6 +216,16 @@ local migrations: { [number]: (any) -> any } = {
 		end
 		if type(data.home.visitors) ~= "table" then
 			data.home.visitors = {}
+		end
+		return data
+	end,
+	-- v14: visiting; today's wave tally starts empty
+	[14] = function(data)
+		if type(data.home) ~= "table" then
+			data.home = { unlocked = false, visits = 0, items = {}, habitatSettled = os.time(), mail = {}, visitors = {} }
+		end
+		if type(data.home.waves) ~= "table" then
+			data.home.waves = { day = 0, sent = 0, got = 0 }
 		end
 		return data
 	end,
@@ -381,6 +395,28 @@ end
 
 function PlayerData.IsMemoryOnly(): boolean
 	return memoryOnly
+end
+
+-- A look at another player's save without the session lock (Visiting shows an away owner's home from it): the
+-- stored data migrated in memory, never written back, never kept here (the caller caches). nil with memory-only
+-- profiles, when the store is unreachable (a warning) or when no save exists. The copy may be minutes old when
+-- that player is online in another server, and nothing read from it may be written anywhere. Yields (GetAsync).
+function PlayerData.Peek(userId: number): Types.Profile?
+	if memoryOnly or not store then
+		return nil
+	end
+	local ds = store :: DataStore
+	local ok, result = pcall(function()
+		return ds:GetAsync(keyOf(userId))
+	end)
+	if not ok then
+		warn(("[%s] peek at %d failed: %s"):format(Config.WorkingTitle, userId, tostring(result)))
+		return nil
+	end
+	if result == nil then
+		return nil
+	end
+	return sanitized(migrate(result))
 end
 
 function PlayerData.Init()
