@@ -13,7 +13,11 @@
 -- the spawn point, so standing next to a lucky friend makes everyone's spawns better. During a Meteor
 -- Shower (Events.IsShowerActive) the Cosmic tier, 0 in the Tiers data, gets Config.ShowerCosmicShare
 -- percent times luck, taken out of the Common remainder like every other tier; chooseSpecies falls
--- back down the tiers in a biome with no Cosmic available.
+-- back down the tiers in a biome with no Cosmic available. The Alien of the Week and the week's overlay are
+-- decided here from Weekly: in the drop's world a share of spawns (data/Weekly SpawnChance) is that species in
+-- any biome with no tier roll, and while the week's weather shows a share (OverlayChance) carries the week's
+-- overlay in place of the usual overlay roll. The weekly species is exempt from the condition despawn, so a
+-- limited one (Quest, Night) stays for its week.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
 -- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
 
@@ -29,6 +33,7 @@ local Tiers = require(Shared.data.Tiers)
 local Species = require(Shared.data.Species)
 local Spawns = require(Shared.data.Spawns)
 local Overlays = require(Shared.data.Overlays)
+local WeeklyData = require(Shared.data.Weekly)
 local Sizes = require(Shared.data.Sizes)
 local CatchVariants = require(Shared.data.CatchVariants)
 local Worlds = require(Shared.data.Worlds)
@@ -38,6 +43,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
 local Buffs = require(script.Parent.Buffs)
 local Events = require(script.Parent.Events)
+local Weekly = require(script.Parent.Weekly)
 
 local Spawner = {}
 
@@ -316,12 +322,26 @@ local function createSpawn(around: Vector3, conditions: { Types.Condition }, luc
 		return nil
 	end
 	local biome: Types.Biome = Biomes.At(flat)
-	local tier = rollTier(luck)
-	local def = chooseSpecies(biome, tier, conditions)
+	-- the Alien of the Week takes its share of the world's spawns, in any biome; an unknown id rolls normally
+	local def: Types.SpeciesDef? = nil
+	local weekly = Weekly.ActiveSpecies()
+	if weekly and rng:NextNumber() < WeeklyData.SpawnChance then
+		def = Species.ById[weekly]
+	end
+	if not def then
+		def = chooseSpecies(biome, rollTier(luck), conditions)
+	end
 	if not def then
 		return nil
 	end
-	return place(def, flat, rollOverlay(), rollSize(), nil)
+	local overlay: Types.Overlay
+	local weeklyOverlay = Weekly.OverlayActive()
+	if weeklyOverlay and rng:NextNumber(0, 100) < WeeklyData.OverlayChance then
+		overlay = weeklyOverlay :: Types.Overlay
+	else
+		overlay = rollOverlay()
+	end
+	return place(def, flat, overlay, rollSize(), nil)
 end
 
 -- Wild spawns within SpawnRadius of a point; a reserved spawn takes no density slot.
@@ -363,10 +383,12 @@ local function tick()
 	end
 
 	-- conditional spawns leave when their condition ends; far spawns are culled. A reserved spawn lives
-	-- on its own lifetime (SpawnAt) and is left alone by both.
+	-- on its own lifetime (SpawnAt) and is left alone by both. The Alien of the Week ignores its own condition
+	-- (Panpipe's is Quest, which no clock ever offers), so it stays while its week runs.
+	local weekly = Weekly.ActiveSpecies()
 	for spawnId, spawn in pairs(spawns) do
 		local wild = spawn.reservedFor == nil
-		if wild and spawn.condition ~= "Any" and not table.find(conditions, spawn.condition) then
+		if wild and spawn.condition ~= "Any" and spawn.species ~= weekly and not table.find(conditions, spawn.condition) then
 			Spawner.RemoveSpawn(spawnId, "despawn")
 		elseif wild and #roots > 0 then
 			local nearest = math.huge

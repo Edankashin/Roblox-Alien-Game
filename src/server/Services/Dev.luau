@@ -11,7 +11,8 @@
 -- (N copies, default 5, of that species with no overlay, so a fusion can be tried in seconds), /token [N] (N
 -- Companion Tokens, default 1, into the inventory), /follow <id> (your first resting copy of that species
 -- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
--- resting copy follow and ride it; off gets down). Nothing
+-- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
+-- offset N, one week on, or back to the real week). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -30,6 +31,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local EconomyService = require(script.Parent.Economy)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
+local Weekly = require(script.Parent.Weekly)
 local CatchRush = require(script.Parent.CatchRush)
 local Gifts = require(script.Parent.Gifts)
 local Social = require(script.Parent.Social)
@@ -153,6 +155,27 @@ local function forceRush(player: Player, text: string)
 	local on = word ~= "end" and word ~= "off"
 	CatchRush.Force(on)
 	print(("[%s] dev: %s %s the Catch Rush"):format(Config.WorkingTitle, player.Name, if on then "started" else "ended"))
+end
+
+-- /week <N|next|off>: N sets the weekly rotation's offset to N weeks, next adds one, off goes back to the real
+-- week. Weekly re-reads at once (the weather, the clients, the Spawner), and the week it lands on is printed.
+local function setWeek(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	local offset = Weekly.GetOffset()
+	if word == "next" then
+		offset += 1
+	elseif word == "off" then
+		offset = 0
+	else
+		local n = tonumber(word or "")
+		if not n then
+			print(("[%s] dev: /week needs a number, next or off; the offset is %d"):format(Config.WorkingTitle, offset))
+			return
+		end
+		offset = n
+	end
+	Weekly.SetOffset(offset)
+	print(("[%s] dev: %s set the week offset to %d: %s"):format(Config.WorkingTitle, player.Name, Weekly.GetOffset(), Weekly.Describe()))
 end
 
 local SPAWN_OFFSET_STUDS = 8 -- a /spawn alien appears this far in front of the player
@@ -322,7 +345,18 @@ local function rideSpecies(player: Player, text: string)
 	if not pick then
 		pick = firstRestingCopy(profile, id)
 		if not pick then
-			print(("[%s] dev: no copy of %s to ride"):format(Config.WorkingTitle, id))
+			-- Say why: no copy at all, or every copy is seated (a seated alien never follows, so it cannot be ridden).
+			local owned = 0
+			for _, record in pairs(profile.aliens) do
+				if record.species == id then
+					owned += 1
+				end
+			end
+			if owned == 0 then
+				print(("[%s] dev: no copy of %s to ride (catch or /spawn one first)"):format(Config.WorkingTitle, id))
+			else
+				print(("[%s] dev: every copy of %s is working at a station; a seated alien cannot follow or be ridden (unseat one first)"):format(Config.WorkingTitle, id))
+			end
 			return
 		end
 		local followed, followReason = Companions.SetFollowing(player, pick, true)
@@ -600,6 +634,7 @@ function Dev.Init()
 	end)
 	command("shower", forceShower)
 	command("rush", forceRush)
+	command("week", setWeek)
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
 	command("grow", growCamp)
@@ -636,7 +671,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

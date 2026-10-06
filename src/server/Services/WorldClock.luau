@@ -2,6 +2,9 @@
 -- ServerScriptService.Server.Services.WorldClock: the server-owned day/night cycle and weather.
 -- Lives on the server because spawn conditions (Day/Night/Rain species) must be judged by one clock
 -- that no client can nudge. Clients only receive ClockChanged and the GetClock snapshot for the HUD.
+-- WorldClock.SetWeatherOverride (Weekly's drop weather) holds one weather state in place of the normal rolls:
+-- the world's special weather still rolls at its own chance and never twice in a row, and the override comes
+-- back after it. The clock never decides which week it is; Weekly does.
 
 local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
@@ -25,6 +28,7 @@ local phaseEndsAt = 0 -- os.clock() when day flips to night or back
 local weatherEndsAt = 0
 local listeners: { (Types.Condition) -> () } = {} -- server services told on every change (Materials gates nodes by condition)
 local extras: { [string]: boolean } = {} -- conditions other services switch on (Events: "Shower")
+local weatherOverride: string? = nil -- the weather state held in place of a normal roll (Weekly's drop weather)
 
 local function snapshot(): Types.ClockState
 	return {
@@ -50,13 +54,8 @@ local function broadcast()
 	Net.event("ClockChanged"):FireAllClients(snapshot())
 end
 
--- The world's special weather rolls with its own chance (never twice in a row); otherwise any normal
--- state other than the current one, so a roll always reads as a change.
-local function rollWeather(): string
-	local special = world.weather.special
-	if weather ~= special.id and rng:NextNumber() < special.chance then
-		return special.id
-	end
+-- Any normal state other than the current one, so a roll always reads as a change.
+local function rollNormal(): string
 	local states = world.weather.normal
 	if #states <= 1 then
 		return states[1]
@@ -68,8 +67,22 @@ local function rollWeather(): string
 	return choice
 end
 
+-- The world's special weather rolls with its own chance (never twice in a row); otherwise the override
+-- while one is set (so it comes back after the special weather), else a normal state.
+local function rollWeather(): string
+	local special = world.weather.special
+	if weather ~= special.id and rng:NextNumber() < special.chance then
+		return special.id
+	end
+	local override = weatherOverride
+	if override then
+		return override
+	end
+	return rollNormal()
+end
+
 local function isKnownWeather(state: string): boolean
-	return state == world.weather.special.id or table.find(world.weather.normal, state) ~= nil
+	return state == world.weather.special.id or state == weatherOverride or table.find(world.weather.normal, state) ~= nil
 end
 
 -- Public API -------------------------------------------------------------
@@ -147,6 +160,16 @@ function WorldClock.OnChanged(callback: (Types.Condition) -> ())
 	table.insert(listeners, callback)
 end
 
+-- A change just happened: every client hears it and each listener runs in its own thread, so one slow or
+-- failing service cannot stall the clock.
+local function notify()
+	broadcast()
+	local condition: Types.Condition = WorldClock.GetCondition()
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, condition)
+	end
+end
+
 -- Developer override (Studio commands): force night or day and/or a weather state now. The forced
 -- phase keeps its normal length from this moment, so the cycle resumes on its own.
 function WorldClock.Force(night: boolean?, state: string?)
@@ -160,11 +183,35 @@ function WorldClock.Force(night: boolean?, state: string?)
 		weather = state
 		weatherEndsAt = now + rng:NextNumber(Config.WeatherMinSeconds, Config.WeatherMaxSeconds)
 	end
-	broadcast()
-	local condition: Types.Condition = WorldClock.GetCondition()
-	for _, callback in ipairs(listeners) do
-		task.spawn(callback, condition)
+	notify()
+end
+
+-- Holds `state` as the weather in place of the normal rolls (Weekly's drop weather); nil clears it. The world's
+-- special weather still rolls at its own chance and the override returns after it. Setting one while any
+-- weather but the special one is showing switches to it now, and clearing one while it is showing re-rolls a
+-- normal state now, both like Force (a fresh weatherEndsAt, ClockChanged, the listeners). While the special
+-- weather is showing nothing changes until it ends.
+function WorldClock.SetWeatherOverride(state: string?)
+	local previous = weatherOverride
+	if previous == state then
+		return
 	end
+	weatherOverride = state
+	local special = world.weather.special.id
+	local target: string? = nil
+	if state ~= nil then
+		if weather ~= special and weather ~= state then
+			target = state
+		end
+	elseif weather == previous and weather ~= special then
+		target = rollNormal()
+	end
+	if target == nil then
+		return
+	end
+	weather = target
+	weatherEndsAt = os.clock() + rng:NextNumber(Config.WeatherMinSeconds, Config.WeatherMaxSeconds)
+	notify()
 end
 
 function WorldClock.Init()
@@ -202,12 +249,7 @@ function WorldClock.Start()
 				changed = true
 			end
 			if changed then
-				broadcast()
-				-- each listener runs in its own thread so one slow or failing service cannot stall the clock
-				local condition: Types.Condition = WorldClock.GetCondition()
-				for _, callback in ipairs(listeners) do
-					task.spawn(callback, condition)
-				end
+				notify()
 			end
 		end
 	end)
