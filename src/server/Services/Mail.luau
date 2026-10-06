@@ -173,8 +173,11 @@ end
 -- GetMail() -> { mail, visitors }: the letters and the Visitor Book, for a client that opens the mailbox after the
 -- last MailChanged (empty before the profile loads or when rate limited; the next MailChanged fills it in).
 local function onGetMail(player: Player): MailState
+	if not Net.allow(player, "GetMail", MailData.ClaimsPerSecond) then
+		return { mail = {}, visitors = {} }
+	end
 	local profile = PlayerData.Get(player)
-	if not profile or not Net.allow(player, "GetMail", MailData.ClaimsPerSecond) then
+	if not profile then
 		return { mail = {}, visitors = {} }
 	end
 	return { mail = profile.home.mail, visitors = profile.home.visitors }
