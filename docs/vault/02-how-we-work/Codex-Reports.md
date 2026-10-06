@@ -80,3 +80,11 @@ Implementation: `116a72f`; claim: `01b30fd`.
 Extracted pure selection to ReplicatedStorage.Shared.FusionMath. ServerScriptService.Server.Services.Economy keeps its existing ranking, argument/profile refusals and every mutation; only Fuse changed. The selector accepts already-ranked copies and the existing cap, preserving NotEnough/MaxLevel precedence, higher-level exclusion and resting/seated/companion/habitat preference. Added WeeklyMath epoch/wrap/reset/override/limited/current coverage and the missing pre-Elder growth edge.
 
 Measured: **58 → 71 tests**, **9 specs**, **0 failures**, **0.030 s**; analyze clean; data lint clean. Reviewed the Economy diff: only selection inside Fuse changed. BadArgs/NoProfile remain the unchanged service's responsibility; selection's two refusals are tested. No balance changes or Studio operations.
+
+## C6 — 2026-10-06 — review
+
+Implementation: `1b07b06`; claim: `3189257`.
+
+Added **17 documented rule groups** for numeric keys, dense orders/rotations, traversal references, mount seats, habitat worlds/capacity/footprints/caps, weekly exclusivity, seasonal windows/species/overlays/quests/rewards, shop uniqueness/launch/grants/NeverSold, settings and codes. The C2 reader remains in lint_data.py; reused it unchanged. Radar.Mk2 and the live CompanionSlot4 pass are explicit allowances.
+
+Found: **0 data problems**, **0 warnings**, **0 failures**; the exact-warning baseline is empty. **31 isolated mutations** all produced diagnostics. Data lint took **under 1 second**; suite remains **71 tests / 9 specs**, **0 failures**, **0.039 s**. Analysis clean. No game data changed. Left open: none.
