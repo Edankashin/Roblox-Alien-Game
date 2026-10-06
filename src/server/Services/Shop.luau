@@ -51,12 +51,18 @@ local HUMANOID_WAIT_SECONDS = 10 -- a fresh character gets this long to grow its
 local GEAR_ROWS: { [string]: GearRow } = { Boots = Gear.Boots, Hoverboard = Gear.Hoverboard, Glider = Gear.Glider, JetBoost = Gear.JetBoost }
 -- The profile.gear flag each gear id sets. Jet Boost has no flag yet (World 3 traversal, a later milestone).
 local GEAR_FLAG: { [string]: string } = { Boots = "boots", Hoverboard = "hoverboard", Glider = "glider" }
--- The profile starts with one unlocked world (PlayerData's template), so a second one means the ship has
--- launched at least once: the Glider's unlock (Gear.Glider.unlock = "FirstLaunch", paid by Launch).
-local FIRST_LAUNCH_UNLOCKED_WORLDS = 2
+-- The profile starts with the first world unlocked (PlayerData's template), so any later world in the list means
+-- the ship has launched at least once: the Glider's unlock (Gear.Glider.unlock = "FirstLaunch", paid by Launch).
+-- The home planet (world 0) joins the list on that launch too, or through a dev command, so it never counts.
+local FIRST_WORLD = 1
 
 local function hasLaunched(profile: Types.Profile): boolean
-	return #profile.world.unlocked >= FIRST_LAUNCH_UNLOCKED_WORLDS
+	for _, worldId in ipairs(profile.world.unlocked) do
+		if worldId > FIRST_WORLD then
+			return true
+		end
+	end
+	return false
 end
 
 local function always(_profile: Types.Profile): boolean

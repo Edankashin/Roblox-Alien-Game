@@ -7,6 +7,7 @@
 -- Scrap, so nothing here is a paid random item. The egg kind grants an alien through
 -- Economy.GrantAlien, which writes the record, pays the codex and seats it exactly like a catch.
 -- The client renders the landing and the Trade screen; it only sends an offer index.
+-- The home planet (Place.IsHome, world 0) gets no visits: the clock never starts there.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -234,6 +235,10 @@ function Peddler.Init()
 end
 
 function Peddler.Start()
+	if Place.IsHome() then
+		print(("[%s] Peddler: this is the home planet; no visits"):format(Config.WorkingTitle))
+		return
+	end
 	-- The interval is measured from one visit's start to the next, so the gap is interval minus stay.
 	task.spawn(function()
 		task.wait(Config.PeddlerFirstVisitSeconds)

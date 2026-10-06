@@ -63,13 +63,25 @@ local GEAR_ITEMS: { GearItem } = {
 -- grey while only the starting world is unlocked and buyable once a second world is; Radar Mk2 waits on
 -- the same second world and on Mk1 being held. The tap still goes to the server, which decides, and a
 -- refusal becomes the TOAST_LOCKED_GEAR toast.
+-- The ship has launched when any world past the first is unlocked (the home planet, world 0, never counts),
+-- the same rule the server's Shop reads.
+local FIRST_WORLD = 1
+local function hasLaunched(profile: Types.Profile): boolean
+	for _, worldId in ipairs(profile.world.unlocked) do
+		if worldId > FIRST_WORLD then
+			return true
+		end
+	end
+	return false
+end
+
 local function gearLocked(profile: Types.Profile, item: GearItem): boolean
 	local def = item.def
 	if def and def.unlock == "FirstLaunch" then
-		return #profile.world.unlocked <= 1
+		return not hasLaunched(profile)
 	end
 	if item.radarTier == RADAR_MK2 then
-		return #profile.world.unlocked <= 1 or profile.gear.radar < RADAR_MK1
+		return not hasLaunched(profile) or profile.gear.radar < RADAR_MK1
 	end
 	return false
 end

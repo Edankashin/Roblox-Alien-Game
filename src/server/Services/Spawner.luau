@@ -20,6 +20,7 @@
 -- limited one (Quest, Night) stays for its week.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
 -- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
+-- The home planet (Place.IsHome, world 0) has no wild: Start runs no tick there, so nothing ever spawns.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -492,6 +493,10 @@ function Spawner.Init()
 end
 
 function Spawner.Start()
+	if Place.IsHome() then
+		print(("[%s] Spawner: this is the home planet; no wild spawns"):format(Config.WorkingTitle))
+		return
+	end
 	task.spawn(function()
 		while true do
 			tick()

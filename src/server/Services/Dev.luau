@@ -1,7 +1,7 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
 -- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /sighting [end], /days 7, /spins 3, /radar [N], /tutorial 6,
--- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
+-- /buy StarterPack, /pass AutoOptimize [off], /world 2 (0 is the home planet), /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
 -- weekly board through its per-minute cap; send them to the store now and refresh the board), /dq reset | done (deal the
@@ -50,6 +50,7 @@ local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
 local Worlds = require(Shared.data.Worlds)
+local Home = require(Shared.data.Home)
 local CatchVariants = require(Shared.data.CatchVariants)
 
 local Dev = {}
@@ -449,7 +450,7 @@ local function setPass(player: Player, text: string)
 	print(("[%s] dev: %s pass %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then (if owned then "owned" else "dropped") else "refused: " .. tostring(reason)))
 end
 
--- /world N: move the profile to world N (clamped to a world in Worlds) and unlock it, and tell the client
+-- /world N: move the profile to world N (clamped to a world in Worlds, 0 the home planet) and unlock it, and tell the client
 -- (WorldChanged, ModulesChanged) the way Launch does. Only the profile changes: the place itself is fixed
 -- by its WorldId attribute, so rejoin the World N place (rojo serve world2.project.json) to stand in it.
 local function setWorld(player: Player, text: string)
@@ -462,9 +463,12 @@ local function setWorld(player: Player, text: string)
 	for id in pairs(Worlds) do
 		last = math.max(last, id)
 	end
-	local target = math.clamp(math.floor(requested), 1, last)
+	local target = math.clamp(math.floor(requested), Home.WorldId, last)
 	local ok = PlayerData.Update(player, function(profile)
 		profile.world.current = target
+		if target == Home.WorldId then
+			profile.home.unlocked = true
+		end
 		if not table.find(profile.world.unlocked, target) then
 			table.insert(profile.world.unlocked, target)
 		end
@@ -566,6 +570,10 @@ local function backdateOutpost(player: Player, text: string)
 	local worldId = math.floor(requested)
 	if not Worlds[worldId] then
 		print(("[%s] dev: /outpost: no world %d in Shared/data/Worlds"):format(Config.WorkingTitle, worldId))
+		return
+	end
+	if worldId == Home.WorldId then
+		print(("[%s] dev: /outpost: the home planet is never an outpost"):format(Config.WorkingTitle))
 		return
 	end
 	local hours = math.max(0, numbers[2] or 1)

@@ -21,6 +21,11 @@
 -- outright by the mesh; the shrine's pedestal stays as an invisible anchor (it is the PrimaryPart and
 -- carries LandmarkId) with the mesh as its child. A scattered landmark draws the same random numbers
 -- whether or not its mesh exists, so the seeded world is laid out identically with and without imports.
+--
+-- The home planet (Place.IsHome, world 0; data/Home) builds neither the shrine nor the landmarks. When the layout
+-- sets PlotCells it draws the plot for the house grid right after the camp pad: one flat block named "Plot" of
+-- PlotCells x PlotCellStuds studs a side, PlotOffsetStuds past the pad on +Z, resting on the floor; GetPlotCenter
+-- says where it is for the house grid.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -93,6 +98,23 @@ end
 local function flatDistance(a: Vector3, b: Vector3): number
 	local dx, dz = a.X - b.X, a.Z - b.Z
 	return math.sqrt(dx * dx + dz * dz)
+end
+
+-- The plot's numbers from the layout, or nil when the layout has no plot (PlotCells unset). Its centre sits on
+-- +Z at the pad's radius plus the offset plus half the side.
+type PlotShape = { side: number, centerZ: number, thickness: number, color: string }
+local function plotShape(): PlotShape?
+	local cells = Layout.PlotCells
+	if cells == nil then
+		return nil
+	end
+	local cellStuds, offset, thickness, color = Layout.PlotCellStuds, Layout.PlotOffsetStuds, Layout.PlotThickness, Layout.PlotColor
+	if cellStuds == nil or offset == nil or thickness == nil or color == nil then
+		warn(("[%s] Meadow: layout %d sets PlotCells but not every Plot field; no plot drawn"):format(Config.WorkingTitle, Layout.WorldId))
+		return nil
+	end
+	local side = cells * cellStuds
+	return { side = side, centerZ = Layout.CampPadRadius + offset + side / 2, thickness = thickness, color = color }
 end
 
 local function shrineFlat(): Vector3
@@ -430,6 +452,12 @@ function Meadow.Init()
 	spawn.Duration = 0
 	spawn.Parent = world
 
+	-- The home's plot for the house grid: a flat block on the floor, past the pad on +Z.
+	local plot = plotShape()
+	if plot then
+		basePart("Plot", Enum.PartType.Block, Vector3.new(plot.side, plot.thickness, plot.side), CFrame.new(0, floorTop + plot.thickness / 2, plot.centerZ), plot.color, world)
+	end
+
 	-- Deterministic scatter so every server (and every reconnect) sees the same landmarks. One rng
 	-- feeds the regions and then the open floor; regions go in name order because pairs() order is
 	-- not stable between servers.
@@ -453,12 +481,14 @@ function Meadow.Init()
 		buildTree("Tree" .. i, at, floorTop + regionLift(at), rng, world)
 	end
 
-	-- The world's landmark. Scatter already kept clear of its ring (scatterPoint).
-	local shrineAt = shrineFlat()
-	buildShrine(floorTop + regionLift(shrineAt), landmarks)
+	-- The world's landmark. Scatter already kept clear of its ring (scatterPoint). The home has neither.
+	if not Place.IsHome() then
+		local shrineAt = shrineFlat()
+		buildShrine(floorTop + regionLift(shrineAt), landmarks)
 
-	-- Hero set pieces from the layout; scatter already kept clear of each one (clearOfLandmarks).
-	placeLandmarks(floorTop, landmarks)
+		-- Hero set pieces from the layout; scatter already kept clear of each one (clearOfLandmarks).
+		placeLandmarks(floorTop, landmarks)
+	end
 
 	world.Parent = Workspace
 end
@@ -495,6 +525,16 @@ end
 function Meadow.GetShrinePosition(): Vector3
 	local flat = shrineFlat()
 	return Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + pedestalHeight(), flat.Z)
+end
+
+-- The middle of the plot's top face, where the house grid stands (the home planet; see the header), or nil
+-- when this layout has no plot. Derived from the layout like GetShrinePosition.
+function Meadow.GetPlotCenter(): Vector3?
+	local plot = plotShape()
+	if not plot then
+		return nil
+	end
+	return Vector3.new(0, Meadow.GetFloorTop() + plot.thickness, plot.centerZ)
 end
 
 return Meadow

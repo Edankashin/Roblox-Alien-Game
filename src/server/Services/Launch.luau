@@ -16,6 +16,12 @@
 -- destination outpost's production is banked (Outposts.Collect with force), the world being left is
 -- stamped (Outposts.Touch), the profile moves, the client hears Flew (the fade) and, after
 -- Config.FlyTeleportDelaySeconds, the same teleport as a launch runs.
+-- The home planet (world 0, data/Home; milestone 42a) is a world you fly to, never one you launch from or to:
+-- a launch from home answers NoNextWorld; the first successful launch anywhere sets profile.home.unlocked and
+-- puts the home in profile.world.unlocked (and fires HomeUnlocked once, only that first time); FlyTo accepts
+-- the home when home.unlocked (a migrated save with the flag but no entry in the list gets the entry on that
+-- fly), counts each arrival in home.visits, and never touches Outposts for it: the home is not an outpost, so
+-- nothing is banked on arriving there and no clock is stamped when leaving it.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -34,8 +40,11 @@ local Tutorial = require(script.Parent.Tutorial)
 local Outposts = require(script.Parent.Outposts)
 local Analytics = require(script.Parent.Analytics)
 local AnalyticsData = require(Shared.data.Analytics)
+local Home = require(Shared.data.Home)
 
 local Launch = {}
+
+local HOME_WORLD = Home.WorldId -- the home planet's world id, from its layout row
 
 local REMOTE_RATE_PER_SECOND = 2 -- Launch calls per player per second
 -- The custom event name for a launch (value 1; fields from, to). It belongs in Shared/data/Analytics.Events
@@ -75,7 +84,7 @@ end
 
 -- Launch() -> (ok, reason). Reasons: RateLimited, NoProfile, Busy (a launch is already in flight),
 -- WrongWorld (the profile's ship is on another world than this place runs), NotComplete (a module of this
--- world is not finished), NoNextWorld (this is the last world).
+-- world is not finished), NoNextWorld (this is the last world, or the home planet: nothing launches from home).
 local function onLaunch(player: Player): (boolean, string?)
 	if not Net.allow(player, "Launch", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
@@ -91,6 +100,9 @@ local function onLaunch(player: Player): (boolean, string?)
 	if profile.world.current ~= here then
 		return false, "WrongWorld"
 	end
+	if Place.IsHome() then
+		return false, "NoNextWorld"
+	end
 	if Economy.activeModuleIndex(profile, here) ~= nil then
 		return false, "NotComplete"
 	end
@@ -101,10 +113,19 @@ local function onLaunch(player: Player): (boolean, string?)
 	end
 	inFlight[player.UserId] = true
 	local now = os.time()
+	local homeJustUnlocked = false
 	local ok = PlayerData.Update(player, function(p: Types.Profile)
 		p.world.current = nextId
 		if not table.find(p.world.unlocked, nextId) then
 			table.insert(p.world.unlocked, nextId)
+		end
+		-- The first launch opens the home planet: a flyable world from then on.
+		if not p.home.unlocked then
+			p.home.unlocked = true
+			homeJustUnlocked = true
+		end
+		if not table.find(p.world.unlocked, HOME_WORLD) then
+			table.insert(p.world.unlocked, HOME_WORLD)
 		end
 		-- The camp left behind is an outpost from now: opened at level 1 the first time, and on a later launch
 		-- from the same world (after a Star Chart flight back) its clock restarts so the time the ship spent
@@ -132,6 +153,9 @@ local function onLaunch(player: Player): (boolean, string?)
 		Net.event("ModulesChanged"):FireClient(player, moved.world.current, moved.modules[tostring(moved.world.current)] or {})
 		Net.event("OutpostsChanged"):FireClient(player, moved.world.outposts)
 	end
+	if homeJustUnlocked then
+		Net.event("HomeUnlocked"):FireClient(player)
+	end
 	Tutorial.OnWorldChanged(player) -- off World 1 the tutorial is over: its hint and trainee go
 	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
 	teleportLater(player, nextWorld, placeLive, Config.LaunchTeleportDelaySeconds)
@@ -140,7 +164,7 @@ end
 
 -- FlyTo(worldId) -> (ok, reason). Reasons: RateLimited, NoProfile, Busy (a launch or flight is already in
 -- flight), NoWorld (not a world in Shared/data/Worlds), Locked (not in profile.world.unlocked), SameWorld
--- (the ship is already on it).
+-- (the ship is already on it). The home planet counts as unlocked when profile.home.unlocked.
 local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if not Net.allow(player, "FlyTo", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
@@ -160,7 +184,12 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if not destination then
 		return false, "NoWorld"
 	end
-	if not table.find(profile.world.unlocked, worldId) then
+	local toHome = worldId == HOME_WORLD
+	if toHome then
+		if not profile.home.unlocked then
+			return false, "Locked"
+		end
+	elseif not table.find(profile.world.unlocked, worldId) then
 		return false, "Locked"
 	end
 	local origin = profile.world.current
@@ -170,14 +199,26 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	inFlight[player.UserId] = true
 	local now = os.time()
 	-- The destination's production is banked before the ship arrives; the world being left starts its clock.
-	local banked, bankReason = Outposts.Collect(player, worldId, true)
-	if not banked then
-		inFlight[player.UserId] = nil
-		return false, bankReason or "NoProfile"
+	-- The home is no outpost: nothing to bank on arriving there, no clock to stamp when leaving it.
+	if not toHome then
+		local banked, bankReason = Outposts.Collect(player, worldId, true)
+		if not banked then
+			inFlight[player.UserId] = nil
+			return false, bankReason or "NoProfile"
+		end
 	end
-	Outposts.Touch(player, origin, now)
+	if origin ~= HOME_WORLD then
+		Outposts.Touch(player, origin, now)
+	end
 	local ok = PlayerData.Update(player, function(p: Types.Profile)
 		p.world.current = worldId
+		if toHome then
+			p.home.visits += 1
+			-- a save migrated with home.unlocked but no entry in the list gets its entry now
+			if not table.find(p.world.unlocked, HOME_WORLD) then
+				table.insert(p.world.unlocked, HOME_WORLD)
+			end
+		end
 	end)
 	if not ok then
 		inFlight[player.UserId] = nil
@@ -201,6 +242,7 @@ end
 function Launch.Init()
 	Net.event("Launched")
 	Net.event("Flew")
+	Net.event("HomeUnlocked")
 	Net.event("WorldChanged")
 	Net.event("ModulesChanged")
 	Net.func("Launch").OnServerInvoke = onLaunch

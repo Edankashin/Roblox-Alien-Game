@@ -8,7 +8,7 @@
 -- in its own biome (Shared/Biomes); a row with a condition (Night, Rain) is only available while the
 -- WorldClock says so (WorldClock.HasCondition: a rainy night is both Rain and Night) and shows as a
 -- ghost otherwise, so a player can find it by day and come back. Every collect is reported to Quests
--- for the Field Notes and to the Tutorial.
+-- for the Field Notes and to the Tutorial. The home planet (Place.IsHome, world 0) scatters no nodes.
 
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
@@ -212,6 +212,10 @@ function Materials.Init()
 		folder = Instance.new("Folder")
 		folder.Name = FOLDER_NAME
 		folder.Parent = world
+	end
+	if Place.IsHome() then
+		print(("[%s] Materials: this is the home planet; no nodes scattered"):format(Config.WorkingTitle))
+		return
 	end
 
 	-- Deterministic scatter: one rng for every material, materials in id order (pairs() order is not

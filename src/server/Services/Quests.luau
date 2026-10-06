@@ -7,7 +7,9 @@
 -- (Worlds[Place.WorldId()].warden) as a spawn reserved for that player next to the shrine
 -- (Place.Layout().Shrine, Spawner.SpawnAt), and a lost, cancelled or expired encounter is a retreat
 -- that starts the horn's cooldown. The client renders the screen and the toasts; every count and
--- every grant is decided here.
+-- every grant is decided here. The home planet (Place.IsHome, world 0) has no chain and no shrine: the
+-- hooks count nothing, QuestClaim and SoundHorn answer NoChain, and the profile gets no fieldNotes entry
+-- for it; the daily and weekly quests (DailyQuests) are world-free and keep working there.
 -- Requires run one way: Economy, Materials, Shop and Catching require this module to report; this
 -- module never requires them back. Shop hands over its gear grant through SetGearGranter at Init.
 
@@ -34,6 +36,7 @@ local REMOTE_RATE_PER_SECOND = 4 -- QuestClaim and SoundHorn calls per player pe
 local FIRST_STEP = 1 -- fieldNotes[world] for a profile that has not started the chain
 local WORLD_ID = Place.WorldId() -- the chain this place runs
 local WORLD_KEY = tostring(WORLD_ID)
+local AT_HOME = Place.IsHome() -- no Field Notes chain, no shrine
 local WARDEN_SPECIES: string = Worlds[WORLD_ID].warden
 local CHAIN: { QuestData.Step } = QuestData.FieldNotes[WORLD_ID] or {}
 
@@ -89,6 +92,9 @@ end
 -- pushes QuestsChanged when anything moved (the client reads a completed step from the counts). A
 -- no-op once the chain is done or when nothing in the step matches.
 local function advance(player: Player, matches: (QuestData.Objective) -> boolean)
+	if AT_HOME then
+		return
+	end
 	local changed = false
 	local ok = PlayerData.Update(player, function(profile)
 		local step = currentStep(profile)
@@ -204,8 +210,8 @@ end
 -- Remotes ----------------------------------------------------------------
 
 -- QuestClaim() -> (ok, reason). Pays every reward of the current step and moves to the next.
--- Reasons: RateLimited, NoProfile, Done (the chain is finished), NotComplete (an objective is short, or
--- the step's encounter reward has not been caught yet).
+-- Reasons: RateLimited, NoProfile, NoChain (the home planet has none), Done (the chain is finished),
+-- NotComplete (an objective is short, or the step's encounter reward has not been caught yet).
 local function onQuestClaim(player: Player): (boolean, string?)
 	if not Net.allow(player, "QuestClaim", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
@@ -213,6 +219,9 @@ local function onQuestClaim(player: Player): (boolean, string?)
 	local profile = PlayerData.Get(player)
 	if not profile then
 		return false, "NoProfile"
+	end
+	if AT_HOME then
+		return false, "NoChain"
 	end
 	local step, index = currentStep(profile)
 	if not step then
@@ -283,7 +292,7 @@ local function onQuestClaim(player: Player): (boolean, string?)
 end
 
 -- SoundHorn() -> (ok, reason). Summons this player's Warden next to the shrine and counts the horn
--- objective. Reasons: RateLimited, NoProfile, NoHorn (no Quests.HornItem held), WrongStep (the current
+-- objective. Reasons: RateLimited, NoProfile, NoChain (the home planet has no shrine), NoHorn (no Quests.HornItem held), WrongStep (the current
 -- step has no soundHorn objective), NotNight (the objective's condition is not active), NoCharacter,
 -- TooFar (farther than ShrineInteractDistance from the shrine), Cooldown (a retreat less than
 -- WardenRetreatSeconds ago), Active (this player's Warden is already out), Unknown (the warden species
@@ -295,6 +304,9 @@ local function onSoundHorn(player: Player): (boolean, string?)
 	local profile = PlayerData.Get(player)
 	if not profile then
 		return false, "NoProfile"
+	end
+	if AT_HOME then
+		return false, "NoChain"
 	end
 	if (profile.inventory.items[QuestData.HornItem] or 0) < 1 then
 		return false, "NoHorn"
@@ -403,7 +415,7 @@ function Quests.Init()
 	-- covers a client that pulled its profile early.
 	PlayerData.OnLoaded(function(player: Player, _profile: Types.Profile)
 		PlayerData.Update(player, function(p)
-			if p.quests.fieldNotes[WORLD_KEY] == nil then
+			if not AT_HOME and p.quests.fieldNotes[WORLD_KEY] == nil then
 				p.quests.fieldNotes[WORLD_KEY] = FIRST_STEP
 			end
 		end)
@@ -421,6 +433,10 @@ function Quests.Start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		retreat(player.UserId, false)
 	end)
+	if AT_HOME then
+		print(("[%s] Quests: this is the home planet; no Field Notes chain, no shrine"):format(Config.WorkingTitle))
+		return
+	end
 	print(("[%s] Quests: Field Notes for world %d, %d steps; warden %s"):format(Config.WorkingTitle, WORLD_ID, #CHAIN, WARDEN_SPECIES))
 end
 
