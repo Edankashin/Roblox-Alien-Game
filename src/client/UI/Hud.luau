@@ -75,6 +75,8 @@ local bannerText: TextLabel? = nil
 local bannerSub: TextLabel? = nil -- the smaller second line (the time left)
 local bannerChip: Frame? = nil
 local bannerChipLabel: TextLabel? = nil
+local bannerIcon: Frame? = nil -- the placeholder square an event icon fills
+local bannerIconKey: string? = nil -- the key shown now, so a repeated SetEventBanner leaves the image alone
 local friendChip: Frame? = nil
 local friendLabel: TextLabel? = nil
 local friendCountShown = 0
@@ -117,6 +119,22 @@ local function centreScale(root: ScreenGui, target: GuiObject): (number, number)
 	return centre.X / screen.X, centre.Y / screen.Y
 end
 
+-- Fills a backing square with an icon from the pack, replacing any icon it held. The square goes transparent
+-- (fill and outline: the icon carries its own) while the image shows; with no key, or an id of 0, the
+-- square is the placeholder it always was.
+local function setSquareIcon(square: Frame, key: string?)
+	local previous = square:FindFirstChild("IconImage")
+	if previous then
+		previous:Destroy()
+	end
+	local image = if key then Builder.icon({ parent = square, name = "IconImage", key = key, zIndex = square.ZIndex + 1 }) else nil
+	square.BackgroundTransparency = if image then 1 else 0
+	local outline = square:FindFirstChildOfClass("UIStroke")
+	if outline then
+		outline.Enabled = image == nil
+	end
+end
+
 local function buildScrapPill(root: ScreenGui)
 	local pill = Builder.pill({
 		parent = root,
@@ -130,7 +148,7 @@ local function buildScrapPill(root: ScreenGui)
 	})
 	scrapPill = pill
 	Builder.gradient(pill, Theme.Colors.Trough)
-	-- icon placeholder: a gold rounded square until the Scrap icon exists
+	-- icon backing: a gold rounded square, transparent once the Scrap icon fills it
 	local icon = Builder.frame({
 		parent = pill,
 		name = "Icon",
@@ -143,6 +161,7 @@ local function buildScrapPill(root: ScreenGui)
 		aspect = 1,
 	})
 	Builder.gradient(icon, Theme.Colors.Featured)
+	setSquareIcon(icon, "Scrap")
 	local number = Builder.label({
 		parent = pill,
 		name = "Amount",
@@ -231,8 +250,8 @@ local function buildShowerChip(root: ScreenGui)
 	})
 end
 
--- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. Until the
--- icon pack is chosen the face shows a placeholder glyph from the strings table.
+-- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. The face shows
+-- the id's icon from the pack; while that icon is not uploaded it shows the MENU_GLYPH_<id> glyph.
 local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onClick: () -> ()): Frame
 	local label = Builder.text("MENU_" .. id)
 	local glyph = Builder.text("MENU_GLYPH_" .. id)
@@ -249,6 +268,7 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		parent = slot,
 		name = "Button",
 		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
+		icon = id,
 		color = color,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(1, MENU_BUTTON / MENU_SLOT),
@@ -412,7 +432,7 @@ local function buildEventBanner(root: ScreenGui)
 	Builder.gradient(pill, Theme.Colors.Trough)
 	pill.Visible = false
 	banner = pill
-	-- icon placeholder: a purple rounded square until the event icons exist
+	-- icon backing: a purple rounded square, transparent while SetEventBanner gives it an event icon
 	local icon = Builder.frame({
 		parent = pill,
 		name = "Icon",
@@ -426,6 +446,7 @@ local function buildEventBanner(root: ScreenGui)
 		zIndex = 2,
 	})
 	Builder.gradient(icon, Theme.Colors.Codex)
+	bannerIcon = icon
 	-- Two lines, per the Playbook: the event name bold on top, the time left smaller beneath it.
 	bannerText = Builder.label({
 		parent = pill,
@@ -713,13 +734,19 @@ end
 
 -- The event banner in the luck line's slot: `text` is the event name (SHOWER_NOW), `subtitle` the
 -- smaller line beneath it (the time left, SHOWER_LEFT formatted) and `chip` the green chip's text
--- (SHOWER_LUCK formatted); nil text hides the banner and gives the luck line its slot back.
-function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?)
+-- (SHOWER_LUCK formatted); nil text hides the banner and gives the luck line its slot back. `iconKey` is an
+-- Icons key for the square on the left; nil, or an icon not uploaded yet, leaves the purple placeholder.
+function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, iconKey: string?)
 	local pill, label, sub = banner, bannerText, bannerSub
 	if not pill or not label or not sub then
 		return
 	end
 	if text then
+		local square = bannerIcon
+		if square and iconKey ~= bannerIconKey then
+			bannerIconKey = iconKey
+			setSquareIcon(square, iconKey)
+		end
 		label.Text = text
 		sub.Text = subtitle or ""
 		sub.Visible = subtitle ~= nil
@@ -833,8 +860,8 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	buildMenuButton(root, id, color, onClick)
 end
 
--- A round chunky button just left of the clock chip (then left of the previous one), with the
--- MENU_GLYPH_<id> placeholder glyph as its face. It lives in the HUD gui, so it hides with SetVisible.
+-- A round chunky button just left of the clock chip (then left of the previous one), with the id's icon as
+-- its face (the MENU_GLYPH_<id> glyph while that icon is not uploaded). It lives in the HUD gui, so it hides with SetVisible.
 -- Call after Hud.Build, once per id.
 function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 	local root = gui
@@ -848,6 +875,7 @@ function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 		parent = root,
 		name = "Top_" .. id,
 		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
+		icon = id,
 		color = color,
 		position = UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
 		size = UDim2.fromScale(CLOCK_SIZE.X, TOP_BUTTON_H),

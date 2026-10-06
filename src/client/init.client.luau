@@ -898,7 +898,7 @@ local function start(profile: Types.Profile)
 			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
-			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
+			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)), "Shower")
 			Hud.SetShowerCountdown(nil)
 			if not showerWasActive then
 				Builder.playSound(Sounds.ShowerHorn)
@@ -932,6 +932,7 @@ local function start(profile: Types.Profile)
 			local minutes, seconds = left // 60, left % 60
 			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
 			local multiplier = ("%d"):format(1 + luckState.bonus)
+			-- no icon for server luck yet: the banner shows its placeholder square
 			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
 		else
 			Hud.SetEventBanner(nil, nil, nil)

@@ -11,11 +11,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 
 local Builder = {}
 
 local EMPTY_SOUND = "rbxassetid://0"
+local BUTTON_ICON_SCALE = 0.7 -- a button's icon fills this fraction of its face, centred
 
 export type FrameProps = {
 	parent: Instance?,
@@ -59,6 +61,17 @@ export type ButtonProps = {
 	textSize: number?,
 	zIndex: number?,
 	aspect: number?,
+	icon: string?, -- an Icons key: shown on the face instead of `text` once its image is uploaded (id not 0)
+}
+
+export type IconProps = {
+	parent: Instance?,
+	name: string?,
+	key: string, -- an Icons key or a data id with an alias (Gear "Boots" -> SpeedBoots)
+	position: UDim2?,
+	size: UDim2?,
+	anchor: Vector2?,
+	zIndex: number?,
 }
 
 export type TextBoxProps = {
@@ -209,8 +222,40 @@ function Builder.label(props: LabelProps): TextLabel
 	return label
 end
 
+-- The image asset id for an icon key (aliases first), or nil while it is unknown or not uploaded (id 0).
+local function resolveIcon(key: string): number?
+	local id: number? = Icons.Icons[Icons.Aliases[key] or key]
+	if id == nil or id == 0 then
+		return nil
+	end
+	return id
+end
+
+-- An icon from the pack as an ImageLabel, or nil (and nothing created) while its id is 0 or the key is
+-- unknown: callers keep their text glyph or placeholder shape then, so the UI works with or without the pack.
+function Builder.icon(props: IconProps): ImageLabel?
+	local id = resolveIcon(props.key)
+	if not id then
+		return nil
+	end
+	local image = Instance.new("ImageLabel")
+	image.Name = props.name or "Icon"
+	image.BackgroundTransparency = 1
+	image.BorderSizePixel = 0
+	image.Image = "rbxassetid://" .. id
+	image.ScaleType = Enum.ScaleType.Fit
+	image.Position = props.position or UDim2.fromScale(0, 0)
+	image.Size = props.size or UDim2.fromScale(1, 1)
+	image.AnchorPoint = props.anchor or Vector2.zero
+	image.ZIndex = props.zIndex or 1
+	image.Parent = props.parent
+	return image
+end
+
 -- A chunky block button: a darker lip underneath, a gradient face with a stroke, outlined white text.
 -- Returns the container; the TextButton is its "Face" child. Press scales down and sinks the face.
+-- With props.icon set and uploaded, the face shows the icon (centred, BUTTON_ICON_SCALE of the face, a child
+-- of the face so it presses with it) and no text; otherwise it shows props.text.
 function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	local container = Builder.frame({
 		parent = props.parent,
@@ -258,6 +303,20 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	textStroke.Color = Theme.Colors.Outline
 	textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 	textStroke.Parent = face
+	if props.icon then
+		local image = Builder.icon({
+			parent = face,
+			name = "Icon",
+			key = props.icon,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(BUTTON_ICON_SCALE, BUTTON_ICON_SCALE),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = face.ZIndex + 1,
+		})
+		if image then
+			face.Text = ""
+		end
+	end
 	face.Parent = container
 
 	local pressInfo = TweenInfo.new(Theme.Tween.Press, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)

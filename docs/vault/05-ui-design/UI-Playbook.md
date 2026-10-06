@@ -46,8 +46,11 @@ The look, written to the level Claude can build from. Hex values here are the st
 - "— FEATURED —", "— PASSES —": yellow text with black stroke, centred, about 7% of panel height; the dashes are part of the text.
 
 ## Icons (batch 4)
-- Every icon PNG carries a thick black stroke (about 6% of its width); a thin stroke next to a thick one reads as broken.
-- Make icon sets with one image model from a screenshot of a reference shop, one style per game; never mix packs.
+- The set: 128 px flat two-tone icons with a thick dark outline (about 6% of the width), modelled in Blender and rendered into `assets/icons` (the three weather particle sprites into `assets/particles`). One style for the whole game; never mix packs, and a thin outline next to a thick one reads as broken.
+- Ids: each file name is its key in `src/shared/data/Icons.luau` (`Icons[key] = assetId`, 0 meaning not uploaded yet). `Aliases` map a data id whose icon has another key (Gear "Boots" uses `SpeedBoots`). `Particles` holds the weather sprites (Raindrop, Flake, Wisp).
+- Use: `Builder.icon({ key = ..., parent = ..., position/size/anchor in Scale })` returns an ImageLabel (transparent background, `ScaleType` Fit), or nil with nothing created while the id is 0 or the key is unknown. `Builder.button` takes `icon = key`: once the id is uploaded the face shows the icon centred at 0.7 of its size (`BUTTON_ICON_SCALE`) and no text, and the icon presses with the face.
+- Fallback: with an id of 0 every spot shows what it showed before the pack: the `MENU_GLYPH_<id>` letter on a button face, the gold square on the Scrap pill, the purple square on the event banner, Roblox's default particle in the weather. The game must always run with any id at 0, so never build a layout that needs the image.
+- Where they show: the left menu stack (Shop, Aliens, Codex, Ship, Quests, Gifts) and the round top buttons (Settings, Ranks), both keyed by the menu id; the Scrap pill's square (`Scrap`); the event banner's square (`Hud.SetEventBanner`'s fourth argument, e.g. `Shower`; the server luck banner has none yet); the weather sprites (`texture` in `data/Weather.luau`, read by `WeatherFx`). Where an icon fills a backing square, the square and its outline go transparent while the image shows, since the icon carries its own outline.
 - Shop layout: large tiles for bundles and the biggest purchases, small tiles for singles.
 
 ## Cards
