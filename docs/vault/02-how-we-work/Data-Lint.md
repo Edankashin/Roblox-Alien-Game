@@ -8,7 +8,7 @@ Run `python3 tools/lint_data.py` from any directory. Python 3 and its standard l
 | --- | --- |
 | Spawn species exist; spawn biome keys belong to the Biome union | `data/Spawns.luau`, `data/Species.luau`, `types/Types.luau` |
 | Material references exist, including node waypoints and nested node rows | `data/Modules.luau`, `data/Quests.luau`, `data/Tutorial.luau`, `data/Layouts.luau` and its required `Meadow.luau`/`Frostbyte.luau`, `data/KeyMaterials.luau` |
-| Every species world exists; every world's warden and special-weather species exist | `data/Species.luau`, `data/Worlds.luau` |
+| Every species world exists; every built world's warden and special-weather species exist (a row with `built = false` is only designed: its species are placeholders and are skipped until it is built) | `data/Species.luau`, `data/Worlds.luau` |
 | Non-negative, finite odds sum to 100 (absolute tolerance 1e-9) | `data/Sizes.luau` Bands; `data/Spins.luau` Segments |
 | Explicit string references resolve | Every `data/*.luau` table, `strings/en.luau` |
 | Icons and particles match PNG basenames in either asset directory | `data/Icons.luau`, `assets/icons/**/*.png`, `assets/particles/**/*.png` |
@@ -30,4 +30,4 @@ This is a reader for the repository's literal data shape, not a general Luau int
 
 ## Initial result (2026-10-06)
 
-10 failures: Worlds 3–7 each reference an absent warden and special-weather species. Placeholder worlds are checked too; `placeId = 0` is not an exemption. No data was changed. The full identifiers are recorded in Codex-Reports.md. Eighteen isolated mutation checks passed, including zero-ID particle acceptance, required icon PNGs, orphan PNGs, bad references, odds, growth and aura. Temporary fixture edits did not touch game data.
+10 failures at first: Worlds 3–7 each reference an absent warden and special-weather species. Placeholder worlds were checked too; `placeId = 0` is not an exemption. Resolved by the coordinator with a `built` flag on every Worlds row (true for 1 and 2): a designed-only world's species references are skipped, so the lint is green and starts failing the moment a world is marked built without its species. The full identifiers are recorded in Codex-Reports.md. Eighteen isolated mutation checks passed, including zero-ID particle acceptance, required icon PNGs, orphan PNGs, bad references, odds, growth and aura. Temporary fixture edits did not touch game data.

@@ -220,8 +220,11 @@ def lint(root: Path = ROOT) -> list[str]:
         if row.get('variant') is not None:
             reference(f'Species.{name}.variant', row['variant'], tables['CatchVariants']['Rows'], 'catch variant')
     for world, row in worlds.items():
-        reference(f'Worlds.{world}.warden', row['warden'], species, 'species')
-        reference(f'Worlds.{world}.weather.special.speciesId', row['weather']['special']['speciesId'], species, 'species')
+        # A world that is only designed (built = false) names species that do not exist yet; its
+        # references are checked once it is built. The variant must exist either way.
+        if row.get('built', True):
+            reference(f'Worlds.{world}.warden', row['warden'], species, 'species')
+            reference(f'Worlds.{world}.weather.special.speciesId', row['weather']['special']['speciesId'], species, 'species')
         if row.get('catchVariant') is not None:
             reference(f'Worlds.{world}.catchVariant', row['catchVariant'], tables['CatchVariants']['Rows'], 'catch variant')
     for name, key in (('Sizes', 'Bands'), ('Spins', 'Segments')):

@@ -42,3 +42,7 @@ Measured: **41 tests passed, 0 failed, 0.019 s** interpreter runtime across five
 Ethan clarified that OutpostMath should cover its existing production API, with period/reset tests reserved for LeaderboardMath.
 
 [CI run 37420699789](https://github.com/Edankashin/Roblox-Alien-Game/actions/runs/37420699789): pinned Linux installation and analysis passed; C2's known lint failures stopped the job, so headless tests were skipped on Linux. Left open: coordinator data cleanup, then a complete green CI run; Mac execution is verified.
+
+### Coordinator note on C2 and C3 — 2026-10-06
+
+C2 accepted. The ten failures were real: Worlds 3 to 7 are designed, not built, and name species that do not exist yet. Resolved in data, not by an exclusion list: every Worlds row now carries `built` (true for 1 and 2) and the lint skips a designed-only world's species references while still checking its catch variant. The lint prints `data lint: clean`. C3 accepted: `tools/test.sh` installed the pinned Luau 0.741 and ran 41 tests in 0.01 s on the coordinator's Linux box as well as on the Mac. Both are marked done in the queue. The next green CI run will confirm the whole chain (analyze, lint, tests) on the runner.
