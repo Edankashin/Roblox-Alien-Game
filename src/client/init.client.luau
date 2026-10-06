@@ -576,6 +576,27 @@ local function connectToasts()
 			end)
 		end)
 	end)
+	-- Habitats (milestone 42c): the Scrap the displayed aliens earned while the player was away is paid when they
+	-- arrive home, and the server says how much. A settle while the player is in comes as the HabitatIncome event; the
+	-- one that ran while the profile loaded fired before this listener existed, so once the profile is in, one
+	-- ClaimHabitatIncome call asks for it (0 when there was none; the server clears it once answered).
+	task.spawn(function()
+		local function toastIncome(paid: any)
+			if type(paid) == "number" and paid > 0 then
+				Toast.Show(Strings.TOAST_HABITAT_INCOME:format(Builder.formatNumber(paid)), Theme.Colors.Confirm)
+			end
+		end
+		Net.event("HabitatIncome").OnClientEvent:Connect(toastIncome)
+		while not State.Has() do
+			task.wait(ACTION_POLL_SECONDS)
+		end
+		local called, paid = pcall(function(): any
+			return Net.func("ClaimHabitatIncome"):InvokeServer()
+		end)
+		if called then
+			toastIncome(paid)
+		end
+	end)
 	-- The outposts table the server holds (a collect, an upgrade, a launch that opens one) replaces the mirror's.
 	task.spawn(function()
 		Net.event("OutpostsChanged").OnClientEvent:Connect(function(outposts: { [string]: Types.OutpostState })

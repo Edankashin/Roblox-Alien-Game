@@ -6,11 +6,15 @@
 -- its next stage, where it is working or that it follows you; a following mount shows a Ride button in the status
 -- slot instead), a count row (aliens owned, companion slots in use) with a perks line under it, and a footer
 -- with Optimize and Fuse buttons, a Companion Token button while a token is held, and a one-line fuse hint.
+-- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot shows a Display button in
+-- the status slot, and an alien on display shows a purple "On display" pill in the chip row (in place of the size and
+-- growth chips) and, at home, a Bring back button in the status slot; a plain tap on a displayed card does nothing.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
--- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, UseCompanionToken).
--- Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only asks to follow or
--- stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, and the cards redraw from
--- the camp and companion pushes the server sends back.
+-- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, SetDisplay,
+-- UseCompanionToken). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
+-- asks to follow or stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, the
+-- Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the cards redraw from
+-- the camp, companion and home pushes the server sends back.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -20,6 +24,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local Place = require(Shared:WaitForChild("Place"))
 local Companions = require(Shared:WaitForChild("data"):WaitForChild("Companions"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Fusion = require(Shared:WaitForChild("data"):WaitForChild("Fusion"))
@@ -31,6 +36,7 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
+local HomeRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("HomeRenderer"))
 
 local AliensScreen = {}
 
@@ -129,6 +135,7 @@ local gridLayout: UIGridLayout? = nil
 local emptyLabel: TextLabel? = nil
 local fuseButton: Frame? = nil
 local cardCount = 0
+local habitatCache: { [number]: { { uid: string, free: number } } } = {} -- the plot's habitats per world, for one rebuild
 local open = false
 local pending = false -- one server request in flight at a time
 
@@ -298,8 +305,66 @@ local function setMount(uid: string?, name: string)
 	end)
 end
 
--- A tap on an alien card. The ridden card hops off first (the next tap, on a plain follower, unfollows); a follower
--- is asked to stop; a seated alien and a full set of slots are told to the player here (the server would refuse
+-- The habitats on the plot for a world with their free places (HomeRenderer.HabitatsFor), asked once per world
+-- while the cards are built; the cache is cleared at the start of every rebuild.
+local function habitatsFor(world: number): { { uid: string, free: number } }
+	local known = habitatCache[world]
+	if known then
+		return known
+	end
+	local fresh = HomeRenderer.HabitatsFor(world)
+	habitatCache[world] = fresh
+	return fresh
+end
+
+-- Asks the server to put the alien `uid` on display in the habitat `habitatUid`, or to bring it back to camp when
+-- `habitatUid` is nil. The mirror is never touched here: the camp push (StationsChanged) carries the record's habitat
+-- and the "stations" topic redraws the cards and the habitat. One request in flight at a time.
+local function setDisplay(uid: string, habitatUid: string?, name: string, worldName: string)
+	if pending then
+		return
+	end
+	pending = true
+	task.spawn(function()
+		local ok, reason = invoke("SetDisplay", uid, habitatUid)
+		pending = false
+		if ok then
+			if habitatUid then
+				Toast.Show(Strings.TOAST_DISPLAY_ON:format(name), Theme.Colors.Confirm)
+			else
+				Toast.Show(Strings.TOAST_DISPLAY_OFF:format(name), Theme.Rarity.Common)
+			end
+		elseif reason == "NotAtHome" or reason == "NoHabitat" then
+			Toast.Show(Strings.TOAST_HABITAT_NONE:format(worldName), Theme.Rarity.Common)
+		elseif reason == "Full" then
+			Toast.Show(Strings.TOAST_HABITAT_FULL:format(worldName), Theme.Rarity.Common)
+		else
+			print(("[%s] SetDisplay refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+	end)
+end
+
+-- The Display button: the first habitat of the alien's world with a free place, asked fresh from the mirror. With
+-- none built (it can have gone since the card was drawn) or none with room, the player is told here and no request
+-- is spent (the server would refuse both).
+local function displayAlien(uid: string, name: string, world: number)
+	local worldName = Builder.text("WORLD_" .. world)
+	local habitats = HomeRenderer.HabitatsFor(world)
+	if #habitats == 0 then
+		Toast.Show(Strings.TOAST_HABITAT_NONE:format(worldName), Theme.Rarity.Common)
+		return
+	end
+	for _, habitat in ipairs(habitats) do
+		if habitat.free > 0 then
+			setDisplay(uid, habitat.uid, name, worldName)
+			return
+		end
+	end
+	Toast.Show(Strings.TOAST_HABITAT_FULL:format(worldName), Theme.Rarity.Common)
+end
+
+-- A tap on an alien card. The ridden card hops off first (the next tap, on a plain follower, unfollows); an alien on
+-- display does nothing but click; a follower is asked to stop; a seated alien and a full set of slots are told to the player here (the server would refuse
 -- both, so no request is spent); a resting alien with a free slot is asked to follow.
 local function onCardTapped(uid: string, name: string)
 	Builder.playSound(Sounds.Click)
@@ -314,6 +379,9 @@ local function onCardTapped(uid: string, name: string)
 	local record = profile.aliens[uid]
 	if not record then
 		return
+	end
+	if record.habitat ~= nil then
+		return -- on display: never follows; the Bring back button is the way off
 	end
 	local slots = State.GetCompanionSlots()
 	if table.find(profile.companions, uid) then
@@ -744,8 +812,9 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 
 	-- A band that names itself (Tiny, Big, HUGE: data/Sizes label) gets a small gold chip at the left of
 	-- the chip row; Normal and Small show nothing.
+	local displayed = record.habitat ~= nil
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
-	if band.label then
+	if band.label and not displayed then
 		local sizeChip = Builder.pill({
 			parent = card,
 			name = "Size",
@@ -784,7 +853,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	elseif stage.label then
 		chipText = Builder.text("STAGE_" .. stage.id)
 	end
-	if chipText then
+	if chipText and not displayed then
 		local stageChip = Builder.pill({
 			parent = card,
 			name = "Stage",
@@ -814,6 +883,17 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- that a resting one can be tapped to follow. A following mount has a Ride button in this slot instead (below),
 	-- so it gets no status label: "Ride" says it follows, and "Hop off" says it is ridden.
 	local rideable = entry.following and def ~= nil and def.ride ~= nil
+	-- At home an alien whose world has a habitat on the plot gets a Display button when it rests, or a Bring back
+	-- button when it is on display; either takes the status slot like the Ride button. An alien on display shows the
+	-- purple "On display" pill (below) in the chip row instead of a status label.
+	local displayWorld = if def then def.world else nil
+	local canDisplay = Place.IsHome()
+		and displayWorld ~= nil
+		and job == nil
+		and not entry.following
+		and not displayed
+		and #habitatsFor(displayWorld) > 0
+	local canBringBack = Place.IsHome() and displayWorld ~= nil and displayed
 	local statusText = Strings.ALIENS_TAP_FOLLOW
 	local statusColor = Theme.Rarity.Common
 	if job then
@@ -823,7 +903,32 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		statusText = Strings.ALIENS_FOLLOWING
 		statusColor = Theme.Colors.Confirm
 	end
-	if not rideable then
+	if displayed then
+		-- The size and growth chips stand aside for a full-width pill (a displayed alien is not working, so it
+		-- has no growth countdown to show).
+		local pill = Builder.pill({
+			parent = card,
+			name = "OnDisplay",
+			position = UDim2.fromScale(0.5, CHIP_Y),
+			size = UDim2.fromScale(0.94, CHIP_H),
+			anchor = Vector2.new(0.5, 0.5),
+			color = Theme.Colors.Codex,
+			stroke = Theme.Stroke.Text,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = 6,
+		})
+		Builder.label({
+			parent = pill,
+			name = "Text",
+			text = Strings.ALIENS_ON_DISPLAY,
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.9, 0.75),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = 7,
+		})
+	end
+	if not rideable and not canDisplay and not displayed then
 		Builder.label({
 			parent = card,
 			name = "Status",
@@ -853,6 +958,40 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			zIndex = RIDE_Z,
 		}, function()
 			setMount(if entry.riding then nil else record.uid, entry.name)
+		end)
+	end
+
+	-- Display (Codex purple) and Bring back (Common grey) take the status slot, above the Tap overlay. They only ask:
+	-- the card redraws from the server's push.
+	if canDisplay and def ~= nil then
+		local world = def.world
+		Builder.button({
+			parent = card,
+			name = "Display",
+			text = Strings.ALIENS_DISPLAY,
+			color = Theme.Colors.Codex,
+			position = UDim2.fromScale(0.5, RIDE_Y),
+			size = UDim2.fromScale(0.94, RIDE_H),
+			anchor = Vector2.new(0.5, 0),
+			textSize = Theme.TextSize.Body,
+			zIndex = RIDE_Z,
+		}, function()
+			displayAlien(record.uid, entry.name, world)
+		end)
+	elseif canBringBack and def ~= nil then
+		local worldName = Builder.text("WORLD_" .. def.world)
+		Builder.button({
+			parent = card,
+			name = "BringBack",
+			text = Strings.ALIENS_BRING_BACK,
+			color = Theme.Rarity.Common,
+			position = UDim2.fromScale(0.5, RIDE_Y),
+			size = UDim2.fromScale(0.94, RIDE_H),
+			anchor = Vector2.new(0.5, 0),
+			textSize = Theme.TextSize.Body,
+			zIndex = RIDE_Z,
+		}, function()
+			setDisplay(record.uid, nil, entry.name, worldName)
 		end)
 	end
 
@@ -916,6 +1055,7 @@ local function rebuildGrid(profile: Types.Profile)
 		return
 	end
 	local entries = sortedEntries(profile)
+	habitatCache = {}
 	cardCount = #entries
 	clearChildren(frame)
 	for index, entry in ipairs(entries) do
@@ -1222,7 +1362,7 @@ local function build()
 	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "stations", "rate", "companions" }) do
+	for _, topic in ipairs({ "stations", "rate", "companions", "home" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
 	for _, topic in ipairs({ "inventory", "purchases" }) do

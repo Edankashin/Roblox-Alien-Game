@@ -1,10 +1,12 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.BuildScreen: the house grid's Build tray (milestone 42b), registered with Screens
--- as "Build". A tray along the bottom edge, not a centre panel, so the plot stays in view: a header tab, two rows
--- of item cards (Rooms, Things; each card the item's name, its price in Scrap, tinted with its placeholder colour
--- and grey while Scrap is short), a cap line for each kind at the row's left ("Rooms: 1/4"), a hint line, and
--- three buttons: Turn, Take away (remove mode on and off) and Done. There is no backdrop. Every value shown is
--- read from the home mirror in State and the data tables (data/HomeBuild, strings HOME_ITEM_<id>).
+-- as "Build". A tray along the bottom edge, not a centre panel, so the plot stays in view: a header tab, three rows
+-- of item cards (Rooms, Things, Habitats; each card the item's name, its price in Scrap, tinted with its placeholder
+-- colour and grey while Scrap is short), a cap line for each kind at the row's left ("Rooms: 1/4"), a hint line,
+-- and three buttons: Turn, Take away (remove mode on and off) and Done. There is no backdrop. The tray keeps its
+-- height, which holds two rows, so the rows are a vertical scrolling list that shows two at a time (Habitats is the
+-- one scrolled to). Every value shown is read from the home mirror in State and the data tables (data/HomeBuild,
+-- strings HOME_ITEM_<id>, BUILD_KIND_<kind>).
 --
 -- Placing: tap a card to pick the item, then tap the plot. The first tap on a cell only moves the ghost there (the
 -- HomeRenderer's half see-through preview, so the player sees it before paying); a tap on the ghost, or on its
@@ -38,10 +40,12 @@ type Kind = HomeBuild.Kind
 -- One item card. Built once and refreshed in place.
 type Card = { id: string, tint: Color3, frame: Frame, stroke: UIStroke, gradient: UIGradient }
 
-local KINDS: { Kind } = { "room", "furniture" } -- the rows, top to bottom
+local KINDS: { Kind } = { "room", "furniture", "habitat" } -- the rows, top to bottom
 
 -- Tray layout, as fractions of the screen (the tray) or of the tray (everything inside it). The tray is 0.32 of
--- the screen tall: at iPhone SE height (375) that is 120 px, a card row 32 px, the button row 31 px.
+-- the screen tall: at iPhone SE height (375) that is 120 px, a card row 32 px, the button row 31 px. Three rows
+-- do not fit under the title tab above the footer, so the rows sit in a ScrollingFrame (the "list") whose window
+-- shows two of them.
 local TRAY_W = 0.9
 local TRAY_H = 0.32
 local HEADER_W = 0.2 -- the title tab straddling the tray's top edge
@@ -49,6 +53,9 @@ local HEADER_H = 0.2
 local ROW_TOP = 0.11 -- under the header tab
 local ROW_H = 0.27
 local ROW_GAP = 0.02
+local LIST_PAD = 0.01 -- above and below the rows inside the list, so a card's outline is not clipped by its edge
+local LIST_ROWS_SHOWN = 2 -- rows the list's window holds at once
+local LIST_BAR_PX = 6 -- the scroll bar's thickness, not a Size: a thin dark bar at the list's right
 local CAP_W = 0.18 -- the cap line's column at each row's left
 local CARDS_X = 0.22 -- the cards start here and run to the right margin
 local CARD_GAP = 0.012 -- between cards, of the cards' span
@@ -62,6 +69,7 @@ local DONE_X, DONE_W = 0.85, 0.13
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
 local hint: TextLabel? = nil
+local list: ScrollingFrame? = nil
 local capLabels: { [string]: TextLabel } = {}
 local cards: { Card } = {}
 local turnButton: Frame? = nil
@@ -262,7 +270,7 @@ end
 
 -- A card: the item's name over its price, tinted with its placeholder colour (grey while unaffordable, a thick
 -- gold border while picked, both set by refresh), and an invisible button over all of it.
-local function buildCard(parent: Frame, def: HomeBuild.Item, position: UDim2, size: UDim2): Card
+local function buildCard(parent: ScrollingFrame, def: HomeBuild.Item, position: UDim2, size: UDim2): Card
 	local tint = Color3.fromHex(def.placeholder.color)
 	local frame = Builder.frame({
 		parent = parent,
@@ -406,7 +414,8 @@ local function build()
 	})
 
 	-- The rows: the items of each kind in data order, all rows on the same slot grid (as many slots as the
-	-- fullest row), so a card sits in the same column from row to row.
+	-- fullest row), so a card sits in the same column from row to row. A row with fewer cards than slots gives
+	-- each card as many slots as fit evenly (Habitats: two cards of two slots), so a longer name fits a card.
 	local perKind: { [string]: { HomeBuild.Item } } = {}
 	local slots = 1
 	for _, def in ipairs(HomeBuild.Items) do
@@ -415,28 +424,60 @@ local function build()
 		perKind[def.kind] = row
 		slots = math.max(slots, #row)
 	end
+
+	-- The list: a window over the rows with a thin dark bar. Children of a ScrollingFrame scale against its canvas, so
+	-- every row position, height and x below is the tray fraction divided by the canvas's extent (the window's width
+	-- for x, canvasH for y), and the canvas is as many windows tall as the rows need. There are no layout objects, so
+	-- nothing feeds back (UI Playbook, "Grids inside scrolling frames").
+	local listW = 1 - Theme.Margin * 2
+	local listH = LIST_ROWS_SHOWN * ROW_H + (LIST_ROWS_SHOWN - 1) * ROW_GAP + LIST_PAD * 2
+	local canvasH = #KINDS * ROW_H + (#KINDS - 1) * ROW_GAP + LIST_PAD * 2
+	local scroller = Instance.new("ScrollingFrame")
+	scroller.Name = "Rows"
+	scroller.BackgroundTransparency = 1
+	scroller.BorderSizePixel = 0
+	scroller.Position = UDim2.fromScale(Theme.Margin, ROW_TOP - LIST_PAD)
+	scroller.Size = UDim2.fromScale(listW, listH)
+	scroller.ZIndex = 3
+	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
+	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
+	scroller.CanvasSize = UDim2.fromScale(0, canvasH / listH)
+	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+	scroller.ScrollBarThickness = LIST_BAR_PX
+	scroller.ScrollBarImageColor3 = Theme.Colors.Trough
+	scroller.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	scroller.Parent = body
+	list = scroller
+
 	local cardsW = 1 - CARDS_X - Theme.Margin
 	local slotW = (1 - (slots - 1) * CARD_GAP) / slots -- a slot's width as a fraction of the cards' span
 	cards = {}
 	capLabels = {}
 	for rowIndex, kind in ipairs(KINDS) do
-		local rowY = ROW_TOP + (rowIndex - 1) * (ROW_H + ROW_GAP)
+		local rowY = (LIST_PAD + (rowIndex - 1) * (ROW_H + ROW_GAP)) / canvasH
+		local rowH = ROW_H / canvasH
 		-- Helper text on the cream plate: navy, no outline (UI Playbook, "Input fields and hints").
 		capLabels[kind] = Builder.label({
-			parent = body,
+			parent = scroller,
 			name = "Cap_" .. kind,
 			text = "",
 			textSize = Theme.TextSize.Body,
 			color = Theme.Colors.Outline,
 			stroke = 0,
 			xAlign = Enum.TextXAlignment.Left,
-			position = UDim2.fromScale(Theme.Margin, rowY),
-			size = UDim2.fromScale(CAP_W, ROW_H),
+			position = UDim2.fromScale(0, rowY),
+			size = UDim2.fromScale(CAP_W / listW, rowH),
 			zIndex = 3,
 		})
-		for index, def in ipairs(perKind[kind] or {}) do
-			local x = CARDS_X + cardsW * (index - 1) * (slotW + CARD_GAP)
-			table.insert(cards, buildCard(body, def, UDim2.fromScale(x, rowY), UDim2.fromScale(cardsW * slotW, ROW_H)))
+		local row = perKind[kind] or {}
+		local span = math.max(1, math.floor(slots / math.max(1, #row))) -- slots each card takes
+		for index, def in ipairs(row) do
+			local x = CARDS_X + cardsW * (index - 1) * span * (slotW + CARD_GAP)
+			local w = cardsW * (span * slotW + (span - 1) * CARD_GAP)
+			table.insert(
+				cards,
+				buildCard(scroller, def, UDim2.fromScale((x - Theme.Margin) / listW, rowY), UDim2.fromScale(w / listW, rowH))
+			)
 		end
 	end
 
@@ -506,6 +547,10 @@ function BuildScreen.Open()
 	removing = false
 	picked = nil
 	rotation = 0
+	local rows = list
+	if rows then
+		rows.CanvasPosition = Vector2.zero -- the list opens at its top, on Rooms
+	end
 	clearGhost()
 	refresh()
 	root.Enabled = true
