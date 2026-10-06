@@ -7,7 +7,7 @@
 -- player has launched from (the keys of profile.world.outposts); this only turns that list into parts.
 --
 -- A trophy is the ship hull (Camp.Props.ship through Props.Place at Home.HangarScale of its size) standing on the
--- pad's top, or, while the hull was never imported, a Block of Camp.ShipBaseSize times Home.HangarScale in
+-- pad's top, or, while the hull was never imported, a Block of the Hull Frame's size (Camp.Modules.HullFrame) times Home.HangarScale in
 -- Camp.ShipBaseColor. On top of it sits the pilot's silhouette, a Ball as wide as the camp ship's life pod is
 -- (Camp.Modules.LifePod) at the same Home.HangarScale, in Theme.Shadow, and over that a name plate with the world's
 -- name (HANGAR_PLATE over WORLD_<id>). The worlds go onto the pads in ascending id order, the lowest id on
@@ -119,7 +119,8 @@ local function buildStand(parent: Folder, pad: BasePart, worldId: number): Stand
 	if hull then
 		height = hull:GetExtentsSize().Y
 	else
-		local size = Camp.ShipBaseSize * scale
+		-- The hull frame's size, not the flat base slab: a plate 0.175 studs thick read as nothing on the pad.
+		local size = Camp.Modules.HullFrame.size * scale
 		newPart("Hull", Enum.PartType.Block, size, CFrame.new(top + Vector3.new(0, size.Y / 2, 0)), Color3.fromHex(Camp.ShipBaseColor), model)
 		height = size.Y
 	end
