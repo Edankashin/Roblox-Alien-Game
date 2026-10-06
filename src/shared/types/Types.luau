@@ -202,6 +202,9 @@ export type ShowerState = { active: boolean, secondsLeft: number, nextInSeconds:
 export type CatchRushRow = { userId: number, name: string, catches: number }
 export type CatchRushState = { active: boolean, secondsLeft: number, nextInSeconds: number, rows: { CatchRushRow } }
 
+-- One fusion (FuseSpecies remote, data/Fusion): the kept copy's new level and what was consumed.
+export type FuseResult = { species: string, uid: string, level: number, consumed: number }
+
 -- One player's result at the end of a round (CatchRushResult event to that player).
 export type CatchRushResult = { rank: number, catches: number, rewards: { any } } -- rank 0: no catches, nothing paid
 

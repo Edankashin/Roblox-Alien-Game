@@ -471,6 +471,11 @@ return {
 	ALIENS_COUNT = "%d aliens",
 	ALIENS_RESTING = "Resting",
 	ALIENS_SPEED = "x%s",
+	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
+	FUSE_BUTTON = "Fuse",
+	FUSE_HINT = "4 spare copies of a species fuse into +1 level (up to Lv %d)",
+	TOAST_FUSED = "%s fused to Lv %d!",
+	TOAST_FUSE_NONE = "Nothing to fuse yet: keep 4 spare copies of one species",
 	STATION_SLOTS = "%d/%d",
 	STATION_EMPTY_SLOT = "Open",
 	-- Codex screen

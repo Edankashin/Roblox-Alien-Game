@@ -130,3 +130,7 @@ What this change added, in code only (`src/shared/Theme.luau` `Theme.Gloss` hold
 - The gradient carries the transparency of all three bands (their frames stay opaque white or black underneath), because a UIGradient combines with the frame's own transparency and setting both would count it twice. Tune the look in `Theme.Gloss`, not in the helpers.
 
 Still waiting on assets: the rendered icon pack (the Icons table keeps text glyphs until ids are uploaded), the 9-slice plate images that replace the flat rounded rectangles, and the bevel and rim-light baked into them. The gloss and inner shadow stay as code overlays on top of the plates; the shine stays code.
+
+## Aliens screen footer and level chip (2026-10-06)
+
+The footer holds two buttons, Fuse (Featured) left of Optimize (Select), each 0.24 of the panel wide and 0.075 tall, with a one-line grey hint under them in the minimum size ("4 spare copies of a species fuse into +1 level (up to Lv 3)"); the card grid ends above them. A fused copy shows a gold "Lv N" chip top-left of its card, the speed chip's size; when an overlay badge already sits there the level chip goes directly under the badge.

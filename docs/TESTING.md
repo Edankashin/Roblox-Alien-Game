@@ -450,3 +450,16 @@ A 90-second shared round every 10 minutes on the wall clock (`data/CatchRush.lua
 7. Output clean; a late joiner (second client) during a round sees the banner and the right counts at once.
 
 Known gaps in this milestone: no cosmetic prize yet (Scrap and a spin instead), no Rush history or best-score line, no sound for the start; the countdown chip does not know a slot will be skipped for a shower (it counts to a start that then does not happen); a player who leaves mid-round is dropped from the table.
+
+## Milestone 35: fusion (World 1 place)
+
+Four spare copies of a species fuse into +1 level on the best copy, up to Lv 3 (`data/Fusion.luau`); the level multiplies work speed by `Config.LevelSpeedStep` per level. Surplus always has a destination.
+
+1. Catch one Mossbop, then `/dupes Mossbop 4`: the Aliens screen shows five Mossbop cards and a gold "Fuse" button beside Optimize with the hint "4 spare copies of a species fuse into +1 level (up to Lv 3)". Tap Fuse: toast "Mossbop fused to Lv 2!", one Mossbop card remains with a gold "Lv 2" chip and a speed chip of x1.4 (x1.35 per level over the Common's x1), the station rate rose; Output `analytics: event Fuse value=2 species=Mossbop`.
+2. `/dupes Mossbop 8`, Fuse: two fusions in a row (toasts Lv 3 then nothing more); the kept copy is the best (a Shiny or a Huge is never consumed while a plain Normal is); a seated copy stays seated unless only seated copies remain; the freed slots refill.
+3. Tap Fuse with nothing eligible: "Nothing to fuse yet: keep 4 spare copies of one species". `/dupes Puffpuff 3` (four copies total): still nothing (a fusion needs five).
+4. A Lv 3 copy with four more spares: Fuse refuses that species (MaxLevel) and the toast does not appear for it; the spares stay.
+5. Rejoin: the level and the chip persist (memory profiles in Studio; a real save keeps it the same way, no schema change: `level` existed).
+6. Output clean; the Codex count for Mossbop is unchanged by fusing (it counts catches).
+
+Known gaps in this milestone: no fusion animation on the camp, no choice of which copy to keep (the best is kept), no fusion quest or daily objective yet.

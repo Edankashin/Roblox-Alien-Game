@@ -11,6 +11,10 @@
 -- Growth (data/Growth) is paid here too: every income tick adds its seconds of worked time to each seated
 -- alien, a rejoin adds the time away (capped like offline Scrap) to the aliens that were seated at leave,
 -- and a record that crosses a stage is told to the client (AlienGrew, or the offline summary's grown list).
+-- Fusion (data/Fusion) lives here too, because this service owns the records and the seats: Fuse spends
+-- DuplicatesPerLevel spare copies of one species to raise the best copy's level by one, unseating any seated
+-- copy it consumes and reseating the freed slots (the FuseSpecies remote). A fusion is not a catch: the codex,
+-- the Scrap and the quests never hear it.
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
 -- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
@@ -29,6 +33,7 @@ local Overlays = require(Shared.data.Overlays)
 local Modules = require(Shared.data.Modules)
 local Jobs = require(Shared.data.Jobs)
 local GrowthData = require(Shared.data.Growth)
+local FusionData = require(Shared.data.Fusion)
 local AnalyticsData = require(Shared.data.Analytics)
 local Economy = require(Shared.Economy)
 local Growth = require(Shared.Growth)
@@ -45,6 +50,8 @@ local Monetization = require(script.Parent.Monetization)
 local EconomyService = {}
 
 local REMOTE_RATE_PER_SECOND = 4 -- ModulePay, ModuleInsertKey and StationOptimize calls per player per second
+local FUSE_RATE_PER_SECOND = 2 -- FuseSpecies calls per player per second
+local STARTING_LEVEL = 1 -- GrantAlien writes every record at this level; fusion cap is this plus Fusion.MaxFusionLevels
 
 local carries: { [number]: number } = {} -- fractional Scrap not yet paid out, by UserId
 -- Settled on join and handed over when the client asks (ClaimOfflineSummary), because a push at load
@@ -768,6 +775,132 @@ function EconomyService.DevGrow(player: Player, seconds: number): number
 	return #grew
 end
 
+-- Fusion -----------------------------------------------------------------
+
+-- The model's size scale on its band; a record from before sizes (or an unknown id) counts as the default band.
+local function sizeScale(record: Types.AlienRecord): number
+	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
+	return band.scale
+end
+
+-- Whether copy a is the better of two copies of one species: overlay rank, then size band scale, then time
+-- worked, then level, then uid (so the order is total and the same on every call).
+local function betterCopy(a: Types.AlienRecord, b: Types.AlienRecord): boolean
+	-- Level first: a fused copy stands for the copies it consumed, so it is kept over a shinier Lv 1 and is
+	-- never fodder while a lower copy exists. Then overlay, size, time worked, and the uid for a stable order.
+	if a.level ~= b.level then
+		return a.level > b.level
+	end
+	local rankA, rankB = overlayRank(a.overlay), overlayRank(b.overlay)
+	if rankA ~= rankB then
+		return rankA > rankB
+	end
+	local scaleA, scaleB = sizeScale(a), sizeScale(b)
+	if scaleA ~= scaleB then
+		return scaleA > scaleB
+	end
+	if a.workedSeconds ~= b.workedSeconds then
+		return a.workedSeconds > b.workedSeconds
+	end
+	return a.uid < b.uid
+end
+
+-- Fuses DuplicatesPerLevel spare copies of one species into +1 level on the best copy that is below the cap
+-- (STARTING_LEVEL + Fusion.MaxFusionLevels). The player's copies are sorted best first (betterCopy); the kept copy
+-- is the first below the cap; the consumed copies are the DuplicatesPerLevel worst of the others, resting ones
+-- before seated ones when Fusion.ConsumeRestingFirst. A seated copy is unseated before its record goes, and when
+-- a seat was freed the whole crew is reseated (the optimize pass) in the same update, after assembly progress is
+-- banked at the old speed. Scrap, the codex and the quests are untouched: a fusion is not a catch.
+-- Refusals: BadArgs (not a species id), NoProfile, NotEnough (fewer than DuplicatesPerLevel + 1 copies),
+-- MaxLevel (every copy is already at the cap).
+function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult?, string?)
+	if not Species.ById[species] then
+		return nil, "BadArgs"
+	end
+	local cap = STARTING_LEVEL + FusionData.MaxFusionLevels
+	local completed: { string } = {}
+	local result: Types.FuseResult? = nil
+	local ok, reason = mutate(player, function(profile)
+		local copies: { Types.AlienRecord } = {}
+		for _, record in pairs(profile.aliens) do
+			if record.species == species then
+				table.insert(copies, record)
+			end
+		end
+		if #copies < FusionData.DuplicatesPerLevel + 1 then
+			return "NotEnough"
+		end
+		table.sort(copies, betterCopy)
+		local kept: Types.AlienRecord? = nil
+		for _, record in ipairs(copies) do
+			if record.level < cap then
+				kept = record
+				break
+			end
+		end
+		if not kept then
+			return "MaxLevel"
+		end
+		-- The others, best first; the worst of them are consumed, so walk from the back.
+		local others: { Types.AlienRecord } = {}
+		for _, record in ipairs(copies) do
+			if record ~= kept then
+				table.insert(others, record)
+			end
+		end
+		local consumed: { Types.AlienRecord } = {}
+		for pass = 1, 2 do
+			for index = #others, 1, -1 do
+				if #consumed >= FusionData.DuplicatesPerLevel then
+					break
+				end
+				local record = others[index]
+				-- Pass 1 skips seated copies when resting ones go first; pass 2 takes whatever is left.
+				local eligible = pass == 2 or record.station == nil or not FusionData.ConsumeRestingFirst
+				if eligible and not table.find(consumed, record) then
+					table.insert(consumed, record)
+				end
+			end
+		end
+		completed = snapshotModules(profile) -- bank assembly progress at the old speed before the crew changes
+		local freedSeat = false
+		for _, record in ipairs(consumed) do
+			if record.station ~= nil then
+				freedSeat = true
+				unassign(profile, record)
+			end
+			profile.aliens[record.uid] = nil
+		end
+		kept.level += 1
+		if freedSeat then
+			reseatAll(profile) -- the same pass Optimize runs, so the freed slots fill fastest first
+		end
+		result = { species = species, uid = kept.uid, level = kept.level, consumed = FusionData.DuplicatesPerLevel }
+		return nil
+	end)
+	local fused = result
+	if not ok or not fused then
+		return nil, reason or "NoProfile"
+	end
+	local profile = PlayerData.Get(player)
+	if profile then
+		pushCamp(player, profile) -- the records, the work speed and the module rates
+		announceCompleted(player, profile.world.current, completed)
+	end
+	Analytics.Event(player, AnalyticsData.Events.Fuse, fused.level, { species = species })
+	return fused, nil
+end
+
+local function onFuseSpecies(player: Player, species: any): (Types.FuseResult?, string?)
+	if type(species) ~= "string" then
+		return nil, "BadArgs"
+	end
+	if not Net.allow(player, "FuseSpecies", FUSE_RATE_PER_SECOND) then
+		return nil, "RateLimited"
+	end
+	return EconomyService.Fuse(player, species)
+end
+
 function EconomyService.Init()
 	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew" }) do
 		Net.event(name)
@@ -775,6 +908,7 @@ function EconomyService.Init()
 	Net.func("ModulePay").OnServerInvoke = onModulePay
 	Net.func("ModuleInsertKey").OnServerInvoke = onModuleInsertKey
 	Net.func("StationOptimize").OnServerInvoke = onStationOptimize
+	Net.func("FuseSpecies").OnServerInvoke = onFuseSpecies
 	Net.func("ClaimOfflineSummary").OnServerInvoke = onClaimOfflineSummary
 	PlayerData.OnLoaded(onLoaded)
 	-- Robux grants that land in the camp, registered with Monetization rather than required from it (see

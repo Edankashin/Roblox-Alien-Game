@@ -7,7 +7,8 @@
 -- weekly board through its per-minute cap; send them to the store now and refresh the board), /dq reset | done (deal the
 -- daily and weekly quests again with empty progress; finish every dealt one), /variant <id|off> (force a catch
 -- variant from Shared/data/CatchVariants on every encounter you start, or go back to each spawn's own), /grow [H]
--- (H hours, default 2, of worked time for every seated alien, so a growth stage can be crossed). Nothing
+-- (H hours, default 2, of worked time for every seated alien, so a growth stage can be crossed), /dupes <id> [N]
+-- (N copies, default 5, of that species with no overlay, so a fusion can be tried in seconds). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -210,6 +211,29 @@ local function growCamp(player: Player, text: string)
 	local hours = tonumber(string.match(text, "^/%S+%s+(%S+)") or "") or 2
 	local crossed = EconomyService.DevGrow(player, hours * 3600) -- hours to seconds, a unit conversion
 	print(("[%s] dev: %s camp worked %g hours; %d alien(s) crossed a growth stage"):format(Config.WorkingTitle, player.Name, hours, crossed))
+end
+
+local DUPES_DEFAULT = 5 -- /dupes grants this many copies when N is missing (one fusion needs DuplicatesPerLevel + 1)
+local DUPES_MAX = 50 -- and never more than this in one command
+
+-- /dupes <speciesId> [N]: grant N (default 5) plain copies of that species through GrantAlien (overlay None, not
+-- Perfect, size rolled like an egg), so the Fuse flow can be tested without a catch grind. The Scrap and the
+-- codex move as for any grant.
+local function grantDupes(player: Player, text: string)
+	local id = string.match(text, "^/%S+%s+(%S+)")
+	if not id or not Species.ById[id] then
+		print(("[%s] dev: unknown species %s"):format(Config.WorkingTitle, tostring(id)))
+		return
+	end
+	local asked = tonumber(string.match(text, "^/%S+%s+%S+%s+(%S+)") or "")
+	local count = math.clamp(math.floor(asked or DUPES_DEFAULT), 1, DUPES_MAX)
+	local granted = 0
+	for _ = 1, count do
+		if EconomyService.GrantAlien(player, id, "None", false, nil) then
+			granted += 1
+		end
+	end
+	print(("[%s] dev: %s granted %d copies of %s"):format(Config.WorkingTitle, player.Name, granted, id))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -480,6 +504,7 @@ function Dev.Init()
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
 	command("grow", growCamp)
+	command("dupes", grantDupes)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
@@ -507,7 +532,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

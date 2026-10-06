@@ -2,10 +2,11 @@
 -- StarterPlayerScripts.Client.UI.AliensScreen: the Aliens panel. A strip of station cards across
 -- the top (one per unlocked job: name, slots, rate and a row of slot squares), the owned count, a
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
--- overlay badge, a size chip and a growth chip that counts a working alien down to its next stage,
--- where it is working), and an Optimize button. Every value is read from the profile mirror in State and the shared
--- Economy and Growth math; the only tap that leaves the client asks the server (StationOptimize).
--- Nothing here decides an outcome.
+-- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
+-- its next stage, where it is working), and a footer with Optimize and Fuse buttons and a one-line fuse hint.
+-- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
+-- that leave the client ask the server (StationOptimize, FuseSpecies). Nothing here decides an outcome: Fuse
+-- only picks which species to ask about, and the card redraws from the camp push the server sends back.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -16,12 +17,14 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Fusion = require(Shared:WaitForChild("data"):WaitForChild("Fusion"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
+local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
 
 local AliensScreen = {}
@@ -41,8 +44,12 @@ local STRIP_GAP = 0.02 -- between station cards, of the strip width
 local COUNT_Y = 0.455
 local COUNT_H = 0.05
 local GRID_Y = 0.515
-local GRID_H = 0.345
-local FOOTER_H = 0.1
+local GRID_H = 0.33
+local FOOTER_H = 0.075 -- the button row; the one-line fuse hint sits under it
+local HINT_H = 0.05 -- one line of 14 px text
+local FOOTER_BUTTON_W = 0.24 -- Fuse and Optimize, side by side at the right
+local FOOTER_GAP = 0.02 -- between them
+local FUSE_BUSY_ALPHA = 0.5 -- the Fuse button's face and text fade by this while a fusion is in flight
 
 -- Grid: four square cards per row; the cell width is a fraction of the grid's canvas width and the
 -- cell height is derived from it so the cells come out square (see layoutGrid).
@@ -66,6 +73,15 @@ local NAME_H = 0.14
 local STATUS_Y = 0.80
 local STATUS_H = 0.14
 
+-- The card's top corners: the speed chip top right, the overlay badge top left, and a fused copy's level chip
+-- (the speed chip's size) in the top-left corner too, or directly under the badge when the badge holds it.
+local CORNER_X = 0.04
+local CORNER_Y = 0.04
+local CORNER_H = 0.17
+local SPEED_W = 0.36
+local BADGE_W = 0.5
+local CORNER_GAP = 0.01
+
 -- Time units, in seconds, for the growth countdown.
 local MINUTE = 60
 local HOUR = 60 * MINUTE
@@ -77,6 +93,7 @@ local countLabel: TextLabel? = nil
 local grid: ScrollingFrame? = nil
 local gridLayout: UIGridLayout? = nil
 local emptyLabel: TextLabel? = nil
+local fuseButton: Frame? = nil
 local cardCount = 0
 local open = false
 local pending = false -- one server request in flight at a time
@@ -144,6 +161,99 @@ local function ask(name: string)
 		if ok ~= true then
 			print(("[%s] %s refused: %s"):format(Config.WorkingTitle, name, tostring(reason)))
 		end
+	end)
+end
+
+-- Fusion -------------------------------------------------------------------
+
+-- A species worth asking the server to fuse, found in the profile mirror: how many copies are owned (each
+-- fusion consumes Fusion.DuplicatesPerLevel of them and keeps one) so the ask loop has a hard bound.
+type FuseCandidate = { species: string, copies: number }
+
+-- Species with at least DuplicatesPerLevel + 1 copies whose best copy is still below the level cap, in id order.
+-- The server re-checks everything; this only decides whether Fuse has anything to ask about.
+local function fuseCandidates(profile: Types.Profile): { FuseCandidate }
+	local copies: { [string]: number } = {}
+	local best: { [string]: number } = {}
+	for _, record in pairs(profile.aliens) do
+		copies[record.species] = (copies[record.species] or 0) + 1
+		best[record.species] = math.max(best[record.species] or 0, record.level)
+	end
+	local out: { FuseCandidate } = {}
+	for species, count in pairs(copies) do
+		if count >= Fusion.DuplicatesPerLevel + 1 and (best[species] or 0) < 1 + Fusion.MaxFusionLevels then
+			table.insert(out, { species = species, copies = count })
+		end
+	end
+	table.sort(out, function(a: FuseCandidate, b: FuseCandidate): boolean
+		return a.species < b.species
+	end)
+	return out
+end
+
+-- The server's answer to one FuseSpecies call: a result, or nil on any refusal (NotEnough, MaxLevel, ...).
+local function askFuse(species: string): Types.FuseResult?
+	local ok, result, reason = pcall(function()
+		return Net.func("FuseSpecies"):InvokeServer(species)
+	end)
+	if ok and type(result) == "table" then
+		return result :: Types.FuseResult
+	end
+	print(("[%s] FuseSpecies refused: %s"):format(Config.WorkingTitle, tostring(if ok then reason else result)))
+	return nil
+end
+
+local function toastFused(result: Types.FuseResult)
+	local name = speciesName(Species.ById[result.species], result.species)
+	Toast.Show(Strings.TOAST_FUSED:format(name, result.level), Theme.Colors.Featured)
+end
+
+-- The Fuse button's face fades and stops taking taps while a fusion is in flight.
+local function setFuseBusy(busy: boolean)
+	local button = fuseButton
+	local face = if button then button:FindFirstChild("Face") else nil
+	if face and face:IsA("TextButton") then
+		face.Active = not busy
+		face.BackgroundTransparency = if busy then FUSE_BUSY_ALPHA else 0
+		face.TextTransparency = if busy then FUSE_BUSY_ALPHA else 0
+	end
+end
+
+-- Fuse everything fusable. One call is in flight at a time (the shared `pending`); each species is asked again
+-- while the server keeps answering with a result (one level per call) until it refuses, at most as often as
+-- its copies allow. The mirror is never touched: the server's camp push redraws the cards.
+local function fuseAll()
+	if pending then
+		return
+	end
+	local candidates: { FuseCandidate } = if State.Has() then fuseCandidates(State.Get()) else {}
+	if #candidates == 0 then
+		Toast.Show(Strings.TOAST_FUSE_NONE, Theme.Rarity.Common)
+		return
+	end
+	pending = true
+	setFuseBusy(true)
+	task.spawn(function()
+		local last: Types.FuseResult? = nil
+		for _, candidate in ipairs(candidates) do
+			for _ = 1, (candidate.copies - 1) // Fusion.DuplicatesPerLevel do
+				local result = askFuse(candidate.species)
+				if not result then
+					break
+				end
+				last = result
+				if Fusion.ToastEach then
+					toastFused(result)
+				end
+			end
+		end
+		if not last then
+			Toast.Show(Strings.TOAST_FUSE_NONE, Theme.Rarity.Common) -- the server refused what the mirror allowed
+		elseif not Fusion.ToastEach then
+			toastFused(last)
+		end
+		pending = false
+		setFuseBusy(false)
 	end)
 end
 
@@ -382,8 +492,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	local chip = Builder.pill({
 		parent = card,
 		name = "Speed",
-		position = UDim2.fromScale(0.96, 0.04),
-		size = UDim2.fromScale(0.36, 0.17),
+		position = UDim2.fromScale(1 - CORNER_X, CORNER_Y),
+		size = UDim2.fromScale(SPEED_W, CORNER_H),
 		anchor = Vector2.new(1, 0),
 		color = Theme.Colors.Trough,
 		stroke = Theme.Stroke.Text,
@@ -405,8 +515,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		local badge = Builder.pill({
 			parent = card,
 			name = "Overlay",
-			position = UDim2.fromScale(0.04, 0.04),
-			size = UDim2.fromScale(0.5, 0.17),
+			position = UDim2.fromScale(CORNER_X, CORNER_Y),
+			size = UDim2.fromScale(BADGE_W, CORNER_H),
 			color = Theme.Colors.Codex,
 			stroke = Theme.Stroke.Text,
 			strokeColor = Theme.Colors.Outline,
@@ -418,6 +528,32 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			name = "Text",
 			text = Builder.text("OVERLAY_" .. record.overlay),
 			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.86, 0.75),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = 6,
+		})
+	end
+
+	-- A fused copy (level above 1; level 1 shows nothing) wears its level in gold: top left, the speed chip's
+	-- size, or directly under the overlay badge when the badge already sits in that corner.
+	if record.level > 1 then
+		local levelChip = Builder.pill({
+			parent = card,
+			name = "Level",
+			position = UDim2.fromScale(CORNER_X, if record.overlay ~= "None" then CORNER_Y + CORNER_H + CORNER_GAP else CORNER_Y),
+			size = UDim2.fromScale(SPEED_W, CORNER_H),
+			color = Theme.Colors.Trough,
+			stroke = Theme.Stroke.Text,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = 5,
+		})
+		Builder.label({
+			parent = levelChip,
+			name = "Text",
+			text = Strings.ALIENS_LEVEL:format(record.level),
+			textSize = Theme.TextSize.Body,
+			color = Theme.Colors.Featured,
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.86, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
@@ -712,20 +848,44 @@ local function build()
 	empty.Visible = false
 	emptyLabel = empty
 
-	-- 4. Footer: Optimize asks the server to reseat the crew.
+	-- 4. Footer: a button row (Fuse, then Optimize at the right edge) over a one-line hint in the minimum text size.
+	-- Optimize asks the server to reseat the crew; Fuse asks it to fuse every species with spare copies.
+	local buttonsBottom = 1 - Theme.Margin - HINT_H
 	Builder.button({
 		parent = body,
 		name = "Optimize",
 		text = Strings.OPTIMIZE,
 		color = Theme.Colors.Select,
-		position = UDim2.fromScale(1 - Theme.Margin, 1 - Theme.Margin),
-		size = UDim2.fromScale(0.24, FOOTER_H),
+		position = UDim2.fromScale(1 - Theme.Margin, buttonsBottom),
+		size = UDim2.fromScale(FOOTER_BUTTON_W, FOOTER_H),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
 		zIndex = 4,
 	}, function()
 		ask("StationOptimize")
 	end)
+	fuseButton = Builder.button({
+		parent = body,
+		name = "Fuse",
+		text = Strings.FUSE_BUTTON,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(1 - Theme.Margin - FOOTER_BUTTON_W - FOOTER_GAP, buttonsBottom),
+		size = UDim2.fromScale(FOOTER_BUTTON_W, FOOTER_H),
+		anchor = Vector2.new(1, 1),
+		textSize = Theme.TextSize.Label,
+		zIndex = 4,
+	}, fuseAll)
+	Builder.label({
+		parent = body,
+		name = "FuseHint",
+		text = Strings.FUSE_HINT:format(1 + Fusion.MaxFusionLevels),
+		textSize = Theme.TextSize.Min,
+		color = Theme.Rarity.Common,
+		position = UDim2.fromScale(0.5, 1 - Theme.Margin),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, HINT_H),
+		anchor = Vector2.new(0.5, 1),
+		zIndex = 3,
+	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
 	for _, topic in ipairs({ "stations", "rate" }) do
