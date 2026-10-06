@@ -261,6 +261,9 @@ local function onQuestClaim(player: Player): (boolean, string?)
 			elseif reward.kind == "item" and id then
 				p.inventory.items[id] = (p.inventory.items[id] or 0) + amount
 				inventoryChanged = true
+			elseif reward.kind == "powerUp" and id then
+				p.inventory.powerUps[id] = (p.inventory.powerUps[id] or 0) + amount
+				inventoryChanged = true
 			end
 			-- "encounter": nothing to hand over; the Warden the horn summoned was the reward
 		end

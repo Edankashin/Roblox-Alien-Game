@@ -176,6 +176,8 @@ local function rewardText(reward: Quests.Reward): string
 		return template:format(amount)
 	elseif kind == "item" then
 		return template:format(Builder.text("ITEM_" .. id))
+	elseif kind == "powerUp" then
+		return template:format(amount, Builder.text("POWERUP_" .. id))
 	elseif kind == "encounter" then
 		local def = Species.ById[id]
 		return template:format(if def then def.name else id)

@@ -509,6 +509,7 @@ return {
 	TOAST_CODE_EXPIRED = "That code has expired",
 	REWARD_gear = "%s",
 	REWARD_lure = "%d x %s",
+	REWARD_powerUp = "%d x %s",
 	REWARD_scrap = "%s Scrap",
 	REWARD_spin = "%d free spins",
 	REWARD_spin_ONE = "1 free spin",

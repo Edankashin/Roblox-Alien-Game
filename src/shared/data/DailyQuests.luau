@@ -16,7 +16,7 @@ export type Objective = {
 	condition: string?,
 	lure: string?,
 }
-export type Reward = { kind: "scrap" | "lure" | "spin", id: string?, amount: number }
+export type Reward = { kind: "scrap" | "lure" | "spin" | "powerUp", id: string?, amount: number } -- the kinds Gifts.GrantRewards pays (promo codes share the shape)
 export type Quest = { id: string, objective: Objective, rewards: { Reward } }
 
 local Daily: { Quest } = {

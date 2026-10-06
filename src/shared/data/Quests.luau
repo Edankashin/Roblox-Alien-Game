@@ -12,7 +12,7 @@ export type Objective = {
 	material: string?, -- collect
 	lure: string?, -- craft
 }
-export type Reward = { kind: "gear" | "lure" | "scrap" | "spin" | "item" | "encounter", id: string?, amount: number? }
+export type Reward = { kind: "gear" | "lure" | "scrap" | "spin" | "item" | "encounter" | "powerUp", id: string?, amount: number? }
 export type Step = { id: string, objectives: { Objective }, rewards: { Reward } }
 
 local FieldNotes: { [number]: { Step } } = {
