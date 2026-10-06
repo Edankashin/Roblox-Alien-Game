@@ -36,7 +36,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Floors become Terrain (grass, snow, sand per biome patch) painted by a build script run once in Studio through MCP, or stay parts with MaterialService custom materials (a PBR set per world) when terrain costs too much on phones. Decide by measuring on the SE: terrain is the goal, materials the fallback.
 - A water plane where a world has one (Tidepool later). Patch edges get a soft blend (a second ring part with a gradient texture) so biomes stop looking like discs.
 
-### L3. World dressing and hero landmarks (one milestone per world) — weather particles done as milestone 24 (2026-10-05); five hero set pieces modelled (`tools/blender/heroes_base.py`, renders in `05-ui-design/refs/look-l3/`) and placed from layout data as milestone 29 (2026-10-06); the 16 scenery props get their look pass next; drops and flakes wait on real textures
+### L3. World dressing and hero landmarks (one milestone per world) — weather particles done as milestone 24 (2026-10-05); five hero set pieces modelled (`tools/blender/heroes_base.py`, renders in `05-ui-design/refs/look-l3/`) and placed from layout data as milestone 29 (2026-10-06); the 16 scenery props had their look pass (88ce665, 4d53289: 300 to 900 triangles, renders in `refs/look-l3/props/`); drops and flakes wait on the L5 textures
 
 - Import the 16 props (`Map-Dressing.md`), then paint extra scatter with Brushtool 2, rows with Redupe, curves with Archimedes. Hand dressing lives in the place file.
 - Hero pieces modelled in Blender through MCP or generated: the crash site wreck, the shrine, the cave mouth, the geyser field vents, the ship hull per world. Each has a notes line in `Blender-MCP.md`.
@@ -48,7 +48,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Each model keeps its blockout's folder, file names and height, so it drops into the renderers unchanged (`import-model` skill). Four animations each (idle, walk, work-at-station, catch-reveal) as one animation set per body type, retargeted, so 32 species need about six rigs, not 32.
 - Review per batch: a sheet of eight silhouettes and eight colour renders from `preview.py`, approved before the next batch.
 
-### L5. UI and GUI (one milestone) — the Star Chart orbit map done (2026-10-05)
+### L5. UI and GUI (one milestone) — the Star Chart orbit map done (2026-10-05); the compass strip built as milestone 30 (2026-10-06); the icon set and particle sprites are being rendered from Blender (`tools/blender/icons.py`, `assets/icons/`, `assets/particles/`), uploads with the models
 
 - Icon pack: one image model prompt per icon family (currency, materials, gear, menu glyphs, rarity badges), 128 px, flat, two-tone, thick outline; uploaded once and the ids put in `data/Icons.luau`; `Builder` gains `Builder.icon`. Menu glyph letters go.
 - 9-slice assets for panels, buttons and chips from one Figma-style sheet, so Builder's chunky button becomes an image with the same API; tier colours stay from Theme.

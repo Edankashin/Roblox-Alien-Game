@@ -49,6 +49,7 @@ local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHin
 local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
 local NotifyCard = require(script:WaitForChild("UI"):WaitForChild("NotifyCard"))
 local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
+local Compass = require(script:WaitForChild("UI"):WaitForChild("Compass"))
 local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
@@ -68,7 +69,7 @@ local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
-local TOAST_TOP_WITH_BANNER = 0.19 -- while the event banner has the luck line's slot, toasts stack beneath it
+local TOAST_TOP_WITH_BANNER = 0.235 -- while the event banner has the luck line's slot, toasts stack beneath it (the banner ends at 0.221 with the HUD's centre column under the compass strip)
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
@@ -1014,6 +1015,7 @@ local function start(profile: Types.Profile)
 	-- Radar Mk1: the minimap takes the Nearby column's slot once a radar is owned; the free column (tier 0)
 	-- hides, since its rows would not fit under the disc.
 	Radar.Build()
+	Compass.Start() -- the strip along the top edge; the refresh below shows it with the other HUD extras
 	local function refreshRadarTier()
 		local tier = if State.Has() then State.Get().gear.radar else 0
 		Radar.SetTier(tier)
@@ -1035,6 +1037,7 @@ local function start(profile: Types.Profile)
 		local entry = if type(speciesId) == "string" and State.Has() then State.Get().codex[speciesId] else nil
 		local name = if def and entry and entry.count > 0 then def.name else Strings.CODEX_UNKNOWN
 		radarTarget = part
+		Compass.SetTarget(part)
 		Waypoint.Show(function()
 			return if part.Parent then part.Position else nil
 		end, name)
@@ -1138,6 +1141,7 @@ local function start(profile: Types.Profile)
 		Hud.SetMenuVisible(not inCapture and not Reveal.IsOpen() and not cinematic)
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen() and not cinematic) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
+		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
 		NearbyPanel.SetVisible(radarTier < 1 and not cinematic)
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
@@ -1149,6 +1153,7 @@ local function start(profile: Types.Profile)
 			local arrived = root and root:IsA("BasePart") and (root.Position - target.Position).Magnitude <= Config.RadarWaypointArriveStuds
 			if not target.Parent or arrived then
 				radarTarget = nil
+				Compass.SetTarget(nil)
 				Waypoint.Clear()
 			end
 		end

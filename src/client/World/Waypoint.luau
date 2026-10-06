@@ -6,7 +6,8 @@
 -- label beneath in white outlined text, and under it the distance to the player's HumanoidRootPart.
 -- The part follows the caller's getPosition closure every FOLLOW_SECONDS and hides while it answers
 -- nil, so a target that is collected, caught or not yet spawned hands the marker on without the
--- caller doing anything. Pure presentation: nothing here decides what is pointed at.
+-- caller doing anything. Target() hands the compass strip (UI/Compass) the position the marker last
+-- followed and its label. Pure presentation: nothing here decides what is pointed at.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -41,6 +42,8 @@ local bob: Tween? = nil
 local labelText: TextLabel? = nil
 local distanceText: TextLabel? = nil
 local shown = false
+local followed: Vector3? = nil -- where the marker last stood (nil while the target answers nil)
+local shownLabel: string? = nil -- the label of the current Show
 local generation = 0 -- each Show starts a new follow loop; Clear and a later Show retire the old one
 
 local function rootPosition(): Vector3?
@@ -133,6 +136,7 @@ local function follow(getPosition: () -> Vector3?)
 		return
 	end
 	local target = getPosition()
+	followed = target
 	if not target then
 		gui.Enabled = false
 		return
@@ -160,6 +164,7 @@ function Waypoint.Show(getPosition: () -> Vector3?, label: string)
 	generation += 1
 	local mine = generation
 	shown = true
+	shownLabel = label
 	local text = labelText
 	if text then
 		text.Text = label
@@ -186,6 +191,8 @@ end
 function Waypoint.Clear()
 	generation += 1
 	shown = false
+	followed = nil
+	shownLabel = nil
 	local gui = billboard
 	if gui then
 		gui.Enabled = false
@@ -198,6 +205,16 @@ end
 
 function Waypoint.IsShown(): boolean
 	return shown
+end
+
+-- The position the marker last followed and its label while a marker is shown and its target stands
+-- somewhere; nil, nil otherwise (cleared, or the target answered nil on the last follow).
+function Waypoint.Target(): (Vector3?, string?)
+	local at = followed
+	if shown and at then
+		return at, shownLabel
+	end
+	return nil, nil
 end
 
 -- World lookups ------------------------------------------------------------
