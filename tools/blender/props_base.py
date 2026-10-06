@@ -381,7 +381,7 @@ def post(p, mat, r, z0, z1, x, y, n=8, r_top=None):
 
 def geyser_cone(p):
     p.material("Cone", "8C5A3C")
-    p.material("Rim", "B07A55")
+    p.material("Rim", "D9A066")
     p.material("Crater", "4A2E1E")
     n = 24
     jit = [p.rng.uniform(0.92, 1.0) for _ in range(n)]
