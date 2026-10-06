@@ -519,6 +519,7 @@ function CaptureBar.Begin(info: BeginInfo)
 	end
 	if feedback then
 		feedback.Visible = false
+		feedback.Text = "" -- a stale "Good!" from the last catch must not read as this one's
 	end
 	if hint then
 		hint.Visible = true

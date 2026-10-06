@@ -279,6 +279,7 @@ local function completeModules(player: Player, _text: string)
 	local worldId = Place.WorldId()
 	local defs = Economy.moduleDefs(worldId)
 	local finished = 0 -- modules that were not complete before this call
+	local finishedIds: { string } = {} -- in module order, for the hooks a real completion fires
 	local modulesNow: { [string]: Types.ModuleProgress } = {}
 	local stationsNow: { [string]: Types.StationState } = {}
 	local aliensNow: { [string]: Types.AlienRecord } = {}
@@ -304,6 +305,7 @@ local function completeModules(player: Player, _text: string)
 			if state.completedAt == nil then
 				state.completedAt = now
 				finished += 1
+				table.insert(finishedIds, def.id)
 			end
 			state.updatedAt = now
 			local unlocks = def.unlocksSlots
@@ -323,6 +325,14 @@ local function completeModules(player: Player, _text: string)
 	end
 	Net.event("ModulesChanged"):FireClient(player, worldId, modulesNow)
 	Net.event("StationsChanged"):FireClient(player, stationsNow, aliensNow)
+	-- What a real completion fires (Economy.reportModuleComplete): the client's fanfare and pan, and the
+	-- tutorial's moduleStarted and moduleComplete triggers, so T3 and T6 (and the gift pop after T6) can be
+	-- reached from here. The tutorial only counts the step it is on, so an out-of-order hook is ignored.
+	for _, moduleId in ipairs(finishedIds) do
+		Net.event("ModuleCompleted"):FireClient(player, worldId, moduleId)
+		Tutorial.OnModuleStarted(player, moduleId)
+		Tutorial.OnModuleComplete(player, moduleId)
+	end
 	print(("[%s] dev: %s completed %d of %d modules on world %d (%d were already done); the ship is complete"):format(Config.WorkingTitle, player.Name, finished, #defs, worldId, #defs - finished))
 end
 
