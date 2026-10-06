@@ -46,7 +46,7 @@ local KINDS: { Kind } = { "room", "furniture", "habitat" } -- the rows, top to b
 -- the screen tall: at iPhone SE height (375) that is 120 px, a card row 32 px, the button row 31 px. Three rows
 -- do not fit under the title tab above the footer, so the rows sit in a ScrollingFrame (the "list") whose window
 -- shows two of them.
-local TRAY_W = 0.9
+local TRAY_W = 0.88 (0.9 tucked 5 px under the menu column at 1081 px wide)
 local TRAY_H = 0.32
 local HEADER_W = 0.2 -- the title tab straddling the tray's top edge
 local HEADER_H = 0.2

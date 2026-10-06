@@ -96,7 +96,17 @@ Nothing to do now. The in-game opt-in card is on by default (`src/shared/data/So
 1. Creator Dashboard, the experience, **Experience Questionnaire** (in the left column, under the settings). Answer it honestly; it sets the age rating. The game has paid random items (the spins and Server Luck), so say yes there.
 2. Creator Dashboard, the experience, **Access**: Private until then, then Public (or Friends for a test weekend).
 
-## 8. Codex's C4 summary
+## 8. A two-player test in Studio (for the visiting milestone)
+
+The Mac's Claude can drive one player at a time; visiting needs two in one server, and only Studio's own test mode starts that.
+
+1. Terminal: `rojo serve home.project.json` in the repo folder.
+2. Studio: open a new Baseplate (Home, New), delete the Baseplate part, Plugins, Rojo, Connect. The place must say it is the home world: in the Explorer click **Workspace**, in the Properties window scroll to **Attributes** and check **WorldId** reads 0. (A second Studio window connected to a different `rojo serve` can overwrite this; if WorldId reads 1, set it to 0 by hand.)
+3. Test tab, in the **Clients and Servers** group pick **2 Players** in the dropdown, then **Start**. Studio opens one server window and two player windows.
+4. Tell the Mac's Claude it is running; it drives the two players through `docs/TESTING.md` "Milestone 42e" steps 3 to 5, or you follow those steps yourself in the two windows (one is the owner, one the visitor).
+5. Test tab, **Cleanup** closes the windows when done.
+
+## 9. Codex's C4 summary
 
 Paste the summary text into our chat when you have it. I review it, mark card C4 done in `docs/vault/02-how-we-work/Codex-Queue.md`, and hand Codex C5 to C7 (they are already written there).
 
@@ -107,5 +117,6 @@ Paste the summary text into our chat when you have it. I review it, mark card C4
 - The twenty product and pass ids as "row id: number" lines.
 - The group id, if you made one.
 - The name, if you picked one.
+- "The two-player test is running" when you start one (section 8).
 
 I put every number in the right table, run the checks, push, and republish nothing (republishing the places is yours, step 1; I tell you when a push needs one).

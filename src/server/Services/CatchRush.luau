@@ -271,6 +271,9 @@ end
 -- The round right now, computed from os.time(): active, secondsLeft (0 when not active), nextInSeconds
 -- to the next start (0 while active) and the top rows so far.
 function CatchRush.GetState(): Types.CatchRushState
+	if Place.IsHome() then
+		return { active = false, secondsLeft = 0, nextInSeconds = 0, rows = {} } -- no rounds at home: the clock's slot is not a round here
+	end
 	return buildState(readClock(), nil)
 end
 
