@@ -12,6 +12,7 @@ import random
 import statistics
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_data import ROOT, TableReader
 
 
@@ -20,13 +21,17 @@ class Alien:
     species: str
     overlay: str
     worked: float = 0.0
+    level: int = 1
+    size: str = "Normal"
+    uid: int = 0
 
 
 class Model:
     def __init__(self, root=ROOT):
         reader = TableReader()
         names = ('Config', 'Tiers', 'Species', 'Spawns', 'Modules', 'KeyMaterials',
-                 'Growth', 'Sizes', 'Gifts', 'Worlds', 'Jobs', 'Overlays', 'Gear', 'Layouts')
+                 'Growth', 'Sizes', 'Gifts', 'Worlds', 'Jobs', 'Overlays', 'Gear', 'Layouts',
+                 'Fusion', 'Companions', 'Habitats', 'HomeBuild', 'CatchRush', 'Weekly', 'Outposts')
         self.data = {name: reader.read(root / 'src/shared/data' / f'{name}.luau') for name in names}
         self.config = self.data['Config']
         self.tiers = self.data['Tiers']['Tiers']
@@ -50,7 +55,7 @@ class Model:
         for candidate in self.growth:
             if alien.worked >= candidate['workedSeconds']:
                 stage = candidate
-        return tier['workSpeed'] * overlay * (1 + stage['speedBonus'])
+        return tier['workSpeed'] * overlay * (1 + stage['speedBonus']) * (1 + self.config['LevelSpeedStep'] * (alien.level - 1))
 
     def encounter(self, species, rng):
         """60% Good, 15% Perfect per tap; Perfect wins, Good rolls catchChance."""
@@ -91,6 +96,10 @@ class Player:
         self.catches, self.attempts, self.seated = Counter(), Counter(), set()
         self.catch_counts = Counter()
         self.offline_scrap = 0
+        self.fodder = self.fusions = 0
+        self.entry_rates = {}
+        self.entry_scrap = {}
+        self.sources = Counter()
 
     def jobs(self, alien):
         entries = self.m.species[alien.species]['jobs'].values()
@@ -174,6 +183,7 @@ class Player:
             dt = min(self.c['IncomeTickSeconds'], remaining)
             rate, speed = self.rates()
             self.scrap += rate * dt
+            self.sources["stations"] += rate * dt
             self.t += dt
             self.active += dt
             if self.started:
@@ -228,12 +238,44 @@ class Player:
         if species not in self.codex:
             self.scrap += tier['codexScrap']
             self.codex.add(species)
-        alien = Alien(species, overlay)
+        self.sources["catch"] += pay * (self.c["PerfectScrapMultiplier"] if perfect else 1)
+        alien = Alien(species, overlay, size=band["id"], uid=sum(self.catch_counts.values()))
         self.aliens.append(alien)
         self.passive += tier['passive']
         self.seat(alien)
         self.catch_counts[self.world] += 1
         self.catches[self.world, row['tier']] += 1
+        self.fuse(species)
+
+    def fuse(self, species):
+        data = self.m.data['Fusion']
+        overlays = list(self.m.data['Overlays']['Order'].values())
+        def key(a):
+            rank = overlays.index(a.overlay) + 1 if a.overlay in overlays else 0
+            scale = self.m.data['Sizes']['ById'][a.size]['scale']
+            return (-a.level, -rank, -scale, -a.worked, str(a.uid))
+        while True:
+            copies = sorted((a for a in self.aliens if a.species == species), key=key)
+            if len(copies) < data['DuplicatesPerLevel'] + 1:
+                return
+            kept = next((a for a in copies if a.level < 1 + data['MaxFusionLevels']), None)
+            if kept is None:
+                return
+            others = [a for a in reversed(copies) if a is not kept and a.level <= kept.level]
+            if len(others) < data['DuplicatesPerLevel']:
+                return
+            seated = {id(a) for crew in self.stations.values() for a in crew}
+            if data['ConsumeRestingFirst']:
+                others.sort(key=lambda a: id(a) in seated)
+            consumed = others[:data['DuplicatesPerLevel']]
+            consumed_ids = {id(a) for a in consumed}
+            self.aliens = [a for a in self.aliens if id(a) not in consumed_ids]
+            self.passive -= sum(self.m.tiers[self.m.species[a.species]['tier']]['passive'] for a in consumed)
+            kept.level += 1
+            self.fodder += len(consumed)
+            self.fusions += 1
+            if consumed_ids & seated:
+                self.optimize()
 
     def claim_gifts(self):
         # Day-one Scrap is deliberately held for the first module payoff.
@@ -356,6 +398,8 @@ class Player:
             self.spawn_ready = [self.t] * self.c['SpawnDensityTarget']
             self.nodes = {name: [self.t]*row['nodes'] for name, row in self.m.materials.items() if row['world'] == world and row['nodes']}
             self.special_caught, self.warden_retry = False, self.t
+            self.entry_scrap[world] = self.scrap
+            self.entry_rates[world] = self.rates()[0] * 60
             self.optimize()  # World 2 carries the real inventory/crew/slots from World 1.
             while self.module_index < len(self.module_defs) and self.t < self.limit:
                 self.step()
@@ -384,10 +428,10 @@ def report(model, continuous, daily, args):
              '## Scope and assumptions', '',
              f'Medians over {args.runs} reproducible seeds (0 through {args.runs-1}), running World 1 then World 2. World 2 inherits aliens, growth, unlocked slots, leftover Scrap and claimed gifts. Table times restart at entry to each world; offline wall time includes the absence. The comparison is continuous play versus one {args.session_minutes:g}-minute active session per day followed by an absence of {c["GiftDaySeconds"]/60-args.session_minutes:g} minutes. A session finishes its current action before leaving. Results are scenario estimates, not measured player telemetry.', '',
              f'Catch inputs: 60% Good, 15% Perfect and 25% Miss per sweep. Good rolls each tier’s catchChance; Perfect succeeds. Each round has {c["CaptureSweepsPerEncounter"]} tries and all rounds must win. Each tap takes CaptureSweepLeadSeconds plus the mean zone-center travel time on the outward triangle wave. Catch reveal uses VfxCatchBurstSeconds. Walking uses Gear.BaseWalkSpeed and layout region centers; local search distance is SpawnRadius / sqrt(SpawnDensityTarget). Density/respawn timers cap supply. This omits manual decision time and collision/pathfinding, so it is an optimistic movement model.', '',
-             'Spawn tiers follow shares with Common as the remainder, falling back down the ladder when the current biome/conditions have no species. Day/night, special-weather chance/duration (no consecutive special weather), shower windows, size odds, half-up catch payouts, first-catch codex rewards, overlays, passive income, growth and module slot unlocks use live tables. The player optimizes seating after module completions and on entering a world, otherwise uses server-style newcomer replacement. Level remains 1: no fusion, paid boosts, friends, pity/luck bonuses, seasonal events, outpost collections or spending on shop goods.', '',
+             'Spawn tiers follow shares with Common as the remainder, falling back down the ladder when the current biome/conditions have no species. Day/night, special-weather chance/duration (no consecutive special weather), shower windows, size odds, half-up catch payouts, first-catch codex rewards, overlays, passive income, growth and module slot unlocks use live tables. The player optimizes seating after module completions and on entering a world, otherwise uses server-style newcomer replacement. Fusion runs after every catch using the same level-first ranking, size/worked-time tie breaks, cap and resting-first fodder rule as Economy. No paid boosts, friends, pity/luck bonuses, seasonal events or spending on shop goods. The additional-system snapshot below is reported separately from progression, without double-counting its income.', '',
              f'Offline Scrap uses the departure rate × {c["OfflineRate"]:g} × min(away, {c["OfflineCapSeconds"]:g}s); worked time is capped the same way. Only an already-paid module assembles offline at departure speed, and its completion is observed on rejoin. New gates require active play. Day-one gift Scrap is claimed after the first module; later Scrap gifts and eggs are claimed on eligible rejoin days. Lure/power/spin gifts are banked without use, consistent with fixed hit rates and no buffs.', '',
              'Key nodes use live conditions, counts, drops and respawns. **Quest-core approximation:** the final core requires catching the special-weather signature, then winning the actual multi-round warden encounter at night; failed attempts use WardenRetreatSeconds. The full ordered Field Notes/crafting/reward circuit is not simulated. This can materially understate endgame time; treat results as an economy floor, not a launch forecast. Worlds placeId=0 is ignored for this hypothetical progression scenario.', '',
-             f'All unfinished runs count as infinity in medians after a {args.limit_days:g}-day horizon. Input tables: Config, Tiers, Species, Spawns, Modules, KeyMaterials, Growth, Sizes, Gifts, Worlds, Jobs, Overlays, Gear and Layouts (including Meadow/Frostbyte), parsed by C2’s TableReader. No data is changed.', '']
+             f'All unfinished runs count as infinity in medians after a {args.limit_days:g}-day horizon. Input tables: Config, Tiers, Species, Spawns, Modules, KeyMaterials, Growth, Sizes, Gifts, Worlds, Jobs, Overlays, Gear, Layouts (including Meadow/Frostbyte), Fusion, Companions, Habitats, HomeBuild, CatchRush, Weekly and Outposts, parsed by C2’s TableReader. No data is changed.', '']
     outliers = []
     for world in model.world_ids:
         rows = list(model.modules[world].values())
@@ -449,9 +493,113 @@ def report(model, continuous, daily, args):
     return '\n'.join(lines)
 
 
+def extended_report(model, players, daily, args):
+    import copy
+    data, c = model.data, model.config
+    day, hour = c['GiftDaySeconds'], 3600
+    lines = ['\n## C7: additional systems and source concentration', '',
+             'Progression above now includes immediate fusion. The following is a **steady-state snapshot at the second launch**, not additional money injected into those progression times. Station rate is the median final rate; catches use each run’s measured total catch Scrap / active hours. Select one median-strength resting alien per available first job as followers (up to Config.CompanionSlots), then three remaining same-world resting aliens for a habitat. Missing eligible copies leave slots empty. Fixed Good/Perfect rates mean zone/luck/radar perks are reported but not converted into guessed catch-rate improvements. Income from visitors, quests, seasonal tracks, paid items and consumed spins remains excluded.', '',
+             f'Median fusions: **{median([p.fusions for p in players]):g}**; median consumed copies: **{median([p.fodder for p in players]):g}**; median share of all caught copies consumed: **{median([100*p.fodder/max(1,sum(p.catch_counts.values())) for p in players]):.1f}%**. Each fusion spends {data["Fusion"]["DuplicatesPerLevel"]} copies, capped at level {1+data["Fusion"]["MaxFusionLevels"]}; passive bonuses of consumed aliens are removed.', '',
+             '| Growth stage | Seated hours | Speed bonus |', '| --- | ---: | ---: |']
+    for stage in model.growth:
+        lines.append(f'| {stage["id"]} | {stage["workedSeconds"]/hour:g} | {100*stage["speedBonus"]:g}% |')
+    perks, habitat_rates = [], []
+    habitat_count = next(row['capacity'] for row in data['HomeBuild']['Items'].values() if row['kind'] == 'habitat')
+    for p in players:
+        seated = {id(a) for crew in p.stations.values() for a in crew}
+        resting = [a for a in p.aliens if id(a) not in seated]
+        followers = []
+        totals = Counter()
+        for job in model.jobs[:c['CompanionSlots']]:
+            group = sorted((a for a in resting if model.species[a.species]['jobs'][1]['job'] == job), key=lambda a:(model.speed(a),a.uid))
+            if group:
+                chosen = group[len(group)//2]
+                followers.append(chosen)
+                perk = data['Companions']['PerkByJob'][job]
+                totals[perk['kind']] += perk['amount']*data['Companions']['TierFactor'][model.species[chosen.species]['tier']]
+        perks.append({kind:min(totals[kind], cap) for kind,cap in data['Companions']['PerkCap'].items()})
+        follower_ids = {id(a) for a in followers}
+        eligible = sorted((a for a in resting if id(a) not in follower_ids and model.species[a.species]['world'] == model.world_ids[0]), key=lambda a:(model.speed(a),a.uid))
+        middle = max(0, (len(eligible)-habitat_count)//2)
+        shown = eligible[middle:middle+habitat_count]
+        habitat_rates.append(sum(data['Habitats']['ScrapPerHourByTier'][model.species[a.species]['tier']] for a in shown))
+    lines += ['', f'Companions: up to **{c["CompanionSlots"]}** resting followers. Median capped perk sums: ' + ', '.join(f'{kind} **{100*median([p[kind] for p in perks]):g}%**' for kind in sorted(data['Companions']['PerkCap'])) + '.', '',
+              f'| Habitat tier ({habitat_count} displayed) | Scrap/hour | Scrap/day at cap |', '| --- | ---: | ---: |']
+    for tier, rate in data['Habitats']['ScrapPerHourByTier'].items():
+        lines.append(f'| {tier} | {rate*habitat_count:g} | {rate*habitat_count*min(day,data["Habitats"]["CollectCapSeconds"])/hour:g} |')
+    rush = data['CatchRush']
+    cycle = math.lcm(int(rush['IntervalSeconds']),int(c['ShowerIntervalSeconds']))
+    starts = range(0,cycle,int(rush['IntervalSeconds']))
+    runs = sum(not rush['SkipDuringShower'] or t % c['ShowerIntervalSeconds'] >= c['ShowerDurationSeconds'] for t in starts)
+    rounds_hour = runs*hour/cycle
+    reward = lambda rows:sum(row['amount'] for row in rows.values() if row['kind']=='scrap')
+    lines += ['', f'Catch Rush: **{rounds_hour:g} eligible rounds/hour**, counting epoch-aligned starts and skipping those inside a Shower. Assumes at least {rush["MinCatches"]} catch and a stable rank each eligible round. Spins remain non-Scrap inventory.', '', '| Rank | Scrap/round | Scrap/hour |', '| --- | ---: | ---: |']
+    for rank, rows in rush['Rewards'].items():
+        lines.append(f'| {rank} | {reward(rows):g} | {reward(rows)*rounds_hour:g} |')
+    participation = reward(rush['Participation'])
+    lines.append(f'| Participation | {participation:g} | {participation*rounds_hour:g} |')
+    lines += ['', f'Weekly drop: **{100*data["Weekly"]["SpawnChance"]:g}%** of spawn attempts in its world while that drop is current; the table below reports spawn allocation, not a guaranteed caught fraction. No independent Scrap grant is attached to the weekly system.', '', '| Rotation species | World | Limited | Spawn share |', '| --- | ---: | --- | ---: |']
+    for row in data['Weekly']['Rotation'].values():
+        lines.append(f'| {row["species"]} | {row["worldId"]} | {row["limited"]} | {100*data["Weekly"]["SpawnChance"]:g}% |')
+    lines += ['', '| Outpost level (per away world) | Scrap/hour | Scrap/day at cap | Materials/day at cap |', '| --- | ---: | ---: | ---: |']
+    outpost_hours = min(day,data['Outposts']['CollectCapSeconds'])/hour
+    for level,row in data['Outposts']['Levels'].items():
+        lines.append(f'| {level} | {row["scrapPerHour"]:g} | {row["scrapPerHour"]*outpost_hours:g} | {row["materialsPerHour"]*outpost_hours:g} |')
+    station_hour = median([p.rates()[0]*hour for p in players])
+    catch_hour = median([p.sources['catch']*hour/p.active for p in players])
+    companion_hour = median([p.sources['catch']*hour/p.active*perk['catchScrap'] for p,perk in zip(players,perks)])
+    habitat = median(habitat_rates)
+    outpost = data['Outposts']['Levels'][1]['scrapPerHour'] # one level-one away world while based on World 2
+    active = {'Stations':station_hour,'Catches (base)':catch_hour,'Companion catch bonus':companion_hour,
+              'Habitats':habitat,'Catch Rush participation':participation*rounds_hour,'One level-one outpost':outpost}
+    offline = {'Stations':station_hour*c['OfflineRate']*min(day,c['OfflineCapSeconds'])/hour,
+               'Catches (base)':0,'Companion catch bonus':0,'Habitats':habitat*min(day,data['Habitats']['CollectCapSeconds'])/hour,
+               'Catch Rush participation':0,'One level-one outpost':outpost*outpost_hours}
+    lines += ['', 'Source concentration scenario: based on World 2, one away World 1 outpost at level one; habitat and outpost totals assume eventual collection. Active and full-day-away figures are alternative scenarios, not additive. Snapshot station income already includes fusion/growth/passives; their bonuses are not counted again. Catch Rush uses participation; rank alternatives are above.', '',
+              '| Source | Scrap/active hour | Active share | Scrap/full day away | Offline share | >30% flag |', '| --- | ---: | ---: | ---: | ---: | --- |']
+    for name in active:
+        a,b=active[name]/sum(active.values()),offline[name]/sum(offline.values())
+        flags=[]
+        if a > .30: flags.append('active')
+        if b > .30: flags.append('offline')
+        lines.append(f'| {name} | {active[name]:.1f} | {100*a:.1f}% | {offline[name]:.1f} | {100*b:.1f}% | {", ".join(flags) or "—"} |')
+    # Fit only the report's copied model. Use representative seeds for a bounded offline tool runtime.
+    w1,w2=model.world_ids
+    last1=list(model.modules[w1].values())[-1]['id'];last2=list(model.modules[w2].values())[-1]['id']
+    target=summary(players,w1,last1,'active')*1.5
+    carried=median([p.entry_rates[w2] for p in players])
+    costs=[r['scrap'] for r in model.modules[w2].values()]
+    # Increasing income-time budgets smooth the opening; carried savings pay only the first gate.
+    weights=list(range(1,len(costs)+1))
+    shares=[v/sum(weights) for v in weights]
+    carried_scrap=median([p.entry_scrap[w2] for p in players])
+    proposal=copy.deepcopy(model)
+    def apply(minutes):
+        pool=carried*minutes
+        for index,(row,share) in enumerate(zip(proposal.modules[w2].values(),shares)):
+            row['scrap']=max(1,round(pool*share + (carried_scrap if index == 0 else 0)))
+    low,high=0.0,target/60*16
+    calibration=min(3,args.runs)
+    for _ in range(7):
+        mid=(low+high)/2;apply(mid)
+        trial=[Player(proposal,seed,args.session_minutes,False,args.limit_days).run() for seed in range(calibration)]
+        if summary(trial,w2,last2,'active') < target: low=mid
+        else: high=mid
+    apply((low+high)/2)
+    proposed=[Player(proposal,seed,args.session_minutes,False,args.limit_days).run() for seed in range(args.runs)]
+    total=summary(proposed,w2,last2,'active')
+    lines += ['', '## Proposed World 2 curve (not applied)', '',
+              f'Live fusion-aware World 1 completion **{target/1.5/60:.1f} min**; World 2 **{summary(players,w2,last2,"active")/60:.1f} min**. Target **{target/60:.1f} min** (1.5× World 1). Carried median station income is **{carried:.1f} Scrap/min**. Proposed cost pool = that carried income × **{(low+high)/2:.2f} income-minutes**, distributed in increasing weights 1 through the module count, plus **{carried_scrap:.0f} carried Scrap** on the first gate so savings do not erase the opening; assembly and every other data value remain live. Seven bisection steps on {calibration} seeds fit the cost pool, then all {args.runs} seeds validate the fit on the full sample (which includes those calibration seeds).', '',
+              '| Module | Live Scrap | Proposed Scrap | Live cumulative minutes | Proposed cumulative minutes |', '| --- | ---: | ---: | ---: | ---: |']
+    for live,new in zip(model.modules[w2].values(),proposal.modules[w2].values()):
+        lines.append(f'| {live["name"]} | {live["scrap"]:,} | {new["scrap"]:,} | {summary(players,w2,live["id"],"active")/60:.1f} | {summary(proposed,w2,new["id"],"active")/60:.1f} |')
+    lines += ['', f'Validated proposal: **{total/60:.1f} min**, **{total/(target/1.5):.2f}× World 1** ({100*(total/target-1):+.1f}% from target). This is a cold-playtest candidate, not an approved balance change. The largest uncertainty remains the unmodeled ordered Field Notes route and human search/decision time; automated fusion is also an optimistic choice. Default sample count is {args.runs} to keep the full simulation plus proposal fit below the ten-second tooling budget on this Mac.', '']
+    return '\n'.join(lines)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--runs', type=int, default=51)
+    parser.add_argument('--runs', type=int, default=11)
     parser.add_argument('--session-minutes', type=float, default=30)
     parser.add_argument('--limit-days', type=float, default=7)
     parser.add_argument('--output', type=Path, default=ROOT/'docs/vault/01-game-design/Balance-Report.md')
@@ -461,10 +609,10 @@ def main():
         parser.error('use positive runs/horizon and a session shorter than one day')
     continuous = [Player(model, seed, args.session_minutes, False, args.limit_days).run() for seed in range(args.runs)]
     daily = [Player(model, seed, args.session_minutes, True, args.limit_days).run() for seed in range(args.runs)]
-    content = report(model, continuous, daily, args)
+    content = report(model, continuous, daily, args) + extended_report(model, continuous, daily, args)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(content)
-    print(content)
+    print(content, end="")
     return 0
 
 
