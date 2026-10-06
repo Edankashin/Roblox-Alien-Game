@@ -138,7 +138,6 @@ local gridLayout: UIGridLayout? = nil
 local emptyLabel: TextLabel? = nil
 local fuseButton: Frame? = nil
 local cardCount = 0
-local habitatCache: { [number]: { { uid: string, free: number } } } = {} -- the plot's habitats per world, for one rebuild
 local open = false
 local pending = false -- one server request in flight at a time
 
@@ -319,16 +318,6 @@ local function habitatExists(world: number): boolean
 		end
 	end
 	return false
-end
-
-local function habitatsFor(world: number): { { uid: string, free: number } }
-	local known = habitatCache[world]
-	if known then
-		return known
-	end
-	local fresh = HomeRenderer.HabitatsFor(world)
-	habitatCache[world] = fresh
-	return fresh
 end
 
 -- Asks the server to put the alien `uid` on display in the habitat `habitatUid`, or to bring it back to camp when
@@ -1071,7 +1060,6 @@ local function rebuildGrid(profile: Types.Profile)
 		return
 	end
 	local entries = sortedEntries(profile)
-	habitatCache = {}
 	cardCount = #entries
 	clearChildren(frame)
 	for index, entry in ipairs(entries) do
