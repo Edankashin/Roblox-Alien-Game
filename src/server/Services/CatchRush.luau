@@ -33,6 +33,7 @@ local Config = require(Shared.data.Config)
 local Data = require(Shared.data.CatchRush)
 local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
+local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
 local Events = require(script.Parent.Events)
@@ -317,6 +318,11 @@ function CatchRush.Init()
 end
 
 function CatchRush.Start()
+	-- No rounds on the home planet: nothing spawns there, so nothing could be caught.
+	if Place.IsHome() then
+		print(("[%s] CatchRush: none on world %d (nothing spawns at home)"):format(Config.WorkingTitle, Place.WorldId()))
+		return
+	end
 	-- A server that boots mid-round joins it at once (with empty counts); otherwise the loop sees the next start.
 	local clock = readClock()
 	wasActive = clock.active

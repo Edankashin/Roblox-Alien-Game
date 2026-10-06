@@ -580,7 +580,7 @@ return {
 	WEEKLY_LEFT = "%s · %s left", -- species, days and hours
 	WEEKLY_LEFT_ELSEWHERE = "%s on %s · %s left", -- species, world, days and hours (the drop is on another world)
 	WEEKLY_CHIP = "%s week",
-	WEEKLY_CHIP_WORLD = "On %s", -- the chip when the drop is on another world (the subtitle keeps the species and the time)
+	WEEKLY_CHIP_WORLD = "%s", -- the chip when the drop is on another world: the world's name alone (the chip is narrow)
 	WEEKLY_NOW = "Alien of the Week: %s! Look for it all week",
 	WEEKLY_NOW_WEATHER = "Alien of the Week: %s! %s skies all week",
 	UI_UNKNOWN_GLYPH = "?",

@@ -289,13 +289,17 @@ function Admin.Start()
 	if #AdminData.DeveloperUserIds == 0 then
 		return
 	end
-	local ok, err = pcall(function()
-		MessagingService:SubscribeAsync(AdminData.Topic, onMessage)
+	-- Off the boot thread: on an unpublished place (a Studio build of home.project.json) SubscribeAsync never
+	-- returns, and it must not hold every service after this one. Until it answers, commands apply locally.
+	task.spawn(function()
+		local ok, err = pcall(function()
+			MessagingService:SubscribeAsync(AdminData.Topic, onMessage)
+		end)
+		subscribed = ok
+		if not ok then
+			log(("could not subscribe to %s (%s); commands apply to this server only"):format(AdminData.Topic, tostring(err)))
+		end
 	end)
-	subscribed = ok
-	if not ok then
-		log(("could not subscribe to %s (%s); commands apply to this server only"):format(AdminData.Topic, tostring(err)))
-	end
 end
 
 return Admin

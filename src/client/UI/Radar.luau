@@ -569,7 +569,7 @@ local function buildDisc(parent: Frame): Frame
 		position = UDim2.fromScale(0.5, 0.5 - RING_SIZE / 2),
 		size = UDim2.fromScale(RANGE_LABEL_W, RANGE_LABEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6, -- over the blips (5), so the distance stays readable in a crowd
+		zIndex = 9, -- over the blips (5) and the secret ping (8), so the distance stays readable in a crowd
 	})
 
 	-- The map is north-up and never rotates, so one cardinal letter is enough.
