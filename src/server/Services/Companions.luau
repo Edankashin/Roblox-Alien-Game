@@ -362,7 +362,11 @@ local function onUseCompanionToken(player: Player): (boolean, string?)
 end
 
 -- GetAllCompanions() -> one snapshot per player whose profile is loaded, for a client that joined late.
-local function onGetAllCompanions(_player: Player): { Types.CompanionsSnapshot }
+local SNAPSHOT_RATE_PER_SECOND = REMOTE_RATE_PER_SECOND -- Bound full-server companion snapshot reads.
+local function onGetAllCompanions(player: Player): { Types.CompanionsSnapshot }
+	if not Net.allow(player, "GetAllCompanions", SNAPSHOT_RATE_PER_SECOND) then
+		return {}
+	end
 	local all: { Types.CompanionsSnapshot } = {}
 	for _, other in ipairs(Players:GetPlayers()) do
 		local profile = PlayerData.Get(other)
