@@ -9,7 +9,7 @@
 -- touches off, so no raycast and no tap ever hits it. The server's own part is hidden locally (its ball would sit
 -- inside the mesh), and the Warden is never in the Wild folder, so the capture flow and the radar never see it.
 -- Look: an invisible anchor part as tall as the mesh (or the placeholder itself) carries the nameplate, the species
--- name only, shown inside Config.NameplateDistance. The model closes Sightings.MoveLerp of the gap to the server
+-- name only, shown inside Config.NameplateDistance. The model walks at Sightings.SpeedStudsPerSecond toward the server
 -- part's feet (the part's bottom) per 60 Hz frame, so the 0.1 s steps look smooth, and turns toward its travel
 -- (the server part's last flat movement; the part's own look until it has moved) by Sightings.FaceLerp.
 -- Trail: every Sightings.TrailStepStuds walked, one glowing Neon ball (Sightings.TrailSizeStuds, the world's
@@ -44,7 +44,7 @@ local SIGHTINGS_FOLDER = "Sightings" -- Workspace.World.Sightings: the server's 
 local SPECIES_ATTRIBUTE = "SpeciesId" -- on the server part; its name is the same id
 local PLATE_LIFT = 1.2 -- studs between the top of the Warden and its nameplate, as in the other renderers
 local BASE_STUDS = 2 -- studs across a placeholder at scale 1, as every renderer draws it
-local FRAME_RATE = 60 -- the frame rate Sightings.MoveLerp and FaceLerp are per-frame fractions at
+local FRAME_RATE = 60 -- the frame rate Sightings.FaceLerp is a per-frame fraction at
 
 local SHAPES: { [string]: Enum.PartType } = {
 	Ball = Enum.PartType.Ball,
@@ -129,6 +129,7 @@ local function dropPuff(at: Vector3)
 	local light = Instance.new("PointLight")
 	light.Color = trailColor
 	light.Range = Sightings.TrailLightRange
+	light.Brightness = Sightings.TrailLightBrightness
 	light.Parent = puff
 	puff.Parent = parent
 	local fade = TweenInfo.new(Sightings.TrailLifeSeconds, Enum.EasingStyle.Linear)
@@ -164,7 +165,7 @@ local function faceDirection(s: Sighting): Vector3
 end
 
 -- Moves the drawn feet and facing toward the server part's and drops the trail puffs; the first call puts it there.
-local function advance(s: Sighting, moveAlpha: number, faceAlpha: number)
+local function advance(s: Sighting, dt: number, faceAlpha: number)
 	local target = feetOf(s.part)
 	local moved = Vector3.new(target.X - s.lastServer.X, 0, target.Z - s.lastServer.Z)
 	if moved.Magnitude > 0 then
@@ -179,7 +180,14 @@ local function advance(s: Sighting, moveAlpha: number, faceAlpha: number)
 		s.lastPuff = target
 		return
 	end
-	s.feet += (target - s.feet) * moveAlpha
+	-- Walk toward the server part at the Warden's own speed (it steps ten times a second, so an exponential chase
+	-- surged on every step); when it falls behind by more than CatchUpGapStuds it hurries until it is close again.
+	local toTarget = target - s.feet
+	local distance = toTarget.Magnitude
+	if distance > 0 then
+		local speed = Sightings.SpeedStudsPerSecond * (if distance > Sightings.CatchUpGapStuds then Sightings.CatchUpScale else 1)
+		s.feet += toTarget.Unit * math.min(distance, speed * dt)
+	end
 	s.turn = s.turn:Lerp(desired, faceAlpha)
 	-- One puff per TrailStepStuds walked, left exactly that far along from the last one (a slow frame catches up
 	-- one puff per frame, never a burst).
@@ -201,10 +209,9 @@ local function place(s: Sighting)
 end
 
 local function onRender(dt: number)
-	local moveAlpha = 1 - (1 - Sightings.MoveLerp) ^ (dt * FRAME_RATE)
 	local faceAlpha = 1 - (1 - Sightings.FaceLerp) ^ (dt * FRAME_RATE)
 	for _, s in pairs(records) do
-		advance(s, moveAlpha, faceAlpha)
+		advance(s, dt, faceAlpha)
 		place(s)
 	end
 end

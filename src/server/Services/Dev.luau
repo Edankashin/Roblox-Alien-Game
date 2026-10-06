@@ -293,6 +293,10 @@ local RADAR_MAX_TIER = 3 -- Radar1..Radar3
 local function grantRadar(player: Player, text: string)
 	local asked = tonumber(string.match(text, "^/%S+%s+(%S+)") or "")
 	local target = math.clamp(math.floor(asked or RADAR_DEFAULT_TIER), 1, RADAR_MAX_TIER)
+	if target > Shop.HighestRadarTier() then
+		print(("[%s] dev: radar Mk%d is not in the game yet (the highest tier with a buy rule is Mk%d)"):format(Config.WorkingTitle, target, Shop.HighestRadarTier()))
+		return
+	end
 	for tier = 1, target do
 		local ok, reason = Shop.GrantGear(player, "Radar" .. tostring(tier))
 		if not ok and reason ~= "AlreadyOwned" then

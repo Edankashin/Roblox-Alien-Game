@@ -241,6 +241,10 @@ local function refreshMarkers()
 				if onStrip then
 					shownDistance[index] = distance
 					shownName[index] = waypointLabel or Builder.text(marker.labelKey)
+					-- The target diamond borrows the Legendary colour while it points at a walking Warden.
+					if marker.kind == "target" then
+						item.object.BackgroundColor3 = if waypointLabel == Strings.COMPASS_SIGHTING then Theme.Rarity.Legendary else colorOf(marker.color)
+					end
 					local rival = if best then CompassData.Markers[best] else nil
 					local rivalDistance = if best then shownDistance[best] else nil
 					if

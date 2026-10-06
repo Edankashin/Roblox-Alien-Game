@@ -569,6 +569,7 @@ return {
 	WEEKLY_LEFT = "%s · %s left", -- species, days and hours
 	WEEKLY_LEFT_ELSEWHERE = "%s on %s · %s left", -- species, world, days and hours (the drop is on another world)
 	WEEKLY_CHIP = "%s week",
+	WEEKLY_CHIP_WORLD = "On %s", -- the chip when the drop is on another world (the subtitle keeps the species and the time)
 	WEEKLY_NOW = "Alien of the Week: %s! Look for it all week",
 	WEEKLY_NOW_WEATHER = "Alien of the Week: %s! %s skies all week",
 	UI_UNKNOWN_GLYPH = "?",
@@ -578,6 +579,7 @@ return {
 	COND_PHRASE_Rain = "in the rain",
 	COND_PHRASE_Quest = "by quest",
 	COND_PHRASE_Shower = "in a Meteor Shower",
+	COND_SHORT_Shower = "in a Shower", -- the Nearby panel's narrow tag; other conditions use their COND_PHRASE
 	COND_PHRASE_Blizzard = "in a blizzard",
 	COND_PHRASE_PowerSurge = "during a power surge",
 	COND_PHRASE_Ashfall = "in ashfall",
@@ -629,9 +631,10 @@ return {
 	TOAST_PURCHASE_THANKS = "Thanks! %s is yours",
 	TOAST_PURCHASE_FAILED = "The purchase did not go through",
 	TOAST_SERVERLUCK_START = "%s bought %sx luck for everyone!",
+	TOAST_SERVERLUCK_GIFT = "%sx luck for everyone, from the team!", -- a window gifted from the developer panel
 	SERVERLUCK_BANNER = "%sx luck for everyone",
 	SERVERLUCK_LEFT = "%s left",
-	SERVERLUCK_CHIP = "x%s LUCK",
+	SERVERLUCK_CHIP = "x%s", -- the pill is narrow: the word did not fit beside the number
 	SHOP_CRAFT = "Craft %s",
 	SHOP_BUY = "Buy %s",
 	SHOP_OWNED = "Owned",

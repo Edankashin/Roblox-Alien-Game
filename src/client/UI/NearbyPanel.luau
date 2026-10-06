@@ -407,7 +407,13 @@ local function refresh()
 			row.name.Text = if def.tier == "Secret" then Strings.CODEX_UNKNOWN else def.name
 		end
 		if absentEntry then
-			row.tag.Text = Strings.NEARBY_APPEARS:format(Builder.text("COND_PHRASE_" .. absentEntry.condition))
+			-- The tag is narrow: a condition with a COND_SHORT_ string uses it ("in a Shower"), the rest their phrase.
+			local shortKey = "COND_SHORT_" .. absentEntry.condition
+			local phrase = Builder.text(shortKey)
+			if phrase == shortKey then
+				phrase = Builder.text("COND_PHRASE_" .. absentEntry.condition)
+			end
+			row.tag.Text = Strings.NEARBY_APPEARS:format(phrase)
 		end
 	end
 

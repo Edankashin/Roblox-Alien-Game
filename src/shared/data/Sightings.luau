@@ -14,7 +14,7 @@ local Paths: { [number]: { Point } } = {
 	[2] = { { x = 0, z = 155 }, { x = 60, z = 50 }, { x = 40, z = -30 }, { x = -60, z = -60 }, { x = -120, z = 20 }, { x = -40, z = 120 }, { x = 0, z = 155 } },
 }
 
-local TrailColorByWorld: { [number]: string } = { [1] = "FF8AD8", [2] = "BFEFFF" } -- flowers on World 1, frost on World 2
+local TrailColorByWorld: { [number]: string } = { [1] = "FF2E9A", [2] = "33B5FF" } -- flowers on World 1, frost on World 2 (deep hues: Neon and a light wash a pale tint out to white)
 
 return {
 	Paths = Paths,
@@ -24,11 +24,15 @@ return {
 	PushSeconds = 10, -- how often the server refreshes the sighting clock on clients while one runs
 	Scale = 1.3, -- model scale over the species' own (the Warden looms a little when it walks free)
 	FaceLerp = 0.15, -- fraction of the turn toward the travel direction the client applies each frame
-	MoveLerp = 0.3, -- fraction of the gap to the server part the client's model closes each frame
+	-- The client walks the model at SpeedStudsPerSecond toward the server part (which steps ten times a second), so the
+	-- motion is even; past CatchUpGapStuds behind it walks CatchUpScale times faster until it is close again.
+	CatchUpGapStuds = 2,
+	CatchUpScale = 1.5,
 	TrailStepStuds = 3, -- a trail puff is left every this many studs walked
 	TrailLifeSeconds = 20, -- a puff fades out over this
 	TrailSizeStuds = 1.2,
 	TrailColorByWorld = TrailColorByWorld,
 	TrailLightRange = 8, -- the point light each puff carries while it lives
+	TrailLightBrightness = 0.5, -- dimmer than Roblox's default 1, so the puff keeps its colour by day
 	Hidden = {}, -- world ids with no sighting (none yet; a world without a path has none either)
 }

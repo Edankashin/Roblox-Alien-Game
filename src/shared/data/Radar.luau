@@ -13,7 +13,7 @@ return {
 		SecretPingFarSeconds = 1.2, -- heartbeat interval at the edge of the range
 		SecretPingNearSeconds = 0.4, -- heartbeat interval within SecretNearStuds
 		SecretNearStuds = 20,
-		SecretPulseScale = 1.5, -- the "???" ping swells to this on each beat
+		SecretPulseScale = 1.25, -- the "???" ping swells to this on each beat (1.5 covered the range label when two pinged)
 		AbsentRows = 3, -- Nearby panel rows given to rares not out right now (after the present species, within MAX rows)
 		AbsentMinTier = "Rare", -- only species of this tier and up are listed as absent
 	},

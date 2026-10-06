@@ -7,7 +7,7 @@
 -- its effects. Every number here, never in code.
 
 return {
-	DeveloperUserIds = {} :: { number }, -- the team's Roblox user ids; empty means the panel is off everywhere
+	DeveloperUserIds = { 1492992374 } :: { number }, -- the team's Roblox user ids (Ethan); empty means the panel is off everywhere
 	Topic = "AlienAdmin", -- the MessagingService topic every server subscribes to
 	LuckBonusDefault = 2.0, -- /admin luck [bonus] [minutes]: added to everyone's luck, like a bought Server Luck
 	LuckMinutesDefault = 10,

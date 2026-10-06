@@ -79,6 +79,15 @@ local RADAR_TIER: { [string]: number } = { Radar1 = 1, Radar2 = 2, Radar3 = 3 }
 -- Radar tiers Scrap can buy, by tier, as a rule read on the live profile: Mk1 always, Mk2 once the profile
 -- has launched (Radar.Mk2 unlock = "World2": a second unlocked world). Mk3 has no rule yet, so it answers "Locked".
 local RADAR_BUYABLE: { [number]: (Types.Profile) -> boolean } = { [1] = always, [2] = hasLaunched }
+
+-- The highest radar tier that has a buy rule at all (Mk3 waits on World 3); Dev's /radar stops here too.
+function Shop.HighestRadarTier(): number
+	local highest = 0
+	for tier in pairs(RADAR_BUYABLE) do
+		highest = math.max(highest, tier)
+	end
+	return highest
+end
 local RADAR_ROWS: { [number]: RadarRow } = (Radar :: any) :: { [number]: RadarRow }
 
 -- profile.gear is a fixed-shape table and the id arrives as a string, so its flags are read and written
