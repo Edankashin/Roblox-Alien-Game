@@ -69,7 +69,7 @@ local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
-local TOAST_TOP_WITH_BANNER = 0.235 -- while the event banner has the luck line's slot, toasts stack beneath it (the banner ends at 0.221 with the HUD's centre column under the compass strip)
+local TOAST_TOP_WITH_BANNER = 0.29 -- with or without the event banner the centre column ends at the Friend Boost chip (0.281), so toasts start under it (Studio 2026-10-06: a shower toast covered the chip at 0.235)
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position

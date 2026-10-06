@@ -18,7 +18,7 @@ local Builder = require(script.Parent.Builder)
 local Toast = {}
 
 local MAX_VISIBLE = 3
-local TOP_DEFAULT = 0.155 -- first slot, below the HUD's ship bar (which ends at 0.146 under the compass strip)
+local TOP_DEFAULT = 0.29 -- first slot, below the HUD's whole centre column (the Friend Boost chip ends at 0.281 under the compass strip)
 local top = TOP_DEFAULT -- the bootstrap lowers it while a panel is open so toasts clear the header tab
 local GAP = 0.012 -- between stacked toasts, in screen height
 local WIDTH = 0.42 -- of the screen; the aspect constraint derives the height from this

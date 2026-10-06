@@ -7,7 +7,7 @@
 -- the Silhouettes preference is on, Prefs.Silhouettes; off, every alien shows in colour). A part
 -- reserved for another player (ReservedFor, a summoned Warden) is hidden locally and never tracked.
 -- A species with a mesh in ReplicatedStorage.Models (World.Models) is drawn as a clone of it under the
--- client-made Workspace.ClientWild folder, feet where the placeholder's bottom sits, bobbing with the
+-- client-made Workspace.ClientWild folder, feet on the ground at the bob's low point, bobbing with the
 -- part; the server part is then invisible locally but stays what Nearest and PartAtScreenPoint return.
 -- Without a mesh the placeholder part shows exactly as before.
 -- Sizes (data/Sizes): the server rolls a band per spawn and writes its id as the part's Size attribute
@@ -423,7 +423,11 @@ local function track(instance: Instance)
 	-- bottom held at the same height, so the part's top, the clone's top and the plate all follow.
 	local baseSize = instance.Size
 	local restBase = instance.CFrame
-	local feet = restBase.Position - Vector3.new(0, baseSize.Y / 2, 0)
+	-- The server part floats WildHoverStuds over the ground and the bob swings WildBobStuds either way, so a
+	-- mesh whose feet sat at the part's bottom hovered (Studio 2026-10-06: 0.7 studs at the low point). The
+	-- mesh stands WildHoverStuds minus WildBobStuds lower: its feet touch the ground at the bob's low point
+	-- and lift a little at the top, a hop rather than a float.
+	local feet = restBase.Position - Vector3.new(0, baseSize.Y / 2 + Config.WildHoverStuds - Config.WildBobStuds, 0)
 	local factor = bandOf(instance).scale
 	instance.Size = baseSize * factor
 	local base = restBase + Vector3.new(0, (instance.Size.Y - baseSize.Y) / 2, 0)
