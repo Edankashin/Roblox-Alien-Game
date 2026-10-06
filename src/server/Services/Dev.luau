@@ -13,7 +13,7 @@
 -- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
 -- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
 -- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
--- in order). Nothing
+-- in order), /homeclear (empty the house grid, no refund). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -648,6 +648,23 @@ local function dailyQuestsCommand(player: Player, text: string)
 	end
 end
 
+-- /homeclear: empty the house grid (profile.home.items) with no refund and push HomeChanged, so a plot can be
+-- rebuilt from nothing. Prints how many items went.
+local function homeClear(player: Player)
+	local removed = 0
+	local ok = PlayerData.Update(player, function(profile)
+		for uid in pairs(profile.home.items) do
+			profile.home.items[uid] = nil
+			removed += 1
+		end
+	end)
+	local profile = PlayerData.Get(player)
+	if ok and profile then
+		Net.event("HomeChanged"):FireClient(player, profile.home.items)
+		print(("[%s] dev: %s cleared the house grid (%d item(s) removed)"):format(Config.WorkingTitle, player.Name, removed))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -711,11 +728,12 @@ function Dev.Init()
 	command("social", socialCommand)
 	command("lb", leaderboardCommand)
 	command("dq", dailyQuestsCommand)
+	command("homeclear", homeClear)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear)"):format(Config.WorkingTitle))
 	end
 end
 
