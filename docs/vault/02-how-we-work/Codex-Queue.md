@@ -51,7 +51,7 @@ Files: `tools/balance.py` (new), `docs/vault/01-game-design/Balance-Report.md` (
 
 Do: a Python 3 standard-library simulator that reads `Tiers`, `Species`, `Spawns`, `Modules`, `KeyMaterials`, `Growth`, `Sizes`, `Config` (the catch, income, offline and module numbers) and `Gifts` as text (reuse card C2's parser), then simulates a median player on World 1 and World 2: catches per minute from the capture numbers (assume a 60 percent Good rate and 15 percent Perfect), the tier mix from the shares, the station crew that results with the slot unlocks, Scrap per minute over time including growth stages, and the wall-clock time to each module with and without offline time (capped as in Config). Print and write a Markdown table per world: module, Scrap needed, minutes of active play, minutes with one offline session a day; then a short list of outliers (a module more than three times the previous one, a tier that never seats). Compare with the plan's targets (first module inside five minutes, World 1 ship in a few sessions, World 2 at 1.6x Scrap and 1.5x assembly) in the report. Change no data; list suggested changes for the coordinator.
 
-### C5. Headless tests for the newer shared maths — taken by codex 2026-10-06
+### C5. Headless tests for the newer shared maths — review
 
 Goal: `WeeklyMath` and the fusion fodder rule covered by headless specs. (`Growth`, `OutpostMath`, `SeasonMath` and `VisitRules` already have specs; extend `Growth.spec.luau` only if a threshold edge is missing.)
 

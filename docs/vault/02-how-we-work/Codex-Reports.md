@@ -72,3 +72,11 @@ C4 accepted (cbc22dd, report f32110c). The simulator reads the live tables throu
 - **Ice Drill at 7.89x the previous completion time** is relative to 0.19 minutes: the carried crew finishes the Heat Shield in 12 seconds. The real finding is the opposite of a spike. World 2 opens too fast and finishes faster than World 1 (35.8 against 43.3 continuous minutes), because the crew, slots and savings carry over and earn about 3,100 Scrap/min from the first second. World 2 should feel like a step up, not a victory lap. Card C7 now asks for a proposed World 2 curve keyed to the carried income; the change waits for that and a cold playtest.
 - **World 1's ship at 43 continuous minutes** against the plan's two to three hours is a floor: the simulator leaves out search and decision time and the ordered Field Notes route, as the report says. The cold playtest decides whether Scrap moves.
 
+
+## C5 — 2026-10-06 — review
+
+Implementation: `116a72f`; claim: `01b30fd`.
+
+Extracted pure selection to ReplicatedStorage.Shared.FusionMath. ServerScriptService.Server.Services.Economy keeps its existing ranking, argument/profile refusals and every mutation; only Fuse changed. The selector accepts already-ranked copies and the existing cap, preserving NotEnough/MaxLevel precedence, higher-level exclusion and resting/seated/companion/habitat preference. Added WeeklyMath epoch/wrap/reset/override/limited/current coverage and the missing pre-Elder growth edge.
+
+Measured: **58 → 71 tests**, **9 specs**, **0 failures**, **0.030 s**; analyze clean; data lint clean. Reviewed the Economy diff: only selection inside Fuse changed. BadArgs/NoProfile remain the unchanged service's responsibility; selection's two refusals are tested. No balance changes or Studio operations.
