@@ -194,6 +194,7 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 	local removedId = ""
 	local refund = 0
 	local undisplayed = false -- an alien was on display in the removed item
+	local sentBack: { string } = {} -- the species of each alien sent back to rest, for the Display events
 	local ok, reason = mutate(player, function(profile)
 		local placed = profile.home.items[uid]
 		if not placed then
@@ -210,12 +211,16 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 			if record.habitat == uid then
 				record.habitat = nil -- a removed habitat sends its aliens back to rest
 				undisplayed = true
+				table.insert(sentBack, record.species)
 			end
 		end
 		return nil
 	end)
 	if not ok then
 		return false, reason
+	end
+	for _, species in ipairs(sentBack) do
+		Analytics.Event(player, AnalyticsData.Events.Display, 1, { action = "off", species = species })
 	end
 	local profile = PlayerData.Get(player)
 	if profile then

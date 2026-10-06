@@ -1315,11 +1315,12 @@ local function start(profile: Types.Profile)
 				-- The title is the fixed line (a name there clipped at phone width); the species goes under it, with its
 				-- world named when the drop is on another world, so a player on World 1 knows where to fly.
 				-- The subtitle keeps the species and the time (a world name there wrapped and clipped at phone width); when
-				-- the drop is on another world the chip names that world instead of the week's weather.
+				-- the drop is on another world the chip shows nothing (a world name in it wrapped and clipped too; the
+				-- subtitle's species line already names the world) and the week's weather, which only that world has, stays off it.
 				local dropWorld = Worlds[current.drop.worldId]
 				local elsewhere = current.drop.worldId ~= Place.WorldId() and dropWorld ~= nil
 				local subtitle = Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
-				local chip = if elsewhere and dropWorld then Strings.WEEKLY_CHIP_WORLD:format(dropWorld.name) elseif weather then Strings.WEEKLY_CHIP:format(weather) else nil
+				local chip = if elsewhere then nil elseif weather then Strings.WEEKLY_CHIP:format(weather) else nil
 				Hud.SetEventBanner(Strings.WEEKLY_BANNER, subtitle, chip, nil)
 			else
 				Hud.SetEventBanner(nil, nil, nil)
@@ -1330,8 +1331,8 @@ local function start(profile: Types.Profile)
 		local rushNextIn = math.max(0, rushState.nextInSeconds - rushElapsed)
 		if shower.nextInSeconds > 0 and nextIn > 0 and nextIn <= Config.ShowerWarnSeconds then
 			Hud.SetEventCountdown(nextIn)
-		elseif not rushState.active and rushState.nextInSeconds > 0 and rushNextIn <= CatchRush.WarnSeconds then
-			Hud.SetEventCountdown(rushNextIn, Strings.RUSH_CHIP)
+		elseif not Place.IsHome() and not rushState.active and rushState.nextInSeconds > 0 and rushNextIn <= CatchRush.WarnSeconds then
+			Hud.SetEventCountdown(rushNextIn, Strings.RUSH_CHIP) -- never at home, where no rush runs
 		else
 			Hud.SetEventCountdown(nil)
 		end

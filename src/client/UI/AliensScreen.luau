@@ -24,6 +24,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local HomeBuildData = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Place = require(Shared:WaitForChild("Place"))
@@ -160,12 +161,13 @@ local function stationOf(profile: Types.Profile, job: string): Types.StationStat
 	return profile.stations[job] or { slots = Config.StationStartSlots, assigned = {} }
 end
 
--- Jobs the current world has unlocked, in Jobs.Order.
+-- Jobs the ship's highest world has unlocked (Economy.unlockWorld: the stations stand at home too), in Jobs.Order.
 local function unlockedJobs(profile: Types.Profile): { string }
 	local out: { string } = {}
+	local world = Economy.unlockWorld(profile)
 	for _, job in ipairs(jobOrder) do
 		local def = jobDefs[job]
-		if def and def.unlockWorld <= profile.world.current then
+		if def and def.unlockWorld <= world then
 			table.insert(out, job)
 		end
 	end
@@ -309,6 +311,16 @@ end
 
 -- The habitats on the plot for a world with their free places (HomeRenderer.HabitatsFor), asked once per world
 -- while the cards are built; the cache is cleared at the start of every rebuild.
+-- Whether the data has a habitat item for this world at all (data/HomeBuild rows of kind "habitat").
+local function habitatExists(world: number): boolean
+	for _, item in ipairs(HomeBuildData.Items) do
+		if item.kind == "habitat" and item.worldId == world then
+			return true
+		end
+	end
+	return false
+end
+
 local function habitatsFor(world: number): { { uid: string, free: number } }
 	local known = habitatCache[world]
 	if known then
@@ -885,9 +897,10 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- that a resting one can be tapped to follow. A following mount has a Ride button in this slot instead (below),
 	-- so it gets no status label: "Ride" says it follows, and "Hop off" says it is ridden.
 	local rideable = entry.following and def ~= nil and def.ride ~= nil
-	-- At home an alien whose world has a habitat on the plot gets a Display button when it rests, or a Bring back
-	-- button when it is on display; either takes the status slot like the Ride button. An alien on display shows the
-	-- purple "On display" pill (below) in the chip row instead of a status label.
+	-- At home an alien whose world has a habitat row in the data gets a Display button when it rests (with none built
+	-- yet the tap says to build one, so the player learns the habitat exists), or a Bring back button when it is on
+	-- display; either takes the status slot like the Ride button. An alien on display shows the purple "On display"
+	-- pill (below) in the chip row instead of a status label.
 	local displayWorld = if def then def.world else nil
 	local canDisplay = Place.IsHome()
 		and not State.IsVisiting() -- a guest never puts an alien on display at someone else's home
@@ -895,7 +908,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		and job == nil
 		and not entry.following
 		and not displayed
-		and #habitatsFor(displayWorld) > 0
+		and habitatExists(displayWorld)
 	local canBringBack = Place.IsHome() and not State.IsVisiting() and displayWorld ~= nil and displayed
 	local statusText = Strings.ALIENS_TAP_FOLLOW
 	local statusColor = Theme.Rarity.Common

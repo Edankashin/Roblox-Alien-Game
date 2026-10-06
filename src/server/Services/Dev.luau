@@ -162,7 +162,7 @@ local function forceSighting(player: Player, text: string)
 	print(("[%s] dev: %s %s the Warden sighting (active=%s, %s, %ds left, next in %ds)"):format(
 		Config.WorkingTitle,
 		player.Name,
-		if on then "started" else "ended",
+		if on and state.active then "started" elseif on then "could not start" else "ended",
 		tostring(state.active),
 		if state.species == "" then "none on this world" else state.species,
 		state.secondsLeft,
@@ -716,6 +716,9 @@ local function mailCommand(player: Player, text: string)
 	end
 	local profile = PlayerData.Get(player)
 	local waiting = if profile then #profile.home.mail else 0
+	if sent > 0 then
+		Net.event("MailArrived"):FireClient(player) -- the "letter waiting" toast, as a real letter gives
+	end
 	print(("[%s] dev: %s sent %d test letter(s) to themselves (%d waiting)"):format(Config.WorkingTitle, player.Name, sent, waiting))
 end
 
