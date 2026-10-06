@@ -29,6 +29,7 @@ local weatherEndsAt = 0
 local listeners: { (Types.Condition) -> () } = {} -- server services told on every change (Materials gates nodes by condition)
 local extras: { [string]: boolean } = {} -- conditions other services switch on (Events: "Shower")
 local weatherOverride: string? = nil -- the weather state held in place of a normal roll (Weekly's drop weather)
+local nightScale = 1 -- Config.NightSeconds is multiplied by this (Seasons' longer nights); set by SetNightScale
 
 local function snapshot(): Types.ClockState
 	return {
@@ -86,6 +87,12 @@ local function isKnownWeather(state: string): boolean
 end
 
 -- Public API -------------------------------------------------------------
+
+-- Whether this world can show `state`: one of its normal states, its special weather, or the weather held in
+-- place of the rolls (Dev's /rain asks before forcing Rain somewhere it never rains).
+function WorldClock.HasWeatherState(state: string): boolean
+	return isKnownWeather(state)
+end
 
 -- The single condition the spawn tables are judged against: the world's special weather beats Night
 -- beats Day (World 1: Rain).
@@ -176,7 +183,7 @@ function WorldClock.Force(night: boolean?, state: string?)
 	local now = os.clock()
 	if night ~= nil then
 		isNight = night
-		phaseEndsAt = now + (if isNight then Config.NightSeconds else Config.DaySeconds)
+		phaseEndsAt = now + (if isNight then Config.NightSeconds * nightScale else Config.DaySeconds)
 		applyLighting(false)
 	end
 	if state and isKnownWeather(state) then
@@ -214,6 +221,11 @@ function WorldClock.SetWeatherOverride(state: string?)
 	notify()
 end
 
+-- Seasons' night-length multiplier (1 = usual): the running phase keeps its length, the next night uses the new one.
+function WorldClock.SetNightScale(scale: number)
+	nightScale = if scale > 0 then scale else 1
+end
+
 function WorldClock.Init()
 	Net.event("ClockChanged")
 	local now = os.clock()
@@ -239,7 +251,7 @@ function WorldClock.Start()
 			local changed = false
 			if now >= phaseEndsAt then
 				isNight = not isNight
-				phaseEndsAt = now + (if isNight then Config.NightSeconds else Config.DaySeconds)
+				phaseEndsAt = now + (if isNight then Config.NightSeconds * nightScale else Config.DaySeconds)
 				applyLighting(false)
 				changed = true
 			end

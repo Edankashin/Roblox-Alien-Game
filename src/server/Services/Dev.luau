@@ -12,7 +12,8 @@
 -- Companion Tokens, default 1, into the inventory), /follow <id> (your first resting copy of that species
 -- follows you, if a slot is free), /ride <id|off> (ride a following copy of that species, or make your first
 -- resting copy follow and ride it; off gets down), /week <N|next|off> (shift the weekly drop's rotation to
--- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
+-- offset N, one week on, or back to the real week), /season <id|off|done> (force a seasonal event from Shared/data/Seasons on
+-- with its whole window left, back to the calendar, or fill every row of the running event's quest track), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
 -- in order), /homeclear (empty the house grid, no refund), /habitat [H] (the habitat payout clock back H hours,
 -- default 2, so the next arrival at the home planet pays) | settle (pay the habitats now, print the Scrap), /mail [N]
 -- (N test letters, default 1, to your own mailbox; one more than the mailbox holds shows the oldest dropped), /visit
@@ -38,6 +39,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Sightings = require(script.Parent.Sightings)
 local Weekly = require(script.Parent.Weekly)
+local Seasons = require(script.Parent.Seasons)
 local CatchRush = require(script.Parent.CatchRush)
 local Gifts = require(script.Parent.Gifts)
 local Social = require(script.Parent.Social)
@@ -60,6 +62,8 @@ local Worlds = require(Shared.data.Worlds)
 local Home = require(Shared.data.Home)
 local MailData = require(Shared.data.Mail)
 local CatchVariants = require(Shared.data.CatchVariants)
+local SeasonsData = require(Shared.data.Seasons)
+local SeasonMath = require(Shared.SeasonMath)
 
 local Dev = {}
 
@@ -204,6 +208,33 @@ local function setWeek(player: Player, text: string)
 	end
 	Weekly.SetOffset(offset)
 	print(("[%s] dev: %s set the week offset to %d: %s"):format(Config.WorkingTitle, player.Name, Weekly.GetOffset(), Weekly.Describe()))
+end
+
+-- /season <id|off|done>: an id forces that season on (the clock, the clients and the Spawner follow at once, and the
+-- banner counts its whole window), off goes back to the calendar, done sets every unclaimed row of the running
+-- season's track to its count so the claim buttons can be tested. Anything else prints the known ids.
+local function setSeason(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "off" then
+		Seasons.SetOverride(nil)
+		print(("[%s] dev: %s put the seasons back on the calendar"):format(Config.WorkingTitle, player.Name))
+	elseif word == "done" then
+		if Seasons.Current() then
+			Seasons.DevComplete(player)
+			print(("[%s] dev: %s has every row of the season's track finished"):format(Config.WorkingTitle, player.Name))
+		else
+			print(("[%s] dev: no season is running; /season <id> forces one on"):format(Config.WorkingTitle))
+		end
+	elseif word ~= nil and SeasonMath.Find(word) ~= nil then
+		Seasons.SetOverride(word)
+		print(("[%s] dev: %s forced the season %s on"):format(Config.WorkingTitle, player.Name, word))
+	else
+		local ids: { string } = {}
+		for _, season in ipairs(SeasonsData.List) do
+			table.insert(ids, season.id)
+		end
+		print(("[%s] dev: /season <id|off|done>; the ids are %s"):format(Config.WorkingTitle, table.concat(ids, ", ")))
+	end
 end
 
 local SPAWN_OFFSET_STUDS = 8 -- a /spawn alien appears this far in front of the player
@@ -772,7 +803,9 @@ function Dev.Init()
 		WorldClock.Force(false, nil)
 	end)
 	command("rain", function()
-		WorldClock.Force(nil, WorldClock.GetSpecialWeather().id) -- this world's special weather, Rain on World 1
+		-- Rain where the world rolls it (World 1 and the home), else this world's special weather (Blizzard on World 2)
+		local state = if WorldClock.HasWeatherState("Rain") then "Rain" else WorldClock.GetSpecialWeather().id
+		WorldClock.Force(nil, state)
 	end)
 	command("clear", function()
 		WorldClock.Force(nil, "Clear")
@@ -791,6 +824,7 @@ function Dev.Init()
 	command("rush", forceRush)
 	command("sighting", forceSighting)
 	command("week", setWeek)
+	command("season", setSeason)
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
 	command("grow", growCamp)
@@ -827,7 +861,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off)"):format(Config.WorkingTitle))
 	end
 end
 

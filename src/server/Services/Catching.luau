@@ -35,6 +35,7 @@ local Analytics = require(script.Parent.Analytics)
 local Leaderboard = require(script.Parent.Leaderboard)
 local CatchRush = require(script.Parent.CatchRush)
 local DailyQuests = require(script.Parent.DailyQuests)
+local Seasons = require(script.Parent.Seasons)
 local WorldClock = require(script.Parent.WorldClock)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
@@ -402,11 +403,12 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 			if not grant then
 				return nil
 			end
-			-- Only a wild catch counts on the weekly board, the Catch Rush and the daily quests: eggs and shop aliens go
+			-- Only a wild catch counts on the weekly board, the Catch Rush, the daily quests and the season's track: eggs and shop aliens go
 			-- through GrantAlien too (the Field Notes keep counting those, as before).
 			Leaderboard.OnCatch(player)
 			CatchRush.OnCatch(player)
 			DailyQuests.OnCatch(player, tier, WorldClock.GetConditions(), perfect)
+			Seasons.OnCatch(player, species, overlay)
 			if species == WARDEN_SPECIES then
 				grantWardenCore(player)
 			end

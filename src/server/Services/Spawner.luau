@@ -17,7 +17,11 @@
 -- decided here from Weekly: in the drop's world a share of spawns (data/Weekly SpawnChance) is that species in
 -- any biome with no tier roll, and while the week's weather shows a share (OverlayChance) carries the week's
 -- overlay in place of the usual overlay roll. The weekly species is exempt from the condition despawn, so a
--- limited one (Quest, Night) stays for its week.
+-- limited one (Quest, Night) stays for its week. The running season (Seasons) is decided the same way, before the
+-- weekly: in its event worlds a share of spawns (SpawnChance) is one of its event species in any biome and a share
+-- (ReturnChance) is a species it brings back (the Vault Rotation) in its own world, both with no tier roll, and
+-- the event overlay rolls (OverlayChance, percent, whatever the weather) before the week's. Event and returning
+-- species are exempt from the condition despawn too, so a Night alien stays through the day while its season runs.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
 -- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
 -- The home planet (Place.IsHome, world 0) has no wild: Start runs no tick there, so nothing ever spawns.
@@ -45,6 +49,7 @@ local Meadow = require(script.Parent.Meadow)
 local Buffs = require(script.Parent.Buffs)
 local Events = require(script.Parent.Events)
 local Weekly = require(script.Parent.Weekly)
+local Seasons = require(script.Parent.Seasons)
 
 local Spawner = {}
 
@@ -323,10 +328,25 @@ local function createSpawn(around: Vector3, conditions: { Types.Condition }, luc
 		return nil
 	end
 	local biome: Types.Biome = Biomes.At(flat)
-	-- the Alien of the Week takes its share of the world's spawns, in any biome; an unknown id rolls normally
+	-- the season's event aliens take their share of the world's spawns, in any biome, then the species it brings
+	-- back take theirs (one roll, so each share is of all spawns); a share with an empty pool (not an event world,
+	-- nothing returning here) or an unknown id rolls on normally
 	local def: Types.SpeciesDef? = nil
+	local seasonPool: { string } = {}
+	local seasonRoll = rng:NextNumber()
+	local eventPool = Seasons.EventSpecies()
+	local eventShare = if #eventPool > 0 then Seasons.SpawnChance() else 0
+	if seasonRoll < eventShare then
+		seasonPool = eventPool
+	elseif seasonRoll < eventShare + Seasons.ReturnChance() then
+		seasonPool = Seasons.ReturningHere()
+	end
+	if #seasonPool > 0 then
+		def = Species.ById[seasonPool[rng:NextInteger(1, #seasonPool)]]
+	end
+	-- the Alien of the Week takes its share of the world's spawns, in any biome; an unknown id rolls normally
 	local weekly = Weekly.ActiveSpecies()
-	if weekly and rng:NextNumber() < WeeklyData.SpawnChance then
+	if def == nil and weekly and rng:NextNumber() < WeeklyData.SpawnChance then
 		def = Species.ById[weekly]
 	end
 	if not def then
@@ -336,8 +356,11 @@ local function createSpawn(around: Vector3, conditions: { Types.Condition }, luc
 		return nil
 	end
 	local overlay: Types.Overlay
+	local seasonOverlay, seasonOverlayChance = Seasons.OverlayActive()
 	local weeklyOverlay = Weekly.OverlayActive()
-	if weeklyOverlay and rng:NextNumber(0, 100) < WeeklyData.OverlayChance then
+	if seasonOverlay and rng:NextNumber(0, 100) < seasonOverlayChance then
+		overlay = seasonOverlay :: Types.Overlay
+	elseif weeklyOverlay and rng:NextNumber(0, 100) < WeeklyData.OverlayChance then
 		overlay = weeklyOverlay :: Types.Overlay
 	else
 		overlay = rollOverlay()
@@ -385,11 +408,12 @@ local function tick()
 
 	-- conditional spawns leave when their condition ends; far spawns are culled. A reserved spawn lives
 	-- on its own lifetime (SpawnAt) and is left alone by both. The Alien of the Week ignores its own condition
-	-- (Panpipe's is Quest, which no clock ever offers), so it stays while its week runs.
+	-- (Panpipe's is Quest, which no clock ever offers), so it stays while its week runs, and so does a season's
+	-- event or returning species (Seasons.IsEventSpawn).
 	local weekly = Weekly.ActiveSpecies()
 	for spawnId, spawn in pairs(spawns) do
 		local wild = spawn.reservedFor == nil
-		if wild and spawn.condition ~= "Any" and spawn.species ~= weekly and not table.find(conditions, spawn.condition) then
+		if wild and spawn.condition ~= "Any" and spawn.species ~= weekly and not Seasons.IsEventSpawn(spawn.species) and not table.find(conditions, spawn.condition) then
 			Spawner.RemoveSpawn(spawnId, "despawn")
 		elseif wild and #roots > 0 then
 			local nearest = math.huge

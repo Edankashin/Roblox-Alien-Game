@@ -28,6 +28,7 @@ local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local DailyQuests = require(script.Parent.DailyQuests)
+local Seasons = require(script.Parent.Seasons)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Analytics = require(script.Parent.Analytics)
@@ -360,6 +361,10 @@ end
 function Gifts.Init()
 	-- Daily quests pay through the same reward grant (DailyQuests cannot require Gifts: Gifts -> Economy -> Quests -> DailyQuests).
 	DailyQuests.SetRewardGranter(Gifts.GrantRewards)
+	-- The season's track pays through them too, and its last row's alien through Economy.GrantAlien (Seasons cannot
+	-- require Economy: Economy -> Spawner -> Seasons).
+	Seasons.SetRewardGranter(Gifts.GrantRewards)
+	Seasons.SetAlienGranter(Economy.GrantAlien)
 	for _, name in ipairs({ "GiftsChanged", "ScrapChanged", "InventoryChanged" }) do
 		Net.event(name)
 	end

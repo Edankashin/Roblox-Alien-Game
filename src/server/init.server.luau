@@ -7,7 +7,8 @@
 -- Shop and Gifts register their Robux granters with it at Init, and its pass check must run before
 -- Economy's offline settlement on load); WorldClock before Spawner (conditions), Events right after WorldClock (it switches the Shower
 -- condition on that clock and Buffs and Spawner read its luck and Cosmic share), Weekly after WorldClock and Events and before
--- Spawner (Spawner reads its species and overlay; it requires only WorldClock, Analytics and shared code, nothing that requires Spawner), Meadow before
+-- Spawner (Spawner reads its species and overlay; it requires only WorldClock, Analytics and shared code, nothing that requires Spawner), Seasons right after
+-- Weekly (the seasonal event; it requires PlayerData, Analytics, WorldClock, Events and shared code, never Economy, which requires Spawner, so Gifts hands it the reward and alien granters at Init; Spawner, Catching, Gifts and Dev require it), Meadow before
 -- Materials and Spawner (floor), Leaderboard after PlayerData and before Economy (Economy reports each
 -- catch to it), CatchRush right after Leaderboard (Catching reports each wild catch to it; it requires Gifts, Events, Analytics and PlayerData and nothing
 -- that requires Catching, and only uses Gifts when a round ends), Economy
@@ -36,7 +37,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Visiting", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Admin", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Seasons", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Visiting", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Admin", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}
