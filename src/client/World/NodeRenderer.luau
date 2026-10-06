@@ -24,6 +24,14 @@ local NodeRenderer = {}
 
 local FOLDER_NAME = "Materials"
 local PLATE_LIFT = 1.2 -- studs between the top of the node (plus its bob) and its nameplate
+local PLATE_W = 7 -- studs
+local PLATE_H = 2
+local NAME_H = 0.55 -- the name line's share of the plate's height; the hidden-hint line takes the rest
+-- The material's icon, when the pack has it: a square the name line's height at the plate's left edge, with
+-- the name shifted right by its width plus a gap (of the plate's width). The plate is wider than tall, so
+-- the square's width as a fraction of the plate is its height share scaled by the plate's proportions.
+local PLATE_ICON_W = NAME_H * PLATE_H / PLATE_W
+local PLATE_ICON_GAP = 0.02
 
 type Record = {
 	part: Part,
@@ -61,19 +69,27 @@ local function buildPlate(part: Part, materialId: string): (BillboardGui, TextLa
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
-	plate.Size = UDim2.fromScale(7, 2) -- studs
+	plate.Size = UDim2.fromScale(PLATE_W, PLATE_H) -- studs
 	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + Config.WildBobStuds + PLATE_LIFT, 0)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = false
 	plate.LightInfluence = 0
 	plate.ResetOnSpawn = false
+	local icon = Builder.icon({
+		parent = plate,
+		name = "Icon",
+		key = materialId, -- the material ids are the icon keys
+		size = UDim2.fromScale(PLATE_ICON_W, NAME_H),
+	})
+	local shift = if icon then PLATE_ICON_W + PLATE_ICON_GAP else 0
 	Builder.label({
 		parent = plate,
 		name = "Name",
 		text = Builder.text("MATERIAL_" .. materialId),
 		textSize = Theme.TextSize.Label,
 		color = Theme.Colors.Featured,
-		size = UDim2.fromScale(1, 0.55),
+		position = UDim2.fromScale(shift, 0),
+		size = UDim2.fromScale(1 - shift, NAME_H),
 	})
 	local hint = Builder.label({
 		parent = plate,
@@ -81,8 +97,8 @@ local function buildPlate(part: Part, materialId: string): (BillboardGui, TextLa
 		text = "",
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Select,
-		position = UDim2.fromScale(0, 0.55),
-		size = UDim2.fromScale(1, 0.45),
+		position = UDim2.fromScale(0, NAME_H),
+		size = UDim2.fromScale(1, 1 - NAME_H),
 	})
 	hint.Visible = false
 	plate.Parent = part

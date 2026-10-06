@@ -1,7 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.PowerUpBar: the power-up row bottom-left. A small "Power-ups" caption
 -- over one square slot per power-up the player holds or has running, in data order: a chunky button
--- with the power-up's initial, an "xN" count badge bottom-right while some are held, and while one is
+-- with the power-up's icon (its initial until the icon is uploaded), an "xN" count badge bottom-right while some are held, and while one is
 -- running a Select-coloured ring around the face plus a Select under-bar with the time left, counted
 -- down each second from the end time State keeps between the server's BuffsChanged pushes. A tap asks
 -- the server (UsePowerUp) and a refusal becomes a toast. The whole bar hides when there is nothing to
@@ -114,7 +114,7 @@ local function use(id: string)
 		local ok, reason = Net.func("UsePowerUp"):InvokeServer(id)
 		pending = false
 		if ok == true then
-			Toast.Show(Strings.TOAST_POWERUP_USED:format(powerUpName(id)), Theme.Colors.Select)
+			Toast.Show(Strings.TOAST_POWERUP_USED:format(powerUpName(id)), Theme.Colors.Select, id)
 		elseif reason == "AlreadyActive" then
 			Toast.Show(Strings.TOAST_POWERUP_ACTIVE:format(powerUpName(id)), Theme.Rarity.Common)
 		else
@@ -145,6 +145,7 @@ local function buildSlot(parent: Frame, order: number, id: string): Slot
 		anchor = Vector2.new(0.5, 0),
 		textSize = Theme.TextSize.Title,
 		aspect = 1,
+		icon = id, -- the power-up ids are the icon keys
 	}, function()
 		use(id)
 	end)

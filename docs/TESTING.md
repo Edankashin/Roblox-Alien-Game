@@ -412,3 +412,16 @@ The 48 icons and 3 particle sprites rendered from Blender (`assets/icons`, `asse
 5. iPhone SE emulator: the icons stay crisp and centred on the buttons; nothing clips.
 
 Known gaps in this milestone: the material, gear, rarity, power-up and lure icons are uploaded but not yet placed (toasts, nodes, cards and the shop rows come next); no Glider or JetBoost icon; the server luck banner has no icon.
+
+## Milestone 32: icons on the remaining surfaces (World 1 place, after the image upload)
+
+With the ids in (`data/Icons.luau` filled by `--images --emit-icons-luau`):
+
+1. Power-ups row: each square shows its power-up icon (bolt, target, pulse, clover, magnet, clock) instead of a letter; the count badge and the timer ring still work.
+2. Shop, Lures and Gear pages: each row has its item's icon at the left (the three lures, the boots, the hoverboard, the radars); the Robux rows have none and look as before.
+3. Gifts: the tiles carry a small reward icon top-right (coin, lure, power-up, the Epic badge on Day 7); claiming re-renders without stacking.
+4. Catch a Rare: the Reveal shows the blue triangle badge left of "Rare"; a Common shows the grey circle.
+5. Walk to a Wreck Plate node: its nameplate shows the plate icon left of the name; collect it: the "+1 Wreck Plate" toast carries the same icon; use a Speed Burst: the "Speed Burst on!" toast carries the bolt.
+6. With every id at 0 (before the upload) none of the above shows and nothing moved: letters, plain rows, plain tiles, plain toasts. Output clean in both states.
+
+Known gaps in this milestone: no icons on the Aliens and Codex cards, the Quests reward lines, the Peddler offers or the Star Chart yet; the clock chip has no weather icon.

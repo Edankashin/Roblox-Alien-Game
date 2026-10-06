@@ -55,6 +55,10 @@ local TIER_Y_STAMPED = 0.845
 local STAMP_Y = 0.655
 local STAMP_SCRAP_Y = 0.945 -- of the screen, on the root like the Scrap (0.815) and Perfect (0.885) lines, under both
 local STAMP_PEAK = 1.5 -- the stamp slams in from this scale
+local CARD_ASPECT = 0.8 -- the card's width over height
+local TIER_LABEL_W = 0.9 -- the tier label's width, of the card
+local TIER_H = 0.08 -- its height, of the card; the rarity badge beside it is this tall and square
+local TIER_ICON_GAP = 0.015 -- of the card's width, between the badge and the tier text
 
 local gui: ScreenGui? = nil
 local card: Frame? = nil
@@ -69,6 +73,7 @@ local spinAngle = 0
 local speciesByName: { [string]: Types.SpeciesDef }? = nil
 local nameLabel: TextLabel? = nil
 local tierLabel: TextLabel? = nil
+local tierBadge: ImageLabel? = nil -- the rarity badge left of the tier text; absent while its image is not uploaded
 local stampLabel: TextLabel? = nil
 local stampScrapLabel: TextLabel? = nil
 local overlayBadge: Frame? = nil
@@ -89,6 +94,21 @@ local function clearModel()
 		viewModel:Destroy()
 		viewModel = nil
 	end
+end
+
+-- Seats the rarity badge just left of the tier text, on the label's own line. The text is centred in its
+-- label, so the badge's right edge sits half the text's share of the label (TextBounds over the label's
+-- width, both in the same scaled pixels) plus a gap left of the centre line. Until the text is measured it
+-- sits at the label's left edge instead, clear of the text. Called when the label moves (the size stamp)
+-- and whenever the text is re-measured, so the badge follows the label.
+local function placeTierBadge()
+	local badge, label = tierBadge, tierLabel
+	if not badge or not label then
+		return
+	end
+	local labelWidth = label.AbsoluteSize.X
+	local share = if labelWidth > 0 and label.TextBounds.X > 0 then math.min(1, label.TextBounds.X / labelWidth) else 1
+	badge.Position = UDim2.fromScale(0.5 - TIER_LABEL_W * share / 2 - TIER_ICON_GAP, label.Position.Y.Scale)
 end
 
 local function close()
@@ -177,7 +197,7 @@ local function build()
 		corner = Theme.Corner.Panel,
 		stroke = Theme.Stroke.Panel + 2,
 		strokeColor = Theme.Rarity.Common,
-		aspect = 0.8,
+		aspect = CARD_ASPECT,
 		zIndex = 3,
 	})
 	card = panel
@@ -235,16 +255,19 @@ local function build()
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 4,
 	})
-	tierLabel = Builder.label({
+	local tier = Builder.label({
 		parent = panel,
 		name = "Tier",
 		text = "",
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.5, TIER_Y),
-		size = UDim2.fromScale(0.9, 0.08),
+		size = UDim2.fromScale(TIER_LABEL_W, TIER_H),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 4,
 	})
+	tierLabel = tier
+	tier:GetPropertyChangedSignal("TextBounds"):Connect(placeTierBadge)
+	tier:GetPropertyChangedSignal("AbsoluteSize"):Connect(placeTierBadge)
 	-- Size stamp (shown only for the bands that name themselves): the band and the species in gold over
 	-- the model's foot, then the Scrap multiplier small beneath the tier.
 	local stamp = Builder.label({
@@ -485,6 +508,7 @@ local function showStamp(info: RevealInfo, band: Sizes.Band)
 	end
 	if tierLabel then
 		tierLabel.Position = UDim2.fromScale(0.5, if stamped then TIER_Y_STAMPED else TIER_Y)
+		placeTierBadge()
 	end
 	if stamp then
 		stamp.Visible = stamped
@@ -567,6 +591,19 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		tierLabel.Text = Builder.text("TIER_" .. info.tier)
 		tierLabel.TextColor3 = tierColor
 	end
+	-- The rarity badge (key = the tier) beside the tier text, rebuilt per reveal; showStamp seats it.
+	if tierBadge then
+		tierBadge:Destroy()
+		tierBadge = nil
+	end
+	tierBadge = Builder.icon({
+		parent = panel,
+		name = "TierBadge",
+		key = info.tier,
+		size = UDim2.fromScale(TIER_H / CARD_ASPECT, TIER_H),
+		anchor = Vector2.new(1, 0.5),
+		zIndex = 4,
+	})
 	showStamp(info, band)
 	if overlayBadge and overlayLabel then
 		overlayBadge.Visible = info.overlay ~= "None"

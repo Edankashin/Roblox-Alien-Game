@@ -1,6 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Toast: short messages that stack top centre under the HUD's top
--- row. Each toast is a dark pill with a coloured square icon on the left and outlined white text. It
+-- row. Each toast is a dark pill with a coloured square icon on the left and outlined white text (the
+-- square gives way to a pack icon when the caller names one that is uploaded). It
 -- slides down from above with a Back ease, waits Theme.Tween.Toast seconds, fades out, and the stack
 -- re-flows. At most three show at once; the oldest leaves first. Pure presentation: callers decide
 -- what to say (usually a server refusal reason mapped to a TOAST_* string). Banner is the wide,
@@ -26,6 +27,13 @@ local ASPECT = 7
 local BANNER_WIDTH = 0.7 -- the server-wide banner is wider and in the accent colour
 local BANNER_ASPECT = 9
 local BANNER_BOTTOM_MARGIN = 0.06 -- while a panel is open a banner lands this far above the bottom edge instead of over the panel's header
+-- A pack icon in place of the coloured square: ICON_H of the toast's height, square, at ICON_X from the left; the
+-- text then starts one ICON_GAP past it (all of the toast's width) and keeps its right edge at TEXT_X + TEXT_W.
+local ICON_H = 0.7
+local ICON_X = 0.03
+local ICON_GAP = 0.02
+local TEXT_X = 0.16 -- the text's left edge beside the coloured square
+local TEXT_W = 0.81
 
 type Entry = { group: CanvasGroup, leaving: boolean, height: number }
 
@@ -90,7 +98,7 @@ function Toast.Build()
 	gui = Builder.screen("Toasts", 40)
 end
 
-local function push(text: string, accent: Color3, banner: boolean, seconds: number)
+local function push(text: string, accent: Color3, banner: boolean, seconds: number, iconKey: string?)
 	Toast.Build()
 	local root = gui
 	if not root then
@@ -138,26 +146,43 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 			zIndex = 2,
 		})
 	else
-		local icon = Builder.frame({
-			parent = pill,
-			name = "Icon",
-			position = UDim2.fromScale(0.03, 0.5),
-			size = UDim2.fromScale(0.12, 0.62),
-			anchor = Vector2.new(0, 0.5),
-			color = accent,
-			corner = Theme.Corner.Card,
-			stroke = Theme.Stroke.Text,
-			aspect = 1,
-			zIndex = 2,
-		})
-		Builder.gradient(icon, accent)
+		local image: ImageLabel? = nil
+		if iconKey then
+			image = Builder.icon({
+				parent = pill,
+				name = "Icon",
+				key = iconKey,
+				position = UDim2.fromScale(ICON_X, 0.5),
+				size = UDim2.fromScale(ICON_H / aspect, ICON_H),
+				anchor = Vector2.new(0, 0.5),
+				zIndex = 2,
+			})
+		end
+		local textX = TEXT_X
+		if image then
+			textX = ICON_X + ICON_H / aspect + ICON_GAP
+		else
+			local icon = Builder.frame({
+				parent = pill,
+				name = "Icon",
+				position = UDim2.fromScale(0.03, 0.5),
+				size = UDim2.fromScale(0.12, 0.62),
+				anchor = Vector2.new(0, 0.5),
+				color = accent,
+				corner = Theme.Corner.Card,
+				stroke = Theme.Stroke.Text,
+				aspect = 1,
+				zIndex = 2,
+			})
+			Builder.gradient(icon, accent)
+		end
 		Builder.label({
 			parent = pill,
 			name = "Text",
 			text = text,
 			textSize = Theme.TextSize.Body,
-			position = UDim2.fromScale(0.16, 0.5),
-			size = UDim2.fromScale(0.81, 0.7),
+			position = UDim2.fromScale(textX, 0.5),
+			size = UDim2.fromScale(TEXT_X + TEXT_W - textX, 0.7),
 			anchor = Vector2.new(0, 0.5),
 			xAlign = Enum.TextXAlignment.Left,
 			zIndex = 2,
@@ -180,9 +205,11 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 	end)
 end
 
-function Toast.Show(text: string, color: Color3?)
+-- iconKey (an Icons key, e.g. a material or power-up id) swaps the coloured square for that icon when its
+-- image is uploaded; without it, or while the id is 0, the toast is the plain one.
+function Toast.Show(text: string, color: Color3?, iconKey: string?)
 	Builder.playSound(Sounds.ToastDing)
-	push(text, color or Theme.Colors.Featured, false, Theme.Tween.Toast)
+	push(text, color or Theme.Colors.Featured, false, Theme.Tween.Toast, iconKey)
 end
 
 -- Where the stack starts, in screen Scale; nil restores the default. Live toasts re-flow.

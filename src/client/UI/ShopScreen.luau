@@ -125,6 +125,16 @@ local CONTENT_X = 0.25
 local CONTENT_W = 1 - Theme.Margin - CONTENT_X
 local ROW_H = 0.3 -- of the content height
 local ROW_GAP = 0.03
+-- A row's icon (a lure or gear picture, once uploaded): a square at the card's left edge, vertically
+-- centred, ROW_ICON_H of the row's height. The panel keeps PANEL_ASPECT (width over height), so a row's
+-- own aspect follows from the layout fractions above, and the square's width as a fraction of the row is
+-- its height over that. The three text lines shift right by the square's width plus a gap to clear it.
+local PANEL_ASPECT = 1.35
+local ROW_ASPECT = CONTENT_W * PANEL_ASPECT / (BODY_H * ROW_H)
+local ROW_INSET = 0.03 -- the row's left padding, of its width
+local ROW_ICON_H = 0.7
+local ROW_ICON_W = ROW_ICON_H / ROW_ASPECT
+local ROW_ICON_GAP = 0.015 -- of the row's width, between the square and the text
 
 -- Robux page layout. Heights are fractions of the page's visible height (the scroller window); the
 -- canvas is as many pages tall as the sections need, so layoutRobux divides each child's Scale by
@@ -380,14 +390,27 @@ local function buildRow(parent: Frame, index: number, kind: Kind, id: string, bu
 	})
 	card.LayoutOrder = index
 
+	-- The icon, when the pack has one for this id (gear ids resolve through the alias; the Glider has none):
+	-- the name, effect and price lines start further right and keep their right edges.
+	local icon = Builder.icon({
+		parent = card,
+		name = "Icon",
+		key = id,
+		position = UDim2.fromScale(ROW_INSET, 0.5),
+		size = UDim2.fromScale(ROW_ICON_W, ROW_ICON_H),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = 4,
+	})
+	local shift = if icon then ROW_ICON_W + ROW_ICON_GAP else 0
+
 	local withHeld = kind == "lure"
 	local name = Builder.label({
 		parent = card,
 		name = "Name",
 		text = itemName(kind, id),
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.03, 0.06),
-		size = UDim2.fromScale(if withHeld then 0.41 else 0.65, 0.36),
+		position = UDim2.fromScale(ROW_INSET + shift, 0.06),
+		size = UDim2.fromScale((if withHeld then 0.41 else 0.65) - shift, 0.36),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
 	})
@@ -422,8 +445,8 @@ local function buildRow(parent: Frame, index: number, kind: Kind, id: string, bu
 		name = "Effect",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.03, 0.45),
-		size = UDim2.fromScale(0.65, 0.25),
+		position = UDim2.fromScale(ROW_INSET + shift, 0.45),
+		size = UDim2.fromScale(0.65 - shift, 0.25),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
 	})
@@ -434,8 +457,8 @@ local function buildRow(parent: Frame, index: number, kind: Kind, id: string, bu
 		text = "",
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(0.03, 0.71),
-		size = UDim2.fromScale(0.65, 0.25),
+		position = UDim2.fromScale(ROW_INSET + shift, 0.71),
+		size = UDim2.fromScale(0.65 - shift, 0.25),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
 	})
@@ -1081,7 +1104,7 @@ local function build()
 		corner = Theme.Corner.Panel,
 		stroke = Theme.Stroke.Panel,
 		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body

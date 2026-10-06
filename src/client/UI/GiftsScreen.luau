@@ -61,6 +61,7 @@ type Tile = {
 	claim: Frame,
 	claimed: Frame,
 	locked: TextLabel,
+	icon: ImageLabel?, -- the reward's icon, rebuilt by refreshTile (absent while its image is not uploaded)
 }
 
 -- One wheel segment: a block of name and odds labels that orbits the hub and is kept upright.
@@ -88,6 +89,9 @@ local GRID_COLS = 3 -- 3 + 3 + 1: Day 7 ends the last row alone and the hint fil
 local GRID_ROWS = 3
 local GRID_H = LEFT_W * PANEL_ASPECT * GRID_ROWS / GRID_COLS -- square cells at any panel size
 local TILE_INSET = 0.92 -- the card inside its grid slot; the rest is the gap
+-- The reward's icon on a tile (the card is square): a quarter of the card's width, tucked into the top-right corner.
+local TILE_ICON_W = 0.25
+local TILE_ICON_INSET = 0.03
 local WHEEL_Y = 0.235
 local WHEEL_H = 0.5
 local LINES_Y = 0.75
@@ -219,6 +223,19 @@ local function rewardListText(rewards: { Social.Reward }): string
 	return table.concat(parts, Strings.SOCIAL_REWARD_SEPARATOR)
 end
 
+-- The icon key for a gift reward: Scrap, a lure or power-up by its id, an egg by its tier's rarity badge.
+-- A spin has no icon.
+local function rewardIconKey(reward: Reward): string?
+	if reward.kind == "scrap" then
+		return "Scrap"
+	elseif reward.kind == "lure" or reward.kind == "powerUp" then
+		return reward.id
+	elseif reward.kind == "egg" then
+		return reward.tier
+	end
+	return nil
+end
+
 -- The tile's accent: an egg takes its tier colour (Day 7's Epic egg reads Epic), the rest gold.
 local function giftAccent(row: GiftRow): Color3
 	if row.reward.kind == "egg" then
@@ -270,6 +287,24 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 	tile.claim.Visible = unlocked and not isClaimed
 	tile.claimed.Visible = isClaimed
 	tile.locked.Visible = not unlocked and not isClaimed
+	-- The corner icon is rebuilt on every refresh, so a re-render never stacks a second one.
+	local previousIcon = tile.icon
+	if previousIcon then
+		previousIcon:Destroy()
+		tile.icon = nil
+	end
+	local iconKey = rewardIconKey(row.reward)
+	if iconKey then
+		tile.icon = Builder.icon({
+			parent = tile.card,
+			name = "RewardIcon",
+			key = iconKey,
+			position = UDim2.fromScale(1 - TILE_ICON_INSET, TILE_ICON_INSET),
+			size = UDim2.fromScale(TILE_ICON_W, TILE_ICON_W),
+			anchor = Vector2.new(1, 0),
+			zIndex = 6,
+		})
+	end
 	local dimmed = Builder.lighter(Theme.Rarity.Common, 0.6)
 	if isClaimed then
 		setTileStyle(tile, dimmed, Theme.Rarity.Common)
@@ -699,6 +734,7 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		claim = claim,
 		claimed = claimed,
 		locked = locked,
+		icon = nil,
 	}
 end
 
