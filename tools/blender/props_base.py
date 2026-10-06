@@ -367,35 +367,50 @@ def ice_rock_b(p):
     settle(p, v, (3.0, 3.0, 4.0))
 
 
+def plank(p, mat, length, width, thick, centre, rz=0.0, r=0.04):
+    """A plank along X with rounded long edges (12-sided profile), capped at both ends."""
+    prof = rrect(thick / 2, width / 2, min(r, thick / 2 - 0.005, width / 2 - 0.005), seg=2)
+    v = p.loft([(-length / 2, prof), (length / 2, prof)], mat, caps=(True, True))
+    p.place(v, move(*centre) @ rot_z(rz) @ rot_y(90))
+    return v
+
+
+def post(p, mat, r, z0, z1, x, y, n=8, r_top=None):
+    return p.loft([(z0, circ(n, r, cx=x, cy=y)), (z1, circ(n, r if r_top is None else r_top, cx=x, cy=y))], mat, caps=(True, True))
+
+
 def geyser_cone(p):
     p.material("Cone", "8C5A3C")
     p.material("Rim", "B07A55")
     p.material("Crater", "4A2E1E")
-    mid = [(x * f, y * f) for (x, y), f in zip(circ(12, 2.15), (p.rng.uniform(0.93, 1.07) for _ in range(12)))]
-    # outer slope, the pale rim ring on top, the dark dish wall sinking 1 unit, then the dish floor as the top cap
-    rings = [
-        (0.0, circ(12, 3.0)),
-        (3.4, mid),
-        (7.0, circ(12, 1.4)),
-        (7.0, circ(12, 1.0)),
-        (6.0, circ(12, 0.75)),
-    ]
-    p.loft(rings, ["Cone", "Cone", "Rim", "Crater"], caps=(False, True), cap_mats=("Cone", "Crater"))
+    n = 24
+    jit = [p.rng.uniform(0.92, 1.0) for _ in range(n)]
+    ring = lambda r, z, j=True: (z, [(x * (jit[k] if j else 1.0), y * (jit[k] if j else 1.0)) for k, (x, y) in enumerate(circ(n, r))])  # noqa: E731
+    # a flared foot, a lumpy slope, the pale hot rim and a dish sunk 1 stud into the top
+    rings = [ring(3.0, 0.0, False), ring(2.75, 0.8), ring(2.35, 2.2), ring(2.0, 3.6), ring(1.68, 5.2), ring(1.45, 6.6),
+             ring(1.4, 7.0, False), ring(1.0, 7.0, False), ring(0.75, 6.0, False)]
+    p.loft(rings, ["Cone"] * 5 + ["Rim", "Rim", "Crater"], caps=(False, True), cap_mats=("Cone", "Crater"))
 
 
 def shrine_stone(p):
     p.material("Stone", "9E9E8E")  # one material: the game tints the stone per world
-    base = chamfered(1.0, 0.625, 0.22)
-    rings = [(0.0, base), (3.7, scaled(base, 0.88)), (4.55, scaled(base, 0.78)), (5.0, scaled(base, 0.58))]
+    base = rrect(1.0, 0.625, 0.22, seg=3)
+    shape = [(0.0, 1.0), (0.25, 0.97), (1.2, 0.95), (1.3, 0.88), (1.45, 0.88), (1.55, 0.94), (2.5, 0.92), (3.1, 0.9),
+             (3.7, 0.88), (4.2, 0.82), (4.55, 0.76), (4.85, 0.66), (5.0, 0.52)]
+    rings = []
+    for z, f in shape:
+        k = f * (p.rng.uniform(0.97, 1.0) if 0.0 < z < 4.9 else 1.0)
+        rings.append((z, scaled(base, k)))
     p.loft(rings, "Stone", caps=(False, True))
 
 
 def pedestal(p):
     p.material("Stone", "C8C4A8")
-    # a 1.0 tall disc of radius 2.5 under a 0.5 tall disc of radius 2.0, both with a small bevel
+    # a 1.0 tall disc of radius 2.5 under a 0.5 tall disc of radius 2.0, both bevelled, with a carved band
     rings = [
-        (0.0, circ(16, 2.35)), (0.12, circ(16, 2.5)), (0.88, circ(16, 2.5)), (1.0, circ(16, 2.35)),
-        (1.0, circ(16, 1.9)), (1.12, circ(16, 2.0)), (1.38, circ(16, 2.0)), (1.5, circ(16, 1.85)),
+        (0.0, circ(32, 2.35)), (0.12, circ(32, 2.5)), (0.42, circ(32, 2.5)), (0.48, circ(32, 2.4)), (0.56, circ(32, 2.4)),
+        (0.62, circ(32, 2.5)), (0.88, circ(32, 2.5)), (1.0, circ(32, 2.35)),
+        (1.0, circ(32, 1.9)), (1.12, circ(32, 2.0)), (1.38, circ(32, 2.0)), (1.5, circ(32, 1.85)),
     ]
     p.loft(rings, "Stone", caps=(False, True))
 
@@ -406,85 +421,118 @@ def ship_hull(p):
     p.material("Feet", "3A4049")
     hx, hy, corner = 6.0, 10.0, 2.5
     # the slab: z 0 to 0.5 with a bevelled underside; its top face is exactly z = 0.5, the plane the modules stack on
-    p.loft([(0.0, rrect(hx - 0.25, hy - 0.25, corner - 0.25)), (0.2, rrect(hx, hy, corner)), (0.5, rrect(hx, hy, corner))],
+    p.loft([(0.0, rrect(hx - 0.25, hy - 0.25, corner - 0.25, seg=8)), (0.2, rrect(hx, hy, corner, seg=8)), (0.5, rrect(hx, hy, corner, seg=8))],
            "Plate", caps=(True, True))
     # the rim lip: 0.25 above the plate (limit 0.3), 0.3 wide, flush with the slab edge
-    p.loft([(0.5, rrect(hx, hy, corner)), (0.75, rrect(hx, hy, corner)),
-            (0.75, rrect(hx - 0.3, hy - 0.3, corner - 0.3)), (0.5, rrect(hx - 0.3, hy - 0.3, corner - 0.3))],
+    p.loft([(0.5, rrect(hx, hy, corner, seg=8)), (0.75, rrect(hx, hy, corner, seg=8)),
+            (0.75, rrect(hx - 0.3, hy - 0.3, corner - 0.3, seg=8)), (0.5, rrect(hx - 0.3, hy - 0.3, corner - 0.3, seg=8))],
            "Lip", caps=(False, False))
-    # four skid feet from z = -0.4 up into the slab
+    # panel seams: thin dark strips 0.03 proud of the deck, three across and one down the middle
+    for y in (-5.0, 0.0, 5.0):
+        p.box("Feet", (11.2, 0.12, 0.03), (0.0, y, 0.515))
+    p.box("Feet", (0.12, 19.2, 0.03), (0.0, 0.0, 0.515))
+    # a scorched band near the engine end: a dark strip with a ragged front edge
+    p.box("Feet", (11.0, 1.4, 0.02), (0.0, -8.3, 0.51))
+    for k in range(6):
+        p.box("Feet", (1.2, 0.5 + 0.35 * (k % 3), 0.02), (-4.5 + 1.8 * k, -7.4 + 0.1 * (k % 3), 0.51))
+    # four skid feet from z = -0.4 up into the slab, with a rounded sole
     for fx in (-3.6, 3.6):
         for fy in (-6.5, 6.5):
-            p.loft([(-0.4, rect(0.6, 1.5, fx, fy)), (0.0, rect(0.5, 1.3, fx, fy))], "Feet", caps=(True, False))
+            p.loft([(-0.4, rrect(0.55, 1.45, 0.25, seg=2)),
+                    (-0.3, rrect(0.6, 1.5, 0.28, seg=2)), (0.0, rrect(0.5, 1.3, 0.22, seg=2))], "Feet", caps=(True, False))
+            for dy in (-0.9, 0.9):
+                p.box("Lip", (0.7, 0.18, 0.18), (fx, fy + dy, -0.12))
 
 
 def gather_station(p):
     p.material("Top", "FFC83D")
     p.material("Legs", "A0722C")
-    p.box("Top", (6.0, 1.7, 0.2), (0.0, 0.0, 1.4))                   # tabletop, top face at z = 1.5
+    for k in range(5):                                                 # five tabletop planks, top face at z = 1.5
+        plank(p, "Top", 6.0 - 0.06 * (k % 2), 0.32, 0.2, (0.0, -0.68 + 0.34 * k, 1.4), rz=0.4 * (k - 2))
     for side in (-1, 1):
         for off in (1.11, 1.38):                                       # two seat planks each side, seat top at z 0.7
-            p.box("Top", (5.4, 0.24, 0.2), (0.0, side * off, 0.6))
+            plank(p, "Top", 5.4, 0.24, 0.2, (0.0, side * off, 0.6))
     for lx in (-2.2, 2.2):                                            # an A-frame at each end
         for side in (-1, 1):
-            p.loft([(0.0, rect(0.17, 0.14, lx, side * 1.36)), (1.3, rect(0.17, 0.12, lx, side * 0.4))], "Legs", caps=(True, False))
-        p.box("Legs", (0.22, 2.1, 0.14), (lx, 0.0, 0.46))             # crossbar under the benches
+            leg = p.loft([(0.0, rrect(0.17, 0.14, 0.05, seg=1)), (1.3, rrect(0.17, 0.12, 0.05, seg=1))], "Legs", caps=(True, False))
+            for v in leg:
+                v.co.y = v.co.y + side * (1.36 + (0.4 - 1.36) * v.co.z / 1.3)
+                v.co.x += lx
+        plank(p, "Legs", 2.1, 0.22, 0.14, (lx, 0.0, 0.46), rz=90)       # crossbar under the benches
+    # the tool: a woven gathering basket on the end of a bench
+    p.loft([(0.7, circ(10, 0.3, cx=2.35, cy=1.08)), (0.95, circ(10, 0.38, cx=2.35, cy=1.08)), (1.05, circ(10, 0.34, cx=2.35, cy=1.08)),
+            (1.05, circ(10, 0.28, cx=2.35, cy=1.08)), (0.8, circ(10, 0.24, cx=2.35, cy=1.08))], "Legs", caps=(True, True))
 
 
 def build_station(p):
     p.material("Wood", "8B5A2B")
     p.material("Plank", "C99A5B")
     p.material("Metal", "8A93A0", roughness=0.5, metallic=0.4)
-    p.box("Wood", (5.0, 3.0, 0.4), (0.0, 0.0, 1.7))                  # heavy top, top face at z = 1.9
+    for k in range(3):                                                 # heavy top in three boards, top face at z = 1.9
+        plank(p, "Wood", 5.0, 0.98, 0.4, (0.0, -1.0 + 1.0 * k, 1.7), r=0.08)
     for lx in (-2.05, 2.05):
         for ly in (-1.05, 1.05):
-            p.box("Wood", (0.5, 0.5, 1.5), (lx, ly, 0.75))
-    p.box("Wood", (3.6, 1.7, 0.2), (0.0, 0.0, 0.6))                  # lower shelf
+            post(p, "Wood", 0.27, 0.0, 1.5, lx, ly, n=8, r_top=0.24)
+    plank(p, "Wood", 3.6, 1.7, 0.2, (0.0, 0.0, 0.6))                   # lower shelf
     for i, (dx, dy, spin) in enumerate(((0.0, 0.0, 0.0), (0.06, -0.05, 5.0), (-0.05, 0.04, -4.0), (0.04, 0.06, 7.0))):
-        p.box("Plank", (1.9, 1.0, 0.15), (-1.35 + dx, dy, 1.975 + 0.15 * i), rz=spin)   # plank stack up to z = 2.5
-    # anvil-like block: foot, waist, face with a tapering horn, top at z = 2.5
-    p.box("Metal", (1.1, 0.8, 0.2), (1.0, 0.0, 2.0))
-    p.box("Metal", (0.6, 0.5, 0.2), (1.0, 0.0, 2.2))
-    p.box("Metal", (1.2, 0.7, 0.2), (1.0, 0.0, 2.4))
+        plank(p, "Plank", 1.9, 1.0, 0.15, (-1.35 + dx, dy, 1.975 + 0.15 * i), rz=spin)   # plank stack up to z = 2.5
+    # anvil: foot, waist, face with a tapering horn, top at z = 2.5
+    anvil = p.loft([(1.9, rrect(0.55, 0.4, 0.08, seg=1)), (2.1, rrect(0.5, 0.36, 0.08, seg=1)), (2.15, rrect(0.3, 0.25, 0.06, seg=1)),
+            (2.3, rrect(0.3, 0.25, 0.06, seg=1)), (2.32, rrect(0.6, 0.35, 0.08, seg=1)), (2.5, rrect(0.6, 0.35, 0.08, seg=1))],
+           "Metal", caps=(True, True))
+    for v in anvil:
+        v.co.x += 1.0
     horn = p.loft([(0.0, rect(0.1, 0.35)), (0.7, rect(0.03, 0.1))], "Metal", caps=(True, True))
     p.place(horn, move(1.6, 0.0, 2.4) @ rot_y(90))
+    # the tool: a hammer lying on the bench top
+    plank(p, "Wood", 1.1, 0.12, 0.12, (0.3, 0.95, 1.96), rz=25)
+    p.box("Metal", (0.36, 0.2, 0.2), (0.82, 1.2, 2.0), rz=25)
 
 
 def spark_station(p):
     p.material("Stem", "3F9B3A")
     p.material("Petal", "A855F7")
     p.material("Glow", "FFC83D", emission=GLOW_STRENGTH)
-    p.loft([(0.0, circ(6, 0.25)), (2.5, circ(6, 0.22))], "Stem", caps=(False, False))
-    for z, spin, tilt in ((0.5, 0.0, 62.0), (1.2, 200.0, 58.0)):    # two small leaf blades
-        leaf = p.loft([(0.0, [(0.0, 0.0)]), (0.5, rect(0.03, 0.2)), (1.1, [(0.0, 0.0)])], "Stem", caps=(False, False))
-        p.place(leaf, rot_z(spin) @ move(0.12, 0.0, z) @ rot_y(tilt))
+    p.loft([(0.0, circ(8, 0.32)), (0.4, circ(8, 0.25)), (1.4, circ(8, 0.23)), (2.5, circ(8, 0.21))], "Stem", caps=(False, False))
+    for z, spin, tilt in ((0.5, 0.0, 62.0), (1.2, 200.0, 58.0), (0.9, 110.0, 66.0)):   # three leaf blades
+        leaf = p.loft([(0.0, [(0.0, 0.0)]), (0.25, circ(6, 0.12, 0.05)), (0.55, circ(6, 0.22, 0.05)), (1.1, [(0.0, 0.0)])], "Stem", caps=(False, False))
+        p.place(leaf, rot_z(spin) @ move(0.14, 0.0, z) @ rot_y(tilt))
     petal = [
-        (2.5, rect(0.05, 0.1, 0.12, 0.0)),
-        (3.2, rect(0.06, 0.3, 0.55, 0.0)),
-        (3.7, rect(0.05, 0.28, 0.85, 0.0)),
+        (2.5, circ(6, 0.06, 0.1, cx=0.12)),
+        (2.9, circ(6, 0.07, 0.22, cx=0.35)),
+        (3.3, circ(6, 0.07, 0.3, cx=0.6)),
+        (3.7, circ(6, 0.06, 0.26, cx=0.85)),
         (4.0, [(1.0, 0.0)]),
     ]
     for k in range(6):                                                # the bell: 6 petals opening upward to radius 1
         p.place(p.loft(petal, "Petal", caps=(True, False)), rot_z(60.0 * k))
-    ball = p.ico(1, "Glow")
+    ball = p.ico(2, "Glow")
     p.fit(ball, (0.8, 0.8, 0.8), (0.0, 0.0, 3.2))                     # radius 0.4 glowing centre
 
 
 def heater_lamp(p):
     p.material("Metal", "3A4049", roughness=0.5, metallic=0.4)
     p.material("Glow", "FF8C42", emission=GLOW_STRENGTH)
-    # bowl: radius 1.5 at the rim (z 1.2), 0.8 tall, a dish inside
-    p.loft([(0.4, circ(12, 0.5)), (0.8, circ(12, 1.15)), (1.2, circ(12, 1.5)), (1.2, circ(12, 1.28)), (0.95, circ(12, 0.7))],
-           "Metal", caps=(True, True))
-    for k in range(3):                                                # three splayed legs, feet on z = 0
+    # bowl: radius 1.5 at the rim (z 1.2), 0.8 tall, a rolled lip and a dish inside
+    p.loft([(0.4, circ(24, 0.5)), (0.6, circ(24, 0.85)), (0.8, circ(24, 1.15)), (1.05, circ(24, 1.4)), (1.2, circ(24, 1.5)),
+            (1.2, circ(24, 1.28)), (0.95, circ(24, 0.7))], "Metal", caps=(True, True))
+    for k in range(3):                                                # three splayed legs, feet on z = 0, with pads
         a = math.radians(90 + 120 * k)
-        p.loft([(0.0, circ(4, 0.13, cx=1.2 * math.cos(a), cy=1.2 * math.sin(a), rot=math.pi / 4)),
-                (0.65, circ(4, 0.12, cx=0.55 * math.cos(a), cy=0.55 * math.sin(a), rot=math.pi / 4))], "Metal", caps=(True, False))
+        p.loft([(0.0, circ(6, 0.16, cx=1.2 * math.cos(a), cy=1.2 * math.sin(a))),
+                (0.08, circ(6, 0.13, cx=1.17 * math.cos(a), cy=1.17 * math.sin(a))),
+                (0.65, circ(6, 0.11, cx=0.55 * math.cos(a), cy=0.55 * math.sin(a)))], "Metal", caps=(True, False))
+    # glowing coals in the dish
+    for k in range(4):
+        a = 2 * math.pi * k / 4 + 0.4
+        m = mark(p)
+        p.ico(1, "Glow", jitter=0.15, rot=30.0 * k)
+        p.fit(added(p, m), (0.5, 0.45, 0.3), (0.45 * math.cos(a), 0.45 * math.sin(a), 1.05))
     # three flame cones rising from the bowl; the tallest reaches z = 2.6
     for cx, cy, r, tip, curl in ((0.0, 0.1, 0.42, 2.6, (0.12, 0.05)), (0.62, -0.3, 0.32, 2.15, (-0.1, 0.08)), (-0.5, -0.5, 0.3, 1.95, (0.08, -0.1))):
-        mid_z = 1.0 + (tip - 1.0) * 0.5
-        p.loft([(1.0, circ(6, r, cx=cx, cy=cy)),
-                (mid_z, circ(6, r * 0.7, cx=cx + curl[0], cy=cy + curl[1])),
+        h = tip - 1.0
+        p.loft([(1.0, circ(8, r, cx=cx, cy=cy)),
+                (1.0 + h * 0.3, circ(8, r * 0.95, cx=cx + curl[0] * 0.4, cy=cy + curl[1] * 0.4)),
+                (1.0 + h * 0.6, circ(8, r * 0.65, cx=cx + curl[0], cy=cy + curl[1])),
                 (tip, [(cx + curl[0] * 2.0, cy + curl[1] * 2.0)])], "Glow", caps=(True, False))
 
 
