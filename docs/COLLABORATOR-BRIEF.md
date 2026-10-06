@@ -44,6 +44,8 @@ Updated 2026-10-06.
 
 **Next, in order.** Ethan's owner items (developer products and passes, Studio API access for real saves, the two place ids, the group id, the game name, the notifications default). Then the mechanics polish from playtests (the first five minutes above all). Then the last pass, the one you join for: the visual replication of the top games' quality with our own unique designs (species texture passes, world dressing in Studio, rendered glossy icons, soft sprites, 9-slice UI plates, the store icon and thumbnails), and the sound set. Worlds 3 to 7 are designed in `docs/GAME_DESIGN.md` section 8 and come after launch traction.
 
+**The sign-off list.** `docs/MECHANICS-SIGNOFF.md` is the live checklist that closes the mechanics phase: what is verified, what is still open per milestone, and what only Ethan's Studio can close.
+
 **Pace.** Milestones have landed at roughly four to six a day with Studio verification in step; the visual pass is scheduled right after the mechanics are signed off, which is where your work starts in earnest.
 
 ## 6. What you can start on now
