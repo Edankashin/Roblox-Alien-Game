@@ -95,6 +95,13 @@ return {
 	SIZE_Huge = "HUGE",
 	REVEAL_SIZE = "%s %s!",
 	REVEAL_SIZE_SCRAP = "%s %s! x%s Scrap",
+	-- growth stages (data/Growth): the Aliens screen chip, the grew toast, the welcome-back line
+	STAGE_Hatchling = "Hatchling",
+	STAGE_Grown = "Grown",
+	STAGE_Elder = "Elder",
+	ALIENS_STAGE_NEXT = "%s in %s", -- next stage name, time of work left (TIME_DH or TIME_M)
+	TOAST_ALIEN_GREW = "%s grew up: %s!", -- species name, stage name
+	OFFLINE_GREW = "%d of your aliens grew while you were away!",
 	TUT_1 = "Collect 3 wreck plates for the hull.",
 	TUT_2 = "A Mossbop wants to help! Walk up and tap Catch!",
 	TUT_3 = "Mossbop is gathering for you. Walk to the ship, pay for the Hull Frame and add your 3 wreck plates.",

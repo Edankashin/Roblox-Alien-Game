@@ -6,7 +6,8 @@
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
 -- weekly board through its per-minute cap; send them to the store now and refresh the board), /dq reset | done (deal the
 -- daily and weekly quests again with empty progress; finish every dealt one), /variant <id|off> (force a catch
--- variant from Shared/data/CatchVariants on every encounter you start, or go back to each spawn's own). Nothing
+-- variant from Shared/data/CatchVariants on every encounter you start, or go back to each spawn's own), /grow [H]
+-- (H hours, default 2, of worked time for every seated alien, so a growth stage can be crossed). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -22,6 +23,7 @@ local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local Economy = require(Shared.Economy)
 local PlayerData = require(script.Parent.PlayerData)
+local EconomyService = require(script.Parent.Economy)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Gifts = require(script.Parent.Gifts)
@@ -184,6 +186,14 @@ local function setVariant(player: Player, text: string)
 		end
 	end
 	print(("[%s] dev: unknown variant %s (%s, off)"):format(Config.WorkingTitle, word, table.concat(CatchVariants.Order, ", ")))
+end
+
+-- /grow [H]: add H hours (default 2 when missing or not a number) of worked time to every seated alien, so
+-- the Grown and Elder stages can be reached without waiting; each crossing is announced like a real one.
+local function growCamp(player: Player, text: string)
+	local hours = tonumber(string.match(text, "^/%S+%s+(%S+)") or "") or 2
+	local crossed = EconomyService.DevGrow(player, hours * 3600) -- hours to seconds, a unit conversion
+	print(("[%s] dev: %s camp worked %g hours; %d alien(s) crossed a growth stage"):format(Config.WorkingTitle, player.Name, hours, crossed))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -441,6 +451,7 @@ function Dev.Init()
 	command("shower", forceShower)
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
+	command("grow", growCamp)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
@@ -468,7 +479,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

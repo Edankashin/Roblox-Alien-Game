@@ -361,3 +361,16 @@ Decision 18 as built: the first Welcome Week gift is the payoff of the first fin
 6. A rejoin after the gift was claimed never re-opens the Gifts screen; the pop fires once per session at most.
 
 Known gaps in this milestone: the story beats stay the two crash lines and the hints; `FirstModuleSeconds` lands in analytics but no in-game timer shows; no Catch Rush party beat yet.
+
+## Milestone 28: growth stages (World 1 place)
+
+Aliens at a station grow Hatchling to Grown (2 h worked) to Elder (24 h worked), each a visible size step and a work-speed bump (`data/Growth.luau`). Time counts only while seated; time away counts for the aliens seated at leave, capped like offline Scrap. Profiles migrate to schema v8 (worked time 0).
+
+1. Catch three aliens so two are seated. The Aliens screen shows no stage chip yet (Hatchlings are unlabelled); a seated alien's card shows "Grown in 2h 0m" under its status and the line counts down as it works; a resting alien shows no line.
+2. `/grow 2`: a toast "Mossbop grew up: Grown!" per seated alien (and Output's dev line names 2 crossings), each worker at the camp pops and stands a little taller, the Aliens screen shows a sky-blue "Grown" chip on the right of those cards and the station rate rose by 10% for each (Ship screen or HUD rate). The resting alien is unchanged.
+3. `/grow 22`: "Elder!" toasts, the chip reads "Elder", workers 16% taller than a Hatchling, the rate bump is 25%, the next-stage line is gone for them.
+4. Seat the resting alien and `/grow 1`: no crossing yet (one hour of two); the Aliens screen line reads "Grown in 1h 0m".
+5. Rejoin after the server has run for over a minute with aliens seated: the welcome-back toast still reports Scrap; with `Config.UseDataStoreInStudio` off nothing persists, so the away-time growth and the "N of your aliens grew while you were away!" line need a real save (Ethan's Studio API access) to verify; note it as untested otherwise.
+6. Output stays clean through all of the above; no stage chip or line shows for an alien from before growth until it works (migration sets 0).
+
+Known gaps in this milestone: no growth analytics event, no codex "Elder" mark, the model itself does not change shape between stages (scale only).

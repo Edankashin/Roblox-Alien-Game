@@ -16,7 +16,8 @@
 -- imported. The module parts stay placeholders either way: their ghost, pulse and snap-pop visuals are
 -- part-based.
 -- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally,
--- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists.
+-- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists. A worker is
+-- drawn a growth step taller per stage (Shared.Growth.ScaleMultiplier) and pops when it grows.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -28,6 +29,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Growth = require(Shared:WaitForChild("Growth"))
 local Props = require(Shared:WaitForChild("Props"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
@@ -80,11 +82,16 @@ type WorkerRecord = {
 	slot: number,
 	species: string,
 	size: string, -- the record's size band id the worker is drawn at (data/Sizes)
+	stage: string, -- the record's growth stage id the worker is drawn at (data/Growth)
 	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate and the bob
 	base: CFrame,
 	phase: number,
 	model: Model?, -- the mesh clone when the species has one
 	modelBase: CFrame?, -- its rest pivot: feet on the slot pad, facing the station
+	modelScale: number, -- the mesh's absolute scale as built, what a pop returns to
+	restSize: Vector3, -- the placeholder's size as built (the pop's rest size when there is no mesh)
+	pop: Tween?, -- the growth pop while it plays
+	popValue: NumberValue?, -- the pop's factor, tweened from Camp.SnapPopScale to 1
 }
 
 local localPlayer = Players.LocalPlayer
@@ -364,10 +371,60 @@ end
 
 -- Workers ----------------------------------------------------------------------
 
+local function cancelPop(record: WorkerRecord)
+	local tween = record.pop
+	if tween then
+		tween:Cancel()
+		record.pop = nil
+	end
+	local value = record.popValue
+	if value then
+		value:Destroy()
+		record.popValue = nil
+	end
+end
+
+-- The growth pop: the worker springs from Camp.SnapPopScale of its size back to it with the Back-out tween
+-- a snapped module uses. A mesh is rescaled about its pivot (the feet); a placeholder resizes its part.
+local function popWorker(record: WorkerRecord)
+	cancelPop(record)
+	local model = record.model
+	local part = record.part
+	local value = Instance.new("NumberValue")
+	value.Value = Camp.SnapPopScale
+	local function apply(factor: number)
+		if model then
+			if model.Parent then
+				model:ScaleTo(record.modelScale * factor)
+			end
+		else
+			part.Size = record.restSize * factor
+		end
+	end
+	apply(Camp.SnapPopScale)
+	value.Changed:Connect(apply)
+	local tween = TweenService:Create(
+		value,
+		TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ Value = 1 }
+	)
+	record.pop = tween
+	record.popValue = value
+	tween.Completed:Connect(function()
+		if record.pop == tween then
+			record.pop = nil
+			record.popValue = nil
+		end
+		value:Destroy()
+	end)
+	tween:Play()
+end
+
 local function removeWorker(uid: string)
 	local record = workers[uid]
 	if record then
 		workers[uid] = nil
+		cancelPop(record)
 		record.part:Destroy()
 		local model = record.model
 		if model then
@@ -387,9 +444,10 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 	local feet = Vector3.new(at.X, groundY(), at.Z) -- the slot pad; the placeholder's bottom rests here
 	local part: Part
 	local base: CFrame
-	-- A worker is drawn at the band its record was caught at, on top of the worker scale.
+	-- A worker is drawn at the band its record was caught at and the stage it has grown to, on top of the worker scale.
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
-	local model: Model? = Models.Clone(def, Config.ModelWorkerScale * Camp.WorkerScale * band.scale)
+	local grown = Growth.ScaleMultiplier(record)
+	local model: Model? = Models.Clone(def, Config.ModelWorkerScale * Camp.WorkerScale * band.scale * grown)
 	local modelBase: CFrame? = nil
 	if model then
 		-- The mesh stands on the pad facing its station. An invisible anchor part as tall as the mesh
@@ -404,7 +462,7 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 		model.Parent = parent
 		modelBase = facing
 	else
-		local size = 2 * def.placeholder.scale * Camp.WorkerScale * band.scale
+		local size = 2 * def.placeholder.scale * Camp.WorkerScale * band.scale * grown
 		base = CFrame.new(feet + Vector3.new(0, size / 2, 0))
 		if def.placeholder.shape == "Cylinder" then
 			base = base * CFrame.Angles(0, 0, math.rad(90)) -- stand it upright
@@ -421,16 +479,22 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 		slot = slot,
 		species = record.species,
 		size = record.size,
+		stage = Growth.StageOf(record).id,
 		part = part,
 		base = base,
 		phase = rng:NextNumber(0, math.pi * 2),
 		model = model,
 		modelBase = modelBase,
+		modelScale = if model then model:GetScale() else 1,
+		restSize = part.Size,
+		pop = nil,
+		popValue = nil,
 	}
 end
 
 -- Workers that still stand where the profile says keep their part (and their bob phase); the rest
--- are rebuilt.
+-- are rebuilt. A worker whose growth stage moved is rebuilt at its new scale and pops; the camp push
+-- carries the record's workedSeconds, so a stage crossing arrives here even without the AlienGrew event.
 local function refreshWorkers()
 	local parent = folder
 	if not parent or not State.Has() or builtWorld == nil then
@@ -450,12 +514,22 @@ local function refreshWorkers()
 			end
 			wanted[uid] = true
 			local existing: WorkerRecord? = workers[uid]
-			if existing and (existing.job ~= job or existing.slot ~= slot or existing.species ~= record.species or existing.size ~= record.size) then
-				removeWorker(uid)
-				existing = nil
+			local stageId = Growth.StageOf(record).id
+			local grew = false
+			if existing then
+				local sameSpot = existing.job == job and existing.slot == slot and existing.species == record.species and existing.size == record.size
+				if not sameSpot or existing.stage ~= stageId then
+					grew = sameSpot -- only the stage moved: the same alien grew where it stands
+					removeWorker(uid)
+					existing = nil
+				end
 			end
 			if not existing then
 				addWorker(parent, uid, record, job, slot)
+				local rebuilt = workers[uid]
+				if grew and rebuilt then
+					popWorker(rebuilt)
+				end
 			end
 		end
 	end
@@ -490,6 +564,9 @@ local function teardownCamp()
 	end
 	modules = {}
 	stations = {}
+	for _, worker in pairs(workers) do
+		cancelPop(worker)
+	end
 	workers = {}
 	builtWorld = nil
 	local existing = folder
@@ -563,6 +640,17 @@ function CampRenderer.Start()
 			end
 		end
 	end)
+end
+
+-- The server says an alien reached a new growth stage: stand its worker at the new scale (the camp push
+-- already rebuilds a worker whose stage moved, so this only has work to do when the event lands first)
+-- and pop it. A resting alien has no worker, so there is nothing to draw.
+function CampRenderer.Grew(uid: string)
+	refreshWorkers()
+	local worker = workers[uid]
+	if worker and not worker.pop then
+		popWorker(worker)
+	end
 end
 
 -- World position of the ship (the centre of its landing slab), for the Build button's distance check.

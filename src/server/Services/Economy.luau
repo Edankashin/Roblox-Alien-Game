@@ -8,6 +8,9 @@
 -- and a Peddler egg both write the record, the codex and the Scrap here, then seat the newcomer and
 -- report the catch to Quests for the Field Notes and to the Tutorial, which also hears every module
 -- start (both gates paid) and completion from here.
+-- Growth (data/Growth) is paid here too: every income tick adds its seconds of worked time to each seated
+-- alien, a rejoin adds the time away (capped like offline Scrap) to the aliens that were seated at leave,
+-- and a record that crosses a stage is told to the client (AlienGrew, or the offline summary's grown list).
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
 -- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
@@ -24,8 +27,11 @@ local Tiers = require(Shared.data.Tiers)
 local Sizes = require(Shared.data.Sizes)
 local Overlays = require(Shared.data.Overlays)
 local Modules = require(Shared.data.Modules)
+local Jobs = require(Shared.data.Jobs)
+local GrowthData = require(Shared.data.Growth)
 local AnalyticsData = require(Shared.data.Analytics)
 local Economy = require(Shared.Economy)
+local Growth = require(Shared.Growth)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
@@ -461,16 +467,52 @@ local function onStationOptimize(player: Player): (boolean, string?)
 	return optimize(player)
 end
 
+-- Growth -----------------------------------------------------------------
+
+-- Adds `seconds` of worked time to every alien seated at a station (call it inside PlayerData.Update) and
+-- returns the aliens that crossed into a new growth stage, in station then slot order. A stage is a pure
+-- function of workedSeconds (shared Growth.StageAt), so a crossing is a change of stage id.
+local function addWorkedTime(profile: Types.Profile, seconds: number): { { uid: string, stage: string } }
+	local grew: { { uid: string, stage: string } } = {}
+	for _, job in ipairs(Jobs.Order) do
+		local station = profile.stations[job]
+		if station then
+			for _, uid in ipairs(station.assigned) do
+				local record = profile.aliens[uid]
+				if record then
+					local before = Growth.StageAt(record.workedSeconds).id
+					record.workedSeconds += seconds
+					local after = Growth.StageAt(record.workedSeconds).id
+					if after ~= before then
+						table.insert(grew, { uid = uid, stage = after })
+					end
+				end
+			end
+		end
+	end
+	return grew
+end
+
+-- Tells the client which aliens just grew a stage. The camp push that follows carries the new
+-- workedSeconds (StationsChanged) and the new work speed (RateChanged).
+local function announceGrew(player: Player, grew: { { uid: string, stage: string } })
+	for _, entry in ipairs(grew) do
+		Net.event("AlienGrew"):FireClient(player, entry.uid, entry.stage)
+	end
+end
+
 -- Income -----------------------------------------------------------------
 
 -- Pays dt seconds of station income to every loaded player, whole Scrap only, and re-bases assembly.
--- An active Double Shift multiplies the tick by Buffs.StationMultiplier (1 otherwise).
+-- An active Double Shift multiplies the tick by Buffs.StationMultiplier (1 otherwise). The same tick adds
+-- dt seconds of worked time to every seated alien; a stage crossing is announced and the camp re-pushed.
 local function tickIncome(dt: number)
 	for _, player in ipairs(Players:GetPlayers()) do
 		local profile = PlayerData.Get(player)
 		if profile then
 			local before = profile.scrap
 			local completed: { string } = {}
+			local grew: { { uid: string, stage: string } } = {}
 			local multiplier = Buffs.StationMultiplier(player)
 			PlayerData.Update(player, function(p)
 				local carry = (carries[player.UserId] or 0) + Economy.totalRate(p) * multiplier * dt
@@ -478,13 +520,19 @@ local function tickIncome(dt: number)
 				carries[player.UserId] = carry - whole
 				p.scrap += whole
 				completed = snapshotModules(p)
+				grew = addWorkedTime(p, dt) -- after the snapshot, so assembly progress is banked at the speed before any growth
 			end)
 			if profile.scrap ~= before then
 				pushScrap(player, profile)
 				Analytics.Income(player, profile.scrap - before, profile.scrap)
 			end
+			announceGrew(player, grew)
+			if #completed > 0 or #grew > 0 then
+				-- A completed module can also have grown the station slots; a new stage changes the work
+				-- speed (RateChanged) and the drawn scale (StationsChanged carries the records).
+				pushCamp(player, profile)
+			end
 			if #completed > 0 then
-				pushCamp(player, profile) -- a completed module can also have grown the station slots
 				announceCompleted(player, profile.world.current, completed)
 			end
 		end
@@ -521,8 +569,18 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 		profile.scrap += gain
 		local completed = snapshotModules(profile) -- assembly ran on the wall clock while away
 		completedAway = completed
-		if gain > 0 or #completed > 0 then
-			summary = { awaySeconds = away, scrap = gain, completedModules = completed }
+		-- Time away is worked time for the aliens seated at leave, up to the same cap the Scrap used; the
+		-- ones that grew a stage reach the client in the summary (grown), not as AlienGrew events.
+		local grewAway: { { uid: string, stage: string } } = {}
+		if GrowthData.OfflineCountsWhileSeated then
+			grewAway = addWorkedTime(profile, math.clamp(away, 0, cap))
+		end
+		if gain > 0 or #completed > 0 or #grewAway > 0 then
+			local built: Types.OfflineSummary = { awaySeconds = away, scrap = gain, completedModules = completed }
+			if #grewAway > 0 then
+				built.grown = grewAway
+			end
+			summary = built
 		end
 	end)
 	if summary then
@@ -600,6 +658,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 			overlay = overlay,
 			caughtAt = caughtAt,
 			size = sizeId,
+			workedSeconds = 0,
 		}
 		profile.aliens[uid] = record
 
@@ -682,8 +741,28 @@ function EconomyService.AddSlots(player: Player, amount: number): (boolean, stri
 	return true, nil
 end
 
+-- Studio Dev (/grow): adds `seconds` of worked time to every seated alien through the same helper the
+-- income tick uses, announces each stage crossing and re-pushes the camp. Assembly progress is banked at
+-- the old speed first. Returns how many aliens crossed a stage (0 when the player has no profile).
+function EconomyService.DevGrow(player: Player, seconds: number): number
+	local completed: { string } = {}
+	local grew: { { uid: string, stage: string } } = {}
+	local ok = PlayerData.Update(player, function(profile)
+		completed = snapshotModules(profile)
+		grew = addWorkedTime(profile, math.max(0, seconds)) -- workedSeconds only ever goes up
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not profile then
+		return 0
+	end
+	announceGrew(player, grew)
+	pushCamp(player, profile) -- the records (workedSeconds) and the new work speed, crossing or not
+	announceCompleted(player, profile.world.current, completed)
+	return #grew
+end
+
 function EconomyService.Init()
-	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted" }) do
+	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew" }) do
 		Net.event(name)
 	end
 	Net.func("ModulePay").OnServerInvoke = onModulePay

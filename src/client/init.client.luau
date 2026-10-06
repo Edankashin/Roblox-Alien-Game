@@ -23,6 +23,7 @@ local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
+local GrowthData = require(Shared:WaitForChild("data"):WaitForChild("Growth"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script:WaitForChild("State"))
@@ -460,6 +461,20 @@ local function onFriendChipTap()
 	end)
 end
 
+-- The display name of an owned alien from the profile mirror (its species name, or the species id when the
+-- species has no def); nil when the mirror does not hold it, so a toast never names nothing.
+local function alienName(uid: string): string?
+	if not State.Has() then
+		return nil
+	end
+	local record = State.Get().aliens[uid]
+	if not record then
+		return nil
+	end
+	local def = Species.ById[record.species]
+	return if def then def.name else record.species
+end
+
 local function connectToasts()
 	-- Friends joined or left this server: the server sends the count and the boost (a fraction), and the
 	-- arriving friend's name when one just joined.
@@ -651,6 +666,19 @@ local function connectToasts()
 			end)
 		end)
 	end)
+	-- An alien crossed a growth stage while working: a toast naming it, and its camp worker pops at the new size.
+	task.spawn(function()
+		Net.event("AlienGrew").OnClientEvent:Connect(function(uid: string, stageId: string)
+			if type(uid) ~= "string" or type(stageId) ~= "string" then
+				return
+			end
+			local name = alienName(uid)
+			if name then
+				Toast.Show(Strings.TOAST_ALIEN_GREW:format(name, Builder.text("STAGE_" .. stageId)), Theme.Colors.Featured)
+			end
+			CampRenderer.Grew(uid)
+		end)
+	end)
 	-- The offline settlement is claimed rather than pushed, so it is never missed on a slow boot.
 	task.spawn(function()
 		local raw = Net.func("ClaimOfflineSummary"):InvokeServer()
@@ -664,6 +692,20 @@ local function connectToasts()
 		end
 		for _, moduleId in ipairs(summary.completedModules) do
 			Toast.Show(Strings.OFFLINE_MODULES:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
+		end
+		-- Aliens that grew while away: one line with the count, then the first few by name.
+		local grown = summary.grown
+		if grown and #grown > 0 then
+			Toast.Show(Strings.OFFLINE_GREW:format(#grown), Theme.Colors.Featured)
+			for index, entry in ipairs(grown) do
+				if index > GrowthData.GrewToastMax then
+					break
+				end
+				local name = if type(entry.uid) == "string" and type(entry.stage) == "string" then alienName(entry.uid) else nil
+				if name then
+					Toast.Show(Strings.TOAST_ALIEN_GREW:format(name, Builder.text("STAGE_" .. entry.stage)), Theme.Colors.Featured)
+				end
+			end
 		end
 	end)
 end

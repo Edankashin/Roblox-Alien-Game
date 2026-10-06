@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 7
+local SCHEMA_VERSION = 8
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -146,6 +146,17 @@ local migrations: { [number]: (any) -> any } = {
 		for _, record in pairs(aliens) do
 			if type(record) == "table" and type(record.size) ~= "string" then
 				record.size = "Normal"
+			end
+		end
+		data.aliens = aliens
+		return data
+	end,
+	-- v8: every alien record carries its time worked at a station (data/Growth stages); older records start at 0
+	[8] = function(data)
+		local aliens = if type(data.aliens) == "table" then data.aliens else {}
+		for _, record in pairs(aliens) do
+			if type(record) == "table" and type(record.workedSeconds) ~= "number" then
+				record.workedSeconds = 0
 			end
 		end
 		data.aliens = aliens

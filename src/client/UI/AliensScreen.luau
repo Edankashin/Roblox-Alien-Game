@@ -2,9 +2,10 @@
 -- StarterPlayerScripts.Client.UI.AliensScreen: the Aliens panel. A strip of station cards across
 -- the top (one per unlocked job: name, slots, rate and a row of slot squares), the owned count, a
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
--- overlay badge, where it is working), and an Optimize button. Every value is read from the profile
--- mirror in State and the shared Economy math; the only tap that leaves the client asks the server
--- (StationOptimize). Nothing here decides an outcome.
+-- overlay badge, size and growth-stage chips, where it is working and the time to its next growth
+-- stage), and an Optimize button. Every value is read from the profile mirror in State and the shared
+-- Economy and Growth math; the only tap that leaves the client asks the server (StationOptimize).
+-- Nothing here decides an outcome.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -12,6 +13,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
@@ -48,6 +50,18 @@ local COLUMNS = 4
 local CELL_W = 0.22
 local CELL_GAP = 0.02
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
+
+-- Under the card's name row, top to bottom: the status line, then the next-growth-stage line (seated aliens
+-- with a stage ahead). As fractions of the card; both are bottom-anchored.
+local STATUS_BOTTOM = 0.9
+local STATUS_H = 0.1
+local NEXT_BOTTOM = 0.99
+local NEXT_H = 0.09
+
+-- Time units, in seconds, for the next-stage countdown.
+local MINUTE = 60
+local HOUR = 60 * MINUTE
+local DAY = 24 * HOUR
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
@@ -89,6 +103,17 @@ local function unlockedJobs(profile: Types.Profile): { string }
 		end
 	end
 	return out
+end
+
+-- "Nd Nh" from a day up, "Nh Nm" from an hour up, "Nm" under it (minutes round up so the last minute reads 1m).
+local function timeLeftText(seconds: number): string
+	local total = math.max(0, math.floor(seconds))
+	if total >= DAY then
+		return Strings.TIME_DH:format(total // DAY, (total % DAY) // HOUR)
+	elseif total >= HOUR then
+		return Strings.TIME_HM:format(total // HOUR, (total % HOUR) // MINUTE)
+	end
+	return Strings.TIME_M:format(math.ceil(total / MINUTE))
 end
 
 local function clearChildren(parent: Instance)
@@ -422,6 +447,34 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
+	-- The growth stage (data/Growth) mirrors the size chip on the right of the shape; Hatchlings, like
+	-- Normal sizes, show nothing.
+	local stage = Growth.StageOf(record)
+	if stage.label then
+		local stageChip = Builder.pill({
+			parent = card,
+			name = "Stage",
+			position = UDim2.fromScale(0.98, 0.42),
+			size = UDim2.fromScale(0.26, 0.14), -- mid-right, the size chip's mirror
+			anchor = Vector2.new(1, 0.5),
+			color = Theme.Colors.Trough,
+			stroke = Theme.Stroke.Text,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = 6,
+		})
+		Builder.label({
+			parent = stageChip,
+			name = "Text",
+			text = Builder.text("STAGE_" .. stage.id),
+			textSize = Theme.TextSize.Body,
+			color = Theme.Colors.Select,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.86, 0.75),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = 7,
+		})
+	end
+
 	local job = record.station
 	Builder.label({
 		parent = card,
@@ -431,11 +484,28 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			else Strings.ALIENS_RESTING,
 		textSize = Theme.TextSize.Body,
 		color = if job then Theme.Colors.White else Theme.Rarity.Common,
-		position = UDim2.fromScale(0.5, 0.97),
-		size = UDim2.fromScale(0.94, 0.17),
+		position = UDim2.fromScale(0.5, STATUS_BOTTOM),
+		size = UDim2.fromScale(0.94, STATUS_H),
 		anchor = Vector2.new(0.5, 1),
 		zIndex = 4,
 	})
+
+	-- Only a working alien earns time toward its next stage, so a resting one (and an Elder) has no line.
+	local nextStage = Growth.Next(stage)
+	local secondsLeft = Growth.SecondsToNext(record.workedSeconds or 0)
+	if job and nextStage and secondsLeft then
+		Builder.label({
+			parent = card,
+			name = "NextStage",
+			text = Strings.ALIENS_STAGE_NEXT:format(Builder.text("STAGE_" .. nextStage.id), timeLeftText(secondsLeft)),
+			textSize = Theme.TextSize.Min,
+			color = Theme.Rarity.Common,
+			position = UDim2.fromScale(0.5, NEXT_BOTTOM),
+			size = UDim2.fromScale(0.94, NEXT_H),
+			anchor = Vector2.new(0.5, 1),
+			zIndex = 4,
+		})
+	end
 end
 
 -- Owned aliens, fastest first, then by name, then by uid so the order is stable between refreshes.

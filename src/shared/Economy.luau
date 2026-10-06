@@ -8,6 +8,7 @@ local Types = require(script.Parent.types.Types)
 local Config = require(script.Parent.data.Config)
 local Tiers = require(script.Parent.data.Tiers)
 local Overlays = require(script.Parent.data.Overlays)
+local Growth = require(script.Parent.Growth)
 local Species = require(script.Parent.data.Species)
 local Jobs = require(script.Parent.data.Jobs)
 local Modules = require(script.Parent.data.Modules)
@@ -16,7 +17,8 @@ local Economy = {}
 
 -- Aliens -----------------------------------------------------------------
 
--- Work speed of one alien: tier speed x overlay multiplier x level bonus. A plain Common at level 1 is 1.
+-- Work speed of one alien: tier speed x overlay multiplier x level bonus x growth stage (Shared/Growth, from
+-- the time it has worked). A plain Common Hatchling at level 1 is 1.
 function Economy.workSpeed(record: Types.AlienRecord): number
 	local def = Species.ById[record.species]
 	if not def then
@@ -25,7 +27,7 @@ function Economy.workSpeed(record: Types.AlienRecord): number
 	local tier = Tiers.Tiers[def.tier]
 	local overlay = Overlays.Overlays[record.overlay]
 	local level = math.max(1, record.level)
-	return tier.workSpeed * (if overlay then overlay.multiplier else 1) * (1 + Config.LevelSpeedStep * (level - 1))
+	return tier.workSpeed * (if overlay then overlay.multiplier else 1) * (1 + Config.LevelSpeedStep * (level - 1)) * Growth.SpeedMultiplier(record)
 end
 
 -- The level this species works a job at, or nil when it cannot work it.

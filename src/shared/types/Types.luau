@@ -52,6 +52,7 @@ export type AlienRecord = {
 	overlay: Overlay,
 	caughtAt: number,
 	size: string, -- data/Sizes band id (Tiny .. Huge); "Normal" for records from before sizes
+	workedSeconds: number, -- time at a station so far (data/Growth stages); 0 for records from before growth
 	station: Job?, -- which station it is assigned to, if any
 	slot: number?,
 }
@@ -205,6 +206,11 @@ export type Announcement = { kind: "catch", playerName: string, species: string,
 export type CampState = { ratePerSecond: number, assemblySpeed: { [string]: number } }
 
 -- Economy -> client once on join when the player was away long enough (OfflineSummary).
-export type OfflineSummary = { awaySeconds: number, scrap: number, completedModules: { string } }
+export type OfflineSummary = {
+	awaySeconds: number,
+	scrap: number,
+	completedModules: { string },
+	grown: { { uid: string, stage: string } }?, -- aliens that reached a new growth stage while away (data/Growth), in seating order
+}
 
 return {}
