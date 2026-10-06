@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 10
+local SCHEMA_VERSION = 11
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -69,7 +69,7 @@ local function template(): Types.Profile
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
 		companionSlots = 0,
-		home = { unlocked = false, visits = 0 },
+		home = { unlocked = false, visits = 0, items = {} },
 		quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
@@ -179,6 +179,16 @@ local migrations: { [number]: (any) -> any } = {
 		if type(data.home) ~= "table" then
 			local unlocked = if type(data.world) == "table" and type(data.world.unlocked) == "table" then data.world.unlocked else {}
 			data.home = { unlocked = #unlocked >= 2, visits = 0 }
+		end
+		return data
+	end,
+	-- v11: the house grid; a home without an items table gets an empty one
+	[11] = function(data)
+		if type(data.home) ~= "table" then
+			data.home = { unlocked = false, visits = 0 }
+		end
+		if type(data.home.items) ~= "table" then
+			data.home.items = {}
 		end
 		return data
 	end,

@@ -29,6 +29,8 @@ return {
 		Fuse = "Fuse", -- value: the kept copy's new level; field species
 		Companion = "Companion", -- value 1; fields action (follow, unfollow, token), species
 		Mount = "Mount", -- value 1; fields action (mount, dismount), species, traversal
+		HomePlace = "HomePlace", -- value: the Scrap paid; fields item
+		HomeRemove = "HomeRemove", -- value 1; fields item
 		Admin = "Admin", -- value 1; fields action (luck, shower, weather, say), by (the developer's user id); once per server that applies it
 		Sighting = "Sighting", -- value 1 per player online when a Warden sighting starts; field species
 		WeeklyFlip = "WeeklyFlip", -- value: the rotation index; fields species, weather; once per server when the week changes

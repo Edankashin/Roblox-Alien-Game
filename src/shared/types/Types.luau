@@ -11,8 +11,10 @@ export type Traversal = "Sprint" | "Hover" | "Glide" | "Swim" | "Climb"
 
 export type JobLevel = { job: Job, level: number }
 
--- The home planet on the profile: whether it is unlocked and, later, the house grid (rooms and furniture by cell).
-export type HomeState = { unlocked: boolean, visits: number }
+-- The home planet on the profile: whether it is unlocked, the visits, and the house grid (data/HomeBuild): one
+-- entry per placed item, keyed by its uid, at a plot cell (0-based from the plot's -X -Z corner) with a quarter-turn rotation.
+export type HomeItem = { uid: string, itemId: string, cellX: number, cellZ: number, rotation: number }
+export type HomeState = { unlocked: boolean, visits: number, items: { [string]: HomeItem } }
 
 export type SpeciesDef = {
 	id: string,

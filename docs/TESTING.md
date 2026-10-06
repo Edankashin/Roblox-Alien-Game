@@ -546,7 +546,19 @@ The home planet is world 0, its own place (`home.project.json`, WorldId 0; `data
 3. Stations at home: seated aliens keep earning (Scrap/min on the HUD), offline earnings settle on a rejoin as on any world; companions follow and mounts ride as elsewhere.
 4. A profile below schema v10 (memory profiles start at the current version; skip unless real saves are on): one with two unlocked worlds migrates with `home.unlocked = true`. Output clean on both places.
 
-Known gaps in this milestone: the house grid, habitats, the hangar, the kiosk, the mailbox and visiting come in 42a's second part and 42b to 42d; the home has no look pass yet (a plain floor).
+Known gaps in this milestone: the house grid comes in 42b, habitats, the hangar, the kiosk, the mailbox and visiting in 42c to 42e; the home has no look pass yet (a plain floor).
+
+## Milestone 42b: the house grid (home place, `home.project.json`)
+
+Rooms and furniture (`data/HomeBuild.luau`) go on the plot's 6 by 6 cells for Scrap: walk to the plot, the action button reads "Decorate" and opens a tray; pick an item, a ghost follows your tap on the plot, Turn rotates it a quarter, a tap places it (the server pays and saves it, schema v11); Take away removes a placed item (no refund). Caps: 4 rooms, 12 things.
+
+1. At the plot with 1,000 Scrap (`/scrap 1000`): "Decorate" within 18 studs of the plot's centre; the tray lists Rooms (Cabin 300, Dome 450, Tower 350) and Things (Bench 60, Lamp 80, Planter 50, Fountain 250, Flag 40) with "Rooms: 0/4" and "Things: 0/12". Pick Cabin: the hint reads "Tap a spot on the plot to place it", a half-transparent 2x2-cell ghost snaps to the cell under your tap; tap off the plot: "Keep it on the plot"; Turn: the ghost rotates a quarter; tap a free spot: toast "Cabin placed", Scrap 700, "Rooms: 1/4", a cabin (prop or tan block, 6 studs tall) stands on those cells; Output `analytics: event HomePlace value=300 item=RoomCabin`.
+2. Overlap: pick Bench and tap a cabin cell: "That spot is taken", nothing paid. Place a Bench beside it (60): "Things: 1/12". Spend down to 20 Scrap and pick Flag (40): the card is grey and a tap on the plot says Not enough Scrap. Place 4 rooms: the fifth room card reads full and a tap says "No room for more Rooms".
+3. Take away: tap a placed bench: "Bench taken away", the cell is free, Scrap unchanged (no refund), "Things: 0/12". Done closes the tray; the action button returns.
+4. Rejoin (memory profiles in Studio): everything placed is drawn again from the profile on load. On World 1 the Decorate action never appears (no plot) and the remotes refuse (NotAtHome). Output clean.
+
+Known gaps in this milestone: no plot upgrade yet (the caps and the 6 by 6 plot are fixed), items have placeholder shapes until their props exist, no doors or interiors (rooms are solid prefabs), visitors do not see a house until 42e.
+
 
 
 
