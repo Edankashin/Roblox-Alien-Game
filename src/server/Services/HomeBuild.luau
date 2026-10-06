@@ -266,8 +266,11 @@ end
 -- GetHome() -> the player's placed items by uid, for a client that joined after the last HomeChanged (empty
 -- before the profile loads or when rate limited; the next HomeChanged fills it in).
 local function onGetHome(player: Player): { [string]: Types.HomeItem }
+	if not Net.allow(player, "GetHome", REMOTE_RATE_PER_SECOND) then
+		return {}
+	end
 	local profile = PlayerData.Get(player)
-	if not profile or not Net.allow(player, "GetHome", REMOTE_RATE_PER_SECOND) then
+	if not profile then
 		return {}
 	end
 	return profile.home.items
