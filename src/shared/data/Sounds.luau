@@ -16,6 +16,8 @@ return {
 	WheelStop = "rbxassetid://0",
 	HornCall = "rbxassetid://0", -- the Warden's Horn is sounded
 	WardenAppear = "rbxassetid://0",
+	Mount = "rbxassetid://0", -- the player hops onto a mount
+	Dismount = "rbxassetid://0",
 	Launch = "rbxassetid://0", -- reserved for the launch sequence (World 2)
 	-- looping ambiences, crossfaded by the client as the conditions change
 	Ambience = {

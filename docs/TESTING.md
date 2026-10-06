@@ -476,3 +476,17 @@ Up to three resting aliens follow the player (`data/Companions.luau`), drawn beh
 6. Rejoin: the companions still follow (memory profiles in Studio; schema v9 adds `companionSlots`). Output clean.
 
 Known gaps in this milestone: no mount riding yet (section 6 of the design: rideable Epics), no radar perk reader (Tinker is a World 3 job), no companion animations beyond the bob.
+
+## Milestone 37: mounts (World 1 place; step 5 multi-client)
+
+A species with a `ride` traversal (`data/Species.luau`: Thunderhog, Gaiabloom, Radish, Frostfang, Skaddle, Fenripup) can be ridden once it follows the player (`data/Mounts.luau`): the rider is lifted onto it, moves at the tier's speed (Epic 1.6x like the Hoverboard, Legendary 1.92x, Cosmic 2.24x) and jumps by the traversal (Sprint 1.6x, Hover 1.2x). The mount keeps its companion slot and perk. Dev: `/ride <speciesId|off>` (follows a resting copy first if needed).
+
+1. `/spawn Thunderhog`, catch it, open Aliens: its card reads "Tap to follow" and shows no Ride button; tap it ("Thunderhog is following you") and a Featured "Ride" button appears on the card. Tap Ride: toast "Riding Thunderhog!", the status reads "Riding", the button reads "Hop off"; in the world your character sits on the Thunderhog (feet about 2.2 studs higher), it stays under you as you walk and turn, and the other followers keep their arc behind you. Output: `analytics: event Mount value=1 action=mount species=Thunderhog traversal=Sprint`.
+2. Walk and jump: WalkSpeed reads 25.6 (16 x 1.6; `game.Players.LocalPlayer.Character.Humanoid.WalkSpeed` in the command bar) and the jump is visibly higher (JumpPower 80 or JumpHeight 11.52). Hop off: toast "You hop off Thunderhog", speed and jump back to normal, hips back down, the Thunderhog rejoins the arc. Mount again, then tap the card (not the button): you hop off first; a second tap stops it following.
+3. Speed Boots owned plus a mount: the mount wins (25.6, not 20); with the Hoverboard owned and an Epic mount both read 25.6; `/ride Gaiabloom` after `/spawn Gaiabloom` and a catch: 30.72. A Speed Burst on top multiplies as before.
+4. A non-rideable follower's card (Mossbop) never shows Ride. Fusing away the mount (`/dupes` on its species then Fuse while riding a plain copy) or unfollowing it from the card dismounts you cleanly (speed, jump and hips restored). `/world 2` and back: still riding, still on the mount.
+5. Multi-client: player B sees A sitting on the mount with no name plate on the mount, and A's other followers behind; A hops off: the mount walks back into the arc for B too.
+6. Rejoin: back on foot (riding is not saved; the mount still follows). Output clean.
+
+Known gaps in this milestone: no riding animation (the rider keeps the walk animation), no saddle cosmetics, Hover has no slow terrain to ignore yet, Glide, Swim and Climb are placeholders for later worlds.
+

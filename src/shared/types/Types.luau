@@ -206,7 +206,7 @@ export type CatchRushState = { active: boolean, secondsLeft: number, nextInSecon
 -- A player's companions as every client draws them (CompanionsChanged to all clients, GetAllCompanions for a
 -- late joiner): the owner and one row per following alien.
 export type CompanionRow = { uid: string, species: string, size: string, overlay: Overlay, level: number, workedSeconds: number }
-export type CompanionsSnapshot = { userId: number, rows: { CompanionRow } }
+export type CompanionsSnapshot = { userId: number, rows: { CompanionRow }, riding: string? } -- riding: the uid of the row the owner rides, nil on foot
 
 -- One fusion (FuseSpecies remote, data/Fusion): the kept copy's new level and what was consumed.
 export type FuseResult = { species: string, uid: string, level: number, consumed: number }
