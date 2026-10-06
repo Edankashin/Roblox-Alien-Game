@@ -1,6 +1,6 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /days 7, /spins 3, /radar, /tutorial 6,
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /sighting [end], /days 7, /spins 3, /radar, /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
@@ -31,6 +31,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local EconomyService = require(script.Parent.Economy)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
+local Sightings = require(script.Parent.Sightings)
 local Weekly = require(script.Parent.Weekly)
 local CatchRush = require(script.Parent.CatchRush)
 local Gifts = require(script.Parent.Gifts)
@@ -140,6 +141,23 @@ local function forceShower(player: Player, text: string)
 	local on = word ~= "end" and word ~= "off"
 	Events.Force(on)
 	print(("[%s] dev: %s %s the Meteor Shower"):format(Config.WorkingTitle, player.Name, if on then "started" else "ended"))
+end
+
+-- /sighting [end]: start a Warden sighting now (the Warden walks the whole path from its first point) or end the
+-- running one; prints the sighting clock afterwards.
+local function forceSighting(player: Player, text: string)
+	local on = string.find(text, "end", 1, true) == nil
+	Sightings.Force(on)
+	local state = Sightings.GetState()
+	print(("[%s] dev: %s %s the Warden sighting (active=%s, %s, %ds left, next in %ds)"):format(
+		Config.WorkingTitle,
+		player.Name,
+		if on then "started" else "ended",
+		tostring(state.active),
+		if state.species == "" then "none on this world" else state.species,
+		state.secondsLeft,
+		state.nextInSeconds
+	))
 end
 
 -- /rush [end | in N]: start a Catch Rush round now (it runs its normal length), end the current one (it is
@@ -634,6 +652,7 @@ function Dev.Init()
 	end)
 	command("shower", forceShower)
 	command("rush", forceRush)
+	command("sighting", forceSighting)
 	command("week", setWeek)
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
@@ -671,7 +690,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 
