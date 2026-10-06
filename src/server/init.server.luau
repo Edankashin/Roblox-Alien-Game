@@ -25,14 +25,15 @@
 -- (it writes profile.settings) and before Dev (which stays last), Outposts after Economy and Analytics and before Launch (Launch banks a flight's outpost through it), Launch after Economy (both move the
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
 -- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
--- (and so after Meadow, whose Workspace.World its folder lives in, WorldClock, PlayerData and Analytics).
+-- (and so after Meadow, whose Workspace.World its folder lives in, WorldClock, PlayerData and Analytics), Companions after
+-- Economy and before Buffs (Buffs registers its luck push with it at Init; it requires only PlayerData, Analytics and Monetization).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "CatchRush", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

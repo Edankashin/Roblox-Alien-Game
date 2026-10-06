@@ -209,7 +209,7 @@ local function socialRewardText(reward: Social.Reward): string
 	if reward.kind == "scrap" then
 		return Strings.REWARD_scrap:format(Builder.formatNumber(reward.amount))
 	elseif reward.kind == "spin" then
-		return Strings.REWARD_spin:format(reward.amount)
+		return if reward.amount == 1 then Strings.REWARD_spin_ONE else Strings.REWARD_spin:format(reward.amount)
 	end
 	return Strings.REWARD_lure:format(reward.amount, itemName(reward.kind, reward.id) or (reward.id or ""))
 end

@@ -347,7 +347,7 @@ end
 
 -- Developer override (Studio commands): jump to step `index` (clamped to [first, done]) with an empty
 -- count, place that step's trainee, and push. Skips on past steps already met, like a real advance.
-function Tutorial.DevSetStep(player: Player, index: number)
+function Tutorial.DevSetStep(player: Player, index: number): number?
 	local ok = PlayerData.Update(player, function(p)
 		p.tutorialStep = math.clamp(math.floor(index), FIRST_STEP, DONE_STEP)
 		p.tutorialCounter = 0
@@ -355,12 +355,13 @@ function Tutorial.DevSetStep(player: Player, index: number)
 	end)
 	local profile = PlayerData.Get(player)
 	if not ok or not profile then
-		return
+		return nil
 	end
 	pushTutorial(player, profile)
 	local step, stepIndex = currentStep(profile)
 	ensureTrainee(player, step, stepIndex)
 	reportFunnel(player, profile)
+	return profile.tutorialStep -- the step it landed on: steps a finished profile already satisfies are skipped
 end
 
 function Tutorial.Start()

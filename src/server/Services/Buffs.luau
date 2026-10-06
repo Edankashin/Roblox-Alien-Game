@@ -7,9 +7,12 @@
 -- Luck is one number per player: 1, plus an active Lucky Charm, plus the night bonus, plus the server's
 -- Meteor Shower bonus (Events.ServerLuckBonus), plus a bought Server Luck running on this server
 -- (Monetization.ServerLuckBonus), plus the Friend Boost (Friends.Boost: Config.FriendBoostPerFriend per
--- friend present, up to Config.FriendBoostMaxFriends), plus the soft pity that rises with every catch below
--- Config.PityResetMinTier, capped at Config.LuckCap. The same boost multiplies station income and catch
--- Scrap by 1 + boost, on top of any power-up; Friends.OnChanged re-sends LuckChanged when it moves. Monetization is wired like Events: this module
+-- friend present, up to Config.FriendBoostMaxFriends), plus the Spark companions' luck perk
+-- (Companions.Perk "luck"), plus the soft pity that rises with every catch below Config.PityResetMinTier,
+-- capped at Config.LuckCap. The same boost multiplies station income and catch Scrap by 1 + boost, on top of
+-- any power-up; Friends.OnChanged re-sends LuckChanged when it moves. The followers' perks add to the power-ups
+-- (the Gather perk to catch Scrap, the Build perk to the zone bonus) inside the same formulas, and
+-- Companions.OnChanged re-sends LuckChanged when the list or a follower's level changes. Monetization is wired like Events: this module
 -- requires it for the bonus and registers Buffs.PushLuckAll through Monetization.OnServerLuckChanged
 -- at Init, and hands it the "powerUp" granter (Robux power-up bundles land in inventory.powerUps here).
 --
@@ -18,7 +21,9 @@
 -- callback runs whenever a speed buff starts or ends. The shower runs the other way: this module
 -- requires Events for the bonus (Events requires only WorldClock, Net and Config, so the graph stays
 -- acyclic) and registers Buffs.PushLuckAll through Events.OnShowerChanged at Init, so every player's
--- LuckChanged is re-sent when a shower starts or ends without Events ever requiring Buffs.
+-- LuckChanged is re-sent when a shower starts or ends without Events ever requiring Buffs. Companions is the
+-- same: it requires only PlayerData, Analytics and Monetization, nothing that requires Buffs, so this module
+-- (and Economy) can require it, and it never requires either back.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +39,7 @@ local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
 local Monetization = require(script.Parent.Monetization)
 local Friends = require(script.Parent.Friends)
+local Companions = require(script.Parent.Companions)
 
 local Buffs = {}
 
@@ -109,14 +115,15 @@ function Buffs.SpeedMultiplier(player: Player): number
 	return 1 + activeValue(PlayerData.Get(player), "speed")
 end
 
--- Fraction both capture zones grow by: the value of an active "zone" buff, else 0.
+-- Fraction both capture zones grow by: the value of an active "zone" buff, plus the Build companions' zone perk.
 function Buffs.ZoneBonus(player: Player): number
-	return activeValue(PlayerData.Get(player), "zone")
+	return activeValue(PlayerData.Get(player), "zone") + Companions.Perk(player, "zone")
 end
 
--- Catch pay factor: (1 + the value of an active "catchScrap" buff) times (1 + the Friend Boost).
+-- Catch pay factor: (1 + the value of an active "catchScrap" buff + the Gather companions' perk) times
+-- (1 + the Friend Boost).
 function Buffs.CatchScrapMultiplier(player: Player): number
-	return (1 + activeValue(PlayerData.Get(player), "catchScrap")) * (1 + Friends.Boost(player))
+	return (1 + activeValue(PlayerData.Get(player), "catchScrap") + Companions.Perk(player, "catchScrap")) * (1 + Friends.Boost(player))
 end
 
 -- Station income factor: the value of an active "stationScrap" buff (Double Shift is 2), else 1, times
@@ -127,7 +134,8 @@ function Buffs.StationMultiplier(player: Player): number
 end
 
 -- The one luck number the Spawner rolls tiers with and the HUD shows: 1 + Lucky Charm + night bonus
--- + the server's shower bonus + a bought Server Luck + the Friend Boost + soft pity, capped at Config.LuckCap.
+-- + the server's shower bonus + a bought Server Luck + the Friend Boost + the Spark companions' perk + soft pity,
+-- capped at Config.LuckCap.
 function Buffs.Luck(player: Player): number
 	local profile = PlayerData.Get(player)
 	local luck = 1 + activeValue(profile, "luck")
@@ -140,6 +148,7 @@ function Buffs.Luck(player: Player): number
 	luck += Events.ServerLuckBonus()
 	luck += Monetization.ServerLuckBonus()
 	luck += Friends.Boost(player)
+	luck += Companions.Perk(player, "luck")
 	return math.min(luck, Config.LuckCap)
 end
 
@@ -280,6 +289,12 @@ function Buffs.Init()
 	end)
 	-- The Friend Boost is part of that player's luck: a friend arriving or leaving re-sends the number.
 	Friends.OnChanged(function(player: Player)
+		if PlayerData.Get(player) then
+			pushLuck(player)
+		end
+	end)
+	-- A Spark companion's luck perk is part of that player's luck: following or unfollowing re-sends the number.
+	Companions.OnChanged(function(player: Player)
 		if PlayerData.Get(player) then
 			pushLuck(player)
 		end

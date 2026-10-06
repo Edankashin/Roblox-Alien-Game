@@ -250,9 +250,9 @@ local function ownsGear(profile: Types.Profile, item: GearItem): boolean
 	return gear.glider == true
 end
 
--- The effect line: the minimap range for a radar, the walk-speed bonus for movement gear, or the
--- unlock note for gear that does nothing yet (the Glider).
-local function effectText(item: GearItem): string
+-- The effect line: the minimap range for a radar, the walk-speed bonus for movement gear, or, for gear that
+-- does nothing yet (the Glider), the unlock note while it is locked and what it will do once it is not.
+local function effectText(profile: Types.Profile, item: GearItem): string
 	local radarTier = item.radarTier
 	if radarTier then
 		local row = radarTiers[radarTier]
@@ -260,7 +260,10 @@ local function effectText(item: GearItem): string
 	end
 	local def = item.def
 	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0
-	return if bonus > 0 then Strings.SHOP_GEAR_SPEED:format(bonus) else Strings.SHOP_GEAR_LOCKED
+	if bonus > 0 then
+		return Strings.SHOP_GEAR_SPEED:format(bonus)
+	end
+	return if gearLocked(profile, item) then Strings.SHOP_GEAR_LOCKED else Strings.SHOP_GEAR_SOON
 end
 
 -- Server calls -------------------------------------------------------------
@@ -932,7 +935,7 @@ local function refreshGear(profile: Types.Profile)
 		end
 		row.card.Visible = true
 		row.effect.Visible = true
-		row.effect.Text = effectText(item)
+		row.effect.Text = effectText(profile, item)
 		row.price.Text = priceText(item.scrap)
 		local isOwned = ownsGear(profile, item)
 		row.button.Visible = not isOwned

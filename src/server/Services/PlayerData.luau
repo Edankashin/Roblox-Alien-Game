@@ -18,7 +18,7 @@ local Net = require(Shared.Net)
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local SCHEMA_VERSION = 8
+local SCHEMA_VERSION = 9
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
 
@@ -68,6 +68,7 @@ local function template(): Types.Profile
 		codex = {},
 		gear = { boots = false, hoverboard = false, glider = false, radar = 0 },
 		companions = {},
+		companionSlots = 0,
 		quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 		gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 		spins = { free = 1, banked = 0, lastFree = 0 },
@@ -160,6 +161,16 @@ local migrations: { [number]: (any) -> any } = {
 			end
 		end
 		data.aliens = aliens
+		return data
+	end,
+	-- v9: companions follow the player; the token-bought slot count starts at 0 and the list is kept when it exists
+	[9] = function(data)
+		if type(data.companions) ~= "table" then
+			data.companions = {}
+		end
+		if type(data.companionSlots) ~= "number" then
+			data.companionSlots = 0
+		end
 		return data
 	end,
 }

@@ -441,12 +441,12 @@ Known gaps in this milestone: no hoverboard trail, no screen-edge glow for a Leg
 
 A 90-second shared round every 10 minutes on the wall clock (`data/CatchRush.luau`): every wild catch counts, the top three are paid by rank, anyone else with a catch gets a participation payout, the winner is announced to the server. A round that would start during a Meteor Shower is skipped.
 
-1. `/rush in 40`: the countdown chip under the clock reads "Rush in 0:40" (the shower's chip wins if both are due) and counts down; at zero a gold banner "Catch Rush!" and the event banner slot reads "Catch Rush!" over "1:30 left" with a chip "You 0 · Top 0".
-2. Catch three aliens during the round: the chip climbs to "You 3 · Top 3" within a second of each catch (one push per second at most). `/rush end`: toast "Catch Rush over!", then "Catch Rush: #1 with 3 catches! 500 Scrap, 1 spin" and the server-wide banner "<you> won the Catch Rush with 3 catches!"; Scrap and the spin land (Gifts screen); Output shows `analytics: event CatchRush value=3 rank=1`.
+1. `/rush in 40`: the countdown chip under the clock reads "Rush in 40s" (the shower's chip wins if both are due) and counts down; at zero a gold banner "Catch Rush!" and the event banner slot reads "Catch Rush!" over "1m 30s left" with a chip "You 0 · Top 0".
+2. Catch three aliens during the round: the chip climbs to "You 3 · Top 3" within a second of each catch (one push per second at most). `/rush end`: toast "Catch Rush over!", then "Catch Rush: #1 with 3 catches! 500 Scrap, 1 free spin" (one catch reads "1 catch") and the server-wide banner "<you> won the Catch Rush with 3 catches!"; Scrap and the spin land (Gifts screen); Output shows `analytics: event CatchRush value=3 rank=1`.
 3. A round with no catch: at its end the toast reads "Catch Rush over: catch one next time!" and nothing is paid.
 4. Multi-client (Test > Clients and Servers, 2 players): both see the same clock and chip; player A catches 2, player B 3: B's banner says #1 and A's says #2 with 300 Scrap; ties rank the earlier count first.
 5. `/shower` then `/rush`: the shower keeps the banner slot and the rush still counts underneath (the chip shows the rush after `/shower end`); on the live clock a rush whose start falls inside a shower is skipped (Output prints one line).
-6. Tutorial running: no rush banner or chip until it ends (the same hold as the shower); the rush still counts.
+6. Tutorial running: no rush banner or chip until it ends (the same hold as the shower); the rush still counts. Use a profile that has not done the tutorial's deeds (a fresh test user in the multi-client test): `/tutorial 1` on a finished profile skips every step it already satisfies and lands past the end, and Output prints the step reached ("asked for tutorial step 1 and is on step 8").
 7. Output clean; a late joiner (second client) during a round sees the banner and the right counts at once.
 
 Known gaps in this milestone: no cosmetic prize yet (Scrap and a spin instead), no Rush history or best-score line, no sound for the start; the countdown chip does not know a slot will be skipped for a shower (it counts to a start that then does not happen); a player who leaves mid-round is dropped from the table.
@@ -456,10 +456,23 @@ Known gaps in this milestone: no cosmetic prize yet (Scrap and a spin instead), 
 Four spare copies of a species fuse into +1 level on the best copy, up to Lv 3 (`data/Fusion.luau`); the level multiplies work speed by `Config.LevelSpeedStep` per level. Surplus always has a destination.
 
 1. Catch one Mossbop, then `/dupes Mossbop 4`: the Aliens screen shows five Mossbop cards and a gold "Fuse" button beside Optimize with the hint "4 spare copies of a species fuse into +1 level (up to Lv 3)". Tap Fuse: toast "Mossbop fused to Lv 2!", one Mossbop card remains with a gold "Lv 2" chip and a speed chip of x1.4 (x1.35 per level over the Common's x1), the station rate rose; Output `analytics: event Fuse value=2 species=Mossbop`.
-2. `/dupes Mossbop 8`, Fuse: two fusions in a row (toasts Lv 3 then nothing more); the kept copy is the best (a Shiny or a Huge is never consumed while a plain Normal is); a seated copy stays seated unless only seated copies remain; the freed slots refill.
+2. `/dupes Mossbop 8`, Fuse: two fusions in a row (toasts Lv 2 then Lv 3, then nothing more) and the kept copy is the best (a Shiny or a Huge is never consumed while a plain Normal is); the Lv 3 and the last plain copy remain. A copy above the kept one is never fodder: with the Lv 3 and four plain copies, Fuse says "Nothing to fuse yet" and the plain copies stay (a fifth plain copy would fuse a second Lv 2). A seated copy stays seated unless only seated copies remain; the freed slots refill.
 3. Tap Fuse with nothing eligible: "Nothing to fuse yet: keep 4 spare copies of one species". `/dupes Puffpuff 3` (four copies total): still nothing (a fusion needs five).
-4. A Lv 3 copy with four more spares: Fuse refuses that species (MaxLevel) and the toast does not appear for it; the spares stay.
+4. A Lv 3 copy with four more spares: Fuse shows "Nothing to fuse yet" for it (the Lv 3 is not fodder and four plain copies are one short); with five spares it fuses a second Lv 2 and the Lv 3 is untouched.
 5. Rejoin: the level and the chip persist (memory profiles in Studio; a real save keeps it the same way, no schema change: `level` existed).
 6. Output clean; the Codex count for Mossbop is unchanged by fusing (it counts catches).
 
 Known gaps in this milestone: no fusion animation on the camp, no choice of which copy to keep (the best is kept), no fusion quest or daily objective yet.
+
+## Milestone 36: companions (World 1 place; step 5 multi-client)
+
+Up to three resting aliens follow the player (`data/Companions.luau`), drawn behind the character for everyone, each giving one perk by its first job scaled by tier (Gather: catch Scrap, Build: wider zones, Spark: luck). The +1 companion pass and Companion Tokens from the spin wheel add slots, up to five.
+
+1. Catch four aliens so one rests, open Aliens: the header reads "Companions 0/3" and "Perks: none yet"; the resting card's status reads "Resting · tap to follow". Tap it: toast "Mossbop is following you", the status becomes "Following you", the header "Companions 1/3" and "Perks: +10% catch Scrap"; a Mossbop walks behind your character, stays on the ground, turns with you and bobs; after a long jump or `/world` it catches up or snaps. Output `analytics: event Companion value=1 action=follow species=Mossbop`.
+2. Tap a working alien's card: "Puffpuff is working; pick a resting alien" and no request. `/follow Sparkfox` (Rare, Build): "Perks: +10% catch Scrap, +15% zone" and the capture bar's zones are visibly wider on the next catch; a Spark companion lifts the HUD luck readout.
+3. Fill three slots then tap a fourth resting alien: "All 3 companion slots are taken". `/token`, then the footer shows "Use Companion Token (1)"; tap it: "Companion slot unlocked: 4", a fourth follows. `/pass CompanionSlot4`: the header reads 5 slots (the cap).
+4. Tap a following card: "Mossbop stays at camp", it stops following; Optimize never seats a companion (its station stays Resting); fusing consumes a companion only when it is among the worst copies and it then vanishes from the followers.
+5. Multi-client (Test > Clients and Servers): player B sees A's companions walking behind A with name plates (no tier line); when A leaves, they vanish for B; a late-joining C sees them at once. Beyond 120 studs from the camera the followers of others are not drawn; 50 wild spawns plus companions stay above 50 fps on the SE emulator.
+6. Rejoin: the companions still follow (memory profiles in Studio; schema v9 adds `companionSlots`). Output clean.
+
+Known gaps in this milestone: no mount riding yet (section 6 of the design: rideable Epics), no radar perk reader (Tinker is a World 3 job), no companion animations beyond the bob.

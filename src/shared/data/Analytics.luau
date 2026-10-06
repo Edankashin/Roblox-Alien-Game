@@ -27,6 +27,7 @@ return {
 		FriendsInServer = "FriendsInServer", -- value: friends of the player in this server, on every change
 		CatchRush = "CatchRush", -- value: the player's catches in a round; field rank (0 = unranked)
 		Fuse = "Fuse", -- value: the kept copy's new level; field species
+		Companion = "Companion", -- value 1; fields action (follow, unfollow, token), species
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {

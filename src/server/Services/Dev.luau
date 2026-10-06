@@ -8,7 +8,9 @@
 -- daily and weekly quests again with empty progress; finish every dealt one), /variant <id|off> (force a catch
 -- variant from Shared/data/CatchVariants on every encounter you start, or go back to each spawn's own), /grow [H]
 -- (H hours, default 2, of worked time for every seated alien, so a growth stage can be crossed), /dupes <id> [N]
--- (N copies, default 5, of that species with no overlay, so a fusion can be tried in seconds). Nothing
+-- (N copies, default 5, of that species with no overlay, so a fusion can be tried in seconds), /token [N] (N
+-- Companion Tokens, default 1, into the inventory), /follow <id> (your first resting copy of that species
+-- follows you, if a slot is free). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -38,6 +40,8 @@ local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Catching = require(script.Parent.Catching)
 local Monetization = require(script.Parent.Monetization)
+local Companions = require(script.Parent.Companions)
+local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
 local Worlds = require(Shared.data.Worlds)
@@ -234,6 +238,53 @@ local function grantDupes(player: Player, text: string)
 		end
 	end
 	print(("[%s] dev: %s granted %d copies of %s"):format(Config.WorkingTitle, player.Name, granted, id))
+end
+
+local TOKEN_DEFAULT = 1 -- /token grants this many Companion Tokens when N is missing
+local TOKEN_MAX = 10 -- and never more than this in one command
+
+-- /token [N]: put N (default 1) Companion Tokens in the inventory, so the use-token flow can be tried without
+-- the wheel; the client is told through InventoryChanged.
+local function grantTokens(player: Player, text: string)
+	local asked = tonumber(string.match(text, "^/%S+%s+(%S+)") or "")
+	local count = math.clamp(math.floor(asked or TOKEN_DEFAULT), 1, TOKEN_MAX)
+	local inventory: any = nil
+	local ok = PlayerData.Update(player, function(profile)
+		profile.inventory.items[CompanionsData.TokenItem] = (profile.inventory.items[CompanionsData.TokenItem] or 0) + count
+		inventory = profile.inventory
+	end)
+	if ok then
+		Net.event("InventoryChanged"):FireClient(player, inventory)
+		print(("[%s] dev: %s granted %d %s item(s)"):format(Config.WorkingTitle, player.Name, count, CompanionsData.TokenItem))
+	end
+end
+
+-- /follow <speciesId>: the player's first resting copy of that species (lowest uid) that is not already a
+-- companion starts following, through the same call the SetCompanion remote makes.
+local function followSpecies(player: Player, text: string)
+	local id = string.match(text, "^/%S+%s+(%S+)")
+	if not id or not Species.ById[id] then
+		print(("[%s] dev: unknown species %s"):format(Config.WorkingTitle, tostring(id)))
+		return
+	end
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return
+	end
+	local pick: string? = nil
+	for uid, record in pairs(profile.aliens) do
+		if record.species == id and record.station == nil and not table.find(profile.companions, uid) then
+			if pick == nil or uid < pick then
+				pick = uid
+			end
+		end
+	end
+	if not pick then
+		print(("[%s] dev: no resting copy of %s"):format(Config.WorkingTitle, id))
+		return
+	end
+	local ok, reason = Companions.SetFollowing(player, pick, true)
+	print(("[%s] dev: %s follow %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -505,13 +556,17 @@ function Dev.Init()
 	command("variant", setVariant)
 	command("grow", growCamp)
 	command("dupes", grantDupes)
+	command("token", grantTokens)
+	command("follow", followSpecies)
 	-- /radar: hand over the Radar Mk1 so the minimap can be tested without the Scrap or Field Notes step 2.
 	-- /tutorial N: jump the tutorial to step N (8 ends it), so a later beat can be tested on its own.
 	command("tutorial", function(player: Player, text: string)
 		local index = tonumber(string.match(text, "%d+") or "")
 		if index then
-			Tutorial.DevSetStep(player, index)
-			print(("[%s] dev: %s is on tutorial step %d"):format(Config.WorkingTitle, player.Name, index))
+			local landed = Tutorial.DevSetStep(player, index)
+			-- A profile that already did a step's deed skips past it (a finished profile lands on the end), so
+			-- the print names the step reached, not the one asked for.
+			print(("[%s] dev: %s asked for tutorial step %d and is on step %s"):format(Config.WorkingTitle, player.Name, index, tostring(landed)))
 		end
 	end)
 	command("radar", function(player: Player)
@@ -532,7 +587,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

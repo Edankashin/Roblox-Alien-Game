@@ -13,8 +13,12 @@
 -- and a record that crosses a stage is told to the client (AlienGrew, or the offline summary's grown list).
 -- Fusion (data/Fusion) lives here too, because this service owns the records and the seats: Fuse spends
 -- DuplicatesPerLevel spare copies of one species to raise the best copy's level by one, unseating any seated
--- copy it consumes and reseating the freed slots (the FuseSpecies remote). A fusion is not a catch: the codex,
--- the Scrap and the quests never hear it.
+-- copy it consumes and reseating the freed slots (the FuseSpecies remote). A follower (a uid in
+-- profile.companions) counts like a seated copy for fodder order and leaves the list when it is consumed; the
+-- followers are redrawn through Companions.Push. A fusion is not a catch: the codex, the Scrap and the quests
+-- never hear it.
+-- A companion is never seated: seatNewcomer and reseatAll skip the uids in profile.companions, so their station
+-- and slot stay nil (the Companions service owns that list; it requires nothing that requires this module).
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
 -- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
@@ -46,6 +50,7 @@ local Quests = require(script.Parent.Quests)
 local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Monetization = require(script.Parent.Monetization)
+local Companions = require(script.Parent.Companions)
 
 local EconomyService = {}
 
@@ -293,9 +298,17 @@ local function slowestWorker(profile: Types.Profile, jobs: { Types.Job }): (Type
 	return slowest, slowestSpeed
 end
 
+-- Whether this record follows the player (its uid is in profile.companions). A follower is never seated.
+local function isCompanion(profile: Types.Profile, record: Types.AlienRecord): boolean
+	return table.find(profile.companions, record.uid) ~= nil
+end
+
 -- A newcomer takes an open slot at its best job, or bumps the slowest worker it beats. The bumped
--- alien only looks for open slots, so one catch never cascades through the whole camp.
+-- alien only looks for open slots, so one catch never cascades through the whole camp. A companion is never seated.
 local function seatNewcomer(profile: Types.Profile, record: Types.AlienRecord)
+	if isCompanion(profile, record) then
+		return
+	end
 	local jobs = jobsOf(profile, record)
 	if placeInOpenSlot(profile, record, jobs) then
 		return
@@ -309,7 +322,8 @@ local function seatNewcomer(profile: Types.Profile, record: Types.AlienRecord)
 	placeInOpenSlot(profile, slow, jobsOf(profile, slow))
 end
 
--- Clears every station and reseats all aliens fastest first, each at its best job with room.
+-- Clears every station and reseats all aliens fastest first, each at its best job with room. Companions are
+-- left out: they keep no station and no slot.
 local function reseatAll(profile: Types.Profile)
 	for _, station in pairs(profile.stations) do
 		table.clear(station.assigned)
@@ -318,7 +332,9 @@ local function reseatAll(profile: Types.Profile)
 	for _, record in pairs(profile.aliens) do
 		record.station = nil
 		record.slot = nil
-		table.insert(ordered, record)
+		if not isCompanion(profile, record) then
+			table.insert(ordered, record)
+		end
 	end
 	table.sort(ordered, function(a, b)
 		local speedA, speedB = Economy.workSpeed(a), Economy.workSpeed(b)
@@ -808,11 +824,14 @@ end
 -- Fuses DuplicatesPerLevel spare copies of one species into +1 level on the best copy that is below the cap
 -- (STARTING_LEVEL + Fusion.MaxFusionLevels). The player's copies are sorted best first (betterCopy); the kept copy
 -- is the first below the cap; the consumed copies are the DuplicatesPerLevel worst of the others, resting ones
--- before seated ones when Fusion.ConsumeRestingFirst. A seated copy is unseated before its record goes, and when
--- a seat was freed the whole crew is reseated (the optimize pass) in the same update, after assembly progress is
--- banked at the old speed. Scrap, the codex and the quests are untouched: a fusion is not a catch.
--- Refusals: BadArgs (not a species id), NoProfile, NotEnough (fewer than DuplicatesPerLevel + 1 copies),
--- MaxLevel (every copy is already at the cap).
+-- before seated ones when Fusion.ConsumeRestingFirst (a companion counts as seated here: it is taken only in the
+-- second pass). A seated copy is unseated before its record goes, and when a seat was freed the whole crew is
+-- reseated (the optimize pass) in the same update, after assembly progress is banked at the old speed. A consumed
+-- companion is removed from profile.companions in the same update; when one was consumed or the kept copy is a
+-- companion, Companions.Push re-sends the followers to every client. Scrap, the codex and the quests are
+-- untouched: a fusion is not a catch.
+-- Refusals: BadArgs (not a species id), NoProfile, NotEnough (fewer than DuplicatesPerLevel + 1 copies, or fewer
+-- than DuplicatesPerLevel at or below the kept copy's level), MaxLevel (every copy is already at the cap).
 function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult?, string?)
 	if not Species.ById[species] then
 		return nil, "BadArgs"
@@ -820,6 +839,7 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 	local cap = STARTING_LEVEL + FusionData.MaxFusionLevels
 	local completed: { string } = {}
 	local result: Types.FuseResult? = nil
+	local touchedCompanion = false -- a consumed copy or the kept copy follows the player
 	local ok, reason = mutate(player, function(profile)
 		local copies: { Types.AlienRecord } = {}
 		for _, record in pairs(profile.aliens) do
@@ -841,12 +861,17 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 		if not kept then
 			return "MaxLevel"
 		end
-		-- The others, best first; the worst of them are consumed, so walk from the back.
+		-- The fodder: the other copies at or below the kept copy's level, best first; the worst of them are
+		-- consumed, so walk from the back. A copy above the kept one (a capped Lv 3 over a plain Lv 1) is never
+		-- fodder: it stands for the copies it already consumed, so without enough plain copies the fusion refuses.
 		local others: { Types.AlienRecord } = {}
 		for _, record in ipairs(copies) do
-			if record ~= kept then
+			if record ~= kept and record.level <= kept.level then
 				table.insert(others, record)
 			end
+		end
+		if #others < FusionData.DuplicatesPerLevel then
+			return "NotEnough"
 		end
 		local consumed: { Types.AlienRecord } = {}
 		for pass = 1, 2 do
@@ -855,8 +880,8 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 					break
 				end
 				local record = others[index]
-				-- Pass 1 skips seated copies when resting ones go first; pass 2 takes whatever is left.
-				local eligible = pass == 2 or record.station == nil or not FusionData.ConsumeRestingFirst
+				-- Pass 1 skips seated copies and followers when resting ones go first; pass 2 takes whatever is left.
+				local eligible = pass == 2 or (record.station == nil and not isCompanion(profile, record)) or not FusionData.ConsumeRestingFirst
 				if eligible and not table.find(consumed, record) then
 					table.insert(consumed, record)
 				end
@@ -869,7 +894,15 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 				freedSeat = true
 				unassign(profile, record)
 			end
+			local followerAt = table.find(profile.companions, record.uid)
+			if followerAt then
+				table.remove(profile.companions, followerAt)
+				touchedCompanion = true
+			end
 			profile.aliens[record.uid] = nil
+		end
+		if isCompanion(profile, kept) then
+			touchedCompanion = true
 		end
 		kept.level += 1
 		if freedSeat then
@@ -886,6 +919,9 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 	if profile then
 		pushCamp(player, profile) -- the records, the work speed and the module rates
 		announceCompleted(player, profile.world.current, completed)
+	end
+	if touchedCompanion then
+		Companions.Push(player) -- the followers' list or a follower's level changed: every client redraws
 	end
 	Analytics.Event(player, AnalyticsData.Events.Fuse, fused.level, { species = species })
 	return fused, nil

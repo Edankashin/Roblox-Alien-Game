@@ -83,7 +83,8 @@ export type Profile = {
 	world: { current: number, unlocked: { number }, outposts: { [string]: OutpostState } },
 	codex: { [string]: { count: number, bestOverlay: Overlay, firstCaughtAt: number } },
 	gear: { boots: boolean, hoverboard: boolean, glider: boolean, radar: number },
-	companions: { string },
+	companions: { string }, -- uids of the aliens following the player (data/Companions), in slot order
+	companionSlots: number, -- extra slots unlocked with Companion Tokens (the pass adds its own at read time)
 	-- fieldNotes[worldId] = the current step index (1-based; past the last step means the chain is done);
 	-- progress[objectiveId] = count so far for objectives of the current step
 	-- daily and weekly (data/DailyQuests): the dealt quest ids for `period`, progress and claims by quest id,
@@ -201,6 +202,11 @@ export type ShowerState = { active: boolean, secondsLeft: number, nextInSeconds:
 -- state plus the leaders so far (top TopCount by catches, then the asking player's own row when outside it).
 export type CatchRushRow = { userId: number, name: string, catches: number }
 export type CatchRushState = { active: boolean, secondsLeft: number, nextInSeconds: number, rows: { CatchRushRow } }
+
+-- A player's companions as every client draws them (CompanionsChanged to all clients, GetAllCompanions for a
+-- late joiner): the owner and one row per following alien.
+export type CompanionRow = { uid: string, species: string, size: string, overlay: Overlay, level: number, workedSeconds: number }
+export type CompanionsSnapshot = { userId: number, rows: { CompanionRow } }
 
 -- One fusion (FuseSpecies remote, data/Fusion): the kept copy's new level and what was consumed.
 export type FuseResult = { species: string, uid: string, level: number, consumed: number }
