@@ -82,7 +82,7 @@ Files: `tools/lint_data.py`, `docs/vault/02-how-we-work/Data-Lint.md`.
 
 Done when: `python3 -I tools/lint_data.py` prints `data lint: clean` (warnings allowed only for listed findings), and each new rule has a one-line entry in `Data-Lint.md`.
 
-### C7. Balance report, second pass — taken by codex 2026-10-06
+### C7. Balance report, second pass — review
 
 Goal: extend `tools/balance.py` with the systems that landed after the plan's section 3.3: fusion (four spare copies per level; the share of catches that become fodder at the median), growth (the speed bonus by time seated), companions (perk sums for a median set of three), habitats (Scrap per hour by tier for three displayed), the Catch Rush payouts (per round, by rank), the weekly drop's share, and the outposts. Report the Scrap sources per hour of active play and per day of offline time, and flag any source above 30 percent of the total. Then the World 2 opening from C4: with the carried crew earning about 3,100 Scrap/min, World 2 finishes faster than World 1. Propose (do not apply) a World 2 module curve that makes its continuous completion about 1.5 times World 1's, keyed to the income a median player carries in, and show the simulated times for the proposal beside the live ones.
 

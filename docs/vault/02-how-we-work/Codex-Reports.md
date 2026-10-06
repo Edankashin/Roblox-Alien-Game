@@ -88,3 +88,15 @@ Implementation: `1b07b06`; claim: `3189257`.
 Added **17 documented rule groups** for numeric keys, dense orders/rotations, traversal references, mount seats, habitat worlds/capacity/footprints/caps, weekly exclusivity, seasonal windows/species/overlays/quests/rewards, shop uniqueness/launch/grants/NeverSold, settings and codes. The C2 reader remains in lint_data.py; reused it unchanged. Radar.Mk2 and the live CompanionSlot4 pass are explicit allowances.
 
 Found: **0 data problems**, **0 warnings**, **0 failures**; the exact-warning baseline is empty. **31 isolated mutations** all produced diagnostics. Data lint took **under 1 second**; suite remains **71 tests / 9 specs**, **0 failures**, **0.039 s**. Analysis clean. No game data changed. Left open: none.
+
+## C7 — 2026-10-06 — review
+
+Implementation: `0c3ba45`; claim: `2d6357c`.
+
+Added fusion with passive removal and level/size/worked-time ordering; separate steady-state tables cover growth, three median resting companions, three displayed habitat aliens, every Catch Rush rank, weekly allocation and every outpost level. Default 11 seeds plus 21 calibration runs and 11 validation runs: **54 simulations, 4.38 s**; isolated-mode compatible; report matches stdout. **18 invariants** passed across three extra seeded runs. No data changed.
+
+Measured: **159 median fusions, 636 fodder copies, 83.6% of catches consumed**. Median companion perks: catch Scrap **10%**, zone **10%**, luck **15%**. Stations exceed the 30% source threshold: **92.9% active / 98.4% offline**.
+
+Proposal: carried income **3,917.1 Scrap/min** and savings **58,035** seed an increasing income-time curve (the first cost includes carried savings). World 2 costs **77,479 / 38,889 / 58,333 / 77,778 / 97,222**; cumulative times **5.1 / 14.3 / 28.1 / 47.3 / 69.2 min**, versus live **0.2 / 1.3 / 4.5 / 13.7 / 30.6**. World 1 is **46.7 min**: proposal **1.48×**, 1.2% below the 1.5× target.
+
+Left open: coordinator approval and cold playtest. Full Field Notes, human search/decision time and companion luck-to-catch uplift remain unmodeled; optional source snapshots are not injected into progression. Suite remains **71 passing tests**; analyze/data lint clean.
