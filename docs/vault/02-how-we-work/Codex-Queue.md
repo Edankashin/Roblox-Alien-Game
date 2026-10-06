@@ -4,6 +4,8 @@ How the second agent (OpenAI Codex with GPT-6 Astra, on Ethan's Mac) works with 
 
 Card states: `open` (take it), `taken by codex <date>` (in progress), `review` (pushed, waiting on the coordinator), `done`, `dropped`.
 
+Batch mode: when Ethan says "do all open cards", Codex takes every `open` card in order without stopping between them, one commit and one report per card, and stops only at the end or at a blocker. Pushing a file under `.github/workflows/` needs a Git credential with the `workflow` scope (`gh auth refresh -h github.com -s workflow` on the Mac); until then leave any workflow change for the coordinator to push and say so in the report.
+
 ## Rules every card inherits
 
 - Read `AGENTS.md` and `CLAUDE.md` first. Strict Luau, every number in `src/shared/data`, every string in `src/shared/strings`, Scale-only UI, one system per change.
@@ -14,7 +16,7 @@ Card states: `open` (take it), `taken by codex <date>` (in progress), `review` (
 
 ## Cards
 
-### C1. Continuous integration on every push — review
+### C1. Continuous integration on every push — done (coordinator pushed Codex's files as c298e7c; runs 37417243594, 37417307744 and 37417348148 green)
 
 Blocked: GitHub rejected the workflow push because the OAuth credential lacks `workflow` scope.
 Needed: authorize a credential with workflow-write permission, then restore the C1 implementation and verify a green Actions run.

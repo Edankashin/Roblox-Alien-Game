@@ -9,3 +9,7 @@ Appended by Codex after each card, newest at the bottom. The coordinator reads t
 - Measured: workflow 33 lines (under 60); `bash -n` and `git diff --check` passed; official release archives contain the expected binaries; local `./tools/analyze.sh` printed `analyze: clean` before commits and attempted pushes. The authorized Mac toolchain was installed through Rokit and exposed in `$HOME/.local/bin`.
 - Blocker: GitHub refused the push because the OAuth credential lacks `workflow` scope. No Actions run was created, so the Linux installer has not executed on a runner and no green-run link exists.
 - Left open: authorize workflow-write access, restore the implementation, push, and link a green run. C2 and later cards remain untouched.
+
+### Coordinator note on C1 — 2026-10-06
+
+Codex's workflow and installer (30c1ad6) were restored and pushed by the coordinator as c298e7c; the first three runs are green (analyze clean on the runner, pinned tool hashes verified). C1 is done. The Mac's Git credential needs the `workflow` scope for Codex to push workflow files itself in future.
