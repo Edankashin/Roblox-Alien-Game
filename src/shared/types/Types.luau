@@ -3,7 +3,7 @@
 
 export type Tier = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "Cosmic" | "Secret"
 export type Job = "Gather" | "Build" | "Spark" | "Tinker"
-export type Overlay = "None" | "Shiny" | "Gold" | "Crystal" | "Rainbow"
+export type Overlay = "None" | "Shiny" | "Gold" | "Crystal" | "Rainbow" | "Spectral"
 export type Biome = "Meadow" | "Forest" | "Cave" | "Snowfield" | "IceCave" | "GeyserField"
 -- Conditions a spawn or node can need. The world-specific ones are each world's special weather (Worlds.luau).
 export type Condition = "Any" | "Day" | "Night" | "Rain" | "Shower" | "Quest" | "Blizzard" | "PowerSurge" | "Ashfall" | "KingTide" | "GravityFlip" | "Eclipse"

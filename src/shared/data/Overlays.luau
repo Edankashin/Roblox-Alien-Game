@@ -6,9 +6,10 @@ local Overlays: { [string]: { multiplier: number, chance: number } } = {
 	Gold = { multiplier = 1.5, chance = 1.5 },
 	Crystal = { multiplier = 2, chance = 0.3 },
 	Rainbow = { multiplier = 5, chance = 0 },
+	Spectral = { multiplier = 2, chance = 0 }, -- week-only: rolls only during a weekly drop's weather (data/Weekly OverlayChance)
 }
 
 return {
-	Order = { "Shiny", "Gold", "Crystal", "Rainbow" },
+	Order = { "Shiny", "Gold", "Crystal", "Rainbow", "Spectral" },
 	Overlays = Overlays,
 }

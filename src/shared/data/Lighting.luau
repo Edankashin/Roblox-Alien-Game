@@ -67,6 +67,17 @@ local Worlds: { [number]: Look } = {
 -- Per active condition (WorldClock conditions and normal weathers), merged over the world look in the order
 -- below: a later entry wins where two set the same field, so the Meteor Shower's warm night beats plain Night.
 local Conditions: { [string]: Look } = {
+	-- The weekly drop's Aurora (data/Weekly): green and violet light over the whole sky, a touch dimmer, strongest at night
+	-- (it sits after Night in ConditionOrder, so its tint wins over the night look).
+	Aurora = {
+		Brightness = 1.6,
+		Ambient = { 52, 84, 78 },
+		OutdoorAmbient = { 88, 140, 128 },
+		ColorShift_Top = { 70, 210, 160 },
+		Atmosphere = { Color = { 130, 210, 185 }, Decay = { 90, 70, 150 }, Glare = 0.3, Haze = 1.4 },
+		Bloom = { Intensity = 0.7, Size = 30, Threshold = 0.9 },
+		ColorCorrection = { Saturation = 0.12, TintColor = { 228, 255, 243 } },
+	},
 	Night = {
 		Brightness = 1,
 		Ambient = { 40, 45, 60 },
@@ -103,5 +114,5 @@ return {
 	Worlds = Worlds,
 	Conditions = Conditions,
 	-- Merge order: the first listed is applied first, so the last active one listed here wins.
-	ConditionOrder = { "Fog", "Snow", "Night", "Rain", "Blizzard", "Shower" },
+	ConditionOrder = { "Fog", "Snow", "Night", "Aurora", "Rain", "Blizzard", "Shower" },
 }
