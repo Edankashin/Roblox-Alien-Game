@@ -40,6 +40,19 @@ function Economy.jobLevel(def: Types.SpeciesDef, job: string): number?
 	return nil
 end
 
+-- The world that decides which stations stand and which jobs are open: the highest world the ship has reached
+-- (its current world or any unlocked one), never lower than the current. At the home planet (world 0) the current
+-- world unlocks nothing by itself, so the stations there are the ones the ship earned on its travels.
+function Economy.unlockWorld(profile: Types.Profile): number
+	local highest = profile.world.current
+	for _, id in ipairs(profile.world.unlocked) do
+		if id > highest then
+			highest = id
+		end
+	end
+	return highest
+end
+
 -- Jobs this species can work, best level first, limited to jobs unlocked by the given world.
 function Economy.jobsFor(def: Types.SpeciesDef, world: number): { Types.Job }
 	local sorted = table.clone(def.jobs)

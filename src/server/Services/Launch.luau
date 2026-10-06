@@ -22,6 +22,15 @@
 -- the home when home.unlocked (a migrated save with the flag but no entry in the list gets the entry on that
 -- fly), counts each arrival in home.visits, and never touches Outposts for it: the home is not an outpost, so
 -- nothing is banked on arriving there and no clock is stamped when leaving it.
+-- Visiting (milestone 42e) reaches this service through SetVisiting(hooks), registered by the Visiting service at Init (it
+-- requires Launch, so Launch cannot require it back). A guest is a player standing at someone else's home or at a place
+-- that is not the world their ship is on (hooks.IsGuest): FlyTo lets a guest fly to the world the ship is on without
+-- moving the profile at all (no banking, no stamp, no visit counted, no WorldChanged: the ship never left), and
+-- the same call from the home place with no live place ends the visit (hooks.LeaveView); with a live place it
+-- teleports as usual. Every teleport to the home passes hooks.HomeOptions, the player's own reserved server of the
+-- home place, so friends already there see them arrive; nil options (Studio, no live place, a failed lookup) mean the
+-- public home place, as before. Trip(player, destination, options) is the flight that changes nothing on the profile: the
+-- visit to a friend's reserved home server (Visiting builds the options) fades and teleports exactly like a fly.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -44,6 +53,17 @@ local Home = require(Shared.data.Home)
 
 local Launch = {}
 
+-- What Visiting hands over at Init: who counts as a guest, the teleport options that send a player to their own
+-- reserved home server (nil: none, use the public place; may yield), and how a guest at the home place goes back to
+-- looking at their own home.
+export type VisitingHooks = {
+	IsGuest: (Player) -> boolean,
+	HomeOptions: (Player) -> TeleportOptions?,
+	LeaveView: (Player) -> (),
+}
+
+local hooks: VisitingHooks? = nil
+
 local HOME_WORLD = Home.WorldId -- the home planet's world id, from its layout row
 
 local REMOTE_RATE_PER_SECOND = 2 -- Launch calls per player per second
@@ -59,8 +79,9 @@ end
 
 -- The move itself, `delay` seconds after the launch or flight was accepted (Config.LaunchTeleportDelaySeconds
 -- or Config.FlyTeleportDelaySeconds): the player is still here and the place is live, or nothing happens
--- (the client has already shown the fade and the camp).
-local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLive: boolean, delay: number)
+-- (the client has already shown the fade and the camp). `options` rides along to TeleportAsync (the reserved
+-- server access code and teleport data of a home or a visit); nil is the public place.
+local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLive: boolean, delay: number, options: TeleportOptions?)
 	task.delay(delay, function()
 		if player.Parent ~= Players then
 			inFlight[player.UserId] = nil
@@ -71,7 +92,7 @@ local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLi
 			return
 		end
 		local ok, err = pcall(function(): any
-			return TeleportService:TeleportAsync(nextWorld.placeId, { player })
+			return TeleportService:TeleportAsync(nextWorld.placeId, { player }, options)
 		end)
 		if not ok then
 			warn(("[%s] Launch: teleport of %s to world %d (place %d) failed: %s"):format(Config.WorkingTitle, player.Name, nextWorld.id, nextWorld.placeId, tostring(err)))
@@ -79,6 +100,27 @@ local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLi
 		end
 		-- On success the player leaves this server; PlayerRemoving clears the flag. A failure Roblox reports
 		-- after the call returned reaches TeleportInitFailed below.
+	end)
+end
+
+-- The teleport to the home planet: the player's own reserved server when Visiting has one (hooks.HomeOptions looks
+-- the code up, which yields, so it runs in its own thread while the client fades and counts against the same delay).
+local function teleportHome(player: Player, home: Worlds.WorldDef, placeLive: boolean, delay: number)
+	local visiting = hooks
+	if not placeLive or visiting == nil then
+		teleportLater(player, home, placeLive, delay, nil)
+		return
+	end
+	local started = os.clock()
+	task.spawn(function()
+		local ok, options = pcall(function(): TeleportOptions?
+			return visiting.HomeOptions(player)
+		end)
+		if not ok then
+			warn(("[%s] Launch: home server lookup for %s failed: %s"):format(Config.WorkingTitle, player.Name, tostring(options)))
+			options = nil
+		end
+		teleportLater(player, home, placeLive, math.max(0, delay - (os.clock() - started)), options :: TeleportOptions?)
 	end)
 end
 
@@ -158,13 +200,33 @@ local function onLaunch(player: Player): (boolean, string?)
 	end
 	Tutorial.OnWorldChanged(player) -- off World 1 the tutorial is over: its hint and trainee go
 	print(("[%s] Launch: %s lifts off from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, here, nextId, if placeLive then "place " .. tostring(nextWorld.placeId) else "no live place"))
-	teleportLater(player, nextWorld, placeLive, Config.LaunchTeleportDelaySeconds)
+	teleportLater(player, nextWorld, placeLive, Config.LaunchTeleportDelaySeconds, nil)
+	return true, nil
+end
+
+-- A guest flying to the world the ship is on: the profile does not move, so nothing is banked, stamped, counted or
+-- pushed. The home place with no live place has nowhere to teleport to: the guest goes back to their own home view
+-- instead (hooks.LeaveView) and the client fades as usual; a live place teleports as usual.
+local function flyGuest(player: Player, destination: Worlds.WorldDef, toHome: boolean): (boolean, string?)
+	local placeLive = placeIsLive(destination)
+	local visiting = hooks
+	if toHome and Place.IsHome() and not placeLive and visiting then
+		visiting.LeaveView(player)
+	end
+	Net.event("Flew"):FireClient(player, destination.id, placeLive)
+	print(("[%s] Launch: guest %s flies to world %d where the ship is (%s)"):format(Config.WorkingTitle, player.Name, destination.id, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))
+	if toHome then
+		teleportHome(player, destination, placeLive, Config.FlyTeleportDelaySeconds)
+	else
+		teleportLater(player, destination, placeLive, Config.FlyTeleportDelaySeconds, nil)
+	end
 	return true, nil
 end
 
 -- FlyTo(worldId) -> (ok, reason). Reasons: RateLimited, NoProfile, Busy (a launch or flight is already in
 -- flight), NoWorld (not a world in Shared/data/Worlds), Locked (not in profile.world.unlocked), SameWorld
--- (the ship is already on it). The home planet counts as unlocked when profile.home.unlocked.
+-- (the ship is already on it and the player is not a guest). The home planet counts as unlocked when
+-- profile.home.unlocked. A guest (Visiting's hook) may fly to the world the ship is on: see flyGuest.
 local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if not Net.allow(player, "FlyTo", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
@@ -193,10 +255,15 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 		return false, "Locked"
 	end
 	local origin = profile.world.current
-	if worldId == origin then
+	local visiting = hooks
+	local guest = visiting ~= nil and visiting.IsGuest(player)
+	if worldId == origin and not guest then
 		return false, "SameWorld"
 	end
 	inFlight[player.UserId] = true
+	if worldId == origin then
+		return flyGuest(player, destination, toHome)
+	end
 	local now = os.time()
 	-- The destination's production is banked before the ship arrives; the world being left starts its clock.
 	-- The home is no outpost: nothing to bank on arriving there, no clock to stamp when leaving it.
@@ -225,6 +292,9 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 		return false, "NoProfile"
 	end
 	local placeLive = placeIsLive(destination)
+	if toHome and Place.IsHome() and not placeLive and visiting then
+		visiting.LeaveView(player) -- no teleport follows: the player stays here and looks at their own home again
+	end
 	Analytics.Event(player, AnalyticsData.Events.Fly, 1, { from = tostring(origin), to = tostring(worldId) })
 	Net.event("Flew"):FireClient(player, worldId, placeLive)
 	-- The client mirrors keep the old world until told, exactly as after a launch.
@@ -235,7 +305,34 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	end
 	Tutorial.OnWorldChanged(player)
 	print(("[%s] Launch: %s flies from world %d to world %d (%s)"):format(Config.WorkingTitle, player.Name, origin, worldId, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))
-	teleportLater(player, destination, placeLive, Config.FlyTeleportDelaySeconds)
+	if toHome then
+		teleportHome(player, destination, placeLive, Config.FlyTeleportDelaySeconds)
+	else
+		teleportLater(player, destination, placeLive, Config.FlyTeleportDelaySeconds, nil)
+	end
+	return true, nil
+end
+
+-- Public API -------------------------------------------------------------
+
+-- Visiting registers its hooks at Init (see the header).
+function Launch.SetVisiting(visitingHooks: VisitingHooks)
+	hooks = visitingHooks
+end
+
+-- A flight that changes nothing on the profile: the client hears Flew (the fade) and, after
+-- Config.FlyTeleportDelaySeconds, the player teleports to `destination`'s place with `options` (a visit sends the
+-- reserved server access code and the owner in the teleport data). Returns true, or false with Busy when a launch or
+-- flight is already in flight. The caller has validated everything else; a place that is not live fades and stays.
+function Launch.Trip(player: Player, destination: Worlds.WorldDef, options: TeleportOptions?): (boolean, string?)
+	if inFlight[player.UserId] then
+		return false, "Busy"
+	end
+	inFlight[player.UserId] = true
+	local placeLive = placeIsLive(destination)
+	Net.event("Flew"):FireClient(player, destination.id, placeLive)
+	print(("[%s] Launch: %s takes a trip to world %d (%s)"):format(Config.WorkingTitle, player.Name, destination.id, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))
+	teleportLater(player, destination, placeLive, Config.FlyTeleportDelaySeconds, options)
 	return true, nil
 end
 

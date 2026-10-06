@@ -1,10 +1,15 @@
 --!strict
 -- StarterPlayerScripts.Client.World.HomeRenderer: the house grid on the home planet, drawn locally from the
--- profile mirror (State "home"). The server alone decides what stands on the plot (PlaceHomeItem and
+-- mirror (State "home", and "visit"). The server alone decides what stands on the plot (PlaceHomeItem and
 -- RemoveHomeItem answer, HomeChanged pushes the whole table); this module only turns that table into parts
 -- under a client-made Workspace.ClientHome folder (Instance.new on the client, so nothing replicates) and
 -- redraws by uid diff: an item that left or moved is destroyed, a new one is built, the rest stay put.
 -- Home only: elsewhere Start does nothing and every query answers nil, math.huge or empty.
+--
+-- Visiting (milestone 42e): the items and the aliens on display are read through State.HomeItems and
+-- State.DisplayedAliens, which answer with the viewed home's while a HomeView is set and with the player's own
+-- otherwise, so this module never asks whose plot it draws. The "visit" topic redraws and resyncs like "home"
+-- and "stations" do. NearestDisplayed and DisplayedPosition answer for the bootstrap's Wave action.
 --
 -- The grid: the plot is the server's Workspace.World.Plot block. Its cells are PlotCellStuds square (data/Home),
 -- PlotCells a side, counted 0-based from the plot's -X,-Z corner, and every position here is worked out from the
@@ -30,7 +35,7 @@
 -- Workspace.ClientHome.Displayed. They wander: one RenderStepped for all picks a random spot WanderInsetStuds
 -- inside the footprint's edges, walks to it at WanderSpeedStudsPerSecond facing the way it goes, stands still
 -- WanderPauseMin to WanderPauseMax seconds, and picks again. The set is rebuilt by uid diff on the "stations" and
--- "home" topics: a record that left the habitat (or whose species, size or stage changed) is destroyed.
+-- "home" and "visit" topics: a record that left the habitat (or whose species, size or stage changed) is destroyed.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -289,7 +294,7 @@ local function redraw()
 	if not parent or not g or not State.Has() then
 		return
 	end
-	local items = State.Get().home.items
+	local items = State.HomeItems()
 	for uid, record in pairs(drawn) do
 		local item = items[uid]
 		if item == nil or not sameItem(record.item, item) then
@@ -445,10 +450,10 @@ local function syncDisplays()
 	if not parent or not g or not State.Has() then
 		return
 	end
-	local profile = State.Get()
-	local items = profile.home.items
+	local items = State.HomeItems()
+	local aliens = State.DisplayedAliens()
 	for uid, display in pairs(displays) do
-		local record = profile.aliens[uid]
+		local record = aliens[uid]
 		local habitatUid = if record then record.habitat else nil
 		local item = if habitatUid ~= nil then items[habitatUid] else nil
 		local habitat = if item then habitatOf(g, item) else nil
@@ -466,7 +471,7 @@ local function syncDisplays()
 			retarget(display, habitat)
 		end
 	end
-	for uid, record in pairs(profile.aliens) do
+	for uid, record in pairs(aliens) do
 		local habitatUid = record.habitat
 		if habitatUid == nil or displays[uid] ~= nil then
 			continue
@@ -524,10 +529,12 @@ function HomeRenderer.Start()
 	shown.Name = DISPLAY_FOLDER_NAME
 	shown.Parent = created
 	displayFolder = shown
-	State.OnChanged("home", function()
+	local function resync()
 		redraw()
 		syncDisplays()
-	end)
+	end
+	State.OnChanged("home", resync)
+	State.OnChanged("visit", resync)
 	State.OnChanged("stations", syncDisplays)
 	RunService.RenderStepped:Connect(onRender)
 	task.spawn(function()
@@ -544,6 +551,29 @@ function HomeRenderer.Start()
 		redraw()
 		syncDisplays()
 	end)
+end
+
+-- The displayed alien nearest to a world point, by flat (X, Z) distance in studs, and that distance: the uid of
+-- the nearest one drawn right now (the Wave action reads it), or nil and math.huge when none is drawn (away from
+-- home, nothing on display, or the habitats not built yet).
+function HomeRenderer.NearestDisplayed(worldPosition: Vector3): (string?, number)
+	local bestUid: string? = nil
+	local bestDistance = math.huge
+	for uid, display in pairs(displays) do
+		local at = display.part.Position
+		local dx, dz = at.X - worldPosition.X, at.Z - worldPosition.Z
+		local distance = math.sqrt(dx * dx + dz * dz)
+		if distance < bestDistance then
+			bestUid, bestDistance = uid, distance
+		end
+	end
+	return bestUid, bestDistance
+end
+
+-- Where a displayed alien stands now (the middle of what is drawn, for a burst), or nil when it is not drawn.
+function HomeRenderer.DisplayedPosition(uid: string): Vector3?
+	local display = displays[uid]
+	return if display then display.part.Position else nil
 end
 
 -- The cell under a world point, 0-based from the plot's -X,-Z corner, or nil nil when the point is off the plot.
@@ -587,12 +617,12 @@ function HomeRenderer.PlotDistance(): number
 	return math.sqrt(dx * dx + dz * dz)
 end
 
--- The placed item whose footprint covers a cell, from the mirror; nil for an empty cell.
+-- The placed item whose footprint covers a cell, from the mirror (the viewed home's while visiting); nil for an empty cell.
 function HomeRenderer.ItemAt(cellX: number, cellZ: number): Types.HomeItem?
 	if not State.Has() then
 		return nil
 	end
-	for _, item in pairs(State.Get().home.items) do
+	for _, item in pairs(State.HomeItems()) do
 		local def = HomeBuild.ById[item.itemId]
 		if def then
 			local w, d = footprint(def, item.rotation)
@@ -611,15 +641,14 @@ function HomeRenderer.HabitatsFor(worldId: number): { { uid: string, free: numbe
 	if not running or not State.Has() then
 		return out
 	end
-	local profile = State.Get()
 	local counts: { [string]: number } = {}
-	for _, record in pairs(profile.aliens) do
+	for _, record in pairs(State.DisplayedAliens()) do
 		local habitatUid = record.habitat
 		if habitatUid ~= nil then
 			counts[habitatUid] = (counts[habitatUid] or 0) + 1
 		end
 	end
-	for uid, item in pairs(profile.home.items) do
+	for uid, item in pairs(State.HomeItems()) do
 		local def = HomeBuild.ById[item.itemId]
 		if def and def.kind == "habitat" and def.worldId == worldId then
 			table.insert(out, { uid = uid, free = math.max(0, (def.capacity or 0) - (counts[uid] or 0)) })

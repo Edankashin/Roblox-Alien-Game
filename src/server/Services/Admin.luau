@@ -237,16 +237,34 @@ local function onMessage(message: { Data: any })
 end
 
 -- Publishes to every server; when that fails, or this server is not subscribed to hear it back, applies it
--- here and says so.
+-- here and says so. The publish runs in its own thread: on an unpublished place PublishAsync never returns, so
+-- after AdminData.PublishTimeoutSeconds the command is applied here and a late answer is ignored (a late echo of
+-- the message through the subscription is dropped by the replay guard once it is older than ReplayGuardSeconds,
+-- and applies once more within it: harmless for a luck window or a weather, one extra letter for mail).
 local function publish(payload: Payload)
-	local ok, err = pcall(function()
-		MessagingService:PublishAsync(AdminData.Topic, payload)
+	local settled = false
+	task.spawn(function()
+		local ok, err = pcall(function()
+			MessagingService:PublishAsync(AdminData.Topic, payload)
+		end)
+		if settled then
+			return
+		end
+		settled = true
+		if ok and subscribed then
+			return
+		end
+		log(if ok then "this server is not subscribed, applied locally" else ("publish failed (%s), applied locally"):format(tostring(err)))
+		receive(payload)
 	end)
-	if ok and subscribed then
-		return
-	end
-	log(if ok then "this server is not subscribed, applied locally" else ("publish failed (%s), applied locally"):format(tostring(err)))
-	receive(payload)
+	task.delay(AdminData.PublishTimeoutSeconds, function()
+		if settled then
+			return
+		end
+		settled = true
+		log(("publish did not return in %d s, applied locally"):format(AdminData.PublishTimeoutSeconds))
+		receive(payload)
+	end)
 end
 
 -- The command ---------------------------------------------------------------

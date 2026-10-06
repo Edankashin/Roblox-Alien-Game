@@ -12,8 +12,10 @@
 -- cell ranges meet on both axes. Removing an item pays RemoveRefund of its price (none today); removing a habitat
 -- also takes every alien on display in it off display, in the same update, and the camp is pushed after HomeChanged
 -- (the client draws the displayed aliens from the records). Only the home planet (Place.IsHome) builds; every other
--- place answers NotAtHome. Requires PlayerData, Analytics, Meadow (the plot exists), Economy (PushCamp) and Place,
--- and nothing requires it back except the bootstrap's order.
+-- place answers NotAtHome. HomeBuild.OnChanged(callback) lists a listener told the owner after every accepted Place or
+-- Remove, once the pushes are out (Visiting rebuilds the view of everyone looking at that home). Requires PlayerData,
+-- Analytics, Meadow (the plot exists), Economy (PushCamp) and Place, and nothing requires it back except the
+-- bootstrap's order (Visiting registers its listener at Init).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
@@ -33,6 +35,8 @@ local Economy = require(script.Parent.Economy)
 local HomeBuild = {}
 
 local REMOTE_RATE_PER_SECOND = 4 -- PlaceHomeItem, RemoveHomeItem and GetHome calls per player per second each
+
+local listeners: { (Player) -> () } = {} -- Visiting: rebuild the views of this owner's visitors after a change
 
 -- The cells an item covers: inclusive cell ranges on each axis.
 type Footprint = { x0: number, z0: number, x1: number, z1: number }
@@ -80,6 +84,14 @@ local function pushHome(player: Player, profile: Types.Profile)
 	Net.event("HomeChanged"):FireClient(player, profile.home.items)
 end
 
+-- Tells every OnChanged listener the owner's house changed. Each runs in its own thread, so a listener that yields or
+-- fails never holds up or breaks the placement that was already accepted.
+local function notifyChanged(player: Player)
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, player)
+	end
+end
+
 -- Runs fn against the live profile inside PlayerData.Update. fn returns a refusal reason or nil.
 local function mutate(player: Player, fn: (Types.Profile) -> string?): (boolean, string?)
 	local reason: string? = nil
@@ -96,6 +108,11 @@ local function mutate(player: Player, fn: (Types.Profile) -> string?): (boolean,
 end
 
 -- Public API -------------------------------------------------------------
+
+-- Server-side hook: `callback` runs with the owner after a Place or Remove was accepted and pushed.
+function HomeBuild.OnChanged(callback: (Player) -> ())
+	table.insert(listeners, callback)
+end
 
 -- Places one item for the Scrap in its data row. Returns true, or false with a reason: NoProfile, NotAtHome,
 -- Unknown (no such item), BadArgs (a cell that is not a whole number, a rotation outside 0 .. RotationSteps - 1),
@@ -155,6 +172,7 @@ function HomeBuild.Place(player: Player, itemId: string, cellX: number, cellZ: n
 		pushScrap(player, profile)
 		pushHome(player, profile)
 	end
+	notifyChanged(player)
 	Analytics.Event(player, AnalyticsData.Events.HomePlace, item.scrap, { item = itemId })
 	local paid = PlayerData.Get(player)
 	if paid then
@@ -209,6 +227,7 @@ function HomeBuild.Remove(player: Player, uid: string): (boolean, string?)
 			Economy.PushCamp(player) -- the records changed: the client stops drawing them in the habitat
 		end
 	end
+	notifyChanged(player)
 	Analytics.Event(player, AnalyticsData.Events.HomeRemove, 1, { item = removedId })
 	print(("[%s] HomeBuild: %s removed %s (refund %d)"):format(Config.WorkingTitle, player.Name, removedId, refund))
 	return true, nil

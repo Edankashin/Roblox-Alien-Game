@@ -91,7 +91,8 @@ local function findLetter(uid: string): Types.MailItem?
 end
 
 -- Sizes the list canvas to the rows shown and every slot and gap against it (children of a ScrollingFrame scale
--- against the canvas, so each height is divided by the page count). Only when the count changes.
+-- against the canvas, so each height is divided by the page count; CanvasSize itself scales against the panel,
+-- the scroller's parent, so the page count is multiplied by the list's share of it). Only when the count changes.
 local function applyCanvas(shown: number)
 	local frame, layout = scroller, scrollLayout
 	if not frame or not layout then
@@ -102,7 +103,7 @@ local function applyCanvas(shown: number)
 		return
 	end
 	canvasPages = pages
-	frame.CanvasSize = UDim2.fromScale(0, pages)
+	frame.CanvasSize = UDim2.fromScale(0, pages * (LIST_BOTTOM - LIST_Y))
 	layout.Padding = UDim.new(ROW_GAP / pages, 0)
 	for _, row in ipairs(rows) do
 		row.slot.Size = UDim2.fromScale(1, ROW_H / pages)

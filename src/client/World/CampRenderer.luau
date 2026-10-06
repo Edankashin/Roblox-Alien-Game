@@ -588,7 +588,7 @@ local function ensureBuilt()
 	teardownCamp()
 	builtWorld = world
 	buildShip(parent, world)
-	buildStations(parent, world)
+	buildStations(parent, Economy.unlockWorld(State.Get())) -- the stations the ship has earned, at home too
 	refreshModules()
 	refreshWorkers()
 end

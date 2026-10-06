@@ -1,7 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.SettingsScreen: the Settings panel. One row per data/Settings entry,
 -- in its order: the label on the left, the control on the right. A "level" key shows one chunky
--- button per level (Off / Low / Mid / High) with the active one green and the rest grey; a "toggle"
+-- button per level (Off / Low / Mid / High, or the words of the row's `levelKeys`: the HomeLock row reads
+-- Only me / Friends / Anyone, three buttons a row) with the active one green and the rest grey; a "toggle"
 -- key shows one button that reads On (green) or Off (grey) and flips. Every tap asks the server
 -- (SetSetting, one request in flight); the server stores the value and pushes SettingsChanged, State
 -- mirrors it and the rows redraw from the mirror. Nothing here decides anything: the buttons show
@@ -32,7 +33,8 @@ type Row = { def: Settings.SettingDef, levelButtons: { Frame }, toggle: Frame? }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
 -- reaches down to 0.155, so the rows start under it; the hint takes the bottom. The rows frame shares its
--- height between the settings and the promo-code row (five at the moment), so the rows are slim.
+-- height between the settings and the promo-code row (six at the moment: five settings, the home lock among
+-- them, and the code), so the rows are slim: about 28 px a card, 22 px a button at iPhone SE height.
 local PANEL_H = 0.78
 local ROWS_Y = 0.17
 local ROWS_H = 0.68
@@ -43,8 +45,8 @@ local LABEL_X = 0.03 -- of a row
 local LABEL_W = 0.35
 local CONTROLS_X = 0.39
 local CONTROLS_W = 0.59
-local CONTROL_H = 0.78 -- of a row: with four rows that is over 0.11 of the panel, thumb-sized
-local LEVEL_GAP = 0.03 -- of the controls frame, between level buttons
+local CONTROL_H = 0.78 -- of a row: with six rows that is about 0.075 of the panel
+local LEVEL_GAP = 0.03 -- of the controls frame, between level buttons; three buttons are 0.31 of the frame each, about 67 px at iPhone SE size, enough for "Friends" at the minimum text size
 local TOGGLE_W = 0.4 -- of the controls frame
 local CODE_BOX_W = 0.62 -- of the controls frame: the text box; the Redeem button takes the rest after the gap
 local CODE_GAP = 0.03
@@ -198,7 +200,7 @@ local function buildLevelControls(controls: Frame, row: Row)
 		local button = Builder.button({
 			parent = controls,
 			name = "Level" .. level,
-			text = Builder.text("SETTINGS_LEVEL_" .. level),
+			text = if def.levelKeys then Builder.text(def.levelKeys[index]) else Builder.text("SETTINGS_LEVEL_" .. level),
 			color = INACTIVE,
 			size = UDim2.fromScale(width, 1),
 			textSize = Theme.TextSize.Body,

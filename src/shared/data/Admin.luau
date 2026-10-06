@@ -16,5 +16,6 @@ return {
 	AnnounceMaxChars = 80, -- /admin say <text>: longer lines are cut
 	CommandsPerMinute = 6, -- per developer, so a stuck key cannot flood every server
 	ReplayGuardSeconds = 30, -- a message older than this (publish to receive) is ignored
+	PublishTimeoutSeconds = 5, -- a publish that has not returned by then (an unpublished place never answers) is applied here instead
 	LuckName = "ADMIN_LUCK_NAME", -- strings key shown as who gifted the luck
 }

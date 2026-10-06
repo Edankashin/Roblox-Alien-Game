@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged, MailChanged);
+-- WeeklyChanged, HomeChanged, MailChanged, HomeView);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -20,6 +20,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
+local Place = require(Shared:WaitForChild("Place"))
 
 local State = {}
 
@@ -27,7 +28,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "home" | "mail" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "home" | "mail" | "visit" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -56,6 +57,8 @@ local weeklyOffset = 0 -- the Studio shift of the weekly rotation in whole weeks
 local weeklyKnown = false -- the server has said it (a push or the GetWeekly answer)
 local homePushed = false -- a HomeChanged push has landed, so a late GetHome answer is older and is dropped
 local mailPushed = false -- a MailChanged push has landed, so a late GetMail answer's letters are older and are dropped
+local homeView: Types.HomeView? = nil -- the home planet of someone else this client is looking at (HomeView, GetVisit); nil at your own home
+local visitPushed = false -- a HomeView push has landed, so a late GetVisit answer is older and is dropped
 local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
@@ -364,6 +367,85 @@ function State.ApplyCatch(species: string, overlay: Types.Overlay)
 	fire("codex")
 end
 
+-- Visiting (milestone 42e) ----------------------------------------------------
+
+-- The server's HomeView (a push, or the GetVisit answer): the home planet this client is looking at, or nil when
+-- it looks at its own. A refresh of the same home carries the same ownerId. Fires "visit", on which the renderers
+-- redraw and the bootstrap toasts the arrival and the return.
+function State.SetHomeView(view: Types.HomeView?)
+	homeView = view
+	fire("visit")
+end
+
+function State.GetHomeView(): Types.HomeView?
+	return homeView
+end
+
+-- Whether the client is looking at someone else's home (a view is set).
+function State.IsVisiting(): boolean
+	return homeView ~= nil
+end
+
+-- A guest is anyone not standing at their own camp: visiting a home, or in a place that is not the world their
+-- ship is on (Studio's /world in the home place).
+function State.IsGuest(): boolean
+	if homeView ~= nil then
+		return true
+	end
+	local p = profile
+	return p ~= nil and Place.WorldId() ~= p.world.current
+end
+
+-- The house grid to draw: the viewed home's items while visiting, else the player's own.
+function State.HomeItems(): { [string]: Types.HomeItem }
+	local view = homeView
+	if view then
+		return view.items
+	end
+	local p = profile
+	return if p then p.home.items else {}
+end
+
+-- The aliens on display to draw: the viewed home's while visiting, else every record of the player's own with a
+-- habitat set (uid -> record).
+function State.DisplayedAliens(): { [string]: Types.AlienRecord }
+	local view = homeView
+	if view then
+		return view.displayed
+	end
+	local out: { [string]: Types.AlienRecord } = {}
+	local p = profile
+	if p then
+		for uid, record in pairs(p.aliens) do
+			if record.habitat ~= nil then
+				out[uid] = record
+			end
+		end
+	end
+	return out
+end
+
+-- The worlds whose ship hulls stand in the hangar, ascending: the viewed home's while visiting, else the numeric
+-- keys of the player's own outposts table.
+function State.LaunchedWorlds(): { number }
+	local view = homeView
+	if view then
+		return view.launchedWorlds
+	end
+	local ids: { number } = {}
+	local p = profile
+	if p then
+		for key in pairs(p.world.outposts) do
+			local id = tonumber(key)
+			if id ~= nil then
+				table.insert(ids, id)
+			end
+		end
+	end
+	table.sort(ids)
+	return ids
+end
+
 -- Server-synced wall clock, comparable with ModuleProgress.updatedAt (os.time() on the server).
 function State.Now(): number
 	return Workspace:GetServerTimeNow()
@@ -375,6 +457,34 @@ function State.OnChanged(topic: Topic, fn: () -> ()): RBXScriptConnection
 			fn()
 		end
 	end)
+end
+
+-- One pull of the mailbox, seeded into the profile that is already in: the letters unless a push already landed
+-- (it is newer and wins), and the visitors, which no push carries. A failed or malformed call leaves the profile's
+-- own copy. Runs in its own thread: the boot pull, and State.RefreshVisitors.
+local function pullMail()
+	local ok, answer = pcall(function(): any
+		return Net.func("GetMail"):InvokeServer()
+	end)
+	if not ok or type(answer) ~= "table" or not profile then
+		return
+	end
+	local reply = answer :: { mail: { Types.MailItem }?, visitors: { Types.Visitor }? }
+	local visitors = reply.visitors
+	if type(visitors) == "table" then
+		profile.home.visitors = visitors
+	end
+	local mail = reply.mail
+	if not mailPushed and type(mail) == "table" then
+		profile.home.mail = mail
+	end
+	fire("mail")
+end
+
+-- Asks the server for the Visitor Book again (a visitor just came in; no push carries the book, so the Mail screen
+-- would show the old names until the next load). Fires "mail" when the answer lands.
+function State.RefreshVisitors()
+	task.spawn(pullMail)
 end
 
 -- Connects the server pushes. Each wait runs in its own thread so a remote the server has not
@@ -595,26 +705,21 @@ function State.Start()
 			end
 		end)
 	end)
+	task.spawn(pullMail)
 	task.spawn(function()
-		-- One pull for a client that joined after the last push, seeded into the profile that is already in: the
-		-- letters unless a push already landed (it is newer and wins), and the visitors, which no push carries. A
-		-- failed or malformed call leaves the profile's own copy.
-		local ok, answer = pcall(function(): any
-			return Net.func("GetMail"):InvokeServer()
+		-- The home someone else is viewing (HomeView): set, refreshed or cleared (nil) by the server. One pull for a
+		-- client that joined after the last push (a teleported visitor, a rejoin); a push that already landed is newer
+		-- and wins. nil answers (your own home) and failed calls change nothing.
+		Net.event("HomeView").OnClientEvent:Connect(function(view: Types.HomeView?)
+			visitPushed = true
+			State.SetHomeView(view)
 		end)
-		if not ok or type(answer) ~= "table" or not profile then
-			return
+		local ok, answer = pcall(function(): any
+			return Net.func("GetVisit"):InvokeServer()
+		end)
+		if ok and not visitPushed and type(answer) == "table" then
+			State.SetHomeView(answer :: Types.HomeView)
 		end
-		local reply = answer :: { mail: { Types.MailItem }?, visitors: { Types.Visitor }? }
-		local visitors = reply.visitors
-		if type(visitors) == "table" then
-			profile.home.visitors = visitors
-		end
-		local mail = reply.mail
-		if not mailPushed and type(mail) == "table" then
-			profile.home.mail = mail
-		end
-		fire("mail")
 	end)
 end
 

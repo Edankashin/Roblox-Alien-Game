@@ -4,7 +4,9 @@
 -- HangarCenterZ, HangarSpacingStuds, HangarPadRadius); this module puts one trophy on each pad for every world
 -- the player has launched from, drawn locally from the profile mirror (State "world" and "outposts") under a
 -- client-made Workspace.ClientHangar folder, so nothing replicates. The server alone decides which worlds the
--- player has launched from (the keys of profile.world.outposts); this only turns that list into parts.
+-- player has launched from (the keys of profile.world.outposts); this only turns that list into parts. The list
+-- comes from State.LaunchedWorlds, which is the viewed home's while visiting (milestone 42e: a visitor sees the
+-- owner's hangar, redrawn on the "visit" topic) and the player's own otherwise.
 --
 -- A trophy is the ship hull (Camp.Props.ship through Props.Place at Home.HangarScale of its size) standing on the
 -- pad's top, or, while the hull was never imported, a Block of the Hull Frame's size (Camp.Modules.HullFrame) times Home.HangarScale in
@@ -42,22 +44,6 @@ local running = false
 local folder: Folder? = nil
 local worldFolder: Instance? = nil -- Workspace.World, once the pads are known to be there
 local stands: { [number]: Stand } = {} -- by pad number
-
--- The worlds the player has launched from, ascending: the keys of the mirror's outposts table.
-local function launchedWorlds(): { number }
-	local ids: { number } = {}
-	if not State.Has() then
-		return ids
-	end
-	for key in pairs(State.Get().world.outposts) do
-		local id = tonumber(key)
-		if id ~= nil then
-			table.insert(ids, id)
-		end
-	end
-	table.sort(ids)
-	return ids
-end
 
 -- The middle of a pad's top face. Read from the part's own bounds, so it holds however the builder turned the
 -- cylinder to stand it up.
@@ -138,7 +124,7 @@ local function redraw()
 	if not parent or not base or not State.Has() then
 		return
 	end
-	local ids = launchedWorlds()
+	local ids = State.LaunchedWorlds()
 	local number = 1
 	while true do
 		local found = base:FindFirstChild(PAD_PREFIX .. tostring(number))
@@ -179,6 +165,7 @@ function HangarRenderer.Start()
 	folder = created
 	State.OnChanged("world", redraw)
 	State.OnChanged("outposts", redraw)
+	State.OnChanged("visit", redraw)
 	task.spawn(function()
 		local container = Workspace:WaitForChild("World")
 		container:WaitForChild(PAD_PREFIX .. "1")

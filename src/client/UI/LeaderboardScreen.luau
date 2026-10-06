@@ -175,18 +175,21 @@ local function refreshCountdown()
 end
 
 -- Sizes the list canvas to the rows shown and every slot and gap against it (children of a ScrollingFrame
--- scale against the canvas, so each height is divided by the page count). Only when the count changes.
+-- scale against the canvas, so each height is divided by the page count; CanvasSize itself scales against the
+-- panel, the list's parent, so the page count is multiplied by the list's share of it, which depends on whether
+-- the Studio note is up: size the list before calling this). Only when the result changes.
 local function applyCanvas(shown: number)
 	local frame, layout = scroller, scrollLayout
 	if not frame or not layout then
 		return
 	end
 	local pages = math.max(1, shown * PITCH)
-	if pages == canvasPages then
+	local canvas = pages * frame.Size.Y.Scale
+	if canvas == canvasPages then
 		return
 	end
-	canvasPages = pages
-	frame.CanvasSize = UDim2.fromScale(0, pages)
+	canvasPages = canvas
+	frame.CanvasSize = UDim2.fromScale(0, canvas)
 	layout.Padding = UDim.new(ROW_GAP / pages, 0)
 	for _, row in ipairs(rows) do
 		row.slot.Size = UDim2.fromScale(1, ROW_H / pages)
@@ -260,7 +263,6 @@ local function draw()
 	for index = shown + 1, #rows do
 		rows[index].slot.Visible = false
 	end
-	applyCanvas(shown)
 
 	local isLocal = current ~= nil and current["local"]
 	local frame = scroller
@@ -269,6 +271,7 @@ local function draw()
 		frame.Position = UDim2.fromScale(Theme.Margin, top)
 		frame.Size = UDim2.fromScale(1 - 2 * Theme.Margin, LIST_BOTTOM - top)
 	end
+	applyCanvas(shown) -- after the list is sized: the canvas is measured against the panel
 	if noteLabel then
 		noteLabel.Visible = isLocal
 	end

@@ -13,9 +13,11 @@
 -- earned before it came off (that silent payout only pushes the Scrap counter; the toast is the arrival's).
 -- A habitat item that is no longer on the profile (removed, or wiped by a dev command) leaves its aliens with a
 -- stale uid: Prune clears those, and runs inside every settle and every SetDisplay.
--- Server authority: the client sends a record uid and a habitat uid (SetDisplay) and nothing else. Requires
--- PlayerData, Analytics, Economy (PushCamp), Companions (a follower put on display is unfollowed first) and shared
--- data; Economy never requires this module back, and only the bootstrap's order and Dev touch it.
+-- Server authority: the client sends a record uid and a habitat uid (SetDisplay) and nothing else. Habitats.OnChanged
+-- (callback) lists a listener told the owner after every SetDisplay that changed or pruned and after a settle that
+-- pruned (Visiting rebuilds the view of everyone looking at that home). Requires PlayerData, Analytics, Economy
+-- (PushCamp), Companions (a follower put on display is unfollowed first) and shared data; Economy never requires this
+-- module back, and only the bootstrap's order, Visiting (its listener, at Init) and Dev touch it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -37,6 +39,7 @@ local Companions = require(script.Parent.Companions)
 local Habitats = {}
 
 local pendingIncome: { [number]: number } = {} -- Scrap paid by the load-time settle, kept until the client claims it, by UserId
+local listeners: { (Player) -> () } = {} -- Visiting: rebuild the views of this owner's visitors after the displayed set changed
 
 local REMOTE_RATE_PER_SECOND = 4 -- SetDisplay calls per player per second (the same as SetCompanion)
 local SECONDS_PER_HOUR = 3600 -- the rates in data/Habitats are per hour: a unit conversion
@@ -84,7 +87,20 @@ local function reportPaid(player: Player, paid: number)
 	Analytics.Economy(player, "Source", paid, profile.scrap, "Gameplay", AnalyticsData.Economy.Sources.Habitat)
 end
 
+-- Tells every OnChanged listener the owner's displayed set changed. Each runs in its own thread, so a listener that
+-- yields or fails never breaks the display that was already accepted.
+local function notifyChanged(player: Player)
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, player)
+	end
+end
+
 -- Public API -------------------------------------------------------------
+
+-- Server-side hook: `callback` runs with the owner after the displayed set changed or was pruned.
+function Habitats.OnChanged(callback: (Player) -> ())
+	table.insert(listeners, callback)
+end
 
 -- Inside PlayerData.Update: clears `habitat` on every record whose habitat item is no longer on the profile.
 -- Returns true when any record changed (the caller pushes the camp).
@@ -192,6 +208,7 @@ function Habitats.SetDisplay(player: Player, uid: string, habitatUid: string?): 
 	end
 	if changed or pruned then
 		Economy.PushCamp(player) -- the client draws the displayed aliens from the records
+		notifyChanged(player)
 	end
 	if reason then
 		return false, reason
@@ -226,6 +243,7 @@ function Habitats.SettleIncome(player: Player, atLoad: boolean?): number
 	end
 	if pruned then
 		Economy.PushCamp(player)
+		notifyChanged(player)
 	end
 	if paid > 0 then
 		reportPaid(player, paid)

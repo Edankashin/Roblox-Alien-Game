@@ -187,6 +187,9 @@ end
 
 local function pickItem(itemId: string)
 	removing = false
+	if picked ~= itemId then
+		rotation = 0 -- a fresh pick starts unturned; a turn never carries over to the next item
+	end
 	picked = itemId
 	showGhost() -- a ghost already up becomes the new item at its cell
 	refresh()
@@ -344,7 +347,8 @@ refresh = function()
 	end
 	for _, card in ipairs(cards) do
 		local def = HomeBuild.ById[card.id]
-		local fill = if profile.scrap >= def.scrap then card.tint else Theme.Rarity.Common
+		local full = (counts[def.kind] or 0) >= (caps[def.kind] or 0) -- the kind's cap is reached: grey like unaffordable
+		local fill = if profile.scrap >= def.scrap and not full then card.tint else Theme.Rarity.Common
 		card.frame.BackgroundColor3 = fill
 		card.gradient.Color = ColorSequence.new(Builder.lighter(fill), fill)
 		local selected = not removing and picked == card.id
@@ -377,9 +381,9 @@ local function build()
 	local body = Builder.frame({
 		parent = root,
 		name = "Tray",
-		position = UDim2.fromScale(0.5, 1 - Theme.Margin),
+		position = UDim2.fromScale(1 - Theme.Margin, 1 - Theme.Margin), -- bottom right: the left edge clears the menu column
 		size = UDim2.fromScale(TRAY_W, TRAY_H),
-		anchor = Vector2.new(0.5, 1),
+		anchor = Vector2.new(1, 1),
 		color = Theme.Colors.Panel,
 		corner = Theme.Corner.Panel,
 		stroke = Theme.Stroke.Panel,
@@ -427,8 +431,9 @@ local function build()
 
 	-- The list: a window over the rows with a thin dark bar. Children of a ScrollingFrame scale against its canvas, so
 	-- every row position, height and x below is the tray fraction divided by the canvas's extent (the window's width
-	-- for x, canvasH for y), and the canvas is as many windows tall as the rows need. There are no layout objects, so
-	-- nothing feeds back (UI Playbook, "Grids inside scrolling frames").
+	-- for x, canvasH for y). CanvasSize's Scale is relative to the scroller's PARENT (the tray), like any Size, not to
+	-- the window, so the canvas is canvasH of the tray and the window shows LIST_ROWS_SHOWN rows of it. There are no
+	-- layout objects, so nothing feeds back (UI Playbook, "Grids inside scrolling frames").
 	local listW = 1 - Theme.Margin * 2
 	local listH = LIST_ROWS_SHOWN * ROW_H + (LIST_ROWS_SHOWN - 1) * ROW_GAP + LIST_PAD * 2
 	local canvasH = #KINDS * ROW_H + (#KINDS - 1) * ROW_GAP + LIST_PAD * 2
@@ -441,7 +446,7 @@ local function build()
 	scroller.ZIndex = 3
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
 	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
-	scroller.CanvasSize = UDim2.fromScale(0, canvasH / listH)
+	scroller.CanvasSize = UDim2.fromScale(0, canvasH)
 	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 	scroller.ScrollBarThickness = LIST_BAR_PX
 	scroller.ScrollBarImageColor3 = Theme.Colors.Trough

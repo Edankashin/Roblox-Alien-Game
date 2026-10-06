@@ -17,7 +17,11 @@
 --            Tapping a planet (its invisible, larger TextButton) selects it: its ring turns thick. Opening
 --            selects the current world.
 --   card     the selected world's name and what the old list card said, line for line:
---              current world   "You are here"; no buttons.
+--              current world   "You are here"; no buttons (the Home card has a Visit button, below). A guest
+--                              (State.IsGuest: visiting someone's home, or a ship that is not on the world this
+--                              place runs) has no "here": the card of the world its ship is on reads "Your ship
+--                              waits here" with Fly alone, in the blue of an unlocked card. Flying it is the way
+--                              home from a visit.
 --              unlocked, with an outpost   its level, its output per hour, what it has ready (refreshed
 --                              every Config.StarChartTickSeconds while open), and Collect, Upgrade and Fly.
 --              unlocked, no outpost   Fly only.
@@ -25,10 +29,14 @@
 --            The Home card: here, as any current world; unlocked (profile.home.unlocked, or world 0 in
 --            world.unlocked, which a launch's WorldChanged push updates first) its line and Fly, never Collect
 --            or Upgrade; locked, its name "Home" and the line that says a launch opens it, no buttons.
+--            Milestone 42e adds a green Visit button to the unlocked Home card: beside Fly (half the card each),
+--            or alone at the home itself, where there is no Fly. It opens the Visit screen (Screens.Open
+--            closes the chart). A guest's Home card (the ship waits at home) has Fly alone, no Visit.
 -- Every tap asks the server (CollectOutpost, UpgradeOutpost, FlyTo; one request in flight) and toasts
 -- the answer; the buttons only dim to hint what a tap would do, they never block it, so the server's
 -- reason always reaches the player. The mirror (State: "world", "scrap", "profile") is all the screen
--- reads; OutpostsChanged, ScrapChanged and WorldChanged keep it current. Nothing here decides anything.
+-- reads; OutpostsChanged, ScrapChanged, WorldChanged and HomeView ("visit": a guest's card changes) keep it current.
+-- Nothing here decides anything.
 -- Both loops stop when the screen closes: the pulse tween is cancelled and the tick thread is
 -- task.cancel'ed in Close. Selecting a world restarts the pulse so its swing is measured from the
 -- planet's new resting thickness (a selected current planet rests thicker than an unselected one).
@@ -47,6 +55,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
+local Screens = require(script.Parent.Screens)
 local State = require(script.Parent.Parent.State)
 local Prefs = require(script.Parent.Parent.Prefs)
 
@@ -73,6 +82,7 @@ type Detail = {
 	collect: Frame,
 	upgrade: Frame,
 	fly: Frame,
+	visit: Frame, -- the Home card's Visit button; shares the second button row with Fly
 }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
@@ -145,6 +155,7 @@ local UPGRADE_X = 0.52
 local COLLECT_COLOR = Theme.Colors.Featured
 local UPGRADE_COLOR = Theme.Colors.Confirm
 local FLY_COLOR = Theme.Colors.Select
+local VISIT_COLOR = Theme.Colors.Confirm
 local DIM_COLOR = Theme.Rarity.Common
 
 local gui: ScreenGui? = nil
@@ -277,10 +288,18 @@ end
 
 -- Refresh ----------------------------------------------------------------
 
-local function showOnly(card: Detail, collect: boolean, upgrade: boolean, fly: boolean)
+-- Which buttons the card shows. The second button row holds Fly and Visit: side by side when both show (the Home
+-- card), either one alone takes the whole row.
+local function showOnly(card: Detail, collect: boolean, upgrade: boolean, fly: boolean, visit: boolean)
 	card.collect.Visible = collect
 	card.upgrade.Visible = upgrade
 	card.fly.Visible = fly
+	card.visit.Visible = visit
+	local both = fly and visit
+	card.fly.Position = UDim2.fromScale(TEXT_X, ROW_TWO_Y)
+	card.fly.Size = UDim2.fromScale(if both then COLLECT_W else TEXT_W, BUTTON_H)
+	card.visit.Position = UDim2.fromScale(if both then UPGRADE_X else TEXT_X, ROW_TWO_Y)
+	card.visit.Size = UDim2.fromScale(if both then COLLECT_W else TEXT_W, BUTTON_H)
 end
 
 -- Paints a planet that is not the current one. `thickness` is the state's resting ring; the selected
@@ -353,12 +372,23 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 	card.frame.BackgroundColor3 = Theme.Colors.White
 
 	if id == profile.world.current then
-		-- (a) here: gold, no buttons
+		if State.IsGuest() then
+			-- (e) a guest: the ship is not here but waits on this world; flying to it is the way back, like state (c)
+			card.stroke.Color = Theme.Colors.Select
+			card.stroke.Thickness = Theme.Stroke.Button
+			card.line.Text = Strings.STARCHART_RETURN_LINE
+			card.line.TextColor3 = Theme.Colors.White
+			setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
+			showOnly(card, false, false, true, false)
+			return
+		end
+		-- (a) here: gold, no buttons; the home has a Visit button, since this is where its friends are reached from
 		card.stroke.Color = Theme.Colors.Featured
 		card.stroke.Thickness = Theme.Stroke.Panel
 		card.line.Text = Strings.STARCHART_HERE
 		card.line.TextColor3 = Theme.Colors.Heading
-		showOnly(card, false, false, false)
+		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
+		showOnly(card, false, false, false, id == HOME_ID)
 		return
 	end
 	card.line.TextColor3 = Theme.Colors.White
@@ -373,7 +403,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		card.frame.BackgroundTransparency = LOCKED_TRANSPARENCY
 		card.stroke.Color = DIM_COLOR
 		card.stroke.Thickness = Theme.Stroke.Text
-		showOnly(card, false, false, false)
+		showOnly(card, false, false, false, false)
 		return
 	end
 
@@ -384,7 +414,8 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		-- (c) unlocked, no outpost: Fly alone (the home, which never has one, says what it is)
 		card.line.Text = if id == HOME_ID then Strings.STARCHART_HOME_LINE else ""
 		setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
-		showOnly(card, false, false, true)
+		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
+		showOnly(card, false, false, true, id == HOME_ID)
 		return
 	end
 
@@ -406,7 +437,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		setButton(card.upgrade, Strings.STARCHART_UPGRADE:format(cost), if profile.scrap < cost then DIM_COLOR else UPGRADE_COLOR)
 	end
 	setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
-	showOnly(card, true, true, true)
+	showOnly(card, true, true, true, false)
 end
 
 local function refresh()
@@ -792,6 +823,19 @@ local function buildDetail(body: Frame)
 	}, function()
 		onFly(selected)
 	end)
+	local visit = Builder.button({
+		parent = frame,
+		name = "Visit",
+		text = Strings.STARCHART_VISIT,
+		color = VISIT_COLOR,
+		position = UDim2.fromScale(UPGRADE_X, ROW_TWO_Y),
+		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
+		textSize = Theme.TextSize.Body,
+		zIndex = 4,
+	}, function()
+		Screens.Open("Visit") -- closes the chart; the Visit screen asks the server, the chart decides nothing
+	end)
+	visit.Visible = false
 	detail = {
 		frame = frame,
 		stroke = stroke,
@@ -802,6 +846,7 @@ local function buildDetail(body: Frame)
 		collect = collect,
 		upgrade = upgrade,
 		fly = fly,
+		visit = visit,
 	}
 end
 
@@ -887,7 +932,7 @@ local function build()
 	buildDetail(body)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "world", "scrap", "outposts" }) do
+	for _, topic in ipairs({ "world", "scrap", "outposts", "visit" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
 	-- Reduced Motion turned on or off while open: restart the pulse the new way.

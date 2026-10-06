@@ -261,7 +261,7 @@ local function jobsOf(profile: Types.Profile, record: Types.AlienRecord): { Type
 	if not def then
 		return {}
 	end
-	return Economy.jobsFor(def, profile.world.current)
+	return Economy.jobsFor(def, Economy.unlockWorld(profile))
 end
 
 -- Seats the alien at the first of its jobs with a free slot. False when every one is full.

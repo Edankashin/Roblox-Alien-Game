@@ -471,8 +471,11 @@ local function refresh()
 		end
 	end
 	if completeLabel then
-		-- "Walk to the ship and launch": never at home, where the server refuses a launch
-		completeLabel.Visible = activeIndex == nil and #defs > 0 and not Place.IsHome()
+		-- "Walk to the ship and launch": never at home, where the server refuses a launch; the home has no modules,
+		-- so its empty panel says where building happens instead
+		local atHome = Place.IsHome()
+		completeLabel.Text = if atHome then Strings.SHIP_HOME else Strings.SHIP_COMPLETE
+		completeLabel.Visible = atHome or (activeIndex == nil and #defs > 0)
 	end
 end
 
