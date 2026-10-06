@@ -27,7 +27,7 @@ Files: `.github/workflows/check.yml` (new), `tools/ci/install-tools.sh` (new).
 
 Do: on push and pull request to any branch, an `ubuntu-latest` job that (1) installs rojo 7.7.1 and luau-lsp 1.70.1 into `$HOME/.local/bin` from their GitHub release archives (pin the versions; cache the downloads with `actions/cache` keyed on the two version strings), (2) runs `./tools/analyze.sh`, (3) runs `python3 tools/lint_data.py` when that file exists (card C2), (4) runs `./tools/test.sh` when it exists (card C3). Fail the job on any non-zero exit. Keep the workflow under 60 lines; no third-party actions beyond `actions/checkout` and `actions/cache`. Test it by pushing and linking the green run in the report.
 
-### C2. Data lint — open
+### C2. Data lint — review
 
 Goal: a script that proves the data tables agree with each other, so a typo in an id is caught before Studio.
 
@@ -35,7 +35,7 @@ Files: `tools/lint_data.py` (new), `docs/vault/02-how-we-work/Data-Lint.md` (new
 
 Do: a Python 3 standard-library script that parses the Luau data tables under `src/shared/data/` and `src/shared/strings/en.luau` as text (a small tolerant parser for the table literals the repo uses, or regexes per table; no Luau runtime) and checks, printing one line per failure and exiting 1 on any: every species id in `Spawns.luau` exists in `Species.luau`; every biome key in `Spawns.luau` is in `Types.luau`'s Biome union; every `KeyMaterials` id referenced by `Modules.luau`, `Quests.luau`, `Tutorial.luau` and `Layouts` node tables exists; every species `world` matches a `Worlds.luau` id and every world's `warden` and special `speciesId` exist in `Species.luau`; `Sizes.luau` odds sum to 100 and `Spins.luau` wedge odds sum to 100; every strings key referenced by a data row (`hint`, `labelKey`, `hintKey`, `nameKey`, `holdHintKey`, `REWARD_*`, `MATERIAL_*`, `SPECIES_*`, `STATION_*`, `JOB_*`, `TIER_*`, `SIZE_*`, `STAGE_*`, `MENU_*`, `COMPASS_*`) exists in `en.luau`; every `Icons.luau` key has a PNG under `assets/icons` or `assets/particles` and every PNG has a key; every `CatchVariants` row named by `Worlds.catchVariant` or `Species.variant` exists; `Growth` stages are in ascending `workedSeconds`; `Tiers` `aura` is a number on every row. Document each check in `Data-Lint.md` with the file it reads. Run it; fix nothing in the data yourself: list any failure in the report for the coordinator.
 
-### C3. Headless unit tests for the shared math — open
+### C3. Headless unit tests for the shared math — review
 
 Goal: the pure modules get tests that run without Studio, in seconds.
 
@@ -43,7 +43,7 @@ Files: `tools/test.sh` (new), `tests/` (new folder, one `*.spec.luau` per module
 
 Do: use the `luau` CLI (Luau's own interpreter from `luau-lang/luau` releases, pin the version, install into `$HOME/.local/bin` in `tools/ci/install-tools.sh` from card C1, or in `tools/test.sh` when missing) with a tiny test runner in `tests/run.luau` (describe/it/expect, no dependencies) that stubs `game:GetService` and `script.Parent` lookups just enough to `require` the pure shared modules by path. Cover: `Shared/Capture.luau` (`position` triangle wave at 0, a quarter, a half and a full period; `outcome` at the zone edges; `isNearMiss`; `driftCenter` with amplitude 0 returning base, with phase 0 returning base at elapsed 0, and clamping), `Shared/Growth.luau` (`StageAt` at 0, 7199, 7200, 86400; `Next`; `SecondsToNext`), `Shared/OutpostMath.luau` and `Shared/LeaderboardMath.luau` (period start and id around the reset hour and weekday), `Shared/Economy.luau` (`workSpeed` of a Common level 1 is 1; a Grown record is 1.1; `offlineScrap` respects the cap). Every number in a test comes from the data tables (require them), never retyped. `tools/test.sh` runs every spec and exits non-zero on a failure. Report the test count and runtime.
 
-### C4. Economy balance report — open
+### C4. Economy balance report — taken by codex 2026-10-06
 
 Goal: the plan's section 3.3 sanity check, recomputed from the live data tables, so balance changes are judged on numbers.
 
