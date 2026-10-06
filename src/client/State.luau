@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged);
+-- WeeklyChanged, HomeChanged, MailChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -27,7 +27,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "home" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "home" | "mail" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -55,6 +55,7 @@ local serverLuckAt = 0 -- State.Now() when it arrived, so a banner counts down b
 local weeklyOffset = 0 -- the Studio shift of the weekly rotation in whole weeks (WeeklyChanged, GetWeekly); 0 in play
 local weeklyKnown = false -- the server has said it (a push or the GetWeekly answer)
 local homePushed = false -- a HomeChanged push has landed, so a late GetHome answer is older and is dropped
+local mailPushed = false -- a MailChanged push has landed, so a late GetMail answer's letters are older and are dropped
 local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
@@ -582,6 +583,38 @@ function State.Start()
 			profile.home.items = answer :: { [string]: Types.HomeItem }
 			fire("home")
 		end
+	end)
+	task.spawn(function()
+		-- The mailbox (data/Mail): every change to the letters comes back as the whole list (newest last), which
+		-- replaces the profile's copy; the Mail screen redraws on "mail". The Visitor Book rides only the pull.
+		Net.event("MailChanged").OnClientEvent:Connect(function(mail: { Types.MailItem })
+			mailPushed = true
+			if profile then
+				profile.home.mail = mail
+				fire("mail")
+			end
+		end)
+	end)
+	task.spawn(function()
+		-- One pull for a client that joined after the last push, seeded into the profile that is already in: the
+		-- letters unless a push already landed (it is newer and wins), and the visitors, which no push carries. A
+		-- failed or malformed call leaves the profile's own copy.
+		local ok, answer = pcall(function(): any
+			return Net.func("GetMail"):InvokeServer()
+		end)
+		if not ok or type(answer) ~= "table" or not profile then
+			return
+		end
+		local reply = answer :: { mail: { Types.MailItem }?, visitors: { Types.Visitor }? }
+		local visitors = reply.visitors
+		if type(visitors) == "table" then
+			profile.home.visitors = visitors
+		end
+		local mail = reply.mail
+		if not mailPushed and type(mail) == "table" then
+			profile.home.mail = mail
+		end
+		fire("mail")
 	end)
 end
 

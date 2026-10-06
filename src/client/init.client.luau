@@ -6,6 +6,7 @@
 -- draws and reports tap times and ids; every outcome is the server's.
 
 local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
@@ -22,6 +23,7 @@ local Biomes = require(Shared:WaitForChild("Biomes"))
 local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local HomeBuild = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
+local HomeData = require(Shared:WaitForChild("data"):WaitForChild("Home"))
 local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
@@ -40,10 +42,12 @@ local ShopScreen = require(script:WaitForChild("UI"):WaitForChild("ShopScreen"))
 local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScreen"))
 local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
 local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"))
+local MailScreen = require(script:WaitForChild("UI"):WaitForChild("MailScreen"))
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
 local HomeRenderer = require(script:WaitForChild("World"):WaitForChild("HomeRenderer"))
+local HangarRenderer = require(script:WaitForChild("World"):WaitForChild("HangarRenderer"))
 local CompanionRenderer = require(script:WaitForChild("World"):WaitForChild("CompanionRenderer"))
 local SightingRenderer = require(script:WaitForChild("World"):WaitForChild("SightingRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
@@ -110,7 +114,7 @@ local function nearbyShows(): boolean
 	return radarTier >= RADAR_MK2_TIER and Radar.IsShown()
 end
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -121,6 +125,8 @@ local ACTION_TEXT: { [string]: string } = {
 	Horn = Strings.ACTION_HORN,
 	Heater = Strings.ACTION_HEATER,
 	Decorate = Strings.ACTION_DECORATE,
+	Spin = Strings.ACTION_SPIN,
+	Mail = Strings.ACTION_MAIL,
 }
 local soundHorn = Net.func("SoundHorn")
 local horning = false
@@ -345,6 +351,20 @@ end
 
 -- Contextual action ---------------------------------------------------------
 
+-- Flat (X and Z) studs from the local character to one of the home world builder's placeholder parts under
+-- Workspace.World (the Kiosk, the Mailbox); math.huge while the part or the character is missing.
+local function homePartDistance(name: string): number
+	local world = Workspace:FindFirstChild("World")
+	local part = if world then world:FindFirstChild(name) else nil
+	local character = localPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not part or not part:IsA("BasePart") or not root or not root:IsA("BasePart") then
+		return math.huge
+	end
+	local dx, dz = root.Position.X - part.Position.X, root.Position.Z - part.Position.Z
+	return math.sqrt(dx * dx + dz * dz)
+end
+
 -- One verb at a time: of the targets in reach (a wild alien, a material node, the ship), the nearest wins,
 -- so standing next to a node beside an alien still offers Collect.
 local function decideAction(): Action?
@@ -377,6 +397,15 @@ local function decideAction(): Action?
 		local plotDistance = HomeRenderer.PlotDistance()
 		if plotDistance <= HomeBuild.DecorateInteractDistance and plotDistance < bestDistance then
 			best, bestDistance = "Decorate", plotDistance
+		end
+		-- The kiosk offers the spin wheel and the mailbox the letters (42d), each from its own interact distance.
+		local kioskDistance = homePartDistance("Kiosk")
+		if kioskDistance <= HomeData.KioskInteractDistance and kioskDistance < bestDistance then
+			best, bestDistance = "Spin", kioskDistance
+		end
+		local mailboxDistance = homePartDistance("Mailbox")
+		if mailboxDistance <= HomeData.MailboxInteractDistance and mailboxDistance < bestDistance then
+			best, bestDistance = "Mail", mailboxDistance
 		end
 	end
 	-- The horn is offered at the shrine whenever the player holds it; the server judges night and step.
@@ -430,6 +459,10 @@ local function performAction()
 		Screens.Open("Peddler")
 	elseif action == "Decorate" then
 		Screens.Open("Build")
+	elseif action == "Spin" then
+		Screens.Open("Gifts") -- the wheel is the Gifts screen's middle column; there is no tab to pick
+	elseif action == "Mail" then
+		Screens.Open("Mail")
 	elseif action == "Horn" and not horning then
 		horning = true
 		task.spawn(function()
@@ -596,6 +629,13 @@ local function connectToasts()
 		if called then
 			toastIncome(paid)
 		end
+	end)
+	-- A letter arrived from the developer panel (milestone 42d): every client is told once, wherever it is; the
+	-- letters themselves come by MailChanged into the mirror.
+	task.spawn(function()
+		Net.event("MailArrived").OnClientEvent:Connect(function()
+			Toast.Show(Strings.TOAST_MAIL_NEW, Theme.Colors.Featured)
+		end)
 	end)
 	-- The outposts table the server holds (a collect, an upgrade, a launch that opens one) replaces the mirror's.
 	task.spawn(function()
@@ -909,6 +949,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("StarChart", StarChartScreen)
 	Screens.Register("Ranks", LeaderboardScreen)
 	Screens.Register("Build", BuildScreen)
+	Screens.Register("Mail", MailScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]
@@ -1328,6 +1369,7 @@ local function start(profile: Types.Profile)
 	WildRenderer.Start(known)
 	CampRenderer.Start()
 	HomeRenderer.Start()
+	HangarRenderer.Start()
 	SightingRenderer.Start()
 	CompanionRenderer.Start()
 	NodeRenderer.Start()
