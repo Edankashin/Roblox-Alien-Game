@@ -98,7 +98,7 @@ Files: `tools/lint_strings.py`, `tools/lint.sh`, `src/shared/strings/en.luau` (n
 
 Done when: `./tools/lint.sh` passes, the report lists the families found, the keys added and the unused keys.
 
-### C9. Remote contract lint and server-authority audit — open
+### C9. Remote contract lint and server-authority audit — taken by codex 2026-10-06
 
 Goal: a client that waits for a remote the server never creates hangs with no error; a handler without a rate limit or an argument check breaks the server-authority rule in `CLAUDE.md`. Both should be caught by a script, not by a playtest.
 
