@@ -1,0 +1,42 @@
+[
+  {
+    "slot": 1,
+    "name": "Rock",
+    "hex": "6B4A36",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Crack",
+    "hex": "2A1A12",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Rim",
+    "hex": "D98A4E",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 4,
+    "name": "Water",
+    "hex": "4FB3D9",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "F2FBFF",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]

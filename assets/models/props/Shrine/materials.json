@@ -1,0 +1,34 @@
+[
+  {
+    "slot": 1,
+    "name": "Paving",
+    "hex": "B9B29A",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Stone",
+    "hex": "8E8E80",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Moss",
+    "hex": "5E9E3A",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "9BE7FF",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "slot": 1,
+    "name": "Rock",
+    "hex": "6E6A64",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 2,
+    "name": "Dark",
+    "hex": "15120F",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 0.0
+  },
+  {
+    "slot": 3,
+    "name": "Crystal",
+    "hex": "7FE3FF",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  },
+  {
+    "slot": 4,
+    "name": "CrystalB",
+    "hex": "C084FC",
+    "roughness": 0.8,
+    "metallic": 0.0,
+    "emission": 2.0
+  }
+]
