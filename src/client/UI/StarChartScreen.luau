@@ -10,6 +10,10 @@
 --                              a Confirm dot on the planet's corner
 --              next stop       the first locked world after the highest unlocked one: dim fill, gold ring
 --              locked          faint Trough grey
+--            The Home planet (world 0, data/Worlds row 0) is one more planet at the map's centre, over the
+--            star and inside the innermost ring, with no ring of its own. It follows the same looks (current
+--            green and pulsing, unlocked blue, locked faint; it is never the next stop) and never has an
+--            outpost chip or dot.
 --            Tapping a planet (its invisible, larger TextButton) selects it: its ring turns thick. Opening
 --            selects the current world.
 --   card     the selected world's name and what the old list card said, line for line:
@@ -18,6 +22,9 @@
 --                              every Config.StarChartTickSeconds while open), and Collect, Upgrade and Fly.
 --              unlocked, no outpost   Fly only.
 --              locked          a dimmed card reading Locked, or "Next stop" for the next world.
+--            The Home card: here, as any current world; unlocked (profile.home.unlocked, or world 0 in
+--            world.unlocked, which a launch's WorldChanged push updates first) its line and Fly, never Collect
+--            or Upgrade; locked, its name "Home" and the line that says a launch opens it, no buttons.
 -- Every tap asks the server (CollectOutpost, UpgradeOutpost, FlyTo; one request in flight) and toasts
 -- the answer; the buttons only dim to hint what a tap would do, they never block it, so the server's
 -- reason always reaches the player. The mirror (State: "world", "scrap", "profile") is all the screen
@@ -88,6 +95,10 @@ local STAR = 0.12
 local GLOW = 0.22
 local PLANET = 0.12
 local HIT = 0.2 -- the invisible tap area around a planet; the planets sit at least 0.23 apart
+local HIT_Z = 9
+local HOME_ID = 0 -- data/Worlds row 0: the home planet, at the centre and on no ring
+local HOME = 0.11 -- its diameter: a touch under a ring planet; it sits inside the innermost ring (the first planet's inner edge is 0.105 from the centre)
+local HOME_HIT_Z = HIT_Z - 1 -- its tap area reaches 0.1 from the centre, so the first planet's wins where they overlap
 local RING_FIRST = 0.33 -- ring diameters run evenly from the first world's to the last's
 local RING_LAST = 0.84
 local CHIP_W = 0.19
@@ -122,6 +133,7 @@ local LEVEL_Y = 0.2
 local LEVEL_H = 0.075
 local LINE_Y = 0.285
 local LINE_H = 0.145
+local HOME_LINE_H = 0.48 -- the home card's line has no outpost rows under it, so it takes their room (its text is long)
 local PENDING_Y = 0.44
 local PENDING_H = 0.145
 local ROW_ONE_Y = 0.6
@@ -206,6 +218,9 @@ end
 
 -- A planet's centre on the map square (0..1 on each axis).
 local function planetCenter(worldId: number): (number, number)
+	if worldId == HOME_ID then
+		return 0.5, 0.5 -- the home sits at the centre, over the star
+	end
 	local radius = ringDiameter(worldId) / 2
 	local angle = math.rad(PLANET_ANGLES[worldId] or worldId * FALLBACK_ANGLE_STEP)
 	return 0.5 + radius * math.cos(angle), 0.5 + radius * math.sin(angle)
@@ -314,7 +329,7 @@ local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: {
 
 	-- unlocked: lit; an outpost adds its chip, and a dot while it has something ready
 	paintPlanet(planet, Theme.Colors.Select, 0, Theme.Colors.Outline, 0, STROKE_LIT)
-	local state = outpostOf(profile, id)
+	local state = if id == HOME_ID then nil else outpostOf(profile, id) -- the home is not an outpost
 	if state then
 		planet.chipText.Text = levelChip(state.level)
 		planet.chip.Visible = true
@@ -330,7 +345,8 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		return
 	end
 	local id = selected
-	card.name.Text = worldName(id)
+	card.name.Text = if id == HOME_ID and not unlocked[id] then Strings.STARCHART_HOME else worldName(id)
+	card.line.Size = UDim2.fromScale(TEXT_W, if id == HOME_ID then HOME_LINE_H else LINE_H)
 	card.level.Visible = false
 	card.pending.Visible = false
 	card.frame.BackgroundTransparency = 0
@@ -349,7 +365,10 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 
 	if not unlocked[id] then
 		-- (d) locked: dimmed; the next one on the chart says what opens it
-		card.line.Text = if id == highest + 1 then Strings.STARCHART_NEXT else Strings.STARCHART_LOCKED
+		card.line.Text = if id == HOME_ID
+			then Strings.STARCHART_HOME_LOCKED
+			elseif id == highest + 1 then Strings.STARCHART_NEXT
+			else Strings.STARCHART_LOCKED
 		card.frame.BackgroundColor3 = DIM_COLOR
 		card.frame.BackgroundTransparency = LOCKED_TRANSPARENCY
 		card.stroke.Color = DIM_COLOR
@@ -360,10 +379,10 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 
 	card.stroke.Color = Theme.Colors.Select
 	card.stroke.Thickness = Theme.Stroke.Button
-	local state = outpostOf(profile, id)
+	local state = if id == HOME_ID then nil else outpostOf(profile, id)
 	if not state then
-		-- (c) unlocked, no outpost: Fly alone
-		card.line.Text = ""
+		-- (c) unlocked, no outpost: Fly alone (the home, which never has one, says what it is)
+		card.line.Text = if id == HOME_ID then Strings.STARCHART_HOME_LINE else ""
 		setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
 		showOnly(card, false, false, true)
 		return
@@ -403,6 +422,10 @@ local function refresh()
 	end
 	unlocked[profile.world.current] = true
 	highest = math.max(highest, profile.world.current)
+	local home: Types.HomeState? = profile.home -- a mirror older than the field reads as locked
+	if home and home.unlocked then
+		unlocked[HOME_ID] = true
+	end
 	local now = os.time()
 	for _, planet in ipairs(planets) do
 		refreshPlanet(planet, profile, unlocked, highest, now)
@@ -527,14 +550,17 @@ end
 -- Build ----------------------------------------------------------------------
 
 -- One world's planet: a disc with its number, a chip and a dot that refresh shows or hides, and the
--- invisible tap area over the top.
+-- invisible tap area over the top. The home (world 0) is smaller, carries no number and keeps its chip and
+-- dot hidden for good.
 local function buildPlanet(map: Frame, worldId: number): Planet
 	local cx, cy = planetCenter(worldId)
+	local isHome = worldId == HOME_ID
+	local diameter = if isHome then HOME else PLANET
 	local disc = Builder.frame({
 		parent = map,
 		name = "Planet_" .. worldId,
 		position = UDim2.fromScale(cx, cy),
-		size = UDim2.fromScale(PLANET, PLANET),
+		size = UDim2.fromScale(diameter, diameter),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Select,
 		corner = Theme.Corner.Pill,
@@ -543,17 +569,19 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 		zIndex = 5,
 	})
 	local stroke = disc:FindFirstChildOfClass("UIStroke") :: UIStroke
-	Builder.label({
-		parent = disc,
-		name = "Id", -- the world's number
-		text = tostring(worldId),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.8, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		stroke = 2,
-		zIndex = 6,
-	})
+	if not isHome then
+		Builder.label({
+			parent = disc,
+			name = "Id", -- the world's number
+			text = tostring(worldId),
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.8, 0.8),
+			anchor = Vector2.new(0.5, 0.5),
+			stroke = 2,
+			zIndex = 6,
+		})
+	end
 	local dot = Builder.frame({
 		parent = disc,
 		name = "Ready",
@@ -570,7 +598,7 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 	local chip = Builder.pill({
 		parent = map,
 		name = "Chip_" .. worldId,
-		position = UDim2.fromScale(cx, cy + PLANET / 2 + CHIP_GAP),
+		position = UDim2.fromScale(cx, cy + diameter / 2 + CHIP_GAP),
 		size = UDim2.fromScale(CHIP_W, CHIP_H),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Trough,
@@ -598,7 +626,7 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 	hit.AnchorPoint = Vector2.new(0.5, 0.5)
 	hit.Position = UDim2.fromScale(cx, cy)
 	hit.Size = UDim2.fromScale(HIT, HIT)
-	hit.ZIndex = 9
+	hit.ZIndex = if isHome then HOME_HIT_Z else HIT_Z
 	hit.Parent = map
 	hit.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
@@ -671,6 +699,7 @@ local function buildMap(body: Frame)
 	for id = 1, #Worlds do
 		table.insert(planets, buildPlanet(map, id))
 	end
+	table.insert(planets, buildPlanet(map, HOME_ID)) -- the home planet, built once: Worlds' loops never see row 0
 end
 
 -- The card on the right: every piece is built once; refresh decides which show and what they say.

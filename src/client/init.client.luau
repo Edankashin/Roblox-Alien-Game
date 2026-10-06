@@ -360,7 +360,9 @@ local function decideAction(): Action?
 	end
 	local shipDistance = CampRenderer.DistanceToShip()
 	if shipDistance <= Config.CampInteractDistance and shipDistance < bestDistance then
-		best, bestDistance = if shipComplete() then "Launch" else "Build", shipDistance
+		-- At home the ship has no modules (so it reads complete) and the server refuses a launch from there:
+		-- it offers Build, which opens the Ship panel and its Star Chart button.
+		best, bestDistance = if shipComplete() and not Place.IsHome() then "Launch" else "Build", shipDistance
 	end
 	local peddlerDistance = PeddlerRenderer.DistanceToShip()
 	if peddlerDistance <= Config.PeddlerInteractDistance and peddlerDistance < bestDistance then
@@ -545,6 +547,19 @@ local function connectToasts()
 			LaunchSequence.Play(nextWorldId, placeLive, function()
 				cinematic = false
 				Hud.SetVisible(true)
+			end)
+		end)
+	end)
+	-- The first launch opened the home planet (the server fires this once, right after Launched and the
+	-- mirror pushes): the toast waits for the lift-off (and its own toast) to finish. IsPlaying always ends,
+	-- by onDone or by the sequence's safety net.
+	task.spawn(function()
+		Net.event("HomeUnlocked").OnClientEvent:Connect(function()
+			task.spawn(function()
+				while LaunchSequence.IsPlaying() do
+					task.wait(Config.BannerDeferSeconds)
+				end
+				Toast.Show(Strings.TOAST_HOME_UNLOCKED, Theme.Colors.Featured)
 			end)
 		end)
 	end)
@@ -1314,7 +1329,7 @@ local function start(profile: Types.Profile)
 			blizzardHinted = false
 		end
 		local world = Worlds[State.Get().world.current]
-		if world and state.weather == world.weather.special.id and lastWeather ~= nil and lastWeather ~= state.weather then
+		if world and world.weather.special.speciesId ~= "" and state.weather == world.weather.special.id and lastWeather ~= nil and lastWeather ~= state.weather then
 			local def = Species.ById[world.weather.special.speciesId]
 			local text = Strings.WEATHER_SPECIAL_BANNER:format(Builder.text("WEATHER_" .. state.weather), if def then def.name else world.weather.special.speciesId)
 			Toast.Banner(text, if def then Builder.tierColor(def.tier) else Theme.Colors.Select, Config.AnnounceSeconds)

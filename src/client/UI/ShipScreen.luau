@@ -13,6 +13,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local KeyMaterials = require(Shared:WaitForChild("data"):WaitForChild("KeyMaterials"))
@@ -470,7 +471,8 @@ local function refresh()
 		end
 	end
 	if completeLabel then
-		completeLabel.Visible = activeIndex == nil and #defs > 0
+		-- "Walk to the ship and launch": never at home, where the server refuses a launch
+		completeLabel.Visible = activeIndex == nil and #defs > 0 and not Place.IsHome()
 	end
 end
 
