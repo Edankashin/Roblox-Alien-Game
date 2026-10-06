@@ -378,6 +378,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 			card.stroke.Thickness = Theme.Stroke.Button
 			card.line.Text = Strings.STARCHART_RETURN_LINE
 			card.line.TextColor3 = Theme.Colors.White
+			card.line.Size = UDim2.fromScale(TEXT_W, HOME_LINE_H) -- no outpost rows under it, so it takes their room like the home's line
 			setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
 			showOnly(card, false, false, true, false)
 			return

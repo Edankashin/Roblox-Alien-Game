@@ -24,6 +24,7 @@ local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local HomeBuild = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local HomeData = require(Shared:WaitForChild("data"):WaitForChild("Home"))
+local VisitingData = require(Shared:WaitForChild("data"):WaitForChild("Visiting"))
 local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
@@ -43,6 +44,7 @@ local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScree
 local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
 local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"))
 local MailScreen = require(script:WaitForChild("UI"):WaitForChild("MailScreen"))
+local VisitScreen = require(script:WaitForChild("UI"):WaitForChild("VisitScreen"))
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
@@ -114,7 +116,7 @@ local function nearbyShows(): boolean
 	return radarTier >= RADAR_MK2_TIER and Radar.IsShown()
 end
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail" | "Wave"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -127,6 +129,7 @@ local ACTION_TEXT: { [string]: string } = {
 	Decorate = Strings.ACTION_DECORATE,
 	Spin = Strings.ACTION_SPIN,
 	Mail = Strings.ACTION_MAIL,
+	Wave = Strings.ACTION_WAVE,
 }
 local soundHorn = Net.func("SoundHorn")
 local horning = false
@@ -330,6 +333,18 @@ end
 
 local currentBiome: Types.Biome? = nil
 
+-- The chip's words: the biome's name, or at home while visiting whose home it is (milestone 42e). Called when the
+-- biome changes and when the view does; with no biome read yet and no view it leaves the chip as it is.
+local function applyBiomeChip()
+	local view = State.GetHomeView()
+	local biome = currentBiome
+	if view ~= nil and Place.IsHome() then
+		Hud.SetBiomeLabel(Strings.HUD_VISITING_CHIP:format(view.ownerName))
+	elseif biome ~= nil then
+		Hud.SetBiome(biome)
+	end
+end
+
 local function refreshBiome()
 	local character = localPlayer.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
@@ -339,7 +354,7 @@ local function refreshBiome()
 	local biome: Types.Biome = Biomes.At(root.Position) -- annotated: the checker widens singleton unions
 	if biome ~= currentBiome then
 		currentBiome = biome
-		Hud.SetBiome(biome)
+		applyBiomeChip()
 		State.SetBiome(biome)
 	end
 end
@@ -363,6 +378,13 @@ local function homePartDistance(name: string): number
 	end
 	local dx, dz = root.Position.X - part.Position.X, root.Position.Z - part.Position.Z
 	return math.sqrt(dx * dx + dz * dz)
+end
+
+-- Where the local character's root is, or nil while it has none.
+local function localRootPosition(): Vector3?
+	local character = localPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root and root:IsA("BasePart") then root.Position else nil
 end
 
 -- One verb at a time: of the targets in reach (a wild alien, a material node, the ship), the nearest wins,
@@ -394,18 +416,34 @@ local function decideAction(): Action?
 	end
 	-- At home the plot offers Decorate (the Build tray) from within DecorateInteractDistance of its centre.
 	if Place.IsHome() then
-		local plotDistance = HomeRenderer.PlotDistance()
-		if plotDistance <= HomeBuild.DecorateInteractDistance and plotDistance < bestDistance then
-			best, bestDistance = "Decorate", plotDistance
+		-- A guest at someone else's home (milestone 42e) neither decorates their plot nor opens their mailbox:
+		-- Decorate and Mail are the owner's, Spin (the player's own wheel) and Wave are the guest's.
+		local visiting = State.IsVisiting()
+		if not visiting then
+			local plotDistance = HomeRenderer.PlotDistance()
+			if plotDistance <= HomeBuild.DecorateInteractDistance and plotDistance < bestDistance then
+				best, bestDistance = "Decorate", plotDistance
+			end
 		end
 		-- The kiosk offers the spin wheel and the mailbox the letters (42d), each from its own interact distance.
 		local kioskDistance = homePartDistance("Kiosk")
 		if kioskDistance <= HomeData.KioskInteractDistance and kioskDistance < bestDistance then
 			best, bestDistance = "Spin", kioskDistance
 		end
-		local mailboxDistance = homePartDistance("Mailbox")
-		if mailboxDistance <= HomeData.MailboxInteractDistance and mailboxDistance < bestDistance then
-			best, bestDistance = "Mail", mailboxDistance
+		if not visiting then
+			local mailboxDistance = homePartDistance("Mailbox")
+			if mailboxDistance <= HomeData.MailboxInteractDistance and mailboxDistance < bestDistance then
+				best, bestDistance = "Mail", mailboxDistance
+			end
+		else
+			-- The displayed alien nearest the player waves back from within WaveInteractDistance.
+			local at = localRootPosition()
+			if at then
+				local uid, waveDistance = HomeRenderer.NearestDisplayed(at)
+				if uid ~= nil and waveDistance <= VisitingData.WaveInteractDistance and waveDistance < bestDistance then
+					best, bestDistance = "Wave", waveDistance
+				end
+			end
 		end
 	end
 	-- The horn is offered at the shrine whenever the player holds it; the server judges night and step.
@@ -422,6 +460,54 @@ end
 
 local launching = false -- one Launch request in flight at a time
 local flying = false -- a Star Chart Fly's fade is under way
+local waving = false -- one Wave request in flight at a time
+
+-- Waves at the displayed alien nearest the player (milestone 42e). The target is read again here, not taken from
+-- the poll, so a tap a moment after the alien wandered off waves at nothing instead of at the wrong one. The server
+-- judges everything (who is visiting, what is on display, one wave per alien, the day's cap) and pays both sides.
+local function tryWave()
+	local view = State.GetHomeView()
+	local at = localRootPosition()
+	if waving or view == nil or at == nil then
+		return
+	end
+	local uid, distance = HomeRenderer.NearestDisplayed(at)
+	if uid == nil or distance > VisitingData.WaveInteractDistance then
+		return
+	end
+	local target: string = uid
+	local ownerName = view.ownerName
+	local before = HomeRenderer.DisplayedPosition(target)
+	waving = true
+	task.spawn(function()
+		local called, ok, reason, species, scrap = pcall(function(): (any, any, any, any)
+			return Net.func("Wave"):InvokeServer(target)
+		end)
+		waving = false
+		if not called then
+			print(("[%s] Wave failed: %s"):format(Config.WorkingTitle, tostring(ok)))
+			return
+		end
+		if ok == true then
+			local speciesId = if type(species) == "string" then species else ""
+			local def = Species.ById[speciesId]
+			local paid = if type(scrap) == "number" then scrap else 0
+			Builder.playSound(Sounds.GiftClaim)
+			Toast.Show(Strings.TOAST_WAVE_SENT:format(ownerName, if def then def.name else speciesId, Builder.formatNumber(paid)), Theme.Colors.Confirm)
+			local where = HomeRenderer.DisplayedPosition(target) or before
+			if where then
+				Vfx.CatchBurst(where, Theme.Colors.Featured)
+			end
+		elseif reason == "Again" then
+			Toast.Show(Strings.TOAST_WAVE_AGAIN, Theme.Colors.Select)
+		elseif reason == "Cap" then
+			Toast.Show(Strings.TOAST_WAVE_CAP, Theme.Colors.Featured)
+		elseif reason ~= "NotVisiting" and reason ~= "NotDisplayed" and reason ~= "RateLimited" then
+			print(("[%s] Wave refused: %s"):format(Config.WorkingTitle, tostring(reason)))
+		end
+		-- NotVisiting and NotDisplayed are silent: the next poll decides the verb again from what is drawn now.
+	end)
+end
 
 local function performAction()
 	local action = currentAction
@@ -463,6 +549,8 @@ local function performAction()
 		Screens.Open("Gifts") -- the wheel is the Gifts screen's middle column; there is no tab to pick
 	elseif action == "Mail" then
 		Screens.Open("Mail")
+	elseif action == "Wave" then
+		tryWave()
 	elseif action == "Horn" and not horning then
 		horning = true
 		task.spawn(function()
@@ -635,6 +723,21 @@ local function connectToasts()
 	task.spawn(function()
 		Net.event("MailArrived").OnClientEvent:Connect(function()
 			Toast.Show(Strings.TOAST_MAIL_NEW, Theme.Colors.Featured)
+		end)
+	end)
+	-- Visiting (milestone 42e), the owner's side: someone started viewing this home, or waved at one of its displayed
+	-- aliens. The Visitor Book is not pushed, so a visitor's arrival also asks the server for it again (the Mail screen
+	-- reads the mirror).
+	task.spawn(function()
+		Net.event("VisitorArrived").OnClientEvent:Connect(function(name: string)
+			Toast.Show(Strings.TOAST_VISITOR_ARRIVED:format(tostring(name)), Theme.Colors.Select)
+			State.RefreshVisitors()
+		end)
+	end)
+	task.spawn(function()
+		Net.event("WaveReceived").OnClientEvent:Connect(function(name: string, species: string, scrap: number)
+			local def = Species.ById[species]
+			Toast.Show(Strings.TOAST_WAVE_GOT:format(tostring(name), if def then def.name else tostring(species), Builder.formatNumber(scrap)), Theme.Colors.Featured)
 		end)
 	end)
 	-- The outposts table the server holds (a collect, an upgrade, a launch that opens one) replaces the mirror's.
@@ -928,6 +1031,26 @@ local function start(profile: Types.Profile)
 		refreshShip()
 		Screens.CloseAll()
 	end)
+	-- Visiting (milestone 42e): State fires "visit" for every HomeView push and the boot pull. A view of a new owner
+	-- welcomes the visitor and closes the screens (the Visit screen or Star Chart that asked); a cleared view that
+	-- was set says the visitor is home again; a refresh of the same home is silent. The biome chip follows the view.
+	local viewedOwner: number? = nil
+	local function onVisit()
+		local view = State.GetHomeView()
+		local owner = if view then view.ownerId else nil
+		if owner ~= viewedOwner then
+			if view then
+				Toast.Show(Strings.TOAST_VISIT_WELCOME:format(view.ownerName), Theme.Colors.Confirm)
+			elseif viewedOwner ~= nil then
+				Toast.Show(Strings.TOAST_VISIT_RETURN, Theme.Colors.Select)
+			end
+			Screens.CloseAll()
+			viewedOwner = owner
+		end
+		applyBiomeChip()
+	end
+	State.OnChanged("visit", onVisit)
+	onVisit() -- a view that landed before this listener (a teleported visitor's first pull) is welcomed too
 	Hud.SetRate(State.GetRate().ratePerSecond)
 	refreshShip()
 	Hud.OnAction(performAction)
@@ -950,6 +1073,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Ranks", LeaderboardScreen)
 	Screens.Register("Build", BuildScreen)
 	Screens.Register("Mail", MailScreen)
+	Screens.Register("Visit", VisitScreen)
 	-- An egg from the Peddler hatches through the same reveal as a wild catch.
 	PeddlerScreen.OnGrant(function(grant: Types.GrantResult)
 		local def = Species.ById[grant.species]

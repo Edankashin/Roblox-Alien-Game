@@ -27,7 +27,7 @@
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
 -- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
 -- (and so after Meadow, whose Workspace.World its folder lives in, WorldClock, PlayerData and Analytics), Companions after
--- Economy and before Buffs (Buffs registers its luck push with it at Init; it requires only PlayerData, Analytics and Monetization), HomeBuild right after Launch (the house grid on the home planet; it requires only PlayerData, Analytics, Net, Meadow, Economy and Place, and pays Scrap through the same ScrapChanged push), Habitats right after HomeBuild (aliens on display in the home habitats and their lazy Scrap; it requires Economy and Companions, both earlier, and PlayerData's load hook settles it on arriving home), Mail right after Habitats (the home mailbox: it requires PlayerData, Gifts, Analytics and Net and claims through Gifts.GrantRewards; Admin sends letters through it and Dev too, and it registers the MailChanged and MailArrived events), Sightings right after Spawner and
+-- Economy and before Buffs (Buffs registers its luck push with it at Init; it requires only PlayerData, Analytics and Monetization), HomeBuild right after Launch (the house grid on the home planet; it requires only PlayerData, Analytics, Net, Meadow, Economy and Place, and pays Scrap through the same ScrapChanged push), Habitats right after HomeBuild (aliens on display in the home habitats and their lazy Scrap; it requires Economy and Companions, both earlier, and PlayerData's load hook settles it on arriving home), Mail right after Habitats (the home mailbox: it requires PlayerData, Gifts, Analytics and Net and claims through Gifts.GrantRewards; Admin sends letters through it and Dev too, and it registers the MailChanged and MailArrived events), Visiting right after Mail (friends' homes: it requires PlayerData, Analytics, Launch, HomeBuild, Habitats and Mail, and registers its hooks with the first three at Init; Gifts and Settings come later in the order but every service is required before any Init runs and it only calls them from handlers; Dev calls it), Sightings right after Spawner and
 -- after Meadow (its floor and the Workspace.World folder the Warden's part lives in) and Analytics (it counts every player online at a
 -- start); it requires nothing that requires it (only Dev does).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,7 +36,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Admin", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Visiting", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Admin", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

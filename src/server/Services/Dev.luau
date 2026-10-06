@@ -15,7 +15,9 @@
 -- offset N, one week on, or back to the real week), /radar [N] (the radar up to tier N, 1 to 3, default 1, each tier
 -- in order), /homeclear (empty the house grid, no refund), /habitat [H] (the habitat payout clock back H hours,
 -- default 2, so the next arrival at the home planet pays) | settle (pay the habitats now, print the Scrap), /mail [N]
--- (N test letters, default 1, to your own mailbox; one more than the mailbox holds shows the oldest dropped). Nothing
+-- (N test letters, default 1, to your own mailbox; one more than the mailbox holds shows the oldest dropped), /visit
+-- <name|id> (in the home place: look at another player's home in this server, as the Visit button does) | off (back to your
+-- own home). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -50,6 +52,7 @@ local Monetization = require(script.Parent.Monetization)
 local Companions = require(script.Parent.Companions)
 local Habitats = require(script.Parent.Habitats)
 local Mail = require(script.Parent.Mail)
+local Visiting = require(script.Parent.Visiting)
 local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
@@ -716,6 +719,40 @@ local function mailCommand(player: Player, text: string)
 	print(("[%s] dev: %s sent %d test letter(s) to themselves (%d waiting)"):format(Config.WorkingTitle, player.Name, sent, waiting))
 end
 
+-- /visit <name|id>: at the home place, look at another player's home in this server (the in-server path of the Visit
+-- button, so the lock, the Visitor Book and the Wave rules all apply); the player is found by Name (any case) or UserId.
+-- /visit off: back to your own home. Prints the outcome.
+local function visitCommand(player: Player, text: string)
+	if not Place.IsHome() then
+		print(("[%s] dev: /visit works in the home place only"):format(Config.WorkingTitle))
+		return
+	end
+	local argument = string.match(text, "^/%S+%s+(%S+)")
+	if not argument then
+		print(("[%s] dev: /visit <name|id> looks at that player's home, /visit off goes back to your own"):format(Config.WorkingTitle))
+		return
+	end
+	if string.lower(argument) == "off" then
+		Visiting.LeaveView(player)
+		print(("[%s] dev: %s looks at their own home"):format(Config.WorkingTitle, player.Name))
+		return
+	end
+	local userId = tonumber(argument)
+	local target: Player? = nil
+	for _, other in ipairs(Players:GetPlayers()) do
+		if string.lower(other.Name) == string.lower(argument) or other.UserId == userId then
+			target = other
+			break
+		end
+	end
+	if not target then
+		print(("[%s] dev: no player here named or numbered %s"):format(Config.WorkingTitle, argument))
+		return
+	end
+	local ok, reason = Visiting.ViewHome(player, target)
+	print(("[%s] dev: %s visits %s: %s"):format(Config.WorkingTitle, player.Name, target.Name, if ok then "ok" else tostring(reason)))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -782,11 +819,12 @@ function Dev.Init()
 	command("homeclear", homeClear)
 	command("habitat", habitatCommand)
 	command("mail", mailCommand)
+	command("visit", visitCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N])"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off)"):format(Config.WorkingTitle))
 	end
 end
 

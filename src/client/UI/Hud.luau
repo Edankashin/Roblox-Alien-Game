@@ -927,6 +927,14 @@ function Hud.SetBiome(biome: string)
 	end
 end
 
+-- The biome chip's text exactly as given: the bootstrap's words for a visit ("Mossy's home") in place of the biome's
+-- name. SetBiome formats through the strings; this does not.
+function Hud.SetBiomeLabel(text: string)
+	if biomeLabel then
+		biomeLabel.Text = text
+	end
+end
+
 function Hud.SetClock(state: Types.ClockState)
 	if not clockLabel or not clockChip then
 		return

@@ -9,6 +9,8 @@
 -- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot shows a Display button in
 -- the status slot, and an alien on display shows a purple "On display" pill in the chip row (in place of the size and
 -- growth chips) and, at home, a Bring back button in the status slot; a plain tap on a displayed card does nothing.
+-- Neither button shows while the player is visiting someone else's home (State.IsVisiting, milestone 42e): a guest
+-- never displays or takes back at another's plot, and the cards redraw on the "visit" topic when that changes.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
 -- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, SetDisplay,
 -- UseCompanionToken). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
@@ -888,12 +890,13 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- purple "On display" pill (below) in the chip row instead of a status label.
 	local displayWorld = if def then def.world else nil
 	local canDisplay = Place.IsHome()
+		and not State.IsVisiting() -- a guest never puts an alien on display at someone else's home
 		and displayWorld ~= nil
 		and job == nil
 		and not entry.following
 		and not displayed
 		and #habitatsFor(displayWorld) > 0
-	local canBringBack = Place.IsHome() and displayWorld ~= nil and displayed
+	local canBringBack = Place.IsHome() and not State.IsVisiting() and displayWorld ~= nil and displayed
 	local statusText = Strings.ALIENS_TAP_FOLLOW
 	local statusColor = Theme.Rarity.Common
 	if job then
@@ -1362,7 +1365,7 @@ local function build()
 	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "stations", "rate", "companions", "home" }) do
+	for _, topic in ipairs({ "stations", "rate", "companions", "home", "visit" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
 	for _, topic in ipairs({ "inventory", "purchases" }) do
