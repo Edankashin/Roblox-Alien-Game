@@ -38,6 +38,8 @@ type Item = {
 }
 
 local DISPLAY_ORDER = 10 -- the HUD's layer
+local WORLD_FOLDER = "World" -- Workspace.World, made by the server
+local SIGHTINGS_FOLDER = "Sightings" -- Workspace.World.Sightings: the Warden's walking part sits here while a sighting runs
 
 -- Layout, in screen Scale (the strip) and strip Scale (what is inside it).
 local STRIP_TOP = 0.006 -- the strip hugs the top edge; the HUD's centre column starts under it
@@ -158,6 +160,12 @@ local function placeItem(item: Item, delta: number): boolean
 	return true
 end
 
+-- Workspace.World.Sightings, or nil while the server has not made it (no world yet, or a place with no sightings).
+local function sightingsFolder(): Instance?
+	local world = Workspace:FindFirstChild(WORLD_FOLDER)
+	return if world then world:FindFirstChild(SIGHTINGS_FOLDER) else nil
+end
+
 -- Where a marker stands in the world, and the waypoint's own label when it is the waypoint; nil
 -- position while the marker has no place (no landmark yet, no visit, no waypoint, no target).
 local function markerPlace(marker: CompassData.Marker): (Vector3?, string?)
@@ -177,13 +185,16 @@ local function markerPlace(marker: CompassData.Marker): (Vector3?, string?)
 		return nil, nil
 	end
 	local at = part.Position
+	-- A part under the Sightings folder is the Warden walking the land, not a radar-marked alien: its own name.
+	local sightings = sightingsFolder()
+	local label = if sightings and part.Parent == sightings then Strings.COMPASS_SIGHTING else nil
 	-- A radar-marked alien also gets the waypoint: when the waypoint already points here, one diamond
 	-- (the waypoint's, which carries the alien's name on the line), not two on top of each other.
 	local waypointAt = Waypoint.Target()
 	if waypointAt and (Vector3.new(at.X, 0, at.Z) - Vector3.new(waypointAt.X, 0, waypointAt.Z)).Magnitude < CompassData.SameSpotStuds then
 		return nil, nil
 	end
-	return at, nil
+	return at, label
 end
 
 -- Refresh ------------------------------------------------------------------
@@ -456,9 +467,16 @@ function Compass.SetVisible(value: boolean)
 end
 
 -- The wild part a tapped radar blip marked, or nil once it is cleared; the "target" marker shows
--- while the part has a parent.
+-- while the part has a parent. A part under Workspace.World.Sightings (the Warden walking the land) is
+-- marked too and named COMPASS_SIGHTING on the line.
 function Compass.SetTarget(part: Part?)
 	targetPart = part
+end
+
+-- The part SetTarget last set, nil when none. A target whose part has been destroyed is still returned
+-- (its Parent is nil), so a caller can tell "that part went" from "nothing was marked".
+function Compass.GetTarget(): Part?
+	return targetPart
 end
 
 return Compass

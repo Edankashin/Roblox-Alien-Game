@@ -42,6 +42,7 @@ local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
 local CompanionRenderer = require(script:WaitForChild("World"):WaitForChild("CompanionRenderer"))
+local SightingRenderer = require(script:WaitForChild("World"):WaitForChild("SightingRenderer"))
 local NodeRenderer = require(script:WaitForChild("World"):WaitForChild("NodeRenderer"))
 local PeddlerRenderer = require(script:WaitForChild("World"):WaitForChild("PeddlerRenderer"))
 local PeddlerScreen = require(script:WaitForChild("UI"):WaitForChild("PeddlerScreen"))
@@ -662,6 +663,54 @@ local function connectToasts()
 			Toast.Show(Strings.TOAST_WARDEN_RETREAT, Builder.tierColor("Legendary"))
 		end)
 	end)
+	-- The Warden's sighting: a banner when it starts to cross the land and a toast when it has wandered off (the
+	-- renderer draws it either way; the tutorial hold keeps both quiet). `sightingActive` is nil only while the
+	-- one GetSighting call for a late joiner is in flight: a push that lands first seeds it without a banner, and
+	-- an answer or a failure seeds it otherwise, so a sighting already running at join time never banners.
+	task.spawn(function()
+		local sightingActive: boolean? = nil
+		local sightingSpecies = "" -- the last Warden species seen running, for the "wandered off" toast
+		local function sightingName(species: string): string
+			local def = Species.ById[species]
+			return if def then def.name else species
+		end
+		Net.event("SightingChanged").OnClientEvent:Connect(function(state: Types.SightingState)
+			local was = sightingActive
+			sightingActive = state.active
+			if state.active then
+				sightingSpecies = state.species
+			end
+			if was == nil or was == state.active then
+				return
+			end
+			if TutorialData.Script.HoldEventBannersWhileActive and tutorialActive() then
+				return
+			end
+			if state.active then
+				local def = Species.ById[state.species]
+				Builder.playSound(Sounds.WardenAppear)
+				Toast.Banner(
+					Strings.SIGHTING_BANNER:format(sightingName(state.species)),
+					Builder.tierColor(if def then def.tier else "Common"),
+					Config.AnnounceSeconds
+				)
+			else
+				local species = if Species.ById[state.species] then state.species else sightingSpecies
+				Toast.Show(Strings.SIGHTING_OVER:format(sightingName(species)), Theme.Rarity.Common)
+			end
+		end)
+		local ok, answer = pcall(function()
+			return Net.func("GetSighting"):InvokeServer()
+		end)
+		if sightingActive ~= nil then
+			return
+		end
+		local seed = if ok and type(answer) == "table" then answer :: Types.SightingState else nil
+		sightingActive = if seed then seed.active else false
+		if seed and seed.active then
+			sightingSpecies = seed.species
+		end
+	end)
 	-- The group gift's state: the server pushes it whenever membership or the claim changes.
 	task.spawn(function()
 		Net.event("SocialChanged").OnClientEvent:Connect(function(snapshot: GiftsScreen.SocialSnapshot)
@@ -1193,6 +1242,7 @@ local function start(profile: Types.Profile)
 	end
 	WildRenderer.Start(known)
 	CampRenderer.Start()
+	SightingRenderer.Start()
 	CompanionRenderer.Start()
 	NodeRenderer.Start()
 	Ambience.Start()
