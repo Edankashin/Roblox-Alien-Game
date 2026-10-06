@@ -88,7 +88,7 @@ Goal: extend `tools/balance.py` with the systems that landed after the plan's se
 
 Files: `tools/balance.py`, `docs/vault/01-game-design/Balance-Report.md`.
 
-### C8. String coverage lint — open
+### C8. String coverage lint — taken by codex 2026-10-06
 
 Goal: no raw string key ever shows on screen. Direct `Strings.X` references are already checked by the type checker; the dynamic families (`Builder.text("TIER_" .. id)`) are not.
 
