@@ -866,46 +866,11 @@ function EconomyService.Fuse(player: Player, species: string): (Types.FuseResult
 				table.insert(copies, record)
 			end
 		end
-		if #copies < FusionData.DuplicatesPerLevel + 1 then
-			return "NotEnough"
-		end
 		table.sort(copies, betterCopy)
-		local kept: Types.AlienRecord? = nil
-		for _, record in ipairs(copies) do
-			if record.level < cap then
-				kept = record
-				break
-			end
-		end
+		local FusionMath = require(Shared.FusionMath)
+		local kept, consumed, refusal = FusionMath.Select(copies, profile.companions, cap)
 		if not kept then
-			return "MaxLevel"
-		end
-		-- The fodder: the other copies at or below the kept copy's level, best first; the worst of them are
-		-- consumed, so walk from the back. A copy above the kept one (a capped Lv 3 over a plain Lv 1) is never
-		-- fodder: it stands for the copies it already consumed, so without enough plain copies the fusion refuses.
-		local others: { Types.AlienRecord } = {}
-		for _, record in ipairs(copies) do
-			if record ~= kept and record.level <= kept.level then
-				table.insert(others, record)
-			end
-		end
-		if #others < FusionData.DuplicatesPerLevel then
-			return "NotEnough"
-		end
-		local consumed: { Types.AlienRecord } = {}
-		for pass = 1, 2 do
-			for index = #others, 1, -1 do
-				if #consumed >= FusionData.DuplicatesPerLevel then
-					break
-				end
-				local record = others[index]
-				-- Pass 1 skips seated copies, followers and displayed ones when resting ones go first; pass 2 takes
-				-- whatever is left.
-				local eligible = pass == 2 or (record.station == nil and not isOffCrew(profile, record)) or not FusionData.ConsumeRestingFirst
-				if eligible and not table.find(consumed, record) then
-					table.insert(consumed, record)
-				end
-			end
+			return refusal
 		end
 		completed = snapshotModules(profile) -- bank assembly progress at the old speed before the crew changes
 		local freedSeat = false

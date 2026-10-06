@@ -9,6 +9,7 @@ describe("Growth", function()
 		initial = { hatchling.workedSeconds, hatchling },
 		beforeGrown = { grown.workedSeconds - F.tick, hatchling },
 		atGrown = { grown.workedSeconds, grown },
+		beforeElder = { elder.workedSeconds - F.tick, grown },
 		atElder = { elder.workedSeconds, elder },
 	}) do
 		it("StageAt " .. name, function()
