@@ -115,3 +115,7 @@ Install GapFill, ResizeAlign, Brushtool 2, Redupe and Archimedes from the Creato
 
 - 2026-10-05: first generation, `python3 tools/blender/props_base.py --all`, 16 props, all inside budget. Triangles: MeadowTree 336, MeadowTreeB 416, SnowPine 82, IceSpire 66, MeadowRock 80, MeadowRockB 80, IceRock 60, IceRockB 40, GeyserCone 106, ShrineStone 54, Pedestal 238, ShipHull 276, GatherStation 124, BuildStation 168, SparkStation 240, HeaterLamp 212. Not yet imported into Studio.
 - 2026-10-05: `tools/upload_assets.py` and `tools/studio/install_models.luau` written from the Open Cloud docs and tested against a local mock of the API only; the first real upload and install are still to do.
+
+### Icons and particle sprites (2026-10-06)
+
+`tools/upload_assets.py --images` uploads every PNG under `assets/icons` and `assets/particles` (rendered by `tools/blender/icons.py`) as a Decal asset, keeps the ids in `assets/icons/asset_ids.json`, and `--images --emit-icons-luau` prints the Icons and Particles tables for `src/shared/data/Icons.luau`. An ImageLabel or a ParticleEmitter takes a decal id as `rbxassetid://<id>`. Until an id is in, the UI shows its glyph letters and the default particles.

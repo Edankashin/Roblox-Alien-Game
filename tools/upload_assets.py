@@ -28,6 +28,15 @@ Usage:
   python3 tools/upload_assets.py --species                      # only the 32 aliens
   python3 tools/upload_assets.py --only Mossbop,MeadowTree      # only these names
   python3 tools/upload_assets.py --emit-luau | pbcopy           # ASSET_IDS, PROP_NAMES, MATERIALS for Studio
+  python3 tools/upload_assets.py --images --dry-run              # the icon and particle PNGs that would upload
+  python3 tools/upload_assets.py --images                        # upload assets/icons/*.png and assets/particles/*.png as Decals
+  python3 tools/upload_assets.py --images --emit-icons-luau     # the Icons and Particles tables for src/shared/data/Icons.luau
+
+Images (--images): every PNG under assets/icons (the UI icon pack) and assets/particles (the weather
+sprites) is uploaded as a Decal asset (assetType "Decal", image/png); an ImageLabel or a ParticleEmitter
+takes the decal id as rbxassetid://<id>. Their ids live in assets/icons/asset_ids.json
+({ key: { assetId, uploadedAt, file, kind } }, kind "icon" or "particle"); --emit-icons-luau prints the
+two tables for src/shared/data/Icons.luau with every key the data file knows (0 when not uploaded).
 
 Exit status: 0 all done (or nothing to do), 1 at least one model failed, 2 bad usage or setup.
 Names already in the JSON are skipped, so a re-run after a failure retries only the failures.
@@ -82,6 +91,12 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 MODELS_DIR = REPO / "assets" / "models"
 PROPS_DIR = MODELS_DIR / "props"
 DEFAULT_IDS_FILE = MODELS_DIR / "asset_ids.json"
+ICONS_DIR = REPO / "assets" / "icons"
+PARTICLES_DIR = REPO / "assets" / "particles"
+IMAGE_IDS_FILE = ICONS_DIR / "asset_ids.json"
+ICONS_LUAU = REPO / "src" / "shared" / "data" / "Icons.luau"
+IMAGE_CONTENT_TYPE = "image/png"
+IMAGE_ASSET_TYPE = "Decal"
 
 GAME_NAME = "Roblox Alien Game"
 # Test hook: point the tool at a local mock instead of Roblox. Leave unset for real uploads.
@@ -145,6 +160,59 @@ def prop_names() -> "list[str]":
     for fmt in CONTENT_TYPES:
         found.update(discover(fmt)[1])
     return sorted(found)
+
+
+def discover_images() -> "dict[str, tuple[pathlib.Path, str]]":
+    """key -> (png path, kind) for every PNG under assets/icons ("icon") and assets/particles ("particle")."""
+    out: "dict[str, tuple[pathlib.Path, str]]" = {}
+    for folder, kind in ((ICONS_DIR, "icon"), (PARTICLES_DIR, "particle")):
+        if folder.is_dir():
+            for f in sorted(folder.glob("*.png")):
+                if f.stem in out:
+                    die("image key %s exists in both assets/icons and assets/particles" % f.stem)
+                out[f.stem] = (f, kind)
+    return out
+
+
+def icons_luau_keys() -> "tuple[list[str], list[str]]":
+    """The keys src/shared/data/Icons.luau lists in its Icons and Particles tables, in file order."""
+    icons: "list[str]" = []
+    particles: "list[str]" = []
+    if not ICONS_LUAU.is_file():
+        return icons, particles
+    current: "list[str] | None" = None
+    for line in ICONS_LUAU.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("local Icons"):
+            current = icons
+        elif stripped.startswith("local Particles"):
+            current = particles
+        elif stripped.startswith("local Aliases") or stripped.startswith("return"):
+            current = None
+        elif current is not None and "=" in stripped and not stripped.startswith("--"):
+            current.append(stripped.split("=")[0].strip())
+    return icons, particles
+
+
+def emit_icons_luau(ids: "dict[str, dict]") -> str:
+    """The Icons and Particles tables for src/shared/data/Icons.luau: every key the data file lists, plus
+    any uploaded key it does not list yet, with 0 for a key without an id."""
+    icons, particles = icons_luau_keys()
+    images = discover_images()
+    for key, (_, kind) in images.items():
+        target = icons if kind == "icon" else particles
+        if key not in target:
+            target.append(key)
+    lines = ["local Icons: { [string]: number } = {"]
+    for key in icons:
+        lines.append("\t%s = %d," % (key, int(ids.get(key, {}).get("assetId", 0))))
+    lines.append("}")
+    lines.append("")
+    lines.append("local Particles: { [string]: number } = {")
+    for key in particles:
+        lines.append("\t%s = %d," % (key, int(ids.get(key, {}).get("assetId", 0))))
+    lines.append("}")
+    return "\n".join(lines)
 
 
 def entry_format(entry: dict) -> str:
@@ -312,21 +380,27 @@ def http(method: str, url: str, key: str, body: "bytes | None" = None,
 # --------------------------------------------------------------------------- upload
 
 def upload_one(name: str, model: pathlib.Path, key: str, creator: "dict[str, str]",
-               poll_interval: float, fmt: str = DEFAULT_FORMAT) -> "tuple[int, str]":
-    """Create the asset, poll its operation. Returns (assetId, moderation state or '')."""
+               poll_interval: float, fmt: str = DEFAULT_FORMAT, asset_type: str = "Model",
+               content_type: "str | None" = None) -> "tuple[int, str]":
+    """Create the asset, poll its operation. Returns (assetId, moderation state or '').
+
+    asset_type "Model" with a .glb or .fbx (content type from fmt), or "Decal" with a PNG (content_type
+    image/png) for the icon and particle images.
+    """
     data = model.read_bytes()
     if len(data) > MAX_FILE_BYTES:
         raise UploadError("%s is %.1f MB, over the 20 MB limit" % (model.name, len(data) / 1048576.0))
     today = datetime.date.today().isoformat()
+    what = "model" if asset_type == "Model" else "image"
     meta = {
-        "assetType": "Model",
+        "assetType": asset_type,
         "displayName": name,
-        "description": "%s model %s, uploaded %s from the repo's generated meshes." % (GAME_NAME, name, today),
+        "description": "%s %s %s, uploaded %s from the repo's generated assets." % (GAME_NAME, what, name, today),
         "creationContext": {"creator": creator},
     }
     body, ctype = multipart([
         ("request", None, None, json.dumps(meta).encode("utf-8")),
-        ("fileContent", model.name, CONTENT_TYPES[fmt], data),
+        ("fileContent", model.name, content_type or CONTENT_TYPES[fmt], data),
     ])
     op = http("POST", API_BASE + "/assets", key, body, ctype, RETRYABLE_CREATE, CREATE_ATTEMPTS)
     path = op.get("path")
@@ -378,9 +452,19 @@ def main() -> int:
     ap.add_argument("--emit-luau", action="store_true",
                     help="print the ASSET_IDS, PROP_NAMES and MATERIALS tables for "
                          "tools/studio/install_models.luau and exit")
+    ap.add_argument("--images", action="store_true",
+                    help="upload the PNGs under assets/icons and assets/particles as Decal assets instead of models "
+                         "(ids in assets/icons/asset_ids.json)")
+    ap.add_argument("--emit-icons-luau", action="store_true",
+                    help="print the Icons and Particles tables for src/shared/data/Icons.luau and exit (implies --images)")
     ap.add_argument("--ids-file", type=pathlib.Path, default=DEFAULT_IDS_FILE, help=argparse.SUPPRESS)
     ap.add_argument("--poll-interval", type=float, default=1.0, help=argparse.SUPPRESS)
     args = ap.parse_args()
+    images_mode = args.images or args.emit_icons_luau
+    if images_mode and args.ids_file == DEFAULT_IDS_FILE:
+        args.ids_file = IMAGE_IDS_FILE
+    if images_mode and (args.props or args.species or args.emit_luau):
+        die("--images cannot be combined with --props, --species or --emit-luau")
 
     ids = load_ids(args.ids_file)
 
@@ -389,24 +473,45 @@ def main() -> int:
             print("upload_assets: %s has no ids yet; run the upload first" % args.ids_file, file=sys.stderr)
         print(emit_luau(ids))
         return 0
+    if args.emit_icons_luau:
+        if not ids:
+            print("upload_assets: %s has no ids yet; run --images first" % args.ids_file, file=sys.stderr)
+        print(emit_icons_luau(ids))
+        return 0
 
     fmt = args.format
-    species, props = discover(fmt)
-    if not species and not props:
-        die("no .%s files found under %s" % (fmt, MODELS_DIR))
+    kinds: "dict[str, str]" = {}
     wanted: "dict[str, pathlib.Path]" = {}
-    if args.species or not args.props:
-        wanted.update(species)
-    if args.props or not args.species:
-        wanted.update(props)
-    if args.only:
-        names = [n.strip() for n in args.only.split(",") if n.strip()]
-        known = dict(species)
-        known.update(props)
-        unknown = [n for n in names if n not in known]
-        if unknown:
-            die("unknown model name(s): %s (names are the folder names under assets/models)" % ", ".join(unknown))
-        wanted = {n: known[n] for n in names}
+    if images_mode:
+        images = discover_images()
+        if not images:
+            die("no .png files found under %s or %s" % (ICONS_DIR, PARTICLES_DIR))
+        for key, (path, kind) in images.items():
+            wanted[key] = path
+            kinds[key] = kind
+        fmt = "png"
+        if args.only:
+            names = [n.strip() for n in args.only.split(",") if n.strip()]
+            unknown = [n for n in names if n not in wanted]
+            if unknown:
+                die("unknown image key(s): %s (keys are the file names under assets/icons and assets/particles)" % ", ".join(unknown))
+            wanted = {n: wanted[n] for n in names}
+    else:
+        species, props = discover(fmt)
+        if not species and not props:
+            die("no .%s files found under %s" % (fmt, MODELS_DIR))
+        if args.species or not args.props:
+            wanted.update(species)
+        if args.props or not args.species:
+            wanted.update(props)
+        if args.only:
+            names = [n.strip() for n in args.only.split(",") if n.strip()]
+            known = dict(species)
+            known.update(props)
+            unknown = [n for n in names if n not in known]
+            if unknown:
+                die("unknown model name(s): %s (names are the folder names under assets/models)" % ", ".join(unknown))
+            wanted = {n: known[n] for n in names}
 
     todo = dict(wanted) if args.redo else {n: p for n, p in wanted.items() if n not in ids}
     if not args.redo:
@@ -448,7 +553,11 @@ def main() -> int:
         for name in sorted(todo):
             model = todo[name]
             try:
-                asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt)
+                if images_mode:
+                    asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt,
+                                                 IMAGE_ASSET_TYPE, IMAGE_CONTENT_TYPE)
+                else:
+                    asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt)
             except UploadError as exc:
                 failed.append(name)
                 log("FAIL   %-14s %s" % (name, exc))
@@ -462,6 +571,8 @@ def main() -> int:
                 "file": str(model.relative_to(REPO)),
                 "format": fmt,
             }
+            if images_mode:
+                ids[name]["kind"] = kinds[name]
             save_ids(args.ids_file, ids)
             done += 1
             log("ok     %-14s %-4s asset %d%s" % (name, fmt, asset_id, "  moderation: " + state if state else ""))

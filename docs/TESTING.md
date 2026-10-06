@@ -400,3 +400,15 @@ A thin band at the top centre of the HUD (`data/Compass.luau`): cardinal letters
 6. iPhone SE emulator: the strip, its letters and the heading pill are readable and the line under it does not collide with the ship bar. Output clean.
 
 Known gaps in this milestone: no marker icons (diamonds only), no event marker for a Meteor Shower (it has no position), no tap on a diamond to set a waypoint yet.
+
+## Milestone 31: the icon pack (World 1 place; before and after the image upload)
+
+The 48 icons and 3 particle sprites rendered from Blender (`assets/icons`, `assets/particles`) are keyed in `data/Icons.luau`; `tools/upload_assets.py --images` uploads them as Decals and `--emit-icons-luau` fills the ids in. Every id is 0 until then, and the UI must look exactly as it did.
+
+1. With the ids at 0: the menu stack and the round top buttons show their glyph letters, the Scrap pill its colour square, the shower banner its purple square, rain and snow their default sparkle particles. Output clean.
+2. `python3 tools/upload_assets.py --images --dry-run` lists 51 PNGs; `--images` uploads them (Decals), writes `assets/icons/asset_ids.json`; `--images --emit-icons-luau` prints the two tables, which replace the ones in `src/shared/data/Icons.luau`; analyze clean; commit both files.
+3. With the ids in: the six menu buttons show the price tag, alien face, book, rocket, scroll and gift box icons at 70% of the face, the Settings gear and the Ranks podium on the top buttons, the gear-cog coin in the Scrap pill, the meteor on the shower banner's left square; every button still presses, hovers and opens its panel; the letters are gone.
+4. `/weather Rain` then `/weather Snow` (World 2 for Snow and Blizzard): drops are soft vertical streaks, flakes six-point flakes, fog wisps soft blobs; the counts and speeds are unchanged (the data numbers did not move).
+5. iPhone SE emulator: the icons stay crisp and centred on the buttons; nothing clips.
+
+Known gaps in this milestone: the material, gear, rarity, power-up and lure icons are uploaded but not yet placed (toasts, nodes, cards and the shop rows come next); no Glider or JetBoost icon; the server luck banner has no icon.
