@@ -101,6 +101,7 @@ local renderConn: RBXScriptConnection? = nil
 local prefsConn: RBXScriptConnection? = nil
 local clockConn: RBXScriptConnection? = nil
 local buffsConn: RBXScriptConnection? = nil
+local biomeConn: RBXScriptConnection? = nil
 local blizzard = false -- State.GetConditions() holds "Blizzard"
 local heaterSpots: { { x: number, z: number, radius: number } } = {} -- lit heaters as of the last evaluate
 local lastEvaluate = 0
@@ -315,8 +316,14 @@ local function pulseCovers(record: Record, running: boolean): boolean
 	return running and record.part:GetAttribute("Biome") == State.GetBiome()
 end
 
+local pulseEndToken = 0 -- bumped per scheduled end check, so only the latest one runs
+local PULSE_END_GRACE = 0.2 -- seconds after the buff's end time before the end is judged (clock skew)
+
 -- Judges the Scanner Pulse for every tracked alien: a covered alien is unshadowed (and marked), a marked
 -- one no longer covered (the pulse ended, or the player left the biome) goes back under the shadow rule.
+-- Runs on every buffs push and every biome change, and once more right after the pulse's end time: the
+-- server pushes nothing when a buff simply runs out, and the distance loop only revisits aliens near the
+-- player, so without this the farthest revealed aliens stayed in colour after the pulse (the Mac's run).
 local function applyPulse()
 	local running = pulseRunning()
 	local at = rootPosition()
@@ -330,6 +337,16 @@ local function applyPulse()
 			record.pulseRevealed = false
 			reshadowIfFar(record, at)
 		end
+	end
+	local endsAt = State.GetBuffs()[SCANNER_PULSE]
+	if running and endsAt then
+		pulseEndToken += 1
+		local token = pulseEndToken
+		task.delay(math.max(0, endsAt - State.Now()) + PULSE_END_GRACE, function()
+			if token == pulseEndToken then
+				applyPulse()
+			end
+		end)
 	end
 end
 
@@ -700,6 +717,9 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	end
 	if not buffsConn then
 		buffsConn = State.OnChanged("buffs", applyPulse)
+	end
+	if not biomeConn then
+		biomeConn = State.OnChanged("biome", applyPulse) -- leaving the biome uncovers what the pulse revealed there
 	end
 	refreshBlizzard()
 	if renderConn then

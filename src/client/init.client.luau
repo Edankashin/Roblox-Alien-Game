@@ -1331,7 +1331,7 @@ local function start(profile: Types.Profile)
 		local rushNextIn = math.max(0, rushState.nextInSeconds - rushElapsed)
 		if shower.nextInSeconds > 0 and nextIn > 0 and nextIn <= Config.ShowerWarnSeconds then
 			Hud.SetEventCountdown(nextIn)
-		elseif not Place.IsHome() and not rushState.active and rushState.nextInSeconds > 0 and rushNextIn <= CatchRush.WarnSeconds then
+		elseif not Place.IsHome() and not rushState.active and rushState.nextInSeconds > 0 and rushNextIn > 0 and rushNextIn <= CatchRush.WarnSeconds then
 			Hud.SetEventCountdown(rushNextIn, Strings.RUSH_CHIP) -- never at home, where no rush runs
 		else
 			Hud.SetEventCountdown(nil)

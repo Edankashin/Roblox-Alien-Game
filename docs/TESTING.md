@@ -602,7 +602,7 @@ The Scanner Pulse power-up (`data/PowerUps`, effect "reveal", 60 s, from quests 
 2. An uncaught species 100 studs away is drawn in colour (no silhouette) while the pulse runs and shadows again when it ends; the Nearby panel on tier 0 lists the same species it always did.
 3. The buff ring under the ship bar counts the 60 s down; at the end the rim blips go, the ring returns to blue, the silhouettes return. Rejoin mid-pulse (memory profiles): the timer resumes and the reveal with it. Output clean.
 
-Known gaps in this milestone: "hidden spots" are not built in any world, so the pulse reveals aliens only; no sound on activation beyond the generic power-up cue.
+Known gaps in this milestone: "hidden spots" are not built in any world, so the pulse reveals aliens only; no sound on activation beyond the generic power-up cue. By design, a Secret-tier wild gets no blip from the pulse below Radar Mk2: the "???" ping is what Mk2 sells, and the pulse never gives a secret away.
 
 
 
