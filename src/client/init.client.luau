@@ -1061,9 +1061,8 @@ local function start(profile: Types.Profile)
 			end
 			rushWasActive = true
 		else
-			if rushWasActive and not rushBannerHeld then -- a rush the player never saw announced needs no goodbye
-				Toast.Show(Strings.RUSH_OVER, Theme.Colors.Featured)
-			end
+			-- No goodbye toast here: every player gets a CatchRushResult toast at the end (ranked, paid for taking
+			-- part, or "catch one next time"), and two toasts at once read as a bug.
 			rushWasActive = false
 			rushBannerHeld = false
 		end
@@ -1129,11 +1128,13 @@ local function start(profile: Types.Profile)
 				local weather = weeklyWeather(current)
 				-- The title is the fixed line (a name there clipped at phone width); the species goes under it, with its
 				-- world named when the drop is on another world, so a player on World 1 knows where to fly.
+				-- The subtitle keeps the species and the time (a world name there wrapped and clipped at phone width); when
+				-- the drop is on another world the chip names that world instead of the week's weather.
 				local dropWorld = Worlds[current.drop.worldId]
-				local subtitle = if current.drop.worldId == Place.WorldId() or not dropWorld
-					then Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
-					else Strings.WEEKLY_LEFT_ELSEWHERE:format(weeklyName(current), dropWorld.name, weeklyLeftText(current))
-				Hud.SetEventBanner(Strings.WEEKLY_BANNER, subtitle, if weather then Strings.WEEKLY_CHIP:format(weather) else nil, nil)
+				local elsewhere = current.drop.worldId ~= Place.WorldId() and dropWorld ~= nil
+				local subtitle = Strings.WEEKLY_LEFT:format(weeklyName(current), weeklyLeftText(current))
+				local chip = if elsewhere and dropWorld then Strings.WEEKLY_CHIP_WORLD:format(dropWorld.name) elseif weather then Strings.WEEKLY_CHIP:format(weather) else nil
+				Hud.SetEventBanner(Strings.WEEKLY_BANNER, subtitle, chip, nil)
 			else
 				Hud.SetEventBanner(nil, nil, nil)
 			end
@@ -1141,7 +1142,7 @@ local function start(profile: Types.Profile)
 		-- The countdown chip: the shower's when one is due, else the rush's (never while the rush runs).
 		local nextIn = math.max(0, shower.nextInSeconds - elapsed)
 		local rushNextIn = math.max(0, rushState.nextInSeconds - rushElapsed)
-		if shower.nextInSeconds > 0 and nextIn <= Config.ShowerWarnSeconds then
+		if shower.nextInSeconds > 0 and nextIn > 0 and nextIn <= Config.ShowerWarnSeconds then
 			Hud.SetEventCountdown(nextIn)
 		elseif not rushState.active and rushState.nextInSeconds > 0 and rushNextIn <= CatchRush.WarnSeconds then
 			Hud.SetEventCountdown(rushNextIn, Strings.RUSH_CHIP)
@@ -1189,7 +1190,12 @@ local function start(profile: Types.Profile)
 			local key = luckState.playerName .. ":" .. tostring(luckState.bonus)
 			if serverLuckShown ~= key then
 				serverLuckShown = key
-				Toast.Banner(Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, ("%d"):format(1 + luckState.bonus)), Theme.Colors.Featured, Config.AnnounceSeconds)
+				local multiplierText = ("%d"):format(1 + luckState.bonus)
+				-- A window from the developer panel carries the team's name (Strings.ADMIN_LUCK_NAME): its own line, since nobody bought it.
+				local text = if luckState.playerName == Strings.ADMIN_LUCK_NAME
+					then Strings.TOAST_SERVERLUCK_GIFT:format(multiplierText)
+					else Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, multiplierText)
+				Toast.Banner(text, Theme.Colors.Featured, Config.AnnounceSeconds)
 			end
 		else
 			serverLuckShown = nil
