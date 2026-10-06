@@ -29,6 +29,7 @@ return {
 		Fuse = "Fuse", -- value: the kept copy's new level; field species
 		Companion = "Companion", -- value 1; fields action (follow, unfollow, token), species
 		Mount = "Mount", -- value 1; fields action (mount, dismount), species, traversal
+		Sighting = "Sighting", -- value 1 per player online when a Warden sighting starts; field species
 		WeeklyFlip = "WeeklyFlip", -- value: the rotation index; fields species, weather; once per server when the week changes
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},

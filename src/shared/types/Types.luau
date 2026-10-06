@@ -197,6 +197,8 @@ export type SpinResult = { segmentId: string, index: number }
 
 -- Events -> clients (ShowerChanged, FireAllClients): the Meteor Shower clock.
 export type ShowerState = { active: boolean, secondsLeft: number, nextInSeconds: number }
+-- Sightings -> every client (SightingChanged, GetSighting): the Warden crossing the map, or when the next one starts.
+export type SightingState = { active: boolean, species: string, secondsLeft: number, nextInSeconds: number }
 
 -- The Catch Rush clock (CatchRushChanged event to all clients, GetCatchRush for late joiners): the round's
 -- state plus the leaders so far (top TopCount by catches, then the asking player's own row when outside it).

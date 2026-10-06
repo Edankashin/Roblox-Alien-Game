@@ -503,4 +503,17 @@ Every week on the leaderboard's Friday 16:00 UTC clock (`data/Weekly.luau`, `Sha
 
 Known gaps in this milestone: no hosted Shower Storm or developer panel yet (MessagingService, a later card), the weekly species is drawn from the existing roster until new weekly models exist, one themed weather (Aurora) so far.
 
+## Milestone 39: Warden sightings (World 1 place; step 5 on World 2)
+
+Every 20 minutes on the server clock (`data/Sightings.luau`) the world's Warden walks a loop of the map in the open: from the shrine, between the camp and the Forest, past the wreck, by the Cave mouth and back, at 8 studs a second (about 80 s), leaving a trail of glowing puffs (flowers on World 1, frost on World 2). It cannot be caught or marked; a banner opens it and a toast closes it; the compass points at it while it walks if nothing else is marked. Dev: `/sighting [end]`.
+
+1. `/sighting`: a server-wide banner "Gaiabloom is crossing the land! Go and see" with the Warden horn sound; the compass line reads "Warden 150m" (when no radar target or waypoint is set) and a Legendary-coloured diamond tracks it; Output `analytics: event Sighting value=1 species=Gaiabloom`. Walk to it: the Gaiabloom mesh (placeholder if not installed) at 1.3x walks the floor smoothly, turns toward its travel, and leaves pink puffs every 3 studs that glow and fade over 20 s. Its name plate reads "Gaiabloom" with no tier line.
+2. Uncatchable: no capture prompt near it, the Nearby panel and the radar ignore it, a tap on it does nothing, and the capture bar never opens. The wild spawns around it carry on.
+3. At the end of the loop (about 80 s) the part goes, the toast "Gaiabloom has wandered off" shows, the compass marker clears, the trail fades on its own. `/sighting end` mid-walk does the same at once.
+4. The tutorial hold: on a fresh profile under the tutorial, `/sighting` shows no banner and no toast (the Warden still walks). A shower banner keeps its slot; the sighting is a banner and a compass marker only, never the event slot.
+5. `/world 2`, `/sighting`: Skaddle walks the same loop over Frostbyte with frost-blue puffs. A sighting that was running when you arrived is drawn from its current point (late join). Output clean.
+
+Known gaps in this milestone: no walk animation (the mesh glides with a bob), no camera pull, the Warden walks through props on its path (the points keep clear of the landmarks and the camp).
+
+
 
