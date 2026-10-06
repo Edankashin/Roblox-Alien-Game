@@ -308,9 +308,8 @@ local function setMount(uid: string?, name: string)
 	end)
 end
 
--- The habitats on the plot for a world with their free places (HomeRenderer.HabitatsFor), asked once per world
--- while the cards are built; the cache is cleared at the start of every rebuild.
--- Whether the data has a habitat item for this world at all (data/HomeBuild rows of kind "habitat").
+-- Whether the data has a habitat item for this world at all (data/HomeBuild rows of kind "habitat"): the Display
+-- button shows for every such world; whether one stands on the plot is asked fresh at the tap (displayAlien).
 local function habitatExists(world: number): boolean
 	for _, item in ipairs(HomeBuildData.Items) do
 		if item.kind == "habitat" and item.worldId == world then
