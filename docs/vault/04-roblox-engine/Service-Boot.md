@@ -6,6 +6,10 @@ The server bootstrap (`src/server/init.server.luau`) calls every service's `Init
 
 `Admin.Start` called `MessagingService:SubscribeAsync` inline. On a published place it answers in a moment; on an unpublished place (a Studio build of `home.project.json`, PlaceId 0) it never returns, so Dev never started and the home place looked hung with no error. The fix: the subscribe runs in `task.spawn`, and the panel's commands apply locally until it answers.
 
+## The second one (milestone 42d, 2026-10-06)
+
+`Admin.publish` called `MessagingService:PublishAsync` inline from a chat command. On the unpublished home place it never returned either, so every `/admin` verb silently did nothing. The fix: the publish runs in `task.spawn`, and a `task.delay` of `Admin.PublishTimeoutSeconds` applies the command locally when the publish has not answered by then (a late answer is ignored). The same shape fits any "send, then fall back" call: never wait on it inline.
+
 ## Rules
 
 - A network API in `Init` or `Start` (`MessagingService`, `DataStoreService`, `TeleportService`, `HttpService`, `MarketplaceService`, `TextService`) goes in its own thread with a `pcall`, and the service works without it until it answers.
