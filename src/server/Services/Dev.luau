@@ -1,6 +1,6 @@
 --!strict
 -- ServerScriptService.Server.Services.Dev: chat commands for testing, available only in Studio.
--- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower, /days 7, /spins 3, /radar, /tutorial 6,
+-- Typed in the chat box: /scrap 1000, /night, /day, /rain, /clear, /shower [end | in N], /rush [end | in N], /days 7, /spins 3, /radar, /tutorial 6,
 -- /buy StarterPack, /pass AutoOptimize [off], /world 2, /complete (every module of this world done, so the launch
 -- can be tested in minutes), /outpost 2 3 (world 2's outpost has 3 hours to collect), /social reset | credit N | ask
 -- (forget the social flags, pay N inviter rewards, show the notifications card at once), /lb N | flush (N catches on the
@@ -26,6 +26,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local EconomyService = require(script.Parent.Economy)
 local WorldClock = require(script.Parent.WorldClock)
 local Events = require(script.Parent.Events)
+local CatchRush = require(script.Parent.CatchRush)
 local Gifts = require(script.Parent.Gifts)
 local Social = require(script.Parent.Social)
 local Leaderboard = require(script.Parent.Leaderboard)
@@ -131,6 +132,21 @@ local function forceShower(player: Player, text: string)
 	local on = word ~= "end" and word ~= "off"
 	Events.Force(on)
 	print(("[%s] dev: %s %s the Meteor Shower"):format(Config.WorkingTitle, player.Name, if on then "started" else "ended"))
+end
+
+-- /rush [end | in N]: start a Catch Rush round now (it runs its normal length), end the current one (it is
+-- settled and paid at once), or schedule the next start N seconds from now so the countdown chip can be seen.
+local function forceRush(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "in" then
+		local seconds = tonumber(string.match(text, "in%s+(%d+)") or "") or 0
+		CatchRush.ForceNext(seconds)
+		print(("[%s] dev: %s set the next Catch Rush %ds from now"):format(Config.WorkingTitle, player.Name, seconds))
+		return
+	end
+	local on = word ~= "end" and word ~= "off"
+	CatchRush.Force(on)
+	print(("[%s] dev: %s %s the Catch Rush"):format(Config.WorkingTitle, player.Name, if on then "started" else "ended"))
 end
 
 local SPAWN_OFFSET_STUDS = 8 -- a /spawn alien appears this far in front of the player
@@ -460,6 +476,7 @@ function Dev.Init()
 		end
 	end)
 	command("shower", forceShower)
+	command("rush", forceRush)
 	command("spawn", spawnSpecies)
 	command("variant", setVariant)
 	command("grow", growCamp)
@@ -490,7 +507,7 @@ end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /days N, /spins N, /radar, /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done)"):format(Config.WorkingTitle))
 	end
 end
 

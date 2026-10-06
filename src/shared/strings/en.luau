@@ -360,6 +360,16 @@ return {
 	SHOWER_LEFT = "%s left",
 	SHOWER_LUCK = "x%s LUCK",
 	SHOWER_OVER = "The sky clears",
+	-- Catch Rush (data/CatchRush)
+	RUSH_CHIP = "Rush in %s",
+	RUSH_NOW = "Catch Rush!",
+	RUSH_LEFT = "%s left",
+	RUSH_SCORE = "You %d · Top %d",
+	RUSH_OVER = "Catch Rush over!",
+	RUSH_RESULT = "Catch Rush: #%d with %d catches! %s",
+	RUSH_PART = "Catch Rush: %d catches! %s",
+	RUSH_NONE = "Catch Rush over: catch one next time!",
+	ANNOUNCE_RUSH = "%s won the Catch Rush with %d catches!",
 	-- Field Notes (quest chain)
 	QUESTS_TITLE = "Field Notes",
 	QUESTS_STEP = "Step %d of %d",

@@ -94,7 +94,7 @@ local BANNER_TEXT_LEFT = 0.14 -- the banner text starts after the icon square
 local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
 local BANNER_TEXT_WIDTH_FULL = 0.82 -- without a chip
 
--- m:ss for the shower countdown chip (TIME_MS past a minute, TIME_S under it).
+-- m:ss for the event countdown chip (TIME_MS past a minute, TIME_S under it).
 local function formatCountdown(seconds: number): string
 	if seconds ~= seconds or seconds == math.huge then
 		seconds = 0
@@ -770,14 +770,15 @@ function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, ico
 	applyLuckLine()
 end
 
--- Meteor Shower countdown chip under the biome chip: seconds until the shower, or nil to hide it.
-function Hud.SetShowerCountdown(seconds: number?)
+-- Event countdown chip under the biome chip: seconds until the event, or nil to hide it. `format` is the
+-- chip's string with one %s for the time (SHOWER_CHIP when nil; the Catch Rush passes RUSH_CHIP).
+function Hud.SetEventCountdown(seconds: number?, format: string?)
 	local chip, label = showerChip, showerLabel
 	if not chip or not label then
 		return
 	end
 	if seconds then
-		label.Text = Strings.SHOWER_CHIP:format(formatCountdown(seconds))
+		label.Text = (format or Strings.SHOWER_CHIP):format(formatCountdown(seconds))
 		if not chip.Visible then
 			chip.Visible = true
 			Builder.pop(chip, 1.1)
@@ -785,6 +786,11 @@ function Hud.SetShowerCountdown(seconds: number?)
 	else
 		chip.Visible = false
 	end
+end
+
+-- Meteor Shower countdown chip under the biome chip: seconds until the shower, or nil to hide it.
+function Hud.SetShowerCountdown(seconds: number?)
+	Hud.SetEventCountdown(seconds, nil)
 end
 
 function Hud.SetScrap(amount: number)

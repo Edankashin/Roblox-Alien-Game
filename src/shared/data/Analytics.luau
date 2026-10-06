@@ -25,11 +25,12 @@ return {
 		DailyQuest = "DailyQuest", -- value 1; fields period (daily, weekly), id, action (claim, reroll)
 		Code = "Code", -- value 1; field id
 		FriendsInServer = "FriendsInServer", -- value: friends of the player in this server, on every change
+		CatchRush = "CatchRush", -- value: the player's catches in a round; field rank (0 = unranked)
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush" },
 		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds

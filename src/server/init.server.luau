@@ -8,7 +8,8 @@
 -- Economy's offline settlement on load); WorldClock before Spawner (conditions), Events right after WorldClock (it switches the Shower
 -- condition on that clock and Buffs and Spawner read its luck and Cosmic share), Meadow before
 -- Materials and Spawner (floor), Leaderboard after PlayerData and before Economy (Economy reports each
--- catch to it), Economy
+-- catch to it), CatchRush right after Leaderboard (Catching reports each wild catch to it; it requires Gifts, Events, Analytics and PlayerData and nothing
+-- that requires Catching, and only uses Gifts when a round ends), Economy
 -- before Catching (a catch is granted and seated there), Economy after PlayerData (it listens for
 -- loads), Buffs before Shop (Shop registers its WalkSpeed setter with Buffs) and before Catching
 -- (Steady Hands widens the zones), Shop after Economy (it shares ScrapChanged and InventoryChanged)
@@ -31,7 +32,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Meadow", "Materials", "Spawner", "Leaderboard", "CatchRush", "Economy", "Heaters", "Outposts", "Launch", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Social", "Codes", "Settings", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

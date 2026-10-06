@@ -1,7 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
--- SettingsChanged, PurchasesChanged, ServerLuckChanged);
+-- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -23,7 +23,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -34,6 +34,8 @@ local buffs: { [string]: number } = {} -- id -> server wall-clock time (os.time 
 local gifts: Types.GiftState = { daysPlayed = 0, claimed = {}, freeSpins = 0, bankedSpins = 0 }
 local shower: Types.ShowerState = { active = false, secondsLeft = 0, nextInSeconds = 0 }
 local showerAt = 0 -- State.Now() when the shower state arrived, so the client counts between pushes
+local rush: Types.CatchRushState = { active = false, secondsLeft = 0, nextInSeconds = 0, rows = {} }
+local rushAt = 0 -- State.Now() when the Catch Rush state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
 local luck = 1
 local friendCount = 0 -- friends in this server and the luck boost they give (FriendBoostChanged), a fraction
@@ -186,6 +188,22 @@ function State.SeedShower(state: Types.ShowerState)
 	shower = state
 	showerAt = Workspace:GetServerTimeNow()
 	fire("shower")
+end
+
+-- The Catch Rush clock as pushed (the round's state and its leaders), plus the seconds elapsed since,
+-- so countdowns run between pushes.
+function State.GetRush(): (Types.CatchRushState, number)
+	return rush, math.max(0, Workspace:GetServerTimeNow() - rushAt)
+end
+
+-- A late joiner's GetCatchRush answer; a push that already arrived is newer and wins.
+function State.SeedRush(state: Types.CatchRushState)
+	if rushAt > 0 then
+		return
+	end
+	rush = state
+	rushAt = Workspace:GetServerTimeNow()
+	fire("rush")
 end
 
 -- Robux products granted (id -> count), passes owned and the Starter Pack's Rare, plus whether the
@@ -411,6 +429,13 @@ function State.Start()
 			shower = state
 			showerAt = Workspace:GetServerTimeNow()
 			fire("shower")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("CatchRushChanged").OnClientEvent:Connect(function(state: Types.CatchRushState)
+			rush = state
+			rushAt = Workspace:GetServerTimeNow()
+			fire("rush")
 		end)
 	end)
 	task.spawn(function()

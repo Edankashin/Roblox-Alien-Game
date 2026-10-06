@@ -21,6 +21,7 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local Biomes = require(Shared:WaitForChild("Biomes"))
 local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local GrowthData = require(Shared:WaitForChild("data"):WaitForChild("Growth"))
@@ -577,14 +578,22 @@ local function connectToasts()
 			end)
 		end)
 	end)
-	-- Server-wide catch banners for rare finds, in the tier's colour.
+	-- Server-wide banners: a rare find in the tier's colour, or the Catch Rush winner in the Featured gold.
 	task.spawn(function()
 		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
-			local def = Species.ById[note.species]
-			local speciesName = if def then def.name else note.species
-			local text = if note.overlay ~= "None"
-				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
-				else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
+			local text: string
+			local color: Color3
+			if note.kind == "rush" then
+				text = Strings.ANNOUNCE_RUSH:format(note.playerName, note.catches or 0)
+				color = Theme.Colors.Featured
+			else
+				local def = Species.ById[note.species]
+				local speciesName = if def then def.name else note.species
+				text = if note.overlay ~= "None"
+					then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
+					else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
+				color = Builder.tierColor(note.tier)
+			end
 			-- The Reveal owns the screen while it is up (its NEW ribbon sits where the banner lands): wait for it.
 			task.spawn(function()
 				local waited = 0
@@ -592,8 +601,21 @@ local function connectToasts()
 					task.wait(Config.BannerDeferSeconds)
 					waited += Config.BannerDeferSeconds
 				end
-				Toast.Banner(text, Builder.tierColor(note.tier), Config.AnnounceSeconds)
+				Toast.Banner(text, color, Config.AnnounceSeconds)
 			end)
+		end)
+	end)
+	-- The player's own Catch Rush result: placed and paid (rank 1 to TopCount), paid for taking part (past
+	-- it) or nothing to show (rank 0, which the tutorial hold also keeps quiet).
+	task.spawn(function()
+		Net.event("CatchRushResult").OnClientEvent:Connect(function(result: Types.CatchRushResult)
+			if result.rank >= 1 and result.rank <= CatchRush.TopCount then
+				Toast.Show(Strings.RUSH_RESULT:format(result.rank, result.catches, GiftsScreen.RewardText(result.rewards)), Theme.Colors.Featured)
+			elseif result.rank > CatchRush.TopCount then
+				Toast.Show(Strings.RUSH_PART:format(result.catches, GiftsScreen.RewardText(result.rewards)), Theme.Colors.Featured)
+			elseif not (TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()) then
+				Toast.Show(Strings.RUSH_NONE, Theme.Colors.Select)
+			end
 		end)
 	end)
 	task.spawn(function()
@@ -876,14 +898,47 @@ local function start(profile: Types.Profile)
 		end)
 	end)
 
-	-- Meteor Shower: countdown chip before, event banner with the luck chip during, toasts at the edges.
-	-- While the tutorial runs (data/Tutorial Script.HoldEventBannersWhileActive) the banner, the chip, the
-	-- countdown and the horn wait; the shower itself (sky streaks, luck) is real and runs as ever.
+	-- Event banner slot: the Meteor Shower first, then the Catch Rush, then a server luck someone bought.
+	-- Meteor Shower: countdown chip before, event banner with the luck chip during, toasts at the edges; the
+	-- Catch Rush: its own countdown chip (only when no shower's is due), banner with the score during, toasts
+	-- at the edges. While the tutorial runs (data/Tutorial Script.HoldEventBannersWhileActive) the banner, the chip, the
+	-- countdown and the horn wait; the shower itself (sky streaks, luck) is real and runs as ever. The
+	-- Catch Rush is held the same way and, if a shower runs when it starts, waits for the slot too.
 	local showerWasActive = false
 	local showerBannerHeld = false -- a shower began under the hold, so its banner is still owed
-	local function refreshShower()
+	local rushWasActive = false
+	local rushBannerHeld = false -- a rush began under the hold or a shower, so its banner is still owed
+	-- "1m 5s" / "40s" for a banner's time left, in whole seconds: %d refuses a fraction.
+	local function timeLeftText(seconds: number): string
+		local left = math.ceil(math.max(0, seconds))
+		local minutes = left // 60
+		return if minutes > 0 then Strings.TIME_MS:format(minutes, left % 60) else Strings.TIME_S:format(left)
+	end
+	local function refreshEventBanner()
 		local shower, elapsed = State.GetShower()
+		local rushState, rushElapsed = State.GetRush()
 		local held = TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()
+		-- The rush's edges first (a toast at the start and at the end); the banner slot below still goes to
+		-- a running shower, which keeps priority when both are up.
+		if rushState.active then
+			if held or shower.active then
+				if not rushWasActive then
+					rushBannerHeld = true -- it began unseen; announced when the slot frees
+				end
+			else
+				if not rushWasActive or rushBannerHeld then
+					Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds)
+				end
+				rushBannerHeld = false
+			end
+			rushWasActive = true
+		else
+			if rushWasActive and not rushBannerHeld then -- a rush the player never saw announced needs no goodbye
+				Toast.Show(Strings.RUSH_OVER, Theme.Colors.Featured)
+			end
+			rushWasActive = false
+			rushBannerHeld = false
+		end
 		if shower.active then
 			if held then
 				if not showerWasActive then
@@ -892,14 +947,11 @@ local function start(profile: Types.Profile)
 				showerWasActive = true
 				showerBannerHeld = true
 				Hud.SetEventBanner(nil, nil, nil)
-				Hud.SetShowerCountdown(nil)
+				Hud.SetEventCountdown(nil)
 				return
 			end
-			local left = math.ceil(math.max(0, shower.secondsLeft - elapsed)) -- whole seconds: %d refuses a fraction
-			local minutes, seconds = left // 60, left % 60
-			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
-			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeText), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)), "Shower")
-			Hud.SetShowerCountdown(nil)
+			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeLeftText(shower.secondsLeft - elapsed)), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)), "Shower")
+			Hud.SetEventCountdown(nil)
 			if not showerWasActive then
 				Builder.playSound(Sounds.ShowerHorn)
 				Vfx.SetShowerSky(true)
@@ -922,31 +974,44 @@ local function start(profile: Types.Profile)
 		showerBannerHeld = false
 		if held then
 			Hud.SetEventBanner(nil, nil, nil)
-			Hud.SetShowerCountdown(nil)
+			Hud.SetEventCountdown(nil)
 			return
 		end
-		-- Server luck someone bought takes the banner slot while no shower runs.
+		-- No shower: a running Catch Rush takes the banner slot, else server luck someone bought.
 		local luckState, luckElapsed = State.GetServerLuck()
-		if luckState and luckState.secondsLeft - luckElapsed > 0 then
-			local left = math.ceil(luckState.secondsLeft - luckElapsed)
-			local minutes, seconds = left // 60, left % 60
-			local timeText = if minutes > 0 then Strings.TIME_MS:format(minutes, seconds) else Strings.TIME_S:format(seconds)
+		if rushState.active then
+			local own = 0
+			for _, row in ipairs(rushState.rows) do
+				if row.userId == localPlayer.UserId then
+					own = row.catches
+				end
+			end
+			local top = if rushState.rows[1] then rushState.rows[1].catches else 0
+			-- no icon for the rush yet: the banner shows its placeholder square
+			Hud.SetEventBanner(Strings.RUSH_NOW, Strings.RUSH_LEFT:format(timeLeftText(rushState.secondsLeft - rushElapsed)), Strings.RUSH_SCORE:format(own, top), nil)
+		elseif luckState and luckState.secondsLeft - luckElapsed > 0 then
+			local timeText = timeLeftText(luckState.secondsLeft - luckElapsed)
 			local multiplier = ("%d"):format(1 + luckState.bonus)
 			-- no icon for server luck yet: the banner shows its placeholder square
 			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
 		else
 			Hud.SetEventBanner(nil, nil, nil)
 		end
+		-- The countdown chip: the shower's when one is due, else the rush's (never while the rush runs).
 		local nextIn = math.max(0, shower.nextInSeconds - elapsed)
+		local rushNextIn = math.max(0, rushState.nextInSeconds - rushElapsed)
 		if shower.nextInSeconds > 0 and nextIn <= Config.ShowerWarnSeconds then
-			Hud.SetShowerCountdown(nextIn)
+			Hud.SetEventCountdown(nextIn)
+		elseif not rushState.active and rushState.nextInSeconds > 0 and rushNextIn <= CatchRush.WarnSeconds then
+			Hud.SetEventCountdown(rushNextIn, Strings.RUSH_CHIP)
 		else
-			Hud.SetShowerCountdown(nil)
+			Hud.SetEventCountdown(nil)
 		end
 	end
-	State.OnChanged("shower", refreshShower)
-	State.OnChanged("luck", refreshShower)
-	State.OnChanged("tutorial", refreshShower) -- the hold lifts the moment the last step completes
+	State.OnChanged("shower", refreshEventBanner)
+	State.OnChanged("rush", refreshEventBanner)
+	State.OnChanged("luck", refreshEventBanner)
+	State.OnChanged("tutorial", refreshEventBanner) -- the hold lifts the moment the last step completes
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
 	State.OnChanged("serverLuck", function()
@@ -960,7 +1025,7 @@ local function start(profile: Types.Profile)
 		else
 			serverLuckShown = nil
 		end
-		refreshShower()
+		refreshEventBanner()
 	end)
 	-- A late joiner missed the PurchasesChanged push; the answer seeds State unless a push beat it.
 	task.spawn(function()
@@ -976,6 +1041,14 @@ local function start(profile: Types.Profile)
 		local state = raw :: Types.ShowerState?
 		if state then
 			State.SeedShower(state)
+		end
+	end)
+	-- ...and the last CatchRushChanged push; same rule.
+	task.spawn(function()
+		local raw = Net.func("GetCatchRush"):InvokeServer()
+		local state = raw :: Types.CatchRushState?
+		if state then
+			State.SeedRush(state)
 		end
 	end)
 	LandmarkRenderer.Start()
@@ -1122,7 +1195,7 @@ local function start(profile: Types.Profile)
 		showerAccumulator += dt
 		if showerAccumulator >= SHOWER_POLL_SECONDS then
 			showerAccumulator = 0
-			refreshShower()
+			refreshEventBanner()
 		end
 		if shipAccumulator >= SHIP_POLL_SECONDS then
 			shipAccumulator = 0
@@ -1145,7 +1218,7 @@ local function start(profile: Types.Profile)
 		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
 		NearbyPanel.SetVisible(radarTier < 1 and not cinematic)
-		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
+		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
 		local target = radarTarget
 		if target then

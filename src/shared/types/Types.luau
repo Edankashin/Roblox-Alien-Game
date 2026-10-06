@@ -197,11 +197,26 @@ export type SpinResult = { segmentId: string, index: number }
 -- Events -> clients (ShowerChanged, FireAllClients): the Meteor Shower clock.
 export type ShowerState = { active: boolean, secondsLeft: number, nextInSeconds: number }
 
+-- The Catch Rush clock (CatchRushChanged event to all clients, GetCatchRush for late joiners): the round's
+-- state plus the leaders so far (top TopCount by catches, then the asking player's own row when outside it).
+export type CatchRushRow = { userId: number, name: string, catches: number }
+export type CatchRushState = { active: boolean, secondsLeft: number, nextInSeconds: number, rows: { CatchRushRow } }
+
+-- One player's result at the end of a round (CatchRushResult event to that player).
+export type CatchRushResult = { rank: number, catches: number, rewards: { any } } -- rank 0: no catches, nothing paid
+
 -- Quests -> client (QuestsChanged): the Field Notes step per world and the objective counts.
 export type QuestState = { fieldNotes: { [string]: number }, progress: { [string]: number } }
 
 -- Server-wide banner (Announcement event, FireAllClients) when someone catches a rare enough alien.
-export type Announcement = { kind: "catch", playerName: string, species: string, tier: Tier, overlay: Overlay }
+export type Announcement = {
+	kind: "catch" | "rush", -- a rare enough catch, or the Catch Rush winner (species, tier and overlay are then unused)
+	playerName: string,
+	species: string,
+	tier: Tier,
+	overlay: Overlay,
+	catches: number?, -- rush: the winner's count
+}
 
 -- Camp -------------------------------------------------------------------
 

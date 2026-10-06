@@ -436,3 +436,17 @@ Catch bursts, module bursts, meteor streaks and the Peddler's dust take the soft
 4. Output clean; no sprite part is visible as geometry.
 
 Known gaps in this milestone: no hoverboard trail, no screen-edge glow for a Legendary, no sound change with the effects.
+
+## Milestone 34: the Catch Rush (World 1 place, multi-client where noted)
+
+A 90-second shared round every 10 minutes on the wall clock (`data/CatchRush.luau`): every wild catch counts, the top three are paid by rank, anyone else with a catch gets a participation payout, the winner is announced to the server. A round that would start during a Meteor Shower is skipped.
+
+1. `/rush in 40`: the countdown chip under the clock reads "Rush in 0:40" (the shower's chip wins if both are due) and counts down; at zero a gold banner "Catch Rush!" and the event banner slot reads "Catch Rush!" over "1:30 left" with a chip "You 0 · Top 0".
+2. Catch three aliens during the round: the chip climbs to "You 3 · Top 3" within a second of each catch (one push per second at most). `/rush end`: toast "Catch Rush over!", then "Catch Rush: #1 with 3 catches! 500 Scrap, 1 spin" and the server-wide banner "<you> won the Catch Rush with 3 catches!"; Scrap and the spin land (Gifts screen); Output shows `analytics: event CatchRush value=3 rank=1`.
+3. A round with no catch: at its end the toast reads "Catch Rush over: catch one next time!" and nothing is paid.
+4. Multi-client (Test > Clients and Servers, 2 players): both see the same clock and chip; player A catches 2, player B 3: B's banner says #1 and A's says #2 with 300 Scrap; ties rank the earlier count first.
+5. `/shower` then `/rush`: the shower keeps the banner slot and the rush still counts underneath (the chip shows the rush after `/shower end`); on the live clock a rush whose start falls inside a shower is skipped (Output prints one line).
+6. Tutorial running: no rush banner or chip until it ends (the same hold as the shower); the rush still counts.
+7. Output clean; a late joiner (second client) during a round sees the banner and the right counts at once.
+
+Known gaps in this milestone: no cosmetic prize yet (Scrap and a spin instead), no Rush history or best-score line, no sound for the start; the countdown chip does not know a slot will be skipped for a shower (it counts to a start that then does not happen); a player who leaves mid-round is dropped from the table.
