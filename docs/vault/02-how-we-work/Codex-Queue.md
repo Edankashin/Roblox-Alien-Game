@@ -43,7 +43,7 @@ Files: `tools/test.sh` (new), `tests/` (new folder, one `*.spec.luau` per module
 
 Do: use the `luau` CLI (Luau's own interpreter from `luau-lang/luau` releases, pin the version, install into `$HOME/.local/bin` in `tools/ci/install-tools.sh` from card C1, or in `tools/test.sh` when missing) with a tiny test runner in `tests/run.luau` (describe/it/expect, no dependencies) that stubs `game:GetService` and `script.Parent` lookups just enough to `require` the pure shared modules by path. Cover: `Shared/Capture.luau` (`position` triangle wave at 0, a quarter, a half and a full period; `outcome` at the zone edges; `isNearMiss`; `driftCenter` with amplitude 0 returning base, with phase 0 returning base at elapsed 0, and clamping), `Shared/Growth.luau` (`StageAt` at 0, 7199, 7200, 86400; `Next`; `SecondsToNext`), `Shared/OutpostMath.luau` and `Shared/LeaderboardMath.luau` (period start and id around the reset hour and weekday), `Shared/Economy.luau` (`workSpeed` of a Common level 1 is 1; a Grown record is 1.1; `offlineScrap` respects the cap). Every number in a test comes from the data tables (require them), never retyped. `tools/test.sh` runs every spec and exits non-zero on a failure. Report the test count and runtime.
 
-### C4. Economy balance report — open
+### C4. Economy balance report — taken by codex 2026-10-06
 
 Goal: the plan's section 3.3 sanity check, recomputed from the live data tables, so balance changes are judged on numbers.
 
