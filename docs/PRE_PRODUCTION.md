@@ -213,12 +213,12 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 9 | Welcome Week gifts, spin wheel, Meteor Shower | pass |
 | 10 | Radar Mk1 minimap, blip waypoints | pass |
 | 11 | Sound hooks (placeholder ids), particles, ambience, camera pan, crash opener | pass |
-| 12 | Mesh models in the world (placeholder fallback) | pass with the 53 coloured models installed (2026-10-06); meshes stood 0.7 studs high at the bob's low point, fixed |
+| 12 | Mesh models in the world (placeholder fallback) | pass with the 53 coloured models installed (2026-10-06); meshes stood 0.7 studs high at the bob's low point, fixed and re-checked at 0.0 |
 | 13 | Settings, preferences, analytics funnel | pass |
 | 14 | Robux launch shop (Starter Pack, four passes, boosts, server luck) | pass with grants; receipts wait on live ids |
 | 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect) |
 | 16 | The Heater rule for blizzards (World 2) | pass |
-| 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | pass on World 1 with the installed meshes; World 2 next |
+| 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | pass on both worlds with the installed meshes (the Heater disc invisible under its lamp mesh) |
 | 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | pass on World 2; step 5 waits on the World 1 place |
 | 19 | Group-join reward, referral rewards, rejoin nudges, notification opt-in card (Growth Playbook) | pass (group step needs a group id; session-2 ask needs real saves) |
 | 20 | Weekly "Catches this week" leaderboard | pass single-client; multi-client and the shared store wait on Ethan |
@@ -230,8 +230,8 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 26 | Catch variants: the cast-and-reel bar (Tidepool) and the rooftop chase (Neon Grid) as data rows over the one bar; drifting zone, hold-and-release, encounter clock; `/variant` to force one | pass (steps 1 to 3, 5; step 4 partial: multi-round drift seen on Ra-dish, the drift-miss scoring is a code check) |
 | 27 | The five-minute script: Welcome Week gift 1 opens as the first module's payoff, Peddler and Shower banners held on the client until the tutorial ends (`Tutorial.Script`) | pass (steps 2 to 5); the rejoin step waits on real saves |
 | 28 | Growth stages: aliens at a station grow Hatchling, Grown, Elder by time worked (offline counted, capped), a speed bump and a size step per stage, stage chip and countdown on the Aliens screen, grew toasts, `/grow H` | pass (steps 1 to 4, 6); the card chips were widened after the run; the away-time line waits on real saves |
-| 29 | Look pass L3 hero landmarks: five set pieces from Blender (`tools/blender/heroes_base.py`), placed from each layout's `Landmarks` list with scatter clearance; the hero Shrine replaces World 1's ring | pass on World 1 (2 of 2 placed, scatter clear, ring gone, anchor kept); World 2 next |
-| 30 | The compass strip: cardinals, ticks, heading pill, coloured diamonds for the camp, the waypoint, the radar target, the Peddler, the shrine and the hero landmarks, a "Camp 42m" line; the HUD's centre column moved under it | pass (strip, stacking, camp marker, label order); the shrine and target markers need a hand check; the shower toast overlapped the Friend chip, fixed |
+| 29 | Look pass L3 hero landmarks: five set pieces from Blender (`tools/blender/heroes_base.py`), placed from each layout's `Landmarks` list with scatter clearance; the hero Shrine replaces World 1's ring | pass on both worlds (2 of 2 placed each, scatter clear; World 1's ring replaced by the hero, World 2's kept) |
+| 30 | The compass strip: cardinals, ticks, heading pill, coloured diamonds for the camp, the waypoint, the radar target, the Peddler, the shrine and the hero landmarks, a "Camp 42m" line; the HUD's centre column moved under it | pass (strip, stacking, camp marker, label order); the World 2 landmark diamonds pass; the shrine and target markers need a hand check; the shower toast overlapped the Friend chip, fixed |
 | 31 | Look pass L5 icons: 48 icons and 3 particle sprites rendered from Blender (`tools/blender/icons.py`), uploaded as Decals (`upload_assets.py --images`), keyed in `data/Icons.luau`; `Builder.icon`, button icon faces, the Scrap pill, the shower banner and the weather sprites use them, letters stay until an id exists | step 1 pass (fallbacks unchanged); the image upload is part of the last visual pass |
 | 32 | Icons on the remaining surfaces: power-up squares, shop rows, gift tiles, the Reveal's rarity badge, node nameplates and material toasts, all optional until the ids exist | built; Studio check after the image upload |
 | 33 | The VFX pass: soft sprites on every emitter, sunburst rays and sprite confetti on the Reveal, a Perfect flash, tier auras (light and glow) on rare spawns | auras pass; the flash needs a human Perfect; sprites wait on the last visual pass |
