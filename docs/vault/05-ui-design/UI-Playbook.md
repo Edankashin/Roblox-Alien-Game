@@ -112,3 +112,21 @@ Zone and ticker colours come from the variant row's Theme keys (Select and Featu
 A chip on the alien card is 0.38 of the card wide, with its text at 0.9 of that: the minimum text size is 14 px and an iPhone SE card is about 115 px, so anything narrower clips a five-letter word ("Elder" became "Elde" at 0.26). The chips sit in a row on the shape square's lower edge (shape at y 0.38, 0.36 wide; chips at y 0.59), below the shape's label, so neither covers it. A chip never holds more than five characters: the growth countdown shows whole hours or whole minutes ("2h", "59m"), never both.
 Every text row on a square card is one line at the minimum size: a 0.17-tall slot is about 22 px, which holds one 14 px line, not two, so "gathering at the Picnic Table" clipped to its first line. The status is therefore the station's name alone ("Picnic Table"), and the countdown lives in the chip, never a third row.
 A panel that opens by itself is its own message: a toast before it covered the header and a banner after it covered the bottom row, so the gift pop opens the Gifts screen with nothing over it.
+
+## Visual quality bar (2026-10-06)
+
+The target look is the top Roblox sims (Pet Simulator 99, Adopt Me):
+- Rendered glossy icons, each with an outline and a soft shadow, never flat glyphs.
+- Bevelled 9-slice plates for panels, buttons and pills (to come, with the art pass).
+- A gloss band on every button and chip: a white highlight across the top half of the face that fades out downward.
+- An inner shadow at the bottom of every panel, so the plate reads as having thickness.
+- A shine sweep on the one featured button per screen, never on two at once.
+- Saturated two-tone colours (the lighter top of the gradient over the base colour), outlined Fredoka text, no blur and no glass.
+
+What this change added, in code only (`src/shared/Theme.luau` `Theme.Gloss` holds every number, `src/client/UI/Builder.luau` the helpers):
+- `Builder.gloss(target, corner?)` adds the "Gloss" highlight band (top `Theme.Gloss.Top` of the target, corners matching the target's). It is non-interactive and a child of the target, so it presses and scales with it. `Builder.button` calls it on every face automatically; `Builder.frame` and `Builder.pill` do it only when `gloss = true` is passed, because they are also plain containers. Children of a glossed frame need a ZIndex of the frame's plus 2 or more, or the highlight washes over them (a button's icon already is).
+- `Builder.innerShadow(target)` adds the "InnerShadow" band across the bottom `Theme.Gloss.Shadow` of the target. Nothing uses it yet: each panel adopts it in its own change.
+- `Builder.shine(target)` sweeps a diagonal white band across the target every few seconds inside a "ShineClip" frame, and returns a function that stops it. It does nothing under Reduced Motion. Nothing uses it yet: give it to the Face of the featured button when a screen adopts it.
+- The gradient carries the transparency of all three bands (their frames stay opaque white or black underneath), because a UIGradient combines with the frame's own transparency and setting both would count it twice. Tune the look in `Theme.Gloss`, not in the helpers.
+
+Still waiting on assets: the rendered icon pack (the Icons table keeps text glyphs until ids are uploaded), the 9-slice plate images that replace the flat rounded rectangles, and the bevel and rim-light baked into them. The gloss and inner shadow stay as code overlays on top of the plates; the shine stays code.

@@ -38,6 +38,17 @@ Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
 Theme.Backdrop = 0.6 -- modal backdrops dim the world by this much
 Theme.ButtonLip = 0.1 -- the darker "lip" under a button, as a fraction of its height
+Theme.Gloss = {
+	Top = 0.5, -- the highlight band's height, as a fraction of the face it sits on
+	Alpha = 0.72, -- the highlight's transparency at its top edge
+	EdgeAlpha = 0.92, -- and at its bottom edge (a UIGradient from Alpha to EdgeAlpha to 1 fades it out)
+	Shadow = 0.08, -- the inner-shadow band's height on a panel, as a fraction of the panel
+	ShadowAlpha = 0.82, -- and its transparency at the bottom edge
+	ShineSeconds = 0.6, -- the shine sweep: seconds to cross the target
+	ShineWidth = 0.18, -- the sweeping band's width, as a fraction of the target's width
+	ShineAlpha = 0.55, -- the band's transparency at its centre (it fades to clear at both edges)
+	ShineEvery = 4, -- seconds of rest between two sweeps
+}
 Theme.Lighten = 0.25 -- gradient top: how far toward white
 Theme.Darken = 0.35 -- strokes and lips: how far toward black
 Theme.Shadow = Color3.new(0.1, 0.1, 0.12) -- uncaught species silhouette

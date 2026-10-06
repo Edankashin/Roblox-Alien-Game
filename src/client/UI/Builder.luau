@@ -1,7 +1,7 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Builder: the only place UI instances are created. Every screen
 -- builds from these helpers so the look (Theme) is applied once and consistently: Scale-only
--- positions and sizes, Fredoka One, outlined text, chunky buttons with a lip, a click on every tap.
+-- positions and sizes, Fredoka One, outlined text, chunky buttons with a lip and a gloss band, a click on every tap.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -32,6 +32,7 @@ export type FrameProps = {
 	strokeColor: Color3?,
 	zIndex: number?,
 	aspect: number?, -- width / height, keeps the shape across screens
+	gloss: boolean?, -- true adds the Builder.gloss highlight band; off by default (frames and pills are plain containers)
 }
 
 export type LabelProps = {
@@ -144,6 +145,81 @@ function Builder.gradient(parent: GuiObject, color: Color3): UIGradient
 	return gradient
 end
 
+-- Finish ------------------------------------------------------------------
+
+local GLOSS_FADE_AT = 0.7 -- where down the gloss band its transparency reaches EdgeAlpha; it is clear by the bottom
+
+-- The corner radius a highlight on `target` takes: the given Theme.Corner px value, else the target's own
+-- UICorner, else nil (square corners).
+local function matchingRadius(target: GuiObject, px: number?): UDim?
+	if px then
+		return if px >= Theme.Corner.Pill then UDim.new(0.5, 0) else UDim.new(0, px)
+	end
+	local existing = target:FindFirstChildOfClass("UICorner")
+	return if existing then existing.CornerRadius else nil
+end
+
+local function roundLike(frame: Frame, radius: UDim?)
+	if radius then
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = radius
+		corner.Parent = frame
+	end
+end
+
+-- A decorative overlay frame filling `position`/`size` of `target`, one ZIndex above it, that never
+-- catches input (Active false): a tap goes through to the button underneath.
+local function overlay(target: GuiObject, name: string, color: Color3, position: UDim2, size: UDim2): Frame
+	local band = Instance.new("Frame")
+	band.Name = name
+	band.Active = false
+	band.BorderSizePixel = 0
+	band.BackgroundColor3 = color
+	band.BackgroundTransparency = 0 -- the UIGradient carries the transparency: it combines with the frame's own, so setting both would count it twice
+	band.Position = position
+	band.Size = size
+	band.ZIndex = target.ZIndex + 1
+	return band
+end
+
+-- A white highlight band across the top Theme.Gloss.Top of `target`, fading out downward (the glossy
+-- cartoon finish). Its corners are `corner` (a Theme.Corner px value), else the target's own UICorner.
+-- It is a child, so it moves and scales with the target. Anything else on a glossed frame needs a ZIndex
+-- above the target's + 1, or the highlight washes over it. Returns the "Gloss" frame.
+function Builder.gloss(target: GuiObject, corner: number?): Frame
+	local band = overlay(target, "Gloss", Theme.Colors.White, UDim2.fromScale(0, 0), UDim2.fromScale(1, Theme.Gloss.Top))
+	roundLike(band, matchingRadius(target, corner))
+	local fade = Instance.new("UIGradient")
+	fade.Rotation = 90
+	fade.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, Theme.Gloss.Alpha),
+		NumberSequenceKeypoint.new(GLOSS_FADE_AT, Theme.Gloss.EdgeAlpha),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	fade.Parent = band
+	band.Parent = target
+	return band
+end
+
+-- A soft black inner shadow across the bottom Theme.Gloss.Shadow of `target`, clear at its top edge and
+-- Theme.Gloss.ShadowAlpha transparent at the bottom, with the target's own corners. Returns the "InnerShadow" frame.
+function Builder.innerShadow(target: GuiObject): Frame
+	local band = overlay(
+		target,
+		"InnerShadow",
+		Theme.Colors.Black,
+		UDim2.fromScale(0, 1 - Theme.Gloss.Shadow),
+		UDim2.fromScale(1, Theme.Gloss.Shadow)
+	)
+	roundLike(band, matchingRadius(target, nil))
+	local fade = Instance.new("UIGradient")
+	fade.Rotation = 90
+	fade.Transparency = NumberSequence.new(1, Theme.Gloss.ShadowAlpha)
+	fade.Parent = band
+	band.Parent = target
+	return band
+end
+
 function Builder.aspect(parent: GuiObject, ratio: number): UIAspectRatioConstraint
 	local constraint = Instance.new("UIAspectRatioConstraint")
 	constraint.AspectRatio = ratio
@@ -185,6 +261,9 @@ function Builder.frame(props: FrameProps): Frame
 	end
 	if props.aspect then
 		Builder.aspect(frame, props.aspect)
+	end
+	if props.gloss then
+		Builder.gloss(frame, props.corner)
 	end
 	frame.Parent = props.parent
 	return frame
@@ -252,10 +331,11 @@ function Builder.icon(props: IconProps): ImageLabel?
 	return image
 end
 
--- A chunky block button: a darker lip underneath, a gradient face with a stroke, outlined white text.
--- Returns the container; the TextButton is its "Face" child. Press scales down and sinks the face.
+-- A chunky block button: a darker lip underneath, a gradient face with a stroke and a gloss band, outlined
+-- white text. Returns the container; the TextButton is its "Face" child. Press scales down and sinks the
+-- face, and the gloss (a child of the face) goes with it.
 -- With props.icon set and uploaded, the face shows the icon (centred, BUTTON_ICON_SCALE of the face, a child
--- of the face so it presses with it) and no text; otherwise it shows props.text.
+-- of the face so it presses with it, above the gloss) and no text; otherwise it shows props.text.
 function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	local container = Builder.frame({
 		parent = props.parent,
@@ -303,6 +383,7 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	textStroke.Color = Theme.Colors.Outline
 	textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 	textStroke.Parent = face
+	Builder.gloss(face, Theme.Corner.Button)
 	if props.icon then
 		local image = Builder.icon({
 			parent = face,
@@ -311,7 +392,7 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(BUTTON_ICON_SCALE, BUTTON_ICON_SCALE),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = face.ZIndex + 1,
+			zIndex = face.ZIndex + 2, -- above the gloss band (face + 1)
 		})
 		if image then
 			face.Text = ""
@@ -476,6 +557,93 @@ function Builder.shake(target: GuiObject, amount: number?)
 		end
 		TweenService:Create(target, step, { Position = origin }):Play()
 	end)
+end
+
+local SHINE_ANGLE = 20 -- degrees the shine band leans
+local SHINE_TALL = 2 -- band height as a multiple of the target's, so the lean never leaves a gap at the top or bottom
+local SHINE_OVERSHOOT = 0.5 -- how far past each side (a fraction of the target's width) the band rests, fully hidden
+local SHINE_LAYER = 3 -- shine ZIndex above the target's: over the gloss and an icon
+
+-- Reduced Motion (the profile toggle or the system switch). Prefs requires Builder, so Builder reads it
+-- lazily at call time instead of requiring it at load (a require cycle); false when it cannot be read.
+local function reducedMotion(): boolean
+	local module = script.Parent.Parent:FindFirstChild("Prefs")
+	if not module or not module:IsA("ModuleScript") then
+		return false
+	end
+	local ok, value = pcall(function(): boolean
+		local prefs = require(module) :: any
+		return prefs.ReducedMotion() == true
+	end)
+	return ok and value
+end
+
+-- A diagonal white band that sweeps left to right across `target` over Theme.Gloss.ShineSeconds, rests
+-- Theme.Gloss.ShineEvery seconds, and repeats, for the one featured button on a screen. The band lives in a
+-- "ShineClip" child frame that clips it to the target (and takes the target's corners). Does nothing while
+-- Reduced Motion is on (re-read before every sweep). Runs until the target is destroyed or the returned
+-- function is called, which also removes the clip.
+function Builder.shine(target: GuiObject): () -> ()
+	local clip = Instance.new("Frame")
+	clip.Name = "ShineClip"
+	clip.Active = false
+	clip.BackgroundTransparency = 1
+	clip.BorderSizePixel = 0
+	clip.ClipsDescendants = true
+	clip.Position = UDim2.fromScale(0, 0)
+	clip.Size = UDim2.fromScale(1, 1)
+	clip.ZIndex = target.ZIndex + SHINE_LAYER
+	roundLike(clip, matchingRadius(target, nil))
+
+	local restX = UDim2.fromScale(-SHINE_OVERSHOOT, 0.5)
+	local band = Instance.new("Frame")
+	band.Name = "Shine"
+	band.Active = false
+	band.BorderSizePixel = 0
+	band.BackgroundColor3 = Theme.Colors.White
+	band.BackgroundTransparency = 0 -- the UIGradient carries the transparency (see overlay)
+	band.AnchorPoint = Vector2.new(0.5, 0.5)
+	band.Position = restX
+	band.Size = UDim2.fromScale(Theme.Gloss.ShineWidth, SHINE_TALL)
+	band.Rotation = SHINE_ANGLE
+	band.ZIndex = clip.ZIndex
+	local fade = Instance.new("UIGradient") -- clear at both edges, ShineAlpha in the middle
+	fade.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.5, Theme.Gloss.ShineAlpha),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	fade.Parent = band
+	band.Parent = clip
+	clip.Parent = target
+
+	local stopped = false
+	local sweep: Tween? = nil
+	local function stop()
+		if stopped then
+			return
+		end
+		stopped = true
+		if sweep then
+			sweep:Cancel()
+		end
+		clip:Destroy()
+	end
+	target.Destroying:Once(stop)
+
+	local info = TweenInfo.new(Theme.Gloss.ShineSeconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+	task.spawn(function()
+		while not stopped do
+			if target:IsDescendantOf(game) and not reducedMotion() then
+				band.Position = restX
+				local tween = TweenService:Create(band, info, { Position = UDim2.fromScale(1 + SHINE_OVERSHOOT, 0.5) })
+				sweep = tween
+				tween:Play()
+			end
+			task.wait(Theme.Gloss.ShineSeconds + Theme.Gloss.ShineEvery)
+		end
+	end)
+	return stop
 end
 
 -- Returns a setter that rolls the label's digits from the current value to the new one.
