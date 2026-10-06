@@ -14,7 +14,10 @@ Card states: `open` (take it), `taken by codex <date>` (in progress), `review` (
 
 ## Cards
 
-### C1. Continuous integration on every push — taken by codex 2026-10-06
+### C1. Continuous integration on every push — review
+
+Blocked: GitHub rejected the workflow push because the OAuth credential lacks `workflow` scope.
+Needed: authorize a credential with workflow-write permission, then restore the C1 implementation and verify a green Actions run.
 
 Goal: a GitHub Actions workflow that runs the repo's own checks so neither agent can push a red tree unnoticed.
 
