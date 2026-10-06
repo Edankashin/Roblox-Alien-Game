@@ -22,6 +22,7 @@ local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local Builder = require(script.Parent.Builder)
 local State = require(script.Parent.Parent.State)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
@@ -39,6 +40,7 @@ type Cell = {
 	name: TextLabel,
 	badge: Frame,
 	badgeLabel: TextLabel,
+	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Vaulted" for a limited species out of its week
 	speciesId: string,
 	tier: string,
 }
@@ -74,6 +76,15 @@ local MAX_COLS = 5
 local MIN_CELL_PX = 80 -- a ten-letter name at the minimum text size needs about this much width
 local CARD_INSET = 0.92 -- the card inside its grid slot; the rest is the gap between cards
 local SCROLLBAR_PX = 4 -- thin dark scrollbar on the right (a thickness, like a stroke)
+-- The weekly stamp, in card Scale: inside the card's top-left corner (clear of the count badge, which sits at
+-- 0.48 to 0.64 down the right side), wide enough for "This week" at the minimum text size on the narrowest card.
+local STAMP_X = 0.06
+local STAMP_Y = 0.03
+local STAMP_W = 0.84
+local STAMP_H = 0.2
+local STAMP_Z = 7 -- above the square (5) and its mark (6), below the tap button (9)
+local SECONDS_PER_HOUR = 3600 -- unit conversions for the "Nd Nh" time left of the Alien of the Week
+local SECONDS_PER_DAY = 86400
 
 local PART_STUDS = 2 -- placeholder part size at scale 1, as the Spawner builds them
 local PEDESTAL_RADIUS = 1.6
@@ -256,7 +267,16 @@ local function fillDetail(profile: Types.Profile)
 			d.lineC.Text = Strings.CODEX_BEST:format(Builder.text("OVERLAY_" .. best))
 		end
 	else
-		d.lineA.Text = Strings.CODEX_HINT:format(biome, phrase)
+		-- An uncaught Alien of the Week says how long it stays; an uncaught limited one out of its week says it is vaulted.
+		local weekly = WeeklyMath.Current(State.Now(), State.GetWeeklyOffset())
+		if weekly and weekly.drop.species == def.id then
+			local left = math.max(0, math.floor(weekly.secondsLeft))
+			d.lineA.Text = Strings.CODEX_WEEKLY_HINT:format(Strings.TIME_DH:format(left // SECONDS_PER_DAY, (left % SECONDS_PER_DAY) // SECONDS_PER_HOUR))
+		elseif WeeklyMath.IsLimited(def.id) then
+			d.lineA.Text = Strings.CODEX_VAULTED_HINT
+		else
+			d.lineA.Text = Strings.CODEX_HINT:format(biome, phrase)
+		end
 		d.lineB.Text = Strings.CODEX_FIRST_CATCH:format(Builder.formatNumber(Tiers.Tiers[def.tier].codexScrap))
 		d.lineC.Visible = false
 	end
@@ -490,6 +510,19 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 	})
 	badge.Visible = false
 
+	-- The weekly stamp over the square's top-left; text and colour are set on every fill, hidden when neither applies.
+	local stamp = Builder.label({
+		parent = card,
+		name = "Stamp",
+		text = "",
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(STAMP_X, STAMP_Y),
+		size = UDim2.fromScale(STAMP_W, STAMP_H),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = STAMP_Z,
+	})
+	stamp.Visible = false
+
 	local cell: Cell = {
 		slot = slot,
 		card = card,
@@ -499,6 +532,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		name = name,
 		badge = badge,
 		badgeLabel = badgeLabel,
+		stamp = stamp,
 		speciesId = "",
 		tier = "Common",
 	}
@@ -535,7 +569,7 @@ local function ensureCells(count: number)
 	end
 end
 
-local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number)
+local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: number, offset: number)
 	cell.speciesId = def.id
 	cell.tier = def.tier
 	cell.slot.Visible = true
@@ -558,6 +592,18 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number)
 	if count > 1 then
 		cell.badgeLabel.Text = Strings.CODEX_COUNT_BADGE:format(count)
 	end
+	-- The weekly stamp: the Alien of the Week now, else Vaulted for a limited species that is out of its week.
+	if WeeklyMath.IsCurrent(def.id, now, offset) then
+		cell.stamp.Text = Strings.CODEX_THIS_WEEK
+		cell.stamp.TextColor3 = Theme.Colors.Featured
+		cell.stamp.Visible = true
+	elseif WeeklyMath.IsLimited(def.id) then
+		cell.stamp.Text = Strings.CODEX_VAULTED
+		cell.stamp.TextColor3 = Theme.Rarity.Common
+		cell.stamp.Visible = true
+	else
+		cell.stamp.Visible = false
+	end
 end
 
 -- Refresh ----------------------------------------------------------------------
@@ -570,6 +616,8 @@ local function refresh()
 	local worldId = profile.world.current
 	local list = roster(worldId)
 	ensureCells(#list)
+	local now = State.Now()
+	local offset = State.GetWeeklyOffset()
 
 	local caught = 0
 	for index, cell in ipairs(cells) do
@@ -582,7 +630,7 @@ local function refresh()
 		if count > 0 then
 			caught += 1
 		end
-		fillCell(cell, def, count)
+		fillCell(cell, def, count, now, offset)
 	end
 
 	-- A selection only survives while it belongs to the page on show.
@@ -775,6 +823,7 @@ local function build()
 	-- A catch changes the codex counts; the server pushes aliens with stations (cheap while closed).
 	State.OnChanged("stations", refresh)
 	State.OnChanged("codex", refresh)
+	State.OnChanged("weekly", refresh) -- the week flips or the Studio shift changes: stamps and detail lines follow
 	Prefs.OnChanged(refresh) -- the Silhouettes preference changes how uncaught species draw
 end
 

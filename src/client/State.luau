@@ -1,7 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
--- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged);
+-- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
+-- WeeklyChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -26,7 +27,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -51,6 +52,8 @@ local purchases: Types.PurchasesState = { purchases = {}, passes = {}, starterSp
 local purchasesPushed = false
 local serverLuck: Types.ServerLuckState = nil -- the shared luck someone bought (ServerLuckChanged); nil when none runs
 local serverLuckAt = 0 -- State.Now() when it arrived, so a banner counts down between pushes
+local weeklyOffset = 0 -- the Studio shift of the weekly rotation in whole weeks (WeeklyChanged, GetWeekly); 0 in play
+local weeklyKnown = false -- the server has said it (a push or the GetWeekly answer)
 local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
@@ -254,6 +257,17 @@ end
 -- Aliens screen labels the ridden card and its Ride button from it; the server alone decides who may ride.
 function State.GetRiding(): string?
 	return riding
+end
+
+-- The weekly rotation's shift as the server last said (WeeklyChanged, seeded by GetWeekly); 0 until it does and
+-- in play. Pass it to WeeklyMath with State.Now() to find the Alien of the Week.
+function State.GetWeeklyOffset(): number
+	return weeklyOffset
+end
+
+-- Whether the server has said the offset yet, so a banner for the week waits for the real value.
+function State.HasWeekly(): boolean
+	return weeklyKnown
 end
 
 -- The shared luck someone bought (nil when none runs) and the seconds since the server said so, so a
@@ -528,6 +542,23 @@ function State.Start()
 				fire("companions")
 			end
 		end)
+	end)
+	task.spawn(function()
+		-- The weekly rotation's shift: a push whenever the week or the shift changes, and one pull for a
+		-- client that joined after the last push (a push that already arrived is newer and wins).
+		Net.event("WeeklyChanged").OnClientEvent:Connect(function(offset: number)
+			weeklyOffset = offset
+			weeklyKnown = true
+			fire("weekly")
+		end)
+		local ok, answer = pcall(function(): any
+			return Net.func("GetWeekly"):InvokeServer()
+		end)
+		if ok and not weeklyKnown and type(answer) == "number" then
+			weeklyOffset = answer
+			weeklyKnown = true
+			fire("weekly")
+		end
 	end)
 end
 

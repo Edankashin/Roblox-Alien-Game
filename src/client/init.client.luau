@@ -68,6 +68,8 @@ local LeaderboardScreen = require(script:WaitForChild("UI"):WaitForChild("Leader
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
+local Weekly = require(Shared:WaitForChild("data"):WaitForChild("Weekly"))
+local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
@@ -76,6 +78,8 @@ local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly pr
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
 local SHOWER_POLL_SECONDS = 1 -- the shower chip and banner count down between server pushes
+local SECONDS_PER_HOUR = 3600 -- unit conversions for the weekly banner's "Nd Nh" time left
+local SECONDS_PER_DAY = 86400
 
 local localPlayer = Players.LocalPlayer
 local started = false
@@ -922,10 +926,30 @@ local function start(profile: Types.Profile)
 		local minutes = left // 60
 		return if minutes > 0 then Strings.TIME_MS:format(minutes, left % 60) else Strings.TIME_S:format(left)
 	end
+	local function eventBannersHeld(): boolean
+		return TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()
+	end
+	-- The Alien of the Week at the server's clock and shift (nil when the rotation is empty), its display name, the
+	-- "Nd Nh" time left and the weather chip's text (nil when the week keeps the usual weather).
+	local function weeklyCurrent(): WeeklyMath.Current?
+		return WeeklyMath.Current(workspace:GetServerTimeNow(), State.GetWeeklyOffset())
+	end
+	local function weeklyName(current: WeeklyMath.Current): string
+		local def = Species.ById[current.drop.species]
+		return if def then def.name else current.drop.species
+	end
+	local function weeklyLeftText(current: WeeklyMath.Current): string
+		local left = math.max(0, math.floor(current.secondsLeft))
+		return Strings.TIME_DH:format(left // SECONDS_PER_DAY, (left % SECONDS_PER_DAY) // SECONDS_PER_HOUR)
+	end
+	local function weeklyWeather(current: WeeklyMath.Current): string?
+		local weather = current.drop.weather
+		return if weather then Builder.text("WEATHER_" .. weather) else nil
+	end
 	local function refreshEventBanner()
 		local shower, elapsed = State.GetShower()
 		local rushState, rushElapsed = State.GetRush()
-		local held = TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()
+		local held = eventBannersHeld()
 		-- The rush's edges first (a toast at the start and at the end); the banner slot below still goes to
 		-- a running shower, which keeps priority when both are up.
 		if rushState.active then
@@ -1003,7 +1027,14 @@ local function start(profile: Types.Profile)
 			-- no icon for server luck yet: the banner shows its placeholder square
 			Hud.SetEventBanner(Strings.SERVERLUCK_BANNER:format(multiplier), Strings.SERVERLUCK_LEFT:format(timeText), Strings.SERVERLUCK_CHIP:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)))
 		else
-			Hud.SetEventBanner(nil, nil, nil)
+			-- Nothing else claims the slot: the Alien of the Week, for as long as data/Weekly BannerDays says.
+			local current = weeklyCurrent()
+			if current and current.secondsLeft <= Weekly.BannerDays * SECONDS_PER_DAY then
+				local weather = weeklyWeather(current)
+				Hud.SetEventBanner(Strings.WEEKLY_BANNER:format(weeklyName(current)), Strings.WEEKLY_LEFT:format(weeklyLeftText(current)), if weather then Strings.WEEKLY_CHIP:format(weather) else nil, nil)
+			else
+				Hud.SetEventBanner(nil, nil, nil)
+			end
 		end
 		-- The countdown chip: the shower's when one is due, else the rush's (never while the rush runs).
 		local nextIn = math.max(0, shower.nextInSeconds - elapsed)
@@ -1020,6 +1051,34 @@ local function start(profile: Types.Profile)
 	State.OnChanged("rush", refreshEventBanner)
 	State.OnChanged("luck", refreshEventBanner)
 	State.OnChanged("tutorial", refreshEventBanner) -- the hold lifts the moment the last step completes
+	State.OnChanged("clock", refreshEventBanner) -- the clock push keeps the weekly line's hours honest
+	-- The Alien of the Week announces itself once per week (and per Studio shift): at join, once the server has
+	-- said which week it is, then on every flip it pushes. The key keeps a repeat push from announcing twice, and
+	-- the tutorial hold keeps it back until the last step (the "tutorial" topic retries it).
+	local weeklyAnnounced: string? = nil
+	local function announceWeekly()
+		if not State.HasWeekly() or eventBannersHeld() then
+			return
+		end
+		local current = weeklyCurrent()
+		if not current then
+			return
+		end
+		local key = current.weekId .. ":" .. current.drop.species
+		if key == weeklyAnnounced then
+			return
+		end
+		weeklyAnnounced = key
+		local name = weeklyName(current)
+		local weather = weeklyWeather(current)
+		Toast.Banner(if weather then Strings.WEEKLY_NOW_WEATHER:format(name, weather) else Strings.WEEKLY_NOW:format(name), Theme.Colors.Codex, Config.AnnounceSeconds)
+	end
+	State.OnChanged("weekly", function()
+		announceWeekly()
+		refreshEventBanner()
+	end)
+	State.OnChanged("tutorial", announceWeekly)
+	announceWeekly() -- the server's answer may already have landed
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
 	State.OnChanged("serverLuck", function()
