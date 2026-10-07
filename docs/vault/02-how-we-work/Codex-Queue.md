@@ -230,7 +230,7 @@ Files: `docs/vault/01-game-design/Moments.md` (new).
 
 Done when: every moment above has a row with a file and line for its trigger.
 
-### C21. Music plan — open (report only)
+### C21. Music plan — review (report only)
 
 Goal: the owner wants music that fits the theme and what is happening at that moment. This card prepares the music director the coordinator will build.
 
@@ -240,7 +240,7 @@ Files: `docs/vault/06-art-pipelines/Music-Plan.md` (new).
 
 Done when: every state has its row, and the data shape covers them all.
 
-### C22. Create the shop items through Open Cloud — open
+### C22. Create the shop items through Open Cloud — review
 
 Goal: Ethan stops creating game passes and developer products by hand (owner guide Part C). Roblox's Open Cloud creates them: game passes with `POST https://apis.roblox.com/game-passes/v1/universes/{universeId}/game-passes` (multipart: name, description, price, isForSale, imageFile; scope `game-pass:write`), developer products through the developer-products API (scope `developer-product:write`). Check both against the official reference (create.roblox.com/docs/cloud/reference/features/game-passes and the developer products page) before writing the calls, and note the exact paths in the script's docstring.
 
