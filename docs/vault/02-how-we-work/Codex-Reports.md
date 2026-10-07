@@ -271,3 +271,11 @@ Claim `9bd702f`; plan `0f4d223`. Proposed 30 music states: 14 world day/night be
 Measured: 30 state rows, zero selected assets, zero game-code changes; 140 → 140 tests; all checks clean. This is a creative proposal, not a generated measurement or claim of audible implementation.
 
 Creator Store browser access was rejected because site permission was declined. Used the card's allowed search-term fallback; no alternate browser route, license assertion or invented asset id. Left for coordinator: approve palette/priority, decide Reveal/Launch ownership between Sounds and Music, and have the Mac session audition and permission-test actual tracks. Worlds 3–7 remain future design, and menus modify the active bed rather than requiring another recording.
+
+## C22 — 2026-10-07 — review
+
+Claim `1f3fa83`; implementation `54b9bec`. Added standard-library isolated-mode provisioning with offline default dry run, optional apply, paginated pre-listing of both kinds, exact-name reuse, ambiguous-name refusal, optional images, atomic minimal numeric-ID write-back and safe partial-run resumption. Official docs confirm multipart POST game-passes/v1 and developer-products/v2 paths; full paths/scopes are in the docstring and Hands-Off.
+
+Measured: dry run lists exactly five zero-ID launch rows: SlotEveryStation2 (799), CompanionSlot4 (249), Spins1 (49), Spins5 (199), Spins12 (399), with names/kinds/icon paths. Thirteen fake-HTTP checks pass: full live launch-catalog fixture, multipart fields/images, minimal write-back, reuse, missing-key refusal, existing-ID refusal, multiline rows, pagination/repeated cursor and HTTP error redaction. Dry run/self-tests under one second. 140 → 140 headless tests; full checks pass.
+
+No key read by dry-run/self-test, no live API request from the tool, no products created and no Shop value changed. Mac session runs apply after review with read/write scopes. Existing same-name configurations are reused unchanged and must be reviewed for price/icon differences; concurrent creator runs are unsupported. Python's absent default CA bundle was observed during documentation retrieval; the tool retains TLS verification and can use the OS CA file.

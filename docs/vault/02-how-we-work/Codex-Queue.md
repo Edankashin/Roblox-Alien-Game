@@ -240,7 +240,7 @@ Files: `docs/vault/06-art-pipelines/Music-Plan.md` (new).
 
 Done when: every state has its row, and the data shape covers them all.
 
-### C22. Create the shop items through Open Cloud — taken by codex 2026-10-07
+### C22. Create the shop items through Open Cloud — review
 
 Goal: Ethan stops creating game passes and developer products by hand (owner guide Part C). Roblox's Open Cloud creates them: game passes with `POST https://apis.roblox.com/game-passes/v1/universes/{universeId}/game-passes` (multipart: name, description, price, isForSale, imageFile; scope `game-pass:write`), developer products through the developer-products API (scope `developer-product:write`). Check both against the official reference (create.roblox.com/docs/cloud/reference/features/game-passes and the developer products page) before writing the calls, and note the exact paths in the script's docstring.
 
