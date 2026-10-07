@@ -86,30 +86,37 @@ local function tryLoad(player: Player): (Types.Profile?, string?)
 	return result :: Types.Profile, nil
 end
 
-local function save(player: Player, releaseLock: boolean)
+-- Writes the player's profile. Answers true when the write landed (or there is no store to write to:
+-- memory-only profiles), false when it failed or another server holds the lock.
+local function save(player: Player, releaseLock: boolean): boolean
 	local profile = profiles[player.UserId]
 	if not profile then
-		return
+		return false
 	end
 	profile.lastSeen = os.time()
 	if memoryOnly or not store then
-		return
+		return true
 	end
 	local ds = store :: DataStore
 	local snapshot = profile
+	local written = false
 	local ok, err = pcall(function()
 		ds:UpdateAsync(keyFor(player), function(old)
 			if old ~= nil and lockIsHeldElsewhere(old) then
+				written = false
 				return nil -- never overwrite a profile another server now owns
 			end
 			local data = table.clone(snapshot)
 			data.lock = if releaseLock then nil else { jobId = game.JobId, time = os.time() }
+			written = true
 			return data
 		end)
 	end)
 	if not ok then
 		warn(("[%s] save failed for %s: %s"):format(Config.WorkingTitle, player.Name, tostring(err)))
+		return false
 	end
+	return written
 end
 
 local function sanitized(profile: Types.Profile): Types.Profile
@@ -171,6 +178,13 @@ local function onPlayerRemoving(player: Player)
 end
 
 -- Public API -------------------------------------------------------------
+
+-- Writes the profile now and answers whether it landed (true for memory-only profiles). Yields. For a
+-- moment that must be durable before the game answers anyone: a paid receipt (Monetization) is reported
+-- granted only after this succeeds.
+function PlayerData.SaveNow(player: Player): boolean
+	return save(player, false)
+end
 
 function PlayerData.Get(player: Player): Types.Profile?
 	return profiles[player.UserId]

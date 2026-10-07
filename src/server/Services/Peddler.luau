@@ -108,6 +108,25 @@ end
 
 -- Eggs -------------------------------------------------------------------
 
+-- The world an egg hatches from: this place's world, or at home (which has no wild species) the furthest
+-- world the player has unlocked (Exploit-Review D5: a home egg used to resolve to nothing).
+local function eggWorld(player: Player): number
+	local here = Place.WorldId()
+	if here ~= 0 then
+		return here
+	end
+	local best = 1
+	local profile = PlayerData.Get(player)
+	if profile then
+		for _, id in ipairs(profile.world.unlocked) do
+			if id > best then
+				best = id
+			end
+		end
+	end
+	return best
+end
+
 -- A random species of the offer's tier from the world this place runs that can be owned outside a quest.
 local function pickEggSpecies(tier: string?, world: number): string?
 	if not tier then
@@ -175,7 +194,7 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 			return false, "Unknown"
 		end
 	elseif kind == "egg" then
-		eggSpecies = pickEggSpecies(offer.tier, Place.WorldId())
+		eggSpecies = pickEggSpecies(offer.tier, eggWorld(player))
 		if not eggSpecies then
 			return false, "Unknown"
 		end

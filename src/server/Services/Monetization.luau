@@ -381,7 +381,7 @@ local function pruneReceipts(receipts: { [string]: number })
 end
 
 -- PurchaseGranted: the receipt was already granted (idempotent), or the item was granted now and the
--- receipt id recorded. NotProcessedYet: unknown product, player not in game or not loaded, or a grant
+-- receipt id recorded, and the profile saved (PlayerData.SaveNow) in both cases. NotProcessedYet: unknown product, player not in game or not loaded, or a grant
 -- refused (a Starter Pack with no choice, a granter failure); Roblox retries later. Never throws.
 local function processReceipt(receipt: { [string]: any }): Enum.ProductPurchaseDecision
 	local ok, decision = pcall(function(): Enum.ProductPurchaseDecision
@@ -400,8 +400,12 @@ local function processReceipt(receipt: { [string]: any }): Enum.ProductPurchaseD
 		if not profile then
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
+		-- Granted is answered only once the grant and its receipt id are saved (Exploit-Review D8): if the save
+		-- fails or the server dies first, Roblox asks again, and the saved receipt id (or its absence) decides.
 		if profile.shop.receipts[purchaseId] then
-			return Enum.ProductPurchaseDecision.PurchaseGranted
+			return if PlayerData.SaveNow(player)
+				then Enum.ProductPurchaseDecision.PurchaseGranted
+				else Enum.ProductPurchaseDecision.NotProcessedYet
 		end
 		local granted, reason = Monetization.GrantItem(player, item.id, "receipt")
 		if not granted then
@@ -412,6 +416,10 @@ local function processReceipt(receipt: { [string]: any }): Enum.ProductPurchaseD
 			p.shop.receipts[purchaseId] = os.time()
 			pruneReceipts(p.shop.receipts)
 		end)
+		if not PlayerData.SaveNow(player) then
+			warn(("[%s] Monetization: receipt %s for %s granted but not saved yet; Roblox will ask again"):format(Config.WorkingTitle, purchaseId, player.Name))
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
 		return Enum.ProductPurchaseDecision.PurchaseGranted
 	end)
 	if not ok then

@@ -85,6 +85,25 @@ end
 
 -- Rewards -----------------------------------------------------------------
 
+-- The world an egg hatches from: this place's world, or at home (which has no wild species) the furthest
+-- world the player has unlocked (Exploit-Review D5: a home egg used to resolve to nothing).
+local function eggWorld(player: Player): number
+	local here = Place.WorldId()
+	if here ~= 0 then
+		return here
+	end
+	local best = 1
+	local profile = PlayerData.Get(player)
+	if profile then
+		for _, id in ipairs(profile.world.unlocked) do
+			if id > best then
+				best = id
+			end
+		end
+	end
+	return best
+end
+
 -- A random species of the tier from the world this place runs that can be owned outside a quest and
 -- outside an event (the Shower Cosmic stays a shower catch).
 local function pickEggSpecies(tier: string?, world: number): string?
@@ -213,7 +232,7 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 	local reward = ROWS[day].reward
 	local eggSpecies: string? = nil
 	if reward.kind == "egg" then
-		eggSpecies = pickEggSpecies(reward.tier, Place.WorldId())
+		eggSpecies = pickEggSpecies(reward.tier, eggWorld(player))
 		if not eggSpecies then
 			return false, "Unknown"
 		end
