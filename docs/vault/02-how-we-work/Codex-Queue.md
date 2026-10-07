@@ -190,7 +190,7 @@ Files: `docs/vault/04-roblox-engine/Exploit-Review.md` (new), and only the `src/
 
 Done when: every remote has a row, every "fixed" row names its commit, the checks stay green, and anything that changes game behaviour is left as "needs the coordinator" instead of fixed.
 
-### C17. Save size budget — open (report only)
+### C17. Save size budget — taken by codex 2026-10-07 (report only)
 
 Goal: a player's save is one DataStore value, and a value over 4 MB cannot be saved. Every catch adds an alien record and nothing removes them, so a heavy player's save grows without bound.
 
