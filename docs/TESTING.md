@@ -41,7 +41,7 @@ Known gaps in this milestone: Forest and Cave biomes and their materials, launch
 2. Walk towards the far corner ahead-right (about 130 studs out, +X +Z): a darker green patch with dense trees. The chip flips to "Forest" at the patch edge. Wild aliens here are Glimmo, Twiglet, Zapfinch (and Lanternewt at night); none of the Meadow species. Four green cylinders labelled "Glowroot" float inside; Collect works on them.
 3. Walk to the opposite corner (-X -Z): a grey patch under a flat roof with pillars around the rim. The chip reads "Cave". Wild aliens: Pebblet, Snailbyte, Rocklobber (Gloomoth at night). Three blue balls labelled "Cave Crystal" are dim by day with "Only at night" under the name and no Collect button; at night they turn solid and collect normally.
 4. Back in the Meadow, three yellow cubes labelled "Storm Shard" are dim with "Only at rain" until the weather chip reads Rain, then they collect.
-5. With Hull Frame done, the Ship screen's row 2 (Thrusters) accepts Glowroot: collect 3, press "Add Glowroot", pay 1,500, and the module assembles. Row 3 (Life Pod) then asks for Cave Crystal.
+5. With Hull Frame done, the Ship screen's row 2 (Thrusters) accepts Glowroot: collect 4, press "Add Glowroot", pay 2,000, and the module assembles (the World 1 numbers since the 2026-10-07 pacing retune; `data/Modules.luau` is the truth). Row 3 (Life Pod) then asks for Cave Crystal.
 6. Wild aliens never spawn inside the camp clearance or on top of each other; a conditional spawn (Buzzlebee, Thunderhog, Lanternewt, Gloomoth) despawns when its condition ends.
 7. Check the biome chip does not collide with the clock chip or toasts at iPhone SE and iPad sizes.
 

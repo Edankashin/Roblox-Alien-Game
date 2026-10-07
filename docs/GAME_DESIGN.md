@@ -84,15 +84,17 @@ Scrap is the one number on the HUD and is meant to feel abundant. Key materials 
 
 | Module | Scrap | Key material (where, when) | Base assembly time | Target cumulative play |
 |---|---|---|---|---|
-| 1. Hull Frame | 300 | Wreck Plating x3 (tutorial, by hand then by alien) | 1 min | 8 min |
-| 2. Thrusters | 1,500 | Glowroot x3 (Forest, any time) | 5 min | 25 min |
-| 3. Life Pod | 5,000 | Cave Crystal x3 (Cave, night only) | 12 min | end of day 1 |
-| 4. Nav Array | 12,000 | Storm Shard x2 (Meadow, only during Rain weather) | 25 min | day 2 |
-| 5. Engine Core | 30,000 | Warden's Core x1 (catch the Warden after Field Notes) | 45 min | day 2 to 3 |
+| 1. Hull Frame | 300 | Wreck Plating x3 (tutorial, by hand then by alien) | 1 min | 2 min |
+| 2. Thrusters | 2,000 | Glowroot x4 (Forest, any time) | 7 min | 10 min |
+| 3. Life Pod | 45,000 | Cave Crystal x9 (Cave, night only) | 60 min | 35 to 50 min |
+| 4. Nav Array | 180,000 | Storm Shard x12 (Meadow, only during Rain weather) | 2 h | about 2 h |
+| 5. Engine Core | 600,000 | Warden's Core x1 (catch the Warden after Field Notes) | 4 h | 4 to 6 h of play: day 5 to 6 at 30 to 45 minutes a day |
 
-Base assembly time assumes a summed work speed of 1x. An Epic (6x) cuts the Engine Core from 45 minutes to 7.5. Assembly continues offline, so a player who starts a long module before dinner finds it done after.
+Retuned 2026-10-07 to the owner's rule: World 1 is not beaten in a day without hours of play, progress shows early and the goal stays far off (it was about 1 h 20 min of play before). Measured with `tools/progression_sim.py` (one session a day with every freebie, offline time and resting) and `tools/balance.py` (growth and fusion included): see `docs/vault/01-game-design/Balance-Report.md` and PRE_PRODUCTION decision 5c-2.
 
-Income reference: a Common at level 1 produces about 1 Scrap/s at a station. Two aliens pay for the Hull Frame in under 3 minutes. By module 3 a player with six aliens including one Rare makes about 10 Scrap/s. By module 5, ten aliens make about 25 Scrap/s, so 30,000 Scrap is 20 minutes of accrual. Scrap is never the thing that stops the player. The night-only crystal, the rain-only shard, and the Warden are.
+Base assembly time assumes a summed work speed of 1x. Fast crew at the module's station cuts it (three Epics, 19x with the player, take the Engine Core's 4 hours down to under 13 minutes). Assembly continues offline, so a player who starts a long module before dinner finds it done after.
+
+Income reference: two aliens pay for the Hull Frame in under 3 minutes; income passes about 30 Scrap/s by the Life Pod and 80 Scrap/s by the Engine Core. Scrap is the last stretch's gate (the Engine Core's 600,000 is the big save-up), but the night-only crystals, the rain-only shards and the Warden are the gates resting and offline time cannot pay; they need play. Free rewards (Welcome Week, quests, spins, codes, the group gift) are under 3% of a player's Scrap.
 
 ### "A little challenging": the Warden finale
 

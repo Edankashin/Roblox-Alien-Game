@@ -140,10 +140,23 @@ class _Parser:
 
     # expressions ----------------------------------------------------------
     def expr(self):
-        value = self.primary()
+        # Constant arithmetic on numbers (17 * 60, 30 * 24 * 3600): * and / bind tighter than + and -.
+        value = self.term()
+        while self.peek()[1] in ("+", "-") and isinstance(value, (int, float)):
+            op = self.take()[1]
+            rhs = self.term()
+            value = value + rhs if op == "+" else value - rhs
         while self.peek()[1] == "::":
             self.take()
             self.skip_cast()
+        return value
+
+    def term(self):
+        value = self.primary()
+        while self.peek()[1] in ("*", "/") and isinstance(value, (int, float)):
+            op = self.take()[1]
+            rhs = self.primary()
+            value = value * rhs if op == "*" else value / rhs
         return value
 
     def primary(self):

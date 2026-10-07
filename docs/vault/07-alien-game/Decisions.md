@@ -38,6 +38,7 @@ Record each team decision from PRE_PRODUCTION section 2 here with the date, so a
 | B11 | Blender via MCP | Models are built and edited in Blender through the `mcp-for-blender` server registered in `.mcp.json`; exports go to `assets/models/` and into Studio through Import 3D. Save before any code-executing session | 2026-10-05 |
 | B12 | Special weather per world | Each world rolls one special weather at its own chance with one signature alien that spawns only then (World 1: Rain, Thunderhog); a banner announces it. All data in `Worlds.luau` | 2026-10-05 |
 | B13 | World 2 roster | Frostbyte's 16 species, modules, key materials and Field Notes are data only (see "World 2 roster" below); its regions, Heater tool and shrine arrive with the layout | 2026-10-05 |
+| B14 | World 1 and 2 pacing | World 1 Scrap 300 / 2,000 / 45,000 / 180,000 / 600,000, keys 3 / 4 / 9 / 12 / 1, assembly 1 min / 7 min / 1 h / 2 h / 4 h; World 2 Scrap 60k / 150k / 300k / 600k / 1M, keys 5 / 5 / 8 / 8 / 1, assembly 1.5x World 1. Owner's rule: not beatable in a day without hours of play. Measured: World 1 about 4 to 6 h of play, day 5 to 6 at 30 to 45 min a day; World 2 about 1.5x. Freebies are under 3% of Scrap (PRE_PRODUCTION 5c-2) | 2026-10-07 |
 
 ## World 2 roster (2026-10-05)
 

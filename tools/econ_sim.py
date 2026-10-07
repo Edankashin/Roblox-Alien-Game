@@ -4,7 +4,8 @@
 Runs a bot through World 1 using the real data tables (Config, Tiers, Species, Spawns, Modules,
 KeyMaterials, Overlays, Jobs) and the same rules the server implements: tier roll by share, species by
 biome and condition, auto-assign to one slot per station, Scrap per second from work speed, three gates
-per module, assembly at player speed plus the matching station's crew. Reports the time each module
+per module, assembly at player speed plus the matching station's crew, station slots raised by each module's
+unlocksSlots (free slot growth). Reports the time each module
 completes and how long the bot was blocked by Scrap, by key material, or by assembly.
 
 Usage: python3 tools/econ_sim.py [--catch-every 30] [--slots 1] [--seeds 20]
@@ -231,9 +232,32 @@ class Bot:
         return False
 
     # modules -------------------------------------------------------------
+    def income(self):
+        # One second of station income; progression_sim.py overrides it for boosts and its ledger.
+        return self.rate()
+
+    def raise_slots(self, slots):
+        # Free slot growth (Modules.unlocksSlots): every station opens to `slots`, and the best aliens are reseated.
+        if slots <= self.slots:
+            return
+        self.slots = slots
+        everyone = sorted(self.aliens, key=lambda entry: -work_speed(*entry))
+        self.stations = {job: [] for job in Jobs["Order"]}
+        for entry in everyone:
+            self.seat_open_only(*entry)
+
+    def finish_module(self, mdef, t):
+        self.blocked[self.module_index]["done_at"] = t
+        self.log.append((mdef["id"], t, round(self.rate(), 1), len(self.aliens)))
+        if TRACE:
+            print(f"  t={t:5d} DONE {mdef['id']} (speed {self.assembly_speed(mdef['job']):.1f})")
+        self.module_index += 1
+        self.module = {"scrapPaid": 0, "keyPaid": 0, "progress": 0.0, "started": False}
+        self.raise_slots(mdef.get("unlocksSlots") or 0)
+
     def step(self):
         t = self.clock.t
-        self.scrap += self.rate()
+        self.scrap += self.income()
         if self.module_index >= len(Modules):
             return
         mdef = Modules[self.module_index]
@@ -265,12 +289,7 @@ class Bot:
             state["progress"] += self.assembly_speed(mdef["job"]) / mdef["assemblySeconds"]
             block["assembly"] += 1
             if state["progress"] >= 1:
-                block["done_at"] = t
-                self.log.append((mdef["id"], t, round(self.rate(), 1), len(self.aliens)))
-                if TRACE:
-                    print(f"  t={t:5d} DONE {mdef['id']} (speed {self.assembly_speed(mdef['job']):.1f})")
-                self.module_index += 1
-                self.module = {"scrapPaid": 0, "keyPaid": 0, "progress": 0.0, "started": False}
+                self.finish_module(mdef, t)
             return
         if state["keyPaid"] < mdef["keyCount"]:
             block["key"] += 1
@@ -327,7 +346,7 @@ def fmt(seconds):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--catch-every", type=float, default=30, help="seconds between catch attempts while exploring")
-    ap.add_argument("--slots", type=int, default=Config["StationStartSlots"], help="slots per station")
+    ap.add_argument("--slots", type=int, default=Config["StationStartSlots"], help="slots per station at the start (modules with unlocksSlots raise it, as in the game)")
     ap.add_argument("--seeds", type=int, default=20)
     ap.add_argument("--limit-hours", type=float, default=12)
     ap.add_argument("--trace", action="store_true", help="print one run's catches and gate payments")
@@ -339,7 +358,7 @@ def main():
         TRACE = False
 
     runs = [Bot(random.Random(seed), args.catch_every, args.slots).run(int(args.limit_hours * 3600)) for seed in range(args.seeds)]
-    print(f"World 1, one catch attempt every {args.catch_every:g}s, {args.slots} slot(s) per station, median of {args.seeds} runs\n")
+    print(f"World 1, one catch attempt every {args.catch_every:g}s, {args.slots} slot(s) per station at the start (raised by unlocksSlots), median of {args.seeds} runs\n")
     print("| Module | Done at (play time) | Blocked by key | Blocked by Scrap | Assembling | Scrap/s at done | Aliens |")
     print("|---|---|---|---|---|---|---|")
     for index, mdef in enumerate(Modules):
