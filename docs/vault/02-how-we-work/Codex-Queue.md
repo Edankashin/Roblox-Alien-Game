@@ -220,7 +220,7 @@ Files: `tools/studio_queue.py`, `tools/lint.sh`, `docs/STUDIO-QUEUE.md` (new).
 
 Done when: `./tools/lint.sh` passes and the file lists every pending check with no duplicates.
 
-### C20. Moment inventory — open (report only)
+### C20. Moment inventory — taken by codex 2026-10-07 (report only)
 
 Goal: the owner wants every moment in the game designed for an emotion (`docs/PRE_PRODUCTION.md` section 5a): sound, music, camera, effects and phone rumble working together, with a Legendary encounter as the worked example. Before that can be designed, list what each moment does today.
 
