@@ -9,6 +9,7 @@ export type SettingDef = { key: string, kind: "level" | "toggle", levels: { numb
 
 local Order: { SettingDef } = {
 	{ key = "Ambience", kind = "level", levels = { 0, 0.33, 0.66, 1 }, default = 2 }, -- multiplies Sounds.Volume.Ambience
+	{ key = "Music", kind = "level", levels = { 0, 0.33, 0.66, 1 }, default = 3 }, -- the music group's volume (data/Music rows are the mix under it)
 	{ key = "Sounds", kind = "level", levels = { 0, 0.33, 0.66, 1 }, default = 3 }, -- multiplies Sounds.Volume.UI
 	{ key = "ReducedMotion", kind = "toggle", default = 0 }, -- shortens tweens and skips shakes (on top of the system setting)
 	{ key = "Silhouettes", kind = "toggle", default = 1 }, -- uncaught species render as shadows until approached

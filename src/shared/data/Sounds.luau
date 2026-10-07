@@ -2,6 +2,9 @@
 -- Sound ids for every UI, capture, event and ambience cue (the launch list in PRE_PRODUCTION 3.4). All
 -- placeholders (rbxassetid://0) until the audio pass; Builder.playSound and the Ambience loops skip an
 -- id of 0 so nothing errors while they are empty. Volumes are 0..1 per SoundGroup.
+-- Ownership (Codex C21): this file owns the one-shots and the stingers (Reveal.<tier>, Launch); the music director
+-- (World/MusicDirector, rows in data/Music.luau) owns the beds and layers. Reveal.<tier> and Launch play through
+-- MusicDirector.Stinger so the bed ducks for the stinger's length.
 return {
 	Volume = { UI = 0.6, Ambience = 0.35 },
 	Click = "rbxassetid://0",
@@ -33,6 +36,14 @@ return {
 	Wiggle = "rbxassetid://0", -- a Good hit that failed the catch roll
 	Fled = "rbxassetid://0",
 	ScrapTick = "rbxassetid://0", -- the Scrap counter rolls
+	-- Moments C20 found with no cue at all (docs/vault/01-game-design/Moments.md). Silent until the sound pass; each
+	-- consumer wires in as its id lands (LegendaryRumble already plays with the Legendary opening).
+	LegendaryRumble = "rbxassetid://0", -- the low rumble under the screen shake before a Legendary or higher catch bar opens
+	BarOpen = "rbxassetid://0", -- the catch bar opens
+	RareNearby = "rbxassetid://0", -- a rare alien comes into range
+	RushStart = "rbxassetid://0", -- a Catch Rush round begins (it has only the banner's cue today)
+	Arrival = "rbxassetid://0", -- the player lands on a world (no distinct arrival cue today)
+	RestStart = "rbxassetid://0", -- the crew starts resting
 	Reveal = {
 		Common = "rbxassetid://0",
 		Uncommon = "rbxassetid://0",

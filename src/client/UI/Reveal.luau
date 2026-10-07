@@ -33,6 +33,7 @@ local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
+local MusicDirector = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MusicDirector"))
 
 local Reveal = {}
 
@@ -793,7 +794,8 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	if band.revealPop ~= 1 and not Prefs.ReducedMotion() then
 		popCard(panel, band.revealPop)
 	end
-	Builder.playSound(Sounds.Reveal[info.tier] or Sounds.Reveal.Common)
+	-- The tier's stinger plays through the music director, which ducks the bed for its length (data/Music Ducking).
+	MusicDirector.Stinger(if Sounds.Reveal[info.tier] ~= nil then "Reveal." .. info.tier else "Reveal.Common")
 	flyScrap(info.scrapGained)
 	local bonus = perfectLabel
 	if bonus then

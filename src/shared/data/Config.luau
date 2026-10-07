@@ -99,6 +99,12 @@ return {
 	CrashShakeStuds = 0.6, -- camera shake amplitude at touchdown
 	CrashLineSeconds = 2.2, -- each crash line stays this long
 	AmbienceFadeSeconds = 2, -- ambience loops crossfade over this
+	-- The Legendary opening (a catch on a Legendary or higher alien, Music.Capture.intenseFromTier): the screen rumbles and the
+	-- phone buzzes for this long BEFORE the catch bar opens, with the intense music already on. Reduced motion skips both.
+	LegendaryRumbleSeconds = 1.2, -- the camera shake; the catch request waits this long, so the first sweep is untouched
+	LegendaryRumbleStuds = 0.45, -- the shake's starting amplitude (it eases to 0 over the rumble); CrashShakeStuds is 0.6
+	LegendaryHapticSeconds = 0.8, -- the Small motor's pulse (HapticService; phones and controllers that support it)
+	LegendaryHapticStrength = 0.8, -- the pulse's strength, 0..1
 	VfxCatchBurstSeconds = 0.8, -- the burst where a caught alien stood
 	VfxModuleBurstSeconds = 1.5, -- the burst over a finished module
 	VfxShowerStreaksPerSecond = 6, -- meteor streaks over the camp during a shower

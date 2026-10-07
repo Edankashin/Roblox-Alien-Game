@@ -8,6 +8,8 @@
 -- a seat behind the character, a shake at touchdown, and the two CRASH_LINE banners (Toast.Banner).
 -- FrameArea is the Build tray's view: the camera glides to look down on an area (the house plot) so all of it
 -- sits in the part of the screen above the tray, and holds there until EndFrame glides it back.
+-- Rumble is the Legendary opening's screen shake: the same jitter as the touchdown, for a length and amplitude the
+-- caller gives (Config.LegendaryRumbleSeconds, LegendaryRumbleStuds), run before the catch bar opens.
 -- The camera is Scriptable while a sequence runs, so the player cannot steer it (the character is not
 -- frozen; the bootstrap hides the HUD), and goes back to Custom with the Humanoid as subject after.
 -- Cancel stops whatever runs at once (a capture started, the player left) and still runs the pending
@@ -137,17 +139,16 @@ local function glide(mine: number, cam: Camera, target: CFrame, seconds: number,
 	return generation == mine
 end
 
--- Jitters the camera around `base` in its own X and Y every RenderStepped for CRASH_SHAKE_SECONDS,
--- the amplitude falling from Config.CrashShakeStuds to 0, then settles it on `base`. Stops at once
--- when the sequence is retired.
-local function shake(mine: number, cam: Camera, base: CFrame)
+-- Jitters the camera around `base` in its own X and Y every RenderStepped for `seconds`, the amplitude
+-- falling from `studs` to 0, then settles it on `base`. Stops at once when the sequence is retired.
+local function shake(mine: number, cam: Camera, base: CFrame, seconds: number, studs: number)
 	local started = os.clock()
 	while generation == mine do
 		local elapsed = os.clock() - started
-		if elapsed >= CRASH_SHAKE_SECONDS then
+		if elapsed >= seconds then
 			break
 		end
-		local amplitude = Config.CrashShakeStuds * (1 - elapsed / CRASH_SHAKE_SECONDS)
+		local amplitude = studs * (1 - elapsed / seconds)
 		cam.CFrame = base * CFrame.new(random:NextNumber(-amplitude, amplitude), random:NextNumber(-amplitude, amplitude), 0)
 		RunService.RenderStepped:Wait()
 	end
@@ -275,7 +276,7 @@ function CameraDirector.CrashLanding(onDone: (() -> ())?)
 			return
 		end
 		if not reduced then
-			shake(mine, cam, seatCFrame)
+			shake(mine, cam, seatCFrame, CRASH_SHAKE_SECONDS, Config.CrashShakeStuds)
 			if generation ~= mine then
 				return
 			end
@@ -283,6 +284,33 @@ function CameraDirector.CrashLanding(onDone: (() -> ())?)
 		Toast.Banner(Strings.CRASH_LINE_2, Theme.Colors.Featured, Config.CrashLineSeconds)
 		release()
 	end)
+end
+
+-- The Legendary opening's rumble: the camera shakes around where it stands for `seconds`, the amplitude easing
+-- from `studs` to 0, then is handed back. Answers true when it started (the caller then waits `seconds` before
+-- opening the catch bar) and false when nothing happened: reduced motion (the shake is skipped, as at the crash
+-- touchdown), another sequence running, no camera, or nothing to shake.
+function CameraDirector.Rumble(seconds: number, studs: number): boolean
+	if busy or reducedMotion() or seconds <= 0 or studs <= 0 then
+		return false
+	end
+	local cam = currentCamera()
+	if not cam then
+		return false
+	end
+	busy = true
+	generation += 1
+	local mine = generation
+	pendingDone = nil
+	cam.CameraType = Enum.CameraType.Scriptable
+	local base = cam.CFrame
+	task.spawn(function()
+		shake(mine, cam, base, seconds, studs)
+		if generation == mine then
+			release()
+		end
+	end)
+	return true
 end
 
 -- The Build tray's view (milestone 42b): glide to look down on a flat area centred on `center` with half-diagonal

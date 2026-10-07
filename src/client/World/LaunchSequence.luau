@@ -1,7 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.World.LaunchSequence: the lift-off to the next world, pure presentation.
 -- The server has already accepted Launch and fired Launched; this only shows it. From Play:
---   0 s       Sounds.Launch, a Featured burst at the ship's base, the camera glides to the ship
+--   0 s       the launch music (MusicDirector.SetLaunch) and the Sounds.Launch hit (MusicDirector.Stinger, which
+--             ducks the other beds), a Featured burst at the ship's base, the camera glides to the ship
 --             (CameraDirector.PanTo: the director owns the camera) and the ship starts rising
 --             (CampRenderer.LiftShip: Config.LaunchLiftStuds over Config.LaunchLiftSeconds, Quad In).
 --   lift end  the LaunchFade ScreenGui (DisplayOrder 50, over the toasts) fades a black frame in over
@@ -21,13 +22,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
-local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
 local CameraDirector = require(script.Parent:WaitForChild("CameraDirector"))
 local CampRenderer = require(script.Parent:WaitForChild("CampRenderer"))
+local MusicDirector = require(script.Parent:WaitForChild("MusicDirector"))
 local Vfx = require(script.Parent:WaitForChild("Vfx"))
 
 local LaunchSequence = {}
@@ -166,7 +167,8 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 	end
 
 	local shipAt = CampRenderer.ShipPosition()
-	Builder.playSound(Sounds.Launch)
+	MusicDirector.SetLaunch(true) -- the launch cue takes the mix until the sequence ends
+	MusicDirector.Stinger("Launch") -- the lift-off hit (Sounds.Launch)
 	Vfx.ModuleBurst(shipAt, Theme.Colors.Featured)
 	if CameraDirector.IsBusy() then
 		CameraDirector.Cancel() -- the last module's pan may still be gliding; the launch takes its place
@@ -195,6 +197,7 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 				root.Enabled = false
 			end
 			playing = false
+			MusicDirector.SetLaunch(false)
 			onDone()
 		end)
 	end)

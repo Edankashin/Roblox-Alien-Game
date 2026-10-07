@@ -3,7 +3,7 @@
 -- server owns them (data/Settings.luau names the keys and their values; SetSetting stores one and
 -- SettingsChanged pushes the whole table back), State mirrors that table under its "settings" topic,
 -- and this module turns the mirror into effects: the UI SoundGroup's volume (Builder.SetSoundVolume),
--- the ambience group's volume (Ambience.SetVolumeScale), and the booleans the renderers and the
+-- the ambience group's volume (Ambience.SetVolumeScale), the music group's volume (MusicDirector.SetVolumeScale), and the booleans the renderers and the
 -- camera ask for. Reduced motion also follows the system switch (UserGameSettings.ReducedMotion, read
 -- under pcall: it is missing on some clients). Reads before the profile arrives answer the data
 -- defaults. Nothing here decides anything: every value is whatever the server said last.
@@ -15,12 +15,14 @@ local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local State = require(script.Parent:WaitForChild("State"))
 local Builder = require(script.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Ambience = require(script.Parent:WaitForChild("World"):WaitForChild("Ambience"))
+local MusicDirector = require(script.Parent:WaitForChild("World"):WaitForChild("MusicDirector"))
 
 local Prefs = {}
 
 -- data/Settings keys this module applies itself; the rest are read by their owners.
 local SOUNDS_KEY = "Sounds"
 local AMBIENCE_KEY = "Ambience"
+local MUSIC_KEY = "Music"
 local REDUCED_MOTION_KEY = "ReducedMotion"
 local SILHOUETTES_KEY = "Silhouettes"
 
@@ -80,6 +82,7 @@ end
 local function apply()
 	Builder.SetSoundVolume(Prefs.Multiplier(SOUNDS_KEY))
 	Ambience.SetVolumeScale(Prefs.Multiplier(AMBIENCE_KEY))
+	MusicDirector.SetVolumeScale(Prefs.Multiplier(MUSIC_KEY))
 	changed:Fire()
 end
 

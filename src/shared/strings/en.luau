@@ -563,6 +563,7 @@ return {
 	MENU_GLYPH_Settings = "=",
 	SETTINGS_TITLE = "Settings",
 	SETTINGS_Ambience = "World sounds",
+	SETTINGS_Music = "Music",
 	SETTINGS_Sounds = "Button and catch sounds",
 	SETTINGS_ReducedMotion = "Reduced motion",
 	SETTINGS_Silhouettes = "Shadow silhouettes for uncaught aliens",

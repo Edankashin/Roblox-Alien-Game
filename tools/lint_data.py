@@ -310,6 +310,72 @@ def lint_shapes(tables, strings, types):
     return sorted(set(failures))
 
 
+def lint_music(tables):
+    """data/Music: well-formed rows, and every id the director looks up exists (rows, worlds, tiers, Sounds paths)."""
+    music, failures = tables.get('Music'), []
+    if music is None:
+        return ['Music.luau: table unavailable']
+    rows, layers = music['Rows'], {'bed', 'layer'}
+    for name, row in rows.items():
+        where = f'Music.Rows.{name}'
+        if type(row.get('assetId')) is not int or row['assetId'] < 0:
+            failures.append(f'{where}.assetId: expected a non-negative integer (0 = not chosen yet)')
+        volume = row.get('volume')
+        if type(volume) not in (int, float) or not 0 < volume <= 1:
+            failures.append(f'{where}.volume: expected a number in (0, 1]')
+        for key in ('fadeIn', 'fadeOut'):
+            if type(row.get(key)) not in (int, float) or row[key] < 0:
+                failures.append(f'{where}.{key}: expected non-negative seconds')
+        if type(row.get('loop')) is not bool:
+            failures.append(f'{where}.loop: expected a boolean')
+        if row.get('layer') not in layers:
+            failures.append(f'{where}.layer: expected "bed" or "layer"')
+        if type(row.get('priority')) is not int:
+            failures.append(f'{where}.priority: expected an integer')
+    beds = {name for name, row in rows.items() if row.get('layer') == 'bed'}
+    worlds = {row['id'] for row in tables['Worlds'].values() if isinstance(row, dict) and 'id' in row}
+    for world, pair in music['Worlds'].items():
+        if world not in worlds:
+            failures.append(f'Music.Worlds.{world}: unknown world')
+        for part in ('day', 'night'):
+            if pair.get(part) not in beds:
+                failures.append(f'Music.Worlds.{world}.{part}: unknown bed {pair.get(part)!r}')
+    for kind, name in music['Events'].items():
+        if name not in beds:
+            failures.append(f'Music.Events.{kind}: unknown bed {name!r}')
+    for kind in ('base', 'intense'):
+        if music['Capture'][kind] not in beds:
+            failures.append(f'Music.Capture.{kind}: unknown bed {music["Capture"][kind]!r}')
+    if music['Capture']['intenseFromTier'] not in tables['Tiers']['Order'].values():
+        failures.append('Music.Capture.intenseFromTier: unknown tier')
+    if music['Resting'] not in beds:
+        failures.append('Music.Resting: unknown bed')
+    if rows.get(music['MenuLayer'], {}).get('layer') != 'layer':
+        failures.append('Music.MenuLayer: expected a row with layer "layer"')
+    for season in tables['Seasons']['List'].values():
+        if season['id'] in rows and season['id'] not in beds:
+            failures.append(f'Music.Rows.{season["id"]}: a season row must be a bed')
+    ducking = music['Ducking']
+    if not 0 <= ducking['Gain'] <= 1:
+        failures.append('Music.Ducking.Gain: expected a number in [0, 1]')
+    for key in ('AttackSeconds', 'RestoreSeconds', 'DefaultStingerSeconds'):
+        if type(ducking[key]) not in (int, float) or ducking[key] < 0:
+            failures.append(f'Music.Ducking.{key}: expected non-negative seconds')
+    sounds = tables['Sounds']
+    for key, seconds in ducking['StingerSeconds'].items():
+        node = sounds
+        for part in key.split('.'):
+            node = node.get(part) if isinstance(node, dict) else None
+        if not isinstance(node, str):
+            failures.append(f'Music.Ducking.StingerSeconds.{key}: no such path in Sounds')
+        if type(seconds) not in (int, float) or seconds <= 0:
+            failures.append(f'Music.Ducking.StingerSeconds.{key}: expected positive seconds')
+    for tier in tables['Tiers']['Order'].values():
+        if 'Reveal.' + tier not in ducking['StingerSeconds']:
+            failures.append(f'Music.Ducking.StingerSeconds: no length for Reveal.{tier}')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -399,6 +465,7 @@ def lint(root: Path = ROOT) -> list[str]:
     for name, row in tables['Tiers']['Tiers'].items():
         if type(row.get('aura')) not in (int, float) or not math.isfinite(row['aura']):
             failures.append(f'Tiers.{name}.aura: expected a finite number')
+    failures.extend(lint_music(tables))
     for finding in lint_shapes(tables, strings, types):
         if finding in SHAPE_WARNINGS:
             print('warning: ' + finding)

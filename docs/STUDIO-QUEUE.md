@@ -1,9 +1,9 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `8ba8f911a2fb571b`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `b79fa8b3aff50072`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
-**27 pending milestones; 83 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
+**28 pending milestones; 93 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
@@ -224,6 +224,35 @@ For every entry send: commit/build, project and WorldId, player count, original 
 **TESTING step 7.** The hard cap holds. In Studio set `HardCap = 150` in `src/shared/data/Storage.luau` (Rojo syncs it; put 1,500 back afterwards), then `/complete`, `/storage bay 10` and `/pass StorageBoost`: the count reads "N / 150" (not 380 or 480) and `/storage cap` prints `= 480, hard cap 150`; `/storage fill` stops at 150. The headless spec "CapFor never passes the hard cap" checks the same with the real data.
 
 **TESTING step 8.** Check the Aliens screen at iPhone SE (667x375) and iPad sizes in the device emulator: the count, the companion line and the Storage Bay button stay inside the panel and clear of the station cards above and the perks line below; the button's text is one line for every level (check "+20 storage: 1,000,000 Scrap" with `/storage bay 9` and `/scrap 2000000`) and at the grey states; the count line "Aliens: 1,234 / 1,500" (`/storage fill` with a raised cap) is not cut off; the Release button, the X and the header tab are where they were.
+
+### Milestone 51a: music and sound system (World 1 place)
+
+**Pending status:** built; tracks wait on the Mac's audition; Studio check queued
+
+**Setup projects:** `rojo serve default.project.json`.
+**Dev/setup references:** `/afk`, `/afk off`, `/complete`, `/day`, `/night`, `/rush`, `/rush end`, `/season HauntedNebula`, `/season off`, `/shower`, `/shower end`, `/spawn`, `/spawn Gaiabloom`, `/spawn Mossbop`, `/tutorial 8`.
+
+**Send back:** standard evidence above; original steps 1, 2, 3, 4, 5, 6, 7, 8, 9, 10.
+
+**TESTING step 1.** Day and night. Press Play. The client Output shows one `[AlienGame] Music: VerdantDay` (`VerdantNight` if the clock starts at night) after the profile line, not two. `/night` prints `Music: VerdantNight` and `/day` prints `Music: VerdantDay`, once per flip, not once per clock push. Open Settings: a "Music" row sits between "World sounds" and "Button and catch sounds" with Off, Low, Mid and High, High lit for a fresh profile, and every row stays inside the card at iPhone SE and iPad sizes.
+
+**TESTING step 2.** A plain catch. `/spawn Mossbop`, walk within 12 studs and press Catch: Output `Music: CatchBase` at the tap, no screen shake, the bar opens as before. On a catch, `Music: VerdantDay` prints when the Reveal is about to open and `Music: stinger Reveal.Common (silent)` as it opens; on a flee, `Music: VerdantDay` prints when the bar closes. Spawn and catch a Rare (`/spawn` any Rare): the stinger line reads `Reveal.Rare`, and so on for each tier.
+
+**TESTING step 3.** A Legendary catch. `/spawn Gaiabloom` and press Catch: Output `Music: CatchIntense` at the tap, the screen shakes for about 1.2 seconds (strongest at the start, easing to still) and only then does the catch bar open, with the ticker leaving the left edge as on any other catch (the request waits for the rumble, so the first sweep is untouched). On a phone or controller that supports vibration the Small motor buzzes for about 0.8 seconds with the shake; the buzz is checked on a real device (Studio's emulator does not vibrate). After the catch, `Music: VerdantDay` and `Music: stinger Reveal.Legendary (silent)`. A Cosmic or Secret catch opens the same way.
+
+**TESTING step 4.** Reduced motion. Turn on Reduced motion in Settings and catch another Gaiabloom: `Music: CatchIntense` still prints, but there is no shake, no buzz and no wait before the bar opens. Turn it off again.
+
+**TESTING step 5.** Events. `/shower`: Output `Music: MeteorShower`; a plain catch during it prints no `CatchBase` line (the Shower keeps the music), a Legendary catch prints `CatchIntense` and then `MeteorShower` again; `/shower end` returns the world bed. `/rush` prints `Music: CatchRush` and `/rush end` returns the world bed; with a Shower and a Rush both running, the Shower line wins. `/season HauntedNebula` prints `Music: HauntedNebula` on World 1 (the season's worlds) and `/season off` returns it.
+
+**TESTING step 6.** Resting. `/afk`: Output `Music: Resting`; `/afk off`: the world bed returns. A running Shower still beats resting.
+
+**TESTING step 7.** Panels. Opening and closing a panel (Aliens, Codex, Settings) prints no Music line: a menu is a layer over the bed, not a state. With ids filled (step 10) the bed drops to about two thirds while a panel is open and eases back after it closes.
+
+**TESTING step 8.** The home place (`home.project.json` synced): Output `Music: Home`, and `/night` prints no new line, because Home is one track day and night. Visiting a friend's home also plays Home.
+
+**TESTING step 9.** Launch. Complete the ship (`/complete`), press Launch: Output `Music: Launch` and `Music: stinger Launch (silent)` at the lift-off; in Studio the place is not published, so after the black hold the camp returns and `Music: VerdantDay` prints again. The launch cue is not ducked by its own hit.
+
+**TESTING step 10.** When the Mac session fills ids (needs a real track): paste the plain number into a row's `assetId` in `src/shared/data/Music.luau`, press Play and check, with headphones and the device emulator's speaker, the day and night crossfade (about 3 seconds), the catch bed coming in and out within a third of a second, the intense bed on a Legendary, a Reveal stinger dipping the bed for its length and the bed returning within a second after it, and the Music setting scaling the whole mix. While the row plays, Explorer shows one Sound per voice under SoundService > Music; a row still at 0 shows none, and a silent winner leaves the next row down playing.
 
 ## World 2 place
 

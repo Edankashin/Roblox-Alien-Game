@@ -72,6 +72,9 @@ local RadarData = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
+local MusicDirector = require(script:WaitForChild("World"):WaitForChild("MusicDirector"))
+local Haptics = require(script:WaitForChild("World"):WaitForChild("Haptics"))
+local MusicMath = require(Shared:WaitForChild("MusicMath"))
 local LightingDirector = require(script:WaitForChild("World"):WaitForChild("LightingDirector"))
 local WeatherFx = require(script:WaitForChild("World"):WaitForChild("WeatherFx"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
@@ -182,6 +185,7 @@ local function finishCapture()
 	inCapture = false
 	captureToken = nil
 	CaptureBar.End()
+	MusicDirector.SetCapture(nil) -- the world's bed returns
 end
 
 local function onCaught(result: Types.CaptureHitResult)
@@ -250,6 +254,18 @@ local function sendTap(tapTime: number)
 	end)
 end
 
+-- The Legendary opening (a catch on a Legendary or higher alien): the low rumble sound, the phone buzz and the screen
+-- shake run BEFORE the catch request, so the bar opens on a fresh first sweep; the intense music is already on.
+-- Reduced motion skips the shake and the buzz (CameraDirector.Rumble and Haptics.Pulse answer false) and the request
+-- goes at once.
+local function legendaryOpening()
+	Builder.playSound(Sounds.LegendaryRumble)
+	Haptics.Pulse(Config.LegendaryHapticSeconds, Config.LegendaryHapticStrength)
+	if CameraDirector.Rumble(Config.LegendaryRumbleSeconds, Config.LegendaryRumbleStuds) then
+		task.wait(Config.LegendaryRumbleSeconds)
+	end
+end
+
 local function beginCapture(part: Part)
 	if modalOpen() then
 		return
@@ -263,12 +279,20 @@ local function beginCapture(part: Part)
 	capturePosition = part.Position
 	CameraDirector.Cancel() -- a catch takes priority over any camera moment
 	Hud.SetAction(nil)
+	-- The catch music starts with the tap: the plain bed, or the intense one for Legendary and above (the tier is on the part).
+	local tierAttribute = part:GetAttribute("Tier")
+	local kind: MusicMath.CaptureKind = MusicMath.CaptureKind(if type(tierAttribute) == "string" then tierAttribute else "")
+	MusicDirector.SetCapture(kind)
 	-- Own thread: InvokeServer yields, and callers are input callbacks.
 	task.spawn(function()
+		if kind == "intense" then
+			legendaryOpening()
+		end
 		local raw, reason = captureStart:InvokeServer(spawnId)
 		local start = raw :: Types.CaptureStartResult?
 		if not start then
 			inCapture = false
+			MusicDirector.SetCapture(nil)
 			print(("[%s] capture refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 			return
 		end
@@ -1072,6 +1096,7 @@ local function connectAfk()
 			end
 			local was = lastState.resting
 			lastState = state
+			MusicDirector.SetResting(state.resting)
 			showRate()
 			if state.resting then
 				if not was then
@@ -1410,7 +1435,18 @@ local function start(profile: Types.Profile)
 		local weather = current.drop.weather
 		return if weather then Builder.text("WEATHER_" .. weather) else nil
 	end
+	-- The event bed the music director plays (data/Music): a running shower, else a rush, else the season in this world
+	-- (its Music row is its id). None while the tutorial holds the event banners.
+	local function eventMusic(): string?
+		if eventBannersHeld() then
+			return nil
+		end
+		local current = State.GetSeason()
+		local seasonId = if current and table.find(current.season.worldIds, Place.WorldId()) ~= nil then current.season.id else nil
+		return MusicMath.EventState(State.GetShower().active, State.GetRush().active, seasonId)
+	end
 	local function refreshEventBanner()
+		MusicDirector.SetEvent(eventMusic())
 		local shower, elapsed = State.GetShower()
 		local rushState, rushElapsed = State.GetRush()
 		local held = eventBannersHeld()
@@ -1724,6 +1760,7 @@ local function start(profile: Types.Profile)
 	CompanionRenderer.Start()
 	NodeRenderer.Start()
 	Ambience.Start()
+	MusicDirector.Start() -- the first clock push below picks the world's bed (the home planet, world 0, plays Home)
 	LightingDirector.Start()
 	WeatherFx.Start()
 
@@ -1753,6 +1790,7 @@ local function start(profile: Types.Profile)
 	local function onClock(state: Types.ClockState)
 		Hud.SetClock(state)
 		State.SetClock(state)
+		MusicDirector.SetWorldState(Place.WorldId(), state.isNight) -- the day and night beds crossfade at the clock edge
 		-- A blizzard on a Blizzard-rule world hides far aliens; say so once, and say it again next blizzard.
 		if blizzardActive() then
 			if not blizzardHinted then
@@ -1814,6 +1852,7 @@ local function start(profile: Types.Profile)
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Radar.SetVisible(not modalOpen() and not cinematic)
+		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
 		NearbyPanel.SetVisible(nearbyShows())
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).

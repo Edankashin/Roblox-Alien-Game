@@ -110,3 +110,5 @@ Horn success → HornCall; WardenSummoned → WardenAppear plus banner. Selectin
 - `Sounds.WheelStop` = `rbxassetid://0`
 - `Sounds.WheelTick` = `rbxassetid://0`
 - `Sounds.Wiggle` = `rbxassetid://0`
+
+Added by milestone 51a (silent, id 0, no callers yet except the first): `Sounds.LegendaryRumble` (plays with the Legendary screen rumble), `BarOpen`, `RareNearby`, `RushStart`, `Arrival`, `RestStart`. The Legendary encounter now opens with intense music, a camera rumble and a phone buzz before the bar (see [[Music-Plan]]); the other rows above still read as written until their cues are wired.
