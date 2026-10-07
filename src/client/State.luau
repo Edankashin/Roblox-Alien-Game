@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged);
+-- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged, SeenChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -196,6 +196,30 @@ end
 
 function State.GetGifts(): Types.GiftState
 	return gifts
+end
+
+-- Whether the profile has watched the first-time moment `key` (data/Cinematics SeenKeys), as the server last said
+-- (the profile, then SeenChanged). False before the profile arrives.
+function State.HasSeen(key: string): boolean
+	local p = profile
+	return p ~= nil and p.seen[key] == true
+end
+
+-- Marks `key` watched in the mirror at once (the caller tells the server with MarkSeen), so a second look this session
+-- already knows. The server's SeenChanged push replaces the table either way.
+function State.MarkSeen(key: string)
+	local p = profile
+	if p then
+		p.seen[key] = true
+	end
+end
+
+-- The server's whole seen table (SeenChanged), after MarkSeen or a Studio reset.
+function State.SetSeen(seen: Types.SeenState)
+	local p = profile
+	if p then
+		p.seen = seen
+	end
 end
 
 -- Every data/Settings key with the value the server holds (SettingsChanged, seeded from the profile);
@@ -741,6 +765,11 @@ function State.Start()
 				profile.settings = settings
 			end
 			fire("settings")
+		end)
+	end)
+	task.spawn(function()
+		Net.event("SeenChanged").OnClientEvent:Connect(function(state: Types.SeenState)
+			State.SetSeen(state)
 		end)
 	end)
 	task.spawn(function()

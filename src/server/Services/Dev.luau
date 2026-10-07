@@ -22,7 +22,9 @@
 -- after 17 idle minutes; Studio only prints it), /playtime <minutes> (add that many minutes of played time today, so a playtime
 -- gift unlocks at once; negative takes minutes back) | reset (today's played time and claims cleared), /storage fill [N] (N plain Common
 -- records, default as many as fit, never past the storage cap) | cap (print the record count, the cap and its parts: base, modules,
--- Storage Bay, pass, hard cap) | bay <level> (set the Storage Bay level without paying, 0 to the last). Nothing
+-- Storage Bay, pass, hard cap) | bay <level> (set the Storage Bay level without paying, 0 to the last), /cinematic <momentId> (play one cinematic moment
+-- from Shared/data/Cinematics now: Arrival_0, Arrival_1, Arrival_2 or Legendary) | reset (forget which first arrivals were
+-- watched, so each plays again on the next join) | list (print the moments and the ones watched). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -73,6 +75,8 @@ local SeasonsData = require(Shared.data.Seasons)
 local SeasonMath = require(Shared.SeasonMath)
 local StorageData = require(Shared.data.Storage)
 local StorageMath = require(Shared.StorageMath)
+local CinematicsData = require(Shared.data.Cinematics)
+local Seen = require(script.Parent.Seen)
 
 local Dev = {}
 
@@ -903,6 +907,33 @@ local function playtimeCommand(player: Player, text: string)
 	end
 end
 
+-- /cinematic <momentId>: play that cinematic moment on your client now. /cinematic reset: forget which first arrivals you
+-- watched (profile.seen), so each plays again on the next join. /cinematic list (or no word): print the moments and the
+-- arrivals watched. The play happens on the client (CameraDirector.PlayShots through a DevCinematic event).
+local function cinematicCommand(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "reset" then
+		Seen.DevReset(player)
+		print(("[%s] dev: %s's first arrivals forgotten"):format(Config.WorkingTitle, player.Name))
+		return
+	end
+	if word ~= nil and word ~= "list" then
+		if Seen.DevPlay(player, word) then
+			print(("[%s] dev: %s plays %s"):format(Config.WorkingTitle, player.Name, word))
+		else
+			print(("[%s] dev: no cinematic moment called %s"):format(Config.WorkingTitle, word))
+		end
+		return
+	end
+	local ids: { string } = {}
+	for id in pairs(CinematicsData.Moments) do
+		table.insert(ids, id)
+	end
+	table.sort(ids)
+	local watched = Seen.DevList(player)
+	print(("[%s] dev: moments %s; watched %s"):format(Config.WorkingTitle, table.concat(ids, ", "), if #watched > 0 then table.concat(watched, ", ") else "none"))
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -976,11 +1007,12 @@ function Dev.Init()
 	command("afk", afkCommand)
 	command("playtime", playtimeCommand)
 	command("storage", storageCommand)
+	command("cinematic", cinematicCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset, /storage fill|cap|bay, /cinematic <momentId>|reset|list)"):format(Config.WorkingTitle))
 	end
 end
 

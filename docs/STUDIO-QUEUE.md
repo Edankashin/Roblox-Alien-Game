@@ -1,9 +1,9 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `0917fa8a6d213cfc`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `10fb9df62958e723`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
-**28 pending milestones; 93 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
+**29 pending milestones; 102 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
@@ -151,6 +151,33 @@ For every entry send: commit/build, project and WorldId, player count, original 
 **TESTING step 5.** The Shop's Passes section has five tiles (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
 
 **TESTING step 6.** The HUD's Scrap per minute now shows what is paid: use a Double Shift (`/spins 5` and spin until one lands, or a code) and the line doubles at once and returns when it ends; a Roblox friend joining the server raises it by the Friend Boost (multi-client); resting halves it. Before this milestone the line never moved for any of the three.
+
+### Milestone 47: cinematic arrivals and the Legendary push-in (World 1 place)
+
+**Pending status:** built; anchors to place in each place by hand (Map-Dressing); Studio check queued
+
+**Setup projects:** `rojo serve default.project.json`.
+**Dev/setup references:** `/cinematic <momentId>`, `/cinematic Arrival_1`, `/cinematic Legendary`, `/cinematic list`, `/cinematic reset`, `/spawn Gaiabloom`, `/spawn Mossbop`, `/tutorial 8`.
+
+**Send back:** standard evidence above; original steps 1, 2, 3, 4, 5, 6, 7, 8, 9.
+
+**TESTING step 1.** The arrival. Press Play, wait for the crash landing to finish, then `/cinematic Arrival_1`. The HUD hides and black bars slide in at the top and bottom (a tenth of the screen each, in about 0.4 seconds). The camera starts far out over the Forest and rests for under a second, then dives and flies low and fast toward the camp with the foreground blurred and the field of view widening; as it slows and rises the blur clears; it cranes up over the camp, then pulls up and out to an establishing view where the whole 400-stud floor reads as one island with the camp in the middle; then it descends to the seat behind your character, the bars slide out and the HUD comes back, with the camera already where the normal one takes over. About 15 seconds in all; Output has no red lines and no Cinematics warning (a warning names the shot whose view could not be computed).
+
+**TESTING step 2.** Skip. `/cinematic Arrival_1` again and watch for the Skip button: it is not there for the first second, then a blue chunky button "Skip" pops in at the lower right just above the bottom bar (about 130 x 45 px at iPhone SE size, never under the bar). Tap it: the camera cuts to the seat behind the character at once, the bars slide out, the HUD returns, and the button is gone. No blur is left on the screen (Explorer shows no CinematicDepthOfField under the Camera).
+
+**TESTING step 3.** Reduced motion. Turn on Reduced motion in Settings and `/cinematic Arrival_1`: no flight and no bars; the camera cuts straight to the seat behind the character, holds about 0.6 seconds with the HUD hidden, and hands back. No blur. `/cinematic Legendary` does nothing at all. Turn the setting off again.
+
+**TESTING step 4.** A Legendary catch. `/tutorial 8`, then `/spawn Gaiabloom` and press Catch (or Space): no bars and no blur; the camera pushes in slowly toward the alien for 1.2 seconds, ending a few studs from it and looking at it; the screen then rumbles on that view for another 1.2 seconds (Output `Music: CatchIntense` at the tap, the low rumble sound slot is silent until its id lands) and only then does the catch bar open, with the sweep starting from the left edge. The wait from the tap to the bar is about 2.4 seconds plus the server's answer. After the rumble the normal camera takes over behind your character. Finish the catch normally. With Reduced motion on, neither the push-in nor the shake plays and the bar opens at once. A Common alien (`/spawn Mossbop`) shows no push-in.
+
+**TESTING step 5.** A catch cancels a cinematic. `/spawn Mossbop`, walk to within catch range of it, then `/cinematic Arrival_1` and press Space while the camera is flying (the HUD is hidden, so the key is the way): the cinematic stops at once, the bars slide out, the HUD returns and the catch bar opens as usual. Output clean.
+
+**TESTING step 6.** First arrival on World 2 (sync `world2.project.json`, press Play): a brand-new profile on this place plays the Frostbyte arrival (`Arrival_2`: opens over the Geyser Field) once, with no crash landing; the HUD returns at the end. `/cinematic list` prints `watched Arrival_2`. With real saves, stop and press Play again: the arrival does not play; `/cinematic reset` then Stop and Play: it plays again.
+
+**TESTING step 7.** First arrival on World 1. With real saves, a brand-new profile in the World 1 place sees the crash landing (not the arrival); after it ends `/cinematic list` prints `watched Arrival_1`, and a second Play shows neither. In the home place (`home.project.json`) a brand-new profile plays the short `Arrival_0` (8 seconds, no crash landing).
+
+**TESTING step 8.** Anchors. Place a Part named `Arrival_1_Pull` in `Workspace.Dressing.CameraRig` as Map-Dressing describes (Anchored, Transparency 1, CanCollide off, facing the view you want) high over one corner of the floor, then `/cinematic Arrival_1`: the pull-out segment ends at that Part's view instead of the computed one. Delete it and the computed view returns. The Part stays invisible and cannot be walked into.
+
+**TESTING step 9.** Check the bars, the Skip button and the Legendary push-in at iPhone SE (667x375) and iPad sizes in the device emulator, and in portrait on the phone emulator: the bars span the width, the Skip button stays inside the screen and clear of the bottom bar, and the establishing view still shows most of the island (in portrait the narrow field of view cuts its sides: place anchors that frame for portrait if that matters).
 
 ### Milestone 49: playtime gifts (World 1 place)
 

@@ -376,6 +376,117 @@ def lint_music(tables):
     return failures
 
 
+def lint_cinematics(tables):
+    """data/Cinematics: well-formed shots, every rule resolvable in its world's layout, the arrival moments, seen keys and Legendary budget."""
+    data, failures = tables.get('Cinematics'), []
+    if data is None:
+        return ['Cinematics.luau: table unavailable']
+    kinds = {'orbitCamp': ('radius', 'height', 'angle'), 'overBiome': ('biome', 'height'),
+             'behindCharacter': ('back', 'height'), 'towardTarget': ('distance', 'height'), 'current': ()}
+    easings = {style + direction for style in ('Quad', 'Sine') for direction in ('In', 'Out', 'InOut')}
+    numeric = lambda value: type(value) in (int, float) and math.isfinite(value)
+    worlds = {row['id']: row for row in tables['Worlds'].values() if isinstance(row, dict) and 'id' in row}
+    anchors = {}
+
+    def world_of(moment_id):
+        for world_id in worlds:
+            if moment_id == f'{data["ArrivalPrefix"]}{world_id}':
+                return world_id
+        return None
+
+    for moment_id, moment in data['Moments'].items():
+        where = f'Cinematics.Moments.{moment_id}'
+        for flag in ('letterbox', 'skippable', 'skipOnReducedMotion'):
+            if type(moment.get(flag)) is not bool:
+                failures.append(f'{where}.{flag}: expected a boolean')
+        stinger = moment.get('stinger')
+        if stinger is not None:
+            node = tables['Sounds']
+            for part in str(stinger).split('.'):
+                node = node.get(part) if isinstance(node, dict) else None
+            if not isinstance(node, str):
+                failures.append(f'{where}.stinger: no such path in Sounds')
+        shots = moment.get('shots') or {}
+        if not shots or set(shots) != set(range(1, len(shots) + 1)):
+            failures.append(f'{where}.shots: expected a dense, non-empty list')
+            continue
+        layout = tables['Layouts'].get(world_of(moment_id))
+        total = 0
+        for index, shot in shots.items():
+            at = f'{where}.shots.{index}'
+            seconds = shot.get('seconds')
+            if not numeric(seconds) or seconds < 0 or (index > 1 and seconds <= 0):
+                failures.append(f'{at}.seconds: expected seconds (0 only for the opening frame)')
+            else:
+                total += seconds
+            if shot.get('easing') not in easings:
+                failures.append(f'{at}.easing: expected Quad or Sine with In, Out or InOut, found {shot.get("easing")!r}')
+            if not numeric(shot.get('blur')) or not 0 <= shot['blur'] <= 1:
+                failures.append(f'{at}.blur: expected a number in [0, 1]')
+            if shot.get('fov') is not None and (not numeric(shot['fov']) or not 0 < shot['fov'] <= 120):
+                failures.append(f'{at}.fov: expected degrees in (0, 120]')
+            anchor = shot.get('anchor')
+            if anchor is not None:
+                if not isinstance(anchor, str) or not anchor.startswith(moment_id):
+                    failures.append(f'{at}.anchor: expected a name starting with {moment_id}')
+                elif anchor in anchors:
+                    failures.append(f'{at}.anchor: {anchor!r} is also used by {anchors[anchor]}')
+                else:
+                    anchors[anchor] = at
+            rule = shot.get('fallback')
+            if not isinstance(rule, dict) or rule.get('kind') not in kinds:
+                failures.append(f'{at}.fallback.kind: unknown rule {rule.get("kind") if isinstance(rule, dict) else rule!r}')
+                continue
+            for field in kinds[rule['kind']]:
+                value = rule.get(field)
+                if (field == 'biome' and not isinstance(value, str)) or (field != 'biome' and not numeric(value)):
+                    failures.append(f'{at}.fallback.{field}: required by {rule["kind"]}')
+            if rule['kind'] == 'overBiome':
+                regions = layout['Regions'] if layout is not None else {}
+                if rule.get('biome') not in regions:
+                    failures.append(f'{at}.fallback.biome: {rule.get("biome")!r} is not a region of this moment\'s world layout')
+        arrival = world_of(moment_id)
+        if arrival is not None:
+            low, high = data['ArrivalSeconds']['min'], data['ArrivalSeconds']['max']
+            if arrival == 0 and not 0 < total < low:
+                failures.append(f'{where}: the home arrival must be shorter than {low} seconds, found {total:g}')
+            elif arrival != 0 and not low <= total <= high:
+                failures.append(f'{where}: an arrival must run {low} to {high} seconds, found {total:g}')
+    for world_id, row in worlds.items():
+        if row.get('built'):
+            moment_id = f'{data["ArrivalPrefix"]}{world_id}'
+            if moment_id not in data['Moments']:
+                failures.append(f'Cinematics.Moments: built world {world_id} has no {moment_id} moment')
+            if not data['SeenKeys'].get(moment_id):
+                failures.append(f'Cinematics.SeenKeys: built world {world_id} has no {moment_id} key')
+    for key, flag in data['SeenKeys'].items():
+        if flag is not True or key not in data['Moments']:
+            failures.append(f'Cinematics.SeenKeys.{key}: expected true and a moment of that name')
+    legendary = data['Moments'].get('Legendary')
+    if legendary is None:
+        failures.append('Cinematics.Moments.Legendary: missing')
+    else:
+        total = sum(shot['seconds'] for shot in legendary['shots'].values())
+        if total + tables['Config']['LegendaryRumbleSeconds'] >= data['LegendaryBudgetSeconds']:
+            failures.append(f'Cinematics.Moments.Legendary: push-in {total:g} s plus the rumble must stay under {data["LegendaryBudgetSeconds"]:g} s')
+        if any(shot['blur'] != 0 for shot in legendary['shots'].values()):
+            failures.append('Cinematics.Moments.Legendary: the push-in has no blur')
+    bars = data['Letterbox']
+    if not numeric(bars.get('barHeight')) or not 0 < bars['barHeight'] < 0.5:
+        failures.append('Cinematics.Letterbox.barHeight: expected a screen fraction in (0, 0.5)')
+    for path, value in (('Letterbox.fadeSeconds', bars.get('fadeSeconds')), ('SkipAfterSeconds', data['SkipAfterSeconds']),
+                        ('ReducedMotionHoldSeconds', data['ReducedMotionHoldSeconds'])):
+        if not numeric(value) or value < 0:
+            failures.append(f'Cinematics.{path}: expected non-negative seconds')
+    focus = data['DepthOfField']
+    for key in ('FocusDistance', 'InFocusRadius', 'NearFactor', 'FarFactor'):
+        if not numeric(focus.get(key)) or focus[key] < 0:
+            failures.append(f'Cinematics.DepthOfField.{key}: expected a non-negative number')
+    if not data['RigParents'] or not isinstance(data['RigFolder'], str):
+        failures.append('Cinematics.RigParents/RigFolder: expected a folder name and at least one parent')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -466,6 +577,7 @@ def lint(root: Path = ROOT) -> list[str]:
         if type(row.get('aura')) not in (int, float) or not math.isfinite(row['aura']):
             failures.append(f'Tiers.{name}.aura: expected a finite number')
     failures.extend(lint_music(tables))
+    failures.extend(lint_cinematics(tables))
     for finding in lint_shapes(tables, strings, types):
         if finding in SHAPE_WARNINGS:
             print('warning: ' + finding)

@@ -114,8 +114,46 @@ Read with `media/tiktok/NOTES.md` batch 5 (the ropilot dioramas, the 45-minute c
 4. **A path that leads the eye**: pale against the ground, winding toward a landmark that is visible from everywhere in the world (the Moonlit Forest's floating island; ours is the hero landmark of milestone 29).
 5. **Named sights with a viewpoint each**: a pool, a waterfall seen from a bridge, a grove of giant mushrooms. If a spot cannot be captioned in four words for the trailer, it is not a sight yet.
 6. **At night the light comes from the props**, not the sky: glowing plants, lanterns, water, fireflies, in pastel colours over an indigo, violet and teal scene.
-7. **The world reads as one island** from the establishing camera shot: a rim, a centre, a readable layout. Each place keeps a `Workspace.World.CameraRig` folder of camera anchors for its cinematics (PRE_PRODUCTION 5c, item 1).
+7. **The world reads as one island** from the establishing camera shot: a rim, a centre, a readable layout. Each place keeps a `CameraRig` folder of camera anchors for its cinematics (PRE_PRODUCTION 5c, item 1; how to place them is in the next section).
 8. **Size is a feature** ("only 1 of 6 areas"), but only with density: walk any 20 studs and something new should be in view.
+
+## Camera rig anchors (milestone 47)
+
+The cinematic camera (`CameraDirector.PlayShots`, shot lists in `src/shared/data/Cinematics.luau`) flies through named anchors, one invisible Part per shot. A place works with none: every shot has a fallback computed from the layout (a ring round the camp, a point over a biome, the seat behind the character), so anchors are how a dresser replaces the computed view with a hand-framed one. Place them once the map is dressed, because they frame what is there.
+
+**Where.** A folder named `CameraRig` in `Workspace.Dressing` (the same folder the hand dressing lives in, saved with the place). The director looks in `Workspace.World.CameraRig` first and `Workspace.Dressing.CameraRig` second, the first Part with the shot's name wins. `Workspace.World` is built by the server while the game runs, so do not make it by hand (`Meadow.Init` returns at once when it exists); `Workspace.World.CameraRig` is for a script that creates the folder at runtime.
+
+**Names.** The shot's `anchor` field in `Cinematics.luau`, exactly: `Arrival_1_Open`, `Arrival_1_Fly`, `Arrival_1_Rise`, `Arrival_1_Crane`, `Arrival_1_Pull` in the World 1 place; the same five with the prefix `Arrival_2_` in the World 2 place; `Arrival_0_Open`, `Arrival_0_Sweep`, `Arrival_0_Pull` at home. The last shot of an arrival (the seat behind the character) has no anchor. Names are unique across moments and always start with the moment's id; a Part that is not named in the data is ignored.
+
+**What a Part is.** Its CFrame is the camera: position is where the camera stands and the camera looks out of the Part's Front face (-Z, the face Studio's Front surface marks), upright. Size does not matter (2 x 2 x 2). Set `Anchored` on, `CanCollide` off, `CanQuery` off, `CanTouch` off and `Transparency` 1, so it is never seen, walked into or hit by a ray. The field of view is the shot's `fov` in the data, not part of the anchor.
+
+**Fastest way.** Fly the Studio camera to the view you want, then paste this in the command bar after changing NAME (it makes the folders if they are missing and moves the Part if it exists):
+
+```lua
+local NAME = "Arrival_1_Pull"
+local dressing = workspace:FindFirstChild("Dressing") or Instance.new("Folder")
+dressing.Name = "Dressing"
+dressing.Parent = workspace
+local rig = dressing:FindFirstChild("CameraRig") or Instance.new("Folder")
+rig.Name = "CameraRig"
+rig.Parent = dressing
+local part = rig:FindFirstChild(NAME) or Instance.new("Part")
+part.Name = NAME
+part.Size = Vector3.new(2, 2, 2)
+part.CFrame = workspace.CurrentCamera.CFrame
+part.Anchored = true
+part.CanCollide = false
+part.CanQuery = false
+part.CanTouch = false
+part.Transparency = 1
+part.Parent = rig
+```
+
+To see or select an anchor again, pick it in Explorer (it is invisible) and set `Transparency` to 0.5 while editing; put it back to 1.
+
+**Placing the five.** Open: the first frame, far side of the world, a wide look at what is coming (it rests under a second). Fly: low, close to the ground and fast, between props, so the foreground has things to blur; keep the straight line from Open to Fly clear of trunks and rocks (the camera flies straight between anchors and does not collide). Rise: lifting past something tall. Crane: high over the camp, looking down at it. Pull: the establishing view, far and high enough that the whole floor reads as one island with the camp in the middle (map rule 7); on a phone held upright the field of view is narrow, so check it in the device emulator at both orientations. Each segment's length and easing are data; only the places are yours.
+
+**Check.** Press Play and type `/cinematic Arrival_1` (or `Arrival_2`, `Arrival_0`); the move runs at once whatever the profile has seen. A shot whose anchor and fallback both fail prints a warning in the Output naming the moment and the shot number.
 
 ## Rules
 

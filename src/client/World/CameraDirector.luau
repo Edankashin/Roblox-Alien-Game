@@ -1,6 +1,6 @@
 --!strict
--- StarterPlayerScripts.Client.World.CameraDirector: the only module that takes the camera. Three
--- sequences, all pure presentation. PanTo is the "module complete" moment: the camera glides from
+-- StarterPlayerScripts.Client.World.CameraDirector: the only module that takes the camera. Its
+-- sequences are all pure presentation. PanTo is the "module complete" moment: the camera glides from
 -- wherever it stands to a viewpoint Config.CameraPanDistance studs out from the target (on the side it
 -- is already on, so it never swings through the ship) and Config.CameraPanHeight up, looking at the
 -- target; rests Config.CameraPanHoldSeconds; glides back to the character at the offset it left from.
@@ -10,6 +10,13 @@
 -- sits in the part of the screen above the tray, and holds there until EndFrame glides it back.
 -- Rumble is the Legendary opening's screen shake: the same jitter as the touchdown, for a length and amplitude the
 -- caller gives (Config.LegendaryRumbleSeconds, LegendaryRumbleStuds), run before the catch bar opens.
+-- PlayShots plays a cinematic moment from Shared/data/Cinematics (milestone 47): the first arrival in a place, the Legendary
+-- push-in. Letterbox bars and a Skip button (UI/CinematicBars), then one segment per shot: the camera's CFrame and
+-- FieldOfView tween from where the last shot left them to the next view with the shot's easing, while a DepthOfField effect
+-- this module creates under the Camera, and destroys when the camera is handed back, follows the shot's blur. A shot's view is
+-- its anchor Part in the place's camera rig, else the fallback rule computed from the layout (Shared/CinematicMath). Reduced
+-- motion cuts to the last shot's view for a moment instead (or plays nothing, for a moment that says so). Skip cuts to
+-- the end. A moment can bring a music cue: its stinger plays through the music director when it starts.
 -- The camera is Scriptable while a sequence runs, so the player cannot steer it (the character is not
 -- frozen; the bootstrap hides the HUD), and goes back to Custom with the Humanoid as subject after.
 -- Cancel stops whatever runs at once (a capture started, the player left) and still runs the pending
@@ -26,9 +33,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Cinematics = require(Shared:WaitForChild("data"):WaitForChild("Cinematics"))
+local CinematicMath = require(Shared:WaitForChild("CinematicMath"))
+local Place = require(Shared:WaitForChild("Place"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
+local CinematicBars = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("CinematicBars"))
 local CampRenderer = require(script.Parent:WaitForChild("CampRenderer"))
+local MusicDirector = require(script.Parent:WaitForChild("MusicDirector"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local CameraDirector = {}
@@ -54,6 +66,22 @@ local activeTween: Tween? = nil
 local framedGeneration: number? = nil
 local framedReturn: Vector3? = nil
 local framedRotation: CFrame? = nil
+-- PlayShots' state, cleared by release(): the end-now step Skip runs, the depth-of-field effect and its blur tween, and
+-- the field of view the camera had at the start.
+local skipNow: (() -> ())? = nil
+local depthEffect: DepthOfFieldEffect? = nil
+local blurTween: Tween? = nil
+local startFov: number? = nil
+
+local EASING_STYLES: { [string]: Enum.EasingStyle } = { Quad = Enum.EasingStyle.Quad, Sine = Enum.EasingStyle.Sine }
+local EASING_DIRECTIONS: { [string]: Enum.EasingDirection } = {
+	In = Enum.EasingDirection.In,
+	Out = Enum.EasingDirection.Out,
+	InOut = Enum.EasingDirection.InOut,
+}
+
+-- What a caller can tell a moment: `target` is the point it is about (the alien a Legendary push-in moves toward).
+export type ShotContext = { target: Vector3? }
 
 -- Lookups ------------------------------------------------------------------
 
@@ -158,23 +186,139 @@ local function shake(mine: number, cam: Camera, base: CFrame, seconds: number, s
 end
 
 -- Hands the camera back: Custom with the character's Humanoid as subject, so the default camera
--- resumes from where the sequence left it. The pending onDone runs with the director already idle, so
--- a callback may start the next sequence.
+-- resumes from where the sequence left it. A cinematic moment's leftovers go with it: the depth-of-field effect is
+-- destroyed, the field of view put back and the letterbox bars slid out. The pending onDone runs with the director
+-- already idle, so a callback may start the next sequence.
 local function release()
 	busy = false
 	activeTween = nil
+	skipNow = nil
+	local blur = blurTween
+	blurTween = nil
+	if blur then
+		blur:Cancel()
+	end
+	local effect = depthEffect
+	depthEffect = nil
+	if effect then
+		effect:Destroy()
+	end
+	CinematicBars.Hide()
 	local done = pendingDone
 	pendingDone = nil
 	local cam = currentCamera()
 	if cam then
+		local fov = startFov
+		if fov then
+			cam.FieldOfView = fov
+		end
 		cam.CameraType = Enum.CameraType.Custom
 		local subject = humanoid()
 		if subject then
 			cam.CameraSubject = subject
 		end
 	end
+	startFov = nil
 	if done then
 		done()
+	end
+end
+
+-- Cinematic moments ----------------------------------------------------------
+
+-- The anchor Part `name` in the place's camera rig (Cinematics.RigFolder under the first of RigParents that has it).
+local function rigAnchor(name: string): BasePart?
+	for _, parentName in ipairs(Cinematics.RigParents) do
+		local parent = Workspace:FindFirstChild(parentName)
+		local rig = if parent then parent:FindFirstChild(Cinematics.RigFolder) else nil
+		local part = if rig then rig:FindFirstChild(name) else nil
+		if part and part:IsA("BasePart") then
+			return part
+		end
+	end
+	return nil
+end
+
+local function toVec(v: Vector3): CinematicMath.Vec
+	return { x = v.X, y = v.Y, z = v.Z }
+end
+
+-- Everything the fallback rules read, as it stands now: the camp and the layout's biome centres (the world is flat, so
+-- they share the camp's ground height), the character, the camera, and the moment's target.
+local function buildContext(cam: Camera, extra: ShotContext?): CinematicMath.Context
+	local camp = CampRenderer.ShipPosition()
+	local biomes: { [string]: CinematicMath.Vec } = {}
+	for name, region in pairs(Place.Layout().Regions) do
+		biomes[name] = { x = region.x, y = camp.Y, z = region.z }
+	end
+	local root = rootPart()
+	local target = if extra then extra.target else nil
+	return {
+		camp = toVec(camp),
+		biomes = biomes,
+		character = if root then toVec(root.Position) else nil,
+		characterBack = if root then toVec(behindDirection(root)) else nil,
+		camera = toVec(cam.CFrame.Position),
+		cameraLook = toVec(cam.CFrame.LookVector),
+		target = if target then toVec(target) else nil,
+	}
+end
+
+-- The camera's view for a shot: its anchor Part's CFrame when the rig has one, else the fallback rule's. nil when
+-- neither gives a usable view (the shot is skipped).
+local function viewFor(shot: Cinematics.Shot, cam: Camera, extra: ShotContext?): CFrame?
+	local anchorName = shot.anchor
+	if anchorName ~= nil then
+		local part = rigAnchor(anchorName)
+		if part then
+			return part.CFrame
+		end
+	end
+	local pose = CinematicMath.Fallback(shot.fallback, buildContext(cam, extra))
+	if not pose then
+		return nil
+	end
+	local eye = Vector3.new(pose.eye.x, pose.eye.y, pose.eye.z)
+	local focus = Vector3.new(pose.focus.x, pose.focus.y, pose.focus.z)
+	if (focus - eye).Magnitude < MIN_FLAT then
+		return nil
+	end
+	return CFrame.lookAt(eye, focus)
+end
+
+-- Plays a tween of `goals` on `instance` and yields until it ends. Answers false when the sequence was retired
+-- meanwhile (Cancel and Skip cancel the tween, which also completes it).
+local function runTween(mine: number, instance: Instance, goals: { [string]: any }, info: TweenInfo): boolean
+	local tween = TweenService:Create(instance, info, goals)
+	activeTween = tween
+	tween:Play()
+	tween.Completed:Wait()
+	if activeTween == tween then
+		activeTween = nil
+	end
+	return generation == mine
+end
+
+-- Sets the depth-of-field effect to the intensities `blur` stands for (0 none .. 1 full), at once or, with `info`, as a
+-- tween that runs beside the camera's own. Nothing when the moment made no effect.
+local function setBlur(blur: number, info: TweenInfo?)
+	local effect = depthEffect
+	if not effect then
+		return
+	end
+	local near, far = CinematicMath.BlurIntensities(blur)
+	local previous = blurTween
+	blurTween = nil
+	if previous then
+		previous:Cancel()
+	end
+	if info then
+		local tween = TweenService:Create(effect, info, { NearIntensity = near, FarIntensity = far })
+		blurTween = tween
+		tween:Play()
+	else
+		effect.NearIntensity = near
+		effect.FarIntensity = far
 	end
 end
 
@@ -306,6 +450,144 @@ function CameraDirector.Rumble(seconds: number, studs: number): boolean
 	local base = cam.CFrame
 	task.spawn(function()
 		shake(mine, cam, base, seconds, studs)
+		if generation == mine then
+			release()
+		end
+	end)
+	return true
+end
+
+-- Plays the cinematic moment `momentId` (Shared/data/Cinematics): the camera takes the shots one after another, each
+-- tweening from where the last left off, the letterbox bars frame it and a Skip button appears after
+-- Cinematics.SkipAfterSeconds. onDone runs once the camera is handed back (also when Cancel or Skip ends the moment early;
+-- a caller that waits on it must allow for it running before PlayShots returns). Answers true when it started and false
+-- when nothing happened: another sequence running, an unknown moment, no camera, or reduced motion on a moment that
+-- skips under it (then onDone is not called). `context` says what the moment is about (the alien a push-in moves
+-- toward). Reduced motion otherwise cuts to the last shot's view for Cinematics.ReducedMotionHoldSeconds (data:
+-- ReducedMotionCut) and hands the camera back. A place with no character within ROOT_WAIT_SECONDS only calls onDone.
+function CameraDirector.PlayShots(momentId: string, onDone: (() -> ())?, context: ShotContext?): boolean
+	local moment = Cinematics.Moments[momentId]
+	if busy or not moment or currentCamera() == nil then
+		return false
+	end
+	local reduced = reducedMotion()
+	if reduced and moment.skipOnReducedMotion then
+		return false
+	end
+	busy = true
+	generation += 1
+	local mine = generation
+	pendingDone = onDone
+
+	task.spawn(function()
+		local root = waitForRoot(mine)
+		if generation ~= mine then
+			return
+		end
+		local cam = currentCamera()
+		if not root or not cam then
+			release()
+			return
+		end
+		local shots = moment.shots
+		local last = shots[#shots]
+		local baseFov = cam.FieldOfView
+		startFov = baseFov
+		cam.CameraType = Enum.CameraType.Scriptable
+		local stinger = moment.stinger
+		if stinger then
+			MusicDirector.Stinger(stinger)
+		end
+
+		if reduced and Cinematics.ReducedMotionCut then
+			local view = viewFor(last, cam, context)
+			if view then
+				cam.CFrame = view
+			end
+			task.wait(Cinematics.ReducedMotionHoldSeconds) -- a rest, not motion
+			if generation == mine then
+				release()
+			end
+			return
+		end
+
+		for _, shot in ipairs(shots) do
+			if shot.blur > 0 then
+				local effect = Instance.new("DepthOfFieldEffect")
+				effect.Name = "CinematicDepthOfField"
+				effect.FocusDistance = Cinematics.DepthOfField.FocusDistance
+				effect.InFocusRadius = Cinematics.DepthOfField.InFocusRadius
+				effect.NearIntensity = 0
+				effect.FarIntensity = 0
+				effect.Parent = cam
+				depthEffect = effect
+				break
+			end
+		end
+		-- Skip cuts to the last shot's view and hands the camera back; the generation bump retires this thread.
+		skipNow = function()
+			generation += 1
+			local tween = activeTween
+			activeTween = nil
+			if tween then
+				tween:Cancel()
+			end
+			local view = viewFor(last, cam, context)
+			if view then
+				cam.CFrame = view
+			end
+			release()
+		end
+		local onSkipTap: (() -> ())? = nil
+		if moment.skippable then
+			onSkipTap = function()
+				local skip = skipNow
+				if generation == mine and skip then
+					skip()
+				end
+			end
+			task.delay(Cinematics.SkipAfterSeconds, function()
+				if generation == mine then
+					CinematicBars.ShowSkip()
+				end
+			end)
+		end
+		if moment.letterbox or moment.skippable then
+			CinematicBars.Show(moment.letterbox, onSkipTap)
+		end
+
+		for index, shot in ipairs(shots) do
+			if generation ~= mine then
+				return
+			end
+			local view = viewFor(shot, cam, context)
+			if view == nil and RunService:IsStudio() then
+				warn(("[%s] Cinematics: %s shot %d has no view (anchor missing and the fallback rule needs something this place lacks)"):format(Config.WorkingTitle, momentId, index))
+			end
+			local fov = shot.fov or baseFov
+			if index == 1 then
+				-- The opening frame: placed at once, then it rests for its seconds.
+				if view then
+					cam.CFrame = view
+				end
+				cam.FieldOfView = fov
+				setBlur(shot.blur, nil)
+				if shot.seconds > 0 then
+					task.wait(shot.seconds)
+				end
+			else
+				local style, direction = CinematicMath.Easing(shot.easing)
+				local info = TweenInfo.new(shot.seconds, EASING_STYLES[style or ""] or Enum.EasingStyle.Quad, EASING_DIRECTIONS[direction or ""] or Enum.EasingDirection.InOut)
+				setBlur(shot.blur, info)
+				local goals: { [string]: any } = { FieldOfView = fov }
+				if view then
+					goals.CFrame = view
+				end
+				if not runTween(mine, cam, goals, info) then
+					return
+				end
+			end
+		end
 		if generation == mine then
 			release()
 		end

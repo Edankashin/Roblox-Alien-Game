@@ -24,7 +24,7 @@
 -- load step), Peddler after Economy and Catching (eggs are granted through Economy; the visit clock
 -- starts last), Gifts after Economy and Spawner (the Welcome Week egg is granted through Economy with
 -- Spawner's overlay roll) and after PlayerData (it counts the day on load), Playtime right after Gifts (the playtime gifts: it pays through Gifts.GrantRewards and Gifts.GrantEgg and reads Afk.IsResting, so Gifts and Afk come first; only Dev requires it), Social after Gifts (rewards go through Gifts.GrantRewards; its load hook counts the session and pays referrals after Gifts' day count) and Analytics, Codes right after Social (it pays through Gifts.GrantRewards and hands that to DailyQuests at Init), Settings after PlayerData
--- (it writes profile.settings) and before Dev (which stays last), Admin right before Dev (the developer panel; it requires Monetization, Events, WorldClock and Analytics, so all four come first, and nothing requires it), Outposts after Economy and Analytics and before Launch (Launch banks a flight's outpost through it), Launch after Economy (both move the
+-- (it writes profile.settings) and before Dev (which stays last), Seen right after Settings (the first-time cinematics' flags in profile.seen: it requires only PlayerData and shared code, and Dev calls it), Admin right before Dev (the developer panel; it requires Monetization, Events, WorldClock and Analytics, so all four come first, and nothing requires it), Outposts after Economy and Analytics and before Launch (Launch banks a flight's outpost through it), Launch after Economy (both move the
 -- same profile fields through PlayerData; Economy's load settlement creates this world's module states
 -- that Launch reads for completeness) and after Analytics (it reports each launch), Heaters after Economy
 -- (and so after Meadow, whose Workspace.World its folder lives in, WorldClock, PlayerData and Analytics), Companions after
@@ -37,7 +37,7 @@ local Config = require(Shared.data.Config)
 
 type Service = { Init: (() -> ())?, Start: (() -> ())? }
 
-local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Seasons", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Visiting", "Afk", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Playtime", "Social", "Codes", "Settings", "Admin", "Dev" }
+local ORDER = { "PlayerData", "Analytics", "Friends", "Monetization", "WorldClock", "Events", "Weekly", "Seasons", "Meadow", "Materials", "Spawner", "Sightings", "Leaderboard", "CatchRush", "Economy", "Companions", "Heaters", "Outposts", "Launch", "HomeBuild", "Habitats", "Mail", "Visiting", "Afk", "Buffs", "Shop", "DailyQuests", "Quests", "Tutorial", "Catching", "Peddler", "Gifts", "Playtime", "Social", "Codes", "Settings", "Seen", "Admin", "Dev" }
 
 local servicesFolder = script:WaitForChild("Services")
 local services: { [string]: Service } = {}

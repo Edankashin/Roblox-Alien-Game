@@ -4,8 +4,9 @@ local Config = require(Shared.data.Config)
 local Settings = require(Shared.data.Settings)
 local Jobs = require(Shared.data.Jobs)
 local Sizes = require(Shared.data.Sizes)
+local Cinematics = require(Shared.data.Cinematics)
 local F = require(script.Parent.Fixtures)
-local Schema = require(script.Parent.Parent.src.server.ProfileSchema).new(Config, Settings, Jobs)
+local Schema = require(script.Parent.Parent.src.server.ProfileSchema).new(Config, Settings, Jobs, Cinematics)
 
 local function clone(value)
 	if type(value) ~= "table" then return value end
@@ -49,6 +50,7 @@ local shape = {
 		fieldNotes = "table", progress = "table" },
 	gifts = { daysPlayed = "number", claimed = "table", lastPlayDay = "number" },
 	playtime = { day = "number", seconds = "number", claimed = "table" }, storage = { bayLevel = "number" },
+	seen = "table",
 	spins = { free = "number", banked = "number", lastFree = "number" }, luck = { pity = "number" },
 	purchases = "table", shop = { receipts = "table" }, buffs = "table",
 	inventory = { keyMaterials = "table", lures = "table", powerUps = "table", items = "table" },
@@ -75,6 +77,12 @@ local waveVersion = mailVersion + F.one -- v14
 local seasonVersion = waveVersion + F.one -- v15
 local playtimeVersion = seasonVersion + F.one -- v16
 local storageVersion = playtimeVersion + F.one -- v17
+local seenVersion = storageVersion + F.one -- v18
+
+-- The seen key of a world's first arrival, spelled the way data/Cinematics names it.
+local function arrivalKey(worldId)
+	return Cinematics.ArrivalPrefix .. tostring(worldId)
+end
 
 describe("ProfileSchema", function()
 	it("minimal v1 fills every required Profile field with the right type", function()
@@ -208,6 +216,43 @@ describe("ProfileSchema", function()
 		local profile = Schema.migrate(saved)
 		expect(profile.version).toEqual(Schema.SCHEMA_VERSION)
 		same(profile.storage, { bayLevel = F.zero })
+	end)
+	it("v18 starts with nothing watched, marks the arrival of every unlocked world and keeps known saved keys", function()
+		local fresh = {}
+		Schema.migrations[seenVersion](fresh)
+		same(fresh.seen, {})
+		local veteran = { world = { unlocked = { F.one, F.two } } }
+		Schema.migrations[seenVersion](veteran)
+		same(veteran.seen, { [arrivalKey(F.one)] = true, [arrivalKey(F.two)] = true })
+		local before = clone(veteran)
+		Schema.migrations[seenVersion](veteran)
+		same(veteran, before)
+		-- a world with no arrival moment is ignored, and so is a saved key the data does not list
+		local unlisted = F.zero
+		while Cinematics.SeenKeys[arrivalKey(unlisted)] do
+			unlisted += F.one
+		end
+		local odd = { world = { unlocked = { F.one, unlisted, "x" } }, seen = { [arrivalKey(F.two)] = true, Junk = true, [arrivalKey(unlisted)] = true } }
+		Schema.migrations[seenVersion](odd)
+		same(odd.seen, { [arrivalKey(F.one)] = true, [arrivalKey(F.two)] = true })
+		local damaged = { seen = "no", world = "no" }
+		Schema.migrations[seenVersion](damaged)
+		same(damaged.seen, {})
+		local falseFlag = { seen = { [arrivalKey(F.one)] = false } }
+		Schema.migrations[seenVersion](falseFlag)
+		same(falseFlag.seen, {})
+	end)
+	it("a v17 save migrates to the current version with its unlocked worlds' arrivals watched", function()
+		local saved = Schema.template()
+		saved.version = storageVersion
+		saved.seen = nil
+		saved.world.unlocked = { F.one }
+		local profile = Schema.migrate(saved)
+		expect(profile.version).toEqual(Schema.SCHEMA_VERSION)
+		same(profile.seen, { [arrivalKey(F.one)] = true })
+	end)
+	it("a new profile has watched nothing", function()
+		same(Schema.template().seen, {})
 	end)
 	it("legacy alien size and worked time are added without losing saved values", function()
 		local saved = v1()

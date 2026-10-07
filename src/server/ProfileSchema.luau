@@ -2,12 +2,13 @@
 -- ServerScriptService.Server.ProfileSchema: serialized save defaults and migrations.
 -- Dependencies are data tables supplied by PlayerData; no services, yields or persistence.
 local ProfileSchema = {}
-local SCHEMA_VERSION = 17
+local SCHEMA_VERSION = 18
 
 function ProfileSchema.new(
 	Config: { StationStartSlots: number },
 	SettingsData: { Order: { { key: string, kind: "level" | "toggle", levels: { number }?, levelKeys: { string }?, default: number } } },
-	Jobs: { Order: { string } }
+	Jobs: { Order: { string } },
+	CinematicsData: { ArrivalPrefix: string, SeenKeys: { [string]: boolean } }
 )
 	-- Every preference at its data default (data/Settings.luau).
 	local function defaultSettings(): { [string]: number }
@@ -40,6 +41,11 @@ function ProfileSchema.new(
 		return { bayLevel = 0 }
 	end
 
+	-- The first-time moments watched (data/Cinematics SeenKeys): none yet.
+	local function defaultSeen(): { [string]: boolean }
+		return {}
+	end
+
 	local function template(): any
 		local stations: { [string]: { slots: number, assigned: { string } } } = {}
 		for _, job in ipairs(Jobs.Order) do
@@ -61,6 +67,7 @@ function ProfileSchema.new(
 			gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 			playtime = defaultPlaytime(),
 			storage = defaultStorage(),
+			seen = defaultSeen(),
 			spins = { free = 1, banked = 0, lastFree = 0 },
 			luck = { pity = 0 },
 			purchases = {},
@@ -246,6 +253,29 @@ function ProfileSchema.new(
 				storage.bayLevel = saved.bayLevel
 			end
 			data.storage = storage
+			return data
+		end,
+		-- v18: first-time moments (data/Cinematics). A saved table keeps the known keys that are true; a world the profile has
+		-- already unlocked counts as arrived at, since its first arrival is long past and the cinematic is for new arrivals
+		[18] = function(data)
+			local saved = if type(data.seen) == "table" then data.seen else {}
+			local seen = defaultSeen()
+			for key in pairs(CinematicsData.SeenKeys) do
+				if saved[key] == true then
+					seen[key] = true
+				end
+			end
+			local world = data.world
+			local unlocked = if type(world) == "table" and type(world.unlocked) == "table" then world.unlocked else {}
+			for _, id in pairs(unlocked) do
+				if type(id) == "number" then
+					local key = CinematicsData.ArrivalPrefix .. tostring(id)
+					if CinematicsData.SeenKeys[key] then
+						seen[key] = true
+					end
+				end
+			end
+			data.seen = seen
 			return data
 		end,
 	}

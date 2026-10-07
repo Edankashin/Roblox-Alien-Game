@@ -137,6 +137,7 @@ export type Profile = {
 	seasons: { [string]: SeasonProgress }, -- the event tracks, by season id (data/Seasons)
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	playtime: PlaytimeProgress, -- today's active play and the playtime gifts claimed (data/Playtime)
+	seen: { [string]: boolean }, -- first-time moments watched (data/Cinematics SeenKeys): the arrival in each world, once per profile
 	storage: { bayLevel: number }, -- Storage Bay levels bought with Scrap (data/Storage); the alien cap is StorageMath.CapFor over this, the modules finished and the pass
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
@@ -160,6 +161,8 @@ export type Profile = {
 
 -- Settings -> the player after SetSetting (and in the profile): every key with its current value.
 export type SettingsState = { [string]: number }
+-- Seen -> the player (SeenChanged): the whole profile.seen table, after MarkSeen stored a key or a Studio reset cleared them.
+export type SeenState = { [string]: boolean }
 
 -- Monetization -> the player: products granted so far and the passes owned right now.
 export type PurchasesState = { purchases: { [string]: number }, passes: { [string]: boolean }, starterSpecies: string? }

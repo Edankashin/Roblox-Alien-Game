@@ -75,6 +75,7 @@ local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
 local MusicDirector = require(script:WaitForChild("World"):WaitForChild("MusicDirector"))
 local Haptics = require(script:WaitForChild("World"):WaitForChild("Haptics"))
 local MusicMath = require(Shared:WaitForChild("MusicMath"))
+local CinematicMath = require(Shared:WaitForChild("CinematicMath"))
 local LightingDirector = require(script:WaitForChild("World"):WaitForChild("LightingDirector"))
 local WeatherFx = require(script:WaitForChild("World"):WaitForChild("WeatherFx"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
@@ -108,7 +109,7 @@ local collecting = false
 local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
 local capturePart: Part? = nil -- the wild part the current catch is for
 local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
-local cinematic = false -- the crash-landing opener is running: the HUD, hint and radar stay hidden
+local cinematic = false -- the crash-landing opener or a cinematic moment (playCinematic) is running: the HUD, hint and radar stay hidden
 local radarTier = 0 -- the radar tier the server says the player holds (gear.radar), mirrored for the Nearby column
 local RADAR_MK2_TIER: number = (RadarData :: any).Mk2.Tier -- data/Radar: the tier from which the Nearby column lists what is not out now
 
@@ -149,6 +150,7 @@ local captureStart = Net.func("CaptureStart")
 local captureHit = Net.func("CaptureHit")
 local captureCancel = Net.event("CaptureCancel")
 local collectMaterial = Net.func("CollectMaterial")
+local markSeen = Net.func("MarkSeen")
 
 -- The Heater rule is live: the player's world runs the Blizzard rule and the blizzard is on right now
 -- (State.GetConditions mirrors the server clock).
@@ -254,11 +256,69 @@ local function sendTap(tapTime: number)
 	end)
 end
 
--- The Legendary opening (a catch on a Legendary or higher alien): the low rumble sound, the phone buzz and the screen
--- shake run BEFORE the catch request, so the bar opens on a fresh first sweep; the intense music is already on.
--- Reduced motion skips the shake and the buzz (CameraDirector.Rumble and Haptics.Pulse answer false) and the request
--- goes at once.
-local function legendaryOpening()
+-- Cinematic moments (milestone 47, data/Cinematics) ------------------------------
+
+-- Remembers that the player has watched the first-time moment `key` (a data/Cinematics SeenKeys entry): in the mirror at
+-- once, then on the server, which stores it in the save and accepts only those keys.
+local function markSeenKey(key: string)
+	if State.HasSeen(key) then
+		return
+	end
+	State.MarkSeen(key)
+	task.spawn(function()
+		markSeen:InvokeServer(key)
+	end)
+end
+
+-- Plays the cinematic moment `momentId` with the HUD out of the way (the same flag the crash opener uses), then gives the
+-- HUD back and runs `afterwards`. Answers false, with nothing changed, when it could not start: a catch, a launch or
+-- another camera moment is running, or CameraDirector.PlayShots declined (an unknown moment, no camera).
+local function playCinematic(momentId: string, context: CameraDirector.ShotContext?, afterwards: (() -> ())?): boolean
+	if cinematic or inCapture or LaunchSequence.IsPlaying() or CameraDirector.IsBusy() then
+		return false
+	end
+	cinematic = true
+	Hud.SetVisible(false)
+	Screens.CloseAll()
+	local started = CameraDirector.PlayShots(momentId, function()
+		cinematic = false
+		Hud.SetVisible(true)
+		if afterwards then
+			afterwards()
+		end
+	end, context)
+	if not started then
+		cinematic = false
+		Hud.SetVisible(true)
+	end
+	return started
+end
+
+-- The Legendary push-in toward `target`: runs on the calling thread, which waits until the camera moment ends (the
+-- camera stays on the pushed-in view, handed straight to the rumble). Returns at once when nothing plays (reduced motion).
+local function legendaryPushIn(target: Vector3)
+	local thread = coroutine.running()
+	local finished = false
+	local waiting = false
+	local started = CameraDirector.PlayShots("Legendary", function()
+		finished = true
+		if waiting then
+			task.spawn(thread) -- resume at once, in the same frame, so the rumble starts on the pushed-in view
+		end
+	end, { target = target })
+	if started and not finished then
+		waiting = true
+		coroutine.yield()
+	end
+end
+
+-- The Legendary opening (a catch on a Legendary or higher alien): a slow push-in toward the alien (Cinematics "Legendary",
+-- 1.2 s, no letterbox or blur), then the low rumble sound, the phone buzz and the screen shake on the pushed-in view
+-- (Config.LegendaryRumbleSeconds), all BEFORE the catch request, so the bar opens on a fresh first sweep; the intense music
+-- is already on. Together they delay the bar by less than Cinematics.LegendaryBudgetSeconds. Reduced motion skips the
+-- push-in, the shake and the buzz (PlayShots, CameraDirector.Rumble and Haptics.Pulse answer false) and the request goes at once.
+local function legendaryOpening(at: Vector3)
+	legendaryPushIn(at)
 	Builder.playSound(Sounds.LegendaryRumble)
 	Haptics.Pulse(Config.LegendaryHapticSeconds, Config.LegendaryHapticStrength)
 	if CameraDirector.Rumble(Config.LegendaryRumbleSeconds, Config.LegendaryRumbleStuds) then
@@ -286,7 +346,11 @@ local function beginCapture(part: Part)
 	-- Own thread: InvokeServer yields, and callers are input callbacks.
 	task.spawn(function()
 		if kind == "intense" then
-			legendaryOpening()
+			legendaryOpening(part.Position)
+			-- The opening takes a couple of seconds: a catch that ended meanwhile (the character died) is not requested.
+			if not inCapture or capturePart ~= part then
+				return
+			end
 		end
 		local raw, reason = captureStart:InvokeServer(spawnId)
 		local start = raw :: Types.CaptureStartResult?
@@ -1764,16 +1828,49 @@ local function start(profile: Types.Profile)
 	LightingDirector.Start()
 	WeatherFx.Start()
 
-	-- A brand-new profile opens with the crash landing: the camera drops from the sky to the wreck while
-	-- the HUD waits. Anything already started (a plate collected, a rejoin) skips it.
-	if profile.tutorialStep == 1 and profile.tutorialCounter == 0 then
+	-- The first arrival in this place. A brand-new profile on the tutorial's world opens with the crash landing: the camera
+	-- drops from the sky to the wreck while the HUD waits (anything already started, a plate collected or a rejoin, skips it);
+	-- the crash is that world's arrival, so Arrival_<world> counts as watched once it ends. Everywhere else the first
+	-- arrival of the profile in this world plays its Arrival moment (data/Cinematics): a fly-through from the far side of
+	-- the world to an establishing pull-out, ending behind the character. It is marked watched as it starts, so a
+	-- rejoin or a flight back never plays it again.
+	local arrival = CinematicMath.ArrivalMoment(Place.WorldId())
+	if profile.tutorialStep == 1 and profile.tutorialCounter == 0 and Place.WorldId() == TutorialData.World then
 		cinematic = true
 		Hud.SetVisible(false)
 		CameraDirector.CrashLanding(function()
 			cinematic = false
 			Hud.SetVisible(true)
+			if CinematicMath.IsSeenKey(arrival) then
+				markSeenKey(arrival)
+			end
 		end)
+	elseif CinematicMath.IsSeenKey(arrival) and CinematicMath.HasMoment(arrival) and not State.HasSeen(arrival) then
+		if playCinematic(arrival, nil, nil) then
+			markSeenKey(arrival)
+		end
 	end
+	-- Studio's /cinematic <momentId>: play a moment now (the server only fires this in Studio). The Legendary push-in aims
+	-- at the nearest wild alien in catch range, or a point that far ahead of the character when none is.
+	task.spawn(function()
+		Net.event("DevCinematic").OnClientEvent:Connect(function(momentId: any)
+			if not CinematicMath.HasMoment(momentId) then
+				return
+			end
+			local context: CameraDirector.ShotContext? = nil
+			local character = localPlayer.Character
+			local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+			local near = WildRenderer.Nearest(Config.CaptureInteractDistance)
+			if near then
+				context = { target = near.Position }
+			elseif root and root:IsA("BasePart") then
+				context = { target = root.Position + root.CFrame.LookVector * Config.CaptureInteractDistance }
+			end
+			if not playCinematic(momentId, context, nil) then
+				print(("[%s] cinematic %s did not start (a catch, a launch or another camera moment is running)"):format(Config.WorkingTitle, momentId))
+			end
+		end)
+	end)
 
 	State.OnChanged("scrap", function()
 		Hud.SetScrap(State.Get().scrap)

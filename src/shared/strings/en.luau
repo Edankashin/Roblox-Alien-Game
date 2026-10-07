@@ -88,6 +88,7 @@ return {
 	OFFLINE_BODY = "Your aliens gathered %s Scrap while you were away.",
 	CRASH_LINE_1 = "Mayday! We're going down!",
 	CRASH_LINE_2 = "...Everyone okay? The ship is not.",
+	SKIP = "Skip", -- the cinematic camera's button (data/Cinematics): ends the shot and hands the camera back
 	GAIN_FLY = "+%s",
 	-- size bands (data/Sizes): the reveal stamp and the Aliens screen chip; SIZE_Normal and SIZE_Small are not shown
 	SIZE_Tiny = "Tiny",
