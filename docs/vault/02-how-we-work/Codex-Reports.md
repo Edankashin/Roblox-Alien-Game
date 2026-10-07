@@ -150,3 +150,13 @@ Added an advisory isolated-mode TESTING.md lint: **36 documented commands**, all
 Fixed **14 occurrences / 13 replacements**: complete Puffpuff tutorial instruction; Hull Frame completion exclamation; Settings glyph `=`; full fusion refusal (twice); weekly chip Aurora; elsewhere chip Frostbyte; full Spectral catch example; separate Visitors heading/empty line; full no-friends text; full wave-cap text; full World 1 unpublished-flight toast; seasonal chip Spectral; home weekly subtitle uses World 1 instead of its long name. Only TESTING.md wording changed, never strings or behavior.
 
 Left **4 advisory excerpts**: milestone 2 `Night · ...` is a partial clock; milestone 16 `off` is a log fragment; milestone 21 `welcome` is typed code input; milestone 42d `Welcome home` is developer-authored mail. These are not proposed game-string fixes. The checker covers wording, not stale historical milestone behavior or numerical claims; those still need coordinator review.
+
+## C13 — 2026-10-07 — review
+
+Implementation: `78da295`; claim: `96779ed`. Added `tools/deadcode.py` and reproducible Dead-Code.md, with a disposition for every candidate. No game code/data changed.
+
+Measured: **35 public API candidates, 10 catalog routing gaps, 36 strings; 0 icon, sound or remote candidates**. Runtime **3.02 seconds**; repeat output identical. Two isolated probe cases detected an unused export and retained an aliased callback reference. **71 headless tests pass**; analyze/data/extra lints clean.
+
+Left open: lexical references are conservative, not proof of safe deletion. Same-named members can hide candidates, data ids conservatively retain icons, and sound id zero is not considered unused. Internal API callers must remain intact. CompanionSlot4 already has a live pass reader despite lacking a Launch/Grants route.
+
+Priorities: resolve catalog exposure/grant intent; review unnecessary public exports with callback/Studio usage; review unused labels while retaining planned future-world text. All proposed changes remain coordinator decisions.
