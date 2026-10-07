@@ -1,6 +1,8 @@
 --!strict
 -- Robux catalog. productId values are placeholders until products exist in the Creator Dashboard.
 -- paidRandom = true means: show odds, no dud, hidden where PolicyService.ArePaidRandomItemsRestricted is true.
+-- oddsOnWheel = true: the item buys spins of the prize wheel; its shop tile links to the wheel, which shows every
+-- prize with its odds (data/Spins, summing to 100), so the odds are one tap away before the purchase.
 export type ShopItem = {
 	id: string,
 	tab: string,
@@ -10,6 +12,7 @@ export type ShopItem = {
 	passId: number?,
 	once: boolean?,
 	paidRandom: boolean,
+	oddsOnWheel: boolean?,
 }
 
 local Items: { ShopItem } = {
@@ -30,9 +33,9 @@ local Items: { ShopItem } = {
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 0, paidRandom = false },
 	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 0, paidRandom = true },
 	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 0, paidRandom = true },
-	{ id = "Spins1", tab = "Spins", kind = "product", robux = 49, productId = 0, paidRandom = true },
-	{ id = "Spins5", tab = "Spins", kind = "product", robux = 199, productId = 0, paidRandom = true },
-	{ id = "Spins12", tab = "Spins", kind = "product", robux = 399, productId = 0, paidRandom = true },
+	{ id = "Spins1", tab = "Spins", kind = "product", robux = 49, productId = 0, paidRandom = true, oddsOnWheel = true },
+	{ id = "Spins5", tab = "Spins", kind = "product", robux = 199, productId = 0, paidRandom = true, oddsOnWheel = true },
+	{ id = "Spins12", tab = "Spins", kind = "product", robux = 399, productId = 0, paidRandom = true, oddsOnWheel = true },
 }
 
 -- What a product or pass hands over, in order. alien: one alien of `tier` (choose = the player picked the
@@ -55,6 +58,9 @@ local Grants: { [string]: { ShopGrant } } = {
 	ScrapMagnetx3 = { { kind = "powerUp", id = "ScrapMagnet", amount = 3 } },
 	ServerLuck2x = { { kind = "serverLuck", bonus = 1.0, seconds = 900 } },
 	ServerLuck4x = { { kind = "serverLuck", bonus = 3.0, seconds = 900 } },
+	Spins1 = { { kind = "spins", amount = 1 } }, -- banked spins of the prize wheel (paid random: odds on the wheel)
+	Spins5 = { { kind = "spins", amount = 5 } },
+	Spins12 = { { kind = "spins", amount = 12 } },
 }
 
 return {
@@ -67,6 +73,7 @@ return {
 		{ section = "Featured", items = { "StarterPack" } },
 		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "AutoOptimize", "LongerOffline", "ExplorerPack" } },
 		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
+		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
 	NeverSold = { "Scrap", "DoubleShift", "LuckyCharm", "Mounts", "LegendaryAliens", "EventAliens" },

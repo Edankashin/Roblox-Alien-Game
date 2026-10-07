@@ -11,7 +11,7 @@ Written 2026-10-06 for someone new to Roblox Studio. Follow the parts in order. 
 | [0](#part-0-the-three-tools-you-will-use) | The three tools you will use | 5 min, read once | everything |
 | [A](#part-a-publish-frostbyte-and-the-home-planet-as-places) | Publish Frostbyte and the Home Planet as places | 25 min | flying between worlds, visiting friends |
 | [B](#part-b-turn-on-studio-access-to-saves) | Turn on Studio access to saves | 5 min | testing real saves |
-| [C](#part-c-create-the-robux-products-and-passes) | Create the Robux products and passes | 30 min | the shop selling anything |
+| [C](#part-c-create-the-robux-products-and-passes) | Create the Robux products and passes | 35 min | the shop selling anything |
 | [D](#part-d-the-two-player-visiting-test) | The two-player visiting test | 30 min | finishing the visiting feature |
 | [E](#part-e-codex-the-next-cards) | Codex: the next cards | 5 min | the balance and test work |
 | [F](#part-f-optional-the-group-and-the-name) | Optional: the group and the game's name | 15 min | the group gift, the store page |
@@ -143,14 +143,14 @@ I flip the game's matching switch (`UseDataStoreInStudio`) and push.
 Why: every Robux item in the shop is a row in the game's shop table with its id set to 0, which makes its Buy button refuse safely. Each item needs creating on the dashboard once; then its id goes into the table.
 
 Two kinds:
-- **Developer products** can be bought again and again (boosts). 6 of them.
+- **Developer products** can be bought again and again (boosts and spins). 9 of them.
 - **Passes** are bought once and kept forever. 6 of them.
 
-Only these twelve are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
+Only these fifteen are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
 
 The pictures: every item uses an icon file that is already in the game's folder. When the upload window opens, press **Cmd + Shift + G**, paste the path from the table (for example `~/Roblox-Alien-Game/assets/icons/Gifts.png`), press Return, then click **Open**.
 
-### C1. Developer products (do this 6 times)
+### C1. Developer products (do this 9 times)
 - [ ] Creator Dashboard, click the game's tile. Left column: **Monetization**, then **Developer Products**.
 - [ ] Click **Create developer product** (top right).
 - [ ] Upload the image from the table. Type the **Name** and **Description** exactly as in the table. **Price**: the number in the table. Leave everything else as it is. Click **Create** (or **Save**).
@@ -164,6 +164,9 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | ScrapMagnetx3 | Scrap Magnet x3 | 99 | Three Scrap Magnets: more Scrap per catch for ten minutes each. | `~/Roblox-Alien-Game/assets/icons/ScrapMagnet.png` |
 | ServerLuck2x | Server Luck x2 | 249 | Doubles everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
 | ServerLuck4x | Server Luck x4 | 999 | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
+| Spins1 | 1 Spin | 49 | One spin of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
+| Spins5 | 5 Spins | 199 | Five spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
+| Spins12 | 12 Spins | 399 | Twelve spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 
 ### C2. Passes (do this 6 times)
 - [ ] Creator Dashboard, the game's tile. Left column: **Monetization**, then **Passes**.
@@ -180,7 +183,7 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | LongerOffline | Longer Offline Shift | 299 | Your crew keeps earning for 3 hours while you are away instead of 1. | `~/Roblox-Alien-Game/assets/icons/Scrap.png` |
 | ExplorerPack | Explorer Pack | 399 | Speed Boots, the Hoverboard and Radar Mk1 right now. Same speed as earning them. | `~/Roblox-Alien-Game/assets/icons/Hoverboard.png` |
 
-Server Luck is a paid random item in Roblox's rules: the game already shows its odds and hides it in countries that restrict it. Nothing to set for that on the dashboard.
+Server Luck and the spins are paid random items in Roblox's rules: the game already shows their odds (a spin tile opens the wheel, which lists every prize with its odds) and hides them in countries that restrict them. Nothing to set for that on the dashboard.
 
 **Send me** (fill in every blank; it's fine to send it in two halves):
 ```
@@ -191,6 +194,9 @@ SteadyHandsx3:
 ScrapMagnetx3: 
 ServerLuck2x: 
 ServerLuck4x: 
+Spins1: 
+Spins5: 
+Spins12: 
 SlotEveryStation1: 
 SlotEveryStation2: 
 CompanionSlot4: 
@@ -299,7 +305,7 @@ The game gives a one-time gift for joining the team's Roblox group (Roblox now c
 These come after the visual pass. I'll tell you when; they're listed so nothing is a surprise.
 - **Icons upload:** the Mac's Claude asks for your yes before it uploads the game's images to Roblox. When it asks, the answer is yes.
 - **Sounds:** about 40 sound ids, chosen with your collaborator.
-- **The other ten shop items** (paid spins, direct-buy aliens, Module Rush, Radar Mk1, Auto Collect): created the same way as Part C once each feature is built.
+- **The other ten shop items** (direct-buy aliens, Module Rush, Radar Mk1, Auto Collect): created the same way as Part C once each feature is built.
 - **The age questionnaire:** Creator Dashboard, the game, **Experience Questionnaire**. The game has paid random items (spins, Server Luck): answer yes there.
 - **The test copy:** before going public, I set up testing on a copy of the game and you switch off Studio API access on the live one (Part B, the same switch, turned off).
 - **Going public:** Creator Dashboard, the game, **Access** (or **Privacy**), switch from Private to Public.

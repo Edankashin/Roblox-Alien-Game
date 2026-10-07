@@ -594,6 +594,14 @@ Visiting (`data/Visiting.luau`, `Shared/VisitRules.luau`): a friend's home is a 
 
 Known gaps in this milestone: a visitor's own ship stands on the owner's camp pad (their stations keep working; the owner's ship there is a look-pass item); no wave animation beyond the toast and a burst; waves to an away owner arrive as one letter a day, not one each; a lock change while a visitor is already inside does not send them away.
 
+## Milestone 45: paid spins and two more passes (World 1 place)
+
+The Robux page gains a Spins section (1, 5 and 12 spins; `data/Shop` rows with `oddsOnWheel`) and two passes (+2 Slots on Every Station, +1 Companion). Product and pass ids are 0 until the owner creates them, so Buy refuses safely; `/pass <itemId>` and `/buy <itemId>` grant them in Studio.
+
+1. Shop, Robux tab: the Passes section shows six tiles, the Spins section three red tiles under Boosts. Each spin tile reads its name, one line of description and "Tap to see every prize and its odds" in gold; a tap anywhere on the description band opens the Gifts screen on the wheel with every prize and its odds; the Buy button is its own target. At phone width the three lines fit.
+2. `/buy Spins5`: the spin balance on the wheel rises by 5; Output shows the purchase recorded. `/pass SlotEveryStation2`: every station shows two more open slots (three more with `SlotEveryStation1` as well). `/pass CompanionSlot4`: the Aliens screen allows one more follower.
+3. Where paid random items are restricted (the policy answer; in Studio the server's answer is printed), the Spins section and its heading are hidden with the Server Luck tiles. Output clean.
+
 ## Milestone 44: the Haunted Nebula seasonal event (World 1 place)
 
 A seasonal event (`data/Seasons.luau`, `Shared/SeasonMath.luau`) is a dated window laid over the existing worlds: two limited event aliens (Wisplet, Rare, Forest, Night; Spookum, Epic, Cave, Night) take a 12% share of World 1's wild spawns in any biome, Spectral rolls on 3% of World 1's wilds whatever the weather, nights last twice as long, Panpipe comes back at 3% (the Vault Rotation), and a free five-row track (catch 5, 12 and 25 event aliens, one with Spectral, be there when three Showers end) pays Scrap, lures, spins and, last, the track-only Legendary Nebulyn. Haunted Nebula's window is 2026-10-16 16:00 UTC to 2026-10-30 16:00 UTC; in Studio `/season HauntedNebula` forces it on (the banner counts the whole window), `/season off` returns to the calendar, `/season done` fills every row of the track.

@@ -26,6 +26,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
+local Screens = require(script.Parent.Screens)
 local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
 
@@ -98,7 +99,7 @@ local starterChoices: { string } = Shop.StarterChoices
 local shopGrants: { [string]: { Shop.ShopGrant } } = Shop.Grants
 local speciesById: { [string]: Types.SpeciesDef } = Species.ById
 -- Small-tile colour per launch section; the Featured section's large tile is Featured gold.
-local SECTION_COLORS: { [string]: Color3 } = { Passes = Theme.Colors.Select, Boosts = Theme.Colors.Codex }
+local SECTION_COLORS: { [string]: Color3 } = { Passes = Theme.Colors.Select, Boosts = Theme.Colors.Codex, Spins = Theme.Colors.Close }
 local FEATURED_SECTION = "Featured"
 
 -- One row card. Children are built once and refreshed in place.
@@ -661,7 +662,35 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		zIndex = 4,
 	})
 	desc.TextTruncate = Enum.TextTruncate.AtEnd -- one line: shrinks to the minimum size, then trims
-	if item.paidRandom then
+	if item.oddsOnWheel then
+		-- Paid spins: the odds must be visible before buying. The note line says so, and the whole band from the
+		-- description to the note is one tap target (a thumb-sized area, not a 14 px line) that opens the wheel,
+		-- which lists every prize with its odds (data/Spins). The Buy button below stays its own target.
+		Builder.label({
+			parent = card,
+			name = "Odds",
+			text = Strings.SHOP_SEE_ODDS,
+			textSize = Theme.TextSize.Min,
+			color = Theme.Colors.Featured,
+			position = UDim2.fromScale(TILE_INSET, TILE_NOTE_Y),
+			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NOTE_H),
+			zIndex = 4,
+		})
+		local oddsTap = Instance.new("TextButton")
+		oddsTap.Name = "OddsTap"
+		oddsTap.Text = ""
+		oddsTap.AutoButtonColor = false
+		oddsTap.BackgroundTransparency = 1
+		oddsTap.BorderSizePixel = 0
+		oddsTap.Position = UDim2.fromScale(0, TILE_DESC_Y)
+		oddsTap.Size = UDim2.fromScale(1, TILE_NOTE_Y + TILE_NOTE_H - TILE_DESC_Y)
+		oddsTap.ZIndex = 5
+		oddsTap.Parent = card
+		oddsTap.Activated:Connect(function()
+			Builder.playSound(Sounds.Click)
+			Screens.Open("Gifts")
+		end)
+	elseif item.paidRandom then
 		Builder.label({
 			parent = card,
 			name = "Everyone",
