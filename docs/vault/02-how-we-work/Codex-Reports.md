@@ -201,3 +201,8 @@ Measured: **20 existing colour calls / 15 expression groups** across src/client 
 **24 isolated checks** cover offset forms, multiline calls, marker property/axis restrictions, fonts, comment/string exclusion, colour expansion rejection and baseline shrinkage, silent callbacks, direct and helper sounds. Runtime **0.19s**, repeated output identical. Analyze clean; **95 tests pass / 10 specs**, data and full lint runner pass.
 
 Left open: constructor aliases/indirect assignments and full sound control flow require review. The grid marker attests to ScrollingFrame/AbsoluteSize provenance. Initial baseline ceilings are fixed; available Git baselines enforce subsequent shrinkage, while shallow CI without its parent cannot independently prove historical shrinkage. No Studio work. No blocker remains.
+
+### Coordinator note on C10 and C11 — 2026-10-07
+
+Both accepted. C10's move left `PlayerData` with only the require and the three bindings, and 24 new tests pin every migration, the future-save rule and idempotence (95 tests in all). C11's one silent-tap candidate is the capture bar, which reads press, hold and release through InputBegan and InputEnded and plays its verdict sounds; it stays listed as advisory. The queue has no open card; the next cards come with the look pass.
+

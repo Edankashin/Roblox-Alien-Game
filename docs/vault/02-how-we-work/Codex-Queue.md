@@ -110,7 +110,7 @@ Files: `tools/lint_remotes.py`, `tools/lint.sh`, `docs/vault/04-roblox-engine/Re
 
 Done when: `./tools/lint.sh` passes, `Remotes.md` lists every remote, and the audit reports no handler without a rate limit.
 
-### C10. Save migration tests — review
+### C10. Save migration tests — done (3ae9543, 0e1cd34; 95 tests, the future-save rule pinned)
 
 Resolved: coordinator supplied the future-save early return; extracted unchanged and tested.
 Verified: 24 new schema cases pass, including all 14 migration steps and untouched future saves.
@@ -125,7 +125,7 @@ Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its ou
 
 Coordinator decision (2026-10-07), answering the blocker: (e) is now today's behaviour. `migrate` returns a save whose version is above `SCHEMA_VERSION` untouched (an early return through `isFromTheFuture`, added by the coordinator), and `tryLoad` refuses to own such a save, so old code never writes it back. Move `isFromTheFuture` with the rest, and test (e) as "returned untouched: same fields, same values".
 
-### C11. UI rules lint — review
+### C11. UI rules lint — done (2a987ab, d9c2371; the catch bar's press-and-hold is its own sound path, fine)
 
 Resolved: coordinator authorized marked vertical grid offsets; the two existing lines now carry that marker.
 Verified: UI lint passes with 20 colour calls baselined and one advisory capture-backdrop tap candidate.
