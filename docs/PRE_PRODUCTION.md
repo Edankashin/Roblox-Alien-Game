@@ -200,6 +200,18 @@ Exit criteria: three people outside the team play it cold, finish the tutorial w
 
 ---
 
+## 5a. Owner direction, 2026-10-07 (standing; every pass is judged against it)
+
+Ethan's direction for everything from here on, recorded so no session loses it:
+
+- **Feel, not just function.** Every moment is designed for the emotion the player should feel, with the same attention everywhere. The worked example: a Legendary encounter starts with the screen rumbling (camera shake and a phone rumble through HapticService), the music turning intense, and effects that say "this is not an ordinary alien" before the catch bar opens; the music and effects carry the minigame and resolve in the Reveal. Every other moment (a first catch, a Rare spawn, a Shower, a launch, a module snapping on, arriving home, a Warden sighting) gets the same treatment, each with its own beat.
+- **Music for each moment.** Music that fits the theme and what is happening right now: a calm exploring track per world and time of day, an intense layer for rare encounters and the catch bar, event themes (Shower, Rush, seasonal), a launch cue, a calm home theme, a soft resting theme. Built as a music director that crossfades by game state, fed by a data table of track ids (Roblox's licensed music library in the Creator Store), picked with the collaborator.
+- **Cinematics at the level of the reference video** (a TikTok of Opus 5.5's 45-minute result; link to come): camera moves, letterboxing, slow motion and framing for the big moments.
+- **Replicate the top games, with our own designs.** Map design at the level of the "ropilot astra 6" reference (link to come) and the top games on the platform; one world, possibly World 1, built to match the forest reference exactly in design and feel (link to come). Always compare our visuals, models and mechanisms against the top games and close the gap.
+- **Retention and stats.** Two references (a retention-tips video and a slideshow on positioning a game for strong stats; links to come) get processed into `media/tiktok/NOTES.md` and applied to the plan like the earlier ones.
+- **Icons are not good enough yet.** The current icon pack is below the top games' level. A plan to replace it (style references from the top games, the rendering pipeline, the sizes and the review loop) is written when the look pass starts; it is a known gap, not finished work.
+- **Resting instead of a pass.** Players should be able to leave the game on overnight and collect at a slower rate than playing, worth it but never better than playing (milestone 46); the Longer Offline pass is withdrawn.
+
 ## 5b. Build status (2026-10-05)
 
 What the branch `claude/alien-system-research` holds, by milestone, and how far each was verified in Studio through the Mac session. Test scripts per milestone are in `docs/TESTING.md`.
