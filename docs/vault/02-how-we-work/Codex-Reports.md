@@ -247,3 +247,11 @@ Deleted 13 uncalled declarations (six server, seven client) across 12 files, plu
 Regenerated Dead-Code.md: API candidates 35 → 22, strings 36 → 14, catalog gaps now 5 (coordinator launch work already resolved five). Kept internal callers and conservative same-name candidates, all Shop.Items, future-world/weather text and planned shop labels. Each removal and its commit is listed in the report ledger. String lint still checks 42 dynamic families and 273 required keys.
 
 Left open: five catalog gaps and remaining public exports for coordinator review; no Studio-only external callers can be proven by repository scanning. Future regeneration of Dead-Code.md must preserve its manual C18 ledger (the generator was outside this card's file scope).
+
+## C19 — 2026-10-07 — review
+
+Claim `7478bc9`; implementation `73f7112`. Added the deterministic offline generator and freshness check in lint.sh. Generated 24 pending milestones / 60 original numbered steps, each milestone once, in six prerequisite groups. Includes pending device/art checks as well as queued, multiplayer, persistence and published-game work. Status lines, original instructions, setup projects/dev references and return-evidence requirements are included.
+
+Measured: 140 → 140 tests; one hard freshness rule added; five queue invariants cover pending/resolved status distinction, deterministic regeneration, unique entries and a missing TESTING section refusal. Runtime under 0.1 s. Full checks pass.
+
+Left open: TESTING contains stale zero-place-id, retired-pass, old-toast and memory-profile persistence wording; the run sheet flags these as source evidence rather than rewriting game expectations. Coordinator should correct the source, then regenerate. Multi-requirement milestones occur once under their strongest prerequisite and retain all needed player/place conditions. Studio operations and live purchases were not run.
