@@ -11,7 +11,7 @@ Written 2026-10-06 for someone new to Roblox Studio. Follow the parts in order. 
 | [0](#part-0-the-three-tools-you-will-use) | The three tools you will use | 5 min, read once | everything |
 | [A](#part-a-publish-frostbyte-and-the-home-planet-as-places) | Publish Frostbyte and the Home Planet as places | 25 min | flying between worlds, visiting friends |
 | [B](#part-b-turn-on-studio-access-to-saves) | Turn on Studio access to saves | 5 min | testing real saves |
-| [C](#part-c-create-the-robux-products-and-passes) | Create the Robux products and passes | 25 min | the shop selling anything |
+| [C](#part-c-create-the-robux-products-and-passes) | Create the Robux products and passes | 30 min | the shop selling anything |
 | [D](#part-d-the-two-player-visiting-test) | The two-player visiting test | 30 min | finishing the visiting feature |
 | [E](#part-e-codex-the-next-cards) | Codex: the next cards | 5 min | the balance and test work |
 | [F](#part-f-optional-the-group-and-the-name) | Optional: the group and the game's name | 15 min | the group gift, the store page |
@@ -144,9 +144,9 @@ Why: every Robux item in the shop is a row in the game's shop table with its id 
 
 Two kinds:
 - **Developer products** can be bought again and again (boosts). 6 of them.
-- **Passes** are bought once and kept forever. 4 of them.
+- **Passes** are bought once and kept forever. 6 of them.
 
-Only these ten are in the shop today. The game's table lists ten more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
+Only these twelve are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
 
 The pictures: every item uses an icon file that is already in the game's folder. When the upload window opens, press **Cmd + Shift + G**, paste the path from the table (for example `~/Roblox-Alien-Game/assets/icons/Gifts.png`), press Return, then click **Open**.
 
@@ -165,7 +165,7 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | ServerLuck2x | Server Luck x2 | 249 | Doubles everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
 | ServerLuck4x | Server Luck x4 | 999 | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
 
-### C2. Passes (do this 4 times)
+### C2. Passes (do this 6 times)
 - [ ] Creator Dashboard, the game's tile. Left column: **Monetization**, then **Passes**.
 - [ ] Click **Create a pass**. Upload the image, type the **Name** and **Description** from the table, click **Create Pass**.
 - [ ] Set the price: on the passes list, click the new pass to open it. In its left column click **Sales**. Turn on **Item for Sale**. Type the price from the table into **Price in Robux**. Click **Save Changes**.
@@ -174,6 +174,8 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | Row id (for the Send me block) | Name to type | Price (Robux) | Description to type | Image |
 |---|---|---|---|---|
 | SlotEveryStation1 | +1 Slot on Every Station | 399 | One more alien working at every station, forever. | `~/Roblox-Alien-Game/assets/icons/Ship.png` |
+| SlotEveryStation2 | +2 Slots on Every Station | 799 | Two more aliens working at every station, forever. | `~/Roblox-Alien-Game/assets/icons/Ship.png` |
+| CompanionSlot4 | +1 Companion | 249 | One more alien can follow you around, forever. | `~/Roblox-Alien-Game/assets/icons/Aliens.png` |
 | AutoOptimize | Auto-Optimize | 299 | Every new alien goes straight to its best station. | `~/Roblox-Alien-Game/assets/icons/Aliens.png` |
 | LongerOffline | Longer Offline Shift | 299 | Your crew keeps earning for 3 hours while you are away instead of 1. | `~/Roblox-Alien-Game/assets/icons/Scrap.png` |
 | ExplorerPack | Explorer Pack | 399 | Speed Boots, the Hoverboard and Radar Mk1 right now. Same speed as earning them. | `~/Roblox-Alien-Game/assets/icons/Hoverboard.png` |
@@ -190,6 +192,8 @@ ScrapMagnetx3:
 ServerLuck2x: 
 ServerLuck4x: 
 SlotEveryStation1: 
+SlotEveryStation2: 
+CompanionSlot4: 
 AutoOptimize: 
 LongerOffline: 
 ExplorerPack: 
@@ -295,7 +299,7 @@ The game gives a one-time gift for joining the team's Roblox group (Roblox now c
 These come after the visual pass. I'll tell you when; they're listed so nothing is a surprise.
 - **Icons upload:** the Mac's Claude asks for your yes before it uploads the game's images to Roblox. When it asks, the answer is yes.
 - **Sounds:** about 40 sound ids, chosen with your collaborator.
-- **The other ten shop items** (paid spins, direct-buy aliens, Module Rush, Radar Mk1, Auto Collect, +2 slots, +1 companion): created the same way as Part C once each feature is built.
+- **The other ten shop items** (paid spins, direct-buy aliens, Module Rush, Radar Mk1, Auto Collect): created the same way as Part C once each feature is built.
 - **The age questionnaire:** Creator Dashboard, the game, **Experience Questionnaire**. The game has paid random items (spins, Server Luck): answer yes there.
 - **The test copy:** before going public, I set up testing on a copy of the game and you switch off Studio API access on the live one (Part B, the same switch, turned off).
 - **Going public:** Creator Dashboard, the game, **Access** (or **Privacy**), switch from Private to Public.

@@ -45,6 +45,8 @@ export type ShopGrant = { kind: "alien" | "gear" | "spins" | "powerUp" | "slots"
 local Grants: { [string]: { ShopGrant } } = {
 	StarterPack = { { kind = "alien", tier = "Rare", choose = true }, { kind = "gear", id = "Boots" }, { kind = "spins", amount = 5 }, { kind = "cosmetic", id = "HoverSkinStarter" } },
 	SlotEveryStation1 = { { kind = "slots", amount = 1 } },
+	SlotEveryStation2 = { { kind = "slots", amount = 2 } }, -- stacks with SlotEveryStation1: both owned is +3 (decision 17)
+	CompanionSlot4 = { { kind = "passFlag", id = "CompanionSlot4" } }, -- Companions reads the pass live for its extra slot
 	AutoOptimize = { { kind = "passFlag", id = "AutoOptimize" } },
 	LongerOffline = { { kind = "passFlag", id = "LongerOffline" } },
 	ExplorerPack = { { kind = "gear", id = "Boots" }, { kind = "gear", id = "Hoverboard" }, { kind = "gear", id = "Radar1" } },
@@ -63,7 +65,7 @@ return {
 	-- Items waits for its feature (hoverboard skins, home, direct-buy aliens, paid spins).
 	Launch = {
 		{ section = "Featured", items = { "StarterPack" } },
-		{ section = "Passes", items = { "SlotEveryStation1", "AutoOptimize", "LongerOffline", "ExplorerPack" } },
+		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "AutoOptimize", "LongerOffline", "ExplorerPack" } },
 		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 	},
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
