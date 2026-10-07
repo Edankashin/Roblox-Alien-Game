@@ -1,7 +1,6 @@
 --!strict
 -- Every player-facing string, keyed. Roblox automatic translation reads these.
 return {
-	HUD_SCRAP = "Scrap",
 	HUD_SCRAP_PER_MIN = "+%s/min",
 	HUD_LUCK = "Luck x%s",
 	HUD_FRIEND_BOOST = "Friend Boost +%d%%",
@@ -10,7 +9,6 @@ return {
 	HUD_SHIP = "Ship %d%%",
 	ACTION_CATCH = "Catch!",
 	ACTION_BUILD = "Build",
-	ACTION_RIDE = "Ride",
 	ACTION_COLLECT = "Collect",
 	ACTION_LAUNCH = "Launch",
 	ACTION_TRADE = "Trade",
@@ -20,7 +18,6 @@ return {
 	ACTION_SPIN = "Spin",
 	ACTION_MAIL = "Mail",
 	ACTION_WAVE = "Wave",
-	HEATER_NAME = "Heater",
 	TOAST_HEATER_PLACED = "Heater lit: %ds of clear air around it",
 	TOAST_HEATER_NOT_ENOUGH = "A Heater costs %s Scrap",
 	TOAST_HEATER_LIMIT = "Two heaters are burning already",
@@ -87,8 +84,6 @@ return {
 	SHAPE_Ball = "Ball",
 	SHAPE_Block = "Block",
 	SHAPE_Cylinder = "Cylinder",
-	MODULE_COMPLETE = "%s complete!",
-	MODULE_NEEDS_KEY = "Needs %d %s",
 	OFFLINE_TITLE = "Welcome back!",
 	OFFLINE_BODY = "Your aliens gathered %s Scrap while you were away.",
 	CRASH_LINE_1 = "Mayday! We're going down!",
@@ -161,11 +156,9 @@ return {
 	HUD_POWERUPS = "Power-ups",
 	ANNOUNCE_CATCH = "%s caught %s %s!", -- player, TIER_A_<tier>, species
 	ANNOUNCE_CATCH_OVERLAY = "%s caught %s %s %s!", -- player, OVERLAY_A_<overlay>, tier, species
-	SHOWER_INCOMING = "Meteor Shower in %s",
 	SHOWER_NOW = "Meteor Shower!",
 	-- camp, ship and materials
 	SHIP_TITLE = "Your Ship",
-	SHIP_TAB_BAR = "Ship %d%%",
 	SHIP_LOCKED = "Finish the module above first",
 	SHIP_PAY = "Pay %s",
 	SHIP_PAID = "Paid",
@@ -177,10 +170,8 @@ return {
 	SHIP_CREW_SPEED = "Crew speed x%s",
 	SHIP_COMPLETE = "Ship complete! Walk to the ship and launch.",
 	SHIP_HOME = "Your ship rests at home. Fly to a world on the Star Chart to build on it.",
-	LAUNCH_GO = "Launch!",
 	LAUNCH_NEXT_STOP = "Next stop: %s",
 	LAUNCH_NO_PLACE = "%s opens when it is published. The ship is ready.",
-	LAUNCH_WELCOME = "Welcome to %s",
 	TOAST_LAUNCH_NOT_READY = "Finish every module first",
 	TOAST_LAUNCH_LAST_WORLD = "This is the last world for now",
 	TOAST_LAUNCH_WRONG_WORLD = "Your ship is on another world",
@@ -194,8 +185,6 @@ return {
 	WORLD_7 = "The Void Hub",
 	SHIP_HELP = "Pay Scrap, add the parts you found, and your %s crew builds it.",
 	OPTIMIZE = "Optimize",
-	CAMP_IDLE = "Resting",
-	CAMP_WORKER = "%s is %s",
 	TOAST_MATERIAL = "+%d %s",
 	TOAST_MODULE_DONE = "%s complete!",
 	TOAST_SLOT_UNLOCKED = "Every station now has %d slots!",
@@ -203,7 +192,6 @@ return {
 	TOAST_NO_MATERIAL = "Find %s in the %s",
 	TOAST_NODE_EMPTY = "Nothing here yet",
 	NODE_HIDDEN_HINT = "Only at %s", -- shown on a node's plate while its condition is not met
-	CONDITION_Day = "day",
 	CONDITION_Night = "night",
 	CONDITION_Rain = "rain",
 	CONDITION_Blizzard = "blizzard",
@@ -227,10 +215,6 @@ return {
 	JOB_Build = "Build",
 	JOB_Spark = "Spark",
 	JOB_Tinker = "Tinker",
-	VERB_Gather = "gathering",
-	VERB_Build = "building",
-	VERB_Spark = "sparking",
-	VERB_Tinker = "tinkering",
 	MODULE_HullFrame = "Hull Frame",
 	MODULE_Thrusters = "Thrusters",
 	MODULE_LifePod = "Life Pod",
@@ -453,7 +437,6 @@ return {
 	SEGMENT_DoubleShift = "Double Shift",
 	SEGMENT_CompanionToken = "Companion Token",
 	TOAST_GIFT_CLAIMED = "Day %d gift: %s",
-	TOAST_NEW_DAY = "Day %d! A new gift is waiting",
 	-- Meteor Shower
 	SHOWER_CHIP = "Shower in %s",
 	SHOWER_LEFT = "%s left",
@@ -464,7 +447,6 @@ return {
 	RUSH_NOW = "Catch Rush!",
 	RUSH_LEFT = "%s left",
 	RUSH_SCORE = "You %d · Top %d",
-	RUSH_OVER = "Catch Rush over!",
 	RUSH_RESULT = "Catch Rush: #%d with %d catches! %s",
 	RUSH_RESULT_ONE = "Catch Rush: #%d with 1 catch! %s",
 	RUSH_PART = "Catch Rush: %d catches! %s",
@@ -474,7 +456,6 @@ return {
 	ANNOUNCE_NOTICE = "%s", -- a line from the team, shown as typed
 	ADMIN_LUCK_NAME = "the team", -- who gifted a luck window from the developer panel
 	-- Field Notes (quest chain)
-	QUESTS_TITLE = "Field Notes",
 	QUESTS_STEP = "Step %d of %d",
 	QUESTS_CLAIM = "Claim",
 	QUESTS_CLAIMED = "Claimed",
@@ -585,7 +566,6 @@ return {
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
 	ALIENS_COUNT = "%d aliens",
-	ALIENS_RESTING = "Resting",
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
@@ -601,7 +581,6 @@ return {
 	TOAST_COMPANION_FULL = "All %d companion slots are taken",
 	TOAST_COMPANION_SEATED = "%s is working; pick a resting alien",
 	TOAST_COMPANION_SLOT = "Companion slot unlocked: %d",
-	ALIENS_RIDING = "Riding",
 	ALIENS_RIDE = "Ride",
 	ALIENS_HOP_OFF = "Hop off",
 	TOAST_MOUNT_ON = "Riding %s!",
@@ -663,7 +642,6 @@ return {
 	WEEKLY_LEFT = "%s · %s left", -- species, days and hours
 	WEEKLY_LEFT_ELSEWHERE = "%s on World %d · %s left", -- species, world number, days and hours (a world's name clipped at phone width)
 	WEEKLY_CHIP = "%s", -- the weather alone ("Aurora week" clipped)
-	WEEKLY_CHIP_WORLD = "%s", -- the chip when the drop is on another world: the world's name alone (the chip is narrow)
 	WEEKLY_NOW = "Alien of the Week: %s! Look for it all week",
 	WEEKLY_NOW_WEATHER = "Alien of the Week: %s! %s skies all week",
 	UI_UNKNOWN_GLYPH = "?",
