@@ -9,3 +9,6 @@ __pycache__/
 # Obsidian per-machine state (the vault notes themselves are tracked)
 docs/vault/.obsidian/
 docs/vault/.trash/
+
+# Isolated worker checkouts (Agent worktrees); never committed
+.claude/worktrees/
