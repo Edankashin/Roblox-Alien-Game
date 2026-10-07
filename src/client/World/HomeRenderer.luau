@@ -36,6 +36,8 @@
 -- inside the footprint's edges, walks to it at WanderSpeedStudsPerSecond facing the way it goes, stands still
 -- WanderPauseMin to WanderPauseMax seconds, and picks again. The set is rebuilt by uid diff on the "stations" and
 -- "home" and "visit" topics: a record that left the habitat (or whose species, size or stage changed) is destroyed.
+-- Name plates: every PlateCheckSeconds the plates are tried nearest first against the camera, and one whose rectangle
+-- on screen would overlap a nearer plate's is hidden, so a crowd of the same species reads as one name per spot.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -96,6 +98,7 @@ type Display = {
 	stage: string, -- the growth stage id it is drawn at (data/Growth)
 	habitat: Habitat,
 	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate
+	plate: BillboardGui, -- the name plate on `part`; hidden while it would overlap a nearer one
 	model: Model?, -- the mesh clone when the species has one
 	height: number, -- studs from the feet to the top of what is drawn
 	upright: CFrame, -- the roll that stands a placeholder cylinder up; identity otherwise
@@ -337,7 +340,7 @@ local function newDisplayPart(name: string, shape: Enum.PartType, size: Vector3,
 end
 
 -- The species name over the alien, Fredoka One and outlined through Builder, shown inside NameplateDistance.
-local function buildPlate(part: Part, name: string, height: number)
+local function buildPlate(part: Part, name: string, height: number): BillboardGui
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
@@ -355,6 +358,7 @@ local function buildPlate(part: Part, name: string, height: number)
 		size = UDim2.fromScale(1, 1),
 	})
 	plate.Parent = part
+	return plate
 end
 
 -- Puts a display's parts at its place on the pad, facing the way it goes.
@@ -392,7 +396,7 @@ local function buildDisplay(parent: Folder, record: Types.AlienRecord, def: Type
 			upright = CFrame.Angles(0, 0, QUARTER_TURN) -- stand it upright, as CompanionRenderer does
 		end
 	end
-	buildPlate(part, def.name, height)
+	local plate = buildPlate(part, def.name, height)
 	part.Parent = parent
 	local x, z = randomSpot(habitat)
 	local angle = rng:NextNumber(0, math.pi * 2)
@@ -404,6 +408,7 @@ local function buildDisplay(parent: Folder, record: Types.AlienRecord, def: Type
 		stage = Growth.StageOf(record).id,
 		habitat = habitat,
 		part = part,
+		plate = plate,
 		model = model,
 		height = height,
 		upright = upright,
@@ -479,9 +484,61 @@ local function syncDisplays()
 	end
 end
 
+-- Hides the name plate of every displayed alien whose rectangle on screen would overlap a nearer one's. The plate is
+-- PLATE_WIDTH x PLATE_HEIGHT studs; at the alien's depth that is `pxPerStud` pixels a stud (the camera's vertical field
+-- of view fills the viewport's height), and only Habitats.PlateTextShare of its width holds words.
+local function declutterPlates()
+	local camera = Workspace.CurrentCamera
+	if not camera then
+		return
+	end
+	local origin = camera.CFrame.Position
+	local viewport = camera.ViewportSize
+	local tangent = math.tan(math.rad(camera.FieldOfView) / 2)
+	local order: { Display } = {}
+	local reach: { [Display]: number } = {}
+	for _, display in pairs(displays) do
+		local distance = (display.part.Position - origin).Magnitude
+		reach[display] = distance - (if display.plate.Enabled then Habitats.PlateKeepStuds else 0)
+		table.insert(order, display)
+	end
+	table.sort(order, function(a: Display, b: Display): boolean
+		return reach[a] < reach[b]
+	end)
+	local taken: { { left: number, right: number, top: number, bottom: number } } = {}
+	for _, display in ipairs(order) do
+		local at = display.part.Position + Vector3.new(0, display.height / 2 + PLATE_LIFT, 0)
+		local point, onScreen = camera:WorldToViewportPoint(at)
+		local show = true
+		if onScreen and point.Z > 0 then
+			local pxPerStud = viewport.Y / (2 * point.Z * tangent)
+			local halfWidth = PLATE_WIDTH * Habitats.PlateTextShare / 2 * pxPerStud
+			local halfHeight = PLATE_HEIGHT / 2 * pxPerStud
+			local rect = { left = point.X - halfWidth, right = point.X + halfWidth, top = point.Y - halfHeight, bottom = point.Y + halfHeight }
+			for _, other in ipairs(taken) do
+				if rect.left < other.right and rect.right > other.left and rect.top < other.bottom and rect.bottom > other.top then
+					show = false
+					break
+				end
+			end
+			if show then
+				table.insert(taken, rect)
+			end
+		end
+		display.plate.Enabled = show
+	end
+end
+
+local plateClock = 0
+
 -- One frame for every displayed alien: stand still until the pause runs out, then pick a spot inside the habitat
 -- and walk to it at Habitats.WanderSpeedStudsPerSecond, facing the way it goes; on arrival, pause again.
 local function onRender(dt: number)
+	plateClock += dt
+	if plateClock >= Habitats.PlateCheckSeconds then
+		plateClock = 0
+		declutterPlates()
+	end
 	for _, display in pairs(displays) do
 		if display.pause > 0 then
 			display.pause -= dt

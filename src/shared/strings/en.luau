@@ -374,6 +374,7 @@ return {
 	TOAST_WAVE_AGAIN = "You already waved at this one",
 	VISITORS_TITLE = "Visitors",
 	VISITORS_NONE = "Nobody has visited yet",
+	VISITOR_REPEAT = "%s x%d", -- a visitor who came more than once in the Visitor Book: "Player2 x2"
 	HANGAR_PLATE = "%s",
 	FLY_LINE = "Flying to %s...",
 	TOAST_OUTPOST_COLLECTED = "Outpost: +%d Scrap, +%d materials",
@@ -431,6 +432,14 @@ return {
 	GIFT_LABEL_ScrapBundle = "Scrap Bundle",
 	GIFT_LABEL_FreeSpin = "Free Spin",
 	GIFT_LABEL_EpicEgg = "Epic Egg",
+	-- one-word names for the Welcome Week tiles (49 px wide, one 14 px line at iPhone SE size); the full names are above and in the Tomorrow line
+	GIFT_TILE_WelcomePack = "Pack",
+	GIFT_TILE_TwigLure = "Lure",
+	GIFT_TILE_SpeedBurst = "Speed",
+	GIFT_TILE_ScrapBundle = "Scrap",
+	GIFT_TILE_FreeSpin = "Spins",
+	GIFT_TILE_GlowLure = "Lure",
+	GIFT_TILE_EpicEgg = "Egg",
 	SPIN_TITLE = "Spin Wheel",
 	SPIN_BUTTON = "Spin!",
 	SPIN_FREE = "Free spins: %d",
@@ -451,6 +460,17 @@ return {
 	SEGMENT_Scrap2000 = "2,000 Scrap",
 	SEGMENT_DoubleShift = "Double Shift",
 	SEGMENT_CompanionToken = "Companion Token",
+	-- the word on the wheel's ring (a 44 px block at iPhone SE size, the ring's nine blocks 34 px apart at the bottom): one word of
+	-- at most 34 px at 14 px (two neighbours side by side must sum to under 67), the full names stay in the odds table and the toast
+	SEGMENT_SHORT_Scrap200 = "200",
+	SEGMENT_SHORT_Scrap600 = "600",
+	SEGMENT_SHORT_Lure1 = "Lure",
+	SEGMENT_SHORT_SpeedBurst = "Fast",
+	SEGMENT_SHORT_LuckyCharm = "Luck",
+	SEGMENT_SHORT_Scrap2000 = "2000",
+	SEGMENT_SHORT_DoubleShift = "Shift",
+	SEGMENT_SHORT_CompanionToken = "Pal",
+	SEGMENT_SHORT_ScannerPulse = "Scan",
 	TOAST_GIFT_CLAIMED = "Day %d gift: %s",
 	-- Meteor Shower
 	SHOWER_CHIP = "Shower in %s",
@@ -733,7 +753,7 @@ return {
 	SHOP_BUY_ROBUX = "Buy",
 	SHOP_OWNED_PASS = "Owned",
 	SHOP_ONCE_DONE = "Claimed",
-	SHOP_EVERYONE = "Everyone on this planet gets it",
+	SHOP_EVERYONE = "Everyone, %d min", -- a shared boost's gold line in the description band (one line of at most 123 px at 14 px): who gets it and for how long
 	SHOP_RESTRICTED = "Not available in your region",
 	SHOP_STARTER_PICK = "Pick your Rare first",
 	SHOP_STARTER_PICKED = "Your Rare: %s",
@@ -773,7 +793,7 @@ return {
 	SHOP_BUY = "Buy %s",
 	SHOP_OWNED = "Owned",
 	SHOP_HELD = "Held: %d",
-	SHOP_LURE_EFFECT = "+%d%% catch zones, used on your next catch",
+	SHOP_LURE_EFFECT = "+%d%% catch zones", -- one line of at most 133 px at 14 px (the row's effect line, with an icon beside it); "used on your next catch" did not fit
 	SHOP_GEAR_SPEED = "+%d%% walk speed, forever",
 	SHOP_ROBUX_SOON = "Robux items come with the launch shop",
 	SHOP_GEAR_LOCKED = "Unlocks with your first launch",

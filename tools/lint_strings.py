@@ -24,7 +24,8 @@ FAMILIES = {
     'REWARD_': '@rewards', 'GEAR_': '@gear', 'ITEM_': '@items',
     'SETTINGS_': '@settings', 'SETTINGS_LEVEL_': '@setting_levels',
     'PERK_': 'Companions.PerkCap', 'OFFER_': '@offers', 'PEDDLER_KIND_': '@offer_kinds',
-    'LANDMARK_': '@landmarks', 'GIFT_LABEL_': '@gift_labels',
+    'LANDMARK_': '@landmarks', 'GIFT_LABEL_': '@gift_labels', 'GIFT_TILE_': '@gift_tiles',
+    'SEGMENT_SHORT_': '@segments',
     'COND_SHORT_': '@Condition', # optional override; consumer falls back to COND_PHRASE_
 }
 
@@ -63,6 +64,7 @@ def family_ids(tables, source, types):
         'offers': {r['id'] for r in tables['Peddler']['Pool'].values() if r['kind'] not in ('lure','powerUp')},
         'offer_kinds': {r['kind'] for r in tables['Peddler']['Pool'].values()},
         'gift_labels': {re.sub(r'\s+', '', r['label']) for r in tables['Gifts'].values() if r['reward']['kind'] not in ('lure','powerUp')},
+        'gift_tiles': {re.sub(r'\s+', '', r['label']) for r in tables['Gifts'].values()},
         'landmarks': {'Shrine'} | {r['landmarkId'] for layout in tables['Layouts'].values() for r in (layout.get('Landmarks') or {}).values() if r.get('landmarkId')},
     }
     result = {}

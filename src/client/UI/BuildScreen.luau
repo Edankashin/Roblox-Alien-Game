@@ -49,7 +49,7 @@ local KINDS: { Kind } = { "room", "furniture", "habitat" } -- the rows, top to b
 -- the screen tall: at iPhone SE height (375) that is 120 px, a card row 32 px, the button row 31 px. Three rows
 -- do not fit under the title tab above the footer, so the rows sit in a ScrollingFrame (the "list") whose window
 -- shows two of them.
-local TRAY_W = 0.88 -- of the screen; 0.9 tucked 5 px under the menu column at 1081 px wide
+local TRAY_W = 0.88 -- of the screen at most; fitTray narrows it where the menu column would cover its left end (0.9 tucked 5 px under it at 1081 px wide)
 local TRAY_H = 0.32
 local HEADER_W = 0.2 -- the title tab straddling the tray's top edge
 local HEADER_H = 0.2
@@ -112,6 +112,17 @@ local function itemName(itemId: string): string
 end
 
 local refresh: () -> ()
+
+-- The tray keeps its right edge and gives up width where the HUD's menu column would cover its left end: in a tall narrow
+-- window the column is 0.12 of the width, so the 0.88 tray's "Rooms:" and "Things:" ended up under it. Wide screens keep TRAY_W.
+local function fitTray(root: ScreenGui, body: Frame)
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return
+	end
+	local free = 1 - Theme.Margin - (Builder.menuRight(screen) + Theme.Menu.Gap)
+	body.Size = UDim2.fromScale(math.min(TRAY_W, free), TRAY_H)
+end
 
 -- Shows the ghost of the picked item at its cell, or clears it when there is no pick, no cell or Take away is on.
 local function showGhost()
@@ -413,6 +424,9 @@ local function build()
 	})
 	body.Active = true -- sinks input, so a tap on the tray never reaches the world
 	panel = body
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		fitTray(root, body)
+	end)
 
 	local header = Builder.frame({
 		parent = body,
@@ -580,6 +594,7 @@ function BuildScreen.Open()
 	clearGhost()
 	refresh()
 	root.Enabled = true
+	fitTray(root, body)
 	Builder.open(body)
 	-- The tray swallows taps on its own area, so the camera frames the whole plot in the screen above it (with the
 	-- header tab, which sits half above the tray's top edge). Without this a plot low in the view hid behind the

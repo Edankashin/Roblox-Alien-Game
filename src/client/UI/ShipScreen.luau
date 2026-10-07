@@ -49,6 +49,8 @@ type Row = {
 
 local REFRESH_SECONDS = 0.25 -- live progress and time-left refresh while open
 local FOOTER_W = 0.24 -- of the panel: the width of the Star Chart and Optimize buttons
+-- The panel: PANEL_W of the screen wide and PANEL_H tall at most, kept at PANEL_ASPECT, centred at PANEL_Y.
+local PANEL_W, PANEL_H, PANEL_ASPECT, PANEL_Y = 0.8, 0.78, 1.35, 0.55
 local ROW_COMPACT = 0.125 -- of the list height
 local ROW_EXPANDED = 0.425
 local ROW_GAP = 0.0175
@@ -481,6 +483,19 @@ end
 
 -- Build ----------------------------------------------------------------------
 
+-- In a tall narrow window the HUD's menu column reaches into the centred panel and hides the Star Chart button's left end:
+-- the panel slides right by what the column covers, and never off the screen. Wide screens leave it centred.
+local function clearMenu(root: ScreenGui, body: Frame)
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return
+	end
+	local half = math.min(PANEL_W, PANEL_H * PANEL_ASPECT * screen.Y / screen.X) / 2 -- the panel's half width, of the screen
+	local covered = Builder.menuRight(screen) + Theme.Menu.Gap - (0.5 - half)
+	local shift = math.clamp(covered, 0, math.max(0, 0.5 - half - Theme.Margin))
+	body.Position = UDim2.fromScale(0.5 + shift, PANEL_Y)
+end
+
 local function build()
 	if gui then
 		return
@@ -507,17 +522,20 @@ local function build()
 	local body = Builder.frame({
 		parent = root,
 		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
+		position = UDim2.fromScale(0.5, PANEL_Y), -- below the HUD's top row; the header tab straddles the top edge
+		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
 		corner = Theme.Corner.Panel,
 		stroke = Theme.Stroke.Panel,
 		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		clearMenu(root, body)
+	end)
 
 	-- Header tab straddling the top edge, title in white outlined text.
 	local header = Builder.frame({
@@ -650,6 +668,7 @@ function ShipScreen.Open()
 	open = true
 	refresh()
 	root.Enabled = true
+	clearMenu(root, body)
 	Builder.open(body)
 	accumulator = 0
 	if heartbeat then

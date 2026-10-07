@@ -145,10 +145,22 @@ local function refresh()
 	end
 	local names = namesLabel
 	if names then
+		-- One entry per visitor, in the order of their latest visit (newest first), "Player2 x2" for a repeat visit:
+		-- the book keeps one record per visit, and a name repeated for each of them read as a mistake.
 		local visitors = home.visitors
 		local list: { string } = {}
+		local counts: { [string]: number } = {}
+		local order: { string } = {}
 		for index = #visitors, 1, -1 do
-			table.insert(list, visitors[index].name)
+			local name = visitors[index].name
+			if counts[name] == nil then
+				table.insert(order, name)
+			end
+			counts[name] = (counts[name] or 0) + 1
+		end
+		for _, name in ipairs(order) do
+			local count = counts[name] or 1
+			table.insert(list, if count > 1 then Strings.VISITOR_REPEAT:format(name, count) else name)
 		end
 		names.Text = if #list > 0 then table.concat(list, Strings.UI_LIST_SEPARATOR) else Strings.VISITORS_NONE
 	end

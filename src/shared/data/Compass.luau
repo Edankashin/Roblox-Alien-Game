@@ -41,4 +41,5 @@ return {
 	TickEveryDegrees = 15, -- a tick mark this often between the letters
 	MajorTickEveryDegrees = 45,
 	SameSpotStuds = 1, -- a target this close to the waypoint's point is the same thing: one diamond, not two
+	StripWidth = 0.34, -- the strip's width, of the screen. The Hud keeps its round top buttons right of it: at 4:3 the first one starts 0.683 across, so a strip wider than 0.36 touches it (it was 0.38)
 }

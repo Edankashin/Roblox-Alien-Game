@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `b79fa8b3aff50072`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `0917fa8a6d213cfc`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **28 pending milestones; 93 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.

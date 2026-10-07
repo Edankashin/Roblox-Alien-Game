@@ -3,11 +3,13 @@
 -- row. Each toast is a dark pill with a coloured square icon on the left and outlined white text (the
 -- square gives way to a pack icon when the caller names one that is uploaded). It
 -- slides down from above with a Back ease, waits Theme.Tween.Toast seconds, fades out, and the stack
--- re-flows. At most three show at once; the oldest leaves first. Pure presentation: callers decide
+-- re-flows. At most three show at once; the oldest leaves first. A toast whose words do not fit one line at the minimum
+-- text size grows taller (up to MAX_LINES lines) instead of being cut. Pure presentation: callers decide
 -- what to say (usually a server refusal reason mapped to a TOAST_* string). Banner is the wide,
 -- coloured variant for server-wide announcements; it shares the stack.
 
 local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -34,6 +36,8 @@ local ICON_X = 0.03
 local ICON_GAP = 0.02
 local TEXT_X = 0.16 -- the text's left edge beside the coloured square
 local TEXT_W = 0.81
+local TEXT_H = 0.7 -- the text box's height, of the toast
+local MAX_LINES = 3 -- a toast never grows past this many lines of text
 
 type Entry = { group: CanvasGroup, leaving: boolean, height: number }
 
@@ -41,13 +45,28 @@ local gui: ScreenGui? = nil
 local entries: { Entry } = {} -- live toasts, oldest first
 local panelOpen: (() -> boolean)? = nil -- the bootstrap's Screens.IsAnyOpen; a banner pushed while it answers true takes the bottom slot
 
--- Height of one toast in screen Scale, from the width-bound aspect fit (so slots stack tightly).
-local function heightScale(root: ScreenGui, width: number, aspect: number): number
+-- Lines `text` needs at the minimum size in a box `boxPx` wide, and one line's height in px (1 line of 17 px when it fits
+-- or the text cannot be measured). A 425 px window shows a 144 px text box: "You waved at Player1's Mossbop" is two lines there.
+local function measureLines(text: string, boxPx: number): (number, number)
+	local ok, lines, lineHeight = pcall(function(): (number, number)
+		local one = TextService:GetTextSize("A", Theme.TextSize.Min, Theme.Font, Vector2.new(10000, 10000))
+		local wrapped = TextService:GetTextSize(text, Theme.TextSize.Min, Theme.Font, Vector2.new(boxPx, 10000))
+		return math.clamp(math.round(wrapped.Y / math.max(1, one.Y)), 1, MAX_LINES), one.Y
+	end)
+	if ok then
+		return lines, lineHeight
+	end
+	return 1, Theme.TextSize.Min
+end
+
+-- Height of one toast in screen Scale, from the width-bound aspect fit (so slots stack tightly). `minPx` is the
+-- least height that holds the text; a toast that fits one line is just the aspect fit.
+local function heightScale(root: ScreenGui, width: number, aspect: number, minPx: number?): number
 	local abs = root.AbsoluteSize
 	if abs.X <= 0 or abs.Y <= 0 then
 		return MAX_HEIGHT
 	end
-	local px = math.min(width * abs.X / aspect, MAX_HEIGHT * abs.Y)
+	local px = math.min(math.max(width * abs.X / aspect, minPx or 0), MAX_HEIGHT * abs.Y)
 	return px / abs.Y
 end
 
@@ -109,7 +128,19 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 	end
 	local width = if banner then BANNER_WIDTH else WIDTH
 	local aspect = if banner then BANNER_ASPECT else ASPECT
-	local height = heightScale(root, width, aspect)
+	local abs = root.AbsoluteSize
+	local minPx: number? = nil
+	if not banner and abs.X > 0 then
+		-- Wrapping: a toast that needs more than one line at the minimum size is taller (its text box is TEXT_H of it).
+		local lines, lineHeight = measureLines(text, TEXT_W * width * abs.X)
+		if lines > 1 then
+			minPx = lines * lineHeight / TEXT_H
+		end
+	end
+	local height = heightScale(root, width, aspect, minPx)
+	if abs.X > 0 and abs.Y > 0 then
+		aspect = width * abs.X / (height * abs.Y) -- the aspect that gives exactly this height
+	end
 
 	-- A CanvasGroup so the whole pill (strokes included) fades with one GroupTransparency tween.
 	local group = Instance.new("CanvasGroup")
@@ -182,7 +213,7 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 			text = text,
 			textSize = Theme.TextSize.Body,
 			position = UDim2.fromScale(textX, 0.5),
-			size = UDim2.fromScale(TEXT_X + TEXT_W - textX, 0.7),
+			size = UDim2.fromScale(TEXT_X + TEXT_W - textX, TEXT_H),
 			anchor = Vector2.new(0, 0.5),
 			xAlign = Enum.TextXAlignment.Left,
 			zIndex = 2,

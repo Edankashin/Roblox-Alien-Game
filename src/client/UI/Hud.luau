@@ -16,6 +16,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local CompassData = require(Shared:WaitForChild("data"):WaitForChild("Compass"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Builder = require(script.Parent.Builder)
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -53,9 +54,9 @@ local TOP_GAP = 0.01 -- between the chip and the first button, and between butto
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
 local MENU_TOP = 0.19 -- the icon stack starts here, under the Scrap pill and its rate line
-local MENU_SLOT = 0.13 -- vertical space per entry: the square button plus its label; six entries end at 0.97
+local MENU_SLOT = Theme.Menu.SlotH -- vertical space per entry: the square button plus its label; six entries end at 0.97
 local MENU_BUTTON = 0.095 -- square button height (width follows through the aspect constraint)
-local MENU_LEFT = 0.015
+local MENU_LEFT = Theme.Menu.Left
 local MENU_BADGE_SIZE = 0.34 -- the menu buttons' notification dot, as a fraction of the button
 local TOP_BADGE_SIZE = 0.5 -- a top button is small (about 28 px at iPhone SE height), so its dot is bigger
 local actionButton: Frame? = nil
@@ -292,8 +293,8 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		parent = root,
 		name = "Menu_" .. id,
 		position = UDim2.fromScale(MENU_LEFT, top),
-		size = UDim2.fromScale(0.12, MENU_SLOT),
-		aspect = 0.8,
+		size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
+		aspect = Theme.Menu.Aspect,
 	})
 	local button = Builder.button({
 		parent = slot,
@@ -590,6 +591,10 @@ end
 
 -- Places the top buttons in a row leftwards from the chip. Each is a square of TOP_BUTTON_H, so its
 -- width in Scale is TOP_BUTTON_H * (screen height / screen width); anchored (1, 0), its x is its right edge.
+-- The row stops short of the centre column: the ship bar (the clock chip's size, centred) and the compass
+-- strip above it (CompassData.StripWidth) are in the way at 4:3, where the round buttons are as tall as the chip.
+-- A button that would reach them goes in a column under the row's first button instead (below the clock chip's
+-- left neighbour, where the biome chip and the radar are further right and the event banner is further left).
 local function layoutTopButtons()
 	local root = gui
 	if not root then
@@ -598,11 +603,20 @@ local function layoutTopButtons()
 	local screen = root.AbsoluteSize
 	local ratio = if screen.X > 0 then screen.Y / screen.X else 1
 	local buttonW = TOP_BUTTON_H * ratio
-	local right = CLOCK_RIGHT - clockChipWidth(root) - TOP_GAP
+	local start = CLOCK_RIGHT - clockChipWidth(root) - TOP_GAP
+	local limit = 0.5 + math.max(clockChipWidth(root), CompassData.StripWidth) / 2 + TOP_GAP
+	local right = start
+	local stacked = 0
 	for _, button in ipairs(topButtons) do
-		if button.Visible then -- a hidden button leaves no gap
+		if not button.Visible then
+			continue -- a hidden button leaves no gap
+		end
+		if right == start or right - buttonW >= limit then
 			button.Position = UDim2.fromScale(right, CLOCK_TOP)
 			right -= buttonW + TOP_GAP
+		else
+			stacked += 1
+			button.Position = UDim2.fromScale(start, CLOCK_TOP + stacked * (TOP_BUTTON_H + TOP_GAP))
 		end
 	end
 end
@@ -873,7 +887,8 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	buildMenuButton(root, id, color, onClick)
 end
 
--- A round chunky button just left of the clock chip (then left of the previous one), with the id's icon as
+-- A round chunky button just left of the clock chip (then left of the previous one, or under the first once the row
+-- would reach the ship bar and the compass), with the id's icon as
 -- its face (the MENU_GLYPH_<id> glyph while that icon is not uploaded). It lives in the HUD gui, so it hides with SetVisible.
 -- Call after Hud.Build, once per id.
 function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())

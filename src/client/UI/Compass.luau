@@ -44,7 +44,7 @@ local SIGHTINGS_FOLDER = "Sightings" -- Workspace.World.Sightings: the Warden's 
 -- Layout, in screen Scale (the strip) and strip Scale (what is inside it).
 local STRIP_TOP = 0.006 -- the strip hugs the top edge; the HUD's centre column starts under it
 local STRIP_H = 0.04 -- about 15 px on a phone in landscape, so the 14 px minimum text fits the band
-local STRIP_W = 0.38 -- clear of the round top buttons beside the clock chip at 4:3 (iPad)
+local STRIP_W = CompassData.StripWidth -- clear of the round top buttons beside the clock chip: the Hud lays them out around it
 local LABEL_H = 0.022 -- the line under the strip fills the gap above the HUD's shifted ship bar
 local TRACK_INSET = 0.03 -- of the strip's width: bearings map inside this margin, so a thing on the rounded end still sits in the band
 local LETTER_W = 0.08 -- a cardinal letter's box

@@ -164,19 +164,23 @@ local RX_FEATURED_H = 0.85 -- the large tile
 local RX_COLS = 2
 local RX_COL_GAP = 0.03 -- of the page width
 local RX_TILE_W = (1 - RX_COL_GAP * (RX_COLS - 1)) / RX_COLS
-local RX_TILE_ASPECT = 1.6 -- small tiles, width over height
+local RX_TILE_ASPECT = 1.4 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size)
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
--- Inside a small tile (fractions of the tile). The button is 0.34 of a 0.30-panel tile: 0.10 of the panel.
+-- Inside a small tile (fractions of the tile). At iPhone SE size the tile is 137 x 98 px: the name band holds two 14 px lines
+-- (a name wraps rather than being cut), the description band one, and the button is 0.33 of a 0.34-panel tile: 0.11 of the panel.
+-- No note band sits between the description and the button: a shared boost's note takes the description band, as a spin
+-- tile's odds line does (a note band 10 px high wrapped to two lines and ran under the Buy button).
 local TILE_INSET = 0.05
-local TILE_NAME_Y, TILE_NAME_H = 0.04, 0.24
-local TILE_DESC_Y, TILE_DESC_H = 0.29, 0.2
-local TILE_NOTE_Y, TILE_NOTE_H = 0.49, 0.12
-local TILE_BUTTON_Y, TILE_BUTTON_H = 0.62, 0.34
+local TILE_NAME_Y, TILE_NAME_H = 0.04, 0.38
+local TILE_DESC_Y, TILE_DESC_H = 0.43, 0.18
+local TILE_BUTTON_Y, TILE_BUTTON_H = 0.63, 0.33
 -- Inside the large tile (0.69 of the panel high): picker buttons 0.13 and the price button 0.16 of the panel.
 local BIG_INSET = 0.04
-local BIG_NAME_Y, BIG_NAME_H = 0.03, 0.16
-local BIG_DESC_Y, BIG_DESC_H = 0.2, 0.2
-local BIG_PICK_Y, BIG_PICK_H = 0.43, 0.19
+-- The description band holds three 14 px lines (51 px of the 201 px tile at iPhone SE size): the Starter Pack's text
+-- is 634 px against a 259 px line, and two lines cut it at "Once per".
+local BIG_NAME_Y, BIG_NAME_H = 0.02, 0.14
+local BIG_DESC_Y, BIG_DESC_H = 0.17, 0.27
+local BIG_PICK_Y, BIG_PICK_H = 0.45, 0.18
 local BIG_PICKED_Y, BIG_PICKED_H = 0.64, 0.08
 local BIG_BUTTON_Y, BIG_BUTTON_H = 0.74, 0.23
 local PICK_GAP = 0.03 -- between the picker buttons, of the row width
@@ -628,8 +632,26 @@ local function buildChip(parent: Frame, position: UDim2, size: UDim2): (Frame, T
 	return chip, text
 end
 
--- A small tile: section-coloured gradient card, the name, a one-line description, the Everyone note
--- on a shared boost, and the price button along the bottom. The grid sets its size and position.
+-- The gold line a shared boost (Server Luck) shows in its tile's description band: who gets it and for how long, the
+-- minutes read from the grant row (data/Shop Grants). Nil for every other item.
+local function sharedBoostNote(item: ShopItem): string?
+	if not item.paidRandom or item.oddsOnWheel then
+		return nil
+	end
+	local grants = shopGrants[item.id]
+	if grants then
+		for _, grant in ipairs(grants) do
+			local seconds = grant.seconds
+			if grant.kind == "serverLuck" and seconds then
+				return Strings.SHOP_EVERYONE:format(math.floor(seconds / 60))
+			end
+		end
+	end
+	return nil
+end
+
+-- A small tile: section-coloured gradient card, the name (two lines at most), a one-line description (gold on a
+-- shared boost, where it names who gets it) and the price button along the bottom. The grid sets its size and position.
 local function buildSmallTile(parent: Frame, index: number, item: ShopItem, color: Color3): RobuxTile
 	local card = Builder.frame({
 		parent = parent,
@@ -653,11 +675,13 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		zIndex = 4,
 	})
 	if not item.oddsOnWheel then
+		local note = sharedBoostNote(item)
 		local desc = Builder.label({
 			parent = card,
 			name = "Desc",
-			text = Builder.text("SHOP_DESC_" .. item.id),
+			text = note or Builder.text("SHOP_DESC_" .. item.id),
 			textSize = Theme.TextSize.Body,
+			color = if note then Theme.Colors.Featured else nil,
 			position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
 			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
 			zIndex = 4,
@@ -667,7 +691,7 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 	if item.oddsOnWheel then
 		-- Paid spins: the odds must be visible before buying. A spin tile's name says what it is ("5 Spins"), so its
 		-- description band carries the odds line instead, at body size (the tile is too short for a description, a
-		-- note and the Buy button at phone sizes). The band from the description's top to the note's bottom is one
+		-- note and the Buy button at phone sizes). The band from the description's top to the button's top is one
 		-- tap target that opens the wheel and its odds table (data/Spins). The Buy button below stays its own target.
 		Builder.label({
 			parent = card,
@@ -686,24 +710,13 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		oddsTap.BackgroundTransparency = 1
 		oddsTap.BorderSizePixel = 0
 		oddsTap.Position = UDim2.fromScale(0, TILE_DESC_Y)
-		oddsTap.Size = UDim2.fromScale(1, TILE_NOTE_Y + TILE_NOTE_H - TILE_DESC_Y)
+		oddsTap.Size = UDim2.fromScale(1, TILE_BUTTON_Y - TILE_DESC_Y)
 		oddsTap.ZIndex = 5
 		oddsTap.Parent = card
 		oddsTap.Activated:Connect(function()
 			Builder.playSound(Sounds.Click)
 			Screens.Open("Gifts")
 		end)
-	elseif item.paidRandom then
-		Builder.label({
-			parent = card,
-			name = "Everyone",
-			text = Strings.SHOP_EVERYONE,
-			textSize = Theme.TextSize.Min,
-			color = Theme.Colors.Featured,
-			position = UDim2.fromScale(TILE_INSET, TILE_NOTE_Y),
-			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NOTE_H),
-			zIndex = 4,
-		})
 	end
 	local button = Builder.button({
 		parent = card,

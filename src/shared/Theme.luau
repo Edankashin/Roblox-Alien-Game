@@ -36,6 +36,10 @@ Theme.Stroke = { Text = 2.5, Button = 3, Panel = 4 }
 Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
+-- The HUD's left icon column (Hud.AddMenuButton), as screen fractions: each slot is SlotW of the width wide at most and SlotH of the
+-- height tall, kept at Aspect (width over height), so on a tall narrow window it is SlotW wide and on a wide one it follows the height.
+-- Builder.menuRight turns these into the column's right edge, which the Build tray and the Ship screen keep clear of (Gap).
+Theme.Menu = { Left = 0.015, SlotW = 0.12, SlotH = 0.13, Aspect = 0.8, Gap = 0.01 }
 Theme.Backdrop = 0.6 -- modal backdrops dim the world by this much
 Theme.ButtonLip = 0.1 -- the darker "lip" under a button, as a fraction of its height
 Theme.Gloss = {

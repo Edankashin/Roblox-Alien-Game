@@ -29,4 +29,8 @@ return {
 	FenceHeightStuds = 1.2, -- the placeholder habitat: a pad with a low fence ring
 	FencePostStuds = 0.6,
 	PostsPerSide = 4,
+	-- name plates of the aliens on display: a farther plate that would overlap a nearer one on screen is hidden
+	PlateCheckSeconds = 0.2, -- how often the plates are compared
+	PlateTextShare = 0.6, -- of a plate's width that its words fill (the billboard is wider than "Mossbop"), for the overlap test
+	PlateKeepStuds = 1.5, -- a plate already showing counts this much nearer, so two plates that trade places do not flicker
 }

@@ -2,8 +2,8 @@
 -- StarterPlayerScripts.Client.UI.GiftsScreen: the Gifts & Spin panel. Left half: Welcome Week, a
 -- 7-tile gift calendar (one tile per data/Gifts row: the day, the reward and its state: a Claim button
 -- when the day is reached, a Claimed chip once taken, a locked line otherwise). Right half: the spin
--- wheel, a ring of segment labels (name and odds, so the odds are always visible) around a hub with
--- the Spin button, a pointer at the top, the spin balance and a button under it that opens every prize's odds in a table. Every value shown
+-- wheel, a ring of segment labels (a short name and the odds, so the odds are always visible) around a hub with
+-- the Spin button, a pointer at the top, the spin balance (two lines) and a button under it that opens every prize's full name and odds in a table. Every value shown
 -- is read from the gift state mirrored in State (GiftsChanged) and the shared data tables; every tap
 -- asks the server (ClaimGift, Spin) and a refusal becomes a toast. Nothing here decides an outcome:
 -- the server rolls the segment and the client only turns the wheel to the index it is told, and an
@@ -94,9 +94,12 @@ local TILE_ICON_W = 0.25
 local TILE_ICON_INSET = 0.03
 local WHEEL_Y = 0.235
 local WHEEL_H = 0.5
-local LINES_Y = 0.75
-local LINES_H = 0.045
-local ODDS_Y = 0.81
+-- The two spin counts sit one under the other at the column's full width, 17 px high each at iPhone SE height
+-- (one 14 px line): side by side, "Banked spins: 0" (102 px) did not fit the 84 px half and lost its number.
+local LINES_H = 0.06
+local FREE_Y = 0.745
+local BANKED_Y = FREE_Y + LINES_H
+local ODDS_Y = BANKED_Y + LINES_H + 0.005
 local ODDS_H = 1 - Theme.Margin - ODDS_Y
 -- The odds table: laid over the wheel and the lines under it, one row per prize so each stays readable at
 -- phone sizes (a single line of nine prizes did not fit under 800 px wide).
@@ -114,10 +117,13 @@ local INVITE_LINE_H = 0.3
 local SOCIAL_BLOCK_GAP = 0.04
 
 -- Wheel geometry, as fractions of the wheel square (the ring reads at any size).
+-- At iPhone SE height the ring is 146 px across: a block is 44 px wide and 29 px high, so the name (a short
+-- SEGMENT_SHORT_ word) and the odds each get one 14 px line. The labels sit 34 px apart centre to centre where two
+-- neighbours meet at the bottom, so two neighbouring words sum to under 67 px at 14 px: that is why the words are short.
 local LABEL_RADIUS = 0.34 -- where each segment block sits
-local LABEL_W = 0.28
-local LABEL_H = 0.17
-local NAME_SHARE = 0.6 -- of the block height; the odds take the rest
+local LABEL_W = 0.30
+local LABEL_H = 0.20
+local NAME_SHARE = 0.5 -- of the block height; the odds take the rest
 local DIVIDER_W = 0.012
 local HUB_SIZE = 0.38
 local POINTER_SIZE = 0.09
@@ -256,6 +262,22 @@ local function segmentName(id: string): string
 	return Builder.text("SEGMENT_" .. id)
 end
 
+-- The word on the ring: the full name does not fit a 44 px block at phone size ("Scann"), so the ring shows
+-- SEGMENT_SHORT_<id> and the odds table and the win toast keep the full name. Falls back to the full name.
+local function segmentShortName(id: string): string
+	local key = "SEGMENT_SHORT_" .. id
+	local text = Builder.text(key)
+	return if text == key then segmentName(id) else text
+end
+
+-- The word on a Welcome Week tile: the tile's name line is 49 px wide and one 14 px line high at iPhone SE
+-- size, so each day has a GIFT_TILE_<label> word ("Pack" for the Welcome Pack). Falls back to the full name.
+local function tileLabel(row: GiftRow): string
+	local key = "GIFT_TILE_" .. row.label:gsub("%s+", "")
+	local text = Builder.text(key)
+	return if text == key then rewardLabel(row) else text
+end
+
 -- Segment `index` sits at this angle, clockwise from the pointer at the top, in the wheel's own frame.
 local function segmentAngle(index: number): number
 	return (index - 1) * (360 / math.max(1, #segments))
@@ -291,7 +313,7 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 	local unlocked = row.day <= gifts.daysPlayed
 	local accent = giftAccent(row)
 	tile.dayLabel.Text = Strings.GIFTS_DAY:format(row.day)
-	tile.reward.Text = rewardLabel(row)
+	tile.reward.Text = tileLabel(row)
 	tile.claim.Visible = unlocked and not isClaimed
 	tile.claimed.Visible = isClaimed
 	tile.locked.Visible = not unlocked and not isClaimed
@@ -762,7 +784,7 @@ local function buildWedge(parent: Frame, index: number, segment: Segment): Wedge
 	local name = Builder.label({
 		parent = block,
 		name = "Name",
-		text = segmentName(segment.id),
+		text = segmentShortName(segment.id),
 		textSize = Theme.TextSize.Body,
 		size = UDim2.fromScale(1, NAME_SHARE),
 		zIndex = 4,
@@ -1156,8 +1178,8 @@ local function build()
 		name = "FreeSpins",
 		text = Strings.SPIN_FREE:format(0),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(MID_X, LINES_Y),
-		size = UDim2.fromScale(MID_W / 2, LINES_H),
+		position = UDim2.fromScale(MID_X, FREE_Y),
+		size = UDim2.fromScale(MID_W, LINES_H),
 		zIndex = 3,
 	})
 	bankedLabel = Builder.label({
@@ -1165,8 +1187,8 @@ local function build()
 		name = "BankedSpins",
 		text = Strings.SPIN_BANKED:format(0),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(MID_X + MID_W / 2, LINES_Y),
-		size = UDim2.fromScale(MID_W / 2, LINES_H),
+		position = UDim2.fromScale(MID_X, BANKED_Y),
+		size = UDim2.fromScale(MID_W, LINES_H),
 		zIndex = 3,
 	})
 	-- Every prize's odds, one per row, in a table this button opens over the wheel (paid spins link here).

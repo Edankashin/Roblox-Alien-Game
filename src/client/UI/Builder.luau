@@ -212,6 +212,16 @@ function Builder.aspect(parent: GuiObject, ratio: number): UIAspectRatioConstrai
 	return constraint
 end
 
+-- The right edge, in screen Scale, of the HUD's left icon column on a screen of this size (Theme.Menu): the column
+-- sits above every panel (display order 25), so a panel or tray whose left edge is less than this plus Theme.Menu.Gap
+-- has its first letters hidden under it. Wide screens give a slot Aspect * SlotH of the height; a tall narrow one only SlotW of the width.
+function Builder.menuRight(screen: Vector2): number
+	if screen.X <= 0 or screen.Y <= 0 then
+		return Theme.Menu.Left + Theme.Menu.SlotW
+	end
+	return Theme.Menu.Left + math.min(Theme.Menu.SlotW, Theme.Menu.Aspect * Theme.Menu.SlotH * screen.Y / screen.X)
+end
+
 function Builder.screen(name: string, displayOrder: number): ScreenGui
 	local gui = Instance.new("ScreenGui")
 	gui.Name = name
