@@ -170,7 +170,7 @@ Files: `tools/perf_report.py`, `docs/vault/04-roblox-engine/Performance.md`.
 
 Done when: the report exists with numbers derived from the data (not guessed), and each flag has a suggestion.
 
-### C15. Shared house-grid maths, with tests — open
+### C15. Shared house-grid maths, with tests — taken by codex 2026-10-07
 
 Goal: the house grid's maths lives in one tested shared module that the server (`HomeBuild`) and the client (`HomeRenderer`, the Build tray's ghost) both call, so the two can never disagree. The owner reported that a Verdant Habitat pick followed by a tap on the plot showed no ghost in a two-player Studio test; Studio now prints `Build tap ignored: <reason>` for every ignored tap, but the maths should be proven too.
 
