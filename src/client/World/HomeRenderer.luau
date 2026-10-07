@@ -57,6 +57,8 @@ local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 
+local HomeGrid = require(Shared:WaitForChild("HomeGrid"))
+
 local HomeRenderer = {}
 
 local FOLDER_NAME = "ClientHome"
@@ -118,14 +120,6 @@ local ghost: Part? = nil
 
 -- Grid maths ----------------------------------------------------------------
 
--- The footprint in cells (along X, along Z) of an item turned `rotation` quarter turns.
-local function footprint(def: HomeBuild.Item, rotation: number): (number, number)
-	if rotation % 2 == 1 then
-		return def.cellsZ, def.cellsX
-	end
-	return def.cellsX, def.cellsZ
-end
-
 -- The world point on the plot's top face at `x`, `z` cells from its -X,-Z corner (fractions are fine).
 local function plotPoint(g: Grid, x: number, z: number): Vector3
 	local size = g.part.Size
@@ -163,7 +157,7 @@ local function placeholder(g: Grid, itemId: string, cellX: number, cellZ: number
 		size = Vector3.new(width, look.height, depth)
 		rise = look.height
 	end
-	local w, d = footprint(def, rotation)
+	local w, d = HomeGrid.Dimensions(def, rotation)
 	local part = Instance.new("Part")
 	part.Name = itemId
 	part.Shape = SHAPES[look.shape] or Enum.PartType.Block
@@ -185,7 +179,7 @@ local function habitatOf(g: Grid, item: Types.HomeItem): Habitat?
 	if not def or def.kind ~= "habitat" then
 		return nil
 	end
-	local w, d = footprint(def, item.rotation)
+	local w, d = HomeGrid.Dimensions(def, item.rotation)
 	return {
 		center = plotPoint(g, item.cellX + w / 2, item.cellZ + d / 2),
 		turn = turnOf(g, item.rotation),
@@ -258,7 +252,7 @@ local function drawItem(g: Grid, parent: Instance, item: Types.HomeItem): Instan
 	end
 	local propName = def.prop
 	if propName then
-		local w, d = footprint(def, item.rotation)
+		local w, d = HomeGrid.Dimensions(def, item.rotation)
 		local base = CFrame.new(plotPoint(g, item.cellX + w / 2, item.cellZ + d / 2)) * turnOf(g, item.rotation)
 		local model = Props.Place(propName, base, PROP_SCALE, parent, true)
 		if model then
@@ -584,16 +578,7 @@ function HomeRenderer.CellAt(worldPosition: Vector3): (number?, number?)
 	end
 	local size = g.part.Size
 	local at = g.part.CFrame:PointToObjectSpace(worldPosition)
-	local x = (at.X + size.X / 2) / g.studs
-	local z = (at.Z + size.Z / 2) / g.studs
-	if x < 0 or z < 0 then
-		return nil, nil
-	end
-	local cellX, cellZ = math.floor(x), math.floor(z)
-	if cellX >= g.cells or cellZ >= g.cells then
-		return nil, nil
-	end
-	return cellX, cellZ
+	return HomeGrid.CellAt(g.cells, g.studs, size.X, size.Z, at.X, at.Z)
 end
 
 -- The middle of a cell on the plot's top face (the origin before the plot is known).
@@ -625,7 +610,7 @@ function HomeRenderer.ItemAt(cellX: number, cellZ: number): Types.HomeItem?
 	for _, item in pairs(State.HomeItems()) do
 		local def = HomeBuild.ById[item.itemId]
 		if def then
-			local w, d = footprint(def, item.rotation)
+			local w, d = HomeGrid.Dimensions(def, item.rotation)
 			if cellX >= item.cellX and cellX < item.cellX + w and cellZ >= item.cellZ and cellZ < item.cellZ + d then
 				return item
 			end

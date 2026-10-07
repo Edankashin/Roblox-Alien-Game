@@ -25,6 +25,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local HomeData = require(Shared.data.HomeBuild)
 local AnalyticsData = require(Shared.data.Analytics)
+local HomeGrid = require(Shared.HomeGrid)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
@@ -37,29 +38,6 @@ local HomeBuild = {}
 local REMOTE_RATE_PER_SECOND = 4 -- PlaceHomeItem, RemoveHomeItem and GetHome calls per player per second each
 
 local listeners: { (Player) -> () } = {} -- Visiting: rebuild the views of this owner's visitors after a change
-
--- The cells an item covers: inclusive cell ranges on each axis.
-type Footprint = { x0: number, z0: number, x1: number, z1: number }
-
--- Footprint maths -----------------------------------------------------------
-
--- An item at (cellX, cellZ) turned by `rotation` quarter steps. Odd turns swap width and depth.
-local function footprintOf(item: HomeData.Item, cellX: number, cellZ: number, rotation: number): Footprint
-	local sideways = rotation % 2 == 1
-	local width = if sideways then item.cellsZ else item.cellsX
-	local depth = if sideways then item.cellsX else item.cellsZ
-	return { x0 = cellX, z0 = cellZ, x1 = cellX + width - 1, z1 = cellZ + depth - 1 }
-end
-
--- True when two cell ranges share at least one cell.
-local function overlaps(a: Footprint, b: Footprint): boolean
-	return a.x0 <= b.x1 and b.x0 <= a.x1 and a.z0 <= b.z1 and b.z0 <= a.z1
-end
-
--- True when every cell of the range lies inside 0 .. cells - 1 on both axes.
-local function insidePlot(f: Footprint, cells: number): boolean
-	return f.x0 >= 0 and f.z0 >= 0 and f.x1 <= cells - 1 and f.z1 <= cells - 1
-end
 
 local function isInteger(value: any): boolean
 	return type(value) == "number" and value % 1 == 0 -- NaN and infinities fail the remainder test
@@ -136,8 +114,8 @@ function HomeBuild.Place(player: Player, itemId: string, cellX: number, cellZ: n
 	if cells == nil then
 		return false, "OffPlot"
 	end
-	local footprint = footprintOf(item, cellX, cellZ, rotation)
-	if not insidePlot(footprint, cells) then
+	local footprint = HomeGrid.Footprint(item, cellX, cellZ, rotation)
+	if not HomeGrid.InsidePlot(footprint, cells) then
 		return false, "OffPlot"
 	end
 	local uid = HttpService:GenerateGUID(false)
@@ -146,7 +124,7 @@ function HomeBuild.Place(player: Player, itemId: string, cellX: number, cellZ: n
 		for _, placed in pairs(profile.home.items) do
 			local placedItem = HomeData.ById[placed.itemId]
 			if placedItem then -- a row dropped from the data has no footprint to test and counts for nothing
-				if overlaps(footprint, footprintOf(placedItem, placed.cellX, placed.cellZ, placed.rotation)) then
+				if HomeGrid.Overlaps(footprint, HomeGrid.Footprint(placedItem, placed.cellX, placed.cellZ, placed.rotation)) then
 					return "Taken"
 				end
 				if placedItem.kind == item.kind then
