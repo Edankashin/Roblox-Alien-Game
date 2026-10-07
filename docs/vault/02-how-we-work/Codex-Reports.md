@@ -219,7 +219,7 @@ Left open: reproduce the owner's two-player case in Studio, recording gold selec
 
 ## C16 — 2026-10-07 — review
 
-Claim: `4c23810`; guards: Catching `d686c42`, Materials `89d318c`, Quests `4b767c3`; audit: `ce8fb38`. Each service diff is one distance predicate: require distance <= range so NaN cannot pass a greater-than refusal. Normal finite boundaries and +infinity refusal are preserved. No prices, outcomes, ownership or trip policy changed.
+Claim: `4c23810`; guards: Catching `7121b69`, Materials `9a9aa31`, Quests `27beef2`; audit: `ed07b0d`. Each service diff is one distance predicate: require distance <= range so NaN cannot pass a greater-than refusal. Normal finite boundaries and +infinity refusal are preserved. No prices, outcomes, ownership or trip policy changed.
 
 Measured: **112 remotes / 60 incoming handlers / 52 outbound-only events**, each inventoried with source and risk/check notes; **3 fixed**, **18 needs-coordinator rows**, **91 safe within the stated source-review scope**. **18 isolated source-extracted guard probes** passed; **140 headless tests**, analyze/data/all extra lints clean. No Studio or live-service testing.
 
