@@ -182,7 +182,7 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	if not at then
 		return false, "NoCharacter"
 	end
-	if (at - node.part.Position).Magnitude > Config.MaterialInteractDistance + Config.MaterialDistanceSlack then
+	if not ((at - node.part.Position).Magnitude <= Config.MaterialInteractDistance + Config.MaterialDistanceSlack) then
 		return false, "TooFar"
 	end
 	local def = node.def
