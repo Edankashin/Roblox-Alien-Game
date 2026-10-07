@@ -11,6 +11,9 @@
 -- card in the tier colour (still under Reduced Motion), and the confetti pieces wear the Confetti sprite.
 -- A Perfect catch (info.perfect, not under Reduced Motion) also flashes the screen white for
 -- Config.VfxPerfectFlashSeconds; the flash takes no input.
+-- A grant that carries overflowScrap (the storage cap was full, data/Storage: the alien turned into Scrap and no
+-- record was added) wears a red "Storage full: turned into N Scrap" ribbon above the card, and closing the Reveal
+-- toasts the hint to release or fuse aliens to keep new catches.
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -27,6 +30,7 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Builder)
+local Toast = require(script.Parent.Toast)
 local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 
@@ -43,6 +47,7 @@ export type RevealInfo = {
 	isNew: boolean,
 	scrapGained: number,
 	perfect: boolean?, -- the server scored a Perfect hit: show the Scrap multiplier line
+	overflowScrap: number?, -- the storage cap was full: the alien turned into this much Scrap (already in scrapGained)
 }
 
 local CONFETTI_COUNT = 20
@@ -70,6 +75,9 @@ local FLASH_LAYER = 10 -- its ZIndex: over the card, the text lines (8) and the 
 local TIER_LABEL_W = 0.9 -- the tier label's width, of the card
 local TIER_H = 0.08 -- its height, of the card; the rarity badge beside it is this tall and square
 local TIER_ICON_GAP = 0.015 -- of the card's width, between the badge and the tier text
+local STORAGE_Y = 0.09 -- the storage-full ribbon, of the screen: centred above the card (which starts at 0.19)
+local STORAGE_W = 0.7
+local STORAGE_H = 0.09
 
 local gui: ScreenGui? = nil
 local card: Frame? = nil
@@ -91,6 +99,9 @@ local overlayBadge: Frame? = nil
 local overlayLabel: TextLabel? = nil
 local newRibbon: Frame? = nil
 local scrapLabel: TextLabel? = nil
+local storageRibbon: Frame? = nil -- the "Storage full" ribbon above the card
+local storageLabel: TextLabel? = nil
+local storageHint = false -- the Reveal on screen was a storage overflow: close toasts the hint
 local perfectLabel: TextLabel? = nil
 local burstTween: Tween? = nil
 local raysFrame: Frame? = nil -- holds the sunburst sprite; made by Show, destroyed with the close
@@ -168,6 +179,10 @@ local function close()
 	onClose = nil
 	if callback then
 		callback()
+	end
+	if storageHint then
+		storageHint = false
+		Toast.Show(Strings.TOAST_STORAGE_FULL_HINT, Theme.Colors.Close)
 	end
 end
 
@@ -372,6 +387,30 @@ local function build()
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 7,
+	})
+	-- Storage-full ribbon (shown only for a grant that overflowed the cap): a red pill above the card.
+	local storage = Builder.pill({
+		parent = root,
+		name = "StorageFull",
+		position = UDim2.fromScale(0.5, STORAGE_Y),
+		size = UDim2.fromScale(STORAGE_W, STORAGE_H),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Close,
+		stroke = Theme.Stroke.Text,
+		zIndex = 8,
+	})
+	Builder.gradient(storage, Theme.Colors.Close)
+	storage.Visible = false
+	storageRibbon = storage
+	storageLabel = Builder.label({
+		parent = storage,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.92, 0.8),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 9,
 	})
 	scrapLabel = Builder.label({
 		parent = root,
@@ -724,6 +763,17 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	end
 	if newRibbon then
 		newRibbon.Visible = info.isNew
+	end
+	local overflow = info.overflowScrap
+	storageHint = overflow ~= nil
+	if storageRibbon and storageLabel then
+		storageRibbon.Visible = overflow ~= nil
+		if overflow ~= nil then
+			storageLabel.Text = Strings.REVEAL_STORAGE_FULL:format(Builder.formatNumber(overflow))
+			if not Prefs.ReducedMotion() then
+				Builder.pop(storageRibbon, 1.15)
+			end
+		end
 	end
 	if burst then
 		for _, ray in ipairs(burst:GetChildren()) do

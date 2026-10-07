@@ -1,9 +1,9 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `97fb247c24cb5b68`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `024ece00d1f95bae`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
-**25 pending milestones; 67 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
+**26 pending milestones; 75 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
@@ -174,6 +174,31 @@ For every entry send: commit/build, project and WorldId, player count, original 
 **TESTING step 6.** `/playtime reset`: Output `dev: <name>'s playtime today cleared`; every card goes back to its countdown from 5:00 and the badge goes, and gifts claimed earlier can be claimed again. `/playtime -5` after a `/playtime 10` takes five minutes back.
 
 **TESTING step 7.** Set `Enabled = false` in `src/shared/data/Playtime.luau` and press Play: Output `Playtime: off (Shared/data/Playtime Enabled = false)`, the HUD button is gone and the buttons beside it close the gap, and `/playtime 5` prints but shows no badge. Set it back to `true`.
+
+### Milestone 50: alien storage cap (World 1 place)
+
+**Pending status:** built; Studio check queued
+
+**Setup projects:** `rojo serve default.project.json`.
+**Dev/setup references:** `/spawn <speciesId>`, `/storage cap`, `/storage fill`, `/storage fill 1`, `/storage fill 1349`, `/storage fill 5`, `/storage fill [N]`.
+
+**Send back:** standard evidence above; original steps 1, 2, 3, 4, 5, 6, 7, 8.
+
+**TESTING step 1.** Press Play. Open Aliens: the count row reads "Aliens: 0 / 1,500" in white (a few more if you have caught some), and a blue Release button sits at the top left, level with the red X. `/storage cap`: Output `dev: <name> storage 0 / 1500 (ok)`.
+
+**TESTING step 2.** The count colours: `/storage fill 1349` (or fewer if you hold some: the total should reach 1,349) and reopen Aliens: white. `/storage fill 1`: the total is 1,350 (90% of the cap) and the count turns gold; Output ends `(warning)`. `/storage fill`: the total is 1,500, the count is red and Output ends `(full)`. A further `/storage fill 5` adds nothing (Output `filled with 0 Common record(s)`). The grid scrolls through the 1,500 cards without a hitch.
+
+**TESTING step 3.** A catch at the cap: `/spawn <speciesId>` a species you have not caught (or catch any wild alien), then catch it. The Reveal shows its usual card and, above it, a red ribbon "Storage full: turned into 5 Scrap" (12 for an Uncommon, and so on). The "+N Scrap" under the card is the catch pay plus the first-catch payout plus that value, and the Scrap pill rises by the same N. Close the Reveal: a red toast "Release or fuse aliens to keep new catches". Open Aliens: the count still reads "Aliens: 1,500 / 1,500" and no card was added. Open the Codex: the species is now caught. Output: `analytics: economy Source Scrap amount=5 ... sku=Overflow` after the Catch and Codex lines. The daily quest and Field Notes counts moved as for any catch.
+
+**TESTING step 4.** Releasing an alien that is in use is refused with its reason. With a seated alien, hold its card for half a second: a panel opens with its name, "Common, Lv 1" in the tier colour, a grey Release button "Release +5 Scrap" that takes no action, and the red line "Working at a station. Only resting aliens can be released." Close it (the X, a tap outside the card, or the Aliens X). Make a resting alien follow (tap its card) and hold it: the line reads "Following you. Stop it following first." (At the home place a displayed alien reads "On display at home. Bring it back first.") A quick tap on a card still follows or unfollows as before and never opens the panel; dragging a finger over the grid scrolls it without opening the panel.
+
+**TESTING step 5.** Releasing a free alien frees a slot. Hold a resting Common: the panel shows a gold button "Release +5 Scrap". Tap it once: the button turns red and reads "Tap again to release"; wait 3 seconds and it goes back to gold. Tap it twice within 3 seconds: a gold toast "Released Mossbop: +5 Scrap" (the species you held), the panel closes, the card is gone, the count reads "Aliens: 1,499 / 1,500" in gold and the Scrap pill is up by 5. Output: `analytics: economy Source Scrap amount=5 ... sku=Release`. Catch another alien: it is stored (the count returns to 1,500) and the Reveal has no ribbon.
+
+**TESTING step 6.** Bulk release: tap the blue Release button. The card "Release aliens" lists "Release all unused Commons" with a line "N aliens, +5N Scrap" and "Release all unused Uncommons" with its own line ("None to release" and a grey button when there are none), and a grey hint "Hold an alien card to release just that one". N counts only resting aliens: seated and following Commons are not in it. Tap the Commons button: "Release N Common aliens for +5N Scrap?" with Cancel and a red Release. Cancel returns to the menu. Release: a gold toast "Released N aliens: +5N Scrap", the card closes, the seated and following Commons are still in the grid, the count falls by N and the Scrap rises by 5N. Output: one `economy Source Scrap amount=5N ... sku=Release`. Reopen the menu: the Commons line reads "None to release".
+
+**TESTING step 7.** Fusion still frees slots at the cap: with the store full of Commons (step 2), tap Fuse. Toasts "<species> fused to Lv 2!" appear, four records leave for each fusion, the count falls and the next catch is stored again. (Fuse asks the server once per fusion, so a full store takes a while; release some Commons first if it feels slow.)
+
+**TESTING step 8.** Check the Aliens screen, the Release card, the confirm view and the Reveal ribbon at iPhone SE (667x375) and iPad sizes in the device emulator: the button, the three lines and both buttons of the card stay inside it, no text is cut off, and the ribbon clears the card and the top of the screen.
 
 ## World 2 place
 

@@ -21,6 +21,11 @@
 -- and slot stay nil (the Companions service owns that list; it requires nothing that requires this module).
 -- An alien on display in a home habitat (record.habitat set, the Habitats service owns that field) is skipped the
 -- same way and counts like a seated copy for fusion fodder order; Habitats requires this module, never the reverse.
+-- Storage (data/Storage, Shared/StorageMath, milestone 50): a profile holds at most StorageCap alien records, because the
+-- save is one DataStore value with a hard size limit. GrantAlien at the cap adds no record and pays the tier's release
+-- value instead (GrantResult.overflowScrap); everything else a catch does still happens. Release (the ReleaseAliens
+-- remote) and ReleaseTier (ReleaseAllOfTier) delete resting records for the same Scrap. Neither touches an alien that
+-- works at a station, follows the player or is on display, so no seat, follower or display ever needs repair.
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
 -- every newcomer). (The Longer Offline pass was withdrawn on 2026-10-07; resting in the game, data/Afk, is the long stretch now.)
@@ -40,9 +45,11 @@ local Modules = require(Shared.data.Modules)
 local Jobs = require(Shared.data.Jobs)
 local GrowthData = require(Shared.data.Growth)
 local FusionData = require(Shared.data.Fusion)
+local StorageData = require(Shared.data.Storage)
 local AnalyticsData = require(Shared.data.Analytics)
 local Economy = require(Shared.Economy)
 local Growth = require(Shared.Growth)
+local StorageMath = require(Shared.StorageMath)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
@@ -58,6 +65,7 @@ local EconomyService = {}
 
 local REMOTE_RATE_PER_SECOND = 4 -- ModulePay, ModuleInsertKey and StationOptimize calls per player per second
 local FUSE_RATE_PER_SECOND = 2 -- FuseSpecies calls per player per second
+local RELEASE_RATE_PER_SECOND = 2 -- ReleaseAliens and ReleaseAllOfTier calls per player per second
 local STARTING_LEVEL = 1 -- GrantAlien writes every record at this level; fusion cap is this plus Fusion.MaxFusionLevels
 
 local carries: { [number]: number } = {} -- fractional Scrap not yet paid out, by UserId
@@ -672,7 +680,12 @@ end
 -- Tutorial hears the species. Returns the Reveal payload, or nil when the player has no profile (or
 -- the species id is unknown). size is a Sizes band id from the wild spawn that was caught; nil (eggs,
 -- gifts, shop grants) rolls one with Spawner.RollSize, and an unknown id falls back to the default band.
-function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean, size: string?): Types.GrantResult?
+-- Storage (data/Storage): when the profile already holds StorageCap records, no record is written and the newcomer is
+-- not seated; the alien turns into StorageMath.ReleaseValue(tier) Scrap instead, added to scrapGained and reported as
+-- overflowScrap. The codex, the catch stats and every report below (pity, announcement, quests, tutorial, analytics)
+-- still happen, so a catch at the cap counts like any other. `capExempt` (a Robux purchase) always writes the record:
+-- a paid alien is never turned into Scrap.
+local function grantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean, size: string?, capExempt: boolean): Types.GrantResult?
 	local def = Species.ById[species]
 	if not def then
 		return nil
@@ -687,17 +700,24 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	local isNew = false
 	local scrapGained = 0
 	local scrapNow = 0
+	local overflow = false -- the storage cap was full: no record was written
+	local overflowScrap = 0
 	local ok = PlayerData.Update(player, function(profile)
-		local record: Types.AlienRecord = {
-			uid = uid,
-			species = species,
-			level = 1,
-			overlay = overlay,
-			caughtAt = caughtAt,
-			size = sizeId,
-			workedSeconds = 0,
-		}
-		profile.aliens[uid] = record
+		overflow = not capExempt and StorageMath.IsFull(StorageMath.CountOf(profile.aliens))
+		if overflow then
+			overflowScrap = StorageMath.ReleaseValue(tier)
+		else
+			local record: Types.AlienRecord = {
+				uid = uid,
+				species = species,
+				level = 1,
+				overlay = overlay,
+				caughtAt = caughtAt,
+				size = sizeId,
+				workedSeconds = 0,
+			}
+			profile.aliens[uid] = record
+		end
 
 		local entry = profile.codex[species]
 		if not entry then
@@ -719,6 +739,7 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 			entry.firstCaughtAt = caughtAt
 			scrapGained += tierDef.codexScrap
 		end
+		scrapGained += overflowScrap
 		profile.scrap += scrapGained
 
 		profile.stats.catches += 1
@@ -732,9 +753,11 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 		return nil
 	end
 	pushScrap(player, profile)
-	seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
-	if Monetization.OwnsPass(player, "AutoOptimize") then
-		optimize(player) -- the Auto Optimize pass: the whole crew is reseated fastest first after every newcomer
+	if not overflow then
+		seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
+		if Monetization.OwnsPass(player, "AutoOptimize") then
+			optimize(player) -- the Auto Optimize pass: the whole crew is reseated fastest first after every newcomer
+		end
 	end
 	Buffs.OnCatch(player, tier)
 	announceCatch(player, species, tier, overlay)
@@ -743,12 +766,27 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	-- Analytics: the catch, its Scrap split into the catch pay and the codex payout, and the first catch ever.
 	local codexScrap = if isNew then tierDef.codexScrap else 0
 	Analytics.Event(player, AnalyticsData.Events.Catch, 1, { tier = tier :: string, species = species, perfect = tostring(perfect) })
-	Analytics.Economy(player, "Source", scrapGained - codexScrap, scrapNow - codexScrap, "Gameplay", AnalyticsData.Economy.Sources.Catch)
-	Analytics.Economy(player, "Source", codexScrap, scrapNow, "Gameplay", AnalyticsData.Economy.Sources.Codex)
+	-- The three Scrap sources in the order they landed, each with the balance after it.
+	Analytics.Economy(player, "Source", scrapGained - codexScrap - overflowScrap, scrapNow - codexScrap - overflowScrap, "Gameplay", AnalyticsData.Economy.Sources.Catch)
+	Analytics.Economy(player, "Source", codexScrap, scrapNow - overflowScrap, "Gameplay", AnalyticsData.Economy.Sources.Codex)
+	Analytics.Economy(player, "Source", overflowScrap, scrapNow, "Gameplay", AnalyticsData.Economy.Sources.Overflow)
 	if profile.stats.catches == 1 then
 		Analytics.Event(player, AnalyticsData.Events.FirstCatchSeconds, os.time() - profile.firstSeen)
 	end
-	return { species = species, tier = tier, overlay = overlay, size = sizeId, isNew = isNew, scrapGained = scrapGained, scrap = scrapNow }
+	return {
+		species = species,
+		tier = tier,
+		overlay = overlay,
+		size = sizeId,
+		isNew = isNew,
+		scrapGained = scrapGained,
+		scrap = scrapNow,
+		overflowScrap = if overflow then overflowScrap else nil,
+	}
+end
+
+function EconomyService.GrantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean, size: string?): Types.GrantResult?
+	return grantAlien(player, species, overlay, perfect, size, false)
 end
 
 -- Re-sends the camp (stations with the records, rates, module progress) from the live profile. Habitats and
@@ -922,6 +960,142 @@ local function onFuseSpecies(player: Player, species: any): (Types.FuseResult?, 
 	return EconomyService.Fuse(player, species)
 end
 
+-- Release ----------------------------------------------------------------
+
+-- Deletes the records `choose` picks and pays their release value, in one profile update. `choose` runs inside the
+-- update on the live profile and returns the uids to release or a refusal reason. Only records StorageMath.InUse
+-- passes are ever picked (no seat, follower or display), so nothing needs reseating or re-sending but the records
+-- and the Scrap: the client hears ScrapChanged and StationsChanged (the records), and the sum is reported as the
+-- Release source. Returns ok, the refusal, the records released and the Scrap paid.
+local function releaseRecords(player: Player, choose: (Types.Profile) -> ({ string }, string?)): (boolean, string?, number, number)
+	local released = 0
+	local paid = 0
+	local ok, reason = mutate(player, function(profile)
+		local uids, refusal = choose(profile)
+		if refusal then
+			return refusal
+		end
+		for _, uid in ipairs(uids) do
+			local record = profile.aliens[uid]
+			if record then
+				local def = Species.ById[record.species]
+				paid += if def then StorageMath.ReleaseValue(def.tier) else 0
+				profile.aliens[uid] = nil
+				released += 1
+			end
+		end
+		profile.scrap += paid
+		return nil
+	end)
+	if not ok then
+		return false, reason, 0, 0
+	end
+	if released > 0 then
+		local profile = PlayerData.Get(player)
+		if profile then
+			pushScrap(player, profile)
+			pushStations(player, profile)
+			Analytics.Economy(player, "Source", paid, profile.scrap, "Gameplay", AnalyticsData.Economy.Sources.Release)
+		end
+	end
+	return true, nil, released, paid
+end
+
+-- Releases the records named in `uids` for their tiers' release value, all or nothing: one uid that is not owned
+-- (NotOwned) or is working, following, ridden or on display (InUse) refuses the whole call and changes nothing.
+-- BadArgs: no uids, more than Storage.MaxReleasePerCall, or the same uid twice. NoProfile: no loaded profile.
+-- Returns ok, the reason and the Scrap paid.
+function EconomyService.Release(player: Player, uids: { string }): (boolean, string?, number?)
+	if #uids == 0 or #uids > StorageData.MaxReleasePerCall then
+		return false, "BadArgs", nil
+	end
+	local seen: { [string]: boolean } = {}
+	for _, uid in ipairs(uids) do
+		if seen[uid] then
+			return false, "BadArgs", nil
+		end
+		seen[uid] = true
+	end
+	local ok, reason, _, paid = releaseRecords(player, function(profile)
+		for _, uid in ipairs(uids) do
+			local record = profile.aliens[uid]
+			if not record then
+				return {}, "NotOwned"
+			end
+			if StorageMath.InUse(record, profile.companions) ~= nil then
+				return {}, "InUse"
+			end
+		end
+		return uids, nil
+	end)
+	return ok, reason, if ok then paid else nil
+end
+
+-- Releases every owned record of `tier` that is not in use. Only Storage.BulkReleaseTiers qualify (BadArgs
+-- otherwise); with nothing free it succeeds and pays nothing. Returns ok, the reason, the count and the Scrap paid.
+function EconomyService.ReleaseTier(player: Player, tier: string): (boolean, string?, number?, number?)
+	if not StorageMath.IsBulkTier(tier) then
+		return false, "BadArgs", nil, nil
+	end
+	local ok, reason, count, paid = releaseRecords(player, function(profile)
+		local uids = StorageMath.Releasable(profile.aliens, profile.companions, tier :: Types.Tier)
+		return uids, nil
+	end)
+	if not ok then
+		return false, reason, nil, nil
+	end
+	return true, nil, count, paid
+end
+
+-- A plain list of Storage.MaxReleasePerCall strings or less: no gaps, no dictionary part, no other types. nil when
+-- the table is anything else (an exploiter's call, never the game's own client).
+local function readUids(raw: { any }): { string }?
+	local count = #raw
+	if count == 0 or count > StorageData.MaxReleasePerCall then
+		return nil
+	end
+	local out: { string } = {}
+	for index = 1, count do
+		local uid = raw[index]
+		if type(uid) ~= "string" then
+			return nil
+		end
+		out[index] = uid
+	end
+	local keys = 0
+	for _ in pairs(raw) do
+		keys += 1
+	end
+	if keys ~= count then
+		return nil
+	end
+	return out
+end
+
+local function onReleaseAliens(player: Player, uids: any): (boolean, string?, number?)
+	if type(uids) ~= "table" then
+		return false, "BadArgs", nil
+	end
+	if not Net.allow(player, "ReleaseAliens", RELEASE_RATE_PER_SECOND) then
+		return false, "RateLimited", nil
+	end
+	local list = readUids(uids)
+	if not list then
+		return false, "BadArgs", nil
+	end
+	return EconomyService.Release(player, list)
+end
+
+local function onReleaseAllOfTier(player: Player, tier: any): (boolean, string?, number?, number?)
+	if type(tier) ~= "string" then
+		return false, "BadArgs", nil, nil
+	end
+	if not Net.allow(player, "ReleaseAllOfTier", RELEASE_RATE_PER_SECOND) then
+		return false, "RateLimited", nil, nil
+	end
+	return EconomyService.ReleaseTier(player, tier)
+end
+
 function EconomyService.Init()
 	-- A Double Shift, a friend or resting moves the station factor: the HUD's rate follows (Buffs never requires Economy).
 	Buffs.OnStationMultiplierChanged(function(player: Player)
@@ -937,6 +1111,8 @@ function EconomyService.Init()
 	Net.func("ModuleInsertKey").OnServerInvoke = onModuleInsertKey
 	Net.func("StationOptimize").OnServerInvoke = onStationOptimize
 	Net.func("FuseSpecies").OnServerInvoke = onFuseSpecies
+	Net.func("ReleaseAliens").OnServerInvoke = onReleaseAliens
+	Net.func("ReleaseAllOfTier").OnServerInvoke = onReleaseAllOfTier
 	Net.func("ClaimOfflineSummary").OnServerInvoke = onClaimOfflineSummary
 	PlayerData.OnLoaded(onLoaded)
 	-- Robux grants that land in the camp, registered with Monetization rather than required from it (see
@@ -951,7 +1127,7 @@ function EconomyService.Init()
 		if grant.tier ~= nil and def.tier ~= grant.tier then
 			return false, "WrongTier"
 		end
-		local result = EconomyService.GrantAlien(player, species, Spawner.RollOverlay(), false)
+		local result = grantAlien(player, species, Spawner.RollOverlay(), false, nil, true) -- a paid alien is exempt from the storage cap
 		if result then
 			Net.event("AlienGranted"):FireClient(player, result) -- the client plays the Reveal for it
 		end

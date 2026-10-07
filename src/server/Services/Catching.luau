@@ -423,6 +423,7 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 				isNew = grant.isNew,
 				scrapGained = grant.scrapGained,
 				scrap = grant.scrap,
+				overflowScrap = grant.overflowScrap, -- the storage cap was full: the Reveal says the alien turned into Scrap
 				zoneAt = zoneAt,
 			}
 		end

@@ -225,6 +225,7 @@ export type CaptureHitResult = {
 	isNew: boolean?,
 	scrapGained: number?,
 	scrap: number?,
+	overflowScrap: number?, -- the storage cap was full: the alien turned into this much Scrap (part of scrapGained), no record added
 }
 
 -- Peddler visit (PeddlerChanged event to all clients, GetPeddler for late joiners); nil between visits.
@@ -232,7 +233,9 @@ export type PeddlerOffer = { id: string, kind: string, scrap: number, amount: nu
 export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsAt on the server wall clock (os.time())
 
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
-export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size: string, isNew: boolean, scrapGained: number, scrap: number }
+-- overflowScrap is set only when the storage cap (data/Storage) was full: no record was added, the alien turned into
+-- that much Scrap instead, and scrapGained already includes it. The Reveal shows the "Storage full" ribbon for it.
+export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size: string, isNew: boolean, scrapGained: number, scrap: number, overflowScrap: number? }
 
 -- Gifts -> client (GiftsChanged): Welcome Week progress and the spin balance.
 export type GiftState = { daysPlayed: number, claimed: { [string]: boolean }, freeSpins: number, bankedSpins: number }

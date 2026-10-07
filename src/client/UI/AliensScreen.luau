@@ -4,8 +4,11 @@
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
 -- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
 -- its next stage, where it is working or that it follows you; a following mount shows a Ride button in the status
--- slot instead), a count row (aliens owned, companion slots in use) with a perks line under it, and a footer
--- with Optimize and Fuse buttons, a Companion Token button while a token is held, and a one-line fuse hint.
+-- slot instead), a count row (aliens owned over the storage cap, companion slots in use) with a perks line under it, and a
+-- footer with Optimize and Fuse buttons, a Companion Token button while a token is held, and a one-line fuse hint.
+-- Storage (milestone 50, data/Storage): the owned count reads "Aliens: 1,234 / 1,500", gold from WarnFraction of the cap and
+-- red when full. A Release button at the top left opens the ReleasePanel menu (release all unused Commons or Uncommons), and
+-- holding an alien card for Storage.HoldSeconds opens the same panel for that one alien; a plain tap still follows or stops.
 -- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot shows a Display button in
 -- the status slot, and an alien on display shows a purple "On display" pill in the chip row (in place of the size and
 -- growth chips) and, at home, a Bring back button in the status slot; a plain tap on a displayed card does nothing.
@@ -13,7 +16,7 @@
 -- never displays or takes back at another's plot, and the cards redraw on the "visit" topic when that changes.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
 -- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, SetDisplay,
--- UseCompanionToken). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
+-- UseCompanionToken, and through the ReleasePanel ReleaseAliens and ReleaseAllOfTier). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
 -- asks to follow or stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, the
 -- Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the cards redraw from
 -- the camp, companion and home pushes the server sends back.
@@ -35,9 +38,12 @@ local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
+local StorageMath = require(Shared:WaitForChild("StorageMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
+local ReleasePanel = require(script.Parent.ReleasePanel)
 local State = require(script.Parent.Parent.State)
 local HomeRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("HomeRenderer"))
 
@@ -78,6 +84,11 @@ local FOOTER_BUTTON_W = 0.24 -- Fuse and Optimize, side by side at the right
 local TOKEN_BUTTON_W = 0.30 -- the Companion Token button, left of Fuse while a token is held; wider than Fuse so "Use Token (1)" stays one line on a phone
 local FOOTER_GAP = 0.02 -- between them
 local FUSE_BUSY_ALPHA = 0.5 -- the Fuse button's face and text fade by this while a fusion is in flight
+-- The Release button at the top left, opposite the Close button and clear of the header tab (which starts at 0.29).
+local RELEASE_X = 0.015
+local RELEASE_Y = 0.02
+local RELEASE_W = 0.2
+local RELEASE_H = 0.1
 
 -- Grid: four square cards per row; the cell width is a fraction of the grid's canvas width and the
 -- cell height is derived from it so the cells come out square (see layoutGrid).
@@ -189,6 +200,16 @@ local function clearChildren(parent: Instance)
 			child:Destroy()
 		end
 	end
+end
+
+-- The owned count over the storage cap, in the warning colour from Storage.WarnFraction and the Close colour when full.
+local function setCount(count: number)
+	local label = countLabel
+	if not label then
+		return
+	end
+	label.Text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(count), Builder.formatNumber(Storage.StorageCap))
+	label.TextColor3 = if StorageMath.IsFull(count) then Theme.Colors.Close elseif StorageMath.IsWarning(count) then Theme.Colors.Featured else Theme.Colors.White
 end
 
 -- Server calls -------------------------------------------------------------
@@ -1010,7 +1031,44 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	tap.Size = UDim2.fromScale(1, 1)
 	tap.ZIndex = TAP_Z
 	tap.Parent = card
+	-- Holding the card for Storage.HoldSeconds opens its Release panel instead of following: the press must stay down
+	-- and not drift past Storage.HoldMovePixels (a drag is the grid scrolling). The tap that ends a hold is swallowed.
+	local holdId = 0
+	local held = false
+	tap.InputBegan:Connect(function(input: InputObject)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
+		held = false
+		holdId += 1
+		local mine = holdId
+		local start = input.Position
+		task.delay(Storage.HoldSeconds, function()
+			if holdId ~= mine or not open then
+				return
+			end
+			local state = input.UserInputState
+			if state ~= Enum.UserInputState.Begin and state ~= Enum.UserInputState.Change then
+				return
+			end
+			if (input.Position - start).Magnitude > Storage.HoldMovePixels then
+				return
+			end
+			held = true
+			Builder.playSound(Sounds.Click)
+			ReleasePanel.ShowAlien(record.uid, entry.name, speciesColor(def))
+		end)
+	end)
+	tap.InputEnded:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			holdId += 1
+		end
+	end)
 	tap.Activated:Connect(function()
+		if held then
+			held = false
+			return
+		end
 		onCardTapped(record.uid, entry.name)
 	end)
 end
@@ -1068,9 +1126,7 @@ local function rebuildGrid(profile: Types.Profile)
 	if emptyLabel then
 		emptyLabel.Visible = cardCount == 0
 	end
-	if countLabel then
-		countLabel.Text = Strings.ALIENS_COUNT:format(cardCount)
-	end
+	setCount(cardCount)
 end
 
 -- The count row's companion label, the perks line and the Companion Token button: slots in use, the perks they
@@ -1216,6 +1272,21 @@ local function build()
 		AliensScreen.Close()
 	end)
 
+	-- Release: the menu of "Release all unused" (and the hint about holding a card), over the panel.
+	Builder.button({
+		parent = body,
+		name = "Release",
+		text = Strings.RELEASE_BUTTON,
+		color = Theme.Colors.Select,
+		position = UDim2.fromScale(RELEASE_X, RELEASE_Y),
+		size = UDim2.fromScale(RELEASE_W, RELEASE_H),
+		textSize = Theme.TextSize.Label,
+		zIndex = 4,
+	}, function()
+		ReleasePanel.ShowMenu()
+	end)
+	ReleasePanel.Build(root)
+
 	-- 1. Station strip: one card per unlocked job, rebuilt on refresh.
 	local stripFrame = Builder.frame({
 		parent = body,
@@ -1238,7 +1309,7 @@ local function build()
 	countLabel = Builder.label({
 		parent = body,
 		name = "Count",
-		text = Strings.ALIENS_COUNT:format(0),
+		text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(0), Builder.formatNumber(Storage.StorageCap)),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(Theme.Margin, COUNT_Y),
 		size = UDim2.fromScale(COUNT_HALF_W, COUNT_H),
@@ -1396,6 +1467,7 @@ function AliensScreen.Close()
 		return
 	end
 	open = false
+	ReleasePanel.Hide()
 	local root, body = gui, panel
 	if root and body then
 		Builder.close(body, function()

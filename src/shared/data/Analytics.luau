@@ -46,7 +46,7 @@ return {
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Playtime = "Playtime", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail", Wave = "Wave" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Playtime = "Playtime", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail", Wave = "Wave", Release = "Release", Overflow = "Overflow" }, -- Release: aliens released for Scrap; Overflow: a catch past the storage cap (data/Storage) turned into Scrap
 		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost", Home = "Home" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds

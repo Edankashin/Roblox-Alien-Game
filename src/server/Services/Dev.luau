@@ -20,10 +20,12 @@
 -- <name|id> (in the home place: look at another player's home in this server, as the Visit button does) | off (back to your
 -- own home), /afk (rest now: the half-rate income and the Resting screen) | off (wake) | rejoin (the rejoin the client asks for
 -- after 17 idle minutes; Studio only prints it), /playtime <minutes> (add that many minutes of played time today, so a playtime
--- gift unlocks at once; negative takes minutes back) | reset (today's played time and claims cleared). Nothing
+-- gift unlocks at once; negative takes minutes back) | reset (today's played time and claims cleared), /storage fill [N] (N plain Common
+-- records, default as many as fit, never past the storage cap) | cap (print the record count and the cap). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -68,6 +70,8 @@ local MailData = require(Shared.data.Mail)
 local CatchVariants = require(Shared.data.CatchVariants)
 local SeasonsData = require(Shared.data.Seasons)
 local SeasonMath = require(Shared.SeasonMath)
+local StorageData = require(Shared.data.Storage)
+local StorageMath = require(Shared.StorageMath)
 
 local Dev = {}
 
@@ -454,6 +458,51 @@ local function rideSpecies(player: Player, text: string)
 	end
 	local ok, reason = Companions.SetRiding(player, pick)
 	print(("[%s] dev: %s ride %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
+end
+
+-- /storage fill [N] | cap: the alien storage cap (data/Storage). fill writes N plain Common records straight into the
+-- profile (N missing: as many as fit; never past StorageCap), cycling through the Common species, so the cap, the
+-- overflow rule and Release can be tried without 1,500 catches; the codex, Scrap and quests do not move. cap prints
+-- the record count against the cap.
+local function storageCommand(player: Player, text: string)
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return
+	end
+	local held = StorageMath.CountOf(profile.aliens)
+	if string.match(text, "^/%S+%s+(%S+)") == "fill" then
+		local commons: { string } = {}
+		for _, def in ipairs(Species.List) do
+			if def.tier == "Common" then
+				table.insert(commons, def.id)
+			end
+		end
+		if #commons == 0 then
+			print(("[%s] dev: no Common species to fill with"):format(Config.WorkingTitle))
+			return
+		end
+		local room = math.max(0, StorageData.StorageCap - held)
+		local asked = tonumber(string.match(text, "^/%S+%s+%S+%s+(%S+)") or "")
+		local count = math.clamp(math.floor(asked or room), 0, room)
+		PlayerData.Update(player, function(p)
+			for index = 1, count do
+				local uid = HttpService:GenerateGUID(false)
+				p.aliens[uid] = {
+					uid = uid,
+					species = commons[(index - 1) % #commons + 1],
+					level = 1,
+					overlay = "None",
+					caughtAt = os.time(),
+					size = Sizes.Default,
+					workedSeconds = 0,
+				}
+			end
+		end)
+		EconomyService.PushCamp(player) -- the client draws the records from this push
+		held += count
+		print(("[%s] dev: %s storage filled with %d Common record(s)"):format(Config.WorkingTitle, player.Name, count))
+	end
+	print(("[%s] dev: %s storage %d / %d (%s)"):format(Config.WorkingTitle, player.Name, held, StorageData.StorageCap, if StorageMath.IsFull(held) then "full" elseif StorageMath.IsWarning(held) then "warning" else "ok"))
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -905,6 +954,7 @@ function Dev.Init()
 	command("visit", visitCommand)
 	command("afk", afkCommand)
 	command("playtime", playtimeCommand)
+	command("storage", storageCommand)
 end
 
 function Dev.Start()

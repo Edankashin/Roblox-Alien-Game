@@ -219,6 +219,7 @@ local function onCaught(result: Types.CaptureHitResult)
 			isNew = result.isNew == true,
 			scrapGained = result.scrapGained or 0,
 			perfect = result.perfect == true,
+			overflowScrap = result.overflowScrap,
 		})
 	end)
 end
@@ -863,6 +864,7 @@ local function connectToasts()
 				isNew = grant.isNew,
 				scrapGained = grant.scrapGained,
 				perfect = false,
+				overflowScrap = grant.overflowScrap,
 			})
 		end)
 	end)
@@ -1250,6 +1252,7 @@ local function start(profile: Types.Profile)
 			isNew = grant.isNew,
 			scrapGained = grant.scrapGained,
 			perfect = false,
+			overflowScrap = grant.overflowScrap,
 		})
 	end
 	PeddlerScreen.OnGrant(showGrantReveal)

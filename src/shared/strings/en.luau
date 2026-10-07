@@ -97,6 +97,8 @@ return {
 	SIZE_Huge = "HUGE",
 	REVEAL_SIZE = "%s %s!",
 	REVEAL_SIZE_SCRAP = "%s %s! x%s Scrap",
+	REVEAL_STORAGE_FULL = "Storage full: turned into %s Scrap", -- a catch past the storage cap (the ribbon on the Reveal)
+	TOAST_STORAGE_FULL_HINT = "Release or fuse aliens to keep new catches",
 	-- growth stages (data/Growth): the Aliens screen chip, the grew toast, the welcome-back line
 	STAGE_Hatchling = "Hatchling",
 	STAGE_Grown = "Grown",
@@ -578,7 +580,7 @@ return {
 	-- Aliens screen
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
-	ALIENS_COUNT = "%d aliens",
+	ALIENS_COUNT_CAP = "Aliens: %s / %s", -- owned records over the storage cap (data/Storage)
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
@@ -612,6 +614,30 @@ return {
 	FUSE_HINT = "4 spare copies of a species fuse into +1 level (up to Lv %d)",
 	TOAST_FUSED = "%s fused to Lv %d!",
 	TOAST_FUSE_NONE = "Nothing to fuse yet: keep 4 spare copies of one species",
+	-- releasing aliens for Scrap (data/Storage)
+	RELEASE_BUTTON = "Release",
+	RELEASE_TITLE = "Release aliens",
+	RELEASE_ALIEN_BUTTON = "Release +%s Scrap",
+	RELEASE_TAP_AGAIN = "Tap again to release",
+	RELEASE_CANCEL = "Cancel",
+	RELEASE_CONFIRM_BUTTON = "Release",
+	RELEASE_TIER_LEVEL = "%s, Lv %d",
+	RELEASE_REASON_SEATED = "Working at a station. Only resting aliens can be released.",
+	RELEASE_REASON_FOLLOWING = "Following you. Stop it following first.",
+	RELEASE_REASON_DISPLAYED = "On display at home. Bring it back first.",
+	RELEASE_ALL_COMMON = "Release all unused Commons",
+	RELEASE_ALL_UNCOMMON = "Release all unused Uncommons",
+	RELEASE_ALL_TIER = "Release all unused %s",
+	RELEASE_ROW_INFO = "%s aliens, +%s Scrap",
+	RELEASE_ROW_ONE = "1 alien, +%s Scrap",
+	RELEASE_ROW_NONE = "None to release",
+	RELEASE_BULK_CONFIRM = "Release %s %s aliens for +%s Scrap?",
+	RELEASE_HOLD_HINT = "Hold an alien card to release just that one",
+	TOAST_RELEASED_ONE = "Released %s: +%s Scrap",
+	TOAST_RELEASED_BULK = "Released %s aliens: +%s Scrap",
+	TOAST_RELEASED_BULK_ONE = "Released 1 alien: +%s Scrap",
+	TOAST_RELEASE_INUSE = "That alien is busy, so it was not released",
+	TOAST_RELEASE_FAILED = "Could not release right now",
 	STATION_SLOTS = "%d/%d",
 	STATION_EMPTY_SLOT = "Open",
 	-- Codex screen
