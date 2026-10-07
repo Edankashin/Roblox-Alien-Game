@@ -2,7 +2,9 @@
 -- ReplicatedStorage.Shared.VisitRules: the pure rules of visiting (data/Visiting), read by the server (Visiting
 -- decides) and the client (the Visit screen and the Wave action only hint). Who may enter a home by its HomeLock
 -- level, how many waves a visitor has left today, how much wave Scrap an owner can still receive today, and the
--- tallies after a wave. A "day" is Config.GiftDaySeconds long, counted from the epoch, the same day the gifts use.
+-- tallies after a wave, which user ids VisitHome takes, which aliens a visitor already waved at today, and the numbering
+-- that lets a newer visit request replace an older one still waiting on its friend check. A "day" is
+-- Config.GiftDaySeconds long, counted from the epoch, the same day the gifts use.
 
 local Types = require(script.Parent.types.Types)
 local VisitingData = require(script.Parent.data.Visiting)
@@ -86,6 +88,54 @@ function VisitRules.AfterInboxWave(waves: Types.InboxWaves, now: number, scrap: 
 		return { day = day, count = 1, scrap = scrap }
 	end
 	return { day = day, count = waves.count + 1, scrap = waves.scrap + scrap }
+end
+
+-- Whether `value` is a user id VisitHome may be asked about: a whole number from 1 to VisitingData.MaxUserId. Studio's
+-- test players have negative ids, so with `allowStudioIds` (true only in Studio) -MaxUserId to -1 pass as well. NaN,
+-- infinities, fractions, zero and anything that is not a number fail.
+function VisitRules.IsOwnerId(value: any, allowStudioIds: boolean): boolean
+	if type(value) ~= "number" or value % 1 ~= 0 then
+		return false -- NaN and infinities fail the remainder test
+	end
+	if value >= 1 then
+		return value <= VisitingData.MaxUserId
+	end
+	return allowStudioIds and value <= -1 and value >= -VisitingData.MaxUserId
+end
+
+-- Visit requests. Each in-server visit request (and each leave) takes the visitor's next number from `book`; when the
+-- request's friend check returns it carries on only if its number is still the latest, so the last thing the visitor
+-- asked for decides, whatever order the checks finish in.
+function VisitRules.NextRequest(book: { [number]: number }, userId: number): number
+	local request = (book[userId] or 0) + 1
+	book[userId] = request
+	return request
+end
+
+function VisitRules.IsLatestRequest(book: { [number]: number }, userId: number, request: number): boolean
+	return book[userId] == request
+end
+
+-- Whether the visitor already waved at this alien of this owner's home on the gift day of `now`.
+function VisitRules.HasWaved(book: Types.WavedBook?, now: number, ownerId: number, uid: string): boolean
+	if book == nil or book.day ~= VisitRules.DayOf(now) then
+		return false
+	end
+	local set = book.owners[ownerId]
+	return set ~= nil and set[uid] == true
+end
+
+-- The book with this alien marked as waved at on the gift day of `now`; a book from an earlier day starts over.
+function VisitRules.MarkWaved(book: Types.WavedBook?, now: number, ownerId: number, uid: string): Types.WavedBook
+	local day = VisitRules.DayOf(now)
+	local current: Types.WavedBook = if book ~= nil and book.day == day then book else { day = day, owners = {} }
+	local set = current.owners[ownerId]
+	if set == nil then
+		set = {}
+		current.owners[ownerId] = set
+	end
+	set[uid] = true
+	return current
 end
 
 return VisitRules

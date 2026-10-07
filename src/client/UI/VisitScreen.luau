@@ -209,6 +209,8 @@ local function refusalToast(reason: string, name: string): (string?, Color3?)
 		return Strings.TOAST_VISIT_NOPLACE, Theme.Colors.Featured
 	elseif reason == "Busy" then
 		return Strings.TOAST_FLY_BUSY, Theme.Colors.Select
+	elseif reason == "Crowded" then
+		return Strings.TOAST_VISIT_CROWDED, Theme.Colors.Select
 	end
 	return nil, nil
 end

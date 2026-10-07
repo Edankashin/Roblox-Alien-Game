@@ -4,7 +4,9 @@
 -- server checks both against the data table, writes profile.settings through PlayerData.Update and
 -- pushes the whole settings table back (SettingsChanged), so the client applies exactly what was
 -- saved. A fresh profile starts at the data defaults (PlayerData's template and the v3 migration);
--- Settings.Get reads a stored value for other services with the data default as the fallback.
+-- Settings.Get reads a stored value for other services with the data default as the fallback, and
+-- Settings.OnChanged lists a listener told (player, key, previous value, new value) after every change that moved a value
+-- (Visiting closes a home to visitors who no longer qualify when its lock tightens).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -18,6 +20,8 @@ local PlayerData = require(script.Parent.PlayerData)
 local Settings = {}
 
 local REMOTE_RATE_PER_SECOND = 6 -- SetSetting calls per player per second (a slider dragged quickly)
+
+local listeners: { (Player, string, number, number) -> () } = {} -- Settings.OnChanged
 
 -- Pushes -----------------------------------------------------------------
 
@@ -41,6 +45,26 @@ local function isAllowed(def: SettingsData.SettingDef, value: any): boolean
 	return value == 0 or value == 1
 end
 
+-- The stored value of a preference, or its data default when the profile is not loaded or has no value
+-- (an unknown key reads 0).
+local function valueOf(player: Player, key: string): number
+	local profile = PlayerData.Get(player)
+	local stored = if profile then profile.settings[key] else nil
+	if stored ~= nil then
+		return stored
+	end
+	local def = SettingsData.ById[key]
+	return if def then def.default else 0
+end
+
+-- Tells every OnChanged listener. Each runs in its own thread, so a listener that yields or fails never holds up or
+-- breaks the change that was already accepted.
+local function notifyChanged(player: Player, key: string, previous: number, value: number)
+	for _, callback in ipairs(listeners) do
+		task.spawn(callback, player, key, previous, value)
+	end
+end
+
 -- Remotes ----------------------------------------------------------------
 
 -- SetSetting(key, value) -> (ok, reason). Reasons: BadArgs (a key the data table does not name, a value
@@ -57,6 +81,7 @@ local function onSetSetting(player: Player, key: any, value: any): (boolean, str
 		return false, "RateLimited"
 	end
 	local accepted: number = value
+	local previous = valueOf(player, key)
 	local ok = PlayerData.Update(player, function(profile)
 		profile.settings[key] = accepted
 	end)
@@ -67,6 +92,9 @@ local function onSetSetting(player: Player, key: any, value: any): (boolean, str
 	if profile then
 		pushSettings(player, profile)
 	end
+	if accepted ~= previous then
+		notifyChanged(player, key, previous, accepted)
+	end
 	return true, nil
 end
 
@@ -75,13 +103,13 @@ end
 -- The stored value of a preference, or its data default when the profile is not loaded or has no value
 -- (an unknown key reads 0).
 function Settings.Get(player: Player, key: string): number
-	local profile = PlayerData.Get(player)
-	local stored = if profile then profile.settings[key] else nil
-	if stored ~= nil then
-		return stored
-	end
-	local def = SettingsData.ById[key]
-	return if def then def.default else 0
+	return valueOf(player, key)
+end
+
+-- Server-side hook: `callback` runs with the player, the key, the value it had and the value it has now, after a
+-- SetSetting moved a value and its push went out.
+function Settings.OnChanged(callback: (Player, string, number, number) -> ())
+	table.insert(listeners, callback)
 end
 
 function Settings.Init()

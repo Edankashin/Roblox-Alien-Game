@@ -21,6 +21,9 @@ export type Visitor = { name: string, at: number }
 -- Today's waves (data/Visiting, Shared/VisitRules): `day` is the gift day the counts are for, `sent` the waves the
 -- player made as a visitor, `got` the Scrap their aliens received from live waves as an owner.
 export type WaveTally = { day: number, sent: number, got: number }
+-- The aliens a visitor waved at on one gift day, by owner id then alien uid (Shared/VisitRules, kept by the Visiting service in
+-- memory): a wave is once per alien per owner per day, however many times the visitor leaves and comes back.
+export type WavedBook = { day: number, owners: { [number]: { [string]: boolean } } }
 export type HomeState = {
 	unlocked: boolean,
 	visits: number,

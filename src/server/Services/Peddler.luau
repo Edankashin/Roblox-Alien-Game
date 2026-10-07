@@ -6,7 +6,8 @@
 -- each other what landed) and each player may buy each offer once per visit. Everything is priced in
 -- Scrap, so nothing here is a paid random item. The egg kind grants an alien through
 -- Economy.GrantAlien, which writes the record, pays the codex and seats it exactly like a catch.
--- The client renders the landing and the Trade screen; it only sends an offer index.
+-- The client renders the landing and the Trade screen; it only sends an offer index, and the server buys only for a
+-- character within Config.PeddlerInteractDistance (plus the slack) of the landed ship (Exploit-Review D7).
 -- The home planet (Place.IsHome, world 0) gets no visits: the clock never starts there.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local Camp = require(Shared.data.Camp)
 local PeddlerData = require(Shared.data.Peddler)
 local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
@@ -21,7 +23,9 @@ local Species = require(Shared.data.Species)
 local AnalyticsData = require(Shared.data.Analytics)
 local Place = require(Shared.Place)
 local Net = require(Shared.Net)
+local Proximity = require(Shared.Proximity)
 local PlayerData = require(script.Parent.PlayerData)
+local Meadow = require(script.Parent.Meadow)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Analytics = require(script.Parent.Analytics)
@@ -52,6 +56,23 @@ local function purchasesOf(player: Player): { [number]: boolean }
 	local fresh: { [number]: boolean } = {}
 	bought[player.UserId] = fresh
 	return fresh
+end
+
+-- Where the player's character stands (its root), or nil while it has none.
+local function rootPosition(player: Player): Vector3?
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if root and root:IsA("BasePart") then
+		return root.Position
+	end
+	return nil
+end
+
+-- The centre of the landed ship, worked out as the client's PeddlerRenderer places it: Camp.PeddlerOffset on the
+-- floor, half the hull's height up.
+local function shipCentre(): Vector3
+	local offset = Camp.PeddlerOffset
+	return Vector3.new(offset.X, Meadow.GetFloorTop() + offset.Y + Camp.PeddlerSize.Y / 2, offset.Z)
 end
 
 -- Pushes -----------------------------------------------------------------
@@ -156,7 +177,8 @@ end
 
 -- PeddlerBuy(index) -> (ok, reason, grant). index is 1..#offers of the current visit; grant is the
 -- GrantResult of an egg so the client can show the Reveal, nil for every other kind.
--- Reasons: BadArgs, RateLimited, NoProfile, NoVisit, AlreadyBought, NotEnoughScrap, Unknown (an offer
+-- Reasons: BadArgs, RateLimited, NoProfile, NoVisit, NoCharacter, TooFar (farther than PeddlerInteractDistance plus
+-- PeddlerDistanceSlack from the landed ship), AlreadyBought, NotEnoughScrap, Unknown (an offer
 -- whose id or tier resolves to nothing in the data tables; nothing is charged).
 local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Types.GrantResult?)
 	if type(index) ~= "number" or index ~= index or index % 1 ~= 0 then
@@ -172,6 +194,14 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 	local current = visit
 	if not current then
 		return false, "NoVisit"
+	end
+	local at = rootPosition(player)
+	if not at then
+		return false, "NoCharacter"
+	end
+	local ship = shipCentre()
+	if not Proximity.Within(at.X, at.Y, at.Z, ship.X, ship.Y, ship.Z, Config.PeddlerInteractDistance + Config.PeddlerDistanceSlack) then
+		return false, "TooFar" -- also what a position that is not a number answers
 	end
 	local offer = current.offers[index]
 	if not offer then

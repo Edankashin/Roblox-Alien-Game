@@ -14,8 +14,15 @@
 --     owner. The owner's own fly home teleports to that same server (the HomeOptions hook Launch calls), so friends
 --     already there see them arrive. Studio and a home place without an id never take this path (NoPlace).
 -- The lock level (Settings HomeLock) is checked on both paths from the owner's profile (live, or the Peek on the trip).
+-- The in-server path reads the lock again after the friend check (which yields), a visitor's newest request wins over an
+-- older one still waiting (VisitRules.NextRequest), and an owner who tightens the lock sends every guest who no longer
+-- qualifies back to their own home (Settings.OnChanged, closeHome; the guest hears HomeClosed, then HomeView(nil)).
+-- VisitHome takes only plausible user ids (VisitRules.IsOwnerId), and the reads it causes of other players' saves and
+-- home servers share one token bucket for the server (data/Visiting LookupBurst, LookupRefillSeconds): when it is empty
+-- the answer is Crowded.
 -- Wave at a displayed alien pays the visitor and the owner a little Scrap through Gifts.GrantRewards, capped per day
--- (VisitRules); an owner who is not in the server is paid through the HomeInbox.
+-- (VisitRules), once per alien per owner per day however often the visitor comes back, and only from within
+-- VisitingData.WaveDistance of the owner's plot; an owner who is not in the server is paid through the HomeInbox.
 -- The HomeInbox (DataStore HomeInbox, key = owner id, Types.HomeInbox) is what visitors leave for an owner who is not
 -- here: Visitor Book lines and the day's wave count and Scrap. It is drained at the owner's next load (any place) into
 -- Mail.Visited lines and one letter from "Visitors"; with memory-only profiles (Studio) it is a plain table here.
@@ -23,9 +30,10 @@
 -- whose owner leaves keeps the last view.
 -- Nothing here yields on the boot thread: the MemoryStore map and DataStore handle are made in a pcall at Init, and
 -- every GetAsync, UpdateAsync, ReserveServer and Peek runs in a remote handler or a task.spawn.
--- Requires PlayerData, Analytics, Launch (hooks, Trip), HomeBuild and Habitats (listeners), Mail, Gifts and Settings and
--- shared code; the bootstrap requires every service before it runs any Init, so Gifts and Settings (later in the order)
--- are only called from handlers, after every Init. Only the bootstrap and Dev require this module.
+-- Requires PlayerData, Analytics, Launch (hooks, Trip), HomeBuild and Habitats (listeners), Mail, Meadow (the plot's
+-- place), Gifts and Settings and shared code; the bootstrap requires every service before it runs any Init, so Gifts and
+-- Settings (later in the order) are only called from handlers and Settings.OnChanged (a list append), after every module
+-- is loaded. Only the bootstrap and Dev require this module.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -45,6 +53,8 @@ local MailData = require(Shared.data.Mail)
 local AnalyticsData = require(Shared.data.Analytics)
 local Strings = require(Shared.strings.en)
 local VisitRules = require(Shared.VisitRules)
+local TokenBucket = require(Shared.TokenBucket)
+local Proximity = require(Shared.Proximity)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local PlayerData = require(script.Parent.PlayerData)
@@ -53,6 +63,7 @@ local Launch = require(script.Parent.Launch)
 local HomeBuild = require(script.Parent.HomeBuild)
 local Habitats = require(script.Parent.Habitats)
 local Mail = require(script.Parent.Mail)
+local Meadow = require(script.Parent.Meadow)
 local Gifts = require(script.Parent.Gifts)
 local Settings = require(script.Parent.Settings)
 
@@ -68,7 +79,8 @@ type Peeked = { profile: Types.Profile, at: number }
 
 local viewing: { [number]: number } = {} -- the owner a player looks at, by UserId; absent = their own home
 local onTrip: { [number]: boolean } = {} -- true for a player who arrived by teleport at another's home server (not an in-server view)
-local waved: { [number]: { [string]: boolean } } = {} -- the displayed aliens a player waved at in this view, by UserId
+local waved: { [number]: Types.WavedBook } = {} -- the displayed aliens a player waved at today, by owner, by UserId (kept across views)
+local viewRequests: { [number]: number } = {} -- the number of each player's newest visit request or leave, by UserId (VisitRules.NextRequest)
 local views: { [number]: Types.HomeView } = {} -- the last view built of each owner, kept while anyone looks at it
 local peeked: { [number]: Peeked } = {} -- owners' saves read without a lock, by owner id
 local fetching: { [number]: Fetch } = {} -- a Peek in flight, by owner id; later askers wait for it
@@ -77,6 +89,8 @@ local memoryInbox: { [number]: Types.HomeInbox } = {} -- the inbox when there is
 
 local homeMap: MemoryStoreSortedMap? = nil
 local inboxStore: DataStore? = nil
+-- Reads of another player's save (PlayerData.Peek) and of the home server map, for every visitor together.
+local lookupBudget = TokenBucket.New(VisitingData.LookupBurst, VisitingData.LookupRefillSeconds, os.clock())
 
 local function log(message: string)
 	print(("[%s] Visiting: %s"):format(Config.WorkingTitle, message))
@@ -88,8 +102,25 @@ local function shownName(player: Player): string
 	return if player.DisplayName ~= "" then player.DisplayName else player.Name
 end
 
-local function isInteger(value: any): boolean
-	return type(value) == "number" and value % 1 == 0 -- NaN and infinities fail the remainder test
+-- Where the player's character stands (its root), or nil while it has none.
+local function rootPosition(player: Player): Vector3?
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if root and root:IsA("BasePart") then
+		return root.Position
+	end
+	return nil
+end
+
+-- Where the home's plot stands: its centre and half its side. nil when this place has no plot.
+local function plotSquare(): (Vector3?, number)
+	local centre = Meadow.GetPlotCenter()
+	local layout = Place.Layout()
+	local cells, studs = layout.PlotCells, layout.PlotCellStuds
+	if centre == nil or cells == nil or studs == nil then
+		return nil, 0
+	end
+	return centre, cells * studs / 2
 end
 
 -- Names and views --------------------------------------------------------
@@ -161,22 +192,27 @@ end
 
 -- The owner's profile: the live one when they are in this server, else their save read without the lock (kept
 -- PeekCacheSeconds; a lookup already running answers every asker). nil when there is no save or it cannot be read.
--- Yields on a Peek. Whatever it returns is read only.
-local function profileOf(ownerId: number): Types.Profile?
+-- `charged` (a visitor's request) spends a token of the server's lookup budget on a save that has to be read, and
+-- answers nil with the reason "Crowded" when none is left; the live profile, the cache and a read already running cost
+-- nothing. Yields on a Peek. Whatever it returns is read only.
+local function profileOf(ownerId: number, charged: boolean?): (Types.Profile?, string?)
 	local owner = Players:GetPlayerByUserId(ownerId)
 	local live = if owner then PlayerData.Get(owner) else nil
 	if live then
-		return live
+		return live, nil
 	end
 	local cached = peeked[ownerId]
 	if cached and os.clock() - cached.at < VisitingData.PeekCacheSeconds then
-		return cached.profile
+		return cached.profile, nil
 	end
 	local running = fetching[ownerId]
 	if running then
 		table.insert(running.waiters, coroutine.running())
 		coroutine.yield()
-		return running.profile
+		return running.profile, nil
+	end
+	if charged and not TokenBucket.Take(lookupBudget, os.clock()) then
+		return nil, "Crowded"
 	end
 	local fetch: Fetch = { waiters = {}, profile = nil }
 	fetching[ownerId] = fetch
@@ -194,7 +230,7 @@ local function profileOf(ownerId: number): Types.Profile?
 	for _, waiter in ipairs(fetch.waiters) do
 		task.spawn(waiter)
 	end
-	return found
+	return found, nil
 end
 
 -- The view of an owner's home from whatever answers (live profile, save, or the last view kept); nil when none does.
@@ -259,11 +295,11 @@ local function refreshViewers(ownerId: number)
 	end
 end
 
--- Switches a player's view to another owner's home: the waved set starts over and the client is told.
+-- Switches a player's view to another owner's home and the client is told. The waved book stays: an alien already
+-- waved at today stays waved at, however often the visitor switches views.
 local function setViewing(player: Player, ownerId: number, view: Types.HomeView)
 	viewing[player.UserId] = ownerId
 	onTrip[player.UserId] = nil -- an in-server view: going home is leaving the view
-	waved[player.UserId] = nil
 	pushView(player, view)
 end
 
@@ -476,6 +512,14 @@ local function mayEnter(visitor: Player, ownerId: number, lock: number): (boolea
 	return VisitRules.CanVisit(lock, visitor.UserId, ownerId, friend)
 end
 
+-- Whether the visitor may be in this player's home under the lock as it stands when the answer is ready. The friend check
+-- yields and the owner may change the lock meanwhile, so the lock is read again after it; the friend answer is the one
+-- the check gave. (The owner must still be here: a player who left has no lock to read.)
+local function mayStay(visitor: Player, owner: Player): (boolean, string?)
+	local friend = Settings.Get(owner, HOME_LOCK_KEY) == VisitingData.LockFriends and areFriends(visitor, owner.UserId)
+	return VisitRules.CanVisit(Settings.Get(owner, HOME_LOCK_KEY), visitor.UserId, owner.UserId, friend)
+end
+
 -- The teleport data: the owner this player was sent to see, or nil (a direct join, a plain teleport, their own id).
 local function teleportOwner(player: Player): number?
 	local ok, data = pcall(function(): any
@@ -485,7 +529,7 @@ local function teleportOwner(player: Player): number?
 		return nil
 	end
 	local value = (data :: { [string]: any })[VisitingData.TeleportDataKey]
-	if isInteger(value) and value ~= player.UserId then
+	if VisitRules.IsOwnerId(value, RunService:IsStudio()) and value ~= player.UserId then
 		return value
 	end
 	return nil
@@ -514,11 +558,12 @@ function Visiting.IsInServerView(player: Player): boolean
 	return viewing[player.UserId] ~= nil and onTrip[player.UserId] ~= true
 end
 
--- Back to looking at their own home: the waved set clears and the client hears HomeView(nil).
+-- Back to looking at their own home and the client hears HomeView(nil). A visit request still waiting on its friend
+-- check is replaced by this (it ends without a view); what the player waved at today stays waved at.
 function Visiting.LeaveView(player: Player)
 	local previous = viewing[player.UserId]
 	viewing[player.UserId] = nil
-	waved[player.UserId] = nil
+	VisitRules.NextRequest(viewRequests, player.UserId)
 	pushView(player, nil)
 	if previous ~= nil then
 		log(("%s is back at their own home"):format(player.Name))
@@ -527,8 +572,10 @@ function Visiting.LeaveView(player: Player)
 end
 
 -- The in-server visit: `owner` is a player here and this place is the home. Returns true, or false with a reason:
--- NotAtHome, Self, NoProfile, OwnerOnly or FriendsOnly (the lock), NoHome (the owner's home is not unlocked). Viewing
--- the owner already viewed answers true and changes nothing. Yields for the friend check only.
+-- NotAtHome, Self, NoProfile, OwnerOnly or FriendsOnly (the lock), NoHome (the owner's home is not unlocked),
+-- Superseded (the visitor asked for another view, or left, while the friend check ran). Viewing the owner already
+-- viewed answers true and changes nothing. Yields for the friend check only; after it the request is dropped unless it
+-- is still the visitor's newest, both players are still here, and the lock (read again) still lets the visitor in.
 function Visiting.ViewHome(player: Player, owner: Player): (boolean, string?)
 	if not Place.IsHome() then
 		return false, "NotAtHome"
@@ -536,6 +583,7 @@ function Visiting.ViewHome(player: Player, owner: Player): (boolean, string?)
 	if owner == player then
 		return false, "Self"
 	end
+	local request = VisitRules.NextRequest(viewRequests, player.UserId)
 	local ownerId = owner.UserId
 	if viewing[player.UserId] == ownerId then
 		return true, nil
@@ -543,13 +591,16 @@ function Visiting.ViewHome(player: Player, owner: Player): (boolean, string?)
 	if not PlayerData.Get(player) or not PlayerData.Get(owner) then
 		return false, "NoProfile"
 	end
-	local allowed, why = mayEnter(player, ownerId, Settings.Get(owner, HOME_LOCK_KEY))
-	if not allowed then
-		return false, why
+	local allowed, why = mayStay(player, owner)
+	if not VisitRules.IsLatestRequest(viewRequests, player.UserId, request) then
+		return false, "Superseded"
 	end
 	local ownerProfile = PlayerData.Get(owner)
 	if player.Parent ~= Players or owner.Parent ~= Players or not ownerProfile then
 		return false, "NoProfile" -- one of them left during the friend check
+	end
+	if not allowed then
+		return false, why
 	end
 	if not ownerProfile.home.unlocked then
 		return false, "NoHome"
@@ -566,14 +617,48 @@ function Visiting.ViewHome(player: Player, owner: Player): (boolean, string?)
 	return true, nil
 end
 
+-- The owner changed their lock: everyone looking at their home who no longer qualifies goes back to their own home, with
+-- HomeClosed (the owner's name and OwnerOnly or FriendsOnly) for the toast before the HomeView(nil). Under Friends each
+-- guest's friend check runs in its own thread (it yields); a guest who left, looks elsewhere by then, or whose owner
+-- left is left alone.
+local function closeHome(owner: Player)
+	local ownerId = owner.UserId
+	local guests: { Player } = {}
+	for userId, viewed in pairs(viewing) do
+		local guest = if viewed == ownerId and userId ~= ownerId then Players:GetPlayerByUserId(userId) else nil
+		if guest then
+			table.insert(guests, guest)
+		end
+	end
+	for _, guest in ipairs(guests) do
+		task.spawn(function()
+			local allowed, why = mayStay(guest, owner)
+			if allowed or guest.Parent ~= Players or owner.Parent ~= Players or PlayerData.Get(owner) == nil or viewing[guest.UserId] ~= ownerId then
+				return
+			end
+			Net.event("HomeClosed"):FireClient(guest, shownName(owner), why)
+			Visiting.LeaveView(guest)
+			log(("%s's home closed to %s (%s); they look at their own"):format(owner.Name, guest.Name, tostring(why)))
+		end)
+	end
+end
+
+-- Settings.OnChanged: a home lock that is not Anyone sends the guests it does not admit home.
+local function onSettingChanged(owner: Player, key: string, _previous: number, value: number)
+	if key == HOME_LOCK_KEY and value ~= VisitingData.LockAnyone then
+		closeHome(owner)
+	end
+end
+
 -- Remotes ----------------------------------------------------------------
 
--- VisitHome(ownerId) -> (ok, reason). Reasons: BadArgs, RateLimited, NoProfile, Self, then the in-server path's
--- (Visiting.ViewHome's) when the owner is a player here at the home place; else the trip path's: NoPlace (no live home
--- place), Away (the owner's save or home server cannot be reached), NoHome, OwnerOnly, FriendsOnly, Busy (a flight is
--- already in progress).
+-- VisitHome(ownerId) -> (ok, reason). Reasons: BadArgs (not a whole number from 1 to VisitingData.MaxUserId; Studio's
+-- negative test ids pass in Studio only), RateLimited, NoProfile, Self, then the in-server path's (Visiting.ViewHome's)
+-- when the owner is a player here at the home place; else the trip path's: NoPlace (no live home place), Away (the
+-- owner's save or home server cannot be reached), NoHome, OwnerOnly, FriendsOnly, Busy (a flight is already in
+-- progress), Crowded (the server's budget for reading other players' saves and home servers is spent for now).
 local function onVisitHome(player: Player, ownerArg: any): (boolean, string?)
-	if not isInteger(ownerArg) then
+	if type(ownerArg) ~= "number" or not VisitRules.IsOwnerId(ownerArg, RunService:IsStudio()) then
 		return false, "BadArgs"
 	end
 	if not Net.allow(player, "VisitHome", VISIT_RATE_PER_SECOND) then
@@ -598,9 +683,9 @@ local function onVisitHome(player: Player, ownerArg: any): (boolean, string?)
 	if not homePlaceIsLive() then
 		return false, "NoPlace"
 	end
-	local ownerProfile = profileOf(ownerId)
+	local ownerProfile, refusal = profileOf(ownerId, true)
 	if not ownerProfile then
-		return false, "Away"
+		return false, refusal or "Away"
 	end
 	if not ownerProfile.home.unlocked then
 		return false, "NoHome"
@@ -608,6 +693,9 @@ local function onVisitHome(player: Player, ownerArg: any): (boolean, string?)
 	local allowed, why = mayEnter(player, ownerId, storedLock(ownerProfile))
 	if not allowed then
 		return false, why
+	end
+	if not TokenBucket.Take(lookupBudget, os.clock()) then
+		return false, "Crowded" -- the home server map read below is a lookup too
 	end
 	local code = reservedCode(ownerId, world.placeId)
 	if not code then
@@ -626,7 +714,8 @@ local function onVisitHome(player: Player, ownerArg: any): (boolean, string?)
 end
 
 -- Wave(uid) -> (ok, reason, species, scrap): a wave at a displayed alien of the home the player looks at. Reasons:
--- BadArgs, RateLimited, NoProfile, NotVisiting, NotDisplayed, Again (this alien already got one in this view), Cap
+-- BadArgs, RateLimited, NoProfile, NotVisiting, NotDisplayed, NoCharacter, TooFar (farther than VisitingData.WaveDistance
+-- from the owner's plot, where the aliens roam), Again (this alien already got one from this player today), Cap
 -- (today's waves are used up). On ok, the visitor's Scrap and `species`; the owner is paid at once when here (up to
 -- their day's room), else through their inbox. Nothing yields between the checks and the payments.
 local function onWave(player: Player, uid: any): (boolean, string?, string?, number?)
@@ -649,19 +738,24 @@ local function onWave(player: Player, uid: any): (boolean, string?, string?, num
 	if not record then
 		return false, "NotDisplayed"
 	end
-	local alreadyWaved = waved[player.UserId]
-	if alreadyWaved and alreadyWaved[uid] then
-		return false, "Again"
+	local at = rootPosition(player)
+	if not at then
+		return false, "NoCharacter"
+	end
+	local plot, half = plotSquare()
+	if plot == nil or not Proximity.WithinSquare(at.X, at.Z, plot.X, plot.Z, half, VisitingData.WaveDistance) then
+		return false, "TooFar" -- also what a position that is not a number answers
 	end
 	local now = os.time()
+	if VisitRules.HasWaved(waved[player.UserId], now, ownerId, uid) then
+		return false, "Again"
+	end
 	if VisitRules.WavesLeft(profile.home.waves, now) <= 0 then
 		return false, "Cap"
 	end
 	local species = record.species
 	local sources = AnalyticsData.Economy.Sources
-	local wavedSet: { [string]: boolean } = alreadyWaved or {}
-	waved[player.UserId] = wavedSet
-	wavedSet[uid] = true
+	waved[player.UserId] = VisitRules.MarkWaved(waved[player.UserId], now, ownerId, uid)
 
 	-- The visitor.
 	local amount = VisitingData.WaveScrapVisitor
@@ -766,7 +860,11 @@ end
 local function onRemoving(player: Player)
 	viewing[player.UserId] = nil
 	onTrip[player.UserId] = nil
-	waved[player.UserId] = nil
+	viewRequests[player.UserId] = nil -- a request still waiting on its friend check finds itself replaced
+	local book = waved[player.UserId]
+	if book and book.day ~= VisitRules.DayOf(os.time()) then
+		waved[player.UserId] = nil -- today's stays, so leaving and coming back does not wipe it; an old day's goes
+	end
 	pruneViews(player)
 end
 
@@ -774,6 +872,7 @@ function Visiting.Init()
 	Net.event("HomeView")
 	Net.event("VisitorArrived")
 	Net.event("WaveReceived")
+	Net.event("HomeClosed")
 	Net.func("VisitHome").OnServerInvoke = onVisitHome
 	Net.func("Wave").OnServerInvoke = onWave
 	Net.func("GetVisit").OnServerInvoke = onGetVisit
@@ -802,6 +901,7 @@ function Visiting.Init()
 	Habitats.OnChanged(function(owner: Player)
 		refreshViewers(owner.UserId)
 	end)
+	Settings.OnChanged(onSettingChanged)
 	Players.PlayerRemoving:Connect(onRemoving)
 end
 

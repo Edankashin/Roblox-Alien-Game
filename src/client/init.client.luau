@@ -838,6 +838,14 @@ local function connectToasts()
 			State.RefreshVisitors()
 		end)
 	end)
+	-- The guest's side of a home that closed on them (the owner set the lock to Only me, or to Friends and the guest is
+	-- not one): the same wording as the refusal at the door. The HomeView(nil) that follows says they are home again.
+	task.spawn(function()
+		Net.event("HomeClosed").OnClientEvent:Connect(function(ownerName: string, reason: string)
+			local line = if reason == "FriendsOnly" then Strings.TOAST_VISIT_FRIENDSONLY else Strings.TOAST_VISIT_OWNERONLY
+			Toast.Show(line:format(tostring(ownerName)), Theme.Colors.Close)
+		end)
+	end)
 	task.spawn(function()
 		Net.event("WaveReceived").OnClientEvent:Connect(function(name: string, species: string, scrap: number)
 			local def = Species.ById[species]

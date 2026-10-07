@@ -360,6 +360,7 @@ return {
 	TOAST_VISIT_FRIENDSONLY = "%s's home is open to friends only",
 	TOAST_VISIT_AWAY = "%s's home can't be reached right now",
 	TOAST_VISIT_NOPLACE = "Visiting opens when the home place is published",
+	TOAST_VISIT_CROWDED = "Lots of visits right now. Try again in a moment",
 	TOAST_VISIT_RETURN = "Back at your own home",
 	AFK_TITLE = "Resting",
 	AFK_LINE = "Your crew keeps working at half speed while you rest. Leave the game on as long as you like.",

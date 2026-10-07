@@ -195,6 +195,7 @@ return {
 	PeddlerFirstVisitSeconds = 20, -- the first visit after a server boots lands this soon
 	PeddlerVisitSeconds = 90, -- how long the ship stays
 	PeddlerInteractDistance = 12, -- studs from the ship to show Trade
+	PeddlerDistanceSlack = 3, -- extra studs the server allows for movement between the tap and the check
 	PeddlerDescendSeconds = 2.5, -- client landing and take-off tween
 	PeddlerHoverHeight = 60, -- where the ship waits in the sky between visits
 
