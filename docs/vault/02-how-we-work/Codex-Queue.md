@@ -230,7 +230,7 @@ Files: `docs/vault/01-game-design/Moments.md` (new).
 
 Done when: every moment above has a row with a file and line for its trigger.
 
-### C21. Music plan — open (report only)
+### C21. Music plan — taken by codex 2026-10-07 (report only)
 
 Goal: the owner wants music that fits the theme and what is happening at that moment. This card prepares the music director the coordinator will build.
 
