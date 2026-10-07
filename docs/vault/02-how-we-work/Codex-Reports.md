@@ -191,3 +191,13 @@ Measured: **24 new cases, 71 → 95 total tests across 10 specs**, runtime **0.0
 An automated source comparison proves every moved function body is identical, allowing only indentation and serialization type annotations; the remaining PlayerData source is unchanged apart from removal/import/bindings. Analyze clean; data/extra lints pass. Future saves retain their original table and nested identity without added fields.
 
 Left open: no DataStore or Studio test was run; the coordinator's future-save ownership refusal was preserved, not redesigned. No blocker remains.
+
+## C11 reopened — 2026-10-07 — review
+
+Implementation: `2a987ab`; claim: `81d0c5f`. Added isolated-mode UI lint, shrinking colour baseline, lint.sh integration and UI-Rules.md inventory. Only game-source edits: the **2 authorized marker comments** on AliensScreen CellSize/CellPadding. No UI behavior changed.
+
+Measured: **20 existing colour calls / 15 expression groups** across src/client (**6 calls in UI**); every baseline entry and location is listed in UI-Rules.md and `--list-baseline`. **22 raw buttons checked, 21 sound-resolved, 1 advisory candidate**. CaptureBar:86 uses InputBegan/InputEnded for press/hold/release instead of Activated/MouseButton1Click; verdict sounds exist. It remains visible in the report, not silently exempted. AliensScreen's card sound resolves through its local helper. No font violations or unmarked offsets.
+
+**24 isolated checks** cover offset forms, multiline calls, marker property/axis restrictions, fonts, comment/string exclusion, colour expansion rejection and baseline shrinkage, silent callbacks, direct and helper sounds. Runtime **0.19s**, repeated output identical. Analyze clean; **95 tests pass / 10 specs**, data and full lint runner pass.
+
+Left open: constructor aliases/indirect assignments and full sound control flow require review. The grid marker attests to ScrollingFrame/AbsoluteSize provenance. Initial baseline ceilings are fixed; available Git baselines enforce subsequent shrinkage, while shallow CI without its parent cannot independently prove historical shrinkage. No Studio work. No blocker remains.

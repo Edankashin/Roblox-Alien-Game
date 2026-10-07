@@ -125,10 +125,10 @@ Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its ou
 
 Coordinator decision (2026-10-07), answering the blocker: (e) is now today's behaviour. `migrate` returns a save whose version is above `SCHEMA_VERSION` untouched (an early return through `isFromTheFuture`, added by the coordinator), and `tryLoad` refuses to own such a save, so old code never writes it back. Move `isFromTheFuture` with the rest, and test (e) as "returned untouched: same fields, same values".
 
-### C11. UI rules lint — taken by codex 2026-10-07
+### C11. UI rules lint — review
 
-Blocked: the zero-offset rule finds two existing AliensScreen UIGridLayout offsets expressly allowed by UI-Playbook.md.
-Tried: verified lines 688–689 and the documented scrolling-grid exception; the card permits neither a source fix nor an offset allowance.
+Resolved: coordinator authorized marked vertical grid offsets; the two existing lines now carry that marker.
+Verified: UI lint passes with 20 colour calls baselined and one advisory capture-backdrop tap candidate.
 
 Goal: the UI rules in `CLAUDE.md` and the UI Playbook enforced by a script: Scale never Offset, colours from the Theme, the one font, no silent taps.
 
