@@ -1,5 +1,6 @@
 --!strict
--- Robux catalog. productId values are placeholders until products exist in the Creator Dashboard.
+-- Robux catalog. A productId or passId of 0 means the item does not exist on the dashboard yet (Buy refuses safely);
+-- the others were created by the owner on 2026-10-07 (owner guide Part C).
 -- paidRandom = true means: show odds, no dud, hidden where PolicyService.ArePaidRandomItemsRestricted is true.
 -- oddsOnWheel = true: the item buys spins of the prize wheel; its shop tile links to the wheel, which shows every
 -- prize with its odds (data/Spins, summing to 100), so the odds are one tap away before the purchase.
@@ -16,22 +17,22 @@ export type ShopItem = {
 }
 
 local Items: { ShopItem } = {
-	{ id = "StarterPack", tab = "Featured", kind = "product", robux = 199, productId = 0, once = true, paidRandom = false },
+	{ id = "StarterPack", tab = "Featured", kind = "product", robux = 199, productId = 3717062435, once = true, paidRandom = false },
 	{ id = "DirectRare", tab = "Aliens", kind = "product", robux = 99, productId = 0, paidRandom = false },
 	{ id = "DirectEpic", tab = "Aliens", kind = "product", robux = 199, productId = 0, paidRandom = false },
 	{ id = "CompanionSlot4", tab = "Aliens", kind = "pass", robux = 249, passId = 0, paidRandom = false },
-	{ id = "SlotEveryStation1", tab = "Camp", kind = "pass", robux = 399, passId = 0, paidRandom = false },
+	{ id = "SlotEveryStation1", tab = "Camp", kind = "pass", robux = 399, passId = 2013608394, paidRandom = false },
 	{ id = "SlotEveryStation2", tab = "Camp", kind = "pass", robux = 799, passId = 0, paidRandom = false },
 	{ id = "AutoCollect", tab = "Camp", kind = "pass", robux = 199, passId = 0, paidRandom = false },
-	{ id = "AutoOptimize", tab = "Camp", kind = "pass", robux = 299, passId = 0, paidRandom = false },
+	{ id = "AutoOptimize", tab = "Camp", kind = "pass", robux = 299, passId = 2014838379, paidRandom = false },
 	{ id = "ModuleRush", tab = "Camp", kind = "product", robux = 59, productId = 0, paidRandom = false },
-	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 0, paidRandom = false },
+	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 2014814394, paidRandom = false },
 	{ id = "RadarMk1Unlock", tab = "Gear", kind = "product", robux = 149, productId = 0, paidRandom = false },
-	{ id = "SpeedBurstx5", tab = "Boosts", kind = "product", robux = 49, productId = 0, paidRandom = false },
-	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 0, paidRandom = false },
-	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 0, paidRandom = false },
-	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 0, paidRandom = true },
-	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 0, paidRandom = true },
+	{ id = "SpeedBurstx5", tab = "Boosts", kind = "product", robux = 49, productId = 3717062564, paidRandom = false },
+	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 3717062704, paidRandom = false },
+	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },
+	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 3717063366, paidRandom = true },
+	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 3717063502, paidRandom = true },
 	{ id = "Spins1", tab = "Spins", kind = "product", robux = 49, productId = 0, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins5", tab = "Spins", kind = "product", robux = 199, productId = 0, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins12", tab = "Spins", kind = "product", robux = 399, productId = 0, paidRandom = true, oddsOnWheel = true },

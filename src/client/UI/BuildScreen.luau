@@ -19,6 +19,7 @@
 -- finds that item, not the ground behind it.
 
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -233,9 +234,22 @@ local function rayAt(x: number, y: number): (number?, number?, string?, boolean)
 	return cellX, cellZ, uid, onGhost
 end
 
+-- In Studio only, says in the Output why a tap on the world made no ghost and placed nothing, so a tester can report
+-- it in one line (a live server prints nothing).
+local function tapIgnored(reason: string)
+	if RunService:IsStudio() then
+		print(("[%s] Build tap ignored: %s"):format(Config.WorkingTitle, reason))
+	end
+end
+
 -- A tap in the world while the tray is open (the bootstrap hands it over instead of starting a catch).
 function BuildScreen.OnWorldTap(x: number, y: number)
 	if not open or pending or not State.Has() then
+		tapIgnored(if not open then "the tray is closed" elseif pending then "a placement is still being answered" else "no profile yet")
+		return
+	end
+	if HomeRenderer.Plot() == nil then
+		tapIgnored("the plot is not found (Workspace.World.Plot)")
 		return
 	end
 	local cellX, cellZ, uid, onGhost = rayAt(x, y)
@@ -252,12 +266,14 @@ function BuildScreen.OnWorldTap(x: number, y: number)
 	end
 	local itemId = picked
 	if itemId == nil then
+		tapIgnored("no item picked in the tray (tap a card first; it gets a gold border)")
 		return -- the hint asks for a pick first
 	end
 	if onGhost and ghostX ~= nil and ghostZ ~= nil then
 		cellX, cellZ = ghostX, ghostZ -- a tap on any part of the ghost is a tap on its cell
 	end
 	if cellX == nil or cellZ == nil then
+		tapIgnored("the tap missed the plot (the sand square); zoom out so it shows above the tray")
 		return -- sky or beyond the plot
 	end
 	if cellX == ghostX and cellZ == ghostZ then
