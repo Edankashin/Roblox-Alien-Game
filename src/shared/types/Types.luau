@@ -107,6 +107,8 @@ export type ModuleProgress = {
 }
 
 export type OutpostState = { level: number, lastCollect: number }
+-- Resting in the game (data/Afk): whether the player is resting, since when (os.time) and the Scrap earned since then.
+export type AfkState = { resting: boolean, since: number, earned: number }
 -- A seasonal event's track on the profile (data/Seasons): counts by quest id and the quests already claimed.
 export type SeasonProgress = { progress: { [string]: number }, claimed: { [string]: boolean } }
 export type PeriodQuests = { period: string, ids: { string }, progress: { [string]: number }, claimed: { [string]: boolean }, rerolls: number }

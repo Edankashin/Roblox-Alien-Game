@@ -24,7 +24,6 @@ local Items: { ShopItem } = {
 	{ id = "SlotEveryStation2", tab = "Camp", kind = "pass", robux = 799, passId = 0, paidRandom = false },
 	{ id = "AutoCollect", tab = "Camp", kind = "pass", robux = 199, passId = 0, paidRandom = false },
 	{ id = "AutoOptimize", tab = "Camp", kind = "pass", robux = 299, passId = 0, paidRandom = false },
-	{ id = "LongerOffline", tab = "Camp", kind = "pass", robux = 299, passId = 0, paidRandom = false },
 	{ id = "ModuleRush", tab = "Camp", kind = "product", robux = 59, productId = 0, paidRandom = false },
 	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 0, paidRandom = false },
 	{ id = "RadarMk1Unlock", tab = "Gear", kind = "product", robux = 149, productId = 0, paidRandom = false },
@@ -42,7 +41,7 @@ local Items: { ShopItem } = {
 -- species beforehand, Starter Pack); gear: a Gear or radar id through Shop.GrantGear; spins: banked spins;
 -- powerUp: inventory power-ups; slots: +n on every station; serverLuck: `bonus` added to everyone's luck
 -- for `seconds`; cosmetic: an owned cosmetic id (rendered by a later milestone); passFlag: the pass's own
--- effect, read live by the service named (LongerOffline: Economy's cap; AutoOptimize: Economy).
+-- effect, read live by the service named (AutoOptimize: Economy).
 export type ShopGrant = { kind: "alien" | "gear" | "spins" | "powerUp" | "slots" | "serverLuck" | "cosmetic" | "passFlag", id: string?, tier: string?, choose: boolean?, amount: number?, bonus: number?, seconds: number? }
 
 local Grants: { [string]: { ShopGrant } } = {
@@ -51,7 +50,6 @@ local Grants: { [string]: { ShopGrant } } = {
 	SlotEveryStation2 = { { kind = "slots", amount = 2 } }, -- stacks with SlotEveryStation1: both owned is +3 (decision 17)
 	CompanionSlot4 = { { kind = "passFlag", id = "CompanionSlot4" } }, -- Companions reads the pass live for its extra slot
 	AutoOptimize = { { kind = "passFlag", id = "AutoOptimize" } },
-	LongerOffline = { { kind = "passFlag", id = "LongerOffline" } },
 	ExplorerPack = { { kind = "gear", id = "Boots" }, { kind = "gear", id = "Hoverboard" }, { kind = "gear", id = "Radar1" } },
 	SpeedBurstx5 = { { kind = "powerUp", id = "SpeedBurst", amount = 5 } },
 	SteadyHandsx3 = { { kind = "powerUp", id = "SteadyHands", amount = 3 } },
@@ -71,7 +69,7 @@ return {
 	-- Items waits for its feature (hoverboard skins, home, direct-buy aliens, paid spins).
 	Launch = {
 		{ section = "Featured", items = { "StarterPack" } },
-		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "AutoOptimize", "LongerOffline", "ExplorerPack" } },
+		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "AutoOptimize", "ExplorerPack" } },
 		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},

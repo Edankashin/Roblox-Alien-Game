@@ -23,7 +23,7 @@
 -- same way and counts like a seated copy for fusion fodder order; Habitats requires this module, never the reverse.
 -- Robux (Monetization) reaches the camp three ways: the alien and slots granters registered at Init
 -- (a Starter Pack Rare, +1 slot on every station), the Auto Optimize pass (the crew is reseated after
--- every newcomer) and the Longer Offline pass (the offline cap grows to Config.OfflineCapSecondsPass).
+-- every newcomer). (The Longer Offline pass was withdrawn on 2026-10-07; resting in the game, data/Afk, is the long stretch now.)
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -596,9 +596,9 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 		if away < Config.OfflineMinSeconds then
 			return
 		end
-		-- Shared Economy.offlineScrap's formula, with the cap the Longer Offline pass raises
-		-- (Config.OfflineCapSecondsPass instead of Config.OfflineCapSeconds).
-		local cap = if Monetization.OwnsPass(player, "LongerOffline") then Config.OfflineCapSecondsPass else Config.OfflineCapSeconds
+		-- Shared Economy.offlineScrap's formula. The cap is the same for everyone: the long stretch belongs to resting
+		-- in the game (data/Afk), not to a pass (the Longer Offline pass was withdrawn on 2026-10-07).
+		local cap = Config.OfflineCapSeconds
 		local gain = math.floor(Economy.totalRate(profile) * Config.OfflineRate * math.clamp(away, 0, cap))
 		profile.scrap += gain
 		local completed = snapshotModules(profile) -- assembly ran on the wall clock while away

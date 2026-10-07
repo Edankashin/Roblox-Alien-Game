@@ -150,9 +150,9 @@ Why: every Robux item in the shop is a row in the game's shop table with its id 
 
 Two kinds:
 - **Developer products** can be bought again and again (boosts and spins). 9 of them.
-- **Passes** are bought once and kept forever. 6 of them.
+- **Passes** are bought once and kept forever. 5 of them.
 
-Only these fifteen are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
+Only these fourteen are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
 
 The pictures: every item uses an icon file that is already in the game's folder. When the upload window opens, press **Cmd + Shift + G**, paste the path from the table (for example `~/Roblox-Alien-Game/assets/icons/Gifts.png`), press Return, then click **Open**.
 
@@ -174,7 +174,7 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | Spins5 | 5 Spins | 199 | Five spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 | Spins12 | 12 Spins | 399 | Twelve spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 
-### C2. Passes (do this 6 times)
+### C2. Passes (do this 5 times)
 - [ ] Creator Dashboard, the game's tile. Left column: **Monetization**, then **Passes**.
 - [ ] Click **Create a pass**. Upload the image, type the **Name** and **Description** from the table, click **Create Pass**.
 - [ ] Set the price: on the passes list, click the new pass to open it. In its left column click **Sales**. Turn on **Item for Sale**. Type the price from the table into **Price in Robux**. Click **Save Changes**.
@@ -186,7 +186,6 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | SlotEveryStation2 | +2 Slots on Every Station | 799 | Two more aliens working at every station, forever. | `~/Roblox-Alien-Game/assets/icons/Ship.png` |
 | CompanionSlot4 | +1 Companion | 249 | One more alien can follow you around, forever. | `~/Roblox-Alien-Game/assets/icons/Aliens.png` |
 | AutoOptimize | Auto-Optimize | 299 | Every new alien goes straight to its best station. | `~/Roblox-Alien-Game/assets/icons/Aliens.png` |
-| LongerOffline | Longer Offline Shift | 299 | Your crew keeps earning for 3 hours while you are away instead of 1. | `~/Roblox-Alien-Game/assets/icons/Scrap.png` |
 | ExplorerPack | Explorer Pack | 399 | Speed Boots, the Hoverboard and Radar Mk1 right now. Same speed as earning them. | `~/Roblox-Alien-Game/assets/icons/Hoverboard.png` |
 
 Server Luck and the spins are paid random items in Roblox's rules: the game already shows their odds (a spin tile opens the wheel, which lists every prize with its odds) and hides them in countries that restrict them. Nothing to set for that on the dashboard.
@@ -207,7 +206,6 @@ SlotEveryStation1:
 SlotEveryStation2: 
 CompanionSlot4: 
 AutoOptimize: 
-LongerOffline: 
 ExplorerPack: 
 ```
 

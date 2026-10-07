@@ -594,6 +594,16 @@ Visiting (`data/Visiting.luau`, `Shared/VisitRules.luau`): a friend's home is a 
 
 Known gaps in this milestone: a visitor's own ship stands on the owner's camp pad (their stations keep working; the owner's ship there is a look-pass item); no wave animation beyond the toast and a burst; waves to an away owner arrive as one letter a day, not one each; a lock change while a visitor is already inside does not send them away.
 
+## Milestone 46: resting in the game (World 1 place)
+
+Resting (`data/Afk.luau`): after 2 minutes with no movement and no use of the game, a player is resting. Their stations pay half the usual rate for as long as the game stays open (being away pays the same half rate but stops after an hour). A calm Resting screen shows the time and the Scrap earned. Before Roblox's 20-minute idle cutoff the game rejoins the player to the same server. The Longer Offline pass is withdrawn. Dev: `/afk` rests now, `/afk off` wakes, `/afk rejoin` runs the rejoin (Studio only prints it).
+
+1. With at least one seated alien, stand still for 2 minutes (or `/afk`): the world dims behind a card reading "Resting", "Your crew keeps working at half speed while you rest. Leave the game on as long as you like.", "Resting for 0:12" counting up, and "Earned while resting: N Scrap" rising; the HUD's Scrap per minute halves. Output: `Afk: <name> is resting`.
+2. Move, or tap "Back to play": the screen goes, the toast "Welcome back! Your crew earned N Scrap while you rested" shows, the per-minute rate returns to full. Output: `analytics: event Rest value=<seconds> earned=<N>`.
+3. Standing still but using menus (open Aliens, tap a card, open the Shop) for 3 minutes never rests: using the game counts as playing.
+4. `/afk rejoin`: Output `Afk: would rejoin <name> to this server (Studio skips teleports)`; on the screen the line "Keeping your spot..." shows. In a published game, after 17 minutes without input the player rejoins the same server and rests again two minutes later.
+5. The Shop's Passes section has five tiles (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
+
 ## Phone performance fixes (World 1 place; from Codex's report C14)
 
 No visible change is intended; these are re-checks that nothing broke. Companions keep their footing on slopes and never stand inside another player (the raycast list is cached now); a server never holds more than 80 wild aliens (`Config.SpawnMaxWild`; `/spawn` and summoned Wardens are not counted or blocked), and with two clients far apart both get aliens; far-away and blizzard-hidden aliens stop bobbing and resume in step when you come back; a Warden sighting's trail looks as before (its puffs are pooled); the radar's blips and the secret ping behave as before.

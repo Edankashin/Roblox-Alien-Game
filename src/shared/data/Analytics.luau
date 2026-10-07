@@ -38,6 +38,7 @@ return {
 		WeeklyFlip = "WeeklyFlip", -- value: the rotation index; fields species, weather; once per server when the week changes
 		SeasonStart = "SeasonStart", -- value 1 per player online when a season begins (or is forced on); field id
 		SeasonClaim = "SeasonClaim", -- value 1; fields id (the season), quest
+		Rest = "Rest", -- value: seconds rested; field earned (the Scrap the crew made meanwhile); on waking or leaving
 		Visit = "Visit", -- value 1; fields owner (the home's owner user id), how (here: the view switched in this server; trip: a reserved server)
 		Wave = "Wave", -- value: the Scrap paid the visitor; fields owner, species
 		TutorialSkipped = "TutorialSkipped", -- value: the step left behind when a profile left World 1 mid-tutorial; field world (the one moved to)

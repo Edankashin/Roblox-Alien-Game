@@ -38,7 +38,6 @@ return {
 	-- offline
 	OfflineRate = 0.5,
 	OfflineCapSeconds = 3600, -- cap on accrued income time (about 60 min of income)
-	OfflineCapSecondsPass = 10800, -- the cap with the Longer Offline pass (180 min)
 
 	-- companions and gear
 	CompanionSlots = 3,
@@ -46,7 +45,7 @@ return {
 	-- saves
 	AutosaveSeconds = 180,
 	SessionLockSeconds = 600,
-	UseDataStoreInStudio = false, -- flip to true after enabling Studio API access
+	UseDataStoreInStudio = true, -- Studio API access is on (owner guide Part B, 2026-10-07): Studio plays use the real saves
 
 	-- servers
 	MaxPlayers = 8,
