@@ -216,3 +216,13 @@ Measured: **95 → 140 tests**, **11 specs**, **0 failures**, **0.030 s**. New c
 Trace: pickItem clears removal and selects the habitat; a first valid OnWorldTap sets the cell and SetGhost builds its placeholder regardless of price/cap. No habitat-specific failure found. No ghost can occur when the tray is closed, a request is pending, the profile/plot/camera is absent, the ray misses, the point is at the excluded +X/+Z edge, or the item definition is absent. UI-consumed input and touch drags never reach OnWorldTap (bootstrap lines 1786–1803), so they produce no ignored-tap diagnostic. Selecting a card alone deliberately shows no ghost until a cell is picked; successful placement clears it.
 
 Left open: reproduce the owner's two-player case in Studio, recording gold selection border, first ignored-tap line (or its absence), and whether the plot was visible above the tray. No Studio operations or speculative input fixes.
+
+## C16 — 2026-10-07 — review
+
+Claim: `4c23810`; guards: Catching `d686c42`, Materials `89d318c`, Quests `4b767c3`; audit: `ce8fb38`. Each service diff is one distance predicate: require distance <= range so NaN cannot pass a greater-than refusal. Normal finite boundaries and +infinity refusal are preserved. No prices, outcomes, ownership or trip policy changed.
+
+Measured: **112 remotes / 60 incoming handlers / 52 outbound-only events**, each inventoried with source and risk/check notes; **3 fixed**, **18 needs-coordinator rows**, **91 safe within the stated source-review scope**. **18 isolated source-extracted guard probes** passed; **140 headless tests**, analyze/data/all extra lints clean. No Studio or live-service testing.
+
+Left open (Exploit-Review.md D1–D8): calculable Perfect timestamps; home visit yield races/lock revocation; finite-but-huge owner ids and cross-player backend request budget; shared teleport/action/movement policy; egg gift selection at home; season partial-grant recovery; peddler/wave proximity and per-visit replay semantics; receipt durability/pruning. Changing these requires game behavior or data/lifecycle work beyond handler guards. Negative Studio player ids prevent a blanket positive-id guard. Receipt history already has a cap; do not assume older receipts are guaranteed never to replay.
+
+No tracked shared test was added: the changed predicates are local distance refusals, and C16 permits only handlers plus its report. Temporary probes exercised the exact extracted expressions; persistent broad remote harness coverage remains future tooling work.
