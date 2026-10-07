@@ -25,12 +25,12 @@ You are Codex, the second coding agent on Edankashin/Roblox-Alien-Game: an origi
 
 SETUP (once)
 1. cd into the repo. git fetch origin; git checkout claude/alien-system-research; git pull --rebase origin claude/alien-system-research.
-2. Read, in full and in this order: AGENTS.md, CLAUDE.md, docs/vault/02-how-we-work/Codex-Queue.md (the cards C5 to C14 are your work), docs/vault/02-how-we-work/Codex-Reports.md (the coordinator's notes on your earlier cards say what it values), docs/vault/04-roblox-engine/Data-Tables.md and UI-Rules.md, docs/vault/02-how-we-work/Testing-Headless.md and Data-Lint.md.
+2. Read, in full and in this order: AGENTS.md, CLAUDE.md, docs/vault/02-how-we-work/Codex-Queue.md (every card marked `open` is your work), docs/vault/02-how-we-work/Codex-Reports.md (the coordinator's notes on your earlier cards say what it values), docs/vault/04-roblox-engine/Data-Tables.md and UI-Rules.md, docs/vault/02-how-we-work/Testing-Headless.md and Data-Lint.md.
 3. export PATH=$HOME/.local/bin:$PATH. Confirm the baseline before touching anything: ./tools/analyze.sh prints exactly "analyze: clean", python3 -I tools/lint_data.py prints "data lint: clean", ./tools/test.sh is green. Note the test count. If rojo 7.7.1 or luau-lsp 1.70.1 is missing, install it with rokit as tools/setup-mac.sh describes; ask me before any other machine-wide install.
 
-THE LOOP (for each card whose state is `open`, in queue order: C5, C6, C7, C8, C9, C10, C11, C12, C13, C14)
+THE LOOP (for each card whose state is `open`, in queue order)
 1. Claim it: change the card's state line to `taken by codex <today>`, commit that one line alone, push.
-2. Read the card and every file it names, once each, before editing. For a card that changes game code (C5's FusionMath move, C9's handler guards, C10's schema move), first write down for yourself the exact current behaviour you must preserve, then make the smallest change that preserves it, then prove it: a test that pins the behaviour, and a re-read of your own diff hunting for any change the card did not ask for.
+2. Read the card and every file it names, once each, before editing. For a card that changes game code (a move into a shared module, a guard on a handler, a deletion), first write down for yourself the exact current behaviour you must preserve, then make the smallest change that preserves it, then prove it: a test that pins the behaviour, and a re-read of your own diff hunting for any change the card did not ask for.
 3. Touch only the files the card names. If the card needs a file it does not name, do not edit it: note it in the report as left open.
 4. Verify before every push: git pull --rebase origin claude/alien-system-research; ./tools/analyze.sh prints exactly "analyze: clean"; python3 -I tools/lint_data.py is clean; ./tools/test.sh is green; ./tools/lint.sh passes once it exists. Never push a tree that fails any of them.
 5. Commit in small steps: one logical change per commit, a first line under 72 characters, a body saying why, the trailer "Agent: Codex".
