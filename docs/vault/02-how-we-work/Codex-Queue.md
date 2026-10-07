@@ -274,6 +274,16 @@ Files: `tools/model_assets.py`, `src/shared/data/ModelAssets.luau`, `tools/lint_
 
 Done when: the table lists every uploaded model, the lint runs clean or with documented warnings, analyze stays clean.
 
-### C25 and later — not open yet
+### C25. StyLua for the whole repo — open (run last in a batch)
+
+Goal: "Adopt now" since 2026-10-05 and never done ([[Tools-Status]]). One formatter so no session or agent reformats code by hand.
+
+Do: add `stylua = "JohnnyMorganz/StyLua@<latest 2.x>"` to `rokit.toml`; a `stylua.toml` that matches today's style as closely as possible (tabs, column width that keeps most current lines unchanged: measure it, double quotes, `call_parentheses = "Always"`); run StyLua over `src/` and `tests/` in ONE commit titled "StyLua: format the repo" with nothing else in it, only when no other card in this batch is still open (so no rebase fights it); then add `stylua --check src tests` to `tools/lint.sh`. Verify analyze, tests and every lint stay clean after the format. Report how many files and lines changed.
+
+Files: `rokit.toml`, `stylua.toml`, `src/**`, `tests/**` (format only), `tools/lint.sh`, `docs/vault/02-how-we-work/Tools-Status.md` (the StyLua row to **in use**).
+
+Done when: `stylua --check` passes in `tools/lint.sh` and the format commit contains formatting only.
+
+### C26 and later — not open yet
 
 The look replication pass (icons v2, the soft sprite set, 9-slice plates, species texture passes, world dressing to match the owner's forest and map references) comes with the visual pass; those cards are written then.

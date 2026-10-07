@@ -26,6 +26,11 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | Graphify, Ponytail, Roblox Claude Skills, Agent Skills, OmniRoute and others | TikTok ZPL8Hb7yS, add-on list | Skip, with reasons in [[Claude-Plugins]] | **skip** | None |
 | Headroom, caveman, context-mode, beads, basic-memory, Task Observer and others | Token survey | Later | **later** | Revisit when a need shows |
 
+| ffmpeg, yt-dlp, Whisper (sherpa-onnx) | Reference video processing | Adopt | **in use** (ffmpeg and yt-dlp on the Mac; Whisper needs `SHERPA_WHISPER_DIR` set on the Mac, the cloud session downloads its own model) | Fine as is |
+| Codex CLI on PATH | Mac audit | | the CLI lives inside ChatGPT.app, not on PATH | Optional: the Mac calls it by its full path |
+| Discord community server | Growth references | Later (launch assets) | Discord installed; no server | Part of store presence (Look plan L6) |
+| "raw alone" for UI making and animation | Ethan, 2026-10-05 ([[Requests]]) | **never identified** | open | Ethan says which tool was meant (a guess: Rive, the UI animation tool, or Moon Animator, the Roblox animation plugin) |
+
 ## Roblox Studio plugins (TikTok ZPLRKPFKv, "what pro devs actually use")
 
 | Plugin | Used for | State | Next step |
@@ -41,7 +46,9 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 |---|---|---|---|
 | Blender (through MCP) | species, props, icons, sprites | **installed, not connected now** (Blender 5.2.2; the add-on handshake fails while Blender is closed) | When the next model pass starts: open Blender and Start MCP Server; if the add-on is outdated, `uvx mcp-for-blender install-addon` |
 | Claude Design | rigged, animated models with VFX | **chosen instead**: Blender MCP for models; animation not started | Revisit for species animation; check what Ethan's plan includes |
-| Meshy, 3D AI Studio | generated meshes with polygon control | **chosen instead**: Blender MCP | Only if Blender output falls short; paid accounts are Ethan's call |
+| Meshy, 3D AI Studio, Tripo | generated meshes with polygon control | **chosen instead**: Blender MCP; no accounts or keys (Mac audit) | The Mac ranks Meshy or 3D AI Studio sixth for real models; paid accounts are Ethan's call |
+| Nano Banana, Higgsfield | image and video generation (reference batch 3 list) | candidates only; no accounts | Option for icons v2 and trailer shots; Ethan's call |
+| Lemonade.gg, Ropilot Astra | AI game-dev services seen in references | reference only | None |
 | Gemini or another image model | icon sets and reference sheets | **not used** | Part of the icons v2 plan Ethan asked for: the image-model route is one of the options, needs an account |
 | Studio MCP `generate_mesh`, `generate_material` | quick placeholders | available, little used | Use for placeholders in milestone 48 |
 
