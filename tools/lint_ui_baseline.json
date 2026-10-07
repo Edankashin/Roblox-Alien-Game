@@ -1,0 +1,80 @@
+{
+  "note": "C11 initial colour calls across src/client, including data-driven world colours. Remove entries or reduce counts only; never add allowances.",
+  "colours": [
+    {
+      "path": "src/client/UI/AliensScreen.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/UI/BuildScreen.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/UI/CodexScreen.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 3
+    },
+    {
+      "path": "src/client/UI/NearbyPanel.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/CampRenderer.luau",
+      "expression": "Color3 . fromHex ( hex )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/CompanionRenderer.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 2
+    },
+    {
+      "path": "src/client/World/HangarRenderer.luau",
+      "expression": "Color3 . fromHex ( Camp . ShipBaseColor )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/HomeRenderer.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/HomeRenderer.luau",
+      "expression": "Color3 . fromHex ( look . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/LightingDirector.luau",
+      "expression": "Color3 . fromRGB ( rgb [ 1 ] , rgb [ 2 ] , rgb [ 3 ] )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/PeddlerRenderer.luau",
+      "expression": "Color3 . fromHex ( hex )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/SightingRenderer.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/SightingRenderer.luau",
+      "expression": "Color3 . fromHex ( hex )",
+      "count": 1
+    },
+    {
+      "path": "src/client/World/WeatherFx.luau",
+      "expression": "Color3 . fromHex ( sheet . color )",
+      "count": 1
+    },
+    {
+      "path": "src/client/init.client.luau",
+      "expression": "Color3 . fromHex ( def . placeholder . color )",
+      "count": 3
+    }
+  ]
+}

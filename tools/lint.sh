@@ -6,3 +6,4 @@ cd "$REPO"
 python3 -I tools/lint_strings.py
 python3 -I tools/lint_remotes.py
 python3 -I tools/lint_testing.py
+python3 -I tools/lint_ui.py

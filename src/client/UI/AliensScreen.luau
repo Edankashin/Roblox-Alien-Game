@@ -685,8 +685,8 @@ local function layoutGrid()
 	-- inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content,
 	-- so a Scale cell fed back into a taller canvas until one card sat 150 px down a 565 px canvas (Studio,
 	-- 2026-10-05). Width and padding stay Scale.
-	layout.CellSize = UDim2.new(CELL_W, 0, 0, cellPx)
-	layout.CellPadding = UDim2.new(CELL_GAP, 0, 0, gapPx)
+	layout.CellSize = UDim2.new(CELL_W, 0, 0, cellPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
+	layout.CellPadding = UDim2.new(CELL_GAP, 0, 0, gapPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
 end
 
 local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
