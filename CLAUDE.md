@@ -47,3 +47,4 @@ A Roblox collection game for a two-person team: players crash-land on planets, c
 
 - Commit on the working branch; never commit audio or raw frame dumps from `media/tiktok/out/`.
 - When a review corrects the look of something, update the UI Playbook in the same change.
+- Every tool mentioned by Ethan or a reference gets a row in `docs/vault/02-how-we-work/Tools-Status.md` the same day; a decision is not done until its row says **in use**, verified on the Mac. Chase every "decided, not installed" row at the start of a working block.
