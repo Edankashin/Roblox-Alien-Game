@@ -190,7 +190,7 @@ Files: `docs/vault/04-roblox-engine/Exploit-Review.md` (new), and only the `src/
 
 Done when: every remote has a row, every "fixed" row names its commit, the checks stay green, and anything that changes game behaviour is left as "needs the coordinator" instead of fixed.
 
-### C17. Save size budget — review (report only)
+### C17. Save size budget — done (02edfdf; storage cap decided: milestone 50)
 
 Goal: a player's save is one DataStore value, and a value over 4 MB cannot be saved. Every catch adds an alien record and nothing removes them, so a heavy player's save grows without bound.
 
@@ -200,7 +200,7 @@ Files: `tools/save_budget.py`, `docs/vault/04-roblox-engine/Save-Budget.md`.
 
 Done when: the report gives the day the limit is reached for the default player and for a 10-hours-a-day player, and each option's effect on that day.
 
-### C18. Dead code cleanup, the safe class — review
+### C18. Dead code cleanup, the safe class — done (efe4d00, 1aceda6, 1032608; 13 declarations and 22 strings removed, accepted)
 
 Goal: remove what the C13 report marked as safe to delete, so the polish pass works on less code.
 
@@ -210,7 +210,7 @@ Files: the files the report names (deletions only), `src/shared/strings/en.luau`
 
 Done when: every check is green, and `Dead-Code.md` lists each removal with its commit.
 
-### C19. The Studio run sheet — review
+### C19. The Studio run sheet — done (73f7112; the stale TESTING wording goes to C26)
 
 Goal: one ordered list of every Studio check still waiting, so the owner or the Mac session can run them in one sitting without reading the whole test script.
 
@@ -220,7 +220,7 @@ Files: `tools/studio_queue.py`, `tools/lint.sh`, `docs/STUDIO-QUEUE.md` (new).
 
 Done when: `./tools/lint.sh` passes and the file lists every pending check with no duplicates.
 
-### C20. Moment inventory — review (report only)
+### C20. Moment inventory — done (3218607; sound and music pass decided: milestone 51)
 
 Goal: the owner wants every moment in the game designed for an emotion (`docs/PRE_PRODUCTION.md` section 5a): sound, music, camera, effects and phone rumble working together, with a Legendary encounter as the worked example. Before that can be designed, list what each moment does today.
 
@@ -230,7 +230,7 @@ Files: `docs/vault/01-game-design/Moments.md` (new).
 
 Done when: every moment above has a row with a file and line for its trigger.
 
-### C21. Music plan — review (report only)
+### C21. Music plan — done (0f4d223; the palette approved, ownership decided in the notes)
 
 Goal: the owner wants music that fits the theme and what is happening at that moment. This card prepares the music director the coordinator will build.
 
@@ -240,7 +240,7 @@ Files: `docs/vault/06-art-pipelines/Music-Plan.md` (new).
 
 Done when: every state has its row, and the data shape covers them all.
 
-### C22. Create the shop items through Open Cloud — review
+### C22. Create the shop items through Open Cloud — done (54b9bec; dry run checked by the coordinator, the Mac runs --apply)
 
 Goal: Ethan stops creating game passes and developer products by hand (owner guide Part C). Roblox's Open Cloud creates them: game passes with `POST https://apis.roblox.com/game-passes/v1/universes/{universeId}/game-passes` (multipart: name, description, price, isForSale, imageFile; scope `game-pass:write`), developer products through the developer-products API (scope `developer-product:write`). Check both against the official reference (create.roblox.com/docs/cloud/reference/features/game-passes and the developer products page) before writing the calls, and note the exact paths in the script's docstring.
 
@@ -284,6 +284,16 @@ Files: `rokit.toml`, `stylua.toml`, `src/**`, `tests/**` (format only), `tools/l
 
 Done when: `stylua --check` passes in `tools/lint.sh` and the format commit contains formatting only.
 
-### C26 and later — not open yet
+### C26. Correct the stale TESTING wording C19 flagged — open
+
+Goal: the run sheet flags lines in `docs/TESTING.md` that no longer match the code (zero place ids, the retired Longer Offline pass, old toast texts, "memory profiles" where real saves are now on with `Config.UseDataStoreInStudio = true`). The code is the truth; make the test steps say what the game does today.
+
+Do: for each line `tools/studio_queue.py` reports as stale source evidence, read the code it describes and rewrite only that sentence so it is true (keep the step's numbering and intent; never change what a step checks, only how it is worded). Regenerate `docs/STUDIO-QUEUE.md`. Report each change in one line.
+
+Files: `docs/TESTING.md`, `docs/STUDIO-QUEUE.md`.
+
+Done when: the run sheet reports no stale source evidence and every lint is clean.
+
+### C27 and later — not open yet
 
 The look replication pass (icons v2, the soft sprite set, 9-slice plates, species texture passes, world dressing to match the owner's forest and map references) comes with the visual pass; those cards are written then.
