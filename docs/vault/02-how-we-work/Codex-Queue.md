@@ -210,7 +210,7 @@ Files: the files the report names (deletions only), `src/shared/strings/en.luau`
 
 Done when: every check is green, and `Dead-Code.md` lists each removal with its commit.
 
-### C19. The Studio run sheet — open
+### C19. The Studio run sheet — taken by codex 2026-10-07
 
 Goal: one ordered list of every Studio check still waiting, so the owner or the Mac session can run them in one sitting without reading the whole test script.
 
