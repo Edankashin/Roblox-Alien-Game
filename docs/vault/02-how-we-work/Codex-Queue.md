@@ -180,7 +180,7 @@ Files: `src/shared/HomeGrid.luau` (new), `src/server/Services/HomeBuild.luau`, `
 
 Done when: `analyze: clean`, the suite green with the new spec, the two service diffs limited to calling the shared module, and the report says what the trace found.
 
-### C16. Exploit review of every remote — open
+### C16. Exploit review of every remote — taken by codex 2026-10-07
 
 Goal: Roblox games are attacked through their remotes by modified clients. Every remote must survive any input.
 
