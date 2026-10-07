@@ -137,6 +137,7 @@ export type Profile = {
 	seasons: { [string]: SeasonProgress }, -- the event tracks, by season id (data/Seasons)
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
 	playtime: PlaytimeProgress, -- today's active play and the playtime gifts claimed (data/Playtime)
+	storage: { bayLevel: number }, -- Storage Bay levels bought with Scrap (data/Storage); the alien cap is StorageMath.CapFor over this, the modules finished and the pass
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
 	purchases: { [string]: number }, -- Robux products granted, by item id -> count (passes are read live)
@@ -231,6 +232,12 @@ export type CaptureHitResult = {
 -- Peddler visit (PeddlerChanged event to all clients, GetPeddler for late joiners); nil between visits.
 export type PeddlerOffer = { id: string, kind: string, scrap: number, amount: number?, tier: string? }
 export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsAt on the server wall clock (os.time())
+
+-- Economy -> the player (StorageChanged): the alien storage cap right now (StorageMath.CapFor over the live profile) and the
+-- Storage Bay levels bought, sent on join and whenever a ship module finishes, the Bay is bought or the StorageBoost pass
+-- changes. `gained` is set when a finished module raised the cap: the cap rose by that much and the client toasts it.
+-- The owned count is not in it: the client counts the records it mirrors (StationsChanged).
+export type StorageState = { cap: number, bayLevel: number, gained: number? }
 
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
 -- overflowScrap is set only when the storage cap (data/Storage) was full: no record was added, the alien turned into

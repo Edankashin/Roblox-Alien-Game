@@ -21,8 +21,11 @@
 -- and slot stay nil (the Companions service owns that list; it requires nothing that requires this module).
 -- An alien on display in a home habitat (record.habitat set, the Habitats service owns that field) is skipped the
 -- same way and counts like a seated copy for fusion fodder order; Habitats requires this module, never the reverse.
--- Storage (data/Storage, Shared/StorageMath, milestone 50): a profile holds at most StorageCap alien records, because the
--- save is one DataStore value with a hard size limit. GrantAlien at the cap adds no record and pays the tier's release
+-- Storage (data/Storage, Shared/StorageMath, milestones 50 and 50b): a profile holds a limited number of alien records,
+-- because the save is one DataStore value with a hard size limit, and the limit grows with progress: the cap is
+-- StorageMath.CapFor over the ship modules finished (every world), the Storage Bay level bought with Scrap
+-- (BuyStorageBay) and the StorageBoost pass, under the absolute Storage.HardCap. The client is told the cap on join and
+-- whenever it moves (StorageChanged). GrantAlien at the cap adds no record and pays the tier's release
 -- value instead (GrantResult.overflowScrap); everything else a catch does still happens. Release (the ReleaseAliens
 -- remote) and ReleaseTier (ReleaseAllOfTier) delete resting records for the same Scrap. Neither touches an alien that
 -- works at a station, follows the player or is on display, so no seat, follower or display ever needs repair.
@@ -66,6 +69,7 @@ local EconomyService = {}
 local REMOTE_RATE_PER_SECOND = 4 -- ModulePay, ModuleInsertKey and StationOptimize calls per player per second
 local FUSE_RATE_PER_SECOND = 2 -- FuseSpecies calls per player per second
 local RELEASE_RATE_PER_SECOND = 2 -- ReleaseAliens and ReleaseAllOfTier calls per player per second
+local STORAGE_RATE_PER_SECOND = 2 -- BuyStorageBay calls per player per second
 local STARTING_LEVEL = 1 -- GrantAlien writes every record at this level; fusion cap is this plus Fusion.MaxFusionLevels
 
 local carries: { [number]: number } = {} -- fractional Scrap not yet paid out, by UserId
@@ -122,13 +126,54 @@ local function reportModuleComplete(player: Player, worldId: number, moduleId: s
 	end
 end
 
--- Tells the client about each module that just finished, and the Tutorial (a moduleComplete step).
+-- Storage cap (data/Storage, Shared/StorageMath) --------------------------
+
+-- The cap and its parts for this player now: the modules finished in every world, the Storage Bay level and the pass.
+-- The pass is read live (Monetization.OwnsPass), like AutoOptimize and the extra companion slot.
+local function storageParts(player: Player, profile: Types.Profile): StorageMath.Parts
+	return StorageMath.Parts(StorageMath.CompletedIds(profile.modules), profile.storage.bayLevel, Monetization.OwnsPass(player, StorageData.PassItem))
+end
+
+local function storageCap(player: Player, profile: Types.Profile): number
+	return storageParts(player, profile).cap
+end
+
+-- Tells the client the cap and the Storage Bay level. `gained` is how much a finished module raised the cap, for the
+-- client's toast; nil for every other reason (join, a bought level, the pass).
+local function pushStorage(player: Player, profile: Types.Profile, gained: number?)
+	local state: Types.StorageState = { cap = storageCap(player, profile), bayLevel = profile.storage.bayLevel, gained = gained }
+	Net.event("StorageChanged"):FireClient(player, state)
+end
+
+-- Modules just finished (`completed`, already written on the profile) can raise the cap: push the new cap with the rise,
+-- measured against the cap the player had without them. The rise is 0 when a module has no data/Storage row or the
+-- hard cap already holds.
+local function pushStorageAfterModules(player: Player, completed: { string })
+	local profile = PlayerData.Get(player)
+	if not profile or #completed == 0 then
+		return
+	end
+	local before: { string } = {}
+	for _, id in ipairs(StorageMath.CompletedIds(profile.modules)) do
+		if not table.find(completed, id) then
+			table.insert(before, id)
+		end
+	end
+	local hasPass = Monetization.OwnsPass(player, StorageData.PassItem)
+	local wasCap = StorageMath.CapFor(before, profile.storage.bayLevel, hasPass)
+	local nowCap = storageCap(player, profile)
+	pushStorage(player, profile, if nowCap > wasCap then nowCap - wasCap else nil)
+end
+
+-- Tells the client about each module that just finished, and the Tutorial (a moduleComplete step). A finished module
+-- can also raise the alien storage cap.
 local function announceCompleted(player: Player, worldId: number, completed: { string })
 	for _, moduleId in ipairs(completed) do
 		Net.event("ModuleCompleted"):FireClient(player, worldId, moduleId)
 		Tutorial.OnModuleComplete(player, moduleId)
 		reportModuleComplete(player, worldId, moduleId)
 	end
+	pushStorageAfterModules(player, completed)
 end
 
 -- Everything a seating change touches: who stands where, the rates, and the re-based progress.
@@ -633,6 +678,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	end
 	-- The join payload carries all of this; the pushes cover a client that pulled its profile early.
 	pushCamp(player, live)
+	pushStorage(player, live, nil) -- modules that finished while away and the pass (Monetization's check already ran) are in the cap
 	if live.scrap ~= scrapBefore then
 		pushScrap(player, live)
 		Analytics.Economy(player, "Source", live.scrap - scrapBefore, live.scrap, "Gameplay", AnalyticsData.Economy.Sources.Offline)
@@ -680,11 +726,11 @@ end
 -- Tutorial hears the species. Returns the Reveal payload, or nil when the player has no profile (or
 -- the species id is unknown). size is a Sizes band id from the wild spawn that was caught; nil (eggs,
 -- gifts, shop grants) rolls one with Spawner.RollSize, and an unknown id falls back to the default band.
--- Storage (data/Storage): when the profile already holds StorageCap records, no record is written and the newcomer is
--- not seated; the alien turns into StorageMath.ReleaseValue(tier) Scrap instead, added to scrapGained and reported as
--- overflowScrap. The codex, the catch stats and every report below (pity, announcement, quests, tutorial, analytics)
--- still happen, so a catch at the cap counts like any other. `capExempt` (a Robux purchase) always writes the record:
--- a paid alien is never turned into Scrap.
+-- Storage (data/Storage): when the profile already holds as many records as its cap (StorageMath.CapFor), no record is
+-- written and the newcomer is not seated; the alien turns into StorageMath.ReleaseValue(tier) Scrap instead, added to
+-- scrapGained and reported as overflowScrap. The codex, the catch stats and every report below (pity, announcement,
+-- quests, tutorial, analytics) still happen, so a catch at the cap counts like any other. `capExempt` (a Robux purchase)
+-- always writes the record: a paid alien is never turned into Scrap.
 local function grantAlien(player: Player, species: string, overlay: Types.Overlay, perfect: boolean, size: string?, capExempt: boolean): Types.GrantResult?
 	local def = Species.ById[species]
 	if not def then
@@ -703,7 +749,7 @@ local function grantAlien(player: Player, species: string, overlay: Types.Overla
 	local overflow = false -- the storage cap was full: no record was written
 	local overflowScrap = 0
 	local ok = PlayerData.Update(player, function(profile)
-		overflow = not capExempt and StorageMath.IsFull(StorageMath.CountOf(profile.aliens))
+		overflow = not capExempt and StorageMath.IsFull(StorageMath.CountOf(profile.aliens), storageCap(player, profile))
 		if overflow then
 			overflowScrap = StorageMath.ReleaseValue(tier)
 		else
@@ -1096,6 +1142,81 @@ local function onReleaseAllOfTier(player: Player, tier: any): (boolean, string?,
 	return EconomyService.ReleaseTier(player, tier)
 end
 
+-- Storage Bay ------------------------------------------------------------
+
+-- Buys the next Storage Bay level with Scrap: StorageMath.NextBayLevel names the row (its price and the world it needs),
+-- the level is paid in full or not at all, and the client hears the new Scrap and the new cap. Refusals: Max (every level
+-- bought), NeedsWorld (the next level's world is not unlocked), NotEnoughScrap, NoProfile. Returns ok, the refusal and the
+-- new cap. Robux never buys Scrap here: the StorageBoost pass sells space, not levels.
+function EconomyService.BuyStorageBay(player: Player): (boolean, string?, number?)
+	local paid = 0
+	local ok, reason = mutate(player, function(profile)
+		local row, why = StorageMath.NextBayLevel(profile.storage.bayLevel, profile.world.unlocked)
+		if not row or why == "Max" then
+			return "Max"
+		end
+		if why == "NeedsWorld" then
+			return "NeedsWorld"
+		end
+		if profile.scrap < row.scrap then
+			return "NotEnoughScrap"
+		end
+		profile.scrap -= row.scrap
+		profile.storage.bayLevel += 1
+		paid = row.scrap
+		return nil
+	end)
+	if not ok then
+		return false, reason, nil
+	end
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return true, nil, nil
+	end
+	pushScrap(player, profile)
+	pushStorage(player, profile, nil) -- no `gained`: the buyer's own toast reads the new cap this call returns
+	Analytics.Economy(player, "Sink", paid, profile.scrap, "Shop", AnalyticsData.Economy.Sinks.StorageBay)
+	return true, nil, storageCap(player, profile)
+end
+
+local function onBuyStorageBay(player: Player): (boolean, string?, number?)
+	if not Net.allow(player, "BuyStorageBay", STORAGE_RATE_PER_SECOND) then
+		return false, "RateLimited", nil
+	end
+	return EconomyService.BuyStorageBay(player)
+end
+
+-- The player's alien storage cap and where it comes from (nil without a profile): Dev's /storage cap prints it, and
+-- Dev's fill stops at it.
+function EconomyService.StorageParts(player: Player): StorageMath.Parts?
+	local profile = PlayerData.Get(player)
+	if not profile then
+		return nil
+	end
+	return storageParts(player, profile)
+end
+
+-- Studio Dev (/storage bay N): sets the Storage Bay level without paying for it (clamped to the levels the data has) and
+-- pushes the new cap. Returns the level now held, nil without a profile.
+function EconomyService.DevSetBayLevel(player: Player, level: number): number?
+	local held = 0
+	local ok = PlayerData.Update(player, function(profile)
+		held = math.clamp(math.floor(level), 0, #StorageData.Bay.Levels)
+		profile.storage.bayLevel = held
+	end)
+	local profile = PlayerData.Get(player)
+	if not ok or not profile then
+		return nil
+	end
+	pushStorage(player, profile, nil)
+	return held
+end
+
+-- Studio Dev (/complete) writes module completions itself; this is the cap push a real completion makes.
+function EconomyService.PushStorageAfterModules(player: Player, completed: { string })
+	pushStorageAfterModules(player, completed)
+end
+
 function EconomyService.Init()
 	-- A Double Shift, a friend or resting moves the station factor: the HUD's rate follows (Buffs never requires Economy).
 	Buffs.OnStationMultiplierChanged(function(player: Player)
@@ -1104,7 +1225,7 @@ function EconomyService.Init()
 			pushRate(player, profile)
 		end
 	end)
-	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew" }) do
+	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew", "StorageChanged" }) do
 		Net.event(name)
 	end
 	Net.func("ModulePay").OnServerInvoke = onModulePay
@@ -1113,8 +1234,20 @@ function EconomyService.Init()
 	Net.func("FuseSpecies").OnServerInvoke = onFuseSpecies
 	Net.func("ReleaseAliens").OnServerInvoke = onReleaseAliens
 	Net.func("ReleaseAllOfTier").OnServerInvoke = onReleaseAllOfTier
+	Net.func("BuyStorageBay").OnServerInvoke = onBuyStorageBay
 	Net.func("ClaimOfflineSummary").OnServerInvoke = onClaimOfflineSummary
 	PlayerData.OnLoaded(onLoaded)
+	-- The StorageBoost pass bought (or owned by Dev) in the game raises the cap at once; a pass owned on join is in the
+	-- cap onLoaded pushes.
+	Monetization.OnPassChanged(function(player: Player, itemId: string)
+		if itemId ~= StorageData.PassItem then
+			return
+		end
+		local profile = PlayerData.Get(player)
+		if profile then
+			pushStorage(player, profile, nil)
+		end
+	end)
 	-- Robux grants that land in the camp, registered with Monetization rather than required from it (see
 	-- its header): an alien of the species the grant names, which must exist and be of the grant's tier,
 	-- with the wild overlay odds and no Perfect pay; and slots on every station.

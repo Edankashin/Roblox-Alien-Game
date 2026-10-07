@@ -21,7 +21,8 @@
 -- own home), /afk (rest now: the half-rate income and the Resting screen) | off (wake) | rejoin (the rejoin the client asks for
 -- after 17 idle minutes; Studio only prints it), /playtime <minutes> (add that many minutes of played time today, so a playtime
 -- gift unlocks at once; negative takes minutes back) | reset (today's played time and claims cleared), /storage fill [N] (N plain Common
--- records, default as many as fit, never past the storage cap) | cap (print the record count and the cap). Nothing
+-- records, default as many as fit, never past the storage cap) | cap (print the record count, the cap and its parts: base, modules,
+-- Storage Bay, pass, hard cap) | bay <level> (set the Storage Bay level without paying, 0 to the last). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -460,17 +461,32 @@ local function rideSpecies(player: Player, text: string)
 	print(("[%s] dev: %s ride %s %s"):format(Config.WorkingTitle, player.Name, id, if ok then "ok" else "refused: " .. tostring(reason)))
 end
 
--- /storage fill [N] | cap: the alien storage cap (data/Storage). fill writes N plain Common records straight into the
--- profile (N missing: as many as fit; never past StorageCap), cycling through the Common species, so the cap, the
--- overflow rule and Release can be tried without 1,500 catches; the codex, Scrap and quests do not move. cap prints
--- the record count against the cap.
+-- /storage fill [N] | cap | bay <level>: the alien storage cap (data/Storage, StorageMath). fill writes N plain Common
+-- records straight into the profile (N missing: as many as fit; never past the cap the player has now), cycling through the
+-- Common species, so the cap, the overflow rule and Release can be tried without a thousand catches; the codex, Scrap and
+-- quests do not move. bay sets the Storage Bay level without paying (the cap and the Aliens screen follow). Every form ends
+-- by printing the record count against the cap and the cap's parts.
 local function storageCommand(player: Player, text: string)
 	local profile = PlayerData.Get(player)
 	if not profile then
 		return
 	end
+	local action = string.match(text, "^/%S+%s+(%S+)")
+	local argument = tonumber(string.match(text, "^/%S+%s+%S+%s+(%S+)") or "")
+	if action == "bay" then
+		if argument == nil then
+			print(("[%s] dev: /storage bay needs a level, 0 to %d"):format(Config.WorkingTitle, #StorageData.Bay.Levels))
+		else
+			local level = EconomyService.DevSetBayLevel(player, argument)
+			print(("[%s] dev: %s Storage Bay level set to %s"):format(Config.WorkingTitle, player.Name, tostring(level)))
+		end
+	end
+	local parts = EconomyService.StorageParts(player)
+	if not parts then
+		return
+	end
 	local held = StorageMath.CountOf(profile.aliens)
-	if string.match(text, "^/%S+%s+(%S+)") == "fill" then
+	if action == "fill" then
 		local commons: { string } = {}
 		for _, def in ipairs(Species.List) do
 			if def.tier == "Common" then
@@ -481,9 +497,8 @@ local function storageCommand(player: Player, text: string)
 			print(("[%s] dev: no Common species to fill with"):format(Config.WorkingTitle))
 			return
 		end
-		local room = math.max(0, StorageData.StorageCap - held)
-		local asked = tonumber(string.match(text, "^/%S+%s+%S+%s+(%S+)") or "")
-		local count = math.clamp(math.floor(asked or room), 0, room)
+		local room = math.max(0, parts.cap - held)
+		local count = math.clamp(math.floor(argument or room), 0, room)
 		PlayerData.Update(player, function(p)
 			for index = 1, count do
 				local uid = HttpService:GenerateGUID(false)
@@ -502,7 +517,12 @@ local function storageCommand(player: Player, text: string)
 		held += count
 		print(("[%s] dev: %s storage filled with %d Common record(s)"):format(Config.WorkingTitle, player.Name, count))
 	end
-	print(("[%s] dev: %s storage %d / %d (%s)"):format(Config.WorkingTitle, player.Name, held, StorageData.StorageCap, if StorageMath.IsFull(held) then "full" elseif StorageMath.IsWarning(held) then "warning" else "ok"))
+	print(("[%s] dev: %s storage %d / %d (%s)"):format(Config.WorkingTitle, player.Name, held, parts.cap, if StorageMath.IsFull(held, parts.cap) then "full" elseif StorageMath.IsWarning(held, parts.cap) then "warning" else "ok"))
+	print(
+		("[%s] dev: %s storage cap parts: base %d + modules %d + bay %d (level %d of %d) + pass %d = %d, hard cap %d"):format(
+			Config.WorkingTitle, player.Name, parts.base, parts.modules, parts.bay, profile.storage.bayLevel, #StorageData.Bay.Levels, parts.pass, parts.sum, StorageData.HardCap
+		)
+	)
 end
 
 -- /days N: set the Welcome Week days-played counter, so every gift tile up to N unlocks.
@@ -645,6 +665,7 @@ local function completeModules(player: Player, _text: string)
 		Tutorial.OnModuleStarted(player, moduleId)
 		Tutorial.OnModuleComplete(player, moduleId)
 	end
+	EconomyService.PushStorageAfterModules(player, finishedIds) -- the alien storage the modules add, with the client's toast
 	print(("[%s] dev: %s completed %d of %d modules on world %d (%d were already done); the ship is complete"):format(Config.WorkingTitle, player.Name, finished, #defs, worldId, #defs - finished))
 end
 

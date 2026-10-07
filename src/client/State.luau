@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged);
+-- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -20,8 +20,10 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
+local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local Place = require(Shared:WaitForChild("Place"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
+local StorageMath = require(Shared:WaitForChild("StorageMath"))
 
 local State = {}
 
@@ -29,7 +31,7 @@ local State = {}
 export type DailyQuestsSnapshot = { daily: Types.PeriodQuests, weekly: Types.PeriodQuests, dailyResetsAt: number, weeklyResetsAt: number }
 
 -- "profile" fires once when the whole profile arrives; every topic listener also runs then.
-export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "season" | "home" | "mail" | "visit" | "profile"
+export type Topic = "scrap" | "stations" | "modules" | "inventory" | "gear" | "rate" | "clock" | "biome" | "codex" | "buffs" | "peddler" | "luck" | "quests" | "tutorial" | "gifts" | "shower" | "rush" | "settings" | "purchases" | "serverLuck" | "world" | "outposts" | "friends" | "companions" | "weekly" | "season" | "home" | "mail" | "visit" | "storage" | "profile"
 
 local profile: Types.Profile? = nil
 local rate: Types.CampState = { ratePerSecond = 0, assemblySpeed = {} }
@@ -68,6 +70,7 @@ local homePushed = false -- a HomeChanged push has landed, so a late GetHome ans
 local mailPushed = false -- a MailChanged push has landed, so a late GetMail answer's letters are older and are dropped
 local homeView: Types.HomeView? = nil -- the home planet of someone else this client is looking at (HomeView, GetVisit); nil at your own home
 local visitPushed = false -- a HomeView push has landed, so a late GetVisit answer is older and is dropped
+local storagePushed: Types.StorageState? = nil -- the server's last StorageChanged (the alien cap and the Storage Bay level); nil until one lands
 local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
@@ -108,6 +111,11 @@ function State.Set(p: Types.Profile)
 		p.shop.starterSpecies = purchases.starterSpecies
 	else
 		purchases = { purchases = p.purchases, passes = {}, starterSpecies = p.shop.starterSpecies }
+	end
+	-- Storage: a StorageChanged push that landed before the profile knows the Storage Bay level better than the profile.
+	local pushed = storagePushed
+	if pushed then
+		p.storage.bayLevel = pushed.bayLevel
 	end
 	fire("profile")
 	fire("gifts")
@@ -265,6 +273,37 @@ function State.GetCompanionSlots(): number
 		slots += Companions.PassSlots
 	end
 	return math.min(slots, Companions.MaxSlots)
+end
+
+-- Alien storage: how many records the profile may hold, as the server last said (StorageChanged). Before the first push
+-- (or when it was missed) the same shared maths derives it from the mirror: the modules finished in every world, the Storage
+-- Bay level and the StorageBoost pass. The server judges every grant against its own count; this one only labels the screen.
+function State.GetStorageCap(): number
+	local pushed = storagePushed
+	if pushed then
+		return pushed.cap
+	end
+	local p = profile
+	if not p then
+		return Storage.BaseCap
+	end
+	return StorageMath.CapFor(StorageMath.CompletedIds(p.modules), p.storage.bayLevel, purchases.passes[Storage.PassItem] == true)
+end
+
+-- The Storage Bay levels bought, as the server last said; 0 before the profile arrives.
+function State.GetBayLevel(): number
+	local p = profile
+	return if p then p.storage.bayLevel else 0
+end
+
+-- The server's storage state (a StorageChanged push) replaces the mirror and the profile's Storage Bay level.
+function State.SetStorage(state: Types.StorageState)
+	storagePushed = state
+	local p = profile
+	if p then
+		p.storage.bayLevel = state.bayLevel
+	end
+	fire("storage")
 end
 
 -- The uid of the follower the local player rides, as the server last said (CompanionsChanged); nil on foot. The
@@ -714,6 +753,11 @@ function State.Start()
 	task.spawn(function()
 		Net.event("PurchasesChanged").OnClientEvent:Connect(function(state: Types.PurchasesState)
 			State.SetPurchases(state)
+		end)
+	end)
+	task.spawn(function()
+		Net.event("StorageChanged").OnClientEvent:Connect(function(state: Types.StorageState)
+			State.SetStorage(state)
 		end)
 	end)
 	task.spawn(function()

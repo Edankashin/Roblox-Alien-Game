@@ -4,11 +4,16 @@
 -- scrolling grid of one square card per alien (rarity gradient, placeholder shape, name, speed chip,
 -- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
 -- its next stage, where it is working or that it follows you; a following mount shows a Ride button in the status
--- slot instead), a count row (aliens owned over the storage cap, companion slots in use) with a perks line under it, and a
--- footer with Optimize and Fuse buttons, a Companion Token button while a token is held, and a one-line fuse hint.
--- Storage (milestone 50, data/Storage): the owned count reads "Aliens: 1,234 / 1,500", gold from WarnFraction of the cap and
--- red when full. A Release button at the top left opens the ReleasePanel menu (release all unused Commons or Uncommons), and
--- holding an alien card for Storage.HoldSeconds opens the same panel for that one alien; a plain tap still follows or stops.
+-- slot instead), a storage band (the aliens owned over the storage cap above the companion slots in use, and the Storage Bay
+-- button beside them) with a perks line under it, and a footer with Optimize and Fuse buttons, a Companion Token button while a
+-- token is held, and a one-line fuse hint.
+-- Storage (milestones 50 and 50b, data/Storage): the owned count reads "Aliens: 12 / 60", the cap being what the server last said
+-- (State.GetStorageCap: it grows with the ship's modules, the Storage Bay and the pass), gold from WarnFraction of the cap and red
+-- when full. The Storage Bay button beside it buys the next level with Scrap ("+20 storage: 2,500 Scrap"); it is green while
+-- the level can be bought and grey, with the reason in its words or in the toast a tap brings, when the Scrap is short, the
+-- level waits for a world or the Bay is maxed out. A Release button at the top left opens the ReleasePanel menu (release all
+-- unused Commons or Uncommons), and holding an alien card for Storage.HoldSeconds opens the same panel for that one alien; a
+-- plain tap still follows or stops.
 -- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot shows a Display button in
 -- the status slot, and an alien on display shows a purple "On display" pill in the chip row (in place of the size and
 -- growth chips) and, at home, a Bring back button in the status slot; a plain tap on a displayed card does nothing.
@@ -16,7 +21,7 @@
 -- never displays or takes back at another's plot, and the cards redraw on the "visit" topic when that changes.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
 -- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, SetDisplay,
--- UseCompanionToken, and through the ReleasePanel ReleaseAliens and ReleaseAllOfTier). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
+-- UseCompanionToken, BuyStorageBay, and through the ReleasePanel ReleaseAliens and ReleaseAllOfTier). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
 -- asks to follow or stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, the
 -- Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the cards redraw from
 -- the camp, companion and home pushes the server sends back.
@@ -64,16 +69,20 @@ type Entry = {
 }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
--- button reaches down to 0.155, so the body starts under it. Top to bottom: the station strip, the count row
--- (aliens owned on the left half, companion slots on the right), the one-line perks row, the grid, then the footer.
--- The grid ends at 0.845, above the 0.855 where the footer's button row starts, and one row of square cards is
--- about 0.285 tall, so a full row fits without scrolling.
+-- button reaches down to 0.155, so the body starts under it. Top to bottom: the station strip, the storage band
+-- (the aliens owned over the cap and the companion slots in use stacked at the left, the Storage Bay button at the right),
+-- the one-line perks row, the grid, then the footer. The grid ends at 0.845, above the 0.855 where the footer's button row
+-- starts, and one row of square cards is about 0.285 tall, so a full row fits without scrolling. The strip gave the band
+-- 0.04 of its height (0.27 before the Storage Bay, 0.23 now): the button needs a chunky row of its own, and the text of
+-- "+20 storage: 1,000,000 Scrap" needs about half the panel's width at the 14 px minimum.
 local STRIP_Y = 0.17
-local STRIP_H = 0.27
+local STRIP_H = 0.23
 local STRIP_GAP = 0.02 -- between station cards, of the strip width
-local COUNT_Y = 0.455
-local COUNT_H = 0.05
-local COUNT_HALF_W = (1 - Theme.Margin * 2) / 2 -- each of the two count labels takes half the row
+local STORAGE_Y = 0.405
+local COUNT_H = 0.045 -- each of the two stacked labels; together they are as tall as the Bay button
+local STORAGE_LEFT_W = 0.41 -- the labels' width
+local BAY_W = 0.55 -- the Storage Bay button's width, anchored at the right margin
+local BAY_H = COUNT_H * 2
 local PERKS_Y = 0.50
 local PERKS_H = 0.04 -- one line of 14 px text
 local GRID_Y = 0.545
@@ -142,6 +151,7 @@ local panel: Frame? = nil
 local strip: Frame? = nil
 local countLabel: TextLabel? = nil
 local companionsLabel: TextLabel? = nil
+local bayButton: Frame? = nil -- the Storage Bay button
 local perksLabel: TextLabel? = nil
 local tokenButton: Frame? = nil
 local grid: ScrollingFrame? = nil
@@ -151,6 +161,7 @@ local fuseButton: Frame? = nil
 local cardCount = 0
 local open = false
 local pending = false -- one server request in flight at a time
+local bayBusy = false -- a BuyStorageBay request is in flight
 
 -- Helpers ----------------------------------------------------------------
 
@@ -202,14 +213,16 @@ local function clearChildren(parent: Instance)
 	end
 end
 
--- The owned count over the storage cap, in the warning colour from Storage.WarnFraction and the Close colour when full.
+-- The owned count over the storage cap the server last said (State.GetStorageCap), in the warning colour from
+-- Storage.WarnFraction and the Close colour when full.
 local function setCount(count: number)
 	local label = countLabel
 	if not label then
 		return
 	end
-	label.Text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(count), Builder.formatNumber(Storage.StorageCap))
-	label.TextColor3 = if StorageMath.IsFull(count) then Theme.Colors.Close elseif StorageMath.IsWarning(count) then Theme.Colors.Featured else Theme.Colors.White
+	local cap = State.GetStorageCap()
+	label.Text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(count), Builder.formatNumber(cap))
+	label.TextColor3 = if StorageMath.IsFull(count, cap) then Theme.Colors.Close elseif StorageMath.IsWarning(count, cap) then Theme.Colors.Featured else Theme.Colors.White
 end
 
 -- Server calls -------------------------------------------------------------
@@ -1151,6 +1164,75 @@ local function updateCompanionRows(profile: Types.Profile)
 	end
 end
 
+-- Storage Bay ----------------------------------------------------------------
+
+-- The Bay button's face for the profile mirror: the next level's offer in green while it can be bought; in grey the same
+-- offer when the Scrap is short, the world it waits for, or that the Bay is maxed out. The server judges the purchase
+-- (BuyStorageBay); this only says what a tap will do. The grey face still takes taps: a tap on it explains in a toast.
+local function refreshStorageRow()
+	if not open or not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	setCount(cardCount)
+	local row, why = StorageMath.NextBayLevel(State.GetBayLevel(), profile.world.unlocked)
+	local perLevel = Builder.formatNumber(Storage.Bay.PerLevel)
+	if not row then
+		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_MAX, Theme.Rarity.Common, true)
+	elseif why == "NeedsWorld" then
+		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_NEEDS_WORLD:format(perLevel, row.world), Theme.Rarity.Common, true)
+	else
+		local color = if profile.scrap >= row.scrap then Theme.Colors.Confirm else Theme.Rarity.Common
+		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_BUY:format(perLevel, Builder.formatNumber(row.scrap)), color, true)
+	end
+end
+
+-- A tap on the Bay button: a toast for each reason the level cannot be bought (never a silent tap), else the server is
+-- asked. It answers (ok, reason, the new cap); the toast on success says how much the cap rose, from the cap shown before.
+local function buyStorageBay()
+	if bayBusy or not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	local row, why = StorageMath.NextBayLevel(State.GetBayLevel(), profile.world.unlocked)
+	if not row then
+		Toast.Show(Strings.TOAST_STORAGE_BAY_MAX, Theme.Rarity.Common)
+		return
+	end
+	if why == "NeedsWorld" then
+		Toast.Show(Strings.TOAST_STORAGE_BAY_NEEDS_WORLD:format(row.world), Theme.Rarity.Common)
+		return
+	end
+	if profile.scrap < row.scrap then
+		Toast.Show(Strings.TOAST_STORAGE_BAY_NEED_SCRAP, Theme.Rarity.Common)
+		return
+	end
+	bayBusy = true
+	local before = State.GetStorageCap()
+	task.spawn(function()
+		local remote = Net.func("BuyStorageBay")
+		local called, ok, reason, newCap = pcall(remote.InvokeServer, remote)
+		bayBusy = false
+		if called and ok == true then
+			local rose = if type(newCap) == "number" then math.max(0, newCap - before) else Storage.Bay.PerLevel
+			Toast.Show(Strings.TOAST_STORAGE_BAY_BOUGHT:format(Builder.formatNumber(rose)), Theme.Colors.Confirm)
+			return
+		end
+		local refusal = if called then tostring(reason) else tostring(ok)
+		print(("[%s] BuyStorageBay refused: %s"):format(Config.WorkingTitle, refusal))
+		if refusal == "NotEnoughScrap" then
+			Toast.Show(Strings.TOAST_STORAGE_BAY_NEED_SCRAP, Theme.Rarity.Common)
+		elseif refusal == "NeedsWorld" then
+			Toast.Show(Strings.TOAST_STORAGE_BAY_NEEDS_WORLD:format(row.world), Theme.Rarity.Common)
+		elseif refusal == "Max" then
+			Toast.Show(Strings.TOAST_STORAGE_BAY_MAX, Theme.Rarity.Common)
+		else
+			Toast.Show(Strings.TOAST_STORAGE_BAY_FAILED, Theme.Rarity.Common)
+		end
+		refreshStorageRow()
+	end)
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
@@ -1159,6 +1241,7 @@ local function refresh()
 	rebuildStrip(profile)
 	rebuildGrid(profile)
 	updateCompanionRows(profile)
+	refreshStorageRow()
 end
 
 -- The inventory and the passes touch the companion rows only (a token arrived, a pass was bought), not the cards.
@@ -1304,15 +1387,15 @@ local function build()
 	stripLayout.Parent = stripFrame
 	strip = stripFrame
 
-	-- 2. Count row: aliens owned on the left half, companion slots in use on the right half, and the perks line
-	-- under it (one line at the minimum size).
+	-- 2. Storage band: the aliens owned over the storage cap with the companion slots in use under it, at the left, and the
+	-- Storage Bay button at the right; the perks line is under them (one line at the minimum size).
 	countLabel = Builder.label({
 		parent = body,
 		name = "Count",
-		text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(0), Builder.formatNumber(Storage.StorageCap)),
+		text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(0), Builder.formatNumber(Storage.BaseCap)),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(Theme.Margin, COUNT_Y),
-		size = UDim2.fromScale(COUNT_HALF_W, COUNT_H),
+		position = UDim2.fromScale(Theme.Margin, STORAGE_Y),
+		size = UDim2.fromScale(STORAGE_LEFT_W, COUNT_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 3,
 	})
@@ -1321,12 +1404,22 @@ local function build()
 		name = "Companions",
 		text = Strings.ALIENS_COMPANIONS:format(0, Config.CompanionSlots),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(1 - Theme.Margin, COUNT_Y),
-		size = UDim2.fromScale(COUNT_HALF_W, COUNT_H),
-		anchor = Vector2.new(1, 0),
-		xAlign = Enum.TextXAlignment.Right,
+		position = UDim2.fromScale(Theme.Margin, STORAGE_Y + COUNT_H),
+		size = UDim2.fromScale(STORAGE_LEFT_W, COUNT_H),
+		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 3,
 	})
+	bayButton = Builder.button({
+		parent = body,
+		name = "StorageBay",
+		text = Strings.STORAGE_BAY_BUY:format(Builder.formatNumber(Storage.Bay.PerLevel), Builder.formatNumber(Storage.Bay.Levels[1].scrap)),
+		color = Theme.Colors.Confirm,
+		position = UDim2.fromScale(1 - Theme.Margin, STORAGE_Y),
+		size = UDim2.fromScale(BAY_W, BAY_H),
+		anchor = Vector2.new(1, 0),
+		textSize = Theme.TextSize.Label,
+		zIndex = 4,
+	}, buyStorageBay)
 	perksLabel = Builder.label({
 		parent = body,
 		name = "Perks",
@@ -1441,6 +1534,11 @@ local function build()
 	end
 	for _, topic in ipairs({ "inventory", "purchases" }) do
 		State.OnChanged(topic :: State.Topic, refreshCompanionRows)
+	end
+	-- The Bay button and the count follow the cap (storage), what the next level costs (scrap), the world it waits for (world)
+	-- and the pass (purchases, in the cap State derives before the server's first push).
+	for _, topic in ipairs({ "storage", "scrap", "world", "purchases" }) do
+		State.OnChanged(topic :: State.Topic, refreshStorageRow)
 	end
 end
 

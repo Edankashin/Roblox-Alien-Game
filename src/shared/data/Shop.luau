@@ -21,6 +21,7 @@ local Items: { ShopItem } = {
 	{ id = "DirectRare", tab = "Aliens", kind = "product", robux = 99, productId = 0, paidRandom = false },
 	{ id = "DirectEpic", tab = "Aliens", kind = "product", robux = 199, productId = 0, paidRandom = false },
 	{ id = "CompanionSlot4", tab = "Aliens", kind = "pass", robux = 249, passId = 0, paidRandom = false },
+	{ id = "StorageBoost", tab = "Aliens", kind = "pass", robux = 149, passId = 0, paidRandom = false },
 	{ id = "SlotEveryStation1", tab = "Camp", kind = "pass", robux = 399, passId = 2013608394, paidRandom = false },
 	{ id = "SlotEveryStation2", tab = "Camp", kind = "pass", robux = 799, passId = 0, paidRandom = false },
 	{ id = "AutoCollect", tab = "Camp", kind = "pass", robux = 199, passId = 0, paidRandom = false },
@@ -42,7 +43,7 @@ local Items: { ShopItem } = {
 -- species beforehand, Starter Pack); gear: a Gear or radar id through Shop.GrantGear; spins: banked spins;
 -- powerUp: inventory power-ups; slots: +n on every station; serverLuck: `bonus` added to everyone's luck
 -- for `seconds`; cosmetic: an owned cosmetic id (rendered by a later milestone); passFlag: the pass's own
--- effect, read live by the service named (AutoOptimize: Economy).
+-- effect, read live by the service named (AutoOptimize and StorageBoost: Economy).
 export type ShopGrant = { kind: "alien" | "gear" | "spins" | "powerUp" | "slots" | "serverLuck" | "cosmetic" | "passFlag", id: string?, tier: string?, choose: boolean?, amount: number?, bonus: number?, seconds: number? }
 
 local Grants: { [string]: { ShopGrant } } = {
@@ -50,6 +51,7 @@ local Grants: { [string]: { ShopGrant } } = {
 	SlotEveryStation1 = { { kind = "slots", amount = 1 } },
 	SlotEveryStation2 = { { kind = "slots", amount = 2 } }, -- stacks with SlotEveryStation1: both owned is +3 (decision 17)
 	CompanionSlot4 = { { kind = "passFlag", id = "CompanionSlot4" } }, -- Companions reads the pass live for its extra slot
+	StorageBoost = { { kind = "passFlag", id = "StorageBoost" } }, -- Economy reads the pass live: Storage.PassBonus more alien storage (Robux buys space, never Scrap)
 	AutoOptimize = { { kind = "passFlag", id = "AutoOptimize" } },
 	ExplorerPack = { { kind = "gear", id = "Boots" }, { kind = "gear", id = "Hoverboard" }, { kind = "gear", id = "Radar1" } },
 	SpeedBurstx5 = { { kind = "powerUp", id = "SpeedBurst", amount = 5 } },
@@ -70,7 +72,7 @@ return {
 	-- Items waits for its feature (hoverboard skins, home, direct-buy aliens, paid spins).
 	Launch = {
 		{ section = "Featured", items = { "StarterPack" } },
-		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "AutoOptimize", "ExplorerPack" } },
+		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "StorageBoost", "AutoOptimize", "ExplorerPack" } },
 		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},

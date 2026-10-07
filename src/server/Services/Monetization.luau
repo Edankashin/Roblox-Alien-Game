@@ -16,6 +16,8 @@
 -- passFlag (nothing to grant: the owning service reads OwnsPass live) are handled here. Buffs adds
 -- ServerLuckBonus to every luck number and registers its LuckChanged broadcast through
 -- OnServerLuckChanged, so this module never requires Buffs back.
+-- Economy does the same for the StorageBoost pass: OnPassChanged tells it a pass was bought (or owned by Dev), so it re-pushes
+-- the alien storage cap; the cap itself reads OwnsPass live.
 --
 -- Monetization.GiftServerLuck opens the same window for a name instead of a buyer: the developer panel's
 -- gifted luck (Admin) is the same mechanic as a bought one, as the design says, so it shares the bonus and
@@ -88,6 +90,7 @@ local passes: { [number]: { [string]: boolean } } = {} -- owned passes this sess
 local policyCache: { [number]: boolean } = {} -- ArePaidRandomItemsRestricted once fetched, by UserId
 local serverLuck: ServerLuck? = nil
 local luckListeners: { (boolean) -> () } = {} -- Buffs.PushLuckAll, see the header
+local passListeners: { (Player, string) -> () } = {} -- Economy's storage push: a pass was bought or dropped this session
 local luckLoopRunning = false
 
 -- Helpers -----------------------------------------------------------------
@@ -141,6 +144,12 @@ local function broadcastLuck()
 end
 
 -- Each listener runs in its own thread so one failing service cannot stall a purchase.
+local function firePassListeners(player: Player, itemId: string)
+	for _, callback in ipairs(passListeners) do
+		task.spawn(callback, player, itemId)
+	end
+end
+
 local function fireLuckListeners(active: boolean)
 	for _, callback in ipairs(luckListeners) do
 		task.spawn(callback, active)
@@ -359,6 +368,7 @@ local function onPassPromptFinished(player: Player, passId: number, wasPurchased
 		Analytics.Event(player, AnalyticsData.Events.ShopBuy, 1, { kind = "robux", id = item.id, source = "pass" })
 	end
 	pushPurchases(player)
+	firePassListeners(player, item.id)
 end
 
 -- Receipts ----------------------------------------------------------------
@@ -588,6 +598,14 @@ function Monetization.OnServerLuckChanged(callback: (boolean) -> ())
 	table.insert(luckListeners, callback)
 end
 
+-- Server-side hook: `callback` runs with the player and the pass's item id when a pass is bought in the game or owned or
+-- dropped by Dev, after the purchase state is pushed, so a service that reads OwnsPass live (Economy: StorageBoost raises
+-- the alien cap) can tell its client. A pass found owned on join does not call it: the join order already has the answer
+-- (this module's check runs before every later OnLoaded callback).
+function Monetization.OnPassChanged(callback: (Player, string) -> ())
+	table.insert(passListeners, callback)
+end
+
 -- Developer overrides (Studio commands, guarded by Dev): grant an item as if bought, and own or drop a
 -- pass for this session (owning applies its one-time grants once, like a real pass).
 function Monetization.DevGrant(player: Player, itemId: string): (boolean, string?)
@@ -607,6 +625,7 @@ function Monetization.DevSetPass(player: Player, itemId: string, owned: boolean)
 		ownedNow[itemId] = nil
 	end
 	pushPurchases(player)
+	firePassListeners(player, itemId)
 	return true, nil
 end
 

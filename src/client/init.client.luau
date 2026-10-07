@@ -674,6 +674,16 @@ local function connectToasts()
 			end
 		end)
 	end)
+	-- A finished ship module raised the alien storage cap (StorageChanged carries `gained` only for that): say by how much.
+	-- Joining, the Storage Bay and the pass change the cap without it; the Aliens screen shows those.
+	task.spawn(function()
+		Net.event("StorageChanged").OnClientEvent:Connect(function(state: Types.StorageState)
+			local gained = state.gained
+			if gained ~= nil and gained > 0 then
+				Toast.Show(Strings.TOAST_STORAGE_GAINED:format(Builder.formatNumber(gained)), Theme.Colors.Featured)
+			end
+		end)
+	end)
 	-- The server accepted a launch: the lift-off plays with the HUD hidden, like the crash opener. With
 	-- a live place the server teleports the player before the sequence ends; otherwise the camp returns.
 	task.spawn(function()

@@ -406,6 +406,32 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	return container
 end
 
+-- Restyles a button made by Builder.button: the face, lip, border and gradient take a new colour, the face a new label, and
+-- `enabled` decides whether its face takes taps (Active). ReleasePanel and AliensScreen grey a button this way and say why.
+function Builder.restyleButton(container: Frame?, text: string, color: Color3, enabled: boolean)
+	if not container then
+		return
+	end
+	local dark = Builder.darker(color)
+	local lip = container:FindFirstChild("Lip")
+	if lip and lip:IsA("Frame") then
+		lip.BackgroundColor3 = dark
+	end
+	local face = container:FindFirstChild("Face")
+	if face and face:IsA("TextButton") then
+		face.BackgroundColor3 = color
+		face.Text = text
+		face.Active = enabled
+		for _, child in ipairs(face:GetChildren()) do
+			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
+				child.Color = dark
+			elseif child:IsA("UIGradient") then
+				child.Color = ColorSequence.new(Builder.lighter(color), color)
+			end
+		end
+	end
+end
+
 -- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
 -- no text stroke (navy on cream), left-aligned inside a scale padding. The text is kept when it gains focus (typing
 -- edits it); the caller reads .Text and listens to FocusLost for Enter.

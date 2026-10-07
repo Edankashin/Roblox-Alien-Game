@@ -581,6 +581,16 @@ return {
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
 	ALIENS_COUNT_CAP = "Aliens: %s / %s", -- owned records over the storage cap (data/Storage)
+	-- the Storage Bay button on the Aliens screen and its toasts (data/Storage Bay)
+	STORAGE_BAY_BUY = "+%s storage: %s Scrap", -- the next level: the storage it adds and its price
+	STORAGE_BAY_NEEDS_WORLD = "+%s storage: reach World %d", -- the next level waits for a world
+	STORAGE_BAY_MAX = "Storage Bay maxed out",
+	TOAST_STORAGE_GAINED = "+%s alien storage", -- a finished ship module (or the Storage Bay) raised the cap
+	TOAST_STORAGE_BAY_BOUGHT = "Storage Bay upgraded: +%s alien storage",
+	TOAST_STORAGE_BAY_NEED_SCRAP = "Not enough Scrap for the Storage Bay",
+	TOAST_STORAGE_BAY_NEEDS_WORLD = "The next Storage Bay level needs World %d",
+	TOAST_STORAGE_BAY_MAX = "The Storage Bay is fully upgraded",
+	TOAST_STORAGE_BAY_FAILED = "Could not upgrade the Storage Bay right now",
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
@@ -735,6 +745,8 @@ return {
 	SHOP_DESC_SlotEveryStation2 = "Two more aliens working at every station, forever.",
 	SHOP_ITEM_CompanionSlot4 = "+1 Companion",
 	SHOP_DESC_CompanionSlot4 = "One more alien can follow you around, forever.",
+	SHOP_ITEM_StorageBoost = "+100 Alien Storage",
+	SHOP_DESC_StorageBoost = "Room for 100 more aliens in your storage, forever. It stacks with the Storage Bay.",
 	SHOP_ITEM_AutoOptimize = "Auto-Optimize",
 	SHOP_DESC_AutoOptimize = "Every new alien goes straight to its best station.",
 	SHOP_ITEM_ExplorerPack = "Explorer Pack",

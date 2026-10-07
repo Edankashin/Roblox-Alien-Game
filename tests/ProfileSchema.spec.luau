@@ -48,7 +48,7 @@ local shape = {
 		weekly = { period = "string", ids = "table", progress = "table", claimed = "table", rerolls = "number" },
 		fieldNotes = "table", progress = "table" },
 	gifts = { daysPlayed = "number", claimed = "table", lastPlayDay = "number" },
-	playtime = { day = "number", seconds = "number", claimed = "table" },
+	playtime = { day = "number", seconds = "number", claimed = "table" }, storage = { bayLevel = "number" },
 	spins = { free = "number", banked = "number", lastFree = "number" }, luck = { pity = "number" },
 	purchases = "table", shop = { receipts = "table" }, buffs = "table",
 	inventory = { keyMaterials = "table", lures = "table", powerUps = "table", items = "table" },
@@ -74,6 +74,7 @@ local mailVersion = habitatVersion + F.one -- v13
 local waveVersion = mailVersion + F.one -- v14
 local seasonVersion = waveVersion + F.one -- v15
 local playtimeVersion = seasonVersion + F.one -- v16
+local storageVersion = playtimeVersion + F.one -- v17
 
 describe("ProfileSchema", function()
 	it("minimal v1 fills every required Profile field with the right type", function()
@@ -184,6 +185,29 @@ describe("ProfileSchema", function()
 		local damaged = { playtime = { day = "x", seconds = F.tick, claimed = "no" } }
 		Schema.migrations[playtimeVersion](damaged)
 		same(damaged.playtime, { day = F.zero, seconds = F.tick, claimed = {} })
+	end)
+	it("v17 starts with no Storage Bay level bought and keeps a saved level", function()
+		local saved = {}
+		Schema.migrations[storageVersion](saved)
+		same(saved.storage, { bayLevel = F.zero })
+		saved.storage.bayLevel = F.two
+		local before = clone(saved)
+		Schema.migrations[storageVersion](saved)
+		same(saved, before)
+		local damaged = { storage = { bayLevel = "x", extra = F.one } }
+		Schema.migrations[storageVersion](damaged)
+		same(damaged.storage, { bayLevel = F.zero })
+		local notATable = { storage = "no" }
+		Schema.migrations[storageVersion](notATable)
+		same(notATable.storage, { bayLevel = F.zero })
+	end)
+	it("a v16 save migrates to the current version with a Storage Bay level of 0", function()
+		local saved = Schema.template()
+		saved.version = playtimeVersion
+		saved.storage = nil
+		local profile = Schema.migrate(saved)
+		expect(profile.version).toEqual(Schema.SCHEMA_VERSION)
+		same(profile.storage, { bayLevel = F.zero })
 	end)
 	it("legacy alien size and worked time are added without losing saved values", function()
 		local saved = v1()

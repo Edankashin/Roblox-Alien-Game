@@ -94,31 +94,6 @@ local busy = false -- one request in flight at a time
 
 -- Helpers ----------------------------------------------------------------
 
--- Fills a button's face with a colour (face, lip, border and gradient together), a label and whether it takes taps.
-local function styleButton(container: Frame?, text: string, color: Color3, enabled: boolean)
-	if not container then
-		return
-	end
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		face.Text = text
-		face.Active = enabled
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
-end
-
 local function tierOf(record: Types.AlienRecord): Types.Tier
 	local def = Species.ById[record.species]
 	return if def then def.tier else "Common"
@@ -204,11 +179,11 @@ local function refreshAlien()
 	end
 	local value = Builder.formatNumber(StorageMath.ReleaseValue(tier))
 	if inUse ~= nil then
-		styleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Rarity.Common, false)
+		Builder.restyleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Rarity.Common, false)
 	elseif armed then
-		styleButton(releaseButton, Strings.RELEASE_TAP_AGAIN, Theme.Colors.Close, true)
+		Builder.restyleButton(releaseButton, Strings.RELEASE_TAP_AGAIN, Theme.Colors.Close, true)
 	else
-		styleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Colors.Featured, true)
+		Builder.restyleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Colors.Featured, true)
 	end
 end
 
@@ -228,7 +203,7 @@ local function refreshMenu()
 		else
 			row.info.Text = Strings.RELEASE_ROW_INFO:format(Builder.formatNumber(row.count), Builder.formatNumber(row.scrap))
 		end
-		styleButton(row.button, bulkLabel(row.tier), if row.count > 0 then Theme.Colors.Featured else Theme.Rarity.Common, row.count > 0)
+		Builder.restyleButton(row.button, bulkLabel(row.tier), if row.count > 0 then Theme.Colors.Featured else Theme.Rarity.Common, row.count > 0)
 	end
 end
 
@@ -542,7 +517,7 @@ local function build(parent: ScreenGui)
 		end
 		refreshMenu()
 	end, releaseTier)
-	styleButton(go, Strings.RELEASE_CONFIRM_BUTTON, Theme.Colors.Close, true)
+	Builder.restyleButton(go, Strings.RELEASE_CONFIRM_BUTTON, Theme.Colors.Close, true)
 	back.Name = "Back"
 
 	for _, topic in ipairs({ "stations", "companions" }) do

@@ -2,7 +2,7 @@
 -- ServerScriptService.Server.ProfileSchema: serialized save defaults and migrations.
 -- Dependencies are data tables supplied by PlayerData; no services, yields or persistence.
 local ProfileSchema = {}
-local SCHEMA_VERSION = 16
+local SCHEMA_VERSION = 17
 
 function ProfileSchema.new(
 	Config: { StationStartSlots: number },
@@ -35,6 +35,11 @@ function ProfileSchema.new(
 		return { day = 0, seconds = 0, claimed = {} }
 	end
 
+	-- The Storage Bay (data/Storage): no level bought yet.
+	local function defaultStorage()
+		return { bayLevel = 0 }
+	end
+
 	local function template(): any
 		local stations: { [string]: { slots: number, assigned: { string } } } = {}
 		for _, job in ipairs(Jobs.Order) do
@@ -55,6 +60,7 @@ function ProfileSchema.new(
 			quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 			gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
 			playtime = defaultPlaytime(),
+			storage = defaultStorage(),
 			spins = { free = 1, banked = 0, lastFree = 0 },
 			luck = { pity = 0 },
 			purchases = {},
@@ -230,6 +236,16 @@ function ProfileSchema.new(
 				playtime.claimed = saved.claimed
 			end
 			data.playtime = playtime
+			return data
+		end,
+		-- v17: alien storage that grows; a save without the block has bought no Storage Bay level, a saved level is kept
+		[17] = function(data)
+			local saved = if type(data.storage) == "table" then data.storage else {}
+			local storage = defaultStorage()
+			if type(saved.bayLevel) == "number" then
+				storage.bayLevel = saved.bayLevel
+			end
+			data.storage = storage
 			return data
 		end,
 	}
