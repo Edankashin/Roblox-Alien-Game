@@ -110,7 +110,7 @@ Files: `tools/lint_remotes.py`, `tools/lint.sh`, `docs/vault/04-roblox-engine/Re
 
 Done when: `./tools/lint.sh` passes, `Remotes.md` lists every remote, and the audit reports no handler without a rate limit.
 
-### C10. Save migration tests — open
+### C10. Save migration tests — taken by codex 2026-10-06
 
 Goal: the save migrations (schema v1 to v15) are tested before real saves are switched on, so an old player's save can never come back broken.
 
