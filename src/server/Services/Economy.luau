@@ -71,8 +71,11 @@ local function pushScrap(player: Player, profile: Types.Profile)
 	Net.event("ScrapChanged"):FireClient(player, profile.scrap)
 end
 
+-- The camp rate with the station factor the income tick applies (Buffs.StationMultiplier), so the HUD shows what is paid.
 local function pushRate(player: Player, profile: Types.Profile)
-	Net.event("RateChanged"):FireClient(player, Economy.campState(profile))
+	local state = Economy.campState(profile)
+	state.multiplier = Buffs.StationMultiplier(player)
+	Net.event("RateChanged"):FireClient(player, state)
 end
 
 local function pushStations(player: Player, profile: Types.Profile)
@@ -923,6 +926,13 @@ local function onFuseSpecies(player: Player, species: any): (Types.FuseResult?, 
 end
 
 function EconomyService.Init()
+	-- A Double Shift, a friend or resting moves the station factor: the HUD's rate follows (Buffs never requires Economy).
+	Buffs.OnStationMultiplierChanged(function(player: Player)
+		local profile = PlayerData.Get(player)
+		if profile then
+			pushRate(player, profile)
+		end
+	end)
 	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew" }) do
 		Net.event(name)
 	end

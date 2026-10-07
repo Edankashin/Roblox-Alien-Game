@@ -274,7 +274,9 @@ export type Announcement = {
 -- Camp -------------------------------------------------------------------
 
 -- Economy -> client whenever an assignment or a work speed changes (RateChanged). assemblySpeed is by job.
-export type CampState = { ratePerSecond: number, assemblySpeed: { [string]: number } }
+-- `multiplier` is the station income factor the server applies right now (Buffs.StationMultiplier: Double Shift, the
+-- Friend Boost, resting); the HUD's Scrap per minute is ratePerSecond times it. nil reads as 1 (a profile-derived state).
+export type CampState = { ratePerSecond: number, assemblySpeed: { [string]: number }, multiplier: number? }
 
 -- Economy -> client once on join when the player was away long enough (OfflineSummary).
 export type OfflineSummary = {

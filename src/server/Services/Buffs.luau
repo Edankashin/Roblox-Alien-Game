@@ -23,7 +23,8 @@
 -- acyclic) and registers Buffs.PushLuckAll through Events.OnShowerChanged at Init, so every player's
 -- LuckChanged is re-sent when a shower starts or ends without Events ever requiring Buffs. Companions is the
 -- same: it requires only PlayerData, Analytics and Monetization, nothing that requires Buffs, so this module
--- (and Economy) can require it, and it never requires either back.
+-- (and Economy) can require it, and it never requires either back. Afk (resting, data/Afk) is the same: it requires only
+-- PlayerData, Analytics and Net, and this module asks it whether a player rests for the station income scale.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -31,6 +32,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
+local AfkData = require(Shared.data.Afk)
 local Tiers = require(Shared.data.Tiers)
 local PowerUps = require(Shared.data.PowerUps)
 local Net = require(Shared.Net)
@@ -40,6 +42,7 @@ local Events = require(script.Parent.Events)
 local Monetization = require(script.Parent.Monetization)
 local Friends = require(script.Parent.Friends)
 local Companions = require(script.Parent.Companions)
+local Afk = require(script.Parent.Afk)
 
 local Buffs = {}
 
@@ -97,8 +100,19 @@ local function activeValue(profile: Types.Profile?, effect: string): number
 end
 
 -- What other services and the client must hear when a buff of this effect starts or ends.
+local stationListeners: { (Player) -> () } = {}
+
+-- Economy re-pushes the camp rate (with Buffs.StationMultiplier in it) when the station factor moves.
+local function stationChanged(player: Player)
+	for _, callback in ipairs(stationListeners) do
+		callback(player)
+	end
+end
+
 local function afterChange(player: Player, effect: string)
-	if effect == "speed" then
+	if effect == "stationScrap" then
+		stationChanged(player)
+	elseif effect == "speed" then
 		for _, callback in ipairs(movementListeners) do
 			callback(player)
 		end
@@ -127,10 +141,11 @@ function Buffs.CatchScrapMultiplier(player: Player): number
 end
 
 -- Station income factor: the value of an active "stationScrap" buff (Double Shift is 2), else 1, times
--- (1 + the Friend Boost): Double Shift with one friend is 2.1.
+-- (1 + the Friend Boost): Double Shift with one friend is 2.1. Times Afk.IncomeScale (half) while the player is resting.
 function Buffs.StationMultiplier(player: Player): number
 	local value = activeValue(PlayerData.Get(player), "stationScrap")
-	return (if value > 0 then value else 1) * (1 + Friends.Boost(player))
+	local resting = if Afk.IsResting(player) then AfkData.IncomeScale else 1
+	return (if value > 0 then value else 1) * (1 + Friends.Boost(player)) * resting
 end
 
 -- The one luck number the Spawner rolls tiers with and the HUD shows: 1 + Lucky Charm + night bonus
@@ -267,6 +282,12 @@ end
 
 -- Public API -------------------------------------------------------------
 
+-- Runs `callback(player)` whenever Buffs.StationMultiplier may have changed for that player (a Double Shift starting or
+-- ending, a friend arriving or leaving, resting starting or ending). Economy registers its rate push here.
+function Buffs.OnStationMultiplierChanged(callback: (Player) -> ())
+	table.insert(stationListeners, callback)
+end
+
 function Buffs.Init()
 	for _, name in ipairs({ "BuffsChanged", "LuckChanged", "InventoryChanged" }) do
 		Net.event(name)
@@ -291,6 +312,13 @@ function Buffs.Init()
 	Friends.OnChanged(function(player: Player)
 		if PlayerData.Get(player) then
 			pushLuck(player)
+			stationChanged(player) -- the Friend Boost is part of the station factor too
+		end
+	end)
+	-- Resting halves the station factor: its start and end move the HUD's rate.
+	Afk.OnRestChanged(function(player: Player)
+		if PlayerData.Get(player) then
+			stationChanged(player)
 		end
 	end)
 	-- A Spark companion's luck perk is part of that player's luck: following or unfollowing re-sends the number.

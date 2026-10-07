@@ -603,6 +603,7 @@ Resting (`data/Afk.luau`): after 2 minutes with no movement and no use of the ga
 3. Standing still but using menus (open Aliens, tap a card, open the Shop) for 3 minutes never rests: using the game counts as playing.
 4. `/afk rejoin`: Output `Afk: would rejoin <name> to this server (Studio skips teleports)`; on the screen the line "Keeping your spot..." shows. In a published game, after 17 minutes without input the player rejoins the same server and rests again two minutes later.
 5. The Shop's Passes section has five tiles (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
+6. The HUD's Scrap per minute now shows what is paid: use a Double Shift (`/spins 5` and spin until one lands, or a code) and the line doubles at once and returns when it ends; a Roblox friend joining the server raises it by the Friend Boost (multi-client); resting halves it. Before this milestone the line never moved for any of the three.
 
 ## Phone performance fixes (World 1 place; from Codex's report C14)
 

@@ -25,6 +25,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local HomeBuild = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local HomeData = require(Shared:WaitForChild("data"):WaitForChild("Home"))
 local VisitingData = require(Shared:WaitForChild("data"):WaitForChild("Visiting"))
+local AfkData = require(Shared:WaitForChild("data"):WaitForChild("Afk"))
 local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
@@ -45,6 +46,7 @@ local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"
 local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"))
 local MailScreen = require(script:WaitForChild("UI"):WaitForChild("MailScreen"))
 local VisitScreen = require(script:WaitForChild("UI"):WaitForChild("VisitScreen"))
+local AfkScreen = require(script:WaitForChild("UI"):WaitForChild("AfkScreen"))
 local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
@@ -1005,6 +1007,135 @@ local function connectToasts()
 	end)
 end
 
+-- Resting (milestone 46, data/Afk) ---------------------------------------------
+
+
+-- The HUD's Scrap per minute: the camp rate times the station factor the server applies right now (RateChanged carries
+-- both; the factor covers Double Shift, the Friend Boost and resting). The server pays it; this only draws it.
+local function showRate()
+	local state = State.GetRate()
+	Hud.SetRate(state.ratePerSecond * (state.multiplier or 1))
+end
+
+-- The Resting screen and what feeds it. The server decides who rests (AfkChanged: resting or not, since when, the Scrap
+-- earned) and wakes a player who moves or uses the game; the client only draws and keeps two idle clocks. ANY local
+-- input hides the screen (the server may not have heard of it yet: a menu read, a camera drag), "Back to play" also
+-- tells the server (AfkWake). A screen hidden while the server still says resting comes back after Afk.IdleAfterSeconds
+-- with no input. Roblox disconnects a player with no input for 20 minutes, so at Afk.RejoinAfterIdleSeconds idle
+-- (Player.Idled's seconds, or the clock of the last local input, whichever is larger) the client asks AfkRejoin once
+-- per idle stretch; the server answers ok when the rejoin is under way.
+local function connectAfk()
+	local lastState: Types.AfkState = { resting = false, since = 0, earned = 0 }
+	local hiddenByInput = false -- the screen was hidden by local input while the server still says resting
+	local lastInput = os.clock()
+	local idledSeconds = 0 -- the engine's Player.Idled figure and the clock it arrived at
+	local idledAt = 0
+	local rejoinAsked = false
+
+	-- Seconds without input: the larger of the local clock and the engine's figure (extrapolated), the engine's only
+	-- while no input has been seen since it arrived.
+	local function idleSeconds(): number
+		local now = os.clock()
+		local engine = if idledAt > lastInput then idledSeconds + (now - idledAt) else 0
+		return math.max(now - lastInput, engine)
+	end
+
+	local function requestRejoin()
+		task.spawn(function()
+			local called, ok = pcall(function(): (any, any)
+				return Net.func("AfkRejoin"):InvokeServer()
+			end)
+			if called and ok == true then
+				AfkScreen.SetRejoining(true)
+			end
+		end)
+	end
+
+	task.spawn(function()
+		Net.event("AfkChanged").OnClientEvent:Connect(function(state: Types.AfkState)
+			if type(state) ~= "table" or type(state.resting) ~= "boolean" or type(state.since) ~= "number" or type(state.earned) ~= "number" then
+				return
+			end
+			local was = lastState.resting
+			lastState = state
+			showRate()
+			if state.resting then
+				if not was then
+					hiddenByInput = false
+					AfkScreen.Show(state)
+				else
+					AfkScreen.Update(state) -- hidden or not: the numbers are ready for a re-show
+				end
+			else
+				hiddenByInput = false
+				AfkScreen.Hide()
+				if was then
+					Toast.Show(Strings.TOAST_AFK_BACK:format(Builder.formatNumber(state.earned)), Theme.Colors.Confirm)
+				end
+			end
+		end)
+	end)
+	-- The server accepted a rejoin (the client's own request or /afk rejoin): the screen says so, and comes back up if
+	-- a key press had hidden it.
+	task.spawn(function()
+		Net.event("AfkRejoining").OnClientEvent:Connect(function()
+			if not lastState.resting then
+				return
+			end
+			if not AfkScreen.IsShown() then
+				hiddenByInput = false
+				AfkScreen.Show(lastState)
+			end
+			AfkScreen.SetRejoining(true)
+		end)
+	end)
+
+	AfkScreen.OnBack(function()
+		hiddenByInput = true
+		AfkScreen.Hide()
+		Net.event("AfkWake"):FireServer()
+	end)
+
+	UserInputService.InputBegan:Connect(function()
+		lastInput = os.clock()
+		rejoinAsked = false
+		if lastState.resting and AfkScreen.IsShown() then
+			hiddenByInput = true
+			AfkScreen.Hide()
+		end
+	end)
+	-- A moving mouse or finger is input for Roblox's idle timer too, so it keeps the rejoin clock honest (it does not
+	-- hide the screen: only a press or tap does).
+	UserInputService.InputChanged:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseMovement or kind == Enum.UserInputType.MouseWheel or kind == Enum.UserInputType.Touch then
+			lastInput = os.clock()
+			rejoinAsked = false
+		end
+	end)
+	localPlayer.Idled:Connect(function(seconds: number)
+		idledSeconds = seconds
+		idledAt = os.clock()
+	end)
+
+	task.spawn(function()
+		while true do
+			task.wait(AfkData.CheckSeconds)
+			if lastState.resting then
+				local idle = idleSeconds()
+				if hiddenByInput and idle >= AfkData.IdleAfterSeconds then
+					hiddenByInput = false
+					AfkScreen.Show(lastState)
+				end
+				if not rejoinAsked and idle >= AfkData.RejoinAfterIdleSeconds then
+					rejoinAsked = true
+					requestRejoin()
+				end
+			end
+		end
+	end)
+end
+
 -- Boot ---------------------------------------------------------------------
 
 local function start(profile: Types.Profile)
@@ -1052,7 +1183,7 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("visit", onVisit)
 	onVisit() -- a view that landed before this listener (a teleported visitor's first pull) is welcomed too
-	Hud.SetRate(State.GetRate().ratePerSecond)
+	showRate()
 	refreshShip()
 	Hud.OnAction(performAction)
 	Hud.OnFriendChipTapped(onFriendChipTap)
@@ -1550,7 +1681,7 @@ local function start(profile: Types.Profile)
 		Hud.SetScrap(State.Get().scrap)
 	end)
 	State.OnChanged("rate", function()
-		Hud.SetRate(State.GetRate().ratePerSecond)
+		showRate()
 		refreshShip()
 	end)
 	State.OnChanged("modules", refreshShip)
@@ -1586,6 +1717,7 @@ local function start(profile: Types.Profile)
 		end
 	end)
 	connectToasts()
+	connectAfk()
 
 	-- Contextual button and ship bar polls.
 	local actionAccumulator = 0

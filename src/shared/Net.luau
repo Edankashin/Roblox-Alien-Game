@@ -54,7 +54,20 @@ end
 -- Server-side rate limiting: allow at most maxPerSecond calls per player per name.
 local buckets: { [Player]: { [string]: { count: number, windowStart: number } } } = {}
 
+-- Every server handler calls Net.allow first, so a call from a player is the server's one sign that they are using the
+-- game. The Afk service registers a listener here (the player and the remote's name) so resting knows when a player is
+-- back. Server only in practice: the client never sets it, and it never runs on the client.
+local activityListener: ((Player, string) -> ())? = nil
+
+function Net.SetActivityListener(listener: ((Player, string) -> ())?)
+	activityListener = listener
+end
+
 function Net.allow(player: Player, name: string, maxPerSecond: number): boolean
+	local listener = activityListener
+	if listener then
+		listener(player, name) -- before the rate check: a call that is refused for its rate is still a call
+	end
 	local now = os.clock()
 	local perPlayer = buckets[player]
 	if not perPlayer then
