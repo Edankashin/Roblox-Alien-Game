@@ -652,29 +652,31 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NAME_H),
 		zIndex = 4,
 	})
-	local desc = Builder.label({
-		parent = card,
-		name = "Desc",
-		text = Builder.text("SHOP_DESC_" .. item.id),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
-		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
-		zIndex = 4,
-	})
-	desc.TextWrapped = true -- two short lines fit the band at phone sizes; a longer one shrinks, then trims
-	desc.TextTruncate = Enum.TextTruncate.AtEnd
+	if not item.oddsOnWheel then
+		local desc = Builder.label({
+			parent = card,
+			name = "Desc",
+			text = Builder.text("SHOP_DESC_" .. item.id),
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
+			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
+			zIndex = 4,
+		})
+		desc.TextTruncate = Enum.TextTruncate.AtEnd -- one line: shrinks to the minimum size, then trims
+	end
 	if item.oddsOnWheel then
-		-- Paid spins: the odds must be visible before buying. The note line says so, and the whole band from the
-		-- description to the note is one tap target (a thumb-sized area, not a 14 px line) that opens the wheel,
-		-- which lists every prize with its odds (data/Spins). The Buy button below stays its own target.
+		-- Paid spins: the odds must be visible before buying. A spin tile's name says what it is ("5 Spins"), so its
+		-- description band carries the odds line instead, at body size (the tile is too short for a description, a
+		-- note and the Buy button at phone sizes). The band from the description's top to the note's bottom is one
+		-- tap target that opens the wheel and its odds table (data/Spins). The Buy button below stays its own target.
 		Builder.label({
 			parent = card,
 			name = "Odds",
 			text = Strings.SHOP_SEE_ODDS,
-			textSize = Theme.TextSize.Min,
+			textSize = Theme.TextSize.Body,
 			color = Theme.Colors.Featured,
-			position = UDim2.fromScale(TILE_INSET, TILE_NOTE_Y),
-			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NOTE_H),
+			position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
+			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
 			zIndex = 4,
 		})
 		local oddsTap = Instance.new("TextButton")

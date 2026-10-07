@@ -911,13 +911,23 @@ local function buildOddsTable(body: Frame): Frame
 			zIndex = 9,
 		})
 	end
-	row(1, Strings.SPIN_ODDS_PRIZE, Strings.SPIN_ODDS_CHANCE, Theme.Colors.Heading)
+	-- Most likely first (ties keep the wheel's order); the header and total in navy like the rows, readable on cream.
+	local ordered = table.clone(segments)
+	table.sort(ordered, function(a: Segment, b: Segment): boolean
+		if a.odds ~= b.odds then
+			return a.odds > b.odds
+		end
+		local ia: number = table.find(segments, a) or 0
+		local ib: number = table.find(segments, b) or 0
+		return ia < ib
+	end)
+	row(1, Strings.SPIN_ODDS_PRIZE, Strings.SPIN_ODDS_CHANCE, Theme.Colors.Outline)
 	local total = 0
-	for index, segment in ipairs(segments) do
+	for index, segment in ipairs(ordered) do
 		row(index + 1, segmentName(segment.id), Strings.UI_PERCENT:format(segment.odds), Theme.Colors.Outline)
 		total += segment.odds
 	end
-	row(rowCount, Strings.SPIN_ODDS_TOTAL, Strings.UI_PERCENT:format(total), Theme.Colors.Heading)
+	row(rowCount, Strings.SPIN_ODDS_TOTAL, Strings.UI_PERCENT:format(total), Theme.Colors.Outline)
 	return tableFrame
 end
 
