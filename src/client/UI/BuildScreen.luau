@@ -14,7 +14,8 @@
 -- (RemoveHomeItem). The server judges every one: it answers (ok, reason) and pushes HomeChanged, which the mirror
 -- and this tray redraw from; a refusal becomes a toast. Nothing here decides an outcome.
 --
--- A tap reaches OnWorldTap (the bootstrap routes it while the tray is open). It is cast from the camera against the
+-- Opening the tray glides the camera to frame the whole plot above it (CameraDirector.FrameArea); closing glides it
+-- back. A tap reaches OnWorldTap (the bootstrap routes it while the tray is open). It is cast from the camera against the
 -- plot and the ghost (placing) or the plot and the placed items (taking away), so a tap on the body of a tall item
 -- finds that item, not the ground behind it.
 
@@ -33,6 +34,7 @@ local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
 local HomeRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("HomeRenderer"))
+local CameraDirector = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CameraDirector"))
 
 local BuildScreen = {}
 
@@ -576,6 +578,15 @@ function BuildScreen.Open()
 	refresh()
 	root.Enabled = true
 	Builder.open(body)
+	-- The tray swallows taps on its own area, so the camera frames the whole plot in the screen above it (with the
+	-- header tab, which sits half above the tray's top edge). Without this a plot low in the view hid behind the
+	-- tray and a tap on it did nothing (D2 in the owner guide).
+	local plot = HomeRenderer.Plot()
+	if plot then
+		local top = plot.Position + Vector3.new(0, plot.Size.Y / 2, 0)
+		local radius = math.sqrt(plot.Size.X * plot.Size.X + plot.Size.Z * plot.Size.Z) / 2
+		CameraDirector.FrameArea(top, radius, 1 - Theme.Margin - TRAY_H * (1 + HEADER_H / 2))
+	end
 end
 
 function BuildScreen.Close()
@@ -584,6 +595,7 @@ function BuildScreen.Close()
 	end
 	open = false
 	clearGhost()
+	CameraDirector.EndFrame()
 	local root, body = gui, panel
 	if root and body then
 		Builder.close(body, function()

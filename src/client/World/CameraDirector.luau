@@ -1,11 +1,13 @@
 --!strict
--- StarterPlayerScripts.Client.World.CameraDirector: the only module that takes the camera. Two
--- sequences, both pure presentation. PanTo is the "module complete" moment: the camera glides from
+-- StarterPlayerScripts.Client.World.CameraDirector: the only module that takes the camera. Three
+-- sequences, all pure presentation. PanTo is the "module complete" moment: the camera glides from
 -- wherever it stands to a viewpoint Config.CameraPanDistance studs out from the target (on the side it
 -- is already on, so it never swings through the ship) and Config.CameraPanHeight up, looking at the
 -- target; rests Config.CameraPanHoldSeconds; glides back to the character at the offset it left from.
 -- CrashLanding opens a brand-new profile: a dive from Config.CrashStartHeight studs above the camp to
 -- a seat behind the character, a shake at touchdown, and the two CRASH_LINE banners (Toast.Banner).
+-- FrameArea is the Build tray's view: the camera glides to look down on an area (the house plot) so all of it
+-- sits in the part of the screen above the tray, and holds there until EndFrame glides it back.
 -- The camera is Scriptable while a sequence runs, so the player cannot steer it (the character is not
 -- frozen; the bootstrap hides the HUD), and goes back to Custom with the Humanoid as subject after.
 -- Cancel stops whatever runs at once (a capture started, the player left) and still runs the pending
@@ -45,6 +47,11 @@ local busy = false
 local generation = 0 -- each sequence takes a number; Cancel retires it, so later steps do nothing
 local pendingDone: (() -> ())? = nil
 local activeTween: Tween? = nil
+-- FrameArea's hold: the generation that holds it, and where EndFrame glides back to (the camera's offset from the
+-- character and its rotation when the hold began).
+local framedGeneration: number? = nil
+local framedReturn: Vector3? = nil
+local framedRotation: CFrame? = nil
 
 -- Lookups ------------------------------------------------------------------
 
@@ -275,6 +282,80 @@ function CameraDirector.CrashLanding(onDone: (() -> ())?)
 		end
 		Toast.Banner(Strings.CRASH_LINE_2, Theme.Colors.Featured, Config.CrashLineSeconds)
 		release()
+	end)
+end
+
+-- The Build tray's view (milestone 42b): glide to look down on a flat area centred on `center` with half-diagonal
+-- `radius` studs, so the whole area shows in the top `visibleTop` of the screen (the tray covers the rest and
+-- swallows taps there), and hold until EndFrame. The camera stays on the side it already stands. The fit: the
+-- area's centre is aimed at the middle of the visible band, by tilting the view down from the centre line by the
+-- band's offset, and the distance makes the radius fill half the band's height with Config.BuildCameraFitMargin to
+-- spare. Answers false (and holds nothing) while another sequence runs or there is no camera.
+function CameraDirector.FrameArea(center: Vector3, radius: number, visibleTop: number): boolean
+	if busy then
+		return false
+	end
+	local cam = currentCamera()
+	if not cam then
+		return false
+	end
+	busy = true
+	generation += 1
+	local mine = generation
+	pendingDone = nil
+
+	local saved = cam.CFrame
+	local root = rootPart()
+	framedReturn = if root then saved.Position - root.Position else nil
+	framedRotation = saved.Rotation
+	framedGeneration = mine
+
+	local halfFov = math.rad(cam.FieldOfView) / 2
+	local band = math.clamp(visibleTop, 0.2, 1)
+	-- Screen height maps linearly to the tangent of the angle off the centre line.
+	local tilt = math.atan((1 - band) * math.tan(halfFov)) -- the band's middle sits this far above the centre
+	local halfBand = math.atan(band * math.tan(halfFov)) -- half the band's height, as an angle
+	local distance = radius * Config.BuildCameraFitMargin / math.tan(halfBand)
+	local pitch = math.rad(Config.BuildCameraPitchDegrees)
+	local away = flatDirection(saved.Position, center) or Vector3.new(0, 0, 1)
+	local eye = center + away * (distance * math.cos(pitch)) + Vector3.new(0, distance * math.sin(pitch), 0)
+	local view = CFrame.lookAt(eye, center) * CFrame.Angles(-tilt, 0, 0) -- looking lower lifts the area on screen
+	local seconds = Config.BuildCameraSeconds * (if reducedMotion() then Config.ReducedMotionFactor else 1)
+
+	cam.CameraType = Enum.CameraType.Scriptable
+	task.spawn(function()
+		glide(mine, cam, view, seconds, Enum.EasingDirection.InOut)
+	end)
+	return true
+end
+
+-- Ends FrameArea's hold: glide back to the character at the offset the camera left from and hand the camera
+-- back. Nothing to do when the hold already ended (Cancel, a catch) or another sequence owns the camera.
+function CameraDirector.EndFrame()
+	if not busy or framedGeneration ~= generation then
+		return
+	end
+	generation += 1
+	local mine = generation
+	framedGeneration = nil
+	local tween = activeTween
+	activeTween = nil
+	if tween then
+		tween:Cancel()
+	end
+	local cam = currentCamera()
+	local back = rootPart()
+	local offset, rotation = framedReturn, framedRotation
+	if not cam or not back or not offset or not rotation then
+		release()
+		return
+	end
+	local seconds = Config.BuildCameraSeconds * (if reducedMotion() then Config.ReducedMotionFactor else 1)
+	local home = CFrame.new(back.Position + offset) * rotation
+	task.spawn(function()
+		if glide(mine, cam, home, seconds, Enum.EasingDirection.InOut) then
+			release()
+		end
 	end)
 end
 

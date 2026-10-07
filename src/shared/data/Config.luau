@@ -91,6 +91,9 @@ return {
 	CameraPanHoldSeconds = 1.2, -- and rests on it this long before gliding back
 	CameraPanDistance = 26, -- studs the pan looks at the ship from
 	CameraPanHeight = 14, -- studs above the ship the pan looks down from
+	BuildCameraSeconds = 0.6, -- opening the Build tray glides the camera over the plot in this long, and back on close
+	BuildCameraPitchDegrees = 55, -- the build view looks down at the plot at this angle from flat
+	BuildCameraFitMargin = 1.25, -- the plot's half-diagonal times this must fit in the screen above the tray
 	CrashCinematicSeconds = 4, -- the opening drop from the sky to the character
 	CrashStartHeight = 140, -- studs above the camp the opening starts at
 	CrashShakeStuds = 0.6, -- camera shake amplitude at touchdown
