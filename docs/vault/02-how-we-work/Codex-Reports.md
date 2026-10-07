@@ -140,3 +140,13 @@ The stated zero-offset baseline is false: `src/client/UI/AliensScreen.luau:688` 
 Measured: **2 existing forbidden constructor calls** under the card's literal rule. The card allows baselining colours only, and its file list excludes AliensScreen and the Playbook. A strict offset lint would fail today's tree; exempting these calls without changing the card would weaken its rule. Per the blocker instructions, neither route was taken.
 
 Left open: coordinator authorizes the documented grid exception in C11 or changes the grid first. Then implement offset/font checks, colour baseline and silent-tap audit. No colour/sound audit results are claimed. Existing **71 tests** and all current lints remain green; analyze clean.
+
+## C12 — 2026-10-06 — review
+
+Implementation: `1801d10`; claim: `f960271`.
+
+Added an advisory isolated-mode TESTING.md lint: **36 documented commands**, all registered; **373 quoted UI candidates** after documented code/log exclusions. Generic caller-supplied templates cannot mask arbitrary text. **2 isolated mutations** detect an unknown command and stale text. Runtime under one second; **71 tests pass**, analyze/data/extra lints clean.
+
+Fixed **14 occurrences / 13 replacements**: complete Puffpuff tutorial instruction; Hull Frame completion exclamation; Settings glyph `=`; full fusion refusal (twice); weekly chip Aurora; elsewhere chip Frostbyte; full Spectral catch example; separate Visitors heading/empty line; full no-friends text; full wave-cap text; full World 1 unpublished-flight toast; seasonal chip Spectral; home weekly subtitle uses World 1 instead of its long name. Only TESTING.md wording changed, never strings or behavior.
+
+Left **4 advisory excerpts**: milestone 2 `Night · ...` is a partial clock; milestone 16 `off` is a log fragment; milestone 21 `welcome` is typed code input; milestone 42d `Welcome home` is developer-authored mail. These are not proposed game-string fixes. The checker covers wording, not stale historical milestone behavior or numerical claims; those still need coordinator review.
