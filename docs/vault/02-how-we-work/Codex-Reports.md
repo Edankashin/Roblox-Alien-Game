@@ -263,3 +263,11 @@ Claim `d582085`; inventory `3218607`. Documented 57 moment rows (the commit titl
 Measured: 33 sound slots still `rbxassetid://0`; no music director or phone-rumble implementation found. Toast/button/banner common cues are explicitly counted as zero-ID hooks, not audible playback. 140 → 140 tests; analysis/data/full lints clean; report-only, no game changes.
 
 Top decisions: populate/mix the silent sound ladder; design Legendary round and arrival choreography beyond generic bar/Reveal feedback; establish music priority and optional rumble. Additional gap: no distinct new-world arrival or Codex page/set ceremony found. Source line anchors are snapshot references and will shift when C25 formats the code. No Studio/audio playback was performed.
+
+## C21 — 2026-10-07 — review
+
+Claim `9bd702f`; plan `0f4d223`. Proposed 30 music states: 14 world day/night beds, seven tier Reveal stingers, capture base/intense, Shower, Rush, season, launch, home, resting and menu modifier. Every state has mood, tempo, instrumentation, duration, transition and Creator Store search terms. The proposed Music.luau contract gives every row assetId 0, volume, loop, layer and fades, plus routing/sync metadata.
+
+Measured: 30 state rows, zero selected assets, zero game-code changes; 140 → 140 tests; all checks clean. This is a creative proposal, not a generated measurement or claim of audible implementation.
+
+Creator Store browser access was rejected because site permission was declined. Used the card's allowed search-term fallback; no alternate browser route, license assertion or invented asset id. Left for coordinator: approve palette/priority, decide Reveal/Launch ownership between Sounds and Music, and have the Mac session audition and permission-test actual tracks. Worlds 3–7 remain future design, and menus modify the active bed rather than requiring another recording.

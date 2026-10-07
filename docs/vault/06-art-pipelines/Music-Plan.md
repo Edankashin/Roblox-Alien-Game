@@ -105,6 +105,6 @@ Fade-out values are the explicit exits in the palette; defaults for unspecified 
 
 ## Decisions before implementation
 
-- Approve the cozy exploration / playful challenge palette and the 33-row routing contract; built worlds 0–2 are the first audio scope.
+- Approve the cozy exploration / playful challenge palette and the 30-row routing contract; built worlds 0–2 are the first audio scope.
 - Assign Reveal/Launch cue ownership across Sounds and Music before the director lands.
 - Pick and permission-test actual licensed assets; no verified Creator Store candidates are available from this run. Record chosen title, asset id, creator, license/access evidence and audition notes in this note without committing audio files.
