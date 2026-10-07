@@ -108,11 +108,17 @@ You do this twice: first for Frostbyte, then for the Home Planet. The steps are 
 - [ ] Close the Studio window. If it asks to save, choose **Don't Save** (the place is already on Roblox).
 - [ ] Go back to A3 for the Home Planet. After both:
 
+### A8. World 1's place id (the start place)
+- [ ] Creator Dashboard, the game's tile, left column **Places**. You should see three places: the start place (World 1), **Frostbyte** and **Home Planet**. If Frostbyte or Home Planet is missing from this list, it was published as a separate game: tell me and I'll give you the fix.
+- [ ] Hover over the start place, click its **⋯** button, choose **Copy Place ID** (or open it: the number in the address bar is the id).
+
 **Send me:**
 ```
 Part A done.
+World 1 place id: ____________
 Frostbyte place id: ____________
 Home Planet place id: ____________
+All three are listed under Places: yes / no
 ```
 I put them in the game's world table and push. Then I tell you to republish World 1 once (Part H) so the start place knows where the other two are.
 
