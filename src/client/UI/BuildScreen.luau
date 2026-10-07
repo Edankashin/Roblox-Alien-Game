@@ -216,13 +216,15 @@ end
 -- hit, and whether it hit the ghost. The ray runs from the camera through the point (input positions include the
 -- GUI inset, which ScreenPointToRay expects), long enough to cross the plot from wherever the camera is, against
 -- an Include list of just the plot and the ghost, or with Take away on the plot and the placed items.
-local function rayAt(x: number, y: number): (number?, number?, string?, boolean)
+local function rayAt(x: number, y: number, viewport: boolean): (number?, number?, string?, boolean)
 	local camera = Workspace.CurrentCamera
 	local plot = HomeRenderer.Plot()
 	if not camera or not plot then
 		return nil, nil, nil, false
 	end
-	local ray = camera:ScreenPointToRay(x, y)
+	-- A mouse position leaves out the top bar's inset (ScreenPointToRay adds it); a touch tap's position already has it
+	-- (ViewportPointToRay), so a touch on the plot lands where the finger is.
+	local ray = if viewport then camera:ViewportPointToRay(x, y) else camera:ScreenPointToRay(x, y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = HomeRenderer.RayTargets(removing)
@@ -245,7 +247,8 @@ local function tapIgnored(reason: string)
 end
 
 -- A tap in the world while the tray is open (the bootstrap hands it over instead of starting a catch).
-function BuildScreen.OnWorldTap(x: number, y: number)
+-- `viewport` is true for a touch tap (its position includes the top bar's inset), false for a mouse click.
+function BuildScreen.OnWorldTap(x: number, y: number, viewport: boolean?)
 	if not open or pending or not State.Has() then
 		tapIgnored(if not open then "the tray is closed" elseif pending then "a placement is still being answered" else "no profile yet")
 		return
@@ -254,7 +257,7 @@ function BuildScreen.OnWorldTap(x: number, y: number)
 		tapIgnored("the plot is not found (Workspace.World.Plot)")
 		return
 	end
-	local cellX, cellZ, uid, onGhost = rayAt(x, y)
+	local cellX, cellZ, uid, onGhost = rayAt(x, y, viewport == true)
 	if removing then
 		local target = uid
 		if target == nil and cellX ~= nil and cellZ ~= nil then

@@ -60,6 +60,7 @@ export type VisitingHooks = {
 	IsGuest: (Player) -> boolean,
 	HomeOptions: (Player) -> TeleportOptions?,
 	LeaveView: (Player) -> (),
+	IsInServerView: (Player) -> boolean,
 }
 
 local hooks: VisitingHooks? = nil
@@ -205,13 +206,16 @@ local function onLaunch(player: Player): (boolean, string?)
 end
 
 -- A guest flying to the world the ship is on: the profile does not move, so nothing is banked, stamped, counted or
--- pushed. The home place with no live place has nowhere to teleport to: the guest goes back to their own home view
--- instead (hooks.LeaveView) and the client fades as usual; a live place teleports as usual.
+-- pushed. At the home place, a guest whose own home is right here (an in-server visit, or no live home place to go to)
+-- just goes back to their own home view (hooks.LeaveView: the client hears HomeView(nil) and says "Back at your own
+-- home"); nothing flies and nothing teleports. A guest who travelled to another's home server flies home as usual.
 local function flyGuest(player: Player, destination: Worlds.WorldDef, toHome: boolean): (boolean, string?)
 	local placeLive = placeIsLive(destination)
 	local visiting = hooks
-	if toHome and Place.IsHome() and not placeLive and visiting then
+	if toHome and Place.IsHome() and visiting and (not placeLive or visiting.IsInServerView(player)) then
 		visiting.LeaveView(player)
+		print(("[%s] Launch: guest %s goes back to their own home in this server"):format(Config.WorkingTitle, player.Name))
+		return true, nil
 	end
 	Net.event("Flew"):FireClient(player, destination.id, placeLive)
 	print(("[%s] Launch: guest %s flies to world %d where the ship is (%s)"):format(Config.WorkingTitle, player.Name, destination.id, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))

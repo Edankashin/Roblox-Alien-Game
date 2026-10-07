@@ -244,9 +244,11 @@ How to type a chat command: in a player window, click the chat bubble at the top
 - [ ] In the tray, scroll down to the **Habitats** row. Click **Verdant Habitat**, then click a free spot on the sand square: a see-through ghost appears. Click the ghost to place it. Toast: "Verdant Habitat placed".
 - [ ] If no ghost appears: (1) check the card you clicked now has a thick gold border and the hint line in the tray reads "Tap a spot on the plot to place it" (if not, click the card again); (2) the camera should glide over the plot when the tray opens so the whole sand square shows above the tray (added after your report); if part of the square is still behind the tray, click on the part you can see, and tell me; (3) look in **Player1's own Output** (the Player1 window, View tab, Output): each ignored click prints a line starting `Build tap ignored:` that says why. Copy that line and send it to me with the Part D results.
 - [ ] In the **Rooms** row, click **Cabin**, click another free spot, click the ghost. Click **Done**.
-- [ ] Left menu, click **Aliens** (the button marked A). Find the **Mossbop** card and click its purple **Display** button. Toast: "Mossbop is on display". Close the screen (red X). The Mossbop now walks around inside the habitat's fence.
+- [ ] A seated alien has no Display button, so first type `/dupes Mossbop 1` twice in chat (the second time gives several copies; one stays resting). Left menu, click **Aliens** (the button marked A). Find a resting **Mossbop** card and click its purple **Display** button. Toast: "Mossbop is on display". Close the screen (red X). The Mossbop now walks around inside the habitat's fence.
 
 ### D3. Visit (in the Player2 window)
+
+- [ ] First, in the **Player1** window: Settings, "Who can visit your home", click **Anyone**. Studio's test players are not Roblox friends, and the default (Friends) would refuse the visit with "open to friends only".
 - [ ] Type `/world 0` in chat.
 - [ ] Left menu, **Ship** (the ^ button), then the **Star Chart** button. Click the small planet in the centre of the map (Home). On its card, click **Visit**.
 - [ ] "Visit a friend" opens. Under **In this server**, next to **Player1**, click **Visit**.

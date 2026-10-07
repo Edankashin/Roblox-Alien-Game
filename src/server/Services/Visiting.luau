@@ -67,6 +67,7 @@ type Fetch = { waiters: { thread }, profile: Types.Profile? }
 type Peeked = { profile: Types.Profile, at: number }
 
 local viewing: { [number]: number } = {} -- the owner a player looks at, by UserId; absent = their own home
+local onTrip: { [number]: boolean } = {} -- true for a player who arrived by teleport at another's home server (not an in-server view)
 local waved: { [number]: { [string]: boolean } } = {} -- the displayed aliens a player waved at in this view, by UserId
 local views: { [number]: Types.HomeView } = {} -- the last view built of each owner, kept while anyone looks at it
 local peeked: { [number]: Peeked } = {} -- owners' saves read without a lock, by owner id
@@ -261,6 +262,7 @@ end
 -- Switches a player's view to another owner's home: the waved set starts over and the client is told.
 local function setViewing(player: Player, ownerId: number, view: Types.HomeView)
 	viewing[player.UserId] = ownerId
+	onTrip[player.UserId] = nil -- an in-server view: going home is leaving the view
 	waved[player.UserId] = nil
 	pushView(player, view)
 end
@@ -506,6 +508,12 @@ function Visiting.IsGuest(player: Player): boolean
 	return profile ~= nil and Place.WorldId() ~= profile.world.current
 end
 
+-- Whether the player looks at another home in THIS server (the in-server visit), as opposed to having travelled to
+-- the owner's home server. Launch asks before a flight home: an in-server visitor's own home is right here.
+function Visiting.IsInServerView(player: Player): boolean
+	return viewing[player.UserId] ~= nil and onTrip[player.UserId] ~= true
+end
+
 -- Back to looking at their own home: the waved set clears and the client hears HomeView(nil).
 function Visiting.LeaveView(player: Player)
 	local previous = viewing[player.UserId]
@@ -748,6 +756,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	local ownerId = if Place.IsHome() then teleportOwner(player) else nil
 	if ownerId ~= nil then
 		viewing[player.UserId] = ownerId
+		onTrip[player.UserId] = true -- arrived by teleport: going home is a flight to their own home server
 		task.spawn(arrive, player, ownerId)
 	end
 	task.defer(drainInbox, player) -- after ProfileLoaded went out, so the letters it writes reach a client that has the profile
@@ -756,6 +765,7 @@ end
 
 local function onRemoving(player: Player)
 	viewing[player.UserId] = nil
+	onTrip[player.UserId] = nil
 	waved[player.UserId] = nil
 	pruneViews(player)
 end
@@ -784,7 +794,7 @@ function Visiting.Init()
 	else
 		warn(("[%s] Visiting: DataStore unavailable (%s); the visitors' inbox stays in this server."):format(Config.WorkingTitle, tostring(store)))
 	end
-	Launch.SetVisiting({ IsGuest = Visiting.IsGuest, HomeOptions = homeOptions, LeaveView = Visiting.LeaveView })
+	Launch.SetVisiting({ IsGuest = Visiting.IsGuest, HomeOptions = homeOptions, LeaveView = Visiting.LeaveView, IsInServerView = Visiting.IsInServerView })
 	PlayerData.OnLoaded(onLoaded)
 	HomeBuild.OnChanged(function(owner: Player)
 		refreshViewers(owner.UserId)

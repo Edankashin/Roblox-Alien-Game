@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
 local ContextActionService = game:GetService("ContextActionService")
 local TextChatService = game:GetService("TextChatService")
 local SocialService = game:GetService("SocialService")
@@ -1843,10 +1844,23 @@ local function start(profile: Types.Profile)
 	-- While the Build tray is open a tap in the world goes to the plot instead of the capture flow. A click is the
 	-- press itself; a touch counts as a tap only when the engine says so (TouchTapInWorld fires on a lift without a
 	-- drag), so dragging the camera round the plot never previews or places anything.
+	-- The engine does not always mark a touch on a button as processed (Studio's touch emulation, 2026-10-07), so a tap
+	-- over any visible button or input-sinking frame (the tray's cards, the action button) belongs to the interface
+	-- and never reaches the plot. A tap's position includes the top bar's inset; the interface's coordinates do not.
 	UserInputService.TouchTapInWorld:Connect(function(position: Vector2, processedByUI: boolean)
-		if not processedByUI and BuildScreen.IsOpen() then
-			BuildScreen.OnWorldTap(position.X, position.Y)
+		if processedByUI or not BuildScreen.IsOpen() then
+			return
 		end
+		local playerGui = localPlayer:FindFirstChildOfClass("PlayerGui")
+		if playerGui then
+			local inset = GuiService:GetGuiInset()
+			for _, gui in ipairs(playerGui:GetGuiObjectsAtPosition(position.X - inset.X, position.Y - inset.Y)) do
+				if gui.Visible and (gui:IsA("GuiButton") or gui.Active) then
+					return
+				end
+			end
+		end
+		BuildScreen.OnWorldTap(position.X, position.Y, true)
 	end)
 
 	-- Tapping or clicking an alien itself also starts a catch when it is in reach.
