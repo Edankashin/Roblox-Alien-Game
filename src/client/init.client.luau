@@ -61,6 +61,7 @@ local PowerUpBar = require(script:WaitForChild("UI"):WaitForChild("PowerUpBar"))
 local QuestsScreen = require(script:WaitForChild("UI"):WaitForChild("QuestsScreen"))
 local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHint"))
 local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
+local PlaytimeScreen = require(script:WaitForChild("UI"):WaitForChild("PlaytimeScreen"))
 local NotifyCard = require(script:WaitForChild("UI"):WaitForChild("NotifyCard"))
 local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
 local Compass = require(script:WaitForChild("UI"):WaitForChild("Compass"))
@@ -1224,6 +1225,7 @@ local function start(profile: Types.Profile)
 	Screens.Register("Peddler", PeddlerScreen)
 	Screens.Register("Quests", QuestsScreen)
 	Screens.Register("Gifts", GiftsScreen)
+	Screens.Register("Playtime", PlaytimeScreen)
 	Screens.Register("Settings", SettingsScreen)
 	Screens.Register("StarChart", StarChartScreen)
 	Screens.Register("Ranks", LeaderboardScreen)
@@ -1276,6 +1278,27 @@ local function start(profile: Types.Profile)
 	Hud.AddTopButton("Settings", Theme.Colors.Select, menu("Settings"))
 	-- Top buttons stack leftwards from the clock in the order added, so Settings (first) stays rightmost.
 	Hud.AddTopButton("Ranks", Theme.Colors.Featured, menu("Ranks"))
+	-- Playtime gifts (data/Playtime): the button stays hidden until the server says the gifts are on, and its badge counts
+	-- the gifts unlocked and not yet claimed. PlaytimeChanged pushes the state whenever that changes; one pull seeds a
+	-- client that joined after the last push (a push that already landed is newer and wins).
+	Hud.AddTopButton("Playtime", Theme.Colors.Confirm, menu("Playtime"))
+	Hud.SetTopButtonVisible("Playtime", false)
+	PlaytimeScreen.OnGrant(showGrantReveal)
+	local playtimeBadge = -1 -- what the badge shows now, so a state that changes nothing does not pop the button
+	PlaytimeScreen.OnState(function(playtime: Types.PlaytimeState)
+		Hud.SetTopButtonVisible("Playtime", playtime.enabled)
+		local ready = if playtime.enabled then PlaytimeScreen.ReadyCount() else 0
+		if ready ~= playtimeBadge then
+			playtimeBadge = ready
+			Hud.SetBadge("Playtime", ready)
+		end
+	end)
+	task.spawn(function()
+		Net.event("PlaytimeChanged").OnClientEvent:Connect(function(playtime: Types.PlaytimeState)
+			PlaytimeScreen.SetState(playtime)
+		end)
+		PlaytimeScreen.Pull()
+	end)
 	GiftsScreen.OnGrant(showGrantReveal)
 	-- Unclaimed gifts show as a badge on the menu.
 	local function refreshGiftBadge()

@@ -377,6 +377,29 @@ function Gifts.GrantRewards(player: Player, rewards: { any }): boolean
 	return true
 end
 
+-- Whether a reward row is one GrantRewards pays (a kind it applies, with an amount or an id the data tables know), so a
+-- caller that marks something claimed can refuse a bad data row first instead of claiming nothing. An egg is not one:
+-- it goes through GrantEgg.
+function Gifts.IsGrantable(reward: any): boolean
+	if type(reward) ~= "table" then
+		return false
+	end
+	local row = reward :: Reward
+	return GRANTABLE_KINDS[row.kind] == true and isKnownReward(row)
+end
+
+-- Hatches one alien of `tier` from the world this place runs (or the furthest unlocked world at home) through
+-- Economy.GrantAlien with the wild overlay odds, exactly as a Welcome Week egg does: the record, the codex, the Scrap, the
+-- seating and the pushes. Returns the GrantResult the client turns into a Reveal; nil when no species of the tier can be
+-- picked here or the player has no loaded profile (nothing is written then).
+function Gifts.GrantEgg(player: Player, tier: string?): Types.GrantResult?
+	local species = pickEggSpecies(tier, eggWorld(player))
+	if not species then
+		return nil
+	end
+	return Economy.GrantAlien(player, species, Spawner.RollOverlay(), false)
+end
+
 function Gifts.Init()
 	-- Daily quests pay through the same reward grant (DailyQuests cannot require Gifts: Gifts -> Economy -> Quests -> DailyQuests).
 	DailyQuests.SetRewardGranter(Gifts.GrantRewards)

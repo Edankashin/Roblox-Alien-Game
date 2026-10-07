@@ -15,6 +15,7 @@ return {
 		PeddlerBuy = "PeddlerBuy", -- value 1; field offer kind
 		GiftClaim = "GiftClaim", -- value: day
 		Spin = "Spin", -- value 1; field segmentId
+		PlaytimeGift = "PlaytimeGift", -- value: the gift's index (1 to 6, data/Playtime)
 		ShopBuy = "ShopBuy", -- value 1; fields kind, id
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
 		Launch = "Launch", -- value 1; fields from, to (world ids)
@@ -45,7 +46,7 @@ return {
 	},
 	Economy = {
 		Currency = "Scrap",
-		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail", Wave = "Wave" },
+		Sources = { Catch = "Catch", Codex = "Codex", Income = "Income", Gift = "Gift", Playtime = "Playtime", Spin = "Spin", Offline = "Offline", Outpost = "Outpost", Social = "Social", Rush = "Rush", Habitat = "Habitat", Mail = "Mail", Wave = "Wave" },
 		Sinks = { Module = "Module", Shop = "Shop", Peddler = "Peddler", Heater = "Heater", Outpost = "Outpost", Home = "Home" },
 	},
 	IncomeFlushSeconds = 60, -- passive income is reported as one source event per player every this many seconds

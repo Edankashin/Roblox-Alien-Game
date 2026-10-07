@@ -264,6 +264,8 @@ return {
 	MENU_Gifts = "Gifts",
 	MENU_Ranks = "Ranks",
 	MENU_GLYPH_Ranks = "#",
+	MENU_Playtime = "Playtime",
+	MENU_GLYPH_Playtime = ">",
 	-- weekly leaderboard (data/Leaderboard)
 	LB_TITLE = "Top catchers this week",
 	LB_RESETS = "Resets in %s",
@@ -393,6 +395,17 @@ return {
 	GIFTS_HINT = "A gift for every day you play. Missing a day loses nothing.",
 	GIFTS_NEXT = "Tomorrow: %s",
 	GIFTS_NEXT_DONE = "Every Welcome Week gift claimed!",
+	-- playtime gifts (data/Playtime): the card row opened by the HUD's Playtime button
+	PLAYTIME_TITLE = "Playtime gifts",
+	PLAYTIME_MINUTES = "%d min",
+	PLAYTIME_TIME_LEFT = "%d:%02d",
+	PLAYTIME_EGG = "%s Egg",
+	PLAYTIME_HINT = "Play to unlock more. Resets each day.",
+	PLAYTIME_TOAST_CLAIMED = "Playtime gift: %s",
+	PLAYTIME_TOAST_LOCKED = "Keep playing to unlock this gift",
+	PLAYTIME_TOAST_ALREADY = "You already took this gift",
+	PLAYTIME_TOAST_OFF = "Playtime gifts are off right now",
+	PLAYTIME_TOAST_ERROR = "That did not work. Try again",
 	-- social row on the Gifts screen (data/Social.luau)
 	SOCIAL_GROUP_JOIN = "Join our group",
 	SOCIAL_GROUP_CLAIM = "Group gift",

@@ -19,7 +19,8 @@
 -- (N test letters, default 1, to your own mailbox; one more than the mailbox holds shows the oldest dropped), /visit
 -- <name|id> (in the home place: look at another player's home in this server, as the Visit button does) | off (back to your
 -- own home), /afk (rest now: the half-rate income and the Resting screen) | off (wake) | rejoin (the rejoin the client asks for
--- after 17 idle minutes; Studio only prints it). Nothing
+-- after 17 idle minutes; Studio only prints it), /playtime <minutes> (add that many minutes of played time today, so a playtime
+-- gift unlocks at once; negative takes minutes back) | reset (today's played time and claims cleared). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -57,6 +58,7 @@ local Habitats = require(script.Parent.Habitats)
 local Mail = require(script.Parent.Mail)
 local Visiting = require(script.Parent.Visiting)
 local Afk = require(script.Parent.Afk)
+local Playtime = require(script.Parent.Playtime)
 local CompanionsData = require(Shared.data.Companions)
 local Species = require(Shared.data.Species)
 local Sizes = require(Shared.data.Sizes)
@@ -806,6 +808,31 @@ local function afkCommand(player: Player, text: string)
 	end
 end
 
+-- /playtime <minutes>: that many minutes of played time today (the playtime gifts unlock by it; a negative number takes
+-- minutes back). /playtime reset: today's played time and claims cleared. The screen and the badge update at once.
+local function playtimeCommand(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "reset" then
+		Playtime.DevReset(player)
+		print(("[%s] dev: %s's playtime today cleared"):format(Config.WorkingTitle, player.Name))
+		return
+	end
+	local minutes = tonumber(word or "")
+	if not minutes or minutes ~= minutes or math.abs(minutes) == math.huge then
+		print(("[%s] dev: /playtime <minutes> or /playtime reset"):format(Config.WorkingTitle))
+		return
+	end
+	Playtime.DevAddMinutes(player, minutes)
+	local profile = PlayerData.Get(player)
+	if profile then
+		local claimed = 0
+		for _ in pairs(profile.playtime.claimed) do
+			claimed += 1
+		end
+		print(("[%s] dev: %s has played %d s today (%d claimed)"):format(Config.WorkingTitle, player.Name, profile.playtime.seconds, claimed))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -877,11 +904,12 @@ function Dev.Init()
 	command("mail", mailCommand)
 	command("visit", visitCommand)
 	command("afk", afkCommand)
+	command("playtime", playtimeCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin])"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset)"):format(Config.WorkingTitle))
 	end
 end
 

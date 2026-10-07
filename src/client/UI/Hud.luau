@@ -42,6 +42,7 @@ local menuButtons: { [string]: Frame } = {}
 local menuCount = 0
 local topButtons: { Frame } = {} -- round buttons left of the clock chip, in the order added (the first sits nearest the chip)
 local topButtonIds: { [string]: boolean } = {}
+local topButtonById: { [string]: Frame } = {} -- the same buttons by id, for SetBadge and SetTopButtonVisible
 
 local CLOCK_RIGHT = 0.985 -- the clock chip's right edge, in screen Scale
 local CLOCK_TOP = 0.025
@@ -55,6 +56,8 @@ local MENU_TOP = 0.19 -- the icon stack starts here, under the Scrap pill and it
 local MENU_SLOT = 0.13 -- vertical space per entry: the square button plus its label; six entries end at 0.97
 local MENU_BUTTON = 0.095 -- square button height (width follows through the aspect constraint)
 local MENU_LEFT = 0.015
+local MENU_BADGE_SIZE = 0.34 -- the menu buttons' notification dot, as a fraction of the button
+local TOP_BADGE_SIZE = 0.5 -- a top button is small (about 28 px at iPhone SE height), so its dot is bigger
 local actionButton: Frame? = nil
 local actionFace: TextButton? = nil
 local breathe: Tween? = nil
@@ -250,6 +253,34 @@ local function buildShowerChip(root: ScreenGui)
 	})
 end
 
+-- A red notification dot with a count on the button's top-right corner, hidden until SetBadge. `size` is its width as a
+-- fraction of the button; a smaller button takes a bigger dot so its count stays readable.
+local function addBadge(button: Frame, size: number)
+	local badge = Builder.frame({
+		parent = button,
+		name = "Badge",
+		position = UDim2.fromScale(0.98, 0.02),
+		size = UDim2.fromScale(size, size),
+		anchor = Vector2.new(0.8, 0.2),
+		color = Theme.Colors.Close,
+		corner = Theme.Corner.Pill,
+		stroke = Theme.Stroke.Text,
+		aspect = 1,
+		zIndex = 5,
+	})
+	Builder.label({
+		parent = badge,
+		name = "Count",
+		text = "",
+		textSize = Theme.TextSize.Min,
+		size = UDim2.fromScale(0.9, 0.9),
+		position = UDim2.fromScale(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 6,
+	})
+	badge.Visible = false
+end
+
 -- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. The face shows
 -- the id's icon from the pack; while that icon is not uploaded it shows the MENU_GLYPH_<id> glyph.
 local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onClick: () -> ()): Frame
@@ -285,30 +316,7 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		size = UDim2.fromScale(1.3, 1 - MENU_BUTTON / MENU_SLOT),
 		anchor = Vector2.new(0.5, 1),
 	})
-	-- Red notification dot, hidden until SetBadge
-	local badge = Builder.frame({
-		parent = button,
-		name = "Badge",
-		position = UDim2.fromScale(0.98, 0.02),
-		size = UDim2.fromScale(0.34, 0.34),
-		anchor = Vector2.new(0.8, 0.2),
-		color = Theme.Colors.Close,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Text,
-		aspect = 1,
-		zIndex = 5,
-	})
-	Builder.label({
-		parent = badge,
-		name = "Count",
-		text = "",
-		textSize = Theme.TextSize.Min,
-		size = UDim2.fromScale(0.9, 0.9),
-		position = UDim2.fromScale(0.5, 0.5),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
-	})
-	badge.Visible = false
+	addBadge(button, MENU_BADGE_SIZE)
 	menuButtons[id] = button
 	return button
 end
@@ -592,8 +600,10 @@ local function layoutTopButtons()
 	local buttonW = TOP_BUTTON_H * ratio
 	local right = CLOCK_RIGHT - clockChipWidth(root) - TOP_GAP
 	for _, button in ipairs(topButtons) do
-		button.Position = UDim2.fromScale(right, CLOCK_TOP)
-		right -= buttonW + TOP_GAP
+		if button.Visible then -- a hidden button leaves no gap
+			button.Position = UDim2.fromScale(right, CLOCK_TOP)
+			right -= buttonW + TOP_GAP
+		end
 	end
 end
 
@@ -887,7 +897,20 @@ function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 		aspect = 1,
 	}, onClick)
 	makeRound(button)
+	addBadge(button, TOP_BADGE_SIZE)
 	table.insert(topButtons, button)
+	topButtonById[id] = button
+	layoutTopButtons()
+end
+
+-- Shows or hides a top button (a feature switched off in its data table hides its button entirely); the others close
+-- up the gap. Unknown ids do nothing.
+function Hud.SetTopButtonVisible(id: string, visible: boolean)
+	local button = topButtonById[id]
+	if not button or button.Visible == visible then
+		return
+	end
+	button.Visible = visible
 	layoutTopButtons()
 end
 
@@ -898,9 +921,9 @@ function Hud.SetMenuVisible(visible: boolean)
 	end
 end
 
--- Shows a red dot with a count on a menu button; 0 hides it.
+-- Shows a red dot with a count on a menu button or a top button; 0 hides it.
 function Hud.SetBadge(id: string, count: number)
-	local button = menuButtons[id]
+	local button = menuButtons[id] or topButtonById[id]
 	if not button then
 		return
 	end

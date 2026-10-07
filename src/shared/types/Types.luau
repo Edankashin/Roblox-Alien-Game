@@ -111,6 +111,9 @@ export type OutpostState = { level: number, lastCollect: number }
 export type AfkState = { resting: boolean, since: number, earned: number }
 -- A seasonal event's track on the profile (data/Seasons): counts by quest id and the quests already claimed.
 export type SeasonProgress = { progress: { [string]: number }, claimed: { [string]: boolean } }
+-- Playtime gifts (data/Playtime): the day (Shared/PlaytimeMath.DayOf) the seconds and claims below belong to, the seconds
+-- of active play so far that day, and the gifts claimed, keyed by tostring(index). A new day starts both again.
+export type PlaytimeProgress = { day: number, seconds: number, claimed: { [string]: boolean } }
 export type PeriodQuests = { period: string, ids: { string }, progress: { [string]: number }, claimed: { [string]: boolean }, rerolls: number }
 
 export type Profile = {
@@ -133,6 +136,7 @@ export type Profile = {
 	codes: { [string]: boolean }, -- promo codes already redeemed (data/Codes)
 	seasons: { [string]: SeasonProgress }, -- the event tracks, by season id (data/Seasons)
 	gifts: { daysPlayed: number, claimed: { [string]: boolean }, lastPlayDay: number },
+	playtime: PlaytimeProgress, -- today's active play and the playtime gifts claimed (data/Playtime)
 	spins: { free: number, banked: number, lastFree: number },
 	luck: { pity: number },
 	purchases: { [string]: number }, -- Robux products granted, by item id -> count (passes are read live)
@@ -232,6 +236,11 @@ export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size:
 
 -- Gifts -> client (GiftsChanged): Welcome Week progress and the spin balance.
 export type GiftState = { daysPlayed: number, claimed: { [string]: boolean }, freeSpins: number, bankedSpins: number }
+
+-- Playtime -> client (PlaytimeChanged, GetPlaytime): whether the gifts are on, the seconds of active play today and the
+-- gifts claimed (by tostring(index)). The client derives each card (unlocked, time left, ready count) from the data
+-- table and Shared/PlaytimeMath, so nothing else travels.
+export type PlaytimeState = { enabled: boolean, seconds: number, claimed: { [string]: boolean } }
 
 -- Spin() answer: the segment the server rolled; the client animates the wheel to it.
 export type SpinResult = { segmentId: string, index: number }

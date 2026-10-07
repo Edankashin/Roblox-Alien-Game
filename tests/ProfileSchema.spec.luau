@@ -48,6 +48,7 @@ local shape = {
 		weekly = { period = "string", ids = "table", progress = "table", claimed = "table", rerolls = "number" },
 		fieldNotes = "table", progress = "table" },
 	gifts = { daysPlayed = "number", claimed = "table", lastPlayDay = "number" },
+	playtime = { day = "number", seconds = "number", claimed = "table" },
 	spins = { free = "number", banked = "number", lastFree = "number" }, luck = { pity = "number" },
 	purchases = "table", shop = { receipts = "table" }, buffs = "table",
 	inventory = { keyMaterials = "table", lures = "table", powerUps = "table", items = "table" },
@@ -72,6 +73,7 @@ local habitatVersion = homeVersion + F.two -- v12
 local mailVersion = habitatVersion + F.one -- v13
 local waveVersion = mailVersion + F.one -- v14
 local seasonVersion = waveVersion + F.one -- v15
+local playtimeVersion = seasonVersion + F.one -- v16
 
 describe("ProfileSchema", function()
 	it("minimal v1 fills every required Profile field with the right type", function()
@@ -168,6 +170,20 @@ describe("ProfileSchema", function()
 		local before = clone(saved)
 		Schema.migrations[seasonVersion](saved)
 		same(saved, before)
+	end)
+	it("v16 starts today's playtime empty and keeps a saved count and its claims", function()
+		local saved = {}
+		Schema.migrations[playtimeVersion](saved)
+		same(saved.playtime, { day = F.zero, seconds = F.zero, claimed = {} })
+		saved.playtime.day = F.tick
+		saved.playtime.seconds = F.tick + F.one
+		saved.playtime.claimed[tostring(F.one)] = true
+		local before = clone(saved)
+		Schema.migrations[playtimeVersion](saved)
+		same(saved, before)
+		local damaged = { playtime = { day = "x", seconds = F.tick, claimed = "no" } }
+		Schema.migrations[playtimeVersion](damaged)
+		same(damaged.playtime, { day = F.zero, seconds = F.tick, claimed = {} })
 	end)
 	it("legacy alien size and worked time are added without losing saved values", function()
 		local saved = v1()

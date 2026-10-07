@@ -2,7 +2,7 @@
 -- ServerScriptService.Server.ProfileSchema: serialized save defaults and migrations.
 -- Dependencies are data tables supplied by PlayerData; no services, yields or persistence.
 local ProfileSchema = {}
-local SCHEMA_VERSION = 15
+local SCHEMA_VERSION = 16
 
 function ProfileSchema.new(
 	Config: { StationStartSlots: number },
@@ -29,6 +29,12 @@ function ProfileSchema.new(
 		return { sessions = 0, groupClaimed = false, referredBy = 0, referralClaimed = false, referralsRewarded = 0, notifyAskedAt = 0 }
 	end
 
+	-- Today's active play and the playtime gifts claimed (data/Playtime): day 0 is never a real day, so the service
+	-- starts the profile's first day fresh.
+	local function defaultPlaytime()
+		return { day = 0, seconds = 0, claimed = {} }
+	end
+
 	local function template(): any
 		local stations: { [string]: { slots: number, assigned: { string } } } = {}
 		for _, job in ipairs(Jobs.Order) do
@@ -48,6 +54,7 @@ function ProfileSchema.new(
 			home = { unlocked = false, visits = 0, items = {}, habitatSettled = 0, mail = {}, visitors = {}, waves = { day = 0, sent = 0, got = 0 } },
 			quests = { daily = emptyPeriodQuests(), weekly = emptyPeriodQuests(), fieldNotes = {}, progress = {} },
 			gifts = { daysPlayed = 0, claimed = {}, lastPlayDay = 0 },
+			playtime = defaultPlaytime(),
 			spins = { free = 1, banked = 0, lastFree = 0 },
 			luck = { pity = 0 },
 			purchases = {},
@@ -207,6 +214,22 @@ function ProfileSchema.new(
 			if type(data.seasons) ~= "table" then
 				data.seasons = {}
 			end
+			return data
+		end,
+		-- v16: playtime gifts; a save without the block starts today's count at nothing, a saved one keeps its fields
+		[16] = function(data)
+			local saved = if type(data.playtime) == "table" then data.playtime else {}
+			local playtime = defaultPlaytime()
+			if type(saved.day) == "number" then
+				playtime.day = saved.day
+			end
+			if type(saved.seconds) == "number" then
+				playtime.seconds = saved.seconds
+			end
+			if type(saved.claimed) == "table" then
+				playtime.claimed = saved.claimed
+			end
+			data.playtime = playtime
 			return data
 		end,
 	}

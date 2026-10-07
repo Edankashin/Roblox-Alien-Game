@@ -1,9 +1,9 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `288f9cba64f71cc5`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `5888ad9098c8082d`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
-**24 pending milestones; 60 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
+**25 pending milestones; 67 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
@@ -151,6 +151,29 @@ For every entry send: commit/build, project and WorldId, player count, original 
 **TESTING step 5.** The Shop's Passes section has five tiles (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
 
 **TESTING step 6.** The HUD's Scrap per minute now shows what is paid: use a Double Shift (`/spins 5` and spin until one lands, or a code) and the line doubles at once and returns when it ends; a Roblox friend joining the server raises it by the Friend Boost (multi-client); resting halves it. Before this milestone the line never moved for any of the three.
+
+### Milestone 49: playtime gifts (World 1 place)
+
+**Pending status:** built; Studio check queued
+
+**Setup projects:** `rojo serve default.project.json`.
+**Dev/setup references:** `/afk`, `/afk off`, `/playtime -5`, `/playtime 10`, `/playtime 12`, `/playtime 5`, `/playtime 60`, `/playtime <minutes>`, `/playtime reset`.
+
+**Send back:** standard evidence above; original steps 1, 2, 3, 4, 5, 6, 7.
+
+**TESTING step 1.** Press Play. Output `Playtime: on; gifts at 5, 10, 20, 30, 45, 60 min, 5s ticks, day resets at 00:00 UTC`. The HUD gains a round green button with a ">" left of the Ranks button, with no badge. Tap it: the "Playtime gifts" panel opens with six cards in one row, the chips reading "5 min", "10 min", "20 min", "30 min", "45 min" and "60 min", the rewards "150 Scrap", "1 x Twig Lure", "1 x Speed Burst", "1 free spin", "1 x Lucky Charm" and "Rare Egg" (the egg card keeps the Rare blue edge), each card holding a dark pill with its time left as m:ss that counts down once a second (the first starts a few seconds under 5:00), and the line "Play to unlock more. Resets each day." under the row. The X and a tap on the dim close it. At iPhone SE (667x375) and iPad sizes in the device emulator nothing is cut off and no name runs past two lines.
+
+**TESTING step 2.** `/playtime 5`: Output `dev: <name> has played 300 s today (0 claimed)` (a few seconds more if you have already played some). Within a moment the badge shows 1 on the button and, with the panel open, the first card turns white with a green "Claim" button while the rest keep counting. Tap it: the click, the toast "Playtime gift: 150 Scrap", Scrap +150, the card reads "Claimed" on a grey card and the badge goes. Output `analytics: event PlaytimeGift value=1` and `analytics: economy Source Scrap amount=150 ... type=TimedReward sku=Playtime`.
+
+**TESTING step 3.** `/playtime 60`: the badge reads 5 and cards 2 to 6 show "Claim". Claim 2: toast "Playtime gift: 1 x Twig Lure" and the lure count rises by one. Claim 3: "Playtime gift: 1 x Speed Burst" and the power-up bar holds a Speed Burst. Claim 4: the toast, and the Gifts screen's "Banked spins" rises by 1. Claim 5: a Lucky Charm joins the power-up bar. Claim 6 (the Rare egg): no toast, the panel closes and the Reveal shows a Rare alien of this world with its Scrap, the alien joins the camp and the badge clears. Reopen the panel: all six read "Claimed". Output six `analytics: event PlaytimeGift value=N` lines (1 to 6) and the egg's `event Catch` with the tier and species.
+
+**TESTING step 4.** Rejoin keeps progress (needs real saves: memory-only profiles are dropped when the player leaves, so set `Config.UseDataStoreInStudio = true` with Studio API access first): `/playtime 12`, claim the first gift, stop Play and press Play again. The panel shows the first card "Claimed", the second with its "Claim" button, the third counting down from about 8:00, and the badge reads 1. Leaving and coming back the same day loses nothing and adds nothing for the time away.
+
+**TESTING step 5.** Resting does not count: `/playtime reset`, then `/afk` (the Resting screen), wait 30 seconds, `/afk off`, open the panel. The first card has about the time it had before `/afk` (at most a few seconds less than 5:00), not 30 seconds less; walking around afterwards lowers it by one second per second. Opening the panel while still resting wakes the player (every server call counts as use), so wake first.
+
+**TESTING step 6.** `/playtime reset`: Output `dev: <name>'s playtime today cleared`; every card goes back to its countdown from 5:00 and the badge goes, and gifts claimed earlier can be claimed again. `/playtime -5` after a `/playtime 10` takes five minutes back.
+
+**TESTING step 7.** Set `Enabled = false` in `src/shared/data/Playtime.luau` and press Play: Output `Playtime: off (Shared/data/Playtime Enabled = false)`, the HUD button is gone and the buttons beside it close the gap, and `/playtime 5` prints but shows no badge. Set it back to `true`.
 
 ## World 2 place
 
