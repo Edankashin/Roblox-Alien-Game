@@ -762,9 +762,6 @@ function EconomyService.PushCamp(player: Player)
 end
 
 -- Seat an alien another service has already written into the profile and tell the client.
-function EconomyService.OnCaught(player: Player, uid: string)
-	seatAndPush(player, uid)
-end
 
 -- The StationOptimize remote's work without its rate limit: bank progress, reseat everyone fastest
 -- first, push the camp. NoProfile is the only refusal.

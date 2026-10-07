@@ -169,28 +169,6 @@ end
 
 -- True when `position` stands within a lit heater's radius (flat distance, the way the client judges
 -- it), for other services that want to know whether a spot is revealed.
-function Heaters.Near(position: Vector3): boolean
-	local heaters = heaterFolder
-	if not heaters then
-		return false
-	end
-	local now = os.time()
-	for _, child in ipairs(heaters:GetChildren()) do
-		if not child:IsA("BasePart") then
-			continue
-		end
-		local radius = child:GetAttribute("Radius")
-		local expires = child:GetAttribute("ExpiresAt")
-		if type(radius) ~= "number" or (type(expires) == "number" and expires < now) then
-			continue
-		end
-		local offset = child.Position - position
-		if math.sqrt(offset.X * offset.X + offset.Z * offset.Z) <= radius then
-			return true
-		end
-	end
-	return false
-end
 
 function Heaters.Init()
 	Net.event("ScrapChanged")

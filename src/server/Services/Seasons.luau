@@ -329,9 +329,6 @@ function Seasons.Current(): SeasonMath.Current?
 	return current
 end
 
-function Seasons.GetOverride(): string?
-	return override
-end
 
 -- Developer override (Dev's /season): forces the season with this id on (nil goes back to the calendar) and
 -- re-reads at once, so the clock, the clients and the Spawner follow within the same frame. An unknown id is ignored.

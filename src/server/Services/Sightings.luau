@@ -286,9 +286,6 @@ function Sightings.GetState(): Types.SightingState
 	return stateFor(currentRun(t), t)
 end
 
-function Sightings.IsActive(): boolean
-	return Sightings.GetState().active
-end
 
 -- Developer override (Studio commands): true starts a sighting now that walks the whole path from its first point
 -- (a running one restarts); false ends the running one at once and mutes the clock's own sighting until the moment

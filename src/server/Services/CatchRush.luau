@@ -277,9 +277,6 @@ function CatchRush.GetState(): Types.CatchRushState
 	return buildState(readClock(), nil)
 end
 
-function CatchRush.IsActive(): boolean
-	return readClock().active
-end
 
 -- Developer override (Studio commands): true starts a round now that ends DurationSeconds later (a
 -- running one is extended to that); false ends the current round now, whether forced or from the clock

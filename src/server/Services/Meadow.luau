@@ -565,10 +565,6 @@ end
 -- The top of the shrine's pedestal: where the horn is sounded (Quests measures ShrineInteractDistance
 -- from here) and where the Warden is summoned next to. Derived from the layout, so it is right even
 -- when a hand-built world skipped the build.
-function Meadow.GetShrinePosition(): Vector3
-	local flat = shrineFlat()
-	return Vector3.new(flat.X, Meadow.GetSurfaceTop(flat) + pedestalHeight(), flat.Z)
-end
 
 -- The middle of the plot's top face, where the house grid stands (the home planet; see the header), or nil
 -- when this layout has no plot. Derived from the layout like GetShrinePosition.
