@@ -120,3 +120,13 @@ The audit resolves **108 remotes / 58 handlers**, including literal initializer 
 Measured: **10 isolated handler regression checks** prove allowed-call return/effect parity and blocked-call state protection; **2 audit mutations** detect an absent server remote and removed limiter. Deterministic Remotes.md regeneration. Analysis clean after each service commit; **71 headless tests pass**, data and extra lints clean. Final audit: **0 guard warnings**.
 
 Left open: argument/control-flow inspection is heuristic, not a security proof. Rate rejection uses each endpoint's existing neutral response shape; no Studio operations.
+
+## C10 — 2026-10-06 — blocked, review
+
+Claim: `59c9b28`. No implementation or save behavior changed.
+
+The card requires preserving current behavior while proving a future-version save is left alone. PlayerData.migrate skips version steps for versions above 15, but unconditionally fills missing top-level fields from template afterward. These requirements conflict for a future save with absent current fields.
+
+Reproduction: executed the unchanged helpers/template/migrations/migrate under the pinned Luau interpreter with live Config, Jobs and Settings inputs. `{version = SCHEMA_VERSION + 1, marker = "future"}` retains its identity/version/marker but grows from **2 to 29 fields**, including scrap and home. An assertion that such a save is untouched would fail today; adding an early return would change production behavior beyond the allowed move.
+
+Left open: coordinator either explicitly authorizes a future-version early return (then test it) or revises (e) to pin today's fill-only behavior. No ProfileSchema extraction or partial suite was committed, per the blocker instruction. Existing **71 tests** and all lints remain green; analyze clean. No DataStore or Studio access.
