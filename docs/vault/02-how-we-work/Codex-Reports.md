@@ -160,3 +160,13 @@ Measured: **35 public API candidates, 10 catalog routing gaps, 36 strings; 0 ico
 Left open: lexical references are conservative, not proof of safe deletion. Same-named members can hide candidates, data ids conservatively retain icons, and sound id zero is not considered unused. Internal API callers must remain intact. CompanionSlot4 already has a live pass reader despite lacking a Launch/Grants route.
 
 Priorities: resolve catalog exposure/grant intent; review unnecessary public exports with callback/Studio usage; review unused labels while retaining planned future-world text. All proposed changes remain coordinator decisions.
+
+## C14 — 2026-10-07 — review
+
+Implementation: `5d5b6fb`; claim: `c105e76`. Added `tools/perf_report.py` and Performance.md; no game changes or Studio operations. Runtime **0.35 seconds**; deterministic repeated output. **4 mutation checks** detect an unknown connection and part, particle and loop budget crossings. **71 tests pass**, analyze/data/extra lints clean.
+
+Inventoried **16 client frame connections, 0 server** with cadence, loops, bounds, allocations and suggestions. Eight-player scenario: **112 density-target wild records (not a cap), 40 companion records / 24 drawn, 9 camp workers, 6 habitat displays, 16 material nodes**. Scoped fallback parts: **Home 94, World 1 408, World 2 347**; imported meshes, avatars and transients are explicitly excluded/itemized. World 2 module ids have no Camp.Modules placeholder entries.
+
+Requested Shower+Rain: **196 particles/s, approximately 103 steady alive**; two worst weather sheets plus Shower conservatively model **387.2 alive**. WeatherParticleMax warns; it does not clamp. Forced transitions and burst effects lack a global ceiling.
+
+Top priorities: cache companion raycast exclusions (currently allocated every active frame); bound global spawn/visible-animation work (hidden wild models still move); measure imported scenes before visual polish and pool sighting trail effects (up to roughly **81 puffs/lights** in the catch-up model). Numeric scenarios are below budgets, but actual global parts, spawns and particles cannot be certified from these inputs. Callback annotations are reviewed source notes, not a general call-graph analyzer.
