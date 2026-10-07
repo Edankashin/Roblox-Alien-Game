@@ -136,7 +136,7 @@ Files: `tools/lint_ui.py`, `tools/lint_ui_baseline.json`, `tools/lint.sh`, `docs
 
 Done when: `./tools/lint.sh` passes and the report lists the baseline entries and the silent taps found.
 
-### C12. TESTING.md consistency lint — open
+### C12. TESTING.md consistency lint — taken by codex 2026-10-06
 
 Goal: the Mac's Studio runs read `docs/TESTING.md` word for word; a stale command or toast text there costs a whole re-run. The code is the truth.
 
