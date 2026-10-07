@@ -146,7 +146,7 @@ Files: `tools/lint_testing.py`, `tools/lint.sh`, `docs/TESTING.md` (wording fixe
 
 Done when: the lint runs in `tools/lint.sh`, and the report lists the mismatches found and fixed and any left for the coordinator (a line that may describe intended behaviour not yet built).
 
-### C13. Dead code and dead data report — open (report only)
+### C13. Dead code and dead data report — taken by codex 2026-10-07
 
 Goal: a list for the coordinator's polish pass of everything built and never used.
 
