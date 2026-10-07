@@ -52,7 +52,7 @@ WORKING ALONGSIDE THE COORDINATOR
 The coordinator may push to the same branch while you work. Rebase before every push. If a rebase conflicts in a file your card owns, re-apply your change on top of theirs, keeping both intents. If it conflicts in a file your card does not own, take theirs. Never rewrite history, never force-push, never revert a coordinator commit.
 
 NEVER
-Edit CLAUDE.md, AGENTS.md or anything under .github/workflows/ (the coordinator already added a CI step that runs tools/lint.sh when it exists). Change balance or data values unless a card explicitly says to (C7 proposes, it does not apply). Open pull requests. Run anything in Roblox Studio. Commit audio or raw frame dumps from media/tiktok/out/, or touch anything under media/ (the Mac's Claude session adds reference videos there). Write the Open Cloud key, or any secret, into a file, a commit or a message. Install anything machine-wide without asking me.
+Edit CLAUDE.md, AGENTS.md or anything under .github/workflows/ (the coordinator already added a CI step that runs tools/lint.sh when it exists). Change balance or data values unless a card explicitly says to (a report card proposes, it does not apply). Open pull requests. Run anything in Roblox Studio. Commit audio or raw frame dumps from media/tiktok/out/, or touch anything under media/ (the Mac's Claude session adds reference videos there). Write the Open Cloud key, or any secret, into a file, a commit or a message. Install anything machine-wide without asking me.
 
 EFFICIENCY
 Read each file once and keep notes instead of re-reading. Write whole new files in one go. Prefer one script run that prints everything you need over many small commands. Do not reformat code you are not changing.
@@ -60,7 +60,7 @@ Read each file once and keep notes instead of re-reading. Write whole new files 
 WHEN THE QUEUE IS EMPTY
 Pull, run the full verification once more, push, then send me one final message I can paste to the coordinator, in exactly this shape:
 1. A table: card, final state (review or blocked), commit hashes, the key numbers (tests before and after, lint rules added, findings counts).
-2. Findings that need a coordinator decision: data problems the lints found, handlers or strings the audits flagged and did not fix, C7's World 2 proposal in one paragraph, the top three items from the dead-code and performance reports.
+2. Findings that need a coordinator decision: everything a card left as "needs the coordinator", problems the lints and audits found and did not fix, and the three most important findings of each report-only card, one line each.
 3. Anything Ethan must do by hand, if any.
 Then stop.
 ```
