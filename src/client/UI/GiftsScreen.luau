@@ -3,7 +3,7 @@
 -- 7-tile gift calendar (one tile per data/Gifts row: the day, the reward and its state: a Claim button
 -- when the day is reached, a Claimed chip once taken, a locked line otherwise). Right half: the spin
 -- wheel, a ring of segment labels (name and odds, so the odds are always visible) around a hub with
--- the Spin button, a pointer at the top, the spin balance and an odds line under it. Every value shown
+-- the Spin button, a pointer at the top, the spin balance and a button under it that opens every prize's odds in a table. Every value shown
 -- is read from the gift state mirrored in State (GiftsChanged) and the shared data tables; every tap
 -- asks the server (ClaimGift, Spin) and a refusal becomes a toast. Nothing here decides an outcome:
 -- the server rolls the segment and the client only turns the wheel to the index it is told, and an
@@ -98,6 +98,12 @@ local LINES_Y = 0.75
 local LINES_H = 0.045
 local ODDS_Y = 0.81
 local ODDS_H = 1 - Theme.Margin - ODDS_Y
+-- The odds table: laid over the wheel and the lines under it, one row per prize so each stays readable at
+-- phone sizes (a single line of nine prizes did not fit under 800 px wide).
+local ODDS_TABLE_GAP = 0.015 -- between the table's bottom and the odds button
+local ODDS_TABLE_PAD = 0.04 -- inside the table, of its size
+local ODDS_NAME_W = 0.62
+local ODDS_VALUE_W = 0.3
 -- The social column: the group block (button over the line saying what it pays), then the invite block.
 -- With no group (Social.GroupId == 0) the invite block takes the top slot.
 local SOCIAL_Y = 0.17
@@ -135,6 +141,8 @@ local socialSeq = 0 -- bumped by every fetch and push so a slow answer never ove
 local groupPending = false -- one group request in flight at a time: the prompt, the claim and the re-fetch
 local invitePending = false
 local open = false
+local oddsTable: Frame? = nil -- the odds table and the button that opens it (built once)
+local oddsButton: Frame? = nil
 local pending = false -- one server request in flight at a time
 local spinning = false -- the wheel is turning; the Spin button stays grey until it settles
 local claimedLocal: { [string]: boolean } = {} -- days the server confirmed, until the next GiftsChanged
@@ -857,13 +865,60 @@ local function buildWheel(parent: Frame): Frame
 	return holder
 end
 
--- The odds line: every segment's odds, so they are visible whether or not the wheel has been read.
-local function oddsLine(): string
-	local parts: { string } = {}
-	for _, segment in ipairs(segments) do
-		table.insert(parts, Strings.SPIN_ODD:format(segmentName(segment.id), segment.odds))
+-- The odds table: a header row, one row per prize (name left, odds right) and a total row that reads 100%,
+-- over the wheel and the lines under it. Hidden until the odds button opens it. The ring's labels show the
+-- same odds on the wheel itself; this is the full list, readable at any size.
+local function buildOddsTable(body: Frame): Frame
+	local tableFrame = Builder.frame({
+		parent = body,
+		name = "OddsTable",
+		position = UDim2.fromScale(MID_X, WHEEL_Y),
+		size = UDim2.fromScale(MID_W, ODDS_Y - ODDS_TABLE_GAP - WHEEL_Y),
+		color = Theme.Colors.Panel,
+		corner = Theme.Corner.Card,
+		stroke = Theme.Stroke.Panel,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = 8,
+	})
+	tableFrame.Visible = false
+	tableFrame.Active = true -- a tap on the table never reaches the wheel under it
+	local rowCount = #segments + 2
+	local rowH = (1 - ODDS_TABLE_PAD * 2) / rowCount
+	local function row(index: number, left: string, right: string, color: Color3)
+		local y = ODDS_TABLE_PAD + (index - 1) * rowH
+		Builder.label({
+			parent = tableFrame,
+			name = "Prize" .. index,
+			text = left,
+			textSize = Theme.TextSize.Body,
+			color = color,
+			stroke = 0,
+			xAlign = Enum.TextXAlignment.Left,
+			position = UDim2.fromScale(ODDS_TABLE_PAD, y),
+			size = UDim2.fromScale(ODDS_NAME_W, rowH),
+			zIndex = 9,
+		})
+		Builder.label({
+			parent = tableFrame,
+			name = "Chance" .. index,
+			text = right,
+			textSize = Theme.TextSize.Body,
+			color = color,
+			stroke = 0,
+			xAlign = Enum.TextXAlignment.Right,
+			position = UDim2.fromScale(1 - ODDS_TABLE_PAD - ODDS_VALUE_W, y),
+			size = UDim2.fromScale(ODDS_VALUE_W, rowH),
+			zIndex = 9,
+		})
 	end
-	return Strings.SPIN_ODDS:format(table.concat(parts, Strings.UI_LIST_SEPARATOR))
+	row(1, Strings.SPIN_ODDS_PRIZE, Strings.SPIN_ODDS_CHANCE, Theme.Colors.Heading)
+	local total = 0
+	for index, segment in ipairs(segments) do
+		row(index + 1, segmentName(segment.id), Strings.UI_PERCENT:format(segment.odds), Theme.Colors.Outline)
+		total += segment.odds
+	end
+	row(rowCount, Strings.SPIN_ODDS_TOTAL, Strings.UI_PERCENT:format(total), Theme.Colors.Heading)
+	return tableFrame
 end
 
 -- The social column: the group gift (button, then what it pays) when the team has a group, then the
@@ -1104,17 +1159,24 @@ local function build()
 		size = UDim2.fromScale(MID_W / 2, LINES_H),
 		zIndex = 3,
 	})
-	Builder.label({
+	-- Every prize's odds, one per row, in a table this button opens over the wheel (paid spins link here).
+	local listFrame = buildOddsTable(body)
+	oddsTable = listFrame
+	local button: Frame
+	button = Builder.button({
 		parent = body,
-		name = "Odds",
-		text = oddsLine(),
-		textSize = Theme.TextSize.Body,
-		color = Theme.Colors.Outline,
-		stroke = 0,
+		name = "OddsButton",
+		text = Strings.SPIN_ODDS_SHOW,
+		color = Theme.Colors.Select,
 		position = UDim2.fromScale(MID_X, ODDS_Y),
 		size = UDim2.fromScale(MID_W, ODDS_H),
+		textSize = Theme.TextSize.Body,
 		zIndex = 3,
-	})
+	}, function()
+		listFrame.Visible = not listFrame.Visible
+		setButtonText(button, if listFrame.Visible then Strings.SPIN_ODDS_HIDE else Strings.SPIN_ODDS_SHOW)
+	end)
+	oddsButton = button
 
 	buildSocial(body)
 
@@ -1138,6 +1200,12 @@ function GiftsScreen.Open()
 		return
 	end
 	open = true
+	-- The odds table opens shut: the wheel first, the full list one tap away.
+	local odds, oddsBtn = oddsTable, oddsButton
+	if odds and oddsBtn then
+		odds.Visible = false
+		setButtonText(oddsBtn, Strings.SPIN_ODDS_SHOW)
+	end
 	refresh()
 	root.Enabled = true
 	Builder.open(body)

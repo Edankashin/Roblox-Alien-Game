@@ -22,6 +22,7 @@
 -- clock rules, the broadcast and the listeners. Nothing is sold or recorded for it.
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -446,6 +447,9 @@ local function paidRandomRestricted(player: Player): boolean
 	end
 	local restricted = info.ArePaidRandomItemsRestricted == true
 	policyCache[player.UserId] = restricted
+	if RunService:IsStudio() then
+		print(("[%s] Policy for %s: paid random items restricted = %s"):format(Config.WorkingTitle, player.Name, tostring(restricted)))
+	end
 	return restricted
 end
 

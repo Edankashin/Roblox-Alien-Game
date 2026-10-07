@@ -6,7 +6,7 @@ How this project keeps Claude Code spend down without losing output quality. Mea
 
 1. **Right model per job.** The coordinating session plans, reviews and wires. Build workers run on Sonnet with a complete brief (file ownership, the contract, what to read, what to report); Sonnet on a well-specified build is as good as the larger model at a fraction of the cost. Design decisions, reviews of test findings and anything ambiguous stay on the larger model.
 2. **Briefs name the files; workers read them in one or two commands.** No exploratory browsing. A worker that needs something outside its list stops and says so.
-3. **Terse reports.** A worker's report is under 300 words: files, public API, deviations. No restating the brief.
+3. **Terse reports.** A worker's report is under 300 words: files, public API, deviations. No restating the brief. Every brief ends with the vault-logging line from `CLAUDE.md`: append a few bullets under the worker's own heading in today's `docs/vault/08-log/YYYY-MM-DD.md`.
 4. **Batch reads, write whole files.** One shell command reads everything a step needs; one script applies every edit. Never re-read a file to confirm an edit.
 5. **Contracts first.** Types, data and strings are written by the coordinator before workers start, so two workers never touch the same file and nothing is rewritten.
 6. **Test scripts in the repo, results by message.** The Mac session reads `docs/TESTING.md`, plays, and sends pass/fail per step with the console verbatim; the coordinator fixes from the report rather than re-deriving.

@@ -661,7 +661,8 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
 		zIndex = 4,
 	})
-	desc.TextTruncate = Enum.TextTruncate.AtEnd -- one line: shrinks to the minimum size, then trims
+	desc.TextWrapped = true -- two short lines fit the band at phone sizes; a longer one shrinks, then trims
+	desc.TextTruncate = Enum.TextTruncate.AtEnd
 	if item.oddsOnWheel then
 		-- Paid spins: the odds must be visible before buying. The note line says so, and the whole band from the
 		-- description to the note is one tap target (a thumb-sized area, not a 14 px line) that opens the wheel,

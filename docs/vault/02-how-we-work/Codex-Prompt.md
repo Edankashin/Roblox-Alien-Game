@@ -34,7 +34,7 @@ THE LOOP (for each card whose state is `open`, in queue order)
 3. Touch only the files the card names. If the card needs a file it does not name, do not edit it: note it in the report as left open.
 4. Verify before every push: git pull --rebase origin claude/alien-system-research; ./tools/analyze.sh prints exactly "analyze: clean"; python3 -I tools/lint_data.py is clean; ./tools/test.sh is green; ./tools/lint.sh passes once it exists. Never push a tree that fails any of them.
 5. Commit in small steps: one logical change per commit, a first line under 72 characters, a body saying why, the trailer "Agent: Codex".
-6. Finish the card: set its state to `review`, append your report to Codex-Reports.md (card id, the commit hashes, what changed, what you measured with the actual numbers, anything left open; under 300 words), commit, push.
+6. Finish the card: set its state to `review`, append your report to Codex-Reports.md (card id, the commit hashes, what changed, what you measured with the actual numbers, anything left open; under 300 words), append three to five bullets under a `## Codex` heading in today's `docs/vault/08-log/YYYY-MM-DD.md` (create the note or the heading if missing; never edit other sessions' lines; link topic notes as [[Note-Name]]; no secrets), commit, push.
 7. If gh is installed and authenticated, check the CI run for your last push (gh run list --branch claude/alien-system-research --limit 1, then gh run watch on it). If it fails, fix it before the next card.
 8. Go straight to the next open card. Do not wait for me.
 
