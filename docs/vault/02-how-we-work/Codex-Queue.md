@@ -123,7 +123,10 @@ Files: `src/server/ProfileSchema.luau` (new), `src/server/Services/PlayerData.lu
 
 Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its output, and a review of the `PlayerData.luau` diff shows only moved code.
 
-### C11. UI rules lint — taken by codex 2026-10-06
+### C11. UI rules lint — review
+
+Blocked: the zero-offset rule finds two existing AliensScreen UIGridLayout offsets expressly allowed by UI-Playbook.md.
+Tried: verified lines 688–689 and the documented scrolling-grid exception; the card permits neither a source fix nor an offset allowance.
 
 Goal: the UI rules in `CLAUDE.md` and the UI Playbook enforced by a script: Scale never Offset, colours from the Theme, the one font, no silent taps.
 

@@ -130,3 +130,13 @@ The card requires preserving current behavior while proving a future-version sav
 Reproduction: executed the unchanged helpers/template/migrations/migrate under the pinned Luau interpreter with live Config, Jobs and Settings inputs. `{version = SCHEMA_VERSION + 1, marker = "future"}` retains its identity/version/marker but grows from **2 to 29 fields**, including scrap and home. An assertion that such a save is untouched would fail today; adding an early return would change production behavior beyond the allowed move.
 
 Left open: coordinator either explicitly authorizes a future-version early return (then test it) or revises (e) to pin today's fill-only behavior. No ProfileSchema extraction or partial suite was committed, per the blocker instruction. Existing **71 tests** and all lints remain green; analyze clean. No DataStore or Studio access.
+
+## C11 — 2026-10-06 — blocked, review
+
+Claim: `4994601`. No UI source or partial lint changed.
+
+The stated zero-offset baseline is false: `src/client/UI/AliensScreen.luau:688` uses `UDim2.new(CELL_W, 0, 0, cellPx)` for CellSize; line 689 uses `UDim2.new(CELL_GAP, 0, 0, gapPx)` for CellPadding. Values derive from a nonzero AbsoluteSize. UI-Playbook.md line 102 expressly permits pixel-derived grid heights to prevent ScrollingFrame canvas feedback.
+
+Measured: **2 existing forbidden constructor calls** under the card's literal rule. The card allows baselining colours only, and its file list excludes AliensScreen and the Playbook. A strict offset lint would fail today's tree; exempting these calls without changing the card would weaken its rule. Per the blocker instructions, neither route was taken.
+
+Left open: coordinator authorizes the documented grid exception in C11 or changes the grid first. Then implement offset/font checks, colour baseline and silent-tap audit. No colour/sound audit results are claimed. Existing **71 tests** and all current lints remain green; analyze clean.
