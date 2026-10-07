@@ -11,13 +11,15 @@ local Worlds: { [number]: { ModuleDef } } = {
 		{ id = "NavArray", name = "Nav Array", scrap = 12000, keyMaterial = "StormShard", keyCount = 2, assemblySeconds = 1500, job = "Spark", weight = 0.25, unlocksSlots = 3 },
 		{ id = "EngineCore", name = "Engine Core", scrap = 30000, keyMaterial = "WardenCore", keyCount = 1, assemblySeconds = 2700, job = "Build", weight = 0.30 },
 	},
-	-- World 2, Frostbyte: Scrap at 1.6x World 1, assembly at 1.5x. The Frost Engine takes Skaddle's Core from the finale.
+	-- World 2, Frostbyte: assembly at 1.5x World 1. Scrap is keyed to what a median player carries in (about 3,900 Scrap/min
+	-- of crew income and 58,000 saved, balance report C7): the savings snap on the first two modules, then a steady climb,
+	-- so World 2 takes about 1.5 times World 1's play time instead of less (a flat 1.6x made it shorter). The Frost Engine takes Skaddle's Core from the finale.
 	[2] = {
-		{ id = "HeatShield", name = "Heat Shield", scrap = 480, keyMaterial = "IcePlate", keyCount = 3, assemblySeconds = 90, job = "Build", weight = 0.10 },
-		{ id = "IceDrill", name = "Ice Drill", scrap = 2400, keyMaterial = "GeyserPearl", keyCount = 3, assemblySeconds = 450, job = "Build", weight = 0.15, unlocksSlots = 2 },
-		{ id = "CryoPod", name = "Cryo Pod", scrap = 8000, keyMaterial = "FrostCore", keyCount = 3, assemblySeconds = 1080, job = "Spark", weight = 0.20 },
-		{ id = "BeaconArray", name = "Beacon Array", scrap = 19200, keyMaterial = "BlizzardShard", keyCount = 2, assemblySeconds = 2250, job = "Spark", weight = 0.25, unlocksSlots = 3 },
-		{ id = "FrostEngine", name = "Frost Engine", scrap = 48000, keyMaterial = "SkaddleCore", keyCount = 1, assemblySeconds = 4050, job = "Build", weight = 0.30 },
+		{ id = "HeatShield", name = "Heat Shield", scrap = 12000, keyMaterial = "IcePlate", keyCount = 3, assemblySeconds = 90, job = "Build", weight = 0.10 },
+		{ id = "IceDrill", name = "Ice Drill", scrap = 24000, keyMaterial = "GeyserPearl", keyCount = 3, assemblySeconds = 450, job = "Build", weight = 0.15, unlocksSlots = 2 },
+		{ id = "CryoPod", name = "Cryo Pod", scrap = 42000, keyMaterial = "FrostCore", keyCount = 3, assemblySeconds = 1080, job = "Spark", weight = 0.20 },
+		{ id = "BeaconArray", name = "Beacon Array", scrap = 68000, keyMaterial = "BlizzardShard", keyCount = 2, assemblySeconds = 2250, job = "Spark", weight = 0.25, unlocksSlots = 3 },
+		{ id = "FrostEngine", name = "Frost Engine", scrap = 120000, keyMaterial = "SkaddleCore", keyCount = 1, assemblySeconds = 4050, job = "Build", weight = 0.30 },
 	},
 }
 

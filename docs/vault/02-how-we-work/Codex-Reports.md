@@ -170,3 +170,14 @@ Inventoried **16 client frame connections, 0 server** with cadence, loops, bound
 Requested Shower+Rain: **196 particles/s, approximately 103 steady alive**; two worst weather sheets plus Shower conservatively model **387.2 alive**. WeatherParticleMax warns; it does not clamp. Forced transitions and burst effects lack a global ceiling.
 
 Top priorities: cache companion raycast exclusions (currently allocated every active frame); bound global spawn/visible-animation work (hidden wild models still move); measure imported scenes before visual polish and pool sighting trail effects (up to roughly **81 puffs/lights** in the catch-up model). Numeric scenarios are below budgets, but actual global parts, spawns and particles cannot be certified from these inputs. Callback annotations are reviewed source notes, not a general call-graph analyzer.
+
+### Coordinator note on the C5 to C14 batch — 2026-10-07
+
+Accepted: C5, C6, C8, C9, C12, C13 and C14. The fusion move kept every test green and C9's five guards were read line by line: each refusal returns before any state is cleared, so a refused call loses nothing.
+
+C7: the proposal is declined in shape, kept in method. Its first module (77,479) cost twice its second (38,889) to soak up the savings, which a player reads as a bug. The coordinator ran `tools/balance.py` at 51 seeds on rising curves and applied 12,000 / 24,000 / 42,000 / 68,000 / 120,000: World 2 now takes 61.3 continuous minutes against World 1's 42.6 (1.44x), the savings snap on the first two modules, each step after rises by 1.6 to 1.8x, and a once-a-day player finishes World 2 in about two days, as for World 1. The report is regenerated from the live data.
+
+C10 and C11 are reopened with decisions under each card: the future-save early return now exists (and the server refuses to own such a save), and the Playbook's grid exception is allowed on marked lines only.
+
+Left for the polish pass: C8's 36 unused string keys and C13's catalog findings. C12's four advisory lines are text a player types (a promo code, a mail line), correct as written.
+

@@ -125,6 +125,7 @@ return {
 	UI_WAYPOINT_GLYPH = "v",
 	ERR_LOCKED = "Your progress is still saving from another server. Please rejoin in a minute.",
 	ERR_LOAD = "We couldn't load your progress. Please rejoin.",
+	ERR_NEWER = "The game just updated. Please rejoin to keep playing.",
 	PEDDLER_ARRIVED = "The Peddler has landed!",
 	PEDDLER_TITLE = "The Peddler",
 	PEDDLER_LEAVES = "Leaves in %s",

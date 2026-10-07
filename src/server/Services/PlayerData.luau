@@ -239,7 +239,17 @@ local migrations: { [number]: (any) -> any } = {
 	end,
 }
 
+-- A save written by a newer version of the game (a server still running old code during an update) is returned
+-- untouched: this code does not know its fields, so it neither migrates nor fills it. tryLoad refuses to own such a
+-- save, so it is never written back by old code.
+local function isFromTheFuture(data: any): boolean
+	return (tonumber(data.version) or 1) > SCHEMA_VERSION
+end
+
 local function migrate(data: any): Types.Profile
+	if isFromTheFuture(data) then
+		return data :: Types.Profile
+	end
 	local version = tonumber(data.version) or 1
 	while version < SCHEMA_VERSION do
 		local step = migrations[version + 1]
@@ -276,11 +286,16 @@ local function tryLoad(player: Player): (Types.Profile?, string?)
 	end
 	local ds = store :: DataStore
 	local locked = false
+	local newer = false
 	local ok, result = pcall(function()
 		return ds:UpdateAsync(keyFor(player), function(old)
 			if old ~= nil and lockIsHeldElsewhere(old) then
 				locked = true
 				return nil -- cancel: another server holds this profile
+			end
+			if old ~= nil and isFromTheFuture(old) then
+				newer = true
+				return nil -- cancel: a newer game version wrote this save; this server must not own it
 			end
 			local data = if old ~= nil then migrate(old) else migrate(template())
 			data.lock = { jobId = game.JobId, time = os.time() }
@@ -289,6 +304,9 @@ local function tryLoad(player: Player): (Types.Profile?, string?)
 	end)
 	if not ok then
 		return nil, tostring(result)
+	end
+	if newer then
+		return nil, "newer"
 	end
 	if locked or result == nil then
 		return nil, "locked"
@@ -348,7 +366,7 @@ local function onPlayerAdded(player: Player)
 	end
 	if not profile then
 		local strings = require(Shared.strings.en)
-		player:Kick(if lastErr == "locked" then strings.ERR_LOCKED else strings.ERR_LOAD)
+		player:Kick(if lastErr == "locked" then strings.ERR_LOCKED elseif lastErr == "newer" then strings.ERR_NEWER else strings.ERR_LOAD)
 		return
 	end
 	local now = os.time()

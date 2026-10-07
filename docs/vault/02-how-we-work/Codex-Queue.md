@@ -51,7 +51,7 @@ Files: `tools/balance.py` (new), `docs/vault/01-game-design/Balance-Report.md` (
 
 Do: a Python 3 standard-library simulator that reads `Tiers`, `Species`, `Spawns`, `Modules`, `KeyMaterials`, `Growth`, `Sizes`, `Config` (the catch, income, offline and module numbers) and `Gifts` as text (reuse card C2's parser), then simulates a median player on World 1 and World 2: catches per minute from the capture numbers (assume a 60 percent Good rate and 15 percent Perfect), the tier mix from the shares, the station crew that results with the slot unlocks, Scrap per minute over time including growth stages, and the wall-clock time to each module with and without offline time (capped as in Config). Print and write a Markdown table per world: module, Scrap needed, minutes of active play, minutes with one offline session a day; then a short list of outliers (a module more than three times the previous one, a tier that never seats). Compare with the plan's targets (first module inside five minutes, World 1 ship in a few sessions, World 2 at 1.6x Scrap and 1.5x assembly) in the report. Change no data; list suggested changes for the coordinator.
 
-### C5. Headless tests for the newer shared maths — review
+### C5. Headless tests for the newer shared maths — done (116a72f, b18f3aa; 71 tests)
 
 Goal: `WeeklyMath` and the fusion fodder rule covered by headless specs. (`Growth`, `OutpostMath`, `SeasonMath` and `VisitRules` already have specs; extend `Growth.spec.luau` only if a threshold edge is missing.)
 
@@ -61,7 +61,7 @@ Files: `src/shared/FusionMath.luau` (new), `src/server/Services/Economy.luau` (`
 
 Done when: `analyze: clean`, `./tools/test.sh` green with both new spec names in its output, and the `Economy.luau` diff limited to `Fuse`.
 
-### C6. Data lint: the rules the code relies on — review
+### C6. Data lint: the rules the code relies on — done (1b07b06, 00101be; 17 rule groups)
 
 Goal: every data-shape assumption the code makes is checked before Studio ever sees it (the lesson in `docs/vault/04-roblox-engine/Data-Tables.md`).
 
@@ -82,13 +82,13 @@ Files: `tools/lint_data.py`, `docs/vault/02-how-we-work/Data-Lint.md`.
 
 Done when: `python3 -I tools/lint_data.py` prints `data lint: clean` (warnings allowed only for listed findings), and each new rule has a one-line entry in `Data-Lint.md`.
 
-### C7. Balance report, second pass — review
+### C7. Balance report, second pass — done (0c3ba45, 71dbb69; the coordinator applied a rising curve instead of the proposal, see Codex-Reports.md)
 
 Goal: extend `tools/balance.py` with the systems that landed after the plan's section 3.3: fusion (four spare copies per level; the share of catches that become fodder at the median), growth (the speed bonus by time seated), companions (perk sums for a median set of three), habitats (Scrap per hour by tier for three displayed), the Catch Rush payouts (per round, by rank), the weekly drop's share, and the outposts. Report the Scrap sources per hour of active play and per day of offline time, and flag any source above 30 percent of the total. Then the World 2 opening from C4: with the carried crew earning about 3,100 Scrap/min, World 2 finishes faster than World 1. Propose (do not apply) a World 2 module curve that makes its continuous completion about 1.5 times World 1's, keyed to the income a median player carries in, and show the simulated times for the proposal beside the live ones.
 
 Files: `tools/balance.py`, `docs/vault/01-game-design/Balance-Report.md`.
 
-### C8. String coverage lint — review
+### C8. String coverage lint — done (8767c2c, 14dfdbd; 36 unused keys left for the polish pass)
 
 Goal: no raw string key ever shows on screen. Direct `Strings.X` references are already checked by the type checker; the dynamic families (`Builder.text("TIER_" .. id)`) are not.
 
@@ -98,7 +98,7 @@ Files: `tools/lint_strings.py`, `tools/lint.sh`, `src/shared/strings/en.luau` (n
 
 Done when: `./tools/lint.sh` passes, the report lists the families found, the keys added and the unused keys.
 
-### C9. Remote contract lint and server-authority audit — review
+### C9. Remote contract lint and server-authority audit — done (0280159 to 1a627e6; 5 guards reviewed and kept)
 
 Goal: a client that waits for a remote the server never creates hangs with no error; a handler without a rate limit or an argument check breaks the server-authority rule in `CLAUDE.md`. Both should be caught by a script, not by a playtest.
 
@@ -110,7 +110,7 @@ Files: `tools/lint_remotes.py`, `tools/lint.sh`, `docs/vault/04-roblox-engine/Re
 
 Done when: `./tools/lint.sh` passes, `Remotes.md` lists every remote, and the audit reports no handler without a rate limit.
 
-### C10. Save migration tests — review
+### C10. Save migration tests — open (decision given below)
 
 Blocked: unchanged production behavior conflicts with (e): migrate fills missing fields even above SCHEMA_VERSION.
 Tried: ran the unchanged migration under pinned Luau; a two-field v16 fixture became 29 fields. Coordinator must choose the contract.
@@ -123,7 +123,9 @@ Files: `src/server/ProfileSchema.luau` (new), `src/server/Services/PlayerData.lu
 
 Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its output, and a review of the `PlayerData.luau` diff shows only moved code.
 
-### C11. UI rules lint — review
+Coordinator decision (2026-10-07), answering the blocker: (e) is now today's behaviour. `migrate` returns a save whose version is above `SCHEMA_VERSION` untouched (an early return through `isFromTheFuture`, added by the coordinator), and `tryLoad` refuses to own such a save, so old code never writes it back. Move `isFromTheFuture` with the rest, and test (e) as "returned untouched: same fields, same values".
+
+### C11. UI rules lint — open (decision given below)
 
 Blocked: the zero-offset rule finds two existing AliensScreen UIGridLayout offsets expressly allowed by UI-Playbook.md.
 Tried: verified lines 688–689 and the documented scrolling-grid exception; the card permits neither a source fix nor an offset allowance.
@@ -136,7 +138,9 @@ Files: `tools/lint_ui.py`, `tools/lint_ui_baseline.json`, `tools/lint.sh`, `docs
 
 Done when: `./tools/lint.sh` passes and the report lists the baseline entries and the silent taps found.
 
-### C12. TESTING.md consistency lint — review
+Coordinator decision (2026-10-07), answering the blocker: the UI Playbook's "Grids inside scrolling frames" exception is authorized. A `UIGridLayout` `CellSize` or `CellPadding` inside a ScrollingFrame may carry a pixel height derived from an `AbsoluteSize`, and only on a line that ends with the marker comment `-- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)`. The lint allows Offset on a marked line only when the property is `CellSize` or `CellPadding`. Add the marker to `src/client/UI/AliensScreen.luau` lines 688 and 689 (that comment is the only edit allowed in that file).
+
+### C12. TESTING.md consistency lint — done (1801d10, 1eb6ff0; the 4 advisory lines are typed player input, fine as they are)
 
 Goal: the Mac's Studio runs read `docs/TESTING.md` word for word; a stale command or toast text there costs a whole re-run. The code is the truth.
 
@@ -146,7 +150,7 @@ Files: `tools/lint_testing.py`, `tools/lint.sh`, `docs/TESTING.md` (wording fixe
 
 Done when: the lint runs in `tools/lint.sh`, and the report lists the mismatches found and fixed and any left for the coordinator (a line that may describe intended behaviour not yet built).
 
-### C13. Dead code and dead data report — review
+### C13. Dead code and dead data report — done (78da295, 9f6a5bb)
 
 Goal: a list for the coordinator's polish pass of everything built and never used.
 
@@ -156,7 +160,7 @@ Files: `tools/deadcode.py`, `docs/vault/02-how-we-work/Dead-Code.md`.
 
 Done when: the report exists, every finding has a suggestion, and the script runs in under ten seconds.
 
-### C14. Performance budget report — review
+### C14. Performance budget report — done (5d5b6fb, 625a161)
 
 Goal: Roblox players are mostly on phones; find the per-frame work and instance counts that could hurt before the visual pass adds more.
 
