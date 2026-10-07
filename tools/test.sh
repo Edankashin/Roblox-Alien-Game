@@ -18,7 +18,10 @@ import sys
 import time
 
 root = Path.cwd()
-files = sorted((root / 'src/shared').rglob('*.luau')) + sorted((root / 'tests').glob('*.luau'))
+# Only the pure schema is bundled from server; services remain unavailable.
+files = (sorted((root / 'src/shared').rglob('*.luau'))
+         + [root / 'src/server/ProfileSchema.luau']
+         + sorted((root / 'tests').glob('*.luau')))
 specs = sorted((root / 'tests').glob('*.spec.luau'))
 if not specs:
     raise SystemExit('headless: no specs found')
