@@ -229,3 +229,11 @@ No tracked shared test was added: the changed predicates are local distance refu
 
 **Coordinator notes on C15 and C16 (2026-10-07).** C15: accepted; the shared maths and the 45 new cases are what was asked, and the trace pointed at the right place: taps on the tray's own area are swallowed by design, and in a small window the plot sat behind it. The fix is the build camera (3cee9d1), not an input change. C16: accepted; the three `not (d <= range)` guards are correct and minimal. Decisions on D1 to D8: **D8 fixed** (a receipt answers PurchaseGranted only after `PlayerData.SaveNow` lands; a failed save answers NotProcessedYet and Roblox asks again, the saved receipt id keeping it idempotent); **D5 fixed** (Welcome Week and Peddler eggs at home hatch from the furthest unlocked world); D1 accepted for now (an auto-Perfect client earns Perfect Scrap only; server-side timing waits for telemetry); D2, D3, D4 and D7 go to a later hardening card with shared movement and proximity policy; D6 stays as is until a granter can fail.
 
+
+## C17 — 2026-10-07 — review
+
+Implementation `e6ace48`; claim `d3533d5`. Added offline compact-JSON modeling from the reviewed ProfileSchema shape, live data and three seeded balance runs. Report-only; no game changes.
+
+Measured: 140 → 140 tests; fresh template 1,216 bytes; heavy fixed reserve 16,626 bytes; alien marginal entry 193 bytes. Modeled 289.96 grants/hour; optional fusion consumed 86.8% in the short progression sample and is not assumed for long-term retention. No-fusion limit: day 25 at 3 hours/day, day 8 at 10 hours/day. A 5,000-record cap bounds modeled alien storage to 965,000 bytes; 90% eligible stacking moves the dates to 249/75. Existing receipt cap is 100; reducing to 25 saves 3,750 bytes without changing either day; removing current finished tracks saves 199 bytes. Runtime 0.98 s; report regeneration deterministic. Analysis, data and extra lints pass.
+
+Coordinator decisions: capacity/release economy, individual identity under stacking, receipt replay safety. Fusion already deletes copies and receipts already prune, contrary to the card premise. Forecast is a scoped scenario, not maximum save size: fixed catalog, ASCII sample records, no optional alien assignments and no paid grants. Confirm actual JSONEncode bytes with a safety margin in Studio before enforcement.
