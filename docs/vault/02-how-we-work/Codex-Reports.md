@@ -255,3 +255,11 @@ Claim `7478bc9`; implementation `73f7112`. Added the deterministic offline gener
 Measured: 140 → 140 tests; one hard freshness rule added; five queue invariants cover pending/resolved status distinction, deterministic regeneration, unique entries and a missing TESTING section refusal. Runtime under 0.1 s. Full checks pass.
 
 Left open: TESTING contains stale zero-place-id, retired-pass, old-toast and memory-profile persistence wording; the run sheet flags these as source evidence rather than rewriting game expectations. Coordinator should correct the source, then regenerate. Multi-requirement milestones occur once under their strongest prerequisite and retain all needed player/place conditions. Studio operations and live purchases were not run.
+
+## C20 — 2026-10-07 — review
+
+Claim `d582085`; inventory `3218607`. Documented 57 moment rows (the commit title says 55; the measured table count is 57), including separate catch/opening/Reveal rows for all seven tiers, every requested progression/social/event moment and a Legendary worked trace. Every row has a source/line anchor and sound, effects, camera, UI, rumble, music and design-emotion columns.
+
+Measured: 33 sound slots still `rbxassetid://0`; no music director or phone-rumble implementation found. Toast/button/banner common cues are explicitly counted as zero-ID hooks, not audible playback. 140 → 140 tests; analysis/data/full lints clean; report-only, no game changes.
+
+Top decisions: populate/mix the silent sound ladder; design Legendary round and arrival choreography beyond generic bar/Reveal feedback; establish music priority and optional rumble. Additional gap: no distinct new-world arrival or Codex page/set ceremony found. Source line anchors are snapshot references and will shift when C25 formats the code. No Studio/audio playback was performed.
