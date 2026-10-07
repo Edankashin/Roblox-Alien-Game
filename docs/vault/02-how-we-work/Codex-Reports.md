@@ -110,3 +110,13 @@ Added the isolated-mode string lint and executable extra-lint runner. **42 dynam
 Added **4 missing keys only**: LANDMARK_CrashSite, LANDMARK_CaveMouth, LANDMARK_GreatVent, LANDMARK_IceCaveMouth. No existing wording changed and no unused strings deleted.
 
 Measured: **2 isolated mutation checks** caught an unknown family and a deleted landmark key. String lint below one second; **0 hard failures**, **36 advisory unused candidates**. Analyze/data lint clean, extra lint clean, **71 tests pass** in **0.034 s**. Left open: coordinator reviews unused candidates before deletion; lexical analysis is not proof of runtime reachability.
+
+## C9 — 2026-10-06 — review
+
+Audit/report: `d7c406f`; claim: `751ca21`. Guard commits, one service each: Catching `0280159`, Habitats `6518f19`, Companions `df0230c`, HomeBuild `97b2295`, Mail `9d027bb`.
+
+The audit resolves **108 remotes / 58 handlers**, including literal initializer arrays, aliases and remote-name wrappers. **0 missing server counterparts**, **0 unused/unheard remotes**. Fixed **3 missing rate limits** (CaptureCancel, ClaimHabitatIncome, GetAllCompanions) and **2 checks after profile reads** (GetHome, GetMail). Existing enum checks in Shop/DailyQuests and Social's explicit yes/else-no normalization are recognized, not changed. Capture timestamp sanitization remains intact.
+
+Measured: **10 isolated handler regression checks** prove allowed-call return/effect parity and blocked-call state protection; **2 audit mutations** detect an absent server remote and removed limiter. Deterministic Remotes.md regeneration. Analysis clean after each service commit; **71 headless tests pass**, data and extra lints clean. Final audit: **0 guard warnings**.
+
+Left open: argument/control-flow inspection is heuristic, not a security proof. Rate rejection uses each endpoint's existing neutral response shape; no Studio operations.
