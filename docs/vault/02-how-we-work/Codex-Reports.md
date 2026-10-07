@@ -206,3 +206,13 @@ Left open: constructor aliases/indirect assignments and full sound control flow 
 
 Both accepted. C10's move left `PlayerData` with only the require and the three bindings, and 24 new tests pin every migration, the future-save rule and idempotence (95 tests in all). C11's one silent-tap candidate is the capture bar, which reads press, hold and release through InputBegan and InputEnded and plays its verdict sounds; it stays listed as advisory. The queue has no open card; the next cards come with the look pass.
 
+
+## C15 — 2026-10-07 — review
+
+Implementation: `81a69a8`; claim: `a7b528b`. Added ReplicatedStorage.Shared.HomeGrid; ServerScriptService.Server.Services.HomeBuild and StarterPlayerScripts.Client.World.HomeRenderer call its pure dimensions, footprint, overlap, bounds and local-point conversion. Diff review confirms validation order, mutation, render transforms and fractional ItemAt behavior are unchanged. BuildScreen was not edited.
+
+Measured: **95 → 140 tests**, **11 specs**, **0 failures**, **0.030 s**. New coverage: 10 items × 4 rotations; both habitats × 36 cells × 4 rotations; four plot edges, symmetric room/thing overlaps, rectangular turns, near/far cell borders. Analyze, data and all extra lints clean.
+
+Trace: pickItem clears removal and selects the habitat; a first valid OnWorldTap sets the cell and SetGhost builds its placeholder regardless of price/cap. No habitat-specific failure found. No ghost can occur when the tray is closed, a request is pending, the profile/plot/camera is absent, the ray misses, the point is at the excluded +X/+Z edge, or the item definition is absent. UI-consumed input and touch drags never reach OnWorldTap (bootstrap lines 1786–1803), so they produce no ignored-tap diagnostic. Selecting a card alone deliberately shows no ghost until a cell is picked; successful placement clears it.
+
+Left open: reproduce the owner's two-player case in Studio, recording gold selection border, first ignored-tap line (or its absence), and whether the plot was visible above the tray. No Studio operations or speculative input fixes.
