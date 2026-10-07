@@ -38,3 +38,14 @@ The Mac session still asks before it runs commands, uploads or publishes, as its
 - **Money**: spending Robux on ads or sponsorships, payouts, and anything else that costs money.
 - **Identity and legal**: the experience questionnaire and content maturity answers, privacy and compliance forms, two-step verification prompts, ID verification, and switching the game to public the first time. These are Ethan's account's legal statements; no tool should make them for him.
 - **Playing it**: how the game feels to a person is the one input no tool replaces.
+
+## Jobs that need computer use (found 2026-10-07)
+
+The Mac's Claude Code CLI session drives Studio through the Studio MCP server (Luau, play mode, the in-game mouse and keyboard) but has no computer use: that exists only in the Claude desktop app. So these need a session started from the desktop app, where computer use is on: the device emulator checks (iPhone SE, iPad), opening another place (File, Open), Test, Clients and Servers with two players, the Manage Plugins screen and its prices, and File, Publish to Roblox.
+
+To start it: Claude desktop app, the Code tab, choose the repo folder, then paste:
+
+```
+You are the computer-use session for the Roblox Alien Game repo in this folder. First read CLAUDE.md, docs/vault/02-how-we-work/Hands-Off.md and today's note in docs/vault/08-log/, then git pull. You do only the jobs that need clicks in Roblox Studio's own windows and menus; the CLI session keeps the Studio MCP checks. Your list, in order, steps from docs/TESTING.md: (1) open the home place (it syncs from home.project.json with rojo serve) and run milestone 42b step 5, then switch Studio's device emulator to iPhone SE and re-check the Shop's spin tiles (milestone 45 step 1) and the Gifts odds table; (2) Test tab, Clients and Servers, 2 players, and run the two-player steps of milestones 34, 36, 37 and 42e and owner guide Part D, driving both windows; (3) open Manage Plugins and list the price shown for Stravant GapFill & Extrude, ResizeAlign, Redupe, Brushtool 2 and Archimedes v3 in the Creator Store, buying nothing; (4) only if all of (1) and (2) pass and the experience is still private: publish World 1, World 2 and home with File, Publish to Roblox, each synced from the branch head first. Ask Ethan before anything that spends Robux or changes account settings, and never touch the Open Cloud key. Write each result (pass or fail with what you saw) as bullets under a "## Computer-use session" heading in today's docs/vault/08-log/ note, commit and push after each numbered job; the coordinator reads them from git.
+```
+
