@@ -293,13 +293,7 @@ function LightingDirector.Start()
 end
 
 -- Re-merges and applies now, even when nothing changed (tests that edit the data tables).
-function LightingDirector.Reapply()
-	apply(true)
-end
 
 -- The look conditions active right now, in merge order (for a debug print).
-function LightingDirector.ActiveConditions(): { string }
-	return activeConditions()
-end
 
 return LightingDirector

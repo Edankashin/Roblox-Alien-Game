@@ -480,9 +480,6 @@ end
 
 -- Public API -------------------------------------------------------------
 
-function CaptureBar.IsActive(): boolean
-	return active
-end
 
 function CaptureBar.Begin(info: BeginInfo)
 	build()

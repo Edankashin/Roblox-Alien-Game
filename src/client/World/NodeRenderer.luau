@@ -249,10 +249,6 @@ function NodeRenderer.NodeIdOf(part: Part): string?
 end
 
 -- The material a tracked node yields, or nil for anything else.
-function NodeRenderer.MaterialIdOf(part: Part): string?
-	local record = records[part]
-	return if record then record.materialId else nil
-end
 
 function NodeRenderer.Stop()
 	if not running then

@@ -789,9 +789,6 @@ function Hud.SetEventCountdown(seconds: number?, format: string?)
 end
 
 -- Meteor Shower countdown chip under the biome chip: seconds until the shower, or nil to hide it.
-function Hud.SetShowerCountdown(seconds: number?)
-	Hud.SetEventCountdown(seconds, nil)
-end
 
 function Hud.SetScrap(amount: number)
 	if setScrapValue then

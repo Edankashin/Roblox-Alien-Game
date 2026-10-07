@@ -203,22 +203,6 @@ end
 
 -- A soft black inner shadow across the bottom Theme.Gloss.Shadow of `target`, clear at its top edge and
 -- Theme.Gloss.ShadowAlpha transparent at the bottom, with the target's own corners. Returns the "InnerShadow" frame.
-function Builder.innerShadow(target: GuiObject): Frame
-	local band = overlay(
-		target,
-		"InnerShadow",
-		Theme.Colors.Black,
-		UDim2.fromScale(0, 1 - Theme.Gloss.Shadow),
-		UDim2.fromScale(1, Theme.Gloss.Shadow)
-	)
-	roundLike(band, matchingRadius(target, nil))
-	local fade = Instance.new("UIGradient")
-	fade.Rotation = 90
-	fade.Transparency = NumberSequence.new(1, Theme.Gloss.ShadowAlpha)
-	fade.Parent = band
-	band.Parent = target
-	return band
-end
 
 function Builder.aspect(parent: GuiObject, ratio: number): UIAspectRatioConstraint
 	local constraint = Instance.new("UIAspectRatioConstraint")

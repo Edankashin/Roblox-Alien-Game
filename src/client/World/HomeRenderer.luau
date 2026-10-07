@@ -582,13 +582,6 @@ function HomeRenderer.CellAt(worldPosition: Vector3): (number?, number?)
 end
 
 -- The middle of a cell on the plot's top face (the origin before the plot is known).
-function HomeRenderer.CellCenter(cellX: number, cellZ: number): Vector3
-	local g = grid
-	if not g then
-		return Vector3.zero
-	end
-	return plotPoint(g, cellX + 0.5, cellZ + 0.5)
-end
 
 -- Flat (X and Z) distance from the local character's root to the plot's centre; math.huge without a plot or a character.
 function HomeRenderer.PlotDistance(): number
