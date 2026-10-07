@@ -1,6 +1,12 @@
 # Roblox Alien Game
 
-A Roblox collection game for a two-person team: players crash-land on planets, catch cute aliens with a timing-bar minigame, the aliens build a ship, and the ship flies to the next themed world. Design in `docs/GAME_DESIGN.md`. Build plan and readiness checklist in `docs/PRE_PRODUCTION.md`. Research behind the design in `reports/` and `research_notes/`. Reference-video lessons in `media/tiktok/NOTES.md`. The knowledge vault (glossary, UI playbook, engine notes, art pipeline) lives in `docs/vault/` once created; read it before UI or asset work and write corrections back into it.
+A Roblox collection game for a two-person team: players crash-land on planets, catch cute aliens with a timing-bar minigame, the aliens build a ship, and the ship flies to the next themed world. Design in `docs/GAME_DESIGN.md`. Build plan and readiness checklist in `docs/PRE_PRODUCTION.md`. Research behind the design in `reports/` and `research_notes/`. Reference-video lessons in `media/tiktok/NOTES.md`. The knowledge vault (glossary, UI playbook, engine notes, art pipeline) lives in `docs/vault/`, which is also the team's Obsidian vault; read it before UI or asset work and write corrections back into it.
+
+## Vault logging
+
+- Every session (coordinator, the Mac session, workers) logs what it learned or settled in `docs/vault/08-log/YYYY-MM-DD.md`: one dated note per day, a heading per session, short bullets (what was done, what was found, what was decided, what is left). Append; never rewrite another session's lines.
+- Anything lasting moves out of the log into its topic note (engine fact to 04, UI lesson to 05, decision to `07-alien-game/Decisions.md`) and the log line links it with `[[Note-Name]]`.
+- Use Obsidian-style links (`[[Note-Name]]`) between notes so the graph stays connected. Never put keys, tokens or other secrets in the vault.
 
 ## Rules
 

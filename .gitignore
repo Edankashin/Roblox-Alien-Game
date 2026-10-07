@@ -5,3 +5,8 @@ media/tiktok/out/*/frames/
 # local tool cache
 .cache/
 __pycache__/
+
+# Obsidian per-machine state (the vault notes themselves are tracked)
+docs/vault/.obsidian/workspace*.json
+docs/vault/.obsidian/cache
+docs/vault/.trash/
