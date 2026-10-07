@@ -18,6 +18,8 @@ Never: rewrite git history, force-push, open pull requests, edit CLAUDE.md or AG
 
 ## Batch prompt: every open card in one run
 
+**Running it unattended on the Mac (verified 2026-10-07):** `codex exec -C <repo> --add-dir <repo>/.git -s workspace-write -c sandbox_workspace_write.network_access=true - < prompt.txt > ~/codex-batch.log 2>&1 &`, with `prompt.txt` holding the code block below. Without `--add-dir <repo>/.git` the workspace-write sandbox leaves `.git` read-only and the first commit fails on `.git/index.lock`; the network option lets it push. No full-access mode is needed. The CLI lives inside ChatGPT.app (`/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex`), not on PATH. Ethan approves the run in the Mac session's window.
+
 Paste this into a fresh Codex session (CLI on the Mac, in the repo folder) to run the whole queue without stopping. It replaces the standing prompt above for that session.
 
 ```

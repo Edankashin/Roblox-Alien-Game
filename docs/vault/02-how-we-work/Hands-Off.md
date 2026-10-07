@@ -28,7 +28,7 @@ The Mac session still asks before it runs commands, uploads or publishes, as its
 | Parts A and H: publishing and republishing the three places | The Mac publishes from Studio with computer use now; later `tools/publish.py --apply` from the repo with no Studio at all (C23, plus the model table C24 and the coordinator's runtime model loader) | Now (Studio route); headless after C23, C24 and the loader |
 | A8: the World 1 place id | The Mac reads it from Studio (`game.PlaceId`) or the Open Cloud universe and writes it into `Worlds.luau` | Now |
 | Part D: two-player tests | The Mac runs Studio's Clients and Servers test with computer use and drives both windows | After step 2 |
-| Part E: starting Codex and pasting its reports | The Mac starts `codex exec` with the batch prompt when the queue has open cards; reports are already in git | Now, with Ethan's approval of the run |
+| Part E: starting Codex and pasting its reports | The Mac starts `codex exec` with the batch prompt when the queue has open cards (exact command in [[Codex-Prompt]]); reports are already in git | **Working** since 2026-10-07 (C17 claimed by an unattended run) |
 | Relaying messages between sessions | The coordinator and the Mac session message each other directly | Now |
 
 ## What stays Ethan's (by design, not by missing tooling)
