@@ -104,6 +104,19 @@ Install GapFill, ResizeAlign, Brushtool 2, Redupe and Archimedes from the Creato
 2. For parts that should meet exactly, select them, open ResizeAlign and pick the method (Outer Touch, Inner Touch, Wedge, Rounded, Butt Joint or Extend).
 3. Check the seam from three angles; modules stack on the `ShipHull` plane at z 0.5.
 
+## Map design rules (from the batch 5 references, 2026-10-07)
+
+Read with `media/tiktok/NOTES.md` batch 5 (the ropilot dioramas, the 45-minute cinematic, the Moonlit Forest).
+
+1. **One hero landmark per biome**, two or three supporting props around it, and nothing spread evenly. The landmark is the biome's name in one picture (a volcano with a lava river, a skeleton in the sand, a waterfall from a rock).
+2. **Height inside a small footprint.** A cone, stepped cliffs, a raised pool, a bridge over water: every biome has at least two levels and one thing taller than four players.
+3. **A hard colour identity per biome**: two main colours and one accent, so a screenshot names the biome.
+4. **A path that leads the eye**: pale against the ground, winding toward a landmark that is visible from everywhere in the world (the Moonlit Forest's floating island; ours is the hero landmark of milestone 29).
+5. **Named sights with a viewpoint each**: a pool, a waterfall seen from a bridge, a grove of giant mushrooms. If a spot cannot be captioned in four words for the trailer, it is not a sight yet.
+6. **At night the light comes from the props**, not the sky: glowing plants, lanterns, water, fireflies, in pastel colours over an indigo, violet and teal scene.
+7. **The world reads as one island** from the establishing camera shot: a rim, a centre, a readable layout. Each place keeps a `Workspace.World.CameraRig` folder of camera anchors for its cinematics (PRE_PRODUCTION 5c, item 1).
+8. **Size is a feature** ("only 1 of 6 areas"), but only with density: walk any 20 studs and something new should be in view.
+
 ## Rules
 
 - 1 unit = 1 stud. Feet at the origin. Flat colours, one material per colour, no textures.

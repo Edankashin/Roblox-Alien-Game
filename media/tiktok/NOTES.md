@@ -260,3 +260,52 @@ He shares a text document with one section per tool: what it does, when it activ
 His closing rule: with about 40 skills installed you do not call them; they activate on their own.
 
 **What we take.** Decided per tool in `docs/vault/02-how-we-work/Claude-Plugins.md`: adopt Roblox Dev and the ShiroKSH Studio skill (both project-scope, after a dry run that proves no conflict with our `.mcp.json` and CLAUDE.md rules), keep Blender MCP and Studio MCP (already in), skip Graphify and Ponytail (our vault and CLAUDE.md do that job and the token saving is unproven), try Superpowers only for the World 2 build. Nothing is installed by a script; each is one deliberate `/plugin` command on the Mac.
+
+# Batch 5: cinematics, map design, the forest reference, retention (2026-10-07)
+
+Five links from Ethan, downloaded on the Mac (`b48eb4d`), processed with `tools/watch_video.py` (Whisper base.en; one frame per second) and every sheet and slide read. These are the references named in the owner direction (PRE_PRODUCTION section 5a); what we take from them is in section 5c there.
+
+| Code | Creator | Length | Topic |
+|---|---|---|---|
+| ZPLYS56X5 | turiptoroblox | 0:31 | "Made with Opus 5.5 in 45 minutes": map, lighting and a cinematic system |
+| ZPLYSD7G9 | ropilot__ai | 0:18 | "Everything you see Ropilot Astra 6 made": three biome dioramas that assemble around the player |
+| ZPLYSaBcg | machv10 | 1:27 | How to get high D1 retention (talking head) |
+| ZPLYSA3uR | clovermoongames | 0:35 | The Moonlit Forest, one of six areas of Mushroom Tycoon (alpha Oct 10) |
+| ZPLYSjC9y | okviky3 | 7 slides | How to keep good stats (the Spidey Bomb Tag dashboard again, see ZPL8MPnyV) |
+
+## ZPLYS56X5: the 45-minute cinematic (turiptoroblox)
+
+**Shown, as one continuous camera move (0 to 29 s):** a closed wooden barn gate fills the frame; the doors swing open toward the camera (0 to 4 s) and the camera dollies through onto a stone path (4 to 7 s); it flies low and fast between wooden walls with heavy foreground blur (8 to 10 s); it rises past a tree as the blur clears (11 to 12 s); it cranes up over rows of fenced farm plots, warm sunlight and lens bloom from the left (13 to 19 s); it pulls up and out until the whole map reads as one floating island, a square diorama with a layered dirt-and-cliff skirt, a perimeter of trees, a central cross path and a hub building, and holds there drifting slowly (20 to 29 s). At 30 s it cuts to the player character (winged) standing in the world. Audio: "dramatic music" only.
+
+**Lessons.** (1) The cinematic is one unbroken shot built from five classic moves (reveal through an opening, dolly, low fly-through, crane, establishing pull-out) with eased speed changes between them; it is never a series of cuts. (2) Depth of field does most of the "cinematic" work: blur the foreground during fast moves, clear it as the camera slows. (3) Bloom and a low sun on one side give the warm glow. (4) It ends on the establishing shot that shows the whole world as an object, then hands control to the player. (5) The map is built to be filmed: one bounded island, a readable grid, a centre, a rim.
+
+## ZPLYSD7G9: the world assembles (ropilot__ai)
+
+**Shown:** a player stands on an empty baseplate. A glowing ring marks the ground (1 s); blocks fly up from below and slot into place around the player in a wave, with dust and light (2 to 4 s), until a volcano zone stands: dark basalt terrain, a cone with a lava river down its side, a lava pool, an arch and scattered rocks (5 to 7 s, 12 s). Then a desert canyon: stepped red mesa walls topped with grass, a mine door, cacti, a huge animal skeleton in the sand (8 to 11 s). Then a green zone: a pool with a waterfall from a tall rock, a wooden bridge, ruined stone pillars, floating islands (13 to 17 s). Each zone is a square tile with a visible rim, about four times the player's height at its tallest point.
+
+**Lessons.** (1) Every zone is one theme with **one hero landmark** (volcano, skeleton, waterfall) and two or three supporting props, never an even spread. (2) Strong height change inside a small footprint: a cone, stepped mesas, a raised pool. (3) Hard colour identity per zone (basalt and lava orange; red rock and sand; green and water blue). (4) The assembly effect (pieces flying up and snapping in with a ring, dust and light) is a reusable moment: a biome unlocking, a ship module snapping on, a house piece placed.
+
+## ZPLYSaBcg: D1 retention (machv10)
+
+**Said (Whisper, checked):** "You want to create enough content for your players to come back the next day. If you're letting players beat your game in one session... they're not going to come back tomorrow." Three steps: (1) "make sure your core loop is fun", tested by releasing and watching the audience; (2) "suck the player in within the first five minutes", then keep them for 20 to 30 minutes with "enough compelling content"; the ideal is a first session of about 30 minutes, then back "tomorrow and tomorrow for a week straight"; (3) "focus on play-through rate": "We recently released a game that had insane stats. The only stat holding it back... literally the play-through rate", meaning is the tile clickable, viral, trendy enough for players to press it. "Good PTR, good D1 retention, good play time: you have the biggest game on Roblox."
+
+**Checked against our data.** `tools/econ_sim.py` (fixed today: it read the Home Planet's row after row 0 was added, so it never saw World 1's Rain and reported the Nav Array as never finishing) gives, for an active player catching every 30 s: Hull Frame 1 min, Thrusters 6 min, Life Pod 19 min, Nav Array 37 min, Engine Core 1 h 17 min (the Warden's Core is the last gate). A 30-minute first session ends with three of five modules done and the Nav Array under way: World 1 cannot be finished in one session, as the advice wants.
+
+## ZPLYSA3uR: the Moonlit Forest (clovermoongames, Mushroom Tycoon)
+
+**Shown:** a high view down a pale winding path through a dense forest of chunky low-poly trees in indigo, violet and teal toward a floating landmark (a small island with a glowing halo arch and a waterfall falling from it) that is visible from everywhere (0 to 4 s). The player walks the path under falling streaks of light dripping from the canopy and drifting fireflies (5 to 9 s, "this is the Moonlit Forest"). A glowing moon pool ringed with mossy stones and lily pads under a light shaft (10 to 14 s). A grove of giant glowcaps, pastel white, pink and blue mushrooms three to five times the player's height, with small glowing mushrooms at their feet and lanterns on posts (15 to 19 s). A glowing blue waterfall watched from a little wooden bridge (20 to 24 s). A wide view: the stream, stepping stones, lit mushrooms and the floating island again, "and it's only 1 of 6 areas" (25 to 30 s). End card: the Mushroom Tycoon logo, "Alpha October 10", "follow for more".
+
+**Lessons for World 1's Forest at night.** (1) A night palette of indigo, violet and teal with warm-white and pastel light sources, not a dark scene: the light comes from the props. (2) Three particle layers: fireflies (slow, small, everywhere), light drips under the canopy, sparkles over water. (3) Giant glowing mushrooms as the signature prop, with small ones at their feet. (4) Water as the centrepiece: a glowing pool and a waterfall, each with a viewpoint (the bridge) where a player stops. (5) A pale path that leads the eye to a floating landmark seen from everywhere. (6) Each stop is captioned in the trailer ("there's a glowing moon pool...", "giant glowcaps"): the map is designed as a list of named sights.
+
+## ZPLYSjC9y: how to keep good stats (okviky3, slideshow)
+
+The same creator and game as ZPL8MPnyV (Spidey Bomb Tag): realtime 1,029 CCU (+55.2%), session 9.3 min, crash rate 0.23%, frame rate 41, server memory 436. Slide by slide:
+1. "My game peaks at 1k CCU, here's how to maintain good stats for your game."
+2. **Playtime:** "playtime rewards, make a satisfying enjoyable game, afk zones, add a lot of content. MAKE A GOOD GAME YOU WOULD PLAY!!"
+3. **D1 retention** (99th percentile): "make a game that is very fun and players would return to. Add login rewards and quests for joining back the next day, as well as boosts that players want to fully use and save until their next login (what went well for my game)."
+4. **D7 retention** (about 80th percentile): "login rewards, an OP one for day 7, events and frequent updates."
+5. **Bounce rate and PTR:** "make a fun tutorial and SHOW DON'T TELL!! Make the first 60 seconds fun"; "game trailers to boost PTR and nice thumbnails which also show and don't tell."
+6. **Monetisation:** "make loads of micro transactions for cheap prices (revive, 2x cash) and make gamepasses for higher prices: small fries, medium and big fries."
+7. "Bonus: watch Tizzy_RBLX."
+
+**Checked against what we have.** AFK zones: resting (milestone 46). Login rewards with a strong day 7: Welcome Week, day 7 an Epic Egg. Quests for coming back: daily and weekly quests. Events and updates: Meteor Shower, Catch Rush, the weekly drop, Haunted Nebula. Boosts saved for the next login: power-ups are kept as counts until used. Show-don't-tell tutorial: the five-minute script (milestone 27). Small, medium and big fries: 49 to 99 R$ boosts, 199 to 399 R$ passes, 799 to 999 R$ top items. **Gap: playtime rewards**, which the Growth Playbook (section 3) chose to skip; reopened as decision 5c-1 in PRE_PRODUCTION.

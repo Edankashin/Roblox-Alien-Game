@@ -28,7 +28,7 @@ Modules = load(DATA / "Modules.luau")["Worlds"][0]
 KeyMaterials = load(DATA / "KeyMaterials.luau")
 Overlays = load(DATA / "Overlays.luau")
 Jobs = load(DATA / "Jobs.luau")
-World = load(DATA / "Worlds.luau")[0]  # the first world's row; weather.normal plus weather.special
+World = load(DATA / "Worlds.luau")[1]  # World 1's row by id (row 0 is the home place); weather.normal plus weather.special
 
 TRAVEL_SECONDS = 40        # walking between biomes
 CAPTURE_SECONDS = 8        # one capture encounter, start to reveal
