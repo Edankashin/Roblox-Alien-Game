@@ -10,7 +10,7 @@
 -- place (the usual anti-AFK macro) does not count, while any walk, ride or fall-and-walk does. USE: Net.allow, which
 -- every server handler calls, reports each call to the listener this module sets at Init (Net.SetActivityListener), so
 -- any remote a player calls is use of the game, except AfkRejoin (the client's automatic request, never a person) and
--- the pulls the client makes by itself on a server push (a weekly flip, a season change: rare, and they only wake a
+-- the pulls the client makes by itself on a server push (a weekly flip, a season change, a missed alien list delta: rare, and they only wake a
 -- resting player for the next two minutes, which is the free direction). A resting player who is active again wakes at
 -- once on a remote call and at the next check on movement.
 --

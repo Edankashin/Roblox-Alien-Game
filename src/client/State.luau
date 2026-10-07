@@ -1,6 +1,6 @@
 --!strict
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
--- one and pushes changes (ScrapChanged, StationsChanged, ModulesChanged, InventoryChanged, RateChanged,
+-- one and pushes changes (ScrapChanged, AliensDelta, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
 -- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged, SeenChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -22,6 +23,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local Place = require(Shared:WaitForChild("Place"))
+local AlienDelta = require(Shared:WaitForChild("AlienDelta"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
 
@@ -71,6 +73,11 @@ local mailPushed = false -- a MailChanged push has landed, so a late GetMail ans
 local homeView: Types.HomeView? = nil -- the home planet of someone else this client is looking at (HomeView, GetVisit); nil at your own home
 local visitPushed = false -- a HomeView push has landed, so a late GetVisit answer is older and is dropped
 local storagePushed: Types.StorageState? = nil -- the server's last StorageChanged (the alien cap and the Storage Bay level); nil until one lands
+-- The alien list is a snapshot (the join profile, or a GetAliens pull) plus the AliensDelta events after it (Shared/AlienDelta,
+-- the server's AlienSync). aliensSeq is the number of the last one applied; a delta that skips a number means one was missed,
+-- and the snapshot is pulled once (one pull in flight at a time) to catch up.
+local aliensSeq = 0
+local pullingAliens = false
 local riding: string? = nil -- the uid of the follower the local player rides (CompanionsChanged); nil on foot. Never saved: a rejoin starts on foot
 
 -- Every data/Settings key with its value in `source`, or the data default where it is missing.
@@ -93,6 +100,7 @@ end
 
 function State.Set(p: Types.Profile)
 	profile = p
+	aliensSeq = p.aliensSeq or 0
 	if not ratePushed then
 		-- A client that booted after the server's pushes still shows the right rate: same shared maths.
 		rate = Economy.campState(p)
@@ -634,6 +642,63 @@ local function seasonMoved(force: boolean)
 	task.spawn(pullSeasonProgress)
 end
 
+-- The server's alien list snapshot (the GetAliens answer) replaces the records and stations and sets the number the next delta
+-- must follow. An answer older than what is applied is dropped.
+local function setAliens(snapshot: Types.AliensSnapshot)
+	local p = profile
+	if not p or snapshot.seq < aliensSeq then
+		return
+	end
+	p.aliens = snapshot.aliens
+	p.stations = snapshot.stations
+	aliensSeq = snapshot.seq
+	fire("stations")
+end
+
+-- One pull of the snapshot after a gap. A failed or empty answer changes nothing: the next delta finds the gap again.
+local function pullAliens(have: number, got: number)
+	if pullingAliens then
+		return
+	end
+	pullingAliens = true
+	task.spawn(function()
+		local ok, answer = pcall(function(): any
+			return Net.func("GetAliens"):InvokeServer()
+		end)
+		pullingAliens = false
+		if not ok or type(answer) ~= "table" or type((answer :: any).seq) ~= "number" then
+			return
+		end
+		setAliens(answer :: Types.AliensSnapshot)
+		if RunService:IsStudio() then
+			print(("[%s] client: alien list gap (had delta %d, got %d); pulled the snapshot at %d"):format(Config.WorkingTitle, have, got, aliensSeq))
+		end
+	end)
+end
+
+-- One AliensDelta from the server: applied when it is the next in the sequence, dropped when it was already applied, and a
+-- gap (a delta was missed) pulls the snapshot instead. Applying changes the mirror tables in place and fires "stations" for the
+-- screens, as the whole-list push did.
+local function applyAliensDelta(delta: Types.AliensDelta)
+	local p = profile
+	if not p then
+		return
+	end
+	local verdict = AlienDelta.Classify(aliensSeq, delta.seq)
+	if verdict == "Gap" then
+		pullAliens(aliensSeq, delta.seq)
+		return
+	end
+	if verdict == "Stale" then
+		return
+	end
+	AlienDelta.Apply(p, delta)
+	aliensSeq = delta.seq
+	if not AlienDelta.IsEmpty(delta) then
+		fire("stations")
+	end
+end
+
 -- Connects the server pushes. Each wait runs in its own thread so a remote the server has not
 -- created yet never blocks the others.
 function State.Start()
@@ -650,11 +715,9 @@ function State.Start()
 		end)
 	end)
 	task.spawn(function()
-		Net.event("StationsChanged").OnClientEvent:Connect(function(stations: { [string]: Types.StationState }, aliens: { [string]: Types.AlienRecord })
-			if profile then
-				profile.stations = stations
-				profile.aliens = aliens
-				fire("stations")
+		Net.event("AliensDelta").OnClientEvent:Connect(function(raw: any)
+			if type(raw) == "table" and type((raw :: any).seq) == "number" then
+				applyAliensDelta(raw :: Types.AliensDelta)
 			end
 		end)
 	end)

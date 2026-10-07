@@ -354,7 +354,7 @@ local function habitatExists(world: number): boolean
 end
 
 -- Asks the server to put the alien `uid` on display in the habitat `habitatUid`, or to bring it back to camp when
--- `habitatUid` is nil. The mirror is never touched here: the camp push (StationsChanged) carries the record's habitat
+-- `habitatUid` is nil. The mirror is never touched here: the camp push (an AliensDelta) carries the record's habitat
 -- and the "stations" topic redraws the cards and the habitat. One request in flight at a time.
 local function setDisplay(uid: string, habitatUid: string?, name: string, worldName: string)
 	if pending then

@@ -155,6 +155,7 @@ export type Profile = {
 	lastSeen: number,
 	firstSeen: number,
 	lock: { jobId: string, time: number }?,
+	aliensSeq: number?, -- never saved: the copy the client receives carries the sequence number its alien list starts at (AliensDelta)
 }
 
 -- Net payloads ------------------------------------------------------------
@@ -239,7 +240,7 @@ export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsA
 -- Economy -> the player (StorageChanged): the alien storage cap right now (StorageMath.CapFor over the live profile) and the
 -- Storage Bay levels bought, sent on join and whenever a ship module finishes, the Bay is bought or the StorageBoost pass
 -- changes. `gained` is set when a finished module raised the cap: the cap rose by that much and the client toasts it.
--- The owned count is not in it: the client counts the records it mirrors (StationsChanged).
+-- The owned count is not in it: the client counts the records it mirrors (the join profile and AliensDelta).
 export type StorageState = { cap: number, bayLevel: number, gained: number? }
 
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
@@ -299,6 +300,21 @@ export type Announcement = {
 -- `multiplier` is the station income factor the server applies right now (Buffs.StationMultiplier: Double Shift, the
 -- Friend Boost, resting); the HUD's Scrap per minute is ratePerSecond times it. nil reads as 1 (a profile-derived state).
 export type CampState = { ratePerSecond: number, assemblySpeed: { [string]: number }, multiplier: number? }
+
+-- Economy -> client, the alien list (AlienSync on the server, Shared/AlienDelta on both sides). The records and seats reach the
+-- client once as a snapshot (the join profile, whose aliensSeq is the number below, or the GetAliens pull) and after that only
+-- as AliensDelta events, one per change the server pushes (a catch, a fusion, a release, a seat change, a growth stage).
+-- `seq` counts the deltas the server has made for this player: the client applies seq = have + 1, ignores anything older and
+-- pulls the snapshot again when one is missing. Every list is nil when empty. `added` and `changed` carry whole records (the
+-- client replaces its copy), `removed` the uids, `stations` the whole StationState of each job whose seats or slots changed.
+export type AliensDelta = {
+	seq: number,
+	added: { AlienRecord }?,
+	changed: { AlienRecord }?,
+	removed: { string }?,
+	stations: { [string]: StationState }?,
+}
+export type AliensSnapshot = { seq: number, aliens: { [string]: AlienRecord }, stations: { [string]: StationState } }
 
 -- Economy -> client once on join when the player was away long enough (OfflineSummary).
 export type OfflineSummary = {

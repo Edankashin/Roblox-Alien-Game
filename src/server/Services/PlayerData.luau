@@ -15,6 +15,7 @@ local SettingsData = require(Shared.data.Settings)
 local Jobs = require(Shared.data.Jobs)
 local CinematicsData = require(Shared.data.Cinematics)
 local Net = require(Shared.Net)
+local AlienSync = require(script.Parent.AlienSync)
 local ProfileSchema = require(script.Parent.Parent.ProfileSchema)
 local schema = ProfileSchema.new(Config, SettingsData, Jobs, CinematicsData)
 local template: () -> Types.Profile = schema.template
@@ -26,6 +27,7 @@ local PlayerData = {}
 local STORE_NAME = "PlayerData"
 local LOAD_RETRIES = 6
 local LOAD_RETRY_SECONDS = 5
+local ALIENS_PULL_RATE_PER_SECOND = 2 -- GetAliens calls per player per second (a pull follows a missed delta, so it is rare)
 
 local profiles: { [number]: Types.Profile } = {}
 -- Plain callbacks, not a BindableEvent: they run synchronously, before the join payload is sent, on the
@@ -126,6 +128,15 @@ local function sanitized(profile: Types.Profile): Types.Profile
 	return copy
 end
 
+-- The profile as its owner's client receives it (the join push and the GetProfile pull): sanitized, plus the number the alien
+-- list starts at, so the AliensDelta events that follow can be checked against it (AlienSync). Not saved: the live profile never
+-- holds it.
+local function forClient(player: Player, profile: Types.Profile): Types.Profile
+	local copy = sanitized(profile)
+	copy.aliensSeq = AlienSync.Baseline(player, profile)
+	return copy
+end
+
 local function onPlayerAdded(player: Player)
 	local profile: Types.Profile? = nil
 	local lastErr: string? = nil
@@ -168,13 +179,14 @@ local function onPlayerAdded(player: Player)
 	if player.Parent ~= Players then
 		return
 	end
-	Net.event("ProfileLoaded"):FireClient(player, sanitized(profile))
+	Net.event("ProfileLoaded"):FireClient(player, forClient(player, profile))
 	print(("[%s] profile loaded for %s (scrap=%d, memoryOnly=%s)"):format(Config.WorkingTitle, player.Name, profile.scrap, tostring(memoryOnly)))
 end
 
 local function onPlayerRemoving(player: Player)
 	save(player, true)
 	profiles[player.UserId] = nil
+	AlienSync.Forget(player)
 	Net.forget(player)
 end
 
@@ -251,6 +263,17 @@ function PlayerData.Init()
 	end
 end
 
+-- GetAliens() -> the caller's alien list as a snapshot ({ seq, aliens, stations }), or nil without a profile or over the rate.
+-- The client asks when an AliensDelta shows it missed one (Shared/AlienDelta.Classify); no argument is read, so there is no
+-- owner to choose.
+local function onGetAliens(player: Player): Types.AliensSnapshot?
+	if not Net.allow(player, "GetAliens", ALIENS_PULL_RATE_PER_SECOND) then
+		return nil
+	end
+	local profile = profiles[player.UserId]
+	return if profile then AlienSync.Snapshot(player, profile) else nil
+end
+
 function PlayerData.Start()
 	-- The client may start after ProfileLoaded already fired (Studio loads memory profiles instantly),
 	-- so it can also pull the sanitized profile once its scripts are running.
@@ -259,8 +282,9 @@ function PlayerData.Start()
 			return nil
 		end
 		local profile = profiles[player.UserId]
-		return if profile then sanitized(profile) else nil
+		return if profile then forClient(player, profile) else nil
 	end
+	Net.func("GetAliens").OnServerInvoke = onGetAliens
 
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)

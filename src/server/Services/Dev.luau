@@ -24,7 +24,9 @@
 -- records, default as many as fit, never past the storage cap) | cap (print the record count, the cap and its parts: base, modules,
 -- Storage Bay, pass, hard cap) | bay <level> (set the Storage Bay level without paying, 0 to the last), /cinematic <momentId> (play one cinematic moment
 -- from Shared/data/Cinematics now: Arrival_0, Arrival_1, Arrival_2 or Legendary) | reset (forget which first arrivals were
--- watched, so each plays again on the next join) | list (print the moments and the ones watched). Nothing
+-- watched, so each plays again on the next join) | list (print the moments and the ones watched), /deltas (print the number of the
+-- last alien-list delta sent and the records the server believes the client holds) | gap (skip one delta number, so the client
+-- sees a gap and pulls the alien list once). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -60,6 +62,7 @@ local Catching = require(script.Parent.Catching)
 local Monetization = require(script.Parent.Monetization)
 local Companions = require(script.Parent.Companions)
 local Habitats = require(script.Parent.Habitats)
+local AlienSync = require(script.Parent.AlienSync)
 local Mail = require(script.Parent.Mail)
 local Visiting = require(script.Parent.Visiting)
 local Afk = require(script.Parent.Afk)
@@ -609,7 +612,7 @@ end
 -- /complete: mark every module of this place's world complete on the profile, written the way the Economy
 -- service writes a completion (both gates paid, started, progress 1, completedAt, updatedAt, and the free
 -- slot growth a module unlocks), creating the world's table and states when missing. The client hears
--- ModulesChanged with the same payload Economy pushes, and StationsChanged for the slots. The ship is then
+-- ModulesChanged with the same payload Economy pushes, and the camp push (AliensDelta) for the slots. The ship is then
 -- complete, so the Launch button and the Launch remote can be tested without the real build.
 local function completeModules(player: Player, _text: string)
 	local worldId = Place.WorldId()
@@ -617,8 +620,6 @@ local function completeModules(player: Player, _text: string)
 	local finished = 0 -- modules that were not complete before this call
 	local finishedIds: { string } = {} -- in module order, for the hooks a real completion fires
 	local modulesNow: { [string]: Types.ModuleProgress } = {}
-	local stationsNow: { [string]: Types.StationState } = {}
-	local aliensNow: { [string]: Types.AlienRecord } = {}
 	local ok = PlayerData.Update(player, function(profile)
 		local key = tostring(worldId)
 		local world = profile.modules[key]
@@ -653,14 +654,12 @@ local function completeModules(player: Player, _text: string)
 			end
 		end
 		modulesNow = world
-		stationsNow = profile.stations
-		aliensNow = profile.aliens
 	end)
 	if not ok then
 		return
 	end
 	Net.event("ModulesChanged"):FireClient(player, worldId, modulesNow)
-	Net.event("StationsChanged"):FireClient(player, stationsNow, aliensNow)
+	EconomyService.PushCamp(player) -- the slots the modules unlocked, as a real completion pushes them
 	-- What a real completion fires (Economy.reportModuleComplete): the client's fanfare and pan, and the
 	-- tutorial's moduleStarted and moduleComplete triggers, so T3 and T6 (and the gift pop after T6) can be
 	-- reached from here. The tutorial only counts the step it is on, so an out-of-order hook is ignored.
@@ -934,6 +933,28 @@ local function cinematicCommand(player: Player, text: string)
 	print(("[%s] dev: moments %s; watched %s"):format(Config.WorkingTitle, table.concat(ids, ", "), if #watched > 0 then table.concat(watched, ", ") else "none"))
 end
 
+-- /deltas: print the number of the last AliensDelta sent to you and how many records the server believes your client holds.
+-- /deltas gap: skip one delta number and send an empty delta with the next, so your client sees a gap and pulls the alien list
+-- once (Studio prints "alien list gap ... pulled" on the client). The Aliens screen and the camp must look the same after it.
+local function deltasCommand(player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "gap" then
+		local sent = AlienSync.DevGap(player)
+		if sent then
+			print(("[%s] dev: %s alien list: skipped a delta number, sent %d"):format(Config.WorkingTitle, player.Name, sent))
+		else
+			print(("[%s] dev: %s has no alien list snapshot yet"):format(Config.WorkingTitle, player.Name))
+		end
+		return
+	end
+	local seq, count = AlienSync.DevStatus(player)
+	if seq then
+		print(("[%s] dev: %s alien list at delta %d, %d record(s) held by the client"):format(Config.WorkingTitle, player.Name, seq, count))
+	else
+		print(("[%s] dev: %s has no alien list snapshot yet"):format(Config.WorkingTitle, player.Name))
+	end
+end
+
 -- Public API -------------------------------------------------------------
 
 function Dev.Init()
@@ -1008,11 +1029,12 @@ function Dev.Init()
 	command("playtime", playtimeCommand)
 	command("storage", storageCommand)
 	command("cinematic", cinematicCommand)
+	command("deltas", deltasCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset, /storage fill|cap|bay, /cinematic <momentId>|reset|list)"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset, /storage fill|cap|bay, /cinematic <momentId>|reset|list, /deltas [gap])"):format(Config.WorkingTitle))
 	end
 end
 

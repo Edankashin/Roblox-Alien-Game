@@ -101,3 +101,21 @@ Static changes against the flags above; nothing was run in Studio, so the tables
 - **Radar:** the Wild folder's parts are tracked with ChildAdded/ChildRemoved while the loop runs instead of `GetChildren()` on each poll, and the ping tweens share one constant goal table; the blip pool already only grows to the most blips drawn at once and is reused.
 
 Still open: the imported eight-player scene needs measuring in Studio (action 3 above), and the NearbyPanel and ShipScreen polls and the nearest-target scans in `init.client.luau` are untouched.
+
+## Alien list sync (2026-10-07)
+
+The server used to push `StationsChanged` with every alien record after every catch, fusion, release, seat change and growth stage. It is retired: the client gets the list once (the join profile, whose `aliensSeq` numbers it; or the `GetAliens` pull) and then one `AliensDelta` per update, holding only the records and stations that differ from what the client was last told ([[Remotes]], `Shared/AlienDelta`, `Services/AlienSync`). Nothing here was run in Studio; the figures come from `tests/AlienDelta.spec.luau` (`./tools/test.sh` prints them), which builds the camp from the live data tables (3 jobs x 3 slots = 9 seated) and measures the compact JSON of each payload with the real `Diff`.
+
+| Event | Before, 640 records (today's ceiling) | Before, 1,500 (hard cap) | After (either size) |
+| --- | ---: | ---: | ---: |
+| Catch, newcomer rests | 122,418 B | 285,940 B | 1,818 B |
+| Catch, newcomer takes a seat (one bumped) | 122,418 B | 285,940 B | 1,982 B |
+| Fusion (4 consumed, 1 levelled) | 122,418 B | 285,940 B | 1,972 B |
+| Release one | 122,418 B | 285,940 B | 1,706 B |
+| Release a full page (200) | 122,418 B | 285,940 B | 9,467 B |
+| Optimize (two seats swap) | 122,418 B | 285,940 B | 1,969 B |
+| Growth stage (seated records only) | 122,418 B | 285,940 B | 1,655 B |
+
+- The delta no longer grows with the storage cap: it grows with the seats. Most of each figure above (83 to 97%, bar the release page) is the seated aliens' `workedSeconds`, which the old push refreshed too (the Aliens screen's "time to the next stage" chip reads it), so each delta carries every seated record whose worked time moved since the last one; 12 seated (the slot pass) or 16 (Tinker) scale that part to about 2.2 KB and 2.9 KB. Dropping that refresh (sending a seated record only when its stage or seat changes) would take a catch to 160 to 330 B, at the price of staler chips; not done.
+- A server that holds a shadow of every connected player's list (one copy of the records, 640 to 1,500 small tables) pays for it in memory, and `Diff` walks the whole list on each push: 1.3 ms for 1,500 unchanged records in the Luau command line (Roblox runs it slower, still a few ms), once per catch, fusion, release, seat change or stage, never per tick.
+- A pass owner with Auto Optimize gets two deltas per catch (the seat, then the reshuffle), as it got two pushes.

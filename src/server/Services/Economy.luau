@@ -11,6 +11,8 @@
 -- Growth (data/Growth) is paid here too: every income tick adds its seconds of worked time to each seated
 -- alien, a rejoin adds the time away (capped like offline Scrap) to the aliens that were seated at leave,
 -- and a record that crosses a stage is told to the client (AlienGrew, or the offline summary's grown list).
+-- The records and the seats reach the client as one snapshot on join and then as AliensDelta events (AlienSync); every push
+-- site below calls pushStations after its PlayerData.Update, which sends the one delta that update made.
 -- Fusion (data/Fusion) lives here too, because this service owns the records and the seats: Fuse spends
 -- DuplicatesPerLevel spare copies of one species to raise the best copy's level by one, unseating any seated
 -- copy it consumes and reseating the freed slots (the FuseSpecies remote). A follower (a uid in
@@ -55,6 +57,7 @@ local Growth = require(Shared.Growth)
 local StorageMath = require(Shared.StorageMath)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local AlienSync = require(script.Parent.AlienSync)
 local Analytics = require(script.Parent.Analytics)
 local Buffs = require(script.Parent.Buffs)
 local WorldClock = require(script.Parent.WorldClock)
@@ -90,8 +93,10 @@ local function pushRate(player: Player, profile: Types.Profile)
 	Net.event("RateChanged"):FireClient(player, state)
 end
 
+-- Tells the client what changed in the records and the seats since it was last told: one AliensDelta for the whole update
+-- (AlienSync diffs the live profile against what the client holds), nothing when nothing changed.
 local function pushStations(player: Player, profile: Types.Profile)
-	Net.event("StationsChanged"):FireClient(player, profile.stations, profile.aliens)
+	AlienSync.Flush(player, profile)
 end
 
 local function pushModules(player: Player, profile: Types.Profile)
@@ -584,7 +589,7 @@ local function addWorkedTime(profile: Types.Profile, seconds: number): { { uid: 
 end
 
 -- Tells the client which aliens just grew a stage. The camp push that follows carries the new
--- workedSeconds (StationsChanged) and the new work speed (RateChanged).
+-- workedSeconds (AliensDelta) and the new work speed (RateChanged).
 local function announceGrew(player: Player, grew: { { uid: string, stage: string } })
 	for _, entry in ipairs(grew) do
 		Net.event("AlienGrew"):FireClient(player, entry.uid, entry.stage)
@@ -619,7 +624,7 @@ local function tickIncome(dt: number)
 			announceGrew(player, grew)
 			if #completed > 0 or #grew > 0 then
 				-- A completed module can also have grown the station slots; a new stage changes the work
-				-- speed (RateChanged) and the drawn scale (StationsChanged carries the records).
+				-- speed (RateChanged) and the drawn scale (the AliensDelta carries the records).
 				pushCamp(player, profile)
 			end
 			if #completed > 0 then
@@ -800,7 +805,7 @@ local function grantAlien(player: Player, species: string, overlay: Types.Overla
 	end
 	pushScrap(player, profile)
 	if not overflow then
-		seatAndPush(player, uid) -- StationsChanged, RateChanged, ModulesChanged
+		seatAndPush(player, uid) -- AliensDelta, RateChanged, ModulesChanged
 		if Monetization.OwnsPass(player, "AutoOptimize") then
 			optimize(player) -- the Auto Optimize pass: the whole crew is reseated fastest first after every newcomer
 		end
@@ -835,9 +840,9 @@ function EconomyService.GrantAlien(player: Player, species: string, overlay: Typ
 	return grantAlien(player, species, overlay, perfect, size, false)
 end
 
--- Re-sends the camp (stations with the records, rates, module progress) from the live profile. Habitats and
--- HomeBuild call it after a record's habitat field changes, since the client draws the displayed aliens from the
--- records. Nothing happens without a profile.
+-- Re-sends the camp from the live profile: what changed in the records and stations since the client was told (AliensDelta),
+-- the rates and the module progress. Habitats and HomeBuild call it after a record's habitat field changes, since the client
+-- draws the displayed aliens from the records. Nothing happens without a profile.
 function EconomyService.PushCamp(player: Player)
 	local profile = PlayerData.Get(player)
 	if profile then
@@ -856,7 +861,7 @@ end
 -- Every station gains `amount` slots (a Robux pass) on top of whatever the modules unlock, now and later:
 -- the amount is kept as the station's bonus, which lifts the cap by as much, so a later unlock never
 -- swallows a bought slot (plan decision 17). Never below 1 slot;
--- the client hears StationsChanged. NoProfile is the only refusal.
+-- the client hears AliensDelta (the stations). NoProfile is the only refusal.
 function EconomyService.AddSlots(player: Player, amount: number): (boolean, string?)
 	local ok = PlayerData.Update(player, function(profile)
 		for _, station in pairs(profile.stations) do
@@ -1011,7 +1016,7 @@ end
 -- Deletes the records `choose` picks and pays their release value, in one profile update. `choose` runs inside the
 -- update on the live profile and returns the uids to release or a refusal reason. Only records StorageMath.InUse
 -- passes are ever picked (no seat, follower or display), so nothing needs reseating or re-sending but the records
--- and the Scrap: the client hears ScrapChanged and StationsChanged (the records), and the sum is reported as the
+-- and the Scrap: the client hears ScrapChanged and AliensDelta (the removed uids), and the sum is reported as the
 -- Release source. Returns ok, the refusal, the records released and the Scrap paid.
 local function releaseRecords(player: Player, choose: (Types.Profile) -> ({ string }, string?)): (boolean, string?, number, number)
 	local released = 0
@@ -1225,7 +1230,7 @@ function EconomyService.Init()
 			pushRate(player, profile)
 		end
 	end)
-	for _, name in ipairs({ "ScrapChanged", "RateChanged", "StationsChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew", "StorageChanged" }) do
+	for _, name in ipairs({ "ScrapChanged", "RateChanged", "ModulesChanged", "InventoryChanged", "ModuleCompleted", "Announcement", "AlienGranted", "AlienGrew", "StorageChanged" }) do
 		Net.event(name)
 	end
 	Net.func("ModulePay").OnServerInvoke = onModulePay
