@@ -240,6 +240,40 @@ Files: `docs/vault/06-art-pipelines/Music-Plan.md` (new).
 
 Done when: every state has its row, and the data shape covers them all.
 
-### C22 and later — not open yet
+### C22. Create the shop items through Open Cloud — open
+
+Goal: Ethan stops creating game passes and developer products by hand (owner guide Part C). Roblox's Open Cloud creates them: game passes with `POST https://apis.roblox.com/game-passes/v1/universes/{universeId}/game-passes` (multipart: name, description, price, isForSale, imageFile; scope `game-pass:write`), developer products through the developer-products API (scope `developer-product:write`). Check both against the official reference (create.roblox.com/docs/cloud/reference/features/game-passes and the developer products page) before writing the calls, and note the exact paths in the script's docstring.
+
+Do: `tools/create_products.py`. Read `src/shared/data/Shop.luau` (C2's table reader) and pick the rows that are on sale at launch (the `Launch` sections) and still have `passId`/`productId` 0. Name from `SHOP_ITEM_<id>` and description from the matching description key in `src/shared/strings/en.luau`, price from `robux`, icon from the path owner guide Part C gives for that item (skip the image with a warning if the file is missing). The universe id comes from `--universe` or `GET https://apis.roblox.com/universes/v1/places/{placeId}/universe` on World 1's placeId in `Worlds.luau` (if that is 0, use World 2's). `--dry-run` is the default and prints the plan; `--apply` creates each item, writes the returned id into its row of `Shop.luau` with a minimal text edit (nothing else in the file changes), and prints a table of ids. Before creating, list the universe's existing passes and products and reuse an item with the same name instead of making a duplicate. The key comes only from the environment variable `ROBLOX_API_KEY`: never print it, never write it, never put it in an error; on an HTTP error print the status and Roblox's message only. Add `--self-test` with a fake HTTP layer (no network): dry-run plan, id write-back on a temp copy of Shop.luau, duplicate reuse, missing key refusal.
+
+Codex runs `--dry-run` and `--self-test` only. The Mac's Claude session runs `--apply` (the key lives in its shell).
+
+Files: `tools/create_products.py`, `docs/vault/02-how-we-work/Hands-Off.md` (a "Shop items" section: the command and what it changes).
+
+Done when: `--self-test` passes, `--dry-run` lists exactly the five launch items still at 0 today (Spins1, Spins5, Spins12, SlotEveryStation2, CompanionSlot4) with name, price, kind and icon path, and analyze, data lint, tests and lint.sh stay clean.
+
+### C23. Publish the three places through Open Cloud — open
+
+Goal: Ethan stops republishing by hand (owner guide Parts A and H). Open Cloud publishes a place file: `POST https://apis.roblox.com/universes/v1/{universeId}/places/{placeId}/versions?versionType=Published` (or `Saved`), body the .rbxl, `Content-Type: application/octet-stream`, header `x-api-key`, scope `universe-places:write`; the answer carries `versionNumber`.
+
+Do: `tools/publish.py`. For each project (`default.project.json` to Worlds row 1's placeId, `world2.project.json` to row 2, `home.project.json` to row 0): run `rojo build <project> -o build/<name>.rbxl`, then publish it. Before anything, run `./tools/analyze.sh`, `python3 -I tools/lint_data.py`, `./tools/test.sh` and `./tools/lint.sh` and refuse unless all are clean; refuse a place whose placeId is 0. `--dry-run` is the default (checks and builds only, prints sizes); `--apply` publishes; `--saved` saves without publishing; `--only home|world1|world2`. Universe id as in C22. Key from `ROBLOX_API_KEY` only, same rules as C22. Add `build/` to `.gitignore`. `--self-test` with a fake HTTP layer.
+
+Note for the report: a place built by Rojo carries only what Rojo maps. The species and prop meshes live only in the Studio place today (installed by `tools/studio/install_models.luau`), so a Rojo-built place shows placeholder shapes until the coordinator's runtime model loader lands (it reads C24's table). Until the coordinator says the loader is in, the Mac uses `--saved`, never `--apply`.
+
+Files: `tools/publish.py`, `.gitignore`, `docs/vault/02-how-we-work/Hands-Off.md` ("Publishing" section).
+
+Done when: `--self-test` passes and `--dry-run` builds all three places from a clean checkout.
+
+### C24. The model asset table — open
+
+Goal: the server loads the species and prop meshes itself at boot (`InsertService:LoadAsset` on the Model assets `tools/upload_assets.py` uploaded), so a place built from the repo has them and publishing needs no Studio.
+
+Do: `tools/model_assets.py` generates `src/shared/data/ModelAssets.luau` from `assets/models/asset_ids.json`: `{ [modelName] = assetId }` sorted by name, a header saying it is generated and how to regenerate it. Read `tools/studio/install_models.luau` and move whatever per-model data the installer applies (colours, materials, scale, names it renames) into the same table as data, so the runtime loader can apply exactly what the installer does; list in the report anything the installer does that is not data. Add a data-lint warning: every model name the game looks up (species `model` fields and the prop names the builders ask `Models` for) has an asset id. Deterministic, under ten seconds.
+
+Files: `tools/model_assets.py`, `src/shared/data/ModelAssets.luau`, `tools/lint_data.py` (the one new warning), `docs/vault/06-art-pipelines/Map-Dressing.md` (a line in "Bulk import through Open Cloud").
+
+Done when: the table lists every uploaded model, the lint runs clean or with documented warnings, analyze stays clean.
+
+### C25 and later — not open yet
 
 The look replication pass (icons v2, the soft sprite set, 9-slice plates, species texture passes, world dressing to match the owner's forest and map references) comes with the visual pass; those cards are written then.

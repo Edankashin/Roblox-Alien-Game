@@ -2,6 +2,8 @@
 
 Written 2026-10-06 for someone new to Roblox Studio. Follow the parts in order. Each step names the window, the tab and the button. Tick the boxes as you go.
 
+> **New (2026-10-07): most of this guide is about to stop being yours.** A 15-minute one-time setup in `docs/vault/02-how-we-work/Hands-Off.md` lets the Mac's Claude session and Codex take over the hands-on work of Parts A, C, D, E and H (publishing, shop items, two-player tests, Codex runs). After it, you answer the Mac's approval prompts, decisions, money, identity and legal steps, and play the game.
+
 **Where to send things back:** this Claude conversation (the one that wrote this guide), in the Claude app or at https://claude.ai/code/session_01AXvT6QCi1wEkW64tWcXEt5. Every part ends with a ready-made message to copy, fill in and paste there. I do the code side from it: putting numbers in tables, checks, pushing.
 
 ## Contents
