@@ -258,7 +258,7 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 	if not at then
 		return nil, "NoCharacter"
 	end
-	if (at - spawn.part.Position).Magnitude > Config.CaptureInteractDistance + Config.CaptureDistanceSlack then
+	if not ((at - spawn.part.Position).Magnitude <= Config.CaptureInteractDistance + Config.CaptureDistanceSlack) then
 		return nil, "TooFar"
 	end
 
