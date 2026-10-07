@@ -156,7 +156,7 @@ Files: `tools/deadcode.py`, `docs/vault/02-how-we-work/Dead-Code.md`.
 
 Done when: the report exists, every finding has a suggestion, and the script runs in under ten seconds.
 
-### C14. Performance budget report — open (report only)
+### C14. Performance budget report — taken by codex 2026-10-07
 
 Goal: Roblox players are mostly on phones; find the per-frame work and instance counts that could hurt before the visual pass adds more.
 
