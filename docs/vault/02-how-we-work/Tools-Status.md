@@ -22,14 +22,14 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | rtk | Token survey | Adopt now as a trial | **decided, not installed** | Ethan's yes for a `brew install` on the Mac |
 | ccstatusline | Token survey | Adopt now | **decided, not installed** | Optional; Ethan's call |
 | StyLua | Token survey (Roblox tools) | Adopt now | **decided, not added** (not on the Mac either; nor selene, lune) | Coordinator: add to `rokit.toml` with a config matching today's style, as an advisory check first so no mass reformat collides with Codex |
-| ProfileStore | Token survey (Roblox tools) | Adopt now, pending the team's OK | **chosen instead**: our own `PlayerData` (one key, UpdateAsync, session lock, schema migrations, tested in C10) does the same job | Keep ours; swapping now is a rewrite of saves for no gain |
+| ProfileStore | Token survey (Roblox tools) | Adopt now, pending the team's OK | **chosen instead**: our own `PlayerData` (one key, UpdateAsync, session lock, schema migrations at v16, tested in C10, purchase saves durable since D8) does the same job | Kept ours on 2026-10-07 when Ethan asked to adopt every adopt decision: a swap rewrites every save path and migrates every player's data for no feature gain; revisit only if ours shows a save bug |
 | Graphify, Ponytail, Roblox Claude Skills, Agent Skills, OmniRoute and others | TikTok ZPL8Hb7yS, add-on list | Skip, with reasons in [[Claude-Plugins]] | **skip** | None |
 | Headroom, caveman, context-mode, beads, basic-memory, Task Observer and others | Token survey | Later | **later** | Revisit when a need shows |
 
 | ffmpeg, yt-dlp, Whisper (sherpa-onnx) | Reference video processing | Adopt | **in use** (ffmpeg and yt-dlp on the Mac; Whisper needs `SHERPA_WHISPER_DIR` set on the Mac, the cloud session downloads its own model) | Fine as is |
 | Codex CLI on PATH | Mac audit | | the CLI lives inside ChatGPT.app, not on PATH | Optional: the Mac calls it by its full path |
 | Discord community server | Growth references | Later (launch assets) | Discord installed; no server | Part of store presence (Look plan L6) |
-| "raw alone" for UI making and animation | Ethan, 2026-10-05 ([[Requests]]) | **never identified** | open | Ethan says which tool was meant (a guess: Rive, the UI animation tool, or Moon Animator, the Roblox animation plugin) |
+| "raw alone" for UI making and animation | Ethan, 2026-10-05 ([[Requests]]) | **dropped** by Ethan on 2026-10-07 | none | None |
 
 ## Roblox Studio plugins (TikTok ZPLRKPFKv, "what pro devs actually use")
 
