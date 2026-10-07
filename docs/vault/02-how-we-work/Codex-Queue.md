@@ -200,7 +200,7 @@ Files: `tools/save_budget.py`, `docs/vault/04-roblox-engine/Save-Budget.md`.
 
 Done when: the report gives the day the limit is reached for the default player and for a 10-hours-a-day player, and each option's effect on that day.
 
-### C18. Dead code cleanup, the safe class — taken by codex 2026-10-07
+### C18. Dead code cleanup, the safe class — review
 
 Goal: remove what the C13 report marked as safe to delete, so the polish pass works on less code.
 

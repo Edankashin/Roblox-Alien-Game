@@ -232,8 +232,18 @@ No tracked shared test was added: the changed predicates are local distance refu
 
 ## C17 — 2026-10-07 — review
 
-Implementation `e6ace48`; claim `d3533d5`. Added offline compact-JSON modeling from the reviewed ProfileSchema shape, live data and three seeded balance runs. Report-only; no game changes.
+Implementation `02edfdf` (rebased); claim `d3533d5`. Added offline compact-JSON modeling from the reviewed ProfileSchema shape, live data and three seeded balance runs. Report-only; no game changes.
 
 Measured: 140 → 140 tests; fresh template 1,216 bytes; heavy fixed reserve 16,626 bytes; alien marginal entry 193 bytes. Modeled 289.96 grants/hour; optional fusion consumed 86.8% in the short progression sample and is not assumed for long-term retention. No-fusion limit: day 25 at 3 hours/day, day 8 at 10 hours/day. A 5,000-record cap bounds modeled alien storage to 965,000 bytes; 90% eligible stacking moves the dates to 249/75. Existing receipt cap is 100; reducing to 25 saves 3,750 bytes without changing either day; removing current finished tracks saves 199 bytes. Runtime 0.98 s; report regeneration deterministic. Analysis, data and extra lints pass.
 
 Coordinator decisions: capacity/release economy, individual identity under stacking, receipt replay safety. Fusion already deletes copies and receipts already prune, contrary to the card premise. Forecast is a scoped scenario, not maximum save size: fixed catalog, ASCII sample records, no optional alien assignments and no paid grants. Confirm actual JSONEncode bytes with a safety margin in Studio before enforcement.
+
+## C18 — 2026-10-07 — review
+
+Claim `1d59c34`; server `efe4d00`; client `1aceda6`; strings `1032608`.
+
+Deleted 13 uncalled declarations (six server, seven client) across 12 files, plus 22 unused current-feature strings. No callable bodies or data values changed. Before deletion, game/Dev/tools/tests searches found no callers; 12 source-preservation checks prove all surviving module bytes unchanged after removing those declarations. Reviewed each deletion diff. 140 → 140 headless tests; analysis and all lints pass.
+
+Regenerated Dead-Code.md: API candidates 35 → 22, strings 36 → 14, catalog gaps now 5 (coordinator launch work already resolved five). Kept internal callers and conservative same-name candidates, all Shop.Items, future-world/weather text and planned shop labels. Each removal and its commit is listed in the report ledger. String lint still checks 42 dynamic families and 273 required keys.
+
+Left open: five catalog gaps and remaining public exports for coordinator review; no Studio-only external callers can be proven by repository scanning. Future regeneration of Dead-Code.md must preserve its manual C18 ledger (the generator was outside this card's file scope).
