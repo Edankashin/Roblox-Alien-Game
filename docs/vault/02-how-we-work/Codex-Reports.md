@@ -181,3 +181,13 @@ C10 and C11 are reopened with decisions under each card: the future-save early r
 
 Left for the polish pass: C8's 36 unused string keys and C13's catalog findings. C12's four advisory lines are text a player types (a promo code, a mail line), correct as written.
 
+
+## C10 reopened — 2026-10-07 — review
+
+Implementation: `3ae9543`; claim: `acb1990`. Extracted template, all 14 migrations, helpers, schema version and future-save detection to `ServerScriptService.Server.ProfileSchema`. Its constructor accepts Config/Settings/Jobs data; it uses no Roblox services, yields or persistence. PlayerData retains typed Profile boundaries and its existing ownership/refusal logic. The headless bundler adds only this pure server file.
+
+Measured: **24 new cases, 71 → 95 total tests across 10 specs**, runtime **0.043s**. Covers the explicit required Profile shape, fresh-template identity/value preservation, independent nested defaults, each migration's idempotence, settings filtering, home unlock, habitat clock, mail/visitors, waves, seasons, legacy alien fields, and untouched numeric/string future versions. All expected balance values derive from live data/Fixtures.
+
+An automated source comparison proves every moved function body is identical, allowing only indentation and serialization type annotations; the remaining PlayerData source is unchanged apart from removal/import/bindings. Analyze clean; data/extra lints pass. Future saves retain their original table and nested identity without added fields.
+
+Left open: no DataStore or Studio test was run; the coordinator's future-save ownership refusal was preserved, not redesigned. No blocker remains.
