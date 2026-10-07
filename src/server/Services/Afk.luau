@@ -27,7 +27,9 @@
 -- player rests, answers Private in a reserved or private server (ServerInstanceId cannot reach one: the homes, and
 -- the friends' visits, are reserved servers, so the idle cutoff applies there and offline income covers the stretch), and
 -- Failed when TeleportAsync errors. Studio skips teleports (they error there), so it prints what it would do.
--- AfkWake is the resting screen's "Back to play" button: a call to it is use of the game like any other, so it wakes
+-- AfkWake is the resting screen's "Back to play" button, any press while resting, and (at most every
+-- AfkData.ActivityPingSeconds) a press or scroll while playing that no other remote reports, like browsing a menu: a
+-- call to it is use of the game like any other, so it wakes
 -- the player at once.
 --
 -- Requires PlayerData, Analytics and Net with shared code only; Buffs requires this module for the income scale and Dev

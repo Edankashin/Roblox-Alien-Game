@@ -1090,18 +1090,38 @@ local function connectAfk()
 		end)
 	end)
 
+	-- Use of the game the server cannot see (opening menus, scrolling a list) is reported with AfkWake, the same
+	-- "use of the game" call the resting screen's button makes, at most every ActivityPingSeconds while playing, so a
+	-- player reading the shop without walking is not resting. While resting, a press wakes the server at once.
+	local lastPing = 0
+	local function reportUse(now: boolean)
+		local clock = os.clock()
+		if now or clock - lastPing >= AfkData.ActivityPingSeconds then
+			lastPing = clock
+			Net.event("AfkWake"):FireServer()
+		end
+	end
+
 	AfkScreen.OnBack(function()
 		hiddenByInput = true
 		AfkScreen.Hide()
-		Net.event("AfkWake"):FireServer()
+		reportUse(true)
 	end)
 
+	-- Any press, tap or key: the player is here. While resting it hides the screen and wakes the server in the same
+	-- step (the screen used to hide on mouse-down, before its button's Activated could fire, so the server never
+	-- heard the player was back).
 	UserInputService.InputBegan:Connect(function()
 		lastInput = os.clock()
 		rejoinAsked = false
-		if lastState.resting and AfkScreen.IsShown() then
-			hiddenByInput = true
-			AfkScreen.Hide()
+		if lastState.resting then
+			if AfkScreen.IsShown() then
+				hiddenByInput = true
+				AfkScreen.Hide()
+			end
+			reportUse(true)
+		else
+			reportUse(false)
 		end
 	end)
 	-- A moving mouse or finger is input for Roblox's idle timer too, so it keeps the rejoin clock honest (it does not
@@ -1111,6 +1131,10 @@ local function connectAfk()
 		if kind == Enum.UserInputType.MouseMovement or kind == Enum.UserInputType.MouseWheel or kind == Enum.UserInputType.Touch then
 			lastInput = os.clock()
 			rejoinAsked = false
+		end
+		-- Scrolling a list or dragging a finger is use of the game while playing (a resting player wakes with a press).
+		if not lastState.resting and (kind == Enum.UserInputType.MouseWheel or kind == Enum.UserInputType.Touch) then
+			reportUse(false)
 		end
 	end)
 	localPlayer.Idled:Connect(function(seconds: number)
