@@ -123,7 +123,7 @@ Files: `src/server/ProfileSchema.luau` (new), `src/server/Services/PlayerData.lu
 
 Done when: `analyze: clean`, `./tools/test.sh` green with the new spec in its output, and a review of the `PlayerData.luau` diff shows only moved code.
 
-### C11. UI rules lint — open
+### C11. UI rules lint — taken by codex 2026-10-06
 
 Goal: the UI rules in `CLAUDE.md` and the UI Playbook enforced by a script: Scale never Offset, colours from the Theme, the one font, no silent taps.
 
