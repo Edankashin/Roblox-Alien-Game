@@ -10,6 +10,11 @@
 -- client-made Workspace.ClientWild folder, feet on the ground at the bob's low point, bobbing with the
 -- part; the server part is then invisible locally but stays what Nearest and PartAtScreenPoint return.
 -- Without a mesh the placeholder part shows exactly as before.
+-- Per-frame work (one RenderStepped connection): a record that is `hidden` (the blizzard rule below) or whose
+-- flat distance from the local character's root is beyond Config.SpawnCullDistance skips the bob, both PivotTo
+-- calls and the reveal check, so aliens nobody can see cost nothing per frame (no root: every record is
+-- worked, as before). The bob is a pure function of os.clock() and the record's phase, written absolutely
+-- (never accumulated), so a skipped record resumes exactly in step when it is drawn again.
 -- Sizes (data/Sizes): the server rolls a band per spawn and writes its id as the part's Size attribute
 -- (missing means Sizes.Default). The alien is drawn at the band's `scale` on top of its own: the mesh
 -- clone is built at Config.ModelWildScale * scale, and the server part (the placeholder, or the invisible
@@ -18,10 +23,12 @@
 -- The Heater rule (World 2): while State.GetConditions() holds "Blizzard", a tracked alien farther
 -- (flat distance) than Config.BlizzardHideStuds from the player is hidden locally, unless it stands
 -- within Radius of a lit Heater (a Part under Workspace.World.Heaters with the attributes Radius and
--- ExpiresAt, made by the server). Hidden means the server part and the mesh clone get a
--- LocalTransparencyModifier of 1 and the nameplate is disabled; a hidden alien stays tracked, so
--- Nearest still finds it (the catch distance is inside the hide distance, so a catchable alien is
--- always drawn). The state is computed in `evaluate`, on every visibility tick, on arrival and on a clock change.
+-- ExpiresAt, made by the server; the set of heater parts is kept from ChildAdded/ChildRemoved on that folder,
+-- so an evaluation reads only their position and attributes and never calls GetChildren). Hidden means the
+-- server part and the mesh clone get a LocalTransparencyModifier of 1 and the nameplate is disabled; a hidden
+-- alien stays tracked, so Nearest still finds it (the catch distance is inside the hide distance, so a
+-- catchable alien is always drawn). The state is computed in `evaluate`, on every visibility tick, on arrival
+-- and on a clock change.
 -- Tier aura (data/Tiers `aura` > 0, Rare and up): a PointLight on the part in the tier colour (Brightness =
 -- aura) and, once Icons.Particles.Glow is uploaded, a glow sprite behind the alien that breathes over
 -- Config.VfxAuraPulseSeconds (it holds its midpoint under Reduced Motion). Both follow the hide rule with
@@ -103,7 +110,12 @@ local clockConn: RBXScriptConnection? = nil
 local buffsConn: RBXScriptConnection? = nil
 local biomeConn: RBXScriptConnection? = nil
 local blizzard = false -- State.GetConditions() holds "Blizzard"
-local heaterSpots: { { x: number, z: number, radius: number } } = {} -- lit heaters as of the last evaluate
+local heaterSpots: { { x: number, z: number, radius: number } } = {} -- lit heaters as of the last evaluate; the first heaterSpotCount rows are live, the rest kept for reuse
+local heaterSpotCount = 0
+local heaterParts: { [BasePart]: boolean } = {} -- every part now under Workspace.World.Heaters, kept by ChildAdded/ChildRemoved
+local heaterFolder: Instance? = nil -- the folder heaterParts follows; it may appear (or be replaced) at any time
+local heaterFolderConns: { RBXScriptConnection } = {}
+local heaterWorldConns: { RBXScriptConnection } = {}
 local lastEvaluate = 0
 local localPlayer = Players.LocalPlayer
 
@@ -363,27 +375,82 @@ local function refreshBlizzard()
 	blizzard = on
 end
 
--- The lit heaters under Workspace.World.Heaters as flat spots. FindFirstChild only, so it never yields;
--- a heater past its ExpiresAt (server wall clock) is ignored even if its part has not been removed yet.
-local function readHeaters()
-	table.clear(heaterSpots)
-	local world = Workspace:FindFirstChild("World")
-	local folder = if world then world:FindFirstChild(HEATER_FOLDER) else nil
-	if not folder then
-		return
+-- Follows the Heaters folder's children: every part in it now and every one added or removed later, so no
+-- evaluation has to list the folder. Dropping a folder (replaced or removed) forgets its parts.
+local function unwatchHeaterFolder()
+	for _, connection in ipairs(heaterFolderConns) do
+		connection:Disconnect()
 	end
-	local now = State.Now()
+	table.clear(heaterFolderConns)
+	table.clear(heaterParts)
+	heaterFolder = nil
+end
+
+local function addHeater(child: Instance)
+	if child:IsA("BasePart") then
+		heaterParts[child] = true
+	end
+end
+
+local function removeHeater(child: Instance)
+	heaterParts[child :: any] = nil
+end
+
+local function watchHeaterFolder(folder: Instance)
+	unwatchHeaterFolder()
+	heaterFolder = folder
 	for _, child in ipairs(folder:GetChildren()) do
-		if not child:IsA("BasePart") then
-			continue
+		addHeater(child)
+	end
+	table.insert(heaterFolderConns, folder.ChildAdded:Connect(addHeater))
+	table.insert(heaterFolderConns, folder.ChildRemoved:Connect(removeHeater))
+end
+
+-- Finds Workspace.World.Heaters now or whenever the server makes it, and drops it if it goes. Safe to call again.
+local function watchHeaters(world: Instance)
+	for _, connection in ipairs(heaterWorldConns) do
+		connection:Disconnect()
+	end
+	table.clear(heaterWorldConns)
+	unwatchHeaterFolder()
+	local existing = world:FindFirstChild(HEATER_FOLDER)
+	if existing then
+		watchHeaterFolder(existing)
+	end
+	table.insert(heaterWorldConns, world.ChildAdded:Connect(function(child: Instance)
+		if child.Name == HEATER_FOLDER then
+			watchHeaterFolder(child)
 		end
-		local radius = child:GetAttribute("Radius")
-		local expires = child:GetAttribute("ExpiresAt")
+	end))
+	table.insert(heaterWorldConns, world.ChildRemoved:Connect(function(child: Instance)
+		if child == heaterFolder then
+			unwatchHeaterFolder()
+		end
+	end))
+end
+
+-- The lit heaters among the cached parts as flat spots, in place (rows are reused, so a steady heater count
+-- allocates nothing); a heater past its ExpiresAt (server wall clock) is ignored even if its part has not been
+-- removed yet. Position and attributes are read live, so a heater whose attributes arrive late is still seen.
+local function readHeaters()
+	local now = State.Now()
+	local count = 0
+	for part in pairs(heaterParts) do
+		local radius = part:GetAttribute("Radius")
+		local expires = part:GetAttribute("ExpiresAt")
 		if type(radius) ~= "number" or (type(expires) == "number" and expires < now) then
 			continue
 		end
-		table.insert(heaterSpots, { x = child.Position.X, z = child.Position.Z, radius = radius })
+		count += 1
+		local position = part.Position
+		local spot = heaterSpots[count]
+		if spot then
+			spot.x, spot.z, spot.radius = position.X, position.Z, radius
+		else
+			heaterSpots[count] = { x = position.X, z = position.Z, radius = radius }
+		end
 	end
+	heaterSpotCount = count
 end
 
 -- Whether a point is out of sight under the current rule: during a blizzard, farther than
@@ -396,7 +463,8 @@ local function hiddenAt(point: Vector3, at: Vector3): boolean
 	if math.sqrt(dx * dx + dz * dz) <= Config.BlizzardHideStuds then
 		return false
 	end
-	for _, spot in ipairs(heaterSpots) do
+	for index = 1, heaterSpotCount do
+		local spot = heaterSpots[index]
 		local hx, hz = point.X - spot.x, point.Z - spot.z
 		if math.sqrt(hx * hx + hz * hz) <= spot.radius then
 			return false
@@ -473,6 +541,7 @@ local function applySize(record: Record)
 	local part = record.part
 	part.Size = record.baseSize * factor
 	record.base = record.restBase + Vector3.new(0, (part.Size.Y - record.baseSize.Y) / 2, 0)
+	part.CFrame = record.base -- a record the render loop skips (hidden or far) still stands on its band's base
 	local model = record.model
 	if model then
 		model:ScaleTo(model:GetScale() * ratio)
@@ -533,6 +602,7 @@ local function track(instance: Instance)
 		glowTween = nil,
 	}
 	records[instance] = record
+	instance.CFrame = base -- a record the render loop skips (hidden or far) still stands on its band's base
 	setPulse(record)
 	if not known[species] and Prefs.Silhouettes() then
 		if pulseCovers(record, pulseRunning()) then
@@ -665,9 +735,19 @@ local function onRender()
 	if now - lastEvaluate >= EVALUATE_SECONDS then
 		evaluate()
 	end
+	local cullSquared = Config.SpawnCullDistance * Config.SpawnCullDistance
 	for part, record in pairs(records) do
 		if not part.Parent then
 			continue
+		end
+		local position = record.base.Position
+		if at then
+			-- Nobody can see a blizzard-hidden alien, and one beyond SpawnCullDistance (flat, as the server
+			-- measures it) is another player's: no bob, no PivotTo, no reveal. No character root: nothing skipped.
+			local dx, dz = position.X - at.X, position.Z - at.Z
+			if record.hidden or dx * dx + dz * dz > cullSquared then
+				continue
+			end
 		end
 		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Config.WildBobStuds, 0)
 		part.CFrame = record.base + lift
@@ -675,7 +755,7 @@ local function onRender()
 		if model and modelBase then
 			model:PivotTo(modelBase + lift)
 		end
-		if at and record.shadowed and (record.base.Position - at).Magnitude <= Config.ShadowRevealDistance then
+		if at and record.shadowed and (position - at).Magnitude <= Config.ShadowRevealDistance then
 			reveal(record)
 		end
 	end
@@ -698,6 +778,7 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	local world = Workspace:WaitForChild("World")
 	local wild = world:WaitForChild("Wild") :: Folder
 	wildFolder = wild
+	watchHeaters(world)
 	for _, child in ipairs(wild:GetChildren()) do
 		watch(child)
 	end

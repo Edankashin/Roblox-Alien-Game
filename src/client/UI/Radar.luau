@@ -12,8 +12,10 @@
 -- back within the beat; the beat interval runs linearly from Mk2.SecretPingFarSeconds at the full range
 -- to Mk2.SecretPingNearSeconds at Mk2.SecretNearStuds or closer to the nearest secret (flat distance).
 -- The disc re-reads the wild parts every Config.RadarRefreshSeconds; the beat clock accumulates frame
--- time in the same Heartbeat connection so a 0.4 s beat is not quantised to the 0.1 s refresh. A cream
--- square marks the camp and a
+-- time in the same Heartbeat connection so a 0.4 s beat is not quantised to the 0.1 s refresh. The refresh
+-- reads a list of the Wild folder's parts kept by ChildAdded/ChildRemoved while the loop runs (no GetChildren
+-- per refresh), and the beat's swell tweens share one constant goal table; the blip pool only ever grows to the
+-- most blips drawn at once and is reused. A cream square marks the camp and a
 -- gold diamond the Peddler while it visits, both pinned to the disc edge when out of range so they
 -- point the way. A tap on a blip or a ping hands the wild part to the bootstrap, which sets the waypoint.
 -- The Scanner Pulse (data/PowerUps ScannerPulse): while the buff runs (WildRenderer.ScannerPulseActive,
@@ -68,6 +70,9 @@ type PulseRow = { pulseSeconds: number }
 local tiers: { [number]: RadarTier } = (RadarTiers :: any) :: { [number]: RadarTier }
 local mk2: Mk2Rules = (RadarTiers :: any).Mk2
 local pulseRow: PulseRow = (PowerUps :: any).ScannerPulse -- the row is typed as the common shape; see data/PowerUps
+-- What every ping's beat swells to, built once: TweenService:Create reads the goal when it is called, so each
+-- tween on every beat can share this one table.
+local PING_GOAL: { [string]: any } = { Scale = mk2.SecretPulseScale }
 
 -- The highest tier the data knows; SetTier clamps to it so a save from a later build never asks for
 -- a row that is not there. The table also carries the Mk2 rules block under a string key: skipped.
@@ -134,7 +139,10 @@ local pulseActive = false -- the Scanner Pulse runs, as of the last refresh
 local playerMarker: Frame? = nil
 local campMarker: Frame? = nil
 local peddlerMarker: Frame? = nil
-local blips: { Blip } = {}
+local blips: { Blip } = {} -- the pool: grows only when a refresh draws more than exist, so its size is the most ever drawn at once
+local wildParts: { Part } = {} -- the parts under the Wild folder, in arrival order, kept by ChildAdded/ChildRemoved
+local watchedWild: Instance? = nil -- the folder wildParts follows
+local wildConns: { RBXScriptConnection } = {}
 local connections: { RBXScriptConnection } = {}
 local heartbeat: RBXScriptConnection? = nil
 local accumulator = 0
@@ -167,6 +175,46 @@ end
 local function wildFolder(): Instance?
 	local world = Workspace:FindFirstChild("World")
 	return if world then world:FindFirstChild("Wild") else nil
+end
+
+-- Follows the Wild folder's parts instead of listing it on every refresh: the folder is picked up (or replaced)
+-- the first refresh after it exists, its parts are listed once, and every later arrival and removal is one event.
+local function unwatchWild()
+	for _, connection in ipairs(wildConns) do
+		connection:Disconnect()
+	end
+	table.clear(wildConns)
+	table.clear(wildParts)
+	watchedWild = nil
+end
+
+local function addWildPart(child: Instance)
+	if child:IsA("Part") then
+		table.insert(wildParts, child)
+	end
+end
+
+local function removeWildPart(child: Instance)
+	local index = table.find(wildParts, child :: any)
+	if index then
+		table.remove(wildParts, index)
+	end
+end
+
+local function syncWild(wild: Instance?)
+	if wild == watchedWild then
+		return
+	end
+	unwatchWild()
+	watchedWild = wild
+	if not wild then
+		return
+	end
+	for _, child in ipairs(wild:GetChildren()) do
+		addWildPart(child)
+	end
+	table.insert(wildConns, wild.ChildAdded:Connect(addWildPart))
+	table.insert(wildConns, wild.ChildRemoved:Connect(removeWildPart))
 end
 
 -- Puts a marker on the disc for a world offset from the player. North-up: world -Z is up the disc,
@@ -415,14 +463,12 @@ local function refreshBlips()
 	local biome = State.GetBiome()
 	local at = rootPosition()
 	local wild = wildFolder()
+	syncWild(wild)
 	local used = 0
 	local nearest: number? = nil
 	local secretsShown = mk2Held()
 	if at and wild and range > 0 then
-		for _, child in ipairs(wild:GetChildren()) do
-			if not child:IsA("Part") then
-				continue
-			end
+		for _, child in ipairs(wildParts) do
 			local reservedFor = child:GetAttribute("ReservedFor")
 			local reserved = type(reservedFor) == "number"
 			if reserved and reservedFor ~= localPlayer.UserId then
@@ -497,7 +543,7 @@ local function pulsePings(interval: number)
 	for _, blip in ipairs(blips) do
 		if blip.ping and blip.frame.Visible then
 			stopPulse(blip)
-			local tween = TweenService:Create(blip.pulse, info, { Scale = mk2.SecretPulseScale })
+			local tween = TweenService:Create(blip.pulse, info, PING_GOAL)
 			blip.pulseTween = tween
 			tween:Play()
 		end
@@ -598,6 +644,7 @@ local function stopTicking()
 	for _, blip in ipairs(blips) do
 		stopPulse(blip)
 	end
+	unwatchWild() -- nothing reads the list while the loop is down; the next refresh lists the folder again
 end
 
 -- Shown only while the bootstrap allows it and a radar tier is held; the loop runs only while shown.
@@ -849,6 +896,7 @@ end
 -- Stops the loop, drops every connection and destroys the ScreenGui; Build may run again afterwards.
 function Radar.Stop()
 	stopTicking()
+	unwatchWild()
 	stopBreath()
 	pulseActive = false
 	ringStroke = nil

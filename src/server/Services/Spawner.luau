@@ -23,7 +23,10 @@
 -- the event overlay rolls (OverlayChance, percent, whatever the weather) before the week's. Event and returning
 -- species are exempt from the condition despawn too, so a Night alien stays through the day while its season runs.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
--- rules and live on their own lifetime; Quests hears every removal through OnRemoved.
+-- rules and live on their own lifetime; Quests hears every removal through OnRemoved. A server-wide ceiling
+-- (Config.SpawnMaxWild) stops the top-up once that many wild spawns are alive, however spread out the players are; a
+-- placed (reserved) spawn neither counts toward it nor is blocked by it. The top-up places one spawn per player per
+-- pass, so at the ceiling every player still gets a share of what is free.
 -- The home planet (Place.IsHome, world 0) has no wild: Start runs no tick there, so nothing ever spawns.
 
 local Players = game:GetService("Players")
@@ -385,6 +388,18 @@ local function nearCount(around: Vector3, now: number): number
 	return count
 end
 
+-- Live wild spawns on the server; a reserved spawn (a summoned Warden, a trainee) is not one, so it takes no
+-- share of Config.SpawnMaxWild.
+local function wildCount(): number
+	local count = 0
+	for _, spawn in pairs(spawns) do
+		if not spawn.reservedFor then
+			count += 1
+		end
+	end
+	return count
+end
+
 local function tick()
 	local now = os.clock()
 	local conditions: { Types.Condition } = WorldClock.GetConditions()
@@ -426,16 +441,33 @@ local function tick()
 		end
 	end
 
-	-- top up density around each player, rolling tiers with the best luck nearby
-	for _, entry in ipairs(present) do
-		local at = entry.position
-		local missing = Config.SpawnDensityTarget - nearCount(at, now)
-		if missing > 0 then
-			local luck = luckAround(at, present)
-			for _ = 1, missing do
-				if not createSpawn(at, conditions, luck) then
-					break
-				end
+	-- top up density around each player, rolling tiers with the best luck nearby, until the server-wide ceiling.
+	-- One spawn per player per pass, each judged against the density as it now stands (a spawn placed for one
+	-- player counts for a neighbour), so a full server shares the free slots instead of the first player taking
+	-- them all. A player whose placement fails is done for this tick.
+	local wildTotal = wildCount()
+	local lucks: { [Presence]: number } = {}
+	local done: { [Presence]: boolean } = {}
+	local placed = true
+	while placed and wildTotal < Config.SpawnMaxWild do
+		placed = false
+		for _, entry in ipairs(present) do
+			if wildTotal >= Config.SpawnMaxWild then
+				break
+			end
+			if done[entry] or Config.SpawnDensityTarget - nearCount(entry.position, now) <= 0 then
+				continue
+			end
+			local luck = lucks[entry]
+			if luck == nil then
+				luck = luckAround(entry.position, present)
+				lucks[entry] = luck
+			end
+			if createSpawn(entry.position, conditions, luck) then
+				wildTotal += 1
+				placed = true
+			else
+				done[entry] = true
 			end
 		end
 	end

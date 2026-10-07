@@ -10,14 +10,18 @@
 -- part as tall as the alien carries the nameplate (the species name, inside Config.NameplateDistance) and the
 -- placement, the way CampRenderer's workers do. Every part is anchored with collisions, queries and touches
 -- off, so capture raycasts and PartAtScreenPoint never hit a companion.
--- Following (one RenderStepped connection): the i-th of n followers of an owner aims at a spot behind the
--- owner's HumanoidRootPart, spread across an arc, on the ground a downward raycast finds there (characters, the
--- companion and wild visuals and the server's wild parts are ignored; the character's feet height is the
--- fallback). It closes Companions.FollowLerp of the remaining distance per 60 Hz frame, snaps to the spot past
+-- Following (one RenderStepped connection, no table allocated per frame): the i-th of n followers of an owner aims
+-- at a spot behind the owner's HumanoidRootPart, spread across an arc, on the ground a downward raycast finds there
+-- (characters, the companion and wild visuals and the server's wild parts are ignored; the character's feet height
+-- is the fallback). The ray's exclusion list is one array and one RaycastParams, rebuilt only when it can change: a
+-- player added or removed, a character added or removed (CharacterAdded/CharacterRemoving on every player), the
+-- companion folder's children changing, or the wild folders appearing or going. A follower closes
+-- Companions.FollowLerp of the remaining distance per 60 Hz frame, snaps to the spot past
 -- Companions.CatchUpDistance (a teleport, a world change), turns toward where it is travelling or, once caught
 -- up, toward the owner's look direction, and bobs on its own phase with its feet on the ground at the low point.
 -- Culling: the local player's followers are always drawn; another owner's are drawn only while that owner is
 -- within Companions.RenderDistance of the camera and fit, nearest owners first, inside Companions.MaxRendered.
+-- It runs on reusable buffers (cleared, never rebuilt), so a judgement allocates nothing once they have grown.
 -- A hidden follower keeps its record, is parented to nil, and snaps to its spot when it is drawn again.
 -- Riding: a snapshot's `riding` uid names the follower its owner rides. That mount leaves the arc (the others
 -- spread as if it were not there, so nobody leaves a gap), is put under the rider's feet every frame with no lerp
@@ -82,6 +86,8 @@ type Owner = {
 	riding: string?, -- the uid of the follower the owner rides (it leaves the arc), nil on foot
 }
 
+type Candidate = { owner: Owner?, distance: number } -- one other owner in range of the camera, nearest first once sorted
+
 local localPlayer = Players.LocalPlayer
 local rng = Random.new()
 
@@ -92,6 +98,14 @@ local eventSeen: { [number]: boolean } = {} -- owners a pushed snapshot has alre
 local lastEvaluate = -math.huge
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Exclude
+local excluded: { Instance } = {} -- the one exclusion array rayParams is filled from (refreshFilter)
+local filterDirty = true -- something the exclusion list is made of may have changed since refreshFilter last ran
+local wildVisuals: Instance? = nil -- Workspace.ClientWild as of the last lookup
+local wildParts: Instance? = nil -- Workspace.World.Wild as of the last lookup
+local playerConnections: { [Player]: { RBXScriptConnection } } = {}
+local drawn: { [Owner]: boolean } = {} -- culling buffers, cleared on every judgement
+local candidates: { Candidate } = {}
+local candidatePool: { Candidate } = {} -- the rows candidates is filled from, kept for reuse
 
 -- Lookups --------------------------------------------------------------------
 
@@ -122,9 +136,11 @@ local function groundAt(spot: Vector3, root: BasePart, hipHeight: number): numbe
 end
 
 -- Everything a follower's ground ray must pass through: every character (the owner's body, other
--- players), this module's folder, WildRenderer's mesh folder and the server's hovering Wild parts.
+-- players), this module's folder, WildRenderer's mesh folder and the server's hovering Wild parts. Refills the
+-- one array and hands it to the one RaycastParams; it runs only after something in that list may have changed.
 local function refreshFilter()
-	local excluded: { Instance } = {}
+	filterDirty = false
+	table.clear(excluded)
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player.Character then
 			table.insert(excluded, player.Character)
@@ -133,16 +149,62 @@ local function refreshFilter()
 	if folder then
 		table.insert(excluded, folder)
 	end
-	local wildVisuals = Workspace:FindFirstChild(WILD_VISUAL_FOLDER)
 	if wildVisuals then
 		table.insert(excluded, wildVisuals)
 	end
-	local world = Workspace:FindFirstChild(WORLD_FOLDER)
-	local wild = if world then world:FindFirstChild(WILD_FOLDER) else nil
-	if wild then
-		table.insert(excluded, wild)
+	if wildParts then
+		table.insert(excluded, wildParts)
 	end
 	rayParams.FilterDescendantsInstances = excluded
+end
+
+-- Brings the exclusion list up to date before a frame's rays. The two wild folders are made by other modules at
+-- their own pace (and may be replaced), so while either is missing or out of the tree they are looked up again
+-- (FindFirstChild, no allocation); a change makes the list dirty. Characters, players and this module's folder
+-- mark it dirty through their own events (watchPlayer, Start).
+local function ensureFilter()
+	local visuals, wild = wildVisuals, wildParts
+	if not (visuals and visuals.Parent) or not (wild and wild.Parent) then
+		local found = Workspace:FindFirstChild(WILD_VISUAL_FOLDER)
+		local world = Workspace:FindFirstChild(WORLD_FOLDER)
+		local foundWild = if world then world:FindFirstChild(WILD_FOLDER) else nil
+		if found ~= visuals or foundWild ~= wild then
+			wildVisuals, wildParts = found, foundWild
+			filterDirty = true
+		end
+	end
+	if filterDirty then
+		refreshFilter()
+	end
+end
+
+-- Anything that can change who is in the exclusion list says so here; refreshFilter runs on the next active frame.
+local function markFilterDirty()
+	filterDirty = true
+end
+
+-- Watches one player's character coming and going (CharacterAdded/CharacterRemoving), for every player, the local
+-- one included. The connections go when the player does (unwatchPlayer).
+local function watchPlayer(player: Player)
+	if playerConnections[player] then
+		return
+	end
+	filterDirty = true
+	playerConnections[player] = {
+		player.CharacterAdded:Connect(markFilterDirty),
+		player.CharacterRemoving:Connect(markFilterDirty),
+	}
+end
+
+local function unwatchPlayer(player: Player)
+	local connections = playerConnections[player]
+	if connections then
+		playerConnections[player] = nil
+		for _, connection in ipairs(connections) do
+			connection:Disconnect()
+		end
+	end
+	filterDirty = true
 end
 
 -- Building ---------------------------------------------------------------------
@@ -345,15 +407,22 @@ end
 
 -- Culling ----------------------------------------------------------------------
 
+-- The nearest-first order of the candidates. A module-level function, so sorting makes no closure.
+local function nearer(a: Candidate, b: Candidate): boolean
+	return a.distance < b.distance
+end
+
 -- Decides which owners' followers are drawn: the local player's always, then the owners within RenderDistance
 -- of the camera, nearest first, while a whole owner still fits under MaxRendered. Hidden followers are parented
 -- to nil; the owner needs a character either way, since a follower with no root has nowhere to stand.
+-- `drawn`, `candidates` and their rows are module-level buffers: cleared here, reused next time.
 local function evaluate(now: number)
 	lastEvaluate = now
 	local camera = Workspace.CurrentCamera
 	local budget = Companions.MaxRendered
-	local drawn: { [Owner]: boolean } = {}
-	local candidates: { { owner: Owner, distance: number } } = {}
+	table.clear(drawn)
+	table.clear(candidates)
+	local rows = 0
 	for userId, owner in pairs(owners) do
 		if userId == localPlayer.UserId then
 			drawn[owner] = true
@@ -363,19 +432,28 @@ local function evaluate(now: number)
 			if root and camera then
 				local distance = (root.Position - camera.CFrame.Position).Magnitude
 				if distance <= Companions.RenderDistance then
-					table.insert(candidates, { owner = owner, distance = distance })
+					rows += 1
+					local row = candidatePool[rows]
+					if row then
+						row.owner, row.distance = owner, distance
+					else
+						row = { owner = owner, distance = distance }
+						candidatePool[rows] = row
+					end
+					candidates[rows] = row
 				end
 			end
 		end
 	end
-	table.sort(candidates, function(a, b)
-		return a.distance < b.distance
-	end)
+	table.sort(candidates, nearer)
 	for _, candidate in ipairs(candidates) do
-		local count = #candidate.owner.followers
-		if count <= budget then
-			drawn[candidate.owner] = true
-			budget -= count
+		local owner = candidate.owner
+		if owner then
+			local count = #owner.followers
+			if count <= budget then
+				drawn[owner] = true
+				budget -= count
+			end
 		end
 	end
 	local localHasRoot = rootOf(localPlayer.UserId) ~= nil
@@ -388,6 +466,12 @@ local function evaluate(now: number)
 			setShown(follower, wanted)
 		end
 	end
+	-- Let go of the owners the buffers pointed at, so a gone owner's followers are not kept alive by them.
+	table.clear(drawn)
+	for index = 1, rows do
+		candidatePool[index].owner = nil
+	end
+	table.clear(candidates)
 end
 
 -- Following --------------------------------------------------------------------
@@ -441,7 +525,7 @@ local function onRender(dt: number)
 		end
 		if not filterReady then
 			filterReady = true
-			refreshFilter()
+			ensureFilter()
 		end
 		local character = root.Parent
 		local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
@@ -497,7 +581,8 @@ end
 -- Public API -------------------------------------------------------------
 
 -- Makes Workspace.ClientCompanions and starts drawing every player's followers: one RenderStepped connection
--- for the following and the culling, PlayerRemoving to clear a leaver, then (off the calling thread) the
+-- for the following and the culling, the player, character and folder events that keep the ground ray's
+-- exclusion list current, PlayerRemoving to clear a leaver, then (off the calling thread) the
 -- CompanionsChanged push and a one-time GetAllCompanions for what was pushed before this client joined.
 -- Safe to call once; a second call does nothing.
 function CompanionRenderer.Start()
@@ -509,9 +594,16 @@ function CompanionRenderer.Start()
 	created.Name = FOLDER_NAME
 	created.Parent = Workspace
 	folder = created
+	created.ChildAdded:Connect(markFilterDirty)
+	created.ChildRemoved:Connect(markFilterDirty)
+	for _, player in ipairs(Players:GetPlayers()) do
+		watchPlayer(player)
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
 	RunService.RenderStepped:Connect(onRender)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		clearOwner(player.UserId)
+		unwatchPlayer(player)
 	end)
 	task.spawn(function()
 		Net.event("CompanionsChanged").OnClientEvent:Connect(function(snapshot: any)

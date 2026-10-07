@@ -70,6 +70,10 @@ return {
 
 	-- spawning
 	SpawnDensityTarget = 14,
+	-- A server-wide ceiling on wild spawns: the density target above is per player, so spread-out players could
+	-- otherwise hold far more. Reserved spawns (a summoned Warden, a trainee) do not count against it and are
+	-- never blocked by it.
+	SpawnMaxWild = 80,
 	SpawnRespawnMinSeconds = 60,
 	SpawnRespawnMaxSeconds = 90,
 	SpawnRadius = 90, -- studs around each player

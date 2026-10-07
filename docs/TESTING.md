@@ -594,6 +594,14 @@ Visiting (`data/Visiting.luau`, `Shared/VisitRules.luau`): a friend's home is a 
 
 Known gaps in this milestone: a visitor's own ship stands on the owner's camp pad (their stations keep working; the owner's ship there is a look-pass item); no wave animation beyond the toast and a burst; waves to an away owner arrive as one letter a day, not one each; a lock change while a visitor is already inside does not send them away.
 
+## Phone performance fixes (World 1 place; from Codex's report C14)
+
+No visible change is intended; these are re-checks that nothing broke. Companions keep their footing on slopes and never stand inside another player (the raycast list is cached now); a server never holds more than 80 wild aliens (`Config.SpawnMaxWild`; `/spawn` and summoned Wardens are not counted or blocked), and with two clients far apart both get aliens; far-away and blizzard-hidden aliens stop bobbing and resume in step when you come back; a Warden sighting's trail looks as before (its puffs are pooled); the radar's blips and the secret ping behave as before.
+
+1. Walk with a companion over the Forest's slopes and past another player (multi-client if possible): it stays on the ground. Output clean.
+2. `/sighting`: the trail of puffs looks and fades as in milestone 39; after two sightings the Explorer's ClientSightings folder does not keep growing.
+3. In a Blizzard (World 2, `/weather Blizzard`), hidden aliens reappear in place when a Heater is placed near them; walking 200 studs away and back, nearby aliens bob in step.
+
 ## Milestone 45: paid spins and two more passes (World 1 place)
 
 The Robux page gains a Spins section (1, 5 and 12 spins; `data/Shop` rows with `oddsOnWheel`) and two passes (+2 Slots on Every Station, +1 Companion). Product and pass ids are 0 until the owner creates them, so Buy refuses safely; `/pass <itemId>` and `/buy <itemId>` grant them in Studio.

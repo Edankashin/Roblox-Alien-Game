@@ -14,9 +14,11 @@
 -- (the server part's last flat movement; the part's own look until it has moved) by Sightings.FaceLerp.
 -- Trail: every Sightings.TrailStepStuds walked, one glowing Neon ball (Sightings.TrailSizeStuds, the world's
 -- TrailColorByWorld colour, a PointLight of TrailLightRange) is left at the feet; it fades out (transparency and
--- light brightness) over TrailLifeSeconds and destroys itself. A puff belongs to the folder, not to the Warden,
--- so a trail already laid finishes its fade after the Warden has gone; the most alive at once is
--- TrailLifeSeconds / (TrailStepStuds / SpeedStudsPerSecond).
+-- light brightness) over TrailLifeSeconds and then goes back to a pool. A puff belongs to the folder, not to the
+-- Warden, so a trail already laid finishes its fade after the Warden has gone; the most alive at once is
+-- TrailLifeSeconds / (TrailStepStuds / SpeedStudsPerSecond). The per-step work allocates no part, light or tween
+-- goal table: a faded puff (its part and light) is parked with no parent and reused by the next step, at most that
+-- many (rounded up) are kept, and the two fade goals and the TweenInfo are built once.
 -- Compass: while a sighting starts and the strip has no target, the part becomes its target (labelled
 -- COMPASS_SIGHTING by the Compass); it is cleared when the part goes if it is still the target.
 
@@ -116,28 +118,80 @@ end
 
 -- Trail --------------------------------------------------------------------------
 
--- One glowing puff with its feet on the floor at `at`, fading out over TrailLifeSeconds and then gone.
+-- One pooled puff: the glowing ball and its light, parked with no parent while spare. `release` is built with it
+-- (not per use) and runs when its fade completes.
+type Puff = {
+	part: Part,
+	light: PointLight,
+	fade: Tween?, -- the part's fade while it is out, cancelled on release so a late finish never touches a reused part
+	release: () -> (),
+}
+
+-- Puffs alive at once: one is left every TrailStepStuds walked, the Warden walks SpeedStudsPerSecond and a puff lives
+-- TrailLifeSeconds, so TrailLifeSeconds / (TrailStepStuds / SpeedStudsPerSecond), rounded up. Derived from the data
+-- (54 as the numbers stand), never typed here. It is the most idle puffs kept; the pool is filled on demand, and a
+-- step that finds it empty (the Warden hurrying to catch up leaves a few more) makes one more.
+local POOL_SIZE = math.ceil(Sightings.TrailLifeSeconds / (Sightings.TrailStepStuds / Sightings.SpeedStudsPerSecond))
+
+-- The fade is the same for every puff, so its TweenInfo and both goal tables are made once.
+local FADE = TweenInfo.new(Sightings.TrailLifeSeconds, Enum.EasingStyle.Linear)
+local PUFF_GOAL: { [string]: any } = { Transparency = 1 }
+local LIGHT_GOAL: { [string]: any } = { Brightness = 0 }
+
+local idlePuffs: { Puff } = {}
+
+-- A faded puff leaves the world and waits for the next step; past POOL_SIZE spare ones it is simply destroyed.
+local function releasePuff(puff: Puff)
+	local fade = puff.fade
+	if fade then
+		fade:Cancel()
+		puff.fade = nil
+	end
+	puff.part.Parent = nil
+	if #idlePuffs < POOL_SIZE then
+		table.insert(idlePuffs, puff)
+	else
+		puff.part:Destroy()
+	end
+end
+
+local function newPuff(): Puff
+	local part = newPart("TrailPuff", Enum.PartType.Ball, Vector3.one * Sightings.TrailSizeStuds, trailColor)
+	part.Material = Enum.Material.Neon
+	local light = Instance.new("PointLight")
+	light.Color = trailColor
+	light.Range = Sightings.TrailLightRange
+	light.Brightness = Sightings.TrailLightBrightness
+	light.Parent = part
+	local puff: Puff
+	puff = {
+		part = part,
+		light = light,
+		fade = nil,
+		release = function()
+			releasePuff(puff)
+		end,
+	}
+	return puff
+end
+
+-- One glowing puff with its feet on the floor at `at`, fading out over TrailLifeSeconds and then back in the pool.
 local function dropPuff(at: Vector3)
 	local parent = folder
 	if not parent then
 		return
 	end
-	local size = Sightings.TrailSizeStuds
-	local puff = newPart("TrailPuff", Enum.PartType.Ball, Vector3.one * size, trailColor)
-	puff.Material = Enum.Material.Neon
-	puff.CFrame = CFrame.new(at + Vector3.new(0, size / 2, 0))
-	local light = Instance.new("PointLight")
-	light.Color = trailColor
-	light.Range = Sightings.TrailLightRange
+	local puff = table.remove(idlePuffs) or newPuff()
+	local part, light = puff.part, puff.light
+	part.Transparency = 0 -- a reused puff starts from a fresh one's look
 	light.Brightness = Sightings.TrailLightBrightness
-	light.Parent = puff
-	puff.Parent = parent
-	local fade = TweenInfo.new(Sightings.TrailLifeSeconds, Enum.EasingStyle.Linear)
-	TweenService:Create(puff, fade, { Transparency = 1 }):Play()
-	local dim = TweenService:Create(light, fade, { Brightness = 0 })
-	dim.Completed:Connect(function()
-		puff:Destroy()
-	end)
+	part.CFrame = CFrame.new(at + Vector3.new(0, Sightings.TrailSizeStuds / 2, 0))
+	part.Parent = parent
+	local fade = TweenService:Create(part, FADE, PUFF_GOAL)
+	puff.fade = fade
+	fade:Play()
+	local dim = TweenService:Create(light, FADE, LIGHT_GOAL)
+	dim.Completed:Once(puff.release)
 	dim:Play()
 end
 

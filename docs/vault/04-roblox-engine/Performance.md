@@ -88,3 +88,16 @@ Largest steady sheet + Shower = 197.2 alive. Two worst sheets overlapping on one
 3. Measure the imported eight-player scene, including sighting trail lights and weather transitions, before the visual pass. Pool trail effects and set explicit imported-part/burst budgets from that measurement.
 
 This report makes no FPS or device-memory claim. A static count cannot establish those; no Studio session was run.
+
+## Fixed (2026-10-07)
+
+Static changes against the flags above; nothing was run in Studio, so the tables above are not regenerated and no FPS claim is made.
+
+- **CompanionRenderer allocation:** the ground ray's exclusion list is one array and one RaycastParams, rebuilt only on a player or character coming or going, a companion-folder child change or a wild folder appearing; the culling pass reuses its `drawn`, `candidates` and row buffers with `table.clear`.
+- **Global spawn ceiling:** `Config.SpawnMaxWild = 80` stops `Spawner.tick` placing wild spawns once that many are alive (reserved spawns neither count nor are blocked); the top-up places one spawn per player per pass so a full server shares the free slots.
+- **Hidden and distant wild aliens:** `WildRenderer` skips the bob, both PivotTo calls and the reveal check for a record that is `hidden` or beyond `Config.SpawnCullDistance` (flat) of the local character root; the bob is a pure function of `os.clock()` and the record's phase, so it resumes in step.
+- **Heater membership:** `WildRenderer` keeps the Heaters folder's parts from ChildAdded/ChildRemoved instead of calling `GetChildren()` on each evaluation, and reuses its heater spot rows.
+- **SightingRenderer trail:** puffs are pooled (parts and lights reused, at most `ceil(TrailLifeSeconds / (TrailStepStuds / SpeedStudsPerSecond))` = 54 kept idle), and the TweenInfo and both fade goal tables are built once.
+- **Radar:** the Wild folder's parts are tracked with ChildAdded/ChildRemoved while the loop runs instead of `GetChildren()` on each poll, and the ping tweens share one constant goal table; the blip pool already only grows to the most blips drawn at once and is reused.
+
+Still open: the imported eight-player scene needs measuring in Studio (action 3 above), and the NearbyPanel and ShipScreen polls and the nearest-target scans in `init.client.luau` are untouched.
