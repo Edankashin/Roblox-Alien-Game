@@ -327,7 +327,7 @@ local function onSoundHorn(player: Player): (boolean, string?)
 	if not at then
 		return false, "NoCharacter"
 	end
-	if flatDistance(at, shrineFlat()) > Config.ShrineInteractDistance then
+	if not (flatDistance(at, shrineFlat()) <= Config.ShrineInteractDistance) then
 		return false, "TooFar"
 	end
 	local since = retreatAt[player.UserId]
