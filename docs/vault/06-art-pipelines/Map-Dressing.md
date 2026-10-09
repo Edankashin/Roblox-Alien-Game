@@ -48,6 +48,8 @@ Each prop is one mesh, flat shaded, one flat material per colour, no textures, s
 
 ## Bulk import through Open Cloud
 
+Run `python3 -I tools/model_assets.py --write` after uploads or installer-data edits to regenerate `src/shared/data/ModelAssets.luau` (AssetIds, prop membership, material slots/renames and normalization settings); `--check` compares data, and data lint warns on requested meshes without IDs. The coordinator still supplies the runtime loader.
+
 Skips File -> Import 3D for all 48 models (32 aliens, 16 props). `tools/upload_assets.py` uploads each `.glb` (default; `--format fbx` for the `.fbx`) as a Model through the Open Cloud Assets API (checked 2026-10-05 against `cloud/guides/usage-assets.md` in Roblox's creator-docs: assetType `Model` accepts `.fbx` and `.glb`, one file per call, 20 MB max), then `tools/studio/install_models.luau` places them in Studio and colours them.
 
 **Why GLB plus `materials.json` (found in Studio, 2026-10-05).** An FBX upload arrives as ONE grey MeshPart: the materials are merged. A GLB upload arrives as one MeshPart per material slot, named `<Name>`, `<Name>2`, `<Name>3`... in slot order, but every part is grey (163,162,165) with no TextureID, so the colours are lost. Each model folder therefore holds `materials.json` (slot order: `slot`, `name`, `hex`, `roughness`, `metallic`, `emission`); `--emit-luau` turns them into a `MATERIALS` table and the installer restores the colours (below).

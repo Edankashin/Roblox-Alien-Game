@@ -487,6 +487,36 @@ def lint_cinematics(tables):
     return failures
 
 
+def model_asset_warnings(tables, root):
+    """Advisory coverage: missing meshes retain the existing runtime placeholders."""
+    requested = {}
+    def need(name, where):
+        if isinstance(name, str) and name:
+            requested.setdefault(name, set()).add(where)
+    def family(value, where):
+        for path, _, name, _ in walk(value):
+            need(name, where + '.' + path)
+    for row in tables['Species']['List'].values():
+        need(row.get('model') or row['id'], 'Species.' + row['id'])
+    for world, layout in tables['Layouts'].items():
+        family(layout.get('Props') or {}, f'Layouts.{world}.Props')
+        for index, row in (layout.get('Landmarks') or {}).items():
+            need(row.get('name'), f'Layouts.{world}.Landmarks.{index}')
+    family(tables['Camp']['Props'], 'Camp.Props')
+    need(tables['Config']['HeaterPropName'], 'Config.HeaterPropName')
+    for row in tables['HomeBuild']['Items'].values():
+        need(row.get('prop'), 'HomeBuild.' + row['id'])
+    # Today's variable lookups are covered above; include direct literal calls too.
+    for path in sorted((root / 'src').rglob('*.luau')):
+        source = uncomment(path.read_text())
+        for match in re.finditer(r'\bProps\.(?:Place|Find)\s*\(\s*["\']([^"\']+)["\']', source):
+            need(match[1], str(path.relative_to(root)))
+    assets = (tables.get('ModelAssets') or {}).get('AssetIds', {})
+    return [f'ModelAssets.{name}: no positive asset id (requested by {", ".join(sorted(locations))})'
+            for name, locations in sorted(requested.items())
+            if type(assets.get(name)) is not int or assets[name] <= 0]
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -576,6 +606,8 @@ def lint(root: Path = ROOT) -> list[str]:
     for name, row in tables['Tiers']['Tiers'].items():
         if type(row.get('aura')) not in (int, float) or not math.isfinite(row['aura']):
             failures.append(f'Tiers.{name}.aura: expected a finite number')
+    for finding in model_asset_warnings(tables, root):
+        print('warning: ' + finding)
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     for finding in lint_shapes(tables, strings, types):
