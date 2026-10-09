@@ -12,3 +12,6 @@ docs/vault/.trash/
 
 # Isolated worker checkouts (Agent worktrees); never committed
 .claude/worktrees/
+
+# Reproducible Rojo place builds
+build/
