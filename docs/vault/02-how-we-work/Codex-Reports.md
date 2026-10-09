@@ -300,3 +300,45 @@ No key read by dry-run/self-test, no live API request from the tool, no products
 - Generation **0.016 s**, check **0.019 s**, **5 self-tests** passed. A missing/restored Mossbop-ID mutation added/removed exactly one warning. Added **1 advisory coverage rule**, **12 findings**. Analyze and all lints pass; headless **265 → 265**.
 - Missing species: **Nebulyn, Spookum, Wisplet**. Missing home props: **Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower**. Existing placeholders remain; coordinator decides when to generate/upload these.
 - Loader work left to coordinator: create/validate folders; pcall LoadAsset and choose its nested Model/container; strip model-name prefix, sort MeshParts by suffix then descendant order, warn on slot-count mismatches; apply colors/materials/renames and normalization; dispose wrapper and replace the old model only after success; report failures/moderation. These are installer actions, not data. The Studio installer is unchanged because it is outside the card's edit list.
+
+## C26 — Test wording corrected; generator notice blocked (2026-10-08)
+
+Claim `b1def27`; corrections `c49aa61`. **35 source lines**, **9 generated lines** changed; **29 milestones**, headings/step numbers preserved. Analyze/data/all lints pass; **265 → 265 tests**. Changes (milestone.step):
+
+- 1 intro: real-save boot/fallback evidence.
+- 2.1: real-save profile output.
+- 3.1: real-save profile output.
+- 3.10: existing save configuration.
+- 8 intro: fresh-profile prerequisite.
+- 13.6: settings require real saves.
+- 14 intro: live versus zero IDs.
+- 14.1: 9 products/6 passes/9 live IDs.
+- 14.2: current sections/pass catalog.
+- 14.3: Starter Pack prompts; zero-ID refusal.
+- 14.5: withdrawn pass refuses; one-hour cap.
+- 15b gaps: place IDs already exist.
+- 15c intro: nonzero World 2 ID.
+- 15c.1: current launch boot output.
+- 15c gaps: published-server validation prerequisite.
+- 18.4: Studio suppresses teleport.
+- 20 intro: shared-store prerequisite/fallback.
+- 27.1: fresh-profile prerequisite.
+- 28.5: growth requires real saves.
+- 35.5: fusion persistence prerequisite.
+- 36.6: companion persistence prerequisite.
+- 40.4: radar persistence prerequisite.
+- 42a.4: migration needs existing old save.
+- 42b.4: construction persistence prerequisite.
+- 42c.4: habitat persistence prerequisite.
+- 42d.4: mail persistence prerequisite.
+- 42e.1: settings persistence prerequisite.
+- 42e.2: Studio causes NoPlace, not zero-ID.
+- 47 intro: current real-save setup.
+- 51a.9: Studio suppresses teleport.
+- 49.4: playtime persistence prerequisite.
+- 46.5: six pass tiles.
+- 45.1: six pass tiles.
+- 44.4: seasonal persistence prerequisite.
+- 43.3: pulse persistence prerequisite.
+
+Current fallback toasts were verified against LaunchSequence/client/strings and retained. Blocker: `tools/studio_queue.py:71` hard-codes the stale-source notice; it performs no stale-wording detection. Regeneration necessarily retains that notice. Editing the generator is outside C26’s two-file allowance; coordinator must update it. No Studio run performed.
