@@ -291,3 +291,12 @@ No key read by dry-run/self-test, no live API request from the tool, no products
 - **11 publisher self-tests**, **13 shared HTTP/product self-tests**, no network; publisher tests ran in **0.008 s**. Dry run built **3 places**, **879,589 bytes each**. Headless baseline/result: **265 → 265**, all checks clean. No live upload performed.
 - Coordinator decision: confirm the runtime model loader before the Mac uses `--apply`. Until then use **`--saved` only**: Rojo maps code, not the Studio-only species/prop meshes. Roblox also documents unsupported publishing objects in the linked guide. Sequential uploads are not transactional; inspect reported version numbers after a partial failure.
 - Left open: runtime loader and real upload validation belong to the coordinator/Mac. The session log file is outside the card’s explicitly allowed file list; this report records the session findings instead.
+
+
+## C24 — Model asset table (2026-10-08)
+
+- Claim `735d7fc`; implementation `53c1930`. `python3 -I tools/model_assets.py --write` generates `ReplicatedStorage.Shared.data.ModelAssets`; `--check` compares data independently of formatting. Reuses C2's literal reader, no new parser/network.
+- **53 IDs**, sorted by model name in `AssetIds`; **21 props**, **32 creatures**, **284 material slots**. The same module carries prop membership, folders, normalization, material thresholds, colors and part renames. All installer material rows round-trip exactly; roughness remains unapplied. The installer has **no scale/pivot/rotation override**; preserve imported baselines.
+- Generation **0.016 s**, check **0.019 s**, **5 self-tests** passed. A missing/restored Mossbop-ID mutation added/removed exactly one warning. Added **1 advisory coverage rule**, **12 findings**. Analyze and all lints pass; headless **265 → 265**.
+- Missing species: **Nebulyn, Spookum, Wisplet**. Missing home props: **Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower**. Existing placeholders remain; coordinator decides when to generate/upload these.
+- Loader work left to coordinator: create/validate folders; pcall LoadAsset and choose its nested Model/container; strip model-name prefix, sort MeshParts by suffix then descendant order, warn on slot-count mismatches; apply colors/materials/renames and normalization; dispose wrapper and replace the old model only after success; report failures/moderation. These are installer actions, not data. The Studio installer is unchanged because it is outside the card's edit list.
