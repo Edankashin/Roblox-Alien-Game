@@ -284,7 +284,7 @@ Files: `rokit.toml`, `stylua.toml`, `src/**`, `tests/**` (format only), `tools/l
 
 Done when: `stylua --check` passes in `tools/lint.sh` and the format commit contains formatting only.
 
-### C26. Correct the stale TESTING wording C19 flagged — open
+### C26. Correct the stale TESTING wording C19 flagged — taken by codex 2026-10-08
 
 Goal: the run sheet flags lines in `docs/TESTING.md` that no longer match the code (zero place ids, the retired Longer Offline pass, old toast texts, "memory profiles" where real saves are now on with `Config.UseDataStoreInStudio = true`). The code is the truth; make the test steps say what the game does today.
 
