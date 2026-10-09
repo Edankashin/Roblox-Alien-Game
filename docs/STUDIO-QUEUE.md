@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `fb26dadf866b6734`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `6dff976f087ad3e6`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 102 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -125,7 +125,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **Send back:** standard evidence above; original steps 1, 2, 3.
 
-**TESTING step 1.** Shop, Robux tab: the Passes section shows five tiles (the Longer Offline pass was withdrawn), the Spins section three red tiles under Boosts. Each spin tile reads its name and "Tap for the odds" in gold where other tiles have a description (the name says what it is); a tap anywhere on the description band opens the Gifts screen on the wheel; the Buy button is its own target. At 767x435 and iPhone SE nothing is cut off. On the Gifts screen, "See every prize's odds" under the wheel opens a table over the wheel: a Prize and Chance header, one row per prize with its odds, most likely first, and a Total row reading 100%, all in navy; every row readable at iPhone SE size. The button then reads "Back to the wheel" and closes it; closing and reopening the screen shows the wheel first.
+**TESTING step 1.** Shop, Robux tab: the Passes section shows six tiles, including +100 Alien Storage (the Longer Offline pass was withdrawn), the Spins section three red tiles under Boosts. Each spin tile reads its name and "Tap for the odds" in gold where other tiles have a description (the name says what it is); a tap anywhere on the description band opens the Gifts screen on the wheel; the Buy button is its own target. At 767x435 and iPhone SE nothing is cut off. On the Gifts screen, "See every prize's odds" under the wheel opens a table over the wheel: a Prize and Chance header, one row per prize with its odds, most likely first, and a Total row reading 100%, all in navy; every row readable at iPhone SE size. The button then reads "Back to the wheel" and closes it; closing and reopening the screen shows the wheel first.
 
 **TESTING step 2.** `/buy Spins5`: the spin balance on the wheel rises by 5; Output shows the purchase recorded. `/pass SlotEveryStation2`: every station shows two more open slots (three more with `SlotEveryStation1` as well). `/pass CompanionSlot4`: the Aliens screen allows one more follower.
 
@@ -148,7 +148,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 4.** `/afk rejoin`: Output `Afk: would rejoin <name> to this server (Studio skips teleports)`; on the screen the line "Keeping your spot..." shows. In a published game, after 17 minutes without input the player rejoins the same server and rests again two minutes later.
 
-**TESTING step 5.** The Shop's Passes section has five tiles (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
+**TESTING step 5.** The Shop's Passes section has six tiles, including +100 Alien Storage (no Longer Offline Shift); a rejoin after 3 hours away still pays at most an hour of half-rate income. Output clean.
 
 **TESTING step 6.** The HUD's Scrap per minute now shows what is paid: use a Double Shift (`/spins 5` and spin until one lands, or a code) and the line doubles at once and returns when it ends; a Roblox friend joining the server raises it by the Friend Boost (multi-client); resting halves it. Before this milestone the line never moved for any of the three.
 
@@ -194,7 +194,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 3.** `/playtime 60`: the badge reads 5 and cards 2 to 6 show "Claim". Claim 2: toast "Playtime gift: 1 x Twig Lure" and the lure count rises by one. Claim 3: "Playtime gift: 1 x Speed Burst" and the power-up bar holds a Speed Burst. Claim 4: the toast, and the Gifts screen's "Banked spins" rises by 1. Claim 5: a Lucky Charm joins the power-up bar. Claim 6 (the Rare egg): no toast, the panel closes and the Reveal shows a Rare alien of this world with its Scrap, the alien joins the camp and the badge clears. Reopen the panel: all six read "Claimed". Output six `analytics: event PlaytimeGift value=N` lines (1 to 6) and the egg's `event Catch` with the tier and species.
 
-**TESTING step 4.** Rejoin keeps progress (needs real saves: memory-only profiles are dropped when the player leaves, so set `Config.UseDataStoreInStudio = true` with Studio API access first): `/playtime 12`, claim the first gift, stop Play and press Play again. The panel shows the first card "Claimed", the second with its "Claim" button, the third counting down from about 8:00, and the badge reads 1. Leaving and coming back the same day loses nothing and adds nothing for the time away.
+**TESTING step 4.** Rejoin keeps progress (needs real saves: keep the current `Config.UseDataStoreInStudio = true`, enable Studio API access and confirm `memoryOnly=false`; memory-only profiles are dropped when the player leaves): `/playtime 12`, claim the first gift, stop Play and press Play again. The panel shows the first card "Claimed", the second with its "Claim" button, the third counting down from about 8:00, and the badge reads 1. Leaving and coming back the same day loses nothing and adds nothing for the time away.
 
 **TESTING step 5.** Resting does not count: `/playtime reset`, then `/afk` (the Resting screen), wait 30 seconds, `/afk off`, open the panel. The first card has about the time it had before `/afk` (at most a few seconds less than 5:00), not 30 seconds less; walking around afterwards lowers it by one second per second. Opening the panel while still resting wakes the player (every server call counts as use), so wake first.
 
@@ -277,7 +277,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 8.** The home place (`home.project.json` synced): Output `Music: Home`, and `/night` prints no new line, because Home is one track day and night. Visiting a friend's home also plays Home.
 
-**TESTING step 9.** Launch. Complete the ship (`/complete`), press Launch: Output `Music: Launch` and `Music: stinger Launch (silent)` at the lift-off; in Studio the place is not published, so after the black hold the camp returns and `Music: VerdantDay` prints again. The launch cue is not ducked by its own hit.
+**TESTING step 9.** Launch. Complete the ship (`/complete`), press Launch: Output `Music: Launch` and `Music: stinger Launch (silent)` at the lift-off; Studio skips teleports even with the published place ID, so after the black hold the camp returns and `Music: VerdantDay` prints again. The launch cue is not ducked by its own hit.
 
 **TESTING step 10.** When the Mac session fills ids (needs a real track): paste the plain number into a row's `assetId` in `src/shared/data/Music.luau`, press Play and check, with headphones and the device emulator's speaker, the day and night crossfade (about 3 seconds), the catch bed coming in and out within a third of a second, the intense bed on a Legendary, a Reveal stinger dipping the bed for its length and the bed returning within a second after it, and the Music setting scaling the whole mix. While the row plays, Explorer shows one Sound per voice under SoundService > Music; a row still at 0 shows none, and a silent winner leaves the next row down playing.
 
@@ -395,7 +395,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **Send back:** standard evidence above; original steps 5.
 
-**TESTING step 5.** Rejoin after the server has run for over a minute with aliens seated: the welcome-back toast still reports Scrap; with `Config.UseDataStoreInStudio` off nothing persists, so the away-time growth and the "N of your aliens grew while you were away!" line need a real save (Ethan's Studio API access) to verify; note it as untested otherwise.
+**TESTING step 5.** Rejoin after the server has run for over a minute with aliens seated: the welcome-back toast still reports Scrap; the away-time growth and the "N of your aliens grew while you were away!" line require `memoryOnly=false` and Studio API access (the current `Config.UseDataStoreInStudio` is true); note them as untested if the session falls back to memory.
 
 ### Milestone 36: companions (World 1 place; step 5 multi-client)
 
@@ -408,7 +408,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 5.** Multi-client (Test > Clients and Servers): player B sees A's companions walking behind A with name plates (no tier line); when A leaves, they vanish for B; a late-joining C sees them at once. Beyond 120 studs from the camera the followers of others are not drawn; 50 wild spawns plus companions stay above 50 fps on the SE emulator.
 
-**TESTING step 6.** Rejoin: the companions still follow (memory profiles in Studio; schema v9 adds `companionSlots`). Output clean.
+**TESTING step 6.** Rejoin: the companions still follow (real saves in Studio with API access and `memoryOnly=false`; schema v9 adds `companionSlots`). Output clean.
 
 ### Milestone 37: mounts (World 1 place; step 5 multi-client)
 
@@ -434,7 +434,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 2.** Home place (`rojo serve home.project.json`, connect, Play with a profile on world 0 via `/world 0` on World 1 first, or a fresh profile with `/world 0`): the floor is small and pale blue with the camp pad, the ship and the stations; a sand-coloured plot square sits past the pad on +Z (6 by 6 cells of 4 studs); no wild aliens ever spawn, no nodes, no shrine, no Peddler landing, no sightings (`/sighting` prints that this world has none), the weekly banner names the drop's world ("Panpipe on World 1 · 6d 23h left"), the biome chip reads "Home", `/rain` and `/night` still work (lighting only). The ship's action at home reads Build, not Launch (a launch there is refused with NoNextWorld), the Ship screen's "walk to the ship and launch" hint stays off, and the HUD ship bar reads 0% (the home has no modules; a later part hides it); Fly back to World 1 works from the Star Chart.
 
-**TESTING step 4.** A profile below schema v10 (memory profiles start at the current version; skip unless real saves are on): one with two unlocked worlds migrates with `home.unlocked = true`. Output clean on both places.
+**TESTING step 4.** A profile below schema v10 (requires an existing pre-v10 test save; new profiles start at the current version, and Studio real saves require API access): one with two unlocked worlds migrates with `home.unlocked = true`. Output clean on both places.
 
 ### Milestone 43: the Scanner Pulse (World 1 place)
 
@@ -445,7 +445,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **Send back:** standard evidence above; original steps 3.
 
-**TESTING step 3.** The buff ring under the ship bar counts the 60 s down; at the end the rim blips go, the ring returns to blue, the silhouettes return. Rejoin mid-pulse (memory profiles): the timer resumes and the reveal with it. Output clean.
+**TESTING step 3.** The buff ring under the ship bar counts the 60 s down; at the end the rim blips go, the ring returns to blue, the silhouettes return. Rejoin mid-pulse (real saves with Studio API access and `memoryOnly=false`): the timer resumes and the reveal with it. Output clean.
 
 ## Published game
 
