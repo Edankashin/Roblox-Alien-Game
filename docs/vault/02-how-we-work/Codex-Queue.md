@@ -264,7 +264,7 @@ Files: `tools/publish.py`, `.gitignore`, `docs/vault/02-how-we-work/Hands-Off.md
 
 Done when: `--self-test` passes and `--dry-run` builds all three places from a clean checkout.
 
-### C24. The model asset table — open
+### C24. The model asset table — taken by codex 2026-10-08
 
 Goal: the server loads the species and prop meshes itself at boot (`InsertService:LoadAsset` on the Model assets `tools/upload_assets.py` uploaded), so a place built from the repo has them and publishing needs no Studio.
 
