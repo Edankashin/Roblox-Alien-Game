@@ -252,7 +252,7 @@ Files: `tools/create_products.py`, `docs/vault/02-how-we-work/Hands-Off.md` (a "
 
 Done when: `--self-test` passes, `--dry-run` lists exactly the five launch items still at 0 today (Spins1, Spins5, Spins12, SlotEveryStation2, CompanionSlot4) with name, price, kind and icon path, and analyze, data lint, tests and lint.sh stay clean.
 
-### C23. Publish the three places through Open Cloud — open
+### C23. Publish the three places through Open Cloud — taken by codex 2026-10-08
 
 Goal: Ethan stops republishing by hand (owner guide Parts A and H). Open Cloud publishes a place file: `POST https://apis.roblox.com/universes/v1/{universeId}/places/{placeId}/versions?versionType=Published` (or `Saved`), body the .rbxl, `Content-Type: application/octet-stream`, header `x-api-key`, scope `universe-places:write`; the answer carries `versionNumber`.
 
