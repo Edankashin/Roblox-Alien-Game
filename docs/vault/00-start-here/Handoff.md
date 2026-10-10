@@ -2,7 +2,7 @@
 
 Written 2026-10-10 by Ethan's coordinator session, from the whole build conversation (2026-10-04 to 2026-10-10) and the repo at that date. This is the one file to read first. It says what the game is, what is built and verified, what is in progress, what comes next, every tool and id, how the work runs, and how Ethan and the collaborator stay in sync. Live status lives on [[Board]]; this file is the background and is updated when something lasting changes.
 
-**For the collaborator's Claude:** read this whole file, then `CLAUDE.md` (the rules, loaded automatically in the repo), then [[Board]], then today's note in `docs/vault/08-log/`. The prompt in section 14 does that for you. Everything below is specific on purpose: ids, file paths, numbers and the reason behind each decision, so nothing needs to be re-asked.
+**For the collaborator's Claude:** read this whole file, then `CLAUDE.md` (the rules, loaded automatically in the repo), then [[Setup-and-Tips]] (how Ethan configured his Claude sessions, the Mac, Studio and every tool, plus the tips and tricks learned so far), then [[Board]], then today's note in `docs/vault/08-log/`. The prompt in section 14 does that for you. Everything below is specific on purpose: ids, file paths, numbers and the reason behind each decision, so nothing needs to be re-asked.
 
 ---
 
@@ -148,7 +148,7 @@ Offline earnings (50% of the live rate, capped), resting in game (after 2 min id
 | **Launch items still at 0:** Spins1 / Spins5 / Spins12 (paid random, 49 / 199 / 399), SlotEveryStation2 (799), CompanionSlot4 (249), StorageBoost (149) | | | 0, created by `tools/create_products.py --apply` on Ethan's Mac |
 | Not at launch, 0 by design: DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock | | | 0 |
 
-**Secrets.** Ethan's Open Cloud API key lives only in his Mac shell (`~/.zshrc`, `ROBLOX_API_KEY`). Never in a file in the repo, a commit, the vault, a report or a chat. If the collaborator needs Open Cloud, they make their own key (section 13.4). Asset ids, place ids and product ids are fine to commit.
+**Secrets.** Ethan's Open Cloud API key lives only in his Mac shell (`~/.zshrc`: `ROBLOX_OPEN_CLOUD_KEY` with `ROBLOX_CREATOR_USER_ID` for `upload_assets.py`, `ROBLOX_API_KEY` for `create_products.py` and `publish.py`). Never in a file in the repo, a commit, the vault, a report or a chat. If the collaborator needs Open Cloud, they make their own key (section 13.4). Asset ids, place ids and product ids are fine to commit.
 
 ---
 
@@ -358,6 +358,9 @@ Roblox's rule today for an experience owned by a user account: anyone can be giv
 
 ### 13.3 The collaborator's computer (their Claude can walk them through it; ask before each install)
 
+How Ethan set up his own machine, step by step with the problems he hit, is in [[Setup-and-Tips]] Part 1; the short version for you is its Part 2.
+
+
 1. `git clone https://github.com/Edankashin/Roblox-Alien-Game && cd Roblox-Alien-Game && git checkout claude/alien-system-research`
 2. Install Rokit (github.com/rojo-rbx/rokit), then in the repo `rokit install` (Rojo 7.7.1, luau-lsp 1.70.1). Check: `./tools/analyze.sh` prints `analyze: clean`, `./tools/test.sh` passes all 265 tests.
 3. Roblox Studio, signed in; the Rojo plugin (`rojo plugin install`, or Rojo from the Creator Store).
@@ -370,7 +373,7 @@ Roblox's rule today for an experience owned by a user account: anyone can be giv
 
 ### 13.4 Open Cloud for the collaborator (only if needed)
 
-The scripts read a key from `ROBLOX_API_KEY` in the shell only. On a user-owned experience only the owner's keys reach it, so for now Open Cloud jobs (uploads, shop items, publishing) run on Ethan's Mac. After a move to a group, a group member with the API key admin permission can make a group key limited to this experience (Creator Dashboard > the group in the Creator Hub dropdown > Open Cloud > API Keys). Never share or commit a key.
+The scripts read the key from the shell only (`ROBLOX_OPEN_CLOUD_KEY` for uploads, which also take `ROBLOX_CREATOR_GROUP_ID` for group-owned assets; `ROBLOX_API_KEY` for shop items and publishing). On a user-owned experience only the owner's keys reach it, so for now Open Cloud jobs (uploads, shop items, publishing) run on Ethan's Mac. After a move to a group, a group member with the API key admin permission can make a group key limited to this experience (Creator Dashboard > the group in the Creator Hub dropdown > Open Cloud > API Keys). Never share or commit a key.
 
 ---
 
@@ -380,7 +383,8 @@ Paste this as the first message in a Claude Code session started inside the repo
 
 ```
 You are joining the Roblox Alien Game project as the collaborator's Claude. Read, in order:
-docs/vault/00-start-here/Handoff.md (all of it), CLAUDE.md, docs/vault/00-start-here/Board.md,
+docs/vault/00-start-here/Handoff.md (all of it), CLAUDE.md, docs/vault/00-start-here/Setup-and-Tips.md,
+docs/vault/00-start-here/Board.md,
 and the newest note in docs/vault/08-log/. Then git pull --rebase origin claude/alien-system-research.
 Set up my computer per Handoff section 13.3, asking me before every install, and confirm
 ./tools/analyze.sh prints "analyze: clean" and ./tools/test.sh passes. Then show me the Board's
@@ -402,6 +406,7 @@ Ethan instead of being made.
 
 | Question | Note |
 |---|---|
+| How Ethan configured Claude, the Mac, Studio and the tools; tips and tricks | [[Setup-and-Tips]] |
 | A word you do not know | [[Glossary]] |
 | Why a decision was made | [[Decisions]], PRE_PRODUCTION sections 2, 5a, 5c |
 | What Ethan asked for and what happened to it | [[Requests]] |

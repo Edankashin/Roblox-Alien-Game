@@ -30,7 +30,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Notes |
 |---|---|---|
-| Collaborator setup: clone, Rokit, Rojo plugin, Claude Code, Studio MCP, Obsidian; analyze clean, tests pass | Collab, Collab-Claude | [[Handoff]] 13.3 |
+| Collaborator setup: clone, Rokit, Rojo plugin, Claude Code, Studio MCP, Obsidian; analyze clean, tests pass | Collab, Collab-Claude | [[Handoff]] 13.3; Ethan's own setup and the problems he hit in [[Setup-and-Tips]] |
 | Add the collaborator's Roblox user id to `src/shared/data/Admin.luau` `DeveloperUserIds` | Collab-Claude | One line; run the checks; commit |
 | Cold playtest of World 1 from a fresh profile, notes in `docs/playtests/<date>-<name>.md` | Collab | The most valuable input right now: where you were confused in the first 5 minutes, where you waited, what you wanted to tap |
 | Studio queue: milestone 46 re-check (resting, Back to play, menus count as play) | | `docs/STUDIO-QUEUE.md`, TESTING 46 |
@@ -83,7 +83,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Date and commit |
 |---|---|---|
-| Handoff file and this Board | Coord | 2026-10-10 |
+| Setup-and-Tips note (Ethan's configuration, tips and tricks) | Coord | 2026-10-10 |
+| Handoff file and this Board | Coord | 2026-10-10, 7161e5f |
 | Codex C26 TESTING wording, C24 model asset table, C23 place publishing (in review) | Codex | 2026-10-08, c49aa61, 53c1930, 8bdecbd |
 | Security hardening (visits, lookup budget, Peddler and Wave proximity) | Coord | 2026-10-07, 7430234 |
 | Alien list deltas | Coord | 2026-10-07, ae5fae9 |

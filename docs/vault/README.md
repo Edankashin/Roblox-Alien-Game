@@ -4,4 +4,4 @@ What the team and Claude have agreed and learned, written down so every session 
 
 Folders mirror the reference creator's vault: 00 start here (glossary), 01 game design, 02 how we work, 03 Studio and MCP, 04 Roblox engine, 05 UI design (refs, playbook, checklist, recipes, taste), 06 art pipelines, 07 this project, 08 the session log (one dated note per day).
 
-Start here: [[Handoff]] (everything about the project, for a new teammate or session) and [[Board]] (who is doing what; claim a row before starting).
+Start here: [[Handoff]] (everything about the project, for a new teammate or session), [[Setup-and-Tips]] (how everything was configured, and what we learned) and [[Board]] (who is doing what; claim a row before starting).
