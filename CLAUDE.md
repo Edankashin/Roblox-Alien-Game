@@ -1,6 +1,6 @@
 # Roblox Alien Game
 
-A Roblox collection game for a two-person team: players crash-land on planets, catch cute aliens with a timing-bar minigame, the aliens build a ship, and the ship flies to the next themed world. Design in `docs/GAME_DESIGN.md`. Build plan and readiness checklist in `docs/PRE_PRODUCTION.md`. Research behind the design in `reports/` and `research_notes/`. Reference-video lessons in `media/tiktok/NOTES.md`. The knowledge vault (glossary, UI playbook, engine notes, art pipeline) lives in `docs/vault/`, which is also the team's Obsidian vault; read it before UI or asset work and write corrections back into it.
+A Roblox collection game for a two-person team: players crash-land on planets, catch cute aliens with a timing-bar minigame, the aliens build a ship, and the ship flies to the next themed world. New here (a person or a session)? Start with `docs/vault/00-start-here/Handoff.md`, then the shared to-do list `docs/vault/00-start-here/Board.md` (claim a row before working on it). Design in `docs/GAME_DESIGN.md`. Build plan and readiness checklist in `docs/PRE_PRODUCTION.md`. Research behind the design in `reports/` and `research_notes/`. Reference-video lessons in `media/tiktok/NOTES.md`. The knowledge vault (glossary, UI playbook, engine notes, art pipeline) lives in `docs/vault/`, which is also the team's Obsidian vault; read it before UI or asset work and write corrections back into it.
 
 ## Vault logging
 
