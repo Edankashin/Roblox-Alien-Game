@@ -5,8 +5,10 @@
 -- item with its speed bonus (or, for a radar, its minimap range), the price and a Buy button that
 -- becomes an Owned chip. Robux: the launch shop, a scrolling column with one section per Shop.Launch
 -- entry: the Starter Pack as one large gold tile with the Rare picker, then Passes and Boosts as small
--- tiles two to a row, each with a price button that becomes an Owned or Claimed chip. Every value shown
--- is read from the profile and purchases mirrors in State and the shared data tables; every Craft, Buy
+-- tiles two to a row, each with a price button that becomes an Owned or Claimed chip. Under every price
+-- button, large tile and small, sits a one-line grey "about $N.NN" (ShopMath.AboutLine over Shop.RealCurrency: an
+-- estimate, Roblox sets the real price at purchase), hidden with the button when the chip stands in for it. Every
+-- value shown is read from the profile and purchases mirrors in State and the shared data tables; every Craft, Buy
 -- or pick tap asks the server (ShopBuy, SetStarterChoice, PromptPurchase) and a refusal becomes a toast.
 -- Nothing here decides an outcome and nothing here knows a product id: the server opens Roblox's own
 -- purchase prompt, grants on the receipt and pushes PurchasesChanged, which redraws the page.
@@ -25,6 +27,7 @@ local Shop = require(Shared:WaitForChild("data"):WaitForChild("Shop"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Builder = require(script.Parent.Builder)
 local Screens = require(script.Parent.Screens)
 local Toast = require(script.Parent.Toast)
@@ -116,12 +119,13 @@ type Row = {
 }
 
 -- A Robux tile, large or small. Built once and refreshed in place: the price button hides behind the
--- Owned / Claimed chip once the server says the item is held.
+-- Owned / Claimed chip once the server says the item is held, and the about-line under it hides with it.
 type RobuxTile = {
 	item: ShopItem,
 	card: Frame,
 	button: Frame,
 	face: TextButton,
+	about: TextLabel,
 	chip: Frame,
 	chipText: TextLabel,
 }
@@ -160,29 +164,40 @@ local ROW_ICON_GAP = 0.015 -- of the row's width, between the square and the tex
 -- the page count. The content area is 0.81 of the panel high, so 0.11 of it is the 0.09-panel tap floor.
 local RX_HEADING_H = 0.09 -- about 7% of the panel
 local RX_GAP = 0.03 -- between headings and blocks
-local RX_FEATURED_H = 0.85 -- the large tile
+local RX_FEATURED_H = 0.93 -- the large tile (0.85 before the about-line took the bottom 0.09 of it; see BIG_* below)
 local RX_COLS = 2
 local RX_COL_GAP = 0.03 -- of the page width
 local RX_TILE_W = (1 - RX_COL_GAP * (RX_COLS - 1)) / RX_COLS
-local RX_TILE_ASPECT = 1.4 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size)
+local RX_TILE_ASPECT = 1.15 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size; 1.4 until the about-line needed its own band, see TILE_*)
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
--- Inside a small tile (fractions of the tile). At iPhone SE size the tile is 137 x 98 px: the name band holds two 14 px lines
--- (a name wraps rather than being cut), the description band one, and the button is 0.33 of a 0.34-panel tile: 0.11 of the panel.
--- No note band sits between the description and the button: a shared boost's note takes the description band, as a spin
--- tile's odds line does (a note band 10 px high wrapped to two lines and ran under the Buy button).
+-- Inside a small tile (fractions of the tile). At iPhone SE size (667x375) the page is 282 px wide, so the tile is 137 x 119 px
+-- (it was 137 x 98 at aspect 1.4, and every band below keeps its old pixel height): the name band holds two 14 px lines
+-- (37 px, a name wraps rather than being cut), the description band one (18 px), the price button is 32 px (0.11 of the panel)
+-- and the about-line band 21 px under it. No note band sits between the description and the button: a shared boost's note
+-- takes the description band, as a spin tile's odds line does (a note band 10 px high wrapped to two lines and ran under the
+-- Buy button), so the about-line went under the button and the tile grew by the band's height instead of squeezing one in.
+-- The about-line is one 14 px line (17 px of height) of "about $12.48", the longest of the launch prices: 12 glyphs at
+-- Fredoka One's widest recorded 8.1 px per glyph at 14 px ("Scann" is 40.7 px, UI Playbook, UI fit pass) is 98 px against the
+-- 123 px label box (0.9 of the 137 px tile) with 25 px to spare, and 98 px against 106 px (0.9 of 117.5) in a 425x620 window,
+-- the narrowest checked, which leaves 8 px, more than the 5 px margin the fit pass asks for. TextScaled is off, so the size
+-- never grows or shrinks with the box.
 local TILE_INSET = 0.05
-local TILE_NAME_Y, TILE_NAME_H = 0.04, 0.38
-local TILE_DESC_Y, TILE_DESC_H = 0.43, 0.18
-local TILE_BUTTON_Y, TILE_BUTTON_H = 0.63, 0.33
--- Inside the large tile (0.69 of the panel high): picker buttons 0.13 and the price button 0.16 of the panel.
+local TILE_NAME_Y, TILE_NAME_H = 0.035, 0.31
+local TILE_DESC_Y, TILE_DESC_H = 0.35, 0.15
+local TILE_BUTTON_Y, TILE_BUTTON_H = 0.515, 0.27
+local TILE_ABOUT_Y, TILE_ABOUT_H = 0.79, 0.175
+-- Inside the large tile (0.93 of the page high: 220 px at 667x375, 201 px before the about-line): picker buttons 0.13 and the
+-- price button 0.16 of the panel.
 local BIG_INSET = 0.04
--- The description band holds three 14 px lines (51 px of the 201 px tile at iPhone SE size): the Starter Pack's text
--- is 634 px against a 259 px line, and two lines cut it at "Once per".
-local BIG_NAME_Y, BIG_NAME_H = 0.02, 0.14
-local BIG_DESC_Y, BIG_DESC_H = 0.17, 0.27
-local BIG_PICK_Y, BIG_PICK_H = 0.45, 0.18
-local BIG_PICKED_Y, BIG_PICKED_H = 0.64, 0.08
-local BIG_BUTTON_Y, BIG_BUTTON_H = 0.74, 0.23
+-- The description band holds three 14 px lines (55 px of the 220 px tile at iPhone SE size): the Starter Pack's text
+-- is 634 px against a 259 px line, and two lines cut it at "Once per". Every band above the about-line keeps the pixel
+-- height it had in the 201 px tile; the about-line band is 20 px, centred under the price button, with 5 px under it.
+local BIG_NAME_Y, BIG_NAME_H = 0.02, 0.13
+local BIG_DESC_Y, BIG_DESC_H = 0.155, 0.25
+local BIG_PICK_Y, BIG_PICK_H = 0.41, 0.165
+local BIG_PICKED_Y, BIG_PICKED_H = 0.58, 0.075
+local BIG_BUTTON_Y, BIG_BUTTON_H = 0.67, 0.21
+local BIG_ABOUT_Y, BIG_ABOUT_H = 0.885, 0.09
 local PICK_GAP = 0.03 -- between the picker buttons, of the row width
 local CHIP_INSET = 0.02 -- the chip sits this much inside the button it replaces
 
@@ -632,6 +647,28 @@ local function buildChip(parent: Frame, position: UDim2, size: UDim2): (Frame, T
 	return chip, text
 end
 
+-- The "about $2.49" line under a price button: the real-currency estimate of item.robux (Shop.RealCurrency, formatted by
+-- ShopMath.AboutLine from SHOP_ABOUT_PRICE), centred in a band of `height` at `y`, inside the tile by `inset` each side. One
+-- fixed 14 px line in the Common grey with the usual outline, TextScaled off so the size cannot drift; a string that ever
+-- overflowed would trim with an ellipsis rather than wrap onto the card edge. Refreshed visible and hidden with the button.
+local function buildAboutLine(parent: Frame, item: ShopItem, y: number, height: number, inset: number): TextLabel
+	local about = Builder.label({
+		parent = parent,
+		name = "About",
+		text = ShopMath.AboutLine(item.robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE),
+		textSize = Theme.TextSize.Min,
+		color = Theme.Rarity.Common,
+		position = UDim2.fromScale(inset, y),
+		size = UDim2.fromScale(1 - inset * 2, height),
+		zIndex = 4,
+	})
+	about.TextScaled = false
+	about.TextSize = Theme.TextSize.Min
+	about.TextWrapped = false
+	about.TextTruncate = Enum.TextTruncate.AtEnd
+	return about
+end
+
 -- The gold line a shared boost (Server Luck) shows in its tile's description band: who gets it and for how long, the
 -- minutes read from the grant row (data/Shop Grants). Nil for every other item.
 local function sharedBoostNote(item: ShopItem): string?
@@ -732,12 +769,13 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		promptPurchase(item.id)
 	end)
 	local face = button:FindFirstChild("Face") :: TextButton
+	local about = buildAboutLine(card, item, TILE_ABOUT_Y, TILE_ABOUT_H, TILE_INSET)
 	local chip, chipText = buildChip(
 		card,
 		UDim2.fromScale(0.5, TILE_BUTTON_Y + CHIP_INSET),
 		UDim2.fromScale(1 - TILE_INSET * 2, TILE_BUTTON_H - CHIP_INSET * 2)
 	)
-	return { item = item, card = card, button = button, face = face, chip = chip, chipText = chipText }
+	return { item = item, card = card, button = button, face = face, about = about, chip = chip, chipText = chipText }
 end
 
 -- The large tile: gold gradient card, the name, a two-line description, the Rare picker (one small
@@ -828,12 +866,13 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 		promptPurchase(item.id)
 	end)
 	local face = button:FindFirstChild("Face") :: TextButton
+	local about = buildAboutLine(card, item, BIG_ABOUT_Y, BIG_ABOUT_H, BIG_INSET)
 	local chip, chipText = buildChip(
 		card,
 		UDim2.fromScale(0.5, BIG_BUTTON_Y + CHIP_INSET),
 		UDim2.fromScale(1 - BIG_INSET * 2, BIG_BUTTON_H - CHIP_INSET * 2)
 	)
-	return { item = item, card = card, button = button, face = face, chip = chip, chipText = chipText }
+	return { item = item, card = card, button = button, face = face, about = about, chip = chip, chipText = chipText }
 end
 
 -- Sizes the Robux column so every child is a Scale fraction of a canvas exactly as tall as the
@@ -1040,8 +1079,9 @@ local function refreshGear(profile: Types.Profile)
 end
 
 -- Redraws every Robux tile from the purchases mirror: an owned pass or a claimed once-only product
--- shows its chip instead of the price; the Starter Pack's button stays grey until a Rare is stored;
--- paid random items (Server Luck) show only once GetPolicy has said they are allowed here.
+-- shows its chip instead of the price (and loses its about-line); the Starter Pack's button stays grey until a Rare is
+-- stored, its price and about-line still showing; paid random items (Server Luck) show only once GetPolicy has said they
+-- are allowed here.
 local function refreshRobux()
 	local state = State.GetPurchases()
 	local showPaidRandom = policyKnown and not paidRandomRestricted
@@ -1057,6 +1097,7 @@ local function refreshRobux()
 				packDone = true
 			end
 			tile.button.Visible = not (owned or done)
+			tile.about.Visible = tile.button.Visible -- the estimate belongs to the price: still there while the button reads "Pick your Rare first"
 			tile.chip.Visible = owned or done
 			if owned then
 				tile.chipText.Text = Strings.SHOP_OWNED_PASS
