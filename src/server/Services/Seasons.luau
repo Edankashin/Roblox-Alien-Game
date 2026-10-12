@@ -10,9 +10,13 @@
 -- Vault Rotation's returning species and the event overlay, and IsEventSpawn for the condition-despawn exemption.
 -- The track: Catching reports each wild catch (OnCatch) and a Meteor Shower that ends reports itself (OnShowerEnded,
 -- registered with Events at Init); each counts into profile.seasons[id].progress and pushes SeasonProgressChanged.
--- ClaimSeasonQuest marks a finished quest claimed first, then pays: the Scrap, lure, spin and power-up rows through
--- the reward granter (Gifts.GrantRewards) and each alien row through the alien granter (Economy.GrantAlien, the one
--- door an alien enters a profile through), the last alien's Reveal payload going back to the client. The client
+-- ClaimSeasonQuest marks a finished quest claimed first, then pays the aliens before anything else (Exploit-Review
+-- D6): each alien row through the alien granter (Economy.GrantAlien, the one door an alien enters a profile through),
+-- the last alien's Reveal payload going back to the client. An alien the granter refuses takes the claim back and
+-- answers Refused before any other row is paid, so a failure pays nothing. Then the Scrap, lure, spin and power-up
+-- rows go through the reward granter (Gifts.GrantRewards); if that refuses after aliens were delivered the claim
+-- stays marked (the aliens are the player's now, and a retry would deliver them twice), the Scrap rows are not
+-- paid and the answer is Refused with the Reveal payload. A quest with no alien row unmarks on a refusal as before. The client
 -- renders the banner, the tab and the Reveal; it never counts, never claims on its own and never decides a thing.
 -- It never decides what an overlay is worth or how a spawn is rolled (Overlays, Spawner).
 --
@@ -225,11 +229,12 @@ local function unmark(player: Player, seasonId: string, questId: string)
 end
 
 -- ClaimSeasonQuest(questId) -> (ok, reason, grant). Pays a finished track quest once. Reasons: BadArgs,
--- RateLimited, NoProfile, NoSeason, Unknown (not in the running season's track), Claimed, NotDone, Refused (the
--- reward granter answered false). The claim is marked first, in one profile update, so a second call in the same
--- frame finds it taken; then the non-alien rows pay through the reward granter in one call (a false answer unmarks
--- the claim) and each alien row through the alien granter. `grant` is the last alien's Reveal payload, nil when the
--- quest pays no alien.
+-- RateLimited, NoProfile, NoSeason, Unknown (not in the running season's track), Claimed, NotDone, Refused (a
+-- granter answered no). The claim is marked first, in one profile update, so a second call in the same frame finds
+-- it taken; then each alien row pays through the alien granter (a refusal unmarks the claim and nothing is paid),
+-- then the non-alien rows through the reward granter in one call (a refusal unmarks the claim, unless aliens were
+-- already delivered: then it stays marked and `grant` carries their Reveal payload). `grant` is the last alien's
+-- Reveal payload, nil when the quest pays no alien.
 local function onClaim(player: Player, questId: any): (boolean, string?, Types.GrantResult?)
 	if type(questId) ~= "string" then
 		return false, "BadArgs", nil
@@ -284,25 +289,33 @@ local function onClaim(player: Player, questId: any): (boolean, string?, Types.G
 		end
 	end
 
+	-- The aliens first, all or nothing: one the granter refuses takes the claim back before any other row is paid.
+	local result: Types.GrantResult? = nil
+	for _, speciesId in ipairs(aliens) do
+		local give = alienGranter
+		local got = if give then give(player, speciesId, "None", false, nil) else nil
+		if not got then
+			warn(("[%s] Seasons: %s's alien %s was not granted, so the claim is taken back and nothing is paid"):format(Config.WorkingTitle, quest.id, speciesId))
+			unmark(player, season.id, quest.id)
+			return false, "Refused", nil
+		end
+		result = got
+	end
+
 	if #rows > 0 then
 		local grant = rewardGranter
 		if not grant then
 			warn(("[%s] Seasons: no reward granter registered (Gifts.Init), %s not paid"):format(Config.WorkingTitle, quest.id))
 		end
 		if not grant or not grant(player, rows) then
+			if result then
+				-- the aliens are delivered: the claim stays marked, or a retry would deliver them twice
+				warn(("[%s] Seasons: %s's aliens were granted but its Scrap rows were not paid; the claim stays marked"):format(Config.WorkingTitle, quest.id))
+				push(player, season.id)
+				return false, "Refused", result
+			end
 			unmark(player, season.id, quest.id)
 			return false, "Refused", nil
-		end
-	end
-
-	local result: Types.GrantResult? = nil
-	for _, speciesId in ipairs(aliens) do
-		local give = alienGranter
-		local got = if give then give(player, speciesId, "None", false, nil) else nil
-		if got then
-			result = got
-		else
-			warn(("[%s] Seasons: %s's alien %s was not granted"):format(Config.WorkingTitle, quest.id, speciesId))
 		end
 	end
 

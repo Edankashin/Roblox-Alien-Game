@@ -66,6 +66,7 @@ local Tutorial = require(script.Parent.Tutorial)
 local Spawner = require(script.Parent.Spawner)
 local Monetization = require(script.Parent.Monetization)
 local Companions = require(script.Parent.Companions)
+local Flight = require(script.Parent.Parent.Flight)
 
 local EconomyService = {}
 
@@ -435,12 +436,18 @@ local function mutate(player: Player, fn: (Types.Profile) -> string?): (boolean,
 	return true, nil
 end
 
+-- ModulePay(moduleId) -> (ok, reason). Reasons: BadArgs, RateLimited, InFlight (a launch or flight is in
+-- progress: the profile already names the next world, so a payment would land on the wrong ship), NoProfile,
+-- NotActive (not the player's active module), AlreadyPaid, NotEnoughScrap.
 local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 	if type(moduleId) ~= "string" then
 		return false, "BadArgs"
 	end
 	if not Net.allow(player, "ModulePay", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
+	end
+	if Flight.IsInFlight(player.UserId) then
+		return false, "InFlight"
 	end
 	local startedId: string? = nil -- the module whose clock started with this payment (the Tutorial hears it)
 	local paid = 0 -- the Scrap this call took (Analytics)
@@ -481,12 +488,17 @@ local function onModulePay(player: Player, moduleId: any): (boolean, string?)
 	return true
 end
 
+-- ModuleInsertKey(moduleId) -> (ok, reason). Reasons: BadArgs, RateLimited, InFlight (as ModulePay), NoProfile,
+-- NotActive (not the player's active module), AlreadyFull, NoMaterial.
 local function onModuleInsertKey(player: Player, moduleId: any): (boolean, string?)
 	if type(moduleId) ~= "string" then
 		return false, "BadArgs"
 	end
 	if not Net.allow(player, "ModuleInsertKey", REMOTE_RATE_PER_SECOND) then
 		return false, "RateLimited"
+	end
+	if Flight.IsInFlight(player.UserId) then
+		return false, "InFlight"
 	end
 	local startedId: string? = nil -- the module whose clock started with these keys (the Tutorial hears it)
 	local ok, reason = mutate(player, function(profile)

@@ -41,6 +41,7 @@ local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Buffs = require(script.Parent.Buffs)
 local Quests = require(script.Parent.Quests)
+local Flight = require(script.Parent.Parent.Flight)
 
 local Catching = {}
 
@@ -79,6 +80,8 @@ local rng = Random.new()
 local encounters: { [number]: Encounter } = {} -- by UserId
 local claimedSpawns: { [string]: number } = {} -- spawnId -> UserId mid-encounter
 local forcedVariants: { [number]: string } = {} -- UserId -> CatchVariants row id; Studio Dev's /variant sets it
+-- Exploit-Review D1: each player's scored taps and how many were Perfect since the last judgement, by UserId.
+local tapTally: { [number]: { taps: number, perfects: number } } = {}
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -108,6 +111,32 @@ end
 
 local function isStale(encounter: Encounter): boolean
 	return os.clock() - encounter.lastActivity > Config.CaptureEncounterTimeoutSeconds
+end
+
+-- Counts one tap that onCaptureHit judged (valid or not) and, each time the tally reaches
+-- Config.SuspectPerfectWindow, judges the Perfect share with Capture.suspect: a suspect share logs a
+-- SuspectTiming analytics event and a warn, nothing is refused (a modified client can compute a Perfect
+-- time, but progress is solo). The tally restarts after every judgement, suspect or not.
+local function tallyTap(player: Player, hit: Types.HitOutcome)
+	local tally = tapTally[player.UserId]
+	if not tally then
+		tally = { taps = 0, perfects = 0 }
+		tapTally[player.UserId] = tally
+	end
+	tally.taps += 1
+	if hit == "Perfect" then
+		tally.perfects += 1
+	end
+	if tally.taps < Config.SuspectPerfectWindow then
+		return
+	end
+	local taps, perfects = tally.taps, tally.perfects
+	tapTally[player.UserId] = nil
+	if Capture.suspect(perfects, taps, Config.SuspectPerfectWindow, Config.SuspectPerfectRate) then
+		local percent = math.floor(perfects / taps * 100)
+		Analytics.Event(player, AnalyticsData.Events.SuspectTiming, percent, { window = tostring(Config.SuspectPerfectWindow) })
+		warn(("[%s] Catching: %s hit Perfect on %d%% of their last %d taps (SuspectTiming; logged, nothing refused)"):format(Config.WorkingTitle, player.Name, percent, taps))
+	end
 end
 
 local function rollZoneCenter(): number
@@ -218,8 +247,8 @@ end
 
 -- Remotes ----------------------------------------------------------------
 
--- CaptureStart(spawnId) -> (result, reason). Reasons: RateLimited, BadArgs, NoProfile, Busy, NoSpawn,
--- Reserved (another player's Warden), Taken, NoCharacter, TooFar.
+-- CaptureStart(spawnId) -> (result, reason). Reasons: RateLimited, BadArgs, NoProfile, InFlight (a launch or
+-- flight is in progress), Busy, NoSpawn, Reserved (another player's Warden), Taken, NoCharacter, TooFar.
 local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStartResult?, string?)
 	if not Net.allow(player, "CaptureStart", 2) then
 		return nil, "RateLimited"
@@ -229,6 +258,9 @@ local function onCaptureStart(player: Player, spawnId: any): (Types.CaptureStart
 	end
 	if not PlayerData.Get(player) then
 		return nil, "NoProfile"
+	end
+	if Flight.IsInFlight(player.UserId) then
+		return nil, "InFlight"
 	end
 	local existing = encounters[player.UserId]
 	if existing then
@@ -378,6 +410,7 @@ local function onCaptureHit(player: Player, token: any, clientTapTime: any): Typ
 	local hit: Types.HitOutcome = if valid
 		then Capture.outcome(pos, zoneAt, encounter.goodZone, encounter.perfectZone)
 		else "Miss"
+	tallyTap(player, hit)
 
 	local roundWon = false
 	if hit == "Perfect" then
@@ -489,6 +522,7 @@ function Catching.Start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		endEncounter(player.UserId)
 		forcedVariants[player.UserId] = nil
+		tapTally[player.UserId] = nil
 	end)
 end
 

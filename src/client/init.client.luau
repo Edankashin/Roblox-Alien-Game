@@ -357,6 +357,9 @@ local function beginCapture(part: Part)
 		if not start then
 			inCapture = false
 			MusicDirector.SetCapture(nil)
+			if reason == "InFlight" then
+				Toast.Show(Strings.TOAST_IN_FLIGHT, Theme.Colors.Select) -- a launch or flight is in progress (Exploit-Review D4)
+			end
 			print(("[%s] capture refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 			return
 		end
@@ -406,6 +409,8 @@ local function tryCollectNearest(): boolean
 		end
 		if reason == "Taken" then
 			Toast.Show(Strings.TOAST_NODE_EMPTY, Theme.Colors.Close)
+		elseif reason == "InFlight" then
+			Toast.Show(Strings.TOAST_IN_FLIGHT, Theme.Colors.Select) -- a launch or flight is in progress (Exploit-Review D4)
 		else
 			print(("[%s] collect refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 		end
@@ -676,6 +681,8 @@ local function performAction()
 				Toast.Show(Strings.TOAST_HEATER_LIMIT, Theme.Colors.Select)
 			elseif reason == "NoBlizzard" then
 				Toast.Show(Strings.TOAST_HEATER_NO_BLIZZARD, Theme.Colors.Select)
+			elseif reason == "InFlight" then
+				Toast.Show(Strings.TOAST_IN_FLIGHT, Theme.Colors.Select) -- a launch or flight is in progress (Exploit-Review D4)
 			else
 				print(("[%s] heater refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 			end

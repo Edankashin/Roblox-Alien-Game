@@ -50,5 +50,30 @@ describe("Capture", function()
 		expect(Capture.driftCenter(quarter, variant.driftClampMax, variant.driftAmplitude, variant.driftPeriodSeconds, F.zero, variant.driftClampMin, variant.driftClampMax)).toEqual(variant.driftClampMax)
 		expect(Capture.driftCenter(quarter + variant.driftPeriodSeconds * F.half, variant.driftClampMin, variant.driftAmplitude, variant.driftPeriodSeconds, F.zero, variant.driftClampMin, variant.driftClampMax)).toEqual(variant.driftClampMin)
 	end)
+
+	-- D1 telemetry: judged only over a full window, then at or above the rate. Window and rate come from Config.
+	local window, rate = Config.SuspectPerfectWindow, Config.SuspectPerfectRate
+	local atRate = math.ceil(window * rate) -- the fewest Perfects in a window that reach the rate
+	it("suspect: every tap Perfect over a full window", function()
+		expect(Capture.suspect(window, window, window, rate)).toEqual(true)
+	end)
+	it("suspect: the rate edge is inclusive", function()
+		expect(Capture.suspect(atRate, window, window, rate)).toEqual(true)
+		expect(Capture.suspect(atRate - F.one, window, window, rate)).toEqual(false)
+	end)
+	it("suspect: no Perfects is never suspect", function()
+		expect(Capture.suspect(F.zero, window, window, rate)).toEqual(false)
+	end)
+	it("suspect: a short run is not judged however lucky", function()
+		expect(Capture.suspect(window - F.one, window - F.one, window, rate)).toEqual(false)
+	end)
+	it("suspect: more taps than the window are judged by their share", function()
+		local attempts = window * F.two
+		expect(Capture.suspect(attempts, attempts, window, rate)).toEqual(true)
+		expect(Capture.suspect(F.zero, attempts, window, rate)).toEqual(false)
+	end)
+	it("suspect: no taps is not suspect", function()
+		expect(Capture.suspect(F.zero, F.zero, F.zero, rate)).toEqual(false)
+	end)
 end)
 return true

@@ -26,6 +26,7 @@ local Meadow = require(script.Parent.Meadow)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
 local Tutorial = require(script.Parent.Tutorial)
+local Flight = require(script.Parent.Parent.Flight)
 
 local Materials = {}
 
@@ -160,6 +161,9 @@ end
 
 -- Remotes ----------------------------------------------------------------
 
+-- CollectMaterial(nodeId) -> (ok, reason). Reasons: BadArgs, RateLimited, NoProfile, InFlight (a launch or
+-- flight is in progress), NoNode, Taken (not available: taken, or its weather condition is not running),
+-- NoCharacter, TooFar.
 local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?)
 	if type(nodeId) ~= "string" then
 		return false, "BadArgs"
@@ -170,6 +174,9 @@ local function onCollectMaterial(player: Player, nodeId: any): (boolean, string?
 	local profile = PlayerData.Get(player)
 	if not profile then
 		return false, "NoProfile"
+	end
+	if Flight.IsInFlight(player.UserId) then
+		return false, "InFlight"
 	end
 	local node = nodes[nodeId]
 	if not node then

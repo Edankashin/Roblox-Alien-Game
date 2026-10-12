@@ -60,4 +60,16 @@ function Capture.driftCenter(elapsed: number, base: number, amplitude: number, p
 	return math.clamp(center, clampMin, clampMax)
 end
 
+-- Exploit-Review D1, telemetry only: true when a player's Perfect share over a full window of scored taps is
+-- suspiciously high. `attempts` taps were scored, `perfects` of them Perfect; judged only once attempts
+-- reaches `window` (a short streak of luck proves nothing), then true at or above `rate`. The server logs a
+-- SuspectTiming event on true and refuses nothing. Window and rate are Config.SuspectPerfectWindow and
+-- Config.SuspectPerfectRate; the caller passes them so this stays pure.
+function Capture.suspect(perfects: number, attempts: number, window: number, rate: number): boolean
+	if attempts <= 0 or attempts < window then
+		return false
+	end
+	return perfects / attempts >= rate
+end
+
 return Capture

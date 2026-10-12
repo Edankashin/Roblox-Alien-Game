@@ -50,6 +50,7 @@ local Outposts = require(script.Parent.Outposts)
 local Analytics = require(script.Parent.Analytics)
 local AnalyticsData = require(Shared.data.Analytics)
 local Home = require(Shared.data.Home)
+local Flight = require(script.Parent.Parent.Flight)
 
 local Launch = {}
 
@@ -71,7 +72,8 @@ local REMOTE_RATE_PER_SECOND = 2 -- Launch calls per player per second
 -- The custom event name for a launch (value 1; fields from, to). It belongs in Shared/data/Analytics.Events
 -- beside the other chart names; it lives here until that table carries it.
 
-local inFlight: { [number]: boolean } = {} -- a launch accepted and not yet teleported (or given up), by UserId
+-- A launch accepted and not yet teleported (or given up) is latched per UserId in Flight (server/Flight.luau),
+-- which the capture, pickup, module and heater handlers read to refuse during a flight (Exploit-Review D4).
 
 -- A place is live when it has a published id and this is not Studio (TeleportAsync errors in Studio).
 local function placeIsLive(world: Worlds.WorldDef): boolean
@@ -85,11 +87,11 @@ end
 local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLive: boolean, delay: number, options: TeleportOptions?)
 	task.delay(delay, function()
 		if player.Parent ~= Players then
-			inFlight[player.UserId] = nil
+			Flight.End(player.UserId)
 			return
 		end
 		if not placeLive then
-			inFlight[player.UserId] = nil
+			Flight.End(player.UserId)
 			return
 		end
 		local ok, err = pcall(function(): any
@@ -97,7 +99,7 @@ local function teleportLater(player: Player, nextWorld: Worlds.WorldDef, placeLi
 		end)
 		if not ok then
 			warn(("[%s] Launch: teleport of %s to world %d (place %d) failed: %s"):format(Config.WorkingTitle, player.Name, nextWorld.id, nextWorld.placeId, tostring(err)))
-			inFlight[player.UserId] = nil
+			Flight.End(player.UserId)
 		end
 		-- On success the player leaves this server; PlayerRemoving clears the flag. A failure Roblox reports
 		-- after the call returned reaches TeleportInitFailed below.
@@ -136,7 +138,7 @@ local function onLaunch(player: Player): (boolean, string?)
 	if not profile then
 		return false, "NoProfile"
 	end
-	if inFlight[player.UserId] then
+	if Flight.IsInFlight(player.UserId) then
 		return false, "Busy"
 	end
 	local here = Place.WorldId()
@@ -154,7 +156,7 @@ local function onLaunch(player: Player): (boolean, string?)
 	if not nextWorld then
 		return false, "NoNextWorld"
 	end
-	inFlight[player.UserId] = true
+	Flight.Begin(player.UserId)
 	local now = os.time()
 	local homeJustUnlocked = false
 	local ok = PlayerData.Update(player, function(p: Types.Profile)
@@ -182,7 +184,7 @@ local function onLaunch(player: Player): (boolean, string?)
 		end
 	end)
 	if not ok then
-		inFlight[player.UserId] = nil
+		Flight.End(player.UserId)
 		return false, "NoProfile"
 	end
 	local placeLive = placeIsLive(nextWorld)
@@ -214,6 +216,7 @@ local function flyGuest(player: Player, destination: Worlds.WorldDef, toHome: bo
 	local visiting = hooks
 	if toHome and Place.IsHome() and visiting and (not placeLive or visiting.IsInServerView(player)) then
 		visiting.LeaveView(player)
+		Flight.End(player.UserId) -- nothing flies or teleports here, so nothing would ever clear the latch onFlyTo just set
 		print(("[%s] Launch: guest %s goes back to their own home in this server"):format(Config.WorkingTitle, player.Name))
 		return true, nil
 	end
@@ -239,7 +242,7 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if not profile then
 		return false, "NoProfile"
 	end
-	if inFlight[player.UserId] then
+	if Flight.IsInFlight(player.UserId) then
 		return false, "Busy"
 	end
 	if typeof(worldArg) ~= "number" then
@@ -264,7 +267,7 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if worldId == origin and not guest then
 		return false, "SameWorld"
 	end
-	inFlight[player.UserId] = true
+	Flight.Begin(player.UserId)
 	if worldId == origin then
 		return flyGuest(player, destination, toHome)
 	end
@@ -274,7 +277,7 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 	if not toHome then
 		local banked, bankReason = Outposts.Collect(player, worldId, true)
 		if not banked then
-			inFlight[player.UserId] = nil
+			Flight.End(player.UserId)
 			return false, bankReason or "NoProfile"
 		end
 	end
@@ -292,7 +295,7 @@ local function onFlyTo(player: Player, worldArg: any): (boolean, string?)
 		end
 	end)
 	if not ok then
-		inFlight[player.UserId] = nil
+		Flight.End(player.UserId)
 		return false, "NoProfile"
 	end
 	local placeLive = placeIsLive(destination)
@@ -329,10 +332,9 @@ end
 -- reserved server access code and the owner in the teleport data). Returns true, or false with Busy when a launch or
 -- flight is already in flight. The caller has validated everything else; a place that is not live fades and stays.
 function Launch.Trip(player: Player, destination: Worlds.WorldDef, options: TeleportOptions?): (boolean, string?)
-	if inFlight[player.UserId] then
+	if not Flight.Begin(player.UserId) then
 		return false, "Busy"
 	end
-	inFlight[player.UserId] = true
 	local placeLive = placeIsLive(destination)
 	Net.event("Flew"):FireClient(player, destination.id, placeLive)
 	print(("[%s] Launch: %s takes a trip to world %d (%s)"):format(Config.WorkingTitle, player.Name, destination.id, if placeLive then "place " .. tostring(destination.placeId) else "no live place"))
@@ -352,12 +354,12 @@ end
 
 function Launch.Start()
 	Players.PlayerRemoving:Connect(function(player: Player)
-		inFlight[player.UserId] = nil
+		Flight.Clear(player.UserId)
 	end)
 	-- A teleport Roblox refuses after TeleportAsync returned: the player stays; say why and let them try again.
 	TeleportService.TeleportInitFailed:Connect(function(player: Player, result: Enum.TeleportResult, message: string)
-		if inFlight[player.UserId] then
-			inFlight[player.UserId] = nil
+		if Flight.IsInFlight(player.UserId) then
+			Flight.End(player.UserId)
 			warn(("[%s] Launch: teleport of %s failed (%s): %s"):format(Config.WorkingTitle, player.Name, result.Name, message))
 		end
 	end)

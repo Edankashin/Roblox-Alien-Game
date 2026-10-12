@@ -23,6 +23,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
+local Flight = require(script.Parent.Parent.Flight)
 
 local Heaters = {}
 
@@ -117,7 +118,7 @@ local function light(owner: Player, flat: Vector3)
 end
 
 -- PlaceHeater() -> (ok, reason). Lights a heater a few studs in front of the player for Config.HeaterScrap
--- Scrap. Reasons: RateLimited, NoProfile, NotThisWorld (this place's world rule is not "Blizzard"),
+-- Scrap. Reasons: RateLimited, NoProfile, InFlight (a launch or flight is in progress), NotThisWorld (this place's world rule is not "Blizzard"),
 -- NoBlizzard (the blizzard is not running), Limit (the player already has Config.HeaterMaxActive
 -- burning), NotEnoughScrap, NoCharacter.
 local function onPlaceHeater(player: Player): (boolean, string?)
@@ -127,6 +128,9 @@ local function onPlaceHeater(player: Player): (boolean, string?)
 	local profile = PlayerData.Get(player)
 	if not profile then
 		return false, "NoProfile"
+	end
+	if Flight.IsInFlight(player.UserId) then
+		return false, "InFlight"
 	end
 	if not ruleOn then
 		return false, "NotThisWorld"
