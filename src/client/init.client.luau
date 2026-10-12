@@ -1832,6 +1832,9 @@ local function start(profile: Types.Profile)
 		end
 	end
 	WildRenderer.Start(known)
+	CampRenderer.OnModuleSnapped(function(_moduleId: string, part: BasePart)
+		Vfx.Assemble(part, part.Color) -- the build effect in the module's own colour, as the part pops in
+	end)
 	CampRenderer.Start()
 	HomeRenderer.Start()
 	HangarRenderer.Start()

@@ -4,6 +4,8 @@
 -- RemoveHomeItem answer, HomeChanged pushes the whole table); this module only turns that table into parts
 -- under a client-made Workspace.ClientHome folder (Instance.new on the client, so nothing replicates) and
 -- redraws by uid diff: an item that left or moved is destroyed, a new one is built, the rest stay put.
+-- A new item placed after the first full draw of the viewed home plays Vfx.Assemble in its placeholder's colour;
+-- what the first draw builds (a join) and what a change of home builds (a visit starting or ending) never does.
 -- Home only: elsewhere Start does nothing and every query answers nil, math.huge or empty.
 --
 -- Visiting (milestone 42e): the items and the aliens on display are read through State.HomeItems and
@@ -58,6 +60,7 @@ local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
+local Vfx = require(script.Parent:WaitForChild("Vfx"))
 
 local HomeGrid = require(Shared:WaitForChild("HomeGrid"))
 
@@ -120,6 +123,8 @@ local grid: Grid? = nil
 local drawn: { [string]: Drawn } = {}
 local displays: { [string]: Display } = {}
 local ghost: Part? = nil
+local primed = false -- the viewed home has had its first full draw, so what appears now was just placed
+local primedView: number? = nil -- whose home that draw was of: the owner's id, 0 for the player's own
 
 -- Grid maths ----------------------------------------------------------------
 
@@ -285,18 +290,38 @@ local function sameItem(a: Types.HomeItem, b: Types.HomeItem): boolean
 	return a.itemId == b.itemId and a.cellX == b.cellX and a.cellZ == b.cellZ and a.rotation == b.rotation
 end
 
--- Redraws by uid diff against the mirror: what left or changed is destroyed, what is new is built.
+-- The colour the assembly effect wears for a freshly drawn item: its placeholder's (the part itself, or a habitat's
+-- pad, which is named for the item), else Confirm green for an imported prop, which has no single colour.
+local function assembleColor(item: Types.HomeItem, instance: Instance): Color3
+	local look: Instance? = if instance:IsA("Model") then instance:FindFirstChild(item.itemId) else instance
+	if look and look:IsA("BasePart") and look.Name == item.itemId then
+		return look.Color
+	end
+	return Theme.Colors.Confirm
+end
+
+-- Redraws by uid diff against the mirror: what left or changed is destroyed, what is new is built. A new item
+-- plays the assembly effect once the viewed home has had its first draw; a changed one (rebuilt under its old uid)
+-- does not, it was already standing.
 local function redraw()
 	local parent, g = folder, grid
 	if not parent or not g or not State.Has() then
 		return
 	end
+	local view = State.GetHomeView()
+	local viewKey = if view then view.ownerId else 0 -- user ids are positive, so 0 is free for the player's own home
+	if primedView ~= viewKey then
+		primedView = viewKey
+		primed = false -- a different home: everything about to be drawn was already there
+	end
 	local items = State.HomeItems()
+	local rebuilt: { [string]: boolean } = {}
 	for uid, record in pairs(drawn) do
 		local item = items[uid]
 		if item == nil or not sameItem(record.item, item) then
 			record.instance:Destroy()
 			drawn[uid] = nil
+			rebuilt[uid] = item ~= nil
 		end
 	end
 	for uid, item in pairs(items) do
@@ -304,9 +329,13 @@ local function redraw()
 			local instance = drawItem(g, parent, item)
 			if instance then
 				drawn[uid] = { item = item, instance = instance }
+				if primed and not rebuilt[uid] and (instance:IsA("BasePart") or instance:IsA("Model")) then
+					task.spawn(Vfx.Assemble, instance, assembleColor(item, instance)) -- presentation must never break the draw
+				end
 			end
 		end
 	end
+	primed = true
 end
 
 -- Displayed aliens -------------------------------------------------------------

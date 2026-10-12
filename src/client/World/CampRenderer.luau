@@ -14,7 +14,8 @@
 -- station has its own model; the part-built slab and station blocks stay as invisible anchors under them
 -- (nameplates, collision and the lift read the parts) and are the visible fallback when a mesh was never
 -- imported. The module parts stay placeholders either way: their ghost, pulse and snap-pop visuals are
--- part-based.
+-- part-based. OnModuleSnapped tells the bootstrap each time one snaps in, so it can play Vfx.Assemble (Vfx requires
+-- this module, so this module cannot require Vfx).
 -- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally,
 -- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists. A worker is
 -- drawn a growth step taller per stage (Shared.Growth.ScaleMultiplier) and pops when it grows.
@@ -108,6 +109,7 @@ local liftTweens: { Tween } = {}
 local stations: { [string]: StationRecord } = {}
 local workers: { [string]: WorkerRecord } = {}
 local connections: { RBXScriptConnection } = {}
+local snapListeners: { (moduleId: string, part: BasePart) -> () } = {} -- see OnModuleSnapped
 local running = false
 
 -- Parts -------------------------------------------------------------------
@@ -207,6 +209,9 @@ local function applyVisual(record: ModuleRecord, visual: ModuleVisual)
 		part.CanCollide = true
 		part.CanQuery = true
 		if previous ~= nil then
+			for _, listener in ipairs(snapListeners) do
+				task.spawn(listener, record.id, part) -- before the pop sets its scale, so the listener sees the rest size
+			end
 			snapIn(record)
 		end
 	elseif visual == "Active" then
@@ -651,6 +656,14 @@ function CampRenderer.Grew(uid: string)
 	if worker and not worker.pop then
 		popWorker(worker)
 	end
+end
+
+-- Runs `callback(moduleId, part)` each time a ship module snaps in: it turns Complete after being drawn as a ghost or
+-- as the module under construction (never for a module already complete when the camp is drawn, as after a join or
+-- a world change). It runs in its own thread just before the pop starts, so `part` still has its rest size and a
+-- failing or yielding callback cannot hold up the pop. For presentation only (Vfx.Assemble).
+function CampRenderer.OnModuleSnapped(callback: (moduleId: string, part: BasePart) -> ())
+	table.insert(snapListeners, callback)
 end
 
 -- World position of the ship (the centre of its landing slab), for the Build button's distance check.
