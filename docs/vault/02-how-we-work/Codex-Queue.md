@@ -252,7 +252,7 @@ Files: `tools/create_products.py`, `docs/vault/02-how-we-work/Hands-Off.md` (a "
 
 Done when: `--self-test` passes, `--dry-run` lists exactly the five launch items still at 0 today (Spins1, Spins5, Spins12, SlotEveryStation2, CompanionSlot4) with name, price, kind and icon path, and analyze, data lint, tests and lint.sh stay clean.
 
-### C23. Publish the three places through Open Cloud — review
+### C23. Publish the three places through Open Cloud — done (8bdecbd; reviewed 2026-10-12: checks before build, zero ids refused, the key never reaches a child process; `--saved` only until the runtime model loader's Studio check passes, then `--apply`)
 
 Goal: Ethan stops republishing by hand (owner guide Parts A and H). Open Cloud publishes a place file: `POST https://apis.roblox.com/universes/v1/{universeId}/places/{placeId}/versions?versionType=Published` (or `Saved`), body the .rbxl, `Content-Type: application/octet-stream`, header `x-api-key`, scope `universe-places:write`; the answer carries `versionNumber`.
 
@@ -264,7 +264,7 @@ Files: `tools/publish.py`, `.gitignore`, `docs/vault/02-how-we-work/Hands-Off.md
 
 Done when: `--self-test` passes and `--dry-run` builds all three places from a clean checkout.
 
-### C24. The model asset table — review
+### C24. The model asset table — done (53c1930; reviewed 2026-10-12: 53 ids, the installer's colours and rules as data; the runtime loader (Services/Models) was built from it the same day)
 
 Goal: the server loads the species and prop meshes itself at boot (`InsertService:LoadAsset` on the Model assets `tools/upload_assets.py` uploaded), so a place built from the repo has them and publishing needs no Studio.
 
@@ -284,7 +284,7 @@ Files: `rokit.toml`, `stylua.toml`, `src/**`, `tests/**` (format only), `tools/l
 
 Done when: `stylua --check` passes in `tools/lint.sh` and the format commit contains formatting only.
 
-### C26. Correct the stale TESTING wording C19 flagged — review
+### C26. Correct the stale TESTING wording C19 flagged — done (c49aa61; reviewed 2026-10-12: the 35 rewrites match the code; the generator's hard-coded notice was reworded by the coordinator, outside the card's files)
 
 Blocked remainder: `tools/studio_queue.py:71` hard-codes the stale-source notice; the generator is outside this card’s allowed files.
 Corrected 35 TESTING source lines and regenerated the sheet; all checks pass, but regeneration necessarily preserves that notice.

@@ -342,3 +342,7 @@ Claim `b1def27`; corrections `c49aa61`. **35 source lines**, **9 generated lines
 - 43.3: pulse persistence prerequisite.
 
 Current fallback toasts were verified against LaunchSequence/client/strings and retained. Blocker: `tools/studio_queue.py:71` hard-codes the stale-source notice; it performs no stale-wording detection. Regeneration necessarily retains that notice. Editing the generator is outside C26’s two-file allowance; coordinator must update it. No Studio run performed.
+
+### Coordinator note on C23, C24 and C26 — 2026-10-12
+
+All three accepted. C23: `publish.py` stays `--saved` until the runtime model loader (built today from C24's table as `Services/Models`) passes its Studio check; after that the Mac may `--apply`. C24: the table is the loader's only input; the three species and nine home props with no id keep their placeholders until modelled. C26: the stale-source sentence in `tools/studio_queue.py` now says the code is the truth and asks for observed behaviour, without listing wording that no longer exists.

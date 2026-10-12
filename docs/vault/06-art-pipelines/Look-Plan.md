@@ -57,6 +57,18 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Motion: screen open and close scales (exist), list item stagger, number roll-ups, the Star Chart as a drawn orbit with planets instead of a card list, the Ship screen's modules as a side-view of the ship filling in.
 - Layout audit at SE and iPad against `UI-Checklist.md`; every change recorded in `UI-Playbook.md`.
 
+### L5b. Icons v2: the plan (written 2026-10-12, for the collaborator's lead)
+
+Ethan's standing direction (PRE_PRODUCTION 5a): the current flat icon pack is below the top games' level. This is the replacement plan; it starts when the collaborator opens the visual pass.
+
+1. **The bar.** A top sim's icon (Grow a Garden, Pet Simulator 99, Adopt Me, Steal an Egg) beside ours at the same pixel size on a phone screenshot: ours must read as the same family. The look: a rendered 3D object, saturated two-tone colour, a thick dark outline (about 6% of the icon's width), a soft drop shadow down-right, a rim light top-left, a small specular hot spot, no flat vector fills. Readable at 44 px (the HUD's round buttons at iPhone SE size).
+2. **References first.** A board in `05-ui-design/refs/icons-v2/README.md`: 12 icons from the top games (screenshots, not downloads; we never ship their art), each with one line on what makes it read (silhouette, colour pair, outline weight). The collaborator builds the board; Ethan says yes to the direction before any render.
+3. **The set.** Every key in `src/shared/data/Icons.luau` (48 today) plus the ones added since without art: the Playtime gift and button icons, the Storage Bay, the Music setting, the Release and Visit buttons, the StorageBoost pass tile. One list in the board's README with the 44 px and 128 px uses of each.
+4. **The pipeline.** Blender through MCP, `tools/blender/icons.py` v2 (the v2 route already in L5 above): one scene per icon from a shared template (camera at 35 degrees, three-point light, Eevee, bevel modifier on every edge, a Solidify-based outline, a transparent background), rendered at 1024 px and downsampled to 256 (Roblox's decal size for buttons) and 512 (shop and featured tiles). The same template renders the species' Codex and Reveal portraits from their models so the whole UI shares one light. An image model (Nano Banana or Gemini, Ethan's account) is allowed for concept sheets only; the shipped icon is always the Blender render, so every icon matches.
+5. **Batches and review.** Twelve icons per batch, a contact sheet per batch in `05-ui-design/refs/icons-v2/batch-N.png` beside the top-game board, Ethan's yes per batch, then `python3 tools/upload_assets.py --images` on the Mac and the ids into `Icons.luau` (ids of 0 keep the letter fallbacks, so a half-done set never breaks a screen).
+6. **Who.** The collaborator leads (board, direction, review), the Mac session renders and uploads, the coordinator wires the ids and the Builder gloss, inner shadow and shine that L5 lists.
+7. **Done when** every key has an id, the HUD, Shop, Gifts, Aliens and Codex screens show no letter fallbacks at iPhone SE and iPad sizes, and the side-by-side in step 1 passes for the three hero icons (Scrap, the Shop button, the Ship bar).
+
 ### L6. Store presence (one milestone, with the Growth Playbook)
 
 - Icon: one alien close-up, eyes to the lens, one bold colour, no text. Three thumbnails: the catch moment, the ship launch, the roster at camp; big readable title text; tested with Roblox's thumbnail A/B feature.

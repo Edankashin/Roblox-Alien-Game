@@ -1,13 +1,13 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `6dff976f087ad3e6`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `7da50dc5cb4ec9c3`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 102 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
-Run the selected original step numbers below. Commands are extracted from the milestone as setup references, not a sequence to execute blindly. Known stale source wording (zero place IDs, memory-profile persistence, retired passes and old toasts) is reproduced as evidence, never treated as authority over code. Return the observed behavior for coordinator correction.
+Run the selected original step numbers below. Commands are extracted from the milestone as setup references, not a sequence to execute blindly. The code is the truth: where a step's wording lags the code, report the observed behaviour and the coordinator corrects the step.
 
 For every entry send: commit/build, project and WorldId, player count, original step number, pass/fail, exact first Output error, and a screenshot or short clip for UI failures. Include balances/counts before and after for rewards; record device/viewport for layout checks. No secrets.
 
