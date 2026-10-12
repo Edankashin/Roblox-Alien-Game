@@ -78,4 +78,8 @@ return {
 	},
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
 	NeverSold = { "Scrap", "DoubleShift", "LuckyCharm", "Mounts", "LegendaryAliens", "EventAliens" },
+	-- The real-currency equivalent shown under every Robux price (GAME_DESIGN 14, "every price shows its real-currency
+	-- equivalent"): an estimate from Roblox's 800 Robux for US$9.99 pack, formatted by Shared/ShopMath.RealPrice. Roblox
+	-- sets the real price per region at purchase time; this line only says roughly what the Robux are worth.
+	RealCurrency = { code = "USD", symbol = "$", perRobux = 0.0124875 },
 }

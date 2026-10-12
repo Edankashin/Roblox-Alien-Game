@@ -64,6 +64,8 @@ return {
 	CaptureSweepLeadSeconds = 0.45, -- pause between a result and the next sweep so feedback can land
 	CaptureEncounterTimeoutSeconds = 30, -- an idle encounter is dropped after this
 	CaptureNearMissWidth = 0.05, -- a miss within this fraction of the Good zone edge flashes the zone
+	SuspectPerfectWindow = 40, -- scored taps per player before the Perfect rate is judged (Exploit-Review D1 telemetry)
+	SuspectPerfectRate = 0.97, -- a Perfect share at or above this over the window logs a SuspectTiming analytics event and a warn; nothing is refused
 	PerfectScrapMultiplier = 2, -- a Perfect hit multiplies the catch Scrap by this
 	LureAutoUse = true, -- the best lure held is spent automatically when a catch starts
 
@@ -111,6 +113,8 @@ return {
 	VfxPerfectFlashSeconds = 0.35, -- the white flash on a Perfect catch fades over this
 	VfxAuraPulseSeconds = 1.6, -- a rare spawn's glow sprite breathes over this (Tiers aura > 0)
 	VfxRevealRaysSeconds = 12, -- one full turn of the sunburst behind the reveal card
+	VfxAssembleRiseSeconds = 0.8, -- the assembly effect: pieces rise from the ground ring and snap into a finished module or a placed house piece over this
+	VfxAssembleFlashSeconds = 0.3, -- the white flash when the pieces land fades over this
 	GainFlySeconds = 0.6, -- a "+25" flies from the action button to the Scrap pill over this
 	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
 	AnalyticsEnabled = true, -- AnalyticsService events (funnel, custom, economy); off in Studio by default below
@@ -159,6 +163,9 @@ return {
 	NotifyRetryCount = 12, -- and gives up after this many re-checks (the server asks again on a later session)
 
 	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
+	LoadModelsAtBoot = true, -- the server loads every model in data/ModelAssets with InsertService:LoadAsset at boot (Services/Models), skipping names already installed in the place
+	ModelLoadTimeoutSeconds = 20, -- boot waits at most this long for the loads before the world is built; late arrivals still land in the folder
+	ModelLoadConcurrency = 8, -- LoadAsset calls in flight at once
 	ModelFolderName = "Models",
 	PropsFolderName = "Props", -- ReplicatedStorage.<ModelFolderName>.<PropsFolderName>.<Name>: imported scenery Models (trees, rocks, ship hull, station and heater meshes), by hand; builders fall back to part-built placeholders
 	HeaterPropName = "HeaterLamp", -- the Props entry the Heaters service stands on its disc, when imported

@@ -361,6 +361,7 @@ return {
 	TOAST_VISIT_AWAY = "%s's home can't be reached right now",
 	TOAST_VISIT_NOPLACE = "Visiting opens when the home place is published",
 	TOAST_VISIT_CROWDED = "Lots of visits right now. Try again in a moment",
+	TOAST_IN_FLIGHT = "Hold on, your ship is taking off", -- a catch, pickup, module payment or heater refused while a launch or flight is in progress (Exploit-Review D4)
 	TOAST_VISIT_RETURN = "Back at your own home",
 	AFK_TITLE = "Resting",
 	AFK_LINE = "Your crew keeps working at half speed while you rest. Leave the game on as long as you like.",
@@ -752,6 +753,7 @@ return {
 	SHOP_DESC_Spins12 = "Twelve spins of the prize wheel.",
 	SHOP_SEE_ODDS = "Tap for the odds",
 	SHOP_ROBUX_PRICE = "R$ %d",
+	SHOP_ABOUT_PRICE = "about %s%s", -- the real-currency estimate under a Robux price: symbol then amount, e.g. "about $2.49" (Shop.RealCurrency, ShopMath.RealPrice)
 	SHOP_BUY_ROBUX = "Buy",
 	SHOP_OWNED_PASS = "Owned",
 	SHOP_ONCE_DONE = "Claimed",

@@ -8,6 +8,7 @@ return {
 		Catch = "Catch", -- value 1; fields tier, species, perfect
 		CatchMiss = "CatchMiss", -- value 1; fields tier (a sweep missed)
 		Flee = "Flee", -- value 1; fields tier
+		SuspectTiming = "SuspectTiming", -- value: the Perfect share over the window as a whole percent; fields window (Config.SuspectPerfectWindow); logged, never acted on (Exploit-Review D1)
 		FirstCatchSeconds = "FirstCatchSeconds", -- value: seconds since firstSeen, once
 		FirstModuleSeconds = "FirstModuleSeconds", -- value: seconds since firstSeen, once
 		ModuleComplete = "ModuleComplete", -- value 1; fields moduleId, worldId
