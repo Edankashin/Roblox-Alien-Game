@@ -40,9 +40,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: 51a music system (silent tracks; the `Music: <state>` line), Legendary rumble | | TESTING 51a |
 | Studio queue: UI fit pass at iPhone SE (667x375, "iPhone 7" in Studio's list) and iPad | | TESTING "UI fit pass" |
 | Studio queue: alien list deltas, security hardening | | TESTING sections of those names |
+| Studio queue: the runtime model loader (connected place, then a fresh baseplate), the assembly effect, the real-currency lines, security D1/D4/D6 | | TESTING sections of those names (built 2026-10-12, nothing run in Studio) |
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
-| Review Codex C23 (publish.py), C24 (ModelAssets table), C26 (TESTING wording) | Coord | [[Codex-Reports]] |
-| Runtime model loader (InsertService:LoadAsset from `data/ModelAssets`) | Coord | After C24 is accepted; then `publish.py --apply` is allowed |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
 | Music picks: a track for each of the 13 `data/Music` rows (Creator Store licensed audio), auditioned in the place | Collab | [[Music-Plan]]; send ids with a note each; Coord wires them |
@@ -50,11 +49,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Moonlit Forest (milestone 48): World 1 Forest at night, props, NightDresser, Lighting night row | Collab (art) + Coord (code) | PRE_PRODUCTION 5c item 4, [[Map-Dressing]] |
 | Map dressing pass per place, by the map rules; camera rig anchors in `Workspace.Dressing.CameraRig` | Collab | [[Map-Dressing]] "Map design rules" and "Camera rig anchors" |
 | Models still missing: Nebulyn, Spookum, Wisplet; home props Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower | Collab or Mac | [[Blender-MCP]], [[Creature-Generation]]; upload through Open Cloud on Ethan's Mac |
-| Icons v2 plan and pass (top-game style references, render pipeline, sizes, review loop) | Collab + Coord | [[Look-Plan]]; owner direction says the current icons are not good enough |
-| The assembly effect `Vfx.Assemble` | Coord | PRE_PRODUCTION 5c item 2 |
+| Icons v2 pass: the reference board, then batches of twelve | Collab + Coord | The plan is written: [[Look-Plan]] L5b (2026-10-12) |
 | Store page: icon, thumbnails, 10 s clip, description, genre | Collab + Ethan | Uses the cinematic shots; [[Growth-Playbook]] |
-| Real-currency equivalents beside Robux prices | Coord | Compliance item, GAME_DESIGN 14 |
-| Exploit-Review D1, D4, D6 | Coord | [[Exploit-Review]] |
 
 ## Waiting on Ethan (only he can do these)
 
@@ -66,7 +62,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Mac installs: `bun` (for claude-mem), rtk, ccstatusline (optional) | [[Tools-Status]] |
 | Plugin installs in his Claude Code: roblox-dev (ivar-anon), ShiroKSH roblox-studio, superpowers | He types the install lines himself ([[Claude-Plugins]]) |
 | The stray place 82258778278086: keep or delete | |
-| Publish the three places privately (desktop computer-use job 4 or `publish.py --saved`) | After the Studio checks pass |
+| Publish the three places privately (`publish.py --saved` now; `--apply` after the runtime model loader's Studio check passes) | [[Hands-Off]] Publishing |
 | Experience Questionnaire, maturity answers, then going public | Identity and legal steps are his |
 
 ## Needs a decision (Ethan)
@@ -83,6 +79,11 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Runtime model loader (`Services/Models`, `Shared/ModelInstall`), decision B18 | Coord | 2026-10-12, 3d47ca2 |
+| Security decisions D1, D4, D6 (`server/Flight.luau`, `Capture.suspect`), decision B19 | Coord | 2026-10-12, 5983164 |
+| The assembly effect `Vfx.Assemble` | Coord | 2026-10-12, f9f14a7 |
+| Real-currency price lines (`Shared/ShopMath`), decision B20 | Coord | 2026-10-12, 8fe0492 |
+| Codex C23, C24, C26 accepted; icons v2 plan ([[Look-Plan]] L5b) | Coord | 2026-10-12, 591ed11 |
 | Setup-and-Tips note (Ethan's configuration, tips and tricks) | Coord | 2026-10-10 |
 | Handoff file and this Board | Coord | 2026-10-10, 7161e5f |
 | Codex C26 TESTING wording, C24 model asset table, C23 place publishing (in review) | Codex | 2026-10-08, c49aa61, 53c1930, 8bdecbd |
