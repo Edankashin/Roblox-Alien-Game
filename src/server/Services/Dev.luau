@@ -26,7 +26,8 @@
 -- from Shared/data/Cinematics now: Arrival_0, Arrival_1, Arrival_2 or Legendary) | reset (forget which first arrivals were
 -- watched, so each plays again on the next join) | list (print the moments and the ones watched), /deltas (print the number of the
 -- last alien-list delta sent and the records the server believes the client holds) | gap (skip one delta number, so the client
--- sees a gap and pulls the alien list once). Nothing
+-- sees a gap and pulls the alien list once), /models (print the runtime model loader's counts and failed names) | retry (load
+-- the failed ones again). Nothing
 -- here exists in a live server, so none of it can be abused; the guard is RunService:IsStudio() at Init.
 
 local RunService = game:GetService("RunService")
@@ -80,6 +81,7 @@ local StorageData = require(Shared.data.Storage)
 local StorageMath = require(Shared.StorageMath)
 local CinematicsData = require(Shared.data.Cinematics)
 local Seen = require(script.Parent.Seen)
+local Models = require(script.Parent.Models)
 
 local Dev = {}
 
@@ -933,6 +935,23 @@ local function cinematicCommand(player: Player, text: string)
 	print(("[%s] dev: moments %s; watched %s"):format(Config.WorkingTitle, table.concat(ids, ", "), if #watched > 0 then table.concat(watched, ", ") else "none"))
 end
 
+-- /models: print the runtime model loader's counts (loaded, present, failed, pending) and the names that failed. /models retry:
+-- queue the failed ones again (Models.Retry) and print how many; the loader prints its own line when they finish, and /models
+-- shows the counts after that. A Studio place with the models installed by hand reports them all present.
+local function modelsCommand(_player: Player, text: string)
+	local word = string.match(text, "^/%S+%s+(%S+)")
+	if word == "retry" then
+		local queued = Models.Retry()
+		print(("[%s] dev: models retry queued %d"):format(Config.WorkingTitle, queued))
+		return
+	end
+	local status = Models.Status()
+	print(("[%s] dev: models %d loaded, %d present, %d failed, %d pending"):format(Config.WorkingTitle, status.loaded, status.present, status.failed, status.pending))
+	if status.failed > 0 then
+		print(("[%s] dev: models failed: %s"):format(Config.WorkingTitle, table.concat(status.failedNames, ", ")))
+	end
+end
+
 -- /deltas: print the number of the last AliensDelta sent to you and how many records the server believes your client holds.
 -- /deltas gap: skip one delta number and send an empty delta with the next, so your client sees a gap and pulls the alien list
 -- once (Studio prints "alien list gap ... pulled" on the client). The Aliens screen and the camp must look the same after it.
@@ -1029,12 +1048,13 @@ function Dev.Init()
 	command("playtime", playtimeCommand)
 	command("storage", storageCommand)
 	command("cinematic", cinematicCommand)
+	command("models", modelsCommand)
 	command("deltas", deltasCommand)
 end
 
 function Dev.Start()
 	if enabled then
-		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset, /storage fill|cap|bay, /cinematic <momentId>|reset|list, /deltas [gap])"):format(Config.WorkingTitle))
+		print(("[%s] Dev: Studio chat commands on (/scrap N, /night, /day, /rain, /clear, /weather <id>, /horn, /step N, /shower [end | in N], /rush [end | in N], /sighting [end], /week <N|next|off>, /season <id|off|done>, /spawn <id> [tiny|small|normal|big|huge], /variant <id|off>, /grow [H], /dupes <id> [N], /token [N], /follow <id>, /ride <id|off>, /days N, /spins N, /radar [N], /tutorial N, /buy <itemId>, /pass <itemId> [off], /world N, /complete, /outpost N [H], /social reset|credit N|ask, /lb N|flush, /dq reset|done, /homeclear, /habitat [H]|settle, /mail [N], /visit <name|id>|off, /afk [off|rejoin], /playtime <minutes>|reset, /storage fill|cap|bay, /cinematic <momentId>|reset|list, /models [retry], /deltas [gap])"):format(Config.WorkingTitle))
 	end
 end
 
