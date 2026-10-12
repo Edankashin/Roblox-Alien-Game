@@ -118,6 +118,10 @@ local function handleRefusal(name: string, moduleId: string?, reason: any)
 		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
 		return
 	end
+	if reason == "InFlight" then
+		Toast.Show(Strings.TOAST_IN_FLIGHT, Theme.Colors.Select) -- a launch or flight is in progress (Exploit-Review D4)
+		return
+	end
 	if reason == "NoMaterial" and moduleId and State.Has() then
 		local def = Economy.moduleDef(State.Get().world.current, moduleId)
 		if def then

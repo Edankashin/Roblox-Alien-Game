@@ -48,6 +48,8 @@ Each prop is one mesh, flat shaded, one flat material per colour, no textures, s
 
 ## Bulk import through Open Cloud
 
+Since 2026-10-12 the server does the install itself at boot (`Services/Models`, decision B18 in [[Decisions]]): every name in `data/ModelAssets` that is not already in the place is loaded with `InsertService:LoadAsset`, coloured from the same rows and parented under `ReplicatedStorage.Models`. The Studio installer below is kept for a place that must hold the models in its file (a Team Create place dressed by hand, or a Studio with no permission to load the owner's assets).
+
 Run `python3 -I tools/model_assets.py --write` after uploads or installer-data edits to regenerate `src/shared/data/ModelAssets.luau` (AssetIds, prop membership, material slots/renames and normalization settings); `--check` compares data, and data lint warns on requested meshes without IDs. The coordinator still supplies the runtime loader.
 
 Skips File -> Import 3D for all 48 models (32 aliens, 16 props). `tools/upload_assets.py` uploads each `.glb` (default; `--format fbx` for the `.fbx`) as a Model through the Open Cloud Assets API (checked 2026-10-05 against `cloud/guides/usage-assets.md` in Roblox's creator-docs: assetType `Model` accepts `.fbx` and `.glb`, one file per call, 20 MB max), then `tools/studio/install_models.luau` places them in Studio and colours them.
