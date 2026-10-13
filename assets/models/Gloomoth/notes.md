@@ -5,13 +5,14 @@
 - Name: Gloomoth (Epic)
 - Concept: moth, crystal wings
 - Body: Ball, placeholder colour #A569BD, placeholder scale 1.2
-- Accessory: wings (keyword match on the concept; colour rule: complement, #A9BF56)
+- Accessory: the crystal wings: five flat shards a side, glowing teal (silhouette pass; #5CF0D0, emissive 1.5)
 - Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 1450 (look pass 2026-10-05 over the 1256-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
+- Triangles: 1264 (silhouette pass, tools/blender/species_bodies.py)
 - Height: 2.64 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #A569BD, BodyDark #6B447B, EyeWhite, Pupil, Mouth, Accessory #A9BF56, Trim #C026D3
+- Materials (one per colour, flat, no textures): Body #A569BD, BodyDark #6B447B, EyeWhite, Pupil, Mouth, Accessory #5CF0D0, Trim #C026D3
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
 - Files: Gloomoth.glb (44824 bytes), Gloomoth.fbx (45292 bytes)
 - Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
 
 Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
+- Silhouette pass 2026-10-13: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a plump fuzzy moth on stubby legs with a ruff, two huge V-spread wings made of ten glowing crystal blades and two feathery antennae, a magenta gem on its chest. Hero: the crystal wings: five flat shards a side, glowing teal.

@@ -42,10 +42,10 @@
   {
     "slot": 6,
     "name": "Accessory",
-    "hex": "A7BF4B",
+    "hex": "FFE23B",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 2.0
   },
   {
     "slot": 7,

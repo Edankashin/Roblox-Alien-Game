@@ -461,10 +461,10 @@ RECIPES["Sparkfox"] = {
     "face": {"on": "head", "eye_scale": 1.05, "eye_gap": 1.1, "eye_tilt": 10.0, "mouth": "smile", "lid": 0.3},
     "palette": {"BodyDark": "A8431C", "Accessory": "FFE066"}, "glow": {"Accessory": 2.0}, "metal": {"Accessory": 0.0},
     "steps": [
-        sph("Body", (0, 0.35, 0.95), (0.95, 1.0, 0.85), segments=12, name="torso"),
-        sph("Body", (0, -0.3, 1.55), (0.95, 0.85, 0.8), segments=14, name="head"),
-        spike("Body", (0.5, -0.2, 2.1), (0.72, -0.1, 2.5), 0.3, segments=6, mirror=True, name="ear"),
-        spike("BodyDark", (0.5, -0.33, 2.1), (0.68, -0.22, 2.4), 0.17, segments=6, mirror=True, name="innerear"),
+        sph("Body", (0, 0.4, 0.8), (0.72, 0.92, 0.72), segments=12, name="torso"),
+        sph("Body", (0, -0.3, 1.5), (1.02, 0.82, 0.74), segments=14, name="head"),
+        spike("Body", (0.5, -0.25, 1.85), (0.9, -0.12, 2.55), 0.36, segments=6, mirror=True, name="ear"),
+        spike("BodyDark", (0.53, -0.42, 1.92), (0.84, -0.3, 2.44), 0.2, segments=6, mirror=True, name="innerear"),
         spike("BodyDark", (0.8, -0.35, 1.35), (1.25, -0.5, 1.25), 0.2, segments=6, mirror=True, name="cheek"),
         rod("Body", (0.4, -0.35, 0.8), (0.42, -0.55, 0.1), 0.17, segments=6, mirror=True, name="foreleg"),
         sph("BodyDark", (0.42, -0.62, 0.09), (0.22, 0.3, 0.09), segments=8, mirror=True, name="paw"),
@@ -503,9 +503,9 @@ RECIPES["Thunderhog"] = {
 }
 
 _WING_SHARDS = []
-for _alpha, _len_, _w in ((68, 1.2, 0.5), (48, 1.15, 0.52), (28, 1.05, 0.5), (8, 0.9, 0.44), (-14, 0.65, 0.34)):
+for _alpha, _len_, _w in ((56, 1.75, 0.5), (39, 1.7, 0.52), (22, 1.55, 0.5), (5, 1.25, 0.44), (-15, 0.85, 0.34)):
     _d = (math.cos(math.radians(_alpha)), 0.12, math.sin(math.radians(_alpha)))
-    _s0 = (0.7, 0.35, 1.5)
+    _s0 = (0.6, 0.4, 1.2)
     _WING_SHARDS.append(cone("Accessory", _add(_s0, _mul(_d, _len_ / 2.0)), (_w, 0.06, _len_ / 2.0), rot=aim(_d), segments=4, flat=True, mirror=True, name="shard"))
 
 RECIPES["Gloomoth"] = {
