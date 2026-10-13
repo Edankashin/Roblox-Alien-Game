@@ -18,7 +18,7 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | Roblox Dev plugin (ivar-anon) | TikTok ZPL8Hb7yS | Adopt after a dry run | **decided, not installed** (no record) | Ethan runs the install line (Claude sessions do not install plugins into themselves), then the Mac runs the dry run in [[Claude-Plugins]] |
 | Roblox Studio skill (ShiroKSH) | TikTok ZPL8Hb7yS | Adopt for World 2 map work | **decided, not installed** | Same as above, before the World 2 map pass |
 | Superpowers | TikTok ZPL8Hb7yS | Try on one big build | **decided, not installed** | Same; tried on the cinematic milestone (47) |
-| ccusage | Token survey 2026-10-05 | Adopt now | **available** through `npx` (npx 11.11.0 on the Mac), never run | Mac: `npx ccusage` once a week into the log |
+| ccusage | Token survey 2026-10-05 | Adopt now | **in use**: `npx -y ccusage daily` and `session` ran on the Mac 2026-10-14 (overnight job 12), no install | Mac: `npx ccusage` once a week into the log |
 | rtk | Token survey | Adopt now as a trial | **decided, not installed** | Ethan's yes for a `brew install` on the Mac |
 | ccstatusline | Token survey | Adopt now | **decided, not installed** | Optional; Ethan's call |
 | StyLua | Token survey (Roblox tools) | Adopt now | **decided, not added** (not on the Mac either; nor selene, lune) | Coordinator: add to `rokit.toml` with a config matching today's style, as an advisory check first so no mass reformat collides with Codex |
