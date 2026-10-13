@@ -140,19 +140,19 @@ Researched for Ethan's ask "look at how other popular games similar to ours got 
 
 | Row | Brief and search words | Picked (title, creator, id) |
 |---|---|---|
-| `VerdantDay` | bright pastoral, acoustic guitar or ukulele, whistling, light percussion; "morning", "pastoral", "sunny", "ukulele", "happy acoustic" || Peaceful Day Ukulele, Patrick Fradji Maarek (APM, 74 s), 1839580585 |
-| `VerdantNight` | soft music box or lullaby, pads, the same instrument family at half the energy; "music box", "lullaby", "night ambient", "calm piano" || Ukulele Lullaby, Jacob King (APM, 154 s), 1842619720 |
-| `FrostbyteDay` | bright and crisp, bells, light strings, a little wind; "winter", "snow", "bells", "sleigh", "crisp" || Winter Sleigh Bells, KPM Main Series (APM, 104 s), 1840810235 |
-| `FrostbyteNight` | slow, icy pads, soft chimes; "winter night", "ambient ice", "aurora", "glass pad" || Frozen Planet, Andreas Brunnmeier (APM, 158 s), 1844634116 |
-| `Home` | cozy acoustic, warm, slow; "cozy", "home", "warm acoustic", "fireside" || Feathers Instrumental, The Box (APM, 122 s), 9040068735 |
-| `Resting` | near-silent ambient pad, no drums; "ambient pad", "sleep", "drone calm" || Mercury Lake 2 (60), KPM Shorts (APM, 61 s), 9039651194 |
-| `CatchBase` | see the state palette above || Pizzicato Spritz (a), Johnny Wishbone (APM, 143 s), 9046599262 |
-| `CatchIntense` | see the state palette above || Percussive Adventure (c), Brian James Brasher (APM, 63 s), 1841294396 |
-| `MeteorShower` | cosmic synth, arpeggios, wonder; "space", "cosmic", "arpeggio synth", "stars" || Starlight Flight, Magnum Opus (APM, 135 s), 1840954608 |
-| `CatchRush` | upbeat chiptune or electro, fast; "chiptune", "arcade", "upbeat electronic", "race" || Retro Gamer (60), Skip Armstrong (APM, 60 s), 1837769001 |
-| `HauntedNebula` | see the state palette above || Spooky Ride, Michael Shapiro (APM, 120 s), 1837803400 |
-| `Launch` | a 10 to 20 s rising orchestral cue ending on a hit; "rising", "launch", "countdown", "triumphant short" || Welcome Home Sting, Bradley James Farmer (APM, 13 s), 9047296345 |
-| `Menus` | a soft pad layer, no melody; "soft pad", "ui ambient" || none: a gain layer, plays no sound of its own (stays 0) |
+| `VerdantDay` | bright pastoral, acoustic guitar or ukulele, whistling, light percussion; "morning", "pastoral", "sunny", "ukulele", "happy acoustic" | Peaceful Day Ukulele, Patrick Fradji Maarek (APM, 74 s), 1839580585 |
+| `VerdantNight` | soft music box or lullaby, pads, the same instrument family at half the energy; "music box", "lullaby", "night ambient", "calm piano" | Ukulele Lullaby, Jacob King (APM, 154 s), 1842619720 |
+| `FrostbyteDay` | bright and crisp, bells, light strings, a little wind; "winter", "snow", "bells", "sleigh", "crisp" | Winter Sleigh Bells, KPM Main Series (APM, 104 s), 1840810235 |
+| `FrostbyteNight` | slow, icy pads, soft chimes; "winter night", "ambient ice", "aurora", "glass pad" | Frozen Planet, Andreas Brunnmeier (APM, 158 s), 1844634116 |
+| `Home` | cozy acoustic, warm, slow; "cozy", "home", "warm acoustic", "fireside" | Feathers Instrumental, The Box (APM, 122 s), 9040068735 |
+| `Resting` | near-silent ambient pad, no drums; "ambient pad", "sleep", "drone calm" | Mercury Lake 2 (60), KPM Shorts (APM, 61 s), 9039651194 |
+| `CatchBase` | see the state palette above | Pizzicato Spritz (a), Johnny Wishbone (APM, 143 s), 9046599262 |
+| `CatchIntense` | see the state palette above | Percussive Adventure (c), Brian James Brasher (APM, 63 s), 1841294396 |
+| `MeteorShower` | cosmic synth, arpeggios, wonder; "space", "cosmic", "arpeggio synth", "stars" | Starlight Flight, Magnum Opus (APM, 135 s), 1840954608 |
+| `CatchRush` | upbeat chiptune or electro, fast; "chiptune", "arcade", "upbeat electronic", "race" | Retro Gamer (60), Skip Armstrong (APM, 60 s), 1837769001 |
+| `HauntedNebula` | see the state palette above | Spooky Ride, Michael Shapiro (APM, 120 s), 1837803400 |
+| `Launch` | a 10 to 20 s rising orchestral cue ending on a hit; "rising", "launch", "countdown", "triumphant short" | Welcome Home Sting, Bradley James Farmer (APM, 13 s), 9047296345 |
+| `Menus` | a soft pad layer, no melody; "soft pad", "ui ambient" | none: a gain layer, plays no sound of its own (stays 0) |
 | `Events` | see the state palette above | |
 | `Capture` | light, playful, a ticking pulse, no big drums; "playful", "quirky", "pizzicato", "light tension" | |
 | `Ducking` | see the state palette above | |
@@ -163,36 +163,36 @@ Picked 2026-10-14 (Mac session, overnight job 5) through the Creator Store searc
 
 | Slot | Search words | Picked (title, creator, id) |
 |---|---|---|
-| `Click` | "ui click soft", "button pop" || Roblox_UI_Small_Click, Roblox, 15675032796 |
-| `ToastDing` | "notification ding soft" || Roblox GUI - Notification High, Roblox, 17208361335 |
-| `Banner` | "announcement chime" || Powered Up Chimes, Juice Music (APM), 1839901345 |
-| `PartSnap` | "metal click snap", "lego click" || Roblox_Pinball_Small_Metal_Click_01, Roblox, 16480551554 |
-| `ModuleComplete` | "success fanfare short", "level up" || Winner, Rolf Anton Krueger (APM), 1844584698 |
-| `ShowerHorn` | "deep horn", "cosmic horn" || Space Chimes, Juice Music (APM), 1839901334 (no licensed cosmic horn found) |
-| `PeddlerLanding` | "spaceship landing", "hover land" || Rocket whoosh 01.wav, Roblox, 12222095 |
-| `GiftClaim` | "gift open", "present chime" || TV Winners Link (b), Richard Myhill (APM), 1841114489 |
-| `WheelTick` | "wheel tick", "ratchet click" || Roblox_UI_Bright_Click, Roblox, 15675059323 |
-| `WheelStop` | "ding bell win" || Finger Cymbal Sounds (a), KPM 1000 LP Series (APM), 1842279701 |
-| `HornCall` | "horn call", "war horn" || Tuba Tone K, Otto Sieben (APM), 1846987124 |
-| `WardenAppear` | "monster roar cute", "big stomp" || not found among Roblox and APM assets; left 0 for a Studio Toolbox pick | | **needs Studio acquire**, candidates (community, under 10 s): Snow Impact Big Hits Semi- Deep Stomping (SFX), ProSoundEffects, 9125965517 (5 s); Classic Monster Roar sound effect (1), Sloit's Fanclub, 140183060324629 (5 s); Monster Roar, JuanitoproCritica, 133651202885353 (4 s) |
-| `Mount` | "jump hop", "boing" || not found among Roblox and APM assets; left 0 | | **needs Studio acquire**, candidates: Cartoon Jump Sound [HQ] - BOING, Dizzota, 2772396665 (1 s); Spring Jump, B0B_2, 4117546024 (1 s); Cartoon Jump, darkenweb, 6746569988 (2 s) |
-| `Dismount` | "soft land thud" || Deep Gaia Soft breath impact, Will Cohen (APM), 1841354575 |
-| `Heartbeat` | "heartbeat" || Heart Beat OL, Kosinus (APM), 1839090417 |
-| `Launch` | "rocket launch whoosh" || Welcome Home Sting, Bradley James Farmer (APM, 13 s), 9047296345 |
-| `CatchHit` | "pop", "bubble pop" || Roblox_UI_Cute_Pop, Roblox, 15675055424 |
-| `Perfect` | "sparkle chime", "magic twinkle" || Magical Meetup - Hit1, Spot On (APM), 9048764474 |
-| `Miss` | "wrong buzz soft", "miss boop" || Roblox_UI_Delete, Roblox, 15675075163 |
-| `Wiggle` | "squeak wiggle", "rubber" || not found among Roblox and APM assets; left 0 | | **needs Studio acquire**, candidates: Squeaky Toy Sound Effect, Riley_Mutt, 129088013422694 (1 s); Rubber Raft Squeaking Sliding On Surface 4 (SFX), ProSoundEffects, 9118737438 (1 s); Metal Rub Short Squeaks Rubber Soles Sliding (SFX), ProSoundEffects, 9125686041 (1 s) |
-| `Fled` | "whoosh away", "dash" || Roblox_UI_Whoosh_02, Roblox, 15675028888 |
-| `ScrapTick` | "coin tick", "small coin" || CoinTransfer_01, Roblox, 127645268874265 |
-| `LegendaryRumble` | "earthquake rumble", "deep rumble" || Wild Rumble (SFX 2), Martin Perry France (APM), 1842481856 |
-| `BarOpen` | "ui open whoosh", "swoosh up" || Roblox_UI_Whoosh_04, Roblox, 15675012262 |
-| `RareNearby` | "radar blip", "sonar ping" || Roblox_UI_Indicator, Roblox, 15675085146 |
-| `RushStart` | "air horn short", "starting whistle" || Roblox_UI_Whistle_Low, Roblox, 15675062723 |
-| `Arrival` | "magical arrival", "orchestral swell short" || Once upon a Time (sting), Thomas Howe (APM), 1838007773 |
-| `RestStart` | "soft yawn", "wind chime" || Roblox_UI_Cute_Goodbye, Roblox, 15675081158 |
-| `Ambience.Day` | "meadow birds ambience", "nature loop" || Bird Song, KPM 1000 LP Series (APM, 12 s), 1842360915 |
-| `Ambience.Night` | "crickets night loop" || African Night, David Peter Bradnum (APM, 89 s), 1840267237 |
-| `Ambience.Rain` | "rain loop light" || Rain Effect, Roblox (59 s), 1516791621 |
-| `Ambience.Shower` | "space wind ambience" || Space Wind, Sonoton Music (APM, 52 s), 1846553484 |
-| `Reveal.Common..Secret` | one short fanfare per tier, each louder and longer than the one below: "ta-da short" (Common) to "epic reveal orchestral" (Cosmic), "mysterious reveal" (Secret) || Common Roblox_UI_Tonal_Stinger (Roblox) 15675043410; Uncommon Magical Meetup - Hit2 (APM) 9048764475; Rare Something Magical (sting) (APM) 9039420865; Epic Glamour Fanfare 4 (APM) 1844584807; Legendary Orchestral Sting (APM) 1846284687; Cosmic Palace Magic (sting) (APM) 1841820743; Secret Mysterious Path - Sting 3 (APM) 1843092991 |
+| `Click` | "ui click soft", "button pop" | Roblox_UI_Small_Click, Roblox, 15675032796 |
+| `ToastDing` | "notification ding soft" | Roblox GUI - Notification High, Roblox, 17208361335 |
+| `Banner` | "announcement chime" | Powered Up Chimes, Juice Music (APM), 1839901345 |
+| `PartSnap` | "metal click snap", "lego click" | Roblox_Pinball_Small_Metal_Click_01, Roblox, 16480551554 |
+| `ModuleComplete` | "success fanfare short", "level up" | Winner, Rolf Anton Krueger (APM), 1844584698 |
+| `ShowerHorn` | "deep horn", "cosmic horn" | Space Chimes, Juice Music (APM), 1839901334 (no licensed cosmic horn found) |
+| `PeddlerLanding` | "spaceship landing", "hover land" | Rocket whoosh 01.wav, Roblox, 12222095 |
+| `GiftClaim` | "gift open", "present chime" | TV Winners Link (b), Richard Myhill (APM), 1841114489 |
+| `WheelTick` | "wheel tick", "ratchet click" | Roblox_UI_Bright_Click, Roblox, 15675059323 |
+| `WheelStop` | "ding bell win" | Finger Cymbal Sounds (a), KPM 1000 LP Series (APM), 1842279701 |
+| `HornCall` | "horn call", "war horn" | Tuba Tone K, Otto Sieben (APM), 1846987124 |
+| `WardenAppear` | "monster roar cute", "big stomp" | **needs Studio acquire**, candidates (community, under 10 s): Snow Impact Big Hits Semi- Deep Stomping (SFX), ProSoundEffects, 9125965517 (5 s); Classic Monster Roar sound effect (1), Sloit's Fanclub, 140183060324629 (5 s); Monster Roar, JuanitoproCritica, 133651202885353 (4 s) |
+| `Mount` | "jump hop", "boing" | **needs Studio acquire**, candidates: Cartoon Jump Sound [HQ] - BOING, Dizzota, 2772396665 (1 s); Spring Jump, B0B_2, 4117546024 (1 s); Cartoon Jump, darkenweb, 6746569988 (2 s) |
+| `Dismount` | "soft land thud" | Deep Gaia Soft breath impact, Will Cohen (APM), 1841354575 |
+| `Heartbeat` | "heartbeat" | Heart Beat OL, Kosinus (APM), 1839090417 |
+| `Launch` | "rocket launch whoosh" | Welcome Home Sting, Bradley James Farmer (APM, 13 s), 9047296345 |
+| `CatchHit` | "pop", "bubble pop" | Roblox_UI_Cute_Pop, Roblox, 15675055424 |
+| `Perfect` | "sparkle chime", "magic twinkle" | Magical Meetup - Hit1, Spot On (APM), 9048764474 |
+| `Miss` | "wrong buzz soft", "miss boop" | Roblox_UI_Delete, Roblox, 15675075163 |
+| `Wiggle` | "squeak wiggle", "rubber" | **needs Studio acquire**, candidates: Squeaky Toy Sound Effect, Riley_Mutt, 129088013422694 (1 s); Rubber Raft Squeaking Sliding On Surface 4 (SFX), ProSoundEffects, 9118737438 (1 s); Metal Rub Short Squeaks Rubber Soles Sliding (SFX), ProSoundEffects, 9125686041 (1 s) |
+| `Fled` | "whoosh away", "dash" | Roblox_UI_Whoosh_02, Roblox, 15675028888 |
+| `ScrapTick` | "coin tick", "small coin" | CoinTransfer_01, Roblox, 127645268874265 |
+| `LegendaryRumble` | "earthquake rumble", "deep rumble" | Wild Rumble (SFX 2), Martin Perry France (APM), 1842481856 |
+| `BarOpen` | "ui open whoosh", "swoosh up" | Roblox_UI_Whoosh_04, Roblox, 15675012262 |
+| `RareNearby` | "radar blip", "sonar ping" | Roblox_UI_Indicator, Roblox, 15675085146 |
+| `RushStart` | "air horn short", "starting whistle" | Roblox_UI_Whistle_Low, Roblox, 15675062723 |
+| `Arrival` | "magical arrival", "orchestral swell short" | Once upon a Time (sting), Thomas Howe (APM), 1838007773 |
+| `RestStart` | "soft yawn", "wind chime" | Roblox_UI_Cute_Goodbye, Roblox, 15675081158 |
+| `Ambience.Day` | "meadow birds ambience", "nature loop" | Bird Song, KPM 1000 LP Series (APM, 12 s), 1842360915 |
+| `Ambience.Night` | "crickets night loop" | African Night, David Peter Bradnum (APM, 89 s), 1840267237 |
+| `Ambience.Rain` | "rain loop light" | Rain Effect, Roblox (59 s), 1516791621 |
+| `Ambience.Shower` | "space wind ambience" | Space Wind, Sonoton Music (APM, 52 s), 1846553484 |
+| `Reveal.Common..Secret` | one short fanfare per tier, each louder and longer than the one below: "ta-da short" (Common) to "epic reveal orchestral" (Cosmic), "mysterious reveal" (Secret) | Common Roblox_UI_Tonal_Stinger (Roblox) 15675043410; Uncommon Magical Meetup - Hit2 (APM) 9048764475; Rare Something Magical (sting) (APM) 9039420865; Epic Glamour Fanfare 4 (APM) 1844584807; Legendary Orchestral Sting (APM) 1846284687; Cosmic Palace Magic (sting) (APM) 1841820743; Secret Mysterious Path - Sting 3 (APM) 1843092991 |
