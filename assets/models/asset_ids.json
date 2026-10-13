@@ -179,6 +179,12 @@
     "format": "glb",
     "uploadedAt": "2026-10-06T04:47:36Z"
   },
+  "Nebulyn": {
+    "assetId": 131868426854056,
+    "file": "assets/models/Nebulyn/Nebulyn.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-13T06:50:53Z"
+  },
   "Panpipe": {
     "assetId": 107790361036773,
     "file": "assets/models/Panpipe/Panpipe.glb",
@@ -293,6 +299,12 @@
     "format": "glb",
     "uploadedAt": "2026-10-06T04:50:52Z"
   },
+  "Spookum": {
+    "assetId": 137636259177579,
+    "file": "assets/models/Spookum/Spookum.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-13T06:51:02Z"
+  },
   "Thunderhog": {
     "assetId": 123300168621633,
     "file": "assets/models/Thunderhog/Thunderhog.glb",
@@ -310,6 +322,12 @@
     "file": "assets/models/Twiglet/Twiglet.glb",
     "format": "glb",
     "uploadedAt": "2026-10-06T04:51:20Z"
+  },
+  "Wisplet": {
+    "assetId": 140338126762109,
+    "file": "assets/models/Wisplet/Wisplet.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-13T06:51:24Z"
   },
   "Zapfinch": {
     "assetId": 131886607786861,
