@@ -5,13 +5,14 @@
 - Name: Buzzlebee (Uncommon)
 - Concept: bee, tiny backpack
 - Body: Ball, placeholder colour #F4C542, placeholder scale 0.8
-- Accessory: backpack (keyword match on the concept; colour rule: complement, #42CAF4)
+- Accessory: the tiny backpack: a brown box with a flap, bigger than it should be, and a bright buckle (silhouette pass; #A8E6FF)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1370 (look pass 2026-10-05 over the 1012-triangle blockout; see docs/vault/06-art-pipelines/Blender-MCP.md) (budget 500 to 1500, detail level 0)
+- Triangles: 1402 (silhouette pass, tools/blender/species_bodies.py)
 - Height: 1.76 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #F4C542, BodyDark #9F802B, EyeWhite, Pupil, Mouth, Accessory #42CAF4
+- Materials (one per colour, flat, no textures): Body #F4C542, BodyDark #6B4423, EyeWhite, Pupil, Mouth, Accessory #A8E6FF
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
 - Files: Buzzlebee.glb (41472 bytes), Buzzlebee.fbx (41132 bytes)
 - Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
 
 Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
+- Silhouette pass 2026-10-13: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a low round bee hovering on four dot feet, a head with huge eyes in front, a striped abdomen ending in a stinger, two wings up and out and a big box backpack. Hero: the tiny backpack: a brown box with a flap, bigger than it should be, and a bright buckle.

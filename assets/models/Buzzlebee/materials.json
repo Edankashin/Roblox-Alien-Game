@@ -34,7 +34,7 @@
   {
     "slot": 5,
     "name": "BodyDark",
-    "hex": "9F802B",
+    "hex": "6B4423",
     "roughness": 0.8,
     "metallic": 0.0,
     "emission": 0.0
@@ -42,7 +42,7 @@
   {
     "slot": 6,
     "name": "Accessory",
-    "hex": "42CAF4",
+    "hex": "A8E6FF",
     "roughness": 0.8,
     "metallic": 0.0,
     "emission": 0.0
