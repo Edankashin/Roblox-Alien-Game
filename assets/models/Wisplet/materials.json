@@ -45,6 +45,6 @@
     "hex": "FF7397",
     "roughness": 0.35,
     "metallic": 1.0,
-    "emission": 0.0
+    "emission": 1.5
   }
 ]
