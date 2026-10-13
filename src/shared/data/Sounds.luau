@@ -7,50 +7,50 @@
 -- MusicDirector.Stinger so the bed ducks for the stinger's length.
 return {
 	Volume = { UI = 0.6, Ambience = 0.35 },
-	Click = "rbxassetid://0",
-	ToastDing = "rbxassetid://0", -- every toast
-	Banner = "rbxassetid://0", -- server-wide announcement banners
-	PartSnap = "rbxassetid://0", -- a key part goes into a module (the bass hit)
-	ModuleComplete = "rbxassetid://0", -- the fanfare when a module finishes
-	ShowerHorn = "rbxassetid://0", -- a Meteor Shower begins
-	PeddlerLanding = "rbxassetid://0",
-	GiftClaim = "rbxassetid://0",
-	WheelTick = "rbxassetid://0", -- the wheel passes a wedge
-	WheelStop = "rbxassetid://0",
-	HornCall = "rbxassetid://0", -- the Warden's Horn is sounded
+	Click = "rbxassetid://15675032796",
+	ToastDing = "rbxassetid://17208361335", -- every toast
+	Banner = "rbxassetid://1839901345", -- server-wide announcement banners
+	PartSnap = "rbxassetid://16480551554", -- a key part goes into a module (the bass hit)
+	ModuleComplete = "rbxassetid://1844584698", -- the fanfare when a module finishes
+	ShowerHorn = "rbxassetid://1839901334", -- a Meteor Shower begins
+	PeddlerLanding = "rbxassetid://12222095",
+	GiftClaim = "rbxassetid://1841114489",
+	WheelTick = "rbxassetid://15675059323", -- the wheel passes a wedge
+	WheelStop = "rbxassetid://1842279701",
+	HornCall = "rbxassetid://1846987124", -- the Warden's Horn is sounded
 	WardenAppear = "rbxassetid://0",
 	Mount = "rbxassetid://0", -- the player hops onto a mount
-	Dismount = "rbxassetid://0",
-	Heartbeat = "rbxassetid://0", -- Radar Mk2: a secret is in range; the beat quickens as the player nears it
-	Launch = "rbxassetid://0", -- reserved for the launch sequence (World 2)
+	Dismount = "rbxassetid://1841354575",
+	Heartbeat = "rbxassetid://1839090417", -- Radar Mk2: a secret is in range; the beat quickens as the player nears it
+	Launch = "rbxassetid://12222065", -- reserved for the launch sequence (World 2)
 	-- looping ambiences, crossfaded by the client as the conditions change
 	Ambience = {
-		Day = "rbxassetid://0",
-		Night = "rbxassetid://0",
-		Rain = "rbxassetid://0",
-		Shower = "rbxassetid://0",
+		Day = "rbxassetid://1842360915",
+		Night = "rbxassetid://1840267237",
+		Rain = "rbxassetid://1516791621",
+		Shower = "rbxassetid://1846553484",
 	} :: { [string]: string },
-	CatchHit = "rbxassetid://0", -- the ticker stops in the Good zone
-	Perfect = "rbxassetid://0", -- the ticker stops in the Perfect zone
-	Miss = "rbxassetid://0",
+	CatchHit = "rbxassetid://15675055424", -- the ticker stops in the Good zone
+	Perfect = "rbxassetid://9048764474", -- the ticker stops in the Perfect zone
+	Miss = "rbxassetid://15675075163",
 	Wiggle = "rbxassetid://0", -- a Good hit that failed the catch roll
-	Fled = "rbxassetid://0",
-	ScrapTick = "rbxassetid://0", -- the Scrap counter rolls
+	Fled = "rbxassetid://15675028888",
+	ScrapTick = "rbxassetid://127645268874265", -- the Scrap counter rolls
 	-- Moments C20 found with no cue at all (docs/vault/01-game-design/Moments.md). Silent until the sound pass; each
 	-- consumer wires in as its id lands (LegendaryRumble already plays with the Legendary opening).
-	LegendaryRumble = "rbxassetid://0", -- the low rumble under the screen shake before a Legendary or higher catch bar opens
-	BarOpen = "rbxassetid://0", -- the catch bar opens
-	RareNearby = "rbxassetid://0", -- a rare alien comes into range
-	RushStart = "rbxassetid://0", -- a Catch Rush round begins (it has only the banner's cue today)
-	Arrival = "rbxassetid://0", -- the player lands on a world (no distinct arrival cue today)
-	RestStart = "rbxassetid://0", -- the crew starts resting
+	LegendaryRumble = "rbxassetid://1842481856", -- the low rumble under the screen shake before a Legendary or higher catch bar opens
+	BarOpen = "rbxassetid://15675012262", -- the catch bar opens
+	RareNearby = "rbxassetid://15675085146", -- a rare alien comes into range
+	RushStart = "rbxassetid://15675062723", -- a Catch Rush round begins (it has only the banner's cue today)
+	Arrival = "rbxassetid://1838007773", -- the player lands on a world (no distinct arrival cue today)
+	RestStart = "rbxassetid://15675081158", -- the crew starts resting
 	Reveal = {
-		Common = "rbxassetid://0",
-		Uncommon = "rbxassetid://0",
-		Rare = "rbxassetid://0",
-		Epic = "rbxassetid://0",
-		Legendary = "rbxassetid://0",
-		Cosmic = "rbxassetid://0",
-		Secret = "rbxassetid://0",
+		Common = "rbxassetid://15675043410",
+		Uncommon = "rbxassetid://9048764475",
+		Rare = "rbxassetid://9039420865",
+		Epic = "rbxassetid://1844584807",
+		Legendary = "rbxassetid://1846284687",
+		Cosmic = "rbxassetid://1841820743",
+		Secret = "rbxassetid://1843092991",
 	} :: { [string]: string },
 }

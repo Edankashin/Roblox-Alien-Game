@@ -40,24 +40,24 @@ export type WorldBeds = { day: string, night: string }
 
 local Rows: { [string]: Row } = {
 	-- World 1 and World 2, day and night (64 to 96 s loops, a 3 s crossfade at the clock edge).
-	VerdantDay = { assetId = 0, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
-	VerdantNight = { assetId = 0, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
-	FrostbyteDay = { assetId = 0, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
-	FrostbyteNight = { assetId = 0, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
+	VerdantDay = { assetId = 1839580585, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
+	VerdantNight = { assetId = 1842619720, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
+	FrostbyteDay = { assetId = 1840810235, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
+	FrostbyteNight = { assetId = 1844634116, volume = 0.20, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 10 },
 	-- The home planet (day and night share one cozy track): 3 s in, 2 s out.
-	Home = { assetId = 0, volume = 0.18, loop = true, layer = "bed", fadeIn = 3, fadeOut = 2, priority = 10 },
+	Home = { assetId = 9040068735, volume = 0.18, loop = true, layer = "bed", fadeIn = 3, fadeOut = 2, priority = 10 },
 	-- Resting: 4 s in, 1.5 s back to the world on waking; never a rhythm.
-	Resting = { assetId = 0, volume = 0.12, loop = true, layer = "bed", fadeIn = 4, fadeOut = 1.5, priority = 40 },
+	Resting = { assetId = 9039651194, volume = 0.12, loop = true, layer = "bed", fadeIn = 4, fadeOut = 1.5, priority = 40 },
 	-- The catch bar: a muted pluck loop, and the matching intense bed for Legendary and above.
-	CatchBase = { assetId = 0, volume = 0.22, loop = true, layer = "bed", fadeIn = 0.3, fadeOut = 0.25, priority = 50 },
-	CatchIntense = { assetId = 0, volume = 0.12, loop = true, layer = "bed", fadeIn = 0.3, fadeOut = 0.25, priority = 90 },
+	CatchBase = { assetId = 9046599262, volume = 0.22, loop = true, layer = "bed", fadeIn = 0.3, fadeOut = 0.25, priority = 50 },
+	CatchIntense = { assetId = 1841294396, volume = 0.12, loop = true, layer = "bed", fadeIn = 0.3, fadeOut = 0.25, priority = 90 },
 	-- Events: a Meteor Shower (1 s in, 2 s out), a Catch Rush round (0.5 s in, 1 s out; no restart per score update)
 	-- and the Haunted Nebula season (3 s in and out; keyed by its data/Seasons id).
-	MeteorShower = { assetId = 0, volume = 0.22, loop = true, layer = "bed", fadeIn = 1, fadeOut = 2, priority = 80 },
-	CatchRush = { assetId = 0, volume = 0.22, loop = true, layer = "bed", fadeIn = 0.5, fadeOut = 1, priority = 70 },
-	HauntedNebula = { assetId = 0, volume = 0.18, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 60 },
+	MeteorShower = { assetId = 1840954608, volume = 0.22, loop = true, layer = "bed", fadeIn = 1, fadeOut = 2, priority = 80 },
+	CatchRush = { assetId = 1837769001, volume = 0.22, loop = true, layer = "bed", fadeIn = 0.5, fadeOut = 1, priority = 70 },
+	HauntedNebula = { assetId = 1837803400, volume = 0.18, loop = true, layer = "bed", fadeIn = 3, fadeOut = 3, priority = 60 },
 	-- The launch cue (8 to 12 s, once): 0.15 s attack at the lift, a 1 s fade out on the teleport or a failure.
-	Launch = { assetId = 0, volume = 0.28, loop = false, layer = "bed", fadeIn = 0.15, fadeOut = 1, priority = 100 },
+	Launch = { assetId = 9047296345, volume = 0.28, loop = false, layer = "bed", fadeIn = 0.15, fadeOut = 1, priority = 100 },
 	-- A menu or panel open: the active bed's gain x0.65 in 0.25 s, restored over 0.4 s. It plays no sound of its own.
 	Menus = { assetId = 0, volume = 0.65, loop = false, layer = "layer", fadeIn = 0.25, fadeOut = 0.4, priority = 0 },
 }
