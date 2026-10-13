@@ -174,15 +174,15 @@ Picked 2026-10-14 (Mac session, overnight job 5) through the Creator Store searc
 | `WheelTick` | "wheel tick", "ratchet click" || Roblox_UI_Bright_Click, Roblox, 15675059323 |
 | `WheelStop` | "ding bell win" || Finger Cymbal Sounds (a), KPM 1000 LP Series (APM), 1842279701 |
 | `HornCall` | "horn call", "war horn" || Tuba Tone K, Otto Sieben (APM), 1846987124 |
-| `WardenAppear` | "monster roar cute", "big stomp" || not found among Roblox and APM assets; left 0 for a Studio Toolbox pick |
-| `Mount` | "jump hop", "boing" || not found among Roblox and APM assets; left 0 |
+| `WardenAppear` | "monster roar cute", "big stomp" || not found among Roblox and APM assets; left 0 for a Studio Toolbox pick | | **needs Studio acquire**, candidates (community, under 10 s): Snow Impact Big Hits Semi- Deep Stomping (SFX), ProSoundEffects, 9125965517 (5 s); Classic Monster Roar sound effect (1), Sloit's Fanclub, 140183060324629 (5 s); Monster Roar, JuanitoproCritica, 133651202885353 (4 s) |
+| `Mount` | "jump hop", "boing" || not found among Roblox and APM assets; left 0 | | **needs Studio acquire**, candidates: Cartoon Jump Sound [HQ] - BOING, Dizzota, 2772396665 (1 s); Spring Jump, B0B_2, 4117546024 (1 s); Cartoon Jump, darkenweb, 6746569988 (2 s) |
 | `Dismount` | "soft land thud" || Deep Gaia Soft breath impact, Will Cohen (APM), 1841354575 |
 | `Heartbeat` | "heartbeat" || Heart Beat OL, Kosinus (APM), 1839090417 |
 | `Launch` | "rocket launch whoosh" || Welcome Home Sting, Bradley James Farmer (APM, 13 s), 9047296345 |
 | `CatchHit` | "pop", "bubble pop" || Roblox_UI_Cute_Pop, Roblox, 15675055424 |
 | `Perfect` | "sparkle chime", "magic twinkle" || Magical Meetup - Hit1, Spot On (APM), 9048764474 |
 | `Miss` | "wrong buzz soft", "miss boop" || Roblox_UI_Delete, Roblox, 15675075163 |
-| `Wiggle` | "squeak wiggle", "rubber" || not found among Roblox and APM assets; left 0 |
+| `Wiggle` | "squeak wiggle", "rubber" || not found among Roblox and APM assets; left 0 | | **needs Studio acquire**, candidates: Squeaky Toy Sound Effect, Riley_Mutt, 129088013422694 (1 s); Rubber Raft Squeaking Sliding On Surface 4 (SFX), ProSoundEffects, 9118737438 (1 s); Metal Rub Short Squeaks Rubber Soles Sliding (SFX), ProSoundEffects, 9125686041 (1 s) |
 | `Fled` | "whoosh away", "dash" || Roblox_UI_Whoosh_02, Roblox, 15675028888 |
 | `ScrapTick` | "coin tick", "small coin" || CoinTransfer_01, Roblox, 127645268874265 |
 | `LegendaryRumble` | "earthquake rumble", "deep rumble" || Wild Rumble (SFX 2), Martin Perry France (APM), 1842481856 |
