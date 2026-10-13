@@ -56,13 +56,14 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Notes |
 |---|---|
+| **Sign in to Roblox Studio on the Mac** (it opened its login dialog after a forced quit overnight; every Studio job waits on it) | [[2026-10-14]] Mac session; the session resumes by itself once Studio is signed in |
 | Roblox: friend the collaborator, both age-checked, Collaborate > add them with Edit | [[Handoff]] 13.1 |
 | GitHub: add the collaborator as a collaborator with Write | [[Handoff]] 13.2 |
-| `python3 -I tools/create_products.py --apply` on his Mac for Spins1, Spins5, Spins12, SlotEveryStation2, CompanionSlot4, StorageBoost | Writes the ids into `Shop.luau` and pushes; [[Hands-Off]] |
+| ~~`python3 -I tools/create_products.py --apply` for the six launch items~~ | Done 2026-10-14 by the Mac session (overnight job 2) |
 | Mac installs: `bun` (for claude-mem), rtk, ccstatusline (optional) | [[Tools-Status]] |
 | Plugin installs in his Claude Code: roblox-dev (ivar-anon), ShiroKSH roblox-studio, superpowers | He types the install lines himself ([[Claude-Plugins]]) |
 | The stray place 82258778278086: keep or delete | |
-| Publish the three places privately (`publish.py --saved` now; `--apply` after the runtime model loader's Studio check passes) | [[Hands-Off]] Publishing |
+| ~~Publish the three places privately~~ | Done 2026-10-14 by the Mac session (overnight job 6: world1 v89, world2 v4, home v3) |
 | Experience Questionnaire, maturity answers, then going public | Identity and legal steps are his |
 
 ## Needs a decision (Ethan)
