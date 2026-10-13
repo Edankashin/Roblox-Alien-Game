@@ -143,12 +143,10 @@ def apply_materials(mats, rec):
 
 
 def fit(obj, height):
-    """Lowest point to z = 0, then a uniform scale to the recipe's height when it is off by more than half a percent."""
+    """Lowest point to z = 0, then a uniform scale to the recipe's height (exact, so notes.md gets the recipe's height)."""
     zs = [v.co.z for v in obj.data.vertices]
     lo, hi = min(zs), max(zs)
     scale = height / (hi - lo)
-    if abs(scale - 1.0) < 0.005:
-        scale = 1.0
     obj.data.transform(Matrix.Translation((0.0, 0.0, -lo)))
     if scale != 1.0:
         obj.data.transform(Matrix.Scale(scale, 4))

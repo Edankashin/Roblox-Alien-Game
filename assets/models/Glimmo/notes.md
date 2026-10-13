@@ -8,7 +8,7 @@
 - Accessory: the glowing firefly lamp hanging off its back (silhouette pass; #B8FF4F, emissive 3)
 - Tier dressing: none (Common/Uncommon: the accessory is the prop)
 - Triangles: 1216 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 2.71 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
+- Height: 2.70 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
 - Materials (one per colour, flat, no textures): Body #FFE066, BodyDark #E4A83A, EyeWhite, Pupil, Mouth, Accessory #B8FF4F
 - Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
 - Files: Glimmo.glb (37840 bytes), Glimmo.fbx (39084 bytes)
