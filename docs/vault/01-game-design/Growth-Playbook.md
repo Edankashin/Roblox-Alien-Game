@@ -47,7 +47,7 @@ Researched 2026-10-05. Every claim carries a source tag `[S#]` resolved in the S
 
 | # | Thumbnail brief | In frame | Text overlay | Colour |
 |---|---|---|---|---|
-| A | The Catch | Mossbop huge on the right two thirds, wide-eyed; the player avatar reaching in from the left; the timing-bar zone glowing mid-frame | "CATCH ALIENS!" top-left, yellow with navy outline | Lime-green alien on a magenta and violet nebula (complementary pair) |
+| A | The Catch | Moop huge on the right two thirds, wide-eyed; the player avatar reaching in from the left; the timing-bar zone glowing mid-frame | "CATCH ALIENS!" top-left, yellow with navy outline | Lime-green alien on a magenta and violet nebula (complementary pair) |
 | B | The Ship | Half-built rocket at the crash site, a swarm of small aliens carrying panels, the real ship bar at 62% across the top | "ALIENS BUILD YOUR SHIP" top-centre, white with navy outline | Warm orange sunset against a cyan sky |
 | C | The Collection | A 4x3 grid of aliens in rarity-coloured frames, one dark "?" silhouette glowing in the centre | "WHO'S THAT?" top-right, white with navy outline | Deep navy field with rainbow rarity borders |
 
@@ -107,15 +107,15 @@ Platform facts (doc): ordered stores hold integers only, no versioning or metada
 
 Roblox's own advice: fun inside the first five minutes, no long tutorials, learning in short action-based pop-ups [S2], an onboarding of "5 minutes or less" [S3]. The bounce windows are 60 and 180 s [S1]. `PRE_PRODUCTION.md` 3.1 has the first catch at 1:00 and the first module at 7:00, so this script is about 2.5 minutes tighter. Needs a tutorial-only assembly time of about 90 s in data.
 
-**Story in 30 seconds (three beats, three lines of text):** 0:00 you crashed and the HUD ship bar reads 0%; 0:15 plates move the bar, so parts fix the ship; 0:30 a Mossbop waddles up with a "!", so aliens are friendly and will help. New strings: `STORY_CRASH`, `STORY_PARTS`, `STORY_ALIEN`; none exist yet.
+**Story in 30 seconds (three beats, three lines of text):** 0:00 you crashed and the HUD ship bar reads 0%; 0:15 plates move the bar, so parts fix the ship; 0:30 a Moop waddles up with a "!", so aliens are friendly and will help. New strings: `STORY_CRASH`, `STORY_PARTS`, `STORY_ALIEN`; none exist yet.
 
 | Time | Step | Player does | Sees and hears | Understands | Measure |
 |---|---|---|---|---|---|
 | 0:00 | Opener | Nothing; skippable after first time | Crash cinematic, ship breaks, ship bar appears at 0% | "I crashed; that bar is my ship" | Onboarding funnel step 1 |
 | 0:08 | T1 collect 3 WreckPlate | Walks to the marker, grabs 3 | Pop and chime per plate, bar creeps up on the first | Parts go to the ship | Step 2 |
-| 0:25 | (spawn) | Watches | Mossbop waddles in, "!" bubble | A creature wants me | |
-| 0:30 | T2 catch Mossbop | Taps Catch, hits the cannot-fail zone | Catch burst, rarity card, codex "NEW" stamp, Scrap | **Aha 1: I caught a cute alien** | `FirstCatchSeconds` median 45 s or less |
-| 0:55 | (auto) | Watches | Mossbop walks to the Gather station; timer drops | My alien works for me | |
+| 0:25 | (spawn) | Watches | Moop waddles in, "!" bubble | A creature wants me | |
+| 0:30 | T2 catch Moop | Taps Catch, hits the cannot-fail zone | Catch burst, rarity card, codex "NEW" stamp, Scrap | **Aha 1: I caught a cute alien** | `FirstCatchSeconds` median 45 s or less |
+| 0:55 | (auto) | Watches | Moop walks to the Gather station; timer drops | My alien works for me | |
 | 1:25 | T3 moduleStarted | Pays for the Hull Frame, adds plates | Ship bar jumps, bass hit, module sub-bar starts | Building moves the bar | Step 4 before 180 s |
 | 2:00 | T4 catch Puffpuff | Second catch | Puffpuff takes the build job | Different aliens, different jobs | |
 | 2:45 | T5 catch 3 more | Free catching, Nearby panel on | Counter 1/3 to 3/3, Scrap counter appears | More aliens, faster ship | |

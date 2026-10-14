@@ -1,6 +1,6 @@
 # Species names: the study, the rules and the candidates
 
-Status: second pass, waiting for Ethan's pick. Nothing in `src` has changed; the rename lands in `Species.luau` after he chooses. The first pass (the afternoon of 2026-10-14) is kept at the bottom of this note.
+Status: second pass, **applied on 2026-10-14**. Ethan took the top picks; the collision screen below swapped five of them (Shardwing, Twiddle, Floof, Bunbun, Ember) and `Species.luau` `name` now carries the result. Ids are untouched. The group is named Moop Games. The first pass (the afternoon of 2026-10-14) is kept at the bottom of this note.
 
 Ethan's feedback on the first sheets: the names should not all end in o or y, they should differ from each other in that way too, and the designs and names of the top games with the same hook (Pet Simulator, Steal an Egg) are the place to look. The first pass picked 12 of 35 names ending in o or y (Pebbo, Glowby, Twiggy, Puffbo, Newtsy, Fluffo, Drippo, Chippo, Kettlo, Toboggy, Flapsy, Toasty). This pass studies the games, writes a rule set from what they do, and rebuilds all 35 species under it. The picture sheets are `media/names/sheet_world1_v2.png` (World 1 plus the three Haunted Nebula aliens) and `media/names/sheet_world2_v2.png`, drawn from the tables below by `tools/names_sheet.py`; `python3 -I tools/names_check.py` checks every rule below on the A column, the B column, the C column and the "My pick" mix.
 
@@ -72,7 +72,7 @@ A is the best fit for the species and its tier voice, B keeps a hint of the curr
 | Mossbop | Mossbop | Moop | Bop | Mush | A Moop | 1 |
 | Pebblet | Pebblet | Pebblet | Pebbling | Rubblet | A Pebblet | 3 |
 | Glimmo | Glimmo | Glim | Glow | Glub | A Glim | 1 |
-| Twiglet | Twiglet | Twiddle | Twiggle | Sprigle | A Twiddle | 6 |
+| Twiglet | Twiglet | Twiddle | Twiggle | Sprigle | B Twiggle | 6 |
 | Puffpuff | Puffpuff | Puffpuff | Pompom | Wishwish | A Puffpuff | 2 |
 
 #### World 1 Verdant, Uncommon: a wiggle in the middle
@@ -96,7 +96,7 @@ A is the best fit for the species and its tier voice, B keeps a hint of the curr
 | Id | Now | A | B | C | My pick | Shape |
 |---|---|---|---|---|---|---|
 | Thunderhog | Thunderhog | Thunderhog | Zaphog | Quillbolt | A Thunderhog | 4 |
-| Gloomoth | Gloomoth | Shardwing | Gloomwing | Prismlux | A Shardwing | 5 |
+| Gloomoth | Gloomoth | Shardwing | Gloomwing | Prismlux | C Prismlux | 5 |
 
 #### World 1 Verdant, Legendary: grand and warm
 
@@ -130,8 +130,8 @@ A is the best fit for the species and its tier voice, B keeps a hint of the curr
 
 | Id | Now | A | B | C | My pick | Shape |
 |---|---|---|---|---|---|---|
-| Flufflet | Flufflet | Fluff | Floof | Mitt | B Floof | 1 |
-| Snowbun | Snowbun | Bunbun | Snowsnow | Thumpthump | A Bunbun | 2 |
+| Flufflet | Flufflet | Fluff | Floof | Mitt | C Mitt | 1 |
+| Snowbun | Snowbun | Bunbun | Snowsnow | Thumpthump | B Snowsnow | 2 |
 | Drippo | Drippo | Drip | Drop | Plip | A Drip | 1 |
 | Chipmole | Chipmole | Digling | Chiplet | Digbit | A Digling | 3 |
 | Kettlepuff | Kettlepuff | Kettlet | Steamkin | Whistlet | A Kettlet | 3 |
@@ -143,7 +143,7 @@ A is the best fit for the species and its tier voice, B keeps a hint of the curr
 | Pengoo | Pengoo | Pengoo | Pengwing | Tuxedoo | A Pengoo | 6 |
 | Flapsicle | Flapsicle | Flapflap | Eekeek | Flitflit | A Flapflap | 2 |
 | Toastoad | Toastoad | Toastoad | Toastfrog | Prunetoad | A Toastoad | 4 |
-| Emberchin | Emberchin | Ember | Sizz | Burr | A Ember | 1 |
+| Emberchin | Emberchin | Ember | Sizz | Burr | B Sizz | 1 |
 
 #### World 2 Frostbyte, Rare: a spark and a hard edge
 
@@ -174,21 +174,93 @@ A is the best fit for the species and its tier voice, B keeps a hint of the curr
 
 ## My top pick per species
 
-World 1 Verdant: Moop, Pebblet, Glim, Twiddle, Puffpuff, Snibble, Buzzbit, Lanternewt, Rocklobber, Zapfinch, Sparkfox, Thunderhog, Shardwing, Gaiabloom, Ra-dish, Trillgoat; the Haunted Nebula event: Wispkin, Grin, Cosmoo.
+Ethan's choice, after the collision screen (its table is below); the "My pick" column holds exactly this list and `tools/names_check.py` checks it as a roster.
 
-World 2 Frostbyte: Floof, Bunbun, Drip, Digling, Kettlet, Pengoo, Flapflap, Toastoad, Ember, Glintelk, Shellberg, Capybubble, Auralynx, Achoocub, Skaddle, Fenrikin.
+World 1 Verdant: Moop, Pebblet, Glim, Twiggle, Puffpuff, Snibble, Buzzbit, Lanternewt, Rocklobber, Zapfinch, Sparkfox, Thunderhog, Prismlux, Gaiabloom, Ra-dish, Trillgoat; the Haunted Nebula event: Wispkin, Grin, Cosmoo.
+
+World 2 Frostbyte: Mitt, Snowsnow, Drip, Digling, Kettlet, Pengoo, Flapflap, Toastoad, Sizz, Glintelk, Shellberg, Capybubble, Auralynx, Achoocub, Skaddle, Fenrikin.
+
+Before the screen the list had Twiddle, Shardwing, Floof, Bunbun and Ember in those five places.
 
 ## Notes on the picks
 
-- The picks end in 14 different letters (t 5; e, g, n 4 each; p 3; m, f, r, h, x, o 2 each; d, k, b once) and none ends in y; the only two ending in o are the double o of Cosmoo and Pengoo. The first pass picked 12 names ending in o or y.
+- The picks end in 16 different letters (t 6; e 4; p, x, g, n 3 each; m, h, o 2 each; f, r, w, d, z, k, b once) and none ends in y; the only two ending in o are the double o of Cosmoo and Pengoo. The first pass picked 12 names ending in o or y.
 - Fourteen picks are their own current names because those names already satisfy the shapes, the endings and the hard-consonant rule: Pebblet, Puffpuff, Lanternewt, Rocklobber, Zapfinch, Sparkfox, Thunderhog, Gaiabloom, Ra-dish, Shellberg, Pengoo, Toastoad, Capybubble, Skaddle. The study says why they work: they are the Frost Dragon move (a flavour word and an animal) or the grand single word. The other 21 change.
 - Sparkfox and Zapfinch are both "spark word and a bird or fox" and share shape 5, so they are the pair most likely to sound alike on a row; they sit in different biomes. Foxflick (C) and Boltfinch (B) pull them apart if Ethan wants the Rare row to sound more mixed.
 - Trillgoat is the Secret goat: a trill for the reed pipes and a goat, with hard letters. Pangoat (B) keeps Pan; Fauntrick (C) is the mischief.
 - Fenripup becomes Fenrikin (A): the Fenrir echo stays, a baby suffix makes it cheeky, and the k gives the Cosmic tier its hard letter. Skaddle keeps its echo of Skadi and is the only Legendary-or-up name that already passed.
 - Shimmerlynx was 11 characters; Auralynx (A), Shimlynx (B) and Purrlux (C) fix that and keep the lynx ending.
-- Ember (A) for the urchin is five letters and two syllables, the "near" in shape 1; Sizz (B) is the true monosyllable. Floof (B) is the pick for the snowball, a real internet word for fluffy, cuter than Fluff (A).
+- Sizz (B) is the urchin: a true monosyllable, the hiss of a hot pool. Ember (A) was the first pick and fell to the screen (Pixar's Elemental lead, a Skylanders character, a Steal an Egg pet). Mitt (C) is the snowball with mitten ears: Floof (B) is a Kirby enemy and a moldable-toy brand, and Fluff (A) is a Donkey Kong Country enemy, so the wild card is the one left. Mitt is the plainest pick on the list and the first to revisit if Ethan wants a cuter snowball.
+- Twiggle (B) is the stick bug (Twiddle is a fidget-toy brand), Snowsnow (B) the snow bunny (Bunbun is a Mario enemy), Prismlux (C) the crystal moth (Shardwing is a Steal an Egg Secret pet and Gloomwing a D&D moth). All three kept their shape, so the quotas still hold.
 - Event aliens: Wisplet is kept as B (it already passes), Wispkin (A) is the pick so that no two names on a row end in -let. Grin is the pumpkin smile, Cosmoo a cosmos with a boo in it. All three get a different shape.
 - If Ethan mixes letters, run `python3 -I tools/names_check.py` after writing the picks into the "My pick" column; it reads that column as a roster of its own.
+
+## Collision screen (2026-10-14)
+
+Ethan's rule: every new name gets three searches, `"<name>" Roblox`, `"<name>" toy` and `"<name>" game character`, and anything that is an existing Roblox game or pet, a Pokemon, or a toy or character brand is swapped for that species' B or C. The searches were web-search summaries (the Roblox site itself is blocked from the sandbox), not a trademark register search, so this finds collisions a child or a reviewer would notice; it does not clear a filing. Swap rule used: swap on an exact match with a Roblox pet or game, a franchise creature or character (Nintendo, Disney, Skylanders, D&D) or a toy line; keep a plain dictionary word, a small indie or defunct item and a near-miss spelling, and flag the near-misses. The 14 unchanged names were not searched again (they passed the first-pass memory check).
+
+Swapped out (the exact name is taken):
+
+| Name | Species | What came up | Result |
+|---|---|---|---|
+| Shardwing | Gloomoth | A Secret-rarity pet in Steal an Egg (from the Shattered Rift Egg) | Swapped. B Gloomwing is a D&D and Pathfinder moth monster, so also out. C Prismlux is clean. |
+| Twiddle | Twiglet | The Twiddle fidget toy (Twiddle Mega and others), Twiddle Turtle in a children's board game, a small Roblox horror game "Twiddle the Killer" | Swapped to B Twiggle |
+| Floof | Flufflet | A Kirby enemy (Floof, Big Floof), the Floof moldable-toy brand, a picture book with a Floof plush, a Monster Hunter Stories NPC | Swapped. A Fluff is a Donkey Kong Country: Tropical Freeze enemy, so also out. C Mitt is clean. |
+| Bunbun | Snowbun | A Super Mario Land enemy (Bunbun), the Aurora Rolly Pet Bunbun plush, the Bunbun & Bonbon graphic novels | Swapped to B Snowsnow |
+| Ember | Emberchin | Ember Lumen (Pixar's Elemental), Ember in Skylanders Imaginators, Ember Dragon (Steal an Egg), Emberlight (Adopt Me), Ember plushies | Swapped to B Sizz |
+
+Kept (nothing exact on Roblox, no Pokemon, no toy line):
+
+| Name | Species | What came up | Result |
+|---|---|---|---|
+| Moop | Mossbop | Roblox: a group or two. Toy: the Kachooz pencil toppers, each called a Moop (the USPTO filings for KACHOOZ! were abandoned in 2011). Character: Moop in the 2002 point-and-click Moop and Dreadly, a moon spirit in an anime, the Moopies preschool app (monsters from planet Moop) | Kept, flagged: all obscure or defunct, nothing on Roblox, and it is the studio name. Run a USPTO check before the store page. |
+| Glim | Glimmo | Glimmies (a different word), Glim Jim (a NICI firefly plush, two words), Glimmer in Xenoblade and Donkey Kong Country 2 | Kept |
+| Twiggle | Twiglet | Twiglets (a UK snack), Twigg (a LEGO minifigure) | Kept (swapped in) |
+| Snibble | Snailbyte | Nothing; a Scots dictionary word for a wooden knob | Kept |
+| Buzzbit | Buzzlebee | Buzzbite, a Donkey Kong Country Returns enemy, one letter off; Buzz Bee Toys | Kept, flagged near-miss |
+| Prismlux | Gloomoth | Nothing (Prism Runway Show and PrismAdmin are other words) | Kept (swapped in) |
+| Trillgoat | Panpipe | Nothing | Kept |
+| Wispkin | Wisplet | Nothing; wisps are items in Verse Piece and Fisch, Sonic's Wisps are another word | Kept |
+| Grin | Spookum | No pet. Zuru's Fuggler "Grin Grin", a 2025 middle-grade horror novel and a 2026 horror-film clown named Grin, minor RPG NPCs | Kept, flagged: a plain word, none of it is a pet or a toy brand; the horror link is unrelated to a pumpkin smile |
+| Cosmoo | Nebulyn | Nothing exact. Kosmoo, a Flemish children's series about a boy and his dog, sounds the same; Cosmo in Dandy's World and in Guardians of the Galaxy | Kept, flagged near-miss |
+| Mitt | Flufflet | Nothing (Mr. Mittens in Pixar's Soul is another word) | Kept (swapped in) |
+| Snowsnow | Snowbun | Nothing | Kept (swapped in) |
+| Drip | Drippo | Roblox "drip" is avatar-fashion slang, not a pet. Drippy characters, the 2010 Drip Drops preschool toys | Kept (a plain word) |
+| Digling | Chipmole | Nothing (Dig is a Roblox game, Diggles a 2001 game) | Kept |
+| Kettlet | Kettlepuff | Nothing | Kept |
+| Flapflap | Flapsicle | Flipflap, a Donkey Kong bat enemy, one letter off; the Flip Flap solar toy | Kept, flagged near-miss |
+| Sizz | Emberchin | Nothing exact; Sizzlipede (Pokemon) and Sizzard (Dragon Quest) are other words, and Sizz is a Dragon Quest spell | Kept (swapped in) |
+| Glintelk | Reindazzle | Nothing | Kept |
+| Auralynx | Shimmerlynx | Nothing (the Auralyx Studios Roblox group and CrystaLynx toys are other words) | Kept |
+| Achoocub | Frostfang | Nothing | Kept |
+| Fenrikin | Fenripup | Nothing exact; two letters from the Pokemon Fennekin, built on Fenrir | Kept, flagged near-miss: B Fenrilet is the ready swap |
+
+The four near-misses (Buzzbit, Cosmoo, Flapflap, Fenrikin) and Moop and Grin are the ones to put in front of a trademark search before the store page.
+
+## Applied: id to display name
+
+Ids never change (saves, `assets/models/<Id>/`, `ModelAssets`, spawn tables, dev commands such as `/spawn Mossbop`). The test script in `docs/TESTING.md` and the Studio queue name species by id in commands and by the old display name in some prose; screens now show the names below.
+
+| Id | Name | Id | Name |
+|---|---|---|---|
+| Mossbop | Moop | Flufflet | Mitt |
+| Pebblet | Pebblet | Snowbun | Snowsnow |
+| Glimmo | Glim | Drippo | Drip |
+| Twiglet | Twiggle | Chipmole | Digling |
+| Puffpuff | Puffpuff | Kettlepuff | Kettlet |
+| Snailbyte | Snibble | Pengoo | Pengoo |
+| Buzzlebee | Buzzbit | Flapsicle | Flapflap |
+| Lanternewt | Lanternewt | Toastoad | Toastoad |
+| Rocklobber | Rocklobber | Emberchin | Sizz |
+| Zapfinch | Zapfinch | Reindazzle | Glintelk |
+| Sparkfox | Sparkfox | Shellberg | Shellberg |
+| Thunderhog | Thunderhog | Capybubble | Capybubble |
+| Gloomoth | Prismlux | Shimmerlynx | Auralynx |
+| Gaiabloom | Gaiabloom | Frostfang | Achoocub |
+| Radish | Ra-dish | Skaddle | Skaddle |
+| Panpipe | Trillgoat | Fenripup | Fenrikin |
+| Wisplet | Wispkin | Spookum | Grin |
+| Nebulyn | Cosmoo | | |
 
 ## First pass (2026-10-14 afternoon)
 

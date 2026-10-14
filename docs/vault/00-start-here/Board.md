@@ -80,7 +80,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 ## Decided 2026-10-14 (Ethan)
 
-Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in week one. Make the group now (100 Robux), "Mossbop Games" unless the species rename changes it; the experience stays under Ethan's account for launch (decision 16). Ship the twelve unheard music picks and swap in week one. Max players 8. Open: the icon and thumbnail picks (Ethan is looking at them) and the species rename.
+Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in week one. Make the group now (100 Robux), named **Moop Games** (the species rename gave the Mossbop its name Moop; the emblem banner reads MOOP, `media/group/emblem_v1.png`); the experience stays under Ethan's account for launch (decision 16). Ship the twelve unheard music picks and swap in week one. Max players 8. Open: the icon and thumbnail picks (Ethan is looking at them). The species rename is applied: the second-pass top picks, see [[Species-Names]] and decision B26.
 
 ## Needs a decision (Ethan)
 

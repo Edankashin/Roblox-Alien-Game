@@ -46,14 +46,14 @@ Researched and drafted 2026-10-14 for Ethan, who creates the Roblox group this w
 | A | **Crash Planet** | The leading game name, "Crash Planet: Catch Aliens" | Short, searchable, reads as the game's home; dies with the name if decision 19 flips |
 | B | **Alien Pals** | The alternate "Alien Pals: Build a Rocket" | Generic words; most likely to collide with an existing group |
 | C | **Planet Hoppers** | The alternate "Planet Hoppers: Alien Collector" | Distinct, but the ship-hopping promise is the second half of the game |
-| S | **Mossbop Games** | Any game name (a studio-style name that can hold later games) | Mossbop is the first alien, the icon and the loading screen; backups if it is taken: Wreckplate Games, Scrap Orbit Games |
+| S | **Moop Games** | Any game name (a studio-style name that can hold later games) | Moop (species id Mossbop, renamed in the second naming pass) is the first alien, the icon and the loading screen; backups if it is taken: Wreckplate Games, Scrap Orbit Games |
 
-**Recommendation: S, Mossbop Games.** Reasons: decision 19 is still open and a studio name survives any answer; three of the five big games publish under a studio name and a fourth is a studio-plus-game hybrid; when the experience moves into the group the group's name becomes the byline on the game page, and "Crash Planet: Catch Aliens by Mossbop Games" reads like "Adopt Me! by Uplift Games"; and players reach the group from the in-game button, so nobody has to search for it. Cost of being wrong: 100 Robux and a 90-day wait. If Ethan prefers one name for everything, A is the second choice; the emblem tool takes the banner text as an argument (`python3 -I tools/group_emblem.py "CRASH PLANET"`). Group names are unique, so check availability on the create page; Roblox may reject names it dislikes.
+**Recommendation: S, Moop Games (Ethan's choice, 2026-10-14).** Reasons: decision 19 is still open and a studio name survives any answer; three of the five big games publish under a studio name and a fourth is a studio-plus-game hybrid; when the experience moves into the group the group's name becomes the byline on the game page, and "Crash Planet: Catch Aliens by Moop Games" reads like "Adopt Me! by Uplift Games"; and players reach the group from the in-game button, so nobody has to search for it. Cost of being wrong: 100 Robux and a 90-day wait. If Ethan prefers one name for everything, A is the second choice; the emblem tool takes the banner text as an argument (`python3 -I tools/group_emblem.py "CRASH PLANET"`). Group names are unique, so check availability on the create page; Roblox may reject names it dislikes.
 
-### 3.2 Description (paste as is; 622 characters)
+### 3.2 Description (paste as is; 619 characters)
 
 ```
-Mossbop Games makes Crash Planet: Catch Aliens, a cozy alien-collecting game for Roblox.
+Moop Games makes Crash Planet: Catch Aliens, a cozy alien-collecting game for Roblox.
 
 Crash-land on a strange planet, catch cute aliens with a quick timing bar, and let them build your ship to the next world.
 
@@ -90,18 +90,18 @@ Discord: [DISCORD LINK]
 
 **Spec:** 512x512 PNG, square, under 1 MB, nothing important within 20 px of the edge (Roblox may round the corners). Navy `1B1F3B` (`Theme.Colors.Outline`) ground, cream `FFF4DC` (`Panel`) ring about 22 px thick, gold `FFC83D` (`Featured`) banner with a navy outline, name in Fredoka One, cream with a navy outline about 8 px thick. The name must be readable in a 150x150 preview: at that size the banner text is about 20 px tall and held.
 
-**Built:** `media/group/emblem_v1.png` from `tools/group_emblem.py` (cropped from `media/store/2026-10-14/icon_Mossbop_v2.png`, the same face as the store icon, so the group and the tile look related). Banner, not arc text: arc text fell apart at 150x150.
+**Built:** `media/group/emblem_v1.png` from `tools/group_emblem.py` (cropped from `media/store/2026-10-14/icon_Mossbop_v2.png`, the same face as the store icon, so the group and the tile look related). Banner, not arc text: arc text fell apart at 150x150. Redrawn on 2026-10-14 with the banner MOOP (`python3 -I tools/group_emblem.py "MOOP"`, now the tool's default); it still reads at 150x150.
 
 Three concepts:
 
-1. **Face and banner (v1, built):** the Mossbop in a cream ring over a gold banner reading MOSSBOP, on navy. Closest to the icon, strongest at small size.
-2. **Wordmark (if the group takes the game's name):** CRASH PLANET stacked on two lines in cream with a navy outline, a tiny Mossbop riding the A, a meteor streak behind; text first, for the day the face is not enough.
-3. **Crew line-up:** Mossbop, Sparkfox and Thunderhog heads in a row over the ship wreck's silhouette, no text (Roblox prints the group name beside the emblem). More "studio", busier at 150x150, needs a new render.
+1. **Face and banner (v1, built):** the Moop in a cream ring over a gold banner reading MOOP, on navy. Closest to the icon, strongest at small size.
+2. **Wordmark (if the group takes the game's name):** CRASH PLANET stacked on two lines in cream with a navy outline, a tiny Moop riding the A, a meteor streak behind; text first, for the day the face is not enough.
+3. **Crew line-up:** Moop, Sparkfox and Thunderhog heads in a row over the ship wreck's silhouette, no text (Roblox prints the group name beside the emblem). More "studio", busier at 150x150, needs a new render.
 
 ### 3.5 First shout (205 characters; the launch post, pinned on the group page)
 
 ```
-Crash Planet: Catch Aliens is open! Code LAUNCHWEEK = 300 Scrap + a Lucky Charm until Oct 31. Join us, then claim your Group gift in game: 500 Scrap, 3 Twig Lures, 2 free spins. Catch a Mossbop and say hi!
+Crash Planet: Catch Aliens is open! Code LAUNCHWEEK = 300 Scrap + a Lucky Charm until Oct 31. Join us, then claim your Group gift in game: 500 Scrap, 3 Twig Lures, 2 free spins. Catch a Moop and say hi!
 ```
 
 ## 4. Decide before launch
@@ -113,7 +113,7 @@ Crash Planet: Catch Aliens is open! Code LAUNCHWEEK = 300 Scrap + a Lucky Charm 
    - **Revenue lands in group funds** and reaches a person only through a payout or a recurring split (14-day new-member wait, group-age limit). While the game is user-owned, passes pay Ethan directly. Set the recurring split on day one of the move.
    - **Collaboration gets easier, not required:** a group role replaces "Roblox friends only" Edit access, and a group member can mint an experience-scoped Open Cloud key. Today's Collaborate setup works, so there is no pressure.
 2. **Create the group now, leave the game where it is.** `Social.GroupId` only needs the group to exist: `Player:IsInGroupAsync` works for a user-owned game. The one cost is that the group's Experiences tab is empty until the move; the description and the shout carry the link.
-3. **The name** (3.1): recommended Mossbop Games, check it is free, 100 Robux.
+3. **The name** (3.1): Moop Games (Ethan's choice, 2026-10-14), check it is free, 100 Robux. Moop is also on the trademark-search list in [[Species-Names]].
 4. **Discord:** later, as the Board says; the description has a placeholder and one social-link slot ready.
 5. **Ethan sends back the group id** (the number in `roblox.com/communities/<id>/<name>`) so a worker sets `Social.GroupId` and runs `./tools/analyze.sh`, `./tools/test.sh` and `./tools/lint.sh`.
 

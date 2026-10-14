@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make the Roblox group emblem: the Mossbop face in a circle, a cream ring, the short name on a banner.
+"""Make the Roblox group emblem: the Moop face in a circle, a cream ring, the short name on a banner.
 
   python3 -I tools/group_emblem.py [NAME] [--out media/group/emblem_v1.png] [--preview PATH] [--face PNG]
 
@@ -7,7 +7,7 @@
 text on an arc, carries the name: it stays legible at 150x150. --preview also saves that 150x150 version
 for a legibility check (delete it before committing). Colours are read from src/shared/Theme.luau
 (Outline navy, Panel cream, Featured gold) so a re-skin follows; the font is assets/fonts/FredokaOne.ttf
-(SIL Open Font License). NAME defaults to MOSSBOP; re-run with "CRASH PLANET" if the group takes the game's name.
+(SIL Open Font License). NAME defaults to MOOP (the group is Moop Games); re-run with "CRASH PLANET" if the group takes the game's name.
 """
 import argparse
 import os
@@ -77,7 +77,7 @@ def build(name, face_path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("name", nargs="?", default="MOSSBOP", help="the short name on the banner")
+    ap.add_argument("name", nargs="?", default="MOOP", help="the short name on the banner")
     ap.add_argument("--out", default=os.path.join(ROOT, "media", "group", "emblem_v1.png"))
     ap.add_argument("--face", default=FACE, help="the 1024x1024 icon the face is cropped from")
     ap.add_argument("--preview", help="also save a 150x150 version here, to check it reads small")

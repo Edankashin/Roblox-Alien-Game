@@ -68,8 +68,8 @@ The tutorial decides D1 and it is not scripted yet. It needs a step list with: t
 |---|---|---|---|
 | 1 | 0:00 | Crash landing cinematic, 8 seconds, skippable after the first time | |
 | 2 | 0:10 | "Drag 3 wreck plates to the frame." Player gathers by hand. Ship bar appears at the first plate | Ship bar |
-| 3 | 1:00 | Mossbop waddles up, "!" bubble. First capture, zone 40% wide, cannot fail (ticker slows near the zone) | Capture bar, codex |
-| 4 | 1:30 | Mossbop auto-walks to the Gather station and takes over gathering. Timer visibly drops | Stations |
+| 3 | 1:00 | Moop waddles up, "!" bubble. First capture, zone 40% wide, cannot fail (ticker slows near the zone) | Capture bar, codex |
+| 4 | 1:30 | Moop auto-walks to the Gather station and takes over gathering. Timer visibly drops | Stations |
 | 5 | 2:00 | "Build a panel." Player holds a button. Puffpuff appears, same ritual, takes over building | Second job |
 | 6 | 3:00 | Scrap counter appears with "+" text. First module hits 50%. "Catch 3 more aliens while they work" | Scrap |
 | 7 | 3:30 to 6:30 | Free catching in the Meadow with the Nearby panel on. A Rare (Sparkfox) is guaranteed to spawn once in this window | Nearby panel |
@@ -183,7 +183,7 @@ Profile = {
 Prove the loop is fun before building the roster. Scope:
 
 - Meadow biome only, with day and night.
-- 6 species: Mossbop, Pebblet, Puffpuff, Buzzlebee, Sparkfox, Thunderhog (Common, Common, Common, Uncommon, Rare, Epic).
+- 6 species: Moop, Pebblet, Puffpuff, Buzzbit, Sparkfox, Thunderhog (Common, Common, Common, Uncommon, Rare, Epic).
 - Capture bar with tier difficulty, lures tier 1, hidden kindness.
 - Two jobs (Gather, Build), one station each, auto-assign. Spark arrives with module 2.
 - Two modules with all three gates, the ship bar, the assembling ship.

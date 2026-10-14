@@ -135,7 +135,7 @@ Overlays roll on any body, one per alien, multiplicative: Shiny 1.25x (~5%), Gol
 - **Codex payout:** the first catch of any species pays Scrap and a decoration. A late Common is worthless as a unit but valuable as an entry.
 - **Gather is commons-only:** one job is held only by Common and Uncommon species, so the camp cannot run without them.
 - **Sets need them:** every Set in the codex includes commons, so a Set reward is impossible without them (section 9).
-- **Size rolls and growth (P1, from the dinosaur-ranch reference in `media/tiktok/NOTES.md` batch 3):** every catch rolls a size (Tiny to Giant, a bell curve) shown on the nameplate and as a visible scale, with a small work-speed bonus at the top end, so the twentieth Mossbop can still be a "whoa, look at the size of it". Aliens at a station also grow Hatchling to Grown to Elder by time worked, each stage a visible size step and a small speed bump. Growth is a reward with no feeding, no hunger and no decay, so pillar 3 holds. Built: sizes as milestone 25 (`data/Sizes.luau`), growth as milestone 28 (`data/Growth.luau`: Hatchling, Grown at 2 h worked, Elder at 24 h, +10% and +25% speed, +8% and +16% scale; time away counts for seated aliens up to the offline cap).
+- **Size rolls and growth (P1, from the dinosaur-ranch reference in `media/tiktok/NOTES.md` batch 3):** every catch rolls a size (Tiny to Giant, a bell curve) shown on the nameplate and as a visible scale, with a small work-speed bonus at the top end, so the twentieth Moop can still be a "whoa, look at the size of it". Aliens at a station also grow Hatchling to Grown to Elder by time worked, each stage a visible size step and a small speed bump. Growth is a reward with no feeding, no hunger and no decay, so pillar 3 holds. Built: sizes as milestone 25 (`data/Sizes.luau`), growth as milestone 28 (`data/Growth.luau`: Hatchling, Grown at 2 h worked, Elder at 24 h, +10% and +25% speed, +8% and +16% scale; time away counts for seated aliens up to the offline cap).
 
 ### How value is shown
 
@@ -145,23 +145,25 @@ Four channels at once: the module timer visibly shrinks when a better alien is d
 
 Naming rule: each alien is an alien-plus-object or alien-plus-tool hybrid describable in three words, with a rhythmic or reduplicated name, one voice line, and one job-tied idle animation.
 
+The names below are the second-pass names Ethan picked on 2026-10-14 (`docs/vault/01-game-design/Species-Names.md` has the study, the collision screen and the id map). Ids never change, so code, saves and asset folders still say Mossbop, Glimmo and so on: Moop is the id Mossbop.
+
 | Name | Concept (3 words) | Tier | Job | Where / when |
 |---|---|---|---|---|
-| Mossbop | moss ball, eyes | Common | Gather | Meadow, any |
+| Moop | moss ball, eyes | Common | Gather | Meadow, any |
 | Pebblet | pebble with legs | Common | Gather | Cave mouth, any |
-| Glimmo | jelly firefly | Common | Spark | Forest, any |
-| Twiglet | stick bug, leaf hat | Common | Gather | Forest, any |
+| Glim | jelly firefly | Common | Spark | Forest, any |
+| Twiggle | stick bug, leaf hat | Common | Gather | Forest, any |
 | Puffpuff | dandelion puff, face | Common | Build | Meadow, any |
-| Snailbyte | snail, metal shell | Uncommon | Gather | Cave, any |
-| Buzzlebee | bee, tiny backpack | Uncommon | Gather | Meadow, day |
+| Snibble | snail, metal shell | Uncommon | Gather | Cave, any |
+| Buzzbit | bee, tiny backpack | Uncommon | Gather | Meadow, day |
 | Lanternewt | newt, glowing tail | Uncommon | Spark | Forest, night |
 | Rocklobber | crab, boulder claws | Rare | Gather L3 | Cave, any |
 | Zapfinch | bird, antenna crest | Rare | Spark L3 | Forest, any |
 | Sparkfox | fox, glowing paintbrush tail | Rare | Build L3 | Meadow, any |
 | Thunderhog | hedgehog, lightning quills | Epic | Spark/Build | Meadow, Rain only |
-| Gloomoth | moth, crystal wings | Epic | Gather/Spark | Cave, night only |
+| Prismlux | moth, crystal wings | Epic | Gather/Spark | Cave, night only |
 | Gaiabloom (Verdant Warden) | stag, tree antlers, flowers bloom where it steps; echo of Gaia | Legendary | all | Field Notes finale |
-| Panpipe (secret) | goat, reed pipes; echo of Pan | Secret | all | Unlocked by completing the Verdant codex page |
+| Trillgoat (secret) | goat, reed pipes; echo of Pan | Secret | all | Unlocked by completing the Verdant codex page |
 
 ### The Pantheon: ancient beings as the epic end of the ladder
 
@@ -180,7 +182,7 @@ Proposed Wardens and Star-born (placeholders; the pun is the point):
 | World | Warden (Legendary) | Echo of | Attribute kept | Star-born example (Cosmic) | Echo of |
 |---|---|---|---|---|---|
 | Verdant | Gaiabloom | Gaia, Greek earth | flowers bloom in its footprints | Ra-dish | Ra, Egyptian sun; a radiant radish with a sun disk |
-| Frostbyte | Skaddle | Skadi, Norse winter | tiny skis, snow-owl body | Fenripup | Fenrir, Norse wolf; a puppy with a moon on its forehead |
+| Frostbyte | Skaddle | Skadi, Norse winter | tiny skis, snow-owl body | Fenrikin | Fenrir, Norse wolf; a puppy with a moon on its forehead |
 | Neon Grid | Hephaestron | Hephaestus, Greek forge | hammer tail, glowing seams | Thothbyte | Thoth, Egyptian knowledge; an ibis with a data-scroll |
 | Emberfall | Vulcanine | Vulcan, Roman fire | lava-dog with an ember mane | Quetzalcoodle | Quetzalcoatl, Aztec feathered serpent; a noodle with feathers |
 | Tidepool | Poseidolphin | Poseidon, Greek sea | a tiny trident on its nose | Jormungeel | Jormungandr, Norse sea serpent; an eel eating its own tail |
@@ -362,7 +364,7 @@ A world is not a palette swap. Each one adds a way of playing the other worlds d
 | World | Signature verb (how you catch and move) | Special area | Super-rare and its harder minigame | Secret spot |
 |---|---|---|---|---|
 | 1 Verdant Crash Site | The baseline: walk, tap, timing bar | The Shrine of the Warden (built) | Gaiabloom through the Field Notes finale (built) | A treetop hollow reached by a log-hop obby; Glider later |
-| 2 Frostbyte | Place Heaters to reveal (built); ice patches slide you | A geyser that lifts you to a ledge on its timer | Fenripup in a Meteor Shower (built); Skaddle finale (built) | An ice cave behind a waterfall of snow, a timed jump across geyser plumes |
+| 2 Frostbyte | Place Heaters to reveal (built); ice patches slide you | A geyser that lifts you to a ledge on its timer | Fenrikin in a Meteor Shower (built); Skaddle finale (built) | An ice cave behind a waterfall of snow, a timed jump across geyser plumes |
 | 3 Neon Grid | Rooftop parkour: jumps, zip lines, vents that launch you; robotic and cyberpunk aliens that only power up at night | The Server Farm core room: a Power Surge boosts luck and spawn speed inside while it runs | A chrome Legendary that flees across rooftops: the bar moves while you chase it on a timer | A hidden arcade under the Undercity, entered by a three-part vent obby |
 | 4 Emberfall | Heat runs: dash between Cooling Vents before the meter fills | The Obsidian Caves' crystal garden: cool, slow, where Rares nest | A lava Warden whose zone shrinks with the heat meter: a two-stage catch | A magma bridge that only forms during Ashfall |
 | 5 Tidepool | Fishing: aliens are fish; cast from the shore or dive, then a cast-and-reel bar (the zone drifts like a bobber; hold to reel, release to let it run) | A bioluminescent fountain in the Trench: everything glows, catches inside give +luck, and the fountain's own glowing fish spawn only there | A Cosmic deep-sea fish caught through a double bar (reel plus a second tension bar) during King Tide | A sunken ship's hold reached by a breath-limited dive through a kelp maze |
@@ -375,12 +377,12 @@ Built (milestone 26): both variants live in `src/shared/data/CatchVariants.luau`
 
 ### One special weather per world
 
-Every world has exactly one special weather state that only it rolls, and one signature alien that spawns only while it runs. The clock rolls the special weather at its own chance whenever the weather changes, so it is an appointment players learn to wait for, and its arrival posts a server-wide banner naming the alien ("Blizzard! Frostfang is out!"). This is `Worlds.luau` data, so adding a world's weather is a row, not code. Placeholders until each world is built:
+Every world has exactly one special weather state that only it rolls, and one signature alien that spawns only while it runs. The clock rolls the special weather at its own chance whenever the weather changes, so it is an appointment players learn to wait for, and its arrival posts a server-wide banner naming the alien ("Blizzard! Achoocub is out!"). This is `Worlds.luau` data, so adding a world's weather is a row, not code. Placeholders until each world is built:
 
 | World | Normal weathers | Special weather | Signature alien |
 |---|---|---|---|
 | Verdant Crash Site | Clear, Fog | Rain | Thunderhog (Epic) |
-| Frostbyte | Clear, Snow | Blizzard | Frostfang |
+| Frostbyte | Clear, Snow | Blizzard | Achoocub |
 | Neon Grid | Clear, Smog | Power Surge | Voltwisp |
 | Emberfall | Clear, Haze | Ashfall | Cinderling |
 | Tidepool | Clear, Mist | King Tide | Pearlback |
