@@ -62,6 +62,32 @@ What we change first if a number is off: bounce high at 60 s means the loading w
 - Five creators who cover small cute games, one DM each with the code and the trailer; no paid promotion in week one.
 - Launch week in the game: the LaunchGold overlay (about 1 in 25 catches through 2026-10-26) and a World 1 Alien of the Week, so the players who were there have something to show.
 
+## 5d. Dashboard run sheet (for the session that drives Ethan's screen; every field in order, no decisions left in it)
+
+Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415131). Values below assume Ethan's answers to the decisions list; replace a line if he chose otherwise.
+
+| Page | Field | Value |
+|---|---|---|
+| Basic Settings | Name | Crash Planet: Catch Aliens |
+| Basic Settings | Description | section 2 above, pasted as is; append the LAUNCHWEEK line: "Code LAUNCHWEEK: 300 Scrap and a Lucky Charm, until Oct 31." |
+| Basic Settings | Genre | Adventure |
+| Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
+| Basic Settings | Icon | `media/store/2026-10-14/icon_Mossbop_v2.png` |
+| Basic Settings | Thumbnails (in order) | `thumb_verdant_v2_title.png`, `thumb_legendary_v2_title.png`, `thumb_frostbyte_v2_title.png`; video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Places > World 1 | Max players | 8; server fill: Roblox optimised |
+| Access | Private servers | Off |
+| Access | Paid access | Off |
+| Communication | Chat | On (text) |
+| Monetization > Passes | SlotEveryStation2, CompanionSlot4, StorageBoost, ExplorerPack, SlotEveryStation1 | each "For sale" |
+| Monetization > Developer Products | Spins1, Spins5, Spins12, the boosts, Server Luck | each "For sale" |
+| Events | New event | Haunted Nebula, 2026-10-16 to 2026-10-30, one line from the season's strings, thumbnail `thumb_legendary_v2_title.png` |
+| Experience Questionnaire | Violence | none realistic; cartoon creatures caught with a timing bar, no blood, no weapons |
+| Experience Questionnaire | Fear | none (Haunted Nebula is cartoon spooky) |
+| Experience Questionnaire | Romance, crude humour, alcohol, gambling | none; paid random items: yes (spins and eggs), odds shown in game, no real-money payout, no Scrap sold for Robux |
+| Experience Questionnaire | Free-form chat | yes (Roblox text chat) |
+| Privacy | Public | only after Ethan's phone check; he says "public" |
+| Credentials > API keys | the Open Cloud key | read only: scopes (Assets read and write, universe-places write for this experience), expiry set; note what it shows in the log; never copy the secret |
+
 ## 6. Known gaps shipping with the launch (fix in week one)
 
 Icons are the flat pack (icons v2 to come); music is a first blind pick; the Moonlit Forest dressing and camera anchors are not placed; worlds 3 to 7 are designed only; haptics unverified on a real phone.
