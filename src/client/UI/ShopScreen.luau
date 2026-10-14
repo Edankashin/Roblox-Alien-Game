@@ -11,7 +11,9 @@
 -- value shown is read from the profile and purchases mirrors in State and the shared data tables; every Craft, Buy
 -- or pick tap asks the server (ShopBuy, SetStarterChoice, PromptPurchase) and a refusal becomes a toast.
 -- Nothing here decides an outcome and nothing here knows a product id: the server opens Roblox's own
--- purchase prompt, grants on the receipt and pushes PurchasesChanged, which redraws the page.
+-- purchase prompt, grants on the receipt and pushes PurchasesChanged, which redraws the page. The panel, every tile card and every
+-- label on a tile are Active (they sink taps): Builder's frames and labels are not, and a tap on one that is not lands on the
+-- full-screen Dim button under the panel, which closes the Shop.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -168,24 +170,33 @@ local RX_FEATURED_H = 0.93 -- the large tile (0.85 before the about-line took th
 local RX_COLS = 2
 local RX_COL_GAP = 0.03 -- of the page width
 local RX_TILE_W = (1 - RX_COL_GAP * (RX_COLS - 1)) / RX_COLS
-local RX_TILE_ASPECT = 1.15 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size; 1.4 until the about-line needed its own band, see TILE_*)
+local RX_TILE_ASPECT = 1.05 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size; 1.4 until the about-line needed its own band, 1.15 until the description needed two lines, see TILE_*)
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
--- Inside a small tile (fractions of the tile). At iPhone SE size (667x375) the page is 282 px wide, so the tile is 137 x 119 px
--- (it was 137 x 98 at aspect 1.4, and every band below keeps its old pixel height): the name band holds two 14 px lines
--- (37 px, a name wraps rather than being cut), the description band one (18 px), the price button is 32 px (0.11 of the panel)
--- and the about-line band 21 px under it. No note band sits between the description and the button: a shared boost's note
--- takes the description band, as a spin tile's odds line does (a note band 10 px high wrapped to two lines and ran under the
--- Buy button), so the about-line went under the button and the tile grew by the band's height instead of squeezing one in.
--- The about-line is one 14 px line (17 px of height) of "about $12.48", the longest of the launch prices: 12 glyphs at
--- Fredoka One's widest recorded 8.1 px per glyph at 14 px ("Scann" is 40.7 px, UI Playbook, UI fit pass) is 98 px against the
--- 123 px label box (0.9 of the 137 px tile) with 25 px to spare, and 98 px against 106 px (0.9 of 117.5) in a 425x620 window,
--- the narrowest checked, which leaves 8 px, more than the 5 px margin the fit pass asks for. TextScaled is off, so the size
--- never grows or shrinks with the box.
+-- Inside a small tile (fractions of the tile). At iPhone SE size (667x375) the page is 282.3 px wide (the 394.9 x 292.5 panel,
+-- 0.73 of it for the content, less the 6 px bar), so the tile is 136.9 x 130.4 px (it was 136.9 x 119.0 at aspect 1.15 and 137 x 98 at
+-- 1.4). Fredoka One's line is 1.21 em, 17 px at 14 px, so a band is sized in lines: two lines are 34 px.
+--   name band     3.5 px down, 37.0 px high: two 14 px lines (a name wraps rather than being cut), 3 px to spare
+--   description   40.7 px down, 36.5 px high: two 14 px lines, TextScaled off (it was 17.8 px, one line, and cut every
+--                 pass and boost description at "One more alien can..."), 2.5 px to spare
+--   price button  78.2 px down, 31.9 px high (0.11 of the panel, over the 26 px tap floor)
+--   about-line    110.8 px down, 16.9 px high: one 14 px line (it was a 21 px band, 4 px of it air), 2.6 px under it
+-- The aspect paid for the description's second line: the band under the button gave up 4 px and the tile 11.4 px. No note band
+-- sits between the description and the button: a shared boost's note takes the description band (one line, centred, 14 px:
+-- "Everyone, 15 min" is 112 px against the 123.2 px box, which is 0.9 of the tile), as a spin tile's odds line does (a note
+-- band 10 px high wrapped to two lines and ran under the Buy button).
+-- A description holds what its box holds: two lines of 123.2 px are roughly 210 px of text once the word breaks are paid for. The
+-- Spins strings (187 to 214 px) fit whole; the pass and boost strings (276 to 566 px) take three to six lines, so
+-- TextTruncate.AtEnd ends the second line with an ellipsis. Showing them whole is a job for shorter strings (about 26 characters),
+-- not for a smaller size: 14 px is the floor.
+-- The about-line is one 14 px line of "about $12.48", the longest of the launch prices: 84 px in Fredoka One against the 123.2 px label
+-- box (98 px at the widest recorded 8.1 px per glyph, which still leaves 25 px), and 98 px against 105.7 px (0.9 of 117.5) in a
+-- 425x620 window, the narrowest checked, which leaves 8 px, more than the 5 px margin the fit pass asks for. TextScaled is off,
+-- so the size never grows or shrinks with the box.
 local TILE_INSET = 0.05
-local TILE_NAME_Y, TILE_NAME_H = 0.035, 0.31
-local TILE_DESC_Y, TILE_DESC_H = 0.35, 0.15
-local TILE_BUTTON_Y, TILE_BUTTON_H = 0.515, 0.27
-local TILE_ABOUT_Y, TILE_ABOUT_H = 0.79, 0.175
+local TILE_NAME_Y, TILE_NAME_H = 0.027, 0.284
+local TILE_DESC_Y, TILE_DESC_H = 0.312, 0.28
+local TILE_BUTTON_Y, TILE_BUTTON_H = 0.60, 0.245
+local TILE_ABOUT_Y, TILE_ABOUT_H = 0.85, 0.13
 -- Inside the large tile (0.93 of the page high: 220 px at 667x375, 201 px before the about-line): picker buttons 0.13 and the
 -- price button 0.16 of the panel.
 local BIG_INSET = 0.04
@@ -650,7 +661,7 @@ end
 -- The "about $2.49" line under a price button: the real-currency estimate of item.robux (Shop.RealCurrency, formatted by
 -- ShopMath.AboutLine from SHOP_ABOUT_PRICE), centred in a band of `height` at `y`, inside the tile by `inset` each side. One
 -- fixed 14 px line in the Common grey with the usual outline, TextScaled off so the size cannot drift; a string that ever
--- overflowed would trim with an ellipsis rather than wrap onto the card edge. Refreshed visible and hidden with the button.
+-- overflowed would trim with an ellipsis rather than wrap onto the card edge. Active, so a tap on it is swallowed. Refreshed visible and hidden with the button.
 local function buildAboutLine(parent: Frame, item: ShopItem, y: number, height: number, inset: number): TextLabel
 	local about = Builder.label({
 		parent = parent,
@@ -666,6 +677,7 @@ local function buildAboutLine(parent: Frame, item: ShopItem, y: number, height: 
 	about.TextSize = Theme.TextSize.Min
 	about.TextWrapped = false
 	about.TextTruncate = Enum.TextTruncate.AtEnd
+	about.Active = true -- a tap on the estimate stops here; an inactive label hands it to the Dim button, which closes the Shop
 	return about
 end
 
@@ -687,8 +699,9 @@ local function sharedBoostNote(item: ShopItem): string?
 	return nil
 end
 
--- A small tile: section-coloured gradient card, the name (two lines at most), a one-line description (gold on a
--- shared boost, where it names who gets it) and the price button along the bottom. The grid sets its size and position.
+-- A small tile: section-coloured gradient card, the name (two lines at most), a description of two 14 px lines (one gold line
+-- on a shared boost, where it names who gets it) and the price button with its about-line along the bottom. The card and every
+-- label on it are Active, so a tap on the tile's text never reaches the Dim. The grid sets its size and position.
 local function buildSmallTile(parent: Frame, index: number, item: ShopItem, color: Color3): RobuxTile
 	local card = Builder.frame({
 		parent = parent,
@@ -700,9 +713,10 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		strokeColor = Builder.darker(color),
 		zIndex = 3,
 	})
+	card.Active = true
 	card.LayoutOrder = index
 	Builder.gradient(card, color)
-	Builder.label({
+	local name = Builder.label({
 		parent = card,
 		name = "Name",
 		text = robuxItemName(item.id),
@@ -711,6 +725,7 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NAME_H),
 		zIndex = 4,
 	})
+	name.Active = true
 	if not item.oddsOnWheel then
 		local note = sharedBoostNote(item)
 		local desc = Builder.label({
@@ -723,14 +738,21 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
 			zIndex = 4,
 		})
-		desc.TextTruncate = Enum.TextTruncate.AtEnd -- one line: shrinks to the minimum size, then trims
+		-- Two 14 px lines (TILE_DESC_H), not scaled: the size is the Playbook's floor for a description, and a string
+		-- that needs a third line ends its second with an ellipsis rather than running into the Buy button.
+		desc.TextScaled = false
+		desc.TextSize = Theme.TextSize.Min
+		desc.TextWrapped = true
+		desc.TextTruncate = Enum.TextTruncate.AtEnd
+		desc.Active = true
 	end
 	if item.oddsOnWheel then
 		-- Paid spins: the odds must be visible before buying. A spin tile's name says what it is ("5 Spins"), so its
-		-- description band carries the odds line instead, at body size (the tile is too short for a description, a
-		-- note and the Buy button at phone sizes). The band from the description's top to the button's top is one
-		-- tap target that opens the wheel and its odds table (data/Spins). The Buy button below stays its own target.
-		Builder.label({
+		-- description band carries the odds line instead: one gold 14 px line, centred in the band (the tile is too short
+		-- for a description, a note and the Buy button at phone sizes). The band from the description's top to the button's
+		-- top (37.6 px high at 667x375) is one tap target that opens the wheel and its odds table (data/Spins), a ZIndex above
+		-- the labels. The Buy button below stays its own target.
+		local odds = Builder.label({
 			parent = card,
 			name = "Odds",
 			text = Strings.SHOP_SEE_ODDS,
@@ -740,6 +762,9 @@ local function buildSmallTile(parent: Frame, index: number, item: ShopItem, colo
 			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
 			zIndex = 4,
 		})
+		odds.TextScaled = false
+		odds.TextSize = Theme.TextSize.Min
+		odds.Active = true
 		local oddsTap = Instance.new("TextButton")
 		oddsTap.Name = "OddsTap"
 		oddsTap.Text = ""
@@ -793,9 +818,10 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 		strokeColor = Builder.darker(color),
 		zIndex = 3,
 	})
+	card.Active = true
 	card.LayoutOrder = index
 	Builder.gradient(card, color)
-	Builder.label({
+	local name = Builder.label({
 		parent = card,
 		name = "Name",
 		text = robuxItemName(item.id),
@@ -805,7 +831,8 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
 	})
-	Builder.label({
+	name.Active = true
+	local desc = Builder.label({
 		parent = card,
 		name = "Desc",
 		text = Builder.text("SHOP_DESC_" .. item.id),
@@ -814,7 +841,8 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 		size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_DESC_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = 4,
-	}) -- TextScaled wraps: two lines at the Body size
+	}) -- TextScaled wraps and shrinks to fit the three lines of BIG_DESC_H (14 px at the floor, 51 px of the 55 px band)
+	desc.Active = true
 	if needsChoice(item.id) then
 		local row = Builder.frame({
 			parent = card,
@@ -841,7 +869,7 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 			table.insert(pickers, { species = species, button = button })
 		end
 		pickerRow = row
-		pickedLabel = Builder.label({
+		local picked = Builder.label({
 			parent = card,
 			name = "Picked",
 			text = "",
@@ -851,6 +879,8 @@ local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): 
 			xAlign = Enum.TextXAlignment.Left,
 			zIndex = 4,
 		})
+		picked.Active = true
+		pickedLabel = picked
 	end
 	local button = Builder.button({
 		parent = card,
@@ -1243,6 +1273,7 @@ local function build()
 		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
+	body.Active = true -- sinks input: a tap anywhere on the panel that misses a button never reaches the Dim and closes the Shop
 	panel = body
 
 	-- Header tab straddling the top edge, green for the shop, title in white outlined text.
