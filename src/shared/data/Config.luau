@@ -221,4 +221,8 @@ return {
 	BuffTickSeconds = 1, -- the server counts active power-ups down this often, only while the player is online
 	BuffPushSeconds = 5, -- and tells the client the remaining seconds this often (the client counts between pushes)
 	LuckNightBonus = 0.25, -- luck bonus while it is night (design: night, for night-conditional species)
+
+	-- "What's on" card (UI/QuestsScreen) and Shared/Countdown
+	WhatsOnRefreshSeconds = 1, -- the card redraws this often while the Quests screen is open, never while it is closed
+	CountdownDaysOnlyFrom = 3, -- a countdown of this many whole days or more drops the hours ("4d", not "4d 7h")
 }

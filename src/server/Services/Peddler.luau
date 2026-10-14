@@ -9,6 +9,9 @@
 -- The client renders the landing and the Trade screen; it only sends an offer index, and the server buys only for a
 -- character within Config.PeddlerInteractDistance (plus the slack) of the landed ship (Exploit-Review D7).
 -- The home planet (Place.IsHome, world 0) gets no visits: the clock never starts there.
+-- Clients hear PeddlerChanged (FireAllClients) as (visit, nextAt) at every landing and take-off, and a late joiner
+-- asks GetPeddler once and gets the same two values: nextAt is the os.time() the next visit lands, so the "What's
+-- on" card can count to it between visits (0 where no visit ever comes). The client only renders.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -45,6 +48,7 @@ end
 
 local rng = Random.new()
 local visit: Types.PeddlerVisit? = nil
+local nextVisitAt = 0 -- os.time() the next visit lands; 0 until the clock starts (and for good on the home planet)
 local bought: { [number]: { [number]: boolean } } = {} -- UserId -> offer index -> true, for the current visit
 
 -- This player's purchases in the current visit (by UserId, so a rejoin changes nothing).
@@ -116,15 +120,18 @@ end
 
 local function beginVisit()
 	table.clear(bought)
-	local fresh: Types.PeddlerVisit = { offers = rollOffers(), endsAt = os.time() + Config.PeddlerVisitSeconds }
+	local now = os.time()
+	local fresh: Types.PeddlerVisit = { offers = rollOffers(), endsAt = now + Config.PeddlerVisitSeconds }
 	visit = fresh
-	Net.event("PeddlerChanged"):FireAllClients(fresh)
+	-- The interval runs from this visit's start; a stay longer than the interval leaves no gap (see Start's loop).
+	nextVisitAt = now + math.max(Config.PeddlerIntervalSeconds, Config.PeddlerVisitSeconds)
+	Net.event("PeddlerChanged"):FireAllClients(fresh, nextVisitAt)
 end
 
 local function endVisit()
 	visit = nil
 	table.clear(bought)
-	Net.event("PeddlerChanged"):FireAllClients(nil)
+	Net.event("PeddlerChanged"):FireAllClients(nil, nextVisitAt)
 end
 
 -- Eggs -------------------------------------------------------------------
@@ -167,12 +174,13 @@ end
 
 -- Remotes ----------------------------------------------------------------
 
--- GetPeddler() -> PeddlerVisit?. The current visit for a late joiner, nil between visits.
-local function onGetPeddler(player: Player): Types.PeddlerVisit?
+-- GetPeddler() -> (PeddlerVisit?, nextAt). The current visit for a late joiner, nil between visits, and when the
+-- next one lands (os.time(); 0 where none comes).
+local function onGetPeddler(player: Player): (Types.PeddlerVisit?, number)
 	if not Net.allow(player, "GetPeddler", SNAPSHOT_RATE_PER_SECOND) then
-		return nil
+		return nil, 0
 	end
-	return visit
+	return visit, nextVisitAt
 end
 
 -- PeddlerBuy(index) -> (ok, reason, grant). index is 1..#offers of the current visit; grant is the
@@ -289,6 +297,7 @@ function Peddler.Start()
 		return
 	end
 	-- The interval is measured from one visit's start to the next, so the gap is interval minus stay.
+	nextVisitAt = os.time() + Config.PeddlerFirstVisitSeconds
 	task.spawn(function()
 		task.wait(Config.PeddlerFirstVisitSeconds)
 		while true do

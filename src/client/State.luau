@@ -47,6 +47,8 @@ local showerAt = 0 -- State.Now() when the shower state arrived, so the client c
 local rush: Types.CatchRushState = { active = false, secondsLeft = 0, nextInSeconds = 0, rows = {} }
 local rushAt = 0 -- State.Now() when the Catch Rush state arrived, so the client counts between pushes
 local peddler: Types.PeddlerVisit? = nil
+local peddlerNextAt = 0 -- os.time() the next Peddler visit lands, as the server last said (PeddlerChanged, GetPeddler); 0 until it does, and for good on the home planet
+local peddlerPushed = false -- a PeddlerChanged push has landed, so a late GetPeddler answer is older and is dropped
 local luck = 1
 local friendCount = 0 -- friends in this server and the luck boost they give (FriendBoostChanged), a fraction
 local friendBoost = 0
@@ -449,6 +451,22 @@ function State.GetPeddler(): Types.PeddlerVisit?
 	return peddler
 end
 
+-- When the next Peddler visit lands, on the server wall clock (compare with State.Now()); 0 while unknown.
+function State.GetPeddlerNext(): number
+	return peddlerNextAt
+end
+
+-- A late joiner's GetPeddler answer (the visit in progress, or nil, and when the next one lands); a push that
+-- already arrived is newer and wins.
+function State.SeedPeddler(visit: Types.PeddlerVisit?, nextAt: number)
+	if peddlerPushed then
+		return
+	end
+	peddler = visit
+	peddlerNextAt = nextAt
+	fire("peddler")
+end
+
 function State.GetLuck(): number
 	return luck
 end
@@ -778,8 +796,10 @@ function State.Start()
 		end)
 	end)
 	task.spawn(function()
-		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?)
+		Net.event("PeddlerChanged").OnClientEvent:Connect(function(visit: Types.PeddlerVisit?, nextAt: number?)
+			peddlerPushed = true
 			peddler = visit
+			peddlerNextAt = if type(nextAt) == "number" then nextAt else 0
 			fire("peddler")
 		end)
 	end)

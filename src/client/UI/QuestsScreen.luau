@@ -21,6 +21,14 @@
 -- server (ClaimSeasonQuest, one request in flight) and a row that paid an alien opens the Reveal through the
 -- bootstrap's hook (QuestsScreen.OnGrant), as a gift egg does. The tab goes, and the view falls back to Field Notes,
 -- when the season ends.
+--
+-- Above every tab sits the "What's on" card: a navy band of four lines in two columns, one per timed thing, each with
+-- its countdown: the Meteor Shower, the Catch Rush, the Peddler (here now or landing next) and, in the fourth place,
+-- the running season's end or else the weekly drop's reset. Every instant is the server's (the ShowerChanged,
+-- CatchRushChanged and PeddlerChanged states State mirrors, the season and the week from the shared clock maths);
+-- the card only subtracts and formats them (Shared/Countdown). A thing happening now (a shower or a round
+-- running, the Peddler's ship down) is Featured gold with the time left as m:ss; a thing to come reads white with
+-- the short form. The card redraws once a second while the screen is open and not at all while it is closed.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -34,6 +42,9 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Seasons = require(Shared:WaitForChild("data"):WaitForChild("Seasons"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
+local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
+local Countdown = require(Shared:WaitForChild("Countdown"))
+local Place = require(Shared:WaitForChild("Place"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -99,9 +110,17 @@ type ViewName = "notes" | "daily" | "event"
 -- while a season runs); layoutTabs sets the three, applyView raises the active one.
 type Tab = { frame: Frame, color: Color3, x: number, visible: boolean }
 
-local LIST_TOP = 0.155 -- below the step header line
-local ROW_COMPACT = 0.1 -- of the list height
-local ROW_GAP = 0.012
+-- The body from the top: the header line (the card's title on the left, "Step n of N" on the right), the What's on card,
+-- then the list of the current tab. The card is two 15.5 px lines at iPhone SE size (panel 395 x 292): it starts under
+-- the Close button (which ends at 0.155) and costs the lists about 34 px, a little over one compact Field Notes row.
+local HEADER_TOP = 0.083
+local HEADER_HEIGHT = 0.058
+local ON_TOP = 0.158
+local ON_HEIGHT = 0.106
+local ON_GAP = 0.006
+local LIST_TOP = ON_TOP + ON_HEIGHT + ON_GAP -- below the card
+local ROW_COMPACT = 0.09 -- of the list height; the list lost 34 px to the What's on card (rows were 0.1 and gaps 0.012), and the current step's card keeps most of its height
+local ROW_GAP = 0.01
 local MIN_EXPANDED = 0.45 -- the current step's card never shrinks below this, whatever the chain length
 local DONE_HEIGHT = 0.3 -- the done line under a finished chain
 local OBJECTIVE_TEXT_WIDTH = 0.78 -- the rest of an objective line is its count
@@ -128,7 +147,7 @@ local TAB_ORDER: { ViewName } = { "notes", "daily", "event" }
 -- Event list. Heights are in windows (1 = the scroller's visible height) and become fractions of the canvas by
 -- dividing by the page count; the canvas itself is `pages * EV_LIST_SHARE` of the body, because CanvasSize scales
 -- against the ScrollingFrame's parent, not against the frame (docs/vault/04-roblox-engine/UI-Rules.md). At iPhone SE
--- size a window is about 240 px: the title, the hint and the first two rows show, the other three are a scroll away.
+-- size a window is about 207 px: the title, the hint and the first two rows show, the other three are a scroll away.
 local EV_LIST_SHARE = 1 - LIST_TOP - Theme.Margin -- the list's height as a share of its parent (the body)
 local EV_HEAD_H = 0.12
 local EV_HINT_H = 0.1
@@ -145,6 +164,20 @@ local DQ_GAP = 0.02
 local DQ_SECTION_H = DQ_HEAD_H + DQ_GAP + DQ_ROWS * (DQ_ROW_H + DQ_GAP)
 local DQ_PAGES = 2 * DQ_SECTION_H
 local SCROLLBAR_PX = 6
+
+-- The card's four places, as fractions of the card: the shower and the Peddler in the left column, the round and the
+-- season (or the week) in the right one, which is the wider because its lines run longest ("Alien of the Week in 2d
+-- 23h" is 185 px at the 14 px floor, Fredoka metrics; the right column is 194 px at SE size and the left 174).
+local ON_PAD = 0.012
+local ON_LEFT_W = 0.458
+local ON_RIGHT_X = 0.48
+local ON_RIGHT_W = 0.512
+local ON_PLACES = {
+	{ x = ON_PAD, y = 0, w = ON_LEFT_W },
+	{ x = ON_RIGHT_X, y = 0, w = ON_RIGHT_W },
+	{ x = ON_PAD, y = 0.5, w = ON_LEFT_W },
+	{ x = ON_RIGHT_X, y = 0.5, w = ON_RIGHT_W },
+}
 local MINUTE = 60
 local HOUR = 3600
 local DAY = 86400
@@ -152,6 +185,8 @@ local DAY = 86400
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
 local stepLabel: TextLabel? = nil
+local onLines: { TextLabel } = {} -- the What's on card's four lines, in ON_PLACES order
+local onToken = 0 -- bumped to stop the card's once-a-second loop (close)
 local list: Frame? = nil
 local doneLabel: TextLabel? = nil
 local rows: { Row } = {}
@@ -1404,6 +1439,151 @@ local function buildEventList(body: Frame)
 	layoutEvent(0)
 end
 
+-- What's on ------------------------------------------------------------------
+
+-- One line of the card: its text, and whether the thing is happening now (Featured gold, time left as m:ss).
+type OnLine = { text: string, now: boolean }
+type Clock = { active: boolean, secondsLeft: number, nextInSeconds: number } -- the shape ShowerState and CatchRushState share
+
+-- A shower or a round: the time left while it runs, else the time to its next start, both counted on from the
+-- state's last push (`elapsed` seconds ago). nil while the server has not said (a start of 0 means unknown) or while
+-- a start that has just passed waits for its push.
+local function clockLine(clock: Clock, elapsed: number, nowText: string, soonText: string): OnLine?
+	if clock.active then
+		local left = clock.secondsLeft - elapsed
+		if left > 0 then
+			return { text = nowText:format(Countdown.Clock(left)), now = true }
+		end
+	elseif clock.nextInSeconds > 0 then
+		local untilStart = clock.nextInSeconds - elapsed
+		if untilStart > 0 then
+			return { text = soonText:format(Countdown.Short(untilStart)), now = false }
+		end
+	end
+	return nil
+end
+
+local function showerLine(): OnLine?
+	local state, elapsed = State.GetShower()
+	return clockLine(state, elapsed, Strings.ON_SHOWER_NOW, Strings.ON_SHOWER_SOON)
+end
+
+-- No rounds run on the home planet (the server never pushes one there), so it has no line.
+local function rushLine(): OnLine?
+	if Place.IsHome() then
+		return nil
+	end
+	local state, elapsed = State.GetRush()
+	return clockLine(state, elapsed, Strings.ON_RUSH_NOW, Strings.ON_RUSH_SOON)
+end
+
+-- The ship's stay while it is down, else the landing the server announced (PeddlerChanged); none at home.
+local function peddlerLine(): OnLine?
+	if Place.IsHome() then
+		return nil
+	end
+	local now = State.Now()
+	local visit = State.GetPeddler()
+	if visit and visit.endsAt > now then
+		return { text = Strings.ON_PEDDLER_NOW:format(Countdown.Clock(visit.endsAt - now)), now = true }
+	end
+	local nextAt = State.GetPeddlerNext()
+	if nextAt > now then
+		return { text = Strings.ON_PEDDLER_SOON:format(Countdown.Short(nextAt - now)), now = false }
+	end
+	return nil
+end
+
+-- The running season's end when one runs (the HUD banner gives the season the weekly's place too), else the weekly
+-- drop's reset.
+local function eventLine(): OnLine?
+	local season = State.GetSeason()
+	if season then
+		local name = Builder.text("SEASON_" .. season.season.id)
+		return { text = Strings.ON_SEASON:format(name, Countdown.Short(season.secondsLeft)), now = false }
+	end
+	local weekly = WeeklyMath.Current(State.Now(), State.GetWeeklyOffset())
+	if weekly then
+		return { text = Strings.ON_WEEKLY:format(Countdown.Short(weekly.secondsLeft)), now = false }
+	end
+	return nil
+end
+
+local ON_LINES: { () -> OnLine? } = { showerLine, rushLine, peddlerLine, eventLine } -- ON_PLACES order
+
+local function refreshOn()
+	for index, label in ipairs(onLines) do
+		local line = ON_LINES[index]()
+		if line then
+			label.Text = line.text
+			label.TextColor3 = if line.now then Theme.Colors.Featured else Theme.Colors.White
+		else
+			label.Text = ""
+		end
+	end
+end
+
+local function stopOnTicker()
+	onToken += 1
+end
+
+-- Redraws the card once a second while the screen is open; ends when it closes (the token changes, or open no longer
+-- holds). The first pass runs at once, before the panel's first frame.
+local function startOnTicker()
+	onToken += 1
+	local token = onToken
+	task.spawn(function()
+		while open and token == onToken do
+			refreshOn()
+			task.wait(Config.WhatsOnRefreshSeconds)
+		end
+	end)
+end
+
+-- The card: a navy band under the header line, four one-line labels that end in an ellipsis rather than wrap into
+-- the line below (the strings are measured against the columns; the floor is 14 px), and the header's title.
+local function buildWhatsOn(body: Frame)
+	Builder.label({
+		parent = body,
+		name = "WhatsOnTitle",
+		text = Strings.WHATS_ON_TITLE,
+		textSize = Theme.TextSize.Label,
+		color = Theme.Colors.Heading,
+		strokeColor = Theme.Colors.Black,
+		position = UDim2.fromScale(Theme.Margin, HEADER_TOP),
+		size = UDim2.fromScale(0.4, HEADER_HEIGHT),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 3,
+	})
+	local band = Builder.frame({
+		parent = body,
+		name = "WhatsOn",
+		position = UDim2.fromScale(Theme.Margin, ON_TOP),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, ON_HEIGHT),
+		color = Theme.Colors.Trough,
+		corner = Theme.Corner.Card,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Rarity.Common,
+		zIndex = 3,
+	})
+	onLines = {}
+	for index, place in ipairs(ON_PLACES) do
+		local line = Builder.label({
+			parent = band,
+			name = "Line" .. index,
+			text = "",
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(place.x, place.y),
+			size = UDim2.fromScale(place.w, 0.5),
+			xAlign = Enum.TextXAlignment.Left,
+			zIndex = 4,
+		})
+		line.TextWrapped = false
+		line.TextTruncate = Enum.TextTruncate.AtEnd
+		table.insert(onLines, line)
+	end
+end
+
 -- Build ----------------------------------------------------------------------
 
 local function build()
@@ -1466,16 +1646,18 @@ local function build()
 		QuestsScreen.Close()
 	end)
 
+	-- The header line: the card's title on the left (buildWhatsOn), "Step n of N" on the right of it, clear of Close.
 	stepLabel = Builder.label({
 		parent = body,
 		name = "Step",
 		text = "",
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(Theme.Margin, 0.085),
-		size = UDim2.fromScale(0.84, 0.065),
-		xAlign = Enum.TextXAlignment.Left,
+		position = UDim2.fromScale(0.46, HEADER_TOP),
+		size = UDim2.fromScale(0.4, HEADER_HEIGHT),
+		xAlign = Enum.TextXAlignment.Right,
 		zIndex = 3,
 	})
+	buildWhatsOn(body)
 
 	local stepsFrame = Builder.frame({
 		parent = body,
@@ -1544,6 +1726,7 @@ function QuestsScreen.Open()
 	refresh()
 	root.Enabled = true
 	Builder.open(body)
+	startOnTicker()
 end
 
 function QuestsScreen.Close()
@@ -1552,6 +1735,7 @@ function QuestsScreen.Close()
 	end
 	open = false
 	stopTicker()
+	stopOnTicker()
 	local root, body = gui, panel
 	if root and body then
 		Builder.close(body, function()

@@ -48,6 +48,7 @@ type Entry = { player: Player, catches: number, reachedAt: number }
 local SNAPSHOT_RATE_PER_SECOND = 2 -- GetCatchRush calls per player per second
 local TICK_SECONDS = 1 -- how often the loop looks at the clock; a start or end is seen within this
 local COUNT_PUSH_GAP_SECONDS = 1 -- a count change reaches clients at most this often
+local SLOTS_AHEAD = 3 -- how many slots secondsToNextRun looks past the current one for a round that will run
 
 local counts: { [Player]: Tally } = {} -- this round's catches
 local wasActive = false -- the last state the loop acted on
@@ -62,7 +63,8 @@ local slotRuns = false -- that decision: true runs the round, false skips it for
 -- Clock maths -------------------------------------------------------------
 -- phase = seconds since the most recent start (os.time() modulo the interval). A round is active for the
 -- first DurationSeconds of every interval unless its slot was skipped; the next start is interval - phase
--- away. Expired overrides are simply ignored here, so nothing needs clearing.
+-- away, or one interval further when a Meteor Shower will take that slot (secondsToNextRun). Expired
+-- overrides are simply ignored here, so nothing needs clearing.
 
 -- Whether the slot that began at `start` runs. Decided once, the first time the slot is looked at (the
 -- loop looks every second, so on a running server that is its start), and then kept for the whole slot.
@@ -72,6 +74,21 @@ local function slotIsRun(start: number): boolean
 		slotRuns = not (Data.SkipDuringShower and Events.IsShowerActive())
 	end
 	return slotRuns
+end
+
+-- Seconds from `now` (which is `p` seconds into its slot) to the next round that will actually run: the next slot
+-- start, or the one after it when SkipDuringShower will skip that round because a Meteor Shower starts at the same
+-- moment (the shower clock is a pure function of the time, so the skip is known ahead; Dev overrides are not). The
+-- chip and the "What's on" card count to this, so neither promises a round that then does not happen.
+local function secondsToNextRun(now: number, p: number): number
+	local slot = now - p
+	for _ = 1, SLOTS_AHEAD do
+		slot += Data.IntervalSeconds
+		if not (Data.SkipDuringShower and Events.ClockShowerAt(slot)) then
+			break
+		end
+	end
+	return slot - now
 end
 
 local function readClock(): Clock
@@ -98,7 +115,7 @@ local function readClock(): Clock
 	return {
 		active = active,
 		secondsLeft = if active then Data.DurationSeconds - p else 0,
-		nextInSeconds = if active then 0 else Data.IntervalSeconds - p,
+		nextInSeconds = if active then 0 else secondsToNextRun(now, p),
 	}
 end
 
@@ -298,11 +315,13 @@ function CatchRush.Force(active: boolean)
 end
 
 -- Developer override: the next round starts `seconds` from now (so the countdown chip and its pushes can
--- be seen without waiting for the next mark) and then runs its normal length.
+-- be seen without waiting for the next mark) and then runs its normal length. The clock is pushed at once, even
+-- when the start is beyond the warning window, so the "What's on" card counts to the forced start.
 function CatchRush.ForceNext(seconds: number)
 	forcedEndsAt = nil
 	forcedStartAt = os.time() + math.max(1, math.floor(seconds))
 	tick()
+	broadcast(readClock())
 end
 
 function CatchRush.Init()

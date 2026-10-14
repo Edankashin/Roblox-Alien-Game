@@ -137,6 +137,13 @@ function Events.IsShowerActive(): boolean
 	return snapshot().active
 end
 
+-- Whether the clock's own shower runs at the wall-clock instant `t`: a pure function of the schedule, so the Catch
+-- Rush can tell which of its future slots a shower will take. Dev overrides (Force, ForceNext) cannot be foreseen
+-- and are ignored here.
+function Events.ClockShowerAt(t: number): boolean
+	return t % Config.ShowerIntervalSeconds < Config.ShowerDurationSeconds
+end
+
 -- The luck every player on the server carries while a shower runs (Buffs.Luck adds it before the cap).
 function Events.ServerLuckBonus(): number
 	return if Events.IsShowerActive() then Config.ShowerLuckBonus else 0
@@ -169,11 +176,13 @@ function Events.Force(active: boolean)
 end
 
 -- Developer override: the next shower starts `seconds` from now (so the countdown chip and its pushes can
--- be seen without waiting for the two-hour mark) and then runs its normal length.
+-- be seen without waiting for the two-hour mark) and then runs its normal length. The clock is pushed at once,
+-- even when the start is beyond the warning window, so the "What's on" card counts to the forced start.
 function Events.ForceNext(seconds: number)
 	forcedEndsAt = nil
 	forcedStartAt = os.time() + math.max(1, math.floor(seconds))
 	tick()
+	broadcast(snapshot())
 end
 
 function Events.Init()

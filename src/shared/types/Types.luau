@@ -237,6 +237,8 @@ export type CaptureHitResult = {
 }
 
 -- Peddler visit (PeddlerChanged event to all clients, GetPeddler for late joiners); nil between visits.
+-- Both carry the visit first and then `nextAt` (a number): the server wall clock (os.time()) at which the next visit
+-- lands, so the "What's on" card can count to it between visits; 0 where no visit ever comes (the home planet).
 export type PeddlerOffer = { id: string, kind: string, scrap: number, amount: number?, tier: string? }
 export type PeddlerVisit = { offers: { PeddlerOffer }, endsAt: number } -- endsAt on the server wall clock (os.time())
 

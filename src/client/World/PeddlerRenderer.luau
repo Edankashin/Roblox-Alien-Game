@@ -306,11 +306,12 @@ function PeddlerRenderer.Start()
 		ensureBuilt()
 	end)
 
-	-- A late joiner missed the PeddlerChanged push; the answer goes down the same path. A push that
-	-- lands first wins, since it is newer.
+	-- A late joiner missed the PeddlerChanged push; the answer goes down the same path, and seeds State (the
+	-- visit and when the next one lands) unless a push beat it. A push that lands first wins, since it is newer.
 	task.spawn(function()
-		local raw = Net.func("GetPeddler"):InvokeServer()
+		local raw, nextAt = Net.func("GetPeddler"):InvokeServer()
 		local visit = raw :: Types.PeddlerVisit?
+		State.SeedPeddler(visit, if type(nextAt) == "number" then nextAt else 0)
 		if running and visit and current == nil then
 			apply(visit)
 		end

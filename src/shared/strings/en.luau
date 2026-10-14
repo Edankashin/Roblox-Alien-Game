@@ -213,6 +213,9 @@ return {
 	TIME_MS = "%dm %ds",
 	TIME_S = "%ds",
 	TIME_M = "%dm",
+	TIME_D = "%dd",
+	TIME_CLOCK = "%d:%02d", -- m:ss, a countdown that is running now
+	TIME_CLOCK_H = "%d:%02d:%02d",
 	STATION_Gather = "Picnic Table",
 	STATION_Build = "Treehouse Bench",
 	STATION_Spark = "Glow Flower",
@@ -534,6 +537,16 @@ return {
 	TOAST_DQ_NOT_DONE = "Finish the quest first",
 	TOAST_DQ_REROLLED = "New quest dealt",
 	TOAST_DQ_NO_REROLL = "No rerolls left today",
+	-- the "What's on" card at the top of the Quests screen (UI/QuestsScreen): one line per timed thing, the time is a Countdown form
+	WHATS_ON_TITLE = "What's on",
+	ON_SHOWER_SOON = "Meteor Shower in %s",
+	ON_SHOWER_NOW = "Meteor Shower! %s left",
+	ON_RUSH_SOON = "Catch Rush in %s",
+	ON_RUSH_NOW = "Catch Rush now! %s left",
+	ON_PEDDLER_SOON = "Peddler lands in %s",
+	ON_PEDDLER_NOW = "Peddler leaves in %s",
+	ON_WEEKLY = "Alien of the Week in %s",
+	ON_SEASON = "%s: %s left", -- the season's name, then the time (the sentence "ends in" is 208 px for a long name, the column 193)
 	CODES_LABEL = "Promo code",
 	CODES_PLACEHOLDER = "Enter a code",
 	CODES_REDEEM = "Redeem",
