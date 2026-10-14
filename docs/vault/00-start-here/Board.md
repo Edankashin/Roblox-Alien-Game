@@ -46,6 +46,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
 | Co-play: a "catch with a friend" Field Notes step (the measurement half is done, aff40f7) | | ZPLRKjEf2; `Quests.luau` |
+| `upload_assets.py --resolve-images` needs a signed route: the anonymous asset-delivery call now answers 401 and the Open Cloud route needs a scope the key lacks; add a `tools/studio/resolve_decals.luau` snippet (GetObjects per Decal id, prints the image ids) and `--from-studio <file>` in the tool | | Mac evening job 19; the 51 icons are already resolved, this is for the next upload |
+| Frostbyte silhouette pass (the 16 World 2 species) after World 1's | Mac | [[Silhouette-Pass]] once it lands |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
 | Music: listen to the 12 picked rows in the place, swap any, pick Menus (still 0) | Ethan or Collab | [[Music-Plan]] pick tables (overnight job 5); one number per row in `data/Music.luau` |
@@ -67,6 +69,9 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | GitHub: add the collaborator as a collaborator with Write | [[Handoff]] 13.2 |
 | ~~`python3 -I tools/create_products.py --apply` for the six launch items~~ | Done 2026-10-14 by the Mac session (overnight job 2) |
 | Open Cloud key hygiene (batch 6, ZPLSaURU3): in the Creator Dashboard check the key is scoped to the Assets API (read and write) and `universe-places:write` for this experience only, has an expiry, and lives only in `~/.zshrc`; rotate it if it was ever pasted anywhere | [[2026-10-14]] batch 6 notes; two minutes |
+| **Screen Recording permission for Terminal** (System Settings > Privacy & Security > Screen Recording, then restart Terminal) so the Mac session can record the three store clips (job 18); or record them yourself with Cmd+Shift+5, 15 s each: a Rare catch and its Reveal, a module snapping together, the launch | [[2026-10-14]] Mac evening |
+| **Quit Roblox Studio before tonight's Blender run** (File > Quit, Don't Save): on this 8 GB Mac one Studio in Play already fills the swap (5.8 GB after an hour), and Blender cannot share it | [[Setup-and-Tips]] "Memory on the Mac" |
+| Join the private game on your phone: world1 v90, world2 v5, home v4 carry everything built on 2026-10-14 except the evening fixes | [[STORE-PAGE]] section 5 |
 | Mac installs: `bun` (for claude-mem), rtk, ccstatusline (optional) | [[Tools-Status]] |
 | Plugin installs in his Claude Code: roblox-dev (ivar-anon), ShiroKSH roblox-studio, superpowers | He types the install lines himself ([[Claude-Plugins]]) |
 | The stray place 82258778278086: keep or delete | |
