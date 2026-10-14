@@ -44,6 +44,10 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: alien list deltas, security hardening | | TESTING sections of those names |
 | Studio queue: the runtime model loader (connected place, then a fresh baseplate), the assembly effect, the real-currency lines, security D1/D4/D6 | | TESTING sections of those names (built 2026-10-12, nothing run in Studio) |
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
+| Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
+| Co-play: log the party size at session start and add a "catch with a friend" Field Notes step | | ZPLRKjEf2; `Services/Friends.luau`, `Quests.luau` |
+| "What's on" card in the Quests screen (next Shower, Rush, Peddler, weekly drop, from Config intervals) | | GAME_DESIGN 12: the schedule is invisible until a chip appears |
+| Moonlit Forest night look from data only (Lighting night row, firefly sheet in Weather) | | ZPLYSA3uR; the full dressing stays with the art pass |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
 | Music: listen to the 12 picked rows in the place, swap any, pick Menus (still 0) | Ethan or Collab | [[Music-Plan]] pick tables (overnight job 5); one number per row in `data/Music.luau` |
@@ -77,6 +81,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Launch from the repo publish (no hand-placed dressing or camera anchors) or dress in Team Create first and publish from Studio? | Recommended: launch this weekend from the repo publish (World 1 v89, World 2 v4, Home v3) and dress in week one; [[Hands-Off]] |
 | The game's name (decision 19) | Candidates: "Crash Planet: Catch Aliens", "Alien Pals: Build a Rocket", "Planet Hoppers: Alien Collector"; check Roblox search for collisions; no reward words in the title |
 | A Roblox group co-owned by both (decision 16), and when to transfer the experience | Recommended: start with Collaborate now; transfer before going public, re-uploading the 53 model assets under the group before the runtime loader ships ([[Handoff]] 13.1) |
+| A Discord server and a Roblox group before launch (decision 16; the group-join gift waits on a group id) | Recommended: the group now (free, 5 minutes, the gift turns on), Discord when there are players to talk to |
 | Rejoin notifications (decision 20) | Opt-in card on session 2+, event text only, three a week at most, behind a Config flag |
 | Does a catch at the storage cap also pay its normal catch Scrap on top of the release value? | It does now; one line in `Economy.grantAlien` |
 | Refuse a Storage Bay purchase past the hard cap? | Cannot happen with Worlds 1 and 2 (max 640 of 1,500) |

@@ -45,7 +45,22 @@ One thumb, no stress, nothing you did is ever wasted.
 2. Join the private game on your phone once (the published places from overnight job 6): the models load (no grey placeholder shapes), the shop shows "about $" lines, a catch works, music plays (or is silent where a track is still 0).
 3. Dashboard: name, description, genre, devices, icon, thumbnails (section 1 to 4).
 4. Experience Questionnaire, then Privacy: Public.
-5. Tell the coordinator "public"; it starts the Day 1 watch (analytics funnel, the first-session bounce, crash reports).
+5. Creator Hub > Events: list the Haunted Nebula event (2026-10-16 to 2026-10-30) with one line and the frostbyte or legendary thumbnail, so the game shows on the Events surface (Growth Playbook S9).
+6. Tell the coordinator "public"; it starts the Day 1 watch below.
+
+## 5b. Day 1 watch (what to read in Creator Hub > Analytics on launch day, and the numbers that mean trouble)
+
+Day 1 retention lags a day, so launch day is about: concurrent players (CCU), average session time, the first-session funnel (the game's own analytics events: joined, first catch, first module, five minutes), crash rate and frame rate, and the Robux sales rows. The targets from the design (section 18): in the terms Creator Hub reports: Day 1 retention above the 90th percentile of our genre benchmark band (12% good, 15% great; 20% is the top-1% stretch), Day 7 above 2% with 4% as the stretch, first-play bounce under 10% within 60 seconds and under 15% within 180 seconds, more than 55% of new players still playing at 5 minutes, median session above 10 minutes, tutorial completion above 60%, Meteor Shower attendance above 30% of online players. If Day 1 sits under the 50th percentile after week one, the problem is the first eight minutes, not the roster. Sound, VFX and a gameplay trailer are launch requirements: creators who reached 1,000 concurrent say they move every stat (`docs/PRE_PRODUCTION.md` section 10.9).
+
+What we change first if a number is off: bounce high at 60 s means the loading wait or the first screen (cold servers wait up to 20 s on the model loader; the five-minute script's first beat); low catch-at-5-minutes means the first wild alien is too far or the tap is unclear; crash or frame rate on phone means the phone performance list in TESTING; a flat Robux row on day one is normal.
+
+## 5c. The week before and the first week (seeding, from PRE_PRODUCTION 7 and the references)
+
+- A 10 to 15 second gameplay video on the store page: play-through rate is the top signal and a video autoplays on Home. The Mac records three clips during Play (Overnight job 18); pick one, upload it with the icon.
+- A Discord invite (or the group wall) on the store description's last line once a server exists; the `LAUNCHWEEK` promo code (300 Scrap and a Lucky Charm, 2026-10-16 to 10-31) in the description and in every post.
+- A Roblox group (decision 16) unlocks the group-join gift in the game (`Social.GroupId`); without it the gift stays hidden.
+- Five creators who cover small cute games, one DM each with the code and the trailer; no paid promotion in week one.
+- Launch week in the game: the LaunchGold overlay (about 1 in 25 catches through 2026-10-26) and a World 1 Alien of the Week, so the players who were there have something to show.
 
 ## 6. Known gaps shipping with the launch (fix in week one)
 
