@@ -1,0 +1,4 @@
+{"decal": 1001, "image": 2001}
+14:02:11.482  {"decal": 1002, "image": 2002}  -  Edit
+{"decal": 1003, "image": 2003}
+FAIL 1004: HTTP 403 (Forbidden), the asset is not approved

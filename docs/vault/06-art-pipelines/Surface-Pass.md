@@ -26,7 +26,7 @@ What the Creator docs say (read through search snippets; the docs host is blocke
 |---|---|---|---|
 | A. Roblox materials per slot | `material` per slot in `materials.json`: Grass (moss), Fabric (fur), Slate (stone), Wood, Glass (crystal wings), Metal, Neon (glow parts); `glossy` on EyeWhite and EyeHighlight: SmoothPlastic plus `Config.ModelGlossReflectance` (a sheen, the cheap specular dot). The loader applies it from data. | No uploads, no art. One property per MeshPart; no memory cost beyond the engine's own material textures. | **Ships now** (code, data and tests in this change). Needs a Studio look. |
 | B. Mesh-side softness | In `species_bodies.py` (default on, `--no-surface` for the old output): shade smooth by angle, a two-segment bevel on thick cubes and cylinders, a greyscale vertex gradient (crown 1.0, belly 0.7, 0.18 darker facing down: a fake occlusion) exported as `COLOR_0`; UVs scaled per slot texture. | Headless Blender, a few minutes for 16. Triangles: bevel adds about 100 on a thick cube; builds that cross the cap drop the bevel. Mesh re-export and re-upload of the 16 (the colour re-upload already waits on Ethan). | **Smoothing and bevel: yes** once rebuilt. **Gradient: only if the probe shows Roblox keeps `COLOR_0` through the GLB upload**; harmless if ignored. Fallback if dropped: a `Belly` slot in BodyDark under the body (one more MeshPart per species). |
-| C. Real texture maps | Five shared tileable sets (fur, moss, stone, ice, scales), each colour, normal, roughness: baked by `bake_textures.py` to `assets/textures/<key>/` (512 px, under 300 KB each, near-white colour so the slot colour tints it through `SurfaceAppearance.Color`). Upload once as images, paste the Image ids into `data/Textures`; a slot picks a set by its `texture` key. | Upload step: `upload_assets.py --images` only reads `assets/icons` and `assets/particles`; a textures folder needs adding (small). Risk: the engine may refuse a script-made SurfaceAppearance (the loader sets properties before parenting inside a `pcall` and warns once). Phone memory: five sets of three 512 px maps is about 15 MB decoded if all are on screen; a shared set used by many species costs once. | **Maps and loader are ready, the gate is the upload and a Studio probe.** Not promised for Friday; do it if the probe passes. Fallback: bake the maps into each GLB (the importer then makes the SurfaceAppearance itself), at the price of a bigger upload per species. |
+| C. Real texture maps | Five shared tileable sets (fur, moss, stone, ice, scales), each colour, normal, roughness: baked by `bake_textures.py` to `assets/textures/<key>/` (512 px, under 300 KB each, near-white colour so the slot colour tints it through `SurfaceAppearance.Color`). Upload once as images, paste the Image ids into `data/Textures`; a slot picks a set by its `texture` key. | Upload step: `upload_assets.py --textures` (built, see the probes below). Risk: the engine may refuse a script-made SurfaceAppearance (the loader sets properties before parenting inside a `pcall` and warns once). Phone memory: five sets of three 512 px maps is about 15 MB decoded if all are on screen; a shared set used by many species costs once. | **Maps and loader are ready, the gate is the upload and a Studio probe.** Not promised for Friday; do it if the probe passes. Fallback: bake the maps into each GLB (the importer then makes the SurfaceAppearance itself), at the price of a bigger upload per species. |
 
 The eye: two layers already in every recipe (a white sphere, a dark pupil, a white highlight sphere). Gloss (A) turns the highlight into a real specular dot and the white into a wet eye. Nothing more is modelled.
 
@@ -67,4 +67,21 @@ An explicit `material` beats the emission rule: Rocklobber's amber crystals and 
 3. Explorer: Mossbop Body is Grass, EyeWhite is SmoothPlastic with Reflectance 0.25, Glimmo's lamp Neon.
 4. Phones: iPhone SE emulator with 20 aliens in view, MicroProfiler or the stats overlay, before and after; glossy eyes and materials should not move the frame time.
 
-Left: the textures upload route, the rebuild and re-upload of the 16, Frostbyte and the 19 non-World-1 species (their `materials.json` carry no surface fields yet), props.
+### Textures: upload and ids (before probe 2)
+
+Needs `ROBLOX_OPEN_CLOUD_KEY` (or `ROBLOX_API_KEY`) and `ROBLOX_CREATOR_USER_ID` or `ROBLOX_CREATOR_GROUP_ID` in the shell, as for the models and icons. The 15 PNGs go up as Decals; the Image ids come through Studio because the anonymous fetch answers 401 ([[Map-Dressing]], "Resolving through Studio").
+
+```
+python3 -I tools/upload_assets.py --textures --dry-run            # 15 lines: 5 keys x color, normal, roughness
+python3 -I tools/upload_assets.py --textures                      # upload; ids to assets/textures/asset_ids.json; the resolve step then fails with 401 and prints the route
+python3 -I tools/upload_assets.py --emit-decals-luau | pbcopy     # the Decal ids without an Image id
+# Studio, Edit mode: paste into tools/studio/resolve_decals.luau between the PASTE markers, run it (command bar or execute_luau),
+# copy the Output into ~/decals.txt
+python3 -I tools/upload_assets.py --from-studio ~/decals.txt      # fills imageId; exit 0 when every line was used
+python3 -I tools/upload_assets.py --emit-textures-luau            # the Textures table; paste over the one in src/shared/data/Textures.luau
+python3 -I tools/lint_data.py && ./tools/test.sh && ./tools/analyze.sh
+```
+
+One set first: `--textures --only fur`, then `--emit-textures-luau --only fur` prints just that row. A Decal in moderation fails in the snippet; run it again later. Commit `assets/textures/asset_ids.json` with the table.
+
+Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the rebuild and re-upload of the 16, Frostbyte and the 19 non-World-1 species (their `materials.json` carry no surface fields yet), props.

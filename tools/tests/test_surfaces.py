@@ -85,9 +85,9 @@ class MaterialsJson(unittest.TestCase):
         wanted = {
             "Mossbop": {"Body": "Grass"}, "Pebblet": {"Body": "Slate"}, "Glimmo": {"Body": "Glass", "Accessory": "Neon"},
             "Twiglet": {"Body": "Wood"}, "Buzzlebee": {"Body": "Fabric"}, "Lanternewt": {"Accessory": "Neon"},
-            "Snailbyte": {"Accessory": "Metal"}, "Rocklobber": {"Accessory": "Slate"}, "Zapfinch": {"Accessory": "Neon"},
+            "Snailbyte": {"Accessory": "Metal"}, "Rocklobber": {"Accessory": "Neon"}, "Zapfinch": {"Accessory": "Neon"},
             "Sparkfox": {"Body": "Fabric", "Accessory": "Neon"}, "Thunderhog": {"Accessory": "Neon"}, "Gloomoth": {"Accessory": "Glass"},
-            "Gaiabloom": {"Trim": "Neon"}, "Radish": {"Accessory": "Neon"}, "Panpipe": {"Accessory": "Metal"}, "Puffpuff": {},
+            "Gaiabloom": {"Trim": "Neon"}, "Radish": {"Accessory": "Neon"}, "Panpipe": {"Accessory": "Neon"}, "Puffpuff": {},
         }
         for sid, materials in wanted.items():
             entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}

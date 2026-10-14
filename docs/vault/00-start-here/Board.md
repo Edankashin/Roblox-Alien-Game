@@ -46,7 +46,6 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
 | Co-play: a "catch with a friend" Field Notes step (the measurement half is done, aff40f7) | | ZPLRKjEf2; `Quests.luau` |
-| `upload_assets.py --resolve-images` needs a signed route: the anonymous asset-delivery call now answers 401 and the Open Cloud route needs a scope the key lacks; add a `tools/studio/resolve_decals.luau` snippet (GetObjects per Decal id, prints the image ids) and `--from-studio <file>` in the tool | | Mac evening job 19; the 51 icons are already resolved, this is for the next upload |
 | Frostbyte silhouette pass (the 16 World 2 species) after World 1's | Mac | [[Silhouette-Pass]] once it lands |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |

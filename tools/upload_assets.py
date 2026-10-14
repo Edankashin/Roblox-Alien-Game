@@ -18,7 +18,7 @@ So each model folder also holds materials.json, a list in slot order of
 materials.json into the MATERIALS table that the installer uses to colour the parts.
 
 Usage:
-  export ROBLOX_OPEN_CLOUD_KEY=...            # never put the key in the repo
+  export ROBLOX_OPEN_CLOUD_KEY=...            # or ROBLOX_API_KEY (the first one set wins); never put the key in the repo
   export ROBLOX_CREATOR_USER_ID=1234567       # or ROBLOX_CREATOR_GROUP_ID=7654321
   python3 tools/upload_assets.py --dry-run                      # list what would upload (format, file)
   python3 tools/upload_assets.py                                # every .glb not yet in the JSON
@@ -32,6 +32,12 @@ Usage:
   python3 tools/upload_assets.py --images                        # upload assets/icons/*.png and assets/particles/*.png as Decals, then resolve their Image ids
   python3 tools/upload_assets.py --resolve-images                # only the resolve step (no key needed); --redo resolves every entry again
   python3 tools/upload_assets.py --images --emit-icons-luau     # the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau
+  python3 tools/upload_assets.py --textures --dry-run            # the 15 texture PNGs (5 keys x color, normal, roughness) that would upload
+  python3 tools/upload_assets.py --textures                      # upload assets/textures/<key>/<key>_<map>.png as Decals, then resolve their Image ids
+  python3 tools/upload_assets.py --textures --only fur,ice/color # whole keys, or single maps written <key>/<map>; --redo uploads again
+  python3 tools/upload_assets.py --emit-textures-luau            # the Textures table (Image ids) for src/shared/data/Textures.luau
+  python3 tools/upload_assets.py --emit-decals-luau | pbcopy     # the Decal ids that have no Image id yet, for tools/studio/resolve_decals.luau
+  python3 tools/upload_assets.py --from-studio decals.txt        # fill imageId from the lines that snippet printed in Studio
 
 Images (--images): every PNG under assets/icons (the UI icon pack) and assets/particles (the weather
 sprites) is uploaded as a Decal asset (assetType "Decal", image/png). A Decal id is NOT what an
@@ -47,8 +53,30 @@ still in moderation the fetch fails: re-run --resolve-images later. --emit-icons
 tables for src/shared/data/Icons.luau with the IMAGE ids, for every key the data file knows (0 when not
 uploaded), and refuses (exit 2, naming the keys) while any uploaded entry has no imageId.
 
+Textures (--textures): the five tileable sets of the Surface pass, assets/textures/<key>/<key>_color.png,
+<key>_normal.png and <key>_roughness.png (keys fur, moss, stone, ice, scales), go up the same way as the icons: each PNG
+is a Decal asset, recorded in assets/textures/asset_ids.json under the key "<key>/<map>" ({ assetId, imageId,
+uploadedAt, file, format, kind "texture" }), and the Image id behind it is resolved the same way (a SurfaceAppearance map
+wants the Image, not the Decal). --only takes a key (all three maps) or "<key>/<map>". --resolve-images --textures is
+the resolve step alone for that file. --emit-textures-luau prints the Textures table for
+src/shared/data/Textures.luau (the tiling of each row is kept from the file) and refuses (exit 2) while any of the
+three maps of any row has no Image id, naming the ones not uploaded and the ones not resolved: the game adds a
+SurfaceAppearance only when all three ids are non-zero, so a half-filled set is no use. --only limits the rows.
+
+Resolving through Studio (--emit-decals-luau, --from-studio): the anonymous asset-delivery call now answers 401 and
+the Open Cloud route needs a scope the key lacks (Mac job 19, docs/vault/08-log/2026-10-14.md), so --resolve-images
+prints this route as the next step on a 401 or 403. --emit-decals-luau prints the Decal ids without an Image id (icons
+and textures together; --images or --textures picks one file; --redo lists every uploaded one) as a Luau table for the
+PASTE block of tools/studio/resolve_decals.luau. That snippet runs in Studio (Edit mode), loads each Decal with
+game:GetObjects, and prints {"decal": <id>, "image": <id>} per id. The Mac saves the Output to a file and
+--from-studio <file> reads those lines (anything else in the file, such as Studio's timestamps, warnings and the
+summary, is ignored), then fills imageId in both ids files wherever assetId is that Decal (--redo replaces an Image id
+that differs; --dry-run writes nothing). It exits 1 on a Decal that no ids file knows, a Decal given two different
+Image ids, or an Image id equal to its Decal id.
+
 Exit status: 0 all done (or nothing to do), 1 at least one model failed (or one Image id could not be
-resolved), 2 bad usage or setup (or --emit-icons-luau while Image ids are missing).
+resolved, or --from-studio found a problem), 2 bad usage or setup (or --emit-icons-luau or --emit-textures-luau
+while Image ids are missing).
 Names already in the JSON are skipped, so a re-run after a failure retries only the failures.
 --redo ignores those names and overwrites their entries (the old assets stay on the account,
 harmless; this is how the FBX ids of the first run are replaced by GLB ids).
@@ -73,7 +101,7 @@ on 2026-10-05:
 - Response: { "path": "operations/<id>" }. Poll GET https://apis.roblox.com/assets/v1/operations/<id>
   until "done": true; then "response" holds the Asset (assetId, moderationResult) or "error"
   holds { code, message }.
-- Auth: header `x-api-key: <key>` on every call. The key needs the Assets API with Read and Write
+- Auth: header `x-api-key: <key>` on every call (the key is never printed or written). The key needs the Assets API with Read and Write
   (scopes asset:read and asset:write; polling only needs asset:read). The key acts as its owning
   user; for a group-owned asset that user needs the group permission to create assets.
 - Rate limits: the Assets API reference documents no numeric limit for Create (only audio and
@@ -106,6 +134,12 @@ ICONS_DIR = REPO / "assets" / "icons"
 PARTICLES_DIR = REPO / "assets" / "particles"
 IMAGE_IDS_FILE = ICONS_DIR / "asset_ids.json"
 ICONS_LUAU = REPO / "src" / "shared" / "data" / "Icons.luau"
+TEXTURES_DIR = REPO / "assets" / "textures"
+TEXTURE_IDS_FILE = TEXTURES_DIR / "asset_ids.json"
+TEXTURES_LUAU = REPO / "src" / "shared" / "data" / "Textures.luau"
+# (file suffix <key>_<suffix>.png, Textures.luau field) in the order the table lists them.
+TEXTURE_MAPS = (("color", "colorMap"), ("normal", "normalMap"), ("roughness", "roughnessMap"))
+KEY_NAMES = ("ROBLOX_OPEN_CLOUD_KEY", "ROBLOX_API_KEY")   # the first one set is the key
 IMAGE_CONTENT_TYPE = "image/png"
 IMAGE_ASSET_TYPE = "Decal"
 # Resolves a Decal to the Image asset behind it. Test hook like API_BASE: point at a local mock.
@@ -134,11 +168,13 @@ class UploadError(Exception):
     """One model failed; the message is printed on its FAIL line.
 
     fatal=True (bad key, no permission) stops the whole run: every other model would fail the same way.
+    status is the HTTP status when the failure was an error response, else None.
     """
 
-    def __init__(self, message: str, fatal: bool = False) -> None:
+    def __init__(self, message: str, fatal: bool = False, status: "int | None" = None) -> None:
         super().__init__(message)
         self.fatal = fatal
+        self.status = status
 
 
 def log(msg: str) -> None:
@@ -148,6 +184,16 @@ def log(msg: str) -> None:
 def die(msg: str, code: int = 2) -> "typing.NoReturn":
     print("upload_assets: " + msg, file=sys.stderr)
     sys.exit(code)
+
+
+def api_key() -> str:
+    """The Open Cloud key from the environment (ROBLOX_OPEN_CLOUD_KEY, else ROBLOX_API_KEY), '' when neither is set.
+    The key is only ever put in the x-api-key header: it is never printed, logged or written."""
+    for name in KEY_NAMES:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return value
+    return ""
 
 
 # --------------------------------------------------------------------------- discovery
@@ -188,6 +234,38 @@ def discover_images() -> "dict[str, tuple[pathlib.Path, str]]":
                     die("image key %s exists in both assets/icons and assets/particles" % f.stem)
                 out[f.stem] = (f, kind)
     return out
+
+
+def discover_textures() -> "dict[str, tuple[pathlib.Path, str]]":
+    """'<key>/<map>' -> (png path, "texture") for assets/textures/<key>/<key>_<map>.png, the three maps of each key."""
+    out: "dict[str, tuple[pathlib.Path, str]]" = {}
+    if TEXTURES_DIR.is_dir():
+        for folder in sorted(TEXTURES_DIR.iterdir()):
+            if not folder.is_dir():
+                continue
+            for suffix, _ in TEXTURE_MAPS:
+                png = folder / ("%s_%s.png" % (folder.name, suffix))
+                if png.is_file():
+                    out["%s/%s" % (folder.name, suffix)] = (png, "texture")
+    return out
+
+
+def expand_only(tokens: "list[str]", universe: "typing.Iterable[str]",
+                grouped: bool = False) -> "tuple[list[str], list[str]]":
+    """Resolve --only tokens against the known names: (names in the order given without repeats, unknown tokens).
+    grouped=True (textures): a token without a map, such as 'fur', stands for every '<token>/<map>'."""
+    known = list(universe)
+    names: "list[str]" = []
+    unknown: "list[str]" = []
+    for token in tokens:
+        hits = [n for n in known if n == token]
+        if not hits and grouped:
+            hits = [n for n in known if n.startswith(token + "/")]
+        if hits:
+            names.extend(hits)
+        else:
+            unknown.append(token)
+    return list(dict.fromkeys(names)), unknown
 
 
 def icons_luau_keys() -> "tuple[list[str], list[str]]":
@@ -239,6 +317,70 @@ def emit_icons_luau(ids: "dict[str, dict]") -> str:
     lines.append("local Particles: { [string]: number } = {")
     for key in particles:
         lines.append("\t%s = %d," % (key, image_id(ids.get(key, {}))))
+    lines.append("}")
+    return "\n".join(lines)
+
+
+_TEXTURE_ROW = re.compile(r"^\t(\w+) = \{ colorMap = \d+, normalMap = \d+, roughnessMap = \d+((?:, .*?)?) \},\s*$")
+TEXTURES_HEAD = "local Textures: { [string]: Types.TextureRow } = {"
+DEFAULT_TEXTURE_TAIL = ", tiling = { 1, 1 }"
+
+
+def textures_luau_rows() -> "list[tuple[str, str]]":
+    """(key, tail) for each row of the Textures table in src/shared/data/Textures.luau, in file order. The tail is
+    what follows roughnessMap in the row (', tiling = { 3, 3 }'), kept so an emitted row keeps its tiling."""
+    rows: "list[tuple[str, str]]" = []
+    if not TEXTURES_LUAU.is_file():
+        return rows
+    inside = False
+    for line in TEXTURES_LUAU.read_text(encoding="utf-8").splitlines():
+        if line.startswith("local Textures"):
+            inside = True
+        elif inside and line.startswith("}"):
+            break
+        elif inside:
+            match = _TEXTURE_ROW.match(line)
+            if match:
+                rows.append((match.group(1), match.group(2)))
+    return rows
+
+
+def texture_rows(keys: "typing.Iterable[str] | None" = None) -> "list[tuple[str, str]]":
+    """The rows to emit: the data file's rows, then any uploadable key it does not list yet (tiling 1 x 1).
+    keys limits the rows to those texture keys."""
+    rows = textures_luau_rows()
+    listed = {key for key, _ in rows}
+    for name in discover_textures():
+        key = name.split("/")[0]
+        if key not in listed:
+            rows.append((key, DEFAULT_TEXTURE_TAIL))
+            listed.add(key)
+    wanted = None if keys is None else set(keys)
+    return [(k, t) for k, t in rows if wanted is None or k in wanted]
+
+
+def unresolved_textures(ids: "dict[str, dict]", rows: "list[tuple[str, str]]") -> "tuple[list[str], list[str]]":
+    """(not uploaded, uploaded without an Image id): the '<key>/<map>' names of the rows' maps with no Image id."""
+    not_uploaded: "list[str]" = []
+    unresolved: "list[str]" = []
+    for key, _ in rows:
+        for suffix, _ in TEXTURE_MAPS:
+            name = "%s/%s" % (key, suffix)
+            entry = ids.get(name)
+            if not isinstance(entry, dict) or not entry.get("assetId"):
+                not_uploaded.append(name)
+            elif not image_id(entry):
+                unresolved.append(name)
+    return not_uploaded, unresolved
+
+
+def emit_textures_luau(ids: "dict[str, dict]", keys: "typing.Iterable[str] | None" = None) -> str:
+    """The Textures table for src/shared/data/Textures.luau with the IMAGE ids (imageId), never the Decal ids.
+    A map without an id prints 0 (callers refuse before that: see unresolved_textures)."""
+    lines = [TEXTURES_HEAD]
+    for key, tail in texture_rows(keys):
+        parts = ["%s = %d" % (field, image_id(ids.get("%s/%s" % (key, suffix), {}))) for suffix, field in TEXTURE_MAPS]
+        lines.append("\t%s = { %s%s }," % (key, ", ".join(parts), tail))
     lines.append("}")
     return "\n".join(lines)
 
@@ -386,7 +528,7 @@ def request_bytes(method: str, url: str, headers: "dict[str, str]", body: "bytes
             last = "HTTP %d %s" % (exc.code, text)
             if exc.code not in retry_on:
                 raise UploadError(last + (denied_hint if exc.code in (401, 403) else ""),
-                                  fatal=exc.code in fatal_codes)
+                                  fatal=exc.code in fatal_codes, status=exc.code)
         except ssl.SSLError as exc:
             raise UploadError("TLS error: %s (on a python.org Mac install, run "
                               "'Install Certificates.command' once)" % exc)
@@ -482,6 +624,7 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
     resolved_keys: "list[str]" = []
     failed: "list[str]" = []
     streak = 0
+    denied = False
     try:
         for key in pending:
             decal = int(ids[key]["assetId"])
@@ -490,6 +633,7 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
             except UploadError as exc:
                 failed.append(key)
                 streak += 1
+                denied = denied or exc.status in (401, 403)
                 log("FAIL   %-14s Decal %d: %s" % (key, decal, exc))
                 if streak >= RESOLVE_MAX_CONSECUTIVE_FAILS:
                     log("stopping: %d failures in a row; check the network, or wait until the Decals are "
@@ -509,8 +653,135 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
                                                       len(left) - len(failed)))
     if left:
         log("no Image id yet: " + ", ".join(left) + "  (re-run: python3 -I tools/upload_assets.py --resolve-images)")
+        if denied:
+            log(STUDIO_ROUTE)
         return 1
     return 0
+
+
+STUDIO_ROUTE = """the asset delivery service refused (HTTP 401 or 403): its anonymous route wants a login now, and a Decal
+still in moderation is refused the same way. Next step, resolve the Image ids through Studio:
+  1. python3 -I tools/upload_assets.py --emit-decals-luau | pbcopy          (the Decal ids without an Image id)
+  2. paste it between the PASTE markers of tools/studio/resolve_decals.luau and run that file in Studio (Edit
+     mode, command bar or the MCP execute_luau); save the Output to a file
+  3. python3 -I tools/upload_assets.py --from-studio <that file>"""
+
+
+# --------------------------------------------------------------------------- Decal -> Image id through Studio
+
+def _is_asset_id(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def parse_studio_output(text: str) -> "tuple[dict[int, int], list[int], int]":
+    """Read what tools/studio/resolve_decals.luau printed: (Decal id -> Image id, Decal ids given two different
+    Image ids, number of lines ignored). A line counts when it holds a JSON object {"decal": N, "image": M} with
+    both positive integers; text around the object (Studio's timestamp, the "- Edit" suffix) is dropped. Blank
+    lines are not counted; FAIL lines, warnings and the summary are ignored."""
+    pairs: "dict[int, int]" = {}
+    conflicts: "set[int]" = set()
+    ignored = 0
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        obj: object = None
+        start, end = line.find("{"), line.rfind("}")
+        if 0 <= start < end:
+            try:
+                obj = json.loads(line[start:end + 1])
+            except ValueError:
+                obj = None
+        decal = obj.get("decal") if isinstance(obj, dict) else None
+        image = obj.get("image") if isinstance(obj, dict) else None
+        if not (isinstance(decal, int) and _is_asset_id(decal) and isinstance(image, int) and _is_asset_id(image)):
+            ignored += 1
+            continue
+        if pairs.get(decal, image) != image:
+            conflicts.add(decal)
+        pairs[decal] = image
+    for decal in conflicts:
+        del pairs[decal]
+    return pairs, sorted(conflicts), ignored
+
+
+def pending_decals(files: "list[pathlib.Path]", redo: bool = False) -> "list[tuple[int, str]]":
+    """(Decal id, key) of every uploaded entry in the ids files that needs an Image id (all of them when redo),
+    in file order, one row per Decal id."""
+    out: "list[tuple[int, str]]" = []
+    seen: "set[int]" = set()
+    for path in files:
+        ids = load_ids(path)
+        for key in pending_images(ids, redo=redo):
+            decal = int(ids[key]["assetId"])
+            if decal not in seen:
+                seen.add(decal)
+                out.append((decal, key))
+    return out
+
+
+def emit_decals_luau(rows: "list[tuple[int, str]]") -> str:
+    """The DECAL_IDS table for the PASTE block of tools/studio/resolve_decals.luau (a comment names each key)."""
+    lines = ["local DECAL_IDS: { number } = {"]
+    lines += ["\t%d, -- %s" % (decal, key) for decal, key in rows]
+    lines.append("}")
+    return "\n".join(lines)
+
+
+def run_from_studio(files: "list[pathlib.Path]", text: str, redo: bool = False, dry_run: bool = False) -> int:
+    """Fill imageId in the ids files from the lines resolve_decals.luau printed. Returns 0 when every line was
+    used (or was already recorded), 1 on a problem: no usable line, a Decal no file knows, a Decal with two
+    Image ids, an Image id equal to its Decal id, or a recorded Image id that differs (kept unless redo)."""
+    pairs, conflicts, ignored = parse_studio_output(text)
+    problems = 0
+    for decal in conflicts:
+        problems += 1
+        log("FAIL   Decal %d: the file gives it two different Image ids, skipped (run the snippet again)" % decal)
+    if not pairs and not conflicts:
+        log("no {\"decal\": N, \"image\": M} line found (%d line(s) ignored); is this the Output of "
+            "tools/studio/resolve_decals.luau?" % ignored)
+        return 1
+    used: "set[int]" = set()
+    filled = 0
+    already = 0
+    still: "list[str]" = []
+    for path in files:
+        ids = load_ids(path)
+        changed = False
+        for key in sorted(ids):
+            entry = ids[key]
+            decal = entry.get("assetId") if isinstance(entry, dict) else None
+            if not isinstance(decal, int) or decal not in pairs:
+                continue
+            used.add(decal)
+            new = pairs[decal]
+            current = image_id(entry)
+            if new == decal:
+                problems += 1
+                log("FAIL   %-14s Decal %d: Studio gave the Decal's own id as the Image id, skipped" % (key, decal))
+            elif current == new:
+                already += 1
+            elif current and not redo:
+                problems += 1
+                log("keep   %-14s has Image %d, Studio says %d (--redo replaces it)" % (key, current, new))
+            else:
+                filled += 1
+                changed = True
+                entry["imageId"] = new
+                log("%s %-14s Decal %d -> Image %d" % ("would " if dry_run else "ok    ", key, decal, new))
+        if changed and not dry_run:
+            save_ids(path, ids)
+        still += missing_image_ids(ids)
+    unknown = sorted(d for d in pairs if d not in used)
+    if unknown:
+        problems += 1
+        log("not in any ids file (%s): Decal %s" % (", ".join(f.parent.name + "/" + f.name for f in files),
+                                                    ", ".join(str(d) for d in unknown)))
+    log("from-studio: %d %s, %d already recorded, %d line(s) ignored%s" % (
+        filled, "to fill" if dry_run else "filled", already, ignored, "; dry run, nothing written" if dry_run else ""))
+    if still and not dry_run:
+        log("still no Image id: " + ", ".join(still))
+    return 1 if problems else 0
 
 
 # --------------------------------------------------------------------------- upload
@@ -591,23 +862,66 @@ def main() -> int:
     ap.add_argument("--images", action="store_true",
                     help="upload the PNGs under assets/icons and assets/particles as Decal assets instead of models "
                          "(ids in assets/icons/asset_ids.json), then resolve the Image id behind each Decal")
+    ap.add_argument("--textures", action="store_true",
+                    help="upload the PNGs under assets/textures (<key>/<key>_color, _normal, _roughness) as Decal "
+                         "assets (ids in assets/textures/asset_ids.json under <key>/<map>), then resolve the Image "
+                         "id behind each; --only takes keys (fur,ice) or single maps (fur/color)")
     ap.add_argument("--resolve-images", action="store_true",
                     help="only fetch the Image id behind every uploaded Decal that has none yet and record it as "
-                         "imageId in assets/icons/asset_ids.json (no key needed; --redo does every entry; "
-                         "--only limits it; --dry-run lists them)")
+                         "imageId in assets/icons/asset_ids.json (assets/textures/asset_ids.json with --textures; "
+                         "no key needed; --redo does every entry; --only limits it; --dry-run lists them). On a 401 "
+                         "or 403 it prints the Studio route (--emit-decals-luau, --from-studio)")
     ap.add_argument("--emit-icons-luau", action="store_true",
                     help="print the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau and exit "
                          "(implies --images); refuses while an uploaded image has no Image id")
+    ap.add_argument("--emit-textures-luau", action="store_true",
+                    help="print the Textures table (Image ids) for src/shared/data/Textures.luau and exit (implies "
+                         "--textures); refuses while any map of a row has no Image id; --only limits the rows")
+    ap.add_argument("--emit-decals-luau", action="store_true",
+                    help="print the Decal ids that have no Image id yet (icons and textures; --images or --textures "
+                         "picks one; --redo lists every uploaded one) as the DECAL_IDS table for the PASTE block of "
+                         "tools/studio/resolve_decals.luau and exit")
+    ap.add_argument("--from-studio", metavar="FILE", type=pathlib.Path,
+                    help="read the {\"decal\": N, \"image\": M} lines that tools/studio/resolve_decals.luau printed "
+                         "in Studio (the Output saved to FILE) and fill imageId for icons and textures alike "
+                         "(--redo replaces a differing one; --dry-run writes nothing)")
     ap.add_argument("--ids-file", type=pathlib.Path, default=DEFAULT_IDS_FILE, help=argparse.SUPPRESS)
     ap.add_argument("--poll-interval", type=float, default=1.0, help=argparse.SUPPRESS)
     args = ap.parse_args()
-    images_mode = args.images or args.emit_icons_luau or args.resolve_images
-    if images_mode and args.ids_file == DEFAULT_IDS_FILE:
-        args.ids_file = IMAGE_IDS_FILE
+    textures_mode = args.textures or args.emit_textures_luau
+    images_mode = args.images or args.emit_icons_luau or args.resolve_images or textures_mode
+    explicit_ids_file = args.ids_file != DEFAULT_IDS_FILE
+    if images_mode and not explicit_ids_file:
+        args.ids_file = TEXTURE_IDS_FILE if textures_mode else IMAGE_IDS_FILE
     if images_mode and (args.props or args.species or args.emit_luau):
-        die("--images cannot be combined with --props, --species or --emit-luau")
+        die("--images and --textures cannot be combined with --props, --species or --emit-luau")
+    if textures_mode and (args.images or args.emit_icons_luau):
+        die("--textures cannot be combined with --images or --emit-icons-luau; icons and textures have their own ids files")
     if args.emit_icons_luau and args.resolve_images:
         die("--emit-icons-luau cannot be combined with --resolve-images; run --resolve-images first, then emit")
+    if args.emit_textures_luau and args.resolve_images:
+        die("--emit-textures-luau cannot be combined with --resolve-images; run --resolve-images --textures first, then emit")
+    if args.from_studio and (images_mode or args.emit_decals_luau or args.props or args.species or args.emit_luau
+                             or args.only):
+        die("--from-studio stands alone (only --redo and --dry-run go with it); it fills both ids files")
+
+    # Studio route: the Decal ids go out as a Luau table, the ids it prints come back from a file. The files are
+    # both ids files unless --images or --textures (or --ids-file) picks one.
+    studio_files = ([args.ids_file] if explicit_ids_file or images_mode
+                    else [IMAGE_IDS_FILE, TEXTURE_IDS_FILE])
+    if args.emit_decals_luau:
+        rows = pending_decals(studio_files, redo=args.redo)
+        if not rows:
+            print("upload_assets: no uploaded image in %s is waiting for an Image id (--redo lists them all)"
+                  % ", ".join(f.parent.name + "/" + f.name for f in studio_files), file=sys.stderr)
+        print(emit_decals_luau(rows))
+        return 0
+    if args.from_studio:
+        try:
+            studio_text = args.from_studio.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            die("cannot read %s (%s)" % (args.from_studio, exc))
+        return run_from_studio(studio_files, studio_text, redo=args.redo, dry_run=args.dry_run)
 
     ids = load_ids(args.ids_file)
 
@@ -626,11 +940,35 @@ def main() -> int:
                 "again" % (len(missing), ", ".join(missing)))
         print(emit_icons_luau(ids))
         return 0
+    if args.emit_textures_luau:
+        only_keys = None
+        if args.only:
+            tokens = [n.strip() for n in args.only.split(",") if n.strip()]
+            known = {name.split("/")[0] for name in discover_textures()} | {k for k, _ in textures_luau_rows()}
+            unknown = [t for t in tokens if t not in known]
+            if unknown:
+                die("unknown texture key(s): %s (keys are the rows of Textures.luau: %s)"
+                    % (", ".join(unknown), ", ".join(sorted(known))))
+            only_keys = tokens
+        rows = texture_rows(only_keys)
+        not_uploaded, unresolved = unresolved_textures(ids, rows)
+        if not_uploaded or unresolved:
+            parts = []
+            if not_uploaded:
+                parts.append("not uploaded: " + ", ".join(not_uploaded))
+            if unresolved:
+                parts.append("uploaded but no Image id (a SurfaceAppearance shows nothing for a Decal id): "
+                             + ", ".join(unresolved))
+            die("%d texture map(s) have no Image id yet; %s. Run: python3 -I tools/upload_assets.py --textures "
+                "(uploads and resolves), then --emit-decals-luau and --from-studio if the resolve was refused, then "
+                "emit again" % (len(not_uploaded) + len(unresolved), "; ".join(parts)))
+        print(emit_textures_luau(ids, only_keys))
+        return 0
     if args.resolve_images and not args.images:
         names = None
         if args.only:
-            names = [n.strip() for n in args.only.split(",") if n.strip()]
-            unknown = [n for n in names if n not in ids]
+            names, unknown = expand_only([n.strip() for n in args.only.split(",") if n.strip()], ids,
+                                         grouped=textures_mode)
             if unknown:
                 die("not in %s: %s (nothing uploaded under that key yet)" % (args.ids_file.name, ", ".join(unknown)))
         return run_resolve(ids, args.ids_file, names, redo=args.redo, dry_run=args.dry_run)
@@ -639,18 +977,22 @@ def main() -> int:
     kinds: "dict[str, str]" = {}
     wanted: "dict[str, pathlib.Path]" = {}
     if images_mode:
-        images = discover_images()
+        images = discover_textures() if textures_mode else discover_images()
         if not images:
-            die("no .png files found under %s or %s" % (ICONS_DIR, PARTICLES_DIR))
+            die("no .png files found under %s" % (TEXTURES_DIR if textures_mode
+                                                    else "%s or %s" % (ICONS_DIR, PARTICLES_DIR)))
         for key, (path, kind) in images.items():
             wanted[key] = path
             kinds[key] = kind
         fmt = "png"
         if args.only:
-            names = [n.strip() for n in args.only.split(",") if n.strip()]
-            unknown = [n for n in names if n not in wanted]
+            names, unknown = expand_only([n.strip() for n in args.only.split(",") if n.strip()], wanted,
+                                         grouped=textures_mode)
             if unknown:
-                die("unknown image key(s): %s (keys are the file names under assets/icons and assets/particles)" % ", ".join(unknown))
+                die("unknown %s(s): %s (%s)" % (
+                    "texture key" if textures_mode else "image key", ", ".join(unknown),
+                    "keys are the folders under assets/textures, or <key>/<map> with map color, normal or roughness"
+                    if textures_mode else "keys are the file names under assets/icons and assets/particles"))
             wanted = {n: wanted[n] for n in names}
     else:
         species, props = discover(fmt)
@@ -693,10 +1035,10 @@ def main() -> int:
         # An earlier upload may have stopped before its Image ids were fetched: finish that now (no key needed).
         return run_resolve(ids, args.ids_file, wanted) if images_mode and pending_images(ids, wanted) else 0
 
-    key = os.environ.get("ROBLOX_OPEN_CLOUD_KEY", "").strip()
+    key = api_key()
     if not key:
-        die("ROBLOX_OPEN_CLOUD_KEY is not set. Make a key (Creator Dashboard > Open Cloud > API Keys, Assets "
-            "API, Read and Write) and run: export ROBLOX_OPEN_CLOUD_KEY=...  (never put it in the repo)")
+        die("ROBLOX_OPEN_CLOUD_KEY (or ROBLOX_API_KEY) is not set. Make a key (Creator Dashboard > Open Cloud > API "
+            "Keys, Assets API, Read and Write) and run: export ROBLOX_OPEN_CLOUD_KEY=...  (never put it in the repo)")
     user = os.environ.get("ROBLOX_CREATOR_USER_ID", "").strip()
     group = os.environ.get("ROBLOX_CREATOR_GROUP_ID", "").strip()
     if bool(user) == bool(group):
@@ -713,7 +1055,8 @@ def main() -> int:
             model = todo[name]
             try:
                 if images_mode:
-                    asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt,
+                    # A texture key is "<key>/<map>"; the asset's display name is "<key>_<map>".
+                    asset_id, state = upload_one(name.replace("/", "_"), model, key, creator, args.poll_interval, fmt,
                                                  IMAGE_ASSET_TYPE, IMAGE_CONTENT_TYPE)
                 else:
                     asset_id, state = upload_one(name, model, key, creator, args.poll_interval, fmt)
