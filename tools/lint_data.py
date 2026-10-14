@@ -10,6 +10,12 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# The Roblox Material names a materials.json `material` may use (the Surface pass, docs/vault/06-art-pipelines/Surface-Pass.md).
+# Shared/ModelInstall.SurfaceMaterials keeps the same list; tools/tests/test_surfaces.py checks the two match.
+SURFACE_MATERIALS = ('Plastic', 'SmoothPlastic', 'Neon', 'Metal', 'Foil', 'Wood', 'WoodPlanks', 'Fabric', 'Leather', 'Rubber',
+                     'Grass', 'Slate', 'Rock', 'Pebble', 'Granite', 'Marble', 'Sand', 'Sandstone', 'Snow', 'Ice', 'Glass', 'Mud')
+SURFACE_KEYS = ('material', 'texture', 'glossy')
+TEXTURE_FIELDS = ('colorMap', 'normalMap', 'roughnessMap')
 LEX = re.compile(r'''--\[(=*)\[.*?\]\1\]|--[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|\S''', re.S)
 
 
@@ -525,6 +531,50 @@ def model_asset_warnings(tables, root):
             if type(assets.get(name)) is not int or assets[name] <= 0]
 
 
+def lint_surfaces(tables):
+    """data/Textures rows and data/ModelAssets.Surfaces rows (the Surface pass): shapes, names and references."""
+    failures = []
+    textures = tables.get('Textures')
+    if not isinstance(textures, dict):
+        return ['Textures.luau: required table unavailable']
+    def finite(value):
+        return type(value) in (int, float) and math.isfinite(value)
+    for key, row in sorted(textures.items(), key=lambda kv: str(kv[0])):
+        where = f'Textures.{key}'
+        if not isinstance(key, str) or not re.fullmatch(r'[a-z][a-z0-9]*', key):
+            failures.append(f'{where}: key must be lower-case letters and digits')
+        if not isinstance(row, dict) or set(row) != set(TEXTURE_FIELDS) | {'tiling'}:
+            failures.append(f'{where}: expected colorMap, normalMap, roughnessMap and tiling')
+            continue
+        for field in TEXTURE_FIELDS:
+            if type(row[field]) is not int or row[field] < 0:
+                failures.append(f'{where}.{field}: expected an Image id (a non-negative integer, 0 = not uploaded)')
+        tiling = row['tiling']
+        if not (isinstance(tiling, dict) and set(tiling) == {1, 2} and all(finite(v) and v > 0 for v in tiling.values())):
+            failures.append(where + '.tiling: expected { u, v } with two positive numbers')
+    assets = tables.get('ModelAssets') or {}
+    ids, materials = assets.get('AssetIds', {}), assets.get('Materials', {})
+    for model, slots in sorted((assets.get('Surfaces') or {}).items()):
+        if model not in ids:
+            failures.append(f'ModelAssets.Surfaces.{model}: no such model in AssetIds')
+            continue
+        names = {row[1] for row in (materials.get(model) or {}).values()}
+        for slot, spec in sorted(slots.items()):
+            where = f'ModelAssets.Surfaces.{model}.{slot}'
+            if slot not in names:
+                failures.append(f'{where}: no such slot in Materials.{model}')
+            if not isinstance(spec, dict) or not spec or set(spec) - set(SURFACE_KEYS):
+                failures.append(f'{where}: expected a row with some of {", ".join(SURFACE_KEYS)}')
+                continue
+            if 'material' in spec and spec['material'] not in SURFACE_MATERIALS:
+                failures.append(f'{where}.material: {spec["material"]!r} is not on the SurfaceMaterials list')
+            if 'texture' in spec and spec['texture'] not in textures:
+                failures.append(f'{where}.texture: unknown texture {spec["texture"]!r}')
+            if 'glossy' in spec and spec['glossy'] is not True:
+                failures.append(f'{where}.glossy: only true is written (leave the field out for a plain slot)')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -540,7 +590,7 @@ def lint(root: Path = ROOT) -> list[str]:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
                 'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers',
-                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps'}
+                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
     if not required <= tables.keys():
@@ -618,6 +668,7 @@ def lint(root: Path = ROOT) -> list[str]:
         print('warning: ' + finding)
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
+    failures.extend(lint_surfaces(tables))
     for finding in lint_shapes(tables, strings, types):
         if finding in SHAPE_WARNINGS:
             print('warning: ' + finding)

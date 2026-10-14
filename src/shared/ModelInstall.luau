@@ -7,11 +7,38 @@
 -- MetalMetallicFrom). A GLB upload arrives as one MeshPart per material slot, named <Model>, <Model>2,
 -- <Model>3... in slot order; these functions turn those names back into slots and the slots into materials.
 -- Nothing here decides an outcome or touches the world.
+--
+-- The surface layer (docs/vault/06-art-pipelines/Surface-Pass.md) sits on top: a slot's optional `material`, `texture`
+-- and `glossy` fields (data/ModelAssets.Surfaces, from materials.json) turn into a SurfacePlan here, as names and
+-- numbers only. Services/Models maps the material name to the Enum and builds the SurfaceAppearance; a slot with no
+-- fields gets the plan it always had.
+
+local Types = require(script.Parent.types.Types)
 
 local ModelInstall = {}
 
 -- One MeshPart as the sort sees it: its slot number from SlotOf and its place in the model's descendant order.
 export type SlotEntry = { slot: number, order: number }
+
+export type SurfaceSpec = Types.SurfaceSpec
+export type TextureRow = Types.TextureRow
+-- The three Image ids a SurfaceAppearance takes (all non-zero, else there is no plan for maps).
+export type SurfaceMaps = { colorMap: number, normalMap: number, roughnessMap: number }
+-- What to do to one MeshPart: the Enum.Material name to set, the Reflectance (0 = leave it), and the maps when its
+-- texture is uploaded.
+export type SurfacePlan = { material: string, reflectance: number, maps: SurfaceMaps? }
+
+-- The Roblox Material names a materials.json `material` may use (the names of Enum.Material; tools/lint_data.py keeps
+-- the same list in SURFACE_MATERIALS and tools/tests/test_surfaces.py checks the two match). Neon, Metal and
+-- SmoothPlastic stay on the list because a slot may name them outright.
+ModelInstall.SurfaceMaterials = {
+	"Plastic", "SmoothPlastic", "Neon", "Metal", "Foil", "Wood", "WoodPlanks", "Fabric", "Leather", "Rubber",
+	"Grass", "Slate", "Rock", "Pebble", "Granite", "Marble", "Sand", "Sandstone", "Snow", "Ice", "Glass", "Mud",
+} :: { string }
+local materialAllowed: { [string]: boolean } = {}
+for _, name in ipairs(ModelInstall.SurfaceMaterials) do
+	materialAllowed[name] = true
+end
 
 local FIRST_SLOT = 1 -- a part with no numeric suffix is slot 1
 local GLOW_WORD = "glow" -- the installer's fallback for a prop without Materials rows
@@ -67,6 +94,44 @@ end
 -- named like that.
 function ModelInstall.IsGlowName(name: string): boolean
 	return string.find(string.lower(name), GLOW_WORD, 1, true) ~= nil
+end
+
+-- True when `name` is on the SurfaceMaterials list.
+function ModelInstall.IsSurfaceMaterial(name: string): boolean
+	return materialAllowed[name] == true
+end
+
+-- A texture row's maps when all three ids are non-zero, else nil (a half-uploaded set is not used).
+function ModelInstall.MapsOf(row: TextureRow?): SurfaceMaps?
+	if row and row.colorMap > 0 and row.normalMap > 0 and row.roughnessMap > 0 then
+		return { colorMap = row.colorMap, normalMap = row.normalMap, roughnessMap = row.roughnessMap }
+	end
+	return nil
+end
+
+-- The plan for one slot. `base` is the material name MaterialFor chose (Neon, Metal or SmoothPlastic); `spec` is the
+-- slot's Surfaces row (nil = untouched: the base material, no reflectance, no maps); `textures` is data/Textures;
+-- `gloss` is Config.ModelGlossReflectance.
+-- Material: an explicit `material` on the SurfaceMaterials list wins (so Grass beats the emission rule, and a part can be
+-- Glass although it glows), else `glossy` asks for SmoothPlastic, else the base. Reflectance: `gloss` when glossy, else 0.
+-- Maps: the named texture's three ids when all are non-zero.
+function ModelInstall.SurfacePlan(base: string, spec: SurfaceSpec?, textures: { [string]: TextureRow }, gloss: number): SurfacePlan
+	if not spec then
+		return { material = base, reflectance = 0, maps = nil }
+	end
+	local material = base
+	local named = spec.material
+	if named ~= nil and materialAllowed[named] then
+		material = named
+	elseif spec.glossy == true then
+		material = "SmoothPlastic"
+	end
+	local textureKey = spec.texture
+	return {
+		material = material,
+		reflectance = if spec.glossy == true then gloss else 0,
+		maps = if textureKey ~= nil then ModelInstall.MapsOf(textures[textureKey]) else nil,
+	}
 end
 
 return ModelInstall

@@ -13,7 +13,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -53,7 +54,8 @@
     "hex": "F59E0B",
     "roughness": 0.3,
     "metallic": 1.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Neon"
   },
   {
     "slot": 8,
@@ -61,6 +63,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

@@ -25,6 +25,10 @@ local ORIG_TEXTURE = "OrigTexture"
 -- once and every clone scales from that baseline; nothing done to a clone later can shift it.
 local sourceScale: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
+-- The SurfaceAppearance (the Surface pass texture maps, added by the server's Services/Models once their ids are uploaded)
+-- that SetShadow took off a part, so un-shadowing puts the same one back. A shadow silhouette must stay a flat shape.
+local stashedAppearance: { [BasePart]: SurfaceAppearance } = setmetatable({}, { __mode = "k" }) :: any
+
 local materialsByName: { [string]: Enum.Material } = {}
 for _, item in ipairs(Enum.Material:GetEnumItems()) do
 	materialsByName[item.Name] = item :: any
@@ -120,7 +124,7 @@ function Models.Height(model: Model): number
 	return model:GetExtentsSize().Y
 end
 
--- Shadowed: every part painted Theme.Shadow in SmoothPlastic with any texture dropped, the original
+-- Shadowed: every part painted Theme.Shadow in SmoothPlastic with any texture dropped (a SurfaceAppearance too), the original
 -- Color, Material and TextureID kept in attributes on the part. Un-shadowed: those restored exactly.
 function Models.SetShadow(model: Model, shadowed: boolean)
 	for _, descendant in ipairs(model:GetDescendants()) do
@@ -140,6 +144,11 @@ function Models.SetShadow(model: Model, shadowed: boolean)
 			if descendant:IsA("MeshPart") then
 				descendant.TextureID = ""
 			end
+			local appearance = descendant:FindFirstChildOfClass("SurfaceAppearance")
+			if appearance then
+				stashedAppearance[descendant] = appearance
+				appearance.Parent = nil
+			end
 		else
 			local color = descendant:GetAttribute(ORIG_COLOR)
 			if typeof(color) == "Color3" then
@@ -152,6 +161,11 @@ function Models.SetShadow(model: Model, shadowed: boolean)
 			local texture = descendant:GetAttribute(ORIG_TEXTURE)
 			if type(texture) == "string" and descendant:IsA("MeshPart") then
 				descendant.TextureID = texture
+			end
+			local appearance = stashedAppearance[descendant]
+			if appearance then
+				appearance.Parent = descendant
+				stashedAppearance[descendant] = nil
 			end
 		end
 	end

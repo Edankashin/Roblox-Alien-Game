@@ -13,7 +13,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -45,7 +46,8 @@
     "hex": "C8CDD3",
     "roughness": 0.35,
     "metallic": 1.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Metal"
   },
   {
     "slot": 7,
@@ -53,6 +55,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

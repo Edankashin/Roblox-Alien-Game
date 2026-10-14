@@ -176,10 +176,23 @@ def material_entries(objs):
     return entries
 
 
+SURFACE_KEYS = ("material", "texture", "glossy")  # the Surface pass fields: written by hand, never by this exporter
+
+
 def write_materials_entries(entries, out_dir):
     out_dir = pathlib.Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / MATERIALS_JSON
+    if path.is_file():
+        # Writing the file again cannot know a slot's material, texture or glossy: carry them over by slot name.
+        try:
+            old = {e["name"]: e for e in json.loads(path.read_text())}
+        except (ValueError, KeyError, TypeError):
+            old = {}
+        for entry in entries:
+            for key in SURFACE_KEYS:
+                if key in old.get(entry["name"], {}):
+                    entry[key] = old[entry["name"]][key]
     path.write_text(json.dumps(entries, indent=2) + "\n")
     return path
 

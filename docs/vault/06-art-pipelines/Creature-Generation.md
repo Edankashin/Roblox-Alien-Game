@@ -48,3 +48,7 @@ Output: `assets/models/<SpeciesId>/<SpeciesId>.glb`, `.fbx`, `notes.md` (date, t
 ## Silhouette pass (2026-10-14)
 
 Ethan: no two aliens may share a base design (the ball-and-tuft body of the blockout tier is the problem). For a species with a recipe the body is now rebuilt from primitives: [[Silhouette-Pass]] has the rules and a row per species, `tools/blender/species_recipes.py` the recipes (checked with no Blender), `tools/blender/species_bodies.py` the builder, on the `event_species.py` pattern (the GLB is read only for its materials; slots, order, height and pivot stay). Never run `alien_base.py` over a species that has a recipe: it would put the ball back.
+
+## Surface pass (2026-10-14)
+
+Ethan: the new bodies "don't have any texture to them". The blockout rule "materials: one flat Principled material per colour, no textures" now has a second layer on top: per-slot Roblox materials and glossy eyes (`materials.json` fields `material`, `glossy`, `texture`), smooth bevelled bodies with a vertex gradient from `species_bodies.py` (`--no-surface` for the old output), and shared texture sets baked by `tools/blender/bake_textures.py`. Plan, costs and the Friday split: [[Surface-Pass]]. Rewriting a `materials.json` (`alien_base.py`, `materials_json.py`) keeps a slot's surface fields: `write_materials_entries` carries `material`, `texture` and `glossy` over by slot name. (Still never run `alien_base.py --all` over a species that has a recipe.)

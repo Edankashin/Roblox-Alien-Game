@@ -5,7 +5,9 @@
     "hex": "FF6B35",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Fabric",
+    "texture": "fur"
   },
   {
     "slot": 2,
@@ -13,7 +15,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -45,7 +48,8 @@
     "hex": "FFE066",
     "roughness": 0.35,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 2.0,
+    "material": "Neon"
   },
   {
     "slot": 7,
@@ -53,6 +57,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

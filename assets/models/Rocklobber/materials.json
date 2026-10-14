@@ -13,7 +13,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -45,7 +46,9 @@
     "hex": "FFA928",
     "roughness": 0.35,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 1.5,
+    "material": "Slate",
+    "texture": "stone"
   },
   {
     "slot": 7,
@@ -53,6 +56,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

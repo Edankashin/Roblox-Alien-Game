@@ -68,6 +68,15 @@ export type SpeciesDef = {
 	variant: string?,
 }
 
+-- One slot's surface look in a model's materials.json (carried into data/ModelAssets.Surfaces by tools/model_assets.py):
+-- a Roblox Material name (ModelInstall.SurfaceMaterials), a key of data/Textures, and glossy (SmoothPlastic with a
+-- Reflectance from Config.ModelGlossReflectance). Every field is optional; a slot without a row looks as it always did.
+export type SurfaceSpec = { material: string?, texture: string?, glossy: boolean? }
+-- One shared tileable texture set (data/Textures): the Image ids of its colour, normal and roughness maps (0 until
+-- uploaded) and how many times the map repeats across a mesh primitive's 0..1 UV square (tools/blender/species_bodies.py
+-- scales the slot's UVs by it; SurfaceAppearance itself has no tiling property).
+export type TextureRow = { colorMap: number, normalMap: number, roughnessMap: number, tiling: { number } }
+
 export type TierDef = {
 	share: number, -- share of wild spawns, percent (Cosmic and Secret are 0: event or quest only)
 	workSpeed: number, -- multiplier versus Common

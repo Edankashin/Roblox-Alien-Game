@@ -9,11 +9,20 @@ percent) with the lowest point on z = 0 and the face on -Y, and re-exports GLB a
 settings. materials.json gets the recipe's palette, glow and metal values (slot names and order untouched) and notes.md gets
 the new triangle count, height, accessory line and a line about this pass. It prints the triangle count and height per species.
 
+The Surface pass (docs/vault/06-art-pipelines/Surface-Pass.md, numbers in species_recipes.SURFACE) runs by default: every smooth
+part (and every cube) is shaded smooth by angle, cubes and cylinders thick enough get a two-segment bevel before the join, a
+greyscale top-to-bottom vertex colour (lighter crown, darker belly, a little darker again facing the ground) is written to the mesh and
+exported in the GLB, and a slot whose materials.json names a `texture` has its UVs scaled by that texture's tiling (data/Textures).
+A body that would go over the triangle cap with the bevel is built again without it. `--no-surface` skips all of it and writes the
+output this script wrote before the pass.
+
   python3 tools/blender/species_recipes.py                  # no Blender needed: check every recipe first
   blender -b -P tools/blender/species_bodies.py -- --species Mossbop,Pebblet,Puffpuff
   blender -b -P tools/blender/species_bodies.py -- --species batch1            # a whole batch (1..5), or world1
   python3 tools/blender/species_bodies.py --species batch1 --models /some/copy # plain Python with the bpy module
   python3 tools/blender/preview.py --species Mossbop,Pebblet,Puffpuff          # then look at the renders
+  blender -b -P tools/blender/species_bodies.py -- --species Mossbop --no-surface    # the pre-surface output
+  python3 tools/blender/preview.py --lit --species Mossbop                      # the lit review render (gradient, gloss, textures)
 
 --models points at a folder laid out like assets/models (default assets/models); use a copy to try a recipe without touching
 the repo's files. Exit code 1 if any species fails or goes over 2,500 triangles.
@@ -21,6 +30,7 @@ the repo's files. Exit code 1 if any species fails or goes over 2,500 triangles.
 import argparse
 import datetime
 import json
+import math
 import pathlib
 import re
 import sys
@@ -31,10 +41,18 @@ from mathutils import Matrix
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))
 import species_recipes as SR  # noqa: E402
+import luau_tables  # noqa: E402
 
 ROOT = HERE.parent.parent
 TOOL = "tools/blender/species_bodies.py"
+TEXTURES = ROOT / "src/shared/data/Textures.luau"
+GRADIENT_ATTRIBUTE = "Col"
+
+
+class OverBudget(RuntimeError):
+    """The body went over the triangle cap (nothing was exported)."""
 
 
 def parse_args():
@@ -42,6 +60,8 @@ def parse_args():
     ap = argparse.ArgumentParser(description="Rebuild species bodies from tools/blender/species_recipes.py")
     ap.add_argument("--species", required=True, help="comma list of ids, or batchN, or world1")
     ap.add_argument("--models", default=str(ROOT / "assets/models"), help="models folder (default assets/models)")
+    ap.add_argument("--no-surface", action="store_true",
+                    help="skip the Surface pass (smoothing, bevel, vertex gradient, UV tiling): the pre-pass output")
     return ap.parse_args(argv)
 
 
@@ -57,10 +77,12 @@ def principled(mat):
 class Kit:
     """Builds the parts as separate objects, each carrying every material slot in the old order, then joins them."""
 
-    def __init__(self, mats):
+    def __init__(self, mats, surface=None):
         self.mats = mats  # ordered [(name, material)]
         self.index = {n: i for i, (n, _) in enumerate(mats)}
         self.parts = []
+        self.surface = surface  # species_recipes.SURFACE, or None for the pre-pass output
+        self.bevelled = 0
 
     def _take(self, obj, slot, smooth):
         if slot == "EyeHighlight" and slot not in self.index:
@@ -111,6 +133,31 @@ class Kit:
         obj.rotation_euler = Matrix(p["rot"]).to_euler()
         obj.scale = p["scale"]
         self._take(obj, p["slot"], not p["flat"])
+        if self.surface:
+            self._soften(obj, p)
+
+    def _soften(self, obj, p):
+        """The Surface pass on one part: a bevel on a thick cube or cylinder, then smooth shading by angle (a part the recipe
+        marks flat stays flat, except a cube, which is a hard primitive the bevel and the smoothing are for)."""
+        S = self.surface
+        # The thinnest size in studs, from the recipe's scale (obj.dimensions is stale until the next depsgraph update).
+        sx, sy, sz = p["scale"]
+        thin = 2.0 * min(sx, sy, sz) if p["prim"] in ("cube", "cylinder") else 0.0
+        if p["prim"] in ("cube", "cylinder") and thin >= S["bevel_min_dim"] and S["bevel_segments"] > 0:
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+            # Bake the scale first so the width is in studs and a squashed cube is not bevelled unevenly.
+            bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+            mod = obj.modifiers.new("Bevel", "BEVEL")
+            mod.width = min(S["bevel_width"], 0.2 * thin)
+            mod.segments = S["bevel_segments"]
+            mod.limit_method = "ANGLE"
+            mod.angle_limit = math.radians(S["bevel_angle"])
+            bpy.ops.object.modifier_apply(modifier=mod.name)
+            self.bevelled += 1
+        if not p["flat"] or p["prim"] == "cube":
+            shade_by_angle(obj.data, math.radians(S["smooth_angle"]))
 
     def join(self, name):
         bpy.ops.object.select_all(action="DESELECT")
@@ -122,6 +169,78 @@ class Kit:
         obj = bpy.context.active_object
         obj.name = obj.data.name = name
         return obj
+
+
+def shade_by_angle(mesh, angle):
+    """Smooth shading with the edges sharper than `angle` (radians) left creased: Shade Smooth by Angle without an operator."""
+    limit = math.cos(angle)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    for face in bm.faces:
+        face.smooth = True
+    for edge in bm.edges:
+        if len(edge.link_faces) == 2:
+            a, b = edge.link_faces
+            edge.smooth = a.normal.dot(b.normal) >= limit
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.update()
+
+
+def smoothstep(t):
+    t = max(0.0, min(1.0, t))
+    return t * t * (3.0 - 2.0 * t)
+
+
+def paint_gradient(obj, mats, gradient):
+    """Write a greyscale colour attribute (crown 1.0 to belly darker by height, darker again where the normal faces down).
+    Roblox multiplies it with the part's Color, so only the listed slots take it; the face and the rest stay 1.0."""
+    mesh = obj.data
+    zs = [v.co.z for v in mesh.vertices]
+    lo, hi = min(zs), max(zs)
+    span = max(hi - lo, 1e-6)
+    listed = {i for i, (name, _) in enumerate(mats) if name in gradient["slots"]}
+    if GRADIENT_ATTRIBUTE in mesh.color_attributes:
+        mesh.color_attributes.remove(mesh.color_attributes[GRADIENT_ATTRIBUTE])
+    attribute = mesh.color_attributes.new(GRADIENT_ATTRIBUTE, "FLOAT_COLOR", "CORNER")
+    mesh.color_attributes.active_color = attribute
+    mesh.color_attributes.render_color_index = list(mesh.color_attributes).index(attribute)
+    for poly in mesh.polygons:
+        for loop in poly.loop_indices:
+            vertex = mesh.vertices[mesh.loops[loop].vertex_index]
+            value = 1.0
+            if poly.material_index in listed:
+                t = smoothstep((vertex.co.z - lo) / span)
+                value = gradient["belly"] + (gradient["crown"] - gradient["belly"]) * t
+                value *= 1.0 - gradient["down"] * max(0.0, -vertex.normal.z)
+                value = max(0.0, min(1.0, value))
+            attribute.data[loop].color = (value, value, value, 1.0)
+    return min(d.color[0] for d in attribute.data), max(d.color[0] for d in attribute.data)
+
+
+def textures_of(folder):
+    """{slot name: texture key} from the model's materials.json (the Surface pass `texture` field)."""
+    entries = json.loads((folder / "materials.json").read_text())
+    return {e["name"]: e["texture"] for e in entries if e.get("texture")}
+
+
+def tile_uvs(obj, mats, slot_textures, rows):
+    """Scale the UVs of every face in a slot that names a texture by that texture's tiling (SurfaceAppearance has no tiling
+    property; the repeat lives in the UVs). Returns how many faces were scaled."""
+    layer = obj.data.uv_layers.active
+    if layer is None or not slot_textures:
+        return 0
+    scaled = 0
+    for poly in obj.data.polygons:
+        key = slot_textures.get(mats[poly.material_index][0])
+        if key is None:
+            continue
+        u, v = rows[key]["tiling"]
+        for loop in poly.loop_indices:
+            x, y = layer.data[loop].uv
+            layer.data[loop].uv = (x * u, y * v)
+        scaled += 1
+    return scaled
 
 
 def apply_materials(mats, rec):
@@ -155,7 +274,7 @@ def fit(obj, height):
     return min(zs), max(zs), scale
 
 
-def update_files(folder, sid, rec, tris, height):
+def update_files(folder, sid, rec, tris, height, surface=None):
     entries = json.loads((folder / "materials.json").read_text())
     for e in entries:
         if e["name"] in rec.get("palette", {}):
@@ -181,10 +300,21 @@ def update_files(folder, sid, rec, tris, height):
         notes = re.sub(r"- Silhouette pass.*", lambda m: line, notes)
     else:
         notes = notes.rstrip("\n") + "\n" + line + "\n"
+    if surface:
+        grad = surface["gradient"]
+        sline = ("- Surface pass %s: smooth by angle (%g degrees), a %g-stud bevel with %d segments on thick cubes and cylinders, a greyscale "
+                 "vertex gradient exported in the GLB (crown %g, belly %g, %g more facing down); per-slot material, texture and glossy live in "
+                 "materials.json (docs/vault/06-art-pipelines/Surface-Pass.md)." % (
+                     datetime.date.today().isoformat(), surface["smooth_angle"], surface["bevel_width"], surface["bevel_segments"],
+                     grad["crown"], grad["belly"], grad["down"]))
+        if "- Surface pass" in notes:
+            notes = re.sub(r"- Surface pass.*", lambda m: sline, notes)
+        else:
+            notes = notes.rstrip("\n") + "\n" + sline + "\n"
     (folder / "notes.md").write_text(notes)
 
 
-def build(sid, models):
+def build(sid, models, surface=None):
     rec = SR.RECIPES[sid]
     if rec["status"] != "recipe":
         raise RuntimeError("%s is a TODO stub in species_recipes.py" % sid)
@@ -196,7 +326,7 @@ def build(sid, models):
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
     apply_materials(mats, rec)
-    kit = Kit(mats)
+    kit = Kit(mats, surface)
     for part in SR.expand(rec):
         kit.add(part)
     obj = kit.join(sid)
@@ -206,12 +336,21 @@ def build(sid, models):
     lo, hi, scale = fit(obj, rec["height"])
     tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
     if tris > SR.TRI_BUDGET:
-        raise RuntimeError("%d triangles is over the %d cap (nothing was exported)" % (tris, SR.TRI_BUDGET))
+        raise OverBudget("%d triangles is over the %d cap (nothing was exported)" % (tris, SR.TRI_BUDGET))
+    extra = {}
+    if surface:
+        shade = paint_gradient(obj, mats, surface["gradient"])
+        tiled = tile_uvs(obj, mats, textures_of(folder), luau_tables.load(str(TEXTURES)))
+        extra = {"export_vertex_color": "ACTIVE"}
+        build.report = "bevelled=%d gradient=%.2f..%.2f tiled=%d" % (kit.bevelled, shade[0], shade[1], tiled)
+    else:
+        build.report = "no surface"
     bpy.ops.export_scene.gltf(filepath=str(folder / ("%s.glb" % sid)), export_format="GLB", export_apply=True, export_animations=False,
-                              export_yup=True, use_selection=False, export_materials="EXPORT", export_lights=False, export_cameras=False)
+                              export_yup=True, use_selection=False, export_materials="EXPORT", export_lights=False, export_cameras=False,
+                              **extra)
     bpy.ops.export_scene.fbx(filepath=str(folder / ("%s.fbx" % sid)), use_selection=False, apply_scale_options="FBX_SCALE_ALL",
                              mesh_smooth_type="FACE", bake_anim=False, add_leaf_bones=False, path_mode="AUTO")
-    update_files(folder, sid, rec, tris, hi - lo)
+    update_files(folder, sid, rec, tris, hi - lo, surface)
     return tris, lo, hi, scale, len(mats)
 
 
@@ -221,12 +360,20 @@ def main():
     if not models.is_absolute():
         models = pathlib.Path.cwd() / models
     failed = []
+    surface = None if args.no_surface else SR.SURFACE
     for sid in SR.ids_for(args.species):
         try:
-            tris, lo, hi, scale, slots = build(sid, models)
+            try:
+                tris, lo, hi, scale, slots = build(sid, models, surface)
+            except OverBudget:
+                if not surface or not surface["bevel_segments"]:
+                    raise
+                # The bevel pushed it over the cap: build it again without the bevel (the smoothing and the gradient stay).
+                tris, lo, hi, scale, slots = build(sid, models, dict(surface, bevel_segments=0))
+                build.report += " (bevel dropped: over the cap with it)"
             guide = SR.TRI_GUIDE[SR.RECIPES[sid]["tier"]]
-            print("%-11s tris=%d height=%.2f z=%.2f..%.2f fit=x%.3f slots=%d%s" % (
-                sid, tris, hi - lo, lo, hi, scale, slots, "  (over the %d target)" % guide if tris > guide else ""), flush=True)
+            print("%-11s tris=%d height=%.2f z=%.2f..%.2f fit=x%.3f slots=%d%s  [%s]" % (
+                sid, tris, hi - lo, lo, hi, scale, slots, "  (over the %d target)" % guide if tris > guide else "", build.report), flush=True)
         except Exception as exc:  # noqa: BLE001
             failed.append(sid)
             print("%-11s FAILED: %s" % (sid, exc), flush=True)

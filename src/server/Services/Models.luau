@@ -8,8 +8,10 @@
 --
 -- Each load ports the installer exactly: pick the Model out of the loaded container, name it, colour its MeshParts
 -- from ModelAssets.Materials (slot order, ModelInstall.SlotOf / Order / MaterialFor, the part renamed to the row's
--- name after colouring), normalise (every BasePart Anchored; a creature also CanCollide and CanQuery off; a prop with
--- no Materials rows gets Neon on its glow-named MeshParts), then parent it to its folder. A name whose folder already
+-- name after colouring; a slot with a ModelAssets.Surfaces row then gets its Material, Reflectance and, once its texture
+-- ids are uploaded, a SurfaceAppearance, all planned by ModelInstall.SurfacePlan), normalise (every BasePart
+-- Anchored; a creature also CanCollide and CanQuery off; a prop with no Materials rows gets Neon on its glow-named
+-- MeshParts), then parent it to its folder. A name whose folder already
 -- holds a Model of that name is "present" and skipped: that is the Studio case, where the hand-installed models stay
 -- as they are and a connected Studio place loads nothing. A failure (LoadAsset errors, or the asset holds no Model
 -- with parts) leaves the folder untouched, so the client keeps its placeholder; a just-uploaded asset can sit in
@@ -31,6 +33,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 local ModelAssets = require(Shared.data.ModelAssets)
 local ModelInstall = require(Shared.ModelInstall)
+local Textures = require(Shared.data.Textures)
+local Types = require(Shared.types.Types)
 
 local Models = {}
 
@@ -49,12 +53,14 @@ local FAILED_NAMES_SHOWN = 10 -- the boot warning names this many failed models
 local assetIds = ModelAssets.AssetIds :: { [string]: number }
 local propNames = ModelAssets.PropNames :: { [string]: boolean }
 local materialRows = ModelAssets.Materials
+local surfaceRows = ModelAssets.Surfaces :: { [string]: { [string]: Types.SurfaceSpec } }
+local textureRows = Textures :: { [string]: Types.TextureRow }
 
-local materialByName: { [string]: Enum.Material } = {
-	Neon = Enum.Material.Neon,
-	Metal = Enum.Material.Metal,
-	SmoothPlastic = Enum.Material.SmoothPlastic,
-}
+-- Every Enum.Material by name: the base rule's three plus whatever a Surfaces row names (ModelInstall.SurfaceMaterials).
+local materialByName: { [string]: Enum.Material } = {}
+for _, item in ipairs(Enum.Material:GetEnumItems()) do
+	materialByName[item.Name] = item :: any
+end
 
 -- State ------------------------------------------------------------------
 
@@ -95,8 +101,28 @@ local function pickModel(container: Instance): Model?
 	return nil
 end
 
--- Colours the model's MeshParts from its Materials rows and renames each to its row's name. Returns how many parts
--- were coloured. Warns once when the part count and the row count differ.
+-- The texture maps as a SurfaceAppearance child of the part, tinted by the part's own colour (the maps are near-white
+-- detail shared by every species). The properties are set before it is parented, and a failure (the engine can refuse
+-- a script-made SurfaceAppearance) leaves the part as it was and warns once.
+local appearanceWarned = false
+local function addAppearance(part: MeshPart, maps: ModelInstall.SurfaceMaps)
+	local ok, reason = pcall(function()
+		local appearance = Instance.new("SurfaceAppearance")
+		appearance.ColorMap = ("rbxassetid://%d"):format(maps.colorMap)
+		appearance.NormalMap = ("rbxassetid://%d"):format(maps.normalMap)
+		appearance.RoughnessMap = ("rbxassetid://%d"):format(maps.roughnessMap)
+		appearance.Color = part.Color
+		appearance.Parent = part
+	end)
+	if not ok and not appearanceWarned then
+		appearanceWarned = true
+		warn(("[%s] Models: a SurfaceAppearance could not be added (%s); parts keep their plain look"):format(Config.WorkingTitle, tostring(reason)))
+	end
+end
+
+-- Colours the model's MeshParts from its Materials rows and renames each to its row's name, then applies the slot's
+-- Surfaces row when it has one. Returns how many parts were coloured. Warns once when the part count and the row
+-- count differ.
 local function applyMaterials(model: Model, name: string, rows: { { string | number } }): number
 	local parts: { MeshPart } = {}
 	local entries: { ModelInstall.SlotEntry } = {}
@@ -109,6 +135,7 @@ local function applyMaterials(model: Model, name: string, rows: { { string | num
 	if #parts ~= #rows then
 		warn(("[%s] Models: %s has %d MeshParts but ModelAssets.Materials lists %d; colouring the parts that exist"):format(Config.WorkingTitle, name, #parts, #rows))
 	end
+	local surfaces = surfaceRows[name]
 	local coloured = 0
 	for position, index in ipairs(ModelInstall.Order(entries)) do
 		local row = rows[position]
@@ -118,9 +145,19 @@ local function applyMaterials(model: Model, name: string, rows: { { string | num
 		local part = parts[index]
 		local metallic = row[4] :: number
 		local emission = row[5] :: number
+		local slotName = row[1] :: string
 		part.Color = Color3.fromHex(row[2] :: string)
-		part.Material = materialByName[ModelInstall.MaterialFor(metallic, emission, ModelAssets.NeonEmissionAbove, ModelAssets.MetalMetallicFrom)]
-		part.Name = row[1] :: string
+		local base = ModelInstall.MaterialFor(metallic, emission, ModelAssets.NeonEmissionAbove, ModelAssets.MetalMetallicFrom)
+		local plan = ModelInstall.SurfacePlan(base, if surfaces then surfaces[slotName] else nil, textureRows, Config.ModelGlossReflectance)
+		part.Material = materialByName[plan.material] or materialByName[base]
+		if plan.reflectance > 0 then
+			part.Reflectance = plan.reflectance
+		end
+		part.Name = slotName
+		local maps = plan.maps
+		if maps then
+			addAppearance(part, maps)
+		end
 		coloured += 1
 	end
 	return coloured

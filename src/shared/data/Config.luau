@@ -187,6 +187,7 @@ return {
 	ModelWildScale = 1, -- multiplier on the mesh's own size for wild aliens
 	ModelWorkerScale = 1, -- multiplier on the mesh's own size for station workers, on top of Camp.WorkerScale
 	ModelViewportScale = 1, -- multiplier on the mesh's own size in the Reveal card and the Codex pedestal
+	ModelGlossReflectance = 0.25, -- MeshPart.Reflectance (0 to 1) for a model slot marked glossy in its materials.json (eyes, highlights): a soft environment sheen on SmoothPlastic, the cheap specular dot (Surface-Pass.md layer A)
 
 	-- Field Notes and the Warden
 	ShrineInteractDistance = 14, -- studs from the shrine centre to offer "Sound the horn"

@@ -2,6 +2,8 @@
 local Shared = game:GetService("ReplicatedStorage").Shared
 local ModelInstall = require(Shared.ModelInstall)
 local ModelAssets = require(Shared.data.ModelAssets)
+local Textures = require(Shared.data.Textures)
+local Types = require(Shared.types.Types)
 local F = require(script.Parent.Fixtures)
 
 -- The thresholds come from the generated table, never from literals here.
@@ -217,6 +219,170 @@ describe("ModelAssets (the generated loader inputs)", function()
 		end
 		for _, name in ipairs(sortedNames(ModelAssets.AssetIds)) do
 			assert(ModelAssets.Materials[name] ~= nil, name .. " has an asset id but no rows")
+		end
+	end)
+end)
+
+-- The Surface pass: the plan for one slot, the material list, data/Textures and the generated Surfaces rows -----------------
+local gloss = F.quarter -- stands in for Config.ModelGlossReflectance: the plan only passes the number through
+local baseKinds = { "Neon", "Metal", "SmoothPlastic" } -- the three names MaterialFor can return
+local uploaded: ModelInstall.TextureRow = { colorMap = F.one, normalMap = F.two, roughnessMap = F.one + F.two, tiling = { F.two, F.two } }
+local halfUploaded: ModelInstall.TextureRow = { colorMap = F.one, normalMap = F.zero, roughnessMap = F.two, tiling = { F.one, F.one } }
+local sets: { [string]: ModelInstall.TextureRow } = { fur = uploaded, moss = halfUploaded }
+local surfaces = ModelAssets.Surfaces :: { [string]: { [string]: Types.SurfaceSpec } }
+local EYE_SLOTS = { "EyeWhite", "EyeHighlight" }
+
+describe("ModelInstall.SurfacePlan", function()
+	it("a slot with no row keeps its base material, no reflectance and no maps", function()
+		for _, base in ipairs(baseKinds) do
+			local plan = ModelInstall.SurfacePlan(base, nil, sets, gloss)
+			expect(plan.material).toEqual(base)
+			expect(plan.reflectance).toEqual(F.zero)
+			expect(plan.maps == nil).toEqual(true)
+		end
+	end)
+	it("a row with no fields changes nothing either", function()
+		local plan = ModelInstall.SurfacePlan("Metal", {}, sets, gloss)
+		expect(plan.material).toEqual("Metal")
+		expect(plan.reflectance).toEqual(F.zero)
+		expect(plan.maps == nil).toEqual(true)
+	end)
+	it("an explicit material wins over the base, so Grass beats the emission rule", function()
+		for _, base in ipairs(baseKinds) do
+			expect(ModelInstall.SurfacePlan(base, { material = "Grass" }, sets, gloss).material).toEqual("Grass")
+		end
+	end)
+	it("glossy asks for SmoothPlastic and the reflectance", function()
+		local plan = ModelInstall.SurfacePlan("Metal", { glossy = true }, sets, gloss)
+		expect(plan.material).toEqual("SmoothPlastic")
+		expect(plan.reflectance).toEqual(gloss)
+	end)
+	it("glossy with an explicit material keeps that material and still gets the reflectance", function()
+		local plan = ModelInstall.SurfacePlan("SmoothPlastic", { glossy = true, material = "Glass" }, sets, gloss)
+		expect(plan.material).toEqual("Glass")
+		expect(plan.reflectance).toEqual(gloss)
+	end)
+	it("glossy = false is the same as no field", function()
+		local plan = ModelInstall.SurfacePlan("Neon", { glossy = false }, sets, gloss)
+		expect(plan.material).toEqual("Neon")
+		expect(plan.reflectance).toEqual(F.zero)
+	end)
+	it("a material off the list is ignored: the base, or SmoothPlastic when glossy", function()
+		expect(ModelInstall.SurfacePlan("Metal", { material = "NotAMaterial" }, sets, gloss).material).toEqual("Metal")
+		expect(ModelInstall.SurfacePlan("Metal", { material = "NotAMaterial", glossy = true }, sets, gloss).material).toEqual("SmoothPlastic")
+	end)
+	it("the maps are the texture's three ids once all of them are non-zero", function()
+		local plan = ModelInstall.SurfacePlan("SmoothPlastic", { texture = "fur" }, sets, gloss)
+		local maps = plan.maps
+		assert(maps ~= nil, "an uploaded set gave no maps")
+		expect(maps.colorMap).toEqual(uploaded.colorMap)
+		expect(maps.normalMap).toEqual(uploaded.normalMap)
+		expect(maps.roughnessMap).toEqual(uploaded.roughnessMap)
+	end)
+	it("a half-uploaded set, an unknown key and a spec with no texture give no maps", function()
+		expect(ModelInstall.SurfacePlan("SmoothPlastic", { texture = "moss" }, sets, gloss).maps == nil).toEqual(true)
+		expect(ModelInstall.SurfacePlan("SmoothPlastic", { texture = "velvet" }, sets, gloss).maps == nil).toEqual(true)
+		expect(ModelInstall.SurfacePlan("SmoothPlastic", { material = "Grass" }, sets, gloss).maps == nil).toEqual(true)
+	end)
+	it("a texture alone leaves the material and the reflectance alone", function()
+		local plan = ModelInstall.SurfacePlan("Metal", { texture = "fur" }, sets, gloss)
+		expect(plan.material).toEqual("Metal")
+		expect(plan.reflectance).toEqual(F.zero)
+	end)
+end)
+
+describe("ModelInstall.MapsOf", function()
+	it("needs a row and every id above zero", function()
+		expect(ModelInstall.MapsOf(nil) == nil).toEqual(true)
+		expect(ModelInstall.MapsOf(halfUploaded) == nil).toEqual(true)
+		expect(ModelInstall.MapsOf({ colorMap = F.zero, normalMap = F.one, roughnessMap = F.one, tiling = { F.one, F.one } }) == nil).toEqual(true)
+		expect(ModelInstall.MapsOf({ colorMap = F.one, normalMap = F.one, roughnessMap = F.zero, tiling = { F.one, F.one } }) == nil).toEqual(true)
+		expect(ModelInstall.MapsOf(uploaded) ~= nil).toEqual(true)
+	end)
+end)
+
+describe("ModelInstall.SurfaceMaterials", function()
+	it("has no duplicates and holds the three names MaterialFor returns", function()
+		local seen: { [string]: boolean } = {}
+		for _, name in ipairs(ModelInstall.SurfaceMaterials) do
+			assert(not seen[name], name .. " is listed twice")
+			seen[name] = true
+		end
+		for _, base in ipairs(baseKinds) do
+			assert(seen[base], base .. " is missing from SurfaceMaterials")
+		end
+	end)
+	it("IsSurfaceMaterial agrees with the list", function()
+		for _, name in ipairs(ModelInstall.SurfaceMaterials) do
+			expect(ModelInstall.IsSurfaceMaterial(name)).toEqual(true)
+		end
+		expect(ModelInstall.IsSurfaceMaterial("NotAMaterial")).toEqual(false)
+		expect(ModelInstall.IsSurfaceMaterial("")).toEqual(false)
+	end)
+end)
+
+describe("data/Textures", function()
+	it("every row has three Image ids (whole numbers, zero until uploaded) and a positive { u, v } tiling", function()
+		for _, key in ipairs(sortedNames(Textures)) do
+			local row = Textures[key] :: Types.TextureRow
+			for _, id in ipairs({ row.colorMap, row.normalMap, row.roughnessMap }) do
+				assert(id >= F.zero and id == math.floor(id), key .. " has an id that is not a whole number")
+			end
+			assert(#row.tiling == F.two, key .. " tiling is not { u, v }")
+			assert(row.tiling[1] > F.zero and row.tiling[2] > F.zero, key .. " tiling must be positive")
+		end
+	end)
+end)
+
+describe("ModelAssets.Surfaces (the generated rows)", function()
+	it("every row names a model with an asset id and a slot its Materials rows list, with known fields only", function()
+		for _, model in ipairs(sortedNames(surfaces)) do
+			assert(ModelAssets.AssetIds[model] ~= nil, model .. " has Surfaces rows but no asset id")
+			local slotNames: { [string]: boolean } = {}
+			for _, row in ipairs(ModelAssets.Materials[model]) do
+				slotNames[row[NAME_FIELD] :: string] = true
+			end
+			for _, slot in ipairs(sortedNames(surfaces[model])) do
+				local where = model .. "." .. slot
+				assert(slotNames[slot], where .. " is not one of the model's slots")
+				local fields = 0
+				for field in pairs(surfaces[model][slot]) do
+					fields += 1
+					assert(field == "material" or field == "texture" or field == "glossy", where .. " has an unknown field " .. tostring(field))
+				end
+				assert(fields > 0, where .. " is an empty row")
+			end
+		end
+	end)
+	it("every material is on the list, every texture exists, and glossy is only ever true", function()
+		for _, model in ipairs(sortedNames(surfaces)) do
+			for _, slot in ipairs(sortedNames(surfaces[model])) do
+				local spec = surfaces[model][slot]
+				local where = model .. "." .. slot
+				if spec.material ~= nil then
+					assert(ModelInstall.IsSurfaceMaterial(spec.material), where .. " material " .. spec.material .. " is not on the list")
+				end
+				if spec.texture ~= nil then
+					assert((Textures :: { [string]: Types.TextureRow })[spec.texture] ~= nil, where .. " names the unknown texture " .. spec.texture)
+				end
+				assert(spec.glossy == nil or spec.glossy == true, where .. " glossy must be true or absent")
+			end
+		end
+	end)
+	it("a model with any surface row has both eye slots glossy", function()
+		for _, model in ipairs(sortedNames(surfaces)) do
+			for _, slot in ipairs(EYE_SLOTS) do
+				local spec = surfaces[model][slot]
+				assert(spec ~= nil and spec.glossy == true, model .. "." .. slot .. " is not glossy")
+			end
+		end
+	end)
+	it("the planned material of every Surfaces row is a name the plan can return", function()
+		for _, model in ipairs(sortedNames(surfaces)) do
+			for _, slot in ipairs(sortedNames(surfaces[model])) do
+				local plan = ModelInstall.SurfacePlan(baseKinds[1], surfaces[model][slot], Textures :: { [string]: Types.TextureRow }, gloss)
+				assert(ModelInstall.IsSurfaceMaterial(plan.material), model .. "." .. slot .. " plans " .. plan.material)
+			end
 		end
 	end)
 end)

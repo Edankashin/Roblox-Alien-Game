@@ -58,6 +58,25 @@ FACE_SLOTS = ("EyeWhite", "Pupil", "Mouth", "EyeHighlight")
 DEFAULT_SEGMENTS = {"sphere": 12, "icosphere": 2, "cube": 1, "cylinder": 8, "cone": 8, "torus": 16}
 SMOOTH_BY_DEFAULT = {"sphere": True, "icosphere": True, "cube": False, "cylinder": True, "cone": True, "torus": True}
 
+# The Surface pass (docs/vault/06-art-pipelines/Surface-Pass.md, layer B): what species_bodies.py does to a built body so the
+# hard primitives stop reading as flat plastic. `--no-surface` skips all of it and keeps the old output byte for byte.
+#   smooth_angle   degrees. Every part that is smooth (or a cube) is shaded smooth, with the edges sharper than this left creased
+#                  (Blender's Shade Smooth by Angle). Parts a recipe marks flat=True (the faceted rocks, crystals and shards) stay flat.
+#   bevel_*        a Bevel modifier on cubes and cylinders, applied before the join: width in studs, 2 segments, only edges sharper than
+#                  bevel_angle (a cylinder's side seams are softer than that, so only the rims and cube corners round), and not on
+#                  anything thinner than bevel_min_dim in any direction (a rod or a reed would lose its shape and its triangles).
+#   gradient       a greyscale vertex colour written to the mesh and exported in the GLB. Roblox multiplies it with the part's Color,
+#                  so the slot's hue is untouched: crown 1.0 (no change) at the top, belly darker at the feet, `down` more again where
+#                  the surface faces the ground (a fake ambient occlusion). Only the listed slots take it; the face stays white.
+SURFACE = {
+    "smooth_angle": 55.0,
+    "bevel_width": 0.05,
+    "bevel_segments": 2,
+    "bevel_angle": 60.0,
+    "bevel_min_dim": 0.4,
+    "gradient": {"crown": 1.0, "belly": 0.7, "down": 0.18, "slots": ("Body", "BodyDark", "Accessory", "Trim", "Belly")},
+}
+
 
 # ------------------------------------------------------------------------------------------------ tiny maths
 def _rx(a):

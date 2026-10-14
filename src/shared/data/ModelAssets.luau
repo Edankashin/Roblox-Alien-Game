@@ -1,6 +1,7 @@
 --!strict
 -- Generated: python3 -I tools/model_assets.py --write (do not hand edit).
--- Inputs: assets/models/asset_ids.json; tools/studio/install_models.luau literal data.
+-- Inputs: assets/models/asset_ids.json; tools/studio/install_models.luau literal data; the material, texture and
+-- glossy fields of assets/models/**/materials.json (Surfaces).
 -- ReplicatedStorage.Shared.data.ModelAssets: runtime loader inputs, no loading side effects.
 -- AssetIds maps the exact installed model name to its uploaded Model asset id.
 -- PropNames selects Models.Props; other names go directly into Models.
@@ -14,6 +15,12 @@
 -- "glow" (case insensitive) gets Neon. Other imported properties are preserved.
 -- The installer has no scale/pivot/rotation overrides: preserve the imported baseline.
 -- Loading, folder creation, container selection and successful replacement remain loader logic.
+-- Surfaces[name][slotName] = { material = Roblox Material name, texture = key of data/Textures, glossy = true }, any
+-- of the three, for the slots whose materials.json carries them (the Surface pass, Surface-Pass.md). A slot with no
+-- row, or a model with no Surfaces entry, keeps the look above. Services/Models applies them after the colours.
+
+local Types = require(script.Parent.Parent.types.Types)
+
 local Materials: { [string]: { { string | number } } } = {
 	BuildStation = { { "Wood", "8B5A2B", 0.8, 0, 0 }, { "Plank", "C99A5B", 0.8, 0, 0 }, { "Metal", "8A93A0", 0.5, 0.4, 0 } },
 	Buzzlebee = { { "Body", "F4C542", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "9F802B", 0.8, 0, 0 }, { "Accessory", "42CAF4", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
@@ -71,6 +78,91 @@ local Materials: { [string]: { { string | number } } } = {
 	Twiglet = { { "Body", "8B5A2B", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "5A3B1C", 0.8, 0, 0 }, { "Accessory", "3BBFBE", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Wisplet = { { "Body", "9BE7FF", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "6596A6", 0.8, 0, 0 }, { "Accessory", "FF7397", 0.35, 1, 1.5 } },
 	Zapfinch = { { "Body", "5DADE2", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "3C7093", 0.8, 0, 0 }, { "Accessory", "E25D6B", 0.35, 1, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
+}
+
+local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
+	Buzzlebee = {
+		Body = { material = "Fabric", texture = "fur" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Gaiabloom = {
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+		Trim = { material = "Neon" },
+	},
+	Glimmo = {
+		Accessory = { material = "Neon" },
+		Body = { material = "Glass" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Gloomoth = {
+		Accessory = { material = "Glass" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Lanternewt = {
+		Accessory = { material = "Neon" },
+		Body = { texture = "scales" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Mossbop = {
+		Body = { material = "Grass", texture = "moss" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Panpipe = {
+		Accessory = { material = "Metal" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Pebblet = {
+		Body = { material = "Slate", texture = "stone" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Puffpuff = {
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Radish = {
+		Accessory = { material = "Neon" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Rocklobber = {
+		Accessory = { material = "Slate", texture = "stone" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Snailbyte = {
+		Accessory = { material = "Metal" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Sparkfox = {
+		Accessory = { material = "Neon" },
+		Body = { material = "Fabric", texture = "fur" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Thunderhog = {
+		Accessory = { material = "Neon" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Twiglet = {
+		Body = { material = "Wood" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
+	Zapfinch = {
+		Accessory = { material = "Neon" },
+		EyeHighlight = { glossy = true },
+		EyeWhite = { glossy = true },
+	},
 }
 
 return {
@@ -161,4 +253,5 @@ return {
 		SparkStation = true,
 	},
 	PropsFolderName = "Props",
+	Surfaces = Surfaces,
 }
