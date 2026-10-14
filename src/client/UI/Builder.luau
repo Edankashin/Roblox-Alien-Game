@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
+local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 
 local Builder = {}
@@ -107,6 +108,18 @@ end
 function Builder.tierColor(tier: string): Color3
 	local colors: { [string]: Color3 } = Theme.Rarity
 	return colors[tier] or Theme.Rarity.Common
+end
+
+-- The tint an overlay's badge wears when its data row names one (`tint`, a Theme.Colors key: Launch Gold is gold), else nil.
+function Builder.overlayTint(overlay: string): Color3?
+	local row = Overlays.Overlays[overlay]
+	local colors: { [string]: Color3 } = Theme.Colors
+	return if row and row.tint then colors[row.tint] else nil
+end
+
+-- The colour of an overlay's badge: its tint, else the Codex purple every plain overlay wears.
+function Builder.overlayColor(overlay: string): Color3
+	return Builder.overlayTint(overlay) or Theme.Colors.Codex
 end
 
 function Builder.formatNumber(n: number): string

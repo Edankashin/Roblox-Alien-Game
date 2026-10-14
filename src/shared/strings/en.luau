@@ -67,6 +67,8 @@ return {
 	OVERLAY_Crystal = "Crystal",
 	OVERLAY_Rainbow = "Rainbow",
 	OVERLAY_Spectral = "Spectral",
+	OVERLAY_LaunchGold = "Launch Gold",
+	OVERLAY_DESC_LaunchGold = "Caught during launch week.", -- the Overlays row's `desc`: what the overlay is, under "Best" in the Codex
 	-- The tier or overlay with its article, for sentences ("caught an Epic", "caught a Shiny"); a language
 	-- without articles sets these to the bare word.
 	TIER_A_Common = "a Common",
@@ -81,6 +83,7 @@ return {
 	OVERLAY_A_Crystal = "a Crystal",
 	OVERLAY_A_Rainbow = "a Rainbow",
 	OVERLAY_A_Spectral = "a Spectral",
+	OVERLAY_A_LaunchGold = "a Launch Gold",
 	SHAPE_Ball = "Ball",
 	SHAPE_Block = "Block",
 	SHAPE_Cylinder = "Cylinder",
@@ -683,6 +686,7 @@ return {
 	CODEX_HINT = "Appears in the %s %s",
 	CODEX_CAUGHT = "Caught x%d",
 	CODEX_BEST = "Best: %s",
+	CODEX_BEST_DESC = "Best: %s. %s", -- the overlay's name, then its `desc` line (an overlay that has one)
 	CODEX_JOBS = "Jobs: %s",
 	CODEX_FIRST_CATCH = "First catch pays %s Scrap",
 	CODEX_SELECT = "Tap an alien to read about it",

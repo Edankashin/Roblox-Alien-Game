@@ -21,6 +21,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
@@ -287,7 +288,12 @@ local function fillDetail(profile: Types.Profile)
 		local best = if entry then entry.bestOverlay else "None"
 		d.lineC.Visible = best ~= "None"
 		if best ~= "None" then
-			d.lineC.Text = Strings.CODEX_BEST:format(Builder.text("OVERLAY_" .. best))
+			-- an overlay with a `desc` row says what it is after its name ("Best: Launch Gold. Caught during launch week.")
+			local overlayRow = Overlays.Overlays[best]
+			local bestName = Builder.text("OVERLAY_" .. best)
+			d.lineC.Text = if overlayRow and overlayRow.desc
+				then Strings.CODEX_BEST_DESC:format(bestName, Builder.text(overlayRow.desc))
+				else Strings.CODEX_BEST:format(bestName)
 		end
 	else
 		-- An uncaught Alien of the Week says how long it stays; an uncaught event alien says its event is on and how

@@ -23,8 +23,15 @@ local Rotation: { Drop } = {
 
 return {
 	Rotation = Rotation,
-	-- A dated week (WeeklyMath.PeriodId, "2026-10-09") that carries a different drop than the rotation would.
-	Overrides = {} :: { [string]: Drop },
+	-- A dated week (the week's start date in UTC, as LeaderboardMath.PeriodId prints it) that carries a different drop
+	-- than the rotation would. WeeklyMath.Current checks this table before the rotation (and only at a zero offset).
+	Overrides = {
+		-- Launch week, Fri 2026-10-16 16:00 UTC to 2026-10-23 16:00 UTC: the rotation would give Shimmerlynx on World 2, which
+		-- a new player cannot reach. Sparkfox is World 1's Meadow Rare (Spawns Meadow "Any", so day and night), the first Rare a
+		-- newcomer meets, a featured (not limited) drop: it keeps its usual spawns and takes the week's share. The usual sky
+		-- stays and no week-only overlay rolls (LaunchGold, data/Overlays LaunchWindow, is the week's mark).
+		["2026-10-16"] = { species = "Sparkfox", limited = false, weather = nil, overlay = nil, worldId = 1 },
+	} :: { [string]: Drop },
 	Epoch = 1790956800, -- Friday 2026-10-02 16:00 UTC, the first week of the rotation; a Friday at ResetHourUtc
 	SpawnChance = 0.05, -- fraction of wild spawns in the drop's world that are the Alien of the Week, any biome
 	OverlayChance = 3, -- percent of wild spawns that carry the week's overlay while its weather runs

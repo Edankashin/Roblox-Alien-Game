@@ -814,12 +814,15 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			name = "Overlay",
 			position = UDim2.fromScale(CORNER_X, CORNER_Y),
 			size = UDim2.fromScale(BADGE_W, CORNER_H),
-			color = Theme.Colors.Codex,
+			color = Builder.overlayColor(record.overlay),
 			stroke = Theme.Stroke.Text,
 			strokeColor = Theme.Colors.Outline,
 			zIndex = 5,
 		})
-		Builder.gradient(badge, Theme.Colors.Codex)
+		Builder.gradient(badge, Builder.overlayColor(record.overlay))
+		if Builder.overlayTint(record.overlay) then
+			Builder.shine(badge) -- the slow sparkle of a tinted overlay (Launch Gold); it stops when the card is rebuilt
+		end
 		Builder.label({
 			parent = badge,
 			name = "Text",

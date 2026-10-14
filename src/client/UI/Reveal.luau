@@ -98,6 +98,7 @@ local stampLabel: TextLabel? = nil
 local stampScrapLabel: TextLabel? = nil
 local overlayBadge: Frame? = nil
 local overlayLabel: TextLabel? = nil
+local stopOverlayShine: (() -> ())? = nil -- stops the slow shine sweep on a tinted overlay's badge (Launch Gold); nil while none runs
 local newRibbon: Frame? = nil
 local scrapLabel: TextLabel? = nil
 local storageRibbon: Frame? = nil -- the "Storage full" ribbon above the card
@@ -163,6 +164,10 @@ local function close()
 		burstTween = nil
 	end
 	stopRays()
+	if stopOverlayShine then
+		stopOverlayShine()
+		stopOverlayShine = nil
+	end
 	if card and root then
 		Builder.close(card, function()
 			if not open then
@@ -761,7 +766,15 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	showStamp(info, band)
 	if overlayBadge and overlayLabel then
 		overlayBadge.Visible = info.overlay ~= "None"
+		overlayBadge.BackgroundColor3 = Builder.overlayColor(info.overlay)
 		overlayLabel.Text = Builder.text("OVERLAY_" .. info.overlay)
+		if stopOverlayShine then
+			stopOverlayShine()
+			stopOverlayShine = nil
+		end
+		if info.overlay ~= "None" and Builder.overlayTint(info.overlay) then
+			stopOverlayShine = Builder.shine(overlayBadge) -- the slow sparkle of a tinted overlay (Launch Gold)
+		end
 	end
 	if newRibbon then
 		newRibbon.Visible = info.isNew

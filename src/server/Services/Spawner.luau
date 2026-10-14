@@ -22,6 +22,8 @@
 -- (ReturnChance) is a species it brings back (the Vault Rotation) in its own world, both with no tier roll, and
 -- the event overlay rolls (OverlayChance, percent, whatever the weather) before the week's. Event and returning
 -- species are exempt from the condition despawn too, so a Night alien stays through the day while its season runs.
+-- The launch overlay (data/Overlays LaunchWindow, Shared/OverlayMath) rolls first of all on a wild spawn, inside its
+-- dated window only; it never rolls through RollOverlay, so no bought or hatched alien can carry it.
 -- Placed spawns (SpawnAt: the Warden the Field Notes horn summons) skip the density, weather and cull
 -- rules and live on their own lifetime; Quests hears every removal through OnRemoved. A server-wide ceiling
 -- (Config.SpawnMaxWild) stops the top-up once that many wild spawns are alive, however spread out the players are; a
@@ -40,7 +42,7 @@ local Config = require(Shared.data.Config)
 local Tiers = require(Shared.data.Tiers)
 local Species = require(Shared.data.Species)
 local Spawns = require(Shared.data.Spawns)
-local Overlays = require(Shared.data.Overlays)
+local OverlayMath = require(Shared.OverlayMath)
 local WeeklyData = require(Shared.data.Weekly)
 local Sizes = require(Shared.data.Sizes)
 local CatchVariants = require(Shared.data.CatchVariants)
@@ -178,15 +180,7 @@ local function chooseSpecies(biome: Types.Biome, tier: string, conditions: { Typ
 end
 
 local function rollOverlay(): Types.Overlay
-	local roll = rng:NextNumber(0, 100)
-	local acc = 0
-	for _, name in ipairs(Overlays.Order) do
-		acc += Overlays.Overlays[name].chance
-		if roll < acc then
-			return name :: Types.Overlay
-		end
-	end
-	return "None"
+	return OverlayMath.Pick(rng:NextNumber(0, 100))
 end
 
 -- A weighted pick over the Sizes bands in roll order (their odds sum to 100); luck does not touch it.
@@ -361,7 +355,14 @@ local function createSpawn(around: Vector3, conditions: { Types.Condition }, luc
 	local overlay: Types.Overlay
 	local seasonOverlay, seasonOverlayChance = Seasons.OverlayActive()
 	local weeklyOverlay = Weekly.OverlayActive()
-	if seasonOverlay and rng:NextNumber(0, 100) < seasonOverlayChance then
+	local now = os.time()
+	local launchOverlay: Types.Overlay? = nil
+	if OverlayMath.LaunchActive(now) then -- the roll is drawn only while the window is open
+		launchOverlay = OverlayMath.LaunchPick(now, rng:NextNumber(0, 100))
+	end
+	if launchOverlay then
+		overlay = launchOverlay
+	elseif seasonOverlay and rng:NextNumber(0, 100) < seasonOverlayChance then
 		overlay = seasonOverlay :: Types.Overlay
 	elseif weeklyOverlay and rng:NextNumber(0, 100) < WeeklyData.OverlayChance then
 		overlay = weeklyOverlay :: Types.Overlay
