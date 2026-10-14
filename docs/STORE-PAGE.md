@@ -32,6 +32,9 @@ One thumb, no stress, nothing you did is ever wasted.
 
 ## 4. Icon and thumbnails
 
+**Rendered overnight on 2026-10-14 (headless Blender, `tools/blender/store_renders.py`), in `media/store/2026-10-14/`.** The coordinator's picks: icon `icon_Mossbop_v2.png` (the navy outline reads like the top games' icons; `icon_Sparkfox_v2` and `icon_Thunderhog_v2` are the alternates); thumbnails in this order: `thumb_verdant_v2.png` (five aliens at the crash wreck under the trees), `thumb_legendary_v2.png` (Gaiabloom alone), `thumb_frostbyte_v2.png` (the frost species with the spire and pines). The `_v1` files are the plain first pass. Upload as they are for the weekend; a title overlay in Fredoka One and the wreck brought closer are the first polish items after launch.
+
+
 - Icon 512x512: the Mossbop (or Sparkfox) face close-up on the meadow, rendered in Blender from the species model with the icons v2 light (`docs/vault/06-art-pipelines/Look-Plan.md` L5b), thick outline, the ship in the corner. Until that render exists: a Studio capture of a Mossbop catch moment, cropped square.
 - Thumbnails 1920x1080 (up to 5; the first one is the one the tile shows): (1) the camp with the half-built ship and aliens at work, (2) the capture bar on a Rare, (3) the Moonlit Forest at night, (4) the home planet with habitats. The Mac's overnight captures land in `media/store/2026-10-14/`; pick the four best, add the game name in Fredoka One with an outline on the first one.
 - A 10-second clip for the store video can wait until after launch (the cinematic shots film it).
