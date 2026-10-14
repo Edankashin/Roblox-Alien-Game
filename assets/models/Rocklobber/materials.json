@@ -47,7 +47,7 @@
     "roughness": 0.35,
     "metallic": 0.0,
     "emission": 1.5,
-    "material": "Slate",
+    "material": "Neon",
     "texture": "stone"
   },
   {

@@ -114,7 +114,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Panpipe = {
-		Accessory = { material = "Metal" },
+		Accessory = { material = "Neon" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
@@ -133,7 +133,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Rocklobber = {
-		Accessory = { material = "Slate", texture = "stone" },
+		Accessory = { material = "Neon", texture = "stone" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
