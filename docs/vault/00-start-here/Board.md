@@ -26,7 +26,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 |---|---|---|
 | Handoff to the collaborator: this Board, [[Handoff]], Roblox and GitHub access | Ethan | Steps in [[Handoff]] 13.1 and 13.2 |
 | Launch morning: Studio sign-in, the music listen, the store page, the questionnaire, Public | Ethan | [[STORE-PAGE]] section 5; the morning report in [[2026-10-14]] |
-| Overnight job 14: the Studio retests once Studio is signed in (rest of job 3, 4, the music load check, Storage Bay, `/dupes` then `/complete` no gap, Quiet moments) | Mac | [[Overnight]]; the Mac session's watcher resumes by itself |
+| Overnight job 14, the rest: job 8 store shots, job 4 World 2 and Home, job 3's unrun sections (51a, 47, UI fit, deltas, security D1/D4/D6, reduced-motion assembly, real-currency step 2, phone performance, 45, STUDIO-QUEUE World 1 rows), 50b step 7, quiet-moments step 4; plus the retests of 0825880 (Storage Bay with the new Output lines, the first catch on a fresh profile) | Mac | [[Overnight]]; the music load check passed, the Decal-id icon bug is fixed (0c8c2af) |
 
 ## Next (in priority order; take from the top)
 
@@ -58,7 +58,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Notes |
 |---|---|
-| **Sign in to Roblox Studio on the Mac** (it opened its login dialog after a forced quit overnight; every Studio job waits on it) | [[2026-10-14]] Mac session; the session resumes by itself once Studio is signed in |
+| **Close the extra Roblox Studio windows on the Mac** (File > Close, Don't Save; keep one). Four windows wedged Studio's plugin lock at 09:40 EDT; every Studio job waits on it | [[2026-10-14]] Mac session; then tell the Mac session "Studio is back" or start a new one with the Overnight prompt |
 | Listen to the overnight music and sound picks in the place (nobody has heard them) | [[Music-Plan]] pick tables; swap a row by changing its id |
 | Launch morning checklist: join the private game on your phone, store page, Experience Questionnaire, Public, then tell the coordinator "public" | [[STORE-PAGE]] section 5 |
 | Roblox: friend the collaborator, both age-checked, Collaborate > add them with Edit | [[Handoff]] 13.1 |
