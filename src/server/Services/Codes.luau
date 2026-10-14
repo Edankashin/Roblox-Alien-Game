@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CodesData = require(Shared.data.Codes)
 local AnalyticsData = require(Shared.data.Analytics)
+local CodesMath = require(Shared.CodesMath)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
@@ -17,7 +18,8 @@ local Codes = {}
 
 -- RedeemCode(code) -> (ok, reason). Reasons: RateLimited, NoProfile, TooLong (over MaxLength, refused
 -- before any lookup), Unknown (not a string, empty, or not in the table), Used (this player already
--- redeemed it), Expired (expiresAt is set and has passed).
+-- redeemed it), Expired (expiresAt is set and has passed). A code before its startsAt answers Unknown: it
+-- does not exist yet as far as the player can tell.
 local function onRedeem(player: Player, code: any): (boolean, string?)
 	if not Net.allow(player, "RedeemCode", CodesData.RedeemPerSecond) then
 		return false, "RateLimited"
@@ -36,7 +38,10 @@ local function onRedeem(player: Player, code: any): (boolean, string?)
 	if key == "" or not def then
 		return false, "Unknown"
 	end
-	if def.expiresAt > 0 and os.time() > def.expiresAt then
+	local status = CodesMath.Status(def, os.time())
+	if status == "NotYet" then
+		return false, "Unknown"
+	elseif status == "Expired" then
 		return false, "Expired"
 	end
 	local used = false

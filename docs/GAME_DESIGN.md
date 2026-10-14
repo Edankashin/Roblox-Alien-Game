@@ -253,7 +253,7 @@ Epic mounts match Hoverboard speed. Legendary mounts are 20% faster. Cosmic moun
 
 | Power-up | Effect | Duration | Sources |
 |---|---|---|---|
-| Speed Burst | +50% speed | 60 s | Peddler, spins, event tracks |
+| Speed Burst | +50% speed | 60 s | Peddler, spins, Welcome Week, event tracks |
 | Steady Hands | timing zones +30% wider | 10 min | Peddler, quests |
 | Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins |
 | Lucky Charm | +50% personal luck | 10 min | quests, spins, Welcome Week, events. Earned only |
@@ -460,6 +460,7 @@ Keep Scrap as the only spendable currency. Home decor is priced below ship parts
 
 - **Offline accrual:** Scrap accrues at 50% rate while away, capped at about 60 minutes of income; module assembly continues at full speed. The return is always a chest and often a snapped-on part.
 - **Welcome Week:** seven gifts that unlock by *days played*, not consecutive days. Missing a day loses nothing. Day 7 is an Epic alien egg hatched in the free loop with odds shown. (Login *streaks* are a named target in the EU's September 2026 KIDS Act proposal, so the track is built as "seven gifts" rather than "seven days in a row" from the start.)
+  - The seven (`data/Gifts`): day 1 300 Scrap (the first module's payoff); day 2 a Speed Burst and a Lucky Charm (the two boosts a player saves for the next session, the reason to come back: "boosts that players want to fully use and save until their next login", reference ZPLYSjC9y); day 3 two Speed Bursts; day 4 1,500 Scrap; day 5 two free spins; day 6 a Glow Lure; day 7 the Epic egg, the peak. Priced at Peddler and craft prices (Speed Burst 200, Twig Lure 150, Glow Lure 900, Epic egg 9,000; Lucky Charm is never sold, so it is priced at 350 like Steady Hands, the nearest 10-minute boost) the week is 12,650 Scrap (the two spins left out, unchanged), up 2% from 12,400 when day 2 was two Twig Lures. The launch-week code `LAUNCHWEEK` (300 Scrap and a Lucky Charm, 2026-10-16 to 2026-10-31 UTC, once per player) lives in `data/Codes`.
 - **Daily quests (3) and weekly quests (3):** Scrap, lures, spins.
 - **Spin Wheel:** one free spin per day plus spins earned from quests and codex milestones. Every segment has value (Scrap, lures, a temporary Shiny charm, a cosmetic, a rare companion-slot token). No "nothing" segment.
 - **Limited-time events** at four cadences, from the 5-minute Peddler to monthly seasonal events. See section 12.

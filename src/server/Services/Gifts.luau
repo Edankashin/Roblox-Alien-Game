@@ -38,7 +38,7 @@ local Gifts = {}
 
 -- scrap and spin carry an amount; lure, powerUp and token carry a data id and an amount; egg a tier.
 type Reward = { kind: string, id: string?, amount: number?, tier: string? }
-type GiftRow = { day: number, label: string, reward: Reward }
+type GiftRow = { day: number, label: string, reward: Reward, also: { Reward }? }
 type Segment = { id: string, label: string, odds: number, reward: Reward }
 type PowerUpDef = { name: string, seconds: number, effect: string, value: number, sellable: boolean }
 
@@ -230,6 +230,7 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 
 	-- Resolve what the row grants before the claim is marked, so a bad data row refuses cleanly.
 	local reward = ROWS[day].reward
+	local also: { Reward } = ROWS[day].also or {} -- paid in the same claim (lure, powerUp or spin rows)
 	local eggSpecies: string? = nil
 	if reward.kind == "egg" then
 		eggSpecies = pickEggSpecies(reward.tier, eggWorld(player))
@@ -239,12 +240,23 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 	elseif not isKnownReward(reward) then
 		return false, "Unknown"
 	end
+	for _, extra in ipairs(also) do
+		-- No Scrap or egg here: the claim's Scrap analytics and the Reveal belong to the lead reward.
+		if extra.kind == "egg" or extra.kind == "scrap" or not isKnownReward(extra) then
+			return false, "Unknown"
+		end
+	end
 
 	local scrapChanged, inventoryChanged = false, false
 	PlayerData.Update(player, function(p)
 		p.gifts.claimed[key] = true -- once per day of the week
 		if not eggSpecies then
 			scrapChanged, inventoryChanged = applyReward(p, reward)
+		end
+		for _, extra in ipairs(also) do
+			local scrap, inventory = applyReward(p, extra)
+			scrapChanged = scrapChanged or scrap
+			inventoryChanged = inventoryChanged or inventory
 		end
 	end)
 

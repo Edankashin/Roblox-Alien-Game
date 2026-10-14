@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `4f866fcd6c1d7268`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `615988cbc6272d03`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 102 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -360,7 +360,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 3.** Set `Social.GroupId` to any real group id (temporarily, not committed) and rejoin: the group button reads "Join our group"; tap: the native group prompt opens (Studio may refuse; then the button stays). From the command bar, invoke `ClaimGroupReward`: NotMember when not in the group; for a member, Scrap +500, lures +3, spins +2, toast "Group gift: 500 Scrap, 3 x Twig Lure, 2 free spins", Analytics event GroupReward, the button reads "Group gift claimed" and a second claim answers AlreadyClaimed.
 
-**TESTING step 6.** Second session: rejoin. `social.sessions` is 2, and after 120 s the NotifyAsk event fires once (the card itself depends on step 4's platform rule). No card during a capture, the reveal or a launch; the card waits and retries.
+**TESTING step 6.** Second session: rejoin. `social.sessions` is 2, and nothing fires after 120 s: `Social.NotificationsEnabled` is false (decision 20 open, nothing sends yet), so the server never sends NotifyAsk and the card stays hidden (set the flag to true temporarily, not committed, to see the event fire once after 120 s; the card itself depends on step 4's platform rule). No card during a capture, the reveal or a launch; the card waits and retries.
 
 ### Milestone 20: the weekly Catches leaderboard (World 1 place)
 

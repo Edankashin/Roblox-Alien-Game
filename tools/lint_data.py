@@ -307,6 +307,14 @@ def lint_shapes(tables, strings, types):
         check(type(row['default']) is int and 0 <= row['default'] <= maximum, f'{where}: default out of range')
     for name, row in tables['Codes']['Codes'].items():
         rewards(row['rewards'], 'Codes.' + name, {'scrap', 'spin', 'lure', 'powerUp'})
+        start, end = row.get('startsAt'), row['expiresAt']
+        check(finite(end) and end >= 0, f'Codes.{name}: expiresAt must be 0 (no deadline) or a unix second')
+        check(start is None or (finite(start) and start > 0 and (end == 0 or start < end)),
+              f'Codes.{name}: startsAt must be a unix second before expiresAt')
+    for day, row in tables['Gifts'].items():
+        also = row.get('also')
+        if also is not None:
+            rewards(also, f'Gifts.{day}.also', {'spin', 'lure', 'powerUp'})
     return sorted(set(failures))
 
 

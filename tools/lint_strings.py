@@ -63,7 +63,7 @@ def family_ids(tables, source, types):
         'setting_levels': {str(i-1) for r in tables['Settings']['Order'].values() if r.get('levels') and not r.get('levelKeys') for i in r['levels']},
         'offers': {r['id'] for r in tables['Peddler']['Pool'].values() if r['kind'] not in ('lure','powerUp')},
         'offer_kinds': {r['kind'] for r in tables['Peddler']['Pool'].values()},
-        'gift_labels': {re.sub(r'\s+', '', r['label']) for r in tables['Gifts'].values() if r['reward']['kind'] not in ('lure','powerUp')},
+        'gift_labels': {re.sub(r'\s+', '', r['label']) for r in tables['Gifts'].values() if r['reward']['kind'] not in ('lure','powerUp') or r.get('also')},
         'gift_tiles': {re.sub(r'\s+', '', r['label']) for r in tables['Gifts'].values()},
         'landmarks': {'Shrine'} | {r['landmarkId'] for layout in tables['Layouts'].values() for r in (layout.get('Landmarks') or {}).values() if r.get('landmarkId')},
     }

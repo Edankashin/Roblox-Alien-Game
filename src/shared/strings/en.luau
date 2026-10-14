@@ -434,10 +434,11 @@ return {
 	GIFT_LABEL_WelcomePack = "Welcome Pack",
 	GIFT_LABEL_ScrapBundle = "Scrap Bundle",
 	GIFT_LABEL_FreeSpin = "Free Spin",
+	GIFT_LABEL_BoostPair = "Two Boosts", -- the Tomorrow line is one scaled line about 200 px wide at phone size: names would shrink it
 	GIFT_LABEL_EpicEgg = "Epic Egg",
 	-- one-word names for the Welcome Week tiles (49 px wide, one 14 px line at iPhone SE size); the full names are above and in the Tomorrow line
 	GIFT_TILE_WelcomePack = "Pack",
-	GIFT_TILE_TwigLure = "Lure",
+	GIFT_TILE_BoostPair = "Boost",
 	GIFT_TILE_SpeedBurst = "Speed",
 	GIFT_TILE_ScrapBundle = "Scrap",
 	GIFT_TILE_FreeSpin = "Spins",

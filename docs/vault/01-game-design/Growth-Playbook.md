@@ -101,7 +101,7 @@ Platform facts (doc): ordered stores hold integers only, no versioning or metada
 **In-game nudges (no platform dependency):**
 - Offline chest summary on join (exists), naming the part that snapped on while away.
 - Leave with a timer on screen: "Hull Frame ready in 12 min".
-- Gift tray shows "Next gift: Twig Lure, tomorrow". Welcome Week is by days played, so the line is an invitation, never "don't lose your streak".
+- Gift tray shows "Next gift: Two Boosts, tomorrow" (day 2 is a Speed Burst and a Lucky Charm to save for the next session). Welcome Week is by days played, so the line is an invitation, never "don't lose your streak".
 
 ## 6. First five minutes script
 
@@ -120,7 +120,7 @@ Roblox's own advice: fun inside the first five minutes, no long tutorials, learn
 | 2:00 | T4 catch Puffpuff | Second catch | Puffpuff takes the build job | Different aliens, different jobs | |
 | 2:45 | T5 catch 3 more | Free catching, Nearby panel on | Counter 1/3 to 3/3, Scrap counter appears | More aliens, faster ship | |
 | 3:45 | T6 moduleComplete | Watches | Swarm, camera pan, part snaps on, bar +20% | **Aha 2: my crew built part of the ship** | `FirstModuleSeconds` median 270 s or less |
-| 4:30 | T7 Forest and Glowroot | Taps Claim, follows the marker | Welcome Week gift 1 (300 Scrap) pops; tray says "Tomorrow: Twig Lure"; "Thrusters need Glowroot" | **Aha 3: a gift, a goal, a reason to return** | `GiftClaim` day 1; funnel done; first-session retention at 5 min above 55% |
+| 4:30 | T7 Forest and Glowroot | Taps Claim, follows the marker | Welcome Week gift 1 (300 Scrap) pops; tray says "Tomorrow: Two Boosts"; "Thrusters need Glowroot" | **Aha 3: a gift, a goal, a reason to return** | `GiftClaim` day 1; funnel done; first-session retention at 5 min above 55% |
 
 Built as milestone 27 (decision 18, 2026-10-06): gift 1 opens as the T6 payoff (the Gifts screen with its "Tomorrow" line, after the fanfare and the pan); the Peddler's landing banner and the Shower chip and banner stay off a new player's screen until the tutorial ends, while the events themselves run server-wide as ever; the notification card already waits for session 2 and there is no shop pop-up. All of it is the `Script` block in `data/Tutorial.luau`. Hint strings TUT_1 to TUT_7 stay as written.
 

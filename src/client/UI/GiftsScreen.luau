@@ -36,7 +36,7 @@ local State = require(script.Parent.Parent.State)
 local GiftsScreen = {}
 
 type Reward = { kind: string, id: string?, amount: number?, tier: string? }
-type GiftRow = { day: number, label: string, reward: Reward }
+type GiftRow = { day: number, label: string, reward: Reward, also: { Reward }? }
 type Segment = { id: string, label: string, odds: number, reward: Reward }
 
 -- The server's answer to GetSocial and the body of the SocialChanged push.
@@ -204,11 +204,12 @@ local function itemName(kind: string, id: string?): string?
 	return nil
 end
 
--- The reward's name: lures and power-ups by their id keys, everything else by the row's label with
--- the spaces removed (GIFT_LABEL_WelcomePack), falling back to the raw label if no key exists.
+-- The reward's name: a lone lure or power-up by its id key, everything else (a row with `also` included, since no one
+-- item names it) by the row's label with the spaces removed (GIFT_LABEL_WelcomePack), falling back to the raw label
+-- if no key exists.
 local function rewardLabel(row: GiftRow): string
 	local reward = row.reward
-	local name = itemName(reward.kind, reward.id)
+	local name = if row.also then nil else itemName(reward.kind, reward.id)
 	if name then
 		return name
 	end

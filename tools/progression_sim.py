@@ -152,6 +152,8 @@ class DayBot(E.Bot):
         for row in Gifts:
             if row["day"] == self.day:
                 self.grant("Welcome Week", row["reward"])
+                for extra in (row.get("also") or []):
+                    self.grant("Welcome Week", extra)
         if self.day == 1:
             for code in sorted(Codes):
                 if Codes[code]["expiresAt"] == 0:

@@ -16,7 +16,7 @@ return {
 	ReferralMaxRewarded = 50, -- inviter rewards per profile, lifetime
 	-- The notifications ask (decision 20): never in the first session, never in the first minutes, once per
 	-- cooldown, and only while the market flag is on.
-	NotificationsEnabled = true,
+	NotificationsEnabled = false, -- decision 20 open; nothing sends yet (Growth Playbook 5); the opt-in card stays hidden until a sender exists
 	NotifyAskMinSession = 2, -- the card can show from this session count on
 	NotifyAskAfterSeconds = 120, -- seconds into the session before the card
 	NotifyAskCooldownSeconds = 30 * 24 * 3600, -- between cards (Roblox's own prompt has a 30-day cooldown too)
