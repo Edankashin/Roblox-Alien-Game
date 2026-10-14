@@ -152,6 +152,7 @@ return {
 	FriendBoostPerFriend = 0.05,
 	FriendBoostMaxFriends = 3,
 	FriendCheckRetrySeconds = 300, -- a friendship lookup that failed is asked again after this long
+	PartyEventGapSeconds = 60, -- co-play measurement: a player's Party analytics event on a friend joining or leaving goes out at most this often (the one at session start always goes); the FriendsInServer event still logs every change
 
 	BannerDeferSeconds = 0.5, -- a server-wide catch banner waits in steps of this while the Reveal is open, up to AnnounceSeconds
 	-- Quiet moments (UI/Toast): while the Reveal or a catch (the Legendary opening included) is up, new toasts and banners wait in a queue.

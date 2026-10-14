@@ -60,6 +60,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local AlienSync = require(script.Parent.AlienSync)
 local Analytics = require(script.Parent.Analytics)
 local Buffs = require(script.Parent.Buffs)
+local Friends = require(script.Parent.Friends)
 local WorldClock = require(script.Parent.WorldClock)
 local Quests = require(script.Parent.Quests)
 local Tutorial = require(script.Parent.Tutorial)
@@ -831,7 +832,8 @@ local function grantAlien(player: Player, species: string, overlay: Types.Overla
 	Tutorial.OnCatch(player, species)
 	-- Analytics: the catch, its Scrap split into the catch pay and the codex payout, and the first catch ever.
 	local codexScrap = if isNew then tierDef.codexScrap else 0
-	Analytics.Event(player, AnalyticsData.Events.Catch, 1, { tier = tier :: string, species = species, perfect = tostring(perfect) })
+	-- Three fields is Roblox's limit per event; friends (the co-play split) took the place of tier, which is the species' tier.
+	Analytics.Event(player, AnalyticsData.Events.Catch, 1, { friends = tostring(Friends.CountInServer(player)), species = species, perfect = tostring(perfect) })
 	-- The three Scrap sources in the order they landed, each with the balance after it.
 	Analytics.Economy(player, "Source", scrapGained - codexScrap - overflowScrap, scrapNow - codexScrap - overflowScrap, "Gameplay", AnalyticsData.Economy.Sources.Catch)
 	Analytics.Economy(player, "Source", codexScrap, scrapNow - overflowScrap, "Gameplay", AnalyticsData.Economy.Sources.Codex)

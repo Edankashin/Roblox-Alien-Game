@@ -5,7 +5,7 @@
 return {
 	OnboardingFunnel = "Onboarding", -- LogFunnelStepEvent; step N = tutorial step N reached, step #Steps + 1 = done
 	Events = {
-		Catch = "Catch", -- value 1; fields tier, species, perfect
+		Catch = "Catch", -- value 1; fields friends (the player's Roblox friends in this server at the catch, 0 when none; split Catch rows by it for co-play), perfect, species. Roblox keeps three custom fields per event, so tier is not sent: it is the species' tier (data/Species)
 		CatchMiss = "CatchMiss", -- value 1; fields tier (a sweep missed)
 		Flee = "Flee", -- value 1; fields tier
 		SuspectTiming = "SuspectTiming", -- value: the Perfect share over the window as a whole percent; fields window (Config.SuspectPerfectWindow); logged, never acted on (Exploit-Review D1)
@@ -27,6 +27,7 @@ return {
 		DailyQuest = "DailyQuest", -- value 1; fields period (daily, weekly), id, action (claim, reroll)
 		Code = "Code", -- value 1; field id
 		FriendsInServer = "FriendsInServer", -- value: friends of the player in this server, on every change
+		Party = "Party", -- co-play (docs/GAME_DESIGN.md section 13): value = the player's friends in this server, field players = the server's player count; once at session start (profile loaded and the friend lookups answered), then when a friend joins or leaves, at most one per player per Config.PartyEventGapSeconds
 		CatchRush = "CatchRush", -- value: the player's catches in a round; field rank (0 = unranked)
 		Fuse = "Fuse", -- value: the kept copy's new level; field species
 		Companion = "Companion", -- value 1; fields action (follow, unfollow, token), species

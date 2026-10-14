@@ -7,6 +7,10 @@
 -- player's profile loads, never inside a query. The queries below read only the cache and the stored
 -- counts, so Buffs can call them from income ticks and catches without yielding. A failed lookup warns
 -- once and is asked again after Config.FriendCheckRetrySeconds; until then the pair counts as no friend.
+-- Co-play measurement (docs/GAME_DESIGN.md section 13): the Party analytics event (value = friends here, field players =
+-- the server's size) goes out once per player when the profile is loaded and every lookup that involves them has been
+-- answered (or has failed, which counts as no friend), then whenever recount sees their friend count move, at most once
+-- per Config.PartyEventGapSeconds (the session-start one does not count toward that gap). Economy reads CountInServer for the friends field on every Catch event.
 -- Requires only PlayerData, Analytics and shared modules, so Buffs and DailyQuests can require this.
 
 local Players = game:GetService("Players")
@@ -17,6 +21,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
+local PartyMath = require(Shared.PartyMath)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
 
@@ -32,6 +37,9 @@ local loaded: { [number]: boolean } = {} -- profile loaded, so FriendBoostChange
 local counts: { [number]: number } = {} -- friends present, by UserId
 local listeners: { (Player, number, string?) -> () } = {}
 local arrivals = 0
+local pending: { [number]: number } = {} -- friendship lookups in flight that involve the player (both sides of a pair count), by UserId
+local partySent: { [number]: boolean } = {} -- the session-start Party event has gone out
+local partyAt: { [number]: number } = {} -- os.time() of the player's last join/leave Party event (the session-start one is not counted)
 
 -- Pair helpers -------------------------------------------------------------
 
@@ -84,19 +92,25 @@ end
 
 -- Counting ------------------------------------------------------------------
 
+-- Players in this server now. Counted from `present`, which drops a leaver before the Party event is built
+-- (Players:GetPlayers still lists a player during PlayerRemoving).
+local function serverSize(): number
+	local n = 0
+	for _ in pairs(present) do
+		n += 1
+	end
+	return n
+end
+
+local function reportParty(player: Player)
+	Analytics.Event(player, AnalyticsData.Events.Party, counts[player.UserId] or 0, { players = tostring(serverSize()) })
+end
+
 -- Re-derives one player's count from the cache; on a change pushes, reports and tells the listeners.
 -- arrivedName is the display name of a friend who just arrived (nil on a leave and for the arrival itself).
 local function recount(player: Player, arrivedName: string?)
 	local uid = player.UserId
-	local n = 0
-	local row = friendPairs[uid]
-	if row then
-		for _, isFriend in pairs(row) do
-			if isFriend then
-				n += 1
-			end
-		end
-	end
+	local n = PartyMath.CountFriends(friendPairs[uid])
 	if n == (counts[uid] or 0) then
 		return
 	end
@@ -105,18 +119,34 @@ local function recount(player: Player, arrivedName: string?)
 		Net.event("FriendBoostChanged"):FireClient(player, n, boostFor(n), arrivedName)
 	end
 	Analytics.Event(player, AnalyticsData.Events.FriendsInServer, n)
+	-- Until the session-start Party event has gone (settle, below) the count is still being learned; that event reports it.
+	-- Only the join/leave path is rate-limited and stamps the clock; the session-start event never costs a later change its turn.
+	local now = os.time()
+	if partySent[uid] and PartyMath.GapElapsed(partyAt[uid], now, Config.PartyEventGapSeconds) then
+		partyAt[uid] = now
+		reportParty(player)
+	end
 	for _, callback in ipairs(listeners) do
 		callback(player, n, arrivedName)
 	end
 end
 
--- Asks Roblox about one pair (yields) and files the answer. Skips a pair that is known or already busy.
-local function check(a: Player, b: Player)
-	local ida, idb = a.UserId, b.UserId
-	if ida == idb or getPair(friendPairs, ida, idb) ~= nil or getPair(busy, ida, idb) == true then
+-- The session-start Party event: sent once, when the profile is loaded and no lookup involving the player is in flight,
+-- so the friend count it reports is the settled one. Called wherever either of those can become true.
+local function settle(player: Player)
+	local uid = player.UserId
+	if present[uid] ~= player or not loaded[uid] or partySent[uid] or (pending[uid] or 0) > 0 then
 		return
 	end
-	setPair(busy, ida, idb, true)
+	partySent[uid] = true
+	reportParty(player)
+end
+
+local check: (Player, Player) -> ()
+
+-- One lookup (yields): asks Roblox about the pair and files the answer, or schedules the retry.
+local function ask(a: Player, b: Player)
+	local ida, idb = a.UserId, b.UserId
 	local ok, result = pcall(function(): any
 		return a:IsFriendsWithAsync(idb)
 	end)
@@ -143,11 +173,35 @@ local function check(a: Player, b: Player)
 	end
 end
 
+-- Asks Roblox about one pair and keeps the in-flight count the session-start Party event waits on. Skips a pair that
+-- is known or already busy (a lookup already in flight for it counts toward both players).
+function check(a: Player, b: Player)
+	local ida, idb = a.UserId, b.UserId
+	if ida == idb or getPair(friendPairs, ida, idb) ~= nil or getPair(busy, ida, idb) == true then
+		return
+	end
+	setPair(busy, ida, idb, true)
+	pending[ida] = (pending[ida] or 0) + 1
+	pending[idb] = (pending[idb] or 0) + 1
+	ask(a, b)
+	for _, p in ipairs({ a, b }) do
+		local uid = p.UserId
+		if present[uid] == p then -- a leaver's tables are already cleared, and a rejoiner is a new Player
+			pending[uid] = math.max(0, (pending[uid] or 0) - 1)
+		end
+	end
+	settle(a)
+	settle(b)
+end
+
 local function onAdded(player: Player)
 	arrivals += 1
 	arrival[player.UserId] = arrivals
 	present[player.UserId] = player
 	counts[player.UserId] = 0
+	pending[player.UserId] = 0
+	partySent[player.UserId] = nil
+	partyAt[player.UserId] = nil
 end
 
 local function onLoaded(player: Player, _profile: Types.Profile)
@@ -165,6 +219,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 			task.spawn(check, player, other)
 		end
 	end
+	settle(player) -- alone, or every pair already answered: no lookup to wait for
 end
 
 local function onRemoving(player: Player)
@@ -173,6 +228,9 @@ local function onRemoving(player: Player)
 	loaded[uid] = nil
 	counts[uid] = nil
 	arrival[uid] = nil
+	pending[uid] = nil
+	partySent[uid] = nil
+	partyAt[uid] = nil
 	local row = friendPairs[uid]
 	local busyRow = busy[uid]
 	friendPairs[uid] = nil
