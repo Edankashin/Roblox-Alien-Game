@@ -1283,6 +1283,9 @@ end
 
 local function start(profile: Types.Profile)
 	if started then
+		-- The other copy (the join push or the boot pull, whichever landed second) holds the same records but a newer alien
+		-- list number: keep the number, or the next AliensDelta reads as a gap.
+		State.AdoptAliensSeq(profile.aliensSeq)
 		return
 	end
 	started = true

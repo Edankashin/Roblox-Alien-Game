@@ -645,6 +645,15 @@ local function seasonMoved(force: boolean)
 	task.spawn(pullSeasonProgress)
 end
 
+-- A full profile copy the bootstrap did not adopt (the second of the join push and the boot pull): its records are the ones
+-- already held, but the server baselined its shadow for it, so its number is the one the next delta follows. Without this the
+-- next change read as a gap and pulled the snapshot for nothing (Studio 2026-10-14, the first catch: "had delta 2, got 4").
+function State.AdoptAliensSeq(seq: number?)
+	if type(seq) == "number" then
+		aliensSeq = math.max(aliensSeq, seq)
+	end
+end
+
 -- The server's alien list snapshot (the GetAliens answer) replaces the records and stations and sets the number the next delta
 -- must follow. An answer older than what is applied is dropped.
 local function setAliens(snapshot: Types.AliensSnapshot)

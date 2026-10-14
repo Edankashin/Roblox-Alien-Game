@@ -27,6 +27,7 @@
 -- the camp, companion and home pushes the server sends back.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
@@ -1182,6 +1183,12 @@ end
 -- (BuyStorageBay); this only says what a tap will do. The grey face still takes taps: a tap on it explains in a toast.
 local function refreshStorageRow()
 	if not open or not State.Has() then
+		-- Studio 2026-10-14 (50b step 4): after `/world 2` the Bay button went stale while the panel was still drawn. A
+		-- world change closes every screen (the bootstrap's "world" listener), so a drawn panel with `open` false is the
+		-- state to catch; this line says so in Output until the retest settles it.
+		if RunService:IsStudio() and not open and gui ~= nil and gui.Enabled then
+			warn(("[%s] aliens: Bay refresh skipped: the screen is closed but still drawn"):format(Config.WorkingTitle))
+		end
 		return
 	end
 	local profile = State.Get()
@@ -1201,6 +1208,9 @@ end
 -- A tap on the Bay button: a toast for each reason the level cannot be bought (never a silent tap), else the server is
 -- asked. It answers (ok, reason, the new cap); the toast on success says how much the cap rose, from the cap shown before.
 local function buyStorageBay()
+	if RunService:IsStudio() then
+		print(("[%s] aliens: Bay tap (open=%s busy=%s)"):format(Config.WorkingTitle, tostring(open), tostring(bayBusy)))
+	end
 	if bayBusy or not State.Has() then
 		return
 	end
