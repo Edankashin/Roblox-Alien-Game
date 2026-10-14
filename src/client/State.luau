@@ -100,7 +100,10 @@ end
 
 function State.Set(p: Types.Profile)
 	profile = p
-	aliensSeq = p.aliensSeq or 0
+	-- The join push and the boot-time GetProfile pull each carry a fresh number (the server baselines the shadow for every
+	-- full copy); when the older copy lands second it must not wind the number back, or the next delta reads as a gap and
+	-- pulls a snapshot for nothing (seen in Studio 2026-10-14: "had delta 2, got 4"). The two copies hold the same records.
+	aliensSeq = math.max(aliensSeq, p.aliensSeq or 0)
 	if not ratePushed then
 		-- A client that booted after the server's pushes still shows the right rate: same shared maths.
 		rate = Economy.campState(p)
