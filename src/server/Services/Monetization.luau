@@ -42,7 +42,7 @@ local Analytics = require(script.Parent.Analytics)
 local Monetization = {}
 
 export type Grant = ShopData.ShopGrant
-export type GrantSource = "receipt" | "pass" | "dev"
+export type GrantSource = "receipt" | "pass" | "dev" | "owned" -- owned: a pass found on join whose one-time grants were never applied (bought on the website, or before the grants existed); analytics must not count it as a purchase
 export type Granter = (Player, Grant) -> (boolean, string?)
 
 type ServerLuck = { bonus: number, endsAt: number, playerName: string }
@@ -345,7 +345,7 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 		return
 	end
 	for itemId in pairs(ownedPasses(player.UserId)) do
-		applyPassGrants(player, itemId, "pass")
+		applyPassGrants(player, itemId, "owned") -- reported with source owned, so a join never reads as a purchase
 	end
 	pushPurchases(player)
 	if serverLuck then

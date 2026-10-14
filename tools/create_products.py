@@ -11,7 +11,7 @@ POST /developer-products/v2/universes/{universeId}/developer-products
 (same multipart fields; developer-product:write).
 GET same path + /creator (developer-product:read): developerProducts, nextPageToken.
 GET /universes/v1/places/{placeId}/universe resolves universeId.
-All use https://apis.roblox.com; --apply uses ROBLOX_API_KEY only.
+All use https://apis.roblox.com; --apply reads the key from ROBLOX_API_KEY, else ROBLOX_OPEN_CLOUD_KEY (the name the Mac's shell uses).
 Self-tests use fake HTTP and temporary copies, never the environment key or network.
 """
 import argparse
@@ -56,7 +56,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 class HTTP:
     def __init__(self,key):
-        if not key:raise ToolError('ROBLOX_API_KEY is required for --apply')
+        if not key:raise ToolError('ROBLOX_API_KEY (or ROBLOX_OPEN_CLOUD_KEY) is required for --apply')
         self.key=key
         # Use the OS-maintained CA file when a framework Python has no installed default CA.
         context=ssl.create_default_context()
@@ -295,7 +295,7 @@ def main():
             print(f'dry-run: {len(rows)} launch items; no network or file changes; universe '+(str(args.universe) if args.universe else f'resolved on apply from place {source_place(ROOT)}'))
             return 0
         if not rows:print('nothing to create');return 0
-        http=HTTP(os.environ.get('ROBLOX_API_KEY',''))
+        http=HTTP(os.environ.get('ROBLOX_API_KEY') or os.environ.get('ROBLOX_OPEN_CLOUD_KEY') or '')
         universe=resolve_universe(http,ROOT,args.universe)
         print('id | returned id | action')
         for sid,value,action in apply(http,ROOT,rows,universe,pause=lambda:time.sleep(.4)):

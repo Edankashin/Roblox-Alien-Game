@@ -36,7 +36,7 @@ Companion to [[Handoff]]. Part 1 is exactly what Ethan set up (accounts, his Cla
 6. **Blender MCP.** Blender 5.2.2; Edit > Preferences > Add-ons > enable "Interface: MCP for Blender"; in the 3D viewport press N > MCP for Blender tab > **Start MCP Server** (port 9876). It must be started again every time Blender is opened. Registered in `.mcp.json` as `uvx mcp-for-blender`.
 7. **The Open Cloud API key** (Creator Dashboard > Open Cloud > API Keys > Create API Key): named `alien-game-assets`, Access Permissions first **Assets** Read and Write, later (2026-10-07) for this experience **universe-places** Write, **game-pass** Read and Write, **developer-product** Read and Write; IP allowlist left open. Copied once (Roblox shows it only once) straight into `~/.zshrc` on the Mac, never into a chat or the repo:
    - `ROBLOX_OPEN_CLOUD_KEY` and `ROBLOX_CREATOR_USER_ID` for `tools/upload_assets.py` (model and image uploads; a group upload reads `ROBLOX_CREATOR_GROUP_ID` instead of the user id),
-   - `ROBLOX_API_KEY` for `tools/create_products.py` and `tools/publish.py`.
+   - `tools/create_products.py` and `tools/publish.py` read `ROBLOX_API_KEY` first and fall back to the same `ROBLOX_OPEN_CLOUD_KEY` (found 2026-10-14: only the latter is set on the Mac).
    Uploaded models wait in Roblox moderation for a few hours before they load.
 8. **Owner guide steps done by hand** (`docs/OWNER-GUIDE.md`): Part A (published Frostbyte and the Home Planet as places, ids 112829778258240 and 73774874008460), A8 (World 1's id 93842567264184), Part B (Studio access to API services, so real saves work in Studio), Part C (nine products and passes created on the dashboard, ids pasted into `Shop.luau`), Part E (Codex runs). Part D (two-player test) was done by the computer-use session.
 9. **Studio access to API services**: Game Settings > Security > Enable Studio Access to API Services (on), and `Config.UseDataStoreInStudio = true` in the code.
@@ -94,6 +94,7 @@ Do not run `tools/setup-mac.sh` blind: it installs software machine-wide and tru
 - The MCP page's green dot is lit only while a Claude Code session is running in the repo.
 - `execute_luau` runs in the Edit, Client or Server datamodel. A `require` from the MCP context gets a **fresh copy** of a module, so read live server state through remotes or events, not by requiring the service.
 - Dev chat commands from the Client datamodel: `TextChatService.TextChannels.RBXGeneral:SendAsync("/scrap 1000")`. Only the first `SendAsync` of a command-bar run is delivered, so send one command per run.
+- Over the Studio MCP, wrap that `SendAsync` in `task.spawn(function() ... end)`: a bare call hangs the `execute_luau` call for 120 s and then fails ("Target is closed") although the command ran (found 2026-10-14).
 - Typing `/` commands into the chat box can be mangled by its autocomplete ("/admin/visit Player1sit off"); use buttons or `SendAsync`.
 - In Play, the command bar does not take Cmd+A or Cmd+Return: triple-click the line and press Run.
 - An `execute_luau` call during Play once hung for five minutes and timed out; keep calls short and stop Play if it stalls.

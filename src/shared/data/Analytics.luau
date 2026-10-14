@@ -17,7 +17,7 @@ return {
 		GiftClaim = "GiftClaim", -- value: day
 		Spin = "Spin", -- value 1; field segmentId
 		PlaytimeGift = "PlaytimeGift", -- value: the gift's index (1 to 6, data/Playtime)
-		ShopBuy = "ShopBuy", -- value 1; fields kind, id
+		ShopBuy = "ShopBuy", -- value 1; fields kind, id, and source for Robux items (receipt: a product bought now; pass: a pass bought now; owned: a pass found on join; dev: a Studio command). Count purchases as source receipt or pass only
 		SessionSeconds = "SessionSeconds", -- value: seconds, on leave
 		Launch = "Launch", -- value 1; fields from, to (world ids)
 		Fly = "Fly", -- value 1; fields from, to (world ids): a Star Chart flight

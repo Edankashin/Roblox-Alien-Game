@@ -148,7 +148,7 @@ Offline earnings (50% of the live rate, capped), resting in game (after 2 min id
 | **Launch items still at 0:** Spins1 / Spins5 / Spins12 (paid random, 49 / 199 / 399), SlotEveryStation2 (799), CompanionSlot4 (249), StorageBoost (149) | | | 0, created by `tools/create_products.py --apply` on Ethan's Mac |
 | Not at launch, 0 by design: DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock | | | 0 |
 
-**Secrets.** Ethan's Open Cloud API key lives only in his Mac shell (`~/.zshrc`: `ROBLOX_OPEN_CLOUD_KEY` with `ROBLOX_CREATOR_USER_ID` for `upload_assets.py`, `ROBLOX_API_KEY` for `create_products.py` and `publish.py`). Never in a file in the repo, a commit, the vault, a report or a chat. If the collaborator needs Open Cloud, they make their own key (section 13.4). Asset ids, place ids and product ids are fine to commit.
+**Secrets.** Ethan's Open Cloud API key lives only in his Mac shell (`~/.zshrc`: `ROBLOX_OPEN_CLOUD_KEY` with `ROBLOX_CREATOR_USER_ID` for `upload_assets.py`, `create_products.py` and `publish.py` read `ROBLOX_API_KEY` or fall back to it). Never in a file in the repo, a commit, the vault, a report or a chat. If the collaborator needs Open Cloud, they make their own key (section 13.4). Asset ids, place ids and product ids are fine to commit.
 
 ---
 
@@ -373,7 +373,7 @@ How Ethan set up his own machine, step by step with the problems he hit, is in [
 
 ### 13.4 Open Cloud for the collaborator (only if needed)
 
-The scripts read the key from the shell only (`ROBLOX_OPEN_CLOUD_KEY` for uploads, which also take `ROBLOX_CREATOR_GROUP_ID` for group-owned assets; `ROBLOX_API_KEY` for shop items and publishing). On a user-owned experience only the owner's keys reach it, so for now Open Cloud jobs (uploads, shop items, publishing) run on Ethan's Mac. After a move to a group, a group member with the API key admin permission can make a group key limited to this experience (Creator Dashboard > the group in the Creator Hub dropdown > Open Cloud > API Keys). Never share or commit a key.
+The scripts read the key from the shell only (`ROBLOX_OPEN_CLOUD_KEY` for uploads, which also take `ROBLOX_CREATOR_GROUP_ID` for group-owned assets; the same key, or `ROBLOX_API_KEY`, for shop items and publishing). On a user-owned experience only the owner's keys reach it, so for now Open Cloud jobs (uploads, shop items, publishing) run on Ethan's Mac. After a move to a group, a group member with the API key admin permission can make a group key limited to this experience (Creator Dashboard > the group in the Creator Hub dropdown > Open Cloud > API Keys). Never share or commit a key.
 
 ---
 

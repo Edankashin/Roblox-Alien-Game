@@ -25,6 +25,15 @@ from create_products import HTTP, ToolError, positive, resolve_universe
 from luau_tables import load
 
 ROOT = Path(__file__).resolve().parents[1]
+KEY_NAMES = ('ROBLOX_API_KEY', 'ROBLOX_OPEN_CLOUD_KEY')  # the first set one is the key; neither reaches a child process
+
+
+def key_from_env():
+    for name in KEY_NAMES:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return None
 PROJECTS = (('world1', 'default.project.json', 1),
             ('world2', 'world2.project.json', 2),
             ('home', 'home.project.json', 0))
@@ -36,7 +45,7 @@ def run(command, root):
     try:
         result = subprocess.run(command, cwd=root, text=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, check=False,
-                                env={k: v for k, v in os.environ.items() if k != 'ROBLOX_API_KEY'})
+                                env={k: v for k, v in os.environ.items() if k not in KEY_NAMES})
     except OSError:
         raise ToolError('cannot run ' + command[0] + '; check the tool installation and PATH') from None
     # Credentials are never needed by builds/checks or inherited by their children.
@@ -91,9 +100,9 @@ def execute(args, root=ROOT, runner=run, http_factory=HTTP):
     if not (args.apply or args.saved):
         print('dry-run: checks and builds only; no network requests')
         return
-    key = os.environ.get('ROBLOX_API_KEY')
+    key = key_from_env()
     if not key:
-        raise ToolError('ROBLOX_API_KEY is required for --apply or --saved')
+        raise ToolError('ROBLOX_API_KEY (or ROBLOX_OPEN_CLOUD_KEY) is required for --apply or --saved')
     upload(http_factory(key), root, builds, args.universe, args.saved)
 
 
@@ -165,9 +174,10 @@ def self_test():
 
         def test_children_never_receive_key(self):
             result = subprocess.CompletedProcess([], 0, '')
-            with patch.dict(os.environ, {'ROBLOX_API_KEY': 'fake-secret'}), patch('subprocess.run', return_value=result) as process:
+            with patch.dict(os.environ, {'ROBLOX_API_KEY': 'fake-secret', 'ROBLOX_OPEN_CLOUD_KEY': 'fake-two'}), patch('subprocess.run', return_value=result) as process:
                 run(CHECKS[0], self.root)
-            self.assertNotIn('ROBLOX_API_KEY', process.call_args.kwargs['env'])
+            for name in KEY_NAMES:
+                self.assertNotIn(name, process.call_args.kwargs['env'])
 
         def test_missing_clean_marker_stops(self):
             with self.assertRaises(ToolError): checked_build(self.root, runner=lambda *_: '')
@@ -223,8 +233,9 @@ def main():
     except (ToolError, OSError, ValueError, KeyError, TypeError) as exc:
         # Shared HTTP handles key redaction; also redact any local diagnostic.
         message = str(exc)
-        key = os.environ.get('ROBLOX_API_KEY')
-        if key: message = message.replace(key, '[redacted]')
+        for name in KEY_NAMES:
+            key = os.environ.get(name)
+            if key: message = message.replace(key, '[redacted]')
         print('publish: ' + message, file=sys.stderr)
         return 1
 
