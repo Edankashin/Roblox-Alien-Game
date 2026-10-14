@@ -68,6 +68,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Roblox: friend the collaborator, both age-checked, Collaborate > add them with Edit | [[Handoff]] 13.1 |
 | GitHub: add the collaborator as a collaborator with Write | [[Handoff]] 13.2 |
 | ~~`python3 -I tools/create_products.py --apply` for the six launch items~~ | Done 2026-10-14 by the Mac session (overnight job 2) |
+| Open Cloud key hygiene (batch 6, ZPLSaURU3): in the Creator Dashboard check the key is scoped to the Assets API (read and write) and `universe-places:write` for this experience only, has an expiry, and lives only in `~/.zshrc`; rotate it if it was ever pasted anywhere | [[2026-10-14]] batch 6 notes; two minutes |
 | Mac installs: `bun` (for claude-mem), rtk, ccstatusline (optional) | [[Tools-Status]] |
 | Plugin installs in his Claude Code: roblox-dev (ivar-anon), ShiroKSH roblox-studio, superpowers | He types the install lines himself ([[Claude-Plugins]]) |
 | The stray place 82258778278086: keep or delete | |

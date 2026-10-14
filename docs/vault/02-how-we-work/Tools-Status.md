@@ -45,7 +45,7 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | Tool | Used for | State | Next step |
 |---|---|---|---|
 | Blender (through MCP) | species, props, icons, sprites | **installed, not connected now** (Blender 5.2.2; the add-on handshake fails while Blender is closed) | When the next model pass starts: open Blender and Start MCP Server; if the add-on is outdated, `uvx mcp-for-blender install-addon` |
-| Claude Design | rigged, animated models with VFX | **chosen instead**: Blender MCP for models; animation not started | Revisit for species animation; check what Ethan's plan includes |
+| Claude Design | rigged, animated models with VFX | **chosen instead**: Blender MCP for models; animation not started | Revisit for species animation after launch: batch 6 (ZPLS5oQoQ, ZPLSah2VR, 2026-10-14) shows 63 animals animated in three or four batched prompts, with the viewer's animation absent from the exported GLB (so animation has to be rebuilt in Studio or Blender anyway) |
 | Meshy, 3D AI Studio, Tripo | generated meshes with polygon control | **chosen instead**: Blender MCP; no accounts or keys (Mac audit) | The Mac ranks Meshy or 3D AI Studio sixth for real models; paid accounts are Ethan's call |
 | Nano Banana, Higgsfield | image and video generation (reference batch 3 list) | candidates only; no accounts | Option for icons v2 and trailer shots; Ethan's call |
 | Lemonade.gg, Ropilot Astra | AI game-dev services seen in references | reference only | None |

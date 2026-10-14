@@ -309,3 +309,55 @@ The same creator and game as ZPL8MPnyV (Spidey Bomb Tag): realtime 1,029 CCU (+5
 7. "Bonus: watch Tizzy_RBLX."
 
 **Checked against what we have.** AFK zones: resting (milestone 46). Login rewards with a strong day 7: Welcome Week, day 7 an Epic Egg. Quests for coming back: daily and weekly quests. Events and updates: Meteor Shower, Catch Rush, the weekly drop, Haunted Nebula. Boosts saved for the next login: power-ups are kept as counts until used. Show-don't-tell tutorial: the five-minute script (milestone 27). Small, medium and big fries: 49 to 99 R$ boosts, 199 to 399 R$ passes, 799 to 999 R$ top items. **Gap: playtime rewards**, which the Growth Playbook (section 3) chose to skip; reopened as decision 5c-1 in PRE_PRODUCTION.
+
+# Batch 6: Claude-made 3D creatures, importing them, hatch animations, Open Cloud keys (2026-10-14)
+
+Five links from Ethan (added in `54919f1`), processed in the cloud session with `tools/watch_video.py` (Whisper base.en through sherpa-onnx, named in each `out/<code>/info.json`; one frame per second) and every sheet and transcript read. Four are from one small Roblox creator, vos_studiostt (a farm game), who makes creatures with Claude Design and Claude chat; the fifth is a how-to for the Open Cloud key such tools need. Captions were checked against the transcripts and win where they differ.
+
+| Code | Creator | Length | Topic |
+|---|---|---|---|
+| ZPLS5oJs2 | vos_studiostt | 0:12 | "You switched from Astra to Opus 5.5": a farm game, then three glowing 3D creature viewers |
+| ZPLSah2VR | vos_studiostt | 4:12 | Models with Claude, part 2: importing a GLB into Studio and fixing grey, colourless imports |
+| ZPLS5oQoQ | vos_studiostt | 8:04 | Making a 3D creature in Claude Design: handoff documents, star ratings, reference images, two-prompt iteration |
+| ZPLSaNotv | vos_studiostt | 0:21 | Egg-hatch animation before and after "one prompt" (Mythical Egg versus Secret Egg) |
+| ZPLSaURU3 | taircreates | 2:39 | Making a Roblox Open Cloud API key and storing it as a Windows environment variable |
+
+## ZPLS5oJs2: "You switched from Astra to Opus 5.5" (vos_studiostt)
+
+**Shown:** one fixed caption, "POV: You switched from Astra to Opus 5.5" (Astra is the Ropilot tool from batch 5, ZPLYSD7G9). 0 to 3 s, a phone filming a monitor: a blocky farm game with a red voxel fox labelled Lv1 in a fenced pen, a green cash pill ("$408.6") over an XP bar ("Lv 1, 35/60 XP"), SELL and SHOPS buttons each with a red badge, a Shovel tool slot. 4 to 11 s, three browser pages (Void+Hydra.html, Creation+Dragon.html, Infinity+Axolotl.html), each one creature turning on a glowing floor ring with orbiting particles: a dark many-headed hydra with violet neon rings, a gold-and-white winged dragon over a pentagram ring, a pastel axolotl inside a figure-eight ring of loops.
+
+**Said:** nothing; music only (Whisper: "(upbeat music)").
+
+**Takeaway for us.** The pages are Claude Design 3D-object output (see ZPLS5oQoQ). The shared recipe is one hero creature, a lit floor ring and particles circling it: the creator's rarity signal. It matches the Legendary ("halo, ground ring") and Cosmic ("trail, aura") rows of the tier table in `docs/GAME_DESIGN.md` section 15, so ring plus motes is a cheap overlay for those two tiers. The farm HUD (pill, bar, two badged buttons) is the layout our HUD already uses (section 16); nothing to take.
+
+## ZPLSah2VR: importing Claude-made models into Studio (vos_studiostt)
+
+**Shown:** caption "Roblox Models with Claude AI: Importing into Studio" (0 to 10 s). 0 to 45 s: the land shark from ZPLS5oQoQ in a dark viewer, `land_shark.glb` in the downloads. 46 s to 1:20: Studio, File, Import (not "Import Roblox Model"), then the Import Preview with the model untextured grey, "AuxScene" renamed LandShark. 1:24 to 2:28: Explorer with ReplicatedStorage modules (AnimalModels, AnimalModelColors, AnimalVFX). 2:29 to 4:12: a Claude chat, the GLB attached.
+
+**Said:** (1) Export GLB. (2) Rename to the animal's exact name, no spaces. (3) The import has no colours or effects: "gray silhouettes... they had no animations"; his fix is three ReplicatedStorage modules (colours, models, VFX) that Claude writes from the attached GLB. (4) Animation comes from Claude chat, not Design: "all 63 of the animals in our game were animated completely with 3 or 4 prompts", one big prompt then batches. (Whisper returned one word for 180 to 210 s; I re-ran it in 10 s windows.)
+
+**Takeaway for us.** (1) We already solved grey imports: a GLB upload drops colours, so each model folder carries `materials.json` and the runtime loader restores them (`docs/vault/06-art-pipelines/Map-Dressing.md`). (2) His exact-name rule is our `ModelAssets` key matching the species id; a miss shows in the `Models: 53 loaded, 0 failed` boot line. (3) 63 animals in 4 prompts answers the Tools-Status Claude Design row ("animation not started"): take the batching, not his colour and VFX modules.
+
+## ZPLS5oQoQ: making a 3D creature in Claude Design (vos_studiostt)
+
+**Shown:** caption "Roblox 3D Models with Claude Design" (0 to 7 s). 0:30 to 0:50: the Design page, "Model a 3D object" chosen. 0:51 to 4:20: earlier results (an axolotl, a violet hydra) turned on a glowing ring. 4:22 to 4:47: a long handoff document scrolled. 4:48 to 5:07: a new chat, "I want to make the land shark, with the previous details mentioned in mind". 5:16 to 5:51: result one, a grey two-legged shark with red glowing tail. 5:52 to 6:48: prompt two with a reference image. 6:49 to 8:04: result two, a bigger, fanged shark-dragon with red-lit blades.
+
+**Said:** (1) Handoff documents: accept a fresh chat or ask for one; it "starts a new conversation with an entire script for everything that you've done". (2) Rate every output with stars; it keeps your preferences. (3) Use reference images; he bases creatures on Pokemon but changes details because "Nintendo, they're going to copyright me". (4) Never one-prompt: prompt two listed changes and which part of the reference to copy ("if you don't specify... it's going to change it to look exactly like that"), "a thousand times better".
+
+**Takeaway for us.** (1) We already do this: `docs/vault/00-start-here/Handoff.md`, the Board, the daily log. (3) is the legal line for our roster: aliens are original (`docs/GAME_DESIGN.md` section 4), so a reference steers silhouette and palette only. (4) is the pass structure of `docs/vault/06-art-pipelines/Creature-Generation.md`. The viewer's animation is not in the GLB.
+
+## ZPLSaNotv: egg-hatch animation, before and after one prompt (vos_studiostt)
+
+**Shown:** a phone filming Studio. Caption "Before Opus 5.5" (0 to 6 s): a magenta MYTHICAL EGG on a glowing pedestal, "Tap to crack!" then "One more!" with progress dots, a white flash, a black silhouette in a crack burst, the card "Ocean Horse, MYTHICAL, 20% chance", "Tap to continue". Caption "One prompt with Opus 5.5" (7 to 15 s): a SECRET EGG drops as a pink orb before a red barn (7 s); the dark purple egg grows with each tap ("Again!", "One more!"; 9 to 10 s), shatters into polygon shards (11 s), a black hydra silhouette in a ring (12 s), "Void Hydra, SECRET, 3% chance" under magenta light beams (13 to 15 s). 16 to 21 s: "Eclipse Tiger, SECRET, 11% chance", then a white flash and "Heaven Ox, DIVINE, 9% chance".
+
+**Said:** nothing; music only (Whisper "[Music]").
+
+**Takeaway for us.** The beats are the reveal popup in `docs/GAME_DESIGN.md` section 16 (silhouette, burst, tier name, "Tap to continue") plus three we do not list: a multi-tap crack with dots and growth per tap, shards instead of a flash, and a card printing "N% chance" for what you got. Our only hatch is the Welcome Week day-7 Epic egg (section 11), so this is post-launch polish for that beat, not a system. A chance line after the reveal fits the paid-random rules (section 14).
+
+## ZPLSaURU3: an Open Cloud API key and an environment variable (taircreates)
+
+**Shown:** yellow subtitles, caption "API KEY + Environment Variable" (0 to 8 s). 12 to 24 s: Creator Hub, All tools, API Keys, Create API Key. 25 to 40 s: Access Permissions, assets and asset-permissions, then game-passes, creator-store-products, developer-products, each read and write. 41 to 48 s: Security (IP restriction, expiration) and the "Unrestricted Experience Access" warning ("all your current and future experiences"). 59 s to 1:59: PowerShell, `$env:ROBLOX_API_KEY="..."`, then `[Environment]::SetEnvironmentVariable(..., "User")`. 2:00 to 2:23: a Claude one-liner printing "API key detected" or "API key NOT detected".
+
+**Said:** the shout-out is to @cuhfilme (Whisper heard "Car Film"; captions win), the batch 1 creator. The pitch: an API key "which does all the importing for you". Save the key "somewhere safe, preferably... a picture of it on your phone". The check runs "without revealing on screen the actual API key". Whisper missed the permission list; the subtitles supplied it.
+
+**Takeaway for us.** Our scripts already read the key from the shell (`ROBLOX_OPEN_CLOUD_KEY` or `ROBLOX_API_KEY`; `docs/vault/00-start-here/Handoff.md` "Secrets"), on a Mac an `export` in `~/.zshrc`. Adopt: the presence check that never prints the key; tick only the APIs a script calls (`upload_assets.py` needs Assets read and write), not four; set an expiration. Watch: "all experiences" means a leaked key reaches every one, so scope it to one and rotate it if it ever shows in a chat. Refuse: the phone photo; a key never goes in a file, report or chat.
