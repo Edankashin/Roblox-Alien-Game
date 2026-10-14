@@ -259,7 +259,7 @@ local function apply(visit: Types.PeddlerVisit?)
 	if visit then
 		shownEndsAt = visit.endsAt
 		if not (TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()) then
-			Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds) -- an event, so it stays up
+			Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds, "peddler") -- an event, so it stays up
 		end
 		land()
 	elseif shownEndsAt ~= nil then

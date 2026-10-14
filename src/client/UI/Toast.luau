@@ -7,6 +7,11 @@
 -- text size grows taller (up to MAX_LINES lines) instead of being cut. Pure presentation: callers decide
 -- what to say (usually a server refusal reason mapped to a TOAST_* string). Banner is the wide,
 -- coloured variant for server-wide announcements; it shares the stack.
+-- Quiet moments: while Toast.Quiet() is true (the Reveal is open or a catch is running, which the bootstrap tells
+-- through SetQuietProbe) nothing new is drawn, since the Reveal and the capture bar are the two moments nothing may
+-- cover. Toasts and banners queue instead, in order (Config.ToastHoldMax toasts, the oldest dropped past it; one pending
+-- banner per kind, the latest wins) and drain one per Config.ToastHoldGapSeconds once it is quiet again. Whatever is
+-- already on screen stays. QuietFor adds a timed quiet moment (the module-complete assembly burst).
 
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
@@ -14,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
+local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Builder = require(script.Parent.Builder)
 
@@ -40,10 +46,17 @@ local TEXT_H = 0.7 -- the text box's height, of the toast
 local MAX_LINES = 3 -- a toast never grows past this many lines of text
 
 type Entry = { group: CanvasGroup, leaving: boolean, height: number }
+-- A toast or banner that arrived in a quiet moment (or behind one that did). `kind` keys a banner: a newer banner of the
+-- same kind replaces the pending one.
+type Held = { banner: boolean, kind: string, text: string, color: Color3, seconds: number, iconKey: string? }
 
 local gui: ScreenGui? = nil
 local entries: { Entry } = {} -- live toasts, oldest first
 local panelOpen: (() -> boolean)? = nil -- the bootstrap's Screens.IsAnyOpen; a banner pushed while it answers true takes the bottom slot
+local quietProbe: (() -> boolean)? = nil -- the bootstrap's "Reveal open or catch running"; with quietUntil, the answer behind Toast.Quiet
+local quietUntil = 0 -- os.clock() until which a timed quiet moment (QuietFor) lasts
+local held: { Held } = {} -- toasts and banners waiting for a quiet moment to pass, oldest first
+local draining = false -- the drain thread is running
 
 -- Lines `text` needs at the minimum size in a box `boxPx` wide, and one line's height in px (1 line of 17 px when it fits
 -- or the text cannot be measured). A 425 px window shows a 144 px text box: "You waved at Player1's Mossbop" is two lines there.
@@ -236,11 +249,92 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 	end)
 end
 
+-- True while the Reveal or a capture encounter (the Legendary opening included) owns the screen, or a timed quiet moment
+-- (QuietFor) runs. The bootstrap supplies the Reveal and capture answer (it holds both states); without a probe only the
+-- timed moment counts.
+function Toast.Quiet(): boolean
+	return os.clock() < quietUntil or (quietProbe ~= nil and quietProbe())
+end
+
+function Toast.SetQuietProbe(probe: (() -> boolean)?)
+	quietProbe = probe
+end
+
+-- A presentation asks for `seconds` of calm from now (the longest ask stands): the assembly burst over a finished module
+-- is the one caller. Held items drain once it ends.
+function Toast.QuietFor(seconds: number)
+	quietUntil = math.max(quietUntil, os.clock() + seconds)
+end
+
+local function draw(item: Held)
+	if item.banner then
+		Builder.playSound(Sounds.Banner)
+		push(item.text, item.color, true, item.seconds, nil)
+	else
+		Builder.playSound(Sounds.ToastDing)
+		push(item.text, item.color, false, item.seconds, item.iconKey)
+	end
+end
+
+-- Shows the held items one per Config.ToastHoldGapSeconds once it is quiet; a quiet moment that starts again mid-drain
+-- pauses it. One thread at a time; it ends when the queue is empty.
+local function drain()
+	if draining then
+		return
+	end
+	draining = true
+	task.spawn(function()
+		while #held > 0 do
+			if Toast.Quiet() then
+				task.wait()
+			else
+				draw(table.remove(held, 1) :: Held)
+				if #held > 0 then
+					task.wait(Config.ToastHoldGapSeconds)
+				end
+			end
+		end
+		draining = false
+	end)
+end
+
+-- Draws now, or holds. Anything arriving behind a held item holds too, so the order never changes.
+local function show(item: Held)
+	if not Toast.Quiet() and #held == 0 then
+		draw(item)
+		return
+	end
+	if item.banner then
+		-- One pending banner per kind: the latest replaces the older one.
+		for index, other in ipairs(held) do
+			if other.banner and other.kind == item.kind then
+				table.remove(held, index)
+				break
+			end
+		end
+	end
+	table.insert(held, item)
+	local toasts = 0
+	for _, other in ipairs(held) do
+		if not other.banner then
+			toasts += 1
+		end
+	end
+	if toasts > Config.ToastHoldMax then
+		for index, other in ipairs(held) do
+			if not other.banner then
+				table.remove(held, index) -- the oldest held toast goes
+				break
+			end
+		end
+	end
+	drain()
+end
+
 -- iconKey (an Icons key, e.g. a material or power-up id) swaps the coloured square for that icon when its
 -- image is uploaded; without it, or while the id is 0, the toast is the plain one.
 function Toast.Show(text: string, color: Color3?, iconKey: string?)
-	Builder.playSound(Sounds.ToastDing)
-	push(text, color or Theme.Colors.Featured, false, Theme.Tween.Toast, iconKey)
+	show({ banner = false, kind = "", text = text, color = color or Theme.Colors.Featured, seconds = Theme.Tween.Toast, iconKey = iconKey })
 end
 
 -- Where the stack starts, in screen Scale; nil restores the default. Live toasts re-flow.
@@ -258,10 +352,11 @@ function Toast.SetPanelProbe(probe: (() -> boolean)?)
 end
 
 -- Server-wide announcement: a wide banner in the given colour (usually the tier colour). While a panel
--- is open it takes the bottom slot so the panel's header stays readable.
-function Toast.Banner(text: string, color: Color3, seconds: number?)
-	Builder.playSound(Sounds.Banner)
-	push(text, color, true, seconds or Theme.Tween.Toast)
+-- is open it takes the bottom slot so the panel's header stays readable. `kind` names what the banner is
+-- ("announce", "peddler", "shower", "rush"): in a quiet moment a newer banner of the same kind replaces the one
+-- waiting; without a kind the text is the kind, so only a repeat of the same line replaces.
+function Toast.Banner(text: string, color: Color3, seconds: number?, kind: string?)
+	show({ banner = true, kind = kind or text, text = text, color = color, seconds = seconds or Theme.Tween.Toast, iconKey = nil })
 end
 
 return Toast

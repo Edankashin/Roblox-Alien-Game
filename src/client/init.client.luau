@@ -170,9 +170,15 @@ local function blizzardActive(): boolean
 	return false
 end
 
+-- A quiet moment: a catch is running (from the tap, the Legendary opening included, to the Reveal's close) or the Reveal is up.
+-- Toast.Quiet answers from this, so banners and toasts wait while nothing may cover the Reveal or the capture bar.
+local function quietMoment(): boolean
+	return inCapture or Reveal.IsOpen()
+end
+
 -- A catch in progress or a modal screen blocks every other action.
 local function modalOpen(): boolean
-	return inCapture or Reveal.IsOpen() or Screens.IsAnyOpen()
+	return quietMoment() or Screens.IsAnyOpen()
 end
 
 -- The tutorial is still running: this place is the tutorial's world and its last step is not behind
@@ -760,6 +766,7 @@ local function connectToasts()
 		Net.event("ModuleCompleted").OnClientEvent:Connect(function(worldId: number, moduleId: string)
 			Builder.playSound(Sounds.ModuleComplete)
 			Vfx.ModuleBurst(CampRenderer.ShipPosition(), Theme.Colors.Confirm)
+			Toast.QuietFor(Config.VfxModuleBurstSeconds) -- the toasts below (and the storage one that follows) wait until the burst has played
 			if not modalOpen() and not cinematic then
 				CameraDirector.PanTo(CampRenderer.ShipPosition())
 			end
@@ -929,15 +936,8 @@ local function connectToasts()
 					else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
 				color = Builder.tierColor(note.tier)
 			end
-			-- The Reveal owns the screen while it is up (its NEW ribbon sits where the banner lands): wait for it.
-			task.spawn(function()
-				local waited = 0
-				while Reveal.IsOpen() and waited < Config.AnnounceSeconds do
-					task.wait(Config.BannerDeferSeconds)
-					waited += Config.BannerDeferSeconds
-				end
-				Toast.Banner(text, color, Config.AnnounceSeconds)
-			end)
+			-- The Reveal and the capture bar own the screen: Toast holds the banner until they are gone (the latest announcement wins).
+			Toast.Banner(text, color, Config.AnnounceSeconds, "announce")
 		end)
 	end)
 	-- The player's own Catch Rush result: placed and paid (rank 1 to TopCount), paid for taking part (past
@@ -1338,6 +1338,7 @@ local function start(profile: Types.Profile)
 
 	-- Modal screens: one open at a time, each behind a left-edge menu button.
 	Toast.SetPanelProbe(Screens.IsAnyOpen) -- banners drop to the bottom slot while a panel is open
+	Toast.SetQuietProbe(quietMoment) -- toasts and banners wait while the Reveal or a catch is up
 	Screens.Register("Ship", ShipScreen)
 	Screens.Register("Shop", ShopScreen)
 	Screens.Register("Peddler", PeddlerScreen)
@@ -1542,7 +1543,7 @@ local function start(profile: Types.Profile)
 					if not rushWasActive then
 						Builder.playSound(Sounds.RushStart) -- the round begins; a banner that waited for a free slot has no second cue
 					end
-					Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds)
+					Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds, "rush")
 				end
 				rushBannerHeld = false
 			end
@@ -1569,10 +1570,10 @@ local function start(profile: Types.Profile)
 			if not showerWasActive then
 				Builder.playSound(Sounds.ShowerHorn)
 				Vfx.SetShowerSky(true)
-				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
+				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds, "shower")
 			elseif showerBannerHeld then
 				-- The hold just lifted mid-shower: the banner it kept back shows now, without the horn.
-				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds)
+				Toast.Banner(Strings.SHOWER_NOW, Theme.Colors.Codex, Config.AnnounceSeconds, "shower")
 			end
 			showerBannerHeld = false
 			showerWasActive = true

@@ -154,6 +154,9 @@ return {
 	FriendCheckRetrySeconds = 300, -- a friendship lookup that failed is asked again after this long
 
 	BannerDeferSeconds = 0.5, -- a server-wide catch banner waits in steps of this while the Reveal is open, up to AnnounceSeconds
+	-- Quiet moments (UI/Toast): while the Reveal or a catch (the Legendary opening included) is up, new toasts and banners wait in a queue.
+	ToastHoldMax = 6, -- held toasts kept; one more drops the oldest held toast (a banner is one per kind, so it never counts)
+	ToastHoldGapSeconds = 0.35, -- when the moment ends the held ones show one at a time this far apart, so they never stack three deep at once
 
 	WeatherParticleMax = 200, -- the weather sheet's rate x max lifetime stays under this (a phone budget); data/Weather
 
