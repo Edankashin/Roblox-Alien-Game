@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Make the species-name picture sheets Ethan picks from.
 
-  python3 -I tools/names_sheet.py [--out media/names]
+  python3 -I tools/names_sheet.py [--out media/names] [--section "Second pass"] [--suffix _v2]
 
-Reads the candidate tables in docs/vault/01-game-design/Species-Names.md (the "####" heading over each
-table is the header band's text; "World 2 ..." headings go to sheet_world2.png, everything else, event
-aliens included, to sheet_world1.png) and draws one cell per species: the preview png from
+Reads the candidate tables under the "## <section>" heading of docs/vault/01-game-design/Species-Names.md
+(the "####" heading over each table is the header band's text; "World 2 ..." headings go to
+sheet_world2<suffix>.png, everything else, event aliens included, to sheet_world1<suffix>.png; a table only
+counts between its "####" heading and the next heading of any level, and only inside the section, so the
+shape tables and the first-pass tables never leak in). The defaults draw the second pass into
+sheet_world1_v2.png and sheet_world2_v2.png; `--section "First pass" --suffix ""` redraws the first-pass
+sheets. It draws one cell per species: the preview png from
 assets/models/<Id>/<Id>.png (a coloured circle with the id when the png is missing), the current name in
 small grey, then "A ...", "B ...", "C ..." in outlined text. Colours come from src/shared/Theme.luau
 (Panel cream, Outline navy, Codex purple) and src/shared/data/Tiers.luau (a band takes its tier's colour);
@@ -66,16 +70,21 @@ def load_species():
     return {m[0]: (m[1], rgb(m[2])) for m in re.findall(r'\{ id = "(\w+)", name = "([^"]+)".*?color = "(\w{6})"', read("src", "shared", "data", "Species.luau"))}
 
 
-def load_groups(species):
-    """[(heading, [(id, A, B, C)])] in the note's order."""
-    groups = []
+def load_groups(species, section):
+    """[(heading, [(id, A, B, C)])] in the note's order, from the "## <section>" part of the note only."""
+    groups, inside, cur = [], False, None
     for line in read("docs", "vault", "01-game-design", "Species-Names.md").splitlines():
-        if line.startswith("#### "):
-            groups.append((line[5:].strip(), []))
-        elif groups and line.startswith("|"):
+        if line.startswith("#"):
+            if line.startswith("## "):
+                inside = section in line
+            cur = None
+            if inside and line.startswith("#### "):
+                cur = (line[5:].strip(), [])
+                groups.append(cur)
+        elif cur is not None and line.startswith("|"):
             c = [x.strip() for x in line.strip().strip("|").split("|")]
             if c[0] in species and len(c) >= 5:
-                groups[-1][1].append((c[0], c[2], c[3], c[4]))
+                cur[1].append((c[0], c[2], c[3], c[4]))
     return [g for g in groups if g[1]]
 
 
@@ -131,9 +140,13 @@ CREAM, NAVY, CODEX, TIERS = load_theme()
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ROOT, "media", "names"))
-    out = ap.parse_args().out
-    os.makedirs(out, exist_ok=True)
+    ap.add_argument("--section", default="Second pass", help='the note\'s "## ..." heading to read the tables from')
+    ap.add_argument("--suffix", default="_v2", help="added to sheet_world1 and sheet_world2 before .png")
+    args = ap.parse_args()
+    os.makedirs(args.out, exist_ok=True)
     species = load_species()
-    groups = load_groups(species)
-    draw_sheet([g for g in groups if not g[0].startswith("World 2")], species, TIERS, os.path.join(out, "sheet_world1.png"))
-    draw_sheet([g for g in groups if g[0].startswith("World 2")], species, TIERS, os.path.join(out, "sheet_world2.png"))
+    groups = load_groups(species, args.section)
+    if not groups:
+        raise SystemExit(f'no tables found under "## ...{args.section}..." in Species-Names.md')
+    draw_sheet([g for g in groups if not g[0].startswith("World 2")], species, TIERS, os.path.join(args.out, f"sheet_world1{args.suffix}.png"))
+    draw_sheet([g for g in groups if g[0].startswith("World 2")], species, TIERS, os.path.join(args.out, f"sheet_world2{args.suffix}.png"))
