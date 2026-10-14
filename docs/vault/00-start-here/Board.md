@@ -73,14 +73,14 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | ~~Publish the three places privately~~ | Done 2026-10-14 by the Mac session (overnight job 6: world1 v89, world2 v4, home v3) |
 | Experience Questionnaire, maturity answers, then going public | Identity and legal steps are his |
 
+## Decided 2026-10-14 (Ethan)
+
+Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in week one. Make the group now (100 Robux), "Mossbop Games" unless the species rename changes it; the experience stays under Ethan's account for launch (decision 16). Ship the twelve unheard music picks and swap in week one. Max players 8. Open: the icon and thumbnail picks (Ethan is looking at them) and the species rename.
+
 ## Needs a decision (Ethan)
 
 | Question | Options and recommendation |
 |---|---|
-| Launch from the repo publish (no hand-placed dressing or camera anchors) or dress in Team Create first and publish from Studio? | Recommended: launch this weekend from the repo publish (World 1 v89, World 2 v4, Home v3) and dress in week one; [[Hands-Off]] |
-| The game's name (decision 19) | Candidates: "Crash Planet: Catch Aliens", "Alien Pals: Build a Rocket", "Planet Hoppers: Alien Collector"; check Roblox search for collisions; no reward words in the title |
-| A Roblox group co-owned by both (decision 16), and when to transfer the experience | Recommended: start with Collaborate now; transfer before going public, re-uploading the 53 model assets under the group before the runtime loader ships ([[Handoff]] 13.1) |
-| A Discord server and a Roblox group before launch (decision 16; the group-join gift waits on a group id) | Recommended: the group now (free, 5 minutes, the gift turns on), Discord when there are players to talk to |
 | Rejoin notifications (decision 20) | Opt-in card on session 2+, event text only, three a week at most, behind a Config flag |
 | Does a catch at the storage cap also pay its normal catch Scrap on top of the release value? | It does now; one line in `Economy.grantAlien` |
 | Refuse a Storage Bay purchase past the hard cap? | Cannot happen with Worlds 1 and 2 (max 640 of 1,500) |

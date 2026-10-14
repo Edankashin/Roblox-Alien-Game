@@ -4,7 +4,7 @@ Everything the Creator Dashboard asks for when the game goes public, drafted so 
 
 ## 1. Name (decision 19, Ethan's pick)
 
-Recommended: **Crash Planet: Catch Aliens** (clear promise, the verb first, no reward words). Alternatives: Alien Pals: Build a Rocket; Planet Hoppers: Alien Collector. Before locking: search the name on roblox.com to check nothing popular collides.
+**Decided 2026-10-14: Catch an Alien** (Ethan's pick). Before entering it: search the name on roblox.com to check nothing popular collides; if it does, "Catch an Alien!" or "Catch an Alien: Crash Planet".
 
 ## 2. Description (paste as is; under 1,000 characters)
 
@@ -68,7 +68,7 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 
 | Page | Field | Value |
 |---|---|---|
-| Basic Settings | Name | Crash Planet: Catch Aliens |
+| Basic Settings | Name | Catch an Alien (Ethan's pick, 2026-10-14; check Roblox search for a collision first) |
 | Basic Settings | Description | section 2 above, pasted as is; append the LAUNCHWEEK line: "Code LAUNCHWEEK: 300 Scrap and a Lucky Charm, until Oct 31." |
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
