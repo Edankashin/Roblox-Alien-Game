@@ -1180,6 +1180,7 @@ local function connectAfk()
 			if state.resting then
 				if not was then
 					hiddenByInput = false
+					Builder.playSound(Sounds.RestStart) -- the crew starts resting (not on a re-show of the screen)
 					AfkScreen.Show(state)
 				else
 					AfkScreen.Update(state) -- hidden or not: the numbers are ready for a re-show
@@ -1538,6 +1539,9 @@ local function start(profile: Types.Profile)
 				end
 			else
 				if not rushWasActive or rushBannerHeld then
+					if not rushWasActive then
+						Builder.playSound(Sounds.RushStart) -- the round begins; a banner that waited for a free slot has no second cue
+					end
 					Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds)
 				end
 				rushBannerHeld = false

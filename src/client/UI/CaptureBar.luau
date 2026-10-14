@@ -545,6 +545,7 @@ function CaptureBar.Begin(info: BeginInfo)
 	if bar then
 		Builder.open(bar)
 	end
+	Builder.playSound(Sounds.BarOpen) -- once per catch: the bar's later rounds re-arm through ApplyResult, not Begin
 	-- The variant's name lands as the bar opens ("Cast!", "Chase!").
 	local nameKey = row.nameKey
 	if nameKey ~= nil then

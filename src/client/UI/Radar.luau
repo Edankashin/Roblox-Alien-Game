@@ -27,6 +27,9 @@
 -- disc's stroke turn Theme.Colors.Codex while the pulse runs and breathe (their transparency tweens up and
 -- back over PowerUps.ScannerPulse.pulseSeconds; Reduced Motion holds the midpoint), then go back to
 -- Theme.Colors.Select (the ring) and Theme.Colors.Outline (the stroke) when it ends.
+-- RareNearby: the first time a wild alien of a glowing tier (data/Tiers aura > 0: Rare and up, the ones the world draws
+-- a light on; Secret has its own ping and heartbeat) comes within the radar's range, one cue plays (Sounds.RareNearby),
+-- once per spawn (the SpawnId, kept in `announced` until the part leaves the world), however many arrive in one refresh.
 -- Client-only and pure presentation: the server owns which tier is held (profile.gear.radar, pushed
 -- by GearChanged into State and fed in with SetTier) and the Spawner owns the wild parts; this module
 -- only reads positions and attributes and draws. It never decides what the player may see, mark or
@@ -43,6 +46,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local RadarTiers = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
+local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local PowerUps = require(Shared:WaitForChild("data"):WaitForChild("PowerUps"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -147,6 +151,7 @@ local connections: { RBXScriptConnection } = {}
 local heartbeat: RBXScriptConnection? = nil
 local accumulator = 0
 local beatClock = 0 -- seconds since the last heartbeat; primed to a full far interval while no secret is on the disc
+local announced: { [string]: Part } = {} -- SpawnId -> the glowing-tier wild part whose RareNearby cue has played; dropped once the part is gone
 local nearestSecret: number? = nil -- flat distance to the nearest secret ping at the last refresh; nil when none
 local known: { [string]: boolean } = {} -- species with a catch in the codex: solid blips, not silhouettes
 local tier = 0 -- the radar tier the server says the player holds (SetTier); 0 is the free Nearby panel
@@ -467,6 +472,12 @@ local function refreshBlips()
 	local used = 0
 	local nearest: number? = nil
 	local secretsShown = mk2Held()
+	local rareCue = false
+	for spawnId, part in pairs(announced) do
+		if part.Parent == nil then
+			announced[spawnId] = nil -- the spawn left the world; a new spawn has a new id
+		end
+	end
 	if at and wild and range > 0 then
 		for _, child in ipairs(wildParts) do
 			local reservedFor = child:GetAttribute("ReservedFor")
@@ -506,6 +517,15 @@ local function refreshBlips()
 			else
 				styleBlip(blip, tierName, known[species] == true, reserved)
 				place(blip.frame, offset.X, offset.Z)
+				local tierDef = Tiers.Tiers[tierName]
+				local spawnId = child:GetAttribute("SpawnId")
+				if tierDef and tierDef.aura > 0 and flat <= range and type(spawnId) == "string" then
+					local already: Part? = announced[spawnId]
+					if already == nil then
+						announced[spawnId] = child
+						rareCue = true
+					end
+				end
 			end
 			blip.frame.Visible = true
 		end
@@ -517,6 +537,9 @@ local function refreshBlips()
 		stopPulse(blip)
 	end
 	nearestSecret = nearest
+	if rareCue then
+		Builder.playSound(Sounds.RareNearby) -- one cue per refresh, however many rares just came into range
+	end
 	refreshMarkers(at)
 end
 
@@ -907,6 +930,7 @@ function Radar.Stop()
 	connections = {}
 	shown = false
 	blips = {}
+	table.clear(announced)
 	nearestSecret = nil
 	holder = nil
 	disc = nil
