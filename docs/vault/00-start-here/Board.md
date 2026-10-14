@@ -25,6 +25,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Task | Owner | Notes |
 |---|---|---|
 | Handoff to the collaborator: this Board, [[Handoff]], Roblox and GitHub access | Ethan | Steps in [[Handoff]] 13.1 and 13.2 |
+| Launch morning: Studio sign-in, the music listen, the store page, the questionnaire, Public | Ethan | [[STORE-PAGE]] section 5; the morning report in [[2026-10-14]] |
+| Overnight job 14: the Studio retests once Studio is signed in (rest of job 3, 4, the music load check, Storage Bay, `/dupes` then `/complete` no gap, Quiet moments) | Mac | [[Overnight]]; the Mac session's watcher resumes by itself |
 
 ## Next (in priority order; take from the top)
 
@@ -44,19 +46,21 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
-| Music picks: a track for each of the 13 `data/Music` rows (Creator Store licensed audio), auditioned in the place | Collab | [[Music-Plan]]; send ids with a note each; Coord wires them |
-| Sound picks for the 39 `data/Sounds` slots | Collab | [[Moments]] says what each moment should feel like |
+| Music: listen to the 12 picked rows in the place, swap any, pick Menus (still 0) | Ethan or Collab | [[Music-Plan]] pick tables (overnight job 5); one number per row in `data/Music.luau` |
+| Sound picks: acquire one WardenAppear, Mount and Wiggle candidate each from the Toolbox in Studio, fill the three ids | Mac or Collab | Candidates in [[Music-Plan]] (overnight job 13); the other 36 slots are filled, unheard |
 | Moonlit Forest (milestone 48): World 1 Forest at night, props, NightDresser, Lighting night row | Collab (art) + Coord (code) | PRE_PRODUCTION 5c item 4, [[Map-Dressing]] |
 | Map dressing pass per place, by the map rules; camera rig anchors in `Workspace.Dressing.CameraRig` | Collab | [[Map-Dressing]] "Map design rules" and "Camera rig anchors" |
-| Models still missing: Nebulyn, Spookum, Wisplet; home props Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower | Collab or Mac | [[Blender-MCP]], [[Creature-Generation]]; upload through Open Cloud on Ethan's Mac |
+| Models still missing: home props Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower (Nebulyn, Spookum, Wisplet done overnight) | Collab or Mac | [[Blender-MCP]], [[Creature-Generation]]; upload through Open Cloud on Ethan's Mac |
 | Icons v2 pass: the reference board, then batches of twelve | Collab + Coord | The plan is written: [[Look-Plan]] L5b (2026-10-12) |
-| Store page: icon, thumbnails, 10 s clip, description, genre | Collab + Ethan | Uses the cinematic shots; [[Growth-Playbook]] |
+| Store page: upload the picked renders, paste the description, set genre and devices | Ethan | Everything drafted in [[STORE-PAGE]]; the 10 s clip after launch |
 
 ## Waiting on Ethan (only he can do these)
 
 | Task | Notes |
 |---|---|
 | **Sign in to Roblox Studio on the Mac** (it opened its login dialog after a forced quit overnight; every Studio job waits on it) | [[2026-10-14]] Mac session; the session resumes by itself once Studio is signed in |
+| Listen to the overnight music and sound picks in the place (nobody has heard them) | [[Music-Plan]] pick tables; swap a row by changing its id |
+| Launch morning checklist: join the private game on your phone, store page, Experience Questionnaire, Public, then tell the coordinator "public" | [[STORE-PAGE]] section 5 |
 | Roblox: friend the collaborator, both age-checked, Collaborate > add them with Edit | [[Handoff]] 13.1 |
 | GitHub: add the collaborator as a collaborator with Write | [[Handoff]] 13.2 |
 | ~~`python3 -I tools/create_products.py --apply` for the six launch items~~ | Done 2026-10-14 by the Mac session (overnight job 2) |
@@ -70,6 +74,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Question | Options and recommendation |
 |---|---|
+| Launch from the repo publish (no hand-placed dressing or camera anchors) or dress in Team Create first and publish from Studio? | Recommended: launch this weekend from the repo publish (World 1 v89, World 2 v4, Home v3) and dress in week one; [[Hands-Off]] |
 | The game's name (decision 19) | Candidates: "Crash Planet: Catch Aliens", "Alien Pals: Build a Rocket", "Planet Hoppers: Alien Collector"; check Roblox search for collisions; no reward words in the title |
 | A Roblox group co-owned by both (decision 16), and when to transfer the experience | Recommended: start with Collaborate now; transfer before going public, re-uploading the 53 model assets under the group before the runtime loader ships ([[Handoff]] 13.1) |
 | Rejoin notifications (decision 20) | Opt-in card on session 2+, event text only, three a week at most, behind a Config flag |
@@ -80,6 +85,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Overnight run: the loader passes in a built place (53 in 5.8 s), six shop ids live, three places published privately (v89, v4, v3), 51 icons approved, music and sound picks, the three Haunted Nebula species modelled and uploaded, store renders v1 and v2, ccusage in use | Mac | 2026-10-14, 1f88c8f, 707f0eb, 1da5f55, 8ae5673, 00d893c, 27fc743 |
+| Overnight fixes: fuse pacing, alien-list sequence guard, quiet moments, shop tiles, `owned` grants, key-name fallback, sound-slot callers, store-page draft | Coord | 2026-10-14, 6687ae4, a5c261e, 94d2c09, 7678e14, 8421791, a538c9b, 4153b98 |
 | Runtime model loader (`Services/Models`, `Shared/ModelInstall`), decision B18 | Coord | 2026-10-12, 3d47ca2 |
 | Security decisions D1, D4, D6 (`server/Flight.luau`, `Capture.suspect`), decision B19 | Coord | 2026-10-12, 5983164 |
 | The assembly effect `Vfx.Assemble` | Coord | 2026-10-12, f9f14a7 |
