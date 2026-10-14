@@ -44,3 +44,7 @@ Output: `assets/models/<SpeciesId>/<SpeciesId>.glb`, `.fbx`, `notes.md` (date, t
 **Review:** open the `_grey.png` files at their native 256 px, or smaller; that is the greyscale-at-thumbnail check from the design. The silhouette must say what the alien is without colour.
 
 **Known limits (2026-10-05):** the top tiers come out tall because `placeholder.scale` already grows with tier and the tier scale multiplies it again (Thunderhog 4.0, Gaiabloom 5.1, Radish 5.5, Panpipe 5.1 units); decide whether the tier scale or the placeholder scale is the one source of size before the final models are made. `preview.py` uses Workbench when a GPU/EGL is available and otherwise falls back to Cycles on the CPU with emission-only materials, which gives the same flat look.
+
+## Silhouette pass (2026-10-14)
+
+Ethan: no two aliens may share a base design (the ball-and-tuft body of the blockout tier is the problem). For a species with a recipe the body is now rebuilt from primitives: [[Silhouette-Pass]] has the rules and a row per species, `tools/blender/species_recipes.py` the recipes (checked with no Blender), `tools/blender/species_bodies.py` the builder, on the `event_species.py` pattern (the GLB is read only for its materials; slots, order, height and pivot stay). Never run `alien_base.py` over a species that has a recipe: it would put the ball back.
