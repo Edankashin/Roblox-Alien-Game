@@ -32,11 +32,11 @@ One thumb, no stress, nothing you did is ever wasted.
 
 ## 4. Icon and thumbnails
 
-**Rendered overnight on 2026-10-14 (headless Blender, `tools/blender/store_renders.py`), in `media/store/2026-10-14/`.** The coordinator's picks: icon `icon_Mossbop_v2.png` (the navy outline reads like the top games' icons; `icon_Sparkfox_v2` and `icon_Thunderhog_v2` are the alternates); thumbnails in this order, the titled versions (two to four outlined words in Fredoka One, `tools/store_title.py`, 2026-10-14 afternoon): `thumb_verdant_v2_title.png` ("CATCH CUTE ALIENS" over five aliens at the crash wreck), `thumb_legendary_v2_title.png` ("LEGENDARY!" in gold over Gaiabloom), `thumb_frostbyte_v2_title.png` ("NEW WORLD: FROSTBYTE" over the spire and pines). The untitled `_v2` files are the same shots without text; `_v1` is the plain first pass. The wreck brought closer is the first polish item after launch.
+**Rendered overnight on 2026-10-14 (headless Blender, `tools/blender/store_renders.py`), in `media/store/2026-10-14/`.** The coordinator's picks: icon `icon_Mossbop_v2.png` (the navy outline reads like the top games' icons; `icon_Sparkfox_v2` and `icon_Thunderhog_v2` are the alternates); thumbnails in this order after the thumbnail research ([[Thumbnail-Research]], 2026-10-14 evening: show the real best moment, words in the top third only, one hero facing the lens, nothing essential in the bottom fifth): `thumb_legendary_v2_title.png` ("LEGENDARY!" in gold over Gaiabloom; it scored highest of the three), `thumb_verdant_v2_title.png` ("CATCH CUTE ALIENS", the title now in the top third), `thumb_frostbyte_v2_title.png` ("NEW WORLD: FROSTBYTE"; weakest: white aliens on white snow). These are the interim set; the three candidates the research specifies (a mid-catch Moment with the capture bar, the Reward, a Mystery peek) are rendered on the Mac from the new bodies once the surface pass is in, and the Moment goes first if its bar reads at 192x108. The untitled `_v2` files are the same shots without text; `_v1` is the plain first pass. The wreck brought closer is the first polish item after launch.
 
 
 - Icon 512x512: the Moop (or Sparkfox) face close-up on the meadow, rendered in Blender from the species model with the icons v2 light (`docs/vault/06-art-pipelines/Look-Plan.md` L5b), thick outline, the ship in the corner. Until that render exists: a Studio capture of a Moop catch moment, cropped square.
-- Thumbnails 1920x1080 (up to 5; the first one is the one the tile shows): (1) the camp with the half-built ship and aliens at work, (2) the capture bar on a Rare, (3) the Moonlit Forest at night, (4) the home planet with habitats. The Mac's overnight captures land in `media/store/2026-10-14/`; pick the four best, add the game name in Fredoka One with an outline on the first one.
+- Thumbnails 1920x1080 (the first one is the one the tile shows; the research found no support for a five-slot limit or a Home autoplay, so treat the first slot as the whole game): (1) the camp with the half-built ship and aliens at work, (2) the capture bar on a Rare, (3) the Moonlit Forest at night, (4) the home planet with habitats. The Mac's overnight captures land in `media/store/2026-10-14/`; pick the four best, add the game name in Fredoka One with an outline on the first one.
 - A 10-second clip for the store video can wait until after launch (the cinematic shots film it).
 
 ## 5. Launch morning checklist (Ethan, about 20 minutes)
@@ -73,7 +73,7 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
 | Basic Settings | Icon | `media/store/2026-10-14/icon_Mossbop_v2.png` |
-| Basic Settings | Thumbnails (in order) | `thumb_verdant_v2_title.png`, `thumb_legendary_v2_title.png`, `thumb_frostbyte_v2_title.png`; video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Basic Settings | Thumbnails (in order) | `thumb_legendary_v2_title.png`, `thumb_verdant_v2_title.png`, `thumb_frostbyte_v2_title.png` (interim; the Moment render replaces the first slot when it exists); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
 | Places > World 1 | Max players | 8; server fill: Roblox optimised |
 | Access | Private servers | Off |
 | Access | Paid access | Off |
