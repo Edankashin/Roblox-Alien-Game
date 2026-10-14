@@ -27,6 +27,7 @@ local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local BadgeFit = require(Shared:WaitForChild("BadgeFit"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Builder)
@@ -79,6 +80,10 @@ local TIER_ICON_GAP = 0.015 -- of the card's width, between the badge and the ti
 local STORAGE_Y = 0.09 -- the storage-full ribbon, of the screen: centred above the card (which starts at 0.19)
 local STORAGE_W = 0.7
 local STORAGE_H = 0.09
+-- The overlay badge, top right of the card: its width before it is fitted (what it was), the most it may grow to, and its height.
+local BADGE_MIN_W = 0.42
+local BADGE_MAX_W = 0.92
+local BADGE_H = 0.09
 
 local gui: ScreenGui? = nil
 local card: Frame? = nil
@@ -190,6 +195,28 @@ local function close()
 		storageHint = false
 		Toast.Show(Strings.TOAST_STORAGE_FULL_HINT, Theme.Colors.Close)
 	end
+end
+
+-- The card's width in px, from the viewport: the card is CARD_SIZE of it held to CARD_ASPECT. Read from the camera and not
+-- from the card, whose AbsoluteSize follows the open and pop tweens (a UIScale) and is zero while the gui is disabled.
+local function cardPx(): number
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return 0
+	end
+	local view = camera.ViewportSize
+	return math.min(CARD_SIZE.X.Scale * view.X, CARD_SIZE.Y.Scale * view.Y * CARD_ASPECT)
+end
+
+-- Sets the overlay badge's width, in Scale of the card, to hold the longest overlay name on one line at the 14 px floor
+-- (Builder.longestOverlayName, measured once), never under BADGE_MIN_W. Runs at build and when the window resizes.
+local function fitOverlayBadge()
+	local badge = overlayBadge
+	if not badge then
+		return
+	end
+	local width = BadgeFit.Width(Builder.longestOverlayName().whole.px, cardPx(), Builder.badgeParams(BADGE_MIN_W, BADGE_MAX_W))
+	badge.Size = UDim2.fromScale(width, BADGE_H)
 end
 
 local function build()
@@ -353,7 +380,7 @@ local function build()
 		parent = panel,
 		name = "Overlay",
 		position = UDim2.fromScale(0.96, 0.04),
-		size = UDim2.fromScale(0.42, 0.09),
+		size = UDim2.fromScale(BADGE_MIN_W, BADGE_H),
 		anchor = Vector2.new(1, 0),
 		color = Theme.Colors.Codex,
 		stroke = Theme.Stroke.Text,
@@ -365,10 +392,17 @@ local function build()
 		text = "",
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.75),
+		size = UDim2.fromScale(Builder.BadgeTextFraction, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 7,
 	})
+	-- The badge is right-anchored, so fitting its width grows it to the left, toward the NEW! ribbon and no further than
+	-- BADGE_MAX_W. The longest overlay name sets it for every overlay, so the badge never changes size between catches.
+	local fitCamera = workspace.CurrentCamera
+	fitOverlayBadge()
+	if fitCamera then
+		fitCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fitOverlayBadge)
+	end
 	-- Diagonal NEW! ribbon across the top-left corner.
 	local ribbon = Builder.frame({
 		parent = panel,

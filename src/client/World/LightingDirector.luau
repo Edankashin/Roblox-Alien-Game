@@ -7,12 +7,18 @@
 -- one (a field set later wins; nested tables merge field by field, Rgb triples replace whole). The result drives Lighting, one Atmosphere, one BloomEffect, one
 -- ColorCorrectionEffect, one SunRaysEffect and (only when a look names real ids) one Sky, all created under
 -- Lighting by this module and reused on rejoin. The first application is instant; later changes tween over
--- Config.LightingTweenSeconds (Quad, Out) or snap under Reduced Motion. Active conditions: "Night" while the
+-- Config.LightingTweenSeconds (Quad, Out) or snap under Reduced Motion. A look may also carry a `groundTint`
+-- (a colour and a 0 to 1 strength, World 1's Night rows do): every part tagged LightingData.GroundTag then wears its day
+-- colour lerped toward the tint's colour by the strength, the same tween as the light, and goes back to the day colour when
+-- the look stops naming one. The day colour is kept on the part as the GroundDayColor attribute (the first time the part is
+-- seen) and every target is computed from it, so repeated applies never drift; a part that streams in mid-night is tinted
+-- on arrival. One tween per ground part per change, nothing per frame. Active conditions: "Night" while the
 -- clock mirror says night, the clock's weather when Conditions has a look for it (Fog, Snow, Rain,
 -- Blizzard...), "Shower" while a Meteor Shower runs. ClockTime stays the server's (WorldClock) and
 -- Lighting.Technology is not scriptable, so neither is touched. Pure presentation: the clock and the
 -- shower are the server's; this only picks how they look.
 
+local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -36,6 +42,9 @@ local SUN_RAYS_PROPS: { string } = { "Intensity", "Spread" }
 -- Sky look field -> Sky property. Ids of 0 mean "keep the place's own sky".
 local SKY_FACES: { [string]: string } = { Bk = "SkyboxBk", Dn = "SkyboxDn", Ft = "SkyboxFt", Lf = "SkyboxLf", Rt = "SkyboxRt", Up = "SkyboxUp" }
 local SKY_SCALARS: { string } = { "SunAngularSize", "StarCount" }
+local GROUND_DAY_COLOR = "GroundDayColor" -- the attribute a ground part keeps its day colour in (client-side only)
+
+type GroundGoal = { color: Color3, strength: number }
 
 local started = false
 local applied = false -- the first application is instant; every later one tweens
@@ -46,6 +55,8 @@ local bloom: Instance? = nil
 local colorCorrection: Instance? = nil
 local sunRays: Instance? = nil
 local sky: Instance? = nil
+local groundParts: { [BasePart]: boolean } = {} -- every part tagged LightingData.GroundTag that exists now
+local groundGoal: GroundGoal? = nil -- the tint the current look names, nil while it names none
 
 -- Helpers ----------------------------------------------------------------
 
@@ -230,6 +241,55 @@ local function applySky(look: Table?)
 	end
 end
 
+-- The colour a ground part should wear now: its day colour, lerped toward the current tint when the look names one.
+-- Always computed from the stored day colour, never from the part's present colour, so nothing drifts.
+local function groundTarget(part: BasePart): Color3
+	local stored = part:GetAttribute(GROUND_DAY_COLOR)
+	local day: Color3 = if typeof(stored) == "Color3" then stored else part.Color
+	local goal = groundGoal
+	return if goal then day:Lerp(goal.color, goal.strength) else day
+end
+
+-- A ground part appears (at start, or streamed in later): its colour now is its day colour, kept as an attribute the first
+-- time it is seen, and a tint already in force reaches it at once.
+local function trackGround(instance: Instance)
+	if not instance:IsA("BasePart") then
+		return
+	end
+	if instance:GetAttribute(GROUND_DAY_COLOR) == nil then
+		instance:SetAttribute(GROUND_DAY_COLOR, instance.Color)
+	end
+	groundParts[instance] = true
+	if groundGoal then
+		instance.Color = groundTarget(instance)
+	end
+end
+
+local function untrackGround(instance: Instance)
+	if instance:IsA("BasePart") then
+		groundParts[instance] = nil
+	end
+end
+
+-- Points every ground part at the look's tint (or its day colour when the look names none): one tween, or one assignment
+-- when instant, per part that is not there yet. A tint missing its colour or its strength counts as none.
+local function applyGround(spec: Table?, instant: boolean)
+	local goal: GroundGoal? = nil
+	if spec then
+		local color, strength = spec["color"], spec["strength"]
+		if type(color) == "table" and type(strength) == "number" then
+			goal = { color = toColor(color :: LightingData.Rgb), strength = math.clamp(strength, 0, 1) }
+		end
+	end
+	groundGoal = goal
+	for part in pairs(groundParts) do
+		local target = groundTarget(part)
+		if part.Color ~= target then
+			drive(part, { Color = target }, instant)
+		end
+	end
+end
+
 -- Re-merges and applies the look. Unchanged inputs (world, active conditions and the biome when it matters) are skipped unless
 -- `force`, so the repeated "profile" fires every State topic also answers never restart a tween.
 local function apply(force: boolean)
@@ -270,6 +330,7 @@ local function apply(force: boolean)
 		drive(raysInstance, goalsOf(look["SunRays"] :: Table?, SUN_RAYS_PROPS), instant)
 	end
 	applySky(look["Sky"] :: Table?)
+	applyGround(look["groundTint"] :: Table?, instant)
 end
 
 -- Public ------------------------------------------------------------------
@@ -303,6 +364,13 @@ function LightingDirector.Start()
 	bloom = findOrCreate("BloomEffect", "LookBloom")
 	colorCorrection = findOrCreate("ColorCorrectionEffect", "LookColorCorrection")
 	sunRays = findOrCreate("SunRaysEffect", "LookSunRays")
+
+	-- The ground the night tints: the parts the server tagged, those already here and any that stream in later.
+	CollectionService:GetInstanceAddedSignal(LightingData.GroundTag):Connect(trackGround)
+	CollectionService:GetInstanceRemovedSignal(LightingData.GroundTag):Connect(untrackGround)
+	for _, part in ipairs(CollectionService:GetTagged(LightingData.GroundTag)) do
+		trackGround(part)
+	end
 
 	State.OnChanged("clock", function()
 		apply(false)

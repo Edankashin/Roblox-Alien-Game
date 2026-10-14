@@ -30,12 +30,14 @@
 -- block for the spin wheel and a placeholder Mailbox block, each only when the layout sets its fields; the
 -- placeholders' sizes and colours are layout data (data/Home).
 
+local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.data.Config)
 local Layouts = require(Shared.data.Layouts)
+local LightingData = require(Shared.data.Lighting)
 local Place = require(Shared.Place)
 local Biomes = require(Shared.Biomes)
 local Props = require(Shared.Props)
@@ -78,6 +80,13 @@ local function basePart(name: string, shape: Enum.PartType, size: Vector3, cfram
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Parent = parent
+	return part
+end
+
+-- Marks a part as ground: the client's LightingDirector lerps the colour of every part carrying this tag toward the night
+-- look's `groundTint` (data/Lighting) and back by day. The tag replicates; the colour change is client-side only.
+local function markGround(part: Part): Part
+	CollectionService:AddTag(part, LightingData.GroundTag)
 	return part
 end
 
@@ -305,7 +314,7 @@ end
 -- between them.
 local function buildRegion(name: string, region: Layouts.Region, floorTop: number, rng: Random, parent: Instance)
 	local patchTop = floorTop + Layout.RegionPatchThickness
-	uprightCylinder(name .. "Floor", region.radius, Layout.RegionPatchThickness, Vector3.new(region.x, floorTop + Layout.RegionPatchThickness / 2, region.z), region.floorColor, parent)
+	markGround(uprightCylinder(name .. "Floor", region.radius, Layout.RegionPatchThickness, Vector3.new(region.x, floorTop + Layout.RegionPatchThickness / 2, region.z), region.floorColor, parent))
 
 	-- Biomes.RandomPointIn keeps region points RegionEdgeMargin inside the rim; the camp ring arguments
 	-- only apply to the base biome and are never reached for a named region.
@@ -471,7 +480,7 @@ function Meadow.Init()
 
 	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
 	local floorTop = Layout.FloorThickness / 2
-	basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world)
+	markGround(basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world))
 
 	-- Camp pad at the origin with the SpawnLocation on top.
 	local padY = floorTop + Layout.CampPadThickness / 2

@@ -14,6 +14,10 @@ export type Bloom = { Intensity: number?, Size: number?, Threshold: number? }
 export type ColorCorrection = { Brightness: number?, Contrast: number?, Saturation: number?, TintColor: Rgb? }
 export type SunRays = { Intensity: number?, Spread: number? }
 export type Sky = { Bk: number, Dn: number, Ft: number, Lf: number, Rt: number, Up: number, SunAngularSize: number?, StarCount: number? }
+-- The ground's colour while the look applies: each ground part's day colour lerped toward `color` by `strength` (0 to 1).
+-- The ground is every part tagged GroundTag (the server tags the floor and the biome patches, Services/Meadow); a look with
+-- no groundTint leaves the ground at its day colour, so the tint lifts by itself when the row stops applying.
+export type GroundTint = { color: Rgb, strength: number }
 export type Look = {
 	Brightness: number?,
 	Ambient: Rgb?,
@@ -29,6 +33,7 @@ export type Look = {
 	ColorCorrection: ColorCorrection?,
 	SunRays: SunRays?,
 	Sky: Sky?,
+	groundTint: GroundTint?,
 }
 
 -- A look per condition name (Conditions keys).
@@ -132,6 +137,9 @@ local WorldConditions: { [number]: ConditionLooks } = {
 			Atmosphere = { Density = 0.35, Offset = 0.32, Color = { 78, 72, 138 }, Decay = { 50, 56, 120 }, Glare = 0, Haze = 1.5 },
 			Bloom = { Intensity = 0.9, Size = 28, Threshold = 1.2 },
 			ColorCorrection = { Saturation = 0.1, TintColor = { 222, 224, 255 } },
+			-- The ground wore its day green into the night (Studio retest 2026-10-14: "green field at night"): it is lerped
+			-- toward the fog's indigo. The Meadow floor (6FBF4A) reads 5A836C, still a ground but no longer a green field.
+			groundTint = { color = { 64, 58, 150 }, strength = 0.45 },
 		},
 	},
 }
@@ -151,11 +159,15 @@ local BiomeConditions: { [string]: ConditionLooks } = {
 			Atmosphere = { Density = 0.42, Offset = 0.5, Color = { 70, 60, 142 }, Decay = { 36, 70, 118 }, Glare = 0, Haze = 2 },
 			Bloom = { Intensity = 1.1, Size = 36, Threshold = 0.9 },
 			ColorCorrection = { Saturation = 0.2, TintColor = { 232, 226, 255 } },
+			-- Deeper into the violet than the Meadow's, and stronger: every ground part is tinted by it while the player
+			-- stands in the Forest (the Forest's own patch, 2E6B2B, reads 36486B; the Meadow floor reads 506978).
+			groundTint = { color = { 60, 48, 150 }, strength = 0.6 },
 		},
 	},
 }
 
 return {
+	GroundTag = "GroundTint", -- the CollectionService tag the server puts on every ground part (a hand-built ground part needs it by hand)
 	Base = Base,
 	Worlds = Worlds,
 	Conditions = Conditions,

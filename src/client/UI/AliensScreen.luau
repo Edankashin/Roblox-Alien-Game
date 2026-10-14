@@ -36,6 +36,7 @@ local Economy = require(Shared:WaitForChild("Economy"))
 local HomeBuildData = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local BadgeFit = require(Shared:WaitForChild("BadgeFit"))
 local Place = require(Shared:WaitForChild("Place"))
 local Companions = require(Shared:WaitForChild("data"):WaitForChild("Companions"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
@@ -126,12 +127,19 @@ local RIDE_H = 0.18
 
 -- The card's top corners: the speed chip top right, the overlay badge top left, and a fused copy's level chip
 -- (the speed chip's size) in the top-left corner too, or directly under the badge when the badge holds it.
+-- The badge is fitted to its name (Shared/BadgeFit, widths measured once by Builder.overlayName at the 14 px floor): it is
+-- BADGE_W wide at least and shares the first row with the speed chip while it stays within BADGE_BESIDE_W. A name wider than
+-- that takes the whole row (BADGE_FULL_W) and the speed and level chips move to the row under it; a name wider than the row
+-- ("Launch Gold" on a card under about 105 px, every phone) wraps to one pill per word, and the speed chip takes the row
+-- beside the short last word. A row is CORNER_H tall and starts CORNER_H + CORNER_GAP under the one above.
 local CORNER_X = 0.04
 local CORNER_Y = 0.04
 local CORNER_H = 0.17
 local SPEED_W = 0.36
 local BADGE_W = 0.5
 local CORNER_GAP = 0.01
+local BADGE_FULL_W = 1 - 2 * CORNER_X
+local BADGE_BESIDE_W = BADGE_FULL_W - SPEED_W - CORNER_GAP
 
 -- The Ride button of a following mount (a species with `ride`) takes the status label's place exactly: the status
 -- row is the card's full width, so "Hop off" (49.5 px at the 14 px minimum, Fredoka) fits one line even on a 78 px
@@ -157,6 +165,7 @@ local perksLabel: TextLabel? = nil
 local tokenButton: Frame? = nil
 local grid: ScrollingFrame? = nil
 local gridLayout: UIGridLayout? = nil
+local badgeFits: { (number) -> () } = {} -- one per overlay badge on the cards now drawn; each takes the card's width in px and refits its badge
 local emptyLabel: TextLabel? = nil
 local fuseButton: Frame? = nil
 local cardCount = 0
@@ -733,6 +742,17 @@ local function layoutGrid()
 	-- 2026-10-05). Width and padding stay Scale.
 	layout.CellSize = UDim2.new(CELL_W, 0, 0, cellPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
 	layout.CellPadding = UDim2.new(CELL_GAP, 0, 0, gapPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
+	-- The cards are square, so a cell's width is a card's width. The overlay badges fit their names against it, less the
+	-- scrollbar's thickness (the canvas gives it up once the cards overflow), so the fit is never a pixel short.
+	local cardPx = CELL_W * math.max(0, abs.X - SCROLLBAR_PX)
+	for _, fit in ipairs(badgeFits) do
+		fit(cardPx)
+	end
+end
+
+-- The top of row `row` of the card's corner band (row 0 is the first), as a Scale of the card.
+local function cornerRowY(row: number): number
+	return CORNER_Y + row * (CORNER_H + CORNER_GAP)
 end
 
 local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
@@ -808,48 +828,95 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		zIndex = 6,
 	})
 
+	-- The overlay badge, fitted to its name (BadgeFit.Card): one pill holding the whole name, or one pill per word when the
+	-- name does not fit the card's row. The card's width is not known until the grid has laid it out, so the first pill
+	-- starts at BADGE_W and layoutGrid fits it (and makes a second pill the first time a card needs one). The fit also
+	-- seats the speed chip and a fused copy's level chip, which move to the row under the badge when it takes their corner.
+	local levelChip: Frame? = nil
 	if record.overlay ~= "None" then
-		local badge = Builder.pill({
-			parent = card,
-			name = "Overlay",
-			position = UDim2.fromScale(CORNER_X, CORNER_Y),
-			size = UDim2.fromScale(BADGE_W, CORNER_H),
-			color = Builder.overlayColor(record.overlay),
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 5,
-		})
-		Builder.gradient(badge, Builder.overlayColor(record.overlay))
-		if Builder.overlayTint(record.overlay) then
-			Builder.shine(badge) -- the slow sparkle of a tinted overlay (Launch Gold); it stops when the card is rebuilt
+		local name = Builder.overlayName(record.overlay)
+		local color = Builder.overlayColor(record.overlay)
+		local tinted = Builder.overlayTint(record.overlay) ~= nil
+		local params = Builder.badgeParams(BADGE_W, BADGE_FULL_W, BADGE_BESIDE_W)
+		local pills: { Frame } = {}
+		local labels: { TextLabel } = {}
+		local function pillAt(row: number): (Frame, TextLabel)
+			local existing = pills[row + 1]
+			if existing then
+				return existing, labels[row + 1]
+			end
+			local pill = Builder.pill({
+				parent = card,
+				name = if row == 0 then "Overlay" else "Overlay" .. (row + 1),
+				position = UDim2.fromScale(CORNER_X, cornerRowY(row)),
+				size = UDim2.fromScale(BADGE_W, CORNER_H),
+				color = color,
+				stroke = Theme.Stroke.Text,
+				strokeColor = Theme.Colors.Outline,
+				zIndex = 5,
+			})
+			Builder.gradient(pill, color)
+			if tinted then
+				Builder.shine(pill) -- the slow sparkle of a tinted overlay (Launch Gold); it stops when the card is rebuilt
+			end
+			local label = Builder.label({
+				parent = pill,
+				name = "Text",
+				text = name.whole.text,
+				textSize = Theme.TextSize.Body,
+				position = UDim2.fromScale(0.5, 0.5),
+				size = UDim2.fromScale(Builder.BadgeTextFraction, 0.75),
+				anchor = Vector2.new(0.5, 0.5),
+				zIndex = 6,
+			})
+			pills[row + 1] = pill
+			labels[row + 1] = label
+			return pill, label
 		end
-		Builder.label({
-			parent = badge,
-			name = "Text",
-			text = Builder.text("OVERLAY_" .. record.overlay),
-			textSize = Theme.TextSize.Body,
-			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.86, 0.75),
-			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 6,
-		})
+		pillAt(0)
+		local fittedPx = 0
+		table.insert(badgeFits, function(cardPx: number)
+			if math.abs(cardPx - fittedPx) < 0.5 then
+				return -- the same width as the last fit: nothing to set
+			end
+			fittedPx = cardPx
+			local plan = BadgeFit.Card(name, cardPx, params)
+			for line, text in ipairs(plan.texts) do
+				local pill, label = pillAt(line - 1)
+				pill.Visible = true
+				pill.Position = UDim2.fromScale(CORNER_X, cornerRowY(line - 1))
+				pill.Size = UDim2.fromScale(plan.widths[line], CORNER_H)
+				if label.Text ~= text then
+					label.Text = text
+				end
+			end
+			for extra = #plan.texts + 1, #pills do
+				pills[extra].Visible = false
+			end
+			chip.Position = UDim2.fromScale(1 - CORNER_X, cornerRowY(plan.speedRow))
+			local level = levelChip
+			if level then
+				level.Position = UDim2.fromScale(CORNER_X, cornerRowY(plan.levelRow))
+			end
+		end)
 	end
 
 	-- A fused copy (level above 1; level 1 shows nothing) wears its level in gold: top left, the speed chip's
 	-- size, or directly under the overlay badge when the badge already sits in that corner.
 	if record.level > 1 then
-		local levelChip = Builder.pill({
+		local levelPill = Builder.pill({
 			parent = card,
 			name = "Level",
-			position = UDim2.fromScale(CORNER_X, if record.overlay ~= "None" then CORNER_Y + CORNER_H + CORNER_GAP else CORNER_Y),
+			position = UDim2.fromScale(CORNER_X, cornerRowY(if record.overlay ~= "None" then 1 else 0)),
 			size = UDim2.fromScale(SPEED_W, CORNER_H),
 			color = Theme.Colors.Trough,
 			stroke = Theme.Stroke.Text,
 			strokeColor = Theme.Colors.Outline,
 			zIndex = 5,
 		})
+		levelChip = levelPill
 		Builder.label({
-			parent = levelChip,
+			parent = levelPill,
 			name = "Text",
 			text = Strings.ALIENS_LEVEL:format(record.level),
 			textSize = Theme.TextSize.Body,
@@ -1147,6 +1214,7 @@ local function rebuildGrid(profile: Types.Profile)
 	local entries = sortedEntries(profile)
 	cardCount = #entries
 	clearChildren(frame)
+	table.clear(badgeFits) -- the old cards' badges are gone with them
 	for index, entry in ipairs(entries) do
 		buildCard(frame, index, entry)
 	end

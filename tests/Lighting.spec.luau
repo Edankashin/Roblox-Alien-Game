@@ -5,6 +5,7 @@
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Lighting = require(Shared.data.Lighting)
 local Worlds = require(Shared.data.Worlds)
+local Meadow = require(Shared.data.Meadow)
 
 local plain = Lighting.Conditions.Night
 local meadow = Lighting.WorldConditions[1].Night
@@ -63,6 +64,65 @@ describe("Moonlit Forest night looks", function()
 		expect(forest.Bloom.Threshold < meadow.Bloom.Threshold).toEqual(true)
 		expect(forest.ColorCorrection.Saturation > meadow.ColorCorrection.Saturation).toEqual(true)
 		expect(forest.OutdoorAmbient[3] > meadow.OutdoorAmbient[3]).toEqual(true)
+	end)
+
+	describe("night ground tint (the grass joins the indigo)", function()
+		-- A part colour from its hex, and the lerp the director does (Color3:Lerp) on whole 0..255 channels.
+		local function rgb(hex: string): { number }
+			return { tonumber(hex:sub(1, 2), 16) :: number, tonumber(hex:sub(3, 4), 16) :: number, tonumber(hex:sub(5, 6), 16) :: number }
+		end
+		local function lerp(from: { number }, to: { number }, strength: number): { number }
+			return { from[1] + (to[1] - from[1]) * strength, from[2] + (to[2] - from[2]) * strength, from[3] + (to[3] - from[3]) * strength }
+		end
+		local function luma(c: { number }): number
+			return 0.299 * c[1] + 0.587 * c[2] + 0.114 * c[3]
+		end
+		local function greenShare(c: { number }): number
+			return c[2] / (c[1] + c[2] + c[3])
+		end
+		local meadowFloor = rgb(Meadow.FloorColor)
+		local forestPatch = rgb(Meadow.Regions.Forest.floorColor)
+
+		it("is named by the two World 1 night rows and nowhere else, so day and World 2 keep their ground", function()
+			expect(meadow.groundTint ~= nil).toEqual(true)
+			expect(forest.groundTint ~= nil).toEqual(true)
+			for _, look in pairs(Lighting.Conditions) do
+				expect(look.groundTint == nil).toEqual(true)
+			end
+			for _, look in pairs(Lighting.Worlds) do
+				expect(look.groundTint == nil).toEqual(true)
+			end
+			expect(Lighting.Base.groundTint == nil).toEqual(true)
+			expect(type(Lighting.GroundTag) == "string" and #Lighting.GroundTag > 0).toEqual(true)
+		end)
+
+		it("is a whole tint: a triple of whole 0..255 channels and a strength above 0 and at most 1", function()
+			for _, look in ipairs({ meadow, forest }) do
+				local tint = look.groundTint
+				for channel = 1, 3 do
+					expect(tint.color[channel] >= 0 and tint.color[channel] <= 255 and tint.color[channel] % 1 == 0).toEqual(true)
+				end
+				expect(tint.strength > 0 and tint.strength <= 1).toEqual(true)
+			end
+		end)
+
+		it("is indigo (blue over red, blue over green) and stronger in the Forest than in the Meadow", function()
+			for _, look in ipairs({ meadow, forest }) do
+				local color = look.groundTint.color
+				expect(color[3] > color[1] and color[3] > color[2]).toEqual(true)
+			end
+			expect(forest.groundTint.strength > meadow.groundTint.strength).toEqual(true)
+		end)
+
+		it("turns the Meadow floor and the Forest patch less green, bluer and no lighter than by day", function()
+			for _, case in ipairs({ { meadowFloor, meadow.groundTint }, { forestPatch, forest.groundTint }, { meadowFloor, forest.groundTint } }) do
+				local day, tint = case[1], case[2]
+				local night = lerp(day, tint.color, tint.strength)
+				expect(greenShare(night) < greenShare(day)).toEqual(true)
+				expect(night[3] > day[3]).toEqual(true)
+				expect(luma(night) < luma(day)).toEqual(true)
+			end
+		end)
 	end)
 
 	it("names only real conditions, worlds and biomes", function()

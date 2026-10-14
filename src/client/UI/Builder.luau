@@ -6,10 +6,12 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
+local TextService = game:GetService("TextService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
+local BadgeFit = require(Shared:WaitForChild("BadgeFit"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
@@ -120,6 +122,72 @@ end
 -- The colour of an overlay's badge: its tint, else the Codex purple every plain overlay wears.
 function Builder.overlayColor(overlay: string): Color3
 	return Builder.overlayTint(overlay) or Theme.Colors.Codex
+end
+
+-- Overlay badge fitting. The label in a badge is TextScaled at no less than the 14 px floor, so it wraps and cuts when it is
+-- narrower than its text at that size ("Launch Gold" read "Launch" on the Reveal and "Launc" on an Aliens card). The names
+-- are measured once with TextService at the floor size (Fredoka One, as drawn) and Shared/BadgeFit turns the widths into
+-- Scale sizes against the parent's pixels; a screen asks for a fit and sets it, once per change of window.
+Builder.BadgeTextFraction = 0.9 -- the label's width over its badge's (the UI Playbook's chip text fraction)
+local BADGE_SLACK_PX = 2 -- rounding room on top of a measured width
+local BADGE_FALLBACK_EM = 0.58 -- px per glyph per px of text size when TextService cannot answer (8.1 px at 14 px, the widest run on record)
+local overlayNames: { [string]: BadgeFit.Name } = {}
+local longestOverlay: BadgeFit.Name? = nil
+
+local function floorTextPx(text: string): number
+	local ok, width = pcall(function(): number
+		return TextService:GetTextSize(text, Theme.TextSize.Min, Theme.Font, Vector2.new(10000, 10000)).X
+	end)
+	if ok then
+		return width
+	end
+	return #text * Theme.TextSize.Min * BADGE_FALLBACK_EM
+end
+
+-- An overlay's name (strings key OVERLAY_<id>) as measured: the whole string and each word, in px at the floor size.
+function Builder.overlayName(overlay: string): BadgeFit.Name
+	local cached = overlayNames[overlay]
+	if cached then
+		return cached
+	end
+	local text = Builder.text("OVERLAY_" .. overlay)
+	local words: { BadgeFit.Line } = {}
+	for word in text:gmatch("%S+") do
+		table.insert(words, { text = word, px = floorTextPx(word) })
+	end
+	local name: BadgeFit.Name = { whole = { text = text, px = floorTextPx(text) }, words = words }
+	overlayNames[overlay] = name
+	return name
+end
+
+-- The widest overlay name in data/Overlays (Order lists every overlay that shows a badge), measured once.
+function Builder.longestOverlayName(): BadgeFit.Name
+	local cached = longestOverlay
+	if cached then
+		return cached
+	end
+	local best: BadgeFit.Name? = nil
+	for _, overlay in ipairs(Overlays.Order) do
+		local name = Builder.overlayName(overlay)
+		if best == nil or name.whole.px > best.whole.px then
+			best = name
+		end
+	end
+	local found = best or Builder.overlayName("None")
+	longestOverlay = found
+	return found
+end
+
+-- The fit parameters of a badge that is `minWidth` wide before it is fitted and at most `maxWidth` (and, on a card,
+-- `besideMax` while it shares its row with the speed chip), as Scales of its parent.
+function Builder.badgeParams(minWidth: number, maxWidth: number, besideMax: number?): BadgeFit.Params
+	return {
+		textFraction = Builder.BadgeTextFraction,
+		slackPx = BADGE_SLACK_PX,
+		minWidth = minWidth,
+		maxWidth = maxWidth,
+		besideMax = besideMax,
+	}
 end
 
 function Builder.formatNumber(n: number): string
