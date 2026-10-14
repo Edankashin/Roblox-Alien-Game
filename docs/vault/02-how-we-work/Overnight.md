@@ -14,6 +14,7 @@ Ethan approved on 2026-10-14, before sleeping: (A) create the six shop items thr
 - Dev commands in Play: from the Client datamodel `game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("/scrap 1000")`, one command per execute_luau call. Server Output lands in `~/Library/Logs/Roblox/*_last.log`.
 - Each result line: milestone, step, pass or fail, the exact Output line that proves it, what you saw. Screenshots (`screen_capture`) go to `media/studio/2026-10-14/` as PNG (small, under 1 MB each) when a layout question needs eyes.
 - Keep the Mac awake first thing: `caffeinate -dims &`.
+- **Never force-quit Studio** (`kill -9` dropped the saved sign-in on 2026-10-14 and only Ethan can sign in again). To rebuild after a pull that changed `src/`: stop Play, leave the old window open, `open build/world1.rbxl` again and use the new `studio_id`; or skip the rebuild and note which commit the window runs. If Studio is signed out, do every job that needs no Studio (6, 7, the web half of 5) and write the rest as blocked.
 
 ## Jobs (tick `[x]` done, `[b]` blocked with the reason in the log)
 

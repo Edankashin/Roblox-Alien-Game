@@ -71,7 +71,7 @@ local Flight = require(script.Parent.Parent.Flight)
 local EconomyService = {}
 
 local REMOTE_RATE_PER_SECOND = 4 -- ModulePay, ModuleInsertKey and StationOptimize calls per player per second
-local FUSE_RATE_PER_SECOND = 2 -- FuseSpecies calls per player per second
+local FUSE_RATE_PER_SECOND = Config.FuseRatePerSecond -- FuseSpecies calls per player per second (the client paces itself under it, Config.FuseCallGapSeconds)
 local RELEASE_RATE_PER_SECOND = 2 -- ReleaseAliens and ReleaseAllOfTier calls per player per second
 local STORAGE_RATE_PER_SECOND = 2 -- BuyStorageBay calls per player per second
 local STARTING_LEVEL = 1 -- GrantAlien writes every record at this level; fusion cap is this plus Fusion.MaxFusionLevels

@@ -106,6 +106,7 @@ Do not run `tools/setup-mac.sh` blind: it installs software machine-wide and tru
 - **Two players:** Test > Clients and Servers > 2 players. Each test player is its own Studio process (separate Dock icons). Test players are not Roblox friends, so set the home lock to Anyone before a visiting test.
 - **Logs on a Mac:** the server's Output is also written to `~/Library/Logs/Roblox/*_last.log`; grep the `[AlienGame]` lines there instead of scrolling Output.
 - **Stop Play before switching Rojo projects**, reconnect, then Play. Only one person's Rojo connected to a Team Create place at a time.
+- **Never force-quit Studio** (`pkill -9`): on 2026-10-14 it dropped the saved sign-in and the next launch opened the login dialog, which only the account's owner can answer. Quit from the menu and answer the save prompt, or leave the window open. The three Rojo projects differ only in the Workspace attribute `WorldId`, so one built place switches worlds with `workspace:SetAttribute("WorldId", 2)` in Edit mode.
 - **Never edit scripts in Studio**: Rojo overwrites them. Hand-placed dressing goes in `Workspace.Dressing` (the server builds `Workspace.World` at run time); camera anchors in `Workspace.Dressing.CameraRig`.
 - Real saves in Studio need Studio API access on and `Config.UseDataStoreInStudio = true`; without them, profiles live in memory and vanish when the player leaves, so "rejoin keeps progress" steps need real saves.
 - `/admin` commands on an unpublished place used to hang (MessagingService); they now time out after 5 s.

@@ -69,6 +69,12 @@ return {
 	PerfectScrapMultiplier = 2, -- a Perfect hit multiplies the catch Scrap by this
 	LureAutoUse = true, -- the best lure held is spent automatically when a catch starts
 
+	-- fusion (the Fuse button asks the server once per level gained, species by species)
+	FuseCallGapSeconds = 0.12, -- the client waits this long between FuseSpecies calls, under the server's FuseRatePerSecond
+	FuseRatePerSecond = 10, -- FuseSpecies calls the server allows per player per second (a burst of levels, not a flood)
+	FuseRetryWaitSeconds = 0.6, -- after a RateLimited answer the client waits this long and asks the same species again
+	FuseRetries = 3, -- at most this many such retries per species before it gives up on it
+
 	-- spawning
 	SpawnDensityTarget = 14,
 	-- A server-wide ceiling on wild spawns: the density target above is per player, so spread-out players could

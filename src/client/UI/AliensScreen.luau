@@ -477,15 +477,16 @@ local function fuseCandidates(profile: Types.Profile): { FuseCandidate }
 end
 
 -- The server's answer to one FuseSpecies call: a result, or nil on any refusal (NotEnough, MaxLevel, ...).
-local function askFuse(species: string): Types.FuseResult?
+local function askFuse(species: string): (Types.FuseResult?, string?)
 	local ok, result, reason = pcall(function()
 		return Net.func("FuseSpecies"):InvokeServer(species)
 	end)
 	if ok and type(result) == "table" then
-		return result :: Types.FuseResult
+		return result :: Types.FuseResult, nil
 	end
-	print(("[%s] FuseSpecies refused: %s"):format(Config.WorkingTitle, tostring(if ok then reason else result)))
-	return nil
+	local why = tostring(if ok then reason else result)
+	print(("[%s] FuseSpecies refused: %s"):format(Config.WorkingTitle, why))
+	return nil, why
 end
 
 local function toastFused(result: Types.FuseResult)
@@ -506,7 +507,10 @@ end
 
 -- Fuse everything fusable. One call is in flight at a time (the shared `pending`); each species is asked again
 -- while the server keeps answering with a result (one level per call) until it refuses, at most as often as
--- its copies allow. The mirror is never touched: the server's camp push redraws the cards.
+-- its copies allow. The calls are paced (Config.FuseCallGapSeconds) under the server's rate limit, and a
+-- RateLimited answer waits Config.FuseRetryWaitSeconds and asks the same species again, at most Config.FuseRetries
+-- times, so a store with many fusable species never skips a fusion (found in Studio 2026-10-14: ten refusals in
+-- 0.15 s). The mirror is never touched: the server's camp push redraws the cards.
 local function fuseAll()
 	if pending then
 		return
@@ -522,7 +526,13 @@ local function fuseAll()
 		local last: Types.FuseResult? = nil
 		for _, candidate in ipairs(candidates) do
 			for _ = 1, (candidate.copies - 1) // Fusion.DuplicatesPerLevel do
-				local result = askFuse(candidate.species)
+				local result, why = askFuse(candidate.species)
+				local retries = 0
+				while not result and why == "RateLimited" and retries < Config.FuseRetries do
+					retries += 1
+					task.wait(Config.FuseRetryWaitSeconds)
+					result, why = askFuse(candidate.species)
+				end
 				if not result then
 					break
 				end
@@ -530,6 +540,7 @@ local function fuseAll()
 				if Fusion.ToastEach then
 					toastFused(result)
 				end
+				task.wait(Config.FuseCallGapSeconds)
 			end
 		end
 		if not last then
