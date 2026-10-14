@@ -4,6 +4,8 @@
 -- Textures come from data/Icons.Particles (Raindrop, Flake, Wisp); an id of 0 keeps Roblox's default particle
 -- until the pack is uploaded. Rates are per second across the whole sheet; rate x max lifetime (the
 -- particles alive at once) stays under Config.WeatherParticleMax, the phone budget.
+-- Layers (below) are ambient sheets that do not depend on the weather: they run beside whichever weather sheet is
+-- on, switched by the clock (night), the place's world and the biome the player stands in.
 
 local Icons = require(script.Parent.Icons)
 
@@ -26,6 +28,15 @@ export type Sheet = {
 	squash: number, -- stretch along the particle's up axis (1 is round); with velocityParallel a streak
 	velocityParallel: boolean, -- orient each particle along its velocity (rain streaks) instead of facing the camera
 	mode: "fall" | "drift", -- fall: the sheet is a plane perpendicular to direction (rain, snow); drift: a horizontal sheet at `height` whose particles start still and are pushed along direction (fog, haze)
+	thickness: number?, -- studs: the sheet's depth along its up axis, the band particles are born in (1 when absent; fireflies use a thick one to fill the air above the ground)
+}
+
+-- An ambient layer: a sheet that is on while every condition it names holds (WeatherFx reads State and Place).
+export type Layer = {
+	night: boolean, -- true: only while the clock says night
+	world: number, -- only in this world's place (data/Worlds ids)
+	biome: string?, -- only while the player stands in this biome (Types.Biome); nil: anywhere in the world
+	sheet: Sheet,
 }
 
 local Sheets: { [string]: Sheet } = {
@@ -41,8 +52,36 @@ local Sheets: { [string]: Sheet } = {
 	Mist = { rate = 6, lifetime = { 6, 9 }, speed = { 1, 2 }, sizeStart = 10, sizeEnd = 16, color = "CFE6EC", transparency = 0.85, direction = { 1, 0, 0.2 }, spread = 30, span = 60, height = 3, lightEmission = 0, drag = 0.5, rotationSpeed = { -3, 3 }, texture = Icons.Particles.Wisp, squash = 1, velocityParallel = false, mode = "drift" },
 }
 
+-- World 1's Moonlit Forest at night (media/tiktok/NOTES.md ZPLYSA3uR: "fireflies, slow, small, everywhere" and "light
+-- drips under the canopy"). Both are local, follow the player like a weather sheet and fade with it.
+-- Phone budget, particles alive at once (rate x max lifetime): Fireflies 3 x 9 = 27, LightDrips 3 x 3 = 9, so 36 for the
+-- pair, under LayerParticleMax below. On top of World 1's heaviest weather sheet (Rain, 190 x 0.5 = 95) and a Shower
+-- (about 7) that is about 138, under Config.WeatherParticleMax (200) and the Look plan's "under 200 on screen".
+-- tests/Weather.spec.luau holds two lines (a world's layers under LayerParticleMax, and LayerParticleMax plus that world's
+-- heaviest weather sheet under WeatherParticleMax), so a busier row fails the test before it reaches a phone.
+-- Fireflies are born in a 6-stud-thick band centred 1 stud over the player's root part, about 1 to 7 studs above the ground.
+-- Sprites: Fireflies wear Icons.Particles.Glow, which is still 0, so they show Roblox's default particle (a soft four-point
+-- sparkle) until the Glow sprite is uploaded and its id lands in data/Icons; LightDrips wear Raindrop, which is real, and
+-- stretch it into a pale streak. No new upload is needed for either.
+local Layers: { [string]: Layer } = {
+	Fireflies = {
+		night = true,
+		world = 1,
+		biome = "Forest",
+		sheet = { rate = 3, lifetime = { 6, 9 }, speed = { 0.3, 0.9 }, sizeStart = 0.5, sizeEnd = 0.35, color = "FFE27A", transparency = 0.1, direction = { 0.4, 0.1, 0.2 }, spread = 180, span = 36, height = 1, lightEmission = 1, drag = 0.6, rotationSpeed = { 0, 0 }, texture = Icons.Particles.Glow, squash = 1, velocityParallel = false, mode = "drift", thickness = 6 },
+	},
+	LightDrips = {
+		night = true,
+		world = 1,
+		biome = "Forest",
+		sheet = { rate = 3, lifetime = { 2.2, 3 }, speed = { 3, 4.5 }, sizeStart = 0.5, sizeEnd = 0.4, color = "CFE0FF", transparency = 0.5, direction = { 0, -1, 0 }, spread = 2, span = 30, height = 9, lightEmission = 0.8, drag = 0, rotationSpeed = { 0, 0 }, texture = Icons.Particles.Raindrop, squash = 3, velocityParallel = true, mode = "fall" },
+	},
+}
+
 return {
 	Sheets = Sheets,
+	Layers = Layers,
+	LayerParticleMax = 40, -- the layers on at once together: their summed rate x max lifetime stays under this (a phone budget, with a weather sheet and a Shower on top)
 	FollowSeconds = 0.1, -- the sheet re-centres over the camera this often
 	FadeSeconds = 1.5, -- a weather change ramps the old sheet's rate to 0 and the new one up over this long
 }

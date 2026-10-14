@@ -2,7 +2,9 @@
 -- The look of the light per world and per condition (docs/vault/06-art-pipelines/Look-Plan.md, pass L1).
 -- The client's LightingDirector merges Base <- Worlds[worldId] <- one condition look per active condition
 -- (later entries in ConditionOrder win) and tweens Lighting, its Atmosphere, Bloom, ColorCorrection and
--- SunRays to the result over Config.LightingTweenSeconds. ClockTime itself stays the server's (WorldClock).
+-- SunRays to the result over Config.LightingTweenSeconds. A condition can be refined for one world
+-- (WorldConditions) and, inside that world, for the biome the player stands in (BiomeConditions): each
+-- refinement merges straight after the condition it refines. ClockTime itself stays the server's (WorldClock).
 -- Colours are RGB 0..255 triples. Sky ids of 0 keep the place's own sky. Lighting.Technology cannot be
 -- set from a script: set it to Future in the place by hand (TESTING milestone 22).
 
@@ -28,6 +30,9 @@ export type Look = {
 	SunRays: SunRays?,
 	Sky: Sky?,
 }
+
+-- A look per condition name (Conditions keys).
+export type ConditionLooks = { [string]: Look }
 
 -- Everything a look can set, with its default: the merge starts here so a tween always has a full target.
 local Base: Look = {
@@ -109,10 +114,53 @@ local Conditions: { [string]: Look } = {
 	},
 }
 
+-- A condition seen in one world (Worlds.luau ids), merged right after the plain Conditions look of the same name.
+-- World 1's Night is the Moonlit Forest palette (media/tiktok/NOTES.md ZPLYSA3uR: indigo, violet and teal with
+-- warm-white light from the props, not a dark scene). This is the mild version, the one the Meadow and the Cave
+-- wear, so the catch bar and the wild aliens stay easy to read. Against the plain Night row nothing is lower:
+-- Brightness stays 1, ExposureCompensation stays at the Base 0 (unset), and every channel of Ambient and
+-- OutdoorAmbient is at least the plain row's ({ 40, 45, 60 } and { 60, 70, 95 }); tests/Lighting.spec.luau holds
+-- that line. Saturation goes from -0.1 to +0.1 so the indigo reads as colour, not grey, and the tint is a touch
+-- warmer than the plain row's ({ 210, 220, 255 }) so warm-white lights glow against it.
+local WorldConditions: { [number]: ConditionLooks } = {
+	[1] = {
+		Night = {
+			Ambient = { 46, 46, 84 },
+			OutdoorAmbient = { 74, 76, 128 },
+			ColorShift_Top = { 24, 22, 56 },
+			-- Violet-blue fog; the Offset is raised from 0.25 so far trees keep their outline against the sky.
+			Atmosphere = { Density = 0.35, Offset = 0.32, Color = { 78, 72, 138 }, Decay = { 50, 56, 120 }, Glare = 0, Haze = 1.5 },
+			Bloom = { Intensity = 0.9, Size = 28, Threshold = 1.2 },
+			ColorCorrection = { Saturation = 0.1, TintColor = { 222, 224, 255 } },
+		},
+	},
+}
+
+-- A condition seen from one biome (the biome the local player stands in, Types.Biome; each biome name belongs to
+-- one world, so no world key). Merged after the world's refinement of the same condition, so it is the stronger
+-- version: the Forest at night is the Moonlit Forest proper. Same floor as the world row, so a Forest is never
+-- darker than the plain Night: only the colour, the fog, the bloom and the tint go further. The Forest's own row
+-- is the one the fireflies and light drips (data/Weather Layers) sit in; the Meadow keeps the milder world row.
+local BiomeConditions: { [string]: ConditionLooks } = {
+	Forest = {
+		Night = {
+			Ambient = { 50, 46, 96 },
+			OutdoorAmbient = { 78, 74, 140 },
+			ColorShift_Top = { 44, 30, 96 },
+			-- Denser, more violet fog with a higher Offset: the far trees stand as dark silhouettes in it.
+			Atmosphere = { Density = 0.42, Offset = 0.5, Color = { 70, 60, 142 }, Decay = { 36, 70, 118 }, Glare = 0, Haze = 2 },
+			Bloom = { Intensity = 1.1, Size = 36, Threshold = 0.9 },
+			ColorCorrection = { Saturation = 0.2, TintColor = { 232, 226, 255 } },
+		},
+	},
+}
+
 return {
 	Base = Base,
 	Worlds = Worlds,
 	Conditions = Conditions,
+	WorldConditions = WorldConditions,
+	BiomeConditions = BiomeConditions,
 	-- Merge order: the first listed is applied first, so the last active one listed here wins.
 	ConditionOrder = { "Fog", "Snow", "Night", "Aurora", "Rain", "Blizzard", "Shower" },
 }

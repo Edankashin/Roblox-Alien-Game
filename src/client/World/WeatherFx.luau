@@ -10,6 +10,9 @@
 -- settles them at about the row's speed. A name with no sheet (Clear, or one the data does not know) means no weather particles. On a change the
 -- old sheet's Rate ramps to 0 and the new one's from 0 over Weather.FadeSeconds. Pure presentation: the
 -- clock and the weather are the server's.
+-- Layers (data/Weather Layers) are the same kind of sheet but not tied to the weather: each is on while the clock is at
+-- night (when it says so), the place is its world and the player stands in its biome (State.GetBiome), and ramps in and
+-- out like a weather sheet. The Moonlit Forest's fireflies and light drips are the first.
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
@@ -19,6 +22,7 @@ local TweenService = game:GetService("TweenService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Weather = require(Shared:WaitForChild("data"):WaitForChild("Weather"))
+local Place = require(Shared:WaitForChild("Place"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 
 local WeatherFx = {}
@@ -41,6 +45,7 @@ type Live = {
 local started = false
 local live: { Live } = {} -- the current sheet plus any that are still fading out
 local current: Live? = nil -- the sheet the weather asks for now
+local layers: { [string]: Live } = {} -- the ambient layers that are on now, by Weather.Layers name
 local folderInstance: Folder? = nil
 
 -- Helpers ----------------------------------------------------------------
@@ -132,7 +137,7 @@ local function build(name: string, sheet: Weather.Sheet): Live
 
 	local part = Instance.new("Part")
 	part.Name = name
-	part.Size = Vector3.new(sheet.span, 1, sheet.span)
+	part.Size = Vector3.new(sheet.span, sheet.thickness or 1, sheet.span)
 	local drift = sheet.mode == "drift"
 	part.CFrame = sheetFrame(anchorPoint(sheet.height) or Vector3.new(0, sheet.height, 0), direction, drift)
 	part.Transparency = 1
@@ -223,6 +228,47 @@ local function apply(weather: string)
 	end
 end
 
+-- Whether an ambient layer is on right now: its world, night and biome conditions all hold.
+local function layerWanted(layer: Weather.Layer): boolean
+	if layer.world ~= Place.WorldId() then
+		return false
+	end
+	if layer.night and not State.GetClock().isNight then
+		return false
+	end
+	local biome = layer.biome
+	if biome ~= nil and State.GetBiome() ~= biome then
+		return false
+	end
+	return true
+end
+
+-- Switches each ambient layer on or off to match the clock and the player's biome, and checks the layers on together
+-- against Weather.LayerParticleMax.
+local function applyLayers()
+	local alive = 0
+	for name, layer in pairs(Weather.Layers) do
+		local now = layers[name]
+		local sheet = layer.sheet
+		if layerWanted(layer) then
+			if not now then
+				local entry = build(name, sheet)
+				layers[name] = entry
+				table.insert(live, entry)
+				rampTo(entry, sheet.rate)
+				print(("[%s] weather: %s layer on, about %d particles"):format(Config.WorkingTitle, name, math.round(sheet.rate * (sheet.lifetime[2] or sheet.lifetime[1] or 1))))
+			end
+			alive += sheet.rate * (sheet.lifetime[2] or sheet.lifetime[1] or 1)
+		elseif now then
+			layers[name] = nil
+			retire(now)
+		end
+	end
+	if alive > Weather.LayerParticleMax then
+		warn(("[%s] weather: the layers on are about %d particles, over Weather.LayerParticleMax (%d)"):format(Config.WorkingTitle, math.round(alive), Weather.LayerParticleMax))
+	end
+end
+
 -- Re-centres every live sheet over the camera at its own height.
 local function follow()
 	local now = os.clock()
@@ -254,8 +300,12 @@ function WeatherFx.Start()
 	started = true
 	State.OnChanged("clock", function()
 		apply(State.GetClock().weather)
+		applyLayers()
 	end)
+	-- The Forest's layers come on as the player walks in and fade as they walk out.
+	State.OnChanged("biome", applyLayers)
 	apply(State.GetClock().weather)
+	applyLayers()
 	task.spawn(function()
 		while true do
 			follow()

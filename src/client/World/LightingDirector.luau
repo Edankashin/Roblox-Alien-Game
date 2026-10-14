@@ -1,9 +1,10 @@
 --!strict
 -- StarterPlayerScripts.Client.World.LightingDirector: gives each world and weather its look
 -- (docs/vault/06-art-pipelines/Look-Plan.md, pass L1). The target is a pure function of the place's world
--- and the active conditions: data/Lighting.luau Base, then Worlds[Place.WorldId()], then each active
--- condition's look in ConditionOrder (a field set later wins; nested tables merge field by field, Rgb
--- triples replace whole). The result drives Lighting, one Atmosphere, one BloomEffect, one
+-- and the active conditions (plus, for a condition with a biome row, the biome the player stands in):
+-- data/Lighting.luau Base, then Worlds[Place.WorldId()], then each active condition's look in ConditionOrder,
+-- each followed by that world's WorldConditions refinement and then the player's biome's BiomeConditions
+-- one (a field set later wins; nested tables merge field by field, Rgb triples replace whole). The result drives Lighting, one Atmosphere, one BloomEffect, one
 -- ColorCorrectionEffect, one SunRaysEffect and (only when a look names real ids) one Sky, all created under
 -- Lighting by this module and reused on rejoin. The first application is instant; later changes tween over
 -- Config.LightingTweenSeconds (Quad, Out) or snap under Reduced Motion. Active conditions: "Night" while the
@@ -149,18 +150,46 @@ local function activeConditions(): { string }
 	return out
 end
 
--- Base <- the place's world <- each active condition: one full look.
-local function buildTarget(names: { string }): LightingData.Look
+-- The biome whose refinements count right now: the player's biome when some active condition has a row for it,
+-- else "". Biomes without a row for the active conditions all look the same, so crossing between them is not a
+-- change and never restarts a tween (the Meadow into the Cave by day, say).
+local function activeBiome(names: { string }): string
+	local biome: string = State.GetBiome()
+	local rows = LightingData.BiomeConditions[biome]
+	if rows then
+		for _, name in ipairs(names) do
+			if rows[name] ~= nil then
+				return biome
+			end
+		end
+	end
+	return ""
+end
+
+-- Base <- the place's world <- each active condition (then this world's refinement of it, then the biome's): one
+-- full look.
+local function buildTarget(names: { string }, biome: string): LightingData.Look
 	local target: Table = {}
 	mergeInto(target, LightingData.Base :: any)
-	local world = LightingData.Worlds[Place.WorldId()]
+	local worldId = Place.WorldId()
+	local world = LightingData.Worlds[worldId]
 	if world then
 		mergeInto(target, world :: any)
 	end
+	local worldRows = LightingData.WorldConditions[worldId]
+	local biomeRows = LightingData.BiomeConditions[biome]
 	for _, name in ipairs(names) do
 		local look = LightingData.Conditions[name]
 		if look then
 			mergeInto(target, look :: any)
+		end
+		local worldLook = if worldRows then worldRows[name] else nil
+		if worldLook then
+			mergeInto(target, worldLook :: any)
+		end
+		local biomeLook = if biomeRows then biomeRows[name] else nil
+		if biomeLook then
+			mergeInto(target, biomeLook :: any)
 		end
 	end
 	return target :: any
@@ -201,17 +230,18 @@ local function applySky(look: Table?)
 	end
 end
 
--- Re-merges and applies the look. Unchanged inputs (world and active conditions) are skipped unless
+-- Re-merges and applies the look. Unchanged inputs (world, active conditions and the biome when it matters) are skipped unless
 -- `force`, so the repeated "profile" fires every State topic also answers never restart a tween.
 local function apply(force: boolean)
 	local names = activeConditions()
-	local signature = tostring(Place.WorldId()) .. "|" .. table.concat(names, ",")
+	local biome = activeBiome(names)
+	local signature = tostring(Place.WorldId()) .. "|" .. table.concat(names, ",") .. "|" .. biome
 	if not force and signature == lastSignature then
 		return
 	end
 	lastSignature = signature
 
-	local look = (buildTarget(names) :: any) :: Table
+	local look = (buildTarget(names, biome) :: any) :: Table
 	local instant = not applied or Prefs.ReducedMotion() or Config.LightingTweenSeconds <= 0
 	applied = true
 	cancelTweens()
@@ -281,6 +311,10 @@ function LightingDirector.Start()
 		apply(false)
 	end)
 	State.OnChanged("world", function()
+		apply(false)
+	end)
+	-- The Forest wears the stronger night; walking in or out tweens over Config.LightingTweenSeconds.
+	State.OnChanged("biome", function()
 		apply(false)
 	end)
 	-- Reduced Motion only changes how the next change lands; one switched on mid-tween snaps it home.
