@@ -720,6 +720,7 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	end
 	onClose = onClosed
 	open = true
+	Toast.Hush() -- the card is a quiet moment: whatever is on screen goes back in the queue and replays after the close
 
 	local tierColor = Builder.tierColor(info.tier)
 	local tierIndex = table.find(Tiers.Order, info.tier) or 1

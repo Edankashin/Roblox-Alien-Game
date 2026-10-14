@@ -341,6 +341,7 @@ local function beginCapture(part: Part)
 		return
 	end
 	inCapture = true
+	Toast.Hush() -- the capture bar is a quiet moment: a banner or toast drawn a moment ago leaves and replays after the Reveal
 	capturePart = part
 	capturePosition = part.Position
 	CameraDirector.Cancel() -- a catch takes priority over any camera moment

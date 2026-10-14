@@ -823,7 +823,10 @@ local function grantAlien(player: Player, species: string, overlay: Types.Overla
 		end
 	end
 	Buffs.OnCatch(player, tier)
-	announceCatch(player, species, tier, overlay)
+	-- Deferred so the grant's own reply (AlienGranted, or the remote's return value) leaves first and the client opens its Reveal before the server-wide banner arrives.
+	task.defer(function()
+		announceCatch(player, species, tier, overlay)
+	end)
 	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
 	Tutorial.OnCatch(player, species)
 	-- Analytics: the catch, its Scrap split into the catch pay and the codex payout, and the first catch ever.

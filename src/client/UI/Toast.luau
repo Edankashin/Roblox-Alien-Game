@@ -11,7 +11,10 @@
 -- through SetQuietProbe) nothing new is drawn, since the Reveal and the capture bar are the two moments nothing may
 -- cover. Toasts and banners queue instead, in order (Config.ToastHoldMax toasts, the oldest dropped past it; one pending
 -- banner per kind, the latest wins) and drain one per Config.ToastHoldGapSeconds once it is quiet again. Whatever is
--- already on screen stays. QuietFor adds a timed quiet moment (the module-complete assembly burst).
+-- already on screen does not stay: Hush, which the bootstrap calls as a catch begins and Reveal.Show calls as the card opens,
+-- takes every live toast and banner down at once and puts them back at the front of the queue in their on-screen order, each
+-- with its full time again, so they replay after the moment (a banner drawn a second before the tap is as unwelcome over the
+-- capture bar as one drawn during it). QuietFor adds a timed quiet moment (the module-complete assembly burst).
 
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
@@ -45,13 +48,15 @@ local TEXT_W = 0.81
 local TEXT_H = 0.7 -- the text box's height, of the toast
 local MAX_LINES = 3 -- a toast never grows past this many lines of text
 
-type Entry = { group: CanvasGroup, leaving: boolean, height: number }
 -- A toast or banner that arrived in a quiet moment (or behind one that did). `kind` keys a banner: a newer banner of the
 -- same kind replaces the pending one.
 type Held = { banner: boolean, kind: string, text: string, color: Color3, seconds: number, iconKey: string? }
+-- A toast or banner on screen, with the item it was drawn from so Hush can put it back in the queue.
+type Entry = { group: CanvasGroup, leaving: boolean, height: number, item: Held }
 
 local gui: ScreenGui? = nil
 local entries: { Entry } = {} -- live toasts, oldest first
+local live: { Entry } = {} -- every toast and banner on screen and not leaving, in the order drawn (a banner over an open panel is here and not in `entries`)
 local panelOpen: (() -> boolean)? = nil -- the bootstrap's Screens.IsAnyOpen; a banner pushed while it answers true takes the bottom slot
 local quietProbe: (() -> boolean)? = nil -- the bootstrap's "Reveal open or catch running"; with quietUntil, the answer behind Toast.Quiet
 local quietUntil = 0 -- os.clock() until which a timed quiet moment (QuietFor) lasts
@@ -111,6 +116,10 @@ local function dismiss(entry: Entry)
 	if index then
 		table.remove(entries, index)
 	end
+	local liveIndex = table.find(live, entry)
+	if liveIndex then
+		table.remove(live, liveIndex)
+	end
 	local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local tween = TweenService:Create(entry.group, info, { GroupTransparency = 1 })
 	tween.Completed:Once(function()
@@ -130,12 +139,13 @@ function Toast.Build()
 	gui = Builder.screen("Toasts", 40)
 end
 
-local function push(text: string, accent: Color3, banner: boolean, seconds: number, iconKey: string?)
+local function push(item: Held)
 	Toast.Build()
 	local root = gui
 	if not root then
 		return
 	end
+	local text, accent, banner, seconds, iconKey = item.text, item.color, item.banner, item.seconds, item.iconKey
 	while #entries >= MAX_VISIBLE do
 		dismiss(entries[1])
 	end
@@ -233,7 +243,8 @@ local function push(text: string, accent: Color3, banner: boolean, seconds: numb
 		})
 	end
 
-	local entry: Entry = { group = group, leaving = false, height = height }
+	local entry: Entry = { group = group, leaving = false, height = height, item = item }
+	table.insert(live, entry)
 	local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 	if banner and panelOpen ~= nil and panelOpen() then
 		-- A wide banner over an open panel hides its header: slide it up from the bottom edge instead,
@@ -269,11 +280,10 @@ end
 local function draw(item: Held)
 	if item.banner then
 		Builder.playSound(Sounds.Banner)
-		push(item.text, item.color, true, item.seconds, nil)
 	else
 		Builder.playSound(Sounds.ToastDing)
-		push(item.text, item.color, false, item.seconds, item.iconKey)
 	end
+	push(item)
 end
 
 -- Shows the held items one per Config.ToastHoldGapSeconds once it is quiet; a quiet moment that starts again mid-drain
@@ -298,6 +308,25 @@ local function drain()
 	end)
 end
 
+-- Keeps at most Config.ToastHoldMax held toasts: the oldest go first. A banner is one per kind, so it never counts.
+local function trimHeld()
+	local toasts = 0
+	for _, other in ipairs(held) do
+		if not other.banner then
+			toasts += 1
+		end
+	end
+	local index = 1
+	while toasts > Config.ToastHoldMax and index <= #held do
+		if held[index].banner then
+			index += 1
+		else
+			table.remove(held, index) -- the oldest held toast goes
+			toasts -= 1
+		end
+	end
+end
+
 -- Draws now, or holds. Anything arriving behind a held item holds too, so the order never changes.
 local function show(item: Held)
 	if not Toast.Quiet() and #held == 0 then
@@ -314,20 +343,39 @@ local function show(item: Held)
 		end
 	end
 	table.insert(held, item)
-	local toasts = 0
+	trimHeld()
+	drain()
+end
+
+-- A quiet moment is starting: every toast and banner on screen comes down at once (dismiss, so its fade is the usual short
+-- one) and goes back to the front of the queue in its on-screen order with its full time, to replay through the drain after
+-- the moment. One banner per kind still holds: a held banner is newer than any that was on screen, so it wins, and of two
+-- on-screen banners of a kind the later one does. The bootstrap calls this as a catch begins and Reveal.Show as the card opens;
+-- twice in a row, or with nothing live, it does nothing.
+function Toast.Hush()
+	if #live == 0 then
+		return
+	end
+	local shown = table.clone(live) -- dismiss edits `live`
+	for _, entry in ipairs(shown) do
+		dismiss(entry)
+	end
+	local newer: { [string]: boolean } = {}
 	for _, other in ipairs(held) do
-		if not other.banner then
-			toasts += 1
+		if other.banner then
+			newer[other.kind] = true
 		end
 	end
-	if toasts > Config.ToastHoldMax then
-		for index, other in ipairs(held) do
-			if not other.banner then
-				table.remove(held, index) -- the oldest held toast goes
-				break
+	for index = #shown, 1, -1 do
+		local item = shown[index].item
+		if not (item.banner and newer[item.kind]) then
+			if item.banner then
+				newer[item.kind] = true
 			end
+			table.insert(held, 1, item) -- walking back to front, so the front ends up in on-screen order
 		end
 	end
+	trimHeld()
 	drain()
 end
 
