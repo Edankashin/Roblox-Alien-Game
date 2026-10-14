@@ -114,6 +114,18 @@ Do not run `tools/setup-mac.sh` blind: it installs software machine-wide and tru
 - A `ScrollingFrame`'s `CanvasSize` in Scale is measured against its **parent**, not itself; it cut two lists down to one row before the fix ([[UI-Playbook]]).
 - Measure UI at the real pixel size: at 667x375 a label that "looks fine" in a big window cuts off. The UI fit pass measured every label against Fredoka One's metrics.
 
+### Memory on the Mac
+
+- **The cause as seen today (2026-10-14):** macOS said "Your system has run out of application memory" and paused every app until Ethan restarted. Open at that moment: four Roblox Studio processes, Blender, Chrome, Obsidian, the Claude desktop app and a Claude Code session. It is the sum, and Studio is usually the heaviest of them (unmeasured until the first diagnosis, below). Each extra Studio process is several GB, and a 2-player test adds one per test client.
+- **One Roblox Studio window and process.** Close the old build (File > Close, Don't Save) before opening a new one, as in "One Studio window at a time" above; close the test clients when a multi-client test ends. Never force-quit.
+- **Blender:** quit the app after a render or a model session. `blender -b` headless runs exit on their own, so batch work uses those ([[Creature-Generation]]).
+- **Claude Code:** one session on the Mac, plus the coordinator in the cloud (which costs the Mac nothing).
+- **Chrome:** Memory Saver on (Settings > Performance) and the tab count low; close the research tabs when a task is done.
+- **Obsidian** is closed during overnight runs (the vault is plain files, so the sessions do not need it).
+- **Check it:** run `tools/mac_memory.sh` before an overnight run, and during one run `caffeinate -dims tools/mac_memory.sh --watch` (every 300 s, `--every N` to change it). It only reads; it never closes anything. It prints physical memory, swap used, the memory-pressure level, the top 12 apps by resident memory (each app's processes summed, with the share of RAM) and the RobloxStudio count.
+- **The `WARN:` line** names what tripped: swap used above 2 GB (the Mac is already paging to disk), memory pressure warn or critical (macOS is compressing hard), or more than one RobloxStudio process. `--watch` also posts a notification, the same warning at most once per 30 minutes. Close first, by the top-apps list and in this order if unsure: extra Studio windows (test clients first), then Blender, then Chrome tabs, then Obsidian, then the Claude desktop app. Quit from the menu; do not kill anything.
+- **First diagnosis numbers:** not reported yet. When the Mac runs the script, its physical memory, swap, pressure and top-12 list go here.
+
 ### Repo, checks and git
 
 - The four checks before any code commit: `./tools/analyze.sh` (`analyze: clean`), `python3 -I tools/lint_data.py` (`data lint: clean`), `./tools/test.sh` (all 265 pass), `./tools/lint.sh` (strings, remotes, UI, TESTING, run-sheet freshness). CI runs the same on every push.
