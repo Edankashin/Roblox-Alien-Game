@@ -1,7 +1,8 @@
 --!strict
 -- Every tunable timer and cap. Nothing in logic hard-codes these.
 return {
-	WorkingTitle = "AlienGame",
+	WorkingTitle = "AlienGame", -- the log prefix ("[AlienGame] ..." in Output) and nothing a player reads; it stays as it is
+	GameTitle = "Catch an Alien", -- the name players see (decided 2026-10-14): the loading screen's title
 
 	-- world clock
 	DaySeconds = 180,
@@ -158,6 +159,7 @@ return {
 	-- Quiet moments (UI/Toast): while the Reveal or a catch (the Legendary opening included) is up, new toasts and banners wait in a queue.
 	ToastHoldMax = 6, -- held toasts kept; one more drops the oldest held toast (a banner is one per kind, so it never counts)
 	ToastHoldGapSeconds = 0.35, -- when the moment ends the held ones show one at a time this far apart, so they never stack three deep at once
+	GrantRevealQuietSeconds = 2, -- the tap on an egg claim or purchase starts a quiet moment this long (UI/Toast QuietFor); the server's announcement and the quest toasts land before AlienGranted, and the Reveal's own quiet takes over when the card opens
 
 	WeatherParticleMax = 200, -- the weather sheet's rate x max lifetime stays under this (a phone budget); data/Weather
 

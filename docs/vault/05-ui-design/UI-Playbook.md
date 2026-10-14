@@ -69,6 +69,7 @@ The look, written to the level Claude can build from. Hex values here are the st
 ## Toasts and reveals
 - Toasts top centre, slide down with a small bounce, icon left, gone in 2.5 s, at most three stacked. A line that does not fit one line at the 14 px floor makes its pill taller (two or three lines, measured with `TextService`), never cut.
 - Reveal: backdrop dims 60%, scale in with Back ease, radial burst behind, tier name in its colour, confetti for Epic and above, "Tap anywhere".
+- A Reveal that follows a server grant (an egg claim, a Peddler egg) starts its quiet moment at the tap, not at the answer: `Toast.QuietFor(Config.GrantRevealQuietSeconds)` just before the InvokeServer, because the server's announcement and the quest toasts land before the card can open. In `Reveal.Show` the order is `open = true`, then `Toast.Hush()`, then `build()`: Hush starts the queue's drain, which draws at once unless the quiet probe already reads true, so Hush before `open` replays the hushed toasts over the card.
 
 ## Event banner and compass (reference: `refs/dino-event-banner.jpg`)
 - Event banner: top centre under the compass strip, a dark navy pill with the outline colour, aspect about 5:1. Event icon in a rounded square on the left, event name in bold white outlined text with the time left ("3:39 left") in smaller text beneath it, and a green (`#51DF51`) pill chip on the right reading "1.5x LUCK" whenever the event changes luck. Same slot for the Meteor Shower countdown and weather events; never more than one banner.

@@ -457,6 +457,11 @@ local function claim(row: GiftRow)
 	pending = true
 	refreshSpin()
 	task.spawn(function()
+		if row.reward.kind == "egg" then
+			-- The server's announcement and the quest toasts land before AlienGranted; the quiet moment starts at the tap.
+			-- A refused claim needs nothing more: the moment just expires.
+			Toast.QuietFor(Config.GrantRevealQuietSeconds)
+		end
 		local ok, reason, raw = Net.func("ClaimGift"):InvokeServer(row.day)
 		pending = false
 		if ok == true then

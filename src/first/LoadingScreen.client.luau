@@ -1,6 +1,6 @@
 --!strict
 -- ReplicatedFirst.LoadingScreen: the game's own loading screen, in place of Roblox's grey one. A cold server loads
--- the 53 creature and prop meshes at boot (ServerScriptService.Server.Services.Models, up to
+-- the creature and prop meshes at boot (ServerScriptService.Server.Services.Models, up to
 -- Config.ModelLoadTimeoutSeconds) and the client bootstrap then waits for the profile, so a joining player used to sit
 -- on the default screen for several seconds. This shows a cream screen with a bouncing green alien and one outlined
 -- line that counts the models as they arrive ("Loading aliens... N / M"), then fades out (0.4 s) when the client
@@ -282,8 +282,8 @@ task.spawn(function()
 	end
 	local config = requireShared(shared, { "data", "Config" })
 	if config then
-		if type(config.WorkingTitle) == "string" then
-			title.Text = config.WorkingTitle
+		if type(config.GameTitle) == "string" then
+			title.Text = config.GameTitle
 		end
 		if type(config.LoadingScreenMaxSeconds) == "number" then
 			maxSeconds = config.LoadingScreenMaxSeconds

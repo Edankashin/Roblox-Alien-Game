@@ -14,7 +14,8 @@
 -- already on screen does not stay: Hush, which the bootstrap calls as a catch begins and Reveal.Show calls as the card opens,
 -- takes every live toast and banner down at once and puts them back at the front of the queue in their on-screen order, each
 -- with its full time again, so they replay after the moment (a banner drawn a second before the tap is as unwelcome over the
--- capture bar as one drawn during it). QuietFor adds a timed quiet moment (the module-complete assembly burst).
+-- capture bar as one drawn during it). QuietFor adds a timed quiet moment (the module-complete assembly burst, and the tap
+-- on an egg claim or purchase, which starts the calm before the server's answer and its Reveal arrive).
 
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
@@ -272,7 +273,7 @@ function Toast.SetQuietProbe(probe: (() -> boolean)?)
 end
 
 -- A presentation asks for `seconds` of calm from now (the longest ask stands): the assembly burst over a finished module
--- is the one caller. Held items drain once it ends.
+-- and the tap on an egg claim or purchase (Gifts, Peddler) are the callers. Held items drain once it ends.
 function Toast.QuietFor(seconds: number)
 	quietUntil = math.max(quietUntil, os.clock() + seconds)
 end

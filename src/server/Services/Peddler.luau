@@ -22,13 +22,14 @@ local Camp = require(Shared.data.Camp)
 local PeddlerData = require(Shared.data.Peddler)
 local Lures = require(Shared.data.Lures)
 local PowerUps = require(Shared.data.PowerUps)
-local Species = require(Shared.data.Species)
 local AnalyticsData = require(Shared.data.Analytics)
+local EggMath = require(Shared.EggMath)
 local Place = require(Shared.Place)
 local Net = require(Shared.Net)
 local Proximity = require(Shared.Proximity)
 local PlayerData = require(script.Parent.PlayerData)
 local Meadow = require(script.Parent.Meadow)
+local Seasons = require(script.Parent.Seasons)
 local Spawner = require(script.Parent.Spawner)
 local Economy = require(script.Parent.Economy)
 local Analytics = require(script.Parent.Analytics)
@@ -155,17 +156,10 @@ local function eggWorld(player: Player): number
 	return best
 end
 
--- A random species of the offer's tier from the world this place runs that can be owned outside a quest.
+-- A random species of the offer's tier from the world this place runs that an egg can hatch (Shared/EggMath.Pool, the
+-- rule the gift eggs use: not a quest or Shower species, and an event species only while its season runs).
 local function pickEggSpecies(tier: string?, world: number): string?
-	if not tier then
-		return nil
-	end
-	local candidates: { string } = {}
-	for _, def in ipairs(Species.List) do
-		if def.tier == tier and def.world == world and def.condition ~= "Quest" then
-			table.insert(candidates, def.id)
-		end
-	end
+	local candidates = EggMath.Pool(tier, world, Seasons.Current())
 	if #candidates == 0 then
 		return nil
 	end

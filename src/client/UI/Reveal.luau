@@ -717,15 +717,19 @@ function Reveal.IsOpen(): boolean
 end
 
 function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
+	-- The card is a quiet moment and it starts here, before build() or anything else can take a frame: `open` first (the
+	-- toast queue's probe reads it, so the drain Hush starts finds the moment already quiet and draws nothing), then
+	-- whatever is on screen goes back in the queue and replays after the close.
+	open = true
+	Toast.Hush()
 	build()
 	local root = gui
 	local panel = card
 	if not root or not panel then
+		open = false
 		return
 	end
 	onClose = onClosed
-	open = true
-	Toast.Hush() -- the card is a quiet moment: whatever is on screen goes back in the queue and replays after the close
 
 	local tierColor = Builder.tierColor(info.tier)
 	local tierIndex = table.find(Tiers.Order, info.tier) or 1

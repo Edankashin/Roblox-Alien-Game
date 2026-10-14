@@ -185,6 +185,11 @@ local function buy(index: number)
 	end
 	pending = true
 	task.spawn(function()
+		if offer.kind == "egg" then
+			-- The server's announcement and the quest toasts land before AlienGranted; the quiet moment starts at the tap.
+			-- A refused purchase needs nothing more: the moment just expires.
+			Toast.QuietFor(Config.GrantRevealQuietSeconds)
+		end
 		local ok, reason, raw = Net.func("PeddlerBuy"):InvokeServer(index)
 		pending = false
 		if ok == true then
