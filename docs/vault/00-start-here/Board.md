@@ -45,7 +45,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the runtime model loader (connected place, then a fresh baseplate), the assembly effect, the real-currency lines, security D1/D4/D6 | | TESTING sections of those names (built 2026-10-12, nothing run in Studio) |
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
-| Co-play: log the party size at session start and add a "catch with a friend" Field Notes step | | ZPLRKjEf2; `Services/Friends.luau`, `Quests.luau` |
+| Co-play: a "catch with a friend" Field Notes step (the measurement half is done, aff40f7) | | ZPLRKjEf2; `Quests.luau` |
 | "What's on" card in the Quests screen (next Shower, Rush, Peddler, weekly drop, from Config intervals) | | GAME_DESIGN 12: the schedule is invisible until a chip appears |
 | Moonlit Forest night look from data only (Lighting night row, firefly sheet in Weather) | | ZPLYSA3uR; the full dressing stays with the art pass |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
@@ -90,6 +90,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Audit of the references, afternoon build: LaunchGold overlay and Sparkfox week (194d5e4), co-play Party event and `friends` on Catch (aff40f7), day-2 Boost Pair gift, LAUNCHWEEK code, notifications off (9c0b7bb), titled thumbnails (805fbef), icon tool Image ids (66910a8), quiet-moments hush (b43322a), first-catch deltas fix (0825880) | Coord | 2026-10-14 |
 | Overnight run: the loader passes in a built place (53 in 5.8 s), six shop ids live, three places published privately (v89, v4, v3), 51 icons approved, music and sound picks, the three Haunted Nebula species modelled and uploaded, store renders v1 and v2, ccusage in use | Mac | 2026-10-14, 1f88c8f, 707f0eb, 1da5f55, 8ae5673, 00d893c, 27fc743 |
 | Overnight fixes: fuse pacing, alien-list sequence guard, quiet moments, shop tiles, `owned` grants, key-name fallback, sound-slot callers, store-page draft | Coord | 2026-10-14, 6687ae4, a5c261e, 94d2c09, 7678e14, 8421791, a538c9b, 4153b98 |
 | Runtime model loader (`Services/Models`, `Shared/ModelInstall`), decision B18 | Coord | 2026-10-12, 3d47ca2 |
