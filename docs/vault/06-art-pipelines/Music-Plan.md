@@ -117,3 +117,80 @@ The system is built and waits for tracks; no audio is chosen. [[Decisions]] owne
 - **Module:** `src/client/World/MusicDirector.luau` (API: `Start`, `SetWorldState`, `SetCapture`, `SetEvent`, `SetLaunch`, `SetResting`, `SetMenuOpen`, `Stinger`, `SetVolumeScale`) with the rules in `src/shared/MusicMath.luau` (spec `tests/MusicMath.spec.luau`). One bed at a time by priority (launch, intense capture, events, plain capture, resting, world or Home), equal-power crossfades, the Menus layer as a gain multiplier, stingers ducking the bed (the launch bed is never ducked). A winning row at 0 stays the logged state but the strongest row below it that has an id keeps playing, so tracks can be filled one at a time.
 - **Changes against the proposal above:** the intense capture sits above the events (a Legendary during a Meteor Shower is still the Legendary moment), the events above the plain capture and resting, as the owner ordered; CatchIntense is its own bed that crossfades with CatchBase, not a stem; Resting is below the events; there is a separate `SetLaunch` for the cinematic. Settings gained a `Music` level (default High).
 - **Filling ids (Mac session):** audition in Studio's Toolbox (Audio, Roblox-provided licensed music), check the asset's access terms and the experience permission, paste the digits into the row's `assetId`, record title, creator, licence and notes here, and run the [[TESTING]] step 10 check. The Studio Output line `[AlienGame] Music: <state>` shows the state either way.
+
+## How the top games do it, and what we take (2026-10-14, for overnight job 5)
+
+Researched for Ethan's ask "look at how other popular games similar to ours got their sounds and music".
+
+- **Adopt Me** has an in-house composer and sound designer (Mark Sparling, also *A Short Hike*): original music, with a **day piece and a night piece per area and per season** that play across most of the map, plus short stingers. Lesson: two beds per world (day, night) of the same family, which is exactly our row shape; a season gets its own pair.
+- **Pet Simulator 99** ships its own soundtrack (BIG Games; a 25-track album by Ostinarium is on the stores): energetic, loop-friendly, one palette for the whole game, with cheerful short SFX ("pop" on every egg and catch, "ding" on currency). Lesson: a consistent palette and loud, happy feedback sounds matter more than long tracks.
+- **Grow a Garden** uses **public-domain classical and library recordings** (Grieg's Morning Mood, Mozart's Rondo Alla Turca, Debussy's Clair de Lune, Haydn's Trumpet Concerto), tied to weather, events and admin moments, with no original score at all. Lesson: licensed library music is enough for a top game when each piece is matched to a state; the recognisable calm pieces are part of its cozy identity.
+- **Where the music comes from on Roblox:** the Creator Store's Audio section (Toolbox > Creator Store > Audio in Studio, or `search_asset` over the Studio MCP) holds over 100,000 professionally produced tracks and effects from partners (APM Music as `@APMOfficial`, Monstercat and others), free to use inside any experience; community sound effects under 10 s must be acquired into the inventory first (inserting from the Toolbox does that). Prefer partner and Roblox-provided assets so permission never fails.
+
+**What we apply tonight (job 5), in this order of importance:**
+
+1. **One palette.** Pick every bed from the same family (acoustic, bright, a little whimsical: the Adopt Me and Grow a Garden mood, not PS99's EDM), so the game sounds like one place. Day and night of a world are two pieces of that family at different energy.
+2. **Match the state, not the taste.** Use the brief per row below; a calm piece for calm states, the two capture beds clearly different from the beds, the launch cue short and rising.
+3. **Classical is allowed and good.** A bright classical recording from the library (Grieg, Vivaldi, Mozart) for a day bed is the Grow a Garden move and reads as cozy and premium at zero cost; keep night and home softer (music box, piano).
+4. **SFX loud and happy.** Short pops, dings and chimes from Roblox's own library for the catch, Scrap and UI slots; the Reveal tiers each louder and longer than the one below (PS99's egg-open ladder).
+5. **Volumes:** beds 0.35 to 0.5 in `Music.luau`, SFX through the existing `Sounds.Volume` groups; nothing clips, nothing is louder than the catch pop.
+6. **Record every pick** in the tables below (title, creator, id) so Ethan can swap one number per row after listening.
+
+### Music rows and the pick per row
+
+| Row | Brief and search words | Picked (title, creator, id) |
+|---|---|---|
+| `VerdantDay` | bright pastoral, acoustic guitar or ukulele, whistling, light percussion; "morning", "pastoral", "sunny", "ukulele", "happy acoustic" | |
+| `VerdantNight` | soft music box or lullaby, pads, the same instrument family at half the energy; "music box", "lullaby", "night ambient", "calm piano" | |
+| `FrostbyteDay` | bright and crisp, bells, light strings, a little wind; "winter", "snow", "bells", "sleigh", "crisp" | |
+| `FrostbyteNight` | slow, icy pads, soft chimes; "winter night", "ambient ice", "aurora", "glass pad" | |
+| `Home` | cozy acoustic, warm, slow; "cozy", "home", "warm acoustic", "fireside" | |
+| `Resting` | near-silent ambient pad, no drums; "ambient pad", "sleep", "drone calm" | |
+| `CatchBase` | see the state palette above | |
+| `CatchIntense` | see the state palette above | |
+| `MeteorShower` | cosmic synth, arpeggios, wonder; "space", "cosmic", "arpeggio synth", "stars" | |
+| `CatchRush` | upbeat chiptune or electro, fast; "chiptune", "arcade", "upbeat electronic", "race" | |
+| `HauntedNebula` | see the state palette above | |
+| `Launch` | a 10 to 20 s rising orchestral cue ending on a hit; "rising", "launch", "countdown", "triumphant short" | |
+| `Menus` | a soft pad layer, no melody; "soft pad", "ui ambient" | |
+| `Events` | see the state palette above | |
+| `Capture` | light, playful, a ticking pulse, no big drums; "playful", "quirky", "pizzicato", "light tension" | |
+| `Ducking` | see the state palette above | |
+
+### Sound slots and the search words per slot
+
+| Slot | Search words | Picked (title, creator, id) |
+|---|---|---|
+| `Click` | "ui click soft", "button pop" | |
+| `ToastDing` | "notification ding soft" | |
+| `Banner` | "announcement chime" | |
+| `PartSnap` | "metal click snap", "lego click" | |
+| `ModuleComplete` | "success fanfare short", "level up" | |
+| `ShowerHorn` | "deep horn", "cosmic horn" | |
+| `PeddlerLanding` | "spaceship landing", "hover land" | |
+| `GiftClaim` | "gift open", "present chime" | |
+| `WheelTick` | "wheel tick", "ratchet click" | |
+| `WheelStop` | "ding bell win" | |
+| `HornCall` | "horn call", "war horn" | |
+| `WardenAppear` | "monster roar cute", "big stomp" | |
+| `Mount` | "jump hop", "boing" | |
+| `Dismount` | "soft land thud" | |
+| `Heartbeat` | "heartbeat" | |
+| `Launch` | "rocket launch whoosh" | |
+| `CatchHit` | "pop", "bubble pop" | |
+| `Perfect` | "sparkle chime", "magic twinkle" | |
+| `Miss` | "wrong buzz soft", "miss boop" | |
+| `Wiggle` | "squeak wiggle", "rubber" | |
+| `Fled` | "whoosh away", "dash" | |
+| `ScrapTick` | "coin tick", "small coin" | |
+| `LegendaryRumble` | "earthquake rumble", "deep rumble" | |
+| `BarOpen` | "ui open whoosh", "swoosh up" | |
+| `RareNearby` | "radar blip", "sonar ping" | |
+| `RushStart` | "air horn short", "starting whistle" | |
+| `Arrival` | "magical arrival", "orchestral swell short" | |
+| `RestStart` | "soft yawn", "wind chime" | |
+| `Ambience.Day` | "meadow birds ambience", "nature loop" | |
+| `Ambience.Night` | "crickets night loop" | |
+| `Ambience.Rain` | "rain loop light" | |
+| `Ambience.Shower` | "space wind ambience" | |
+| `Reveal.Common..Secret` | one short fanfare per tier, each louder and longer than the one below: "ta-da short" (Common) to "epic reveal orchestral" (Cosmic), "mysterious reveal" (Secret) | |
