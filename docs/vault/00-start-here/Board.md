@@ -94,6 +94,8 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Silhouette pass, World 1: the bible, the recipes, the builder (0c498ca) and the 16 bodies built on the Mac (b95035c to c74d590); previews in `assets/models/<Id>/<Id>.png` and `media/studio/2026-10-14/silhouette_world1_mac_previews.jpg`; upload waits on Ethan (job 24) | Coord + Mac | 2026-10-14 |
+| Evening fixes from the Mac's retests: eggs in season, Reveal hush first, Catch an Alien title (f1d2d1b); overlay badges fit, night ground tint (92228c2); names v2 sheets (bbaad9c); memory tool (c8a1ff6); group page (7a40cf7) | Coord | 2026-10-14 |
 | Audit of the references, afternoon build: LaunchGold overlay and Sparkfox week (194d5e4), co-play Party event and `friends` on Catch (aff40f7), day-2 Boost Pair gift, LAUNCHWEEK code, notifications off (9c0b7bb), titled thumbnails (805fbef), icon tool Image ids (66910a8), quiet-moments hush (b43322a), first-catch deltas fix (0825880) | Coord | 2026-10-14 |
 | Overnight run: the loader passes in a built place (53 in 5.8 s), six shop ids live, three places published privately (v89, v4, v3), 51 icons approved, music and sound picks, the three Haunted Nebula species modelled and uploaded, store renders v1 and v2, ccusage in use | Mac | 2026-10-14, 1f88c8f, 707f0eb, 1da5f55, 8ae5673, 00d893c, 27fc743 |
 | Overnight fixes: fuse pacing, alien-list sequence guard, quiet moments, shop tiles, `owned` grants, key-name fallback, sound-slot callers, store-page draft | Coord | 2026-10-14, 6687ae4, a5c261e, 94d2c09, 7678e14, 8421791, a538c9b, 4153b98 |
