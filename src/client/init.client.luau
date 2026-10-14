@@ -1292,6 +1292,7 @@ local function start(profile: Types.Profile)
 	started = true
 
 	State.Set(profile)
+	localPlayer:SetAttribute("ClientStarted", true) -- ReplicatedFirst.LoadingScreen watches this and fades itself out
 	State.Start()
 	Prefs.Start() -- applies volumes, motion and silhouette preferences before anything plays or renders
 

@@ -25,6 +25,7 @@ A Roblox collection game for a two-person team: players crash-land on planets, c
 
 - `default.project.json` maps the tree into Studio.
 - `src/server/` ServerScriptService: services (spawning, catching, stations, modules, offline, saves, events, shop, quests, spins, peddler).
+- `src/first/` ReplicatedFirst: the loading screen (runs before ReplicatedStorage exists, so it requires nothing from `src/shared`).
 - `src/client/` StarterPlayerScripts: HUD, screens, capture bar, radar, camera, tweens, sounds.
 - `src/shared/` ReplicatedStorage: data tables, strings, types, theme module, net wrapper.
 - `docs/` design, plan, vault. `tools/` scripts. `media/` reference material.

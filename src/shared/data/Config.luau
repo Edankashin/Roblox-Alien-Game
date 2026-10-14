@@ -175,6 +175,7 @@ return {
 	-- models (ReplicatedStorage.Models.<SpeciesId>, imported by hand: .claude/skills/import-model; the client falls back to placeholders)
 	LoadModelsAtBoot = true, -- the server loads every model in data/ModelAssets with InsertService:LoadAsset at boot (Services/Models), skipping names already installed in the place
 	ModelLoadTimeoutSeconds = 20, -- boot waits at most this long for the loads before the world is built; late arrivals still land in the folder
+	LoadingScreenMaxSeconds = 25, -- src/first/LoadingScreen (ReplicatedFirst) always removes itself after this long, even if the client bootstrap never starts, so a broken boot cannot trap the player behind it; set above ModelLoadTimeoutSeconds plus the profile load. The script keeps its own copy of this number for when Config has not arrived
 	ModelLoadConcurrency = 8, -- LoadAsset calls in flight at once
 	ModelFolderName = "Models",
 	PropsFolderName = "Props", -- ReplicatedStorage.<ModelFolderName>.<PropsFolderName>.<Name>: imported scenery Models (trees, rocks, ship hull, station and heater meshes), by hand; builders fall back to part-built placeholders

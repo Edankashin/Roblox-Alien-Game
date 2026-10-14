@@ -853,4 +853,7 @@ return {
 	CATCH_HINT_CHASE = "Tap before it bolts!",
 	CATCH_TIME_LEFT = "%ds left",
 	CATCH_BOLTED = "It bolted!",
+	-- loading screen (src/first/LoadingScreen, ReplicatedFirst; it keeps an English fallback of both lines for when this table has not arrived)
+	LOADING_ALIENS = "Loading aliens... %d / %d", -- models arrived over models expected
+	LOADING_PLAIN = "Loading aliens...",
 }

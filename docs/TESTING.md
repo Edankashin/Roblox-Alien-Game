@@ -825,12 +825,15 @@ The Scanner Pulse power-up (`data/PowerUps`, effect "reveal", 60 s, from quests 
 
 Known gaps in this milestone: "hidden spots" are not built in any world, so the pulse reveals aliens only; no sound on activation beyond the generic power-up cue. By design, a Secret-tier wild gets no blip from the pulse below Radar Mk2: the "???" ping is what Mk2 sells, and the pulse never gives a secret away.
 
+## Loading screen (World 1 place)
 
+The game's own loading screen (`src/first/LoadingScreen.client.luau`, mapped to ReplicatedFirst in all three project files, decision B22) replaces Roblox's grey one. It is cream with the game's title in yellow, a round green alien bouncing over its shadow, and one white outlined line counting the models that have arrived. It fades out (0.4 seconds) when the client bootstrap starts and removes itself after `Config.LoadingScreenMaxSeconds` (25 seconds) whatever happens. Presentation only; the server decides nothing here.
 
+1. A cold boot. Build the place from the repo (`rojo build default.project.json -o build/world1.rbxl`, open it, so it has no hand-installed models) and press Play. The grey Roblox screen never shows: the cream screen is there from the first frame, with the title, the alien bouncing and the line "Loading aliens... 0 / 53" climbing as the models land, ending at "Loading aliens... 53 / 53" (the server logs `Models: 53 loaded` after about 6 seconds on a cold server). The count never passes 53.
+2. The fade. When the HUD appears the screen fades out over about 0.4 seconds and is gone (Explorer, Players, your name, PlayerGui: no `LoadingScreen` left). A tap or click on the screen while it shows does not reach the world.
+3. Models off. Set `Config.LoadModelsAtBoot = false` and press Play: the line reads "Loading aliens..." with no numbers, and the screen still fades when the HUD appears. Put it back.
+4. The hard cap. In Explorer turn off Enabled on StarterPlayer, StarterPlayerScripts, Client, so the bootstrap never starts, and press Play: the screen stays, then removes itself after 25 seconds (set `Config.LoadingScreenMaxSeconds` to 5 to see it sooner). Turn Client back on.
+5. Reduced motion. With the Roblox reduced-motion switch on, the alien sits still on its shadow (the line and the fade are unchanged); with it off the alien bounces. The game's own Reduced motion setting lives in the profile, which has not loaded yet, so it does not apply here.
+6. Sizes. Studio's device emulator at iPhone SE (667x375), iPad 9th Generation (1080x810) and a portrait phone: the alien is a circle (never an oval), the title and the line are whole and not cut, and the line stays inside the screen at the minimum text size.
 
-
-
-
-
-
-
+Known gaps in this milestone: the title is missing (by design) when `ReplicatedStorage.Shared` does not arrive within 5 seconds; the line keeps its English wording if the strings table is late; the screen fades when the profile has arrived (the bootstrap's start), so a slow save load keeps the screen up with the count already full.
