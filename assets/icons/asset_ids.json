@@ -3,6 +3,7 @@
     "assetId": 86206605731098,
     "file": "assets/icons/Aliens.png",
     "format": "png",
+    "imageId": 138611523414380,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:29Z"
   },
@@ -10,6 +11,7 @@
     "assetId": 80987708887566,
     "file": "assets/icons/Blizzard.png",
     "format": "png",
+    "imageId": 90172285148207,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:32Z"
   },
@@ -17,6 +19,7 @@
     "assetId": 103199825733469,
     "file": "assets/icons/BlizzardShard.png",
     "format": "png",
+    "imageId": 106768990615268,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:35Z"
   },
@@ -24,6 +27,7 @@
     "assetId": 83639307842762,
     "file": "assets/icons/CaveCrystal.png",
     "format": "png",
+    "imageId": 117451543402867,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:38Z"
   },
@@ -31,6 +35,7 @@
     "assetId": 71085996990101,
     "file": "assets/icons/Codex.png",
     "format": "png",
+    "imageId": 103918141306599,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:41Z"
   },
@@ -38,6 +43,7 @@
     "assetId": 82914960786853,
     "file": "assets/icons/Common.png",
     "format": "png",
+    "imageId": 82429088370679,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:44Z"
   },
@@ -45,6 +51,7 @@
     "assetId": 106170818678329,
     "file": "assets/icons/Cosmic.png",
     "format": "png",
+    "imageId": 113150651913867,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:47Z"
   },
@@ -52,6 +59,7 @@
     "assetId": 104022853280347,
     "file": "assets/icons/DoubleShift.png",
     "format": "png",
+    "imageId": 112272811465253,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:50Z"
   },
@@ -59,6 +67,7 @@
     "assetId": 100002212809338,
     "file": "assets/icons/Epic.png",
     "format": "png",
+    "imageId": 115860742476361,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:40:53Z"
   },
@@ -66,6 +75,7 @@
     "assetId": 99527899309782,
     "file": "assets/particles/Flake.png",
     "format": "png",
+    "imageId": 129925381033863,
     "kind": "particle",
     "uploadedAt": "2026-10-13T05:40:56Z"
   },
@@ -73,6 +83,7 @@
     "assetId": 123705562394132,
     "file": "assets/icons/Fog.png",
     "format": "png",
+    "imageId": 78770233674721,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:00Z"
   },
@@ -80,6 +91,7 @@
     "assetId": 76684892334551,
     "file": "assets/icons/FrostCore.png",
     "format": "png",
+    "imageId": 138374768434008,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:03Z"
   },
@@ -87,6 +99,7 @@
     "assetId": 114755087249284,
     "file": "assets/icons/GeyserPearl.png",
     "format": "png",
+    "imageId": 97695405026389,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:06Z"
   },
@@ -94,6 +107,7 @@
     "assetId": 133137886183087,
     "file": "assets/icons/Gifts.png",
     "format": "png",
+    "imageId": 121715877699096,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:09Z"
   },
@@ -101,6 +115,7 @@
     "assetId": 95808152636665,
     "file": "assets/icons/Glowroot.png",
     "format": "png",
+    "imageId": 88465465840530,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:12Z"
   },
@@ -108,6 +123,7 @@
     "assetId": 121173311224496,
     "file": "assets/icons/Heater.png",
     "format": "png",
+    "imageId": 99740335306413,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:15Z"
   },
@@ -115,6 +131,7 @@
     "assetId": 120981739885046,
     "file": "assets/icons/Hoverboard.png",
     "format": "png",
+    "imageId": 127351315476895,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:18Z"
   },
@@ -122,6 +139,7 @@
     "assetId": 85837278079864,
     "file": "assets/icons/IcePlate.png",
     "format": "png",
+    "imageId": 125476019444463,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:21Z"
   },
@@ -129,6 +147,7 @@
     "assetId": 71636681636923,
     "file": "assets/icons/Legendary.png",
     "format": "png",
+    "imageId": 97541916357816,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:24Z"
   },
@@ -136,6 +155,7 @@
     "assetId": 117502628770253,
     "file": "assets/icons/LuckyCharm.png",
     "format": "png",
+    "imageId": 108931192017785,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:27Z"
   },
@@ -143,6 +163,7 @@
     "assetId": 82706617936607,
     "file": "assets/icons/Lure1.png",
     "format": "png",
+    "imageId": 76693782253836,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:30Z"
   },
@@ -150,6 +171,7 @@
     "assetId": 109090919158117,
     "file": "assets/icons/Lure2.png",
     "format": "png",
+    "imageId": 75418084467033,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:33Z"
   },
@@ -157,6 +179,7 @@
     "assetId": 72803073148989,
     "file": "assets/icons/Lure3.png",
     "format": "png",
+    "imageId": 127190110243013,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:36Z"
   },
@@ -164,6 +187,7 @@
     "assetId": 72004735984086,
     "file": "assets/icons/Peddler.png",
     "format": "png",
+    "imageId": 93827149183006,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:38Z"
   },
@@ -171,6 +195,7 @@
     "assetId": 139334842946197,
     "file": "assets/icons/Quests.png",
     "format": "png",
+    "imageId": 126146649874828,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:41Z"
   },
@@ -178,6 +203,7 @@
     "assetId": 73738961694483,
     "file": "assets/icons/Radar1.png",
     "format": "png",
+    "imageId": 128751989028592,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:44Z"
   },
@@ -185,6 +211,7 @@
     "assetId": 105875385396641,
     "file": "assets/icons/Radar2.png",
     "format": "png",
+    "imageId": 87295793406107,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:47Z"
   },
@@ -192,6 +219,7 @@
     "assetId": 128950577868524,
     "file": "assets/icons/Radar3.png",
     "format": "png",
+    "imageId": 116830707231128,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:50Z"
   },
@@ -199,6 +227,7 @@
     "assetId": 99390758865387,
     "file": "assets/icons/Rain.png",
     "format": "png",
+    "imageId": 133431474059967,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:53Z"
   },
@@ -206,6 +235,7 @@
     "assetId": 124667363416815,
     "file": "assets/particles/Raindrop.png",
     "format": "png",
+    "imageId": 98219801826407,
     "kind": "particle",
     "uploadedAt": "2026-10-13T05:41:56Z"
   },
@@ -213,6 +243,7 @@
     "assetId": 130648629034939,
     "file": "assets/icons/Ranks.png",
     "format": "png",
+    "imageId": 110417877683323,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:59Z"
   },
@@ -220,6 +251,7 @@
     "assetId": 83604941151969,
     "file": "assets/icons/Rare.png",
     "format": "png",
+    "imageId": 97253683358738,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:02Z"
   },
@@ -227,6 +259,7 @@
     "assetId": 138234243387972,
     "file": "assets/icons/ScannerPulse.png",
     "format": "png",
+    "imageId": 140387204750678,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:05Z"
   },
@@ -234,6 +267,7 @@
     "assetId": 121436495447359,
     "file": "assets/icons/Scrap.png",
     "format": "png",
+    "imageId": 86868662569591,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:09Z"
   },
@@ -241,6 +275,7 @@
     "assetId": 96913057195941,
     "file": "assets/icons/ScrapMagnet.png",
     "format": "png",
+    "imageId": 98847989905166,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:12Z"
   },
@@ -248,6 +283,7 @@
     "assetId": 136426745026784,
     "file": "assets/icons/Secret.png",
     "format": "png",
+    "imageId": 109107399070527,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:15Z"
   },
@@ -255,6 +291,7 @@
     "assetId": 122376667571779,
     "file": "assets/icons/Settings.png",
     "format": "png",
+    "imageId": 91327552934982,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:18Z"
   },
@@ -262,6 +299,7 @@
     "assetId": 134462239656007,
     "file": "assets/icons/Ship.png",
     "format": "png",
+    "imageId": 96900829787002,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:21Z"
   },
@@ -269,6 +307,7 @@
     "assetId": 110715054641399,
     "file": "assets/icons/Shop.png",
     "format": "png",
+    "imageId": 121353948620197,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:24Z"
   },
@@ -276,6 +315,7 @@
     "assetId": 136247973355847,
     "file": "assets/icons/Shower.png",
     "format": "png",
+    "imageId": 88028764487473,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:27Z"
   },
@@ -283,6 +323,7 @@
     "assetId": 107769810791136,
     "file": "assets/icons/SkaddleCore.png",
     "format": "png",
+    "imageId": 105177737282698,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:30Z"
   },
@@ -290,6 +331,7 @@
     "assetId": 117951927108940,
     "file": "assets/icons/Snow.png",
     "format": "png",
+    "imageId": 135434907260107,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:33Z"
   },
@@ -297,6 +339,7 @@
     "assetId": 99460384411858,
     "file": "assets/icons/SpeedBoots.png",
     "format": "png",
+    "imageId": 85675100585028,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:36Z"
   },
@@ -304,6 +347,7 @@
     "assetId": 99725744016683,
     "file": "assets/icons/SpeedBurst.png",
     "format": "png",
+    "imageId": 110661603197037,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:39Z"
   },
@@ -311,6 +355,7 @@
     "assetId": 87750813793176,
     "file": "assets/icons/StarChart.png",
     "format": "png",
+    "imageId": 134164087277813,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:42Z"
   },
@@ -318,6 +363,7 @@
     "assetId": 137888999287668,
     "file": "assets/icons/SteadyHands.png",
     "format": "png",
+    "imageId": 133811902398442,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:45Z"
   },
@@ -325,6 +371,7 @@
     "assetId": 103136476596973,
     "file": "assets/icons/StormShard.png",
     "format": "png",
+    "imageId": 106557104263302,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:48Z"
   },
@@ -332,6 +379,7 @@
     "assetId": 104804744880068,
     "file": "assets/icons/Uncommon.png",
     "format": "png",
+    "imageId": 121826858488417,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:51Z"
   },
@@ -339,6 +387,7 @@
     "assetId": 93921334125796,
     "file": "assets/icons/WardenCore.png",
     "format": "png",
+    "imageId": 138873756558960,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:42:54Z"
   },
@@ -346,6 +395,7 @@
     "assetId": 139124372116872,
     "file": "assets/particles/Wisp.png",
     "format": "png",
+    "imageId": 130427934240873,
     "kind": "particle",
     "uploadedAt": "2026-10-13T05:42:57Z"
   },
@@ -353,6 +403,7 @@
     "assetId": 84661673055610,
     "file": "assets/icons/WreckPlate.png",
     "format": "png",
+    "imageId": 121511498021953,
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:43:00Z"
   }

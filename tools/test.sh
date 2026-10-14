@@ -8,6 +8,8 @@ LUAU_BIN="$HOME/.local/bin/luau-$LUAU_VERSION"
 if [[ ! -x "$LUAU_BIN" ]]; then
   ./tools/ci/install-tools.sh --luau-only
 fi
+# Python tool tests (standard library only; tools/tests/test_*.py).
+python3 -I -m unittest discover -s tools/tests -p 'test_*.py' -q
 # Luau's sandbox has no file IO. Bundle unchanged source as strings for the
 # runner's loadstring/setfenv loader; all generated files stay in ignored cache.
 python3 - "$LUAU_BIN" <<'PY'

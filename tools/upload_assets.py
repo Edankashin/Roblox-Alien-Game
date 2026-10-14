@@ -29,16 +29,26 @@ Usage:
   python3 tools/upload_assets.py --only Mossbop,MeadowTree      # only these names
   python3 tools/upload_assets.py --emit-luau | pbcopy           # ASSET_IDS, PROP_NAMES, MATERIALS for Studio
   python3 tools/upload_assets.py --images --dry-run              # the icon and particle PNGs that would upload
-  python3 tools/upload_assets.py --images                        # upload assets/icons/*.png and assets/particles/*.png as Decals
-  python3 tools/upload_assets.py --images --emit-icons-luau     # the Icons and Particles tables for src/shared/data/Icons.luau
+  python3 tools/upload_assets.py --images                        # upload assets/icons/*.png and assets/particles/*.png as Decals, then resolve their Image ids
+  python3 tools/upload_assets.py --resolve-images                # only the resolve step (no key needed); --redo resolves every entry again
+  python3 tools/upload_assets.py --images --emit-icons-luau     # the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau
 
 Images (--images): every PNG under assets/icons (the UI icon pack) and assets/particles (the weather
-sprites) is uploaded as a Decal asset (assetType "Decal", image/png); an ImageLabel or a ParticleEmitter
-takes the decal id as rbxassetid://<id>. Their ids live in assets/icons/asset_ids.json
-({ key: { assetId, uploadedAt, file, kind } }, kind "icon" or "particle"); --emit-icons-luau prints the
-two tables for src/shared/data/Icons.luau with every key the data file knows (0 when not uploaded).
+sprites) is uploaded as a Decal asset (assetType "Decal", image/png). A Decal id is NOT what an
+ImageLabel or a ParticleEmitter draws (found in Studio on 2026-10-14: every menu button was an empty
+square, loaded=false): they need the Image asset behind the Decal, whose id is in the Decal's Texture
+(InsertService:LoadAsset(decalId) gives a Decal with Texture rbxassetid://<imageId>). So each entry in
+assets/icons/asset_ids.json ({ key: { assetId, imageId, uploadedAt, file, kind } }, kind "icon" or
+"particle") keeps both: assetId is the Decal, imageId the Image. --resolve-images fills the missing
+imageId values by fetching https://assetdelivery.roblox.com/v1/asset/?id=<decalId> (a public, approved
+Decal needs no key; none is sent to that host) and reading the id out of the returned Decal XML, and
+--images runs the same step after its uploads, so a fresh upload lands with both ids. If a Decal is
+still in moderation the fetch fails: re-run --resolve-images later. --emit-icons-luau prints the two
+tables for src/shared/data/Icons.luau with the IMAGE ids, for every key the data file knows (0 when not
+uploaded), and refuses (exit 2, naming the keys) while any uploaded entry has no imageId.
 
-Exit status: 0 all done (or nothing to do), 1 at least one model failed, 2 bad usage or setup.
+Exit status: 0 all done (or nothing to do), 1 at least one model failed (or one Image id could not be
+resolved), 2 bad usage or setup (or --emit-icons-luau while Image ids are missing).
 Names already in the JSON are skipped, so a re-run after a failure retries only the failures.
 --redo ignores those names and overwrites their entries (the old assets stay on the account,
 harmless; this is how the FBX ids of the first run are replaced by GLB ids).
@@ -79,6 +89,7 @@ import datetime
 import json
 import os
 import pathlib
+import re
 import ssl
 import sys
 import time
@@ -97,6 +108,9 @@ IMAGE_IDS_FILE = ICONS_DIR / "asset_ids.json"
 ICONS_LUAU = REPO / "src" / "shared" / "data" / "Icons.luau"
 IMAGE_CONTENT_TYPE = "image/png"
 IMAGE_ASSET_TYPE = "Decal"
+# Resolves a Decal to the Image asset behind it. Test hook like API_BASE: point at a local mock.
+ASSET_DELIVERY_BASE = os.environ.get("ROBLOX_ASSET_DELIVERY_BASE",
+                                     "https://assetdelivery.roblox.com/v1/asset").rstrip("/")
 
 GAME_NAME = "Roblox Alien Game"
 # Test hook: point the tool at a local mock instead of Roblox. Leave unset for real uploads.
@@ -112,6 +126,8 @@ POLL_MAX_SECONDS = 300     # give up on one operation after this long
 BACKOFF_CAP = 30.0         # longest single wait between retries, seconds
 RETRYABLE_CREATE = (429, 502, 503, 504)   # not 500: the asset may already exist, re-run instead
 RETRYABLE_POLL = (429, 500, 502, 503, 504)
+RESOLVE_ATTEMPTS = 4       # tries for one Decal fetch on 429 / 5xx / network errors
+RESOLVE_MAX_CONSECUTIVE_FAILS = 3   # stop a resolve run after this many failures in a row (offline, not approved)
 
 
 class UploadError(Exception):
@@ -194,9 +210,21 @@ def icons_luau_keys() -> "tuple[list[str], list[str]]":
     return icons, particles
 
 
+def image_id(entry: dict) -> int:
+    """The Image id of an ids-file entry (what an ImageLabel or ParticleEmitter draws), 0 when not resolved."""
+    value = entry.get("imageId")
+    return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+
+def missing_image_ids(ids: "dict[str, dict]") -> "list[str]":
+    """Sorted keys of uploaded entries (they have a Decal assetId) that have no Image id yet."""
+    return sorted(k for k, e in ids.items() if isinstance(e, dict) and e.get("assetId") and not image_id(e))
+
+
 def emit_icons_luau(ids: "dict[str, dict]") -> str:
     """The Icons and Particles tables for src/shared/data/Icons.luau: every key the data file lists, plus
-    any uploaded key it does not list yet, with 0 for a key without an id."""
+    any uploaded key it does not list yet, with 0 for a key without an id. The ids are the IMAGE ids
+    (imageId), never the Decal ids (assetId): an ImageLabel shows nothing for a Decal id."""
     icons, particles = icons_luau_keys()
     images = discover_images()
     for key, (_, kind) in images.items():
@@ -205,12 +233,12 @@ def emit_icons_luau(ids: "dict[str, dict]") -> str:
             target.append(key)
     lines = ["local Icons: { [string]: number } = {"]
     for key in icons:
-        lines.append("\t%s = %d," % (key, int(ids.get(key, {}).get("assetId", 0))))
+        lines.append("\t%s = %d," % (key, image_id(ids.get(key, {}))))
     lines.append("}")
     lines.append("")
     lines.append("local Particles: { [string]: number } = {")
     for key in particles:
-        lines.append("\t%s = %d," % (key, int(ids.get(key, {}).get("assetId", 0))))
+        lines.append("\t%s = %d," % (key, image_id(ids.get(key, {}))))
     lines.append("}")
     return "\n".join(lines)
 
@@ -336,34 +364,29 @@ def retry_wait(err: "urllib.error.HTTPError | None", attempt: int) -> float:
     return min(BACKOFF_CAP, 2.0 ** attempt)
 
 
-def http(method: str, url: str, key: str, body: "bytes | None" = None,
-         content_type: "str | None" = None, retry_on: "tuple[int, ...]" = (),
-         attempts: int = 1) -> dict:
-    """One API call with bounded retries. Returns the parsed JSON object."""
-    headers = {"x-api-key": key, "User-Agent": USER_AGENT, "Accept": "application/json"}
-    if content_type:
-        headers["Content-Type"] = content_type
+def request_bytes(method: str, url: str, headers: "dict[str, str]", body: "bytes | None" = None,
+                  retry_on: "tuple[int, ...]" = (), attempts: int = 1,
+                  fatal_codes: "tuple[int, ...]" = (401, 403), denied_hint: str = "") -> bytes:
+    """One HTTP call with bounded retries (Retry-After, else exponential backoff). Returns the body bytes.
+
+    A status in retry_on (or a network error) is retried up to `attempts` tries; any other error status
+    raises UploadError, fatal when it is in fatal_codes (denied_hint is appended to those). Only the status
+    and the first 300 characters of the error body are ever put in a message, never the headers.
+    """
     last = "no attempt made"
     for attempt in range(1, attempts + 1):
         req = urllib.request.Request(url, data=body, method=method, headers=headers)
         err = None
         try:
             with urllib.request.urlopen(req, timeout=120) as resp:
-                raw = resp.read()
-            try:
-                return json.loads(raw.decode("utf-8")) if raw else {}
-            except ValueError:
-                raise UploadError("HTTP %s returned non-JSON: %r" % (resp.status, raw[:200]))
+                return resp.read()
         except urllib.error.HTTPError as exc:
             err = exc
             text = exc.read().decode("utf-8", "replace").strip()[:300]
             last = "HTTP %d %s" % (exc.code, text)
             if exc.code not in retry_on:
-                hint = ""
-                if exc.code in (401, 403):
-                    hint = (" (check the key: Assets API with Read and Write, the creator it may act for, "
-                            "and the IP allowlist)")
-                raise UploadError(last + hint, fatal=exc.code in (401, 403))
+                raise UploadError(last + (denied_hint if exc.code in (401, 403) else ""),
+                                  fatal=exc.code in fatal_codes)
         except ssl.SSLError as exc:
             raise UploadError("TLS error: %s (on a python.org Mac install, run "
                               "'Install Certificates.command' once)" % exc)
@@ -375,6 +398,119 @@ def http(method: str, url: str, key: str, body: "bytes | None" = None,
         log("      retry %d/%d in %.0fs (%s)" % (attempt, attempts - 1, wait, last))
         time.sleep(wait)
     raise UploadError("gave up after %d tries: %s" % (attempts, last))
+
+
+def http(method: str, url: str, key: str, body: "bytes | None" = None,
+         content_type: "str | None" = None, retry_on: "tuple[int, ...]" = (),
+         attempts: int = 1) -> dict:
+    """One Open Cloud API call (x-api-key) with bounded retries. Returns the parsed JSON object."""
+    headers = {"x-api-key": key, "User-Agent": USER_AGENT, "Accept": "application/json"}
+    if content_type:
+        headers["Content-Type"] = content_type
+    raw = request_bytes(method, url, headers, body, retry_on, attempts,
+                        denied_hint=" (check the key: Assets API with Read and Write, the creator it may act "
+                                    "for, and the IP allowlist)")
+    try:
+        return json.loads(raw.decode("utf-8")) if raw else {}
+    except ValueError:
+        raise UploadError("HTTP 2xx returned non-JSON: %r" % (raw[:200],))
+
+
+# --------------------------------------------------------------------------- Decal -> Image id
+
+_TEXTURE_BLOCK = re.compile(r'<Content\s+name="Texture"\s*>(.*?)</Content>', re.S | re.I)
+_ASSET_REF = re.compile(r'(?:rbxassetid://|[?&;]id=)(\d+)', re.I)
+
+
+def parse_image_id(body: bytes) -> int:
+    """The Image id out of a Decal's asset XML: its Texture content, either
+    <url>http://www.roblox.com/asset/?id=IMAGEID</url> or <url>rbxassetid://IMAGEID</url>."""
+    if body[:8] == b"\x89PNG\r\n\x1a\n":
+        raise UploadError("the asset is an image file itself, not a Decal; use its id as it is")
+    text = body.decode("utf-8", "replace")
+    block = _TEXTURE_BLOCK.search(text)
+    found = _ASSET_REF.findall(block.group(1) if block else text)
+    if not found or int(found[0]) <= 0:
+        raise UploadError("no Image id in the Decal XML (first 120 bytes: %r)" % (body[:120],))
+    return int(found[0])
+
+
+def fetch_image_id(decal_id: int) -> int:
+    """Ask the asset delivery service for the Decal and read the Image id from its XML.
+
+    A public, approved Decal needs no login, so no API key is sent to this host. A Decal that is still in
+    moderation, or a rejected one, is refused (403 or 404): resolve again later.
+    """
+    url = "%s/?id=%d" % (ASSET_DELIVERY_BASE, decal_id)
+    headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
+    body = request_bytes("GET", url, headers, retry_on=RETRYABLE_POLL, attempts=RESOLVE_ATTEMPTS,
+                         fatal_codes=(),
+                         denied_hint=" (a Decal still in moderation is not served yet; try again later)")
+    resolved = parse_image_id(body)
+    if resolved == decal_id:
+        raise UploadError("the Decal XML points at its own id, not at an Image")
+    return resolved
+
+
+def pending_images(ids: "dict[str, dict]", names: "typing.Iterable[str] | None" = None,
+                   redo: bool = False) -> "list[str]":
+    """Sorted keys with a Decal id that need an Image id: none yet, or all of them when redo.
+    names limits the keys considered (None: every entry)."""
+    keys = sorted(ids) if names is None else sorted(set(names) & set(ids))
+    return [k for k in keys if isinstance(ids[k], dict) and ids[k].get("assetId") and (redo or not image_id(ids[k]))]
+
+
+def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.Iterable[str] | None" = None,
+                redo: bool = False, dry_run: bool = False,
+                fetch: "typing.Callable[[int], int] | None" = None) -> int:
+    """Fill imageId for every pending entry; the file is rewritten after each success.
+
+    Returns 0 all resolved (or nothing to do), 1 at least one failed, 130 interrupted. A run stops after
+    RESOLVE_MAX_CONSECUTIVE_FAILS failures in a row (no network, or the Decals are not approved yet).
+    """
+    fetch = fetch or fetch_image_id
+    pending = pending_images(ids, names, redo)
+    if not pending:
+        log("nothing to resolve (every uploaded image already has an Image id; --redo resolves them again)")
+        return 0
+    if dry_run:
+        for key in pending:
+            log("would  %-14s resolve the Image id behind Decal %s" % (key, ids[key]["assetId"]))
+        log("dry run: %d Image id(s) to resolve" % len(pending))
+        return 0
+    log("resolving the Image id behind %d Decal(s) through %s" % (len(pending), ASSET_DELIVERY_BASE))
+    resolved_keys: "list[str]" = []
+    failed: "list[str]" = []
+    streak = 0
+    try:
+        for key in pending:
+            decal = int(ids[key]["assetId"])
+            try:
+                resolved = fetch(decal)
+            except UploadError as exc:
+                failed.append(key)
+                streak += 1
+                log("FAIL   %-14s Decal %d: %s" % (key, decal, exc))
+                if streak >= RESOLVE_MAX_CONSECUTIVE_FAILS:
+                    log("stopping: %d failures in a row; check the network, or wait until the Decals are "
+                        "approved" % streak)
+                    break
+                continue
+            streak = 0
+            ids[key]["imageId"] = resolved
+            save_ids(ids_file, ids)
+            resolved_keys.append(key)
+            log("ok     %-14s Decal %d -> Image %d" % (key, decal, resolved))
+    except KeyboardInterrupt:
+        log("interrupted; %d resolved this run are saved in %s" % (len(resolved_keys), ids_file.name))
+        return 130
+    left = [k for k in pending if k not in resolved_keys]
+    log("resolved: %d ok, %d failed, %d not tried" % (len(resolved_keys), len(failed),
+                                                      len(left) - len(failed)))
+    if left:
+        log("no Image id yet: " + ", ".join(left) + "  (re-run: python3 -I tools/upload_assets.py --resolve-images)")
+        return 1
+    return 0
 
 
 # --------------------------------------------------------------------------- upload
@@ -454,17 +590,24 @@ def main() -> int:
                          "tools/studio/install_models.luau and exit")
     ap.add_argument("--images", action="store_true",
                     help="upload the PNGs under assets/icons and assets/particles as Decal assets instead of models "
-                         "(ids in assets/icons/asset_ids.json)")
+                         "(ids in assets/icons/asset_ids.json), then resolve the Image id behind each Decal")
+    ap.add_argument("--resolve-images", action="store_true",
+                    help="only fetch the Image id behind every uploaded Decal that has none yet and record it as "
+                         "imageId in assets/icons/asset_ids.json (no key needed; --redo does every entry; "
+                         "--only limits it; --dry-run lists them)")
     ap.add_argument("--emit-icons-luau", action="store_true",
-                    help="print the Icons and Particles tables for src/shared/data/Icons.luau and exit (implies --images)")
+                    help="print the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau and exit "
+                         "(implies --images); refuses while an uploaded image has no Image id")
     ap.add_argument("--ids-file", type=pathlib.Path, default=DEFAULT_IDS_FILE, help=argparse.SUPPRESS)
     ap.add_argument("--poll-interval", type=float, default=1.0, help=argparse.SUPPRESS)
     args = ap.parse_args()
-    images_mode = args.images or args.emit_icons_luau
+    images_mode = args.images or args.emit_icons_luau or args.resolve_images
     if images_mode and args.ids_file == DEFAULT_IDS_FILE:
         args.ids_file = IMAGE_IDS_FILE
     if images_mode and (args.props or args.species or args.emit_luau):
         die("--images cannot be combined with --props, --species or --emit-luau")
+    if args.emit_icons_luau and args.resolve_images:
+        die("--emit-icons-luau cannot be combined with --resolve-images; run --resolve-images first, then emit")
 
     ids = load_ids(args.ids_file)
 
@@ -476,8 +619,21 @@ def main() -> int:
     if args.emit_icons_luau:
         if not ids:
             print("upload_assets: %s has no ids yet; run --images first" % args.ids_file, file=sys.stderr)
+        missing = missing_image_ids(ids)
+        if missing:
+            die("%d uploaded image(s) have no Image id yet (only the Decal id is known, and an ImageLabel shows "
+                "nothing for a Decal id): %s. Run: python3 -I tools/upload_assets.py --resolve-images, then emit "
+                "again" % (len(missing), ", ".join(missing)))
         print(emit_icons_luau(ids))
         return 0
+    if args.resolve_images and not args.images:
+        names = None
+        if args.only:
+            names = [n.strip() for n in args.only.split(",") if n.strip()]
+            unknown = [n for n in names if n not in ids]
+            if unknown:
+                die("not in %s: %s (nothing uploaded under that key yet)" % (args.ids_file.name, ", ".join(unknown)))
+        return run_resolve(ids, args.ids_file, names, redo=args.redo, dry_run=args.dry_run)
 
     fmt = args.format
     kinds: "dict[str, str]" = {}
@@ -528,11 +684,14 @@ def main() -> int:
                 if name in ids else ""
             log("would  %-14s %-4s %s%s" % (name, fmt, todo[name].relative_to(REPO), replaces))
         log("dry run: %d to upload as %s, %d already done" % (len(todo), fmt, len(wanted) - len(todo)))
+        if images_mode and pending_images(ids, wanted):
+            run_resolve(ids, args.ids_file, wanted, dry_run=True)
         return 0
 
     if not todo:
         log("nothing to upload (%d already in %s; --redo uploads them again)" % (len(wanted), args.ids_file.name))
-        return 0
+        # An earlier upload may have stopped before its Image ids were fetched: finish that now (no key needed).
+        return run_resolve(ids, args.ids_file, wanted) if images_mode and pending_images(ids, wanted) else 0
 
     key = os.environ.get("ROBLOX_OPEN_CLOUD_KEY", "").strip()
     if not key:
@@ -583,8 +742,11 @@ def main() -> int:
     log("done: %d uploaded, %d failed, %d skipped" % (done, len(failed), len(wanted) - len(todo)))
     if failed:
         log("failed: " + ", ".join(failed) + "  (re-run to retry only these)")
-        return 1
-    return 0
+    resolve_status = 0
+    if images_mode and pending_images(ids, wanted):
+        # An ImageLabel needs the Image behind each Decal: fetch it now so the entry lands with both ids.
+        resolve_status = run_resolve(ids, args.ids_file, wanted)
+    return max(1 if failed else 0, resolve_status)
 
 
 if __name__ == "__main__":

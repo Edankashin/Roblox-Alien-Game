@@ -1,8 +1,10 @@
 --!strict
 -- Icon and particle image asset ids (Look plan L5). The PNGs live in assets/icons and assets/particles
--- (rendered by tools/blender/icons.py); tools/upload_assets.py --images uploads them as Decal assets and
--- --emit-icons-luau prints this table body with the ids filled in. These must be the IMAGE ids behind the Decals
--- (an ImageLabel shows nothing for a Decal id): resolved in Studio with InsertService:LoadAsset(decalId).Decal.Texture. An id of 0 means not uploaded yet:
+-- (rendered by tools/blender/icons.py); tools/upload_assets.py --images uploads them as Decal assets and resolves
+-- the Image asset behind each Decal (--resolve-images), and --emit-icons-luau prints this table body with those
+-- IMAGE ids filled in. They must be Image ids, not the Decal ids (an ImageLabel shows nothing for a Decal id); both
+-- ids are kept in assets/icons/asset_ids.json (assetId = Decal, imageId = Image). By hand in Studio:
+-- InsertService:LoadAsset(decalId).Decal.Texture. An id of 0 means not uploaded yet:
 -- Builder.icon returns nil and the UI keeps its text glyph, so the game runs with or without the pack.
 -- Keys are the icon file names; Aliases map data ids that differ (Gear "Boots") to their icon key.
 
