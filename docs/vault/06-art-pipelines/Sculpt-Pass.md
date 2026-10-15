@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline, species]
+aliases: [Sculpt pass, Fuse pass]
+up: "[[Art-Pipelines]]"
+---
 # Sculpt pass: one fluid skin per creature (prototype, 2026-10-15)
 
 Ethan, 2026-10-15, looking at the silhouette and surface sheets: "You can tell these designs were made with AI. Especially in Frostbyte it all uses simple shapes to create a figure. The character designs should seem seamless, fluid, and complete, not like a bunch of shapes mashed together." He is right about how they are built: [[Silhouette-Pass]] and [[Surface-Pass]] join the recipe's primitives (`tools/blender/species_bodies.py`), so every limb, ear and accessory sits on the body and the join shows, and many of the triangles are spent inside other shapes where nobody sees them.

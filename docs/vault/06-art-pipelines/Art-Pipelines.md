@@ -15,6 +15,7 @@ How models, icons, scenery and music get made and into the game. The passes on t
 - [[Creature-Generation]]: how the first blockouts were made and the prompt template. Read it for the history and the animation plan.
 - [[Silhouette-Pass]]: the character bible: the rules and one recipe row per species (all 35), with the preview sheets of the 32 bodies. Read it before writing or changing a recipe.
 - [[Surface-Pass]]: materials, glossy eyes, smooth bevelled bodies and shared texture sets, and the probes the Mac still owes. Read it before changing how a body looks up close.
+- [[Sculpt-Pass]]: the fused single-skin prototype (metaballs won over the remesh; four species before and after; 5 to 25 minutes a species). Read it before running `species_sculpt.py` on a species.
 - [[Character-Pipeline]]: why the bodies read as mashed shapes, what the references did, the generation routes, the Roblox limits and the fuse-pass recommendation with its three ship checks. Read it before the next creature pass.
 
 ## Scenery, tools and sound
