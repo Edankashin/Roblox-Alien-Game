@@ -4,7 +4,7 @@ up: "[[Start-Here]]"
 ---
 # Session log
 
-One note per day. Each session appends a heading and short bullets; anything lasting moves to its topic note and the log links it (rules in [[08-log/README|the log readme]] and `CLAUDE.md`). Back to [[Start-Here]].
+One note per day. Each session appends a heading and short bullets; anything lasting moves to its topic note and the log links it (rules in [[08-log/README|the log readme]] and `CLAUDE.md`). The conversation behind these summaries is kept whole in [[Transcripts]]. Back to [[Start-Here]].
 
 - [[2026-10-07]]: the Mac session (Obsidian installed, the Codex batch), the coordinator's reviews, milestones 47 to 51a, the computer-use jobs, the UI fit pass and security hardening.
 - [[2026-10-10]]: the coordinator writes [[Handoff]], [[Board]] and [[Setup-and-Tips]].

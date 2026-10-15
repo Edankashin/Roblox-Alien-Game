@@ -25,3 +25,4 @@ The front door of the vault, and the map of maps. A new teammate or a new Claude
 - [[Art-Pipelines]]: from the look plan to the silhouette, surface and character passes, music and map dressing.
 - [[Alien-Game]]: this project's decisions and the request ledger, plus pointers to the plan documents outside the vault.
 - [[Log]]: one dated note per day of sessions.
+- [[Transcripts]]: the coordinator's chat with Ethan since the beginning, one redacted note per day, made by `tools/export_transcript.py`. Read it when the log's summary is not enough.
