@@ -343,3 +343,501 @@ Only the cloud scratchpad paths slipped through; the key is redacted. I'll exten
 - tool: Bash sed -n 32,50p tools/export_transcript.py
 - tool: Bash python3 - <<'EOF' import pathlib,re p=pa
 - tool: Bash python3 -I -m unittest tools.tests.test_
+- tool: Bash grep -n "python\|unittest\|pytest" tools
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+
+Tests and lints pass. Committing the transcript export, pushing, and removing the worktree now.
+
+- tool: Bash git -c user.name="Claude" -c user.email=
+- tool: mcp__claude-code-remote__send_message session_01PjDFH6PqHx4j4G7X2m4Zre
+- tool: TaskUpdate 74
+- tool: Bash grep -n "^## " docs/vault/08-log/2026-10
+- tool: TaskUpdate 73
+- tool: Bash cat >> docs/vault/08-log/2026-10-15.md <
+- tool: Bash git add docs/vault/08-log/2026-10-15.md
+
+Status for Ethan while the report writer runs:
+
+- **Research notes**: all six are committed and pushed. The report writer is working on the synthesis now.
+- **Chat in the vault**: your whole chat with me since 4 October is now in `docs/vault/09-transcripts/`, one note per day, with keys, emails and private paths redacted automatically. The hub note explains how to regenerate it.
+- **Mac**: it has its job list (the ZPLSHwXqp TikTok, YouTube captions for the videos the research cites, the gradient probe and textures upload, an Obsidian discovery pass, and exporting its own transcript). Uploads of the 32 bodies, publishing and the dashboard stay on hold.
+
+Next, when the report lands: send it to you with a short summary, then write the design and UI upgrade plan and the Obsidian connection steps into the vault and the Board.
+
+> **Ethan:** Continue to work on everything and use Claude design. I will now sleep so I want all workflows to be un-interuppted and continuous until I check on it in the morning.
+
+**Coordinator:**
+
+Understood. I'll keep the overnight loop running on its own: a safety check-in is armed so the work resumes even if nothing else wakes this session, and Claude Design comes in now for the UI screens, species sheets and thumbnails.
+
+- tool: mcp__claude-code-remote__send_later Overnight check-in 1
+- tool: Artifact quickstart
+- tool: Artifact https://claude.ai/artifact/QKN21svewxgyP
+- tool: Bash ls src/shared/ | head -30 && find src -i
+- tool: Bash wc -l src/shared/Theme.luau && sed -n 1,
+- tool: Bash sed -n 1,60p docs/vault/05-ui-design/UI-
+- tool: Bash ls media/studio/ | tail -8 && ls -la med
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tools: 7 more calls
+
+The research report is in. I'll send it to Ethan now, commit it, then keep building the Design canvas.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: SendUserFile The design research: how the top Roblox
+- tool: Write [redacted]/Aliens.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: TaskUpdate 73
+- tool: Agent Vault plan from the research
+- tool: Write [redacted]/Shop.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Write [redacted]/Reveal-1.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tools: 4 more calls
+
+Seven of ten artboards are on the Design canvas. Writing the species concept sheet next, then the thumbnail comps and the tokens board.
+
+- tool: Write [redacted]/Species.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Write [redacted]/Thumbnails.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: TaskUpdate 78
+- tool: TaskUpdate 76
+- tool: Write [redacted]/Tokens.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Bash git fetch origin claude/alien-system-res
+- tool: mcp__claude-code-remote__get_session session_01PjDFH6PqHx4j4G7X2m4Zre
+- tools: 11 more calls
+
+Pushed the desktop session's log commit. Next, while the vault and sculpt workers run, I'm starting the lighting change the research called for, then I'll wait on the workers and the Mac.
+
+- tool: Agent Lighting style data change
+
+Overnight status (everything keeps running; a check-in is armed for 07:34 UTC and re-arms itself):
+
+**Research report delivered** (sent above, also committed at `reports/Roblox creature UI and Claude workflows.md`). In short: the top games hand-build every pet from one connected skin and finish it with one material, so "AI-made" means either melted generator output or part-built bodies with visible joins, and our fix is one fused skin with crisp features and the face carved last. Their UI is a token system plus two painted asset classes, and our Playbook is missing six phone rules (safe insets, a 44 px tap floor, text-size setting, thumb zones, no stroke tweens, a three-beat reveal). Obsidian with Claude works through the filesystem and git, with hooks and a short hot note as the enforcement we lack. Claude Design is a review surface, never an asset source, and its standalone app closes on 14 December.
+
+**Claude Design canvas** is live at https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4 with eleven artboards: the HUD at phone and iPad sizes, the Aliens and Shop screens redrawn, the reveal in three beats plus an interactive timing board, the species sheet with the bar, the four thumbnail directions judged, and the tokens from the theme module. It is private until you share it.
+
+**Running now**: a worker writing the plan into the vault (Playbook rules, Claude Design brief, decisions, Board rows, the Obsidian connection steps and a hooks proposal for you, a short `Now.md`); a stronger worker building the hybrid sculpt method on Moop, Sparkfox, Mitt and Gaiabloom with before and after renders; a worker adding the new lighting fields. The connected Mac REPL has its job list (the ZPLSHwXqp TikTok, YouTube captions, textures, Obsidian discovery, its own transcript export). Uploads of the 32 bodies, publishing and the dashboard stay on hold.
+
+The vault worker is done. Merging it now, and fixing a real conflict it caught: Roblox's thumbstick and jump button own the bottom corners on phones, so the HUD's menu cluster moves up off the thumbstick zone.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+
+##### 11:12
+
+**Coordinator:**
+
+- tool: ReadNotifications
+
+> **Ethan:** I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+
+**Coordinator:**
+
+The usage limit also stopped the sculpt worker and delayed the check-in; both resume now. First: commit the vault plan, merge the lighting change, fix the HUD artboards, re-arm the check-in.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && cat
+- tool: ToolSearch select:SendMessage
+- tool: Edit [redacted]/Main.dc.html
+- tool: Edit [redacted]/HUD-iPad.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: mcp__claude-code-remote__send_later Overnight check-in 2
+- tool: Bash git -c user.name="Claude" -c user.email=
+- tool: SendMessage a030b738cdfea46c3
+- tool: TaskUpdate 76
+- tool: TaskUpdate 78
+- tools: 2 more calls
+
+Everything is back in motion after the limit reset. Status:
+
+**Done and pushed since you went to sleep** (branch at 1e6ffe6):
+- The research report, sent above and committed under `reports/`.
+- The Claude Design canvas, https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4, with eleven boards. One correction after the vault review: Roblox's thumbstick and jump button own the bottom corners on phones, so the HUD menu now sits as a two-by-three cluster on the left edge above the thumbstick zone.
+- The plan from the research is in the vault: a short `Now.md` hot note, the Claude Design brief, the phone rules on the UI Playbook, the creature bar on the character pipeline, decisions B27 to B33, Board rows, the Obsidian connection steps and a hooks proposal in Setup-and-Tips.
+- The lighting change: the data now carries LightingStyle and PrioritizeLightingQuality, applied by the director with Technology kept as a fallback. Analyze clean, 391 specs pass.
+- Your whole chat with me is in the vault under `docs/vault/09-transcripts/`, redacted.
+
+**Running now**: the hybrid sculpt worker (fused core plus crisp features on Moop, Sparkfox, Mitt and Gaiabloom) was killed by the usage limit at the start and has just been resumed. The connected Mac REPL has its job list again (the ZPLSHwXqp TikTok, YouTube captions, textures, Obsidian discovery, its own transcript export); it did nothing during the limit, so its first reply is still pending. The next check-in fires at 12:15 UTC and re-arms itself.
+
+**Only you can do these** (all on the Board):
+1. Open the canvas and say which boards you want built, or what to change.
+2. On the Mac: install the Local REST API community plugin in Obsidian, enable the Obsidian CLI, and run the one `claude mcp add` line from Setup-and-Tips. That is the direct Claude-to-vault connection.
+3. Approve or amend the hooks proposal in Setup-and-Tips (no session applies settings on its own).
+4. Decide whether to spend credits on a Tripo trial for one hero species.
+5. The launch-week tables (LaunchGold window, the Sparkfox weekly, the LAUNCHWEEK code) are still dated to the cancelled weekend. Say when the new date is set and I will re-date them.
+
+##### 12:06
+
+**Coordinator:**
+
+The hybrid sculpt is in. I'll fix the commit trailer, check the sheet myself, and send it to you.
+
+- tool: Bash git log --oneline -2 && git show --stat
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tool: Bash git -c user.name="Claude" -c user.email=
+- tool: SendUserFile Hybrid sculpt, first four species. Rows:
+- tool: Agent Hybrid sculpt across the roster
+- tool: Bash cat >> docs/vault/08-log/2026-10-15.md <
+- tool: TaskCreate Hybrid sculpt across the roster: 32 spec
+
+The hybrid sculpt sheet is above. My honest read of it:
+
+- **What the method fixes**: joins. Sparkfox now has one tapering tail and pointed ears that grow out of the head, and Mitt's mitten ears no longer melt into the snowball. The faceting numbers roughly halve on all four, and the silhouettes stay recognisable (overlap 0.93 to 0.98 against the current bodies).
+- **What it does not fix**: design. Moop is still the same mound with bumps, and Gaiabloom's halo, ring and blossoms are still separate shells sitting on the skin. Those are recipe problems, not join problems. Making each species a distinct, world-themed shape is a per-species art pass on the recipes, which is the next thing to plan once you have looked at the full roster.
+
+**Running now**: a worker is building all 32 species with the hybrid method on a scratch copy and composing two review sheets (World 1, World 2) with the numbers. Nothing under the shipped model folders changes until you approve the direction. The Mac still has not replied to its job list; the next check-in at 12:15 UTC chases it.
+
+- tool: ReadNotifications
+- tool: mcp__claude-code-remote__get_session session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: mcp__claude-code-remote__send_later Overnight check-in 3
+
+Check-in done: the roster-wide sculpt worker is still running, nothing new to merge, next check-in armed for 13:17 UTC.
+
+One thing needs you: the Mac REPL shows as connected, but it has not run a turn since my job list arrived at 06:58 UTC, and the nudge at 11:14 UTC changed nothing. Look at that terminal; a message from another session may be sitting behind an approval prompt there. If so, approve it, or type "do the coordinator's job list" into it. Its jobs are the ZPLSHwXqp TikTok, the YouTube captions, the textures upload, the Obsidian discovery pass and its own transcript export.
+
+##### 13:05
+
+**Coordinator:**
+
+The roster run is done. Merging it, then looking at both sheets before sending them on.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Bash git fetch origin claude/alien-system-res
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: Bash python3 - <<'EOF' import re,pathlib p=pa
+- tool: SendUserFile All 32 species through the hybrid sculpt
+- tool: TaskUpdate 79
+- tool: TaskCreate Hybrid sculpt pass 2: wide-eyed lids, fa
+- tools: 2 more calls
+
+The Mac is moving after all: its first commit (the ZPLSHwXqp video fetched) landed at 13:01 UTC, so ignore my earlier note about the terminal. Pass 2 of the sculpt is running.
+
+My read of the two roster sheets you now have:
+
+- **Better everywhere on joins**: ears, tails, legs and crests grow out of the bodies instead of sitting on them, and the faceting roughly halves. Toastoad, Prismlux and Mitt improved the most.
+- **The scowl problem**: the default eyelid makes about two thirds of the roster look angry (Snibble, Buzzbit, Puffpuff, Sparkfox, Capybubble, Auralynx). The worker measured a half-size lid as wide-eyed, so pass 2 sets that as the default and keeps a heavy lid only on species meant to look fierce.
+- **Facets lost**: Pebblet, Rocklobber and Shellberg are meant to read as stone and shell, and the blend smooths them into blobs. Pass 2 keeps those bodies faceted and fuses only their limbs.
+- **Still design, not joins**: Moop, Glim, Drip and Kettlet are the same shapes with cleaner skin. The per-species silhouette pass (unique shape per species, world theme in the features) is the next art job and the one that needs your eye on these sheets first.
+
+> **Ethan:** I want you to add effects to the different aliens. Fof example, if it looks like they would have some type of lightnig attribute, create effects where there is lightning coming from them, or some sort of plasma aura. Also we need to create a clear separation betweeen ranks. the highest rarity of alien should be the most grand in design, effects, and everything else. The names are not good either. They are just combining two words and I don like that. I will try to personally name them if you can't give better alternatives. Also I mentioned in the design way back in this conversation about noticeable aliens. I think fenrir is a good alien and could be a lot better designed than what we have right now. It could be more detailed, a lot more scary and strong, and have effects. We should have other noticeable aliens too, for example a dragon like Haku from spirited away or other beings from different mythologies like norse, greek, egyptian, japanese, chinese, hindu, and roman. Also other alien designs can be based off of and heavily influenced by "pets" of other games. Use them as reference points such as those in pet similatgor and steal an egg. We should definitely be incorporating VFX and animation into these models too. Each alien should have their own effects. I will send more tik tiks on this too so please digest them
+
+**Coordinator:**
+
+This is a real direction change, so I'll record it in the vault, then split it: a design doc (rank ladder, per-alien element and effect, hero aliens by mythology, better names), the effects system in code, and a Fenrir plus dragon prototype. First a quick look at what exists.
+
+- tool: Bash echo "=== species fields ===" && grep -n
+- tool: Bash sed -n 1,40p src/shared/data/Species.lua
+
+Three workers go out in parallel: the design doc with the rank ladder, elements, hero aliens and new names; the per-alien effects system in code; and a Fenrir plus dragon prototype.
+
+- tool: Agent Roster redesign design doc
+- tool: Agent Per-species effects system
+- tool: Agent Fenrir and dragon prototypes
+- tool: TaskCreate Roster redesign (Ethan, 2026-10-15): per
+
+All four threads are running now. What you will get from this round:
+
+- **Roster redesign doc** in the vault: the rank ladder (what a Common gets versus a Cosmic in detail, effects, aura, motion, nameplate and reveal, so the tiers are unmistakable), an element and a signature effect for every one of the 35 aliens, the hero slate (Fenrir redesign brief, a Haku-like sky dragon of our own, and at least two beings each from Norse, Greek, Egyptian, Japanese, Chinese, Hindu and Roman myth, with the eight to build first), the reference rules from Pet Simulator 99 and Steal an Egg (inspired by, never traced), and **Names v3**: three single-word options per species with a recommended pick. I'll put that table in chat for you to approve or overrule.
+- **Effects system** in code: a data table with every alien's layers (lightning beams between Thunderhog's quills, ember sparks off Sparkfox's tail, an aurora trail on Auralynx, a moon glow and shadow wisps on Fenrir, one leaf mote on Moop), tier rules that gate how many layers an alien may have, idle motion from data (bob, hover, flap, breathe), mobile caps and Reduced Motion, attached wherever an alien renders.
+- **Fenrir v2 and Skydrake** prototypes built through the hybrid sculpt with a review sheet.
+
+The sculpt pass 2 (wide eyes, facets kept) is still running, and the Mac is on its job list. Send the TikToks whenever; the Mac fetches them and the notes feed the design doc.
+
+> **Ethan:** https://www.tiktok.com/t/ZPLSQBRMa/
+>
+> https://www.tiktok.com/t/ZPLSQA4aX/
+> Copy this type of ui
+>
+> https://www.tiktok.com/t/ZPLSQ8AAE/
+
+**Coordinator:**
+
+Got them. TikTok is blocked from this container, so the Mac fetches and transcribes them; the UI one gets a frame sheet into the vault so I can redraw the canvas from it.
+
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+
+The three links are queued on the Mac as job 26, ahead of its remaining items. When the notes land I'll fold the UI reference into the Design canvas (a new board drawn from that style, on our palette and fonts) and the other two into the roster doc.
+
+Running meanwhile: the roster redesign doc, the effects system, the Fenrir and dragon prototypes, and sculpt pass 2. I'll send the names table and the sheets as each one lands.
+
+- tool: ReadNotifications
+
+Check-in done: all four workers and the Mac are still working, nothing new to merge. Since you are active again I've stopped the hourly self check-ins; worker results and Mac messages wake this session on their own, and a message from you brings me back at any time.
+
+> **Ethan:** Incorporate blockbench, blender and substance painter to create these character models as well.
+>
+> https://www.tiktok.com/t/ZPLSQrYcW/
+>
+> https://www.tiktok.com/t/ZPLSQ1o7Q/
+>
+> https://www.tiktok.com/t/ZPLSQAq5q/
+>
+> https://www.tiktok.com/t/ZPLSxw532/
+>
+> https://www.tiktok.com/t/ZPLSQAhnb/
+>
+> https://www.tiktok.com/t/ZPLSxwKHm/
+
+**Coordinator:**
+
+Understood: Blender, Blockbench and Substance Painter become the modelling toolchain. The six links go to the Mac now, and a researcher pins down how the three tools chain for Roblox pets and what Claude can drive in each.
+
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: Agent Blockbench Blender Substance research
+- tool: TaskCreate Model toolchain (Ethan, 2026-10-15): Ble
+
+Queued and running:
+
+- **Mac job 27**: the six new TikToks get fetched and transcribed, each noted as a step-by-step of the creator's process (tool, operation, settings, export, how it reaches Roblox), plus a read-only check of whether Blockbench and Substance Painter are already on the Mac.
+- **Toolchain research** (cloud): how the three tools chain for a 1,000 to 2,500 triangle creature, whether Blockbench or Blender glTF exports carry bones and animations that the Roblox importer accepts (that would give us the rig route the first report said we lacked), the Blockbench project format in enough detail that a cloud tool can write a project file from our species for you to paint and animate, what Substance Painter's scripting can do, and what costs money. It lands as a vault note with tool rows and Board rows.
+
+Two things will need you once that lands: installing Blockbench (free) on the Mac, and a decision on the Substance Painter licence (Steam perpetual, Adobe subscription, or NYU's Creative Cloud if you have it). The roster redesign doc, the effects system, the Fenrir and dragon prototypes and sculpt pass 2 are still running.
+
+##### 13:42
+
+**Coordinator:**
+
+The roster redesign doc is in. Merging it, then pulling the names table and the rank ladder out for you.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash python3 - <<'EOF' import re,pathlib p=pa
+- tool: Bash sed -n 14,31p docs/vault/01-game-design/
+- tool: Bash python3 - <<'EOF' import pathlib p=pathl
+- tool: Agent SurfaceAppearance templates route
+
+The roster redesign doc is merged (`docs/vault/01-game-design/Roster-Redesign.md`). Here is what needs your eye.
+
+**The rank ladder in one line each.** Common: one bold colour, one touch, no light. Uncommon: a two-tone body, a second touch. Rare: a soft light in its element colour, one extra move every few seconds. Epic: light plus glow, one emitter, lightning or aurora beams allowed; effects stay on the body. Legendary: orbiting particles and a gold ground ring; effects touch the ground. Cosmic: everything plus a trail and a sky beam at a flourish; effects reach the sky. Secret: the Cosmic set in shadow. The ten-stud tell: if there is a ring under it, it is Legendary or above.
+
+**Names v3, recommended picks** (ids never change; nothing is applied until you say so):
+
+| Now | Pick | | Now | Pick |
+|---|---|---|---|---|
+| Moop | Moop | | Mitt | Mitt |
+| Pebblet | Pebblet | | Snowsnow | Flurra |
+| Glim | Glim | | Drip | Drip |
+| Twiggle | Sprig | | Digling | Digling |
+| Puffpuff | Dandel | | Kettlet | Kettlet |
+| Snibble | Snibble | | Pengoo | Pengoo |
+| Buzzbit | Buzzik | | Flapflap | Eekle |
+| Lanternewt | Lampo | | Toastoad | Soakum |
+| Rocklobber | Krabbok | | Sizz | Sizz |
+| Zapfinch | Zirrit | | Glintelk | Blinkar |
+| Sparkfox | Vixa | | Shellberg | Floe |
+| Thunderhog | Voltus | | Capybubble | Snorzo |
+| Prismlux | Iridia | | Auralynx | Aurelyx |
+| Gaiabloom | Gaiara | | Achoocub | Sabrek |
+| Ra-dish | Raddis | | Skaddle | Skadi |
+| Trillgoat | Syrinx | | Fenrikin | Fenrir |
+| Wispkin | Flick | | | |
+| Grin | Grin | | | |
+| Cosmoo | Cosmoo | | | |
+
+Each row in the doc has two more options and the reason. Reply with the ones you want changed (or your own names) and I'll apply them after the collision search.
+
+**The hero slate**, eight to build first: Fenrir (Cosmic, Frostbyte, full redesign), Suiryn (our Haku-like river dragon, Frostbyte's missing Secret), Raiju (lightning beast), Qilin (Verdant Cosmic), Kerbos (a Cerberus pup), Pegasi, Sphinx, Airava (a cloud elephant). Twelve more are on the slate. One rule from the game design doc to confirm: creatures and beasts from the myths, never deities of living religions.
+
+**Only you**: quit all four Roblox Studio processes on the Mac (File, Quit, Don't Save on the old one; the three stuck on start pages too). The Mac could not open the new place until they are gone.
+
+Still running: sculpt pass 2, the effects system, the Fenrir and Skydrake prototypes, the toolchain research, and a fix for a Studio finding (a game script cannot create a SurfaceAppearance, so the five texture templates will ship in the place and be cloned).
+
+The toolchain research is in: Blockbench is free and feasible from the cloud, and the one hard fact is that Substance Painter needs 16 GB of RAM, twice what the Mac has. Merging, then starting the Blockbench writer.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+
+The effects system is built. Merging and running the full checks, then starting the Blockbench project writer.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash git -c user.name="Claude" -c user.email=
+- tool: Agent Blockbench project writer
+- tool: TaskUpdate 81
+- tool: TaskUpdate 82
+
+Two more pieces landed and are pushed:
+
+- **Effects system** (88a41c6): every one of the 35 aliens now has its own effect and idle motion from a data table, gated by the ladder. Thunderhog arcs lightning between its quills every two seconds with sparks; Ra-dish has a sun light with orbiting motes; a Common gets one mote and no light. Legendary adds the ground ring, Cosmic the orbit and trail, Secret the dark variant. Phone caps and Reduced Motion are built in, and only the nearest twelve aliens draw their layers. It is wired into the wild, camp and companion renderers; the reveal card, codex, home and hangar come next. The Mac runs the Studio check once Studio is quit and reopened.
+- **Toolchain note** (5a78750): the chain is Blender headless (block out, fuse, bake) to a Blockbench project written by a cloud tool (now being built; you paint, rig and keyframe in Blockbench and export glTF with bones) to Roblox's 3D Importer, which gives us the animation route the first report said we lacked. **Substance Painter does not fit this Mac**: Adobe's published minimum is 16 GB of RAM and the MacBook has 8, and the free student licence is non-commercial. Blender does the texture coat (bakes and edge wear) in the cloud instead, unless you have a second machine for Painter.
+
+**Decisions on your side**: the names table above; the eight heroes and the creatures-not-deities rule; install Blockbench (free, no account) on the Mac; whether Painter is worth a licence given the memory; and quit the four Studio windows so the Mac can open the new place.
+
+The SurfaceAppearance fix is ready. Merging it with the full checks.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash git -c user.name="Claude" -c user.email=
+
+Pushed the textures fix (05bfe3c): the five texture templates now ship inside the place through Rojo and the loader clones them, since a game script is not allowed to create a SurfaceAppearance. Sparkfox's body is off Fabric, and an audit tool lists the six other warm slots (Buzzbit, Drip, Mitt, Pengoo, Shellberg, Sizz accessories) that may darken the same way for your look in Studio.
+
+Still running: sculpt pass 2, the Fenrir and Skydrake prototypes, the Blockbench writer, and the Mac's TikTok batches.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash python3 - <<'EOF' import re,pathlib p=pa
+- tool: TaskUpdate 82
+
+The Blockbench writer is merged and pushed (e614264). Two projects are ready for you to open: `media/blockbench/Sparkfox.bbmodel` and `media/blockbench/Mossbop.bbmodel`. Each has one mesh per material slot already coloured from its palette, one group per slot with its pivot at the part's centre so you can parent them into a rig, and an example two-second idle bob on the body. The Mac's checklist (opens without a migration prompt, shading looks right, the idle plays, painting after a re-unwrap, glTF export gives bones named after the groups, size and facing in Studio) is in the toolchain note and on the Board. It needs Blockbench installed first, free from blockbench.net, no account.
+
+One note from the Mac: it stopped the screen-recording job because you were using the Mac; it resumes when the Mac is free.
+
+Still running: sculpt pass 2, the Fenrir and Skydrake prototypes, and the Mac's TikTok batches.
+
+##### 14:21
+
+**Coordinator:**
+
+The Mac found a real launch bug while recording the store clips. I'll pull its clips and put a worker on the fix.
+
+- tool: Bash git pull --rebase origin claude/alien-sy
+- tool: Agent Launch lift bug fix
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: TaskCreate Launch bug: the camp ship vanishes on La
+
+The Mac finished the three store clips (catch and module are good) and caught a launch bug on camera: the ship disappears the moment Launch is tapped instead of rising for four seconds, the camera never glides, and the Alien of the Week banner talks over it. A worker is fixing it now (the camp redraw waits behind a launch latch until the lift ends, and the banner queue goes quiet for the whole sequence); the Mac re-records the launch clip once the fix is pushed.
+
+Still running: sculpt pass 2, the Fenrir and Skydrake prototypes, the launch fix, and the Mac's TikTok batches.
+
+The Mac never received the two TikTok batches as messages; the repo is the reliable channel. I'll write them into Overnight.md now.
+
+- tool: Bash git pull --rebase origin claude/alien-sy
+- tool: Bash sed -n 25,66p docs/vault/02-how-we-work/
+- tool: Bash python3 - <<'EOF' import pathlib p=pathl
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+
+Jobs 26 to 31 are written into the Mac's job file (c58a469), since its messages from me were not getting through. The Mac's install check came back: Blockbench and Substance Painter are not on the Mac, Blender 5.2.2 is; Obsidian 1.14.4 is running with the vault open, its command-line interface is present but switched off in your settings, and there are no community plugins yet.
+
+Two things for you:
+
+1. **A privacy call on the transcript export.** The Mac exported its 13 October day into the vault but held back 15 October because that day's chat records a private, non-game matter of yours. It stays out until you say otherwise; if you want it in, say whether that passage should be redacted first.
+2. **Obsidian, two minutes on the Mac**: Settings, General, enable the command-line interface; then install the "Local REST API" community plugin. The exact steps and the one command that connects Claude to it are in Setup-and-Tips in the vault.
+
+Still open from earlier: the names table, the hero slate, Blockbench install, quitting the four Studio windows.
+
+The hero prototypes are in. Merging, then looking at the sheet before sending it on.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: SendUserFile Hero prototypes: the shipped Fenripup, F
+- tool: TaskUpdate 81
+
+The hero sheet is above (pushed as eb4c1e3). My read:
+
+- **Fenrir v2** is a real step from the pup: a low stalking wolf with four fangs, a silver crest of fur wedges, claws, the crescent, and chain links and a rune plate on the shoulders. From the front it still reads a little like a bear, and the fur wedges are spiky rather than furry; round two would soften the crest into breaks and lengthen the muzzle. The eyes stay big, so it keeps the game's face.
+- **Skydrake** reads as our own sky serpent: one S-curve body, gold antlers, whiskers, a white mane, small clawed feet, goofy eyes with an open mouth, and a glowing pearl under the chin. The head is round rather than a wedge; that is the one change I would make.
+- Both sit at the top of the triangle budget, and their effects are specified in the note (Fenrir: moon glow, shadow wisps, eyes that flare; Skydrake: cloud wisps along the body, a pearl light, a ribbon trail).
+
+Tell me which direction you want pushed, and whether Fenrir keeps the chains. Still running: sculpt pass 2, the launch fix, and the Mac's TikTok downloads.
+
+All nine videos are in the repo. Pulling them and putting a worker on the transcripts, the notes and the UI frame sheet.
+
+- tool: Bash git pull --rebase origin claude/alien-sy
+- tool: Agent Process TikTok batches 7 and 8
+- tool: TaskUpdate 77
+
+The launch fix is ready with a confirmed cause. Merging with the full checks, then telling the Mac to re-record.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: TaskUpdate 83
+
+The launch fix is merged and pushed (642e2e6). The cause was on the client: the module reset for the next world tore the camp down while the ship was mid-lift, so the cancelled tween fired its completion and the fade started at once. Now the camp redraw waits behind a launch latch until the screen is black, and toasts and banners stay quiet through the whole sequence. 440 headless specs pass. The Mac re-records the launch clip next.
+
+Running: sculpt pass 2, and the worker transcribing your nine new TikToks into notes plus the UI frame sheet.
+
+Pass 2 of the sculpt is in. Merging it (the hero worker also touched the sculpt script's neighbours, so I'll watch for a code conflict), then viewing the new sheets.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash git add -A && python3 -I -m unittest dis
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: SendUserFile Sculpt pass 2, all 32: wide-eyed by defa
+- tool: TaskUpdate 80
+
+Sculpt pass 2 is merged and pushed (78ea676); both sheets are above. The scowls are gone: thirty-one of thirty-two now read wide-eyed and goofy, with Sparkfox keeping a deliberate smirk. Pebblet, Rocklobber and Shellberg keep their stone and shell facets through the fuse, and Flapsicle is back to a full body. Every species builds clean under the cap.
+
+What this pass does not do is change the shapes themselves: Moop is still a mound, Glim a bulb, Drip a drop. That is the per-species design pass on the recipes, and it goes better with your reaction to these two sheets and to the hero sheet before I spend a worker on it.
+
+Running: the worker on your nine TikToks (notes and the UI frame sheet), and the Mac on the YouTube captions and the launch re-record.
+
+##### 16:12
+
+**Coordinator:**
+
+- tool: Bash date -u +"%H:%M UTC"
+
+> **Ethan:** I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+
+**Coordinator:**
+
+The limit has reset; resuming the TikTok worker from where it stopped.
+
+- tool: SendMessage a697774b13cec2134
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: Agent Effects on home, hangar, habitats
+
+Back in motion after the limit. The TikTok worker resumed where it stopped, the Mac was told to restart its captions and the launch re-record, and a new worker is extending the per-alien effects to the home plot, the hangar, the habitat displays and mounts, with the effect sounds playing on a capped clock. The reveal card and the codex stay as UI rays and glow, since particles and beams do not draw inside a viewport frame.
+
+Open on your side: the names table, the hero slate and the three sheets, Blockbench install, the Studio windows, the Obsidian two-minute setup, and the transcript privacy call.
+
+The launch fix holds on camera. Three leftovers came back: the camera glide, a doubled toast, and a repeated sightings log line. The four Fabric slots are a data fix I'll make directly.
+
+- tool: Bash git pull --rebase origin claude/alien-sy
+- tool: Bash python3 - <<'EOF' import json d=json.loa
+- tool: Agent Launch glide, toast, sightings log
+- tool: TaskCreate Mac job 30 findings: launch camera glide
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: Bash git status --short | head -8 && cat >> d
+
+Pushed the material fix (e30c997): the four slots the Mac photographed turning brown in daylight (Shellberg's cap, Pengoo's backpack, Mitt's scarf, Drip's cap) are off Fabric, as Sparkfox was. The Mac's daylight check also confirmed the texture templates work in Studio and the effects ladder holds (one, two, three emitters from Common to Epic).
+
+Three leftovers from the Mac's launch re-record are with a worker: the camera does not yet glide to the rising ship, the "Frostbyte opens when it is published" toast shows twice on return, and a sightings line prints five times with identical numbers. Also running: the TikTok notes worker (resumed after the limit) and the effects on the home plot, hangar, habitats and mounts.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+
+Merged and pushed (db1b11d): the effects now reach the habitat displays, and each species' effect sound plays on a capped clock through the game's sound setting. The hangar draws only a hull, so nothing attaches there, and no species carries a sound key yet; those come with the per-species pass once you have picked names and heroes. 448 headless specs pass.
+
+Still running: the TikTok notes worker and the three launch and sightings leftovers.
+
+The TikTok notes are in. Merging, then looking at the UI reference sheet so I can redraw the Shop board on the canvas from it.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tool: Edit [redacted]/canvas.json
+- tool: Edit [redacted]/canvas.json
+- tool: Edit [redacted]/canvas.json
+- tool: Write [redacted]/Shop-v2.dc.html
+- tool: Artifact https://claude.ai/artifact/GsddVfW4nSoBS
+- tool: Agent Shop screen rebuilt as the shelf
+- tool: TaskCreate Shop screen rebuilt as the shelf from Et
+- tools: 1 more calls
+
+Your nine TikToks are digested into the reference notes (d6fbab1), and the UI one is now a board on the canvas plus a code rebuild in progress.
+
+What the videos taught, in short:
+- **The UI reference** (a shop redesign made with Claude Design) gives five treatments we adopt: a shelf of tall category-coloured cards on a sunburst with a rendered icon and a green price pill; ribbons and starburst seals carrying status, with colour meaning the product category and never rarity; a left tab rail whose active tab follows the scroll, with "!" and NEW chips; four small moves (tabs drop in, cards slide in tilted, hover lift, one twinkling featured card), each with a Reduced Motion form; and a "Coming soon" toast on unreleased items, never a silent tap. Their small text sits below our 14 px floor, so ours is larger. I drew it as "Shop v2" on the canvas in our palette and font, and a worker is rebuilding the in-game Shop screen to it, full screen while open as in the reference.
+- **The toolchain videos** show none of the creators using Blockbench or Substance Painter. Their actual stack is Claude with the Studio MCP, an Obsidian vault, Blender for models and effects, and Claude Design for screens and viewers, which is what we run. Two of the six were byte-for-byte copies of videos from your earlier batch. The useful new material: each power as a coloured ring pad plus a hero mesh plus particles, a transformation reveal built from a flash, smoke and emissive stripes lighting in sequence, and flat colour with one small texture as the character look.
+
+Running: the Shop rebuild, the three launch and sightings leftovers, and the Mac's remaining Studio steps.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: mcp__claude-code-remote__send_message session_01Gjj1dDNaN2BZXVNdPUfnrQ
+- tool: TaskUpdate 84
+
+Pushed (199a2c5): the launch camera now follows the rising ship instead of aiming at its empty pad, the return and its toast run once, and the sightings line prints once per sighting; 468 headless specs pass. The Mac re-checks all of it on its next rebuild and tunes the five camera framing numbers in Config if needed.
+
+The one worker still running is the Shop shelf rebuild. Everything else waits on you: the names table, the hero slate and sheets, Blockbench, the Studio windows, the Obsidian setup, and the transcript privacy call.
+
+##### 17:01
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash python3 - <<'EOF' import pathlib p=pathl
+- tool: TaskUpdate 85
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: Agent Blender UV unwrap and palette bake
