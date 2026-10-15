@@ -42,3 +42,7 @@ Not our base dialect, but several components are worth copying. Frames at 540 px
 | `dino-codex-unknown.jpg` | The same entry for an uncaught species: black silhouette with "?", name "???", purple (Epic) backdrop, a hint line on how to find it |
 | `dino-dig-markers.jpg` | Floating "✦ DIG" verb markers over resource spots, readable from far away; the ground is a tiled grid so placeholder geometry reads as intentional |
 | `dino-fishing-hook.jpg` | Fishing minigame: "HOOKED 2/3" at the top, the hook descends a water column past labelled fish; steer with A/D or mouse, click to reel |
+
+
+## Claude Design shop (batch 7, `ZPLSQA4aX`)
+- `tiktok-ZPLSQA4aX-ui.jpg`: a 12-frame sheet, 1600 px wide, 0.3 s to 15.7 s every 1.4 s, cropped to the screen recording, with timestamps. It shows the old Store (a centred panel with a rainbow rim and paragraph rows), then the new full-screen shop: a left tab rail with a gold active tab, tall category-coloured cards with rendered icons, ribbons and starburst seals, green price pills, a gold pill scrollbar, the tabs-and-cards entrance and the active tab that follows the scroll. What we take from it is in [[UI-Playbook]] "The UI reference ZPLSQA4aX (2026-10-15)"; the frame-by-frame breakdown is in `media/tiktok/NOTES.md` (batch 7).

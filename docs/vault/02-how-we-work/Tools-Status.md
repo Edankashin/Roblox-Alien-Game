@@ -88,6 +88,14 @@ Ethan: "Incorporate Blockbench, Blender and Substance Painter to create these ch
 | Blender glTF export with skins and animations (`bpy.ops.export_scene.gltf`, `export_animations`, `export_skins`, 4 influences) | the toolchain research | Adopt as the rig route when a species is rigged in Blender rather than Blockbench; headless, so the same `bpy` scripts drive it | **to verify** (the exporter is in use for the 32 meshes; no rig or animation has been exported from it yet) | Mac: the second half of the probe in [[Model-Toolchain]] section 6 (a Blender-rigged cube with one action into Studio), then in use |
 | `tools/blockbench/to_bbmodel.py` (the cloud bbmodel writer) | the toolchain research, [[Model-Toolchain]] section 6 | Adopt: turns a species folder (GLB plus `materials.json`) into a Blockbench Generic Model project with a mesh and a group per slot, a flat palette texture and an example `idle`; no Blender, standard library plus Pillow ([[Model-Toolchain]] "The writer") | **built, not yet verified in Blockbench** (unit tests and `--check` pass in the cloud; all 35 species build; the first two files are `media/blockbench/Sparkfox.bbmodel` and `Mossbop.bbmodel`) | Mac: open `media/blockbench/Sparkfox.bbmodel` in Blockbench, screenshot, report what fails (the checklist is in [[Model-Toolchain]] "The writer"); then this row to in use |
 
+## Added from TikTok batches 7 and 8 (2026-10-15)
+
+Nine references were read (`media/tiktok/NOTES.md`). The three tools Ethan named for batch 8 (Blockbench, Blender, Substance Painter) already have rows above; none of the six videos shows or names Blockbench or Substance Painter, so no row changes state ([[Model-Toolchain]] section 5, "From the owner's references (batch 8)"). Claude Design, Obsidian and the Studio MCP also have rows above. The one tool named in these nine that had no row:
+
+| Tool | Where it came from | Decision | State | Next step and owner |
+|---|---|---|---|---|
+| Free API tiers: NVIDIA NIM (40 requests a minute), Baseten, OpenRouter (50 requests a day), and an unnamed "secret" GitHub repo of copy-paste config snippets for Claude Code and Cursor | TikTok ZPLSQBRMa (milesreevesai), batch 7; not part of Ethan's UI or toolchain asks | Not adopted: the limits are far below a coding session, routing Claude Code through another provider is a tool-stack choice for Ethan, and the repo cannot be vetted because the video never names it | none | None unless Ethan asks; keep provider keys in the shell environment only ([[Handoff]] "Secrets") |
+
 ## The rule from now on
 
 1. A tool mentioned by Ethan or a reference gets a row here the same day, with a decision.

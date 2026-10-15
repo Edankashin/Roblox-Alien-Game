@@ -208,6 +208,26 @@ What the repository already holds (read): `media/tiktok/NOTES.md` (27 videos plu
 
 Blockbench and Roblox: no readable creator post, forum thread or repository shows a Blockbench-to-Roblox pet workflow; the searches returned Minecraft work, Fiverr listings for Minecraft assets and Roblox's own importer pages, and Blockbench's plugin registry has no Roblox entry (read). Blockbench's community is Minecraft, Hytale and Godot or Unity indie work, and its strengths (cuboids, pixel textures, group rigs, the Bedrock animation model) match the voxel look of the dinosaur-ranch reference (ZPL8MtkYu) more than our organic skins. Inference: for this roster Blockbench earns its place as the animation and hand-paint desk with a cheap, scriptable input file, not as the modeller; Painter is the Adopt-Me-tier finish for a few hero species, after the licence and memory questions. This section should be rewritten the day the Mac adds a reference that shows either tool in use.
 
+### From the owner's references (batch 8)
+
+2026-10-15, the reference worker. Ethan's six links (`media/tiktok/NOTES.md`, batch 8) were watched for these three tools. **None of them shows or names Blockbench or Substance 3D Painter**: not in speech, captions, slides or on any screen; the one visible dock holds Blender, Claude, ChatGPT, Obsidian, Chrome and Roblox Studio among its readable icons. So the paragraph above stands: no creator here is evidence for either tool, and the rewrite it asks for is still open. Tagged **(watched)**: I looked at the frames or read the slides. What the creators do show:
+
+| Creator | Tool and operation shown **(watched)** | What reaches Roblox |
+|---|---|---|
+| deep.haul.studios, photo post (ZPLSQrYcW) | Claude on a Pro or Max plan with the Roblox Studio MCP; an Obsidian vault of about a hundred notes (hubs Home, Roadmap, Board Pulse, Playtest Log; art notes Blender AI Workflow, ART_AND_ANIMATION, 3D Model Gallery, Import authored models, MCP_WORKFLOW); Blender 5.2.2 LTS on the Layout workspace in Object Mode with one scene file, `HarborLayout_Cinematic.blend`, whose objects are named per piece; the status bar warns "active object has non-uniform scale" | "upload Blender models into Roblox Studio"; no file format, no import setting shown |
+| jarvislabsreal, ZPLSQ1o7Q | "VFX made in Blender": flat rings and thin cylinders for light columns, zig-zag ribbons for lightning, faceted rock, crystal and brick shards, all emissive, one coloured ring pad per power | meshes moved in Studio (inferred); no export shown |
+| jarvislabsreal, ZPLSQAq5q | fourteen characters: a cube head with a pixel-art face texture, bevelled cubes, faceted ball hands, cone spikes, three or four flat colours; the turntable looks like a Blender render | not shown; ZPLSQAhnb shows the same models as render icons in an Index and a roll reel |
+| jarvislabsreal, ZPLSxw532 | a dark plated titan with thin emissive stripes that light in sequence, fog, sparks and bloom | Roblox lighting and particles (inferred) |
+| jarvislabsreal, ZPLSQAhnb | caption: "24 hours: a Claude model + Blender + Claude Design" over ten screens, a charge mechanic and a roll reel | the game's screens and models |
+| vos_studiostt, ZPLSQ8AAE and ZPLSxwKHm (the batch 6 files again) | Claude Design "Model a 3D object": handoff documents, star ratings, a reference image, two prompts | a GLB from the viewer; the viewer's ring, particles and idle are not in it |
+
+What it changes:
+1. The chain the creators actually use is Claude (with the Studio MCP) driving Blender for models and effects, Claude Design for screens and 3D viewers, and Studio at the end. That is our steps 1 and 5 to 7; none of them uses steps 2 to 4.
+2. The look Ethan points at (chunky cube-head characters) is flat colour plus one small pixel face texture. A pixel-accurate hand-painted face on a cube is Blockbench's job, and nothing about it needs a PBR coat: for this look Painter earns nothing, so it stays what section 4 made it, an optional coat for hero species after the trial. This is inference; no video shows either tool.
+3. One Blender gotcha is on screen: a non-uniform scale on the active object. Apply scale before export; our species GLBs are written at 1 unit = 1 stud (`notes.md`).
+4. Their effects are Blender meshes with the motion on the Roblox side, which matches [[Roster-Redesign]] section 6 (tweened MeshParts, no animation export to solve).
+5. No creator shows an export setting, an import dialog or an animation: the Mac probe in section 6 is still the only source for scale, facing and rigged animation.
+
 ---
 
 ## 6. What we will build
