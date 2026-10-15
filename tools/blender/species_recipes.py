@@ -1126,10 +1126,11 @@ RECIPES["Fenripup"] = {
 }
 # ==== FROSTBYTE END ====
 
-# ==== HEROES BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Hero-Aliens.md; written 2026-10-15) ====
+# ==== HEROES BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Hero-Aliens.md; written 2026-10-15, round 2 the same day) ====
 # Two hero aliens the owner asked for on 2026-10-15: a scarier, stronger Fenrir and a sky dragon. Both are `"prototype": True` recipes: they have
 # no assets/models folder and no Species.luau row, `all`/`world2`/`batchN` skip them, and the tests do not hold them to the shipped files. They
 # are built with `species_sculpt.py --method hybrid` on a scratch models folder (the exact commands are in Hero-Aliens.md) and carry the Trim slot.
+# Round 2 (same day) reworked both after the first sheet: Fenrir a wedge-headed stalker, Skydrake a wedge-headed S-curve (Hero-Aliens.md "Round 2").
 
 
 def _basis(d, thin):
@@ -1149,6 +1150,14 @@ def _blade(slot, base, d, length, thin, wide, name, thin_axis=(1.0, 0.0, 0.0), m
                 mirror=mirror, name=name)
 
 
+def _fin(slot, base, d, length, wide, thick, name, wide_dir=(0.0, 0.0, 1.0), mirror=False, segments=4):
+    """A swept fin: a _blade whose broad face is named by the direction it spans (`wide_dir`, made perpendicular to d) instead of by the thin axis:
+    a fin standing on the back spans up, a plate laid on a neck spans round it."""
+    f = _unit(d)
+    w = _unit(_sub(wide_dir, _mul(f, sum(a * b for a, b in zip(wide_dir, f)))))
+    return _blade(slot, base, d, length, thick, wide, name, thin_axis=_cross(f, w), mirror=mirror, segments=segments)
+
+
 def _crescent(slot, centre, radius, tilt, r_max, name, a0=150.0, a1=390.0, n=6, r_tip=0.035, segments=6):
     """A crescent moon standing upright (it opens upward, the horns curl in) made of tapered rods: the arc runs from a0 to a1 degrees round
     `centre` in the XZ plane, then leans back by `tilt` degrees about x. The tube is r_max at the bottom of the arc and r_tip at the horns."""
@@ -1162,100 +1171,136 @@ def _crescent(slot, centre, radius, tilt, r_max, name, a0=150.0, a1=390.0, n=6, 
     return [rod(slot, pts[i], pts[i + 1], rad[i], rad[i + 1], segments=segments, name=name) for i in range(n)]
 
 
+def _chain(slot, pts, radii, name, segments=4, mirror=True):
+    """A thin tapering tube through the points as one rod per span (a whisker, a tine): radius radii[i] at pts[i]."""
+    return [rod(slot, pts[i], pts[i + 1], radii[i], radii[i + 1], segments=segments, mirror=mirror, name=name) for i in range(len(pts) - 1)]
+
+
 # ---------------------------------------------------------------------------------------- Fenrir v2 (a wolf, not a puppy)
-# Facing -Y. Low and long, stalking: the withers (z 3.2) stand above the hips, the big head is carried forward and low, four planted legs
-# with big paws, a thin-waisted barrel, a bushy tail swept up and curled to one side (so it does not stand behind the head in the front view).
-# Core (fused): body, neck, head, muzzle and jaw, legs, paws, the tail sweep. Crisp: the ears, the ruff and the back ridge (wedges), cheek tufts,
-# fangs, claws, the crescent, the shoulder links and the rune plate. The mouth and the fangs are placed against the build's own mouth (the
-# hybrid cuts the mouth into the muzzle and drops the `zigzag` teeth): the numbers in the fang comment come from probing the field.
-_FV2_NECK = ((0.0, -1.3, 3.0), (0.0, -2.05, 2.75))
-_FV2_HEAD = (0.0, -2.55, 2.6)
+# Round 2. Facing -Y. A stalker: the chest sits low between long legs, the haunches are raised (hips above the withers), the head is carried
+# low and forward and is a WEDGE (a narrow skull, a long muzzle that tapers to a nose far forward, a lower jaw hung beneath it), the hind legs are
+# Z-shaped (thigh, knee forward, hock back, a thin cannon to a big paw). Core (fused): the barrel, neck, head, muzzle and jaw, the four legs and
+# paws, the tail sweep. Crisp: the ears, the ruff (large plates laid back round the neck), a few big fins sweeping back along the spine and
+# shoulders, cheek tufts, claws, fangs, the crescent, the shoulder links and the rune plate. The mouth and the fangs are placed against the build's
+# own mouth (the hybrid cuts the mouth into the muzzle and drops the `zigzag` teeth): the numbers in the fang comment come from probing it.
+_FV2_NECK = ((0.0, -1.4, 2.75), (0.0, -2.3, 2.55))
+_FV2_HEAD = (0.0, -2.85, 2.5)
+# the centre-line spheres of the barrel (y, z, y radius, z radius): _fv2_top(y) is the height of the back there
+_FV2_SPINE = ((-0.95, 2.2, 1.1, 0.95), (0.35, 2.75, 0.85, 0.6), (1.1, 3.15, 0.8, 0.76))
 _FV2 = []
 
 
+def _fv2_top(y):
+    best = 0.0
+    for cy, cz, ry, rz in _FV2_SPINE:
+        if abs(y - cy) < ry:
+            best = max(best, cz + rz * math.sqrt(1.0 - ((y - cy) / ry) ** 2))
+    return best
+
+
 def _fv2_ruff():
-    """Two rings of fur wedges round the neck, pointing out and back: a thick ruff that frames the face."""
+    """Eight big plates laid back round the neck (an outward and backward sweep, each broad across the neck): a ruff that frames the face and
+    streams over the shoulders, not a ring of spikes."""
     a0, a1 = _FV2_NECK
     axis = _unit(_sub(a1, a0))
     up = _unit(_sub((0.0, 0.0, 1.0), _mul(axis, axis[2])))
     out = []
-    for s, phis, ln, wide in ((0.45, (45, 80, 115, 150), 1.55, 0.42), (0.0, (25, 65, 105, 145), 1.15, 0.34)):
-        c = _add(a0, _mul(_sub(a1, a0), s))
-        for phi in phis:
-            ph = math.radians(phi)
-            r = _add(_mul(up, math.cos(ph)), (math.sin(ph), 0.0, 0.0))
-            out.append(_blade("BodyDark", _add(c, _mul(r, 0.55)), _add(_mul(r, 0.85), _mul(axis, -0.5)), ln, 0.09, wide, "ruff",
-                              thin_axis=_cross(axis, r), mirror=(phi != 0)))
+    for phi, ln, wide in ((55, 1.8, 0.5), (90, 1.7, 0.48), (125, 1.5, 0.44)):
+        ph = math.radians(phi)
+        r = _add(_mul(up, math.cos(ph)), (math.sin(ph), 0.0, 0.0))
+        c = _add(a0, _mul(_sub(a1, a0), 0.5))
+        out.append(_blade("BodyDark", _add(c, _mul(r, 0.5)), _add(_mul(r, 0.7), _mul(axis, -0.75)), ln, 0.09, wide, "ruff", thin_axis=r, mirror=True))
     return out
 
 
 _FV2 += _fv2_ruff()
-# the back ridge: wedges along the spine, tallest at the withers, swept back (y, z of the back, length)
-for _y, _z, _ln in ((-0.6, 3.2, 1.15), (-0.15, 3.15, 1.05), (0.3, 2.98, 0.95), (0.75, 2.88, 0.85), (1.2, 2.9, 0.8), (1.6, 2.95, 0.7)):
-    _FV2.append(_blade("BodyDark", (0.0, _y, _z - 0.15), (0.0, 0.7, 0.72), _ln, 0.09, 0.3, "ridge"))
-# the shoulder fur breaks and the haunch tufts: wedges thrown up, out and back along the outline of the shoulder
-for _b, _d, _ln in (((0.7, -0.95, 3.0), (0.6, 0.45, 0.65), 1.15), ((0.85, -0.5, 2.8), (0.8, 0.5, 0.45), 1.05), ((0.85, 0.0, 2.6), (0.8, 0.6, 0.3), 0.9),
-                    ((0.75, 1.0, 2.65), (0.6, 0.5, 0.6), 0.8), ((0.8, 1.45, 2.45), (0.6, 0.65, 0.4), 0.7)):
-    _FV2.append(_blade("BodyDark", _b, _d, _ln, 0.09, 0.28, "break", thin_axis=(0.0, 0.0, 1.0), mirror=True))
+# the back: five big fins sweeping back along the spine (a continuous ridge of breaks, not a row of spikes): y, length, half width
+for _y, _ln, _w in ((-0.6, 1.6, 0.5), (0.0, 1.7, 0.52), (0.6, 1.6, 0.5), (1.2, 1.4, 0.46)):
+    _FV2.append(_fin("BodyDark", (0.0, _y, _fv2_top(_y) - 0.25), (0.0, 0.82, 0.57), _ln, _w, 0.09, "ridge", wide_dir=(0.0, -0.57, 0.82)))
+# the shoulder and haunch breaks: three pairs of long fins swept back and out along the flanks
+for _b, _d, _ln in (((0.8, -0.9, 3.0), (0.5, 0.85, 0.25), 1.6), ((0.7, 0.85, 3.5), (0.5, 0.85, 0.15), 1.4)):
+    _FV2.append(_fin("BodyDark", _b, _d, _ln, 0.36, 0.09, "break", wide_dir=(0.0, 0.0, 1.0), mirror=True))
 # claws: three on each paw, pointing forward and down
-for _x in (0.5, 0.7, 0.9):
-    _FV2.append(_blade("Trim", (_x, -1.9, 0.2), (0.0, -0.8, -0.35), 0.45, 0.08, 0.08, "claw", mirror=True, segments=5))
-    _FV2.append(_blade("Trim", (_x, 0.95, 0.2), (0.0, -0.8, -0.35), 0.45, 0.08, 0.08, "claw", mirror=True, segments=5))
-# four fangs on the open mouth (placed against the mouth the sculpt cuts in the muzzle: its flat top edge is at z 2.04, y -4.15): two long
-# upper canines hanging from the lip, two shorter lower ones standing in the jaw between them
-_FV2.append(spike("EyeWhite", (0.2, -3.9, 2.12), (0.2, -4.08, 1.56), 0.105, segments=6, mirror=True, name="fang"))
-_FV2.append(spike("EyeWhite", (0.07, -4.02, 1.78), (0.07, -4.13, 2.14), 0.085, segments=6, mirror=True, name="fang"))
+for _dx in (-0.23, 0.0, 0.23):
+    _FV2.append(_blade("Trim", (0.85 + _dx, -2.0, 0.22), (0.0, -0.8, -0.4), 0.5, 0.08, 0.08, "claw", mirror=True, segments=5))
+    _FV2.append(_blade("Trim", (0.8 + _dx, 0.65, 0.22), (0.0, -0.8, -0.4), 0.5, 0.08, 0.08, "claw", mirror=True, segments=5))
+# spurs: a dewclaw behind each wrist and a spur at each hock, silver, pointing back and down
+_FV2.append(_blade("Trim", (0.88, -1.05, 0.85), (0.1, 0.75, -0.55), 0.55, 0.08, 0.1, "claw", mirror=True, segments=5))
+_FV2.append(_blade("Trim", (0.84, 1.75, 1.0), (0.1, 0.9, -0.3), 0.6, 0.08, 0.1, "claw", mirror=True, segments=5))
+# four fangs on the open mouth (placed against the mouth the sculpt cuts in the muzzle): two long upper canines hanging from the lip, two shorter
+# lower ones standing in the jaw between them
+_FV2.append(spike("EyeWhite", (0.3, -4.2, 2.15), (0.4, -4.35, 1.3), 0.12, segments=6, mirror=True, name="fang"))
+_FV2.append(spike("EyeWhite", (0.15, -4.3, 1.78), (0.15, -4.38, 2.2), 0.09, segments=6, mirror=True, name="fang"))
 # the crescent on the forehead, standing up between the ears
-_FV2 += _crescent("Accessory", (0.0, -2.78, 3.98), 0.62, 20.0, 0.16, "moon", a0=140.0, a1=400.0, n=7)
+_FV2 += _crescent("Accessory", (0.0, -3.1, 3.72), 0.6, 20.0, 0.16, "moon", a0=140.0, a1=400.0, n=7)
 # two chain links on one shoulder (interlocked: one flat to the flank, one turned a quarter) and a rune plate on the other
-_FV2.append(tor("Trim", (1.17, -0.75, 2.75), (0.52, 0.52, 0.52), rot=aim((1.0, 0.1, 0.25)), minor=0.3, segments=6, mseg=4, name="link"))
-_FV2.append(tor("Trim", (1.19, -0.75, 2.12), (0.5, 0.5, 0.5), rot=aim((0.3, 1.0, 0.1)), minor=0.3, segments=6, mseg=4, name="link"))
-_FV2.append(cyl("Trim", (-1.17, -0.75, 2.6), (0.5, 0.5, 0.07), rot=aim((-1.0, 0.1, 0.25)), segments=6, name="plate"))
-for _p0, _p1 in (((-1.25, -0.75, 2.98), (-1.27, -0.75, 2.2)), ((-1.25, -1.2, 2.3), (-1.27, -0.75, 2.62)), ((-1.25, -0.3, 2.3), (-1.27, -0.75, 2.62))):
+_FV2.append(tor("Trim", (1.3, -0.95, 2.95), (0.5, 0.5, 0.5), rot=aim((1.0, 0.1, 0.25)), minor=0.3, segments=6, mseg=4, name="link"))
+_FV2.append(tor("Trim", (1.32, -0.95, 2.35), (0.48, 0.48, 0.48), rot=aim((0.3, 1.0, 0.1)), minor=0.3, segments=6, mseg=4, name="link"))
+_FV2.append(cyl("Trim", (-1.3, -0.95, 2.8), (0.5, 0.5, 0.07), rot=aim((-1.0, 0.1, 0.25)), segments=6, name="plate"))
+for _p0, _p1 in (((-1.38, -0.95, 3.18), (-1.4, -0.95, 2.4)), ((-1.38, -1.4, 2.5), (-1.4, -0.95, 2.82)), ((-1.38, -0.5, 2.5), (-1.4, -0.95, 2.82))):
     _FV2.append(rod("Accessory", _p0, _p1, 0.06, segments=4, name="rune"))
-# tail tufts
-for _b, _d in (((0.5, 2.65, 3.0), (0.6, 0.8, 0.4)), ((1.1, 3.25, 3.4), (0.7, 0.8, 0.3)), ((1.5, 3.25, 3.85), (0.6, 0.6, 0.45)), ((1.55, 2.45, 4.0), (0.1, -0.5, 0.85))):
-    _FV2.append(_blade("BodyDark", _b, _d, 0.75, 0.09, 0.26, "tuft", thin_axis=(1.0, 0.0, 0.0)))
 
 RECIPES["FenripupV2"] = {
-    "tier": "Cosmic", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 4.6,
-    "silhouette": "a low long wolf on four planted clawed legs, shoulders above the hips, a thick neck ruff and a crest of fur wedges along the back, tall ears, a broad muzzle with four fangs, a bushy tail swept up and curled to one side and a glowing crescent moon standing on the forehead",
+    "tier": "Cosmic", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 5.1,
+    "silhouette": "a low long wolf stalking on four long clawed legs, chest low and haunches raised, a wedge head with a long muzzle and four fangs, tall ears, a ruff and big swept-back fur breaks along the back, a bushy tail curled to one side and a glowing crescent moon standing on the forehead",
     "hero": "the forehead crescent, the ruff and the fangs",
-    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.35, "eye_tilt": 20.0, "mouth": "wide", "lid": 0.45, "eye_height": 0.62, "mouth_drop": 0.3, "look": (0.0, 0.0)},
+    "face": {"on": "head", "eye_scale": 2.0, "eye_gap": 1.42, "eye_tilt": 22.0, "mouth": "wide", "lid": 0.6, "eye_height": 0.62, "mouth_drop": 0.3, "look": (0.0, 0.0)},
     "palette": {"Body": "3B2E6B", "BodyDark": "8E84CC", "Accessory": "FFC83D", "Trim": "C9D3F0", "Mouth": "4A0E1A"}, "glow": {"Accessory": 3.0}, "metal": {"Trim": 0.85},
     "steps": [
-        sph("Body", (0.0, -0.75, 2.35), (0.88, 1.05, 0.8), segments=16, name="chest"),
-        sph("Body", (0.58, -0.8, 2.6), (0.55, 0.65, 0.6), segments=10, mirror=True, name="shoulder"),
-        sph("Body", (0.0, 0.55, 2.3), (0.66, 0.85, 0.58), segments=14, name="waist"),
-        sph("Body", (0.0, 1.3, 2.25), (0.78, 0.8, 0.7), segments=14, name="hips"),
-        sph("Body", (0.55, 1.25, 2.0), (0.5, 0.62, 0.68), segments=10, mirror=True, name="thigh"),
-        rod("Body", _FV2_NECK[0], _FV2_NECK[1], 0.74, 0.66, segments=10, name="neck"),
-        sph("Body", _FV2_HEAD, (0.86, 0.82, 0.76), segments=16, name="head"),
-        rod("Body", (0.0, -2.9, 2.66), (0.0, -4.35, 2.52), 0.45, 0.33, segments=10, name="muzzle"),
-        rod("Body", (0.0, -2.9, 2.08), (0.0, -4.15, 1.98), 0.33, 0.25, segments=10, name="jaw"),
-        sph("Body", (0.0, -4.5, 2.56), (0.24, 0.2, 0.17), segments=8, name="nose"),
-        rod("Body", (0.62, -0.9, 2.1), (0.66, -1.2, 0.3), 0.4, 0.32, segments=8, mirror=True, name="foreleg"),
-        sph("Body", (0.66, -1.4, 0.2), (0.4, 0.62, 0.2), segments=10, mirror=True, name="paw"),
-        rod("Body", (0.65, 1.5, 1.95), (0.66, 1.55, 0.3), 0.36, 0.3, segments=8, mirror=True, name="hindleg"),
-        sph("Body", (0.66, 1.35, 0.2), (0.38, 0.6, 0.2), segments=10, mirror=True, name="hindpaw"),
-        sweep("Body", [(0.0, 1.7, 2.45), (0.3, 2.4, 2.7), (0.85, 2.95, 3.1), (1.35, 3.15, 3.5), (1.6, 2.95, 3.8), (1.55, 2.5, 3.95)], [0.34, 0.5, 0.6, 0.56, 0.38, 0.09], name="tail"),
+        sph("Body", (0.0, -0.95, 2.2), (1.1, 1.1, 0.95), segments=16, name="chest"),
+        sph("Body", (0.78, -1.0, 2.55), (0.62, 0.7, 0.7), segments=10, mirror=True, name="shoulder"),
+        sph("Body", (0.0, 0.35, 2.75), (0.72, 0.85, 0.6), segments=14, name="waist"),
+        sph("Body", (0.0, 1.1, 3.15), (0.84, 0.8, 0.76), segments=14, name="hips"),
+        sph("Body", (0.7, 1.1, 2.8), (0.55, 0.78, 0.9), segments=10, mirror=True, name="thigh"),
+        rod("Body", _FV2_NECK[0], _FV2_NECK[1], 0.74, 0.62, segments=10, name="neck"),
+        sph("Body", _FV2_HEAD, (0.7, 0.84, 0.7), segments=16, name="head"),
+        rod("Body", (0.0, -3.2, 2.58), (0.0, -5.1, 2.27), 0.42, 0.3, segments=10, name="muzzle"),
+        rod("Body", (0.0, -3.0, 1.98), (0.0, -4.8, 1.45), 0.34, 0.26, segments=10, name="jaw"),
+        sph("Body", (0.0, -5.25, 2.3), (0.26, 0.22, 0.19), segments=8, name="nose"),
+        # long forelegs tapering to a slim wrist, big flat paws; Z-shaped hind legs (thigh, shank, a thin cannon) and big hind paws
+        rod("Body", (0.8, -0.95, 2.35), (0.84, -1.3, 0.32), 0.52, 0.29, segments=8, mirror=True, name="foreleg"),
+        sph("Body", (0.85, -1.45, 0.2), (0.44, 0.74, 0.23), segments=10, mirror=True, name="paw"),
+        rod("Body", (0.7, 1.15, 2.75), (0.76, 0.65, 1.75), 0.5, 0.34, segments=8, mirror=True, name="thighbone"),
+        rod("Body", (0.76, 0.65, 1.75), (0.8, 1.65, 0.95), 0.34, 0.24, segments=8, mirror=True, name="shank"),
+        rod("Body", (0.8, 1.65, 0.95), (0.8, 1.5, 0.3), 0.24, 0.22, segments=8, mirror=True, name="cannon"),
+        sph("Body", (0.8, 1.2, 0.2), (0.42, 0.7, 0.23), segments=10, mirror=True, name="hindpaw"),
+        sweep("Body", [(0.0, 1.5, 3.3), (0.1, 2.2, 3.4), (0.4, 2.8, 3.7), (0.9, 3.25, 4.1), (1.5, 3.3, 4.4), (1.9, 2.9, 4.7), (1.9, 2.35, 4.9)],
+              [0.38, 0.58, 0.72, 0.76, 0.66, 0.42, 0.08], name="tail"),
         # tall ears: flat wedges, thin front to back, with a darker inner ear
-        _blade("Body", (0.58, -2.4, 3.1), (0.2, 0.12, 1.0), 1.3, 0.09, 0.44, "ear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
-        _blade("BodyDark", (0.58, -2.52, 3.25), (0.2, 0.12, 1.0), 0.92, 0.05, 0.26, "innerear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
-        _blade("BodyDark", (0.8, -2.55, 2.7), (0.75, 0.45, -0.2), 0.85, 0.09, 0.26, "cheek", thin_axis=(0.0, 0.0, 1.0), mirror=True),
-        _blade("BodyDark", (0.75, -2.5, 2.4), (0.65, 0.5, -0.45), 0.75, 0.09, 0.24, "cheek", thin_axis=(0.0, 0.0, 1.0), mirror=True),
+        _blade("Body", (0.46, -2.55, 3.0), (0.3, 0.2, 1.0), 1.45, 0.09, 0.5, "ear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
+        _blade("BodyDark", (0.46, -2.68, 3.1), (0.3, 0.2, 1.0), 1.0, 0.05, 0.3, "innerear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
+        _fin("BodyDark", (0.6, -2.95, 2.6), (0.75, 0.55, 0.1), 1.1, 0.3, 0.09, "cheek", wide_dir=(0.0, 0.0, 1.0), mirror=True),
+        _fin("BodyDark", (0.55, -2.9, 2.25), (0.65, 0.6, -0.3), 0.9, 0.26, 0.09, "cheek", wide_dir=(0.0, 0.0, 1.0), mirror=True),
+        # tail tufts on the outside of the curl
+        _fin("BodyDark", (0.4, 2.5, 3.8), (0.4, 0.7, 0.5), 1.2, 0.34, 0.09, "tuft", wide_dir=(0.0, 0.0, 1.0)),
+        _fin("BodyDark", (1.0, 3.6, 4.1), (0.6, 0.6, 0.5), 1.1, 0.32, 0.09, "tuft", wide_dir=(0.0, 0.0, 1.0)),
+        _fin("BodyDark", (2.25, 3.0, 4.55), (0.9, 0.3, 0.2), 0.9, 0.28, 0.09, "tuft", wide_dir=(0.0, 0.0, 1.0)),
     ] + _FV2,
 }
 # ---------------------------------------------------------------------------------------- Skydrake (an original sky dragon)
-# Facing -Y, the body in one S-curve in the picture plane (x, z) with the head up on the centre line, turned to the viewer. The body is ONE
-# sweep (a tube of calibrated balls, thick at the chest, tapering to the tail tip that rests on the ground). Core (fused): the sweep, the skull,
-# the snout and the jaw. Crisp: the mane and the dorsal crest (white wedges), the horns (gold antlers), the whiskers (gold rods), four small
-# clawed feet and the pearl held under the chin in a gold cradle.
-_SKY_PATH = [(1.55, 0.5, 0.09), (1.25, 0.6, 0.15), (0.8, 0.5, 0.22), (0.35, 0.32, 0.36), (-0.15, 0.18, 0.62), (-0.62, 0.07, 1.02), (-0.9, 0.0, 1.5),
-             (-0.8, -0.05, 2.0), (-0.3, -0.08, 2.45), (0.4, -0.08, 2.8), (0.9, -0.1, 3.25), (0.75, -0.2, 3.75), (0.25, -0.38, 4.08)]
-_SKY_RADII = [0.05, 0.09, 0.15, 0.23, 0.31, 0.37, 0.4, 0.41, 0.41, 0.39, 0.37, 0.35, 0.38]
-_SKY_HEAD = (0.0, -0.68, 4.3)
+# Round 2. Facing -Y, the body in one pronounced S-curve (x, z) with a smaller bend in y (the neck leans toward the viewer, the tail trails
+# away), the head up on the centre line at the top, high above the tail. The body is ONE sweep (a tube of calibrated balls, thick at the chest,
+# tapering to the tail tip that rests on the ground). Core (fused): the sweep, the wedge skull, the long snout, the jaw and the brow ridges.
+# Crisp: the mane (one continuous ridge of large white fins from the head to the tail, with flares at the head), the cheek frills, the
+# twice-branched gold antlers, the long gold whiskers, four small clawed feet and the pearl held under the chin in a gold cradle.
+# The head is built from offsets about its centre scaled by _SKY_HS, so its size is one number.
+_SKY_PATH = [(2.2, 1.7, 0.1), (1.8, 1.8, 0.15), (1.2, 1.6, 0.22), (0.55, 1.2, 0.36), (-0.1, 0.8, 0.62), (-0.85, 0.4, 1.02), (-1.4, 0.1, 1.57),
+             (-1.5, -0.1, 2.2), (-1.0, -0.2, 2.8), (-0.2, -0.15, 3.25), (0.75, 0.0, 3.65), (1.25, -0.15, 4.2), (1.0, -0.4, 4.7), (0.35, -0.7, 5.0)]
+_SKY_RADII = [0.06, 0.11, 0.2, 0.32, 0.42, 0.5, 0.54, 0.55, 0.54, 0.52, 0.5, 0.48, 0.47, 0.5]
+_SKY_HC = (0.0, -1.0, 5.1)   # the head's centre
+_SKY_HS = 1.3                 # the head's scale: every head offset and radius below is in units of this
 _SKY = []
+
+
+def _h(dx, dy, dz):
+    """A point of the head: the offset (dx, dy, dz) from its centre, scaled."""
+    return (_SKY_HC[0] + dx * _SKY_HS, _SKY_HC[1] + dy * _SKY_HS, _SKY_HC[2] + dz * _SKY_HS)
+
+
+def _oval(slot, a, b, wx, wz, wx2, wz2, name, segments=10):
+    """A rod from a to b (mostly along y) with an oval section: half width wx and half height wz at a, wx2 and wz2 at b (a snout is deeper than wide)."""
+    d = _sub(b, a)
+    return cone(slot, _mul(_add(a, b), 0.5), (wx, wz, _len(d) / 2.0), rot=aim(d), tip=wx2 / wx, segments=segments, name=name)
 
 
 def _sky_at(u):
@@ -1269,54 +1314,65 @@ def _sky_at(u):
     return p, t, d, n, _SKY_RADII[i] + (_SKY_RADII[i + 1] - _SKY_RADII[i]) * (f - i)
 
 
-# the mane: three white wedges (middle and both sides) at each of seven stations down the neck, streaming back along the body and flaring out
-for _u, _ln, _w in ((0.97, 1.2, 0.3), (0.9, 1.15, 0.29), (0.83, 1.05, 0.27), (0.76, 0.95, 0.25), (0.69, 0.85, 0.23), (0.62, 0.75, 0.21), (0.55, 0.65, 0.19)):
+# the mane: ONE continuous ridge of large white fins from the head to the tail (each overlaps the next), streaming back along the body
+for _k in range(15):
+    _u = 0.985 - _k * 0.0467
     _p, _t, _d, _n, _r = _sky_at(_u)
-    for _s in (-1, 0, 1):
-        _SKY.append(_blade("BodyDark", _add(_add(_p, _mul(_d, _r * 0.7)), _mul(_n, _s * _r * 0.6)),
-                           _add(_add(_mul(_d, 0.5), _mul(_n, _s * 0.65)), _mul(_t, -0.7)), _ln, 0.08, _w, "mane", thin_axis=_n))
-# the dorsal crest: single smaller wedges the rest of the way down to the tail
-for _u, _ln in ((0.5, 0.6), (0.44, 0.55), (0.38, 0.5), (0.32, 0.45), (0.26, 0.4), (0.2, 0.35)):
+    _f = _k / 14.0
+    _SKY.append(_fin("BodyDark", _add(_p, _mul(_d, _r * 0.55)), _add(_mul(_d, 0.55), _mul(_t, -0.85)), 2.0 - 1.3 * _f, 0.62 - 0.36 * _f, 0.07,
+                     "mane", wide_dir=_t))
+# the mane flares out at the head: a pair of side fins at the first three stations
+for _u, _ln in ((0.97, 1.4), (0.9, 1.25), (0.83, 1.1)):
     _p, _t, _d, _n, _r = _sky_at(_u)
-    _SKY.append(_blade("BodyDark", _add(_p, _mul(_d, _r * 0.8)), _add(_mul(_d, 0.6), _mul(_t, -0.7)), _ln, 0.07, 0.17, "crest", thin_axis=_n))
-# cheek frills: white wedges thrown out and back from the jaw, so the head is wide at the back and narrow at the nose (a wedge from the front)
-for _b, _d, _ln in (((0.4, -0.55, 4.1), (0.8, 0.45, 0.0), 0.95), ((0.38, -0.5, 3.9), (0.75, 0.5, -0.35), 0.8)):
-    _SKY.append(_blade("BodyDark", _b, _d, _ln, 0.07, 0.24, "frill", thin_axis=(0.0, 0.0, 1.0), mirror=True))
-# antler horns: a main beam sweeping back from the top of the skull with two tines, gold
-for _a, _b, _r0, _r1 in (((0.24, -0.55, 4.68), (0.4, -0.2, 5.02), 0.1, 0.08), ((0.4, -0.2, 5.02), (0.5, 0.25, 5.22), 0.08, 0.06),
-                         ((0.5, 0.25, 5.22), (0.45, 0.7, 5.27), 0.06, 0.02), ((0.4, -0.2, 5.02), (0.78, -0.15, 5.4), 0.06, 0.02),
-                         ((0.5, 0.25, 5.22), (0.86, 0.35, 5.55), 0.05, 0.02)):
-    _SKY.append(rod("Trim", _a, _b, _r0, _r1, segments=6, mirror=True, name="horn"))
-# long whiskers from the sides of the snout, gold, flowing out and back
-for _pts, _rr in (([(0.2, -1.4, 4.2), (0.6, -1.62, 4.28), (1.05, -1.55, 4.18), (1.5, -1.25, 3.88), (1.85, -0.8, 3.45)], (0.05, 0.042, 0.034, 0.027, 0.016)),
-                  ([(0.18, -1.4, 4.08), (0.55, -1.65, 3.98), (0.95, -1.65, 3.72)], (0.045, 0.034, 0.016))):
-    for _i in range(len(_pts) - 1):
-        _SKY.append(rod("Trim", _pts[_i], _pts[_i + 1], _rr[_i], _rr[_i + 1], segments=5, mirror=True, name="whisker"))
+    for _s in (-1, 1):
+        _SKY.append(_fin("BodyDark", _add(_add(_p, _mul(_d, _r * 0.3)), _mul(_n, _s * _r * 0.5)),
+                         _add(_add(_mul(_d, 0.3), _mul(_n, _s * 0.8)), _mul(_t, -0.6)), _ln, 0.32, 0.07, "mane", wide_dir=_d))
+# cheek frills: white fins thrown out and back from the jaw hinge, so the head is wide at the back and narrow at the nose (a wedge from the front)
+for _b, _d, _ln in (((0.4, 0.15, 0.0), (0.9, 0.4, 0.1), 1.0), ((0.36, 0.2, -0.25), (0.8, 0.5, -0.3), 0.8)):
+    _SKY.append(_fin("BodyDark", _h(*_b), _d, _ln * _SKY_HS, 0.26 * _SKY_HS, 0.07, "frill", wide_dir=(0.0, 0.0, 1.0), mirror=True))
+# antler horns, branched twice: a main beam sweeping back from the skull with two tines, and each tine forks into two prongs. Gold.
+_HORN = (((0.26, 0.05, 0.35), (0.42, 0.4, 0.8), 0.1, 0.085, 5), ((0.42, 0.4, 0.8), (0.55, 0.9, 1.15), 0.085, 0.065, 5),
+         ((0.55, 0.9, 1.15), (0.5, 1.45, 1.35), 0.065, 0.02, 5))
+for _a, _b, _r0, _r1, _sg in _HORN:
+    _SKY.append(rod("Trim", _h(*_a), _h(*_b), _r0 * _SKY_HS, _r1 * _SKY_HS, segments=_sg, mirror=True, name="horn"))
+for _pts, _rr in (([(0.42, 0.4, 0.8), (0.85, 0.55, 1.15)], (0.06, 0.045)),   # first tine
+                  ([(0.85, 0.55, 1.15), (1.1, 0.5, 1.6)], (0.045, 0.015)), ([(0.85, 0.55, 1.15), (1.25, 0.75, 1.25)], (0.04, 0.012)),   # its two prongs
+                  ([(0.55, 0.9, 1.15), (0.95, 1.05, 1.5)], (0.055, 0.04)),    # second tine
+                  ([(0.95, 1.05, 1.5), (1.1, 1.0, 1.95)], (0.04, 0.014)), ([(0.95, 1.05, 1.5), (1.35, 1.35, 1.55)], (0.035, 0.012))):   # its two prongs
+    _SKY += _chain("Trim", [_h(*q) for q in _pts], [v * _SKY_HS for v in _rr], "horn", segments=4)
+# long whiskers from the sides of the snout, gold, swept back past the neck
+_SKY += _chain("Trim", [_h(*q) for q in ((0.18, -1.0, -0.3), (0.6, -1.1, -0.25), (1.2, -0.9, -0.4), (1.9, -0.4, -0.65), (2.6, 0.3, -1.0))],
+               (0.05, 0.045, 0.036, 0.027, 0.016), "whisker")
+_SKY += _chain("Trim", [_h(*q) for q in ((0.16, -0.95, -0.45), (0.55, -1.1, -0.55), (1.0, -0.95, -0.8), (1.5, -0.55, -1.1))],
+               (0.045, 0.038, 0.028, 0.016), "whisker")
 # four small clawed feet: a short mitten of a leg out to each side of the body (wide at the paw), two gold claws on each
-for _u in (0.875, 0.5):
+for _u in (0.8, 0.42):
     _p, _t, _d, _n, _r = _sky_at(_u)
     for _s in (-1, 1):
         _a = _add(_add(_p, _mul(_n, _s * _r * 0.8)), _mul(_d, -_r * 0.3))
-        _tip = _add(_add(_a, _mul(_n, _s * 0.3)), (0.0, -0.2, -0.4))
-        _SKY.append(cone("Body", _mul(_add(_a, _tip), 0.5), (0.17, 0.17, _len(_sub(_tip, _a)) / 2.0), rot=aim(_sub(_a, _tip)), tip=0.5, segments=6, name="foot"))
+        _tip = _add(_add(_a, _mul(_n, _s * 0.3)), (0.0, -0.2, -0.45))
+        _SKY.append(cone("Body", _mul(_add(_a, _tip), 0.5), (0.2, 0.2, _len(_sub(_tip, _a)) / 2.0), rot=aim(_sub(_a, _tip)), tip=0.5, segments=6, name="foot"))
         for _c in (-1, 1):
-            _cb = _add(_tip, (0.08 * _c, 0.0, 0.0))
-            _SKY.append(_blade("Trim", _cb, _add(_sub(_tip, _a), (0.5 * _c, 0.0, 0.0)), 0.24, 0.05, 0.05, "claw", segments=5))
-# the pearl held under the chin in a small gold cradle
-_SKY.append(sph("Accessory", (0.0, -1.6, 3.2), 0.33, segments=10, name="pearl"))
-_SKY.append(tor("Trim", (0.0, -1.6, 2.98), (0.35, 0.35, 0.35), minor=0.2, segments=8, mseg=4, name="cradle"))
+            _cb = _add(_tip, (0.09 * _c, 0.0, 0.0))
+            _SKY.append(_blade("Trim", _cb, _add(_sub(_tip, _a), (0.5 * _c, 0.0, 0.0)), 0.27, 0.055, 0.055, "claw", segments=5))
+# the pearl, larger, held under the chin in a small gold cradle
+_SKY.append(sph("Accessory", _h(0.0, -0.95, -1.1), 0.55, segments=12, name="pearl"))
+_SKY.append(tor("Trim", _h(0.0, -0.95, -1.1 + 0.2 / _SKY_HS), (0.5, 0.5, 0.5), minor=0.16, segments=8, mseg=4, name="cradle"))
+_SKY += _chain("Trim", [_h(0.15, -0.9, -0.62), _h(0.15, -0.95, -1.1 + 0.2 / _SKY_HS)], (0.04, 0.04), "tether", segments=4)
 
 RECIPES["Skydrake"] = {
-    "tier": "Legendary", "world": 0, "biome": "Sky", "batch": 0, "status": "recipe", "prototype": True, "height": 5.6,
-    "silhouette": "a long pale-jade serpent in one S-curve, tail on the ground and head up and turned to the viewer, a wedge head with branching gold antlers, a flowing white mane and crest of wedges down the neck and back, long whiskers, four small clawed feet and a glowing pearl held under the chin",
+    "tier": "Legendary", "world": 0, "biome": "Sky", "batch": 0, "status": "recipe", "prototype": True, "height": 7.57,
+    "silhouette": "a long pale-jade serpent in one deep S-curve, tail on the ground and the head carried high, a wedge head with a brow ridge and a long snout, twice-branched gold antlers, a continuous ridge of white fins down the neck and back, long swept-back whiskers, four small clawed feet and a glowing pearl held under the chin",
     "hero": "the S-curve body with its white mane, the antlers and the pearl",
-    "face": {"on": "head", "eye_scale": 1.8, "eye_gap": 1.3, "eye_tilt": 0.0, "mouth": "wide", "look": (0.0, 0.1), "cross": 0.08, "eye_height": 0.62, "mouth_drop": 0.3, "mouth_scale": 1.35},
+    "face": {"on": "head", "eye_scale": 1.5, "eye_gap": 1.35, "eye_tilt": 0.0, "mouth": "wide", "look": (0.0, 0.1), "cross": 0.08, "eye_height": 0.62, "mouth_drop": 0.3, "mouth_scale": 1.35},
     "palette": {"Body": "9AD8BA", "BodyDark": "F4F7F2", "Accessory": "CFE8FF", "Trim": "F2B632", "Mouth": "7A1F3D"}, "glow": {"Accessory": 2.5}, "metal": {"Trim": 0.9},
     "steps": [
         sweep("Body", _SKY_PATH, _SKY_RADII, name="body"),
-        sph("Body", _SKY_HEAD, (0.55, 0.62, 0.48), segments=16, name="head"),
-        rod("Body", (0.0, -1.05, 4.2), (0.0, -2.0, 4.06), 0.4, 0.24, segments=10, name="snout"),
-        rod("Body", (0.0, -1.0, 3.85), (0.0, -1.8, 3.76), 0.24, 0.16, segments=10, name="jaw"),
+        sph("Body", _h(0.0, 0.0, 0.0), (0.52 * _SKY_HS, 0.62 * _SKY_HS, 0.48 * _SKY_HS), segments=16, name="head"),
+        _oval("Body", _h(0.0, -0.3, -0.2), _h(0.0, -1.8, -0.38), 0.3 * _SKY_HS, 0.4 * _SKY_HS, 0.2 * _SKY_HS, 0.27 * _SKY_HS, name="snout"),
+        _oval("Body", _h(0.0, -0.25, -0.55), _h(0.0, -1.5, -0.7), 0.2 * _SKY_HS, 0.24 * _SKY_HS, 0.13 * _SKY_HS, 0.15 * _SKY_HS, name="jaw"),
+        # the brow ridge: a thick rod over each eye, from the bridge of the snout back along the skull
+        rod("Body", _h(0.06, -0.55, 0.5), _h(0.55, 0.05, 0.42), 0.1 * _SKY_HS, 0.035 * _SKY_HS, segments=8, mirror=True, name="brow"),
     ] + _SKY,
 }
 # ==== HEROES END ====

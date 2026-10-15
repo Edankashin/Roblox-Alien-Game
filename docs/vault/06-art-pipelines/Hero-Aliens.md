@@ -13,6 +13,8 @@ This note is the first answer: two recipes, **`FenripupV2`** (Fenrir v2) and **`
 
 The sheet is also at `media/studio/2026-10-15/heroes_v1.jpg`. Top row: the shipped Fenripup (the sitting puppy) for scale. Middle: Fenrir v2. Bottom: Skydrake.
 
+Round 2, the same day, reworked both after this sheet: see [[#Round 2 (2026-10-15, after the first sheet)]] and `heroes_v2.jpg`. The sections below up to "Round 2" describe round 1 (the sheet above); the round 2 section says what each answered.
+
 ## At a glance
 
 | | Fenrir v2 (`FenripupV2`) | Skydrake |
@@ -209,8 +211,113 @@ For the effects system being built in parallel. The anchor positions are in reci
 - **Pearl light.** At the pearl (0, -1.6, 3.2): a pale blue-white `PointLight` (range about 16, brightness 2, a 3 s breath), a four-point star sparkle on a slow rotation, a glow sprite 1.4 studs across; the Neon pearl (emission 2.5) is the base.
 - **A ribbon trail.** A `Trail` from two attachments at the tail tip (1.55, 0.5, 0.09) and (1.55, 0.5, 0.45): width 0.4 studs, life 1.8 s, colour jade `9AD8BA` through pale blue `CFE8FF` to gold `F2B632`, transparency 0.25 to 1; short gold trails on the whisker tips (+-1.85, -0.8, 3.45) of 0.8 s. A slow hover bob (+-0.15 studs over 3 s) would sell it as a sky creature; that is an animation, not an effect.
 
+## Round 2 (2026-10-15, after the first sheet)
+
+The owner's words on Fenrir after the first sheet: "more detailed, a lot more scary and strong, and have effects"; the goofy big eyes stay. The first sheet's own findings (above, "What still needs work") were the brief: Fenrir reads as a bear from the front; Skydrake's head is round. Round 2 reworks only the two prototype recipes (`FenripupV2`, `Skydrake` between the `HEROES BEGIN` and `HEROES END` markers of `tools/blender/species_recipes.py`); `species_sculpt.py` is untouched (every override is on the command line, below), the shipped keys and `assets/models/` are untouched, and there is still no `Species.luau` row.
+
+![Round 2: v1 above v2 for each hero (front, three-quarter, side, the 64 px shapes), and the overlaps](refs/sculpt-pass/heroes_v2.jpg)
+
+The sheet is also at `media/studio/2026-10-15/heroes_v2.jpg` (250 KB). For each hero the round 1 row is above the round 2 row, the same cell size in a column so the size change shows.
+
+### In numbers
+
+| | Fenrir v1 | Fenrir v2 | Skydrake v1 | Skydrake v2 |
+|---|---|---|---|---|
+| Triangles (GLB), budget | 2,365 (2,400) | **2,326** (2,400) | 2,438 (2,500) | **2,406** (2,500) |
+| Core skin / crisp parts | 1,307 / 73 | 1,332 / 58 | 1,256 / 67 | 998 / 71 |
+| Size in studs (x, y, z) | 3.8 x 8.4 x 4.6 | 4.7 x 9.7 x 5.1 | 3.8 x 3.0 x 5.6 | 6.7 x 5.1 x 7.6 |
+| Fur wedges / mane wedges | 40 | **21** | 27 | 21 (larger, 2.0 to 0.7 long) |
+| Build, 4 cores, `res` 0.03 | 40 to 57 s | 46 s | 10 to 14 s | 26 s |
+| Fit scale to the declared height | 0.991 | 0.996 | 1.019 | 0.992 |
+
+Triangles by slot (GLB): Fenrir v2 Body 1,410, Trim 244, Accessory 233, BodyDark 184, EyeWhite 160, Pupil 48, EyeHighlight 36, Mouth 11. Skydrake v2 Body 1,126, Trim 711 (30 percent of the budget: 18 antler rods, 14 whiskers, claws, ring and tethers), BodyDark 200, Accessory 149, EyeWhite 120, Pupil 48, EyeHighlight 36, Mouth 16. Both still use the eight slots; the recipe's declared heights are 5.1 and 7.57 (the primitive estimate, within 3 percent of the build).
+
+The 64 px overlap (intersection over union of the black shapes, `preview.py`'s `<Id>_grey.png`, 30 degree view; "plain" as framed, "boxed" each shape cropped to its bounding box and stretched to 48 x 48; the bar in [[Silhouette-Pass]] is 0.85):
+
+| v2 against | Plain 64 | Boxed 48 |
+|---|---|---|
+| Fenrir v2 and its v1 | 0.46 | 0.70 |
+| Fenrir v2 and Shimmerlynx | 0.28 | 0.51 |
+| Fenrir v2 and Gaiabloom | 0.32 | 0.39 |
+| Skydrake v2 and its v1 | 0.56 | 0.55 |
+| Skydrake v2 and Shimmerlynx | 0.41 | 0.46 |
+| Skydrake v2 and Gaiabloom | 0.29 | 0.34 |
+| (round 1, for comparison) Fenrir v1 / Skydrake v1 with Shimmerlynx | 0.39 / 0.43 | 0.56 / 0.50 |
+| (round 1) Fenrir v1 / Skydrake v1 with Gaiabloom | 0.38 / 0.31 | 0.39 / 0.44 |
+
+Both v2 shapes sit further from the roster than their v1 did (Fenrir v2 against Shimmerlynx 0.39 to 0.28). Black pixels at 64 px (of 4,096): Fenrir v2 477, Skydrake v2 466 (v1 478, 521): the same small footprint, since both are framed by their longest side; the wolf is now 9.7 studs long and the serpent 7.6 high.
+
+### Fenrir v2: what changed
+
+- **Wedge head.** Skull radii 0.86 x 0.82 x 0.76 became 0.70 x 0.84 x 0.70 (19 percent narrower across). The muzzle is a taper from radius 0.42 to 0.30 over 2.0 studs to a nose sphere, so the nose sits 1.78 studs ahead of the skull's front (v1: 1.33, 34 percent more) and the head is carried lower and further forward (centre z 2.5, y -2.85). The jaw is a separate rod hung 0.53 studs lower at its tip: an open snarl, the lower jaw visible in the side view. First build of the new jaw (radius 0.2 at the tip) failed with "unused slots: Mouth": the mouth's dent ate the thin jaw; a tip radius of 0.26 and a muzzle tip of 0.30 keep the mouth patch on skin.
+- **Stalking line.** The chest is lower and bigger (centre z 2.2, radii 1.1 x 1.1 x 0.95: its underside at z 1.25, v1 1.55) and the haunches are raised (hips centre z 3.15, top at 3.91: 0.66 above the withers' top, v1 0.25 below). A thin waist between. Wider barrel and shoulders for strength (chest x 0.88 to 1.1, shoulders to x +-0.78).
+- **Legs.** Forelegs 2.35 studs tall (v1 2.1), tapering from radius 0.52 to a 0.29 wrist, big flat paws (0.44 x 0.74); hind legs are Z-shaped: a thigh to a forward knee, a shank back to a hock, a thin cannon to the paw (v1 one straight rod). Three silver claws on each of the four paws (12), plus a dewclaw behind each wrist and a spur at each hock (4 more, `Trim`), 16 claws in all.
+- **Fur: fewer, larger breaks that sweep back.** 40 wedges became 21: six plates laid back round the neck (a ruff, 1.35 to 1.8 long and 0.9 to 1.0 wide, thin axis radial so each reads as a plate and not a spoke), four big fins along the spine (1.4 to 1.7 long, swept back at 35 degrees above the back line), two pairs of long breaks along the flanks, two pairs of cheek flares (broad, vertical), three on the tail. One helper `_fin(slot, base, d, length, wide, thick, name, wide_dir=...)` names the direction a fin spans, so a fin on the back spans up and a plate on the neck spans round it.
+- **Kept.** Four fangs (the two long upper canines now stand at x 0.3 splayed to 0.4 so they read from the front, flanking the jaw; the two short lower ones inside); the crescent (same `_crescent`, 7 rods, glowing); the two chain links on one shoulder and the rune plate with three strokes on the other (moved out with the wider shoulder); tall ears (broader, 0.5 half width) with a darker inner ear.
+- **Tail.** A bushy plume: a sweep from the rump (radius 0.38) swelling to 0.76 and curling up and to the viewer's right, tip at (1.9, 2.35, 4.9), with three silver-lavender tufts on the outside of the curl; it is the biggest shape in the 64 px silhouette. The widest point (x 3.07) is the outermost tail tuft.
+- **Eyes.** `eye_scale` 2.0 (the narrower host: radius 0.378 after the hybrid's 1.35 boost, v1 0.29), `eye_gap` 1.42, a lid of 0.6 slanted 22 degrees and `face.lid_grow=1.0` on the command line. Tried 1.3: the eyes close to slits and the goofy look is gone; v1's 1.6 was with a 0.45 lid. The mouth is the hybrid's default `wide` at 1.9: an 11 triangle red notch where the muzzle meets the jaw, behind the fangs.
+
+### Skydrake: what changed
+
+- **Wedge head.** The skull is 1.3 times larger (radii 0.68 x 0.81 x 0.62, v1 0.55 x 0.62 x 0.48; one number, `_SKY_HS`, scales every head offset), the snout an oval cone (deeper than wide: half width 0.39, half depth 0.52 at the root, tapering) 2.0 studs long (v1 a round rod, 1.0), the jaw beneath it, a **brow ridge** (a tapered rod over each eye, thick at the bridge of the snout, thin at its outer point) and four white cheek frills so the head is wide at the back and narrows to the nose. From the side and three-quarter views it is a horse-like dragon head; the eyes stay big and goofy (`eye_scale` 1.5 on the larger host: radius 0.27).
+- **Antlers branched twice.** A beam of three rods, two tines off it, each tine forking into two prongs: 9 rods a side (v1 5), the beams 5-sided and the thin prongs 4-sided to hold the triangles. Gold.
+- **Whiskers.** Two a side, 4 and 3 rods, about 3.7 studs long and swept back past the neck (v1 about 2.0), radius 0.05 tapering to 0.014.
+- **Mane.** One continuous ridge of 15 large white fins from the head to the tail (2.0 long and 1.24 wide at the head to 0.7 and 0.52 at the tail; each overlaps the next), plus a flaring pair at each of the first three stations behind the head: 21 wedges (v1 27 smaller ones, three to a station). Fins stand on the back and span along it (`wide_dir` the tangent).
+- **Pearl.** Radius 0.55 (v1 0.33: 4.6 times the volume), hanging below the chin, held by a ring around its upper third and two thin tethers up to the jaw (v1 floated with no hold).
+- **S-curve.** The path is 3.7 studs wide (v1 2.45) and the body also bends in depth: the tail trails 2.5 studs behind the neck (y 1.8 to -0.7; v1 1.0), so the side view is an S too and not a flat wall. The body is thicker (chest radius 0.55, v1 0.41) and the head carried at z 5.1 above a tail that rests on the ground (v1 4.3). The first sheet's "second lobe hidden behind the head" remains in the front view.
+
+### Commands
+
+From the repo root; `$S` is a scratch folder, the interpreter a Python with the `bpy` 5.0 module. The folders, `materials.json` and `base_glb.py` are round 1's (see "How it is built"); round 1's GLBs were kept in `$S/v1` for the comparison.
+
+```
+S=/tmp/heroes2
+python3 tools/blender/species_sculpt.py --species FenripupV2 --models $S/models --method hybrid \
+  --set stiff=4 --set stiff_thin=4 --set res=0.03 --set bevel_segments=0 --set crisp_detail=1.0 --set ring_sides=4 \
+  --set 'shell=["ruff","ridge","break","cheek","claw","innerear","link","plate","rune","tuft","fang"]' --set face.lid_grow=1.0
+python3 tools/blender/species_sculpt.py --species Skydrake --models $S/models --method hybrid \
+  --set tris=2480 --set stiff=4 --set stiff_thin=4 --set res=0.03 --set bevel_segments=0 --set crisp_detail=1.0 --set ring_sides=4 \
+  --set 'shell=["mane","crest","whisker","claw","foot","frill"]'
+python3 tools/blender/preview.py --models $S/models --species FenripupV2,Skydrake            # the 64 px shapes
+python3 tools/blender/preview.py --lit --models $S/models --species FenripupV2,Skydrake --backdrop C9C0DA --out $S/lit
+```
+
+Every `--set` is round 1's except `face.lid_grow` (1.0, was 1.6) and `Skydrake`'s `crest` (kept in the list, matches nothing now: the mane is one ridge named `mane`). New part names (`brow`, `tether`, `cheek`'s new shape) need no entry: the brow is core, the tether thin enough to union with the jaw. The mouth needs no override (the hybrid's `mouth_scale` 1.9). Fast iteration used `res` 0.04 (25 s for Fenrir).
+
+The review views are round 1's scratch wrapper (the lit scene of `preview.py`, a camera yaw per column): front, three-quarter (the same view `preview.py --lit` writes) and side, 420 px, 40 samples, backdrop `C9C0DA`; cells 9.4, 10.4 and 11.2 world units across for Fenrir, 9.4 for Skydrake. The sheet is a 100-line PIL script (scratch, not in the repo). `python3 -I -m unittest discover -s tools/tests -p 'test_*.py' -q` runs 198 tests, all passing; `python3 -I tools/blender/species_recipes.py --species FenripupV2,Skydrake` has the two within 3 percent of their declared heights.
+
+What changed in the repo: only the `HEROES` block of `tools/blender/species_recipes.py` (new helpers `_fin`, `_chain`, `_oval`, `_h`, `_fv2_top`; both recipes rewritten; the engine, `species_sculpt.py` and the tests are unchanged and the existing `HeroPrototypes` tests still hold), this note, the log, and the two copies of the sheet.
+
+### Effect anchors, updated
+
+Positions in recipe coordinates (studs, feet on z 0, the face on -Y; the build scales them by 0.996 for Fenrir and 0.992 for Skydrake). These replace the round 1 anchors in "Effects each should get" (the effects themselves are unchanged).
+
+- **Fenrir v2.** Moon glow at the crescent centre (0, -3.1, 3.72). Shadow wisps off the ridge fin tips (0, 0.71, 3.76), (0, 1.4, 4.02), (0, 1.91, 4.41), (0, 2.35, 4.45), the tail tip (1.9, 2.35, 4.9) and the ruff plate tips (+-1.42, -0.78, 3.9), (+-1.66, -0.64, 2.92), (+-1.25, -0.59, 2.03); a puff at each paw, forefeet (+-0.85, -1.45, 0.1), hindfeet (+-0.8, 1.2, 0.1). Eyes at (+-0.276, -3.40, 2.62), radius 0.38.
+- **Skydrake.** Pearl light at (0, -2.23, 3.67), radius 0.55. Cloud wisps on `_SKY_PATH` points 1, 3, 5, 7, 9 and 11: (1.8, 1.8, 0.15), (0.55, 1.2, 0.36), (-0.85, 0.4, 1.02), (-1.5, -0.1, 2.2), (-0.2, -0.15, 3.25), (1.25, -0.15, 4.2). Ribbon trail at the tail tip (2.2, 1.7, 0.1) (the second attachment 0.35 above). Short gold trails on the whisker tips (+-3.38, -0.61, 3.8) and (+-1.95, -1.72, 3.67); a sparkle on the antler tips (+-1.43, 0.3, 7.63) and (+-1.76, 0.76, 7.12).
+
+### What still needs work (round 2)
+
+Fenrir v2:
+- **From the front the long muzzle is foreshortened** (the camera looks down 18 degrees), so the nose reads a little like a trunk; the fangs flank the jaw so they do show, but a front view of any long snout is a short shape. The 64 px silhouette is the body and the plume: at 64 px the head, the crescent and the ears disappear in the black shape (477 pixels), and the gold crescent is one dot in colour.
+- **Scary is stance, fangs and fins; the face is still cute-fierce.** Big round eyes with a lid at 1.0 are ours; a bigger lid closes them to slits. The owner's "a lot more scary" may want something the recipe system cannot give (a darker value, a bigger mouth interior, an expression change), or the effects (flared eyes, shadow wisps).
+- The fins are straight flat pyramids (a curved fin is two cones, 20 triangles instead of 8); the links still float; the fur texture mottles at this size; the plume is a smooth tube with three wedges, not fur; the core is 1,332 triangles for a 9.7 stud body, so the paws and the thin cannon are polygonal.
+- The mouth interior is 11 triangles: a red notch, not an open maw.
+
+Skydrake v2:
+- **The head from the front is an anteater's**: a long snout seen end on under big goofy eyes and a brow. A friendlier head (a shorter snout, a smile) and a wedge head (the brief) pull against each other from the front.
+- The S is strongest in the three-quarter and side views; from the front the second lobe is behind the head and it reads as a C.
+- The antlers and the whiskers are thin (4-sided rods, radius 0.014 at the tips): they read in the 64 px black shape, as tick marks. Trim is 30 percent of the triangles.
+- White on pale jade is still low contrast; the brow rod is a plain tapered tube; the four feet are small cones and mostly hidden; the pearl's ring and tethers are thin and the pearl hides the neck in the front view.
+
+### What the recipe system could not do (round 2)
+
+- **A mouth you can place.** The face host puts the mouth where the host sphere's own normal meets the skin: with a long muzzle that is behind the tip and, for a thin jaw, eats it ("unused slots: Mouth"). The only handles are `mouth_drop`, `eye_height` and the shape of the host and the jaw; the fangs are placed by probing the sculpt's field (`face_plan`, a scratch script as in round 1) and move by hand whenever the head does. A recipe `mouth` position (or an open-jaw mouth) is the real fix.
+- **A bend.** A fin is a straight pyramid and a snout a straight cone; a curve is two parts. A `sweep` is core only (Body or BodyDark), so a curved whisker, a curved horn or a curved fin is a chain of crisp rods or cones.
+- **A head that is not a sphere, or off the centre line.** The face host must be a sphere on x = 0, so the neck of the S has to come back to the centre line, and a wedge head is a sphere plus a snout cone plus a brow rod. Oval cross-sections needed a cone with its own x and z scale (`_oval` in the block); `rod` is a circle.
+- **Per-part joining and the budget** are as in round 1: `shell=[...]` on the command line, so the command is part of the recipe's definition; the crisp parts (58 and 71) are about a third of each build.
+
 ## Next
 
-- The owner's look at the sheet: is Fenrir v2 the direction (the bear-from-the-front read, the amount of wedge), is Skydrake the kind of second hero wanted, and which world and tier does it live in.
+- The owner's look at the round 2 sheet (`heroes_v2.jpg`): is Fenrir v2 now scary and strong enough, or does it need what the recipe system cannot give (see "What still needs work (round 2)"); is Skydrake's wedge head still the friendly second hero wanted; and which world and tier does Skydrake live in.
 - If yes: one species at a time into `assets/models/` through the normal import path (the extra `Trim` slot means the loader's slot list and `ModelAssets` have to learn it; a separate change), the effects above, and a second pass on the heads.
-- Log: [[2026-10-15]] ("Worker: hero aliens").
+- Log: [[2026-10-15]] ("Worker: hero aliens", "Worker: hero aliens round 2").
