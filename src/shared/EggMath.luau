@@ -37,4 +37,14 @@ function EggMath.Pool(tier: string?, world: number, running: SeasonMath.Current?
 	return pool
 end
 
+-- The percent chance any one species of an egg's pool has when the server draws one at random: 100 over the pool's size.
+-- nil for an empty pool (nothing can hatch). The server sends it with the grant so the Reveal can print "1 in N" from the
+-- draw that really happened.
+function EggMath.Percent(poolSize: number): number?
+	if poolSize < 1 then
+		return nil
+	end
+	return 100 / poolSize
+end
+
 return EggMath

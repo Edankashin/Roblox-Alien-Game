@@ -26,7 +26,7 @@ FAMILIES = {
     'SETTINGS_': '@settings', 'SETTINGS_LEVEL_': '@setting_levels',
     'PERK_': 'Companions.PerkCap', 'OFFER_': '@offers', 'PEDDLER_KIND_': '@offer_kinds',
     'LANDMARK_': '@landmarks', 'GIFT_LABEL_': '@gift_labels', 'GIFT_TILE_': '@gift_tiles',
-    'SEGMENT_SHORT_': '@segments',
+    'SEGMENT_SHORT_': '@segments', 'REVEAL_WORD_': 'Tiers.Tiers',
     'COND_SHORT_': '@Condition', # optional override; consumer falls back to COND_PHRASE_
 }
 

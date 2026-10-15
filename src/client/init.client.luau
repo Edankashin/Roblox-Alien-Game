@@ -980,6 +980,8 @@ local function connectToasts()
 				scrapGained = grant.scrapGained,
 				perfect = false,
 				overflowScrap = grant.overflowScrap,
+				fromEgg = true, -- a grant: the egg beat plays
+				chancePercent = grant.oddsPercent, -- the server's draw; nil for a fixed reward (no chance line)
 			})
 		end)
 	end)
@@ -1375,6 +1377,8 @@ local function start(profile: Types.Profile)
 			scrapGained = grant.scrapGained,
 			perfect = false,
 			overflowScrap = grant.overflowScrap,
+			fromEgg = true, -- a grant: the egg beat plays
+			chancePercent = grant.oddsPercent, -- the server's draw; nil for a fixed reward (no chance line)
 		})
 	end
 	PeddlerScreen.OnGrant(showGrantReveal)
@@ -1387,6 +1391,9 @@ local function start(profile: Types.Profile)
 	Hud.SetLuck(State.GetLuck())
 	Screens.Register("Aliens", AliensScreen)
 	Screens.Register("Codex", CodexScreen)
+	Reveal.OnPlace(function() -- the Reveal's "Place it": the Aliens screen, where the newcomer can be seated or displayed
+		Screens.Open("Aliens")
+	end)
 	local function menu(name: string)
 		return function()
 			if not inCapture and not Reveal.IsOpen() then

@@ -16,6 +16,7 @@ return {
 	PeddlerLanding = "rbxassetid://12222095",
 	GiftClaim = "rbxassetid://1841114489",
 	WheelTick = "rbxassetid://15675059323", -- the wheel passes a wedge
+	CrackTick = "rbxassetid://15675059323", -- a tap on the Reveal's egg (the wheel's tick until the sound pass picks a crack)
 	WheelStop = "rbxassetid://1842279701",
 	HornCall = "rbxassetid://1846987124", -- the Warden's Horn is sounded
 	WardenAppear = "rbxassetid://0",

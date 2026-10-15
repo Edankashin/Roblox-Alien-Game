@@ -105,13 +105,14 @@ local function eggWorld(player: Player): number
 end
 
 -- A random species of the tier from the world this place runs that an egg can hatch (Shared/EggMath.Pool: not a quest
--- or Shower species, and an event species only while its season runs).
-local function pickEggSpecies(tier: string?, world: number): string?
+-- or Shower species, and an event species only while its season runs), and the percent chance it had among them
+-- (EggMath.Percent), which rides on the grant so the Reveal can print it.
+local function pickEggSpecies(tier: string?, world: number): (string?, number?)
 	local candidates = EggMath.Pool(tier, world, Seasons.Current())
 	if #candidates == 0 then
-		return nil
+		return nil, nil
 	end
-	return candidates[rng:NextInteger(1, #candidates)]
+	return candidates[rng:NextInteger(1, #candidates)], EggMath.Percent(#candidates)
 end
 
 -- Checks a reward against the data tables before anything is written, so a bad row refuses cleanly
@@ -224,8 +225,9 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 	local reward = ROWS[day].reward
 	local also: { Reward } = ROWS[day].also or {} -- paid in the same claim (lure, powerUp or spin rows)
 	local eggSpecies: string? = nil
+	local eggPercent: number? = nil
 	if reward.kind == "egg" then
-		eggSpecies = pickEggSpecies(reward.tier, eggWorld(player))
+		eggSpecies, eggPercent = pickEggSpecies(reward.tier, eggWorld(player))
 		if not eggSpecies then
 			return false, "Unknown"
 		end
@@ -256,6 +258,9 @@ local function onClaimGift(player: Player, day: any): (boolean, string?, Types.G
 	if eggSpecies then
 		-- GrantAlien writes the record, pays the codex, seats it and pushes ScrapChanged and the camp.
 		grant = Economy.GrantAlien(player, eggSpecies, Spawner.RollOverlay(), false)
+		if grant then
+			grant.oddsPercent = eggPercent
+		end
 	end
 	if scrapChanged then
 		pushScrap(player, profile)
@@ -397,11 +402,15 @@ end
 -- seating and the pushes. Returns the GrantResult the client turns into a Reveal; nil when no species of the tier can be
 -- picked here or the player has no loaded profile (nothing is written then).
 function Gifts.GrantEgg(player: Player, tier: string?): Types.GrantResult?
-	local species = pickEggSpecies(tier, eggWorld(player))
+	local species, percent = pickEggSpecies(tier, eggWorld(player))
 	if not species then
 		return nil
 	end
-	return Economy.GrantAlien(player, species, Spawner.RollOverlay(), false)
+	local grant = Economy.GrantAlien(player, species, Spawner.RollOverlay(), false)
+	if grant then
+		grant.oddsPercent = percent
+	end
+	return grant
 end
 
 function Gifts.Init()

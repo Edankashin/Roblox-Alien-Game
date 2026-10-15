@@ -317,7 +317,10 @@ export type StorageState = { cap: number, bayLevel: number, gained: number? }
 -- A granted alien that was not caught in the wild (an egg from the Peddler): the client shows the Reveal.
 -- overflowScrap is set only when the storage cap (data/Storage) was full: no record was added, the alien turned into
 -- that much Scrap instead, and scrapGained already includes it. The Reveal shows the "Storage full" ribbon for it.
-export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size: string, isNew: boolean, scrapGained: number, scrap: number, overflowScrap: number? }
+-- oddsPercent is set by the egg grants only (Peddler, Welcome Week and playtime eggs): the percent chance this species had among
+-- the species the egg could hatch (Shared/EggMath.Percent over the pool the server drew from). The Reveal prints it as "1 in N";
+-- a grant without it (a fixed reward, the Starter Pack) shows no chance line.
+export type GrantResult = { species: string, tier: Tier, overlay: Overlay, size: string, isNew: boolean, scrapGained: number, scrap: number, overflowScrap: number?, oddsPercent: number? }
 
 -- Gifts -> client (GiftsChanged): Welcome Week progress and the spin balance.
 export type GiftState = { daysPlayed: number, claimed: { [string]: boolean }, freeSpins: number, bankedSpins: number }

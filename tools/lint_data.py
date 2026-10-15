@@ -769,6 +769,124 @@ def lint_effects(tables, types):
     return failures
 
 
+def lint_reveal(tables, root=ROOT):
+    """data/Reveal: positive durations and counts, the card's entrance inside its hold, the Rare total inside its band, a flag
+    row for every tier of data/Tiers Order that agrees with the ladder (Grand from Legendary up, an iris only for a tier
+    without rays, the ground ring only on a Grand tier), colour keys that exist in Theme, a button tall enough to tap."""
+    data = tables.get('Reveal')
+    if not isinstance(data, dict):
+        return ['Reveal.luau: required table unavailable']
+    failures = []
+    def check(ok, message):
+        if not ok:
+            failures.append(message)
+    def finite(value):
+        return type(value) in (int, float) and math.isfinite(value)
+    def positive(key):
+        check(finite(data.get(key)) and data[key] > 0, f'Reveal.{key}: expected a positive number')
+    def whole(key, minimum):
+        check(type(data.get(key)) is int and data[key] >= minimum, f'Reveal.{key}: expected a whole number of at least {minimum}')
+    def fraction(key):
+        check(finite(data.get(key)) and 0 < data[key] <= 1, f'Reveal.{key}: expected a fraction in (0, 1]')
+    for key in ('CrackSecondsPerTap', 'AutoCrackSeconds', 'ShardSeconds', 'RaySpinSeconds', 'CardDropSeconds', 'HoldSeconds',
+                'WordDropSeconds', 'WordFadeSeconds', 'ButtonSlideSeconds', 'ReducedMotionSeconds', 'TapRingPulseSeconds',
+                'TotalMinSeconds', 'TotalMaxSeconds', 'ReferenceHeight', 'PromptPx', 'PromptMaxPx', 'WordPx', 'WordMaxPx',
+                'ButtonHeightPx', 'TapPulseScale', 'TapRingPulse', 'PushInScale', 'PopScale', 'RaySpinUpDegrees', 'ShardSpinDegrees',
+                'WobbleStartDegrees', 'WobbleEndDegrees', 'ShardDistance', 'ShardAspect', 'EggAspect', 'CrackThickness'):
+        positive(key)
+    for key in ('CrackTaps', 'ShardCount', 'RayCount'):
+        whole(key, 1)
+    whole('ConfettiCount', 0)
+    for key in ('QuietSeconds', 'SkipGuardSeconds', 'OddsDelaySeconds', 'ChipDelaySeconds', 'ButtonDelaySeconds'):
+        check(finite(data.get(key)) and data[key] >= 0, f'Reveal.{key}: expected zero or more seconds')
+    check(finite(data.get('LegendaryShardScale')) and data['LegendaryShardScale'] >= 1, 'Reveal.LegendaryShardScale: expected 1 or more')
+    for key in ('Skip', 'CatchCrack'):
+        check(type(data.get(key)) is bool, f'Reveal.{key}: expected a boolean')
+    for key in ('GlowTransparencyStart', 'GlowTransparencyEnd', 'GlowBurstTransparency', 'GlowSoftness', 'DotEmptyTransparency',
+                'RayTransparency', 'IrisTransparency'):
+        check(finite(data.get(key)) and 0 <= data[key] <= 1, f'Reveal.{key}: expected a transparency in [0, 1]')
+    check(finite(data.get('GlowTransparencyStart')) and finite(data.get('GlowTransparencyEnd')) and data['GlowTransparencyEnd'] < data['GlowTransparencyStart'],
+          'Reveal.GlowTransparencyEnd: the glow must leak more by the last tap (a lower transparency than the start)')
+    check(finite(data.get('WobbleStartDegrees')) and finite(data.get('WobbleEndDegrees')) and data['WobbleEndDegrees'] >= data['WobbleStartDegrees'],
+          'Reveal.WobbleEndDegrees: each tap wobbles at least as hard as the one before')
+    for key in ('GlowHeight', 'GlowCoreScale', 'TapRingHeight', 'EggHeight', 'ShardHeight', 'IrisHeight', 'RingWidth', 'RingHeight',
+                'RingY', 'StageY', 'PromptY', 'PromptWidth', 'DotHeight', 'DotY', 'WordWidth', 'ButtonWidth', 'ButtonMargin',
+                'ButtonBottom', 'ButtonSlideDistance', 'OddsHeight', 'CardDropDistance', 'FooterY', 'FooterWidth', 'FooterHeight'):
+        check(finite(data.get(key)) and 0 < data[key] <= 1.5, f'Reveal.{key}: expected a screen fraction above 0')
+    check(finite(data.get('OddsWidth')) and data['OddsWidth'] >= 1, 'Reveal.OddsWidth: the chance pill must be at least as wide as the card')
+    check(finite(data.get('ButtonWidth')) and finite(data.get('ButtonMargin')) and 2 * (data['ButtonWidth'] + data['ButtonMargin']) < 1,
+          'Reveal: the two buttons must leave the middle of the screen free')
+    check(finite(data.get('FooterWidth')) and finite(data.get('ButtonWidth')) and finite(data.get('ButtonMargin')) and data['FooterWidth'] <= 1 - 2 * (data['ButtonWidth'] + data['ButtonMargin']) + 1e-9,
+          'Reveal.FooterWidth: the footer must fit between the two buttons')
+    # The card's entrance fits inside its hold, in order.
+    if all(finite(data.get(k)) for k in ('OddsDelaySeconds', 'ChipDelaySeconds', 'ButtonDelaySeconds', 'ButtonSlideSeconds', 'HoldSeconds')):
+        check(data['OddsDelaySeconds'] <= data['ChipDelaySeconds'] <= data['ButtonDelaySeconds'],
+              'Reveal: the odds line, then the chips, then the buttons (OddsDelaySeconds <= ChipDelaySeconds <= ButtonDelaySeconds)')
+        check(data['ButtonDelaySeconds'] + data['ButtonSlideSeconds'] <= data['HoldSeconds'],
+              'Reveal: the buttons must be up inside HoldSeconds (ButtonDelaySeconds + ButtonSlideSeconds)')
+    # Tap targets: the buttons are 44 px or more at the reference height, the prompt is not under the 14 px floor.
+    theme = (root / 'src/shared/Theme.luau').read_text()
+    tap = re.search(r'Theme\.TapMin\s*=\s*(\d+)', theme)
+    minimum = re.search(r'TextSize\s*=\s*\{[^}]*Min\s*=\s*(\d+)', theme)
+    check(bool(tap) and finite(data.get('ButtonHeightPx')) and data['ButtonHeightPx'] >= int(tap[1]),
+          'Reveal.ButtonHeightPx: under Theme.TapMin (44 px)')
+    check(bool(minimum) and finite(data.get('PromptPx')) and data['PromptPx'] >= int(minimum[1]), 'Reveal.PromptPx: under the 14 px text floor')
+    # Colour keys name real Theme colours.
+    def theme_keys(block):
+        found = re.search(r'Theme\.' + block + r'\s*=\s*\{(.*?)\n\}', theme, re.S)
+        return set(re.findall(r'^\s*(\w+)\s*=', found[1], re.M)) if found else set()
+    colors, rarity = theme_keys('Colors'), theme_keys('Rarity')
+    check(bool(colors) and bool(rarity), 'Reveal: Theme.Colors or Theme.Rarity unavailable')
+    check(data.get('GroundRingRarity') in rarity, f'Reveal.GroundRingRarity: {data.get("GroundRingRarity")!r} is not a Theme.Rarity key')
+    # Rows that are lists of numbers.
+    lines = data.get('CrackLines')
+    check(isinstance(lines, dict) and len(lines) >= 1, 'Reveal.CrackLines: expected at least one crack line')
+    for index, line in (lines or {}).items():
+        check(isinstance(line, dict) and len(line) >= 1, f'Reveal.CrackLines.{index}: expected bars')
+        for bar_index, bar in (line or {}).items():
+            ok = isinstance(bar, dict) and len(bar) == 4 and all(finite(v) for v in bar.values())
+            check(ok, f'Reveal.CrackLines.{index}.{bar_index}: expected { "{x, y, length, degrees}" }')
+            if ok:
+                check(0 <= bar[1] <= 1 and 0 <= bar[2] <= 1 and bar[3] > 0, f'Reveal.CrackLines.{index}.{bar_index}: outside the egg')
+    for index, row in (data.get('Speckles') or {}).items():
+        ok = isinstance(row, dict) and len(row) == 3 and all(finite(v) for v in row.values())
+        check(ok and 0 <= row[1] <= 1 and 0 <= row[2] <= 1 and 0 < row[3] <= 0.3, f'Reveal.Speckles.{index}: expected {{x, y, diameter}} inside the egg')
+    # One flag row per tier of the ladder, in agreement with it.
+    order = list(tables['Tiers']['Order'].values())
+    flags = data.get('Tiers')
+    check(isinstance(flags, dict) and set(flags) == set(order), 'Reveal.Tiers: needs exactly one row for every tier of data/Tiers Order')
+    if isinstance(flags, dict):
+        grand_from = order.index('Legendary') if 'Legendary' in order else len(order)
+        for position, tier in enumerate(order):
+            row = flags.get(tier)
+            where = f'Reveal.Tiers.{tier}'
+            if not isinstance(row, dict):
+                continue
+            for key in ('Rays', 'Grand', 'GroundRing', 'Iris', 'Word', 'Confetti'):
+                check(type(row.get(key)) is bool, f'{where}.{key}: expected a boolean')
+            check(finite(row.get('DimExtra')) and 0 <= row['DimExtra'] < 1, f'{where}.DimExtra: expected a number in [0, 1)')
+            check(row.get('Grand') == (position >= grand_from), f'{where}.Grand: Legendary and every tier above it, and only those, are Grand')
+            check(not row.get('GroundRing') or row.get('Grand'), f'{where}.GroundRing: the ground ring belongs to a Grand tier')
+            check(not (row.get('Iris') and row.get('Rays')), f'{where}: an iris opens instead of rays, not with them')
+            check(not row.get('Iris') or (finite(row.get('DimExtra')) and row['DimExtra'] > 0), f'{where}.DimExtra: an iris tier dims the screen further')
+            check(row.get('Confetti') == (position >= order.index('Epic')) if 'Epic' in order else True, f'{where}.Confetti: Epic and above')
+            for key in ('SecondRayColor', 'WordAccent'):
+                check(row.get(key) is None or row[key] in colors, f'{where}.{key}: {row.get(key)!r} is not a Theme.Colors key')
+        # The Rare total: crack + shard beat (rays or iris spend the spin) + card drop + hold, inside its band.
+        rare = flags.get('Rare')
+        needed = ('CrackTaps', 'CrackSecondsPerTap', 'ShardSeconds', 'RaySpinSeconds', 'CardDropSeconds', 'HoldSeconds', 'LegendaryShardScale',
+                  'TotalMinSeconds', 'TotalMaxSeconds')
+        if isinstance(rare, dict) and all(finite(data.get(k)) for k in needed):
+            beat = data['ShardSeconds'] + (data['RaySpinSeconds'] if rare.get('Rays') or rare.get('Iris') else 0)
+            beat *= data['LegendaryShardScale'] if rare.get('Grand') else 1
+            total = data['CrackTaps'] * data['CrackSecondsPerTap'] + beat + data['CardDropSeconds'] + data['HoldSeconds']
+            check(data['TotalMinSeconds'] <= total <= data['TotalMaxSeconds'],
+                  f'Reveal: the Rare total is {total:g} s, outside {data["TotalMinSeconds"]:g} to {data["TotalMaxSeconds"]:g} s')
+    # The tick sound the crack plays exists.
+    check(isinstance(tables.get('Sounds', {}).get('CrackTick'), str), 'Sounds.CrackTick: the Reveal crack tick is missing')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -784,7 +902,7 @@ def lint(root: Path = ROOT) -> list[str]:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
                 'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers',
-                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds'}
+                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds', 'Reveal'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
     if not required <= tables.keys():
@@ -864,6 +982,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
     failures.extend(lint_effects(tables, types))
+    failures.extend(lint_reveal(tables, root))
     for finding in lint_shapes(tables, strings, types):
         if finding in SHAPE_WARNINGS:
             print('warning: ' + finding)

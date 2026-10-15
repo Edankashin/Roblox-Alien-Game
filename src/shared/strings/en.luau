@@ -32,7 +32,7 @@ return {
 	CATCH_NEAR_MISS = "So close!",
 	CATCH_ROUND = "Round %d/%d",
 	CATCH_TAP_HINT = "Tap to stop!",
-	REVEAL_TAP = "Tap anywhere",
+	REVEAL_TAP = "Tap anywhere to continue",
 	REVEAL_SCRAP = "+%s Scrap",
 	UNKNOWN_NAME = "???",
 	HUD_DAY = "Day",
@@ -102,6 +102,18 @@ return {
 	REVEAL_SIZE = "%s %s!",
 	REVEAL_SIZE_SCRAP = "%s %s! x%s Scrap",
 	REVEAL_STORAGE_FULL = "Storage full: turned into %s Scrap", -- a catch past the storage cap (the ribbon on the Reveal)
+	-- the Reveal's three beats (data/Reveal, UI/Reveal): the crack prompt, the tier words (REVEAL_WORD_<tier>), the chance line and the two buttons
+	REVEAL_CRACK = "Tap to crack it!",
+	REVEAL_WORD_Common = "COMMON!",
+	REVEAL_WORD_Uncommon = "UNCOMMON!",
+	REVEAL_WORD_Rare = "RARE!",
+	REVEAL_WORD_Epic = "EPIC!",
+	REVEAL_WORD_Legendary = "LEGENDARY!",
+	REVEAL_WORD_Cosmic = "COSMIC!",
+	REVEAL_WORD_Secret = "SECRET!",
+	REVEAL_ODDS = "1 in %s · %s%% chance", -- N, then the percent (Shared/RevealMath.OddsLine); hidden when the client has no odds for the grant
+	REVEAL_PLACE = "Place it", -- closes the Reveal and opens the Aliens screen
+	REVEAL_KEEP = "Keep going", -- closes the Reveal
 	TOAST_STORAGE_FULL_HINT = "Release or fuse aliens to keep new catches",
 	-- growth stages (data/Growth): the Aliens screen chip, the grew toast, the welcome-back line
 	STAGE_Hatchling = "Hatchling",

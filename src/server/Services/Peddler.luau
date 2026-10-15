@@ -157,13 +157,14 @@ local function eggWorld(player: Player): number
 end
 
 -- A random species of the offer's tier from the world this place runs that an egg can hatch (Shared/EggMath.Pool, the
--- rule the gift eggs use: not a quest or Shower species, and an event species only while its season runs).
-local function pickEggSpecies(tier: string?, world: number): string?
+-- rule the gift eggs use: not a quest or Shower species, and an event species only while its season runs), and the percent
+-- chance it had among them (EggMath.Percent), which rides on the grant so the Reveal can print it.
+local function pickEggSpecies(tier: string?, world: number): (string?, number?)
 	local candidates = EggMath.Pool(tier, world, Seasons.Current())
 	if #candidates == 0 then
-		return nil
+		return nil, nil
 	end
-	return candidates[rng:NextInteger(1, #candidates)]
+	return candidates[rng:NextInteger(1, #candidates)], EggMath.Percent(#candidates)
 end
 
 -- Remotes ----------------------------------------------------------------
@@ -217,6 +218,7 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 	-- Resolve what the offer grants before any Scrap moves, so a bad data row refuses cleanly.
 	local kind = offer.kind
 	local eggSpecies: string? = nil
+	local eggPercent: number? = nil
 	if kind == "lure" then
 		if not Lures.Lures[offer.id] then
 			return false, "Unknown"
@@ -226,7 +228,7 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 			return false, "Unknown"
 		end
 	elseif kind == "egg" then
-		eggSpecies = pickEggSpecies(offer.tier, eggWorld(player))
+		eggSpecies, eggPercent = pickEggSpecies(offer.tier, eggWorld(player))
 		if not eggSpecies then
 			return false, "Unknown"
 		end
@@ -260,6 +262,9 @@ local function onPeddlerBuy(player: Player, index: any): (boolean, string?, Type
 	if eggSpecies then
 		-- GrantAlien pushes ScrapChanged (the price is already off) and the camp, and returns the Reveal.
 		local grant = Economy.GrantAlien(player, eggSpecies, Spawner.RollOverlay(), false)
+		if grant then
+			grant.oddsPercent = eggPercent
+		end
 		return true, nil, grant
 	end
 	if offer.scrap > 0 or kind == "scrap" then
