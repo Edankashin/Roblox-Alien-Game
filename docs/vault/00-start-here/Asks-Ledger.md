@@ -267,8 +267,6 @@ His open rows, from the tables above and [[Board]] "Waiting on Ethan" and "Needs
 ## What the team still owes Ethan
 
 1. **ZPLSHwXqp**: watched and noted 2026-10-15 ([[Character-Pipeline]] "The design reference (ZPLSHwXqp)"); the five skills it names are the open work, one [[Board]] "Next" row.
-2. **The X-post pass** of the 2026-10-15 research, or his word to drop it (the **GAP** row, cloud or Mac).
-1. **ZPLSHwXqp** watched and noted, with what the hybrid sculpt or the surface pass takes from it (the **GAP** row, cloud).
 2. ~~**The X-post pass** of the 2026-10-15 research~~ Done 2026-10-15 from search snippets: [[X-Posts]]. What only a logged-in browser can add (Bethink's lighting image, Crykee's breakdown link) is listed there as leads for the Mac.
 3. **The creature bar**: the hybrid prototype through to a species that passes the three ship checks, then the roster; then the Fenrir and dragon heads; nothing replaces a model until his yes (cloud, the Mac for the Studio look). [[Character-Pipeline]], [[Sculpt-Pass]], [[Hero-Aliens]].
 4. **The UI rebuilt from his picked boards**, one screen per change, with the phone rules (B29) and the Playbook updated in the same commit (cloud; waits on item 3 of his list).
