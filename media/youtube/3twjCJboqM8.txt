@@ -1,0 +1,417 @@
+okay so what's up guys I'm going
+teaching you guys how to make a hard 2D
+little dog uh pet and the stuff we're
+going to be using is blender and
+substance and if you don't have
+substance
+then uh recommend you finding a way on
+getting it it's very helpful with uh
+head faces CU we're going to be showing
+a full tutorial on how to make it and
+texture it so first we're going to do is
+you're going to start with the cube and
+you're going to go to the side right
+here you're going to click the wrench
+and you're going to go to the modifiers
+right you're going to click uh sub
+surface and you're your things going to
+look like this so you're going to go in
+edit mode by clicking Tab and you go to
+uh transforms right here so this thing
+will pop up click on items if it do not
+and you're going to put this right this
+crease all the way up to
+0.8 and then we're going to apply it by
+clicking the down arrow right here and
+clicking apply and our model is going to
+look like this now and so we're going to
+hold you're going to go click two to go
+on edge mode you're going to hold alt
+and click on the line from there you're
+going to click double G they going to
+click G two times and move it to
+appropriate size not too middle-ish if
+you want to but this is my type of style
+for the tutorial and now we're going to
+click on the two top faes hold shift and
+click on both and you're going to go on
+the Move tool and you're going to bring
+this down so you can have like a little
+Bend to
+it and then um once we get the uh body
+done we're going to make the feet now so
+let me bring this little up so the feet
+is you're going to call uh shift a to
+bring the cube back and you're going to
+click s to scale it so you can make it
+small and you're just going to like move
+it around on the feet on I mean the Pet
+to make it uh pretty good sizing on
+where you want it to be and then we're
+going to make the feat by going in edit
+mode tab again once again click
+three and you're going to go in face
+mode and you're going to click on the
+top B right you're in the top a and
+you're going to click s to scale it in
+wordss to appropriate size to like maybe
+this much for me and then you're going
+to click uh control R you're going to
+add this like yellow line here here and
+you're going to use your middle Mouse
+the scroll wheel and like move it one
+time to add a two and then you're going
+to click and click do not click and then
+move because it's going to make it weird
+it's going to shift around just click
+click once from there like s you can
+puff it out and click G to move it
+around to make it a good size so this is
+mine and you're just going to once
+you're done with your feet this is uh
+then you're going to right click and
+click shade Auto smooth so you can get
+uh
+nice but I'm going to Auto shade smooth
+it shade smooth I mean and so it looks
+like this and then you're going to move
+this up and you're wondering aren't
+aren't like fets supposed to have like
+four Fe right now here's the trick so
+you go to your modifiers you're going to
+click on mirror you're going to click
+the little droplet and you're going to
+set it to the cube now where because if
+you're in edit mode and you somehow move
+this around it's going to move the
+orientation the orientation is the
+center of every model and so if you have
+a problem with the orientation here
+you're going to right click set origin
+origin geometry it fixes it right there
+see so now you're going to go here and
+set this to X and
+Y and you're going to move this up
+you're going to click R it bends you can
+use a rotate tool and you're just going
+to rotate it around to a good size
+mine's going to keep it at the center
+just for a cartoonia look now you see
+your pet is going to look getting like
+better there so now how to apply this
+same way we do SUB uh sub surface you're
+going to click apply and now these are
+applied
+now so we have the body also I forgot to
+shade smooth it so there we go we forgot
+we got the body and we got the legs so
+now we're going to make the ear the ear
+is made by once again a cube and we're
+just going to bring it up like s to
+scale bring it to an appropriate size
+and word location to it like this and
+we're going to make it a little flat so
+we going to click s you're X dep depends
+on where your pet is you're just going
+to fish around with the Y and the X you
+make it a squish a little and bring it
+up like this now you're going to go to
+the modifiers again once again you're
+going to cck subdivide surface and we're
+going to bring this to once again uh
+you're going to click Tab and go to edit
+mode and then you're going to click on
+the top face you're going to click y or
+X depends on where your pet is so M it's
+going to be X so you can see the side
+angle of it and you're going to click e
+to
+extrude and you're going to use the
+rotate
+tool and you're just going to move it
+around so it looks
+good
+okay
+again
+and
+that
+and finish it f again and there we go
+now you can fidget around with the
+geometry to make it more thicker I'm
+going to do that because I like it uh
+being more thicker and so your pet's
+going to look like this you're GNA you
+know I'm going fidget on with it and if
+you want to make more Puff you're going
+to click s and same way we did with the
+stuff you click s and you're going to
+click on the axes and so now this going
+to look like this and we're going to
+shap smooth it so it's smooth and nice
+and good now you're going to go back to
+your modifiers you're going to add
+another modifier called Mirror same we
+did with the legs little droplet click
+and set it to the side it looks on the
+side right here now we're going tojust
+it a little more
+now and there's different type of bodies
+for me I'm just going to use this type
+of body uh there's other times where
+what we did with the legs you can you
+know delete this we did over there by
+clicking the hold alt click and click X
+delete uh dissolve edges and we're going
+to click control R wait uh contr R and
+we're going to add another loop cut we
+did with the feet little scroll wheel
+like s to Puff it out and that makes a
+little puffy
+now uh and then from here uh see if you
+want your pet to look more thicker you
+can cck uh an edit mode and you're going
+to click control R and you can do it
+from either angle so I'm going to do
+like this from the side so then it look
+like this and we're going to push these
+a little
+inwards so it goes like this instead of
+being fat and then now we done the ears
+so once with this we're going to click
+drop down button click this this app
+those two and now we're done with these
+now put the tail once again you start
+with the cube
+going to scale it bring it to the size
+you want it so mine's going to be up
+here CU I like my pets being up here and
+we're going
+to uh add the subd surface again and
+going to shade this real quick and so
+I'm going to bring this
+upwards and I'm going to move
+around we going Loop
+cut move around
+there we
+go so there you go that's my little
+dogtail make go a little
+thicker there we go so there my little
+dogtail someone's done with the dogtail
+we're going to apply it down the down
+arrow and now once we have all these
+three down we're going to be texturing
+now so we're going to be texturing by
+adding seams and seams are uh important
+because it tells us it tells the um
+textures on where to go and what to do
+and stuff like that so what we're going
+to do is you're going to go Ed mode and
+considering there's a line in the middle
+you're going to click two to go in Edge
+mode you're going to hold alt click to
+add the loop cut around here I mean not
+a loop cut I mean a the circle around
+right click and you're going to go to
+Mark seam now once we do that you're
+going to do that same thing with the dog
+ears both Mark right in the middle we're
+going to do same thing with the legs
+with the legs here what we're going to
+do is we're going to go in face mode
+you're going to click the bottom of the
+foot and then you're going to go inside
+C on the top faces of the foot and
+you're going to click on edge mode hold
+alt and hold shift also CU you're going
+to do all around around so you're going
+to click around so you're going to click
+this and you you don't don't matter what
+corner your clicks on you just have to
+click on one corner and you're going to
+Mark SE it so once we do that we're
+going to go to the body now to the body
+it's all around so we'd have to hold alt
+and click
+around to add those see so hold alt
+click go all around until you get every
+single thing to Mark seam once you're
+done with that you're going to grab grab
+the ears hold shift click on the tail
+hold shift click on the tail and the
+legs and you're going to go to the body
+right click like join and so everything
+looks like this is because it didn't
+transfer the um uh Shade that's how
+blender is so if you want it to you can
+uh click
+shade and everything looks like this now
+we're good so once with this you're
+going to click a on edit mode click a
+click U and unwrap and so everything
+here is like this this is our UV unwrap
+is how everything know what to get
+textured and what to expect with
+texturing so now we're going to click a
+inside here so if you don't have this
+you can uh click on the button right
+here and select it to UV editing for you
+it's going to be the animation so if you
+want to change that you can you can by
+clicking little thing and clicking you
+in uh UV editing and you can bring it
+out by clicking little thing so now once
+we have this we're going to click a and
+we're going to click U UV and we're
+going to click uh pack Islands click
+okay and we're going to wait a
+bit now we packed everything together so
+once we're done with this we're going to
+click
+file and we're going to
+export as
+fpx and you're going to set this to
+doggy or anything like
+that and you're going to set the
+scale you know uh it doesn't matter on
+the scale but it's considering if you're
+upload this into Roblox Studio you're
+going to set this to this so it doesn't
+make it too big and you click like a
+mesh selected objects and then you're
+going to click export from here you're
+going to open your substance
+painter now once we have our substance
+open you're going to click on the top
+left corner click file click open new
+and you're going to click select and
+you're just going to find your dog model
+you found you have made open you're
+going to just click okay and then your
+dog is going to be here now to move
+around in substance you're going to hold
+alt and you're going to push your left
+click to move it like this and if you
+push and you hold alt still and push
+your middle scoll wheel so then you can
+move it to the center so now once we're
+like this you're going to click on the
+little croissant tool up on the corner
+right and you're going to click on it
+you're going to bake this so by take so
+you're going to take off uh ID you're
+going to set this to 4X use low poly as
+high poly and set the output size to
+2,000 and now we're going to click bake
+and we're going to wait until it's
+done
+now you're going to click uh return back
+and now you're in here so you're going
+to go to your layers right now you're
+going to change you're going to delete
+this by clicking the backspace you're
+going to add a fill
+layer and now this fill layer is going
+to be uh let me make this all rough and
+now we're going to change the base color
+to a brownish color
+so find a little brown color
+like this now once we have a brown color
+you're going
+to click another fill layer you're going
+to right click add black mask and you're
+going to change this to a
+white now from there you're going to
+click on your black mask you're going to
+go to your brushes set this to basic
+hard and push control and your scroll uh
+wheel to scale it make it bigger and
+you're going to apply Mirror by clicking
+the top uh right near the top right it b
+a little triangle two things click on
+this on little settings so you could set
+it perfect and now we're going to make
+the face by once again moving around
+with the brush to make a correct size
+you're going to click once we have the
+outer ear the outer eye you're going to
+cck
+duplicate clear and set this color to
+Black and now we're going to use a
+control wheel to go inwards to add
+little I
+part we're going to remove this set this
+to rough so everything is like this if
+you don't like it like this you can
+click the material and click on basic I
+mean a base uh base color so you can see
+all this and now once we're like this
+we're going to make the face now by uh
+once again duplicating this and clear
+this and we're going to make the brown
+we made over here we have a little
+lighter version so for me it's going to
+be
+a little orangish because the way I got
+the color this is mine so once you're
+like this you have a correct lighting
+and uh nose and mouth uh color you're
+going
+to uh click uh depends on how big you
+want the nose I'm going to have like
+pretty small you're going to just make
+one little dot hold shift and click to
+the center now it's going to look like
+this now you're going to click again to
+the same area you did in the part and
+you hold shift and click to the center
+and you can just fill this right here
+now from here you're going to make a
+little
+fatter now there you go now from here
+you're going to make a little swoosh so
+from you're going to start from the hip
+right here to Big you can make a
+smaller set mine to
+2.5 and now we're going to make a smoosh
+by going down and up there you go so
+once you do that you could make a
+adjustments so it may look makes it look
+better there you go so there my dog face
+is done and if you don't like the colors
+I'm going to fidget around with the
+colors on it so then it makes it more uh
+better in my
+opinion U just going to make it
+darker makes it stand out more and then
+from here uh you're G to have your
+little dog done so now how to export
+this is um I'm going to change the name
+of it to
+like uh doggy and you're going to click
+on file uh export texture and you're
+going to click on the little uh name
+over here and take out unselect all
+these are here except your base color
+once you're done you're going to click
+export and now once you have your export
+done go back to blender you're going to
+click on the little checkered Circle and
+you're going to click
+new now from here you're going to click
+on base color image texture open now
+you're going to find your
+um uh you're going to find where you put
+your uh uh dog texture you're going to
+click once you find it you're going to
+click open and now your pet going to
+look like this very glossy you can
+change it by going down and set the
+roughness to really high and
+change
+the CH this to uh zero and there you
+have is your dog model done all textured
+and everything now you could just export
+this by going back to file we did in the
+early stages and bring it and pop it
+inside Roblox to you so thank you for
+watching

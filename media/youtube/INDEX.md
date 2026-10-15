@@ -11,7 +11,7 @@ auto-captions for that video; "video unavailable" that YouTube no longer serves 
 | [3bcuNZs6e60](https://www.youtube.com/watch?v=3bcuNZs6e60) | How to Make a PET EGG HATCHING System in Roblox Studio (Pet Simulator Style) - Full Tutorial | TweakBuilds | 10:07 | yes | ui_design, worlds_and_props |
 | [3HcB8wtiERQ](https://www.youtube.com/watch?v=3HcB8wtiERQ) | How to Make Cartoon Lighting in Roblox Studio | Noob Scripts | 1:53 | none | worlds_and_props |
 | [3MNMq2J72UE](https://www.youtube.com/watch?v=3MNMq2J72UE) | Making Roblox Simulator Pets in Blender! | Vorp_al | 1:58 | none | creature_models |
-| [3twjCJboqM8](https://www.youtube.com/watch?v=3twjCJboqM8) |  |  |  | video unavailable | creature_models |
+| [3twjCJboqM8](https://www.youtube.com/watch?v=3twjCJboqM8) | How to make Cartoony Pets in blender(Roblox Stuido) | YummyBuilds | 17:58 | yes | creature_models |
 | [45Fy7CTbVvE](https://www.youtube.com/watch?v=45Fy7CTbVvE) |  |  |  | video unavailable | creature_models |
 | [47q0QriKChs](https://www.youtube.com/watch?v=47q0QriKChs) | How to make Low Poly Maps in Roblox Studio Free!! | COSIMICON. | 3:19 | none | worlds_and_props |
 | [4QGIOC5c_ss](https://www.youtube.com/watch?v=4QGIOC5c_ss) | 20 TIPS & TRICKS How to build better in Adopt Me! / Roblox / Monicili Plays | Monicili Plays | 8:15 | yes | worlds_and_props |
