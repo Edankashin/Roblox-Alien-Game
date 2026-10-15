@@ -581,3 +581,35 @@ Wisplet, Spookum and Nebulyn are close already, so the alternatives stay near th
 4. Re-run `python3 -I tools/names_sheet.py` if the tables change; log the decision in [[Decisions]].
 
 See also [[Group-Page]] and [[Growth-Playbook]] (the Mossbop mascot is the icon, so Moop is also the face of the store page and the group emblem).
+
+## Picked 2026-10-15 (Ethan, the evening; applied in `Species.luau`)
+
+Ethan's rule on the v3 table: "assume everything else is good", plus eight calls of his own. Applied to the `name` field only; ids unchanged; `docs/GAME_DESIGN.md` roster rows updated; `names_check.py` clean.
+
+| Id | Was | Now | Ethan's call |
+|---|---|---|---|
+| Snowbun | Snowsnow | Flurra | "Flurra is better" |
+| Drippo | Drip | Dreep | his word |
+| Twiglet | Twiggle | Twiglo | "Twiglo or Sprig" (Sprig is taken) |
+| Puffpuff | Puffpuff | Dandel | "Dandel is good" (near-miss accepted) |
+| Lanternewt | Lanternewt | Lantrin | "Lantrin is good" |
+| Thunderhog | Thunderhog | Voltus | "Voltus instead of Thrumm" (near-miss accepted) |
+| Gaiabloom | Gaiabloom | Gaira | his spelling |
+| Skaddle | Skaddle | Skadra | "Skadra is better" |
+| Buzzlebee | Buzzbit | Buzzik | table pick |
+| Rocklobber | Rocklobber | Boulden | table pick (cleared) |
+| Zapfinch | Zapfinch | Zirrit | table pick |
+| Sparkfox | Sparkfox | Vixa | table pick |
+| Gloomoth | Prismlux | Iridia | table pick |
+| Radish | Ra-dish | Raddis | table pick |
+| Panpipe | Trillgoat | Syrinx | table pick |
+| Flapsicle | Flapflap | Eekle | table pick |
+| Toastoad | Toastoad | Soakum | table pick |
+| Reindazzle | Glintelk | Blinkar | table pick |
+| Shellberg | Shellberg | Floe | table pick |
+| Capybubble | Capybubble | Snorzo | table pick |
+| Shimmerlynx | Auralynx | Aurelyx | table pick |
+| Frostfang | Achoocub | Sabrek | table pick |
+| Fenripup | Fenrikin | Fenrir | table pick |
+
+Unchanged: Moop, Pebblet, Glim, Snibble, Wispkin, Grin, Cosmoo, Mitt, Digling, Kettlet, Pengoo, Sizz. World 2 now has Flurra and Skadra on -ra (Ethan's call, the ending rule yields to him).

@@ -152,16 +152,16 @@ The names below are the second-pass names Ethan picked on 2026-10-14 (`docs/vaul
 | Moop | moss ball, eyes | Common | Gather | Meadow, any |
 | Pebblet | pebble with legs | Common | Gather | Cave mouth, any |
 | Glim | jelly firefly | Common | Spark | Forest, any |
-| Twiggle | stick bug, leaf hat | Common | Gather | Forest, any |
-| Puffpuff | dandelion puff, face | Common | Build | Meadow, any |
+| Twiglo | stick bug, leaf hat | Common | Gather | Forest, any |
+| Dandel | dandelion puff, face | Common | Build | Meadow, any |
 | Snibble | snail, metal shell | Uncommon | Gather | Cave, any |
-| Buzzbit | bee, tiny backpack | Uncommon | Gather | Meadow, day |
-| Lanternewt | newt, glowing tail | Uncommon | Spark | Forest, night |
-| Rocklobber | crab, boulder claws | Rare | Gather L3 | Cave, any |
-| Zapfinch | bird, antenna crest | Rare | Spark L3 | Forest, any |
-| Sparkfox | fox, glowing paintbrush tail | Rare | Build L3 | Meadow, any |
-| Thunderhog | hedgehog, lightning quills | Epic | Spark/Build | Meadow, Rain only |
-| Prismlux | moth, crystal wings | Epic | Gather/Spark | Cave, night only |
+| Buzzik | bee, tiny backpack | Uncommon | Gather | Meadow, day |
+| Lantrin | newt, glowing tail | Uncommon | Spark | Forest, night |
+| Boulden | crab, boulder claws | Rare | Gather L3 | Cave, any |
+| Zirrit | bird, antenna crest | Rare | Spark L3 | Forest, any |
+| Vixa | fox, glowing paintbrush tail | Rare | Build L3 | Meadow, any |
+| Voltus | hedgehog, lightning quills | Epic | Spark/Build | Meadow, Rain only |
+| Iridia | moth, crystal wings | Epic | Gather/Spark | Cave, night only |
 | Gaiabloom (Verdant Warden) | stag, tree antlers, flowers bloom where it steps; echo of Gaia | Legendary | all | Field Notes finale |
 | Trillgoat (secret) | goat, reed pipes; echo of Pan | Secret | all | Unlocked by completing the Verdant codex page |
 

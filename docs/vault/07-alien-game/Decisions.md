@@ -101,3 +101,5 @@ Frostbyte's content data, authored in the World 1 voice: 16 species (5 Common, 4
 - Key materials: Ice Plate (Snowfield, any), Geyser Pearl (Geyser Field, any, glows), Frost Core (Ice Cave, night, glows), Blizzard Shard (Snowfield, Blizzard, glows), Skaddle's Core (finale only). Frost Cores also feed World 3's Nav Array through the Outpost.
 - Field Notes W2S1..W2S5: catch 8; a night catch plus a Frost Core; craft a Glow Lure plus a Rare; the Epic in a Blizzard (pays the shared Warden's Horn); sound the horn at night for Skaddle. No gear rewards because Radar2 is not buyable yet; Scrap, lures and spins instead.
 - Frostfang is the only Blizzard species, per the one-signature-alien rule. Fenripup rolls in all three biomes during a Meteor Shower, like Ra-dish.
+
+- **B40 (2026-10-15, Ethan).** Names v3 applied: 23 species renamed per [[Species-Names]] "Picked 2026-10-15" (Flurra, Dreep, Twiglo, Dandel, Lantrin, Voltus, Gaira, Skadra are his own calls; the rest the table's picks). Ids never change.
