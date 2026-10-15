@@ -19,6 +19,9 @@
 -- Workers: a small placeholder per assigned alien in the slot row beside its station, bobbing locally,
 -- or the species mesh (World.Models) at Camp.WorkerScale stood on the slot pad when one exists. A worker is
 -- drawn a growth step taller per stage (Shared.Growth.ScaleMultiplier) and pops when it grows.
+-- Species effects (data/Effects, World.SpeciesFx): each worker is attached on arrival and released with it; its bob places it
+-- through SpeciesFx.Place, which adds the idle motion (its facing stays the station's: keepFacing), and a finished growth pop
+-- rebuilds its effects at the new size (SpeciesFx.Refresh). SpeciesFx does not require this module, only the other way round.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -41,6 +44,7 @@ local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
+local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 
 local CampRenderer = {}
 
@@ -93,6 +97,8 @@ type WorkerRecord = {
 	restSize: Vector3, -- the placeholder's size as built (the pop's rest size when there is no mesh)
 	pop: Tween?, -- the growth pop while it plays
 	popValue: NumberValue?, -- the pop's factor, tweened from Camp.SnapPopScale to 1
+	fxTarget: BasePart | Model, -- what SpeciesFx is attached to: the mesh clone, else the part
+	fxCleanup: () -> (), -- releases the species effects
 }
 
 local localPlayer = Players.LocalPlayer
@@ -419,6 +425,7 @@ local function popWorker(record: WorkerRecord)
 		if record.pop == tween then
 			record.pop = nil
 			record.popValue = nil
+			SpeciesFx.Refresh(record.fxTarget) -- the effects were measured mid-pop: measure them at the final size
 		end
 		value:Destroy()
 	end)
@@ -430,6 +437,7 @@ local function removeWorker(uid: string)
 	if record then
 		workers[uid] = nil
 		cancelPop(record)
+		record.fxCleanup()
 		record.part:Destroy()
 		local model = record.model
 		if model then
@@ -478,6 +486,7 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 	part.CanQuery = false
 	part.CanTouch = false
 	buildPlate(part, Camp.WorkerBobStuds, def.name, Builder.text("TIER_" .. def.tier), Builder.tierColor(def.tier))
+	local fxTarget: BasePart | Model = model or part
 	workers[uid] = {
 		uid = uid,
 		job = job,
@@ -494,6 +503,8 @@ local function addWorker(parent: Folder, uid: string, record: Types.AlienRecord,
 		restSize = part.Size,
 		pop = nil,
 		popValue = nil,
+		fxTarget = fxTarget,
+		fxCleanup = SpeciesFx.Attach(fxTarget, record.species, def.tier, { scale = band.scale * grown, keepFacing = true }),
 	}
 end
 
@@ -550,10 +561,12 @@ local function onRender()
 	local omega = math.pi * 2 * Camp.WorkerBobHz
 	for _, record in pairs(workers) do
 		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Camp.WorkerBobStuds, 0)
-		record.part.CFrame = record.base + lift
 		local model, modelBase = record.model, record.modelBase
 		if model and modelBase then
-			model:PivotTo(modelBase + lift)
+			record.part.CFrame = record.base + lift
+			SpeciesFx.Place(model, modelBase + lift)
+		else
+			SpeciesFx.Place(record.part, record.base + lift)
 		end
 	end
 end
@@ -571,6 +584,7 @@ local function teardownCamp()
 	stations = {}
 	for _, worker in pairs(workers) do
 		cancelPop(worker)
+		worker.fxCleanup()
 	end
 	workers = {}
 	builtWorld = nil

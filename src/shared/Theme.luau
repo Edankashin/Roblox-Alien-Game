@@ -57,4 +57,10 @@ Theme.Lighten = 0.25 -- gradient top: how far toward white
 Theme.Darken = 0.35 -- strokes and lips: how far toward black
 Theme.Shadow = Color3.new(0.1, 0.1, 0.12) -- uncaught species silhouette
 
+-- A colour from a six-digit hex string, the way the data tables name colours (data/Effects). The one place client code
+-- turns such a string into a Color3, so the colour constructors tools/lint_ui.py counts in src/client do not grow.
+function Theme.Hex(hex: string): Color3
+	return Color3.fromHex(hex)
+end
+
 return Theme

@@ -575,6 +575,164 @@ def lint_surfaces(tables):
     return failures
 
 
+EFFECT_KINDS = ('Emitter', 'Beam', 'Light', 'Trail', 'Orbit')
+EFFECT_DIRECTIONS = ('Up', 'Front', 'Back', 'Down')
+MOTION_KINDS = ('Still', 'Bob', 'Hover', 'Flap', 'Spin', 'Breathe')
+# The numbers each layer kind must carry (data/Effects; Types.EffectLayer lists them); lengths are in alien heights.
+EFFECT_NUMBERS = {'Emitter': ('rate', 'size', 'lifetime', 'speed', 'spread'),
+                  'Beam': ('width', 'flicker', 'segments'),
+                  'Light': ('brightness', 'range'),
+                  'Trail': ('lifetime', 'width'),
+                  'Orbit': ('count', 'radius', 'period', 'rate', 'size', 'lifetime')}
+EFFECT_REQUIRED_REGIONS = ('Top', 'Back', 'Tail', 'Eyes', 'Feet')
+EFFECT_LADDER = ('layersAllowed', 'rateScale', 'sizeScale', 'lightScale')
+EFFECT_FLAGS = ('trail', 'orbit', 'groundRing', 'dark')
+
+
+def lint_effects(tables, types):
+    """data/Effects: every species has a row; layers name real regions and sprites; rates stay under the caps; the tier ladder
+    only climbs. The tier gate itself is covered by tests/Effects.spec.luau."""
+    effects = tables.get('Effects')
+    if not isinstance(effects, dict):
+        return ['Effects.luau: required table unavailable']
+    failures = []
+    def check(ok, message):
+        if not ok:
+            failures.append(message)
+    def finite(value):
+        return type(value) in (int, float) and math.isfinite(value)
+    def positive(value):
+        return finite(value) and value > 0
+    def whole(value):
+        return finite(value) and float(value).is_integer()
+    def hexcolor(value):
+        return isinstance(value, str) and re.fullmatch(r'[0-9A-Fa-f]{6}', value) is not None
+    def union(name):
+        found = re.search(r'export\s+type\s+' + name + r'\s*=\s*((?:"[^"]+"\s*\|?\s*)+)', types)
+        return set(re.findall(r'"([^"]+)"', found[1])) if found else set()
+    check(union('EffectKind') == set(EFFECT_KINDS), 'Types.EffectKind: differs from the kinds lint_data knows')
+    check(union('MotionKind') == set(MOTION_KINDS), 'Types.MotionKind: differs from the motions lint_data knows')
+    check(union('EmitDirection') == set(EFFECT_DIRECTIONS), 'Types.EmitDirection: differs from the directions lint_data knows')
+    caps, attach, look = effects['Caps'], effects['Attach'], effects['Look']
+    for key in ('MobileRateCap', 'DesktopRateCap', 'MaxBeams', 'MaxLights', 'MaxActive', 'ActiveDistance'):
+        check(positive(caps.get(key)), f'Effects.Caps.{key}: expected a positive number')
+    check(positive(caps.get('MobileRateCap')) and positive(caps.get('DesktopRateCap')) and caps['MobileRateCap'] <= caps['DesktopRateCap'],
+          'Effects.Caps: the mobile rate cap must not exceed the desktop one')
+    for region in EFFECT_REQUIRED_REGIONS:
+        check(region in attach, f'Effects.Attach.{region}: required region missing')
+    for name, point in attach.items():
+        where = f'Effects.Attach.{name}'
+        ok = isinstance(point, dict) and set(point) == {'x', 'y', 'z'} and all(finite(v) for v in point.values())
+        check(ok, where + ': expected x, y and z fractions')
+        if ok:
+            check(-0.75 <= point['x'] <= 0.75 and -0.75 <= point['z'] <= 0.75 and -0.25 <= point['y'] <= 1.5,
+                  where + ': outside the alien (x and z within 0.75 of the centre, y within -0.25 to 1.5 of the height)')
+    check(whole(look['BeamSteps']) and look['BeamSteps'] >= 1, 'Effects.Look.BeamSteps: expected a whole number of 1 or more')
+    check(0 < look['FadeIn'] < look['FadeOut'] < 1, 'Effects.Look: FadeIn must be below FadeOut, both inside 0 to 1')
+    for key, value in look.items():
+        check(finite(value) and value >= 0, f'Effects.Look.{key}: expected a non-negative number')
+    for key, value in effects['Motion'].items():
+        check(finite(value) and value >= 0, f'Effects.Motion.{key}: expected a non-negative number')
+    for key, value in effects['Reduced'].items():
+        check(positive(value), f'Effects.Reduced.{key}: expected a positive number')
+    dark = effects['Dark']
+    check(hexcolor(dark.get('Color')) and finite(dark.get('Mix')) and 0 <= dark['Mix'] <= 1 and finite(dark.get('GlowScale')) and 0 <= dark['GlowScale'] <= 1,
+          'Effects.Dark: expected a hex Color, and a Mix and GlowScale between 0 and 1')
+    ladder = list(tables['Tiers']['Order'].values())
+    rules = effects['Tiers']
+    check(set(rules) == set(ladder), 'Effects.Tiers: expected exactly one rule per tier in Tiers.Order')
+    previous = None
+    top_rate = 1
+    for tier in ladder:
+        rule = rules.get(tier)
+        if not isinstance(rule, dict):
+            continue
+        where = f'Effects.Tiers.{tier}'
+        check(set(rule) == set(EFFECT_LADDER) | set(EFFECT_FLAGS), where + ': expected ' + ', '.join(EFFECT_LADDER + EFFECT_FLAGS))
+        check(all(positive(rule.get(key)) for key in EFFECT_LADDER) and whole(rule.get('layersAllowed')),
+              where + ': layersAllowed (whole) and the scales must be positive numbers')
+        check(all(isinstance(rule.get(key), bool) for key in EFFECT_FLAGS), where + ': trail, orbit, groundRing and dark must be true or false')
+        if previous is not None:
+            for key in EFFECT_LADDER:
+                check(rule.get(key, 0) >= previous.get(key, 0), f'{where}.{key}: below the tier under it (the ladder must not fall)')
+            for key in EFFECT_FLAGS:
+                check(rule.get(key) is True or previous.get(key) is not True, f'{where}.{key}: a higher tier cannot drop what the tier under it adds')
+        previous = rule
+        top_rate = max(top_rate, rule.get('rateScale', 1))
+    def layer_ok(layer, where):
+        kind = layer.get('kind') if isinstance(layer, dict) else None
+        if kind not in EFFECT_KINDS:
+            failures.append(f'{where}.kind: unknown kind {kind!r}')
+            return
+        check(hexcolor(layer.get('color')), where + '.color: expected a six-digit hex colour')
+        check(layer.get('at') in attach, f'{where}.at: unknown region {layer.get("at")!r}')
+        for key in EFFECT_NUMBERS[kind]:
+            value = layer.get(key)
+            if key in ('speed', 'spread'):
+                check(finite(value) and value >= 0, f'{where}.{key}: a {kind} needs a {key} of 0 or more')
+            else:
+                check(positive(value), f'{where}.{key}: a {kind} needs a positive {key}')
+        if kind in ('Beam', 'Trail'):
+            check(layer.get('to') in attach, f'{where}.to: unknown region {layer.get("to")!r}')
+        if kind == 'Beam':
+            check(layer.get('to') != layer.get('at'), where + ': a beam needs two different regions')
+            check(positive(layer.get('flicker')) and layer['flicker'] > look['BeamFlashSeconds'], where + '.flicker: must be longer than Look.BeamFlashSeconds')
+            check(whole(layer.get('segments')) and 2 <= layer['segments'] <= 16, where + '.segments: expected a whole number from 2 to 16')
+        if kind == 'Orbit':
+            check(whole(layer.get('count')) and 1 <= layer['count'] <= 8, where + '.count: expected a whole number from 1 to 8')
+        if kind in ('Emitter', 'Orbit') and positive(layer.get('rate')):
+            check(layer['rate'] * top_rate <= caps['MobileRateCap'],
+                  f'{where}.rate: {layer["rate"]:g} x the top tier rateScale {top_rate:g} is over the mobile cap {caps["MobileRateCap"]}')
+        if kind == 'Emitter':
+            check(layer.get('dir') is None or layer['dir'] in EFFECT_DIRECTIONS, f'{where}.dir: unknown direction {layer.get("dir")!r}')
+        check(layer.get('glow') is None or (finite(layer['glow']) and 0 <= layer['glow'] <= 1), where + '.glow: expected 0 to 1')
+        check(layer.get('pulse') is None or positive(layer['pulse']), where + '.pulse: expected seconds above zero')
+        sprite = layer.get('sprite')
+        check(sprite is None or sprite in tables['Icons']['Particles'], f'{where}.sprite: {sprite!r} is not a key of Icons.Particles')
+    for name, layer in effects['Extras'].items():
+        layer_ok(layer, f'Effects.Extras.{name}')
+    species = {row['id']: row for row in tables['Species']['List'].values()}
+    rows = effects['Species']
+    for sid in sorted(species.keys() - rows.keys()):
+        failures.append(f'Effects.Species.{sid}: no effects row')
+    for sid in sorted(rows.keys() - species.keys()):
+        failures.append(f'Effects.Species.{sid}: no such species')
+    for sid, row in sorted(rows.items()):
+        if sid not in species:
+            continue
+        where = f'Effects.Species.{sid}'
+        check(isinstance(row.get('element'), str) and row['element'] != '', where + '.element: expected a label')
+        layers = row.get('layers')
+        ok = isinstance(layers, dict) and len(layers) > 0 and set(layers) == set(range(1, len(layers) + 1))
+        check(ok, where + '.layers: expected a dense, non-empty list')
+        if ok:
+            for index, layer in layers.items():
+                layer_ok(layer, f'{where}.layers.{index}')
+            kinds = [layer.get('kind') for layer in layers.values()]
+            check(kinds.count('Beam') <= caps['MaxBeams'], f'{where}: more beams than Effects.Caps.MaxBeams')
+            check(kinds.count('Light') <= caps['MaxLights'], f'{where}: more lights than Effects.Caps.MaxLights')
+            rule = rules.get(species[sid]['tier'], {})
+            wanted = min(rule.get('layersAllowed', 1), 4)
+            check(len(layers) >= wanted, f'{where}: a {species[sid]["tier"]} defines at least {wanted} layers (it defines {len(layers)})')
+        idle = row.get('idle')
+        if not isinstance(idle, dict) or idle.get('kind') not in MOTION_KINDS:
+            failures.append(where + '.idle: expected a motion with a known kind')
+        else:
+            kind = idle['kind']
+            check(finite(idle.get('amplitude')) and idle['amplitude'] >= 0, where + '.idle.amplitude: expected a number from 0')
+            check(kind == 'Still' or positive(idle.get('period')), where + '.idle.period: expected seconds above zero')
+            if kind == 'Spin':
+                check(positive(idle.get('amplitude')) and idle['amplitude'] % 360 == 0, where + '.idle: a Spin turns whole circles (amplitude a multiple of 360)')
+            parts = idle.get('parts')
+            if kind == 'Flap':
+                check(isinstance(parts, dict) and len(parts) > 0 and all(isinstance(v, str) for v in parts.values()), where + '.idle.parts: a Flap names its wing parts')
+            else:
+                check(parts is None, where + '.idle.parts: only a Flap names parts')
+        sound = row.get('sound')
+        check(sound is None or isinstance(tables['Sounds'].get(sound), str), f'{where}.sound: {sound!r} is not a string key of data/Sounds')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -590,7 +748,7 @@ def lint(root: Path = ROOT) -> list[str]:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
                 'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers',
-                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures'}
+                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
     if not required <= tables.keys():
@@ -669,6 +827,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
+    failures.extend(lint_effects(tables, types))
     for finding in lint_shapes(tables, strings, types):
         if finding in SHAPE_WARNINGS:
             print('warning: ' + finding)

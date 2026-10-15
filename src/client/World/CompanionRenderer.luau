@@ -29,6 +29,10 @@
 -- under the lifted character), faces the owner's flat look direction and hides its nameplate, since the rider's
 -- own name is above it. A riding change never rebuilds the model; on dismount the follower is already placed, so
 -- the follow code above lerps it back into the arc from where it stands.
+-- Species effects (data/Effects, World.SpeciesFx): every follower is attached when it is built (the mesh clone, else the
+-- placeholder part) and released when it is destroyed; its facing stays the follow code's (keepFacing), and `place` puts a
+-- following alien down through SpeciesFx.Place, which adds the idle motion. A mount keeps its seat exactly (no idle offset), and
+-- a follower that culling parents to nil is also hidden from SpeciesFx, so it keeps no effects while it is away.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -46,6 +50,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
+local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 
 local CompanionRenderer = {}
 
@@ -78,6 +83,8 @@ type Follower = {
 	turn: CFrame, -- its facing, an orientation with no position
 	placed: boolean, -- false until it has been put at its spot since it was last hidden
 	shown: boolean, -- parented under the folder
+	fxTarget: BasePart | Model, -- what SpeciesFx is attached to: the mesh clone, else the placeholder part
+	fxCleanup: () -> (), -- releases the species effects
 }
 
 type Owner = {
@@ -278,6 +285,7 @@ local function build(row: Types.CompanionRow, def: Types.SpeciesDef, from: Follo
 		end
 	end
 	local plate = buildPlate(part, def.name, height)
+	local fxTarget: BasePart | Model = model or part
 	return {
 		uid = row.uid,
 		species = row.species,
@@ -293,6 +301,8 @@ local function build(row: Types.CompanionRow, def: Types.SpeciesDef, from: Follo
 		turn = if from then from.turn else CFrame.identity,
 		placed = if from then from.placed else false,
 		shown = false,
+		fxTarget = fxTarget,
+		fxCleanup = SpeciesFx.Attach(fxTarget, row.species, def.tier, { scale = band.scale * grown, keepFacing = true }),
 	}
 end
 
@@ -302,6 +312,7 @@ local function setShown(follower: Follower, shown: boolean)
 		return
 	end
 	follower.shown = shown
+	SpeciesFx.SetShown(follower.fxTarget, shown)
 	local model = follower.model
 	if shown then
 		follower.part.Parent = parent
@@ -318,6 +329,7 @@ local function setShown(follower: Follower, shown: boolean)
 end
 
 local function destroyFollower(follower: Follower)
+	follower.fxCleanup()
 	follower.part:Destroy()
 	local model = follower.model
 	if model then
@@ -488,13 +500,23 @@ local function faceDirection(follower: Follower, travel: Vector3, ownerLook: Vec
 	return follower.turn.LookVector
 end
 
--- Puts a follower's parts at its feet and facing; `bob` lifts the feet (0 for a ridden mount).
-local function place(follower: Follower, bob: number)
+-- Puts a follower's parts at its feet and facing; `bob` lifts the feet (0 for a ridden mount). A following alien goes down
+-- through SpeciesFx.Place, which adds its idle motion; `idle` false (a mount) keeps it exactly under the rider.
+local function place(follower: Follower, bob: number, idle: boolean)
 	local pivot = CFrame.new(follower.feet + Vector3.new(0, bob, 0)) * follower.turn
-	follower.part.CFrame = pivot * CFrame.new(0, follower.height / 2, 0) * follower.upright
+	local frame = pivot * CFrame.new(0, follower.height / 2, 0) * follower.upright
 	local model = follower.model
 	if model then
-		model:PivotTo(pivot)
+		follower.part.CFrame = frame
+		if idle then
+			SpeciesFx.Place(model, pivot)
+		else
+			model:PivotTo(pivot)
+		end
+	elseif idle then
+		SpeciesFx.Place(follower.part, frame)
+	else
+		follower.part.CFrame = frame
 	end
 end
 
@@ -553,7 +575,7 @@ local function onRender(dt: number)
 				if ownerLook then
 					follower.turn = CFrame.lookAt(Vector3.zero, ownerLook)
 				end
-				place(follower, 0)
+				place(follower, 0, false)
 				continue
 			end
 			local spot = (rootFrame * CFrame.new((arcIndex - (count + 1) / 2) * Companions.FollowSpacing, 0, Companions.FollowDistance)).Position
@@ -573,7 +595,7 @@ local function onRender(dt: number)
 			-- The feet rest BobStuds above the ground and swing BobStuds either way, so they touch the
 			-- ground at the bob's low point and lift a little at the top, as WildRenderer's meshes do.
 			local bob = Companions.BobStuds + math.sin(now * omega + follower.phase) * Companions.BobStuds
-			place(follower, bob)
+			place(follower, bob, true)
 		end
 	end
 end

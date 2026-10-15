@@ -33,6 +33,12 @@
 -- aura) and, once Icons.Particles.Glow is uploaded, a glow sprite behind the alien that breathes over
 -- Config.VfxAuraPulseSeconds (it holds its midpoint under Reduced Motion). Both follow the hide rule with
 -- the nameplate (applyVisibility) and go with the record (untrack), so a reserved spawn never has one.
+-- Species effects (data/Effects, World.SpeciesFx): each tracked alien is attached to SpeciesFx on arrival (the mesh clone, or
+-- the part when there is no mesh) and released with its record. The tier aura above stays the base layer; the species layers
+-- the tier allows (and its ground ring) come on top for the nearest few aliens, and the rest keep only the aura. The idle
+-- motion cannot be an offset applied after this module's bob (the bob writes the pose absolutely every frame), so the bob
+-- places the alien through SpeciesFx.Place, which writes the pose plus the idle offset. A hidden (blizzard) or silhouetted
+-- alien shows no species effects (syncFx), and a change of size band rebuilds them (SpeciesFx.Refresh).
 -- The Scanner Pulse (data/PowerUps ScannerPulse, effect "reveal"): while State.GetBuffs() holds it, every
 -- tracked alien whose Biome attribute is the player's biome counts as revealed whatever its distance, so
 -- no silhouette stands in that biome: `applyPulse` unshadows the shadowed ones (the ordinary `reveal`, its
@@ -62,6 +68,7 @@ local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Bu
 local Models = require(script.Parent:WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
+local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 
 local WildRenderer = {}
 
@@ -97,6 +104,8 @@ type Record = {
 	glow: BillboardGui?, -- the aura's glow sprite; absent until Icons.Particles.Glow is uploaded
 	glowImage: ImageLabel?,
 	glowTween: Tween?, -- the breathing loop; nil while still (Reduced Motion) or without a glow
+	fxTarget: BasePart | Model, -- what SpeciesFx is attached to: the mesh clone, else the part
+	fxCleanup: () -> (), -- releases the species effects
 }
 
 local records: { [Part]: Record } = {}
@@ -271,6 +280,12 @@ local function applyAuraMotion()
 	end
 end
 
+-- The species effects show only while the alien itself does: not hidden by the blizzard rule and not still a silhouette
+-- (lightning off a dark shape would give the species away).
+local function syncFx(record: Record)
+	SpeciesFx.SetShown(record.fxTarget, not record.hidden and not record.shadowed)
+end
+
 local function applyShadow(record: Record)
 	record.shadowed = true
 	record.part.Color = Theme.Shadow
@@ -280,6 +295,7 @@ local function applyShadow(record: Record)
 		Models.SetShadow(model, true)
 	end
 	record.nameLabel.Text = Strings.UNKNOWN_NAME
+	syncFx(record)
 end
 
 local function reveal(record: Record)
@@ -287,6 +303,7 @@ local function reveal(record: Record)
 		return
 	end
 	record.shadowed = false
+	syncFx(record)
 	local def = Species.ById[record.species]
 	record.nameLabel.Text = if def then def.name else record.species
 	local model = record.model
@@ -497,6 +514,7 @@ local function applyVisibility(record: Record)
 	if glow then
 		glow.Enabled = not hide
 	end
+	syncFx(record)
 end
 
 -- Re-judges the hide rule for every tracked alien (and the Scanner Pulse's reveal, via applyPulse). Without
@@ -547,6 +565,7 @@ local function applySize(record: Record)
 		model:ScaleTo(model:GetScale() * ratio)
 	end
 	record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(part, model))
+	SpeciesFx.Refresh(record.fxTarget, factor) -- measured again at the new size
 end
 
 local function track(instance: Instance)
@@ -579,6 +598,7 @@ local function track(instance: Instance)
 	end
 	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
 	local light, glow, glowImage = buildAura(instance, tier)
+	local fxTarget: BasePart | Model = model or instance
 	local record: Record = {
 		part = instance,
 		species = species,
@@ -600,6 +620,8 @@ local function track(instance: Instance)
 		glow = glow,
 		glowImage = glowImage,
 		glowTween = nil,
+		fxTarget = fxTarget,
+		fxCleanup = SpeciesFx.Attach(fxTarget, species, tier, { scale = factor }),
 	}
 	records[instance] = record
 	instance.CFrame = base -- a record the render loop skips (hidden or far) still stands on its band's base
@@ -648,6 +670,7 @@ local function untrack(instance: Instance)
 		if record.glow then
 			record.glow:Destroy()
 		end
+		record.fxCleanup()
 		local model = record.model
 		if model then
 			model:Destroy()
@@ -750,10 +773,12 @@ local function onRender()
 			end
 		end
 		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Config.WildBobStuds, 0)
-		part.CFrame = record.base + lift
 		local model, modelBase = record.model, record.modelBase
 		if model and modelBase then
-			model:PivotTo(modelBase + lift)
+			part.CFrame = record.base + lift
+			SpeciesFx.Place(model, modelBase + lift)
+		else
+			SpeciesFx.Place(part, record.base + lift)
 		end
 		if at and record.shadowed and (position - at).Magnitude <= Config.ShadowRevealDistance then
 			reveal(record)

@@ -122,6 +122,7 @@ return {
 	VfxRevealRaysSeconds = 12, -- one full turn of the sunburst behind the reveal card
 	VfxAssembleRiseSeconds = 0.8, -- the assembly effect: pieces rise from the ground ring and snap into a finished module or a placed house piece over this
 	VfxAssembleFlashSeconds = 0.3, -- the white flash when the pieces land fades over this
+	VfxFxRecheckSeconds = 0.5, -- how often the client re-ranks the aliens on screen: only the nearest Effects.Caps.MaxActive keep their species effects, the rest keep the tier aura
 	GainFlySeconds = 0.6, -- a "+25" flies from the action button to the Scrap pill over this
 	ReducedMotionFactor = 0.5, -- tween lengths shrink by this when the player's reduced-motion setting is on
 	AnalyticsEnabled = true, -- AnalyticsService events (funnel, custom, economy); off in Studio by default below

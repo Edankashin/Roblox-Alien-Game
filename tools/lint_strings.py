@@ -36,7 +36,8 @@ def family_ids(tables, source, types):
         if not match:
             raise ValueError('missing type union ' + name)
         return set(re.findall(r'"([^"]+)"', match[1]))
-    all_rows = [row for t in tables.values() for _,_,v,_ in walk(t) if isinstance(v,dict) for row in [v]]
+    # data/Effects has `kind` and `count` rows too (an Orbit's motes), and they are not objectives.
+    all_rows = [row for name, t in tables.items() if name != 'Effects' for _,_,v,_ in walk(t) if isinstance(v,dict) for row in [v]]
     objectives = {row['kind'] for row in all_rows if 'kind' in row and 'count' in row}
     rewards = {r['kind'] for row in all_rows for r in (row.get('rewards') or {}).values()}
     reward_rows = [r for row in all_rows for r in (row.get('rewards') or {}).values()]

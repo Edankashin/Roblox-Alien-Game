@@ -92,6 +92,63 @@ export type TierDef = {
 	aura: number, -- glow strength of a wild spawn of this tier (0 = none): a point light and a pulsing glow sprite (Vfx)
 }
 
+-- Per-species effects (data/Effects, drawn by the client's World.SpeciesFx; the server never reads them).
+-- Every length in a layer is a fraction of the alien's own height (its bounds), so one row fits a Tiny and a Huge of the same
+-- species and the data names no stud; the only studs are the idle amplitudes below, for a 1.0-scale alien.
+export type EffectKind = "Emitter" | "Beam" | "Light" | "Trail" | "Orbit"
+export type EmitDirection = "Up" | "Front" | "Back" | "Down"
+export type EffectLayer = {
+	kind: EffectKind,
+	color: string, -- hex
+	at: string, -- a region of data/Effects.Attach the layer hangs on (a Beam or Trail starts here)
+	-- Emitter, and the motes of an Orbit
+	rate: number?, -- particles per second (per mote for an Orbit); capped by Effects.Caps
+	size: number?, -- particle size, in heights
+	lifetime: number?, -- seconds (Emitter, Orbit mote, Trail)
+	speed: number?, -- heights per second
+	spread: number?, -- degrees
+	sprite: string?, -- a key of Icons.Particles; nil keeps the default soft sprite
+	dir: EmitDirection?, -- nil is Up
+	rise: number?, -- heights per second squared, positive up (embers) or negative (petals falling)
+	glow: number?, -- LightEmission 0..1; nil is Effects.Look.DefaultGlow
+	flat: boolean?, -- lies flat on the ground and grows (the Legendary ring)
+	-- Beam (lightning between `at` and `to`) and Trail (a ribbon between them)
+	to: string?,
+	width: number?, -- Beam: heights across; Trail: the ribbon's width scale (1 is the full span of its two points)
+	flicker: number?, -- Beam: seconds between strikes
+	segments: number?, -- Beam: the bolt's bends
+	-- Light
+	brightness: number?,
+	range: number?, -- heights
+	pulse: number?, -- seconds for one swell of the glow; nil holds it steady
+	-- Orbit
+	count: number?, -- motes
+	radius: number?, -- heights
+	period: number?, -- seconds for one turn
+}
+export type MotionKind = "Still" | "Bob" | "Hover" | "Flap" | "Spin" | "Breathe"
+-- Still: none. Bob: hops 0 to amplitude studs. Hover: floats amplitude studs up and sways. Breathe: rocks amplitude degrees
+-- about the feet with a small lift. Spin: turns amplitude degrees a period (a multiple of 360, so the loop is seamless).
+-- Flap: swings the named `parts` amplitude degrees; a model without them bobs instead.
+export type IdleMotion = { kind: MotionKind, amplitude: number, period: number, parts: { string }? }
+export type SpeciesFx = {
+	element: string, -- what the effect is made of ("Lightning", "Frost"); a design label, not shown
+	layers: { EffectLayer }, -- strongest first: a tier draws the first layersAllowed of them
+	idle: IdleMotion,
+	sound: string?, -- a key of data/Sounds, reserved for a looping idle sound (nothing plays it yet)
+}
+export type TierFxRule = {
+	layersAllowed: number,
+	rateScale: number, -- on every emitter's rate
+	sizeScale: number, -- on particle, beam and light sizes
+	lightScale: number, -- on light brightness
+	trail: boolean, -- the tier adds a ribbon trail if the species has none
+	orbit: boolean, -- the tier adds a ring of orbiting motes if the species has none
+	groundRing: boolean, -- a ring pulses out along the ground (on top of the tier aura)
+	dark: boolean, -- the dark variant: colours sink toward Effects.Dark.Color
+}
+export type AttachPoint = { x: number, y: number, z: number } -- x and z from the bounds' centre, y from the feet, each a fraction of that side
+
 export type AlienRecord = {
 	uid: string,
 	species: string,
