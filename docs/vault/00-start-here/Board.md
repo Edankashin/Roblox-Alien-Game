@@ -53,6 +53,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
 | Co-play: a "catch with a friend" Field Notes step (the measurement half is done, aff40f7) | | ZPLRKjEf2; `Quests.luau` |
+| `deadcode.py --write` and `perf_report.py --write` drop the hand-written tails of Dead-Code and Performance (the "C18 reviewed cleanup" and "Fixed (2026-10-07)" sections); make the generators keep a tail below a marker, then regenerate both notes | | Found 2026-10-15 by the generator-frontmatter worker; both notes are stale against the source until then |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
 | Music: listen to the 12 picked rows in the place, swap any, pick Menus (still 0) | Ethan or Collab | [[Music-Plan]] pick tables (overnight job 5); one number per row in `data/Music.luau` |
