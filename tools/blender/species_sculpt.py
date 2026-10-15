@@ -8,7 +8,9 @@ materials.json, ModelAssets and the slot order are untouched. Plain Python with 
 FBX and notes.md like that script does, so point --models at a SCRATCH copy of the folders (it refuses assets/models).
 
   cp -r assets/models/Mossbop /scratch/models/Mossbop                                              # a copy of the folder first
-  python3 tools/blender/species_sculpt.py --species Mossbop --models /scratch/models               # metaballs (the method that won)
+  python3 tools/blender/species_sculpt.py --species Mossbop,Sparkfox,Gaiabloom,Flufflet --models /scratch/models --method hybrid
+                                                                       # the hybrid: a fused core plus crisp parts (see below)
+  python3 tools/blender/species_sculpt.py --species Mossbop --models /scratch/models               # metaballs (the first prototype)
   python3 tools/blender/species_sculpt.py --species Mossbop --models /scratch/models --method remesh   # the other candidate
   python3 tools/blender/species_sculpt.py --species Mossbop --models /scratch/models --set stiff=4 --set face.sink=0.3   # try a number
   python3 tools/blender/preview.py --lit --models /scratch/models --compare assets/models --species Mossbop --out /scratch/renders
@@ -31,11 +33,27 @@ volumes without touching species_recipes.py):
      texture tiling and export as species_bodies.py does.
 --method remesh is the other candidate (join the primitives, boolean-carve the face, VOXEL remesh, SMOOTH, the same steps 3 and 4);
 the note docs/vault/06-art-pipelines/Sculpt-Pass.md says why metaballs won.
+
+--method hybrid (HYBRID, a species' own keys in SPECIES[sid]["hybrid"]) keeps the fused core and gives the thin parts back their shape:
+  1. The parts are split into CORE (the body, head, limbs, cheeks, feet, a `sweep` tail) and CRISP (SPECIES[sid]["hybrid"]["crisp"], or
+     the rule in crisp_names: Accessory and Trim, points, rings, bands, thin tubes, flat parts off the ground).
+  2. The core is fused as above, with a COLLAR in the field at the root of each crisp part that meets it (the part's own elements at 0.8
+     of its radius, only where the core's field reaches): the core swells round the root into a fillet. The decimate (face zones kept
+     denser) takes the core to about 65 percent of the budget; the loop lowers it until the whole creature fits (`--set
+     core_remesh=quadriflow` gives even quads instead, see HYBRID).
+  3. Each crisp part is the recipe's primitive (species_bodies' builder) with more sides, a 3-segment Bevel on its sharp rims and smooth-
+     by-angle normals, boolean-UNIONED into the core (EXACT solver). A crisp part clear of the core (a halo, a blossom on a tine) is joined
+     as it is. The seam round a collared part is soft (its normals blend the field's and the part's); round a ring or a scarf it is a
+     clean crease (sharp edges). The face: eyes 1.35x with their whites, pupils and glints as front halves, a 1.9x open mouth (a grin
+     has a flat top edge). `--set join=field` puts the crisp parts in the field at stiffness 9 instead; `--set collar=0 --set
+     seam_bevel=0.05` is a plain union with a Bevel on the seam. Sculpt-Pass.md "Hybrid method" has why the collared union won.
+SCULPT_DEBUG=1 prints the crisp parts' triangles and each round of the budget loop.
 """
 import argparse
 import datetime
 import json
 import math
+import os
 import pathlib
 import re
 import sys
@@ -67,6 +85,7 @@ DEFAULTS = {
     "fine_detail": 0.4,  # the decimate weight on fine features (smaller keeps more)
     "chain_gap": 0.5,    # chain spacing as a fraction of the local tube radius
     "tube_grow": 1.0,    # scales every chain's radius (a chain sums fields, so a thin one reads fatter than its rod)
+    "core_remesh": "decimate",  # see HYBRID
     "voxel": 0.032,      # remesh: voxel size as a fraction of the height
     "smooth_iter": 12,   # remesh: SMOOTH modifier iterations
     "smooth_fac": 0.55,
@@ -92,7 +111,46 @@ DEFAULTS = {
         "eye_boost": 1.2,      # the recipe's eye_scale times this (a sunk eye reads smaller than one that sits on the skin)
         "detail": 0.45,        # decimate weight in the face zones (smaller keeps more triangles there)
         "zone": 0.9,           # zone radius as a multiple of the element's largest reach
+        "half_eyes": False,    # hybrid: build the eye whites, pupils and glints as front halves (see front_half)
+        "grin": False,         # hybrid: a half-moon mouth's Mouth slot is a flat-topped grin, not the whole ellipse
     },
+}
+
+# --method hybrid: the fused core plus crisp parts. Laid over DEFAULTS and the species' own keys; a species overrides these in
+# SPECIES[sid]["hybrid"] (its metaball `edit` and `separate` do not carry over: the hybrid has its own).
+HYBRID = {
+    "core_share": 0.65,   # the core skin (after its colour cuts) aims at this share of `tris`; the crisp parts and the eyes take the rest
+    "crisp": None,        # step names built as crisp parts; None = the rule in crisp_names (Accessory and Trim, points, rings, thin parts)
+    "join": "union",      # union: crisp meshes boolean-unioned into the core | field: crisp parts in the metaball field, stiff
+    "crisp_stiff": 9.0,   # join=field: stiffness of the crisp elements (a tight blend keeps their shape)
+    "bevel": 0.04,        # crisp parts: bevel width as a fraction of the height (clamped to a quarter of the part's thickness)
+    "bevel_segments": 3,
+    "bevel_angle": 65.0,  # only edges sharper than this (cone and cylinder rims, cube corners; not the sides of a 6-sided cone)
+    "crisp_detail": 1.5,  # segment multiplier on the crisp primitives (they get the triangles the core gave up)
+    "crisp_small": 0.2,   # a crisp part no bigger than this (studs of radius) keeps the recipe's segments
+    "bevel_min": 0.2,     # no bevel on a part thinner than this (studs across): a tine's rim is not seen, its triangles are
+    "ring_sides": 6,      # at least this many sides round a ring's tube (no bevel on a ring: more sides read rounder for less)
+    "collar": 0.8,        # join=union: the root of each crisp part that meets the core joins the field at this share of its radius, so
+                          # the core grows a fillet round it and the seam meets at a shallow angle (0 = no collar, a plain crease)
+    "collar_zone": 0.02,  # a collar element is kept where the core's field at its centre is above this (the root, not the whole part)
+    "collar_stiff": None, # blend width of the collar (None = stiff_thin)
+    "no_fillet": (),      # crisp parts that meet the body with a clean line and no collar (a scarf, a knot: clothing sits on the skin)
+    "shell": (),          # crisp parts joined as shells even where they touch the core (no union, no seam triangles)
+    "union_also": (),     # crisp parts unioned although they do not reach into the core
+    "core_remesh": "decimate",  # the core's triangles: decimate (as --method metaball: the face zones keep more) or quadriflow (even
+                          # quads, but uniform: the mouth outline turns jagged, thin legs fold, and its count drifts run to run)
+    "qf_pre": 8000,       # QuadriFlow takes the skin decimated to this many triangles
+    "qf_relax": 2,        # rounds of light smooth + shrinkwrap after QuadriFlow
+    "qf_seed": 0,
+    "qf_flipped": 2,      # a QuadriFlow core with more faces than this folded against the field is refused (the decimate is used)
+    "core_min": 0.4,      # the loop never takes the core below this share of `tris` (the creature may then go over `tris`, never the cap)
+    "seam_bevel": 0.0,    # join=union: width in studs of a Bevel on the seam's vertex group after the union (0 = off)
+    "seam_segments": 2,
+    "boolean": "EXACT",   # the union solver: EXACT (self-intersecting operands are fine) or MANIFOLD (faster, needs closed meshes)
+    "separate": (),
+    "edit": None,
+    "collar_paint": False,  # False: a collar takes the skin's colour, so a colour line falls on the seam and not as a patch round it
+    "face": {"eye_boost": 1.35, "mouth_scale": 1.9, "half_eyes": True, "grin": True},
 }
 
 
@@ -141,23 +199,50 @@ def edit_flufflet(parts):
     return _without(parts, "streamer")
 
 
+def sweep(slot, pts, radii, name):
+    """A tube through the points (a Catmull-Rom curve) with a radius per point, as ONE chain of calibrated balls: a tail that tapers
+    without the bulge a chain of separate spheres or rods leaves at every joint. Core only (see add_sweep)."""
+    return {"prim": "sweep", "slot": slot, "name": name, "pts": [tuple(map(float, p)) for p in pts], "radii": [float(r) for r in radii],
+            "loc": tuple(map(float, pts[0])), "scale": (max(radii),) * 3}
+
+
+def hybrid_sparkfox(parts):
+    """Forelegs a quarter of the body wide (0.17 read as sticks), and the tail one tapering sweep from inside the rump to the ferrule
+    (three balls read as three bulges). The ears, cheek tufts and the brush stay the recipe's crisp spikes."""
+    return _without(parts, "foreleg", "tail") + _steps(
+        SR.rod("Body", (0.4, -0.33, 0.85), (0.42, -0.55, 0.12), 0.24, 0.2, segments=8, mirror=True, name="foreleg")) + [
+        sweep("Body", [(0.15, 0.95, 0.62), (0.55, 1.3, 0.72), (1.15, 1.2, 1.0), (1.58, 0.93, 1.4), (1.72, 0.7, 1.76)],
+              [0.36, 0.38, 0.33, 0.27, 0.22], "tail")]
+
+
 SPECIES = {
     "Mossbop": {"stiff": 5.0, "stiff_thin": 4.0, "edit": edit_mossbop, "face": {"socket_stiff": 1.8, "sink": 0.45},
-                "separate": ("stalk", "bud", "leaf")},  # the sprout: a stalk the fused moss would swallow, so a shell sunk into the head
-    "Sparkfox": {"stiff": 4.5, "stiff_thin": 4.0, "edit": edit_sparkfox, "face": {"lid_grow": 0.8}},
+                "separate": ("stalk", "bud", "leaf"),  # the sprout: a stalk the fused moss would swallow, so a shell sunk into the head
+                "hybrid": {"edit": edit_mossbop, "crisp": ("stalk", "bud", "leaf")}},
+    "Sparkfox": {"stiff": 4.5, "stiff_thin": 4.0, "edit": edit_sparkfox, "face": {"lid_grow": 0.8},
+                 "hybrid": {"edit": hybrid_sparkfox, "crisp": ("ear", "innerear", "cheek", "ferrule", "bristles", "bristletip"),
+                            "no_fillet": ("innerear",), "face_recipe": {"eye_tilt": 4.0}}},  # a sly look, not a scowl, over the open grin
     "Gaiabloom": {"stiff": 4.0, "stiff_thin": 4.0, "separate": ("halo", "groundring", "flower"), "fine": 0.16, "edit": edit_gaiabloom,
-                  "face_recipe": {"eye_scale": 1.3}, "face": {"lid_grow": 0.7}},
+                  "face_recipe": {"eye_scale": 1.3}, "face": {"lid_grow": 0.7},
+                  "hybrid": {"edit": edit_gaiabloom, "crisp": ("ear", "antler", "blossom", "halo", "groundring", "flower"),
+                             "bevel_segments": 0, "ring_sides": 4}},  # 27 crisp parts: no triangles to spare for rims nobody sees
     "Flufflet": {"res": 0.03, "separate": ("tassel",), "fine": 0.1, "stiff": 3.5, "edit": edit_flufflet,
                  "face": {"lid_grow": 0.55, "socket_stiff": 0.9, "socket_reach": (1.4, 1.2, 1.4), "sink": 0.35}, "face_recipe": {"eye_tilt": -2.0, "lid": 0.16},
                  "ribbons": [{"slot": "Accessory", "name": "streamer", "pts": SR._STREAMER, "thick": 0.065,
-                              "widths": [0.3, 0.3, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23, 0.22]}]},
+                              "widths": [0.3, 0.3, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23, 0.22]}],
+                 "hybrid": {"edit": edit_flufflet, "crisp": ("scarf", "knot", "mitten", "thumb", "tassel"), "no_fillet": ("scarf", "knot"),
+                            "face_recipe": {"lid": 0.0}}},  # round goofy eyes: the small lids wrinkled the snow round bigger eyes
 }
 
 
-def cfg_of(sid, override=None):
+def cfg_of(sid, override=None, method="metaball"):
     out = json.loads(json.dumps(DEFAULTS, default=list))
-    for source in (SPECIES.get(sid, {}), override or {}):
+    own = SPECIES.get(sid, {})
+    layers = [own, HYBRID, own.get("hybrid", {})] if method == "hybrid" else [own]
+    for source in layers + [override or {}]:
         for k, v in source.items():
+            if k == "hybrid":
+                continue
             if isinstance(v, dict) and isinstance(out.get(k), dict):
                 out[k].update(v)
             else:
@@ -254,8 +339,8 @@ class Field:
         so a ring of balls owns its band evenly and not scallop by scallop)."""
         out = {}
         for it in self.items:
-            if it["neg"]:
-                continue
+            if it["neg"] or it.get("slotless"):
+                continue  # a hybrid collar takes the colour of the skin it grows from (see add_collars)
             c = self.contribution(it, P)
             out[it["slot"]] = out[it["slot"]] + c if it["slot"] in out else c
         return out
@@ -347,12 +432,43 @@ def add_box(field, p, stiff, res, fine_below):
     field.add(p["loc"], R, box, stiff, p["slot"], p["name"], kind="CUBE", radius=rho / kfac(stiff), fine=rho < fine_below)
 
 
+def add_sweep(field, p, stiff, gap, res, fine_below):
+    """A sweep (see sweep()): balls along a Catmull-Rom curve through p["pts"], each calibrated (like a chain) so the surface sits at
+    the radius interpolated from p["radii"], the end balls set back so the surface ends at the first and last points."""
+    pts, rad = np.array(p["pts"], float), np.array(p["radii"], float)
+    dense, drad = [], []
+    n = len(pts)
+    for i in range(n - 1):
+        p0, p1, p2, p3 = pts[max(i - 1, 0)], pts[i], pts[i + 1], pts[min(i + 2, n - 1)]
+        for t in np.linspace(0.0, 1.0, 16, endpoint=False):
+            dense.append(0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t ** 3))
+            drad.append(rad[i] + (rad[i + 1] - rad[i]) * t)
+    dense.append(pts[-1])
+    drad.append(rad[-1])
+    dense, drad = np.array(dense), np.array(drad)
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(dense, axis=0), axis=1))])
+    d = max(gap * float(drad.mean()), 0.5 * res)
+    u0 = cap_reach(drad[0], calib_ball(drad[0], d, stiff), d, stiff)
+    u1 = cap_reach(drad[-1], calib_ball(drad[-1], d, stiff), d, stiff)
+    a, b = u0, s[-1] - u1
+    m = max(1, int(math.ceil((b - a) / d))) + 1
+    dd = (b - a) / (m - 1)
+    for i in range(m):
+        si = a + dd * i
+        pos = np.array([np.interp(si, s, dense[:, k]) for k in range(3)])
+        r = float(np.interp(si, s, drad))
+        reach = calib_ball(r, max(dd, 0.5 * res), stiff)
+        field.add(pos, np.eye(3), (reach, reach, reach), stiff, p["slot"], p["name"], fine=r < fine_below)
+
+
 def build_field(body_parts, cfg):
     field = Field()
     for p in body_parts:
         if p["name"] in cfg["separate"]:
             continue
-        if p["prim"] in ("sphere", "icosphere"):
+        if p["prim"] == "sweep":
+            add_sweep(field, p, cfg["stiff_thin"], cfg["chain_gap"], cfg["res"], cfg["fine"])
+        elif p["prim"] in ("sphere", "icosphere"):
             add_sphere(field, p, cfg["stiff"])
         elif p["prim"] in ("cylinder", "cone"):
             add_chain(field, p, cfg["stiff_thin"], cfg["chain_gap"], cfg["tube_grow"], cfg["res"], cfg["fine"])
@@ -419,11 +535,18 @@ def face_plan(rec, face_parts, field, fc):
         scale = fc["mouth_scale"]
         radii = np.array([sx, sy, sz]) * scale
         centre = np.array(mouth["loc"], float) + shift
-        if m["half"]:
-            centre = centre + Q @ np.array([0.0, 0.0, -0.25 * sz * scale])  # the half-moon hangs below its top edge
+        top = None
+        if m["half"] and fc["grin"]:
+            # a grin: the Mouth slot is the lower half of the ellipsoid under a flat top edge (a "D" on its side), the dent sits in it
+            top, dent = centre, centre + Q @ np.array([0.0, 0.0, -0.4 * sz * scale])
+            centre = top
+        elif m["half"]:
+            centre = dent = centre + Q @ np.array([0.0, 0.0, -0.25 * sz * scale])  # the half-moon hangs below its top edge
+        else:
+            dent = centre
         reach = tuple(fc["mouth_reach"][i] * radii[i] for i in range(3))
-        negatives.append((centre, Q, reach, fc["mouth_stiff"], "mouth"))
-        region = (centre, Q, radii)
+        negatives.append((dent, Q, reach, fc["mouth_stiff"], "mouth"))
+        region = (centre, Q, radii, None if top is None else 0.0)
     return meshes, negatives, lids, region
 
 
@@ -583,6 +706,49 @@ def relax(obj, target_obj, rounds, smooth_iter=2, factor=0.5):
         bpy.ops.object.modifier_apply(modifier=sw.name)
 
 
+def quadriflow(obj, raw_obj, want, cfg, field):
+    """Even quads instead of the collapse decimate's scatter: decimate to `qf_pre` triangles (QuadriFlow refuses the raw polygonized
+    skin and a voxel remesh of it, but takes a decimated one), QuadriFlow to want/2 quads, then `qf_relax` rounds of smooth + shrinkwrap
+    onto the polygonized surface. Returns False (the caller falls back to the plain decimate) when QuadriFlow cancels."""
+    decimate(obj, cfg["qf_pre"])
+    # QuadriFlow's own check refuses an edge shorter than 1e-4 on every axis (a decimate leaves a few): weld them first
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=3e-4)
+    bmesh.ops.dissolve_degenerate(bm, edges=bm.edges, dist=3e-4)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(obj.data)
+    bm.free()
+    obj.data.update()
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    try:
+        result = bpy.ops.object.quadriflow_remesh(
+            target_faces=max(100, int(want / 2)), use_mesh_symmetry=False, use_preserve_sharp=False, use_preserve_boundary=False,
+            preserve_attributes=False, smooth_normals=False, mode="FACES", seed=cfg["qf_seed"])
+    except RuntimeError:
+        result = {"CANCELLED"}
+    if "FINISHED" not in result:
+        return False
+    relax(obj, raw_obj, cfg["qf_relax"], smooth_iter=1, factor=0.3)
+    triangulate(obj)
+    # QuadriFlow can leave a pinched fan or a fold where a thin part meets a thick one (a hoof under a leg): refuse that result
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bad_edges = sum(1 for e in bm.edges if not e.is_manifold)
+    bad_verts = sum(1 for v in bm.verts if not v.is_manifold)
+    bm.free()
+    C = face_centres(obj.data)
+    N = np.empty(len(obj.data.polygons) * 3)
+    obj.data.polygons.foreach_get("normal", N)
+    flipped = int(((field_normals(field, C) * N.reshape(-1, 3)).sum(axis=1) < -0.5).sum())  # a fold, not a socket rim
+    if os.environ.get("SCULPT_DEBUG"):
+        print("  quadriflow: %d faces, %d non-manifold edges, %d verts, %d faces folded against the field" % (
+            len(obj.data.polygons), bad_edges, bad_verts, flipped))
+    return bad_edges == 0 and bad_verts == 0 and flipped <= cfg["qf_flipped"]
+
+
 def smooth_all(obj):
     for p in obj.data.polygons:
         p.use_smooth = True
@@ -642,6 +808,16 @@ def face_centres(mesh):
     return out.reshape(n, 3)
 
 
+def mouth_value(region, P):
+    """Positive inside the mouth region (centre, R, radii, top): an ellipsoid, cut flat at local z = top (in radii) for a grin."""
+    centre, Q, radii, top = region
+    q = (P - centre) @ Q / radii
+    v = 1.0 - (q * q).sum(axis=1)
+    if top is not None:
+        v = np.minimum(v, 2.0 * (top - q[:, 2]))
+    return v
+
+
 def assign_slots(obj, mats, field, region, index):
     mesh = obj.data
     mesh.materials.clear()
@@ -651,10 +827,7 @@ def assign_slots(obj, mats, field, region, index):
     slots = field.dominant_slot(C)
     idx = np.array([index[s] for s in slots], dtype=np.int32)
     if region is not None:
-        centre, Q, radii = region
-        q = (C - centre) @ Q / radii
-        inside = (q * q).sum(axis=1) <= 1.0
-        idx[inside] = index["Mouth"]
+        idx[mouth_value(region, C) >= 0.0] = index["Mouth"]
     mesh.polygons.foreach_set("material_index", idx)
     mesh.update()
     return int((idx == index["Mouth"]).sum())
@@ -716,13 +889,7 @@ def cut_slots(obj, field, region):
 
             cuts += cut_along(bm, value)
     if region is not None:
-        centre, Q, radii = region
-
-        def inside(P):
-            q = (P - centre) @ Q / radii
-            return 1.0 - (q * q).sum(axis=1)
-
-        cuts += cut_along(bm, inside)
+        cuts += cut_along(bm, lambda P: mouth_value(region, P))
     bm.to_mesh(obj.data)
     bm.free()
     obj.data.update()
@@ -775,12 +942,317 @@ def uv_project(obj):
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
+# ------------------------------------------------------------------------------------------------ the hybrid (--method hybrid)
+def is_thin(p, fine):
+    """The default rule for a crisp part: a ring or a box, a point (a cone that ends thinner than half its base), a tube thinner than
+    `fine`, or a flat ellipsoid off the ground (an ear, a leaf; a flat paw on the ground stays core)."""
+    if p["prim"] == "sweep":
+        return False
+    sx, sy, sz = p["scale"]
+    if p["prim"] in ("torus", "cube"):
+        return True
+    if p["prim"] == "cone" and p["tip"] < 0.5:
+        return True
+    if p["prim"] in ("cylinder", "cone"):
+        return math.sqrt(sx * sy) < fine
+    lowest = p["loc"][2] - SR._extent(p["rot"], p["scale"])[2]
+    return min(sx, sy, sz) < 0.5 * fine and lowest > 0.15
+
+
+def front_half(p):
+    """An eye white, pupil or glint as its front half only (a half sphere facing out of the head): the back half is buried in the
+    socket or in the eyeball, and the halves give the core about 190 triangles."""
+    Q = np.array(p["rot"], float)
+    R = np.column_stack([Q[:, 0], Q[:, 2], -Q[:, 1]])  # local z (the kept half) along the outward normal, local y up
+    sx, sy, sz = p["scale"]
+    return dict(p, rot=tuple(map(tuple, R.tolist())), scale=(sx, sz, sy), half="top")
+
+
+def crisp_names(parts, cfg):
+    """The names of the crisp parts: the species' own list, or Accessory and Trim plus everything is_thin calls thin."""
+    if cfg["crisp"] is not None:
+        return set(cfg["crisp"])
+    return {p["name"] for p in parts if p["slot"] in ("Accessory", "Trim") or is_thin(p, cfg["fine"])}
+
+
+def add_collars(field, crisp, cfg):
+    """The root of every crisp part that meets the core, at `collar` of its radius, joins the core's field (flagged fine, so the
+    decimate keeps it triangles). Fused with the core it swells into a fillet round the root, outside the crisp part, and further out it
+    stays inside the crisp part, which the union then shows. Returns how many elements were added."""
+    if not cfg["collar"]:
+        return 0
+    stiff = cfg["collar_stiff"] or cfg["stiff_thin"]
+    k = cfg["collar"]
+    tmp = Field()
+    for p in crisp:
+        if p["name"] in cfg["no_fillet"] or p["prim"] in ("torus", "cube"):
+            continue  # rings and bands (a scarf, a collar) sit on the skin with a clean line
+        sx, sy, sz = p["scale"]
+        q = dict(p, scale=(sx * k, sy * k, sz if p["prim"] in ("cylinder", "cone") else sz * k))
+        if p["prim"] in ("sphere", "icosphere"):
+            add_sphere(tmp, q, stiff)
+        else:
+            add_chain(tmp, q, stiff, cfg["chain_gap"], 1.0, cfg["res"], 1e9)
+    if not tmp.items:
+        return 0
+    near = field.total(np.array([it["co"] for it in tmp.items]), negatives=False) > cfg["collar_zone"]
+    kept = [it for it, keep in zip(tmp.items, near) if keep]
+    for it in kept:
+        it["fine"] = True
+        it["slotless"] = not cfg["collar_paint"]
+        field.items.append(it)
+    return len(kept)
+
+
+def add_crisp_field(field, crisp, cfg):
+    """join=field: the crisp parts as stiff metaball elements (a tight blend that keeps their shape), flagged fine."""
+    s = cfg["crisp_stiff"]
+    first = len(field.items)
+    for p in crisp:
+        if p["prim"] in ("sphere", "icosphere"):
+            add_sphere(field, p, s)
+        elif p["prim"] in ("cylinder", "cone"):
+            add_chain(field, p, s, cfg["chain_gap"], cfg["tube_grow"], cfg["res"], 1e9)
+        elif p["prim"] == "torus":
+            add_ring(field, p, s, cfg["chain_gap"], cfg["tube_grow"], cfg["res"], 1e9)
+        elif p["prim"] == "cube":
+            add_box(field, p, s, cfg["res"], 1e9)
+    for it in field.items[first:]:
+        it["fine"] = True
+
+
+def crisp_segments(p, detail, small):
+    """Segments of a crisp primitive: a cone or a cylinder `detail` times the recipe's, a sphere a little less (it is the costly one), a
+    ring keeps its count round (and gets at least 6 round the tube, see crisp_objects); a part no bigger than `small` studs of radius
+    (a tine, a blossom, a tassel) keeps the recipe's count: more sides on it are not seen."""
+    n = p["segments"]
+    if p["prim"] == "sweep" or max(p["scale"]) <= small:
+        return n
+    if p["prim"] == "sphere":
+        return max(6, 2 * int(round(n * (1.0 + 0.5 * (detail - 1.0)) / 2.0)))
+    if p["prim"] in ("cylinder", "cone"):
+        return max(5, int(round(n * detail)))
+    return n
+
+
+def crisp_objects(crisp, ribbons, mats, cfg, height):
+    """Each crisp part as the recipe's primitive (species_bodies' builder) with more segments, a Bevel on its sharp edges (3 segments,
+    `bevel` of the height, at most a quarter of the part's thickness) and smooth-by-angle normals; transforms applied (world space)."""
+    kit = SB.Kit(mats, None)
+    objs = []
+    for p in crisp:
+        q = dict(p, segments=crisp_segments(p, cfg["crisp_detail"], cfg["crisp_small"]))
+        if p["prim"] == "torus":
+            q["mseg"] = max(cfg["ring_sides"], p["mseg"])
+        kit.add(q)
+        obj = kit.parts[-1]
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        sx, sy, sz = p["scale"]
+        thin = 2.0 * (p["minor"] * min(sx, sy) if p["prim"] == "torus" else min(sx, sy, sz))
+        width = min(cfg["bevel"] * height, 0.25 * thin)
+        if cfg["bevel_segments"] and p["prim"] not in ("sphere", "icosphere", "torus") and thin >= cfg["bevel_min"]:
+            mod = obj.modifiers.new("Bevel", "BEVEL")
+            mod.width = width
+            mod.segments = cfg["bevel_segments"]
+            mod.limit_method = "ANGLE"
+            mod.angle_limit = math.radians(cfg["bevel_angle"])
+            mod.use_clamp_overlap = True
+            bpy.ops.object.modifier_apply(modifier=mod.name)
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=False)
+        SB.shade_by_angle(obj.data, math.radians(SR.SURFACE["smooth_angle"]))
+        objs.append(obj)
+    for slot, ob in ribbons:
+        kit._take(ob, slot, True)
+        objs.append(ob)
+    return objs
+
+
+def has_collar(name, crisp, cfg):
+    """True when the crisp part of that name grew a collar (see add_collars): its seam is a soft one."""
+    if not cfg["collar"] or name in cfg["no_fillet"]:
+        return False
+    return any(p["name"] == name and p["prim"] not in ("torus", "cube") for p in crisp)
+
+
+def touching(objs, field, cfg):
+    """Split the crisp objects into the ones the union takes (a vertex inside the core's skin, or a name in `union_also`) and the shells
+    that are joined as they are (`shell` names, and parts clear of the core: a halo, a ground ring, a blossom on a tine). A shell
+    costs no seam triangles; a part on another crisp part (a blossom on an antler) reads as one piece without the boolean."""
+    joined, shells = [], []
+    for o in objs:
+        base = o.name.split(".")[0]
+        P = np.array([v.co[:] for v in o.data.vertices])
+        inside = bool((field.total(P, negatives=False) > THR).any()) if len(P) else False
+        if base in cfg["shell"] or not (inside or base in cfg["union_also"]):
+            shells.append(o)
+        else:
+            joined.append(o)
+    return joined, shells
+
+
+def triangulate(obj):
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bmesh.ops.triangulate(bm, faces=bm.faces, quad_method="BEAUTY", ngon_method="BEAUTY")
+    bm.to_mesh(obj.data)
+    bm.free()
+    obj.data.update()
+
+
+def union_into(skin, objs, solver):
+    """Boolean UNION of the crisp meshes into the skin (one collection operand, material indices kept: every part carries the same
+    slot list). The crisp objects are deleted afterwards."""
+    coll = bpy.data.collections.new("crisp")
+    bpy.context.scene.collection.children.link(coll)
+    for o in objs:
+        for c in list(o.users_collection):
+            c.objects.unlink(o)
+        coll.objects.link(o)
+    mod = skin.modifiers.new("Union", "BOOLEAN")
+    mod.operation = "UNION"
+    mod.operand_type = "COLLECTION"
+    mod.collection = coll
+    mod.solver = solver
+    mod.material_mode = "INDEX"
+    if solver == "EXACT":
+        mod.use_self = True
+    bpy.ops.object.select_all(action="DESELECT")
+    skin.select_set(True)
+    bpy.context.view_layer.objects.active = skin
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    for o in list(coll.objects):
+        bpy.data.objects.remove(o)
+    bpy.data.collections.remove(coll)
+    triangulate(skin)
+
+
+def bvh_of(meshes):
+    """One BVH tree over several (verts, polys) sets in world space."""
+    from mathutils.bvhtree import BVHTree
+    verts, polys = [], []
+    for vs, ps in meshes:
+        base = len(verts)
+        verts += vs
+        polys += [tuple(base + i for i in p) for p in ps]
+    return BVHTree.FromPolygons(verts, polys)
+
+
+def mesh_data(obj):
+    m = obj.data
+    return [tuple(v.co) for v in m.vertices], [tuple(p.vertices) for p in m.polygons]
+
+
+def distances(tree, P):
+    out = np.empty(len(P))
+    for i, p in enumerate(P):
+        hit = tree.find_nearest(tuple(p))
+        out[i] = hit[3] if hit[0] is not None else 1e9
+    return out
+
+
+def seam_pass(skin, core_tree, soft_tree, hard_tree, field, cfg, eps=1e-3):
+    """After the union: a seam vertex lies on both the core and a crisp part. A SOFT seam (a part with a collar: the core swells to
+    meet it at a shallow angle) is hidden in the shading: its vertices take a blend of both normals. A HARD seam (a ring, a scarf, an
+    inner ear: no collar) stays a clean crease: its edges are marked sharp. Optionally a Bevel limited to the seam's vertex group
+    first (`seam_bevel` studs, `seam_segments`: the brief's fillet-by-bevel). Then the normals: the core takes the field's normal
+    (pulled toward the mesh's own where the two disagree, a thin paw or a decimated crease), the crisp parts their own smooth-by-angle
+    normal. Returns (soft seam vertices, hard seam vertices)."""
+    mesh = skin.data
+    P = np.array([v.co[:] for v in mesh.vertices])
+    dc, ds, dh = distances(core_tree, P), distances(soft_tree, P), distances(hard_tree, P)
+    if cfg["seam_bevel"] > 0.0 and ((dc < eps) & (np.minimum(ds, dh) < eps)).any():
+        seam = (dc < eps) & (np.minimum(ds, dh) < eps)
+        vg = skin.vertex_groups.new(name="seam")
+        vg.add([int(i) for i in np.nonzero(seam)[0]], 1.0, "REPLACE")
+        mod = skin.modifiers.new("SeamBevel", "BEVEL")
+        mod.width = cfg["seam_bevel"]
+        mod.segments = cfg["seam_segments"]
+        mod.limit_method = "VGROUP"
+        mod.vertex_group = "seam"
+        mod.use_clamp_overlap = True
+        bpy.context.view_layer.objects.active = skin
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        skin.vertex_groups.remove(skin.vertex_groups["seam"])
+        triangulate(skin)
+        mesh = skin.data
+        P = np.array([v.co[:] for v in mesh.vertices])
+        dc, ds, dh = distances(core_tree, P), distances(soft_tree, P), distances(hard_tree, P)
+    soft = (dc < eps) & (ds < eps)
+    hard = (dc < eps) & (dh < eps) & ~soft
+    # which source each face came from (the nearest surface to its centre)
+    C = face_centres(mesh)
+    fc, fs, fh = distances(core_tree, C), distances(soft_tree, C), distances(hard_tree, C)
+    crisp_face = np.minimum(fs, fh) < fc
+    hard_face = crisp_face & (fh < fs)
+    limit = math.cos(math.radians(SR.SURFACE["smooth_angle"]))
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bm.faces.ensure_lookup_table()
+    for f in bm.faces:
+        f.smooth = True
+    for e in bm.edges:
+        if len(e.link_faces) == 2:
+            a, b = e.link_faces
+            both = crisp_face[a.index] and crisp_face[b.index]
+            sharp = (both and a.normal.dot(b.normal) < limit) or (hard_face[a.index] != hard_face[b.index] and not both)
+            e.smooth = not sharp
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.update()
+    corner = np.empty(len(mesh.loops) * 3)
+    mesh.corner_normals.foreach_get("vector", corner)
+    corner = corner.reshape(-1, 3)
+    vidx = np.empty(len(mesh.loops), dtype=np.int64)
+    mesh.loops.foreach_get("vertex_index", vidx)
+    lface = np.empty(len(mesh.loops), dtype=np.int64)
+    for poly in mesh.polygons:
+        lface[poly.loop_start:poly.loop_start + poly.loop_total] = poly.index
+    geo = np.empty(len(mesh.vertices) * 3)
+    mesh.vertex_normals.foreach_get("vector", geo)
+    geo = geo.reshape(-1, 3)
+    fn = field_normals(field, P)
+    t = (fn * geo).sum(axis=1)
+    t = np.clip((t - 0.2) / 0.5, 0.0, 1.0)
+    t = (t * t * (3.0 - 2.0 * t))[:, None]
+    safe = t * fn + (1.0 - t) * geo
+    safe /= np.maximum(np.linalg.norm(safe, axis=1, keepdims=True), 1e-9)
+    w = crisp_face[lface].astype(float)
+    w[soft[vidx]] = 0.5
+    n = (1.0 - w)[:, None] * safe[vidx] + w[:, None] * corner
+    n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-9)
+    mesh.normals_split_custom_set([tuple(v) for v in n])
+    return int(soft.sum()), int(hard.sum())
+
+
+def faceting(obj):
+    """(mean, 95th percentile) dihedral angle in degrees over the shared edges of the triangulated mesh: lower = smoother."""
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    ang = []
+    for e in bm.edges:
+        if len(e.link_faces) == 2:
+            a, b = e.link_faces
+            ang.append(math.degrees(math.acos(max(-1.0, min(1.0, a.normal.dot(b.normal))))))
+    bm.free()
+    ang = np.array(ang) if ang else np.zeros(1)
+    return float(ang.mean()), float(np.percentile(ang, 95))
+
+
 def update_files(folder, sid, rec, tris, height, method, seconds):
     notes = (folder / "notes.md").read_text()
     notes = re.sub(r"- Triangles: .*", "- Triangles: %d (sculpt pass, %s)" % (tris, TOOL), notes)
     notes = re.sub(r"- Height: [\d.]+ units", "- Height: %.2f units" % height, notes)
-    line = ("- Sculpt pass %s: one fused skin (%s) built by %s from tools/blender/species_recipes.py in %.0f s; eyes sunk into carved "
-            "sockets, the mouth an indent." % (datetime.date.today().isoformat(), method, TOOL, seconds))
+    if method == "hybrid":
+        line = ("- Sculpt pass %s: a fused core with the crisp parts (ears, points, rings, accessories) unioned in on a filleted base "
+                "(hybrid), built by %s from tools/blender/species_recipes.py in %.0f s; eyes sunk into carved sockets, an open mouth." % (
+                    datetime.date.today().isoformat(), TOOL, seconds))
+    else:
+        line = ("- Sculpt pass %s: one fused skin (%s) built by %s from tools/blender/species_recipes.py in %.0f s; eyes sunk into carved "
+                "sockets, the mouth an indent." % (datetime.date.today().isoformat(), method, TOOL, seconds))
     if "- Sculpt pass" in notes:
         notes = re.sub(r"- Sculpt pass.*", lambda m: line, notes)
     else:
@@ -790,7 +1262,7 @@ def update_files(folder, sid, rec, tris, height, method, seconds):
 
 def build(sid, models, method, override=None):
     t0 = time.time()
-    cfg = cfg_of(sid, override)
+    cfg = cfg_of(sid, override, method)
     rec = SR.RECIPES[sid]
     if rec["status"] != "recipe":
         raise RuntimeError("%s is a TODO stub" % sid)
@@ -807,9 +1279,20 @@ def build(sid, models, method, override=None):
     body_parts, fparts = parts[:-nface], parts[-nface:]
     if cfg["edit"]:
         body_parts = cfg["edit"](body_parts)
+    crisp, collars = [], 0
+    if method == "hybrid":
+        names = crisp_names(body_parts, cfg)
+        crisp = [p for p in body_parts if p["name"] in names]
+        body_parts = [p for p in body_parts if p["name"] not in names]
     field = build_field(body_parts, cfg)
     meshes, negatives, lids, region = face_plan(rec, fparts, field, cfg["face"])
+    if method == "hybrid" and cfg["face"]["half_eyes"]:
+        meshes = [front_half(p) if p["name"] in ("eye", "pupil", "glint") else p for p in meshes]
     add_lids(field, lids, cfg)
+    if method == "hybrid" and cfg["join"] == "field":
+        add_crisp_field(field, crisp, cfg)
+    elif method == "hybrid":
+        collars = add_collars(field, crisp, cfg)
     for centre, Q, reach, st, kind in negatives:
         field.add(centre, Q, reach, st, kind, kind, neg=True)
     t_field = time.time()
@@ -817,7 +1300,7 @@ def build(sid, models, method, override=None):
     sep_parts = [p for p in body_parts if p["name"] in cfg["separate"]]
     # eyes, pupils, glints and the separate shells are ordinary primitives
     kit = SB.Kit(mats, SR.SURFACE)  # the shells (and the eyes) get the surface pass's bevel and smoothing; the skin is shaded below
-    if method == "metaball":
+    if method in ("metaball", "hybrid"):
         skin = mesh_from_metaball(field, cfg)
         clean_mesh(skin)
         raw_tris = tri_count(skin)
@@ -827,33 +1310,95 @@ def build(sid, models, method, override=None):
         clean_mesh(skin)
         raw_tris = tri_count(skin)
     t_poly = time.time()
-    ribbons = [(r["slot"], ribbon_object(r["name"], r["pts"], r["widths"], r["thick"])) for r in cfg["ribbons"]]
-    extra_tris = sum(SR.part_tris(p) for p in meshes + sep_parts) + sum(tri_count(o) for _, o in ribbons)
-    target = max(300, cfg["tris"] - extra_tris)
+    union = method == "hybrid" and cfg["join"] == "union"
+
+    def make_ribbons():
+        return [(r["slot"], ribbon_object(r["name"], r["pts"], r["widths"], r["thick"])) for r in cfg["ribbons"]]
+
+    ribbons = [] if union else make_ribbons()  # the union path builds them with the crisp parts
+    eye_tris = sum(SR.part_tris(p) for p in meshes)
+    if union:
+        # the crisp meshes once, to count them (the union then removes what is buried in the core); the core starts at `core_share` of
+        # the budget and the loop below lowers it until the whole creature fits
+        probe = crisp_objects(crisp, make_ribbons(), mats, cfg, rec["height"])
+        crisp_tris = sum(tri_count(o) for o in probe)
+        if os.environ.get("SCULPT_DEBUG"):
+            print("  crisp: " + ", ".join("%s %d" % (o.name, tri_count(o)) for o in probe))
+        for o in probe:
+            bpy.data.objects.remove(o)
+        target = max(300, cfg["core_share"] * cfg["tris"])
+    else:
+        crisp_tris = 0
+        extra_tris = sum(SR.part_tris(p) for p in meshes + sep_parts) + sum(tri_count(o) for _, o in ribbons)
+        target = max(300, cfg["tris"] - extra_tris)
     raw_mesh = skin.data
     raw_obj = bpy.data.objects.new("raw", raw_mesh.copy())
     bpy.context.scene.collection.objects.link(raw_obj)
     raw_obj.hide_set(True)
     want = target * cfg["cut_share"]
     zones = [(c, rad) for c, rad in face_zones(negatives, cfg["face"])]
-    cuts = 0
-    for _ in range(4):
-        skin.data = raw_mesh.copy()
-        decimate(skin, want, zones=zones, detail=cfg["face"]["detail"], fine=field.fine_share, fine_detail=cfg["fine_detail"])
-        skin.data.validate()
-        if cfg["relax"]:
-            relax(skin, raw_obj, cfg["relax"])
-        cuts = cut_slots(skin, field, region) if cfg["cut"] else 0
-        final_skin = tri_count(skin)
-        if final_skin <= target:
+    cuts, seam = 0, (0, 0)
+    t_union = 0.0
+    shells = []  # the union path: crisp parts that touch neither the core nor a part that does (a halo, a flower) join as they are
+    best = None  # the union path: (total, mesh, seam, cuts, core) of the fullest build under the budget
+    for _ in range(4 if union else 1):
+        for _ in range(4):
+            skin.data = raw_mesh.copy()
+            if not (cfg["core_remesh"] == "quadriflow" and quadriflow(skin, raw_obj, want, cfg, field)):
+                decimate(skin, want, zones=zones, detail=cfg["face"]["detail"], fine=field.fine_share, fine_detail=cfg["fine_detail"])
+                skin.data.validate()
+                if cfg["relax"]:
+                    relax(skin, raw_obj, cfg["relax"])
+            cuts = cut_slots(skin, field, region) if cfg["cut"] else 0
+            final_skin = tri_count(skin)
+            if final_skin <= target and (method != "hybrid" or final_skin >= 0.93 * target):
+                break
+            want *= 0.97 * target / final_skin  # down when over; up when QuadriFlow undershot (it counts loosely)
+        if not union:
             break
-        want *= 0.97 * target / final_skin
+        # the union: slots on the core first (the crisp parts carry their own), then the crisp meshes in, then the seam and the normals
+        t_u = time.time()
+        smooth_all(skin)
+        assign_slots(skin, mats, field, region, index)
+        core_tree = bvh_of([mesh_data(skin)])
+        for o in shells:
+            bpy.data.objects.remove(o)
+        objs = crisp_objects(crisp, make_ribbons(), mats, cfg, rec["height"])
+        joined, shells = touching(objs, field, cfg)
+        hard = [o for o in joined if not has_collar(o.name.split(".")[0], crisp, cfg)]
+        soft_tree = bvh_of([mesh_data(o) for o in joined if o not in hard] or [([], [])])
+        hard_tree = bvh_of([mesh_data(o) for o in hard] or [([], [])])
+        unioned = [o.name for o in joined]
+        union_into(skin, joined, cfg["boolean"])
+        seam = seam_pass(skin, core_tree, soft_tree, hard_tree, field, cfg)
+        t_union = time.time() - t_u
+        total = tri_count(skin) + eye_tris + sum(tri_count(o) for o in shells)
+        if os.environ.get("SCULPT_DEBUG"):
+            print("  core %d (target %d) -> union %d (%s) + shells %d (%s) + eyes %d = %d" % (
+                final_skin, target, tri_count(skin), " ".join(unioned), sum(tri_count(o) for o in shells),
+                " ".join(o.name for o in shells), eye_tris, total))
+        if total <= cfg["tris"] and (best is None or total > best[0]):
+            best = (total, skin.data.copy(), seam, cuts, final_skin)
+        gap = cfg["tris"] - total
+        floor, cap = cfg["core_min"] * cfg["tris"], cfg["core_share"] * cfg["tris"]
+        if not cfg["budget_check"] or 0 <= gap <= 0.05 * cfg["tris"] or (gap > 0 and target >= cap) or (gap < 0 and target <= floor):
+            break
+        # move the core toward what the budget leaves (QuadriFlow's count is not monotonic in its target, so keep the best fit)
+        target = max(floor, min(cap, final_skin + gap - 10))
+        want = target * cfg["cut_share"]
+    if union and best is not None:
+        last = tri_count(skin) + eye_tris + sum(tri_count(o) for o in shells)
+        if last > cfg["tris"] or best[0] > last:  # the last round is over the budget, or an earlier one filled it better
+            skin.data = best[1]
+            seam, cuts, final_skin = best[2], best[3], best[4]
     bpy.data.objects.remove(raw_obj)
-    smooth_all(skin)
-    if cfg["field_normals"]:
-        set_field_normals(skin, field)
-    assign_slots(skin, mats, field, region, index)
+    if not union:
+        smooth_all(skin)
+        if cfg["field_normals"]:
+            set_field_normals(skin, field)
+        assign_slots(skin, mats, field, region, index)
     kit.parts.append(skin)
+    kit.parts += shells
     for p in meshes + sep_parts:
         kit.add(p)
     for slot, ob in ribbons:
@@ -877,7 +1422,8 @@ def build(sid, models, method, override=None):
     seconds = time.time() - t0
     update_files(folder, sid, rec, tris, hi - lo, method, seconds)
     info = {"tris": tris, "raw": raw_tris, "height": hi - lo, "fit": scale, "elements": len(field.items), "cuts": cuts, "seconds": seconds,
-            "t_field": t_field - t0, "t_poly": t_poly - t_field, "gradient": shade, "tiled": tiled, "skin_tris": final_skin}
+            "t_field": t_field - t0, "t_poly": t_poly - t_field, "gradient": shade, "tiled": tiled, "skin_tris": final_skin,
+            "crisp": len(crisp), "crisp_tris": crisp_tris, "collars": collars, "seam": seam, "t_union": t_union, "facets": faceting(obj)}
     return info
 
 
@@ -886,7 +1432,7 @@ def parse_args():
     ap = argparse.ArgumentParser(description="Build species as one fused skin (prototype)")
     ap.add_argument("--species", required=True, help="comma list of ids")
     ap.add_argument("--models", required=True, help="a SCRATCH copy of the model folders (written in place; never assets/models)")
-    ap.add_argument("--method", default="metaball", choices=("metaball", "remesh"))
+    ap.add_argument("--method", default="metaball", choices=("metaball", "remesh", "hybrid"))
     ap.add_argument("--set", action="append", default=[], help="override a number: key=value (e.g. res=0.03 or face.sink=0.3)")
     return ap.parse_args(argv)
 
@@ -917,9 +1463,14 @@ def main():
     for sid in SR.ids_for(args.species):
         try:
             i = build(sid, models, args.method, override)
-            print("%-10s %s tris=%d (skin %d, raw %d) height=%.2f fit=x%.3f elements=%d cuts=%d  %.0f s (field %.1f, polygonize %.1f)" % (
-                sid, args.method, i["tris"], i["skin_tris"], i["raw"], i["height"], i["fit"], i["elements"], i["cuts"], i["seconds"],
-                i["t_field"], i["t_poly"]), flush=True)
+            extra = ""
+            if args.method == "hybrid":
+                extra = "  crisp=%d (%d tris before the union) collars=%d seam=%d soft, %d hard; union %.1f s" % (
+                    i["crisp"], i["crisp_tris"], i["collars"], i["seam"][0], i["seam"][1], i["t_union"])
+            print("%-10s %s tris=%d (skin %d, raw %d) height=%.2f fit=x%.3f elements=%d cuts=%d facets=%.1f/%.1f  %.1f s (field %.1f, "
+                  "polygonize %.1f)%s" % (sid, args.method, i["tris"], i["skin_tris"], i["raw"], i["height"], i["fit"], i["elements"],
+                                         i["cuts"], i["facets"][0], i["facets"][1], i["seconds"], i["t_field"], i["t_poly"], extra),
+                  flush=True)
         except Exception as exc:  # noqa: BLE001
             import traceback
             traceback.print_exc()
