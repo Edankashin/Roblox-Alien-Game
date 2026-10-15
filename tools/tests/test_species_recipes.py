@@ -25,9 +25,9 @@ def species_ids():
 
 
 def shipped():
-    """The recipes of real species. The hero prototypes (`"prototype": True`: FenripupV2, Skydrake) have no Species.luau row and no
-    assets/models folder, so the tests that compare recipes with those files skip them, the way the event species are skipped by status;
-    HeroPrototypes below checks them on their own terms."""
+    """The recipes of real species. The prototypes (`"prototype": True`: the heroes FenripupV2 and Skydrake, and the eight `<Id>V2` design-pass
+    recipes) have no Species.luau row and no assets/models folder of their own, so the tests that compare recipes with those files skip them, the
+    way the event species are skipped by status; HeroPrototypes and DesignPassPrototypes below check them on their own terms."""
     return {k: v for k, v in sr.RECIPES.items() if not v.get("prototype")}
 
 
@@ -139,7 +139,7 @@ class HeroPrototypes(unittest.TestCase):
     SLOTS = {"Body", "EyeWhite", "Pupil", "Mouth", "BodyDark", "Accessory", "Trim", "EyeHighlight"}
 
     def heroes(self):
-        return {k: v for k, v in sr.RECIPES.items() if v.get("prototype")}
+        return {k: v for k, v in sr.RECIPES.items() if v.get("prototype") and k in ("FenripupV2", "Skydrake")}
 
     def test_the_two_heroes_exist_and_are_prototypes(self):
         self.assertEqual(sorted(self.heroes()), ["FenripupV2", "Skydrake"])
@@ -186,6 +186,89 @@ class HeroPrototypes(unittest.TestCase):
             for k in range(3):
                 self.assertAlmostEqual(pos[k], q[k], places=9)
             self.assertAlmostEqual(math.sqrt(sum(v * v for v in tan)), 1.0, places=9)
+
+
+class DesignPassPrototypes(unittest.TestCase):
+    """The eight `<Id>V2` recipes of the first design pass (docs/vault/06-art-pipelines/Design-Pass.md): a new base design for a species whose shape
+    barely changed, built by `species_sculpt.py --method hybrid` on a scratch copy of its folder renamed `<Id>V2`. Each keeps its species' tier,
+    world, height, slots, palette and glow, so a later swap into assets/models changes the shape and nothing else."""
+    BATCH = ("Mossbop", "Glimmo", "Puffpuff", "Drippo", "Kettlepuff", "Flufflet", "Capybubble", "Pengoo")
+
+    def v2(self):
+        return {b: sr.RECIPES[b + "V2"] for b in self.BATCH}
+
+    def test_the_eight_exist_and_are_prototypes_of_real_species(self):
+        ids = set(species_ids())
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertIn(base, ids)
+                self.assertTrue(rec["prototype"])
+                self.assertEqual(rec["status"], "recipe")
+                self.assertEqual(rec["batch"], 0)
+                for key in ("tier", "world", "biome"):
+                    self.assertEqual(rec[key], sr.RECIPES[base][key])
+        self.assertEqual(sorted(k for k, v in sr.RECIPES.items() if v.get("prototype")), sorted(["FenripupV2", "Skydrake"] + [b + "V2" for b in self.BATCH]))
+
+    def test_each_keeps_the_notes_height_of_its_species(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertAlmostEqual(rec["height"], sr.notes_height(base), delta=0.005)
+
+    def test_group_ids_skip_them_but_a_name_picks_them(self):
+        names = [b + "V2" for b in self.BATCH]
+        for token in ("all", "world1", "world2", "batch0", "batch1", "batch6", "batch7", "batch8"):
+            self.assertFalse(set(names) & set(sr.ids_for(token)), token)
+        self.assertEqual(sr.ids_for(",".join(names)), names)
+
+    def test_they_pass_the_checker_apart_from_the_notes(self):
+        for base in self.BATCH:
+            with self.subTest(base):
+                problems, tris, height, low, declared = sr.check(base + "V2")
+                self.assertEqual([p for p in problems if not p.startswith("note:")], [])
+                self.assertAlmostEqual(low, 0.0, delta=0.05)  # the lowest point rests on the ground: the builder fits it to z = 0
+
+    def test_every_slot_of_the_species_materials_json_is_used_and_no_other(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertEqual(sr.slots_used(sr.expand(rec)), set(sr.material_slots(base)))
+
+    def test_palette_glow_and_metal_are_the_shipped_recipes(self):
+        for base, rec in self.v2().items():
+            for key in ("palette", "glow", "metal"):
+                with self.subTest("%s %s" % (base, key)):
+                    self.assertEqual(rec.get(key, {}), sr.RECIPES[base].get(key, {}))
+
+    def test_the_silhouette_and_hero_lines_are_new(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertNotEqual(rec["silhouette"], sr.RECIPES[base]["silhouette"])
+                self.assertNotEqual(rec["hero"], sr.RECIPES[base]["hero"])
+        lines = [rec["silhouette"] for rec in sr.RECIPES.values()]
+        self.assertEqual(len(lines), len(set(lines)))
+
+    def test_the_face_host_is_a_sphere_step_and_the_mouth_is_open(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                host = sr._find_host(rec, rec["face"]["on"])
+                self.assertAlmostEqual(host["loc"][0], 0.0, places=6)  # the face needs its host on the centre line
+                self.assertIn(rec["face"]["mouth"], ("o", "smile", "wide", "zigzag"))
+                self.assertGreaterEqual(rec["face"].get("eye_scale", 1.0), 1.0)  # the goofy big eyes stay
+
+    def test_a_sweep_stays_in_a_core_slot_and_ribbons_carry_a_width_per_point(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                for p in sr.expand(rec):
+                    if p["prim"] == "sweep":
+                        self.assertIn(p["slot"], ("Body", "BodyDark"))
+                        self.assertEqual(len(p["pts"]), len(p["radii"]))
+                for band in rec.get("ribbons", []):
+                    self.assertEqual(len(band["pts"]), len(band["widths"]))
+                    self.assertIn(band["slot"], sr.material_slots(base))
+
+    def test_only_the_accessory_glows(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertLessEqual(set(rec.get("glow", {})), {"Accessory"})
 
 
 class Maths(unittest.TestCase):
