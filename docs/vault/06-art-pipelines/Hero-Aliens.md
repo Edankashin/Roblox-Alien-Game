@@ -321,3 +321,9 @@ Skydrake v2:
 - The owner's look at the round 2 sheet (`heroes_v2.jpg`): is Fenrir v2 now scary and strong enough, or does it need what the recipe system cannot give (see "What still needs work (round 2)"); is Skydrake's wedge head still the friendly second hero wanted; and which world and tier does Skydrake live in.
 - If yes: one species at a time into `assets/models/` through the normal import path (the extra `Trim` slot means the loader's slot list and `ModelAssets` have to learn it; a separate change), the effects above, and a second pass on the heads.
 - Log: [[2026-10-15]] ("Worker: hero aliens", "Worker: hero aliens round 2").
+
+## The coordinator's read after round 2 (2026-10-15)
+
+- Skydrake reads as a sky serpent now: the wedge head, the branched antlers, the mane ridge and the pearl carry it; the snout still reads long from the front.
+- Fenrir is fiercer than the pup but not scary: the long snout reads trunk-like from the front, the fur plates read as spikes, and the recipe system has no curved fin, horn or whisker, no control over where the mouth lands, and needs a sphere face host. Two rounds through recipes and the hybrid sculpt are the ceiling of this route for a hero.
+- Decided for Ethan's yes ([[Decisions]], open): hero species take a hand route. Options, cheapest first: (a) the Mac models Fenrir in Blender by hand with Claude looking through the Blender MCP (the research's "look, not build"), starting from the round-2 GLB; (b) a Blockbench pass on the round-2 project (the writer makes it) to re-shape the head and fins by hand; (c) a Tripo P1 trial (credits, Ethan's yes). The roster's 32 stay on the recipe route; only heroes go by hand.

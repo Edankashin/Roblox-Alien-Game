@@ -103,3 +103,4 @@ Frostbyte's content data, authored in the World 1 voice: 16 species (5 Common, 4
 - Frostfang is the only Blizzard species, per the one-signature-alien rule. Fenripup rolls in all three biomes during a Meteor Shower, like Ra-dish.
 
 - **B40 (2026-10-15, Ethan).** Names v3 applied: 23 species renamed per [[Species-Names]] "Picked 2026-10-15" (Flurra, Dreep, Twiglo, Dandel, Lantrin, Voltus, Gaira, Skadra are his own calls; the rest the table's picks). Ids never change.
+- **Open (2026-10-15, for Ethan).** Hero species by a hand route (Blender on the Mac with the MCP looking, a Blockbench pass, or a Tripo trial): the recipe route reached its ceiling on Fenrir after two rounds. See [[Hero-Aliens]] "The coordinator's read after round 2".
