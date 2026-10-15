@@ -7,6 +7,7 @@ import re
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from lint_data import ROOT, uncomment
+from vault_note import write_note
 
 NET = re.compile(r'Net\.(event|func)\(\s*"([^"]+)"\s*\)')
 FUNC = re.compile(r'^(?:local\s+)?function\s+(\w+(?:\.\w+)?)\(([^\n]*?)\)[^\n]*\n(.*?)^end\b',re.M|re.S)
@@ -124,7 +125,7 @@ def render(result):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--write',action='store_true');a=p.parse_args()
     result=inventory(a.root)
-    if a.write:(a.root/'docs/vault/04-roblox-engine/Remotes.md').write_text(render(result))
+    if a.write:write_note(a.root/'docs/vault/04-roblox-engine/Remotes.md',render(result),['roblox-engine','engine','generated'],['Remote contracts'],'Roblox-Engine')
     for f in result['failures']:print(f)
     for w in result['warnings']:print('warning: '+w)
     print(f'remote lint: {len(result["rows"])} remotes, {sum(len(r["handlers"]) for r in result["rows"].values())} handlers')

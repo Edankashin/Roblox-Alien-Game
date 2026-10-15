@@ -11,130 +11,130 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 
 | Remote | Kind | Created/referenced in server | Client users | Rate limit | Argument checks |
 | --- | --- | --- | --- | --- | --- |
-| AfkChanged | event | src/server/Services/Afk.luau:272<br>src/server/Services/Afk.luau:84 | src/client/init.client.luau:1172 | server → client | — |
-| AfkRejoin | func | src/server/Services/Afk.luau:275 | src/client/init.client.luau:1163 | onAfkRejoin: before profile / no direct profile read | no client arguments |
-| AfkRejoining | event | src/server/Services/Afk.luau:192<br>src/server/Services/Afk.luau:212<br>src/server/Services/Afk.luau:273 | src/client/init.client.luau:1199 | server → client | — |
-| AfkWake | event | src/server/Services/Afk.luau:274 | src/client/init.client.luau:1219 | onAfkWake: before profile / no direct profile read | no client arguments |
-| AlienGranted | event | src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:1282 | src/client/init.client.luau:965 | server → client | — |
-| AlienGrew | event | src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:607 | src/client/init.client.luau:1085 | server → client | — |
-| AliensDelta | event | src/server/Services/AlienSync.luau:63<br>src/server/Services/AlienSync.luau:80<br>src/server/Services/AlienSync.luau:99 | src/client/State.luau:718 | server → client | — |
-| Announcement | event | src/server/Services/Admin.luau:181<br>src/server/Services/CatchRush.luau:209<br>src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:200 | src/client/init.client.luau:914 | server → client | — |
-| BuffsChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:67 | src/client/State.luau:758 | server → client | — |
-| BuyStorageBay | func | src/server/Services/Economy.luau:1254 | src/client/UI/AliensScreen.luau:1213 | onBuyStorageBay: before profile / no direct profile read | no client arguments |
+| AfkChanged | event | src/server/Services/Afk.luau:272<br>src/server/Services/Afk.luau:84 | src/client/init.client.luau:1173 | server → client | — |
+| AfkRejoin | func | src/server/Services/Afk.luau:275 | src/client/init.client.luau:1164 | onAfkRejoin: before profile / no direct profile read | no client arguments |
+| AfkRejoining | event | src/server/Services/Afk.luau:192<br>src/server/Services/Afk.luau:212<br>src/server/Services/Afk.luau:273 | src/client/init.client.luau:1201 | server → client | — |
+| AfkWake | event | src/server/Services/Afk.luau:274 | src/client/init.client.luau:1221 | onAfkWake: before profile / no direct profile read | no client arguments |
+| AlienGranted | event | src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:1287 | src/client/init.client.luau:966 | server → client | — |
+| AlienGrew | event | src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:608 | src/client/init.client.luau:1086 | server → client | — |
+| AliensDelta | event | src/server/Services/AlienSync.luau:63<br>src/server/Services/AlienSync.luau:80<br>src/server/Services/AlienSync.luau:99 | src/client/State.luau:748 | server → client | — |
+| Announcement | event | src/server/Services/Admin.luau:181<br>src/server/Services/CatchRush.luau:226<br>src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:201 | src/client/init.client.luau:922 | server → client | — |
+| BuffsChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:67 | src/client/State.luau:788 | server → client | — |
+| BuyStorageBay | func | src/server/Services/Economy.luau:1259 | src/client/UI/AliensScreen.luau:1305 | onBuyStorageBay: before profile / no direct profile read | no client arguments |
 | CaptureCancel | event | src/server/Services/Catching.luau:518 | src/client/init.client.luau:151 | onCaptureCancel: before profile / no direct profile read | no client arguments |
 | CaptureHit | func | src/server/Services/Catching.luau:517 | src/client/init.client.luau:150 | onCaptureHit: before profile / no direct profile read | token: type guard, clientTapTime: type guard; numeric check |
 | CaptureStart | func | src/server/Services/Catching.luau:516 | src/client/init.client.luau:149 | onCaptureStart: before profile / no direct profile read | spawnId: type guard |
-| CatchRushChanged | event | src/server/Services/CatchRush.luau:156<br>src/server/Services/CatchRush.luau:309 | src/client/State.luau:794 | server → client | — |
-| CatchRushResult | event | src/server/Services/CatchRush.luau:185<br>src/server/Services/CatchRush.luau:310 | src/client/init.client.luau:946 | server → client | — |
-| ClaimDailyQuest | func | src/server/Services/DailyQuests.luau:418 | src/client/UI/QuestsScreen.luau:757 | onClaim: before profile / no direct profile read | period: literal enum check/normalization, id: type guard |
-| ClaimGift | func | src/server/Services/Gifts.luau:413 | src/client/UI/GiftsScreen.luau:459 | onClaimGift: before profile / no direct profile read | day: type guard; numeric check |
-| ClaimGroupReward | func | src/server/Services/Social.luau:400 | src/client/UI/GiftsScreen.luau:589 | onClaimGroupReward: before profile / no direct profile read | no client arguments |
-| ClaimHabitatIncome | func | src/server/Services/Habitats.luau:299 | src/client/init.client.luau:826 | onClaimHabitatIncome: before profile / no direct profile read | no client arguments |
+| CatchRushChanged | event | src/server/Services/CatchRush.luau:173<br>src/server/Services/CatchRush.luau:328 | src/client/State.luau:826 | server → client | — |
+| CatchRushResult | event | src/server/Services/CatchRush.luau:202<br>src/server/Services/CatchRush.luau:329 | src/client/init.client.luau:947 | server → client | — |
+| ClaimDailyQuest | func | src/server/Services/DailyQuests.luau:418 | src/client/UI/QuestsScreen.luau:792 | onClaim: before profile / no direct profile read | period: literal enum check/normalization, id: type guard |
+| ClaimGift | func | src/server/Services/Gifts.luau:417 | src/client/UI/GiftsScreen.luau:465 | onClaimGift: before profile / no direct profile read | day: type guard; numeric check |
+| ClaimGroupReward | func | src/server/Services/Social.luau:400 | src/client/UI/GiftsScreen.luau:595 | onClaimGroupReward: before profile / no direct profile read | no client arguments |
+| ClaimHabitatIncome | func | src/server/Services/Habitats.luau:299 | src/client/init.client.luau:834 | onClaimHabitatIncome: before profile / no direct profile read | no client arguments |
 | ClaimMail | func | src/server/Services/Mail.luau:189 | src/client/UI/MailScreen.luau:185 | onClaim: before profile / no direct profile read | uid: type guard; numeric check |
-| ClaimOfflineSummary | func | src/server/Services/Economy.luau:1255 | src/client/init.client.luau:1098 | onClaimOfflineSummary: before profile / no direct profile read | no client arguments |
+| ClaimOfflineSummary | func | src/server/Services/Economy.luau:1260 | src/client/init.client.luau:1099 | onClaimOfflineSummary: before profile / no direct profile read | no client arguments |
 | ClaimPlaytimeGift | func | src/server/Services/Playtime.luau:243 | src/client/UI/PlaytimeScreen.luau:208 | onClaimPlaytimeGift: before profile / no direct profile read | index: type guard; numeric check |
-| ClaimSeasonQuest | func | src/server/Services/Seasons.luau:461 | src/client/UI/QuestsScreen.luau:1016 | onClaim: before profile / no direct profile read | questId: type guard |
-| ClockChanged | event | src/server/Services/WorldClock.luau:230<br>src/server/Services/WorldClock.luau:55 | src/client/init.client.luau:1923 | server → client | — |
+| ClaimSeasonQuest | func | src/server/Services/Seasons.luau:461 | src/client/UI/QuestsScreen.luau:1051 | onClaim: before profile / no direct profile read | questId: type guard |
+| ClockChanged | event | src/server/Services/WorldClock.luau:230<br>src/server/Services/WorldClock.luau:55 | src/client/init.client.luau:1936 | server → client | — |
 | CollectMaterial | func | src/server/Services/Materials.luau:213 | src/client/init.client.luau:152 | onCollectMaterial: before profile / no direct profile read | nodeId: type guard |
 | CollectOutpost | func | src/server/Services/Outposts.luau:265 | src/client/UI/StarChartScreen.luau:532 | onCollect: before profile / no direct profile read | worldArg: type guard |
-| CompanionsChanged | event | src/server/Services/Companions.luau:109<br>src/server/Services/Companions.luau:383<br>src/server/Services/Companions.luau:402 | src/client/State.luau:866<br>src/client/World/CompanionRenderer.luau:609 | server → client | — |
-| DailyQuestsChanged | event | src/server/Services/DailyQuests.luau:144<br>src/server/Services/DailyQuests.luau:417 | src/client/init.client.luau:1052 | server → client | — |
-| DevCinematic | event | src/server/Services/Seen.luau:73<br>src/server/Services/Seen.luau:95 | src/client/init.client.luau:1871 | server → client | — |
-| Flew | event | src/server/Services/Launch.luau:223<br>src/server/Services/Launch.luau:306<br>src/server/Services/Launch.luau:339<br>src/server/Services/Launch.luau:347 | src/client/init.client.luau:873 | server → client | — |
+| CompanionsChanged | event | src/server/Services/Companions.luau:109<br>src/server/Services/Companions.luau:383<br>src/server/Services/Companions.luau:402 | src/client/State.luau:898<br>src/client/World/CompanionRenderer.luau:609 | server → client | — |
+| DailyQuestsChanged | event | src/server/Services/DailyQuests.luau:144<br>src/server/Services/DailyQuests.luau:417 | src/client/init.client.luau:1053 | server → client | — |
+| DevCinematic | event | src/server/Services/Seen.luau:73<br>src/server/Services/Seen.luau:95 | src/client/init.client.luau:1884 | server → client | — |
+| Flew | event | src/server/Services/Launch.luau:223<br>src/server/Services/Launch.luau:306<br>src/server/Services/Launch.luau:339<br>src/server/Services/Launch.luau:347 | src/client/init.client.luau:881 | server → client | — |
 | FlyTo | func | src/server/Services/Launch.luau:352 | src/client/UI/StarChartScreen.luau:569 | onFlyTo: before profile / no direct profile read | worldArg: type guard |
-| FriendBoostChanged | event | src/server/Services/Friends.luau:105<br>src/server/Services/Friends.luau:161<br>src/server/Services/Friends.luau:207 | src/client/init.client.luau:741 | server → client | — |
-| FuseSpecies | func | src/server/Services/Economy.luau:1251 | src/client/UI/AliensScreen.luau:482 | onFuseSpecies: before profile / no direct profile read | species: type guard; numeric check |
-| GearChanged | event | src/server/Services/Shop.luau:116<br>src/server/Services/Shop.luau:413 | src/client/State.luau:748 | server → client | — |
-| GetAliens | func | src/server/Services/PlayerData.luau:287 | src/client/State.luau:666 | onGetAliens: before profile / no direct profile read | no client arguments |
+| FriendBoostChanged | event | src/server/Services/Friends.luau:119<br>src/server/Services/Friends.luau:215<br>src/server/Services/Friends.luau:265 | src/client/init.client.luau:748 | server → client | — |
+| FuseSpecies | func | src/server/Services/Economy.luau:1256 | src/client/UI/AliensScreen.luau:492 | onFuseSpecies: before profile / no direct profile read | species: type guard; numeric check |
+| GearChanged | event | src/server/Services/Shop.luau:116<br>src/server/Services/Shop.luau:413 | src/client/State.luau:778 | server → client | — |
+| GetAliens | func | src/server/Services/PlayerData.luau:287 | src/client/State.luau:696 | onGetAliens: before profile / no direct profile read | no client arguments |
 | GetAllCompanions | func | src/server/Services/Companions.luau:389 | src/client/World/CompanionRenderer.luau:618 | onGetAllCompanions: before profile / no direct profile read | no client arguments |
-| GetCatchRush | func | src/server/Services/CatchRush.luau:311 | src/client/init.client.luau:1750 | onGetCatchRush: before profile / no direct profile read | no client arguments |
-| GetClock | func | src/server/Services/WorldClock.luau:238 | src/client/init.client.luau:1925 | function: before profile / no direct profile read | no client arguments |
-| GetDailyQuests | func | src/server/Services/DailyQuests.luau:420 | src/client/UI/QuestsScreen.luau:732 | onGet: before profile / no direct profile read | no client arguments |
-| GetHome | func | src/server/Services/HomeBuild.luau:262 | src/client/State.luau:952 | onGetHome: before profile / no direct profile read | no client arguments |
+| GetCatchRush | func | src/server/Services/CatchRush.luau:330 | src/client/init.client.luau:1760 | onGetCatchRush: before profile / no direct profile read | no client arguments |
+| GetClock | func | src/server/Services/WorldClock.luau:238 | src/client/init.client.luau:1938 | function: before profile / no direct profile read | no client arguments |
+| GetDailyQuests | func | src/server/Services/DailyQuests.luau:420 | src/client/UI/QuestsScreen.luau:767 | onGet: before profile / no direct profile read | no client arguments |
+| GetHome | func | src/server/Services/HomeBuild.luau:262 | src/client/State.luau:984 | onGetHome: before profile / no direct profile read | no client arguments |
 | GetLeaderboard | func | src/server/Services/Leaderboard.luau:507 | src/client/UI/LeaderboardScreen.luau:329 | onGetLeaderboard: before profile / no direct profile read | no client arguments |
-| GetMail | func | src/server/Services/Mail.luau:190 | src/client/State.luau:585 | onGetMail: before profile / no direct profile read | no client arguments |
-| GetPeddler | func | src/server/Services/Peddler.luau:282 | src/client/World/PeddlerRenderer.luau:312 | onGetPeddler: before profile / no direct profile read | no client arguments |
+| GetMail | func | src/server/Services/Mail.luau:190 | src/client/State.luau:606 | onGetMail: before profile / no direct profile read | no client arguments |
+| GetPeddler | func | src/server/Services/Peddler.luau:284 | src/client/World/PeddlerRenderer.luau:312 | onGetPeddler: before profile / no direct profile read | no client arguments |
 | GetPlaytime | func | src/server/Services/Playtime.luau:242 | src/client/UI/PlaytimeScreen.luau:489 | onGetPlaytime: before profile / no direct profile read | no client arguments |
-| GetPolicy | func | src/server/Services/Monetization.luau:638 | src/client/UI/ShopScreen.luau:1139 | onGetPolicy: before profile / no direct profile read | no client arguments |
-| GetProfile | func | src/server/Services/PlayerData.luau:280 | src/client/init.client.luau:2068 | function: before profile / no direct profile read | no client arguments |
-| GetPurchases | func | src/server/Services/Monetization.luau:635 | src/client/UI/ShopScreen.luau:336<br>src/client/init.client.luau:1734 | onGetPurchases: before profile / no direct profile read | no client arguments |
-| GetSeason | func | src/server/Services/Seasons.luau:459 | src/client/State.luau:907 | onGetSeason: before profile / no direct profile read | no client arguments |
-| GetSeasonProgress | func | src/server/Services/Seasons.luau:460 | src/client/State.luau:620 | onGetSeasonProgress: before profile / no direct profile read | no client arguments |
-| GetShower | func | src/server/Services/Events.luau:181 | src/client/init.client.luau:1742 | onGetShower: before profile / no direct profile read | no client arguments |
-| GetSighting | func | src/server/Services/Sightings.luau:310 | src/client/init.client.luau:1033 | onGetSighting: before profile / no direct profile read | no client arguments |
-| GetSocial | func | src/server/Services/Social.luau:399 | src/client/UI/GiftsScreen.luau:566 | onGetSocial: before profile / no direct profile read | no client arguments |
-| GetVisit | func | src/server/Services/Visiting.luau:878 | src/client/State.luau:980 | onGetVisit: before profile / no direct profile read | no client arguments |
-| GetWeekly | func | src/server/Services/Weekly.luau:135 | src/client/State.luau:887 | onGetWeekly: before profile / no direct profile read | no client arguments |
-| GiftsChanged | event | src/server/Services/Gifts.luau:410<br>src/server/Services/Gifts.luau:75 | src/client/State.luau:775 | server → client | — |
-| HabitatIncome | event | src/server/Services/Habitats.luau:253<br>src/server/Services/Habitats.luau:296 | src/client/init.client.luau:821 | server → client | — |
-| HomeChanged | event | src/server/Services/Dev.luau:783<br>src/server/Services/HomeBuild.luau:258<br>src/server/Services/HomeBuild.luau:62 | src/client/State.luau:940 | server → client | — |
-| HomeClosed | event | src/server/Services/Visiting.luau:639<br>src/server/Services/Visiting.luau:875 | src/client/init.client.luau:851 | server → client | — |
-| HomeUnlocked | event | src/server/Services/Launch.luau:202<br>src/server/Services/Launch.luau:348 | src/client/init.client.luau:802 | server → client | — |
-| HomeView | event | src/server/Services/Visiting.luau:272<br>src/server/Services/Visiting.luau:872 | src/client/State.luau:975 | server → client | — |
-| InventoryChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:76<br>src/server/Services/Catching.luau:219<br>src/server/Services/Catching.luau:235<br>src/server/Services/Catching.luau:515<br>src/server/Services/Companions.luau:326<br>src/server/Services/Companions.luau:383<br>src/server/Services/Dev.luau:138<br>src/server/Services/Dev.luau:380<br>src/server/Services/Economy.luau:109<br>src/server/Services/Economy.luau:1245<br>src/server/Services/Gifts.luau:410<br>src/server/Services/Gifts.luau:83<br>src/server/Services/Materials.luau:201<br>src/server/Services/Materials.luau:211<br>src/server/Services/Outposts.luau:263<br>src/server/Services/Outposts.luau:64<br>src/server/Services/Peddler.luau:279<br>src/server/Services/Peddler.luau:85<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:88<br>src/server/Services/Shop.luau:112<br>src/server/Services/Shop.luau:413 | src/client/State.luau:740 | server → client | — |
-| Launch | func | src/server/Services/Launch.luau:351 | src/client/init.client.luau:627 | onLaunch: before profile / no direct profile read | no client arguments |
-| Launched | event | src/server/Services/Launch.luau:192<br>src/server/Services/Launch.luau:346 | src/client/init.client.luau:786 | server → client | — |
-| LeaderboardChanged | event | src/server/Services/Leaderboard.luau:125<br>src/server/Services/Leaderboard.luau:129<br>src/server/Services/Leaderboard.luau:506 | src/client/init.client.luau:1058 | server → client | — |
-| LuckChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:72 | src/client/State.luau:819 | server → client | — |
-| MailArrived | event | src/server/Services/Admin.luau:200<br>src/server/Services/Dev.luau:828<br>src/server/Services/Mail.luau:188 | src/client/init.client.luau:835 | server → client | — |
-| MailChanged | event | src/server/Services/Mail.luau:187<br>src/server/Services/Mail.luau:65 | src/client/State.luau:962 | server → client | — |
+| GetPolicy | func | src/server/Services/Monetization.luau:638 | src/client/UI/ShopScreen.luau:1210 | onGetPolicy: before profile / no direct profile read | no client arguments |
+| GetProfile | func | src/server/Services/PlayerData.luau:280 | src/client/init.client.luau:2081 | function: before profile / no direct profile read | no client arguments |
+| GetPurchases | func | src/server/Services/Monetization.luau:635 | src/client/UI/ShopScreen.luau:362<br>src/client/init.client.luau:1744 | onGetPurchases: before profile / no direct profile read | no client arguments |
+| GetSeason | func | src/server/Services/Seasons.luau:459 | src/client/State.luau:939 | onGetSeason: before profile / no direct profile read | no client arguments |
+| GetSeasonProgress | func | src/server/Services/Seasons.luau:460 | src/client/State.luau:641 | onGetSeasonProgress: before profile / no direct profile read | no client arguments |
+| GetShower | func | src/server/Services/Events.luau:190 | src/client/init.client.luau:1752 | onGetShower: before profile / no direct profile read | no client arguments |
+| GetSighting | func | src/server/Services/Sightings.luau:310 | src/client/init.client.luau:1034 | onGetSighting: before profile / no direct profile read | no client arguments |
+| GetSocial | func | src/server/Services/Social.luau:399 | src/client/UI/GiftsScreen.luau:572 | onGetSocial: before profile / no direct profile read | no client arguments |
+| GetVisit | func | src/server/Services/Visiting.luau:878 | src/client/State.luau:1012 | onGetVisit: before profile / no direct profile read | no client arguments |
+| GetWeekly | func | src/server/Services/Weekly.luau:135 | src/client/State.luau:919 | onGetWeekly: before profile / no direct profile read | no client arguments |
+| GiftsChanged | event | src/server/Services/Gifts.luau:414<br>src/server/Services/Gifts.luau:75 | src/client/State.luau:807 | server → client | — |
+| HabitatIncome | event | src/server/Services/Habitats.luau:253<br>src/server/Services/Habitats.luau:296 | src/client/init.client.luau:829 | server → client | — |
+| HomeChanged | event | src/server/Services/Dev.luau:785<br>src/server/Services/HomeBuild.luau:258<br>src/server/Services/HomeBuild.luau:62 | src/client/State.luau:972 | server → client | — |
+| HomeClosed | event | src/server/Services/Visiting.luau:639<br>src/server/Services/Visiting.luau:875 | src/client/init.client.luau:859 | server → client | — |
+| HomeUnlocked | event | src/server/Services/Launch.luau:202<br>src/server/Services/Launch.luau:348 | src/client/init.client.luau:810 | server → client | — |
+| HomeView | event | src/server/Services/Visiting.luau:272<br>src/server/Services/Visiting.luau:872 | src/client/State.luau:1007 | server → client | — |
+| InventoryChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:76<br>src/server/Services/Catching.luau:219<br>src/server/Services/Catching.luau:235<br>src/server/Services/Catching.luau:515<br>src/server/Services/Companions.luau:326<br>src/server/Services/Companions.luau:383<br>src/server/Services/Dev.luau:140<br>src/server/Services/Dev.luau:382<br>src/server/Services/Economy.luau:110<br>src/server/Services/Economy.luau:1250<br>src/server/Services/Gifts.luau:414<br>src/server/Services/Gifts.luau:83<br>src/server/Services/Materials.luau:201<br>src/server/Services/Materials.luau:211<br>src/server/Services/Outposts.luau:263<br>src/server/Services/Outposts.luau:64<br>src/server/Services/Peddler.luau:281<br>src/server/Services/Peddler.luau:90<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:88<br>src/server/Services/Shop.luau:112<br>src/server/Services/Shop.luau:413 | src/client/State.luau:770 | server → client | — |
+| Launch | func | src/server/Services/Launch.luau:351 | src/client/init.client.luau:634 | onLaunch: before profile / no direct profile read | no client arguments |
+| Launched | event | src/server/Services/Launch.luau:192<br>src/server/Services/Launch.luau:346 | src/client/init.client.luau:794 | server → client | — |
+| LeaderboardChanged | event | src/server/Services/Leaderboard.luau:125<br>src/server/Services/Leaderboard.luau:129<br>src/server/Services/Leaderboard.luau:506 | src/client/init.client.luau:1059 | server → client | — |
+| LuckChanged | event | src/server/Services/Buffs.luau:292<br>src/server/Services/Buffs.luau:72 | src/client/State.luau:851 | server → client | — |
+| MailArrived | event | src/server/Services/Admin.luau:200<br>src/server/Services/Dev.luau:830<br>src/server/Services/Mail.luau:188 | src/client/init.client.luau:843 | server → client | — |
+| MailChanged | event | src/server/Services/Mail.luau:187<br>src/server/Services/Mail.luau:65 | src/client/State.luau:994 | server → client | — |
 | MarkSeen | func | src/server/Services/Seen.luau:98 | src/client/init.client.luau:153 | onMarkSeen: before profile / no direct profile read | key: type guard |
-| MaterialCollected | event | src/server/Services/Materials.luau:202<br>src/server/Services/Materials.luau:212 | src/client/init.client.luau:755 | server → client | — |
-| ModuleCompleted | event | src/server/Services/Dev.luau:667<br>src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:178 | src/client/init.client.luau:760 | server → client | — |
-| ModuleInsertKey | func | src/server/Services/Economy.luau:1249 | src/client/UI/ShipScreen.luau:275 | onModuleInsertKey: before profile / no direct profile read | moduleId: type guard |
-| ModulePay | func | src/server/Services/Economy.luau:1248 | src/client/UI/ShipScreen.luau:228 | onModulePay: before profile / no direct profile read | moduleId: type guard |
-| ModulesChanged | event | src/server/Services/Dev.luau:605<br>src/server/Services/Dev.luau:661<br>src/server/Services/Economy.luau:105<br>src/server/Services/Economy.luau:1245<br>src/server/Services/Launch.luau:198<br>src/server/Services/Launch.luau:311<br>src/server/Services/Launch.luau:350 | src/client/State.luau:732 | server → client | — |
-| NotifyAsk | event | src/server/Services/Dev.luau:732<br>src/server/Services/Social.luau:286<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1077 | server → client | — |
+| MaterialCollected | event | src/server/Services/Materials.luau:202<br>src/server/Services/Materials.luau:212 | src/client/init.client.luau:762 | server → client | — |
+| ModuleCompleted | event | src/server/Services/Dev.luau:669<br>src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:179 | src/client/init.client.luau:767 | server → client | — |
+| ModuleInsertKey | func | src/server/Services/Economy.luau:1254 | src/client/UI/ShipScreen.luau:279 | onModuleInsertKey: before profile / no direct profile read | moduleId: type guard |
+| ModulePay | func | src/server/Services/Economy.luau:1253 | src/client/UI/ShipScreen.luau:232 | onModulePay: before profile / no direct profile read | moduleId: type guard |
+| ModulesChanged | event | src/server/Services/Dev.luau:607<br>src/server/Services/Dev.luau:663<br>src/server/Services/Economy.luau:106<br>src/server/Services/Economy.luau:1250<br>src/server/Services/Launch.luau:198<br>src/server/Services/Launch.luau:311<br>src/server/Services/Launch.luau:350 | src/client/State.luau:762 | server → client | — |
+| NotifyAsk | event | src/server/Services/Dev.luau:734<br>src/server/Services/Social.luau:286<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1078 | server → client | — |
 | NotifyAskSeen | func | src/server/Services/Social.luau:401 | src/client/UI/NotifyCard.luau:72 | onNotifyAskSeen: before profile / no direct profile read | answer: literal enum check/normalization |
-| OutpostsChanged | event | src/server/Services/Launch.luau:199<br>src/server/Services/Outposts.luau:264<br>src/server/Services/Outposts.luau:68 | src/client/init.client.luau:864 | server → client | — |
-| PeddlerBuy | func | src/server/Services/Peddler.luau:283 | src/client/UI/PeddlerScreen.luau:188 | onPeddlerBuy: before profile / no direct profile read | index: type guard; numeric check |
-| PeddlerChanged | event | src/server/Services/Peddler.luau:121<br>src/server/Services/Peddler.luau:127<br>src/server/Services/Peddler.luau:279 | src/client/State.luau:769 | server → client | — |
+| OutpostsChanged | event | src/server/Services/Launch.luau:199<br>src/server/Services/Outposts.luau:264<br>src/server/Services/Outposts.luau:68 | src/client/init.client.luau:872 | server → client | — |
+| PeddlerBuy | func | src/server/Services/Peddler.luau:285 | src/client/UI/PeddlerScreen.luau:193 | onPeddlerBuy: before profile / no direct profile read | index: type guard; numeric check |
+| PeddlerChanged | event | src/server/Services/Peddler.luau:129<br>src/server/Services/Peddler.luau:135<br>src/server/Services/Peddler.luau:281 | src/client/State.luau:799 | server → client | — |
 | PlaceHeater | func | src/server/Services/Heaters.luau:179 | src/client/init.client.luau:145 | onPlaceHeater: before profile / no direct profile read | no client arguments |
 | PlaceHomeItem | func | src/server/Services/HomeBuild.luau:260 | src/client/UI/BuildScreen.luau:164 | onPlace: before profile / no direct profile read | itemId: type guard, cellX: type guard, cellZ: type guard, rotation: type guard |
-| PlaytimeChanged | event | src/server/Services/Playtime.luau:241<br>src/server/Services/Playtime.luau:85 | src/client/init.client.luau:1415 | server → client | — |
-| ProfileLoaded | event | src/server/Services/PlayerData.luau:182<br>src/server/Services/PlayerData.luau:249 | src/client/init.client.luau:2062 | server → client | — |
-| PromptPurchase | func | src/server/Services/Monetization.luau:637 | src/client/UI/ShopScreen.luau:373 | onPromptPurchase: before profile / no direct profile read | itemId: type guard |
-| PurchasesChanged | event | src/server/Services/Monetization.luau:128<br>src/server/Services/Monetization.luau:633 | src/client/State.luau:846 | server → client | — |
-| QuestClaim | func | src/server/Services/Quests.luau:414 | src/client/UI/QuestsScreen.luau:374 | onQuestClaim: before profile / no direct profile read | no client arguments |
-| QuestsChanged | event | src/server/Services/Dev.luau:156<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:80 | src/client/State.luau:810 | server → client | — |
-| RateChanged | event | src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:94 | src/client/State.luau:839 | server → client | — |
-| RedeemCode | func | src/server/Services/Codes.luau:62 | src/client/UI/SettingsScreen.luau:159 | onRedeem: before profile / no direct profile read | code: type guard |
-| ReferralGranted | event | src/server/Services/Social.luau:190<br>src/server/Services/Social.luau:301<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1064 | server → client | — |
-| ReleaseAliens | func | src/server/Services/Economy.luau:1252 | src/client/UI/ReleasePanel.luau:253 | onReleaseAliens: before profile / no direct profile read | uids: type guard |
-| ReleaseAllOfTier | func | src/server/Services/Economy.luau:1253 | src/client/UI/ReleasePanel.luau:300 | onReleaseAllOfTier: before profile / no direct profile read | tier: type guard |
+| PlaytimeChanged | event | src/server/Services/Playtime.luau:241<br>src/server/Services/Playtime.luau:85 | src/client/init.client.luau:1422 | server → client | — |
+| ProfileLoaded | event | src/server/Services/PlayerData.luau:182<br>src/server/Services/PlayerData.luau:249 | src/client/init.client.luau:2075 | server → client | — |
+| PromptPurchase | func | src/server/Services/Monetization.luau:637 | src/client/UI/ShopScreen.luau:399 | onPromptPurchase: before profile / no direct profile read | itemId: type guard |
+| PurchasesChanged | event | src/server/Services/Monetization.luau:128<br>src/server/Services/Monetization.luau:633 | src/client/State.luau:878 | server → client | — |
+| QuestClaim | func | src/server/Services/Quests.luau:414 | src/client/UI/QuestsScreen.luau:409 | onQuestClaim: before profile / no direct profile read | no client arguments |
+| QuestsChanged | event | src/server/Services/Dev.luau:158<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:80 | src/client/State.luau:842 | server → client | — |
+| RateChanged | event | src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:95 | src/client/State.luau:871 | server → client | — |
+| RedeemCode | func | src/server/Services/Codes.luau:67 | src/client/UI/SettingsScreen.luau:159 | onRedeem: before profile / no direct profile read | code: type guard |
+| ReferralGranted | event | src/server/Services/Social.luau:190<br>src/server/Services/Social.luau:301<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1065 | server → client | — |
+| ReleaseAliens | func | src/server/Services/Economy.luau:1257 | src/client/UI/ReleasePanel.luau:253 | onReleaseAliens: before profile / no direct profile read | uids: type guard |
+| ReleaseAllOfTier | func | src/server/Services/Economy.luau:1258 | src/client/UI/ReleasePanel.luau:300 | onReleaseAllOfTier: before profile / no direct profile read | tier: type guard |
 | RemoveHomeItem | func | src/server/Services/HomeBuild.luau:261 | src/client/UI/BuildScreen.luau:188 | onRemove: before profile / no direct profile read | uid: type guard |
-| RerollDailyQuest | func | src/server/Services/DailyQuests.luau:419 | src/client/UI/QuestsScreen.luau:780 | onReroll: before profile / no direct profile read | id: type guard |
-| ScrapChanged | event | src/server/Services/Dev.luau:125<br>src/server/Services/Dev.luau:965<br>src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:87<br>src/server/Services/Gifts.luau:410<br>src/server/Services/Gifts.luau:79<br>src/server/Services/Habitats.luau:297<br>src/server/Services/Habitats.luau:86<br>src/server/Services/Heaters.luau:160<br>src/server/Services/Heaters.luau:178<br>src/server/Services/HomeBuild.luau:259<br>src/server/Services/HomeBuild.luau:58<br>src/server/Services/Outposts.luau:262<br>src/server/Services/Outposts.luau:60<br>src/server/Services/Peddler.luau:279<br>src/server/Services/Peddler.luau:81<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:84<br>src/server/Services/Shop.luau:108<br>src/server/Services/Shop.luau:413 | src/client/State.luau:710 | server → client | — |
-| SeasonChanged | event | src/server/Services/Seasons.luau:130<br>src/server/Services/Seasons.luau:457 | src/client/State.luau:900 | server → client | — |
-| SeasonProgressChanged | event | src/server/Services/Seasons.luau:155<br>src/server/Services/Seasons.luau:458 | src/client/State.luau:919 | server → client | — |
-| SeenChanged | event | src/server/Services/Seen.luau:28<br>src/server/Services/Seen.luau:95 | src/client/State.luau:834 | server → client | — |
-| ServerLuckChanged | event | src/server/Services/Monetization.luau:143<br>src/server/Services/Monetization.luau:352<br>src/server/Services/Monetization.luau:634 | src/client/State.luau:856 | server → client | — |
-| SetCompanion | func | src/server/Services/Companions.luau:386 | src/client/UI/AliensScreen.luau:300 | onSetCompanion: before profile / no direct profile read | uid: type guard, follow: type guard |
-| SetDisplay | func | src/server/Services/Habitats.luau:298 | src/client/UI/AliensScreen.luau:365 | onSetDisplay: before profile / no direct profile read | uid: type guard, habitatUid: type guard |
-| SetMount | func | src/server/Services/Companions.luau:388 | src/client/UI/AliensScreen.luau:327 | onSetMount: before profile / no direct profile read | uid: type guard |
+| RerollDailyQuest | func | src/server/Services/DailyQuests.luau:419 | src/client/UI/QuestsScreen.luau:815 | onReroll: before profile / no direct profile read | id: type guard |
+| ScrapChanged | event | src/server/Services/Dev.luau:127<br>src/server/Services/Dev.luau:984<br>src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:88<br>src/server/Services/Gifts.luau:414<br>src/server/Services/Gifts.luau:79<br>src/server/Services/Habitats.luau:297<br>src/server/Services/Habitats.luau:86<br>src/server/Services/Heaters.luau:160<br>src/server/Services/Heaters.luau:178<br>src/server/Services/HomeBuild.luau:259<br>src/server/Services/HomeBuild.luau:58<br>src/server/Services/Outposts.luau:262<br>src/server/Services/Outposts.luau:60<br>src/server/Services/Peddler.luau:281<br>src/server/Services/Peddler.luau:86<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:84<br>src/server/Services/Shop.luau:108<br>src/server/Services/Shop.luau:413 | src/client/State.luau:740 | server → client | — |
+| SeasonChanged | event | src/server/Services/Seasons.luau:130<br>src/server/Services/Seasons.luau:457 | src/client/State.luau:932 | server → client | — |
+| SeasonProgressChanged | event | src/server/Services/Seasons.luau:155<br>src/server/Services/Seasons.luau:458 | src/client/State.luau:951 | server → client | — |
+| SeenChanged | event | src/server/Services/Seen.luau:28<br>src/server/Services/Seen.luau:95 | src/client/State.luau:866 | server → client | — |
+| ServerLuckChanged | event | src/server/Services/Monetization.luau:143<br>src/server/Services/Monetization.luau:352<br>src/server/Services/Monetization.luau:634 | src/client/State.luau:888 | server → client | — |
+| SetCompanion | func | src/server/Services/Companions.luau:386 | src/client/UI/AliensScreen.luau:310 | onSetCompanion: before profile / no direct profile read | uid: type guard, follow: type guard |
+| SetDisplay | func | src/server/Services/Habitats.luau:298 | src/client/UI/AliensScreen.luau:375 | onSetDisplay: before profile / no direct profile read | uid: type guard, habitatUid: type guard |
+| SetMount | func | src/server/Services/Companions.luau:388 | src/client/UI/AliensScreen.luau:337 | onSetMount: before profile / no direct profile read | uid: type guard |
 | SetSetting | func | src/server/Services/Settings.luau:117 | src/client/UI/SettingsScreen.luau:135 | onSetSetting: before profile / no direct profile read | key: type guard, value: type guard; numeric check |
-| SetStarterChoice | func | src/server/Services/Monetization.luau:636 | src/client/UI/ShopScreen.luau:389 | onSetStarterChoice: before profile / no direct profile read | speciesId: type guard |
-| SettingsChanged | event | src/server/Services/Settings.luau:116<br>src/server/Services/Settings.luau:30 | src/client/State.luau:825 | server → client | — |
-| ShopBuy | func | src/server/Services/Shop.luau:416 | src/client/UI/ShopScreen.luau:317 | onShopBuy: before profile / no direct profile read | kind: literal enum check/normalization, id: type guard |
-| ShowerChanged | event | src/server/Services/Events.luau:180<br>src/server/Services/Events.luau:86 | src/client/State.luau:787 | server → client | — |
-| SightingChanged | event | src/server/Services/Sightings.luau:213<br>src/server/Services/Sightings.luau:309 | src/client/init.client.luau:1007 | server → client | — |
-| SocialChanged | event | src/server/Services/Social.luau:108<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1046 | server → client | — |
+| SetStarterChoice | func | src/server/Services/Monetization.luau:636 | src/client/UI/ShopScreen.luau:415 | onSetStarterChoice: before profile / no direct profile read | speciesId: type guard |
+| SettingsChanged | event | src/server/Services/Settings.luau:116<br>src/server/Services/Settings.luau:30 | src/client/State.luau:857 | server → client | — |
+| ShopBuy | func | src/server/Services/Shop.luau:416 | src/client/UI/ShopScreen.luau:343 | onShopBuy: before profile / no direct profile read | kind: literal enum check/normalization, id: type guard |
+| ShowerChanged | event | src/server/Services/Events.luau:189<br>src/server/Services/Events.luau:86 | src/client/State.luau:819 | server → client | — |
+| SightingChanged | event | src/server/Services/Sightings.luau:213<br>src/server/Services/Sightings.luau:309 | src/client/init.client.luau:1008 | server → client | — |
+| SocialChanged | event | src/server/Services/Social.luau:108<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1047 | server → client | — |
 | SoundHorn | func | src/server/Services/Quests.luau:415 | src/client/init.client.luau:143 | onSoundHorn: before profile / no direct profile read | no client arguments |
-| Spin | func | src/server/Services/Gifts.luau:414 | src/client/UI/GiftsScreen.luau:535 | onSpin: before profile / no direct profile read | no client arguments |
-| StationOptimize | func | src/server/Services/Economy.luau:1250 | src/client/UI/AliensScreen.luau:1493<br>src/client/UI/ShipScreen.luau:647 | onStationOptimize: before profile / no direct profile read | no client arguments |
-| StorageChanged | event | src/server/Services/Economy.luau:1245<br>src/server/Services/Economy.luau:151 | src/client/State.luau:851<br>src/client/init.client.luau:776 | server → client | — |
-| TutorialChanged | event | src/server/Services/Tutorial.luau:302<br>src/server/Services/Tutorial.luau:53 | src/client/State.luau:801 | server → client | — |
+| Spin | func | src/server/Services/Gifts.luau:418 | src/client/UI/GiftsScreen.luau:541 | onSpin: before profile / no direct profile read | no client arguments |
+| StationOptimize | func | src/server/Services/Economy.luau:1255 | src/client/UI/AliensScreen.luau:1585<br>src/client/UI/ShipScreen.luau:651 | onStationOptimize: before profile / no direct profile read | no client arguments |
+| StorageChanged | event | src/server/Services/Economy.luau:1250<br>src/server/Services/Economy.luau:152 | src/client/State.luau:883<br>src/client/init.client.luau:784 | server → client | — |
+| TutorialChanged | event | src/server/Services/Tutorial.luau:302<br>src/server/Services/Tutorial.luau:53 | src/client/State.luau:833 | server → client | — |
 | UpgradeOutpost | func | src/server/Services/Outposts.luau:266 | src/client/UI/StarChartScreen.luau:553 | onUpgrade: before profile / no direct profile read | worldArg: type guard |
-| UseCompanionToken | func | src/server/Services/Companions.luau:387 | src/client/UI/AliensScreen.luau:1262 | onUseCompanionToken: before profile / no direct profile read | no client arguments |
+| UseCompanionToken | func | src/server/Services/Companions.luau:387 | src/client/UI/AliensScreen.luau:1354 | onUseCompanionToken: before profile / no direct profile read | no client arguments |
 | UsePowerUp | func | src/server/Services/Buffs.luau:295 | src/client/UI/PowerUpBar.luau:114 | onUsePowerUp: before profile / no direct profile read | id: type guard |
 | VisitHome | func | src/server/Services/Visiting.luau:876 | src/client/UI/VisitScreen.luau:229 | onVisitHome: before profile / no direct profile read | ownerArg: type guard |
-| VisitorArrived | event | src/server/Services/Visiting.luau:614<br>src/server/Services/Visiting.luau:834<br>src/server/Services/Visiting.luau:873 | src/client/init.client.luau:843 | server → client | — |
-| WardenRetreated | event | src/server/Services/Quests.luau:187<br>src/server/Services/Quests.luau:411 | src/client/init.client.luau:992 | server → client | — |
-| WardenSummoned | event | src/server/Services/Quests.luau:352<br>src/server/Services/Quests.luau:411 | src/client/init.client.luau:986 | server → client | — |
-| Wave | func | src/server/Services/Visiting.luau:877 | src/client/init.client.luau:583 | onWave: before profile / no direct profile read | uid: type guard |
-| WaveReceived | event | src/server/Services/Visiting.luau:781<br>src/server/Services/Visiting.luau:874 | src/client/init.client.luau:857 | server → client | — |
-| WeeklyChanged | event | src/server/Services/Weekly.luau:134<br>src/server/Services/Weekly.luau:67 | src/client/State.luau:881 | server → client | — |
-| WorldChanged | event | src/server/Services/Dev.luau:604<br>src/server/Services/Dev.luau:713<br>src/server/Services/Launch.luau:197<br>src/server/Services/Launch.luau:310<br>src/server/Services/Launch.luau:349 | src/client/State.luau:725 | server → client | — |
+| VisitorArrived | event | src/server/Services/Visiting.luau:614<br>src/server/Services/Visiting.luau:834<br>src/server/Services/Visiting.luau:873 | src/client/init.client.luau:851 | server → client | — |
+| WardenRetreated | event | src/server/Services/Quests.luau:187<br>src/server/Services/Quests.luau:411 | src/client/init.client.luau:993 | server → client | — |
+| WardenSummoned | event | src/server/Services/Quests.luau:352<br>src/server/Services/Quests.luau:411 | src/client/init.client.luau:987 | server → client | — |
+| Wave | func | src/server/Services/Visiting.luau:877 | src/client/init.client.luau:590 | onWave: before profile / no direct profile read | uid: type guard |
+| WaveReceived | event | src/server/Services/Visiting.luau:781<br>src/server/Services/Visiting.luau:874 | src/client/init.client.luau:865 | server → client | — |
+| WeeklyChanged | event | src/server/Services/Weekly.luau:134<br>src/server/Services/Weekly.luau:67 | src/client/State.luau:913 | server → client | — |
+| WorldChanged | event | src/server/Services/Dev.luau:606<br>src/server/Services/Dev.luau:715<br>src/server/Services/Launch.luau:197<br>src/server/Services/Launch.luau:310<br>src/server/Services/Launch.luau:349 | src/client/State.luau:755 | server → client | — |
 
 ## Findings
 

@@ -14,6 +14,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_data import ROOT, TableReader
+from vault_note import write_note
 
 
 @dataclass
@@ -610,8 +611,7 @@ def main():
     continuous = [Player(model, seed, args.session_minutes, False, args.limit_days).run() for seed in range(args.runs)]
     daily = [Player(model, seed, args.session_minutes, True, args.limit_days).run() for seed in range(args.runs)]
     content = report(model, continuous, daily, args) + extended_report(model, continuous, daily, args)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(content)
+    write_note(args.output, content, ['game-design', 'economy', 'generated'], ['Economy balance report'], 'Game-Design')
     print(content, end="")
     return 0
 

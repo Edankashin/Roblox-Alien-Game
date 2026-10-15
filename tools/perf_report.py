@@ -13,6 +13,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_data import ROOT, TableReader, uncomment
+from vault_note import write_note
 
 BUDGET_PARTS = 4000
 BUDGET_PARTICLES = 2000
@@ -208,7 +209,7 @@ def main():
         parser.error('--players must be positive')
     content = report(args.root, args.players)
     if args.write:
-        (args.root / 'docs/vault/04-roblox-engine/Performance.md').write_text(content)
+        write_note(args.root / 'docs/vault/04-roblox-engine/Performance.md', content, ['roblox-engine', 'engine', 'generated'], ['Performance budget'], 'Roblox-Engine')
     print(content, end='')
     return 0
 

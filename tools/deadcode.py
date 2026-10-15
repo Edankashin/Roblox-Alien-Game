@@ -10,6 +10,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 from lint_data import ROOT,TableReader,uncomment,tokens
 from lint_strings import audit as strings_audit
 from lint_remotes import inventory
+from vault_note import write_note
 
 
 def report(root=ROOT):
@@ -74,7 +75,7 @@ def report(root=ROOT):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--write',action='store_true');a=p.parse_args()
     content,counts=report(a.root)
-    if a.write:(a.root/'docs/vault/02-how-we-work/Dead-Code.md').write_text(content)
+    if a.write:write_note(a.root/'docs/vault/02-how-we-work/Dead-Code.md',content,['how-we-work','tooling','generated'],['Dead code'],'How-We-Work')
     print(content,end='')
     return 0
 

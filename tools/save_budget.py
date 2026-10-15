@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from luau_tables import load
 from balance import Model, Player
+from vault_note import write_note
 
 ROOT = Path(__file__).resolve().parents[1]
 LIMIT = 4194304
@@ -136,7 +137,7 @@ def main():
         parser.error('hours must be in (0,24], caps nonnegative (storage positive), stack share in [0,1)')
     content = report(args)
     if args.write:
-        (ROOT/'docs/vault/04-roblox-engine/Save-Budget.md').write_text(content)
+        write_note(ROOT/'docs/vault/04-roblox-engine/Save-Budget.md', content, ['roblox-engine', 'engine', 'generated'], ['Save size budget'], 'Roblox-Engine')
     print(content, end='')
 
 if __name__ == '__main__':
