@@ -46,7 +46,6 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Studio queue: the rest (older milestones' multi-client and real-save steps) | | `docs/STUDIO-QUEUE.md` lists all 29 milestones, 102 steps |
 | Loading screen in ReplicatedFirst (our art and a progress line while a cold server loads the 53 models, up to 20 s today) | | From the 2026-10-14 audit: bounce in the first 60 s is the number the references fear most |
 | Co-play: a "catch with a friend" Field Notes step (the measurement half is done, aff40f7) | | ZPLRKjEf2; `Quests.luau` |
-| Frostbyte silhouette pass (the 16 World 2 species) after World 1's | Mac | [[Silhouette-Pass]] once it lands |
 | Codex C25: StyLua for the whole repo | Codex | Run last in a batch, alone |
 | Install the five Studio plugins: Stravant GapFill & Extrude, ResizeAlign, Redupe; Brushtool 2; Archimedes v3 | Collab | Free ones freely, paid ones on Ethan's yes; update their rows in [[Tools-Status]] |
 | Music: listen to the 12 picked rows in the place, swap any, pick Menus (still 0) | Ethan or Collab | [[Music-Plan]] pick tables (overnight job 5); one number per row in `data/Music.luau` |
@@ -93,6 +92,7 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Silhouette and surface pass, all 32 species: bodies rebuilt with surfaces in the cloud (21b3b9a World 1 with Gaiabloom, Ra-dish, Glim and Rocklobber reworked; 6b2edd8 Frostbyte), previews in `media/studio/2026-10-15/`; the names applied (a4a6cfe); the textures route (dcae573); the thumbnail research (e680b42). Upload waits on Ethan's "upload" and the Mac's two probes | Coord | 2026-10-15 |
 | Silhouette pass, World 1: the bible, the recipes, the builder (0c498ca) and the 16 bodies built on the Mac (b95035c to c74d590); previews in `assets/models/<Id>/<Id>.png` and `media/studio/2026-10-14/silhouette_world1_mac_previews.jpg`; upload waits on Ethan (job 24) | Coord + Mac | 2026-10-14 |
 | Evening fixes from the Mac's retests: eggs in season, Reveal hush first, Catch an Alien title (f1d2d1b); overlay badges fit, night ground tint (92228c2); names v2 sheets (bbaad9c); memory tool (c8a1ff6); group page (7a40cf7) | Coord | 2026-10-14 |
 | Audit of the references, afternoon build: LaunchGold overlay and Sparkfox week (194d5e4), co-play Party event and `friends` on Catch (aff40f7), day-2 Boost Pair gift, LAUNCHWEEK code, notifications off (9c0b7bb), titled thumbnails (805fbef), icon tool Image ids (66910a8), quiet-moments hush (b43322a), first-catch deltas fix (0825880) | Coord | 2026-10-14 |
