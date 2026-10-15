@@ -225,6 +225,99 @@ Flags of the Change column: `lid 0.5` is the new hybrid default (the species who
 - Thin cores: eight creatures sit at 31 to 37 percent core (Toastoad 31, Emberchin 34, Shimmerlynx 34, Skaddle 34, Chipmole 35, Lanternewt 35, Reindazzle 36, Radish 37), below the old 40 percent floor, because the floor now gives way when the creature is over the cap. Their visible body is not smaller, less of the core is swallowed by the union (core triangles left after it, pass 1 to pass 2: Toastoad 539 to 574, Emberchin 528 to 558, Skaddle 603 to 637, Shimmerlynx 535 to 574, Chipmole 696 to 738, Lanternewt 659 to 660).
 - The face features small in the silhouette (the teeth of Rocklobber and Frostfang, Thunderhog's zigzag, the `o` of Puffpuff and Twiglet) are as in pass 1: not touched.
 
+## Temperament moods (2026-10-15)
+
+Ethan, 2026-10-15, night: "Not every alien should be cute. We should have a balance. The majority of rarer aliens should be fiercer, or more spectacular looking. Fenrir looks too cute, not something that would appeal to people who worked so hard to find him. Apply that thought process to other aliens too, using your judgement." The design side (the ladder's new column, a temperament per species, the count) is [[Roster-Redesign]] sections 1 and 2 and [[Decisions]] B42. This is the sculpt's side: `face.mood` in `tools/blender/species_sculpt.py` (the only code changed; `species_recipes.py` and `assets/models/` are untouched, every build below is on a scratch copy). A first run of this job was cut off by a container restart; its script was read, its sound parts kept (the presets, the brow, the socket, the teeth, the crest) and the rest redone as below.
+
+![Temperament: the pass 2 face, the mood face and the mood build for 17 builds, Rare to hero](refs/sculpt-pass/temperament_sheet.jpg)
+
+The sheet is also at `media/studio/2026-10-15/temperament_sheet.jpg` (299 KB). Per block, left to right: the pass 2 face (built by the sculpt as it stood at the last commit, hybrid), the mood face (front close-ups, the lit scene of `preview.py`), and the mood build three-quarter (the right half of `preview.py --lit --compare`, the pass 2 build on its left). Tier and mood are on each label.
+
+### The presets (`MOODS`, every number named)
+
+A preset is literals only (the test parses it with `ast.literal_eval`). `recipe.*` are floors on the recipe's own face dict before the parts are made: the eye tilt is raised to `tilt_min` and held under `tilt_max` (a cool brow is slight whatever the recipe says), the lid fraction is raised to `lid_min` (a recipe with no brow gets one), and a round "o" mouth becomes a half-moon (`smile`). `face.*` merge into `DEFAULTS["face"]` in `cfg_of`: the method's numbers, then the mood, then the species' own `face` keys, then `--set` (so `--set face.lid_grow=1.0` still beats a mood).
+
+| Key | cute | cool | fierce | spectacular |
+|---|---|---|---|---|
+| `recipe.tilt_min` / `tilt_max` (degrees) | none / none | 4 / 7 | 18 / none | 14 / none |
+| `recipe.lid_min` | 0 | 0.25 | 0.3 | 0.3 |
+| `recipe.mouth_o` | none | smile | smile | smile |
+| `lid_grow` (the brow element's scale) | 0.5 | 0.7 | 0.95 | 0.95 |
+| `brow_thick` / `brow_long` (its depth and length) | 1.0 / 1.0 | 1.1 / 1.0 | 1.5 / 1.1 | 1.5 / 1.1 |
+| `eye_boost` (times the recipe's eye) | 1.35 | 1.2 | 1.1 | 1.4 |
+| `eye_wide` / `eye_squash` (the eye's width and height) | 1.0 / 1.0 | 1.05 / 0.85 | 1.15 / 0.76 | 1.15 / 0.82 |
+| `eye_slant` (the eye turned with the brow, share of the tilt) | 0 | 0.4 | 0.7 | 0.7 |
+| `pupil_scale` | 1.0 | 0.95 | 0.85 | 0.85 |
+| `sink` / `socket_stiff` | 0.4 / 1.5 | 0.4 / 1.6 | 0.45 / 1.9 | 0.45 / 1.9 |
+| `socket_reach` (x, depth, z in eye radii) | 1.55, 1.25, 1.55 | 1.6, 1.25, 1.4 | 1.8, 1.3, 1.1 | 1.8, 1.3, 1.25 |
+| `mouth_scale` / `mouth_flat` | 1.9 / 1.0 | 1.5 / 0.5 | 2.2 / 1.0 | 2.2 / 1.0 |
+| `mouth_roll` (degrees) / `mouth_shift` (half-widths) | 0 / 0 | 9 / 0.18 | 0 / 0 | 0 / 0 |
+| `teeth` / `tooth_scale` | off / 1.0 | off / 1.0 | on / 1.5 | on / 1.5 |
+| `jaw_scale` / `jaw_flat` (a recipe with no teeth) | none | none | 2.0 / 0.6 | 2.0 / 0.6 |
+| `crest_scale` | 1.0 | 1.0 | 1.0 | 1.3 |
+
+`cute` is the pass 2 face, so naming it changes nothing under `--method hybrid` (Shellberg and Capybubble, set `cute`, build to the same 2,374 and 1,976 triangles as before). No mood at all is today's face for the method, so the metaball default (lid 1.0, eye 1.2, mouth 1.3) stays what it was. Under `fierce` the eye is the smallest (1.1 against the cute 1.35) and `spectacular` takes it back up to 1.4: a fierce face is a squint under a brow, a spectacular one is a wide bright eye under the same brow, so a spectacular face never has a smaller eye than a fierce one. The fierce and spectacular eye sits at 0.76 to 0.82 of the cute one's height and wider, so the faces keep big eyes against the head.
+
+### What is geometry, not paint
+
+- **The brow.** The recipe's lid is a Body ellipsoid in the field; `brow_thick` and `brow_long` scale its depth and length and the mood's tilt turns it, so an angled brow is a ridge in the fused skin that overhangs the eye (seen from the side, and in the light).
+- **The narrow socket.** The socket is the negative element carved behind the eye; its z reach is smaller than its x (wider than tall) and it is turned with the eye. The eyeball is an ellipsoid (`eye_wide`, `eye_squash`) turned by `eye_slant` times the tilt, the pupil smaller (`pupil_scale`), so the white shows.
+- **The mouth.** Flattened (`mouth_flat`), turned about the face normal and moved off centre (`mouth_roll`, `mouth_shift`: the cool smirk) or widened (`mouth_scale`: the fierce grin). Where `teeth` is on and the recipe has a zigzag mouth, its four teeth are built as parts hung from the top edge of the grin (the hybrid used to drop them); where it has none, the mouth is a wide flat set jaw (`jaw_scale`, `jaw_flat`).
+- **The crest.** `grow_crest` makes the glow parts `crest_scale` times larger: every `Accessory`-slot step by default, or the names in a species' `crest` (a list: each grows from its own base; a dict `{name: (x, y, z)}`: grown about that point, a fan about its hub). Because the whole build is fitted to the recipe's declared height, a larger crest would shrink the body and the face with it (the first Radish came out at x0.81); `crest_height` fits to the declared height times how much taller the grown parts are (the recipe's own primitive estimate), so the body keeps its size and the spectacular build is taller: Gaiabloom 4.14 to 4.51 studs, Radish 3.64 to 4.41, Panpipe 3.40 to 3.76, Fenripup 4.05 to 4.26, Skydrake 7.57 to 8.18. `notes.md` says the new height; applying a spectacular build to `assets/models` means moving the species' height with it.
+- **The methods.** `--method hybrid` carries the sheet. `--set face.mood=fierce` was also built with `--method metaball` (Thunderhog 2,364 triangles, Frostfang 2,359) and `--method remesh` (Skaddle 2,372): the brow, the narrow eye and the teeth are in both; the remesh path has no half-moon mouth, so its mouth stays the open "o" and only the brow and the eye change there.
+- **Tests.** `tools/tests/test_sculpt_moods.py` (14, no Blender): the four presets carry the same keys as `DEFAULTS["face"]`; the brow thickens, the eye narrows and the socket tightens up the ladder; a spectacular eye is never smaller than a fierce one; `cute` is the pass 2 face; every species' mood sits in its tier's band (Common and Uncommon cute, Epic cool or above, Legendary fierce or above, Cosmic and Secret spectacular); the Temperament column of [[Roster-Redesign]] section 2 matches the `SPECIES` table.
+
+### The moods per species
+
+Triangles are the GLB's, pass 2 to mood (the cap is 2,500); height only where the crest grew.
+
+| Species | Tier | Mood | What changes | Triangles |
+|---|---|---|---|---|
+| `Shellberg` | Rare | cute | nothing: a tortoise whose iceberg is nine-tenths hidden, the patient round face is the joke | 2,374 to 2,374 |
+| `Capybubble` | Rare | cute | nothing: asleep under a tangerine, snoring bubbles | 1,976 to 1,976 |
+| `Zapfinch` | Rare | cool | the open "o" becomes a closed smirk, the eye narrower under a slight brow (the recipe's 8 degrees held to 7) | 2,398 to 2,324 |
+| `Sparkfox` | Rare | cool | the open grin becomes a smirk off to one side; replaces the hand-set lid 0.8 and `eye_tilt` 4 of pass 2 | 2,350 to 2,378 |
+| `Reindazzle` | Rare | cool | narrowed eyes, a small smirk; the eyes at `eye_scale` 1.3 (its recipe's 1.0 vanished next to the nose) | 2,362 to 2,366 |
+| `Rocklobber` | Rare | fierce | a heavy slanted brow, four teeth in a wide grin; replaces the hand-set lid 0.6 | 2,384 to 2,334 |
+| `Gloomoth` | Epic | cool | the round "o" becomes a half grin; the recipe's droop (-10 degrees) becomes a slight brow | 2,372 to 2,348 |
+| `Shimmerlynx` | Epic | cool | narrow lynx eyes, a notch of a smirk | 2,344 to 2,370 |
+| `Thunderhog` | Epic | fierce | brow, narrow deep eyes, four teeth; replaces the hand-set lid 0.6 | 2,366 to 2,396 |
+| `Frostfang` | Epic | fierce | brow, narrow eyes, four teeth between the two icicle fangs | 2,256 to 2,252 |
+| `Skaddle` | Legendary | fierce | the owl's hunting glare: brow, narrowed eyes, a set jaw in place of the "o" | 2,400 to 2,396 |
+| `Gaiabloom` | Legendary | spectacular | a stag's glare; antlers, blossoms and halo 1.3 times larger (about the antler roots); replaces the hand-set lid 0.7 | 2,378 to 2,376, 4.14 to 4.51 studs |
+| `Radish` | Cosmic | spectacular | a stern brow (tilt 10, ridge 1.3, softer than the preset: the first build was an angry man's), the sun disk and its nine rays 1.3 times larger about the disk's centre; no crisp bevel (a larger ray is past `bevel_min`, 140 triangles each, 3,400 in all) | 2,334 to 2,304, 3.64 to 4.41 |
+| `Fenripup` | Cosmic | spectacular | the wolf's brow and the zigzag grin of four teeth (the recipe's smile has none, so `face_recipe` takes the zigzag), the moon 1.3 times larger, grown up from its lowest point so it clears the eyes | 2,344 to 2,394, 4.05 to 4.26 |
+| `Panpipe` | Secret | spectacular | a satyr's hard brow and a set jaw; reed fan and horns 1.3 times larger | 2,328 to 2,308, 3.40 to 3.76 |
+| `FenripupV2` (Fenrir hero) | prototype | fierce | round 2's brow was already 22 degrees; the mood narrows the eyes and thickens the ridge | 2,326 to 2,340 |
+| `Skydrake` (hero) | prototype | spectacular | a brow ridge over narrowed eyes; the antlers and the pearl 1.3 times larger | 2,406 to 2,434, 7.57 to 8.18 |
+| `Nebulyn`, `Wisplet`, `Spookum` | Legendary, Rare, Epic (event) | spectacular, cute, cool | set in `SPECIES`; no recipe yet (TODO stubs), so no build and no render | none |
+
+Every Common and Uncommon has no entry (cute). Nothing is over the cap (the highest is Skydrake at 2,434 of 2,500).
+
+### What still reads cute where it should not
+
+- **The body, not the face.** The mood changes the face and the crest only. Fenripup (the Cosmic whose cute puppy Ethan named) is still a sitting puppy with floppy ears: the brow, the teeth and the larger moon make it a grumpy puppy, and the body will not carry a "worked so hard to find him" Cosmic. Skaddle (a round fluffy owl), Frostfang and Thunderhog (round bodies) are the same: a fierce face on a round body reads as a cross cute thing. That is the hand-route question of [[Hero-Aliens]]; the moods do not replace it. The hero Fenrir (`FenripupV2`) already had the wolf's body and a fierce brow, so the mood is a small change there.
+- **Reindazzle** barely changes: its nose is the face, the brow is a line over it. **Shimmerlynx** shows the brow as a lump in white fur and the smirk as a notch. **Zapfinch** reads grumpy and **Gloomoth** lidded and smug more than cool: the cool band is narrow between a cute face and a glare.
+- **Gaiabloom's** wide set jaw is a downward triangle: at 2,400 triangles the mouth is a low-poly lens and reads as a beak. **Radish** is a stern sun, not yet awe; **Panpipe** and **Radish** have the most human-looking brow.
+- **Shellberg and Capybubble** are cute on purpose and stay so; Wisplet, Spookum and Nebulyn wait for recipes.
+
+### Commands
+
+From the repo root; `$S` is a scratch folder, the interpreter a Python with the `bpy` 5.0 module. The folders are copied from `assets/models` first (the script refuses `assets/models` itself).
+
+```
+S=/tmp/moods; mkdir -p $S/mood && for s in Thunderhog Frostfang; do cp -r assets/models/$s $S/mood/$s; done
+python3 tools/blender/species_sculpt.py --species Thunderhog,Frostfang --models $S/mood --method hybrid   # the SPECIES table's mood
+python3 tools/blender/species_sculpt.py --species Thunderhog --models $S/mood --method hybrid --set face.mood=cute   # the pass 2 face
+python3 tools/blender/species_sculpt.py --species Thunderhog --models $S/mood --method metaball --set face.mood=fierce
+python3 tools/blender/species_sculpt.py --species FenripupV2 --models $S/heroes --method hybrid <Hero-Aliens round 2 line> --set face.mood=fierce
+python3 tools/blender/species_sculpt.py --species Skydrake --models $S/heroes --method hybrid <Hero-Aliens round 2 line> \
+  --set face.mood=spectacular --set 'crest={"horn":[0.0,-1.0,5.6],"pearl":null}'
+python3 tools/blender/preview.py --lit --models $S/mood --compare $S/p2 --species Thunderhog,Frostfang --backdrop C9C0DA --size 300 --samples 32 --out $S/lit
+```
+
+`$S/p2` is the same species built by the sculpt as it was before the moods. The front close-ups on the sheet are a 40-line scratch wrapper (the lit scene of `preview.py`, one yaw, an orthographic camera on the face; not in the repo). Hero rows use [[Hero-Aliens]]'s round 2 command lines (`<Hero-Aliens round 2 line>`) unchanged apart from the two `--set` options.
+
 ## The method that won: metaballs
 
 Both candidates were built on Mossbop first, then on Sparkfox and Gaiabloom, with the same decimate, slot and face steps after the fuse (`--method metaball` or `--method remesh`):
@@ -315,3 +408,4 @@ Everything outside the skin is the eyes (192 triangles an eye), shells and a rib
 - Ethan's look at the sheet. Nothing here replaces a model in the repo until he does.
 - The Mac: how Studio imports the GLB's custom normals and the FBX (a probe: import both, compare the shading), the `ModelAssets` upload path with a body that has 300 to 800 more triangles, and a phone draw-call and triangle count for a dozen at once.
 - Hard-surface species (crystals, planks) and the three Haunted Nebula stubs are not covered.
+- The moods ([[#Temperament moods (2026-10-15)]]) replace pass 2's hand-set lids (Thunderhog and Rocklobber 0.6, Sparkfox 0.8 with its `eye_tilt` 4, Gaiabloom 0.7); the pass 2 text above records what was then. Ethan's look at `refs/sculpt-pass/temperament_sheet.jpg` and his yes or no on the table in [[Roster-Redesign]] section 2; whether Fenripup's body (still a sitting puppy) goes to the hand route; the three event species' moods wait for their recipes.

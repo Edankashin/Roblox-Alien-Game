@@ -56,6 +56,16 @@ the note docs/vault/06-art-pipelines/Sculpt-Pass.md says why metaballs won.
      core away, so that weight stops there (`fine_swallowed` 0: Flapsicle's four blades lie along its body and 70 percent of its core
      was swallowed, 1,284 triangles). A creature still over the hard cap at the core's floor may go below it (`core_hard_min`).
 SCULPT_DEBUG=1 prints the crisp parts' triangles and each round of the budget loop.
+
+Moods (2026-10-15, docs/vault/06-art-pipelines/Sculpt-Pass.md "Temperament moods"): `face.mood` picks a preset from MOODS, the face that
+goes with a tier on the temperament ladder of docs/vault/01-game-design/Roster-Redesign.md (cute, cool, fierce, spectacular). A preset is
+numbers only, every one named in the table. It sets the recipe's own face dict before the parts are made (a floor under eye_tilt, a ceiling
+over it for cool, a floor under lid so a recipe with no brow gets one; a round "o" mouth becomes a half-moon) and the face keys the build reads (lid size, brow
+thickness, the eye's width and height and slant, the socket's shape, the mouth's size, flatness, roll and offset, teeth). Angled brows
+and narrow sockets are geometry on the skin: the lid is a Body element in the field, tilted and thick; the socket is the negative element
+squashed wider than tall; the eye is an ellipse turned with the brow. spectacular grows the crest or glow parts (`crest`, else the
+Accessory slot) and builds as much taller (crest_height), so the body keeps its size. No mood = today's face for the method (a species may name `cute` to get the pass 2 numbers under any method):
+  python3 tools/blender/species_sculpt.py --species Thunderhog --models /scratch/models --method hybrid --set face.mood=fierce
 """
 import argparse
 import datetime
@@ -106,6 +116,10 @@ DEFAULTS = {
     "face_recipe": None, # {key: value} merged into the recipe's face dict (eye_scale, lid, ...) for this build only
     "ribbons": (),       # [{"slot", "name", "pts", "widths", "thick"}]: continuous bands built as shells (see ribbon_object)
     "edit": None,        # a function(parts) -> parts: the sculpt's own changes to the recipe's volumes (the recipe file stays as it is)
+    "crest": None,       # what the spectacular mood grows (face.crest_scale): None = every Accessory-slot step (the glow slot); a list of
+                         # step names, each grown from its own base; or {name: (x, y, z) | None}: that name's parts grow about the point
+                         # (a fan of reeds about its hub, a sun disk and its rays; a mirrored pair about the point mirrored), None = in place
+    "mood_recipe": {},   # the preset's floors on the recipe's own face dict (filled by cfg_of from MOODS)
     "face": {
         "eye_segments": 12,    # eyeball sphere segments
         "sink": 0.4,           # how far the eyeball is moved into the head, in eye radii
@@ -121,6 +135,67 @@ DEFAULTS = {
         "zone": 0.9,           # zone radius as a multiple of the element's largest reach
         "half_eyes": False,    # hybrid: build the eye whites, pupils and glints as front halves (see front_half)
         "grin": False,         # hybrid: a half-moon mouth's Mouth slot is a flat-topped grin, not the whole ellipse
+        # the moods (MOODS below fills these; the values here change nothing)
+        "mood": None,          # a key of MOODS, or None for the method's own face
+        "brow_thick": 1.0,     # the lid element's depth (y) times this: a ridge that overhangs the eye
+        "brow_long": 1.0,      # its length (x) times this
+        "eye_wide": 1.0,       # the eye's width times this
+        "eye_squash": 1.0,     # the eye's height times this (below 1 = a narrowed eye)
+        "eye_slant": 0.0,      # the eye turned by this share of the recipe's eye_tilt, so the narrowed eye follows the brow
+        "pupil_scale": 1.0,    # the pupil's size times this (smaller reads angrier: more white)
+        "mouth_flat": 1.0,     # the mouth ellipsoid's height times this
+        "mouth_roll": 0.0,     # the mouth turned about the face normal, degrees (a smirk: one corner higher)
+        "mouth_shift": 0.0,    # the mouth moved along its width, in half-widths (a smirk sits off centre)
+        "teeth": False,        # build the recipe's mouth teeth (a zigzag mouth has four; the hybrid used to drop them)
+        "tooth_scale": 1.0,    # the teeth's size times this
+        "tooth_out": 0.0,      # the teeth moved out of the skin along the face normal, in tooth lengths
+        "jaw_scale": None,     # teeth on but the recipe's mouth has none: the set jaw's mouth_scale (None = mouth_scale)
+        "jaw_flat": None,      # ... and its mouth_flat
+        "crest_scale": 1.0,    # spectacular: the crest or glow parts grow by this
+    },
+}
+
+# ------------------------------------------------------------------------------------------------ the moods
+# The temperament ladder (Roster-Redesign.md section 1) as face presets. "recipe" lays floors on the recipe's own face dict before the
+# parts are made: tilt_min and tilt_max (degrees, the recipe's eye_tilt is raised to the first and held under the second: a cool brow is
+# slight, whatever the recipe's), lid_min (the recipe's lid fraction is raised to it, so a recipe without a brow gets one), mouth_o (the
+# half-moon that replaces the recipe's round "o" mouth, None = keep it).
+# "face" is merged into DEFAULTS["face"] (after the method's own numbers, before a species' own face keys and --set). `cute` is the
+# hybrid's pass 2 face, so naming it changes nothing under --method hybrid. A preset holds literals only (tools/tests/test_sculpt_moods.py).
+MOODS = {
+    # cute: big round eyes, an open mouth, soft shapes (Common and Uncommon; a joke Rare)
+    "cute": {
+        "recipe": {"tilt_min": None, "tilt_max": None, "lid_min": 0.0, "mouth_o": None},
+        "face": {"lid_grow": 0.5, "brow_thick": 1.0, "brow_long": 1.0, "eye_boost": 1.35, "eye_wide": 1.0, "eye_squash": 1.0,
+                 "eye_slant": 0.0, "pupil_scale": 1.0, "sink": 0.4, "socket_reach": (1.55, 1.25, 1.55), "socket_stiff": 1.5,
+                 "mouth_scale": 1.9, "mouth_flat": 1.0, "mouth_roll": 0.0, "mouth_shift": 0.0, "teeth": False, "tooth_scale": 1.0,
+                 "tooth_out": 0.0, "jaw_scale": None, "jaw_flat": None, "crest_scale": 1.0},
+    },
+    # cool: a narrower eye under a small angled brow, a closed smirk off centre (Epic; Rare by species)
+    "cool": {
+        "recipe": {"tilt_min": 4.0, "tilt_max": 7.0, "lid_min": 0.25, "mouth_o": "smile"},
+        "face": {"lid_grow": 0.7, "brow_thick": 1.1, "brow_long": 1.0, "eye_boost": 1.2, "eye_wide": 1.05, "eye_squash": 0.85,
+                 "eye_slant": 0.4, "pupil_scale": 0.95, "sink": 0.4, "socket_reach": (1.6, 1.25, 1.4), "socket_stiff": 1.6,
+                 "mouth_scale": 1.5, "mouth_flat": 0.5, "mouth_roll": 9.0, "mouth_shift": 0.18, "teeth": False, "tooth_scale": 1.0,
+                 "tooth_out": 0.0, "jaw_scale": None, "jaw_flat": None, "crest_scale": 1.0},
+    },
+    # fierce: a thick angled brow over a deep, narrow eye, a wide grin with the recipe's teeth or a set jaw (Legendary; a predator Epic)
+    "fierce": {
+        "recipe": {"tilt_min": 18.0, "tilt_max": None, "lid_min": 0.3, "mouth_o": "smile"},
+        "face": {"lid_grow": 0.95, "brow_thick": 1.5, "brow_long": 1.1, "eye_boost": 1.1, "eye_wide": 1.15, "eye_squash": 0.76,
+                 "eye_slant": 0.7, "pupil_scale": 0.85, "sink": 0.45, "socket_reach": (1.8, 1.3, 1.1), "socket_stiff": 1.9,
+                 "mouth_scale": 2.2, "mouth_flat": 1.0, "mouth_roll": 0.0, "mouth_shift": 0.0, "teeth": True, "tooth_scale": 1.5,
+                 "tooth_out": 0.0, "jaw_scale": 2.0, "jaw_flat": 0.6, "crest_scale": 1.0},
+    },
+    # spectacular: fierce with a bigger, brighter eye (1.4 where fierce is 1.1: awe, not a squint) and a brow tilted 14 degrees at the least
+    # (fierce 18: a regal glare, not a snarl), and the crest or glow parts 30 percent
+    # larger (Cosmic and Secret; a Legendary or an Epic whose crest is the point)
+    "spectacular": {
+        "recipe": {"tilt_min": 14.0, "tilt_max": None, "lid_min": 0.3, "mouth_o": "smile"},
+        "face": {"lid_grow": 0.95, "brow_thick": 1.5, "brow_long": 1.1, "eye_boost": 1.4, "eye_wide": 1.15, "eye_squash": 0.82,
+                 "eye_slant": 0.7, "pupil_scale": 0.85, "sink": 0.45, "socket_reach": (1.8, 1.3, 1.25), "socket_stiff": 1.9,
+                 "mouth_scale": 2.2, "mouth_flat": 1.0, "mouth_roll": 0.0, "mouth_shift": 0.0, "teeth": True, "tooth_scale": 1.5,
+                 "tooth_out": 0.0, "jaw_scale": 2.0, "jaw_flat": 0.6, "crest_scale": 1.3},
     },
 }
 
@@ -233,15 +308,24 @@ def hybrid_sparkfox(parts):
               [0.36, 0.38, 0.33, 0.27, 0.22], "tail")]
 
 
+# The moods (face.mood) are the Temperament column of docs/vault/01-game-design/Roster-Redesign.md section 2: no entry = cute (the Common
+# and Uncommon). Rare, a mix: fierce for the brawler Rocklobber, cool for Zapfinch, Sparkfox and Reindazzle, cute for the three jokes
+# (Shellberg, Capybubble, Wisplet).
+# Epic: cool for Gloomoth, Shimmerlynx and Spookum, fierce for the predators Thunderhog and Frostfang. Legendary: spectacular for
+# Gaiabloom and Nebulyn, fierce for Skaddle. Cosmic and Secret: spectacular (Radish, Fenripup, Panpipe). The three Haunted Nebula
+# species have no recipe yet, so their moods wait here for it.
 SPECIES = {
     "Mossbop": {"stiff": 5.0, "stiff_thin": 4.0, "edit": edit_mossbop, "face": {"socket_stiff": 1.8, "sink": 0.45},
                 "separate": ("stalk", "bud", "leaf"),  # the sprout: a stalk the fused moss would swallow, so a shell sunk into the head
                 "hybrid": {"edit": edit_mossbop, "crisp": ("stalk", "bud", "leaf")}},
-    "Sparkfox": {"stiff": 4.5, "stiff_thin": 4.0, "edit": edit_sparkfox, "face": {"lid_grow": 0.8},
+    # cool: the sly smirk over the grin that its own lid 0.8 and eye_tilt 4 used to make by hand is now the preset
+    "Sparkfox": {"stiff": 4.5, "stiff_thin": 4.0, "edit": edit_sparkfox, "face": {"mood": "cool"},
                  "hybrid": {"edit": hybrid_sparkfox, "crisp": ("ear", "innerear", "cheek", "ferrule", "bristles", "bristletip"),
-                            "no_fillet": ("innerear",), "face_recipe": {"eye_tilt": 4.0}}},  # a sly look, not a scowl, over the open grin
+                            "no_fillet": ("innerear",)}},
+    # spectacular: the antlers and their blossoms grow about the antler roots, the halo about its own centre
     "Gaiabloom": {"stiff": 4.0, "stiff_thin": 4.0, "separate": ("halo", "groundring", "flower"), "fine": 0.16, "edit": edit_gaiabloom,
-                  "face_recipe": {"eye_scale": 1.3}, "face": {"lid_grow": 0.7},
+                  "face_recipe": {"eye_scale": 1.3}, "face": {"mood": "spectacular"},
+                  "crest": {"antler": (0.0, -1.5, 3.45), "blossom": (0.0, -1.5, 3.45), "halo": None},
                   "hybrid": {"edit": edit_gaiabloom, "crisp": ("ear", "antler", "blossom", "halo", "groundring", "flower"),
                              "bevel_segments": 0, "ring_sides": 4}},  # 27 crisp parts: no triangles to spare for rims nobody sees
     "Flufflet": {"res": 0.03, "separate": ("tassel",), "fine": 0.1, "stiff": 3.5, "edit": edit_flufflet,
@@ -254,24 +338,54 @@ SPECIES = {
     # over the 2,500 cap, overlap under 0.85 at 64 px, or a feature lost. First, no crisp bevel (a bevelled cone is 140 to 188 triangles, 12 without).
     # Thunderhog's lid, Pebblet's flat_body, Rocklobber, Shellberg and Flapsicle are pass 2 (Sculpt-Pass.md, "Pass 2": lids, facets, Flapsicle).
     "Glimmo": {"hybrid": {"bevel_segments": 0}},
-    "Panpipe": {"hybrid": {"bevel_segments": 0}},
-    # 38 quill cones and the collar ring: shells (no union, so no seam triangles; the union of 39 parts was 8,000 triangles) and no bevel
-    "Thunderhog": {"face": {"lid_grow": 0.6}, "hybrid": {"bevel_segments": 0, "shell": ("collar", "cone")}},
+    # spectacular (Secret): the reed fan grows about its hub on the back, the horns about their roots
+    "Panpipe": {"face": {"mood": "spectacular"}, "crest": {"reed": (0.0, 1.25, 2.1), "horn": (0.7, -0.11, 2.8)}, "hybrid": {"bevel_segments": 0}},
+    # 38 quill cones and the collar ring: shells (no union, so no seam triangles; the union of 39 parts was 8,000 triangles) and no bevel;
+    # fierce (a storm-charged predator; its recipe is already eye_tilt 12 with a zigzag mouth, whose four teeth the mood builds)
+    "Thunderhog": {"face": {"mood": "fierce"}, "hybrid": {"bevel_segments": 0, "shell": ("collar", "cone")}},
     # a faceted stone: a tighter blend (stiff 5 as Mossbop) keeps the legs straight, and the moss cap, the bumps and the fists stay crisp;
     # the body is a flat_body: its skin is snapped onto the recipe's icosphere, so the facets stay and the legs still grow out of one skin
     "Pebblet": {"stiff": 5.0, "stiff_thin": 4.0, "hybrid": {"crisp": ("moss", "bump", "fist"), "flat_body": ("body",)}},
     # the boulder fists are faceted stone (the recipe's flat=True icospheres): crisp, so they keep their facets, with the crystals as before;
-    # fierce by recipe (eye_tilt +10, a zigzag mouth): a heavier lid (0.6) than the hybrid default (0.5)
-    "Rocklobber": {"face": {"lid_grow": 0.6}, "hybrid": {"crisp": ("crystal", "fist")}},
-    # the iceberg shell is faceted (flat=True icosphere): crisp, with a clean line where it meets the body, like the cuff and the vein
-    "Shellberg": {"hybrid": {"crisp": ("shell", "peak", "vein", "cuff"), "no_fillet": ("shell",)}},
-    # (Frostfang is fierce by recipe too, but at 0.6 its brow already scowls; on the default 0.5 the fangs carry the fierce and the eyes stay goofy)
+    # fierce: the brawler of the Rares (eye_tilt +10, a zigzag mouth whose four teeth the mood builds); it was lid 0.6 by hand in pass 2
+    "Rocklobber": {"face": {"mood": "fierce"}, "hybrid": {"crisp": ("crystal", "fist")}},
+    # the iceberg shell is faceted (flat=True icosphere): crisp, with a clean line where it meets the body, like the cuff and the vein;
+    # cute on purpose: the joke is a tortoise whose iceberg is nine-tenths hidden, and the patient round face is the punchline
+    "Shellberg": {"face": {"mood": "cute"}, "hybrid": {"crisp": ("shell", "peak", "vein", "cuff"), "no_fillet": ("shell",)}},
+    # fierce: a sabre-tooth cub (its icicle fangs are recipe steps; the zigzag mouth's teeth come back with the mood). At lid 0.6 in pass 2
+    # the brow already scowled and the eyes stayed goofy, so the fierce preset narrows the eye as well
+    "Frostfang": {"face": {"mood": "fierce"}},
+    # cool (a night moth): narrowed eyes and a smirk; its crystal wings are the show, so they stay at their size
+    "Gloomoth": {"face": {"mood": "cool"}},
+    # cool: a lynx's narrow eyes under the aurora crest (the crest keeps its size; the mood is the face)
+    "Shimmerlynx": {"face": {"mood": "cool"}},
+    # fierce: Skadi's owl, a hunter's glare under the brow; the eyes stay big, as an owl's are
+    "Skaddle": {"face": {"mood": "fierce"}},
+    # spectacular: the sun disk and its nine rays grow about the disk's centre; no crisp bevel (a larger ray is past bevel_min: 140 triangles
+    # each instead of 10, 3,400 in all, over the cap). A sun god's brow is stern, not a snarl: the brow tilted 10 degrees (the preset's floor
+    # is 14) and a lighter ridge (1.3 for 1.5), so the face reads regal; the first build was an angry man's.
+    "Radish": {"face": {"mood": "spectacular", "brow_thick": 1.3}, "face_recipe": {"eye_tilt": 10.0},
+               "crest": {"disk": (0.0, 0.85, 1.66), "ray": (0.0, 0.85, 1.66)}, "hybrid": {"bevel_segments": 0}},
+    # spectacular, with menace (the myth): the moon crescent grows about its lowest point (up, off the eyes) and the four stars in place; the recipe's mouth is a
+    # smile with no teeth, so it takes the zigzag's four (a species' face_recipe wins over the mood's floors)
+    "Fenripup": {"face": {"mood": "spectacular"}, "face_recipe": {"mouth": "zigzag"}, "crest": {"moon": (0.0, -1.22, 3.34), "star": None}},
+    # cool: the stately one of the Rares (a reindeer whose nose blinks red is the joke; the eyes are the cool). Its recipe's eyes are small
+    # (eye_scale 1.0) beside the big nose, so the narrowed eye was lost: 1.3 as Gaiabloom's, to keep the eyes big against the head
+    "Reindazzle": {"face": {"mood": "cool"}, "face_recipe": {"eye_scale": 1.3}},
+    # cute on purpose: a capybara asleep under a tangerine, snoring bubbles, is the joke
+    "Capybubble": {"face": {"mood": "cute"}},
+    # the Haunted Nebula species have no recipe yet (TODO stubs): their moods wait for it. Wisplet is a shy flame (cute), Spookum a grinning
+    # ghost (cool: the grin is the smirk), Nebulyn a small nebula with two bright eyes (spectacular: awe, its tail of stars the crest)
+    "Wisplet": {"face": {"mood": "cute"}},
+    "Spookum": {"face": {"mood": "cool"}},
+    "Nebulyn": {"face": {"mood": "spectacular"}},
     # six crisp parts (388 triangles) leave most of the budget to the body: the core may take 80 percent of it, not 65 (2,016 to 2,372)
     "Flapsicle": {"hybrid": {"core_share": 0.8}},
     # 0.84 overlap at the default cell: the thin legs of the 64 px shape (0.851 at 0.03)
     "Twiglet": {"res": 0.03},
     # the three tail feathers (0.1 studs thick) melted into one lump in the core: crisp again (overlap 0.898 to 0.933)
-    "Zapfinch": {"hybrid": {"crisp": ("crest", "tail")}},
+    # cool (a sharp little bird under its antenna crest); the antenna and the tail feathers are crisp again
+    "Zapfinch": {"face": {"mood": "cool"}, "hybrid": {"crisp": ("crest", "tail")}},
     # the four flat feet (0.1 studs thick, on the ground, so core by the default rule) melted into the belly: crisp again (overlap 0.888 to 0.962)
     "Toastoad": {"hybrid": {"crisp": ("pebble", "ridge", "foot")}},
     # 40 wisps and 40 seeds are 1,300 crisp triangles: the seeds stay crisp, the wisps are thin chains in the core (0.045 studs of radius:
@@ -283,9 +397,18 @@ SPECIES = {
 def cfg_of(sid, override=None, method="metaball"):
     out = json.loads(json.dumps(DEFAULTS, default=list))
     own = SPECIES.get(sid, {})
-    # hybrid: a species' own `face` keys come back after HYBRID's, so they beat the hybrid's face defaults (Sparkfox 0.8, Gaiabloom 0.7)
-    layers = [own, HYBRID, {"face": own.get("face", {})}, own.get("hybrid", {})] if method == "hybrid" else [own]
-    for source in layers + [override or {}]:
+    override = override or {}
+    # the mood: the last place that names one (the species' face keys, its hybrid face keys, --set face.mood=...)
+    mood = None
+    for source in (own.get("face", {}), own.get("hybrid", {}).get("face", {}) if method == "hybrid" else {}, override.get("face", {})):
+        mood = source.get("mood", mood)
+    if mood is not None and mood not in MOODS:
+        raise ValueError("%s: unknown mood %r (one of %s)" % (sid, mood, ", ".join(MOODS)))
+    preset = [{"face": MOODS[mood]["face"]}] if mood else []
+    # hybrid: a species' own `face` keys come back after HYBRID's, so they beat the hybrid's face defaults; the mood sits between: the
+    # method's numbers < the mood < the species' own face keys < --set
+    layers = [own, HYBRID] + preset + [{"face": own.get("face", {})}, own.get("hybrid", {})] if method == "hybrid" else preset + [own]
+    for source in layers + [override]:
         for k, v in source.items():
             if k == "hybrid":
                 continue
@@ -293,6 +416,7 @@ def cfg_of(sid, override=None, method="metaball"):
                 out[k].update(v)
             else:
                 out[k] = v
+    out["mood_recipe"] = dict(MOODS[mood]["recipe"]) if mood else {}
     return out
 
 
@@ -549,8 +673,10 @@ def build_field(body_parts, cfg):
 # ------------------------------------------------------------------------------------------------ the face
 def face_plan(rec, face_parts, field, fc):
     """Split the recipe's face parts into eyes, the mouth and lids; snap each onto the real fused skin; return what to build:
-    (eye meshes [part dicts], negative elements to add to the field, positive lids, the mouth region (centre, R, radii) or None)."""
-    eyes, mouth, cur = [], None, None
+    (eye meshes [part dicts], negative elements to add to the field, positive lids, the mouth region (centre, R, radii) or None).
+    The mood's keys (fc, see MOODS) shape all of it: the eye is an ellipse turned with the brow, the socket is squashed to match, the lid
+    is a thicker, longer element, the mouth is flattened, rolled or moved off centre, and the recipe's teeth come back as parts."""
+    eyes, mouth, cur, teeth = [], None, None, []
     for p in face_parts:
         n = p["name"]
         if n == "eye":
@@ -560,6 +686,10 @@ def face_plan(rec, face_parts, field, fc):
             cur[n] = p
         elif n == "mouth":
             mouth = p
+        elif n == "tooth":
+            teeth.append(p)
+    tilt = rec["face"].get("eye_tilt", 0.0)
+    shaped = (fc["eye_wide"], fc["eye_squash"], fc["eye_slant"], fc["pupil_scale"]) != (1.0, 1.0, 0.0, 1.0)
     meshes, negatives, lids = [], [], []
     for g in eyes:
         e = g["eye"]
@@ -571,22 +701,33 @@ def face_plan(rec, face_parts, field, fc):
         t = field.surface_t(P, N)
         shift = N * t  # the host's analytic surface to the fused skin
         inward = ey * fc["sink"] * r
+        # the mood's eye: wide and squashed in its own frame, then turned about the face normal with the brow (the inner end low)
+        side = 1.0 if e["loc"][0] >= 0.0 else -1.0
+        turn = np.array(SR._ry(-side * tilt * fc["eye_slant"]))
+        shape = np.diag([fc["eye_wide"], 1.0, fc["eye_squash"]])
         for key in ("eye", "pupil", "glint"):
             part = dict(g[key])
-            part["loc"] = tuple(np.array(part["loc"], float) + shift + inward)
+            loc = np.array(part["loc"], float)
+            if shaped:
+                loc = np.array(e["loc"], float) + Q @ (turn @ shape @ (Q.T @ (loc - np.array(e["loc"], float))))
+                part["rot"] = tuple(map(tuple, (Q @ turn).tolist()))
+                k = fc["pupil_scale"] if key == "pupil" else 1.0
+                part["scale"] = (part["scale"][0] * fc["eye_wide"] * k, part["scale"][1], part["scale"][2] * fc["eye_squash"] * k)
+            part["loc"] = tuple(loc + shift + inward)
             part["segments"] = fc["eye_segments"] if key == "eye" else part["segments"]
             meshes.append(part)
-        # the socket: a negative element centred a little behind the skin
+        # the socket: a negative element centred a little behind the skin (turned with the eye)
         centre = P + shift + ey * fc["socket_back"] * r
         reach = (fc["socket_reach"][0] * r, fc["socket_reach"][1] * r, fc["socket_reach"][2] * r)
-        negatives.append((centre, Q, reach, fc["socket_stiff"], "socket"))
+        negatives.append((centre, Q @ turn if shaped else Q, reach, fc["socket_stiff"], "socket"))
         if "lid" in g:
             # the recipe's lid is a half ellipsoid standing on its lower edge; as a metaball it is a whole ellipsoid filling that span
             lid = g["lid"]
             lr = np.array(lid["scale"], float)
             Rl = np.array(lid["rot"], float)
+            brow = np.array([fc["brow_long"], fc["brow_thick"], 1.0])  # the brow's length and its depth: a ridge over the eye
             lids.append({"loc": np.array(lid["loc"], float) + shift + Rl[:, 2] * lr[2] * 0.5, "R": Rl,
-                         "radii": np.array([lr[0], lr[1] * 1.15, lr[2] * 0.5]) * fc["lid_grow"], "r": r, "shift": shift})
+                         "radii": np.array([lr[0], lr[1] * 1.15, lr[2] * 0.5]) * brow * fc["lid_grow"], "r": r, "shift": shift})
     region = None
     if mouth is not None:
         Q = np.array(mouth["rot"], float)
@@ -597,22 +738,92 @@ def face_plan(rec, face_parts, field, fc):
         N = -ey
         P = np.array(mouth["loc"], float) - Q @ np.array([0.0, 0.1 * u, m["z"] * u])
         shift = N * field.surface_t(P, N)
-        scale = fc["mouth_scale"]
-        radii = np.array([sx, sy, sz]) * scale
+        # teeth on and the recipe's mouth has none: a set jaw (wide and flat) instead of a grin
+        jaw = bool(fc["teeth"]) and not m["teeth"] and fc["jaw_scale"] is not None
+        scale = fc["jaw_scale"] if jaw else fc["mouth_scale"]
+        flat = fc["jaw_flat"] if jaw and fc["jaw_flat"] is not None else fc["mouth_flat"]
+        radii = np.array([sx, sy, sz * flat]) * scale
         centre = np.array(mouth["loc"], float) + shift
+        edge = centre  # the top edge of a half-moon, where the teeth hang from
+        Qm = Q @ np.array(SR._ry(fc["mouth_roll"])) if fc["mouth_roll"] else Q  # a smirk: turned about the face normal
+        centre = centre + Qm[:, 0] * fc["mouth_shift"] * radii[0]
         top = None
         if m["half"] and fc["grin"]:
             # a grin: the Mouth slot is the lower half of the ellipsoid under a flat top edge (a "D" on its side), the dent sits in it
-            top, dent = centre, centre + Q @ np.array([0.0, 0.0, -0.4 * sz * scale])
+            top, dent = centre, centre + Qm @ np.array([0.0, 0.0, -0.4 * radii[2]])
             centre = top
         elif m["half"]:
-            centre = dent = centre + Q @ np.array([0.0, 0.0, -0.25 * sz * scale])  # the half-moon hangs below its top edge
+            centre = dent = centre + Qm @ np.array([0.0, 0.0, -0.25 * radii[2]])  # the half-moon hangs below its top edge
         else:
             dent = centre
         reach = tuple(fc["mouth_reach"][i] * radii[i] for i in range(3))
-        negatives.append((dent, Q, reach, fc["mouth_stiff"], "mouth"))
-        region = (centre, Q, radii, None if top is None else 0.0)
+        negatives.append((dent, Qm, reach, fc["mouth_stiff"], "mouth"))
+        region = (centre, Qm, radii, None if top is None else 0.0)
+        if fc["teeth"] and teeth and not jaw:
+            # the recipe's teeth (cones, tip down) hang from the top edge across 55 percent of the half-width, as fangs
+            flip = np.array(SR._rx(180.0))
+            for i, tp in enumerate(teeth):
+                f = (i - (len(teeth) - 1) / 2.0) / (max(len(teeth) - 1, 1) / 2.0) * 0.55
+                s = np.array(tp["scale"], float) * fc["tooth_scale"]
+                at = np.array([f * radii[0], -fc["tooth_out"] * 2.0 * s[2], -s[2]])
+                meshes.append(dict(tp, loc=tuple(edge + Qm @ at), rot=tuple(map(tuple, (Qm @ flip).tolist())), scale=tuple(s)))
     return meshes, negatives, lids, region
+
+
+def grow_crest(parts, cfg):
+    """The spectacular mood: the crest (cfg["crest"], else every Accessory-slot step, the glow slot) is face.crest_scale times larger.
+    A cone or a cylinder grows from its own base, so a horn or a quill stays on the body, a sphere or a ring about its own centre; a
+    name given with a point grows about that point (the parts' distances from it grow too, so a fan stays a fan)."""
+    f = cfg["face"]["crest_scale"]
+    if f == 1.0:
+        return parts
+    crest = cfg["crest"]
+    pivots = {n: None for n in crest} if isinstance(crest, (list, tuple)) else crest
+    out = []
+    for p in parts:
+        if pivots is None:
+            glow, pivot = p["slot"] == "Accessory", None
+        else:
+            glow, pivot = p["name"] in pivots, pivots.get(p["name"])
+        if not glow or p["prim"] == "sweep":
+            out.append(p)
+            continue
+        loc, R, sz = np.array(p["loc"], float), np.array(p["rot"], float), p["scale"][2]
+        if pivot is not None:
+            at = np.array(pivot, float)
+            if loc[0] < -1e-6:
+                at[0] = -abs(at[0])  # a mirrored part grows about the mirrored point
+            elif at[0] < 0.0:
+                at[0] = -at[0]
+            loc = at + f * (loc - at)
+        elif p["prim"] in ("cone", "cylinder"):
+            loc = loc + R[:, 2] * (f - 1.0) * sz
+        out.append(dict(p, loc=tuple(loc), scale=tuple(v * f for v in p["scale"])))
+    return out
+
+
+def crest_height(before, after, height):
+    """The height to build to: the recipe's, times how much taller the grown crest makes the parts (the primitives' own estimate, as the recipe's
+    height is). A larger crest has to add height; fitting it into the recipe's would shrink the body, and the face with it."""
+    if after is before:
+        return height
+    lo0, hi0 = SR.estimate(before)[1]
+    lo1, hi1 = SR.estimate(after)[1]
+    return height * (hi1[2] - lo1[2]) / (hi0[2] - lo0[2])
+
+
+def mood_face(face, floors):
+    """The mood's floors on the recipe's own face dict (a copy): the eye tilt is raised to the mood's floor and held under its ceiling, the lid
+    is raised to the mood's, never lowered, and the round "o" mouth becomes the mood's half-moon."""
+    if floors.get("tilt_min") is not None:
+        face["eye_tilt"] = max(face.get("eye_tilt", 0.0), floors["tilt_min"])
+    if floors.get("tilt_max") is not None:
+        face["eye_tilt"] = min(face.get("eye_tilt", 0.0), floors["tilt_max"])
+    if floors.get("lid_min"):
+        face["lid"] = max(face.get("lid", 0.0), floors["lid_min"])
+    if floors.get("mouth_o") and face.get("mouth", "o") == "o":
+        face["mouth"] = floors["mouth_o"]
+    return face
 
 
 # ------------------------------------------------------------------------------------------------ building
@@ -1402,7 +1613,7 @@ def faceting(obj):
     return float(ang.mean()), float(np.percentile(ang, 95))
 
 
-def update_files(folder, sid, rec, tris, height, method, seconds):
+def update_files(folder, sid, rec, tris, height, method, seconds, mood=None):
     notes = (folder / "notes.md").read_text()
     notes = re.sub(r"- Triangles: .*", "- Triangles: %d (sculpt pass, %s)" % (tris, TOOL), notes)
     notes = re.sub(r"- Height: [\d.]+ units", "- Height: %.2f units" % height, notes)
@@ -1413,6 +1624,8 @@ def update_files(folder, sid, rec, tris, height, method, seconds):
     else:
         line = ("- Sculpt pass %s: one fused skin (%s) built by %s from tools/blender/species_recipes.py in %.0f s; eyes sunk into carved "
                 "sockets, the mouth an indent." % (datetime.date.today().isoformat(), method, TOOL, seconds))
+    if mood:
+        line += " Face mood: %s." % mood
     if "- Sculpt pass" in notes:
         notes = re.sub(r"- Sculpt pass.*", lambda m: line, notes)
     else:
@@ -1426,8 +1639,8 @@ def build(sid, models, method, override=None):
     rec = SR.RECIPES[sid]
     if rec["status"] != "recipe":
         raise RuntimeError("%s is a TODO stub" % sid)
-    face = dict(rec["face"])
-    face.update(cfg["face_recipe"] or {})  # the sculpt's own face tweaks (the recipe file stays as it is)
+    face = mood_face(dict(rec["face"]), cfg["mood_recipe"])  # the mood's floors, then the sculpt's own face tweaks (the recipe file stays as it is)
+    face.update(cfg["face_recipe"] or {})
     face["eye_scale"] = face.get("eye_scale", 1.0) * cfg["face"]["eye_boost"]
     rec = dict(rec, face=face)
     folder = models / sid
@@ -1439,6 +1652,9 @@ def build(sid, models, method, override=None):
     body_parts, fparts = parts[:-nface], parts[-nface:]
     if cfg["edit"]:
         body_parts = cfg["edit"](body_parts)
+    grown = grow_crest(body_parts, cfg)  # spectacular: the crest or glow parts, larger
+    height = crest_height(body_parts, grown, rec["height"])  # ... and the build is as much taller: the body keeps its size, it does not shrink to fit
+    body_parts = grown
     crisp, collars = [], 0
     if method == "hybrid":
         names = crisp_names(body_parts, cfg)
@@ -1472,7 +1688,7 @@ def build(sid, models, method, override=None):
             raw_tris = tri_count(skin)
     else:
         lid_parts = [p for p in fparts if p["name"] == "lid"]  # the recipe's half-sphere lids join the union (the metaball path has soft ones)
-        skin = skin_by_remesh([p for p in body_parts if p["name"] not in cfg["separate"]] + lid_parts, mats, negatives, cfg, rec["height"])
+        skin = skin_by_remesh([p for p in body_parts if p["name"] not in cfg["separate"]] + lid_parts, mats, negatives, cfg, height)
         clean_mesh(skin)
         raw_tris = tri_count(skin)
     t_poly = time.time()
@@ -1486,7 +1702,7 @@ def build(sid, models, method, override=None):
     if union:
         # the crisp meshes once, to count them (the union then removes what is buried in the core); the core starts at `core_share` of
         # the budget and the loop below lowers it until the whole creature fits
-        probe = crisp_objects(crisp, make_ribbons(), mats, cfg, rec["height"])
+        probe = crisp_objects(crisp, make_ribbons(), mats, cfg, height)
         crisp_tris = sum(tri_count(o) for o in probe)
         if os.environ.get("SCULPT_DEBUG"):
             print("  crisp: " + ", ".join("%s %d" % (o.name, tri_count(o)) for o in probe))
@@ -1539,7 +1755,7 @@ def build(sid, models, method, override=None):
         core_tree = bvh_of([mesh_data(skin)])
         for o in shells:
             bpy.data.objects.remove(o)
-        objs = crisp_objects(crisp, make_ribbons(), mats, cfg, rec["height"])
+        objs = crisp_objects(crisp, make_ribbons(), mats, cfg, height)
         joined, shells = touching(objs, field, cfg)
         hard = [o for o in joined if not has_collar(o.name.split(".")[0], crisp, cfg)]
         soft_tree = bvh_of([mesh_data(o) for o in joined if o not in hard] or [([], [])])
@@ -1589,7 +1805,7 @@ def build(sid, models, method, override=None):
     used = {p.material_index for p in obj.data.polygons}
     if used != set(range(len(mats))):
         raise RuntimeError("unused slots: %s" % ", ".join(mats[i][0] for i in sorted(set(range(len(mats))) - used)))
-    lo, hi, scale = SB.fit(obj, rec["height"])
+    lo, hi, scale = SB.fit(obj, height)
     tris = tri_count(obj)
     if tris > SR.TRI_BUDGET and cfg["budget_check"]:
         raise SB.OverBudget("%d triangles is over the %d cap" % (tris, SR.TRI_BUDGET))
@@ -1602,10 +1818,10 @@ def build(sid, models, method, override=None):
     bpy.ops.export_scene.fbx(filepath=str(folder / ("%s.fbx" % sid)), use_selection=False, apply_scale_options="FBX_SCALE_ALL",
                              mesh_smooth_type="FACE", bake_anim=False, add_leaf_bones=False, path_mode="AUTO")
     seconds = time.time() - t0
-    update_files(folder, sid, rec, tris, hi - lo, method, seconds)
+    update_files(folder, sid, rec, tris, hi - lo, method, seconds, cfg["face"]["mood"])
     info = {"tris": tris, "raw": raw_tris, "height": hi - lo, "fit": scale, "elements": len(field.items), "cuts": cuts, "seconds": seconds,
             "t_field": t_field - t0, "t_poly": t_poly - t_field, "gradient": shade, "tiled": tiled, "skin_tris": final_skin,
-            "crisp": len(crisp), "crisp_tris": crisp_tris, "collars": collars, "seam": seam, "t_union": t_union, "facets": faceting(obj)}
+            "mood": cfg["face"]["mood"] or "-", "crisp": len(crisp), "crisp_tris": crisp_tris, "collars": collars, "seam": seam, "t_union": t_union, "facets": faceting(obj)}
     return info
 
 
@@ -1649,8 +1865,8 @@ def main():
             if args.method == "hybrid":
                 extra = "  crisp=%d (%d tris before the union) collars=%d seam=%d soft, %d hard; union %.1f s" % (
                     i["crisp"], i["crisp_tris"], i["collars"], i["seam"][0], i["seam"][1], i["t_union"])
-            print("%-10s %s tris=%d (skin %d, raw %d) height=%.2f fit=x%.3f elements=%d cuts=%d facets=%.1f/%.1f  %.1f s (field %.1f, "
-                  "polygonize %.1f)%s" % (sid, args.method, i["tris"], i["skin_tris"], i["raw"], i["height"], i["fit"], i["elements"],
+            print("%-10s %s mood=%s tris=%d (skin %d, raw %d) height=%.2f fit=x%.3f elements=%d cuts=%d facets=%.1f/%.1f  %.1f s (field %.1f, "
+                  "polygonize %.1f)%s" % (sid, args.method, i["mood"], i["tris"], i["skin_tris"], i["raw"], i["height"], i["fit"], i["elements"],
                                          i["cuts"], i["facets"][0], i["facets"][1], i["seconds"], i["t_field"], i["t_poly"], extra),
                   flush=True)
         except Exception as exc:  # noqa: BLE001
