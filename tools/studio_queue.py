@@ -13,7 +13,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ('World 1 place', 'World 2 place', 'Home place', 'Two-player test', 'Real saves', 'Published game')
 # Status prose identifies these incomplete subsets. Sets contain original TESTING numbers.
-SUBSETS = {'14':{7}, '15':{4}, '18':{5}, '19':{3,6}, '20':{3,4}, '23':{2,3,4,5},
+SUBSETS = {'14':{7}, '15':{3,4}, '18':{5}, '19':{3,6}, '20':{3,4}, '23':{2,3,4,5},
            '25':{1,4}, '27':{6}, '28':{5}, '30':{2,3}, '31':{2,3,4,5},
            '34':{4,7}, '36':{5,6}, '37':{5,6}, '41':{4}, '42a':{2,4},
            '42b':{5}, '42e':{3,4,5,6}, '43':{3}}

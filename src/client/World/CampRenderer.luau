@@ -22,6 +22,10 @@
 -- Species effects (data/Effects, World.SpeciesFx): each worker is attached on arrival and released with it; its bob places it
 -- through SpeciesFx.Place, which adds the idle motion (its facing stays the station's: keepFacing), and a finished growth pop
 -- rebuilds its effects at the new size (SpeciesFx.Refresh). SpeciesFx does not require this module, only the other way round.
+-- Lift-off (BeginLaunch, EndLaunch): the server moves the profile to the next world the moment a launch is accepted, and the
+-- mirror's pushes (WorldChanged, ModulesChanged) would rebuild the camp for that world while the ship rises. LaunchSequence
+-- closes a latch (Shared/LaunchLatch) before the lift; the camp pushes that arrive meanwhile are held, not drawn, and the one
+-- redraw they ask for runs when the sequence opens the latch again, behind the black fade.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -35,6 +39,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Economy = require(Shared:WaitForChild("Economy"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Props = require(Shared:WaitForChild("Props"))
+local LaunchLatch = require(Shared:WaitForChild("LaunchLatch"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Camp = require(Shared:WaitForChild("data"):WaitForChild("Camp"))
 local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
@@ -115,6 +120,7 @@ local liftTweens: { Tween } = {}
 local stations: { [string]: StationRecord } = {}
 local workers: { [string]: WorkerRecord } = {}
 local connections: { RBXScriptConnection } = {}
+local latch = LaunchLatch.new() :: LaunchLatch.Latch<string> -- closed while the ship lifts off; holds the camp pushes (the topic that carried the last)
 local snapListeners: { (moduleId: string, part: BasePart) -> () } = {} -- see OnModuleSnapped
 local running = false
 
@@ -612,12 +618,26 @@ local function ensureBuilt()
 	refreshWorkers()
 end
 
+-- Everything a camp push can ask for, from the mirror as it stands now.
+local function redrawCamp()
+	ensureBuilt()
+	refreshModules()
+	refreshStationRates()
+	refreshWorkers()
+end
+
 local function onModulesChanged()
+	if latch.Offer("modules") == nil then
+		return -- the ship is lifting off: EndLaunch draws the camp once
+	end
 	ensureBuilt()
 	refreshModules()
 end
 
 local function onStationsChanged()
+	if latch.Offer("stations") == nil then
+		return -- held with the module push; one redraw covers both
+	end
 	ensureBuilt()
 	refreshStationRates()
 	refreshWorkers()
@@ -722,6 +742,22 @@ function CampRenderer.LiftShip(studs: number, seconds: number, onDone: (() -> ()
 	end
 end
 
+-- LaunchSequence calls this before LiftShip and never after: from now the camp pushes (modules, stations) are
+-- stored, not drawn, so the server's reset for the next world cannot rebuild the camp under the rising ship. A second
+-- call changes nothing. EndLaunch opens it again.
+function CampRenderer.BeginLaunch()
+	latch.Begin()
+end
+
+-- Opens the latch and draws the camp once from the mirror if any push was held (the next world's modules, stations and
+-- workers). LaunchSequence calls it while the screen is black. Nothing to do when the latch is open or nothing arrived.
+function CampRenderer.EndLaunch()
+	if latch.Release() == nil or not running then
+		return
+	end
+	redrawCamp()
+end
+
 -- Stops any lift and puts every ship part back on its rest CFrame. Nothing to do while landed.
 function CampRenderer.ResetShip()
 	cancelLift()
@@ -752,6 +788,7 @@ function CampRenderer.Stop()
 		return
 	end
 	running = false
+	latch.Release() -- a held push has nothing to draw into any more
 	for _, connection in ipairs(connections) do
 		connection:Disconnect()
 	end

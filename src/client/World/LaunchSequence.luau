@@ -1,8 +1,12 @@
 --!strict
 -- StarterPlayerScripts.Client.World.LaunchSequence: the lift-off to the next world, pure presentation.
 -- The server has already accepted Launch and fired Launched; this only shows it. From Play:
---   0 s       the launch music (MusicDirector.SetLaunch) and the Sounds.Launch hit (MusicDirector.Stinger, which
---             ducks the other beds), a Featured burst at the ship's base, the camera glides to the ship
+--   0 s       the camp latch closes first (CampRenderer.BeginLaunch): the server's reset for the next world arrives
+--             right behind Launched (WorldChanged, ModulesChanged) and would rebuild the camp under the rising ship, so
+--             those pushes are held until the screen is black. Toasts and banners hush and wait for the whole sequence
+--             (Toast.Hush, Toast.QuietFor): nothing announces over the lift-off. Then the launch music
+--             (MusicDirector.SetLaunch) and the Sounds.Launch hit (MusicDirector.Stinger, which ducks the other
+--             beds), a Featured burst at the ship's base, the camera glides to the ship
 --             (CameraDirector.PanTo: the director owns the camera) and the ship starts rising
 --             (CampRenderer.LiftShip: Config.LaunchLiftStuds over Config.LaunchLiftSeconds, Quad In).
 --   lift end  the LaunchFade ScreenGui (DisplayOrder 50, over the toasts) fades a black frame in over
@@ -11,9 +15,10 @@
 --             Config.LaunchHoldSeconds + Config.TeleportGraceSeconds, the camp comes back as a safety net.
 --             not placeLive (Studio, or an unpublished place): hold Config.LaunchHoldSeconds, the
 --             LAUNCH_NO_PLACE toast, and the camp comes back.
---   return    the ship is put back and the camera handed back while the screen is still black, then
---             the frame fades out over Config.LaunchFadeSeconds and onDone runs (the bootstrap restores
---             the HUD). IsPlaying is true from Play until onDone; a second Play meanwhile is ignored.
+--   return    the ship is put back, the held camp redrawn for the next world (CampRenderer.EndLaunch) and the
+--             camera handed back while the screen is still black, then the frame fades out over
+--             Config.LaunchFadeSeconds and onDone runs (the bootstrap restores the HUD). IsPlaying is true
+--             from Play until onDone; a second Play meanwhile is ignored.
 -- Nothing here decides anything: the server moves the player, this only draws the departure.
 
 local TweenService = game:GetService("TweenService")
@@ -44,6 +49,12 @@ local line: TextLabel? = nil
 local lineStroke: UIStroke? = nil
 
 -- Lookups ------------------------------------------------------------------
+
+-- How long toasts and banners wait from Play: the lift, the fade to black, the hold and the fade back. A launch that
+-- teleports ends sooner (the place is gone); one that waits out the teleport grace asks for the fade back again below.
+local function quietSeconds(): number
+	return Config.LaunchLiftSeconds + Config.LaunchFadeSeconds + Config.LaunchHoldSeconds + Config.LaunchFadeSeconds
+end
 
 -- The next world's name from the strings table (WORLD_<id>), or the Worlds row, or the key itself.
 local function worldName(worldId: number): string
@@ -109,10 +120,12 @@ local function fade(transparency: number, direction: Enum.EasingDirection)
 	tween.Completed:Wait()
 end
 
--- Puts the world back the way it was while the screen is still black: the ship on its slab and the
--- camera with the character (the pan has normally finished by now; Cancel covers reduced timings).
+-- Puts the world back the way it was while the screen is still black: the ship on its slab, the camp the server
+-- reset for the next world drawn at last (it was held while the ship rose) and the camera with the character (the
+-- pan has normally finished by now; Cancel covers reduced timings).
 local function settle()
 	CampRenderer.ResetShip()
+	CampRenderer.EndLaunch()
 	if CameraDirector.IsBusy() then
 		CameraDirector.Cancel()
 	end
@@ -159,6 +172,9 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 		return
 	end
 	playing = true
+	CampRenderer.BeginLaunch() -- before anything yields and before LiftShip: the reset pushes are on their way
+	Toast.Hush() -- what is on screen leaves and replays after the sequence
+	Toast.QuietFor(quietSeconds())
 	build()
 	local name = worldName(nextWorldId)
 	local label = line
@@ -192,6 +208,7 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 				Toast.Show(Strings.LAUNCH_NO_PLACE:format(name), Theme.Colors.Featured)
 			end
 			settle()
+			Toast.QuietFor(Config.LaunchFadeSeconds) -- the fade back stays clear even after a long wait for a teleport
 			fade(1, Enum.EasingDirection.Out)
 			if root then
 				root.Enabled = false

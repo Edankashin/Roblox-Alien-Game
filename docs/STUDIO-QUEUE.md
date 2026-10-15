@@ -1,9 +1,9 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `51a78a9633aff038`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `b022a5e16225ff3e`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
-**29 pending milestones; 102 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
+**29 pending milestones; 103 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
 
 Owner/Mac session only: stop Play before changing Rojo project, reconnect, then Play. Two-player means Test → Clients and Servers; friendship/cap checks may need additional real friends. Real saves require Studio API access and the coordinator-approved test save setup (`Config.UseDataStoreInStudio`); do not change production data for this sheet. Published checks use the published universe and actual accounts; Dev-only commands are setup in Studio, not promises of live availability.
 
@@ -15,12 +15,14 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 ### Milestone 15c: the launch
 
-**Pending status:** pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect)
+**Pending status:** pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect; step 3 re-check pending after the lift-off latch fix)
 
 **Setup projects:** `rojo serve default.project.json`.
 **Dev/setup references:** `/complete`, `/world 2`, `/world N`.
 
-**Send back:** standard evidence above; original steps 4.
+**Send back:** standard evidence above; original steps 3, 4.
+
+**TESTING step 3.** Press Launch. The expected sequence, in this order and with nothing cut short: the HUD hides and a gold burst plays at the base; the whole ship (hull and modules) rises 80 studs over 4 s (`Config.LaunchLiftSeconds`) and is never replaced by a ship sitting on the slab, while the camera glides to it; only when the lift ends (4 s after the tap, not at once) does the screen fade to black with "Next stop: Frostbyte". No toast or banner shows over any of it, including a banner that arrives during the launch (on a fresh profile the launch ends the tutorial, so the Alien of the Week banner is due then): the server's reset for the next world (Ship 0%) is held by the camp latch (`CampRenderer.BeginLaunch`) and the camp is redrawn once for World 2 while the screen is black. After 2 s the screen fades back: the ship sits on its slab where it was with World 2's modules as ghosts at 0%, the HUD returns, and then the toast "Frostbyte opens when it is published. The ship is ready." and the held banner show, one after the other. CameraType reads Custom afterwards. The Mac's check: re-record `media/store/2026-10-14/clip_launch.mp4` (8 s: rise, glide, fade, return) with this sequence and replace the old clip.
 
 **TESTING step 4.** The profile moved: the Aliens and Ship screens now show World 2's modules (Heat Shield first, 0%), and Launch on World 1 now refuses with "Your ship is on another world" (the ship stays). Analytics prints `event Launch from=1 to=2`.
 

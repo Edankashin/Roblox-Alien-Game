@@ -272,8 +272,9 @@ function Toast.SetQuietProbe(probe: (() -> boolean)?)
 	quietProbe = probe
 end
 
--- A presentation asks for `seconds` of calm from now (the longest ask stands): the assembly burst over a finished module
--- and the tap on an egg claim or purchase (Gifts, Peddler) are the callers. Held items drain once it ends.
+-- A presentation asks for `seconds` of calm from now (the longest ask stands): the assembly burst over a finished module,
+-- the tap on an egg claim or purchase (Gifts, Peddler) and the launch sequence (World.LaunchSequence: the lift, the fades
+-- and the hold) are the callers. Held items drain once it ends.
 function Toast.QuietFor(seconds: number)
 	quietUntil = math.max(quietUntil, os.clock() + seconds)
 end
