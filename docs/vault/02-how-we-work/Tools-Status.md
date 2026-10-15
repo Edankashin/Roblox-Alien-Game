@@ -77,6 +77,16 @@ From the [report](../../../reports/Roblox%20creature%20UI%20and%20Claude%20workf
 
 Two Studio plugins the report names for lighting work, optional and not installed (the other plugins are in the table above): Elttob's Atmos skybox browser, and a Lighting Preset Manager that snapshots the whole Lighting stack, which is faster for auditioning a grade than editing `Lighting.luau` blind ([[Decisions]] B31).
 
+## Added from the model toolchain decision (2026-10-15)
+
+Ethan: "Incorporate Blockbench, Blender and Substance Painter to create these character models." The research, the chain, the file formats and the probe are in [[Model-Toolchain]]. Same columns as the first table.
+
+| Tool | Where it came from | Decision | State | Next step and owner |
+|---|---|---|---|---|
+| Blockbench 5.2.2 (free, GPL v3) | Ethan's decision 2026-10-15 | Adopt as the desk where a person hand-paints the species texture and keyframes idle, walk and hatch on a group or armature rig; the cloud writes the `.bbmodel` it opens; glTF out to Studio ([[Model-Toolchain]] sections 1 to 3) | **decided, not installed** (no account, no money; the app from `blockbench.net`, or the browser build at `web.blockbench.net`) | Ethan: download the macOS build. Mac: the glTF animation probe in [[Model-Toolchain]] section 6, then this row to in use |
+| Substance 3D Painter | Ethan's decision 2026-10-15 | Adopt only for the PBR coat on hero species, after a trial: one texture set per slot, our export preset, maps into `assets/textures/` ([[Model-Toolchain]] section 3.2) | **needs Ethan's decision on the licence**: Steam perpetual about $200 (no Assets library), Adobe Collection about $60 a month, or the free student licence (non-commercial, so a trial licence only); the 8 GB Mac is below the published 16 GB minimum (prices and requirements are snippets) | Ethan: pick the licence, or say no; the 30-day trial first, on the Mac with Studio closed, to see whether it runs at all. Cloud: the preset and `tools/painter/export_species.py`, written blind. Mac: run it once inside Painter |
+| Blender glTF export with skins and animations (`bpy.ops.export_scene.gltf`, `export_animations`, `export_skins`, 4 influences) | the toolchain research | Adopt as the rig route when a species is rigged in Blender rather than Blockbench; headless, so the same `bpy` scripts drive it | **to verify** (the exporter is in use for the 32 meshes; no rig or animation has been exported from it yet) | Mac: the second half of the probe in [[Model-Toolchain]] section 6 (a Blender-rigged cube with one action into Studio), then in use |
+
 ## The rule from now on
 
 1. A tool mentioned by Ethan or a reference gets a row here the same day, with a decision.
