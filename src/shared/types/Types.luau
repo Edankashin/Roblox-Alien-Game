@@ -135,7 +135,7 @@ export type SpeciesFx = {
 	element: string, -- what the effect is made of ("Lightning", "Frost"); a design label, not shown
 	layers: { EffectLayer }, -- strongest first: a tier draws the first layersAllowed of them
 	idle: IdleMotion,
-	sound: string?, -- a key of data/Sounds, reserved for a looping idle sound (nothing plays it yet)
+	sound: string?, -- a key of data/Sounds: a one-shot the alien plays at its position on its signature beat, at most once per Effects.Look.SoundEverySeconds (World/SpeciesFx)
 }
 export type TierFxRule = {
 	layersAllowed: number,

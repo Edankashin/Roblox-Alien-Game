@@ -40,6 +40,10 @@
 -- "home" and "visit" topics: a record that left the habitat (or whose species, size or stage changed) is destroyed.
 -- Name plates: every PlateCheckSeconds the plates are tried nearest first against the camera, and one whose rectangle
 -- on screen would overlap a nearer plate's is hidden, so a crowd of the same species reads as one name per spot.
+-- Species effects (data/Effects, World.SpeciesFx): each displayed alien is attached when it is built (the mesh clone, else the
+-- placeholder part) and released with it; the walk places it through SpeciesFx.Place, which adds the idle motion (the facing
+-- stays the walk's: keepFacing). A habitat redraw that rebuilds an alien releases and attaches it again. The displays count
+-- toward the nearest-first cap with every other attached alien.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -61,6 +65,7 @@ local State = require(script.Parent.Parent:WaitForChild("State"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 local Vfx = require(script.Parent:WaitForChild("Vfx"))
+local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 
 local HomeGrid = require(Shared:WaitForChild("HomeGrid"))
 
@@ -103,6 +108,7 @@ type Display = {
 	part: Part, -- the placeholder, or an invisible anchor as tall as the mesh that carries the plate
 	plate: BillboardGui, -- the name plate on `part`; hidden while it would overlap a nearer one
 	model: Model?, -- the mesh clone when the species has one
+	fxCleanup: () -> (), -- releases the species effects
 	height: number, -- studs from the feet to the top of what is drawn
 	upright: CFrame, -- the roll that stands a placeholder cylinder up; identity otherwise
 	x: number,
@@ -396,16 +402,20 @@ local function placeDisplay(display: Display)
 	local feet = habitat.center + habitat.turn:VectorToWorldSpace(Vector3.new(display.x, habitat.rise, display.z))
 	local facing = CFrame.lookAt(Vector3.zero, habitat.turn:VectorToWorldSpace(display.heading))
 	local pivot = CFrame.new(feet) * facing
-	display.part.CFrame = pivot * CFrame.new(0, display.height / 2, 0) * display.upright
+	local frame = pivot * CFrame.new(0, display.height / 2, 0) * display.upright
 	local model = display.model
 	if model then
-		model:PivotTo(pivot)
+		display.part.CFrame = frame -- the invisible anchor that carries the plate
+		SpeciesFx.Place(model, pivot)
+	else
+		SpeciesFx.Place(display.part, frame)
 	end
 end
 
 local function buildDisplay(parent: Folder, record: Types.AlienRecord, def: Types.SpeciesDef, habitatUid: string, habitat: Habitat): Display
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
-	local scale = Habitats.DisplayScale * band.scale * Growth.ScaleMultiplier(record)
+	local grown = Growth.ScaleMultiplier(record)
+	local scale = Habitats.DisplayScale * band.scale * grown
 	local color = Color3.fromHex(def.placeholder.color)
 	local model: Model? = Models.Clone(def, scale)
 	local part: Part
@@ -439,6 +449,7 @@ local function buildDisplay(parent: Folder, record: Types.AlienRecord, def: Type
 		part = part,
 		plate = plate,
 		model = model,
+		fxCleanup = SpeciesFx.Attach(model or part, record.species, def.tier, { scale = band.scale * grown, keepFacing = true }),
 		height = height,
 		upright = upright,
 		x = x,
@@ -453,6 +464,7 @@ local function buildDisplay(parent: Folder, record: Types.AlienRecord, def: Type
 end
 
 local function destroyDisplay(display: Display)
+	display.fxCleanup()
 	display.part:Destroy()
 	local model = display.model
 	if model then

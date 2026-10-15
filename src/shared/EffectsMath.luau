@@ -7,6 +7,8 @@
 -- Resolve scales one layer for a tier and a device and holds its rate under the cap. Idle, FlapAngle, BeamState, Pulse and
 -- OrbitAngle are absolute functions of the clock (never accumulated), so a skipped frame cannot make a motion drift.
 -- PickActive is the nearest-first cap. AttachOffset turns a region name and a bounds box into a point.
+-- The sound clock: SoundClock picks the beat an alien's sound rides (a beam's strike clock, else its idle cycle), SoundBeat says
+-- which beat a moment falls in, SoundDue is the per-alien spacing and TakeSoundSlot the per-second cap across all aliens.
 
 local Effects = require(script.Parent.data.Effects)
 local Types = require(script.Parent.types.Types)
@@ -231,6 +233,48 @@ function EffectsMath.OrbitAngle(now: number, period: number, index: number, coun
 		return phase
 	end
 	return TAU * (now / period + (index - 1) / count) + phase
+end
+
+-- Sound -----------------------------------------------------------------------
+
+-- The beat an alien's sound rides, as (period, offset) for SoundBeat: the strike clock of its beam when it has one (the sound
+-- lands with the bolt: the same period and offset BeamState takes), else the start of its idle cycle (the motion's period, slid
+-- by the alien's phase so a crowd is out of step), else Look.SoundEverySeconds when the motion has no period (a Still).
+function EffectsMath.SoundClock(beamFlicker: number?, beamOffset: number, motionPeriod: number, phase: number): (number, number)
+	if beamFlicker ~= nil and beamFlicker > Effects.Look.BeamFlashSeconds then
+		return beamFlicker, beamOffset
+	end
+	local period = if motionPeriod > 0 then motionPeriod else Effects.Look.SoundEverySeconds
+	return period, phase / TAU * period
+end
+
+-- Which beat of a clock `now` falls in (a whole number that goes up by one at each beat; the first beat of a beam clock is the
+-- one that turns the strike on). A caller plays on a change. A clock with no period never beats.
+function EffectsMath.SoundBeat(now: number, period: number, offset: number): number
+	if period <= 0 then
+		return 0
+	end
+	return math.floor((now + offset) / period)
+end
+
+-- Whether an alien that last played at `lastPlayed` may play again at `now`: at least `everySeconds` apart (use -math.huge for
+-- an alien that has not played yet).
+function EffectsMath.SoundDue(now: number, lastPlayed: number, everySeconds: number): boolean
+	return now - lastPlayed >= everySeconds
+end
+
+-- The per-second cap across every alien: `recent` is the caller's list of the times sounds started (oldest first). Drops the
+-- ones a second or more old, then, if fewer than `perSecond` remain, records `now` and answers true; otherwise answers false and
+-- records nothing. So no one-second window holds more than `perSecond` sounds.
+function EffectsMath.TakeSoundSlot(recent: { number }, now: number, perSecond: number): boolean
+	while #recent > 0 and now - recent[1] >= 1 do
+		table.remove(recent, 1)
+	end
+	if #recent >= perSecond then
+		return false
+	end
+	table.insert(recent, now)
+	return true
 end
 
 -- Placement ------------------------------------------------------------------

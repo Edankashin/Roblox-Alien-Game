@@ -6,6 +6,7 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
+local Debris = game:GetService("Debris")
 local TextService = game:GetService("TextService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -597,6 +598,35 @@ function Builder.playSound(id: string)
 		sound = created
 	end
 	SoundService:PlayLocalSound(sound)
+end
+
+-- Whether `id` is an empty placeholder (nothing plays, playSound skips it).
+function Builder.isSilent(id: string): boolean
+	return id == "" or id == EMPTY_SOUND
+end
+
+-- Plays a one-shot by asset id as a 3D sound at `host` (a part; it follows the part): full volume within `minDistance` studs,
+-- fading out by `maxDistance`. It plays through the same UI group as playSound, so the player's Sounds level applies, and
+-- removes itself when it ends (at the latest after `maxSeconds`, for a sound that never loads). Answers whether it started
+-- one; a placeholder id plays nothing.
+function Builder.playSoundAt(id: string, host: BasePart, minDistance: number, maxDistance: number, maxSeconds: number): boolean
+	if Builder.isSilent(id) then
+		return false
+	end
+	local sound = Instance.new("Sound")
+	sound.Name = "Positional"
+	sound.SoundId = id
+	sound.RollOffMode = Enum.RollOffMode.InverseTapered
+	sound.RollOffMinDistance = minDistance
+	sound.RollOffMaxDistance = maxDistance
+	sound.SoundGroup = soundGroup()
+	sound.Parent = host
+	sound.Ended:Once(function()
+		sound:Destroy()
+	end)
+	Debris:AddItem(sound, maxSeconds)
+	sound:Play()
+	return true
 end
 
 -- The player's Sounds level (Prefs applies it): the UI group's volume becomes Sounds.Volume.UI * scale.

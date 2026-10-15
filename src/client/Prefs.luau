@@ -69,6 +69,11 @@ function Prefs.ReducedMotion(): boolean
 	return Prefs.Level(REDUCED_MOTION_KEY) == 1 or systemReducedMotion()
 end
 
+-- Whether the player's Sounds level is above zero: a caller that would make a sound only to play it silent skips it.
+function Prefs.SoundOn(): boolean
+	return Prefs.Multiplier(SOUNDS_KEY) > 0
+end
+
 -- Uncaught species render as dark silhouettes until approached.
 function Prefs.Silhouettes(): boolean
 	return Prefs.Level(SILHOUETTES_KEY) == 1

@@ -30,7 +30,8 @@ local attach: { [string]: Types.AttachPoint } = {
 -- Budgets. The rate caps are particles per second for one emitter after the tier's rateScale; a phone is a device with a
 -- touch screen. MaxBeams and MaxLights are per alien. MaxActive is how many aliens in a client keep their species effects
 -- (the nearest first, re-ranked every Config.VfxFxRecheckSeconds); the rest keep only the tier aura. ActiveDistance (studs)
--- is how far from the camera an alien may be to keep them.
+-- is how far from the camera an alien may be to keep them. MaxSoundsPerSecond is how many species sounds start across all
+-- aliens in one second (a crowd of lightning boars is not a drum roll).
 local caps = {
 	MobileRateCap = 100,
 	DesktopRateCap = 400,
@@ -38,6 +39,7 @@ local caps = {
 	MaxLights = 1,
 	MaxActive = 12,
 	ActiveDistance = 90,
+	MaxSoundsPerSecond = 2,
 }
 
 -- What a rarity may draw. layersAllowed is how many of a species' layers (strongest first) it draws; 6 is "all". The trail
@@ -71,7 +73,10 @@ local dark = { Color = "0B0618", Mix = 0.55, GlowScale = 0.35 }
 -- length; BeamTransparency is the bolt's. TrailTransparency is the ribbon's start (it fades to 1 along its life). PulseDepth:
 -- a pulsing light dips to this fraction below its brightness. RingFrom: the ground ring starts at this fraction of its size.
 -- EndSize: a particle shrinks to this fraction of its size by the end of its life. SpeedSpread: the slowest particle moves at
--- this fraction of a layer's speed.
+-- this fraction of a layer's speed. Sound (a species row's optional `sound`, a key of data/Sounds): an alien plays it on its
+-- signature beat (a beam's strike, else the start of an idle cycle) at most once per SoundEverySeconds; it is a 3D sound at the
+-- alien, full volume within SoundRollOffMin studs and fading out by SoundRollOffMax, and SoundMaxSeconds is the longest a
+-- one-shot may live (a sound that never loads is removed then).
 local look = {
 	DefaultGlow = 0.5,
 	AnchorStuds = 0.2,
@@ -87,6 +92,10 @@ local look = {
 	TrailTransparency = 0.25,
 	PulseDepth = 0.5,
 	RingFrom = 0.25,
+	SoundEverySeconds = 8,
+	SoundRollOffMin = 6,
+	SoundRollOffMax = 70,
+	SoundMaxSeconds = 10,
 }
 
 -- Idle motion shapes. HoverSway: a Hover rises and falls by this fraction of its height. BreatheLiftPerDegree: studs a

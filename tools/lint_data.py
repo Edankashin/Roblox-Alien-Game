@@ -614,7 +614,7 @@ def lint_effects(tables, types):
     check(union('MotionKind') == set(MOTION_KINDS), 'Types.MotionKind: differs from the motions lint_data knows')
     check(union('EmitDirection') == set(EFFECT_DIRECTIONS), 'Types.EmitDirection: differs from the directions lint_data knows')
     caps, attach, look = effects['Caps'], effects['Attach'], effects['Look']
-    for key in ('MobileRateCap', 'DesktopRateCap', 'MaxBeams', 'MaxLights', 'MaxActive', 'ActiveDistance'):
+    for key in ('MobileRateCap', 'DesktopRateCap', 'MaxBeams', 'MaxLights', 'MaxActive', 'ActiveDistance', 'MaxSoundsPerSecond'):
         check(positive(caps.get(key)), f'Effects.Caps.{key}: expected a positive number')
     check(positive(caps.get('MobileRateCap')) and positive(caps.get('DesktopRateCap')) and caps['MobileRateCap'] <= caps['DesktopRateCap'],
           'Effects.Caps: the mobile rate cap must not exceed the desktop one')
@@ -631,6 +631,10 @@ def lint_effects(tables, types):
     check(0 < look['FadeIn'] < look['FadeOut'] < 1, 'Effects.Look: FadeIn must be below FadeOut, both inside 0 to 1')
     for key, value in look.items():
         check(finite(value) and value >= 0, f'Effects.Look.{key}: expected a non-negative number')
+    for key in ('SoundEverySeconds', 'SoundRollOffMin', 'SoundRollOffMax', 'SoundMaxSeconds'):
+        check(positive(look.get(key)), f'Effects.Look.{key}: expected a positive number')
+    check(positive(look.get('SoundRollOffMin')) and positive(look.get('SoundRollOffMax')) and look['SoundRollOffMin'] < look['SoundRollOffMax'],
+          'Effects.Look: SoundRollOffMin must be below SoundRollOffMax')
     for key, value in effects['Motion'].items():
         check(finite(value) and value >= 0, f'Effects.Motion.{key}: expected a non-negative number')
     for key, value in effects['Reduced'].items():

@@ -21,6 +21,12 @@
 -- Reduced Motion (Prefs): idle motion holds, and every emitter, beam, trail and orbit drops out for one still glow (the
 -- species' own light held steady, or Effects.Reduced). Breathe rocks the alien about its feet instead of scaling it: a ScaleTo
 -- every frame would also rescale every attachment, emitter and beam parented under the model and pile up float error.
+-- Sound: a species row with a `sound` (a key of data/Sounds) plays it as a 3D one-shot at the alien (Builder.playSoundAt, through
+-- the UI sound group, so the player's Sounds level applies) while the alien is active and not under Reduced Motion's still glow,
+-- on its signature beat: the strike of its first beam, else the start of its idle cycle (EffectsMath.SoundClock and SoundBeat).
+-- One alien plays at most once per Effects.Look.SoundEverySeconds, and all aliens together start at most
+-- Effects.Caps.MaxSoundsPerSecond a second. An alien that has only just come up (or come back into the nearest) does not play
+-- on its first frame: it waits for its next beat.
 -- World.Vfx requires CampRenderer, so this module (which CampRenderer requires) keeps its own small emitter code.
 
 local RunService = game:GetService("RunService")
@@ -34,8 +40,10 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Effects = require(Shared:WaitForChild("data"):WaitForChild("Effects"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
+local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local EffectsMath = require(Shared:WaitForChild("EffectsMath"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
+local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 
 local SpeciesFx = {}
 
@@ -83,6 +91,11 @@ type Handle = {
 	lights: { LightRig },
 	beams: { BeamRig },
 	orbits: { OrbitRig },
+	soundId: string?, -- the species' sound as an asset id; nil when it has none or the id is still a placeholder
+	soundPeriod: number, -- the beat the sound rides (EffectsMath.SoundClock), set at each build
+	soundOffset: number,
+	soundBeat: number?, -- the beat the last frame fell in; nil until the alien has been seen once
+	soundAt: number, -- os.clock() when it last played
 	destroying: RBXScriptConnection?,
 }
 
@@ -98,8 +111,21 @@ local eligible: { Handle } = {}
 local distances: { number } = {}
 local picked: { [number]: boolean } = {}
 local actives: { Handle } = {}
+local recentSounds: { number } = {} -- when sounds started in the last second, across all aliens (EffectsMath.TakeSoundSlot)
 
 local function noop() end
+
+-- The asset id of a species' `sound` key, or nil when it names none or its id is a placeholder.
+local function soundIdOf(key: string?): string?
+	if key == nil then
+		return nil
+	end
+	local id = (Sounds :: any)[key]
+	if type(id) == "string" and not Builder.isSilent(id) then
+		return id
+	end
+	return nil
+end
 
 -- Placement -------------------------------------------------------------------
 
@@ -394,6 +420,14 @@ local function build(handle: Handle)
 			buildEmitter(handle, host, EffectsMath.Resolve(ring, handle.tier, mobile, handle.sizeScale), height)
 		end
 	end
+	local firstBeam = handle.beams[1]
+	handle.soundPeriod, handle.soundOffset = EffectsMath.SoundClock(
+		if firstBeam then firstBeam.flicker else nil,
+		if firstBeam then firstBeam.offset else 0,
+		handle.motion.period,
+		handle.phase
+	)
+	handle.soundBeat = nil
 end
 
 -- Switches a built alien's layers on or off. Beams follow their own strike clock in the frame step.
@@ -412,6 +446,7 @@ local function setEnabled(handle: Handle, on: boolean)
 			rig.beam.Enabled = false
 			rig.step = 0
 		end
+		handle.soundBeat = nil
 	end
 end
 
@@ -525,13 +560,39 @@ local function recheck(now: number)
 	end
 end
 
--- Beams, orbit motes and pulsing lights of the active aliens.
+-- Plays an active alien's sound when its clock beats, if it is not too soon after its last and the second's budget has room.
+local function soundStep(handle: Handle, now: number, soundOn: boolean)
+	local id = handle.soundId
+	if not id or handle.still then
+		return
+	end
+	local beat = EffectsMath.SoundBeat(now, handle.soundPeriod, handle.soundOffset)
+	local previous = handle.soundBeat
+	handle.soundBeat = beat
+	local host = handle.host
+	if not soundOn or previous == nil or beat == previous or not host then
+		return
+	end
+	local look = Effects.Look
+	if not EffectsMath.SoundDue(now, handle.soundAt, look.SoundEverySeconds) then
+		return
+	end
+	if not EffectsMath.TakeSoundSlot(recentSounds, now, Effects.Caps.MaxSoundsPerSecond) then
+		return
+	end
+	handle.soundAt = now
+	Builder.playSoundAt(id, host, look.SoundRollOffMin, look.SoundRollOffMax, look.SoundMaxSeconds)
+end
+
+-- Beams, orbit motes, pulsing lights and sounds of the active aliens.
 local function step(_dt: number)
 	local now = os.clock()
 	if now - lastRecheck >= Config.VfxFxRecheckSeconds then
 		recheck(now)
 	end
+	local soundOn = Prefs.SoundOn()
 	for _, handle in ipairs(actives) do
+		soundStep(handle, now, soundOn)
 		for _, rig in ipairs(handle.beams) do
 			local on, bend = EffectsMath.BeamState(now, rig.flicker, rig.offset)
 			if on ~= rig.beam.Enabled then
@@ -686,6 +747,11 @@ function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: str
 		lights = {},
 		beams = {},
 		orbits = {},
+		soundId = soundIdOf(fx.sound),
+		soundPeriod = 0,
+		soundOffset = 0,
+		soundBeat = nil,
+		soundAt = -math.huge,
 		destroying = nil,
 	}
 	handles[target] = handle

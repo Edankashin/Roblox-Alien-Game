@@ -15,8 +15,9 @@ Every alien has its own effect and idle motion, and the rarity ladder is visible
 | Types `EffectLayer`, `IdleMotion`, `SpeciesFx`, `TierFxRule`, `AttachPoint` | `src/shared/types/Types.luau` |
 | The pure rules: `LayersFor` (the tier gate), `Resolve`, `PickActive`, the idle, beam, pulse and orbit clocks | `src/shared/EffectsMath.luau`, tested by `tests/Effects.spec.luau` |
 | The drawing (client only) | `src/client/World/SpeciesFx.luau` |
-| Callers | `WildRenderer`, `CampRenderer`, `CompanionRenderer` |
+| Callers | `WildRenderer`, `CampRenderer`, `CompanionRenderer` (followers and the mount), `HomeRenderer` (the aliens on display in a habitat) |
 | `Config.VfxFxRecheckSeconds` | `src/shared/data/Config.luau` |
+| The positional one-shot (`Builder.playSoundAt`) and the Sounds-level check (`Prefs.SoundOn`) | `src/client/UI/Builder.luau`, `src/client/Prefs.luau` |
 
 Lengths in a layer are **fractions of the alien's height**, so one row fits a Tiny and a Huge of the same species and the data names no stud. The only studs and degrees are the idle amplitudes. Layers hang on **regions** (`Top`, `Back`, `BackL`, `BackR`, `Tail`, `Eyes`, `Mouth`, `Feet` ...), fractions of the alien's measured bounds, so a new model needs no new numbers.
 
@@ -37,7 +38,18 @@ A `Beam` draws between two Attachments. Thunderhog's lightning is one Beam from 
 
 ## Idle motion without drift
 
-The renderers write each alien's pivot **absolutely** every frame (the bob), and skip it for culled aliens. A tween on the pivot, or an offset added after the renderer, would be overwritten on a frame they run first and doubled on a frame they skip. So the renderer composes it: where it did `model:PivotTo(modelBase + lift)` it now calls `SpeciesFx.Place(model, modelBase + lift)`, which writes `pivot * idle offset` from `os.clock()` and a per-alien phase. Same clock, same pose, however many frames were skipped. Bob and Hover never go below the feet. A Flap swings the named `WingL` and `WingR` parts about hinges worked out from the pivot, also absolute; a model without those parts bobs instead. **Breathe is a rock about the feet with a little lift, not a scale**: `ScaleTo` every frame would also rescale every Attachment, emitter and Beam parented under the model and pile up float error. Spin does not turn an alien whose renderer owns its facing (camp, companions).
+The renderers write each alien's pivot **absolutely** every frame (the bob), and skip it for culled aliens. A tween on the pivot, or an offset added after the renderer, would be overwritten on a frame they run first and doubled on a frame they skip. So the renderer composes it: where it did `model:PivotTo(modelBase + lift)` it now calls `SpeciesFx.Place(model, modelBase + lift)`, which writes `pivot * idle offset` from `os.clock()` and a per-alien phase. Same clock, same pose, however many frames were skipped. Bob and Hover never go below the feet. A Flap swings the named `WingL` and `WingR` parts about hinges worked out from the pivot, also absolute; a model without those parts bobs instead. **Breathe is a rock about the feet with a little lift, not a scale**: `ScaleTo` every frame would also rescale every Attachment, emitter and Beam parented under the model and pile up float error. Spin does not turn an alien whose renderer owns its facing (camp, companions, mount, habitat displays: they all pass `keepFacing`).
+
+## Sound
+
+A species row may name a `sound` (a key of `data/Sounds`; no row does yet, so nothing is audible until the audio pass gives one a real id: a placeholder `rbxassetid://0` plays nothing and costs no budget). `SpeciesFx` plays it as a 3D one-shot at the alien through `Builder.playSoundAt` (the same UI sound group as every other cue, so the player's Sounds level applies, and `Prefs.SoundOn()` skips it entirely at level 0), full volume within `Look.SoundRollOffMin` studs and gone by `Look.SoundRollOffMax`. It plays only while the alien is **active** (among the nearest 12, shown) and **not under Reduced Motion's still glow**.
+
+- **The beat.** `EffectsMath.SoundClock` picks it: the strike clock of the alien's first beam (so the sound lands with the bolt: same period and offset `BeamState` takes), else the start of its idle cycle (the motion's period, slid by the alien's phase), else `Look.SoundEverySeconds` for a Still. `SoundBeat` says which beat `now` falls in; the alien plays when that number changes. An alien that has just come up (or back into the nearest) waits for its next beat rather than playing on its first frame.
+- **Per alien.** At most once per `Look.SoundEverySeconds` (8): `EffectsMath.SoundDue`. A beat that comes too soon is skipped, not queued.
+- **Across aliens.** At most `Caps.MaxSoundsPerSecond` (2) start in any second: `EffectsMath.TakeSoundSlot` over one shared list of start times.
+- A one-shot removes itself when it ends, and at the latest after `Look.SoundMaxSeconds` (a sound that never loads).
+
+All pure parts are tested in `tests/Effects.spec.luau` ("the sound clock").
 
 ## Reduced Motion
 
@@ -45,9 +57,9 @@ The renderers write each alien's pivot **absolutely** every frame (the bob), and
 
 ## Left out, on purpose
 
-- The reveal card and the Codex are UI and do not show effects yet.
-- `HomeRenderer` (habitat displays) and the Hangar do not attach; the three renderers above do.
-- `SpeciesFx.sound` is in the type and the lint but nothing plays it yet.
+- The reveal card and the Codex draw the alien in a ViewportFrame, where particles, beams and trails do not draw, so `SpeciesFx` is not attached there; the card's rays and glow stay UI.
+- The Hangar draws a ship hull and the pilot's silhouette ball, no alien, so it has nothing to attach. `SightingRenderer` (the Warden walking the land) does not attach either.
+- No species row has a `sound` yet (see Sound above).
 - Sprites whose `Icons.Particles` id is still 0 (Ember, Glow, Ring, Sparkle, Star) draw as the soft default particle until uploaded; nothing needs to change when they are.
 - Placeholder parts rolled onto their side (cylinders) keep "up" up for placement, but Breathe's rock needs a model.
 

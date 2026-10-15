@@ -1,13 +1,15 @@
 --!strict
 -- The per-species effects (data/Effects) and the rules the client's World.SpeciesFx draws them by (Shared/EffectsMath): the
 -- table shapes, the tier gate (LayersFor), the caps (Resolve, PickActive and the beam and light limits), the ground ring, the
--- dark variant and the idle, beam and orbit clocks. tools/lint_data.py checks the same data from the Python side.
+-- dark variant, the idle, beam and orbit clocks and the sound clock (the beat, the spacing per alien and the per-second cap).
+-- tools/lint_data.py checks the same data from the Python side.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local EffectsMath = require(Shared.EffectsMath)
 local Effects = require(Shared.data.Effects)
 local Species = require(Shared.data.Species)
 local Tiers = require(Shared.data.Tiers)
 local Icons = require(Shared.data.Icons)
+local Sounds = require(Shared.data.Sounds)
 
 local KINDS = { Emitter = true, Beam = true, Light = true, Trail = true, Orbit = true }
 local MOTIONS = { Still = true, Bob = true, Hover = true, Flap = true, Spin = true, Breathe = true }
@@ -281,6 +283,7 @@ describe("the caps", function()
 		expect(Effects.Caps.MaxBeams).toEqual(4)
 		expect(Effects.Caps.MaxLights).toEqual(1)
 		expect(Effects.Caps.MaxActive).toEqual(12)
+		expect(Effects.Caps.MaxSoundsPerSecond).toEqual(2)
 		expect(EffectsMath.RateCap(true)).toEqual(100)
 		expect(EffectsMath.RateCap(false)).toEqual(400)
 	end)
@@ -493,6 +496,139 @@ describe("beams, pulses and orbits", function()
 		local b = EffectsMath.OrbitAngle(1, 4, 2, 4, 0)
 		expect(b - a).toBeClose(math.pi / 2, 1e-9)
 		expect(EffectsMath.OrbitAngle(5, 4, 1, 4, 0) - a).toBeClose(math.pi * 2, 1e-9)
+	end)
+end)
+
+describe("the sound clock", function()
+	local look = Effects.Look
+	local TAU = math.pi * 2
+
+	it("keeps the sound keys real and the spacing positive", function()
+		expect(look.SoundEverySeconds).toEqual(8)
+		expect(look.SoundRollOffMin > 0 and look.SoundRollOffMin < look.SoundRollOffMax).toEqual(true)
+		expect(look.SoundMaxSeconds > 0).toEqual(true)
+		for id, fx in pairs(Effects.Species) do
+			if fx.sound ~= nil then
+				expect(type((Sounds :: any)[fx.sound])).toEqual("string")
+			end
+			expect(id ~= "").toEqual(true)
+		end
+	end)
+
+	it("rides the strike clock of a beam, and the idle cycle of one without", function()
+		local period, offset = EffectsMath.SoundClock(2, 0.5, 1.2, 1)
+		expect(period).toEqual(2)
+		expect(offset).toEqual(0.5)
+		local idlePeriod, idleOffset = EffectsMath.SoundClock(nil, 0, 1.2, math.pi)
+		expect(idlePeriod).toEqual(1.2)
+		expect(idleOffset).toBeClose(0.6, 1e-9) -- half a turn of phase is half a period
+		local steady, steadyOffset = EffectsMath.SoundClock(look.BeamFlashSeconds, 0.3, 0.8, 0) -- a beam that never rests has no strike to ride
+		expect(steady).toEqual(0.8)
+		expect(steadyOffset).toEqual(0)
+		local still, stillOffset = EffectsMath.SoundClock(nil, 0, 0, TAU / 4)
+		expect(still).toEqual(look.SoundEverySeconds)
+		expect(stillOffset).toBeClose(look.SoundEverySeconds / 4, 1e-9)
+	end)
+
+	it("counts one beat per period, and none for a clock with no period", function()
+		expect(EffectsMath.SoundBeat(0, 2, 0)).toEqual(0)
+		expect(EffectsMath.SoundBeat(1.99, 2, 0)).toEqual(0)
+		expect(EffectsMath.SoundBeat(2, 2, 0)).toEqual(1)
+		expect(EffectsMath.SoundBeat(9.9, 2, 0)).toEqual(4)
+		expect(EffectsMath.SoundBeat(1.5, 2, 0.5)).toEqual(1) -- the offset slides the beat earlier
+		expect(EffectsMath.SoundBeat(100, 0, 0)).toEqual(0)
+	end)
+
+	it("beats exactly when its beam strikes", function()
+		local flicker, offset = 2, 0.65
+		local period, slide = EffectsMath.SoundClock(flicker, offset, 9, 0)
+		local previous = EffectsMath.SoundBeat(0, period, slide)
+		local beats = 0
+		for tick = 1, 2000 do
+			local now = tick * 0.01
+			local beat = EffectsMath.SoundBeat(now, period, slide)
+			if beat ~= previous then
+				beats += 1
+				local on, bend = EffectsMath.BeamState(now, flicker, offset)
+				expect(on).toEqual(true) -- the strike has just begun
+				expect(bend % look.BeamSteps).toEqual(1) -- on its first bend
+				previous = beat
+			end
+		end
+		expect(beats).toEqual(10) -- twenty seconds at a strike every two
+	end)
+
+	it("spaces one alien's sounds by SoundEverySeconds", function()
+		expect(EffectsMath.SoundDue(0, -math.huge, 8)).toEqual(true)
+		expect(EffectsMath.SoundDue(7.99, 0, 8)).toEqual(false)
+		expect(EffectsMath.SoundDue(8, 0, 8)).toEqual(true)
+	end)
+
+	it("plays a fast beat no oftener than SoundEverySeconds", function()
+		local period, slide = EffectsMath.SoundClock(nil, 0, 0.8, 2) -- a hop four times faster than the spacing wants
+		local lastBeat = EffectsMath.SoundBeat(0, period, slide)
+		local lastPlayed = -math.huge
+		local recent: { number } = {}
+		local plays: { number } = {}
+		for tick = 1, 60 * 60 do
+			local now = tick / 60
+			local beat = EffectsMath.SoundBeat(now, period, slide)
+			if beat ~= lastBeat then
+				lastBeat = beat
+				if EffectsMath.SoundDue(now, lastPlayed, look.SoundEverySeconds) and EffectsMath.TakeSoundSlot(recent, now, Effects.Caps.MaxSoundsPerSecond) then
+					lastPlayed = now
+					table.insert(plays, now)
+				end
+			end
+		end
+		expect(#plays >= 6).toEqual(true) -- a minute at one every eight seconds or a little over
+		for index = 2, #plays do
+			expect(plays[index] - plays[index - 1] >= look.SoundEverySeconds).toEqual(true)
+		end
+	end)
+
+	it("lets at most MaxSoundsPerSecond start in any second, and frees a slot after one second", function()
+		local cap = Effects.Caps.MaxSoundsPerSecond
+		local recent: { number } = {}
+		for index = 1, cap do
+			expect(EffectsMath.TakeSoundSlot(recent, 10 + index * 0.25, cap)).toEqual(true)
+		end
+		expect(EffectsMath.TakeSoundSlot(recent, 10.75, cap)).toEqual(false)
+		expect(#recent).toEqual(cap) -- a refusal records nothing
+		expect(EffectsMath.TakeSoundSlot(recent, 11.25, cap)).toEqual(true) -- the first (10.25) is a whole second old now
+		expect(EffectsMath.TakeSoundSlot(recent, 11.4, cap)).toEqual(false)
+		expect(EffectsMath.TakeSoundSlot({}, 0, 0)).toEqual(false)
+	end)
+
+	it("holds the cap across a crowd of aliens asking all at once", function()
+		local cap = Effects.Caps.MaxSoundsPerSecond
+		local seed = 7
+		local function chance(): number -- a small deterministic generator in 0 to 1 (the headless runner has no Random)
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return seed / 2147483648
+		end
+		local recent: { number } = {}
+		local started: { number } = {}
+		for tick = 1, 60 * 30 do
+			local now = tick / 60
+			for _ = 1, 12 do
+				if chance() < 0.15 and EffectsMath.TakeSoundSlot(recent, now, cap) then
+					table.insert(started, now)
+				end
+			end
+		end
+		expect(#started > 0).toEqual(true)
+		for index, at in ipairs(started) do
+			local inWindow = 0
+			for other = index, 1, -1 do
+				if at - started[other] < 1 then
+					inWindow += 1
+				else
+					break
+				end
+			end
+			expect(inWindow <= cap).toEqual(true)
+		end
 	end)
 end)
 
