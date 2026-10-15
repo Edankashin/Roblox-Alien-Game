@@ -182,7 +182,7 @@ local function recolorButton(container: Frame, color: Color3)
 	if face and face:IsA("TextButton") then
 		face.BackgroundColor3 = color
 		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
+			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
 				child.Color = dark
 			elseif child:IsA("UIGradient") then
 				child.Color = ColorSequence.new(Builder.lighter(color), color)
@@ -247,7 +247,7 @@ end
 local function restStroke(planet: Planet)
 	planet.stroke.Color = Theme.Colors.Featured
 	planet.stroke.Transparency = 0
-	planet.stroke.Thickness = restThickness(planet)
+	Builder.setStrokePx(planet.stroke, restThickness(planet))
 end
 
 -- Cancels the pulse and puts the planet's ring back to rest.
@@ -280,7 +280,7 @@ local function startPulse(planet: Planet)
 	local tween = TweenService:Create(
 		planet.stroke,
 		TweenInfo.new(half, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-		{ Thickness = restThickness(planet) + PULSE_SWELL }
+		{ Thickness = Builder.strokeThickness(restThickness(planet) + PULSE_SWELL) }
 	)
 	pulseTween = tween
 	tween:Play()
@@ -316,7 +316,7 @@ local function paintPlanet(
 	planet.disc.BackgroundTransparency = fillTransparency
 	planet.stroke.Color = ring
 	planet.stroke.Transparency = ringTransparency
-	planet.stroke.Thickness = if planet.worldId == selected then STROKE_SELECTED else thickness
+	Builder.setStrokePx(planet.stroke, if planet.worldId == selected then STROKE_SELECTED else thickness)
 end
 
 local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: { [number]: boolean }, highest: number, now: number)
@@ -375,7 +375,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		if State.IsGuest() then
 			-- (e) a guest: the ship is not here but waits on this world; flying to it is the way back, like state (c)
 			card.stroke.Color = Theme.Colors.Select
-			card.stroke.Thickness = Theme.Stroke.Button
+			Builder.setStrokePx(card.stroke, Theme.Stroke.Button)
 			card.line.Text = Strings.STARCHART_RETURN_LINE
 			card.line.TextColor3 = Theme.Colors.White
 			card.line.Size = UDim2.fromScale(TEXT_W, HOME_LINE_H) -- no outpost rows under it, so it takes their room like the home's line
@@ -385,7 +385,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		end
 		-- (a) here: gold, no buttons; the home has a Visit button, since this is where its friends are reached from
 		card.stroke.Color = Theme.Colors.Featured
-		card.stroke.Thickness = Theme.Stroke.Panel
+		Builder.setStrokePx(card.stroke, Theme.Stroke.Panel)
 		card.line.Text = Strings.STARCHART_HERE
 		card.line.TextColor3 = Theme.Colors.Heading
 		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
@@ -403,13 +403,13 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 		card.frame.BackgroundColor3 = DIM_COLOR
 		card.frame.BackgroundTransparency = LOCKED_TRANSPARENCY
 		card.stroke.Color = DIM_COLOR
-		card.stroke.Thickness = Theme.Stroke.Text
+		Builder.setStrokePx(card.stroke, Theme.Stroke.Text)
 		showOnly(card, false, false, false, false)
 		return
 	end
 
 	card.stroke.Color = Theme.Colors.Select
-	card.stroke.Thickness = Theme.Stroke.Button
+	Builder.setStrokePx(card.stroke, Theme.Stroke.Button)
 	local state = if id == HOME_ID then nil else outpostOf(profile, id)
 	if not state then
 		-- (c) unlocked, no outpost: Fly alone (the home, which never has one, says what it is)

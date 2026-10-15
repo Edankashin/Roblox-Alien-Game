@@ -31,6 +31,8 @@ local HEADING = Color3.fromHex("FFEF4A") -- Theme.Colors.Heading
 local MOSSBOP_GREEN = Color3.fromHex("6BCB3F") -- Species Mossbop placeholder.color
 local TEXT_STROKE = 2.5 -- Theme.Stroke.Text
 local PANEL_STROKE = 4 -- Theme.Stroke.Panel
+local TEXT_JOIN = Enum.LineJoinMode.Bevel -- Theme.Stroke.TextJoin
+local SHAPE_JOIN = Enum.LineJoinMode.Miter -- Theme.Stroke.ShapeJoin
 local MIN_TEXT = 14 -- Theme.TextSize.Min
 local LABEL_TEXT = 30 -- a little over Theme.TextSize.Label (24): this is the one line on the screen
 local TITLE_TEXT = 48 -- Theme.TextSize.Reveal
@@ -82,6 +84,7 @@ local function outline(parent: Instance, thickness: number)
 	local stroke = Instance.new("UIStroke")
 	stroke.Thickness = thickness
 	stroke.Color = NAVY
+	stroke.LineJoinMode = SHAPE_JOIN
 	stroke.Parent = parent
 end
 
@@ -111,6 +114,7 @@ local function textLabel(name: string, position: UDim2, size: UDim2, color: Colo
 	stroke.Thickness = strokeThickness
 	stroke.Color = NAVY
 	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	stroke.LineJoinMode = TEXT_JOIN
 	stroke.Parent = label
 	label.Parent = background
 	return label

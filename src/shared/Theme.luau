@@ -33,7 +33,21 @@ Theme.Rarity = {
 
 Theme.TextSize = { Min = 14, Body = 18, Label = 24, Title = 36, Reveal = 48 }
 Theme.Corner = { Button = 12, Panel = 16, Card = 10, Pill = 999 }
-Theme.Stroke = { Text = 2.5, Button = 3, Panel = 4 }
+-- Text, Button and Panel are the stroke's pixels at ReferenceHeight; Builder.stroke scales them to the real screen height
+-- (Shared/StrokeMath) inside [MinScale, MaxScale], so text keeps 2 to 3 px of outline from a phone to a 4K window.
+-- TextJoin is the LineJoinMode of the outline round a letter and ShapeJoin that of a border on a frame, button or input:
+-- the X pass (X-Posts take 1) says Bevel or Miter instead of the default Round. Bevel for text, because a miter spikes at the
+-- sharp joins in a letter; Miter for a border, to keep a square corner square. Check Fredoka's counters in Studio at Reveal size.
+Theme.Stroke = {
+	Text = 2.5,
+	Button = 3,
+	Panel = 4,
+	ReferenceHeight = 1080,
+	MinScale = 0.8,
+	MaxScale = 1.2,
+	TextJoin = Enum.LineJoinMode.Bevel,
+	ShapeJoin = Enum.LineJoinMode.Miter,
+}
 Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels

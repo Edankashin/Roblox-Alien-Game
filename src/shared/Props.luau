@@ -12,8 +12,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(script.Parent.data.Config)
+local PropData = require(script.Parent.data.Props)
+local ModelInstall = require(script.Parent.ModelInstall)
 
 local Props = {}
+
+-- The Enum.CollisionFidelity each plan name from ModelInstall.CollisionPlan stands for.
+local FIDELITY: { [string]: Enum.CollisionFidelity } = {
+	Box = Enum.CollisionFidelity.Box,
+	Hull = Enum.CollisionFidelity.Hull,
+	Precise = Enum.CollisionFidelity.PreciseConvexDecomposition,
+}
 
 -- Model:ScaleTo is absolute (1 = the size the model was built at), so each source's own factor is read
 -- once and every clone scales from that baseline; nothing done to a clone later can shift it.
@@ -70,8 +79,10 @@ end
 -- Clones the prop, scales it to `scale` times the source's own size, stands it on `cframe` (the point
 -- under the model's bottom centre, with the CFrame's rotation) and parents it under `parent`. Every
 -- BasePart comes out Anchored with CanQuery and CanTouch off; CanCollide is `collide` (trees, rocks and
--- the shrine keep it on so players walk around them; the heater lamp turns it off). The model's pivot is
--- the bottom centre of its bounding box. Returns the placed Model, or nil when the prop was never
+-- the shrine keep it on so players walk around them; the heater lamp turns it off) unless the prop's row in
+-- data/Props says "None". Every MeshPart also gets the CollisionFidelity that row names (Box, Hull or Precise;
+-- ModelInstall.CollisionPlan), where the import left the engine's Default. The model's pivot is the bottom centre
+-- of its bounding box. Returns the placed Model, or nil when the prop was never
 -- imported, so the caller builds its placeholder.
 function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instance, collide: boolean): Model?
 	local source = Props.Find(name)
@@ -85,12 +96,18 @@ function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instan
 	end
 	local clone = source:Clone()
 	clone.Name = name
+	local row = PropData.Rows[name]
+	local plan = ModelInstall.CollisionPlan(if row then row.collision else nil, collide)
+	local fidelity = if plan.fidelity then FIDELITY[plan.fidelity] else nil
 	for _, descendant in ipairs(clone:GetDescendants()) do
 		if descendant:IsA("BasePart") then
 			descendant.Anchored = true
-			descendant.CanCollide = collide
+			descendant.CanCollide = plan.canCollide
 			descendant.CanQuery = false
 			descendant.CanTouch = false
+			if fidelity and descendant:IsA("MeshPart") then
+				descendant.CollisionFidelity = fidelity
+			end
 		end
 	end
 	clone:ScaleTo(baseline * scale)

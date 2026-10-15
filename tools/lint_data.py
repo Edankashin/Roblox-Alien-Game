@@ -15,6 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SURFACE_MATERIALS = ('Plastic', 'SmoothPlastic', 'Neon', 'Metal', 'Foil', 'Wood', 'WoodPlanks', 'Fabric', 'Leather', 'Rubber',
                      'Grass', 'Slate', 'Rock', 'Pebble', 'Granite', 'Marble', 'Sand', 'Sandstone', 'Snow', 'Ice', 'Glass', 'Mud')
 SURFACE_KEYS = ('material', 'texture', 'glossy')
+# The values a data/Props row's `collision` may take. Shared/ModelInstall.PropCollisions keeps the same list;
+# tools/tests/test_lint_props.py checks the two match.
+PROP_COLLISIONS = ('Box', 'Hull', 'Precise', 'None')
 TEXTURE_FIELDS = ('colorMap', 'normalMap', 'roughnessMap')
 LEX = re.compile(r'''--\[(=*)\[.*?\]\1\]|--[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|\S''', re.S)
 
@@ -607,6 +610,27 @@ def lint_surfaces(tables):
     return failures
 
 
+def lint_props(tables):
+    """data/Props: one row per imported prop (data/ModelAssets.PropNames), and each row's collision is one of PROP_COLLISIONS."""
+    rows = (tables.get('Props') or {}).get('Rows')
+    names = (tables.get('ModelAssets') or {}).get('PropNames')
+    if not isinstance(rows, dict) or not isinstance(names, dict):
+        return ['Props.luau: Rows (and ModelAssets.PropNames) unavailable']
+    failures = []
+    for name in sorted(names, key=str):
+        if name not in rows:
+            failures.append(f'Props.Rows.{name}: no row for an imported prop (add one with a collision of {", ".join(PROP_COLLISIONS)})')
+    for name, row in sorted(rows.items(), key=lambda kv: str(kv[0])):
+        where = f'Props.Rows.{name}'
+        if name not in names:
+            failures.append(f'{where}: not in ModelAssets.PropNames')
+        if not isinstance(row, dict) or set(row) != {'collision'}:
+            failures.append(f'{where}: expected a row with just collision')
+        elif row['collision'] not in PROP_COLLISIONS:
+            failures.append(f'{where}.collision: {row["collision"]!r} is not one of {", ".join(PROP_COLLISIONS)}')
+    return failures
+
+
 EFFECT_KINDS = ('Emitter', 'Beam', 'Light', 'Trail', 'Orbit')
 EFFECT_DIRECTIONS = ('Up', 'Front', 'Back', 'Down')
 MOTION_KINDS = ('Still', 'Bob', 'Hover', 'Flap', 'Spin', 'Breathe')
@@ -901,7 +925,7 @@ def lint(root: Path = ROOT) -> list[str]:
     except (OSError, ParseError) as exc:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
-                'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers',
+                'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers', 'Props', 'ModelAssets',
                 'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds', 'Reveal'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
@@ -981,6 +1005,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
+    failures.extend(lint_props(tables))
     failures.extend(lint_effects(tables, types))
     failures.extend(lint_reveal(tables, root))
     for finding in lint_shapes(tables, strings, types):

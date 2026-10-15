@@ -333,7 +333,7 @@ local function applySelection(profile: Types.Profile)
 		end
 		local isSelected = cell.speciesId == selected
 		cell.stroke.Color = if isSelected then Theme.Colors.Codex else Builder.tierColor(cell.tier)
-		cell.stroke.Thickness = if isSelected then Theme.Stroke.Button else Theme.Stroke.Text
+		Builder.setStrokePx(cell.stroke, if isSelected then Theme.Stroke.Button else Theme.Stroke.Text)
 	end
 	fillDetail(profile)
 end

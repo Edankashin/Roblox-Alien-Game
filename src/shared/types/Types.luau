@@ -76,6 +76,12 @@ export type SurfaceSpec = { material: string?, texture: string?, glossy: boolean
 -- uploaded) and how many times the map repeats across a mesh primitive's 0..1 UV square (tools/blender/species_bodies.py
 -- scales the slot's UVs by it; SurfaceAppearance itself has no tiling property).
 export type TextureRow = { colorMap: number, normalMap: number, roughnessMap: number, tiling: { number } }
+-- How an imported prop collides (data/Props, Shared/ModelInstall.CollisionPlan, applied by Shared/Props.Place). Box: decor the
+-- player never walks on (a box fits the part cheaply). Hull: a prop the player stands on or bumps close to (a convex hull follows
+-- the silhouette). Precise: a prop with an opening to walk through, an arch or a ring, which a box or a hull would plug. None: purely
+-- visual, CanCollide off whatever the caller asks.
+export type PropCollision = "Box" | "Hull" | "Precise" | "None"
+export type PropRow = { collision: PropCollision }
 
 export type TierDef = {
 	share: number, -- share of wild spawns, percent (Cosmic and Secret are 0: event or quest only)

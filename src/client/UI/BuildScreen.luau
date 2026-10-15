@@ -98,7 +98,7 @@ local function recolorButton(container: Frame, color: Color3)
 	if face and face:IsA("TextButton") then
 		face.BackgroundColor3 = color
 		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
+			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
 				child.Color = dark
 			elseif child:IsA("UIGradient") then
 				child.Color = ColorSequence.new(Builder.lighter(color), color)
@@ -385,7 +385,7 @@ refresh = function()
 		card.gradient.Color = ColorSequence.new(Builder.lighter(fill), fill)
 		local selected = not removing and picked == card.id
 		card.stroke.Color = if selected then Theme.Colors.Featured else Theme.Colors.Outline
-		card.stroke.Thickness = if selected then Theme.Stroke.Panel else Theme.Stroke.Text
+		Builder.setStrokePx(card.stroke, if selected then Theme.Stroke.Panel else Theme.Stroke.Text)
 	end
 	local line = hint
 	if line then

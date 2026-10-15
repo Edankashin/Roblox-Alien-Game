@@ -204,7 +204,7 @@ local function recolorButton(container: Frame, color: Color3)
 	if face and face:IsA("TextButton") then
 		face.BackgroundColor3 = color
 		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
+			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
 				child.Color = dark
 			elseif child:IsA("UIGradient") then
 				child.Color = ColorSequence.new(Builder.lighter(color), color)

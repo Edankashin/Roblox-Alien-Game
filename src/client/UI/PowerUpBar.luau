@@ -94,10 +94,10 @@ local function setRing(slot: Slot, active: boolean)
 	end
 	if active then
 		ring.Color = Theme.Colors.Select
-		ring.Thickness = Theme.Stroke.Panel
+		Builder.setStrokePx(ring, Theme.Stroke.Panel)
 	else
 		ring.Color = Builder.darker(Theme.Colors.Featured)
-		ring.Thickness = Theme.Stroke.Button
+		Builder.setStrokePx(ring, Theme.Stroke.Button)
 	end
 end
 

@@ -14,6 +14,23 @@ How a world gets its scenery: 16 generated props that stand in for the part-buil
 - The client camp renderer (`src/client/World/CampRenderer.luau`) reads `Camp.Props` in `src/shared/data/Camp.luau`: `ShipHull` for the ship, `GatherStation`, `BuildStation`, `SparkStation` for the three stations. The Heaters service stands `Config.HeaterPropName` (`HeaterLamp`) on its disc.
 - A missing name means the part-built placeholder, so props can be imported one at a time and the game never breaks half way. The placeholder sizes are the footprints below; the scatter spacing in the layouts assumes them.
 
+## Collision
+
+Every placed prop takes its collision from one row of `src/shared/data/Props.luau` (`collision`), applied by `Props.Place` to the clone (`ModelInstall.CollisionPlan` is the pure rule): `CanCollide` and, on each MeshPart, `CollisionFidelity`. Before 2026-10-15 the import left every mesh at the engine's Default fidelity (the X pass, [[X-Posts]] take 2, found it). Neither installer sets it, because `Props.Place` re-sets `CanCollide` on every clone anyway, so a hand-imported prop gets the same treatment.
+
+| Value | Fidelity | For | Props |
+|---|---|---|---|
+| `Box` | Box | decor the player never walks on or close past; the cheapest to collide with | MeadowTree, MeadowTreeB, SnowPine (trunk and crown are separate MeshParts, so each gets its own box), IceSpire, GeyserCone, ShrineStone, HeaterLamp |
+| `Hull` | Hull | props the player hops onto or brushes (the avatar jumps 7.2 studs, so every rock counts) | MeadowRock, MeadowRockB, IceRock, IceRockB, Pedestal, ShipHull, CrashWreck, GeyserVent |
+| `Precise` | PreciseConvexDecomposition | a gap the player walks through, which a box or a hull would plug | CaveMouth, IceCaveMouth (the arch), Shrine (the stone ring) |
+| `None` | Box, `CanCollide` off | purely visual | BuildStation, GatherStation, SparkStation (they stand on an invisible block that keeps the collision) |
+
+- A caller that passes `collide = false` (the heater lamp on its disc, the hangar trophy) turns collision off for any row; that part then takes Box, since nothing touches it. The same prop can collide in one place and not in another (HeaterLamp is also the home Lamp, which collides).
+- Hull is a single convex shape per MeshPart: a ring or an arch in one MeshPart fills in. That is why the three walk-through props are `Precise`; keep it to hero pieces (2,000 to 2,500 triangles each) because it is the dearest fidelity.
+- Known gap: the glowing slots (the Shrine's orb, the vent's steam column, the wreck's embers, the cave crystals) collide with the rest of their prop, as they did before. A per-slot override would be a field on the row.
+- A new prop needs a row. `tools/model_assets.py --write` adds the name to `PropNames` and `python3 -I tools/lint_data.py` then fails until `Props.luau` has the row; `tests/ModelInstall.spec.luau` and `tools/tests/test_lint_props.py` check the same.
+- Not yet looked at in Studio: walk through both cave arches, around the shrine ring and the pedestal, and onto a rock, with Studio's decomposition-geometry view on, to see the shapes.
+
 ## Generate
 
 ```
@@ -47,7 +64,7 @@ Each prop is one mesh, flat shaded, one flat material per colour, no textures, s
 1. File -> Import 3D, pick `assets/models/props/<Name>/<Name>.glb`, keep scale 1. One MeshPart per material comes in, grouped in a Model.
 2. Rename the Model to exactly `<Name>`. The name is the lookup key: name = file name = instance name.
 3. Create `ReplicatedStorage.Models` and `ReplicatedStorage.Models.Props` (Folders) if they are missing, then drop the Model into `Props`.
-4. Select every part: Anchored on. Glow parts: Material Neon. Check the Model's size against `notes.md`.
+4. Select every part: Anchored on. Glow parts: Material Neon. Check the Model's size against `notes.md`. Add the prop's row to `src/shared/data/Props.luau` (`collision`, see Collision above).
 5. Test: press Play. The scattered trees (or the ship, stations, heater) show meshes where the placeholders were. Stop and check Output for nothing red.
 6. Record the import in `assets/models/props/<Name>/notes.md`. Never commit a `.rbxl`, `.rbxm` or `.rbxlx`.
 

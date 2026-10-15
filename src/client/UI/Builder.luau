@@ -8,11 +8,13 @@ local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 local Debris = game:GetService("Debris")
 local TextService = game:GetService("TextService")
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local BadgeFit = require(Shared:WaitForChild("BadgeFit"))
+local StrokeMath = require(Shared:WaitForChild("StrokeMath"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
@@ -232,13 +234,90 @@ function Builder.corner(parent: GuiObject, radius: number): UICorner
 	return corner
 end
 
-function Builder.stroke(parent: GuiObject, thickness: number, color: Color3?): UIStroke
+-- Strokes ------------------------------------------------------------------
+-- UIStroke.Thickness is pixels and takes no Scale, so Builder.stroke sizes it from the screen height (Shared/StrokeMath, the
+-- numbers in Theme.Stroke): the thickness a caller passes (Theme.Stroke.Text, Button, Panel...) is its pixels at
+-- Theme.Stroke.ReferenceHeight. Each stroke carries that reference as the STROKE_PX attribute and a tag, and one listener on the
+-- camera's ViewportSize sets every tagged stroke again when the window changes (a rotation, a resize, an emulator switch).
+-- A caller that compares a stroke's thickness reads Builder.strokePx, not .Thickness, which is a scaled number.
+
+local STROKE_TAG = "ScaledStroke"
+local STROKE_PX = "StrokePx"
+local STROKE_SCALE: StrokeMath.Params = {
+	referenceHeight = Theme.Stroke.ReferenceHeight,
+	minScale = Theme.Stroke.MinScale,
+	maxScale = Theme.Stroke.MaxScale,
+}
+local strokeWatching = false
+
+local function viewportHeight(): number
+	local camera = workspace.CurrentCamera
+	return if camera then camera.ViewportSize.Y else 0
+end
+
+-- The thickness in px for a stroke that is `referencePx` thick at the reference height, on this screen.
+function Builder.strokeThickness(referencePx: number): number
+	return StrokeMath.Thickness(referencePx, viewportHeight(), STROKE_SCALE)
+end
+
+local function resizeStrokes()
+	for _, instance in ipairs(CollectionService:GetTagged(STROKE_TAG)) do
+		local referencePx = instance:GetAttribute(STROKE_PX)
+		if instance:IsA("UIStroke") and type(referencePx) == "number" then
+			instance.Thickness = Builder.strokeThickness(referencePx)
+		end
+	end
+end
+
+-- Connects the one ViewportSize listener, and follows the camera when Workspace swaps it (a respawn or a cutscene camera).
+local function watchViewport()
+	if strokeWatching then
+		return
+	end
+	strokeWatching = true
+	local viewportConnection: RBXScriptConnection? = nil
+	local function follow()
+		if viewportConnection then
+			viewportConnection:Disconnect()
+			viewportConnection = nil
+		end
+		local camera = workspace.CurrentCamera
+		if camera then
+			viewportConnection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(resizeStrokes)
+		end
+		resizeStrokes()
+	end
+	workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(follow)
+	follow()
+end
+
+-- The pixels a stroke was asked for (its thickness at the reference height): the attribute Builder.stroke wrote, else the
+-- Thickness of a stroke Builder did not make.
+function Builder.strokePx(stroke: UIStroke): number
+	local referencePx = stroke:GetAttribute(STROKE_PX)
+	return if type(referencePx) == "number" then referencePx else stroke.Thickness
+end
+
+-- Gives a stroke a new thickness, in px at the reference height (a selected card's thicker ring): the attribute the viewport
+-- listener reads moves with it, so a resize keeps the new value. Screens call this, never `stroke.Thickness = ...`.
+function Builder.setStrokePx(stroke: UIStroke, referencePx: number)
+	CollectionService:AddTag(stroke, STROKE_TAG)
+	stroke:SetAttribute(STROKE_PX, referencePx)
+	stroke.Thickness = Builder.strokeThickness(referencePx)
+end
+
+-- Outlines `parent`: round the text of a TextLabel or TextButton (Contextual), else its border. `mode` picks the other one
+-- (a button's border and an input's border are Border strokes on text objects). The join is Theme.Stroke.TextJoin on a text
+-- outline and Theme.Stroke.ShapeJoin on a border.
+function Builder.stroke(parent: GuiObject, thickness: number, color: Color3?, mode: Enum.ApplyStrokeMode?): UIStroke
+	local isText = parent:IsA("TextLabel") or parent:IsA("TextButton")
+	local applied = mode or (if isText then Enum.ApplyStrokeMode.Contextual else Enum.ApplyStrokeMode.Border)
 	local stroke = Instance.new("UIStroke")
-	stroke.Thickness = thickness
 	stroke.Color = color or Theme.Colors.Outline
-	stroke.ApplyStrokeMode = if parent:IsA("TextLabel") or parent:IsA("TextButton")
-		then Enum.ApplyStrokeMode.Contextual
-		else Enum.ApplyStrokeMode.Border
+	stroke.ApplyStrokeMode = applied
+	stroke.LineJoinMode = if isText and applied == Enum.ApplyStrokeMode.Contextual then Theme.Stroke.TextJoin else Theme.Stroke.ShapeJoin
+	Builder.setStrokePx(stroke, thickness)
+	watchViewport()
 	stroke.Parent = parent
 	return stroke
 end
@@ -472,18 +551,13 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	face.TextScaled = true
 	face.ZIndex = (props.zIndex or 1) + 1
 	Builder.corner(face, Theme.Corner.Button)
-	local border = Builder.stroke(face, Theme.Stroke.Button, lipColor)
-	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border -- Builder.stroke picks Contextual for text objects
+	Builder.stroke(face, Theme.Stroke.Button, lipColor, Enum.ApplyStrokeMode.Border) -- the border; the text outline follows below
 	Builder.gradient(face, props.color)
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min
 	sizes.MaxTextSize = props.textSize or Theme.TextSize.Label
 	sizes.Parent = face
-	local textStroke = Instance.new("UIStroke")
-	textStroke.Thickness = Theme.Stroke.Text
-	textStroke.Color = Theme.Colors.Outline
-	textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-	textStroke.Parent = face
+	Builder.stroke(face, Theme.Stroke.Text, Theme.Colors.Outline)
 	Builder.gloss(face, Theme.Corner.Button)
 	if props.icon then
 		local image = Builder.icon({
@@ -672,7 +746,7 @@ function Builder.restyleButton(container: Frame?, text: string, color: Color3, e
 		face.Text = text
 		face.Active = enabled
 		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.Thickness == Theme.Stroke.Button then
+			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
 				child.Color = dark
 			elseif child:IsA("UIGradient") then
 				child.Color = ColorSequence.new(Builder.lighter(color), color)
@@ -704,8 +778,7 @@ function Builder.textBox(props: TextBoxProps): TextBox
 	box.MultiLine = false
 	box.ClipsDescendants = true
 	Builder.corner(box, Theme.Corner.Button)
-	local border = Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline)
-	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border -- Builder.stroke picks Contextual for text objects
+	Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline, Enum.ApplyStrokeMode.Border)
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min
 	sizes.MaxTextSize = math.max(Theme.TextSize.Min, props.textSize or Theme.TextSize.Body)

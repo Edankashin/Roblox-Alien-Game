@@ -3,6 +3,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local ModelInstall = require(Shared.ModelInstall)
 local ModelAssets = require(Shared.data.ModelAssets)
 local Textures = require(Shared.data.Textures)
+local PropData = require(Shared.data.Props)
 local Types = require(Shared.types.Types)
 local F = require(script.Parent.Fixtures)
 
@@ -384,6 +385,67 @@ describe("ModelAssets.Surfaces (the generated rows)", function()
 				assert(ModelInstall.IsSurfaceMaterial(plan.material), model .. "." .. slot .. " plans " .. plan.material)
 			end
 		end
+	end)
+end)
+
+-- data/Props: how each imported prop collides, and what Props.Place does with the row.
+local propNames = ModelAssets.PropNames :: { [string]: boolean }
+local propRows = PropData.Rows :: { [string]: Types.PropRow }
+describe("data/Props collision rows", function()
+	it("has a row for every imported prop, and no row for a name that is not one", function()
+		for _, name in ipairs(sortedNames(propNames)) do
+			assert(propRows[name] ~= nil, name .. " is in ModelAssets.PropNames but has no data/Props row")
+		end
+		for _, name in ipairs(sortedNames(propRows)) do
+			assert(propNames[name] == true, name .. " has a data/Props row but is not in ModelAssets.PropNames")
+		end
+	end)
+	it("gives every row a collision from the allowed list", function()
+		for _, name in ipairs(sortedNames(propRows)) do
+			local collision = propRows[name].collision
+			assert(table.find(ModelInstall.PropCollisions, collision) ~= nil, name .. " has the unknown collision " .. tostring(collision))
+		end
+	end)
+	it("keeps the walk-through props precise and the stations visual-only", function()
+		for _, name in ipairs({ "CaveMouth", "IceCaveMouth", "Shrine" }) do
+			expect(propRows[name].collision).toEqual("Precise")
+		end
+		for _, name in ipairs({ "BuildStation", "GatherStation", "SparkStation" }) do
+			expect(propRows[name].collision).toEqual("None")
+		end
+		expect(propRows.ShipHull.collision).toEqual("Hull")
+		expect(propRows.CrashWreck.collision).toEqual("Hull")
+		expect(propRows.MeadowTree.collision).toEqual("Box")
+	end)
+end)
+
+describe("ModelInstall.CollisionPlan", function()
+	it("collides with the row's own shape when the caller lets it", function()
+		for _, kind in ipairs({ "Box", "Hull", "Precise" }) do
+			local plan = ModelInstall.CollisionPlan(kind :: Types.PropCollision, true)
+			expect(plan.canCollide).toEqual(true)
+			expect(plan.fidelity).toEqual(kind)
+		end
+	end)
+	it("never collides on a None row, whatever the caller asks, and takes the cheapest fidelity", function()
+		for _, collide in ipairs({ true, false }) do
+			local plan = ModelInstall.CollisionPlan("None", collide)
+			expect(plan.canCollide).toEqual(false)
+			expect(plan.fidelity).toEqual("Box")
+		end
+	end)
+	it("lets a caller that turns collision off win over any row", function()
+		for _, kind in ipairs({ "Box", "Hull", "Precise" }) do
+			local plan = ModelInstall.CollisionPlan(kind :: Types.PropCollision, false)
+			expect(plan.canCollide).toEqual(false)
+			expect(plan.fidelity).toEqual("Box")
+		end
+	end)
+	it("leaves the fidelity alone and follows the caller for a prop with no row", function()
+		expect(ModelInstall.CollisionPlan(nil, true).canCollide).toEqual(true)
+		expect(ModelInstall.CollisionPlan(nil, false).canCollide).toEqual(false)
+		expect(ModelInstall.CollisionPlan(nil, true).fidelity).toEqual(nil)
+		expect(ModelInstall.CollisionPlan(nil, false).fidelity).toEqual(nil)
 	end)
 end)
 return true
