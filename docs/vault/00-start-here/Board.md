@@ -68,6 +68,12 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Models still missing: home props Bench, Flag, Fountain, HabitatFrostbyte, HabitatVerdant, Planter, RoomCabin, RoomDome, RoomTower (Nebulyn, Spookum, Wisplet done overnight) | Collab or Mac | [[Blender-MCP]], [[Creature-Generation]]; upload through Open Cloud on Ethan's Mac |
 | Icons v2 pass: the reference board, then batches of twelve | Collab + Coord | The plan is written: [[Look-Plan]] L5b (2026-10-12) |
 | Store page: upload the picked renders, paste the description, set genre and devices | Ethan | Everything drafted in [[STORE-PAGE]]; the 10 s clip after launch |
+| Roster redesign 1: the effects data and renderer (`data/Effects.luau`, the Tiers ladder columns, `World/AlienFx.luau`, the Attach calls in the seven renderers, the caps in Config) | | Cloud. [[Roster-Redesign]] sections 6 and 7 step 1; [[Decisions]] B34, B35, B39; `./tools/analyze.sh` clean |
+| Roster redesign 2: names v3 applied (the collision screen on the 19 new picks, then `Species.luau` `name` only, `TUT_2` and `TUT_3`, the GAME_DESIGN roster table, `names_check.py` rules) | | Cloud. Waits on Ethan's letters per species ([[Roster-Redesign]] section 5); [[Decisions]] B36; ids never change |
+| Roster redesign 3: the Fenrir and dragon prototypes (the `Fenripup` recipe rebuilt to the brief, a new `Suiryn` recipe, hybrid sculpt on a scratch copy, sheets for Ethan) | | Cloud, then the Mac for the Studio look. [[Roster-Redesign]] section 3; nothing under `assets/models/` changes until Ethan says yes |
+| Roster redesign 4: the ladder applied to auras and the reveal (`AlienFx` reads Tiers, `UI/Reveal.luau` beats per tier with a `data/Reveal.luau`, `CameraDirector`, per-tier stingers in `Sounds.luau`, plate styles in `Builder`) | | Cloud. [[Roster-Redesign]] section 1; shares the reveal table with the B29 three-beats row above; the Playbook updated in the same change |
+| Roster redesign 5: the hero slate, one per week in the order of the note (Raiju, Qilin, Kerbos, Pegasi, Sphinx, Airava after the two prototypes) | | Cloud and Mac. [[Roster-Redesign]] section 3; waits on Ethan's confirmation of the slate and B37 |
+| Roster redesign 6: the Studio check on a phone (a TESTING milestone: iPhone SE and iPad, a dozen wild aliens with a Cosmic, `perf_report.py` numbers, Reduced Motion on and off, two reveals filmed) | | Mac. [[Roster-Redesign]] section 7 step 6; numbers into [[Performance]] |
 
 ## Waiting on Ethan (only he can do these)
 

@@ -1,0 +1,233 @@
+---
+tags: [game-design, species, vfx]
+aliases: [Roster redesign, Rank ladder]
+up: "[[Game-Design]]"
+---
+# Roster redesign: the rank ladder, effects per species, the hero slate and names v3
+
+Status: proposal, 2026-10-15, written for Ethan's pick. Nothing in `src` or `assets` has changed. Decisions B34 to B39 in [[Decisions]] record his direction; the build order at the end is on the [[Board]] as unclaimed rows. Back to [[Game-Design]]; the names study this supersedes in part is [[Species-Names]]; the creature rules every model still meets are in [[Character-Pipeline]] "The bar after the research" and [[Sculpt-Pass]].
+
+Ethan, 2026-10-15: "Add effects to the different aliens. If it looks like they would have some type of lightning attribute, create effects where there is lightning coming from them, or some sort of plasma aura. We need a clear separation between ranks: the highest rarity of alien should be the most grand in design, effects, and everything else. The names are not good either; they are just combining two words and I don't like that. I will try to personally name them if you can't give better alternatives. I mentioned noticeable aliens: Fenrir is a good alien and could be a lot better designed, more detailed, a lot more scary and strong, and have effects. We should have other noticeable aliens too, for example a dragon like Haku from Spirited Away, or other beings from different mythologies like Norse, Greek, Egyptian, Japanese, Chinese, Hindu and Roman. Other alien designs can be based off of and heavily influenced by pets of other games; use them as reference points, such as those in Pet Simulator and Steal an Egg. We should be incorporating VFX and animation into these models too. Each alien should have their own effects."
+
+This note answers each sentence in order: the ladder (section 1), an effect per species (2), Fenrir and the heroes (3), the reference games (4), the names (5), how the VFX and animation are built without a rig (6), and the order of work (7).
+
+## 1. The rank ladder
+
+Two colours do two jobs everywhere below. A **species effect** (the lightning, the steam, the petals) is in the species' own element colour. A **tier layer** (the ground ring, the nameplate, the reveal rays, the banner) is in the tier colour from `Tiers.luau` (grey, green, blue, magenta, gold, pink, black). So a player reads *what it is* from the effect and *how rare it is* from the frame around it, and an overlay (Shiny, Gold, Crystal, Rainbow) recolours the glow slot and the aura without touching either.
+
+| Tier | Body detail | Size | Effect layers allowed | Aura | Idle motion | Nameplate | Catch and reveal | Feels |
+|---|---|---|---|---|---|---|---|---|
+| Common | 1,000 to 1,400 triangles; one crisp feature (a hat, a tail tip, a pair of ears); one bold colour | 1.0 | 0. One species touch only: an emissive blink or a single particle, at most 1 a second, no light | none | still, or a bob of 0.1 studs over 2 s | plain: white name, tier word in grey | the card slides in, one squeak, no rays | friendly |
+| Uncommon | 1,200 to 1,600; one or two crisp features; two-tone body | 1.0 | 0. The touch may use a second colour and reach 2 a second | none | bob 0.15 studs over 1.8 s, or a wobble of 3 degrees | white name, tier word in green | the card in the tier colour, a two-note squeak | cheeky |
+| Rare | 1,400 to 1,900; two crisp features; one metallic or glossy trim slot | 1.1 | 1: a light | soft light: a PointLight, range 8, brightness 0.6, in the element colour | bob 0.2 studs or hover 0.25 studs; one extra move every 4 s (a tail swish, a head tilt) | name in the tier colour | card plus burst, three-note jingle, the rays turn slowly | shiny |
+| Epic | 1,700 to 2,200; three crisp features; a glow region planned into the mesh | 1.2 | 2 to 3: the light, the glow sprite, one emitter; a Beam allowed for Lightning and Aurora | light plus glow: the breathing glow sprite (6 studs) and the light at 1.0 | hover 0.3 studs, or a flap or stride loop on two parts; the signature move every 3 s | outlined in the tier colour, with the tier badge | flash, rays, the name text, the voice line; the camera settles 10 degrees lower | charged |
+| Legendary | 2,000 to 2,500; four crisp features; an animated texture allowed on one slot | 1.25 | 4 to 5: light, glow, one emitter, orbiting particles, a ground ring | light plus glow plus orbiting particles plus a ground ring (4 studs, turning once in 12 s, in the tier gold) | a flap or stride loop plus a head move; the signature move every 3 s and a flourish every 10 s | outlined gold with a slow shimmer sweep | rays in gold, the ground ring under the card's model, the long voice line, the server banner, the camera push-in (TESTING 47) | grand |
+| Cosmic | 2,500 (the cap) plus kept glow parts (halo, disk, moon); five or more crisp features; a shifting material on the glow slot | 1.5 | everything: light, glow, two emitters, orbiting particles, ground ring, trail, beam, a floating accessory | all of Legendary, plus a trail while it moves and a sky beam at the flourish; the glow breathes between two colours | a full idle loop: hover or stride with a head sweep; a flourish every 15 to 20 s (a howl, a spin, a flare) | an animated gradient plate; stats shown as "????" | rays in two colours, a vignette, the camera pulls out then pushes in, the theme stinger, the server banner, the trail on the card's model | celestial |
+| Secret | as Cosmic, in a dark palette with one bright accent | 1.3 | everything, in shadow: a dim coloured light, smoke-like particles that fall instead of rise, a glyph ring, a shadow trail, a beam at the flourish | the Cosmic set in shadow colours: a dark glow, a slow glyph ring | a full idle loop with a mischief move (a wink, a hop, a vanish-and-return every 20 s) | a dark plate with an animated glyph, the name in the accent colour | the lights dim, a dark iris opens on the model, glyphs, a whispered stinger, the server banner | mythic |
+
+Size is the tier scale times the size roll (`Sizes.luau`, Tiny 0.75 to Huge 1.35) times growth (`Growth.luau`, up to 1.16): a Huge Elder Cosmic stands at 2.35 times a Common, the biggest thing in the game, and a Tiny Common is the smallest. The triangle bands sit inside the 2,500 cap of [[Character-Pipeline]]; a Common gets fewer so it reads as plain next to anything above it.
+
+**Epic from Legendary at ten studs.** An Epic's effects stay *on its body* (the glow region, the sparks off its quills, the light); a Legendary's effects *touch the ground and the air around it*: the gold ring under its feet and the particles orbiting a stud out from the skin, plus a gold-outlined plate. If the ring is there, it is Legendary or above. A Cosmic's effects *reach the sky and the camera*: a trail behind it and a beam at the flourish. A Secret is dark where everything else is bright. A Common has no light at all, so at night it is simply the dim thing next to the bright ones.
+
+## 2. Element and signature effect per species
+
+Sixteen elements, each with one colour and one particle sprite in `Icons.Particles`: Lightning, Plasma, Ember, Frost, Bloom, Crystal, Shadow, Star, Steam, Aurora, Moon, Stone, Water, Wind, Sound, Light. A species has one element; the effect is written so that a Common's is one touch and a Cosmic's is a spectacle, on the ladder above. Idle amplitudes are in studs or degrees with the period; "flourish" is the ladder's timed big move.
+
+### World 1 Verdant and the Haunted Nebula event
+
+| Id | Name now | Tier | Element | Signature effect | Idle motion | Sound cue |
+|---|---|---|---|---|---|---|
+| Mossbop | Moop | Common | Bloom | one sprout on the top of its head unfurls over 1 s every 6 s, then folds back | bob 0.1 studs, 2 s | a soft pop ("bop") |
+| Pebblet | Pebblet | Common | Stone | a puff of grit at its feet every 4 s when it hops | breathe 2 percent scale, 2.2 s, with a 0.1 stud hop at the puff | a click ("tik") |
+| Glimmo | Glim | Common | Light | its belly blinks brighter for 0.5 s every 3 s like a firefly (an emissive pulse, no particles) | hover 0.2 studs, 2.4 s | a tiny chime |
+| Twiglet | Twiggle | Common | Bloom | one leaf lets go of the hat and drifts down every 8 s | sway 4 degrees side to side, 2 s | a twig snap |
+| Puffpuff | Puffpuff | Common | Wind | one seed lifts off the puff and floats away every 5 s | bob 0.2 studs, 3 s (slow, airy) | a breathy "puff" |
+| Snailbyte | Snibble | Uncommon | Light | a glint sweeps across the metal shell every 4 s (a slim emissive band that scrolls once) | slide 0.3 studs forward and back, 3 s | a metallic tick ("byte") |
+| Buzzlebee | Buzzbit | Uncommon | Wind | two translucent wing discs flicker; a dust mote pops under it on each dip, 2 a second | hover 0.3 studs, 0.5 s (fast) | a buzz |
+| Lanternewt | Lanternewt | Uncommon | Light | the tail lamp glows warm and breathes with it; one warm mote drifts off the lamp every 2 s | breathe 3 percent, 2 s, tail sway 6 degrees | a wet plink |
+| Rocklobber | Rocklobber | Rare | Stone | the boulder claws clack together every 5 s with a dust puff and two pebble chips; soft light in stone-grey | stride: a side shuffle of 0.2 studs, 1.6 s | a clack |
+| Zapfinch | Zapfinch | Rare | Lightning | a static spark jumps between the two antenna tips every 3 s (a Beam that flickers for 0.2 s); the crest tips keep a faint blue glow; soft blue light | flap: two wing parts flick 20 degrees every 1.2 s; head tilt every 4 s | a zap-chirp |
+| Sparkfox | Sparkfox | Rare | Ember | the paintbrush tail leaves a short paint-spark Trail (0.4 s) while it moves; at rest one glowing drop falls from the brush every 4 s; soft orange light | bob 0.2 studs, 1.8 s, tail swish 15 degrees every 4 s | a yip |
+| Thunderhog | Thunderhog | Epic | Lightning | lightning arcs between two random quills every 2 s (a Beam for 0.25 s, three flickers), static sparks drift off the quill tips at 6 a second; a violet glow sprite and light; in Rain the arcs come every 1 s | breathe 3 percent, 2 s; the quills bristle (scale 1.1) at each arc | a crackle ("zzrt") |
+| Gloomoth | Prismlux | Epic | Crystal | a rainbow glint sweeps the crystal wings every 3 s and a dust of light falls beneath them at 8 a second; a lilac glow and light | hover 0.3 studs, 2.6 s, with a slow flap of 12 degrees | a glassy flutter |
+| Gaiabloom | Gaiabloom | Legendary | Bloom | a flower blooms in each footprint (a decal pop and four petals), petals orbit the antlers at 1 stud, a ground ring of grass and light; the flourish shakes the antlers and sheds a ring of petals | stride loop: head sway 8 degrees and antler tilt, 2.4 s; flourish every 10 s | a bloom chord |
+| Radish | Ra-dish | Cosmic | Plasma | a sun-plasma corona: the sun disk spins once in 8 s with rays sweeping, gold motes orbit at 1.5 studs, a ground ring of light, a sunlight trail while it hovers; the flourish is a flare that whites out its glow for 0.3 s and sends a beam up | hover 0.35 studs, 2.4 s, with a slow spin of 10 degrees; flourish every 18 s | a brass stinger ("raa") |
+| Panpipe | Trillgoat | Secret | Sound | music-note sprites drift from the pipes in time with a trill every 4 s, a ring of shadow leaves turns under it, the notes fall instead of rise; the flourish is a hop and a vanish-and-return | a full loop: a hoof tap every 2 s, head bob 0.15 studs; mischief move every 20 s | a pipe trill |
+| Wisplet | Wispkin | Rare (event) | Shadow | a cold blue flame flickers (scale wobble 8 percent) and one faint ember rises every 1.5 s; soft blue light | hover 0.4 studs, 2.8 s | a hollow "wooo" |
+| Spookum | Grin | Epic (event) | Shadow | the pumpkin grin glows orange from inside, a pool of purple mist spreads under it, and it fades to 60 percent and back every 5 s; a purple glow | hover 0.3 studs, 3 s, with a slow spin of 15 degrees | a "boo" with a giggle |
+| Nebulyn | Cosmoo | Legendary (event) | Star | a tail of stars trails behind it (a Trail plus star particles), small stars orbit at 1 stud, a ground ring of starlight; the flourish is a twinkle burst | hover 0.35 studs, 3 s, drifting 0.2 studs sideways | a hum chord |
+
+### World 2 Frostbyte
+
+| Id | Name now | Tier | Element | Signature effect | Idle motion | Sound cue |
+|---|---|---|---|---|---|---|
+| Flufflet | Mitt | Common | Frost | a snowflake lands on its head every 6 s and melts away over 1 s | bob 0.1 studs, 2 s | a soft "fluff" |
+| Snowbun | Snowsnow | Common | Frost | the snowball tail grows in three steps over 9 s, then pops back to small with a puff | hop: bob 0.15 studs, 1.4 s | a "bun" |
+| Drippo | Drip | Common | Water | one drop falls from its tip every 3 s and lands with a tiny ring | breathe 2 percent, 2.4 s | a drip |
+| Chipmole | Digling | Common | Stone | ice chips kick up from its claws every 5 s (three particles) | breathe 2 percent, 2 s; a claw scratch (a 10 degree part tween) at each chip | a chip |
+| Kettlepuff | Kettlet | Common | Steam | a steam puff from the spout every 4 s | wobble 3 degrees, 1.6 s | a whistle ("fweee") |
+| Pengoo | Pengoo | Uncommon | Frost | a snow spray behind it while it belly-slides (a short Trail); the goggles glint every 5 s | slide 0.4 studs forward and back, 2 s | a "goo" |
+| Flapsicle | Flapflap | Uncommon | Frost | the icicle wings shed frost dust at each flap, 2 a second; it hangs upside down and sways | flap: two wing parts 25 degrees, 1 s; sway 5 degrees | an "eek" |
+| Toastoad | Toastoad | Uncommon | Steam | steam wisps rise off its back at 2 a second; a bubble pops on its nose when it blinks every 5 s | breathe 4 percent (the belly), 2.6 s | a "mlorp" |
+| Emberchin | Sizz | Uncommon | Ember | the quill tips glow orange; one ember spark pops off a random quill every 2 s | hop: bob 0.15 studs, 1.2 s | a hiss ("tss") |
+| Reindazzle | Glintelk | Rare | Light | the nose blinks red every 2 s (an emissive pulse); the icicle antlers glint every 4 s; soft white light | stride: head sway 6 degrees, 2 s | a bell with a "dzz" |
+| Shellberg | Shellberg | Rare | Frost | a cold mist rolls off the iceberg shell at 3 a second and pools at its feet; the shell glints; soft blue light | breathe 2 percent, 4 s (very slow) | a deep creak |
+| Capybubble | Capybubble | Rare | Water | snore bubbles rise from its nose, three every 4 s; one pops with a tiny splash; soft teal light | breathe 4 percent, 3 s (asleep) | a snore ("mlem") |
+| Shimmerlynx | Auralynx | Epic | Aurora | an aurora ribbon waves from the crest (a Beam with a scrolling aurora texture, 2 studs long), the light cycles through the aurora colours over 6 s, motes drift up at 5 a second | breathe 3 percent, 2.4 s; tail sway 10 degrees; a slow blink every 5 s | a purr chord |
+| Frostfang | Achoocub | Epic | Frost | frost breath mist from the mouth every 3 s; a sneeze every 12 s throws a burst of 20 snowflakes 2 studs; the icicle fangs glow ice-blue; a blue glow and light | breathe 3 percent, 2 s; a shake of 6 degrees after each sneeze | a "grrf", then "achoo" |
+| Skaddle | Skaddle | Legendary | Wind | a snow flurry swirls around it at 1 stud, frost ski-tracks trail behind it (two Trails), a ground ring of frost, a halo of ice crystals turning above; the flourish is a gust that lifts it 0.5 studs and spreads the flurry | hover (gliding on the skis) 0.25 studs, 2.6 s, banking 5 degrees; flourish every 10 s | an owl hoot over a wind chord |
+| Fenripup | Fenrikin | Cosmic | Moon | the forehead moon glows and passes through its phases over 30 s, a moonlit mist glow (blue-white), moon-dust motes orbit at 1.5 studs, a ground ring of runes turning once in 12 s, a moon-dust trail while it runs; at full moon the eyes flash and it howls: a beam of moonlight from the forehead and the ring brightens | a full loop: weight shifts paw to paw every 2 s, head sweep 15 degrees; the howl flourish every 20 s | a howl ("awoo") over a low drum |
+
+## 3. Noticeable aliens: the hero slate
+
+### Fenrir first: the Fenripup redesign brief
+
+Today: "a puppy with a glowing moon on its forehead", a Ball placeholder in navy, Cosmic, Frostbyte, rolls in any biome during a Meteor Shower, rideable. The brief keeps the id `Fenripup`, the tier, the world and the ride; it changes the body, the pose and the coat. The goofy-cute DNA stays at the top tier: the eyes can still be big, the pose does the menace.
+
+| Aspect | Today | Redesign |
+|---|---|---|
+| Stance | a ball on four nubs | front legs wide and planted, chest forward, hind legs crouched as if about to lunge; head held low with the eyes looking up from under the brow (the "look up" pose reads as threat with big eyes) |
+| Proportions | round body | head 40 percent of the body length, oversized paws (each a quarter of the body width, which the pipeline rule already requires), a deep chest, a tail held low and stiff |
+| Fangs | none | two fangs over the lower lip, white with a blue tint, each a crisp part; the mouth stays open in the goofy grin, so the fangs are big and the grin is still a grin |
+| Eyes | big, round | big (at least 6 px at 128 px, the ship check), tilted 10 degrees inward (fierce), the pupils a crescent-moon highlight; the glint kept |
+| Fur breaks | none | a mane of five crisp tufts across the neck, a chest ruff, a split tail tip, one notched ear (its one scar) |
+| Chains and runes | none | a broken chain collar with two hanging links (the echo of the bound wolf; ours wears the broken link as a trophy) in dark navy metal with a faint moon glow on the broken ends; three glowing marks on each foreleg, invented shapes rather than real letters |
+| The moon | a disc on the forehead | a crescent planned into the mesh as a glow region (Adopt Me's Neon lesson): it phases new to full over 30 s; at full moon the howl |
+| Colour | navy 3B2E6B | navy body, a pale blue-grey underside, a cream moon; the species glow is cold blue-white; the tier pink is on the plate, the ring and the reveal only |
+| Effects | the Cosmic tier aura | the Moon row of section 2: moonlit mist glow, orbiting moon dust, the rune ring, the trail when ridden, the moonlight beam at the howl |
+| Idle | the shared bob | the full loop: weight shifts paw to paw, a head sweep, the tail stiff; the howl every 20 s (head up, moon flares, light burst, ring brightens); as a companion the tail wags when its owner stands still, and the tongue peeks out after the howl |
+| Voice | "awoo" | a howl over a low drum, cracking at the end (the joke in the grandeur) |
+| Scale | 1.2 | 1.5 (the Cosmic scale); rideable, so the seat is on the mane |
+
+Built on the hybrid method of [[Sculpt-Pass]]: the core is the head, body, legs and tail root; the crisp list is the fangs, the five tufts, the ears, the chain links and the moon. The three ship checks of [[Character-Pipeline]] apply (silhouette at 64 px, no seam, face at 128 px); the "scary" is measured by a fourth: at 128 px in greyscale, is the brow line above the eyes and the mouth open?
+
+### The slate
+
+Each hero is an **original creature that echoes a being**; the echo is one attribute and the name, the body is this game's (the Pantheon rule in `docs/GAME_DESIGN.md` section 4). Never a copy of a film, a game or a toy design. Traditions with living religious communities (Hindu, Shinto, Buddhist) give us **creatures from their epics and folklore, never deities**, which keeps the design doc's rule and still answers Ethan's list; that line is decision B37 and his to confirm. Working names are single words (section 5's rule). "Build first" marks the eight to build in order; the others follow one a week.
+
+| Working name | Echoes | Our take (two lines) | Tier, world | Element and signature effect | Build first |
+|---|---|---|---|---|---|
+| Fenrir (id Fenripup) | Fenrir, Norse | the brief above: a lunging moon-wolf pup with a broken chain collar. Big eyes, fierce brow, open grin with fangs | Cosmic, Frostbyte (built, redesigned) | Moon: phasing forehead moon, rune ring, moon-dust trail, the howl beam | 1 |
+| Suiryn | the long river dragon of Chinese and Japanese stories (the Haku-like dragon) | a noodle-bodied dragon the length of four Moops, pearl-white scales, a mane of cloud-fur, whiskers with a lantern pearl under the chin, two tiny forelegs and huge round eyes. It swims through the geyser steam like a ribbon and curls round the player when caught | Secret, Frostbyte (the Frostbyte codex Set reward; World 2 has no Secret yet) | Water and Steam: a ribbon of water follows the body (a Trail on three segments), steam puffs where the body bends, the pearl glows; the flourish is a loop-the-loop through its own steam | 2 |
+| Raiju | raiju, the lightning beast of Japanese folklore | a fox-weasel curled in a ball of lightning, fur standing on end, paws of static, a tail that splits into three forks. It sleeps in a ball and wakes with a bang | Legendary, Neon Grid (Power Surge; the surge signature) | Lightning: arcs between the tail forks every 1.5 s, static sparks off the whole coat, a plasma glow that pulses with the surge; the flourish is a thunderclap that lights the ring | 3 |
+| Qilin | the qilin, the gentle hoofed beast of Chinese legend | a deer-sized hoofed creature with a single soft horn, scales on the back like petals, a lion-cub face with big eyes, flames at the hooves that burn nothing. It walks on the air a stud above the grass so it never crushes a flower | Cosmic, Verdant (Meteor Shower, sharing the roll with Ra-dish) | Bloom and Ember: hoof flames leave glowing petals, a ring of embers that cools into flowers, a warm gold glow; the flourish is a rear-up that scatters petals | 4 |
+| Kerbos | Cerberus, Greek | a three-headed pup whose heads argue: one yawns, one barks, one sleeps. A collar with three tags, a tail that wags on its own schedule | Secret, the Myth Beasts Set (lives in Verdant's Cave) | Shadow and Ember: a smoke that pools under its paws, three ember breaths out of sync, a glyph ring; the flourish is all three heads howling together | 5 |
+| Pegasi | Pegasus, Greek | a chubby winged foal with wings too small for it that flaps anyway, a cloud-puff mane and tail, hooves that leave a little cloud | Secret, the Greek Set (Verdant Meadow, high over the shrine) | Wind and Light: cloud puffs at each hoof-fall, a soft white trail of feathers while flying, a halo of light; the flourish is a loop that leaves a feather ring | 6 |
+| Sphinx | the Sphinx, Egyptian | a cat with a tiny striped headcloth and a lion's tail, sitting bolt upright with its paws together; it tilts its head when a player stands close, as if asking something | Secret, the Egyptian Set (Verdant Cave ruins) | Light (the Stone sprite in gold): sand motes drift round its paws, gold glyphs circle it, its eyes glow at the flourish; the flourish is a slow blink that makes a riddle-glyph appear over its head | 7 |
+| Airava | Airavata, the white cloud elephant of the Hindu epics (a creature, not a deity) | a round white elephant calf with four stubby tusks and a trunk that curls into a spiral; it stands in the geyser field and sprays the steam that makes the clouds | Legendary, Frostbyte (Geyser Field, by a Field Notes side quest) | Steam and Wind: a steam plume from the trunk every 4 s, cloud puffs orbiting, a ground ring of mist; the flourish is a trumpet and a cloud that rains for 2 s | 8 |
+| Sleipnir | Sleipnir, Norse | a foal with eight stubby legs that move in waves, a storm-grey coat and a white blaze; it gallops in place when excited | Legendary, Dreamdrift (the gravity-flip world; eight legs make sense upside down) | Wind: hoof dust in two rows, a trail of wind lines while ridden, a ring of drifting leaves | later |
+| Tosk | Ratatoskr, the squirrel messenger of Norse myth | a squirrel with a leaf-scroll in its paws and ears like question marks; it runs up and down the biggest tree in the Forest carrying gossip | Epic, Verdant (Forest, Night; the scroll glows) | Sound and Bloom: tiny word-sprites drift from the scroll, acorns drop at each flourish | later |
+| Gryph | the griffin, Greek | a chrome-feathered griffin cub with a beak too big for its head, cat paws, and a tail with a tuft that lights | Legendary, Neon Grid (the chrome Legendary that flees across rooftops, caught through the Chase bar) | Light: a chrome glint that sweeps the feathers, a trail of light as it runs, a ring of sparks when cornered | later |
+| Khepra | the scarab of the sun (Egyptian) | a round beetle that rolls a glowing sun-ball bigger than itself; it stops to rest on the ball and falls off | Epic, a future desert world (Dunewake: dunes, canyon, oasis) | Light and Stone: the ball glows and leaves a track of light, sand puffs as it rolls | later |
+| Bennu | the Bennu bird (Egyptian) | a heron-shaped chick with two long head feathers and a tail that is always slightly on fire; it stands on one leg and nods off | Legendary, Dunewake | Ember and Light: feather sparks, a heat shimmer ring, a flare at the flourish | later |
+| Baku | the baku, the dream-eater of Japanese folklore | a tapir-elephant with a short trunk, a striped belly and sleepy eyes; it vacuums up bad dreams (dark motes) and burps a star | Cosmic, Dreamdrift | Moon and Shadow: dark motes drawn into the trunk at 10 a second, a star burp every 12 s, a ring of z-sprites | later |
+| Kappo | the kappa, the river imp of Japanese folklore | a round turtle-frog with a dish of water on its head that it must keep level, so it walks very carefully; a shell like a bowl | Epic, Tidepool (Reef) | Water: a ripple ring on the dish every 3 s, a splash when it stumbles, drops that orbit | later |
+| Yutu | the moon rabbit of Chinese legend | a rabbit pounding a tiny mortar, long ears that droop when it is tired, a pale coat with a moon glow in its chest | Legendary, Frostbyte (Snowfield, Night, by a quest at the Shrine) | Moon: a dust of moonlight at each pound, a crescent halo, a ring of pale light; pairs with Fenrir's moon | later |
+| Nian | the Nian beast of the New Year story | a lion-dog with a red mane that fears red and loud noises, and so hides behind the player | event (Lunar New Year), Epic | Ember and Sound: firecracker pops around it, red paper sprites drifting | later |
+| Makara | the makara, the sea creature of the Hindu epics (a creature, not a deity) | a fish-tailed crocodile pup with a short trunk, scales in teal and gold, that swims in loops | Legendary, Tidepool (Trench) | Water: a trail of bubbles, a ring of ripples on the surface above it | later |
+| Janus | Janus, Roman | a round creature with two faces, one awake in front and one asleep behind; it turns round to look at a door it has noticed | Legendary, the Void Hub (the Gate) | Light and Shadow: a light face and a dark face each with its own glow, a ring of door-shaped glyphs | later |
+| Romula | the she-wolf of the Roman founding story | a soft grey mother-wolf with two tiny cubs riding her back and a very patient face | Legendary, a future world (Marblemount: columns, aqueduct, hill) | Stone and Light: marble dust at each step, a gold laurel ring | later |
+
+Why those eight first: Ethan named the first two; Raiju is the lightning showcase he asked for; Qilin gives Verdant a hero players can meet at launch; Kerbos, Pegasi and Sphinx are the three Set rewards the design doc already promises and they fill the Secret band that today has one species; Airava brings the Hindu tradition in on a world that exists. Roman heroes (Janus, Romula) wait because their worlds do not exist yet; Vulcanine, the Emberfall Warden, is the Roman echo already planned.
+
+## 4. Reference points from other games
+
+What makes a pet read as grand in Pet Simulator 99, Steal an Egg, Adopt Me and Grow a Garden, what we already have, and what we add. The rule: **inspired by, never traced.** No other game's model, name, logo or particle sprite comes into the repo; a reference is a screenshot in `05-ui-design/refs` or a line in `media/tiktok/NOTES.md`, looked at and then closed. (The study behind the table is in [[Species-Names]] "What the top games do" and the report `reports/Roblox creature UI and Claude workflows.md`.)
+
+| What they do | Why it reads as grand | What we have | What we add |
+|---|---|---|---|
+| Scale tiers: Huge, Titanic, Gargantuan (Pet Simulator 99); weight classes Small to Colossal (Grow a Garden) | the rarest thing is also the biggest thing on screen; size is visible from across the map | size rolls Tiny to Huge (`Sizes.luau`, 0.75 to 1.35, labelled on the plate) and growth to Elder (`Growth.luau`, +16 percent) | the tier scale column of section 1 (1.0 to 1.5), so rank is also size; a Huge Cosmic is the biggest creature in the game |
+| Particle trails behind Huge and exclusive pets | motion leaves a mark; a trail says "this one is special" even from behind | nothing | a Trail at Cosmic and Secret, and on any mount while ridden (`Mounts.luau`); off under Reduced Motion |
+| Golden, Rainbow, Shiny (PS99, Grow a Garden); Neon and Mega Neon glow regions (Adopt Me); Gold, Diamond, Galaxy mutations (Steal a Brainrot) | one mesh, many prizes; the recolour is a flex that needs no new art | overlays Shiny 1.25, Gold 1.5, Crystal 2, Rainbow 5 (event), Spectral, LaunchGold (`Overlays.luau`), shown as a tint | the overlay also changes the glow slot and the aura: Gold a metal material and gold light, Crystal a glass material with a refraction glint, Rainbow a hue cycle on the glow region and the ring, Shiny a sparkle at 2 a second. Glow regions are planned into the mesh, Adopt Me's structural lesson |
+| Floating accessories and orbiting items (halos, crowns, orbiting gems on top pets) | something is moving around the pet, so it is never static | halos and rings as kept parts in the recipes (Gaiabloom, Ra-dish, Skaddle) | orbiting particles at Legendary, a floating accessory tweened round the body at Cosmic and Secret (the moon, the sun disk, the pearl) |
+| Enchant glows and "enchanted" auras on upgraded pets | a glow around the pet says it has been worked on | the tier aura light (`Tiers.luau` aura, Rare and up) and the glow sprite when its icon is uploaded | the ladder of section 1: light, glow, orbiting particles, ground ring, trail, beam, by tier, in the data table of section 6 |
+| Rarity-coloured names and index cells | the colour is learned in the first minute and read everywhere after | tier colours on plates, cards and the codex | the plate ladder: plain, coloured, outlined, shimmer, animated gradient, dark glyph |
+| The hatch ceremony: shake, crack, rays, the card with the odds | the ten seconds of a reveal is the clip people post | the reveal card with rays | the three beats of B29 scaled by tier (section 1's reveal column): rays, camera, sound, banner |
+| Pets that follow with their own idle (a bob, a flap, a hover) | the pet is alive without a rig | the shared bob in the renderers | per-species idle motion from the table (section 2), by part CFrame tweens |
+
+## 5. Names v3
+
+Ethan: the names "are just combining two words". The second pass ([[Species-Names]]) fixed the endings but kept the compound shape for fourteen species (Sparkfox, Thunderhog, Rocklobber, Gaiabloom, Lanternewt, Zapfinch, Toastoad, Shellberg, Capybubble, Trillgoat, Glintelk, Auralynx, Achoocub, Buzzbit) and the reduplications (Puffpuff, Snowsnow, Flapflap), which read as two words too. Names v3 rules:
+
+- **One word, invented or ancient.** No compound of two dictionary words, no reduplication, no hyphen. A suffix (-let, -ling) is allowed on a Common where it is the whole word's charm.
+- **The voice by tier.** Commons: invented soft words (Moop, Glim), one or two syllables, a few at one. Uncommon and Rare: sharper invented words with a hard letter. Epic: bigger, still warm. Legendary and up: mythological or ancient-sounding; the myth name itself is allowed where it is public domain and reads as ours (Fenrir can simply be Fenrir).
+- **Say it aloud.** Two syllables for most, one for a few Commons, three at most, under 11 letters.
+- **No two names in a world rhyme or share an ending** (the last two letters), and no more than three in a world end in the same letter; the Haunted Nebula trio counts in World 1.
+- **Ids never change.** Ids are code (`Species.luau`, `assets/models/<Id>/`, `ModelAssets`, spawn tables, `/spawn` commands); names are data, the `name` field only, plus `TUT_2` and `TUT_3` in `src/shared/strings/en.luau` and the roster table in `docs/GAME_DESIGN.md`.
+- **The collision screen first.** Every new pick gets the three searches of [[Species-Names]] (`"<name>" Roblox`, `"<name>" toy`, `"<name>" game character`) before it goes into `Species.luau`; the flags below are from memory.
+
+A is the best fit for the tier voice, B keeps a hint of the current name, C is a wild card. Where the current name already passes it is A.
+
+### World 1 Verdant and the Haunted Nebula event
+
+| Id | Now | Tier | A | B | C | Pick | Why |
+|---|---|---|---|---|---|---|---|
+| Mossbop | Moop | Common | Moop | Mossu | Bimble | **Moop** | one breath, the studio's name and the emblem |
+| Pebblet | Pebblet | Common | Pebblet | Nubbin | Pobble | **Pebblet** | a suffix, not a compound; cleared by the screen |
+| Glimmo | Glim | Common | Glim | Lumo | Firra | **Glim** | one syllable of firefly; cleared |
+| Twiglet | Twiggle | Common | Sprig | Twiggle | Twiglo | **Sprig** | one breath, a stick bug; frees the -le ending for Snibble |
+| Puffpuff | Puffpuff | Common | Dandel | Fuzzil | Fluffin | **Dandel** | the dandelion in one soft word, no repeat |
+| Snailbyte | Snibble | Uncommon | Snibble | Snorbit | Shellick | **Snibble** | the wiggle in the middle; cleared |
+| Buzzlebee | Buzzbit | Uncommon | Buzzik | Hummo | Bizzan | **Buzzik** | the doubled z is the bee, the k the Uncommon bite; not a compound |
+| Lanternewt | Lanternewt | Uncommon | Lampo | Efta | Lantrin | **Lampo** | the lamp-tail in one soft word; the newt is on the model (Lantrin rhymes with Grin) |
+| Rocklobber | Rocklobber | Rare | Krabbok | Boulden | Clobber | **Krabbok** | crab, rock and the clack in one clipped word |
+| Zapfinch | Zapfinch | Rare | Zirrit | Voltwee | Zapzi | **Zirrit** | the zirr of static and a chirp, two beats |
+| Sparkfox | Sparkfox | Rare | Vixa | Blazen | Kindra | **Vixa** | a vixen in two beats with a sharp x; the brush tail is on the model |
+| Thunderhog | Thunderhog | Epic | Voltus | Thrumm | Zorrak | **Voltus** | a Latin-sounding volt, bigger energy, still warm (near-miss: Voltas, an appliance brand; screen it) |
+| Gloomoth | Prismlux | Epic | Iridia | Shardra | Lumira | **Iridia** | iridescent crystal wings in three syllables; no compound |
+| Gaiabloom | Gaiabloom | Legendary | Gaiara | Gaia | Sylvaris | **Gaiara** | keeps the Gaia echo without being the goddess; grand and warm |
+| Radish | Ra-dish | Cosmic | Raddis | Ra-dish | Solrah | **Raddis** | said aloud it is still the radish pun, written it is a pharaoh's name; no hyphen |
+| Panpipe | Trillgoat | Secret | Syrinx | Pannik | Fauno | **Syrinx** | the reed of Pan's pipe is a myth name of its own; mischievous and hard-edged |
+| Wisplet | Wispkin | Rare (event) | Flick | Willo | Wisp | **Flick** | one breath of flame; Willo is a 1980s cartoon, Wisp is Sonic's word |
+| Spookum | Grin | Epic (event) | Grin | Gourdo | Boolum | **Grin** | cleared; one word |
+| Nebulyn | Cosmoo | Legendary (event) | Cosmoo | Nebbi | Stellune | **Cosmoo** | reads as one word with a boo in it; cleared, flagged near-miss |
+
+World 1 endings after the picks: -op, -et, -im, -ig, -el, -le, -ik, -po, -ok, -it, -xa, -us, -ia, -ra, -is, -nx, -ck, -in, -oo. No two alike, no rhymes.
+
+### World 2 Frostbyte
+
+| Id | Now | Tier | A | B | C | Pick | Why |
+|---|---|---|---|---|---|---|---|
+| Flufflet | Mitt | Common | Mitt | Snug | Mimsy | **Mitt** | one breath, cleared; Snug is the cuter swap if Ethan wants it (screen it) |
+| Snowbun | Snowsnow | Common | Flurra | Hoppit | Nivvet | **Flurra** | a snow flurry that hops, no repeat |
+| Drippo | Drip | Common | Drip | Plip | Dribble | **Drip** | cleared; a plain word that is the creature |
+| Chipmole | Digling | Common | Digling | Scoop | Chippa | **Digling** | a suffix word, cleared |
+| Kettlepuff | Kettlet | Common | Kettlet | Fweep | Tootle | **Kettlet** | a suffix word, cleared |
+| Pengoo | Pengoo | Uncommon | Pengoo | Wobblo | Tuxley | **Pengoo** | cleared; one blended word |
+| Flapsicle | Flapflap | Uncommon | Eekle | Flitta | Skreek | **Eekle** | its own "eek" with a wiggle; no repeat |
+| Toastoad | Toastoad | Uncommon | Soakum | Blorp | Pruneo | **Soakum** | it soaks; the -um is the funny sound |
+| Emberchin | Sizz | Uncommon | Sizz | Sizzik | Urchee | **Sizz** | cleared; one hiss |
+| Reindazzle | Glintelk | Rare | Blinkar | Dazzik | Glintar | **Blinkar** | the blinking nose with a Nordic -ar and a hard k |
+| Shellberg | Shellberg | Rare | Floe | Glacio | Bergum | **Floe** | an ice floe is what it is; one breath (its hard sound is the creak) |
+| Capybubble | Capybubble | Rare | Snorzo | Bubbo | Zenbara | **Snorzo** | it snores bubbles; the z is the Rare's hard letter |
+| Shimmerlynx | Auralynx | Epic | Aurelyx | Lynxa | Shimra | **Aurelyx** | the aurora in a lynx's growl, one word |
+| Frostfang | Achoocub | Epic | Sabrek | Achook | Tuskit | **Sabrek** | the sabre-tooth in a clipped Epic word; Achook keeps the sneeze if Ethan prefers the joke |
+| Skaddle | Skaddle | Legendary | Skadi | Skaddle | Skadra | **Skadi** | the winter myth name itself, as Fenrir is Fenrir (near-miss: a character in a mobile game; screen it) |
+| Fenripup | Fenrikin | Cosmic | Fenrir | Fenrikin | Fenrisul | **Fenrir** | Ethan's own call; public domain; the body carries the pup |
+
+World 2 endings after the picks: -tt, -ra, -ip, -ng, -et, -oo, -le, -um, -zz, -ar, -oe, -zo, -yx, -ek, -di, -ir. No two alike, no rhymes.
+
+The heroes of section 3 follow the same rules; their working names are single mythic words (Suiryn, Raiju, Qilin, Kerbos, Pegasi, Sphinx, Airava) and go through the screen before any is written into data.
+
+## 6. VFX and animation: how
+
+From the research (the report and [[Character-Pipeline]] "Animation without a rig at launch"): no rigged animation at launch; motion is tweened MeshPart CFrames and VFX from a data table; a rig can be added later because the topology keeps at most four bone influences per vertex, and a creature without a Humanoid then takes an `AnimationController` with an `Animator`.
+
+- **One data table.** `src/shared/data/Effects.luau`, one row per species id: `element`, `touch` (the Common-level emissive blink or single particle), `emitters` (sprite from `Icons.Particles`, rate, lifetime, size, colour, where on the body by attachment name), `beams` (two attachment names, texture, width, flicker period and length), `light` (range, brightness, colour), `orbit` (count, radius, period), `ring` (radius, turn period), `trail` (lifetime, width), `motion` (kind, amplitude, period; kinds bob, hover, flap, slide, stride, spin, breathe, wobble; `parts` for flap and stride), `flourish` (period and the move), `sound` (a key of `Sounds.luau`). `Tiers.luau` gains the ladder columns: `scale`, `layers`, `ring`, `trail`, `plate`, `reveal`. The renderer never holds a number.
+- **One renderer.** `src/client/World/AlienFx.luau`: `Attach(model, def, tier, overlay, context)` builds the layers the tier allows from the species row, in the element colour, with the tier's ring, plate and trail in the tier colour, and returns a handle with `Detach`. Lightning is two `Attachment`s on the named parts and a textured `Beam` whose `Enabled` toggles for the flicker length every period (a random pair of attachments for quills); an aurora is the same Beam with `TextureSpeed`; a trail is a `Trail` between two attachments; the light is a shadowless `PointLight`; the ring is a flat part with the ring sprite, tweened round; the orbit is an emitter with a small `VelocityInheritance` and a spin, or four particles tweened on a circle.
+- **Idle motion.** A sine on `os.clock()` and the record's phase, as `WildRenderer` already does for the bob, extended per kind: bob and hover offset the pivot (raised by half the amplitude so feet never dip into the floor), spin adds a yaw, breathe scales a `ScaleTo` by the percent, wobble rolls, slide moves along the facing, flap and stride tween the named parts about their root attachment on alternating phases. A flourish is a short `TweenService` sequence at the period, with its light burst and emitter burst.
+- **Mobile caps, in `Config.luau`.** An emitter never exceeds 100 particles a second on mobile and 20 s of lifetime (Roblox's own numbers); the per-alien total is capped by tier (Common 1, Uncommon 2, Rare 5, Epic 15, Legendary 30, Cosmic and Secret 60 a second); the scene cap is `VfxAlienParticlesMax` (1,200, a third of the reported phone ceiling of 3,600; the weather and the camp effects take the rest), so beyond the budget the renderer drops layers from the farthest aliens first (trail, then orbit, then emitters) and keeps the light. One `Highlight` per outlined wild alien stays inside the 255 per client. Draw calls: a layer is at most one part.
+- **Reduced Motion** (`Prefs.ReducedMotion`): idle holds its midpoint, beams stay on without flicker, emitter rates halve, trails and orbits are off, the ring does not turn, flourishes play their light only, the reveal's camera moves are skipped and the rays do not spin.
+
+**Everywhere an alien renders, the same call.** An alien is drawn in seven places and each one already clones the model through `World/Models.Clone`: the wild spawn (`WildRenderer`), the camp worker (`CampRenderer`), the companion and mount (`CompanionRenderer`), the home and its habitats (`HomeRenderer`, `Habitats.luau` rows), the reveal card's viewport (`UI/Reveal.luau`) and the codex and alien-list viewports (`UI/CodexScreen.luau`, `UI/AliensScreen.luau`). Each passes a context to `AlienFx.Attach` and the context sets the budget: `wild` full within `Config.SpawnCullDistance` and nothing beyond it; `companion` full for the player's own three and light only for other players'; `camp` and `home` light and touch only, no emitters (a dozen workers at once); `habitat` as camp plus the ring; `reveal` and `codex` everything, since one model fills a viewport (a ViewportFrame renders no particles, so the reveal's model sits in a world rig behind the card and the codex shows the light, the glow and the idle). The handle is detached when the model is culled or destroyed, so an effect never outlives its alien.
+
+## 7. The build order
+
+1. **The effects data and renderer (code).** `src/shared/types/Types.luau` (EffectDef, MotionDef, the Tiers ladder fields), `src/shared/data/Effects.luau` (new, the 35 rows of section 2), `src/shared/data/Tiers.luau` (scale, layers, ring, trail, plate, reveal), `src/shared/data/Config.luau` (the caps), `src/shared/data/Icons.luau` (the element sprites, 0 until uploaded), `src/client/World/AlienFx.luau` (new), the `Attach` calls in `src/client/World/WildRenderer.luau` (replacing `buildAura`), `CompanionRenderer.luau`, `CampRenderer.luau`, `HomeRenderer.luau`, `src/client/UI/Reveal.luau`, `UI/CodexScreen.luau`, `UI/AliensScreen.luau`; `tools/lint_data.py` learns the caps; `./tools/analyze.sh` clean, `./tools/test.sh` on the pure parts (the motion maths).
+2. **The names applied (data).** The collision screen on the 19 new picks, then `src/shared/data/Species.luau` `name` fields only, `src/shared/strings/en.luau` `TUT_2` and `TUT_3`, the roster table in `docs/GAME_DESIGN.md`, `tools/names_check.py` (the single-word rule, the last-two-letters rule), the id-to-name map in [[Species-Names]]; `tools/names_sheet.py` for a sheet Ethan can look at; `./tools/lint.sh`.
+3. **The Fenrir and dragon prototypes (art).** `tools/blender/species_recipes.py` (the `Fenripup` recipe rebuilt to the brief; a new recipe for the dragon under a new id, `Suiryn`, three body segments as kept parts so the ribbon idle can bend it), `tools/blender/species_sculpt.py --method hybrid` on a scratch copy, previews from `tools/blender/preview.py` at the three ship checks plus the scary check, sheets into `media/studio/<date>/` and the refs under `docs/vault/06-art-pipelines/refs/`; nothing under `assets/models/` changes until Ethan says yes; then `Species.luau` and `Effects.luau` rows for the dragon and `Spawns.luau` or the Set reward in `Quests.luau`.
+4. **The ladder applied to auras and the reveal.** `src/client/World/AlienFx.luau` reads the Tiers columns; `src/client/UI/Reveal.luau` plays the beats per tier (rays, ring, vignette, stinger) with the numbers in a new `src/shared/data/Reveal.luau` (B29's three beats share it), `src/client/World/CameraDirector.luau` for the push-in and pull-out, `src/shared/data/Sounds.luau` for the per-tier stingers, the plate styles in `src/client/UI/Builder.luau` from `Theme`; the look written into [[UI-Playbook]] in the same change.
+5. **The hero slate, one per week.** In the order of section 3: a row in `Species.luau` (a new id), its `Effects.luau` row, its source (`Spawns.luau`, `Seasons.luau` for a surge or an event, `Quests.luau` for a Set reward), its recipe in `species_recipes.py`, the sheet for Ethan, the model under `assets/models/<Id>/`, the Pantheon table in `docs/GAME_DESIGN.md` section 4.
+6. **The Studio check on a phone.** A new milestone in `docs/TESTING.md` and its rows in `docs/STUDIO-QUEUE.md`: the device emulator at iPhone SE and iPad, a dozen wild aliens in range with a Cosmic among them, frame rate and particle count from `tools/perf_report.py`, Reduced Motion on and off, a Legendary and a Cosmic reveal filmed for ten seconds each; the numbers into [[Performance]] and the result into the [[Board]].
+
+Open for Ethan: the names (any letter per species, or his own), the eight heroes and their worlds, the Hindu-and-Japanese "creatures, not deities" line (B37), Skadi and Fenrir as plain myth names, and whether Frostbyte takes a second Legendary (Airava) and its first Secret (Suiryn).

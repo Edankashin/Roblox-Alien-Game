@@ -7,6 +7,7 @@ up: "[[Start-Here]]"
 Notes about what the game is called, who plays it and how it earns its first click. The design itself (mechanics, worlds, economy) lives in `docs/GAME_DESIGN.md`, outside the vault; these notes are the research and the generated reports around it. Back to [[Start-Here]].
 
 - [[Species-Names]]: how the 35 species got their display names: the study of the top games, the rules, the collision screen and the id-to-name map. Read it before writing any string that names a creature.
+- [[Roster-Redesign]]: Ethan's 2026-10-15 direction answered: the rank ladder per tier, an element and signature effect for every species, the Fenrir brief and the mythology hero slate, the reference games, names v3 (one word, no compounds), the data-driven VFX method and the build order. Read it before any creature effect, name or hero work.
 - [[Group-Page]]: the Moop Games group: name, emblem, description, ranks and who owns the game. Read it before touching the group or the group-join gift.
 - [[Thumbnail-Research]]: what earns the first click, how our current set scores and the four candidates built on 2026-10-15. Read it before changing the icon or the store thumbnails.
 - [[Growth-Playbook]]: discovery, retention, rejoin and the first five minutes, every claim sourced. Read it before a launch, event or notification decision.
