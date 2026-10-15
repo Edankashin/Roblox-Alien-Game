@@ -42,6 +42,15 @@ FACE: {"on": <name of the sphere step the face sits on>, "eye_scale": 1.0, "eye_
 The face slots (EyeWhite, Pupil, Mouth, EyeHighlight) are used only by the face. Steps use Body, BodyDark, Accessory and, for
 Epic and Legendary, Trim. `python3 tools/blender/species_recipes.py` checks every recipe without Blender: triangle estimate,
 height, slots against materials.json, the face host.
+
+Two additions for the hero prototypes (docs/vault/06-art-pipelines/Hero-Aliens.md):
+    sweep(slot, pts, radii, name)  a step of prim "sweep": one tube through the points (a Catmull-Rom curve) with a radius per point,
+                                   for a tail or a serpent body. Only `species_sculpt.py --method hybrid` builds it (as ONE chain of
+                                   calibrated balls in the core, so keep it in Body or BodyDark: an Accessory or Trim sweep would be
+                                   taken for a crisp part); `species_bodies.py` has no such primitive and refuses a recipe that has one.
+    "prototype": True              a recipe that is not a shipped species (no assets/models folder, no Species.luau row): the `all`,
+                                   `world1`, `world2` and `batchN` ids skip it, name it to build it, and the tests do not hold it to
+                                   Species.luau or to a shipped materials.json.
 """
 import argparse
 import math
@@ -56,7 +65,7 @@ TRI_BUDGET = 2500  # the hard cap per species
 TRI_GUIDE = {"Common": 1800, "Uncommon": 1800, "Rare": 1800, "Epic": 2200, "Legendary": 2200, "Cosmic": 2200, "Secret": 2200}  # the target per tier: phones draw dozens at once
 FACE_SLOTS = ("EyeWhite", "Pupil", "Mouth", "EyeHighlight")
 DEFAULT_SEGMENTS = {"sphere": 12, "icosphere": 2, "cube": 1, "cylinder": 8, "cone": 8, "torus": 16}
-SMOOTH_BY_DEFAULT = {"sphere": True, "icosphere": True, "cube": False, "cylinder": True, "cone": True, "torus": True}
+SMOOTH_BY_DEFAULT = {"sphere": True, "icosphere": True, "cube": False, "cylinder": True, "cone": True, "torus": True, "sweep": True}
 
 # The Surface pass (docs/vault/06-art-pipelines/Surface-Pass.md, layer B): what species_bodies.py does to a built body so the
 # hard primitives stop reading as flat plastic. `--no-surface` skips all of it and keeps the old output byte for byte.
@@ -203,6 +212,32 @@ def ellipsoid_point(c, s, ux, uy, uz):
     """The point on an upright ellipsoid (centre c, radii s) in direction (ux, uy, uz), pushed out to the surface."""
     n = math.sqrt(ux * ux + uy * uy + uz * uz)
     return (c[0] + s[0] * ux / n, c[1] + s[1] * uy / n, c[2] + s[2] * uz / n)
+
+
+def sweep(slot, pts, radii, name=""):
+    """A tube through the points (a Catmull-Rom curve) with a radius at each point: a tail or a serpent body as ONE tapering shape.
+    Built only by species_sculpt.py --method hybrid (see the docstring at the top); the step has the keys expand() needs."""
+    pts = [tuple(float(v) for v in p) for p in pts]
+    radii = [float(r) for r in radii]
+    if len(pts) != len(radii) or len(pts) < 2:
+        raise ValueError("a sweep needs one radius per point and at least two points")
+    return {"prim": "sweep", "slot": slot, "name": name, "loc": pts[0], "rot": (0.0, 0.0, 0.0), "scale": (max(radii),) * 3, "segments": 0,
+            "mirror": False, "pts": pts, "radii": radii}
+
+
+def crom(pts, u):
+    """The point of the Catmull-Rom curve through pts (the curve species_sculpt.add_sweep uses) at u in [0, 1] along the control points
+    (equal parameter steps, not equal length), and the unit tangent there: ((x, y, z), (tx, ty, tz))."""
+    n = len(pts) - 1
+    f = max(0.0, min(1.0, u)) * n
+    i = min(int(f), n - 1)
+    t = f - i
+    p0, p1, p2, p3 = pts[max(i - 1, 0)], pts[i], pts[i + 1], pts[min(i + 2, n)]
+    pos, tan = [], []
+    for k in range(3):
+        pos.append(0.5 * (2 * p1[k] + (p2[k] - p0[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t + (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t ** 3))
+        tan.append(0.5 * ((p2[k] - p0[k]) + 2 * (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t + 3 * (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t * t))
+    return tuple(pos), _unit(tuple(tan))
 
 
 # ================================================================================================ the recipes
@@ -1091,6 +1126,201 @@ RECIPES["Fenripup"] = {
 }
 # ==== FROSTBYTE END ====
 
+# ==== HEROES BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Hero-Aliens.md; written 2026-10-15) ====
+# Two hero aliens the owner asked for on 2026-10-15: a scarier, stronger Fenrir and a sky dragon. Both are `"prototype": True` recipes: they have
+# no assets/models folder and no Species.luau row, `all`/`world2`/`batchN` skip them, and the tests do not hold them to the shipped files. They
+# are built with `species_sculpt.py --method hybrid` on a scratch models folder (the exact commands are in Hero-Aliens.md) and carry the Trim slot.
+
+
+def _basis(d, thin):
+    """Euler degrees whose local z runs along d and whose local x (the thin axis of a blade) is `thin` made perpendicular to d."""
+    f = _unit(d)
+    x = _unit(_sub(thin, _mul(f, sum(a * b for a, b in zip(thin, f)))))
+    y = _cross(f, x)
+    return _euler_xyz(((x[0], y[0], f[0]), (x[1], y[1], f[1]), (x[2], y[2], f[2])))
+
+
+def _blade(slot, base, d, length, thin, wide, name, thin_axis=(1.0, 0.0, 0.0), mirror=False, segments=4):
+    """A crisp wedge: a flattened pyramid standing on `base` and pointing along d, `thin` (half size) across thin_axis and `wide` across
+    the other way. A fur break, a mane lock, an ear, a claw. Four sides is six triangles; the hybrid builder makes a crisp cone at least
+    five-sided (crisp_detail 1.0), so eight triangles each, and a wedge thinner than 0.1 (half size) gets no bevel."""
+    f = _unit(d)
+    return cone(slot, _add(base, _mul(f, length / 2.0)), (thin, wide, length / 2.0), rot=_basis(f, thin_axis), segments=segments, flat=True,
+                mirror=mirror, name=name)
+
+
+def _crescent(slot, centre, radius, tilt, r_max, name, a0=150.0, a1=390.0, n=6, r_tip=0.035, segments=6):
+    """A crescent moon standing upright (it opens upward, the horns curl in) made of tapered rods: the arc runs from a0 to a1 degrees round
+    `centre` in the XZ plane, then leans back by `tilt` degrees about x. The tube is r_max at the bottom of the arc and r_tip at the horns."""
+    pts, rad = [], []
+    for i in range(n + 1):
+        th = math.radians(a0 + (a1 - a0) * i / n)
+        x, zl = radius * math.cos(th), radius * math.sin(th)
+        t = math.radians(tilt)
+        pts.append(_add(centre, (x, zl * math.sin(t), zl * math.cos(t))))
+        rad.append(r_tip + (r_max - r_tip) * math.sin(math.pi * i / n) ** 0.8)
+    return [rod(slot, pts[i], pts[i + 1], rad[i], rad[i + 1], segments=segments, name=name) for i in range(n)]
+
+
+# ---------------------------------------------------------------------------------------- Fenrir v2 (a wolf, not a puppy)
+# Facing -Y. Low and long, stalking: the withers (z 3.2) stand above the hips, the big head is carried forward and low, four planted legs
+# with big paws, a thin-waisted barrel, a bushy tail swept up and curled to one side (so it does not stand behind the head in the front view).
+# Core (fused): body, neck, head, muzzle and jaw, legs, paws, the tail sweep. Crisp: the ears, the ruff and the back ridge (wedges), cheek tufts,
+# fangs, claws, the crescent, the shoulder links and the rune plate. The mouth and the fangs are placed against the build's own mouth (the
+# hybrid cuts the mouth into the muzzle and drops the `zigzag` teeth): the numbers in the fang comment come from probing the field.
+_FV2_NECK = ((0.0, -1.3, 3.0), (0.0, -2.05, 2.75))
+_FV2_HEAD = (0.0, -2.55, 2.6)
+_FV2 = []
+
+
+def _fv2_ruff():
+    """Two rings of fur wedges round the neck, pointing out and back: a thick ruff that frames the face."""
+    a0, a1 = _FV2_NECK
+    axis = _unit(_sub(a1, a0))
+    up = _unit(_sub((0.0, 0.0, 1.0), _mul(axis, axis[2])))
+    out = []
+    for s, phis, ln, wide in ((0.45, (45, 80, 115, 150), 1.55, 0.42), (0.0, (25, 65, 105, 145), 1.15, 0.34)):
+        c = _add(a0, _mul(_sub(a1, a0), s))
+        for phi in phis:
+            ph = math.radians(phi)
+            r = _add(_mul(up, math.cos(ph)), (math.sin(ph), 0.0, 0.0))
+            out.append(_blade("BodyDark", _add(c, _mul(r, 0.55)), _add(_mul(r, 0.85), _mul(axis, -0.5)), ln, 0.09, wide, "ruff",
+                              thin_axis=_cross(axis, r), mirror=(phi != 0)))
+    return out
+
+
+_FV2 += _fv2_ruff()
+# the back ridge: wedges along the spine, tallest at the withers, swept back (y, z of the back, length)
+for _y, _z, _ln in ((-0.6, 3.2, 1.15), (-0.15, 3.15, 1.05), (0.3, 2.98, 0.95), (0.75, 2.88, 0.85), (1.2, 2.9, 0.8), (1.6, 2.95, 0.7)):
+    _FV2.append(_blade("BodyDark", (0.0, _y, _z - 0.15), (0.0, 0.7, 0.72), _ln, 0.09, 0.3, "ridge"))
+# the shoulder fur breaks and the haunch tufts: wedges thrown up, out and back along the outline of the shoulder
+for _b, _d, _ln in (((0.7, -0.95, 3.0), (0.6, 0.45, 0.65), 1.15), ((0.85, -0.5, 2.8), (0.8, 0.5, 0.45), 1.05), ((0.85, 0.0, 2.6), (0.8, 0.6, 0.3), 0.9),
+                    ((0.75, 1.0, 2.65), (0.6, 0.5, 0.6), 0.8), ((0.8, 1.45, 2.45), (0.6, 0.65, 0.4), 0.7)):
+    _FV2.append(_blade("BodyDark", _b, _d, _ln, 0.09, 0.28, "break", thin_axis=(0.0, 0.0, 1.0), mirror=True))
+# claws: three on each paw, pointing forward and down
+for _x in (0.5, 0.7, 0.9):
+    _FV2.append(_blade("Trim", (_x, -1.9, 0.2), (0.0, -0.8, -0.35), 0.45, 0.08, 0.08, "claw", mirror=True, segments=5))
+    _FV2.append(_blade("Trim", (_x, 0.95, 0.2), (0.0, -0.8, -0.35), 0.45, 0.08, 0.08, "claw", mirror=True, segments=5))
+# four fangs on the open mouth (placed against the mouth the sculpt cuts in the muzzle: its flat top edge is at z 2.04, y -4.15): two long
+# upper canines hanging from the lip, two shorter lower ones standing in the jaw between them
+_FV2.append(spike("EyeWhite", (0.2, -3.9, 2.12), (0.2, -4.08, 1.56), 0.105, segments=6, mirror=True, name="fang"))
+_FV2.append(spike("EyeWhite", (0.07, -4.02, 1.78), (0.07, -4.13, 2.14), 0.085, segments=6, mirror=True, name="fang"))
+# the crescent on the forehead, standing up between the ears
+_FV2 += _crescent("Accessory", (0.0, -2.78, 3.98), 0.62, 20.0, 0.16, "moon", a0=140.0, a1=400.0, n=7)
+# two chain links on one shoulder (interlocked: one flat to the flank, one turned a quarter) and a rune plate on the other
+_FV2.append(tor("Trim", (1.17, -0.75, 2.75), (0.52, 0.52, 0.52), rot=aim((1.0, 0.1, 0.25)), minor=0.3, segments=6, mseg=4, name="link"))
+_FV2.append(tor("Trim", (1.19, -0.75, 2.12), (0.5, 0.5, 0.5), rot=aim((0.3, 1.0, 0.1)), minor=0.3, segments=6, mseg=4, name="link"))
+_FV2.append(cyl("Trim", (-1.17, -0.75, 2.6), (0.5, 0.5, 0.07), rot=aim((-1.0, 0.1, 0.25)), segments=6, name="plate"))
+for _p0, _p1 in (((-1.25, -0.75, 2.98), (-1.27, -0.75, 2.2)), ((-1.25, -1.2, 2.3), (-1.27, -0.75, 2.62)), ((-1.25, -0.3, 2.3), (-1.27, -0.75, 2.62))):
+    _FV2.append(rod("Accessory", _p0, _p1, 0.06, segments=4, name="rune"))
+# tail tufts
+for _b, _d in (((0.5, 2.65, 3.0), (0.6, 0.8, 0.4)), ((1.1, 3.25, 3.4), (0.7, 0.8, 0.3)), ((1.5, 3.25, 3.85), (0.6, 0.6, 0.45)), ((1.55, 2.45, 4.0), (0.1, -0.5, 0.85))):
+    _FV2.append(_blade("BodyDark", _b, _d, 0.75, 0.09, 0.26, "tuft", thin_axis=(1.0, 0.0, 0.0)))
+
+RECIPES["FenripupV2"] = {
+    "tier": "Cosmic", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 4.6,
+    "silhouette": "a low long wolf on four planted clawed legs, shoulders above the hips, a thick neck ruff and a crest of fur wedges along the back, tall ears, a broad muzzle with four fangs, a bushy tail swept up and curled to one side and a glowing crescent moon standing on the forehead",
+    "hero": "the forehead crescent, the ruff and the fangs",
+    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.35, "eye_tilt": 20.0, "mouth": "wide", "lid": 0.45, "eye_height": 0.62, "mouth_drop": 0.3, "look": (0.0, 0.0)},
+    "palette": {"Body": "3B2E6B", "BodyDark": "8E84CC", "Accessory": "FFC83D", "Trim": "C9D3F0", "Mouth": "4A0E1A"}, "glow": {"Accessory": 3.0}, "metal": {"Trim": 0.85},
+    "steps": [
+        sph("Body", (0.0, -0.75, 2.35), (0.88, 1.05, 0.8), segments=16, name="chest"),
+        sph("Body", (0.58, -0.8, 2.6), (0.55, 0.65, 0.6), segments=10, mirror=True, name="shoulder"),
+        sph("Body", (0.0, 0.55, 2.3), (0.66, 0.85, 0.58), segments=14, name="waist"),
+        sph("Body", (0.0, 1.3, 2.25), (0.78, 0.8, 0.7), segments=14, name="hips"),
+        sph("Body", (0.55, 1.25, 2.0), (0.5, 0.62, 0.68), segments=10, mirror=True, name="thigh"),
+        rod("Body", _FV2_NECK[0], _FV2_NECK[1], 0.74, 0.66, segments=10, name="neck"),
+        sph("Body", _FV2_HEAD, (0.86, 0.82, 0.76), segments=16, name="head"),
+        rod("Body", (0.0, -2.9, 2.66), (0.0, -4.35, 2.52), 0.45, 0.33, segments=10, name="muzzle"),
+        rod("Body", (0.0, -2.9, 2.08), (0.0, -4.15, 1.98), 0.33, 0.25, segments=10, name="jaw"),
+        sph("Body", (0.0, -4.5, 2.56), (0.24, 0.2, 0.17), segments=8, name="nose"),
+        rod("Body", (0.62, -0.9, 2.1), (0.66, -1.2, 0.3), 0.4, 0.32, segments=8, mirror=True, name="foreleg"),
+        sph("Body", (0.66, -1.4, 0.2), (0.4, 0.62, 0.2), segments=10, mirror=True, name="paw"),
+        rod("Body", (0.65, 1.5, 1.95), (0.66, 1.55, 0.3), 0.36, 0.3, segments=8, mirror=True, name="hindleg"),
+        sph("Body", (0.66, 1.35, 0.2), (0.38, 0.6, 0.2), segments=10, mirror=True, name="hindpaw"),
+        sweep("Body", [(0.0, 1.7, 2.45), (0.3, 2.4, 2.7), (0.85, 2.95, 3.1), (1.35, 3.15, 3.5), (1.6, 2.95, 3.8), (1.55, 2.5, 3.95)], [0.34, 0.5, 0.6, 0.56, 0.38, 0.09], name="tail"),
+        # tall ears: flat wedges, thin front to back, with a darker inner ear
+        _blade("Body", (0.58, -2.4, 3.1), (0.2, 0.12, 1.0), 1.3, 0.09, 0.44, "ear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
+        _blade("BodyDark", (0.58, -2.52, 3.25), (0.2, 0.12, 1.0), 0.92, 0.05, 0.26, "innerear", thin_axis=(0.0, 1.0, 0.0), mirror=True),
+        _blade("BodyDark", (0.8, -2.55, 2.7), (0.75, 0.45, -0.2), 0.85, 0.09, 0.26, "cheek", thin_axis=(0.0, 0.0, 1.0), mirror=True),
+        _blade("BodyDark", (0.75, -2.5, 2.4), (0.65, 0.5, -0.45), 0.75, 0.09, 0.24, "cheek", thin_axis=(0.0, 0.0, 1.0), mirror=True),
+    ] + _FV2,
+}
+# ---------------------------------------------------------------------------------------- Skydrake (an original sky dragon)
+# Facing -Y, the body in one S-curve in the picture plane (x, z) with the head up on the centre line, turned to the viewer. The body is ONE
+# sweep (a tube of calibrated balls, thick at the chest, tapering to the tail tip that rests on the ground). Core (fused): the sweep, the skull,
+# the snout and the jaw. Crisp: the mane and the dorsal crest (white wedges), the horns (gold antlers), the whiskers (gold rods), four small
+# clawed feet and the pearl held under the chin in a gold cradle.
+_SKY_PATH = [(1.55, 0.5, 0.09), (1.25, 0.6, 0.15), (0.8, 0.5, 0.22), (0.35, 0.32, 0.36), (-0.15, 0.18, 0.62), (-0.62, 0.07, 1.02), (-0.9, 0.0, 1.5),
+             (-0.8, -0.05, 2.0), (-0.3, -0.08, 2.45), (0.4, -0.08, 2.8), (0.9, -0.1, 3.25), (0.75, -0.2, 3.75), (0.25, -0.38, 4.08)]
+_SKY_RADII = [0.05, 0.09, 0.15, 0.23, 0.31, 0.37, 0.4, 0.41, 0.41, 0.39, 0.37, 0.35, 0.38]
+_SKY_HEAD = (0.0, -0.68, 4.3)
+_SKY = []
+
+
+def _sky_at(u):
+    """The body at u in [0, 1] from the tail tip to the neck: (point, tangent toward the head, dorsal direction, side direction, radius).
+    Dorsal is +y (the back of the neck faces away from the viewer, so the mane stands up behind the head and fans out to both sides)."""
+    p, t = crom(_SKY_PATH, u)
+    d = _unit(_sub((0.0, 1.0, 0.0), _mul(t, t[1])))
+    n = _cross(t, d)
+    f = max(0.0, min(1.0, u)) * (len(_SKY_PATH) - 1)
+    i = min(int(f), len(_SKY_PATH) - 2)
+    return p, t, d, n, _SKY_RADII[i] + (_SKY_RADII[i + 1] - _SKY_RADII[i]) * (f - i)
+
+
+# the mane: three white wedges (middle and both sides) at each of seven stations down the neck, streaming back along the body and flaring out
+for _u, _ln, _w in ((0.97, 1.2, 0.3), (0.9, 1.15, 0.29), (0.83, 1.05, 0.27), (0.76, 0.95, 0.25), (0.69, 0.85, 0.23), (0.62, 0.75, 0.21), (0.55, 0.65, 0.19)):
+    _p, _t, _d, _n, _r = _sky_at(_u)
+    for _s in (-1, 0, 1):
+        _SKY.append(_blade("BodyDark", _add(_add(_p, _mul(_d, _r * 0.7)), _mul(_n, _s * _r * 0.6)),
+                           _add(_add(_mul(_d, 0.5), _mul(_n, _s * 0.65)), _mul(_t, -0.7)), _ln, 0.08, _w, "mane", thin_axis=_n))
+# the dorsal crest: single smaller wedges the rest of the way down to the tail
+for _u, _ln in ((0.5, 0.6), (0.44, 0.55), (0.38, 0.5), (0.32, 0.45), (0.26, 0.4), (0.2, 0.35)):
+    _p, _t, _d, _n, _r = _sky_at(_u)
+    _SKY.append(_blade("BodyDark", _add(_p, _mul(_d, _r * 0.8)), _add(_mul(_d, 0.6), _mul(_t, -0.7)), _ln, 0.07, 0.17, "crest", thin_axis=_n))
+# cheek frills: white wedges thrown out and back from the jaw, so the head is wide at the back and narrow at the nose (a wedge from the front)
+for _b, _d, _ln in (((0.4, -0.55, 4.1), (0.8, 0.45, 0.0), 0.95), ((0.38, -0.5, 3.9), (0.75, 0.5, -0.35), 0.8)):
+    _SKY.append(_blade("BodyDark", _b, _d, _ln, 0.07, 0.24, "frill", thin_axis=(0.0, 0.0, 1.0), mirror=True))
+# antler horns: a main beam sweeping back from the top of the skull with two tines, gold
+for _a, _b, _r0, _r1 in (((0.24, -0.55, 4.68), (0.4, -0.2, 5.02), 0.1, 0.08), ((0.4, -0.2, 5.02), (0.5, 0.25, 5.22), 0.08, 0.06),
+                         ((0.5, 0.25, 5.22), (0.45, 0.7, 5.27), 0.06, 0.02), ((0.4, -0.2, 5.02), (0.78, -0.15, 5.4), 0.06, 0.02),
+                         ((0.5, 0.25, 5.22), (0.86, 0.35, 5.55), 0.05, 0.02)):
+    _SKY.append(rod("Trim", _a, _b, _r0, _r1, segments=6, mirror=True, name="horn"))
+# long whiskers from the sides of the snout, gold, flowing out and back
+for _pts, _rr in (([(0.2, -1.4, 4.2), (0.6, -1.62, 4.28), (1.05, -1.55, 4.18), (1.5, -1.25, 3.88), (1.85, -0.8, 3.45)], (0.05, 0.042, 0.034, 0.027, 0.016)),
+                  ([(0.18, -1.4, 4.08), (0.55, -1.65, 3.98), (0.95, -1.65, 3.72)], (0.045, 0.034, 0.016))):
+    for _i in range(len(_pts) - 1):
+        _SKY.append(rod("Trim", _pts[_i], _pts[_i + 1], _rr[_i], _rr[_i + 1], segments=5, mirror=True, name="whisker"))
+# four small clawed feet: a short mitten of a leg out to each side of the body (wide at the paw), two gold claws on each
+for _u in (0.875, 0.5):
+    _p, _t, _d, _n, _r = _sky_at(_u)
+    for _s in (-1, 1):
+        _a = _add(_add(_p, _mul(_n, _s * _r * 0.8)), _mul(_d, -_r * 0.3))
+        _tip = _add(_add(_a, _mul(_n, _s * 0.3)), (0.0, -0.2, -0.4))
+        _SKY.append(cone("Body", _mul(_add(_a, _tip), 0.5), (0.17, 0.17, _len(_sub(_tip, _a)) / 2.0), rot=aim(_sub(_a, _tip)), tip=0.5, segments=6, name="foot"))
+        for _c in (-1, 1):
+            _cb = _add(_tip, (0.08 * _c, 0.0, 0.0))
+            _SKY.append(_blade("Trim", _cb, _add(_sub(_tip, _a), (0.5 * _c, 0.0, 0.0)), 0.24, 0.05, 0.05, "claw", segments=5))
+# the pearl held under the chin in a small gold cradle
+_SKY.append(sph("Accessory", (0.0, -1.6, 3.2), 0.33, segments=10, name="pearl"))
+_SKY.append(tor("Trim", (0.0, -1.6, 2.98), (0.35, 0.35, 0.35), minor=0.2, segments=8, mseg=4, name="cradle"))
+
+RECIPES["Skydrake"] = {
+    "tier": "Legendary", "world": 0, "biome": "Sky", "batch": 0, "status": "recipe", "prototype": True, "height": 5.6,
+    "silhouette": "a long pale-jade serpent in one S-curve, tail on the ground and head up and turned to the viewer, a wedge head with branching gold antlers, a flowing white mane and crest of wedges down the neck and back, long whiskers, four small clawed feet and a glowing pearl held under the chin",
+    "hero": "the S-curve body with its white mane, the antlers and the pearl",
+    "face": {"on": "head", "eye_scale": 1.8, "eye_gap": 1.3, "eye_tilt": 0.0, "mouth": "wide", "look": (0.0, 0.1), "cross": 0.08, "eye_height": 0.62, "mouth_drop": 0.3, "mouth_scale": 1.35},
+    "palette": {"Body": "9AD8BA", "BodyDark": "F4F7F2", "Accessory": "CFE8FF", "Trim": "F2B632", "Mouth": "7A1F3D"}, "glow": {"Accessory": 2.5}, "metal": {"Trim": 0.9},
+    "steps": [
+        sweep("Body", _SKY_PATH, _SKY_RADII, name="body"),
+        sph("Body", _SKY_HEAD, (0.55, 0.62, 0.48), segments=16, name="head"),
+        rod("Body", (0.0, -1.05, 4.2), (0.0, -2.0, 4.06), 0.4, 0.24, segments=10, name="snout"),
+        rod("Body", (0.0, -1.0, 3.85), (0.0, -1.8, 3.76), 0.24, 0.16, segments=10, name="jaw"),
+    ] + _SKY,
+}
+# ==== HEROES END ====
+
 
 # ================================================================================================ the engine
 # Everything below turns a recipe into a flat list of parts (the steps, mirrored, plus the face), and checks it. It is plain
@@ -1199,9 +1429,12 @@ def face_parts(rec):
 
 
 def _part(s, loc, R):
-    return {"prim": s["prim"], "slot": s["slot"], "loc": loc, "rot": R, "scale": s["scale"], "segments": s["segments"],
-            "flat": s.get("flat", not SMOOTH_BY_DEFAULT[s["prim"]]), "minor": s.get("minor", 0.25), "mseg": s.get("mseg", 6),
-            "tip": s.get("tip", 0.0), "half": s.get("half"), "name": s["name"] or s["prim"]}
+    out = {"prim": s["prim"], "slot": s["slot"], "loc": loc, "rot": R, "scale": s["scale"], "segments": s["segments"],
+           "flat": s.get("flat", not SMOOTH_BY_DEFAULT[s["prim"]]), "minor": s.get("minor", 0.25), "mseg": s.get("mseg", 6),
+           "tip": s.get("tip", 0.0), "half": s.get("half"), "name": s["name"] or s["prim"]}
+    if s["prim"] == "sweep":
+        out["pts"], out["radii"] = s["pts"], s["radii"]
+    return out
 
 
 def expand(rec):
@@ -1236,6 +1469,8 @@ def part_tris(p):
         return 2 * n - 2 if p["tip"] <= 0.0 else 4 * n - 4
     if prim == "torus":
         return 2 * n * p["mseg"]
+    if prim == "sweep":
+        return 24 * len(p["pts"])  # a rough guess: the sculpt builder decimates the core to its own budget, so the real count is the build's
     raise ValueError("unknown primitive %r" % prim)
 
 
@@ -1243,6 +1478,10 @@ def part_bbox(p):
     """(lo, hi) corners of a bound on the part (exact for ellipsoids, boxes, cylinders, cones; a cylinder bound for a torus)."""
     R, s, c = p["rot"], p["scale"], p["loc"]
     prim = p["prim"]
+    if prim == "sweep":  # the control points grown by their radii (the curve itself bulges a little past them)
+        lo = tuple(min(q[i] - r for q, r in zip(p["pts"], p["radii"])) for i in range(3))
+        hi = tuple(max(q[i] + r for q, r in zip(p["pts"], p["radii"])) for i in range(3))
+        return lo, hi
     if prim in ("sphere", "icosphere"):
         e = _extent(R, s)
         return _sub(c, e), _add(c, e)
@@ -1309,12 +1548,15 @@ def check(sid):
         return ["face: %s" % exc], 0, 0.0, 0.0, rec["height"]
     tris, (lo, hi) = estimate(parts)
     height = hi[2] - lo[2]
-    if tris > TRI_BUDGET:
+    if tris > TRI_BUDGET and rec.get("prototype"):
+        problems.append("note: %d triangles by the primitive estimate; a prototype is built by species_sculpt.py --method hybrid, which fuses the core and sets its own count" % tris)
+    elif tris > TRI_BUDGET:
         problems.append("%d triangles is over the %d cap" % (tris, TRI_BUDGET))
     elif tris > TRI_GUIDE[rec["tier"]]:
         problems.append("note: %d triangles is over the %d target for %s" % (tris, TRI_GUIDE[rec["tier"]], rec["tier"]))
     if abs(height - rec["height"]) > 0.03 * rec["height"]:
-        problems.append("height %.2f is more than 3 percent off %.2f (the builder would rescale by %.3f)" % (height, rec["height"], rec["height"] / height))
+        problems.append("%sheight %.2f is more than 3 percent off %.2f (the builder would rescale by %.3f)" % (
+            "note: " if rec.get("prototype") else "", height, rec["height"], rec["height"] / height))  # a prototype is free to be fitted
     if abs(lo[2]) > 0.05:
         problems.append("lowest point z=%.2f, the feet belong on z=0" % lo[2])
     slots = material_slots(sid)
@@ -1336,13 +1578,14 @@ def check(sid):
 
 
 def ids_for(spec):
-    """Ids from a comma list, 'world1' or 'world2' (every recipe of that world), 'batchN' or 'all'."""
+    """Ids from a comma list, 'world1' or 'world2' (every recipe of that world), 'batchN' or 'all'. The group ids skip the hero prototypes
+    (`"prototype": True`); name one (FenripupV2, Skydrake) to pick it."""
     out = []
     for token in [t.strip() for t in spec.split(",") if t.strip()]:
         if token in ("all", "world1", "world2"):
-            out += [k for k, v in RECIPES.items() if v["status"] == "recipe" and (token == "all" or v["world"] == int(token[5:]))]
+            out += [k for k, v in RECIPES.items() if v["status"] == "recipe" and not v.get("prototype") and (token == "all" or v["world"] == int(token[5:]))]
         elif re.fullmatch(r"batch\d+", token):
-            out += [k for k, v in RECIPES.items() if v["batch"] == int(token[5:])]
+            out += [k for k, v in RECIPES.items() if v["batch"] == int(token[5:]) and not v.get("prototype")]
         elif token in RECIPES:
             out.append(token)
         else:

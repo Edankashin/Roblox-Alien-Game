@@ -16,6 +16,7 @@ How models, icons, scenery and music get made and into the game. The passes on t
 - [[Silhouette-Pass]]: the character bible: the rules and one recipe row per species (all 35), with the preview sheets of the 32 bodies. Read it before writing or changing a recipe.
 - [[Surface-Pass]]: materials, glossy eyes, smooth bevelled bodies and shared texture sets, and the probes the Mac still owes. Read it before changing how a body looks up close.
 - [[Sculpt-Pass]]: the fused single-skin prototype (metaballs won over the remesh; four species before and after; 5 to 25 minutes a species). Read it before running `species_sculpt.py` on a species.
+- [[Hero-Aliens]]: two hero prototypes built with the hybrid sculpt, a scarier wolf Fenrir (`FenripupV2`) and a sky dragon (`Skydrake`): the recipes, the exact build commands, triangles and silhouette overlap, what is still missing and the effects each wants. Read it before adding another hero or changing the hybrid's crisp-part options.
 - [[Character-Pipeline]]: why the bodies read as mashed shapes, what the references did, the generation routes, the Roblox limits and the fuse-pass recommendation with its three ship checks. Read it before the next creature pass.
 - [[Model-Toolchain]]: how Blockbench, Blender and Substance 3D Painter chain for a species (the hand-offs, what survives each), the rig and animation route into Studio, the `.bbmodel` schema a cloud tool writes, what Painter's Python API can do, costs, and the Mac probe. Read it before rigging, painting or animating a species.
 

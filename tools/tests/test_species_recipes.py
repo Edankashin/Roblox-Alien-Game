@@ -24,9 +24,16 @@ def species_ids():
     return re.findall(r'\{ id = "(\w+)"', text)
 
 
+def shipped():
+    """The recipes of real species. The hero prototypes (`"prototype": True`: FenripupV2, Skydrake) have no Species.luau row and no
+    assets/models folder, so the tests that compare recipes with those files skip them, the way the event species are skipped by status;
+    HeroPrototypes below checks them on their own terms."""
+    return {k: v for k, v in sr.RECIPES.items() if not v.get("prototype")}
+
+
 class RecipeCoverage(unittest.TestCase):
     def test_every_species_has_an_entry_and_every_entry_is_a_species(self):
-        self.assertEqual(sorted(species_ids()), sorted(sr.RECIPES))
+        self.assertEqual(sorted(species_ids()), sorted(shipped()))
 
     def test_every_entry_has_its_silhouette_hero_and_height(self):
         for sid, rec in sr.RECIPES.items():
@@ -37,7 +44,7 @@ class RecipeCoverage(unittest.TestCase):
                 self.assertIn(rec["status"], ("recipe", "TODO"))
 
     def test_the_sixteen_world_one_and_sixteen_frostbyte_recipes_are_full_and_the_rest_are_stubs(self):
-        full = [k for k, v in sr.RECIPES.items() if v["status"] == "recipe"]
+        full = [k for k, v in shipped().items() if v["status"] == "recipe"]
         self.assertEqual(len(full), 32)
         for sid in full:
             world, batch = sr.RECIPES[sid]["world"], sr.RECIPES[sid]["batch"]
@@ -45,7 +52,7 @@ class RecipeCoverage(unittest.TestCase):
             self.assertIn(batch, (1, 2, 3, 4, 5) if world == 1 else (6, 7, 8, 9), sid)
         self.assertEqual(sum(1 for k in full if sr.RECIPES[k]["world"] == 1), 16)
         self.assertEqual(sum(1 for k in full if sr.RECIPES[k]["world"] == 2), 16)
-        stubs = [k for k, v in sr.RECIPES.items() if v["status"] == "TODO"]
+        stubs = [k for k, v in shipped().items() if v["status"] == "TODO"]
         self.assertEqual(sorted(stubs), ["Nebulyn", "Spookum", "Wisplet"])  # the Haunted Nebula species keep their event bodies
         for sid in stubs:
             self.assertEqual(sr.RECIPES[sid]["steps"], [])
@@ -53,7 +60,7 @@ class RecipeCoverage(unittest.TestCase):
 
     def test_batches_are_three_or_four_species(self):
         counts = {}
-        for rec in sr.RECIPES.values():
+        for rec in shipped().values():
             if rec["status"] == "recipe":
                 counts[rec["batch"]] = counts.get(rec["batch"], 0) + 1
         self.assertEqual(sorted(counts), [1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -69,7 +76,7 @@ class RecipeCoverage(unittest.TestCase):
     def test_every_frostbyte_species_has_a_full_recipe_at_its_notes_height(self):
         text = (ROOT / "src/shared/data/Species.luau").read_text()
         world2 = re.findall(r'\{ id = "(\w+)"[^\n]*world = 2', text)
-        self.assertEqual(sorted(world2), sorted(k for k, v in sr.RECIPES.items() if v["world"] == 2))
+        self.assertEqual(sorted(world2), sorted(k for k, v in shipped().items() if v["world"] == 2))
         for sid in world2:
             with self.subTest(sid):
                 self.assertEqual(sr.RECIPES[sid]["status"], "recipe")
@@ -82,7 +89,7 @@ class RecipeCoverage(unittest.TestCase):
 
 class RecipeChecks(unittest.TestCase):
     def test_every_full_recipe_passes_the_checker(self):
-        for sid, rec in sr.RECIPES.items():
+        for sid, rec in shipped().items():
             if rec["status"] != "recipe":
                 continue
             with self.subTest(sid):
@@ -94,7 +101,7 @@ class RecipeChecks(unittest.TestCase):
                 self.assertAlmostEqual(height, declared, delta=0.03 * declared)
 
     def test_every_full_recipe_uses_every_slot_of_its_materials_json(self):
-        for sid, rec in sr.RECIPES.items():
+        for sid, rec in shipped().items():
             if rec["status"] != "recipe":
                 continue
             with self.subTest(sid):
@@ -110,7 +117,7 @@ class RecipeChecks(unittest.TestCase):
                     self.assertAlmostEqual(rec["height"], nh, delta=0.005)
 
     def test_palette_glow_and_metal_name_real_slots(self):
-        for sid, rec in sr.RECIPES.items():
+        for sid, rec in shipped().items():
             if rec["status"] != "recipe":
                 continue
             slots = sr.material_slots(sid)
@@ -120,10 +127,65 @@ class RecipeChecks(unittest.TestCase):
                         self.assertIn(slot, slots)
 
     def test_exactly_one_glowing_slot_and_it_is_the_accessory(self):
-        for sid, rec in sr.RECIPES.items():
+        for sid, rec in shipped().items():
             if rec["status"] == "recipe" and rec.get("glow"):
                 with self.subTest(sid):
                     self.assertEqual(list(rec["glow"]), ["Accessory"])
+
+
+class HeroPrototypes(unittest.TestCase):
+    """FenripupV2 and Skydrake (docs/vault/06-art-pipelines/Hero-Aliens.md): recipes for `species_sculpt.py --method hybrid` on a scratch
+    models folder. They carry the Trim slot (eight slots, the Epic and Legendary shape) and a `sweep` body or tail."""
+    SLOTS = {"Body", "EyeWhite", "Pupil", "Mouth", "BodyDark", "Accessory", "Trim", "EyeHighlight"}
+
+    def heroes(self):
+        return {k: v for k, v in sr.RECIPES.items() if v.get("prototype")}
+
+    def test_the_two_heroes_exist_and_are_prototypes(self):
+        self.assertEqual(sorted(self.heroes()), ["FenripupV2", "Skydrake"])
+        for sid, rec in self.heroes().items():
+            self.assertEqual(rec["status"], "recipe", sid)
+            self.assertTrue(rec["silhouette"].strip() and rec["hero"].strip(), sid)
+
+    def test_group_ids_skip_them_but_a_name_picks_them(self):
+        for token in ("all", "world1", "world2", "batch0"):
+            self.assertFalse({"FenripupV2", "Skydrake"} & set(sr.ids_for(token)), token)
+        self.assertEqual(sr.ids_for("FenripupV2,Skydrake"), ["FenripupV2", "Skydrake"])
+
+    def test_they_pass_the_checker_apart_from_the_notes(self):
+        for sid in self.heroes():
+            with self.subTest(sid):
+                problems, tris, height, low, declared = sr.check(sid)
+                self.assertEqual([p for p in problems if not p.startswith("note:")], [])
+                self.assertAlmostEqual(low, 0.0, delta=0.05)
+                self.assertAlmostEqual(height, declared, delta=0.03 * declared)
+
+    def test_every_slot_is_one_of_the_eight_and_every_one_is_used(self):
+        for sid, rec in self.heroes().items():
+            with self.subTest(sid):
+                used = sr.slots_used(sr.expand(rec))
+                self.assertEqual(used, self.SLOTS)
+                for key in ("palette", "glow", "metal"):
+                    self.assertLessEqual(set(rec.get(key, {})), self.SLOTS)
+                self.assertEqual(list(rec.get("glow", {})), ["Accessory"])
+
+    def test_the_sweep_step_carries_its_points_and_a_radius_for_each(self):
+        for sid, rec in self.heroes().items():
+            sweeps = [p for p in sr.expand(rec) if p["prim"] == "sweep"]
+            self.assertTrue(sweeps, sid)
+            for p in sweeps:
+                self.assertEqual(len(p["pts"]), len(p["radii"]))
+                self.assertIn(p["slot"], ("Body", "BodyDark"), "a sweep is core only: an Accessory or Trim sweep would be taken for a crisp part")
+        with self.assertRaises(ValueError):
+            sr.sweep("Body", [(0, 0, 0), (0, 1, 0)], [0.2])
+
+    def test_the_catmull_rom_helper_passes_through_its_control_points(self):
+        pts = [(0.0, 0.0, 0.0), (1.0, 0.5, 0.2), (2.0, 0.0, 0.9), (2.5, 1.0, 1.5)]
+        for i, q in enumerate(pts):
+            pos, tan = sr.crom(pts, i / (len(pts) - 1))
+            for k in range(3):
+                self.assertAlmostEqual(pos[k], q[k], places=9)
+            self.assertAlmostEqual(math.sqrt(sum(v * v for v in tan)), 1.0, places=9)
 
 
 class Maths(unittest.TestCase):
