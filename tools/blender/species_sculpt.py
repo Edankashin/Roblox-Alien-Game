@@ -232,6 +232,23 @@ SPECIES = {
                               "widths": [0.3, 0.3, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23, 0.22]}],
                  "hybrid": {"edit": edit_flufflet, "crisp": ("scarf", "knot", "mitten", "thumb", "tassel"), "no_fillet": ("scarf", "knot"),
                             "face_recipe": {"lid": 0.0}}},  # round goofy eyes: the small lids wrinkled the snow round bigger eyes
+    # The other 20 species build with the defaults. These eight failed a check on the roster run (Sculpt-Pass.md, "Hybrid across the roster"):
+    # over the 2,500 cap, overlap under 0.85 at 64 px, or a feature lost. First, no crisp bevel (a bevelled cone is 140 to 188 triangles, 12 without).
+    "Glimmo": {"hybrid": {"bevel_segments": 0}},
+    "Panpipe": {"hybrid": {"bevel_segments": 0}},
+    # 38 quill cones and the collar ring: shells (no union, so no seam triangles; the union of 39 parts was 8,000 triangles) and no bevel
+    "Thunderhog": {"hybrid": {"bevel_segments": 0, "shell": ("collar", "cone")}},
+    # a faceted stone: a tighter blend (stiff 5 as Mossbop) keeps the legs straight, and the moss cap, the bumps and the fists stay crisp
+    "Pebblet": {"stiff": 5.0, "stiff_thin": 4.0, "hybrid": {"crisp": ("moss", "bump", "fist")}},
+    # 0.84 overlap at the default cell: the thin legs of the 64 px shape (0.851 at 0.03)
+    "Twiglet": {"res": 0.03},
+    # the three tail feathers (0.1 studs thick) melted into one lump in the core: crisp again (overlap 0.898 to 0.933)
+    "Zapfinch": {"hybrid": {"crisp": ("crest", "tail")}},
+    # the four flat feet (0.1 studs thick, on the ground, so core by the default rule) melted into the belly: crisp again (overlap 0.888 to 0.962)
+    "Toastoad": {"hybrid": {"crisp": ("pebble", "ridge", "foot")}},
+    # 40 wisps and 40 seeds are 1,300 crisp triangles: the seeds stay crisp, the wisps are thin chains in the core (0.045 studs of radius:
+    # a 0.03 cell keeps them, the default 0.04 loses them)
+    "Puffpuff": {"res": 0.03, "hybrid": {"crisp": ("seed",)}},
 }
 
 
@@ -877,7 +894,7 @@ def cut_slots(obj, field, region):
     bm.from_mesh(obj.data)
     slots = []
     for it in field.items:
-        if not it["neg"] and it["slot"] not in slots:
+        if not it["neg"] and not it.get("slotless") and it["slot"] not in slots:  # a slotless collar owns no colour (slot_totals skips it)
             slots.append(it["slot"])
     cuts = 0
     if len(slots) > 1:
