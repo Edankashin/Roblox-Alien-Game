@@ -209,6 +209,8 @@ World 2 endings after the picks: -tt, -ra, -ip, -ng, -et, -oo, -le, -um, -zz, -a
 
 The heroes of section 3 follow the same rules; their working names are single mythic words (Suiryn, Raiju, Qilin, Kerbos, Pegasi, Sphinx, Airava) and go through the screen before any is written into data.
 
+The collision screen ran on 2026-10-15 for all 23 new picks, 24 of the other options and the hero names (42 options were not fully searched, the cap): [[Species-Names#Collision screen (2026-10-15)|results and substitutes]] (of the 23 new picks, 13 are clear, 7 are near-misses and Sprig, Lampo and Flick are taken; Raiju is taken among the heroes).
+
 ## 6. VFX and animation: how
 
 From the research (the report and [[Character-Pipeline]] "Animation without a rig at launch"): no rigged animation at launch; motion is tweened MeshPart CFrames and VFX from a data table; a rig can be added later because the topology keeps at most four bone influences per vertex, and a creature without a Humanoid then takes an `AnimationController` with an `Animator`.

@@ -244,6 +244,119 @@ Kept (nothing exact on Roblox, no Pokemon, no toy line):
 
 The four near-misses (Buzzbit, Cosmoo, Flapflap, Fenrikin) and Moop and Grin are the ones to put in front of a trademark search before the store page.
 
+## Collision screen (2026-10-15)
+
+The same rule as the first screen: three searches per name, `"<name>" Roblox`, `"<name>" toy` and `"<name>" game character`. Run on 2026-10-15 for the names v3 of [[Roster-Redesign#5. Names v3|Roster-Redesign, section 5]]: every A, B and C option that differs from "Now" (89 names), and the 19 hero working names of section 3 other than Fenrir (which is also an A option). The searches are web-search summaries (the Roblox site is blocked from the sandbox), not a trademark register search, so this finds what a child or a reviewer would notice and does not clear a filing. Logged in [[2026-10-15]].
+
+**Coverage.** The search tool stopped at its cap of 200 searches for the turn. 66 names have all three searches (47 candidates and the 19 heroes). Blazen has one of three. 41 candidates have none; they are listed after the tables so a follow-up can finish them.
+
+**Verdicts.** *clear*: nothing of that exact name and nothing a player would confuse it with. *near-miss*: a minor use of the exact name (a small indie game, a preschool show, a toymaker, a plain word) or a well-known name one letter away; the note says which. *taken*: an existing character, toy line, brand or well-known Roblox item of that exact name. Public-domain myth names are allowed even where other games use the myth; they are flagged only where one product or Roblox item owns the spelling. "Pick" is the pick column of section 5; the 12 picks that equal today's names (Moop, Pebblet, Glim, Snibble, Grin, Cosmoo, Mitt, Drip, Digling, Kettlet, Pengoo, Sizz) were cleared on 2026-10-14 and are not repeated.
+
+### Results
+
+| Name | Species or hero | Verdict | Note |
+|---|---|---|---|
+| Mossu | Mossbop B | clear | nothing (Moss Man, Mosswine and the VR game Moss are other words) |
+| Bimble | Mossbop C | taken | Hoptimist Bimble, a reissued Danish design toy sold with Bumble; Mr. Bimble (a LEGO video game); Bimble's Bucket (a CITV cartoon) |
+| Nubbin | Pebblet B | clear | nothing (Nancy Nubbins of LEGO Island and Nubs are other words) |
+| Pobble | Pebblet C | near-miss | Pobble, a character in the preschool series Olobob Top; no game or toy found |
+| Lumo | Glimmo B | taken | Lumo, a 2016 puzzle game whose hero is Lumo; the Lumo Stars plush line; Lumo Play, a projector for children |
+| Firra | Glimmo C | clear | nothing (Firras in Elder Scrolls Online and Ferra/Torr in Mortal Kombat are other words) |
+| Sprig | Twiglet A, pick | taken | Sprig Plantar, a lead of Disney's Amphibia; Sprig Toys, an eco toy brand; Sprig, a Hack Club game console; a Roundguard hero |
+| Twiglo | Twiglet C | clear | nothing (the Twiglets snack and Twigleaf are other words) |
+| Dandel | Puffpuff A, pick | near-miss | minor: one letter from Jandel, the Grow a Garden developer's name; Dandelion in Plants vs. Zombies and The Witcher is the full word |
+| Fuzzil | Puffpuff B | clear | nothing (Fuzzls in Tanglewood and the Mario Fuzzies are other words) |
+| Fluffin | Puffpuff C | near-miss | Fluffin' Puffin, a Yoshi's Woolly World character; the same word without the apostrophe |
+| Snorbit | Snailbyte B | clear | nothing (the Snorble toy and Snolbit are other words) |
+| Shellick | Snailbyte C | clear | nothing |
+| Buzzik | Buzzlebee A, pick | clear | nothing (Buzzy Bee and Buzzbite are other words) |
+| Hummo | Buzzlebee B | clear | nothing |
+| Bizzan | Buzzlebee C | clear | nothing |
+| Lampo | Lanternewt A, pick | taken | Lampo, a lead character of the children's series 44 Cats with its own toy figure; Lampo zippers; the Lampo lamp; Lampo in Reborn! |
+| Efta | Lanternewt B | near-miss | minor: EFTA is the European trade bloc; George Efta is a wooden-toy maker; no character |
+| Lantrin | Lanternewt C | clear | nothing |
+| Krabbok | Rocklobber A, pick | near-miss | minor: Krabboss is Kingler's French name and Krabby the crab Pokemon, two letters off; nothing of the exact name |
+| Boulden | Rocklobber B | clear | nothing (Boulder and Bouldergeist are other words) |
+| Clobber | Rocklobber C | near-miss | Clobber, an abstract board game and a card game; Grave Clobber (Skylanders); Klobber (Donkey Kong) |
+| Zirrit | Zapfinch A, pick | clear | nothing (a Zirrium group and Zirro in Zelda are other words) |
+| Voltwee | Zapfinch B | clear | nothing (WowWee is a toy brand, a different word) |
+| Zapzi | Zapfinch C | clear | nothing |
+| Vixa | Sparkfox A, pick | clear | nothing (Vixen is a word; a UK toy trade mark VEXA is another spelling) |
+| Voltus | Thunderhog A, pick | near-miss | Voltus 5 appears to be a title of the Voltes V giant-robot anime (Bandai kits and figures); Voltas, an appliance brand, was flagged in section 5 |
+| Thrumm | Thunderhog B | clear | nothing (Thrumbo of RimWorld and Baldur's Gate 3 is another word) |
+| Zorrak | Thunderhog C | near-miss | minor: Zorak, the Space Ghost mantis, one letter off (from memory; the searches showed only Zoroark and a minor Zorak NPC) |
+| Iridia | Gloomoth A, pick | near-miss | minor: Irida, the Pearl Clan leader of Pokemon Legends: Arceus (a Bandai figure), one letter off; Iridia itself is a Marvel fan-wiki entry only |
+| Gaiara | Gaiabloom A, pick | near-miss | minor: Gaara of Naruto (Playmobil, Funko, plush), one letter off; Gaiara itself was found nowhere |
+| Raddis | Radish A, pick | clear | nothing |
+| Syrinx | Panpipe A, pick | clear | the myth name (the nymph of the pan flute); a Thunder Force VI ship and a 1980s ZX Spectrum game, no Roblox item |
+| Flick | Wisplet A, pick | taken | [FPS] Flick, a Roblox shooter with about 440M visits; Flick the chameleon in Animal Crossing |
+| Willo | Wisplet B | taken | Willo, a fairy champion in Paladins; Willo the Wisp (a BBC cartoon); Willo, a children's toothbrush brand |
+| Wisp | Wisplet C | taken | wisps in Verse Piece, Fisch and Steal an Egg (a questline); Wisp the Warframe; Sonic's Wisps; the Terraria Wisp |
+| Flurra | Snowbun A, pick | clear | nothing (Flurrie in Paper Mario and Flurr in Mixels are other words) |
+| Eekle | Flapsicle A, pick | clear | nothing (Eek the Cat and Eekeemoo are other words) |
+| Soakum | Toastoad A, pick | clear | nothing (Soaky bubble bath is another word) |
+| Blinkar | Reindazzle A, pick | clear | nothing (Pac-Man's Blinky is another word) |
+| Floe | Shellberg A, pick | near-miss | minor: a plain word; Floe is a side character in the indie game Phoenotopia and a board game; no Roblox item |
+| Snorzo | Capybubble A, pick | clear | nothing (Snorlax and Snorble are other words) |
+| Aurelyx | Shimmerlynx A, pick | clear | nothing |
+| Sabrek | Frostfang A, pick | clear | nothing (Sabrewulf and Sabreman are other words) |
+| Skadi | Skaddle A, pick | near-miss | a myth name, so allowed; but Skadi is also an Arknights operator (with a Kotobukiya statue), a SMITE goddess, a Persona 5 persona, a Fate/Grand Order servant, and a "Skadi the Ice Queen" item in the Roblox game Survive the Killer |
+| Skadra | Skaddle C | clear | nothing |
+| Fenrir | Fenripup A, pick | clear | the myth name; also a summon in Final Fantasy, a SMITE god and a Tower of Fantasy character; no Roblox item found |
+| Suiryn | hero, the river dragon | near-miss | minor: Suiryu, a One Punch Man: A Hero Nobody Knows fighter and the Shiren the Wanderer boss, one letter off |
+| Raiju | hero, lightning | taken | Raiju, a Divine pet in the Roblox game Grow a Garden, sold for Robux; the Pacific Rim kaiju Raiju (a McFarlane figure); a Megami Tensei demon |
+| Qilin | hero, Verdant | clear | the myth name; LEGO set 80066 and a 52TOYS figure use the generic name; Megami Tensei and Might and Magic creatures; nothing on Roblox |
+| Kerbos | hero, Myth Beasts Set | clear | nothing (Kerberos is the myth, Kerbal another word) |
+| Pegasi | hero, Greek Set | near-miss | the plural of Pegasus: the species word in My Little Pony, Fire Emblem and Pathfinder; Pet Simulator X has a Titanic Cosmic Pegasus; reads as a plural |
+| Sphinx | hero, Egyptian Set | clear | the myth name; Sphinx and the Cursed Mummy (2003) has a hero called Sphinx, and plush and LEGO products use the word; only a Roblox group |
+| Airava | hero, Frostbyte | clear | nothing; Airavata, the myth, is a Megami Tensei demon |
+| Sleipnir | hero, later | near-miss | a myth name, but a "Huge Sleipnir" pet is listed for Pet Simulator 99 (one marketplace listing, verify in game); a Bella Sara horse toy; the Sleipnir web browser |
+| Tosk | hero, later | near-miss | Tosk, the reptilian alien of Star Trek: Deep Space Nine ("Captive Pursuit"); an indie game set in a village called Tosk |
+| Gryph | hero, later | near-miss | Gryph, a D&D and Pathfinder monster; Warhammer Gryph-hounds; an Echocalypse character; a university mascot |
+| Khepra | hero, later | near-miss | minor: the Khepri myth spelling; Khepra Kasaar, a cat in Cleopatra in Space; the Khepera research robot |
+| Bennu | hero, later | clear | the myth name and the NASA asteroid; a Final Fantasy XV boss; nothing on Roblox |
+| Baku | hero, later | near-miss | Baku in Final Fantasy IX; Baku Baku (Sega); Baku on the Hello Kitty wiki (a Sanrio character); Bakugan "Baku" parts (Spin Master) |
+| Kappo | hero, later | near-miss | minor: Kapp'n, the kappa of Animal Crossing (a LEGO set and a plush); a Kappa hat on Roblox; Kappo itself found nowhere |
+| Yutu | hero, later | clear | the myth name (the jade rabbit); also a Chinese lunar rover and a Don't Starve Together mod character; nothing on Roblox |
+| Nian | hero, event | near-miss | a myth name, but "Nian [STORY]" is a small Roblox experience, and LEGO "Story of Nian" 80106 (retired) and a Minecraft Lunar New Year mob use it |
+| Makara | hero, later | clear | the myth name; a Megami Tensei demon and a Guild Wars 2 NPC; nothing on Roblox |
+| Janus | hero, later | clear | the myth name; a SMITE god; Magus's birth name in Chrono Trigger; nothing on Roblox |
+| Romula | hero, later | clear | nothing (a historical name and a baby name) |
+
+Totals for the 66: 37 clear, 21 near-miss, 8 taken (Bimble, Lumo, Sprig, Lampo, Flick, Willo, Wisp, Raiju).
+
+### Picks of section 5 after the screen
+
+Of the 23 picks that are new names:
+
+- **Clear (13):** Buzzik, Zirrit, Vixa, Raddis, Syrinx, Flurra, Eekle, Soakum, Blinkar, Snorzo, Aurelyx, Sabrek, Fenrir. With the 12 picks cleared on 2026-10-14, 25 of the 35 picks stand.
+- **Taken, need a different option (3):** Sprig, Lampo, Flick.
+- **Near-miss, Ethan's call (7):** Dandel, Krabbok, Voltus, Iridia, Gaiara, Floe, Skadi.
+
+| Pick | Species | Verdict | Suggested substitute | Why |
+|---|---|---|---|---|
+| Sprig | Twiglet | taken | **Twiglo** (C, clear) | one word, ends -lo, which is new to World 1; B Twiggle (cleared 2026-10-14) ends -le like Snibble, so it breaks the ending rule |
+| Lampo | Lanternewt | taken | **Lantrin** (C, clear) | it ends -in like Grin, so a strict ending rule wants the new word Lampyr (the firefly genus, ends -yr, not screened); B Efta is a near-miss and would be the fourth -a ending (Vixa, Iridia, Gaiara) |
+| Flick | Wisplet | taken | none in B or C (Willo and Wisp are both taken); keep **Wispkin** (cleared 2026-10-14, though the -kin suffix is a Common's) or the new word **Ignix** (not screened) | the voice is one breath of flame: Latin ignis with a hard x, ends -ix, new to World 1 |
+| Dandel | Puffpuff | near-miss | keep, or **Fuzzil** (B, clear) | the Jandel link is a person's name, not a character or product |
+| Krabbok | Rocklobber | near-miss | **Boulden** (B, clear) | rock without the crab-Pokemon echo; ends -en, new to World 1 |
+| Voltus | Thunderhog | near-miss | **Thrumm** (B, clear) | a low hum for the biggest Epic; ends -mm, new to World 1 |
+| Iridia | Gloomoth | near-miss | keep (minor); B Shardra and C Lumira are not screened | one letter from a Pokemon character, no product |
+| Gaiara | Gaiabloom | near-miss | keep (minor); B Gaia and C Sylvaris are not screened | one letter from Gaara; the bare word Gaia will meet many products |
+| Floe | Shellberg | near-miss | keep (a plain word, minor uses only); B Glacio and C Bergum are not screened | the earlier screen kept plain dictionary words |
+| Skadi | Skaddle | near-miss | keep as the myth name with the flag, or **Skadra** (C, clear), or the current **Skaddle** (cleared 2026-10-14) | Skadra ends -ra like Flurra and Skaddle ends -le like Eekle, so either swap needs one of those two moved |
+
+### Heroes of section 3
+
+- **Clear (9):** Qilin, Kerbos, Sphinx, Airava, Bennu, Yutu, Makara, Janus, Romula.
+- **Taken (1):** Raiju. The rule allows a public-domain myth name, but Grow a Garden has the same audience and sells a Raiju pet for Robux, so treat it as taken. Suggested substitute: **Raikyn** (invented, rai for thunder with the -yn of Suiryn; not screened).
+- **Near-miss (9):** Suiryn, Pegasi, Sleipnir, Tosk, Gryph, Khepra, Baku, Kappo, Nian. The ones worth acting on: Sleipnir (a Pet Simulator 99 pet; verify in game; substitute **Svadil**, the stallion Svadilfari that sired Sleipnir, not screened), Baku (three separate characters and a toy line) and Nian (the Roblox experience and the LEGO set). Pegasi reads as a plural and is the species word in other games, so Ethan may prefer a singular.
+- Of the first eight to build (Fenrir, Suiryn, Raiju, Qilin, Kerbos, Pegasi, Sphinx, Airava) two need a decision, Raiju and Pegasi; Suiryn carries a minor flag.
+
+### Not screened (search cap)
+
+Blazen (one of three searches, "Blazen" Roblox, found nothing) and the 41 candidates with no search: Kindra, Shardra, Lumira, Gaia, Sylvaris, Solrah, Pannik, Fauno, Gourdo, Boolum, Nebbi, Stellune, Snug, Mimsy, Hoppit, Nivvet, Plip, Dribble, Scoop, Chippa, Fweep, Tootle, Wobblo, Tuxley, Flitta, Skreek, Blorp, Pruneo, Sizzik, Urchee, Dazzik, Glintar, Glacio, Bergum, Bubbo, Zenbara, Lynxa, Shimra, Achook, Tuskit, Fenrisul. Screen first the ones the tables above lean on: Shardra, Lumira, Gaia, Sylvaris, Glacio, Bergum, Hoppit and Nivvet (Flurra's B and C if Skadra is taken), and the new words Lampyr, Ignix, Raikyn and Svadil.
+
 ## Applied: id to display name
 
 Ids never change (saves, `assets/models/<Id>/`, `ModelAssets`, spawn tables, dev commands such as `/spawn Mossbop`). The test script in `docs/TESTING.md` and the Studio queue name species by id in commands and by the old display name in some prose; screens now show the names below.
