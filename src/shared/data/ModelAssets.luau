@@ -99,7 +99,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Drippo = {
-		Accessory = { material = "Fabric" },
+		Accessory = { material = "SmoothPlastic" },
 		Body = { material = "Ice", texture = "ice" },
 		BodyDark = { material = "Ice", texture = "ice" },
 		EyeHighlight = { glossy = true },
@@ -125,7 +125,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Flufflet = {
-		Accessory = { material = "Fabric" },
+		Accessory = { material = "SmoothPlastic" },
 		Body = { material = "Snow" },
 		BodyDark = { material = "Fabric" },
 		EyeHighlight = { glossy = true },
@@ -183,7 +183,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Pengoo = {
-		Accessory = { material = "Fabric" },
+		Accessory = { material = "SmoothPlastic" },
 		Belly = { material = "Fabric", texture = "fur" },
 		Body = { material = "Fabric", texture = "fur" },
 		EyeHighlight = { glossy = true },
@@ -213,7 +213,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	Shellberg = {
 		Accessory = { material = "Neon" },
 		Body = { material = "Ice", texture = "ice" },
-		BodyDark = { material = "Fabric" },
+		BodyDark = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},

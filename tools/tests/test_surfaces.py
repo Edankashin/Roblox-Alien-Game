@@ -144,14 +144,14 @@ class MaterialsJson(unittest.TestCase):
         # Snow for the snow bodies, Ice for icicles and the iceberg shell, Fabric for scarves, caps and fur, Glass for the aurora
         # crest, Neon for the glow parts and the ember, Metal for the kettle; every eye slot glossy and nothing else.
         wanted = {
-            "Flufflet": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "Fabric"}, "Snowbun": {"Body": "Snow", "BodyDark": "Fabric"},
-            "Drippo": {"Body": "Ice", "BodyDark": "Ice", "Accessory": "Fabric"},
+            "Flufflet": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "SmoothPlastic"}, "Snowbun": {"Body": "Snow", "BodyDark": "Fabric"},
+            "Drippo": {"Body": "Ice", "BodyDark": "Ice", "Accessory": "SmoothPlastic"},
             "Kettlepuff": {"Body": "Metal", "BodyDark": "Metal", "Accessory": "Metal"},
-            "Chipmole": {"Body": "Fabric", "Accessory": "Ice"}, "Pengoo": {"Body": "Fabric", "Accessory": "Fabric", "Belly": "Fabric"},
+            "Chipmole": {"Body": "Fabric", "Accessory": "Ice"}, "Pengoo": {"Body": "Fabric", "Accessory": "SmoothPlastic", "Belly": "Fabric"},
             "Flapsicle": {"Body": "Fabric", "Accessory": "Ice"}, "Toastoad": {"Body": "Leather", "BodyDark": "Leather", "Accessory": "Pebble"},
             "Emberchin": {"Body": "Pebble", "BodyDark": "Slate", "Accessory": "Neon"},
             "Reindazzle": {"Body": "Fabric", "BodyDark": "Ice", "Accessory": "Neon"},
-            "Shellberg": {"Body": "Ice", "BodyDark": "Fabric", "Accessory": "Neon"}, "Capybubble": {"Body": "Fabric", "Accessory": "Neon"},
+            "Shellberg": {"Body": "Ice", "BodyDark": "SmoothPlastic", "Accessory": "Neon"}, "Capybubble": {"Body": "Fabric", "Accessory": "Neon"},
             "Shimmerlynx": {"Body": "Fabric", "Accessory": "Neon", "Trim": "Fabric"},
             "Frostfang": {"Body": "Fabric", "Accessory": "Ice", "Trim": "Fabric"},
             "Skaddle": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "Ice", "Trim": "Neon"}, "Fenripup": {"Body": "Fabric", "Accessory": "Neon"},
