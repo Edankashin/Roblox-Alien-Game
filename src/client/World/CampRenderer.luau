@@ -705,6 +705,17 @@ function CampRenderer.ShipPosition(): Vector3
 	return shipCentre
 end
 
+-- Where the ship is this frame (the centre of its landing slab, which the lift raises with the hull and the modules); the
+-- launch camera aims here, not at ShipPosition, because the ship rises and ShipPosition stays on the ground. Falls back
+-- to ShipPosition while there is no slab.
+function CampRenderer.ShipFocus(): Vector3
+	local slab = shipBase
+	if slab and slab.Parent then
+		return slab.Position
+	end
+	return shipCentre
+end
+
 -- Raises every ship part (the slab and the module parts) by `studs` over `seconds`, Quad In, so the
 -- take-off starts slow and leaves fast. onDone runs when the lift ends (at once with no ship built;
 -- also when a rebuild cancels it, so a sequence never stalls). A lift while already lifted restarts
@@ -736,7 +747,9 @@ function CampRenderer.LiftShip(studs: number, seconds: number, onDone: (() -> ()
 	end
 	if first and onDone then
 		-- Every tween shares the duration, so the first one's end is the lift's end, cancelled or not.
-		first.Completed:Connect(function()
+		-- Once: a Cancel (the reset behind the black screen cancels the finished tweens) raises Completed too, and a
+		-- sequence told twice that its lift ended would run its whole return twice.
+		first.Completed:Once(function()
 			onDone()
 		end)
 	end

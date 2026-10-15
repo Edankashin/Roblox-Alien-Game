@@ -6,6 +6,10 @@
 -- target; rests Config.CameraPanHoldSeconds; glides back to the character at the offset it left from.
 -- CrashLanding opens a brand-new profile: a dive from Config.CrashStartHeight studs above the camp to
 -- a seat behind the character, a shake at touchdown, and the two CRASH_LINE banners (Toast.Banner).
+-- FollowShip is the lift-off shot: the camera glides to the ship's side (Config.LaunchCameraDistance out, LaunchCameraHeight
+-- up, on the side it already stands) over Config.LaunchCameraGlideSeconds and, from the first frame to the last, aims at where
+-- the ship is NOW (a function the caller gives, not a point: the ship rises 80 studs and PanTo's fixed point left it out of
+-- the frame), climbing a fraction of the rise itself so the tilt stays gentle. The maths is Shared/LaunchCamera.
 -- FrameArea is the Build tray's view: the camera glides to look down on an area (the house plot) so all of it
 -- sits in the part of the screen above the tray, and holds there until EndFrame glides it back.
 -- Rumble is the Legendary opening's screen shake: the same jitter as the touchdown, for a length and amplitude the
@@ -35,6 +39,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Cinematics = require(Shared:WaitForChild("data"):WaitForChild("Cinematics"))
 local CinematicMath = require(Shared:WaitForChild("CinematicMath"))
+local LaunchCamera = require(Shared:WaitForChild("LaunchCamera"))
 local Place = require(Shared:WaitForChild("Place"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
@@ -378,6 +383,59 @@ function CameraDirector.PanTo(target: Vector3, onDone: (() -> ())?)
 		-- Without a character to return to, just hand the camera back.
 		release()
 	end)
+end
+
+-- The lift-off shot. The camera glides from where it stands (looking at the character) to the ship's side and then
+-- keeps aiming at `focus()`, the ship's position this frame, for `seconds`, then is handed back (Cancel or the caller's
+-- settle hands it back sooner). `focus` is read once before the first frame for the ship at rest and again every frame,
+-- so it does not matter whether the lift has started. Reduced motion shortens the glide only: the ship still has to be
+-- followed. Answers false (and does nothing) while another sequence runs or there is no camera.
+function CameraDirector.FollowShip(focus: () -> Vector3, seconds: number, onDone: (() -> ())?): boolean
+	if busy then
+		return false
+	end
+	local cam = currentCamera()
+	if not cam then
+		return false
+	end
+	busy = true
+	generation += 1
+	local mine = generation
+	pendingDone = onDone
+
+	local saved = cam.CFrame
+	local root = rootPart()
+	local rest = toVec(focus())
+	-- Start aiming where the camera aims now, as far off as the character is (so the first frame is the frame it leaves).
+	local aimDistance = if root then (root.Position - saved.Position).Magnitude else Config.LaunchCameraDistance
+	local startAim = saved.Position + saved.LookVector * aimDistance
+	local start: LaunchCamera.Pose = { eye = toVec(saved.Position), focus = toVec(startAim) }
+	local params: LaunchCamera.Params = {
+		distance = Config.LaunchCameraDistance,
+		height = Config.LaunchCameraHeight,
+		follow = Config.LaunchCameraFollow,
+		focusStuds = Config.LaunchCameraFocusStuds,
+		glideSeconds = Config.LaunchCameraGlideSeconds * (if reducedMotion() then Config.ReducedMotionFactor else 1),
+	}
+	local side = LaunchCamera.SideOf(rest, start.eye)
+
+	cam.CameraType = Enum.CameraType.Scriptable
+	task.spawn(function()
+		local started = os.clock()
+		while generation == mine do
+			local elapsed = os.clock() - started
+			if elapsed >= seconds then
+				break
+			end
+			local pose = LaunchCamera.Pose(params, start, rest, toVec(focus()), side, elapsed)
+			cam.CFrame = CFrame.lookAt(Vector3.new(pose.eye.x, pose.eye.y, pose.eye.z), Vector3.new(pose.focus.x, pose.focus.y, pose.focus.z))
+			RunService.RenderStepped:Wait()
+		end
+		if generation == mine then
+			release()
+		end
+	end)
+	return true
 end
 
 -- The opening for a brand-new profile: wait for the character, dive from above the camp to a seat

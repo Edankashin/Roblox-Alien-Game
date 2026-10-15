@@ -243,7 +243,7 @@ What the branch `claude/alien-system-research` holds, by milestone, and how far 
 | 12 | Mesh models in the world (placeholder fallback) | pass with the 53 coloured models installed (2026-10-06); meshes stood 0.7 studs high at the bob's low point, fixed and re-checked at 0.0 |
 | 13 | Settings, preferences, analytics funnel | pass |
 | 14 | Robux launch shop (Starter Pack, four passes, boosts, server luck) | pass with grants; receipts wait on live ids |
-| 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect; step 3 re-check pending after the lift-off latch fix) |
+| 15 | World 2 Frostbyte data and blockouts, one place per world, the launch | pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect; step 3 re-check pending after the lift-off latch, camera-follow and single-toast fixes) |
 | 16 | The Heater rule for blizzards (World 2) | pass |
 | 17 | Environment props: generated scenery and camp meshes, builders swap them in, map-dressing workflow | pass on both worlds with the installed meshes (the Heater disc invisible under its lamp mesh) |
 | 18 | Outposts (lazy production, collect, upgrade) and the Star Chart (fly back to unlocked worlds) | pass on World 2; step 5 waits on the World 1 place |

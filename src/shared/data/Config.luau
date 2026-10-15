@@ -136,6 +136,11 @@ return {
 	LaunchFadeSeconds = 1.2, -- the fade to black at the end of the lift
 	LaunchTeleportDelaySeconds = 5.5, -- the server teleports this long after Launch is accepted (lift + fade)
 	LaunchHoldSeconds = 2, -- without a live place id the fade holds this long, then the camp returns
+	LaunchCameraDistance = 60, -- the launch camera stands this far from the ship, on the side it already stands
+	LaunchCameraHeight = 16, -- and this high above the landing slab before the ship rises
+	LaunchCameraFollow = 0.4, -- it climbs this fraction of the ship's rise, so the tilt up to the ship stays gentle
+	LaunchCameraFocusStuds = 8, -- it aims this far above the landing slab (the hull's middle), riding up with it
+	LaunchCameraGlideSeconds = 1.5, -- the glide from the player's view to that side view (the ship is still low by then)
 	-- the Heater rule (worlds whose rule is "Blizzard"): the special weather hides wild aliens beyond a short
 	-- distance; a Heater placed for Scrap reveals everything inside its radius for a while
 	BlizzardHideStuds = 25, -- wild aliens farther than this from the player are hidden during the blizzard

@@ -13,6 +13,7 @@ What the engine taught us, written so it is only learned once. Several of these 
 - [[UI-Rules]]: the engine rules for UI (Scale not Offset, strokes, safe areas). Read it with [[UI-Playbook]] before a screen.
 - [[Species-Effects]]: every alien's own effect and idle motion, drawn from `data/Effects`: Beams for lightning, emitter rate caps (100 a second on a phone), the nearest 12 aliens only, Reduced Motion, and why the idle offset is composed by the renderer. Read it before touching `World/SpeciesFx` or adding a species.
 - [[SurfaceAppearance-Capability]]: a Script cannot create a SurfaceAppearance (lacking capability Plugin); Rojo ships one per `Textures` row as `.model.json` and the loader clones it. Read it before touching texture maps or `Services/Models`.
+- A presentation chained onto `Tween.Completed` runs again when anything cancels the tween (a Cancel raises the same event), so connect it with `:Once` and give each run its own `Shared/OnceGate`; a camera that follows something that moves takes a function returning its position every frame, never the point it started at (the launch shot, `Shared/LaunchCamera`). See [[2026-10-15]].
 - [[Lighting-Style]]: `LightingStyle` and `PrioritizeLightingQuality` supersede `Technology`; quality below 4 forces Soft with no shadows, so every night and weather grade is checked twice. Read it before changing a look in `data/Lighting.luau`.
 
 ## Audits and budgets

@@ -13,6 +13,9 @@
 -- every start and end and every SightingData.PushSeconds while one runs, and a late joiner asks GetSighting once.
 -- The client only renders: it draws the Warden's mesh on the part with a trail at its feet.
 -- Every player online at a start is counted once through Analytics (Events.Sighting, field species).
+-- The "crosses the map" line in Output prints once per sighting (Shared/OnceGate): a Force restart while one runs walks the
+-- Warden from its first point again and would report the same full length each time, so the line is held back until the
+-- Warden has gone. A restart does not announce itself again, though the clients still see the part replaced.
 -- A world that is listed in SightingData.Hidden, has no path in SightingData.Paths, or whose Worlds row names a
 -- warden that is not in Species has no sighting at all: the state stays inactive with an empty species.
 -- Sightings.Force (Studio commands, guarded by Dev) starts one now (it walks the whole path from the first point
@@ -40,6 +43,7 @@ local Species = require(Shared.data.Species)
 local Worlds = require(Shared.data.Worlds)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
+local OnceGate = require(Shared.OnceGate)
 local Meadow = require(script.Parent.Meadow)
 local Analytics = require(script.Parent.Analytics)
 
@@ -100,6 +104,10 @@ local activeKey: number? = nil -- the key of the run the part belongs to
 local lastPush = 0 -- os.clock() of the last SightingChanged broadcast
 local forcedStartedAt: number? = nil -- wall-clock second a forced run began (Sightings.Force); it beats the clock while it runs
 local mutedUntil: number? = nil -- wall-clock second until which the clock's own sighting is ignored
+-- The "crosses the map" line prints once per sighting: a restart (Sightings.Force while one runs) starts the walk over
+-- from its first point and would report the same full length again, so the gate lets a line through once until the
+-- Warden has really gone (finish with no run behind it clears it).
+local announced = OnceGate.new()
 
 -- Clock maths -------------------------------------------------------------
 -- The wall clock in seconds with millisecond precision, on the same epoch as os.time(), so the part moves smoothly
@@ -226,23 +234,31 @@ local function begin(run: Run, t: number)
 	for _, player in ipairs(Players:GetPlayers()) do
 		Analytics.Event(player, AnalyticsData.Events.Sighting, 1, { species = def.id })
 	end
-	print(("[%s] Sightings: %s crosses world %d now, %ds left (%d studs, every %ss)"):format(
+	local line = ("[%s] Sightings: %s crosses world %d now, %ds left (%d studs, every %ss)"):format(
 		Config.WorkingTitle,
 		def.id,
 		worldId,
 		state.secondsLeft,
 		math.floor(pathLength),
 		tostring(interval)
-	))
+	)
+	if announced.Take(line) then
+		print(line)
+	end
 end
 
-local function finish(t: number)
+-- Ends the part and tells the clients. `restarting` is true when another run takes over in the same tick (a forced
+-- restart): the Warden has not gone, so the next begin does not announce itself again.
+local function finish(t: number, restarting: boolean)
 	local walking = part
 	if walking then
 		walking:Destroy()
 	end
 	part = nil
 	activeKey = nil
+	if not restarting then
+		announced.Clear()
+	end
 	broadcast(stateFor(nil, t))
 end
 
@@ -251,7 +267,7 @@ local function tick()
 	local run = currentRun(t)
 	local key = activeKey
 	if key ~= nil and (run == nil or run.key ~= key) then
-		finish(t)
+		finish(t, run ~= nil)
 	end
 	if run and activeKey == nil then
 		begin(run, t)

@@ -6,15 +6,16 @@
 --             those pushes are held until the screen is black. Toasts and banners hush and wait for the whole sequence
 --             (Toast.Hush, Toast.QuietFor): nothing announces over the lift-off. Then the launch music
 --             (MusicDirector.SetLaunch) and the Sounds.Launch hit (MusicDirector.Stinger, which ducks the other
---             beds), a Featured burst at the ship's base, the camera glides to the ship
---             (CameraDirector.PanTo: the director owns the camera) and the ship starts rising
+--             beds), a Featured burst at the ship's base, the camera glides to the ship's side over
+--             Config.LaunchCameraGlideSeconds and keeps aiming at the ship as it rises (CameraDirector.FollowShip with
+--             CampRenderer.ShipFocus, the ship's position now: the director owns the camera) and the ship starts rising
 --             (CampRenderer.LiftShip: Config.LaunchLiftStuds over Config.LaunchLiftSeconds, Quad In).
 --   lift end  the LaunchFade ScreenGui (DisplayOrder 50, over the toasts) fades a black frame in over
 --             Config.LaunchFadeSeconds with "Next stop: <world>" centred in white outlined Title text.
 --   black     placeLive: stay black, the server's teleport takes over. Should nothing happen for
 --             Config.LaunchHoldSeconds + Config.TeleportGraceSeconds, the camp comes back as a safety net.
 --             not placeLive (Studio, or an unpublished place): hold Config.LaunchHoldSeconds, the
---             LAUNCH_NO_PLACE toast, and the camp comes back.
+--             LAUNCH_NO_PLACE toast (queued behind the quiet moment, shown once: OnceGate), and the camp comes back.
 --   return    the ship is put back, the held camp redrawn for the next world (CampRenderer.EndLaunch) and the
 --             camera handed back while the screen is still black, then the frame fades out over
 --             Config.LaunchFadeSeconds and onDone runs (the bootstrap restores the HUD). IsPlaying is true
@@ -27,6 +28,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local OnceGate = require(Shared:WaitForChild("OnceGate"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
@@ -54,6 +56,12 @@ local lineStroke: UIStroke? = nil
 -- teleports ends sooner (the place is gone); one that waits out the teleport grace asks for the fade back again below.
 local function quietSeconds(): number
 	return Config.LaunchLiftSeconds + Config.LaunchFadeSeconds + Config.LaunchHoldSeconds + Config.LaunchFadeSeconds
+end
+
+-- How long the camera stays on the rising ship if nothing hands it back sooner: the lift, the fade, and the longest wait
+-- on black (the hold plus the teleport grace). settle() hands it back as the screen goes black for the return.
+local function followSeconds(): number
+	return Config.LaunchLiftSeconds + Config.LaunchFadeSeconds + Config.LaunchHoldSeconds + Config.TeleportGraceSeconds
 end
 
 -- The next world's name from the strings table (WORLD_<id>), or the Worlds row, or the key itself.
@@ -189,9 +197,16 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 	if CameraDirector.IsBusy() then
 		CameraDirector.Cancel() -- the last module's pan may still be gliding; the launch takes its place
 	end
-	CameraDirector.PanTo(shipAt)
+	-- The ship's position now, not the point it rests at: it rises Config.LaunchLiftStuds and the shot rises with it.
+	CameraDirector.FollowShip(CampRenderer.ShipFocus, followSeconds())
 
+	-- One gate per launch: the lift reports its end once, and the return (the hold, the toast, the fade back) runs once,
+	-- however many times the engine raises the event the report rides on.
+	local once = OnceGate.new()
 	CampRenderer.LiftShip(Config.LaunchLiftStuds, Config.LaunchLiftSeconds, function()
+		if not once.Take("lift") then
+			return
+		end
 		task.spawn(function()
 			local root = gui
 			if root then
@@ -205,7 +220,9 @@ function LaunchSequence.Play(nextWorldId: number, placeLive: boolean, onDone: ()
 				print(("[%s] launch: no teleport after %d s, returning to the camp"):format(Config.WorkingTitle, Config.LaunchHoldSeconds + Config.TeleportGraceSeconds))
 			else
 				task.wait(Config.LaunchHoldSeconds)
-				Toast.Show(Strings.LAUNCH_NO_PLACE:format(name), Theme.Colors.Featured)
+				if once.Take("noPlaceToast") then
+					Toast.Show(Strings.LAUNCH_NO_PLACE:format(name), Theme.Colors.Featured)
+				end
 			end
 			settle()
 			Toast.QuietFor(Config.LaunchFadeSeconds) -- the fade back stays clear even after a long wait for a teleport

@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `411f6581f6d1a332`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `06a47b05daedccb7`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 103 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -15,14 +15,14 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 ### Milestone 15c: the launch
 
-**Pending status:** pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect; step 3 re-check pending after the lift-off latch fix)
+**Pending status:** pass (15b, 15c on World 2; 15c step 4 waits on a World 1 Connect; step 3 re-check pending after the lift-off latch, camera-follow and single-toast fixes)
 
 **Setup projects:** `rojo serve default.project.json`.
 **Dev/setup references:** `/complete`, `/world 2`, `/world N`.
 
 **Send back:** standard evidence above; original steps 3, 4.
 
-**TESTING step 3.** Press Launch. The expected sequence, in this order and with nothing cut short: the HUD hides and a gold burst plays at the base; the whole ship (hull and modules) rises 80 studs over 4 s (`Config.LaunchLiftSeconds`) and is never replaced by a ship sitting on the slab, while the camera glides to it; only when the lift ends (4 s after the tap, not at once) does the screen fade to black with "Next stop: Frostbyte". No toast or banner shows over any of it, including a banner that arrives during the launch (on a fresh profile the launch ends the tutorial, so the Alien of the Week banner is due then): the server's reset for the next world (Ship 0%) is held by the camp latch (`CampRenderer.BeginLaunch`) and the camp is redrawn once for World 2 while the screen is black. After 2 s the screen fades back: the ship sits on its slab where it was with World 2's modules as ghosts at 0%, the HUD returns, and then the toast "Frostbyte opens when it is published. The ship is ready." and the held banner show, one after the other. CameraType reads Custom afterwards. The Mac's check: re-record `media/store/2026-10-14/clip_launch.mp4` (8 s: rise, glide, fade, return) with this sequence and replace the old clip.
+**TESTING step 3.** Press Launch. The expected sequence, in this order and with nothing cut short: the HUD hides and a gold burst plays at the base; the whole ship (hull and modules) rises 80 studs over 4 s (`Config.LaunchLiftSeconds`) and is never replaced by a ship sitting on the slab, while the camera glides to the ship's side (about 1.5 s, `Config.LaunchCameraGlideSeconds`, from the player's view to a spot `Config.LaunchCameraDistance` studs out on the side it stood on) and then tilts up and follows the ship all the way to the top of the lift, so the ship stays in the middle of the frame and the scene is never empty (the camera does not stay on the player, and does not look at the empty slab); only when the lift ends (4 s after the tap, not at once) does the screen fade to black with "Next stop: Frostbyte". No toast or banner shows over any of it, including a banner that arrives during the launch (on a fresh profile the launch ends the tutorial, so the Alien of the Week banner is due then): the server's reset for the next world (Ship 0%) is held by the camp latch (`CampRenderer.BeginLaunch`) and the camp is redrawn once for World 2 while the screen is black. After 2 s the screen fades back: the ship sits on its slab where it was with World 2's modules as ghosts at 0%, the HUD returns, and then the toast "Frostbyte opens when it is published. The ship is ready." shows once (one toast, not two, and no second fade to black behind it) and the held banner shows after it. CameraType reads Custom afterwards. The Mac's check: re-record `media/store/2026-10-14/clip_launch.mp4` (8 s: rise, glide, fade, return) with this sequence and replace the old clip.
 
 **TESTING step 4.** The profile moved: the Aliens and Ship screens now show World 2's modules (Heat Shield first, 0%), and Launch on World 1 now refuses with "Your ship is on another world" (the ship stays). Analytics prints `event Launch from=1 to=2`.
 
