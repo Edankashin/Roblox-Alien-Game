@@ -26,4 +26,8 @@ How models, icons, scenery and music get made and into the game. The passes on t
 - [[Blender-MCP]]: the log of what the Blender MCP built (icons, particles, props, look passes). Read it before running a Blender script.
 - [[Music-Plan]]: music and sound picks per game state, with the pick tables. Read it before changing a track or filling a sound id.
 
+## References
+
+- [[X-Posts]]: what Roblox developers say on X about building creatures, worlds, UI and effects (66 posts from search snippets), the ten most useful, and the five things we take. Read it before a UI stroke change, a prop import change or a Claude-and-Blender claim.
+
 Also here: `refs/` holds the preview sheets embedded in the notes above (`silhouette-pass`, `surface-pass`, `2026-10-15`).
