@@ -82,19 +82,19 @@ local Materials: { [string]: { { string | number } } } = {
 
 local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	Buzzlebee = {
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
 	Capybubble = {
 		Accessory = { material = "Neon" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
 	Chipmole = {
 		Accessory = { material = "Ice", texture = "ice" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
@@ -114,13 +114,13 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Fenripup = {
 		Accessory = { material = "Neon" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
 	Flapsicle = {
 		Accessory = { material = "Ice", texture = "ice" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
@@ -133,7 +133,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Frostfang = {
 		Accessory = { material = "Ice", texture = "ice" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 		Trim = { material = "Fabric" },
@@ -163,12 +163,12 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Lanternewt = {
 		Accessory = { material = "Neon" },
-		Body = { texture = "scales" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
 	Mossbop = {
-		Body = { material = "Grass", texture = "moss" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
@@ -184,8 +184,8 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Pengoo = {
 		Accessory = { material = "SmoothPlastic" },
-		Belly = { material = "Fabric", texture = "fur" },
-		Body = { material = "Fabric", texture = "fur" },
+		Belly = { material = "SmoothPlastic" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
@@ -200,7 +200,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Reindazzle = {
 		Accessory = { material = "Neon" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		BodyDark = { material = "Ice", texture = "ice" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
@@ -219,7 +219,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Shimmerlynx = {
 		Accessory = { material = "Neon" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 		Trim = { material = "Fabric" },
@@ -227,7 +227,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	Skaddle = {
 		Accessory = { material = "Ice", texture = "ice" },
 		Body = { material = "Snow" },
-		BodyDark = { material = "Fabric", texture = "fur" },
+		BodyDark = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 		Trim = { material = "Neon" },
@@ -239,13 +239,13 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Snowbun = {
 		Body = { material = "Snow" },
-		BodyDark = { material = "Fabric", texture = "fur" },
+		BodyDark = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
 	Sparkfox = {
 		Accessory = { material = "Neon" },
-		Body = { material = "SmoothPlastic", texture = "fur" },
+		Body = { material = "SmoothPlastic" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},

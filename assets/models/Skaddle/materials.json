@@ -40,8 +40,7 @@
     "roughness": 0.8,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Fabric",
-    "texture": "fur"
+    "material": "SmoothPlastic"
   },
   {
     "slot": 6,

@@ -6,8 +6,10 @@ normal map is computed from the height pass). 512 x 512 PNGs, each under 300 KB.
 Image ids per key into `src/shared/data/Textures.luau` (`colorMap`, `normalMap`, `roughnessMap`); a slot takes a set through its `texture` key in
 `assets/models/<Id>/materials.json`. See `docs/vault/06-art-pipelines/Surface-Pass.md`.
 
-- `fur`: short fine tufts over a slow clump pattern, rough and soft (Sparkfox, Buzzlebee, anything furry). `fur_color.png` 54 KB, `fur_normal.png` 263 KB, `fur_roughness.png` 70 KB.
-- `moss`: round velvety clumps (Mossbop, Pebblet's cap, Twiglet's leaf). `moss_color.png` 53 KB, `moss_normal.png` 271 KB, `moss_roughness.png` 44 KB.
-- `stone`: blocky grey rock with dark cracks, rough (Pebblet, Rocklobber, cave props). `stone_color.png` 93 KB, `stone_normal.png` 290 KB, `stone_roughness.png` 45 KB.
-- `ice`: smooth pale cloud with bright frost lines, glossy (the Frostbyte species). `ice_color.png` 40 KB, `ice_normal.png` 188 KB, `ice_roughness.png` 106 KB.
-- `scales`: a field of small shiny domes with seams (newts, lizards, fish). `scales_color.png` 99 KB, `scales_normal.png` 288 KB, `scales_roughness.png` 102 KB.
+**Which sets a slot may use (2026-10-15): `stone` and `ice` only.** The owner disliked the grain on the aliens, and it is the normal map of `fur`, `moss` and `scales` tiled over a small body (Surface-Pass.md, "No grain"). A body is smooth by default: no `texture` key, SmoothPlastic. The allowlist is `KEEP_TEXTURE` in `tools/blender/surface_defaults.py`; `python3 -I tools/materials_smooth.py --check` and `test_surfaces.py` fail on any other key. The three other sets stay baked and uploaded, unused.
+
+- `fur`: not used, it read as grain. Short fine tufts over a slow clump pattern, rough and soft. `fur_color.png` 54 KB, `fur_normal.png` 263 KB, `fur_roughness.png` 70 KB.
+- `moss`: not used, it read as grain. Round velvety clumps. `moss_color.png` 53 KB, `moss_normal.png` 271 KB, `moss_roughness.png` 44 KB.
+- `stone`: allowed. Blocky grey rock with dark cracks, rough (Pebblet's body). `stone_color.png` 93 KB, `stone_normal.png` 290 KB, `stone_roughness.png` 45 KB.
+- `ice`: allowed. Smooth pale cloud with bright frost lines, glossy (Drippo, Shellberg and the ice accessories of the Frostbyte species). `ice_color.png` 40 KB, `ice_normal.png` 188 KB, `ice_roughness.png` 106 KB.
+- `scales`: not used, it read as grain. A field of small shiny domes with seams. `scales_color.png` 99 KB, `scales_normal.png` 288 KB, `scales_roughness.png` 102 KB.

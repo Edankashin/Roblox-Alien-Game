@@ -94,12 +94,12 @@ What the overrides do (`species_sculpt.py` `DEFAULTS` and `HYBRID`; each was nee
 - **`stiff=4`, `stiff_thin=4`**: see Fenrir's legs above. **`res=0.03`**: the tail tip of the serpent is 0.05 across, a 0.04 cell loses it; Fenrir's shading also came out smoother (a build of about a minute). **`face.lid_grow=1.6`**: the lid over the eye grows into a brow. **`tris=2480`**: Skydrake's own budget (the cap is 2,500).
 - Tried and dropped: `core_remesh=quadriflow` (Fenrir's legs folded to nothing, as [[Sculpt-Pass]] warns); `collar=0` (the build fails: "unused slots: Mouth", the Mouth slot got no faces; reported, not chased); `bevel_segments` left on (over the cap).
 
-`materials.json` for the two folders (slot names and order are the Epic and Legendary ones; `texture` and `glossy` are the Surface pass's fields). Skydrake's `scales` set was tried and dropped: at this body size the tiling turned the jade into cracked stone.
+`materials.json` for the two folders (slot names and order are the Epic and Legendary ones; `texture` and `glossy` are the Surface pass's fields). Skydrake's `scales` set was tried and dropped: at this body size the tiling turned the jade into cracked stone. FenripupV2's `fur` set was dropped later, on 2026-10-15, for the same reason (Ethan: "I don't like the grainy texture on him"): its Body is SmoothPlastic with no texture now, and the sheets were redrawn ([[Surface-Pass]], "No grain"; [[Decisions]] B41).
 
 ```json
 // FenripupV2/materials.json
 [
-  {"slot": 1, "name": "Body", "hex": "3B2E6B", "roughness": 0.8, "metallic": 0.0, "emission": 0.0, "material": "Fabric", "texture": "fur"},
+  {"slot": 1, "name": "Body", "hex": "3B2E6B", "roughness": 0.8, "metallic": 0.0, "emission": 0.0, "material": "SmoothPlastic"},
   {"slot": 2, "name": "EyeWhite", "hex": "FFFFFF", "roughness": 0.5, "metallic": 0.0, "emission": 0.0, "glossy": true},
   {"slot": 3, "name": "Pupil", "hex": "08080A", "roughness": 0.4, "metallic": 0.0, "emission": 0.0},
   {"slot": 4, "name": "Mouth", "hex": "4A0E1A", "roughness": 0.8, "metallic": 0.0, "emission": 0.0},
@@ -178,7 +178,7 @@ Fenrir v2:
 - **The core is 1,307 triangles for an 8.4 stud body**: the contours are polygonal (the shading is smooth), most visibly on the paws and the tail. The 73 crisp parts and the eyes take the other 1,058. Fewer wedges would buy the body back; the ridge and the ruff are what make it read, so that is the owner's call.
 - **The crescent is an arc of seven rods**, kinked at the joins, not a true crescent (the recipe has no arc or boolean primitive). It reads clearly in colour at 64 px (gold on indigo) but merges with the ears in the black shape.
 - **The wedges are shells**: they stand on the skin with a hard crease, no blended root. The chain links float on the shoulder with no chain between them; the rune is three bars.
-- **The fur texture mottles** a body this dark at the sheet's size; and the tail is a smooth tube with four wedges, not fur.
+- **The fur texture mottles** a body this dark at the sheet's size (that mottle was the fur map's grain; dropped 2026-10-15, [[Surface-Pass]] "No grain"); and the tail is a smooth tube with four wedges, not fur.
 - The mouth is a small dark notch between the fangs (the hybrid's mouth is an indent, not a hinged jaw).
 
 Skydrake:
@@ -300,7 +300,7 @@ Positions in recipe coordinates (studs, feet on z 0, the face on -Y; the build s
 Fenrir v2:
 - **From the front the long muzzle is foreshortened** (the camera looks down 18 degrees), so the nose reads a little like a trunk; the fangs flank the jaw so they do show, but a front view of any long snout is a short shape. The 64 px silhouette is the body and the plume: at 64 px the head, the crescent and the ears disappear in the black shape (477 pixels), and the gold crescent is one dot in colour.
 - **Scary is stance, fangs and fins; the face is still cute-fierce.** Big round eyes with a lid at 1.0 are ours; a bigger lid closes them to slits. The owner's "a lot more scary" may want something the recipe system cannot give (a darker value, a bigger mouth interior, an expression change), or the effects (flared eyes, shadow wisps).
-- The fins are straight flat pyramids (a curved fin is two cones, 20 triangles instead of 8); the links still float; the fur texture mottles at this size; the plume is a smooth tube with three wedges, not fur; the core is 1,332 triangles for a 9.7 stud body, so the paws and the thin cannon are polygonal.
+- The fins are straight flat pyramids (a curved fin is two cones, 20 triangles instead of 8); the links still float; the fur texture mottles at this size (that mottle was the fur map's grain; dropped 2026-10-15, [[Surface-Pass]] "No grain"); the plume is a smooth tube with three wedges, not fur; the core is 1,332 triangles for a 9.7 stud body, so the paws and the thin cannon are polygonal.
 - The mouth interior is 11 triangles: a red notch, not an open maw.
 
 Skydrake v2:

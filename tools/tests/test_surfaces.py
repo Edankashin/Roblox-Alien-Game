@@ -24,6 +24,9 @@ from luau_tables import load  # noqa: E402
 _SPEC = importlib.util.spec_from_file_location("species_recipes", ROOT / "tools/blender/species_recipes.py")
 sr = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(sr)  # type: ignore[union-attr]
+_DEFAULTS = importlib.util.spec_from_file_location("surface_defaults", ROOT / "tools/blender/surface_defaults.py")
+sd = importlib.util.module_from_spec(_DEFAULTS)
+_DEFAULTS.loader.exec_module(sd)  # type: ignore[union-attr]
 
 TEXTURES = load(str(ROOT / "src/shared/data/Textures.luau"))
 MAX_TEXTURE_BYTES = 300_000
@@ -126,9 +129,11 @@ class MaterialsJson(unittest.TestCase):
         self.assertGreater(seen, 0)
 
     def test_the_world_one_species_follow_the_concept_list(self):
+        # Mossbop, Buzzlebee and Lanternewt were Grass, Fabric and none with a moss, fur and scales map: the maps read as grain, so
+        # their bodies are SmoothPlastic now (tools/blender/surface_defaults.py); Pebblet's Slate keeps its stone facets.
         wanted = {
-            "Mossbop": {"Body": "Grass"}, "Pebblet": {"Body": "Slate"}, "Glimmo": {"Body": "Glass", "Accessory": "Neon"},
-            "Twiglet": {"Body": "Wood"}, "Buzzlebee": {"Body": "Fabric"}, "Lanternewt": {"Accessory": "Neon"},
+            "Mossbop": {"Body": "SmoothPlastic"}, "Pebblet": {"Body": "Slate"}, "Glimmo": {"Body": "Glass", "Accessory": "Neon"},
+            "Twiglet": {"Body": "Wood"}, "Buzzlebee": {"Body": "SmoothPlastic"}, "Lanternewt": {"Body": "SmoothPlastic", "Accessory": "Neon"},
             "Snailbyte": {"Accessory": "Metal"}, "Rocklobber": {"Accessory": "Neon"}, "Zapfinch": {"Accessory": "Neon"},
             "Sparkfox": {"Body": "SmoothPlastic", "Accessory": "Neon"}, "Thunderhog": {"Accessory": "Neon"}, "Gloomoth": {"Accessory": "Glass"},
             "Gaiabloom": {"Trim": "Neon"}, "Radish": {"Accessory": "Neon"}, "Panpipe": {"Accessory": "Neon"}, "Puffpuff": {},
@@ -141,20 +146,25 @@ class MaterialsJson(unittest.TestCase):
                     self.assertEqual(entry.get("glossy", False), slot in ("EyeWhite", "EyeHighlight"))
 
     def test_the_frostbyte_species_follow_the_concept_list(self):
-        # Snow for the snow bodies, Ice for icicles and the iceberg shell, Fabric for scarves, caps and fur, Glass for the aurora
-        # crest, Neon for the glow parts and the ember, Metal for the kettle; every eye slot glossy and nothing else.
+        # Snow for the snow bodies, Ice for icicles and the iceberg shell, Fabric for knitted scarves, caps and collars (a fur body
+        # lost its map and its Fabric: SmoothPlastic), Glass for the aurora crest, Neon for the glow parts and the ember, Metal for
+        # the kettle; every eye slot glossy and nothing else.
         wanted = {
-            "Flufflet": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "SmoothPlastic"}, "Snowbun": {"Body": "Snow", "BodyDark": "Fabric"},
+            "Flufflet": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "SmoothPlastic"},
+            "Snowbun": {"Body": "Snow", "BodyDark": "SmoothPlastic"},
             "Drippo": {"Body": "Ice", "BodyDark": "Ice", "Accessory": "SmoothPlastic"},
             "Kettlepuff": {"Body": "Metal", "BodyDark": "Metal", "Accessory": "Metal"},
-            "Chipmole": {"Body": "Fabric", "Accessory": "Ice"}, "Pengoo": {"Body": "Fabric", "Accessory": "SmoothPlastic", "Belly": "Fabric"},
-            "Flapsicle": {"Body": "Fabric", "Accessory": "Ice"}, "Toastoad": {"Body": "Leather", "BodyDark": "Leather", "Accessory": "Pebble"},
+            "Chipmole": {"Body": "SmoothPlastic", "Accessory": "Ice"},
+            "Pengoo": {"Body": "SmoothPlastic", "Accessory": "SmoothPlastic", "Belly": "SmoothPlastic"},
+            "Flapsicle": {"Body": "SmoothPlastic", "Accessory": "Ice"}, "Toastoad": {"Body": "Leather", "BodyDark": "Leather", "Accessory": "Pebble"},
             "Emberchin": {"Body": "Pebble", "BodyDark": "Slate", "Accessory": "Neon"},
-            "Reindazzle": {"Body": "Fabric", "BodyDark": "Ice", "Accessory": "Neon"},
-            "Shellberg": {"Body": "Ice", "BodyDark": "SmoothPlastic", "Accessory": "Neon"}, "Capybubble": {"Body": "Fabric", "Accessory": "Neon"},
-            "Shimmerlynx": {"Body": "Fabric", "Accessory": "Neon", "Trim": "Fabric"},
-            "Frostfang": {"Body": "Fabric", "Accessory": "Ice", "Trim": "Fabric"},
-            "Skaddle": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "Ice", "Trim": "Neon"}, "Fenripup": {"Body": "Fabric", "Accessory": "Neon"},
+            "Reindazzle": {"Body": "SmoothPlastic", "BodyDark": "Ice", "Accessory": "Neon"},
+            "Shellberg": {"Body": "Ice", "BodyDark": "SmoothPlastic", "Accessory": "Neon"},
+            "Capybubble": {"Body": "SmoothPlastic", "Accessory": "Neon"},
+            "Shimmerlynx": {"Body": "SmoothPlastic", "Accessory": "Neon", "Trim": "Fabric"},
+            "Frostfang": {"Body": "SmoothPlastic", "Accessory": "Ice", "Trim": "Fabric"},
+            "Skaddle": {"Body": "Snow", "BodyDark": "SmoothPlastic", "Accessory": "Ice", "Trim": "Neon"},
+            "Fenripup": {"Body": "SmoothPlastic", "Accessory": "Neon"},
         }
         self.assertEqual(len(wanted), 16)
         for sid, materials in wanted.items():
@@ -164,14 +174,87 @@ class MaterialsJson(unittest.TestCase):
                     self.assertEqual(entry.get("material"), materials.get(slot))
                     self.assertEqual(entry.get("glossy", False), slot in ("EyeWhite", "EyeHighlight"))
                     if "texture" in entry:
-                        self.assertIn(entry["texture"], ("fur", "ice"))
-                        self.assertEqual(entry["texture"] == "ice", entry["material"] == "Ice")
+                        self.assertEqual(entry["texture"], "ice")
+                        self.assertEqual(entry["material"], "Ice")
 
     def test_a_regeneration_keeps_the_surface_fields(self):
         # alien_base.write_materials_entries cannot import here (it needs bpy), so read its rule from the source.
         source = (ROOT / "tools/blender/alien_base.py").read_text()
         self.assertIn('SURFACE_KEYS = ("material", "texture", "glossy")', source)
         self.assertIn("entry[key] = old[entry[\"name\"]][key]", source)
+
+
+class NoGrain(unittest.TestCase):
+    """Surface-Pass.md, "No grain (2026-10-15)": a species body is smooth by default, a tiled map only where the design wants one."""
+
+    def test_the_allowlist_names_real_sets_and_is_short(self):
+        self.assertEqual(sd.KEEP_TEXTURE, ("stone", "ice"))
+        for key in sd.KEEP_TEXTURE:
+            self.assertIn(key, TEXTURES)
+        for key in ("fur", "moss", "scales"):
+            self.assertFalse(sd.keeps_texture(key), key + " is the grain")
+
+    def test_no_slot_names_a_texture_off_the_allowlist(self):
+        kept = 0
+        for folder in model_folders():
+            for entry in json.loads((folder / "materials.json").read_text()):
+                with self.subTest(model=folder.name, slot=entry["name"]):
+                    self.assertEqual(sd.violations(entry), [])
+                    kept += "texture" in entry
+        self.assertGreater(kept, 0, "stone and ice are still in use")
+
+    def test_a_kept_texture_keeps_its_material(self):
+        for folder in model_folders():
+            for entry in json.loads((folder / "materials.json").read_text()):
+                if entry.get("texture") == "ice":
+                    with self.subTest(model=folder.name, slot=entry["name"]):
+                        self.assertEqual(entry.get("material"), "Ice")
+                if entry.get("texture") == "stone":
+                    with self.subTest(model=folder.name, slot=entry["name"]):
+                        self.assertEqual(entry.get("material"), "Slate")
+
+    def test_every_fur_moss_and_scales_slot_is_smooth_plastic_now(self):
+        # The 14 species that lost a map: their old slots are SmoothPlastic with no texture (the Fabric and Grass went with the map).
+        smooth = {"Buzzlebee": ["Body"], "Capybubble": ["Body"], "Chipmole": ["Body"], "Fenripup": ["Body"], "Flapsicle": ["Body"],
+                  "Frostfang": ["Body"], "Lanternewt": ["Body"], "Mossbop": ["Body"], "Pengoo": ["Body", "Belly"], "Reindazzle": ["Body"],
+                  "Shimmerlynx": ["Body"], "Skaddle": ["BodyDark"], "Snowbun": ["BodyDark"], "Sparkfox": ["Body"]}
+        for sid, slots in smooth.items():
+            entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}
+            for slot in slots:
+                with self.subTest(model=sid, slot=slot):
+                    self.assertEqual(entries[slot].get("material"), "SmoothPlastic")
+                    self.assertNotIn("texture", entries[slot])
+
+    def test_the_rule_on_single_entries(self):
+        fur = {"slot": 1, "name": "Body", "hex": "3B2E6B", "roughness": 0.8, "metallic": 0.0, "emission": 0.0, "material": "Fabric", "texture": "fur"}
+        smooth = sd.smoothed(fur)
+        self.assertEqual(smooth["material"], "SmoothPlastic")
+        self.assertNotIn("texture", smooth)
+        self.assertEqual({k: v for k, v in smooth.items() if k != "material"}, {k: v for k, v in fur.items() if k not in ("material", "texture")})
+        self.assertEqual(list(smooth), ["slot", "name", "hex", "roughness", "metallic", "emission", "material"])
+        self.assertEqual(sd.smoothed(smooth), smooth, "idempotent")
+        bare = dict(fur)
+        del bare["material"]
+        bare["texture"] = "scales"
+        self.assertEqual(sd.smoothed(bare)["material"], "SmoothPlastic", "no material: the dropped map's place is taken by SmoothPlastic")
+        self.assertEqual(list(sd.smoothed(bare))[-1], "material")
+        grass = dict(fur, material="Grass", texture="moss", glossy=True)
+        self.assertEqual(sd.smoothed(grass)["material"], "SmoothPlastic")
+        self.assertTrue(sd.smoothed(grass)["glossy"], "the gloss stays")
+        glass = dict(fur, material="Glass", texture="scales")
+        self.assertEqual(sd.smoothed(glass)["material"], "Glass", "only the map goes from a slot on another material")
+        self.assertNotIn("texture", sd.smoothed(glass))
+        for key, material in (("ice", "Ice"), ("stone", "Slate")):
+            kept = dict(fur, material=material, texture=key)
+            self.assertEqual(sd.smoothed(kept), kept)
+        knitted = dict(fur, material="Fabric")
+        del knitted["texture"]
+        self.assertEqual(sd.smoothed(knitted), knitted, "a knitted slot that never had a map stays Fabric")
+
+    def test_materials_smooth_check_is_clean(self):
+        result = subprocess.run([sys.executable, "-I", "tools/materials_smooth.py", "--check"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("clean", result.stdout)
 
 
 class SurfaceNumbers(unittest.TestCase):

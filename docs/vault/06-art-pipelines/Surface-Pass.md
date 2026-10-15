@@ -5,7 +5,7 @@ up: "[[Art-Pipelines]]"
 ---
 # Surface pass: giving the bodies a surface
 
-Ethan, 2026-10-14, looking at the sixteen new World 1 bodies: "They don't have any texture to them. Look at the TikToks I sent you about the design of certain props and aspects of the game. Also the top games." The bodies are flat-coloured primitives with hard shading: right silhouettes ([[Silhouette-Pass]]), no surface. This note is the plan, what shipped in the first change, and what waits. Background: [[Look-Plan]] (principle 2, "no textures on creatures", is overruled here for the creatures' surfaces; the lighting rules stay), [[Creature-Generation]], [[Map-Dressing]] (the `materials.json` and grey-import note). Review images: ![Mossbop, before | after](refs/surface-pass/Mossbop_surface.jpg) ![Sparkfox, before | after](refs/surface-pass/Sparkfox_surface.jpg) Left is the pre-pass body, right the surface build, same light (`preview.py --lit`). Blender cannot draw Roblox's Grass or Fabric, so the right-hand side shows the gradient, the glossy eyes, the Neon glow and the baked texture sets; the Roblox materials are judged in Studio.
+Ethan, 2026-10-14, looking at the sixteen new World 1 bodies: "They don't have any texture to them. Look at the TikToks I sent you about the design of certain props and aspects of the game. Also the top games." The bodies are flat-coloured primitives with hard shading: right silhouettes ([[Silhouette-Pass]]), no surface. This note is the plan, what shipped in the first change, and what waits. Background: [[Look-Plan]] (principle 2, "no textures on creatures", is overruled here for the creatures' surfaces; the lighting rules stay), [[Creature-Generation]], [[Map-Dressing]] (the `materials.json` and grey-import note). Review images: ![Mossbop, before | after](refs/surface-pass/Mossbop_surface.jpg) ![Sparkfox, before | after](refs/surface-pass/Sparkfox_surface.jpg) Left is the pre-pass body, right the surface build, same light (`preview.py --lit`). Both images were redrawn on 2026-10-15, after the moss and fur maps were dropped because they read as grain ([[#No grain (2026-10-15)]]): the left body is the current recipe built with `--no-surface`, the right the shipped smooth surface build. Blender cannot draw Roblox's Grass or Fabric, so the right-hand side shows the gradient, the glossy eyes, the Neon glow and the baked texture sets; the Roblox materials are judged in Studio.
 
 ## What the references say about surfaces
 
@@ -29,9 +29,9 @@ What the Creator docs say (read through search snippets; the docs host is blocke
 
 | Layer | What | Cost and needs | Friday 2026-10-16, 8 GB Mac, headless Blender |
 |---|---|---|---|
-| A. Roblox materials per slot | `material` per slot in `materials.json`: Grass (moss), Fabric (fur), Slate (stone), Wood, Glass (crystal wings), Metal, Neon (glow parts); `glossy` on EyeWhite and EyeHighlight: SmoothPlastic plus `Config.ModelGlossReflectance` (a sheen, the cheap specular dot). The loader applies it from data. | No uploads, no art. One property per MeshPart; no memory cost beyond the engine's own material textures. | **Ships now** (code, data and tests in this change). Needs a Studio look. |
+| A. Roblox materials per slot | `material` per slot in `materials.json`: Slate (stone), Wood, Glass (crystal wings), Metal, Neon (glow parts), and SmoothPlastic for every body (the Grass and Fabric that went with the moss and fur maps were dropped on 2026-10-15, [[#No grain (2026-10-15)]]); `glossy` on EyeWhite and EyeHighlight: SmoothPlastic plus `Config.ModelGlossReflectance` (a sheen, the cheap specular dot). The loader applies it from data. | No uploads, no art. One property per MeshPart; no memory cost beyond the engine's own material textures. | **Ships now** (code, data and tests in this change). Needs a Studio look. |
 | B. Mesh-side softness | In `species_bodies.py` (default on, `--no-surface` for the old output): shade smooth by angle, a two-segment bevel on thick cubes and cylinders, a greyscale vertex gradient (crown 1.0, belly 0.7, 0.18 darker facing down: a fake occlusion) exported as `COLOR_0`; UVs scaled per slot texture. | Headless Blender, a few minutes for 16. Triangles: bevel adds about 100 on a thick cube; builds that cross the cap drop the bevel. Mesh re-export and re-upload of the 16 (the colour re-upload already waits on Ethan). | **Smoothing and bevel: yes** once rebuilt. **Gradient: only if the probe shows Roblox keeps `COLOR_0` through the GLB upload**; harmless if ignored. Fallback if dropped: a `Belly` slot in BodyDark under the body (one more MeshPart per species). |
-| C. Real texture maps | Five shared tileable sets (fur, moss, stone, ice, scales), each colour, normal, roughness: baked by `bake_textures.py` to `assets/textures/<key>/` (512 px, under 300 KB each, near-white colour so the slot colour tints it through `SurfaceAppearance.Color`). Upload once as images, paste the Image ids into `data/Textures`; a slot picks a set by its `texture` key. | Upload step: `upload_assets.py --textures` (built, see the probes below). Risk, found true: a Script cannot create a SurfaceAppearance, so Rojo ships one template per row (`src/shared/SurfaceTemplates`, from `Textures`) and the loader clones it ([[SurfaceAppearance-Capability]]). Phone memory: five sets of three 512 px maps is about 15 MB decoded if all are on screen; a shared set used by many species costs once. | **Maps and loader are ready, the gate is the upload and a Studio probe.** Not promised for Friday; do it if the probe passes. Fallback: bake the maps into each GLB (the importer then makes the SurfaceAppearance itself), at the price of a bigger upload per species. |
+| C. Real texture maps | Five shared tileable sets (fur, moss, stone, ice, scales; only stone and ice are used since 2026-10-15, [[#No grain (2026-10-15)]]), each colour, normal, roughness: baked by `bake_textures.py` to `assets/textures/<key>/` (512 px, under 300 KB each, near-white colour so the slot colour tints it through `SurfaceAppearance.Color`). Upload once as images, paste the Image ids into `data/Textures`; a slot picks a set by its `texture` key. | Upload step: `upload_assets.py --textures` (built, see the probes below). Risk, found true: a Script cannot create a SurfaceAppearance, so Rojo ships one template per row (`src/shared/SurfaceTemplates`, from `Textures`) and the loader clones it ([[SurfaceAppearance-Capability]]). Phone memory: five sets of three 512 px maps is about 15 MB decoded if all are on screen; a shared set used by many species costs once. | **Maps and loader are ready, the gate is the upload and a Studio probe.** Not promised for Friday; do it if the probe passes. Fallback: bake the maps into each GLB (the importer then makes the SurfaceAppearance itself), at the price of a bigger upload per species. |
 
 The eye: two layers already in every recipe (a white sphere, a dark pupil, a white highlight sphere). Gloss (A) turns the highlight into a real specular dot and the white into a wet eye. Nothing more is modelled.
 
@@ -45,17 +45,17 @@ Body unless named. Every EyeWhite and EyeHighlight is `glossy`. The set in the l
 
 | Species | Material | Texture set |
 |---|---|---|
-| Mossbop | Body Grass | Body moss |
+| Mossbop | Body SmoothPlastic (was Grass) | none (moss dropped) |
 | Pebblet | Body Slate | Body stone |
 | Puffpuff | (eyes only) | none |
 | Glimmo | Body Glass, Accessory Neon (the lamp) | none |
 | Twiglet | Body Wood | none |
-| Buzzlebee | Body Fabric | Body fur |
-| Lanternewt | Accessory Neon | Body scales |
+| Buzzlebee | Body SmoothPlastic (was Fabric) | none (fur dropped) |
+| Lanternewt | Body SmoothPlastic, Accessory Neon | none (scales dropped) |
 | Snailbyte | Accessory Metal (the shell) | none |
 | Rocklobber | Accessory Slate | Accessory stone |
 | Zapfinch, Radish | Accessory Neon | none |
-| Sparkfox | Body Fabric, Accessory Neon | Body fur |
+| Sparkfox | Body SmoothPlastic (was Fabric), Accessory Neon | none (fur dropped) |
 | Thunderhog | Accessory Neon | none |
 | Gloomoth | Accessory Glass (the wings) | none |
 | Gaiabloom | Trim Neon | none |
@@ -67,26 +67,26 @@ An explicit `material` beats the emission rule: Rocklobber's amber crystals and 
 
 ![[silhouette_world2_surface_previews.jpg]]
 
-Same rules: every EyeWhite and EyeHighlight is `glossy`, nothing else is. Snow for the snow bodies (no texture set: Roblox's own Snow sparkle), Ice with the `ice` set for icicles and the iceberg shell, Fabric for knitted parts (scarf, cap, collar, no texture: the weave is the point) and Fabric with the `fur` set for furry bodies, Glass for the aurora crest, Neon for the glow parts, Metal for the kettle. The tiling is the one in `data/Textures`; none of it shows until the ids are uploaded.
+Same rules: every EyeWhite and EyeHighlight is `glossy`, nothing else is. Snow for the snow bodies (no texture set: Roblox's own Snow sparkle), Ice with the `ice` set for icicles and the iceberg shell, Fabric for knitted parts (scarf, cap, collar, no texture: the weave is the point) and SmoothPlastic for furry bodies (the `fur` set and the Fabric under it were dropped on 2026-10-15, [[#No grain (2026-10-15)]]), Glass for the aurora crest, Neon for the glow parts, Metal for the kettle. The tiling is the one in `data/Textures`; none of it shows until the ids are uploaded.
 
 | Species | Material per slot | Texture set |
 |---|---|---|
 | Flufflet | Body Snow, BodyDark Fabric (mittens), Accessory Fabric (the scarf) | none |
-| Snowbun | Body Snow, BodyDark Fabric | BodyDark fur |
+| Snowbun | Body Snow, BodyDark SmoothPlastic (was Fabric) | none |
 | Drippo | Body Ice, BodyDark Ice (legs, droplets), Accessory Fabric (the cap) | Body and BodyDark ice |
 | Kettlepuff | Body, BodyDark and Accessory Metal (enamel, lid, copper spout and handle) | none |
-| Chipmole | Body Fabric, Accessory Ice (the picks and chips) | Body fur, Accessory ice |
-| Pengoo | Body Fabric, Belly Fabric, Accessory Fabric (the backpack) | Body and Belly fur |
-| Flapsicle | Body Fabric, Accessory Ice (the blades) | Body fur, Accessory ice |
+| Chipmole | Body SmoothPlastic (was Fabric), Accessory Ice (the picks and chips) | Accessory ice |
+| Pengoo | Body and Belly SmoothPlastic (were Fabric), Accessory SmoothPlastic (the backpack) | none |
+| Flapsicle | Body SmoothPlastic (was Fabric), Accessory Ice (the blades) | Accessory ice |
 | Toastoad | Body and BodyDark Leather (a wrinkled hide), Accessory Pebble | none |
 | Emberchin | Body Pebble, BodyDark Slate (the quills), Accessory Neon (the embers) | none |
-| Reindazzle | Body Fabric, BodyDark Ice (the antlers), Accessory Neon (the nose) | Body fur, BodyDark ice |
+| Reindazzle | Body SmoothPlastic (was Fabric), BodyDark Ice (the antlers), Accessory Neon (the nose) | BodyDark ice |
 | Shellberg | Body Ice (shell and skin), BodyDark Fabric (the cap), Accessory Neon (peaks, vein) | Body ice |
-| Capybubble | Body Fabric, Accessory Neon (the tangerine) | Body fur |
-| Shimmerlynx | Body Fabric, Accessory Glass (the aurora crest), Trim Fabric (the ruff) | Body fur |
-| Frostfang | Body Fabric, Accessory Ice (fangs, quills), Trim Fabric (the collar) | Body fur, Accessory ice |
-| Skaddle | Body Snow, BodyDark Fabric, Accessory Ice (tufts, skis), Trim Neon (halo) | BodyDark fur, Accessory ice |
-| Fenripup | Body Fabric, Accessory Neon (moon, stars) | Body fur |
+| Capybubble | Body SmoothPlastic (was Fabric), Accessory Neon (the tangerine) | none |
+| Shimmerlynx | Body SmoothPlastic (was Fabric), Accessory Glass (the aurora crest), Trim Fabric (the ruff) | none |
+| Frostfang | Body SmoothPlastic (was Fabric), Accessory Ice (fangs, quills), Trim Fabric (the collar) | Accessory ice |
+| Skaddle | Body Snow, BodyDark SmoothPlastic (was Fabric), Accessory Ice (tufts, skis), Trim Neon (halo) | Accessory ice |
+| Fenripup | Body SmoothPlastic (was Fabric), Accessory Neon (moon, stars) | none |
 
 Two things to know. An explicit material beats the emission rule, so Shimmerlynx's Glass crest keeps its `emission` in `materials.json` but will not glow in Roblox (as Gloomoth's wings); set the slot to Neon if Ethan wants the aurora to glow. Kettlepuff's steam puffs and Capybubble's bubbles are in the `EyeWhite` slot (glossy white; the only white slot), so they take the gloss and no material.
 
@@ -122,10 +122,44 @@ One set first: `--textures --only fur`, then `--emit-textures-luau --only fur` p
 
 **Rebuilt 2026-10-15 (here, with `bpy` 5.0.1, while the Mac slept; [[2026-10-15]]):** the 16 World 1 bodies are rebuilt in place with the surfaces on (smooth by angle, the bevel, the gradient `0.57 to 1.0`, UVs tiled), and `assets/models/<Id>/<Id>.png` is now the lit `preview.py --lit` render (512 px, the single-model form; `<Id>_grey.png` the black shape). All 16 on one sheet: `media/studio/2026-10-15/silhouette_world1_surface_previews.jpg`; the black shapes at 64 px: ![The 16 as black shapes](refs/surface-pass/world1-grey64.png). Two `preview.py` fixes came with it: a surface build wires the gradient into Base Color, so the flat and grey renders came out lit (the link is cut now), and the glowing slots glowed grey-white and a metallic Trim mirrored the world (the glow now takes the slot's `hex`, a Neon slot is never metallic). Still to do on the Mac: the probes above, the upload of the 16 and the Studio look.
 
-**Fabric on warm bodies (2026-10-15).** The Mac saw Fabric turn Sparkfox's `FF6B35` into a dark maroon in daylight, so Sparkfox's Body is SmoothPlastic now (texture `fur` kept). `python3 -I tools/fabric_audit.py` lists every slot on Fabric, Grass, Slate or Sand (23 before the Sparkfox change, 22 after) with its hex and relative luminance and flags the warm, saturated, mid-light ones (7 before, 6 after); nothing else was changed, since colours are not changed by eye. Flagged for Ethan's look in daylight: Buzzlebee Body `F4C542` (has a texture), Drippo Accessory `FF8E5B`, Flufflet Accessory `FF7A59`, Pengoo Accessory `FF8A3D`, Shellberg BodyDark `E8785A` (these four have no texture), Emberchin BodyDark `A66730` (Slate). The fix for any that reads dark is SmoothPlastic or a lighter hex in its `materials.json`, then `model_assets.py --write`.
+**Fabric on warm bodies (2026-10-15).** The Mac saw Fabric turn Sparkfox's `FF6B35` into a dark maroon in daylight, so Sparkfox's Body is SmoothPlastic now (texture `fur` kept then; dropped that night with the other fur maps, [[#No grain (2026-10-15)]]). `python3 -I tools/fabric_audit.py` lists every slot on Fabric, Grass, Slate or Sand (23 before the Sparkfox change, 22 after) with its hex and relative luminance and flags the warm, saturated, mid-light ones (7 before, 6 after); nothing else was changed, since colours are not changed by eye. Flagged for Ethan's look in daylight: Buzzlebee Body `F4C542` (has a texture), Drippo Accessory `FF8E5B`, Flufflet Accessory `FF7A59`, Pengoo Accessory `FF8A3D`, Shellberg BodyDark `E8785A` (these four have no texture), Emberchin BodyDark `A66730` (Slate). The fix for any that reads dark is SmoothPlastic or a lighter hex in its `materials.json`, then `model_assets.py --write`. Since then Drippo, Flufflet, Pengoo and Shellberg went to SmoothPlastic (e30c997), and the fur and moss bodies lost their Fabric and Grass with their maps ([[#No grain (2026-10-15)]]): the audit lists 5 slots now and flags one, Emberchin BodyDark.
 
 Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the re-upload of the 16, Frostbyte and the 19 non-World-1 species (their `materials.json` carry no surface fields yet), props.
 Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the rebuild and re-upload of the 16, the upload of the 16 Frostbyte bodies (built and carrying their surface fields since 2026-10-15; `ModelAssets.luau` needs `model_assets.py --write`), the three event species (their `materials.json` carry no surface fields yet), props. Review images: the lit sheet of the Frostbyte sixteen is `media/studio/2026-10-15/silhouette_world2_surface_previews.jpg` (rendered with `preview.py --lit --backdrop A9C7E6`, a pale blue sky and floor so the white species show).
+
+## No grain (2026-10-15)
+
+Ethan, 2026-10-15, looking at the hero and roster sheets: "I don't like the grainy texture on him (Fenrir) or other aliens." He is right, and the cause is the Surface pass's own `fur`, `moss` and `scales` maps, not the render. Decision: [[Decisions]] B41. Log: [[2026-10-15]].
+
+**Diagnosis.** The shipped Fenripup, rendered four ways with `preview.py --lit`'s own scene on scratch (same camera, light and size; the crop is the head and chest, doubled):
+
+![Fenripup four ways: as shipped (fur maps, 64 samples), every map off, only the normal map cut, as shipped at 256 samples](refs/surface-pass/grain_probe.jpg)
+
+Grain here is the standard deviation of the high-frequency residual (the grey image minus its 5 by 5 box blur) over a 90 by 60 px patch of the chest, so a smooth gradient scores near the sampling floor:
+
+| Render | Grain |
+|---|---|
+| 1 as shipped: fur colour, roughness and normal maps, 64 samples | 3.78 |
+| 2 every map off | 1.03 |
+| 3 the normal map cut, colour and roughness maps still on | 1.12 |
+| 4 as shipped, 4 times the samples (256) | 3.89 |
+
+Also measured: the roughness map cut alone 3.73, the denoiser off 4.16. Samples are not the cause (4 times the samples is no smoother) and neither is the denoiser. Preview's material is not: it has no noise or bump node, and a slot with no map is a flat roughness 0.9, a clean matte. The vertex gradient is not: panel 2 keeps it and scores the floor. **The grain is the normal map of the `fur` set**: a 512 px relief of short tufts, tiled 3 by 3 over each primitive's 0..1 UV square (`species_bodies.py` scales the UVs by the `data/Textures` tiling), so on a body 1.5 to 5 studs tall the pattern repeats about every stud and a tuft is a few pixels across at preview size, which reads as wool or sandpaper, not as fur. The colour and roughness maps add a faint mottle on top (panel 3 is a little darker and duller than panel 2). `moss` (2 by 2, round clumps) and `scales` (4 by 4, domes) are the same kind of detail at the same scale. The same maps ship to Roblox as a `SurfaceAppearance` once their Image ids are in `data/Textures` (they are), and a slot on Fabric or Grass adds Roblox's own weave or blades on top, so the game would have shown the grain too.
+
+**The new default.** A body slot is smooth: no `texture` key, SmoothPlastic, with the vertex gradient and `glossy` untouched.
+- `tools/blender/surface_defaults.py` holds the rule (pure data, no `bpy`): `KEEP_TEXTURE = ("stone", "ice")`; any other `texture` key is dropped, and the slot becomes SmoothPlastic when it had no `material` or one the map stood in for (Fabric under a fur set, Grass under moss). A slot on Neon, Metal, Glass, Ice or Slate keeps its material.
+- `tools/materials_smooth.py` applies it to every `assets/models/<Id>/materials.json` (35 species) and `assets/models/props/<Id>/materials.json` (21 props, none names a texture). No flag reports, `--write` rewrites (idempotent), `--check` exits 1 when a file would change. Then `python3 -I tools/model_assets.py --write` carries it into `ModelAssets.Surfaces`; `ModelInstall.SurfacePlan` needs no change, since a slot with no `texture` gets `maps = nil` and its material name.
+- The run: **14 of the 35 species files changed and 15 slots lost their texture** (13 `fur`, 1 `moss` on Mossbop, 1 `scales` on Lanternewt). Their bodies are SmoothPlastic now: Buzzlebee, Capybubble, Chipmole, Fenripup, Flapsicle, Frostfang, Lanternewt, Mossbop, Pengoo (Body and Belly), Reindazzle, Shimmerlynx, Sparkfox, and the BodyDark of Skaddle and Snowbun. **9 slots keep a texture**: 8 `ice` (Drippo twice, Shellberg, and the ice accessories of Chipmole, Flapsicle, Frostfang, Reindazzle and Skaddle) and 1 `stone` (Pebblet).
+- `tools/tests/test_surfaces.py` (class `NoGrain`) fails on any `texture` off the allowlist, checks a kept texture keeps its material (ice on Ice, stone on Slate), lists the 14 species, and runs `materials_smooth.py --check`.
+- The GLBs are untouched. Their UVs still run 0 to 3 on the slots that were tiled; with no SurfaceAppearance nothing reads them, and the next `species_bodies.py` build tiles only the slots that still name a texture.
+
+**The allowlist, and why.** `stone` (cracked grey facets, 2 by 2) and `ice` (smooth cells with bright frost lines, 1 by 1) are large, deliberate shapes: the cracks and frost lines are the point (Pebblet is a rock, Drippo is ice), not a fine grain. Metal is a Roblox material with no map and stays (Kettlepuff, Snailbyte's shell, Panpipe's pipes). `fur`, `moss` and `scales` stay baked in `assets/textures` and in `data/Textures`, unused: to bring one back, add its key to `KEEP_TEXTURE`, say here what it is for, and look at it at 64 px and at 512 px first. Not changed, and not drawn by Blender: Roblox's own material textures (the Fabric of knitted scarves and caps, Snow, Leather on Toastoad, Wood on Twiglet, Pebble and Slate); the Mac judges those in Studio ([[TESTING]], Surface pass, step 8).
+
+**The renders.** `preview.py` is unchanged: it draws what `materials.json` says, so with the data smooth its output is smooth. The images were redrawn on scratch copies at 64 Cycles samples with the denoiser (40 for the two roster sheets; they were 24 to 48), with the maps that still ship (stone, ice) on; the roster sheets of the hybrid sculpt had been drawn with every map off, so they only gain the samples and the data:
+- `hybrid_world1.jpg` and `hybrid_world2.jpg` (the roster, current body above the hybrid) and `heroes_v2.jpg` (Fenrir and Skydrake, v1 above v2), in `refs/sculpt-pass/` and `media/studio/2026-10-15/`, each under 450 KB.
+- `silhouette_world1_surface_previews.jpg` and `silhouette_world2_surface_previews.jpg` (the 4 by 4 lit sheets of this pass, `media/studio/2026-10-15/`), which showed the grain on Chipmole, Pengoo, Flapsicle, Reindazzle, Capybubble, Shimmerlynx, Frostfang and Fenripup, and `assets/models/{Mossbop,Buzzlebee,Lanternewt,Sparkfox}/<Id>.png`, the four World 1 previews that carried a map (the Frostbyte `<Id>.png` are flat-colour renders and never showed it); the two images at the top of this note (`Mossbop_surface.jpg`, `Sparkfox_surface.jpg`) are redrawn the same way. The World 1 sheet keeps its twelve unchanged tiles and gets four new ones; the World 2 sheet is redrawn whole, with the current display names.
+
+Left: the Mac looks at three bodies in Studio daylight (Fenripup, Capybubble, Mossbop) to confirm the smooth read, and says whether the ice and stone maps read as design or as noise at game distance.
 
 ## UV unwrap and palette bake
 
@@ -176,7 +210,7 @@ python3 tools/blender/uv_bake_sheet.py --models /scratch/uvbake --renders /scrat
 All 32 pass every check, and so do the three event species (`--all`, 35 folders). The unwrap fragments a creature into many islands (the body is a join of many primitives and each is cut at 66 degrees); on Sparkfox angle 80 gives 363 islands and angle 89 gives 289, against 414 at 66, at the price of more distortion, so 66 stays the default. Coverage is mostly the margin: Sparkfox at angle 66 covers 29.7% at margin 0.01, 44.0% at 0.005, 48.2% at 0.004, 57.6% at 0.002; measured on the texels, margin 0.004 leaves no two islands within 4 texels, 0.003 has 0.1% of texels that close, 0.002 has 4.4%, so 0.004 is the smallest margin whose gap holds a 2 texel bleed on each side. The GLB grows by about 34 KB (every island edge splits vertices, and `COLOR_0` is now three floats) and the FBX by 24 KB; the palette is 512 px RGBA, a PNG with Sub filtering.
 
 **What is not baked, and what looks different.**
-- The shared slot textures (`texture`: fur, moss, stone, ice, scales) depend on tiled UVs, and an atlas has no tiling, so the unwrapped build drops that detail. The palette carries the slot colour and the gradient only. If the fur look is wanted in the atlas, the same raster can sample the shared set at the old tiled UVs and multiply it in: a follow-up, not built.
+- The shared slot textures (`texture`: only stone and ice since 2026-10-15, fur, moss, stone, ice and scales before) depend on tiled UVs, and an atlas has no tiling, so the unwrapped build drops that detail. The palette carries the slot colour and the gradient only. If the fur look is wanted in the atlas, the same raster can sample the shared set at the old tiled UVs and multiply it in: a follow-up, not built.
 - The GLBs' `baseColorFactor` is `hex/255` read as linear (no transfer curve, [[Model-Toolchain]]), while the palette's bytes are the hex as sRGB, which is what the loader gives `MeshPart.Color`. The textured Blender render is therefore deeper and truer than the old vertex-colour render of the same species (Sparkfox's orange is the deeper orange), and only the textured one is the colour the game shows.
 - AO is multiplied into the palette (strength 0.6), so a species baked with `--ao` has soft shadow in the albedo; it is off by default and was not used for the sheet or for anything committed.
 
