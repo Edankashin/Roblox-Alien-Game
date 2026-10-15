@@ -155,7 +155,7 @@ Built on 2026-10-15 from Ethan's own words in [[Transcripts]] (every `Ethan:` bl
 | 14 | They have no texture; look at the prop-design TikToks and the top games | decision | done: B25, the surface pass on all 32 in the cloud; the upload is held by B27 | [[Decisions]] B25, [[Surface-Pass]] |
 | 15 | The names: top picks | decision | done: applied (a4a6cfe) | [[Species-Names]] "Applied" |
 | 16 | Research which thumbnails get the first click: describe or mystery, words or not, the coolest reward or not | ask | done: the research and four candidates rendered; the pick is his | [[Thumbnail-Research]], [[Board]] |
-| 17 | Look at how this TikTok (ZPLSHwXqp) does their designs; replicate it and use the same skills | ask | **GAP**: downloaded on the Mac (9bc248d; jubydandev, 16 s), never watched, no section in the notes, nothing taken from it | [[Board]] "Next"; `media/tiktok/ZPLSHwXqp.mp4` |
+| 17 | Look at how this TikTok (ZPLSHwXqp) does their designs; replicate it and use the same skills | ask | done 2026-10-15 (the GAP is closed): watched and noted. The clip (jubydandev, 16 s) shows finished creatures and no design process; five skills to add: a cube-cell build route, pattern rows with an ink edge, an emissive line map, articulated hero parts with a display pose, the numbered concept loop | `media/tiktok/NOTES.md` "The design reference ZPLSHwXqp"; [[Character-Pipeline]] "The design reference (ZPLSHwXqp)"; the build rows are on [[Board]] "Next" |
 
 ## 2026-10-15 ([[2026-10-15-coordinator]])
 
@@ -200,7 +200,7 @@ Every link, by the day he sent it. *Downloaded* is the file in `media/tiktok/` (
 | ZPLYSaBcg | 2026-10-07 | machv10: how to get high D1 retention | yes | yes | yes; `docs/PRE_PRODUCTION.md` 5c |
 | ZPLYSA3uR | 2026-10-07 | clovermoongames: the Moonlit Forest | yes | yes | yes; milestone 48 |
 | ZPLYSjC9y | 2026-10-07 | okviky3: how to keep good stats (slideshow) | yes (slides) | read | yes |
-| ZPLSHwXqp | 2026-10-14 | jubydandev: "look at how this TikTok does their designs" (16 s) | yes (job 25, 9bc248d) | **no** | **no**: **GAP**, [[Board]] "Next" |
+| ZPLSHwXqp | 2026-10-14 | jubydandev: "look at how this TikTok does their designs" (16 s) | yes (job 25, 9bc248d) | yes (2026-10-15) | yes: [[Character-Pipeline]] "The design reference (ZPLSHwXqp)"; the GAP is closed |
 | ZPLS5oJs2 | 2026-10-14 | vos_studiostt: three glowing Claude Design creature viewers | yes | yes | yes (batch 6) |
 | ZPLSah2VR | 2026-10-14 | vos_studiostt: importing a Claude-made GLB into Studio | yes | yes | yes |
 | ZPLS5oQoQ | 2026-10-14 | vos_studiostt: making a 3D creature in Claude Design (8 min) | yes | yes | yes |
@@ -266,7 +266,7 @@ His open rows, from the tables above and [[Board]] "Waiting on Ethan" and "Needs
 
 ## What the team still owes Ethan
 
-1. **ZPLSHwXqp** watched and noted, with what the hybrid sculpt or the surface pass takes from it (the **GAP** row, cloud).
+1. **ZPLSHwXqp**: watched and noted 2026-10-15 ([[Character-Pipeline]] "The design reference (ZPLSHwXqp)"); the five skills it names are the open work, one [[Board]] "Next" row.
 2. **The X-post pass** of the 2026-10-15 research, or his word to drop it (the **GAP** row, cloud or Mac).
 3. **The creature bar**: the hybrid prototype through to a species that passes the three ship checks, then the roster; then the Fenrir and dragon heads; nothing replaces a model until his yes (cloud, the Mac for the Studio look). [[Character-Pipeline]], [[Sculpt-Pass]], [[Hero-Aliens]].
 4. **The UI rebuilt from his picked boards**, one screen per change, with the phone rules (B29) and the Playbook updated in the same commit (cloud; waits on item 3 of his list).
