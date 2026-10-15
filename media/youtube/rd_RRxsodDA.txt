@@ -1,0 +1,8 @@
+Hello everyone and welcome to another
+video. Today I'm going to teach you how
+to make a game like Adopt Me in Roblox
+Studio. So if you want to make a your
+own Adopt Me style game, open up Roblox
+Studio, start with a city or house
+template and then script a basic system
+like pets, trading, and jobs. It does.

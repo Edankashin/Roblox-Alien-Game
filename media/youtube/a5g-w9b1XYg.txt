@@ -1,0 +1,197 @@
+hey guys welcome back to my channel
+before we get into the video
+make sure to subscribe to my channel and
+turn post notifications on
+this video is going to be all about how
+to create like amazing maps very like
+aesthetically pleasing and stuff like
+that
+if you're interested in that kind of
+video um make sure to like the video
+uh hopefully this helps you guys out and
+uh yeah let's get straight into the
+video
+now this game is my personal project so
+that i'm not going to show off too much
+i'm just going to show some basic
+aspects that um
+kind of make your game stand out more
+first thing i'd like to mention is
+basically color variations now
+this can be for anything really um i
+primarily use it for rocks as you can
+see i have a darker shade rock and then
+a lighter shade rock and then like the
+normal shade rock
+now this adds kind of like depth to your
+game it makes more
+makes it more aesthetically pleasing and
+then i add these
+um leaves and plants on top and all that
+kind of stuff
+which kind of um makes it stand out more
+and maybe brings it more to life
+and then if you blend like small assets
+like these rocks
+which are really low poly um i've
+disabled collisions on them as well so
+you can't interact with them
+it's like small detail that is optimized
+well because it's not
+many polygons and you kind of attach it
+onto the rocks
+and it has this small level of detail um
+which a lot of people overlook like some
+people would just
+shove the rocks against the uh kind of
+the terrain and then not do anything
+with it
+but if you kind of blend all these
+mixture of things
+together you kind of get this this nice
+looking um
+a wall here of just rocks that are built
+up to um
+built on upon each other and stuff like
+that
+which um overall builds on the look of
+the uh
+the um the actual scene and if you have
+leaves and stuff like that adding small
+flowers like that
+just adds a little bit of color so it
+stands out more
+so basically variation and then
+um building onto the assets like
+realistically
+if you find a rock out in the uh
+anywhere basically you can you might
+have some moss on it you might have some
+leaves on it stuff like that it's kind
+of building on realism but at the same
+time not because it's a video game
+obviously
+so just bear that in mind when you're
+kind of creating games and stuff like
+that
+another really important thing um when
+it comes to making maps is points of
+interest
+so you're gonna obviously have your your
+basic map um
+you know you're gonna have your plants
+your trees and all that kind of stuff
+and then you want some
+points of interest that kind of build to
+the appeal of the overall map
+for example this uh this whole beach is
+based on like a shipwreck
+as you can see there's different parts
+of like planks and all that kind of
+stuff
+to build onto the scene and then you
+kind of have this larger scale
+object which is like a robot which kind
+of
+develops onto the scene here if you if
+you kind of have um
+just planks for example um you will know
+what it's from
+but the fact if you put like an actual
+part of the ship there it kind of
+builds onto the story of the game you
+can kind of um visualize a scene in your
+head
+and you may not think about it like as
+you're making it stuff like that but it
+kind of builds onto the story of the
+game
+and uh kind of immerse players more
+basically into your game
+and i mention these these like small
+things because uh
+as like a game designer when you you you
+pick these things up
+and they really help um drive people to
+enjoy your games more
+so the key point is add stuff like
+points of interest that
+builds a story into your world whether
+it's something really basic or just some
+um part of a side quest or anything like
+that
+another small thing i'd like to mention
+is um
+a lot of the time people don't use sound
+effects for example i've got this little
+waterfall scene here
+i've placed the part which i'm going to
+turn invisible and disable collisions
+once i'm kind of
+happy with it but i basically add a
+sound there
+um as you can see here you i
+loop it and have it playing and
+basically when you walk
+past this bridge or something like that
+you can kind of hear the flowing river
+and
+like the water dripping down on the
+waterfall and stuff like that
+which just builds on the ambience and
+stuff we've
+seen some people just shove background
+music into the game and just expect the
+game to just look
+uh amazing or feel amazing and all that
+kind of stuff
+but you need to remember to put sound
+effects in your game for example like
+birds chirping
+um if you're on a beach you could have
+seagulls you could have uh
+like waves um brushing in and stuff like
+that
+just remember to kind of build on the
+ambience of your game
+the last thing i'd like to mention is
+reuse your assets
+so for my game i'm kind of going for a
+stylized kind of texture look so i'm
+putting a little bit more effort into my
+assets
+as you can see i've got a texture around
+the plank
+that just adds a little bit of detail
+and
+like push out that stylized look but
+this is the original model and then i've
+kind of just created this
+ladder i've created this kind of um
+bend that goes onto the robot here and
+i've kind of created this broken robot
+which doesn't need to have much detail
+because it's kind of destroyed
+and um basically i went in blender and
+i've just
+textured this plank and then just edited
+the plank to kind of create a robot
+create a ladder and stuff like that so
+make sure to reuse your assets
+look up references and stuff like that i
+recommend a website called sketchfab
+look up dioramas and stuff like that and
+you kind of
+get ideas for stuff like points of
+interest
+like big places that kind of stand out
+or objects that stand out in your
+in your game and yeah that's about it
+for this video
+um if you guys learned something new and
+you enjoyed this video
+make sure to subscribe to my channel and
+turn post notifications on
+and also like the video and that's going
+to be it for me
+i hope you enjoyed the video and peace

@@ -1,0 +1,102 @@
+Hey there, welcome back. In today's
+tutorial, I'll show you exactly how to
+design a game health UI in Figma that
+you can use in Roblox Studio. Whether
+you're a beginner or you just want to
+save a bunch of time, by the end of this
+video, you'll know how to quickly find,
+adapt, and personalize professionallook
+health bars for your own project. So,
+let's dive in and get creative with our
+game's health display. First, I want to
+show you what a finished health UI might
+look like, just so you know where we're
+headed. This step isn't mandatory, but
+it really helps to have a visual
+reference before you begin. Imagine
+you're about to build a house. It makes
+a world of difference if you've already
+seen a few blueprints. Here, I'll
+briefly pull up an example so you can
+picture the kind of designs we'll be
+working toward. Now, let's head over to
+your template and tools area inside
+Figma. This is where the fun starts, and
+trust me, it's a huge timesaver. In the
+search bar, type game health UI. What
+you'll see pop up are a variety of
+templates that have already been created
+by other designers. These are free to
+use for inspiration, and choosing from
+them honestly makes the process so much
+smoother, especially if you're not
+starting with a blank canvas. Take a bit
+of time to scroll through. Notice how
+each design uses different colors,
+shapes, and styles to communicate health
+levels. Some might look like classic RPG
+health bars, while others could be more
+futuristic or minimalist. Pick whichever
+one jumps out at you. And don't worry if
+you can't decide, you can always come
+back and swap it later. Once you found a
+health UI template that you like, simply
+click on it. You should see an option to
+open it in Figma. Go ahead and do that.
+This will open the template right within
+your workspace so you can start
+exploring how it was built. Don't worry
+if the layout looks complicated at
+first. Remember, every UI design is just
+a combination of rectangles, text, and
+icons carefully arranged. All right,
+with your template open, it's time for a
+closer look. Take a moment here and
+notice all the different layers and
+elements that make up the health bar.
+This is the perfect time to imagine how
+you could tweak it to fit your own
+game's vibe. Maybe you want to swap out
+the heart icon for something more techy,
+or perhaps add a border to make it pop
+on darker backgrounds. The important
+thing is that you get comfortable with
+editing these elements. Now, select all
+the elements that make up the health UI.
+You can either click and drag to
+highlight them or use the layer panel to
+pick each piece. Once everything is
+selected, copy it and then head over to
+your own canvas. This is your personal
+project space in Figma. Paste the health
+UI right onto your canvas here where you
+get to give it your personal touch.
+Tinker with the colors, change the
+icons, resize different parts, or maybe
+even combine pieces from different
+templates until you've got something
+that feels unique to your game. Don't
+stress if it takes a few tries. Part of
+the fun of design is experimenting until
+it feels just right for your vision.
+Remember, there's no one right way to do
+this, and you're not stuck with your
+first choice. You can always return to
+the template section, try out other
+health UI designs, and paste them in to
+see how they look. Sometimes mixing and
+matching parts from different templates
+is the best way to spark new ideas. And
+that's really it. You now have a custom
+health UI design ready to be exported
+and plugged right into Roblox Studio. I
+hope you found this walkthrough helpful.
+If you enjoyed this video, give it a
+thumbs up. And if you have any questions
+about Figma, Roblox UI, or want tips on
+customizing your health bar even more,
+just drop a comment below. I'm always
+here to help. And don't forget to hit
+subscribe for more easy tutorials and
+creative inspiration. Thanks for
+watching and happy designing.

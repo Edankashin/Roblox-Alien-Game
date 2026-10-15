@@ -1,0 +1,17 @@
+I'll guide you through how to make
+cartoon [music] lighting in Roblox
+Studio. If you find this helpful, don't
+forget to like and subscribe. First,
+open your place and [music] switch to
+lighting. Then, remove the default sky
+and insert a new stylized [music] sky.
+Next, change ambient and outdoor ambient
+to brighter colors to create a flat
+[music] cartoon feel. After that,
+increase brightness for a clean look.
+Then enable color correction [music] and
+adjust saturation and contrast for bold
+tones. Finally, test the scene and
+fine-tune each [music] value until the
+cartoon lighting appears clear and
+consistent.

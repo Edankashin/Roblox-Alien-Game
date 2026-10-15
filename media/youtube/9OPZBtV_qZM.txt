@@ -1,0 +1,157 @@
+how do you design awesome maps in studio
+that'll keep your players engaged
+and why can you have two people make the
+same map and one turns out so much
+better than the other
+hey there i'm endorsed model and i'm
+going to show you how you can design
+better maps in roblox i want to share
+with you my second pillar of the build
+for success methodology
+or creating awesome maps and being
+successful as a builder on roblox
+now a lot of builders just dive right
+into making a map because they just
+know it'll turn out awesome right but if
+that were true you wouldn't be watching
+this video
+see it's important to get the design
+right because if you don't your map will
+feel unprofessional
+and your players will be confused
+frustrated and just
+disinterested so how do we solve this
+it all starts with your design vision
+which consists of four elements
+your lighting your style your theme
+and your layout in my previous video on
+the creative mindset pillar
+i talked about how the mood of the game
+is how players will feel
+and the gameplay is what they will do
+well in the design
+vision pillar the lighting and style
+support the mood
+and how players feel and the theme and
+layout support
+the gameplay and what they do this is
+very important
+so let's start with the lighting you
+want it to reflect
+how you want players to feel and whether
+that's bright and cheerful
+dark and ominous or maybe you go for
+warm and friendly
+whatever you choose you want your
+lighting to match how you want your
+players to feel
+now in the same way you want your style
+to match as well
+this could be cartoony with bright and
+cheerful colors
+or gritty with muted ominous colors
+or just some nice neutrals with a splash
+of color here and there to keep things
+friendly
+same as before you want the style
+to reflect how you want your player to
+feel
+and you'll also want to decide the
+detail of your style
+so are you going for more cartoony or
+low poly so less detail
+in your aesthetic or are you interested
+in a more detailed or realistic
+aesthetic
+now in the same way that lighting and
+style support the mood
+we also want the theme and the layout
+to support the gameplay so the theme
+or setting is sometimes very easy to
+determine
+if your gameplay is centered around a
+specific event or time period
+however if your game is more round based
+or isn't based on real life
+then the setting should be chosen based
+on gameplay mechanics and how a setting
+might feel to the player for example
+if your gameplay is fantasy melee combat
+you might
+opt for a stylized medieval theme since
+that area has strong connections to
+melee combat
+on the other hand if you're doing
+round-based fps gameplay
+you might go for more modern industrial
+or urban settings
+if you're finding this helpful don't
+forget to subscribe and like
+and let me know down in the comments
+which of the four elements you feel is
+most important and why
+and speaking of four elements the final
+key element
+is the layout bad layout confuses
+and frustrates players so having good
+layout is key
+to start you want to take a look at the
+speed of your game
+so the more false pace the game play the
+smaller the map
+and on the other end if you want slower
+gameplay you're going to probably want
+a larger map then you also want to look
+at the type of gameplay
+so the more or less linear the gameplay
+is
+the more less linear you want your map
+layout to be
+so for example open world games
+might be slightly linear with areas of
+increasing difficulty
+but for the most part they're pretty
+open and you're free to explore
+roleplay games are similar to this as
+well
+story games are kind of on the other end
+of the spectrum
+where they may have you follow a very
+specific path
+as you progress through the game and
+then fps games are somewhere in the
+middle
+where you want to provide a few paths so
+your player has some options about
+which way they want to go but all of
+those pods
+clearly lead to the same goal once you
+have a general idea of what you want you
+should hop into studio
+if you haven't already and start testing
+things out and this will help you refine
+your design
+have fun with it make a few different
+layouts and see which one is more fun
+to play on maybe build a few test
+buildings to see how you like your
+lighting and style
+and whether the theme will be a good fit
+i do this
+all the time when i'm experimenting with
+map design
+and don't be afraid to tweak your ideas
+and experiment a little
+once you've got your lighting set up
+refined your style and theme
+and nail down your layout you'll be
+ready to tackle the third pillar of
+technical execution where we get all the
+map details figured out to really bring
+your world to life
+and make it shine don't forget to like
+and subscribe so you know when my video
+on that third pillar comes out and let
+me know down in the comments what you
+enjoy most about designing maps
+until next time build on

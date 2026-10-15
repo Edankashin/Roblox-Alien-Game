@@ -1,0 +1,138 @@
+[Music]
+Yo, what is up guys? Welcome back to a
+brand new video. And um today I'm
+actually going to be recreating Pet
+Simulator 99's inventory system. It the
+idea is pretty simple. We're just going
+to have all of the pets. Of course, I
+don't really have any pets to show, so
+I'm just going to do like a picture of a
+noob or something. And I'm going to show
+you how to make this really cool
+cartoony style simulator UI. I'm using
+um some vector icons for today's video.
+So, it might not be able to be open
+sourced otherwise I'll have to remove
+the icons. Anyways, let's start. All
+right. So, first I'm going to do what I
+did last time where I did a frame and I
+also added a UI list layout so it was in
+the center. This time I'm going to have
+my image up my other monitor to just see
+how big it is. I think the UI is about
+this size. This UI is going to be split
+up into a couple of canvas frames or
+canvas groups. If you don't know what
+that is, it's basically Roblox GUI,
+which you can have GI GUI inside of it,
+and it cuts the sides off. All right. I
+think the corners are about like this.
+Yeah, that's perfect. The vector icons
+are the only images I'm going to be
+using today as I'm going to try and keep
+everything just in Roblox Studio. This
+makes the challenge a little bit harder.
+We're going to want to add a stroke,
+which looks like it's about six
+thickness. All right, from now on, I'm
+just going to do a time lapse of me
+creating the main outside parts of the
+[Music]
+UI. Something Pet Simulator does have is
+a pattern in the background. So, I'm
+going to try and find a good pattern
+which I can use. All right, I might use
+this. This looks fine. This looks fine.
+I've decided I'm not going to go with
+that UI pattern. I'm just going to the
+checkers board one which I need to get
+for my other game. I'm going to make a
+canvas group for the background cuz I
+want to put a gradient on loads of
+[Music]
+images. There we go. So, we have a nice
+background on the
+[Music]
+UI. The font we're going to be using for
+this project is called Fred Docka One.
+It's a pretty cool font used in
+simulators. The title is now finished.
+All right, I'm getting the icons for
+this top bar.
+[Music]
+All
+right, I've made the X button. I'm
+pretty sure um I think I made it really
+good, actually. It It looks close to one
+to one. I'm pretty sure mine's a little
+bit thinner cuz I wanted to fit it in.
+But yeah, that's a good use of
+gradients. Next, I'm going to work on
+the buttons on this
+[Music]
+side. All right, I finished the side
+icons. I couldn't really fit uh like all
+of them in. Only six instead of eight
+because these icons are a little bit
+bigger than the other ones. Pretty sure
+this was this was really easy to do. It
+was just a UI list layout with a bunch
+of images under each other. If this was
+actually going to be part of a game, I
+would of course make it buttons and make
+some like twins for it. But yeah, this
+is just uh this is what it would look
+like. It's just a UI list layout with a
+bunch of images, which would be image
+buttons under it. Next, we need to work
+on the actual scrolling frame. This is
+the most difficult
+part. For some reason, the scroll wheel
+is only at.5 transparency. I don't
+actually know how to fix that.
+[Music]
+All
+right. Now, I'm going to work on the
+actual pets. I'm going to be using a UI
+grid layout, I'm pretty sure, to do
+this.
+Yeah, this is what it's going to look
+[Music]
+like. In the top right hand corner of
+the image, top leftand corner, I mean,
+there seems to be this little icon, this
+little star icon. So, I'm going to I'm
+going to get a star icon real quick.
+All right. Now, we've got the star. We
+want to make the actual image. I want
+the image to ideally be like a a pet,
+but I think I'm just going to do like a
+picture of a noob. Normally, games would
+use viewport frames for their pets or
+just images, which is why I'm going to
+use an image today.
+I'm also going to add that little
+notification circle in the corner just
+to make it look
+cool. There we go. I've made that little
+notification circle. And now we need to
+add the text at the bottom of the pet.
+This is the question mark question mark
+question mark thing.
+There we go. There we go. If you wanted
+to, you could add some effects to it,
+like little star effects or something,
+but for now, I'm just going to stick
+with this. Let me make this look better
+by duplicating it. Wait, what I need to
+do is like change up the
+padding. Yeah, this is what it looks
+like, chat. I think this looks really
+good. Yep, this is my um inventory
+system. If you had different pets, this
+would look much much better. But yeah,
+this is my recreation of the Pet
+Simulator 99 inventory. But yeah, make
+sure to like and subscribe. Anyways,
+thank you guys for watching and goodbye.
+Yeah.

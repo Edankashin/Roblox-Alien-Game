@@ -1,0 +1,130 @@
+Today I'm going to show you guys how to
+make your Y looking from this to this.
+Okay. So now the first step is to get a
+plugin. And for that we need to open the
+toolbox from right here and make sure we
+are on plugins category. So if you are
+on models or anything else make sure you
+are here on plugins and uh we will need
+to search for autoscale light. So auto
+scale light. So, it needs to be this
+one. Make sure the icon is red and it's
+made by Zag Bites. And uh maybe for you
+it should uh show get it or porcase, I
+don't know. But I have already
+downloaded and now I just need to
+install it. So, let's hit the install
+button. And it's done. We can close the
+toolbox and go here at plugins the last
+window. And uh it should appear here
+this uh these three icons. add
+constraint unit conversion and scale
+text and also shows here autoscale ISO.
+But if you don't find it, go here at
+manage plugins and uh search search for
+it in this list. It should be the first
+one because his name starts with a. So
+make sure this button is green. So look
+when I turn it off it disappears from
+here. And when I turn it on it uh it
+appears here. So make sure you have
+enabled it. And uh we can close this
+one. And uh let's let's start scaling
+some Y. Okay. So now we have to go here
+in starter UI and insert a screen GUI.
+And let's add some buttons. Maybe design
+a shop. So let's start with an text
+button. And uh let's uh let's scale it a
+little. Make it a square. Something like
+this. Maybe a little bigger.
+Make sure we put it on center on the
+middle. Now let's add an uh let's add in
+this screen UI on frame
+two. Let's uh make it enough big
+something like this. Make sure we center
+it. Now let's add an header for it. So
+let's search here for text
+label. So here we will put a title. So I
+don't know I will put
+shop. Okay. So let's add in this frame
+on a text button too. Maybe we can use
+it as a close
+button. Let's make it a little smaller.
+So something like
+this. Put it in the corner in the right
+corner up.
+Technically this is all of our Y. And
+now to see how it looks on mobile or any
+other devices. We need to go here at
+test and in right part we will see here
+these three icons at emulation and we
+will need to press to click on the first
+one on the device one and uh here it
+will change the the device because I
+have already using another one. So when
+I scale why I always skip the phone. So
+you can change it from here. where you
+have a lot of of devices, a lot of
+iPads, Samsung tab. You also have
+consoles, Xbox One, PS5, also VR. So,
+let's let's keep it on iPhone 14 Pro.
+And you can see how it looks. We don't
+even see the close button. Okay. So,
+let's go back and scale the Y so it will
+look good on the phone. So, let's return
+back to our our window. So let's
+disactivate the device so we can see our
+studio normal. And we will need to make
+sure that one of these wise the frame
+the text button the other text button is
+selected. And while is selected we need
+to go here at plugins and go on the
+second on the second icon on the unit
+conversion and we need to click on it
+and it will pop up a little panel and
+what we have to do is to scale it at
+position and scale it at size. So let's
+scale it at position and at size two.
+And uh we need to do that with each of
+the frame, each of the button of the
+text label, whatever it is. So let's
+start with the frame. Let's do the same
+thing on it. Scale and scale. Let's take
+the text
+button. The same things. And the text
+label. Let's scale it
+too. And uh technically we are done. And
+what you can also do is to go here again
+on plugins and make sure to see where
+you have text. Uh we need to scale the
+text too so the scale isn't too big or
+too small. Let's uh let's select the
+header which is this one, the orange one
+where it says shop. And we need to click
+on the third icon, the orange
+one. And uh done. Our text is scaled.
+Now let's uh now let's choose the close
+button too. Do the same thing. Click on
+the scale text, the third icon, the
+orange one.
+And also on the text
+button, we don't have to do that on the
+frame because the frame does not have
+any text. Okay. So let's let's see how
+it looks now on mobile. So we have to go
+here again on test and the here devices.
+And look how good it looks. Everything
+is perfectly scaled. No problems. Uh
+nothing is too big or too small. the
+text like this shop one, the X button
+and here the button text on the button
+which it says button is looking
+perfectly and also that's the most
+important thing in a game because you
+want to make the game playable on each
+device. I hope you guys like this video
+and enjoyed and also learned something
+from it and I hope to come back in a few
+days with a new awesome tutorial for you
+guys. I was Beadv and I will see you in
+the next

@@ -1,0 +1,47 @@
+in this video I'm going to show you how
+to make a tree for your Roblox game nice
+low poly tree so you're going to want to
+basically know the beginning basics of
+blender I have a complete beginner
+tutorial I'll link in the description if
+you haven't like if you don't know the
+basics but anyway let's get right to it
+if you want to start by doing shift a
+mesh and add a cylinder you're going to
+want to go to the cylinder go down here
+to the properties and change the
+vertices to maybe eight uh and then this
+is where we're gonna go s to scale it
+down and then I'm gonna do x and z to
+scale it up we'll do G and Z to move it
+up the Z axis as you can see just like
+that but I'm gonna go to edit mode tab Z
+to go to wireframe and then I'm gonna
+just go drag over the top and do s to
+scale this is our true that is the trunk
+simple and done next we'll do shift a
+and add another cylinder and we're gonna
+go and do gz to move this up go into
+edit mode Tab and then alt and click on
+this Loop and as you see it's less a
+loop and then do s to scale now we're
+going to go out of edit mode and then
+I'm gonna do shift D Zed and it moves it
+down I'm going to do s to scale
+um and then keep moving this around and
+then do shift d z again and then do
+scale one more time
+that is how to make a low poly tree it's
+literally that simple
+you can do more with this you can go and
+maybe go with the loop and go and beat
+another loop on the inside like that and
+then use e to extrude and S to scale if
+you want to have a little bit more
+detail like that something like that go
+and you can add rips you know something
+like this just creating a little rip in
+here actually there's so much stuff you
+can do with them however this is the
+basic low poly tree please leave a like
+subscribe and I'll see the next video

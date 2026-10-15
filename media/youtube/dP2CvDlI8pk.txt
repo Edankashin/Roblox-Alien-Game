@@ -1,0 +1,149 @@
+[Music]
+hey guys so today we are going to be
+doing a tutorial on how to make a game
+like adopt me in roblox so but before
+you do please subscribe and leave a like
+on this video and comment down below
+what I should do for part two let's get
+on with the video
+so first ask green boy and call it why
+don't you call it video and let's make a
+frame and let's call it loading so it's
+easy it's a it's easier for us to
+remember and if we cuss if we like name
+it like this it'll be way easier for us
+to remember what we couldn't change and
+let's make that frame all the way to the
+end of the screen and let's just cover
+up those those um white spots I mean you
+know spots and let's let's make floating
+0.56 I think similar word so and let's
+make a box the text box let's put it
+right over here let's make one more okay
+now we're gonna make this say baby
+and just once Doce parent yeah let's get
+it out and we can call this load baby
+pickup it'll be just because it's what
+it's like correct grammar for me and
+let's mean this load parent okay but
+before I do anything else we have to
+insert a team which we have just done as
+they've this losing let's say that
+choosing aunts make two more you can
+call this we should call this baby
+we should call us from baby yeah okay
+and let's make this a deep orange or
+something we could make a deep orange a
+yellow but I think D points would look
+would look actually really good for
+parents I just say parent okay we have
+major teams now let's get on with the
+scripting so now that we have scripting
+we will add a script in each one of
+these I'm guys and each one of these
+text boxes and let's get on with the
+with the scripting so we're gonna say um
+local P equals script the parent parent
+parent parent and then Josh name okay
+we finished our first sentence and now
+let's go
+choose rip.gov
+[Music]
+and then we have our script then we're
+gonna write game players yeah that's
+right
+P that's what we have we're here
+Oh go P so he is over here and then dot
+team color equals brick color dot two
+new that we just it'll just add the team
+color for right now this is for babies
+so we're gonna write deep blue we're
+almost finished and we just need to do
+we just need write water code so let's
+write it script dot Tarrant dot parent
+parent then dot enabled equals pulse and
+we have just finished our script and
+we'll just put that over here and we
+change this deep blue into deep orange
+and then we pretty much have um what we
+need to do okay so we're already done
+what we need to do and I like we have
+that let's let's give it a test
+so we were wearing choosing okay and
+well Swiss baby and now weren't you baby
+and if we press parent it would be too
+teen parent but we need weekend but when
+we reset it'll it'll like here I'll show
+what I mean
+so if I'm playing the game normally and
+if I reset what you do is after your
+said it would just say it again you see
+and just so you know that it doesn't
+just keep saving if you just don't click
+on it I reset again after I clicked on
+baby and you see yes it shows us this
+again which we wouldn't not which we
+would not like so what you would do is
+you press on your screen gray / loading
+menu or whatever it's called for you
+guys so you you see you go down to your
+cell and spawn and if it if it's checked
+just say just click it and make it not
+checked now when we join the game if we
+click on a parent just for right now
+because we're you clicked on baby let's
+reset and it doesn't respond so we
+pretty much just finished on part one
+for today so what we're gonna do now if
+you guys would like is I want to
+customize I would customize these so it
+would look fancy baby would be a blue
+like this kind of blue if a parent I
+choose you're gonna just
+let me just choose this kind of work
+okay bordercolor can stay black if you
+guys would like oh it's I would choose
+black just in this case I'll just oh I
+would just choose black okay then we
+have this and then we can make this a
+two pixel so it has this kind of you
+know big borderline color and over here
+let's make it two here two and then you
+pretty much just finished part one and
+if you guys would like to do this for
+fun you can make your own update vlog
+which I'm going to show you how to do
+that right now so I'm gonna just do that
+now we're gonna scale it out and I'm
+gonna add some ticks some text I'm gonna
+acid text and what we're gonna do just
+gonna put that we're gonna put that
+right there and we're just gonna change
+that to say test its we should also
+scale it out so you guys can see and we
+just finished our scrolling face on this
+rolling frame and now let's just add
+some text let's put it let's just leave
+it out roof there okay let's just put it
+here let's make it say update
+long and then we can scale that out and
+then we pretty much just finished like
+pork one and let me play it when we
+scroll down I should just show nothing
+so it's like but I would say Oh perfect
+loading screen for adopt me
+so it's like an update log it can be as
+long as you guys would like but I would
+do at least this monk just in case you
+have a lot of updates on your game and
+and I'm choosing and if we press on
+parent you'll stay like that until we
+rejoin
+on this like the same game or another
+server so we pretty much just finished
+today's um part guys if we can get five
+likes on this video I'll do a part two
+on how to make adopt me so I hope you
+guys like on for to see you guys in the
+next video and good bye
+[Music]

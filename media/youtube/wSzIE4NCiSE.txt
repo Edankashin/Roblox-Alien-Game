@@ -1,0 +1,1731 @@
+I'm going to be showing you all how to
+make maps in the same style as the forge
+and fish for your own Roblox games. So,
+this is what the forge looks like right
+here and it pretty much has the same
+style as fish. And as we can see, this
+map looks awesome. But although it looks
+kind of easy to make, it also looks
+pretty complicated at the same time. So,
+I'm going to be showing you all how to
+recreate like this entire map. So, the
+first thing we need to build this map
+are the main assets such as all the
+trees, the rocks, the bushes, and most
+importantly like the main ground. But if
+you look down, it looks kind of
+complicated. But if you look closer,
+it's actually not. And that's because
+pretty much this whole map is made up of
+octagons. Like if you look at this, if
+you count the corners, 1 2 3 4 5 6 7 8.
+And then if you go to like a different
+shape, like let's say this rock right
+here has 1 2 3 4 5 6 7 and 8. So,
+everything is an octagon. It's just that
+the vertices are a little misshapen. And
+that actually makes making this map much
+easier for us. And before we start
+making the assets for our map, I just
+want to say that all the assets used in
+this video are available for free for
+members. So, if you're a channel member,
+you'll have access to this whole thing
+of assets right here. Which this is
+everything we use in the video to make
+our map along with a few extra assets.
+So, if you're a channel member, instead
+of having to model everything, you could
+just download this. But I do show how to
+make all of these models in the video.
+So, even if you aren't a channel member,
+I do show you step-by-step how to make
+them. I will be putting timestamps up on
+screen during every section where I show
+how to make an asset. So, if you already
+have these or if you have your own, you
+could just skip past that section and
+jump right over to the map making.
+Anyway, let's jump right back into this
+video. So, what we're going to do is
+we're going to hop over to Blender and
+we're going to delete everything. And
+now let's just click shift A and let's
+add in a cylinder. Now, before we do
+anything, make sure you open this up and
+change the vertices to eight. And I'll
+just change the outline for y'all just
+so you can see it a bit easier. But
+anyway, let's click tab to go into edit
+mode, click face select, and now click A
+to select everything, hold down shift,
+and deselect this top face, click X, and
+click delete faces. And now we have the
+singular face right here. So, let's go
+and move it down. And now with this
+octagon, we're just going to duplicate
+it, and we're going to make multiple.
+You could make them all the same shape
+if you want, but that would make the map
+look pretty weird. Like all three of
+these ones are different shapes. So,
+let's make ourselves like eight
+different shapes. Also, shaping these
+are not hard. We just click tabs go into
+edit mode, go into vertices select, and
+you just grab the vertice, click G, and
+you basically just move it around so no
+longer really looks like an octagon.
+Like there we go, that could be our
+first shape right there. Actually, let's
+move this one a bit over, and there we
+go, that's our first shape. Now, let's
+go to the second one, and there we go,
+that's our second one, and now we're
+just going to do that six more times. If
+you need more, you can always come in
+and spend like another 30 seconds making
+like a couple more of them. But, these
+are all the parts that we need for the
+map. But, an important thing is to
+select all of them, click tabs go into
+edit mode, click A select all, go into
+the side view, and click E to extrude,
+and extrude them downwards just a little
+bit. The size doesn't matter because we
+can always resize them in Roblox. But,
+we just want to make sure that they're
+actually 3D. And before we export these,
+make sure to click on this button up
+here, click on backface culling, and as
+we can see, they're all kind of inside
+out. So, let's select all of them again,
+click tab, click A select everything,
+and then click alt N, and then click
+recalculate outside, and that would fix
+all of them. And those are pretty much
+all the assets that we need for the base
+map. For the trees, we'll just model
+them inside Roblox Studio. We could
+model them in Blender if you want to,
+but there's no real point because these
+entire trees can be done inside Roblox.
+But, something that we do want to do
+right now are the rocks. And if you
+don't feel like modeling rocks, you
+could always just go back over to
+Roblox, go over to the toolbox, and then
+just type in like low poly rocks, just
+like that, and then you could just grab
+a set of rocks, and these will probably
+do you just fine. But, if you do want
+your own rocks, hop over to Blender,
+move all of your other assets to the
+side, click shift A, and we're just
+going to add in a sphere, and we're
+going to make a few of these. Also,
+don't worry about all the faces just
+yet. These were actually going to be
+chopping these into multiple pieces. So,
+now that we have them, we also kind of
+want to resize them, which I mean, you
+don't need to make it six like how I
+did. But, for this one, let's just make
+it elongated. For this one, let's just
+scale it up, make it elongated as well,
+but maybe not as much. And for this one,
+let's just scale it up. This one will be
+kind of elongated. And then, same with
+this one. We just want all of them just
+a tad bit different. And now, with our
+sphere, what we're going to do is we're
+going to go into side view, click tab to
+go into edit mode, and we're going to
+hold down on the knife tool, and we're
+going to select bisect. And now, once we
+have this, we're going to click A to
+select everything, and we're just going
+to drag our mouse while holding it down,
+and we're going to add like a cut right
+there. And now, we can open up this
+tool. We can click clear inner, and oh,
+wrong one. We got to click clear outer.
+And then, as we can see, we have a nice
+cut. And now, we're just going to select
+fill, and then boom. And now, we can
+keep doing that. Also, we don't have to
+be in the side view. Like, if you want,
+we could go right here, and we could add
+another cut. And for this one, if we
+click clear outer, it clears the wrong
+one. So, we're going to click clear
+inner, fill, and then boom. Now, we have
+another cut. And we can just keep doing
+that as many times as we like. And just
+like that, we have our rock right here.
+But, make sure you do pay attention to
+all the faces, because if we export it,
+as we can see, we have like this weird
+curve part right here, because we did
+miss a spot. So, we just got to make
+sure that we chop that off. And let's
+clear outer. There we go. Same with this
+part. So, let's chop that part off, too.
+Click fill, and let's also clear outer.
+And there we go. Now, we have a pretty
+nice rock. And also, this doesn't have
+to be the only size, because we can
+always scale it up, scale it on the X
+axis. We can do all of that inside
+Roblox Studio. But, that's how quickly
+you can make a rock. And if you wanted
+to have less sides, you could also do
+that. Like, you could cut it into more
+of a square. But, that's pretty much how
+all of these rocks were created. Like,
+this one right here. And same with like
+all of these other rocks you see. That's
+how they were all created. But, now
+we're going to repeat that method for
+all of these, just so we have multiple
+rock shapes. And just like that, all of
+our rocks are done. If you want to make
+more rocks, you could but we're also
+going to be using these for the little
+pebbles we see on the ground. I'm not
+sure if there's any on this map, but on
+some of the other maps there's like
+little rock pebbles on the ground. Yep,
+such as like right here. So, for those
+rock pebbles, we're going to be using a
+mix of these parts and also the rocks
+that we made. Because although they seem
+big, we just scale them down, scale them
+a little bit flatter, and we could also
+scale them like that and then boom, we
+have our little rock pebble. So, you can
+do multiple things with these rocks. So,
+although we only have six, we're going
+to transform them into like many
+different types. Anyway, this is all we
+need to build this massive map. Of
+course, we need other assets including
+the trees, but just for the base map,
+these are all the assets. So, let's
+select all of them, click file, export,
+and you could either export them as an
+OBJ or an FBX. I usually export them as
+an FBX because I usually have a texture
+on them, but since we have no texture,
+it doesn't really matter and we could
+just export them as an OBJ. And now that
+we have all of them exported, we could
+jump back over to Roblox and let's go
+ahead and delete all these rocks.
+Because those are just the ones that we
+got from the free asset pack right here,
+but we don't even need those. And
+instead, we're going to click this one
+right here and then select your file and
+click open. And now we'll have all these
+options. So, import as a model, we're
+going to turn that off. You could do it
+if you want to and it'll basically just
+toss everything into a model, but we
+want to be able to manipulate the size
+of these. So, we're going to check that
+off and now upload to Roblox. This will
+basically decide if you want the objects
+uploaded to your profile and stuff, but
+since these are simple assets, we don't
+really need that. So, I'm just going to
+check that off. And I just made a
+mistake and that's because if you look
+at it, everything is in one singular
+group. Meaning that if you import this,
+everything is going to be imported into
+one singular mesh. So, as we can see, we
+just have a singular mesh right here and
+that is not what we want. So, let's hop
+back over here and let's re-export it
+and I'm just going to export it as an
+FBX now just because an FBX always works
+for me. And yep, as we can see,
+everything is separate and once again,
+we're going to check both of these off,
+click import, and now depending on how
+many assets you have, it could take a
+little bit, but since we only have 14,
+it doesn't take long at all. Anyway,
+let's select this. It will toss it all
+in a model. If we crack it open, we have
+our individual meshes right here. And
+we're going to scale this whole thing
+down because it is currently massive.
+And now that we have our assets, we can
+delete our old ones. And they're
+currently in a group, so we're going to
+right click it, and we're going to just
+going to click ungroup. So, now we have
+all of our stuff. If you want to, you
+could rename them so they don't have
+like these random things. And just like
+that, we named all of these blocks, and
+I just renamed all of these map pieces.
+This doesn't really affect your map at
+all. It's just so we can tell what piece
+is like which in workspace. But anyway,
+now that we have all these, we're going
+to grab all of them. Which actually,
+before we do anything, make sure you
+highlight everything, and make sure
+that's anchored, otherwise it will all
+fall apart. So, let's right click it,
+and I think I'm going to set this to
+slate. So, let's go to material, set it
+to slate, and I think this is the
+property. I'm not entirely sure what
+material they use for these rocks. It's
+not concrete, and it's also not rock, so
+I think it might be slate. Because for
+an example, this is slate, this is
+concrete, this is granite, and then this
+is rock. So, these ones are definitely
+not it. So, I think slate is the
+closest. So, let's select all of them.
+Let's make them a tad bit of a darker
+gray, and I think that looks pretty
+good. Now, for all these other pieces,
+let's just grab them, duplicate them.
+And now is a good time to decide if you
+want shadows or not. For now, let's just
+select everything, and let's turn cast
+shadow off because I don't really think
+we want that. Anyway, let's just make
+like four sets of these, and let's just
+recolor all of them. So, first off,
+let's do the grass pieces. As we can
+see, we have two different colors, the
+color and also a slightly darker one.
+So, in studio, let's select this set
+right here. Let's change the material to
+grass. And also, I completely forgot to
+mention, inside your game, you'll want
+to go down to material service, so this
+one right here, and scroll all the way
+down, and you actually want to uncheck
+this box, just so you have the original
+textures. So, as we can see, if you have
+it checked, this is what the grass looks
+like, and this looks nothing like this
+grass. But if we go over here, and we
+have this box unchecked. As we can see,
+that's the exact same grass as in the
+game. It's just not the same color right
+now. We changed the materials, actually
+made our rocks darker. So, let's change
+this real quick. So, let's just go into
+this panel, and let's just raise the
+brightness. And yeah, I think that's a
+good color for our rocks. Anyway, back
+over to our grass though, let's select
+our first set, and let's change it to
+like this green right there. And yeah, I
+think that's a good one. For an example,
+it's this one, the shamrock green. And
+now let's select the second set, and
+we're going to go a tad bit darker over
+to the dark green right there. And boom,
+if you go ahead and check it, as we can
+see, we have both of our colors. And you
+can always change them if you want to.
+Now, if we go back over here, as we can
+see, we have the main pathway, which is
+made up of pebbles. So, let's jump back
+over here, and let's actually create
+another set. And for this set, let's
+select it. Let's change the material to
+pebbles. And as we can see, that's the
+exact same texture. And now let's change
+the color. So, I think this one right
+here, either cork or bull art. I don't
+know the exact color, but let's go for a
+little bit lighter. So, we'll choose the
+bull art one. And now for the second
+set, it's going to be the same thing,
+just a tad bit darker. So, probably this
+one right here, fawn brown. And now we
+have our grass, and we also have our
+path. So, now we just need the rocks.
+So, the rocks are all these ones right
+here, which there's a total of about
+three different shades, which you could
+go for two if you want, but just for
+extra detail, let's choose three. So,
+let's select all of these. And once
+again, I'm pretty sure this texture is
+slate. So, let's choose slate as the
+material. And I think this is actually a
+perfect color right there. And actually,
+speaking of this color, what is that?
+So, that's that one right there. Let's
+make another set of rocks. So, we have a
+dark set, and then we also have a
+decently light set that matches this
+one. And now for these ones, let's just
+go into color mode, and let's just make
+it a little bit darker. And then same
+with this one right here, let's select
+it, and we're not going to choose a
+specific color. We're just going to make
+it a little bit darker than that
+previous one. So, about right there. So,
+we have two different shades of grass,
+two different shades of our path, and
+then three different shades of our
+stone. And now that we finished making
+our main assets, we're ready to start
+building. So, we're going to jump back
+over to the forest just for reference,
+and I think I'm just going to start
+making this part right here. We're not
+going to copy the map one for one, but
+it is pretty helpful to just choose a
+starting point, and then once we
+started, it's super easy to expand from
+there. So, we're going to make these
+little stone pillars right now. So, in
+studio, let's grab these, and let's just
+copy them over. And we don't really need
+to make our map too scale right now.
+But, if you really want to, you can
+always go to plugins, get this plugin
+right here, the low character one, and
+then just type in someone's name, and
+then just load in their character. So,
+this is a two-scale model of my avatar.
+So, we're just going to place that right
+there for reference, and now we're going
+to start building our map. So, since
+these are all meshes, if you scale them,
+as we can see, they'll scale kind of
+wonky. But, to fix this, what we can do
+is we can hold down alt, and it will
+actually all scale at the same time. So,
+I usually scale them vertically, and
+then I hold down alt to actually scale
+them like that, just so we can keep the
+same ratio. But, don't be afraid to
+stretch them. And also, don't worry
+about the grass right now. I actually
+have a super easy way to do that later
+on. So, we're just going to completely
+ignore that. And we're going to let's
+mix multiple of these pieces together
+just so we can have a cool shape, and
+let's also try to keep the elevation
+pretty much the same, so the player can
+walk from here directly up there without
+having to jump. Which, speaking of that,
+let's also turn this down, because I
+currently have it at 1.3. So, let's
+change this to like 0.5 studs, just so
+when we scale them, it'll scale them by
+0.5. So, then we won't have a massive
+gap. And just like that, we now have a
+pretty cozy area. But, as we can see, we
+currently have no grass. And instead of
+going over here, grabbing a piece of
+grass, and like trying to line it up
+with the rocks, I actually have a way
+easier method. So, what we're going to
+do is we're going to go over to plugins,
+and once you get this plugin right here,
+it's called Building Tools by F3X. So,
+you can either get this one, or you can
+get Build V4. They both pretty much work
+the same. I was trying to use this one
+the other day, and I did have some
+problems with it. So, for this video,
+I'm going to be using Build V4 by Bobby
+Blox Build Tool. And you can just get
+this on the Creator Store. But, anyway,
+what we're going to do is we're going to
+select all these parts right here. So,
+let's actually just highlight all of
+them and we're going to click control D
+to duplicate them. And now we're going
+to select this tool right here, the
+resize one. And now we're just going to
+resize all of them and this will
+actually resize each individual one and
+it won't resize them as a group. So,
+we're just going to scale them down by
+one stud each and now we're going to
+raise each one up by one stud. And ooh,
+that's actually a bit much. So, let's
+undo that and let's actually change this
+to 0.5 studs. And now let's raise it up
+and let's check that out. So, yeah,
+that's much better. And now what we can
+do is we can deselect this tool and
+we're going to select all of those top
+layers, not the blocks themselves, but
+just the ones that we created just now.
+And now we're just going to recolor
+those. So, let's change them to this and
+let's also search up grass and boom,
+there we go. Now we have our little
+grassy area right there. So, that's just
+a super easy way to do it instead of
+aligning each individual one. But now
+that we have this, we're going to go in
+and add some more detail. Because if you
+go over to the forage, as we can see,
+they have multiple layers. So, like
+right here they have some darker grass
+and it's just has a bit more detail. So,
+let's hop back over. Let's grab some
+dark grass, maybe like this right here.
+Let's bring it over. And now we're going
+to go back over to our regular tools and
+we're pretty much just going to scale it
+up. Let's also scale it down a little
+bit. And there we go. Now let's just
+rotate it a little bit. Let's kind of
+stuff it into the wall. And there we go.
+Now we have our little grass patch and
+we could do that all over. And just like
+that, we now have our first layer. Which
+of course this map is pretty small right
+now and I do want to make it quite a bit
+bigger. So, let's grab another one of
+these pieces and let's make the main
+area. Because right now this area is
+just kind of like a side thing, kind of
+like how this area is. But I want this
+main flat area for the majority of the
+lobby. So, we're going to grab this
+piece and we're just going to scale it
+up. Let's also tilt our after over
+there. And also if it's not scaled
+perfectly when testing, you would always
+just grab it and then just scale it up a
+little bit like that. So, it could be a
+little bit off. I mean, scaling it up
+later on could also be pretty annoying
+sometimes. And well, let's also move
+everything over because it's starting to
+take up our asset space. And there we
+go. I think that's a pretty good size.
+So, this is going to be our main area.
+Let's move it down a little bit. Most of
+this rock won't even be able to be seen
+anyway. It's just kind of a base layer.
+And there we go, we added the grass. And
+it is looking pretty plain right now.
+But trust me, it will look a lot better.
+Because now we're adding all these main
+details right in the middle. And after
+we finish up the outline of our map,
+then we're going to go in and we're
+going to add all these small details.
+Such as the trees, the bushes. Because
+those are the main things that actually
+makes the map pop out. Because right
+now, if we remove all these shops,
+trees, fences, lamp posts, and all of
+that, and just have it the bare map,
+it's not going to look anything too
+crazy. Anyway, let's jump back over to
+studio and let's make our pathway. So,
+let's grab our main pathway right here.
+And it doesn't need to be anything too
+crazy. Because most of it is actually
+going to be covered up by grass. So,
+that means the edges can look pretty
+sloppy and they don't need to be
+perfect. And also, we can layer multiple
+of these shapes on top of each other and
+then just make them into a union. And
+that would actually fix some of our
+problems. We now have our path and it's
+looking pretty sloppy, but we're going
+to fix that. Also, I did expand the map
+a little bit more just because it kind
+of looked weird with like just this
+thing and the path. So, I went ahead and
+expanded onto it. But it's pretty
+simple. We just did the same thing we
+did over here. But we just do that
+onwards and we kind of shape our map.
+But anyway, with this path, what we're
+going to do is we're going to select all
+these pieces. And you don't necessarily
+need to do this part. But I'm going to
+do it because I think it's going to make
+it easier. But we're going to select
+them and they're going to be a union
+just so it's one continuous path and
+pieces don't like overlap. If they do
+overlap such as this piece right here,
+we could always move it downwards. But
+I'm going to keep it like that just
+because it adds texture. And now if you
+look at the edges of the path, it looks
+super ugly. But we're actually going to
+fix that. Because if you go over to the
+forge, as we can see, most of the path
+is kind of covered up by grass. So,
+we're going to be using grass and stones
+kind of cover it up just so it won't
+look as sloppy. So, let's jump back over
+to studio and let's go over here and
+let's select some different textures.
+So, let's do like this one for example.
+Let's just duplicate it. Let's grab it,
+and let's toss it over here. Also, for
+our shops, we will kind of add a stone
+path as well. So, this will also help
+shape it. But, anyway, as you can see,
+we're just covering it up. And of
+course, we don't want to cover up the
+whole path because we still want a
+nice-looking path. But, we're going to
+cover it up just a little bit. And right
+here, I think I'm going to put a shop or
+something kind of like how there is in
+the forge. So, I'm going to go over
+here, and I'm going to grab some stone.
+And we're going to kind of extend this
+out like this. And then, boom, that's
+our little pathway right there. And
+let's compare it to the forge, and the
+forge does look quite a bit different,
+which actually I kind of like this one
+more just because there's more layers.
+So, let's jump back over here, and let's
+actually change this up a little bit.
+So, we're going to do multiple circles.
+And now, with multiple circles, now
+we're going to kind of make a smaller
+one, raise it up just a tad bit. And
+with this one, we're going to make it a
+little bit darker, and we're going to
+add even more layers on top of this. And
+it's nothing too crazy right now, but
+we're going to leave it like this, and
+we'll come back once we finish the path.
+Because this is kind of more on the
+side, and it doesn't touch the path too
+much. So, I'm actually not even going to
+worry about that right now. But, anyway,
+let's grab ourselves another grass
+piece. And although it's the same color,
+grass on grass will be just fine. And
+this is just going to add a little bit
+more texture to the grass that's already
+placed down. And we're just going to
+keep repeating that over and over. So,
+we placed that piece. So, we're going to
+grab another piece of the same color.
+And then, after we place these pieces,
+we'll go with some darker colors to add
+even more texture to the path. Also,
+remember you are able to make bushes,
+which I was planning to place those
+later. But, we could also place those to
+cover up parts of the path, or we could
+place even more rocks. So, we could
+place more landmarks such as these right
+here, or we could go over here, and we
+could start choosing from our rocks such
+as this one. Let's grab one of these,
+and maybe we want like a rock right
+here. I'm not too sure if this is really
+the best spot for it, but let's scale it
+up, place it right there, maybe like
+rotate it a little bit. And then, we can
+click control L, and then we can just
+smash it into the ground. And boom, now
+we have a rock. Which let's also make
+some smaller ones. And boom, now we have
+a nice rock hill in there. Which I plan
+to add some bigger rocks around the
+walls after we finish our path. But if
+you'd rather save the path for last and
+just build the entire map first, you
+could always do that as well. But
+anyway, I'm just going to keep shaping
+the path, and I'll be back once I'm
+done.
+And the path is now finished, and I went
+ahead and added some extra detail. So,
+this is I scattered some rocks around. I
+do plan to put a lot more rocks, but I'm
+going to save that for later on. Because
+we used to have a lot more decorations
+placed down, such as fences, lamp post,
+the main buildings, along with most
+importantly trees and bushes. Because
+although this map is now starting to
+look pretty good, it's still super plain
+in compared to other maps just because
+we don't have trees or bushes. But
+before we get into that, look at this
+path right here. So, I did add another
+shade of color, which is like this
+lighter tone right here. So, we have
+dark, medium, and then extra light. Just
+to add some extra detail to the path,
+and let me make sure everything is
+anchored real quick. Yep, there we go.
+I'm pretty sure everything's anchored.
+So, let's just test right here, and
+let's check it out. And oh, what
+happened right there? All right, well, I
+have no idea what happened right there.
+Maybe the path just bugged out since
+it's a now a union, and yeah. You let's
+test that real quick. Let's grab the
+path, and let's just move it to the
+side, and now let's retest it. And yeah,
+it's now working fine. So, it looks like
+union meshes actually don't work, which
+I have not ran into this bug before, so
+I'm not too sure what's happening. And I
+bet there's a way to fix it, but for
+now, I guess we'll just stick to
+non-union parts. But even without it, it
+still looks pretty good without the
+path. But I'll go ahead and rebuild the
+path off camera later on. All we need is
+this bottom part, the rest is still
+good. But I guess we just can't union
+meshes, because although it looks good
+in studio, it just doesn't work when we
+test it for some reason. But anyway,
+let's work on the trees and bushes now.
+So, bushes are actually super simple.
+All we need to do is place a few blocks
+together. So, just grab a part, spawn it
+in, and let's quickly change that to
+green, and let's also give it the grass
+texture. And now what we do is we just
+duplicate it, make it bigger, and we
+just change the color a little bit, like
+this one, let's try to make it a tad bit
+darker, about right there, nothing too,
+too crazy. But then boom, that could be
+one of our bushes if we wanted to. Let's
+duplicate it, and let's make another
+with a little bit more detail. And by a
+little bit more detail, I don't mean a
+lot at all, just a tad bit. Now, there
+Here go. Let's make it a little bit
+greener, and there we go. That's another
+bush. Because if you jump over to the
+forge over here, we'll be able to see
+bushes, which I actually don't really
+think there's any on this map, but there
+are definitely a bunch over here. So, if
+we go over to this map, as we can see,
+there's a bunch of shrubs and stuff,
+which they definitely upgraded a lot
+because this is like their fourth map.
+Well, look for here. Like, here's a bush
+right here, which this one looks a tad
+bit better than our bush. So, make it
+like that. But, here's another bush for
+example. So, overall, nothing too crazy,
+just a bunch of cubes placed together.
+And yeah, our bush is good definitely
+use an upgrade.
+And there we go. We now have three
+bushes, and we could make a few more,
+but I think this is good for now. So,
+let's just combine them all into groups,
+and this time let's not make a union
+because there's no reason for the
+bushes. So, just group them together,
+and make sure you name them, and there
+we go. Now, we have three bushes right
+here. So, now we can place them wherever
+we want, which let's grab this one.
+Also, by the way, if you're just copying
+the bush from Forage, that's probably
+fine because I know the developers, and
+trust me, they're not going to care if
+you copy what their bush looks like.
+Just don't copy the entire map, but if
+you copy a bush, they're not going to
+care. But anyway, with our bushes over
+here, let's grab them, and let's drag
+them, and they're pretty big, so let's
+scale them down a little bit. And I kind
+of like this bush right along this path.
+So, let's move it over there. And also,
+since they're kind of like rotated and
+all that, we actually just got to move
+it downwards, but there we go. Now, we
+have a bush. Also, for bushes in games,
+usually don't collide with them. Like as
+we can see right here, I just walked
+through it. So, what I would recommend
+doing for these bushes is selecting all
+the parts, scrolling down, and turn can
+collide off. And this will just allow
+the player to walk directly through the
+bush. You don't have to do this if you
+don't want to, but in most Roblox games
+you play, you don't collide with the
+bushes. So, I would recommend just
+turning that off. But anyway, now we can
+just grab these, and we could place them
+wherever we want, and this is going to
+make our map look like twice as good.
+Also, try to place your bushes in places
+that players don't really walk. Like,
+for example, I plan to place a building
+right up here. So, what I wouldn't want
+to do is grab a bush and smack it like
+right there. Because then the player's
+going to have to walk through the bush
+to get to the building, and it's just
+not too good. So, just try to place them
+in places where players don't really
+like walk through. But, anyway, I'll go
+ahead and place all the bushes later.
+But, for now, let's build our trees. So,
+the trees are one of the trickiest
+things to build apart from the
+buildings, and that's just because they
+use a lot of pieces. Like, look at this
+tree right here, which actually looking
+at it, it's not that bad. It's just
+quite a bit trickier to make than a
+regular bush. But, total, we'll need
+about like three or four trees actually
+make the entire map look good. Because
+for most of the trees, we can just copy
+and paste them. Like, for an example,
+look at this tree right here. It's just
+a regular tree, but as we can see, the
+developers actually copied it, made it
+bigger, and they placed it right there.
+And they actually took the same tree,
+rotated it, and made it even bigger, and
+placed it up there. So, if you want to,
+you can reuse the same tree over and
+over, and I think they only have a total
+of like four different trees here. These
+they have the palm trees, that tree that
+I was just talking about, the pine
+trees, and then these tall and skinny
+trees right here. And I think those are
+the only types of trees they have. But,
+anyway, we primarily need this tree
+right here. Because this is like the
+classic tree, which if you really
+despise doing this, you could just type
+in something such as low poly tree, and
+you could find some ones that work.
+Like, I typed in fish tree earlier, and
+then this one popped up, and it just
+gives us some trees right here. And to
+be honest, we could use any of these.
+But, after we make about four different
+trees, we could use them for our entire
+map, and also all future maps, because
+all we need to do is recolor them. So,
+it'll probably be worth it for you to
+take quite a bit of time, model some
+good trees, and then you won't have to
+do it for quite a while. But, anyway, I
+actually never modeled a tree inside
+Roblox before, so let's hope this goes
+well. But, let's just start with the
+easy part. We'll do the trunk later on
+because as we can see the trunk is a bit
+complicated, but as it goes up it gets
+easier and easier because of here for
+example it's just a rectangle coming out
+of a rectangle and into two branches and
+I think we can easily do that. So first
+off let's change this to wood and there
+we go just a simple wooden texture and
+now let's change it to a brown. And
+that's the color code for anyone
+wondering, but I think we'll just stick
+with this for now and let's just
+duplicate it real quick and we're just
+going to pretend like this is the side
+of the tree. Also remember the
+proportions don't have to be too correct
+because we can always just scale it down
+later. So we can easily make a giant
+tree and then scale it down later on. So
+let's scale this part down, let's
+extrude it outwards and here let's
+actually make this a tad bit smaller and
+there we go I think that should work.
+Now we just need to rotate this a little
+bit so like that, move it up and there
+we go there's a nice looking branch, but
+let's make it a bit better. So let's
+scale it out a bit more, let's duplicate
+it, make another one that's quite a bit
+smaller and now we're going to kind of
+copy how it was in the forge and we're
+going to have two go this way. So one
+right there, duplicate it, rotate it and
+then we're going to have another one on
+this side and boom that's the branch of
+the tree. And now all we need is the
+leaves up top which should be honest for
+your tree you could always take a bush,
+smack it on top, scale it up and that
+could be your leaves right there. But
+we'll do that later on because although
+we have a branch we still have this
+entire tree to go. Also as you make
+trees you will get better and better so
+it'll be difficult at the start, but the
+more trees we make the easier it's going
+to get. And we'll let's just duplicate
+again, let's make another one coming out
+that way. And let's make it a bit
+smaller than that other one. There we go
+and now let's copy this whole thing,
+let's move it up because now we need to
+work on the trunk. Which speaking of
+that let's actually scale it down a
+little bit because this thing is
+massive. But anyway let's duplicate this
+piece, rotate it and I do not think my
+tree's going to be as good as the one in
+the forge, but this could always be a
+temporary tree and then after we finish
+our map we could come back and we could
+completely remodel it if we want to. But
+anyway let's place it about right there
+and let's grab this, move it in just a
+tad bit. And now, what I think we need
+to do is let's duplicate it, and let's
+make each side smaller, bring it out a
+little bit, maybe out one more. And now,
+I think we actually need to rotate it.
+So, let's rotate it in one, move it out
+again, which actually let's move it
+inwards. And there we go, that's looking
+pretty good. Let's move it in about
+halfway. And let's also move this part
+in. But, anyway, let's duplicate this
+part, rotate it 180. And now, we're
+actually going to make this come out the
+back. And now, with both of those those
+parts, let's grab them, duplicate them
+again. And now, we're just going to
+rotate it 90°. And there we go, this is
+what our tree is currently looking like.
+Let's actually move those side ones in
+again. And there we go, it's definitely
+not the prettiest tree, but it'll
+definitely do for now. But, let's
+actually just place it on the ground and
+let's see how this looks. And yeah,
+that'll do for now. I'll definitely come
+back later on and make this tree even
+better. But, for what we're doing right
+now, I think that's fine. Anyway, let's
+duplicate one of these bushes, and I am
+actually just going to smack this up
+top. I am going to change of the bush
+just a little bit. So, to do that, let's
+actually ungroup it. And now, I'm just
+going to move these pieces around. So,
+it's still going to be the same bush,
+but by rotating the leaves, we're going
+to make it a little bit different, just
+so it actually matches the shape of the
+tree. And there we go, that's our tree
+right there. Let's actually scale this
+part up a tad bit more because it does
+look a little bit wonky. Same with over
+here, let's actually move these down,
+move this one down to add a little bit
+more texture. And yeah, that's pretty
+much our tree. And now, we just need to
+make three more that look quite a bit
+different. So, in the forest, we have a
+pine tree and also some palm trees. To
+be honest, I don't think I'm going to do
+the palm trees right here. These ones
+are actually super easy to make because
+you make them in Blender. And although
+that sounds difficult, they're actually
+super easy. But, we're not going to do
+that in this video, just because I'm not
+going to copy the map like one-to-one.
+But, something we do definitely want are
+some pine trees. And to make these, it
+looks like they have a main block in the
+middle, and then wedges on the outside.
+So, let's jump back over to Studio.
+Let's add a part into the game, and
+we'll color it and texture it later on.
+But now with our part, we're also going
+to add in a wedge, and we're going to
+scale this up as well. And speaking of
+scaling that up, let's also scale up our
+block. And now let's duplicate it, scale
+it down just a little bit. And now we're
+going to move it upwards, and I think
+this is pretty much how they make the
+pine tree. So we're going to scale it
+down, move it up, scale this one down,
+too. And there we go, that's our basic
+pine tree. But of course, we still need
+the wedges. So these are going to go on
+the outside. Let me just look over here
+for reference. So they do a layer of
+wedges, they rotate 45 degrees, do
+another layer, and then so on. So we're
+going to do the same thing. We're going
+to add wedges right here. Make sure we
+don't cover the entire thing. Now we're
+going to duplicate it, and we're going
+to place this wedge on each side. And
+now that we have a wedge on each side,
+we're going to duplicate them, rotate
+them 45 degrees. And now we're going to
+move them like halfway up right there.
+And now we're going to copy this entire
+thing, besides this main blocks, of
+course. And we're going to duplicate it,
+move it up. And as we go up, we're just
+going to scale it down a little bit. And
+I'm pretty sure we just keep doing this
+over and over, and then we'll eventually
+get our pine tree. And this is actually
+turning out a lot better than I thought
+it would. And now towards the top, we
+definitely do need to start making them
+thinner. So like up here, let's elongate
+all of these. And now let's also
+elongate all of these corner pieces. And
+now with all of them elongated, let's
+just move them closer. And yeah, the top
+is a little messy. Let's actually move
+all of those back. So not back too much,
+but just enough so they no longer like
+intersect like crazy. And now with it
+like this, we're actually going to go
+back in the middle, duplicate our part,
+and let's rotate it 45 degrees just so
+it matches these. And we're going to
+have this come out directly through the
+middle. So right out the top, let's
+scale it down just so it matches it a
+bit better. And let's also move all
+these top pieces just so it matches it,
+too. And there we go, that's the main
+part of our pine tree. Now let's just
+color it over there, and let's also
+change this to a grass texture. And
+boom, there's our pine tree. Now all we
+need to do is the little stump. All
+right, well let's copy this wood chunk
+that we had earlier, and let's scale it
+up a little bit, duplicate it, and now
+let's move it like this. And there we
+go. Now we have this part right here,
+which is just two pieces of wood. And
+now let's duplicate these, move them
+outwards, and now let's rotate them,
+scale them down a little bit, rotate
+them a little bit more, and then we're
+going to kind of just smoosh them in
+there. And while we smoosh them, let's
+also scale them up just a tad bit more
+as well, and move them down a little
+bit. And there we go. Now we just got to
+do that on every side. And there we go.
+There's our stump for our pine tree. So
+let's grab this. Let's group this
+together, and let's move it right down
+here. Let's also make sure it's
+centered. And there we go. It is a bit
+large for a pine tree, so let's actually
+scale it down a little bit. And now we
+can just grab these parts, push it into
+the pine tree, and there we go. That's
+completely done. We could also make
+multiple pine trees if we want to, just
+so there's a little bit of variation.
+And I'll probably do it off camera, but
+there's our pine tree. So we now have
+our regular tree, which we need to scale
+down, and a pine tree. And once again,
+as you make these trees, you will get
+better and better. So it will become
+easier over time. But for my first time
+actually trying to make trees in Roblox
+Studio, I think this is pretty good. And
+now we can duplicate them, place them
+around our map, and also make sure you
+rotate them just so they don't look the
+same. Because we could have this one
+right here, and then we could have the
+exact same tree over here, rotate it to
+face the opposite direction, and scale
+it up just a tad bit. And now it doesn't
+even look like the same tree, which I
+actually forgot to duplicate. My bad.
+But there we go. Now you can't even tell
+it's the same tree unless you really pay
+attention, which any casual players
+actually playing this game, they won't
+be paying that much attention. But while
+you're placing the trees, make sure you
+pay attention to the bottom, because
+sometimes you actually might place them
+right above the ground somehow. So
+actually need to go into edit mode, move
+it down just so it's like touching the
+ground. And there you go. Now just model
+two more trees, and then place them all
+around your map, and then it will look
+much better. It's now the next day, and
+I expanded the map just a little bit. I
+finished placing all the trees, and I
+also finished the path, because I had to
+remake it. Because apparently, if we
+union the stuff together, it looks good,
+but then if you leave and you join the
+game, it just turns into like this big
+clump right here. So, I guess you don't
+want to union them, and instead just
+kind of change the sizes. So, if you
+look at it, which actually I can't
+really spot any right now, but some of
+them are different sizes, especially if
+we go up here. As we can see, some of
+them are on different layers, but that
+just adds more texture, and that's not
+necessarily a bad thing. But in the last
+clip, I believe I just had this area
+right here, but I did expand it, and I
+tried making a trail go upwards, and I
+think it turned out pretty well. And
+I'll show you all how to make this. So,
+this is just the trail that's in most
+games, that allows you to smoothly go up
+the entire mountain without having to
+climb like a ton of rocks. Because right
+here, if you want to go from like here
+up there, we would have to jump between
+all the rocks, but this is just a smooth
+path that goes all the way up, and I'm
+going to show you all an easier way than
+just like grabbing these, rotating them,
+and stretching them. And basically, what
+you want to do is grab a part, and then
+just angle it. You don't want to angle
+it too much. I think like between 20 and
+25 is good. If you have it 30, that will
+still work fine, but it is a tad bit
+steeper. And I believe this one right
+here is like 25 degrees, and then it
+goes shallower, and gets to like 15 and
+20. But anyway, once we have this, we
+just want to duplicate it whenever we
+want it to be like not straight anymore,
+and then just move it up. And you can
+either move it up like this, or if you
+click control L, you can move it along
+like the regular path, which that
+actually works much better. So, let's
+click control D to duplicate it, move it
+up, and we can also scale it up and
+down. So, whenever you do this, go over
+to the rotate tool, and of course, as
+all of y'all know, we have like three
+different ways we can rotate it. And for
+each one, I found that you only want to
+rotate it one of the ways. So, either
+use the red, blue, or green, but don't
+use like the green and the red at the
+same time, because that would kind of
+mess up the method that I'm using. So,
+for an example, I would make it
+shallower by like rotating it on the
+red, and then if I want kind of a tight
+turn, I can always make this smaller,
+and then I could duplicate again, move
+forward just a tad bit, and then I'll
+rotate it on the green, just like this
+right there, and then I'll also move it
+forward once again, and then I'm going
+to make this a tab bit longer. Then we
+could duplicate it, move it forward, and
+this time we're just going to rotate it
+on the red once again. And then we're
+going to move it up. And now to line all
+these parts, you want to get this plugin
+right here, the ResizeAlign, or you
+could also use the GapFill, which this
+does work in some case scenarios, but I
+think the ResizeAlign is a better one.
+And this is what it should look like
+right here. So, there's multiple ways
+that you can align them, but I think the
+best way is the outer touch. And once
+you have it, you just choose this face
+right here and the one that you want to
+extend it to. And as we can see, it
+perfectly aligns them. And then you just
+do that for all the pieces, and it works
+perfectly. But, the reason why you don't
+want to do like multiple rotations is
+because it won't work too well. Like,
+let me rotate on green, and then I'll
+rotate on red. And as we can see, this
+is a pretty nice rotation right here
+because it just makes it like so much
+easier. But, now if I try to align
+these, it's not going to work. So, let's
+go to the plugin, let's go to
+ResizeAlign, and let's try this out. And
+as we can see, that just didn't work. If
+you're fine with this overlapping, then
+you could always do it, but it does look
+really messy, and that's why I would
+only recommend rotating it on one axis
+at a time. But, that's pretty much just
+how I did this. And with this blend in
+two separate ways, you just do the same
+thing. And also, this is just the path.
+So, what I would recommend doing is
+putting a ton of rocks around it like
+this. So, as we can see, we don't have
+the edge of the path, and that's how it
+is in all the other games. Like, both
+sides of the path are all covered up,
+which I didn't cover up the whole thing
+just yet. But, this is kind of what it
+should look like. So, you have rocks on
+both sides, and then just your path in
+the middle. And of course, I'm going to
+add even more rocks on the outer sides.
+But, that's just how you do that path
+right there. But, anyway, for the next
+step, we want to add some more detail.
+I'm not going to go into too much detail
+such as the buildings because I'll make
+like a whole 'nother video on how to
+make those buildings. But, we are going
+to do the fences and light poles because
+that's going to make this look like much
+better. So, for the fences and light
+poles, you have a couple options. You
+could either build them in studio by
+just using a part, making it into a
+cube, and then like scaling it upwards.
+You could make your light poles that
+way. But, depending on how much detail
+you want on your light poles, you might
+want to do it inside Blender. So, we're
+now in Blender and we're just going to
+delete all this stuff and I'm actually
+going to do the fence post as first
+because I think that's going to be
+easier. So, now let's change this to six
+because we actually want a hexagon and
+not an octagon because an octagon is a
+little bit too much detail for the
+fences. But anyway, we just grab it,
+scale it up, and it's just super simple.
+And I think right there is like a pretty
+good size. Now, let's duplicate it, move
+it onward, and we're only going to do
+one segment at a time and we're not
+going to make a whole row of them
+because we can just connect them inside
+Studio. So, anyway, now that we have
+this little area, which actually let's
+spread it a little bit farther apart.
+Now, let's select one of these by
+clicking L. Let's click shift D and
+let's click RX90 to rotate it 90° on the
+x-axis. And now, let's scale it
+downwards. And now, let's put that face
+right there, move it up, and I don't
+know if I want to do two segments or
+three, but I think I will do three.
+Anyway, we're just going to drag that,
+hide it inside the other one, select
+this one again, and now we're just going
+to move it downwards. So, that's what
+two looks like and that's what three
+looks like. And yeah, I think I'm going
+to do three. Anyway, there we go. So, we
+have one fence right there and I am
+going to make multiple because we don't
+want all of them looking the exact same.
+So, for this next one, what we're going
+to do is we're going to click control R
+and we're actually going to add a loop
+cut about right there and we're just
+going to move it downwards. And same
+with some of these other segments, we're
+just going to move them just a tad bit
+just so none of the pieces are like
+perfectly aligned. And we can also add
+multiple of them and look at that. So,
+now it just has a bit more detail and it
+doesn't look like a perfectly made fence
+which I think I'm actually going to use
+this one as the basic one because this
+one right here just looks too perfect.
+Anyway, let's select this. Let's also
+move the regular poles just a little
+bit. Not too much, but I'm going to add
+a loop cut right there. Let's move it
+just a tad bit over and same with the
+one on the other side. Add a loop cut,
+move it over just a little bit and there
+we go. There's our fence. And if you
+want to, we could also select these
+right here and then we could click SY
+scale them along the y-axis and we could
+Did make them poke out the sides. And
+actually, I think I might like that a
+little bit more. Here, let's copy this
+and let's undo that. And now let's paste
+it in and let's see which one we like
+more. So, here's the regular one and
+here's the one with like the little
+fence things poking out. And you know
+what? We can actually just keep both of
+them. So, let's grab both of these and
+let's just move them to the side. And
+now I'm going to make like three more.
+You don't have to do this, but I just
+don't want my fences all looking the
+exact same. So, I'm just going to make a
+couple sets. And there we go. Now we
+have all these fences and I probably
+took like 3 minutes total. And also make
+sure that they're all in their own
+thing. Such as whenever we click on them
+right now, they're all in their own
+group and none of them are like
+connected together. Which actually
+before we export them, I completely
+forgot about the lamp post. So, let's
+make that real quick. I'm also just
+going to delete this basic fence just
+because it has like no variation. And
+now for a lamp post, let's just add in a
+cube and it is really up to you how much
+detail you want to add into this. But
+first off, we need to scale it on the Z
+axis and I'm not too sure how tall I
+want this. But let's actually jump back
+over to the forest real quick and let's
+just see how they do it. I don't want to
+copy it exactly, but we're just using it
+for reference. And as we can see, they
+did bevel all the edges. So, they
+obviously did this inside Blender. But
+let's just jump back into Blender and
+let's build this thing. So, we'll bevel
+all the edges later on and we're not
+going to do that right now. And well,
+let's select this whole thing. Let's
+duplicate it. Let's scale it downwards.
+And we're going to move it to the top
+and we're just going to move it outwards
+a little bit. So, we're going to scale
+this on the X axis and it's all up to
+you how long you want this. And to make
+it line up, I'm actually going to scale
+it down slightly just so it's a bit
+smaller than the actual post. And I
+think right there is perfect. And I
+think that is a good length. Now, let's
+just grab the end, go into this point of
+view, let's rotate it slightly just so
+it has that extra bit of detail. And now
+we just need all the other things, which
+are super easy. Let's grab this. Let's
+click shift E to duplicate it, scale it
+down, click G to drag it up here. Let's
+scale it on the Z axis, scale it up just
+a tad bit more. And I would think about
+right there is good. Let's scale on Z
+axis, rotate it, and now we just got to
+toss it right up here. And I think that
+right there is good, but let's just grab
+this face. Let's toss it up there. Let's
+grab this bottom face, toss it down
+there, and there we go. Now just for the
+extra detail, let's grab this, click
+shift D, scale it along the Z axis, and
+then just click S to scale it up
+slightly. And now we just got to move
+this wherever we want it. So let's place
+one like right there just so it kind of
+covers up both of them. And actually no,
+let's just do this main post. Let's grab
+this whole post, move it down a little
+bit. Let's grab this, scale it down.
+Let's move it upwards, and yeah, about
+right there should be good. And now
+let's duplicate it, move it down. And
+right now I'm just kind of copying the
+one from the forge. If you want to make
+yours more original, then go ahead, but
+I'm not really going to do all of that
+right now. Anyway, for the bottom, let's
+do that. Let's grab the very bottom
+face, and we're just going to scale it
+up slightly just so it's kind of like a
+trapezoid. And there we go. Now we just
+need one more for this top piece. So
+let's grab this one, shift D to
+duplicate it, move it down, and let's
+also go into this point of view just so
+we can get a size. And there we go,
+that's perfect. Anyway, before we do the
+light, let's bevel all these sides. So
+if you just select one of these and
+click control B to bevel, it's actually
+going to bevel all the faces, kind of
+similar to that, which that is
+definitely what we don't want. We only
+want the sides, so we're actually going
+to go into edge select, and we're going
+to select them manually just so when we
+bevel it, it will bevel it like that.
+But for an even bevel, let's select
+every side. And now with all the edges
+selected, we can click control B to
+bevel it, and as we see, everything
+bevels nicely, which actually for some
+reason not this one up here. So let's
+unselect those, and we'll do that later
+on. And I believe it's because of this
+face right there. So we'll do that after
+we bevel the rest of these. So let's
+just click control B, and we don't want
+anything too crazy. I think right there
+should be good. Actually, let's bevel it
+a little bit more. So about right there.
+And there we go. Look at this light post
+now. And actually, I think that's a bit
+too much. Okay, there we go. Because I
+still want it looking kind of like
+square. But anyway, let's bevel with
+now, and I'm not entirely sure why
+they're beveling like that. And there's
+probably a better way to fix them, but
+for now, let's just bevel them slightly.
+And now we can just grab those beveled
+edges, and we can just scale them on the
+Y axis, and that pretty much creates the
+bevel for us. And there we go. Now with
+everything beveled, our light post is
+almost done. And looking at it, I think
+we actually want to make this bottom
+part a little bit bigger, and then these
+inner parts a little bit smaller. And
+there we go. Because they're a little
+bit too puffed out compared to the
+bottom and the top right there. But
+anyway, let's do the main lantern now.
+For this, I'm just going to add in a
+completely new mesh. You can add on to
+this one if you want to, but either way,
+we're going to have to separate them
+later on. So, let's scale it down. Let's
+put it about where the lamp should be.
+And now this lamp isn't going to be
+anything too crazy. I'm just going to
+select this bottom part. Let's scale it
+up slightly, and then scale it down a
+little bit. And now let's click shift D
+to duplicate it, scale it down, and then
+move it down. And this is going to be
+our main lamp part, like the part that
+glows. So, you want to make sure that's
+it's completely one object. Now let's
+select the bottom of that, click shift D
+to duplicate it, scale it up. And now
+we're just going to do the same thing we
+did for the top, just a tad bit smaller.
+And now for the rest of the lantern, I
+was actually going to add things on the
+outer side, like the corners. But an
+easier way to do that is just to select
+all these faces on the side, click I to
+inset. And if it doesn't look like this,
+and it looks like this instead, just
+click I again, and then scale them down
+about that much. And now we're going to
+click alt E, and then click extrude
+faces along normals, and then scale them
+in just a little bit. And there we go.
+Now we have our lantern. You can always
+add more detail if you want, but that's
+about as much detail as I'm going to
+add. Anyway, let's duplicate this top
+part, scale it down, and we're going to
+scale it up. And this is just going to
+be our chain. In the forest, they do
+have an actual chain, but that's more
+detail than I want to add. And I think
+in fish, they do just use like a regular
+rope. So, I think that right there
+should be just fine. And actually
+looking at it, this lantern is massive.
+So, let's grab this whole thing, scale
+it down, and move it upwards. And now
+we're going to texture of thing inside
+Roblox Studio. So, we're going to
+separate it depending on what textures
+we're going to use cuz as we can see the
+whole thing is just one model and we
+want different textures for all these
+pieces. So, let's go into edit mode and
+for the main layer we're just going to
+keep it all the wood. So, let's click L
+on this piece, L on this piece just to
+select it and now we're going to click P
+and we're going to click selection and
+that would make it its own part like
+this. And now I'm actually going to join
+these together real quick and I'll
+separate them later. Let's go in, let's
+select this part and then this part,
+click P, selection because I'm going to
+make both of these parts a rope texture.
+And now for the main lantern piece,
+let's select this one, this one and this
+one. Let's click P, selection to export
+that as its own selection. And now for
+the lantern, we do want it to glow
+because as we can see it does have this
+glowing effect which for this I believe
+they did use like special textures and
+scripting for all that, but we're just
+going to make it a neon part. So, we're
+going to select these interfaces such as
+this one, this one and both of these
+sides and now we're going to click P,
+selection as well and we're going to
+make these parts neon inside Roblox
+Studio to add the glowing effect. Now
+the last thing that we need to remove
+are these three parts right here, P,
+selection and there we go. And now if
+you separate the pieces, as we can see
+they're all their own model and that
+would make it much easier to texture
+inside Roblox Studio. And now we've just
+got to import them inside Roblox Studio
+and once again it made everything
+massive. But there we go, we can just
+scale everything down. Now let's right
+click, click ungroup just so everything
+is a separate thing. Let's grab all the
+fences and let's make them wood. I think
+want to use wood planks because I think
+that's going to look better. But we
+let's change it to this brown for now.
+I'll probably make it darker later on.
+But currently this is what the wood
+texture looks like and this is what the
+wood planks look like. And yeah, I think
+for these the wood plank texture
+definitely does look a lot better. So,
+let's change all them to wood planks and
+let's also make them slightly darker.
+Not too much, but just a slightly darker
+shade. And now let's do the same for the
+light post. So, let's select this inner
+part. We're going to change this to neon
+and we kind of want it to glow orangish.
+So, about right there should look good.
+If you want it to actually glow, then I
+believe you do need scripting. But, for
+now that should be just fine. And there
+we go, everything is now textured. So,
+we have all of our fences right here and
+then we also have our lamp posts and I
+did decide to make this the same color
+as these because I couldn't really find
+a good rope texture. Because I tried
+using carpet, but it kind of looks
+weird. So, right here these are just
+slate. This is wood planks. This is just
+regular wood. And then for this right
+here, I did use marble and I made it a
+dark gray. And then right in the middle,
+that's just neon. Which you could always
+try out other things such as like glass
+or maybe force field. And oh, never
+mind, force field does not look good.
+But, you could try all that and maybe
+make it look a bit better. Make sure you
+do group this together though. Just keep
+it organized. And of course, let's
+highlight everything, click anchor, and
+now we could duplicate this up and we
+could start placing our map. So, we want
+to place in areas that people are going
+to be. Same with the fences. So, for an
+example, I would grab a fence and I
+would bring it up here to this ledge and
+I would place it like right here because
+we do not want people falling off this
+ledge. But, make sure they're all not
+perfectly aligned. Like kind of rotate
+them a little bit. And also, make sure
+you grab a fence every now and then.
+Also, I wouldn't mix these fences with
+these ones right here. So, if you're
+having a row of these ones, don't
+randomly like mix it in because that's
+just kind of looks goofy. Keep all of
+these fences together and all of these
+ones together. You can mix them all in
+the same map. Just don't mix them in
+these singular line. And well, let's
+grab another one and let's smack it
+right there. And since this is kind of a
+small corner, we could go over here,
+grab one of these smaller fences we made
+and we could place that right there. And
+boom, that's actually kind of a perfect
+fit. And that's pretty much how we would
+place those. And it is going to get
+pretty dark up here. So, we will want to
+place a lamp post. Of course, it won't
+get dark if you don't have a day night
+system, but just think of where these
+things would actually be if it were to
+get dark. So, let's place one right
+there and we do need multiple. Let's
+kind of place one over here by this
+tree. And we now have two up here. So,
+let's grab ourselves one more and let's
+place it all the way on this corner. And
+for extra detail, we could go over here.
+Let's grab ourselves a rock, and let's
+kind of place it right by this lamp
+post. And boom, we're going to have it
+right there, kind of like inside the
+lamp post as well. And now, of course,
+we want bushes and all that. And make
+sure you place these lamp posts
+everywhere. If we just had them in this
+one spot, that would look pretty bad,
+because this is the main like area down
+here. So, we would want a lot of them,
+especially on the corners. So, right
+here is just a random corner between two
+different paths. So, this is actually
+the perfect spot for one. And we could
+just leave it like that, or we could
+place a bush or some other rocks next to
+it. And you also want to place them
+depending on where your buildings are.
+So, of course, I'll have a building
+right here, maybe a building right here,
+so we could place some lamp posts next
+to it, just for some more detail. And
+let's actually grab ourselves some of
+these small fences, and let's place
+these at random parts throughout the
+path. And they don't all need to be in a
+single line. You could just place one
+every now and then. And look at how much
+better this place is looking already. Of
+course, I still need to place more
+fences, but just already, this is
+looking much better. And it'll look much
+better once we have our main things.
+Because it is still looking a little
+plain in like this area and this area.
+And that's because none of our game
+items are here just yet, because I'm
+purposely leaving this area plain and
+that area plain, and same with this
+corner. Because for whatever game we're
+making, that's where we'll want to place
+the main items. It's now the next day,
+and I expanded the map just a little
+bit. Well, I didn't really expand it,
+but I did make it look slightly better.
+And also, I worked on adding a few more
+assets to the asset pack. So, just for
+the lamp post over here, I added
+multiple different variations. For
+trees, I did make a few more. So, right
+here, I have some better looking trees
+compared to this one, which doesn't
+really look too good anymore. And yeah,
+these new ones are definitely much
+better. I just got to grab one of these
+bushes, toss it on there, and manipulate
+a little bit, and then we have two new
+trees. And I also added some stumps
+right here, because I do plan to remake
+the pine trees. And whenever we remake
+these, we are going to need some stumps.
+So, I have those, and then I have this
+one just for decoration, so we can place
+an empty stump throughout the map. And I
+also made even more rocks to use. So,
+I'll probably place those later on, but
+so far I haven't used any of the new
+assets, and this is just what I made my
+map look like. So, as you can see, I
+placed a lot more lamp posts and a lot
+more fences as well, and I also just
+made the entire area better. So, if you
+go over here, we have like a little
+chill spot, which for a game you could
+add like an NPC over here or something
+like that. And we also added pebbles on
+the ground just for some extra
+decoration. And then over here we have a
+regular fence along with one that's
+fallen down. So, that's just like a
+little bit of cool detail. Up here I did
+make each habitat better by adding a few
+bushes. I'm still not done with the map
+just yet, because I still definitely
+have a lot of work to do, such as
+finishing up this path right here. But,
+I just felt like adding a bit more
+details, such as this little area with a
+nice bush in the middle, and I'll
+probably toss some fences over there as
+well. But, yeah, that's pretty much how
+you make a map in the same style as Fish
+in the Forge. And overall, it's actually
+not that hard. The hardest part is
+probably just making the assets, but
+once you have the complete asset pack
+right here, it gets super easy, because
+we have everything we need. We just need
+to toss it down, and it actually won't
+take too long once we made the assets.
+But, anyway, that's going to be all for
+this video though. If this video helped
+you out, please make sure to smash that
+subscribe button, and I'll see y'all in
+the next video.

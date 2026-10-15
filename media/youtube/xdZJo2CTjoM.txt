@@ -1,0 +1,114 @@
+today I'll help your maps go from
+looking like this to this so let's get
+building first I like to start off by
+creating a nice big plane so I have
+somewhere to work on making sure I also
+add some color and texture anding this
+is to help visualize what size I want
+the map to be and how dense the details
+should be after finishing the plane I
+move on to creating these hilly bears
+that will circle around the plane I made
+as I do this I try to use the textures
+that will fit the same them and mix
+nicely with each other I like to add
+small details to these grass tops so
+they don't look so
+plain into each
+other I usually make around three to
+five different barriers that have
+different grass tops and sizes to keep
+everything looking unique like you see
+in this time
+[Music]
+lapse
+[Music]
+after creating the grass stop variants I
+duplicate them and paste them onto the
+plane I made not too long ago this is
+where I decided that there needs to be
+some more detail in these barriers and I
+duplicated them so they are two times
+the original height which is good since
+they're a bit too short for my liking
+anyway I then proceeded to duplicating
+the dirt barriers to trap the player
+inside making them act sort of a as a
+mountain range once that was done I went
+in and made sure they are all properly
+scaled without any glitches or Pockets
+the player can see
+through the next step was to add a path
+throughout the map and this was done
+using a small rectangular patch of dirt
+and a plugin that will be linked in the
+description below I try to make the path
+look natural and make the path squiggle
+around the place while branching out
+into different directions to fill the
+map I needed to make some foliage so I
+made trees starting out the trunk of the
+tree then trauring and coloring it to
+match the color palette next I worked on
+making some leaves using some large thin
+parts and rotating them around the tree
+getting smaller the higher on the tree
+they were as this short time lapse
+[Music]
+shows I wanted to make the trees a
+little more dense so I double the amount
+of leaves they had and that worked out
+fine all I had to do from here was copy
+and paste the trees around the map and
+made each one have a different height
+and rotation to keep things looking
+unique after getting all the trees in
+place I started working on some rocks
+which was just a bunch of Cubes placed
+in a group that had a rock texture and
+to make them look better I put some
+effort into rotating each Cube which
+made it look really good I proceeded to
+make a few different Rock models since
+the same Rock model over over and over
+again would be very repetitive once that
+was done I pasted them all over the map
+and rotated them once those rocks from
+place I started working on some rocky
+cave like structures that will go well
+with the ends of the pass so you don't
+seem like they go straight into a wall
+it Blended in well and I added black
+Parts in the middle so it appears to be
+too dark to see what's
+inside going on I made some Tall Grass
+using the same plugin that was used for
+the P earlier I kept the same texture
+except turn the grass his color to be
+green after the model was done I made it
+a little bit bigger and pasted it around
+the forest
+[Music]
+floor this next part is a bit tricky but
+I worked with some negated and Union
+parts to make it work and what you see
+me making is a small river that flows
+across the map and it ended up looking
+really
+[Music]
+nice after the river was complete I made
+these bridges that go across the river
+that I just made
+I made some support beams then put some
+wooden Parts across the support beams
+proceeding to rotate them and scaling
+them to make each one unique I did the
+same thing with the other path that the
+river
+intercepts now that all the structure
+done I added some custom lighting which
+is crucial to make your map look good
+and now that I'm done here are the
+[Music]
+results
+[Music]

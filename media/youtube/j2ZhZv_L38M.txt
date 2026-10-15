@@ -1,0 +1,972 @@
+Fighting in Roblox can be pretty
+difficult, but it doesn't need to be.
+I'll be going over every single lighting
+setting along with multiple different
+scenarios to help you become a better
+developer.
+Okay, so what you want to do is go into
+this little lighting tab and go down
+here and we're going to start by
+tweaking all of these settings. So
+ambient is defined as the lighting hue
+applied to areas that are oluded from
+the sky, such as indoor areas. Now what
+that means is this affects the color of
+the shadows. So if you make it lighter
+the shadows become lighter. If you make
+it darker the shadows become darker. Now
+you can also give it a hue. You can make
+it a little bit blue. You can make it a
+little yellow. You can just change the
+color to anything you want. Now what I
+recommend is making the light a little
+bit blue in the shadow to make it look a
+little bit cooler. Then we're going to
+skip all these. Go into the lighting
+style. Now I always recommend using
+realistic but if you want to optimize
+performance then soft is the option
+[music] you want to choose. Next is the
+brightness. Now the brightness is the
+intensity of illumination in the place
+or in the game. What I would describe it
+as is how bright the sun is. So if you
+increase this everywhere where the sun
+hits is brighter. So for realistic
+looking games I like setting this pretty
+high because the sun is in fact bright.
+Next we'll talk about color shift
+bottom. Now color shift bottom's defined
+as the hue represented in light
+reflected in the opposite surfaces to
+those facing the sun or moon. Now most
+of the time if you change this you won't
+see any change in the place. So I
+recommend just setting this to a dark
+color and just leaving it for now. Now
+color shift top is defined as the hue
+represented in light reflected from
+surfaces facing the sun or moon. So what
+I would describe it as wherever the sun
+hits this color affects how it looks.
+So, if you want the sun to be a little
+bit bluer, a little bit cooler, you can
+make it blue. Or you can make it yellow
+to make the scene feel warmer. And
+that's what I typically recommend. Just
+giving a little bit of yellowish hue.
+Next is the environment diffuse scale.
+This is defined as the ambient light
+that is derived from the environment.
+So, if you increase or decrease this,
+it's a way of mimicking bounce lighting,
+but it doesn't do it in a great way.
+Okay, so I usually just set this pretty
+low, like 2 or.3 for most of my scenes.
+Then we'll move on to the environment
+specular scale. This is specular light
+derived from environment. I just brought
+in this little metal table to help
+visualize what this thing does. Now, the
+environment specular affects how metal
+and different specular light looks. So,
+if you bring this down, metal will look
+flatter and won't reflect light as much
+or even at all if it's at zero. So if
+you have a lot of metal in your game and
+you want nice reflections, I recommend
+keeping this at a high number. I usually
+keep this at 0.9 for most of my stuff.
+Then is the outdoor ambient. Now the
+outdoor ambient differs from the ambient
+because it only affects how outdoor
+shadows work while ambient affects how
+all of the shadows work inside, outside,
+anywhere. So if you want a specific look
+outside, you can change this and then it
+affects all the shadows differently.
+Then the shadow softness. This simply
+just controls how blurry the shadows
+are. If you set it to zero, it'll be
+really sharp. But if you set it to a
+higher number, it'll just blur it out a
+little bit. Now, next is this exposure
+compensation. Now, a lot of people don't
+know this is actually here cuz it's a
+little bit hidden away. Now, exposure
+compensation is defined as the property
+that determines the amount which applies
+a bias to the exposure level of the
+scene prior to the tone map step. So,
+what that means is you should just
+increase it slightly just to add a
+little bit more contrast. Next, we're
+going to go into all the different
+effects you can apply to lighting. So,
+in order to get them, you just click on
+this little icon here. Then, they should
+all pop up right here. First, we're
+going to use the sky. Now, the sky
+affects just the sky box. So, what I
+recommend is you get this plugin called
+HDRI inserter. And this just has a huge
+catalog of different skies you can just
+apply, just insert to your scenes. But
+if you don't want to get that plugin,
+you can always just go into toolbox, go
+into the sky and atmosphere, and just
+click on any one of these should apply
+it. And there you go. So I recommend
+building your scene around the sky
+because the sky will in fact influence
+how the light works. So once you get a
+sky that you like, you can go into the
+next effect, which will be the
+atmosphere. Now this just applies a
+little bit of fog. So it creates more of
+a depth between objects that are closer
+and that are farther away. Now Roblox
+defines atmosphere as something that
+simulates realistic environments by
+scattering sunlight in unique ways based
+on the properties that control air
+particles. So that's just pretty
+complicated way of saying fog. So
+depending on your scene, you can
+increase or decrease this density
+amount. Unless you have a really foggy
+or smoky scene, I would recommend
+keeping this pretty far out, pretty low,
+like 0.2 around there. Now, this offset
+property controls how light transmits
+between the camera and the sky
+background. When you increase this
+value, it creates a horizon silhouette.
+When you decrease this value, it blends
+distant objects into the sky for
+seemingly endless and seamless open
+world. Let me just increase this density
+a lot. If you set it to zero, it blends
+the objects in the sky more. But if you
+increase it to one, the objects will
+stand out more. So, I recommend keeping
+this pretty low. Next is this color. And
+this color sets the hue of the
+atmosphere for subtle environment modes
+and themes. To expand this property's
+visible effect, combine it with the haze
+property value. I'm just going to
+increase these a little bit to show this
+off. Decay color affects this bottom
+area. So, you can create some pretty
+weird examples of this. I don't usually
+use these settings that much. Increasing
+or decreasing this haze just affects how
+high it rises. And this glare right here
+when combined with haze just affects how
+the sun affects the lighting. So yeah,
+can create some pretty weird results. I
+recommend just not using these for most
+of your builds. Okay, next is the
+sunrays effect. Now, this just quickly
+creates these little god rays that just
+cast light, creates a nice little
+realistic effect, but I see it you
+overused a whole lot. So, I would just
+recommend first of all going into your
+sky texture and decreasing this sun
+angular size. Just set this to five.
+[music] It makes it a lot smaller. So, I
+recommend decreasing the intensity of
+these. Make it very subtle and
+decreasing the spread so it's more
+confined. Something like that works.
+Next is the color correction effect. And
+I would consider this to be the best
+effect that we are given. Now, we'll
+start off with the brightness. And
+unlike the brightness setting in the
+lighting, which only affects how the sun
+affects the scene, the brightness and
+color correction affects the brightness
+across the entire scene. Just increases
+the brightness. Who would have thought?
+So, if you do increase this, I would
+make it very, very subtle. Now, the
+contrast, this just increases or
+decreases how defined the colors and the
+tones are in your game. So, I would
+always recommend increasing the contrast
+at least [music] a little bit. Create a
+more defined and less washed out look.
+Now, for the saturation, it boosts the
+colors or makes it black and white. Now,
+depending on if you want a realistic or
+unrealistic scene, you can increase or
+decrease this. For most realistic
+scenes, I would recommend decreasing
+this just a little bit. If you want like
+a cartoony scene, then you can just
+increase this. Now, the tint color is
+just a color that's going to tint over
+the whole scene. So just make it red,
+make it blue, make it anything. If you
+do use this, I recommend being very
+subtle. So if you want a little slight
+blue to make the scene feel a little
+cooler, you can do that. Or if you want
+it to be yellow to make it a little
+warmer, you can do that, too. I usually
+just make scenes a little bit yellow to
+add a little bit of warmth. Next is the
+bloom effect. If you have a light or a
+part, for example, then this bloom
+effect will affect how it looks. So if
+you set this to pure white, it'll get a
+nice little glow to it. Now, bloom is
+defined as an effect that exaggerates
+light within your game by simulating a
+camera viewing a bright light. When this
+effect has a high value, parts of the
+light colors glow. So, basically, that
+just means it mimics how light works on
+cameras. So, we'll start in the
+intensity. This just changes how intense
+the bloom is. So, if you set it to one,
+it will be as powerful as it can be. But
+if you decrease it, you can see it
+subtly falls off a little bit. Now, the
+size affects how big the bloom will be.
+So, you can set this to really small or
+really large. And then the threshold
+[music] alters at what point bloom will
+be applied to an object. So, if you set
+this to the highest, then bloom won't be
+applied to anything. If you set this
+really low, then a lot of light colors
+will have bloom, even the skybox. So, I
+recommend set it relatively low. I set
+the size pretty high, but I decrease
+intensity a lot. That way, it just
+creates a nice little glowing effect.
+Okay. Next is the blur effect. You might
+be able to guess what this does. It is
+defined as an effect that applies a
+gajon blur to the entirety of the 3D
+world view. All you really need to know
+is that the size increases or decreases
+how sharp the image looks. So, I don't
+ever use this in my games. I would only
+recommend using it if you have like a UI
+open or something you just don't want to
+focus on or like a cinematic, I don't
+know. But, I don't ever use it, so I'm
+just going to delete it. Okay. Next is
+the depth of field effect. Now, this
+functions similar to blur, except that
+it only blurs things that are further
+away from the camera. As you can see
+here, this part is close to the camera,
+so I can see it clearly. These trees in
+the background are blurry because
+they're further away. Now, far intensity
+just changes how sharp an image will
+look the farther away it is. As you can
+see, those are really blurred out back
+there. Now, the focus distance is the
+distance away from the camera that
+things are in focus. So if you increase
+this then the focus distance will be
+further away from the camera. Meaning
+this rock is now in focus because I
+increased the amount of focus distance.
+[music] So you can set this to really
+far away if you wanted to for some
+reason. So it just changes how the blur
+affects and where it affects. Now the
+infocus distance controls the distance
+away from the focus distance where no
+blur is applied. So that basically just
+means if it's blurry or not right in
+front of your camera. So as you can see
+it's really blurry since this is set to
+zero. If I increase it, it no longer
+[music] is blurry. And then the near
+intensity is just the intensity of the
+near field blur. Now, what I recommend
+doing, setting this to zero, setting in
+focus to 50, setting the focus distance
+to zero, and then just changing the far
+intensity to making things that are very
+far in the background just slightly
+blurry. You don't want to overdo it or
+anything. Pardon my interruption, but if
+you find this video helpful, then
+consider [music] helping me reach my
+subscriber goal of 10,000 by the end of
+the year. I also just made a Discord
+server. So, if you're looking for a
+place to help you grow as a developer or
+if you have any video ideas, then
+consider joining.
+First of all, you're going to have to
+make it night. And the way you can do
+that is simply by going into the
+lighting property and then changing this
+clock time. And this just runs on the
+regular 24-hour clock schedule. So, if
+you set it anywhere past 18, it'll
+become night. So, if we just kept with
+the daylight settings we had, the scene
+is just way too dark. Now, you might be
+surprised to hear that night is in fact
+dark. Really dark. But games shouldn't
+be really dark because if a game is so
+dark that players can't even see in
+front of them, then that's just bad
+gameplay. And you don't want to have bad
+gameplay in your games, right? So, we're
+going to tweak the settings slightly
+from what we had during the day. Mainly,
+what we're going to do is increase this
+ambient to make it a little bit lighter.
+You can make it even more blue. [music]
+Now, if you really wanted to, and now
+the color shift top, it's being
+reflected by the moonlight instead of
+the sunlight. So, instead of making this
+yellow, you can make it a little bit
+blue. And now you can increase this
+environment diffuse scale if you want a
+more pronounced moonlight. But don't do
+it too much because the moon really
+isn't that bright. And what I like to do
+in night scenes is increase this
+atmosphere more. That way, you can't see
+as far and it mimics more of a darker
+setting. And since technically in real
+life night is less contrasty than day,
+you can just decrease this contrast if
+you really wanted to a little bit. I'm
+just going to leave it at zero for now.
+[music] Okay. So, first we're going to
+start off with this common little error
+I see. So, if you have light bleeding
+through your walls, then they're
+probably too thin. So, you can just
+increase the scaling up like this,
+and it will go away. But if you
+obviously don't want your walls to be
+this size, another thing you can do is
+let's go into your lighting settings
+[music] and just bring this down and
+that'll help it a little bit. So yeah,
+so first we're going to start with the
+point lights. Now what the point light
+does is that it emits illumination from
+a single point. That just means that
+light emits from this one point in a
+sphere like this. You can increase the
+brightness. This simply just increases
+the brightness. And then you can change
+the range. This is how far it will be
+emitted. So you want it to be massive,
+you can do that. And then you can enable
+shadows. I recommend doing this for all
+of your lights. [music] That way it
+actually casts some shadows instead of
+just being a flat little light. Then the
+color, as you might expect, changes the
+color. I'm just going to show you some
+ways that I would recommend using point
+lights in your interior lighting. So,
+starting with any light that really
+isn't covered, so like this light bulb,
+something that would be covered is like
+this lamp. So, I wouldn't recommend
+using just a point light. I would
+recommend using some spotlights and
+such, but we'll get to that later. And
+another thing is that I would recommend
+putting all of your lights in an
+attachment. This way, you can easily
+move it instead of putting it in a part
+cuz that can get in the way sometimes.
+Now, whenever you're doing point lights,
+I always recommend adding at least two.
+This is because point lights have a
+really ugly looking fall-off. It looks
+like it just radiates an area then just
+blurs off instead of having a nice soft
+falloff. So I typically try to fake this
+by adding in multiple and decreasing the
+range each time and then decreasing the
+brightness manually. So it just is as if
+it's like a gradient. Now, some
+instances I would use a point light is
+with candles mainly, light bulbs as I
+mentioned earlier, and then lights like
+this. You can also use a point light,
+but point light is my personal least
+favorite of all the light options. So,
+whenever I do use a point light, I
+always combine it with other light
+types, which I'll get into later.
+Okay, so next we're going to be going
+over some spotlights. Now, spotlights
+[music] are defined as a light source
+that emits light directionally in the
+shape of a cone with a spherical base.
+Basically, it's like a point light, but
+it only emits light in one [music]
+direction. So, just straight down. Now,
+the settings are pretty much the same.
+Brightness increases the brightness.
+Range increases how far it is. And then
+the angle is how wide this cone will be.
+So if you set this to like really low
+like 45, it'll be a more sharp angle. If
+you make it wider, it'll be wider. So
+different use cases. Now, whenever I
+make lights, I always recommend setting
+the [music] range to just about floor
+level, maybe a little bit lower. This
+way creates a nicer fall-off if it just
+barely hits the floor instead of going
+straight through the floor. Now, some
+common use cases for spotlights are
+flashlights like right here, lights like
+this that you just want to cast
+downward, and then lamps like this.
+Basically, anything that covers a light
+source so it filters through a cone.
+That way, it just makes sense that the
+spotlight would have that shape.
+Next, we're going to be talking about my
+favorite type of light, the surface
+light. Now, a surface light is pretty
+similar to a spotlight, but instead of
+emitting from a single point, it emits
+from a face. So, you can scale this to
+as long as you like, and it just emits
+completely from this. Now, all these
+settings are pretty similar to the
+spotlight. The angle just increases or
+decreases the angle. If you set it to
+zero, it'll be pretty sharp like this.
+If you increase the angle, has a softer
+fall-off. The range is the same. The
+brightness is the same. Now, the best
+use cases for this are longer tube
+lights like this where it doesn't emit
+from a single point but stretches. So,
+any panels, any like billboards or signs
+you want to use, TVs are a good one.
+Now, unfortunately, the surface light
+doesn't take the shape of the object,
+just takes the sizing. So, as you can
+see here, the light emitted isn't a
+triangle, it's a square, but the
+dimensions are the same.
+But the best results always come from
+combining different light types
+throughout the scene. So you don't want
+to only just use point lights. You want
+to use a combination. And even using
+multiple different light types for a
+single light, like having point lights
+and spotlights coming from a lamp and so
+on and so forth. And this just creates a
+more unique and realistic looking scene.
+Okay. Next, we're going to be talking
+about windows. Now, the sun is bright,
+so having windows will automatically
+brighten up your room a lot from all the
+bounce lighting. But unfortunately,
+Roblox doesn't have bounce lighting. So,
+you can either add some lights to this
+or what I recommend is increasing the
+ambience just a little bit. So, it just
+brightens up the room a little bit more.
+Now, another thing you can do is adding
+little point lights from the window that
+will cast light in. Now, this is manual
+lighting, and it does take some time to
+get right. This scene's pretty messy, so
+you might want to change some things.
+But what I recommend is adding a couple
+lights and having them orientated
+slightly differently, so it creates more
+unique looking shadows. When you're
+doing this, don't make something like
+this. Now, this doesn't look good
+because the shadows are pretty messy and
+it's just not really illuminating where
+the window is. This is mainly because
+these windows are too small to cast
+light in. Well, though, if you do add
+some manual lighting from the windows,
+make sure that they're adequately sized.
+Okay, now we're moving on to some more
+manual lighting. As I mentioned
+previously, Roblox doesn't have bounce
+lighting or global illumination of any
+type. So, what a lot of builders do is
+they add in some manual shading. Now,
+what I do for this is I add in a
+vignette to the lower and ceiling. And
+that just means something with shading
+around all of the edges like this. Okay,
+so I forgot to mention this in the
+video, but in order to get those shading
+decals, what you want to do is you want
+to grab a part. Then you can go into
+toolbox, select decals under 2D assets,
+search up vignette. You can just drag
+this onto the part. You'll see it
+applied. Then what you want to do is set
+the art transparency to one so it's
+completely transparent. I would also
+recommend disabling the cast shadow and
+making this completely flat. Then what
+you could do is since this image is
+black, changing the color won't do
+anything, but I recommend increasing
+this transparency a little so it's not
+as [music] dark. And then I add in a
+little black gradient to the walls. Now,
+the key thing about this is to be
+subtle. You don't want a super dark
+texture cuz that that's pretty
+distracting. You just want it to be
+subtle as if it's meant to be there. And
+it just really adds just a little bit
+more depth to the scene. Now, I add this
+to every single little corner. I think
+it just looks a little bit softer. It
+makes the edges look more cohesive and
+such, and it's pretty quick, and it
+doesn't really cause that much lag. Now,
+the next thing you can do for manual
+shading is adding little shadows beneath
+every object. Now, for these shadows,
+it's just a square little glow with a
+little bit of blur on the edges. Now
+again, the key thing with this is to be
+very subtle. It wouldn't look great if
+you just had a little black blob because
+that wouldn't look realistic and it's
+pretty distracting. Just underneath
+every object, just add a little bit of
+shading, a little bit of shadows. Now,
+for circular objects like this, instead
+of grabbing a square shadow, you can
+just add in a circle with a little bit
+of blur just for a nice little fall-off.
+Now, what I see people do sometimes is
+adding shading to every single object in
+the scene. And while you can do that, it
+does take a long time to add it to every
+object and have it looking good. So
+really, you want to weigh your options
+and decide if it's a good use of time to
+shade every single object or if your
+time would be better spent refining the
+things that you do have. So if you have
+a small little showcase, then yeah, you
+can add shading to every object. But if
+you have a massive map with thousands of
+rooms, then it's probably not worth your
+time adding little bits of shading to
+everything. Now for the final piece of
+manual lighting is adding in just little
+soft point lights around the scene just
+to brighten it up a little bit. Now the
+way I do that is by just adding little
+attachments with just two point lights
+creating a nice little fall-off that
+just brightens up the scene a little
+bit. It's important that you put this
+where light is emitted from so it makes
+sense. We wouldn't want it just in the
+middle of the room where no light is. So
+yeah, just put it in the corners and
+such. It just brightens up the room
+quite a bit and just looks pretty nice.
+Oh yeah, another thing I should mention
+is that all the time I see people making
+their point lights completely a
+saturated ugly yellow and this just
+looks terrible. If you're making a
+yellow light, you want to be subtle with
+it. Most room lights like this cast a
+very faint yellow and really only fire
+or flames cause really deep, dark, rich,
+saturated yellow. So keep it
+unsaturated.
+Okay, let's go over some poor lighting.
+Now, before we begin, I'm just going to
+say that your scene will probably look
+different from mine, so don't copy
+exactly what I do. Just use these basic
+principles and then just go on from
+there. Now, most horror games will
+probably be set at night, so make sure
+your sky is night and should probably be
+gloomy and dark, have a moody scene like
+this. So, let's go into these lighting
+settings first. And as you can see, the
+ambient pretty low, just adds a nice
+little darkness to the shadows. You can
+set the brightness high. It doesn't
+really matter. It just affects how the
+moonlight hits the scene. Set the
+environment diffuse scale to 0.2, the
+specular to 0.9. That way you still have
+some nice reflections in the metal. Make
+sure the lighting style is set to
+realistic. The outdoor ambient doesn't
+matter since we're inside. Shadow
+softness, you could honestly set this to
+like 0.2, but it really doesn't matter.
+Okay. Now, for these lights, they're
+pretty simple. I have two different
+attachments for the point light and the
+spotlight. That way, I can position them
+differently because I typically want
+point lights lower. That way, they're
+just not casting directly onto the
+ceiling. But, yeah, I like having it
+lower so it affects the walls
+differently. Now, these point lights are
+set pretty low brightness-wise. That
+way, it doesn't overexpose the scene or
+anything. Set the color to be slightly
+yellow. And as I did before, I set one
+to be slightly shorter in range and
+slightly brighter and one slightly
+further in range and less bright. That
+way, it creates a nicer looking
+fall-off. That's something I recommend
+everyone do. Now, for the spotlights,
+this will hit the floor and be the main
+lighting for all these objects. So, I
+increase the brightness and the angle.
+And it follows the same principles as
+the point lights, having one be a softer
+fall-off and one being more of a direct
+one. You want the range to be just at
+touching the floor. Slightly faceted
+even. Keep the brightness low because
+you don't want the scene to be too
+bright. Honestly, you could even
+increase it a little bit more. I kind of
+like that. And then you basically just
+copy and paste these all around. Now,
+for every scene, I recommend having
+different light sources across the scene
+instead of just plain old ones across
+the ceiling. This way it creates more
+dynamic and unique looking lighting
+array and it plays with the shadows a
+little bit more so you get more
+interesting little reflections and it
+just creates nicer look in my opinion.
+So just add a little weird lights around
+that will just break up the scene and
+the homogyny of the lighting. So I have
+this little lamp here just casting some
+light just three point lights each one
+with increasing brightness and falloff.
+That way it creates a nicer gradient.
+And then I have this flashlight here to
+highlight that back wall a little bit
+more. And this is just a spotlight with
+a brightness set pretty high for this
+scene. The range [music] just barely
+touching this back wall. That way it
+creates a nicer falloff instead of being
+harsh like that. And the angle, you
+don't want to be too extreme with the
+angle, but you want it to actually hit
+the scene. So yeah, this is my basic
+little setup for most of the horror
+scenes I'll do. One thing I would change
+in the scene is just adding more areas
+where light could emit just so it
+creates more interesting [music]
+shadows. But there's nothing that would
+really make sense for the scene. So
+yeah, that's why it's like this. And
+again, I used some manual shading, just
+some decals with different gradients and
+such, just to add some more darkness to
+these corners and the roof. Just add
+some more depth, some more realism to
+the scene, and it looks pretty nice.
+Okay, particles. They can be used to
+create nice lighting effects for a
+variety of different objects. Now, one
+thing I forgot to mention in previous
+parts of the video is that typically you
+want to make any part that emits light
+to be a neon material. This way, it just
+creates a stereotypical glow around. It
+just makes it look a little bit nicer.
+Now, first we're going to be going over
+these little vignettes. Now, technically
+these aren't particles. These are simply
+just decals with images, but as you can
+see, they create nicer little fall-offs
+around the edges. And you can use
+different ones for different lighting
+scenarios. So, if you have a dirty scene
+like or a horror scene, you can create a
+little grungy vignette. Or you could
+just have a nicer fall-off. It's a
+variety of different use cases and then
+increase or decrease the transparency
+accordingly. Can change the color. It's
+pretty simple. Now, in order to create
+these glowing particle effects, what you
+want to do is you want to add an
+attachment and a particle emitter and a
+point light. Now, for the particle
+emitter, you want to set the light
+influence to one. You could increase the
+light emission, but I'm just going to
+leave that at zero for now. Make sure
+the orientation's facing the camera.
+That way, the effect will always work.
+Now, for the size, what I like to do is
+you want the start and the end to be
+about exactly the same. That way,
+there's less flickering going on.
+Because if you set the one really high,
+every time a new particle spawns in,
+it'll get this weird little little
+flicker, which I think looks pretty bad.
+So, you want to start small and then
+increase, then go back down. This way,
+it creates a little humming glow effect,
+if that makes sense. Now, to add more
+variation, you can increase or decrease
+this envelope right here. That means
+this value could be anywhere within this
+range. So, it could be like nine, it
+could be four or something. So, if you
+just increase this, it'll add more
+variation. But I wouldn't go over the
+top because it can also add to the
+flicker which I just personally don't
+like. Then for the transparency, it's
+basically the same principle. You want
+it to be pretty transparent at the start
+and the end. That way there's no ugly
+flickering going on. Again, you want the
+you want the transition to different
+particles to be as seamless as you can.
+That way it's not as distracting. You
+could even set it to completely
+transparent at the start and the end.
+And then you want it to increase in
+transparency. That way you can actually
+see the particle. can add some variation
+through the envelope. Then the lifetime
+set to two, meaning the particle will
+last for two seconds. And then the rate
+is set to two, meaning that two will
+spawn every second. That means four
+particles will exist at once. That way,
+it just creates a nice little effect and
+looks a little bit more seamless. Then
+we'll get into the rotation and rotation
+speed for these other particles. But for
+this type of glow, you can just leave
+that as it is. If you wanted to, you
+could increase speed. That'll just cast
+it up. I recommend just keeping this at
+zero. Then the other setting I recommend
+changing is the time scale. Decrease
+this from one, it will slow the particle
+animation. So at one is the normal
+speed. And as you can see, this is
+playing pretty fast. So what I recommend
+doing is just decreasing this slightly.
+So it's a little more drawn out, a
+little slower animation. Now, all of
+these other glow effects follow the same
+principles as this one. They actually
+copy the exact same settings except for
+the rotation. Since you can actually see
+some differences across this texture
+instead of just being a blob like this
+one, you could benefit from adding some
+rotation. So I just set it to negative
+360 and 360 so it's completely random
+and then add just a little bit of
+rotation speed. That way you can see it
+moving slightly and everything else is
+exactly the same. Now the reason we add
+point lights is so that it affects the
+light emission. Just creates more
+realistic lighting glow. And these point
+lights don't have to be anything
+special. Usually the point light can be
+replaced by the actual light source
+you'll be using. The source itself
+doesn't need to have any specific
+settings to create this effect. Now
+following similar principles are these
+flare glows, but instead of just having
+one glow particle, I have two. One for
+the actual flare and one for the
+background glow. Now, you don't need
+that background glow, but I just like
+the effect it creates. So yeah, the only
+differences between these and these
+glows is the texture used. So you could
+just plug in any texture you want and it
+will create a little flare. So yeah, all
+the principles are exactly the same. Now
+the next particle I like using is this
+beam type. This is great for spotlights
+and just creating a more volutric
+looking light. Now, you could use this
+for windows. You can use this for any
+light, but it just looks really nice on
+spotlights that are casting directly
+downward. Now, for this, you're going to
+want two attachments. And make sure you
+name them separately. I have I have the
+first one named one, the second one
+named two. Then, you want to add in a
+beam. Now, with this beam, you want to
+first set the attachment zero to the
+first attachment you have, and then
+attachment one to the second attachment
+you have. Then, you want to position
+these however you want. The second
+attachment should be at the bottom. The
+first attachment should be at the top.
+Then go into here, set your texture mode
+to stretch, then adjust this texture
+length. Most of the time, setting it to
+one will work the best. Then you can
+just adjust it to however you want it to
+look. I always recommend just putting
+the attachment on the floor and the top
+one on the actual light itself. Now,
+similar to those glowing lights, I
+recommend setting the beam light
+influence to one. This way, the light
+actually affects it. And for this one, I
+have the light emission also set to one.
+Now, for the transparency, I always
+recommend making it fully transparent at
+the bottom. That way, you can't see the
+seam of the texture and just creates a
+nicer looking fall-off. You can add
+different points to change the fall-off
+and such. And then I also recommend
+setting the starting bit to at least
+somewhat transparent so it's not too
+intense at the top. So, I just set a
+little bit transparent, bring it all the
+way down for the main part of the light,
+and then have it fade out towards the
+bottom. Now for the shape itself.
+Typically for spotlights like this, it
+can create this little curving effect.
+So yeah, just set this width to fit the
+light size. If you have it too big, it
+will look weird and will clip outside of
+the light, which just looks pretty bad.
+So I just recommend setting the width
+zero to slightly smaller than the width
+one. That way it creates a nice little
+little arcing effect. than the spotlight
+itself. I just recommend making sure the
+angle is at least somewhat close to the
+arc of the beam. If it's too narrow,
+then the light casted won't fit
+properly. And if it's too wide, it also
+won't fit properly. So, just have it
+somewhat close so it fits better. And
+you want the range to be somewhat close
+to the floor. Okay, so this is how I
+would personally do some cartoon
+lighting. So, starting with these
+settings, I have the ambient set pretty
+high. That way, the shadows aren't too
+dark. I have it set very blue just to
+add some nice cartoony bluish tint to
+the shadows. Now the brightness I've set
+it to 4.5 just to get a nice bright
+little scene. The color shift top I make
+very yellow. That way anywhere where
+light's hitting it's nice and bright and
+yellow and adds a nice contrast to the
+blue shadows. Then the environment
+diffuse scale. Since this isn't a
+realistic scene, I have it set pretty
+high. That way the shadows aren't too
+dark and moody. Then I have the
+environment specular set pretty high for
+similar reasons. Outdoor ambience the
+same as ambient because this is an
+outdoor scene so it doesn't really
+matter that much. Then I increase the
+shadow softness pretty high just to get
+some sharper shadows. I know some people
+who like increasing this for cartoony
+scenes but I don't like doing that. Then
+you can go down to this exposure
+compensation and increase it a little
+bit. Just add a little bit more
+brightness. Then the sky I think is what
+really carries the scene. If you delete
+it, everything looks really dull and
+bland. So, just adding a nice cartoony
+sky to the scene just helped a lot. Now,
+for the atmosphere, I have it set pretty
+dense just to get a nicer looking
+fall-off in the distance. And I have the
+offset set to zero, and I didn't mess
+with these at all. Then, for the bloom,
+decrease the threshold a lot so it
+affects a lot of objects. Increase the
+size a ton, and decrease [music]
+intensity so it's not overbearing or
+anything. Just a nice little glow in
+some areas. It might be [music] even a
+little too intense right now. Then the
+color correction. I brightened it up a
+little bit just so it hurts your eyes a
+little. And then I add some contrast to
+get a nice punchy look so it doesn't
+look too washed out or anything. Then I
+have the saturation increase a little
+bit since it's a cartoony scene. Colors
+are meant to be vibrant or something
+like that. Then for the tint color, I
+just set it to a little bit more
+blueish. Don't go over the top with this
+just to make it feel a little bit
+cooler. the sun rays. Just set the
+spread very low and the intensity very
+low just so it creates a nicer looking
+glow around the sun. If you go over the
+top with this, it will just overexpose
+everything and just look terrible.
+Congratulations on [music] reaching the
+end of the video. I hope I went over
+everything that's useful. If I did miss
+something, then please comment what and
+I'll make a second video on lighting in
+the future. And as I mentioned
+previously, I made a Discord server, so
+feel free to join that. This video took
+me a while to make, so don't forget to
+subscribe and like to help me in the
+algorithm.

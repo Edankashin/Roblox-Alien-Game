@@ -1,0 +1,1442 @@
+hey gang welcome back
+so this is gonna be the first episode of
+a
+i guess the road to a building a game i
+do like pet collector games um i like
+some other
+games as well that are off platform but
+the pec collector game genre is
+attractive because it allows you to keep
+something digital and display something
+digital to your friends and
+generally just doesn't take a lot of
+work
+you can play it in the background for a
+lot of things
+and so
+just works out for me so
+um being a computer scientist i am
+interested
+in how things work and
+i just saw this as an opportunity to
+not only learn event-based programming
+um because i'm an old kind of structured
+guy writing in c and c plus plus so
+uh but also to learn a little
+um and learn a little bit about what
+goes on underneath the covers um in
+roblox studios so
+uh
+this first video will be basically
+creating a game similar
+to a lot of the the pet collection games
+out there
+so the clipper simulators the the pet
+sim and all of its
+derivatives um and rip-offs
+and
+you know mining simulator everything
+else where you're just collecting stuff
+um and the pets are generally just doing
+the work for you
+so
+let's just take a look at what is
+available out there
+so of course you have the the very
+familiar simulator for those that played
+pet simulator with me
+which might have drove you to to take a
+look at this video
+uh since i seem to do a lot of giveaways
+on that so the simulator has gone
+through three different iterations
+one two in x or ten or however you say
+it
+and
+the menu system is actually quite good
+what we're going to do in this video
+will
+work your way towards that but
+um a lot of making a a menu look good
+is
+um having a good artist so of which i am
+not so um we're going to create
+one of my goals
+is to not have you download anything
+not rely on anybody else's code
+what we're going to do is try to create
+a menu system for this first video that
+you
+can
+basically go to an a get a pop-up menu
+populate it with pets
+to make that look good
+it's really takes some
+thought on ui layout what works for you
+and what you want in your game
+and an artist
+maybe we'll get to that point of making
+menus look good at the end but this is
+going to be code mostly
+the next one um i got a few examples um
+everything
+from collect all pets to
+to rebirth to mineral collecting all
+sorts of different menus and you can see
+there's quite a
+a
+[Music]
+number of different
+looks some of them
+work seem to work better than others
+uh some of them are more intuitive
+others some of them are kind of
+complicated and some are very simple
+um but they do have a lot of stuff
+that's in common so what i'm showing you
+here is the
+the inventory systems
+um but the egg systems tend to look
+they're stylistic differences right for
+the egg system you need a pop-up menu
+when you approach the egg
+and
+that
+user interface displays possibly the egg
+name the the pets that are in it the
+chances
+maybe some mystery chances
+or doesn't display things for games that
+have secret pets but it basically just
+populates the pet windows you can
+populate those windows with
+with decals like you take a picture and
+populate it with a decal or you can
+populate it with
+a camera view of the pet in question so
+we'll do the camera view in here um just
+because i'm not that i think it looks
+better i think actually the the eye the
+little decals look better but it just
+takes more work
+and i we are going to use very very
+simple pets and our pets are going to be
+super simple like they're going to be
+cubes
+and the reason we're going to do that is
+because i don't want anyone dependent on
+downloading any content or buying any
+pets or
+or whatever so and
+you just have to fiddle with the pets so
+we're going to create cubes two
+different cubes uh but two different
+that are two different colors so
+they're different by size and color to
+give us four different cubes
+those will be our pets
+and in doing so we'll see what those
+pets critical items for those pets are
+and
+we'll basically see how to set up
+modulized code
+so
+that you can just create new pets and
+create a new table um in the end what
+we'll have is is you'll have a list of
+pets
+models that are all structured the same
+information about those pets is going to
+be populated
+in future videos it will be it will be
+populated by code
+so the pets will have some complex
+characteristics like
+we might put unique ids in there we will
+certainly put unique strengths um out of
+a range
+that will all be controlled through like
+a modulized modulized egg system
+so in order to do this the first video
+here is going to be
+uh of two eggs
+which are just going to be spears
+because we're not going to deal with
+models and that way you'll be able if
+you download your models you'll be able
+to see
+what is needed um the critical items
+that are needed in those models that you
+might have to add
+uh and the same for pets so four pets
+two eggs
+and a ui system that basically calls um
+hatch egg
+uh
+in the most simple simplest manner and
+for this first video we're not even
+hatching the egg we're just printing it
+out it will be plenty of code and this
+video is going to be pretty long
+so let's jump into it
+so first off i want to acknowledge where
+the sources come from so i've looked all
+over the place and it's hard to keep
+track where you've noticed stuff
+but the big shout out goes to the agent
+pet system a lot of the structure comes
+there i've changed some things
+um and i think i was working from uh
+older version as well
+um as compared to the newer version but
+when i was going through
+uh or when you're going through other
+people's code you tend to
+find it difficult to
+debug um things that are going on um and
+in this system i found that to be true
+and so i want to
+uh kind of just build it from scratch um
+but in doing so some of those ideas
+particularly the structure
+um and
+uh
+some of the code interaction definitely
+come from that and so if you just want
+to jump out to
+the agent pest system i get the link in
+the video uh you can just go out and
+look it and try to use it if you want um
+if you kind of need more of a deeper
+understanding to to modify and fiddle
+with things
+then
+continue watching
+we're going to create two different eggs
+and these eggs are just gonna be simple
+we're not gonna
+actually model an egg this isn't a model
+and this is coding so
+uh
+in order to do that
+um
+let's drop back into the editor
+uh
+and we're going to insert some models so
+for the eggs i'm just going to use
+spears
+um
+so we'll have one spirit here
+and
+this sphere is just going to be that
+little brown spear and we'll make a
+bigger one
+but the first thing i want to do is
+i want to take another part
+this could be a sphere or a mohawk i'm
+just going to use a block
+and we are going to take this block
+and insert it inside of the other
+so
+we want this completely gone so i'm
+gonna insert in there scale it back down
+so that we can't see it anywhere
+ideally this would be center
+i'm not sure it really matters in this
+little tutorial but we definitely want
+it to be inside
+um and so now we have this two part uh
+these two parts uh
+and
+uh we want to go into base plate and we
+want to create them all
+and so
+we're gonna insert a model here um this
+model is going to be made sphere
+or let's name it so
+hey
+and we're going to take
+uh
+this part put it in there this part put
+it in there
+both of these parts
+we're going to
+anchor them
+and
+for
+this part we're going to name
+a
+ui anchor
+[Music]
+and
+i think that is
+it
+[Music]
+and so
+uh
+we're gonna duplicate this on mac does
+command d
+and
+on this egg let's scale it up
+uh
+uh to something a little bit bigger
+um and we're just gonna call this um
+uh
+other big
+gifts
+um and this is just so that we're gonna
+we're gonna have two different menus
+because we want to be able to test that
+two menus actually work
+um and that they
+can populate so
+now
+uh
+oh man let's go ahead
+and move this over so that we have two
+and get them far away so that
+we can
+go through our tests so we have
+egg another egg
+and so that is gonna be the entirety of
+our pets right there
+uh or our eggs right there so the eggs
+are going to stay inside of uh here for
+right now
+um
+let's go ahead and since
+we don't want to
+crowd our
+world workspace so i'm going to go ahead
+and create a folder here
+called eggs
+[Music]
+and we will take both of these eggs here
+[Music]
+and move them into eggs
+um
+and that's going to be
+our very simple eggs not a real
+real game you take your models and you
+put them in there
+and you make them look pretty and
+there'd be many many parts right but the
+idea here is that you have a model um
+you have some parts and we're going to
+use this ui anchor later so we want that
+there
+and we have both of those there
+so the next thing that we're going to do
+is we are going to go down and start
+creating a starter google
+okay so let's do the papagui for the
+eggs so we're going to go to starter gui
+and inside of starter gui we're going to
+create a screen gui
+uh we'll just leave that the way it's
+named right now and then instead of
+screen gui uh we're going to create a
+frame
+so
+uh this frame um we
+are going to set this relative so
+uh
+we need to go in and set the size
+um
+and
+in here we want uh
+it to just be a big this is actually
+going to be invisible so
+but we're going to use it to basically
+turn on and off all the gooeys inside it
+so
+uh
+it's if you look at the position it's
+it's set up as is relative right now so
+we're gonna
+make it bigger
+and
+i'm not here to make it perfect today um
+but you can get an idea what it's gonna
+look like right there right
+um so
+uh and we also
+uh
+for this uh
+uh particular thing we want the anchor
+to be in the middle so we're not scaling
+over to the side
+so
+the
+the anchor point in here should be uh
+0.5
+and 0.5
+so we want it in the middle like that
+it's not quite in the middle i guess we
+can
+set up here 0.5 and the same
+0.5
+um get it clearly in the middle and we
+want this to be invisible so we're just
+gonna
+change the color or anything we're just
+gonna make it invisible
+um
+so
+that might be about the right size we
+make it a little bigger
+um
+but i think that's probably pretty good
+so um inside of there we are going to
+uh
+create another
+um
+uh item and this is going to be an image
+label
+so
+so inside of the frame um
+we're going to create an image label
+um and this one we are going to end up
+calling later so we're going to name
+this pet spring
+so
+this particular image label is going to
+be
+an
+outline
+of
+the
+menu so if you can imagine you walk up
+to the egg and this menu pops up
+and
+we're gonna have a list of pets in there
+um and then maybe some buttons under
+here
+uh
+and uh the way i have a plan that we're
+gonna have a cost over here
+um but this is gonna be it
+so what we want to do inside here is is
+this
+you know white box doesn't look all that
+great and even if you
+uh go in and
+and change it to some other color
+right nothing is really happening is the
+background color so
+because this is meant to be an image
+so we're going to create an image for
+that to be in there
+so
+um i know that i started out doing this
+uh is that oh i'm gonna make a big
+square background so i want a square
+uh
+image but that's not what you actually
+want what you would you would like to
+have is so here's my square image by the
+way i get i got worn kicked or warm
+banned from roblox for this
+inappropriate image which is funny but
+what we would like
+is something uh
+uh
+circular um and it's because we want
+these round edges
+and this if we do a circle um there's a
+way in roblox to divide that up
+and
+you can just basically tile cert uh
+or split circles all the way across this
+thing
+um and it will give you the circular
+edges so
+i
+i have in here i have a circle
+um
+and
+uh
+let's see uh
+it looks like that
+um so i have that white circle
+um and then
+i have
+uh
+a couple of other ones but um
+basically what you want to do is you
+want to create a white circle
+i think i did 60 by 60 on mine um
+experiment around and then you want to
+export that as a png
+so
+if you export it as a png you then go to
+the web
+you log into your account the same one
+that you're using for roblox studio
+um go to create
+and then you're gonna go to decals
+and you're going to upload that white
+circle it has to be white
+to
+to decals and create and when you do
+that you'll
+you'll name it and you'll get something
+like this so i have
+a five a couple different trials here a
+white circle blurred circle fine circle
+um
+so if you go this fine circle you can't
+really see it because it's white on
+white background i probably can make
+that dark
+but it really doesn't matter you made it
+you know what it looks like and you're
+going to grab this number
+so that's your roblox asset id
+and that's the image that's going to
+replace this
+so
+uh what we're going to do is we're going
+to set this to completely transparent
+uh then we're going to go back to this
+image holder we're going to put that id
+in
+and you can see that it makes a circle
+and we have transparent edges
+so
+but we don't want a circle we want to
+square with round corners so this box is
+already square so we're going to fill it
+up with little circles um or divided out
+circles so
+we're going to change this to
+a slice
+um and i just experimented around with
+this
+um
+we're going to change it to 200 all the
+way across four of them separated by
+commas
+um and then point zero eight
+and you get this uh
+white circle now with
+with rounded edges um the beauty of
+having a y circle is if it's white you
+can change its color
+uh so we can change the image color
+uh
+to a blue
+and this is going to be background for
+our gui now
+in a real gui
+you would
+probably have your artist or go to
+fiverr or whatever and buy a
+gui pack
+um that would have you know things like
+these menus
+in the backgrounds for these menus and
+the icons and everything but in this
+particular video i didn't want to have
+to to say oh well you know i went out
+and bought this or i went out downloaded
+this special thing
+i wanted to show a way that you could
+just do it in roblox
+so it doesn't come out quite as good
+it's not gonna be pet simulator um x
+looking uh but you'll notice that a lot
+of these menus look a whole lot like
+um some of the other games so
+what we have back here
+uh now if
+you
+look at some of the other games this
+kind of looks i don't know
+it looks plain um
+so
+just like if you're doing powerpoint or
+whatever right it looks better if you
+put a shadow in it there fortunately
+there's no real shadow function
+but what you can do is inside the pet's
+frame
+you can create another image label
+and
+we're going to make this exactly the
+same size as this one
+like that
+and we're going to call this shadow
+and we're going to do the same thing
+so we're going to
+uh take the transparency turn it
+completely transparent
+um we're going to put that circle in
+again
+we're going to do
+a slice
+and we're gonna do two hundreds that's
+four times separated by commas
+and we're gonna do
+uh point zero eight
+uh and then we're gonna change the color
+to something darker let's do
+i don't know maybe
+that color
+um or maybe let's do a darker blue all
+right so we got that
+so now we have this and we can make a
+little shadow now the problem now is
+that uh since
+a pet's frame um
+or shadows a child or pet's brain shadow
+will end up on top
+it used to be that you could just go in
+and change
+the z index to shadow to 10
+and go into test frame and change this
+to 20 and that would pull it on top
+because higher number would pull it
+forwards remember in in roblox z is from
+back so
+uh that would pull it forward the
+problem is that there's a default
+setting
+[Music]
+in
+the guise that
+that
+overrides that
+so in here somewhere
+and i never really remember where this
+is i don't know i can't remember if it's
+in the frame um
+or
+possibly in the screen gui
+yeah z index behavior you want to change
+that from sibling which is the child
+parent relationship to global
+and if you do that now you have you can
+have
+children that are
+behind parents
+um it makes sense
+shadow is really
+a part of pets frame from an object
+management point of view um it should
+probably be a child so
+so just change that to global and you'll
+get the shadow
+um
+now
+what we would like
+inside of here
+is we're going to create six pet slots
+down in here and then label at the top
+right so for the pet slots we're going
+to go in and the same thing we're going
+to create an image label
+i mean in that image label we're just
+going to call that slot
+[Music]
+um and
+just pull the z index out front so we're
+going to do that for a 30.
+makes it easier to manage here
+um and inside of slot so these are going
+to be when we tile out our pets these
+are going to be the backgrounds for them
+uh it won't only be the backgrounds but
+it'd be the
+they go in so
+inside a slot we're going to have a
+viewpoint frame
+inside a slot
+and the z index for the view point frame
+since that will be a pet um i'm just
+going to call that 100.
+we always want that in front there's no
+reason for that to be hidden
+um
+and we're gonna make the viewpoint frame
+uh
+the background transparency to
+to one
+so that it's clear
+and that way
+eventually when we get the pets to show
+up in there it will have you'll see the
+background from the slot
+behind it
+um
+now since i don't want to go do this
+later so for right now um each slot is
+going to display not only a pet it's
+going to display the rarity
+and
+the percent
+so what i mean by rarity is typical
+you know pet game rarity so common
+uncommon legendary mythical right
+whatever you
+they happen to be right it's your game
+you get to make it right so
+um but
+the
+uh percent is going to be a
+text label
+rarity is also going to be a text label
+so we need to insert two text labels
+here
+so that's
+one
+just duplicate that but just easy to do
+that
+and for this text label
+let's say we're gonna we're gonna call
+this rarity
+[Music]
+um and the rarity room uh
+we're gonna change the z index on that
+to
+110 because it's going to be in front of
+anything like the pet
+um and we're going to put this at the
+bottom
+and it's going to be kind of small
+but it's basically just going to say
+rare or mythical or whatever um at the
+bottom
+uh and so
+inside of that uh
+you can play around with whatever font
+you want but one thing that you
+definitely want to do is scale your text
+um so that fills up the box uh
+and
+uh you wanna
+you can pick whatever
+uh font yet you want so i'm gonna use uh
+uh
+rodoka one i guess
+um and i
+um also
+uh since i'm going to color that image
+background i'm going to go ahead and set
+the
+text color
+uh right here to white
+which makes it nothing at the moment but
+you'll see it come through in a sec and
+for this one this is going to be the
+percent
+and this is your actual chances so
+uh
+you can scale that up and put it in
+whatever corner you want to put it in
+change the z index
+jason
+uh let's see
+where the white egg is
+um rarity percentage
+i'm gonna do that 110
+um and it's gonna stick up in that
+somewhere in that box
+um let's
+actually put it in
+this corner
+so just like the other one i'm going to
+change that to the same font
+you can choose whatever font that you
+want
+but i am going to scale it out
+to
+um this however big it is and then i
+want this right as well
+it's going to make it disappear for a
+second um and then this viewpoint frame
+we're going to do the same thing we did
+before right which is this is um
+uh or not in the viewport in the slot
+the viewpoint frame is is clear
+in the the slot uh which is an image
+label because an image label we're gonna
+put the image in it
+and that's going to be a circle and
+we're going to change that circle to
+uh
+i don't know let's sample
+the
+background color
+right and so
+now we have that we're gonna
+we're gonna slice it up
+and
+same thing 200
+um
+and .08
+and you'll end up with this box um
+so these actually need to be transparent
+on the background we didn't do that yet
+so
+and then this one needs to be
+transparent on this background
+why am i missing it i'm probably going
+over it several times
+um
+oh that's the text label yeah that's
+right no transparent
+there we go
+so now you can see that come through and
+lo and behold i even forgot to
+uh set the transparency on that one to
+zero
+so we don't want any backgrounds right
+so now if you look at that right you can
+see oh our percentage is going to be up
+here in the corner or and then this one
+will be here we'll fill that in
+programmatically later right um what we
+want is we we want these kind of tile
+works
+to go across
+um
+i'm thinking
+that
+um
+100 by 100 might be all right um i guess
+we can leave it like that uh for right
+now
+so
+this slot and we're gonna have six of
+these right so
+uh we're gonna duplicate that entire
+thing uh which is command d
+uh
+and then
+uh we want to
+um i don't think you can actually do it
+that way
+oh there we go
+um
+middle
+um
+and then
+[Music]
+command d again
+[Music]
+like that doesn't quite look right you
+have to play around with it because the
+way you like i think those boxes might
+need to be a little bit bigger
+um
+now maybe just like that
+um
+and then
+duplicate those again
+and
+slide them down like that
+oh
+um just like that
+so it's not here for aesthetics right
+we're just learning how to do this so um
+now we have
+uh all these um and they're sitting
+there
+and the labels are sitting in there so
+the problem with leaving it labeled
+label is that if you have an egg that
+has less than six pads that label is
+going to stick there so
+unfortunately i should have probably
+done this before
+but we're going to go in and we're going
+to set
+the text labels to nothing
+so instead of label here it's just going
+to be nothing
+and
+we're going to go and do nothing
+and we're going to do that for all of
+these
+nothing
+probably should have thought of that
+beforehand
+but this is probably easier than redoing
+everything
+all right that was moderately awful um
+so
+um on top of the we're gonna later index
+these by name so they can't all just be
+named slot
+um
+so
+we're gonna have to actually change
+these so
+we're gonna go in and
+rename this
+um
+it might be easier to just do it here
+um so slot one
+slot
+two slot
+three
+slot
+four
+slot five
+and slot
+six
+now later on when in following videos
+we're gonna make a pet inventory and you
+can do it by slots um
+but you're probably gonna want to fill
+those out programmatically
+but for right now we're just going to
+always have
+six slots
+so
+if you go look at some games you can get
+rid of those these backgrounds make it
+the same color whatever you want to do
+and then just have the pets floating
+around in there
+um
+and maybe turn on an outline for the box
+or something uh if you want them in
+boxes but
+uh
+right now
+we're just working on this
+programmatically so
+i'm not too concerned about aesthetics
+um just trying to show you how to set up
+things
+so
+on on top of here we're gonna want uh
+something in here as well
+for the label so the pets are going to
+be in these six boxes but we want um a
+label so like little egg or big egg or
+whatever right so
+you know colorado's really cool egg
+so i'm gonna i'm gonna make another box
+for a label and it's uh it's largely the
+same i'm not going to put this in pets
+frame
+um
+because i want to be able to
+uh i know we have shadow in there but i
+i think what i'm going to do on later is
+uh iterate through all everything in the
+slots so i don't want to put a bunch of
+stuff in there
+um or inside of the pet frame because
+i'm going to do a for loop in the pet
+frame so
+uh we're gonna do this right above yeah
+but it's still gonna be an image label
+um
+the
+image label is gonna go over here
+and it's gonna be
+i don't know this
+something like this
+um
+and
+it's gonna you know crazily have the
+same image in the background
+um
+uh
+we're gonna it's not showing up because
+we need a z index again
+and we would need to
+you know do a lot of rinse and repeat
+here we're making this transparent
+and then we're tiling this thing out or
+slicing it out
+it always seems like tile to me we're
+slicing it out and we're
+doing 200 200 200 200
+um and we're doing point zero eight
+and that makes a little round uh label
+on there and then we're gonna color it
+and we're gonna
+um
+pick the same color as last time
+and voila so now we have uh
+what the pets are gonna show up in
+so now we move on to the next thing
+all right so if we're thinking through
+what's going to happen here is we have
+the
+display of the what's offered in the
+eggs so in this top part here is going
+to be the egg name and here's going to
+be the pets that are offered in the egg
+but we need to tell the user what to do
+and
+it's common to use the ert method in
+this which is ease by one ours by three
+t's auto you see that a lot of games um
+or you could have other buttons like you
+know buy one by three
+auto uh
+but whatever right we need to tell the
+user what to do
+so this is not part of the pets frame uh
+though it's gonna display when we walk
+up to the the egg so it still needs to
+be in the
+in the frame for the screen gui so
+um
+but here is we want buttons buttons are
+nice because they already
+have things
+that will be very useful to us
+so we're going to create
+a
+image button
+so the image button
+we're going to rinse repeat very similar
+to what we did last time
+um is we're gonna maybe put it down like
+right
+we'll put it under each of those i guess
+so
+uh
+we're
+going to add the same
+little white circle
+that we did before
+um
+and we're going to have a background
+transparency one which makes it a circle
+uh we want the background color to
+be the same color as the
+uh
+other deal
+actually let's do let's do this color
+for the
+for not background color
+jason
+uh
+it is image color so we did a white
+circle on purpose because we can
+uh programmatically change that or at
+least through settings or programmatic
+and we're going to
+rinse or repeat a lot of the stuff the
+same we did before right it's
+slicing this thing out
+and
+then
+um
+to make it look kind of uniform let's
+make a shadow
+um
+and so the shadow is going to be an
+image label not a button label because
+um but so inside of the button label
+we're going to create an image label
+um
+and
+this is just going to be i don't think
+whatever index is so
+or reference it so we'll just leave it
+index um image label
+uh we want this to be behind uh the
+other one
+uh but we'll do that after we get it all
+colored out so
+the
+uh same image
+um
+the image color this time
+is
+the shadow color
+right
+uh
+and
+we're gonna slice it out
+200 you guys ought to be professionals
+of this at the end
+uh
+i don't even need to look at my notes
+for this anymore
+so
+uh and the background color it doesn't
+matter because we're gonna make it
+clearer and
+and then the z index for
+the background is going to be 10
+and the z index for the
+uh
+image is going to be i don't know
+30.
+right
+um
+oh
+hold on we need to give grab a hold of
+that thing first so let's make this 100
+right quick grab a hold of it and we're
+going to
+shuffle it
+to make a shadow maybe like right there
+um
+and then let's set it back to 10 again
+so now we have a shadow
+uh and so inside of this
+button
+we
+want the key to press
+and basically what it does so those are
+going to be text labels again
+so
+we
+add text label
+add another text label
+and
+i don't think we'll reference these
+either
+so i'm going to be lazy about it and
+keep them there we do want them on top
+though so
+let's set this to 50
+and
+we're going to make
+let's pull this one down here we're
+going to make it small
+so this is going to be what it's done
+does
+so it's gonna be like
+uh
+i don't know open
+open one right so
+uh we're gonna change the font again to
+the same thing that we've been using
+um we're gonna scale the font
+uh we're gonna
+um
+uh
+turn the font white
+and
+we're going to set the
+background
+uh color
+or transparency
+to
+where'd you go
+one
+right so now we have this label here
+so i'm just going to go ahead in that
+label and we're not going to change
+uh
+well this button we're going to
+duplicate this thing but
+we're just going to say open one
+so that's what it will look like now
+let's go to this one
+so this is going to be the button that
+we press
+so
+for this one it's going to be e
+and
+we're going to change the font the same
+way we did before we're going to scale
+the text
+we're going to
+change our z index so this way out in
+front
+and
+we're going to
+make a big e
+right
+let's tell the user
+hey if you hit e
+you will get
+one pet right
+um open you're gonna get one egg of
+course right that looks kind of clunky
+and it's because we
+have yet to make the
+uh background transparent
+right
+and
+we did
+to keep with the theme here
+no we're not going for a stacks but
+we'll make it look like that so
+uh
+basically uh open is kinda sticking down
+a little bit
+um
+it's getting kind of nitpicky you would
+be nitpicky in your actual game right
+but
+uh so you end up like this um
+uh
+and
+to make this easy
+um
+we are
+let's name this button
+um
+by
+or maybe
+button
+e
+all right and so if we do that we can
+now duplicate it
+and
+nope
+all right
+um
+[Music]
+let's
+do this
+scoot it over
+okay um
+what is this one
+we might just be able to do this
+numerically make it better so slot 2
+is
+this number here copy that
+we actually want
+only this first part
+for the position so
+um
+for this button
+we want
+this part for the position
+but i didn't work out well
+oh it's because relative position to
+to uh
+the frame and not the inside so
+all right
+i should have duplicated this out before
+maybe
+there it is haha
+got it
+duplicated again
+okay
+that was a monkey and a football um
+so
+uh we get three buttons but of course we
+don't want this to be buttony we want
+this to be button t
+um or r for this one um and then
+t for that one
+we need to go into
+uh the image label the text labels
+inside of that
+and
+we need to change uh
+what it actually said so
+this is going to be auto
+and this text label is going to be
+t
+uh
+and
+for button r
+we're going to
+uh
+go into text label for button r
+um
+pick the letter one so this will be r
+and the text label will be open three
+so when we we're gonna create scripts
+for this um when you click on our or
+or hit the key so
+um for right now i'm just going to
+stick a script in here and we're going
+to leave it empty for the moment this
+can be local script
+and
+it's going to be called
+and
+that
+script um
+we're gonna duplicate that twice because
+we're gonna
+we're going to
+uh
+put that in button or
+[Music]
+right so now we have
+it all set up right so
+not scripting yet right but our gui is
+starting to look like a gooey
+[Music]
+okay so
+now we just need to add a label on here
+for
+how much maybe this egg costs so
+you can put it up here at the top
+um i'm gonna put it out to the side um
+so it's gonna be a lot of the same
+processes before
+uh so we're gonna create an image label
+um this thing isn't clickable or
+anything so it's just a display so
+inside a frame
+uh let's create another image label
+and
+this image label
+um
+oh i got two
+so this one here
+is
+going to be
+uh let's call this
+costly
+[Music]
+um
+and
+since this is going to get confusing
+let's go ahead and
+name our little egg label something like
+a good label
+all right
+so we're going to take uh this
+particular cost label we're going to
+stick it down here maybe even with these
+um stick it out to the side
+do a lot of the same things that we did
+before um should be pretty familiar
+we're going to
+put the same
+uh image id in this thing
+cost label
+image id is gonna be that
+uh
+and
+um
+let's go ahead and
+make it the right color
+uh
+i'm gonna stretch it we're gonna slice
+it and it's gonna be
+two hundreds again
+[Music]
+and then it's going to be 0.08
+um and then we get this cool image label
+oh we need the
+the background
+so background transparency into
+one which sets it transparent
+um so
+this is nice and pretty but we want to
+look like the other one so let's
+duplicate that thing
+put that thing inside of here and
+call that shadow
+and
+i guess it will look like
+that and we'll change the color from the
+light blue to the dark blue
+um we should really just save this color
+we can just sample it
+and
+okay and then we're going to
+put the shadows to the z index 10 and
+the labels
+the index of 30.
+and so we end up with something very
+similar to what we had before
+um
+so i want to put um
+a
+uh money in there so like you're
+you could have like robux you could have
+different coins gold and silver and
+bronze or whatever
+and so um i
+eggs made cost different so we're just
+going to put inside of there we're just
+going to put an image
+for
+the currency and oddly enough that is
+going to be a yet another image label so
+inside a cost label we're going to
+create
+uh an image label
+um in that image label we're going to
+bring it out front with a z index of
+let's say 50 this time so it's nice in
+front and
+uh in here
+i i just create i'm just going to close
+this one
+uh
+i created a circle with a dollar sign in
+it save it as a png
+um that
+circle of dollar sign png ends up
+in create
+and
+it is
+decals
+and it's i just called it money
+um so it is a circle but it's a white
+background right it's a circle a dollar
+sign in it so um i'm going to copy that
+image
+and i'm going to put that inside of
+the
+uh currency imaging and i'm going to
+name this currency cur
+and c image
+and inside the currency image we're
+going to put
+that in file to the placeholder we're
+going to make the
+background um
+clear
+so it's a circle
+we don't want it white we're gonna make
+it some kind of gold color maybe like
+that
+okay it's kind of janky but you get the
+idea
+um
+and
+maybe make this a little bit smaller
+maybe like that so it's going to cost
+gold coins right
+um and then uh
+we're going to put a cost in there and
+the cost is going to be a text label
+so let's go back here
+we're gonna put a text label
+um that text label we're gonna bring out
+front with
+oops
+um
+z index of 50 again
+and we're going to put this over here
+um maybe like that
+we're going to
+change your font to the same font as
+before
+whatever you want it to be
+you don't have to follow me
+and we're going to where is it skill
+that font
+yeah uh we're gonna change the label to
+transparent or the background
+transparent
+and
+um let's change the text color to white
+okay
+and now we have uh this which will be
+coins right and and we'll fill that in
+so this will never be blank so uh we
+don't need to make it clear like we did
+the pets
+um and so that is it for
+the uh
+um
+i guess graphical design part of our
+janky little gui here and now we get on
+to scripting
+you

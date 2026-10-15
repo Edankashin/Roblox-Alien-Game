@@ -1,0 +1,98 @@
+Hey everyone, welcome back to the
+channel. Today I'm going to show you how
+to create amazing Roblox guies using
+Figma. Whether you're a Roblox developer
+and aspiring designer or just curious
+about how those in-game menus and
+buttons come together, this tutorial is
+for you. By the end, you'll know exactly
+how to get started, find inspiration,
+and customize your own Roblox interface
+designs, all without having to start
+completely from scratch. Let's dive
+right in. So, when it comes to designing
+GUIs for Roblox, you always have the
+option to create layouts from a blank
+page. But honestly, that can be pretty
+timeconuming, especially if you're new
+to Figma or you're looking for ideas on
+what looks good and works well. That's
+why I recommend leveraging the wide
+variety of templates available online.
+It's a huge timesaver and it gives you a
+solid foundation to build on. Think of
+it like starting a new build in a game.
+You could lay every single brick by
+hand, but if there's a prefab structure
+that gets you halfway there, why not use
+it and then make it your own? First,
+head over to Figma and find the
+templates and tools section. This is
+where you'll have access to tons of
+community-made resources, and it's
+honestly a gold mine for designers of
+all skill levels. In the search bar,
+just type Roblox GUI. You'll notice a
+bunch of different templates pop up
+almost immediately. Some might be styled
+like in-game shop menus. Others could be
+health bars, inventory windows, or even
+login screens. Take a moment to scroll
+through and get a feel for what's out
+there. There are a lot, so don't worry
+about picking the perfect one right
+away. Remember, you can always come back
+and browse the rest later. For now,
+let's just pick one template to work
+with. Click on it to open it up in
+Figma. What you'll see is a pre-built
+layout with all the frames, buttons,
+text fields, and other elements ready to
+go. It might look a bit basic at first,
+but that's actually a good thing. It
+makes it easier for you to tweak and
+customize exactly how you want without
+being overwhelmed by too many details
+right off the bat. If this is your first
+time, don't be afraid to poke around.
+Explore how the template is constructed.
+Figma allows you to click on different
+layers and components so you can see how
+each part fits together. Kind of like
+inspecting the different gears inside a
+watch. Now comes the fun part,
+customization. This is where you get to
+put your own spin on things and really
+make the GUI match your game style or
+your personal taste. Try changing up the
+colors, fonts, button shapes, or even
+rearranging the layout entirely if you
+want something unique. Each adjustment
+you make helps you learn more about how
+guies work, both in Figma and in Roblox
+itself. Don't worry if it takes a little
+time or if you make some mistakes.
+That's all part of the design process.
+Think of it like building with Lego.
+Sometimes you try out a few combinations
+before you find the one that really
+clicks. And remember, the template is
+just a starting point. If you get
+inspired, feel free to add new elements
+or combine pieces from different
+templates. There's a lot of creative
+freedom here. And that's really all
+there is to it. With these simple steps,
+finding a template, opening it, and
+customizing it to fit your vision, you
+can create a polished, professional
+looking Roblox GUI in Figma without
+having to start from zero. Thanks so
+much for watching. If you found this
+tutorial helpful, please hit that like
+button. And if you have any questions
+about Figma or Robloxies, drop them down
+in the comments. I love hearing from
+you. Don't forget to subscribe for more
+easy to follow design tutorials just
+like this.

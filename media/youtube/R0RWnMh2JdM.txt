@@ -1,0 +1,66 @@
+hello everyone and welcome back to a new
+video today I'll be showing you how to
+make an adopt me game on Roblox studio
+all right so what you'll need for uh to
+make this is you need to go to view you
+need to go to explore properties and
+toolbox uh you could have command Bar
+opens not really necessarily needed for
+this tutorial all right so what you want
+to do is you want to go to the first
+link in the description and you want to
+grab
+um well it's gonna be a DOT me template
+it's going to be the first link and the
+only link
+um so obviously you're just going to
+click get it's going to go to your
+inventory and then you can head back to
+Roblox studio so here is how you import
+it you want to go to your toolbox uh go
+to the four dots click inventory
+and then you should see a DOT me kit go
+ahead and drag and drop
+into your game all right and then over
+here in Explorer you can see an adopt me
+kid alright so you want to click this
+little sideways V you want to drag the
+lighting into lighting
+um and then uh Sergio and to sturgey and
+this uh the GUI is going to
+um basically pack all the things that
+adopt me has like the uis and basically
+the visuals uh and then yeah uh that
+into workspace you can delete the
+adoptment kit once there's nothing
+inside you can click play and test out
+your game
+if you if you need any help
+um just let me know in the comments
+it's my first time loading Roblox Studio
+it might lie a little bit all right so
+yeah you can click float you can be a
+baby first example I'll be a baby
+all right and then here you are so you
+have your little you have your little uh
+animal right there
+and you receive a Paycheck cash out just
+gave me ten thousand dollars I'm rich uh
+you can go to the shop you can dress up
+uh stuff like that and then you can exit
+home
+but uh yeah so you can go to your
+backpack uh it should take a minute to
+load
+but yeah so pets stuff like that so yeah
+guys if you uh if you have any questions
+please let me know
+um I'm pretty sure for the guis to work
+you need to actually publish the game in
+game settings and then
+um turn the permissions or the Avatar uh
+to R6 for uh for uh the the uis and the
+pets to work all right guys uh so yeah
+I'll see you guys in another video also
+give me uh 1 000 subs thank you so much
+I love all you guys all right goodbye

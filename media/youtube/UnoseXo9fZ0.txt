@@ -1,0 +1,746 @@
+welcome back to the simulator Series in
+today's episode we are going to be
+scripting the pet hatching animation as
+always if you guys do enjoy the video or
+it does help you out make sure you smash
+like button also hit the Subscribe
+button and turn this post notifications
+on if you want to get notified when I
+ever upload more Roblox development
+content I also have a patreon if you
+guys like to support me and gain access
+to all the scripts and the game file
+that I make during this episode there's
+link down below description and you guys
+can check that out with that being said
+let's hop right into it I've been
+directly in the studio the first thing
+we're actually going to do is add all of
+our Missing Pets to our pets config
+module so inside of the replicated
+storage we have a pets folder this is
+where we store all of our pets models
+and then we also have a module script
+named pets inside of the configs folder
+as well inside of the script we have a
+variable called config and we only added
+two pets to this you might see me do
+this a little bit often throughout the
+series The reason I do that is because
+when you're developing a brand new
+system you don't want to add all of the
+pets into this config and set all their
+values and everything until you actually
+know that that's exactly how you want
+your config table to be set up if you've
+never made this system before you might
+not know all the different pitfalls that
+you could fall into while creating it
+and you're never sure of what changes
+you're gonna make until you have the
+system finished so that's why I only
+added 2 here realistically since I'm
+making this video and I know it's all
+going to work I could have added all of
+them to the config so now let's go ahead
+and actually add them to the config what
+I'm going to do is I'm simply just going
+to copy the bunny and then I'm just
+going to paste this a bunch of times
+once we're done that we're going to look
+inside of the pets folder and then we're
+just going to add the rest of the pets
+so after the cat we have the dog pet
+then the fox then the pig and then
+finally the turtle and then we're gonna
+delete our two extras and there we go we
+have all the pets added inside of this
+config so any of those errors that we
+might have been experiencing because the
+pet was not a part of the config we no
+longer will be having them next what
+we're going to do is look back inside of
+our game and then we're actually gonna
+go inside of the starter GUI and then
+inside of the pet egg screen gy we're
+gonna add a brand new frame we're gonna
+rename this Frame to animation for the
+size on the X scale we can set this to
+about 0.75 and 0.6 on the Y we then are
+going to want to Center this just like
+that next what we're going to do is
+throw a UI grid layout inside of here
+and then we're also going to throw a
+viewport frame inside of there we're
+gonna rename this viewport frame to
+template and now we can start playing
+around with the UI grid layout our cell
+size is going to be set up is entirely
+based on how many total pets can be
+hatched at a single time so for example
+CERN games you can only hatch one pet at
+a time other games you can hatch 3 Pets
+at a time and in clicker simulator
+you're able to hatch up to six pets at a
+single time so what are set up for six
+pets would actually look like for the
+cell size on the X scale we're gonna set
+that to 0.3 and on the Y we would set
+that to maybe something like 0.45 what
+we can then do is duplicate this a
+couple of times and now we can see that
+this is how it's going to look with six
+eggs now it might be a little bit hard
+to imagine that this looking good but
+trust me we'll eventually get to that
+point but anyway like I was saying if
+you're only gonna have three eggs in
+your game you could set the Y to one and
+then you just would only have three
+templates inside of here at all times so
+that's how you can do it for three eggs
+and this is how you can do it for six
+eggs now if in your game you can only
+hatch one pet at a time then you don't
+even need to use a UI grid layout you
+could just set the size of this viewport
+frame to the max scaled and you're
+pretty much good to go anyways we then
+want to make some changes to the UI grid
+layout as well so for the horizontal
+alignment we're going to set that to
+Center as well as the vertical alignment
+now once again we can delete like three
+of these see how this looks with three
+and then we could also see how this
+looks with one and I think that looks
+pretty good now inside of this template
+we're gonna add a brand new text layer
+we're gonna rename this text label to
+pet for the text we're just going to say
+something like dog for the text color
+we're going to set that to a white for
+the background transparency set that to
+one for the size we're gonna go one on
+the X scaled and maybe 0.12 on the Y for
+the font we're gonna go with the Gotham
+maybe we can even make that bold we're
+also going to set the text to scaled and
+then we want to throw a UI stroke inside
+of here now the stroke is going to be
+black and you could set this to anything
+like even three now that text label is
+pretty much all good to go what we're
+then going to do is create another text
+label we're going to rename this to
+delete the text is going to be an X the
+text color is going to be a red the
+background transparency of course set
+that to one for the size we can make
+this a one by one scaled we're gonna set
+the font to Gotham bold actually we're
+gonna go black so that's even larger and
+then we're gonna set that to scaled now
+the reason we're doing this is because
+pets can be automatically deleted when
+they hatch so this is what we're going
+to do to indicate that the specific pet
+has been deleted this still visualize to
+the player what pet they actually would
+have received and then we also let them
+know that it has been deleted now of
+course you don't need to use a text
+label if you have an image which is just
+an X you could of course also use an
+image label the scripting is all going
+to be the same now once we're done with
+that text label what we can then do is
+set the background transparency of the
+template to one and then we can also set
+the background transparency of the
+animation to one as well additionally
+for the pet and delete text labels we're
+actually going to set them to not be
+visible as well as the template itself
+for the animation frame we're going to
+set that to be visible and the Ped Egg
+screen GUI should be set to enabled as
+well now before we start scripting we
+actually need to grab the egg model and
+put that inside of a replicated storage
+how we're going to do this is we have
+the egg stands right down here so we're
+gonna go inside of the workspace and
+we're going to select one of the egg
+stand models inside of the egg stand
+model we have a mesh part called glass
+and inside of here we have a mesh part
+called egg what we're going to do is
+duplicate that drag that inside of the
+workspace so outside of the model then
+we're going to right click on this
+select group as model we're going to
+rename this to egg for the primary part
+of this model we want to set that to the
+egg mesh part and now that we have that
+we're going to put that inside of a
+replicated storage now we can actually
+start scripting the GUI so what we're
+going to do is we're going to go inside
+of the start player inside of star
+player scripts open up that GUI folder
+inside of the GUI folder we're going to
+want to open up that eggs module script
+and of course inside of here we need to
+create a couple of variables so we're
+going to want to create a variable for
+the tween service additionally we just
+added a brand new frame inside of here
+so let's create a variable called
+animation and that's going to be equal
+to GUI dot animation now this variable
+name could possibly be confusing and if
+it is to you then you certainly can name
+this animation frame or something
+similar to that it honestly is probably
+not a great idea to name this animation
+because if other developers come and
+work on this they probably would think
+that this is a literal animation I don't
+know tell me what you guys think down
+below is it a bad variable name I think
+it could definitely be better but I also
+don't want to type out frame because
+none of our other variables have a
+suffix a frame then so I'd also really
+want to change them but I also hate
+typing out frame with that as well tell
+me what you guys think but anyway we're
+going to set that as animation and then
+right above the update pet function
+we're actually going to create a brand
+new function which is called hatch
+animation now this function is going to
+accept an egg and a pet which are both
+strings inside of here we want to create
+a variable for the pet model that's of
+course going to be inside of the
+replicated storage inside of the pets
+folder we want to use find first child
+on this and we want to look for that pet
+and then we want to make sure that we
+clone it once we find it after that
+we're going to create a variable for the
+egg model which is going to be
+replicated storage dot egg and then
+we're going to clone that and then we
+also want to create a variable for the
+template which is going to be equal to
+animation.template and we want to clone
+that as well now once we clone that we
+want to get the pet text label and we're
+going to set the text of that equal to
+the pet's name we can then parent that
+to the animation frame and then we also
+want to set the visibility to true as
+well so we can actually see it now in
+turn simulators I've played I've
+actually seen people add something to
+their game where the player can actually
+skip the animation now we're not going
+to add that logic in now because that'll
+probably be for a settings video but
+we're going to add a note right here
+that says add Skip animation so that I
+remember in the future to come back to
+this part and fill this in when we
+actually add the settings and then start
+scripting things related to that after
+that we're going to use the viewport
+model module and we're going to generate
+the viewport frame we're going to pass
+through the template as well as the egg
+model what that'll do is it will display
+the egg model that we have inside of the
+viewport frame and now that we're
+displaying that egg we actually need to
+animate it and basically rotate it from
+one direction to the other to make it
+look like a little wobble effect after
+we begin displaying the egg in the
+viewport frame we then want to set the
+orientation of the egg models primary
+part now what we're actually going to
+set that to is vector3. new zero zero
+minus 70. now why we're setting the eggs
+orientation is because we're basically
+tilting it in one specific Direction and
+then when we do our animation we're
+going to rock it back to the other
+direction and then it's going to reverse
+and continue doing that so for instance
+if we go into a replicated storage we
+grab this egg model and then we move it
+up a little bit so that we can actually
+see it let's go ahead and modify the
+orientation if we then set the
+orientation to 0 0 negative 70 we can
+see that this is tilted to the left side
+then what we're going to do is with the
+tween surface we're actually going to
+modify the orientation and we're going
+to smoothly go from negative 70 to
+positive 70. so now it's tilted the
+exact opposite way and then what we're
+going to do is repeat this again so go
+back to negative 70 and that's what our
+effect is going to be like so it's going
+to be shaking towards both directions
+now I'm going to undo all this so our
+model goes back inside of the replicated
+storage and then we're going to hop back
+into our script so now that we set the
+orientation of this we're going to go
+ahead and create a variable called tween
+info that's going to be equal to
+tweeninfo dot no for the time this is
+going to take we're going to say 0.5 so
+that's going to be half a second for the
+easing style we're going to say emu
+zoom.easingstyle.cubic for the easing
+direction we're going to say
+enum.easingdirection.in out now for the
+repeat count we want this to repeat one
+time and then for reverse we actually do
+want this to reverse so we're going to
+say true then we're going to create a
+variable called tween that's going to be
+equal to Tween service colon create the
+instance that we want to use the tween
+service on is going to be egg model dot
+primary part then we want to pass
+through between info and now we need to
+create a table with the property that we
+actually want to modify the property
+that we want to modify is the
+orientation and we want to set that
+equal to a brand new Vector three zero
+zero positive 70 this time so we started
+off at negative 70 so that it rocks to
+the complete opposite way and goes all
+the way up to positive 70 and that's how
+the tween is going to work and since we
+set the reverse to true it's going to
+rock back to negative 70 and since it
+repeats one time it'll Rock back to
+positive 70. after we create that tween
+we can go ahead and say tween and play
+that then on the tween we can listen to
+the completed event and we're going to
+create an anonymous function inside of
+here now once this tween is completed so
+once the egg animation is done rocking
+back and forth we actually want to
+display what the pet actually is to the
+player so we're going to use the
+viewport model module we're going to use
+the clean viewport function to remove
+the egg model from it and we want to
+pass through the template after we clean
+it we're going to set template.pet so
+the pet text label and we're going to
+set that to visible and then we're going
+to generate the new viewport frame so
+we're going to pass through template
+once again and then we're going to pass
+through the egg model and of course for
+the orientation we're going to use
+angles 0 math.rad negative 90 and then
+zero for the Z we also want to make the
+delete text label visible as well and
+what that's going to be based off of is
+the state manager using the get data
+function we're going to go into the auto
+delete pets table and we're going to
+index that with the specific pet I made
+a slight mistake here we're not supposed
+to Index this with the pet we're
+supposed to index that with the egg so
+we're going to go ahead and fix that now
+for the next minute or two you might
+still see the previous mistake where
+this was only being indexed with pet
+instead of egg but that's because I made
+this fix slightly later in the video so
+just keep it exactly how you see it on
+screen right now so if that pet should
+be automatically deleted then this will
+become visible if it should not be
+automatically deleted then this will not
+be visible after that we're going to
+save task.weight we're gonna wait one
+second and then we're gonna destroy our
+template viewport frame so we've now
+created most of this function what we're
+then going to do was actually call it so
+we want to go inside of the hatch
+function and right here at this if
+statement where we check if the patch
+variable exists what we're then going to
+do is Loop through all the pets inside
+of that pets variable and each time we
+Loop through it we want to call the
+hatch animation now when we call that
+function we want to pass through the
+selected egg and the pet as well now we
+can actually go into our game and test
+this out so now that we're in our game
+we can go up to our egg and we can go
+ahead and hatch pet now we can see that
+the egg is rotating left and right and
+we can actually see that the pet has
+been shown to us at the end along with
+the Pet's names text label now I'm going
+to set all the pets to be automatically
+deleted hatch a pet and make sure that
+that's working and we can see that the
+lead label is working correctly so let's
+go ahead and set them to not be deleted
+hatch it once again and we can see that
+that's working perfectly now this
+animation is cool and everything but
+it's not fully finished there is a
+little bit more that we can do to
+actually make it a lot cooler what I'd
+like to do is actually hide all the guis
+that are displayed on screen including
+this GUI right here for the hatching and
+once the animation is completed we'll
+reopen all the gui's for the player
+additionally I want to add a little blur
+effect to the screen as well because I
+think that's exactly what they do in
+clicker simulator as well so let's go
+ahead and actually add the blur perfect
+where we want to do this is inside of
+the lighting service we want to add a
+brand new blur effect instance now once
+we add that we can actually see our
+entire screen is blurred and tell me
+that does not look pretty cool I mean I
+like how that looks but what you're
+going to do is select the blur instance
+and you're just going to set this to not
+be enabled another thing before you
+disable it is you can actually set the
+size of it personally I'm fine with the
+24 I don't mind it at all if you want it
+to be a little bit less blur you can set
+this however you want to because all
+we're going to do is set this to enabled
+when we actually do the animation so you
+can configure whatever size you want to
+right here once you have the size set up
+make sure you set the enable to not be
+true and then we can go back inside of
+our script now inside of here we want to
+go to the top and add the lighting
+service now that we have the lighting
+service we want to go back down to our
+hatch animation and right above this we
+actually want to create a brand new
+function called High gy inside of this
+function we're going to go inside of the
+lighting service we want to grab that
+blur effect and we want to set that to
+be enabled after that we're going to
+create a variable called enabled G wise
+and that's going to be equal to a table
+then we want to Loop through all the
+guis inside of the player's GUI so we're
+going to say player gy get children do
+now if the GUI is not actually your
+screen mean GUI then we want to just
+continue end so we don't want to do
+anything with that instance if it's not
+actually a screen GUI now another thing
+that we want to do towards the top of
+our script is we want to create a
+variable called gy Blacklist and that's
+going to be equal to a table now I'm
+going to actually move this variable up
+with our other constants now inside of
+this table we're going to add strings
+for all the GUI names inside of the
+starter GUI that we do not want to
+update the enabled property of now
+currently in our game the only GUI that
+we actually need to keep enabled is the
+pet egg gy so for the string inside of
+here we're actually going to say pet a
+now you might be thinking if we're only
+adding one GUI to this do we really need
+to make a list well the reason for this
+is like I said you can add all the names
+inside of here that you don't want to
+hide so for example if you don't want to
+hide the left GUI then you just add the
+name to here and we won't hide that GUI
+now that we have that variable created
+let's go back down to where if statement
+right here now we're checking if it is a
+screen GUI and the other thing that we
+want to check is if this gui's name is
+inside of the GUI Blacklist variable so
+we're going to say table dot find we're
+going to look through the GUI Blacklist
+table and we're going to look for the
+gui's name now I forgot have to put and
+right there but now we're all good to go
+after that we're gonna check if the GUI
+is enabled and if it is enabled then we
+want to insert this inside of the
+enabled guise table so we're going to
+insert it just like that and then we
+want to set the GUI to no longer be
+enabled so after we Loop through all the
+guis and disable all the ones which
+should not be enabled we're going to go
+ahead and wait three seconds because
+that's how long our animation actually
+lasts and then we're going to Loop
+through all the guis inside of the
+enabled guise table now as we Loop
+through all the guis we want to
+re-enable them and then after that for
+Loop we also want to go inside of the
+lighting inside of the blur instance and
+we want to set that to no longer be
+enabled so then what we're going to do
+is towards the top of our hatch
+animation function we're actually going
+to go ahead and call the high GUI
+function now we're pretty much done but
+we actually have one Edge case that we
+have to account for basically we want to
+set the Ped Egg billboard GUI to no
+longer be enabled when we're doing this
+animation now how we're going to do that
+is go towards the top of our script
+right below the selected egg variable
+we're going to create a new variable
+called is hatching that's going to be
+equal to false now inside of the hatch
+animation function we want to set is
+hatching to true then once the tween is
+completed after we destroy the template
+we're going to set is hatching the false
+now we're actually going to use this
+variable is towards the bottom of our
+script inside of our stepped listener
+right here where we check if the closest
+exists we then want to say and not is
+hatching so as long as the player is not
+hatching then we can go ahead and
+display an egg one quick mistake that I
+made inside of the high GUI function for
+this if statement right here we
+shouldn't say and we should say or so if
+it's not a screen GUI or we're able to
+find it inside of the GUI Blacklist then
+we want to just skip over that gy one
+more slight thing that we forgot once
+this is completed we want to set the egg
+gys enabled back to true because
+remember we're hiding this when we start
+the actual animation and then we want to
+unhide the billboard GUI once the
+animation is actually completed once
+you've done that you can then go ahead
+hop into our game we're then going to go
+ahead hatch a pet we can see that the
+blur effect all the guis are hidden and
+then eventually we can see that our egg
+actually hatches and the pet is revealed
+to us just like that in addition to the
+animation system I was also reminded
+that I did not actually create the
+system for sending a chat message
+whenever a player hatches a really rare
+pet if you're unfamiliar with this
+basically in a lot of similarities
+whenever you hatch a pet that has
+something like less than maybe a one
+percent chance of actually hatching
+there will be a text message sent in the
+chat which all the players can see and
+it'll say something similar to
+monsterdev hatched this specific pet
+with a Chance of point five percent or
+something similar to that and that's now
+what we're gonna add so what we're gonna
+do is go inside of the replicated
+storage inside of the remotes folder
+inside of the eggs folder and we're
+going to add a brand new remote event to
+this now we're going to rename this
+remote event to hatched chat the reason
+that we're adding this remote event is
+because there's actually no way on the
+server side to send a message to the
+chat so because of that we have to do
+all the work of replicating it which
+isn't too much work but it is still just
+annoying it should be super simple and
+should literally just be like one method
+call but of course it's Roblox so we
+gotta do what we gotta do now that we
+have the remote event we're gonna go
+inside of the server service and open up
+the egg script inside of here we want to
+actually go to the hatch function and we
+want to go to where we actually insert
+that into our pets table then right
+below that we're going to use the hatch
+chat remote event that we just created
+we're gonna fire all clients and the
+arguments that we want to provide this
+remote event is going to be the player's
+display name as well as the pet and we
+also want to provide by the chance that
+the player had to actually hatch this
+pet so let's create a variable called
+hatch chance that's going to be equal to
+xconfig dot get hatch chance we're going
+to pass through the egg we're gonna pass
+through the pet and then we're gonna
+pass through the profile dot data now
+that we have the hash chance we only
+want to send the message to all the
+clients based off what the chance
+actually is so for example if the chance
+of hatching a pet is 50 that's not
+really exciting so we don't want to send
+a chat message every single time a
+player just hatches an ordinary pet you
+of course can come up with your own
+hatch chance I'm gonna say if hatch
+chance is less than or equal to 100 then
+and then we're gonna fire this remote
+inside of here now the reason that I'm
+saying 100 is because we want to test
+this out just to make sure that it works
+for example if you want to only send a
+chat message when a player hatches a pet
+that only has a one percent or less
+chance than you would just say hatch
+chance is less than or equal to one and
+then send the message that way like I
+said I'm Gonna Leave This at 100 because
+we're just debugging the system so let's
+go ahead and pass through the hash
+chance as the final argument when we're
+firing that remote event and now that
+we're firing that remote event the next
+thing we have to do is go inside of the
+start player inside of the start player
+scripts inside of the GUI and we can
+open up the eggs low Google script now
+inside of here we're just going to go
+down to the very bottom of the script
+and at the very bottom we're going to
+say remote start hash chat dot oncline
+event connect and we're going to create
+Anonymous function now of course the
+arguments are going to be the player's
+display name as a string the pet as a
+string and the hatch chance as a number
+now another thing that we actually need
+to do is towards the top of our script
+we need to create a variable for the
+starter gy so we're going to go ahead
+create that variable and then go all the
+way back down to a remote event down
+here inside of here we want to create a
+variable called color now this is just
+one way of actually customizing your
+message for instance if a player hatches
+a pet with maybe a one percent chance
+you might want that to appear in the
+chat as a green color if they hatch
+something as rare as like a 0.1 percent
+chance then you might want that to
+appear as red so that's why we're
+creating this color variable and then
+what I'm going to do is I'm going to say
+if hatch chance is greater than one then
+we're going to use color 3 Dot from RGB
+and then I'm just going to create a
+color so if the hash chance is greater
+than one I don't know we'll just do
+something like a blue otherwise we'll
+once again color3. from RGB and then
+otherwise we'll use something like a red
+so if it's one percent or less the color
+is going to be red if it's greater than
+one then the color is going to be a blue
+now that we've done that using the
+starter GUI we can use the set core
+method and for the parameter name we're
+going to say chat make system message
+now make sure you spell that all
+correctly otherwise you probably are
+going to have an error and now for the
+second argument we actually want to pass
+through a table now we can also create a
+variable for this as well so we're going
+to say local text equals and now for our
+actual string what we want to say is the
+player's display name so for example
+monster Dev hatched a and then we want
+to say the pet's name with a and then we
+want to use the hatch chance percent
+chance exclamation mark So this text
+would say something like monster Dev
+hatched a dog with a five percent chance
+now that we've done that inside the
+table of the second argument what we're
+going to do is we're going to say text
+and we're going to set that equal to our
+text variable now additionally we have
+another argument that we want to pass
+through here and that's actually going
+to be the color and we're going to set
+that equal to the color variable now
+that we've done that we can go into our
+game and test this out so let's go ahead
+and hatch a pet and now we can see the
+chat message has been sent monsterdev
+hashed a bunny with a five percent
+chance and when I hatch again we can see
+monster Dev hatch the cat with a 40
+chance so we can see the functionality
+is there it's all working great now that
+you know how the system works you can
+easily expand on it to modify the
+message change the colors and then also
+on the server side of things you can
+alter the hatch chance for when you want
+to actually send this message anyways
+ladies and gentlemen with that being
+said that's going to be it for this
+episode if you guys did enjoy the video
+as always make sure you smash like
+button also subscribe button and turn
+this post notifications on if you want
+to get notified every time I upload a
+brand new video additionally the patreon
+if you'd like to support me and you can
+access all the scripts in the game file
+that I made during this episode there's
+a link down below description and you
+guys go and check that out with that
+being said I'll see you guys in the next
+episode
+foreign
+[Music]

@@ -1,0 +1,220 @@
+what's up everyone walk here and welcome
+back to another video in today's video
+I'm going to be teaching you guys how to
+make a CET using this reference so let's
+get straight into it first we're going
+to add a
+que and then we want to go into edit
+mode add loot cuts on all the
+sides and we want to scale them out as
+well to give it like a puffy
+look like that and then we can go ahead
+and ALT click the sides but we also want
+to hold down shift so we can click all
+of them at the same time time cool and
+from here we want to Bevel the sides so
+we can press contrl +
+B and you want to make sure you use your
+scroll wheel to increase it by one like
+that once you've done that you can
+enable auto smoo should look something
+like
+this now we want to make the legs
+so can add another Cube scale it down
+and then we want to go into edit mode
+and then move it we want to do this
+because we want to enable the mirror
+modifier this will allow us to kind of
+get on the exact same side exact
+opposite
+side for the legs I usually like to
+scale it out and then scale it back
+in like
+that and then we can go ahead and enable
+the mirror modifier
+now what we want to do is we can
+duplicate it and move it back and then
+we
+can I see a lot of people usually like
+tilt the front legs forward and then
+they kind of rotate out like that I
+think it looks cool and I think I also
+want to add the ears cuz they look kind
+of cool too we're going to add a plane
+rotate it by 90 on the x- AIS yeah sry
+about
+that and we want to scale it down and
+edit mode and move it to one
+side and then we kind of want to just
+cre the shape so I'm going to scale it
+out and kind of just build the shape
+that I
+see something like that and then I want
+to bring it forward and then we can
+enable the mirror modifier as
+well should look like that we can also
+actually um so it like
+that and then to give it its final look
+we can extrude It
+Forward add a loop cut down the middle
+and scale that out looks pretty cool now
+while I was making this video originally
+I didn't like the original design so I'm
+going to add wings as well and to do
+that we just want to add a plane rotate
+along the x- AIS and go into edit mode
+and drag it to the side
+for the wings I kind of want to have
+like a shape like
+this so you can go ahead and follow
+that to do this you kind of just extrude
+and follow the pattern how I made the
+pattern I just used the anate tool and
+you can kind of just
+draw
+okay once we finish that you can get rid
+of the anot
+tape I completely forgot how you get rid
+of this why can't I get rid of you how
+do I get rid of you mirror it and then
+go on the other side and I'm going to
+copy
+it go all the way
+back there we go all right once we've
+finished with making the base we just
+want to go ahead and join everything
+together got to apply all the mirror
+modifiers once you've applied everything
+you can join it together and now we can
+go ahead and add color I forgot one
+thing so we want to select everything
+and
+then actually we want to control a and
+apply rotation and scale and then we can
+go into head a mode UV smart UV project
+I usually set this to
+0.02 and then press okay and everything
+should be laid out not perfect but it
+gets the drob done now we want to go
+into texture paint go over here and
+press the add a base color and name it
+whatever you
+want keep everything else the same now I
+don't really like how it looks so you
+can go over here flat texture should
+already be selected to cavity and we can
+go ahead and lower the
+settings like that can also move this
+apart so we get more to look at all
+right now we just want to get all the
+colors so looking at this more closely
+it's kind of like a very light blue I'm
+want to go up just slightly and add a
+color palette as well can just apply to
+the whole thing using the paint bucket
+tool actually to make a gradient so to
+do that
+we go over here and we the color and
+then we go and apply on the other side
+as well clicking here and then on this
+side we're going to lower it like that
+and then we only want to select the base
+by going to edit mode clicking on a
+vertex and pressing contrl L and then we
+want to click this this is like a mask
+tool it hides everything else and only
+focuses on a specific
+area then we want to go from top to
+bottom actually I think that's too dark
+tojust that okay that works and once
+we've done that we can start working on
+the face we're going to keep the same
+mask and we'll just start drawing the
+facial details you can kind of see how
+they use like a black outline but what
+I'm going to do is use the same color
+we're just going to darken it a
+lot and then from there we can enable
+the symmetry so that we get the same
+drawing on both sides we want to start
+off with the
+eyes
+now keep in mind I'm using a mouse it is
+not good for this like at all so if you
+have a tablet you can like use it for
+this so I'm just going to go ahead and
+mimic most of the
+details so I can get them out of the
+way yeah all right and then for the
+facial markings we can select the same
+color but lower it just a little bit
+instead we can start adding
+those you get something like that and
+then we can kind of add like our own
+little details as well and add something
+like down
+here something here as
+[Music]
+well now let's focus on the eyes so this
+looks like a very darkish blue color
+we're going to do this see how it looks
+uh I think that matches up pretty well
+so we're just going to color it
+in then we can do the exact same with
+white but we're going to darken it like
+that all right and now we can kind of
+just refine everything so we can add
+like shading and color and all that so
+now we want to increase the wipe I'm
+going to add like this kind of color
+lighting I guess
+so once You' added the lights we also
+want to add like
+Shadows you want to darken the original
+colors and kind of just go
+in
+and do the same on the outside as
+[Music]
+well that looks cool now once you've got
+that done you kind of want to get the
+rest of the body done as well we going
+to select all the legs press contrl L
+and go back into the mask tool then
+we're going to go paint
+bucket select the same color and we're
+going to go a lot darker kind of looks
+like this and then for the wings select
+both wings I think we can get away just
+using gradient so we're going to go into
+gradient and see what
+works the ears we can select those and
+then think I'm going to give them white
+Wings instead something like that and
+once you're happy with your pet design
+you want to go ahead and save the
+image you want to make sure the facial
+orientations are all blue I'm going to
+make a tutorial on that later but it's
+always good to make sure that you check
+before you export anything now we can
+take it over to Roblox Studio once we've
+exported everything over we can go ahead
+and insert it with location and go ahead
+and scale it
+[Music]
+down to make sure that the colors go
+with it you want to make sure you save
+the image you don't save the image it
+won't Pi out now we can go into
+play and now we got a cute little pet
+thing I'm not the best at making pets
+I'm probably not the person that should
+be making this tutorial but they're
+pretty easy though once you get the hang
+of making them you can kind of do
+whatever you
+want it looks pretty good all right
+that's all for this tutorial I'll catch
+you guys in the next video thanks for
+watching and if you made it to the end
+it's pretty cool all right peace

@@ -1,0 +1,511 @@
+Hello everyone and welcome back to a new
+part on the how to make a Pet Simulator
+X style game series. In this video,
+we're going to be starting to work on
+the pet inventory system.
+Also, if you guys want to support me and
+want to have access to all of my project
+files, including the one you're watching
+right now,
+uh the map will be included, the asset
+pack will be included, and the scripts
+will be included. Uh
+they'll all be available on my Patreon
+in the $10 tier. The link will be in the
+description and in the pinned comment.
+With that being said, let's start.
+All right. So, we're going to start by
+making the
+pet inventory UI. So, I'm going to go
+inside of the main assets for main
+screen GUI, and I'm going to go to
+frames, and I'm going to disable starter
+pets.
+I'll just go to visible and make sure
+that it's not visible.
+And I'm going to add a frame.
+Now, the size of this frame
+will be 1,0,1,0.
+And the background transparency to 1,
+and the anchor point to 0.5.
+And
+the position
+to 0.5,0,0.5,0.
+That should
+center the frame and put the anchor
+point to the middle of the frame.
+The next thing I'm going to do is add
+another frame.
+Now, for the other frame, I'm going to
+go to plugins, unit conversion, and then
+convert it to scale.
+I'll leave link to this plugin in the
+description. I'm also going to close off
+all of my other scripts.
+And I'm going to
+go to my starter pets frame, main frame,
+and I'm just going to get the UI stroke
+and the UI corner from this and paste it
+in here.
+This is optional. You don't have to do
+that, but it just makes it look a bit
+nicer. So, I'm just going to
+resize this, center it.
+And then, I'm going to add
+to add a uh scrolling frame.
+And I'm going to put the scrolling frame
+right here, resize it.
+Maybe this big.
+Okay, I think
+this is a good size.
+Okay, this is good.
+Now, I'm going to go to plugins, Unit
+Conversion, scale again.
+Also, get rid of Also, I just added this
+UI aspect ratio constraint by mistake.
+You can just get rid of it. And then,
+I'm going to select my scrolling frame,
+make the background transparency one,
+and make the uh
+border size pixel zero.
+And I'm going to get rid of this scroll
+bar. So, I'm going to go to
+uh scroll bar
+transparency.
+And I'm going to change that to one.
+And then, I'm also going to
+I think Yes, I'm going to go to auto
+uh automatic canvas size, and I'm going
+to change that to Y.
+And then, I'm going to add
+a UI grid layout.
+And I'm going to add a text button
+inside of these scrolling frame. Now,
+for the text button, I'm going to add a
+UI corner to this.
+And I'm going to make the text button
+color a nice light blue.
+Maybe something like that.
+And the text to nothing, to just an
+empty string.
+And then, I'm going to set the UI
+corners
+corner radius to zero on the offset and
+0.1 in the scale.
+And I'm going to rename this to
+template.
+And then, I'm going to duplicate it a
+couple of times.
+And I'm going to go to
+Where is it? I'm going to select my UI
+grid layout and I'm going to go to the
+cell size and mess up with this. So, the
+offset should be zero on the X and the
+Y.
+And the scale should be 0.1 or maybe a
+bit more, 0.2.
+Maybe 0.15.
+Yeah, that's perfect. And the scale on
+the Y is 0.01
+or 0.0.1
+or 0.2.
+.3
+That looks perfect, I think. And I'm
+also going to go down and change the
+Where is it?
+The horizontal alignment center. And
+then I'll go to the cell padding and
+convert it to
+to scale two.
+So,
+offset zero, scale 0.02
+or zero Yes, 0.02.
+Maybe 0.01.
+And on the Y, 0.
+zero zero point zero one
+two
+or maybe 0.01
+or 0.02.
+Okay, that looks to be perfect, I think.
+And the next thing I'm going to do
+is make sure that this fits.
+Okay, if you duplicate this, it should
+scale itself depending on the size of
+this.
+And yes, it does. So, I'm going to get
+rid of the other templates and just keep
+one.
+And the first template, what I'm going
+to do
+is go to the Okay, so I think it needs a
+UI corner
+a UI stroke, but I don't think that's
+going to work with a UI grid layout and
+yes, it does not.
+So, what I'm going to do
+is make sure that auto button color is
+turned off
+because I don't like that effect and I'm
+going to add a text label
+and I'm going to change the size of the
+text label to 0.1 or actually 1 on the X
+{comma} 0 at 1 {comma} 0 {comma} 0.2
+{comma} 0.
+And I'm also going to change the
+background transparency to 1 and the
+font to Verdaco 1.
+And the text to pet name
+maybe multipliers maybe times 1.
+Pet stats maybe this will be stats.
+And I'm also going to to change the size
+so I'm going to make this bit actually I
+just need to turn on
+text scaled
+and I'm going to change the text color
+to white.
+And I think that looks good. Now I'm
+going to duplicate this
+and position it right here
+but this time it will be named pet name.
+And I'm going to change the text to pet
+name.
+And I think it should be a bit smaller.
+And just position it and then I'm going
+to get a nice
+Okay.
+I'm going to add a nice frame
+for displaying the pet
+background transparency 1 size
+1 {comma} 0 {comma} 1 {comma} 0.
+And I think that should be good. Now I'm
+going to change the background
+transparency and see if it overlays the
+others. And as you can see it overlays
+the pet name and the multiplier so just
+select your both of both of the text
+labels and change the Z index to
+and that should fix it. Now if I put the
+transparency of
+back to 1 as you can see, you can see
+them now.
+And what I'm going to do
+is add a text label right here. I'm
+going to copy this text label and paste
+it inside of the actual frame.
+Right here.
+And I'm going to change the text color.
+Text color to
+a nice blue.
+Or actually, I'm going to get that blue
+right here.
+Copy this blue.
+And I'm just going to put it right here
+to the
+text color.
+And then I'm going to give it a nice
+stroke. So, I'm just going to get this
+stroke right here and put it inside of
+that. So,
+like that. And I'm going to change the
+uh this to
+Actually, I think
+this should be
+contextual. And I think that should
+work.
+And I'm going to change the text to
+inventory.
+Or maybe all caps.
+Yeah, that looks better.
+Now, I'm just going to duplicate this.
+And as you can see, our pet inventory
+looks kind of nice.
+So, now I'm just going to make sure this
+template is invisible.
+And I'm just going to double-check if we
+got that uh okay.
+Modules.
+So, we don't have a
+module.
+Okay.
+But I think that's not really a problem
+because we already have this function.
+What I'm going to do is add a uh I'm
+going to make sure that this is not
+visible.
+That this frame right here. Um by the
+way, I'm going to rename this frame to
+to inventory.
+And this frame right here to main frame.
+And then I'm going to
+Uh okay, I think everything is named
+correctly now. Now I'm going to make the
+pet inventory invisible.
+And what I'm going to do is add a module
+script right here.
+And I'm going to call it pet inventory.
+Now what I'm going to do is
+some services. So we need players.
+So local players is equal to game call
+and get service players.
+And then we also need tween service.
+Game call and get service tween service.
+And then we need replicated storage.
+And what do we need?
+Okay, I think that's all.
+Now I'm going to do
+local pets.
+Pets is equal to replicated storage call
+and wait for child pets.
+And local remotes is equal to pets call
+and wait for child I mean replicated
+storage call and wait for child remotes.
+And local shared
+is equal to
+And replicated storage call and wait for
+child shared.
+And I think that's all we need.
+And then I'm going to do function module
+create
+pets templates pet templates.
+And it's also going to the first
+argument of this function will be pet
+name.
+And what I'm going to do is
+up here, I'm going to create a reference
+to the player. So local player
+is equal to players.localplayer.
+And then local player GUI is equal to
+player colon with child player GUI.
+And then,
+local main SS main SS is equal to player
+GUI colon with wait for child main SS.
+And local frames
+is equal to main SS colon with child
+frames.
+And local inventory inventory is equal
+to frames colon with child inventory.
+And local main frame is equal to, I
+mean, main frame is equal to inventory
+colon with child main frame.
+And then, local local scrolling
+scrolling frame is equal to and main
+frame colon with child scrolling frame.
+And local templates
+is equal to
+scrolling frame colon with child
+template.
+And I think that's it. Okay, so what I'm
+going to do next is do local cloned
+local cloned
+template is equal to template colon
+clone.
+And clone template
+Oh, I spelled cloned template wrong. So,
+clone template
+and clone template dot name is equal to
+pet name and clone template dot parent
+is equal to
+and scrolling frame.
+And what I'm going to do next is
+get the pet model. So, local pet model
+right here
+is equal to
+and I should change that. Okay, so it
+should be pets
+colon with child pet model pet name or
+colon find first child
+pet name.
+So, pets colon find first child pet
+name. Then, uh
+colon clone.
+And then,
+I'm going to do Okay, so this should be
+the pet name.
+Okay.
+So, what I'm going to do is inside of
+each pet, I'm going to have a
+a uh
+string value or maybe a
+an end value.
+And this is going to be multiplier. So,
+I'm going to call it
+multi-
+plier.
+And for this one, it's going to be two.
+And I'm just going to copy it and paste
+it on inside of every single pet that I
+have.
+And the next thing I'm going to do
+is go to the
+Okay.
+So, clone templates {dot} stats {dot}
+text
+is equal to and
+x {dot} {dot} and pet model
+{dot} multiplier
+{dot} value.
+Or maybe we need to get the format
+number old.
+The format number.
+So, what I'm going to do is
+local format number format number
+is equal to shared colon find first
+child format number.
+And I'm going to change this to format
+number
+format number
+{dot} format.
+Actually, this should be a require.
+Sorry.
+So, require format number and format
+number {dot}
+Okay, so
+{dot} {dot} format number
+{dot} format compact.
+And we're going to do
+decimal
+dot
+multiplier
+the value and that should work.
+Now, what I'm going to do next is Okay,
+so it should be stats, pet name, then we
+need to do clone template.pet name
+dot text is equal to
+and it should be
+Okay, so pet name, just pet name.
+And then, after parenting it, we need to
+display the pet.
+So, what I'm going to do is convert this
+frame that we added right here inside of
+the template. I'm going to rename it to
+Okay, I'm going to get rid of it and I'm
+going to add a viewport frame instead.
+And this viewport frame will be
+resized to 1
+{comma} 0, {comma} 1, {comma} 0.
+And the background transparency to 1.
+And then, we can enter back our
+um pet inventory. And what I'm going to
+do
+is
+Okay, require the module
+for the viewport the viewport module.
+So, lo- local viewport
+module
+is equal to require script.parent
+{colon} WaitForChild viewport.
+And I'm going to enter that viewport
+script just to check the function. Okay,
+so it takes the viewport and the model.
+So, just
+just do After that, we're going to do
+viewport module.display
+model.
+And it takes the viewport, which is
+clone template.viewport
+frame
+{comma} and pet model.
+Okay.
+So, let's see. So, are we cloning the
+model here? Okay, so we are not cloning
+the model. So, I'm going to get rid of
+this current clone right here.
+And then I'm going to try this out. So,
+also we need to make sure that the clone
+template that visible is equal to true.
+And I'm going to do this before
+parenting it.
+And then I'm going to make sure that
+this is invisible. Okay, good.
+Now, we can just do task just to test
+task. wait
+uh 10 seconds and what we're going to do
+is
+module.create template and we're going
+to do it for the cat. And we're going to
+do it in a for loop. So, for I is equal
+to 1 to 10
+do
+And we're going to do a task.wait
+3 seconds.
+And I'm going to play the game
+and see if this is going to work.
+So, I'm going to go to players, players
+prompt,
+uh players UI main SS frames, start uh
+inventory. Make sure that it's visible
+and we're going to see if this works.
+So, it shows the cat as you can see.
+It creates it again.
+And okay, so I see a couple of problems
+with this. First is So, the only problem
+that I see actually is
+these are not really visible.
+You can't really see the name and that.
+So, I'm going to add I'm going to make
+this visible.
+And I'm going to go to these two I'm
+going to make the template visible, too.
+And I'm going to to copy that UI stroke
+that we have right here and paste it
+inside of the stats.
+And that I'm going to go here, change
+this to contextual
+and just paste it inside of that, too.
+And I think you should be able to see
+to see the pets name and the multi
+multiplier now.
+I'm going to make sure that these are
+not visible again.
+I'm going to make this
+invisible.
+And play the game again.
+And that should look a little better.
+So values player GUI - S
+frames where is it inventory visible?
+And that should look better. And yes, it
+does. So you can see the cat and you can
+also see
+the
+Okay, so I think this is good enough.
+Actually, what I'm going to do before we
+end this tutorial
+is show you
+how to call this function. So I'm going
+to go to the
+egg client and I'm going to require this
+pet inventory module. So
+local pet inventory
+module is equal to require
+script.parent with child pet inventory
+module
+which is pet inventory.
+And then down here what we can do is we
+can just do pet inventory
+or create template
+pet chosen pet
+dot pet name.
+And that should be it. Now
+I am just going to enter back my pet
+inventory module and get rid of this.
+Cuz that was just for testing and I'm
+going to play the game again.
+And I'm going to make my Okay, I'm going
+to hatch.
+Actually, I'm going to go here. minus S
+frames
+and make the inventory just so that the
+inventory I'm going to hatch this.
+And I'm going to make make visible
+after a bit. So
+as you can see now we have the cat. I
+can hatch this again.
+We should get another cat.
+And yeah, this works perfectly.
+Now we should be able to see a fox. Yes.
+Okay, so as you can see this works.
+And yeah, I'll see you guys in the next
+tutorial. If this helped, make sure to
+subscribe, like the video, share it with
+your friends, and I'll see you all in
+the next video. Bye.

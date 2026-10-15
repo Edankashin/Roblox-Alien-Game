@@ -1,0 +1,130 @@
+hello in this tutorial I'll be teaching
+you how you can make Terrain in Roblox
+Studio without blender and it will look
+something like this
+[Music]
+first thing you want to do is you want
+to go into your browser and you want to
+type in this link right here I'll put it
+in the description for you
+and it already I already own the item
+but you want to click the button that
+says install and then after that you
+want to go into your Roblox studio and
+want to go to your plugins tab up here
+and then you want to go and click on
+your I don't know how to pronounce that
+but you're as terrain you see I don't
+know and then so you want to go down
+here to terrain and then
+it looks complicated but it really isn't
+so first you want to choose what
+material you want so like Smooth plastic
+is my favorite but like if you're trying
+to make grass maybe you want the grass
+material or whatever material you want
+and then let's just say we want to make
+let's just try and make a little grass
+scene and so we choose we choose what
+color we want there's a bunch of colors
+here but if you want you can just
+um
+go up here into the workspace
+and choose whatever color you want for
+it and then you can just type that right
+here so like let's say we want uh lime
+green you would just go up here and type
+lime green
+oh I misspelled it
+and there we go it has lime green right
+there and then once we choose what
+material and color we want it to be we
+have to actually create the stuff itself
+you can use the triangle one and just do
+it like this and click and have your
+triangle node right there you can it
+doesn't look like it's there but
+actually is if we delete the base plate
+oh
+you'll see it but for now we need it but
+it yeah it shows better right there but
+you can do that and all but I I don't
+really like doing that I like because
+if you're trying to do it quickly that's
+probably what you want to do but if
+you're trying to do it like well I guess
+just choose the nodes I option and
+create some things like this
+it's like maybe we want to make a
+pathway or something we can just do it
+like this and then we select the
+triangles and we connect all these nodes
+and
+there we go there we go and then
+all you have to do is Select oop all you
+have to do is select the um nodes like
+this
+and then
+we have a pathway right here
+and another option like I if you saw
+what we had what was there in the
+beginning of the video if you want to
+make something more like that what you
+can do is you can actually go into your
+view then you go into your terrain
+editor right here
+and then you can maybe
+like create some terrain like this or
+something
+so like maybe want to make a Hillside
+and then we can just select node and we
+can just make a like a grassy Hillside
+type of a scene you can do whatever you
+want with these it's free it's
+completely free
+and it's better than most of the paid
+low poly terrain options that you can
+get so like this maybe and then we just
+all we have to do now is
+connect all these nodes like this
+and then once we finish that we can just
+delete the terrain so all you have to do
+is
+um go down here and to subtract delete
+all this terrain and if that takes a
+while so you can just go up here into
+your workspace and select terrain and
+click the delete or backspace key and
+that's how you make a very very simple
+um
+um what is that kill side but if you
+want to make it a bit more advanced or
+nicer you can move some of these nodes
+out like that
+or like maybe
+this way
+this way you can move it however you'd
+like to make it exactly how you want it
+but that is how you make very very
+simple really nice low polytrain and
+also if you don't want this these black
+nodes on here all you have to do is you
+go into your workspace there'll be a
+folder called nodes then it'll be one
+called really black nodes you want to
+select the top one then shift and select
+the bottom one and then you can just
+change the transparency down here to one
+and they'll be all hidden and then next
+time you want to actually come back into
+your project you can just go back here
+select all these
+change the print transparency to zero
+and you can start editing again
+and there's so much you can do with this
+and that's really all I have for this
+video join the Discord if you have any
+more questions about tutorials or if you
+want video success suggestions and
+subscribe and like the video that's
+basically all for this video goodbye

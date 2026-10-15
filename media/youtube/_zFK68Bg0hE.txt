@@ -1,0 +1,192 @@
+Yo, what is up YouTube? It's me, Natrix,
+and today I'm going to show you guys how
+to make your own uh UI in Roblox uh
+studio. later you play your game um
+different devices sometimes device like
+later on like when you play um Roblox
+and when you're on different devices the
+UI the frame the image buttons and stuff
+like that what happens is like the
+it doesn't size up the device I'll be
+teaching you how to like fix that
+problem so um before we start um I just
+want to say thank you so much 426
+subs. I lost a lot of subs. Not a lot,
+but like who maybe cuz like I couldn't
+really blow a lot um because of school
+and stuff. Um the game I I came back,
+but um I plan on making more videos and
+teaching you guys more about you know de
+but I do have a main account. See my
+name is OG game. I have a main account.
+So um you know
+uh yeah. So, make sure you subscribe and
+like the video. I have any suggestions
+to make any new um other like other
+videos like tutorials you want me to
+make. I'll
+know I'll try my best. Yeah. And u
+Yeah. So, let's just get in the video.
+All right. So first once you go to the
+Roblox studio you want to go to view and
+make sure exploring properties is open
+and toolbox is toolbox is also opened
+and then you want to go to home toolbox
+and then you want to go to store toolbox
+and then go to school store and then for
+models switch to plugins.
+All right and then after you do that you
+want to search up autoscale lit. So, let
+me just copy name right here. And you
+want to search that up and then you'll
+be able to find this um model. Just
+click it. You'll see it's free. You can
+like it if you want. Install it to your
+game. It'll give this um notification.
+You want to go to plugins and you'll see
+it over here. If you don't have you
+don't have it here, go to manage plugins
+and go scroll all the way down or over
+here and you'll see it here. Keep auto
+update on. It's your choice. I'll keep
+it on. And then you have it keep it
+checked. So if it's not checked, you
+want to display over here. So make sure
+it's checked. And then after that's
+there, you want to go ahead to explore
+and then start a UI and make a screen
+GUI. And then you want to create your
+own GUI. So I'm just going to make mine
+really quickly. I'm going to add a frame
+and an image button. So here's the
+frame.
+Oh, this is image button. Sorry. So this
+is the image button over here. And this
+is the frame.
+Let's go back to explorer frame and
+here go like this. All right. So now I'm
+just going to go this whatever you want.
+Like so
+you don't need to make it this big. It's
+your choice. I'm just going to teach you
+how to make it more scaled. So then when
+you go to test over here and press
+device, you'll see how it like goes down
+here instead of sitting in the middle.
+And this one goes like too big here and
+over here is okay. So I'll teach you
+everything, but one second. Let me just
+make my frame work. Go to frame
+properties. I'm just going to make the
+visible to false image button. I'm going
+to add a local script to this and leave
+whatever is inside it. And then if you
+want the script, I'll put it down in the
+description or the comment section. This
+is the script I'm using for my um UI. So
+that's uh this over here is the frame
+right here. And you can rename it to
+whatever you want. Well, I can like
+rename it to rename it to frame I don't
+know frame shop and then you just rename
+it over here. Frame shop you get it
+right. So just here also the same thing
+if you have UI you can change it to
+screenshot 2 UI anything you want really
+just have to like change whatever you
+change over here in the explore frame or
+uh UI make sure you say change it over
+here too. Um, then once you're done
+that, I'm already done my GUI like this.
+So, if I go and press play, I'll see
+that the GUI works.
+Open and close. You just press image
+button, open and close. And then I'm
+going to go ahead back and press stop.
+It's because I want to go back to test.
+Oh, wait. Let me fix that square really
+quick. Open this
+square a little bit more. fix
+like that. All right. So then um so now
+if you want to make your UI better for
+uh different devices, go back and go to
+explorer frame and make sure the
+properties go to properties for that
+frame and make sure it's uh checked so
+that you can see the frame. And then
+what you want to do is go to test and
+you'll see over here that the image
+button in the frame is not like staying
+in the proper places where you want it
+to be. And over here it does. So, what
+you want to do is go to explore and open
+this. You don't need to select the local
+script, but whatever is inside the um
+the the frame or whatever is inside the
+image button, you just want to select
+both of them. If you have things in the
+frame, like I'm just going to add an
+image button for example, or image
+label, right? It doesn't matter what you
+put in the uh frame. You want to just in
+like select all of this except you don't
+need to select the screen GUI. You don't
+need to select the local script or any
+scripts in the GUI. Make sure each uh
+thing is like frame or image label or
+image button or text button you know etc
+um is selected and then you want to go
+to plugins and then here you'll see all
+these three. I don't really use the
+scale text but uh not really useful all
+the time but all you need to do is press
+unit scale or uh unit scale uh unit uh
+sorry not unit scale unit conversion
+and then you want to press scale and
+scale. Make sure both position and size
+is scaled.
+Press it one more time. And then after
+that, you want to go and press don't
+press anything else. Make sure uh it's
+both scaled. And then you want to press
+add constraint.
+And now it'll just keep adding
+constraints until it's added to
+everything. Now if I go to explore, I'll
+see that it's added here, here, and
+here. This is not in the local script.
+It's in the image button. So yeah. And
+then uh for the scaling part, if I go to
+test device, you'll you'll see here that
+now it's scaled. Now if I go here back
+and go to explore, go to frame, go to
+properties for that frame, scroll down
+to visible to false. I go here and press
+select and go and press play.
+I'll see that
+it closes the image button is there and
+it's in the right place because I I uh
+scaled it and I um position like I use
+the plugin. But if I go test and use a
+device, you can also change the device
+whatever you want. I use iPhone uh
+iPhone 14 Pro for the uh phone uh like
+device. But you can change to any device
+you want. You can also change the
+resolution over here. And you can also
+change the rotation of your phone or
+your device. So if I'm just going to
+press play um the game on a smaller
+device like this and you can see you can
+move around and you can see the image
+button is on this side. press on it and
+the the frame is more scaled than
+before.
+So yeah, that's it. Um, thanks for
+watching and um before I end this video,
+please make sure to subscribe, like the
+video. If you have any other suggestions
+for uh me to do any other new tutorials,
+just comment down below and I'll try my
+best to help you. So yeah, um bye.
+Peace.

@@ -1,0 +1,62 @@
+In today's video, I'm going to teach you
+how to import UI from Figma to Roblox
+Studio.
+Let's begin by opening the prepared UI
+in Figma. Open Figma in your browser.
+Under recents, click the prepared design
+file to open it. Then, in the left
+layers panel, click the outer UI frame
+to select it.
+Next, let's start the FigBlocks UI trial
+and authorize Roblox. In Figma's left
+navigation, click tools. Under recents,
+click FigBlocks UI Figma to Roblox.
+In the plugin details, click run. In the
+FigBlocks UI panel that appears, click
+start free trial 14 days. On the Roblox
+authorization page, click select beside
+your signed-in Roblox account. Take a
+moment to review the requested
+permissions, and then click continue at
+the bottom of the page. Return to Figma
+and confirm that FigBlocks UI now
+displays your Roblox account and opens
+in code mode, which is how the
+conversion will be carried across as
+portable code.
+Now, let's export the selected frame as
+code. Back in Figma's left layers panel,
+click the outer UI frame once more to
+make sure it is selected. At the bottom
+of the FigBlocks UI panel, click export
+code. Give the plugin a moment to finish
+processing the frame, since it needs to
+convert every layer into Roblox-friendly
+code. Once processing completes, at the
+bottom of the FigBlocks UI panel, click
+copy code to place the exported code
+onto your clipboard.
+Lastly, let's paste and import the UI in
+Roblox Studio. Switch over to the open
+Roblox Studio window with the saved
+baseplate already loaded. In Studio's
+top toolbar, click plugins.
+In the plugins toolbar, click FigBlocks
+UI to open the plugin panel. At the top
+of the FigBlocks UI panel, click import.
+In the paste tab, click inside the paste
+code field so it becomes active.
+Now, press control plus V on Windows or
+command plus V on macOS to paste in the
+code you copied earlier.
+At the bottom of the FigBlocks UI panel,
+click import to bring the UI into your
+project.
+In the explorer window, expand starter
+GUI, and then click the newly imported
+GUI.
+The selected Figma UI now appears in the
+studio viewport, and starter GUI
+contains its full hierarchy as editable
+native Roblox UI, including frames and
+text labels. Congratulations.

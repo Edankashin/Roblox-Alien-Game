@@ -1,0 +1,231 @@
+hey guys welcome back to another video
+so today I'm going to be showing you how
+to make your VAR own simulator map in
+Roblox studi so end of the video so
+first uh we are I I just made this quick
+shop building in another game is it
+here so you can see got this building
+here and I really think guys dep through
+Withers and uh kind of Windows is
+important so so now first we are going
+to add the main base of our map the
+grass thing kind of so
+yeah all right this green SM
+plastic no not slight spook plastic and
+then we're going to move it over
+here all right and then real
+quick okay so for this
+we are going to add a
+mesh iOS
+spere and we're going to move it on this
+axis to make it a bit
+taller then on the x axis make it a
+little wider and on y wa hold on
+what s
+y and then SX
+all right moving it on the x- axis so
+yeah then x z no what the heck SZ
+sorry all right there we go so we have
+this s x should be bit bigger I think
+and s
+y right there you
+go so now you're going to click
+file and Export wave front all right so
+now that we did that
+normal actually see work space add us
+click a mesh pot and then all right
+there we go so now that we did that he's
+can like rocks around the map what we're
+going to
+do is place them like rocks around the
+map
+like
+here and also we are going to realate
+smooth plastic this is just personal
+preference iing smooth plastic was good
+for
+simulators so I'm going to duplicate it
+but this time make it a bit of a
+different
+shade so if we just keep doing
+this can see weo this
+duplicate drag these over here duplicate
+again rotate it so yeah that's so
+actually rotated fine
+okay right this duplicate place
+there all
+right you going to be uh
+it's going to be every other all right
+so now once you have
+this duplicate it
+again okay bring
+it down not down to the side okay and
+there you go this is the outline for map
+delete this you don't need that add this
+you don't need that and what about uh we
+have two in here all right so now you
+have the main base for your map so I'm
+assuming like this is like shop
+building so now we're go what we're
+going to
+do kind of something similar to this but
+like
+sell
+building there yeah just make it like
+this
+okay got
+white some
+plastic and then it would look good if
+you have some
+cylinders yeah I think this look really
+good actually like some cylinders kind
+of make it look like an important
+building like these like a different
+shade of
+white and this is barely noticeable
+actually it doesn't
+actually yeah kind of does
+actually actually no not
+really they really just add that's the
+main thing you want so now for this
+going to add insert a new part
+normal and do like a a little window
+thing
+okay
+white neon
+then duplicate it Dr it out a
+bit it smooth
+plastic
+Brown and then again why is that
+slight it also look good if you U moved
+out a bit like
+this then do this on all sides the
+window
+okay good good good good so I'm
+duplicate
+this so it's in the
+center then make it so this is also in
+the
+[Music]
+center hello thank
+you all right so these windows can
+definitely add some more uh depth to it
+and INF for Sim okay that's very
+annoying when it does
+[Music]
+that so we have
+these group
+it should be all
+G why is it doing this
+bro know
+what fine here we
+go all right then down here going to do
+like brown thing for a door
+so
+yeah for simulator Maps unless you're
+making like kind of realistic looking
+you do want this a lot of the stuff to
+be like Smooth plastic that just looks
+good more simulator
+like yeah all right so good so all right
+good we have
+this
+then so you can make this bigger or
+smaller if you want
+you know what if the windows are going
+to do this then I am
+going to
+um be better than the
+windows uh you're not cool for doing
+that okay
+Windows no seriously why are the windows
+doing this I really don't
+know all right so now
+duplicate uh actually you know we're not
+you're not really going to ever see this
+side the allall
+really okay were there any duplicates no
+no no no okay good so yeah so we have
+this sell
+building so now what we're going to do
+is insert
+a
+cylinder could also uh you just make a
+mesh so it's like kind of a
+ring but for this just going do
+like
+cylinder neon
+okay and add an billboard
+GUI text
+label just the offset I personally think
+zero comma 2 looks
+good max
+distance uh 15
+yeah that looks good okay so then going
+to adjust text back on chaning one text
+cell just me to make this green actually
+I think that that'll look cool text
+[Music]
+scaled
+that font make a
+bold so yeah you have that you could
+also change it if you want to look
+better for this I at
+okay why are the models doing this I
+have no
+clue but they are so going to move this
+here this I'm just going to
+make blue or something yeah and
+text soop okay this let's make it match
+the uh color a bit more
+more uh
+hello oh wait what the
+heck color let's make this match it a
+bit more like yeah I think that looks
+good okay so now stop
+okay color you just be that green again
+okay all right
+shop I do not
+know text shop shop please just all
+right why does this also say shop bro
+what okay I do not know what all right
+sell
+shop so
+yeah
+sell and
+shop and also this isn't really going to
+this isn't going to have any uh scripts
+I'm just going kind of like schematics
+kind of
+so yeah okay so we have like coins just
+make them look like coins you can use
+mes if you want or don't it's really up
+to
+you these mesh for the coins or don't
+use a mesh those seem to be your two
+those are two options so yeah I'm kind
+of going to make like kind of like
+floating a little also a bit smaller
+so yeah no in reality in in a
+simulator by the time you're doing this
+these will probably be
+coded these will probably be scripted
+but like I said for the sake of this I'm
+just not going to code it because it
+does really needing cones it's just
+uh like yeah well thing and also
+actually if you want you can uh do like
+your thing and like put like a diamond
+or gem or crown pot whatever you're
+doing as a special currency or really
+whatever you want heill thing map you
+could probably have to make the map bit
+bigger for
+that so yeah so once you have
+this this is looking pretty good so yeah
+okay
+well guys that's going oh wait well guys
+that's going to be it for this video If
+you enjoyed then feel free to leave a
+like And
+subscribe and I'll see you later

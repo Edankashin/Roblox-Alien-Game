@@ -1,0 +1,66 @@
+Want to make your Roblox level look 10
+times better in just a few minutes? Let
+me show you my favorite stylized
+settings combination that instantly
+gives your map a clean cartoon [music]
+and anime-inspired look.
+First, open the toolbox and search for
+an anime sky.
+Insert one that you like, and you'll
+immediately notice a much more colorful
+and stylized atmosphere.
+After adding it, go into the lighting
+service and remove everything inside
+except for the new skybox you just
+added.
+This gives us a clean setup to work
+with.
+Next, let's improve the colors. Inside
+lighting, add a color correction effect.
+Set the brightness to 0.05,
+contrast to 0.1, and saturation to 0.15.
+These small adjustments help the colors
+pop without looking too overwhelming.
+Now select lighting itself [music] and
+change a few important properties. Set
+ambient to 212, 170, 240.
+Change brightness to two. Set color
+shift top to 206, 182, 129.
+Set environment specular scale to 0.3.
+Change outdoor ambient to 128, [music]
+102, 153.
+Set clock time to 14 and geographic
+latitude to 40.
+For the fog, set fog color to 203,
+[music] 173, 255, and fog end to 2800.
+Already, the lighting should look much
+softer and more stylized. Now let's work
+on the ground. Select your base plate
+and change its color to black.
+Set reflectance to 0.05 for a subtle
+shine. Open the toolbox again and import
+a free texture pack.
+Find a texture you like, copy its
+texture ID, and paste it onto the base
+plate texture.
+To make the texture blend better with
+the stylized look, increase the studs
+per tile value to 100. This creates a
+cleaner and larger texture [music]
+pattern across the map. You can also
+adjust your roads by changing their
+color and slightly increasing both
+reflectance and transparency. This helps
+them [music] fit the overall cartoon
+aesthetic and gives them a smoother
+appearance. And that's it. With just a
+few lighting tweaks, a stylized skybox,
+[music] and some simple texture changes,
+your Roblox map can instantly look more
+polished, colorful, and professional.
+[music]
+Try experimenting with different
+skyboxes and textures to create your own
+unique style. If this helped improve
+your game, don't forget to like and
+subscribe for more Roblox building tips.

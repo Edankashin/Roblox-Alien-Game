@@ -1,0 +1,208 @@
+hey guys welcome to Alex's crafts in
+this video I'll be making a CET and
+blender similar to pet simulator
+99 okay so let's get straight into it so
+the first thing we need to add is these
+leg lurking pieces
+so two shift a to add a
+cube and then we're going to move this
+to the
+bottom make it
+smaller like so and then we're going to
+move it down
+uh scale it down a bit CU it looks like
+it's about this
+big and then move it
+here do shift d to duplicate
+it and move it down
+there and then select both faces and
+then do CR L I believe yeah and then do
+control D again an extra
+set and then move it over
+here control L
+again it's just and then I'll move it up
+a bit cuz just like
+that and then if you want to do curves
+like how I don't know this looks kind of
+like cubish but if you want to do curves
+you would
+just select all the edges and then
+select all the edges let me just select
+all
+them and then you go to
+Bevel and you can move this thing
+here I move to here looks kind of nice
+here and then you can go down here to
+Bevel and then change into more segments
+if you want to be more
+round I'm going to put it to like 10 so
+it's kind of smooth actually
+no I'll do like five and then you can do
+like the same for the feet here let just
+do
+that selecting all the
+feet and then you move the thing once
+again item more segments let just add
+like three and then yeah we got like our
+basic figure done here and after this I
+guess we could do the ears
+so now you're going to do shift a again
+make sure you in edit mode so it doesn't
+like create an extra mesh
+here and then yeah shift a and then put
+like a cube shape this is probably like
+the hardest
+part since it has like has like this
+weird like round
+shape and then yeah scal it it move it
+to the
+front and
+then move it down so it's like not
+huge and then like line it up here make
+it like a
+needs and then yeah and then uh listen
+carefully for this part for this
+one
+um
+split it
+first before we do anything to get a
+look
+meter and then combine these
+actually
+wait
+uh all vertices at
+Center or the vertices at Center and
+then we got like this like shape almost
+done and then all you have to do after
+this
+is grab these two
+here scale it here so it has like this
+kind of like roundish
+shape and that's yeah that's like pretty
+close looks kind like a
+horse thing you could like move these in
+a
+bit if it helps maybe we could
+like here do faces and then
+contrl
+L uh yeah
+scale make them a bit
+bigger scale these like down a
+bit I think thats pretty
+good you could go here do shift
+d move it to the other side and we got
+like our cat
+ears um I'll make a more advanced video
+later but this is like like
+um this is like the basic shape and if
+you wanted to do the advanced video I'll
+be posting that like later uh soon but
+um it shows how to make like this curve
+here and we do like some U more advanced
+like um pyramid shaped legs I guess like
+like this kind of
+shape but yeah in this video it's it's
+pretty simple I'm going to be showing
+you how to make like yeah I'm I'm going
+to be showing you how to make it like
+pretty simple and just fast quick if you
+need to do like um multiple this is like
+an easy way to do it yeah let's move on
+to the TA to the
+tail so for this one you're going to do
+oh wait shift a add a cube uh scale it
+down let's move it to the
+back uh yeah move it to the
+back smaller like
+this
+yeah just like
+that and move it so it's just like
+sticking out barely like this um looks
+like it there I'm going to be showing
+you like the basics again yeah and yeah
+in my other vide it's going to be more
+um Advanced so if you want to like look
+at that I'll be posting
+later let's do
+literally okay yeah right click and then
+do extrude faces and then you can move
+your mouse here now it looks like it's
+getting like
+thicker so I guess we could do it like
+this then move it
+up longer
+here and then we're going to right click
+do extrude faces again I think one more
+time well it looks pretty good good I'm
+going to make it a bit
+thicker to be like more square
+shape I think that's how it looks
+like down I think it looks pretty good
+it is look pretty
+good
+yeah okay so now for the
+texturing okay so for the texture we're
+going to I'm going to I just searched up
+like a cat face this is just for like
+our basic like face like on her on her
+um on her Square I'm going to save
+this and yeah I'm going to save
+this and I'm going to go back into
+blender so once I got my C here and I
+got my texture I'm going to go over to a
+cube and then I'm going to go all the
+way down find this little red thing here
+and then we're going to press open and
+search up your
+texture
+we're going to insert it and it might
+look weird cuz this maybe what it looks
+like if it looks like something else
+yeah you got to like set it up
+so what you have to do after this is you
+have to select most each part of the of
+the geometry and you're going to do
+contrl l so it selects all you're going
+to press U smart UV project is very
+important and after you've done that oh
+yeah um go to texture
+paint uh yeah just make sure you yeah go
+over to texture
+paint oh wa yeah go to UV editing and
+just yeah select your texture if if it's
+not already there and then like unselect
+to this so you could move all the other
+parts cuz we're only focusing on the
+face for
+now unless you have like a totally
+separate text texture was like each side
+already made but this is just like one
+um PNG so going to be doing it from that
+so the pH it looks like it's Ro rotated
+so we're going to rotate it 90° press 90
+on your keyboard so it goes to the exact
+location we're going to move it where we
+want it to
+be scale
+it scale it move it up do whatever you
+want
+but this is what I did and it ends up
+looking like
+this so once you've saved the image go
+over to
+file
+export um fbx you can do obj it doesn't
+matter and then put whatever you
+want uh I named it C for YT and then put
+X4 fbx and then you got your model
+uh make sure to go to image save so it
+saves their image like down here and
+then yeah and that's basically it for a
+cat in the next video I'm going to be
+making um I'm going to be explaining how
+to move it over to Roblox Studio I'm
+going to be explaining how to make it
+more advanced all that stuff so if
+you're if you're liking this channel
+make sure to like subscribe hit the bell
+and I'll see you in the next one bye

@@ -1,0 +1,145 @@
+in this roblox tutorial I am showing you
+how to build a simulator map I will
+increase the speed of this video in some
+parts so it's not too long I am just
+starting with a blank baseplate and
+let's save it to roblox right away
+before I forget okay first I'm going to
+change the color of the baseplate to a
+bright green and also I will change the
+material to grass think about your
+design and the colors you are going to
+use did you know kids are attracted to
+bright colors look at tapping simulator
+bright orange bright green there is a
+science behind why they use these
+specific colors you know my grass needs
+to be brighter okay to speed up the map
+building I'm going to use free items
+where I can I am adding walls here in my
+opinion some of these free items are
+great and save heaps of time you can
+design your own walls if you like I
+would rather just modify something by
+changing colors or change the scale and
+then add more to it if I need to here I
+am just checking quickly to see if these
+walls have any scrips if they do I am
+deleting the scripts the reason I do
+that is the scripts may have malicious
+code in them or things that will slow
+down your game for these walls I'm going
+to remove the shadows and change the
+color and scale so that it fits my base
+plate remembering I said I need to have
+bright colors for kids so I am checking
+against the tapping simulator game to
+make sure I get it bright enough unless
+you have your own design ideas in your
+head or graphic design to look at it's a
+good idea to model off another
+successful game I am not copying rather
+I am using what they did great and
+implementing that in my game here they
+nailed the colors so I am choosing
+similar shades of orange and green I
+doubt they are exactly the same
+[Music]
+it's starting to look pretty good and
+you can see how much faster it is using
+free items okay I see a lot of the
+roblox simulator games use these paths
+we are not reinventing the wheel here so
+guess what I am using paths - again you
+can create your own part here for your
+path I'm going to use the free item
+though so I can get the game working as
+soon as possible
+while I am doing this you will see me
+create a new folder for each thing such
+as the map and these paths etc just
+cleans up the workspace a bit to keep
+things organized
+okay so I have one done now I will just
+duplicate this part to make more and
+move into position using the move tool
+for position settings
+you can see me rotating these here using
+the rotate tool and positioning them in
+place I will speed the video up until
+these are done okay let's check our
+to-do list to see what else I need to
+add I need four shops leaderboard eggs
+and a teleport okay I'm just going to
+check the free items and later when the
+game coding is completed I might come
+back and replace these shops or build
+something better anything will do for
+now
+actually this blue shop ring is perfect
+it even has a script in it that pops up
+the GUI when the player touches it so
+half our work is done here already time
+saved and development is always a good
+thing
+my pro tip for you today is in the
+beginning stages of your game
+development don't waste too much time on
+the design instead just get some things
+on your map like this you can change and
+swap these things later the priority for
+your game development is actually the
+development part so focus on getting
+things working first then later you can
+tweak the design and items during the
+development stages ask yourself these
+questions
+what is the gameplay like is it
+addictive does it function as expected
+how can you improve the functionality to
+increase the user experience that will
+help you to create a good game because
+you are thinking about the user
+experience and not just creating random
+things that don't make sense for example
+in popcorn simulator the player eats
+popcorn and then trades their empty box
+in for coins it doesn't make sense and
+maybe doesn't matter however with a
+little thought perhaps the developer
+could have come up with something better
+our Maps looking good stick around soon
+I am going to add a checkered pattern to
+the floor first I am going to add some
+trees and rocks
+I might swap these later it just makes
+it feel completed with the trees notice
+I choose the bright green ones sticking
+with our bright for kids idea
+okay just going to speed it up a bit
+let's get to the checkered floor so for
+this checkered floor just search for a
+checkered pattern and copy the URL for
+it
+click the plus sign on your base plate
+and add a texture to it paste the URL in
+for the checkered pattern I change the
+studs per tile to 100 and I change the
+transparency to 0.89
+[Music]
+actually I'm going to try this black and
+white checkered pattern
+[Music]
+that's looking really good
+[Music]
+that's our simulator map completed let's
+check our list in the next video I am
+adding buoys for all of these
+[Music]
+I think our simulator map looks very
+good and is a good start to our game
+I think our grass could be a little
+brighter tell me what you think in the
+comments this is the god of coding an
+epic blocks to signing off see you in
+the next one

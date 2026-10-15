@@ -1,0 +1,153 @@
+All right, so I'm back again with
+another video on how to make girl garden
+UI because last time I uploaded and it
+turns out I only edited two seconds of
+the entire video and I'm not going to
+make that mistake again. Originally I
+was so confused with that video cuz I
+got one comment with a emoji and I was
+like what? What's up? So I thought the
+entire video was completely fine and no.
+I uploaded it was 2 seconds and I go to
+see the analytics and there was a lot of
+people that wanted to see that. Anyway,
+that's enough. Let's get into Photoshop.
+So once we're in Photoshop we're going
+to get two reference images. So, one of
+them I've taken is from SEDDev and the
+other one is just a screenshot from the
+game. Now, what I'm going to do is I'm
+going to place this seed shop just
+inside of my artboard. That means when I
+export that's going to appear inside of
+my PNG as well. Now, that's all we need
+to do really for this UI. And you can
+send this off to a client, you'll be
+fine. That is the end of the video.
+Thank you. All right. I'm obviously
+joking, but the first thing we're going
+to do is we're going to get a little
+texture from this, and it's going to be
+the stud texture from Roblox. You can
+find this on Google or when I release
+this video, there should be a gumroad
+for the videos files. So, you can get it
+from there. I think the first thing that
+we're going to do is we're going to this
+bottom bit. I'm going to try and trace
+the rounding too. Right, there we go.
+And of course, we just need to get the
+color. Right, cool. Now, we can paste on
+our stud tile just like that. And the
+studs are quite big. We want to try and
+make sure this all equal across the
+shape layer. Create clipping mask for
+the sto tile. And then if you want, we
+can just Ctrl E to merge them together.
+But before that, we want to turn this
+fill down a little bit cuz if you can
+see, that's not really that visible on
+the UI. All right, the next thing we're
+going to make is this top bar, which is
+green, and it has rounding at the top,
+but it doesn't have rounding at the
+bottom. Now, the easiest way to go about
+this is simply just to set the corners
+to 10 and leave the bottom corners at
+zero. That's not rounded enough in my
+opinion. So, I'm going to change the top
+corners to I think 20 should do. All
+right. There we go. Much better. All
+right. And from there, we just want to
+change the color to match this. Once
+again, paste the studs on there. Make
+sure you have the studs selected first.
+Align it with your frame or the shape.
+Create clipping m the fill down. All
+right. Now, you'll see that that's
+perfectly in line with that. And it
+might just be a little bit bigger. All
+right. There we go. Now, it's perfect.
+Now, we can see there's a little very
+tiny bit of shadow underneath. So, we
+want to go into the blending options or
+layer style panel and we need to make a
+drop shadow. Now, we want the distance
+to be a tiny bit down and the spread
+needs to be at zero. Turn the opacity
+down a little bit. And you know what? I
+think that will do. All right, there we
+go. The next thing we need to make,
+which is really simple, is just this. It
+has no rounding at all. And once again,
+we'll need to copy the color. And
+literally, all this has is a inner
+shadow. All right, turn the distance
+down. Turn the choke down. And the size
+should be at about there. All right,
+there we go. Actually, you know what?
+Look at I again, it has a really small
+stroke. So, we're going to add that as
+well. All right, there we go. And it's
+the exact same pretty much for this. I'm
+going to teach you a little shortcut
+when we have stuff like this. Okay. So,
+with this little viewport frame, instead
+of going into the layer panel again,
+we're going to just copy layer style and
+then we're going to paste it into this
+one. And there we go. And literally all
+this is is just a case of copy and
+pasting those. Now for these I want to
+make it a well I want to rasterize the
+layer style first and then merge them
+and then I want to add a little shadow
+effect. All right. Once you've got your
+shadow effect you can keep it at that.
+And I believe the font they use is
+Fredoka one which you can get from
+Google fonts. We need to turn this scale
+down. New seeds in 3 minutes and 0
+seconds. We'll do that. We can keep that
+at that. And this does have a little
+stroke on it that we need to add. And we
+can just turn the size down there. All
+right. Now, for the buttons, it is
+literally just really flat. And there's
+literally nothing to it. That is it. Is
+just the color, not really anything
+else. There is a stroke, but I don't
+think I'm going to add it. I mean, I
+could, you know, I'm going to add it
+just for the consistency with all the
+rest. There's one thing I want to make
+sure I'm teaching you all. Consistency
+is key within UI design. All right.
+There we go. And then all we need to do
+is make the close button. I'm going to
+not bother with the text for that. As
+long as we have these, it is fine as is.
+The thing is with text, you'll end up
+adding it in studio. So you don't really
+need to add it in here. It's good for
+prototyping and showing it off to the
+client. But for today's use case on
+teaching you how to make this UI, I'm
+not going to bother. All right. And then
+as this is a shape layer, what we can do
+is just change the color to the gray.
+And there we go. Now, you will notice on
+that one there is the sto tile texture,
+but we're not really bothered about
+adding that in because uh all we need to
+show is this. And as you can see, this
+will also be in the description. We have
+created a grow a garden UI. It's not as
+good as the original video I did, but as
+I explained in the intro, that was 2
+seconds long. But hopefully you
+appreciated this and I helped you out if
+you was looking for this. And uh don't
+forget to give it a little like and
+subscribe if you want to if you want to
+see more content like this.

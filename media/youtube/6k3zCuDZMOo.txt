@@ -1,0 +1,39 @@
+hello in this video I'll be explaining
+to you how to automatically scale all
+your UI on any device
+out making much trouble
+it just takes a little bit of your time
+alright
+so I'll make a frame real quick
+and you will see
+if I have it like this and now test it
+it doesn't scale it looks like garbage
+now how do we fix it go to the toolbox
+go to the plugins tab
+and now search beautiful Auto scale
+now it's your decision if you want to
+pay for it or not there's a free version
+of it which I personally use Auto scale
+light and it has all the features I need
+once you've installed it click on manage
+plugins if it is invisible and search it
+and enable it
+now you will see a constraint unit
+conversion no text
+click on the object you want to
+automatically scale on all devices hit
+unit conversion and click here on
+position and scale on size
+and now we test it works perfectly
+saved it automatically scales without no
+effort
+simple
+if you want to scale images on all
+devices sometimes it won't work like
+this in this case you have to use
+relative Y in relative xx and this size
+constraint
+property that was it for this video if
+you liked it I'd be happy to subscribe
+and maybe leave a like
+here

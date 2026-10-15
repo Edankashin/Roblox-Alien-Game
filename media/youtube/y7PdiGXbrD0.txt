@@ -1,0 +1,37 @@
+control our and cut the default Cuban
+half moon scale up the middle and scaled
+on the sides with those top two faces
+selected start control right clicking to
+extrude up your tree scaling if you once
+in a while here we can split our tree
+extruding right with one branch and left
+with the other if you feel need for some
+reference add in an image background add
+some more loop cuts to make faces for
+more branches branch out here a branch
+out there and you got a decent looking
+tree using the images as planes and on
+importing the branch texture align the
+origin point up at the start of the
+branch and add in for loop cuts cut
+around that branch now and delete the
+excess faces add some variation to that
+flat plan create a new vertex group for
+that tree select the outer branches and
+a science weight paint mode for tweaking
+new particle system choose hair make
+that ten choose advanced under render
+choose object object is that branch
+select the vertex group we made Drew's
+rotation and global Z randomize to poles
+branches down some random phase and
+random scale and 300 branches now with
+an HDR loaded choose transparent for the
+branch material and an add shader and a
+translucent shader connecting it to the
+bottom connect up the color we have
+light passing through our tree and a
+bark texture for the tree unwrap with
+you smart UV project scale and movies up
+and in the specular and normal Maps and
+bike billowy guru tree

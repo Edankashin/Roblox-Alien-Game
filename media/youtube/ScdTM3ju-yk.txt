@@ -1,0 +1,140 @@
+Today, I’ll be explaining what Future Is
+Bright Phase 3.0 has done to continue revolutionizing realistic lighting in ROBLOX.
+On the day of recording this video on August
+1st, 2020, Future Is Bright Phase 3 is currently
+in Beta testing, which means that any new
+features that have been added will not show
+up if you try to play the game outside of
+Studio until it is fully released around October
+to December of 2020.
+I will only be showing the new features of
+this phase, so if you are interested in what
+Phase 2.5 added, you can go to the card at
+the top right of the screen or find it through
+the tutorial playlist in the description below.
+To enable the new features of this update,
+make sure you’ve turned on the Explorer
+and Properties tabs through the “View”
+tab at the top left of the screen.
+From here, click on “Lighting”, go down
+into the properties, and change the “Technology”
+setting to say “Future”.
+Make sure that you are using over 5 bars of
+in-game graphics quality, or have the “Edit
+Quality Level” through the “Rendering”
+tab in ROBLOX Studio’s settings set to at
+least level 10 or higher in order to see its
+effects.
+The largest improvements have been seen with
+“PointLights”, “SpotLights”, and “SurfaceLights”.
+I’ll be showing a before and after with
+the old and new settings for each of these sections.
+PointLights emit light from a single point
+in every direction, so if we go into this
+room here and change the PointLight’s properties
+over here -- we click on it, go into the Properties
+setting, and I change the “Range” property
+to something higher, it’s going to reach
+every single part of the room.
+Since we’re using the Future setting, I’m
+going to go into the Lighting and swap it
+back, and this is what it looked like before
+with “ShadowMap”, and this is what it
+looks like with Future.
+And if we go on the outside of this room,
+you’ll notice that there is some slight
+light leaking improvements, but that’s not
+the same in every single case.
+SpotLights emit light in a single direction
+in an almost cone-like shape from the center point,
+so if we go over here to this SpotLight
+and we move it closer to something or change
+its angle property, the point of light will
+either become wider or narrower.
+The shadow this now creates on other things
+within the environment is now much more noticeable
+and refined, so if I compare it over here
+to ShadowMap, and this is Future -- ShadowMap
+-- this is Future -- it is much more refined,
+as shown through the shadows of some of my
+YouTube Members trying to change out a lightbulb.
+SurfaceLights emit light in a single direction
+directly from the surface of the object it
+is attached to -- you can choose any of the
+surfaces (sides).
+This happens in somewhat of a boxy shape,
+as shown by these different lights here in
+descending height.
+SurfaceLights have seen similar changes to
+the other lights if we compare the ShadowMap
+versus the Future light setting, however,
+these updates currently do not support shadows
+from SurfaceLights, as shown from these differences
+ahead.
+While a SpotLight over here with “Shadows”
+enabled will not shine through the part below
+it, SurfaceLights don’t do that currently
+during Future Is Bright Phase 3.
+This might be something that gets supported
+in the future, but that would be outside of
+the Future Is Bright series.
+Since there were major changes from this update,
+there are things that you need to consider
+if you want to use this in your games.
+To start, only players that use 5 graphics
+bars or higher in-game will be able to see
+the Future Lighting.
+Anyone that has below that amount will default
+to ShadowMap or “Voxel” settings, which
+could lead to certain cases like the posts
+shown on the screen from other Developers.
+However, it has been noted by one of the ROBLOX
+Staff members that this could be improved
+in the future, but it would not be part of
+the Future Is Bright updates.
+Another thing to remember is that since this
+lighting update makes some things look more
+realistic, it could make your games laggier
+and limit overall performance, which might
+make it difficult for some players who might
+have lower-end PCs or on a mobile device,
+to enjoy your game on a graphics setting that
+allows them to see the new changes.
+One user has found a drastic decrease in performance
+in their game, going from around 200 all the
+way down to 100 FPS on their Menu Screen.
+There will hopefully still be performance
+improvements made to these new settings from
+ROBLOX, but it will likely remain laggier
+than other lighting settings.
+Also, it was mentioned in the original post
+by ROBLOX Staff that shadowed point lights
+will cause worse performance than shadowed
+spot lights, which is probably because point
+lights emit light in all directions, so keep
+that in mind when you’re selecting what
+lights to use.
+Remember that you will likely need to make
+a lot of adjustments in your game to make
+sure that you are able to see during different
+times of day, primarily inside of buildings
+that were reliant on few to no light sources.
+There are also some bugs when swapping between
+Future and ShadowMap, so keep that in mind
+and make sure you’re checking between both
+(settings) so that you know what certain users
+will see on lower graphics settings.
+If there are any changes to any of the features
+from this update in the future, please check
+the announcement thread that I will put into
+the “Important Links” section in the description below.
+If you’re interested in using more lighting
+techniques to improve your game, I have tutorials
+on Atmosphere and Depth Of Field, which can
+be found through the card at the top right
+of the screen along with the playlist in the
+description below.
+If you have any further questions, please
+comment down below and I’ll try to help you as soon as possible.
+Anyway, hope that you guys have a fantastic
+rest of your day, I’ll cya all next time!

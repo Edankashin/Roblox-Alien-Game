@@ -1,0 +1,381 @@
+hey what's going on guys it's Jeremy and
+I'm backing up with another video this
+video will be showing you how to convert
+your UI from offset to scale and
+basically what I mean by that is if
+you're like me and when you create your
+UI you do everything using the offset
+um using whole numbers and not the scale
+which is using the um
+between zero and one uh basically it's a
+percentage based on the uh the
+resolution uh or the the absolute size
+of the parent object
+um
+basically it's uh the way I like doing
+it this way because it's easier for me
+to create the UI the way I want it to
+and then I can just worry about
+converting it to the um
+to scale later on and
+um the way I do that uh is through
+usually I would just use my plug-in that
+I have here
+um ignore the icon but that's how I
+usually do it but I'll show you guys how
+to do it in like like how to create a
+function in your script to automatic do
+this um
+and so what you're going to do is you're
+going to take your UI
+this is a simple shop I've created just
+for a demonstration and I can show you
+an example what the kind of like what
+issues this caused if you want to like
+to convert to scale like for example if
+you have like a cool
+um
+effect when you open and close your UI
+as you can see it kind of just like
+mushes everything together and it
+doesn't actually kind of um keep it
+scaled properly another thing is is if
+you rescale the window it doesn't
+rescale the object
+um
+uh based on the uh the screen size
+um it's just kind of just one set size
+and that can cause issues for smaller
+devices if you if you're creating this
+on like a um a computer with your um
+you know like a screenshots of the
+1920x1080
+um
+and you're you're creating inside this
+the Roblox studio and let's say someone
+like tries to play this on their phone
+using that scale that you've chosen for
+um the screen that you're working on or
+you're the the resolution that you're
+working with it's just gonna go
+completely just completely just flood
+their screen uh depending on the size of
+the interface
+and that can cause issues so
+um we can go ahead and get into this I'm
+going to keep this effect here so I can
+show you the final product so I created
+a um a local script here inside of the
+screen sheet why called controller you
+can just put this implement this
+function anywhere where you control all
+the um
+the functionality of your UI
+um so I'm going to go ahead and create a
+function so I'm going to
+um let's go ahead and call this one like
+um
+convert to scale so let's see
+multiple function
+uh convert to scale
+and um
+this function will take in
+um the instance uh the parent like the
+the parent instance of what you want to
+start with and then the
+um we'll do uh
+uh
+uh canvas
+size
+um and then
+uh I think that's that's all we'll do
+actually we can do the um
+um
+wear level
+uh that way I can just add this to like
+um
+I choose to basically add in like an um
+an aspect ratio constraint to the the
+main Windows uh that way they're
+um they're also kind of like
+um
+controlled based on like the the size as
+well so an aspect ratio constraint keeps
+the um the Resolute like the keeps the
+um
+the aspect ratio like it just keeps it
+from like distorting your your interface
+so like
+um if I wasn't to use an aspect ratio
+chemistry and I was to use a wider
+screen the UI would extend out based on
+the user's uh screen width and that can
+cause issues for like images and stuff
+on your
+um your your frames and all that so I'll
+add that later on but I'll use layer
+level to determine the the level of the
+layer
+um
+but
+um
+what we'll do is
+um do
+um
+so we're going to Loop through all the
+the children of the instance in order to
+do uh four index
+child
+and I pairs uh instance called get
+children
+and do and so this will uh we'll just
+Loop throughout the uh child instances
+of the the main object that you passed
+into the function
+and
+um we're gonna make sure because
+we're gonna make sure it's an actual
+like frame button or like whatever it is
+it has to be like a GUI object and not
+like a gy constraint
+um so we'll do uh if
+uh child colon is a
+um gy
+object
+then we will
+um
+go ahead and grab the absolute size of
+the child
+so do local absolute
+size is equal to child dot absolute
+and uh we'll also need the position of
+that uh child so do position is equal to
+child dot position
+um
+and we're going to want to do this from
+the
+um
+the base down so like the the the
+furthest down like the uh the last child
+so we're just gonna go through all the
+descendants of this so
+um we're gonna first call this function
+on itself again so convert to scale and
+we're going to call it as with the uh
+the instance being the child and
+and the absolute size being the
+BND uh the canvas size and then we will
+do uh layer level plus one
+um and that will be used later
+so for actually scaling everything
+we're going to go ahead and start with
+the size the size can be done
+uh basically dividing
+uh the um the absolute size X of like
+the the child's absolute size
+um
+dividing it by the canvas size
+so if we do
+um
+child size is equal to udem2.u
+and inside this item 2 we will go ahead
+and do absolute size.x divided by the
+canvas size.x
+and we'll
+um zero and do the same thing with Y so
+absolute size dot y divided by
+the sign it's just as simple as that
+that's
+um
+that will convert it so we'll just go
+ahead and
+um
+and convert to scale and let's say I
+want to use the same
+base dimensions as what I'm using in
+studio we do uh we'll do the
+script dot panel which will be the
+screen GUI and then we'll do uh Vector 2
+dot new
+um or you can actually
+we can go up here if you want to use the
+same ones actually no the ones that we
+are using a studio would be different
+for each player so Vector two dot new
+and we'll do 15.95
+on this can be like a base size like um
+for uh 1080 uh it could be like 1920 by
+1080. if you want to do like a base
+resolution size but if you just want to
+make sure that the UI is the based on
+the scale that you're using in studio uh
+you can just input the uh the screen key
+wise absolute size value into the vector
+2 and then this that's what that we'll
+use and then we'll go ahead and um
+um leave this blank for the last one and
+inside the function do a layer level
+is equal to where level or zero
+um
+actually I'll do layer level one
+that way it's consistent
+um
+and then
+so if we were to play the game here
+you'll notice that it looks the same but
+if we
+you know mush it actually
+um obviously
+since parts of this are still using
+scale for the position I mean also for
+the position it'll still like send those
+off the screen but as you can see it
+like changes the size based on the
+screen size
+so now for the position
+um it's similar so we'll do child dot
+position
+and we're going to use the um
+already existing scale
+uh of uh or the already existing scale
+position scale
+and we're going to add on the uh
+positions offset uh divided by the
+canvas offset
+um or canvas size offset so I'll show
+you because we'll do udem2.new
+and for the x value we will for the
+scale x value we'll do position dot x
+dot scale
+uh Plus
+um absolute size dot X
+uh
+uh or sorry
+um
+position dot x dot offset
+divided by the uh canvas size
+dot X
+and then we'll do zero and then we can
+go ahead and copy this and change all
+this to y
+EP
+uh I'm just gonna change this to Y and
+then Y and then make that the last value
+zero
+um I gotta make it equal to the unit 2.
+um now
+if we play
+it looks the same but if we
+um scale it now as you can see the text
+doesn't go off the frame it stays on
+there because
+um the uh I believe on if you go to the
+featured and we go to purchase it's got
+like some of these and offset so like
+minus six pixels minus 12 pixels uh 24
+minus 178 all that good stuff and it
+will just basically convert it all to
+one um scale number of something between
+zero and one
+and uh just use as the base size now
+the there's still an issue with this
+um
+if we
+it like smushes it so that's not that's
+obviously not good so what we can do is
+use an aspect ratio constraint and this
+is where the layer level will come in so
+we can check if the layer level is equal
+to one
+uh I mean obviously if you want to put
+the aspect ratio constraint In a
+Different Light layer level or um
+you don't want it to be in like the main
+UI uh you want to use your own like
+constraints uh inside of each object
+without this you can just remove this
+but
+um
+uh this will just add a base constraint
+to
+um each of the main level frames so like
+if you had a shop a backpack and like uh
+some other like like a code window and
+all that and you're sending the instance
+as the screen GUI it will just add an
+aspect ratio constraint to each of the
+main frames and not to each individual
+frame so we'll go ahead and create an
+aspect ratio of constraints we'll do um
+local uh
+uh ratio is equal to instance dot new
+if I can actually type in students oh my
+gosh
+serial.new
+uh
+uh aspect ratio constraint
+and we can do uh aspect aspect
+aspect ratio dot aspect uh ratio
+is equal to Absolute size dot x divided
+by absolute size dot Y and this creates
+a um an acidic ratio based on the
+um the absolute size of the frame
+and then we can just go ahead and parent
+that
+to the child
+and then
+yeah that should be everything there if
+we go ahead and hit play
+and we
+you know change the window size as you
+can see it actually
+um updates
+the size and actually keeps its its uh
+um
+rate aspect ratio no matter the screen
+size and then also this effect looks a
+lot smoother because it doesn't go well
+out of its way to
+um just kind of just crumble everything
+together
+um so yeah uh this is just a basic
+function you can add in
+Um this can go at the end like this line
+of code can go at the end of your main
+controller function for all your UI and
+it's just it's just nice to
+um be able to do this rather than kind
+of just like
+um trying to like either keep a copy
+with like all the
+um the aspect ratio or not answering the
+with the the the offset inputs or
+um just going in and like changing
+things and then updating it with a
+plug-in this just kind of does it for
+you
+um obviously the plugins are great and
+all that but
+this kind of does it a lot quicker
+um and you don't really have to go in
+Click buttons and do all that you can
+just update something and this will just
+automatically kind of apply those
+changes you can modify this to your
+liking
+um but
+um this is just kind of like a a base
+function for you to use
+um and hopefully this kind of uh helps
+you out in creating UI there's a lot of
+better ways you can go about doing this
+this is just one of the ways that um and
+do it
+and this is obviously probably not the
+best way there's probably a better way
+for some to do something out there so
+yeah hopefully you guys found this video
+helpful and hopefully you enjoyed it
+um yeah I'll go ahead and see you guys
+in the next video thank you for watching
+peace out

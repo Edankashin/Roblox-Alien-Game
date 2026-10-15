@@ -1,0 +1,430 @@
+there's one secret that makes pet Sims
+free reward UI perfect the animations
+it's not just about adding movement
+animations literally make the most
+boring part of a game into a dopamine
+Hit Factory this is something most
+developers Overlook but if you stay to
+the end you'll be able to compete with
+pet SIM for the best UI on Roblox this
+is the final part of a three-part series
+on pet Sim 99's free rewards system if
+you missed the first two they're linked
+below now this video is going to have
+two sections first we'll quickly finish
+the back end of the rewards by adding a
+money counter and then we'll do the
+animations let's get started okay so the
+next step here is just making sure that
+this reward actually fires through to
+this money and we can see our reward and
+our money show up after we've claimed it
+so the way you to do that is since it's
+already getting fired through when we
+actually claim our reward here it tells
+us how much new money we have is we just
+need to create a new script here in our
+GUI in the scripts folder we'll create a
+local script and we're just going to
+call call this script money inside this
+script we just going to need a few
+Services replicated storage for one
+we're going to get replicated storage
+just like that and then we're just going
+to get our references here and we're
+going to say local remotes equals
+replicated storage. remotes then for our
+references we're going to need the GUI
+which is scripts. parents. parent and
+then from there we need the money frame
+which is just
+GUI wait for child money money so now
+looking into this money frame here we
+need the amount here and we need to set
+this text element on this so what we can
+do here is just say remotes do
+ui. updat money and thenon client event
+we want to connect it to an anonymous
+function here and what we'll just do on
+this is say when we update the money
+we'll say
+through so it equals new money there it
+is say number like that and let's give
+it a look it should also update on start
+when we load into the game for the first
+time yep so we've claimed 10 coins so it
+says we have 10 coins over here and as
+we wait N9 more seconds for this to
+count down once we click on this there's
+going to be a lot of stuff going on
+you're going to see this number go up
+you're going to see this right here
+change from ready and the one to nothing
+this change to the check mark but watch
+this this is where the money is going to
+come through there it is 15 gold so
+that's the money set up and working and
+the last thing that you're going to want
+to do on your own is because I can't
+actually share sound ID files with you
+um Roblox doesn't allow you to share
+those across multiple accounts or
+multiple experiences what you can do is
+go through and put in your own sound
+effects and Trigger them in your money
+script trigger them in your reward
+script and your window helper script
+when you open a window close a window
+get new money or update a reward or
+something cuz sound effects really bring
+it to life now it's time to set up the
+animations and it's pretty simple to do
+so and it's very extendable so as you
+add more animations and things to your
+game it becomes super handy to set up
+your GUI animations like this so the way
+we do it is by adding two scripts we're
+going to add a local script in your
+scripts folder in your GUI and we are
+going to call this UI helper the other
+script you need to add is in replicated
+storage in your modules folder that we
+created earlier and we're going to add a
+module script this module script we are
+going to call UI effects here and we'll
+replace this module with UI effects like
+this so what we're going to do is this
+UI helper is going to Loop through
+everything in this GUI so you can see
+here in the Explorer we've got a ton of
+stuff in this GUI and anything that's a
+button anything that we spawn in that's
+a button or any other effects in
+animation we want to play we don't want
+to have to manually go through and
+connect all of those in a script and say
+oh rewards. exit button when you click
+it this way when you hover over it play
+this animation when you click it do this
+animation we want that to be automated
+and that's what we're going to do here
+is we're going to Loop through
+everything in this UI Helper and build
+effects into this UI effects module and
+then play those when we find objects
+that get added to the GUI and I'll
+explain that a little bit more as we go
+but for now let's just get started and
+you'll you'll see what I mean now
+initially we are going to need to get
+some Services here actually just one
+service we are going to need replicated
+storage we are going to do game get
+service replicated storage and then
+we'll add a new section here not
+references we're going to add modules so
+local UI effects equals and then we'll
+require it you have to type in require
+replicated storage.
+modules. effects this is how we load
+this module script in to the UI helper
+script instead of just referencing it
+and now we'll add our references and
+we're just going to get the gy which is
+the parent of the parent of this script
+so now we're going to add one event
+connection down here and that is going
+to be ui. descendant added and we're
+going to connect this to a function
+we'll create right here called apply
+effects and we'll apply effects to the
+descendant of the
+GUI so we'll connect this right here and
+what we're going to do in this function
+is start checking what The Descendant is
+so we'll say if the descendant is a GUI
+button that's the class of it then we
+want to apply an animation to it first
+things first is we have two different
+kinds of buttons um you'll notice we
+have this kind of button out here which
+is just a normal button and this exit
+button right here which is a sync button
+where if we go to it in the Explorer
+we'll see there's exit and then this
+color piece which get kind of kind of
+gets shifted up and down here it's what
+you see in pet simulator when you see
+the button press into itself that's what
+this is so this is going to be a sync
+button and anytime we have a button like
+this all we're going to do to set this
+up is come down here in tags under its
+properties of the button itself we'll
+come down to tags and we we will add a
+new tag called sync button so then in UI
+helper we will check right here if the
+descendant has
+tag sync
+button then we want to do one thing else
+if it is just a normal button we're just
+going to do the normal standard button
+animation which we'll set up here in a
+second but when I say setup it might be
+a little confusing what do I mean by set
+up there I mean we're going to come into
+UI effects which we have this module in
+the local script and we are going to
+build out some animations in this UI
+effects thing that we can call and we
+can call them from this script so within
+this module again we're going to need
+some Services here the first thing we
+need is replicated storage
+so we'll do replicated storage is game
+get service replicated storage we will
+need tween service of course because
+we're doing tween on this so we'll say
+game get service tween service and the
+last one we need is user input service
+which is game get service user input
+service like that now let's create in
+our references a couple of tween infos
+we'll say info one equals tween info.
+new 0.1
+the enum easing style of this we will
+set to cubic and the easing direction we
+will say enum easing Direction in and on
+this second one we will call this info 2
+oops
+local equals
+tween info. new and we will just set
+this to
+0.05 with no additional parameters and
+then we'll come down here to UI effects
+and we are going to say function UI
+effects do animate sync button press
+we'll create one more here we'll say
+function UI
+effects. animate button press this is
+for the normal button but in both of
+these we want to pass in the button that
+we're modifying which is going to be
+button and this is a type check again
+we're going to make sure it is a GUI
+button element and it is descended from
+that class now coming back in here we
+can set this script up and forget about
+it right now by saying UI effects.
+animate sync button press and then pass
+in The Descendant just like that and
+then right here if it's not a sync
+button we'll say animate button press
+and again pass in The Descendant also
+before we forget if something gets added
+into the GUI before this gets set up we
+need to animate it also so what we're
+going to do right here is Loop
+through
+existing descendants
+so we'll say for blank essentially
+descendant in pairs gy get descendants
+then we want to do the following we want
+to apply effects that's simple now here
+in UI effects is where we need to build
+this out so there's one module I'm going
+to import into this project that I
+didn't personally create and I've used
+this in my past pet simulator tutorial
+so if you've seen that you'll be
+familiar with this if you haven't go
+check it out this module is called the
+fusion module it's a UI library that is
+just going to make our code look a
+little bit cleaner here the link to it
+is down below but we are going to put
+that into this modules folder right here
+in replicated storage so to get fusion
+into your game you're going to go to the
+link that I put in the description and
+click this download Fusion button then
+we'll come down here to assets and then
+download This fusion. rbxm by clicking
+on it once you have it downloaded you
+just want to come into replicated
+storage in your modules folder and click
+insert from file and then select the
+file that you just downloaded in my case
+it's fusion. rbxm right here hit open
+and then it's in your modules okay so
+once you get this Fusion module imported
+here what we're going to do is come
+under references here and type in local
+Fusion equals
+require replicated storage. modules.
+fusion and then underneath this we need
+to get references to the fusion elements
+we're going to be using so we'll type
+local hydrate equals fusion. hydrate and
+local on event equals fusion. onevent
+make sure you get Fusion imported into
+your modules folder then make sure
+you're requiring it here in the UI
+effects script and then right underneath
+it you have hydrate and onevent
+referenced right here as fusion. hydrate
+and fusion. onevent so let's set up the
+sync button press first because it'll be
+harder and then animate button press we
+should just be able to copy most of it
+over and actually remove a few things
+for it so we're going to create some
+variables here for a click tween a hover
+tween and a press
+tween but we're not going to set them to
+anything then we are going to store the
+original size of the button by saying
+original size equals button. size and
+we're going to store the original color
+position by saying uh that equals
+button. color. position now here's where
+we use Fusion we are going to hydrate
+this button and we are going to hydrate
+it by connecting some of these events to
+it hydrating just means passing in
+properties and it attacks them onto the
+button and its events so right here on
+event Mouse button one down we want to
+have a function we also on event Mouse
+button one up want to have another
+function do something in this case play
+an animation and then also on the event
+Mouse enter we want to have a function
+here and finally on the event Mouse exit
+we need a function in this mouse button
+one down function we're going to say
+that click tween equals tween service
+create button and we'll use info 2 for
+this animation and then we'll open up a
+new table here of variables we'll say
+the size should equal a new udm 2 and
+we'll say it's OG size. x.s scale time
+0.9 and then we'll say zero for the
+offset and then we'll say OG size. y.s
+scale time 0.9 again and then zero it'll
+come down one line and we'll say that
+press tween equals tween service create
+and we'll do this on button. which is
+that element we added on our own info
+two open up a table here and we will say
+that the position value needs to get
+tweened to a new udm 2 which is going to
+be original color position. x. scale 0
+0.5 and 0 and then underneath this we
+need to play The Click
+tween just play that and we need to play
+The Press tween now that happens when
+the mouse button goes down so when the
+mouse button comes up we want to do a
+very similar thing we'll take click
+tween again and we'll create a new tween
+here with tween service. create create
+it on the button with info 2 again but
+in this table it's a lot simpler we just
+set size equal to original size same
+thing for press tween here set press
+tween equals tween service create on
+button. color using info 2 and we will
+just set the position to the original
+color position like so and and then we
+will play The Click tween we will play
+The Press tween so now that's Mouse
+button one down and up done then on
+Mouse enter we're just going to do hover
+tween here hover tween is going to equal
+tween service create on the original
+button using info one and then we'll
+open up this table here with brackets
+and in this table we will tween the size
+of the button to be Udin 2. new original
+size. x. scale * 1.06 we want it to get
+a little bit bigger when we hover over
+it offset of zero original size. y.
+scale again time
+1.06 and then the offset of zero we'll
+come down one line here and we will just
+play the hover tween like that now on
+Mouse exit we can actually copy and
+paste this and then get rid of this
+whole new udem right here and we will
+just revert this to original size like
+that and we can even back space here a
+few times and get rid of these extra
+tabs to keep it clean and then along
+with the hover tween where also going to
+create a press tween here and the reason
+we have these all set to the same
+variable is so that they don't overlap
+each other because when we overwrite
+them like this it keeps it a little bit
+more together than if you're creating a
+bunch that are playing at the same time
+so we say the Press tween is on the
+button. color say info two and the
+position just needs to equal the
+original color position like that and
+we'll play The Press tween so that right
+there is the sync button done that was a
+lot in a really quick amount of time but
+let's just play it and see how it looks
+so when we open up here it expands when
+you hover over it and it contracts when
+you click into it now there was an error
+down here because we uh I mistyped Mouse
+exit here so this event right here is
+not actually Mouse exit it is mouse
+leave make sure you get this fixed
+otherwise you could end up with an error
+like this but now playing again it is
+working and looks good so now for the
+normal button press down here we're
+going to do a lot of the same stuff in
+fact the easiest thing to do is just
+going to be to copy this entire function
+that we've put here and paste it first
+into here and then we are going to get
+rid of all of the press twns here as
+well as OG color position so anytime we
+have press tween we can just come in
+here and delete that so press tween is
+all going to be
+gone because we don't need it to press
+it down into itself and these are
+different buttons we're also going to
+tweak the size to 09 4 on this top part
+instead of 1.06 we're going to say 1.04
+on this bottom size scale and now as we
+come in you can see this button actually
+gets a little bit bigger when you hover
+over and a little bit smaller when you
+move off of it and it does sink in when
+you press it same thing with all of
+these buttons here redeem and you can
+click it just like that and guys we
+trucked through this UI effect section
+we also use a very similar system UI
+effects in the last pet simulator
+tutorial so if there's anything else
+with that that you're interested in give
+that a look and I I will also link a
+model of this Below in case you're
+having a problem with the UI effects you
+can go in there and download that as
+well as make sure you click the fusion
+link below to set up UI effects the same
+way if you made it to this point thanks
+for watching to the end if you liked the
+three reward series check out this video
+about making the shop gy from pet Sim
+also uh it's a great place to go from
+here lers

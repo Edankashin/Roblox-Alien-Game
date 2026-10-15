@@ -1,0 +1,257 @@
+How am I supposed to make this in an
+hour? I guess we're going to find out in
+3 2 1.
+You know, I should have probably planned
+something out before starting the timer.
+All right. Anyways, I think the most
+important asset that we're going to need
+to start off with is the border part. To
+make border parts, I typically start off
+with a cylinder. And I think I'm going
+to set it to be 13 sides this time. Now,
+we're going to add two cuts for the
+section that will have a darker color in
+the middle. And we're going to have to
+move the vertices around a bit so that
+the cuts aren't just a straight line.
+Then to make the center part a separate
+model, we just highlight the faces and
+press P, then selection. That's all for
+the dirt part of the model. Now we need
+to go ahead and add in another cylinder
+for the grassy part of the model. For
+the grass, we're going to move around
+the bottom vertices to help avoid that
+blocky style. And for some finishing
+touches, I'm extruding the top face and
+scaling it down and then insetting the
+bottom face and bringing it up to help
+make it look like the grass is hanging
+off. Finally, we can just apply a shade
+smooth to everything. and then apply
+auto smooth which you can find in the
+bottom right corner of the screen. All
+right, that's it for the border part.
+Now we can move on to the fun stuff, the
+trees. Simulator 99 has a really unique
+tree style with sort of blocky leaves.
+So I'm going to see how well I can
+replicate that. For the trunk, we can
+just extrude the top face a bunch of
+times and then move the center face for
+some curvature. And that's basically it.
+Now for the leaves of the tree, I'm
+actually going to be bringing in a cube
+and then I'll add a bevel to it to help
+round off the edges. And we can just add
+a couple manual cuts in the center as
+well to help with adjusting. Then I just
+moved around some of the vertices
+randomly to help kind of make it feel
+more random.
+All right. Now, with the leaves
+complete, we can bring it up to the top
+of the trunk and scale it up a bunch.
+All right. Now, we can scale this tree
+down some to match the border part. Oh,
+not that way. Oh, not that way. I don't
+have time to be making silly mistakes
+like these. All right. To save some
+time, I'm just going to be duplicating
+this tree model and bringing it off to
+the side. And for the second tree model,
+we can just grab the uh trunk of the
+tree and duplicate it. And we can move
+it up and rotate it a bit. And finally,
+we can just duplicate the leaf part and
+rotate it a bit so that it's not so
+obvious that we just duplicated the
+part. All right, so I made a third tree
+by basically doing the same thing. So,
+it wasn't really that interesting. And I
+noticed that we could just use this leaf
+part as a bush. Okay, so next up we're
+going to be making a 2D grass part
+because I noticed that they place these
+on the edges of the map. I've never
+really thought about incorporating this
+into my map. So, I'm interested to see
+how it turns out. Maybe they just did
+that because it's such an easy model to
+make. Like, that took 2 minutes. Since
+we only have an hour, we're not going to
+make too many models, but I'm just going
+to finish it off with this simple rock.
+All right, now we're ready to take
+everything and bring it into Roblox
+Studio. All right, so we're in Roblox
+Studio and we got to color these parts.
+I don't have much time to color these,
+so the colors might not match very well,
+but we're going to do the best we can.
+All right, so all the parts are colored
+now, and they're honestly looking pretty
+good, but we need to add in a ground to
+place all these meshes on. We're going
+to start by bringing this border piece
+on, scaling it up, and then just copy
+and pasting it a bunch until we have a
+nice wall. And now I'm just rotating a
+bunch of the parts so that it's not too
+obvious that we copy and pasted them
+all. And then another small detail that
+I noticed Pet Simulator using is they
+rotate the grass parts instead of the
+entire border part. And this helps make
+it look cleaner. All right, now it's
+time to start spamming all of the trees
+and bushes onto the map. I haven't
+checked how much time we have, but I'm
+just trying to be as efficient as
+possible so that we can at least try and
+get a couple worlds done out of the 50.
+All right. Now, I'm going to add in a
+path to help kind of bring the map
+together and resemble Pet Simulator 99.
+I'm also sure the grass is leveled
+outside of the path. So, I'm going to go
+ahead and do that before I forget later.
+Guys, I just realized that I forgot to
+make the pillars that separate each
+section. So, we're going to have to go
+back into Blender and make that really
+quick. At least it's not that
+complicated of a model and I can make it
+quickly. Okay, I completely speed ran
+that. But I'm honestly really impressed
+with how well I was able to do that. And
+it resembles Pet Simulator 99 really
+well. Maybe I should just become the new
+builder for Pet Simulator. Hey Preston,
+if you're watching this, I'm for hire.
+All right, let's go ahead and bring this
+pillar over to the other side as well.
+And we got to make sure there's no extra
+space between this border part and the
+pillar. All right, so I deleted the path
+and brought the grass back down to the
+same level. So we ended up just wasting
+some time. But right now, I'm focused on
+making the actual side of the map look
+more like the actual game. I've noticed
+that the Pet Simulator games really like
+to spam trees on top of the border
+parts. So, I'm going to really make sure
+I do a lot of that. And I'm actually
+going to change the trees to a different
+shade of green so that it contrasts more
+with the border parts cuz they're all
+kind of blending together right now. We
+also can't forget to add in some bushes
+to the ground to help make it feel more
+full and get some rock action in there,
+too, to help add some variety to the
+colors since it's all just brown and
+green right now. Okay, so the path for
+the Pet Simulator map is kind of weird
+and I don't think I can make it in
+Roblox. So, I'm going to have to make it
+in Blender somehow. Not really sure how
+I'm going to do this, but we'll figure
+it out.
+All
+[Music]
+right, so this is one of the most
+sketchy builds I've done in a long time.
+We're just not going to talk about how
+bad this is, but it looks somewhat
+similar to Pet Simulator, so that's all
+that matters. I'm going to be honest, I
+kind of forgot this was a 1-hour
+challenge, so I started moving a bit
+slower and we only have 16 minutes left,
+so we've got to start to pick up the
+pace a bit. Something that'll make the
+map feel a lot more complete is adding
+coins in the middle of the path. And I'm
+just going to be using the toolbox for
+this because we don't really have the
+time to make the coins. I don't know if
+you guys will consider this cheating,
+but I'm technically using my resources.
+I don't know. It's not like I'm doing
+this for competition or anything, so it
+doesn't really matter. Okay, we've got
+the first world done. So now we can just
+highlight it and copy and paste it over
+to the side. Hey, we can just do this 49
+times and we got a complete game. Just
+kidding. We have 10 minutes left. To
+make it less obvious that we literally
+just duplicated the entire world, we got
+to change the color and the size of
+everything. First, I'm just bringing all
+the border parts on this section down so
+that it doesn't look like they're the
+same border parts. But the two sections
+still look really similar. So, I think
+changing the color of this section will
+also help to bring it apart. There's an
+area in Pet Simulator 99 where it's like
+almost rainbow colors. It has pink,
+blue, orange, and green. So, I'm going
+to go ahead and try and copy that.
+I also noticed that there's a lot of
+mountains in the background, so I'm
+going to be adding a lot of those. And
+in case you guys are wondering how I
+know all of this, I have Pet Simulator
+open on my other monitor. It's not like
+I have this all memorized. For some
+extra depth, they like to have these
+smaller mountains attached to the large
+ones, and they make it a brighter color.
+Okay, I know I'm cheating again, but
+there's no way I could make a high
+quality water fountain in like 2
+minutes. So, I'm just using one from a
+previous project and adding it in. All
+right, I think we've got all of the main
+components done now. And now it's just a
+matter of copy and pasting these as many
+times as we can in the next 3 minutes.
+Wow. Okay, we really have no time. Enjoy
+this quick time lapse of me stressing
+and not talking because I did not think
+I would get anything else done. Oh yeah,
+by the way, if you guys want this asset
+pack, uh you can check the link in the
+description and I'll be giving it out
+for free. So yeah, you just need to
+click the link and you can download it
+for free. You're welcome. Okay guys, the
+hour is finally up and I think we got a
+lot done within this time span. I'm
+really happy with what we were able to
+do. It might not seem like that much,
+but you need to keep in mind I made the
+assets and built everything in the same
+hour, and I think it looks a lot like
+Pet Simulator 99. I'm going to go ahead
+and post a photo in RoadBuilder Discord
+server to see what people think of it.
+Also, you guys should join my Discord
+server if you want to get leaks on my
+future projects and maybe be a part of a
+future event. The game isn't coming
+together as quick as I anticipated, but
+it's definitely high quality. Um, so
+there's a few of the pets. I'm not going
+to let you see anything else. Uh, let me
+know how you guys think this looks
+compared to the actual Pet Simulator 99.
+Do you guys think Preston should hire
+me? I think he should and he should pay
+me well. All right. Thanks for watching,
+guys, and I'll see you in the next one.
+And hopefully we'll be at 20K by

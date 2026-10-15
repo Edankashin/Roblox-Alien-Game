@@ -1,0 +1,138 @@
+hey guys what is up it's zero here and
+today I'll be showing you guys how to
+make low poly trees which you can easily
+make within a few minutes and have a
+nice cartoony looking trees for your
+game so we're start off you're gonna
+have to hop on over to blender if you
+don't have blender I'll put a link to
+the download page below so make sure you
+go check that out
+first thing you're gonna need to do is
+press shift a Titan cert a new mesh and
+select the cylinder mesh in the bottom
+left you'll see this add cylinder
+section you're gonna want to make sure
+vertices is set to 7 6 or 8 anywhere
+around there depending on what your
+preference is after you've done that
+you're gonna want to press s and move
+your mouse towards the scale it down
+again and then press s and then Z X or Y
+it might be different for you but for me
+its Zed and then move it away to scale
+it up this will give you what will act
+as a trunk of our tree so we're gonna be
+exporting these all in separate parts so
+we can color them differently inside
+studio so once you have something that
+looks somewhat like this you can click
+file export wavefront obj and then you
+can create a file for all your blender
+meshes and stuff that's what I've done
+I'll just create a new one called the
+portal
+folder and then if I go over here I can
+insert tree trunk hit enter enter again
+that'll save it excuse me now we're
+gonna want to press the backspace button
+or delete button on our keyboard I mean
+and then click delete so now what we're
+gonna need to do is go to mesh and then
+insert a kony same thing down here
+you're gonna want to change the vertices
+probably gonna want it set to however
+many vertices you had for your trunk
+because it looks best if they have the
+same amount after you've done that
+you're just gonna have to you're gonna
+take this and you're gonna scale it up a
+bit
+now you're gonna press ctrl-c and ctrl-v
+move up the new one and then scale
+down with a yest sq and once you select
+the S key just move the mouse in just
+scale it down and you be able to scale
+it up until you have it about how you
+want it for the next layer now we're
+gonna want to copy and paste again drag
+up and scale down once again lower it or
+raise it until it's how we want it and
+then I think that looks just like that
+looks pretty nice if you want to you can
+add some rotational stuff to these so
+just if like you click and hold shift
+and click another one you can select a
+multiple then if we press our press that
+X or Y till we get the right access we
+want access we want to rotate on we can
+rotate these guys to make it look a
+little more detailed if we really wanted
+to although it's not a necessity
+so I'll just rotate that one back up
+there so this will be the grass part I'm
+not yeah the leaf part of our tree will
+export it the same way we did the other
+one
+file export wavefront obj this one on
+the treetop obj now we're ready to move
+over to roblox studio once you're in
+studio you can right click on the open
+workspace go to insert object and then
+find mesh part once you have a mesh part
+inserted in your properties window which
+you can open your properties by going to
+view then clicking properties you're
+gonna want to scroll until you find this
+mesh ID section you're gonna want to
+click here and then click the little
+folder that pops up and then in your
+documents you're gonna want to find
+wherever you saved your meshes tutorial
+folder tree trunk look open you might
+get a few different prompts just click a
+note all of them and now we have our own
+CSUN since it's a mesh we can scale it
+by each separate axis where there's a
+model or Union we have to scale it on
+all
+so if you want to do any resizing to
+your trunk you can that can be done very
+easily I'm just gonna change the
+material to smooth plastic then the
+color to brown drag it down a bit now
+we're going to want to duplicate this
+mesh part mesh ID click the little
+folder again and now bring in our
+treetop once again click note all the
+prompts that come up and now we've got
+our treetop we're gonna want to color
+this all green in my case I'm sure you
+want your tree green now we can race
+this up to however we want it to be say
+about excuse me about there we can just
+scale this accordingly if you hold shift
+and drag it'll scale it on all the axis
+I once move that down so that's looking
+pretty good I think now if we want to
+just make the whole thing a bit bigger
+we can just select all the parts and
+then scale up don't forget to anchor
+these and then we can do ctrl G to group
+them and name the model to tree now if
+we insert a spawn point near the tree
+and click test we can check out our tree
+you may want to rescale it in size
+comparison to your player because you
+might have got the scale of it off but
+usually it's fine and that's it that's
+how quick and easy it is to make a low
+poly tree inside of blender if you want
+more tutorials like this make sure to
+describe subscribe to my channel and
+like the video in the future I'll be
+releasing videos like how to make low
+poly swords and terrain pieces so make
+sure to comment down below which ones
+you want first I hope you enjoyed the
+video and I'll see you next time

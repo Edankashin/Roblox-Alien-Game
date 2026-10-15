@@ -1,0 +1,35 @@
+Hi y'all.
+Before we start make sure to get the
+plugen. It called outscale light. You
+can find it in toolbox then plugins.
+Okay, if you have it let's start.
+First add a screen and then a frame into
+starter GUI.
+Okay. So then you go to properters
+answer for size. You can also do this
+with the plugin but M just showing with
+and without set offsets all to zero and
+scale to random number scale will scale
+it right on devices if you now scale it
+how you like it will work I used a tiny
+number can be big or small like mine it
+doesn't m you can now scale it how you
+want it to be if you got the scale and
+puzz you want then go to the plugen and
+add a restraint to this only for frames
+and scrolling frames. Here is what we
+did to scale it correctly. This how you
+can use the plugin for it. Now you can
+see that it's scaled correctly.
+Let's add a scrolling frame
+and in it a frame.
+Make it any color. I I'll use green.
+We haven't scaled it yet. So, let's see
+how it is without scaling. It's buggy.
+So, let's scale it now correctly.
+Add a constraint to the scrolling frame
+and then select the scrolling frame and
+the frame in it and scale them.
+Let's check now if it works correctly.
+Like you can see it works correctly.
+TX for watching. Pulse sub.

@@ -1,0 +1,258 @@
+youtube welcome back to a new video
+series on the channel and uh as you can
+see on the screen this series is going
+to be us me teaching you how to make the
+pet sim x uh ui from
+start to finish so this is going to be a
+multi-part series
+um this is the first one and i think we
+should start off with the main hud
+i think that will only make sense these
+items right here this frame we're gonna
+make that later so we're gonna start off
+with the
+uh with these
+two currencies and uh the rank thing
+right here so i'm gonna try to make this
+as
+informative and helpful as possible
+while trying not to make this video too
+long so
+yeah to start off
+we're going to make a new layer so
+hit the new layer button all right next
+i'm going to go right here to my rounded
+rectangle tool okay if you don't see
+this it might be a rectangle i'm gonna
+click and hold and it should pop up this
+drop down uh menu
+and you just want to go for this one all
+right now
+um up here the radius we're going to
+have to adjust this
+let me try 55
+this will
+all right that's pretty good so
+we have our shape double click on
+the
+icon of it
+this will open up the color picker i'm
+just going to choose a white color
+perfect now right click let's go into
+blending options right here
+and let's go for a stroke
+a color and you pick any color you want
+you just
+pick the same color if you want
+and we're just going to move up that's
+i'll say two or three should be fine you
+can do i'm just gonna do two
+um for the position you can do it inside
+or outside
+obviously
+this should work fine
+all right so now
+let's make a new layer again
+all right and now
+click and hold
+and we're going to go for the ellipse
+tool
+okay
+so we're just going to go right here
+you could put a ruler
+in the center
+right here and we're going to click and
+hold
+all right that's what i'm doing
+and now i'm going to hold shift and oh
+it's going to make a really nice circle
+for us like that
+okay
+double click
+and pick on this color
+now we're gonna right click on the
+previous layer we're gonna go copy layer
+style because it has the stroke effects
+right click on the ellipse and we're
+gonna go paste layer style
+and i'm going to blending options
+because i see this little
+small little effect so in shadow i think
+overlay close to white
+choke up and size
+down
+so something like that
+as you can see
+now let's add some text
+let's hit uh t make her color white
+she's gonna click right here put a plus
+sign
+change the font to anything you want
+it is up to you
+i'm just gonna use this one right here
+i think it looks
+great let me see if i could center
+this thing okay
+next let's do this uh
+progress bar so it's actually pretty
+simple
+but um this one
+starts off sharp and it ends up round so
+let me show you guys how we could
+achieve that same uh
+same thing so
+let's go for a rounded rectangle again
+this time radius let's go for i'll say
+five
+make a new layer
+uh for the fill we're in turn fell off
+so click on the box
+and click on the red slash
+for sure open turn stroke on so hit the
+black box and let's change the color to
+black
+uh the stroke width is that three i
+think that should work maybe
+we try to i guess
+now we're just going to drag this
+all right apparently
+five is still too high let's go for two
+i'm just gonna
+drag like this
+okay let's go to shape
+there we go the stroke lift is too high
+let's go for one
+yeah i guess we're gonna go for one
+all right you guys will change the color
+if you want
+to a lighter shade
+so it looks like this right here all
+right there we go
+and now to make
+this part round we're going to
+take the
+rounded rectangle tool again this time
+bump the radius up
+to 10. doesn't really matter
+and we're just going to go right here
+i'm just going to drag this out
+so now we have this
+all right so let's go back to the first
+layer let's right click and hit
+rasterize layer also make sure this is
+the length you want actually i forgot to
+mention that
+let's make sure the
+legs are correct
+all right this is fine
+okay so here's what we got um let's
+right click and go to rasterize layer
+and also this one that's right layer
+now i'm going to take my rectangular
+marquee tool right here uh
+it is the second tool from the top
+and i have this
+layer selected right here i'm just going
+to go across it like this
+and i'm just going to hit delete
+there we go
+so now i just have this shape myself
+all right now for this one we go
+rectangular marquee tool let's go over
+like this and delete
+and now we just join these two
+and as you can see
+we have this very nice shape
+now let's go for a rectangle sole
+um
+color
+let's turn phil on and show off
+this part is pretty simple you just make
+these little lines right here
+as you can see we're just moving right
+right here
+as you can see
+copy and paste
+save these and let's move them across
+right here
+right and now
+let's put our
+our nose put some
+text so i'm just going to copy and paste
+so one percent
+undo blue actually
+why not
+right here
+take the
+effects on the ellipse with the stroke
+and add it to the text
+like that
+and if you want to add the progress
+thing uh go underneath these two and
+also the
+rectangles make a new layer
+and you just want to take your
+uh around the right single sole
+i'm just going to
+and do something like this
+color
+rash rice layer
+and cut off this
+part right here
+all right i'm just going to duplicate
+the text
+so i can put nib
+right here
+let's see spacing
+text and we could also
+um lower the stroke right here
+all right let's look for a gem icon
+like this
+okay it's cool all right now paste the
+same effect
+with the stroke
+and replace this icon right here
+you rotate it
+like that
+pretty cool
+remove this so text me
+so it goes right here
+and obviously you just want the same
+thing for the coin
+so
+all right so i'm going to use a note
+icon that i've made
+which is this paul coin i think there is
+a tutorial up
+i'm not sure
+but i think there is
+and uh let's see how it looks so all
+three this is how it looks
+i think it looks fantastic
+all right so that is the right side
+complete
+now let's do the buttons right here and
+the button on the bottom
+very simple ellipse tool
+let's go for a new layer
+click and hold right here
+and shift and all
+drag this out
+let's go grab the color blue right here
+just right click pasty layer style that
+we had from before now for the button on
+the bottom you just make a copy
+with one of these move it down here ctrl
+t
+to enlarge
+and you just change the color to white
+and uh yeah that is pretty much the
+first part of this series um i hope you
+guys enjoyed
+if you guys would like to see the next
+parts and for us to complete this ui
+tutorial series make sure to drop it
+like subscribe and i'm gonna see you
+guys in the next video
+[Music]
+you

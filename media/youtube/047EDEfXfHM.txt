@@ -1,0 +1,242 @@
+guys in this video I'm going to be
+showing you my favorite lighting
+settings for a cartoony build I've got
+this little low poly build going on
+right here that I'm going to be changing
+up during the course of this video or at
+least the lighting to see how much
+better we can make this look just by
+changing a few settings if you're
+interested in learning about what kind
+of cartoon lighting goes best for your
+game make sure you stick around to the
+end asz you're probably going to learn a
+lot about lighting let's get right into
+it first off let's open up the lighting
+service right here and you might see a
+lot of stuff inside of here that's fine
+cuz all you want to do is just delete
+all of it and it's already looking a
+little better in all hosty however
+there's something that we need to add
+inside of here if you click on the plus
+icon right here let's search for a color
+correction effect what this color
+correction effect does is allows us to
+change a lot of properties of our
+lighting such as the brightness contrast
+saturation and tint color so as for the
+brightness I personally always put this
+one on a low value something like
+0.05 just to make it a little bit
+brighter but not too bright that it
+overwhelms the whole scene after that I
+always like to put a little bit of
+contrast onto the build I think it helps
+the colors pop out a little bit more so
+I put that on anywhere from 0.1 to
+0.2 0.2 is getting a little drastic so
+you can maybe even do 1.5 it really
+depends on what your build is looking
+like however I'm just going to do 0.1
+after that I always like to go a little
+easy on the saturation as well so it
+doesn't burn the player's eyes I
+typically go from 0.1 to
+0.3 however 0.3 is a little saturated so
+I'm going to do
+0.15 right about here after that we
+don't need to mess with the tint color
+at all I think it's good the way it is
+so let's go over to our lighting
+settings this is where a lot of the game
+is going to change at least the look of
+it that way because this is where all
+all the good settings are at so up here
+at the top of your properties you'll see
+a box called ambient and this is
+basically the Hue of the global lighting
+changing this changes the color tint of
+all objects inside of the workspace so
+right now it's kind of add a dark gray
+color and we just want to change this to
+a much brighter purple color once again
+you don't want it to be too bright at
+all cuz that can be very overwhelming
+inside of your scene but a nice pinkish
+purplish color goes great and does a lot
+for your game this one's a little bit
+too much I've got something written down
+that I normally put in a lot of my games
+this is 212 comma 170 comma 240 this is
+a perfect mix that I found that works
+really great for some of my builds
+however you can feel free to mess around
+whether you want that darker brighter or
+any other color after that I prefer to
+turn the brightness a little bit down
+because we're going to be doing a lot of
+stuff later with shadows and and
+lighting and everything I feel like
+having the brightness just turned a
+little bit down helps not so much to
+burn the eyes for the color shift bottom
+this is basically the Hue of lighting on
+the bottom of an object and since the
+bottoms of the objects aren't really
+going to be seen all too much we can
+just leave that at
+0000 however for the color shift top
+instead of being at the bottom of the
+object this is for the lighting at the
+top of an object so one of my favorite
+combinations for this is kind of a more
+orangish tint I prefer something like
+206 comma 182 comma 129 it's that very
+subtle orangish hint I think that really
+gives the build a very big increase in
+just color in decoration overall it just
+makes it look really good I like to keep
+my environment diffuse scale at one not
+many people agree with me on this for
+some reason I think it overall looks
+really great on a low poly build however
+other people seem not to agree with that
+you can feel free change this down I've
+heard other people that change it down
+to something like 0.3 but I feel like
+this gives way too much of an orange
+tint so I prefer to leave it at one I
+think it's perfectly fine like that for
+the environment specular scale you'll
+see that as we turn this down you'll see
+that kind of the shininess around some
+of our objects here will go down I
+prefer to have this at around
+0.3 I think it gives everything a more
+kind of flat feeling to it it's not so
+shiny anymore I think that's great for
+low poly after that Global Shadows I
+think are an absolute must for builds
+inside of a low poly game if you turn
+them off it just simply doesn't look
+that great it looks a little too fake in
+my opinion so I'm going to keep those on
+and it really helps add some more
+decoration and detail to the map after
+that we have the outdoor Ambience this
+is pretty much the version of Ambience
+but for the outdoors I'm going to change
+this one to 128 comma 102 a
+153 you may not notice any changes at
+all and that's
+because the ambience the original
+Ambience really kind of takes over here
+in fact you'll really not see much of a
+change whatever color you put it but I
+think it's still good to have it as
+specific color after that we have the
+shadow softness I always like to leave
+this at a little bit of a higher number
+something like anywhere from
+0.5 to 0.3 or so this is basically just
+how blurry the Shadows are if you put
+zero then the Shadows are going to be
+insanely crisp and clear which can be
+great and all but I prefer to have a
+much more blurry Shadow I think it fits
+the low poly athetic after that we have
+the technology these are different types
+of lighting settings or presets
+basically there are four different ones
+we have compatibility future Shadow map
+and boxal compatibility doesn't look too
+great in my opinion but it can go good
+with a lot of different styles in games
+games future is mainly used for
+realistic type games has a lot of
+specific things with Reflections and
+lighting and stuff like that shadow map
+is your typical
+cartoony or just normal lighting that
+you'll use and then voxel is an older
+technology that I believe it looks like
+it just gets rid of the Shadows I've
+never really used voxal all that much
+but if you like it you can use it
+however much you want to now that we're
+getting down into the clock time my
+favorite clock time to put here is 14
+this is really the time of day that it
+is determines where the sun is at
+whether you want the moon or the sun to
+be out if you want a dark map or not
+just a dark map but maybe a map that's
+at night time you could set this down to
+zero or maybe like five or six it really
+depends on what you want for your map
+I'm going to choose mine to be in the
+daytime though I think it really helps
+this map a lot after that for the
+geographic latitude this is where the
+sun and the moon are positioned in the
+sky and they help with shadows so if I
+were to put this up to 40 which I
+usually do you can see it changes the
+way the Shadows look because now the sun
+is over here instead of being over there
+somewhere which is pretty pretty cool
+and that's about all the settings that
+we're going to be using to alter our
+maps of periods however there are a few
+more these ones called fog these ones
+help so much inside of the build to help
+bring some detail to the outsides of the
+map let's put the fog end right here to
+2500 I typically do anywhere from 2,000
+to 3,000 for a low poly build I'm going
+to set mine on 2800 for this one I think
+it'd look really good and you can see
+that we've got kind of a foggy Mist on
+the outside of our Island here and we
+don't want to be this kind of grayish
+color in fact we want to be a nice
+pinkish color so instead of 192 192 192
+I'm just going to change change it to
+203 173 and then 255 and what this does
+it changes the color of the fog around
+us and I think this looks really cool it
+really brings a nice outline not really
+outline but some more detail to the map
+and I really like the way that this
+looks fact I'm going to change the fog
+end down a little bit just so we get a
+little bit more of that fog so I think
+this ended up looking much much better
+than the original just to show you guys
+the original I'm going to go back and
+revert all of our changes here so as you
+can see this is what the map looked like
+before we started very dull very
+lifeless not very colorful it just
+doesn't look very appealing at all let's
+go forward now and check out all the
+changes that we made as you can see it's
+going through all of the settings that
+we made earlier and look at the
+difference between that that is
+absolutely an insane difference and I
+think this lighting goes good with any
+sort of cartoony style I'm using this
+Lighting in a multitude of games at the
+moment but you can feel free to use them
+to however you want them anyways I think
+that's going to be where I wrap up this
+video guys so make sure you like
+subscribe and comment down below if this
+video helped you a lot thank you so much
+for watching I'll see you in the next
+video
+[Music]
+bye
+[Music]

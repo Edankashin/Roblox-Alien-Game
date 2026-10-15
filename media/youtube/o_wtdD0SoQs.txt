@@ -1,0 +1,161 @@
+hey guys welcome back to the channel in
+this video i'm going to show you guys
+how to make
+uh these really nice borders which have
+uh detail on the sides of it just so you
+have these little um
+kind of uh ledges on the cliff just to
+add that side
+detail unlike the side of the cliffs
+i know a lot of people make these um
+these cliff sides pretty flat on the uh
+on the outsides as you can see this is
+what it looks like it just adds that
+really nice
+detail onto it makes it look less dull
+um
+and overall gives a much better look to
+your games
+now it's a very simple addition from
+your
+regular kind of uh borders
+so i'm going to show you now real quick
+how to do that but before we do that
+make sure to subscribe to my channel and
+turn post notifications on
+and make sure to like the video and yeah
+let's get right into it
+okay so once you are in blender you want
+to go ahead and click add
+mesh and then cylinder add however
+however many
+vertices you want i'm going to go for
+7 as an example and then
+you can go ahead and drag it up and then
+resize it
+however you want i press s and then hold
+shift
+or press s and then x and then hold
+shift and then z
+to scale on the uh
+x and z axes to make it thicker
+and then i'll bring it up and then ctrl
+r to add loop cuts through the middle
+and then while i'm in edit mode i press
+three to select faces
+and i bring out the top a little bit
+and then i may bring out this part a
+little bit too
+now what i tend to do as a sold detail
+is
+press a to a while in edit mode to
+select the whole thing and then face
+shade smooth
+and then go to this little green
+triangle here
+click normals and then auto smooth just
+to get that nicer smoother effect
+between
+um these loop cuts now to add the little
+crevices what i do
+is press ctrl r to add luka and then
+drag it up
+close to
+the other loop cut now i want to go
+ahead and
+toggle this button up here on the top
+right
+which basically makes it so when two
+vertices
+are attached like this they connect
+instead of overlap
+so what i do is i move
+this part out and then move it up a
+little bit
+and then press g twice
+by clicking this vert see and then go up
+until it connects
+and then it will connect these two
+and then once you have done that if you
+shade smooth
+like i did here with the auto smooth
+what i do is i press two to select the
+edges and then
+select these four edges here and then go
+edge
+and then mark sharp and then it makes it
+sharp and then you can go ahead and do
+the same thing add a loop cut here
+uh drag it out here
+select this vert c double tap g bring it
+up
+and then select these four edges
+edge and then mark sharp
+and then you get kind of this these
+ledges on your cliffs
+and you can just repeat this pattern
+until
+you are satisfied with the amount of
+edges
+that you have once you're done with that
+you can add the
+top if you like so i'll just add another
+cylinder
+bring it up resize it
+and then i'll probably just keep it like
+this just to have a little bit more of a
+simplistic a platform so this is pretty
+much the method of making these
+nice borders with the subtle details on
+the end
+and then what i tend to do is i ctrl c
+ctrl v
+to duplicate and then lock onto the z
+axes like that to go above
+and then i simply just go into edit mode
+select these vertices
+and just move them around just to deform
+the shape a little bit
+i also enable proportional editing
+just you know to help me with
+the shapes and then you just make a
+variety of shapes whatever you want
+um like this and then you import them
+into your game
+and you pretty much just place them
+around so to export them you want to go
+file export and then fbx and save them
+wherever you want
+once you're in studio you want to go to
+view
+asset manager and then click this little
+button to bulk import
+so you can bring in your mesh
+once all your meshes are imported here
+you want to
+select all these so select the top one
+and then hold shift
+select the bottom one and then right
+click insert with the location
+and then we have our borders here so
+what i'll do is i'd recolor these to
+whatever i want and then color these to
+whatever i want
+and then group them like this and anchor
+them
+and then basically you can go ahead copy
+paste
+rotate and get whatever
+kind of look you want to it
+and now you have these details on the
+side of the cliffs
+which make your cliff size look
+more detailed and add a nice little
+subtle effect which you can get kind of
+a nice look uh like this
+but yeah that's pretty much it for this
+tutorial i hope this
+helped out and if it did make sure to
+like the video and subscribe
+other than that i'll see you in the next
+one peace

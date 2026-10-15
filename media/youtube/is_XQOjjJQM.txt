@@ -1,0 +1,61 @@
+Welcome to our channel. Dream of
+building a viral game? We're creating an
+adopt me style pet system in Roblox
+Studio. Bring your virtual companions to
+life step by step. Imagine players
+collecting unique pets that follow them
+everywhere. We'll cover basic models to
+clever scripting making pets feel alive.
+You'll learn how to make them yourself.
+First, open Roblox Studio and create a
+new base plate project. We'll set up our
+workspace, ensuring a clean environment
+for our pet system. Organization is key
+for efficient development. Next, let's
+create a simple pet model. Insert a part
+into the workspace, customize its
+appearance with basic shapes, and group
+it into a model. Name it clearly, like
+cute pet. Crucially, add a humanoid
+object inside your pet model. This
+component is essential for character
+movement and animation, making your pet
+behave like a game character. Adjust its
+properties as needed. Now, for the
+magic, scripting the pet to follow the
+player. Inside the pet model, add a
+script. We'll begin by defining
+variables and setting up a basic player
+detection loop. Next, we'll implement
+the core following logic. We'll create a
+loop that constantly finds the player's
+position and updates the pet's walk to
+point. This ensures your pet always
+stays close. Let's create a server
+script script to handle pet spawning.
+This script detects when a player joins,
+automatically spawning and attaching a
+default pet for them. It's the core of
+pet initialization.
+For a full system, integrate a UI for
+players to select and equip pets. We'll
+briefly show adding a screen guey with a
+text button to trigger a pet equip
+function. This is your player
+interaction point. Saving and loading
+pets is vital for persistence. While we
+won't build the full database,
+understand you'd use data store service
+to store pet ownership and equipped
+status for each player. It's the
+backbone of your system. And there you
+have it, a fully functional adopt me
+style pet system in Roblox Studio. Watch
+as our player walks around their
+adorable companion following faithfully,
+ready for adventure. If you found this
+tutorial helpful, smash that like
+button, leave a comment with your
+favorite pet idea, and subscribe for
+more incredible Roblox development
+guides. Happy creating.

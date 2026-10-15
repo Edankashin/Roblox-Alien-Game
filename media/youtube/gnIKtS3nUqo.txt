@@ -1,0 +1,1280 @@
+Hello everyone, welcome to another
+tutorial. My name is [music] Kek and
+today I have brought you another Figma
+tutorial. In this tutorial, you are
+going to be learning how to make a stud
+UI. The process is very simple, so
+please don't fret. Follow the tutorial
+step by step and you will not face any
+issues. The tutorial was once again made
+by the Figma go Hammuri. The social
+should pop up on the screen right now.
+Go ahead and follow him and thank him in
+the server for his efforts. Join us to
+have a lot of UI related conversation,
+help, or just have fun [music] uh at UI
+Genesis discord.gg/ugen.
+And yeah, good luck and have fun.
+Bye-bye. Hello guys, welcome to another
+tutorial. My name is Hamudi and today
+I'm going to be showing you how to make
+study in Figma. Before we get started,
+thanks to Kick for letting me make this
+video tutorial for you guys. And if you
+have any questions, make sure to join
+the Discord found in the description.
+It's just a quick rundown of Figma
+basics. On the right side, we have the
+properties of your shape or frame. On
+the left side, we have the layers. And
+at the bottom, we have the tools. So,
+let's start by making a frame so we can
+put our designs on. Uh, we'll click on
+the frame and then we'll go under
+presentation on the right side and we'll
+pick 1920x 1080. All right. So, how to
+navigate the canvas? You can hold space
+and left click on your mouse to move
+your canvas around. If you want to zoom
+out and in, you hold control and use
+your scroll wheel. Perfect. Let's start
+by getting us a nice background so we
+can imagine our UI better, how it would
+look in game. I'll be using a background
+found in UI resources. You can use
+whatever background you want. [music]
+So, I'll go here
+to background [music] and then uh let's
+see. Oh, let's remove stud real quick.
+Uh let's pick this one. Copy. and then
+Ctrl +V to paste it in Figma. Nice. Uh,
+I'll just make it bigger
+to fit the canvas. And there we have it.
+I'll lock it so I don't accidentally
+move it. And actually, I might uh I
+might add a layer blur to this one. So,
+under effects on in the properties right
+side [music] under effects, uh, we'll
+change it from drop shadow to layer
+blur. So, you can you can already see
+that it's uh blurry getting blurred a
+little bit. So, let's uh increase the
+value by hovering our mouse on the icon
+and click drag into however value you
+want. I'll say this looks good.
+Amazing. Let's start by making the menu.
+So, we'll go to the bottom and pick the
+shape tool and then click and drag in
+the middle of the canvas to whatever
+size you like. I'll say
+about here looks pretty good. Nice.
+Let's center this in the middle. So,
+we'll use the alignment tool [music] in
+the properties right side. We'll center
+it horizontally. We don't have to center
+it vertically because we're going to add
+a header as well soon. So, let's make
+this one a darker color. Actually, let's
+make this one black. And then let's make
+it transparent.
+So, next to fill we have the color and
+we have the transparency. So, if you
+hover your mouse on the percentage icon,
+you can click and drag and make it
+[music] transparent. Nice. I like I like
+how this looks amazing.
+Let's add a stroke to the main
+background. So, we'll select our shape
+on the right side. We will press the
+plus button on on stroke. And let's make
+it
+a bit thicker by hovering on the weight
+icon and click and dragging.
+Uh five looks pretty nice. All right,
+let's start by making the header as
+well.
+So we'll use shape tool again and then
+let's click and drag to match the size
+of the main frame.
+Let's fix it a little bit. Nice. Now
+it's perfectly aligned. What we will do
+is uh add a gradient to this. So press
+on the color icon and then we'll select
+gradient. So we want the gradient to be
+from the top [music] going to the
+bottom. So let's uh rotate it. Let's
+make it somewhat of a greenish blend
+gradient. So I'll change the darker
+color first. Let's pick some kind of
+[music]
+not so bright green. And then we'll
+change the white to a little bit of a
+brighter green. Uh, this does not look
+bad. We can tweak the colors later as
+well. I'll be moving this one up using
+my arrows keys because I'm planning on
+doing making it a bit 3D.
+So, let's uh duplicate this layer using
+Ctrl + D.
+And then we can select the bottom layer
+and move it down with the arrow keys as
+well. But let's make it touch the main
+frame. Perfect. So, it's barely visible
+right now because both of them have
+almost the same color.
+So, let's change that. So, selecting the
+bottom layer, of course, we'll press on
+the fill color.
+And then let's change it to solid. We
+don't need it to have a gradient.
+And let's make it a darker green
+about here. Looks good.
+This might be too big for the header.
+So, uh let's [music] uh select both of
+them. And then I'm just going to make it
+smaller here.
+This does not look bad.
+All right. Nice. So, what we will do
+actually, we'll change the main frame
+stroke to outside.
+Nice. [music] And then what we will do
+here, we will add a stroke to both of
+these.
+And we want it on the outside as well.
+So, we'll duplicate both of these layers
+by Ctrl D.
+And then we can flatten them by Ctrl E.
+And now we have [music] one vector. So
+let's drag this one all the way to the
+bottom. And then let's remove its colors
+because right now it just has colors.
+And we want it to only have the outline
+fill color and delete it. Now if you
+move it around, you see it's there's
+nothing there because there's no color.
+So Ctrl + Z again to move it back in
+place. And then let's add the stroke.
+Stroke is currently set to inside. Let's
+make it to outside. And now it's
+visible. So we had it in the main frame.
+We had five uh as a thickness 5 pixels.
+So let's change it to five here as well.
+There we go. And you can see it lines up
+perfectly. And it looks pretty good as
+well. I would like to make this bigger,
+slightly bigger. So uh I'll hold
+everything real quick and then make it
+somewhat like that. Nice. Let's make
+some space for the exit button. [music]
+Before we do that, let's group the
+header actually. So we we say organize
+by Ctrl + G and then double click the
+name and uh let's rename it to header.
+[music] Nice. Now if we select
+everything inside uh we can move move it
+away a little bit. Make it smaller so we
+can have a little bit of space. As you
+can see the main frame is a bit too
+high. We [music] can bring it down a bit
+by click selecting it and moving it down
+with the arrows keys. And now it just
+aligns perfectly and we don't have any
+issues. [music] Nice. So what we can do
+is duplicate this header and change its
+color to make an exit [music] button. So
+we'll just select the whole group of the
+header. Ctrl + D. And now we have two
+layers. So let's move it to the right in
+position of the exit button. So I'll
+hold shift plus the right arrow to move
+it in bigger steps.
+So let's use only the arrows now.
+Perfect. And let's make it smaller so it
+fits properly.
+Make it like that. Nice.
+Let's change the color. We'll uh control
+select it. In Figma, if you just
+leftclick on uh shape that is a part of
+a group, it will select the whole group
+and we we don't want that. We just want
+the top layer over here. So, if you hold
+control on your keyboard and left click,
+you can see it's highlighting the top
+layer only. So, let's change the color
+to somewhat of a red gradient. So, we'll
+uh click the color icon and let's change
+the darker color to red. And let's
+change the green one to red as well and
+see how this looks. Okay, not bad. Let
+me move the [music] canvas a little bit
+so we can see a little bit better.
+Uh, do we want a bit darker? No, but
+maybe we can make it a bit brighter at
+the top here. All right, not bad for
+now. Let's change the bottom. We can use
+the same thing. Control and click.
+Then color icon and change it to a
+darker red. This already looks pretty
+decent. I think the 3D [music] effect is
+too much. So let's control leftclick on
+the main shape of the header. And then
+if you also hold shift while holding the
+control button. Uh you can also select
+the main frame of the exit button. Cool.
+Now let's drag it down or make it bigger
+on the bottom.
+So let's get a stud texture. I'll be
+finding one from UI resources.
+uh at the top I'll type stud and then we
+have one right here. So I'll click it
+I'll click it, right click, copy image
+and then in Figma I will Ctrl +V paste
+it. So as you can see it's filling up
+the main shape and we don't want that.
+[music] So we'll uh click on the fill
+image and then we'll change it from fill
+to tile and then we can resize it.
+There we go. Scroll down a little bit
+and resize it.
+That does not look bad. And then we'll
+click away. Nice. We can move this up a
+little bit too. Make it look nicer.
+Something like that. And then we can do
+the same thing with this one as well.
+So, Ctrl + D, duplicate, and then Ctrl +
+V to add it. And because this is a
+perfect 4x4 uh shape, so we don't have
+to resize it or tile it or anything.
+Nice. Now we have the shapes. I think
+they are a bit too strong/ harsh on the
+eyes. Uh they pop too much. So let's uh
+click on the image uh on the image layer
+and let's change the blending mode. So,
+under appearance, uh there's a ey drop.
+We'll click it and then we'll hover our
+mouse on each option and see which one
+looks best.
+I think overlay looks pretty good. Let's
+do overlay on the other one as well. Oh,
+make this [music] Let's change the color
+a little bit on the exit button.
+Select the main shape and then make this
+one a little bit brighter.
+Oh,
+let's add an inner stroke. So, selecting
+the main shape, we'll uh press plus on
+the stroke and uh make it
+3 pixels for now. And let's make it a
+bright pink, brighter red, I guess.
+Let's make it a little bit bigger as
+well. Four. Four. Four does not look
+bad. Yeah, four. And then let's do the
+same thing with uh main header. Select
+the main shape plus on the stroke. Uh
+keep it on the inside and make it four.
+And let's make it a brighter green.
+I'm not fully 100% sure about the
+blending mode currently. Um, let's keep
+it at normal for now [music] on the
+header at least.
+And then nice. Now, let's add a text.
+So, press T on our keyboard or select
+the text tool at the bottom. Click
+somewhere in the screen and type. Let's
+name this one shop
+and then click away. Now, let's make it
+bigger.
+Uh, on the right side, we can change the
+sizing. So, let's make it a little bit
+bigger.
+64 maybe.
+Nice. Uh, let's change the font to maybe
+around
+have a stroke.
+Do we make it have five stroke as well?
+Oh, do we change it to five as well?
+We'll keep it four.
+Keep [music] at five. So it's like equal
+everywhere. All right. Nice.
+Then what we can do is add an effect.
+Make it 3D. So uh we'll we'll we'll use
+a drop shadow and keep the position at
+four for now. And the blurriness we'll
+make it zero. And then we'll uh make the
+opacity full 100. Now it looks like it's
+uh 3Dish.
+All right. Nice. Actually, let's make
+the stroke four only because it's too
+too much [music] right now. There we go.
+And let's make
+this a bit more up.
+You know what? [music] It's fine. Now,
+let's uh copy this text. So, this one is
+called header, and this one is called
+also header. So, let's change it to exit
+button.
+And then let's uh Ctrl D on shop and
+move it to the exit button. And then we
+can just use our shift plus arrows to
+move it in place and [music] rename it
+to X
+perfecto.
+Center [music] it.
+All right. So, uh, Figma has this one
+issue where you can't add outlines or
+strokes to images.
+So, a workar around is uh by using
+plugins. So, we'll be doing that today.
+Uh, let's get a Roblox icon. Um, if you
+have one, you can use that one or you
+can find one from the UI resources
+website. Here it is. So if we if we try
+adding a stroke to this one by pressing
+the plus button on on the stroke,
+you can see the outline is literally
+around the whole image and not the icon
+itself because it's a bit map and uh
+Figma is based on vector vectors and the
+mathematics equations.
+So let's uh fix this. Let's Ctrl + Z to
+remove the stroke. And then select the
+Roblox icon and press the actions button
+down at the toolbar.
+And then let's move to plugins and
+widgets. And we can search vectorize.
+There we go. You can use any of these,
+but I think what best is vectorized bit
+map because it uses photop and it just
+converts it into a vector and inserts it
+into Figma for you. So, what you'll have
+to do is click on the vectorz
+uh vector bit map and then press okay.
+And then here it is. And then all you
+have to do is press CtrlS to save it.
+And when it saves it, it automatically
+inserts it into Figma. And here we have
+it. So the way it inserted it into Figma
+is uh it had a group and then the
+vectors inside of it. So [music]
+let's move the vector outside of that
+group and it will automatically delete
+that group for us. Boom. Perfect. Now we
+have the color set to black. Let's make
+it white by changing the fill color. And
+then the stroke, let's set it to three.
+There we go. And let's set set the
+position to outside as well. And then
+[music] also it's not visible because
+the opacity is set to zero. So let's
+make that 100. And there we go. So if we
+resize this real quick by holding shift
+and alt maybe. There we go. Now it's
+looking much better. And we can drag it
+to the button over here. Nice. Let's
+zoom in a little bit. Make it a bit
+smaller. And let's add a drop shadow to
+make it more 3D. So, under effects, plus
+button, drop shadow is already set.
+We'll change the Y-axis to three instead
+of four. And blurriness to zero. Oh,
+there we go. Zero. And then the opacity,
+of course, to 100. I keep moving the
+menu.
+Oh,
+there we go. All right. Nice. Now, this
+this isn't the best way. It's It won't
+give you the best results, but it will
+do. If you want better results, uh you
+should probably use Photo P and import
+the image there and add a stroke there
+and then export it and import it into
+Figma. Or you can use Photoshop or any
+other software.
+But for now, this will do. Uh I will
+resize this a bit so it fits better. Uh
+something like that does not look bad.
+Yeah, maybe a little bit.
+Okay, cool. That looks good.
+So, let me bring the vector, the Robux
+icon. Let's call it Robux icon. And
+let's uh drag it under button in the
+hero frame. So, under this whole group
+and let's group the price and the Robux
+icon together. And name it price. We
+would like to stay organized over here.
+And I would like to change the layout a
+bit. So I'll move the I I'll select the
+button group, the whole group, and then
+drag click and drag it to the other
+side. I'll keep this here. Maybe move it
+a little bit to the left so it it aligns
+with the button. Maybe we can add a text
+here and name it Oh. Uh [music]
+description. Description.
+Oh, description.
+Short description. There we go.
+And why is it a lot?
+All right, we can keep it a lot. It
+doesn't matter. Let's make it white. And
+then let's [music] change the resizing a
+little bit.
+There we go. We'll put it over here.
+Let's add a stroke like always.
+Um, since this is a smaller text,
+I think two stroke would do well for
+now. Um,
+and so let's duplicate this with Ctrl
+[music] + D and
+and move it down a little bit. Oh,
+hello.
+Ctrl Z to undo this. And then select it.
+Ctrl + D. And now we can move it down.
+Nice.
+Uh, all right.
+That does not look bad. Uh let's add an
+icon or an image to the right side over
+here. [music] Um so we can fill up the
+space.
+The image will be any any item you have
+[music] in your game. Maybe a rendering
+of it as well would work. So I I'll just
+use this gem icon over here. Uh it's
+pretty nice. Pretty cool.
+here is not not bad at all. I mean, we
+can also uh drag the layer, of course.
+Let's drag all of these the text as well
+into the hero frame. And then we have a
+group mask here already made. So, let's
+expand that. And if we have I'm going to
+delete this. Not sure what that is. Uh
+it's a gem icon. If we drag it inside
+the group mask, we can make [music]
+something
+cool here. Make it like that. Maybe we
+can drag the start texture below. It's a
+group mask. And can you can play with
+the sizing. You can make it look nice.
+Let's do [music] let's do let's do that.
+Actually, just let's just keep it normal
+size. It's fine. If you want, of course,
+you can also add duplicate the gem icon.
+We can rotate it a little bit. Make it
+something like this. and bring down the
+opacity, you know, do play around with
+how where it should be, where it looks
+good. Something like [music] that, you
+know.
+Even duplicate the same layer of the
+main gem, make it bigger, and bring down
+the opacity.
+That looks pretty nice. Like that one.
+All right.
+Okay. We We'll keep it as is for now. Uh
+if we we can we can think of something
+else. Uh we'll keep it as is this for
+now. Let's move on. Let's make a a new
+section maybe for um currency buying. Uh
+we'll have three option maybe um which
+uh different values. So let's do that
+real quick. We can probably duplicate
+this hero frame. So we'll select the
+whole group, duplicate it, and then I'll
+use my shift button with the down arrow
+key to move in bigger steps. If you hold
+it, moves quicker. So, something like
+that. I'll just use the arrows keys
+alone.
+And let me
+expand [music] this and collapse
+everything inside of it so we can uh
+resize it. So I'll uh [music]
+I'll open the group mask and uh I'll
+actually I'll select the main shape
+which is uh our main frame shape and I
+will also uh expand the group mask and
+select the uh the first layer inside
+that group which is our
+>> [music]
+>> layer mask. And then I will resize this.
+Oh, we also forgot about our vector.
+It's locked. So let's unlock that one.
+So now we can resize it normally. Nice.
+So
+if we need three
+frames, we'll make it this sized. I
+don't think that that's bad. All right,
+that's nice.
+And then
+and then we can uh resize our stud
+picture. There we go. Let's resize our
+text. So, we'll keep it at
+36,
+center it, and then we don't need the
+short descriptions. It's just money so
+it's easy to understand. The button, of
+course, we'll need to make it smaller.
+So, let's uh let's change the move tool
+down at the toolbar. Let's change it
+from move to scale. that that way we can
+resize it without changing the
+properties and stretching it out, making
+it look weird. Uh so something like that
+looks good. Scale is very very useful.
+You'll probably be using it a lot. So
+yep.
+Uh something like that does not look
+bad. We might want to make it longer on
+the Xaxxis. So let's do that. We'll go
+back to the move tool and we'll just uh
+collapse the group mask and expand the
+group button. Now let's uh do the same
+thing we did with the main shape. So
+we'll select the main shape, make sure
+the vector is unlocked and then expand
+the group mask and select the first
+first layer uh first uh layer in that
+group. And then if we hold alt, if we
+hold alt, click and drag, we will expand
+both sides. And that is exactly what we
+want. So let's do [music] that. Uh 20
+supposed to be [music] 23.
+All right, that looks good. I will move
+the button down slightly actually. And
+then [music] we can
+go. Then we can do the same thing again.
+Select [music] the main select the main
+shape and the first layer of the group
+mask and alt click. And
+there we go. It's 21 down there. So
+we'll make it 21. That is 22.
+That is 18. Yeah. Okay. So we want to
+move it one 2 3. Now it's 21. Nice.
+Amazing. Uh, let's fix the ST texture.
+We can do the same thing by left alt and
+click dragging.
+And there we go. This looks good to me.
+Oh, we already have gem players over
+here. So, let's just move it into place,
+I guess. And this one, let's make it
+smaller.
+Let's make it longer.
+There we go.
+Something like that. And then let's play
+with the textures a little bit. So it
+looks good.
+So this is a corner texture. We'll make
+it smaller. [music]
+Doesn't need to be that big. And then
+we'll play with the other one as well.
+We'll make it also smaller.
+That looks good. We'll drag the button
+down.
+Let's collapse every that.
+Okay. Collaps in the hero frame so we
+[music] we say organized so I don't get
+lost over here. And I will name this
+hero frame to [music] um currency
+currency
+pass.
+No currency product. There we go.
+And then we'll move the button down a
+little bit. So select the group, shift
+arrow keys
+like that. Control-r click the gym. So
+we move that one only. Center it.
+Nice. Control click the title. Move it
+up a little bit. Control-click the gem.
+Move it up a little bit.
+That does not look bad. Let's fix the
+texture of the studs. Click and drag.
+Move it up a little bit.
+Actually, we might have [music] to
+resize it. So, if we press enter, it
+will go into edit mode. That way, we can
+[music] just resize it to however small
+or big we want it. This size is [music]
+good. Press enter again, and we're done.
+Move it down a little bit. There we go.
+Let's change the color to a blue maybe
+on the background. So we'll collapse the
+group mask. Group mask [music] button.
+And then we'll open the main shape. So
+the top layer will change the color of
+that to somewhat of a bluish color. So
+we'll start with this for now. And then
+change the other side.
+That too bright or too good. That's
+good. And let's change that inner
+stroke. No, let's not forget about that
+one. Um, this blue is good to me. And
+then let's change the top uh I mean the
+bottom layer to a darker blue instead of
+orange.
+Yep. Yep. Yep. Yep. Yep. I like it. Just
+making sure that the
+outer stroke is looking good and equally
+sized because sometimes it does get
+messed up when you're resizing.
+But uh it is looking pretty good right
+now. So let's change the color of the
+text as well. Control-click on the text
+and [music] change the fill color to
+let's make it white. White is good.
+Let's name it
+uh plus
+50 cache. Cache. Yeah, plus 50 cache.
+Not bad. And let's use alignment tool
+and center it. There we go. I like it.
+I'll make the gem icon a bit smaller.
+So, let's duplicate this two more times
+so we fill up the space. Uh, so I'll
+collapse the currency product, select
+it, and then ctrl D shift right [music]
+arrow.
+And what we can do is actually by
+selecting the currency product, we can
+use the align alignment tool, alignment
+tool to center it horizontally. There we
+go.
+And [music] then we can duplicate that
+one. And
+it fits into [music]
+position. It's not perfectly aligned. So
+we'll have to uh fix that a little bit.
+So let's select all of them, all the
+layers. And so when we hover our mouse
+on it, [music] we we can see this dash
+in between. This is how many pixels or
+padding there is in between. So
+currently it's set to 23.
+Let's uh increase that value a little
+bit so it lines up with the top. 24
+looks good. It was only one pixel
+difference. [music] So, no, maybe not.
+Yeah, it is. It is. It is. We're good.
+But let's move Let's move it up a little
+bit as well. So, uh select all of them.
+Let's group them first of all. And then
+name it [music]
+uh
+product dev products.
+And then shift arrow up once. And
+actually that looks good. I'm trying to
+have I'm trying to keep it equal padding
+all around. [music] So at the top here
+and over here. Uh still have pretty bad
+padding here and here. But that is fine
+for now. I'll resize the bottom so it's
+uh not as bad. So we'll select [music]
+the control uh control click like always
+and click and drag. If you want,
+we can always use the alt key and hover
+our mouse on the frames that we are
+trying to uh get the values of the pix
+the paddings off. So, uh on the left we
+have 32 on the right we have 30 at the
+bottom we have 30. [music] So, we need
+to fix the left side.
+So, let's move it two pixels. I'll zoom
+in so I can see the [music] pixels. And
+there we go. That is fixed. 30 3030.
+And let's fix the header as well. We'll
+click on the header and let us change
+the size of these bottom three layers
+over here. Move it one is all right.
+There we go. Nice.
+Amazing.
+Let's move everything up a bit so we can
+fix a bad padding on top as [music]
+well. And then we'll make the main frame
+smaller again so it fits uh the padding.
+So um let's see here. We need the hero
+hero frame and [music] the products.
+We'll move it up a little bit. That's
+too much. Let's check the padding by
+holding alt. That is 22. I'll keep
+holding alt and using and use my [music]
+uh keys. Uh I mean uh use my arrow keys
+to move it around. So now that looks
+good. [music] And uh what we can do is
+make the main frame a bit smaller. It is
+currently set to 31. So we'll make it 30
+by zooming in and moving it up one
+pixel.
+All right, now we're talking. Amazing.
+So, we have our main frame done. Let's
+work on the HUD. So, I will make let's
+uh let's group everything in here. I
+will remove [music] these two layers. We
+don't need those. Uh this is a main
+frame. So, let's rename it to base
+background. So, it's [music] a bit
+different. Header
+exit button. So we'll group these two
+say top
+maybe banner or something. I'll just
+keep it at top. It's fine. And this is a
+[music] hero frame dev products. All
+right. Cool. So
+let's group these also [music] and name
+it shop frame.
+Interesting. Nice. Uh let's move it down
+a little bit. There we go. Nice.
+Now, let's add some buttons at the top.
+We'll we'll add the sell base and shop
+button. You similar to how uh similar to
+how uh grow a garden has it, I believe.
+So, uh let's do that as well. So, Ctrl
+click button, Ctrl C, go back to the
+shop frame, collapse it, and Ctrl + V.
+There we go. Let's drag it outside and
+move it up a bit. There we go. collapse
+the shop frame and inside the button
+frame we'll change uh we'll remove the
+Roblox icon and move the [music] text
+outside of the group and it deletes it
+automatically. And then let's ch change
+the text to base.
+There we go. And let's center that one
+by using the alignment tool.
+Then let's make another one
+on the right.
+This will [music] make we'll name this
+one base. Duplicate that one. Ctrl + D.
+Shift right click. Uh shift right arrow.
+Sorry [music] to move it to the to the
+right. And then we'll we'll rename this
+one to [music]
+shop.
+And we'll make it uh a blue color. So,
+[music] uh, control leftclick on the top
+frame. Uh, so it selected the sub
+texture. We do not want that. Um, let's
+sele, uh, let's open up the main shape
+and then select the top layer over here.
+Nice. Um, let's change a color from
+green to blue.
+we can do is go down here,
+uh,
+control left click on the main frame of
+these one of these buttons that have the
+blue and [music] find it in the layers
+tab here to the left. And then we can
+click on an empty spot in the fill color
+and then we can Ctrl C. That way we
+copied the color of that layer. [music]
+So if we go back, let's collapse
+everything. And if we go back to the
+button over here, um it was this top
+layer. We can delete this and then Ctrl
++V. And there we have it. We have the
+exact same color uh as we had on the
+bottom [music] frames. Nice. Now let's
+just change the stro inner stroke to a
+blue color. We can do the same thing
+here as well. We can copy and paste it,
+but we don't really have to. It's very
+easy to find. Uh I think something like
+that
+was okay. Yeah,
+there we go. And then we'll change the
+bottom layer as well to a darkish blue
+color.
+Oh, accidentally moved everything.
+All right, nice. Cool.
+Uh, might have to make this smaller
+because it's jump. It's It's a piece
+dropping over the edge over here. So,
+make it 45.
+There we go. And then that looks good to
+me. Oh no. There we go. Move it up a
+little bit. Down a little bit. It's
+fine. Nice.
+So now we'll uh collapse this. This was
+base and this was shop. So we'll rename
+this one to shop button and the one
+below it to base button.
+Oh button. And then let's duplicate the
+base button. [music] Shift left arrow to
+move it into place as well. And then
+we'll rename it to cell. This will
+teleport you to the [music] cell sell
+cell merchant. And let's center it using
+the alignment tool. There we go.
+Amazing. And uh let's not forget
+changing the color. So top layer of the
+main shape group and [music] change the
+gradient to a blue. No, let's change it
+to a redish gradient. So, we'll move
+this to red. Green. Move it to red.
+[music] Uh, I think the bottom red is
+too strong. So, let's
+bring it down a little bit.
+Let's change the inner stroke to see how
+it looks
+real quick.
+Change the bottom layer.
+Fix it in a second. This does not look
+bad. Let's go back to the top layer and
+fix the colors a little bit better.
+Okay, I like how this looks. So, we have
+the top buttons over here done. Um,
+we'll group these as well so we don't
+get confused. Let's rename the base
+button to sell button so we don't also
+get confused. And, [music] uh, select
+all of them by, uh, clicking the top
+layer and holding shift clicking the
+bottom layer and it will select
+everything in between. Um, so let's
+group that as well by Ctrl G and
+renaming it to toggle buttons or
+teleport buttons. Both work.
+Nice. Now let's make uh some buttons on
+the left for
+maybe the the
+shop Robux shop item. So So it opens
+this menu, a rebirth, maybe an index
+[music] and settings.
+So let's do that. Um, [music]
+we can also like always duplicate one of
+these layers and it it will work fine.
+So, we'll copy the base layer
+and then Ctrl + V and let's move it
+outside [music]
+of that group and move it. So, that's
+somewhere
+around here is good. And then let's
+resize it. So, let's open the main shape
+and select everything inside and move it
+to the left.
+Uh, let's make it a 70x 70.
+There we go. So, it's like a [music]
+perfect square. And then we'll just have
+to play with the start texture a little
+bit.
+I'll do something like that. And then
+we'll move it.
+There we go. The group mask over here.
+Let's resize as well till we do it
+like that. Maybe
+shame same shape of the main frame. And
+then we'll play around with how this
+look. We'll move it into the center. And
+then uh shift alt and resize it.
+Okay. And then I'll just uh select one
+of them and make it a bit longer.
+There we go. And then do [music] the
+same thing with the other one just in
+case.
+There we go.
+I think the button is a bit too small
+though. So, uh, let me just,
+>> [music]
+>> uh, change the text to
+fit it in better.
+Change the text in a second.
+Let's change it from move to scale like
+before.
+and scale the whole thing up cuz it was
+too small in my opinion.
+Something like that is good. And
+control-click the text and then resize
+it. The stroke is also too too much over
+here. So, let's change that vector. And
+then it's set to seven. It's also it's
+because we use the scale. So, uh let's
+change that to three. Actually, it was
+five, right?
+Five. Yep, it was five. Same as here.
+And then
+let us change the text
+uh properties as well. So, the stroke
+will be three. And then the drop shadow
+would also be uh three. There we go.
+I'll even go lower to two, but I think
+it's fine. This down a bit. [music] And
+let's change the color to a blue color
+so it matches. Right. Let's copy the
+same color gradient we had here. So,
+Ctrl Click and then select the top
+layer. Click [music] on the empty spot
+in the fill layer. Ctrl C to copy it.
+Then we can go back to the bottom we
+were working on and select the top layer
+of the main shape we have here. Uh,
+we'll delete this one. Ctrl + V. And now
+we have the blue
+gradient.
+We'll change the stroke to a bluish
+color.
+Uh the stroke here also needs changing.
+Is it also five? Let me check.
+It is actually set to three. And let's
+copy this the color since we're here.
+And then let's delete that one. Ctrl +
+V. And select uh and change the weight
+to three.
+There we go. And then let's change the
+bottom shape
+to [music] a darker blue.
+Let's resize the bottom a bit.
+Go. Let's rename this to shop.
+Enter. We'll we'll just drag down the
+shop uh text to here somewhere. We'll
+align it to horizontally. Drag it down a
+little bit. And now we can [music] uh
+play with the opacity of the highlights.
+It's too bright in my opinion. So let's
+bring it down a little bit. And then
+add a
+icon. So I'll just find a shop icon I
+have here somewhere shop or maybe even a
+court icon, [music] but it's fine. I
+have one with a outline already. So
+we'll use that one. It's not the perfect
+outline, most perfect outline, but we'll
+use that for now.
+Um,
+there we go. We'll add it inside of the
+this the base button. Yep. Let's change
+it to shop Robux shop. What we can do
+actually add a sunburst effect. If we
+use UI resources and names sunburst,
+uh, we'll use this one right here. Copy
+that one. Copy image. Go back inside of
+the group. Select the group mask, Ctrl
++V, and it adds it inside. So, let's
+resize that one and move it to the
+center. So, resize it even more. And
+then change the change the
+[clears throat] blending options, too.
+Maybe overlay. Yeah, overlay looks good.
+And there we go. Now, we have a nice
+button. Of course, you can use better
+icons if you have some. Um, I personally
+do not have any better icons, so I'll be
+using these for now.
+Uh also let's not forget to move the uh
+the icon inside of the group button. So
+uh we can use alignment tools property
+uh properly. There we go. And now we
+have one button down uh done.
+It looks a bit odd. So I think we want
+to resize it on the left and right a
+little bit. Make it smaller. So [music]
+uh let's do that. We'll select the main
+shapes plus the first layer in the group
+[music] mask. Let's not forget that one
+we did before. And then we'll hold alt
+click and drag to make it smaller.
+Go.
+Do we make the inner stroke bigger?
+Select the top layer.
+Yeah, let's make it five as well.
+I like how this looks so far. So, we'll
+uh duplicate the collapse everything.
+Duplicate the Robux shop. Shift arrows
+to move it [music] to your desired
+position. We'll make it
+that. And then we'll change the color.
+What do we change it to?
+Maybe a green color. Or let's make it
+pink for rebirth. So, I will change the
+gradient to a purplish slash pink. We'll
+see what comes up here.
+Pink is too bright.
+Okay. Let's bring this to a pinkish
+color here. And this one to a darkish.
+Do reverse.
+Let's change the stroke
+to aish
+colors. This looks good to me. And then
+let's change the layer below it to a
+darker purple. This also looks good.
+This one has an outline already. So,
+we'll use that one. I'll delete this one
+and move it into the group in the layers
+and then center it and of course resize
+it properly.
+Make it a bit big.
+You might want to bring it under shot.
+So if your text was above it, you know,
+like this, it would be under. And this
+does not look bad either. So yeah.
+Uh, nice. And then let's duplicate
+this one. Let's rename it actually to
+rebirth. And let's change the text as
+well. No, let's not forget about that.
+Rebirth. And then [music] let's center
+it using the alignment tool.
+or we can move it manually if it doesn't
+work. There we go.
+Then
+let's move it down a little bit
+so it's aligned. And then let's uh
+duplicate both of these down. [music]
+can make an index.
+[music]
+So we'll uh name this to index and then
+we'll name this to
+settings.
+Let's let's fix up the index real
+[music] quick. Let's change the color.
+What what what color is index usually?
+We just make it green. Let's make it
+green.
+go stroke
+three and then the layer under it will
+change to a darker green.
+You can see it's above the text button.
+So we'll have to uh first of all drag it
+into index [music] and undersshot. There
+we go. That looks good.
+And then let's uh finally change uh oh
+let's not forget about index. And then
+let's not forget about
+uh centering centering it. And then
+let's change this to settings.
+And then let's change the colors
+of this one to a grayish white button.
+So, we'll go
+um actually let's Ctrl + Z and change
+the main layer first to a gray color at
+the bottom and [music] almost a white at
+the top.
+Um
+yeah, let's change the stroke to a
+bright white and then the layer at the
+bottom to a darker
+gray. I mean, we can barely see it right
+now. So, let's move the text. Yeah, it
+looks good.
+Do we dare make the set the text
+smaller?
+We do dare. So, let's make it smaller.
+Uh, [music]
+let's control shiftclick all of them and
+then make [music] it one one one step
+smaller. There we go. Then we can move
+it back into position.
+It was centered and here should be
+centered as well.
+We'll control click, drag it into
+position. Uh, shift alt and resize it.
+Nice.
+Resize it a bit more. Come on. There we
+go.
+I like it. So far so good. Let's add
+some cash at the bottom. That's pretty
+easy to do. So, um, we'll add a text.
+First of all, let's just close these.
+It's too much going on here to the left.
+And then select the text tool. Click.
+And let's do a dollar sign. And then
+[music]
+uh 999
+999 999.
+It's a big number. Change the color to
+green.
+Oh, we have to click off first and then
+change it to green. And then let's add a
+stroke.
+Uh, let's resize it a little bit. Should
+be big. 46 is good.
+Oh,
+broke should be a bit bigger.
+Four is decent.
+How does five look like?
+Maybe too much. Four. Four. Four is a
+good uh middle ground. And let's make it
+to outside. I'm not sure why it's in
+center. There we go. Let's check again
+how five looks. What about three? We
+might go with three. But uh let's add a
+effect. Drop shadow. Uh blurriness all
+the way to zero. Opacity all the way to
+100. And um let's also not forget to
+change uh stroke settings from sharp
+[music] to round. There we go. That
+looks good. That looks amazing. Actually
+move it up a little bit. So we we give
+it some space.
+And there we go. This number might be
+too too it's too big. So let's remove a
+few nines. There we go.
+And let's add a
+plus button here to the right. Uh we can
+either just, you know, add some spaces
+and then add the plus button, but we
+will we want it to be a button. So we'll
+just use a shape tool. Hold shift
+[music] and click drag to make a small
+box over here. [music] And then we'll
+make it a green color. It doesn't have
+to be a gradient. This is it's pretty
+pretty small as is. And then let's uh
+duplicate it. Select the bottom layer.
+Move it down a little bit with a with
+the arrow keys. And then select a darker
+green color. That is nice indeed. Select
+the top layer. Add a stroke. Keep it
+inside this time. And make it into three
+pixels. And select a brighter green
+color like that. And then select both
+layers. Duplicate. Ctrl E to flatten.
+and then move it all the way down. Let's
+remove the stroke on this one. Add a
+fill color and remove it to make it just
+an empty plane as you can see. And then
+let's add a stroke and [music] set it to
+outside. There we go. And let's add
+three pixels as well. We don't need it
+to be too much. Um, and then let's add
+let's group all of them first of all.
+And then [music] let's add a
+add a text. And then let's use a T. Uh
+let's let's use a text tool. Uh press
+somewhere and let's type in the plus
+symbol. There we go. Move it into
+position.
+Change the color to white. A add a
+stroke. Make it 3 pixels as well. And uh
+maybe let's resize this. Make it a bit
+smaller. There we go.
+Maybe want to make it 3D. So let's add a
+effect to it.
+And then uh let's make it
+zero blurriness and [music] 100%
+on the opacity. Let's make it
+three. Do we make it [music] round? So
+settings icon. Yeah, we do. What do we
+do?
+Let's make it move it up a little bit.
+Good. There we go.
+Feel like the stroke is a bit too much.
+So, let's make it two. And then change
+the um [music] y-axis to two as well.
+And now it's a little bit more subtle
+and it fits a bit better. So,
+here, how much do we have it on? Four.
+Let's make it [music] three. And then
+let's change the shadow to three as
+well. There we go. And the button is a
+bit too big actually. So, we'll move it
+into the group here. This will be your
+[music] uh currency. We'll group all of
+these together by left clicking the
+first layer and then shift clicking the
+last layer. And they will select all
+everything in between. And then Ctrl G.
+Group them. And let's rename it to
+bottom.
+I'll just duplicate this one over here,
+the index, since it's green. Oh. Oh,
+that is cool. And then move uh change it
+to move back to move. And then move it
+up a bit so it's all the way at the top.
+And then uh we'll remove this icon from
+the inside. And then resize it. Select
+the main shape and the first layer of
+the group mask. And [music] voila.
+Like so. Start texture.
+Bigger.
+Um, we don't need to have it that tall.
+So, we'll u
+we'll select the main shape and the
+first layer in the mask. We'll make it
+three studs long.
+Change the stud to something like that.
+And move it down a tiny bit. There we
+go. Um,
+we do not want that sunburst icon, uh,
+or image, I mean, sorry. And let's move
+this into position.
+And let's change the color a bit. It's
+too too dark.
+Too dark for my preference.
+There we go. And then let's add let's
+[music] move the text into the center
+and type
+slow mode on.
+And then we can [music] press enter
+and see how we can make it. Okay, I
+think this is good. We just move it
+around a little bit.
+There we go. I like it a lot. I like it
+a lot.
+This one [music] is This one is the
+index. So, I'll rename it to slow mode.
+And maybe should I move it down a little
+bit? Also, another tip uh since we have
+the uh main frame locked, so we can
+click and drag, which is uh really good
+and useful. So, let's do that. Click,
+drag around the whole uh left side menu
+or buttons and then we can just Ctrl G
+to group all [music] of them and then
+name let's rename it to uh left side
+buttons. Uh that way when it's grouped
+we can just uh center it vertically. So
+let's use alignment tool. Boom. Perfect.
+Text over here. It just looks a bit odd
+when it's touching the sides of the
+button. Same thing with settings. So,
+uh, we'll do that by control shift
+selecting all of the [music] texts like
+that. And then we'll change the size to
+let's play around with
+uh 30, maybe
+7.
+Let me see how the text uh the settings
+look like. If I move it to the center, I
+think it needs to be a little bit
+smaller. So, we'll just do that. Uh,
+control shift and select everything
+again [music] and move it. Uh, and shed
+to 25 maybe will do the trick. So,
+I'll click on the text. Uh,
+control-click text alignment tool.
+Control-click text alignment tool.
+Control text. Uh, controlclick text
+alignment tool. [music] And then one
+more time. There we go. Amazing. I might
+want to drag all these text down. So
+again, control shiftclick.
+And there we have it.
+Also fix the 3D effect on the slow mode
+button. It's a bit smaller than the
+rest. Um so I will um
+control click and then find the bottom
+two layers which is the vector and the
+darker uh layer over here. So uh I'll
+resize it to
+like that. How many pixels are there?
+About 1 2 3 4 5 6 [music] 7.
+[clears throat]
+And then here we have 1 2 3 4 5 6 7.
+Yeah, that's correct.
+And [music] then let's move it up a bit,
+the whole thing. Um, not rebirth, slow
+mode, few pixels. There we go.
+So guys, the video is finally done.
+Thank you for sticking with me so far.
+If you have any questions, comment
+[music] down below. Don't forget to
+subscribe, like, and share the video. I
+haven't been uploading lately because
+I've been singing a lot. I've been doing
+a lot of professional work and also been
+busy with a tad other things. But I will
+do my best to get back to you guys if
+you message me [music] or ping me in the
+server. Also would like to remind you
+that this UI like the ones before it is
+going to be sold on the Gumroad for just
+$5. So if you would like to buy the
+Figma file, it will be there. [music]
+Anyways, don't forget to comment down
+below what you want next. And yeah, see
+you guys later. Bye-bye.

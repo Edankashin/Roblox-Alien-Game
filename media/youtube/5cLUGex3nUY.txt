@@ -1,0 +1,106 @@
+this is how to make low poly trees and
+blender for Roblox Studio I'm using
+blender 4.1 and so just follow what I do
+first press shift a go to mesh cylinder
+make sure the amount of vertices is
+eight then once you've done that click
+on your screen and click the objects and
+click tab that'll enter into editing
+mode or you can just change it at the
+top and scale it up with s then once
+You' done that we'll add the colors so
+go to UV editing
+and then go to image and select your
+file that has the image with
+colors I've got this I'll zoom out if
+you want to screenshot it and use it
+yourself I didn't make this color
+palette but I forgot who did so I can't
+link them and once you've done that
+select your object click U and click
+project from view then here click a to
+select everything and scale it down you
+can move it around I'll just put it here
+cuz I want a gradient and I'll flip it
+over so the dark side is at the top then
+to make the color show you need to click
+new here then change the base color to
+image texture then add the image in here
+as you can see the colors are showing if
+they're not I'll show you how to fix it
+first let me change this
+color so as you can see here when I drag
+it around it'll change to that color
+that it's on top of so if your colors
+aren't showing youve probably got this
+shading selected you need to change it
+to viewport shading then the colors will
+start showing so now let's change it
+back so there's no colors so now switch
+back to object mode and click shift a
+another cylinder you can resize it and
+move it make sure it's a bit on top so
+you can still see everything click s to
+scale it up then move it on top of your
+other cylinder then go back to editing
+mode with a tab like this top the G and
+then Z scale it down like this so now
+you've got the shape and I'll show you
+how to morph it a bit so it looks a bit
+more real so you can drag these little
+vertices down here by clicking on them
+and clicking G click Zed if you want to
+move them directly down or if you just
+click G and move it around you can do it
+freely so you just move all the vertices
+around if you want to then here at the
+Top If you want it to rise a bit then
+you can select everything click e to
+extrude and then just click down before
+moving
+anything then click s to scale it into
+the middle and then extrude it properly
+but don't click e Click G to move it so
+now click the object and click l to
+select all the vertices then go to U V
+editing Che from view a then s to scale
+it down you can move move it to wherever
+you want then to add the colors to make
+sure they show click plus again then
+base color then image texture and add
+the image in here and there you go it's
+done now I'll show you how to export it
+first you can close close this go back
+to layout into viewport shading can
+still edit it if you want but first I'll
+just show you how to make the middle pop
+out a bit
+so click contrl R and then you can add
+this in the middle or wherever you
+want then click s to scale it so this is
+to morph and reshape your tree so I just
+want to make it a little bit wider so
+it's a bit round then click file export
+I like to save it as a fbx and just
+click export and load Roblox
+studio so here that you got Roblox
+Studio open you can open your place to
+import your file need to go to view so
+it's not in file here you make sure you
+go to view and then this asset manager
+you click this import button once you
+find your tree import it click this if
+there's any errors it should still work
+so just close this and import both you
+could have exported it as one file but I
+like to be able to change stuff after so
+just move this on top of the tree and
+then if you want to you can just select
+everything and group it and you can
+scale it to whatever you want I think
+you can also change colors but I won't
+do that cuz I've already set colors so
+then yeah that's the end of the video
+now thanks for watching make sure you
+like And subscribe comment what videos
+you want me to make next bye

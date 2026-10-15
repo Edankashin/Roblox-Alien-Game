@@ -1,0 +1,221 @@
+Hey guys, welcome back to Tweak Builds.
+Today we're making a full pet egg
+hatching system, just like in Pet
+Simulator with coins, a price sign, real
+chances, a cool hatching animation, and
+pets that follow you around. Walk up to
+the egg, hold E, it shakes, it glows,
+and boom, a legendary dragon. And your
+pets follow you everywhere you go.
+I'll show you every single click and
+I'll drop some pro tips along the way.
+So, open Roblox Studio and let's go.
+Chapter 1, coins. Our egg costs coins,
+so first every player needs a wallet. In
+the explorer, hover over server script
+service. Click the plus button and add a
+script. Rightclick it, choose rename,
+and call it leader stats. Good names
+make your game much easier to work on
+later. Delete the hello world line.
+First, we get the player service. Every
+time a player joins, we create a folder
+called leader stats and put it inside
+the player. Pro tip, leader stats must
+be spelled exactly like this, all
+lowercase. That's how Roblox knows to
+show it on the leaderboard. Inside it,
+we add an in value called coins. It
+means a whole number, which is perfect
+for money. And for this tutorial, the
+player gets 10 coins every second. In
+your own game, coins can come from
+anything, collecting them, winning
+rounds, or defeating enemies. Chapter 2,
+the pets.
+Here I have three pet models, a cat, a
+bunny, and a dragon. You can grab free
+pets from the toolbox or make your own.
+Each pet must be a model with a simple
+name because our code will use these
+names. Open each pet and select its
+part. Pro tip, hold control while you
+click to select many things at once.
+Now, turn on anchored so the pets don't
+fall through the map and turn off can
+collide so they don't push the player
+around.
+Hover over server storage, click the
+plus, and add a folder. Then rename it
+to pets.
+Click the first pet, hold shift, and
+click the last one. Then drag them all
+into the pets folder. Server storage is
+hidden from players, so the pets
+disappear from the map. Our script will
+clone them from here. Chapter 3. Let's
+build the egg.
+First, a stand. In the home tab, click
+part. Use the filter box at the top of
+the properties window to find any
+property fast. Type size and set it to
+828. Then type position and set it to 01
+- 40. Next, the color. Click the color
+value. Type 130 80 230 for a nice purple
+and press enter. Then search for
+anchored and check the box. Anchored
+parts stay frozen in place so the stand
+never falls or gets pushed. Finally,
+right click the part in the explorer.
+Choose rename and call it stand. Now the
+egg itself. Insert another part. Size
+four or five for makes it taller than it
+is wide just like a real egg. and
+position 04.5 minus 40 puts it right on
+top of the stand. Same as before, the
+color is 255 205 70 for a shiny golden
+egg. Turn on anchored so it never falls
+off the stand. And rename it to egg so
+it is easy to find in the explorer.
+Still looks like a box. Click the plus
+on egg and add a special mesh. Change
+its mesh type to sphere. And now it's a
+real egg. Pro tip, a special mesh
+stretches with the part. That's why a
+size of four five for gives us a tall
+oval egg. Chapter four, a price sign.
+Click the plus on egg and add a
+billboard. There's a little screen that
+floats in the world and always faces the
+player. Set its size to 8 by two studs
+and the studs offset to 04.50 to lift it
+above the egg. Inside it, add a text
+label. A size of 1 0 1 0 fills the whole
+sign. Background transparency one hides
+the white box. The text says 100 coins.
+Text scaled makes it big and the color
+is gold. 255 220 60.
+Pro tip: Add a UI stroke to the label
+with a thickness of three. The dark
+outline makes your text readable on any
+background. Chapter 5, the button and
+the sparkles.
+Click the plus on egg and add a
+proximity prompt. That's the hold D
+button that shows up when you walk close
+and it works on phones and consoles
+automatically.
+Then add a particle emitter. These
+sparkles will burst out of the egg when
+it hatches. Don't worry that they're
+flying around right now. The script will
+turn them off. Chapter 6. The egg
+script. This is where the magic happens.
+Before we write it, here is the plan.
+When a player holds E, we check if they
+have enough coins. If they do, we take
+the coins, shake the egg, pick a random
+pet using the chances, pop it out with
+sparkles, and send it to follow the
+player. Let's build it step by step.
+Click the plus on egg and add a script.
+Then delete the hello world line. At the
+top, we grab everything we need. Run
+service, the egg, the prompt, the
+sparkles, and the pets folder. The price
+is 100 coins. We also remember the egg
+size and position so we can reset it
+after the animation. Next, the prompt
+says hatch. It shows the price and you
+have to hold it for half a second so
+nobody hatches an egg by accident. And
+we turn the sparkles off. Now the fun
+part, the chances. The cat gets 60
+tickets, the bunny 30, and the dragon
+only 10. Then we put all the tickets
+into one big bag. When we pull out one
+random ticket, the cat wins 60% of the
+time, the bunny 30, and the legendary
+dragon only 10%. Pro tip: If you ever
+sell eggs for Robux, Roblox requires you
+to show these odds to players before
+they buy, so keep your chances easy to
+find. Chapter 7, pets that follow you.
+This function takes a pet and a player.
+It finds the player's character and puts
+the pet into a folder called my pets.
+Each new pet gets the next slot number.
+Slot one stands on the left behind you,
+slot two in the middle, and slot three
+on the right. So, they never stack on
+top of each other. Then, every frame, we
+find the spot behind the player, add a
+little bounce with a sine wave, and move
+the pet 10% of the way there. That's
+what makes it glide so smoothly. Chapter
+8. Hatching.
+When a player uses the prompt, we check
+their coins. If they have less than the
+price, the prompt says not enough coins
+for 1 second. And we stop right there.
+Otherwise, we take 100 coins and turn
+the prompt off so the egg can't be
+hatched twice at the same time. Now, the
+shake 30 times, the egg tilts left and
+right a bit more every time, rocking
+from its base. It also grows a little,
+and near the end, it starts glowing with
+neon. Then, pop. The egg turns
+invisible. 60 sparkles burst out. We
+pull a random ticket from the bag and
+clone that pet. The pet grows from tiny
+to full size with a little bounce while
+it spins around. Then we wait 1 second
+so the player can see what they got.
+Finally, we put the egg back the way it
+was, turn the prompt back on, and send
+the pet to follow the player. That's the
+whole script. Time to test it. Press
+play. I walk up to the egg and hold E.
+But I only have 30 coins. Not enough
+coins. The check works. But wait, the
+sign looks a bit dark. That's because
+the lighting and shadows in the world
+affect it. Let's fix that. Stop the
+game. Select the billboard guy and set
+light influence to zero. Now the sign
+ignores the shadows and stays nice and
+bright. Press play again and wait for
+100 coins. Hold E. It shakes. It glows.
+And we got a bunny. It flies right over
+to us. Let's hatch some more. Every egg
+costs 100 coins. And you can watch the
+coins go down on the leaderboard. Cats,
+bunnies, but no dragon. So, I saved up
+more coins and kept going.
+23 eggs later, still no dragon. 10%
+really is rare. That's why it's
+legendary. Come on. Come on. Yes, the
+legendary dragon. Finally.
+But look at this. 31 pets all in one
+giant line. Pro tip. In a real game,
+limit how many pets can follow you. For
+example, five. And keep the rest in an
+inventory. With just a few pets, it
+looks great. They follow you everywhere,
+bouncing along behind you.
+And that's it. You now have coins, a
+price sign, a hatching animation with
+real chances, and pets that follow you.
+And a quick recap of today's pro tips.
+Leader stats must be lowercase. Hold
+control to select many things at once.
+Use a UI stroke for readable text. Set
+light influence to zero for bright
+signs. Show your odds if you sell eggs.
+And limit how many pets can follow you.
+If this video helped you, hit like and
+subscribe for more Roblox Studio
+tutorials. Tell me in the comments what
+we should build next. See you next time.
+Bye. Check out one of these videos next.
