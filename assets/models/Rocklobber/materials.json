@@ -47,8 +47,7 @@
     "roughness": 0.35,
     "metallic": 0.0,
     "emission": 1.5,
-    "material": "Neon",
-    "texture": "stone"
+    "material": "Neon"
   },
   {
     "slot": 7,

@@ -15,4 +15,5 @@
 - Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
 
 Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-13: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a big round head on a thin stick body with four long bent legs like a spider, and a huge tilted leaf for a hat. Hero: the leaf hat, wider than the head, with its midrib.
+- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a big round head on a thin stick body with four long bent legs like a spider, and a huge tilted leaf for a hat. Hero: the leaf hat, wider than the head, with its midrib.
+- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).

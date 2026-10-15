@@ -133,7 +133,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 		EyeWhite = { glossy = true },
 	},
 	Rocklobber = {
-		Accessory = { material = "Neon", texture = "stone" },
+		Accessory = { material = "Neon" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},

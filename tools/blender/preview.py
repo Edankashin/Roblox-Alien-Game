@@ -141,6 +141,17 @@ def render_workbench(scene, path_colour, path_grey):
     bpy.ops.render.render(write_still=True)
 
 
+def flat_colour(bsdf):
+    """The slot's colour: the Base Color default, or (a vertex gradient wired in by the importer) the unlinked input of its Mix node."""
+    socket = bsdf.inputs["Base Color"]
+    if socket.is_linked and socket.links[0].from_node.type == "MIX":
+        node = socket.links[0].from_node
+        for k in (6, 7):
+            if not node.inputs[k].is_linked:
+                return tuple(node.inputs[k].default_value)[:3]
+    return tuple(socket.default_value)[:3]
+
+
 def flatten_materials(single=None):
     """Turn every imported material into emission-only so Cycles gives flat colours with no lighting."""
     for mat in bpy.data.materials:
@@ -149,7 +160,9 @@ def flatten_materials(single=None):
         bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if bsdf is None:
             continue
-        colour = single if single is not None else tuple(bsdf.inputs["Base Color"].default_value)[:3]
+        colour = single if single is not None else flat_colour(bsdf)
+        for link in list(bsdf.inputs["Base Color"].links):  # the Surface pass vertex gradient is wired in: cut it, or it lights the "flat" colour
+            mat.node_tree.links.remove(link)
         bsdf.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 1.0)
         bsdf.inputs["Emission Color"].default_value = (colour[0], colour[1], colour[2], 1.0)
         bsdf.inputs["Emission Strength"].default_value = 1.0
@@ -189,6 +202,15 @@ def principled_of(mat):
     return next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
 
 
+def hex_linear(h):
+    """'RRGGBB' (sRGB) as a linear RGBA tuple for a shader input."""
+    out = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255.0
+        out.append(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+    return (out[0], out[1], out[2], 1.0)
+
+
 def surface_variant(obj, entries, textures_root):
     """Dress one imported model like the surface build: material, glossy and texture fields of its materials.json. The glTF importer
     has already multiplied the exported vertex colour into each Base Color (as Roblox does with the part's Color)."""
@@ -208,8 +230,15 @@ def surface_variant(obj, entries, textures_root):
             if "Specular IOR Level" in bsdf.inputs:
                 bsdf.inputs["Specular IOR Level"].default_value = 1.0
         if material == "Neon" or entry.get("emission", 0) > 0:
-            bsdf.inputs["Emission Color"].default_value = bsdf.inputs["Base Color"].default_value
+            # The glow takes the slot's own colour from materials.json: with the vertex gradient wired in, the importer leaves the Base
+            # Color input at its grey default, which would glow white.
+            bsdf.inputs["Emission Color"].default_value = hex_linear(entry["hex"]) if entry.get("hex") else bsdf.inputs["Base Color"].default_value
             bsdf.inputs["Emission Strength"].default_value = NEON_STRENGTH
+        if material == "Neon":
+            # Roblox's Neon ignores metalness and shows the part's colour as a flat glow: a metallic Trim (Epic, Legendary) would
+            # otherwise mirror the white world and read as a white ring.
+            if "Metallic" in bsdf.inputs:
+                bsdf.inputs["Metallic"].default_value = 0.0
         if material in ("Metal", "Foil"):
             bsdf.inputs["Metallic"].default_value = 0.85
             bsdf.inputs["Roughness"].default_value = 0.35

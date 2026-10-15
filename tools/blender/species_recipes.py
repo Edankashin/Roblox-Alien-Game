@@ -230,7 +230,7 @@ def _bolt(slot, base, d, lengths, radii, bend=38.0):
 # ---------------------------------------------------------------------------------------- batch 1: round commons
 RECIPES["Mossbop"] = {
     "tier": "Common", "world": 1, "biome": "Meadow", "batch": 1, "status": "recipe", "height": 2.64,
-    "silhouette": "a wide squat mound with a bumpy skyline of seven moss clumps, two big feet and one thin sprout with a bud leaning off the top",
+    "silhouette": "a wide squat mound with a bumpy skyline of seven moss clumps, two big feet and one sturdy sprout with a bud leaning off the top",
     "hero": "the moss: lumpy clumps over a smooth ball, and the sprout with an orange bud",
     "face": {"on": "body", "eye_scale": 1.2, "eye_gap": 1.0, "eye_tilt": 0.0, "mouth": "o", "look": (0.1, -0.1), "cross": 0.06},
     "palette": {"BodyDark": "3F8F2E", "Accessory": "FF8A3D"},
@@ -245,10 +245,10 @@ RECIPES["Mossbop"] = {
         sph("BodyDark", (1.2, 0.3, 1.25), (0.32, 0.32, 0.3), segments=8, name="moss"),
         sph("BodyDark", (-0.1, -0.62, 1.93), (0.3, 0.26, 0.24), segments=8, name="moss"),
         sph("BodyDark", (0.75, 0.85, 0.95), (0.3, 0.3, 0.28), segments=8, name="moss"),
-        rod("BodyDark", (0.12, 0.05, 2.0), (0.24, 0.05, 2.4), 0.06, segments=6, name="stalk"),
-        sph("Accessory", (0.25, 0.05, 2.46), (0.2, 0.2, 0.18), segments=10, name="bud"),
-        sph("BodyDark", (0.44, 0.05, 2.22), (0.2, 0.06, 0.1), rot=(0, -25, -10), segments=8, name="leaf"),
-        sph("BodyDark", (-0.06, 0.05, 2.2), (0.2, 0.06, 0.1), rot=(0, 25, 10), segments=8, name="leaf"),
+        rod("BodyDark", (0.12, 0.05, 1.95), (0.24, 0.05, 2.36), 0.11, 0.09, segments=7, name="stalk"),
+        sph("Accessory", (0.25, 0.05, 2.41), (0.24, 0.24, 0.23), segments=10, name="bud"),
+        sph("BodyDark", (0.5, 0.05, 2.18), (0.27, 0.07, 0.13), rot=(0, -25, -10), segments=8, name="leaf"),
+        sph("BodyDark", (-0.08, 0.05, 2.16), (0.27, 0.07, 0.13), rot=(0, 25, 10), segments=8, name="leaf"),
     ],
 }
 
@@ -273,7 +273,7 @@ RECIPES["Pebblet"] = {
 
 RECIPES["Puffpuff"] = {
     "tier": "Common", "world": 1, "biome": "Meadow", "batch": 1, "status": "recipe", "height": 2.20,
-    "silhouette": "a starburst: a small ball ringed by twenty thin wisps each ending in a dot, standing on two leaf feet",
+    "silhouette": "a starburst: a small ball ringed by about twenty wisps in even rings, each ending in a seed dot, standing on two leaf feet",
     "hero": "the dandelion puff: radiating wisps with yellow seed tips",
     "face": {"on": "body", "eye_scale": 1.35, "eye_gap": 1.1, "eye_tilt": -10.0, "mouth": "o", "lid": 0.25, "look": (0.0, 0.0)},
     "palette": {"BodyDark": "8FC96A", "Accessory": "FFD84A"},
@@ -284,27 +284,26 @@ RECIPES["Puffpuff"] = {
 }
 
 
+# (elevation in degrees above the horizon, azimuths in degrees from +x towards the back (+y)): each azimuth is built on both sides of x
+# (mirrored), so a ring of 0, 60 and -60 is a full hexagon of six; 90 is the back of the ring, on the centre line (built once).
+PUFF_RINGS = ((62.0, (0.0, 60.0, -60.0)), (34.0, (30.0, -30.0, 90.0)), (6.0, (0.0, 60.0, -32.0)), (-22.0, (30.0, 90.0)))
+
+
 def _puff_wisps():
-    """Eleven wisps for x > 0 (mirrored), spread from the top down to the lower sides; none in front of the face."""
+    """Seed wisps in even rings round the ball (PUFF_RINGS), one on top, none in front of the face."""
     out = []
     centre = (0.0, 0.0, 1.1)
-    golden = math.pi * (3.0 - math.sqrt(5.0))
-    cands = []
-    for i in range(240):
-        z = 1.0 - 2.0 * ((i + 0.5) / 240.0)
-        r = math.sqrt(max(0.0, 1.0 - z * z))
-        d = (r * math.cos(golden * i), r * math.sin(golden * i), z)
-        if d[0] >= 0.2 and d[2] >= -0.4 and -d[1] <= 0.6:
-            cands.append(d)
-    cands.sort(key=lambda d: d[2])
-    for k in range(11):
-        d = cands[round(k * (len(cands) - 1) / 10.0)]
-        out.append(rod("BodyDark", _add(centre, _mul(d, 0.6)), _add(centre, _mul(d, 0.95)), 0.035, segments=4, mirror=True, name="wisp"))
-        out.append(ico("Accessory", _add(centre, _mul(d, 1.0)), 0.13, segments=1, mirror=True, name="seed"))
-    out.append(rod("BodyDark", (0, 0.0, 1.7), (0, 0.0, 2.05), 0.035, segments=4, name="wisp"))
+    for elev, azimuths in PUFF_RINGS:
+        for az in azimuths:
+            e, a = math.radians(elev), math.radians(az)
+            d = (math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e))
+            if d[1] < -0.62 and elev < 40.0:
+                continue  # in front of the eyes and the mouth
+            mirror = abs(d[0]) > 0.05
+            out.append(rod("BodyDark", _add(centre, _mul(d, 0.6)), _add(centre, _mul(d, 0.95)), 0.045, segments=4, mirror=mirror, name="wisp"))
+            out.append(ico("Accessory", _add(centre, _mul(d, 1.0)), 0.13, segments=1, mirror=mirror, name="seed"))
+    out.append(rod("BodyDark", (0, 0.0, 1.7), (0, 0.0, 2.02), 0.045, segments=4, name="wisp"))
     out.append(ico("Accessory", (0, 0.0, 2.07), 0.13, segments=1, name="seed"))
-    out.append(rod("BodyDark", (0, 0.5, 1.45), (0, 0.8, 1.65), 0.035, segments=4, name="wisp"))
-    out.append(ico("Accessory", (0, 0.84, 1.68), 0.13, segments=1, name="seed"))
     return out
 
 
@@ -313,15 +312,17 @@ RECIPES["Puffpuff"]["steps"] += _puff_wisps()
 # ---------------------------------------------------------------------------------------- batch 2: bugs and thin parts
 RECIPES["Glimmo"] = {
     "tier": "Common", "world": 1, "biome": "Forest", "batch": 2, "status": "recipe", "height": 2.70,
-    "silhouette": "a drooping bell on a flared skirt with a fringe of dangling tendrils, a fat round lamp swinging out behind and two bobble antennae",
-    "hero": "the glowing firefly lamp hanging off its back",
+    "silhouette": "a drooping bell on a flared skirt with a fringe of dangling tendrils, a fat round lamp held out beside it on a curled stalk and two bobble antennae",
+    "hero": "the glowing firefly lamp swinging beside the bell",
     "face": {"on": "body", "eye_scale": 1.35, "eye_gap": 0.95, "eye_tilt": 0.0, "mouth": "smile", "look": (0.0, 0.1)},
     "palette": {"BodyDark": "E4A83A", "Accessory": "B8FF4F"}, "glow": {"Accessory": 3.0},
     "steps": [
-        sph("Body", (0, 0, 1.7), (1.15, 1.1, 0.9), segments=16, name="body"),
-        cone("BodyDark", (0, 0, 0.92), (1.05, 1.0, 0.32), tip=0.7, segments=16, name="skirt"),
-        sph("Accessory", (0, 1.5, 1.0), (0.75, 0.85, 0.75), segments=12, name="lamp"),
-        rod("BodyDark", (0.32, -0.15, 2.42), (0.5, -0.22, 2.57), 0.04, segments=5, mirror=True, name="antenna"),
+        sph("Body", (0, 0, 1.7), (1.05, 1.0, 0.85), segments=16, name="body"),
+        cone("BodyDark", (0, 0, 0.92), (1.0, 0.95, 0.32), tip=0.7, segments=16, name="skirt"),
+        rod("BodyDark", (0.7, 0.2, 2.05), (1.4, 0.1, 2.52), 0.09, 0.075, segments=6, name="stalk"),
+        rod("BodyDark", (1.4, 0.1, 2.52), (1.95, 0.0, 2.2), 0.075, 0.07, segments=6, name="stalk"),
+        sph("Accessory", (1.95, -0.05, 1.7), (0.55, 0.55, 0.62), segments=12, name="lamp"),
+        rod("BodyDark", (0.32, -0.15, 2.3), (0.5, -0.22, 2.5), 0.045, segments=5, mirror=True, name="antenna"),
         sph("Accessory", (0.5, -0.22, 2.6), 0.1, segments=8, mirror=True, name="antennatip"),
     ],
 }
@@ -431,24 +432,25 @@ RECIPES["Snailbyte"] = {
 
 RECIPES["Rocklobber"] = {
     "tier": "Rare", "world": 1, "biome": "Cave", "batch": 3, "status": "recipe", "height": 2.42,
-    "silhouette": "a wide flat crab on six thin legs: one huge boulder fist raised high with crystal spikes, the other fist small and low, so it leans like a boxer",
-    "hero": "the boulder claws, the raised one sprouting glowing amber crystals",
+    "silhouette": "a crab standing tall on six thin legs with its body lifted clear of the ground: one huge boulder fist raised beside it under a tall crown of amber crystals, the other fist small and low, so it leans like a boxer",
+    "hero": "the boulder claws, the raised one sprouting a tall crown of glowing amber crystals",
     "face": {"on": "body", "eye_scale": 1.4, "eye_gap": 1.25, "eye_tilt": 10.0, "mouth": "zigzag", "lid": 0.3, "mouth_scale": 1.35},
     "palette": {"BodyDark": "8A857D", "Accessory": "FFA928"}, "glow": {"Accessory": 1.5}, "metal": {"Accessory": 0.0},
     "steps": [
-        sph("Body", (0, 0.1, 1.0), (1.25, 0.95, 0.78), segments=16, name="body"),
-        sph("BodyDark", (0.0, 0.6, 1.65), (0.55, 0.4, 0.2), segments=8, name="plate"),
-        rod("Body", (1.05, -0.35, 0.85), (1.45, -0.35, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
-        rod("Body", (1.05, 0.15, 0.85), (1.5, 0.15, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
-        rod("Body", (1.0, 0.6, 0.85), (1.4, 0.65, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
-        rod("Body", (0.95, -0.4, 1.2), (1.25, -0.85, 1.42), 0.2, segments=6, name="arm"),
-        ico("BodyDark", (1.35, -0.95, 1.45), (0.64, 0.58, 0.58), rot=(10, 0, 25), segments=2, flat=True, name="fist"),
-        spike("Accessory", (1.3, -0.9, 1.8), (1.24, -0.95, 2.42), 0.3, segments=5, name="crystal"),
-        spike("Accessory", (1.55, -0.9, 1.75), (1.85, -0.95, 2.28), 0.24, segments=5, name="crystal"),
-        spike("Accessory", (1.05, -0.95, 1.75), (0.82, -0.95, 2.26), 0.24, segments=5, name="crystal"),
-        rod("Body", (-0.95, -0.35, 0.95), (-1.2, -0.75, 0.8), 0.18, segments=6, name="arm"),
-        ico("BodyDark", (-1.4, -0.85, 0.8), (0.58, 0.52, 0.52), segments=2, flat=True, name="fist"),
-        spike("Accessory", (-1.4, -0.85, 1.2), (-1.36, -0.9, 1.6), 0.2, segments=5, name="crystal"),
+        sph("Body", (0, 0.1, 1.2), (0.95, 0.8, 0.62), segments=16, name="body"),
+        sph("BodyDark", (0.0, 0.5, 1.75), (0.5, 0.36, 0.18), segments=8, name="plate"),
+        rod("Body", (0.65, -0.3, 1.0), (1.05, -0.3, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
+        rod("Body", (0.7, 0.15, 1.0), (1.1, 0.15, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
+        rod("Body", (0.65, 0.55, 1.0), (1.0, 0.6, 0.0), 0.13, 0.09, segments=5, mirror=True, name="leg"),
+        rod("Body", (0.7, -0.15, 1.2), (1.05, -0.12, 1.3), 0.2, segments=6, name="arm"),
+        ico("BodyDark", (1.3, -0.12, 1.32), (0.8, 0.72, 0.7), rot=(10, 0, 25), segments=2, flat=True, name="fist"),
+        spike("Accessory", (1.28, -0.17, 1.75), (1.23, -0.22, 2.42), 0.3, segments=5, name="crystal"),
+        spike("Accessory", (1.63, -0.14, 1.7), (1.88, -0.22, 2.2), 0.24, segments=5, name="crystal"),
+        spike("Accessory", (0.93, -0.2, 1.72), (0.74, -0.27, 2.18), 0.24, segments=5, name="crystal"),
+        spike("Accessory", (1.38, 0.1, 1.72), (1.46, 0.15, 2.1), 0.18, segments=5, name="crystal"),
+        rod("Body", (-0.6, -0.35, 1.0), (-0.8, -0.65, 0.85), 0.18, segments=6, name="arm"),
+        ico("BodyDark", (-0.95, -0.8, 0.78), (0.52, 0.47, 0.47), segments=2, flat=True, name="fist"),
+        spike("Accessory", (-0.95, -0.8, 1.1), (-0.92, -0.85, 1.5), 0.2, segments=5, name="crystal"),
     ],
 }
 
@@ -547,61 +549,81 @@ RECIPES["Gloomoth"] = {
 }
 
 # ---------------------------------------------------------------------------------------- batch 5: the regal three
+# Gaiabloom: the grand one. The head is held high on a steep neck above a proud, forward chest; the antlers spread far wider than the body
+# (about 4 studs against its 1.6) in front of a big gold halo that rings the head from behind.
+_ANT_Y, _ANT_Z0 = -1.5, 3.5
 _ANTLERS = []
-for _p0, _p1, _r0, _r1 in (((0.3, -1.45, 3.3), (0.6, -1.45, 3.68), 0.1, 0.07), ((0.48, -1.45, 3.5), (1.2, -1.45, 3.72), 0.07, 0.05),
-                           ((0.6, -1.45, 3.68), (0.62, -1.45, 3.98), 0.07, 0.05), ((0.55, -1.45, 3.62), (0.2, -1.45, 3.88), 0.06, 0.045)):
+for _p0, _p1, _r0, _r1 in (((0.26, _ANT_Y, _ANT_Z0), (0.85, _ANT_Y, 3.7), 0.15, 0.115),    # the main beam sweeps up and out
+                           ((0.85, _ANT_Y, 3.7), (1.78, _ANT_Y, 3.82), 0.115, 0.085),
+                           ((0.85, _ANT_Y, 3.7), (0.82, _ANT_Y, 3.92), 0.1, 0.075),      # a tine up from the elbow
+                           ((1.35, _ANT_Y, 3.78), (1.46, _ANT_Y, 3.94), 0.085, 0.065),   # a tine up from the outer beam
+                           ((0.4, _ANT_Y, 3.55), (0.14, _ANT_Y, 3.85), 0.1, 0.07)):      # an inner tine leaning toward the centre
     _ANTLERS.append(rod("BodyDark", _p0, _p1, _r0, _r1, segments=6, mirror=True, name="antler"))
-for _p in ((1.2, -1.45, 3.78), (0.62, -1.45, 4.03), (0.2, -1.45, 3.94)):
-    _ANTLERS.append(sph("Accessory", _p, 0.16, segments=6, mirror=True, name="blossom"))
+for _p in ((1.82, _ANT_Y, 3.84), (0.82, _ANT_Y, 3.95), (1.46, _ANT_Y, 3.96), (0.14, _ANT_Y, 3.88)):
+    _ANTLERS.append(sph("Accessory", _p, 0.2, segments=6, mirror=True, name="blossom"))
 
 RECIPES["Gaiabloom"] = {
     "tier": "Legendary", "world": 1, "biome": "Meadow", "batch": 5, "status": "recipe", "height": 4.14,
-    "silhouette": "a long-legged stag with its head high on a curved neck, a branching tree for antlers blossoming pink, a gold halo ring behind the head and a gold ring on the ground round its feet",
-    "hero": "the tree antlers: bark branches with blossoms, wider than the head",
-    "face": {"on": "head", "eye_scale": 1.1, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.3},
+    "silhouette": "a long-legged stag standing proud: a big forward chest, the head held high on a steep neck, a branching tree for antlers blossoming pink and spread far wider than the body, a big gold halo ringing the head from behind and a gold ring on the ground round its feet",
+    "hero": "the tree antlers: bark branches with blossoms, spread wide over the halo",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.3},
     "palette": {"BodyDark": "8A5A2F", "Accessory": "FF8FB3"},
     "steps": [
-        sph("Body", (0, 0.55, 1.95), (1.0, 1.55, 0.78), segments=12, name="body"),
-        rod("Body", (0.6, -0.55, 1.5), (0.65, -0.6, 0.2), 0.24, 0.16, segments=6, mirror=True, name="leg"),
-        rod("Body", (0.6, 1.5, 1.5), (0.65, 1.55, 0.2), 0.24, 0.16, segments=6, mirror=True, name="leg"),
-        sph("BodyDark", (0.65, -0.62, 0.11), (0.22, 0.3, 0.11), segments=6, mirror=True, name="hoof"),
-        sph("BodyDark", (0.65, 1.58, 0.11), (0.22, 0.3, 0.11), segments=6, mirror=True, name="hoof"),
-        rod("Body", (0, -0.65, 2.15), (0, -1.45, 2.68), 0.6, 0.46, segments=8, name="neck"),
-        sph("Body", (0, -1.5, 2.72), (0.8, 0.78, 0.7), segments=12, name="head"),
-        sph("Body", (0.78, -1.35, 3.04), (0.4, 0.1, 0.22), rot=(0, 0, 35), segments=8, mirror=True, name="ear"),
-        sph("BodyDark", (0, -0.95, 2.2), (0.3, 0.12, 0.45), rot=(20, 0, 0), segments=8, name="ruff"),
-        sph("BodyDark", (0.38, -0.9, 2.3), (0.28, 0.12, 0.42), rot=(15, 0, 25), segments=8, mirror=True, name="ruff"),
-        sph("Body", (0, 2.2, 2.3), (0.3, 0.35, 0.3), segments=10, name="tail"),
-        tor("Trim", (0, -1.1, 2.92), (1.0, 1.0, 1.0), rot=(90, 0, 0), minor=0.06, segments=16, mseg=4, name="halo"),
-        tor("Trim", (0, 0.5, 0.08), (2.2, 2.2, 2.2), minor=0.035, segments=18, mseg=4, name="groundring"),
+        sph("Body", (0, 0.75, 1.65), (0.82, 1.3, 0.6), segments=12, name="body"),
+        sph("Body", (0, -0.4, 1.85), (0.8, 0.75, 0.78), segments=10, name="chest"),
+        rod("Body", (0.55, -0.3, 1.5), (0.6, -0.4, 0.2), 0.24, 0.16, segments=6, mirror=True, name="leg"),
+        rod("Body", (0.55, 1.5, 1.45), (0.62, 1.55, 0.2), 0.24, 0.16, segments=6, mirror=True, name="leg"),
+        sph("BodyDark", (0.6, -0.45, 0.11), (0.22, 0.3, 0.11), segments=6, mirror=True, name="hoof"),
+        sph("BodyDark", (0.62, 1.6, 0.11), (0.22, 0.3, 0.11), segments=6, mirror=True, name="hoof"),
+        rod("Body", (0, -0.7, 2.2), (0, -1.4, 3.0), 0.44, 0.33, segments=8, name="neck"),
+        sph("Body", (0, -1.5, 3.0), (0.74, 0.72, 0.65), segments=12, name="head"),
+        sph("Body", (0.7, -1.4, 3.2), (0.42, 0.1, 0.23), rot=(0, 0, 35), segments=8, mirror=True, name="ear"),
+        sph("BodyDark", (0, -1.02, 2.15), (0.3, 0.12, 0.42), rot=(20, 0, 0), segments=6, name="ruff"),
+        sph("BodyDark", (0.4, -0.95, 2.3), (0.28, 0.12, 0.4), rot=(15, 0, 25), segments=6, mirror=True, name="ruff"),
+        sph("Body", (0, 2.25, 2.15), (0.3, 0.35, 0.3), segments=10, name="tail"),
+        tor("Trim", (0, -0.95, 2.95), (1.15, 1.15, 1.15), rot=(90, 0, 0), minor=0.1, segments=20, mseg=4, name="halo"),
+        tor("Trim", (0, 0.5, 0.08), (1.9, 1.9, 1.9), minor=0.055, segments=16, mseg=4, name="groundring"),
         sph("Accessory", (0.95, -0.9, 0.18), 0.17, segments=6, mirror=True, name="flower"),
         sph("Accessory", (1.1, 1.3, 0.18), 0.17, segments=6, mirror=True, name="flower"),
         sph("Accessory", (0.2, -1.5, 0.16), 0.15, segments=6, name="flower"),
     ] + _ANTLERS,
 }
 
+# Radish: a smaller round body in front of a big rising sun. The disk (radius _SUN_R) is wider than the body so it frames it from
+# behind; nine rays fan over the top (the ones that would dig into the ground are left out); the leaves are four broad blades that
+# rise from the crown and curl outward and down like a radish top, not the spiky crown of a pineapple.
+_SUN_C, _SUN_R, _SUN_TIP = (0.0, 0.85, 1.66), 1.5, 1.88
 _SUN_RAYS = []
-for _k in range(12):
+for _k in range(-1, 8):
     _a = 30.0 * _k
     _d = (math.cos(math.radians(_a)), 0.0, math.sin(math.radians(_a)))
-    _SUN_RAYS.append(cone("Accessory", (_d[0] * 1.3, 0.8, 2.14 + _d[2] * 1.3), (0.18, 0.07, 0.2), rot=aim(_d), segments=4, flat=True, name="ray"))
+    _mid = (_SUN_R + _SUN_TIP) / 2.0 + 0.02
+    _SUN_RAYS.append(cone("Accessory", (_d[0] * _mid, _SUN_C[1], _SUN_C[2] + _d[2] * _mid), (0.2, 0.08, (_SUN_TIP - _SUN_R) / 2.0 + 0.05),
+                          rot=aim(_d), segments=4, flat=True, name="ray"))
 _RADISH_LEAVES = []
-for _b, _ll in ((-62, 0.45), (-32, 0.5), (0, 0.55), (32, 0.5), (62, 0.45)):
-    _d = (math.sin(math.radians(_b)), 0.1, math.cos(math.radians(_b)))
-    _RADISH_LEAVES.append(sph("BodyDark", _add((0, -0.05, 2.55), _mul(_d, _ll * 0.9)), (0.3, 0.08, _ll), rot=aim(_d), segments=8, name="leaf"))
+_CROWN = (0.0, 0.0, 2.25)
+# (azimuth from +x towards the back in degrees, stem elevation, blade elevation: negative = drooping, stem length, blade length, blade width);
+# each is built on both sides
+for _az, _e1, _e2, _ls, _lb, _w in ((8.0, 48.0, -20.0, 0.85, 1.25, 0.4), (70.0, 70.0, 40.0, 0.8, 1.1, 0.36)):
+    _a = math.radians(_az)
+    _u = (math.cos(math.radians(_e1)) * math.cos(_a), math.cos(math.radians(_e1)) * math.sin(_a), math.sin(math.radians(_e1)))
+    _v = (math.cos(math.radians(_e2)) * math.cos(_a), math.cos(math.radians(_e2)) * math.sin(_a), math.sin(math.radians(_e2)))
+    _end = _add(_CROWN, _mul(_u, _ls))
+    _RADISH_LEAVES.append(rod("BodyDark", _CROWN, _end, 0.09, 0.07, segments=6, mirror=True, name="leafstem"))
+    _RADISH_LEAVES.append(sph("BodyDark", _add(_end, _mul(_v, _lb / 2.0 - 0.05)), (_w, 0.06, _lb / 2.0), rot=aim(_v), segments=10, mirror=True, name="leaf"))
 
 RECIPES["Radish"] = {
     "tier": "Cosmic", "world": 1, "biome": "Meadow", "batch": 5, "status": "recipe", "height": 3.64,
-    "silhouette": "a round radish with a leaf crown in front of a huge sun disk ringed by twelve rays, a tilted gold orbit ring round its waist and a root-tip tail",
-    "hero": "the sun disk: a glowing disc with rays behind the whole body",
+    "silhouette": "a round radish with four broad leaves curling out of its crown in front of a huge rising sun disk, wider than the body and fanned with nine rays, a tilted gold orbit ring round its waist and a root-tip tail",
+    "hero": "the sun disk: a glowing disc with rays behind the whole body, wider than it",
     "face": {"on": "body", "eye_scale": 1.1, "eye_gap": 1.0, "eye_tilt": 0.0, "mouth": "wide", "look": (0.0, 0.12)},
     "palette": {"BodyDark": "5DBB3A", "Accessory": "FFC83D"}, "glow": {"Accessory": 3.0},
     "steps": [
-        sph("Body", (0, 0, 1.5), (1.3, 1.25, 1.3), segments=16, name="body"),
-        spike("Body", (0, 0.8, 0.6), (0, 1.45, 0.05), 0.3, segments=6, name="root"),
-        sph("BodyDark", (0.55, -0.45, 0.2), (0.38, 0.5, 0.2), segments=8, mirror=True, name="foot"),
-        cyl("Accessory", (0, 0.8, 2.14), (1.2, 1.2, 0.07), rot=(90, 0, 0), segments=24, name="disk"),
-        tor("Accessory", (0, 0, 1.5), (1.9, 1.9, 1.9), rot=(18, 0, 8), minor=0.035, segments=24, mseg=4, name="orbit"),
+        sph("Body", (0, 0, 1.3), (1.15, 1.1, 1.1), segments=16, name="body"),
+        spike("Body", (0, 0.7, 0.6), (0, 1.3, 0.05), 0.28, segments=6, name="root"),
+        sph("BodyDark", (0.5, -0.4, 0.2), (0.36, 0.46, 0.2), segments=8, mirror=True, name="foot"),
+        cyl("Accessory", _SUN_C, (_SUN_R, _SUN_R, 0.07), rot=(90, 0, 0), segments=28, name="disk"),
+        tor("Accessory", (0, 0, 1.3), (1.75, 1.75, 1.75), rot=(18, 0, 8), minor=0.035, segments=24, mseg=4, name="orbit"),
     ] + _SUN_RAYS + _RADISH_LEAVES,
 }
 
