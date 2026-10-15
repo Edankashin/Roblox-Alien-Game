@@ -84,6 +84,10 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | ~~Publish the three places privately~~ | Done 2026-10-14 by the Mac session (overnight job 6: world1 v89, world2 v4, home v3) |
 | Experience Questionnaire, maturity answers, then going public | Identity and legal steps are his |
 
+## Decided 2026-10-15 (Ethan)
+
+**The weekend launch is off.** Ethan: "I'm not satisfied with launching the game right now given the designs and UI of the game." No new date until the creature designs read as seamless, complete characters and the UI meets the top games' bar. Research under way on how successful Roblox developers design models, worlds and UI, how they use Obsidian with Claude and Blender bridged to both, and how Claude Design fits (report: `reports/Roblox creature UI and Claude workflows.md`, notes in `research_notes/`). The 32 surfaced bodies stay un-uploaded; the private build (v90, v5, v4) stays as it is; the dashboard, group and clips wait.
+
 ## Decided 2026-10-14 (Ethan)
 
 Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in week one. Make the group now (100 Robux), named **Moop Games** (the species rename gave the Mossbop its name Moop; the emblem banner reads MOOP, `media/group/emblem_v1.png`); the experience stays under Ethan's account for launch (decision 16). Ship the twelve unheard music picks and swap in week one. Max players 8. Open: the icon and thumbnail picks (Ethan is looking at them). The species rename is applied: the second-pass top picks, see [[Species-Names]] and decision B26.

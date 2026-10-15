@@ -5,6 +5,8 @@ up: "[[Start-Here]]"
 ---
 # Launch dashboard
 
+> **2026-10-15: the weekend launch is off** (Ethan). The bar: seamless, complete creature designs and UI at the top games' level. See [[Board]] "Decided 2026-10-15" and the research report in `reports/`.
+
 One screen for Ethan. Written 2026-10-15 (Thursday) from [[Board]], the logs and the notes linked below; the Board is the live list, this is the picture. Launch week opens **Friday 2026-10-16**: the LaunchGold overlay and the Haunted Nebula event start then, and the experience is still private.
 
 ## Live now (private)
