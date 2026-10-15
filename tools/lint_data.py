@@ -290,6 +290,38 @@ def lint_shapes(tables, strings, types):
             check(sid in items, f'Shop.Launch: unknown item {sid!r}')
             check(sid in shop['Grants'] or (sid in LIVE_PASSES and items.get(sid, {}).get('kind') == 'pass'),
                   f'Shop.Launch.{sid}: missing grant or live-pass allowance')
+    # The shelf (Shop screen): categories, ribbons, seals and cards name each other and the items they show.
+    hexes = lambda value: isinstance(value, str) and re.fullmatch(r'[0-9A-Fa-f]{6}', value) is not None
+    categories = shop['Categories']
+    unique(categories, 'id', 'Shop.Categories')
+    theme = (ROOT / 'src/shared/Theme.luau').read_text()
+    rarity = re.search(r'Theme\.Rarity\s*=\s*\{(.*?)\n\}', theme, re.S)
+    rarity_hexes = {h.upper() for h in re.findall(r'fromHex\("([0-9A-Fa-f]{6})"\)', rarity[1])} if rarity else set()
+    check(bool(rarity_hexes), 'Shop.Categories: Theme.Rarity colours unavailable')
+    scrap_ids = set()
+    for category in categories.values():
+        where = 'Shop.Categories.' + str(category.get('id'))
+        check(hexes(category.get('color')), f'{where}: colour must be a six-digit hex string')
+        check(str(category.get('color')).upper() not in rarity_hexes, f'{where}: category colour is a rarity colour')
+        scrap_ids.update((category.get('scrap') or {}).values())
+    check(len({str(c.get('color')).upper() for c in categories.values()}) == len(categories), 'Shop.Categories: colours must differ')
+    launch_sections = {s['section'] for s in shop['Launch'].values()}
+    check(launch_sections <= {c['id'] for c in categories.values()}, 'Shop.Launch: a section has no category')
+    gear_ids = {k for k, v in tables['Gear'].items() if isinstance(v, dict)} | {'Radar' + str(k) for k in tables['Radar'] if type(k) is int and k > 0}
+    for sid in scrap_ids:
+        check(sid in tables['Lures']['Lures'] or sid in gear_ids, f'Shop.Categories: unknown Scrap item {sid!r}')
+    shelf_ids = {sid for s in shop['Launch'].values() for sid in s['items'].values()} | scrap_ids
+    for key, table in (('Ribbons', shop['Ribbons']), ('Seals', shop['Seals'])):
+        for rid, row in table.items():
+            check(hexes(row.get('color')), f'Shop.{key}.{rid}: colour must be a six-digit hex string')
+    icon_keys = set(tables['Icons']['Icons']) | set(tables['Icons']['Aliases'])
+    for cid, card in shop['Cards'].items():
+        where = 'Shop.Cards.' + str(cid)
+        check(cid in shelf_ids, f'{where}: not on the shelf')
+        check(card.get('ribbon') is None or card['ribbon'] in shop['Ribbons'], f'{where}: unknown ribbon {card.get("ribbon")!r}')
+        check(card.get('seal') is None or card['seal'] in shop['Seals'], f'{where}: unknown seal {card.get("seal")!r}')
+        check(card.get('icon') is None or card['icon'] in icon_keys, f'{where}: unknown icon {card.get("icon")!r}')
+        check(items.get(cid, {}).get('oddsOnWheel') is not True or card.get('note') == 'SeeOdds', f'{where}: a paid spin card must link its odds')
     never = set(shop['NeverSold'].values())
     for sid, grants in shop['Grants'].items():
         for i, grant in grants.items():

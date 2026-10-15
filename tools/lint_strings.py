@@ -18,7 +18,8 @@ FAMILIES = {
     'JOB_': 'Jobs.Jobs', 'STATION_': 'Jobs.Jobs', 'STAGE_': 'Growth.ById',
     'SIZE_': 'Sizes.ById', 'OBJ_': '@objectives', 'MODULE_': '@modules',
     'FN_': '@field_notes', 'SHOP_DESC_': '@launch', 'SHOP_ITEM_': '@launch',
-    'SHOP_TAB_': '@shop_tabs', 'SHOP_SECTION_': '@shop_sections', 'SEGMENT_': '@segments',
+    'SHOP_TAB_': '@shop_tabs', 'SHOP_RIBBON_': '@shop_ribbons', 'SHOP_SEAL_': '@shop_seals', 'SHOP_NOTE_': '@shop_notes',
+    'SHOP_GLYPH_': '@shop_cards', 'SEGMENT_': '@segments',
     'HOME_ITEM_': 'HomeBuild.ById', 'BUILD_KIND_': 'HomeBuild.Caps',
     'MENU_': '@menus', 'MENU_GLYPH_': '@menus', 'SHAPE_': '@shapes',
     'REWARD_': '@rewards', 'GEAR_': '@gear', 'ITEM_': '@items',
@@ -45,7 +46,6 @@ def family_ids(tables, source, types):
     weather = {r['weather']['special']['id'] for r in tables['Worlds'].values()}
     weather |= {w for r in tables['Worlds'].values() for w in r['weather']['normal'].values()}
     weather |= {r['weather'] for group in ('Rotation','Overrides') for r in tables['Weekly'][group].values() if r.get('weather')}
-    tabs = re.search(r'local\s+TABS[^=]*=\s*\{([^}]+)\}', source)
     menus = set(re.findall(r'Hud\.Add(?:Menu|Top)Button\(\s*"([^"]+)"',source))
     special = {
         'overlay_articles': set(tables['Overlays']['Order'].values()),
@@ -54,8 +54,10 @@ def family_ids(tables, source, types):
         'node_conditions': {r['condition'] for r in tables['KeyMaterials'].values() if r['nodes'] > 0 and r['condition'] != 'Any'},
         'objectives': objectives, 'modules': {r['id'] for world in tables['Modules']['Worlds'].values() for r in world.values()},
         'field_notes': {r['id']+suffix for world in tables['Quests']['FieldNotes'].values() for r in world.values() for suffix in ('_TITLE','_LEGEND')},
-        'launch': launch, 'shop_tabs': set(re.findall(r'"([^"]+)"', tabs[1])) if tabs else set(),
-        'shop_sections': {r['section'] for r in tables['Shop']['Launch'].values()},
+        'launch': launch, 'shop_tabs': {r['id'] for r in tables['Shop']['Categories'].values()},
+        'shop_ribbons': set(tables['Shop']['Ribbons']), 'shop_seals': set(tables['Shop']['Seals']),
+        'shop_notes': {r['note'] for r in tables['Shop']['Cards'].values() if r.get('note')},
+        'shop_cards': launch | {i for c in tables['Shop']['Categories'].values() for i in (c.get('scrap') or {}).values()},
         'segments': {r['id'] for r in tables['Spins']['Segments'].values()}, 'menus': menus,
         'shapes': {r['placeholder']['shape'] for r in tables['Species']['List'].values()}, 'rewards': rewards,
         'gear': {k for k,v in tables['Gear'].items() if isinstance(v,dict)} | {'Radar'+str(k) for k in tables['Radar'] if type(k) is int and k>0},

@@ -67,6 +67,31 @@ export type ButtonProps = {
 	zIndex: number?,
 	aspect: number?,
 	icon: string?, -- an Icons key: shown on the face instead of `text` once its image is uploaded (id not 0)
+	hit: boolean?, -- true adds an invisible hit area the face's size, grown to at least Theme.TapMin px each way and centred on it (the UI Playbook's 44 px floor for a small face)
+}
+
+export type RibbonProps = {
+	parent: Instance?,
+	name: string?,
+	text: string,
+	color: Color3,
+	aspect: number, -- the holder's width over its height in px, so the swallowtail diamonds come out square
+	position: UDim2?,
+	size: UDim2?,
+	anchor: Vector2?,
+	zIndex: number?,
+}
+
+export type SealProps = {
+	parent: Instance?,
+	name: string?,
+	text: string,
+	color: Color3,
+	position: UDim2?,
+	size: UDim2?, -- the caller makes it square (the seal draws squares inside it and keeps no aspect of its own)
+	anchor: Vector2?,
+	rotation: number?,
+	zIndex: number?,
 }
 
 export type IconProps = {
@@ -495,7 +520,139 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 		Builder.playSound(Sounds.Click)
 		onClick()
 	end)
+	if props.hit then
+		-- A face under Theme.TapMin gets an invisible button over it: the face's own size, floored at TapMin px each way
+		-- (UISizeConstraint grows it around its centre), a ZIndex above anything the face overlaps. It drives the same press,
+		-- hover and click, so the face still looks pressed; the face itself never sees a tap.
+		local hit = Instance.new("TextButton")
+		hit.Name = "Hit"
+		hit.Text = ""
+		hit.AutoButtonColor = false
+		hit.BackgroundTransparency = 1
+		hit.BorderSizePixel = 0
+		hit.AnchorPoint = Vector2.new(0.5, 0.5)
+		hit.Position = UDim2.fromScale(0.5, (1 - Theme.ButtonLip) / 2)
+		hit.Size = UDim2.fromScale(1, 1 - Theme.ButtonLip)
+		hit.ZIndex = face.ZIndex + 6
+		local floor = Instance.new("UISizeConstraint")
+		floor.MinSize = Vector2.new(Theme.TapMin, Theme.TapMin)
+		floor.Parent = hit
+		hit.Parent = container
+		hit.MouseButton1Down:Connect(press)
+		hit.MouseButton1Up:Connect(release)
+		hit.MouseLeave:Connect(release)
+		hit.MouseEnter:Connect(function()
+			TweenService:Create(scale, pressInfo, { Scale = Theme.Scale.Hover }):Play()
+		end)
+		hit.Activated:Connect(function()
+			Builder.playSound(Sounds.Click)
+			onClick()
+		end)
+	end
 	return container
+end
+
+-- A folded ribbon plate for a status word (BEST DEAL, NEW!): a navy-outlined plate in `color` with a gloss band, white outlined
+-- text at the 14 px floor, and a darker diamond poking out under each end for the swallowtail. The holder is the size given
+-- (`aspect` is its width over its height in px), the plate fills most of it (Theme.Ribbon), and nothing in it takes taps.
+-- Returns the holder.
+function Builder.ribbon(props: RibbonProps): Frame
+	local z = props.zIndex or 1
+	local holder = Builder.frame({
+		parent = props.parent,
+		name = props.name or "Ribbon",
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = z,
+	})
+	local dark = Builder.darker(props.color)
+	for side = 0, 1 do
+		local tail = Builder.frame({
+			parent = holder,
+			name = "Tail",
+			position = UDim2.fromScale(0.05 + side * 0.9, 0.5 + Theme.Ribbon.Tail / 4),
+			size = UDim2.fromScale(Theme.Ribbon.Tail / props.aspect, Theme.Ribbon.Tail),
+			anchor = Vector2.new(0.5, 0.5),
+			color = dark,
+			stroke = Theme.Stroke.Text,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = z,
+		})
+		tail.Rotation = 45
+	end
+	local plate = Builder.frame({
+		parent = holder,
+		name = "Plate",
+		position = UDim2.fromScale(0.05, 0),
+		size = UDim2.fromScale(0.9, 1 - Theme.Ribbon.Tail / 4),
+		color = Theme.Colors.White, -- the gradient is the colour (a gradient multiplies its frame's colour, so the frame is white)
+		corner = Theme.Ribbon.Corner,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.Outline,
+		gloss = true,
+		zIndex = z + 1,
+	})
+	local tint = Instance.new("UIGradient")
+	tint.Rotation = 90
+	tint.Color = ColorSequence.new(Builder.lighter(props.color), props.color)
+	tint.Parent = plate
+	Builder.label({
+		parent = plate,
+		name = "Text",
+		text = props.text,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.94, 0.9),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = z + 3,
+	})
+	return holder
+end
+
+-- A spiky starburst seal for a value claim (BEST VALUE): Theme.Seal.Spikes squares turned evenly through a quarter turn make
+-- twice that many times two points; a navy set a little larger under a set in `color` gives the outline without a stroke
+-- (overlapping strokes would show lines through the burst). The label is white outlined text over the middle. The caller sizes the
+-- holder square and may turn it (`rotation`); nothing in it takes taps. Returns the holder.
+function Builder.seal(props: SealProps): Frame
+	local z = props.zIndex or 1
+	local holder = Builder.frame({
+		parent = props.parent,
+		name = props.name or "Seal",
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = z,
+	})
+	holder.Rotation = props.rotation or 0
+	local spikes = Theme.Seal.Spikes
+	local quarter = 90
+	for layer = 0, 1 do
+		local side = if layer == 0 then Theme.Seal.Ink else Theme.Seal.Fill
+		for index = 0, spikes - 1 do
+			local square = Builder.frame({
+				parent = holder,
+				name = if layer == 0 then "Ink" else "Fill",
+				position = UDim2.fromScale(0.5, 0.5),
+				size = UDim2.fromScale(side, side),
+				anchor = Vector2.new(0.5, 0.5),
+				color = if layer == 0 then Theme.Colors.Outline else props.color,
+				zIndex = z + layer,
+			})
+			square.Rotation = index * quarter / spikes
+		end
+	end
+	Builder.label({
+		parent = holder,
+		name = "Text",
+		text = props.text,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(Theme.Seal.Text, Theme.Seal.Text * 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = z + 3,
+	})
+	return holder
 end
 
 -- Restyles a button made by Builder.button: the face, lip, border and gradient take a new colour, the face a new label, and

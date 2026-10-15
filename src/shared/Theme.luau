@@ -18,6 +18,7 @@ Theme.Colors = {
 	White = Color3.new(1, 1, 1),
 	Black = Color3.new(0, 0, 0),
 	StudStripe = Color3.fromHex("7CE977"),
+	ShopBackdrop = Color3.fromHex("6948B9"), -- the Shop's takeover ground: this violet at the top fading to Outline (navy) at the bottom
 }
 
 Theme.Rarity = {
@@ -36,6 +37,7 @@ Theme.Stroke = { Text = 2.5, Button = 3, Panel = 4 }
 Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
+Theme.TapMin = 44 -- the smallest tappable face in px (UI Playbook, phone rules): a smaller face gets an invisible hit area this big (Builder.button `hit`)
 -- The HUD's left icon column (Hud.AddMenuButton), as screen fractions: each slot is SlotW of the width wide at most and SlotH of the
 -- height tall, kept at Aspect (width over height), so on a tall narrow window it is SlotW wide and on a wide one it follows the height.
 -- Builder.menuRight turns these into the column's right edge, which the Build tray and the Ship screen keep clear of (Gap).
@@ -53,6 +55,11 @@ Theme.Gloss = {
 	ShineAlpha = 0.55, -- the band's transparency at its centre (it fades to clear at both edges)
 	ShineEvery = 4, -- seconds of rest between two sweeps
 }
+-- The shop's status shapes (Builder.ribbon, Builder.seal). A ribbon's swallowtail end is a diamond Tail tall (of the plate's height)
+-- turned 45 degrees under each end. A seal is Spikes squares turned evenly through a quarter turn (three make twelve points):
+-- Ink is the navy outline's side and Fill the colour's, of the seal's; Text is its label's width.
+Theme.Ribbon = { Tail = 0.7, Corner = 6 }
+Theme.Seal = { Spikes = 3, Ink = 0.72, Fill = 0.64, Text = 0.7 }
 Theme.Lighten = 0.25 -- gradient top: how far toward white
 Theme.Darken = 0.35 -- strokes and lips: how far toward black
 Theme.Shadow = Color3.new(0.1, 0.1, 0.12) -- uncaught species silhouette

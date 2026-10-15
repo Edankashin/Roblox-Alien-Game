@@ -37,7 +37,7 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 | ClockChanged | event | src/server/Services/WorldClock.luau:230<br>src/server/Services/WorldClock.luau:55 | src/client/init.client.luau:1936 | server → client | — |
 | CollectMaterial | func | src/server/Services/Materials.luau:213 | src/client/init.client.luau:152 | onCollectMaterial: before profile / no direct profile read | nodeId: type guard |
 | CollectOutpost | func | src/server/Services/Outposts.luau:265 | src/client/UI/StarChartScreen.luau:532 | onCollect: before profile / no direct profile read | worldArg: type guard |
-| CompanionsChanged | event | src/server/Services/Companions.luau:109<br>src/server/Services/Companions.luau:383<br>src/server/Services/Companions.luau:402 | src/client/State.luau:898<br>src/client/World/CompanionRenderer.luau:609 | server → client | — |
+| CompanionsChanged | event | src/server/Services/Companions.luau:109<br>src/server/Services/Companions.luau:383<br>src/server/Services/Companions.luau:402 | src/client/State.luau:898<br>src/client/World/CompanionRenderer.luau:631 | server → client | — |
 | DailyQuestsChanged | event | src/server/Services/DailyQuests.luau:144<br>src/server/Services/DailyQuests.luau:417 | src/client/init.client.luau:1053 | server → client | — |
 | DevCinematic | event | src/server/Services/Seen.luau:73<br>src/server/Services/Seen.luau:95 | src/client/init.client.luau:1884 | server → client | — |
 | Flew | event | src/server/Services/Launch.luau:223<br>src/server/Services/Launch.luau:306<br>src/server/Services/Launch.luau:339<br>src/server/Services/Launch.luau:347 | src/client/init.client.luau:881 | server → client | — |
@@ -46,7 +46,7 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 | FuseSpecies | func | src/server/Services/Economy.luau:1256 | src/client/UI/AliensScreen.luau:492 | onFuseSpecies: before profile / no direct profile read | species: type guard; numeric check |
 | GearChanged | event | src/server/Services/Shop.luau:116<br>src/server/Services/Shop.luau:413 | src/client/State.luau:778 | server → client | — |
 | GetAliens | func | src/server/Services/PlayerData.luau:287 | src/client/State.luau:696 | onGetAliens: before profile / no direct profile read | no client arguments |
-| GetAllCompanions | func | src/server/Services/Companions.luau:389 | src/client/World/CompanionRenderer.luau:618 | onGetAllCompanions: before profile / no direct profile read | no client arguments |
+| GetAllCompanions | func | src/server/Services/Companions.luau:389 | src/client/World/CompanionRenderer.luau:640 | onGetAllCompanions: before profile / no direct profile read | no client arguments |
 | GetCatchRush | func | src/server/Services/CatchRush.luau:330 | src/client/init.client.luau:1760 | onGetCatchRush: before profile / no direct profile read | no client arguments |
 | GetClock | func | src/server/Services/WorldClock.luau:238 | src/client/init.client.luau:1938 | function: before profile / no direct profile read | no client arguments |
 | GetDailyQuests | func | src/server/Services/DailyQuests.luau:420 | src/client/UI/QuestsScreen.luau:767 | onGet: before profile / no direct profile read | no client arguments |
@@ -55,9 +55,9 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 | GetMail | func | src/server/Services/Mail.luau:190 | src/client/State.luau:606 | onGetMail: before profile / no direct profile read | no client arguments |
 | GetPeddler | func | src/server/Services/Peddler.luau:284 | src/client/World/PeddlerRenderer.luau:312 | onGetPeddler: before profile / no direct profile read | no client arguments |
 | GetPlaytime | func | src/server/Services/Playtime.luau:242 | src/client/UI/PlaytimeScreen.luau:489 | onGetPlaytime: before profile / no direct profile read | no client arguments |
-| GetPolicy | func | src/server/Services/Monetization.luau:638 | src/client/UI/ShopScreen.luau:1210 | onGetPolicy: before profile / no direct profile read | no client arguments |
+| GetPolicy | func | src/server/Services/Monetization.luau:638 | src/client/UI/ShopScreen.luau:1214 | onGetPolicy: before profile / no direct profile read | no client arguments |
 | GetProfile | func | src/server/Services/PlayerData.luau:280 | src/client/init.client.luau:2081 | function: before profile / no direct profile read | no client arguments |
-| GetPurchases | func | src/server/Services/Monetization.luau:635 | src/client/UI/ShopScreen.luau:362<br>src/client/init.client.luau:1744 | onGetPurchases: before profile / no direct profile read | no client arguments |
+| GetPurchases | func | src/server/Services/Monetization.luau:635 | src/client/UI/ShopScreen.luau:381<br>src/client/init.client.luau:1744 | onGetPurchases: before profile / no direct profile read | no client arguments |
 | GetSeason | func | src/server/Services/Seasons.luau:459 | src/client/State.luau:939 | onGetSeason: before profile / no direct profile read | no client arguments |
 | GetSeasonProgress | func | src/server/Services/Seasons.luau:460 | src/client/State.luau:641 | onGetSeasonProgress: before profile / no direct profile read | no client arguments |
 | GetShower | func | src/server/Services/Events.luau:190 | src/client/init.client.luau:1752 | onGetShower: before profile / no direct profile read | no client arguments |
@@ -93,7 +93,7 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 | PlaceHomeItem | func | src/server/Services/HomeBuild.luau:260 | src/client/UI/BuildScreen.luau:164 | onPlace: before profile / no direct profile read | itemId: type guard, cellX: type guard, cellZ: type guard, rotation: type guard |
 | PlaytimeChanged | event | src/server/Services/Playtime.luau:241<br>src/server/Services/Playtime.luau:85 | src/client/init.client.luau:1422 | server → client | — |
 | ProfileLoaded | event | src/server/Services/PlayerData.luau:182<br>src/server/Services/PlayerData.luau:249 | src/client/init.client.luau:2075 | server → client | — |
-| PromptPurchase | func | src/server/Services/Monetization.luau:637 | src/client/UI/ShopScreen.luau:399 | onPromptPurchase: before profile / no direct profile read | itemId: type guard |
+| PromptPurchase | func | src/server/Services/Monetization.luau:637 | src/client/UI/ShopScreen.luau:418 | onPromptPurchase: before profile / no direct profile read | itemId: type guard |
 | PurchasesChanged | event | src/server/Services/Monetization.luau:128<br>src/server/Services/Monetization.luau:633 | src/client/State.luau:878 | server → client | — |
 | QuestClaim | func | src/server/Services/Quests.luau:414 | src/client/UI/QuestsScreen.luau:409 | onQuestClaim: before profile / no direct profile read | no client arguments |
 | QuestsChanged | event | src/server/Services/Dev.luau:158<br>src/server/Services/Quests.luau:411<br>src/server/Services/Quests.luau:80 | src/client/State.luau:842 | server → client | — |
@@ -113,9 +113,9 @@ Guard inspection is lexical: named/inline handlers and one layer of called helpe
 | SetDisplay | func | src/server/Services/Habitats.luau:298 | src/client/UI/AliensScreen.luau:375 | onSetDisplay: before profile / no direct profile read | uid: type guard, habitatUid: type guard |
 | SetMount | func | src/server/Services/Companions.luau:388 | src/client/UI/AliensScreen.luau:337 | onSetMount: before profile / no direct profile read | uid: type guard |
 | SetSetting | func | src/server/Services/Settings.luau:117 | src/client/UI/SettingsScreen.luau:135 | onSetSetting: before profile / no direct profile read | key: type guard, value: type guard; numeric check |
-| SetStarterChoice | func | src/server/Services/Monetization.luau:636 | src/client/UI/ShopScreen.luau:415 | onSetStarterChoice: before profile / no direct profile read | speciesId: type guard |
+| SetStarterChoice | func | src/server/Services/Monetization.luau:636 | src/client/UI/ShopScreen.luau:434 | onSetStarterChoice: before profile / no direct profile read | speciesId: type guard |
 | SettingsChanged | event | src/server/Services/Settings.luau:116<br>src/server/Services/Settings.luau:30 | src/client/State.luau:857 | server → client | — |
-| ShopBuy | func | src/server/Services/Shop.luau:416 | src/client/UI/ShopScreen.luau:343 | onShopBuy: before profile / no direct profile read | kind: literal enum check/normalization, id: type guard |
+| ShopBuy | func | src/server/Services/Shop.luau:416 | src/client/UI/ShopScreen.luau:362 | onShopBuy: before profile / no direct profile read | kind: literal enum check/normalization, id: type guard |
 | ShowerChanged | event | src/server/Services/Events.luau:189<br>src/server/Services/Events.luau:86 | src/client/State.luau:819 | server → client | — |
 | SightingChanged | event | src/server/Services/Sightings.luau:213<br>src/server/Services/Sightings.luau:309 | src/client/init.client.luau:1008 | server → client | — |
 | SocialChanged | event | src/server/Services/Social.luau:108<br>src/server/Services/Social.luau:396 | src/client/init.client.luau:1047 | server → client | — |

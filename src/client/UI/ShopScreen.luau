@@ -1,21 +1,27 @@
 --!strict
--- StarterPlayerScripts.Client.UI.ShopScreen: the Shop panel. Three tabs down the left (Lures, Gear,
--- Robux); the active one is brighter and nudged right so it reads as raised. Lures: one row card per
--- lure with its zone bonus, how many are held, the price and a Craft button. Gear: one row card per
--- item with its speed bonus (or, for a radar, its minimap range), the price and a Buy button that
--- becomes an Owned chip. Robux: the launch shop, a scrolling column with one section per Shop.Launch
--- entry: the Starter Pack as one large gold tile with the Rare picker, then Passes and Boosts as small
--- tiles two to a row, each with a price button that becomes an Owned or Claimed chip. Under every price
--- button, large tile and small, sits a one-line grey "about $N.NN" (ShopMath.AboutLine over Shop.RealCurrency: an
--- estimate, Roblox sets the real price at purchase), hidden with the button when the chip stands in for it. Every
--- value shown is read from the profile and purchases mirrors in State and the shared data tables; every Craft, Buy
--- or pick tap asks the server (ShopBuy, SetStarterChoice, PromptPurchase) and a refusal becomes a toast.
--- Nothing here decides an outcome and nothing here knows a product id: the server opens Roblox's own
--- purchase prompt, grants on the receipt and pushes PurchasesChanged, which redraws the page. The panel, every tile card and every
--- label on a tile are Active (they sink taps): Builder's frames and labels are not, and a tap on one that is not lands on the
--- full-screen Dim button under the panel, which closes the Shop.
+-- StarterPlayerScripts.Client.UI.ShopScreen: the Shop, a full-screen shelf (UI Playbook "Shop shelf"; the reference is the TikTok
+-- clip ZPLSQA4aX, media/tiktok/NOTES.md batch 7). While it is open a violet-to-navy ground with slow rays covers the HUD (display
+-- order 26, over the HUD's own menu column at 25): what stays is the Scrap pill top right and the red X. A rail of five tabs runs
+-- down the left (Featured, Passes, Scrap, Boosts, Spins: data/Shop Categories, each a category colour, never a rarity colour);
+-- one row of tall cards scrolls across the rest, in the same order, and a tab is a scroll target, not a filter: the active tab
+-- follows the row's position. A card is a category-coloured gradient with a ribbon plate on its top edge, the name, a one-line
+-- note, a big picture (the icon pack, or a letter until the id is uploaded), an optional starburst seal and the price pill; its
+-- body is one tap target that opens a detail card with the long description, so nothing the old rows said is lost. Robux cards
+-- (data/Shop Launch sections) ask the server to open Roblox's purchase prompt; the Scrap tab holds the lures and the gear
+-- (data/Shop Categories `scrap`), bought with ShopBuy exactly as before. Under every Robux price sits the grey "about $N.NN"
+-- (ShopMath.AboutLine); the Starter Pack is the one wide card, with the Rare picker, and the one that shines. Paid random items
+-- (Server Luck, the Spins) show only where GetPolicy allows, a Spins card's note is the link to the wheel and its odds table, and
+-- an item with no dashboard id yet shows a grey SOON pill that says "Coming soon" on tap.
+-- Every value shown is read from the profile, the purchases mirror in State and the data tables; every tap asks the server
+-- (ShopBuy, SetStarterChoice, PromptPurchase) and a refusal becomes a toast. Nothing here decides an outcome and nothing here
+-- knows a product id: the server opens the prompt, grants on the receipt and pushes PurchasesChanged, which redraws the shelf.
+-- Motion (each has a Reduced Motion form, which is none): the tabs drop in and the cards slide in tilted, a card lifts under a
+-- mouse, one shine crosses the featured card, the rays turn, a tab or chevron tap scrolls with a springy ease. Layout reads the
+-- shelf window's pixels once per change (layoutShelf); every Position and Size is a Scale.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
@@ -30,10 +36,12 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local ShopMath = require(Shared:WaitForChild("ShopMath"))
+local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
 local Builder = require(script.Parent.Builder)
 local Screens = require(script.Parent.Screens)
 local Toast = require(script.Parent.Toast)
 local State = require(script.Parent.Parent.State)
+local Prefs = require(script.Parent.Parent.Prefs)
 
 local ShopScreen = {}
 
@@ -41,36 +49,58 @@ type LureDef = { name: string, tier: number, scrap: number, zoneBonus: number }
 type GearDef = { name: string, speedMultiplier: number, scrap: number, unlock: string }
 type RadarTier = { name: string, range: number, scrap: number, unlock: string? }
 type GearField = "boots" | "hoverboard" | "glider" | "radar"
--- A Gear tab row. Movement gear carries its Gear def (the speed bonus); a radar carries the tier it
--- grants, and its range is read from the Radar table. `scrap` is the price either way.
+-- A gear card. Movement gear carries its Gear def (the speed bonus); a radar carries the tier it grants, and its range is read
+-- from the Radar table. `scrap` is the price either way.
 type GearItem = { id: string, field: GearField, scrap: number, def: GearDef?, radarTier: number? }
-type Tab = "Lures" | "Gear" | "Robux"
-type Kind = "lure" | "gear"
+type Kind = "robux" | "lure" | "gear"
 type ShopItem = Shop.ShopItem
-type LaunchSection = { section: string, items: { string } }
+type CardDef = Shop.CardDef
+type Band = Shop.Band
+
+-- One card on the shelf. Three frames stack: `slot` is placed by layoutShelf, `mover` carries the entrance (slide and tilt),
+-- `card` is the visible face and lifts under a mouse. Everything is built once and refreshed in place.
+type CardView = {
+	id: string,
+	kind: Kind,
+	category: string,
+	def: CardDef,
+	units: number,
+	item: ShopItem?,
+	gearItem: GearItem?,
+	slot: Frame,
+	mover: Frame,
+	card: Frame,
+	note: TextLabel,
+	below: TextLabel,
+	button: Frame,
+	face: TextButton,
+	chip: Frame,
+	chipText: TextLabel,
+	visible: boolean,
+	done: boolean, -- owned or claimed: the chip stands where the price pill was
+}
+type TabView = { id: string, color: Color3, holder: Frame, button: Frame, bang: Frame, fresh: Frame, visible: boolean, row: number, index: number }
+type Picker = { species: string, button: Frame, row: Frame }
 
 local lureDefs: { [string]: LureDef } = Lures.Lures
-local lureOrder: { string } = Lures.Order
 -- Literal number keys, some rows without `unlock`: cast through any the way the server's Shop does.
 local radarTiers: { [number]: RadarTier } = (Radar :: any) :: { [number]: RadarTier }
 local RADAR_MK1 = 1
 local RADAR_MK2 = 2
 
--- The gear the shop sells, in display order, each with the profile.gear field that marks it owned.
--- Literal keys: the Gear table also carries BaseWalkSpeed, so it cannot be cast to a dictionary.
-local GEAR_ITEMS: { GearItem } = {
-	{ id = "Boots", field = "boots", scrap = Gear.Boots.scrap, def = Gear.Boots },
-	{ id = "Hoverboard", field = "hoverboard", scrap = Gear.Hoverboard.scrap, def = Gear.Hoverboard },
-	{ id = "Radar1", field = "radar", scrap = radarTiers[RADAR_MK1].scrap, radarTier = RADAR_MK1 },
-	{ id = "Radar2", field = "radar", scrap = radarTiers[RADAR_MK2].scrap, radarTier = RADAR_MK2 },
-	{ id = "Glider", field = "glider", scrap = Gear.Glider.scrap, def = Gear.Glider },
+-- The gear the shop sells, each with the profile.gear field that marks it owned. Literal keys: the Gear table also carries
+-- BaseWalkSpeed, so it cannot be cast to a dictionary. The shelf's order is data/Shop Categories `scrap`.
+local GEAR_BY_ID: { [string]: GearItem } = {
+	Boots = { id = "Boots", field = "boots", scrap = Gear.Boots.scrap, def = Gear.Boots },
+	Hoverboard = { id = "Hoverboard", field = "hoverboard", scrap = Gear.Hoverboard.scrap, def = Gear.Hoverboard },
+	Radar1 = { id = "Radar1", field = "radar", scrap = radarTiers[RADAR_MK1].scrap, radarTier = RADAR_MK1 },
+	Radar2 = { id = "Radar2", field = "radar", scrap = radarTiers[RADAR_MK2].scrap, radarTier = RADAR_MK2 },
+	Glider = { id = "Glider", field = "glider", scrap = Gear.Glider.scrap, def = Gear.Glider },
 }
--- Gear the server answers Locked for until its unlock lands. FirstLaunch gear (the Glider) is drawn
--- grey while only the starting world is unlocked and buyable once a second world is; Radar Mk2 waits on
--- the same second world and on Mk1 being held. The tap still goes to the server, which decides, and a
--- refusal becomes the TOAST_LOCKED_GEAR toast.
--- The ship has launched when any world past the first is unlocked (the home planet, world 0, never counts),
--- the same rule the server's Shop reads.
+-- Gear the server answers Locked for until its unlock lands. FirstLaunch gear (the Glider) is drawn grey while only the starting
+-- world is unlocked and buyable once a second world is; Radar Mk2 waits on the same second world and on Mk1 being held. The tap
+-- still goes to the server, which decides, and a refusal becomes the TOAST_LOCKED_GEAR toast. The ship has launched when any
+-- world past the first is unlocked (the home planet, world 0, never counts), the same rule the server's Shop reads.
 local FIRST_WORLD = 1
 local function hasLaunched(profile: Types.Profile): boolean
 	for _, worldId in ipairs(profile.world.unlocked) do
@@ -92,141 +122,39 @@ local function gearLocked(profile: Types.Profile, item: GearItem): boolean
 	return false
 end
 
-local TABS: { Tab } = { "Lures", "Gear", "Robux" }
-
--- The Robux catalog by id, the launch sections and the Starter Pack's choices, all from data/Shop.
 local shopItems: { [string]: ShopItem } = {}
 for _, item in ipairs(Shop.Items) do
 	shopItems[item.id] = item
 end
-local launchSections: { LaunchSection } = Shop.Launch
+local launchSections: { { section: string, items: { string } } } = Shop.Launch
 local starterChoices: { string } = Shop.StarterChoices
 local shopGrants: { [string]: { Shop.ShopGrant } } = Shop.Grants
 local speciesById: { [string]: Types.SpeciesDef } = Species.ById
--- Small-tile colour per launch section; the Featured section's large tile is Featured gold.
-local SECTION_COLORS: { [string]: Color3 } = { Passes = Theme.Colors.Select, Boosts = Theme.Colors.Codex, Spins = Theme.Colors.Close }
-local FEATURED_SECTION = "Featured"
 
--- One row card. Children are built once and refreshed in place.
-type Row = {
-	id: string,
-	card: Frame,
-	name: TextLabel,
-	effect: TextLabel,
-	price: TextLabel,
-	heldLabel: TextLabel?, -- lures only
-	button: Frame,
-	face: TextButton,
-	owned: Frame?, -- gear only
-}
-
--- A Robux tile, large or small. Built once and refreshed in place: the price button hides behind the
--- Owned / Claimed chip once the server says the item is held, and the about-line under it hides with it.
-type RobuxTile = {
-	item: ShopItem,
-	card: Frame,
-	button: Frame,
-	face: TextButton,
-	about: TextLabel,
-	chip: Frame,
-	chipText: TextLabel,
-}
--- One Shop.Launch section on the Robux page: its heading and the block holding its tiles, laid out by
--- a two-column grid (small tiles) or a vertical stack (large tiles).
-type RobuxSection = { heading: TextLabel, block: Frame, grid: UIGridLayout?, stack: UIListLayout?, tiles: { RobuxTile } }
-type Picker = { species: string, button: Frame }
-
-type TabButton = { tab: Tab, button: Frame, page: Frame }
-
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
--- button reaches down to 0.155, so the body starts under it.
-local BODY_Y = 0.17
-local BODY_H = 1 - Theme.Margin - BODY_Y
-local TAB_W = 0.2
-local TAB_H = 0.15 -- 44 px at iPhone SE height
-local TAB_GAP = 0.02
-local TAB_NUDGE = 0.015 -- the active tab sits this much further right: the raised look
-local CONTENT_X = 0.25
-local CONTENT_W = 1 - Theme.Margin - CONTENT_X
-local ROW_H = 0.3 -- of the content height
-local ROW_GAP = 0.03
--- A row's icon (a lure or gear picture, once uploaded): a square at the card's left edge, vertically
--- centred, ROW_ICON_H of the row's height. The panel keeps PANEL_ASPECT (width over height), so a row's
--- own aspect follows from the layout fractions above, and the square's width as a fraction of the row is
--- its height over that. The three text lines shift right by the square's width plus a gap to clear it.
-local PANEL_ASPECT = 1.35
-local ROW_ASPECT = CONTENT_W * PANEL_ASPECT / (BODY_H * ROW_H)
-local ROW_INSET = 0.03 -- the row's left padding, of its width
-local ROW_ICON_H = 0.7
-local ROW_ICON_W = ROW_ICON_H / ROW_ASPECT
-local ROW_ICON_GAP = 0.015 -- of the row's width, between the square and the text
-
--- Robux page layout. Heights are fractions of the page's visible height (the scroller window); the
--- canvas is as many pages tall as the sections need, so layoutRobux divides each child's Scale by
--- the page count. The content area is 0.81 of the panel high, so 0.11 of it is the 0.09-panel tap floor.
-local RX_HEADING_H = 0.09 -- about 7% of the panel
-local RX_GAP = 0.03 -- between headings and blocks
-local RX_FEATURED_H = 0.93 -- the large tile (0.85 before the about-line took the bottom 0.09 of it; see BIG_* below)
-local RX_COLS = 2
-local RX_COL_GAP = 0.03 -- of the page width
-local RX_TILE_W = (1 - RX_COL_GAP * (RX_COLS - 1)) / RX_COLS
-local RX_TILE_ASPECT = 1.05 -- small tiles, width over height (1.6 left a name only one line: "+1 Slot on Every Station" needs two at phone size; 1.4 until the about-line needed its own band, 1.15 until the description needed two lines, see TILE_*)
-local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
--- Inside a small tile (fractions of the tile). At iPhone SE size (667x375) the page is 282.3 px wide (the 394.9 x 292.5 panel,
--- 0.73 of it for the content, less the 6 px bar), so the tile is 136.9 x 130.4 px (it was 136.9 x 119.0 at aspect 1.15 and 137 x 98 at
--- 1.4). Fredoka One's line is 1.21 em, 17 px at 14 px, so a band is sized in lines: two lines are 34 px.
---   name band     3.5 px down, 37.0 px high: two 14 px lines (a name wraps rather than being cut), 3 px to spare
---   description   40.7 px down, 36.5 px high: two 14 px lines, TextScaled off (it was 17.8 px, one line, and cut every
---                 pass and boost description at "One more alien can..."), 2.5 px to spare
---   price button  78.2 px down, 31.9 px high (0.11 of the panel, over the 26 px tap floor)
---   about-line    110.8 px down, 16.9 px high: one 14 px line (it was a 21 px band, 4 px of it air), 2.6 px under it
--- The aspect paid for the description's second line: the band under the button gave up 4 px and the tile 11.4 px. No note band
--- sits between the description and the button: a shared boost's note takes the description band (one line, centred, 14 px:
--- "Everyone, 15 min" is 112 px against the 123.2 px box, which is 0.9 of the tile), as a spin tile's odds line does (a note
--- band 10 px high wrapped to two lines and ran under the Buy button).
--- A description holds what its box holds: two lines of 123.2 px are roughly 210 px of text once the word breaks are paid for. The
--- Spins strings (187 to 214 px) fit whole; the pass and boost strings (276 to 566 px) take three to six lines, so
--- TextTruncate.AtEnd ends the second line with an ellipsis. Showing them whole is a job for shorter strings (about 26 characters),
--- not for a smaller size: 14 px is the floor.
--- The about-line is one 14 px line of "about $12.48", the longest of the launch prices: 84 px in Fredoka One against the 123.2 px label
--- box (98 px at the widest recorded 8.1 px per glyph, which still leaves 25 px), and 98 px against 105.7 px (0.9 of 117.5) in a
--- 425x620 window, the narrowest checked, which leaves 8 px, more than the 5 px margin the fit pass asks for. TextScaled is off,
--- so the size never grows or shrinks with the box.
-local TILE_INSET = 0.05
-local TILE_NAME_Y, TILE_NAME_H = 0.027, 0.284
-local TILE_DESC_Y, TILE_DESC_H = 0.312, 0.28
-local TILE_BUTTON_Y, TILE_BUTTON_H = 0.60, 0.245
-local TILE_ABOUT_Y, TILE_ABOUT_H = 0.85, 0.13
--- Inside the large tile (0.93 of the page high: 220 px at 667x375, 201 px before the about-line): picker buttons 0.13 and the
--- price button 0.16 of the panel.
-local BIG_INSET = 0.04
--- The description band holds three 14 px lines (55 px of the 220 px tile at iPhone SE size): the Starter Pack's text
--- is 634 px against a 259 px line, and two lines cut it at "Once per". Every band above the about-line keeps the pixel
--- height it had in the 201 px tile; the about-line band is 20 px, centred under the price button, with 5 px under it.
-local BIG_NAME_Y, BIG_NAME_H = 0.02, 0.13
-local BIG_DESC_Y, BIG_DESC_H = 0.155, 0.25
-local BIG_PICK_Y, BIG_PICK_H = 0.41, 0.165
-local BIG_PICKED_Y, BIG_PICKED_H = 0.58, 0.075
-local BIG_BUTTON_Y, BIG_BUTTON_H = 0.67, 0.21
-local BIG_ABOUT_Y, BIG_ABOUT_H = 0.885, 0.09
-local PICK_GAP = 0.03 -- between the picker buttons, of the row width
-local CHIP_INSET = 0.02 -- the chip sits this much inside the button it replaces
+local SHELF = Shop.Shelf
+local MOTION = SHELF.Motion
+local DISPLAY_ORDER = 26 -- over the HUD (10), the tutorial hint (15), the modal screens (20) and the HUD's menu column (25); under reveals (30) and toasts (40)
+local DETAIL_Z = 30 -- the detail card's layer inside the stage, over the rail, the header and the shelf
 
 local gui: ScreenGui? = nil
-local panel: Frame? = nil
-local tabButtons: { TabButton } = {}
-local lureRows: { Row } = {}
-local gearRows: { Row } = {}
-local activeTab: Tab = "Lures"
+local stage: Frame? = nil
+local shelf: ScrollingFrame? = nil
+local sunburst: Frame? = nil
+local thumb: Frame? = nil
+local leftChevron: Frame? = nil
+local rightChevron: Frame? = nil
+local edgeFade: Frame? = nil
+local scrapLabel: TextLabel? = nil
+local detailLayer: Frame? = nil
+local detailHeader: Frame? = nil
+local detailName: TextLabel? = nil
+local detailText: TextLabel? = nil
+local tabs: { TabView } = {}
+local views: { CardView } = {}
+local viewById: { [string]: CardView } = {}
+local pickers: { Picker } = {}
 local open = false
 local pending = false -- one server request in flight at a time
-
-local robuxScroller: ScrollingFrame? = nil
-local robuxList: UIListLayout? = nil
-local robuxSections: { RobuxSection } = {}
-local pickers: { Picker } = {}
-local pickerRow: Frame? = nil
-local pickedLabel: TextLabel? = nil
 local policyAsked = false
 local policyKnown = false
 local paidRandomRestricted = true -- paid random items stay hidden until GetPolicy says otherwise
@@ -234,7 +162,36 @@ local paidRandomRestricted = true -- paid random items stay hidden until GetPoli
 local lastPurchases: Types.PurchasesState = { purchases = {}, passes = {}, starterSpecies = nil }
 local lastPurchasesPushed = false
 
+-- Layout state, set by layoutShelf: the window and the row in px, the offset each visible tab scrolls to, and how far the row goes.
+local windowPx = Vector2.zero
+local canvasPx = 0
+local cardPx = 0
+local starts: { number } = {}
+local startTabs: { TabView } = {}
+local maxOffset = 0
+local layoutDirty = true
+local activeTab: TabView? = nil
+local scrollTween: Tween? = nil
+local autoScrolling = false
+local dragging = false
+local entranceTweens: { Tween } = {}
+local sunburstTween: Tween? = nil
+local stopShine: (() -> ())? = nil
+
 -- Helpers ----------------------------------------------------------------
+
+local function pos(b: Band): UDim2
+	return UDim2.fromScale(b.X, b.Y)
+end
+
+local function siz(b: Band): UDim2
+	return UDim2.fromScale(b.W, b.H)
+end
+
+-- A card's width over its height in px: `units` card widths and the gaps between them.
+local function cardAspect(units: number): number
+	return SHELF.CardAspect * (units + SHELF.CardGap * (units - 1))
+end
 
 -- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
 local function recolorButton(container: Frame, color: Color3)
@@ -256,12 +213,19 @@ local function recolorButton(container: Frame, color: Color3)
 	end
 end
 
-local function itemName(kind: Kind, id: string): string
+local function scrapName(kind: "lure" | "gear", id: string): string
 	return Builder.text((if kind == "lure" then "LURE_" else "GEAR_") .. id)
 end
 
 local function robuxItemName(id: string): string
 	return Builder.text("SHOP_ITEM_" .. id)
+end
+
+local function cardName(kind: Kind, id: string): string
+	if kind == "robux" then
+		return robuxItemName(id)
+	end
+	return scrapName(kind, id)
 end
 
 local function speciesName(id: string): string
@@ -299,9 +263,9 @@ local function ownsGear(profile: Types.Profile, item: GearItem): boolean
 	return gear.glider == true
 end
 
--- The effect line: the minimap range for a radar (Mk2 says what it adds, or the unlock note while it is
--- locked), the walk-speed bonus for movement gear, or, for gear that does nothing yet (the Glider), the
--- unlock note while it is locked and what it will do once it is not.
+-- The long effect line (the detail card): the minimap range for a radar (Mk2 says what it adds, or the unlock note while it is
+-- locked), the walk-speed bonus for movement gear, or, for gear that does nothing yet (the Glider), the unlock note while it is
+-- locked and what it will do once it is not.
 local function effectText(profile: Types.Profile, item: GearItem): string
 	local radarTier = item.radarTier
 	if radarTier then
@@ -320,13 +284,68 @@ local function effectText(profile: Types.Profile, item: GearItem): string
 	return if gearLocked(profile, item) then Strings.SHOP_GEAR_LOCKED else Strings.SHOP_GEAR_SOON
 end
 
+-- The same facts as one short line for a 120 px card (each at most 98 px at 14 px).
+local function gearNote(profile: Types.Profile, item: GearItem): string
+	local radarTier = item.radarTier
+	if radarTier then
+		local row = radarTiers[radarTier]
+		local range = if row then row.range else 0
+		if radarTier == RADAR_MK2 then
+			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED_NOTE else Strings.SHOP_GEAR_RADAR2_NOTE:format(range)
+		end
+		return Strings.SHOP_GEAR_RADAR_NOTE:format(range)
+	end
+	local def = item.def
+	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0
+	if bonus > 0 then
+		return Strings.SHOP_GEAR_SPEED_NOTE:format(bonus)
+	end
+	return if gearLocked(profile, item) then Strings.SHOP_GEAR_LOCKED_NOTE else Strings.SHOP_GEAR_SOON_NOTE
+end
+
+-- A Robux card's note from its data row: the string, with the minutes of a shared boost or the count of a power-up bundle read
+-- from the grant row so the line never disagrees with what the server grants.
+local function robuxNote(item: ShopItem, noteId: string?): string
+	if not noteId then
+		return ""
+	end
+	local text = Builder.text("SHOP_NOTE_" .. noteId)
+	local grants = shopGrants[item.id]
+	if grants then
+		for _, grant in ipairs(grants) do
+			if noteId == "Everyone" and grant.kind == "serverLuck" and grant.seconds then
+				return text:format(math.floor(grant.seconds / 60))
+			elseif noteId == "Uses" and grant.kind == "powerUp" and grant.amount then
+				return text:format(grant.amount)
+			end
+		end
+	end
+	return text
+end
+
+-- The long description the detail card shows.
+local function descriptionOf(view: CardView): string
+	if view.kind == "robux" then
+		return Builder.text("SHOP_DESC_" .. view.id)
+	end
+	if view.kind == "lure" then
+		local def = lureDefs[view.id]
+		return if def then Strings.SHOP_LURE_EFFECT:format(math.floor(def.zoneBonus * 100)) else ""
+	end
+	local item = view.gearItem
+	if item and State.Has() then
+		return effectText(State.Get(), item)
+	end
+	return ""
+end
+
 -- Server calls -------------------------------------------------------------
 
-local function handleRefusal(kind: Kind, id: string, reason: any)
+local function handleRefusal(kind: "lure" | "gear", id: string, reason: any)
 	if reason == "NotEnoughScrap" then
 		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
 	elseif reason == "Locked" then
-		Toast.Show(Strings.TOAST_LOCKED_GEAR:format(itemName(kind, id)), Theme.Rarity.Common)
+		Toast.Show(Strings.TOAST_LOCKED_GEAR:format(scrapName(kind, id)), Theme.Rarity.Common)
 	else
 		print(("[%s] ShopBuy refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 	end
@@ -334,7 +353,7 @@ end
 
 -- Asks the server to craft a lure or buy gear. Runs in its own thread: callers are taps. The server
 -- pushes ScrapChanged, InventoryChanged and GearChanged itself; this only toasts the answer.
-local function buy(kind: Kind, id: string)
+local function buy(kind: "lure" | "gear", id: string)
 	if pending then
 		return
 	end
@@ -344,9 +363,9 @@ local function buy(kind: Kind, id: string)
 		pending = false
 		if ok == true then
 			if kind == "lure" then
-				Toast.Show(Strings.TOAST_CRAFTED:format(itemName(kind, id)), Theme.Colors.Confirm)
+				Toast.Show(Strings.TOAST_CRAFTED:format(scrapName(kind, id)), Theme.Colors.Confirm)
 			else
-				Toast.Show(Strings.TOAST_BOUGHT:format(itemName(kind, id)), Theme.Colors.Featured)
+				Toast.Show(Strings.TOAST_BOUGHT:format(scrapName(kind, id)), Theme.Colors.Featured)
 			end
 		else
 			handleRefusal(kind, id, reason)
@@ -377,7 +396,7 @@ local function handlePromptRefusal(id: string, reason: any)
 	if reason == "Restricted" then
 		Toast.Show(Strings.SHOP_RESTRICTED, Theme.Rarity.Common)
 	elseif reason == "AlreadyOwned" then
-		fetchPurchases(false) -- the mirror is behind the server; its answer redraws the tile as held
+		fetchPurchases(false) -- the mirror is behind the server; its answer redraws the card as held
 	elseif reason == "NoChoice" then
 		Toast.Show(Strings.SHOP_STARTER_PICK, Theme.Colors.Select)
 	elseif reason == "NotLive" then
@@ -389,7 +408,7 @@ local function handlePromptRefusal(id: string, reason: any)
 end
 
 -- Asks the server to open Roblox's purchase prompt for an item. On ok nothing more happens here: the
--- Roblox dialog takes over, the server grants on the receipt and PurchasesChanged redraws the page.
+-- Roblox dialog takes over, the server grants on the receipt and PurchasesChanged redraws the shelf.
 local function promptPurchase(id: string)
 	if pending then
 		return
@@ -429,744 +448,729 @@ local function chooseStarter(species: string)
 	end)
 end
 
--- Rows ---------------------------------------------------------------------
+-- A tap on a price pill: a SOON pill says so (no server call: nothing is live to buy), a Robux card opens the purchase prompt,
+-- a Scrap card crafts or buys. The server still decides every one of them.
+local function onPillTap(id: string)
+	local view = viewById[id]
+	if not view then
+		return
+	end
+	local item = view.item
+	if item then
+		if not ShelfMath.IsLive(item) then
+			Toast.Show(Strings.COMING_SOON, Theme.Colors.Featured)
+			return
+		end
+		promptPurchase(id)
+	elseif view.kind == "lure" or view.kind == "gear" then
+		buy(view.kind, id)
+	end
+end
 
--- A white card with the name top left, the effect line and price beneath it, and the action button
--- down the right. Lures also get a Held chip beside the name; gear also gets an Owned chip that
--- stands in for the button once the server says it is owned.
-local function buildRow(parent: Instance, index: number, kind: Kind, id: string, buttonText: string): Row
-	local card = Builder.frame({
-		parent = parent,
-		name = id,
-		size = UDim2.fromScale(1, ROW_H),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
-		zIndex = 3,
+-- Detail card ---------------------------------------------------------------
+
+local function hideDetail()
+	local layer = detailLayer
+	if layer then
+		layer.Visible = false
+	end
+end
+
+-- A card in front of the shelf: the item's name over its category colour and the long description. It is built on first use.
+local function buildDetail(parent: Frame)
+	local layer = Builder.frame({ parent = parent, name = "Detail", zIndex = DETAIL_Z })
+	layer.Visible = false
+	local dim = Instance.new("TextButton")
+	dim.Name = "Dim"
+	dim.Text = ""
+	dim.AutoButtonColor = false
+	dim.BorderSizePixel = 0
+	dim.Size = UDim2.fromScale(1, 1)
+	dim.BackgroundColor3 = Theme.Colors.Black
+	dim.BackgroundTransparency = 1 - Theme.Backdrop
+	dim.ZIndex = DETAIL_Z
+	dim.Parent = layer
+	dim.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		hideDetail()
+	end)
+	local panel = Builder.frame({
+		parent = layer,
+		name = "Panel",
+		position = UDim2.fromScale(SHELF.Detail.Panel.X, SHELF.Detail.Panel.Y),
+		size = siz(SHELF.Detail.Panel),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Panel,
+		corner = Theme.Corner.Panel,
+		stroke = Theme.Stroke.Panel,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = DETAIL_Z + 1,
 	})
-	card.LayoutOrder = index
+	panel.Active = true -- a tap on the card's body is not a tap on the dim behind it
+	local header = Builder.frame({
+		parent = panel,
+		name = "Header",
+		size = UDim2.fromScale(1, SHELF.Detail.HeaderH),
+		color = Theme.Colors.White,
+		corner = Theme.Corner.Panel,
+		zIndex = DETAIL_Z + 2,
+	})
+	detailHeader = header
+	detailName = Builder.label({
+		parent = header,
+		name = "Name",
+		text = "",
+		textSize = Theme.TextSize.Title,
+		position = pos(SHELF.Detail.Name),
+		size = siz(SHELF.Detail.Name),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = DETAIL_Z + 3,
+	})
+	-- Navy on the cream panel, no stroke: reading text, not a title (UI Playbook "Input fields and hints").
+	detailText = Builder.label({
+		parent = panel,
+		name = "Text",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		position = pos(SHELF.Detail.Text),
+		size = siz(SHELF.Detail.Text),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = DETAIL_Z + 2,
+	})
+	Builder.button({
+		parent = panel,
+		name = "Close",
+		text = Strings.UI_CLOSE,
+		color = Theme.Colors.Close,
+		position = pos(SHELF.Detail.Close),
+		size = siz(SHELF.Detail.Close),
+		anchor = Vector2.new(1, 0),
+		textSize = Theme.TextSize.Label,
+		aspect = 1,
+		zIndex = DETAIL_Z + 4,
+	}, hideDetail)
+	detailLayer = layer
+end
 
-	-- The icon, when the pack has one for this id (gear ids resolve through the alias; the Glider has none):
-	-- the name, effect and price lines start further right and keep their right edges.
-	local icon = Builder.icon({
+local function showDetail(id: string)
+	local view = viewById[id]
+	local parent = stage
+	if not view or not parent then
+		return
+	end
+	if not detailLayer then
+		buildDetail(parent)
+	end
+	local layer, header, name, text = detailLayer, detailHeader, detailName, detailText
+	if not layer or not header or not name or not text then
+		return
+	end
+	local category = Theme.Colors.White
+	for _, tab in ipairs(tabs) do
+		if tab.id == view.category then
+			category = tab.color
+		end
+	end
+	header.BackgroundColor3 = category
+	name.Text = cardName(view.kind, id)
+	text.Text = descriptionOf(view)
+	layer.Visible = true
+end
+
+-- Cards ---------------------------------------------------------------------
+
+-- A card's face: light tint at the top, the category colour through the middle, a deep shade at the bottom. The frame is
+-- white because a gradient multiplies its frame's colour, so the stops are the colours.
+local function cardGradient(target: Frame, color: Color3)
+	local fade = Instance.new("UIGradient")
+	fade.Rotation = 90
+	fade.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Builder.lighter(color, 0.3)),
+		ColorSequenceKeypoint.new(0.5, color),
+		ColorSequenceKeypoint.new(1, Builder.darker(color, 0.45)),
+	})
+	fade.Parent = target
+end
+
+local function lift(card: Frame, up: boolean)
+	if Prefs.ReducedMotion() then
+		return
+	end
+	local info = TweenInfo.new(MOTION.HoverSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(card, info, { Position = UDim2.fromScale(0, if up then -MOTION.HoverLift else 0) }):Play()
+end
+
+-- A transparent button over `parent`, a click on every tap: the card's body, a link.
+local function tapArea(parent: GuiObject, name: string, z: number, onTap: () -> ()): TextButton
+	local area = Instance.new("TextButton")
+	area.Name = name
+	area.Text = ""
+	area.AutoButtonColor = false
+	area.BackgroundTransparency = 1
+	area.BorderSizePixel = 0
+	area.Size = UDim2.fromScale(1, 1)
+	area.ZIndex = z
+	area.Parent = parent
+	area.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		onTap()
+	end)
+	return area
+end
+
+local function buildPicker(card: Frame)
+	local row = Builder.frame({
+		parent = card,
+		name = "Picker",
+		position = pos(SHELF.Featured.Picker),
+		size = siz(SHELF.Featured.Picker),
+		zIndex = 8,
+	})
+	local count = math.max(1, #starterChoices)
+	local gap = SHELF.Featured.PickerGap
+	local height = (1 - gap * (count - 1)) / count
+	for index, species in ipairs(starterChoices) do
+		local button = Builder.button({
+			parent = row,
+			name = species,
+			text = speciesName(species),
+			color = Theme.Rarity.Common,
+			position = UDim2.fromScale(0, (index - 1) * (height + gap)),
+			size = UDim2.fromScale(1, height),
+			textSize = Theme.TextSize.Body,
+			hit = true,
+			zIndex = 8,
+		}, function()
+			chooseStarter(species)
+		end)
+		table.insert(pickers, { species = species, button = button, row = row })
+	end
+end
+
+local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, category: string, color: Color3): CardView
+	local def: CardDef = Shop.Cards[id] or {}
+	local units = def.width or 1
+	local featured = units > 1
+	local L = if featured then SHELF.Featured else SHELF.Card
+	local aspect = cardAspect(units)
+
+	local slot = Builder.frame({ parent = parent, name = id, zIndex = 3 })
+	slot.Visible = false -- layoutShelf places it
+	local mover = Builder.frame({ parent = slot, name = "Mover", zIndex = 3 })
+	local card = Builder.frame({
+		parent = mover,
+		name = "Card",
+		color = Theme.Colors.White,
+		corner = Theme.Corner.Panel,
+		stroke = Theme.Stroke.Panel,
+		strokeColor = Theme.Colors.Outline,
+		gloss = true,
+		zIndex = 4,
+	})
+	cardGradient(card, color)
+	-- The whole card is one tap target (the detail card) and the hover lift's trigger, under every label and button. The labels
+	-- on a card are inert so a tap on them lands here; a drag scrolls the shelf instead.
+	local body = tapArea(card, "Body", 5, function()
+		showDetail(id)
+	end)
+	body.MouseEnter:Connect(function()
+		lift(card, true)
+	end)
+	body.MouseLeave:Connect(function()
+		lift(card, false)
+	end)
+
+	-- The picture: a lighter disc, then the icon, or the letter until its id is uploaded.
+	local iconBand = L.Icon
+	Builder.frame({
+		parent = card,
+		name = "Glow",
+		position = UDim2.fromScale(iconBand.X + iconBand.W / 2, iconBand.Y + iconBand.H / 2),
+		size = siz(iconBand),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Builder.lighter(color, SHELF.Glow.Lighten),
+		transparency = SHELF.Glow.Alpha,
+		corner = Theme.Corner.Pill,
+		aspect = 1,
+		zIndex = 6,
+	})
+	local picture = Builder.icon({
 		parent = card,
 		name = "Icon",
-		key = id,
-		position = UDim2.fromScale(ROW_INSET, 0.5),
-		size = UDim2.fromScale(ROW_ICON_W, ROW_ICON_H),
-		anchor = Vector2.new(0, 0.5),
-		zIndex = 4,
+		key = def.icon or id,
+		position = pos(iconBand),
+		size = siz(iconBand),
+		zIndex = 7,
 	})
-	local shift = if icon then ROW_ICON_W + ROW_ICON_GAP else 0
-
-	local withHeld = kind == "lure"
-	local name = Builder.label({
-		parent = card,
-		name = "Name",
-		text = itemName(kind, id),
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(ROW_INSET + shift, 0.06),
-		size = UDim2.fromScale((if withHeld then 0.41 else 0.65) - shift, 0.36),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
-	})
-
-	local heldLabel: TextLabel? = nil
-	if withHeld then
-		local held = Builder.pill({
+	if not picture then
+		Builder.label({
 			parent = card,
-			name = "Held",
-			position = UDim2.fromScale(0.46, 0.09),
-			size = UDim2.fromScale(0.22, 0.3),
-			color = Theme.Colors.Trough,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 4,
-		})
-		Builder.gradient(held, Theme.Colors.Trough)
-		heldLabel = Builder.label({
-			parent = held,
-			name = "Text",
-			text = Strings.SHOP_HELD:format(0),
-			textSize = Theme.TextSize.Body,
-			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.86, 0.75),
-			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 5,
+			name = "Glyph",
+			text = Builder.text("SHOP_GLYPH_" .. id),
+			textSize = Theme.TextSize.Reveal,
+			position = pos(iconBand),
+			size = siz(iconBand),
+			zIndex = 7,
 		})
 	end
 
-	local effect = Builder.label({
+	Builder.label({
 		parent = card,
-		name = "Effect",
+		name = "Name",
+		text = cardName(kind, id),
+		textSize = if featured then Theme.TextSize.Label else Theme.TextSize.Body,
+		position = pos(L.Name),
+		size = siz(L.Name),
+		zIndex = 7,
+	})
+	local note = Builder.label({
+		parent = card,
+		name = "Note",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(ROW_INSET + shift, 0.45),
-		size = UDim2.fromScale(0.65 - shift, 0.25),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		position = pos(L.Note),
+		size = siz(L.Note),
+		zIndex = 7,
 	})
-	effect.TextTruncate = Enum.TextTruncate.AtEnd -- the long lure line trims on a phone instead of spilling
-	local price = Builder.label({
+	-- "about $N.NN" under a Robux price and "Held: N" under a lure: one 14 px line (the label's size is pinned to the floor, so
+	-- the preferred text size never grows it), trimmed with an ellipsis rather than wrapped onto the card's edge.
+	local below = Builder.label({
 		parent = card,
-		name = "Price",
+		name = "Below",
 		text = "",
-		textSize = Theme.TextSize.Body,
-		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(ROW_INSET + shift, 0.71),
-		size = UDim2.fromScale(0.65 - shift, 0.25),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		textSize = Theme.TextSize.Min,
+		color = Theme.Rarity.Common,
+		position = pos(L.Below),
+		size = siz(L.Below),
+		zIndex = 7,
 	})
+	below.TextTruncate = Enum.TextTruncate.AtEnd
 
 	local button = Builder.button({
 		parent = card,
-		name = "Action",
-		text = buttonText,
+		name = "Buy",
+		text = "",
 		color = Theme.Colors.Confirm,
-		position = UDim2.fromScale(1 - 0.03, 0.5),
-		size = UDim2.fromScale(0.28, 0.66),
-		anchor = Vector2.new(1, 0.5),
-		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		position = pos(L.Pill),
+		size = siz(L.Pill),
+		textSize = Theme.TextSize.Body,
+		hit = true,
+		zIndex = 8,
 	}, function()
-		buy(kind, id)
+		onPillTap(id)
 	end)
 	local face = button:FindFirstChild("Face") :: TextButton
-
-	local owned: Frame? = nil
-	if kind == "gear" then
-		local chip = Builder.pill({
-			parent = card,
-			name = "Owned",
-			position = UDim2.fromScale(1 - 0.03, 0.5),
-			size = UDim2.fromScale(0.28, 0.6),
-			anchor = Vector2.new(1, 0.5),
-			color = Theme.Colors.Confirm,
-			stroke = Theme.Stroke.Button,
-			strokeColor = Builder.darker(Theme.Colors.Confirm),
-			zIndex = 4,
-		})
-		Builder.gradient(chip, Theme.Colors.Confirm)
-		Builder.label({
-			parent = chip,
-			name = "Text",
-			text = Strings.SHOP_OWNED,
-			textSize = Theme.TextSize.Label,
-			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.86, 0.75),
-			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 5,
-		})
-		chip.Visible = false
-		owned = chip
-	end
-
-	return {
-		id = id,
-		card = card,
-		name = name,
-		effect = effect,
-		price = price,
-		heldLabel = heldLabel,
-		button = button,
-		face = face,
-		owned = owned,
-	}
-end
-
-local function listLayout(parent: Instance): UIListLayout
-	local layout = Instance.new("UIListLayout")
-	layout.FillDirection = Enum.FillDirection.Vertical
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	layout.VerticalAlignment = Enum.VerticalAlignment.Top
-	layout.Padding = UDim.new(ROW_GAP, 0)
-	layout.Parent = parent
-	return layout
-end
-
-local function buildLuresPage(parent: Frame)
-	listLayout(parent)
-	for index, id in ipairs(lureOrder) do
-		local def = lureDefs[id]
-		if def then
-			table.insert(lureRows, buildRow(parent, index, "lure", id, Strings.SHOP_CRAFT:format(itemName("lure", id))))
-		end
-	end
-end
-
--- More than three gear rows of ROW_H do not fit the content height (five take 1.62 of it), so the Gear tab
--- is a scrolling column with the thin dark bar, like the Robux page. Children of a ScrollingFrame scale
--- against the canvas, which is `pages` visible heights tall, so each row's height and the gap are divided
--- by `pages` and a row keeps exactly the size it had in the plain list. Rows are Scale-sized and the
--- canvas needs no pixels: it only depends on how many items GEAR_ITEMS holds.
-local function buildGearPage(parent: Frame)
-	local count = #GEAR_ITEMS
-	local pages = math.max(1, count * ROW_H + (count - 1) * ROW_GAP)
-	local scroller = Instance.new("ScrollingFrame")
-	scroller.Name = "Column"
-	scroller.BackgroundTransparency = 1
-	scroller.BorderSizePixel = 0
-	scroller.Size = UDim2.fromScale(1, 1)
-	scroller.ZIndex = 3
-	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
-	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
-	scroller.CanvasSize = UDim2.fromScale(0, pages)
-	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
-	scroller.ScrollBarThickness = SCROLLBAR_PX
-	scroller.ScrollBarImageColor3 = Theme.Colors.Trough
-	scroller.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-	scroller.Parent = parent
-	listLayout(scroller).Padding = UDim.new(ROW_GAP / pages, 0)
-	for index, item in ipairs(GEAR_ITEMS) do
-		local row = buildRow(scroller, index, "gear", item.id, Strings.SHOP_BUY:format(itemName("gear", item.id)))
-		row.card.Size = UDim2.fromScale(1, ROW_H / pages)
-		table.insert(gearRows, row)
-	end
-end
-
--- Robux tiles ------------------------------------------------------------------
-
--- The grey Owned / Claimed chip that stands in for a price button once the server says the item is
--- held. Hidden until refreshRobux shows it.
-local function buildChip(parent: Frame, position: UDim2, size: UDim2): (Frame, TextLabel)
+	-- The grey Owned / Claimed chip that stands where the pill was once the item is held. A plain frame that sinks taps.
 	local chip = Builder.pill({
-		parent = parent,
+		parent = card,
 		name = "Held",
-		position = position,
-		size = size,
-		anchor = Vector2.new(0.5, 0),
+		position = pos(L.Pill),
+		size = siz(L.Pill),
 		color = Theme.Rarity.Common,
 		stroke = Theme.Stroke.Button,
 		strokeColor = Builder.darker(Theme.Rarity.Common),
-		zIndex = 4,
+		zIndex = 8,
 	})
 	Builder.gradient(chip, Theme.Rarity.Common)
-	local text = Builder.label({
+	chip.Active = true
+	local chipText = Builder.label({
 		parent = chip,
 		name = "Text",
 		text = "",
-		textSize = Theme.TextSize.Label,
+		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = 9,
 	})
 	chip.Visible = false
-	return chip, text
-end
 
--- The "about $2.49" line under a price button: the real-currency estimate of item.robux (Shop.RealCurrency, formatted by
--- ShopMath.AboutLine from SHOP_ABOUT_PRICE), centred in a band of `height` at `y`, inside the tile by `inset` each side. One
--- fixed 14 px line in the Common grey with the usual outline, TextScaled off so the size cannot drift; a string that ever
--- overflowed would trim with an ellipsis rather than wrap onto the card edge. Active, so a tap on it is swallowed. Refreshed visible and hidden with the button.
-local function buildAboutLine(parent: Frame, item: ShopItem, y: number, height: number, inset: number): TextLabel
-	local about = Builder.label({
-		parent = parent,
-		name = "About",
-		text = ShopMath.AboutLine(item.robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE),
-		textSize = Theme.TextSize.Min,
-		color = Theme.Rarity.Common,
-		position = UDim2.fromScale(inset, y),
-		size = UDim2.fromScale(1 - inset * 2, height),
-		zIndex = 4,
-	})
-	about.TextScaled = false
-	about.TextSize = Theme.TextSize.Min
-	about.TextWrapped = false
-	about.TextTruncate = Enum.TextTruncate.AtEnd
-	about.Active = true -- a tap on the estimate stops here; an inactive label hands it to the Dim button, which closes the Shop
-	return about
-end
-
--- The gold line a shared boost (Server Luck) shows in its tile's description band: who gets it and for how long, the
--- minutes read from the grant row (data/Shop Grants). Nil for every other item.
-local function sharedBoostNote(item: ShopItem): string?
-	if not item.paidRandom or item.oddsOnWheel then
-		return nil
-	end
-	local grants = shopGrants[item.id]
-	if grants then
-		for _, grant in ipairs(grants) do
-			local seconds = grant.seconds
-			if grant.kind == "serverLuck" and seconds then
-				return Strings.SHOP_EVERYONE:format(math.floor(seconds / 60))
-			end
-		end
-	end
-	return nil
-end
-
--- A small tile: section-coloured gradient card, the name (two lines at most), a description of two 14 px lines (one gold line
--- on a shared boost, where it names who gets it) and the price button with its about-line along the bottom. The card and every
--- label on it are Active, so a tap on the tile's text never reaches the Dim. The grid sets its size and position.
-local function buildSmallTile(parent: Frame, index: number, item: ShopItem, color: Color3): RobuxTile
-	local card = Builder.frame({
-		parent = parent,
-		name = item.id,
-		size = UDim2.fromScale(RX_TILE_W, RX_TILE_W / RX_TILE_ASPECT),
-		color = color,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(color),
-		zIndex = 3,
-	})
-	card.Active = true
-	card.LayoutOrder = index
-	Builder.gradient(card, color)
-	local name = Builder.label({
-		parent = card,
-		name = "Name",
-		text = robuxItemName(item.id),
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(TILE_INSET, TILE_NAME_Y),
-		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_NAME_H),
-		zIndex = 4,
-	})
-	name.Active = true
-	if not item.oddsOnWheel then
-		local note = sharedBoostNote(item)
-		local desc = Builder.label({
+	local ribbonDef = if def.ribbon then Shop.Ribbons[def.ribbon] else nil
+	if def.ribbon and ribbonDef then
+		Builder.ribbon({
 			parent = card,
-			name = "Desc",
-			text = note or Builder.text("SHOP_DESC_" .. item.id),
-			textSize = Theme.TextSize.Body,
-			color = if note then Theme.Colors.Featured else nil,
-			position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
-			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
-			zIndex = 4,
+			name = "Ribbon",
+			text = Builder.text("SHOP_RIBBON_" .. def.ribbon),
+			color = Theme.Hex(ribbonDef.color),
+			aspect = L.Ribbon.W * aspect / L.Ribbon.H,
+			position = pos(L.Ribbon),
+			size = siz(L.Ribbon),
+			zIndex = 10,
 		})
-		-- Two 14 px lines (TILE_DESC_H), not scaled: the size is the Playbook's floor for a description, and a string
-		-- that needs a third line ends its second with an ellipsis rather than running into the Buy button.
-		desc.TextScaled = false
-		desc.TextSize = Theme.TextSize.Min
-		desc.TextWrapped = true
-		desc.TextTruncate = Enum.TextTruncate.AtEnd
-		desc.Active = true
 	end
-	if item.oddsOnWheel then
-		-- Paid spins: the odds must be visible before buying. A spin tile's name says what it is ("5 Spins"), so its
-		-- description band carries the odds line instead: one gold 14 px line, centred in the band (the tile is too short
-		-- for a description, a note and the Buy button at phone sizes). The band from the description's top to the button's
-		-- top (37.6 px high at 667x375) is one tap target that opens the wheel and its odds table (data/Spins), a ZIndex above
-		-- the labels. The Buy button below stays its own target.
-		local odds = Builder.label({
+	local sealDef = if def.seal then Shop.Seals[def.seal] else nil
+	if def.seal and sealDef then
+		Builder.seal({
 			parent = card,
-			name = "Odds",
-			text = Strings.SHOP_SEE_ODDS,
-			textSize = Theme.TextSize.Body,
-			color = Theme.Colors.Featured,
-			position = UDim2.fromScale(TILE_INSET, TILE_DESC_Y),
-			size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_DESC_H),
-			zIndex = 4,
+			name = "Seal",
+			text = Builder.text("SHOP_SEAL_" .. def.seal),
+			color = Theme.Hex(sealDef.color),
+			position = UDim2.fromScale(L.Seal.X, L.Seal.Y),
+			size = UDim2.fromScale(L.Seal.W, L.Seal.W * aspect),
+			anchor = Vector2.new(0.5, 0.5),
+			rotation = SHELF.SealTilt,
+			zIndex = 11,
 		})
-		odds.TextScaled = false
-		odds.TextSize = Theme.TextSize.Min
-		odds.Active = true
-		local oddsTap = Instance.new("TextButton")
-		oddsTap.Name = "OddsTap"
-		oddsTap.Text = ""
-		oddsTap.AutoButtonColor = false
-		oddsTap.BackgroundTransparency = 1
-		oddsTap.BorderSizePixel = 0
-		oddsTap.Position = UDim2.fromScale(0, TILE_DESC_Y)
-		oddsTap.Size = UDim2.fromScale(1, TILE_BUTTON_Y - TILE_DESC_Y)
-		oddsTap.ZIndex = 5
-		oddsTap.Parent = card
-		oddsTap.Activated:Connect(function()
-			Builder.playSound(Sounds.Click)
-			Screens.Open("Gifts")
-		end)
 	end
-	local button = Builder.button({
-		parent = card,
-		name = "Buy",
-		text = Strings.SHOP_ROBUX_PRICE:format(item.robux),
-		color = Theme.Colors.Confirm,
-		position = UDim2.fromScale(0.5, TILE_BUTTON_Y),
-		size = UDim2.fromScale(1 - TILE_INSET * 2, TILE_BUTTON_H),
-		anchor = Vector2.new(0.5, 0),
-		textSize = Theme.TextSize.Label,
-		zIndex = 4,
-	}, function()
-		promptPurchase(item.id)
-	end)
-	local face = button:FindFirstChild("Face") :: TextButton
-	local about = buildAboutLine(card, item, TILE_ABOUT_Y, TILE_ABOUT_H, TILE_INSET)
-	local chip, chipText = buildChip(
-		card,
-		UDim2.fromScale(0.5, TILE_BUTTON_Y + CHIP_INSET),
-		UDim2.fromScale(1 - TILE_INSET * 2, TILE_BUTTON_H - CHIP_INSET * 2)
-	)
-	return { item = item, card = card, button = button, face = face, about = about, chip = chip, chipText = chipText }
-end
 
--- The large tile: gold gradient card, the name, a two-line description, the Rare picker (one small
--- button per Shop.StarterChoices species) with the chosen name under it, and the price button at the
--- bottom. The stack sets its size.
-local function buildFeaturedTile(parent: Frame, index: number, item: ShopItem): RobuxTile
-	local color = Theme.Colors.Featured
-	local card = Builder.frame({
-		parent = parent,
-		name = item.id,
-		size = UDim2.fromScale(1, 1),
-		color = color,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(color),
-		zIndex = 3,
-	})
-	card.Active = true
-	card.LayoutOrder = index
-	Builder.gradient(card, color)
-	local name = Builder.label({
-		parent = card,
-		name = "Name",
-		text = robuxItemName(item.id),
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(BIG_INSET, BIG_NAME_Y),
-		size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_NAME_H),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
-	})
-	name.Active = true
-	local desc = Builder.label({
-		parent = card,
-		name = "Desc",
-		text = Builder.text("SHOP_DESC_" .. item.id),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(BIG_INSET, BIG_DESC_Y),
-		size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_DESC_H),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
-	}) -- TextScaled wraps and shrinks to fit the three lines of BIG_DESC_H (14 px at the floor, 51 px of the 55 px band)
-	desc.Active = true
-	if needsChoice(item.id) then
-		local row = Builder.frame({
-			parent = card,
-			name = "Picker",
-			position = UDim2.fromScale(BIG_INSET, BIG_PICK_Y),
-			size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_PICK_H),
-			zIndex = 4,
-		})
-		local count = math.max(1, #starterChoices)
-		local width = (1 - PICK_GAP * (count - 1)) / count
-		for choice, species in ipairs(starterChoices) do
-			local button = Builder.button({
-				parent = row,
-				name = species,
-				text = speciesName(species),
-				color = Theme.Rarity.Common,
-				position = UDim2.fromScale((choice - 1) * (width + PICK_GAP), 0),
-				size = UDim2.fromScale(width, 1),
-				textSize = Theme.TextSize.Body,
-				zIndex = 4,
-			}, function()
-				chooseStarter(species)
+	local item: ShopItem? = if kind == "robux" then shopItems[id] else nil
+	if item then
+		note.Text = robuxNote(item, def.note)
+		if def.note == "Everyone" then
+			note.TextColor3 = Theme.Colors.Featured
+		elseif def.note == "SeeOdds" then
+			-- The link to the wheel and its odds table (data/Spins, summing to 100, no dud): gold and underlined, with a hit area of
+			-- at least the tap floor around the line, over the labels it overlaps.
+			note.TextColor3 = Theme.Colors.Featured
+			note.RichText = true
+			note.Text = "<u>" .. note.Text .. "</u>"
+			local link = tapArea(card, "OddsLink", 12, function()
+				Screens.Open("Gifts")
 			end)
-			table.insert(pickers, { species = species, button = button })
+			link.AnchorPoint = Vector2.new(0.5, 0.5)
+			link.Position = UDim2.fromScale(L.Note.X + L.Note.W / 2, L.Note.Y + L.Note.H / 2)
+			link.Size = siz(L.Note)
+			local floor = Instance.new("UISizeConstraint")
+			floor.MinSize = Vector2.new(Theme.TapMin, Theme.TapMin)
+			floor.Parent = link
 		end
-		pickerRow = row
-		local picked = Builder.label({
-			parent = card,
-			name = "Picked",
-			text = "",
-			textSize = Theme.TextSize.Body,
-			position = UDim2.fromScale(BIG_INSET, BIG_PICKED_Y),
-			size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_PICKED_H),
-			xAlign = Enum.TextXAlignment.Left,
-			zIndex = 4,
-		})
-		picked.Active = true
-		pickedLabel = picked
 	end
-	local button = Builder.button({
-		parent = card,
-		name = "Buy",
-		text = Strings.SHOP_STARTER_PICK,
-		color = Theme.Rarity.Common,
-		position = UDim2.fromScale(0.5, BIG_BUTTON_Y),
-		size = UDim2.fromScale(1 - BIG_INSET * 2, BIG_BUTTON_H),
-		anchor = Vector2.new(0.5, 0),
-		textSize = Theme.TextSize.Label,
-		zIndex = 4,
-	}, function()
-		promptPurchase(item.id)
-	end)
-	local face = button:FindFirstChild("Face") :: TextButton
-	local about = buildAboutLine(card, item, BIG_ABOUT_Y, BIG_ABOUT_H, BIG_INSET)
-	local chip, chipText = buildChip(
-		card,
-		UDim2.fromScale(0.5, BIG_BUTTON_Y + CHIP_INSET),
-		UDim2.fromScale(1 - BIG_INSET * 2, BIG_BUTTON_H - CHIP_INSET * 2)
-	)
-	return { item = item, card = card, button = button, face = face, about = about, chip = chip, chipText = chipText }
-end
+	if featured and needsChoice(id) then
+		buildPicker(card)
+	end
 
--- Sizes the Robux column so every child is a Scale fraction of a canvas exactly as tall as the
--- sections need. Children of a ScrollingFrame scale against the canvas, so every height (in visible
--- pages) is divided by the page count; an automatic canvas would chase Scale-sized children instead.
--- Pixels are only read for the page's width-over-height ratio, which turns a small tile's width and
--- aspect into a height. Sections with nothing visible (Boosts where every item is restricted) fold away.
-local function layoutRobux()
-	local scroller, list = robuxScroller, robuxList
-	if not scroller or not list then
-		return
-	end
-	local window = scroller.AbsoluteWindowSize
-	if window.X <= 0 or window.Y <= 0 then
-		return
-	end
-	local aspect = window.X / window.Y
-	local gapV = RX_COL_GAP * aspect -- the column gap as a fraction of the visible height
-	local tileH = RX_TILE_W / RX_TILE_ASPECT * aspect
-	local heights: { number } = {}
-	local children = 0
-	local total = 0
-	for index, section in ipairs(robuxSections) do
-		local visible = 0
-		for _, tile in ipairs(section.tiles) do
-			if tile.card.Visible then
-				visible += 1
-			end
-		end
-		local height = 0
-		if visible > 0 then
-			if section.grid then
-				local rows = math.ceil(visible / RX_COLS)
-				height = rows * tileH + (rows - 1) * gapV
-			else
-				height = visible * RX_FEATURED_H + (visible - 1) * gapV
-			end
-			children += 2 -- heading and block
-			total += RX_HEADING_H + height
-		end
-		heights[index] = height
-	end
-	total += children * RX_GAP -- the gaps between children, plus breathing room under the last
-	local pages = math.max(1, total)
-	scroller.CanvasSize = UDim2.fromScale(0, pages)
-	list.Padding = UDim.new(RX_GAP / pages, 0)
-	for index, section in ipairs(robuxSections) do
-		local height = heights[index]
-		local shown = height > 0
-		section.heading.Visible = shown
-		section.block.Visible = shown
-		if not shown then
-			continue
-		end
-		section.heading.Size = UDim2.fromScale(1, RX_HEADING_H / pages)
-		section.block.Size = UDim2.fromScale(1, height / pages)
-		local grid, stack = section.grid, section.stack
-		if grid then
-			grid.CellSize = UDim2.fromScale(RX_TILE_W, tileH / height)
-			grid.CellPadding = UDim2.fromScale(RX_COL_GAP, gapV / height)
-		end
-		if stack then
-			stack.Padding = UDim.new(gapV / height, 0)
-			for _, tile in ipairs(section.tiles) do
-				tile.card.Size = UDim2.fromScale(1, RX_FEATURED_H / height)
-			end
-		end
-	end
-end
-
--- The launch shop: a scrolling column with a thin dark bar, one heading and one block of tiles per
--- Shop.Launch section. The Featured block stacks large tiles; every other block is a two-column grid.
-local function buildRobuxPage(parent: Frame)
-	local scroller = Instance.new("ScrollingFrame")
-	scroller.Name = "Column"
-	scroller.BackgroundTransparency = 1
-	scroller.BorderSizePixel = 0
-	scroller.Size = UDim2.fromScale(1, 1)
-	scroller.ZIndex = 3
-	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
-	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None -- layoutRobux sizes the canvas in Scale
-	scroller.CanvasSize = UDim2.fromScale(0, 1)
-	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
-	scroller.ScrollBarThickness = SCROLLBAR_PX
-	scroller.ScrollBarImageColor3 = Theme.Colors.Trough
-	scroller.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-	scroller.Parent = parent
-	local list = Instance.new("UIListLayout")
-	list.FillDirection = Enum.FillDirection.Vertical
-	list.SortOrder = Enum.SortOrder.LayoutOrder
-	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	list.VerticalAlignment = Enum.VerticalAlignment.Top
-	list.Padding = UDim.new(RX_GAP, 0)
-	list.Parent = scroller
-
-	robuxSections = {}
-	pickers = {}
-	local order = 0
-	for _, entry in ipairs(launchSections) do
-		order += 1
-		local heading = Builder.label({
-			parent = scroller,
-			name = entry.section .. "Heading",
-			text = Builder.text("SHOP_SECTION_" .. entry.section),
-			textSize = Theme.TextSize.Label,
-			color = Theme.Colors.Heading,
-			strokeColor = Theme.Colors.Black,
-			size = UDim2.fromScale(1, RX_HEADING_H),
-			zIndex = 3,
-		})
-		heading.LayoutOrder = order
-		order += 1
-		local block = Builder.frame({
-			parent = scroller,
-			name = entry.section,
-			size = UDim2.fromScale(1, RX_FEATURED_H),
-			zIndex = 3,
-		})
-		block.LayoutOrder = order
-		local tiles: { RobuxTile } = {}
-		local grid: UIGridLayout? = nil
-		local stack: UIListLayout? = nil
-		if entry.section == FEATURED_SECTION then
-			local stackLayout = Instance.new("UIListLayout")
-			stackLayout.FillDirection = Enum.FillDirection.Vertical
-			stackLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			stackLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			stackLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-			stackLayout.Padding = UDim.new(RX_GAP, 0)
-			stackLayout.Parent = block
-			stack = stackLayout
-			for index, id in ipairs(entry.items) do
-				local item = shopItems[id]
-				if item then
-					table.insert(tiles, buildFeaturedTile(block, index, item))
-				end
-			end
-		else
-			local cells = Instance.new("UIGridLayout")
-			cells.FillDirection = Enum.FillDirection.Horizontal
-			cells.FillDirectionMaxCells = RX_COLS
-			cells.SortOrder = Enum.SortOrder.LayoutOrder
-			cells.HorizontalAlignment = Enum.HorizontalAlignment.Left
-			cells.VerticalAlignment = Enum.VerticalAlignment.Top
-			cells.StartCorner = Enum.StartCorner.TopLeft
-			cells.CellSize = UDim2.fromScale(RX_TILE_W, RX_TILE_W / RX_TILE_ASPECT)
-			cells.CellPadding = UDim2.fromScale(RX_COL_GAP, RX_COL_GAP)
-			cells.Parent = block
-			grid = cells
-			local color = SECTION_COLORS[entry.section] or Theme.Rarity.Common
-			for index, id in ipairs(entry.items) do
-				local item = shopItems[id]
-				if item then
-					table.insert(tiles, buildSmallTile(block, index, item, color))
-				end
-			end
-		end
-		table.insert(robuxSections, { heading = heading, block = block, grid = grid, stack = stack, tiles = tiles })
-	end
-	robuxScroller = scroller
-	robuxList = list
-	scroller:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutRobux)
+	local view: CardView = {
+		id = id,
+		kind = kind,
+		category = category,
+		def = def,
+		units = units,
+		item = item,
+		gearItem = if kind == "gear" then GEAR_BY_ID[id] else nil,
+		slot = slot,
+		mover = mover,
+		card = card,
+		note = note,
+		below = below,
+		button = button,
+		face = face,
+		chip = chip,
+		chipText = chipText,
+		visible = false,
+		done = false,
+	}
+	return view
 end
 
 -- Refresh ----------------------------------------------------------------------
 
-local function refreshLures(profile: Types.Profile)
-	for _, row in ipairs(lureRows) do
-		local def = lureDefs[row.id]
+local function setPill(view: CardView, text: string, color: Color3)
+	view.face.Text = text
+	recolorButton(view.button, color)
+end
+
+-- A held item: the chip takes the pill's place and the line under it is cleared.
+local function showChip(view: CardView, text: string)
+	view.button.Visible = false
+	view.chip.Visible = true
+	view.chipText.Text = text
+	view.below.Text = ""
+	view.done = true
+end
+
+local function showPill(view: CardView)
+	view.button.Visible = true
+	view.chip.Visible = false
+	view.done = false
+end
+
+-- Redraws a Robux card from the purchases mirror: an owned pass or a claimed once-only product shows its chip instead of the
+-- price (and loses its about-line); the Starter Pack's pill stays grey until a Rare is stored, its price and about-line still
+-- showing; an item with no dashboard id yet is a grey SOON pill with no price under it; paid random items show only once
+-- GetPolicy has said they are allowed here.
+local function refreshRobuxCard(view: CardView, state: Types.PurchasesState, showPaidRandom: boolean)
+	local item = view.item
+	if not item then
+		return
+	end
+	local visible = showPaidRandom or not item.paidRandom
+	if view.visible ~= visible then
+		view.visible = visible
+		layoutDirty = true
+	end
+	local owned = item.kind == "pass" and state.passes[item.id] == true
+	local claimed = item.once == true and (state.purchases[item.id] or 0) > 0
+	if owned then
+		showChip(view, Strings.SHOP_OWNED_PASS)
+		return
+	elseif claimed then
+		showChip(view, Strings.SHOP_ONCE_DONE)
+		return
+	end
+	showPill(view)
+	local about = ShopMath.AboutLine(item.robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE)
+	if not ShelfMath.IsLive(item) then
+		setPill(view, Strings.SHOP_SOON, Theme.Rarity.Common)
+		view.below.Text = ""
+	elseif needsChoice(item.id) and state.starterSpecies == nil then
+		setPill(view, Strings.SHOP_STARTER_PICK, Theme.Rarity.Common)
+		view.below.Text = about
+	else
+		setPill(view, Strings.SHOP_ROBUX_PRICE:format(item.robux), Theme.Colors.Confirm)
+		view.below.Text = about
+	end
+end
+
+local function refreshScrapCard(view: CardView, profile: Types.Profile)
+	local shown = view.kind ~= "lure" or lureDefs[view.id] ~= nil
+	if view.visible ~= shown then
+		view.visible = shown
+		layoutDirty = true
+	end
+	if view.kind == "lure" then
+		local def = lureDefs[view.id]
 		if not def then
-			row.card.Visible = false
-			continue
+			return
 		end
-		row.card.Visible = true
-		row.effect.Text = Strings.SHOP_LURE_EFFECT:format(math.floor(def.zoneBonus * 100))
-		row.price.Text = priceText(def.scrap)
-		if row.heldLabel then
-			row.heldLabel.Text = Strings.SHOP_HELD:format(profile.inventory.lures[row.id] or 0)
-		end
-		local affordable = profile.scrap >= def.scrap
-		recolorButton(row.button, if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
+		view.note.Text = Strings.SHOP_LURE_NOTE:format(math.floor(def.zoneBonus * 100))
+		view.below.Text = Strings.SHOP_HELD:format(profile.inventory.lures[view.id] or 0)
+		view.below.TextColor3 = Theme.Colors.White
+		showPill(view)
+		setPill(view, priceText(def.scrap), if profile.scrap >= def.scrap then Theme.Colors.Confirm else Theme.Rarity.Common)
+		return
+	end
+	local item = view.gearItem
+	if not item then
+		return
+	end
+	view.note.Text = gearNote(profile, item)
+	if ownsGear(profile, item) then
+		showChip(view, Strings.SHOP_OWNED)
+		return
+	end
+	showPill(view)
+	view.below.Text = ""
+	local affordable = profile.scrap >= item.scrap and not gearLocked(profile, item)
+	setPill(view, priceText(item.scrap), if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
+end
+
+-- Where a tab sits: down the rail in the order of the tabs that show, the active one nudged right (the raised look).
+local function tabPosition(tab: TabView, active: boolean): UDim2
+	local rail = SHELF.Rail
+	return UDim2.fromScale(rail.X + (if active then rail.Nudge else 0), rail.Y + (tab.row - 1) * (rail.TabH + rail.Gap))
+end
+
+local function setActive(tab: TabView?)
+	if tab == activeTab then
+		return
+	end
+	activeTab = tab
+	for _, entry in ipairs(tabs) do
+		local active = entry == tab
+		entry.button.Position = tabPosition(entry, active)
+		recolorButton(entry.button, if active then entry.color else Builder.darker(entry.color, 0.3))
 	end
 end
 
-local function refreshGear(profile: Types.Profile)
-	for index, row in ipairs(gearRows) do
-		local item = GEAR_ITEMS[index]
-		if not item then
-			row.card.Visible = false
-			continue
+-- Which tabs show (a category with a card on the shelf), their order down the rail, and their chips: a red "!" while a deal card
+-- is unclaimed and NEW while a new card is on the shelf (both are flags on the card's data row).
+local function refreshTabs()
+	local row = 0
+	for _, tab in ipairs(tabs) do
+		local any, deal, fresh = false, false, false
+		for _, view in ipairs(views) do
+			if view.category == tab.id and view.visible then
+				any = true
+				deal = deal or (view.def.deal == true and not view.done)
+				fresh = fresh or view.def.new == true
+			end
 		end
-		row.card.Visible = true
-		row.effect.Visible = true
-		row.effect.Text = effectText(profile, item)
-		row.price.Text = priceText(item.scrap)
-		local isOwned = ownsGear(profile, item)
-		row.button.Visible = not isOwned
-		if row.owned then
-			row.owned.Visible = isOwned
+		tab.visible = any
+		tab.holder.Visible = any
+		tab.bang.Visible = deal
+		tab.fresh.Visible = fresh
+		if any then
+			row += 1
 		end
-		local affordable = profile.scrap >= item.scrap and not gearLocked(profile, item)
-		recolorButton(row.button, if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
+		tab.row = row
+		tab.button.Position = tabPosition(tab, tab == activeTab)
 	end
 end
 
--- Redraws every Robux tile from the purchases mirror: an owned pass or a claimed once-only product
--- shows its chip instead of the price (and loses its about-line); the Starter Pack's button stays grey until a Rare is
--- stored, its price and about-line still showing; paid random items (Server Luck) show only once GetPolicy has said they
--- are allowed here.
-local function refreshRobux()
-	local state = State.GetPurchases()
-	local showPaidRandom = policyKnown and not paidRandomRestricted
-	local packDone = false
-	for _, section in ipairs(robuxSections) do
-		for _, tile in ipairs(section.tiles) do
-			local item = tile.item
-			tile.card.Visible = showPaidRandom or not item.paidRandom
-			local owned = item.kind == "pass" and state.passes[item.id] == true
-			local done = item.once == true and (state.purchases[item.id] or 0) > 0
-			local chooses = needsChoice(item.id)
-			if chooses and done then
-				packDone = true
-			end
-			tile.button.Visible = not (owned or done)
-			tile.about.Visible = tile.button.Visible -- the estimate belongs to the price: still there while the button reads "Pick your Rare first"
-			tile.chip.Visible = owned or done
-			if owned then
-				tile.chipText.Text = Strings.SHOP_OWNED_PASS
-			elseif done then
-				tile.chipText.Text = Strings.SHOP_ONCE_DONE
-			elseif chooses and state.starterSpecies == nil then
-				tile.face.Text = Strings.SHOP_STARTER_PICK
-				recolorButton(tile.button, Theme.Rarity.Common)
-			else
-				tile.face.Text = Strings.SHOP_ROBUX_PRICE:format(item.robux)
-				recolorButton(tile.button, Theme.Colors.Confirm)
+-- Layout ------------------------------------------------------------------------
+
+-- Places every visible card along the row and sizes the canvas. The window's pixels are read here (the one place), because a
+-- card's width follows its height (so it is the same shape in any window) and a child of a scrolling frame is a Scale of the
+-- canvas, which is as wide as the row needs. Also finds the offset each tab scrolls to.
+local function layoutShelf()
+	local frame = shelf
+	if not frame then
+		return
+	end
+	local window = frame.AbsoluteWindowSize
+	if window.X <= 0 or window.Y <= 0 then
+		return
+	end
+	layoutDirty = false
+	windowPx = window
+	local cardH = window.Y * SHELF.CardH / SHELF.Window.H
+	local cardW = cardH * SHELF.CardAspect
+	cardPx = cardW
+	local gap = cardW * SHELF.CardGap
+	local pad = cardW * SHELF.EndPad
+	local top = (SHELF.CardTop - SHELF.Window.Y) / SHELF.Window.H
+	local shown: { CardView } = {}
+	local widths: { number } = {}
+	for _, view in ipairs(views) do
+		view.slot.Visible = view.visible
+		if view.visible then
+			table.insert(shown, view)
+			table.insert(widths, view.units * cardW + (view.units - 1) * gap)
+		end
+	end
+	local lefts, total = ShelfMath.Place(widths, gap, pad)
+	local canvas = math.max(total, window.X)
+	canvasPx = canvas
+	maxOffset = ShelfMath.MaxOffset(canvas, window.X)
+	frame.CanvasSize = UDim2.fromScale(canvas / window.X, 1)
+	for index, view in ipairs(shown) do
+		view.slot.Position = UDim2.fromScale(lefts[index] / canvas, top)
+		view.slot.Size = UDim2.fromScale(widths[index] / canvas, cardH / window.Y)
+	end
+	starts = {}
+	startTabs = {}
+	for _, tab in ipairs(tabs) do
+		if tab.visible then
+			for index, view in ipairs(shown) do
+				if view.category == tab.id then
+					table.insert(starts, lefts[index] - pad)
+					table.insert(startTabs, tab)
+					break
+				end
 			end
 		end
 	end
-	local row = pickerRow
-	if row then
-		row.Visible = not packDone -- the choice is spent once the pack is claimed
+end
+
+-- The scrollbar, the arrows and the left fade follow the row's offset; the active tab follows it too, except while a tab or
+-- chevron tap is carrying the row (the tapped tab is already active, and the tabs it passes must not flash).
+local function updateFollow()
+	local frame = shelf
+	if not frame or windowPx.X <= 0 then
+		return
 	end
-	for _, picker in ipairs(pickers) do
-		recolorButton(picker.button, if picker.species == state.starterSpecies then Theme.Colors.Confirm else Theme.Rarity.Common)
+	local offset = frame.CanvasPosition.X
+	if not autoScrolling and #starts > 0 then
+		local index = ShelfMath.ActiveSection(offset, starts, maxOffset, MOTION.TabSlack * cardPx, MOTION.EdgePx)
+		setActive(startTabs[index])
 	end
-	local picked = pickedLabel
-	if picked then
-		local species = state.starterSpecies
-		picked.Text = if species then Strings.SHOP_STARTER_PICKED:format(speciesName(species)) else ""
+	local handle = thumb
+	if handle then
+		local size, left = ShelfMath.Thumb(offset, windowPx.X, canvasPx, SHELF.Scrollbar.MinThumb)
+		handle.Size = UDim2.fromScale(size, 1)
+		handle.Position = UDim2.fromScale(left, 0)
 	end
-	layoutRobux()
+	local canLeft, canRight = ShelfMath.Arrows(offset, maxOffset, MOTION.EdgePx)
+	local leftArrow, rightArrow, fade = leftChevron, rightChevron, edgeFade
+	if leftArrow then
+		leftArrow.Visible = canLeft
+	end
+	if rightArrow then
+		rightArrow.Visible = canRight
+	end
+	if fade then
+		fade.Visible = canLeft
+	end
+end
+
+local function stopScroll()
+	if scrollTween then
+		scrollTween:Cancel()
+		scrollTween = nil
+	end
+	autoScrolling = false
+end
+
+-- Scrolls the row to an offset: a springy ease, or straight there under Reduced Motion.
+local function scrollTo(target: number)
+	local frame = shelf
+	if not frame then
+		return
+	end
+	stopScroll()
+	local x = ShelfMath.ScrollTarget(target, maxOffset)
+	if Prefs.ReducedMotion() then
+		frame.CanvasPosition = Vector2.new(x, 0)
+		return
+	end
+	autoScrolling = true
+	local tween = TweenService:Create(
+		frame,
+		TweenInfo.new(MOTION.ScrollSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ CanvasPosition = Vector2.new(x, 0) }
+	)
+	scrollTween = tween
+	tween.Completed:Once(function()
+		if scrollTween == tween then
+			scrollTween = nil
+			autoScrolling = false
+			updateFollow()
+		end
+	end)
+	tween:Play()
+end
+
+local function scrollBy(delta: number)
+	local frame = shelf
+	if frame then
+		scrollTo(frame.CanvasPosition.X + delta)
+	end
+end
+
+local function onTabTap(tab: TabView)
+	for index, entry in ipairs(startTabs) do
+		if entry == tab then
+			setActive(tab)
+			scrollTo(starts[index])
+			return
+		end
+	end
 end
 
 local function refresh()
 	if not open then
 		return
 	end
-	if State.Has() then
-		local profile = State.Get()
-		refreshLures(profile)
-		refreshGear(profile)
+	local state = State.GetPurchases()
+	local showPaidRandom = policyKnown and not paidRandomRestricted
+	local hasProfile = State.Has()
+	local profile = if hasProfile then State.Get() else nil
+	local packDone = false
+	for _, view in ipairs(views) do
+		if view.kind == "robux" then
+			refreshRobuxCard(view, state, showPaidRandom)
+			if view.done and needsChoice(view.id) then
+				packDone = true
+			end
+		elseif profile then
+			refreshScrapCard(view, profile)
+		end
 	end
-	refreshRobux()
+	for _, picker in ipairs(pickers) do
+		picker.row.Visible = not packDone -- the choice is spent once the pack is claimed
+		recolorButton(picker.button, if picker.species == state.starterSpecies then Theme.Colors.Confirm else Theme.Rarity.Common)
+	end
+	local pill = scrapLabel
+	if pill and profile then
+		pill.Text = Builder.formatNumber(profile.scrap)
+	end
+	refreshTabs()
+	if layoutDirty then
+		layoutShelf()
+		updateFollow()
+	end
 end
 
 -- A purchases push: anything the server added since the last state (a product count that went up, a
@@ -1199,7 +1203,7 @@ local function onPurchasesChanged()
 end
 
 -- Asks once whether paid random items are restricted for this player (PolicyService on the server).
--- Until the answer lands the Server Luck tiles stay hidden; a failed call is asked again next open.
+-- Until the answer lands the Server Luck and Spins cards stay hidden; a failed call is asked again next open.
 local function fetchPolicy()
 	if policyAsked then
 		return
@@ -1220,148 +1224,470 @@ local function fetchPolicy()
 	end)
 end
 
--- Tabs ---------------------------------------------------------------------------
+-- Motion ---------------------------------------------------------------------------
 
-local function setTab(tab: Tab)
-	activeTab = tab
-	for _, entry in ipairs(tabButtons) do
-		local active = entry.tab == tab
-		entry.page.Visible = active
-		entry.button.Position = UDim2.fromScale(Theme.Margin + (if active then TAB_NUDGE else 0), entry.button.Position.Y.Scale)
-		recolorButton(entry.button, if active then Theme.Colors.Select else Builder.darker(Theme.Colors.Select, 0.3))
+local function stopMotion()
+	for _, tween in ipairs(entranceTweens) do
+		tween:Cancel()
 	end
-	if tab == "Robux" and open then
-		refreshRobux()
+	table.clear(entranceTweens)
+	if sunburstTween then
+		sunburstTween:Cancel()
+		sunburstTween = nil
+	end
+	if stopShine then
+		stopShine()
+		stopShine = nil
+	end
+	stopScroll()
+end
+
+-- The tabs drop in one by one and the cards slide in from the right, tilted, and straighten, each a step after the one before
+-- (Theme.Tween.StaggerStep, over the first StaggerRows). Reduced Motion: they are simply there.
+local function playEntrance()
+	local reduced = Prefs.ReducedMotion()
+	local shown = 0
+	for _, view in ipairs(views) do
+		view.mover.Position = UDim2.fromScale(0, 0)
+		view.mover.Rotation = 0
+		if view.visible and not reduced then
+			local delay = math.min(shown, Theme.Tween.StaggerRows) * Theme.Tween.StaggerStep
+			shown += 1
+			view.mover.Position = UDim2.fromScale(MOTION.SlideFrom, 0)
+			view.mover.Rotation = SHELF.Tilt
+			local info = TweenInfo.new(MOTION.SlideSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, delay)
+			local tween = TweenService:Create(view.mover, info, { Position = UDim2.fromScale(0, 0), Rotation = 0 })
+			table.insert(entranceTweens, tween)
+			tween:Play()
+		end
+	end
+	local dropped = 0
+	for _, tab in ipairs(tabs) do
+		tab.holder.Position = UDim2.fromScale(0, 0)
+		if tab.visible and not reduced then
+			local delay = dropped * Theme.Tween.StaggerStep
+			dropped += 1
+			tab.holder.Position = UDim2.fromScale(0, MOTION.DropFrom * SHELF.Rail.TabH)
+			local info = TweenInfo.new(MOTION.DropSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, delay)
+			local tween = TweenService:Create(tab.holder, info, { Position = UDim2.fromScale(0, 0) })
+			table.insert(entranceTweens, tween)
+			tween:Play()
+		end
+	end
+	local rays = sunburst
+	if rays then
+		rays.Rotation = 0
+		if not reduced then
+			local info = TweenInfo.new(MOTION.SunburstSeconds, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1)
+			local tween = TweenService:Create(rays, info, { Rotation = 360 })
+			sunburstTween = tween
+			tween:Play()
+		end
+	end
+	-- One shine sweep, on the featured card only (Builder.shine does nothing under Reduced Motion), and only while it is unclaimed.
+	for _, view in ipairs(views) do
+		if view.units > 1 and view.visible and not view.done then
+			stopShine = Builder.shine(view.card)
+			break
+		end
 	end
 end
 
 -- Build ----------------------------------------------------------------------
 
+local function buildTab(parent: Frame, index: number, category: Shop.Category): TabView
+	local rail = SHELF.Rail
+	local color = Theme.Hex(category.color)
+	local holder = Builder.frame({ parent = parent, name = "Tab" .. category.id, zIndex = 10 })
+	local button = Builder.button({
+		parent = holder,
+		name = "Button",
+		text = Builder.text("SHOP_TAB_" .. category.id),
+		color = color,
+		position = UDim2.fromScale(rail.X, rail.Y),
+		size = UDim2.fromScale(rail.W, rail.TabH),
+		textSize = Theme.TextSize.Body,
+		zIndex = 10,
+	}, function()
+		-- set below: the tab record does not exist until this returns
+		local entry = tabs[index]
+		if entry then
+			onTabTap(entry)
+		end
+	end)
+	local chip = SHELF.Chip
+	-- The red "!" at the tab's right edge: a circle (the aspect keeps it round on any window) with a white rim.
+	local bang = Builder.frame({
+		parent = button,
+		name = "Bang",
+		position = UDim2.fromScale(1, 0.5),
+		size = UDim2.fromScale(chip.BangW, chip.Bang),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.Colors.Close,
+		corner = Theme.Corner.Pill,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.White,
+		aspect = 1,
+		zIndex = 14,
+	})
+	Builder.label({
+		parent = bang,
+		name = "Text",
+		text = Strings.SHOP_CHIP_DEAL,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.9, 0.9),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 15,
+	})
+	bang.Visible = false
+	local fresh = Builder.pill({
+		parent = button,
+		name = "New",
+		position = UDim2.fromScale(chip.X, chip.Y),
+		size = UDim2.fromScale(chip.W, chip.H),
+		color = Theme.Colors.Close,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.White,
+		zIndex = 14,
+	})
+	Builder.label({
+		parent = fresh,
+		name = "Text",
+		text = Strings.SHOP_CHIP_NEW,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.9),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = 15,
+	})
+	fresh.Visible = false
+	return { id = category.id, color = color, holder = holder, button = button, bang = bang, fresh = fresh, visible = false, row = 0, index = index }
+end
+
+-- The pill bar under the shelf: a dark trough with a gold thumb carrying grip ticks. A tap or drag on it (a hit area of at least
+-- the tap floor around the trough) puts the thumb's middle under the pointer and scrolls the row to match.
+local function buildScrollbar(parent: Frame)
+	local spec = SHELF.Scrollbar
+	local track = Builder.pill({
+		parent = parent,
+		name = "Track",
+		position = UDim2.fromScale(spec.X, spec.Y),
+		size = UDim2.fromScale(spec.W, spec.H),
+		color = Theme.Colors.Trough,
+		stroke = Theme.Stroke.Text,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = 12,
+	})
+	local handle = Builder.pill({
+		parent = track,
+		name = "Thumb",
+		size = UDim2.fromScale(1, 1),
+		color = Theme.Colors.Featured,
+		zIndex = 13,
+	})
+	Builder.gradient(handle, Theme.Colors.Featured)
+	for index = 1, spec.Grips do
+		Builder.frame({
+			parent = handle,
+			name = "Grip",
+			position = UDim2.fromScale(0.5 + (index - (spec.Grips + 1) / 2) * spec.GripGap, 0.5),
+			size = UDim2.fromScale(spec.GripW, 0.5),
+			anchor = Vector2.new(0.5, 0.5),
+			color = Builder.darker(Theme.Colors.Featured, 0.45),
+			zIndex = 14,
+		})
+	end
+	thumb = handle
+	local function pointerTo(x: number)
+		local width = math.max(1, track.AbsoluteSize.X)
+		local fraction = (x - track.AbsolutePosition.X) / width
+		stopScroll()
+		local frame = shelf
+		if frame then
+			local offset = ShelfMath.OffsetFromPointer(fraction, windowPx.X, canvasPx, spec.MinThumb)
+			frame.CanvasPosition = Vector2.new(ShelfMath.ScrollTarget(offset, maxOffset), 0)
+		end
+	end
+	local area = Instance.new("TextButton")
+	area.Name = "Hit"
+	area.Text = ""
+	area.AutoButtonColor = false
+	area.BackgroundTransparency = 1
+	area.BorderSizePixel = 0
+	area.AnchorPoint = Vector2.new(0.5, 0.5)
+	area.Position = UDim2.fromScale(0.5, 0.5)
+	area.Size = UDim2.fromScale(1, 1)
+	area.ZIndex = 15
+	local floor = Instance.new("UISizeConstraint")
+	floor.MinSize = Vector2.new(0, Theme.TapMin)
+	floor.Parent = area
+	area.Parent = track
+	area.InputBegan:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			pointerTo(input.Position.X)
+		end
+	end)
+	area.Activated:Connect(function()
+		Builder.playSound(Sounds.Click) -- the drag itself is the input events above; a click sounds when it is let go
+	end)
+	UserInputService.InputChanged:Connect(function(input: InputObject)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			pointerTo(input.Position.X)
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+end
+
+local function buildChevron(parent: Frame, forward: boolean): Frame
+	local spec = SHELF.Chevron
+	local button = Builder.button({
+		parent = parent,
+		name = if forward then "Next" else "Previous",
+		text = if forward then Strings.SHOP_CHEVRON_NEXT else Strings.SHOP_CHEVRON_PREV,
+		color = Theme.Colors.Outline,
+		position = UDim2.fromScale(if forward then spec.Right else spec.Left, spec.Y),
+		size = UDim2.fromScale(spec.W, spec.H),
+		anchor = Vector2.new(0.5, 0.5),
+		textSize = Theme.TextSize.Title,
+		aspect = 1,
+		zIndex = 16,
+	}, function()
+		scrollBy((if forward then 1 else -1) * MOTION.ChevronStep * windowPx.X)
+	end)
+	button.Visible = false
+	return button
+end
+
+-- The currency row: a dark pill with the Scrap icon and the count (Roblox does not tell a script the player's Robux, so only
+-- Scrap shows).
+local function buildCurrency(parent: Frame)
+	local spec = SHELF.Currency
+	local pill = Builder.pill({
+		parent = parent,
+		name = "ScrapPill",
+		position = UDim2.fromScale(spec.Right, spec.Y),
+		size = UDim2.fromScale(spec.W, spec.H),
+		anchor = Vector2.new(1, 0),
+		color = Theme.Colors.Trough,
+		stroke = Theme.Stroke.Button,
+		strokeColor = Theme.Colors.Outline,
+		aspect = spec.Aspect,
+		zIndex = 12,
+	})
+	Builder.gradient(pill, Theme.Colors.Trough)
+	local square = Builder.frame({
+		parent = pill,
+		name = "Icon",
+		position = pos(spec.Icon),
+		size = siz(spec.Icon),
+		anchor = Vector2.new(0, 0.5),
+		color = Theme.Colors.Featured,
+		corner = Theme.Corner.Card,
+		stroke = Theme.Stroke.Text,
+		aspect = 1,
+		zIndex = 13,
+	})
+	Builder.gradient(square, Theme.Colors.Featured)
+	local picture = Builder.icon({ parent = square, name = "Picture", key = "Scrap", zIndex = 14 })
+	if picture then
+		square.BackgroundTransparency = 1 -- the icon carries its own outline
+		for _, child in ipairs(square:GetChildren()) do
+			if child:IsA("UIStroke") then
+				child.Enabled = false
+			end
+		end
+	end
+	scrapLabel = Builder.label({
+		parent = pill,
+		name = "Amount",
+		text = "0",
+		textSize = Theme.TextSize.Label,
+		position = pos(spec.Amount),
+		size = siz(spec.Amount),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 13,
+	})
+end
+
+-- The faint rays behind the shelf: thin bars turned evenly through half a turn, each fading out at both ends, in a square holder
+-- that the open animation turns slowly. The bars carry their own transparency in a gradient.
+local function buildSunburst(parent: Frame): Frame
+	local spec = SHELF.Sunburst
+	local holder = Builder.frame({
+		parent = parent,
+		name = "Sunburst",
+		position = UDim2.fromScale(spec.X, 0.5),
+		size = UDim2.fromScale(3, spec.Size),
+		anchor = Vector2.new(0.5, 0.5),
+		aspect = 1,
+		zIndex = 2,
+	})
+	for ray = 0, spec.Rays - 1 do
+		local bar = Builder.frame({
+			parent = holder,
+			name = "Ray",
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(spec.Width, 1),
+			anchor = Vector2.new(0.5, 0.5),
+			color = Theme.Colors.White,
+			zIndex = 2,
+		})
+		bar.Rotation = ray * 180 / spec.Rays
+		local fade = Instance.new("UIGradient")
+		fade.Rotation = 90
+		fade.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.5, spec.Alpha),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		fade.Parent = bar
+	end
+	return holder
+end
+
 local function build()
 	if gui then
 		return
 	end
-	local root = Builder.screen("ShopScreen", 20)
+	local root = Builder.screen("ShopScreen", DISPLAY_ORDER)
 	root.Enabled = false
 	gui = root
 
-	local backdrop = Instance.new("TextButton")
-	backdrop.Name = "Dim"
-	backdrop.AutoButtonColor = false
-	backdrop.Text = ""
-	backdrop.BorderSizePixel = 0
-	backdrop.Size = UDim2.fromScale(1, 1)
-	backdrop.BackgroundColor3 = Theme.Colors.Black
-	backdrop.BackgroundTransparency = 1 - Theme.Backdrop
-	backdrop.ZIndex = 1
-	backdrop.Parent = root
-	backdrop.Activated:Connect(function()
-		Builder.playSound(Sounds.Click)
-		ShopScreen.Close()
+	-- The ground: violet at the top, navy at the bottom, and it sinks every tap, so nothing reaches the world behind a takeover.
+	local ground = Builder.frame({ parent = root, name = "Ground", color = Theme.Colors.White, zIndex = 1 })
+	ground.Active = true
+	local sky = Instance.new("UIGradient")
+	sky.Rotation = 90
+	sky.Color = ColorSequence.new(Theme.Colors.ShopBackdrop, Theme.Colors.Outline)
+	sky.Parent = ground
+	local layer = Builder.frame({ parent = root, name = "Stage", zIndex = 2 })
+	stage = layer
+	sunburst = buildSunburst(layer)
+
+	-- The shelf: one row of cards, scrolling sideways. The native bar is off (ours sits under it); the canvas is sized by layoutShelf.
+	local frame = Instance.new("ScrollingFrame")
+	frame.Name = "Shelf"
+	frame.BackgroundTransparency = 1
+	frame.BorderSizePixel = 0
+	frame.Position = pos(SHELF.Window)
+	frame.Size = siz(SHELF.Window)
+	frame.ZIndex = 3
+	frame.ScrollingDirection = Enum.ScrollingDirection.X
+	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
+	frame.CanvasSize = UDim2.fromScale(1, 1)
+	frame.ScrollBarThickness = 0
+	frame.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+	frame.Parent = layer
+	shelf = frame
+	frame:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
+		layoutShelf()
+		updateFollow()
+	end)
+	frame:GetPropertyChangedSignal("CanvasPosition"):Connect(updateFollow)
+	-- Input is read from UserInputService, not from the row: a card's button sinks the events its parent would have heard. A press
+	-- takes the row back from a running tab scroll (a tap on a tab starts its scroll on release, after this); the wheel scrolls it.
+	UserInputService.InputBegan:Connect(function(input: InputObject)
+		if open and scrollTween and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+			stopScroll()
+		end
+	end)
+	UserInputService.InputChanged:Connect(function(input: InputObject)
+		local card = detailLayer
+		if open and input.UserInputType == Enum.UserInputType.MouseWheel and not (card and card.Visible) then
+			stopScroll()
+			local x = ShelfMath.ScrollTarget(frame.CanvasPosition.X - input.Position.Z * MOTION.WheelStep * windowPx.X, maxOffset)
+			frame.CanvasPosition = Vector2.new(x, 0)
+		end
 	end)
 
-	local body = Builder.frame({
-		parent = root,
-		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
-		zIndex = 2,
+	-- A dark strip at the left edge of the row once it has moved, so cards slide away under it.
+	local fade = Builder.frame({
+		parent = layer,
+		name = "EdgeFade",
+		position = UDim2.fromScale(SHELF.Window.X, SHELF.Window.Y),
+		size = UDim2.fromScale(SHELF.Fade, SHELF.Window.H),
+		color = Theme.Colors.Outline,
+		zIndex = 6,
 	})
-	body.Active = true -- sinks input: a tap anywhere on the panel that misses a button never reaches the Dim and closes the Shop
-	panel = body
+	local dim = Instance.new("UIGradient")
+	dim.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, MOTION.FadeAlpha), NumberSequenceKeypoint.new(1, 1) })
+	dim.Parent = fade
+	fade.Visible = false
+	edgeFade = fade
 
-	-- Header tab straddling the top edge, green for the shop, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Confirm,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Confirm)
+	-- The cards, in tab order: each category's items from its Launch section (Robux) or its `scrap` list (lures and gear).
+	local sectionItems: { [string]: { string } } = {}
+	for _, entry in ipairs(launchSections) do
+		sectionItems[entry.section] = entry.items
+	end
+	for _, category in ipairs(Shop.Categories) do
+		local color = Theme.Hex(category.color)
+		local scrapIds = category.scrap
+		if scrapIds then
+			for _, id in ipairs(scrapIds) do
+				local kind: Kind = if lureDefs[id] then "lure" else "gear"
+				local view = buildCard(frame, id, kind, category.id, color)
+				table.insert(views, view)
+				viewById[id] = view
+			end
+		else
+			for _, id in ipairs(sectionItems[category.id] or {}) do
+				if shopItems[id] then
+					local view = buildCard(frame, id, "robux", category.id, color)
+					table.insert(views, view)
+					viewById[id] = view
+				end
+			end
+		end
+	end
+
+	-- The header: the title (clear of Roblox's own buttons at the top left), the currency pill and the red X top right.
+	local title = SHELF.Title
 	Builder.label({
-		parent = header,
+		parent = layer,
 		name = "Title",
 		text = Strings.SHOP_TITLE,
 		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		position = pos(title),
+		size = siz(title),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 12,
 	})
-
+	buildCurrency(layer)
+	local close = SHELF.Close
 	Builder.button({
-		parent = body,
+		parent = layer,
 		name = "Close",
 		text = Strings.UI_CLOSE,
 		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
+		position = UDim2.fromScale(close.Right, close.Y),
+		size = UDim2.fromScale(close.W, close.H),
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
 		aspect = 1,
-		zIndex = 4,
+		zIndex = 16,
 	}, function()
 		ShopScreen.Close()
 	end)
 
-	-- Content area to the right of the tab column: one page per tab, only the active one visible.
-	local content = Builder.frame({
-		parent = body,
-		name = "Content",
-		position = UDim2.fromScale(CONTENT_X, BODY_Y),
-		size = UDim2.fromScale(CONTENT_W, BODY_H),
-		zIndex = 3,
-	})
-
-	-- Tab column down the left. Each tab is a chunky button; setTab raises and brightens the active one.
-	tabButtons = {}
-	for index = 1, #TABS do
-		local tab: Tab = TABS[index]
-		local page = Builder.frame({
-			parent = content,
-			name = tab,
-			zIndex = 3,
-		})
-		page.Visible = false
-		if tab == "Lures" then
-			buildLuresPage(page)
-		elseif tab == "Gear" then
-			buildGearPage(page)
-		else
-			buildRobuxPage(page)
-		end
-		local button = Builder.button({
-			parent = body,
-			name = "Tab" .. tab,
-			text = Builder.text("SHOP_TAB_" .. tab),
-			color = Theme.Colors.Select,
-			position = UDim2.fromScale(Theme.Margin, BODY_Y + (index - 1) * (TAB_H + TAB_GAP)),
-			size = UDim2.fromScale(TAB_W, TAB_H),
-			textSize = Theme.TextSize.Label,
-			zIndex = 4,
-		}, function()
-			if activeTab ~= tab then
-				setTab(tab)
-			end
-		end)
-		table.insert(tabButtons, { tab = tab, button = button, page = page })
+	-- The tab rail, then the scrollbar and the arrows.
+	tabs = {}
+	for index, category in ipairs(Shop.Categories) do
+		table.insert(tabs, buildTab(layer, index, category))
 	end
-	setTab(activeTab)
+	buildScrollbar(layer)
+	leftChevron = buildChevron(layer, false)
+	rightChevron = buildChevron(layer, true)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	-- "world" too: a launch (or /world) unlocks a second world, which unlocks the Glider row while the Shop is open.
+	-- "world" too: a launch (or /world) unlocks a second world, which unlocks the Glider card while the Shop is open.
 	for _, topic in ipairs({ "inventory", "gear", "scrap", "world" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
@@ -1378,8 +1704,8 @@ end
 
 function ShopScreen.Open()
 	build()
-	local root, body = gui, panel
-	if open or not root or not body then
+	local root, frame = gui, shelf
+	if open or not root or not frame then
 		return
 	end
 	open = true
@@ -1388,9 +1714,17 @@ function ShopScreen.Open()
 	if not purchasesPushed then
 		fetchPurchases(true) -- the join push has not landed: ask once so Owned chips are right
 	end
+	hideDetail()
+	activeTab = nil
+	layoutDirty = true
 	refresh()
 	root.Enabled = true
-	Builder.open(body)
+	frame.CanvasPosition = Vector2.zero
+	layoutShelf()
+	updateFollow()
+	setActive(startTabs[1])
+	stopMotion()
+	playEntrance()
 end
 
 function ShopScreen.Close()
@@ -1398,14 +1732,10 @@ function ShopScreen.Close()
 		return
 	end
 	open = false
-	local root, body = gui, panel
-	if root and body then
-		Builder.close(body, function()
-			if not open then
-				root.Enabled = false
-			end
-		end)
-	elseif root then
+	stopMotion()
+	hideDetail()
+	local root = gui
+	if root then
 		root.Enabled = false
 	end
 end
