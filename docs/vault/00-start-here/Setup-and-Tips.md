@@ -177,3 +177,71 @@ Do not run `tools/setup-mac.sh` blind: it installs software machine-wide and tru
 - He wants as little manual work as possible: if a session can do it, it should; what only he can do goes on the Board's "Waiting on Ethan" list.
 - Keep him updated with short summaries of what changed and what is next, and mind his weekly usage limit.
 - Quality bar: the top Roblox games' feel and polish, with our own designs (PRE_PRODUCTION 5a).
+
+## Obsidian connected to Claude (proposal, 2026-10-15)
+
+Proposal for Ethan; nothing here is installed. Decision: [[Decisions]] B33; source: the [report](../../../reports/Roblox%20creature%20UI%20and%20Claude%20workflows.md), section "The vault works when hooks enforce what CLAUDE.md only advises". Why: the filesystem already gives every session the vault (cloud sessions have no Obsidian, and that stays the shared channel); this adds Mac-only conveniences, namely heading-targeted edits, search by frontmatter, backlinks and daily-append. Do it with Studio and Blender closed (8 GB, see [[#Memory on the Mac]]); Obsidian itself must be open for the plugin and the CLI to answer.
+
+1. **Install the plugin.** Obsidian, Settings, Community plugins, turn Restricted mode off, Browse, search "Local REST API" (repo `coddingtonbear/obsidian-local-rest-api`), Install, Enable.
+2. **Find the API key.** Open the plugin's settings page: it shows the key and the server address (`https://127.0.0.1:27124`). The key is stored in the plugin's own `data.json` under `docs/vault/.obsidian/plugins/`, inside the vault folder (check the exact folder name on the Mac). That file must never reach git. `.gitignore` already lists `docs/vault/.obsidian/`; prove it before going on:
+   `git check-ignore -v docs/vault/.obsidian/plugins/obsidian-local-rest-api/data.json`
+   It must print the matching `.gitignore` line. If it prints nothing, add `docs/vault/.obsidian/plugins/*/data.json` to `.gitignore` first. Never paste the key into a note, the log, a chat or a file; it goes into the one command below and nowhere else.
+3. **Register the server** (Terminal, from `~/Roblox-Alien-Game`; verify on the Mac):
+   `claude mcp add obsidian -e OBSIDIAN_API_KEY=<paste from the plugin settings> -- uvx mcp-obsidian`
+   The report names the server (`mcp-obsidian`, by MarkusPfundstein) but gives no `claude mcp add` line for it, so this is the generic form. If it cannot find Obsidian, check the server README for its host and port variables (the plugin listens on 127.0.0.1, port 27124). Use the default local scope or `--scope user`, never `--scope project`: that would write the key into `.mcp.json`, which is committed. The plugin also ships its own MCP endpoint at `https://127.0.0.1:27124/mcp/`; the connection line for it is not in the report, so try `mcp-obsidian` first.
+4. **Check it.** Start Claude Code in the repo, `/mcp` should show `obsidian` connected; ask it to search the vault for "Character-Pipeline". If it does not connect: is Obsidian open, is the plugin enabled, is the key current? Put the error text in the log, never the key.
+5. **Turn on the Obsidian CLI.** Obsidian, Settings, General, enable the command line interface (Obsidian 1.12 or later; verify the label on the Mac) and follow the app's prompt to make `obsidian` available in Terminal. It talks to the running app over IPC, so Obsidian must be open. It gives `search`, `backlinks`, `daily:append` and `property:set`.
+6. **Optional: the skill pack.** `kepano/obsidian-skills` (the Obsidian CEO's pack, with an `obsidian-cli` skill). Type its install line yourself in Claude Code; a session does not install into itself.
+7. **Tell the Mac session** "Obsidian is connected". It verifies with reads and searches only, then sets the [[Tools-Status]] rows to in use ([[Board]]).
+
+While connected: the vault stays plain files in git, so commit before a session edits many notes (one author's agent changed 340 files in a vault with no backup). Writes through the MCP still follow the log rule and must leave `python3 -I tools/lint_vault.py` printing `vault: clean`. Close Obsidian for overnight runs as before; the sessions then use the files. Rotate the key (Regenerate in the plugin settings) if it was ever pasted anywhere.
+
+## Hooks proposal (not applied)
+
+Proposal for Ethan. **No session applies this.** Sessions never write their own Claude settings or permission rules, and this edits `.claude/settings.json` (today it holds only `enabledPlugins` and `extraKnownMarketplaces`, so the block below is added beside them). Ethan pastes it, amends it or throws it away. Why: CLAUDE.md is advisory, hooks are deterministic. In one reported test, a session with no repo-side instruction made zero vault calls and implemented a design the vault had recorded as explicitly rejected; that author's answer was these three hooks. Source: the same report section, [[Decisions]] B32.
+
+What it does:
+- `SessionStart` on `startup|resume|compact` prints [[Now]] into the session. The `compact` matcher matters: context a hook added earlier is summarised away at compaction, and the hook runs again.
+- `PostToolUse` on `Write|Edit` runs `python3 -I tools/lint_vault.py` when the touched path is under `docs/vault`. It checks the raw hook input for the path, so a note that merely mentions the path costs one cheap read-only lint. A broken link exits 2, which hands the message to Claude to fix.
+- `Stop` asks once for a log line when `src/` has uncommitted changes and `docs/vault/08-log/` has none (it stands down when the stop hook is already active, so it cannot loop).
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"$CLAUDE_PROJECT_DIR/docs/vault/00-start-here/Now.md\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if grep -q '/docs/vault/'; then cd \"$CLAUDE_PROJECT_DIR\" && python3 -I tools/lint_vault.py >&2 || exit 2; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "grep -q '\"stop_hook_active\": *true' && exit 0; cd \"$CLAUDE_PROJECT_DIR\" && if [ -n \"$(git status --porcelain -- src)\" ] && [ -z \"$(git status --porcelain -- docs/vault/08-log)\" ]; then echo 'src/ changed but the log did not: append your heading and bullets to docs/vault/08-log/ (CLAUDE.md, Vault logging).' >&2; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Check before trusting it: run each command by hand once with `CLAUDE_PROJECT_DIR` set to the repo, confirm `/hooks` lists the three, and watch the first session start. Path-scoped rules are a separate proposal that is not written: `.claude/rules/*.md` files with `paths:` frontmatter that load only when Claude touches `src/client/**` (read the [[UI-Playbook]] first), `src/shared/data/**` (every number lives in data) or `assets/models/**` (the [[Character-Pipeline]] rules).

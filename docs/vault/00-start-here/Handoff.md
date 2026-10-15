@@ -5,6 +5,8 @@ up: "[[Start-Here]]"
 ---
 # Handoff: everything about the Alien game, for the collaborator and their Claude
 
+**Starting a session?** Read [[Now]] first: one page with the state today (the launch is off), the bar and the open threads. This file is the background.
+
 **Launch day?** [[Launch-Dashboard]] is the one-screen state of play: what is live, what is waiting, what only Ethan can do. [[Start-Here]] is the map of the whole vault, one hub per folder.
 
 Written 2026-10-10 by Ethan's coordinator session, from the whole build conversation (2026-10-04 to 2026-10-10) and the repo at that date. This is the one file to read first. It says what the game is, what is built and verified, what is in progress, what comes next, every tool and id, how the work runs, and how Ethan and the collaborator stay in sync. Live status lives on [[Board]]; this file is the background and is updated when something lasting changes.

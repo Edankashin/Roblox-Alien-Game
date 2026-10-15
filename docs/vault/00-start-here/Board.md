@@ -39,6 +39,11 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Notes |
 |---|---|---|
+| Lighting: `src/shared/data/Lighting.luau` carries `LightingStyle` and `PrioritizeLightingQuality` instead of a Technology value; judge every night and weather look a second time with shadows off and Soft forced | | Cloud. [[Decisions]] B31. Start with a Studio probe: the data header says Lighting.Technology cannot be set from a script (TESTING milestone 22 sets Future by hand), so check whether the two new properties can be set from one; then `LightingDirector`, the TESTING step and [[Look-Plan]] (which still says Future) |
+| HUD rebuilt from the canvas, one screen per change, once Ethan picks a board | | Cloud. [Catch an Alien UI](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4), [[Claude-Design-Brief]], the phone rules in [[UI-Playbook]]; `Builder` and `Theme`, Scale only; the Playbook changes in the same commit. Waits on Ethan's pick |
+| The reveal's three beats: taps to crack, shards and rays in the rarity colour, the card with "1 in N (x%)" | | Cloud. `src/client/UI/Reveal.luau`; tap count, growth and durations in a new table under `src/shared/data`; strings keyed; the chance read from the odds table; the day-7 Epic egg first. [[UI-Playbook]] "Phone rules from the design research" |
+| Hybrid sculpt prototype on Moop, Sparkfox and Mitt: a fused core plus crisp features, a shaped mouth | | Cloud. [[Sculpt-Pass]], [[Character-Pipeline]] "The bar after the research"; `tools/blender/species_sculpt.py` on a scratch copy; Ethan looks at the sheet before any model is replaced |
+| Mac: after the Obsidian plugin is in, verify the connection (reads only) and set the Tools-Status rows to in use | | Mac. Waits on Ethan's install (Waiting on Ethan); [[Tools-Status]] "Added from the design research" |
 | Collaborator setup: clone, Rokit, Rojo plugin, Claude Code, Studio MCP, Obsidian; analyze clean, tests pass | Collab, Collab-Claude | [[Handoff]] 13.3; Ethan's own setup and the problems he hit in [[Setup-and-Tips]] |
 | Add the collaborator's Roblox user id to `src/shared/data/Admin.luau` `DeveloperUserIds` | Collab-Claude | One line; run the checks; commit |
 | Cold playtest of World 1 from a fresh profile, notes in `docs/playtests/<date>-<name>.md` | Collab | The most valuable input right now: where you were confused in the first 5 minutes, where you waited, what you wanted to tap |
@@ -68,6 +73,9 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Notes |
 |---|---|
+| **Obsidian connection** (about 10 minutes, Studio and Blender closed): install the "Local REST API" community plugin in Obsidian, enable the Obsidian CLI (Settings, General), and run the one `claude mcp add` line from Setup-and-Tips on the Mac | [[Setup-and-Tips]] "Obsidian connected to Claude"; the API key goes into that command only, never into a file; first run the `git check-ignore` line there |
+| **Approve or amend the hooks proposal** (SessionStart prints Now, PostToolUse lints vault writes, Stop asks for a log line), and say if the path-scoped rules should follow | [[Setup-and-Tips]] "Hooks proposal (not applied)"; no session applies it, it edits `.claude/settings.json` |
+| **Look at the Claude Design canvas and pick a board per screen** (HUD, Aliens, Shop, the reveal), plus the species sheet and thumbnail comps | [Catch an Alien UI](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4); [[Claude-Design-Brief]]; the rebuild rows in Next wait on it |
 | **Close the extra Roblox Studio windows on the Mac** (File > Close, Don't Save; keep one). Four windows wedged Studio's plugin lock at 09:40 EDT; every Studio job waits on it | [[2026-10-14]] Mac session; then tell the Mac session "Studio is back" or start a new one with the Overnight prompt |
 | Listen to the overnight music and sound picks in the place (nobody has heard them) | [[Music-Plan]] pick tables; swap a row by changing its id |
 | Launch morning checklist: join the private game on your phone, store page, Experience Questionnaire, Public, then tell the coordinator "public" | [[STORE-PAGE]] section 5 |
@@ -88,6 +96,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 **The weekend launch is off.** Ethan: "I'm not satisfied with launching the game right now given the designs and UI of the game." No new date until the creature designs read as seamless, complete characters and the UI meets the top games' bar. Research under way on how successful Roblox developers design models, worlds and UI, how they use Obsidian with Claude and Blender bridged to both, and how Claude Design fits (report: `reports/Roblox creature UI and Claude workflows.md`, notes in `research_notes/`). The 32 surfaced bodies stay un-uploaded; the private build (v90, v5, v4) stays as it is; the dashboard, group and clips wait.
 
+The plan from the research is in [[Decisions]] B27 to B33 and the hot note [[Now]]: one connected skin per creature by the hybrid fuse, the phone UI rules, Claude Design as the review surface, the lighting change, and the vault hooks and Obsidian connection as proposals for Ethan.
+
 ## Decided 2026-10-14 (Ethan)
 
 Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in week one. Make the group now (100 Robux), named **Moop Games** (the species rename gave the Mossbop its name Moop; the emblem banner reads MOOP, `media/group/emblem_v1.png`); the experience stays under Ethan's account for launch (decision 16). Ship the twelve unheard music picks and swap in week one. Max players 8. Open: the icon and thumbnail picks (Ethan is looking at them). The species rename is applied: the second-pass top picks, see [[Species-Names]] and decision B26.
@@ -99,6 +109,7 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 | Rejoin notifications (decision 20) | Opt-in card on session 2+, event text only, three a week at most, behind a Config flag |
 | Does a catch at the storage cap also pay its normal catch Scrap on top of the release value? | It does now; one line in `Economy.grantAlien` |
 | Refuse a Storage Bay purchase past the hard cap? | Cannot happen with Worlds 1 and 2 (max 640 of 1,500) |
+| Credits for the generator trial: one species prompt through Tripo P1, Meshy and Rodin, judged on the three ship checks | About 10 to 15 USD. Recommend yes for one species, to see whether a hero creature is worth generating; until then the fused roster is the safer choice ([[Character-Pipeline]], [[Tools-Status]]) |
 
 ## Done (newest first; the full history is PRE_PRODUCTION 5b and the logs)
 

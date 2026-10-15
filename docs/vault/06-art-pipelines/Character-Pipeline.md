@@ -234,3 +234,38 @@ Run them in Blender, headless, on the exported GLB; a pass is written into `note
 - https://github.com/microsoft/TRELLIS, https://github.com/Tencent-Hunyuan/Hunyuan3D-2 (README and LICENSE), https://github.com/wjakob/instant-meshes.
 - Search snippets, unverified: Meshy API pricing (docs.meshy.ai), Hyper3D pricing (hyper3d.ai/pricing, costbench.com), Tripo pricing and OpenAPI announcement (tripo3d.ai), TRELLIS.2 Apple Silicon port (korben.info, lilting.ch), Hunyuan3D on Mac (codersera.com, zenn.dev), Nano Banana pricing (myarchitectai.com, zenmux.ai), Luma Genie (llmreference.com), Adopt Me art (brandsuntapped.com), Blender skin modifier (pluralsight.com, gamedev.net), Blender remesh and retopology manual (docs.blender.org), Roblox mesh and AI-asset guidance (nilo.io, sloyd.ai, 3daistudio.com).
 - Spike runs: scratchpad only (`fluid.py`, `melt.py`), nothing in the repo changed.
+
+## The bar after the research (2026-10-15)
+
+Ethan called the launch off over the creatures and the UI ([[Decisions]] B27). The [report](../../../reports/Roblox%20creature%20UI%20and%20Claude%20workflows.md) (sections "Every cute pet grows from one cube, and rarity is a recolour" and "Script the creature build; use the Blender MCP only to look") confirms the answer in section 3 and sets the rules a species must meet. Our grammar (round body, big eyes, short limbs, one bold colour, the goofy eyes and open mouth kept) is the organic cute style: one cage, limbs extruded from it, one skin. Evidence is convergent community practice, not studio statements; no top studio says it ships generated pet meshes.
+
+**The creature rules (all must hold)**
+- One connected skin. Limbs and ears grow out of the body (extruded or blended), never placed as separate primitives that intersect and keep their own silhouette.
+- Limbs at least a quarter of the body width.
+- The face goes on the finished skin (ray cast onto it), not on a host primitive.
+- One material, or one shared palette, so no join carries a colour seam. Our slot colours are clean cut lines on one skin ([[Sculpt-Pass]]), never a join between parts.
+- Glow is a region planned into the mesh (a slot or a part), not painted afterwards: Adopt Me's per-species Neon regions are the model.
+- 1,000 to 2,500 triangles, and one 512 px texture or a shared palette per creature (Roblox's guide: 256 px for about 5 studs, 512 for 10, 1,024 for 20). Our cap stays 2,500.
+- Rarity is a recolour or a scale of the same mesh, never a new mesh (Pet Simulator 99 Golden, Rainbow, Shiny and Huge; Adopt Me Neon and Mega Neon; Grow a Garden mutations and weight classes).
+- Cute reads from the baby schema (big head, huge eyes set low, round cheeks, tiny nose, soft limbs) and restraint on detail.
+- Export: apply modifiers before export, Shade Smooth over the whole body, smooth by angle plus Weighted Normal written as custom normals into the GLB. The Bevel shader node is Cycles-only and never reaches Roblox.
+- No toon shader on Roblox: a single `Highlight` on a grouped model is the outline route (255 per client, so one outlined wild alien per creature in range is affordable).
+
+**The two "AI-made" failures, and their fixes**
+
+| Failure | What it looks like | Fix |
+|---|---|---|
+| Melted (generator output) | under-described features smoothed away, dense uneven triangles (raw output often above 50,000 against Roblox's 20,000 cap), a lighting-baked texture on throwaway UVs | specific prompts, multi-view input, then retopo and rebake (Tripo's `retopologize` with `targetFaces` and `quad`, or QuadriFlow or Decimate in Blender) |
+| Mashed (part-built) | separate primitives that intersect and keep their silhouettes: a crease at every join, which is the look Ethan rejected | structural only: the rules above. Smooth shading and a bevel cannot remove an intersection |
+
+Ours was the second kind. The roster stays scripted (fused from the recipes) rather than generated.
+
+**Use the Blender MCP to look, not build.** `mcp-for-blender` (the project's new name; it was `blender-mcp`; `.mcp.json` already runs it as `uvx mcp-for-blender`): `get_addon_status` and `get_scene_info` first, then `look` with `angles` (an auto-framed turnaround of up to six views) at 512 px to review. Builds stay headless `bpy` scripts: free, deterministic, versioned, and the only route that is fully scriptable, because no MCP or fork can sculpt (Blender operators need the GUI's area; blenderwright says strokes cannot be simulated). `look`'s rendered style is EEVEE and Workbench only, so review renders come from `preview.py`. `generate_3d` can cost credits: never without Ethan's yes. The socket has no authentication, and code execution runs in someone's open file: save first. A live session is seven moves: the two status calls, load the species sheet, run the checked-in builder, `look` with `angles`, critique against the three ship checks (section 3.5), change one parameter per pass for at most three passes, then the four hand fixes that always recur (thin parts blunted or split off, accessory placement, eye and mouth sinking, the triangle budget).
+
+**Tripo P1 plus retopologize: a trial, hero species only.** Tripo's v3 API has a dedicated low-poly model (`P1-20260311`), a `retopologize` tool and FBX or glTF conversion; one observer logged 40 credits and 76 seconds for a P1 low-poly text-to-3D (50 credits for the detailed model); the Professional plan is reported at $19.90 a month for 3,000 credits (third-party figures, unverified). In the Blender MCP's add-on Tripo is Premium-only, so the trial goes through Tripo's own API. The trial that answers "best for cute": one species prompt through Tripo P1, Meshy and Rodin, judged on the three ship checks, about 10 to 15 USD of credits. It costs credits and needs Ethan's yes ([[Tools-Status]]). Until it runs, the fused roster is the safer and better-evidenced choice. Ship nothing from a free tier without reading the current terms, and Roblox holds us responsible for AI-generated content.
+
+**The hybrid method the sculpt prototype points at.** [[Sculpt-Pass]] fused four species into one skin and showed both sides. Better: one continuous skin, a face carved in, silhouettes that hold at 64 px. Worse: definition (Sparkfox's tail became three bulges, Mitt's ears melted into the head, mouths read as small cutouts), thin or floating parts stayed shells (the same assembled look in a new place), metaballs cannot make a hard edge, and the triangles went to the cap. So neither version is finished. The method is the hybrid: a fused core (head, body, limbs, the thick tail root) as one skin, then the crisp features (ear points, tail tip, antlers, crystals, scarf) sculpted on with a blended base and a proper taper, a mouth that is shaped rather than cut, and the eyes set in. Hard-surface species (crystals, planks) take the remesh route with a crease angle. The next prototype is Moop (id Mossbop), Sparkfox and Mitt ([[Board]]); nothing replaces a model until Ethan says yes.
+
+**Animation without a rig at launch.** Idle, walk and hatch are tweened MeshPart motion and VFX from a data table. Keep QuadriFlow-style topology and at most four bone influences per vertex so a rig can be added later (a creature without a Humanoid needs an `AnimationController` with an `Animator`). Tripo's `rig_model` and `retarget_animation` are tried on hero species only. The Claude animation skills and the Blender Animations plugin target R6 and R15 humanoids and are the wrong tool for a quadruped or a blob.
+
+Claude Design draws the species sheet on top of our turnarounds but never supplies a mesh: [[Claude-Design-Brief]].
