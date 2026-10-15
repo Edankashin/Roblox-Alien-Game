@@ -5,7 +5,9 @@
     "hex": "5B6B85",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Fabric",
+    "texture": "fur"
   },
   {
     "slot": 2,
@@ -13,7 +15,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -26,7 +29,7 @@
   {
     "slot": 4,
     "name": "Mouth",
-    "hex": "2E0D14",
+    "hex": "E8685A",
     "roughness": 0.8,
     "metallic": 0.0,
     "emission": 0.0
@@ -42,10 +45,12 @@
   {
     "slot": 6,
     "name": "Accessory",
-    "hex": "BF6356",
+    "hex": "9CD3F0",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Ice",
+    "texture": "ice"
   },
   {
     "slot": 7,
@@ -53,6 +58,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

@@ -5,7 +5,9 @@
     "hex": "3FBFB0",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Ice",
+    "texture": "ice"
   },
   {
     "slot": 2,
@@ -13,7 +15,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -34,18 +37,20 @@
   {
     "slot": 5,
     "name": "BodyDark",
-    "hex": "297C72",
+    "hex": "E8785A",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Fabric"
   },
   {
     "slot": 6,
     "name": "Accessory",
-    "hex": "BF3F8E",
+    "hex": "CFF1FF",
     "roughness": 0.35,
-    "metallic": 1.0,
-    "emission": 0.0
+    "metallic": 0.0,
+    "emission": 1.2,
+    "material": "Neon"
   },
   {
     "slot": 7,
@@ -53,6 +58,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

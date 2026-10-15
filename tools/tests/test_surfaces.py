@@ -96,6 +96,33 @@ class MaterialsJson(unittest.TestCase):
                     self.assertEqual(entry.get("material"), materials.get(slot))
                     self.assertEqual(entry.get("glossy", False), slot in ("EyeWhite", "EyeHighlight"))
 
+    def test_the_frostbyte_species_follow_the_concept_list(self):
+        # Snow for the snow bodies, Ice for icicles and the iceberg shell, Fabric for scarves, caps and fur, Glass for the aurora
+        # crest, Neon for the glow parts and the ember, Metal for the kettle; every eye slot glossy and nothing else.
+        wanted = {
+            "Flufflet": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "Fabric"}, "Snowbun": {"Body": "Snow", "BodyDark": "Fabric"},
+            "Drippo": {"Body": "Ice", "BodyDark": "Ice", "Accessory": "Fabric"},
+            "Kettlepuff": {"Body": "Metal", "BodyDark": "Metal", "Accessory": "Metal"},
+            "Chipmole": {"Body": "Fabric", "Accessory": "Ice"}, "Pengoo": {"Body": "Fabric", "Accessory": "Fabric", "Belly": "Fabric"},
+            "Flapsicle": {"Body": "Fabric", "Accessory": "Ice"}, "Toastoad": {"Body": "Leather", "BodyDark": "Leather", "Accessory": "Pebble"},
+            "Emberchin": {"Body": "Pebble", "BodyDark": "Slate", "Accessory": "Neon"},
+            "Reindazzle": {"Body": "Fabric", "BodyDark": "Ice", "Accessory": "Neon"},
+            "Shellberg": {"Body": "Ice", "BodyDark": "Fabric", "Accessory": "Neon"}, "Capybubble": {"Body": "Fabric", "Accessory": "Neon"},
+            "Shimmerlynx": {"Body": "Fabric", "Accessory": "Neon", "Trim": "Fabric"},
+            "Frostfang": {"Body": "Fabric", "Accessory": "Ice", "Trim": "Fabric"},
+            "Skaddle": {"Body": "Snow", "BodyDark": "Fabric", "Accessory": "Ice", "Trim": "Neon"}, "Fenripup": {"Body": "Fabric", "Accessory": "Neon"},
+        }
+        self.assertEqual(len(wanted), 16)
+        for sid, materials in wanted.items():
+            entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}
+            for slot, entry in entries.items():
+                with self.subTest(model=sid, slot=slot):
+                    self.assertEqual(entry.get("material"), materials.get(slot))
+                    self.assertEqual(entry.get("glossy", False), slot in ("EyeWhite", "EyeHighlight"))
+                    if "texture" in entry:
+                        self.assertIn(entry["texture"], ("fur", "ice"))
+                        self.assertEqual(entry["texture"] == "ice", entry["material"] == "Ice")
+
     def test_a_regeneration_keeps_the_surface_fields(self):
         # alien_base.write_materials_entries cannot import here (it needs bpy), so read its rule from the source.
         source = (ROOT / "tools/blender/alien_base.py").read_text()

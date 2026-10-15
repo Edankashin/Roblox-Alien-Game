@@ -16,6 +16,8 @@ baked texture sets from assets/textures show side by side. See lit_main below.
 Usage: python3 tools/blender/preview.py [--models assets/models] [--species Mossbop,Radish] [--engine auto|workbench|cycles]
        blender -b -P tools/blender/preview.py -- --species Mossbop
        python3 tools/blender/preview.py --lit --models <surface build> --compare <plain build> --species Mossbop --out <folder>
+       python3 tools/blender/preview.py --lit --backdrop A9C7E6 --species Snowbun    # a pale blue sky and floor, so white snow species show
+The flat modes read a surface build too: the vertex-colour gradient in the GLB is unwired before the flat render (see slot_colour).
 """
 import argparse
 import json
@@ -48,6 +50,7 @@ def parse_args():
     ap.add_argument("--out", default="", help="--lit: where <Id>_surface.jpg goes (default: next to each GLB)")
     ap.add_argument("--size", type=int, default=512, help="--lit: pixels per side of one model's half of the image")
     ap.add_argument("--samples", type=int, default=64, help="--lit: Cycles samples")
+    ap.add_argument("--backdrop", default="", help="--lit: a hex colour (e.g. A9C7E6) for the sky and the floor instead of the warm cream, so white and pale species show")
     return ap.parse_args(argv)
 
 
@@ -152,6 +155,17 @@ def flat_colour(bsdf):
     return tuple(socket.default_value)[:3]
 
 
+def slot_colour(mat, bsdf):
+    """A material's own colour. A surface build (Surface-Pass.md) exports a vertex gradient, so the glTF importer wires the colour
+    factor into a Mix node that multiplies it by the vertex colour: read the factor there (white when the vertex colour goes straight in)."""
+    link = next((l for l in mat.node_tree.links if l.to_node == bsdf and l.to_socket.name == "Base Color"), None)
+    if link is None:
+        return tuple(bsdf.inputs["Base Color"].default_value)[:3]
+    if link.from_node.type == "MIX":
+        return tuple(link.from_node.inputs[7].default_value)[:3]
+    return (1.0, 1.0, 1.0)
+
+
 def flatten_materials(single=None):
     """Turn every imported material into emission-only so Cycles gives flat colours with no lighting."""
     for mat in bpy.data.materials:
@@ -195,7 +209,7 @@ def render_cycles(scene, path_colour, path_grey):
 SUN_DIRECTION = (-0.55, -0.45, 0.7)  # where the sun sits relative to the model: front-left and high, like the camera
 GLOSS_ROUGHNESS = 0.12  # a glossy slot (eyes, highlights): Roblox's SmoothPlastic with a Reflectance, drawn as a tight highlight
 ROUGH_MATERIAL = 0.9  # every other Roblox material, drawn matte: Blender cannot show Grass or Fabric, only the maps and the colour
-NEON_STRENGTH = 2.0
+NEON_STRENGTH = 1.0  # a glow part shows its own hue (2.0 clipped every light colour to cream)
 
 
 def principled_of(mat):
@@ -276,7 +290,18 @@ def surface_variant(obj, entries, textures_root):
     return notes
 
 
-def lit_scene(size):
+def backdrop_linear(text):
+    """A hex colour (sRGB) as the linear triple Blender wants, or None for the default warm cream backdrop."""
+    text = text.strip().lstrip("#")
+    if not re.fullmatch(r"[0-9A-Fa-f]{6}", text):
+        return None
+    def lin(v):
+        v /= 255.0
+        return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+    return tuple(lin(int(text[i:i + 2], 16)) for i in (0, 2, 4))
+
+
+def lit_scene(size, backdrop=None):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
@@ -298,8 +323,12 @@ def lit_scene(size):
     world = bpy.data.worlds.new("World")
     world.use_nodes = True
     bg = next(n for n in world.node_tree.nodes if n.type == "BACKGROUND")
-    bg.inputs["Color"].default_value = (1.0, 0.96, 0.86, 1.0)
-    bg.inputs["Strength"].default_value = 0.75
+    if backdrop is None:
+        bg.inputs["Color"].default_value = (1.0, 0.96, 0.86, 1.0)
+        bg.inputs["Strength"].default_value = 0.75
+    else:
+        bg.inputs["Color"].default_value = (backdrop[0], backdrop[1], backdrop[2], 1.0)
+        bg.inputs["Strength"].default_value = 1.0
     scene.world = world
     return scene
 
@@ -314,7 +343,8 @@ def lit_main(args, models):
     failures = []
     for sid in wanted:
         try:
-            scene = lit_scene(args.size)
+            backdrop = backdrop_linear(args.backdrop) if args.backdrop else None
+            scene = lit_scene(args.size, backdrop)
             scene.cycles.samples = args.samples
             entries = json.loads((models / sid / "materials.json").read_text())
             before = set(bpy.data.objects)
@@ -359,7 +389,8 @@ def lit_main(args, models):
             floor = bpy.context.active_object
             floor_mat = bpy.data.materials.new("Floor")
             floor_mat.use_nodes = True
-            principled_of(floor_mat).inputs["Base Color"].default_value = (0.93, 0.9, 0.82, 1.0)
+            floor_colour = (0.93, 0.9, 0.82, 1.0) if backdrop is None else (backdrop[0] * 0.8, backdrop[1] * 0.8, backdrop[2] * 0.8, 1.0)
+            principled_of(floor_mat).inputs["Base Color"].default_value = floor_colour
             principled_of(floor_mat).inputs["Roughness"].default_value = 1.0
             floor.data.materials.append(floor_mat)
             sun = bpy.data.lights.new("Sun", "SUN")

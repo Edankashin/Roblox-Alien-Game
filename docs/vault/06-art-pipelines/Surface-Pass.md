@@ -54,6 +54,31 @@ Body unless named. Every EyeWhite and EyeHighlight is `glossy`. The set in the l
 
 An explicit `material` beats the emission rule: Rocklobber's amber crystals and Panpipe's pipes shared their slot with the glow and lose it under Slate and Metal. If Ethan wants the glow back, set the slot to Neon (or split the crystals into their own slot in the recipe).
 
+### The sixteen Frostbyte, by concept (2026-10-15)
+
+Same rules: every EyeWhite and EyeHighlight is `glossy`, nothing else is. Snow for the snow bodies (no texture set: Roblox's own Snow sparkle), Ice with the `ice` set for icicles and the iceberg shell, Fabric for knitted parts (scarf, cap, collar, no texture: the weave is the point) and Fabric with the `fur` set for furry bodies, Glass for the aurora crest, Neon for the glow parts, Metal for the kettle. The tiling is the one in `data/Textures`; none of it shows until the ids are uploaded.
+
+| Species | Material per slot | Texture set |
+|---|---|---|
+| Flufflet | Body Snow, BodyDark Fabric (mittens), Accessory Fabric (the scarf) | none |
+| Snowbun | Body Snow, BodyDark Fabric | BodyDark fur |
+| Drippo | Body Ice, BodyDark Ice (legs, droplets), Accessory Fabric (the cap) | Body and BodyDark ice |
+| Kettlepuff | Body, BodyDark and Accessory Metal (enamel, lid, copper spout and handle) | none |
+| Chipmole | Body Fabric, Accessory Ice (the picks and chips) | Body fur, Accessory ice |
+| Pengoo | Body Fabric, Belly Fabric, Accessory Fabric (the backpack) | Body and Belly fur |
+| Flapsicle | Body Fabric, Accessory Ice (the blades) | Body fur, Accessory ice |
+| Toastoad | Body and BodyDark Leather (a wrinkled hide), Accessory Pebble | none |
+| Emberchin | Body Pebble, BodyDark Slate (the quills), Accessory Neon (the embers) | none |
+| Reindazzle | Body Fabric, BodyDark Ice (the antlers), Accessory Neon (the nose) | Body fur, BodyDark ice |
+| Shellberg | Body Ice (shell and skin), BodyDark Fabric (the cap), Accessory Neon (peaks, vein) | Body ice |
+| Capybubble | Body Fabric, Accessory Neon (the tangerine) | Body fur |
+| Shimmerlynx | Body Fabric, Accessory Glass (the aurora crest), Trim Fabric (the ruff) | Body fur |
+| Frostfang | Body Fabric, Accessory Ice (fangs, quills), Trim Fabric (the collar) | Body fur, Accessory ice |
+| Skaddle | Body Snow, BodyDark Fabric, Accessory Ice (tufts, skis), Trim Neon (halo) | BodyDark fur, Accessory ice |
+| Fenripup | Body Fabric, Accessory Neon (moon, stars) | Body fur |
+
+Two things to know. An explicit material beats the emission rule, so Shimmerlynx's Glass crest keeps its `emission` in `materials.json` but will not glow in Roblox (as Gloomoth's wings); set the slot to Neon if Ethan wants the aurora to glow. Kettlepuff's steam puffs and Capybubble's bubbles are in the `EyeWhite` slot (glossy white; the only white slot), so they take the gloss and no material.
+
 ## What changed and how to run it
 
 - Data: `assets/models/<Id>/materials.json` slots gain optional `material`, `texture`, `glossy`; `python3 -I tools/model_assets.py --write` carries them into `ModelAssets.Surfaces` (checked against `Textures`, the slot names and the material list); `src/shared/data/Textures.luau` holds the five rows (ids 0); `Config.ModelGlossReflectance` the gloss.
@@ -87,3 +112,4 @@ One set first: `--textures --only fur`, then `--emit-textures-luau --only fur` p
 **Rebuilt 2026-10-15 (here, with `bpy` 5.0.1, while the Mac slept; [[2026-10-15]]):** the 16 World 1 bodies are rebuilt in place with the surfaces on (smooth by angle, the bevel, the gradient `0.57 to 1.0`, UVs tiled), and `assets/models/<Id>/<Id>.png` is now the lit `preview.py --lit` render (512 px, the single-model form; `<Id>_grey.png` the black shape). All 16 on one sheet: `media/studio/2026-10-15/silhouette_world1_surface_previews.jpg`; the black shapes at 64 px: ![The 16 as black shapes](refs/surface-pass/world1-grey64.png). Two `preview.py` fixes came with it: a surface build wires the gradient into Base Color, so the flat and grey renders came out lit (the link is cut now), and the glowing slots glowed grey-white and a metallic Trim mirrored the world (the glow now takes the slot's `hex`, a Neon slot is never metallic). Still to do on the Mac: the probes above, the upload of the 16 and the Studio look.
 
 Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the re-upload of the 16, Frostbyte and the 19 non-World-1 species (their `materials.json` carry no surface fields yet), props.
+Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the rebuild and re-upload of the 16, the upload of the 16 Frostbyte bodies (built and carrying their surface fields since 2026-10-15; `ModelAssets.luau` needs `model_assets.py --write`), the three event species (their `materials.json` carry no surface fields yet), props. Review images: the lit sheet of the Frostbyte sixteen is `media/studio/2026-10-15/silhouette_world2_surface_previews.jpg` (rendered with `preview.py --lit --backdrop A9C7E6`, a pale blue sky and floor so the white species show).

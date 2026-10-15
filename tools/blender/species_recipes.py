@@ -207,7 +207,7 @@ def ellipsoid_point(c, s, ux, uy, uz):
 
 # ================================================================================================ the recipes
 # World 1 (Verdant): 16 full recipes, batch 1..5 = the order of tonight. The three Haunted Nebula event species were already
-# rebuilt by tools/blender/event_species.py. The Frostbyte 16 are stubs until next week.
+# rebuilt by tools/blender/event_species.py. The Frostbyte 16 follow the event stubs, between the FROSTBYTE markers (written 2026-10-15).
 
 RECIPES = {}
 
@@ -667,22 +667,429 @@ _stub("Spookum", "Epic", 1, "Cave", 0, 3.17, "a round ghost with eight scalloped
       "the scalloped hem and the pumpkin grin", _EVENT)
 _stub("Nebulyn", "Legendary", 1, "Meadow", 0, 3.52, "a puffy four-lobe cloud with two big bright eyes and a trailing tail of five gold stars curving up and back",
       "the star tail", _EVENT)
-_stub("Flufflet", "Common", 2, "Snowfield", 6, 2.64, "a tall snowball with a long knitted scarf whipping out behind and two mitten-shaped ears", "the knitted scarf, one trailing end")
-_stub("Snowbun", "Common", 2, "Snowfield", 6, 2.04, "a pear-shaped bunny with two long upright ears and a snowball tail bigger than its head, stacked in three balls", "the tail that keeps growing")
-_stub("Pengoo", "Uncommon", 2, "Snowfield", 7, 1.98, "a plump penguin lying flat on its belly mid-slide, flippers swept back, feet kicked up, a tiny backpack on its back", "the tiny backpack and the belly-slide pose")
-_stub("Reindazzle", "Rare", 2, "Snowfield", 8, 3.65, "a slender long-necked reindeer with a tall fan of icicle-spike antlers and a round glowing nose", "the icicle antlers and the blinking nose")
-_stub("Drippo", "Common", 2, "IceCave", 6, 2.11, "an upside-down teardrop: pointed top, round belly, two stubby legs, a loose droplet floating beside it", "the drip-drop body with its falling droplet")
-_stub("Chipmole", "Common", 2, "IceCave", 7, 1.98, "a squat digger with a pointed snout and two oversized pickaxe claws raised at its sides, ice chips round its feet", "the ice-pick claws")
-_stub("Flapsicle", "Uncommon", 2, "IceCave", 7, 1.76, "an upside-down bat hanging by tiny feet from nothing, wings folded round it like icicle blades (lowest point is the head at z = 0)", "the icicle wings and the hanging pose")
-_stub("Shellberg", "Rare", 2, "IceCave", 8, 2.76, "a tortoise under a huge jagged iceberg shell with crystal peaks, head peeking out in a little knitted cap", "the iceberg shell with its glowing blue vein")
-_stub("Shimmerlynx", "Epic", 2, "IceCave", 9, 3.82, "a sleek sitting lynx with big tufted ears, a cheek ruff and a fan of glowing aurora ribbons rising from its head", "the aurora crest")
-_stub("Kettlepuff", "Common", 2, "GeyserField", 6, 2.20, "a round kettle with a curved spout, a looped handle behind, a lid knob and a ring of steam puffs floating above", "the spout and the steam ring")
-_stub("Toastoad", "Uncommon", 2, "GeyserField", 7, 1.98, "a wide squat toad with bulging eye-bumps, a wrinkled ridged back and a lumpy pebble backpack", "the pebble backpack")
-_stub("Emberchin", "Uncommon", 2, "GeyserField", 8, 2.24, "a flat-topped dome urchin wearing a spiked rim of twelve horizontal ember-tipped quills like a sun-hat brim, mid-hop", "the ember-tipped quill brim")
-_stub("Capybubble", "Rare", 2, "GeyserField", 8, 2.98, "a long barrel-shaped capybara loafing low with a tangerine on its head and a string of bubbles rising from its snoring mouth", "the tangerine hat and the snore bubbles")
-_stub("Frostfang", "Epic", 2, "Snowfield", 9, 3.37, "a stocky sabre-tooth cub with two long icicle fangs hanging from a wide-open mouth and a spiked ruff of ice quills round its neck", "the icicle fangs")
-_stub("Skaddle", "Legendary", 2, "Snowfield", 9, 3.98, "an upright round snow owl with big frosty ear-tufts and wings out like ski poles, standing on two tiny skis, a snow-ring halo above", "the tiny skis and the frosty crest")
-_stub("Fenripup", "Cosmic", 2, "Snowfield", 9, 4.05, "a big floppy-eared puppy sitting, thick curled tail, a glowing crescent moon on its forehead and a ring of orbiting stars", "the forehead moon")
+# ==== FROSTBYTE BEGIN (the 16 World 2 recipes) ====
+# World 2 (Frostbyte): 16 full recipes, batch 6..9 = F1..F4 (docs/vault/06-art-pipelines/Silhouette-Pass.md). Rounded snow and ice, knitted
+# accessories, pale blues and whites with one warm accent per alien; coolness grows with the tier. The white puffs of Kettlepuff's steam and
+# Capybubble's bubbles use the EyeWhite slot (glossy white); no other slot in these recipes is white.
+
+
+def _euler_xyz(R):
+    """Blender's XYZ Euler angles in degrees for a 3x3 rotation matrix (R = Rz Ry Rx, the order euler_matrix builds)."""
+    b = -math.asin(max(-1.0, min(1.0, R[2][0])))
+    if abs(math.cos(b)) < 1e-6:
+        return (math.degrees(math.atan2(-R[1][2], R[1][1])), math.degrees(b), 0.0)
+    return (math.degrees(math.atan2(R[2][1], R[2][2])), math.degrees(b), math.degrees(math.atan2(R[1][0], R[0][0])))
+
+
+def _ribbon(slot, pts, widths, thick, name):
+    """A flat band along a polyline, one thin box per segment, so it reads as a knitted strip and not a string of beads. The broad face
+    stands upright (the width is in z, `widths` are half-heights) and the band is `thick` across the path in the ground plane."""
+    out = []
+    for i in range(len(pts) - 1):
+        a, b = pts[i], pts[i + 1]
+        d = _sub(b, a)
+        f = _unit(d)
+        y = _unit(_sub((0.0, 0.0, 1.0), _mul(f, f[2])))
+        x = _cross(y, f)
+        R = ((x[0], y[0], f[0]), (x[1], y[1], f[1]), (x[2], y[2], f[2]))
+        out.append(cube(slot, _mul(_add(a, b), 0.5), (thick, widths[i], _len(d) * 0.54), rot=_euler_xyz(R), name=name))
+    return out
+
+
+def _blade_chain(slot, base, tops, wobble, width, thick, name):
+    """A zigzag of flat cones rising from `base` to `tops` (z of the tip), swinging +-wobble in x: an aurora ribbon seen from the front."""
+    pts = [base]
+    n = 3
+    for i in range(1, n + 1):
+        t = i / float(n)
+        pts.append((base[0] + (wobble if i % 2 else -wobble) * (1.0 if i < n else 0.3), base[1], base[2] + (tops - base[2]) * t))
+    out = []
+    for i in range(n):
+        a, b = pts[i], pts[i + 1]
+        d = _sub(b, a)
+        last = i == n - 1
+        out.append(cone(slot, _mul(_add(a, b), 0.5), (width * (1.0 - 0.18 * i), thick, _len(d) / 2.0 * 1.05), rot=aim(d), tip=0.0 if last else 0.72, segments=4, flat=True, name=name))
+    return out
+
+
+# ---------------------------------------------------------------------------------------- F1: round commons (batch 6)
+_STREAMER = []  # the scarf's free end: a band that leaves the knot to the side and back and ripples as it goes
+for _i in range(10):
+    _u = _i / 9.0
+    _run, _sway = 2.2 * _u, 0.25 * math.sin(2.0 * math.pi * _u)
+    _STREAMER.append((-0.4 - 0.78 * _run - 0.62 * _sway, 0.68 + 0.62 * _run - 0.78 * _sway, 0.8 + 0.5 * _u + 0.2 * math.sin(2.0 * math.pi * _u * 1.3)))
+
+RECIPES["Flufflet"] = {
+    "tier": "Common", "world": 2, "biome": "Snowfield", "batch": 6, "status": "recipe", "height": 2.64,
+    "silhouette": "a tall snowball with a knitted coral scarf round its neck, one long streamer whipping out behind and to the side, and two blue mitten-shaped ears",
+    "hero": "the knitted scarf: a ring round the neck and one streamer flicking out with tassels",
+    "face": {"on": "body", "eye_scale": 1.2, "eye_gap": 0.92, "eye_tilt": -8.0, "mouth": "o", "lid": 0.25, "look": (0.06, 0.05)},
+    "palette": {"BodyDark": "9DB7D5", "Accessory": "FF7A59"},
+    "steps": [
+        sph("Body", (0, 0, 1.2), (0.9, 0.86, 1.1), segments=16, name="body"),
+        sph("BodyDark", (0.42, -0.3, 0.14), (0.32, 0.44, 0.16), segments=10, mirror=True, name="foot"),
+        tor("Accessory", (0, 0, 0.72), (0.86, 0.82, 0.86), minor=0.23, segments=16, mseg=5, name="scarf"),
+        sph("Accessory", (-0.4, 0.66, 0.78), (0.3, 0.28, 0.28), segments=8, name="knot"),
+        sph("BodyDark", (0.58, 0.05, 2.18), (0.25, 0.15, 0.4), rot=(0, 0, -20), segments=10, mirror=True, name="mitten"),
+        sph("BodyDark", (0.86, 0.05, 2.08), (0.12, 0.1, 0.18), rot=(0, 0, -50), segments=8, mirror=True, name="thumb"),
+    ] + _ribbon("Accessory", _STREAMER, [0.3, 0.3, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23], 0.06, "streamer")
+      + [cone("Accessory", (_STREAMER[-1][0] - 0.1 * k, _STREAMER[-1][1] - 0.08 * k, _STREAMER[-1][2] - 0.34), (0.05, 0.05, 0.2), rot=(180, 0, 0), segments=5, name="tassel") for k in (-1, 0, 1)],
+}
+
+RECIPES["Snowbun"] = {
+    "tier": "Common", "world": 2, "biome": "Snowfield", "batch": 6, "status": "recipe", "height": 2.04,
+    "silhouette": "a pear-shaped bunny sitting up with two long upright ears and a tail of three snowballs growing in a curl behind it, bigger than its head",
+    "hero": "the tail that keeps growing: three snowballs in a rising curl",
+    "face": {"on": "head", "eye_scale": 1.1, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.2},
+    "palette": {"BodyDark": "A9C3DD", "Accessory": "FF9EB5"},
+    "steps": [
+        sph("Body", (0, 0.15, 0.62), (0.88, 0.82, 0.62), segments=14, name="body"),
+        sph("Body", (0, -0.4, 1.0), (0.56, 0.52, 0.5), segments=14, name="head"),
+        sph("Body", (0.25, -0.3, 1.42), (0.13, 0.1, 0.62), rot=(0, 10, 0), segments=10, mirror=True, name="ear"),
+        sph("Accessory", (0.25, -0.37, 1.4), (0.07, 0.05, 0.47), rot=(0, 10, 0), segments=8, mirror=True, name="innerear"),
+        sph("BodyDark", (0.42, -0.5, 0.14), (0.28, 0.5, 0.14), segments=10, mirror=True, name="foot"),
+        sph("Accessory", (0, -0.92, 1.05), (0.08, 0.06, 0.07), segments=8, name="nose"),
+        sph("Body", (0, 0.95, 0.5), (0.5, 0.5, 0.5), segments=12, name="tail"),
+        sph("Body", (0, 1.4, 1.0), (0.4, 0.4, 0.4), segments=12, name="tail"),
+        sph("Body", (0, 1.65, 1.62), (0.33, 0.33, 0.33), segments=10, name="tail"),
+    ],
+}
+
+RECIPES["Drippo"] = {
+    "tier": "Common", "world": 2, "biome": "IceCave", "batch": 6, "status": "recipe", "height": 2.11,
+    "silhouette": "a tall drop with a round belly and a long pointed top wearing a tiny knitted cap with a pompom, two stubby legs and a small droplet floating beside it",
+    "hero": "the drip-drop body with its falling droplet",
+    "face": {"on": "belly", "eye_scale": 1.25, "eye_gap": 0.85, "eye_tilt": -10.0, "mouth": "o", "lid": 0.25},
+    "palette": {"BodyDark": "6FA9D6", "Accessory": "FF8E5B"},
+    "steps": [
+        sph("Body", (0, 0, 0.66), (0.8, 0.76, 0.58), segments=18, name="belly"),
+        spike("Body", (0, 0, 0.9), (0, 0, 1.98), 0.7, segments=16, name="point"),
+        cyl("BodyDark", (0.3, -0.1, 0.12), (0.2, 0.2, 0.12), segments=8, mirror=True, name="leg"),
+        rod("Accessory", (0, 0, 1.7), (0.18, 0, 2.0), 0.23, 0.14, segments=10, name="cap"),
+        rod("Accessory", (0.18, 0, 2.0), (0.44, 0, 1.9), 0.14, 0.07, segments=8, name="cap"),
+        tor("Accessory", (0, 0, 1.7), (0.23, 0.23, 0.23), minor=0.38, segments=12, mseg=5, name="cuff"),
+        sph("Accessory", (0.47, 0, 1.86), 0.1, segments=8, name="pompom"),
+        sph("BodyDark", (1.25, -0.1, 0.9), 0.2, segments=10, name="droplet"),
+        spike("BodyDark", (1.25, -0.1, 1.0), (1.25, -0.1, 1.45), 0.15, segments=10, name="droplettip"),
+        sph("BodyDark", (-1.05, 0.2, 0.5), 0.12, segments=8, name="droplet"),
+        spike("BodyDark", (-1.05, 0.2, 0.56), (-1.05, 0.2, 0.8), 0.09, segments=8, name="droplettip"),
+    ],
+}
+
+RECIPES["Kettlepuff"] = {
+    "tier": "Common", "world": 2, "biome": "GeyserField", "batch": 6, "status": "recipe", "height": 2.20,
+    "silhouette": "a squat round kettle with a long upswept copper spout on one side, a looped handle on the other, a domed lid with a knob and a ring of six steam puffs floating above",
+    "hero": "the spout and the steam ring",
+    "face": {"on": "body", "eye_scale": 1.5, "eye_gap": 0.95, "eye_tilt": 0.0, "mouth": "o", "look": (0.0, 0.08)},
+    "palette": {"BodyDark": "9F9A92", "Accessory": "E8793A"},
+    "steps": [
+        sph("Body", (0, 0, 0.62), (1.05, 1.0, 0.62), segments=20, name="body"),
+        sph("BodyDark", (0, 0, 1.2), (0.6, 0.58, 0.2), segments=12, name="lid"),
+        sph("BodyDark", (0, 0, 1.48), 0.13, segments=8, name="knob"),
+        rod("Accessory", (0.8, 0, 0.62), (1.45, 0, 0.95), 0.24, 0.16, segments=8, name="spout"),
+        rod("Accessory", (1.45, 0, 0.95), (1.85, 0, 1.45), 0.16, 0.11, segments=8, name="spout"),
+        tor("Accessory", (-1.15, 0.1, 0.75), (0.5, 0.5, 0.5), rot=(90, 0, 0), minor=0.3, segments=14, mseg=5, name="handle"),
+    ] + [sph("EyeWhite", (0.6 * math.cos(math.radians(a)), 0.6 * math.sin(math.radians(a)), 1.95), 0.2 + 0.05 * (i % 2), segments=8, name="steam")
+         for i, a in enumerate(range(0, 360, 60))],
+}
+
+# ---------------------------------------------------------------------------------------- F2: limbs and props (batch 7)
+RECIPES["Chipmole"] = {
+    "tier": "Common", "world": 2, "biome": "IceCave", "batch": 7, "status": "recipe", "height": 1.98,
+    "silhouette": "a squat mole with a pointed snout and both arms raised, each fist gripping a tall pickaxe with a double-ended ice head, ice chips scattered round its feet",
+    "hero": "the ice-pick claws, raised like a cheer",
+    "face": {"on": "body", "eye_scale": 0.85, "eye_gap": 0.95, "eye_tilt": 8.0, "mouth": "wide", "lid": 0.3},
+    "palette": {"BodyDark": "3B4656", "Accessory": "9CD3F0", "Mouth": "E8685A"},
+    "steps": [
+        sph("Body", (0, 0.1, 0.85), (1.05, 0.95, 0.78), segments=16, name="body"),
+        spike("BodyDark", (0, -0.8, 0.98), (0, -1.3, 0.94), 0.15, segments=8, name="snout"),
+        sph("BodyDark", (0.55, -0.35, 0.13), (0.32, 0.42, 0.14), segments=10, mirror=True, name="foot"),
+        rod("Body", (0.85, -0.05, 1.05), (1.12, -0.18, 1.3), 0.2, 0.17, segments=7, mirror=True, name="arm"),
+        sph("Body", (1.14, -0.2, 1.36), 0.25, segments=10, mirror=True, name="fist"),
+        rod("BodyDark", (1.14, -0.2, 0.9), (1.14, -0.2, 1.8), 0.14, segments=6, mirror=True, name="handle"),
+        rod("Accessory", (1.14, -0.2, 1.8), (1.55, -0.2, 1.8), 0.2, 0.15, segments=6, mirror=True, flat=True, name="pick"),
+        spike("Accessory", (1.55, -0.2, 1.8), (1.95, -0.2, 1.42), 0.15, segments=6, mirror=True, flat=True, name="pick"),
+        rod("Accessory", (1.14, -0.2, 1.8), (0.78, -0.2, 1.8), 0.2, 0.15, segments=6, mirror=True, flat=True, name="pick"),
+        spike("Accessory", (0.78, -0.2, 1.8), (0.5, -0.2, 1.45), 0.15, segments=6, mirror=True, flat=True, name="pick"),
+        ico("Accessory", (0.95, -0.85, 0.12), 0.15, segments=1, flat=True, mirror=True, name="chip"),
+        ico("Accessory", (0.4, -1.2, 0.1), 0.13, segments=1, flat=True, mirror=True, name="chip"),
+        sph("BodyDark", (0, 1.0, 0.4), (0.2, 0.24, 0.18), segments=8, name="tail"),
+    ],
+}
+
+RECIPES["Pengoo"] = {
+    "tier": "Uncommon", "world": 2, "biome": "Snowfield", "batch": 7, "status": "recipe", "height": 1.98,
+    "silhouette": "a plump penguin lying flat on its belly mid-slide, head up in front, flippers swept back, orange feet kicked up behind, a tiny box backpack on its back",
+    "hero": "the tiny backpack and the belly-slide pose",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.1, "eye_tilt": -6.0, "mouth": "wide", "lid": 0.1, "eye_height": 0.62},
+    "palette": {"BodyDark": "1C293C", "Accessory": "FF8A3D"},
+    "steps": [
+        sph("Body", (0, 0.35, 0.68), (0.8, 1.35, 0.68), segments=16, name="body"),
+        sph("Body", (0, -1.0, 0.95), (0.62, 0.6, 0.58), segments=16, name="head"),
+        sph("Belly", (0, -0.45, 0.4), (0.66, 0.9, 0.4), segments=14, name="belly"),
+        sph("BodyDark", (1.0, 0.35, 0.72), (0.1, 0.75, 0.28), rot=(15, 0, -17), segments=10, mirror=True, name="flipper"),
+        cone("Accessory", (0.5, 1.75, 1.2), (0.32, 0.09, 0.45), rot=(160, 0, 10), segments=5, mirror=True, name="foot"),
+        spike("BodyDark", (0, 1.55, 0.6), (0, 2.15, 0.85), 0.22, segments=6, name="tail"),
+        cube("Accessory", (0, 0.6, 1.55), (0.4, 0.3, 0.34), name="backpack"),
+        cube("BodyDark", (0, 0.6, 1.9), (0.42, 0.32, 0.05), name="flap"),
+    ],
+}
+
+RECIPES["Flapsicle"] = {
+    "tier": "Uncommon", "world": 2, "biome": "IceCave", "batch": 7, "status": "recipe", "height": 1.76,
+    "silhouette": "an upside-down bat hanging by two tiny pink toes with nothing above them, wings folded round it as four hanging icicle blades, big pink ears, the head at the bottom",
+    "hero": "the icicle wings and the hanging pose",
+    "face": {"on": "head", "eye_scale": 1.1, "eye_gap": 1.0, "eye_tilt": -8.0, "mouth": "smile", "lid": 0.35},
+    "palette": {"BodyDark": "F28DA6", "Accessory": "9FE3FF"},
+    "steps": [
+        sph("Body", (0, -0.1, 0.58), (0.62, 0.58, 0.58), segments=16, name="head"),
+        sph("Body", (0, 0.1, 1.2), (0.7, 0.62, 0.52), segments=14, name="body"),
+        spike("BodyDark", (0.4, -0.05, 0.9), (1.05, 0.0, 1.38), 0.25, segments=6, mirror=True, name="ear"),
+        spike("Accessory", (0.62, 0.1, 1.55), (1.15, 0.0, 0.15), 0.32, segments=5, flat=True, mirror=True, name="blade"),
+        spike("Accessory", (0.4, 0.45, 1.5), (0.7, 0.5, 0.35), 0.26, segments=5, flat=True, mirror=True, name="blade"),
+        sph("BodyDark", (0.14, 0.1, 1.68), (0.1, 0.12, 0.1), segments=8, mirror=True, name="toe"),
+    ],
+}
+
+RECIPES["Toastoad"] = {
+    "tier": "Uncommon", "world": 2, "biome": "GeyserField", "batch": 7, "status": "recipe", "height": 1.98,
+    "silhouette": "a very wide squat toad with two eye bumps under heavy lids, three wrinkle ridges across its back, bent hind legs and a lumpy cluster of blue pebbles on its back",
+    "hero": "the pebble backpack",
+    "face": {"on": "head", "eye_scale": 1.4, "eye_gap": 1.2, "eye_tilt": -4.0, "mouth": "wide", "lid": 0.4},
+    "palette": {"BodyDark": "974926", "Accessory": "9FB3C8"},
+    "steps": [
+        sph("Body", (0, 0.35, 0.72), (1.2, 1.0, 0.7), segments=12, name="body"),
+        sph("Body", (0, -0.55, 0.82), (1.0, 0.7, 0.6), segments=12, name="head"),
+        sph("Body", (0.5, -0.7, 1.3), 0.3, segments=8, mirror=True, name="eyebump"),
+        sph("Body", (1.0, 0.75, 0.52), (0.4, 0.65, 0.45), segments=8, mirror=True, name="thigh"),
+        sph("BodyDark", (1.05, 0.05, 0.1), (0.32, 0.5, 0.1), segments=8, mirror=True, name="foot"),
+        sph("BodyDark", (0.7, -1.05, 0.1), (0.28, 0.4, 0.1), segments=8, mirror=True, name="foot"),
+        ico("Accessory", (0, 0.9, 1.58), 0.4, segments=1, flat=True, name="pebble"),
+        ico("Accessory", (0.5, 0.85, 1.35), 0.3, segments=1, flat=True, mirror=True, name="pebble"),
+        ico("Accessory", (0.25, 1.2, 1.3), 0.28, segments=1, flat=True, mirror=True, name="pebble"),
+        ico("Accessory", (0, 0.45, 1.5), 0.27, segments=1, flat=True, name="pebble"),
+    ],
+}
+for _dy in (0.0, 0.42, 0.8):
+    _f = math.sqrt(1.0 - (_dy / 1.0) ** 2)
+    RECIPES["Toastoad"]["steps"].append(tor("BodyDark", (0, 0.35 + _dy, 0.72), (1.2 * _f * 1.02, 0.7 * _f * 1.01, 1.2 * _f * 1.02), rot=(90, 0, 0),
+                                            minor=0.07, segments=12, mseg=4, name="ridge"))
+
+# ---------------------------------------------------------------------------------------- F3: rims, fans and shells (batch 8)
+RECIPES["Emberchin"] = {
+    "tier": "Uncommon", "world": 2, "biome": "GeyserField", "batch": 8, "status": "recipe", "height": 2.24,
+    "silhouette": "a round urchin mid-hop wearing a cocked sun-hat: a small crown and a wide brim of twelve horizontal quills ending in glowing embers, one leg lifted",
+    "hero": "the ember-tipped quill brim",
+    "face": {"on": "body", "eye_scale": 1.15, "eye_gap": 1.0, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.25, "eye_height": 0.5},
+    "palette": {"BodyDark": "A66730", "Accessory": "FFD23F"}, "glow": {"Accessory": 2.5},
+    "steps": [
+        sph("Body", (0, 0, 1.0), (0.95, 0.9, 0.78), segments=16, name="body"),
+        sph("BodyDark", (0, 0, 1.62), (0.6, 0.58, 0.45), half="top", segments=12, name="crown"),
+        ico("Accessory", (0, 0, 2.1), 0.13, segments=1, flat=True, name="crownember"),
+        cyl("BodyDark", (-0.45, -0.1, 0.2), (0.2, 0.2, 0.2), segments=8, name="leg"),
+        rod("BodyDark", (0.5, -0.05, 0.42), (0.7, -0.5, 0.32), 0.2, 0.16, segments=8, name="leg"),
+        sph("BodyDark", (0.72, -0.58, 0.26), (0.26, 0.34, 0.12), segments=8, name="foot"),
+    ],
+}
+for _k in range(12):
+    _a = math.radians(15.0 + 30.0 * _k)
+    _c, _s = math.cos(_a), math.sin(_a)
+    _tilt = 0.2  # the brim is cocked: one side lower
+    RECIPES["Emberchin"]["steps"].append(rod("BodyDark", (0.5 * _c, 0.5 * _s, 1.62 + _tilt * 0.5 * _c), (1.4 * _c, 1.4 * _s, 1.52 + _tilt * 1.4 * _c),
+                                             0.22, 0.07, segments=5, flat=True, name="quill"))
+    RECIPES["Emberchin"]["steps"].append(ico("Accessory", (1.5 * _c, 1.5 * _s, 1.5 + _tilt * 1.5 * _c), 0.19, segments=1, flat=True, name="ember"))
+
+_ANTLER_FAN = []
+for _ang, _ln in ((-10, 0.9), (12, 0.96), (34, 0.9), (56, 0.76), (76, 0.58)):
+    _b = (0.25, -1.05, 2.66)
+    _d = (math.sin(math.radians(_ang)), 0.0, math.cos(math.radians(_ang)))
+    _ANTLER_FAN.append(spike("BodyDark", _b, _add(_b, _mul(_d, _ln)), 0.18, segments=5, flat=True, mirror=True, name="antler"))
+
+RECIPES["Reindazzle"] = {
+    "tier": "Rare", "world": 2, "biome": "Snowfield", "batch": 8, "status": "recipe", "height": 3.65,
+    "silhouette": "a slender reindeer prancing, body tilted up, front legs folded in the air, back legs trailing, a long neck, a tall fan of ten icicle spikes for antlers and a big round glowing nose",
+    "hero": "the icicle antlers and the glowing nose",
+    "face": {"on": "head", "eye_scale": 1.0, "eye_gap": 1.0, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.3, "mouth_drop": 0.32},
+    "palette": {"BodyDark": "8795AD", "Accessory": "FF6B4A"}, "glow": {"Accessory": 2.0}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0, 0.4, 1.4), (0.72, 1.15, 0.62), rot=(-20, 0, 0), segments=14, name="bodytilt"),
+        rod("Body", (0, -0.7, 1.7), (0, -1.05, 2.1), 0.34, 0.24, segments=7, name="neck"),
+        sph("Body", (0, -1.2, 2.36), (0.5, 0.56, 0.46), segments=14, name="head"),
+        sph("Accessory", (0, -1.8, 2.36), 0.2, segments=10, name="nose"),
+        sph("Body", (0.55, -1.05, 2.51), (0.3, 0.1, 0.14), rot=(0, 0, 20), segments=8, mirror=True, name="ear"),
+        rod("Body", (0.32, 1.4, 1.25), (0.4, 1.78, 0.14), 0.18, 0.11, segments=6, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.4, 1.8, 0.09), (0.13, 0.17, 0.1), segments=6, mirror=True, name="hoof"),
+        rod("Body", (0.34, -0.5, 1.55), (0.45, -1.0, 1.3), 0.17, 0.12, segments=6, mirror=True, name="foreleg"),
+        rod("Body", (0.45, -1.0, 1.3), (0.5, -1.1, 0.95), 0.12, 0.1, segments=6, mirror=True, name="foreleg"),
+        sph("BodyDark", (0.5, -1.12, 0.9), (0.12, 0.16, 0.1), segments=6, mirror=True, name="hoof"),
+        sph("BodyDark", (0, 1.75, 1.3), 0.2, segments=8, name="tail"),
+    ] + _ANTLER_FAN,
+}
+
+RECIPES["Shellberg"] = {
+    "tier": "Rare", "world": 2, "biome": "IceCave", "batch": 8, "status": "recipe", "height": 2.76,
+    "silhouette": "a tortoise under a huge jagged iceberg shell crowned with six glowing crystal peaks, its head peeking out of the front in a little knitted cap with a pompom",
+    "hero": "the iceberg shell with its glowing crystal peaks and vein",
+    "face": {"on": "head", "eye_scale": 1.1, "eye_gap": 1.0, "eye_tilt": -10.0, "mouth": "smile", "lid": 0.35, "eye_height": 0.5},
+    "palette": {"BodyDark": "E8785A", "Accessory": "CFF1FF"}, "glow": {"Accessory": 1.2}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0, 0.2, 0.55), (1.1, 1.25, 0.55), segments=14, name="body"),
+        ico("Body", (0, 0.35, 0.98), (1.4, 1.5, 0.88), rot=(4, 0, 6), segments=2, flat=True, name="shell"),
+        sph("Body", (0, -1.45, 0.62), (0.55, 0.55, 0.5), segments=14, name="head"),
+        cyl("Body", (0.8, -0.7, 0.25), (0.3, 0.3, 0.25), segments=8, mirror=True, name="leg"),
+        cyl("Body", (0.85, 1.0, 0.25), (0.3, 0.3, 0.25), segments=8, mirror=True, name="leg"),
+        sph("BodyDark", (0, -1.45, 0.98), (0.56, 0.54, 0.44), half="top", segments=12, name="cap"),
+        tor("BodyDark", (0, -1.45, 0.99), (0.54, 0.52, 0.54), minor=0.26, segments=14, mseg=4, name="cuff"),
+        sph("BodyDark", (0, -1.45, 1.46), 0.13, segments=8, name="pompom"),
+        spike("Accessory", (0, 0.45, 1.55), (0.05, 0.5, 2.76), 0.44, segments=5, flat=True, name="peak"),
+        spike("Accessory", (0.62, 0.1, 1.5), (0.95, 0.05, 2.45), 0.32, segments=5, flat=True, mirror=True, name="peak"),
+        spike("Accessory", (0.65, 0.95, 1.4), (0.98, 1.15, 2.3), 0.3, segments=5, flat=True, mirror=True, name="peak"),
+        spike("Accessory", (0, 1.15, 1.35), (0, 1.4, 2.2), 0.28, segments=5, flat=True, name="peak"),
+        spike("Accessory", (0.95, -0.4, 1.2), (1.3, -0.45, 1.8), 0.22, segments=5, flat=True, mirror=True, name="peak"),
+        tor("Accessory", (0, 0.35, 0.98), (1.41, 1.52, 1.3), minor=0.05, segments=16, mseg=4, name="vein"),
+    ],
+}
+
+RECIPES["Capybubble"] = {
+    "tier": "Rare", "world": 2, "biome": "GeyserField", "batch": 8, "status": "recipe", "height": 2.98,
+    "silhouette": "a long barrel-shaped capybara loafing low with a tangerine on its head and a string of growing bubbles rising up and to the side from its snoring mouth",
+    "hero": "the tangerine hat and the snore bubbles",
+    "face": {"on": "head", "eye_scale": 1.0, "eye_gap": 1.2, "eye_tilt": -6.0, "mouth": "o", "lid": 0.45},
+    "palette": {"BodyDark": "927F68", "Accessory": "FF8A1F"}, "glow": {"Accessory": 1.0}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0, 0.45, 0.88), (1.0, 1.35, 0.88), segments=14, name="barrel"),
+        sph("Body", (0, -1.2, 0.95), (0.82, 0.8, 0.7), segments=14, name="head"),
+        sph("BodyDark", (0.55, -0.9, 1.55), (0.18, 0.1, 0.14), segments=8, mirror=True, name="ear"),
+        sph("BodyDark", (0.6, -0.5, 0.1), (0.28, 0.4, 0.1), segments=8, mirror=True, name="foot"),
+        sph("BodyDark", (0.65, 1.3, 0.1), (0.28, 0.4, 0.1), segments=8, mirror=True, name="foot"),
+        sph("Accessory", (0, -1.1, 1.95), 0.42, segments=12, name="tangerine"),
+        spike("BodyDark", (0, -1.1, 2.3), (0, -1.1, 2.5), 0.07, segments=6, name="stem"),
+        sph("BodyDark", (0.22, -1.1, 2.42), (0.2, 0.08, 0.1), rot=(0, 0, 20), segments=8, name="leaf"),
+        sph("EyeWhite", (0.2, -2.15, 0.7), 0.1, segments=8, name="bubble"),
+        sph("EyeWhite", (0.5, -2.2, 1.1), 0.14, segments=8, name="bubble"),
+        sph("EyeWhite", (0.85, -2.1, 1.6), 0.19, segments=10, name="bubble"),
+        sph("EyeWhite", (1.15, -1.95, 2.15), 0.25, segments=10, name="bubble"),
+        sph("EyeWhite", (1.2, -1.8, 2.68), 0.3, segments=12, name="bubble"),
+    ],
+}
+
+# ---------------------------------------------------------------------------------------- F4: the top four (batch 9)
+_AURORA = []
+for _x, _top, _wob in ((-0.42, 3.4, 0.12), (-0.21, 3.66, -0.12), (0.0, 3.82, 0.12), (0.21, 3.62, -0.12), (0.42, 3.36, 0.12)):
+    _AURORA += _blade_chain("Accessory", (_x, -0.2, 2.85), _top, _wob, 0.16, 0.04, "aurora")
+
+RECIPES["Shimmerlynx"] = {
+    "tier": "Epic", "world": 2, "biome": "IceCave", "batch": 9, "status": "recipe", "height": 3.82,
+    "silhouette": "a sleek lynx sitting bolt upright on long front legs, tall tufted ears, a pink cheek ruff, and five waving aurora ribbons of different heights rising from between its ears",
+    "hero": "the aurora crest: five glowing ribbons of glass",
+    "face": {"on": "head", "eye_scale": 1.15, "eye_gap": 1.1, "eye_tilt": 14.0, "mouth": "smile", "lid": 0.3, "mouth_scale": 0.85},
+    "palette": {"BodyDark": "827E9C", "Accessory": "5CF0D0"}, "glow": {"Accessory": 1.5},
+    "steps": [
+        sph("Body", (0, 0.55, 0.75), (0.85, 0.95, 0.75), segments=14, name="haunch"),
+        sph("Body", (0, 0.0, 1.45), (0.62, 0.6, 0.95), segments=14, name="torso"),
+        sph("Body", (0, -0.2, 2.35), (0.78, 0.7, 0.6), segments=16, name="head"),
+        tor("Trim", (0, -0.1, 1.85), (0.82, 0.76, 0.82), minor=0.3, segments=14, mseg=5, name="ruff"),
+        spike("Trim", (0.55, -0.3, 2.2), (1.15, -0.25, 1.95), 0.18, segments=6, mirror=True, name="cheek"),
+        spike("Trim", (0.5, -0.3, 2.1), (1.0, -0.3, 1.6), 0.16, segments=6, mirror=True, name="cheek"),
+        rod("Body", (0.3, -0.35, 1.35), (0.32, -0.62, 0.14), 0.17, 0.13, segments=6, mirror=True, name="foreleg"),
+        sph("BodyDark", (0.32, -0.7, 0.1), (0.2, 0.3, 0.1), segments=8, mirror=True, name="paw"),
+        spike("Body", (0.45, -0.1, 2.7), (0.58, -0.05, 3.3), 0.27, segments=6, mirror=True, name="ear"),
+        spike("BodyDark", (0.58, -0.05, 3.2), (0.62, -0.02, 3.6), 0.1, segments=5, mirror=True, name="eartuft"),
+        sph("BodyDark", (0, 1.5, 0.4), (0.2, 0.26, 0.2), segments=8, name="tail"),
+    ] + _AURORA,
+}
+
+_RUFF = []
+for _k in range(5):
+    _ph = math.radians(90.0 + 27.5 * _k)
+    _c, _s = math.cos(_ph), math.sin(_ph)
+    _RUFF.append(spike("Accessory", (0.72 * _c, 0.05 + 0.72 * _s, 1.75), (1.5 * _c, 0.05 + 1.5 * _s, 2.55), 0.22, segments=5, flat=True, mirror=(_k > 0), name="quill"))
+
+RECIPES["Frostfang"] = {
+    "tier": "Epic", "world": 2, "biome": "Snowfield", "batch": 9, "status": "recipe", "height": 3.37,
+    "silhouette": "a stocky sabre-tooth cub on all fours with an oversized head, two long icicle fangs hanging far below its open mouth and a spiked collar of nine ice quills round its neck",
+    "hero": "the icicle fangs",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.1, "eye_tilt": 12.0, "mouth": "zigzag", "lid": 0.3, "mouth_scale": 1.2},
+    "palette": {"BodyDark": "487797", "Accessory": "E8F7FF", "Mouth": "C94F3D"},
+    "steps": [
+        sph("Body", (0, 0.45, 1.05), (1.05, 1.0, 0.9), segments=14, name="body"),
+        sph("Body", (0, -0.45, 2.3), (1.0, 0.9, 0.85), segments=16, name="head"),
+        tor("Trim", (0, -0.05, 1.7), (0.9, 0.85, 0.9), minor=0.2, segments=14, mseg=5, name="collar"),
+        sph("Body", (0.7, -0.3, 3.05), (0.3, 0.2, 0.3), segments=8, mirror=True, name="ear"),
+        sph("BodyDark", (0.6, -0.9, 0.2), (0.3, 0.42, 0.2), segments=8, mirror=True, name="paw"),
+        sph("BodyDark", (0.75, 1.2, 0.2), (0.32, 0.45, 0.2), segments=8, mirror=True, name="foot"),
+        sph("Body", (0, 1.5, 0.8), (0.3, 0.3, 0.3), segments=8, name="tail"),
+        spike("Accessory", (0.38, -1.3, 2.2), (0.4, -1.34, 1.05), 0.17, segments=6, mirror=True, name="fang"),
+            ] + _RUFF,
+}
+
+RECIPES["Skaddle"] = {
+    "tier": "Legendary", "world": 2, "biome": "Snowfield", "batch": 9, "status": "recipe", "height": 3.98,
+    "silhouette": "an upright round snow owl on two tiny skis, frosty ice tufts on its head under a floating gold halo, and long wings held out and down like a pair of ski poles with baskets",
+    "hero": "the tiny skis and the frosty crest",
+    "face": {"on": "body", "eye_scale": 1.5, "eye_gap": 0.9, "eye_tilt": 0.0, "mouth": "o", "look": (0.0, 0.06)},
+    "palette": {"BodyDark": "A9C5E0", "Accessory": "8FD8FF"},
+    "steps": [
+        sph("Body", (0, 0, 1.95), (1.2, 1.1, 1.25), segments=18, name="body"),
+        rod("BodyDark", (0.4, -0.1, 0.95), (0.42, -0.1, 0.4), 0.14, segments=6, mirror=True, name="leg"),
+        cube("Accessory", (0.42, -0.1, 0.24), (0.28, 1.15, 0.05), rot=(-9, 0, 0), mirror=True, name="ski"),
+        cube("Trim", (0.42, -0.1, 0.37), (0.2, 0.2, 0.07), mirror=True, name="binding"),
+        spike("Accessory", (0.55, -0.1, 3.0), (0.95, -0.1, 3.75), 0.3, segments=6, flat=True, mirror=True, name="tuft"),
+        spike("Accessory", (0, -0.1, 3.1), (0, -0.1, 3.55), 0.2, segments=6, flat=True, name="crest"),
+        tor("Trim", (0, 0, 3.88), (0.78, 0.78, 0.78), minor=0.13, segments=16, mseg=5, name="halo"),
+    ],
+}
+
+
+def _wing_pole(shoulder, tip):
+    """One wing held out and down like a ski pole: the pole, a flat feathered vane over its upper part and a basket near the tip."""
+    d = _sub(tip, shoulder)
+
+    def along(u):
+        return _add(shoulder, _mul(d, u))
+    return [rod("Accessory", shoulder, tip, 0.08, 0.05, segments=6, mirror=True, name="pole"),
+            sph("BodyDark", along(0.3), (0.26, 0.07, 0.78), rot=aim(d), segments=10, mirror=True, name="wing"),
+            tor("Accessory", along(0.86), (0.22, 0.22, 0.22), minor=0.22, segments=12, mseg=4, mirror=True, name="basket")]
+
+
+RECIPES["Skaddle"]["steps"] += _wing_pole((1.05, 0.05, 2.3), (2.05, 0.1, 0.35))
+
+_STARS = []
+for _phi in (30, 120, 210, 300):
+    _pr = math.radians(_phi)
+    _c = (0.0, 0.3, 2.3)
+    _sp = (_c[0] + 2.1 * math.cos(_pr), _c[1] + 2.1 * math.sin(_pr) * math.cos(math.radians(25)), _c[2] + 2.1 * math.sin(_pr) * math.sin(math.radians(25)))
+    _STARS.append(cone("Accessory", (_sp[0], _sp[1], _sp[2] + 0.18), (0.28, 0.28, 0.18), rot=(0, 0, 45), segments=4, flat=True, name="star"))
+    _STARS.append(cone("Accessory", (_sp[0], _sp[1], _sp[2] - 0.18), (0.28, 0.28, 0.18), rot=(180, 0, 45), segments=4, flat=True, name="star"))
+_MOON = []
+for _i, (_th, _rr) in enumerate(((95, 0.07), (123, 0.13), (151, 0.18), (180, 0.2), (209, 0.18), (237, 0.13), (265, 0.07))):
+    _mx = 0.12 + 0.32 * math.cos(math.radians(_th))
+    _mz = 3.66 + 0.32 * math.sin(math.radians(_th))
+    _my = -0.3 - 0.92 * math.sqrt(max(0.05, 1.0 - _mx ** 2 - ((_mz - 3.15) / 0.9) ** 2)) - 0.03  # on the head's surface
+    _MOON.append(sph("Accessory", (_mx, _my, _mz), _rr, segments=8, name="moon"))
+
+RECIPES["Fenripup"] = {
+    "tier": "Cosmic", "world": 2, "biome": "Snowfield", "batch": 9, "status": "recipe", "height": 4.05,
+    "silhouette": "a big floppy-eared puppy sitting with a huge head, a thick tail curling up behind it, a glowing crescent moon on its forehead and four star shapes orbiting round it",
+    "hero": "the forehead moon",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.25, "eye_height": 0.56},
+    "palette": {"BodyDark": "261E46", "Accessory": "FFC83D"}, "glow": {"Accessory": 3.0},
+    "steps": [
+        sph("Body", (0, 0.5, 0.95), (1.15, 1.2, 0.95), segments=14, name="haunch"),
+        sph("Body", (0, -0.05, 1.7), (0.95, 0.9, 1.1), segments=14, name="torso"),
+        sph("Body", (0, -0.3, 3.15), (1.0, 0.92, 0.9), segments=18, name="head"),
+        rod("Body", (0.45, -0.55, 1.5), (0.48, -0.9, 0.12), 0.25, 0.2, segments=7, mirror=True, name="foreleg"),
+        sph("BodyDark", (0.48, -1.0, 0.12), (0.3, 0.4, 0.14), segments=8, mirror=True, name="paw"),
+        sph("BodyDark", (0.9, -0.4, 0.14), (0.35, 0.55, 0.15), segments=8, mirror=True, name="foot"),
+        sph("BodyDark", (1.05, -0.2, 2.8), (0.28, 0.16, 0.7), rot=(0, -10, 0), segments=8, mirror=True, name="ear"),
+        sph("Body", (0, 1.5, 0.6), 0.45, segments=8, name="tail"),
+        sph("Body", (0, 1.95, 0.95), 0.4, segments=8, name="tail"),
+        sph("Body", (0, 2.1, 1.5), 0.36, segments=8, name="tail"),
+        sph("Body", (0, 1.95, 2.0), 0.32, segments=8, name="tail"),
+        sph("BodyDark", (0, 1.6, 2.25), 0.3, segments=8, name="tailtip"),
+    ] + _MOON + _STARS,
+}
+# ==== FROSTBYTE END ====
 
 
 # ================================================================================================ the engine
@@ -929,11 +1336,11 @@ def check(sid):
 
 
 def ids_for(spec):
-    """Ids from a comma list, 'world1' (every recipe), 'batchN' or 'all'."""
+    """Ids from a comma list, 'world1' or 'world2' (every recipe of that world), 'batchN' or 'all'."""
     out = []
     for token in [t.strip() for t in spec.split(",") if t.strip()]:
-        if token in ("all", "world1"):
-            out += [k for k, v in RECIPES.items() if v["status"] == "recipe" and (token == "all" or v["world"] == 1)]
+        if token in ("all", "world1", "world2"):
+            out += [k for k, v in RECIPES.items() if v["status"] == "recipe" and (token == "all" or v["world"] == int(token[5:]))]
         elif re.fullmatch(r"batch\d+", token):
             out += [k for k, v in RECIPES.items() if v["batch"] == int(token[5:])]
         elif token in RECIPES:

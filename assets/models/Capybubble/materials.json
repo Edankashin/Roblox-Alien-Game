@@ -5,7 +5,9 @@
     "hex": "E0C3A0",
     "roughness": 0.8,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "material": "Fabric",
+    "texture": "fur"
   },
   {
     "slot": 2,
@@ -13,7 +15,8 @@
     "hex": "FFFFFF",
     "roughness": 0.5,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   },
   {
     "slot": 3,
@@ -42,10 +45,11 @@
   {
     "slot": 6,
     "name": "Accessory",
-    "hex": "65DAE0",
+    "hex": "FF8A1F",
     "roughness": 0.35,
-    "metallic": 1.0,
-    "emission": 0.0
+    "metallic": 0.0,
+    "emission": 1.0,
+    "material": "Neon"
   },
   {
     "slot": 7,
@@ -53,6 +57,7 @@
     "hex": "FFFFFF",
     "roughness": 0.3,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "glossy": true
   }
 ]

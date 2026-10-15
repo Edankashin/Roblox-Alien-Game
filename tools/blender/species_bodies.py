@@ -18,7 +18,7 @@ output this script wrote before the pass.
 
   python3 tools/blender/species_recipes.py                  # no Blender needed: check every recipe first
   blender -b -P tools/blender/species_bodies.py -- --species Mossbop,Pebblet,Puffpuff
-  blender -b -P tools/blender/species_bodies.py -- --species batch1            # a whole batch (1..5), or world1
+  blender -b -P tools/blender/species_bodies.py -- --species batch1            # a whole batch (1..9), or world1 / world2
   python3 tools/blender/species_bodies.py --species batch1 --models /some/copy # plain Python with the bpy module
   python3 tools/blender/preview.py --species Mossbop,Pebblet,Puffpuff          # then look at the renders
   blender -b -P tools/blender/species_bodies.py -- --species Mossbop --no-surface    # the pre-surface output
@@ -58,7 +58,7 @@ class OverBudget(RuntimeError):
 def parse_args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     ap = argparse.ArgumentParser(description="Rebuild species bodies from tools/blender/species_recipes.py")
-    ap.add_argument("--species", required=True, help="comma list of ids, or batchN, or world1")
+    ap.add_argument("--species", required=True, help="comma list of ids, or batchN (1..9), or world1 / world2")
     ap.add_argument("--models", default=str(ROOT / "assets/models"), help="models folder (default assets/models)")
     ap.add_argument("--no-surface", action="store_true",
                     help="skip the Surface pass (smoothing, bevel, vertex gradient, UV tiling): the pre-pass output")

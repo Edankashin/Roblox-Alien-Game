@@ -36,24 +36,48 @@ class RecipeCoverage(unittest.TestCase):
                 self.assertGreater(rec["height"], 1.0)
                 self.assertIn(rec["status"], ("recipe", "TODO"))
 
-    def test_the_sixteen_world_one_recipes_are_full_and_the_rest_are_stubs(self):
+    def test_the_sixteen_world_one_and_sixteen_frostbyte_recipes_are_full_and_the_rest_are_stubs(self):
         full = [k for k, v in sr.RECIPES.items() if v["status"] == "recipe"]
-        self.assertEqual(len(full), 16)
+        self.assertEqual(len(full), 32)
         for sid in full:
-            self.assertEqual(sr.RECIPES[sid]["world"], 1)
-            self.assertIn(sr.RECIPES[sid]["batch"], (1, 2, 3, 4, 5))
-        for sid, rec in sr.RECIPES.items():
-            if rec["status"] == "TODO":
-                self.assertEqual(rec["steps"], [])
-                self.assertIn("TODO", rec["todo"])
+            world, batch = sr.RECIPES[sid]["world"], sr.RECIPES[sid]["batch"]
+            self.assertIn(world, (1, 2))
+            self.assertIn(batch, (1, 2, 3, 4, 5) if world == 1 else (6, 7, 8, 9), sid)
+        self.assertEqual(sum(1 for k in full if sr.RECIPES[k]["world"] == 1), 16)
+        self.assertEqual(sum(1 for k in full if sr.RECIPES[k]["world"] == 2), 16)
+        stubs = [k for k, v in sr.RECIPES.items() if v["status"] == "TODO"]
+        self.assertEqual(sorted(stubs), ["Nebulyn", "Spookum", "Wisplet"])  # the Haunted Nebula species keep their event bodies
+        for sid in stubs:
+            self.assertEqual(sr.RECIPES[sid]["steps"], [])
+            self.assertIn("TODO", sr.RECIPES[sid]["todo"])
 
     def test_batches_are_three_or_four_species(self):
         counts = {}
         for rec in sr.RECIPES.values():
             if rec["status"] == "recipe":
                 counts[rec["batch"]] = counts.get(rec["batch"], 0) + 1
-        self.assertEqual(sorted(counts), [1, 2, 3, 4, 5])
+        self.assertEqual(sorted(counts), [1, 2, 3, 4, 5, 6, 7, 8, 9])
         self.assertTrue(all(3 <= n <= 4 for n in counts.values()), counts)
+
+    def test_world_and_batch_ids_pick_the_right_species(self):
+        self.assertEqual(len(sr.ids_for("world1")), 16)
+        self.assertEqual(len(sr.ids_for("world2")), 16)
+        self.assertEqual(sr.ids_for("batch6"), ["Flufflet", "Snowbun", "Drippo", "Kettlepuff"])
+        self.assertEqual(set(sr.ids_for("world1")) & set(sr.ids_for("world2")), set())
+        self.assertEqual(len(sr.ids_for("all")), 32)
+
+    def test_every_frostbyte_species_has_a_full_recipe_at_its_notes_height(self):
+        text = (ROOT / "src/shared/data/Species.luau").read_text()
+        world2 = re.findall(r'\{ id = "(\w+)"[^\n]*world = 2', text)
+        self.assertEqual(sorted(world2), sorted(k for k, v in sr.RECIPES.items() if v["world"] == 2))
+        for sid in world2:
+            with self.subTest(sid):
+                self.assertEqual(sr.RECIPES[sid]["status"], "recipe")
+                self.assertAlmostEqual(sr.RECIPES[sid]["height"], sr.notes_height(sid), delta=0.005)
+
+    def test_the_frostbyte_silhouette_lines_are_all_different(self):
+        lines = [v["silhouette"] for v in sr.RECIPES.values() if v["world"] == 2]
+        self.assertEqual(len(lines), len(set(lines)))
 
 
 class RecipeChecks(unittest.TestCase):
