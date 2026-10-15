@@ -5,6 +5,8 @@ up: "[[Start-Here]]"
 ---
 # Board: who is doing what
 
+**Ethan: every open decision and every row with your name is laid out in [[Decide-Now]], answered by number.**
+
 The shared to-do list for Ethan, the collaborator and every Claude or Codex session. Background for every row is in [[Handoff]]. Updated by whoever changes a row, in its own small commit, so the other person sees it after a `git pull`.
 
 Launch state on one screen: [[Launch-Dashboard]]. Every folder of the vault has a hub, mapped from [[Start-Here]].

@@ -11,6 +11,7 @@ The front door of the vault, and the map of maps. A new teammate or a new Claude
 ## In this folder
 
 - [[Now]]: the hot note, 300 to 500 words: what the game is, the state today (launch off, and why), the bar, the three open threads, who owns what, where to read next. Read it on every start.
+- [[Decide-Now]]: Ethan's 36 open questions and rows in five groups, each with options, a recommendation and the next step, ending in a paste-back Answer sheet. Read it when you are Ethan and want to decide by number.
 - [[Launch-Dashboard]]: one screen for Ethan: the date, what is live, what is built and waiting, what only he can do, the decisions of 2026-10-14. Read it first on any working day.
 - [[Handoff]]: the whole project in one file (people, the game, numbers, ids, the repo, the rules, tools, what is done and what comes next). Read it once, completely; return to its section 15 to find anything else.
 - [[Board]]: the shared to-do list for Ethan, the collaborator and every session. Read it at the start of a working block and claim a row before you work on it.
