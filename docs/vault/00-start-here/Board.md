@@ -77,6 +77,8 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Roster redesign 4: the ladder applied to auras and the reveal (`AlienFx` reads Tiers, `UI/Reveal.luau` beats per tier with a `data/Reveal.luau`, `CameraDirector`, per-tier stingers in `Sounds.luau`, plate styles in `Builder`) | | Cloud. [[Roster-Redesign]] section 1; shares the reveal table with the B29 three-beats row above; the Playbook updated in the same change |
 | Roster redesign 5: the hero slate, one per week in the order of the note (Raiju, Qilin, Kerbos, Pegasi, Sphinx, Airava after the two prototypes) | | Cloud and Mac. [[Roster-Redesign]] section 3; waits on Ethan's confirmation of the slate and B37 |
 | Roster redesign 6: the Studio check on a phone (a TESTING milestone: iPhone SE and iPad, a dozen wild aliens with a Cosmic, `perf_report.py` numbers, Reduced Motion on and off, two reveals filmed) | | Mac. [[Roster-Redesign]] section 7 step 6; numbers into [[Performance]] |
+| **GAP** from [[Asks-Ledger]]: the design reference ZPLSHwXqp (Ethan, 2026-10-14 night: "look at how this TikTok does their designs; replicate it and use the same skills"): run `python3 tools/watch_video.py media/tiktok/ZPLSHwXqp.mp4` with `SHERPA_WHISPER_DIR` set, read the sheets, write its section in `media/tiktok/NOTES.md`, and say what the hybrid sculpt or the surface pass takes from it | | Cloud. Downloaded by the Mac (job 25, 9bc248d; jubydandev, 16 s), never watched or noted |
+| **GAP** from [[Asks-Ledger]]: the X-post half of the 2026-10-15 research ("YouTube videos and TikToks and X posts about how successful Roblox developers designed their models and UI"): no note cites X. Run one pass through the Mac's browser (the cloud cannot reach x.com), add what it finds to `research_notes/Roblox creature UI and Claude workflows/`, or close the row with Ethan's word to drop it | | Cloud or Mac; one hour at most |
 
 ## Waiting on Ethan (only he can do these)
 
@@ -102,6 +104,12 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | The stray place 82258778278086: keep or delete | |
 | ~~Publish the three places privately~~ | Done 2026-10-14 by the Mac session (overnight job 6: world1 v89, world2 v4, home v3) |
 | Experience Questionnaire, maturity answers, then going public | Identity and legal steps are his |
+| **GAP** from [[Asks-Ledger]]: **allow `tiktok.com`, `tiktokcdn.com` and `tiktokcdn-us.com`** in this cloud environment's network settings (the environment menu, Edit, Network access, Allowed domains; leave "Allow package managers" on), so the coordinator fetches the links you send itself | Asked 2026-10-04 ("find any way to watch the TikToks I send you"); suggested 2026-10-07 and 2026-10-14, never applied; today every link waits for the Mac. Optional, two minutes |
+| **Names v3**: a letter per species (A, B or C) or your own names, and your call on the seven near-misses and Pegasi | [[Roster-Redesign]] section 5, [[Species-Names]] "Collision screen (2026-10-15)"; you said on 2026-10-15 you would name them yourself if the alternatives were not better |
+| **Look at the sheets** and say which direction is right before any model is replaced: the hybrid sculpt pass 2 (all 35), Fenrir v2 and Skydrake, the UV bake; confirm the hero slate and the "creatures, not deities" line | [[Sculpt-Pass]], [[Hero-Aliens]], [[Surface-Pass]], [[Decisions]] B37; copies in `media/studio/2026-10-15/` |
+| **Pick the icon and the thumbnail order**, or say "use yours" | [[Thumbnail-Research]]; `media/store/2026-10-15/`; open since 2026-10-14 |
+| **The Mac's 2026-10-15 transcript**: say whether it is exported and what to redact | [[Overnight]] job 31; [[Transcripts]] |
+| When the launch date is set: **link your Mac to the coordinator** (Devices in the composer) so it fills the Creator Dashboard from the run sheet, checks the Open Cloud key and creates the group Moop Games (100 Robux; say yes to the spend) | `docs/STORE-PAGE.md` 5d, [[Group-Page]], [[Launch-Dashboard]]; you asked for this on 2026-10-14; parked while the launch is off |
 
 ## Decided 2026-10-15 (Ethan)
 
@@ -122,6 +130,7 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 | Does a catch at the storage cap also pay its normal catch Scrap on top of the release value? | It does now; one line in `Economy.grantAlien` |
 | Refuse a Storage Bay purchase past the hard cap? | Cannot happen with Worlds 1 and 2 (max 640 of 1,500) |
 | Credits for the generator trial: one species prompt through Tripo P1, Meshy and Rodin, judged on the three ship checks | About 10 to 15 USD. Recommend yes for one species, to see whether a hero creature is worth generating; until then the fused roster is the safer choice ([[Character-Pipeline]], [[Tools-Status]]) |
+| **GAP** from [[Asks-Ledger]]: working through the usage limit. The limit stopped the work six times between 2026-10-05 and 2026-10-15, twice on the night you asked for it to run uninterrupted; your 2026-10-05 OmniRoute ask was skipped on terms and the question never came back to you | Options in [[Claude-Plugins]] "Keeping working when the subscription limit is hit": (a) an Anthropic API key in the Mac shell for the overnight runs, billed per use, the same models, or (b) accept the resets and plan the nights around them. Pooled accounts and model routers are out (terms). Recommend (a) for overnight runs only, with a monthly cap you set |
 
 ## Done (newest first; the full history is PRE_PRODUCTION 5b and the logs)
 

@@ -26,4 +26,4 @@ The hot note: read this first on every start, then the notes it points to. Keep 
 - Git is the only memory the team shares. A session's auto memory is personal scratch; a decision counts when it is in [[Decisions]].
 - One system per change; numbers in `src/shared/data`, strings in `src/shared/strings`, Scale never Offset.
 
-**Read next.** [[Handoff]] (the whole project), [[Board]] (who does what), [[Launch-Dashboard]] (the state on one screen), [[UI-Playbook]], [[Character-Pipeline]], [[Transcripts]] (the coordinator's chat with Ethan, one note per day).
+**Read next.** [[Handoff]] (the whole project), [[Board]] (who does what), [[Asks-Ledger]] (Ethan's asks since 2026-10-04 and their status), [[Launch-Dashboard]] (the state on one screen), [[UI-Playbook]], [[Character-Pipeline]], [[Transcripts]] (the coordinator's chat with Ethan, one note per day).

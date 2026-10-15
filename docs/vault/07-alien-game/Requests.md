@@ -7,6 +7,8 @@ up: "[[Alien-Game]]"
 
 Every ask from the team, in order, and where it landed, so nothing said in a session is lost between sessions. Add a row per ask; close it with the milestone, page or decision that holds it.
 
+Since 2026-10-15 the complete ledger is [[Asks-Ledger]] in `00-start-here`: every ask, decision, preference, idea and promise from Ethan's own words in the [[Transcripts]], 2026-10-04 to today, with a status each and the gaps on the [[Board]]. This note stops at 2026-10-12 and is kept as it was; new rows go there.
+
 | Date | Ask (Ethan) | Where it lives | State |
 |---|---|---|---|
 | 2026-10-04 | Build the vertical slice milestone by milestone, tested in Studio through the Mac session | `docs/PRE_PRODUCTION.md` 5b, `docs/TESTING.md` | ongoing (milestones 1 to 23) |
