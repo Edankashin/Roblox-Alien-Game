@@ -12,6 +12,7 @@ What the engine taught us, written so it is only learned once. Several of these 
 - [[Data-Tables]]: shapes in `src/shared/data` that code can walk safely (no string keys in numeric-row tables). Read it before adding a table.
 - [[UI-Rules]]: the engine rules for UI (Scale not Offset, strokes, safe areas). Read it with [[UI-Playbook]] before a screen.
 - [[Species-Effects]]: every alien's own effect and idle motion, drawn from `data/Effects`: Beams for lightning, emitter rate caps (100 a second on a phone), the nearest 12 aliens only, Reduced Motion, and why the idle offset is composed by the renderer. Read it before touching `World/SpeciesFx` or adding a species.
+- [[SurfaceAppearance-Capability]]: a Script cannot create a SurfaceAppearance (lacking capability Plugin); Rojo ships one per `Textures` row as `.model.json` and the loader clones it. Read it before touching texture maps or `Services/Models`.
 - [[Lighting-Style]]: `LightingStyle` and `PrioritizeLightingQuality` supersede `Technology`; quality below 4 forces Soft with no shadows, so every night and weather grade is checked twice. Read it before changing a look in `data/Lighting.luau`.
 
 ## Audits and budgets

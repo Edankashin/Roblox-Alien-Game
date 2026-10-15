@@ -189,6 +189,8 @@ return {
 	ModelWorkerScale = 1, -- multiplier on the mesh's own size for station workers, on top of Camp.WorkerScale
 	ModelViewportScale = 1, -- multiplier on the mesh's own size in the Reveal card and the Codex pedestal
 	ModelGlossReflectance = 0.25, -- MeshPart.Reflectance (0 to 1) for a model slot marked glossy in its materials.json (eyes, highlights): a soft environment sheen on SmoothPlastic, the cheap specular dot (Surface-Pass.md layer A)
+	SurfaceTemplatesFolderName = "SurfaceTemplates", -- ReplicatedStorage.Shared.<this>.<Textures key>: one prebuilt SurfaceAppearance per data/Textures row (Rojo builds them from src/shared/SurfaceTemplates, tools/surface_templates.py); Services/Models clones one onto each textured slot, because a Script cannot create its own (SurfaceAppearance-Capability.md)
+	SurfaceTemplatesWaitSeconds = 3, -- boot waits at most this long for that folder; after that textures are skipped with one warning and the parts keep their plain look
 
 	-- Field Notes and the Warden
 	ShrineInteractDistance = 14, -- studs from the shrine centre to offer "Sound the horn"

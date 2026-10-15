@@ -9,7 +9,8 @@
 -- Each load ports the installer exactly: pick the Model out of the loaded container, name it, colour its MeshParts
 -- from ModelAssets.Materials (slot order, ModelInstall.SlotOf / Order / MaterialFor, the part renamed to the row's
 -- name after colouring; a slot with a ModelAssets.Surfaces row then gets its Material, Reflectance and, once its texture
--- ids are uploaded, a SurfaceAppearance, all planned by ModelInstall.SurfacePlan), normalise (every BasePart
+-- ids are uploaded, a SurfaceAppearance cloned from the Rojo-built template of its texture, all planned by
+-- ModelInstall.SurfacePlan), normalise (every BasePart
 -- Anchored; a creature also CanCollide and CanQuery off; a prop with no Materials rows gets Neon on its glow-named
 -- MeshParts), then parent it to its folder. A name whose folder already
 -- holds a Model of that name is "present" and skipped: that is the Studio case, where the hand-installed models stay
@@ -102,21 +103,41 @@ local function pickModel(container: Instance): Model?
 end
 
 -- The texture maps as a SurfaceAppearance child of the part, tinted by the part's own colour (the maps are near-white
--- detail shared by every species). The properties are set before it is parented, and a failure (the engine can refuse
--- a script-made SurfaceAppearance) leaves the part as it was and warns once.
-local appearanceWarned = false
-local function addAppearance(part: MeshPart, maps: ModelInstall.SurfaceMaps)
+-- detail shared by every species). A Script cannot create one: Instance.new("SurfaceAppearance") then setting a map fails
+-- with "lacking capability Plugin" (docs/vault/04-roblox-engine/SurfaceAppearance-Capability.md). So this clones the
+-- template Rojo shipped for the texture key (ReplicatedStorage.Shared.<Config.SurfaceTemplatesFolderName>.<key>, generated
+-- from data/Textures by tools/surface_templates.py) and writes only Color, the one property a Script may set. There is no
+-- Instance.new fallback: it fails the same way in a Studio Play session, and this loader never runs in Edit mode. A missing
+-- folder or template leaves the part as it was and warns once for that problem.
+local templatesFolder: Instance? = nil -- resolved once by Init
+local templateWarned: { [string]: boolean } = {}
+
+local function warnTemplateOnce(problem: string)
+	if templateWarned[problem] then
+		return
+	end
+	templateWarned[problem] = true
+	warn(("[%s] Models: %s; textured parts keep their plain look (rojo build ships src/shared/SurfaceTemplates; python3 -I tools/surface_templates.py --write rebuilds it)"):format(Config.WorkingTitle, problem))
+end
+
+local function addAppearance(part: MeshPart, textureKey: string)
+	local folder = templatesFolder
+	if not folder then
+		warnTemplateOnce(("ReplicatedStorage.Shared.%s is missing"):format(Config.SurfaceTemplatesFolderName))
+		return
+	end
+	local template = folder:FindFirstChild(textureKey)
+	if not template or not template:IsA("SurfaceAppearance") then
+		warnTemplateOnce(("%s has no SurfaceAppearance named %s"):format(folder:GetFullName(), textureKey))
+		return
+	end
 	local ok, reason = pcall(function()
-		local appearance = Instance.new("SurfaceAppearance")
-		appearance.ColorMap = ("rbxassetid://%d"):format(maps.colorMap)
-		appearance.NormalMap = ("rbxassetid://%d"):format(maps.normalMap)
-		appearance.RoughnessMap = ("rbxassetid://%d"):format(maps.roughnessMap)
+		local appearance = template:Clone()
 		appearance.Color = part.Color
 		appearance.Parent = part
 	end)
-	if not ok and not appearanceWarned then
-		appearanceWarned = true
-		warn(("[%s] Models: a SurfaceAppearance could not be added (%s); parts keep their plain look"):format(Config.WorkingTitle, tostring(reason)))
+	if not ok then
+		warnTemplateOnce(("cloning the %s template failed (%s)"):format(textureKey, tostring(reason)))
 	end
 end
 
@@ -148,15 +169,16 @@ local function applyMaterials(model: Model, name: string, rows: { { string | num
 		local slotName = row[1] :: string
 		part.Color = Color3.fromHex(row[2] :: string)
 		local base = ModelInstall.MaterialFor(metallic, emission, ModelAssets.NeonEmissionAbove, ModelAssets.MetalMetallicFrom)
-		local plan = ModelInstall.SurfacePlan(base, if surfaces then surfaces[slotName] else nil, textureRows, Config.ModelGlossReflectance)
+		local spec = if surfaces then surfaces[slotName] else nil
+		local plan = ModelInstall.SurfacePlan(base, spec, textureRows, Config.ModelGlossReflectance)
 		part.Material = materialByName[plan.material] or materialByName[base]
 		if plan.reflectance > 0 then
 			part.Reflectance = plan.reflectance
 		end
 		part.Name = slotName
-		local maps = plan.maps
-		if maps then
-			addAppearance(part, maps)
+		local textureKey = if spec then spec.texture else nil
+		if plan.maps and textureKey then -- the plan has maps only when all three ids in data/Textures are uploaded
+			addAppearance(part, textureKey)
 		end
 		coloured += 1
 	end
@@ -350,6 +372,8 @@ function Models.Init()
 		return
 	end
 	modelsFolder, propsFolder = models, props
+	-- Rojo builds this folder into the place, so it is there at once; the wait only covers a place built without it.
+	templatesFolder = Shared:WaitForChild(Config.SurfaceTemplatesFolderName, Config.SurfaceTemplatesWaitSeconds)
 
 	local names: { string } = {}
 	for name in pairs(assetIds) do

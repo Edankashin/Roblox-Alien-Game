@@ -60,10 +60,54 @@ class GeneratedTable(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("passed", result.stdout)
 
+    def test_surface_templates_are_fresh(self):
+        # The SurfaceAppearance templates Rojo ships (src/shared/SurfaceTemplates/<key>.model.json) are generated from data/Textures.
+        result = subprocess.run([sys.executable, "-I", "tools/surface_templates.py", "--check"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_surface_templates_self_test_passes(self):
+        result = subprocess.run([sys.executable, "-I", "tools/surface_templates.py", "--self-test"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("passed", result.stdout)
+
     def test_data_lint_is_clean(self):
         tables = lint_data.TableReader()
         loaded = {f.stem: tables.read(f) for f in (ROOT / "src/shared/data").glob("*.luau")}
         self.assertEqual(lint_data.lint_surfaces(loaded), [])
+
+
+class SurfaceTemplates(unittest.TestCase):
+    """Services/Models clones ReplicatedStorage.Shared.SurfaceTemplates.<key> (a script cannot create a SurfaceAppearance)."""
+
+    def test_one_template_per_texture_row_carrying_its_ids(self):
+        folder = ROOT / "src/shared/SurfaceTemplates"
+        self.assertEqual({f.name for f in folder.iterdir()}, {key + ".model.json" for key in TEXTURES})
+        for key, row in TEXTURES.items():
+            with self.subTest(key=key):
+                template = json.loads((folder / (key + ".model.json")).read_text())
+                self.assertEqual(template["ClassName"], "SurfaceAppearance")
+                props = template["Properties"]
+                for field, prop in (("colorMap", "ColorMap"), ("normalMap", "NormalMap"), ("roughnessMap", "RoughnessMap")):
+                    if row[field] > 0:
+                        self.assertEqual(props[prop], "rbxassetid://%d" % row[field])
+                    else:
+                        self.assertNotIn(prop, props)
+                self.assertEqual(props["Color"], [1, 1, 1])
+
+    def test_the_loader_clones_a_template_and_never_creates_one(self):
+        source = lint_data.uncomment((ROOT / "src/server/Services/Models.luau").read_text())
+        self.assertNotIn("Instance.new(\"SurfaceAppearance\")", source)
+        self.assertIn("template:Clone()", source)
+        self.assertIn("Config.SurfaceTemplatesFolderName", source)
+        config = load(str(ROOT / "src/shared/data/Config.luau"))
+        self.assertEqual(config["SurfaceTemplatesFolderName"], "SurfaceTemplates")
+        self.assertGreater(config["SurfaceTemplatesWaitSeconds"], 0)
+
+    def test_the_folder_is_built_by_the_default_project_through_src_shared(self):
+        # src/shared is mapped as ReplicatedStorage.Shared in all three Rojo projects, so the templates need no mapping of their own.
+        for name in ("default", "world2", "home"):
+            project = json.loads((ROOT / (name + ".project.json")).read_text())
+            self.assertEqual(project["tree"]["ReplicatedStorage"]["Shared"]["$path"], "src/shared")
 
 
 class MaterialsJson(unittest.TestCase):
@@ -86,7 +130,7 @@ class MaterialsJson(unittest.TestCase):
             "Mossbop": {"Body": "Grass"}, "Pebblet": {"Body": "Slate"}, "Glimmo": {"Body": "Glass", "Accessory": "Neon"},
             "Twiglet": {"Body": "Wood"}, "Buzzlebee": {"Body": "Fabric"}, "Lanternewt": {"Accessory": "Neon"},
             "Snailbyte": {"Accessory": "Metal"}, "Rocklobber": {"Accessory": "Neon"}, "Zapfinch": {"Accessory": "Neon"},
-            "Sparkfox": {"Body": "Fabric", "Accessory": "Neon"}, "Thunderhog": {"Accessory": "Neon"}, "Gloomoth": {"Accessory": "Glass"},
+            "Sparkfox": {"Body": "SmoothPlastic", "Accessory": "Neon"}, "Thunderhog": {"Accessory": "Neon"}, "Gloomoth": {"Accessory": "Glass"},
             "Gaiabloom": {"Trim": "Neon"}, "Radish": {"Accessory": "Neon"}, "Panpipe": {"Accessory": "Neon"}, "Puffpuff": {},
         }
         for sid, materials in wanted.items():

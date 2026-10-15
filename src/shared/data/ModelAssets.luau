@@ -245,7 +245,7 @@ local Surfaces: { [string]: { [string]: Types.SurfaceSpec } } = {
 	},
 	Sparkfox = {
 		Accessory = { material = "Neon" },
-		Body = { material = "Fabric", texture = "fur" },
+		Body = { material = "SmoothPlastic", texture = "fur" },
 		EyeHighlight = { glossy = true },
 		EyeWhite = { glossy = true },
 	},
