@@ -12,11 +12,11 @@
 local Types = require(script.Parent.Parent.types.Types)
 
 local Textures: { [string]: Types.TextureRow } = {
-	fur = { colorMap = 0, normalMap = 0, roughnessMap = 0, tiling = { 3, 3 } },
-	moss = { colorMap = 0, normalMap = 0, roughnessMap = 0, tiling = { 2, 2 } },
-	stone = { colorMap = 0, normalMap = 0, roughnessMap = 0, tiling = { 2, 2 } },
-	ice = { colorMap = 0, normalMap = 0, roughnessMap = 0, tiling = { 1, 1 } },
-	scales = { colorMap = 0, normalMap = 0, roughnessMap = 0, tiling = { 4, 4 } },
+	fur = { colorMap = 81542123953025, normalMap = 82032317264163, roughnessMap = 92091060720353, tiling = { 3, 3 } },
+	moss = { colorMap = 101381556091341, normalMap = 125675504853929, roughnessMap = 95968636443629, tiling = { 2, 2 } },
+	stone = { colorMap = 77466695846380, normalMap = 80308377364761, roughnessMap = 127030676099014, tiling = { 2, 2 } },
+	ice = { colorMap = 131936249602071, normalMap = 133596022076904, roughnessMap = 119917132216231, tiling = { 1, 1 } },
+	scales = { colorMap = 93715744299809, normalMap = 123806177602186, roughnessMap = 97218810485464, tiling = { 4, 4 } },
 }
 
 return Textures

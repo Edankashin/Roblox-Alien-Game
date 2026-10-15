@@ -1,0 +1,122 @@
+{
+  "fur/color": {
+    "assetId": 73575255248119,
+    "file": "assets/textures/fur/fur_color.png",
+    "format": "png",
+    "imageId": 81542123953025,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:02:58Z"
+  },
+  "fur/normal": {
+    "assetId": 97929752800326,
+    "file": "assets/textures/fur/fur_normal.png",
+    "format": "png",
+    "imageId": 82032317264163,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:01Z"
+  },
+  "fur/roughness": {
+    "assetId": 121480926986528,
+    "file": "assets/textures/fur/fur_roughness.png",
+    "format": "png",
+    "imageId": 92091060720353,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:04Z"
+  },
+  "ice/color": {
+    "assetId": 127583814519117,
+    "file": "assets/textures/ice/ice_color.png",
+    "format": "png",
+    "imageId": 131936249602071,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:07Z"
+  },
+  "ice/normal": {
+    "assetId": 88274450693552,
+    "file": "assets/textures/ice/ice_normal.png",
+    "format": "png",
+    "imageId": 133596022076904,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:11Z"
+  },
+  "ice/roughness": {
+    "assetId": 106809885614190,
+    "file": "assets/textures/ice/ice_roughness.png",
+    "format": "png",
+    "imageId": 119917132216231,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:14Z"
+  },
+  "moss/color": {
+    "assetId": 124388879021040,
+    "file": "assets/textures/moss/moss_color.png",
+    "format": "png",
+    "imageId": 101381556091341,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:17Z"
+  },
+  "moss/normal": {
+    "assetId": 110771839686425,
+    "file": "assets/textures/moss/moss_normal.png",
+    "format": "png",
+    "imageId": 125675504853929,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:20Z"
+  },
+  "moss/roughness": {
+    "assetId": 138468588531363,
+    "file": "assets/textures/moss/moss_roughness.png",
+    "format": "png",
+    "imageId": 95968636443629,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:23Z"
+  },
+  "scales/color": {
+    "assetId": 118351687627150,
+    "file": "assets/textures/scales/scales_color.png",
+    "format": "png",
+    "imageId": 93715744299809,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:27Z"
+  },
+  "scales/normal": {
+    "assetId": 137223738150686,
+    "file": "assets/textures/scales/scales_normal.png",
+    "format": "png",
+    "imageId": 123806177602186,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:30Z"
+  },
+  "scales/roughness": {
+    "assetId": 108218097564298,
+    "file": "assets/textures/scales/scales_roughness.png",
+    "format": "png",
+    "imageId": 97218810485464,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:33Z"
+  },
+  "stone/color": {
+    "assetId": 72144933001496,
+    "file": "assets/textures/stone/stone_color.png",
+    "format": "png",
+    "imageId": 77466695846380,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:36Z"
+  },
+  "stone/normal": {
+    "assetId": 90143018235970,
+    "file": "assets/textures/stone/stone_normal.png",
+    "format": "png",
+    "imageId": 80308377364761,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:39Z"
+  },
+  "stone/roughness": {
+    "assetId": 133474065952573,
+    "file": "assets/textures/stone/stone_roughness.png",
+    "format": "png",
+    "imageId": 127030676099014,
+    "kind": "texture",
+    "uploadedAt": "2026-10-15T13:03:42Z"
+  }
+}
