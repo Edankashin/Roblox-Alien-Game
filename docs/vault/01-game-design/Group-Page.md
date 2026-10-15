@@ -1,3 +1,8 @@
+---
+tags: [game-design, research, launch]
+aliases: [Moop Games, Roblox group]
+up: "[[Game-Design]]"
+---
 # Group page: name, emblem, description, ranks, and who owns the game
 
 Researched and drafted 2026-10-14 for Ethan, who creates the Roblox group this week (decision 16, [[Decisions]]; the Board row "A Roblox group co-owned by both" in [[Board]]). The game already pays a group-join gift once `Social.GroupId` is set (`src/shared/data/Social.luau`), so the group is the one thing standing between the gift and the players.

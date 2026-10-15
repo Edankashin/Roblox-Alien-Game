@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline, species]
+aliases: [Silhouette pass, Character bible]
+up: "[[Art-Pipelines]]"
+---
 # Silhouette pass: the character bible
 
 Ethan's direction, 2026-10-14: "No two aliens should have the same base design. These all have the circular base design with the same eyes. Each must be unique and aligned with the world it is in. I like the goofy look of the eyes and the open mouth. Balance that lightheartedness with coolness."
@@ -5,6 +10,16 @@ Ethan's direction, 2026-10-14: "No two aliens should have the same base design. 
 This note is the answer: the rules every species follows, one row per species (all 35), and the order the Mac builds them tonight and next week. The numbers live in `tools/blender/species_recipes.py` (one recipe per species), the builder is `tools/blender/species_bodies.py`. Background: [[Look-Plan]] (the visual bar), [[Creature-Generation]] (how the blockouts were made), [[Blender-MCP]] (the look pass log), [[Species-Names]] (the names are being picked; everything here keys on the species id, never the name).
 
 **Status (2026-10-14).** The 16 World 1 recipes are written and have been built and rendered end to end here with `bpy` 5.0.1 (the Mac's version) on a scratch copy of `assets/models`; nothing under `assets/` was changed. Proof renders: ![The 16 World 1 species, colour](refs/silhouette-pass/world1-proof.jpg) and the same 16 as black shapes at 64 px (doubled for the screen): ![The 16 as black shapes](refs/silhouette-pass/world1-proof-grey64.png) The three Haunted Nebula species were rebuilt earlier by `tools/blender/event_species.py` and keep their bodies. **Frostbyte (2026-10-15):** the 16 World 2 recipes are written and built the same way (the builder's surface pass on): ![The 16 Frostbyte as black shapes](refs/silhouette-pass/world2-grey64.png)
+
+**The 32 bodies as built on 2026-10-15** (surfaces on, lit renders from `preview.py --lit`; the sheets are copied here from `media/studio/2026-10-15/` so Obsidian can show them). World 1 Verdant, display name large, id and tier small:
+
+![[silhouette_world1_surface_previews.jpg]]
+
+World 2 Frostbyte:
+
+![[silhouette_world2_surface_previews.jpg]]
+
+The surface layers are in [[Surface-Pass]]; why the shapes still read as joined primitives, and the fix, in [[Character-Pipeline]].
 
 ## The rules
 

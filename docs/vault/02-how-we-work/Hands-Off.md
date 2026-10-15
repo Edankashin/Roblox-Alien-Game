@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, plan, tooling]
+aliases: [Hands-off]
+up: "[[How-We-Work]]"
+---
 # Hands-off: running the project with as little manual work from Ethan as possible
 
 Written 2026-10-07 after Ethan asked for a way to stop doing manual steps. Everything below uses official tools only (Roblox Open Cloud, Rojo, Roblox Studio's own MCP server, the Claude desktop app's computer use, the Codex CLI).

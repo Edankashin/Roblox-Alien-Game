@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline, research, species]
+aliases: [Character pipeline]
+up: "[[Art-Pipelines]]"
+---
 # Character pipeline: from mashed primitives to one fluid skin
 
 2026-10-15, research session. Ethan: our creature models read as "a bunch of shapes mashed together, made with AI"; he wants "seamless, fluid, complete character designs" and said "refer back to the TikToks on their character designs and do your own research on using Claude with Blender for Roblox Studio". This note answers in three parts: what the references show ([[#1. What our references show]]), what the research found ([[#2. Research]]), and the pipeline we can run with what we have ([[#3. The recommendation]]). Background: [[Creature-Generation]], [[Silhouette-Pass]], [[Surface-Pass]], [[Look-Plan]], [[Blender-MCP]], [[Tools-Status]].

@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, codex]
+aliases: [Standing prompt for Codex]
+up: "[[How-We-Work]]"
+---
 # Standing prompt for Codex
 
 Paste this into Codex (CLI on the Mac, in the repo folder) once per session. Each later run only needs "Take the next open card."

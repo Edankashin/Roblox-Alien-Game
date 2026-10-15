@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, research]
+aliases: [Claude plugins]
+up: "[[How-We-Work]]"
+---
 # Claude Code plugins and skills for this project
 
 What the Roblox AI-dev community installs (reference video ZPL8Hb7yS, batch 4), and what we do with each. Rule from the Studio page applies here too: one registration per tool, at project scope, and nothing installed by a script. Each install is one deliberate command in the Mac terminal, followed by a dry run that proves it does not fight `CLAUDE.md`, `.mcp.json` or the vault.

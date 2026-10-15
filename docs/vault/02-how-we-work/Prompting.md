@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tips]
+aliases: [How we work with Claude]
+up: "[[How-We-Work]]"
+---
 # How we work with Claude
 
 - One system per change. One button, one panel, one service.

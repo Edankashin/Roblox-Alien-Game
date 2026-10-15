@@ -1,3 +1,7 @@
+---
+tags: [start-here, reference]
+up: "[[Start-Here]]"
+---
 # Glossary
 
 | Term | Meaning | Where it lives |
@@ -27,3 +31,9 @@
 | Claim pattern | A join-time result (the offline summary) the client fetches once it is listening, instead of a push that can arrive before the client script runs | Economy service |
 | Economy simulator | `tools/econ_sim.py`, a bot run through World 1 on the real data tables; re-run after any number change | PRE_PRODUCTION 3.3 |
 | Special weather | The one weather state only that world rolls (Rain, Blizzard, Power Surge...), with a signature alien that spawns only while it runs | GAME_DESIGN 8; Worlds.luau |
+| Species id / display name | Every species has an id that never changes (saves, `assets/models/<Id>/`, spawn tables, dev commands such as `/spawn Mossbop`) and a display name that screens show. The 2026-10-14 renames, id to name: Mossbop to Moop, Glimmo to Glim, Twiglet to Twiggle, Snailbyte to Snibble, Buzzlebee to Buzzbit, Gloomoth to Prismlux, Radish to Ra-dish, Panpipe to Trillgoat, Wisplet to Wispkin, Spookum to Grin, Nebulyn to Cosmoo (World 1 and the Haunted Nebula); Flufflet to Mitt, Snowbun to Snowsnow, Drippo to Drip, Chipmole to Digling, Kettlepuff to Kettlet, Flapsicle to Flapflap, Emberchin to Sizz, Reindazzle to Glintelk, Shimmerlynx to Auralynx, Frostfang to Achoocub, Fenripup to Fenrikin (World 2). The other 13 keep their names | [[Species-Names]] (Applied: id to display name); [[Decisions]] B26 |
+| Moop | The display name of the Mossbop (id `Mossbop`): the mascot, the face of the store page and the group emblem | [[Species-Names]]; [[Group-Page]] |
+| Moops, Bibbles, Sparks, Zaps | The tier families of the first naming pass: Common are the Moops, Uncommon the Bibbles, Rare the Sparks, Epic the Zaps (then the Wardens, Star-born, Chimeras and, for events, spooky-cute). The second pass keeps the idea as a voice per tier rather than an ending | [[Species-Names]] (The scheme) |
+| LaunchGold | The launch-week overlay: 4% of wild spawns from Fri 2026-10-16 to Mon 2026-10-26 UTC, 1.5x like Gold, free catches only; the Codex says "Best: Launch Gold. Caught during launch week." | [[Decisions]] B21; `data/Overlays` |
+| Catch an Alien | The game's name, Ethan's pick on 2026-10-14 (decision 19); the code's working title was "AlienGame" | [[STORE-PAGE]] section 1; [[Board]] "Decided 2026-10-14" |
+| Moop Games | The Roblox group, named after the Moop; its emblem banner reads MOOP; the experience stays under Ethan's account for launch | [[Group-Page]]; [[Decisions]] 16 and B26 |

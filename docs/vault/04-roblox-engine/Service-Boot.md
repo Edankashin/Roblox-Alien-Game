@@ -1,3 +1,8 @@
+---
+tags: [roblox-engine, engine]
+aliases: [Service boot]
+up: "[[Roblox-Engine]]"
+---
 # Service boot: nothing yields on the boot thread
 
 The server bootstrap (`src/server/init.server.luau`) calls every service's `Init` and then every `Start` in ORDER on one thread. Anything that yields there holds every service after it, and some calls never return.

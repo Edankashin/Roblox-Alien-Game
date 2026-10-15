@@ -8,3 +8,4 @@ python3 -I tools/lint_remotes.py
 python3 -I tools/lint_testing.py
 python3 -I tools/lint_ui.py
 python3 -I tools/studio_queue.py
+python3 -I tools/lint_vault.py

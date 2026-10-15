@@ -1,3 +1,8 @@
+---
+tags: [ui-design, ui]
+aliases: [UI Playbook]
+up: "[[UI-Design]]"
+---
 # UI Playbook
 
 The look, written to the level Claude can build from. Hex values here are the starting palette; the team's choices in PRE_PRODUCTION section 2 replace them. When a review corrects a panel, update this file in the same change.

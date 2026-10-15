@@ -1,3 +1,8 @@
+---
+tags: [roblox-engine, engine, generated]
+aliases: [Performance budget]
+up: "[[Roblox-Engine]]"
+---
 # Performance budget inventory
 
 Regenerate: `python3 -I tools/perf_report.py --write` (default eight players; `--players N` changes the scenario).

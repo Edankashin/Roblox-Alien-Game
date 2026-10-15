@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline]
+aliases: [Map dressing]
+up: "[[Art-Pipelines]]"
+---
 # Map dressing
 
 How a world gets its scenery: 16 generated props that stand in for the part-built placeholders, plus hand dressing with the Studio plugins the pros use. Tools and plugin order come from `media/tiktok/NOTES.md` (batch 4). Read this before importing a prop or placing scenery by hand.

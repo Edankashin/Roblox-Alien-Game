@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, codex, plan]
+aliases: [Codex job queue]
+up: "[[How-We-Work]]"
+---
 # Codex job queue
 
 How the second agent (OpenAI Codex with GPT-6 Astra, on Ethan's Mac) works with the Claude coordinator without anyone relaying files by hand. The coordinator writes job cards here; Ethan tells Codex "take the next open job" (the standing prompt is in `Codex-Prompt.md`); Codex does exactly the card, pushes, and appends its report to `Codex-Reports.md`; the coordinator pulls, reviews the diff, and marks the card done or writes a follow-up card. Codex never takes a card that is not `open`, never edits a file its card does not name, and never touches `src/` game logic unless the card says so.

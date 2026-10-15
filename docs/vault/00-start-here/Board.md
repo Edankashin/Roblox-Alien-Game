@@ -1,6 +1,13 @@
+---
+tags: [start-here, plan, launch]
+aliases: [To-do list, Who is doing what]
+up: "[[Start-Here]]"
+---
 # Board: who is doing what
 
 The shared to-do list for Ethan, the collaborator and every Claude or Codex session. Background for every row is in [[Handoff]]. Updated by whoever changes a row, in its own small commit, so the other person sees it after a `git pull`.
+
+Launch state on one screen: [[Launch-Dashboard]]. Every folder of the vault has a hub, mapped from [[Start-Here]].
 
 **How to use it**
 
@@ -68,7 +75,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | ~~`python3 -I tools/create_products.py --apply` for the six launch items~~ | Done 2026-10-14 by the Mac session (overnight job 2) |
 | Open Cloud key hygiene (batch 6, ZPLSaURU3): in the Creator Dashboard check the key is scoped to the Assets API (read and write) and `universe-places:write` for this experience only, has an expiry, and lives only in `~/.zshrc`; rotate it if it was ever pasted anywhere | [[2026-10-14]] batch 6 notes; two minutes |
 | **Screen Recording permission for Terminal** (System Settings > Privacy & Security > Screen Recording, then restart Terminal) so the Mac session can record the three store clips (job 18); or record them yourself with Cmd+Shift+5, 15 s each: a Rare catch and its Reveal, a module snapping together, the launch | [[2026-10-14]] Mac evening |
-| **Quit Roblox Studio before tonight's Blender run** (File > Quit, Don't Save): on this 8 GB Mac one Studio in Play already fills the swap (5.8 GB after an hour), and Blender cannot share it | [[Setup-and-Tips]] "Memory on the Mac" |
+| **Quit Roblox Studio before tonight's Blender run** (File > Quit, Don't Save): on this 8 GB Mac one Studio in Play already fills the swap (5.8 GB after an hour), and Blender cannot share it | [[Setup-and-Tips#Memory on the Mac|Setup-and-Tips "Memory on the Mac"]] |
 | Join the private game on your phone: world1 v90, world2 v5, home v4 carry everything built on 2026-10-14 except the evening fixes | [[STORE-PAGE]] section 5 |
 | Mac installs: `bun` (for claude-mem), rtk, ccstatusline (optional) | [[Tools-Status]] |
 | Plugin installs in his Claude Code: roblox-dev (ivar-anon), ShiroKSH roblox-studio, superpowers | He types the install lines himself ([[Claude-Plugins]]) |
@@ -92,6 +99,7 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 
 | Task | Owner | Date and commit |
 |---|---|---|
+| Vault pass: a hub per folder ([[Start-Here]]), frontmatter on every note, broken links and orphans fixed, the glossary, [[Tools-Status]] rows, the [[Launch-Dashboard]], and `tools/lint_vault.py` in `tools/lint.sh` | Worker (vault) | 2026-10-15 |
 | Silhouette and surface pass, all 32 species: bodies rebuilt with surfaces in the cloud (21b3b9a World 1 with Gaiabloom, Ra-dish, Glim and Rocklobber reworked; 6b2edd8 Frostbyte), previews in `media/studio/2026-10-15/`; the names applied (a4a6cfe); the textures route (dcae573); the thumbnail research (e680b42). Upload waits on Ethan's "upload" and the Mac's two probes | Coord | 2026-10-15 |
 | Silhouette pass, World 1: the bible, the recipes, the builder (0c498ca) and the 16 bodies built on the Mac (b95035c to c74d590); previews in `assets/models/<Id>/<Id>.png` and `media/studio/2026-10-14/silhouette_world1_mac_previews.jpg`; upload waits on Ethan (job 24) | Coord + Mac | 2026-10-14 |
 | Evening fixes from the Mac's retests: eggs in season, Reveal hush first, Catch an Alien title (f1d2d1b); overlay badges fit, night ground tint (92228c2); names v2 sheets (bbaad9c); memory tool (c8a1ff6); group page (7a40cf7) | Coord | 2026-10-14 |

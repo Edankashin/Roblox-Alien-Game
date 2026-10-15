@@ -1,3 +1,8 @@
+---
+tags: [roblox-engine, engine, ui]
+aliases: [Engine rules for UI]
+up: "[[Roblox-Engine]]"
+---
 # Engine rules for UI
 
 - Scale, never Offset, for Position and Size. Check in the device emulator at iPhone SE and iPad sizes.

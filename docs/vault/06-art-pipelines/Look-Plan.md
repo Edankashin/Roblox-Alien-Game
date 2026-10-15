@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, plan, pipeline]
+aliases: [Look plan]
+up: "[[Art-Pipelines]]"
+---
 # Look plan: how the game gets its final look
 
 The mechanics are in and testable with placeholders. This is the plan for the look: what changes, in what order, with which tools, and what each pass costs. It follows the reference-video lessons in `media/tiktok/NOTES.md` (one bold colour per thing, silhouettes that read at thumbnail size, lighting does half the work, chunky outlined UI) and the design's art direction in `docs/GAME_DESIGN.md` section 15 and 16.
@@ -49,6 +54,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 - Pipeline in `Creature-Generation.md`: commons first, greyscale check, one accessory, one bold colour. Tools in order of cost: Blender through MCP from the blockout (free, Claude does the shaping), Meshy or 3D AI Studio for a textured rigged model with a target polygon count (paid, fastest), hand touch-ups in Blender.
 - Each model keeps its blockout's folder, file names and height, so it drops into the renderers unchanged (`import-model` skill). Four animations each (idle, walk, work-at-station, catch-reveal) as one animation set per body type, retargeted, so 32 species need about six rigs, not 32.
 - Review per batch: a sheet of eight silhouettes and eight colour renders from `preview.py`, approved before the next batch.
+- Since 2026-10-14 the creature passes have their own notes: [[Silhouette-Pass]] (a recipe and a body plan per species, all 32 built), [[Surface-Pass]] (a material per slot, smooth bevelled bodies, texture sets once uploaded), [[Character-Pipeline]] (2026-10-15: fuse the recipe volumes into one skin, three ship checks) and the display names in [[Species-Names]].
 
 ### L5. UI and GUI (one milestone) — the Star Chart orbit map done (2026-10-05); the compass strip built as milestone 30 (2026-10-06); the flat icon set and sprites rendered (`tools/blender/icons.py`); v2 (2026-10-06, Ethan's bar: the top sims' look) renders them shaded and glossy in Eevee with bevels, rim light, outline and a drop shadow, adds the soft sprite set (Glow, Sparkle, Star, Ring, Shine, Confetti, Ember) and 9-slice plates (`tools/blender/ui_plates.py`, `assets/ui/`); Builder gains gloss, inner shadow and shine; the VFX pass uses the sprites; uploads with the models
 
@@ -73,6 +79,7 @@ Ethan's standing direction (PRE_PRODUCTION 5a): the current flat icon pack is be
 
 - Icon: one alien close-up, eyes to the lens, one bold colour, no text. Three thumbnails: the catch moment, the ship launch, the roster at camp; big readable title text; tested with Roblox's thumbnail A/B feature.
 - Name candidates and the 30 s video from `docs/vault/01-game-design/Growth-Playbook.md`.
+- Since 2026-10-14: [[Thumbnail-Research]] (what earns the first click, and the four candidates rendered on 2026-10-15), [[Group-Page]] (Moop Games and its emblem) and [[Launch-Dashboard]] (where the launch stands). Mac memory limits that shape the render runs: [[Setup-and-Tips#Memory on the Mac|Memory on the Mac]].
 
 ## Tools per pass
 

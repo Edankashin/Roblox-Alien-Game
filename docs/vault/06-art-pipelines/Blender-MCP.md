@@ -1,2 +1,7 @@
+---
+tags: [art-pipelines, pipeline, log]
+aliases: [Blender MCP]
+up: "[[Art-Pipelines]]"
+---
 
 - 2026-10-06, UI icons and particle sprites (Look pass L5): new `tools/blender/icons.py`, run with `blender -b --factory-startup -P tools/blender/icons.py -- [--only A,B] [--no-sheet]`. 48 icons, 128 x 128 transparent PNG, in assets/icons/<Key>.png: Scrap; the ten key materials (colours from data/KeyMaterials.luau); SpeedBoots, Hoverboard, Radar1-3, Heater; Shop, Aliens, Codex, Ship, Quests, Gifts, Settings, Ranks, StarChart; rarity badges Common to Secret (circle, square, triangle, diamond, star, sunburst, question mark in the Theme rarity colours); Shower, Peddler, Rain, Snow, Blizzard, Fog; the six power-ups and Lure1-3 by data id. Each icon is two to six flat extruded shapes (or a Bfont glyph, or a torus for the planet ring) facing the camera, Workbench FLAT lighting so each part is one solid colour (Standard view transform, sRGB hex converted to linear for diffuse_color), outline by an inverted-hull Solidify shell (thickness 0.085 units, about 4 px, offset 1, flipped normals, material_offset to #1B1F3B) with backface culling on, film_transparent for the alpha. Particles drawn with numpy as white-on-alpha 64 x 64 (Raindrop soft streak, Flake six arms with ticks, Wisp lumpy soft blob) into assets/particles/. Contact sheet docs/vault/05-ui-design/refs/look-l5/icons-sheet.png, 8 per row in the generator's key order. Note: the gear data id is `Boots`; the icon key is SpeedBoots as briefed.

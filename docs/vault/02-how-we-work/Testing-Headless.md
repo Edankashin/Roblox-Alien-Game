@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, testing]
+aliases: [Headless tests]
+up: "[[How-We-Work]]"
+---
 # Headless shared math tests
 
 Run `./tools/test.sh`. It uses Python 3's standard library to bundle sources and invokes the official **Luau 0.741** interpreter, without Studio or third-party test libraries. The script prints every result, the test count, and interpreter runtime (including module loading; excluding download and bundle generation). Any failed assertion, load error or empty suite exits nonzero.

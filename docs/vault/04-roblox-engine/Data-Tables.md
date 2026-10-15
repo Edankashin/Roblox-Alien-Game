@@ -1,3 +1,8 @@
+---
+tags: [roblox-engine, engine]
+aliases: [Data tables]
+up: "[[Roblox-Engine]]"
+---
 # Data tables: shapes that code can walk safely
 
 Rules learned the hard way, for `src/shared/data`.

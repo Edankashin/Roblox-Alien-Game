@@ -1,3 +1,8 @@
+---
+tags: [studio-mcp, setup, engine]
+aliases: [Studio MCP connection]
+up: "[[Studio-and-MCP]]"
+---
 # Studio MCP connection
 
 Studio's MCP server is built in. The mezzanine bar (Home, Model, Avatar, UI, Script, Plugins) and the Assistant button only exist once a place is open, not on the start screen.

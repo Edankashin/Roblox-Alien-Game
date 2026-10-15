@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, generated]
+aliases: [Dead code]
+up: "[[How-We-Work]]"
+---
 # Dead code and data candidates
 
 Regenerate: `python3 -I tools/deadcode.py --write`. Inputs: all src Luau, Shop/Icons/Sounds data, C8 string families, C9 remote inventory, and milestone names from docs/PRE_PRODUCTION.md. Input fingerprint: `a2d86c600def2035`.

@@ -1,3 +1,8 @@
+---
+tags: [game-design, research, audio]
+aliases: [Player moments]
+up: "[[Game-Design]]"
+---
 # Player moment inventory
 
 Source snapshot: 2026-10-07, after C18. Inputs: `src/client/init.client.luau`, its named UI/World consumers, `data/Sounds`, `data/Tiers`, and `GAME_DESIGN.md` §§3, 6, 7, 9, 15. Static source review; no Studio/audio playback. Recheck by searching `Sounds.`, `Vfx.`, `CameraDirector.`, `Toast.`, `Reveal.Show` and the named event in `src/client`; re-enumerate zero ids from `src/shared/data/Sounds.luau`. Lines are snapshot anchors and will move under formatting. [[Music-Plan]] · [[UI-Rules]] · [[Performance]].

@@ -1,3 +1,8 @@
+---
+tags: [ui-design, ui, reference]
+aliases: [Reference screenshots]
+up: "[[UI-Design]]"
+---
 # Reference screenshots
 
 Cropped from the reference videos (`media/tiktok/NOTES.md`). Two UI "dialects" are shown; the team chose the **stud dialect** (Steal an Egg, the most-played game at the time) as our base.

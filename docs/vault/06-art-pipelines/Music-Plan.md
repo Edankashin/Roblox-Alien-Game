@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, plan, audio]
+aliases: [Music plan]
+up: "[[Art-Pipelines]]"
+---
 # Music plan
 
 Proposal only, 2026-10-07. Inputs: [[Moments]] (57 moments, 33 silent sound slots), `GAME_DESIGN.md` §§3, 7, 8, 15, and `data/Worlds`. No audio is selected and no game code/data is changed. Worlds 3–7 remain designed-only; their rows are future direction, not launch requirements. All tempo, duration, volume and fade numbers below are proposed creative starting points, not measured game balance.

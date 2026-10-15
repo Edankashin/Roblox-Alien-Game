@@ -1,3 +1,8 @@
+---
+tags: [game-design, species, research, decision]
+aliases: [Species names, Mossbop, Moop]
+up: "[[Game-Design]]"
+---
 # Species names: the study, the rules and the candidates
 
 Status: second pass, **applied on 2026-10-14**. Ethan took the top picks; the collision screen below swapped five of them (Shardwing, Twiddle, Floof, Bunbun, Ember) and `Species.luau` `name` now carries the result. Ids are untouched. The group is named Moop Games. The first pass (the afternoon of 2026-10-14) is kept at the bottom of this note.

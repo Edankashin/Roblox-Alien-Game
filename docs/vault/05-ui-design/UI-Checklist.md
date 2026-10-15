@@ -1,3 +1,8 @@
+---
+tags: [ui-design, ui]
+aliases: [UI checklist]
+up: "[[UI-Design]]"
+---
 # UI checklist (every screen, before it ships)
 
 - [ ] Scale only; no Offset in Position or Size

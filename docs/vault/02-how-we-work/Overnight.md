@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, plan, log]
+aliases: [Overnight run]
+up: "[[How-We-Work]]"
+---
 # Overnight run, 2026-10-14: the Mac session's job list
 
 Ethan granted the laptop for about 8 hours while he sleeps, with the aim of a launch-ready game by the weekend. The Mac session (Claude Code CLI on the MacBook, started by Ethan in bypass mode with Remote Control, see the prompt at the end) works through the jobs below in order, on its own. The coordinator (cloud session) wakes every hour, pulls, reads the log, fixes what the Mac found, pushes and updates this list. **Git is the only channel**: pull before every job, push after every job, write results in `docs/vault/08-log/2026-10-14.md` under `## Mac session (overnight)`.

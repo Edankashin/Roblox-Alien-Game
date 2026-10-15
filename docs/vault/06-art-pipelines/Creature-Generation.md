@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline, species]
+aliases: [Creature generation]
+up: "[[Art-Pipelines]]"
+---
 # Creature generation
 
 Pipeline from the reference videos, adapted to our roster. Tools seen working in 2026: Claude Design (models with VFX and animation sets plus a Lua installer), 3D AI Studio (meshes with a target polygon count, preferred for phones), Meshy (rigged and animated GLBs), an image model such as Gemini for icon sets and model reference sheets, and Studio MCP `generate_mesh` as the free fallback. Pick one tool per asset type and record the settings that worked here.

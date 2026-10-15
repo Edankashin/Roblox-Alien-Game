@@ -1,4 +1,11 @@
+---
+tags: [start-here, plan, onboarding]
+aliases: [Alien game handoff]
+up: "[[Start-Here]]"
+---
 # Handoff: everything about the Alien game, for the collaborator and their Claude
+
+**Launch day?** [[Launch-Dashboard]] is the one-screen state of play: what is live, what is waiting, what only Ethan can do. [[Start-Here]] is the map of the whole vault, one hub per folder.
 
 Written 2026-10-10 by Ethan's coordinator session, from the whole build conversation (2026-10-04 to 2026-10-10) and the repo at that date. This is the one file to read first. It says what the game is, what is built and verified, what is in progress, what comes next, every tool and id, how the work runs, and how Ethan and the collaborator stay in sync. Live status lives on [[Board]]; this file is the background and is updated when something lasting changes.
 
@@ -406,15 +413,19 @@ Ethan instead of being made.
 
 | Question | Note |
 |---|---|
+| Which note to open first, and a map of every folder | [[Start-Here]] and its hubs: [[Game-Design]], [[How-We-Work]], [[Studio-and-MCP]], [[Roblox-Engine]], [[UI-Design]], [[Art-Pipelines]], [[Alien-Game]], [[Log]] |
+| Where launch stands right now | [[Launch-Dashboard]], [[Board]] |
 | How Ethan configured Claude, the Mac, Studio and the tools; tips and tricks | [[Setup-and-Tips]] |
 | A word you do not know | [[Glossary]] |
 | Why a decision was made | [[Decisions]], PRE_PRODUCTION sections 2, 5a, 5c |
 | What Ethan asked for and what happened to it | [[Requests]] |
 | How a screen should look | [[UI-Playbook]], [[UI-Checklist]], [[UI-Rules]] |
 | How remotes, saves and boot work | [[Remotes]], [[Save-Budget]], [[Service-Boot]], [[Data-Tables]], [[Performance]] |
-| How to make a model or prop | [[Blender-MCP]], [[Creature-Generation]], [[Map-Dressing]], [[Look-Plan]] |
+| How to make a model or prop | [[Blender-MCP]], [[Creature-Generation]], [[Map-Dressing]], [[Look-Plan]]; the creature passes: [[Silhouette-Pass]] (shape), [[Surface-Pass]] (surface), [[Character-Pipeline]] (one fluid skin) |
 | What each moment should feel and sound like | [[Moments]], [[Music-Plan]] |
-| What still waits on Studio | `docs/STUDIO-QUEUE.md`, `docs/TESTING.md` |
+| What the creatures are called, the group, the store thumbnails, how players find the game | [[Species-Names]], [[Group-Page]], [[Thumbnail-Research]], [[Growth-Playbook]] |
+| Which tools are installed and which are only decided; the Mac running out of memory | [[Tools-Status]], [[Setup-and-Tips#Memory on the Mac]] |
+| What still waits on Studio | `docs/STUDIO-QUEUE.md`, `docs/TESTING.md` (pointer notes: [[STUDIO-QUEUE]], [[TESTING]]) |
 | What Ethan does by hand | `docs/OWNER-GUIDE.md`, [[Hands-Off]] |
 | How the AI side runs cheaply | [[Token-Economy]], [[Prompting]], [[Codex-Prompt]] |
-| What happened on a given day | `docs/vault/08-log/` |
+| What happened on a given day | `docs/vault/08-log/`, listed in [[Log]] |

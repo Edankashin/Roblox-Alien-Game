@@ -1,3 +1,8 @@
+---
+tags: [art-pipelines, pipeline, species]
+aliases: [Surface pass]
+up: "[[Art-Pipelines]]"
+---
 # Surface pass: giving the bodies a surface
 
 Ethan, 2026-10-14, looking at the sixteen new World 1 bodies: "They don't have any texture to them. Look at the TikToks I sent you about the design of certain props and aspects of the game. Also the top games." The bodies are flat-coloured primitives with hard shading: right silhouettes ([[Silhouette-Pass]]), no surface. This note is the plan, what shipped in the first change, and what waits. Background: [[Look-Plan]] (principle 2, "no textures on creatures", is overruled here for the creatures' surfaces; the lighting rules stay), [[Creature-Generation]], [[Map-Dressing]] (the `materials.json` and grey-import note). Review images: ![Mossbop, before | after](refs/surface-pass/Mossbop_surface.jpg) ![Sparkfox, before | after](refs/surface-pass/Sparkfox_surface.jpg) Left is the pre-pass body, right the surface build, same light (`preview.py --lit`). Blender cannot draw Roblox's Grass or Fabric, so the right-hand side shows the gradient, the glossy eyes, the Neon glow and the baked texture sets; the Roblox materials are judged in Studio.
@@ -32,6 +37,10 @@ The eye: two layers already in every recipe (a white sphere, a dark pupil, a whi
 
 ## The sixteen, by concept
 
+The sixteen as rebuilt with surfaces on 2026-10-15 (lit renders; the shapes alone are in [[Silhouette-Pass]]):
+
+![[silhouette_world1_surface_previews.jpg]]
+
 Body unless named. Every EyeWhite and EyeHighlight is `glossy`. The set in the last column is the `texture` key, which does nothing until its ids are uploaded.
 
 | Species | Material | Texture set |
@@ -55,6 +64,8 @@ Body unless named. Every EyeWhite and EyeHighlight is `glossy`. The set in the l
 An explicit `material` beats the emission rule: Rocklobber's amber crystals and Panpipe's pipes shared their slot with the glow and lose it under Slate and Metal. If Ethan wants the glow back, set the slot to Neon (or split the crystals into their own slot in the recipe).
 
 ### The sixteen Frostbyte, by concept (2026-10-15)
+
+![[silhouette_world2_surface_previews.jpg]]
 
 Same rules: every EyeWhite and EyeHighlight is `glossy`, nothing else is. Snow for the snow bodies (no texture set: Roblox's own Snow sparkle), Ice with the `ice` set for icicles and the iceberg shell, Fabric for knitted parts (scarf, cap, collar, no texture: the weave is the point) and Fabric with the `fur` set for furry bodies, Glass for the aurora crest, Neon for the glow parts, Metal for the kettle. The tiling is the one in `data/Textures`; none of it shows until the ids are uploaded.
 

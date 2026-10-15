@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, plan]
+aliases: [Token economy]
+up: "[[How-We-Work]]"
+---
 # Token economy
 
 How this project keeps Claude Code spend down without losing output quality. Measured, not guessed: install `ccusage` (the standard usage reporter) on the Mac and read it weekly.

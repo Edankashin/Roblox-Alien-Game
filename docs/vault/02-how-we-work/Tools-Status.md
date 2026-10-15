@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, tracker]
+aliases: [Tools status]
+up: "[[How-We-Work]]"
+---
 # Tools status: every tool mentioned, decided, and actually in use
 
 Written 2026-10-07 after Ethan asked why Obsidian, mentioned several times, was never installed. The answer: the vault idea was built (`docs/vault/`, read before every task), but the Obsidian app itself was treated as optional and that was never said plainly; and more generally, tools were given "adopt" verdicts with install commands in [[Claude-Plugins]] and the plan, but every install needed a step on the Mac and nothing tracked a decision through to "installed and verified". This page is that tracker. A decision is not done until the last column says verified.
@@ -25,7 +30,7 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | ProfileStore | Token survey (Roblox tools) | Adopt now, pending the team's OK | **chosen instead**: our own `PlayerData` (one key, UpdateAsync, session lock, schema migrations at v16, tested in C10, purchase saves durable since D8) does the same job | Kept ours on 2026-10-07 when Ethan asked to adopt every adopt decision: a swap rewrites every save path and migrates every player's data for no feature gain; revisit only if ours shows a save bug |
 | Graphify, Ponytail, Roblox Claude Skills, Agent Skills, OmniRoute and others | TikTok ZPL8Hb7yS, add-on list | Skip, with reasons in [[Claude-Plugins]] | **skip** | None |
 | Headroom, caveman, context-mode, beads, basic-memory, Task Observer and others | Token survey | Later | **later** | Revisit when a need shows |
-
+| yt-dlp (on the Mac) | Ethan's TikTok links, the reference batches | Adopt | **in use** (Mac; saves the reference videos into `media/tiktok/`, `/opt/anaconda3/bin/yt-dlp`, run again for batch 6 on 2026-10-14 (overnight job 17); it refuses `/photo/` posts, so a slideshow is read from the post page's embedded data; `tools/watch_video.py` then makes the sheets and transcript) | Done |
 | ffmpeg, yt-dlp, Whisper (sherpa-onnx) | Reference video processing | Adopt | **in use** (ffmpeg and yt-dlp on the Mac; Whisper needs `SHERPA_WHISPER_DIR` set on the Mac, the cloud session downloads its own model) | Fine as is |
 | Codex CLI on PATH | Mac audit | | the CLI lives inside ChatGPT.app, not on PATH | Optional: the Mac calls it by its full path |
 | Discord community server | Growth references | Later (launch assets) | Discord installed; no server | Part of store presence (Look plan L6) |
@@ -51,6 +56,10 @@ States: **in use** (installed and part of the workflow), **decided, not installe
 | Lemonade.gg, Ropilot Astra | AI game-dev services seen in references | reference only | None |
 | Gemini or another image model | icon sets and reference sheets | **not used** | Part of the icons v2 plan Ethan asked for: the image-model route is one of the options, needs an account |
 | Studio MCP `generate_mesh`, `generate_material` | quick placeholders | available, little used | Use for placeholders in milestone 48 |
+| Blender as the `bpy` Python module (headless, in the cloud session) | the 32 species bodies, preview sheets and store renders without the Mac or Blender open (`tools/blender/species_bodies.py`, `preview.py`, `store_renders.py`) | **in use** (`bpy` 5.0.1; the proof run of 2026-10-14 and all 32 bodies rebuilt with surfaces on 2026-10-15, while the Mac slept) | Done; the Mac's Blender and its MCP stay for looking at a result live |
+| Blender MCP `generate_3d` (Tripo, Hunyuan3D, Hyper3D Rodin) | one textured mesh from text or an image, for a few hero species ([[Character-Pipeline]] section 2.2) | **decided, not installed**; needs Ethan's yes on credits | Ethan decides after the vendor prices are checked (Character-Pipeline section 4); Hunyuan3D's licence excludes the EU and UK; TRELLIS and local Hunyuan3D do not run on the 8 GB Mac |
+| QuadriFlow and voxel remesh (Blender's own `quadriflow_remesh` and Remesh modifier) | the fuse pass: one skin per species at about 2,000 triangles ([[Character-Pipeline]] section 2.3) | **testing** (tried on five real recipes, 0.7 to 1.7 s each; the sculpt prototype is running and decides the method) | **in use** once the prototype's result is accepted and a species passes the three ship checks |
+| Pillow (Python imaging library) | thumbnails, preview sheets and the group emblem (`tools/store_compose.py`, `store_title.py`, `names_sheet.py`, `group_emblem.py`); also re-saves the vault's embedded sheets under 400 KB | **in use** (cloud session) | Done |
 
 ## The rule from now on
 

@@ -1,3 +1,8 @@
+---
+tags: [game-design, research, launch]
+aliases: [Thumbnail research, Thumbnails]
+up: "[[Game-Design]]"
+---
 # Thumbnail research: what earns the first click, and how we build ours
 
 Researched 2026-10-14 for Ethan's questions (which thumbnails get the most first clicks, describe or mystery, words, reward or moment, composition, icon versus thumbnail, cadence, a brand-new game). Companion to [[Growth-Playbook]] section 2 and [[STORE-PAGE]] section 4; the look rules are in [[Look-Plan]] L5b and L6.
@@ -167,6 +172,10 @@ Other notes from the small-size check: the Legendary frame is the only one whose
 ### The icon, v3 (not requested, one paragraph)
 
 Moop (id Mossbop), camera closer so the face fills 80% of the frame, pupils to the lens, backdrop a radial gradient `3B1E9E` to `7A3FD6` (lime on violet is the complementary pair), outline 3.2% of the width (33 px at 1024), one small gold sparkle, no ship, no text; check at 150 px, 64 px and greyscale. Moop is also the group name and emblem, so the mascot is consistent.
+
+The four candidates as rendered on 2026-10-15, at the size of a Home-page tile (192 x 108; this is the phone-size row of section 11): the Moment, the Reward, the Mystery and the Haunted Nebula event. The full-size files are in `media/store/2026-10-15/`.
+
+![[thumbs_192_strip.png]]
 
 ## 9. Which single thumbnail goes first
 

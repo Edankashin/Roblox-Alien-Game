@@ -1,3 +1,8 @@
+---
+tags: [game-design, research, launch]
+aliases: [Growth playbook]
+up: "[[Game-Design]]"
+---
 # Growth playbook: discovery, retention, rejoin, first five minutes
 
 Researched 2026-10-05. Every claim carries a source tag `[S#]` resolved in the Sources section. Evidence tiers: **doc** = opened a Roblox creator-docs page (read through its GitHub mirror, because create.roblox.com and devforum.roblox.com are blocked from the research environment); **summary** = only a search-result summary of a Roblox post was available, not the post itself; **3rd** = third-party write-up, not Roblox; **unverified** = could not be confirmed. Nothing here is tested on our game. All numbers are starting values and belong in `src/shared/data` when built.

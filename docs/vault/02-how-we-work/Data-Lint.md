@@ -1,3 +1,8 @@
+---
+tags: [how-we-work, tooling, lint]
+aliases: [Data lint, Vault lint]
+up: "[[How-We-Work]]"
+---
 # Data lint
 
 Run `python3 tools/lint_data.py` from any directory. Python 3 and its standard library are the only dependencies. Exit 0 means clean; exit 1 prints one diagnostic per failing reference/check followed by the failure count. CI runs this automatically. `--root /path/to/checkout` supports validation against a separate fixture tree.
@@ -69,3 +74,18 @@ Added only: `LANDMARK_CrashSite`, `LANDMARK_CaveMouth`, `LANDMARK_GreatVent`, `L
 Unused candidates (36), retained for coordinator review: `ACTION_RIDE`, `ALIENS_RESTING`, `ALIENS_RIDING`, `CAMP_IDLE`, `CAMP_WORKER`, `COMING_SOON`, `CONDITION_Ashfall`, `CONDITION_Day`, `CONDITION_Eclipse`, `CONDITION_GravityFlip`, `CONDITION_KingTide`, `CONDITION_PowerSurge`, `HEATER_NAME`, `HUD_SCRAP`, `LAUNCH_GO`, `LAUNCH_WELCOME`, `MODULE_COMPLETE`, `MODULE_NEEDS_KEY`, `QUESTS_TITLE`, `RUSH_OVER`, `SHIP_TAB_BAR`, `SHOP_BUY_ROBUX`, `SHOP_ITEM_HoverSkinStarter`, `SHOP_ROBUX_SOON`, `SHOWER_INCOMING`, `TOAST_NEW_DAY`, `VERB_Build`, `VERB_Gather`, `VERB_Spark`, `VERB_Tinker`, `WEEKLY_CHIP_WORLD`, `WORLD_3`, `WORLD_4`, `WORLD_5`, `WORLD_6`, `WORLD_7`.
 
 Two isolated mutations verify unknown-family and missing-key failures; normal run is below one second. New dynamic lookups that use other code shapes need a scanner extension; direct Strings.X references also remain covered by Luau analysis.
+
+## Vault lint (`tools/lint_vault.py`)
+
+Run `python3 -I tools/lint_vault.py` (add `-v` to list every finding); `./tools/lint.sh` runs it as its last step and prints `vault: clean` or the counts. Python 3 and its standard library are the only dependencies. It walks `docs/vault/**/*.md` and matches `[[links]]` by file stem, case-sensitive, the Obsidian way: a link may carry `|alias`, `#heading` and `^block` parts, or a folder path (`[[05-ui-design/refs/README|refs]]`, needed because three notes are named README; a bare `[[README]]` means the root one). Fenced code and `inline code` are ignored, so a note can show link syntax safely. Links in frontmatter (`up: "[[Start-Here]]"`) count. An `![[image.png]]` embed must name a file that exists in the vault.
+
+| Check | What fails it | Result |
+|---|---|---|
+| Broken links | a `[[target]]` with no note of that name anywhere in the vault (a doc outside the vault gets a pointer note, as [[STORE-PAGE]] does, or a relative markdown link) | **fails** (exit 1) |
+| Orphan notes | no inbound link from another note; the daily logs under `08-log/` do not count as sources, but a log nothing links is an orphan | warning |
+| No outbound link | a note that links to nothing | warning |
+| Folders without a hub | no note in the folder named after its topic (`06-art-pipelines/Art-Pipelines.md`, `00-start-here/Start-Here.md`), or a hub that does not link every note in its folder | warning |
+| Frontmatter | no YAML frontmatter with `tags` | warning |
+| Log headings | a `## ` heading in a daily log whose section has no `[[link]]` (the `CLAUDE.md` rule: lasting facts move to their topic note and the log links it) | warning |
+
+First run on 2026-10-15 (before the vault pass): 31 broken links, 11 orphans, 21 notes with no outbound link, 9 folders without a hub, 51 notes without frontmatter tags, 9 log headings with no link. A new note goes into its folder's hub in the same change; [[How-We-Work]] lists this note with the other checks.

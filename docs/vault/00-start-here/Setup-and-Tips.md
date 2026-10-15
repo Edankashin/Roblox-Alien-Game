@@ -1,3 +1,8 @@
+---
+tags: [start-here, setup, tips, tooling]
+aliases: [Setup and tips, Mac memory]
+up: "[[Start-Here]]"
+---
 # Setup and tips: how Ethan configured everything, and what we learned
 
 Companion to [[Handoff]]. Part 1 is exactly what Ethan set up (accounts, his Claude sessions, the Mac, Studio, Blender, Open Cloud, Codex, Obsidian), in the order he did it, with the problems hit on the way. Part 2 is the short version for the collaborator. Part 3 is the tips and tricks the sessions learned between 2026-10-04 and 2026-10-10, grouped by tool. When you learn something new, add it here (or to its topic note) and link it from the day's log.

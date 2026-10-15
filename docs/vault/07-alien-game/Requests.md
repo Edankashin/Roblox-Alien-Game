@@ -1,3 +1,8 @@
+---
+tags: [alien-game, plan]
+aliases: [Requests ledger]
+up: "[[Alien-Game]]"
+---
 # Requests ledger
 
 Every ask from the team, in order, and where it landed, so nothing said in a session is lost between sessions. Add a row per ask; close it with the milestone, page or decision that holds it.
