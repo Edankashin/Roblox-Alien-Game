@@ -14,9 +14,10 @@
 -- seen) and every target is computed from it, so repeated applies never drift; a part that streams in mid-night is tinted
 -- on arrival. One tween per ground part per change, nothing per frame. Active conditions: "Night" while the
 -- clock mirror says night, the clock's weather when Conditions has a look for it (Fog, Snow, Rain,
--- Blizzard...), "Shower" while a Meteor Shower runs. ClockTime stays the server's (WorldClock) and
--- Lighting.Technology is not scriptable, so neither is touched. Pure presentation: the clock and the
--- shower are the server's; this only picks how they look.
+-- Blizzard...), "Shower" while a Meteor Shower runs. ClockTime stays the server's (WorldClock) and is not touched.
+-- Once at Start the place-level engine settings go on (applyEngineSettings): LightingStyle, then
+-- PrioritizeLightingQuality, then the deprecated Technology as the fallback, each in its own pcall. Pure presentation:
+-- the clock and the shower are the server's; this only picks how they look.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -290,6 +291,32 @@ local function applyGround(spec: Table?, instant: boolean)
 	end
 end
 
+-- The place-level engine settings from data/Lighting.luau, set once. Each is its own pcall so an engine without the
+-- property (or one that refuses a script the write) never errors, and the next one still runs. LightingStyle
+-- supersedes Technology; Technology is the fallback for older clients. It is not scriptable at runtime in
+-- current Studio (the Rojo project files set it on the place), so its pcall is expected to fail quietly.
+local function applyEngineSettings()
+	local styleOk, style = pcall(function()
+		return Enum.LightingStyle:FromName(LightingData.Style)
+	end)
+	if styleOk and style ~= nil then
+		pcall(function()
+			Lighting.LightingStyle = style
+		end)
+	end
+	pcall(function()
+		Lighting.PrioritizeLightingQuality = LightingData.PrioritizeLightingQuality
+	end)
+	local technologyOk, technology = pcall(function()
+		return Enum.Technology:FromName(LightingData.Technology)
+	end)
+	if technologyOk and technology ~= nil then
+		pcall(function()
+			Lighting.Technology = technology
+		end)
+	end
+end
+
 -- Re-merges and applies the look. Unchanged inputs (world, active conditions and the biome when it matters) are skipped unless
 -- `force`, so the repeated "profile" fires every State topic also answers never restart a tween.
 local function apply(force: boolean)
@@ -359,6 +386,7 @@ function LightingDirector.Start()
 	end
 	started = true
 
+	applyEngineSettings()
 	retireForeignEffects()
 	atmosphere = findOrCreate("Atmosphere", "LookAtmosphere")
 	bloom = findOrCreate("BloomEffect", "LookBloom")

@@ -5,8 +5,9 @@
 -- SunRays to the result over Config.LightingTweenSeconds. A condition can be refined for one world
 -- (WorldConditions) and, inside that world, for the biome the player stands in (BiomeConditions): each
 -- refinement merges straight after the condition it refines. ClockTime itself stays the server's (WorldClock).
--- Colours are RGB 0..255 triples. Sky ids of 0 keep the place's own sky. Lighting.Technology cannot be
--- set from a script: set it to Future in the place by hand (TESTING milestone 22).
+-- Colours are RGB 0..255 triples. Sky ids of 0 keep the place's own sky. The place-level engine settings sit at the
+-- bottom of the table (Style, PrioritizeLightingQuality, Technology): Lighting.LightingStyle supersedes
+-- Lighting.Technology, which stays only as the fallback for older clients (docs/vault/04-roblox-engine/Lighting-Style.md).
 
 export type Rgb = { number }
 export type Atmosphere = { Density: number?, Offset: number?, Color: Rgb?, Decay: Rgb?, Glare: number?, Haze: number? }
@@ -167,6 +168,10 @@ local BiomeConditions: { [string]: ConditionLooks } = {
 }
 
 return {
+	-- Place-level engine settings, applied once by the director (not tweened, not per look).
+	Style = "Realistic", -- Enum.LightingStyle item name: "Realistic" or "Soft". Players on graphics quality below 4 are forced to Soft by the engine.
+	PrioritizeLightingQuality = true, -- true keeps shadows and shaders good near the camera as quality drops; false keeps view distance
+	Technology = "Future", -- Enum.Technology item name. LightingStyle supersedes it; kept as the fallback for older clients.
 	GroundTag = "GroundTint", -- the CollectionService tag the server puts on every ground part (a hand-built ground part needs it by hand)
 	Base = Base,
 	Worlds = Worlds,

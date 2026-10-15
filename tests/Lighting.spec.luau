@@ -125,6 +125,25 @@ describe("Moonlit Forest night looks", function()
 		end)
 	end)
 
+	describe("place-level engine settings (LightingStyle supersedes Technology)", function()
+		it("names a real LightingStyle item, Realistic by default", function()
+			expect(Lighting.Style == "Realistic" or Lighting.Style == "Soft").toEqual(true)
+			expect(Lighting.Style).toEqual("Realistic")
+		end)
+
+		it("prioritizes lighting quality with a real boolean", function()
+			expect(type(Lighting.PrioritizeLightingQuality)).toEqual("boolean")
+			expect(Lighting.PrioritizeLightingQuality).toEqual(true)
+		end)
+
+		it("keeps Technology as the fallback for older clients, and keeps these out of the tweened looks", function()
+			expect(Lighting.Technology).toEqual("Future")
+			for _, field in ipairs({ "Style", "PrioritizeLightingQuality", "Technology" }) do
+				expect(Lighting.Base[field] == nil).toEqual(true)
+			end
+		end)
+	end)
+
 	it("names only real conditions, worlds and biomes", function()
 		for worldId, rows in pairs(Lighting.WorldConditions) do
 			expect(Worlds[worldId] ~= nil).toEqual(true)

@@ -23,7 +23,7 @@ The mechanics are in and testable with placeholders. This is the plan for the lo
 
 1. **Readable at thumbnail size.** Every alien, prop and icon passes the greyscale-at-256 px check before colour is discussed (`tools/blender/preview.py`).
 2. **Flat colour, strong shape, soft light.** Low-poly meshes with one flat material per colour, no textures on creatures, lighting and post-processing supply the depth (the Pet Simulator and Adopt Me look). Textures only on ground and large surfaces. (Revised 2026-10-14 after Ethan's review of the World 1 bodies, "They don't have any texture to them": creatures get a surface pass, [[Surface-Pass]]: a Roblox material per slot, smooth bevelled bodies with a vertex gradient, glossy eyes and, once uploaded, shared texture sets. Flat colour and soft light stay the base.)
-3. **Phones first.** Every effect has a budget: Future lighting with at most two shadow-casting lights per world, particles under 200 on screen, meshes under 1,500 triangles per alien and 600 per prop. Check on an iPhone SE in the emulator before calling anything done.
+3. **Phones first.** Every effect has a budget: Realistic lighting with at most two shadow-casting lights per world, particles under 200 on screen, meshes under 1,500 triangles per alien and 600 per prop. Check on an iPhone SE in the emulator before calling anything done.
 4. **Data, not scenes.** Lighting, colour grades, skyboxes and weather looks live in data tables (`src/shared/data`) and are applied by code, so a world's look is one table and a weather change is one tween.
 5. **One pass at a time, reviewed on the Mac.** Each pass is a milestone with a test script, screenshots at iPhone SE and iPad sizes, and a line in the UI Playbook or the art pages when a review corrects something.
 
@@ -35,7 +35,7 @@ Core-loop milestones come first (19 group reward and rejoin nudges, 20 global le
 
 - `data/Lighting.luau`: per world a sky (six skybox ids), Atmosphere (density, haze, colour, glare), ColorCorrection (tint, contrast, saturation), Bloom, SunRays, ambient and outdoor ambient, clock time range, and a per-weather override (Rain darker and bluer, Blizzard white and dense, Shower a warm night with extra bloom).
 - `client/World/LightingDirector.luau` applies the table on join and tweens between weather looks over `Config.LightingTweenSeconds`; respects Reduced Motion by snapping.
-- Technology Future, shadows on for the sun only, `GlobalShadows` true, no point-light shadows. One free Poly Haven HDRI per world for the sky reference, skyboxes generated as six images.
+- `LightingStyle` Realistic plus `PrioritizeLightingQuality` true (the deprecated `Technology` Future stays as the fallback for older clients; see [[Lighting-Style]]), shadows on for the sun only, `GlobalShadows` true, no point-light shadows. One free Poly Haven HDRI per world for the sky reference, skyboxes generated as six images.
 - Cost: one Sonnet worker and a Mac screenshot review. This pass lifts every screenshot the most for the least spend, so it goes first.
 
 ### L2. Ground and water (one milestone)
