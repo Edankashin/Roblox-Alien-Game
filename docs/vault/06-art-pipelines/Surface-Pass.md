@@ -126,3 +126,60 @@ One set first: `--textures --only fur`, then `--emit-textures-luau --only fur` p
 
 Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the re-upload of the 16, Frostbyte and the 19 non-World-1 species (their `materials.json` carry no surface fields yet), props.
 Left: running the textures upload (the route is built: `upload_assets.py --textures`, `--emit-textures-luau`), the rebuild and re-upload of the 16, the upload of the 16 Frostbyte bodies (built and carrying their surface fields since 2026-10-15; `ModelAssets.luau` needs `model_assets.py --write`), the three event species (their `materials.json` carry no surface fields yet), props. Review images: the lit sheet of the Frostbyte sixteen is `media/studio/2026-10-15/silhouette_world2_surface_previews.jpg` (rendered with `preview.py --lit --backdrop A9C7E6`, a pale blue sky and floor so the white species show).
+
+## UV unwrap and palette bake
+
+2026-10-15, the creature-pipeline worker ([[2026-10-15]]). Blockbench and Substance paint on UVs, not vertex colours ([[Model-Toolchain]] section 1). The species GLBs carry per-primitive UV layouts, and the Surface pass tiles a slot's UVs by its shared texture (Sparkfox's UVs run 0 to 3), so the islands overlap and `to_bbmodel.py` could only fit each slot into a flat colour block. `tools/blender/unwrap_bake.py` fixes the file rather than the build: it reads a finished species GLB, unwraps it once, bakes one palette texture and writes both to a scratch folder. **Nothing under `assets/models` was changed.**
+
+![The 32 recipe species: the lit render of the unwrapped, textured GLB, and its baked 512 px palette drawn at 128 px](refs/surface-pass/uv_bake_sheet.jpg)
+
+Copy at `media/studio/2026-10-15/uv_bake_sheet.jpg`. Left of each pair is `preview.py --lit --textured` (the baked palette is the only colour source: no vertex gradient, no shared texture sets), right is the palette with the space between islands drawn grey. A species that failed a check would have a red label; none did.
+
+**Commands** (plain Python with the `bpy` module, or `blender -b -P tools/blender/unwrap_bake.py -- <flags>`):
+
+```
+python3 tools/blender/unwrap_bake.py --species Sparkfox,Mossbop --out /scratch/uvbake
+python3 tools/blender/unwrap_bake.py --species recipes --out /scratch/uvbake --report /scratch/uvbake_report.json   # the 32 recipe species
+python3 tools/blender/preview.py --lit --textured --models /scratch/uvbake --species Sparkfox --out /scratch/renders
+python3 tools/blockbench/to_bbmodel.py --species Sparkfox --models /scratch/uvbake --out /scratch/bb               # reads Sparkfox_palette.png
+python3 tools/blender/uv_bake_sheet.py --models /scratch/uvbake --renders /scratch/renders --report /scratch/uvbake_report.json --out sheet.jpg
+```
+
+| Flag | Default | What it does |
+|---|---|---|
+| `--species a,b` or `--all` | | ids, or `world1`, `world2`, `batchN`, `recipes` (the 32); `--all` is every folder under `--models` (35, props excluded) |
+| `--models` | `assets/models` | where the input GLBs and `materials.json` are |
+| `--out` | required | scratch folder, laid out like `--models`; refused when it is or sits inside `assets/models` |
+| `--write-assets` | off | write the results over `--models` itself (see below); **not used yet** |
+| `--angle-limit` | 66 | Smart UV Project cut angle in degrees (the sculpt builder's own value) |
+| `--island-margin` | 0.004 | the packer's SCALED margin; at 512 px it leaves 5 texels or more between islands |
+| `--size`, `--bleed` | 512, 2 | palette side; texels each island's colour is bled outward so mips do not show seams |
+| `--ao`, `--ao-samples`, `--ao-strength`, `--ao-distance` | off, 16, 0.6, 0.3 | a soft Cycles ambient-occlusion bake multiplied into the palette (not on Neon or emissive slots); reach is a share of the creature's height |
+| `--report` | | a JSON summary: the settings, and per species the islands, coverage, overlap, problems |
+
+**What it does.** The GLB is imported (one mesh, the seven or eight slots in order), one Smart UV Project runs over every face at once (slots do not split islands), the islands are packed into 0..1, and the GLB and FBX are exported with `species_bodies.py`'s own settings. The palette is then rasterised from the written GLB itself (its UVs, its `COLOR_0`, its slot per primitive), so it matches the shipped file: each texel is the slot's `materials.json` hex times the vertex gradient, multiplied in linear light (glTF's rule; a texel with gradient 1.0 is the hex byte for byte), each island bled 2 texels, the space between islands transparent. Raster is 2 by 2 per texel so a tiny triangle still marks one. `notes.md` and `materials.json` are copied into the output, and the notes get one line with the island count, coverage and the bake settings.
+
+**Checks** (one line per species, exit 1 on any failure): no UV outside 0..1; UV overlap under 1 percent of the covered texels (a coverage raster: a texel counts when two triangles reach it); triangle count, per-slot triangle counts, material names and order, and the bounds (height and pivot) equal to the input's; the shading equal to the input's (every output normal matches an input normal at that position); the palette at the stated size; no zero-area UV triangle. The unit test (`tools/tests/test_unwrap_bake.py`) runs Sparkfox and Mossbop through the tool and counts the overlap again with its own pure-Python raster; it skips with a message where `bpy` is not importable (or set `BPY_PYTHON`).
+
+**Numbers, all 32 recipe species** (1,104 to 2,148 triangles, every one unchanged):
+
+| | min | mean | max |
+|---|---|---|---|
+| UV islands | 226 (Pengoo) | 393 | 712 (Gaiabloom) |
+| texels covered | 30.4% (Gaiabloom) | 49.3% | 68.1% (Pengoo) |
+| UV overlap | 0.00% | 0.00% | 0.00% |
+| GLB size, KB (input 52 to 128, mean 78) | 76 | 112 | 171 |
+| palette PNG, KB | 39 | 59 | 78 |
+| time per species, 4 CPU cores | 0.8 s | 1.0 s | 1.3 s |
+| the same with `--ao` | 1.8 s | 2.2 s | 3.0 s |
+
+All 32 pass every check, and so do the three event species (`--all`, 35 folders). The unwrap fragments a creature into many islands (the body is a join of many primitives and each is cut at 66 degrees); on Sparkfox angle 80 gives 363 islands and angle 89 gives 289, against 414 at 66, at the price of more distortion, so 66 stays the default. Coverage is mostly the margin: Sparkfox at angle 66 covers 29.7% at margin 0.01, 44.0% at 0.005, 48.2% at 0.004, 57.6% at 0.002; measured on the texels, margin 0.004 leaves no two islands within 4 texels, 0.003 has 0.1% of texels that close, 0.002 has 4.4%, so 0.004 is the smallest margin whose gap holds a 2 texel bleed on each side. The GLB grows by about 34 KB (every island edge splits vertices, and `COLOR_0` is now three floats) and the FBX by 24 KB; the palette is 512 px RGBA, a PNG with Sub filtering.
+
+**What is not baked, and what looks different.**
+- The shared slot textures (`texture`: fur, moss, stone, ice, scales) depend on tiled UVs, and an atlas has no tiling, so the unwrapped build drops that detail. The palette carries the slot colour and the gradient only. If the fur look is wanted in the atlas, the same raster can sample the shared set at the old tiled UVs and multiply it in: a follow-up, not built.
+- The GLBs' `baseColorFactor` is `hex/255` read as linear (no transfer curve, [[Model-Toolchain]]), while the palette's bytes are the hex as sRGB, which is what the loader gives `MeshPart.Color`. The textured Blender render is therefore deeper and truer than the old vertex-colour render of the same species (Sparkfox's orange is the deeper orange), and only the textured one is the colour the game shows.
+- AO is multiplied into the palette (strength 0.6), so a species baked with `--ao` has soft shadow in the albedo; it is off by default and was not used for the sheet or for anything committed.
+
+**What changes for the GLB upload later.** Today a species is one GLB with a MeshPart per slot, `materials.json` supplies each part's Color, `COLOR_0` is the gradient (whether Roblox keeps it is still probe 1 above) and a slot's shared texture comes from tiled UVs. With the bake the colour is one 512 px texture the UVs address: upload the PNG as an image once, put one SurfaceAppearance with it as the ColorMap on every slot MeshPart (the GLB keeps its slots, so the loader's one-part-per-slot route and the per-slot Neon and glossy properties still work), and set `materials.json` colours to white or drop them. The gradient is already in the palette, so a species that ships the palette must also drop `COLOR_0` from its GLB (`export_vertex_color` NONE) or the gradient is applied twice: a flag for that comes with the upload step, not here. A rarity recolour becomes a tint on `SurfaceAppearance.Color` or a swapped palette ([[Model-Toolchain]] section 1, consequence 2).
+
+**`--write-assets`, the plan.** The flag runs the same code in place: each `assets/models/<Id>/` gets the unwrapped `<Id>.glb` and `.fbx`, `<Id>_palette.png` and the notes line (`materials.json` is untouched, the slot names and order being checked equal). It refuses `--out` alongside it and is not run in this change. Order of use: the Mac opens a baked Sparkfox in Blockbench and paints one stroke ([[Board]]); Ethan looks at the sheet; then one species or world at a time, `python3 -I tools/model_assets.py --write` (no change expected), `python3 -I tools/upload_assets.py --only <ids> --redo` (the mesh ids change, so each species is re-uploaded), and the palette upload with the SurfaceAppearance wiring above. Until then `to_bbmodel.py` reads a `<Id>_palette.png` when one is next to the GLB (the scratch folder today), writing that PNG as the project's texture at its own size with the GLB's UVs as they are, and falls back to the flat 128 px palette otherwise (`--flat` forces it).

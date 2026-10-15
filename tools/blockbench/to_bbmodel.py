@@ -8,9 +8,13 @@ project in Blockbench format 5.0 (docs/vault/06-art-pipelines/Model-Toolchain.md
   hard edges stay cut), one triangle per face, every face on texture 0;
 * one `group` per slot, named after the slot, its origin at the slot's surface centroid (area weighted), the groups
   top level and in slot order, so a rig is built by hand by dragging groups into each other;
-* a palette texture (128 by 128 by default), a flat block of each slot's materials.json hex in a grid, embedded as a
-  base64 PNG, with each slot's UVs fitted into its block, so the file opens already coloured. The UVs are the GLB's own
-  per-primitive UVs (some are tiled past 0..1 and overlap), so detail painting wants a re-unwrap in Blockbench first;
+* the texture, embedded as a base64 PNG, one of two kinds. When a `<Id>_palette.png` sits next to the GLB (tools/blender/unwrap_bake.py
+  writes it together with a re-unwrapped GLB: real, non-overlapping islands in 0..1, the slot colours and the gradient baked in) the
+  project's texture is that PNG at its own resolution and every face keeps the GLB's own UVs (u times the width, v times the height;
+  glTF and Blockbench both count v from the top). Otherwise the flat fallback: a palette of 128 by 128 (`--size`), a block of each
+  slot's materials.json hex in a grid, with each slot's UVs fitted into its block, so the file opens already coloured; those UVs are
+  the GLB's own per-primitive UVs (some are tiled past 0..1 and overlap), so detail painting wants the unwrap first. `--flat` takes
+  the fallback even when a palette PNG is there;
 * `meta.model_format "free"` (Generic Model), `box_uv false`, `resolution` equal to the texture size;
 * one example animation, `idle`: a 2 s loop with a small position bob on the Body group, to show how animators and
   keyframes are shaped (`--no-idle` writes an empty `animations` list instead). The other slot groups are siblings, so
@@ -23,10 +27,11 @@ export at the default scale 16 comes back at the same scale. The creature's face
 (Blockbench's own "forward" is -Z): do not rotate the model to fix it. The metre-to-stud factor is the Mac probe's.
 
 Vertex colours (COLOR_0) are read but not written: a Blockbench mesh has no colour attribute, the palette carries the
-colour. Output is deterministic (uuids are derived from names). Paths are relative to the repo root.
+colour (the baked palette carries the gradient too). Output is deterministic (uuids are derived from names). Paths are relative to the repo root.
 
 Usage (run from anywhere; standard library plus Pillow for the PNG, and a built-in encoder when Pillow is missing):
   python3 -I tools/blockbench/to_bbmodel.py --species Sparkfox            writes media/blockbench/Sparkfox.bbmodel
+  python3 -I tools/blockbench/to_bbmodel.py --species Sparkfox --models /scratch/uvbake --out /scratch/bb     reads Sparkfox_palette.png
   python3 -I tools/blockbench/to_bbmodel.py --all --out /tmp/bb           every species folder under assets/models
   python3 -I tools/blockbench/to_bbmodel.py --species Sparkfox --check    re-reads the written file and validates it
 """
@@ -412,9 +417,19 @@ def triangle_area_and_centre(a, b, c):
     return 0.5 * math.sqrt(sum(v * v for v in cross)), [(a[i] + b[i] + c[i]) / 3.0 for i in range(3)]
 
 
-def build_mesh(slot, rect):
-    """(vertices, faces, centroid) for one slot, in Blockbench units."""
-    fit = uv_mapper(rect, [p.uvs[i] for p in slot.primitives if p.uvs for tri in p.triangles for i in tri])
+def slot_uvs(slot):
+    """Every UV a slot's triangles use."""
+    return [p.uvs[i] for p in slot.primitives if p.uvs for tri in p.triangles for i in tri]
+
+
+def direct_mapper(width, height):
+    """The baked palette's mapping: the GLB's UVs as they are, in pixels (both glTF and Blockbench count v from the top), clamped to
+    the texture (a float32 rounding error past 0 or 1 is under a thousandth of a pixel)."""
+    return lambda uv: (round(min(max(uv[0], 0.0), 1.0) * width, 3), round(min(max(uv[1], 0.0), 1.0) * height, 3))
+
+
+def build_mesh(slot, fit):
+    """(vertices, faces, centroid) for one slot, in Blockbench units; `fit` maps a GLB uv to the texture's pixels."""
     vertices, faces, welded = {}, {}, {}
     area_sum, weighted = 0.0, [0.0, 0.0, 0.0]
 
@@ -463,13 +478,30 @@ def idle_animation(species, group_uuid, group_name, height):
                                        "keyframes": [key("k0", 0, 0), key("k1", IDLE_LENGTH / 2, lift), key("k2", IDLE_LENGTH, 0)]}}}
 
 
-def build_project(species, glb, entries, size=TEXTURE_SIZE, idle=True):
-    """The whole .bbmodel document as a dict."""
+def check_baked_uvs(slots):
+    """A baked palette only fits a GLB whose UVs are inside 0..1 (the unwrap's); otherwise ToolError."""
+    for slot in slots:
+        for u, v in slot_uvs(slot):
+            if not (-1e-5 <= u <= 1 + 1e-5 and -1e-5 <= v <= 1 + 1e-5):
+                raise ToolError("the GLB's uvs leave 0..1 (slot %s), so a baked palette does not fit it: run tools/blender/unwrap_bake.py "
+                                "first, or pass --flat" % slot.name)
+
+
+def build_project(species, glb, entries, size=TEXTURE_SIZE, idle=True, palette=None):
+    """The whole .bbmodel document as a dict. `palette` is the bytes of a baked <Id>_palette.png (the texture then, at its own
+    resolution, with the GLB's UVs as they are), or None for the flat fallback palette of `size` pixels."""
     slots = build_slots(glb, entries)
-    rects = palette_layout(len(slots), size)
     elements, groups, outliner, tops = [], [], [], []
-    for index, (slot, rect) in enumerate(zip(slots, rects)):
-        vertices, faces, centroid = build_mesh(slot, rect)
+    if palette is not None:
+        width, height = png_size(palette)
+        check_baked_uvs(slots)
+        fits, png, name = [direct_mapper(width, height)] * len(slots), palette, species + "_palette.png"
+    else:
+        width = height = size
+        rects = palette_layout(len(slots), size)
+        fits, png, name = [uv_mapper(rect, slot_uvs(slot)) for slot, rect in zip(slots, rects)], None, species + ".png"
+    for index, (slot, fit) in enumerate(zip(slots, fits)):
+        vertices, faces, centroid = build_mesh(slot, fit)
         tops.append(max(v[1] for v in vertices.values()))
         mesh_id, group_id = uid(species, "mesh", slot.name), uid(species, "group", slot.name)
         elements.append({"type": "mesh", "uuid": mesh_id, "name": slot.name + "Mesh", "color": index % 8, "origin": [0, 0, 0],
@@ -478,9 +510,10 @@ def build_project(species, glb, entries, size=TEXTURE_SIZE, idle=True):
         groups.append({"uuid": group_id, "name": slot.name, "origin": centroid, "rotation": [0, 0, 0], "export": True, "isOpen": True,
                        "locked": False, "visibility": True, "autouv": 0, "mirror_uv": False, "shade": True, "color": index % 8})
         outliner.append({"uuid": group_id, "isOpen": True, "children": [mesh_id]})
-    png = encode_png(size, size, palette_pixels(slots, rects, size))
-    texture = {"uuid": uid(species, "texture"), "name": species + ".png", "path": "", "folder": "", "namespace": "", "id": "0", "group": "",
-               "width": size, "height": size, "uv_width": size, "uv_height": size, "particle": False, "use_as_default": False,
+    if png is None:
+        png = encode_png(size, size, palette_pixels(slots, rects, size))
+    texture = {"uuid": uid(species, "texture"), "name": name, "path": "", "folder": "", "namespace": "", "id": "0", "group": "",
+               "width": width, "height": height, "uv_width": width, "uv_height": height, "particle": False, "use_as_default": False,
                "layers_enabled": False, "sync_to_project": "", "file_format": "png", "render_mode": "default", "render_sides": "auto",
                "wrap_mode": "limited", "pbr_channel": "color", "fps": 7, "frame_time": 1, "frame_order_type": "loop", "frame_order": "",
                "frame_interpolate": False, "visible": True, "internal": True, "saved": False,
@@ -491,7 +524,7 @@ def build_project(species, glb, entries, size=TEXTURE_SIZE, idle=True):
         animations.append(idle_animation(species, target["uuid"], target["name"], max(tops)))
     return {"meta": {"format_version": FORMAT_VERSION, "model_format": "free", "box_uv": False}, "name": species,
             "model_identifier": species.lower(), "visible_box": [1, 1, 0], "variable_placeholders": "", "variable_placeholder_buttons": [],
-            "timeline_setups": [], "unhandled_root_fields": {}, "resolution": {"width": size, "height": size}, "elements": elements,
+            "timeline_setups": [], "unhandled_root_fields": {}, "resolution": {"width": width, "height": height}, "elements": elements,
             "groups": groups, "outliner": outliner, "textures": [texture], "animations": animations}
 
 
@@ -711,11 +744,26 @@ def load_entries(folder):
     return entries
 
 
-def write_species(models, species, out, size, idle):
-    """Write out/<species>.bbmodel; returns (path, summary line). The result is checked before it is written."""
+def baked_palette(folder, species):
+    """The bytes of <species>_palette.png next to the GLB, or None when there is none."""
+    path = folder / (species + "_palette.png")
+    if not path.is_file():
+        return None
+    data = path.read_bytes()
+    try:
+        png_size(data)
+    except ToolError as exc:
+        raise ToolError("%s: %s" % (path, exc))
+    return data
+
+
+def write_species(models, species, out, size, idle, flat=False):
+    """Write out/<species>.bbmodel; returns (path, summary line). The result is checked before it is written. A baked
+    <species>_palette.png next to the GLB is the texture unless `flat`; otherwise the flat palette of `size` pixels."""
     folder = species_folder(models, species)
     glb = read_glb(folder / (species + ".glb"))
-    project = build_project(species, glb, load_entries(folder), size, idle)
+    palette = None if flat else baked_palette(folder, species)
+    project = build_project(species, glb, load_entries(folder), size, idle, palette)
     problems = check_project(project)
     if problems:
         raise ToolError("%s: the project fails its own check: %s" % (species, problems[0]))
@@ -723,8 +771,10 @@ def write_species(models, species, out, size, idle):
     target = out / (species + ".bbmodel")
     target.write_text(json.dumps(project, separators=(",", ":")) + "\n", encoding="utf-8")
     faces = sum(len(el["faces"]) for el in project["elements"])
-    return target, "%s: %d meshes, %d faces (GLB %d triangles), %d groups, %dx%d palette" % (
-        species, len(project["elements"]), faces, glb.triangle_count, len(project["groups"]), size, size)
+    texture = project["textures"][0]
+    return target, "%s: %d meshes, %d faces (GLB %d triangles), %d groups, %dx%d %s" % (
+        species, len(project["elements"]), faces, glb.triangle_count, len(project["groups"]), texture["width"], texture["height"],
+        "baked palette" if palette is not None else "flat palette")
 
 
 def check_species(out, species):
@@ -753,7 +803,9 @@ def main(argv=None):
     mode.add_argument("--check", action="store_true", help="re-read the written files in --out and validate them; write nothing")
     parser.add_argument("--models", default=DEFAULT_MODELS, help="model folder, relative to the repo root (default %(default)s)")
     parser.add_argument("--out", default=DEFAULT_OUT, help="output folder, relative to the repo root (default %(default)s)")
-    parser.add_argument("--size", type=int, default=TEXTURE_SIZE, help="palette texture side in pixels (default %(default)s)")
+    parser.add_argument("--size", type=int, default=TEXTURE_SIZE, help="side of the flat fallback palette in pixels (default %(default)s); "
+                        "a baked <Id>_palette.png keeps its own size")
+    parser.add_argument("--flat", action="store_true", help="write the flat palette even when a <Id>_palette.png sits next to the GLB")
     parser.add_argument("--no-idle", action="store_true", help="write an empty animations list instead of the example idle")
     args = parser.parse_args(argv)
     try:
@@ -768,7 +820,7 @@ def main(argv=None):
             if args.check:
                 failed += 0 if check_species(out, species) else 1
             else:
-                target, summary = write_species(models, species, out, args.size, not args.no_idle)
+                target, summary = write_species(models, species, out, args.size, not args.no_idle, args.flat)
                 print("to_bbmodel: %s -> %s" % (summary, target))
         return 1 if failed else 0
     except (ToolError, OSError, KeyError, IndexError, struct.error) as exc:

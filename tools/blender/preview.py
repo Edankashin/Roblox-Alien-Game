@@ -17,6 +17,7 @@ Usage: python3 tools/blender/preview.py [--models assets/models] [--species Moss
        blender -b -P tools/blender/preview.py -- --species Mossbop
        python3 tools/blender/preview.py --lit --models <surface build> --compare <plain build> --species Mossbop --out <folder>
        python3 tools/blender/preview.py --lit --backdrop A9C7E6 --species Snowbun    # a pale blue sky and floor, so white snow species show
+       python3 tools/blender/preview.py --lit --textured --models /scratch/uvbake --species Sparkfox --out <folder>   # an unwrap_bake.py build
 The flat modes read a surface build too: the vertex-colour gradient in the GLB is unwired before the flat render (see slot_colour).
 """
 import argparse
@@ -50,6 +51,9 @@ def parse_args():
     ap.add_argument("--out", default="", help="--lit: where <Id>_surface.jpg goes (default: next to each GLB)")
     ap.add_argument("--size", type=int, default=512, help="--lit: pixels per side of one model's half of the image")
     ap.add_argument("--samples", type=int, default=64, help="--lit: Cycles samples")
+    ap.add_argument("--textured", action="store_true",
+                    help="--lit: colour each model from the baked <Id>_palette.png next to its GLB (tools/blender/unwrap_bake.py) instead of the "
+                         "vertex gradient and the shared slot textures; a model without one is drawn as before")
     ap.add_argument("--backdrop", default="", help="--lit: a hex colour (e.g. A9C7E6) for the sky and the floor instead of the warm cream, so white and pale species show")
     return ap.parse_args(argv)
 
@@ -225,9 +229,23 @@ def hex_linear(h):
     return (out[0], out[1], out[2], 1.0)
 
 
-def surface_variant(obj, entries, textures_root):
+def palette_colour(mat, bsdf, image):
+    """Colour a material from the baked palette: the image (sRGB, smooth) straight into Base Color, replacing the importer's multiply of
+    the slot colour and the vertex colour (the palette already holds both, and the unwrapped UVs address it)."""
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    for link in list(bsdf.inputs["Base Color"].links):
+        links.remove(link)
+    node = nodes.new("ShaderNodeTexImage")
+    node.image = image
+    node.interpolation = "Linear"
+    node.extension = "EXTEND"
+    links.new(node.outputs["Color"], bsdf.inputs["Base Color"])
+
+
+def surface_variant(obj, entries, textures_root, palette=None):
     """Dress one imported model like the surface build: material, glossy and texture fields of its materials.json. The glTF importer
-    has already multiplied the exported vertex colour into each Base Color (as Roblox does with the part's Color)."""
+    has already multiplied the exported vertex colour into each Base Color (as Roblox does with the part's Color). With `palette` (a
+    baked <Id>_palette.png) the image is the colour instead, and the shared slot texture sets are skipped (an atlas has no tiling)."""
     by_name = {e["name"]: e for e in entries}
     notes = []
     for slot in obj.material_slots:
@@ -260,6 +278,10 @@ def surface_variant(obj, entries, textures_root):
             bsdf.inputs["Roughness"].default_value = 0.05
             if "Transmission Weight" in bsdf.inputs:
                 bsdf.inputs["Transmission Weight"].default_value = 0.5
+        if palette is not None:
+            palette_colour(mat, bsdf, palette)
+            notes.append(entry.get("name", mat.name) + ":palette")
+            continue
         key = entry.get("texture")
         folder = pathlib.Path(textures_root) / key if key else None
         if key and (folder / (key + "_color.png")).exists():
@@ -351,8 +373,14 @@ def lit_main(args, models):
             bpy.ops.import_scene.gltf(filepath=str(models / sid / ("%s.glb" % sid)))
             after_objs = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
             notes = []
+            palette = None
+            baked = models / sid / ("%s_palette.png" % sid)
+            if args.textured and baked.is_file():
+                palette = bpy.data.images.load(str(baked), check_existing=True)
+                palette.colorspace_settings.name = "sRGB"
+                palette.alpha_mode = "NONE"  # the space between islands is transparent black; only island texels and their bleed are sampled
             for obj in after_objs:
-                notes += surface_variant(obj, entries, args.textures)
+                notes += surface_variant(obj, entries, args.textures, palette)
             before_objs = []
             if plain_root is not None:
                 before = set(bpy.data.objects)

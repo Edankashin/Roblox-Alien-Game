@@ -95,13 +95,14 @@ def pack_glb(doc, blob):
             + struct.pack("<I4s", len(blob), b"BIN\0") + blob)
 
 
-def quad_glb(material=None):
+def quad_glb(material=None, uv_scale=1.0):
     """A unit quad (two triangles, counter-clockwise from +Z) as one mesh of two primitives on one material,
-    instanced by two nodes: one moved and doubled, one mirrored in x (which flips the winding)."""
+    instanced by two nodes: one moved and doubled, one mirrored in x (which flips the winding). `uv_scale` stretches
+    the UVs (past 1 they leave 0..1)."""
     positions = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
     blob = b"".join(struct.pack("<3f", *p) for p in positions)                    # 0..48
     blob += b"".join(struct.pack("<3f", 0, 0, 1) for _ in positions)               # 48..96
-    blob += b"".join(struct.pack("<2f", *uv) for uv in ((0, 1), (1, 1), (1, 0), (0, 0)))  # 96..128
+    blob += b"".join(struct.pack("<2f", u * uv_scale, v * uv_scale) for u, v in ((0, 1), (1, 1), (1, 0), (0, 0)))  # 96..128
     blob += b"".join(struct.pack("<4H", 65535, 0, 32768, 65535) for _ in positions)  # 128..160
     blob += struct.pack("<6H", 0, 1, 2, 0, 2, 3)                                   # 160..172
     views = [{"buffer": 0, "byteOffset": o, "byteLength": n} for o, n in ((0, 48), (48, 48), (96, 32), (128, 32), (160, 12))]
@@ -351,6 +352,97 @@ class CheckCatchesBreakage(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("problem(s)", err)
         self.assertEqual(quiet("--species", "Sparkfox", "--check", "--out", "/nonexistent-folder")[0], 1)
+
+
+def tiny_png(width=8, height=4):
+    """A small RGBA PNG from the tool's own built-in encoder (a horizontal ramp), so the test needs no Pillow."""
+    pixels = bytearray()
+    for _ in range(height):
+        for x in range(width):
+            pixels += bytes((x * 255 // (width - 1), 64, 255 - x * 255 // (width - 1), 255))
+    return bb.encode_png_plain(width, height, bytes(pixels))
+
+
+class BakedPalette(unittest.TestCase):
+    """A <Id>_palette.png next to the GLB (tools/blender/unwrap_bake.py) is the project's texture at its own size."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = pathlib.Path(self._tmp.name)
+        self.folder = self.dir / "models" / "Tiny"
+        self.folder.mkdir(parents=True)
+        self.out = self.dir / "out"
+        self.png = tiny_png()
+        (self.folder / "Tiny.glb").write_bytes(quad_glb(material=0))
+        (self.folder / "materials.json").write_text(json.dumps([{"slot": 1, "name": "Blue Body", "hex": "336699"}]))
+        (self.folder / "Tiny_palette.png").write_bytes(self.png)
+
+    def run_cli(self, *extra):
+        return quiet("--species", "Tiny", "--models", str(self.dir / "models"), "--out", str(self.out), *extra)
+
+    def written(self):
+        return json.loads((self.out / "Tiny.bbmodel").read_text())
+
+    def test_the_palette_is_the_texture_at_its_own_resolution(self):
+        code, stdout, err = self.run_cli()
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn("8x4 baked palette", stdout)
+        project = self.written()
+        self.assertEqual(project["resolution"], {"width": 8, "height": 4})
+        self.assertEqual(len(project["textures"]), 1)
+        texture = project["textures"][0]
+        self.assertEqual((texture["width"], texture["height"], texture["uv_width"], texture["uv_height"]), (8, 4, 8, 4))
+        self.assertEqual(texture["name"], "Tiny_palette.png")
+        self.assertEqual(texture_bytes(project), self.png)  # the file's bytes, embedded as they are
+        self.assertEqual(bb.check_project(project), [])
+
+    def test_faces_keep_the_glbs_uvs_scaled_to_the_palette(self):
+        self.run_cli()
+        uvs = {tuple(pair) for element in self.written()["elements"] for face in element["faces"].values() for pair in face["uv"].values()}
+        # the quad's uvs are (0,1) (1,1) (1,0) (0,0): u times 8, v times 4, no flip and no per-slot fitting
+        self.assertEqual(uvs, {(0.0, 4.0), (8.0, 4.0), (8.0, 0.0), (0.0, 0.0)})
+
+    def test_without_a_palette_png_the_flat_palette_is_the_fallback(self):
+        (self.folder / "Tiny_palette.png").unlink()
+        code, stdout, err = self.run_cli()
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn("128x128 flat palette", stdout)
+        project = self.written()
+        self.assertEqual(project["resolution"], {"width": 128, "height": 128})
+        self.assertEqual(project["textures"][0]["name"], "Tiny.png")
+
+    def test_flat_ignores_a_palette_png(self):
+        code, stdout, _ = self.run_cli("--flat", "--size", "32")
+        self.assertEqual(code, 0)
+        self.assertIn("32x32 flat palette", stdout)
+        self.assertEqual(self.written()["resolution"], {"width": 32, "height": 32})
+
+    def test_uvs_outside_0_to_1_are_refused_with_the_way_out(self):
+        (self.folder / "Tiny.glb").write_bytes(quad_glb(material=0, uv_scale=2.0))
+        code, _, err = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertIn("leave 0..1", err)
+        self.assertIn("unwrap_bake.py", err)
+        self.assertEqual(self.run_cli("--flat")[0], 0)  # the flat palette fits any uvs
+
+    def test_a_palette_file_that_is_not_a_png_is_refused(self):
+        (self.folder / "Tiny_palette.png").write_bytes(b"not a png at all, just text of some length........")
+        code, _, err = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertIn("Tiny_palette.png", err)
+        self.assertIn("not a PNG", err)
+
+    def test_check_passes_on_the_baked_project(self):
+        self.run_cli()
+        code, out, err = quiet("--species", "Tiny", "--check", "--out", str(self.out))
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn(": ok (", out)
+
+    def test_a_non_square_palette_works(self):
+        (self.folder / "Tiny_palette.png").write_bytes(tiny_png(16, 2))
+        self.assertEqual(self.run_cli()[0], 0)
+        self.assertEqual(self.written()["resolution"], {"width": 16, "height": 2})
 
 
 class GlbReader(unittest.TestCase):
