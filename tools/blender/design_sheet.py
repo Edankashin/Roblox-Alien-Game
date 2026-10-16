@@ -9,6 +9,13 @@ other species of its world with its overlap. Plain Python 3 with numpy and Pillo
 `<Id>V2/<Id>V2.glb` and `<Id>V2_grey.png` (searched in order: the batch's own, then earlier batches', which stand in for their old bodies when the
 closest species of a world is looked up); --shipped holds the old bodies (`<Id>/<Id>.glb`, `<Id>_grey.png` from `preview.py`). The triangles, the
 size and the lowest point are read from the GLB itself. The JPEG quality is lowered until the file is under 450 KB.
+
+The option `--fixes` makes the before and after sheet of docs/vault/06-art-pipelines/Design-Fixes.md instead (`FIXES` holds its rows):
+
+  python3 tools/blender/design_sheet.py --fixes --renders DIR --models NEW/models --models OTHER/models --before OLD/models --shipped SHIPPED --out sheet.jpg
+
+--renders holds `<Id>_<view>.jpg` (the previous V2) and `<Id>V2_<view>.jpg` (the fixed one) for front, tq and side (`review_views.py --old-views front,tq,side`);
+--before is the folder of the previous V2s (`<Id>V2/<Id>V2.glb` and `_grey.png`).
 """
 import argparse
 import json
@@ -209,7 +216,117 @@ def compose(batch, renders, models, shipped, out, luau=None):
     return result
 
 
+# ---------------------------------------------------------------------------------------------------- the design-fixes sheet (a before and after of the redesigns)
+FIXES = {
+    "title": "Design fixes: six weak bodies of passes 1 to 3 rebuilt (hybrid sculpt, scratch builds, nothing under assets/models changed)",
+    "rows": [
+        ("Radish", "spectacular", "a huge dished gold sun disc ringed by broad rays behind the head, two wings of gold ray feathers over orange coverts on a tapering arm, a taller leaf plume"),
+        ("Zapfinch", "cool", "one teardrop bird (chest, belly, rump) with a tapering tail, wings of layered primaries and coverts, a hooked beak"),
+        ("Skaddle", "fierce", "the snow owl is back: a full feathered chest, a broad owl head with ear tufts, thick feathered legs, wings with feathered mass"),
+        ("Gloomoth", "cool", "a big head, a heavy brow and mandibles; thick crystal wings swept back like a moth at rest, so the side view is a roof, not a sliver"),
+        ("Shimmerlynx", "cool", "a lynx stalking on four planted paws: chest, withers and haunches, a snarl, an aurora crown fan that reads from the front"),
+        ("Reindazzle", "cool", "a deep chest, a throat ruff and a heavy brow under antlers whose beams curve in an S and whose tines curl"),
+    ],
+}
+
+
+def compose_fixes(rows, renders, models, shipped, before, out, luau=None):
+    """The before and after sheet of the design fixes: per row the previous V2 (front, three-quarter, side) beside the fixed V2 (the same three), the two 64 px
+    shapes, the triangles of both, the overlap of the fixed body with the shipped body, with the previous V2 and with the closest other species of its world.
+    `renders` holds `<Id>_<view>.jpg` (the previous V2, rendered with `review_views.py --old-views front,tq,side`) and `<Id>V2_<view>.jpg` (the fixed one);
+    `models` are the folders of the fixed `<Id>V2/<Id>V2.glb` and `_grey.png` (then the other batches' V2s, which stand in for their old bodies); `before` is the
+    folder of the previous V2s (`<Id>V2/<Id>V2.glb` and `_grey.png`)."""
+    shapes = OV.Shapes(models, shipped)
+    was = OV.Shapes([before], shipped)
+    world_of = OV.worlds(luau)
+    info = species_info(luau)
+    cell, shape = 200, 112
+    w_label, w_cells, w_shapes, w_text = 214, cell * 6 + 18, shape * 2 + 24, 300
+    width = w_label + w_cells + w_shapes + w_text + 24
+    head, row_h = 108, cell + 14
+    sheet = Image.new("RGB", (width, head + row_h * len(rows) + 10), BG)
+    d = ImageDraw.Draw(sheet)
+    d.text((14, 10), FIXES["title"], font=font(19, True), fill=INK)
+    d.text((14, 38), "Per row: the previous V2 (front, three-quarter, side) beside the fixed V2 (the same three), lit renders to scale; the black shapes at 64 px (before, after); the numbers.", font=font(15), fill=SOFT)
+    d.text((14, 58), "Overlap = intersection over union of the black shapes, plain 64 px / boxed 48 px. Bars: under 0.85 against the shipped body, under 0.7 against any other species of its world.", font=font(15), fill=SOFT)
+    d.text((w_label + 8, head - 18), "before: the previous V2", font=font(14, True), fill=SOFT)
+    d.text((w_label + cell * 3 + 26, head - 18), "after: the fixed V2", font=font(14, True), fill=INK)
+    d.text((w_label + w_cells + 12, head - 18), "black shape, 64 px: before | after", font=font(14, True), fill=INK)
+    d.text((w_label + w_cells + w_shapes + 12, head - 18), "numbers", font=font(14, True), fill=INK)
+    result = {}
+    for r, (sid, mood, blurb) in enumerate(rows):
+        y0, v2 = head + r * row_h, sid + "V2"
+        names = ["%s_%s.jpg" % (sid, v) for v in ("front", "tq", "side")] + ["%s_%s.jpg" % (v2, v) for v in ("front", "tq", "side")]
+        imgs = [Image.open(pathlib.Path(renders) / n) for n in names]
+        bg = imgs[0].getpixel((4, 4))
+        boxes = [content_box(im, bg) for im in imgs]
+        x0, y0b = min(b[0] for b in boxes), min(b[1] for b in boxes)
+        x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+        side = int(max(x1 - x0, y1 - y0) * 1.1)
+        cx, cy = (x0 + x1) // 2, (y0b + y1) // 2
+        box = (cx - side // 2, cy - side // 2)
+        for i, im in enumerate(imgs):
+            canvas = Image.new("RGB", (side, side), bg)
+            canvas.paste(im, (-box[0], -box[1]))
+            sheet.paste(canvas.resize((cell, cell), Image.LANCZOS), (w_label + i * cell + (18 if i >= 3 else 0), y0))
+        meta = info[sid]
+        d.text((14, y0 + 6), sid, font=font(20, True), fill=INK)
+        d.text((14, y0 + 32), "%s  (%s)" % (meta["name"], meta["tier"]), font=font(14), fill=SOFT)
+        d.text((14, y0 + 50), WORLD[meta["world"]], font=font(14), fill=SOFT)
+        pw = int(d.textlength(mood, font=font(13, True))) + 16
+        d.rounded_rectangle((14, y0 + 72, 14 + pw, y0 + 92), radius=9, fill=PILL[mood])
+        d.text((22, y0 + 75), mood, font=font(13, True), fill=(255, 255, 255))
+        for k, line in enumerate(wrap(d, blurb, font(13), w_label - 26)):
+            d.text((14, y0 + 102 + 17 * k), line, font=font(13), fill=INK)
+        sx = w_label + w_cells + 12
+        sheet.paste(shape_image(was.mask(v2), shape), (sx, y0 + 8))
+        sheet.paste(shape_image(shapes.mask(v2), shape), (sx + shape + 6, y0 + 8))
+        tx = w_label + w_cells + w_shapes + 12
+        new, old = glb_stats(shapes.path(v2).parent / (v2 + ".glb")), glb_stats(was.path(v2).parent / (v2 + ".glb"))
+        vs_shipped = shapes.pair(v2, sid)
+        vs_prev = OV.pair_of(shapes.mask(v2), was.mask(v2))
+        near = OV.neighbours(shapes, v2, world_of)[0]
+        d.text((tx, y0 + 6), "%s triangles" % format(new["tris"], ","), font=font(17, True), fill=INK)
+        d.text((tx, y0 + 30), "(was %s)   size %s studs" % (format(old["tris"], ","), " x ".join("%.1f" % q for q in new["size"])), font=font(13), fill=SOFT)
+        d.text((tx, y0 + 54), "overlap with the shipped body", font=font(13), fill=SOFT)
+        d.text((tx, y0 + 70), "%.2f / %.2f" % vs_shipped, font=font(17, True), fill=INK)
+        d.text((tx, y0 + 96), "with the previous V2", font=font(13), fill=SOFT)
+        d.text((tx, y0 + 112), "%.2f / %.2f" % vs_prev, font=font(17, True), fill=INK)
+        d.text((tx, y0 + 138), "closest in its world", font=font(13), fill=SOFT)
+        d.text((tx, y0 + 154), "%s  %.2f / %.2f" % (near[0].replace("V2", " V2"), near[1], near[2]), font=font(16, True), fill=INK)
+        d.line([(10, y0 + row_h - 4), (width - 10, y0 + row_h - 4)], fill=(222, 214, 200), width=1)
+        result[sid] = {"tris": new["tris"], "old_tris": old["tris"], "size": new["size"], "low": new["low"], "slots": new["slots"], "mood": mood,
+                       "vs_shipped": vs_shipped, "vs_previous": vs_prev, "closest": near}
+    out = pathlib.Path(out)
+    for q in (78, 72, 66, 60, 52, 46):
+        sheet.save(out, quality=q, optimize=True, progressive=True)
+        if out.stat().st_size < 440 * 1024:
+            break
+    print(out, out.stat().st_size, sheet.size, "quality", q)
+    return result
+
+
+def main_fixes(argv):
+    """`design_sheet.py --fixes --renders DIR --models NEW/models [--models OTHER/models ...] --before OLD/models --shipped DIR --out sheet.jpg`"""
+    ap = argparse.ArgumentParser(description="The before and after sheet of the design fixes")
+    ap.add_argument("--fixes", action="store_true")
+    ap.add_argument("--renders", required=True)
+    ap.add_argument("--models", action="append", required=True)
+    ap.add_argument("--before", required=True, help="the folder of the previous V2s: <Id>V2/<Id>V2.glb and <Id>V2_grey.png")
+    ap.add_argument("--shipped", default=str(ROOT / "assets/models"))
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--luau", default="")
+    ap.add_argument("--json", default="")
+    a = ap.parse_args(argv)
+    res = compose_fixes(FIXES["rows"], a.renders, a.models, a.shipped, a.before, a.out, a.luau or None)
+    if a.json:
+        pathlib.Path(a.json).write_text(json.dumps(res, indent=1))
+    return 0
+
+
 def main(argv=None):
+    if "--fixes" in (sys.argv[1:] if argv is None else argv):
+        return main_fixes(sys.argv[1:] if argv is None else argv)
     ap = argparse.ArgumentParser(description="Compose the review sheet of a design-pass batch")
     ap.add_argument("--batch", required=True, choices=sorted(BATCHES))
     ap.add_argument("--renders", required=True)

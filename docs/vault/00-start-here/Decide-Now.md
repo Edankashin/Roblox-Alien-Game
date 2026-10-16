@@ -217,7 +217,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 **39. Design pass batch 3, the top of the ladder: take, fix or redo?** Raddis (Cosmic) and Syrinx (Secret), the grandest bodies so far, plus Zirrit, Vixa, Floe, Snibble, Pebblet and Eekle (`media/studio/2026-10-16/design_pass_3.jpg`; [[Design-Pass]] "batch 3"). All eight pass the three style checks.
 - Options: a) the builder's verdicts: take Syrinx, Vixa, Floe, Snibble, Pebblet and Eekle; fix Raddis (the sun disc hides behind the head, the wings read as palm fronds) and Zirrit (paddle wings, a two-ball body); b) your own letters per species; c) later.
-- Recommend: **a**. The two fixes are already being built, with the batch 2 fixes (Iridia, Skadra, Aurelyx, a bite for Blinkar) on one before-and-after sheet (the Design-Fixes note, when it lands).
+- Recommend: **a**. The two fixes are already being built, with the batch 2 fixes (Iridia, Skadra, Aurelyx, a bite for Blinkar) on one before-and-after sheet ([[Design-Fixes]], `media/studio/2026-10-16/design_fixes.jpg`).
 - Then: same as item 37: nothing changes under `assets/models/` until you say yes to a sheet.
 
 ## Closed or parked, no answer needed
