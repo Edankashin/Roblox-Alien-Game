@@ -41,4 +41,5 @@ The transcript is the session's `.jsonl` under `~/.claude/projects/<project fold
 - [[2026-10-13-mac-session]]
 - [[2026-10-14-coordinator]]
 - [[2026-10-15-coordinator]]
+- [[2026-10-16-coordinator]]
 <!-- transcripts:end -->

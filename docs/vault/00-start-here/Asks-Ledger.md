@@ -173,6 +173,15 @@ Built on 2026-10-15 from Ethan's own words in [[Transcripts]] (every `Ethan:` bl
 | 10 | Batch 7, three links; "copy this type of UI" (ZPLSQA4aX) | ask | done: downloaded, processed, noted; the Shop shelf rebuilt from it (ffeae32); Mac job 32 checks it on a phone | `media/tiktok/NOTES.md` batch 7, [[UI-Playbook]] "Shop shelf" |
 | 11 | Incorporate Blockbench, Blender and Substance Painter to create the character models; batch 8, six links | decision, ask | in progress: the toolchain note, the bbmodel writer and the UV bake built; Blockbench not installed (his), the Painter licence undecided (his); batch 8 noted | [[Model-Toolchain]], [[Tools-Status]], [[Board]] "Waiting on Ethan" |
 | 12 | "I hit my usage limit, continue" (twice) | report | the same open decision | [[Board]] "Needs a decision" |
+| 13 | Do everything else today; recover everything mentioned since the start and record it in the vault; tell me what you need; his name picks (Flurra, Dreep, Twiglo or Sprig, Dandel, Lantrin, Voltus, Gaira, Skadra; "assume everything else is good") | ask, decision | done: the names applied (B40, c4ed088; Twiglo taken over Sprig); this ledger written (46f0f29) and kept; the owe-lists below; the X pass and ZPLSHwXqp closed | [[Decisions]] B40, [[Species-Names]], this note |
+| 14 | Not every alien should be cute; a balance, the majority of rarer aliens fiercer or more spectacular; Fenrir too cute for someone who worked to find him; apply this to the others by judgement; no grainy texture on him or the others | decision | in progress: grain removed (B41, 29d09e2); the temperament ladder and face moods (B42, 57026df); design pass batch 1 (a0f4a17) and batch 2, the rarer bodies fiercer (26a46cc); batch 3 running (Raddis and Syrinx the grandest); Fenrir by hand waits on his route ([[Decide-Now]] 11) | [[Decisions]] B41, B42, [[Design-Pass]], [[Hero-Aliens]] |
+| 15 | Lay everything out so it is easier to decide (the icon and thumbnail picks, the install lines, the small decisions) | ask | done: [[Decide-Now]], every open question with options, a recommendation and an answer sheet (f1bba85); 37 and 38 added 2026-10-16 | [[Decide-Now]] |
+
+## 2026-10-16 ([[2026-10-16-coordinator]])
+
+| # | Ethan (shortened) | Kind | Status | Where |
+|---|---|---|---|---|
+| 1 | "Try again" (after a stopped turn) | ask | done: the batch 2 merge resumed and pushed (26a46cc), the sheet sent | [[Design-Pass]] |
 
 ## References Ethan sent
 
@@ -246,10 +255,10 @@ The product decisions 1 to 16 (2026-10-04), the eight of 2026-10-14 (the name **
 
 ## What Ethan still owes
 
-His open rows, from the tables above and [[Board]] "Waiting on Ethan" and "Needs a decision".
+His open rows, from the tables above and [[Board]] "Waiting on Ethan" and "Needs a decision". [[Decide-Now]] puts every one as a numbered question with a recommended answer.
 
-1. **Names v3**: a letter per species (A, B or C) or his own names, and his call on the seven near-misses and Pegasi ([[Roster-Redesign]] 5, [[Species-Names]] "Collision screen (2026-10-15)"). He said on 2026-10-15 he would name them himself if the alternatives were not better.
-2. **A look at the sheets** before any model is replaced: the hybrid sculpt pass 2 (all 35), Fenrir v2 and Skydrake, the UV bake; and the hero slate and the "creatures, not deities" line of B37 ([[Sculpt-Pass]], [[Hero-Aliens]], [[Surface-Pass]]).
+1. ~~**Names v3**~~ Done 2026-10-15: his picks applied (B40, c4ed088), every other name kept as proposed.
+2. **A look at the sheets** before any model is replaced: design pass batches 1 and 2 (`media/studio/2026-10-15/design_pass_2.jpg`), the hybrid sculpt pass 2 (all 35), Fenrir v2 and Skydrake, the UV bake; the hero route; and the hero slate and the "creatures, not deities" line of B37 ([[Decide-Now]] 9 to 12, 37, 38; [[Design-Pass]], [[Sculpt-Pass]], [[Hero-Aliens]]).
 3. **Pick a board per screen** on the Claude Design canvas: HUD, Aliens, Shop, the reveal ([[Claude-Design-Brief]]).
 4. **The icon and the thumbnail order**, or "use yours" ([[Thumbnail-Research]]); open since 2026-10-14.
 5. **Blockbench** installed; **the Substance Painter licence** decided ([[Model-Toolchain]]).

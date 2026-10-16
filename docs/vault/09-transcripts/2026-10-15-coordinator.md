@@ -841,3 +841,341 @@ The one worker still running is the Shop shelf rebuild. Everything else waits on
 - tool: TaskUpdate 85
 - tool: Bash export PATH=[redacted]/bin:$PATH && pyth
 - tool: Agent Blender UV unwrap and palette bake
+
+The Shop shelf is built and pushed (ffeae32): the in-game Shop now opens full screen as a tab rail plus a scrolling shelf of tall category-coloured cards with ribbons, seals, big icons and green price pills, the active tab following the scroll, Reduced Motion forms for every move, and the odds view and purchase flow untouched. Two notes from the build: Roblox gives scripts no Robux balance, so the currency row shows Scrap only, and the Robux glyph is text until an icon is uploaded. The Mac screenshots it at iPhone SE and iPad as its next Studio job, together with the launch camera.
+
+Also pushed: your whole chat with me, up to tonight, re-exported into the vault's transcripts folder with the same redaction. A worker is now giving every species a clean UV layout and one baked palette texture, so the Blockbench projects open paintable and one texture can later replace the vertex colours.
+
+Waiting on you: the names table, the hero slate and the three sheets, Blockbench, the Studio windows, the Obsidian setup, and the transcript privacy call.
+
+##### 17:28
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: TaskUpdate 82
+- tool: Agent Reveal in three beats
+
+Pushed (327679c): every species now has a clean, non-overlapping UV layout and a baked 512 px palette texture from a new Blender tool, so the Blockbench projects open paintable and one texture can later replace the vertex colours. The Mac's next check on that is to open a baked Sparkfox project in Blockbench and paint one stroke, once Blockbench is installed.
+
+A worker is now building the reveal in three beats (tap to crack, shards and rays in the tier colour, the card with the "1 in N" line, timings in a data table, toasts held until it ends), straight from the canvas boards and the ladder.
+
+Waiting on you: the names table, the hero slate and the three sheets, Blockbench, the Studio windows, the Obsidian setup, and the transcript privacy call.
+
+##### 18:00
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash python3 - <<'EOF' import pathlib p=pathl
+- tool: TaskCreate Reveal in three beats built (f3ad7ab); S
+- tool: Agent Names collision screen
+
+The reveal in three beats is merged and pushed (f3ad7ab): tap to crack with the rarity glow leaking per tap, the shell bursting into shards with rays in the tier colour and the tier word dropping in, then the card with the creature, the "1 in N · x% chance" line (from the server's own egg draw, or the tier's spawn share for a wild catch, hidden where no real odds exist), and the two buttons sliding up last. Legendary and above scale the shards and add the gold ring, Cosmic adds a second ray colour, Secret dims and opens a dark iris. Every timing is in a data table that matches the timing board on the canvas. 509 headless specs pass; the Mac screenshots it as job 33.
+
+A last worker tonight is running the collision search on all the proposed names and the hero names, so whichever you pick is already cleared.
+
+**Where today ended** (all pushed, branch at f3ad7ab and later):
+- Research report and roster redesign doc, with the rank ladder, elements, hero slate and names v3.
+- Design canvas with twelve boards, including the Shop shelf from your reference.
+- Code: per-alien effects everywhere an alien renders, the Shop shelf, the three-beat reveal, the launch fixes, the lighting fields, the texture templates, the Fabric fixes.
+- Art: hybrid sculpt across all 32 (pass 2 wide-eyed), Fenrir v2 and Skydrake, clean UVs and baked palettes, Blockbench projects.
+- Vault: Now.md, the Claude Design brief, the toolchain note, decisions B27 to B39, your whole chat exported.
+
+**Yours tomorrow**: the names table, the hero slate and the three sheets, install Blockbench, quit the Studio windows, the Obsidian two-minute setup, and the transcript privacy call.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: TaskUpdate 81
+
+The collision search is merged (a6c01ef). It changes six of the recommended names, so here is the table to decide from, with every pick now cleared:
+
+| Now | Pick | | Now | Pick |
+|---|---|---|---|---|
+| Moop | Moop | | Mitt | Mitt |
+| Pebblet | Pebblet | | Snowsnow | Flurra |
+| Glim | Glim | | Drip | Drip |
+| Twiggle | **Twiglo** (Sprig is a Disney lead) | | Digling | Digling |
+| Puffpuff | **Fuzzil** (Dandel is one letter from a YouTuber) | | Kettlet | Kettlet |
+| Snibble | Snibble | | Pengoo | Pengoo |
+| Buzzbit | Buzzik | | Flapflap | Eekle |
+| Lanternewt | **Lantrin** (Lampo is a 44 Cats toy) | | Toastoad | Soakum |
+| Rocklobber | **Boulden** (Krabbok sits next to Pokémon names) | | Sizz | Sizz |
+| Zapfinch | Zirrit | | Glintelk | Blinkar |
+| Sparkfox | Vixa | | Shellberg | Floe |
+| Thunderhog | **Thrumm** (Voltus is an anime title) | | Capybubble | Snorzo |
+| Prismlux | Iridia | | Auralynx | Aurelyx |
+| Gaiabloom | Gaiara | | Achoocub | Sabrek |
+| Ra-dish | Raddis | | Skaddle | Skadi (several game uses; Skadra if you prefer) |
+| Trillgoat | Syrinx | | Fenrikin | Fenrir |
+| Wispkin | **Wispkin** (Flick is a 440M-visit Roblox shooter) | | | |
+| Grin | Grin | | | |
+| Cosmoo | Cosmoo | | | |
+
+Among the heroes, Raiju is a pet in Grow a Garden, so it becomes Raikyn; Sleipnir may be a Pet Simulator 99 pet and needs a look in game; Pegasi reads as a plural. The full table with every verdict is in the vault under Species-Names.
+
+Reply with the rows you want changed or your own names, and I apply them the same hour. Nothing else is running; the Mac's Studio checks of the shelf, the reveal and the launch camera land on its own.
+
+##### 20:28
+
+> **Ethan:** Do everything else that you need to do, today. Recover everything you forgot that was mentioned in this conversation since the start and record it into obsidian vault as well. Also let me know what you need from me. I will reply with the names right now.
+>
+> Ill list the changes I want, assume everything else is good:
+> Flurra is better than snowsnow.
+> Drip should be Dreep
+> Twiglo is good or Sprig is also good
+> Dandel is good
+> Lantrin is good (i will now only list the ones I want changed)
+> Voltus is good instead of thrumm
+> Gaiara should be Gaira
+> Skadra is better
+
+**Coordinator:**
+
+Names first, then the ledger of everything you asked since the start, then the rest of today's list.
+
+- tool: Bash git pull --rebase origin claude/alien-sy
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: Agent Ledger of every ask since the start
+- tool: Agent Per-species design pass, batch 1
+- tool: Bash export PATH=[redacted]/bin:$PATH && for
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: Edit [redacted]/Main.dc.html
+- tool: Edit [redacted]/HUD-iPad.dc.html
+- tool: Edit [redacted]/Aliens.dc.html
+- tool: Edit [redacted]/Aliens.dc.html
+- tools: 5 more calls
+
+Your names are applied and pushed (c4ed088): 23 species renamed exactly as you listed (Flurra, Dreep, Twiglo, Dandel, Lantrin, Voltus, Gaira, Skadra, plus the table's picks for the rest), ids unchanged, the design doc's roster and the canvas boards updated, the name checker and all 509 specs clean. Decision B40 records it.
+
+Running now, all three in the cloud:
+- **The asks ledger**: a worker is reading every message you sent since 4 October out of the exported transcripts and writing `Asks-Ledger.md` in the vault, one row per ask, decision, reference link, promise and idea, with its status and a bold GAP wherever something was never acted on or recorded, plus a Board row for each gap.
+- **Design pass, batch 1**: new shapes for the eight species that barely changed through the sculpt passes (Moop, Glim, Dreep, Kettlet, Mitt, Dandel, Snorzo, Pengoo), each with a silhouette of its own and a feature that names its world.
+- **Fenrir round 2 and the Skydrake head**: longer muzzle, stalking line, fur breaks instead of spikes, a wedge head and branched antlers on the dragon.
+
+**What I need from you**:
+1. Quit all four Roblox Studio windows on the Mac (File, Quit, Don't Save on the old one). The Mac cannot open the new place for the Shop shelf, reveal and launch checks until then.
+2. Install Blockbench (free, no account) on the Mac so the Mac can open the two project files and the baked one.
+3. Obsidian on the Mac: Settings, General, enable the command-line interface; install the "Local REST API" community plugin; the steps and the one connect command are in Setup-and-Tips.
+4. The transcript privacy call: the Mac's 15 October day records a private matter of yours and stays out of the vault until you say so (and whether to redact it).
+5. The hero slate: a yes on the eight to build first, and on the rule that we take creatures from the myths, never deities of living religions.
+6. Later, not tonight: a Substance Painter decision (this Mac has half the memory it needs), and the Tripo trial credits.
+
+##### 20:48
+
+**Coordinator:**
+
+The ledger is in with four gaps found. Two are mine to close tonight: the ZPLSHwXqp design video was never watched, and the X-post half of the research never happened. Merging the ledger and putting both gaps to work.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Agent Process the ZPLSHwXqp design video
+- tool: Agent X posts research pass
+
+The ledger is in the vault (`docs/vault/00-start-here/Asks-Ledger.md`, pushed as 46f0f29): 118 rows from the 114 messages you sent since 4 October, a 35-link table showing whether each reference was downloaded, processed and noted, a tools table, and the decisions. It found four gaps:
+
+1. The ZPLSHwXqp design video ("replicate this design", 14 October) was downloaded but never watched or noted. A worker is on it now: the creator's steps, the skills our pipeline lacks, and a frame sheet.
+2. The X-post half of the research never happened because x.com is blocked here. A worker is doing it through search snippets now.
+3. The tiktok.com allowlist for this cloud environment, suggested twice, never applied. Yours, optional: it would let me fetch your links directly instead of through the Mac.
+4. Usage-limit continuity: the account limit stopped work six times in two days and nobody put the question to you. Your decision: accept the pauses (everything resumes on its own now), or raise the plan.
+
+**The ledger also lists what you still owe from earlier promises**, beyond tonight's six: collaborator access for your partner (promised 6 and 10 October), a listen to the music picks, joining on your phone, the icon and thumbnail picks, the install lines you were given (bun, rtk, ccstatusline, the three plugins, obsidian-skills), and the small decisions (notifications, generator credits, the catch cap). Each has a Board row with your name on it.
+
+Still running in the cloud: the design pass on the eight weakest shapes, Fenrir round 2 with the dragon's wedge head, the design-video note, and the X pass. The Mac has its three Studio checks waiting on the Studio windows.
+
+##### 21:00
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tool: TaskCreate Asks ledger kept current; gaps 1 and 2 c
+
+The ZPLSHwXqp video is noted at last (45190b8), and it changes what "replicate this" means: the clip shows no process at all. Whisper hears only music, and the only step on screen is a Claude chat with numbered concept images ("want #3 redone"). The rest is the finished game: a cube-cell Void Hydra that dissolves into pixels, a feather-shingled Phoenix with beating wings, a star-speckled Celestial Dragon with a cube-chain tail, each about four avatar heights tall, plus a Pet Index screen.
+
+What makes those read as finished, and the five skills our pipeline lacks, are now in the character pipeline note with a Board row: one build unit per creature (cube cells or feather shingles) with a pattern and an ink edge drawn into the texture; a separate emissive line map so glow is drawn lines, not a whole slot; articulated hero parts (wings, a chain tail) with a display pose; huge Mythics; and the numbered concept loop plus a staged "is back home!" arrival. The cube-cell route would blow our triangle cap, so it is a prototype for you to judge, not a default.
+
+Still running: the design pass on the eight weakest shapes, Fenrir round 2, and the X-post pass.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Bash grep -n "ZPLSHwXqp\|X-post\|X pass\|x_po
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+- tool: Agent X-pass engine settings
+
+The X pass is merged (af912c2): 66 posts from Roblox developers found through search snippets, the ten best and five takes in a vault note. The two takes that are plain engine settings are being applied now (clean joins and height-based thickness on text strokes; collision fidelity set per prop so decor is cheap and walk-on props are solid). The other three went to their notes: rarity and mutations as one mesh plus a recolour and effect (which matches the ladder), three ship checks for creature shapes (round edges, tapered limbs, squircles), and the confirmation that the viral "Claude built a Roblox game" setups are the same stack we run. Two leads need a logged-in browser on the Mac: one developer's lighting settings are in an image, and an environment-breakdown post appears only as a title.
+
+Still running: the design pass on the eight weakest shapes, Fenrir round 2 with the dragon's wedge head, and the engine settings. The Mac waits on the Studio windows.
+
+##### 21:12
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+
+Pushed (cc327f2): text strokes now join cleanly and scale with the screen height (the 1080 look unchanged, phones between 2 and 3 px), and every prop carries a collision setting in data (Box on decor, Hull on walk-on props, Precise on the cave mouths and the shrine ring, none on the stations). 523 headless specs pass.
+
+Two workers remain: the design pass on the eight weakest shapes and Fenrir round 2 with the dragon's wedge head. Both report with sheets.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: TaskUpdate 87
+- tool: SendUserFile Hero round 2: Fenrir (wolf skull, stalki
+- tool: Bash export PATH=[redacted]/bin:$PATH && cat
+
+The hero round 2 sheet is above (pushed as 7b80d12). My honest read:
+
+- **Skydrake** now reads as a sky serpent of our own: the wedge head, twice-branched antlers, swept whiskers, the mane ridge and a bigger pearl carry it. The snout is still long from the front, which is the one thing I would shorten.
+- **Fenrir** is fiercer than the pup but still cute-fierce, not scary. The long snout reads trunk-like from the front and the fur plates read as spikes. The recipe system is the reason: it has no curved fin, horn or whisker, no control over where the mouth lands, and needs a sphere for the face. Two rounds is the ceiling of this route for a hero.
+
+So one more decision for you, recorded as open in the vault: hero species should take a hand route while the 32 roster species stay on recipes. Cheapest first: (a) the Mac models Fenrir by hand in Blender from the round-2 file with Claude watching through the Blender MCP, (b) a Blockbench pass on the round-2 project to reshape the head and fins by hand once Blockbench is installed, (c) a Tripo generator trial on credits. Say which, or say "a" and the Mac starts when you are done with Studio.
+
+The design pass on the eight weakest shapes is the last worker running tonight; its sheet comes when it lands.
+
+##### 21:36
+
+> **Ethan:** Not every alien should be cute. We should have a balance. The majority of rarer aliens should be fiercer, or more spectacular looking. We Fenrir in this case looks too cute, and not realy something that would appeal to people who worked so hard to find him. Apply that thought process to other aliens too, using your judgement. I also don't like the grainy trexture on him or other aliens. 
+>
+> Regarding "the icon and thumbnail picks, the install lines you were given (bun, rtk, ccstatusline, the three plugins, obsidian-skills), and the small decisions (notifications, generator credits, the catch cap). Each has a Board row with your name on it." I want you to lay everything out for me so its easier to decide.
+
+**Coordinator:**
+
+Two threads from that: the design direction (balance, fierce rare aliens, no grain) goes to work now, and a single decision sheet gets compiled so you can answer by number.
+
+- tool: Agent Compile the decision sheet
+- tool: Agent Remove the grain from the creatures
+- tool: Agent Temperament ladder and fierce faces
+
+Understood on both. Three workers are on it:
+
+- **Balance by rarity**: the ladder gets a temperament column (Common and Uncommon cute; Rare mixed; Epic cool with narrower eyes and a set jaw; Legendary fierce or spectacular with brow ridges, fangs and crests; Cosmic and Secret awe-inspiring), every species gets a temperament by my judgement, and the sculpt's face system gets real moods (angled brows and narrowed sockets as geometry, not just a lid number). The twelve rarest are being rebuilt with their moods for a side-by-side sheet, Fenrir and Skydrake included.
+- **The grain**: a worker is proving where it comes from (the tiled texture maps, a bump in the preview, or render noise) with a four-way probe on Fenrir, then making smooth the default for every body, with textures kept only on an allowlist (stone facets, ice, metal), and re-rendering the roster and hero sheets without it.
+- **The decision sheet**: one vault note, every open item numbered under five headings (tonight on the Mac, picks, tools and installs, money and accounts, small game decisions), each with the options, my recommendation and what happens after you answer, ending in an answer block you can paste back. I'll put it in chat the moment it lands.
+
+The design pass on the eight weakest shapes is still running too.
+
+##### 21:51
+
+**Coordinator:**
+
+The decision sheet is ready. Merging it and laying it out for you by number.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+
+Everything open, numbered, in `docs/vault/00-start-here/Decide-Now.md` (pushed as f1bba85, linked from Now and the Board). Here it is in short; the note has the paths, the exact commands and what happens after each answer. A star marks my recommendation.
+
+**Tonight on the Mac**
+1. Studio windows: a* quit Studio now and reopen one | b keep one | c later. Every Studio job waits on this.
+2. Blockbench: a* install the macOS app (5 min, free) | b the browser build | c later.
+3. Obsidian: a* turn on the CLI and install the Local REST API plugin (10 min; the connect line is in Setup-and-Tips) | b CLI only | c later.
+4. Your partner's access, promised 6 and 10 October: a* Roblox (friend, age check, Collaborate with Edit) and GitHub (Write) | b GitHub only | c later.
+5. Join the private game on your phone (5 min, promised 14 October): a* tonight | b later.
+6. Music and sounds nobody has heard: a* listen during the phone join and name swaps | b ship blind | c later.
+
+**Picks**
+7. Store icon: a Moop v2 | b Vixa v2 | c Voltus v2 | d* `icon_v3` (Moop on violet, thick outline, built to the research recipe).
+8. Thumbnail order: a Moment, b Reward, c Mystery (* a, b, c), d the event frame on Events only.
+9. Hero slate (20 heroes, eight first): a* yes | b yes with changes | c no.
+10. Creatures from the myths, never deities of living religions: a* confirm | b stricter, no gods at all | c looser.
+11. Hero hand route: a* Blender by hand on the Mac with Claude watching | b Blockbench pass | c Tripo trial.
+12. The sheets, one fused skin per creature as the direction: a* yes | b keep the recipe bodies | c mixed, name the species.
+13. Canvas boards: a pick a board per screen | b* I pick, you judge the first built screen on your phone | c later.
+
+**Tools and installs** (each is one or two lines typed on the Mac; none breaks the game if skipped)
+14. bun plus a one-week claude-mem trial: a* yes | b drop claude-mem | c later.
+15. rtk, shell-output squeezer: a* one-week trial | b no | c later.
+16. ccstatusline, spend in the status line: a* yes | b no.
+17. roblox-dev plugin (ivar-anon): a* yes then the dry run | b no | c later.
+18. ShiroKSH roblox-studio skill for map building: a* yes then the dry run | b no | c later.
+19. Superpowers planning plugin: a yes | b no | c* later, when the HUD rebuild or World 3 starts.
+20. kepano/obsidian-skills: a* yes after item 3 | b no | c later.
+21. The hooks proposal (three hooks, you paste the block): a all three plus path rules | b* all three now, rules later | c amend | d no.
+
+**Money and accounts**
+22. Substance Painter (this Mac has 8 GB; Adobe's minimum is 16): a* 30-day trial first, buy nothing | b Steam perpetual (~$200) | c Adobe monthly (~$60) | d not now.
+23. Tripo credits: a* yes, capped at $15 | b no.
+24. The usage limit that stopped work six times: a* an API key in the Mac shell for overnight runs only, with a monthly cap you set | b accept the resets.
+25. The group Moop Games (100 Robux): a* yes to the spend, created when the date is set and your screen is linked | b create now | c ask again at the date.
+26. Generator trial, one species through Tripo, Meshy and Rodin (~$10 to $15 in all): a* yes | b Tripo only | c none.
+27. Open Cloud key hygiene (2 min in the dashboard: scope, expiry, shell only): a* done | b later.
+28. Paid Studio plugins: a* free ones only | b buy up to a Robux cap | c decide per plugin.
+
+**Small game decisions**
+29. Rejoin notifications (opt-in, 13+, capped, flag off until a sender exists): a* yes as specced | b never | c after launch.
+30. A catch at the storage cap also pays its normal Scrap: a* keep | b release value only.
+31. Refuse a Storage Bay purchase past the hard cap: a* refuse | b allow.
+32. The stray place 82258778278086: a* delete | b keep.
+33. The Mac's 15 October transcript with your private matter: a export as is | b* export with that passage cut (you say which) | c skip the day.
+34. Allow tiktok.com in this cloud environment (2 min in the environment's network settings): a* allow | b no.
+35. Launch date: a name one now | b* none until both gates pass (the new bodies approved and in; HUD, Aliens, Shop and reveal rebuilt and checked on a phone).
+36. The four launch-week tables still dated to the cancelled weekend: a* move all four on the day the date is set | b three, leave Haunted Nebula on Halloween | c placeholders now.
+
+Paste back letters by number, "use yours" for any you want me to take, and I act on each the same hour. Meanwhile the grain removal, the temperament faces and the design pass are still running.
+
+The container restarted and three workers were lost mid-run. Checking what survived before re-creating them.
+
+- tool: Bash git log --oneline -3 && git status --sho
+- tool: Bash f=[redacted]/api-keys.md; ls -la "$f" |
+- tool: Agent Remove the grain (retry)
+- tool: Agent Temperament moods (retry)
+- tool: Agent Design pass batch 1 (retry)
+
+The container restarted a few minutes ago. Nothing committed was lost (the branch is at f1bba85 and pushed), but the three running jobs were killed mid-run: the grain removal, the temperament faces and the design pass. All three are restarted from their partial files, so they lose little; the design pass had already rendered its sheet before the restart. The Mac has pushed nothing new since its last report, so its Studio checks still wait on item 1 of the decision sheet.
+
+##### 22:36
+
+**Coordinator:**
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: TaskUpdate 81
+- tool: SendUserFile Temperament by tier: pass-2 face, mood f
+
+The temperament sheet is above (pushed as 57026df). The ladder is now in the design doc and in the sculpt: every Common and Uncommon stays cute; among the eleven Epic and above, eight are fierce or spectacular. My read:
+
+- **The faces carry it now.** Voltus, Sabrek, Boulden and Skadra get an angled brow, narrowed eyes and teeth; Gaira glares under bigger antlers; Raddis and Syrinx get a hard stare; Fenrir gets fangs and a larger moon. Zirrit and Vixa read "cool" rather than cute. The eyes stay big relative to the head, so they are still ours.
+- **The bodies do not carry it yet.** Skadra, Sabrek and Voltus are still round things with cross faces, and Fenripup is still a sitting puppy with a fierce mouth. A fierce face on a cute body reads as grumpy, not dangerous. That is the shape work: the hand route for Fenrir (decision 11) and a second design-pass batch on the rarer species, which I will run right after the first batch lands.
+- **Three to redo**: Aurelyx's brow shows as a lump in white fur, Gaira's set jaw reads as a beak, and Blinkar barely changes because its nose carries the face.
+
+The grain removal is still running and will re-render these without the texture noise; the design pass on the eight weakest shapes is the other job in flight.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/media/studi
+- tool: SendUserFile Design pass batch 1: the eight weakest s
+- tool: Agent Design pass batch 2, the rarer bodies
+
+Batch 1 of the design pass is merged (a0f4a17) and the sheet is above. This is the first set where the eight look like different characters instead of eight balls: Glim is an upright jelly firefly with swept wings and a lantern abdomen; Pengoo stands in a tux with flippers and a beak; Kettlet is a pear-bellied kettle critter with a tilted lid hat and a handle tail; Snorzo loafs like a capybara under a bubble crown; Mitt is a snow pup with a whipping scarf; Dandel has seed-ray wings and a stem tail; Dreep wears a crown of ice drips. Every one keeps the big eyes and open mouth, and every one differs from the rest of its world by the numbers. Moop is the weakest of the eight: a crouching tuft with a sprout crest and a waving arm is still close to a moss blob, so it gets another pass.
+
+One small decision for the sheet, call it item 37: these eight sit at about 2,340 triangles each, while the ladder gives Commons 1,000 to 1,400 so a Cosmic can be visibly richer. A test build at 1,800 kept the shapes. a* take Commons down to about 1,600 when they are promoted | b keep them at the cap and let the rare ones differ by effects alone.
+
+Batch 2 is now running on the eight rarer species whose faces carry a mood but whose bodies are still round: Voltus, Sabrek, Skadra, Iridia, Aurelyx, Blinkar, Boulden and Gaira get stances and proportions that carry fierce or spectacular. The grain removal is the other job in flight.
+
+- tool: Bash export PATH=[redacted]/bin:$PATH && git
+- tool: Read /home/user/Roblox-Alien-Game/.claude/wor
+- tool: Read /home/user/Roblox-Alien-Game/docs/vault/
+- tool: TaskCreate Grain removed (B41, 29d09e2): the fur no
+- tool: SendUserFile The grain, found: Fenripup rendered four
+- tool: Bash export PATH=[redacted]/bin:$PATH && pyth
+
+The grain is gone (B41, pushed as 29d09e2). The probe above is the proof: the shared "fur" normal map, tiled three by three over a small body, read as wool or sandpaper; with that map off the surface is clean, and more render samples changed nothing. Bodies are now smooth by default with the gradient and gloss kept, fifteen slots lost their map, and only nine keep one (ice and stone, where the facets want it). The roster and hero sheets are re-rendered without it. Roblox's own materials (the Fabric knit, Leather, Wood) still carry a surface of their own, so the Mac photographs those in daylight on its next Studio pass and I move any that read grainy to plain plastic.
+
+Running: batch 2 of the design pass on the eight rarer bodies. Waiting on you: the decision sheet.
+
+##### 23:28
+
+**Coordinator:**
+
+Another restart killed the batch-2 worker. Checking what it had committed before re-creating it.
+
+- tool: Bash git log --oneline -2 && git worktree lis
+- tool: Bash git log --oneline 29d09e2..worktree-agen
+
+(context compacted)
+
+**Coordinator:**
+
+- tool: Bash git status --short | head -20 && git log
+- tool: Bash cd /home/user/Roblox-Alien-Game/.claude/
+- tool: Bash cd /home/user/Roblox-Alien-Game && find
+- tool: Agent general-purpose
