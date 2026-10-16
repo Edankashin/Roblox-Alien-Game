@@ -7,7 +7,7 @@ up: "[[Start-Here]]"
 
 Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier to decide." This is every open decision and every row that carries your name, gathered from [[Asks-Ledger]] (the two owe-lists), [[Board]] ("Waiting on Ethan", "Needs a decision"), [[Decisions]] ("Open"), [[Tools-Status]], [[Setup-and-Tips]], [[Overnight]] (jobs 30 to 33), [[STORE-PAGE]], [[Thumbnail-Research]], [[Hero-Aliens]], [[Model-Toolchain]] and the design doc. Logged in [[2026-10-15]]. Back to [[Start-Here]].
 
-**How to answer.** 39 items in six groups (37 to 39 added 2026-10-16). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 40 items in six groups (37 to 40 added 2026-10-16). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -220,6 +220,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**. The two fixes are already being built, with the batch 2 fixes (Iridia, Skadra, Aurelyx, a bite for Blinkar) on one before-and-after sheet ([[Design-Fixes]], `media/studio/2026-10-16/design_fixes.jpg`).
 - Then: same as item 37: nothing changes under `assets/models/` until you say yes to a sheet.
 
+**40. Design pass batch 4, the cute end: take, fix or redo?** Buzzik, Lantrin, Twiglo, Soakum, Sizz, Flurra and Digling, all Common or Uncommon (`media/studio/2026-10-16/design_pass_4.jpg`; [[Design-Pass]] "batch 4"). With it, 31 of 35 species have a redesign; only the hero Fenrir and the three event species do not. All seven pass the three style checks.
+- Options: a) the builder's verdicts: take six, fix Twiglo (from the front it is a ball on spider legs); b) your own letters per species; c) later.
+- Recommend: **a**.
+- Then: same as item 37: nothing changes under `assets/models/` until you say yes to a sheet.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -273,4 +278,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 37: a* builder's verdicts plus a bite for the cool three | b per species | c later
 38: a* ladder bands | b all 2,400 | c Commons 1,600
 39: a* builder's verdicts, fixes already running | b per species | c later
+40: a* take six, fix Twiglo | b per species | c later
 ```

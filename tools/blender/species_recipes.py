@@ -2450,6 +2450,252 @@ RECIPES["FlapsicleV2"] = {
 # ==== DESIGN PASS 3 END ====
 
 
+# ==== DESIGN PASS 4 BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Design-Pass.md "Batch 4"; written 2026-10-16) ====
+# The per-species design pass, batch 4: the last seven species, all Common or Uncommon, the cute end of the ladder: Buzzik (Buzzlebee), Lantrin (Lanternewt),
+# Twiglo (Twiglet) in World 1 and Soakum (Toastoad), Sizz (Emberchin), Flurra (Snowbun), Digling (Chipmole) in World 2. Each `<Id>V2` is a `"prototype": True`
+# recipe that keeps its species' height, slots, palette and glow and gives it a body of its own: cute and goofy, big eyes, never a ball with one prop. Built with
+# `species_sculpt.py --method hybrid` on a scratch copy of the species' folder renamed `<Id>V2` (all seven are the cute face: no mood flag); the exact command lines
+# are in Design-Pass.md. Facing -Y, feet on z 0, as everywhere in this file. Helpers from the hero and the earlier batches (_blade, _leaf, _msweep, _chain) are
+# reused; no helper is new. Part names are the effect's hooks (the tests list them): `wing`, `leaf`, `lantern`, `pebble`, `ember`, `tail`, `claw`.
+
+
+# ---------------------------------------------------------------------------------------- Twiglo v2 (Twiglet)
+# A stick bug on its hind legs: a big round head on a thin knobbly twig of a body (three dark nodes on the trunk) that drags a long abdomen behind it, curling
+# up at the tip, two grasshopper legs with high knees, one arm waving and one hanging, two curling antennae, a pair of buds sprouting on its back and a leaf hat
+# of three leaves in a pinwheel (the brim droops to the left, another leaf lifts to the right, a third stands up in the middle). The thin chains are core
+# (the build lists only the leaves and buds as crisp), so the legs, arms and antennae grow out of the skin as smooth tubes.
+RECIPES["TwigletV2"] = {
+    "tier": "Common", "world": 1, "biome": "Forest", "batch": 0, "status": "recipe", "prototype": True, "height": 2.71,
+    "silhouette": "a stick bug standing on two high-kneed twig legs with a big round head on a thin knobbly body, a long abdomen trailing behind, one arm waving, curling antennae and a pinwheel hat of three green leaves",
+    "hero": "the leaf hat: three leaves in a pinwheel on a head too big for the twig body",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.05, "eye_tilt": 0.0, "mouth": "wide", "look": (-0.1, -0.05), "cross": 0.1},
+    "palette": {"BodyDark": "5C3A1C", "Accessory": "6FBF3F"},
+    "steps": [
+        sph("Body", (0.0, -0.1, 2.3), (0.62, 0.57, 0.55), segments=18, name="head"),
+        sph("Body", (0.0, 0.25, 0.95), (0.3, 0.28, 0.26), segments=10, name="hips"),
+        sweep("Body", [(0.0, 0.25, 0.95), (0.0, 0.15, 1.4), (0.0, 0.05, 1.85)], [0.24, 0.2, 0.2], "body"),
+        sweep("Body", [(0.0, 0.28, 0.95), (0.0, 0.8, 0.72), (0.05, 1.3, 0.62), (0.2, 1.7, 0.78), (0.4, 1.95, 1.05)], [0.22, 0.19, 0.15, 0.1, 0.05], "abdomen"),
+        sph("BodyDark", (0.0, 0.17, 1.2), (0.3, 0.28, 0.07), segments=10, name="node"),
+        sph("BodyDark", (0.0, 0.1, 1.52), (0.28, 0.26, 0.07), segments=10, name="node"),
+        sph("BodyDark", (0.0, 0.05, 1.82), (0.27, 0.25, 0.07), segments=10, name="node"),
+    ] + _msweep("BodyDark", [(0.15, 0.25, 0.95), (0.8, 0.3, 1.35), (1.05, 0.25, 0.7), (1.1, 0.2, 0.1)], [0.2, 0.15, 0.12, 0.09], "leg") + [
+        sph("BodyDark", (0.8, 0.3, 1.35), 0.17, segments=8, mirror=True, name="knee"),
+        sph("BodyDark", (1.11, 0.1, 0.07), (0.24, 0.38, 0.07), segments=8, mirror=True, name="foot"),
+        sweep("BodyDark", [(0.2, -0.05, 1.75), (0.75, -0.2, 1.8), (1.1, -0.3, 2.15), (1.25, -0.3, 2.5)], [0.13, 0.11, 0.09, 0.07], "arm"),
+        sph("BodyDark", (1.27, -0.3, 2.6), 0.12, segments=8, name="hand"),
+        sweep("BodyDark", [(-0.2, -0.05, 1.75), (-0.85, -0.1, 1.6), (-1.2, -0.2, 1.3), (-1.25, -0.25, 0.95)], [0.13, 0.11, 0.09, 0.07], "arm"),
+        sph("BodyDark", (-1.25, -0.25, 0.88), 0.12, segments=8, name="hand"),
+    ] + _chain("BodyDark", [(0.42, -0.3, 2.65), (0.75, -0.5, 2.9), (1.1, -0.55, 2.85), (1.3, -0.5, 2.6)], [0.075, 0.06, 0.05, 0.04], "antenna", segments=5) + [
+        sph("BodyDark", (1.31, -0.5, 2.56), 0.09, segments=6, mirror=True, name="antennatip"),
+        _leaf("Accessory", (0.05, -0.05, 2.78), (-0.8, -0.35, 0.1), 1.8, 0.5, 0.07, "leaf", thin_axis=(0.0, 0.0, 1.0)),
+        _leaf("Accessory", (-0.05, 0.05, 2.78), (0.85, 0.3, 0.3), 1.6, 0.45, 0.07, "leaf", thin_axis=(0.0, 0.0, 1.0)),
+        _leaf("Accessory", (0.0, 0.0, 2.82), (0.1, -0.25, 1.0), 0.7, 0.3, 0.07, "leaf", thin_axis=(0.0, 1.0, 0.0)),
+        _leaf("Accessory", (0.12, 0.2, 1.4), (0.8, 0.6, 0.7), 0.6, 0.16, 0.06, "bud", thin_axis=(0.0, 0.0, 1.0)),
+        _leaf("Accessory", (-0.12, 0.2, 1.15), (-0.8, 0.6, 0.6), 0.5, 0.14, 0.06, "bud", thin_axis=(0.0, 0.0, 1.0)),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Buzzik v2 (Buzzlebee)
+# An upright chubby bee hovering: a big-eyed head on a pear of a body made of four bands (yellow, brown, yellow, brown) with the stinger out of the back of
+# the last, two big translucent wings flaring up and out of the shoulders and two small ones under them, two curling antennae with bobbles, two tiny arms, two
+# stub legs, and on its back the tiny backpack: a honeycomb cell (a flat-shaded hexagonal prism, axis across the body so the hexagon shows from the side) with a
+# hexagonal rim plate and a blue buckle on each side.
+RECIPES["BuzzlebeeV2"] = {
+    "tier": "Uncommon", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 1.76,
+    "silhouette": "an upright chubby bee hovering: a big-eyed head over a pear of a striped body with a stinger, two big translucent wings flaring up and out and two small ones under them, curling antennae, and a hexagonal honeycomb backpack",
+    "hero": "the translucent wings over a striped pear body and the honeycomb-cell backpack",
+    "face": {"on": "head", "eye_scale": 1.6, "eye_gap": 1.15, "eye_tilt": 0.0, "mouth": "wide", "look": (0.0, 0.05), "cross": 0.12},
+    "palette": {"BodyDark": "6B4423", "Accessory": "A8E6FF"},
+    "steps": [
+        sph("Body", (0.0, -0.3, 1.3), (0.62, 0.58, 0.56), segments=16, name="head"),
+        sph("Body", (0.0, 0.0, 0.98), (0.5, 0.46, 0.34), segments=14, name="thorax"),
+        sph("BodyDark", (0.0, 0.08, 0.7), (0.6, 0.54, 0.3), segments=14, name="stripe"),
+        sph("Body", (0.0, 0.18, 0.46), (0.62, 0.56, 0.27), segments=14, name="belly"),
+        sph("BodyDark", (0.0, 0.3, 0.3), (0.5, 0.45, 0.22), segments=12, name="stripe"),
+        spike("BodyDark", (0.0, 0.5, 0.26), (0.0, 0.98, 0.08), 0.12, segments=6, name="stinger"),
+    ] + _msweep("BodyDark", [(0.28, -0.3, 0.42), (0.34, -0.42, 0.22), (0.34, -0.44, 0.06)], [0.12, 0.1, 0.08], "leg") + [
+        sph("BodyDark", (0.34, -0.5, 0.05), (0.14, 0.2, 0.05), segments=8, mirror=True, name="foot"),
+    ] + _msweep("BodyDark", [(0.45, -0.1, 1.0), (0.68, -0.32, 0.85), (0.72, -0.5, 0.65)], [0.1, 0.085, 0.07], "arm") + [
+        sph("BodyDark", (0.72, -0.52, 0.6), 0.1, segments=8, mirror=True, name="hand"),
+        _leaf("Accessory", (0.3, 0.25, 1.1), (0.6, 0.5, 0.9), 1.35, 0.38, 0.065, "wing", thin_axis=(0.45, -0.8, 0.35), mirror=True, segments=10),
+        _leaf("Accessory", (0.3, 0.28, 0.98), (0.9, 0.5, 0.2), 0.85, 0.24, 0.06, "wing", thin_axis=(0.2, -0.3, 1.0), mirror=True, segments=10),
+    ] + _chain("BodyDark", [(0.22, -0.4, 1.78), (0.4, -0.5, 2.0), (0.62, -0.58, 2.05)], [0.06, 0.05, 0.04], "antenna", segments=5) + [
+        sph("BodyDark", (0.64, -0.59, 2.06), 0.09, segments=6, mirror=True, name="antennatip"),
+        cyl("BodyDark", (0.0, 0.78, 0.82), (0.4, 0.4, 0.3), rot=(0.0, 90.0, 0.0), segments=6, flat=True, name="pack"),
+        cyl("BodyDark", (0.33, 0.78, 0.82), (0.47, 0.47, 0.05), rot=(0.0, 90.0, 0.0), segments=6, flat=True, mirror=True, name="flap"),
+        sph("Accessory", (0.42, 0.78, 0.82), (0.05, 0.12, 0.12), segments=8, mirror=True, name="buckle"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Lantrin v2 (Lanternewt)
+# A newt standing up like a person: an S of a body from a low pair of bent hind legs with webbed feet to a wide flat head with short back-swept gills, one chubby
+# arm waving and one on its belly, a spotted back, and a thick tail that loops out round its right side and up to hang a caged lantern, level with its head,
+# from a hook at the tip.
+RECIPES["LanternewtV2"] = {
+    "tier": "Uncommon", "world": 1, "biome": "Forest", "batch": 0, "status": "recipe", "prototype": True, "height": 2.27,
+    "silhouette": "a newt standing up on its hind legs in an S, a wide flat head with short gills, one chubby arm waving and one on its belly, a spotted back, and a thick tail that loops out round its side and up to hold a caged glowing lantern beside its head",
+    "hero": "the tail that loops up to hang the glowing lantern",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.15, "eye_tilt": -4.0, "mouth": "wide", "lid": 0.15, "eye_height": 0.8, "mouth_drop": 0.3, "mouth_scale": 1.2},
+    "palette": {"BodyDark": "8C3F1C", "Accessory": "FFD84A"}, "glow": {"Accessory": 2.5},
+    "steps": [
+        sph("Body", (0.0, -0.45, 1.95), (0.85, 0.75, 0.55), segments=18, name="head"),
+        sph("Body", (0.0, 0.5, 0.75), (0.58, 0.58, 0.52), segments=14, name="hips"),
+        sweep("Body", [(0.0, 0.55, 0.7), (0.0, 0.35, 1.1), (0.0, 0.0, 1.5), (0.0, -0.25, 1.8)], [0.55, 0.52, 0.46, 0.4], "body"),
+        sweep("Body", [(0.0, 0.8, 0.55), (0.7, 1.2, 0.5), (1.5, 1.1, 0.9), (2.05, 0.6, 1.6), (2.05, 0.0, 2.2), (1.75, -0.3, 2.5)], [0.42, 0.34, 0.28, 0.22, 0.17, 0.12], "tail"),
+    ] + _msweep("Body", [(0.5, 0.5, 0.8), (0.9, 0.4, 0.55), (0.95, 0.2, 0.12)], [0.3, 0.22, 0.16], "leg") + [
+        sph("BodyDark", (0.97, 0.03, 0.06), (0.32, 0.42, 0.06), segments=8, mirror=True, name="foot"),
+        sweep("Body", [(-0.4, -0.1, 1.45), (-0.95, -0.3, 1.5), (-1.2, -0.4, 1.95)], [0.22, 0.17, 0.13], "arm"),
+        sph("BodyDark", (-1.22, -0.42, 2.05), 0.16, segments=8, name="hand"),
+        sweep("Body", [(0.4, -0.1, 1.5), (0.75, -0.35, 1.25), (0.55, -0.5, 0.95)], [0.22, 0.17, 0.13], "arm"),
+        sph("BodyDark", (0.53, -0.52, 0.9), 0.16, segments=8, name="hand"),
+        _leaf("BodyDark", (0.7, -0.35, 2.15), (0.75, 0.5, 0.55), 0.6, 0.13, 0.06, "gill", thin_axis=(0.0, 0.0, 1.0), mirror=True, segments=6),
+        _leaf("BodyDark", (0.8, -0.4, 2.0), (0.9, 0.35, 0.1), 0.6, 0.13, 0.06, "gill", thin_axis=(0.0, 0.0, 1.0), mirror=True, segments=6),
+        _leaf("BodyDark", (0.72, -0.45, 1.88), (0.8, 0.4, -0.4), 0.5, 0.12, 0.06, "gill", thin_axis=(0.0, 0.0, 1.0), mirror=True, segments=6),
+        sph("BodyDark", (0.3, -0.3, 2.42), (0.16, 0.16, 0.08), segments=6, mirror=True, name="spot"),
+        sph("BodyDark", (0.0, -0.4, 2.48), (0.18, 0.18, 0.08), segments=6, name="spot"),
+        sph("BodyDark", (0.3, 0.5, 1.28), (0.15, 0.15, 0.07), segments=6, mirror=True, name="spot"),
+        sph("Accessory", (1.75, -0.3, 1.95), (0.38, 0.38, 0.42), segments=14, name="lantern"),
+        tor("BodyDark", (1.75, -0.3, 1.95), (0.43, 0.43, 0.43), minor=0.14, segments=12, mseg=4, name="cage"),
+        spike("BodyDark", (1.75, -0.3, 2.3), (1.75, -0.3, 2.58), 0.2, segments=8, name="cap"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Soakum v2 (Toastoad)
+# A toad sitting up in a warm spring, pruney from the soak: a pear of a body with three dark wrinkle folds round the belly, a wide flat head with two eye bumps
+# under heavy lids and a wide grin, folded hind legs with big flat feet, one arm waving and one on its belly, and on its back the pebble backpack: a cairn of
+# four faceted stones, each smaller than the one under it, leaning over its head.
+RECIPES["ToastoadV2"] = {
+    "tier": "Uncommon", "world": 2, "biome": "GeyserField", "batch": 0, "status": "recipe", "prototype": True, "height": 1.98,
+    "silhouette": "a toad sitting up with a pear-shaped body ringed with dark wrinkle folds, a wide flat head with two eye bumps and a wide grin, folded hind legs with big feet, one arm waving, and a leaning cairn of four faceted pebbles on its back",
+    "hero": "the pebble cairn on its back and the wrinkle folds of the soak",
+    "face": {"on": "head", "eye_scale": 1.4, "eye_gap": 1.2, "eye_tilt": -4.0, "mouth": "wide", "lid": 0.4, "mouth_scale": 1.5, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "974926", "Accessory": "9FB3C8"},
+    "steps": [
+        sph("Body", (0.0, 0.2, 0.8), (0.95, 0.85, 0.8), segments=16, name="body"),
+        sph("Body", (0.0, -0.45, 1.45), (0.95, 0.75, 0.55), segments=18, name="head"),
+        sph("Body", (0.5, -0.45, 1.88), 0.3, segments=10, mirror=True, name="eyebump"),
+        sph("BodyDark", (0.0, 0.2, 0.46), (1.0, 0.9, 0.1), segments=14, name="fold"),
+        sph("BodyDark", (0.0, 0.2, 0.7), (1.0, 0.9, 0.1), segments=14, name="fold"),
+        sph("BodyDark", (0.0, 0.2, 0.94), (0.96, 0.86, 0.1), segments=14, name="fold"),
+        sph("BodyDark", (0.0, -1.18, 1.5), (0.13, 0.09, 0.08), segments=8, name="nose"),
+        sph("Body", (0.8, 0.3, 0.55), (0.42, 0.6, 0.45), segments=12, mirror=True, name="thigh"),
+    ] + _msweep("BodyDark", [(0.85, -0.1, 0.45), (1.1, -0.65, 0.25), (0.95, -1.0, 0.1)], [0.26, 0.2, 0.15], "leg") + [
+        sph("BodyDark", (0.95, -1.15, 0.07), (0.3, 0.4, 0.07), segments=10, mirror=True, name="foot"),
+        sweep("Body", [(-0.6, -0.2, 1.15), (-1.0, -0.45, 0.9), (-0.95, -0.75, 0.6)], [0.2, 0.16, 0.13], "arm"),
+        sph("BodyDark", (-0.95, -0.82, 0.55), (0.16, 0.2, 0.14), segments=8, name="hand"),
+        sweep("Body", [(0.6, -0.2, 1.15), (1.05, -0.4, 1.4), (1.2, -0.55, 1.8)], [0.2, 0.16, 0.13], "arm"),
+        sph("BodyDark", (1.22, -0.58, 1.9), (0.16, 0.2, 0.14), segments=8, name="hand"),
+        ico("Accessory", (0.05, 0.95, 0.95), (0.55, 0.45, 0.42), rot=(0.0, 0.0, 20.0), segments=1, flat=True, name="pebble"),
+        ico("Accessory", (0.28, 0.88, 1.5), (0.42, 0.36, 0.33), rot=(10.0, 0.0, -25.0), segments=1, flat=True, name="pebble"),
+        ico("Accessory", (0.52, 0.82, 1.95), (0.33, 0.28, 0.26), rot=(0.0, 10.0, 30.0), segments=1, flat=True, name="pebble"),
+        ico("Accessory", (0.78, 0.78, 2.3), (0.25, 0.22, 0.2), rot=(0.0, 0.0, 10.0), segments=1, flat=True, name="pebble"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Sizz v2 (Emberchin)
+# A sea urchin in mid-hop: an egg of a body with a bare face, one foot kicked back and one reaching forward, two stubby arms (one up), and the quills: nineteen
+# of them in five rings round the back and sides, all swept back by the hop, of different lengths, each a brown spike ending in a glowing ember bead.
+_EM_C = (0.0, 0.05, 1.0)
+_EM_S = (0.85, 0.8, 0.75)
+_EM_QUILLS = []
+for _e, _azs, _lens in ((80, (0,), (0.75,)), (56, (20, 90, 160, 230, 300), (0.62, 0.55, 0.65, 0.58, 0.6)), (30, (330, 30, 90, 150, 210), (0.62, 0.65, 0.58, 0.7, 0.6)),
+                        (4, (350, 55, 115, 175, 200), (0.6, 0.66, 0.56, 0.68, 0.6)), (-26, (30, 100, 170), (0.55, 0.5, 0.56))):
+    for _k, _a in enumerate(_azs):
+        _ar, _er = math.radians(_a), math.radians(_e)
+        _d0 = (math.cos(_er) * math.cos(_ar), math.cos(_er) * math.sin(_ar), math.sin(_er))
+        _b = ellipsoid_point(_EM_C, _mul(_EM_S, 0.88), *_d0)
+        _d = _unit(_add(_d0, (0.0, 0.5, 0.1)))
+        _q = _add(_b, _mul(_d, _lens[_k]))
+        _EM_QUILLS.append(spike("BodyDark", _b, _q, 0.2, segments=5, flat=True, name="quill"))
+        _EM_QUILLS.append(ico("Accessory", _add(_q, _mul(_d, 0.04)), 0.11, segments=1, flat=True, name="ember"))
+RECIPES["EmberchinV2"] = {
+    "tier": "Uncommon", "world": 2, "biome": "GeyserField", "batch": 0, "status": "recipe", "prototype": True, "height": 2.24,
+    "silhouette": "a sea urchin in mid-hop: an egg of a body with a bare face under nineteen swept-back brown quills of different lengths, each ending in a glowing ember, one foot kicked back and one reaching forward, one stubby arm up",
+    "hero": "the swept-back quills with glowing ember tips",
+    "face": {"on": "body", "eye_scale": 1.25, "eye_gap": 1.0, "eye_tilt": -2.0, "mouth": "smile", "lid": 0.15, "eye_height": 0.55},
+    "palette": {"BodyDark": "A66730", "Accessory": "FFD23F"}, "glow": {"Accessory": 2.5},
+    "steps": [
+        sph("Body", _EM_C, _EM_S, segments=16, name="body"),
+        sweep("BodyDark", [(0.35, -0.1, 0.5), (0.5, -0.45, 0.28), (0.55, -0.7, 0.12)], [0.22, 0.17, 0.13], "leg"),
+        sph("BodyDark", (0.56, -0.8, 0.07), (0.24, 0.34, 0.07), segments=8, name="foot"),
+        sweep("BodyDark", [(-0.35, 0.1, 0.5), (-0.5, 0.45, 0.4), (-0.55, 0.75, 0.6)], [0.22, 0.17, 0.13], "leg"),
+        sph("BodyDark", (-0.56, 0.85, 0.65), (0.24, 0.34, 0.07), rot=(-40.0, 0.0, 0.0), segments=8, name="foot"),
+        sweep("Body", [(0.8, -0.15, 1.0), (1.15, -0.3, 1.3), (1.3, -0.35, 1.6)], [0.17, 0.14, 0.11], "arm"),
+        sph("BodyDark", (1.32, -0.36, 1.68), 0.14, segments=8, name="hand"),
+        sweep("Body", [(-0.8, -0.15, 1.0), (-1.1, -0.4, 0.95), (-1.15, -0.7, 0.8)], [0.17, 0.14, 0.11], "arm"),
+        sph("BodyDark", (-1.15, -0.75, 0.76), 0.14, segments=8, name="hand"),
+    ] + _EM_QUILLS,
+}
+
+
+# ---------------------------------------------------------------------------------------- Flurra v2 (Snowbun)
+# A snow bunny sitting up: a head bigger than its pear of a body, one ear straight up and one tipped out sideways, pink inner ears and nose, a tuft of frost
+# between the ears, tiny paws held to the chest, big flat hind feet pointing forward, and the tail: a snowball as big as its head, lumpy with snow clumps.
+RECIPES["SnowbunV2"] = {
+    "tier": "Common", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 2.04,
+    "silhouette": "a snow bunny sitting up with a head bigger than its body, one ear straight up and one tipped out sideways, tiny paws at its chest, big flat feet, and a lumpy snowball tail bigger than its head",
+    "hero": "the snowball tail, bigger than its head and lumpy with snow",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.2},
+    "palette": {"BodyDark": "A9C3DD", "Accessory": "FF9EB5"},
+    "steps": [
+        sph("Body", (0.0, 0.2, 0.8), (0.56, 0.52, 0.72), segments=16, name="body"),
+        sph("Body", (0.0, -0.2, 1.7), (0.74, 0.66, 0.62), segments=18, name="head"),
+        _leaf("Body", (0.3, -0.12, 2.15), (0.2, 0.0, 1.0), 1.3, 0.24, 0.075, "ear", thin_axis=(0.0, 1.0, 0.0)),
+        _leaf("Accessory", (0.3, -0.2, 2.2), (0.2, 0.0, 1.0), 1.05, 0.12, 0.06, "innerear", thin_axis=(0.0, 1.0, 0.0)),
+        _leaf("Body", (-0.34, -0.12, 2.12), (-0.85, 0.0, 0.55), 1.2, 0.24, 0.075, "ear", thin_axis=(0.0, 1.0, 0.0)),
+        _leaf("Accessory", (-0.37, -0.2, 2.16), (-0.85, 0.0, 0.55), 0.95, 0.12, 0.06, "innerear", thin_axis=(0.0, 1.0, 0.0)),
+        sph("Accessory", (0.0, -0.84, 1.76), (0.09, 0.07, 0.07), segments=8, name="nose"),
+        sph("BodyDark", (0.0, -0.1, 2.3), (0.18, 0.14, 0.1), segments=8, name="tuft"),
+        sph("Body", (0.5, 0.1, 0.45), (0.32, 0.42, 0.38), segments=12, mirror=True, name="haunch"),
+        sph("BodyDark", (0.5, -0.65, 0.14), (0.32, 0.64, 0.14), segments=10, mirror=True, name="foot"),
+    ] + _msweep("Body", [(0.42, 0.0, 1.15), (0.58, -0.3, 0.98), (0.4, -0.5, 1.02)], [0.13, 0.11, 0.09], "arm") + [
+        sph("Body", (0.38, -0.54, 1.04), 0.13, segments=8, mirror=True, name="paw"),
+        sph("Body", (0.0, 1.28, 0.95), 0.7, segments=16, name="tail"),
+        sph("BodyDark", (0.45, 1.58, 1.25), 0.2, segments=10, name="clump"),
+        sph("BodyDark", (-0.4, 1.73, 0.85), 0.18, segments=10, name="clump"),
+        sph("BodyDark", (0.1, 1.63, 1.55), 0.17, segments=10, name="clump"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Digling v2 (Chipmole)
+# A mole mid-dig, rump high and head low: a tubby velvet body with a small nose pointing out between the eyes and the grin, one huge spade paw wound up with three
+# ice claws fanned like a pick, the other paw on the floor with three ice claws in the ice and four chips kicked up, two stub legs and a tail nub.
+RECIPES["ChipmoleV2"] = {
+    "tier": "Common", "world": 2, "biome": "IceCave", "batch": 0, "status": "recipe", "prototype": True, "height": 1.98,
+    "silhouette": "a tubby mole mid-dig, rump high and head low, with a small pointed nose, one huge spade paw wound up with three ice-pick claws fanned out and the other paw on the floor with three ice claws in the ice, chips flying",
+    "hero": "the spade paws with fanned ice-pick claws",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.05, "eye_tilt": -4.0, "mouth": "wide", "lid": 0.15, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "3B4656", "Accessory": "9CD3F0", "Mouth": "E8685A"},
+    "steps": [
+        sph("Body", (0.0, 0.3, 1.0), (0.92, 1.05, 0.88), segments=16, name="body"),
+        sph("Body", (0.0, -0.8, 0.8), (0.68, 0.62, 0.58), segments=16, name="head"),
+        rod("Body", (0.0, -1.2, 0.86), (0.0, -1.7, 0.72), 0.17, 0.12, segments=8, name="snout"),
+        sph("BodyDark", (0.0, -1.75, 0.7), 0.13, segments=8, name="nose"),
+        sweep("Body", [(0.75, -0.1, 1.05), (1.25, 0.05, 1.35), (1.4, -0.4, 1.55)], [0.3, 0.26, 0.24], "arm"),
+        sph("BodyDark", (1.43, -0.5, 1.66), (0.5, 0.3, 0.42), segments=12, name="paw"),
+        sweep("Body", [(-0.75, -0.1, 0.95), (-1.2, -0.5, 0.65), (-1.1, -0.95, 0.42)], [0.3, 0.26, 0.24], "arm"),
+        sph("BodyDark", (-1.08, -1.08, 0.36), (0.48, 0.3, 0.3), segments=12, name="paw"),
+    ] + [
+        spike("Accessory", (1.43 + _dx, -0.65, 1.85), (1.43 + 1.9 * _dx, -0.85, 2.5), 0.11, segments=5, flat=True, name="claw") for _dx in (-0.3, 0.0, 0.3)
+    ] + [
+        spike("Accessory", (-1.08 + _dx, -1.27, 0.4), (-1.08 + 1.5 * _dx, -1.85, 0.07), 0.11, segments=5, flat=True, name="claw") for _dx in (-0.3, 0.0, 0.3)
+    ] + _msweep("BodyDark", [(0.5, 0.3, 0.6), (0.58, 0.2, 0.4), (0.6, 0.05, 0.2)], [0.3, 0.24, 0.2], "leg") + [
+        sph("BodyDark", (0.0, 1.25, 0.95), (0.2, 0.24, 0.18), segments=8, name="tail"),
+        ico("Accessory", (-1.7, -1.5, 0.13), 0.14, segments=1, flat=True, name="chip"),
+        ico("Accessory", (-0.5, -1.95, 0.12), 0.13, segments=1, flat=True, name="chip"),
+        ico("Accessory", (-1.9, -0.9, 0.12), 0.12, segments=1, flat=True, name="chip"),
+        ico("Accessory", (-0.95, -2.1, 0.1), 0.1, segments=1, flat=True, name="chip"),
+    ],
+}
+
+# ==== DESIGN PASS 4 END ====
+
+
 # ================================================================================================ the engine
 # Everything below turns a recipe into a flat list of parts (the steps, mirrored, plus the face), and checks it. It is plain
 # Python on purpose: species_bodies.py only has to hand each part to Blender, and this file can prove a recipe is sane first.

@@ -77,6 +77,18 @@ BATCHES = {
             ("Flapsicle", "cute", "a hanging bat: spread wings of icicle fingers and ice sheets, big pink ears"),
         ],
     },
+    "4": {
+        "title": "Design pass, batch 4: the last seven species, Common and Uncommon, the cute end of the ladder (hybrid sculpt, scratch builds, nothing under assets/models changed)",
+        "rows": [
+            ("Buzzlebee", "cute", "an upright chubby bee: translucent wings, a striped pear body, a honeycomb-cell backpack"),
+            ("Lanternewt", "cute", "a newt standing up in an S: short gills, one arm waving, a tail that loops up to hold a caged glowing lantern"),
+            ("Twiglet", "cute", "a stick bug on twig legs: a big head, a long abdomen, a pinwheel hat of three leaves"),
+            ("Toastoad", "cute", "a toad pruney from the soak: belly folds, eye bumps, a leaning cairn of pebbles on its back"),
+            ("Emberchin", "cute", "a sea urchin mid-hop: swept-back quills with glowing ember tips"),
+            ("Snowbun", "cute", "a big-headed snow bunny: one ear up, one out, a snowball tail bigger than its head"),
+            ("Chipmole", "cute", "a tubby mole mid-dig: spade paws with fanned ice-pick claws, chips flying"),
+        ],
+    },
 }
 
 

@@ -420,16 +420,121 @@ class DesignPassBatch3(_DesignPassChecks, unittest.TestCase):
                         self.assertGreaterEqual(min(p["scale"]), 0.058)
 
 
+class DesignPassBatch4(_DesignPassChecks, unittest.TestCase):
+    """Batch 4: the last seven species, all Common or Uncommon, the cute end of the ladder: Buzzik (Buzzlebee), Lantrin (Lanternewt) and Twiglo (Twiglet) in
+    World 1, Soakum (Toastoad), Sizz (Emberchin), Flurra (Snowbun) and Digling (Chipmole) in World 2. All seven are cute (the sculpt has no mood for them and
+    the build passes no `--set face.mood`): big eyes, an open mouth, never a scowl. With batch 4 every species of the roster has a V2 except the hero Fenrir
+    and the three Haunted Nebula event species."""
+    BATCH = ("Buzzlebee", "Lanternewt", "Twiglet", "Toastoad", "Emberchin", "Snowbun", "Chipmole")
+    WORLD = {"Buzzlebee": 1, "Lanternewt": 1, "Twiglet": 1, "Toastoad": 2, "Emberchin": 2, "Snowbun": 2, "Chipmole": 2}
+    TIER = {"Buzzlebee": "Uncommon", "Lanternewt": "Uncommon", "Twiglet": "Common", "Toastoad": "Uncommon", "Emberchin": "Uncommon", "Snowbun": "Common",
+            "Chipmole": "Common"}
+
+    def test_every_species_is_named_with_its_world_and_tier(self):
+        self.assertEqual(sorted(self.WORLD), sorted(self.BATCH))
+        self.assertEqual(sorted(self.TIER), sorted(self.BATCH))
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertEqual(rec["world"], self.WORLD[base])
+                self.assertEqual(rec["tier"], self.TIER[base])  # the cute end of the ladder: Common and Uncommon only
+
+    def test_the_sculpt_gives_all_seven_the_cute_face(self):
+        import ast
+        tree = ast.parse((ROOT / "tools/blender/species_sculpt.py").read_text())
+        table = next(n.value for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "SPECIES" for x in n.targets))
+        moods = {}
+        for key, val in zip(table.keys, table.values):
+            if isinstance(val, ast.Dict):
+                for k2, v2 in zip(val.keys, val.values):
+                    if isinstance(k2, ast.Constant) and k2.value == "face" and isinstance(v2, ast.Dict):
+                        for k3, v3 in zip(v2.keys, v2.values):
+                            if isinstance(k3, ast.Constant) and k3.value == "mood":
+                                moods[key.value] = v3.value
+        for base in self.BATCH:
+            with self.subTest(base):
+                self.assertEqual(moods.get(base, "cute"), "cute")  # no entry = the cute face
+
+    def test_the_face_is_cute_and_goofy(self):
+        """Big eyes (the hybrid grows them by 1.35), a mouth that is open and never toothed, a soft eye: a cute eye is never slanted into a scowl."""
+        for base, rec in self.v2().items():
+            face = rec["face"]
+            with self.subTest(base):
+                self.assertGreaterEqual(face["eye_scale"], 1.15)
+                self.assertLessEqual(face.get("eye_tilt", 0.0), 4.0)
+                self.assertLessEqual(face.get("lid", 0.0), 0.4)
+                self.assertIn(face["mouth"], ("o", "smile", "wide"))
+
+    def test_no_trim_slot_because_none_of_the_seven_has_one(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertNotIn("Trim", sr.material_slots(base))
+                self.assertNotIn("Trim", sr.slots_used(sr.expand(rec)))
+
+    def test_every_limb_tube_and_tail_tapers(self):
+        """The coordinator's style check 2 (tools/blender/style_checks.py): the tip radius at most 0.85 of the root's on every limb-named part."""
+        spec = importlib.util.spec_from_file_location("style_checks_b4", ROOT / "tools/blender/style_checks.py")
+        sc = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sc)  # type: ignore[union-attr]
+        recipes = sc.load_recipes()
+        for base in self.BATCH:
+            with self.subTest(base):
+                report = sc.taper_report(recipes, base + "V2")
+                self.assertTrue(report["pass"], report)
+                self.assertGreater(report["limbs"], 0)
+
+    # The parts the signature effect of Roster-Redesign.md will need split out in the import step (Design-Pass.md, batch 4): a name filter finds each.
+    SPLIT = {"Buzzlebee": ("wing", "pack", "stinger"), "Lanternewt": ("lantern", "cage", "tail"), "Twiglet": ("leaf", "bud"), "Toastoad": ("pebble", "fold", "nose"),
+             "Emberchin": ("quill", "ember"), "Snowbun": ("tail", "clump", "innerear"), "Chipmole": ("claw", "paw", "chip")}
+
+    def test_the_effect_parts_are_named_in_the_recipe(self):
+        self.assertEqual(sorted(self.SPLIT), sorted(self.BATCH))
+        for base, rec in self.v2().items():
+            names = {p["name"] for p in sr.expand(rec)}
+            for name in self.SPLIT[base]:
+                with self.subTest("%s %s" % (base, name)):
+                    self.assertIn(name, names)
+
+    def test_the_glowing_parts_are_the_effect_parts(self):
+        """Lantrin's lantern and Sizz's ember tips are the only parts of the batch that glow, and the glowing slot holds nothing else, so an emission tween
+        touches nothing else. The other five have no glow."""
+        glow = {"Lanternewt": {"lantern"}, "Emberchin": {"ember"}}
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                if base in glow:
+                    accessory = {p["name"] for p in sr.expand(rec) if p["slot"] == "Accessory"}
+                    self.assertEqual(accessory, glow[base])
+                    self.assertEqual(set(rec["glow"]), {"Accessory"})
+                else:
+                    self.assertEqual(rec.get("glow", {}), {})
+
+    def test_the_thin_parts_have_a_real_thickness(self):
+        """The lesson of batch 2: wings, leaves, gills and ears survive edge-on. No flat part is thinner than 0.12 studs across (the recipe's half-size is
+        at least 0.06) before the build's fit of about 0.65 to 0.9."""
+        flat = ("leaf", "bud", "wing", "gill", "ear", "innerear", "tuft")
+        for base, rec in self.v2().items():
+            for p in sr.expand(rec):
+                if p["prim"] in ("cone", "sphere") and p["slot"] not in sr.FACE_SLOTS and p["name"] in flat:
+                    with self.subTest("%s %s" % (base, p["name"])):
+                        self.assertGreaterEqual(min(p["scale"]), 0.058)
+
+
 class PrototypeRoster(unittest.TestCase):
     """Every `"prototype": True` recipe is one of the hero prototypes or a `<Id>V2` of a design-pass batch, and only those."""
 
-    def test_the_prototypes_are_the_heroes_and_the_three_batches(self):
-        expect = ["FenripupV2", "Skydrake"] + [b + "V2" for b in DesignPassPrototypes.BATCH + DesignPassBatch2.BATCH + DesignPassBatch3.BATCH]
+    def test_the_prototypes_are_the_heroes_and_the_four_batches(self):
+        expect = ["FenripupV2", "Skydrake"] + [b + "V2" for b in DesignPassPrototypes.BATCH + DesignPassBatch2.BATCH + DesignPassBatch3.BATCH + DesignPassBatch4.BATCH]
         self.assertEqual(sorted(k for k, v in sr.RECIPES.items() if v.get("prototype")), sorted(expect))
 
     def test_no_batch_species_is_in_two_batches(self):
-        batches = (DesignPassPrototypes.BATCH, DesignPassBatch2.BATCH, DesignPassBatch3.BATCH)
+        batches = (DesignPassPrototypes.BATCH, DesignPassBatch2.BATCH, DesignPassBatch3.BATCH, DesignPassBatch4.BATCH)
         self.assertEqual(sum(len(b) for b in batches), len(set().union(*map(set, batches))))
+
+    def test_every_species_has_a_v2_except_the_hero_and_the_event_species(self):
+        """After batch 4: 31 of the 35 species have a design-pass V2; the four without are the hero Fenripup (FenripupV2 is its own hero prototype) and the
+        three Haunted Nebula event species, which `event_species.py` builds."""
+        done = {b for batch in (DesignPassPrototypes.BATCH, DesignPassBatch2.BATCH, DesignPassBatch3.BATCH, DesignPassBatch4.BATCH) for b in batch}
+        self.assertEqual(len(done), 31)
+        self.assertEqual(sorted(set(species_ids()) - done), ["Fenripup", "Nebulyn", "Spookum", "Wisplet"])
 
 
 class Maths(unittest.TestCase):
