@@ -7,7 +7,7 @@ up: "[[Start-Here]]"
 
 Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier to decide." This is every open decision and every row that carries your name, gathered from [[Asks-Ledger]] (the two owe-lists), [[Board]] ("Waiting on Ethan", "Needs a decision"), [[Decisions]] ("Open"), [[Tools-Status]], [[Setup-and-Tips]], [[Overnight]] (jobs 30 to 33), [[STORE-PAGE]], [[Thumbnail-Research]], [[Hero-Aliens]], [[Model-Toolchain]] and the design doc. Logged in [[2026-10-15]]. Back to [[Start-Here]].
 
-**How to answer.** 36 items in five groups. Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 38 items in six groups (37 and 38 added 2026-10-16). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -203,6 +203,18 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**, because the event is the launch week's draw ([[STORE-PAGE]] 5 lists it on Events) and one edit beats two; until then the windows pass in the private build, where only the team can see them.
 - Then: a worker edits the tables with `lint_data.py` and `./tools/analyze.sh` clean; TESTING "Launch week" re-checks by editing data (there is no clock command).
 
+## Added 2026-10-16: the design pass
+
+**37. Design pass batch 2, the rarer bodies: take, fix or redo?** Eight Rare to Legendary species rebuilt fiercer or grander as prototype recipes, one sheet with the old body, three views of the new one and the black shapes (`media/studio/2026-10-15/design_pass_2.jpg`; [[Design-Pass]] "Batch 2"). Nothing under `assets/models/` changed.
+- Options: a) the builder's verdicts: take Voltus (`Thunderhog`), Sabrek (`Frostfang`), Boulden (`Rocklobber`), Blinkar (`Reindazzle`) and Gaira (`Gaiabloom`); fix Iridia (`Gloomoth`, the wings) and Skadra (`Skaddle`, the body); redo Aurelyx (`Shimmerlynx`, the pose); b) your own letters per species (take, fix, redo); c) later, after Fenrir by hand (item 11).
+- Recommend: **a**, with one change: the three "cool" bodies (Iridia, Aurelyx, Blinkar) are elegant, not fierce, so give them a bite (mandibles, a snarl, a heavier brow) in the fix, per your "the majority of rarer aliens should be fiercer".
+- Then: the takes wait on the hand route of item 11 for their final finish (the recipe route reads as parts at close range); three concept lines change in `Species.luau` with a take (Voltus hedgehog to storm boar, Sabrek cub to sabre-tooth cat, Skadra owl to skating hunter).
+
+**38. Triangle band per tier?** The sculpt builds every body at about 2,400 triangles; the ladder in [[Roster-Redesign]] gives Common 1,000 to 1,400, Rare 1,400 to 1,900, Epic 1,700 to 2,200 and Legendary 2,000 to 2,500. A test build at 1,800 kept the shapes and faces and only made the outline slightly more angular ([[Design-Pass]] "Triangle bands per tier").
+- Options: a) build to the ladder's bands (a visible step up in detail with rank); b) every species at about 2,400; c) Commons at about 1,600, the rest at 2,400.
+- Recommend: **a**, because the ladder is how rank shows in the model itself, and fewer triangles on the many Commons keeps a full server light on phones.
+- Then: the recipes get a per-tier `tris` default and the sheets are rebuilt at their band.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -253,4 +265,6 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 34: a* allow | b no
 35: a name a date | b* none until both gates pass
 36: a* all four tables | b three only | c placeholders now
+37: a* builder's verdicts plus a bite for the cool three | b per species | c later
+38: a* ladder bands | b all 2,400 | c Commons 1,600
 ```

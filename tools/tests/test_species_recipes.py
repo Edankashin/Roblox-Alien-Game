@@ -25,7 +25,7 @@ def species_ids():
 
 
 def shipped():
-    """The recipes of real species. The prototypes (`"prototype": True`: the heroes FenripupV2 and Skydrake, and the eight `<Id>V2` design-pass
+    """The recipes of real species. The prototypes (`"prototype": True`: the heroes FenripupV2 and Skydrake, and the sixteen `<Id>V2` design-pass
     recipes) have no Species.luau row and no assets/models folder of their own, so the tests that compare recipes with those files skip them, the
     way the event species are skipped by status; HeroPrototypes and DesignPassPrototypes below check them on their own terms."""
     return {k: v for k, v in sr.RECIPES.items() if not v.get("prototype")}
@@ -188,11 +188,11 @@ class HeroPrototypes(unittest.TestCase):
             self.assertAlmostEqual(math.sqrt(sum(v * v for v in tan)), 1.0, places=9)
 
 
-class DesignPassPrototypes(unittest.TestCase):
-    """The eight `<Id>V2` recipes of the first design pass (docs/vault/06-art-pipelines/Design-Pass.md): a new base design for a species whose shape
+class _DesignPassChecks:
+    """The checks of a design-pass batch (docs/vault/06-art-pipelines/Design-Pass.md): `<Id>V2` recipes, a new base design for a species whose shape
     barely changed, built by `species_sculpt.py --method hybrid` on a scratch copy of its folder renamed `<Id>V2`. Each keeps its species' tier,
-    world, height, slots, palette and glow, so a later swap into assets/models changes the shape and nothing else."""
-    BATCH = ("Mossbop", "Glimmo", "Puffpuff", "Drippo", "Kettlepuff", "Flufflet", "Capybubble", "Pengoo")
+    world, height, slots, palette and glow, so a later swap into assets/models changes the shape and nothing else. A subclass names its BATCH."""
+    BATCH: tuple = ()
 
     def v2(self):
         return {b: sr.RECIPES[b + "V2"] for b in self.BATCH}
@@ -207,7 +207,6 @@ class DesignPassPrototypes(unittest.TestCase):
                 self.assertEqual(rec["batch"], 0)
                 for key in ("tier", "world", "biome"):
                     self.assertEqual(rec[key], sr.RECIPES[base][key])
-        self.assertEqual(sorted(k for k, v in sr.RECIPES.items() if v.get("prototype")), sorted(["FenripupV2", "Skydrake"] + [b + "V2" for b in self.BATCH]))
 
     def test_each_keeps_the_notes_height_of_its_species(self):
         for base, rec in self.v2().items():
@@ -216,7 +215,7 @@ class DesignPassPrototypes(unittest.TestCase):
 
     def test_group_ids_skip_them_but_a_name_picks_them(self):
         names = [b + "V2" for b in self.BATCH]
-        for token in ("all", "world1", "world2", "batch0", "batch1", "batch6", "batch7", "batch8"):
+        for token in ("all", "world1", "world2", "batch0", "batch1", "batch3", "batch4", "batch5", "batch6", "batch7", "batch8", "batch9"):
             self.assertFalse(set(names) & set(sr.ids_for(token)), token)
         self.assertEqual(sr.ids_for(",".join(names)), names)
 
@@ -269,6 +268,71 @@ class DesignPassPrototypes(unittest.TestCase):
         for base, rec in self.v2().items():
             with self.subTest(base):
                 self.assertLessEqual(set(rec.get("glow", {})), {"Accessory"})
+
+
+class DesignPassPrototypes(_DesignPassChecks, unittest.TestCase):
+    """Batch 1: the eight Common to Rare species whose shape barely changed."""
+    BATCH = ("Mossbop", "Glimmo", "Puffpuff", "Drippo", "Kettlepuff", "Flufflet", "Capybubble", "Pengoo")
+
+
+class DesignPassBatch2(_DesignPassChecks, unittest.TestCase):
+    """Batch 2: the eight rarer species whose faces already carry a mood (Rare to Legendary), so the body has to carry it too. The mood is not in the
+    recipe (the V2 keys are not in the sculpt's SPECIES table): the build passes `--set face.mood=<mood>`; the recipe's own face dict is at the
+    mood's floor so the V2 reads the same with or without it."""
+    BATCH = ("Thunderhog", "Frostfang", "Skaddle", "Gloomoth", "Shimmerlynx", "Reindazzle", "Rocklobber", "Gaiabloom")
+    MOOD = {"Thunderhog": "fierce", "Frostfang": "fierce", "Skaddle": "fierce", "Rocklobber": "fierce", "Gloomoth": "cool", "Shimmerlynx": "cool",
+            "Reindazzle": "cool", "Gaiabloom": "spectacular"}
+    TILT = {"cool": (4.0, 7.0), "fierce": (18.0, 90.0), "spectacular": (14.0, 90.0)}  # the mood's floor and ceiling on the recipe's eye_tilt
+
+    def test_every_species_is_named_with_its_mood(self):
+        self.assertEqual(sorted(self.MOOD), sorted(self.BATCH))
+
+    def test_the_recipes_face_is_at_its_moods_floor(self):
+        for base, rec in self.v2().items():
+            lo, hi = self.TILT[self.MOOD[base]]
+            with self.subTest(base):
+                self.assertGreaterEqual(rec["face"]["eye_tilt"], lo)
+                self.assertLessEqual(rec["face"]["eye_tilt"], hi)
+                self.assertGreaterEqual(rec["face"].get("lid", 0.0), 0.25)  # a brow over the eye
+
+    def test_the_mood_is_the_one_the_sculpt_gives_the_species(self):
+        import ast
+        tree = ast.parse((ROOT / "tools/blender/species_sculpt.py").read_text())
+        table = next(n.value for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "SPECIES" for x in n.targets))
+        moods = {}
+        for key, val in zip(table.keys, table.values):
+            if isinstance(val, ast.Dict):
+                for k2, v2 in zip(val.keys, val.values):
+                    if isinstance(k2, ast.Constant) and k2.value == "face" and isinstance(v2, ast.Dict):
+                        for k3, v3 in zip(v2.keys, v2.values):
+                            if isinstance(k3, ast.Constant) and k3.value == "mood":
+                                moods[key.value] = v3.value
+        for base in self.BATCH:
+            with self.subTest(base):
+                self.assertEqual(moods.get(base), self.MOOD[base])
+
+    def test_the_big_eyes_stay(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertGreaterEqual(rec["face"]["eye_scale"], 1.15)
+
+    def test_the_trim_slot_is_used_where_the_species_has_one(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                has = "Trim" in sr.material_slots(base)
+                self.assertEqual("Trim" in sr.slots_used(sr.expand(rec)), has)
+
+
+class PrototypeRoster(unittest.TestCase):
+    """Every `"prototype": True` recipe is one of the hero prototypes or a `<Id>V2` of a design-pass batch, and only those."""
+
+    def test_the_prototypes_are_the_heroes_and_the_two_batches(self):
+        expect = ["FenripupV2", "Skydrake"] + [b + "V2" for b in DesignPassPrototypes.BATCH + DesignPassBatch2.BATCH]
+        self.assertEqual(sorted(k for k, v in sr.RECIPES.items() if v.get("prototype")), sorted(expect))
+
+    def test_no_batch_species_is_in_two_batches(self):
+        both = set(DesignPassPrototypes.BATCH) & set(DesignPassBatch2.BATCH)
+        self.assertEqual(both, set())
 
 
 class Maths(unittest.TestCase):

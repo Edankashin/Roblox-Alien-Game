@@ -1638,6 +1638,414 @@ RECIPES["PengooV2"] = {
 # ==== DESIGN PASS 1 END ====
 
 
+# ==== DESIGN PASS 2 BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Design-Pass.md "Batch 2"; written 2026-10-15) ====
+# The per-species design pass, batch 2: the eight rarer species whose faces carry a mood (Sculpt-Pass.md "Temperament moods") but whose bodies were
+# still round cute things. Each `<Id>V2` is a `"prototype": True` recipe that keeps its species' height, slots, palette and glow and gives it a body
+# that carries its temperament: stance, proportions, a silhouette of its own, a feature set of its world. Built with `species_sculpt.py --method
+# hybrid` on a scratch copy of the species' folder renamed `<Id>V2`, with `--set face.mood=<mood>` (the V2 keys are not in the sculpt's SPECIES
+# table); the exact command lines are in Design-Pass.md. Facing -Y, feet on z 0, as everywhere in this file. Helpers from the hero and batch 1 blocks
+# (_blade, _fin, _leaf, _chain, _crescent, _basis) are reused.
+
+
+def _msweep(slot, pts, radii, name):
+    """A sweep and its mirror image across x = 0 (a pair of horns, tines or legs): one step when the curve lies on the centre line."""
+    out = [sweep(slot, pts, radii, name)]
+    if any(abs(p[0]) > 1e-6 for p in pts):
+        out.append(sweep(slot, [(-p[0], p[1], p[2]) for p in pts], radii, name))
+    return out
+
+
+def _zig(slot, base, d, lengths, radii, bend, name, mirror=False):
+    """A lightning-bolt quill: tapered flat-shaded cones that zig and zag (the direction turns by +-bend degrees about the x axis at each joint),
+    starting at `base` heading along d; radii[i] is the radius at the start of cone i, the last cone ends in a point."""
+    out, p = [], base
+    d = _unit(d)
+    for i, (ln, r) in enumerate(zip(lengths, radii)):
+        if i:
+            a = math.radians(bend * (1 if i % 2 else -1))
+            d = _unit((d[0], d[1] * math.cos(a) - d[2] * math.sin(a), d[1] * math.sin(a) + d[2] * math.cos(a)))
+        q = _add(p, _mul(d, ln))
+        r2 = radii[i + 1] if i + 1 < len(radii) else 0.02
+        out.append(rod(slot, p, q, r, r2, segments=4, flat=True, mirror=mirror, name=name))
+        p = q
+    return out
+
+
+# ---------------------------------------------------------------------------------------- Thunderhog v2
+# A storm beast, not a hedgehog ball: a low, forward-leaning boar, a wedge that is heavy and high at the shoulders and falls away to a low rump. The big
+# head is carried low and forward under the hump, thick forelegs stand planted wide on clawed paws, a short snout grins (the mood's four teeth) between
+# two curved magenta tusks, and two magenta spikes stand on each shoulder. A dark mane runs from the nape to the rump and the quills grow out of it as a
+# crest of yellow lightning bolts that sweep back and lie flatter toward the tail, tallest over the shoulders. The tail is a raised bolt.
+_TH_BACK = ((-2.3, 1.2, 0.98, 0.85), (-0.8, 1.9, 1.1, 1.0), (0.3, 1.55, 0.78, 0.7), (1.1, 1.2, 0.68, 0.6))  # the centre-line spheres of the trunk (y, z, y radius, z radius)
+
+
+def _th_top(y):
+    """The height of the back at y, from the trunk's spheres."""
+    best = 0.0
+    for cy, cz, ry, rz in _TH_BACK:
+        if abs(y - cy) < ry:
+            best = max(best, cz + rz * math.sqrt(1.0 - ((y - cy) / ry) ** 2))
+    return best
+
+
+_TH_QUILLS = []
+for _y, _ln, _x in ((-2.25, 0.7, 0.0), (-1.75, 0.95, 0.0), (-1.3, 1.2, 0.0), (-0.9, 1.5, 0.0), (-0.5, 1.6, 0.0), (-0.1, 1.5, 0.0), (0.3, 1.35, 0.0), (0.7, 1.2, 0.0),
+                    (1.1, 1.0, 0.0), (1.45, 0.8, 0.0), (-0.75, 1.05, 0.55), (-0.25, 1.2, 0.58), (0.25, 1.05, 0.52), (0.75, 0.9, 0.46)):
+    _t = max(0.0, (_y + 1.3) / 2.8)  # 0 at the nape, 1 over the rump
+    _TH_QUILLS += _zig("Accessory", (_x, _y, _th_top(_y) - (0.22 if _x else 0.12)), (0.0, 0.6 + 1.0 * _t, 1.0 - 0.65 * _t),
+                       (_ln * 0.4, _ln * 0.34, _ln * 0.3), (0.25 if not _x else 0.2, 0.19, 0.12), 46.0, "quill", mirror=bool(_x))
+_TH_PAWS = []
+for _px, _py, _pz, _n in ((1.1, -1.75, 0.16, 3), (0.9, 1.5, 0.12, 3)):
+    for _k in range(_n):
+        _dx = (_k - (_n - 1) / 2.0) * 0.27
+        _TH_PAWS.append(_blade("Trim", (_px + _dx, _py - 0.45, _pz + 0.02), (_dx * 0.3, -0.85, -0.3), 0.5, 0.09, 0.08, "claw", mirror=True, segments=5))
+RECIPES["ThunderhogV2"] = {
+    "tier": "Epic", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 3.37,
+    "silhouette": "a low forward-leaning storm boar, a wedge heavy and high at the shoulders and falling away to a low rump: a big head carried low and forward with a short snout, two curved magenta tusks and a grin, thick forelegs on clawed paws, magenta shoulder spikes, a dark mane running back from the nape under a swept-back crest of glowing yellow lightning-bolt quills and a raised bolt tail",
+    "hero": "the swept-back crest of lightning-bolt quills and the heavy forelegs",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.15, "eye_tilt": 18.0, "mouth": "zigzag", "lid": 0.32, "mouth_scale": 1.25, "eye_height": 0.62, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "5C2C70", "Accessory": "FFE23B"}, "glow": {"Accessory": 2.0},
+    "steps": [
+        sph("Body", (0.0, -0.8, 1.9), (1.15, 1.1, 1.0), segments=16, name="chest"),
+        sph("Body", (0.9, -0.85, 2.05), (0.62, 0.7, 0.62), segments=12, mirror=True, name="shoulder"),
+        sph("Body", (0.0, 0.3, 1.55), (0.78, 0.9, 0.7), segments=16, name="waist"),
+        sph("Body", (0.0, 1.1, 1.2), (0.68, 0.8, 0.6), segments=14, name="rump"),
+        sph("Body", (0.0, -2.3, 1.2), (0.98, 1.02, 0.85), segments=16, name="head"),
+        sph("BodyDark", (0.0, -0.3, 2.25), (0.5, 2.1, 0.38), rot=(10, 0, 0), segments=14, name="mane"),
+        rod("Body", (0.98, -0.95, 1.85), (1.15, -1.5, 0.3), 0.58, 0.36, segments=10, mirror=True, name="foreleg"),
+        sph("BodyDark", (1.1, -1.75, 0.2), (0.52, 0.7, 0.22), segments=10, mirror=True, name="paw"),
+        sph("Body", (0.62, 1.2, 1.15), (0.42, 0.66, 0.6), segments=12, mirror=True, name="haunch"),
+        rod("Body", (0.76, 1.35, 1.0), (0.85, 1.7, 0.26), 0.3, 0.24, segments=8, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.88, 1.5, 0.14), (0.4, 0.58, 0.16), segments=10, mirror=True, name="hindpaw"),
+        sweep("BodyDark", [(0.0, 1.6, 1.3), (0.0, 2.3, 1.55), (0.0, 2.85, 2.2), (0.0, 2.9, 3.0)], [0.32, 0.24, 0.17, 0.1], name="tail"),
+        rod("Trim", (0.62, -2.85, 0.75), (0.85, -3.25, 1.1), 0.17, 0.15, segments=6, mirror=True, name="tusk"),
+        spike("Trim", (0.85, -3.25, 1.1), (0.72, -3.35, 1.8), 0.15, segments=6, mirror=True, name="tusk"),
+        spike("Trim", (1.0, -1.05, 2.4), (1.4, -0.65, 3.35), 0.2, segments=6, mirror=True, name="pauldron"),
+        spike("Trim", (1.15, -0.55, 2.25), (1.7, -0.2, 2.9), 0.17, segments=6, mirror=True, name="pauldron"),
+    ] + _zig("Accessory", (0.0, 2.9, 3.0), (0.0, -0.1, 1.0), (0.45, 0.38, 0.3), (0.13, 0.11, 0.08), 46.0, "quill") + _TH_QUILLS + _TH_PAWS,
+}
+
+# ---------------------------------------------------------------------------------------- Frostfang v2
+# A sabre-tooth cat of the snowfield, not a round cub: shoulders high and heavy, the brisket hanging low between thick forelegs, a back that slopes
+# to short hind legs, a big low head carrying two long icicle fangs over the open grin (the mood's four teeth between them), and a frost mane: a
+# lion's ruff of ice spikes radiating round the neck, swept back and out in two rings, wider than the shoulders. Magenta metal claws on the big paws.
+_FF_MANE = []
+_FF_AXIS = (0.0, -1.0, 2.15)  # the neck: the mane's spikes radiate from a ring round this point, along the y axis
+for _ring, (_y0, _r0, _ln, _tilt) in enumerate(((0.0, 0.62, 1.35, 0.55), (0.45, 0.75, 1.7, 0.8))):
+    for _phi in (-35, -10, 15, 40, 65, 90):
+        _a = math.radians(_phi)
+        _out = (math.cos(_a), 0.0, math.sin(_a))
+        _base = (_FF_AXIS[0] + _out[0] * _r0, _FF_AXIS[1] + _y0, _FF_AXIS[2] + _out[2] * _r0)
+        _d = (_out[0] * 0.9, _tilt, _out[2] * 0.9 + 0.05)
+        _FF_MANE.append(spike("Accessory", _base, _add(_base, _mul(_unit(_d), _ln * (1.0 - 0.1 * abs(_phi - 40) / 40.0))), 0.26 - 0.03 * _ring, segments=5, flat=True,
+                              mirror=(_phi != 90), name="mane"))
+_FF_CLAWS = []
+for _px, _py, _pz in ((0.98, -1.6, 0.16), (0.88, 1.6, 0.12)):
+    for _k in range(3):
+        _dx = (_k - 1) * 0.27
+        _FF_CLAWS.append(_blade("Trim", (_px + _dx, _py - 0.4, _pz + 0.02), (_dx * 0.3, -0.85, -0.3), 0.48, 0.09, 0.08, "claw", mirror=True, segments=5))
+RECIPES["FrostfangV2"] = {
+    "tier": "Epic", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 3.37,
+    "silhouette": "a sabre-tooth cat standing on four legs, shoulders high and heavy, chest slung low between thick forelegs, a back sloping to short hind legs and a stub tail, a big low head with two long icicle fangs over a grin, and a wide frost mane of two rings of swept-back ice spikes round the neck",
+    "hero": "the two long icicle fangs and the frost mane",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.12, "eye_tilt": 18.0, "mouth": "zigzag", "lid": 0.3, "mouth_scale": 1.2, "eye_height": 0.62, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "487797", "Accessory": "E8F7FF", "Mouth": "C94F3D"},
+    "steps": [
+        sph("Body", (0.0, -0.5, 2.35), (1.0, 1.05, 0.95), segments=16, name="withers"),
+        sph("Body", (0.78, -0.55, 2.25), (0.55, 0.7, 0.75), segments=12, mirror=True, name="shoulder"),
+        sph("Body", (0.0, -0.7, 1.7), (0.8, 0.9, 0.7), segments=14, name="brisket"),
+        sph("Body", (0.0, 0.55, 2.0), (0.78, 0.9, 0.72), segments=16, name="waist"),
+        sph("Body", (0.0, 1.4, 1.6), (0.7, 0.85, 0.66), segments=14, name="hips"),
+        sph("Body", (0.6, 1.5, 1.3), (0.44, 0.64, 0.62), segments=12, mirror=True, name="haunch"),
+        sph("Body", (0.0, -1.9, 1.85), (0.95, 0.9, 0.8), segments=16, name="head"),
+        spike("Body", (0.58, -1.55, 2.5), (0.85, -1.4, 3.3), 0.3, segments=6, mirror=True, name="ear"),
+        rod("Body", (0.88, -0.6, 2.15), (0.98, -1.25, 0.3), 0.5, 0.34, segments=10, mirror=True, name="foreleg"),
+        sph("BodyDark", (0.98, -1.4, 0.18), (0.46, 0.64, 0.2), segments=10, mirror=True, name="paw"),
+        rod("Body", (0.7, 1.45, 1.25), (0.8, 1.82, 0.28), 0.3, 0.24, segments=8, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.86, 1.62, 0.13), (0.4, 0.56, 0.15), segments=10, mirror=True, name="hindpaw"),
+        sweep("BodyDark", [(0.0, 1.9, 1.7), (0.0, 2.6, 1.6), (0.0, 3.1, 2.0), (0.0, 3.2, 2.6)], [0.26, 0.2, 0.15, 0.12], name="tail"),
+        spike("Accessory", (0.0, 3.2, 2.5), (0.0, 3.0, 3.3), 0.2, segments=5, flat=True, name="tailtuft"),
+        spike("Accessory", (0.05, 3.25, 2.4), (0.0, 3.7, 3.0), 0.16, segments=5, flat=True, name="tailtuft"),
+        spike("Accessory", (0.4, -2.57, 1.67), (0.5, -2.8, 0.05), 0.2, segments=6, mirror=True, name="fang"),
+        sph("BodyDark", (0.74, 0.05, 2.0), (0.12, 0.13, 0.5), rot=(0, 0, 0), segments=8, mirror=True, name="stripe"),
+        sph("BodyDark", (0.76, 0.55, 2.0), (0.12, 0.13, 0.5), segments=8, mirror=True, name="stripe"),
+        sph("BodyDark", (0.72, 1.05, 1.95), (0.12, 0.13, 0.46), segments=8, mirror=True, name="stripe"),
+    ] + _FF_MANE + _FF_CLAWS,
+}
+
+# ---------------------------------------------------------------------------------------- Skaddle v2
+# A winter hunter on ice skates, not a round owl on skis: long-limbed and lean, caught mid-stride on two gold skate blades (one leg bent under it, the
+# other trailing far behind), the torso leaning forward under a narrow hawk head with swept-back ear tufts, one wing-arm reaching forward and one
+# swept back with a fan of ice-blade feathers, a halo that reads as a blade-ring (a gold ring with ten ice blades pointing outward, tilted over the
+# head) and a long ice-blue scarf that whips out behind in a wave.
+_SK_HALO_C, _SK_HALO_TILT, _SK_HALO_R = (0.0, 0.3, 3.25), 12.0, 0.95  # a nimbus standing behind the head, tilted back by 12 degrees
+_SK_RING_E2 = (0.0, math.sin(math.radians(_SK_HALO_TILT)), math.cos(math.radians(_SK_HALO_TILT)))  # the ring's second in-plane axis (the first is x)
+_SK_BLADES = []
+for _k in range(14):
+    _th = math.radians(360.0 / 14.0 * _k + 12.0)
+    _dir = (math.cos(_th), math.sin(_th) * _SK_RING_E2[1], math.sin(_th) * _SK_RING_E2[2])
+    _b0 = _add(_SK_HALO_C, _mul(_dir, _SK_HALO_R * 0.92))
+    _SK_BLADES.append(spike("Accessory", _b0, _add(_b0, _mul(_dir, 0.62 if _k % 2 else 0.45)), 0.15, segments=4, flat=True, name="halo"))
+_SK_FEATHERS = []
+for _u, _ln in ((0.35, 0.8), (0.5, 1.05), (0.65, 1.2), (0.8, 1.1), (0.95, 0.85)):  # the swept-back wing: blades along the arm, trailing back
+    _p, _tn = crom([(0.65, -0.1, 2.6), (1.2, 0.5, 2.5), (1.85, 1.5, 2.7)], _u)
+    _SK_FEATHERS.append(_blade("Accessory", _p, (0.25, 1.0, -0.2), _ln, 0.05, 0.28, "feather", thin_axis=(0.0, 0.0, 1.0)))
+for _u, _ln in ((0.4, 0.7), (0.58, 0.9), (0.76, 0.9), (0.94, 0.7)):  # the forward wing: shorter blades trailing down and back
+    _p, _tn = crom([(-0.65, -0.15, 2.55), (-1.25, -0.6, 2.35), (-1.95, -1.05, 2.15)], _u)
+    _SK_FEATHERS.append(_blade("Accessory", _p, (-0.15, 0.9, -0.5), _ln, 0.05, 0.26, "feather", thin_axis=(0.0, 0.0, 1.0)))
+_SK_SCARF = []  # the scarf's free end: leaves the knot at the neck, runs back and up, rippling as it goes
+for _i in range(16):
+    _u = _i / 15.0
+    _SK_SCARF.append((0.05 * math.sin(6.0 * _u), 0.0 + 3.7 * _u, 2.5 + 0.8 * _u + 0.3 * math.sin(2.0 * math.pi * 1.6 * _u)))
+RECIPES["SkaddleV2"] = {
+    "tier": "Legendary", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 3.98,
+    "silhouette": "a lean winter hunter gliding on two gold ice skates, one leg bent under it and one trailing far behind, the torso leaning forward under a narrow head with swept-back ear tufts, one wing-arm reaching forward and one swept back in a fan of ice-blade feathers, a blade-ring halo tilted over the head and a long ice-blue scarf whipping out behind in a wave",
+    "hero": "the blade-ring halo, the whipping scarf and the skates",
+    "face": {"on": "head", "eye_scale": 1.5, "eye_gap": 0.95, "eye_tilt": 18.0, "mouth": "smile", "lid": 0.3, "eye_height": 0.62, "mouth_drop": 0.28},
+    "palette": {"BodyDark": "A9C5E0", "Accessory": "8FD8FF"},
+    "ribbons": [{"slot": "Accessory", "name": "scarf", "pts": _SK_SCARF, "thick": 0.06, "widths": [0.3 - 0.12 * (_i / 15.0) ** 1.5 for _i in range(16)]}],
+    "steps": [
+        sph("Body", (0.0, 0.05, 1.65), (0.5, 0.45, 0.4), segments=12, name="hips"),
+        sph("Body", (0.0, -0.2, 2.2), (0.56, 0.46, 0.82), rot=(15.0, 0.0, 0.0), segments=16, name="torso"),
+        sph("Body", (0.0, -0.55, 3.0), (0.82, 0.74, 0.7), segments=16, name="head"),
+        spike("BodyDark", (0.5, -0.4, 3.5), (0.95, 0.15, 4.15), 0.2, segments=5, mirror=True, name="tuft"),
+        rod("BodyDark", (-0.3, 0.0, 1.55), (-0.45, -0.45, 0.95), 0.2, 0.16, segments=8, name="thigh"),
+        rod("BodyDark", (-0.45, -0.45, 0.95), (-0.4, -0.3, 0.38), 0.16, 0.12, segments=8, name="shin"),
+        sph("BodyDark", (-0.4, -0.35, 0.3), (0.2, 0.38, 0.2), segments=10, name="boot"),
+        cube("Trim", (-0.4, -0.35, 0.07), (0.05, 0.62, 0.04), name="skate"),
+        rod("Trim", (-0.4, -0.95, 0.08), (-0.4, -1.1, 0.22), 0.045, 0.03, segments=4, name="skatetip"),
+        rod("BodyDark", (0.3, 0.1, 1.55), (0.55, 0.7, 1.0), 0.2, 0.16, segments=8, name="thigh"),
+        rod("BodyDark", (0.55, 0.7, 1.0), (0.78, 1.3, 0.38), 0.16, 0.12, segments=8, name="shin"),
+        sph("BodyDark", (0.8, 1.35, 0.3), (0.2, 0.38, 0.2), rot=(0.0, 0.0, -12.0), segments=10, name="boot"),
+        cube("Trim", (0.82, 1.4, 0.07), (0.05, 0.62, 0.04), rot=(0.0, 0.0, -12.0), name="skate"),
+        rod("Trim", (0.7, 0.85, 0.08), (0.64, 0.72, 0.22), 0.045, 0.03, segments=4, name="skatetip"),
+        sweep("BodyDark", [(0.65, -0.1, 2.6), (1.2, 0.5, 2.5), (1.85, 1.5, 2.7)], [0.22, 0.17, 0.12], name="wing"),
+        sweep("BodyDark", [(-0.65, -0.15, 2.55), (-1.25, -0.6, 2.35), (-1.95, -1.05, 2.15)], [0.22, 0.17, 0.12], name="wing"),
+        sph("Accessory", (0.12, -0.35, 2.55), (0.24, 0.24, 0.24), segments=8, name="knot"),
+        tor("Trim", _SK_HALO_C, (_SK_HALO_R,) * 3, rot=(90.0 - _SK_HALO_TILT, 0.0, 0.0), minor=0.09, segments=24, mseg=4, name="halo"),
+    ] + _SK_BLADES + _SK_FEATHERS,
+}
+
+# ---------------------------------------------------------------------------------------- Gloomoth v2
+# A night moth of the cave, slender and elegant, not a plump fuzzball: a small head and a tall slim thorax in a fuzzy collar, a long tapering abdomen
+# trailing behind with a few small jewels, standing on four thin legs, four crystal wings spread wide (two big fore-wings fanned up and out, two smaller
+# hind-wings fanned down and out, each a fan of overlapping glass panes), two curving antennae with feathered plumes and a faceted jewel on its chest.
+_GM_WINGS = [
+    # the wing membranes: big flat faceted leaves in the dark body colour, the fore-wings swept up and out, the hind-wings smaller and swept down
+    ico("BodyDark", (1.45, 0.22, 2.25), (1.3, 0.04, 0.85), rot=(0.0, -28.0, 0.0), segments=2, flat=True, mirror=True, name="membrane"),
+    ico("BodyDark", (1.0, 0.25, 1.0), (0.9, 0.04, 0.55), rot=(0.0, 32.0, 0.0), segments=2, flat=True, mirror=True, name="membrane"),
+]
+
+
+def _gm_fan(shoulder, angles, lengths, wide, name):
+    """The crystal ribs of a wing: slim glass panes fanned from the shoulder (angles in degrees above the horizontal, out to +x), mirrored, standing a
+    little proud of the membrane and reaching past its rim so the edge is a row of crystal points."""
+    out = []
+    for a, ln in zip(angles, lengths):
+        d = (math.cos(math.radians(a)), 0.0, math.sin(math.radians(a)))
+        out.append(_blade("Accessory", shoulder, d, ln, 0.045, wide, name, thin_axis=(0.0, 1.0, 0.0), mirror=True, segments=4))
+    return out
+
+
+_GM_WINGS += _gm_fan((0.28, 0.1, 1.6), (82, 64, 46, 29, 13), (1.9, 2.5, 2.9, 2.75, 2.25), 0.22, "pane")
+_GM_WINGS += _gm_fan((0.28, 0.1, 1.15), (-16, -34, -52, -70), (1.6, 1.7, 1.4, 1.1), 0.2, "pane")
+_GM_PLUMES = []
+for _s in (1, -1):
+    _ap = [(_s * 0.18, -0.3, 2.2), (_s * 0.3, -0.35, 2.55), (_s * 0.6, -0.3, 2.9), (_s * 0.98, -0.1, 3.12)]
+    for _u in (0.3, 0.5, 0.7, 0.9):
+        _p, _tn = crom(_ap, _u)
+        _GM_PLUMES.append(_blade("Accessory", _p, (_s * 0.2, 0.25, 0.85), 0.5 - 0.1 * _u, 0.03, 0.12, "plume", thin_axis=(0.0, 1.0, 0.0), segments=4))
+        _GM_PLUMES.append(_blade("Accessory", _p, (_s * 0.95, 0.15, 0.1), 0.45 - 0.1 * _u, 0.03, 0.12, "plume", thin_axis=(0.0, 1.0, 0.0), segments=4))
+RECIPES["GloomothV2"] = {
+    "tier": "Epic", "world": 1, "biome": "Cave", "batch": 0, "status": "recipe", "prototype": True, "height": 2.64,
+    "silhouette": "a slender night moth standing on four thin legs: a small head and a tall slim thorax in a fuzzy collar, a long tapering abdomen trailing behind with small jewels, four crystal wings spread wide (two big fore-wings fanned up and out, two smaller hind-wings fanned down and out), two curving antennae with feathered plumes and a faceted jewel on its chest",
+    "hero": "the four crystal wings and the jewel on its chest",
+    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.05, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.25, "look": (0.0, 0.08), "eye_height": 0.62, "mouth_drop": 0.28},
+    "palette": {"BodyDark": "6B447B", "Accessory": "5CF0D0"}, "glow": {"Accessory": 1.5},
+    "steps": [
+        sph("Body", (0.0, -0.3, 1.85), (0.5, 0.46, 0.46), segments=16, name="head"),
+        sph("Body", (0.0, 0.05, 1.25), (0.4, 0.42, 0.7), segments=16, name="thorax"),
+        sph("BodyDark", (0.0, -0.1, 1.6), (0.46, 0.42, 0.26), segments=10, name="ruff"),
+        sph("BodyDark", (0.3, 0.0, 1.5), (0.25, 0.25, 0.22), segments=8, mirror=True, name="ruff"),
+        sweep("Body", [(0.0, 0.3, 1.0), (0.0, 0.85, 0.75), (0.0, 1.35, 0.5), (0.0, 1.65, 0.3)], [0.28, 0.22, 0.16, 0.07], name="abdomen"),
+        ico("Trim", (0.0, -0.4, 1.3), (0.2, 0.14, 0.26), segments=1, flat=True, name="jewel"),
+        ico("Trim", (0.0, 0.62, 0.8), 0.1, segments=1, flat=True, name="jewel"),
+        ico("Trim", (0.0, 1.0, 0.62), 0.09, segments=1, flat=True, name="jewel"),
+        rod("BodyDark", (0.25, 0.1, 0.8), (0.45, 0.2, 0.4), 0.09, 0.07, segments=6, mirror=True, name="leg"),
+        rod("BodyDark", (0.45, 0.2, 0.4), (0.55, 0.05, 0.03), 0.07, 0.06, segments=6, mirror=True, name="leg"),
+        rod("BodyDark", (0.25, -0.1, 0.8), (0.45, -0.4, 0.4), 0.09, 0.07, segments=6, mirror=True, name="leg"),
+        rod("BodyDark", (0.45, -0.4, 0.4), (0.5, -0.55, 0.03), 0.07, 0.06, segments=6, mirror=True, name="leg"),
+        sph("BodyDark", (0.55, 0.03, 0.05), (0.14, 0.2, 0.05), segments=6, mirror=True, name="foot"),
+        sph("BodyDark", (0.5, -0.57, 0.05), (0.14, 0.2, 0.05), segments=6, mirror=True, name="foot"),
+        sweep("BodyDark", [(0.18, -0.3, 2.2), (0.3, -0.35, 2.55), (0.6, -0.3, 2.9), (0.98, -0.1, 3.12)], [0.06, 0.05, 0.045, 0.04], name="antenna"),
+        sweep("BodyDark", [(-0.18, -0.3, 2.2), (-0.3, -0.35, 2.55), (-0.6, -0.3, 2.9), (-0.98, -0.1, 3.12)], [0.06, 0.05, 0.045, 0.04], name="antenna"),
+    ] + _GM_WINGS + _GM_PLUMES,
+}
+
+# ---------------------------------------------------------------------------------------- Shimmerlynx v2
+# A long lean lynx on four legs, not a seated cat: a long body with the head carried high on a neck, tall ears with black tufts, a pink-magenta cheek
+# ruff, a bobbed tail, one front paw raised and held out (the cool poise) and an aurora crest that flows back from between the ears:
+# three waving glass ribbons streaming back over the spine from a glowing crown gem, of different lengths and phases, drifting apart as they go.
+_SL_AURORA = []
+for _x0, _x1, _rise, _ph, _ln in ((0.0, 0.0, 1.25, 0.0, 4.8), (-0.25, -0.95, 0.8, 1.2, 4.0), (0.25, 0.95, 1.0, 2.4, 4.4)):
+    _pts = []
+    for _i in range(18):
+        _u = _i / 17.0
+        _pts.append((_x0 + (_x1 - _x0) * _u ** 1.5, -1.75 + _ln * _u, 3.5 + _rise * math.sin(math.pi * min(1.0, _u * 1.15)) + 0.3 * math.sin(2.0 * math.pi * (1.6 * _u + _ph / 6.0)) - 0.5 * _u ** 2))
+    _SL_AURORA.append({"slot": "Accessory", "name": "aurora", "pts": _pts, "thick": 0.05, "widths": [0.14 + 0.28 * math.sin(math.pi * (_i + 1.5) / 20.0) ** 0.7 for _i in range(18)]})
+RECIPES["ShimmerlynxV2"] = {
+    "tier": "Epic", "world": 2, "biome": "IceCave", "batch": 0, "status": "recipe", "prototype": True, "height": 3.82,
+    "silhouette": "a long lean lynx on four legs, the head carried high on a neck between two tall black-tufted ears, a magenta cheek ruff, a bobbed tail, one front paw raised and held out, and an aurora crest of three waving glass ribbons streaming back over the spine and drifting apart",
+    "hero": "the aurora crest flowing back and the raised paw",
+    "face": {"on": "head", "eye_scale": 1.15, "eye_gap": 1.1, "eye_tilt": 7.0, "mouth": "smile", "lid": 0.3, "mouth_scale": 0.85, "eye_height": 0.62, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "827E9C", "Accessory": "5CF0D0"}, "glow": {"Accessory": 1.5},
+    "ribbons": _SL_AURORA,
+    "steps": [
+        sph("Body", (0.0, -0.6, 1.75), (0.78, 0.95, 0.85), segments=16, name="chest"),
+        sph("Body", (0.0, 0.7, 1.7), (0.7, 0.95, 0.7), segments=16, name="waist"),
+        sph("Body", (0.0, 1.7, 1.65), (0.72, 0.8, 0.72), segments=14, name="hips"),
+        sph("Body", (0.55, 1.8, 1.35), (0.4, 0.6, 0.62), segments=12, mirror=True, name="haunch"),
+        rod("Body", (0.0, -1.1, 2.1), (0.0, -1.55, 2.75), 0.5, 0.42, segments=10, name="neck"),
+        sph("Body", (0.0, -1.85, 3.0), (0.78, 0.72, 0.64), segments=16, name="head"),
+        spike("Body", (0.5, -1.7, 3.4), (0.68, -1.65, 4.45), 0.3, segments=6, mirror=True, name="ear"),
+        spike("BodyDark", (0.67, -1.65, 4.3), (0.72, -1.6, 5.0), 0.12, segments=5, mirror=True, name="eartuft"),
+        spike("Trim", (0.55, -1.9, 2.85), (1.3, -1.75, 2.65), 0.16, segments=6, mirror=True, name="cheek"),
+        spike("Trim", (0.5, -1.85, 2.7), (1.1, -1.7, 2.2), 0.14, segments=6, mirror=True, name="cheek"),
+        rod("Body", (-0.55, -0.7, 1.7), (-0.6, -1.1, 0.25), 0.26, 0.18, segments=8, name="foreleg"),
+        sph("BodyDark", (-0.6, -1.2, 0.12), (0.28, 0.4, 0.13), segments=10, name="paw"),
+        rod("Body", (0.55, -0.7, 1.7), (0.65, -0.45, 1.15), 0.24, 0.18, segments=8, name="upperarm"),
+        rod("Body", (0.65, -0.45, 1.15), (0.85, -1.35, 1.75), 0.18, 0.16, segments=8, name="forearm"),
+        sph("BodyDark", (0.88, -1.5, 1.8), (0.32, 0.36, 0.3), segments=10, name="raisedpaw"),
+        rod("Body", (0.55, 1.75, 1.3), (0.62, 2.1, 0.65), 0.3, 0.2, segments=8, mirror=True, name="thigh"),
+        rod("Body", (0.62, 2.1, 0.65), (0.62, 1.9, 0.2), 0.2, 0.16, segments=8, mirror=True, name="hock"),
+        sph("BodyDark", (0.62, 1.8, 0.12), (0.28, 0.42, 0.13), segments=10, mirror=True, name="hindpaw"),
+        sweep("Body", [(0.0, 2.3, 1.75), (0.0, 2.7, 1.8)], [0.24, 0.2], name="tail"),
+        sph("BodyDark", (0.0, 2.85, 1.8), (0.2, 0.2, 0.2), segments=8, name="tailtip"),
+        ico("Accessory", (0.0, -1.78, 3.52), (0.15, 0.12, 0.22), segments=1, flat=True, name="crowngem"),
+    ],
+}
+
+# ---------------------------------------------------------------------------------------- Reindazzle v2
+# A lean, stately reindeer of the snowfield, not a prancing pony: a narrow deep-chested body on four long slim legs, a long neck and a head held high with
+# the big glowing nose at the front of the face, and a wide crown of icicle antlers: from each side a main beam sweeps out and up with a brow tine
+# forward and three icicle tines rising from it, every one a tapering tube of ice that grows out of the skull as one skin. A tuft of a tail behind.
+_RD_ANTLER = [
+    ((0.3, -1.6, 3.25), (0.75, -1.55, 3.6), (1.3, -1.4, 3.85), (1.85, -1.2, 4.05), (2.3, -1.0, 4.35)), (0.15, 0.12, 0.1, 0.075, 0.03),  # the main beam
+    ((0.42, -1.6, 3.4), (0.55, -2.0, 3.7), (0.6, -2.35, 4.05)), (0.1, 0.075, 0.03),                                                    # the brow tine, forward
+    ((0.75, -1.55, 3.6), (0.82, -1.58, 4.1), (0.82, -1.6, 4.65)), (0.1, 0.075, 0.03),                                                  # three tines rising
+    ((1.3, -1.4, 3.85), (1.38, -1.42, 4.4), (1.36, -1.42, 5.0)), (0.09, 0.07, 0.03),
+    ((1.85, -1.2, 4.05), (1.92, -1.22, 4.55), (1.9, -1.22, 5.05)), (0.08, 0.06, 0.028),
+]
+_RD_ANTLERS = []
+for _i in range(0, len(_RD_ANTLER), 2):
+    _RD_ANTLERS += _msweep("BodyDark", list(_RD_ANTLER[_i]), list(_RD_ANTLER[_i + 1]), "antler")
+RECIPES["ReindazzleV2"] = {
+    "tier": "Rare", "world": 2, "biome": "Snowfield", "batch": 0, "status": "recipe", "prototype": True, "height": 3.65,
+    "silhouette": "a lean stately reindeer standing proud on four long slim legs, a narrow deep chest, a long neck and a high head with a big glowing nose at the front of the face, and a very wide crown of icicle antlers: a main beam sweeping out and up from each side with a brow tine forward and three icicle tines rising from it",
+    "hero": "the wide crown of branching icicle antlers and the glowing nose",
+    "face": {"on": "head", "eye_scale": 1.7, "eye_gap": 1.15, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.3, "eye_height": 0.7, "mouth_drop": 0.54},
+    "palette": {"BodyDark": "8795AD", "Accessory": "FF6B4A"}, "glow": {"Accessory": 2.0}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0.0, -0.4, 1.75), (0.6, 0.85, 0.7), segments=16, name="chest"),
+        sph("Body", (0.0, 0.7, 1.7), (0.55, 0.8, 0.6), segments=14, name="waist"),
+        sph("Body", (0.0, 1.5, 1.7), (0.55, 0.65, 0.6), segments=14, name="hips"),
+        rod("Body", (0.0, -0.85, 2.0), (0.0, -1.35, 2.65), 0.38, 0.3, segments=10, name="neck"),
+        sph("Body", (0.0, -1.65, 2.85), (0.64, 0.66, 0.6), segments=16, name="head"),
+        sph("Accessory", (0.0, -2.27, 2.82), 0.2, segments=12, name="nose"),
+        sph("Body", (0.0, -1.0, 1.7), (0.4, 0.35, 0.5), segments=10, name="ruff"),
+        sph("Body", (0.7, -1.55, 3.1), (0.32, 0.1, 0.15), rot=(0, 0, 22), segments=8, mirror=True, name="ear"),
+        rod("Body", (0.38, -0.5, 1.5), (0.42, -0.7, 0.2), 0.2, 0.12, segments=8, mirror=True, name="foreleg"),
+        sph("BodyDark", (0.42, -0.75, 0.1), (0.14, 0.2, 0.1), segments=8, mirror=True, name="hoof"),
+        rod("Body", (0.4, 1.5, 1.4), (0.46, 1.9, 0.8), 0.22, 0.15, segments=8, mirror=True, name="thigh"),
+        rod("Body", (0.46, 1.9, 0.8), (0.45, 1.72, 0.15), 0.15, 0.11, segments=8, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.45, 1.75, 0.1), (0.14, 0.2, 0.1), segments=8, mirror=True, name="hoof"),
+        sph("Body", (0.0, 2.2, 1.9), 0.24, segments=8, name="tail"),
+    ] + _RD_ANTLERS,
+}
+
+# ---------------------------------------------------------------------------------------- Rocklobber v2
+# A cave crab built to fight, not a crab with one fist: a wide low red body with a scowl and a grin of four teeth, a faceted stone shell over its back
+# crowned with three amber crystals, six jointed legs planted wide (three a side, knees up, feet out), and two boulder claws held HIGH over its head
+# on thick bent arms, each a faceted fist with a smaller stone for the pincer's other jaw and a cluster of glowing amber crystals on its knuckles.
+_RL_CLAWS = []
+for _c in ((1.8, -0.55, 2.5, 1.85, -0.6, 3.2), (2.15, -0.5, 2.35, 2.55, -0.5, 2.95), (1.45, -0.5, 2.45, 1.3, -0.45, 3.05)):
+    _RL_CLAWS.append(spike("Accessory", (_c[0], _c[1], _c[2]), (_c[3], _c[4], _c[5]), 0.24, segments=5, flat=True, mirror=True, name="crystal"))
+_RL_LEGS = []
+for _y, _kz in ((-0.55, 1.45), (0.25, 1.55), (0.95, 1.45)):  # the legs: out from the body's edge, a high knee, then down and out to the foot
+    _RL_LEGS.append(rod("Body", (0.85, _y, 1.0), (1.65, _y * 1.2, _kz), 0.19, 0.15, segments=6, mirror=True, name="leg"))
+    _RL_LEGS.append(rod("Body", (1.65, _y * 1.2, _kz), (2.25, _y * 1.45, 0.08), 0.15, 0.1, segments=6, mirror=True, name="leg"))
+    _RL_LEGS.append(sph("BodyDark", (2.3, _y * 1.45, 0.07), (0.15, 0.17, 0.07), segments=6, mirror=True, name="foot"))
+RECIPES["RocklobberV2"] = {
+    "tier": "Rare", "world": 1, "biome": "Cave", "batch": 0, "status": "recipe", "prototype": True, "height": 2.42,
+    "silhouette": "a wide low cave crab with a faceted stone shell crowned with amber crystals, six jointed legs planted wide with their knees up, and two boulder claws held high over its head on thick bent arms, each a faceted fist with a smaller stone for the other jaw and a cluster of amber crystals on its knuckles",
+    "hero": "the two boulder claws raised high with their amber crystals and the faceted stone shell",
+    "face": {"on": "body", "eye_scale": 1.4, "eye_gap": 1.25, "eye_tilt": 18.0, "mouth": "zigzag", "lid": 0.3, "mouth_scale": 1.35, "eye_height": 0.66, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "8A857D", "Accessory": "FFA928"}, "glow": {"Accessory": 1.5}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0.0, 0.0, 1.0), (1.15, 0.95, 0.6), segments=16, name="body"),
+        ico("BodyDark", (0.0, 0.4, 1.4), (1.05, 0.85, 0.55), rot=(-8.0, 0.0, 0.0), segments=2, flat=True, name="shell"),
+        spike("Accessory", (0.0, 0.3, 1.8), (0.0, 0.3, 2.45), 0.26, segments=5, flat=True, name="crystal"),
+        spike("Accessory", (0.45, 0.65, 1.7), (0.7, 0.75, 2.2), 0.2, segments=5, flat=True, mirror=True, name="crystal"),
+        rod("Body", (0.9, -0.3, 1.1), (1.45, -0.5, 1.5), 0.32, 0.28, segments=8, mirror=True, name="arm"),
+        rod("Body", (1.45, -0.5, 1.5), (1.75, -0.55, 1.95), 0.28, 0.26, segments=8, mirror=True, name="arm"),
+        ico("BodyDark", (1.8, -0.55, 2.0), (0.78, 0.72, 0.66), rot=(8.0, 0.0, 22.0), segments=2, flat=True, mirror=True, name="fist"),
+        ico("BodyDark", (1.4, -1.1, 2.35), (0.42, 0.38, 0.36), rot=(0.0, 0.0, 30.0), segments=2, flat=True, mirror=True, name="thumb"),
+    ] + _RL_LEGS + _RL_CLAWS,
+}
+
+# ---------------------------------------------------------------------------------------- Gaiabloom v2
+# A tall proud stag of the meadow, not a short deer with a ring: long slim legs (one forefoot lifted in a stately step), a deep chest thrust forward under a
+# shaggy bark-brown ruff, a long swan neck curving up to a head held high, a gold nimbus ring behind the head and a TREE for antlers, each a trunk of
+# bark with brow tine, side branches and an inner branch growing out of the skull as one skin, every branch tip in pink bloom. It stands on a patch of
+# lawn (a thin green disc its hooves grow out of) ringed with pink flowers, so it carries its own ground.
+_GB_ANTLER = [
+    ((0.22, -1.25, 4.0), (0.5, -1.2, 4.4), (0.85, -1.1, 4.85), (1.05, -1.0, 5.35)), (0.17, 0.14, 0.105, 0.06),   # the trunk
+    ((0.5, -1.2, 4.4), (1.0, -1.15, 4.5), (1.5, -1.1, 4.8)), (0.12, 0.095, 0.055),                               # the lower side branch
+    ((0.85, -1.1, 4.85), (1.35, -1.05, 5.05), (1.8, -1.0, 5.45)), (0.11, 0.085, 0.05),                            # the upper side branch
+    ((0.3, -1.25, 4.1), (0.4, -1.65, 4.4), (0.45, -1.95, 4.8)), (0.11, 0.085, 0.05),                              # the brow tine, forward
+    ((1.0, -1.05, 5.2), (0.6, -1.05, 5.55), (0.3, -1.05, 5.9)), (0.1, 0.08, 0.05),                             # the inner branch, curling toward the centre
+]
+_GB_ANTLERS = []
+for _i in range(0, len(_GB_ANTLER), 2):
+    _GB_ANTLERS += _msweep("BodyDark", list(_GB_ANTLER[_i]), list(_GB_ANTLER[_i + 1]), "antler")
+_GB_BLOOMS = [ico("Accessory", p, 0.2, segments=1, flat=True, mirror=True, name="blossom")
+              for p in ((1.05, -1.0, 5.4), (1.5, -1.1, 4.85), (1.82, -1.0, 5.5), (0.45, -1.95, 4.85), (0.3, -1.05, 5.95))]
+_GB_FLOWERS = []
+for _k in range(12):  # a ring of flowers round the lawn's rim
+    _a = math.radians(30.0 * _k + 10.0)
+    _GB_FLOWERS.append(ico("Accessory", (1.65 * math.cos(_a), 0.45 + 2.1 * math.sin(_a), 0.2), 0.17, segments=1, flat=True, name="flower"))
+RECIPES["GaiabloomV2"] = {
+    "tier": "Legendary", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 4.14,
+    "silhouette": "a tall proud stag on long slim legs with one forefoot lifted, a deep chest under a shaggy ruff, a long swan neck and a high head with a gold nimbus ring behind it, antlers that are a tree (a trunk with a brow tine, two side branches and an inner branch, every tip in pink bloom), standing on a thin patch of lawn ringed with pink flowers",
+    "hero": "the tree antlers in bloom, the gold nimbus and the ring of flowers on its lawn",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.0, "eye_tilt": 14.0, "mouth": "wide", "lid": 0.3, "eye_height": 0.66, "mouth_drop": 0.24},
+    "palette": {"BodyDark": "8A5A2F", "Accessory": "FF8FB3"},
+    "steps": [
+        sph("Body", (0.0, -0.3, 1.95), (0.55, 0.7, 0.6), segments=16, name="chest"),
+        sph("Body", (0.0, 0.55, 1.9), (0.5, 0.68, 0.5), segments=14, name="waist"),
+        sph("Body", (0.0, 1.25, 1.9), (0.5, 0.55, 0.5), segments=14, name="hips"),
+        sph("BodyDark", (0.0, -0.8, 2.35), (0.42, 0.34, 0.55), segments=10, name="ruff"),
+        sweep("Body", [(0.0, -0.7, 2.2), (0.0, -1.1, 2.7), (0.0, -1.2, 3.15), (0.0, -1.15, 3.5)], [0.36, 0.3, 0.27, 0.25], name="neck"),
+        sph("Body", (0.0, -1.3, 3.75), (0.64, 0.66, 0.56), segments=16, name="head"),
+        sph("Body", (0.6, -1.2, 3.95), (0.34, 0.1, 0.17), rot=(0, 0, 28), segments=8, mirror=True, name="ear"),
+        sph("Body", (0.4, 1.3, 1.7), (0.3, 0.46, 0.46), segments=10, mirror=True, name="haunch"),
+        rod("Body", (0.34, 1.25, 1.75), (0.42, 1.55, 0.95), 0.27, 0.17, segments=8, mirror=True, name="thigh"),
+        rod("Body", (0.42, 1.55, 0.95), (0.42, 1.4, 0.14), 0.17, 0.13, segments=8, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.42, 1.42, 0.12), (0.18, 0.25, 0.12), segments=8, mirror=True, name="hoof"),
+        rod("Body", (0.33, -0.35, 1.8), (0.38, -0.45, 0.95), 0.22, 0.15, segments=8, name="foreleg"),
+        rod("Body", (0.38, -0.45, 0.95), (0.4, -0.55, 0.14), 0.15, 0.13, segments=8, name="foreleg"),
+        sph("BodyDark", (0.4, -0.58, 0.12), (0.18, 0.25, 0.12), segments=8, name="hoof"),
+        rod("Body", (-0.33, -0.35, 1.8), (-0.4, -0.95, 1.5), 0.22, 0.15, segments=8, name="foreleg"),
+        rod("Body", (-0.4, -0.95, 1.5), (-0.4, -1.0, 0.8), 0.15, 0.13, segments=8, name="foreleg"),
+        sph("BodyDark", (-0.4, -1.05, 0.78), (0.18, 0.25, 0.12), segments=8, name="hoof"),
+        tor("Trim", (0.0, -0.85, 3.9), (1.05, 1.05, 1.05), rot=(90.0, 0.0, 0.0), minor=0.07, segments=24, mseg=4, name="halo"),
+        sph("Body", (0.0, 0.45, 0.07), (1.75, 2.2, 0.07), segments=18, name="lawn"),
+    ] + _GB_ANTLERS + _GB_BLOOMS + _GB_FLOWERS,
+}
+
+# ==== DESIGN PASS 2 END ====
+
+
 # ================================================================================================ the engine
 # Everything below turns a recipe into a flat list of parts (the steps, mirrored, plus the face), and checks it. It is plain
 # Python on purpose: species_bodies.py only has to hand each part to Blender, and this file can prove a recipe is sane first.
