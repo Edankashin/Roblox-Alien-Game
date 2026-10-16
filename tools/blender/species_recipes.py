@@ -55,7 +55,8 @@ Two additions for the hero prototypes (docs/vault/06-art-pipelines/Hero-Aliens.m
 The design pass (docs/vault/06-art-pipelines/Design-Pass.md) adds eight `<Id>V2` prototypes, one per species of its first batch, in the DESIGN PASS 1
 block below the heroes: each keeps its species' height, slots, palette and glow and gives it a new base design. They share the helper `_leaf` (a flat
 ellipsoid: a wing, a mitten, a flipper, a sprout leaf). A recipe may carry `"ribbons"` (FluffletV2's scarf streamer): the band data for
-`species_sculpt.py --set ribbons=<json>`, which reads it from the command line; `expand` ignores it.
+`species_sculpt.py --set ribbons=<json>`, which reads it from the command line; `expand` ignores it. Batch 2 (DESIGN PASS 2) adds eight more and the helpers
+`_msweep` and `_zig`, batch 3 (DESIGN PASS 3: Radish, Panpipe, Zapfinch, Sparkfox, Shellberg, Snailbyte, Pebblet, Flapsicle) eight more with no new helper.
 """
 import argparse
 import math
@@ -2044,6 +2045,319 @@ RECIPES["GaiabloomV2"] = {
 }
 
 # ==== DESIGN PASS 2 END ====
+
+
+# ==== DESIGN PASS 3 BEGIN (prototypes, not shipped species: docs/vault/06-art-pipelines/Design-Pass.md "Batch 3"; written 2026-10-16) ====
+# The per-species design pass, batch 3: the top of the ladder (Raddis the Cosmic and Syrinx the Secret, the two grandest bodies so far), the cool Rares
+# (Zirrit, Vixa), the Rare joke Floe, and the three cute ones that stood in the worst overlap pairs (Pebblet, Snibble, Eekle). Each `<Id>V2` is a
+# `"prototype": True` recipe that keeps its species' height, slots, palette and glow and gives it a new body. Built with `species_sculpt.py --method
+# hybrid` on a scratch copy of the species' folder renamed `<Id>V2`, with `--set face.mood=<mood>` where the species is not cute (the V2 keys are not
+# in the sculpt's SPECIES table); the exact command lines are in Design-Pass.md. Facing -Y, feet on z 0, as everywhere in this file. Helpers from the
+# hero and the earlier batches (_blade, _leaf, _basis, _msweep, crom) are reused; no helper is new. Part names are the effect's hooks: `disk`, `ray`,
+# `reed`, `antennatip`, `bristles`, `crystal`, `shell`, `icicle`, `membrane` are what the import step splits out (the tests list them).
+
+
+# ---------------------------------------------------------------------------------------- Raddis v2 (Radish)
+# The winged sun: a fat orange radish hovering in front of the winged sun disc of Ra. The gold disc, bigger than the radish, stands behind its head ringed on
+# top by short rays, and two great wings arch out from it: each wing a leading-edge arm (a green core tube) from which feathers hang, a row of short green
+# radish-leaf coverts over a row of long gold ray feathers that grow longer toward the tip. A plume of five broad leaves on its head over a gold diadem, a gold collar, a grinning
+# face under a brow, and a taproot that hangs under the bulb and curls round on the ground like a tail with a gold tip. The disc, the ray feathers and the
+# collar are the glowing Accessory (`disk` and `ray` are split out for the effect: the disc spins and the rays sweep; the wing leaves are `leaf`).
+_RD_DISC = (0.0, 0.9, 2.3)
+_RD_DISC_R = 1.8
+_RD_ARM = [(1.1, 0.75, 2.25), (1.7, 0.75, 3.0), (2.4, 0.75, 3.25), (3.05, 0.75, 2.95)]  # the wing's leading edge
+_RD_ARM_R = [0.22, 0.19, 0.15, 0.1]
+_RD_WING = []
+for _k in range(10):  # feathers hang from the arm, broad enough to overlap: long gold ray feathers growing longer to the tip, short green leaf coverts in front
+    _u = (_k + 0.5) / 10.0
+    _p, _tn = crom(_RD_ARM, 0.08 + 0.92 * _u)
+    _d = (0.1 + 0.55 * _u, 0.1, -1.0)
+    _RD_WING.append(_blade("Accessory", (_p[0], _p[1] + 0.1 + 0.025 * _k, _p[2] - 0.05), _d, 1.5 + 1.3 * _u - (0.25 if _k % 2 else 0.0), 0.08, 0.5 - 0.09 * _u, "ray", thin_axis=(0.0, 1.0, 0.0), mirror=True))
+    if _k % 2 == 0 or _k > 6:
+        _RD_WING.append(_leaf("BodyDark", (_p[0], _p[1] - 0.1, _p[2] - 0.05), _d, 0.7 + 0.35 * _u, 0.3, 0.09, "leaf", thin_axis=(0.0, 1.0, 0.0), mirror=True, segments=6))
+_RD_RAYS = []
+for _k in range(11):  # the rays round the top of the disc
+    _a = math.radians(15.0 + 15.0 * _k)
+    _d = (math.cos(_a), 0.0, math.sin(_a))
+    _b = (_RD_DISC[0] + _d[0] * (_RD_DISC_R - 0.05), _RD_DISC[1], _RD_DISC[2] + _d[2] * (_RD_DISC_R - 0.05))
+    _RD_RAYS.append(_blade("Accessory", _b, _d, 0.55 if _k % 2 == 0 else 0.3, 0.09, 0.2 if _k % 2 == 0 else 0.15, "ray", thin_axis=(0.0, 1.0, 0.0)))
+_RD_CROWN = []
+for _az, _ln, _w in ((-58.0, 1.1, 0.34), (-30.0, 1.45, 0.4), (0.0, 1.75, 0.44), (30.0, 1.45, 0.4), (58.0, 1.1, 0.34)):
+    _s, _c = math.sin(math.radians(_az)), math.cos(math.radians(_az))
+    _RD_CROWN.append(_leaf("BodyDark", (_s * 0.55, -0.05, 2.78 + 0.1 * _c), (_s * 0.8, 0.1, _c), _ln, _w, 0.1, "leaf", thin_axis=(0.0, 1.0, 0.0), segments=8))
+
+
+RECIPES["RadishV2"] = {
+    "tier": "Cosmic", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 3.64,
+    "silhouette": "the winged sun: a fat orange radish hovering in front of a big gold sun disc of Ra fringed with rays on top, two great wings arching out from the disc (a green arm with short green leaf coverts over long gold ray feathers growing longer to the tip), a plume of five broad leaves on its head and a taproot curling on the ground like a tail",
+    "hero": "the winged sun disc: the big gold disc behind the head and its two arching wings of leaf and ray feathers",
+    "face": {"on": "body", "eye_scale": 1.5, "eye_gap": 1.0, "eye_tilt": 14.0, "mouth": "wide", "lid": 0.3, "look": (0.0, 0.1), "eye_height": 0.7, "mouth_drop": 0.24},
+    "palette": {"BodyDark": "5DBB3A", "Accessory": "FFC83D"}, "glow": {"Accessory": 3.0},
+    "steps": [
+        sph("Body", (0.0, -0.05, 1.95), (1.3, 1.18, 1.12), segments=22, name="body"),
+        sph("Body", (0.0, 0.1, 1.2), (0.78, 0.7, 0.55), segments=14, name="belly"),
+        sweep("Body", [(0.0, 0.15, 1.0), (0.0, 0.25, 0.6), (0.3, 0.6, 0.38), (0.9, 0.85, 0.27), (1.5, 0.45, 0.2), (1.5, -0.2, 0.15), (1.05, -0.6, 0.11), (0.6, -0.6, 0.08)],
+              [0.36, 0.3, 0.25, 0.2, 0.16, 0.13, 0.09, 0.06], name="taproot"),
+        spike("Accessory", (0.62, -0.6, 0.1), (0.2, -0.5, 0.18), 0.1, segments=6, name="tailtip"),
+        tor("Accessory", (0.0, -0.02, 1.38), (1.18, 1.08, 1.18), minor=0.1, segments=20, mseg=4, name="collar"),
+        cyl("Accessory", _RD_DISC, (_RD_DISC_R, _RD_DISC_R, 0.2), rot=(90.0, 0.0, 0.0), segments=32, name="disk"),
+        tor("Accessory", (0.0, -0.05, 2.78), (0.95, 0.88, 0.95), minor=0.12, segments=20, mseg=4, name="diadem"),
+    ] + _msweep("BodyDark", _RD_ARM, _RD_ARM_R, "arm") + _RD_WING + _RD_RAYS + _RD_CROWN,
+}
+
+
+# ---------------------------------------------------------------------------------------- Syrinx v2 (Panpipe)
+# The satyr: a black goat standing up on goat legs (one S-curved tube each, hip to hoof, a cream cloven hoof and a cream hock tuft), a lean torso leaning
+# forward under a big head with a pointed cream beard, long flat ears, and the grandest horns of the roster: two cream arcs that sweep up, round and down far
+# wider than the body. Behind the head a raft of nine glowing cyan reeds fans out of a bone hub, graded in length like a real panpipe and dished back at the
+# sides so it is a bowl and not a wall, bound by a bone ring (the Accessory: `reed` is split out for the notes). One arm raised, one low, both in a cyan
+# cuff; a cyan gem between the horns.
+_PP_HUB = (0.0, 0.8, 2.75)
+_PP_REEDS = []
+for _i in range(9):
+    _t = math.radians(-80.0 + 20.0 * _i)
+    _d = _unit((math.sin(_t), 0.18 + 0.5 * (1.0 - math.cos(_t)), math.cos(_t)))
+    _ln = 1.25 + 0.04 * _i + 0.2 * math.cos(_t)
+    _PP_REEDS.append(rod("Accessory", _add(_PP_HUB, _mul(_d, 0.5)), _add(_PP_HUB, _mul(_d, _ln)), 0.14, segments=8, name="reed"))
+_PP_HORN = ((0.45, -0.5, 3.15), (0.9, -0.4, 3.6), (1.45, -0.1, 3.75), (1.9, 0.2, 3.35), (1.95, 0.4, 2.8), (1.6, 0.35, 2.5))
+_PP_HORN_R = (0.26, 0.24, 0.2, 0.15, 0.1, 0.05)
+
+
+def _pp_arm(pts, radii, hand, claw_dir):
+    out = [sweep("Body", list(pts), list(radii), "arm"), sph("Body", hand, 0.27, segments=12, name="hand")]
+    d = _unit(_sub(pts[-1], pts[-2]))
+    out.append(cyl("Accessory", _add(pts[-1], _mul(d, -0.1)), (0.25, 0.25, 0.09), rot=aim(d), segments=8, name="cuff"))
+    for dx in (-0.14, 0.0, 0.14):
+        base = (hand[0] + dx, hand[1] - 0.2, hand[2] + claw_dir[2] * 0.15)
+        out.append(spike("BodyDark", base, (base[0] + dx * 0.5, base[1] - 0.25, base[2] + claw_dir[2] * 0.3), 0.06, segments=5, name="claw"))
+    return out
+
+
+RECIPES["PanpipeV2"] = {
+    "tier": "Secret", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 3.40,
+    "silhouette": "a black satyr goat standing up on S-curved goat legs with cream hooves and hock tufts, leaning forward under a big head with a pointed cream beard, vast cream horns sweeping up and round far wider than the body, one arm raised, and a bowl of nine glowing cyan reeds fanned out behind the head, graded in length like a panpipe",
+    "hero": "the sweeping horns and the fan of nine graded reeds",
+    "face": {"on": "head", "eye_scale": 1.2, "eye_gap": 1.1, "eye_tilt": 14.0, "mouth": "wide", "lid": 0.38, "mouth_scale": 0.9, "eye_height": 0.6, "mouth_drop": 0.3},
+    "palette": {"BodyDark": "E9DDBA", "Accessory": "4FD8FF", "Mouth": "7A1F3D"}, "glow": {"Accessory": 3.0},
+    "steps": [
+        sph("Body", (0.0, 0.2, 1.55), (0.62, 0.52, 0.4), segments=14, name="hips"),
+        sph("Body", (0.0, 0.05, 1.9), (0.52, 0.48, 0.42), segments=14, name="belly"),
+        sph("Body", (0.0, -0.2, 2.35), (0.85, 0.68, 0.62), segments=16, name="chest"),
+        sph("Body", (0.72, -0.1, 2.45), 0.36, segments=12, mirror=True, name="shoulder"),
+        sph("Body", (0.0, -0.5, 2.9), (0.88, 0.84, 0.86), segments=18, name="head"),
+        _leaf("Body", (0.78, -0.45, 3.0), (1.0, 0.15, -0.3), 1.05, 0.3, 0.13, "ear", thin_axis=(0.0, 1.0, 0.3), mirror=True, segments=10),
+        sweep("BodyDark", [(0.0, -1.1, 2.45), (0.0, -1.3, 2.0), (0.0, -1.2, 1.55)], [0.24, 0.16, 0.04], name="beard"),
+        sweep("Body", [(0.0, 0.55, 1.55), (0.0, 0.95, 1.7), (0.0, 1.2, 2.0)], [0.2, 0.12, 0.05], name="tail"),
+        cyl("BodyDark", _PP_HUB, (0.34, 0.34, 0.12), rot=(90.0, 0.0, 0.0), segments=14, name="hub"),
+        tor("BodyDark", _PP_HUB, (1.1, 1.1, 1.1), rot=(90.0, 0.0, 0.0), minor=0.08, segments=20, mseg=4, name="band"),
+        ico("Accessory", (0.0, -1.1, 3.55), (0.12, 0.1, 0.22), segments=1, flat=True, name="gem"),
+        _blade("BodyDark", (0.5, 0.38, 0.8), (0.15, 1.0, -0.3), 0.55, 0.06, 0.15, "tuft", thin_axis=(1.0, 0.0, 0.0), mirror=True),
+    ] + _msweep("Body", [(0.42, 0.2, 1.55), (0.52, -0.35, 1.05), (0.46, 0.3, 0.62), (0.43, -0.05, 0.3), (0.42, -0.12, 0.16)], [0.36, 0.27, 0.19, 0.13, 0.12], "leg")
+      + [sph("BodyDark", (0.42, -0.2, 0.1), (0.18, 0.28, 0.1), segments=10, mirror=True, name="hoof")]
+      + _msweep("BodyDark", list(_PP_HORN), list(_PP_HORN_R), "horn")
+      + _pp_arm(((0.78, -0.1, 2.25), (1.2, -0.1, 1.85), (1.45, -0.45, 1.5)), (0.2, 0.16, 0.14), (1.5, -0.5, 1.42), (0, 0, -1.0))
+      + _pp_arm(((-0.78, -0.1, 2.3), (-1.25, -0.25, 2.7), (-1.45, -0.55, 3.1)), (0.2, 0.16, 0.14), (-1.48, -0.6, 3.25), (0, 0, 1.0))
+      + _PP_REEDS,
+}
+
+
+# ---------------------------------------------------------------------------------------- Zirrit v2 (Zapfinch)
+# A sharp little bird, not a plump ball: a big-headed shrike standing tall and leaning forward on two thin navy legs, a dark eye mask, a small hooked dark beak between a narrowed
+# eye and a smirk, wings half open and swept back (a thick sky-blue covert over a fan of three long navy primaries), a long forked tail of three streamers, a
+# swept crest of three navy blades on the back of the head, and the crest of the concept: two long whip antennae curving up and out of the head, each ending
+# in a glowing yellow tip (the Accessory: a spark jumps between the two `antennatip` parts; the `covert` and `feather` parts flick for the wings).
+_ZF_WD = _unit((0.42, 1.0, -0.28))   # the wing's axis, root to tip
+_ZF_WB = (0.72, -0.1, 1.75)          # the wing's root
+_ZF_WING = [_leaf("Body", _ZF_WB, _ZF_WD, 1.9, 0.5, 0.13, "covert", thin_axis=(1.0, 0.0, 0.3), mirror=True, segments=8)]
+_ZF_TIP = _add(_ZF_WB, _mul(_ZF_WD, 1.6))
+for _k, (_dd, _ln, _w) in enumerate(((_unit((0.5, 1.0, -0.05)), 1.35, 0.2), (_unit((0.42, 1.0, -0.28)), 1.55, 0.22), (_unit((0.34, 1.0, -0.52)), 1.3, 0.2))):
+    _ZF_WING.append(_blade("BodyDark", _add(_ZF_TIP, (0.0, -0.45 + 0.05 * _k, 0.1 - 0.06 * _k)), _dd, _ln, 0.08, _w, "feather", thin_axis=(1.0, 0.0, 0.4), mirror=True))
+RECIPES["ZapfinchV2"] = {
+    "tier": "Rare", "world": 1, "biome": "Forest", "batch": 0, "status": "recipe", "prototype": True, "height": 2.86,
+    "silhouette": "a sharp little shrike standing tall and leaning forward on two thin legs: a big head with a small hooked dark beak, wings half open and swept back with long navy primaries, a long forked tail of three streamers, and two long whip antennae curving up and out with glowing tips",
+    "hero": "the two whip antennae with their glowing tips and the swept-back wings and forked tail",
+    "face": {"on": "head", "eye_scale": 1.3, "eye_gap": 1.0, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.3, "mouth_scale": 0.9, "eye_height": 0.62, "mouth_drop": 0.32, "look": (0.1, 0.0)},
+    "palette": {"BodyDark": "2F5F8F", "Accessory": "FFE45C"}, "glow": {"Accessory": 1.5}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0.0, 0.1, 1.35), (0.78, 0.72, 0.9), segments=16, name="chest"),
+        sph("Body", (0.0, 0.75, 1.0), (0.5, 0.7, 0.45), segments=14, name="rump"),
+        sph("Body", (0.0, -0.4, 2.1), (0.86, 0.8, 0.8), segments=18, name="head"),
+        spike("BodyDark", (0.0, -1.18, 2.02), (0.0, -1.75, 1.8), 0.17, segments=5, name="beak"),
+        sph("BodyDark", (0.42, -0.4, 0.07), (0.22, 0.42, 0.07), segments=8, mirror=True, name="foot"),
+        sph("BodyDark", (0.0, -0.95, 2.22), (0.82, 0.26, 0.3), segments=14, name="mask"),
+    ] + _msweep("BodyDark", [(0.38, 0.15, 0.95), (0.42, -0.1, 0.5), (0.42, -0.2, 0.12)], [0.15, 0.11, 0.09], "leg") + _ZF_WING
+      + [_blade("BodyDark", (0.18, 1.1, 1.1), (0.28, 1.0, -0.4), 1.9, 0.08, 0.26, "tailfeather", thin_axis=(0.0, 0.0, 1.0), mirror=True),
+         _blade("BodyDark", (0.0, 1.2, 1.15), (0.0, 1.0, -0.25), 1.35, 0.08, 0.24, "tailfeather", thin_axis=(0.0, 0.0, 1.0))]
+      + _msweep("BodyDark", [(0.3, -0.35, 2.7), (0.58, -0.3, 3.1), (0.55, -0.33, 3.5), (0.34, -0.4, 3.78)], [0.1, 0.085, 0.075, 0.06], "antenna")
+      + [sph("Accessory", (0.32, -0.4, 3.9), 0.18, segments=8, mirror=True, name="antennatip")],
+}
+
+
+# ---------------------------------------------------------------------------------------- Vixa v2 (Sparkfox)
+# A sly standing fox, not a sitting cub: a compact lean body on four slim legs with one front paw raised, a big head carried low and forward under two tall
+# ears and swept cheek tufts, and the paintbrush: a long tail that arches up behind it and out to the right like a swan's neck, ending in a rust ferrule ring
+# and a big glowing brush hanging point down toward the ground, with a drop about to fall (the Accessory: `bristles` and `drop` are split out for the
+# paint-spark trail and the falling drop).
+_VX_TAIL = [(0.0, 1.1, 1.3), (0.3, 1.7, 1.9), (0.95, 2.1, 2.3), (1.6, 1.95, 2.25), (1.95, 1.65, 1.95)]
+_VX_TAIL_R = [0.34, 0.3, 0.26, 0.22, 0.18]
+_VX_D = _unit((0.2, -0.25, -0.95))   # the brush's axis, hanging down
+_VX_F = (1.98, 1.6, 1.87)            # the ferrule
+RECIPES["SparkfoxV2"] = {
+    "tier": "Rare", "world": 1, "biome": "Meadow", "batch": 0, "status": "recipe", "prototype": True, "height": 2.50,
+    "silhouette": "a sly standing fox, compact and lean on four slim legs with one front paw raised, a big low head under two tall ears and swept cheek tufts, and a long tail arching up behind and out to the right like a swan's neck to a ferrule ring and a big glowing paintbrush hanging point down with a drop about to fall",
+    "hero": "the paintbrush tail: a swan-neck arch ending in a ferrule and a glowing brush that drips",
+    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.1, "eye_tilt": 6.0, "mouth": "smile", "lid": 0.3, "eye_height": 0.62, "mouth_drop": 0.3, "look": (0.12, 0.0)},
+    "palette": {"BodyDark": "A8431C", "Accessory": "FFE066"}, "glow": {"Accessory": 2.0}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0.0, -0.45, 1.3), (0.7, 0.72, 0.7), segments=16, name="chest"),
+        sph("Body", (0.0, 0.25, 1.25), (0.5, 0.6, 0.55), segments=14, name="waist"),
+        sph("Body", (0.0, 0.8, 1.25), (0.54, 0.55, 0.58), segments=14, name="hips"),
+        sph("Body", (0.0, -1.3, 1.8), (0.86, 0.78, 0.76), segments=18, name="head"),
+        spike("Body", (0.45, -1.15, 2.35), (0.7, -1.05, 3.2), 0.34, segments=6, mirror=True, name="ear"),
+        spike("BodyDark", (0.47, -1.3, 2.45), (0.64, -1.23, 3.05), 0.19, segments=6, mirror=True, name="innerear"),
+        spike("BodyDark", (0.72, -1.2, 1.75), (1.3, -0.9, 1.6), 0.22, segments=6, mirror=True, name="cheek"),
+        sweep("Body", _VX_TAIL, _VX_TAIL_R, name="tail"),
+        tor("BodyDark", _VX_F, (0.3, 0.3, 0.3), rot=aim(_VX_D), minor=0.34, segments=14, mseg=4, name="ferrule"),
+        sph("Accessory", _add(_VX_F, _mul(_VX_D, 0.55)), (0.42, 0.42, 0.7), rot=aim(_VX_D), segments=12, name="bristles"),
+        spike("Accessory", _add(_VX_F, _mul(_VX_D, 1.0)), _add(_VX_F, _mul(_VX_D, 1.5)), 0.28, segments=8, name="bristletip"),
+        sph("Accessory", _add(_VX_F, _mul(_VX_D, 1.78)), (0.1, 0.1, 0.14), segments=8, name="drop"),
+        sph("BodyDark", (-0.4, -0.95, 0.09), (0.2, 0.32, 0.09), segments=8, name="paw"),
+        sph("BodyDark", (0.45, 1.15, 0.09), (0.22, 0.36, 0.09), segments=8, mirror=True, name="hindpaw"),
+        sph("BodyDark", (0.52, -1.3, 1.35), (0.2, 0.3, 0.19), segments=8, name="raisedpaw"),
+    ] + [sweep("Body", [(-0.38, -0.6, 1.0), (-0.4, -0.8, 0.5), (-0.4, -0.88, 0.1)], [0.22, 0.15, 0.12], "foreleg"),
+         sweep("Body", [(0.38, -0.6, 1.0), (0.5, -1.0, 0.95), (0.52, -1.25, 1.3)], [0.21, 0.15, 0.13], "foreleg")]
+      + _msweep("Body", [(0.42, 0.85, 1.1), (0.58, 1.25, 0.75), (0.45, 1.15, 0.15)], [0.32, 0.22, 0.13], "hindleg"),
+}
+
+
+# ---------------------------------------------------------------------------------------- Floe v2 (Shellberg)
+# The joke, built: a stout tortoise on four stubby legs lugging a whole iceberg on its back, the tip of it: a faceted ice shell of two stacked blocks under a
+# tilted spire, crowned with glowing pale crystals, and a coral lifebuoy round its waist as the waterline (nine-tenths of the berg is hidden). Under it a
+# patient round face on a short neck, big sleepy eyes and a small smile, and a stubby tail. The shell, the spire and the crystals are the faceted crisp
+# parts (`shell`, `peak`), the crystals the glowing Accessory (`crystal`), the lifebuoy `buoy` (a coral ring).
+RECIPES["ShellbergV2"] = {
+    "tier": "Rare", "world": 2, "biome": "IceCave", "batch": 0, "status": "recipe", "prototype": True, "height": 2.76,
+    "silhouette": "a stout tortoise on four stubby legs lugging a whole iceberg: two stacked faceted ice blocks under a tilted spire crowned with glowing crystals, a coral lifebuoy round its waist as the waterline, and a patient round face on a short neck",
+    "hero": "the iceberg shell with its spire and glowing crystals, and the lifebuoy waterline",
+    "face": {"on": "head", "eye_scale": 1.4, "eye_gap": 1.0, "eye_tilt": -8.0, "mouth": "smile", "lid": 0.35, "eye_height": 0.58},
+    "palette": {"BodyDark": "E8785A", "Accessory": "CFF1FF"}, "glow": {"Accessory": 1.2}, "metal": {"Accessory": 0.0},
+    "steps": [
+        sph("Body", (0.0, 0.2, 0.62), (1.1, 1.2, 0.55), segments=16, name="body"),
+        ico("Body", (0.0, 0.35, 1.05), (1.3, 1.4, 0.7), rot=(4.0, 0.0, 6.0), segments=2, flat=True, name="shell"),
+        ico("Body", (0.25, 0.45, 1.55), (0.95, 1.0, 0.6), rot=(0.0, 0.0, 25.0), segments=2, flat=True, name="shell"),
+        cone("Body", (0.35, 0.55, 2.35), (0.78, 0.55, 1.0), rot=(-14.0, 10.0, 18.0), segments=6, flat=True, name="peak"),
+        cone("Body", (-0.75, 0.2, 1.95), (0.5, 0.42, 0.75), rot=(10.0, -12.0, -20.0), segments=6, flat=True, name="peak"),
+        cone("Body", (0.95, 1.05, 1.7), (0.42, 0.38, 0.55), rot=(-18.0, 14.0, 25.0), segments=6, flat=True, name="peak"),
+        ico("Body", (-0.7, 0.9, 1.35), (0.5, 0.5, 0.44), rot=(10.0, 0.0, -15.0), segments=1, flat=True, name="shell"),
+        spike("Accessory", (-0.2, -0.05, 2.05), (-0.35, -0.12, 2.6), 0.17, segments=5, flat=True, name="crystal"),
+        spike("Accessory", (0.9, 0.5, 1.85), (1.25, 0.5, 2.5), 0.22, segments=5, flat=True, name="crystal"),
+        spike("Accessory", (0.6, 0.55, 3.0), (0.75, 0.6, 3.5), 0.16, segments=5, flat=True, name="crystal"),
+        spike("Accessory", (-0.3, 1.2, 1.9), (-0.4, 1.3, 2.4), 0.16, segments=5, flat=True, name="crystal"),
+        tor("BodyDark", (0.0, 0.3, 0.95), (1.45, 1.55, 1.45), minor=0.14, segments=18, mseg=5, name="buoy"),
+        sph("Body", (0.0, -1.5, 0.72), (0.66, 0.66, 0.6), segments=16, name="head"),
+        rod("Body", (0.0, -0.9, 0.6), (0.0, -1.35, 0.7), 0.42, 0.36, segments=10, name="neck"),
+        rod("Body", (0.78, -0.65, 0.5), (0.85, -0.72, 0.12), 0.32, 0.26, segments=10, mirror=True, name="foreleg"),
+        rod("Body", (0.82, 0.95, 0.5), (0.9, 1.0, 0.12), 0.32, 0.26, segments=10, mirror=True, name="hindleg"),
+        sph("BodyDark", (0.88, -0.85, 0.08), (0.3, 0.4, 0.1), segments=8, mirror=True, name="foot"),
+        sph("BodyDark", (0.92, 0.9, 0.08), (0.3, 0.4, 0.1), segments=8, mirror=True, name="foot"),
+        sweep("Body", [(0.0, 1.4, 0.55), (0.0, 1.8, 0.5), (0.0, 2.1, 0.62)], [0.3, 0.2, 0.08], name="tail"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Snibble v2 (Snailbyte)
+# A real snail with a real spiral: a long flat foot with a steel-blue sole, a neck and a big round head raised on it with two eyestalks tipped with silver
+# balls, and on its back the metal shell: a coil of 40 balls on a spiral that grows from a small boss to a fat last whorl, the whorls banded silver and
+# steel in pairs like a wound spring, the axis turned out and to the front so the spiral faces the viewer at three-quarters. The balls are core parts (one skin
+# with the body; the build names its crisp parts, so the silver ones are not crisp): `shell` is split out for the glint that sweeps it.
+_SN_C = (0.05, 0.95, 1.5)
+_SN_A = _unit((0.5, -0.85, 0.15))
+_SN_U = _unit(_cross((0.0, 0.0, 1.0), _SN_A))
+_SN_V = _cross(_SN_A, _SN_U)
+_SN_SHELL = []
+for _i in range(40):
+    _s = _i / 39.0
+    _th = 2.0 * math.pi * 2.25 * _s
+    _r = 0.1 + 1.05 * _s
+    _rho = 0.15 + 0.17 * _s
+    _a = 0.5 * (1.0 - _s)
+    _p = _add(_add(_SN_C, _mul(_SN_A, _a)), _add(_mul(_SN_U, _r * math.cos(_th)), _mul(_SN_V, _r * math.sin(_th))))
+    _SN_SHELL.append(sph("Accessory" if (_i // 2) % 2 == 0 else "BodyDark", _p, _rho, segments=10, name="shell"))
+RECIPES["SnailbyteV2"] = {
+    "tier": "Uncommon", "world": 1, "biome": "Cave", "batch": 0, "status": "recipe", "prototype": True, "height": 2.51,
+    "silhouette": "a snail with a real spiral shell: a long flat foot, a big round head raised on a neck with two eyestalks tipped with silver balls, and on its back a coiled metal shell of banded silver and steel whorls growing from a small boss to a fat last whorl, turned out so the spiral faces the viewer",
+    "hero": "the spiral metal shell: banded silver and steel whorls growing round from the boss",
+    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.05, "eye_tilt": 4.0, "mouth": "smile", "lid": 0.3},
+    "palette": {"BodyDark": "4F7390", "Accessory": "C8CDD3"}, "metal": {"Accessory": 1.0},
+    "steps": [
+        sph("Body", (0.0, 0.3, 0.36), (0.8, 1.75, 0.36), segments=14, name="foot"),
+        sph("BodyDark", (0.0, 0.3, 0.14), (0.9, 1.82, 0.16), segments=12, name="sole"),
+        sph("Body", (0.0, -0.85, 0.95), (0.62, 0.62, 0.7), segments=12, name="neck"),
+        sph("Body", (0.0, -1.15, 1.6), (0.92, 0.86, 0.84), segments=18, name="head"),
+        rod("BodyDark", (0.38, -1.2, 2.25), (0.55, -1.3, 2.75), 0.1, 0.07, segments=6, mirror=True, name="stalk"),
+        sph("Accessory", (0.56, -1.31, 2.82), 0.17, segments=8, mirror=True, name="stalktip"),
+    ] + _SN_SHELL,
+}
+
+
+# ---------------------------------------------------------------------------------------- Pebblet v2 (Pebblet)
+# A pebble with legs, mid-stride: a wide lopsided faceted boulder (a flat-shaded stone with three smaller lumps on it) on two short thick legs with big
+# flat feet, one lifted in a goofy step, two stubby arms with stone-chip fists (one up in a wave), a green moss toupee on top, and the face on the front facet.
+# The feet are the `foot` parts for the grit puff; the moss the only Accessory.
+RECIPES["PebbletV2"] = {
+    "tier": "Common", "world": 1, "biome": "Cave", "batch": 0, "status": "recipe", "prototype": True, "height": 2.37,
+    "silhouette": "a wide lopsided faceted boulder mid-stride on two short thick legs with big flat feet, one lifted, two stubby arms with stone fists (one waving), three lumps on its back and a green moss toupee on top",
+    "hero": "the short thick legs in mid-stride under a wide faceted stone",
+    "face": {"on": "body", "eye_scale": 1.15, "eye_gap": 0.9, "eye_tilt": -8.0, "mouth": "wide", "lid": 0.3, "lift": 0.05, "look": (0.12, 0.0)},
+    "palette": {"BodyDark": "6B6760", "Accessory": "78C850"},
+    "steps": [
+        ico("Body", (0.0, 0.05, 1.75), (1.3, 1.1, 1.0), rot=(4.0, 6.0, 8.0), segments=2, flat=True, name="body"),
+        ico("Body", (-0.9, 0.6, 2.3), (0.42, 0.4, 0.38), segments=1, flat=True, name="bump"),
+        ico("Body", (0.95, 0.5, 1.3), (0.4, 0.38, 0.36), segments=1, flat=True, name="bump"),
+        ico("Body", (0.4, 0.95, 2.2), (0.36, 0.34, 0.34), segments=1, flat=True, name="bump"),
+        rod("Body", (0.55, 0.1, 1.15), (0.6, 0.0, 0.2), 0.36, 0.27, segments=8, name="leg"),
+        sph("BodyDark", (0.62, -0.2, 0.1), (0.46, 0.62, 0.12), segments=10, name="foot"),
+        rod("Body", (-0.55, 0.0, 1.15), (-0.72, -0.75, 0.6), 0.36, 0.27, segments=8, name="leg"),
+        sph("BodyDark", (-0.74, -0.85, 0.5), (0.44, 0.58, 0.15), rot=(-15.0, 0.0, 0.0), segments=10, name="foot"),
+        rod("Body", (1.1, -0.05, 1.8), (1.55, -0.25, 1.35), 0.24, 0.18, segments=8, name="arm"),
+        ico("BodyDark", (1.65, -0.3, 1.2), (0.36, 0.34, 0.34), segments=1, flat=True, name="fist"),
+        rod("Body", (-1.1, -0.05, 1.8), (-1.55, -0.25, 2.35), 0.24, 0.18, segments=8, name="arm"),
+        ico("BodyDark", (-1.63, -0.3, 2.5), (0.36, 0.34, 0.34), segments=1, flat=True, name="fist"),
+        sph("Accessory", (0.1, 0.05, 2.7), (0.75, 0.62, 0.2), segments=10, name="moss"),
+        sph("Accessory", (-0.5, 0.2, 2.58), (0.36, 0.32, 0.15), segments=8, name="moss"),
+        sph("Accessory", (0.55, -0.1, 2.6), (0.34, 0.3, 0.14), segments=8, name="moss"),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------------------- Eekle v2 (Flapsicle)
+# A bat hanging by two tiny pink toes from nothing, head down and face up the right way, its wings spread and drooped round it like a cape: each wing an arm
+# (an indigo core tube, shoulder, elbow, wrist) from whose wrist five icicle fingers fan down to the ground, four flat triangles of pale ice stretched between
+# them (the apex at the wrist, the base along the fringe) so the lower edge is a bat's scallop of points; two big pink ears flaring up and out, a fuzzy round
+# body and a big round head. The fingers and membranes are the Accessory (`icicle` and `membrane`, split out for the flap and the frost dust).
+_EK_W = (1.6, 0.06, 1.4)
+_EK_T = ((0.72, 0.12, 0.2), (1.0, 0.1, 0.12), (1.35, 0.09, 0.1), (1.75, 0.08, 0.14), (2.1, 0.08, 0.36))
+_EK_WING = [spike("Accessory", _EK_W, _t, 0.12, segments=5, flat=True, mirror=True, name="icicle") for _t in _EK_T]
+for _k in range(4):
+    _m = _mul(_add(_EK_T[_k], _EK_T[_k + 1]), 0.5)
+    _d = _sub(_EK_W, _m)
+    _EK_WING.append(_blade("Accessory", _m, _d, _len(_d), 0.06, _len(_sub(_EK_T[_k + 1], _EK_T[_k])) * 0.5 + 0.04, "membrane", thin_axis=(0.0, 1.0, 0.0), mirror=True))
+RECIPES["FlapsicleV2"] = {
+    "tier": "Uncommon", "world": 2, "biome": "IceCave", "batch": 0, "status": "recipe", "prototype": True, "height": 1.76,
+    "silhouette": "a fuzzy bat hanging by two tiny pink toes from nothing, wings spread wide and drooped: an arm and five icicle fingers a side fanning from the wrist to the ground with four triangles of pale ice between them and a scalloped edge, two big pink ears flaring up and out of a big round head at the bottom",
+    "hero": "the spread ice wings: icicle fingers with membranes between them",
+    "face": {"on": "head", "eye_scale": 1.25, "eye_gap": 1.0, "eye_tilt": -6.0, "mouth": "smile", "lid": 0.3},
+    "palette": {"BodyDark": "F28DA6", "Accessory": "9FE3FF"},
+    "steps": [
+        sph("Body", (0.0, 0.1, 1.15), (0.64, 0.6, 0.52), segments=14, name="body"),
+        sph("Body", (0.0, -0.15, 0.58), (0.64, 0.6, 0.58), segments=16, name="head"),
+        _leaf("BodyDark", (0.5, -0.1, 0.8), (0.6, 0.0, 0.8), 1.1, 0.38, 0.1, "ear", thin_axis=(0.0, 1.0, 0.0), mirror=True, segments=8),
+        rod("BodyDark", (0.14, 0.1, 1.45), (0.16, 0.1, 1.74), 0.11, 0.08, segments=6, mirror=True, name="toe"),
+        spike("BodyDark", (0.16, 0.1, 1.74), (0.2, 0.0, 1.88), 0.07, segments=5, mirror=True, name="claw"),
+    ] + _msweep("Body", [(0.5, 0.15, 1.4), (1.05, 0.1, 1.68), _EK_W], [0.22, 0.16, 0.1], "arm") + _EK_WING,
+}
+
+# ==== DESIGN PASS 3 END ====
 
 
 # ================================================================================================ the engine

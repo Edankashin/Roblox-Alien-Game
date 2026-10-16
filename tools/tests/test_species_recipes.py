@@ -25,7 +25,7 @@ def species_ids():
 
 
 def shipped():
-    """The recipes of real species. The prototypes (`"prototype": True`: the heroes FenripupV2 and Skydrake, and the sixteen `<Id>V2` design-pass
+    """The recipes of real species. The prototypes (`"prototype": True`: the heroes FenripupV2 and Skydrake, and the twenty-four `<Id>V2` design-pass
     recipes) have no Species.luau row and no assets/models folder of their own, so the tests that compare recipes with those files skip them, the
     way the event species are skipped by status; HeroPrototypes and DesignPassPrototypes below check them on their own terms."""
     return {k: v for k, v in sr.RECIPES.items() if not v.get("prototype")}
@@ -323,16 +323,113 @@ class DesignPassBatch2(_DesignPassChecks, unittest.TestCase):
                 self.assertEqual("Trim" in sr.slots_used(sr.expand(rec)), has)
 
 
+class DesignPassBatch3(_DesignPassChecks, unittest.TestCase):
+    """Batch 3: the top of the ladder (Raddis the Cosmic and Syrinx the Secret, the two grandest bodies), the cool Rares (Zirrit, Vixa), the Rare joke Floe
+    and the three cute ones from the worst overlap pairs (Pebblet, Snibble, Eekle). The mood is not in the recipe (the V2 keys are not in the sculpt's
+    SPECIES table): the build passes `--set face.mood=<mood>` for the species that are not cute; the recipe's own face dict is at the mood's floor so the V2
+    reads the same with or without it. A species that is cute has no mood entry in the sculpt (no mood is the cute face), or names `cute`."""
+    BATCH = ("Radish", "Panpipe", "Zapfinch", "Sparkfox", "Shellberg", "Snailbyte", "Pebblet", "Flapsicle")
+    MOOD = {"Radish": "spectacular", "Panpipe": "spectacular", "Zapfinch": "cool", "Sparkfox": "cool", "Shellberg": "cute", "Snailbyte": "cute",
+            "Pebblet": "cute", "Flapsicle": "cute"}
+    TILT = {"cool": (4.0, 7.0), "spectacular": (14.0, 90.0)}  # the mood's floor and ceiling on the recipe's eye_tilt (cute has none)
+
+    def test_every_species_is_named_with_its_mood(self):
+        self.assertEqual(sorted(self.MOOD), sorted(self.BATCH))
+
+    def test_the_recipes_face_is_at_its_moods_floor(self):
+        for base, rec in self.v2().items():
+            mood = self.MOOD[base]
+            with self.subTest(base):
+                if mood in self.TILT:
+                    lo, hi = self.TILT[mood]
+                    self.assertGreaterEqual(rec["face"]["eye_tilt"], lo)
+                    self.assertLessEqual(rec["face"]["eye_tilt"], hi)
+                    self.assertGreaterEqual(rec["face"].get("lid", 0.0), 0.25)  # a brow over the eye
+                else:
+                    self.assertLessEqual(rec["face"].get("eye_tilt", 0.0), 4.0)  # a cute eye is never slanted into a scowl
+
+    def test_the_mood_is_the_one_the_sculpt_gives_the_species(self):
+        import ast
+        tree = ast.parse((ROOT / "tools/blender/species_sculpt.py").read_text())
+        table = next(n.value for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "SPECIES" for x in n.targets))
+        moods = {}
+        for key, val in zip(table.keys, table.values):
+            if isinstance(val, ast.Dict):
+                for k2, v2 in zip(val.keys, val.values):
+                    if isinstance(k2, ast.Constant) and k2.value == "face" and isinstance(v2, ast.Dict):
+                        for k3, v3 in zip(v2.keys, v2.values):
+                            if isinstance(k3, ast.Constant) and k3.value == "mood":
+                                moods[key.value] = v3.value
+        for base in self.BATCH:
+            with self.subTest(base):
+                self.assertEqual(moods.get(base, "cute"), self.MOOD[base])  # no entry = the cute face
+
+    def test_the_big_eyes_stay(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertGreaterEqual(rec["face"]["eye_scale"], 1.15)
+
+    def test_no_trim_slot_because_none_of_the_eight_has_one(self):
+        for base, rec in self.v2().items():
+            with self.subTest(base):
+                self.assertNotIn("Trim", sr.material_slots(base))
+                self.assertNotIn("Trim", sr.slots_used(sr.expand(rec)))
+
+    def test_every_limb_tube_horn_and_tail_tapers(self):
+        """The coordinator's style check 2 (tools/blender/style_checks.py): the tip radius at most 0.85 of the root's on every limb-named part."""
+        spec = importlib.util.spec_from_file_location("style_checks_b3", ROOT / "tools/blender/style_checks.py")
+        sc = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sc)  # type: ignore[union-attr]
+        recipes = sc.load_recipes()
+        for base in self.BATCH:
+            with self.subTest(base):
+                report = sc.taper_report(recipes, base + "V2")
+                self.assertTrue(report["pass"], report)
+                self.assertGreater(report["limbs"], 0)
+
+    # The parts the signature effect of Roster-Redesign.md will need split out in the import step (Design-Pass.md, batch 3): a name filter finds each.
+    SPLIT = {"Radish": ("disk", "ray", "leaf", "collar"), "Panpipe": ("reed", "horn", "cuff"), "Zapfinch": ("antennatip", "feather", "covert"),
+             "Sparkfox": ("bristles", "ferrule", "drop"), "Shellberg": ("shell", "peak", "crystal", "buoy"), "Snailbyte": ("shell", "stalktip"),
+             "Pebblet": ("foot", "moss"), "Flapsicle": ("icicle", "membrane")}
+
+    def test_the_effect_parts_are_named_in_the_recipe(self):
+        self.assertEqual(sorted(self.SPLIT), sorted(self.BATCH))
+        for base, rec in self.v2().items():
+            names = {p["name"] for p in sr.expand(rec)}
+            for name in self.SPLIT[base]:
+                with self.subTest("%s %s" % (base, name)):
+                    self.assertIn(name, names)
+
+    def test_the_glowing_parts_are_the_effect_parts(self):
+        """Where a species glows (Raddis's disc and rays, Syrinx's reeds, Zirrit's antenna tips, Vixa's brush, Floe's crystals) the glowing Accessory parts
+        are the ones the effect names, so an emission tween touches nothing else."""
+        glow = {"Radish": {"disk", "ray", "collar", "diadem", "tailtip"}, "Panpipe": {"reed", "cuff", "gem"}, "Zapfinch": {"antennatip"},
+                "Sparkfox": {"bristles", "bristletip", "drop"}, "Shellberg": {"crystal"}}
+        for base, names in glow.items():
+            with self.subTest(base):
+                accessory = {p["name"] for p in sr.expand(self.v2()[base]) if p["slot"] == "Accessory"}
+                self.assertEqual(accessory, names)
+
+    def test_the_thin_parts_have_a_real_thickness(self):
+        """The lesson of batch 2: wings, feathers, blades and membranes survive edge-on. No flat part (a blade, a leaf or a disc) is thinner than 0.12 studs
+        across (the recipe's half-size is at least 0.06) before the build's fit of about 0.7 to 1.0."""
+        for base, rec in self.v2().items():
+            for p in sr.expand(rec):
+                if p["prim"] in ("cone", "sphere") and p["slot"] not in sr.FACE_SLOTS and p["name"] in ("feather", "membrane", "ray", "leaf", "ear", "icicle", "covert", "tailfeather", "tuft"):
+                    with self.subTest("%s %s" % (base, p["name"])):
+                        self.assertGreaterEqual(min(p["scale"]), 0.058)
+
+
 class PrototypeRoster(unittest.TestCase):
     """Every `"prototype": True` recipe is one of the hero prototypes or a `<Id>V2` of a design-pass batch, and only those."""
 
-    def test_the_prototypes_are_the_heroes_and_the_two_batches(self):
-        expect = ["FenripupV2", "Skydrake"] + [b + "V2" for b in DesignPassPrototypes.BATCH + DesignPassBatch2.BATCH]
+    def test_the_prototypes_are_the_heroes_and_the_three_batches(self):
+        expect = ["FenripupV2", "Skydrake"] + [b + "V2" for b in DesignPassPrototypes.BATCH + DesignPassBatch2.BATCH + DesignPassBatch3.BATCH]
         self.assertEqual(sorted(k for k, v in sr.RECIPES.items() if v.get("prototype")), sorted(expect))
 
     def test_no_batch_species_is_in_two_batches(self):
-        both = set(DesignPassPrototypes.BATCH) & set(DesignPassBatch2.BATCH)
-        self.assertEqual(both, set())
+        batches = (DesignPassPrototypes.BATCH, DesignPassBatch2.BATCH, DesignPassBatch3.BATCH)
+        self.assertEqual(sum(len(b) for b in batches), len(set().union(*map(set, batches))))
 
 
 class Maths(unittest.TestCase):

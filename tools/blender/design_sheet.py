@@ -57,6 +57,19 @@ BATCHES = {
             ("Gaiabloom", "spectacular", "a proud stag: tree antlers in bloom, a gold nimbus, a flower ring on its lawn"),
         ],
     },
+    "3": {
+        "title": "Design pass, batch 3: the top of the ladder, the cool Rares and the cute ones from the worst pairs (hybrid sculpt, scratch builds, nothing under assets/models changed)",
+        "rows": [
+            ("Radish", "spectacular", "the winged sun: a radish before the gold disc of Ra, wings of leaf and ray feathers, a leaf plume, a coiled taproot"),
+            ("Panpipe", "spectacular", "a black satyr: vast cream horns, a bowl of nine graded glowing reeds, goat legs, cyan cuffs"),
+            ("Zapfinch", "cool", "a sharp shrike: swept wings, a forked tail, two whip antennae with glowing tips"),
+            ("Sparkfox", "cool", "a sly fox: a swan-neck tail ending in a dripping glowing paintbrush"),
+            ("Shellberg", "cute", "a tortoise lugging an iceberg: spire and crystals, a coral lifebuoy waterline"),
+            ("Snailbyte", "cute", "a snail with a real spiral: a coiled shell of banded silver and steel"),
+            ("Pebblet", "cute", "a boulder mid-stride on thick legs: stone fists, a moss toupee"),
+            ("Flapsicle", "cute", "a hanging bat: spread wings of icicle fingers and ice sheets, big pink ears"),
+        ],
+    },
 }
 
 
