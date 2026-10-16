@@ -217,11 +217,35 @@ Run them in Blender, headless, on the exported GLB; a pass is written into `note
 3. **The face reads at 128 px.** Render the whole body at 128 x 128 in colour and in greyscale from the front. Pass: each eye white is at least 6 px wide, the pupil and the white are separable in greyscale, the highlight is visible, the mouth is a distinct mark and not a smudge, and the expression (soft, sleepy, fierce) matches the recipe's `eye_tilt` and `lid` words. The eye-to-body-width ratio (at least 5 percent) is measured, not eyeballed.
 
 
-**Three style checks next to the render checks** (from Kenney's low-poly rules on X, [[X-Posts]], applied 2026-10-16). They are cheap to measure on the mesh and catch "shapes mashed together" before a render does.
+**Three style checks next to the render checks** (from Kenney's low-poly rules on X, [[X-Posts]], applied 2026-10-16). They are cheap to measure on the mesh and catch "shapes mashed together" before a render does. Measured by `tools/blender/style_checks.py`; the bars and the first run are in the last subsection of this section.
 1. **A bevel on every hard edge.** No edge sharper than the sculpt's crease angle without at least one bevel segment, except on the declared crisp parts (crystals, blades).
 2. **Limbs taper root to tip.** Each leg, arm, tail and horn is wider where it meets the body than at its end; a rod of even width fails.
 3. **A plan outline closer to a rounded square than a box.** Seen from above and from the front, the body's outline has rounded corners; a hard rectangle fails.
 Model against the Roblox dummy at the origin (R15, about 5 studs tall) so scale and pivot arrive right in Studio.
+
+#### Style checks: first run (2026-10-16)
+
+`python3 tools/blender/style_checks.py --all --recipe v2` prints one line per species (`-v` adds slots and limbs, `--json PATH` writes the sheet, `--calibrate` prints the plan references). It needs no Blender: checks 1 and 3 read the GLB with the pure-Python reader of `tools/blockbench/to_bbmodel.py`, check 2 reads `species_recipes.py` read-only, and the Blender Python runs it just the same. `tools/tests/test_style_checks.py` covers the maths and, where a bpy Python exists, matches Blender's own bmesh edge count and hard-edge count on Mossbop.
+
+| Check | Bar | Why that number |
+|---|---|---|
+| 1 bevel | An edge is hard when its face normals turn more than 60 degrees; it counts as unbevelled when both faces are at least 0.25 % of the model's surface (coplanar triangles merged into one face). Pass: at most 1 % of the non-crisp body edges. | 60 is the clay check's angle and the surface pass's `bevel_angle`. The surface pass bevels 0.05 stud, so a bevel strip along a one-stud edge is 0.2 % of a 25 square stud creature, under the line; a modelled face is over it. 1 % lets one stray prism through (a cube is 12 edges, a five-sided leg about 15, of about 1,000 to 2,000 body edges) and fails two. |
+| 2 taper | Tip radius at most 0.85 of the root radius, the root being the end nearer the body; rods that meet end to end are one limb. | The brief's "about 0.85". 0.86 fails (Panpipe's legs), 0.80 passes. |
+| 3 plan | Mean fill of the four 15 % corner squares of the 64 px shape, box stretched to the square: at most 0.50 from above and from the front. | Cube 1.00, sphere 0.01. A rounded box with corners of 10, 15, 20, 25, 30, 40 % of the side fills 0.88, 0.77, 0.66, 0.51, 0.34, 0.11. 0.50 is "mostly empty", the midpoint of cube and sphere, and a quarter-side rounded square sits on it. |
+
+Crisp slots (check 1, counted apart, never failed): a slot whose recipe parts are at least half flat-shaded or named like a crisp thing (crystal, shard, blade, pane, quill, claw), or an Accessory or Trim slot of a hard material (Ice, Glass, Slate, Pebble, Metal) or on a species whose Body or BodyDark is one. They hold 0 to 120 unbevelled edges a species (Emberchin 120, Reindazzle 100, Frostfang 90).
+
+| Check | Pass | Fail | Worst three |
+|---|---|---|---|
+| 1 bevel | 24 of 35 | 11 | Rocklobber 8.8 %, Pebblet 7.5 %, Twiglet 4.7 % |
+| 2 taper | 16 of 32 (10 with limbs, 6 with none) | 16 | Puffpuff 21 of 21 wisps, Gloomoth 4 of 4, Shellberg 4 of 4 |
+| 3 plan | 34 of 35 | 1 | Twiglet 0.51; then Spookum 0.38 and Gaiabloom 0.37 |
+
+- **Bevel fails** (share of body edges): Rocklobber 8.8 %, Pebblet 7.5 %, Twiglet 4.7 %, Reindazzle 3.7 %, Glimmo 3.6 %, Chipmole 3.0 %, Panpipe 1.9 %, Drippo 1.7 %, Gaiabloom 1.6 %, Flapsicle 1.3 %, Lanternewt 1.1 %. None comes from a round body. Matching the edges to recipe parts, they are the flat-capped ends of cone and cylinder limbs and necks (a 90 degree rim; the surface pass bevels cubes and cylinders at least 0.4 stud thick and never a cone, and a leg is thinner) and five-sided limbs (72 degrees between sides): Rocklobber's five-sided legs and six-sided arms, Pebblet's and Lanternewt's cylinder legs, Twiglet's five-sided thigh and shin and cylinder neck, Chipmole's arms, the cone legs and necks of Gaiabloom, Panpipe and Reindazzle, Flapsicle's cone ears, and the 16-sided base rings of Glimmo's skirt and Drippo's point. The bodies need nothing; the likely fixes are in the recipe steps (six or more sides on a limb, a ball or a point instead of a flat cap, a bevel on the thin cylinders).
+- **Taper fails** are all even-width rods (ratio 1.00) except Panpipe's legs (0.86) and Zapfinch's bead tail (0.97). By part: legs of Drippo, Gloomoth, Lanternewt, Pebblet, Shellberg, Skaddle, Zapfinch, Panpipe; Emberchin's leg and Sparkfox's forelegs; arms of Rocklobber and Twiglet; antennae of Buzzlebee, Glimmo, Gloomoth; Snailbyte's eye stalks; Puffpuff's 21 wisps. Six species (Thunderhog, Toastoad, Kettlepuff, Flufflet, Frostfang, Flapsicle) have no limb-like part in their recipe, so their 0 of 0 is a pass by default. A lone ball named leg or tail is a blob, not a limb.
+- **Plan fails**: Twiglet, whose four spider legs splay into all four corners seen from above (0.51 in each). Every other body is round or oval in plan (0.00 to 0.38 in the worst view), so on this roster check 3 is a guard, not a filter: a body as boxy as a cube scores 1.00, one with corners rounded by a tenth of its side 0.88.
+- **The batch 1 and 2 `V2` recipes** (check 2 only, no GLB in the repo): 12 of 16 pass. GlimmoV2 (antennae 0.90), KettlepuffV2 (legs 0.92, arms 0.90), FluffletV2 (forelegs 0.88 and 0.86) and ShimmerlynxV2 (forearm 0.89) taper, but by too little. A tip radius of 0.8 of the root or less would pass. Run (with `--models DIR`) on the scratch GLBs of those 16 builds, which are not in the repo, all 16 pass checks 1 and 3: the worst bevel share is SkaddleV2 at 0.6 % and the worst plan fill GlimmoV2 at 0.43. The melted skin has none of the flat-capped limbs that fail the shipped bodies.
+
 ---
 
 ## 4. Open questions and probes (for the Mac or Ethan)
