@@ -212,7 +212,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 **38. Triangle band per tier?** The sculpt builds every body at about 2,400 triangles; the ladder in [[Roster-Redesign]] gives Common 1,000 to 1,400, Rare 1,400 to 1,900, Epic 1,700 to 2,200 and Legendary 2,000 to 2,500. A test build at 1,800 kept the shapes and faces and only made the outline slightly more angular ([[Design-Pass]] "Triangle bands per tier").
 - Options: a) build to the ladder's bands (a visible step up in detail with rank); b) every species at about 2,400; c) Commons at about 1,600, the rest at 2,400.
-- Recommend: **a**, because the ladder is how rank shows in the model itself, and fewer triangles on the many Commons keeps a full server light on phones.
+- Recommend: **a**, because the ladder is how rank shows in the model itself, and fewer triangles on the many Commons keeps a full server light on phones. The rank-ladder sheet of all 31 redesigns (`media/studio/2026-10-16/rank_ladder.jpg`) shows one more gap: the top tiers are no taller than the Epics (Raddis 3.6 and Syrinx 3.4 studs against Gaira 4.2 and Aurelyx 3.8), while in the reference games the rarest pet is also the biggest on screen. A height step per tier could ride with this answer.
 - Then: the recipes get a per-tier `tris` default and the sheets are rebuilt at their band.
 
 **39. Design pass batch 3, the top of the ladder: take, fix or redo?** Raddis (Cosmic) and Syrinx (Secret), the grandest bodies so far, plus Zirrit, Vixa, Floe, Snibble, Pebblet and Eekle (`media/studio/2026-10-16/design_pass_3.jpg`; [[Design-Pass]] "batch 3"). All eight pass the three style checks.
