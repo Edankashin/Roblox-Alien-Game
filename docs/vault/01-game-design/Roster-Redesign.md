@@ -154,6 +154,8 @@ What makes a pet read as grand in Pet Simulator 99, Steal an Egg, Adopt Me and G
 | The hatch ceremony: shake, crack, rays, the card with the odds | the ten seconds of a reveal is the clip people post | the reveal card with rays | the three beats of B29 scaled by tier (section 1's reveal column): rays, camera, sound, banner |
 | Pets that follow with their own idle (a bob, a flap, a hover) | the pet is alive without a rig | the shared bob in the renderers | per-species idle motion from the table (section 2), by part CFrame tweens |
 
+**From the X pass** ([[X-Posts]], applied 2026-10-16): rarity and mutation stay an effect and a recolour on one mesh, as Grow a Garden and Pet Simulator 99 do, with one named effect per ability. Two things follow for the build. Plan **three icons per species** (normal, Gold, Rainbow) in the icon pipeline from the start, not as a repaint later. Plan **the glow regions as material slots** in every recipe now (the `Accessory` and `Trim` slots that the overlays recolour), so an overlay never needs new art.
+
 ## 5. Names v3
 
 Ethan: the names "are just combining two words". The second pass ([[Species-Names]]) fixed the endings but kept the compound shape for fourteen species (Sparkfox, Thunderhog, Rocklobber, Gaiabloom, Lanternewt, Zapfinch, Toastoad, Shellberg, Capybubble, Trillgoat, Glintelk, Auralynx, Achoocub, Buzzbit) and the reduplications (Puffpuff, Snowsnow, Flapflap), which read as two words too. Names v3 rules:

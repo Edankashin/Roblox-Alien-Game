@@ -216,6 +216,12 @@ Run them in Blender, headless, on the exported GLB; a pass is written into `note
 2. **No visible seam at the joins.** Render a clay version (one grey diffuse material, soft light, no colour) at 512 px from the front, the side, the three-quarter and the back, then check two numbers on the mesh: the body skin is one connected component (the number of loose islands equals one skin plus the declared kept parts, so an accidental intersecting primitive fails), and no edge of the skin has a dihedral angle over 60 degrees (the parts marked flat on purpose are excluded and listed). Then a human look at the clay render: no line, step or intersection outline where the limbs, ears and tail meet the body. Every kept part shows its root.
 3. **The face reads at 128 px.** Render the whole body at 128 x 128 in colour and in greyscale from the front. Pass: each eye white is at least 6 px wide, the pupil and the white are separable in greyscale, the highlight is visible, the mouth is a distinct mark and not a smudge, and the expression (soft, sleepy, fierce) matches the recipe's `eye_tilt` and `lid` words. The eye-to-body-width ratio (at least 5 percent) is measured, not eyeballed.
 
+
+**Three style checks next to the render checks** (from Kenney's low-poly rules on X, [[X-Posts]], applied 2026-10-16). They are cheap to measure on the mesh and catch "shapes mashed together" before a render does.
+1. **A bevel on every hard edge.** No edge sharper than the sculpt's crease angle without at least one bevel segment, except on the declared crisp parts (crystals, blades).
+2. **Limbs taper root to tip.** Each leg, arm, tail and horn is wider where it meets the body than at its end; a rod of even width fails.
+3. **A plan outline closer to a rounded square than a box.** Seen from above and from the front, the body's outline has rounded corners; a hard rectangle fails.
+Model against the Roblox dummy at the origin (R15, about 5 studs tall) so scale and pivot arrive right in Studio.
 ---
 
 ## 4. Open questions and probes (for the Mac or Ethan)
