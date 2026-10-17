@@ -21,6 +21,17 @@ One spec note per creature in `Creatures/`, the single source of truth for its c
 - [[Radish]]: Raddis, Cosmic, World 1: a hovering giant radish with a pharaoh's brow behind a turning winged sun disk, ridable. Prototype, in review.
 - [[Panpipe]]: Syrinx, Secret, World 1: a great shadow goat with four horns and an organ of reed pipes on its back, ridable. Prototype, in review.
 
+## Props
+
+One spec note per prop in `Props/`, the same parts table as a creature (`kind: prop`), built through the same route at the world cell ([[Blocky-Style]] "Environment"). World 1 Verdant's set, all in the meadow diorama:
+
+- [[GrassBlock]]: the ground's four kinds, 2 x 1 x 2 stud blocks: grass over dirt, a cobbled path, the pond's water.
+- [[Tree]]: a bark trunk under a crown of moss-cell leaf clumps with pink blossoms.
+- [[Rock]]: a two-step boulder in stone cobbles with a moss patch.
+- [[Crystal]]: a glowing crystal spire with leaning shards on a stone seat.
+- [[Ship]]: the players' crashed ship, riveted metal, a crystal canopy, one wing snapped.
+- [[Flower]]: a stud-high flower in three petal colours.
+
 ## Plan documents outside the vault
 
 These live in `docs/`, where Obsidian cannot open them, so each has a short pointer note that keeps the links working:

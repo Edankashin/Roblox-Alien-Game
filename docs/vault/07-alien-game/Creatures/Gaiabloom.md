@@ -9,7 +9,7 @@ status: review
 element: Bloom
 height: 6
 blocks: 79
-tris: 1140
+tris: 1024
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#F0E6CE", "#6B4A2E", "#4FB84E", "#F5B83D", "#FF6FAE", "#1F1A17"]
@@ -22,6 +22,7 @@ render: "[[Gaiabloom_tq.jpg]]"
 glb: ""
 overlap: [0.996, 0.996, 0.995, 0.996]
 vfx_render: "[[Gaiabloom_vfx.jpg]]"
+cells_render: "[[Gaiabloom_tq_cells.jpg]]"
 ---
 # Gaiabloom (Gaira), Legendary, World 1 Verdant
 
@@ -44,23 +45,23 @@ parts:
   # long deer legs on gold hooves
   - {name: FrontLeg, slot: Body, size: [0.5, 1, 0.5], at: [0.625, 0.75, -0.25], mirror: x}
   - {name: HindLeg, slot: Body, size: [0.5, 1, 0.5], at: [0.625, 0.75, 2.25], mirror: x}
-  - {name: Hoof, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, -0.25], mirror: x}
-  - {name: HindHoof, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, 2.25], mirror: x}
+  - {name: Hoof, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, -0.25], mirror: x, material: metal}
+  - {name: HindHoof, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, 2.25], mirror: x, material: metal}
   - {name: Ear, slot: Body, size: [0.75, 0.375, 0.25], at: [1.625, 3.625, -1], rot: [0, 0, -15], mirror: x, moves: ear, pivot: [1.25, 3.75, -1]}
   - {name: Tail, slot: Body, size: [0.5, 0.5, 0.25], at: [0, 2.5, 2.625], moves: tail, pivot: [0, 2.5, 2.5]}
   # a ruff of moss cells under the chin (Verdant's motif), one blossom in it
-  - {name: Ruff, slot: Accessory, size: [1.5, 0.5, 0.75], at: [0, 1.5, -1.5]}
-  - {name: Ruff2, slot: Accessory, size: [0.75, 0.25, 0.5], at: [0, 1.125, -1.5]}
+  - {name: Ruff, slot: Accessory, size: [1.5, 0.5, 0.75], at: [0, 1.5, -1.5], material: moss}
+  - {name: Ruff2, slot: Accessory, size: [0.75, 0.25, 0.5], at: [0, 1.125, -1.5], material: moss}
   - {name: RuffBloom, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.375, 1.375, -1.875]}
   # the hero: tree antlers in bloom: a bark trunk in a gold band, a branch out and a tine up, a branch back, three leaf clumps, four lit blossoms
-  - {name: Antler, slot: BodyDark, size: [0.25, 1.25, 0.25], at: [0.5, 4.875, -1.25], mirror: x}
-  - {name: AntlerBand, slot: Trim, size: [0.5, 0.125, 0.5], at: [0.5, 4.3125, -1.25], mirror: x}
-  - {name: AntlerBranch, slot: BodyDark, size: [0.75, 0.25, 0.25], at: [0.875, 4.875, -1.25], mirror: x}
-  - {name: AntlerTine, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 5.25, -1.25], mirror: x}
-  - {name: AntlerBack, slot: BodyDark, size: [0.25, 0.25, 0.5], at: [0.5, 5.125, -0.875], mirror: x}
-  - {name: LeafOut, slot: Accessory, size: [0.75, 0.5, 0.75], at: [1.25, 5.625, -1.25], mirror: x}
-  - {name: LeafTop, slot: Accessory, size: [0.75, 0.5, 0.75], at: [0.5, 5.75, -1.25], mirror: x}
-  - {name: LeafBack, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.5, 5.5, -0.5], mirror: x}
+  - {name: Antler, slot: BodyDark, size: [0.25, 1.25, 0.25], at: [0.5, 4.875, -1.25], mirror: x, material: wood}
+  - {name: AntlerBand, slot: Trim, size: [0.5, 0.125, 0.5], at: [0.5, 4.3125, -1.25], mirror: x, material: metal}
+  - {name: AntlerBranch, slot: BodyDark, size: [0.75, 0.25, 0.25], at: [0.875, 4.875, -1.25], mirror: x, material: wood}
+  - {name: AntlerTine, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 5.25, -1.25], mirror: x, material: wood}
+  - {name: AntlerBack, slot: BodyDark, size: [0.25, 0.25, 0.5], at: [0.5, 5.125, -0.875], mirror: x, material: wood}
+  - {name: LeafOut, slot: Accessory, size: [0.75, 0.5, 0.75], at: [1.25, 5.625, -1.25], mirror: x, material: moss}
+  - {name: LeafTop, slot: Accessory, size: [0.75, 0.5, 0.75], at: [0.5, 5.75, -1.25], mirror: x, material: moss}
+  - {name: LeafBack, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.5, 5.5, -0.5], mirror: x, material: moss}
   - {name: Blossom, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.375, 5.75, -1.75], mirror: x}
   - {name: Blossom2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.625, 5.875, -1.75], mirror: x}
   - {name: Blossom3, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.75, 5.5, -1], mirror: x}
@@ -141,5 +142,14 @@ The concept sheet, drawn from the parts table above: [[Gaiabloom_sheet.svg]] (fl
 
 ![[Gaiabloom_views.png]]
 
+## Cells
+
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.156 studs (6.4 a stud), 38 cells tall; one atlas of 512 x 1024 at 8 texels a cell (416 islands). Materials: wood on the antler trunks and branches, moss on the leaf clumps and the ruff, metal on the hooves and the antler bands.
+
+![[Gaiabloom_tq_cells.jpg]]
+
+![[Gaiabloom_vfx_cells.jpg]]
+
 ## Reviews
 - 2026-10-17, loop 2 worker, three rounds. Round 1: built as drawn; the antlers read at once as two trees in bloom and the moss ruff as a green bib, but the pastel pink glow washed to white in the light. Round 2: a saturated pink, so the blossoms, dapples and orbiting petals read as pink. Round 3: no change after the side-by-side. Overlap 0.995 to 0.996, 1,140 triangles, 79 blocks, 6 studs (1.2 avatars). Wanted for: one avatar tall, blossoming antlers, glowing spots and the first light that touches the ground (the gold ring, the orbiting petals). Still cheap: the ivory body loses its edges against a pale sky; the head is a plain cube with no snout, so the stag rests on the antlers and the legs; the nimbus shows only as an arc behind the head. Status review.
+- 2026-10-17, block-cell worker, three rounds (cells). The ivory body gains value: the grout and the darker edge cells draw every block of it (the open item of loop 2, partly: against a pale sky the head still wants a snout). The antlers now read as bark and leaves. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.

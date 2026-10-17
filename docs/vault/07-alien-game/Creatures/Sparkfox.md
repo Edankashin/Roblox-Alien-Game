@@ -9,7 +9,7 @@ status: review
 element: Ember
 height: 3
 blocks: 29
-tris: 548
+tris: 508
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FF7A30", "#FFF1DD", "#4A2433", "#FFC940", "#FFA53D", "#24141A"]
@@ -22,6 +22,7 @@ render: "[[Sparkfox_tq.jpg]]"
 glb: ""
 overlap: [0.994, 0.996, 0.997, 0.995]
 vfx_render: "[[Sparkfox_vfx.jpg]]"
+cells_render: "[[Sparkfox_tq_cells.jpg]]"
 ---
 # Sparkfox (Vixa), Rare, World 1 Verdant
 
@@ -49,7 +50,7 @@ parts:
   - {name: InnerEar, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [0.625, 2.375, -1.0625], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
   # the hero: the paintbrush tail, leaning back and out to the right: a plum handle, a glossy gold ferrule, a head of orange fur bristles tapering to a point dipped in glowing paint
   - {name: Tail, slot: Accessory, size: [0.375, 0.5, 0.375], at: [0.4375, 1.3125, 1.875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
-  - {name: Ferrule, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5625, 1.6875, 2], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
+  - {name: Ferrule, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5625, 1.6875, 2], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], material: metal}
   - {name: Brush, slot: Body, size: [0.875, 0.5, 0.875], at: [0.6875, 2, 2.1875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
   - {name: Brush2, slot: Body, size: [0.75, 0.25, 0.75], at: [0.8125, 2.3125, 2.3125], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
   - {name: BrushTip, slot: Glow, size: [0.5, 0.25, 0.5], at: [0.875, 2.5, 2.4375], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
@@ -111,5 +112,14 @@ The concept sheet, drawn from the parts table above: [[Sparkfox_sheet.svg]] (fla
 
 ![[Sparkfox_views.png]]
 
+## Cells
+
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 24 cells tall; one atlas of 512 x 1024 at 8 texels a cell (154 islands). Materials: metal on the ferrule, skin elsewhere; the brush tip and the drop are glow cells.
+
+![[Sparkfox_tq_cells.jpg]]
+
+![[Sparkfox_vfx_cells.jpg]]
+
 ## Reviews
 - 2026-10-17, loop 2 worker, three rounds. Round 1: a cream brush on a pale sky read as a floating cloud, not joined to the fox. Round 2: the tail as one tilted stack (handle, ferrule, bristles, tip) that grows out of the rump; still pale, and the cube head of the brush read as a mallet. Round 3: a plum handle and orange bristles tapering in two steps to a lit point, the amber paint drop floating free; the tail lowered an eighth to keep 3 studs. Overlap 0.994 to 0.997, 548 triangles, 29 blocks, 3 studs. Wanted for: the first light on the meadow and a tail that is a paintbrush, with a stamped gold flame. Still cheap: the Rare preview is only a soft light (as the ladder says), so at night it is a lit tail and little else; the drop is small at distance. Status review.
+- 2026-10-17, block-cell worker, three rounds (cells). The orange keeps its punch; the cream muzzle cells sit in the face grid as before; the gold flame stays flat (detail blocks under three cells take no edge). Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.

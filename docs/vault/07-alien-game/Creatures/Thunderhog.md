@@ -9,7 +9,7 @@ status: review
 element: Lightning
 height: 3.875
 blocks: 52
-tris: 812
+tris: 742
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#8B5CF6", "#2E1F66", "#D4C6FF", "#FFC233", "#FFF27A", "#160F2E"]
@@ -23,6 +23,7 @@ render: "[[Thunderhog_tq.jpg]]"
 glb: ""
 overlap: [0.996, 0.998, 0.997, 0.996]
 vfx_render: "[[Thunderhog_vfx.jpg]]"
+cells_render: "[[Thunderhog_tq_cells.jpg]]"
 ---
 # Thunderhog (Voltus), Epic, World 1 Verdant
 
@@ -53,7 +54,7 @@ parts:
   - {name: HindToe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.3125, 0.0625, 1.5625], mirror: x}
   - {name: HindToe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, 1.5625], mirror: x}
   # the torso in three bands: a dark quill coat over the top, violet flanks with the gold bolt, a lavender belly plate; a gold collar in front
-  - {name: Collar, slot: Trim, size: [2, 1.75, 0.25], at: [0, 1.25, 0.375]}
+  - {name: Collar, slot: Trim, size: [2, 1.75, 0.25], at: [0, 1.25, 0.375], material: metal}
   - {name: Coat, slot: BodyDark, size: [2, 0.5, 2], at: [0, 1.875, 1.5]}
   - {name: Belly, slot: Accessory, size: [2, 0.5, 2], at: [0, 0.625, 1.5]}
   # the flank emblem: a three-row stepped bolt in gold between the coat and the belly
@@ -64,10 +65,10 @@ parts:
   - {name: Crest, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.125, 3.75, 0.25]}
   - {name: Crest2, slot: Glow, size: [0.5, 0.25, 0.375], at: [0, 3.5, 0.4375]}
   - {name: Crest3, slot: Glow, size: [0.5, 0.25, 0.5], at: [-0.25, 3.25, 0.625]}
-  - {name: Crest4, slot: Trim, size: [1, 0.25, 0.5], at: [0, 3, 0.75]}
-  - {name: Crest5, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.25, 2.75, 1]}
-  - {name: Crest6, slot: Trim, size: [0.5, 0.25, 0.5], at: [0, 2.5, 1.125]}
-  - {name: Crest7, slot: Trim, size: [0.75, 0.25, 0.75], at: [-0.125, 2.25, 1.375]}
+  - {name: Crest4, slot: Trim, size: [1, 0.25, 0.5], at: [0, 3, 0.75], material: crystal}
+  - {name: Crest5, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.25, 2.75, 1], material: crystal}
+  - {name: Crest6, slot: Trim, size: [0.5, 0.25, 0.5], at: [0, 2.5, 1.125], material: crystal}
+  - {name: Crest7, slot: Trim, size: [0.75, 0.25, 0.75], at: [-0.125, 2.25, 1.375], material: crystal}
   # hedgehog quills down both sides of the bolt, leaning out 20 degrees
   - {name: Quill, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.625, 2.4375, 1], shape: cone6, rot: [0, 0, -20], mirror: x}
   - {name: Quill2, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.625, 2.4375, 1.625], shape: cone6, rot: [0, 0, -20], mirror: x}
@@ -130,7 +131,16 @@ The concept sheet, drawn from the parts table above: [[Thunderhog_sheet.svg]] (f
 
 ![[Thunderhog_views.png]]
 
+## Cells
+
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 31 cells tall; one atlas of 1024 x 1024 at 8 texels a cell (277 islands). Materials: metal on the gold collar (rivet panels: an armoured collar), crystal on the crest's gold steps, skin elsewhere.
+
+![[Thunderhog_tq_cells.jpg]]
+
+![[Thunderhog_vfx_cells.jpg]]
+
 ## Reviews
 
 - 2026-10-17, worker, three rounds. Round 1: three zigzag stacks read as a dark mohawk, and the gold bands merged with the flank emblem into one gold blob. Round 2: one stepped lightning bolt as the crest, lit in its top three rows, dark cone quills either side, the rear band made a dark stripe, two cheek quills a side. Round 3: the VFX preview (jagged arcs from the crest tip to two quill tips, sparks a third of a stud out, the violet light; colours read from Effects.luau). Overlap 0.995 to 0.997, 732 triangles. Wanted for: the first Verdant creature with a lit crown, readable as storm from across the meadow. Still cheap: the long violet torso is flat between the bands, the gold anklets read as sandals, and from straight ahead the crest is a thin post. Next: a lighter belly plate or groove pattern on the torso, toe caps instead of anklets, a second bolt edge so the crest reads from the front. Status review.
 - 2026-10-17, loop 2 worker, three rounds. Round 1: the torso in bands (a dark quill coat, violet flanks with the gold bolt, a lavender belly plate, the gold collar), two lavender toe cells on each foot instead of the anklets, lightning-rod antennae with lit bulbs instead of the cone ears, and a crest whose rows step sideways as well as forward, so it is a bolt from the front too. Round 2: the arcs go from the crest tip to the antenna bulbs and the tail tip. Round 3: the preview's sparks are kept off the face. Overlap 0.996 to 0.998, 812 triangles, 52 blocks, 3.88 studs. Wanted for: a lit crown and two lit antennae with lightning between them, readable as storm from across the meadow. Still cheap: the top is busy (the bolt, six quills, two antennae and four cheek spikes compete), and the toes vanish at distance. Status review.
+- 2026-10-17, block-cell worker, three rounds (cells). The banded torso reads as blocks of cells; the collar's rivets read only up close; the crest's diagonals catch the light in the preview. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.

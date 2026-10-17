@@ -7,7 +7,7 @@ up: "[[Art-Pipelines]]"
 
 The concept boards live on the Claude Design canvas [Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD): the ladder board, then one board per creature with its measured sheet, the build and the effects preview.
 
-2026-10-17. Ethan rejected the smooth sculpted aliens ("too simplistic and not high enough quality") and asked for "a blocky type of look like in a lot of popular roblox games"; "rarer aliens should get more detail and height too. They should feel worth it to find compared to common ones. There should also be vfx with them. All the designs of everything should be done using a mix of Claude design, blender, and obsidian." That is [[Decisions]] B43. This note turns the research report `reports/Blocky Roblox pet design.md` into nine numbered rules, each with a number to check and a do and a don't, and the pipeline that applies them. Moving parts follow B39 (separate pieces the game tweens, no rig); surfaces follow B41 (flat colour, no grain). Each species' element and signature effect: [[Roster-Redesign]] section 2. The seven prototypes, one per rung: [[Mossbop]] (Common), [[Buzzlebee]] (Uncommon), [[Sparkfox]] (Rare), [[Thunderhog]] (Epic), [[Gaiabloom]] (Legendary), [[Radish]] (Cosmic), [[Panpipe]] (Secret). The roster view: `Creatures/Creatures.base` in [[Alien-Game]].
+2026-10-17. Ethan rejected the smooth sculpted aliens ("too simplistic and not high enough quality") and asked for "a blocky type of look like in a lot of popular roblox games"; "rarer aliens should get more detail and height too. They should feel worth it to find compared to common ones. There should also be vfx with them. All the designs of everything should be done using a mix of Claude design, blender, and obsidian." That is [[Decisions]] B43. This note turns the research report `reports/Blocky Roblox pet design.md` into nine numbered rules, each with a number to check and a do and a don't, and the pipeline that applies them. Moving parts follow B39 (separate pieces the game tweens, no rig); surfaces are made of block cells (B44, the "Cells" section below; B41's no grain still holds). Each species' element and signature effect: [[Roster-Redesign]] section 2. The seven prototypes, one per rung: [[Mossbop]] (Common), [[Buzzlebee]] (Uncommon), [[Sparkfox]] (Rare), [[Thunderhog]] (Epic), [[Gaiabloom]] (Legendary), [[Radish]] (Cosmic), [[Panpipe]] (Secret). The roster view: `Creatures/Creatures.base` in [[Alien-Game]].
 
 **Status: proposal for Ethan's yes.** Nothing under `assets/models` changes until he approves a sheet (B43). `tools/blocky/spec.py` checks every rule that is marked *(checked)*; the rest are for the review at the board.
 
@@ -132,6 +132,121 @@ Every species of a world as a **64 px black shape in one row**; no two may read 
 |---|---|
 | Read the row at thumbnail size before colour | Rely on hue to tell two species apart |
 
+## Cells: every face is made of little blocks
+
+2026-10-17, after the seven-rung ladder, Ethan: "I think the character designs should be made up of little blocky texture. Let's try that. And make that consistent throughout the whole game." That is [[Decisions]] B44. Every face of every block carries a texture of small square cells, the same rules on creatures, ground and props, so creature and world read as one (his references: the voxel-brick ground of ZPL8MtkYu and the cube-cell creatures of ZPLSHwXqp in `media/tiktok/NOTES.md`). The cells are a texture, not geometry: a creature keeps its blocks and triangles. `tools/blocky/cells.py` holds every number below and makes the texture; `tools/blender/blocky_build.py` box-projects every face onto it. The rules replace B41's "flat colour" for creature surfaces; B41's ban on grain stands, and these rules are how it is kept.
+
+![Block cells v1: the seven rungs flat (left of each pair) and with cells (right), the cell numbers of each, the six rules and one face of each material motif](refs/blocky/blocky_cells_v1.jpg)
+
+### C1. Density: the face cell is the unit
+
+- A creature's cell is **its face cell: the head's width over the face's 16 columns** *(the build measures it)*. On every 2-stud head (Moop to Voltus) that is **0.125 studs, 8 a stud**; Gaira's 2.5-stud head 0.156; Syrinx's 5.5 0.344; Raddis's 6 0.375.
+- So **rarer creatures carry more cells per height**, which is the extra detail the ladder wants: Moop 20 cells tall, Buzzik 19, Vixa 24, Voltus 31, Gaira 38, Raddis 37, Syrinx 38 (Ethan's Void Hydra reference is 1/30 to 1/40 of its height, and the research report suggests shrinking the cell as the tier rises).
+- The **world cell is 0.25 studs, 4 a stud** (the quarter-stud grid of rule 2): ground and every prop. A 2-stud ground block is 8 cells across. It sits between the creatures' cells (twice a Common's, two thirds of Raddis's), so nothing in a scene is more than a factor of two off it.
+- Every face is divided into **a whole number of cells, round(side / cell), at least one**, so no face ends in a sliver; on the 0.125 grid (Commons to Epics, the world) that is exact and the cells run on one grid across neighbouring blocks; on Gaira, Raddis and Syrinx a small block's cell stretches a little to fit.
+- Why not 4 cells a stud on creatures too: on a 2-stud head that makes each body cell two face pixels across (two resolutions on one head, the face reading as a decal); the face cell keeps one grid.
+
+| Do | Don't |
+|---|---|
+| Moop's body cells the size of its face pixels: the eye is 4 cells, the cheek 2, the cap 12 across | A 0.25-stud body cell under 0.125-stud face pixels: the face reads as a decal stuck on a coarser block |
+| Raddis at 37 cells tall, chunky up close and still one surface with its 16-cell face | One fixed cell on a 14-stud Cosmic (112 cells tall at 0.125): at a distance it is grain |
+
+### C2. Jitter: a few cells a shade off, in value only
+
+- Each cell takes **one of three levels: L\* 2.5 down, the colour itself, L\* 2.5 up**; **12 percent down, 76 percent level, 12 percent up** (1 : 6 : 1). The level is a hash of the cell's grid position and a fixed seed (44), so every build is the same.
+- Shades move **in L\* only** (CIELAB): hue and chroma stay; where a lighter shade would leave sRGB the chroma gives way, never the hue.
+- Tested at 1 : 2 : 1 (half the cells off): on Buzzik's yellow and Moop's green it read as a sponge. 1 : 6 : 1 reads as a clean colour with a few cells catching the light.
+
+| Do | Don't |
+|---|---|
+| Most cells exactly the slot colour, a scattering a shade lighter or darker | Half the cells jittered, or a continuous random shade per cell (noise) |
+| A lighter cell that is the same hue, lighter | A warm or cool shift per cell (it reads as dirt on a skin) |
+
+### C3. Edges and grout: each block framed, each cell a little block
+
+- **A step is L\* 6.** On a side face the **top row of cells is a step lighter** and the **other border cells a step darker**; a top face's rim and a bottom's border follow the material (skin: rim half a step up; grass and dirt: half a step down, so the ground reads as tiles). Only along a direction with **3 cells or more**: a smaller detail block stays one flat colour.
+- **Grout: a 1-texel line a step darker on each cell's right and bottom edge, at 8 texels a cell** (one eighth of the cell). Tested with and without on Moop, Buzzik and Gaira: with the grout the surface reads as built from little blocks (Ethan's words), and Gaira's ivory body finally has value; without it, the cells are a faint mottle. The grout is **half weight on grass** (a dense grid across a meadow is too strong) and **none on water** (a grid on water reads as pool tiles).
+- The bevelled masses keep their bevel: the edge row lands on the bevel strip and lights with it.
+
+| Do | Don't |
+|---|---|
+| The grout one step down, on every cell, face cells too, so face and body are one surface | A black or a light grout line (a wireframe, or a tiled bathroom) |
+| A block's top row lit, its sides framed a step darker | Edge cells on a 2-cell detail block (all edge, no face) |
+
+### C4. Motifs: one per material
+
+A part's `material` key names its motif (default `skin`, `glow` on a Glow slot). Each motif moves cells in whole or half steps, never with noise:
+
+| Material | Motif | Used on |
+|---|---|---|
+| skin | jitter only | every creature body by default |
+| moss | tufts a full step light or dark in clumps three cells across; the top half a step up with a lime sprig (the accent) in forty; a side's top hangs in a ragged lit fringe two to four cells deep | Moop's head, cap and base; Gaira's leaf clumps and ruff; tree crowns |
+| grass | top: faint blobs, a lit blade in twenty; sides: dirt (the `second` colour) under a grass fringe one to three cells deep | ground tops |
+| dirt | faint blobs; one cell in seventeen a pebble, a step up or down | ground under the grass |
+| stone | cobbles three cells across, each a quarter step off, parted by a one-cell crack a step and a half down | rocks, the path, the crystal's seat |
+| metal | panels four cells square, a seam a step down, a rivet a step and a half up in each panel's corner; plain under four cells | the ship, Voltus's collar, Raddis's sun disk, Syrinx's horns and bell |
+| crystal | a light diagonal band every six cells (two steps up, then one); its edges lighter, not darker | crystals, Buzzik's wings, Voltus's crest, the ship's canopy |
+| wood | grain lines along the block's longest side, each a fixed shade, broken every few cells; square rings on end grain | trunks, Moop's root feet and stem, Gaira's antlers, Raddis's root, Syrinx's reeds |
+| water | diagonal ripple dashes a step up, a sparkle in eighty; sides darken with depth; no grout | the pond |
+| glow | a lit core half a step up inside a border of the colour itself; used sparingly | every Glow slot part |
+| wool | shag blobs two cells across; one cell in thirty a fleck of the accent colour | Syrinx's coat (its violet flecks are what lifts the dark Secret in daylight) |
+
+The swatch sheet, every motif as a 4 x 4 stud block (`python3 -I tools/blocky/cells.py --swatches <png>`), for the Claude Design canvas:
+
+![The eleven cell materials as 4 x 4 stud blocks in World 1 colours](refs/blocky/cell_materials.png)
+
+| Do | Don't |
+|---|---|
+| A material only where it says something: moss on the moss ball, wood on the roots, metal on the gold collar | A motif on every part (a creature becomes a sampler) |
+| Moss as clumps a full step apart (the moss test: half a step read as a soft green ball, two-cell clumps read as speckle) | Moss as a flat green with a few dots (loop 2's open item) |
+
+### C5. The face is drawn cell for cell, and stays calm
+
+- The head's front is one island of exactly the face's grid (16 columns by the head's rows): every face cell is a body cell, the house face of rule 3 drawn on it unchanged. Ink, shine, crescent and cheek cells take their exact colours, never jittered; the face's body-colour cells take the head's motif in the **top two rows** (Moop's moss fringe) and **plain skin cells below**, so no motif crowds the eyes.
+- Tested: Moop with moss over its whole front read as camouflage around the eyes.
+
+| Do | Don't |
+|---|---|
+| The eye's 4 x 6 cells crisp on a calm field, the grout running through face and body alike | A moss or wool pattern between the eyes |
+
+### C6. Never noise
+
+- **Flat squares**: one colour a cell, no gradient inside a cell, no normal map, no grain (B41). **Nearest filtering** in Blender (Closest), the twin of `ResampleMode = Pixelated` in Roblox. **8 texels a cell**, so even a bilinear fallback softens only inside a texel. **Deterministic**: a hash of the grid position and seed 44, so a rebuild is pixel-identical.
+- Read at two distances: the three-quarter render (cells visible, crisp) and the diorama hero shot (cells become a fine, even texture; the grout half weight on grass keeps the meadow from turning to graph paper).
+
+| Do | Don't |
+|---|---|
+| A pattern a viewer can describe (tufts, cobbles, rivets, grain) | A random speckle with no structure, or a bilinear blur of the cells |
+
+## Environment: the world in the same cells
+
+The World 1 landscape sample, `tools/blender/blocky_scene.py`: a 48 x 32 stud meadow diorama with the seven creatures and the 5-stud avatar to scale. Every surface is built and textured by the same route as a creature.
+
+![World 1 Verdant in block cells: the diorama's hero shot (a three-quarter game camera, soft daylight) and a low second angle among the creatures](refs/blocky/world1_scene_v1.jpg)
+
+- **E1. Ground blocks**: **2 x 1 x 2 studs** at the world cell (8 cells across a top, 4 rows a side), stacked on a height map in 1-stud steps (the sample: meadow 3, a plateau 4, a ledge 5, the pond bed 2 under a 0.75-stud water block). Four kinds in [[GrassBlock]]: grass over dirt, a cobbled path, water. Faces hidden by a neighbour or the floor are culled (the sample: 1,305 blocks, 1,464 triangles). The edge rule shows each block (a half step on grass tops), so the meadow is a tiled grid of blocks like the voxel-brick reference, and every exposed side shows the grass fringe over dirt bricks.
+- **E2. Props follow the creature rules**: a prop is a spec note in `07-alien-game/Props/` with the same parts table (`kind: prop` in the frontmatter): slots and palette roles, the grid (rule 2), the tilt (rule 1), a `material` per part, standing on y = 0. `python3 -I tools/blocky/spec.py <note>` checks it (no face, tier, head or legs), and it builds through `blocky_build.build` at the world cell. The World 1 set: [[Tree]], [[Rock]], [[Crystal]], [[Ship]], [[GrassBlock]], [[Flower]]. A scene places, turns or pitches a prop (the ship's crash) without changing its note.
+- **E3. A palette per world**, from the world's data (`src/shared/data/Meadow.luau`) so the build and the game agree:
+
+| World | Ground | Path, rock | Wood, leaves | Water, light | Sky |
+|---|---|---|---|---|---|
+| 1 Verdant | grass 6FBF4A, dirt 8A5A3B | path C9B48A (stone), rock 9E9E8E | trunk 7B4A2D, leaves 3F9B3A | water 3FA2E6, crystal 7FE3F0 | day blue 62B3EC over a pale warm horizon D8EEF5; sun warm white |
+| 2 Frostbyte (proposal) | snow top over frozen dirt (the grass motif's fringe in white) | ice in the crystal motif | pine in wood and a dark moss | ice-blue water, cyan crystal | pale cold blue (Lighting.luau's Frostbyte haze) |
+
+| Do | Don't |
+|---|---|
+| Ground, props and creatures at one rule set, so a creature looks made of the world | Smooth terrain or a photographic texture beside a cell-built creature |
+| A prop as a note and a parts table, built and checked like a creature | A prop modelled by hand outside the route (no spec, no check, no board) |
+| Glow sparingly: one crystal in the meadow, the ship's exhaust | Emissive cells scattered over the ground |
+
+## In the game (a plan; no code under `src/` yet)
+
+- **The texture**: each creature's atlas ships as the `ColorMap` of one `SurfaceAppearance` with **`ResampleMode = Pixelated`** (nearest filtering; in the Creator Docs since 5 May 2026; **to be confirmed on the Mac on a real phone**, with the grout's fine lines at a distance the thing to watch). If Pixelated fails, the 8-texel cell is the fallback: bilinear filtering softens only inside a texel, so cells stay crisp. A Trim slot's gold becomes a `MetalnessMap` on the same layout; `AlphaMode = TintMask` with the body cells opaque in the alpha recolours a variant (Gold, Crystal) without touching the face.
+- **One atlas per creature**: 512 x 512 (Moop) to 1024 x 1024 (Voltus, Syrinx) at 8 texels a cell; Buzzik, Vixa, Gaira and Raddis 512 x 1024. About 0.25 to 1 MB each on the GPU once block-compressed. The UVs are in the GLB already (one UV layer, every face on its island).
+- **Draw calls**: with one atlas, every static slot merges into **one MeshPart**; a Neon glow part stays separate unless the SurfaceAppearance emissive mask holds up on the Mac; each moving object stays its own MeshPart (B39). Moop 4 today to 3, Buzzik 5 to 3, Vixa 7 to 5, Voltus 8 to 5, Gaira, Raddis and Syrinx 9 to 6. Identical species share mesh and texture, so a herd of one species instances.
+- **The ground**, two routes for the Mac to try: (a) **block-built ground** (recommended for the play areas): the meadow as MeshPart chunks (a 32 x 32 stud chunk merged, one atlas, hidden faces culled as in the sample), the look of the diorama exactly; (b) **terrain with `MaterialVariant`s** (Grass, Ground, Cobblestone) whose colour maps are 2-stud tiles of the same cells (`StudsPerTile = 2`, fixed pattern): cheap for the far land, but smooth voxel terrain loses the block edges and the grass fringe. Water: terrain water, or a glossy part with the water cells where it must match.
+- Nothing ships until Ethan says yes to the cell look on a sheet (B43, B44); then the approved GLBs and atlases go to `assets/models/<Id>/` by the import route (step 6 of the pipeline below).
+
 ## The spec note format
 
 One note per creature in `07-alien-game/Creatures/<Id>.md`. Frontmatter: `id, name, world, tier, status (concept, board, build, review, approved), element, height, blocks, tris, bevel_width, bevel_segments, palette, roles, hero, vfx, artboard, sheet, render, vfx_render, glb, overlap` (Raddis and Syrinx add `glow_cycle` and `ride`, Voltus and Syrinx `arcs`). The body holds two fenced `yaml` blocks, the single source of truth for the drawing and the build:
@@ -148,15 +263,18 @@ A `Reviews` list ends the note, one dated line per review.
 | 1. Style bible | Obsidian | this note | Ethan approves it |
 | 2. Spec note | Obsidian | `07-alien-game/Creatures/<Id>.md`; `python3 -I tools/blocky/spec.py <note> --write` validates and writes `blocks` and `tris` | `status: concept`, no errors |
 | 3. Concept board | Claude Design | `python3 -I tools/blocky/sheet.py <note> --out <dir>` draws `<Id>_sheet.svg` (flat shapes and text, for the canvas) and `.png`, and the four view masks; the SVG goes on the world's canvas | Ethan picks; `status: board`, `artboard` link saved |
-| 4. Build | Blender | `<python with bpy> tools/blender/blocky_build.py --spec <note> --sheet <dir> --out <scratch> --write` (GLB, four orthographic views, a lit three-quarter view, a VFX preview from Rare up, the overlap per view written back); `--lineup a.md,b.md` renders a row to scale with the avatar | overlap 0.9 or more each view; `status: build` |
-| 5. Review | all three | renders beside the sheet on the canvas; a dated line in the note's Reviews; lessons back into this note; `python3 -I tools/blocky/ladder.py --layout rows --notes <tier order> --build <dir> --sheets <dir> --out <jpg> --before <dir> --before-ids <ids>` draws the ladder sheet (a row per creature, a before/after strip, the silhouette row) | `status: review`, then `approved` |
-| 6. Ship | Studio | only an approved note's GLB goes to `assets/models/<Id>/`; the face ships through a SurfaceAppearance set to `ResampleMode = Pixelated` (the Mac checks it on a phone first) | Ethan's yes |
+| 4. Build | Blender | `<python with bpy> tools/blender/blocky_build.py --spec <note> --sheet <dir> --out <scratch> --write` (the cell atlas `<Id>_atlas.png` from `tools/blocky/cells.py`, the GLB with every face on it, four orthographic views, a lit three-quarter view, a VFX preview from Rare up, the overlap per view written back); `--suffix _cells` names the outputs, `--flat` renders without cells; `--lineup a.md,b.md` renders a row to scale with the avatar. A prop note builds the same way; `tools/blender/blocky_scene.py --out <scratch>` builds and renders the World 1 diorama | overlap 0.9 or more each view; `status: build` |
+| 5. Review | all three | renders beside the sheet on the canvas; a dated line in the note's Reviews; lessons back into this note; `python3 -I tools/blocky/ladder.py --layout rows --notes <tier order> --build <dir> --sheets <dir> --out <jpg> --before <dir> --before-ids <ids>` draws the ladder sheet (a row per creature, a before/after strip, the silhouette row); `python3 -I tools/blocky/cells_review.py cells` (flat against cells, the material close-ups), `scene` (the diorama) and `copies` (the `_cells` renders and the swatch sheet into `refs/blocky/`) | `status: review`, then `approved` |
+| 6. Ship | Studio | only an approved note's GLB goes to `assets/models/<Id>/`; its cell atlas, face included, ships as the ColorMap of a SurfaceAppearance set to `ResampleMode = Pixelated` (the Mac checks it on a phone first; "In the game" above) | Ethan's yes |
 
-The review sheets: `media/studio/2026-10-17/blocky_ladder_v1.jpg` (loop 1, three rungs) and `blocky_ladder_v2.jpg` (loop 2, all seven, the copy above); each species' sheet, renders, VFX preview and silhouette views are in `refs/blocky/` under the same names (`<Id>_sheet.svg`, `_sheet.png`, `_tq.jpg`, `_vfx.jpg`, `_views.png`).
+The review sheets: `media/studio/2026-10-17/blocky_ladder_v1.jpg` (loop 1, three rungs), `blocky_ladder_v2.jpg` (loop 2, all seven, the copy above), `blocky_cells_v1.jpg` (the seven flat and with cells) and `world1_scene_v1.jpg` (the diorama); each species' sheet, renders, VFX preview and silhouette views are in `refs/blocky/` under the same names (`<Id>_sheet.svg`, `_sheet.png`, `_tq.jpg`, `_vfx.jpg`, `_views.png`), the cell builds as `<Id>_tq_cells.jpg` and `<Id>_vfx_cells.jpg`, the diorama's two angles as `world1_hero.jpg` and `world1_low.jpg`, the swatches as `cell_materials.png`.
 
 ## What is open
 
 - Ethan's yes on this bible, the house eye and the seven sheets; the boards on the Claude Design canvas (the SVGs are ready: flat shapes and text, no style, image or foreignObject).
-- Moop's moss: the voxel round reads as a soft green ball more than as moss. Ten blocks leave no room for mottling; the next try is a moss pattern painted into the Body texture on the head's top and sides (a rule change: today only the front carries texture).
-- A 32-cell face for the Cosmic and Secret close-ups (16 cells over a 6-stud head are big pixels in the reveal).
+- Ethan's look at the cells (`blocky_cells_v1.jpg`, `world1_scene_v1.jpg`): the cell look, the grout (the strongest single choice: it is what makes the surface read as little blocks), the face cell as the unit, and the diorama as World 1's direction.
+- On the Mac: the atlas on a SurfaceAppearance with `ResampleMode = Pixelated` on a phone, at the game camera's distance, watching the grout for shimmer; if it shimmers, `GROUT = 0` in `tools/blocky/cells.py` rebuilds every atlas without it (variant B of the grout test). The SurfaceAppearance emissive mask for glow cells, or a Neon part.
+- The ground route in the game (block-built chunks or terrain MaterialVariants, "In the game"), and a frame-time check with a meadow of cell ground and 50 aliens on a phone.
+- Gaira still wants a snout against a pale sky, and the crashed ship is small (11 studs) beside the Cosmic and Secret; both are shape questions, not cell questions.
+- A 32-cell face for the Cosmic and Secret close-ups (16 cells over a 6-stud head are big pixels in the reveal). With cells this is a bigger change than before: the face cell is the body cell (C1), so a 32-cell face halves Raddis's and Syrinx's body cells too (0.19 and 0.17 studs, 75 cells tall).
 - On the Mac: `ResampleMode = Pixelated` on a real phone; the Bases cards and kanban views of `Creatures.base` (written by hand, unopened).

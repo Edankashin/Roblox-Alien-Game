@@ -9,7 +9,7 @@ status: review
 element: Pollen
 height: 2.37
 blocks: 15
-tris: 370
+tris: 362
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FFC83D", "#4A2F1F", "#FF6B9A", "#1A120C"]
@@ -21,6 +21,7 @@ sheet: "[[Buzzlebee_sheet.svg]]"
 render: "[[Buzzlebee_tq.jpg]]"
 glb: ""
 overlap: [0.995, 0.993, 0.998, 0.995]
+cells_render: "[[Buzzlebee_tq_cells.jpg]]"
 ---
 # Buzzlebee (Buzzik), Uncommon, World 1 Verdant
 
@@ -47,8 +48,8 @@ parts:
   - {name: Leg, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0.5, 0.1875, -0.5], mirror: x}
   - {name: Antenna, slot: BodyDark, size: [0.125, 0.75, 0.125], at: [0.625, 2, -0.625], rot: [0, 0, -20], mirror: x}
   # alien anatomy: four wings, a big pair angled up and a small pair behind, both on one pivot a side so they flap as one
-  - {name: Wing, slot: Accessory, size: [1, 0.125, 0.625], at: [0.8125, 1.8125, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5]}
-  - {name: HindWing, slot: Accessory, size: [0.75, 0.125, 0.5], at: [0.75, 1.625, 0.875], rot: [0, 0, 15], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5]}
+  - {name: Wing, slot: Accessory, size: [1, 0.125, 0.625], at: [0.8125, 1.8125, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5], material: crystal}
+  - {name: HindWing, slot: Accessory, size: [0.75, 0.125, 0.5], at: [0.75, 1.625, 0.875], rot: [0, 0, 15], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5], material: crystal}
   # the hero: a tiny pink backpack behind the wing roots, its cocoa flap folded over the front
   - {name: Backpack, slot: Accessory, size: [0.75, 0.625, 0.5], at: [0, 1.6875, 1.375]}
   - {name: Flap, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [0, 2.0625, 1.25]}
@@ -94,5 +95,12 @@ The concept sheet, drawn from the parts table above: [[Buzzlebee_sheet.svg]] (fl
 
 ![[Buzzlebee_views.png]]
 
+## Cells
+
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 19 cells tall; one atlas of 512 x 1024 at 8 texels a cell (86 islands). Materials: crystal on the four wings (light diagonals, so they read as wing membrane), skin elsewhere.
+
+![[Buzzlebee_tq_cells.jpg]]
+
 ## Reviews
 - 2026-10-17, loop 2 worker, three rounds. Round 1: a sky-blue accent: the blue crescent under each eye read as tears, and a dark lid over the pack lay on the wings like a board. Round 2: the accent went to pink (the crescents, the four wings, the pack) and the pack moved behind the wing roots with a small cocoa flap. Round 3: no change after the side-by-side. Overlap 0.993 to 0.998, 370 triangles, 15 blocks, 2.37 studs. Wanted for: four pink wings and a tiny backpack, the first creature that carries something. Still cheap: the pack reads as a pink box (straps do not fit in 15 blocks), and from the side the cocoa stripes darken the whole abdomen. Status review.
+- 2026-10-17, block-cell worker, three rounds (cells). At 1 : 2 : 1 jitter the yellow read as a sponge; at 1 : 6 : 1 with the grout it is a clean yellow of little blocks; the wings' diagonals read as shimmer. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.

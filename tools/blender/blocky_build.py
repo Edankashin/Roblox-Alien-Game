@@ -8,8 +8,10 @@ tools/blocky/sheet.py frames the views), so the board and the model come from on
     stud, no object scale); a bevelled mass is a box with the note's one bevel width and segments, and only masses are bevelled
   * mirrored parts come from spec.expand; static parts are merged into one mesh per slot (Body, BodyDark, Accessory, Trim, Glow); each moving
     part (spec.movers: a halo, a wing, an ear ...) stays its own object with its origin on its pivot, for the game's tweens (Decision B39)
-  * slot materials take the palette's colours; the Body slot carries the face as a texture, UV-mapped cell to cell on the head's front with
-    nearest filtering, every other Body face on a body-coloured cell
+  * every face of every block is box-projected onto the creature's one block-cell atlas (tools/blocky/cells.py, Decision B44): square cells
+    of the face's size on every block, a shade off the slot colour, darker at block edges, a motif per part `material`, the face drawn cell
+    for cell on the head's front; nearest filtering (the twin of ResampleMode Pixelated); faces hidden under another static block are culled.
+    --flat paints the same atlas in flat slot colours (the look before cells)
   * the GLB goes to --out (a scratch folder; never assets/models), faces -Y in Blender like every model in the repo, so the glTF is +Y up
 
 Renders (Cycles on the CPU): the four orthographic views in the sheet's frames (alpha masks; overlap with the sheet's masks is printed and written
@@ -22,7 +24,8 @@ src/shared/data/Effects.luau.
   $BPY tools/blender/blocky_build.py --lineup Mossbop.md,Thunderhog.md,Radish.md --out <scratch dir>     # all to scale beside a 5-stud avatar
 
 --sheet is where sheet.py wrote <Id>_mask_<view>.png (it is drawn first when missing). --write puts blocks, the measured triangles and the
-overlaps into the note's frontmatter. --samples, --size and --skip (ortho,tq,vfx) trim the renders.
+overlaps into the note's frontmatter. --samples, --size and --skip (ortho,tq,vfx) trim the renders; --suffix names the outputs
+(<Id>_tq<suffix>.png, for example _cells); --flat renders without cells.
 """
 from __future__ import annotations
 
@@ -39,11 +42,11 @@ import bpy  # noqa: E402  (first: bmesh and mathutils come with it)
 import bmesh  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
+import cells as C  # noqa: E402
 import raster  # noqa: E402
 import sheet as SH  # noqa: E402
 import spec as S  # noqa: E402
 
-FACE_PX = 16          # texture pixels per face cell (a nearest-neighbour upscale, so the face stays crisp even where filtering is bilinear)
 ROUGH = 0.55          # SmoothPlastic
 TRIM_ROUGH, TRIM_METAL = 0.3, 0.6
 GLOW_BUILD = 1.5      # emission strength in the GLB and the lit view (Neon in Studio)
@@ -65,32 +68,28 @@ def lin(hexcol, alpha=1.0):
     return (f(r), f(g), f(b), alpha)
 
 
-# ------------------------------------------------------------------------------------------------ materials and the face
-def face_image(spec, out_dir):
-    face = spec["face"]
-    rows = face["rows"]
-    cols, n = len(rows[0]), len(rows)
-    w, h = cols * FACE_PX, n * FACE_PX
-    img = bpy.data.images.new("%s_face" % spec["front"]["id"], w, h, alpha=False)
-    px = [0.0] * (w * h * 4)
-    cache = {}
-    for py in range(h):
-        r = n - 1 - py // FACE_PX
-        for pxx in range(w):
-            ch = rows[r][pxx // FACE_PX]
-            if ch not in cache:
-                cache[ch] = [c / 255.0 for c in S.hex_rgb(S.face_colour(spec, ch))] + [1.0]
-            k = (py * w + pxx) * 4
-            px[k:k + 4] = cache[ch]
-    img.pixels[:] = px
-    path = pathlib.Path(out_dir) / ("%s_face.png" % spec["front"]["id"])
-    img.filepath_raw = str(path)
-    img.file_format = "PNG"
-    img.save()
-    return img
+# ------------------------------------------------------------------------------------------------ the cell atlas and materials
+def cell_atlas(spec, parts, out_dir, name, cell=None, flat=False, px=None, grout=None, hidden_by=()):
+    """Plan, pack and paint the block-cell atlas of one creature or prop (tools/blocky/cells.py), save it as <name>_atlas.png and load it with
+    nearest filtering. Returns {'image', 'index': {(part, orient): island}, 'w', 'h', 'px', 'cell'}."""
+    cell = cell or C.creature_cell(spec)
+    px = C.PX if px is None else px
+    grout = C.GROUT if grout is None else grout
+    # `hidden_by`: boxes that are not built but hide faces (the diorama's floor under its ground)
+    isl = C.islands(parts, cell, statics=[p for p in parts if p["moves"] == "none"] + list(hidden_by))
+    w, h = C.pack(isl, px)
+    rgb = C.paint(isl, w, h, C.creature_colours(spec), C.face_cells(spec), px, grout=grout, flat=flat)
+    path = pathlib.Path(out_dir) / ("%s_atlas.png" % name)
+    raster.write_png(str(path), w, h, rgb, 3)
+    img = bpy.data.images.load(str(path), check_existing=False)
+    img.name = "%s_atlas" % name
+    return {"image": img, "index": {(i["part"], i["orient"]): i for i in isl}, "w": w, "h": h, "px": px, "cell": cell, "islands": isl}
 
 
-def make_material(name, hexcol, slot, image=None, glow=GLOW_BUILD):
+def make_material(name, hexcol, slot, image=None, glow=GLOW_BUILD, surface=None):
+    """A slot material. With `image` (the cell atlas) the base colour, and a Glow slot's emission, come from the texture, sampled with
+    nearest filtering (Closest, the Blender twin of SurfaceAppearance.ResampleMode = Pixelated). `surface` (cells.SURFACE) sets the
+    roughness and metal of a cell material (water and crystal glossy, ground matte)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -100,6 +99,9 @@ def make_material(name, hexcol, slot, image=None, glow=GLOW_BUILD):
     if slot == "Trim":
         bsdf.inputs["Roughness"].default_value = TRIM_ROUGH
         bsdf.inputs["Metallic"].default_value = TRIM_METAL
+    for key, socket in (("rough", "Roughness"), ("metal", "Metallic")):
+        if surface and key in surface:
+            bsdf.inputs[socket].default_value = surface[key]
     if slot == "Glow":
         bsdf.inputs["Emission Color"].default_value = lin(hexcol)
         bsdf.inputs["Emission Strength"].default_value = glow
@@ -109,12 +111,33 @@ def make_material(name, hexcol, slot, image=None, glow=GLOW_BUILD):
         tex.interpolation = "Closest"
         tex.extension = "EXTEND"
         nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        if slot == "Glow":
+            nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
     return mat
 
 
 # ------------------------------------------------------------------------------------------------ geometry
-def add_part(bm, part, pivot, mat_index, seg, width, uv, face=None):
-    """Add one expanded part to `bm` (Blender space, relative to `pivot`); return the new faces. `face` = (cols, rows, body uv) on the host."""
+def to_spec(b):
+    """Blender space back to spec space (the inverse of to_bl)."""
+    return Vector((-b[0], b[2], b[1]))
+
+
+def _local(part, p_spec):
+    """A spec-space point in the part's own frame: centred on `at`, the rotation undone."""
+    m = S.rot_matrix(part["rot"])
+    d = [p_spec[i] - part["at"][i] for i in range(3)]
+    return [sum(m[k][i] * d[k] for k in range(3)) for i in range(3)]  # R transposed
+
+
+def _local_dir(part, n_spec):
+    m = S.rot_matrix(part["rot"])
+    return [sum(m[k][i] * n_spec[k] for k in range(3)) for i in range(3)]
+
+
+def add_part(bm, part, pivot, mat_index, seg, width, uv, atlas=None):
+    """Add one expanded part to `bm` (Blender space, relative to `pivot`); return the new faces. With `atlas` (cell_atlas) every face is
+    box-projected onto its island (the box face its normal points through, in the part's own frame), so cells are square, the same size on
+    every block and on one grid; a plain box's faces that the atlas culled (hidden inside or under another static block) are not built."""
     off = to_bl(pivot)
     existing = set(bm.faces)
     if part["bevel"]:
@@ -137,7 +160,14 @@ def add_part(bm, part, pivot, mat_index, seg, width, uv, face=None):
         pts, idx = S.part_mesh(part)
         vs = [bm.verts.new(to_bl(p) - off) for p in pts]
         faces = []
+        plain = part["shape"] == "box" and not any(abs(a) > 1e-9 for a in part["rot"])
         for f in idx:
+            if atlas is not None and plain:
+                # the unit box's faces are in ORIENTS order of their normals; skip the ones the atlas culled
+                a, b, c = (Vector(pts[f[k]]) for k in range(3))
+                orient = C.orient_of(_local_dir(part, list((b - a).cross(c - a))))
+                if (part["name"], orient) not in atlas["index"]:
+                    continue
             try:
                 faces.append(bm.faces.new([vs[i] for i in f]))
             except ValueError:
@@ -147,41 +177,42 @@ def add_part(bm, part, pivot, mat_index, seg, width, uv, face=None):
     for f in faces:
         f.material_index = mat_index
         for loop in f.loops:
-            loop[uv].uv = face[2] if face else (0.5, 0.5)
-    if face is not None:
-        cols, rows, _ = face
-        w, h = part["size"][0], part["size"][1]
-        x_max = part["at"][0] + w / 2
-        y_min = part["at"][1] - h / 2
-        front_y = to_bl((0, 0, part["at"][2] - part["size"][2] / 2)).y - off.y
+            loop[uv].uv = (0.5, 0.5)
+    if atlas is not None:
         for f in faces:
             f.normal_update()
-            if f.normal.y < -0.999 and abs(f.calc_center_median().y - front_y) < 1e-4:
-                for loop in f.loops:
-                    co = loop.vert.co + off
-                    x_spec, y_spec = -co.x, co.z
-                    loop[uv].uv = ((x_max - x_spec) / w, (y_spec - y_min) / h)
+            orient = C.orient_of(_local_dir(part, list(to_spec(f.normal))))
+            island = atlas["index"].get((part["name"], orient))
+            if island is None:
+                continue
+            for loop in f.loops:
+                p_local = _local(part, to_spec(loop.vert.co + off))
+                u, v = C.project(orient, p_local, part["size"])
+                loop[uv].uv = C.uv(island, u, v, atlas["w"], atlas["h"], atlas["px"])
     return faces
 
 
-def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), prefix=""):
-    """Make the creature's objects in the current scene. Returns {'objects': [...], 'tris': n}."""
+def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), prefix="", flat=False, cell=None, rot=(0.0, 0.0, 0.0),
+          hidden_by=()):
+    """Make the creature's (or prop's) objects in the current scene, every face on its cell atlas. Returns {'objects': [...], 'tris': n,
+    'atlas': (w, h)}. `flat` paints the atlas in flat slot colours (the look before B44); `rot` (Blender XYZ Euler, radians) turns the whole
+    build about its origin before `offset` (Blender space) moves it; `hidden_by` (spec boxes) cull faces without being built."""
     front = spec["front"]
     sid = front["id"]
     seg = int(front.get("bevel_segments") or 2)
     width = float(front.get("bevel_width") or 0.0)
     parts = S.expand(spec["parts"])
     pal = S.palette(spec)
-    image = face_image(spec, out_dir) if spec.get("face") else None
-    host = S.face_host(spec)
-    rows = spec["face"]["rows"] if spec.get("face") else []
-    cols = len(rows[0]) if rows else 1
-    body_uv = (0.5 / cols, 1.0 - 0.5 / max(1, len(rows)))  # the top-left cell: the face border, always the head's own colour
+    atlas = cell_atlas(spec, parts, out_dir, prefix + sid, cell, flat, hidden_by=hidden_by)
     mats = {}
-    for slot in S.SLOTS:
-        role = S.SLOT_ROLE[slot]
-        if role in pal:
-            mats[slot] = make_material("%s%s_%s" % (prefix, sid, slot), pal[role], slot, image if slot == "Body" else None, glow)
+
+    def material_for(p):
+        key = (p["slot"], p["material"])
+        if key not in mats:
+            default = p["material"] == ("glow" if p["slot"] == "Glow" else C.DEFAULT_MATERIAL)
+            name = "%s%s_%s" % (prefix, sid, p["slot"]) + ("" if default else "_" + p["material"])
+            mats[key] = make_material(name, pal[S.SLOT_ROLE[p["slot"]]], p["slot"], atlas["image"], glow, C.SURFACE.get(p["material"]))
+        return mats[key]
     cycle_mats = []
     if cycle and front.get("glow_cycle"):
         cycle_mats = [make_material("%s%s_Glow%d" % (prefix, sid, i), h, "Glow", None, glow) for i, h in enumerate(front["glow_cycle"])]
@@ -199,14 +230,16 @@ def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), p
         uv = bm.loops.layers.uv.new("UVMap")
         slots_here = []
         for p in g["parts"]:
-            mat = mats[p["slot"]]
+            mat = material_for(p)
             if p["slot"] == "Glow" and cycle_mats:
                 mat = cycle_mats[glow_k % len(cycle_mats)]
                 glow_k += 1
             if mat not in slots_here:
                 slots_here.append(mat)
-            is_host = host is not None and p["source"] == host["name"]
-            add_part(bm, p, g["pivot"], slots_here.index(mat), seg, width, uv, (cols, len(rows), body_uv) if is_host else None)
+            add_part(bm, p, g["pivot"], slots_here.index(mat), seg, width, uv, atlas)
+        if not bm.faces:
+            bm.free()
+            continue
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
         mesh = bpy.data.meshes.new("%s%s_%s" % (prefix, sid, key))
         bm.to_mesh(mesh)
@@ -214,28 +247,27 @@ def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), p
         for m in slots_here:
             mesh.materials.append(m)
         obj = bpy.data.objects.new("%s%s" % (prefix, key), mesh)
-        obj.location = to_bl(g["pivot"]) + Vector(offset)
+        obj.location = to_bl(g["pivot"])
+        if any(rot):
+            obj.rotation_euler = tuple(rot)
+            obj.location = obj.rotation_euler.to_matrix() @ obj.location
+        obj.location += Vector(offset)
         bpy.context.scene.collection.objects.link(obj)
         mesh.calc_loop_triangles()
         tris += len(mesh.loop_triangles)
         objects.append(obj)
-    return {"objects": objects, "tris": tris, "groups": list(groups)}
+    return {"objects": objects, "tris": tris, "groups": list(groups), "atlas": (atlas["w"], atlas["h"]), "cell": atlas["cell"]}
 
 
-def avatar(offset, colour=SH.AVATAR_HEX):
-    mat = make_material("Avatar", colour, "Body")
-    bm = bmesh.new()
-    uv = bm.loops.layers.uv.new("UVMap")
-    for p in SH.avatar_parts():
-        add_part(bm, p, [0, 0, 0], 0, 1, 0.0, uv)
-    mesh = bpy.data.meshes.new("Avatar")
-    bm.to_mesh(mesh)
-    bm.free()
-    mesh.materials.append(mat)
-    obj = bpy.data.objects.new("Avatar", mesh)
-    obj.location = Vector(offset)
-    bpy.context.scene.collection.objects.link(obj)
-    return obj
+def avatar_spec(colour=SH.AVATAR_HEX):
+    """The 5-stud scale figure as a spec, so it goes through the same cell route (skin cells at the world cell)."""
+    return {"front": {"id": "Avatar", "palette": [colour], "roles": ["body"]}, "parts": SH.avatar_parts(), "face": None}
+
+
+def avatar(offset, colour=SH.AVATAR_HEX, out_dir=None, flat=False):
+    out_dir = out_dir or bpy.app.tempdir
+    made = build(avatar_spec(colour), out_dir, offset=offset, prefix="", flat=flat, cell=C.WORLD_CELL)
+    return made["objects"][0]
 
 
 # ------------------------------------------------------------------------------------------------ scene, cameras, renders
@@ -679,7 +711,7 @@ def export_glb(path):
         bpy.ops.export_scene.gltf(**kwargs)
 
 
-def run_one(note, sheet_dir, out_dir, size, samples, skip, write):
+def run_one(note, sheet_dir, out_dir, size, samples, skip, write, flat=False, suffix=""):
     spec = S.load(note)
     errors, _ = S.validate(spec)
     if errors:
@@ -694,10 +726,11 @@ def run_one(note, sheet_dir, out_dir, size, samples, skip, write):
         SH.write_all(spec, sheet_dir)
     # build and export
     scene = reset()
-    built = build(spec, out)
-    glb = out / ("%s.glb" % sid)
+    built = build(spec, out, flat=flat)
+    glb = out / ("%s%s.glb" % (sid, suffix))
     export_glb(glb)
-    print("%-12s built %d objects (%s), %d triangles -> %s" % (sid, len(built["objects"]), ", ".join(built["groups"]), built["tris"], glb), flush=True)
+    print("%-12s built %d objects (%s), %d triangles, cell %.4f studs, atlas %dx%d -> %s" % (
+        sid, len(built["objects"]), ", ".join(built["groups"]), built["tris"], built["cell"], built["atlas"][0], built["atlas"][1], glb), flush=True)
     result = {"tris": built["tris"], "glb": str(glb), "overlap": None}
     # the orthographic views and the silhouette check
     if "ortho" not in skip:
@@ -705,24 +738,24 @@ def run_one(note, sheet_dir, out_dir, size, samples, skip, write):
     # the lit three-quarter view
     if "tq" not in skip:
         scene = reset()
-        objs = build(spec, out)["objects"]
+        objs = build(spec, out, flat=flat)["objects"]
         cam, centre, extent = tq_camera(scene, objs)
         lit_setup(scene, size, samples, extent=extent, centre=centre)
         add_lights(scene, centre, extent)
-        scene.render.filepath = str(out / ("%s_tq.png" % sid))
+        scene.render.filepath = str(out / ("%s_tq%s.png" % (sid, suffix)))
         bpy.ops.render.render(write_still=True)
         print("%-12s %s" % (sid, scene.render.filepath), flush=True)
     # the VFX preview, Rare and up
     if "vfx" not in skip and S.TIER_ORDER.index(tier) >= S.TIER_ORDER.index("Rare"):
         scene = reset()
-        objs = build(spec, out, cycle=True, glow=GLOW_VFX)["objects"]
+        objs = build(spec, out, cycle=True, glow=GLOW_VFX, flat=flat)["objects"]
         extra = vfx_layers(spec, objs, tier)
         if S.TIER_ORDER.index(tier) >= S.TIER_ORDER.index("Cosmic"):
             # the turning disk is the hero: in the preview its gold is lit as well as its rays
             for o in objs:
                 if o.name.startswith("halo"):
                     for i, m in enumerate(o.data.materials):
-                        if m.name.endswith("_Trim"):
+                        if "_Trim" in m.name:
                             lit = m.copy()
                             b = next(n for n in lit.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
                             b.inputs["Emission Color"].default_value = b.inputs["Base Color"].default_value
@@ -738,7 +771,7 @@ def run_one(note, sheet_dir, out_dir, size, samples, skip, write):
             pass
         glare(scene)
         label(scene, cam, "VFX PREVIEW (Blender) - in game the effects come from Effects.luau", 0.028)
-        scene.render.filepath = str(out / ("%s_vfx.png" % sid))
+        scene.render.filepath = str(out / ("%s_vfx%s.png" % (sid, suffix)))
         bpy.ops.render.render(write_still=True)
         print("%-12s %s" % (sid, scene.render.filepath), flush=True)
     if write:
@@ -751,12 +784,12 @@ def run_one(note, sheet_dir, out_dir, size, samples, skip, write):
     return 0
 
 
-def run_lineup(notes, out_dir, size, samples):
+def run_lineup(notes, out_dir, size, samples, flat=False, suffix=""):
     """Every creature to scale in one row beside the 5-stud avatar, lit, a gentle three-quarter view."""
     scene = reset()
     out = pathlib.Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    objs = [avatar((0, 0, 0))]
+    objs = [avatar((0, 0, 0), out_dir=out, flat=flat)]
     gap = 1.5
     x = 2.0 + gap  # the avatar is 4 studs wide; the camera looks from -Y, so +X is to the right on screen
     tallest = 5.0
@@ -765,7 +798,7 @@ def run_lineup(notes, out_dir, size, samples):
         lo, hi = S.bounds(S.expand(spec["parts"]))
         w = hi[0] - lo[0]
         x += w / 2
-        made = build(spec, out, offset=(x, 0.0, 0.0), prefix="L")
+        made = build(spec, out, offset=(x, 0.0, 0.0), prefix="L", flat=flat)
         objs += made["objects"]
         x += w / 2 + gap
         tallest = max(tallest, hi[1])
@@ -776,7 +809,7 @@ def run_lineup(notes, out_dir, size, samples):
     add_lights(scene, centre, extent)
     scene.render.resolution_x = int(size * aspect)
     scene.render.resolution_y = size
-    scene.render.filepath = str(out / "lineup.png")
+    scene.render.filepath = str(out / ("lineup%s.png" % suffix))
     bpy.ops.render.render(write_still=True)
     print("lineup %s" % scene.render.filepath, flush=True)
     return 0
@@ -793,15 +826,17 @@ def main():
     ap.add_argument("--skip", default="", help="comma list of ortho, tq, vfx")
     ap.add_argument("--write", action="store_true", help="write blocks, triangles and overlaps into the note")
     ap.add_argument("--lineup", default="", help="comma list of notes rendered side by side to scale with the avatar")
+    ap.add_argument("--flat", action="store_true", help="flat slot colours, no cells (the look before B44)")
+    ap.add_argument("--suffix", default="", help="added to every output name, e.g. _cells")
     a = ap.parse_args(argv)
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models: builds go to a scratch folder until Ethan approves a sheet (B43)")
         return 2
     if a.lineup:
-        return run_lineup([n for n in a.lineup.split(",") if n], a.out, a.size, a.samples)
+        return run_lineup([n for n in a.lineup.split(",") if n], a.out, a.size, a.samples, a.flat, a.suffix)
     rc = 0
     for note in [n for n in a.spec.split(",") if n]:
-        rc |= run_one(note, a.sheet, a.out, a.size, a.samples, set(a.skip.split(",")), a.write)
+        rc |= run_one(note, a.sheet, a.out, a.size, a.samples, set(a.skip.split(",")), a.write, a.flat, a.suffix)
     return rc
 
 

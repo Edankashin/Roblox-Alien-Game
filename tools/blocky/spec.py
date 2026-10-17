@@ -45,6 +45,9 @@ SHAPES = ("box", "wedge", "cone6", "ico1")
 SHAPE_TRIS = {"box": 12, "wedge": 8, "cone6": 10, "ico1": 20}
 BEVEL_TRIS = {1: 44, 2: 108}  # a bevelled box, measured in Blender 5.0.1 (the report)
 MOVES = ("none", "wing", "tail", "ear", "halo", "sprout", "antenna", "crest", "float", "jaw")
+# the cell material of a part (Blocky-Style "Cells", Decision B44): its motif in the block-cell texture (tools/blocky/cells.py)
+MATERIALS = ("skin", "moss", "grass", "dirt", "stone", "metal", "crystal", "wood", "water", "glow", "wool")
+DEFAULT_MATERIAL = "skin"   # a Glow slot part defaults to glow
 STATUSES = ("concept", "board", "build", "review", "approved")
 # rule 6, the ladder: blocks and height (studs) per tier, and how many flat colours
 TIERS = {
@@ -62,6 +65,8 @@ TIER_ORDER = tuple(TIERS)
 HOUSE_EYE_L = (".kk.", "kwkk", "kwkk", "kkkk", "kgwk", ".gg.")
 HOUSE_EYE_R = tuple(row[::-1] for row in HOUSE_EYE_L)
 REQUIRED_FRONT = ("id", "name", "world", "tier", "status", "height", "blocks", "tris", "palette", "roles", "hero", "artboard", "render", "glb")
+# a prop note (07-alien-game/Props/<Id>.md, `kind: prop`): the same parts table, no face, no tier; it stands on y = 0
+REQUIRED_PROP = ("id", "name", "world", "kind", "status", "blocks", "tris", "palette", "roles")
 
 
 class SpecError(ValueError):
@@ -310,11 +315,12 @@ def _vec(value, name, field, n=3):
 
 
 def normalise(raw, index=0):
-    """One part with every field filled in (defaults: rot 0, bevel false, mirror none, shape box, moves none)."""
+    """One part with every field filled in (defaults: rot 0, bevel false, mirror none, shape box, moves none, material skin, or glow on a
+    Glow slot)."""
     if not isinstance(raw, dict):
         raise SpecError("part %d is not a mapping: %r" % (index, raw))
     name = str(raw.get("name") or "part%d" % index)
-    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot"}
+    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot", "material"}
     extra = set(raw) - known
     if extra:
         raise SpecError("%s: unknown field(s) %s" % (name, ", ".join(sorted(extra))))
@@ -329,6 +335,7 @@ def normalise(raw, index=0):
         "shape": str(raw.get("shape", "box")),
         "moves": str(raw.get("moves", "none")),
         "pivot": _vec(raw["pivot"], name, "pivot") if raw.get("pivot") is not None else None,
+        "material": str(raw.get("material") or ("glow" if raw.get("slot") == "Glow" else DEFAULT_MATERIAL)),
     }
     return part
 
@@ -537,8 +544,14 @@ def _tilt(angle):
     return abs(r)
 
 
+def is_prop(spec):
+    return str(spec["front"].get("kind", "")) == "prop"
+
+
 def validate(spec):
     """(errors, warnings): lists of strings, each naming the Blocky-Style rule it breaks."""
+    if is_prop(spec):
+        return validate_prop(spec)
     errors, warnings = [], []
     front, parts_in = spec["front"], spec["parts"]
     err = errors.append
@@ -569,12 +582,7 @@ def validate(spec):
             err("%s: slot %r is not one of %s" % (n, p["slot"], ", ".join(SLOTS)))
         elif pal and SLOT_ROLE[p["slot"]] not in pal:
             err("rule 4: %s: slot %s needs the palette role `%s`" % (n, p["slot"], SLOT_ROLE[p["slot"]]))
-        if p["shape"] not in SHAPES:
-            err("%s: shape %r is not one of %s" % (n, p["shape"], ", ".join(SHAPES)))
-        if p["mirror"] not in ("x", "none"):
-            err("%s: mirror %r is not x or none" % (n, p["mirror"]))
-        if p["mirror"] == "x" and abs(p["at"][0]) < 1e-9:
-            err("%s: mirrored across x but centred on x = 0" % n)
+        _part_checks(p, err)
         if p["moves"] not in MOVES:
             err("%s: moves %r is not one of %s" % (n, p["moves"], ", ".join(MOVES)))
         if p["moves"] != "none" and p["pivot"] is None:
@@ -583,26 +591,8 @@ def validate(spec):
             err("%s: a pivot on a part that does not move" % n)
         if min(p["size"]) <= 0:
             err("%s: every size must be positive" % n)
-        tilted = False
-        for i, angle in enumerate(p["rot"]):
-            t = _tilt(angle)
-            if t > 1e-6:
-                tilted = True
-                if not TILT_MIN - 1e-6 <= t <= TILT_MAX + 1e-6:
-                    err("rule 1: %s: rot %s %g is a tilt of %g degrees; a tilt is %g to %g off a quarter turn" % (n, "xyz"[i], angle, t, TILT_MIN, TILT_MAX))
-        step = GRID if p["bevel"] else HALF
-        for i, axis in enumerate("xyz"):
-            if not _on(p["size"][i], step):
-                err("rule 2: %s: size %s = %g is off the %g grid" % (n, axis, p["size"][i], step))
-            if tilted:
-                # a tilted appendage's faces cannot sit on the grid; its centre sits on the sixteenth grid so it can meet its root
-                if not _on(p["at"][i], TILT_SNAP):
-                    err("rule 2: %s: a tilted part's centre %s = %g is off the %g grid" % (n, axis, p["at"][i], TILT_SNAP))
-                continue
-            for face_pos in (p["at"][i] - p["size"][i] / 2, p["at"][i] + p["size"][i] / 2):
-                if not _on(face_pos, HALF):
-                    err("rule 2: %s: its %s face at %g is off the %g half grid" % (n, axis, face_pos, HALF))
-                    break
+        # a tilted appendage's faces cannot sit on the grid; its centre sits on the sixteenth grid so it can meet its root
+        _grid_checks(p, err)
         if p["bevel"]:
             if p["shape"] != "box":
                 err("rule 1: %s: only a box mass is bevelled" % n)
@@ -687,6 +677,101 @@ def validate(spec):
     if hero and hero not in names:
         err("rule 1: hero %r is not a part name" % hero)
     errors += validate_face(spec, host)
+    return errors, warnings
+
+
+def _part_checks(p, err):
+    """Shape, mirror and cell material: the checks a creature part and a prop part share."""
+    n = p["name"]
+    if p["shape"] not in SHAPES:
+        err("%s: shape %r is not one of %s" % (n, p["shape"], ", ".join(SHAPES)))
+    if p["mirror"] not in ("x", "none"):
+        err("%s: mirror %r is not x or none" % (n, p["mirror"]))
+    if p["mirror"] == "x" and abs(p["at"][0]) < 1e-9:
+        err("%s: mirrored across x but centred on x = 0" % n)
+    if p.get("material", DEFAULT_MATERIAL) not in MATERIALS:
+        err("cells: %s: material %r is not one of %s" % (n, p.get("material"), ", ".join(MATERIALS)))
+
+
+def _grid_checks(p, err):
+    """Rule 1's tilt and rule 2's grid for one part (masses on the quarter grid, faces on the half grid, a tilted centre on the sixteenth)."""
+    n = p["name"]
+    tilted = False
+    for i, angle in enumerate(p["rot"]):
+        t = _tilt(angle)
+        if t > 1e-6:
+            tilted = True
+            if not TILT_MIN - 1e-6 <= t <= TILT_MAX + 1e-6:
+                err("rule 1: %s: rot %s %g is a tilt of %g degrees; a tilt is %g to %g off a quarter turn" % (n, "xyz"[i], angle, t, TILT_MIN, TILT_MAX))
+    step = GRID if p["bevel"] else HALF
+    for i, axis in enumerate("xyz"):
+        if not _on(p["size"][i], step):
+            err("rule 2: %s: size %s = %g is off the %g grid" % (n, axis, p["size"][i], step))
+        if tilted:
+            if not _on(p["at"][i], TILT_SNAP):
+                err("rule 2: %s: a tilted part's centre %s = %g is off the %g grid" % (n, axis, p["at"][i], TILT_SNAP))
+            continue
+        for face_pos in (p["at"][i] - p["size"][i] / 2, p["at"][i] + p["size"][i] / 2):
+            if not _on(face_pos, HALF):
+                err("rule 2: %s: its %s face at %g is off the %g half grid" % (n, axis, face_pos, HALF))
+                break
+
+
+def validate_prop(spec):
+    """(errors, warnings) for a prop note: the parts rules a creature shares (slots, shapes, materials, the grid, the tilt, bevel on boxes
+    only, moving parts on a pivot), its palette roles, standing on y = 0, the triangle cap. No face, tier, head or legs."""
+    errors, warnings = [], []
+    front, parts_in = spec["front"], spec["parts"]
+    err = errors.append
+    for key in REQUIRED_PROP:
+        if key not in front:
+            err("frontmatter: missing `%s`" % key)
+    if front.get("status") not in STATUSES:
+        err("frontmatter: status %r is not one of %s" % (front.get("status"), ", ".join(STATUSES)))
+    names = [p["name"] for p in parts_in]
+    for n in sorted({n for n in names if names.count(n) > 1}):
+        err("parts: the name %s is used twice" % n)
+    try:
+        pal = palette(spec)
+    except SpecError as exc:
+        err("rule 4: %s" % exc)
+        pal = {}
+    for r in pal:
+        if r not in ROLES:
+            err("rule 4: unknown palette role `%s`" % r)
+    bevelled = [p for p in parts_in if p["bevel"]]
+    if bevelled and (front.get("bevel_segments") not in (1, 2) or not isinstance(front.get("bevel_width"), (int, float))):
+        err("rule 1: a prop with bevelled parts needs bevel_width and bevel_segments (1 or 2)")
+    for p in parts_in:
+        n = p["name"]
+        if p["slot"] not in SLOTS:
+            err("%s: slot %r is not one of %s" % (n, p["slot"], ", ".join(SLOTS)))
+        elif pal and SLOT_ROLE[p["slot"]] not in pal:
+            err("rule 4: %s: slot %s needs the palette role `%s`" % (n, p["slot"], SLOT_ROLE[p["slot"]]))
+        _part_checks(p, err)
+        if p["moves"] not in MOVES:
+            err("%s: moves %r is not one of %s" % (n, p["moves"], ", ".join(MOVES)))
+        if p["moves"] != "none" and p["pivot"] is None:
+            err("rule 8: %s moves (%s) but has no pivot" % (n, p["moves"]))
+        if min(p["size"]) <= 0:
+            err("%s: every size must be positive" % n)
+        _grid_checks(p, err)
+        if p["bevel"] and (p["shape"] != "box" or any(abs(a) > 1e-9 for a in p["rot"])):
+            err("rule 1: %s: only an axis-aligned box is bevelled" % n)
+    if errors:
+        return errors, warnings
+    c = counts(spec)
+    if abs(c["bottom"]) > 1e-6:
+        err("rule 2: the lowest point is at y = %.3f; a prop stands on y = 0" % c["bottom"])
+    height = front.get("height")
+    if height is not None and (not isinstance(height, (int, float)) or abs(height - c["height"]) > 0.011):
+        err("rule 2: frontmatter height %r does not match the tallest point %.2f" % (height, c["height"]))
+    if c["tris"] > TRI_CAP:
+        err("rule 1: %d triangles; the cap is %d" % (c["tris"], TRI_CAP))
+    if c["movers"] > MOVERS_MAX:
+        err("rule 8: %d moving objects; at most %d" % (c["movers"], MOVERS_MAX))
+    if "body" in pal and "second" in pal and abs(lstar(pal["body"]) - lstar(pal["second"])) < LSTAR_GAP[("body", "second")]:
+        warnings.append("rule 4: body and second are %.0f apart in greyscale (L*)" % abs(lstar(pal["body"]) - lstar(pal["second"])))
     return errors, warnings
 
 
@@ -819,7 +904,7 @@ def main(argv=None):
             continue
         c = counts(spec)
         print("%-12s %-9s blocks %3d  tris %4d (estimate)  height %.2f  masses %d  movers %d" % (
-            spec["front"].get("id"), spec["front"].get("tier"), c["blocks"], c["tris"], c["height"], c["masses"], c["movers"]))
+            spec["front"].get("id"), spec["front"].get("tier") or "prop", c["blocks"], c["tris"], c["height"], c["masses"], c["movers"]))
         for e in errors:
             print("  error: " + e)
         for w in warnings:
