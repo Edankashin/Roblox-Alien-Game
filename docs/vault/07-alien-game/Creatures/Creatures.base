@@ -1,0 +1,77 @@
+# The creature roster: one card per spec note in this folder (Blocky-Style.md, "The spec note format").
+# Written by hand from the Bases syntax help (filters, formulas, properties, views); the Mac opens it in Obsidian 1.14 or later (kanban needs 1.14).
+filters:
+  and:
+    - file.inFolder("07-alien-game/Creatures")
+    - 'file.ext == "md"'
+formulas:
+  # the card picture: the render once there is one, else the body colour (Cards view takes a hex code as an image)
+  cover: 'if(render, render, palette[0])'
+  # the tier as a sortable rung, so the groups run Common to Secret instead of alphabetically
+  rung: 'if(tier == "Common", "1 Common", if(tier == "Uncommon", "2 Uncommon", if(tier == "Rare", "3 Rare", if(tier == "Epic", "4 Epic", if(tier == "Legendary", "5 Legendary", if(tier == "Cosmic", "6 Cosmic", "7 Secret"))))))'
+  budget: 'if(tris, (tris / 2500 * 100).round() + "%", "")'
+properties:
+  note.name:
+    displayName: Name
+  note.tier:
+    displayName: Tier
+  note.world:
+    displayName: World
+  note.status:
+    displayName: Status
+  note.height:
+    displayName: Height (studs)
+  note.blocks:
+    displayName: Blocks
+  note.tris:
+    displayName: Triangles
+  note.hero:
+    displayName: Hero block
+  formula.rung:
+    displayName: Rung
+  formula.budget:
+    displayName: Of the 2,500 cap
+views:
+  - type: cards
+    name: Roster by tier
+    groupBy:
+      property: formula.rung
+      direction: ASC
+    order:
+      - note.name
+      - file.name
+      - note.tier
+      - note.height
+      - note.blocks
+      - note.tris
+      - note.status
+    image: formula.cover
+    imageFit: contain
+  - type: kanban
+    name: Pipeline
+    groupBy:
+      property: note.status
+      direction: ASC
+    order:
+      - note.name
+      - note.tier
+      - note.status
+  - type: table
+    name: Budgets
+    groupBy:
+      property: formula.rung
+      direction: ASC
+    order:
+      - file.name
+      - note.name
+      - note.tier
+      - note.world
+      - note.height
+      - note.blocks
+      - note.tris
+      - formula.budget
+      - note.hero
+      - note.status
+    summaries:
+      note.tris: Max
+      note.blocks: Max
