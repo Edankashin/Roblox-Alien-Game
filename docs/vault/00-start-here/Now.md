@@ -5,7 +5,7 @@ up: "[[Start-Here]]"
 ---
 # Now
 
-The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-10-16.
+The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-10-17.
 
 **The game.** Catch an Alien (working title AlienGame in code): crash-land on a planet, catch cute aliens with a timing-bar minigame, they work at camp and build a ship, the ship flies to the next themed world. One currency, Scrap, never sold for Robux. Luau strict, Rojo, server authority; Ethan, a collaborator and Claude sessions.
 
@@ -14,7 +14,7 @@ The hot note: read this first on every start, then the notes it points to. Keep 
 **The bar.** Creatures: "seamless, fluid, complete, not shapes mashed together", with the goofy eyes and open mouth kept. UI: one token system (thick outlines, Fredoka One, gloss, standard rarity colours) that passes the phone rules. The seven decisions of this turn are [[Decisions]] B27 to B33.
 
 **Three open threads.**
-1. **Creatures.** One connected skin per species by the hybrid fuse, the rarer ones fiercer or grander (B42). Design pass batches 1 and 2 (16 species) are on sheets for Ethan ([[Design-Pass]], [[Decide-Now]] 12, 37, 38); batches 3 and 4 follow; heroes (Fenrir first) go by hand (item 11). Nothing replaces a model until Ethan says yes. [[Character-Pipeline]], [[Sculpt-Pass]].
+1. **Creatures.** Ethan rejected the smooth recipe redesigns (2026-10-17, [[Decisions]] B43): the style is **blocky**, as in popular Roblox pet games, and rarer aliens get more detail, more height and VFX so they feel worth finding (not fiercer). Every design goes Obsidian spec (parts table in studs) to a Claude Design concept sheet ([Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD)) to a headless Blender build checked against the sheet. Research: `reports/Blocky Roblox pet design.md`. First loop: the style bible, the spec format and Moop, Voltus and Raddis across the ladder. Nothing replaces a model until Ethan says yes.
 2. **UI.** The Claude Design canvas holds the HUD, Aliens, Shop and the reveal in three beats. Ethan picks a board, a worker rebuilds it in Luau, the Playbook changes in the same commit. [[UI-Playbook]] ("Phone rules from the design research"), [[Claude-Design-Brief]].
 3. **Vault connection.** Hooks and the Obsidian Local REST API plugin with the CLI are proposals for Ethan to apply on the Mac; the Mac then verifies. [[Setup-and-Tips]], [[Tools-Status]].
 
