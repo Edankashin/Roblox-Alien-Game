@@ -188,6 +188,7 @@ Built on 2026-10-15 from Ethan's own words in [[Transcripts]] (every `Ethan:` bl
 | # | Ethan (shortened) | Kind | Status | Where |
 |---|---|---|---|---|
 | 1 | I don't like these designs; not fiercer with rarity; too simplistic, not high enough quality; a blocky look like popular Roblox games (research what blocky means); rarer aliens get more detail and height and feel worth finding; VFX with them; every design done with a mix of Claude Design, Blender and Obsidian | decision, ask | in progress: B43 recorded; the research on the blocky style running; then the style note, Claude Design concept boards and Blender prototypes across the tiers | [[Decisions]] B43, [[Decide-Now]] |
+| 2 | Continue; this looks pretty nice; landscape, characters and everything consistent; characters made of little blocky texture; consistent throughout the whole game | decision, ask | in progress: B44; the cell texture system on the seven aliens and a matching World 1 landscape sample, then the canvas board | [[Decisions]] B44, [[Blocky-Style]] |
 
 ## References Ethan sent
 
