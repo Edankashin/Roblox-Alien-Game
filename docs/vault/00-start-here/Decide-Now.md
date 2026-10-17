@@ -9,7 +9,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 > **Answered 2026-10-17 ([[Decisions]] B43).** Ethan rejected the redesigns: the look becomes blocky, as in popular Roblox games; rarer aliens get more detail, more height and VFX (not a fiercer face); every design goes through Claude Design, Blender and Obsidian. So items **12, 37, 39 and 40 are closed** (the recipe redesigns are not the direction) and **38 is answered yes** (more detail and height with rank). Items 11 (the hero route) and 9 (the hero slate) now wait on the blocky style note. Everything else stands.
 
-**How to answer.** 40 items in six groups (37 to 40 added 2026-10-16). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 41 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -227,6 +227,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**.
 - Then: same as item 37: nothing changes under `assets/models/` until you say yes to a sheet.
 
+**41. The blocky ladder: is this the look?** Seven World 1 aliens, one per rung, built through the new route (an Obsidian spec note per creature, a measured sheet on the Claude Design canvas [Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD), a Blender build checked against it): Moop, Buzzik, Vixa, Voltus, Gaira, Raddis and Syrinx, from 2.4 to 14 studs beside a 5-stud avatar, 10 to 141 blocks, effects previews from Rare up (`media/studio/2026-10-17/blocky_ladder_v2.jpg`; [[Blocky-Style]]).
+- Options: a) yes: roll the style across the rest of World 1, then World 2, a world per loop, each on the canvas first; b) yes with changes (name them: the face, the proportions, a creature); c) no: closer to another reference (name it).
+- Recommend: **a**, with the open fixes in the next loop (Moop's moss painted on the head, Buzzik's backpack straps, more at Rare than a soft light, Gaira's pale body and snout, Raddis's side profile, a brighter accent on Syrinx).
+- Then: the next loop builds the remaining World 1 species; nothing goes under `assets/models/` until you say yes to a sheet.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -281,4 +286,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 38: a* ladder bands | b all 2,400 | c Commons 1,600
 39: a* builder's verdicts, fixes already running | b per species | c later
 40: a* take six, fix Twiglo | b per species | c later
+41: a* yes, roll it out | b yes with changes | c no
 ```
