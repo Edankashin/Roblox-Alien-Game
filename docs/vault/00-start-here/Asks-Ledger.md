@@ -183,6 +183,12 @@ Built on 2026-10-15 from Ethan's own words in [[Transcripts]] (every `Ethan:` bl
 |---|---|---|---|---|
 | 1 | "Try again" (after a stopped turn) | ask | done: the batch 2 merge resumed and pushed (26a46cc), the sheet sent | [[Design-Pass]] |
 
+## 2026-10-17
+
+| # | Ethan (shortened) | Kind | Status | Where |
+|---|---|---|---|---|
+| 1 | I don't like these designs; not fiercer with rarity; too simplistic, not high enough quality; a blocky look like popular Roblox games (research what blocky means); rarer aliens get more detail and height and feel worth finding; VFX with them; every design done with a mix of Claude Design, Blender and Obsidian | decision, ask | in progress: B43 recorded; the research on the blocky style running; then the style note, Claude Design concept boards and Blender prototypes across the tiers | [[Decisions]] B43, [[Decide-Now]] |
+
 ## References Ethan sent
 
 Every link, by the day he sent it. *Downloaded* is the file in `media/tiktok/` (an mp4, or a folder of slides for a photo post), fetched on the Mac because the cloud cannot reach tiktok.com. *Processed* is `tools/watch_video.py` (contact sheets and a transcript, scratch under `media/tiktok/out/`) or a slide-by-slide read. *Noted* is a section in `media/tiktok/NOTES.md`. YouTube: he sent no links; the research of 2026-10-15 cites YouTube tutorials and their captions are overnight job 28 (partial, rate-limited).
