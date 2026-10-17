@@ -16,7 +16,7 @@ palette: ["#6CCB5F", "#2F7A4B", "#D9F36B", "#142019"]
 roles: [body, second, accent, ink]
 hero: Leaf
 vfx: "none (Common): the sprout's two leaves unfurl and fold every 6 s, a procedural move of the sprout part; no particles, no light"
-artboard: ""
+artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Mossbop_sheet.svg]]"
 render: "[[Mossbop_tq.jpg]]"
 glb: ""

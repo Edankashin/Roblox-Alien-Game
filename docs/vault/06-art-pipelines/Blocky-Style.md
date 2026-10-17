@@ -5,6 +5,8 @@ up: "[[Art-Pipelines]]"
 ---
 # Blocky style bible: the rules every creature is drawn, built and checked by
 
+The concept boards live on the Claude Design canvas [Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD): the ladder board, then one board per creature with its measured sheet, the build and the effects preview.
+
 2026-10-17. Ethan rejected the smooth sculpted aliens ("too simplistic and not high enough quality") and asked for "a blocky type of look like in a lot of popular roblox games"; "rarer aliens should get more detail and height too. They should feel worth it to find compared to common ones. There should also be vfx with them. All the designs of everything should be done using a mix of Claude design, blender, and obsidian." That is [[Decisions]] B43. This note turns the research report `reports/Blocky Roblox pet design.md` into nine numbered rules, each with a number to check and a do and a don't, and the pipeline that applies them. Moving parts follow B39 (separate pieces the game tweens, no rig); surfaces follow B41 (flat colour, no grain). Each species' element and signature effect: [[Roster-Redesign]] section 2. The three prototypes: [[Mossbop]] (Common), [[Thunderhog]] (Epic), [[Radish]] (Cosmic). The roster view: `Creatures/Creatures.base` in [[Alien-Game]].
 
 **Status: proposal for Ethan's yes.** Nothing under `assets/models` changes until he approves a sheet (B43). `tools/blocky/spec.py` checks every rule that is marked *(checked)*; the rest are for the review at the board.

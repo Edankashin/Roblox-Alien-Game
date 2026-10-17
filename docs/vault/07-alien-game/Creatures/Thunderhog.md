@@ -17,7 +17,7 @@ roles: [body, second, trim, glow, ink]
 hero: Crest
 arcs: ["Crest>QuillR", "Crest>QuillL", "Crest>Quill2R"]
 vfx: "kept on the body: the crest's lit tip and the tail tip glow; an arc jumps from the crest tip to a quill tip every 2 s (a Beam, three flickers); sparks leave the tips at 6 a second; a violet light; in Rain the arcs come every 1 s"
-artboard: ""
+artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Thunderhog_sheet.svg]]"
 render: "[[Thunderhog_tq.jpg]]"
 glb: ""

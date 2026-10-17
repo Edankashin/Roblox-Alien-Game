@@ -18,7 +18,7 @@ glow_cycle: ["#FFE36B", "#FF9F45", "#FFF8DC"]
 hero: RingT
 vfx: "to the sky: the rays, the orb, the forehead gem and the wing tips glow and step through gold, amber and white every 2 s; the halo turns once in 8 s; gold motes orbit at 1.5 studs; a ground ring of light; a sunlight trail while it hovers; the flourish is a flare and a column of light from the orb"
 ride: "Hover; the rider sits on the flat front half of the head top (5.5 by 3 studs, 10.5 studs up), in front of the leaves and under the orb"
-artboard: ""
+artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Radish_sheet.svg]]"
 render: "[[Radish_tq.jpg]]"
 glb: ""
