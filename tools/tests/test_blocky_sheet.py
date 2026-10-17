@@ -198,7 +198,7 @@ class Sheet(unittest.TestCase):
         for a, b in zip(list(SH.VIEWS) + ["avatar"], (list(SH.VIEWS) + ["avatar"])[1:]):
             self.assertLessEqual(L["panels"][a]["x"] + L["panels"][a]["w"], L["panels"][b]["x"] + 1e-6)
         self.assertGreater(L["scale"], 0)
-        self.assertAlmostEqual(L["height"], 3.75)
+        self.assertAlmostEqual(L["height"], 3.875)
 
     def test_svg_sheet_has_every_view_and_the_numbers(self):
         spec = S.load(CREATURES / "Mossbop.md")

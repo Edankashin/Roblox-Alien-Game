@@ -7,32 +7,34 @@ world: 1
 tier: Epic
 status: review
 element: Lightning
-height: 3.75
-blocks: 47
-tris: 732
+height: 3.875
+blocks: 52
+tris: 812
 bevel_width: 0.125
 bevel_segments: 2
-palette: ["#8B5CF6", "#2E1F66", "#FFC233", "#FFF27A", "#160F2E"]
-roles: [body, second, trim, glow, ink]
+palette: ["#8B5CF6", "#2E1F66", "#D4C6FF", "#FFC233", "#FFF27A", "#160F2E"]
+roles: [body, second, accent, trim, glow, ink]
 hero: Crest
-arcs: ["Crest>QuillR", "Crest>QuillL", "Crest>Quill2R"]
+arcs: ["Crest>AntennaTipR", "Crest>AntennaTipL", "Crest>TailTip"]
 vfx: "kept on the body: the crest's lit tip and the tail tip glow; an arc jumps from the crest tip to a quill tip every 2 s (a Beam, three flickers); sparks leave the tips at 6 a second; a violet light; in Rain the arcs come every 1 s"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Thunderhog_sheet.svg]]"
 render: "[[Thunderhog_tq.jpg]]"
 glb: ""
-overlap: [0.997, 0.995, 0.997, 0.997]
+overlap: [0.996, 0.998, 0.997, 0.996]
 vfx_render: "[[Thunderhog_vfx.jpg]]"
 ---
 # Thunderhog (Voltus), Epic, World 1 Verdant
 
-A storm hedgehog on six stubby legs (an alien hexapod), with one big stepped lightning bolt standing on its back and leaning forward over its head, lit at the tip, dark hedgehog quills either side of it, a gold collar and anklets, a dark stripe, a stepped gold bolt on each flank and a lit bolt for a tail. Concept row: "hedgehog, lightning quills". Element and effect: [[Roster-Redesign]] section 2 (Lightning: arcs between quills, sparks off the tips, a violet light). Rules: [[Blocky-Style]].
+A storm hedgehog on six stubby legs (an alien hexapod), each foot a dark block with two lavender toes, and two lightning-rod antennae with lit bulbs where a hedgehog has ears. One big lightning bolt stands on its back: a zigzag seen from the front, a forward lean seen from the side, gold below and lit in its top rows. Its long body is banded like a hedgehog's: a dark quill coat over the top with dark cone quills either side of the bolt, violet flanks carrying a stepped gold bolt, a lavender belly plate underneath, and a gold collar behind the head; a lit bolt for a tail. Concept row: "hedgehog, lightning quills". Element and effect: [[Roster-Redesign]] section 2 (Lightning: arcs, sparks off the tips, a violet light). Rules: [[Blocky-Style]].
 
-**What makes a player want it.** It is the first creature in Verdant whose silhouette has a crown: a lightning bolt rising a stud and a half over its back, lit at the tip, so it reads as "charged" from across the meadow while the face under them stays the same soft house face. Gold trim and the flank emblem are the Epic rung's detail (bands, stripes, a stepped emblem); the glow stays on the body, as the ladder says an Epic's effects do.
+**What makes a player want it.** It is the first creature in Verdant whose silhouette has a crown: a bolt rising a stud and a half over its back and two lit antennae, with arcs jumping between them, so it reads as "charged" from across the meadow while the face under them stays the same soft house face. The banded body (coat, flank, belly, collar) and the flank emblem are the Epic rung's detail; the glow stays on the body, as the ladder says an Epic's effects do.
 
-**Hero block.** The `Crest`: a seven-row pixel lightning bolt (a stroke up from the back, a jog, a stroke on to the tip) half a stud thick, gold below and lit in its top three rows.
+**Hero block.** The `Crest`: a seven-row pixel lightning bolt whose rows step sideways as well as forward, so it is a bolt from the front and from the side (loop 1's was a thin post from the front), gold below and lit in its top three rows.
 
-**World motif (Verdant).** The moss cell, here as the quarter-stud steps of the crest and the flank bolt.
+**Alien anatomy.** Six legs, and antennae that are lightning rods: the arcs run from the crest tip to the two antenna bulbs and the tail tip.
+
+**World motif (Verdant).** The moss cell, here as the quarter-stud steps of the crest and the flank bolt and the eighth-stud toes.
 
 ## Parts
 
@@ -40,38 +42,44 @@ A storm hedgehog on six stubby legs (an alien hexapod), with one big stepped lig
 parts:
   - {name: Head, slot: Body, size: [2, 1.75, 1.75], at: [0, 1.375, -0.75], bevel: true}
   - {name: Torso, slot: Body, size: [1.75, 1.5, 2.5], at: [0, 1.25, 1.125], bevel: true}
+  # six legs (the alien hexapod), each with two lavender toe cells in front instead of the old anklets
   - {name: Leg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, -0.875], mirror: x}
   - {name: MidLeg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, 0.75], mirror: x}
   - {name: HindLeg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, 1.875], mirror: x}
-  - {name: Anklet, slot: Trim, size: [0.75, 0.125, 0.75], at: [0.5, 0.1875, -0.875], mirror: x}
-  - {name: MidAnklet, slot: Trim, size: [0.75, 0.125, 0.75], at: [0.5, 0.1875, 0.75], mirror: x}
-  - {name: HindAnklet, slot: Trim, size: [0.75, 0.125, 0.75], at: [0.5, 0.1875, 1.875], mirror: x}
+  - {name: Toe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.3125, 0.0625, -1.1875], mirror: x}
+  - {name: Toe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, -1.1875], mirror: x}
+  - {name: MidToe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.3125, 0.0625, 0.4375], mirror: x}
+  - {name: MidToe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, 0.4375], mirror: x}
+  - {name: HindToe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.3125, 0.0625, 1.5625], mirror: x}
+  - {name: HindToe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, 1.5625], mirror: x}
+  # the torso in three bands: a dark quill coat over the top, violet flanks with the gold bolt, a lavender belly plate; a gold collar in front
   - {name: Collar, slot: Trim, size: [2, 1.75, 0.25], at: [0, 1.25, 0.375]}
-  - {name: Stripe, slot: BodyDark, size: [2, 1.75, 0.25], at: [0, 1.25, 1.875]}
-  # the hero: one stepped lightning bolt standing on the back, leaning forward over the head, lit at its tip (rows top to bottom)
-  - {name: Crest, slot: Glow, size: [0.5, 0.25, 0.25], at: [0, 3.625, 0.125]}
-  - {name: Crest2, slot: Glow, size: [0.5, 0.25, 0.5], at: [0, 3.375, 0.25]}
-  - {name: Crest3, slot: Glow, size: [0.5, 0.25, 0.5], at: [0, 3.125, 0.5]}
-  - {name: Crest4, slot: Trim, size: [0.5, 0.25, 1], at: [0, 2.875, 0.75]}
-  - {name: Crest5, slot: Trim, size: [0.5, 0.25, 0.5], at: [0, 2.625, 1]}
-  - {name: Crest6, slot: Trim, size: [0.5, 0.25, 0.5], at: [0, 2.375, 1.25]}
-  - {name: Crest7, slot: Trim, size: [0.5, 0.25, 0.75], at: [0, 2.125, 1.375]}
+  - {name: Coat, slot: BodyDark, size: [2, 0.5, 2], at: [0, 1.875, 1.5]}
+  - {name: Belly, slot: Accessory, size: [2, 0.5, 2], at: [0, 0.625, 1.5]}
+  # the flank emblem: a three-row stepped bolt in gold between the coat and the belly
+  - {name: Emblem, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1.5, 1.625], mirror: x}
+  - {name: Emblem2, slot: Trim, size: [0.125, 0.25, 1], at: [0.9375, 1.25, 1.375], mirror: x}
+  - {name: Emblem3, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1, 1.125], mirror: x}
+  # the hero: one lightning bolt standing on the coat, a zigzag from the front and a forward lean from the side, lit in its top three rows
+  - {name: Crest, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.125, 3.75, 0.25]}
+  - {name: Crest2, slot: Glow, size: [0.5, 0.25, 0.375], at: [0, 3.5, 0.4375]}
+  - {name: Crest3, slot: Glow, size: [0.5, 0.25, 0.5], at: [-0.25, 3.25, 0.625]}
+  - {name: Crest4, slot: Trim, size: [1, 0.25, 0.5], at: [0, 3, 0.75]}
+  - {name: Crest5, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.25, 2.75, 1]}
+  - {name: Crest6, slot: Trim, size: [0.5, 0.25, 0.5], at: [0, 2.5, 1.125]}
+  - {name: Crest7, slot: Trim, size: [0.75, 0.25, 0.75], at: [-0.125, 2.25, 1.375]}
   # hedgehog quills down both sides of the bolt, leaning out 20 degrees
-  - {name: Quill, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.5, 2.375, 0.375], shape: cone6, rot: [0, 0, -20], mirror: x}
-  - {name: Quill2, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.5, 2.375, 1.125], shape: cone6, rot: [0, 0, -20], mirror: x}
-  - {name: Quill3, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.5, 2.375, 1.875], shape: cone6, rot: [0, 0, -20], mirror: x}
+  - {name: Quill, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.625, 2.4375, 1], shape: cone6, rot: [0, 0, -20], mirror: x}
+  - {name: Quill2, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.625, 2.4375, 1.625], shape: cone6, rot: [0, 0, -20], mirror: x}
+  - {name: Quill3, slot: BodyDark, size: [0.5, 0.75, 0.5], at: [0.625, 2.4375, 2.25], shape: cone6, rot: [0, 0, -20], mirror: x}
   # cheek quills: two dark spikes out of each side of the head, the hedgehog's ruff
   - {name: Cheek, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1, -1], shape: cone6, rot: [0, 0, -70], mirror: x}
   - {name: Cheek2, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1.5, -0.75], shape: cone6, rot: [0, 0, -70], mirror: x}
-  - {name: Ear, slot: BodyDark, size: [0.5, 0.625, 0.25], at: [0.625, 2.5625, -0.75], shape: cone6, mirror: x, moves: ear, pivot: [0.625, 2.25, -0.75]}
-  # the flank emblem: a five-row pixel bolt in gold, proud of the torso side by an eighth
-  - {name: Emblem, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1.75, 1.375], mirror: x}
-  - {name: Emblem2, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1.5, 1.125], mirror: x}
-  - {name: Emblem3, slot: Trim, size: [0.125, 0.25, 1], at: [0.9375, 1.25, 1.125], mirror: x}
-  - {name: Emblem4, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1, 1.125], mirror: x}
-  - {name: Emblem5, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 0.75, 0.875], mirror: x}
-  - {name: Tail, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1.5, 2.625], moves: tail, pivot: [0, 1.5, 2.375]}
-  - {name: TailTip, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 2, 2.75], moves: tail, pivot: [0, 1.5, 2.375]}
+  # alien anatomy: two lightning-rod antennae instead of ears, lit bulbs on top; the arcs jump between them and the crest tip
+  - {name: Antenna, slot: BodyDark, size: [0.125, 0.75, 0.125], at: [0.75, 2.5625, -0.75], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.625, 2.25, -0.75]}
+  - {name: AntennaTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [0.9375, 3.0625, -0.6875], shape: ico1, mirror: x, moves: antenna, pivot: [0.625, 2.25, -0.75]}
+  - {name: Tail, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1.625, 2.75], moves: tail, pivot: [0, 1.625, 2.5]}
+  - {name: TailTip, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 2.125, 2.875], moves: tail, pivot: [0, 1.625, 2.5]}
 ```
 
 ## Face
@@ -125,3 +133,4 @@ The concept sheet, drawn from the parts table above: [[Thunderhog_sheet.svg]] (f
 ## Reviews
 
 - 2026-10-17, worker, three rounds. Round 1: three zigzag stacks read as a dark mohawk, and the gold bands merged with the flank emblem into one gold blob. Round 2: one stepped lightning bolt as the crest, lit in its top three rows, dark cone quills either side, the rear band made a dark stripe, two cheek quills a side. Round 3: the VFX preview (jagged arcs from the crest tip to two quill tips, sparks a third of a stud out, the violet light; colours read from Effects.luau). Overlap 0.995 to 0.997, 732 triangles. Wanted for: the first Verdant creature with a lit crown, readable as storm from across the meadow. Still cheap: the long violet torso is flat between the bands, the gold anklets read as sandals, and from straight ahead the crest is a thin post. Next: a lighter belly plate or groove pattern on the torso, toe caps instead of anklets, a second bolt edge so the crest reads from the front. Status review.
+- 2026-10-17, loop 2 worker, three rounds. Round 1: the torso in bands (a dark quill coat, violet flanks with the gold bolt, a lavender belly plate, the gold collar), two lavender toe cells on each foot instead of the anklets, lightning-rod antennae with lit bulbs instead of the cone ears, and a crest whose rows step sideways as well as forward, so it is a bolt from the front too. Round 2: the arcs go from the crest tip to the antenna bulbs and the tail tip. Round 3: the preview's sparks are kept off the face. Overlap 0.996 to 0.998, 812 triangles, 52 blocks, 3.88 studs. Wanted for: a lit crown and two lit antennae with lightning between them, readable as storm from across the meadow. Still cheap: the top is busy (the bolt, six quills, two antennae and four cheek spikes compete), and the toes vanish at distance. Status review.

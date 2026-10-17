@@ -562,13 +562,23 @@ def vfx_layers(spec, objects, tier):
     added.append(lo_obj)
     import random
     rnd = random.Random(7)
+    host = S.face_host(spec)
+
+    def over_face(c, margin=0.25):
+        """True when a point sits in front of the face (rule 7: no effect crosses the head's front)."""
+        if host is None:
+            return False
+        (hx, hy, hz), (w, h, dz) = host["at"], host["size"]
+        return abs(c[0] - hx) < w / 2 + margin and abs(c[1] - hy) < h / 2 + margin and c[2] < hz - dz / 2 + margin
     if rank >= S.TIER_ORDER.index("Epic"):
-        # sparks kept on the body: small cubes on a shell a third to two thirds of a stud out from the glow parts, upper side
+        # sparks kept on the body: small cubes on a shell a third to two thirds of a stud out from the glow parts, upper side; none over the face
         scale = (height / 3.75) ** 0.5
         for p in tips:
             for _ in range(2 if rank == 3 else 1):
                 d = Vector((rnd.uniform(-1, 1), rnd.uniform(0.1, 1), rnd.uniform(-1, 1))).normalized() * rnd.uniform(0.35, 0.7) * scale
                 c = Vector(p["at"]) + d
+                if over_face(c):
+                    continue
                 s = rnd.choice((0.09, 0.12, 0.15)) * scale
                 added.append(cube("spark", to_bl(c), (s, s, s), spark, rnd.uniform(0, 1.5)))
         # arcs named in the note (`arcs: ["A>B", ...]`, expanded part names): a zigzag of thin bars from the top of A to the top of B,
@@ -605,9 +615,12 @@ def vfx_layers(spec, objects, tier):
             ang = 2 * math.pi * k / n
             y = height * (0.55 + 0.12 * math.sin(3 * ang))
             c = (centre[0] + r * math.cos(ang), y, centre[2] + r * math.sin(ang) * 0.75)
+            if over_face(c):
+                continue
             s = 0.18 * (height / 5) ** 0.5
             added.append(cube("orbit", to_bl(c), (s, s, s), orbit, ang))
-        ring = emissive("GroundRing", tier_hex, GLOW_VFX * 0.8)
+        # the ring is in the tier colour; the Secret's tier colour is near-black, so its ring is its own violet (the Cosmic set in shadow)
+        ring = emissive("GroundRing", orbit_hex if tier == "Secret" else tier_hex, GLOW_VFX * 0.8)
         rr = width * 0.55
         n = 40
         cb = to_bl(centre)
@@ -616,6 +629,20 @@ def vfx_layers(spec, objects, tier):
             c = Vector((cb.x + rr * math.cos(ang), cb.y + rr * math.sin(ang), 0.03))
             seg_w = 2 * math.pi * rr / n * 0.82
             added.append(cube("ring", c, (seg_w, 0.35 * (height / 5) ** 0.5, 0.05), ring, ang + math.pi / 2))
+    if tier == "Secret":
+        # shadow smoke that falls instead of rising: dark translucent cubes round the feet (Effects.luau's dark Feet emitter)
+        smoke = bpy.data.materials.new("Smoke")
+        smoke.use_nodes = True
+        sb = next(n for n in smoke.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+        sb.inputs["Base Color"].default_value = lin("#1A1626")
+        sb.inputs["Roughness"].default_value = 1.0
+        sb.inputs["Alpha"].default_value = 0.75
+        for _ in range(26):
+            ang = rnd.uniform(0, 2 * math.pi)
+            r = width * rnd.uniform(0.3, 0.6)
+            c = (centre[0] + r * math.cos(ang), rnd.uniform(0.15, height * 0.22), centre[2] + r * math.sin(ang) * 0.8)
+            s = rnd.choice((0.25, 0.35, 0.45)) * (height / 5) ** 0.5
+            added.append(cube("smoke", to_bl(c), (s, s, s), smoke, rnd.uniform(0, 1.5)))
     if rank >= S.TIER_ORDER.index("Cosmic"):
         # a light column from the top into the sky
         top = max((p for p in parts if p["slot"] == "Glow"), key=lambda p: p["at"][1])
@@ -732,6 +759,7 @@ def run_lineup(notes, out_dir, size, samples):
     objs = [avatar((0, 0, 0))]
     gap = 1.5
     x = 2.0 + gap  # the avatar is 4 studs wide; the camera looks from -Y, so +X is to the right on screen
+    tallest = 5.0
     for note in notes:
         spec = S.load(note)
         lo, hi = S.bounds(S.expand(spec["parts"]))
@@ -740,7 +768,9 @@ def run_lineup(notes, out_dir, size, samples):
         made = build(spec, out, offset=(x, 0.0, 0.0), prefix="L")
         objs += made["objects"]
         x += w / 2 + gap
-    aspect = 2.2
+        tallest = max(tallest, hi[1])
+    # wide enough for the whole row: the row's width over its tallest member, never narrower than 2.2 to 1
+    aspect = max(2.2, round((x + 2.0) / tallest * 0.9, 2))
     cam, centre, extent = tq_camera(scene, objs, yaw=10.0, pitch=8.0, margin=1.06, aspect=aspect)
     lit_setup(scene, size, samples, extent=extent, centre=centre)
     add_lights(scene, centre, extent)

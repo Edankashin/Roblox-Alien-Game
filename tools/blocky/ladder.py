@@ -8,6 +8,8 @@ tools/blender/blocky_build.py (<Id>_tq.png, <Id>_vfx.png, lineup.png) and the sh
 
   python3 -I tools/blocky/ladder.py --notes Mossbop.md,Thunderhog.md,Radish.md --build <dir> --sheets <dir> --out media/studio/<date>/blocky_ladder_v1.jpg \\
       --extras docs/vault/06-art-pipelines/refs/blocky
+  python3 -I tools/blocky/ladder.py --layout rows --notes <seven notes in tier order> --build <dir> --sheets <dir> --out .../blocky_ladder_v2.jpg \\
+      --before <folder of loop 1's <Id>_tq.jpg> --before-ids Mossbop,Thunderhog,Radish --title "..."     # one row per creature, a before/after strip
 """
 from __future__ import annotations
 
@@ -76,20 +78,27 @@ def silhouettes(specs, path, size=64, zoom=2):
         masks.append(SH.view_mask(s, "front", fr, size))
     pad = 24
     n_pairs = len(specs) * (len(specs) - 1) // 2
-    out = Image.new("RGB", (max(420, len(specs) * (size * zoom + pad) + pad), size * zoom + 70 + 20 * n_pairs), "#FFFFFF")
+    cols = 1 if n_pairs <= 6 else 3  # a long pair list wraps into columns
+    per_col = -(-n_pairs // cols)
+    out = Image.new("RGB", (max(420, len(specs) * (size * zoom + pad) + pad), size * zoom + 90 + 20 * per_col), "#FFFFFF")
     d = ImageDraw.Draw(out)
     for i, (s, m) in enumerate(zip(specs, masks)):
         im = Image.new("L", (size, size), 255)
         im.putdata([0 if v else 255 for v in m])
         out.paste(im.resize((size * zoom, size * zoom), Image.NEAREST), (pad + i * (size * zoom + pad), 10))
         d.text((pad + i * (size * zoom + pad), size * zoom + 16), s["front"]["name"], font=font(15, True), fill=INK)
-    pairs = []
+    pairs, worst = [], (0.0, "")
     for i in range(len(specs)):
         for j in range(i + 1, len(specs)):
-            pairs.append("%s/%s %.2f" % (specs[i]["front"]["name"], specs[j]["front"]["name"], raster.iou(boxed(masks[i], size), boxed(masks[j], size))))
-    d.text((pad, size * zoom + 42), "boxed overlap of each pair (under 0.7 passes):", font=font(13, True), fill=MUTED)
+            v = raster.iou(boxed(masks[i], size), boxed(masks[j], size))
+            name = "%s/%s" % (specs[i]["front"]["name"], specs[j]["front"]["name"])
+            pairs.append("%s %.2f" % (name, v))
+            worst = max(worst, (v, name))
+    verdict = "passes" if worst[0] < 0.7 else "FAILS"
+    d.text((pad, size * zoom + 42), "boxed overlap of each pair (under 0.7 passes); worst %s %.2f: %s" % (worst[1], worst[0], verdict), font=font(13, True),
+           fill=MUTED)
     for k, line in enumerate(pairs):
-        d.text((pad, size * zoom + 62 + 20 * k), line, font=font(13), fill=MUTED)
+        d.text((pad + (k // per_col) * 300, size * zoom + 66 + 20 * (k % per_col)), line, font=font(13), fill=MUTED)
     print("  " + "; ".join(pairs))
     out.save(path)
     return path
@@ -167,6 +176,112 @@ def ladder(specs, build, sheets, out_path, title):
     return out_path
 
 
+def _image(path, fallback_suffixes=(".png", ".jpg")):
+    """Open <path> or the same stem with another suffix (a build folder holds PNGs, the vault JPGs)."""
+    path = pathlib.Path(path)
+    for p in [path] + [path.with_suffix(s) for s in fallback_suffixes]:
+        if p.exists():
+            return Image.open(p)
+    return None
+
+
+def silhouette_row(specs, size=64, zoom=2):
+    """The 64 px front silhouettes of `specs` side by side (an image) and the worst boxed overlap of any pair."""
+    masks = [SH.view_mask(s, "front", SH.frames(s)["front"], size) for s in specs]
+    pad = 24
+    out = Image.new("RGB", (len(specs) * (size * zoom + pad) + pad, size * zoom + 40), "#FFFFFF")
+    d = ImageDraw.Draw(out)
+    for i, (s, m) in enumerate(zip(specs, masks)):
+        im = Image.new("L", (size, size), 255)
+        im.putdata([0 if v else 255 for v in m])
+        out.paste(im.resize((size * zoom, size * zoom), Image.NEAREST), (pad + i * (size * zoom + pad), 6))
+        d.text((pad + i * (size * zoom + pad), size * zoom + 12), s["front"]["name"], font=font(16, True), fill=INK)
+    worst = max((raster.iou(boxed(masks[i], size), boxed(masks[j], size)), specs[i]["front"]["name"], specs[j]["front"]["name"])
+                for i in range(len(specs)) for j in range(i + 1, len(specs)))
+    return out, worst
+
+
+def ladder_rows(specs, build, sheets, out_path, title, before=None, before_ids=()):
+    """The review sheet for a full ladder: the lineup to scale, then one row per creature (its numbers, the lit three-quarter view, the VFX
+    preview from Rare up, the concept-sheet thumbnail), then a before/after strip for `before_ids` (renders of an earlier loop in `before`)
+    and the 64 px silhouette row with its worst pair."""
+    W, pad, row_h, tile = 2400, 40, 430, 400
+    lineup = Image.open(build / "lineup.png")
+    lh = int((W - 2 * pad) * lineup.height / lineup.width)
+    strip_h = 120 + 380 if before_ids else 0
+    sil, worst = silhouette_row(specs)
+    H = 130 + lh + 50 + len(specs) * (row_h + 20) + strip_h + 90 + sil.height + 60
+    img = Image.new("RGB", (W, H), PAPER)
+    d = ImageDraw.Draw(img)
+    d.text((pad, 28), title, font=font(40, True), fill=INK)
+    d.text((pad, 82), "World 1, built from the spec notes (Obsidian), drawn as sheets for Claude Design, built and rendered in Blender. Scratch builds: "
+           "nothing under assets/models changed. Every number is measured from the build.", font=font(20), fill=MUTED)
+    img.paste(fit(lineup, W - 2 * pad, lh, "#FFFFFF"), (pad, 120))
+    d.text((pad + 12, 128), "To scale beside a 5-stud avatar: " + ", ".join(s["front"]["name"] for s in specs), font=font(22, True), fill=INK)
+    y = 120 + lh + 40
+    for s in specs:
+        f = s["front"]
+        sid, tier = f["id"], f["tier"]
+        tier_hex = SH.TIER_HEX.get(tier, "#999999")
+        d.rectangle([pad, y, W - pad, y + row_h], fill="#FBF8F2", outline="#E2DACB")
+        d.rectangle([pad, y, pad + 560, y + 56], fill=tier_hex)
+        d.text((pad + 16, y + 10), "%s  %s" % (f["name"], tier.upper()), font=font(32, True), fill="#FFFFFF" if tier not in ("Common", "Uncommon") else INK)
+        c = S.counts(s)
+        ov = f.get("overlap") or []
+        lines = [
+            ("id", "%s, hero %s" % (sid, f.get("hero"))),
+            ("blocks", "%d  (%s band %d to %d)" % (c["blocks"], tier, *S.TIERS[tier]["blocks"])),
+            ("triangles", "%s of 2,500" % f.get("tris")),
+            ("height", "%.2f studs = %.1f avatars" % (c["height"], c["height"] / 5.0)),
+            ("overlap", " / ".join("%.3f" % v for v in ov) if len(ov) == 4 else "not built"),
+            ("moving", ", ".join(S.movers(S.expand(s["parts"]))) or "none"),
+        ]
+        for k, (label, value) in enumerate(lines):
+            d.text((pad + 16, y + 74 + k * 40), label, font=font(20, True), fill=INK)
+            d.text((pad + 150, y + 74 + k * 40), value, font=font(20), fill=INK)
+        pal = S.palette(s)
+        for k, (role, hexcol) in enumerate(pal.items()):
+            d.rectangle([pad + 16 + k * 58, y + row_h - 52, pad + 66 + k * 58, y + row_h - 16], fill=hexcol, outline="#888888")
+        x = pad + 580
+        tq = _image(build / ("%s_tq.png" % sid))
+        if tq is not None:
+            img.paste(fit(tq, tile, tile, "#FFFFFF"), (x, y + 15))
+        x += tile + 20
+        vfx = _image(build / ("%s_vfx.png" % sid))
+        if vfx is not None:
+            img.paste(fit(vfx, tile, tile), (x, y + 15))
+        else:
+            d.rectangle([x, y + 15, x + tile, y + 15 + tile], fill="#E9E2D6")
+            d.text((x + tile // 2, y + 15 + tile // 2), "No VFX preview below Rare:\n%s" % ("no glow, no light" if tier == "Common" else "one touch, no glow"),
+                   font=font(22), fill=MUTED, anchor="mm", align="center")
+        x += tile + 20
+        sh = _image(sheets / ("%s_sheet.png" % sid))
+        if sh is not None:
+            img.paste(fit(sh, W - pad - x - 15, tile, "#FFFFFF"), (x, y + 15))
+        y += row_h + 20
+    if before_ids:
+        d.text((pad, y + 10), "Loop 1 to loop 2: the three prototypes before (left of each pair) and after", font=font(28, True), fill=INK)
+        y += 60
+        pair_w = (W - 2 * pad - 2 * 40) // len(before_ids)
+        for i, sid in enumerate(before_ids):
+            x = pad + i * (pair_w + 40)
+            b = _image(pathlib.Path(before) / ("%s_tq.jpg" % sid))
+            a = _image(build / ("%s_tq.png" % sid))
+            half = (pair_w - 30) // 2
+            for k, im in enumerate((b, a)):
+                if im is not None:
+                    img.paste(fit(im, half, 340, "#FFFFFF"), (x + k * (half + 30), y))
+            d.text((x + half + 4, y + 160), ">", font=font(30, True), fill=MUTED)
+            d.text((x, y + 346), "%s: loop 1 | loop 2" % next(s["front"]["name"] for s in specs if s["front"]["id"] == sid), font=font(20, True), fill=INK)
+        y += 380
+    d.text((pad, y + 30), "Silhouette test (front views, 64 px, each in its own frame): worst boxed overlap %.2f (%s / %s); under 0.7 passes" % worst,
+           font=font(26, True), fill=INK)
+    img.paste(sil, (pad, y + 80))
+    img = img.crop((0, 0, W, min(H, y + 80 + sil.height + 40)))
+    img.save(out_path, quality=88)
+    return out_path
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--notes", required=True, help="comma list of creature notes, in ladder order")
@@ -175,11 +290,17 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--extras", default="", help="a folder for house_face.png and world<N>_silhouettes.png")
     ap.add_argument("--title", default="Blocky ladder v1: Common, Epic, Cosmic")
+    ap.add_argument("--layout", default="columns", choices=("columns", "rows"), help="columns (a few creatures) or rows (a whole ladder)")
+    ap.add_argument("--before", default="", help="rows layout: a folder of an earlier loop's <Id>_tq.jpg for the before/after strip")
+    ap.add_argument("--before-ids", default="", help="rows layout: comma list of ids for the before/after strip")
     a = ap.parse_args(argv)
     specs = [S.load(n) for n in a.notes.split(",") if n]
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    print(ladder(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title))
+    if a.layout == "rows":
+        print(ladder_rows(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title, a.before, [i for i in a.before_ids.split(",") if i]))
+    else:
+        print(ladder(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title))
     if a.extras:
         ex = pathlib.Path(a.extras)
         ex.mkdir(parents=True, exist_ok=True)
