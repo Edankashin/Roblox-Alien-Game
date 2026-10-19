@@ -10,6 +10,7 @@ tools/blender/blocky_build.py (<Id>_tq.png, <Id>_vfx.png, lineup.png) and the sh
       --extras docs/vault/06-art-pipelines/refs/blocky
   python3 -I tools/blocky/ladder.py --layout rows --notes <seven notes in tier order> --build <dir> --sheets <dir> --out .../blocky_ladder_v2.jpg \\
       --before <folder of loop 1's <Id>_tq.jpg> --before-ids Mossbop,Thunderhog,Radish --title "..."     # one row per creature, a before/after strip
+  ... --world 2 --strip-title "Fenrir: two face options" --strip a.png,b.png --strip-labels "A ...,B ..."    # World 2: an options strip instead
 """
 from __future__ import annotations
 
@@ -176,6 +177,22 @@ def ladder(specs, build, sheets, out_path, title):
     return out_path
 
 
+def wrap_text(d, text, fnt, width):
+    """Lines of `text` no wider than `width` pixels in `fnt`; a '|' in the text forces a break."""
+    out = []
+    for para in text.split("|"):
+        words, line = para.split(), ""
+        for w in words:
+            trial = (line + " " + w).strip()
+            if d.textlength(trial, font=fnt) <= width:
+                line = trial
+            else:
+                out.append(line)
+                line = w
+        out.append(line)
+    return out
+
+
 def _image(path, fallback_suffixes=(".png", ".jpg")):
     """Open <path> or the same stem with another suffix (a build folder holds PNGs, the vault JPGs)."""
     path = pathlib.Path(path)
@@ -201,21 +218,22 @@ def silhouette_row(specs, size=64, zoom=2):
     return out, worst
 
 
-def ladder_rows(specs, build, sheets, out_path, title, before=None, before_ids=()):
+def ladder_rows(specs, build, sheets, out_path, title, before=None, before_ids=(), world=1, strip=(), strip_labels=(), strip_title=""):
     """The review sheet for a full ladder: the lineup to scale, then one row per creature (its numbers, the lit three-quarter view, the VFX
     preview from Rare up, the concept-sheet thumbnail), then a before/after strip for `before_ids` (renders of an earlier loop in `before`)
-    and the 64 px silhouette row with its worst pair."""
+    or an options strip (`strip`: images side by side under `strip_title`, each with a label: Fenrir's two faces), and the 64 px
+    silhouette row with its worst pair."""
     W, pad, row_h, tile = 2400, 40, 430, 400
     lineup = Image.open(build / "lineup.png")
     lh = int((W - 2 * pad) * lineup.height / lineup.width)
-    strip_h = 120 + 380 if before_ids else 0
+    strip_h = 120 + 380 if (before_ids or strip) else 0
     sil, worst = silhouette_row(specs)
     H = 130 + lh + 50 + len(specs) * (row_h + 20) + strip_h + 90 + sil.height + 60
     img = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(img)
     d.text((pad, 28), title, font=font(40, True), fill=INK)
-    d.text((pad, 82), "World 1, built from the spec notes (Obsidian), drawn as sheets for Claude Design, built and rendered in Blender. Scratch builds: "
-           "nothing under assets/models changed. Every number is measured from the build.", font=font(20), fill=MUTED)
+    d.text((pad, 82), "World %d, built from the spec notes (Obsidian), drawn as sheets for Claude Design, built and rendered in Blender. Scratch builds: "
+           "nothing under assets/models changed. Every number is measured from the build." % world, font=font(20), fill=MUTED)
     img.paste(fit(lineup, W - 2 * pad, lh, "#FFFFFF"), (pad, 120))
     d.text((pad + 12, 128), "To scale beside a 5-stud avatar: " + ", ".join(s["front"]["name"] for s in specs), font=font(22, True), fill=INK)
     y = 120 + lh + 40
@@ -274,6 +292,21 @@ def ladder_rows(specs, build, sheets, out_path, title, before=None, before_ids=(
             d.text((x + half + 4, y + 160), ">", font=font(30, True), fill=MUTED)
             d.text((x, y + 346), "%s: loop 1 | loop 2" % next(s["front"]["name"] for s in specs if s["front"]["id"] == sid), font=font(20, True), fill=INK)
         y += 380
+    elif strip:
+        d.text((pad, y + 10), strip_title, font=font(28, True), fill=INK)
+        y += 60
+        n = len(strip)
+        gap = 40
+        tile_w = (W - 2 * pad - (n - 1) * gap) // n
+        for i, path in enumerate(strip):
+            x = pad + i * (tile_w + gap)
+            im = _image(path)
+            if im is not None:
+                img.paste(fit(im, min(tile_w, 520), 340, "#FFFFFF"), (x, y))
+            lab = strip_labels[i] if i < len(strip_labels) else ""
+            for k, line in enumerate(wrap_text(d, lab, font(20, True), tile_w - 540)):
+                d.text((x + 540, y + 10 + k * 28), line, font=font(20, True) if k == 0 else font(19), fill=INK)
+        y += 380
     d.text((pad, y + 30), "Silhouette test (front views, 64 px, each in its own frame): worst boxed overlap %.2f (%s / %s); under 0.7 passes" % worst,
            font=font(26, True), fill=INK)
     img.paste(sil, (pad, y + 80))
@@ -293,12 +326,17 @@ def main(argv=None):
     ap.add_argument("--layout", default="columns", choices=("columns", "rows"), help="columns (a few creatures) or rows (a whole ladder)")
     ap.add_argument("--before", default="", help="rows layout: a folder of an earlier loop's <Id>_tq.jpg for the before/after strip")
     ap.add_argument("--before-ids", default="", help="rows layout: comma list of ids for the before/after strip")
+    ap.add_argument("--world", type=int, default=1, help="rows layout: the world named under the title")
+    ap.add_argument("--strip", default="", help="rows layout: comma list of images for an options strip (instead of the before/after strip)")
+    ap.add_argument("--strip-labels", default="", help="rows layout: comma list of labels for --strip (a | in a label breaks the line)")
+    ap.add_argument("--strip-title", default="", help="rows layout: the options strip's heading")
     a = ap.parse_args(argv)
     specs = [S.load(n) for n in a.notes.split(",") if n]
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     if a.layout == "rows":
-        print(ladder_rows(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title, a.before, [i for i in a.before_ids.split(",") if i]))
+        print(ladder_rows(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title, a.before, [i for i in a.before_ids.split(",") if i],
+                          a.world, [s for s in a.strip.split(",") if s], a.strip_labels.split(",") if a.strip_labels else [], a.strip_title))
     else:
         print(ladder(specs, pathlib.Path(a.build), pathlib.Path(a.sheets), out, a.title))
     if a.extras:

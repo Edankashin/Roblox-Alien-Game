@@ -14,6 +14,7 @@ The pieces, all standard library (Blender's Python has no Pillow, and the build 
 Pillow is used only by the swatch sheet. Deterministic: every random choice is a hash of the cell's grid position and a fixed seed.
 
   python3 -I tools/blocky/cells.py --swatches <out.png>                       # every material motif as a 4 x 4 stud swatch (Pillow)
+  python3 -I tools/blocky/cells.py --swatches-cold <out.png>                  # World 2's six cold motifs (snow, packed snow, ice, frozen water, pine, fur)
   python3 -I tools/blocky/cells.py --atlas docs/vault/07-alien-game/Creatures/Mossbop.md --out <dir>   # one creature's atlas PNG
   python3 -I tools/blocky/cells.py --stats docs/vault/07-alien-game/Creatures/*.md                     # cell size, islands, atlas size
 """
@@ -57,10 +58,19 @@ PARAMS = {
     "water": {"jitter": 1.5, "side_top": 1.0, "side_edge": 0.0, "top_rim": 0.0, "bottom": 0.0, "grout": 0.0},
     "glow": {"jitter": 1.0, "side_top": 0.0, "side_edge": 0.0, "top_rim": 0.0, "bottom": 0.0, "grout": 0.5},
     "wool": {"jitter": 2.5, "side_top": 1.0, "side_edge": -1.0, "top_rim": 0.5, "bottom": -1.0},
+    # World 2 Frostbyte's cold set (Blocky-Style "World 2: Frostbyte palette")
+    "snow": {"jitter": 2.0, "side_top": 0.5, "side_edge": -0.5, "top_rim": -1.0, "bottom": -1.0, "grout": 0.5},
+    "packed_snow": {"jitter": 2.0, "side_top": 0.0, "side_edge": -0.5, "top_rim": -0.5, "bottom": -1.0},
+    "ice": {"jitter": 1.0, "side_top": 1.0, "side_edge": 1.0, "top_rim": 1.0, "bottom": 0.0, "grout": 0.5},
+    "frozen_water": {"jitter": 1.0, "side_top": 0.5, "side_edge": 0.0, "top_rim": 0.0, "bottom": 0.0, "grout": 0.0},
+    "pine": {"jitter": 2.5, "side_top": 0.5, "side_edge": -1.0, "top_rim": 0.0, "bottom": -1.0},
+    "fur": {"jitter": 2.5, "side_top": 1.0, "side_edge": -1.0, "top_rim": 0.5, "bottom": -1.0},
 }
 # Blender surface per material (the slot's own roughness and metal hold where a material has no entry)
 SURFACE = {"water": {"rough": 0.12, "metal": 0.0}, "crystal": {"rough": 0.22, "metal": 0.0}, "metal": {"rough": 0.45, "metal": 0.35},
-           "grass": {"rough": 0.85}, "dirt": {"rough": 0.95}, "stone": {"rough": 0.8}, "moss": {"rough": 0.8}, "wood": {"rough": 0.75}}
+           "grass": {"rough": 0.85}, "dirt": {"rough": 0.95}, "stone": {"rough": 0.8}, "moss": {"rough": 0.8}, "wood": {"rough": 0.75},
+           "snow": {"rough": 0.9}, "packed_snow": {"rough": 0.95}, "ice": {"rough": 0.18, "metal": 0.0}, "frozen_water": {"rough": 0.1, "metal": 0.0},
+           "pine": {"rough": 0.85}, "fur": {"rough": 0.7}}
 
 # ------------------------------------------------------------------------------------------------ orientation: a face's axes in the part's frame
 # orient: (normal axis, normal sign, (u axis, u sign), (v axis, v sign)). The front (-z) runs u from the viewer's left, which is the creature's
@@ -504,8 +514,109 @@ def _wool(c):
     return "base", lvl + (0.5 if c.kind == "top" else 0.0)
 
 
+# ---- World 2 Frostbyte's cold set. Each moves cells in whole or half steps on a pattern a viewer can name (C6: never noise).
+SNOW_LIP = (2, 4)       # a snow top hangs over a side in a drift lip two to four cells deep (deeper than the grass fringe: snow drifts)
+SNOW_SPARKLE = 0.016    # one top cell in sixty catches the light, a full step up
+PACKED_STRATA = 3       # packed snow: a strata line every third row, the fallen layers
+ICE_BAND = 8            # ice: a light band every eight cells on the other diagonal to crystal's six
+FROZEN_PLATE = 7        # the frozen pond: plates about seven cells across, cracks on about six borders in ten
+FUR_LATTICE = 3         # fur: one tuft in a three-by-three lattice square, in about half the squares
+
+
+def _packed_snow(c, key="base"):
+    # packed snow: strata, a line a half step down every third row (the fallen layers), broken every few cells; an ice grain in
+    # twenty-five a half step up; a top face (rare: packed snow lies under snow) is soft blobs instead
+    if c.kind == "top":
+        n = noise(MAT_ID["packed_snow"] + c.plane, c.gu, c.gv, 4)
+        return key, 0.5 * level(n, 0.36, 0.64)
+    lvl = 0.0
+    if c.gv % PACKED_STRATA == 0 and rand(57, c.gu // 3, c.gv, c.plane) < 0.8:
+        lvl = -0.5
+    if rand(59, c.gu, c.gv, c.plane) < 0.04:
+        lvl += 0.75
+    return key, lvl
+
+
+def _snow(c):
+    # the snow top: soft drifts (half-step blobs five cells across) and a sparkle cell in sixty a full step up; a side is the snow lip, two to
+    # four cells deep, its top row lit and its ragged bottom row a step down (the drift's shadow), over packed snow (the `aux` colour); the bottom is packed snow
+    if c.kind == "top":
+        n = noise(MAT_ID["snow"] + c.plane, c.gu, c.gv, 5)
+        lvl = 0.5 * level(n, 0.33, 0.67)
+        if rand(51, c.gu, c.gv, c.plane) < SNOW_SPARKLE:
+            lvl += 1.0
+        return "base", lvl
+    if c.kind == "side":
+        lip = SNOW_LIP[0] + (rand(53, c.gu, c.plane) < 0.5) + (rand(55, c.gu, c.plane) < 0.25)
+        if c.depth < lip:
+            return "base", (0.5 if c.depth == 0 else (-1.0 if c.depth == lip - 1 else 0.0))
+        return _packed_snow(c, "aux")
+    return _packed_snow(c, "aux")
+
+
+def _ice(c):
+    # clear ice, as crystal but colder: a light band every eight cells on the other diagonal (a step and a half up, then a half), a faint
+    # crossing band a half step down on crystal's diagonal, a sparkle cell in seventy two steps up; its edges catch the light (PARAMS)
+    d = (c.gu - c.gv) % ICE_BAND
+    lvl = {0: 1.5, 1: 0.5}.get(d, 0.0)
+    if (c.gu + c.gv) % ICE_BAND == ICE_BAND // 2:
+        lvl -= 0.5
+    if rand(61, c.gu, c.gv, c.plane) < 0.014:
+        lvl = 2.0
+    return "base", lvl
+
+
+def _frozen_water(c):
+    # the pond, frozen: a pale top in plates about seven cells across, parted by cracks one cell wide a step and a half down that run on
+    # about six borders in ten (so they read as cracks, not tiles); a trapped bubble a half step up in forty; no grout; a side darkens with
+    # depth as water does, a half step every two rows
+    if c.kind == "top":
+        rid = _region(c.gu, c.gv, FROZEN_PLATE)
+        for other in (_region(c.gu + 1, c.gv, FROZEN_PLATE), _region(c.gu, c.gv - 1, FROZEN_PLATE)):
+            if other != rid:
+                a, b = sorted((rid, other))
+                if rand(63, a[0], a[1], b[0], b[1], c.plane) < 0.6:
+                    return "base", -1.5
+        if rand(67, c.gu, c.gv, c.plane) < 0.025:
+            return "base", 0.5
+        return "base", 0.25 * level(noise(MAT_ID["frozen_water"] + c.plane, c.gu, c.gv, 5), 0.3, 0.7)
+    if c.kind == "side":
+        return "base", -min(2.0, 0.5 * (c.depth // 2))
+    return "base", -2.0
+
+
+def _pine(c):
+    # needle rows: on a side, fronds two cells tall, the top row of each a half step up and its underside a half step down, broken every few
+    # cells so the fronds hang in ragged layers; a lit needle tip (the accent: snow dust on a snow pine) in forty; a top in square rings
+    if rand(65, c.gu, c.gv, c.plane) < 0.025:
+        return "accent", 0.0
+    if c.kind == "top":
+        ci, cj = (c.nu - 1) / 2.0, (c.nv - 1) / 2.0
+        r = int(max(abs(c.i - ci), abs(c.j - cj)) + 0.5)
+        return "base", (0.5 if r % 2 else -0.25)
+    if rand(69, c.gu // 3, c.gv // 2, c.plane) < 0.2:
+        return "base", 0.0
+    return "base", (0.5 if c.gv % 2 else -0.5)
+
+
+def _fur(c):
+    # soft flecks for cold-world bodies: in each three-by-three lattice square one tuft at a hashed spot, in about half the squares, two
+    # cells tall (a half step down over three quarters down; one tuft in four, and every tuft on a top face, lit instead); nothing else
+    # moves, so the coat reads as fur with a few tufts, never as noise
+    ax, ay = c.gu // FUR_LATTICE, c.gv // FUR_LATTICE
+    for lx, ly in ((ax, ay), (ax, ay - 1)):   # a tuft may start in the square below and reach up into this one
+        if rand(71, lx, ly, c.plane) < 0.5:
+            tx = lx * FUR_LATTICE + int(rand(73, lx, ly, c.plane) * FUR_LATTICE)
+            ty = ly * FUR_LATTICE + int(rand(75, lx, ly, c.plane) * (FUR_LATTICE - 1))
+            if c.gu == tx and ty <= c.gv <= ty + 1:
+                lit = c.kind == "top" or rand(77, lx, ly, c.plane) < 0.25   # on a top, and on one tuft in four, the tuft catches the light
+                return "base", (0.5 if lit else -0.5) if c.gv == ty else (0.25 if lit else -0.75)
+    return "base", 0.0
+
+
 MOTIFS = {"skin": _skin, "moss": _moss, "grass": _grass, "dirt": _dirt, "stone": _stone, "metal": _metal, "crystal": _crystal,
-          "wood": _wood, "water": _water, "glow": _glow, "wool": _wool}
+          "wood": _wood, "water": _water, "glow": _glow, "wool": _wool,
+          "snow": _snow, "packed_snow": _packed_snow, "ice": _ice, "frozen_water": _frozen_water, "pine": _pine, "fur": _fur}
 
 
 def edge_steps(c, params):
@@ -666,6 +777,16 @@ SWATCH = [
     ("glow", "#FFE36B", None, None, "emissive cells, used sparingly"),
     ("wool", "#4A4166", None, "#8E6BFF", "Syrinx's coat: shag, accent flecks"),
 ]
+# World 2 colours for the cold swatches (Blocky-Style "World 2: Frostbyte palette": snow F2F6FA over packed snow B9CADA, ice BFEBFA,
+# the frozen pond A9D6F5, pine needles 2F6B5E dusted with snow, Sabrek's blue coat 4F9BD8)
+SWATCH_COLD = [
+    ("snow", "#F2F6FA", "#B9CADA", None, "ground tops: drifts, a sparkle; sides a snow lip over packed snow"),
+    ("packed_snow", "#B9CADA", None, None, "under the snow: strata, ice grains"),
+    ("ice", "#BFEBFA", None, None, "the cave, the arch, icicles: the other diagonal"),
+    ("frozen_water", "#A9D6F5", None, None, "the pond: plates and cracks, a bubble"),
+    ("pine", "#2F6B5E", None, "#F2F6FA", "pine crowns: needle rows, snow dust"),
+    ("fur", "#4F9BD8", None, None, "cold-world bodies: tufts on a lattice"),
+]
 
 
 def swatch_faces(material, base, aux=None, accent=None, studs=4, cell=WORLD_CELL, px=PX):
@@ -702,9 +823,12 @@ def swatch_cube(imgs, s):
     return canvas
 
 
-def swatch_sheet(path, px=PX):
+def swatch_sheet(path, px=PX, swatches=None, title=None):
     """Every material as a 4 x 4 stud swatch: a small cube (top and two sides) and its front face flat, with the motif's name, use and
-    colours. The board image for the Claude Design canvas (Pillow)."""
+    colours. The board image for the Claude Design canvas (Pillow). `swatches` picks a set (SWATCH, the World 1 eleven, by default;
+    SWATCH_COLD is World 2's six)."""
+    swatches = SWATCH if swatches is None else swatches
+    title = title or "Cell materials (Blocky-Style, Cells): each motif on a 4 x 4 stud block, 4 cells a stud, World 1 colours"
     from PIL import Image, ImageDraw, ImageFont
     try:
         bold = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", 22)
@@ -715,15 +839,15 @@ def swatch_sheet(path, px=PX):
     cube_s = int(s * 0.8)
     tile_w, tile_h = 2 * cube_s + s + 40, 2 * cube_s + 70
     cols = 4
-    rows = (len(SWATCH) + cols - 1) // cols
+    rows = (len(swatches) + cols - 1) // cols
     W, H = cols * tile_w + 30, rows * tile_h + 100
     sheet = Image.new("RGB", (W, H), "#F6F0E6")
     d = ImageDraw.Draw(sheet)
-    d.text((20, 16), "Cell materials (Blocky-Style, Cells): each motif on a 4 x 4 stud block, 4 cells a stud, World 1 colours", font=bold, fill="#1B1F3B")
+    d.text((20, 16), title, font=bold, fill="#1B1F3B")
     d.text((20, 48), "Flat square cells, nearest filtering. Jitter in value only (L* %.1f, %d%% of cells down and %d%% up); a step (L* %d) darker at the "
            "edges, lighter along the top; a %d-texel grout a step down; a motif per material" % (JITTER, JITTER_SHARE * 100, JITTER_SHARE * 100,
                                                                                                STEP, GROUT), font=reg, fill="#5F6375")
-    for k, (mat, base, aux, accent, note) in enumerate(SWATCH):
+    for k, (mat, base, aux, accent, note) in enumerate(swatches):
         faces = swatch_faces(mat, base, aux, accent, px=px)
         imgs = {o: Image.frombytes("RGB", (w, h), bytes(b)) for o, (w, h, b) in faces.items()}
         ox, oy = 20 + (k % cols) * tile_w, 84 + (k // cols) * tile_h
@@ -733,7 +857,7 @@ def swatch_sheet(path, px=PX):
         sheet.paste(flat, (ox + 2 * cube_s + 16, oy + cube_s - s // 2))
         ty = oy + 2 * cube_s - 6
         d.text((ox, ty), mat, font=bold, fill="#1B1F3B")
-        d.text((ox + 110, ty + 4), note, font=reg, fill="#5F6375")
+        d.text((ox + max(110, int(d.textlength(mat, font=bold)) + 14), ty + 4), note, font=reg, fill="#5F6375")
         d.text((ox, ty + 28), "  ".join(h for h in (base, aux, accent) if h), font=reg, fill="#5F6375")
     sheet.save(path)
     return path
@@ -754,6 +878,10 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     if "--swatches" in argv:
         print(swatch_sheet(argv[argv.index("--swatches") + 1]))
+        return 0
+    if "--swatches-cold" in argv:
+        print(swatch_sheet(argv[argv.index("--swatches-cold") + 1], swatches=SWATCH_COLD,
+                           title="Cell materials, the cold set (Blocky-Style, World 2: Frostbyte palette): each motif on a 4 x 4 stud block, 4 cells a stud"))
         return 0
     if "--atlas" in argv:
         note = argv[argv.index("--atlas") + 1]

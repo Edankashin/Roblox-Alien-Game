@@ -21,6 +21,15 @@ One spec note per creature in `Creatures/`, the single source of truth for its c
 - [[Radish]]: Raddis, Cosmic, World 1: a hovering giant radish with a pharaoh's brow behind a turning winged sun disk, ridable. Prototype, in review.
 - [[Panpipe]]: Syrinx, Secret, World 1: a great shadow goat with four horns and an organ of reed pipes on its back, ridable. Prototype, in review.
 
+World 2 Frostbyte's six, one per rung to Cosmic, built by the same rules in the cold cell materials ([[Blocky-Style]] "World 2: Frostbyte palette"; the review sheet `media/studio/2026-10-19/world2_ladder_v1.jpg`):
+
+- [[Flufflet]]: Mitt, Common, World 2: a snowball in a knitted scarf with mittens for ears, rolling on a smaller snowball. Prototype, in review.
+- [[Pengoo]]: Pengoo, Uncommon, World 2: a round penguin with its flippers up, goggles on its forehead and a tiny backpack, sliding on two runners. Prototype, in review.
+- [[Reindazzle]]: Blinkar, Rare, World 2: a reindeer with antlers of ice hung with icicles and a nose that is a red lantern. Prototype, in review.
+- [[Frostfang]]: Sabrek, Epic, World 2: a sabre-tooth cub with lit icicle fangs, a ruff of ice quills and a frost flake on each flank. Prototype, in review.
+- [[Skaddle]]: Skadra, Legendary, World 2: a player-sized snow owl on tiny skis under a crest of lit ice crystals, four wings, a quiver on its back. Prototype, in review.
+- [[Fenripup]]: Fenrir, Cosmic, World 2: a 14-stud moon wolf with a glowing moon on its brow, a mane of layered blocks and a broken chain, ridable; two face options on the sheet. Prototype, in review.
+
 ## Props
 
 One spec note per prop in `Props/`, the same parts table as a creature (`kind: prop`), built through the same route at the world cell ([[Blocky-Style]] "Environment"). World 1 Verdant's set, all in the meadow diorama:
@@ -31,6 +40,15 @@ One spec note per prop in `Props/`, the same parts table as a creature (`kind: p
 - [[Crystal]]: a glowing crystal spire with leaning shards on a stone seat.
 - [[Ship]]: the players' crashed ship, riveted metal, a crystal canopy, one wing snapped.
 - [[Flower]]: a stud-high flower in three petal colours.
+
+World 2 Frostbyte's set, all in the snowfield diorama (`tools/blender/blocky_scene.py --world 2`):
+
+- [[SnowBlock]]: the ground's kinds, 2 x 1 x 2 stud blocks: snow over packed snow, an ice floor, the frozen pond, the cliff.
+- [[PineTree]]: a snow pine, three tiers of needle rows with a snow cap on each.
+- [[SnowRock]]: a two-step boulder in stone cobbles under a snow cap and a drift.
+- [[IceCrystal]]: a glowing ice spire with leaning shards on a snow-dusted rock seat.
+- [[IceArch]]: the Ice Cave's mouth, two ice pillars under a stepped lintel with icicles, the cave's dark behind.
+- [[Heater]]: the camp's heater, a steel drum with a lit grate, the world's one warm light.
 
 ## Plan documents outside the vault
 

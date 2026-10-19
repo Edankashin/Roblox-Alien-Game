@@ -46,7 +46,8 @@ SHAPE_TRIS = {"box": 12, "wedge": 8, "cone6": 10, "ico1": 20}
 BEVEL_TRIS = {1: 44, 2: 108}  # a bevelled box, measured in Blender 5.0.1 (the report)
 MOVES = ("none", "wing", "tail", "ear", "halo", "sprout", "antenna", "crest", "float", "jaw")
 # the cell material of a part (Blocky-Style "Cells", Decision B44): its motif in the block-cell texture (tools/blocky/cells.py)
-MATERIALS = ("skin", "moss", "grass", "dirt", "stone", "metal", "crystal", "wood", "water", "glow", "wool")
+MATERIALS = ("skin", "moss", "grass", "dirt", "stone", "metal", "crystal", "wood", "water", "glow", "wool",
+             "snow", "packed_snow", "ice", "frozen_water", "pine", "fur")   # the last six: World 2 Frostbyte's cold set
 DEFAULT_MATERIAL = "skin"   # a Glow slot part defaults to glow
 STATUSES = ("concept", "board", "build", "review", "approved")
 # rule 6, the ladder: blocks and height (studs) per tier, and how many flat colours

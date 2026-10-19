@@ -239,6 +239,39 @@ The World 1 landscape sample, `tools/blender/blocky_scene.py`: a 48 x 32 stud me
 | A prop as a note and a parts table, built and checked like a creature | A prop modelled by hand outside the route (no spec, no check, no board) |
 | Glow sparingly: one crystal in the meadow, the ship's exhaust | Emissive cells scattered over the ground |
 
+### World 2: Frostbyte palette
+
+2026-10-19. The second world built by the same rules, so the "proposal" row of the E3 table above is now a built set: six cold cell materials in `tools/blocky/cells.py` (after the eleven of World 1, which are unchanged: their ids, hashes and swatches are pixel-identical), six prop notes, a diorama (`tools/blender/blocky_scene.py --world 2`) and the six World 2 aliens, one per rung to Cosmic: [[Flufflet]] (Common), [[Pengoo]] (Uncommon), [[Reindazzle]] (Rare), [[Frostfang]] (Epic), [[Skaddle]] (Legendary), [[Fenripup]] (Cosmic, the hero, with two face options for Ethan). The review sheets: `media/studio/2026-10-19/world2_scene_v1.jpg` and `world2_ladder_v1.jpg`.
+
+![World 2 Frostbyte in block cells: the snowfield diorama's hero shot and the low angle among the six aliens](refs/blocky/world2_scene_v1.jpg)
+
+- **The cold materials** (each moves cells in whole or half steps on a pattern a viewer can name, never noise; swatches in `refs/blocky/cell_materials_cold.png`, `python3 -I tools/blocky/cells.py --swatches-cold <png>`):
+
+| Material | Motif | Used on |
+|---|---|---|
+| snow | a white top with soft drifts (half-step blobs five cells across) and a sparkle cell in sixty; a side is the snow lip, two to four cells deep, lit on top and a step down on its ragged bottom row, over packed snow (the `second` colour); the top rim a full step down so the field reads as tiles; grout at half weight | ground tops, snow caps on pines, rocks and the arch (a cap is at most two cells tall, so its lip covers it), the drifts |
+| packed_snow | strata: a line a half step down every third row (the fallen layers), broken every few cells; an ice grain in twenty-five | under the snow, the trodden trail's top, the cliff |
+| ice | a light band every eight cells on the *other* diagonal to crystal's six (a step and a half, then a half), a faint crossing band a half step down, a sparkle in seventy; its edges lighter; glossy | the cave mouth, the ice floor, icicles, Blinkar's antlers, Sabrek's fangs and quills, Skadra's skis and crest, Fenrir's fangs |
+| frozen_water | plates about seven cells across parted by one-cell cracks a step and a half down on about six borders in ten (cracks, not tiles), a trapped bubble in forty; no grout; sides darken with depth | the frozen pond |
+| pine | needle rows: fronds two cells tall, the top row a half step up and the underside a half down, broken into ragged layers; a snow-dust cell (the accent) in forty; a top in square rings | the pine tiers |
+| fur | soft flecks: one tuft in a three-by-three lattice square, in about half the squares, two cells tall a half and three quarters of a step down; one tuft in four, and every tuft on a top face, lit instead | cold-world bodies: Mitt, Skadra's down, Fenrir's whole coat and mane; not on Sabrek (on a 2-stud head the tufts crowded the face) |
+
+- **The palette**, from the world's data where it has one (`src/shared/data/Frostbyte.luau`: rock A9B7C0, the shrine's glow 68C9FE; `Lighting.luau`'s world 2 look for the sky) and set here where the placeholder has none (the placeholder's grey-blue trunk 7A8C96 read as a post, so the pine trunk is a cold brown):
+
+| World | Ground | Path, rock | Wood, needles | Water, ice, light | Sky |
+|---|---|---|---|---|---|
+| 2 Frostbyte | snow F2F6FA over packed snow B9CADA | the trail is packed snow; rock A9B7C0 (stone) under snow | trunk 4A3A2E, pine 2F6B5E dusted F2F6FA | frozen pond A9D6F5, ice BFEBFA, crystal glow 68C9FE, the heater's warm FFB347 | a cold blue 78A8D6 over a pale haze DDE8F2 (Lighting.luau's atmosphere 200 220 240 over a decay of 160 190 220); a soft, low, cool sun |
+
+- **The ground** ([[SnowBlock]]): snow over packed snow, a trodden trail (packed snow on top), an ice floor at the cave mouth, the frozen pond (its top a quarter stud under the snow), and a cliff of packed snow five blocks high whose exposed sides show the strata. The props: [[PineTree]], [[SnowRock]], [[IceCrystal]], [[IceArch]] (the Ice Cave's mouth, at the cliff's foot where the layout's `IceCaveMouth` landmark sits), [[Heater]] (the camp's tool, the one warm light). Glow sparingly: two crystals and the heater's grate.
+- **The world motif**: rule 5's ice facet, built as icicles (stepped points hanging from the beams, the fangs, the arch) and the six-point frost glyph (Sabrek's flank flake in quarter-stud cells, Skadra's forehead glyph in face cells, Blinkar's sparkle), the chamfer drawn as a step (a block tilts only 10 to 25 degrees, so a 45-degree cut is a stepped shoulder, as on the arch).
+- **Lessons** (in the notes' Reviews): a pale cyan crescent under a blue eye reads as a tear as surely as sky blue did on Buzzik, a saturated cyan reads as lit; a Common's snowball needs its scarf in the second colour or it vanishes; a mane of flat slabs reads as a staircase until each slab ends in a tuft; the boxed silhouette test fails any plain block (Pengoo at 0.73 to 0.78 with three others) until a feature leaves the box's corners empty (its flippers up, Skadra's wings out), so a world's row is designed as six shapes before six colours.
+
+| Do | Don't |
+|---|---|
+| Snow caps two cells tall, so the lip is the whole side | A tall snow block on a prop: its lower rows show the second colour (the trunk) as "packed snow" |
+| Ice on the other diagonal to crystal, so Frostbyte's ice and Verdant's crystal never read as one material | Reuse the crystal motif in a paler blue |
+| Fur tufts only on heads of 2.5 studs and more | Fur on a 2-stud head: the tufts crowd the sixteen-cell face |
+
 ## In the game (a plan; no code under `src/` yet)
 
 - **The texture**: each creature's atlas ships as the `ColorMap` of one `SurfaceAppearance` with **`ResampleMode = Pixelated`** (nearest filtering; in the Creator Docs since 5 May 2026; **to be confirmed on the Mac on a real phone**, with the grout's fine lines at a distance the thing to watch). If Pixelated fails, the 8-texel cell is the fallback: bilinear filtering softens only inside a texel, so cells stay crisp. A Trim slot's gold becomes a `MetalnessMap` on the same layout; `AlphaMode = TintMask` with the body cells opaque in the alpha recolours a variant (Gold, Crystal) without touching the face.

@@ -14,3 +14,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-16]]: design pass batch 2 recovered and merged (the rarer bodies), two questions added to the decision sheet. Lasting notes: [[Design-Pass]], [[Decide-Now]].
 - [[2026-10-17]]: Ethan rejects the recipe redesigns; the blocky style, rarity by detail, height and VFX, design through Claude Design, Blender and Obsidian (B43); the research on the blocky look. Lasting notes: [[Decisions]].
 - [[2026-10-19]]: the roll-out workers restarted after the weekly limit (World 1 roster, World 2 Frostbyte).
+- [[2026-10-19]]: World 2 Frostbyte in block cells: the six cold cell materials, the snowfield diorama, six prop notes and the six World 2 aliens one per rung (Mitt to Fenrir, two face options for the hero). Lasting notes: [[Blocky-Style]].
