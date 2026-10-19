@@ -9,7 +9,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 > **Answered 2026-10-17 ([[Decisions]] B43).** Ethan rejected the redesigns: the look becomes blocky, as in popular Roblox games; rarer aliens get more detail, more height and VFX (not a fiercer face); every design goes through Claude Design, Blender and Obsidian. So items **12, 37, 39 and 40 are closed** (the recipe redesigns are not the direction) and **38 is answered yes** (more detail and height with rank). Items 11 (the hero route) and 9 (the hero slate) now wait on the blocky style note. Everything else stands.
 
-**How to answer.** 41 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 42 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17, 42 on 2026-10-19). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -232,6 +232,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**, with the open fixes in the next loop (Moop's moss painted on the head, Buzzik's backpack straps, more at Rare than a soft light, Gaira's pale body and snout, Raddis's side profile, a brighter accent on Syrinx).
 - Then: the next loop builds the remaining World 1 species; nothing goes under `assets/models/` until you say yes to a sheet.
 
+**42. Fenrir's face: A or B?** World 2's Cosmic hero is built in block cells (14 studs, ridable; `media/studio/2026-10-19/world2_ladder_v1.jpg`, the Fenrir board on [Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD)). The parts are identical; only the face texture differs.
+- Options: a) A, the house face as every alien wears it (the awe from height and light); b) B, a heavier brow with a moon-lit eye crescent, for heroes only; c) neither (say what).
+- Recommend: **a**, because one face across the roster is what makes the aliens ours at a glance, and you said rarer should mean worth finding, not fiercer; B is the fallback if A reads too soft on a 14-stud wolf.
+- Then: the pick goes into the Fenripup spec note and the heroes rule in [[Blocky-Style]].
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -287,4 +292,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 39: a* builder's verdicts, fixes already running | b per species | c later
 40: a* take six, fix Twiglo | b per species | c later
 41: a* yes, roll it out | b yes with changes | c no
+42: a* A, the house face | b B, heavier brow | c neither
 ```
