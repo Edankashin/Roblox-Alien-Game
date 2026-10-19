@@ -13,3 +13,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-15]]: the 32 bodies rebuilt with surfaces, the thumbnail candidates, the character pipeline research and the vault pass. Lasting notes: [[Silhouette-Pass]], [[Surface-Pass]], [[Thumbnail-Research]], [[Character-Pipeline]], [[Launch-Dashboard]].
 - [[2026-10-16]]: design pass batch 2 recovered and merged (the rarer bodies), two questions added to the decision sheet. Lasting notes: [[Design-Pass]], [[Decide-Now]].
 - [[2026-10-17]]: Ethan rejects the recipe redesigns; the blocky style, rarity by detail, height and VFX, design through Claude Design, Blender and Obsidian (B43); the research on the blocky look. Lasting notes: [[Decisions]].
+- [[2026-10-19]]: the roll-out workers restarted after the weekly limit (World 1 roster, World 2 Frostbyte).
