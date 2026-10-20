@@ -48,6 +48,19 @@ World 2 Frostbyte's six, one per rung to Cosmic, built by the same rules in the 
 - [[Skaddle]]: Skadra, Legendary, World 2: a player-sized snow owl on tiny skis under a crest of lit ice crystals, four wings, a quiver on its back. Prototype, in review.
 - [[Fenripup]]: Fenrir, Cosmic, World 2: a 14-stud moon wolf with a glowing moon on its brow, a mane of layered blocks and a broken chain, ridable; two face options on the sheet. Prototype, in review.
 
+The other ten of World 2 (2026-10-20, the roster loop; the review sheets `media/studio/2026-10-20/world2_roster_v1.jpg` and `world2_scene_v2.jpg`):
+
+- [[Snowbun]]: Flurra, Common, World 2: a lavender snow bunny, one ear up and one flopped, towing a stepped snowball tail bigger than itself. In review.
+- [[Drippo]]: Dreep, Common, World 2: an icicle drop on stubby legs with a six-sided point, one arm up in a nervous wave, a drip at its mouth and a puddle at its feet. In review.
+- [[Chipmole]]: Digling, Common, World 2: a squat slate mole holding two ice picks taller than itself up out of its front paws. In review.
+- [[Kettlepuff]]: Kettlet, Common, World 2: a cream enamel kettle with the face on its belly, copper lid, bail handle and spout, a steam puff floating over the spout. In review.
+- [[Flapsicle]]: Eekle, Uncommon, World 2: an indigo bat hanging upside down from a floating block of ice, its ice wings spread wide, an icicle at each tip and one under its chin resting on the snow. In review.
+- [[Toastoad]]: Soakum, Uncommon, World 2: a squat orange toad with eye bumps, a wide smile, splayed hind legs and a pack of steaming hot-spring pebbles strapped to its back. In review.
+- [[Emberchin]]: Sizz, Uncommon, World 2: a plum sea urchin bristling with eleven ember-orange quills, on one tube foot in a steaming pool. In review.
+- [[Shellberg]]: Floe, Rare, World 2: a teal tortoise wearing a whole iceberg, nine-tenths of it below the white waterline, a stepped snow peak off to one side and a lit frost glyph on each side. In review.
+- [[Capybubble]]: Snorzo, Rare, World 2: a tan capybara loaf with a glossy tangerine on its head, snoring three lit bubbles up the side of its face. In review.
+- [[Shimmerlynx]]: Aurelyx, Epic, World 2: a lavender lynx sitting with its tail curled round its paws, five aurora ribbons of light standing on its crown, glowing ear tufts and tail tip. In review.
+
 ## Props
 
 One spec note per prop in `Props/`, the same parts table as a creature (`kind: prop`), built through the same route at the world cell ([[Blocky-Style]] "Environment"). World 1 Verdant's set, all in the meadow diorama:

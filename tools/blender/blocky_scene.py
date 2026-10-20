@@ -162,6 +162,11 @@ W2_SUN_COLOUR = (0.95, 0.97, 1.0)
 W2_CREATURE_PLACES = [
     ("Flufflet", -1.5, -8.5, 24), ("Pengoo", 3.5, -12.5, 32), ("Reindazzle", -7.0, -11.5, 16), ("Frostfang", 1.5, -2.0, 28),
     ("Skaddle", -15.5, 1.5, 24), ("Fenripup", 13.0, 9.0, 42),
+    # the ten of the World 2 roster (2026-10-20): the Commons near the front and the camp, the Ice Cave's catches by the arch and the cliff,
+    # the Geyser Field's warm three by the pond's far side, the Rares on the ice and by the rise, the Epic on the rise behind
+    ("Snowbun", -12.0, -13.5, 20), ("Drippo", 7.5, -7.0, 15), ("Chipmole", -14.5, 6.0, 35), ("Kettlepuff", -13.0, -5.5, 40),
+    ("Flapsicle", -5.5, 9.5, -25), ("Toastoad", 12.5, -14.0, -15), ("Emberchin", 16.5, -9.0, 25),
+    ("Shellberg", 11.0, -4.0, 40), ("Capybubble", 15.5, 2.5, 20), ("Shimmerlynx", 2.5, 11.0, 24),
 ]
 W2_AVATAR_PLACE = (-6.5, -4.5, 22)
 W2_PROP_PLACES = [  # (note, X, Y, yaw, extra Euler x degrees, sink studs)

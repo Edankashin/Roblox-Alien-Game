@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Blizzard
 height: 6.5
-blocks: 62
-tris: 884
+blocks: 66
+tris: 910
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#F4F7FA", "#5C708A", "#8FD3F4", "#4F9ED0", "#9FA8FF", "#161B2E"]
@@ -27,7 +27,7 @@ cells_render: "[[Skaddle_tq_cells.jpg]]"
 ---
 # Skaddle (Skadra), Legendary, World 2 Frostbyte
 
-A snow owl the size of the player, standing on two tiny skis. A big square head carries a slate-rimmed facial disc with the house face inside it, a six-point frost glyph on the forehead, two ear tufts, and the frosty crest: five ice crystals in a fan, lit from inside, standing in a frost band across the crown. The breast is ice blue under five slate bars; two stepped wings stretch out and down from the shoulders, a gliding owl's, barred white, slate and ice blue, with a lit line down each leading edge, and a second, smaller pair of wings grows from the back. A quiver of three fletched arrows hangs on its back (the echo of Skadi, the winter hunter on skis), and its feet, in bindings on the skis, end in three talons each. Concept row in `src/shared/data/Species.luau`: "snow owl, tiny skis, frosty crest; echo of Skadi". Element: Blizzard (`Effects.luau`); [[Roster-Redesign]] section 2 gives the flurry, the ski tracks, the ground ring and the gust. Rules: [[Blocky-Style]].
+A snow owl the size of the player, standing on two tiny skis. A big square head carries a slate-rimmed facial disc with the house face inside it under a slate brow ridge, a six-point frost glyph on the forehead, two ear tufts, and the frosty crest: five ice crystals in a fan, lit from inside, standing in a frost band across the front of the crown with a lit gem over the brow. The chest is feathered: five scalloped rows stepping in down the breast, ice blue over white, with a slate shadow line under every other row, and a slate mantle lies across the shoulders; two stepped wings stretch out and down from the shoulders, a gliding owl's, barred white, slate and ice blue, with a lit line down each leading edge, and a second, smaller pair of wings grows from the back. A quiver of three fletched arrows hangs on its back (the echo of Skadi, the winter hunter on skis), and its feet, in bindings on the skis, end in three talons each. Concept row in `src/shared/data/Species.luau`: "snow owl, tiny skis, frosty crest; echo of Skadi". Element: Blizzard (`Effects.luau`); [[Roster-Redesign]] section 2 gives the flurry, the ski tracks, the ground ring and the gust. Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the Warden of Frostbyte, 6.5 studs to the avatar's 5, and the first creature on the snow whose light reaches the ground: the gold ring under its skis and the flurry circling it say "Legendary" from across the field before the face does. The face stays the soft house face; the awe is the crest, the four wings and the skis.
 
@@ -50,25 +50,32 @@ parts:
   - {name: Talon, slot: Trim, size: [0.25, 0.25, 0.375], at: [0.375, 0.625, -0.5625], mirror: x, material: metal}
   - {name: Talon2, slot: Trim, size: [0.25, 0.25, 0.375], at: [0.75, 0.625, -0.5625], mirror: x, material: metal}
   - {name: Talon3, slot: Trim, size: [0.25, 0.25, 0.375], at: [1.125, 0.625, -0.5625], mirror: x, material: metal}
-  # the body with its barred ice-blue breast, the head over it
+  # the body with its feathered chest: five scalloped rows stepping in down the breast, ice blue over white, a slate shadow line under
+  # every other row, and a slate mantle across the shoulders; the head over it
   - {name: Body, slot: Body, size: [2.5, 2, 2.25], at: [0, 2, 0.125], bevel: true, material: fur}
-  - {name: Breast, slot: Accessory, size: [1.5, 1.25, 0.125], at: [0, 1.875, -1.0625]}
-  - {name: Bar, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 1.0625, -1.1875]}
-  - {name: Bar2, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 1.4375, -1.1875]}
-  - {name: Bar3, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 1.8125, -1.1875]}
-  - {name: Bar4, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 2.1875, -1.1875]}
-  - {name: Bar5, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 2.5625, -1.1875]}
+  - {name: FeatherA, slot: Accessory, size: [2, 0.375, 0.25], at: [0, 2.8125, -1.125]}
+  - {name: FeatherB, slot: Body, size: [1.75, 0.375, 0.375], at: [0, 2.4375, -1.1875], material: fur}
+  - {name: FeatherC, slot: Accessory, size: [1.5, 0.375, 0.25], at: [0, 2.0625, -1.125]}
+  - {name: FeatherD, slot: Body, size: [1.25, 0.375, 0.375], at: [0, 1.6875, -1.1875], material: fur}
+  - {name: FeatherE, slot: Accessory, size: [1, 0.375, 0.25], at: [0, 1.3125, -1.125]}
+  - {name: Bar, slot: BodyDark, size: [2, 0.125, 0.125], at: [0, 2.5625, -1.3125]}
+  - {name: Bar2, slot: BodyDark, size: [1.5, 0.125, 0.125], at: [0, 1.8125, -1.3125]}
+  - {name: Bar3, slot: BodyDark, size: [1, 0.125, 0.125], at: [0, 1.0625, -1.1875]}
+  - {name: Mantle, slot: BodyDark, size: [2, 0.25, 1.5], at: [0, 3.125, 0.5], material: fur}
   - {name: Head, slot: Body, size: [3, 3, 2.5], at: [0, 4, -0.25], bevel: true, material: fur}
+  # a slate brow ridge proud over the facial disc, so the forehead and the face read as two
+  - {name: Brow, slot: BodyDark, size: [3.25, 0.125, 0.375], at: [0, 4.3125, -1.6875]}
   - {name: Beak, slot: Trim, size: [0.75, 0.375, 0.375], at: [0, 3.8125, -1.6875], material: metal}
   - {name: BeakTip, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [0, 3.5625, -1.625]}
   - {name: Cheek, slot: Body, size: [0.25, 0.5, 0.5], at: [1.625, 3.5, -0.75], mirror: x}
   - {name: EarTuft, slot: Body, size: [0.5, 0.75, 0.375], at: [1.25, 5.75, -0.5], rot: [0, 0, -20], mirror: x}
-  # the hero: the frosty crest, five lit ice crystals in a fan standing in a frost band across the crown
-  - {name: CrestBand, slot: Trim, size: [2.5, 0.25, 0.5], at: [0, 5.625, 0], material: metal}
-  - {name: CrestGem, slot: Glow, size: [0.5, 0.5, 0.5], at: [0, 5.75, -0.5], shape: ico1, material: ice}
-  - {name: CrestC, slot: Glow, size: [0.75, 1, 0.75], at: [0, 6, 0], material: ice}
-  - {name: Crest2, slot: Glow, size: [0.5, 0.875, 0.5], at: [0.75, 5.8125, 0], rot: [0, 0, -15], mirror: x, material: ice}
-  - {name: Crest3, slot: Glow, size: [0.5, 0.625, 0.5], at: [1.3125, 5.6875, 0], rot: [0, 0, -25], mirror: x, material: ice}
+  # the hero: the frosty crest, five lit ice crystals in a fan standing in a frost band on the front of the crown, where the front view and
+  # the game's high camera see it; the gem sits over the brow
+  - {name: CrestBand, slot: Trim, size: [2.5, 0.25, 0.5], at: [0, 5.625, -0.875], material: metal}
+  - {name: CrestGem, slot: Glow, size: [0.5, 0.5, 0.5], at: [0, 5.75, -1.375], shape: ico1, material: ice}
+  - {name: CrestC, slot: Glow, size: [0.75, 1, 0.5], at: [0, 6, -0.875], material: ice}
+  - {name: Crest2, slot: Glow, size: [0.625, 0.875, 0.5], at: [0.75, 5.8125, -0.875], rot: [0, 0, -15], mirror: x, material: ice}
+  - {name: Crest3, slot: Glow, size: [0.5, 0.625, 0.5], at: [1.3125, 5.6875, -0.875], rot: [0, 0, -25], mirror: x, material: ice}
   # two stepped wings stretched out and down from the shoulders, barred white, slate and ice blue, a lit line down each leading edge; each wing one moving part
   - {name: Wing, slot: Body, size: [0.375, 1.25, 1.75], at: [1.8125, 3, 0.25], rot: [0, 0, -115], mirror: x, moves: wing, pivot: [1.25, 3.25, 0.25]}
   - {name: Wing2, slot: BodyDark, size: [0.375, 1, 1.5], at: [2.8125, 2.5, 0.375], rot: [0, 0, -115], mirror: x, moves: wing, pivot: [1.25, 3.25, 0.25]}
@@ -150,3 +157,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 ## Reviews
 
 - 2026-10-19, World 2 worker, two rounds. Round 1: at 44 blocks it sat under the Legendary band, so the wings gained their lit lines, the breast its five bars, the feet their talons, the tail two more rows, the beak a dark tip, the cheeks two feather tufts and the back a quiver of three arrows (the Skadi echo the brief asked for). Round 2: the glyph moved from the flank to the forehead, above the facial disc, where the front view shows it; the ear tufts went static so the four wings keep the four moving objects; the crest's crystals, thin in the first build, grew to three quarters of a stud so the crown reads from the hero camera. Round 3 (the silhouette test): with the wings hanging close it was a mushroom beside Fenrir (0.73), so the wings now stretch out and down from the shoulders (25 degrees under horizontal, a gliding owl, 8 studs across), which leaves the box's lower corners empty and drops the pair under 0.7. A white middle wing block vanished against the render's pale backdrop and the wing read as broken, so the wings are barred white, slate and ice blue. Overlap 0.994 to 0.998, 884 triangles, 62 blocks, 6.5 studs, four moving objects (the two wing pairs). Wanted for: the Warden of Frostbyte, a player-sized owl on skis under a lit crest. Still cheap: the hind wings are small and read only from the three-quarter view; the quiver is hidden from the front. Status review.
+- 2026-10-20, World 2 roster worker (the ladder review's fix): the head and body were two big white blocks, so the flat breast panel and its five bars became five scalloped feather rows stepping in down the chest (ice blue over white, a slate shadow line under every other row) with a slate mantle across the shoulders; a slate brow ridge an eighth thick stands proud over the facial disc (a quarter would have covered the eyes' top row); the crest moved from the middle of the crown to its front third with the gem over the brow, so the front view and the game's high camera see it. Overlap 0.994 to 0.998, 910 triangles, 66 blocks, 6.5 studs, four moving objects. Status review.

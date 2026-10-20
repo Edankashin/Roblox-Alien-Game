@@ -7,6 +7,7 @@ tools/blender/blocky_build.py (<Id>_tq.png or <Id>_tq_cells.png, lineup.png) and
 
   python3 -I tools/blocky/roster.py --notes <sixteen notes in tier order> --build <dir> --refs docs/vault/06-art-pipelines/refs/blocky \\
       --out media/studio/<date>/world1_roster_v1.jpg --silhouettes docs/vault/06-art-pipelines/refs/blocky/world1_silhouettes_16.png
+  ... --world 2 --out media/studio/<date>/world2_roster_v1.jpg      # World 2: the Frostbyte title and the world2 silhouette file
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ import spec as S  # noqa: E402
 
 PAPER, INK, MUTED, PANEL = "#F6F0E6", "#1B1F3B", "#5F6375", "#FFFFFF"
 LIGHT_TIERS = ("Common", "Uncommon")
+TITLES = {1: "World 1 roster v1: all sixteen Verdant aliens in block cells", 2: "World 2 roster v1: all sixteen Frostbyte aliens in block cells"}
 
 
 def render_of(folders, sid):
@@ -97,15 +99,17 @@ def main(argv=None):
     ap.add_argument("--notes", required=True, help="comma list of creature notes, in tier order")
     ap.add_argument("--build", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--silhouettes", default="", help="also write the world's 64 px silhouette row with every pair's overlap here")
-    ap.add_argument("--title", default="World 1 roster v1: all sixteen Verdant aliens in block cells")
+    ap.add_argument("--silhouettes", default="", help="also write the world's 64 px silhouette row with every pair's overlap here (with --world "
+                    "and no path: refs/blocky/world<N>_silhouettes_16.png)")
+    ap.add_argument("--world", type=int, default=1, choices=(1, 2), help="the world: its title and silhouette file name")
+    ap.add_argument("--title", default="", help="the sheet's title (default: the world's)")
     ap.add_argument("--cols", type=int, default=4)
     ap.add_argument("--refs", default="", help="a second folder of renders (the vault's refs/blocky, <Id>_tq_cells.jpg) for species not in --build")
     a = ap.parse_args(argv)
     specs = [S.load(n) for n in a.notes.split(",") if n]
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    print(roster(specs, pathlib.Path(a.build), out, a.title, a.cols, a.refs or None))
+    print(roster(specs, pathlib.Path(a.build), out, a.title or TITLES[a.world], a.cols, a.refs or None))
     if a.silhouettes:
         print(L.silhouettes(specs, a.silhouettes))
     return 0

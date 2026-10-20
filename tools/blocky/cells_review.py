@@ -199,7 +199,7 @@ SCENE_NOTES = {
         "Nothing under assets/models or src changed.",
     ]),
     2: ("A 48 x 32 stud snowfield built from the same block cells as the creatures: 2-stud ground blocks in the cold materials, props from "
-        "spec notes, the six World 2 aliens and the 5-stud avatar to scale. Blender render.", [
+        "spec notes, every World 2 alien and the 5-stud avatar to scale. Blender render.", [
         "Ground: SnowBlock's kinds (snow over packed snow, a",
         "trodden trail, the ice floor at the cave mouth, the",
         "frozen pond) on a height map with a rise, a ledge and",
