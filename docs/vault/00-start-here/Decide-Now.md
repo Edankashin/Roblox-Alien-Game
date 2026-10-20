@@ -242,6 +242,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**, because a rounded glossy HUD over a block-cell world reads as two games; the top voxel-brick references dress their UI in the same bricks.
 - Then: one screen per change, each checked at iPhone SE and iPad on the Mac before the next.
 
+**44. Mounts, now that rarer is not bigger.** You said (2026-10-20) you don't want the aliens bigger when rarer ([[Decisions]] B45), so every alien stands at 2 to 3.5 studs and the 10 to 14 stud Cosmic and Secret builds (Raddis, Syrinx, Fenrir) come down in the resize pass. `docs/GAME_DESIGN.md` section 6 still has ridable aliens from Epic up, which needs size.
+- Options: a) a mount form: an alien grows to riding size only while ridden (the same model scaled, a saddle effect), and stands in the band the rest of the time; b) drop riding, the hoverboard and glider carry that progression; c) a few named mount species are big by nature, as their character, spread across tiers.
+- Recommend: **a**, because it keeps the one band at rest, keeps the mount progression the design counts on, and costs one scale tween; b is the simplest if riding never tested well.
+- Then: the answer goes into the design doc's mount section and the Blocky-Style ladder; the resize pass then runs on all 35 species, Cosmic and Secret first.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -299,4 +304,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 41: a* yes, roll it out | b yes with changes | c no
 42: a* A, the house face | b B, heavier brow | c neither
 43: a* yes, the UI in block cells | b keep it rounded | c a mix
+44: a* mount form, grows only while ridden | b drop riding | c a few big mount species
 ```

@@ -57,7 +57,7 @@ kgwk
 
 | Do | Don't |
 |---|---|
-| The same eye on a Common and a Cosmic; awe from height, ornament and light | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
+| The same eye on a Common and a Cosmic; awe from ornament, light and effects (not height, B45) | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
 | The face as a texture on the head's front, nearest filtering, cell to cell | Eye blocks stuck on the head, or a blurred, bilinear face |
 | A warm or saturated lit crescent (gold, amber, pink, violet); a muzzle or snout drawn into the grid in the second colour (Vixa's cream `c` cells) | A pale or sky-blue crescent: under the eye it reads as tears (Buzzik, round 1) |
 
@@ -85,19 +85,19 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 | Leaves as solid broad blades (Raddis's seven) | A pale midrib down a thin leaf: it splits the leaf into two sticks |
 | One motif per world, carried by every species of it | A different motif per species, so a world has no look |
 
-## 6. The rarity ladder: blocks, height, light, presence
+## 6. The rarity ladder: blocks, light, presence (not height)
 
-Each rung changes what a player sees from across the map. Blocks and height are *(checked)* against these bands; the effects and presence columns are for Effects.luau and the reveal.
+2026-10-20, [[Decisions]] B45: **rarity does not change height.** Every alien stands in one band, **2 to 3.5 studs** (the avatar is 5), and where a species sits in it is its own character, never its tier. The height column below is kept as the record of what the 35 scratch builds were made at; the resize pass brings every Legendary, Cosmic and Secret down into the band and keeps its detail by smaller blocks and more of them, lit cells, trim and effects. Until that pass runs, the ladder sheets still show the old heights. Each rung changes what a player sees from across the map. Blocks are *(checked)* against these bands, height against the one band; the effects and presence columns are for Effects.luau and the reveal.
 
-| Tier | Blocks | Height (avatar 5 studs) | Effects, outward | Presence | Flat colours |
+| Tier | Blocks | Height as built (retired by B45; the target is 2 to 3.5 for every tier) | Effects, outward | Presence | Flat colours |
 |---|---|---|---|---|---|
 | Common | 5 to 10; one hero block; the face | 1.75 to 2.5 | none, or one procedural move | none | 2 to 3 |
 | Uncommon | 8 to 15; a two-tone body, one secondary block | 2 to 2.75 | one touch in a second colour | tier word in green | 2 to 3 |
 | Rare | 15 to 30; a stamped element glyph; one glossy trim slot | 2.5 to 3.25 | a soft light | name in blue | 3 to 4 |
 | Epic | 30 to 60; trim bands, stripes, a stepped emblem; glow on 2 or 3 extremities | 3.25 to 4.25 | light, glow, one emitter, kept **on the body** | outlined plate | 3 to 4 |
 | Legendary | 60 to 100; accessories, emissive lines or cells | 4.75 to 6.5 | adds orbiting particles and a ground ring: **touches the ground** | in-server banner | 3 to 4 |
-| Cosmic | 100 to 180; articulated parts, a floating accessory, colour-cycled glow | 10 to 20 (the prototypes stop at 14), ridable | adds a trail and a beam: **reaches the sky** | an in-server sky moment | 3 to 4 |
-| Secret | as Cosmic, a dark palette with one accent; glow cycles in its own palette | 10 to 20, ridable | the Cosmic set in shadow colours | a cross-server line, no username | 3 to 4 |
+| Cosmic | 100 to 180; articulated parts, a floating accessory, colour-cycled glow | built at 10 to 14; target 2 to 3.5 (riding: Decide-Now 44) | adds a trail and a beam: **reaches the sky** | an in-server sky moment | 3 to 4 |
+| Secret | as Cosmic, a dark palette with one accent; glow cycles in its own palette | built at 10 to 14; target 2 to 3.5 | the Cosmic set in shadow colours | a cross-server line, no username | 3 to 4 |
 
 ## 7. VFX: primary and secondary, outward by tier, never over the face
 
