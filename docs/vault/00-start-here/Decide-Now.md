@@ -9,7 +9,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 > **Answered 2026-10-17 ([[Decisions]] B43).** Ethan rejected the redesigns: the look becomes blocky, as in popular Roblox games; rarer aliens get more detail, more height and VFX (not a fiercer face); every design goes through Claude Design, Blender and Obsidian. So items **12, 37, 39 and 40 are closed** (the recipe redesigns are not the direction) and **38 is answered yes** (more detail and height with rank). Items 11 (the hero route) and 9 (the hero slate) now wait on the blocky style note. Everything else stands.
 
-**How to answer.** 42 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17, 42 on 2026-10-19). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 43 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17, 42 and 43 on 2026-10-19 and 20). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -237,6 +237,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **a**, because one face across the roster is what makes the aliens ours at a glance, and you said rarer should mean worth finding, not fiercer; B is the fallback if A reads too soft on a 14-stud wolf.
 - Then: the pick goes into the Fenripup spec note and the heroes rule in [[Blocky-Style]].
 
+**43. The UI in block cells too?** Your "consistent throughout the whole game" (B44) reaches the HUD and screens. A board "HUD in block cells" sits beside the current phone HUD on the UI canvas [Catch an Alien UI](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4): the same layout and thumb-zone rules, stepped pixel corners instead of rounded ones, cell-textured plates and buttons, pixel icons on an 8 by 8 grid, block terraces for the world, the blocky renders in Nearby.
+- Options: a) yes: rebuild the HUD in Luau from that board, then the Aliens, Shop and reveal screens the same way, the [[UI-Playbook]] changing in the same commit (pixel corners, cell plates, pixel icons, Fredoka One kept); b) keep the rounded UI as it is and let only the world and creatures be blocky; c) a mix (say which parts).
+- Recommend: **a**, because a rounded glossy HUD over a block-cell world reads as two games; the top voxel-brick references dress their UI in the same bricks.
+- Then: one screen per change, each checked at iPhone SE and iPad on the Mac before the next.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -293,4 +298,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 40: a* take six, fix Twiglo | b per species | c later
 41: a* yes, roll it out | b yes with changes | c no
 42: a* A, the house face | b B, heavier brow | c neither
+43: a* yes, the UI in block cells | b keep it rounded | c a mix
 ```

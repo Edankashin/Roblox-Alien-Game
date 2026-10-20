@@ -5,7 +5,7 @@ up: "[[Start-Here]]"
 ---
 # Now
 
-The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-10-17.
+The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-10-20.
 
 **The game.** Catch an Alien (working title AlienGame in code): crash-land on a planet, catch cute aliens with a timing-bar minigame, they work at camp and build a ship, the ship flies to the next themed world. One currency, Scrap, never sold for Robux. Luau strict, Rojo, server authority; Ethan, a collaborator and Claude sessions.
 
@@ -14,8 +14,8 @@ The hot note: read this first on every start, then the notes it points to. Keep 
 **The bar.** Creatures: "seamless, fluid, complete, not shapes mashed together", with the goofy eyes and open mouth kept. UI: one token system (thick outlines, Fredoka One, gloss, standard rarity colours) that passes the phone rules. The seven decisions of this turn are [[Decisions]] B27 to B33.
 
 **Three open threads.**
-1. **Creatures.** Ethan rejected the smooth recipe redesigns (2026-10-17, [[Decisions]] B43): the style is **blocky**, as in popular Roblox pet games, and rarer aliens get more detail, more height and VFX so they feel worth finding (not fiercer). Every design goes Obsidian spec (parts table in studs) to a Claude Design concept sheet ([Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD)) to a headless Blender build checked against the sheet. Research: `reports/Blocky Roblox pet design.md`. First loop: the style bible, the spec format and Moop, Voltus and Raddis across the ladder. Nothing replaces a model until Ethan says yes.
-2. **UI.** The Claude Design canvas holds the HUD, Aliens, Shop and the reveal in three beats. Ethan picks a board, a worker rebuilds it in Luau, the Playbook changes in the same commit. [[UI-Playbook]] ("Phone rules from the design research"), [[Claude-Design-Brief]].
+1. **Creatures and worlds.** The style is **blocky in block cells** (Ethan, 2026-10-17: "This looks pretty nice ... made up of little blocky texture ... consistent throughout the whole game"; [[Decisions]] B43, B44). Every surface carries flat square cells under one rule set ([[Blocky-Style]]). Done on scratch: the seven-rung World 1 ladder, the meadow diorama, World 2 Frostbyte (six aliens, Fenrir the hero, the snowfield); the rest of World 1 is building. Route: Obsidian spec note (parts table in studs) to a Claude Design sheet ([Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD)) to a headless Blender build checked against the sheet. Nothing replaces a model until Ethan says yes; the phone test of the cell textures is Mac job 35.
+2. **UI.** The Claude Design canvas holds the HUD, Aliens, Shop and the reveal in three beats, and now a HUD in block cells (B44 reaches the UI; [[Decide-Now]] 43). Ethan picks a board, a worker rebuilds it in Luau, the Playbook changes in the same commit. [[UI-Playbook]] ("Phone rules from the design research"), [[Claude-Design-Brief]].
 3. **Vault connection.** Hooks and the Obsidian Local REST API plugin with the CLI are proposals for Ethan to apply on the Mac; the Mac then verifies. [[Setup-and-Tips]], [[Tools-Status]].
 
 **Roles.** The Mac session owns Studio, Blender and Obsidian on Ethan's 8 GB MacBook (one Studio at a time; Obsidian closed on overnight runs). Cloud sessions (the coordinator and the build workers) own the repo work: code, data, the vault, headless `bpy`, research. They have no Studio and no Obsidian. Git is the sync channel: claim a row on [[Board]] before you work, log under your own heading in `docs/vault/08-log/`.
