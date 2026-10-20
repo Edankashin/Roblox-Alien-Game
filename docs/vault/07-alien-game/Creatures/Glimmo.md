@@ -20,12 +20,12 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Glimmo_sheet.svg]]"
 render: "[[Glimmo_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.997, 0.998, 0.996]
+overlap: [0.996, 0.997, 0.997, 0.996]
 cells_render: "[[Glimmo_tq_cells.jpg]]"
 ---
 # Glimmo (Glim), Common, World 1 Verdant
 
-A jelly firefly: a soft aqua jelly bell (the head, with the face) hovering with a yellow belly under it, three thin dark tendrils hanging from the bell that brush the grass, a firefly's yellow bulb curling up behind it like a tail in two steps, and two dark wing covers lifted off its crown like a beetle about to fly. Concept row in `src/shared/data/Species.luau`: "jelly firefly". Element and effect: [[Roster-Redesign]] section 2 (Light; the bulb blinks every 3 s). Rules: [[Blocky-Style]].
+A jelly firefly: a soft aqua jelly bell (the head, with the face) hovering with a yellow belly under it, three thin dark tendrils hanging from the bell that brush the grass, a firefly's yellow bulb curling up behind it like a tail in two steps, and two broad dark wing covers, a stud deep, hinged at its crown and lifted like a beetle about to fly. Concept row in `src/shared/data/Species.luau`: "jelly firefly". Element and effect: [[Roster-Redesign]] section 2 (Light; the bulb blinks every 3 s). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the night one: a jelly that floats at head height and blinks, the first thing a player sees move at dusk. A Common has no glow region and no light, so the bulb is painted in the accent yellow and the game's Effects row does the blinking; everything above it on the ladder adds real light.
 
@@ -48,8 +48,9 @@ parts:
   # the hero: the firefly bulb, a yellow tail curling up behind the bell in two steps
   - {name: Bulb, slot: Accessory, size: [1, 0.75, 1], at: [0, 1.5, 1.25]}
   - {name: Bulb2, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0, 1.875, 2]}
-  # a firefly's wing covers, two dark plates lifted 25 degrees off the crown (the pair the game flicks)
-  - {name: Elytron, slot: BodyDark, size: [1.5, 0.125, 0.5], at: [0.9375, 2.125, 0.125], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.25, 1.75, 0.125]}
+  # a firefly's wing covers: two broad dark plates, a stud deep and a quarter thick, hinged at the crown and lifted 25 degrees like a beetle about
+  # to fly (the pair the game flicks)
+  - {name: Elytron, slot: BodyDark, size: [1.5, 0.25, 1], at: [0.9375, 2.0625, 0.125], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.25, 1.75, 0.125]}
 ```
 
 ## Face
@@ -95,5 +96,7 @@ The concept sheet, drawn from the parts table above: [[Glimmo_sheet.svg]] (flat 
 The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (50 islands). Materials: skin everywhere (a jelly has no motif; the cells are what make it read as built).
 
 ## Reviews
+
+- 2026-10-20, World 1 fixes worker (the roster review's "two sticks at a distance"). The wing covers are plates now: a stud deep and a quarter thick instead of half a stud and an eighth, the same 1.5-stud reach and 25-degree lift, hinged a sixteenth lower so the outer tips stay under the Common cap of 2.5 studs; from the three-quarter view they read as lifted covers over a back, not sticks. Still 9 blocks, 2.5 studs. Status review.
 
 - 2026-10-19, World 1 roster worker, four rounds. Round 1: a cube with two crystal wings at the crown read as ears, the three tendrils as legs, and the bulb hung behind where the camera never saw it. Round 2: a bell with a flared rim and a cap step, which put it at 0.71 against Moop. Round 3: no rim, no cap; the bulb curls up behind the bell like a tail where the three-quarter and the game camera see it, a yellow belly under the bell, and wing covers lifted 25 degrees; five wing-cover variants scored on the silhouette alone (steep, flat, low, long, none), the long pair the only one under 0.68. Round 4: the covers half as deep. Wanted for: the night one, a jelly that blinks. Still cheap: the covers read as two sticks from a distance and the jelly reads as an aqua box; the blink is all Effects.luau's. Status review.

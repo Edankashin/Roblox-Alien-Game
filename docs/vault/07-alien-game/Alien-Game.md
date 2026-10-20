@@ -24,14 +24,20 @@ One spec note per creature in `Creatures/`, the single source of truth for its c
 The other nine of World 1 (2026-10-19, the roster loop; the review sheets `media/studio/2026-10-19/world1_roster_v1.jpg` and `world1_scene_v2.jpg`):
 
 - [[Pebblet]]: Pebblet, Common, World 1: a pebble that grew four splayed stone legs and balances a cairn on its back, a lichen patch on one flank. In review.
-- [[Glimmo]]: Glim, Common, World 1: a jelly firefly, an aqua bell on three hanging tendrils with a yellow bulb curling up behind it and two wing covers lifted. In review.
+- [[Glimmo]]: Glim, Common, World 1: a jelly firefly, an aqua bell on three hanging tendrils with a yellow bulb curling up behind it and two broad wing covers lifted. In review.
 - [[Twiglet]]: Twiglo, Common, World 1: a stick bug with a bark head, a twig rising from its back and a leaf wider than its head worn as a hat. In review.
 - [[Puffpuff]]: Dandel, Common, World 1: a dandelion clock in woolly cells on a yellow collar and a stem, two leaves rising from its foot, one seed floating off. In review.
-- [[Snailbyte]]: Snibble, Uncommon, World 1: a mint snail with a riveted copper coil of a shell standing edge-on to one side, an aerial and a dish. In review.
+- [[Snailbyte]]: Snibble, Uncommon, World 1: a mint snail with a copper shell that is a stepped spiral standing edge-on to one side, the whorl in its cells, an aerial and a dish. In review.
 - [[Lanternewt]]: Lantrin, Uncommon, World 1: an orange newt with axolotl gills whose tail curls up to hold a caged lantern. In review.
 - [[Rocklobber]]: Boulden, Rare, World 1: a crab whose claws are boulders bigger than its shell, an amber gem in each, a gold cairn glyph on the carapace. In review.
 - [[Zapfinch]]: Zirrit, Rare, World 1: a round sky-blue finch with a gold beak and two antennae with lit tips for a crest, a gold bolt on its belly. In review.
-- [[Gloomoth]]: Iridia, Epic, World 1: a mauve night moth in a cream ruff with comb antennae and four crystal wings carrying lit eyespots. In review.
+- [[Gloomoth]]: Iridia, Epic, World 1: a mauve night moth in a stepped cream ruff with two feathered blade antennae and four crystal wings carrying lit eyespots. In review.
+
+The Haunted Nebula event's three (2026-10-20, the fixes loop; the review sheet `media/studio/2026-10-20/world1_fixes_v1.jpg`; [[Blocky-Style]] "World 1 fixes and the event species"):
+
+- [[Wisplet]]: Wispkin, Rare (event), World 1: a will-o'-the-wisp, a cold blue flame with a shy face under an iron lantern's bail, two flamelets floating beside it. In review.
+- [[Spookum]]: Grin, Epic (event), World 1: a round ghost with a jack-o'-lantern grin lit from inside, a brass pumpkin stem on its crown, tatters to the grass and a chain in one hand. In review.
+- [[Nebulyn]]: Cosmoo, Legendary (event), World 1: a violet nebula cloud with star cells, gold constellations and a tail of cloud and stars curling up behind it. In review.
 
 World 2 Frostbyte's six, one per rung to Cosmic, built by the same rules in the cold cell materials ([[Blocky-Style]] "World 2: Frostbyte palette"; the review sheet `media/studio/2026-10-19/world2_ladder_v1.jpg`):
 

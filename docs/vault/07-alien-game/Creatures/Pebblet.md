@@ -8,8 +8,8 @@ tier: Common
 status: review
 element: Stone
 height: 2.5
-blocks: 9
-tris: 196
+blocks: 10
+tris: 204
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#C4B9A6", "#5A5048", "#D27A16", "#1E1A17"]
@@ -25,11 +25,11 @@ cells_render: "[[Pebblet_tq_cells.jpg]]"
 ---
 # Pebblet (Pebblet), Common, World 1 Verdant
 
-A smooth grey-tan pebble that grew four stubby slate legs and walks: a wide, low, soft-cornered stone (the head, half of which is face) on four stone stumps splayed out past its corners, so there is air under it. On its back it balances a cairn: three smaller stones stacked and stepped off to one side, the way a hiker leaves a marker on a trail. A patch of orange lichen grows on its right flank. Concept row in `src/shared/data/Species.luau`: "pebble with legs". Element and effect: [[Roster-Redesign]] section 2 (Stone; a puff of grit when it hops). The style rules it is checked against: [[Blocky-Style]].
+A grey-tan pebble that grew four stubby slate legs and walks: a wide, low, soft-cornered stone (the head, half of which is face) with a chipped lower-right flank, on four stone stumps splayed out past its corners, so there is air under it. On its back it balances a cairn: three smaller stones stacked and stepped off to one side, the way a hiker leaves a marker on a trail, the bottom one a wide slab so the top of the pebble steps down on the other side. A patch of orange lichen grows on its right flank. Concept row in `src/shared/data/Species.luau`: "pebble with legs". Element and effect: [[Roster-Redesign]] section 2 (Stone; a puff of grit when it hops). The style rules it is checked against: [[Blocky-Style]].
 
 **What makes a player want it.** It is a rock with a face, which is already funny, and the cairn on its back says it is going somewhere and wants to be found again. The Common rung on purpose: three flat colours (stone, slate, lichen orange), no glow and no light, a hop and a puff.
 
-**Hero block.** The `Cairn`: three stacked stones on its back, leaning off to one side, unique in Verdant.
+**Hero block.** The `Cairn`: three stacked stones on its back, leaning off to one side on a wide bottom slab, unique in Verdant.
 
 **Alien anatomy.** A stone that walks on four legs and carries a cairn; nothing a pet animal does.
 
@@ -41,11 +41,14 @@ A smooth grey-tan pebble that grew four stubby slate legs and walks: a wide, low
 parts:
   # the pebble: one wide low stone, soft-cornered, the face on its front
   - {name: Head, slot: Body, size: [2, 1.25, 1.5], at: [0, 1.125, 0], bevel: true, material: stone}
+  # a chipped flank: a wedge of the stone proud of the lower right side at the front, its facet sloping up to the back
+  - {name: Chip, slot: Body, size: [0.25, 0.5, 0.75], at: [1.125, 0.75, -0.375], shape: wedge, material: stone}
   # four stone stumps at the corners, so the pebble stands with air under it
   - {name: Leg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [1.125, 0.25, -0.5], mirror: x, material: stone}
   - {name: HindLeg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [1.125, 0.25, 0.5], mirror: x, material: stone}
-  # the hero: a cairn of three stones balanced on its back, stepped off to the right
-  - {name: Cairn, slot: Body, size: [1, 0.25, 0.75], at: [0.375, 1.875, 0.125], material: stone}
+  # the hero: a cairn of three stones balanced on its back, stepped off to the right; the bottom stone is a wide flat slab that steps the
+  # top of the pebble down on its left
+  - {name: Cairn, slot: Body, size: [1.25, 0.25, 1], at: [0.375, 1.875, 0.125], material: stone}
   - {name: Cairn2, slot: BodyDark, size: [0.75, 0.25, 0.5], at: [0.5, 2.125, 0.125], material: stone}
   - {name: Cairn3, slot: Body, size: [0.5, 0.25, 0.375], at: [0.625, 2.375, 0.1875], material: stone}
   # a patch of orange lichen on the right flank, proud by an eighth
@@ -92,8 +95,10 @@ The concept sheet, drawn from the parts table above: [[Pebblet_sheet.svg]] (flat
 
 ## Cells
 
-The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (50 islands). Materials: stone on the pebble, the legs and the cairn (cobbles parted by cracks), the lichen patch plain.
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (56 islands). Materials: stone on the pebble, the chip, the legs and the cairn (cobbles parted by cracks), the lichen patch plain.
 
 ## Reviews
+
+- 2026-10-20, World 1 fixes worker (the roster review's "boxiest of the roster"). The outline is stepped and chipped: the cairn's bottom stone is a wide slab offset to the right, so the pebble's top steps down on the left, and a wedge of stone is proud of the lower right flank at the front with its facet sloping to the back, a chip out of the rock on the side the three-quarter camera sees (round 1 had it on the left, where the camera never saw it); from the front the right edge steps out at the bottom and the top steps in on the left. 10 blocks (the cap of the Common band), 2.5 studs. Status review.
 
 - 2026-10-19, World 1 roster worker, three rounds. Round 1: a stone box on four stumps with the cairn centred read as a box with a hat, and the boxed silhouette sat at 0.70 against Moop. Round 2: the legs splayed out past the body's corners and the cairn leaning off to its right, the body a warmer stone (the pale first grey read as paper), the lichen a step darker so the accent clears the body in greyscale. Round 3: no change after the side-by-side. Wanted for: a rock with a face that carries a cairn. Still cheap: it is the boxiest of the nine (the cairn and the stance are what save it); the stone cobbles read only up close. Status review.

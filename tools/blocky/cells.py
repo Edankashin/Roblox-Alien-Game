@@ -15,6 +15,7 @@ Pillow is used only by the swatch sheet. Deterministic: every random choice is a
 
   python3 -I tools/blocky/cells.py --swatches <out.png>                       # every material motif as a 4 x 4 stud swatch (Pillow)
   python3 -I tools/blocky/cells.py --swatches-cold <out.png>                  # World 2's six cold motifs (snow, packed snow, ice, frozen water, pine, fur)
+  python3 -I tools/blocky/cells.py --swatches-event <out.png>                 # the World 1 fixes and the event: whorl, ember, nebula
   python3 -I tools/blocky/cells.py --atlas docs/vault/07-alien-game/Creatures/Mossbop.md --out <dir>   # one creature's atlas PNG
   python3 -I tools/blocky/cells.py --stats docs/vault/07-alien-game/Creatures/*.md                     # cell size, islands, atlas size
 """
@@ -65,12 +66,17 @@ PARAMS = {
     "frozen_water": {"jitter": 1.0, "side_top": 0.5, "side_edge": 0.0, "top_rim": 0.0, "bottom": 0.0, "grout": 0.0},
     "pine": {"jitter": 2.5, "side_top": 0.5, "side_edge": -1.0, "top_rim": 0.0, "bottom": -1.0},
     "fur": {"jitter": 2.5, "side_top": 1.0, "side_edge": -1.0, "top_rim": 0.5, "bottom": -1.0},
+    # the World 1 fixes and the Haunted Nebula event (Blocky-Style "World 1 fixes and the event species")
+    "whorl": {"jitter": 1.5, "side_top": 1.0, "side_edge": -1.0, "top_rim": 1.0, "bottom": -1.0},
+    "ember": {"jitter": 1.5, "side_top": 0.5, "side_edge": 0.0, "top_rim": 0.5, "bottom": 0.0, "grout": 0.5},
+    "nebula": {"jitter": 2.0, "side_top": 0.5, "side_edge": -0.5, "top_rim": 0.5, "bottom": -1.0},
 }
 # Blender surface per material (the slot's own roughness and metal hold where a material has no entry)
 SURFACE = {"water": {"rough": 0.12, "metal": 0.0}, "crystal": {"rough": 0.22, "metal": 0.0}, "metal": {"rough": 0.45, "metal": 0.35},
            "grass": {"rough": 0.85}, "dirt": {"rough": 0.95}, "stone": {"rough": 0.8}, "moss": {"rough": 0.8}, "wood": {"rough": 0.75},
            "snow": {"rough": 0.9}, "packed_snow": {"rough": 0.95}, "ice": {"rough": 0.18, "metal": 0.0}, "frozen_water": {"rough": 0.1, "metal": 0.0},
-           "pine": {"rough": 0.85}, "fur": {"rough": 0.7}}
+           "pine": {"rough": 0.85}, "fur": {"rough": 0.7},
+           "whorl": {"rough": 0.45, "metal": 0.35}, "ember": {"rough": 0.35, "metal": 0.0}, "nebula": {"rough": 0.7}}
 
 # ------------------------------------------------------------------------------------------------ orientation: a face's axes in the part's frame
 # orient: (normal axis, normal sign, (u axis, u sign), (v axis, v sign)). The front (-z) runs u from the viewer's left, which is the creature's
@@ -614,9 +620,95 @@ def _fur(c):
     return "base", 0.0
 
 
+# ---- The World 1 fixes and the Haunted Nebula event (Blocky-Style "World 1 fixes and the event species"). Each moves cells in whole or half
+# steps on a pattern a viewer can name (C6: never noise): a coil, a flame, a nebula.
+WHORL_PITCH = 4         # the whorl's spiral steps out one ring every quarter of a lap: two cells of line, two of shell, the next turn
+WHORL_LINE = 2          # the line is two cells wide, so the coil still reads from the three-quarter camera and across the meadow
+WHORL_MIN = 6           # a face under six cells across has no room for a coil: it takes the metal panels instead
+EMBER_TONGUE = (0.35, 0.85)   # a flame's lit tongues rise from the bottom of a side to between a third and most of its height
+EMBER_SPARK = 0.016     # one cell in sixty above the tongues is a spark (the accent)
+NEBULA_BILLOW = 4       # billows of light and shade about four cells across
+NEBULA_LANE = 9         # a dust lane a step down drifts on the diagonal every nine cells, two cells wide, broken
+NEBULA_STAR = 0.025     # one cell in forty is a star, drawn in the glow colour; one star in three has a twinkle halo
+
+
+def _square_turn(x, y):
+    """The square-spiral coordinates of a cell centre (x, y) relative to a face's centre: its ring (the Chebyshev radius, 0 at the centre) and
+    its fraction of the way round that ring's perimeter, counter-clockwise from the middle of the right side."""
+    r = max(abs(x), abs(y))
+    if r < 1e-9:
+        return 0, 0.0
+    if x >= abs(y):
+        t = (y + r) / (8 * r)
+    elif y >= abs(x):
+        t = 0.25 + (r - x) / (8 * r)
+    elif -x >= abs(y):
+        t = 0.5 + (r - y) / (8 * r)
+    else:
+        t = 0.75 + (x + r) / (8 * r)
+    return int(r), t % 1.0
+
+
+def _whorl(c):
+    # a snail's coil drawn on the two flat faces of a slab (the faces across its thinnest side): a two-cell line two steps down tracing a
+    # square spiral out from the face's centre, one ring further out every quarter of a lap, a lit ridge a half step up on the inside of
+    # each turn, the whorl's eye at the centre a step down; every other face, and any face too small for a coil, is metal panels
+    size = c.part["size"]
+    axis = ORIENTS[c.orient][0]
+    thin = min(range(3), key=lambda a: (size[a], a))
+    if axis != thin or c.nu < WHORL_MIN or c.nv < WHORL_MIN:
+        return _metal(c)
+    ring, t = _square_turn(c.i + 0.5 - c.nu / 2.0, c.j + 0.5 - c.nv / 2.0)
+    if ring == 0:
+        return "base", -1.0
+    if (ring - WHORL_PITCH * t) % WHORL_PITCH < WHORL_LINE:
+        return "base", -2.0
+    if (ring + 1 - WHORL_PITCH * t) % WHORL_PITCH < 1.0:
+        return "base", 0.5
+    return "base", 0.0
+
+
+def _ember(c):
+    # a flame's skin: on a side, lit tongues a full step up rise from the bottom edge to a height set by value noise along the face (so a
+    # tongue is two to four cells wide and its crest, a half step, is ragged); above the tongues the colour itself, with a spark cell in
+    # sixty in the accent; the bottom (the flame's core) a full step up, the top a half step; the hue never moves
+    if c.kind == "bottom":
+        return "base", 1.0
+    if c.kind == "top":
+        return "base", 0.5
+    lo, hi = EMBER_TONGUE
+    h = lo + (hi - lo) * noise(MAT_ID["ember"] + c.plane, c.gu, 0, 3)
+    lit = int(round(h * c.nv))
+    if c.j < lit - 1:
+        return "base", 1.0
+    if c.j == lit - 1:
+        return "base", 0.5
+    if rand(81, c.gu, c.gv, c.plane) < EMBER_SPARK:
+        return "accent", 0.0
+    return "base", 0.0
+
+
+def _nebula(c):
+    # a nebula's dust: billows (half-step blobs about four cells across, the brightest a full step), a dust lane a step down drifting on the
+    # diagonal every nine cells (two cells wide, broken), a star cell in forty in the glow colour, and round one star in three a twinkle:
+    # its four neighbours three quarters of a step up; a top a half step up
+    if rand(85, c.gu, c.gv, c.plane) < NEBULA_STAR:
+        return "glow", 0.0
+    n = noise(MAT_ID["nebula"] + c.plane, c.gu, c.gv, NEBULA_BILLOW)
+    lvl = 0.5 * level(n, 0.35, 0.65) + (0.5 if n > 0.8 else 0.0)
+    d = c.gu + c.gv
+    if d % NEBULA_LANE in (0, 1) and rand(83, d // NEBULA_LANE, (c.gu - c.gv) // 4, c.plane) < 0.6:
+        lvl -= 1.0
+    for du, dv in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        if rand(85, c.gu + du, c.gv + dv, c.plane) < NEBULA_STAR and rand(87, c.gu + du, c.gv + dv, c.plane) < 0.33:
+            return "base", lvl + 0.75
+    return "base", lvl + (0.5 if c.kind == "top" else 0.0)
+
+
 MOTIFS = {"skin": _skin, "moss": _moss, "grass": _grass, "dirt": _dirt, "stone": _stone, "metal": _metal, "crystal": _crystal,
           "wood": _wood, "water": _water, "glow": _glow, "wool": _wool,
-          "snow": _snow, "packed_snow": _packed_snow, "ice": _ice, "frozen_water": _frozen_water, "pine": _pine, "fur": _fur}
+          "snow": _snow, "packed_snow": _packed_snow, "ice": _ice, "frozen_water": _frozen_water, "pine": _pine, "fur": _fur,
+          "whorl": _whorl, "ember": _ember, "nebula": _nebula}
 
 
 def edge_steps(c, params):
@@ -787,6 +879,13 @@ SWATCH_COLD = [
     ("pine", "#2F6B5E", None, "#F2F6FA", "pine crowns: needle rows, snow dust"),
     ("fur", "#4F9BD8", None, None, "cold-world bodies: tufts on a lattice"),
 ]
+# the World 1 fixes and the Haunted Nebula event (Snibble's copper shell C9803E, Wispkin's flame 9BE7FF with white sparks, Cosmoo's
+# violet cloud 5B3FA8 with star cells in its glow FFF3B0)
+SWATCH_EVENT = [
+    ("whorl", "#C9803E", None, None, "Snibble's shell: a coil on flat faces"),
+    ("ember", "#9BE7FF", None, "#FFFFFF", "Wispkin's flame: tongues, sparks"),
+    ("nebula", "#5B3FA8", None, "#FFF3B0", "Cosmoo's cloud: billows, stars"),
+]
 
 
 def swatch_faces(material, base, aux=None, accent=None, studs=4, cell=WORLD_CELL, px=PX):
@@ -794,7 +893,7 @@ def swatch_faces(material, base, aux=None, accent=None, studs=4, cell=WORLD_CELL
     part = {"name": "Swatch", "slot": "Body", "size": [studs, studs, studs], "at": [0, studs / 2, 0], "rot": [0, 0, 0], "shape": "box",
             "moves": "none", "material": material}
     isl = [i for i in islands([part], cell, cull=False) if i["orient"] in ("+y", "-z", "-x")]
-    cols = {"base": hex_rgb(base), "aux": hex_rgb(aux or base), "accent": hex_rgb(accent or base)}
+    cols = {"base": hex_rgb(base), "aux": hex_rgb(aux or base), "accent": hex_rgb(accent or base), "glow": hex_rgb(accent or base)}
     out = {}
     for i in isl:
         i["x"] = i["y"] = 0
@@ -882,6 +981,10 @@ def main(argv=None):
     if "--swatches-cold" in argv:
         print(swatch_sheet(argv[argv.index("--swatches-cold") + 1], swatches=SWATCH_COLD,
                            title="Cell materials, the cold set (Blocky-Style, World 2: Frostbyte palette): each motif on a 4 x 4 stud block, 4 cells a stud"))
+        return 0
+    if "--swatches-event" in argv:
+        print(swatch_sheet(argv[argv.index("--swatches-event") + 1], swatches=SWATCH_EVENT,
+                           title="Cell materials, the World 1 fixes and the Haunted Nebula event (Blocky-Style): whorl, ember, nebula on a 4 x 4 stud block"))
         return 0
     if "--atlas" in argv:
         note = argv[argv.index("--atlas") + 1]

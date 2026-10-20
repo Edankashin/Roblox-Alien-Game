@@ -47,7 +47,8 @@ BEVEL_TRIS = {1: 44, 2: 108}  # a bevelled box, measured in Blender 5.0.1 (the r
 MOVES = ("none", "wing", "tail", "ear", "halo", "sprout", "antenna", "crest", "float", "jaw")
 # the cell material of a part (Blocky-Style "Cells", Decision B44): its motif in the block-cell texture (tools/blocky/cells.py)
 MATERIALS = ("skin", "moss", "grass", "dirt", "stone", "metal", "crystal", "wood", "water", "glow", "wool",
-             "snow", "packed_snow", "ice", "frozen_water", "pine", "fur")   # the last six: World 2 Frostbyte's cold set
+             "snow", "packed_snow", "ice", "frozen_water", "pine", "fur",   # the six after the eleven: World 2 Frostbyte's cold set
+             "whorl", "ember", "nebula")   # the World 1 fixes and the Haunted Nebula event (Snibble's coil, Wispkin's flame, Cosmoo's cloud)
 DEFAULT_MATERIAL = "skin"   # a Glow slot part defaults to glow
 STATUSES = ("concept", "board", "build", "review", "approved")
 # rule 6, the ladder: blocks and height (studs) per tier, and how many flat colours

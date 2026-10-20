@@ -8,8 +8,8 @@ tier: Common
 status: review
 element: Wind
 height: 2.5
-blocks: 9
-tris: 196
+blocks: 10
+tris: 202
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#F4F1E8", "#4E9E3C", "#F5C542", "#1D2418"]
@@ -20,38 +20,39 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Puffpuff_sheet.svg]]"
 render: "[[Puffpuff_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.996, 0.998, 0.995]
+overlap: [0.993, 0.996, 0.998, 0.994]
 cells_render: "[[Puffpuff_tq_cells.jpg]]"
 ---
 # Puffpuff (Dandel), Common, World 1 Verdant
 
-A dandelion clock with a face: a soft white seed-head (the head, in woolly cells) on a yellow collar and a short green stem, standing on two broad green leaves that rise out from its foot like a rosette. One seed still stands on its crown, its little parachute open, and one more has just let go and floats beside it. Concept row in `src/shared/data/Species.luau`: "dandelion puff, face". Element and effect: [[Roster-Redesign]] section 2 (Wind; a seed lifts off every 5 s). Rules: [[Blocky-Style]].
+A dandelion clock with a face: a soft white seed-head (the head, in woolly cells, stepped narrower above and below so it reads as a round puff) on a yellow calyx and a short green stem, standing on two broad green leaves that rise out from its foot like a rosette. Three seeds still stand on the puff, each an upturned cone with its parachute open, and one more has just let go and floats beside it. Concept row in `src/shared/data/Species.luau`: "dandelion puff, face". Element and effect: [[Roster-Redesign]] section 2 (Wind; a seed lifts off every 5 s). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** Everyone has blown one. It is the softest thing on the meadow (white wool cells, a round face) and it is slowly coming apart in the wind, which is the kind of small sadness a player wants to look after. The Common rung on purpose: white, green and one yellow, no glow and no light, a seed every 5 s.
 
-**Hero block.** The `Parachute`, a seed that has just let go and floats beside the head (the `float` part the game lifts away), unique in Verdant (Moop's spore is a lime ball; this is a white stalk under a square canopy).
+**Hero block.** The `Parachute`, a seed that has just let go and floats beside the head (the `float` part the game lifts away), unique in Verdant (Moop's spore is a lime ball; this is a white upturned cone, the stalk at its point and the open canopy at its top).
 
 **Alien anatomy.** A flower that stands on its own leaves and sheds pieces of itself on purpose.
 
-**World motif (Verdant).** The moss cell as the quarter-stud collar and the eighth-stud seed stalks.
+**World motif (Verdant).** The moss cell as the quarter-stud steps of the puff and the calyx.
 
 ## Parts
 
 ```yaml
 parts:
-  # the seed-head: a soft white cube in woolly cells, the face on its front
+  # the seed-head: a soft white cube in woolly cells, the face on its front, a narrower woolly step on top so it reads as a round puff
   - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0, 1.25, 0], bevel: true, material: wool}
-  # the yellow collar under it and the short green stem to the ground
-  - {name: Collar, slot: Accessory, size: [1, 0.25, 1], at: [0, 0.5, 0]}
+  - {name: Puff, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 2, 0], material: wool}
+  # the yellow calyx under it (the lower step of the round) and the short green stem to the ground
+  - {name: Collar, slot: Accessory, size: [1.5, 0.25, 1.25], at: [0, 0.5, 0]}
   - {name: Stem, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 0.1875, 0]}
   # two broad leaves rising out from the foot, 25 degrees up
   - {name: Leaf, slot: BodyDark, size: [1.5, 0.125, 0.5], at: [0.8125, 0.375, 0], rot: [0, 0, 25], mirror: x}
-  # one seed still standing on the crown: a stalk and its open parachute
-  - {name: SeedStalk, slot: Body, size: [0.25, 0.375, 0.25], at: [-0.5, 2.0625, 0]}
-  - {name: Seed, slot: Body, size: [0.75, 0.125, 0.75], at: [-0.5, 2.3125, 0]}
+  # three seeds still standing on the puff, each an upturned cone: the stalk at the point, the open parachute at the top
+  - {name: Seed, slot: Body, size: [0.5, 0.375, 0.5], at: [-0.5, 2.3125, 0.25], shape: cone6, rot: [180, 0, 0]}
+  - {name: Seed2, slot: Body, size: [0.5, 0.375, 0.5], at: [0.375, 2.3125, -0.375], shape: cone6, rot: [180, 0, 0]}
+  - {name: Seed3, slot: Body, size: [0.5, 0.25, 0.5], at: [0.25, 2.25, 0.5], shape: cone6, rot: [180, 0, 0]}
   # the hero: a seed that has just let go, floating beside the head (one moving part)
-  - {name: ParaStalk, slot: Body, size: [0.25, 0.5, 0.25], at: [1.125, 2.125, -0.5], moves: float, pivot: [1.125, 2.4375, -0.5]}
-  - {name: Parachute, slot: Body, size: [0.75, 0.125, 0.75], at: [1.125, 2.4375, -0.5], moves: float, pivot: [1.125, 2.4375, -0.5]}
+  - {name: Parachute, slot: Body, size: [0.75, 0.5, 0.75], at: [1.125, 2.25, -0.5], shape: cone6, rot: [180, 0, 0], moves: float, pivot: [1.125, 2.25, -0.5]}
 ```
 
 ## Face
@@ -94,8 +95,10 @@ The concept sheet, drawn from the parts table above: [[Puffpuff_sheet.svg]] (fla
 
 ## Cells
 
-The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (50 islands). Materials: wool on the seed-head (shag blobs, a yellow fleck in thirty), skin elsewhere.
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (57 islands). Materials: wool on the seed-head and its top step (shag blobs, a yellow fleck in thirty), skin elsewhere; the seeds are plain white cones.
 
 ## Reviews
+
+- 2026-10-20, World 1 fixes worker (the roster review's "still a cube underneath"). The puff is a voxel round now: a woolly step 1.5 x 1.25 on top of the head and the yellow calyx widened to the same under it, so the outline steps in above and below; the seeds are upturned cones (cone6 turned over, 10 triangles each): three standing on the puff at different heights and the floating hero, so a few seeds stand out of the round instead of one stalk. Still 10 blocks and 2.5 studs (the cap of the Common band). Status review.
 
 - 2026-10-19, World 1 roster worker, three rounds. Round 1: the seed stalks and the floating parachute were an eighth of a stud thick and did not read, and the leaves at 20 degrees sat at 0.70 against Twiglo. Round 2: the leaves 1.5 studs long rising 25 degrees from the foot, the stem a quarter taller so there is air under the head. Round 3: the seed stalks a quarter thick and the canopies 0.75 across, so the standing seed and the one floating off read as parachutes. Wanted for: the softest thing on the meadow, slowly coming apart. Still cheap: the wool's yellow flecks read as confetti more than seeds (the lit sprig of the motif is the accent); the puff is a cube. Status review.

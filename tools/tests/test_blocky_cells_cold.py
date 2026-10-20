@@ -50,7 +50,7 @@ def lum(rgb):
 
 class Registry(unittest.TestCase):
     def test_the_six_are_registered_after_the_eleven(self):
-        self.assertEqual(tuple(C.MATERIALS), WORLD1 + COLD)
+        self.assertEqual(tuple(C.MATERIALS)[:len(WORLD1 + COLD)], WORLD1 + COLD)   # later sets (the event's) append after these
         for m in COLD:
             self.assertIn(m, C.MOTIFS)
             self.assertIn(m, C.PARAMS)
