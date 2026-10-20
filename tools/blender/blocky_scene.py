@@ -11,7 +11,7 @@ Everything comes through the creature route:
     hidden faces are culled, the diorama's underside too
   * the props are the spec notes in docs/vault/07-alien-game/Props/ (Tree, Rock, Crystal, Ship, Flower), built by
     tools/blender/blocky_build.py's `build` exactly as a creature is, at the world cell
-  * the seven World 1 creatures (docs/vault/07-alien-game/Creatures/) and the 5-stud avatar stand in it to scale, each on its own atlas
+  * the sixteen World 1 creatures (docs/vault/07-alien-game/Creatures/) and the 5-stud avatar stand in it to scale, each on its own atlas
 
 Two renders: the hero shot (a three-quarter game camera, soft daylight, World 1's sky) and a second, lower angle among the creatures.
 
@@ -59,13 +59,17 @@ FLOWER_COLOURS = ("#FF8FB0", "#FFD34D", "#F7F3EA")
 CREATURE_PLACES = [
     ("Mossbop", -0.5, -11.0, 26), ("Buzzlebee", -6.0, -9.5, 32), ("Sparkfox", 5.5, -11.5, 20), ("Thunderhog", 8.5, -1.5, 28),
     ("Gaiabloom", 15.5, 2.5, 22), ("Radish", -3.0, 11.0, 18), ("Panpipe", 11.5, 11.5, 30),
+    # the nine of the World 1 roster (2026-10-19): the Commons near the front, the Rares by the pond and the ledge, the Epic on the plateau
+    ("Pebblet", -12.5, -14.0, 20), ("Glimmo", 2.5, -6.0, 34), ("Twiglet", -17.5, 2.0, -15), ("Puffpuff", -6.5, 7.5, 30),
+    ("Snailbyte", -1.5, 1.5, 24), ("Lanternewt", 18.5, -7.5, -20), ("Rocklobber", -13.0, 11.5, 25), ("Zapfinch", 21.0, 6.5, -30),
+    ("Gloomoth", 5.0, 7.5, 20),
 ]
 AVATAR_PLACE = (-3.5, -5.5, 25)
 PROP_PLACES = [  # (note, X, Y, yaw, extra Euler x degrees, sink studs)
-    ("Tree", 19.0, 12.0, 15, 0, 0.0), ("Tree", -20.0, -11.5, -20, 0, 0.0),
+    ("Tree", 19.0, 12.0, 15, 0, 0.0), ("Tree", -21.0, -13.5, -20, 0, 0.0),
     ("Rock", 3.0, 3.5, 10, 0, 0.0), ("Rock", 19.5, -13.0, -25, 0, 0.0), ("Rock", -8.5, 14.0, 40, 0, 0.0),
     ("Crystal", -19.0, 12.5, 20, 0, 0.0),
-    ("Ship", -13.5, -3.5, -35, 12, 0.7),
+    ("Ship", -11.5, -2.0, -35, 12, 0.9),
 ]
 
 
@@ -416,15 +420,16 @@ def build_scene(out, creatures=True):
         Z = ground_at(X, Y, hm) - sink
         m = place(spec, out, X, Y, Z, yaw, pitch, prefix="P%d_" % k, cell=C.WORLD_CELL)
         stats["%s%d" % (note, k)] = m
-        taken.append((X, Y, 3.0 if note in ("Tree", "Ship") else 1.8))
+        taken.append((X, Y, 6.0 if note == "Ship" else (3.0 if note == "Tree" else 1.8)))
         if note == "Crystal":
             point_light("CrystalLight", Vector((X, Y - 0.6, Z + 2.2)), "#9AF6FF", 140.0, 0.6)
         if note == "Ship":
-            # the throw of the crash: clods at the nose; the nose points along the ship's -Y, turned by its yaw
+            # the throw of the crash: clods at the nose; the nose points along the ship's -Y, turned by its yaw (the v2 ship: nose 7.75
+            # studs from its centre, the lit exhaust 6.6 behind)
             a = math.radians(yaw)
-            nose = Vector((math.sin(a) * 5.5, -math.cos(a) * 5.5, 0)) * 1.0 + Vector((X, Y, 0))
+            nose = Vector((math.sin(a) * 7.5, -math.cos(a) * 7.5, 0)) * 1.0 + Vector((X, Y, 0))
             place(debris(0, 0, 0), out, nose.x, nose.y, ground_at(nose.x, nose.y, hm), yaw, 0, prefix="Clod_", cell=C.WORLD_CELL)
-            tail = Vector((-math.sin(a) * 4.8, math.cos(a) * 4.8, 0)) + Vector((X, Y, Z + 2.4))
+            tail = Vector((-math.sin(a) * 6.6, math.cos(a) * 6.6, 0)) + Vector((X, Y, Z + 2.6))
             point_light("Exhaust", tail, "#FFB347", 40.0, 0.4)
     if creatures:
         for note, X, Y, yaw in CREATURE_PLACES:

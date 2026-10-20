@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Bloom
 height: 6
-blocks: 79
-tris: 1024
+blocks: 84
+tris: 1074
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#F0E6CE", "#6B4A2E", "#4FB84E", "#F5B83D", "#FF6FAE", "#1F1A17"]
@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Gaiabloom_sheet.svg]]"
 render: "[[Gaiabloom_tq.jpg]]"
 glb: ""
-overlap: [0.996, 0.996, 0.995, 0.996]
+overlap: [0.996, 0.997, 0.997, 0.996]
 vfx_render: "[[Gaiabloom_vfx.jpg]]"
 cells_render: "[[Gaiabloom_tq_cells.jpg]]"
 ---
 # Gaiabloom (Gaira), Legendary, World 1 Verdant
 
-An ivory stag with a big square head, long legs on gold hooves and drooping ears, crowned with antlers that are two little trees in bloom: bark trunks in gold bands, a branch out and a tine up, three leaf clumps each and pink blossoms that glow. A gold nimbus, a pixel ring lit at its top and sides, stands behind the head and frames the antlers; lit pink dapples run along its flanks and back like a fawn's spots, and a ruff of moss cells hangs under its chin. Concept row in `src/shared/data/Species.luau`: "stag, tree antlers, flowers bloom where it steps". Element: Bloom (`Effects.luau`); [[Roster-Redesign]] section 2 gives the footprint flowers, the orbiting petals and the ground ring. Rules: [[Blocky-Style]].
+An ivory stag with a big square head and a snout (a muzzle block proud of the lower face, a dark nose on its tip and the smile under it), long legs on gold hooves and drooping ears, crowned with antlers that are two little trees in bloom: bark trunks in gold bands, a branch out and a tine up, three leaf clumps each and pink blossoms that glow. A gold nimbus, a pixel ring lit at its top and sides, stands behind the head and frames the antlers; lit pink dapples run along its flanks and back like a fawn's spots, and a ruff of moss cells hangs under its chin. Concept row in `src/shared/data/Species.luau`: "stag, tree antlers, flowers bloom where it steps". Element: Bloom (`Effects.luau`); [[Roster-Redesign]] section 2 gives the footprint flowers, the orbiting petals and the ground ring. Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the size of the player (6 studs to the avatar's 5) and it is the first creature whose light reaches the ground: the gold ring under its hooves and the petals circling its antlers say "Legendary" from across the meadow before the face does. The face stays the soft house face; the awe is the antlers, the nimbus and the glowing spots.
 
@@ -49,6 +49,11 @@ parts:
   - {name: HindHoof, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, 2.25], mirror: x, material: metal}
   - {name: Ear, slot: Body, size: [0.75, 0.375, 0.25], at: [1.625, 3.625, -1], rot: [0, 0, -15], mirror: x, moves: ear, pivot: [1.25, 3.75, -1]}
   - {name: Tail, slot: Body, size: [0.5, 0.5, 0.25], at: [0, 2.5, 2.625], moves: tail, pivot: [0, 2.5, 2.5]}
+  # the muzzle: a stag's snout proud of the lower face, a dark nose on its tip and the house smile under the nose as ink cells
+  - {name: Muzzle, slot: Body, size: [1.5, 0.625, 0.5], at: [0, 2.0625, -2.625]}
+  - {name: Nose, slot: Eye, size: [0.5, 0.25, 0.125], at: [0, 2.25, -2.9375]}
+  - {name: Smile, slot: Eye, size: [0.5, 0.125, 0.125], at: [0, 1.8125, -2.9375]}
+  - {name: SmileCorner, slot: Eye, size: [0.125, 0.125, 0.125], at: [0.3125, 1.9375, -2.9375], mirror: x}
   # a ruff of moss cells under the chin (Verdant's motif), one blossom in it
   - {name: Ruff, slot: Accessory, size: [1.5, 0.5, 0.75], at: [0, 1.5, -1.5], material: moss}
   - {name: Ruff2, slot: Accessory, size: [0.75, 0.25, 0.5], at: [0, 1.125, -1.5], material: moss}
@@ -94,7 +99,7 @@ parts:
 
 ## Face
 
-The house face on the head's front: 16 cells across the 2.5-stud head (0.15625 a cell), 16 rows for the square front. The eye's lit crescent is the blossom pink.
+The house face on the head's front: 16 cells across the 2.5-stud head (0.15625 a cell), 16 rows for the square front. The eyes sit a row block higher than before so the muzzle fits under them; the nose and the smile are ink cells on the muzzle block, so the grid carries the eyes and the cheeks. The eye's lit crescent is the blossom pink.
 
 ```yaml
 face:
@@ -111,15 +116,15 @@ face:
     - "................"
     - "................"
     - "................"
-    - "................"
-    - "................"
     - "...kk......kk..."
     - "..kwkk....kkwk.."
     - "..kwkk....kkwk.."
     - "..kkkk....kkkk.."
     - "..kgwk....kwgk.."
-    - "...gg.k..k.gg..."
-    - "..pp...kk...pp.."
+    - "...gg......gg..."
+    - "..pp........pp.."
+    - "................"
+    - "................"
     - "................"
     - "................"
 ```
@@ -153,3 +158,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 ## Reviews
 - 2026-10-17, loop 2 worker, three rounds. Round 1: built as drawn; the antlers read at once as two trees in bloom and the moss ruff as a green bib, but the pastel pink glow washed to white in the light. Round 2: a saturated pink, so the blossoms, dapples and orbiting petals read as pink. Round 3: no change after the side-by-side. Overlap 0.995 to 0.996, 1,140 triangles, 79 blocks, 6 studs (1.2 avatars). Wanted for: one avatar tall, blossoming antlers, glowing spots and the first light that touches the ground (the gold ring, the orbiting petals). Still cheap: the ivory body loses its edges against a pale sky; the head is a plain cube with no snout, so the stag rests on the antlers and the legs; the nimbus shows only as an arc behind the head. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). The ivory body gains value: the grout and the darker edge cells draw every block of it (the open item of loop 2, partly: against a pale sky the head still wants a snout). The antlers now read as bark and leaves. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
+- 2026-10-19, World 1 roster worker (the snout). The eyes moved up a row block (rows 5 to 10 of 16, still in the lower half), and a muzzle block 1.5 by 0.625 by 0.5 is proud of the lower face with the nose and the smile on it as ink cells, so the head reads as a stag's against the pale sky. 84 blocks; the rest unchanged. Status review.

@@ -21,6 +21,18 @@ One spec note per creature in `Creatures/`, the single source of truth for its c
 - [[Radish]]: Raddis, Cosmic, World 1: a hovering giant radish with a pharaoh's brow behind a turning winged sun disk, ridable. Prototype, in review.
 - [[Panpipe]]: Syrinx, Secret, World 1: a great shadow goat with four horns and an organ of reed pipes on its back, ridable. Prototype, in review.
 
+The other nine of World 1 (2026-10-19, the roster loop; the review sheets `media/studio/2026-10-19/world1_roster_v1.jpg` and `world1_scene_v2.jpg`):
+
+- [[Pebblet]]: Pebblet, Common, World 1: a pebble that grew four splayed stone legs and balances a cairn on its back, a lichen patch on one flank. In review.
+- [[Glimmo]]: Glim, Common, World 1: a jelly firefly, an aqua bell on three hanging tendrils with a yellow bulb curling up behind it and two wing covers lifted. In review.
+- [[Twiglet]]: Twiglo, Common, World 1: a stick bug with a bark head, a twig rising from its back and a leaf wider than its head worn as a hat. In review.
+- [[Puffpuff]]: Dandel, Common, World 1: a dandelion clock in woolly cells on a yellow collar and a stem, two leaves rising from its foot, one seed floating off. In review.
+- [[Snailbyte]]: Snibble, Uncommon, World 1: a mint snail with a riveted copper coil of a shell standing edge-on to one side, an aerial and a dish. In review.
+- [[Lanternewt]]: Lantrin, Uncommon, World 1: an orange newt with axolotl gills whose tail curls up to hold a caged lantern. In review.
+- [[Rocklobber]]: Boulden, Rare, World 1: a crab whose claws are boulders bigger than its shell, an amber gem in each, a gold cairn glyph on the carapace. In review.
+- [[Zapfinch]]: Zirrit, Rare, World 1: a round sky-blue finch with a gold beak and two antennae with lit tips for a crest, a gold bolt on its belly. In review.
+- [[Gloomoth]]: Iridia, Epic, World 1: a mauve night moth in a cream ruff with comb antennae and four crystal wings carrying lit eyespots. In review.
+
 World 2 Frostbyte's six, one per rung to Cosmic, built by the same rules in the cold cell materials ([[Blocky-Style]] "World 2: Frostbyte palette"; the review sheet `media/studio/2026-10-19/world2_ladder_v1.jpg`):
 
 - [[Flufflet]]: Mitt, Common, World 2: a snowball in a knitted scarf with mittens for ears, rolling on a smaller snowball. Prototype, in review.
