@@ -25,11 +25,12 @@ local isFromTheFuture = schema.isFromTheFuture
 local PlayerData = {}
 
 local STORE_NAME = "PlayerData"
-local LOAD_RETRIES = 6
-local LOAD_RETRY_SECONDS = 5
 local ALIENS_PULL_RATE_PER_SECOND = 2 -- GetAliens calls per player per second (a pull follows a missed delta, so it is rare)
 
 local profiles: { [number]: Types.Profile } = {}
+-- UserIds whose leave (or shutdown) save is running: a second release waits for the first instead of writing again, and a
+-- SaveNow that lands meanwhile writes no lock, so a receipt saved during a leave cannot re-lock the key for SessionLockSeconds.
+local releasing: { [number]: boolean } = {}
 -- Plain callbacks, not a BindableEvent: they run synchronously, before the join payload is sent, on the
 -- live profile (a BindableEvent would hand them a copy and run after the client already has stale data).
 local loadedCallbacks: { (Player, Types.Profile) -> () } = {}
@@ -110,7 +111,8 @@ local function save(player: Player, releaseLock: boolean): boolean
 				return nil -- never overwrite a profile another server now owns
 			end
 			local data = table.clone(snapshot)
-			data.lock = if releaseLock then nil else { jobId = game.JobId, time = os.time() }
+			local unlock = releaseLock or releasing[player.UserId] == true
+			data.lock = if unlock then nil else { jobId = game.JobId, time = os.time() }
 			written = true
 			return data
 		end)
@@ -137,20 +139,59 @@ local function forClient(player: Player, profile: Types.Profile): Types.Profile
 	return copy
 end
 
+-- The leave and shutdown save: writes the profile with the lock released, retrying a failed write
+-- (Config.ReleaseSaveRetries, the pause doubling from ReleaseSaveRetrySeconds), then drops the profile. Runs once per
+-- player at a time: PlayerRemoving and BindToClose both call it during a shutdown, and the second waits for the first.
+local function release(player: Player)
+	local userId = player.UserId
+	if releasing[userId] then
+		while releasing[userId] do
+			task.wait(Config.ReleaseSaveRetrySeconds)
+		end
+		return
+	end
+	local leaving = profiles[userId]
+	if not leaving then
+		return
+	end
+	releasing[userId] = true
+	local pause = Config.ReleaseSaveRetrySeconds
+	for attempt = 1, Config.ReleaseSaveRetries do
+		if save(player, true) then
+			break
+		end
+		if attempt < Config.ReleaseSaveRetries then
+			task.wait(pause)
+			pause *= 2
+		else
+			warn(("[%s] release save failed %d times for %s; the lock expires in %d s"):format(Config.WorkingTitle, attempt, player.Name, Config.SessionLockSeconds))
+		end
+	end
+	if profiles[userId] == leaving then -- a rejoin to this same server may already have loaded a fresh one
+		profiles[userId] = nil
+	end
+	releasing[userId] = nil
+end
+
 local function onPlayerAdded(player: Player)
 	local profile: Types.Profile? = nil
 	local lastErr: string? = nil
-	for attempt = 1, LOAD_RETRIES do
+	-- A held lock (another server still saving) and a DataStore error both get another try; only a save from a newer
+	-- game version gives up at once.
+	for attempt = 1, Config.LoadRetries do
 		local p, err = tryLoad(player)
 		if p then
 			profile = p
 			break
 		end
 		lastErr = err
-		if err ~= "locked" then
+		if err == "newer" or attempt == Config.LoadRetries then
 			break
 		end
-		task.wait(LOAD_RETRY_SECONDS)
+		if err ~= "locked" then
+			warn(("[%s] load attempt %d failed for %s: %s"):format(Config.WorkingTitle, attempt, player.Name, tostring(err)))
+		end
+		task.wait(Config.LoadRetrySeconds)
 		if player.Parent ~= Players then
 			return
 		end
@@ -165,6 +206,12 @@ local function onPlayerAdded(player: Player)
 		profile.firstSeen = now
 	end
 	profiles[player.UserId] = profile
+	-- The player left while the load was running: PlayerRemoving found no profile then, so this releases the lock the
+	-- load just took (otherwise a quick rejoin would wait out SessionLockSeconds and be kicked as locked).
+	if player.Parent ~= Players then
+		release(player)
+		return
+	end
 	-- Other services settle the profile first (module states, offline income), so the one payload the
 	-- client boots from is already current. A failing callback must not keep the player from loading.
 	for _, callback in ipairs(loadedCallbacks) do
@@ -184,8 +231,7 @@ local function onPlayerAdded(player: Player)
 end
 
 local function onPlayerRemoving(player: Player)
-	save(player, true)
-	profiles[player.UserId] = nil
+	release(player)
 	AlienSync.Forget(player)
 	Net.forget(player)
 end
@@ -309,7 +355,7 @@ function PlayerData.Start()
 		for _, player in ipairs(Players:GetPlayers()) do
 			pending += 1
 			task.spawn(function()
-				save(player, true)
+				release(player)
 				pending -= 1
 			end)
 		end
