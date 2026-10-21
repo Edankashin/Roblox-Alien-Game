@@ -18,6 +18,11 @@
 -- Motion (each has a Reduced Motion form, which is none): the tabs drop in and the cards slide in tilted, a card lifts under a
 -- mouse, one shine crosses the featured card, the rays turn, a tab or chevron tap scrolls with a springy ease. Layout reads the
 -- shelf window's pixels once per change (layoutShelf); every Position and Size is a Scale.
+-- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): a card is a fitted edged block in
+-- its category colour (the lit top row and shaded edges stand for the old gradient), its picture's glow a lighter flat block, its
+-- price a flat block button and its held chip a flat block; the ribbon, the seal, the tabs, the chevrons, the scrollbar, the
+-- Scrap plate and the detail card are blocks too; the ground is stepped bands from violet to navy and the rays and the left
+-- fade step their see-through in bands (no gradient). Every layout number, binding and string key is as before.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -135,6 +140,13 @@ local SHELF = Shop.Shelf
 local MOTION = SHELF.Motion
 local DISPLAY_ORDER = 26 -- over the HUD (10), the tutorial hint (15), the modal screens (20) and the HUD's menu column (25); under reveals (30) and toasts (40)
 local DETAIL_Z = 30 -- the detail card's layer inside the stage, over the rail, the header and the shelf
+local FLAT_ROWS = 3 -- a flat block (a chip, a price button, the glow, a thin bar): the fewest rows a stepped corner takes
+-- A card's own layers: the card plate is at 4, so its ink, face and edges take 4 to 7 and everything on it starts at 8 (its body
+-- tap area), then the glow, the labels and icon, the price, the ribbon, the seal and the odds link, each over the one before.
+local CARD_Z = 4 + Theme.Block.Layer.Content
+local SKY_BANDS = 8 -- the ground's steps from violet (top) to navy (bottom)
+local RAY_STEPS = 3 -- each half of a ray steps its see-through this many times, from the rays' Alpha at the centre to clear
+local FADE_STEPS = 4 -- the left edge strip's steps, from MOTION.FadeAlpha at the edge to clear
 
 local gui: ScreenGui? = nil
 local stage: Frame? = nil
@@ -193,24 +205,9 @@ local function cardAspect(units: number): number
 	return SHELF.CardAspect * (units + SHELF.CardGap * (units - 1))
 end
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
 local function scrapName(kind: "lure" | "gear", id: string): string
@@ -494,26 +491,26 @@ local function buildDetail(parent: Frame)
 		Builder.playSound(Sounds.Click)
 		hideDetail()
 	end)
-	local panel = Builder.frame({
+	-- A fitted cream block plate at the panel cell, its header band a fitted block plate in the category colour (showDetail).
+	local panel = Builder.blockPlate({
 		parent = layer,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		rows = Builder.blockPanelRows(SHELF.Detail.Panel.H),
 		position = UDim2.fromScale(SHELF.Detail.Panel.X, SHELF.Detail.Panel.Y),
 		size = siz(SHELF.Detail.Panel),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = DETAIL_Z + 1,
 	})
 	panel.Active = true -- a tap on the card's body is not a tap on the dim behind it
-	local header = Builder.frame({
+	local top = Builder.blockTop(panel)
+	local header = Builder.blockPlate({
 		parent = panel,
 		name = "Header",
-		size = UDim2.fromScale(1, SHELF.Detail.HeaderH),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Panel,
-		zIndex = DETAIL_Z + 2,
+		rows = FLAT_ROWS,
+		size = UDim2.fromScale(1, SHELF.Detail.HeaderH),
+		zIndex = top,
 	})
 	detailHeader = header
 	detailName = Builder.label({
@@ -524,7 +521,7 @@ local function buildDetail(parent: Frame)
 		position = pos(SHELF.Detail.Name),
 		size = siz(SHELF.Detail.Name),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = DETAIL_Z + 3,
+		zIndex = Builder.blockTop(header),
 	})
 	-- Navy on the cream panel, no stroke: reading text, not a title (UI Playbook "Input fields and hints").
 	detailText = Builder.label({
@@ -537,20 +534,17 @@ local function buildDetail(parent: Frame)
 		position = pos(SHELF.Detail.Text),
 		size = siz(SHELF.Detail.Text),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = DETAIL_Z + 2,
+		zIndex = top,
 	})
-	Builder.button({
-		parent = panel,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = pos(SHELF.Detail.Close),
-		size = siz(SHELF.Detail.Close),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = DETAIL_Z + 4,
-	}, hideDetail)
+	local close = SHELF.Detail.Close
+	Builder.blockClose(
+		panel,
+		SHELF.Detail.Panel.H,
+		hideDetail,
+		pos(close),
+		Vector2.new(close.W, close.H),
+		Builder.blockTop(header) + 1
+	)
 	detailLayer = layer
 end
 
@@ -573,26 +567,13 @@ local function showDetail(id: string)
 			category = tab.color
 		end
 	end
-	header.BackgroundColor3 = category
+	Builder.setBlockColor(header, category)
 	name.Text = cardName(view.kind, id)
 	text.Text = descriptionOf(view)
 	layer.Visible = true
 end
 
 -- Cards ---------------------------------------------------------------------
-
--- A card's face: light tint at the top, the category colour through the middle, a deep shade at the bottom. The frame is
--- white because a gradient multiplies its frame's colour, so the stops are the colours.
-local function cardGradient(target: Frame, color: Color3)
-	local fade = Instance.new("UIGradient")
-	fade.Rotation = 90
-	fade.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Builder.lighter(color, 0.3)),
-		ColorSequenceKeypoint.new(0.5, color),
-		ColorSequenceKeypoint.new(1, Builder.darker(color, 0.45)),
-	})
-	fade.Parent = target
-end
 
 local function lift(card: Frame, up: boolean)
 	if Prefs.ReducedMotion() then
@@ -626,13 +607,13 @@ local function buildPicker(card: Frame)
 		name = "Picker",
 		position = pos(SHELF.Featured.Picker),
 		size = siz(SHELF.Featured.Picker),
-		zIndex = 8,
+		zIndex = CARD_Z + 4,
 	})
 	local count = math.max(1, #starterChoices)
 	local gap = SHELF.Featured.PickerGap
 	local height = (1 - gap * (count - 1)) / count
 	for index, species in ipairs(starterChoices) do
-		local button = Builder.button({
+		local button = Builder.blockButton({
 			parent = row,
 			name = species,
 			text = speciesName(species),
@@ -640,8 +621,10 @@ local function buildPicker(card: Frame)
 			position = UDim2.fromScale(0, (index - 1) * (height + gap)),
 			size = UDim2.fromScale(1, height),
 			textSize = Theme.TextSize.Body,
+			rows = FLAT_ROWS,
+			cells = false,
 			hit = true,
-			zIndex = 8,
+			zIndex = CARD_Z + 4,
 		}, function()
 			chooseStarter(species)
 		end)
@@ -659,20 +642,19 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 	local slot = Builder.frame({ parent = parent, name = id, zIndex = 3 })
 	slot.Visible = false -- layoutShelf places it
 	local mover = Builder.frame({ parent = slot, name = "Mover", zIndex = 3 })
-	local card = Builder.frame({
+	-- A fitted edged block in the category colour: its rows from its height (about the HUD's cell), the lit top row and the shaded
+	-- edges where the gradient was. Its layers run 4 to 7, so the tap area and everything on the card sit at 8 and up.
+	local card = Builder.blockPlate({
 		parent = mover,
 		name = "Card",
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		gloss = true,
+		color = color,
+		cells = false,
+		edges = true,
 		zIndex = 4,
 	})
-	cardGradient(card, color)
 	-- The whole card is one tap target (the detail card) and the hover lift's trigger, under every label and button. The labels
 	-- on a card are inert so a tap on them lands here; a drag scrolls the shelf instead.
-	local body = tapArea(card, "Body", 5, function()
+	local body = tapArea(card, "Body", CARD_Z, function()
 		showDetail(id)
 	end)
 	body.MouseEnter:Connect(function()
@@ -682,27 +664,31 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		lift(card, false)
 	end)
 
-	-- The picture: a lighter disc, then the icon, or the letter until its id is uploaded.
+	-- The picture: a lighter square glow (a flat block whose ink is its own colour, so it has no outline), then the icon, or the
+	-- letter until its id is uploaded.
 	local iconBand = L.Icon
-	Builder.frame({
+	local glowColor = Builder.lighter(color, SHELF.Glow.Lighten)
+	local glow = Builder.blockPlate({
 		parent = card,
 		name = "Glow",
+		color = glowColor,
+		ink = glowColor,
+		aspect = 1,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(iconBand.X + iconBand.W / 2, iconBand.Y + iconBand.H / 2),
 		size = siz(iconBand),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Builder.lighter(color, SHELF.Glow.Lighten),
-		transparency = SHELF.Glow.Alpha,
-		corner = Theme.Corner.Pill,
-		aspect = 1,
-		zIndex = 6,
+		zIndex = CARD_Z + 1,
 	})
+	Builder.setBlockFade(glow, SHELF.Glow.Alpha)
 	local picture = Builder.icon({
 		parent = card,
 		name = "Icon",
 		key = def.icon or id,
 		position = pos(iconBand),
 		size = siz(iconBand),
-		zIndex = 7,
+		zIndex = CARD_Z + 3,
 	})
 	if not picture then
 		Builder.label({
@@ -712,7 +698,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 			textSize = Theme.TextSize.Reveal,
 			position = pos(iconBand),
 			size = siz(iconBand),
-			zIndex = 7,
+			zIndex = CARD_Z + 3,
 		})
 	end
 
@@ -723,7 +709,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		textSize = if featured then Theme.TextSize.Label else Theme.TextSize.Body,
 		position = pos(L.Name),
 		size = siz(L.Name),
-		zIndex = 7,
+		zIndex = CARD_Z + 3,
 	})
 	local note = Builder.label({
 		parent = card,
@@ -732,7 +718,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		textSize = Theme.TextSize.Body,
 		position = pos(L.Note),
 		size = siz(L.Note),
-		zIndex = 7,
+		zIndex = CARD_Z + 3,
 	})
 	-- "about $N.NN" under a Robux price and "Held: N" under a lure: one 14 px line (the label's size is pinned to the floor, so
 	-- the preferred text size never grows it), trimmed with an ellipsis rather than wrapped onto the card's edge.
@@ -744,11 +730,12 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		color = Theme.Rarity.Common,
 		position = pos(L.Below),
 		size = siz(L.Below),
-		zIndex = 7,
+		zIndex = CARD_Z + 3,
 	})
 	below.TextTruncate = Enum.TextTruncate.AtEnd
 
-	local button = Builder.button({
+	-- The price: a fitted flat block button (one on every card: UI Playbook "Frames").
+	local button = Builder.blockButton({
 		parent = card,
 		name = "Buy",
 		text = "",
@@ -756,24 +743,25 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		position = pos(L.Pill),
 		size = siz(L.Pill),
 		textSize = Theme.TextSize.Body,
+		rows = FLAT_ROWS,
+		cells = false,
 		hit = true,
-		zIndex = 8,
+		zIndex = CARD_Z + 4,
 	}, function()
 		onPillTap(id)
 	end)
 	local face = button:FindFirstChild("Face") :: TextButton
-	-- The grey Owned / Claimed chip that stands where the pill was once the item is held. A plain frame that sinks taps.
-	local chip = Builder.pill({
+	-- The grey Owned / Claimed chip that stands where the pill was once the item is held: a fitted flat block that sinks taps.
+	local chip = Builder.blockPlate({
 		parent = card,
 		name = "Held",
+		color = Theme.Rarity.Common,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = pos(L.Pill),
 		size = siz(L.Pill),
-		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(Theme.Rarity.Common),
-		zIndex = 8,
+		zIndex = CARD_Z + 4,
 	})
-	Builder.gradient(chip, Theme.Rarity.Common)
 	chip.Active = true
 	local chipText = Builder.label({
 		parent = chip,
@@ -783,7 +771,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 9,
+		zIndex = Builder.blockTop(chip),
 	})
 	chip.Visible = false
 
@@ -797,7 +785,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 			aspect = L.Ribbon.W * aspect / L.Ribbon.H,
 			position = pos(L.Ribbon),
 			size = siz(L.Ribbon),
-			zIndex = 10,
+			zIndex = CARD_Z + 8,
 		})
 	end
 	local sealDef = if def.seal then Shop.Seals[def.seal] else nil
@@ -811,7 +799,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 			size = UDim2.fromScale(L.Seal.W, L.Seal.W * aspect),
 			anchor = Vector2.new(0.5, 0.5),
 			rotation = SHELF.SealTilt,
-			zIndex = 11,
+			zIndex = CARD_Z + 14,
 		})
 	end
 
@@ -826,7 +814,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 			note.TextColor3 = Theme.Colors.Featured
 			note.RichText = true
 			note.Text = "<u>" .. note.Text .. "</u>"
-			local link = tapArea(card, "OddsLink", 12, function()
+			local link = tapArea(card, "OddsLink", CARD_Z + 18, function()
 				Screens.Open("Gifts")
 			end)
 			link.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -1299,7 +1287,8 @@ local function buildTab(parent: Frame, index: number, category: Shop.Category): 
 	local rail = SHELF.Rail
 	local color = Theme.Hex(category.color)
 	local holder = Builder.frame({ parent = parent, name = "Tab" .. category.id, zIndex = 10 })
-	local button = Builder.button({
+	-- A fitted block button in cells (five of them): its size is a share of the screen, so its rows come from it.
+	local button = Builder.blockButton({
 		parent = holder,
 		name = "Button",
 		text = Builder.text("SHOP_TAB_" .. category.id),
@@ -1316,18 +1305,18 @@ local function buildTab(parent: Frame, index: number, category: Shop.Category): 
 		end
 	end)
 	local chip = SHELF.Chip
-	-- The red "!" at the tab's right edge: a circle (the aspect keeps it round on any window) with a white rim.
-	local bang = Builder.frame({
+	-- The red "!" at the tab's right edge: a square flat block (the aspect keeps it square on any window) in a white ink.
+	local bang = Builder.blockPlate({
 		parent = button,
 		name = "Bang",
+		color = Theme.Colors.Close,
+		ink = Theme.Colors.White,
+		aspect = 1,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(1, 0.5),
 		size = UDim2.fromScale(chip.BangW, chip.Bang),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Close,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.White,
-		aspect = 1,
 		zIndex = 14,
 	})
 	Builder.label({
@@ -1338,17 +1327,18 @@ local function buildTab(parent: Frame, index: number, category: Shop.Category): 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.9),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 15,
+		zIndex = Builder.blockTop(bang),
 	})
 	bang.Visible = false
-	local fresh = Builder.pill({
+	local fresh = Builder.blockPlate({
 		parent = button,
 		name = "New",
+		color = Theme.Colors.Close,
+		ink = Theme.Colors.White,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(chip.X, chip.Y),
 		size = UDim2.fromScale(chip.W, chip.H),
-		color = Theme.Colors.Close,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.White,
 		zIndex = 14,
 	})
 	Builder.label({
@@ -1359,34 +1349,36 @@ local function buildTab(parent: Frame, index: number, category: Shop.Category): 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.9),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 15,
+		zIndex = Builder.blockTop(fresh),
 	})
 	fresh.Visible = false
 	return { id = category.id, color = color, holder = holder, button = button, bang = bang, fresh = fresh, visible = false, row = 0, index = index }
 end
 
--- The pill bar under the shelf: a dark trough with a gold thumb carrying grip ticks. A tap or drag on it (a hit area of at least
--- the tap floor around the trough) puts the thumb's middle under the pointer and scrolls the row to match.
+-- The bar under the shelf: a dark trough with a gold thumb carrying grip ticks, both fitted flat blocks (a 10 px band at iPhone SE:
+-- the Playbook's thin-band rule). A tap or drag on it (a hit area of at least the tap floor around the trough) puts the thumb's
+-- middle under the pointer and scrolls the row to match.
 local function buildScrollbar(parent: Frame)
 	local spec = SHELF.Scrollbar
-	local track = Builder.pill({
+	local track = Builder.blockPlate({
 		parent = parent,
 		name = "Track",
+		color = Theme.Block.Trough,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(spec.X, spec.Y),
 		size = UDim2.fromScale(spec.W, spec.H),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 12,
 	})
-	local handle = Builder.pill({
+	local handle = Builder.blockPlate({
 		parent = track,
 		name = "Thumb",
-		size = UDim2.fromScale(1, 1),
 		color = Theme.Colors.Featured,
-		zIndex = 13,
+		rows = FLAT_ROWS,
+		cells = false,
+		size = UDim2.fromScale(1, 1),
+		zIndex = Builder.blockTop(track),
 	})
-	Builder.gradient(handle, Theme.Colors.Featured)
 	for index = 1, spec.Grips do
 		Builder.frame({
 			parent = handle,
@@ -1395,7 +1387,7 @@ local function buildScrollbar(parent: Frame)
 			size = UDim2.fromScale(spec.GripW, 0.5),
 			anchor = Vector2.new(0.5, 0.5),
 			color = Builder.darker(Theme.Colors.Featured, 0.45),
-			zIndex = 14,
+			zIndex = Builder.blockTop(handle),
 		})
 	end
 	thumb = handle
@@ -1418,7 +1410,7 @@ local function buildScrollbar(parent: Frame)
 	area.AnchorPoint = Vector2.new(0.5, 0.5)
 	area.Position = UDim2.fromScale(0.5, 0.5)
 	area.Size = UDim2.fromScale(1, 1)
-	area.ZIndex = 15
+	area.ZIndex = Builder.blockTop(handle) + 1 -- over the thumb, its own sibling in the trough
 	local floor = Instance.new("UISizeConstraint")
 	floor.MinSize = Vector2.new(0, Theme.TapMin)
 	floor.Parent = area
@@ -1446,7 +1438,7 @@ end
 
 local function buildChevron(parent: Frame, forward: boolean): Frame
 	local spec = SHELF.Chevron
-	local button = Builder.button({
+	local button = Builder.blockButton({
 		parent = parent,
 		name = if forward then "Next" else "Previous",
 		text = if forward then Strings.SHOP_CHEVRON_NEXT else Strings.SHOP_CHEVRON_PREV,
@@ -1464,45 +1456,42 @@ local function buildChevron(parent: Frame, forward: boolean): Frame
 	return button
 end
 
--- The currency row: a dark pill with the Scrap icon and the count (Roblox does not tell a script the player's Robux, so only
--- Scrap shows).
+-- The currency row: the HUD's Scrap plate (a dark block plate in cells with the pixel Scrap cube) and the count (Roblox does not
+-- tell a script the player's Robux, so only Scrap shows).
 local function buildCurrency(parent: Frame)
 	local spec = SHELF.Currency
-	local pill = Builder.pill({
+	local pill = Builder.blockPlate({
 		parent = parent,
 		name = "ScrapPill",
+		color = Theme.Block.Trough,
+		aspect = spec.Aspect,
 		position = UDim2.fromScale(spec.Right, spec.Y),
 		size = UDim2.fromScale(spec.W, spec.H),
 		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = spec.Aspect,
 		zIndex = 12,
 	})
-	Builder.gradient(pill, Theme.Colors.Trough)
+	local top = Builder.blockTop(pill)
+	-- The icon square: a gold flat block under the pixel Scrap cube (Builder.blockIcon), which hides it while an icon shows.
 	local square = Builder.frame({
 		parent = pill,
 		name = "Icon",
 		position = pos(spec.Icon),
 		size = siz(spec.Icon),
 		anchor = Vector2.new(0, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
 		aspect = 1,
-		zIndex = 13,
+		zIndex = top,
 	})
-	Builder.gradient(square, Theme.Colors.Featured)
-	local picture = Builder.icon({ parent = square, name = "Picture", key = "Scrap", zIndex = 14 })
-	if picture then
-		square.BackgroundTransparency = 1 -- the icon carries its own outline
-		for _, child in ipairs(square:GetChildren()) do
-			if child:IsA("UIStroke") then
-				child.Enabled = false
-			end
-		end
-	end
+	local back = Builder.blockPlate({
+		parent = square,
+		name = "Back",
+		color = Theme.Colors.Featured,
+		aspect = 1,
+		rows = FLAT_ROWS,
+		cells = false,
+		zIndex = top,
+	})
+	local picture = Builder.blockIcon({ parent = square, name = "Picture", key = "Scrap", zIndex = Builder.blockTop(back) })
+	back.Visible = picture == nil
 	scrapLabel = Builder.label({
 		parent = pill,
 		name = "Amount",
@@ -1512,12 +1501,13 @@ local function buildCurrency(parent: Frame)
 		size = siz(spec.Amount),
 		anchor = Vector2.new(0, 0.5),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 13,
+		zIndex = top,
 	})
 end
 
--- The faint rays behind the shelf: thin bars turned evenly through half a turn, each fading out at both ends, in a square holder
--- that the open animation turns slowly. The bars carry their own transparency in a gradient.
+-- The faint rays behind the shelf: thin bars turned evenly through half a turn, each fading out at both ends in RAY_STEPS steps
+-- (segments, each a step clearer than the one inside it: a stepped fade, no gradient), in a square holder that the open
+-- animation turns slowly.
 local function buildSunburst(parent: Frame): Frame
 	local spec = SHELF.Sunburst
 	local holder = Builder.frame({
@@ -1529,6 +1519,7 @@ local function buildSunburst(parent: Frame): Frame
 		aspect = 1,
 		zIndex = 2,
 	})
+	local half = 0.5 / RAY_STEPS -- one segment's length, of the ray
 	for ray = 0, spec.Rays - 1 do
 		local bar = Builder.frame({
 			parent = holder,
@@ -1536,18 +1527,24 @@ local function buildSunburst(parent: Frame): Frame
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(spec.Width, 1),
 			anchor = Vector2.new(0.5, 0.5),
-			color = Theme.Colors.White,
 			zIndex = 2,
 		})
 		bar.Rotation = ray * 180 / spec.Rays
-		local fade = Instance.new("UIGradient")
-		fade.Rotation = 90
-		fade.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1),
-			NumberSequenceKeypoint.new(0.5, spec.Alpha),
-			NumberSequenceKeypoint.new(1, 1),
-		})
-		fade.Parent = bar
+		for step = 0, RAY_STEPS - 1 do
+			local clear = spec.Alpha + (1 - spec.Alpha) * step / RAY_STEPS
+			for side = -1, 1, 2 do
+				Builder.frame({
+					parent = bar,
+					name = "Step",
+					position = UDim2.fromScale(0, 0.5 + side * (step + 0.5) * half),
+					size = UDim2.fromScale(1, half),
+					anchor = Vector2.new(0, 0.5),
+					color = Theme.Colors.White,
+					transparency = clear,
+					zIndex = 2,
+				})
+			end
+		end
 	end
 	return holder
 end
@@ -1560,13 +1557,20 @@ local function build()
 	root.Enabled = false
 	gui = root
 
-	-- The ground: violet at the top, navy at the bottom, and it sinks every tap, so nothing reaches the world behind a takeover.
-	local ground = Builder.frame({ parent = root, name = "Ground", color = Theme.Colors.White, zIndex = 1 })
+	-- The ground: violet at the top to navy at the bottom in SKY_BANDS flat steps (a stepped sky, no gradient), and it sinks
+	-- every tap, so nothing reaches the world behind a takeover.
+	local ground = Builder.frame({ parent = root, name = "Ground", color = Theme.Colors.Outline, zIndex = 1 })
 	ground.Active = true
-	local sky = Instance.new("UIGradient")
-	sky.Rotation = 90
-	sky.Color = ColorSequence.new(Theme.Colors.ShopBackdrop, Theme.Colors.Outline)
-	sky.Parent = ground
+	for band = 0, SKY_BANDS - 1 do
+		Builder.frame({
+			parent = ground,
+			name = "Band",
+			position = UDim2.fromScale(0, band / SKY_BANDS),
+			size = UDim2.fromScale(1, 1 / SKY_BANDS),
+			color = Theme.Colors.ShopBackdrop:Lerp(Theme.Colors.Outline, band / (SKY_BANDS - 1)),
+			zIndex = 1,
+		})
+	end
 	local layer = Builder.frame({ parent = root, name = "Stage", zIndex = 2 })
 	stage = layer
 	sunburst = buildSunburst(layer)
@@ -1613,12 +1617,19 @@ local function build()
 		name = "EdgeFade",
 		position = UDim2.fromScale(SHELF.Window.X, SHELF.Window.Y),
 		size = UDim2.fromScale(SHELF.Fade, SHELF.Window.H),
-		color = Theme.Colors.Outline,
 		zIndex = 6,
 	})
-	local dim = Instance.new("UIGradient")
-	dim.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, MOTION.FadeAlpha), NumberSequenceKeypoint.new(1, 1) })
-	dim.Parent = fade
+	for step = 0, FADE_STEPS - 1 do -- darkest at the edge, a step clearer each strip inward
+		Builder.frame({
+			parent = fade,
+			name = "Step",
+			position = UDim2.fromScale(step / FADE_STEPS, 0),
+			size = UDim2.fromScale(1 / FADE_STEPS, 1),
+			color = Theme.Colors.Outline,
+			transparency = MOTION.FadeAlpha + (1 - MOTION.FadeAlpha) * step / FADE_STEPS,
+			zIndex = 6,
+		})
+	end
 	fade.Visible = false
 	edgeFade = fade
 
@@ -1662,20 +1673,9 @@ local function build()
 	})
 	buildCurrency(layer)
 	local close = SHELF.Close
-	Builder.button({
-		parent = layer,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(close.Right, close.Y),
-		size = UDim2.fromScale(close.W, close.H),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 16,
-	}, function()
+	Builder.blockClose(layer, 1, function()
 		ShopScreen.Close()
-	end)
+	end, UDim2.fromScale(close.Right, close.Y), Vector2.new(close.W, close.H), 16)
 
 	-- The tab rail, then the scrollbar and the arrows.
 	tabs = {}

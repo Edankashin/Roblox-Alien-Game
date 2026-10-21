@@ -372,4 +372,38 @@ describe("Block screens: Aliens", function()
 		end)
 	end
 end)
+
+describe("Block screens: Shop", function()
+	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
+	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
+	-- seal a pixel octagon 0.64 of the card's width; the scrollbar 0.026 of the screen, flat; the Scrap plate 0.2 x 0.095 at 3.6.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local cardH = 0.78 * screen.h
+		local cardW = 0.41 * cardH
+		it(label .. ": a card is the HUD's cell, eight frames, and its price and ribbon carry a 14 px line", function()
+			local grid = fit(cardW, cardH, BlockMath.Rows(0.78, CELL, INK, MIN_ROWS))
+			local cell = cardH * grid.cellY
+			assert(cell >= 7 and cell <= 17, "card cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, cardW / cardH)) <= 0.06, "card cells off square")
+			expect(BlockMath.Frames(grid, false, SEED, true)).toEqual(8)
+			local pill = 0.123 * cardH
+			local lip = BlockMath.Lip(1, 3, INK)
+			local face = pill * (1 - lip)
+			local inner = face * (1 - (2 * INK + 0.5) / (3 + 2 * INK)) -- inside the ink and the quarter-cell text padding
+			assert(inner >= TEXT_MIN, "the price face holds " .. inner .. " px of text")
+			local ribbon = 0.095 * cardH * (1 - 0.7 / 4)
+			assert(ribbon * (1 - 2 * INK / (3 + 2 * INK)) >= TEXT_MIN, "the ribbon face is " .. ribbon .. " px")
+			assert(0.64 * cardW / 8 >= 1, "a seal pixel is under a px")
+		end)
+		it(label .. ": the scrollbar is a thin flat band with a px of ink, the Scrap plate the HUD's", function()
+			local barH = 0.026 * screen.h
+			assert(INK * barH / (3 + 2 * INK) >= 1, "scrollbar ink is " .. INK * barH / (3 + 2 * INK) .. " px")
+			local _, h = BlockMath.FitPx(0.2, 0.095, 3.6, screen.w, screen.h)
+			local grid = BlockMath.Grid(3.6, BlockMath.Rows(0.095, CELL, INK, MIN_ROWS), INK)
+			local cell = h * grid.cellY
+			assert(cell >= 4.5, "Scrap plate cell is " .. cell .. " px")
+		end)
+	end
+end)
 return true

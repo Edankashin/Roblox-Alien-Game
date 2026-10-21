@@ -129,11 +129,11 @@ local Shelf = {
 	CardGap = 0.1, -- between cards, of a card's width
 	EndPad = 0.1, -- at both ends of the row, of a card's width
 	Rail = { X = 0.012, Y = 0.17, W = 0.118, TabH = 0.125, Gap = 0.02, Nudge = 0.012 }, -- the tab rail (Nudge: the active tab sits this far right); 0.125 of 375 is 47 px, over the 44 px tap floor
-	Chip = { W = 0.55, H = 0.4, X = 0.62, Y = -0.1, Bang = 0.42, BangW = 0.3 }, -- the NEW chip (of a tab; Y negative is above its top edge) and the round "!" (Bang: its height, BangW: the widest it may be, of a tab; an aspect constraint keeps it round)
+	Chip = { W = 0.55, H = 0.4, X = 0.62, Y = -0.1, Bang = 0.42, BangW = 0.3 }, -- the NEW chip (of a tab; Y negative is above its top edge) and the square "!" block (Bang: its height, BangW: the widest it may be, of a tab; an aspect constraint keeps it square)
 	Title = { X = 0.16, Y = 0.012, W = 0.3, H = 0.1 }, -- "Shop", clear of Roblox's own buttons at the top left
 	Close = { W = 0.1, H = 0.14, Right = 0.985, Y = 0.02 }, -- the red X (an aspect constraint makes it square within W by H): 52 px at 375, a 47 px face
 	Currency = { Right = 0.835, Y = 0.027, W = 0.2, H = 0.095, Aspect = 3.6, Icon = { X = 0.04, Y = 0.5, W = 0.2, H = 0.72 }, Amount = { X = 0.3, Y = 0.5, W = 0.66, H = 0.7 } }, -- the Scrap pill, left of the X (Aspect: width over height; Icon and Amount: the square and the count, of the pill)
-	Scrollbar = { X = 0.3, Y = 0.958, W = 0.5, H = 0.026, MinThumb = 0.12, Grips = 3, GripGap = 0.15, GripW = 0.03 }, -- the pill bar under the shelf (MinThumb: the thumb's least width, of the bar; the grip ticks' spacing and width, of the thumb)
+	Scrollbar = { X = 0.3, Y = 0.958, W = 0.5, H = 0.026, MinThumb = 0.12, Grips = 3, GripGap = 0.15, GripW = 0.03 }, -- the bar under the shelf (MinThumb: the thumb's least width, of the bar; the grip ticks' spacing and width, of the thumb)
 	Chevron = { W = 0.1, H = 0.125, Y = 0.54, Right = 0.955, Left = 0.165 }, -- the edge arrows (Y: the middle of the card row; Right and Left: their centres)
 	Detail = { -- the detail card (a tap on a card's body): the panel in the middle of the screen, then its bands as shares of the panel
 		Panel = { X = 0.5, Y = 0.5, W = 0.56, H = 0.6 },
@@ -164,7 +164,7 @@ local Shelf = {
 		Below = { X = 0.04, Y = 0.9, W = 0.92, H = 0.058 },
 	},
 	SealTilt = -15, -- degrees a seal is turned (the shape of ribbons and seals is Theme.Ribbon and Theme.Seal)
-	Glow = { Lighten = 0.55, Alpha = 0.55 }, -- the lighter disc behind a card's picture: how far toward white, and how clear
+	Glow = { Lighten = 0.55, Alpha = 0.55 }, -- the lighter square glow behind a card's picture: how far toward white, and how clear
 	Sunburst = { X = 0.57, Rays = 8, Width = 0.05, Alpha = 0.93, Size = 1.7 }, -- the faint rays behind the shelf (X: their centre, Size: of the screen height)
 	Tilt = 10, -- degrees a card starts turned when it slides in
 	Motion = {

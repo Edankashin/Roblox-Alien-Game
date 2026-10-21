@@ -652,10 +652,10 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	return container
 end
 
--- A folded ribbon plate for a status word (BEST DEAL, NEW!): a navy-outlined plate in `color` with a gloss band, white outlined
--- text at the 14 px floor, and a darker diamond poking out under each end for the swallowtail. The holder is the size given
--- (`aspect` is its width over its height in px), the plate fills most of it (Theme.Ribbon), and nothing in it takes taps.
--- Returns the holder.
+-- A folded ribbon for a status word (BEST DEAL, NEW!), in block cells (UI Playbook "Screens after the HUD", the Shop): a flat block
+-- plate in `color` with white outlined text at the 14 px floor, over a darker flat square at each end dropped below it for the
+-- folded tail. The holder is the size given (`aspect` is its width over its height in px), the plate fills most of it
+-- (Theme.Ribbon), and nothing in it takes taps. Returns the holder.
 function Builder.ribbon(props: RibbonProps): Frame
 	local z = props.zIndex or 1
 	local holder = Builder.frame({
@@ -667,53 +667,53 @@ function Builder.ribbon(props: RibbonProps): Frame
 		zIndex = z,
 	})
 	local dark = Builder.darker(props.color)
+	local plateH = 1 - Theme.Ribbon.Tail / 4
 	for side = 0, 1 do
-		local tail = Builder.frame({
+		Builder.blockPlate({
 			parent = holder,
 			name = "Tail",
+			color = dark,
+			aspect = 1,
+			rows = Theme.Block.MinRows,
+			cells = false,
 			position = UDim2.fromScale(0.05 + side * 0.9, 0.5 + Theme.Ribbon.Tail / 4),
 			size = UDim2.fromScale(Theme.Ribbon.Tail / props.aspect, Theme.Ribbon.Tail),
 			anchor = Vector2.new(0.5, 0.5),
-			color = dark,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
 			zIndex = z,
 		})
-		tail.Rotation = 45
 	end
-	local plate = Builder.frame({
+	local plate = Builder.blockPlate({
 		parent = holder,
 		name = "Plate",
+		color = props.color,
+		aspect = 0.9 * props.aspect / plateH,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.05, 0),
-		size = UDim2.fromScale(0.9, 1 - Theme.Ribbon.Tail / 4),
-		color = Theme.Colors.White, -- the gradient is the colour (a gradient multiplies its frame's colour, so the frame is white)
-		corner = Theme.Ribbon.Corner,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		gloss = true,
-		zIndex = z + 1,
+		size = UDim2.fromScale(0.9, plateH),
+		zIndex = z + Theme.Block.Layer.Fill + 1, -- over both tails' ink and face
 	})
-	local tint = Instance.new("UIGradient")
-	tint.Rotation = 90
-	tint.Color = ColorSequence.new(Builder.lighter(props.color), props.color)
-	tint.Parent = plate
 	Builder.label({
 		parent = plate,
 		name = "Text",
 		text = props.text,
 		textSize = Theme.TextSize.Min,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.94, 0.9),
+		size = UDim2.fromScale(0.94, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = z + 3,
+		zIndex = Builder.blockTop(plate),
 	})
 	return holder
 end
 
--- A spiky starburst seal for a value claim (BEST VALUE): Theme.Seal.Spikes squares turned evenly through a quarter turn make
--- twice that many times two points; a navy set a little larger under a set in `color` gives the outline without a stroke
--- (overlapping strokes would show lines through the burst). The label is white outlined text over the middle. The caller sizes the
--- holder square and may turn it (`rotation`); nothing in it takes taps. Returns the holder.
+-- The seal's stepped octagon on an 8 by 8 grid (Theme.Block.PixelGrid) as overlapping bars { x, y, w, h }: the navy ink, then the
+-- colour one unit inside it all round (the ink keeps one thickness round every step, like the compass diamond).
+local SEAL_INK = { { 2, 0, 4, 8 }, { 1, 1, 6, 6 }, { 0, 2, 8, 4 } }
+local SEAL_FILL = { { 3, 1, 2, 6 }, { 2, 2, 4, 4 }, { 1, 3, 6, 2 } }
+
+-- A seal for a value claim (BEST VALUE), in block cells: a stepped pixel octagon (SEAL_INK, SEAL_FILL) in `color` inside a navy
+-- ink, frames only (no stroke, no turned squares). The label is white outlined text over the middle. The caller sizes the holder
+-- square and may turn it (`rotation`, the stamp's tilt); nothing in it takes taps. Returns the holder.
 function Builder.seal(props: SealProps): Frame
 	local z = props.zIndex or 1
 	local holder = Builder.frame({
@@ -725,21 +725,17 @@ function Builder.seal(props: SealProps): Frame
 		zIndex = z,
 	})
 	holder.Rotation = props.rotation or 0
-	local spikes = Theme.Seal.Spikes
-	local quarter = 90
-	for layer = 0, 1 do
-		local side = if layer == 0 then Theme.Seal.Ink else Theme.Seal.Fill
-		for index = 0, spikes - 1 do
-			local square = Builder.frame({
+	local grid = Theme.Block.PixelGrid
+	for layer, bars in ipairs({ SEAL_INK, SEAL_FILL }) do
+		for _, bar in ipairs(bars) do
+			Builder.frame({
 				parent = holder,
-				name = if layer == 0 then "Ink" else "Fill",
-				position = UDim2.fromScale(0.5, 0.5),
-				size = UDim2.fromScale(side, side),
-				anchor = Vector2.new(0.5, 0.5),
-				color = if layer == 0 then Theme.Colors.Outline else props.color,
-				zIndex = z + layer,
+				name = if layer == 1 then "Ink" else "Fill",
+				position = UDim2.fromScale(bar[1] / grid, bar[2] / grid),
+				size = UDim2.fromScale(bar[3] / grid, bar[4] / grid),
+				color = if layer == 1 then Theme.Colors.Outline else props.color,
+				zIndex = z + layer - 1,
 			})
-			square.Rotation = index * quarter / spikes
 		end
 	end
 	Builder.label({
@@ -753,6 +749,21 @@ function Builder.seal(props: SealProps): Frame
 		zIndex = z + 3,
 	})
 	return holder
+end
+
+-- Recolours a block button's face and lip, keeping its text and whether it takes taps (a Shop tab going dark when another is
+-- active, a Settings level button turning green): the block twin of the screens' old in-place recolour.
+function Builder.recolorBlockButton(container: Instance?, color: Color3)
+	if not container then
+		return
+	end
+	local plate, lip = container:FindFirstChild("Plate"), container:FindFirstChild("Lip")
+	if plate then
+		Builder.setBlockColor(plate, color)
+	end
+	if lip then
+		Builder.setBlockColor(lip, Builder.darker(color))
+	end
 end
 
 -- Restyles a button made by Builder.button: the face, lip, border and gradient take a new colour, the face a new label, and
