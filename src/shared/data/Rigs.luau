@@ -147,6 +147,38 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Skaddle = {
+		height = 3.5,
+		parts = {
+			{ name = "crest", pivot = { 0, 3, -1.125 }, clips = { { kind = "pulse", amp = 0.08, period = 2, phase = 0, axis = "y" } } },
+			{ name = "hindwingL", pivot = { -0.9375, 1.5, 0.625 }, clips = { { kind = "flap", amp = -15, period = 1.2, phase = 0, axis = "z" } } },
+			{ name = "hindwingR", pivot = { 0.9375, 1.5, 0.625 }, clips = { { kind = "flap", amp = 15, period = 1.2, phase = 0, axis = "z" } } },
+			{ name = "scarfR", pivot = { 0.625, 1.3125, -1.4062 }, clips = { { kind = "sway", amp = 10, period = 1.8, phase = 0, axis = "x" } } },
+			{ name = "tuftL", pivot = { -0.6875, 2.875, -0.625 }, clips = { { kind = "wag", amp = -12, period = 3, phase = 0, axis = "z" } } },
+			{ name = "tuftR", pivot = { 0.6875, 2.875, -0.625 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "z" } } },
+			{ name = "wingL", pivot = { -1, 1.3125, -0.25 }, clips = { { kind = "flap", amp = -12, period = 2.4, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 1, 1.3125, -0.25 }, clips = { { kind = "flap", amp = 12, period = 2.4, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "bob", amp = 0.08, period = 2.8, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 28, columns = 4, frames = 11,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
+		},
+		flourish = {
+			every = 10, length = 3,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.5, axis = "y", at = 0, length = 1.2 },
+				{ part = "wingL", kind = "flare", amp = -30, axis = "z", at = 0, length = 1.6 },
+				{ part = "wingR", kind = "flare", amp = 30, axis = "z", at = 0, length = 1.6 },
+				{ part = "hindwingL", kind = "flare", amp = -25, axis = "z", at = 0.2, length = 1.4 },
+				{ part = "hindwingR", kind = "flare", amp = 25, axis = "z", at = 0.2, length = 1.4 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.4, length = 2 },
+				{ part = "scarfR", kind = "swish", amp = 25, axis = "z", at = 0.6, length = 1.6 },
+				{ part = "crest", kind = "pop", amp = 0.2, axis = "y", at = 1.8, length = 0.8 },
+			},
+		},
+	},
 }
 
 return {
