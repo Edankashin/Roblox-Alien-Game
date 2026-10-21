@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `c439a57592963b84`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `7aa97bee399e29e1`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 103 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -242,7 +242,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 2.** A finished module raises it. Finish the Hull Frame the normal way (`/scrap 300` and its 3 Wreck Plates, then the 60 seconds): after the green "Hull Frame complete!" toast comes a gold toast "+10 alien storage", and the Aliens count reads "N / 70". `/storage cap` shows `modules 10`. Then `/complete` (the other four World 1 modules): the module fanfare and a gold toast "+110 alien storage", the count reads "N / 180", Output `modules 120`. Reopening Aliens keeps both numbers.
 
-**TESTING step 3.** The Storage Bay is bought with Scrap. `/scrap 5000`: the button is green. Tap it: the click, a green toast "Storage Bay upgraded: +20 alien storage", the Scrap pill falls by exactly 2,500, the count reads "N / 200" (180 + 20), the button now reads "+20 storage: 7,500 Scrap" and, with under 7,500 Scrap left, is grey. Tap the grey button: a grey toast "Not enough Scrap for the Storage Bay" and nothing is spent. Output: `analytics: economy Sink Scrap amount=2500 ... sku=StorageBay`. `/storage cap` shows `bay 20 (level 1 of 10)`.
+**TESTING step 3.** The Storage Bay is bought with Scrap. `/scrap 5000`: the button is green. Tap it: the click, a green toast "Storage Bay upgraded: +20 alien storage", the Scrap pill falls by exactly 2,500, the count reads "N / 200" (180 + 20), the button now reads "+20 storage: 7,500 Scrap" and, with under 7,500 Scrap left, is grey. Tap the grey button: a grey toast "Need N more Scrap" (7,500 less what you hold) and nothing is spent. Output: `analytics: economy Sink Scrap amount=2500 ... sku=StorageBay`. `/storage cap` shows `bay 20 (level 1 of 10)`.
 
 **TESTING step 4.** The Bay waits for World 2 at level 6. `/storage bay 5`: the count reads "N / 280", the button is grey and reads "+20 storage: reach World 2"; tap it: a grey toast "The next Storage Bay level needs World 2", nothing is spent. `/world 2` (only the profile moves; this place stays World 1), `/scrap 200000`: the button turns green "+20 storage: 160,000 Scrap"; tap it: the count reads "N / 300". `/storage bay 10`: the count reads "N / 380" (60 + 120 modules + 200 bay), the button is grey and reads "Storage Bay maxed out"; tap it: a grey toast "The Storage Bay is fully upgraded". `/storage bay 0` takes the levels away again.
 

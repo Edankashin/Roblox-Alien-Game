@@ -104,4 +104,11 @@ function ShelfMath.IsSellable(item: Sellable, grants: { any }?): boolean
 	return ShelfMath.IsLive(item) and grants ~= nil and #grants > 0
 end
 
+-- Whether the HUD's offer button (data/Shop `HudOffer`, the Starter Pack) shows: once the purchases mirror is `known` (a push or
+-- the GetPurchases answer; before it, a buyer would see the offer flash), while `bought` is 0, and only for an item that can be
+-- sold (live, with a grant row). TikTok batch 9 lesson 4: an offer the player can see without opening a menu.
+function ShelfMath.OfferShows(item: Sellable, grants: { any }?, bought: number, known: boolean): boolean
+	return known and bought <= 0 and ShelfMath.IsSellable(item, grants)
+end
+
 return ShelfMath

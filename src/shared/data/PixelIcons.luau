@@ -89,6 +89,16 @@ local Icons: { [string]: { Pixel } } = {
 		{ 2, 1, 2, 2, "Outline" },
 		{ 4, 1, 2, 2, "Outline" },
 	},
+	-- the Starter Pack: a gold present with a red ribbon and bow (the HUD offer button and the Shop card; TikTok batch 9)
+	StarterPack = {
+		{ 0, 2, 8, 6, "Outline" },
+		{ 1, 3, 6, 1, "FFE9A6" },
+		{ 1, 5, 6, 2, "Featured" },
+		{ 3, 2, 2, 6, "E5383B" },
+		{ 1, 0, 2, 2, "E5383B" },
+		{ 5, 0, 2, 2, "E5383B" },
+		{ 3, 1, 2, 1, "Outline" },
+	},
 	-- an hourglass with gold sand (not on the board: drawn to match it)
 	Playtime = {
 		{ 1, 0, 6, 1, "Outline" },

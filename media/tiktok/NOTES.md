@@ -605,3 +605,89 @@ Ethan, 2026-10-14 night: "Look at how this tik tok does their designs. Be able t
 - Do not copy: the brick-stud UI motif (our UI Playbook has its own), the dollars-per-second tags (our one currency is Scrap), or the cell count of the hydra. The index's "1 in N" per cell is fine for free drops; the paid-random rules in `CLAUDE.md` stay as they are.
 
 **Tools named or seen:** a Claude chat that returns an image with a PNG download (its product name is not on screen, so it is not assumed to be Claude Design) and Roblox Studio (Home ribbon only). Nothing else, and no Blockbench or Substance Painter. No new `docs/vault/02-how-we-work/Tools-Status.md` row: both are already tracked.
+
+## Batch 9 (2026-10-21): monetization and the click
+
+Three links from Ethan, downloaded by the Mac (job 41, `98547f2`): "They are super helpful and should definitely be implemented into the game." Processed in the cloud with `python3 tools/watch_video.py media/tiktok/<code>.mp4` (`SHERPA_WHISPER_DIR` at the Whisper base.en model; the transcripts are good, cross-checked against the burned-in captions); the photo post read slide by slide. Every sheet, every caption and both transcripts were read; the four frames that carry the clip's screens (0:14, 0:37, 0:52, 0:53) at full width. Committed from `media/tiktok/out/`: the four sheets, transcript and info of ZPLAB8GM3, and only the first sheet, transcript and info of ZPLAkEnnf (all 102 s are one talking head, so the other six sheets add nothing).
+
+| Code | Creator | Length | Topic |
+|---|---|---|---|
+| ZPLAB8GM3 | palm_dev | 1:02 | "3 niche tips that will help monetize your Roblox game" (post text: "Last one is probably the most important") |
+| ZPLAk7qKN | bennettbenito | 6 slides (21 s of music) | "made over 5,000,000 robux ($20,000+) on my first ever roblox game in a month": the dashboard stats and three monetization tips |
+| ZPLAkEnnf | machv10 | 1:42 | "3 secrets for insane Roblox CTR": thumbnails |
+
+### ZPLAB8GM3: three niche monetization tips (palm_dev, 1:02)
+
+A talking head in the lower half, game footage in the upper half, and a four-step tracker across the top that lights as he goes: SHOP, CHEAP 2x, ROBUX PROMPT, SHOW IT.
+
+**Shown and said, in order**
+- 0 to 3 s. "CRASH COURSE, Roblox monetization", "3 niche tips that will help monetize your Roblox game". "Obvious stuff first: you need a shop. It has to look good."
+- 4 to 8 s (SHOP). A yellow-and-orange shop with a two-wide Starter Pack card ("BEST VALUE!" ribbon, "1 SET + your next slingshot free! ONE TIME ONLY!", 23 Robux) over a Pet Starter Pack, with callouts STARTER PACK, BEST VALUE TAG, CLEAN ICONS, GLINTS ON THE BUTTONS. "When I open it I should be tempted to buy something: a starter pack, a best value tag, clean icons, glints on the buttons."
+- 9 to 20 s (CHEAP 2x). A cash-pack page (+66% more, +257% more, +368% more, +1011% more on the bigger packs) and a "2x Speed Forever, +80 Speed/s instead of +40" card at **3 Robux** ("2X FOREVER = 3 ROBUX"). "One thing has to be cheap, like 2x cash or whatever your currency is; it should be under 10 Robux. That's a high payer conversion rate, so it signals to Roblox that people who play your game want to spend money, and they're going to push your game." A grid of player icons turning gold, an arrow to a card "ROBLOX SEES players spend here", then "PUSHES YOUR GAME" with a rising line.
+- 21 to 42 s (ROBUX PROMPT). "90% of the games I playtest miss this": a trails screen, then a pet sim toast "Not enough Cash! This pet costs $16,000,000" and a red stamp SALE LOST. "When I click on something I can't afford, nothing happens; it says 'you can't afford this item'. That could be a sale." HOW IT SHOULD WORK: an Upgrades panel, a tap on an unaffordable row opens a Robux prompt, "Purchase completed". The method on a card: "MISSING $9,638,691" over five cash packs (+$100,000 for 5, +$300,000 for 9, +$1,000,000 for 14, +$3,000,000 for 32, +$10,000,000 for 45 Robux); the four too small are crossed out, the smallest that covers the gap stays; balance $6,361,309 becomes $16,361,309 ("+$10,000,000 PURCHASED") and the item is bought for the player. "Make a few cash packs, prompt the smallest one that covers the difference, and whenever it goes through, buy the item for them automatically." Then a plug for his prompt pack.
+- 43 to 55 s (SHOW IT, the "most important" of the post text). "Not all of your monetized items should be hidden behind the shop button, because nobody's going to be tempted to open it. It should be physical, on the map or on the screen, or both even better. They should see what they can have before they open a menu." ON THE MAP: a "x5 WINS" pad on the walkway, signs over stations ("Upgrade Plot", "Upgrade Treadmill, Level 4 > Level 5, $5M") under a big green arrow. ON THE SCREEN: a column at the right edge with a gift-box Starter Pack and two offers ("5X STRENGTH, ONLY R$19", "2X WINS"). BOTH: the pad and the column in one frame. The left edge carries Shop, Upgrades, Quests, Index, Teleport buttons.
+- 56 to 61 s. A Discord plug: "game feedback event every Saturday", 2,280 then 3,000+ devs, "110 players in one game at once".
+
+**Lessons for us**
+1. The shop must tempt on open: a starter pack, a best value tag, clean icons, a glint on the buy button.
+2. One offer under 10 Robux, because the share of players who pay at all (payer conversion) is what tells Roblox that people spend here.
+3. A tap on something the player cannot afford must never end at a bare "can't afford". His fix sells the missing currency for Robux and buys the item automatically.
+4. Show the offers: on the screen and on the map, not only behind the Shop button. The creator calls this the most important.
+
+### ZPLAk7qKN: 5 million Robux in a month, three tips with stats (bennettbenito, photo post)
+
+Six slides over a music bed ("im not alone", no voice). Post text: "i'll be posting more videos like this so follow if you're looking to learn more about developing games on roblox!"
+
+**Slide by slide**
+1. "made over 5,000,000 robux ($20,000+) on my first ever roblox game in a month", "3 MONETIZATION TIPS (stats provided)", over his avatar on the Roblox app showing 3.5M Robux.
+2. Creator Hub benchmark bars: payer conversion rate **2.10%** (down 19.3%), 87th percentile, where the 50th is 0.55% and the 90th 2.46%; average revenue per paying user **307.1 Robux** (up 19.3%), 90th percentile, where the 50th is 65.9 and the 90th 292.7; play-through rate 0.00% ("Request failed").
+3. The same page on Daily: average playtime **37.6 min** (93rd; 50th 12.8 min, 90th 30.0 min); day 1 retention **16.60%** (88th; 50th 10.00%, 90th 16.90%); day 7 retention **1.88%** (76th; 50th 0.90%, 90th 2.94%).
+4. "1. Scaling multipliers that start cheap. Sell a stackable 2x multiplier that starts at a low price and rises with every purchase. This captures the most value from players willing to spend robux"
+5. "2. Server wide boosts. Sell a luck or cash boost that applies to everyone in the server and announce the buyer's name in chat. Everyone sees someone spending, and players become inclined to spend themselves or to extend the boost"
+6. "3. Decoy pricing. Price the middle bundle so it looks like a bad deal next to the biggest one. Players skip it and jump straight to the top pack."
+
+**Lessons for us**
+5. The benchmark bars are the first real percentiles we have for payer conversion and spend per payer: a game in the top tenth has about 2.5% of its players paying and about 290 Robux per payer; the median is 0.55% and 66.
+6. A stackable multiplier whose price climbs with each purchase (a product per level, since a developer product's price is fixed).
+7. A server-wide boost, the buyer named in chat, that anyone can extend.
+8. Decoy pricing: a middle bundle made to look bad so players jump to the top one.
+
+### ZPLAkEnnf: three secrets for high click-through (machv10, 1:42)
+
+One shot of the creator at a kitchen counter, caption "3 SECRETS FOR INSANE ROBLOX CTR" for the first 10 s, then "discord.gg/rblxdevs" to the end. No game footage; the content is all speech (Whisper, checked).
+
+**Said, in order**
+- 0 to 10 s. "If you're a Roblox dev and you're struggling to get high CTR thumbnails..."
+- 10 to 30 s. "Number one, keep your thumbnail simple. I see a lot of Roblox devs over-complicating their thumbnails ... that all creates friction. The more complicated things you have in your thumbnail, the less likely someone's going to click on it ... a kid won't understand it. They have to understand it immediately."
+- 30 to 60 s. "Number two, your thumbnail needs to match your game name. Look at Steal an Egg: if it had something completely random that made no sense, would people click? The key to a very high CTR thumbnail is transparency: people read your game name, look at your thumbnail and go 'this sounds like a really cool idea, I instantly understand this game'. If they can't immediately connect the two, you just missed a click."
+- 60 to 102 s. "Number three, give people a reason to click. What makes your game so interesting that somebody wants to click the second they see it? Stealing an egg, stealing something from a dinosaur ... The best way is trial and error, and A/B testing. If you're not A/B testing thumbnails, more than one thumbnail, you're missing out ... see what your audience wants to play."
+
+**Lessons for us**
+9. Simple: one idea a child reads at a glance.
+10. The picture says the name: Catch an Alien shows a catch and an alien.
+11. A reason to click: the moment that makes the game interesting.
+12. Run more than one thumbnail and keep the winner.
+
+### Batch 9: what we already do, and what we add
+
+Checked against the code, data and vault on 2026-10-21. "Before launch" means under a day of code, data or docs; the ones marked *built* are in this batch's commits.
+
+| # | Lesson | Status | Where, or what is added |
+|---|---|---|---|
+| 1 | A shop that tempts: starter pack, best value tag, clean icons, a glint | **done** | the Shop shelf (`src/shared/data/Shop.luau` Cards: the Starter Pack two wide with the BestDeal ribbon and BestValue seal and the one shine sweep; pixel icons), `docs/vault/05-ui-design/UI-Playbook.md` "Shop shelf" |
+| 2 | One offer under 10 Robux, for payer conversion | **before launch, needs Ethan** | our cheapest is Speed Burst x5 at 49; Decide-Now 47 |
+| 3a | A tap you cannot afford never ends at a bare "can't afford" | **before launch, built** | every Scrap refusal says how much more Scrap is needed (`ShopMath.ScrapShort`, `TOAST_SCRAP_SHORT`) |
+| 3b | ...and prompts Robux for the missing currency, then buys the item | **not copied** | it sells Scrap for Robux, which the one-currency rule forbids (`CLAUDE.md`, data/Shop `NeverSold`); Decide-Now 48 asks Ethan to confirm |
+| 4a | Show the offers on the screen | **before launch, built** | a Starter Pack button in the HUD's top row until it is bought; it opens the Shop on the Featured shelf |
+| 4b | Show the offers on the map | **week one, other workers** | upgrade signs over the stations with the next level and its Scrap price, a shop stand at the camp: props and world data, left for the coordinator |
+| 5 | Payer conversion and spend-per-payer benchmarks | **before launch, built** | `docs/vault/01-game-design/Growth-Playbook.md` "Benchmarks from a creator's dashboard" |
+| 6 | A stackable multiplier whose price climbs | **week one, needs Ethan** | nothing like it today; Decide-Now 49 |
+| 7a | A server-wide boost that names the buyer, which anyone can extend | **done** | Server Luck x2 and x4 (`Monetization.startServerLuck`): the banner "%s bought %sx luck for everyone!", and the same bonus bought again adds its time |
+| 7b | ...named in chat too | **before launch, built** | a system line in the general chat when a bought luck starts (`CHAT_SERVERLUCK_START`) |
+| 8 | Decoy pricing | **not copied** | a bundle priced to look bad on purpose is a trick on a young audience; the honest half is done (the biggest Spins pack is the best per spin and wears the Best Value seal). Found on the way: Server Luck x4 is *worse* per point of luck than x2 (999 for +3.0 against 249 for +1.0); Decide-Now 50 |
+| 9 | A simple thumbnail | **done** | `docs/vault/01-game-design/Thumbnail-Research.md` section 6 (one hero, zero to three words) |
+| 10 | The thumbnail matches the name | **done** | Thumbnail-Research section 0 item 4 and section 9 (the Moment shows the catch) |
+| 11 | A reason to click | **done** | the three arms Moment, Reward, Mystery (Thumbnail-Research section 8) |
+| 12 | A/B test more than one thumbnail | **done** as a plan; the block-cell set is the store worker's | Thumbnail-Research section 10 (three active thumbnails through Roblox's personalization); the new set is the Launch-week cloud row "New store icon and thumbnails" |
+
+Totals: 6 done (1, 7a, 9, 10, 11, 12), 5 before launch (3a, 4a, 5, 7b built; 2 waits on Ethan), 2 week one (4b, 6), 2 not copied (3b, 8).

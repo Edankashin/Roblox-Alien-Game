@@ -204,6 +204,10 @@ return {
 		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},
+	-- The one offer that stands on the screen, not only behind the Shop button (TikTok batch 9 lesson 4): a HUD top button with
+	-- its pixel icon, shown while it can be sold and the player has not bought it (Shared/ShelfMath.OfferShows); a tap opens the
+	-- Shop on the Featured shelf. A one-time, not paid-random item from the Featured launch section (tests/ShelfMath.spec).
+	HudOffer = "StarterPack",
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
 	NeverSold = { "Scrap", "DoubleShift", "LuckyCharm", "Mounts", "LegendaryAliens", "EventAliens" },
 	-- The real-currency equivalent shown under every Robux price (GAME_DESIGN 14, "every price shows its real-currency

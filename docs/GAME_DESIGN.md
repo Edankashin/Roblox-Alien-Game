@@ -565,6 +565,8 @@ Rule: keep randomness in the free loop; sell certainty, capacity, convenience, a
 
 A single Shop button on the HUD opens a store with six tabs. The Featured tab rotates weekly with the event calendar. Every price shows its real-currency equivalent beneath it. Regional pricing is on from day one (Roblox reports 4 to 10% more total spend and 43 to 52% more pass purchases in discounted regions).
 
+Two rules from the monetization references (TikTok batch 9, 2026-10-21): one offer stands on the HUD itself, the Starter Pack as a top button until it is bought, so a player sees it without opening the Shop; and a tap on a Scrap price the player cannot pay says how much more Scrap is needed, never a bare refusal. Scrap is still never sold to close that gap.
+
 | Tab | What lives there |
 |---|---|
 | Featured | Starter Pack, this week's hoverboard skin, the current event's cosmetics, one bundle |

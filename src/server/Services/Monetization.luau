@@ -191,8 +191,9 @@ local function runLuckLoop()
 	end)
 end
 
--- A bigger bonus takes over (its clock never shorter than what was left); the same bonus adds its time;
--- a smaller one while a bigger runs adds its time to the bigger (nobody is ever downgraded).
+-- A bigger bonus takes over (its clock never shorter than what was left); the same bonus adds its time and names
+-- its new buyer (they bought that very luck, so the banner and the chat line announce them: TikTok batch 9 lesson 7);
+-- a smaller one while a bigger runs adds its time to the bigger and keeps the bigger's buyer (nobody is ever downgraded).
 local function startServerLuck(playerName: string, bonus: number, seconds: number)
 	local now = os.time()
 	local current = serverLuck
@@ -203,6 +204,9 @@ local function startServerLuck(playerName: string, bonus: number, seconds: numbe
 			fireLuckListeners(true) -- the number everyone carries changed, so Buffs re-sends LuckChanged
 		else
 			current.endsAt += seconds
+			if bonus == current.bonus then
+				current.playerName = playerName
+			end
 			broadcastLuck()
 		end
 		return

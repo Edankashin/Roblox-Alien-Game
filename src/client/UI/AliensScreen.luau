@@ -51,6 +51,7 @@ local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
+local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -1311,7 +1312,8 @@ local function buyStorageBay()
 		return
 	end
 	if profile.scrap < row.scrap then
-		Toast.Show(Strings.TOAST_STORAGE_BAY_NEED_SCRAP, Theme.Rarity.Common)
+		-- How much more, never a bare refusal (TikTok batch 9 lesson 3).
+		Toast.Show(ShopMath.ShortLine(row.scrap, profile.scrap, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Rarity.Common)
 		return
 	end
 	bayBusy = true
@@ -1328,7 +1330,8 @@ local function buyStorageBay()
 		local refusal = if called then tostring(reason) else tostring(ok)
 		print(("[%s] BuyStorageBay refused: %s"):format(Config.WorkingTitle, refusal))
 		if refusal == "NotEnoughScrap" then
-			Toast.Show(Strings.TOAST_STORAGE_BAY_NEED_SCRAP, Theme.Rarity.Common)
+			local held = if State.Has() then State.Get().scrap else 0
+			Toast.Show(ShopMath.ShortLine(row.scrap, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Rarity.Common)
 		elseif refusal == "NeedsWorld" then
 			Toast.Show(Strings.TOAST_STORAGE_BAY_NEEDS_WORLD:format(row.world), Theme.Rarity.Common)
 		elseif refusal == "Max" then
