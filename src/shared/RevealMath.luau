@@ -16,6 +16,8 @@ local Strings = require(script.Parent.strings.en)
 local RevealMath = {}
 
 export type Flags = RevealData.TierFlags
+export type LadderRow = RevealData.LadderRow
+export type Bar = { x: number, y: number, w: number, h: number } -- a rectangle on the pixel egg's grid, in pixels
 
 local FALLBACK_TIER = "Common"
 local MIN_ONE_IN = 2 -- "1 in 1" says nothing: the smallest N printed
@@ -24,6 +26,139 @@ local MIN_PERCENT = 0.01 -- under this the line is hidden rather than printed as
 -- The flags of a tier (an unknown tier reads as Common, so a new tier never crashes the Reveal).
 function RevealMath.Flags(tier: string): Flags
 	return RevealData.Tiers[tier] or RevealData.Tiers[FALLBACK_TIER]
+end
+
+-- A tier's rung of the intensity ladder (data/Reveal Ladder); an unknown tier reads as Common.
+function RevealMath.Ladder(tier: string): LadderRow
+	return RevealData.Ladder[tier] or RevealData.Ladder[FALLBACK_TIER]
+end
+
+-- The card's hold for a tier: HoldSeconds plus the tier's HoldExtra (the top tiers hold the moment longer).
+function RevealMath.HoldSeconds(tier: string): number
+	return RevealData.HoldSeconds + RevealMath.Ladder(tier).HoldExtra
+end
+
+-- How many frames a tier's show adds at its peak, over the card's own: the sparkle cells of every burst, the starburst's cells,
+-- the ray ring's cells (RayCount bars through the middle, a ray each side), the wash, the gold frame, the sky's bands and stars,
+-- the confetti and the spelling cursor. The UI Playbook's frame budget for the Reveal counts with it.
+function RevealMath.EffectFrames(tier: string): number
+	local rung = RevealMath.Ladder(tier)
+	local flags = RevealMath.Flags(tier)
+	local frames = rung.Sparkles * rung.SparkleBursts + rung.Starburst * RevealData.StarburstCells
+	if flags.Rays then
+		frames += RevealData.RayCount * 2 * rung.RayCells
+	end
+	if rung.Wash < 1 then
+		frames += 1
+	end
+	if rung.GoldFrame then
+		frames += RevealData.GoldFrameCells
+	end
+	if rung.Sky then
+		frames += RevealData.SkyBands + RevealData.SkyStars
+	end
+	if rung.SpellName then
+		frames += 1
+	end
+	return frames + RevealMath.ConfettiCount(tier)
+end
+
+-- How long the name takes to spell in: a letter a step (utf8 letters, so an accent counts once).
+function RevealMath.SpellSeconds(name: string): number
+	local letters = utf8.len(name) or #name
+	return letters * RevealData.SpellSecondsPerLetter
+end
+
+-- Rows of a grid as rectangles: runs of rows with the same span merged into one bar. `spans` maps a row to { left, width }.
+local function rowBars(spans: { [number]: { number } }, rows: number): { Bar }
+	local out: { Bar } = {}
+	local open: Bar? = nil
+	for row = 0, rows - 1 do
+		local span = spans[row]
+		if span and open and open.x == span[1] and open.w == span[2] and open.y + open.h == row then
+			open.h += 1
+		elseif span then
+			open = { x = span[1], y = row, w = span[2], h = 1 }
+			table.insert(out, open :: Bar)
+		else
+			open = nil
+		end
+	end
+	return out
+end
+
+-- The pixel egg as bars on its EggCols by EggRows grid: the ink (the colour grown by one pixel all round, so the ink is one
+-- pixel thick round every step, the way the stepped pixel octagon's is) and the colour, each row run merged down; then the lit
+-- top rows and the shaded bottom rows of the colour (EggLitRows, EggShadeRows).
+function RevealMath.EggBars(): ({ Bar }, { Bar }, { Bar }, { Bar })
+	local fill: { [number]: { number } } = {}
+	local first, last = math.huge, -math.huge
+	for _, row in ipairs(RevealData.EggSpans) do
+		fill[row[1]] = { row[2], row[3] }
+		first, last = math.min(first, row[1]), math.max(last, row[1])
+	end
+	local ink: { [number]: { number } } = {}
+	for row = 0, RevealData.EggRows - 1 do
+		local left, right = math.huge, -math.huge
+		for near = row - 1, row + 1 do
+			local span = fill[near]
+			if span then
+				left, right = math.min(left, span[1] - 1), math.max(right, span[1] + span[2] + 1)
+			end
+		end
+		if left < right then
+			left, right = math.max(0, left), math.min(RevealData.EggCols, right)
+			ink[row] = { left, right - left }
+		end
+	end
+	local lit: { [number]: { number } } = {}
+	local shade: { [number]: { number } } = {}
+	for row = first, last do
+		local span = fill[row]
+		if span and row < first + RevealData.EggLitRows then
+			lit[row] = span
+		elseif span and row > last - RevealData.EggShadeRows then
+			shade[row] = span
+		end
+	end
+	local rows = RevealData.EggRows
+	return rowBars(ink, rows), rowBars(fill, rows), rowBars(lit, rows), rowBars(shade, rows)
+end
+
+-- Whether pixel (x, y) is in the egg's colour.
+local function inEgg(x: number, y: number): boolean
+	for _, row in ipairs(RevealData.EggSpans) do
+		if row[1] == y then
+			return x >= row[2] and x < row[2] + row[3]
+		end
+	end
+	return false
+end
+
+-- The crack tap number `tap` draws, as pixels of the egg's grid: each bar of its CrackLine (a centre, a length in egg heights and
+-- a tilt) traced from end to end a pixel at a time, so the crack is a stepped pixel zig-zag; pixels outside the colour dropped.
+function RevealMath.CrackCells(tap: number): { { number } }
+	local cols, rows = RevealData.EggCols, RevealData.EggRows
+	local out: { { number } } = {}
+	local seen: { [number]: boolean } = {}
+	for _, bar in ipairs(RevealMath.CrackLine(tap)) do
+		local cx, cy = bar[1] * cols, bar[2] * rows
+		local half = bar[3] * rows / 2
+		local angle = math.rad(bar[4])
+		local dx, dy = math.cos(angle) * half, math.sin(angle) * half
+		local steps = math.max(1, math.ceil(2 * math.max(math.abs(dx), math.abs(dy))))
+		for step = 0, steps do
+			local t = step / steps
+			local x = math.floor(cx - dx + 2 * dx * t)
+			local y = math.floor(cy - dy + 2 * dy * t)
+			local key = y * cols + x
+			if not seen[key] and inEgg(x, y) then
+				seen[key] = true
+				table.insert(out, { x, y })
+			end
+		end
+	end
+	return out
 end
 
 -- How many times as long (and as big) the tier's shard beat is: LegendaryShardScale from Legendary up, else 1.
@@ -52,10 +187,11 @@ function RevealMath.ShardBeatSeconds(tier: string): number
 	return seconds * RevealMath.ShardScale(tier)
 end
 
--- The whole sequence for a tier, to the moment the buttons are up: beat 1 (when it runs), beat 2, the card's drop and its hold.
+-- The whole sequence for a tier, to the moment the buttons are up: beat 1 (when it runs), beat 2, the card's drop and its hold
+-- (the tier's, with its HoldExtra).
 function RevealMath.Total(tier: string, withCrack: boolean): number
 	local crack = if withCrack then RevealMath.CrackSeconds() else 0
-	return crack + RevealMath.ShardBeatSeconds(tier) + RevealData.CardDropSeconds + RevealData.HoldSeconds
+	return crack + RevealMath.ShardBeatSeconds(tier) + RevealData.CardDropSeconds + RevealMath.HoldSeconds(tier)
 end
 
 -- The quiet moment Toast.QuietFor is asked for: the sequence (the still frame under Reduced Motion) and the calm after it.
