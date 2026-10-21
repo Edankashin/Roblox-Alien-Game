@@ -161,7 +161,7 @@ export type EmitDirection = "Up" | "Front" | "Back" | "Down"
 export type EffectLayer = {
 	kind: EffectKind,
 	color: string, -- hex
-	at: string, -- a region of data/Effects.Attach the layer hangs on (a Beam or Trail starts here)
+	at: string, -- a region of data/Effects.Attach, or a signature piece of data/Effects.Pieces, the layer hangs on (a Beam or Trail starts here)
 	-- Emitter, and the motes of an Orbit
 	rate: number?, -- particles per second (per mote for an Orbit); capped by Effects.Caps
 	size: number?, -- particle size, in heights
@@ -205,6 +205,7 @@ export type SpeciesFx = {
 	sound: string?, -- a key of data/Sounds: a one-shot the alien plays at its position on its signature beat, at most once per Effects.Look.SoundEverySeconds (World/SpeciesFx)
 	accent: string?, -- hex: the colour the tier's extras wear (ring, orbit, trail, aura, pillar, spawn moment); nil is the first layer's
 	flourishEvery: number?, -- seconds between flourishes on the alien's own timer (tiers with `flourish`); nil is Effects.Look.FlourishEvery
+	signature: string?, -- Rare and up: the attach point of its signature piece (a key of Effects.Pieces, or of Effects.Attach for a static one); its first layer hangs there
 }
 export type TierFxRule = {
 	layersAllowed: number, -- how many of the species' layers it draws, strongest first (a layer of a kind it may not draw is skipped)
@@ -223,6 +224,13 @@ export type TierFxRule = {
 	dark: boolean, -- the dark variant: colours sink toward Effects.Dark.Color
 }
 export type AttachPoint = { x: number, y: number, z: number } -- x and z from the bounds' centre, y from the feet, each a fraction of that side
+-- A signature piece (data/Effects.Pieces): an attach point on a named moving part of the block-cell model (the Blender object's rig
+-- name, as data/Rigs names it), so a layer there follows the part as the rig moves it. `spot` is the point in the part's own box,
+-- each a fraction of that side from its centre (-0.5 to 0.5; the face toward -z at rest). `region` is the body region it falls
+-- back to on a model without that part (an old blockout).
+export type FxPiece = { part: string, spot: { number }, region: string }
+-- Where a layer's point resolves on one model (EffectsMath.Place): on the piece's part at the spot, or on a body region.
+export type FxPlace = { part: string?, region: string, x: number, y: number, z: number }
 
 export type AlienRecord = {
 	uid: string,

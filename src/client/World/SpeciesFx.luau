@@ -12,6 +12,10 @@
 -- Caps.FarRateScale and its sparkles stop. Hidden or silhouetted aliens call SetShown(target, false).
 -- Layers hang on named body regions (Effects.Attach, fractions of the alien's measured bounds): a Model gets one invisible
 -- anchor part ("FxAnchor") at its pivot and every Attachment lives on it, so PivotTo carries them all; a part hosts its own.
+-- A layer may instead hang on a signature piece (Effects.Pieces, Rare and up): its Attachment goes on the model's part of that
+-- name (the rig's moving object), at the piece's spot in the part's box, so it rides every spin, sway and pop World.RigAnimator
+-- gives the part (an orbiting comet carries its own trail, a pane its light). A model without the part (an old blockout) hangs the
+-- layer on the piece's fallback region instead (EffectsMath.Place). A pillar's sky end always stays on the anchor, straight up.
 -- Kinds: an Emitter flows; a Burst, Sparkle or RingPulse fires `count` particles on its own clock (`every`, slid per alien so a
 -- crowd is out of step) and/or on the flourish; an Aura holds large glow sprites on the body; a Beam (lightning) strikes every
 -- `flicker` seconds and redraws its bend a few times per strike; a Trail is a ribbon; Orbit motes circle on attachments that
@@ -104,6 +108,7 @@ type Handle = {
 	built: boolean,
 	dead: boolean,
 	bounds: Bounds?,
+	pieces: { [string]: BasePart | false }, -- the model's part for each piece part name looked up so far (false: not there)
 	host: BasePart?,
 	anchor: Part?,
 	made: { Instance }, -- everything built on the host, for teardown
@@ -248,6 +253,37 @@ local function hostOf(handle: Handle): BasePart?
 	return anchor
 end
 
+-- The model's part named `name` (a signature piece's moving part): a BasePart of that name, else the largest BasePart under an
+-- instance of that name (an import may wrap one object). Looked up once per model; nil for a part target or a missing part.
+local function pieceHost(handle: Handle, name: string): BasePart?
+	local cached = handle.pieces[name]
+	if cached == false then
+		return nil
+	elseif cached ~= nil then
+		return cached :: BasePart
+	end
+	local found: BasePart? = nil
+	local model = handle.model
+	if model then
+		local node = model:FindFirstChild(name, true)
+		if node and node:IsA("BasePart") then
+			found = node
+		elseif node then
+			local best = -1
+			for _, descendant in ipairs(node:GetDescendants()) do
+				if descendant:IsA("BasePart") then
+					local volume = descendant.Size.X * descendant.Size.Y * descendant.Size.Z
+					if volume > best then
+						best, found = volume, descendant
+					end
+				end
+			end
+		end
+	end
+	handle.pieces[name] = found or false
+	return found
+end
+
 -- A region's position in the host's space.
 local function regionPoint(handle: Handle, region: string): Vector3
 	local bounds = measure(handle)
@@ -271,8 +307,23 @@ local function attachmentAt(host: BasePart, name: string, position: Vector3, mad
 	return point
 end
 
-local function attachment(handle: Handle, host: BasePart, region: string, made: { Instance }): Attachment
-	return attachmentAt(host, "Fx" .. region, regionPoint(handle, region), made)
+-- Where a layer's point `at` hangs: the piece's part and the spot in its space, or the host and the region's point in its space.
+local function placeIn(handle: Handle, host: BasePart, at: string): (BasePart, Vector3)
+	local place = EffectsMath.Place(at, function(name: string): boolean
+		return pieceHost(handle, name) ~= nil
+	end)
+	local partName = place.part
+	local piece = if partName then pieceHost(handle, partName) else nil
+	if piece then
+		local size = piece.Size
+		return piece, Vector3.new(place.x * size.X, place.y * size.Y, place.z * size.Z)
+	end
+	return host, regionPoint(handle, place.region)
+end
+
+local function attachment(handle: Handle, host: BasePart, at: string, made: { Instance }): Attachment
+	local parent, position = placeIn(handle, host, at)
+	return attachmentAt(parent, "Fx" .. at, position, made)
 end
 
 -- Layers -----------------------------------------------------------------------
@@ -393,7 +444,7 @@ local function buildPillar(handle: Handle, host: BasePart, layer: Types.EffectLa
 	local look = Effects.Look
 	local from = attachment(handle, host, layer.at, made)
 	local up = host.CFrame:VectorToObjectSpace(Vector3.yAxis) * (layer.reach or 0) * height
-	local to = attachmentAt(host, "FxSky", from.Position + up, made)
+	local to = attachmentAt(host, "FxSky", host.CFrame:PointToObjectSpace(from.WorldPosition) + up, made) -- on the anchor: straight up, even from a turning piece
 	local width = (layer.width or 0) * height
 	local function beam(color: string, across: number): Beam
 		local made1 = Instance.new("Beam")
@@ -421,7 +472,7 @@ local function buildBeam(handle: Handle, host: BasePart, layer: Types.EffectLaye
 	local look = Effects.Look
 	local from = attachment(handle, host, layer.at, handle.made)
 	local to = attachment(handle, host, layer.to or layer.at, handle.made)
-	local length = (to.Position - from.Position).Magnitude
+	local length = (to.WorldPosition - from.WorldPosition).Magnitude -- the ends may sit on different parts (a piece and a region)
 	if length <= 0 then
 		return -- both ends on one spot: nothing to strike between
 	end
@@ -465,7 +516,8 @@ local function buildTrail(handle: Handle, host: BasePart, layer: Types.EffectLay
 	trail.Lifetime = layer.lifetime or 1
 	trail.FaceCamera = true
 	trail.Transparency = keypoints(NumberSequenceKeypoint.new(0, look.TrailTransparency), NumberSequenceKeypoint.new(1, 1))
-	trail.WidthScale = NumberSequence.new(layer.width or 1)
+	local width = layer.width or 1
+	trail.WidthScale = keypoints(NumberSequenceKeypoint.new(0, width), NumberSequenceKeypoint.new(1, width * look.TrailTaper))
 	trail.Enabled = false
 	trail.Parent = host
 	table.insert(handle.made, trail)
@@ -476,9 +528,9 @@ end
 -- where they were born, so a mote draws its own arc.
 local function buildOrbit(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number)
 	local motes: { Attachment } = {}
-	local centre = regionPoint(handle, layer.at)
+	local parent, centre = placeIn(handle, host, layer.at) -- on a piece, the circle rides the part
 	for _ = 1, math.max(layer.count or 1, 1) do
-		local mote = attachmentAt(host, "FxMote", centre, handle.made)
+		local mote = attachmentAt(parent, "FxMote", centre, handle.made)
 		table.insert(motes, mote)
 		local emitter = makeEmitter(mote, layer, height)
 		table.insert(handle.made, emitter)
@@ -1107,6 +1159,7 @@ function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: str
 		built = false,
 		dead = false,
 		bounds = nil,
+		pieces = {},
 		host = nil,
 		anchor = nil,
 		made = {},
@@ -1237,6 +1290,7 @@ function SpeciesFx.Refresh(target: Instance, scale: number?)
 		handle.host = nil
 	end
 	handle.bounds = nil
+	table.clear(handle.pieces)
 	handle.active = false
 	lastRecheck = -math.huge
 end

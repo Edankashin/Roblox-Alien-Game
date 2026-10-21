@@ -149,6 +149,34 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 | Rarity by layers, reach (body, ground, sky) and moments: a Common's one puff, a Cosmic's pillar | A bigger alien or a bigger copy of the same puff for a rarer tier |
 | A Secret's pillar and ring sunk only a little toward its shadow, so they read at night | A Secret pillar in the full dark mix: invisible against the sky |
 
+### Signature pieces lead the effects (2026-10-21)
+
+The Rare pass ([[#Rare pass w1 notes]], [[#Rare pass w2 notes]]) gave every Rare to Secret alien a named signature piece that moves on its own; the signature VFX pass made it the star of the alien's effects. `Effects.Pieces` names each attach point on a moving part: the part (the Blender object's rig name, as `data/Rigs` has it and the GLB exports it), a `spot` in the part's own box (fractions from its centre, measured from the note's parts: the hook part's centre in its moving object's box) and the nearest body `region` to fall back to. A row's `signature` names its piece and its **first, strongest layer hangs there**; a layer it draws there fires on the flourish. `World/SpeciesFx` parents that layer's Attachment to the part itself, so it rides every spin, sway and pop of `World/RigAnimator`; the rig's flourish calls `SpeciesFx.Flourish`, so the piece bursts and its light flares on the same beat. A model without the part (an old blockout) hangs the layer on the fallback region. Lint and `tests/Effects.spec.luau` check every piece a species names against its Rigs row. Two static pieces (Blinkar's antlers, Gaira's medallion) are plain `Attach` points, being in the Body mesh. The sheet, drawn from the data (`tools/signature_vfx_sheet.py`):
+
+![Signature VFX v1: each Rare to Secret alien, its piece outlined, and what its effects do there](refs/blocky/signature_vfx_v1.jpg)
+
+| Alien | Piece (part) | What its effects do |
+|---|---|---|
+| Raddis, Cosmic | Sunstones (`sunstone`) | the front and back suns each trail gold sparks and a short tapering ribbon; the alien's one light rides the front sun, pulsing, so its glow sweeps the ground; a star burst off the ring and the column from the top on the flourish |
+| Fenrir, Cosmic | Moon (`moon`) | the moon glows (its light and a halo shell) and sheds frost motes that drift back over the head; stars twinkle in the mane; the howl's column and star flare rise from the moon |
+| Syrinx, Secret | Eclipse (`eclipse`) | a dark corona (halo cells just behind the disc, so only the rim shows) and a violet rim light at the diamond bead; dark motes drift off it; the violet column and a ring of dark motes from it on the flourish; notes fall from the echo ring |
+| Gaira, Legendary | Mantle (`cape`) | petals shed off the mantle as it sways, a shower of them on the flourish, a deep-pink light; the medallion glints pink |
+| Cosmoo, Legendary | Comet (`comet`) | a tapering gold ribbon tail off its head, a stream of gold stars along its circle, a gold light; it bursts into twinkles on the flourish |
+| Skadra, Legendary | Runes (`halo`) | the leading rune trails frost and carries a cold light, the rune behind it gold glints; the whirl throws rune glints and flakes |
+| Epic | Voltus Cloud (`cloudR`), Iridia Panes (`wingR`, `wingL`), Grin Candles (`candles`), Aurelyx Plume (`tailR`), Sabrek Crown (`crown`) | rain under the cloud and a bolt to the charge gauge every 2 s, a spark crackle on the flourish; orchid light thrown by the beating panes, glints and prism dust; flame sprites on two candles, a flicker on the third, a warm candlelight; an aurora ribbon off the swaying plume; glints at a tip of the turning flake, crystal glints scattered on the flourish |
+| Rare | Boulden Geode, Vixa Palette, Zirrit Arc, Wispkin Glass, Snorzo Ring, Blinkar Antlers, Floe Summit | three layers each, all on the piece: a stream (motes, drips, an arc, a glow trail, bubbles, glints), its light, and a sparkle that also fires on the flourish |
+
+- **A trail is free on an orbiter.** An emitter with almost no speed on a piece that circles leaves its particles where they were born, so it draws its own path (Raddis's spark trails, Cosmoo's star stream, Floe's and Skadra's glint trails). Two spots on one part (`Comet` and `CometTail`) make a ribbon as wide as their gap; it now tapers to `Look.TrailTaper`, so it reads as a tail.
+- **One light, moved.** `Caps.MaxLights` stays 1 an alien; putting it on the piece moves it (a sun sweeping the ground, a pane throwing orchid light), which reads as more light than a second one would.
+- **Keep the face clear.** Particles from a piece above the brow drift back (`dir = "Back"`: Fenrir's motes, Sabrek's flakes); a corona goes just behind its disc so the disc hides its middle.
+- **A pillar stays straight.** A pillar on a piece keeps its sky end on the anchor, straight above the piece; on a spinning disc (Syrinx's eclipse turns about z) a sky end on the part would sweep like a clock hand.
+- **Budgets held, not raised.** The 18 use 2 to 73 live particles of the 120 a phone allows an alien, none is scaled down by the fit, so eight Cosmics stay inside Spectacle's scene caps unchanged.
+
+| Do | Don't |
+|---|---|
+| The strongest layer on the signature piece, riding it | A Cosmic whose piece moves while its sparkle hangs at a fixed region beside it |
+| A fallback region near the piece for the old models | A piece layer that vanishes, or lands at the body's middle, on a model without the part |
+
 ### The spectacle ladder: arrival, presence, personality, catch (2026-10-21)
 
 Ethan, 2026-10-21: "make the rare aliens 1000x cooler ... Don't forget about vfx and animation." The species' own layers above stay as they are; the spectacle ladder is the tier's stage round them, every row in `src/shared/data/Spectacle.luau`, the rules in `Shared/SpectacleMath` (tested headless by `tests/Spectacle.spec.luau`), drawn by `World/Spectacle` beside WildRenderer. The storyboard (`tools/spectacle_storyboard.py`, drawn from the data):
