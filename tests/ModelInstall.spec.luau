@@ -392,12 +392,11 @@ end)
 local propNames = ModelAssets.PropNames :: { [string]: boolean }
 local propRows = PropData.Rows :: { [string]: Types.PropRow }
 describe("data/Props collision rows", function()
-	it("has a row for every imported prop, and no row for a name that is not one", function()
+	-- A row may also name a block-cell prop exported but not yet uploaded (assets/models/props/<Name>/, Decision B44): the sandbox has
+	-- no files, so tools/lint_data.py (block_cell_props) checks that each extra row has its export and matches its spec note.
+	it("has a row for every imported prop", function()
 		for _, name in ipairs(sortedNames(propNames)) do
 			assert(propRows[name] ~= nil, name .. " is in ModelAssets.PropNames but has no data/Props row")
-		end
-		for _, name in ipairs(sortedNames(propRows)) do
-			assert(propNames[name] == true, name .. " has a data/Props row but is not in ModelAssets.PropNames")
 		end
 	end)
 	it("gives every row a collision from the allowed list", function()

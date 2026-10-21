@@ -11,10 +11,12 @@ for the Blender idle preview (tools/blender/blocky_build.py --idle).
   python3 -I tools/blocky/rigs.py                 # write src/shared/data/Rigs.luau from every note in docs/vault/07-alien-game/Creatures
   python3 -I tools/blocky/rigs.py --check         # exit 1 when the file is out of date (tools/tests/test_blocky_rigs.py runs it)
 
-An uploaded flipbook keeps its id: an image id already in Rigs.luau for a species is carried over when the file is written again.
+An uploaded flipbook keeps its id: an image id already in Rigs.luau for a species is carried over when the file is written again, and the
+Image id of an uploaded face sheet in assets/models/image_ids.json ("<Id>/face", written by tools/upload_assets.py --blocky) wins over it.
 """
 from __future__ import annotations
 
+import json
 import math
 import pathlib
 import re
@@ -28,6 +30,7 @@ import spec as S  # noqa: E402
 
 CREATURES = ROOT / "docs/vault/07-alien-game/Creatures"
 OUT = ROOT / "src/shared/data/Rigs.luau"
+IMAGE_IDS = ROOT / "assets/models/image_ids.json"   # "<Id>/face" -> { assetId (Decal), imageId }: tools/upload_assets.py --blocky
 # phone budgets (Types.RigBudget): written into the data file, read by World.RigAnimator
 BUDGET = {"MaxAnimated": 12, "PhoneMaxAnimated": 6, "Distance": 80, "RecheckSeconds": 0.5, "FallbackHalf": 0.55, "FallbackClosed": 0.15}
 FACE_PART = "FacePlate"
@@ -112,6 +115,20 @@ def existing_images(path=OUT):
     return out
 
 
+def uploaded_face_images(path=IMAGE_IDS):
+    """{species id: Image id} for every face sheet in assets/models/image_ids.json ("<Id>/face") whose Image id is resolved."""
+    if not pathlib.Path(path).exists():
+        return {}
+    data = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    out = {}
+    for key, entry in (data.items() if isinstance(data, dict) else []):
+        sid, _, sheet = key.partition("/")
+        value = entry.get("imageId") if isinstance(entry, dict) else None
+        if sheet == "face" and isinstance(value, int) and not isinstance(value, bool) and value > 0:
+            out[sid] = value
+    return out
+
+
 def render(rows):
     lines = [
         "--!strict",
@@ -159,8 +176,9 @@ def render(rows):
     return "\n".join(lines)
 
 
-def generate(folder=CREATURES, out=OUT):
+def generate(folder=CREATURES, out=OUT, image_ids=IMAGE_IDS):
     images = existing_images(out)
+    images.update(uploaded_face_images(image_ids))
     rows = []
     for spec in b46_notes(folder):
         errors, _ = S.validate(spec)

@@ -1,0 +1,50 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "9E9E8E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Boulder_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "7C7C6E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Boulder_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "6CB04A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Boulder_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "F2E6D0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Boulder_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "FFB86B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

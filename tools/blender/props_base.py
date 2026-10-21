@@ -655,6 +655,12 @@ def main():
     out_root = pathlib.Path(args.out)
     if not out_root.is_absolute():
         out_root = pathlib.Path.cwd() / out_root
+    # the blockouts are retired: a prop folder holding a block-cell export (tools/blocky/export_models.py --props, Decision B44) is never
+    # overwritten, as alien_base.py refuses for the species
+    shipped = [n for n in names if (out_root / n / ("%s_atlas.png" % n)).exists()]
+    if shipped:
+        print("refusing to overwrite the block-cell props %s; pass --out <scratch folder> to build blockouts" % ", ".join(shipped))
+        sys.exit(2)
 
     over, wrong, total_bytes = [], [], 0
     print("%-14s %5s  %-22s %-14s  %s" % ("prop", "tris", "W x D x H (studs)", "z range", "glb / fbx bytes"))

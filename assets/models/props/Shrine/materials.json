@@ -1,34 +1,40 @@
 [
   {
     "slot": 1,
-    "name": "Paving",
-    "hex": "B9B29A",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "9E9E8E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Shrine_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Stone",
-    "hex": "8E8E80",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "C8C0A6",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Shrine_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Moss",
+    "name": "Accessory",
     "hex": "5E9E3A",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Shrine_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
     "name": "Glow",
-    "hex": "9BE7FF",
-    "roughness": 0.8,
+    "hex": "2ECC71",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 1.5
   }
 ]

@@ -71,6 +71,7 @@ local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"
 local RadarData = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
+local Spectacle = require(script:WaitForChild("World"):WaitForChild("Spectacle"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
 local MusicDirector = require(script:WaitForChild("World"):WaitForChild("MusicDirector"))
 local Haptics = require(script:WaitForChild("World"):WaitForChild("Haptics"))
@@ -251,13 +252,16 @@ local function sendTap(tapTime: number)
 		local result = raw :: Types.CaptureHitResult?
 		if not result then
 			-- the server dropped the encounter (timeout or despawn)
+			Spectacle.ClearFocus()
 			finishCapture()
 			return
 		end
 		CaptureBar.ApplyResult(result)
 		if result.outcome == "Caught" then
+			Spectacle.Verdict("Caught", result.tier) -- the alien spirals into the device (World.Spectacle), on the server's word
 			onCaught(result)
 		elseif result.outcome == "Fled" then
+			Spectacle.Verdict("Fled") -- it hops away, or a Secret blinks out
 			task.delay(0.9, finishCapture)
 		end
 	end)
@@ -344,6 +348,7 @@ local function beginCapture(part: Part)
 	inCapture = true
 	Toast.Hush() -- the capture bar is a quiet moment: a banner or toast drawn a moment ago leaves and replays after the Reveal
 	capturePart = part
+	Spectacle.Focus(part) -- if the server removes it, its clone plays the catch's outro instead of vanishing
 	capturePosition = part.Position
 	CameraDirector.Cancel() -- a catch takes priority over any camera moment
 	Hud.SetAction(nil)
@@ -368,6 +373,7 @@ local function beginCapture(part: Part)
 			if reason == "InFlight" then
 				Toast.Show(Strings.TOAST_IN_FLIGHT, Theme.Colors.Select) -- a launch or flight is in progress (Exploit-Review D4)
 			end
+			Spectacle.ClearFocus()
 			print(("[%s] capture refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 			return
 		end
@@ -377,6 +383,8 @@ local function beginCapture(part: Part)
 			speciesName = if def then def.name else start.species,
 			tierName = Builder.text("TIER_" .. start.tier),
 			tierColor = Builder.tierColor(start.tier),
+			tier = start.tier,
+			alienColor = Spectacle.AlienColor(start.species), -- the hit and Perfect flash in the alien's own colour
 			params = start,
 			onTap = sendTap,
 		})

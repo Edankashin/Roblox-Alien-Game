@@ -1,0 +1,22 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "57B04A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Bush_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "FF5C8A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Bush_atlas.png",
+    "pixelated": true
+  }
+]

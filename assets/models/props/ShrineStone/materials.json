@@ -1,10 +1,40 @@
 [
   {
     "slot": 1,
-    "name": "Stone",
+    "name": "Body",
     "hex": "9E9E8E",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "ShrineStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "7C7C6E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ShrineStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "6CB04A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ShrineStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "9BE7FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

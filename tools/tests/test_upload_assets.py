@@ -758,7 +758,9 @@ class RunFromStudioTest(unittest.TestCase):
 
     def test_main_reads_the_file_and_fills_both_default_files(self) -> None:
         with unittest.mock.patch.object(ua, "IMAGE_IDS_FILE", self.icons), \
-                unittest.mock.patch.object(ua, "TEXTURE_IDS_FILE", self.textures):
+                unittest.mock.patch.object(ua, "TEXTURE_IDS_FILE", self.textures), \
+                unittest.mock.patch.object(ua, "BLOCKY_IMAGE_IDS_FILE", self.icons.with_name("none_blocky.json")), \
+                unittest.mock.patch.object(ua, "BLOCKY_TILE_IDS_FILE", self.icons.with_name("none_tiles.json")):
             code, out, err = run_main(["--from-studio", str(FIXTURES / "studio_output.txt"), "--redo"])
         self.assertEqual(code, 0, out + err)
         self.assertEqual(self.load(self.icons)["Shop"]["imageId"], 2001)
@@ -793,7 +795,9 @@ class EmitDecalsTest(unittest.TestCase):
 
     def test_main_prints_the_table_for_both_files_or_one(self) -> None:
         with unittest.mock.patch.object(ua, "IMAGE_IDS_FILE", self.icons), \
-                unittest.mock.patch.object(ua, "TEXTURE_IDS_FILE", self.textures):
+                unittest.mock.patch.object(ua, "TEXTURE_IDS_FILE", self.textures), \
+                unittest.mock.patch.object(ua, "BLOCKY_IMAGE_IDS_FILE", self.icons.with_name("none_blocky.json")), \
+                unittest.mock.patch.object(ua, "BLOCKY_TILE_IDS_FILE", self.icons.with_name("none_tiles.json")):
             code, out, _ = run_main(["--emit-decals-luau"])
             self.assertEqual(code, 0)
             self.assertIn("21, -- fur/color", out)

@@ -9,7 +9,8 @@ lower-right one, one step apart like the creature cells of Blocky-Style C3). Two
 data/Effects.Sheets once uploaded.
 
 The keys match Icons.Particles (Pixel...). Nothing here uploads: the PNGs go to assets/sprites/blocky, and the ids stay 0 until
-Ethan uploads them on the Mac (tools/upload_assets.py reads assets/particles; copy the chosen ones there first).
+the Mac uploads them from there (Decision B47: tools/finalize_upload.sh, which runs tools/upload_assets.py --blocky and fills
+Icons.luau).
 
     python3 -I tools/pixel_sprites.py                 # writes assets/sprites/blocky/*.png
     python3 -I tools/pixel_sprites.py --sheet out.png # also a labelled contact sheet of all of them, on dark and light

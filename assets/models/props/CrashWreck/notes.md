@@ -1,13 +1,15 @@
-# CrashWreck hero piece
+# CrashWreck block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/heroes_base.py, bpy 5.2.2 LTS
-- What: World 1 crash site: the hull split in two and half buried on a scorched disc, one bent fin, glowing embers
-- Footprint (W x D x H, studs): 24.00 x 18.77 x 7.70 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 7.70; pivot at the bottom centre (origin), the piece stands on z = 0
-- Triangles: 2044 (hero budget 1500 to 3000)
-- Colours / materials (one per colour, flat, no textures): Scorch #2E2620, Hull #8A93A0, Plate #4A5160, Ember #FF7A1A (emissive 2.0, Neon in Studio), EmberB #FFC83D (emissive 2.0, Neon in Studio)
-- Read distance: built to read at 60 studs (big shapes, no small detail)
-- Files: CrashWreck.glb (120868 bytes), CrashWreck.fbx (63628 bytes), materials.json
-- Review render: docs/vault/05-ui-design/refs/look-l3/CrashWreck.png
-- Studio: upload with tools/upload_assets.py and install with tools/studio/install_models.luau (parts coloured from materials.json, emissive slots Neon), or File -> Import 3D on the GLB, rename the Model to `CrashWreck`, parent under ReplicatedStorage.Models.Props, Anchored on.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/CrashWreck.md (Crash site, World 1, status build)
+- Footprint (W x D x H, studs): 22.954 x 17.625 x 11.125; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 32
+- Triangles: 370 (budget 1400)
+- Collision: Hull (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 4 texels a cell, atlas CrashWreck_atlas.png 1024x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Trim` (cells); `Glow` (Neon, no map)
+- Files: CrashWreck.glb (89684 bytes), CrashWreck.fbx (104300 bytes, texture embedded), CrashWreck_atlas.png, materials.json, CrashWreck.png and CrashWreck_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
+
+Regenerate with `$BPY tools/blocky/export_models.py --props CrashWreck`; check with `python3 -I tools/blocky/export_models.py --check --props CrashWreck`.

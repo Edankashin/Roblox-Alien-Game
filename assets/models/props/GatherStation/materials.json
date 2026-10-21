@@ -1,18 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Top",
-    "hex": "FFC83D",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "C99A5B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GatherStation_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Legs",
-    "hex": "A0722C",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "8B5A2B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GatherStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "FFC83D",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GatherStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "E8483D",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GatherStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "FFD98A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]
