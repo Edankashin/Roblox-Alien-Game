@@ -483,6 +483,7 @@ Ethan, 2026-10-17: "make that consistent throughout the whole game" ([[Decisions
 - Event banner: a Codex-purple plate (the board's event chip; it was a navy pill) with the pixel icon or a flat gold block on the left and the luck chip a flat green block.
 - Friend Boost chip: a dark plate, green while a boost is on.
 - Top buttons (Settings, Ranks, Playtime): square block buttons (they were round) with pixel icons and the 44 px hit area.
+- **One offer on the screen (2026-10-21, TikTok batch 9).** The Starter Pack stands in the top row as its own block button, gold (`Featured`) with a pixel present (red ribbon and bow, `PixelIcons.StarterPack`, the same picture as its Shop card), leftmost of the top buttons, so a player sees it without opening a menu (palm_dev: "not all of your monetized items should be hidden behind the shop button"). It shows only once the purchases are known and only while unbought and sellable (`ShelfMath.OfferShows`, the id is `data/Shop HudOffer`); a tap opens the Shop on the Featured shelf. One offer, never a column of them: the HUD stays a game screen.
 - Menu column: six block buttons with pixel icons, the label under each, the 44 px hit area.
 - Action button: a green block button with the 44 px hit area (its face is about 42 px at iPhone SE once the lip is under it).
 - Badges: flat red blocks with the count.

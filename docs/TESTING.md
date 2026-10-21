@@ -3,13 +3,14 @@
 Run in Studio with `rojo serve` connected. Report Output lines verbatim and a screenshot.
 
 Species display names changed on 2026-10-14 (decision B26): commands and asset folders still take the id (`/spawn Mossbop` spawns the Moop), screens and toasts show the new name. Steps below that name a species in prose may still use the old name; the id map is in `docs/vault/01-game-design/Species-Names.md`.
-## TikTok batch 9: the Scrap gap and the luck line in chat (World 1 place)
+## TikTok batch 9: the Scrap gap, the luck line in chat, the Starter Pack button (World 1 place)
 
 From the monetization references of 2026-10-21 (`media/tiktok/NOTES.md` "Batch 9"). Client lines only, plus one server rule in `Monetization.startServerLuck`.
 
 1. The Scrap gap. `/scrap 100`, Shop, Scrap shelf, tap the grey Twig Lure pill: the toast reads "Need 50 more Scrap" (150 less 100; thousands separators on bigger gaps, "Need 1,400 more Scrap" for Radar Mk1). The same line on the Ship screen's Pay (the module's remaining Scrap less what you hold), a grey Build card tapped on the plot, a Peddler offer and the Storage Bay button. Never the bare "Not enough Scrap" while the price is known.
 2. The luck in chat. Two clients. On client 1 `/buy ServerLuck2x`: both clients show the gold banner "Player1 bought 2x luck for everyone!" and, in the chat window (bottom left), a system line "Player1 bought x2 luck for everyone! Anyone can add more time from the Shop." Once, not again on each countdown push.
 3. Extending names the new buyer. On client 2 `/buy ServerLuck2x` while it runs: the time grows by 15 minutes, and both clients show the banner and the chat line with Player2. On client 2 `/buy ServerLuck2x` once more: the time grows with no new banner or chat line (the same buyer and bonus as the last announcement). A `/buy ServerLuck4x` takes over and is announced; a `/buy ServerLuck2x` during it adds time and keeps the x4 buyer's name. A developer-panel gift shows its banner and no chat line.
+4. The Starter Pack on the screen. A fresh profile: a gold square button with a red-ribboned present stands in the top row, left of the others (at 4:3 it may sit in the column under the first). Tap it: the Shop opens on the Featured shelf with the Starter Pack card first, and that card's picture is the same present (it was a letter). During a catch or the Reveal a tap does nothing. `/buy StarterPack`: after the Reveal the button is gone, and stays gone after a rejoin. A place with the pack's productId set to 0 (or `offSale = true`) never shows the button. Check at iPhone SE and iPad sizes that it does not reach the ship bar or the compass.
 
 ## Pre-launch audit (World 1 place)
 

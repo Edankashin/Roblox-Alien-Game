@@ -32,6 +32,8 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local GrowthData = require(Shared:WaitForChild("data"):WaitForChild("Growth"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
+local ShopData = require(Shared:WaitForChild("data"):WaitForChild("Shop"))
+local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script:WaitForChild("State"))
 local Builder = require(script:WaitForChild("UI"):WaitForChild("Builder"))
@@ -1453,6 +1455,32 @@ local function start(profile: Types.Profile)
 		Hud.SetBadge("Gifts", waiting)
 	end
 	State.OnChanged("gifts", refreshGiftBadge)
+
+	-- The offer on the screen (TikTok batch 9 lesson 4, data/Shop HudOffer): a top button with the Starter Pack's pixel present,
+	-- leftmost in the top row, shown while the pack can be sold and this player has not bought it (Shared/ShelfMath.OfferShows);
+	-- a tap opens the Shop, which starts on the Featured shelf where the pack is the first card.
+	local offerId = ShopData.HudOffer
+	local offerItem: ShopData.ShopItem? = nil
+	for _, item in ipairs(ShopData.Items) do
+		if item.id == offerId then
+			offerItem = item
+		end
+	end
+	Hud.AddTopButton(offerId, Theme.Colors.Featured, function()
+		if not inCapture and not Reveal.IsOpen() then
+			Screens.Open("Shop")
+		end
+	end)
+	Hud.SetTopButtonVisible(offerId, false)
+	local function refreshOfferButton()
+		local purchases, known = State.GetPurchases()
+		local item = offerItem
+		local shows = item ~= nil
+			and ShelfMath.OfferShows(item, ShopData.Grants[offerId], purchases.purchases[offerId] or 0, known)
+		Hud.SetTopButtonVisible(offerId, shows)
+	end
+	State.OnChanged("purchases", refreshOfferButton)
+	refreshOfferButton()
 
 	-- The five-minute script's payoff: when the step named by TutorialData.Script.GiftPopAfterStep falls
 	-- behind the player and the day-1 gift is unclaimed, the Gifts screen opens by itself, once a session.

@@ -292,6 +292,8 @@ return {
 	MENU_Ranks = "Ranks",
 	MENU_GLYPH_Ranks = "#",
 	MENU_Playtime = "Playtime",
+	MENU_StarterPack = "Starter Pack", -- the HUD offer button (data/Shop HudOffer); its face is the pixel present
+	MENU_GLYPH_StarterPack = "+",
 	MENU_GLYPH_Playtime = ">",
 	-- weekly leaderboard (data/Leaderboard)
 	LB_TITLE = "Top catchers this week",
