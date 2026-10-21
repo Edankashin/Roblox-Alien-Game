@@ -74,6 +74,29 @@ Theme.Gloss = {
 -- Ink is the navy outline's side and Fill the colour's, of the seal's; Text is its label's width.
 Theme.Ribbon = { Tail = 0.7, Corner = 6 }
 Theme.Seal = { Spikes = 3, Ink = 0.72, Fill = 0.64, Text = 0.7 }
+-- Block cells (UI Playbook "Block cells", Decisions B44, Decide-Now 43): a plate is a whole number of square cells with its four
+-- corner cells cut (the stepped pixel corner), a navy ink border, a lit top row, darker side and bottom cells, a grout line on each
+-- cell and a few cells a shade off (Blocky-Style C1 to C6): frames only, no image, no gradient, no gloss. Shared/BlockMath does the
+-- arithmetic; Builder.blockPlate, Builder.blockButton and Builder.pixelIcon build from these. Cell is a cell's height as a fraction of
+-- the screen height, from which each plate's rows are picked (7.5 px at iPhone SE, 16 px on an iPad); Ink and Grout are in cells;
+-- the Alpha values are the transparency of the white or black overlays, so a plate recolours by its Fill frames alone. Layer is the
+-- ZIndex step inside a plate above the plate's own: content (labels, icons) goes at Layer.Content or higher (Builder.blockTop).
+-- tools/tests/test_block_theme.py keeps these equal to the parameters tests/BlockMath.spec.luau checks the HUD's fit with.
+Theme.Block = {
+	Cell = 0.02,
+	Ink = 0.4,
+	MinRows = 3,
+	Grout = 0.125,
+	GroutAlpha = 0.9,
+	TopAlpha = 0.7,
+	EdgeAlpha = 0.8,
+	JitterAlpha = 0.9,
+	Seed = 44,
+	Hover = 1.04,
+	PixelGrid = 8,
+	Trough = Color3.fromHex("2A2F55"), -- a dark plate's face (the Scrap plate, the ship bar's trough, the idle Friend chip): the ink a step up
+	Layer = { Ink = 0, Fill = 1, Bar = 2, Cells = 3, Content = 4 },
+}
 Theme.Lighten = 0.25 -- gradient top: how far toward white
 Theme.Darken = 0.35 -- strokes and lips: how far toward black
 Theme.Shadow = Color3.new(0.1, 0.1, 0.12) -- uncaught species silhouette

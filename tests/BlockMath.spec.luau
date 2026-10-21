@@ -1,0 +1,248 @@
+--!strict
+-- Shared.BlockMath: the block-cell plate (UI Playbook "Block cells", Blocky-Style C1 to C6) and the HUD's fit in it at iPhone SE
+-- (667x375) and iPad (1080x810). The parameters are Theme.Block's (Theme needs the Roblox runtime, so
+-- tools/tests/test_block_theme.py reads them out of src/shared/Theme.luau and checks they are these), and the HUD rows mirror
+-- the sizes and aspects in src/client/UI/Hud.luau: change one, change the other.
+local Shared = game:GetService("ReplicatedStorage").Shared
+local BlockMath = require(Shared.BlockMath)
+
+local CELL, INK, MIN_ROWS, GROUT, SEED = 0.02, 0.4, 3, 0.125, 44
+local TAP_MIN = 44 -- Theme.TapMin
+local TEXT_MIN = 14 -- Theme.TextSize.Min
+local EPS = 1e-9
+
+local SE = { w = 667, h = 375 }
+local IPAD = { w = 1080, h = 810 }
+
+type Plate = {
+	name: string,
+	sizeX: number, -- Size bounds, Scale of the parent's px (sizeX of `parentW`, sizeY of `parentH` when nested)
+	sizeY: number,
+	aspect: number,
+	height: number, -- the screen-height Scale its rows are picked from
+	button: boolean?, -- a Builder.blockButton (a one-cell lip under the face)
+	hit: boolean?, -- carries the 44 px hit area
+	text: boolean?, -- carries one centred line of text at the 14 px floor or more
+}
+
+-- Hud.luau: the Scrap plate, the clock, biome and shower chips, the ship bar, the event banner, the Friend chip, a top button,
+-- a menu button (its size is 0.095 of the screen height inside a 0.12 x 0.13 slot at aspect 0.8) and the action button.
+local HUD: { Plate } = {
+	{ name = "ScrapPill", sizeX = 0.3, sizeY = 0.085, aspect = 3.6, height = 0.085, text = true },
+	{ name = "ClockChip", sizeX = 0.3, sizeY = 0.075, aspect = 4.2, height = 0.075, text = true },
+	{ name = "BiomeChip", sizeX = 0.2, sizeY = 0.05, aspect = 4.2, height = 0.05, text = true },
+	{ name = "ShowerChip", sizeX = 0.2, sizeY = 0.05, aspect = 4.2, height = 0.05, text = true },
+	{ name = "ShipBar", sizeX = 0.3, sizeY = 0.075, aspect = 4.2, height = 0.075, text = true },
+	{ name = "EventBanner", sizeX = 0.4, sizeY = 0.07, aspect = 6, height = 0.07 },
+	{ name = "FriendChip", sizeX = 0.3, sizeY = 0.055, aspect = 5.5, height = 0.055, text = true },
+	{ name = "TopButton", sizeX = 0.3, sizeY = 0.075, aspect = 1, height = 0.075, button = true, hit = true },
+	{ name = "MenuButton", sizeX = 0.12, sizeY = 0.095, aspect = 1, height = 0.095, button = true, hit = true },
+	{ name = "Action", sizeX = 0.3, sizeY = 0.13, aspect = 2.3, height = 0.13, button = true, hit = true, text = true },
+}
+
+local function rowsOf(plate: Plate): number
+	local height = if plate.button then plate.height - CELL else plate.height
+	return BlockMath.Rows(height, CELL, INK, MIN_ROWS)
+end
+
+-- The plate's face box in px (the whole plate for a plate, the face above the lip for a button), and its grid.
+local function measure(plate: Plate, screen: { w: number, h: number }): (number, number, BlockMath.Grid)
+	local w, h = BlockMath.FitPx(plate.sizeX, plate.sizeY, plate.aspect, screen.w, screen.h)
+	local rows = rowsOf(plate)
+	if plate.button then
+		local lip, faceAspect = BlockMath.Lip(plate.aspect, rows, INK)
+		return w, h * (1 - lip), BlockMath.Grid(faceAspect, rows, INK)
+	end
+	return w, h, BlockMath.Grid(plate.aspect, rows, INK)
+end
+
+describe("BlockMath grid", function()
+	it("picks rows from the height so a cell is about Theme.Block.Cell of the screen, never under three", function()
+		expect(BlockMath.Rows(0.085, CELL, INK, MIN_ROWS)).toEqual(3)
+		expect(BlockMath.Rows(0.05, CELL, INK, MIN_ROWS)).toEqual(3)
+		expect(BlockMath.Rows(0.2, CELL, INK, MIN_ROWS)).toEqual(9)
+		expect(BlockMath.Rows(0.1, 0, INK, MIN_ROWS)).toEqual(MIN_ROWS)
+	end)
+	it("spans the plate exactly with whole cells and the ink both sides", function()
+		local grid = BlockMath.Grid(3.6, 3, INK)
+		expect(grid.cols).toEqual(13)
+		expect(grid.cols * grid.cellX + 2 * grid.inkX).toBeClose(1, EPS)
+		expect(grid.rows * grid.cellY + 2 * grid.inkY).toBeClose(1, EPS)
+		expect(grid.inkX).toBeClose(INK * grid.cellX, EPS)
+	end)
+	it("keeps the cells within 6% of square on every HUD plate", function()
+		for _, plate in ipairs(HUD) do
+			local w, h, grid = measure(plate, SE)
+			local skew = (w * grid.cellX) / (h * grid.cellY) - 1
+			assert(math.abs(skew) <= 0.06, plate.name .. " cells are " .. skew .. " off square")
+		end
+	end)
+	it("never makes fewer than three columns", function()
+		expect(BlockMath.Grid(0.2, 3, INK).cols).toEqual(3)
+	end)
+end)
+
+describe("BlockMath shape", function()
+	local grid = BlockMath.Grid(4.2, 3, INK)
+	it("cuts one cell from each corner of the ink and keeps the ink one thickness round the step", function()
+		local ink = BlockMath.Shape(grid, 0, 0)
+		local face = BlockMath.Face(grid)
+		expect(ink[1].y).toBeClose(grid.cellY, EPS)
+		expect(ink[2].x).toBeClose(grid.cellX, EPS)
+		expect(face[1].x - ink[1].x).toBeClose(grid.inkX, EPS)
+		expect(face[1].y - ink[1].y).toBeClose(grid.inkY, EPS)
+		expect(face[2].x - ink[2].x).toBeClose(grid.inkX, EPS)
+		expect(face[2].y - ink[2].y).toBeClose(grid.inkY, EPS)
+		expect(face[1].w).toBeClose(grid.cols * grid.cellX, EPS)
+		expect(face[2].h).toBeClose(grid.rows * grid.cellY, EPS)
+	end)
+	it("fills a bar from nothing to the whole face, inside the stepped corners", function()
+		for _, bar in ipairs(BlockMath.Fill(grid, 0)) do
+			expect(bar.w).toEqual(0)
+		end
+		local full, face = BlockMath.Fill(grid, 1), BlockMath.Face(grid)
+		for index, bar in ipairs(full) do
+			expect(bar.w).toBeClose(face[index].w, EPS)
+		end
+		-- half way: the wide bar reaches the middle, the narrow one too, and neither starts before its own left edge
+		local half = BlockMath.Fill(grid, 0.5)
+		expect(half[1].x + half[1].w).toBeClose(0.5, EPS)
+		expect(half[2].x + half[2].w).toBeClose(0.5, EPS)
+		-- a sliver under one cell lights only the wide bar (the corner cell stays cut)
+		local sliver = BlockMath.Fill(grid, 0.5 / grid.cols)
+		expect(sliver[2].w).toEqual(0)
+		assert(sliver[1].w > 0, "the wide bar starts at once")
+	end)
+	it("lights the top row and shades the other border cells, without the cut corners, only from three cells", function()
+		local bands = BlockMath.Bands(grid)
+		local top = bands.top :: BlockMath.Rect
+		expect(top.x).toBeClose(grid.inkX + grid.cellX, EPS)
+		expect(top.w).toBeClose((grid.cols - 2) * grid.cellX, EPS)
+		expect(top.h).toBeClose(grid.cellY, EPS)
+		local left = bands.left :: BlockMath.Rect
+		expect(left.h).toBeClose((grid.rows - 2) * grid.cellY, EPS)
+		expect(BlockMath.Bands(BlockMath.Grid(4.2, 2, INK)).top).toEqual(nil)
+	end)
+	it("draws a grout line on each inner cell edge, the first ones clear of the cut corners", function()
+		local lines = BlockMath.Grout(grid, GROUT)
+		expect(#lines).toEqual(grid.cols - 1 + grid.rows - 1)
+		local firstColumn = lines[1]
+		expect(firstColumn.y).toBeClose(grid.inkY + grid.cellY, EPS)
+		expect(firstColumn.w).toBeClose(GROUT * grid.cellX, EPS)
+		local firstRow = lines[grid.cols]
+		expect(firstRow.x).toBeClose(grid.inkX + grid.cellX, EPS)
+		expect(firstRow.h).toBeClose(GROUT * grid.cellY, EPS)
+		local secondColumn = lines[2]
+		expect(secondColumn.y).toBeClose(grid.inkY, EPS)
+	end)
+end)
+
+describe("BlockMath jitter", function()
+	it("is deterministic and only -1, 0 or 1", function()
+		for col = 0, 20 do
+			for row = 0, 5 do
+				local level = BlockMath.Level(col, row, SEED)
+				expect(BlockMath.Level(col, row, SEED)).toEqual(level)
+				assert(level == -1 or level == 0 or level == 1, "level " .. level)
+			end
+		end
+	end)
+	it("keeps 1 : 6 : 1 over a large field (C2)", function()
+		local down, up, total = 0, 0, 0
+		for col = 0, 99 do
+			for row = 0, 99 do
+				local level = BlockMath.Level(col, row, SEED)
+				total += 1
+				if level < 0 then
+					down += 1
+				elseif level > 0 then
+					up += 1
+				end
+			end
+		end
+		expect(down / total).toBeClose(0.125, 0.02)
+		expect(up / total).toBeClose(0.125, 0.02)
+	end)
+	it("skips the cut corner cells and a different seed gives a different plate", function()
+		local grid = BlockMath.Grid(4.2, 3, INK)
+		local a, b = BlockMath.Jittered(grid, SEED), BlockMath.Jittered(grid, SEED + 1)
+		for _, cell in ipairs(a) do
+			local corner = (cell.row == 0 or cell.row == grid.rows - 1) and (cell.col == 0 or cell.col == grid.cols - 1)
+			assert(not corner, "a corner cell was jittered")
+		end
+		local same = #a == #b
+		if same then
+			for index, cell in ipairs(a) do
+				same = same and cell.col == b[index].col and cell.row == b[index].row and cell.level == b[index].level
+			end
+		end
+		assert(not same, "two seeds gave the same plate")
+	end)
+end)
+
+describe("BlockMath button", function()
+	it("puts a lip one cell deep under the face", function()
+		local lip, faceAspect = BlockMath.Lip(1, 3, INK)
+		expect(lip).toBeClose(1 / (3 + 2 * INK + 1), EPS)
+		expect(faceAspect).toBeClose(1 / (1 - lip), EPS)
+	end)
+	it("fits the box like UIAspectRatioConstraint FitWithinMaxSize", function()
+		local w, h = BlockMath.FitPx(0.3, 0.085, 3.6, SE.w, SE.h)
+		expect(h).toBeClose(0.085 * SE.h, EPS)
+		expect(w).toBeClose(h * 3.6, EPS)
+		local w2, h2 = BlockMath.FitPx(0.12, 0.13, 0.8, 300, 800) -- a tall narrow window: the width binds
+		expect(w2).toBeClose(36, EPS)
+		expect(h2).toBeClose(45, EPS)
+	end)
+end)
+
+describe("BlockMath HUD fit", function()
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": every plate has three rows or more, cells of 4.5 px or more and ink of 1.8 px or more", function()
+			for _, plate in ipairs(HUD) do
+				local _, h, grid = measure(plate, screen)
+				local cell = h * grid.cellY
+				assert(grid.rows >= 3, plate.name .. " has " .. grid.rows .. " rows")
+				assert(cell >= 4.5, plate.name .. " cell is " .. cell .. " px")
+				assert(INK * cell >= 1.8, plate.name .. " ink is " .. INK * cell .. " px")
+			end
+		end)
+		it(label .. ": the grout is half a pixel or more, so it draws as a line", function()
+			for _, plate in ipairs(HUD) do
+				local _, h, grid = measure(plate, screen)
+				local grout = GROUT * h * grid.cellY
+				assert(grout >= 0.5, plate.name .. " grout is " .. grout .. " px")
+			end
+		end)
+		it(label .. ": a line of text at the 14 px floor fits inside each plate's face", function()
+			for _, plate in ipairs(HUD) do
+				if plate.text then
+					local _, h, grid = measure(plate, screen)
+					local inner = h * (1 - 2 * grid.inkY)
+					assert(inner >= TEXT_MIN, plate.name .. " face is " .. inner .. " px tall")
+				end
+			end
+		end)
+		it(label .. ": every button's face or hit area is 44 px or more both ways", function()
+			for _, plate in ipairs(HUD) do
+				if plate.button then
+					local w, h = measure(plate, screen)
+					local ok = plate.hit or (w >= TAP_MIN and h >= TAP_MIN)
+					assert(ok, plate.name .. " face is " .. w .. " x " .. h .. " px with no hit area")
+				end
+			end
+		end)
+	end
+	it("iPhone SE: the cells are 4.9 to 8.4 px, near the board's 8 px at 390 tall", function()
+		local small, large = math.huge, 0
+		for _, plate in ipairs(HUD) do
+			local _, h, grid = measure(plate, SE)
+			local cell = h * grid.cellY
+			small, large = math.min(small, cell), math.max(large, cell)
+		end
+		expect(small).toBeClose(4.93, 0.01) -- the biome and shower chips
+		expect(large).toBeClose(8.39, 0.01) -- the Scrap plate
+	end)
+end)
+return true

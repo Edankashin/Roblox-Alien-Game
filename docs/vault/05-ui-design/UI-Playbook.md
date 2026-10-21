@@ -7,6 +7,8 @@ up: "[[UI-Design]]"
 
 The look, written to the level Claude can build from. Hex values here are the starting palette; the team's choices in PRE_PRODUCTION section 2 replace them. When a review corrects a panel, update this file in the same change.
 
+> **The UI is moving to block cells ([[Decisions]] B44 and B46, [[Decide-Now]] 43 a), one screen per change, HUD first.** The rules are [[#Block cells (2026-10-21)]]. A screen built in block cells follows that section where it differs from the older lines below (rounded corners, gradients, the gloss band, pills); a screen not yet rebuilt keeps the older lines until its own change. The HUD is in block cells as of 2026-10-21.
+
 ## Font and text
 - Fredoka One for all UI text; Builder Sans only for long settings text.
 - Sizes: 14 minimum on mobile, 18 body, 24 labels, 36 titles, 48 reveal text.
@@ -38,6 +40,7 @@ The look, written to the level Claude can build from. Hex values here are the st
 | Secret | `#111111` with rainbow stroke |
 
 ## Buttons
+- On a block-cell screen (the HUD): `Builder.blockButton`, see [[#Block cells (2026-10-21)]]. The lines below are the rounded button the other screens still use.
 - Rounded rectangle, UICorner 12 px, vertical gradient lighter at the top, 3 px darker stroke, 4 to 6 px darker "lip" at the bottom.
 - White text with dark stroke. Press scales to 0.92, hover on PC 1.05.
 - Green = buy or confirm, red = close, blue = select, gold = featured.
@@ -53,6 +56,7 @@ The look, written to the level Claude can build from. Hex values here are the st
 - "— FEATURED —", "— PASSES —": yellow text with black stroke, centred, about 7% of panel height; the dashes are part of the text.
 
 ## Icons (batch 4)
+- On a block-cell screen the 8 by 8 pixel icons of `src/shared/data/PixelIcons.luau` come first (`Builder.blockIcon`; see [[#Block cells (2026-10-21)]]); the flat pack below is the fallback for a key with no pixel icon, and stays the icon on the rounded screens.
 - The set: 128 px flat two-tone icons with a thick dark outline (about 6% of the width), modelled in Blender and rendered into `assets/icons` (the three weather particle sprites into `assets/particles`). One style for the whole game; never mix packs, and a thin outline next to a thick one reads as broken.
 - Ids: each file name is its key in `src/shared/data/Icons.luau` (`Icons[key] = assetId`, 0 meaning not uploaded yet). `Aliases` map a data id whose icon has another key (Gear "Boots" uses `SpeedBoots`). `Particles` holds the weather sprites (Raindrop, Flake, Wisp).
 - Use: `Builder.icon({ key = ..., parent = ..., position/size/anchor in Scale })` returns an ImageLabel (transparent background, `ScaleType` Fit), or nil with nothing created while the id is 0 or the key is unknown. `Builder.button` takes `icon = key`: once the id is uploaded the face shows the icon centred at 0.7 of its size (`BUTTON_ICON_SCALE`) and no text, and the icon presses with the face.
@@ -81,6 +85,7 @@ The look, written to the level Claude can build from. Hex values here are the st
 - The phone rules from the research (the reveal's three beats, the event chip, insets, hit areas, text size, thumb zone) are in [[#Phone rules from the design research (2026-10-15)]]; where they differ from the lines above they win once a screen is rebuilt.
 
 ## Event banner and compass (reference: `refs/dino-event-banner.jpg`)
+- Since the block-cell HUD (2026-10-21) the banner is a Codex-purple block plate, the board's event chip, with the event's pixel icon (or a flat gold block) on the left and the luck chip a flat green block; its slot, its two lines and its rules below are unchanged. The compass strip is its own module and is still the rounded pill until its change.
 - Event banner: top centre under the compass strip, a dark navy pill with the outline colour, aspect about 5:1. Event icon in a rounded square on the left, event name in bold white outlined text with the time left ("3:39 left") in smaller text beneath it, and a green (`#51DF51`) pill chip on the right reading "1.5x LUCK" whenever the event changes luck. Same slot for the Meteor Shower countdown and weather events; never more than one banner.
 - Compass strip (`src/client/UI/Compass.luau`, numbers in `src/shared/data/Compass.luau`): its own ScreenGui at the HUD's layer (10). A thin navy (`Trough`) pill with the outline stroke and the usual gradient, top centre: 34% of the screen width (`StripWidth` in `data/Compass`, which the Hud reads to keep the round top buttons right of it; it was 38% and touched them at 4:3), 4% of its height (about 15 px on a phone in landscape, so the 14 px minimum text fits), its top at 0.006 (so it ends at 0.046). The cardinal letters N, E, S, W (white outlined, minimum text size) and tick marks every 15 degrees (short white frames, taller every 45) slide along it as the camera turns; north is world -Z, east +X, clockwise, the same as the Radar's player marker, taken from the camera's look yaw. A thing `delta` degrees from the heading sits at `0.5 + delta / 180` across the band and is hidden beyond 90 degrees either side; within 15% of either end it fades up to 60% transparent. A small dark pill at the centre (the Trough darkened, outline stroke) reads the heading in whole degrees ("270°", 0 to 359); it covers the letters and ticks behind it, but diamonds draw over it so a marker dead ahead is never hidden. Refreshed 20 times a second, and only while shown (it hides with the tutorial hint: capture, reveal, an open panel or the opening cinematic).
 - Compass diamonds: a square turned 45 degrees with the outline stroke, 55% of the band's height, one per data marker, coloured by kind: the waypoint (tutorial or Field Notes marker, or an alien marked from the radar by name) and the Peddler gold (`Featured`), the radar target blue (`Select`), the camp green (`Confirm`), the shrine orange (`Legendary`), the cave mouths purple (`Codex`), the Great Vent red (`Close`). A marker shows only while the player is at least its minimum distance away (so it is not in your face), and the lowest priority number draws on top where two overlap (the waypoint over the radar target on the same alien).
@@ -102,7 +107,8 @@ The look, written to the level Claude can build from. Hex values here are the st
 - Full width, aspect about 2.6:1, illustrated background themed to the item, darkened, timer and odds visible.
 
 ## What to avoid
-- Default grey Roblox buttons, Source Sans, Inter or Montserrat, glass or blur panels, outline-free card grids, emoji icons, gradient text, silence on tap.
+- Default grey Roblox buttons, Source Sans, Inter or Montserrat (or any web font: Fredoka One is the one face), glass or blur panels (no glassmorphism), outline-free card grids, emoji icons, gradient text, silence on tap.
+- On a block-cell screen: a rounded corner, a gradient, a gloss band or a rendered round icon next to the blocks (two games on one screen, B44).
 
 ## Layers and banners (2026-10-05)
 
@@ -138,6 +144,8 @@ The Studio retest found "Launch Gold" cut to "Launch" on the Reveal and "Launc" 
 - A name that cannot fit even the whole row (a single word wider than about 0.92 of the card) still overflows; give it a shorter key (see "Short keys for dense places" below) before adding such an overlay.
 
 ## Visual quality bar (2026-10-06)
+
+Superseded on block-cell screens by [[#Block cells (2026-10-21)]]: a block has no gloss band, no gradient and no bevelled 9-slice; its lit top row, shaded edges, grout and jitter are the finish. The rest of this section still holds for the screens not yet rebuilt.
 
 The target look is the top Roblox sims (Pet Simulator 99, Adopt Me):
 - Rendered glossy icons, each with an outline and a soft shadow, never flat glyphs.
@@ -389,3 +397,51 @@ The Shop rebuilt from the reference above and the "Shop v2" board on the Claude 
 - The reference's yellow "Coming soon!" over the title became the existing toast, and its cyan outline and twinkling stars on the one recommended card were left out (the Starter Pack has the shine instead; one featured effect, not two).
 - NEW is a data flag (`new` on the card), not a per-player "seen" state: remove the flag when the card stops being new.
 - Where an icon id is 0 the card shows a letter from `SHOP_GLYPH_<id>` in the picture's place (the Robux cards have no icons yet; the lures, boots, hoverboard, radars, speed burst, steady hands, scrap magnet and the Gifts wheel do), and the game runs with every id at 0.
+
+## Block cells (2026-10-21)
+
+Ethan, 2026-10-17: "make that consistent throughout the whole game" ([[Decisions]] B44); [[Decide-Now]] 43 taken **a** on 2026-10-20 (B46): the UI in block cells, one screen per change, HUD first, because a rounded glossy HUD over a block-cell world reads as two games. The approved board is "HUD in block cells" on the [Catch an Alien UI canvas](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4), beside the phone HUD it replaces. The cell rules are the creatures' and the world's ([[Blocky-Style]] C1 to C6), applied to flat UI. Code: the helpers in `src/client/UI/Builder.luau` (section "Block cells"), the arithmetic in `src/shared/BlockMath.luau` (`tests/BlockMath.spec.luau`), the tokens in `Theme.Block`, the icons in `src/shared/data/PixelIcons.luau`. First screen: the HUD (`src/client/UI/Hud.luau`). Test steps: `docs/TESTING.md` "HUD in block cells"; the Mac check is [[Overnight]] job 36.
+
+**A plate** (`Builder.blockPlate`)
+- **Whole square cells.** A plate is `rows` by `cols` cells. The rows come from its height: round(height / `Theme.Block.Cell` - 2 x ink), at least `MinRows` (3), with `Cell` 0.02 of the screen height (the board's 8 px at 390 tall); the columns are the whole number nearest square cells for the plate's aspect (C1: every face a whole number of cells, no sliver). The plate keeps its aspect with a `UIAspectRatioConstraint`, so the cells stay square on any screen (within 6% on every HUD plate).
+- **Stepped pixel corner.** The four corner cells are cut away; the navy ink border (`Ink` 0.4 of a cell) runs round the notched shape at one thickness, the step too. Built from frames: two overlapping bars for the ink and two for the face. No `UICorner`, no `UIStroke` on a block, no image, so nothing waits on an upload and nothing breaks at an id of 0.
+- **Lit top, shaded edges (C3).** The top row a step lighter (white at `TopAlpha` 0.7 transparency), the bottom row and both side columns a step darker (black at `EdgeAlpha` 0.8), without the cut corners, and only on a plate three cells or more both ways.
+- **Grout (C3).** A line an eighth of a cell thick (`Grout`, one texel at eight texels a cell) on each cell's right and bottom edge, black at `GroutAlpha` 0.9; none along the ink, and the first lines skip the cut corners.
+- **Jitter (C2).** A hash of each cell's grid position and seed 44 (`BlockMath.Level`): one cell in eight a shade down, one in eight a shade up (black or white at `JitterAlpha` 0.9), the rest level. Deterministic: the same plate every build. `seed` on the props gives a neighbour a different scatter.
+- **Recolour.** All shading is white and black overlays over the "Fill" frames, so `Builder.setBlockColor(plate, colour, tweenInfo?)` recolours a plate by its Fill frames alone (the clock's day and night, the Friend chip going green).
+- **Layers.** Inside a plate, above its own ZIndex: ink +0, face +1, a bar +2, the cell overlays +3, content +4. Put labels and icons at `Builder.blockTop(plate)` or higher, or the overlays wash over them.
+- **Flat block** (`cells = false`): ink, face and the stepped corners only, for a small detail (C3: "a smaller detail block stays one flat colour"): the badges, the banner's luck chip, an icon square's placeholder.
+
+**A button** (`Builder.blockButton`, same props as `Builder.button` plus `rows`)
+- A block-plate face over a flat lip exactly one cell deep in the colour darkened (`Theme.Darken`), so the button stands on its own shadow. A press **sinks the face one cell** onto the lip (no 0.92 squash: blocks do not squash); a hover on a mouse grows it to `Theme.Block.Hover` (1.04); every tap plays the click; `hit = true` adds the invisible 44 px area as on `Builder.button`.
+- Text: white Fredoka One with the navy outline (`Builder.stroke`, so it scales with the screen height), padded half a cell sideways and a quarter cell top and bottom inside the ink. An icon replaces the text: the pixel icon at 0.8 of the padded box (about 0.6 of the face).
+- Returns the container: "Face" is the `TextButton` (set its `Text`), "Plate" and "Lip" are plates. `Builder.restyleBlockButton(container, text, colour, enabled)` is the block twin of `Builder.restyleButton`. Rows: from `size.Y` as a Scale of the screen, less the lip (`Builder.blockButtonRows`); pass `rows` when the button's size is a fraction of something other than the screen (the menu slot does).
+
+**A bar** (`Builder.blockBar(plate, colour)` returns a setter, 0 to 1): the fill runs across the face from the left in two frames that keep the stepped corners (a sliver under one cell lights only the middle rows), under the cell overlays so the fill reads in cells too. `Builder.blockInner(plate)` gives the face's inner box for the tick marks. The ship bar tweens a `NumberValue` and the setter follows it.
+
+**Pixel icons** (`Builder.pixelIcon`, `Builder.blockIcon`, `data/PixelIcons`): an icon is rectangles on an 8 by 8 grid (`Theme.Block.PixelGrid`), `{ x, y, w, h, colour }`, the colour a `Theme.Colors` key or a hex string, drawn in order as frames in a square holder. Drawn from the board: Scrap, Shower, Ranks, Settings, Shop, Aliens, Codex, Ship, Quests and Gifts; Playtime (an hourglass) was drawn to match. `PreferOverPack` (true) puts the pixel icon ahead of the uploaded flat pack on a block surface, so no rendered round icon sits on a block; a key with neither keeps its `MENU_GLYPH_<id>` letter or the placeholder block.
+
+**What stays**: Fredoka One and outlined text over the world; the rarity colours and the palette (two additions: `Theme.Block.Trough` `#2A2F55`, the navy a step up, for a dark plate's face); Scale only (every rectangle is a fraction of its plate; the aspect constraint does the rest); a click on every tap; no glassmorphism, no web fonts.
+
+**The HUD in block cells** (`Hud.luau`; every binding, behaviour, string key and public function as before)
+- Scrap: a dark plate with the pixel Scrap cube and the rolling count; the "+N/min" line under it as before.
+- Clock chip a gold plate (blue at night), the biome chip blue, the shower countdown purple: plates with one outlined line.
+- Ship bar: a dark trough whose face fills in the Select blue (the board's; it was gold), cell by cell under the grout, the milestone ticks over it, "Ship N%" centred, the whole bar one tap.
+- Event banner: a Codex-purple plate (the board's event chip; it was a navy pill) with the pixel icon or a flat gold block on the left and the luck chip a flat green block.
+- Friend Boost chip: a dark plate, green while a boost is on.
+- Top buttons (Settings, Ranks, Playtime): square block buttons (they were round) with pixel icons and the 44 px hit area.
+- Menu column: six block buttons with pixel icons, the label under each, the 44 px hit area.
+- Action button: a green block button with the 44 px hit area (its face is about 42 px at iPhone SE once the lip is under it).
+- Badges: flat red blocks with the count.
+- **The layout did not move.** Every position and size is as before, so the compass strip, the radar, the Nearby column, the toast stack, the Build tray and the Ship screen keep their numbers. The board also moves things (the Scrap plate right of Roblox's menu, the menu as a 2 by 3 cluster bottom left, the one prompt bottom centre, the clock and biome in one plate, Nearby with renders): that is a layout change of its own, because it moves slots other screens read (`Theme.Menu`, `Builder.menuRight`, the radar's top, the toast start), and it waits for the [[#Phone rules from the design research (2026-10-15)]] check against `TouchGui`.
+
+**Fit** (`tests/BlockMath.spec.luau`, iPhone SE 667x375 and iPad 1080x810): every HUD plate has three rows or more; a cell is 4.9 px (the biome and shower chips) to 8.4 px (the Scrap plate) at SE and about 2.2 times that on the iPad; the ink is 2.0 px or more; the grout is 0.6 to 1.0 px at SE, sub-pixel on the smallest chips (the Mac checks it draws and is even); a line at the 14 px floor fits inside the face of every plate that carries one; the menu (36 px), top (28 px) and action (42 px face) buttons carry the 44 px hit area. The whole HUD is about 580 frames (static: nothing moves per frame but the bar and the tweens), which the low-end phone check in job 36 watches. Known, not new: the event banner's two lines are under 14 px each at SE (26 px of banner), so the floor-size text overflows its boxes; it shrinks to the board's one-line chip with the layout change.
+
+| Do | Don't |
+|---|---|
+| A plate a whole number of square cells, the corner cells cut, a navy ink border all round | A `UICorner`, a pill, or cells stretched to fit a box of another shape |
+| The lit top row, the shaded edges, the grout and one in eight cells a shade off, as overlays | A gradient, a gloss band, a glass or blur panel, or a random speckle (C6: never noise) |
+| A button that sinks exactly one cell onto its darker lip, and clicks | A squash, a glow, or a silent tap |
+| A pixel icon on the 8 by 8 grid, outlined in the ink | A rendered round icon or an emoji on a block |
+| A flat block (`cells = false`) for a badge or a tiny chip | Grout and jitter on a 12 px badge (all edge, no face) |
+| Labels at `Builder.blockTop(plate)`, Fredoka One, outlined | Text under the cell overlays, or any other font |

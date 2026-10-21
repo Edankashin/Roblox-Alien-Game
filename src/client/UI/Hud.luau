@@ -2,10 +2,13 @@
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
 -- number) with the Scrap-per-minute line under it, the ship bar top centre under the compass strip
 -- (UI/Compass; tap opens the ship panel) with the luck line or the event banner under it, the
--- Day/Night + weather chip top-right (round buttons such as the Settings gear sit just left of it,
+-- Day/Night + weather chip top-right (square block buttons such as the Settings cog sit just left of it,
 -- AddTopButton) with the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
 -- button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
 -- in by the bootstrap from server state; nothing here computes anything that matters.
+-- The look is block cells (Decisions B44, Decide-Now 43, the "HUD in block cells" board): every plate, chip and button is a
+-- Builder.blockPlate or Builder.blockButton (square cells, stepped corners, navy ink, a lit top row, grout), icons are the 8 by 8
+-- pixel icons of data/PixelIcons, and the layout is the one the HUD had (the slots other screens read did not move).
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,7 +44,7 @@ local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {}
 local menuCount = 0
-local topButtons: { Frame } = {} -- round buttons left of the clock chip, in the order added (the first sits nearest the chip)
+local topButtons: { Frame } = {} -- square buttons left of the clock chip, in the order added (the first sits nearest the chip)
 local topButtonIds: { [string]: boolean } = {}
 local topButtonById: { [string]: Frame } = {} -- the same buttons by id, for SetBadge and SetTopButtonVisible
 
@@ -49,7 +52,7 @@ local CLOCK_RIGHT = 0.985 -- the clock chip's right edge, in screen Scale
 local CLOCK_TOP = 0.025
 local CLOCK_SIZE = Vector2.new(0.3, 0.075) -- the chip's Size bounds; its aspect constraint derives the width from the height
 local CLOCK_ASPECT = 4.2
-local TOP_BUTTON_H = 0.075 -- the round buttons share the chip's height
+local TOP_BUTTON_H = 0.075 -- the top buttons share the chip's height
 local TOP_GAP = 0.01 -- between the chip and the first button, and between buttons
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
@@ -64,7 +67,7 @@ local actionFace: TextButton? = nil
 local breathe: Tween? = nil
 local onAction: (() -> ())? = nil
 local lastScrap = 0
-local shipFill: Frame? = nil
+local shipValue: NumberValue? = nil -- the fill (0 to 1) the bar shows; tweened, and the block bar follows it
 local shipLabel: TextLabel? = nil
 local shipTicks: Frame? = nil
 local shipTween: Tween? = nil
@@ -97,6 +100,14 @@ local FRIEND_CHIP_ASPECT = 5.5
 local BANNER_TEXT_LEFT = 0.14 -- the banner text starts after the icon square
 local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
 local BANNER_TEXT_WIDTH_FULL = 0.82 -- without a chip
+local BANNER_ASPECT = 6
+local BANNER_CHIP = Vector2.new(0.25, 0.68) -- the luck chip, as fractions of the banner
+
+local SCRAP_ASPECT = 3.6
+local CHIP_ASPECT = 4.2 -- the clock, biome and shower chips and the ship bar
+local ACTION_ASPECT = 2.3
+local BADGE_ROWS = 3 -- a notification dot is a flat block this many cells tall (its stepped corners read at 12 px)
+local ICON_ROWS = 3 -- and so is an icon square's placeholder
 
 -- m:ss for the event countdown chip (TIME_MS past a minute, TIME_S under it).
 local function formatCountdown(seconds: number): string
@@ -123,48 +134,82 @@ local function centreScale(root: ScreenGui, target: GuiObject): (number, number)
 	return centre.X / screen.X, centre.Y / screen.Y
 end
 
--- Fills a backing square with an icon from the pack, replacing any icon it held. The square goes transparent
--- (fill and outline: the icon carries its own) while the image shows; with no key, or an id of 0, the
--- square is the placeholder it always was.
+-- An icon square: a holder with a flat block placeholder ("Back", in `color`) under whatever icon it shows. setSquareIcon fills it.
+local function iconSquare(parent: Instance, position: UDim2, size: UDim2, color: Color3, zIndex: number): Frame
+	local square = Builder.frame({
+		parent = parent,
+		name = "Icon",
+		position = position,
+		size = size,
+		anchor = Vector2.new(0, 0.5),
+		aspect = 1,
+		zIndex = zIndex,
+	})
+	Builder.blockPlate({
+		parent = square,
+		name = "Back",
+		color = color,
+		aspect = 1,
+		rows = ICON_ROWS,
+		cells = false,
+		zIndex = zIndex,
+	})
+	return square
+end
+
+-- Fills an icon square with the key's icon (Builder.blockIcon: the pixel icon first, else the uploaded pack image), replacing any
+-- icon it held. The placeholder block hides while an icon shows; with no key, or no icon for it, the placeholder is what shows.
 local function setSquareIcon(square: Frame, key: string?)
 	local previous = square:FindFirstChild("IconImage")
 	if previous then
 		previous:Destroy()
 	end
-	local image = if key then Builder.icon({ parent = square, name = "IconImage", key = key, zIndex = square.ZIndex + 1 }) else nil
-	square.BackgroundTransparency = if image then 1 else 0
-	local outline = square:FindFirstChildOfClass("UIStroke")
-	if outline then
-		outline.Enabled = image == nil
+	local icon = if key
+		then Builder.blockIcon({ parent = square, name = "IconImage", key = key, zIndex = square.ZIndex + Theme.Block.Layer.Content })
+		else nil
+	local back = square:FindFirstChild("Back")
+	if back and back:IsA("GuiObject") then
+		back.Visible = icon == nil
 	end
 end
 
+-- A chip: a block plate in `color` with one centred outlined line on it. Returns the plate and the label.
+local function chipPlate(root: ScreenGui, name: string, color: Color3, position: UDim2, size: Vector2, aspect: number, text: string): (Frame, TextLabel)
+	local chip = Builder.blockPlate({
+		parent = root,
+		name = name,
+		color = color,
+		aspect = aspect,
+		position = position,
+		size = UDim2.fromScale(size.X, size.Y),
+		anchor = Vector2.new(1, 0),
+	})
+	local label = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = text,
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.86, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(chip),
+	})
+	return chip, label
+end
+
+-- The Scrap plate: a dark block plate (the board's) with the pixel Scrap cube and the rolling count.
 local function buildScrapPill(root: ScreenGui)
-	local pill = Builder.pill({
+	local pill = Builder.blockPlate({
 		parent = root,
 		name = "ScrapPill",
+		color = Theme.Block.Trough,
+		aspect = SCRAP_ASPECT,
 		position = UDim2.fromScale(0.015, 0.025),
 		size = UDim2.fromScale(0.3, 0.085),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 3.6,
 	})
 	scrapPill = pill
-	Builder.gradient(pill, Theme.Colors.Trough)
-	-- icon backing: a gold rounded square, transparent once the Scrap icon fills it
-	local icon = Builder.frame({
-		parent = pill,
-		name = "Icon",
-		position = UDim2.fromScale(0.04, 0.5),
-		size = UDim2.fromScale(0.2, 0.72),
-		anchor = Vector2.new(0, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		aspect = 1,
-	})
-	Builder.gradient(icon, Theme.Colors.Featured)
+	local top = Builder.blockTop(pill)
+	local icon = iconSquare(pill, UDim2.fromScale(0.06, 0.5), UDim2.fromScale(0.2, 0.6), Theme.Colors.Featured, top)
 	setSquareIcon(icon, "Scrap")
 	local number = Builder.label({
 		parent = pill,
@@ -172,101 +217,72 @@ local function buildScrapPill(root: ScreenGui)
 		text = "0",
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.3, 0.5),
-		size = UDim2.fromScale(0.66, 0.7),
+		size = UDim2.fromScale(0.64, 0.66),
 		anchor = Vector2.new(0, 0.5),
 		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
 	})
 	setScrapValue = Builder.rolling(number)
 end
 
 local function buildClockChip(root: ScreenGui)
-	local chip = Builder.pill({
-		parent = root,
-		name = "ClockChip",
-		position = UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
-		size = UDim2.fromScale(CLOCK_SIZE.X, CLOCK_SIZE.Y),
-		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Button,
-		aspect = CLOCK_ASPECT,
-	})
-	Builder.gradient(chip, Theme.Colors.Featured)
+	local chip, label = chipPlate(
+		root,
+		"ClockChip",
+		Theme.Colors.Featured,
+		UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
+		CLOCK_SIZE,
+		CLOCK_ASPECT,
+		Strings.HUD_DAY
+	)
 	clockChip = chip
-	clockLabel = Builder.label({
-		parent = chip,
-		name = "Text",
-		text = Strings.HUD_DAY,
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.7),
-		anchor = Vector2.new(0.5, 0.5),
-	})
+	clockLabel = label
 end
 
 -- Biome chip under the clock chip: which part of the world the player is standing in.
 local function buildBiomeChip(root: ScreenGui)
-	local chip = Builder.pill({
-		parent = root,
-		name = "BiomeChip",
-		position = UDim2.fromScale(0.985, 0.108),
-		size = UDim2.fromScale(0.2, 0.05),
-		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Select,
-		stroke = Theme.Stroke.Button,
-		aspect = 4.2,
-	})
-	Builder.gradient(chip, Theme.Colors.Select)
-	biomeLabel = Builder.label({
-		parent = chip,
-		name = "Text",
-		text = Strings.HUD_BIOME:format(Strings.BIOME_Meadow),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.7),
-		anchor = Vector2.new(0.5, 0.5),
-	})
+	local _, label = chipPlate(
+		root,
+		"BiomeChip",
+		Theme.Colors.Select,
+		UDim2.fromScale(0.985, 0.108),
+		Vector2.new(0.2, 0.05),
+		CHIP_ASPECT,
+		Strings.HUD_BIOME:format(Strings.BIOME_Meadow)
+	)
+	biomeLabel = label
 end
 
 -- Meteor Shower countdown chip under the biome chip: "Shower in m:ss", purple, hidden until the
 -- bootstrap feeds a countdown in (Config.ShowerWarnSeconds before a shower).
 local function buildShowerChip(root: ScreenGui)
-	local chip = Builder.pill({
-		parent = root,
-		name = "ShowerChip",
-		position = UDim2.fromScale(0.985, 0.165),
-		size = UDim2.fromScale(0.2, 0.05),
-		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Codex,
-		stroke = Theme.Stroke.Button,
-		aspect = 4.2,
-	})
-	Builder.gradient(chip, Theme.Colors.Codex)
+	local chip, label = chipPlate(
+		root,
+		"ShowerChip",
+		Theme.Colors.Codex,
+		UDim2.fromScale(0.985, 0.165),
+		Vector2.new(0.2, 0.05),
+		CHIP_ASPECT,
+		Strings.SHOWER_CHIP:format(formatCountdown(0))
+	)
 	chip.Visible = false
 	showerChip = chip
-	showerLabel = Builder.label({
-		parent = chip,
-		name = "Text",
-		text = Strings.SHOWER_CHIP:format(formatCountdown(0)),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.7),
-		anchor = Vector2.new(0.5, 0.5),
-	})
+	showerLabel = label
 end
 
--- A red notification dot with a count on the button's top-right corner, hidden until SetBadge. `size` is its width as a
+-- A red notification block with a count on the button's top-right corner, hidden until SetBadge. `size` is its width as a
 -- fraction of the button; a smaller button takes a bigger dot so its count stays readable.
 local function addBadge(button: Frame, size: number)
-	local badge = Builder.frame({
+	local badge = Builder.blockPlate({
 		parent = button,
 		name = "Badge",
+		color = Theme.Colors.Close,
+		aspect = 1,
+		rows = BADGE_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.98, 0.02),
 		size = UDim2.fromScale(size, size),
 		anchor = Vector2.new(0.8, 0.2),
-		color = Theme.Colors.Close,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Text,
-		aspect = 1,
 		zIndex = 5,
 	})
 	Builder.label({
@@ -277,7 +293,7 @@ local function addBadge(button: Frame, size: number)
 		size = UDim2.fromScale(0.9, 0.9),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.blockTop(badge),
 	})
 	badge.Visible = false
 end
@@ -296,7 +312,7 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
 		aspect = Theme.Menu.Aspect,
 	})
-	local button = Builder.button({
+	local button = Builder.blockButton({
 		parent = slot,
 		name = "Button",
 		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
@@ -307,6 +323,8 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		anchor = Vector2.new(0.5, 0),
 		textSize = Theme.TextSize.Title,
 		aspect = 1,
+		rows = Builder.blockButtonRows(MENU_BUTTON), -- its size is a fraction of the slot, so the rows come from its screen height
+		hit = true, -- about 36 px at iPhone SE height: the 44 px floor
 	}, onClick)
 	Builder.label({
 		parent = slot,
@@ -333,34 +351,34 @@ local function defaultTicks(): { number }
 	return out
 end
 
--- Ship bar top centre: pill trough, gradient fill clipped to the percent, milestone ticks, centred
--- "Ship N%" text, and an invisible button over it all so a tap opens the ship panel.
+-- Ship bar top centre: a dark block trough whose face fills cell-true in the Select blue (Builder.blockBar keeps the stepped
+-- corners and draws the grout over the fill), milestone ticks, centred "Ship N%" text, and an invisible button over it all so a
+-- tap opens the ship panel.
 local function buildShipBar(root: ScreenGui)
-	local trough = Builder.pill({
+	local trough = Builder.blockPlate({
 		parent = root,
 		name = "ShipBar",
+		color = Theme.Block.Trough,
+		aspect = CHIP_ASPECT,
 		position = UDim2.fromScale(0.5, CLOCK_TOP + CENTER_SHIFT), -- the top row's y, shifted under the strip
 		size = UDim2.fromScale(0.3, 0.075),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 4.2,
 	})
-	trough.ClipsDescendants = true
-	local fill = Builder.pill({
-		parent = trough,
-		name = "Fill",
-		size = UDim2.fromScale(0, 1),
-		color = Theme.Colors.Featured,
-		zIndex = 2,
-	})
-	Builder.gradient(fill, Theme.Colors.Featured)
-	shipFill = fill
+	local setFill = Builder.blockBar(trough, Theme.Colors.Select)
+	local value = Instance.new("NumberValue")
+	value.Name = "Fill"
+	value.Value = 0
+	value.Changed:Connect(setFill)
+	value.Parent = trough
+	shipValue = value
+	local innerPosition, innerSize = Builder.blockInner(trough)
+	local top = Builder.blockTop(trough)
 	shipTicks = Builder.frame({
 		parent = trough,
 		name = "Ticks",
-		zIndex = 3,
+		position = innerPosition,
+		size = innerSize,
+		zIndex = top,
 	})
 	shipLabel = Builder.label({
 		parent = trough,
@@ -370,7 +388,7 @@ local function buildShipBar(root: ScreenGui)
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.7),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = top + 1,
 	})
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
@@ -379,7 +397,7 @@ local function buildShipBar(root: ScreenGui)
 	tap.BorderSizePixel = 0
 	tap.BackgroundTransparency = 1
 	tap.Size = UDim2.fromScale(1, 1)
-	tap.ZIndex = 5
+	tap.ZIndex = top + 2
 	tap.Parent = trough
 	tap.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
@@ -422,40 +440,25 @@ local function buildLuckLine(root: ScreenGui)
 	luckLabel = label
 end
 
--- Event banner in the luck line's slot under the ship bar (UI Playbook, "Event banner and compass"):
--- a dark navy pill with the event's icon square on the left, the event text left-aligned, and a green
--- chip on the right for the luck multiplier. Hidden until SetEventBanner; while it shows, the luck
--- line stays hidden (the chip carries the number).
+-- Event banner in the luck line's slot under the ship bar (UI Playbook, "Event banner and compass"; the
+-- board's event chip): a Codex-purple block plate with the event's pixel icon on the left, the event text
+-- left-aligned, and a flat green block on the right for the luck multiplier. Hidden until SetEventBanner;
+-- while it shows, the luck line stays hidden (the chip carries the number).
 local function buildEventBanner(root: ScreenGui)
-	local pill = Builder.pill({
+	local pill = Builder.blockPlate({
 		parent = root,
 		name = "EventBanner",
+		color = Theme.Colors.Codex,
+		aspect = BANNER_ASPECT,
 		position = UDim2.fromScale(0.5, 0.105 + CENTER_SHIFT),
 		size = UDim2.fromScale(0.4, 0.07),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 6,
 	})
-	Builder.gradient(pill, Theme.Colors.Trough)
 	pill.Visible = false
 	banner = pill
-	-- icon backing: a purple rounded square, transparent while SetEventBanner gives it an event icon
-	local icon = Builder.frame({
-		parent = pill,
-		name = "Icon",
-		position = UDim2.fromScale(0.025, 0.5),
-		size = UDim2.fromScale(0.1, 0.66),
-		anchor = Vector2.new(0, 0.5),
-		color = Theme.Colors.Codex,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		aspect = 1,
-		zIndex = 2,
-	})
-	Builder.gradient(icon, Theme.Colors.Codex)
-	bannerIcon = icon
+	local top = Builder.blockTop(pill)
+	-- the placeholder is a gold flat block (the purple of the old square would vanish on the purple plate)
+	bannerIcon = iconSquare(pill, UDim2.fromScale(0.03, 0.5), UDim2.fromScale(0.1, 0.6), Theme.Colors.Featured, top)
 	-- Two lines, per the Playbook: the event name bold on top, the time left smaller beneath it.
 	bannerText = Builder.label({
 		parent = pill,
@@ -465,7 +468,7 @@ local function buildEventBanner(root: ScreenGui)
 		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.1),
 		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.46),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 2,
+		zIndex = top,
 	})
 	bannerSub = Builder.label({
 		parent = pill,
@@ -475,20 +478,20 @@ local function buildEventBanner(root: ScreenGui)
 		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.56),
 		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.34),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 2,
+		zIndex = top,
 	})
-	local chip = Builder.pill({
+	local chip = Builder.blockPlate({
 		parent = pill,
 		name = "Chip",
-		position = UDim2.fromScale(0.975, 0.5),
-		size = UDim2.fromScale(0.25, 0.68),
-		anchor = Vector2.new(1, 0.5),
 		color = Theme.Colors.Confirm,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 2,
+		aspect = BANNER_ASPECT * BANNER_CHIP.X / BANNER_CHIP.Y, -- its px shape on the banner, so the box does not move
+		rows = BADGE_ROWS,
+		cells = false,
+		position = UDim2.fromScale(0.97, 0.5),
+		size = UDim2.fromScale(BANNER_CHIP.X, BANNER_CHIP.Y),
+		anchor = Vector2.new(1, 0.5),
+		zIndex = top,
 	})
-	Builder.gradient(chip, Theme.Colors.Confirm)
 	bannerChip = chip
 	bannerChipLabel = Builder.label({
 		parent = chip,
@@ -498,26 +501,24 @@ local function buildEventBanner(root: ScreenGui)
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(chip),
 	})
 end
 
--- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", dim navy at 0 and
+-- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", a dark block at 0 and
 -- green above it; a tap opens the invite sheet (the bootstrap's callback).
 local function buildFriendChip(root: ScreenGui)
-	local chip = Builder.pill({
+	local chip = Builder.blockPlate({
 		parent = root,
 		name = "FriendChip",
+		color = Theme.Block.Trough,
+		aspect = FRIEND_CHIP_ASPECT,
 		position = UDim2.fromScale(0.5, FRIEND_CHIP_TOP),
 		size = UDim2.fromScale(FRIEND_CHIP_SIZE.X, FRIEND_CHIP_SIZE.Y),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = FRIEND_CHIP_ASPECT,
 	})
-	Builder.gradient(chip, Theme.Colors.Trough)
 	friendChip = chip
+	local top = Builder.blockTop(chip)
 	friendLabel = Builder.label({
 		parent = chip,
 		name = "Text",
@@ -527,6 +528,7 @@ local function buildFriendChip(root: ScreenGui)
 		size = UDim2.fromScale(0.9, 0.7),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Rarity.Common,
+		zIndex = top,
 	})
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
@@ -535,7 +537,7 @@ local function buildFriendChip(root: ScreenGui)
 	tap.BorderSizePixel = 0
 	tap.BackgroundTransparency = 1
 	tap.Size = UDim2.fromScale(1, 1)
-	tap.ZIndex = 5
+	tap.ZIndex = top + 1
 	tap.Parent = chip
 	tap.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
@@ -557,7 +559,7 @@ local function applyLuckLine()
 end
 
 local function buildActionButton(root: ScreenGui)
-	local button = Builder.button({
+	local button = Builder.blockButton({
 		parent = root,
 		name = "Action",
 		text = Strings.ACTION_CATCH,
@@ -566,7 +568,8 @@ local function buildActionButton(root: ScreenGui)
 		size = UDim2.fromScale(0.3, 0.13),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Title,
-		aspect = 2.3,
+		aspect = ACTION_ASPECT,
+		hit = true, -- the face is about 42 px tall at iPhone SE height once the one-cell lip is under it: the 44 px floor
 	}, function()
 		if onAction then
 			onAction()
@@ -592,7 +595,7 @@ end
 -- Places the top buttons in a row leftwards from the chip. Each is a square of TOP_BUTTON_H, so its
 -- width in Scale is TOP_BUTTON_H * (screen height / screen width); anchored (1, 0), its x is its right edge.
 -- The row stops short of the centre column: the ship bar (the clock chip's size, centred) and the compass
--- strip above it (CompassData.StripWidth) are in the way at 4:3, where the round buttons are as tall as the chip.
+-- strip above it (CompassData.StripWidth) are in the way at 4:3, where the top buttons are as tall as the chip.
 -- A button that would reach them goes in a column under the row's first button instead (below the clock chip's
 -- left neighbour, where the biome chip and the radar are further right and the event banner is further left).
 local function layoutTopButtons()
@@ -621,16 +624,6 @@ local function layoutTopButtons()
 	end
 end
 
--- A Builder.button's lip and face become circles.
-local function makeRound(container: Frame)
-	for _, child in ipairs(container:GetChildren()) do
-		local corner = child:FindFirstChildOfClass("UICorner")
-		if corner then
-			corner.CornerRadius = UDim.new(0.5, 0)
-		end
-	end
-end
-
 -- Public API -------------------------------------------------------------
 
 function Hud.Build()
@@ -655,8 +648,8 @@ end
 
 -- Ship completion 0..1: eases the fill and shows the whole percent.
 function Hud.SetShip(percent01: number)
-	local fill, label = shipFill, shipLabel
-	if not fill or not label then
+	local value, label = shipValue, shipLabel
+	if not value or not label then
 		return
 	end
 	local p = math.clamp(percent01, 0, 1)
@@ -664,7 +657,7 @@ function Hud.SetShip(percent01: number)
 		shipTween:Cancel()
 	end
 	local info = TweenInfo.new(SHIP_FILL_SECONDS, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	local tween = TweenService:Create(fill, info, { Size = UDim2.fromScale(p, 1) })
+	local tween = TweenService:Create(value, info, { Value = p })
 	shipTween = tween
 	tween:Play()
 	label.Text = Strings.HUD_SHIP:format(math.floor(p * 100))
@@ -739,13 +732,9 @@ function Hud.SetFriendBoost(count: number, boost: number)
 	end
 	label.Text = Strings.HUD_FRIEND_BOOST:format(math.floor(boost * 100 + 0.5))
 	local active = boost > 0
-	local color = if active then Theme.Colors.Confirm else Theme.Colors.Trough
+	local color = if active then Theme.Colors.Confirm else Theme.Block.Trough
 	label.TextColor3 = if active then Theme.Colors.White else Theme.Rarity.Common
-	TweenService:Create(chip, TweenInfo.new(Theme.Tween.Open), { BackgroundColor3 = color }):Play()
-	local gradient = chip:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
-	end
+	Builder.setBlockColor(chip, color, TweenInfo.new(Theme.Tween.Open))
 	if count > friendCountShown then
 		Builder.pop(chip, 1.1)
 	end
@@ -887,10 +876,9 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	buildMenuButton(root, id, color, onClick)
 end
 
--- A round chunky button just left of the clock chip (then left of the previous one, or under the first once the row
--- would reach the ship bar and the compass), with the id's icon as
--- its face (the MENU_GLYPH_<id> glyph while that icon is not uploaded). It lives in the HUD gui, so it hides with SetVisible.
--- Call after Hud.Build, once per id.
+-- A square block button just left of the clock chip (then left of the previous one, or under the first once the row
+-- would reach the ship bar and the compass), with the id's pixel icon as its face (the MENU_GLYPH_<id> glyph when the id has
+-- no icon). It lives in the HUD gui, so it hides with SetVisible. Call after Hud.Build, once per id.
 function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 	local root = gui
 	if not root or topButtonIds[id] then
@@ -899,7 +887,7 @@ function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 	topButtonIds[id] = true
 	local label = Builder.text("MENU_" .. id)
 	local glyph = Builder.text("MENU_GLYPH_" .. id)
-	local button = Builder.button({
+	local button = Builder.blockButton({
 		parent = root,
 		name = "Top_" .. id,
 		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
@@ -910,8 +898,8 @@ function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
 		aspect = 1,
+		hit = true, -- about 28 px at iPhone SE height: the 44 px floor
 	}, onClick)
-	makeRound(button)
 	addBadge(button, TOP_BADGE_SIZE)
 	table.insert(topButtons, button)
 	topButtonById[id] = button
@@ -978,11 +966,7 @@ function Hud.SetClock(state: Types.ClockState)
 	local weather = Builder.text("WEATHER_" .. state.weather)
 	clockLabel.Text = Strings.HUD_CLOCK:format(phase, weather)
 	local color = if state.isNight then Theme.Colors.Select else Theme.Colors.Featured
-	TweenService:Create(clockChip, TweenInfo.new(Theme.Tween.Open), { BackgroundColor3 = color }):Play()
-	local gradient = clockChip:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
-	end
+	Builder.setBlockColor(clockChip, color, TweenInfo.new(Theme.Tween.Open))
 end
 
 -- Show the contextual button with this text, or hide it with nil. It breathes while shown.

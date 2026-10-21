@@ -2,6 +2,8 @@
 -- StarterPlayerScripts.Client.UI.Builder: the only place UI instances are created. Every screen
 -- builds from these helpers so the look (Theme) is applied once and consistently: Scale-only
 -- positions and sizes, Fredoka One, outlined text, chunky buttons with a lip and a gloss band, a click on every tap.
+-- The block-cell look (Decisions B44) is the "Block cells" section: blockPlate, blockButton, pixelIcon and their kin; the HUD is
+-- built from them, and each other screen moves over in its own change.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -14,6 +16,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local BadgeFit = require(Shared:WaitForChild("BadgeFit"))
+local BlockMath = require(Shared:WaitForChild("BlockMath"))
+local PixelIcons = require(Shared:WaitForChild("data"):WaitForChild("PixelIcons"))
 local StrokeMath = require(Shared:WaitForChild("StrokeMath"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
@@ -70,6 +74,7 @@ export type ButtonProps = {
 	aspect: number?,
 	icon: string?, -- an Icons key: shown on the face instead of `text` once its image is uploaded (id not 0)
 	hit: boolean?, -- true adds an invisible hit area the face's size, grown to at least Theme.TapMin px each way and centred on it (the UI Playbook's 44 px floor for a small face)
+	rows: number?, -- Builder.blockButton only: the face's cell rows (default from size.Y as a Scale of the screen, less the one-cell lip)
 }
 
 export type RibbonProps = {
@@ -94,6 +99,21 @@ export type SealProps = {
 	anchor: Vector2?,
 	rotation: number?,
 	zIndex: number?,
+}
+
+export type BlockProps = {
+	parent: Instance?,
+	name: string?,
+	color: Color3, -- the face colour; the shading is white and black overlays, so Builder.setBlockColor recolours it
+	aspect: number, -- the plate's width over its height in px: the plate keeps it, so its cells stay square
+	rows: number?, -- cell rows across the face; default from size.Y (Builder.blockRows), so a cell is about Theme.Block.Cell of the screen
+	cells: boolean?, -- false: a flat block (ink, face and stepped corners, no bands, grout or jitter), for a badge or an icon square
+	position: UDim2?,
+	size: UDim2?,
+	anchor: Vector2?,
+	zIndex: number?,
+	seed: number?, -- the jitter hash's seed (Theme.Block.Seed by default); a neighbour can take another so two plates differ
+	ink: Color3?, -- the border colour (the navy Outline by default)
 }
 
 export type IconProps = {
@@ -752,6 +772,360 @@ function Builder.restyleButton(container: Frame?, text: string, color: Color3, e
 				child.Color = ColorSequence.new(Builder.lighter(color), color)
 			end
 		end
+	end
+end
+
+-- Block cells ------------------------------------------------------------------
+-- The block-cell look (UI Playbook "Block cells", Decisions B44): every plate and button is a whole number of square cells with
+-- its corner cells cut (a stepped pixel corner), a navy ink border, a lit top row, darker side and bottom cells, a grout line on
+-- each cell and a few cells a shade off. Frames only (no image to upload, nothing at an id of 0), Scale only (Shared/BlockMath
+-- gives every rectangle as a fraction of the plate, and the plate keeps its aspect so the cells stay square), and the shading is
+-- white and black overlays, so a plate recolours by its "Fill" frames alone (Builder.setBlockColor). No gradient, no gloss, no
+-- round corner on a block. Inside a plate the layers are Theme.Block.Layer steps above the plate's ZIndex: content goes at
+-- Builder.blockTop(plate) or higher.
+
+local BLOCK_ASPECT = "BlockAspect" -- attributes a plate carries so a later call (blockBar, blockInner) can rebuild its grid
+local BLOCK_ROWS = "BlockRows"
+local BLOCK_ICON_SCALE = 0.8 -- a block button's icon, as a fraction of its face's padded box (about 0.6 of the face's height)
+local BLOCK_TEXT_PAD_X = 0.5 -- a block button's text keeps this many cells clear of the ink at each side
+local BLOCK_TEXT_PAD_Y = 0.25 -- and this many at the top and bottom
+
+-- The ZIndex content on a block plate takes: above its ink, face, bar and cell overlays.
+function Builder.blockTop(plate: GuiObject): number
+	return plate.ZIndex + Theme.Block.Layer.Content
+end
+
+-- The cell rows of a plate `height` tall, as a Scale of the screen height: a cell is then about Theme.Block.Cell of the screen.
+function Builder.blockRows(height: number): number
+	return BlockMath.Rows(height, Theme.Block.Cell, Theme.Block.Ink, Theme.Block.MinRows)
+end
+
+-- The face rows of a block button `height` tall (a Scale of the screen height): one cell of it is the lip.
+function Builder.blockButtonRows(height: number): number
+	return Builder.blockRows(height - Theme.Block.Cell)
+end
+
+local function blockGrid(plate: Instance): BlockMath.Grid?
+	local aspect, rows = plate:GetAttribute(BLOCK_ASPECT), plate:GetAttribute(BLOCK_ROWS)
+	if type(aspect) ~= "number" or type(rows) ~= "number" then
+		return nil
+	end
+	return BlockMath.Grid(aspect, rows, Theme.Block.Ink)
+end
+
+-- One rectangle of a plate (fractions of it) as a frame that never takes input.
+local function rectFrame(parent: Instance, name: string, rect: BlockMath.Rect, color: Color3, transparency: number, z: number): Frame
+	local frame = Instance.new("Frame")
+	frame.Name = name
+	frame.Active = false
+	frame.BorderSizePixel = 0
+	frame.BackgroundColor3 = color
+	frame.BackgroundTransparency = transparency
+	frame.Position = UDim2.fromScale(rect.x, rect.y)
+	frame.Size = UDim2.fromScale(rect.w, rect.h)
+	frame.ZIndex = z
+	frame.Parent = parent
+	return frame
+end
+
+-- A block plate: the ink border and the face as two overlapping bars each (the cut corners), then, unless `cells` is false, the
+-- lit top row and the shaded side and bottom cells (on a plate three cells or more both ways), the grout on every cell and the
+-- jittered cells (BlockMath.Level: 1 in 8 a shade down, 1 in 8 a shade up). Returns the plate, a transparent frame that keeps
+-- `aspect`; put labels and icons in it at Builder.blockTop(plate).
+function Builder.blockPlate(props: BlockProps): Frame
+	local z = props.zIndex or 1
+	local size = props.size or UDim2.fromScale(1, 1)
+	local grid = BlockMath.Grid(props.aspect, props.rows or Builder.blockRows(size.Y.Scale), Theme.Block.Ink)
+	local plate = Builder.frame({
+		name = props.name or "Plate",
+		position = props.position,
+		size = size,
+		anchor = props.anchor,
+		zIndex = z,
+		aspect = props.aspect,
+	})
+	plate:SetAttribute(BLOCK_ASPECT, props.aspect)
+	plate:SetAttribute(BLOCK_ROWS, grid.rows)
+	local layers = Theme.Block.Layer
+	for _, rect in ipairs(BlockMath.Shape(grid, 0, 0)) do
+		rectFrame(plate, "Ink", rect, props.ink or Theme.Colors.Outline, 0, z + layers.Ink)
+	end
+	for _, rect in ipairs(BlockMath.Face(grid)) do
+		rectFrame(plate, "Fill", rect, props.color, 0, z + layers.Fill)
+	end
+	if props.cells ~= false then
+		local cellsZ = z + layers.Cells
+		local bands = BlockMath.Bands(grid)
+		if bands.top then
+			rectFrame(plate, "Lit", bands.top, Theme.Colors.White, Theme.Block.TopAlpha, cellsZ)
+		end
+		for _, rect in ipairs({ bands.bottom, bands.left, bands.right }) do
+			if rect then
+				rectFrame(plate, "Edge", rect, Theme.Colors.Black, Theme.Block.EdgeAlpha, cellsZ)
+			end
+		end
+		for _, rect in ipairs(BlockMath.Grout(grid, Theme.Block.Grout)) do
+			rectFrame(plate, "Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, cellsZ)
+		end
+		for _, cell in ipairs(BlockMath.Jittered(grid, props.seed or Theme.Block.Seed)) do
+			local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
+			rectFrame(plate, "Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, cellsZ)
+		end
+	end
+	plate.Parent = props.parent
+	return plate
+end
+
+-- Gives a plate (or a block button's Plate or Lip) a new face colour, at once or over `info`.
+function Builder.setBlockColor(plate: Instance, color: Color3, info: TweenInfo?)
+	for _, child in ipairs(plate:GetChildren()) do
+		if child:IsA("Frame") and child.Name == "Fill" then
+			if info then
+				TweenService:Create(child, info, { BackgroundColor3 = color }):Play()
+			else
+				child.BackgroundColor3 = color
+			end
+		end
+	end
+end
+
+-- The face's inner box of a plate (inside the ink, corners included) as a Position and a Size of the plate: a progress bar's span,
+-- a row of tick marks. The whole plate when it is not a block plate.
+function Builder.blockInner(plate: Instance): (UDim2, UDim2)
+	local grid = blockGrid(plate)
+	if not grid then
+		return UDim2.fromScale(0, 0), UDim2.fromScale(1, 1)
+	end
+	local inner = BlockMath.Inner(grid)
+	return UDim2.fromScale(inner.x, inner.y), UDim2.fromScale(inner.w, inner.h)
+end
+
+-- A progress fill in `color` across a plate's face from the left, under its cell overlays (so the fill shows the cells too) and
+-- inside its stepped corners. Returns a setter for the fill, 0 to 1; it starts empty.
+function Builder.blockBar(plate: Frame, color: Color3): (number) -> ()
+	local grid = blockGrid(plate)
+	if not grid then
+		return function(_p: number) end
+	end
+	local bars: { Frame } = {}
+	for index, rect in ipairs(BlockMath.Fill(grid, 0)) do
+		local bar = rectFrame(plate, "Bar", rect, color, 0, plate.ZIndex + Theme.Block.Layer.Bar)
+		bar.Visible = false
+		bars[index] = bar
+	end
+	return function(p: number)
+		for index, rect in ipairs(BlockMath.Fill(grid, p)) do
+			local bar = bars[index]
+			if bar then
+				bar.Size = UDim2.fromScale(rect.w, rect.h)
+				bar.Visible = rect.w > 0
+			end
+		end
+	end
+end
+
+-- A pixel icon from data/PixelIcons (an 8 by 8 drawing) as frames in a square holder, or nil (nothing created) when the key has
+-- none. The holder keeps a 1:1 aspect inside the size given; nothing in it takes taps.
+function Builder.pixelIcon(props: IconProps): Frame?
+	local pixels = PixelIcons.Icons[props.key] or PixelIcons.Icons[Icons.Aliases[props.key] or ""]
+	if not pixels then
+		return nil
+	end
+	local z = props.zIndex or 1
+	local holder = Builder.frame({
+		name = props.name or "PixelIcon",
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = z,
+		aspect = 1,
+	})
+	local grid = Theme.Block.PixelGrid
+	local colors: { [string]: Color3 } = Theme.Colors
+	for index, pixel in ipairs(pixels) do
+		local key = pixel[5] :: string
+		local rect: BlockMath.Rect = {
+			x = (pixel[1] :: number) / grid,
+			y = (pixel[2] :: number) / grid,
+			w = (pixel[3] :: number) / grid,
+			h = (pixel[4] :: number) / grid,
+		}
+		rectFrame(holder, "Pixel", rect, colors[key] or Theme.Hex(key), 0, z + index)
+	end
+	holder.Parent = props.parent
+	return holder
+end
+
+-- The icon a block surface shows for a key: the pixel icon first while data/PixelIcons.PreferOverPack is on (one look, B44), else
+-- the uploaded pack image; the other one when the first has nothing. Nil when neither exists (the caller keeps its glyph).
+function Builder.blockIcon(props: IconProps): GuiObject?
+	local pixel: GuiObject? = nil
+	local image: GuiObject? = nil
+	if PixelIcons.PreferOverPack then
+		pixel = Builder.pixelIcon(props)
+		if pixel then
+			return pixel
+		end
+		image = Builder.icon(props)
+		return image
+	end
+	image = Builder.icon(props)
+	if image then
+		return image
+	end
+	pixel = Builder.pixelIcon(props)
+	return pixel
+end
+
+-- A chunky block button: a block plate face over a lip one cell deep in the colour darkened (a flat block, so the button reads as
+-- a block standing on its own shadow), outlined white text or a pixel icon on the face. A press sinks the face exactly one cell
+-- onto the lip (no squash: blocks do not squash); a hover on a mouse grows it to Theme.Block.Hover. Every tap clicks. `hit` adds
+-- the invisible 44 px area as on Builder.button. Returns the container; "Face" is the TextButton (set its Text), "Plate" and "Lip"
+-- the plates (Builder.restyleBlockButton recolours them).
+function Builder.blockButton(props: ButtonProps, onClick: () -> ()): Frame
+	local aspect = props.aspect or 1
+	local size = props.size or UDim2.fromScale(1, 1)
+	local rows = props.rows or Builder.blockButtonRows(size.Y.Scale)
+	local lip, faceAspect = BlockMath.Lip(aspect, rows, Theme.Block.Ink)
+	local z = props.zIndex or 1
+	local container = Builder.frame({
+		parent = props.parent,
+		name = props.name or "Button",
+		position = props.position,
+		size = size,
+		anchor = props.anchor,
+		zIndex = z,
+		aspect = aspect,
+	})
+	local scale = Instance.new("UIScale")
+	scale.Parent = container
+	Builder.blockPlate({
+		parent = container,
+		name = "Lip",
+		color = Builder.darker(props.color),
+		aspect = aspect,
+		rows = rows + 1,
+		cells = false,
+		zIndex = z,
+	})
+	local plate = Builder.blockPlate({
+		parent = container,
+		name = "Plate",
+		color = props.color,
+		aspect = faceAspect,
+		rows = rows,
+		size = UDim2.fromScale(1, 1 - lip),
+		zIndex = z + 1,
+	})
+	local grid = BlockMath.Grid(faceAspect, rows, Theme.Block.Ink)
+
+	local face = Instance.new("TextButton")
+	face.Name = "Face"
+	face.AutoButtonColor = false
+	face.BackgroundTransparency = 1
+	face.BorderSizePixel = 0
+	face.Position = UDim2.fromScale(0, 0)
+	face.Size = UDim2.fromScale(1, 1 - lip)
+	face.FontFace = Font.fromEnum(Theme.Font)
+	face.Text = props.text
+	face.TextColor3 = Theme.Colors.White
+	face.TextScaled = true
+	face.ZIndex = z + 2 -- over the Plate sibling and all of its layers
+	local sizes = Instance.new("UITextSizeConstraint")
+	sizes.MinTextSize = Theme.TextSize.Min
+	sizes.MaxTextSize = props.textSize or Theme.TextSize.Label
+	sizes.Parent = face
+	local padding = Instance.new("UIPadding")
+	padding.PaddingLeft = UDim.new(grid.inkX + BLOCK_TEXT_PAD_X * grid.cellX, 0)
+	padding.PaddingRight = UDim.new(grid.inkX + BLOCK_TEXT_PAD_X * grid.cellX, 0)
+	padding.PaddingTop = UDim.new(grid.inkY + BLOCK_TEXT_PAD_Y * grid.cellY, 0)
+	padding.PaddingBottom = UDim.new(grid.inkY + BLOCK_TEXT_PAD_Y * grid.cellY, 0)
+	padding.Parent = face
+	Builder.stroke(face, Theme.Stroke.Text, Theme.Colors.Outline)
+	if props.icon then
+		local image = Builder.blockIcon({
+			parent = face,
+			name = "Icon",
+			key = props.icon,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(BLOCK_ICON_SCALE, BLOCK_ICON_SCALE),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = face.ZIndex + 1,
+		})
+		if image then
+			face.Text = ""
+		end
+	end
+	face.Parent = container
+
+	local pressInfo = TweenInfo.new(Theme.Tween.Press, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local function sink(y: number)
+		TweenService:Create(plate, pressInfo, { Position = UDim2.fromScale(0, y) }):Play()
+		TweenService:Create(face, pressInfo, { Position = UDim2.fromScale(0, y) }):Play()
+	end
+	local function press()
+		sink(lip)
+	end
+	local function release()
+		TweenService:Create(scale, pressInfo, { Scale = 1 }):Play()
+		sink(0)
+	end
+	local function hover()
+		TweenService:Create(scale, pressInfo, { Scale = Theme.Block.Hover }):Play()
+	end
+	face.MouseButton1Down:Connect(press)
+	face.MouseButton1Up:Connect(release)
+	face.MouseLeave:Connect(release)
+	face.MouseEnter:Connect(hover)
+	face.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		onClick()
+	end)
+	if props.hit then
+		-- As on Builder.button: an invisible button the face's size, floored at Theme.TapMin px each way around its centre.
+		local hit = Instance.new("TextButton")
+		hit.Name = "Hit"
+		hit.Text = ""
+		hit.AutoButtonColor = false
+		hit.BackgroundTransparency = 1
+		hit.BorderSizePixel = 0
+		hit.AnchorPoint = Vector2.new(0.5, 0.5)
+		hit.Position = UDim2.fromScale(0.5, (1 - lip) / 2)
+		hit.Size = UDim2.fromScale(1, 1 - lip)
+		hit.ZIndex = face.ZIndex + 6
+		local floor = Instance.new("UISizeConstraint")
+		floor.MinSize = Vector2.new(Theme.TapMin, Theme.TapMin)
+		floor.Parent = hit
+		hit.Parent = container
+		hit.MouseButton1Down:Connect(press)
+		hit.MouseButton1Up:Connect(release)
+		hit.MouseLeave:Connect(release)
+		hit.MouseEnter:Connect(hover)
+		hit.Activated:Connect(function()
+			Builder.playSound(Sounds.Click)
+			onClick()
+		end)
+	end
+	return container
+end
+
+-- Restyles a block button: the face and the lip take a new colour, the face a new label (kept blank while it shows an icon), and
+-- `enabled` decides whether it takes taps. The block twin of Builder.restyleButton, for the screens rebuilt in block cells.
+function Builder.restyleBlockButton(container: Frame?, text: string, color: Color3, enabled: boolean)
+	if not container then
+		return
+	end
+	local plate, lip = container:FindFirstChild("Plate"), container:FindFirstChild("Lip")
+	if plate then
+		Builder.setBlockColor(plate, color)
+	end
+	if lip then
+		Builder.setBlockColor(lip, Builder.darker(color))
+	end
+	local face = container:FindFirstChild("Face")
+	if face and face:IsA("TextButton") then
+		face.Text = if face:FindFirstChild("Icon") then "" else text
+		face.Active = enabled
 	end
 end
 
