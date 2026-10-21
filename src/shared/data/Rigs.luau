@@ -17,6 +17,32 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Capybubble = {
+		height = 3.289,
+		parts = {
+			{ name = "earL", pivot = { -1.125, 2, -1.25 }, clips = { { kind = "wag", amp = -20, period = 3.6, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.5, 2, -1.25 }, clips = { { kind = "wag", amp = 20, period = 3.6, phase = 0, axis = "z" } } },
+			{ name = "floatR", pivot = { 0.9375, 1, -1.625 }, clips = { { kind = "bob", amp = 0.15, period = 2.2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.06, period = 4.4, phase = 0, axis = "y" } } },
+			{ name = "leafR", pivot = { -0.1875, 3, -0.75 }, clips = { { kind = "sway", amp = 12, period = 2.8, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 3.4, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 9, length = 2.2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.3, axis = "y", at = 0, length = 0.6 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.1, length = 1.4 },
+				{ part = "earL", kind = "flare", amp = -25, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "earR", kind = "flare", amp = 25, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "floatR", kind = "pop", amp = 0.25, axis = "y", at = 0.6, length = 0.8 },
+				{ part = "leafR", kind = "swish", amp = 20, axis = "z", at = 0.8, length = 1.2 },
+			},
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
@@ -62,6 +88,62 @@ local species: { [string]: Types.RigRow } = {
 				{ part = "orb", kind = "hop", amp = 0.35, axis = "y", at = 1.8, length = 1 },
 				{ part = "frondL", kind = "swish", amp = -18, axis = "z", at = 2, length = 1.2 },
 				{ part = "frondR", kind = "swish", amp = 18, axis = "z", at = 2, length = 1.2 },
+			},
+		},
+	},
+	Reindazzle = {
+		height = 3.19,
+		parts = {
+			{ name = "chimeL", pivot = { -1.5, 2.75, -0.75 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
+			{ name = "chimeR", pivot = { 1.5, 2.75, -0.75 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -1, 2, -1.25 }, clips = { { kind = "wag", amp = -18, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 1, 2, -1.25 }, clips = { { kind = "wag", amp = 18, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "tail", pivot = { 0, 1.375, 1.625 }, clips = { { kind = "wag", amp = 22, period = 2, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "bob", amp = 0.06, period = 1.5, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 10, length = 2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.4, axis = "y", at = 0, length = 0.6 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.1, length = 1.3 },
+				{ part = "earL", kind = "flare", amp = -25, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "earR", kind = "flare", amp = 25, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "tail", kind = "swish", amp = 30, axis = "z", at = 0.5, length = 1 },
+				{ part = "chimeL", kind = "swish", amp = -15, axis = "z", at = 0.6, length = 1.2 },
+				{ part = "chimeR", kind = "swish", amp = 15, axis = "z", at = 0.6, length = 1.2 },
+			},
+		},
+	},
+	Shimmerlynx = {
+		height = 3.5,
+		parts = {
+			{ name = "crest", pivot = { -0.1875, 2.75, 0.0938 }, clips = { { kind = "sway", amp = 8, period = 3, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -1, 2.75, -0.3438 }, clips = { { kind = "wag", amp = -15, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.625, 2.75, -0.3438 }, clips = { { kind = "wag", amp = 15, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "tailR", pivot = { 1.25, 0.25, 0.9062 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "whiskerL", pivot = { -1.1875, 1.6562, -1 }, clips = { { kind = "wag", amp = -10, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "whiskerR", pivot = { 0.8125, 1.6562, -1 }, clips = { { kind = "wag", amp = 10, period = 1.6, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 2.8, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 12, length = 2.2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.3, axis = "y", at = 0, length = 0.6 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.1, length = 1.4 },
+				{ part = "crest", kind = "swish", amp = 20, axis = "z", at = 0.3, length = 1.4 },
+				{ part = "earL", kind = "flare", amp = -20, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "earR", kind = "flare", amp = 20, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "tailR", kind = "swish", amp = 20, axis = "z", at = 0.5, length = 1.2 },
 			},
 		},
 	},

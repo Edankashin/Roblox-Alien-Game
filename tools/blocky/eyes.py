@@ -478,6 +478,39 @@ def _eclipse(k, n):
 design("eclipse", "Secret", "eclipse: a black sun, a corona of the accent flaring round it", draw=_eclipse, glint=(1, 14))
 
 
+# --- Roster w2_high (2026-10-21): Frostbyte's own eyes. `frost` (Epic) a six-point snowflake pupil lit in a two-tone ice iris with a lit rim
+# (Sabrek); `lunar` (Cosmic) a moon that waxes and wanes across the iris over its 8 frames, the dark of it full of twinkling stars, a lit rim
+# (Fenrir, the Moon element). Both big, soft and with a shine; cooler, never fiercer.
+def _frost():
+    g = _round_eye(9, 9, _split_iris("j", "i", 0.5), None, ((1, 1, 2, 1),), rim_role="r")
+    put(g, {(4, 2), (2, 3), (4, 3), (6, 3), (3, 4), (4, 4), (5, 4), (2, 5), (4, 5), (6, 5), (4, 6)}, "p")
+    put(g, {(4, 4)}, "w")
+    return g
+
+
+design("frost", "Epic", "frost: a six-point snowflake pupil lit in a two-tone ice iris, a lit rim", draw=_frost, glint=(7, 2))
+
+
+def _lunar(k, n):
+    g, body, inside, iris = _big_eye(rim_role="r")
+    put(g, iris, "a")
+    _stars(g, iris, k, n, 0.16)
+    # the moon: a disc in the iris's middle; its terminator sweeps across it, new to full to new, over the cycle
+    moon = disc(LW, LH, LC[0], LC[1] + 0.5, 4.2, 4.4) & iris
+    phase = (1.23 + 2 * math.pi * k / n) % (2 * math.pi)   # frame 0 (the open eye) is a waxing crescent a third lit
+    for x, y in moon:
+        u = (x + 0.5 - LC[0]) / 4.2
+        lit = u > math.cos(phase) if phase < math.pi else u < -math.cos(phase)
+        g[y][x] = "c" if lit else "b"
+    put(g, {(x, y) for x, y in rim(moon)}, "b")
+    put(g, {(x, y) for x, y in moon if g[y][x] == "c" and _hash(x, y, 41) < 0.12}, "b")   # two or three craters on the lit face
+    _shines(g, body)
+    return g
+
+
+design("lunar", "Cosmic", "lunar: a moon that waxes and wanes across a starry iris, a lit rim", draw=_lunar, glint=(14, 3))
+
+
 # ------------------------------------------------------------------------------------------------ frames
 def tier_rank(tier):
     return TIER_ORDER.index(tier)
