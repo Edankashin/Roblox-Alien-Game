@@ -101,7 +101,11 @@ export type TierDef = {
 -- Per-species effects (data/Effects, drawn by the client's World.SpeciesFx; the server never reads them).
 -- Every length in a layer is a fraction of the alien's own height (its bounds), so one row fits a Tiny and a Huge of the same
 -- species and the data names no stud; the only studs are the idle amplitudes below, for a 1.0-scale alien.
-export type EffectKind = "Emitter" | "Beam" | "Light" | "Trail" | "Orbit"
+export type EffectKind = "Emitter" | "Beam" | "Light" | "Trail" | "Orbit" | "Burst" | "Sparkle" | "RingPulse" | "Pillar" | "Aura"
+-- Burst: `count` particles at once, every `every` seconds and/or on the flourish. Sparkle: a twinkle that grows and shrinks at
+-- one point every `every` seconds, like a blink. RingPulse: a flat ring that grows out along the ground, on a timer and/or the
+-- flourish. Pillar: a column of light from `at` straight up `reach` heights, shown `lifetime` seconds on the flourish and in
+-- the spawn moment. Aura: a soft shell of large glow sprites held on the body.
 export type EmitDirection = "Up" | "Front" | "Back" | "Down"
 export type EffectLayer = {
 	kind: EffectKind,
@@ -118,6 +122,12 @@ export type EffectLayer = {
 	rise: number?, -- heights per second squared, positive up (embers) or negative (petals falling)
 	glow: number?, -- LightEmission 0..1; nil is Effects.Look.DefaultGlow
 	flat: boolean?, -- lies flat on the ground and grows (the Legendary ring)
+	spin: number?, -- degrees a second each particle turns (a rune ring that turns, a twinkle that spins); nil is none
+	-- Burst, Sparkle and RingPulse (`count` is also an Orbit's motes)
+	every: number?, -- seconds between two firings on the alien's own clock; nil fires on the flourish only
+	flourish: boolean?, -- also fires on the flourish (SpeciesFx.Flourish, or the tier's own flourish timer)
+	-- Pillar
+	reach: number?, -- heights the column stands up from `at`
 	-- Beam (lightning between `at` and `to`) and Trail (a ribbon between them)
 	to: string?,
 	width: number?, -- Beam: heights across; Trail: the ribbon's width scale (1 is the full span of its two points)
@@ -127,8 +137,8 @@ export type EffectLayer = {
 	brightness: number?,
 	range: number?, -- heights
 	pulse: number?, -- seconds for one swell of the glow; nil holds it steady
-	-- Orbit
-	count: number?, -- motes
+	-- Orbit (and Burst, Sparkle, RingPulse)
+	count: number?, -- motes; for a Burst, Sparkle or RingPulse the particles one firing throws
 	radius: number?, -- heights
 	period: number?, -- seconds for one turn
 }
@@ -142,15 +152,23 @@ export type SpeciesFx = {
 	layers: { EffectLayer }, -- strongest first: a tier draws the first layersAllowed of them
 	idle: IdleMotion,
 	sound: string?, -- a key of data/Sounds: a one-shot the alien plays at its position on its signature beat, at most once per Effects.Look.SoundEverySeconds (World/SpeciesFx)
+	accent: string?, -- hex: the colour the tier's extras wear (ring, orbit, trail, aura, pillar, spawn moment); nil is the first layer's
+	flourishEvery: number?, -- seconds between flourishes on the alien's own timer (tiers with `flourish`); nil is Effects.Look.FlourishEvery
 }
 export type TierFxRule = {
-	layersAllowed: number,
+	layersAllowed: number, -- how many of the species' layers it draws, strongest first (a layer of a kind it may not draw is skipped)
+	kinds: { [string]: boolean }, -- the EffectKinds it may draw: the body up to Epic, the ground from Legendary, the sky from Cosmic
 	rateScale: number, -- on every emitter's rate
 	sizeScale: number, -- on particle, beam and light sizes
 	lightScale: number, -- on light brightness
+	burstMax: number, -- the most particles one Burst, Sparkle or RingPulse firing may throw
 	trail: boolean, -- the tier adds a ribbon trail if the species has none
 	orbit: boolean, -- the tier adds a ring of orbiting motes if the species has none
-	groundRing: boolean, -- a ring pulses out along the ground (on top of the tier aura)
+	groundRing: boolean, -- a ring pulses out along the ground if the species has no timed RingPulse of its own
+	aura: boolean, -- the tier adds a soft aura shell if the species has none
+	pillar: boolean, -- the tier adds a sky column on the flourish if the species has none
+	flourish: boolean, -- the alien runs its own flourish timer (SpeciesFx.Flourish fires it from outside too)
+	spawnMoment: boolean, -- a wild arrival plays Effects.SpawnMoment once, seen from Effects.Caps.MomentDistance
 	dark: boolean, -- the dark variant: colours sink toward Effects.Dark.Color
 }
 export type AttachPoint = { x: number, y: number, z: number } -- x and z from the bounds' centre, y from the feet, each a fraction of that side
@@ -403,5 +421,10 @@ export type OfflineSummary = {
 	completedModules: { string },
 	grown: { { uid: string, stage: string } }?, -- aliens that reached a new growth stage while away (data/Growth), in seating order
 }
+
+-- Effects worker, 2026-10-21 (B46, the steep effects ladder) -------------------------------------------------------------
+-- A particle sprite of Icons.Particles that is a flipbook sheet (data/Effects.Sheets): its frame grid, how it plays, and how
+-- fast. Applied only once the sheet's id is real; until then the emitter wears Effects.SpriteFallback's single sprite.
+export type SpriteSheet = { layout: "Grid2x2" | "Grid4x4", mode: "Loop" | "OneShot" | "PingPong" | "Random", fps: number }
 
 return {}

@@ -2,21 +2,32 @@
 -- ReplicatedStorage.Shared.EffectsMath: the rules behind the per-species effects (data/Effects), shared so the client's
 -- World.SpeciesFx and the headless tests agree. Pure functions of the data table and the numbers passed in; nothing here
 -- touches an Instance, a clock or the camera, so it runs in the plain Luau interpreter.
--- LayersFor is the tier gate: the first `layersAllowed` of a species' layers, held to the beam and light caps, plus the
--- trail and orbit a tier adds when the species has none, in the dark variant for a tier that asks for it.
--- Resolve scales one layer for a tier and a device and holds its rate under the cap. Idle, FlapAngle, BeamState, Pulse and
--- OrbitAngle are absolute functions of the clock (never accumulated), so a skipped frame cannot make a motion drift.
+-- LayersFor is the tier gate: the first `layersAllowed` of a species' layers whose kind the tier may draw, held to the beam,
+-- light and pillar caps, plus the extras a tier adds when the species has none of that kind (orbit, trail, ground ring, aura,
+-- sky pillar), in the species' accent, in the dark variant for a tier that asks for it. MomentFor is the spawn moment.
+-- Resolve scales one layer for a tier and a device and holds its rate and burst under the caps; FitBudget holds one alien's
+-- whole set under its live-particle budget. Idle, FlapAngle, BeamState, Pulse, OrbitAngle, Beat and Envelope are absolute
+-- functions of the clock (never accumulated), so a skipped frame cannot make a motion drift. FlourishEvery and FlourishDue
+-- are the flourish timer. SpriteFor resolves a sprite key to an uploaded id (and its flipbook sheet), through the fallbacks.
 -- PickActive is the nearest-first cap. AttachOffset turns a region name and a bounds box into a point.
 -- The sound clock: SoundClock picks the beat an alien's sound rides (a beam's strike clock, else its idle cycle), SoundBeat says
 -- which beat a moment falls in, SoundDue is the per-alien spacing and TakeSoundSlot the per-second cap across all aliens.
 
 local Effects = require(script.Parent.data.Effects)
+local Icons = require(script.Parent.data.Icons)
 local Types = require(script.Parent.types.Types)
 
 local EffectsMath = {}
 
 local FALLBACK_REGION = "Body"
 local FALLBACK_COLOR = "FFFFFF"
+
+-- The kinds that fire on a clock or the flourish (they throw `count` particles at once) rather than flow at a rate.
+local FIRED: { [string]: boolean } = { Burst = true, Sparkle = true, RingPulse = true }
+-- The kinds that hold particles at a rate (an Orbit's rate is per mote).
+local FLOWING: { [string]: boolean } = { Emitter = true, Orbit = true, Aura = true }
+-- The kinds a Secret's dark variant sinks only by Dark.MomentMix (a pillar or ring must still read against the night).
+local MOMENT_KINDS: { [string]: boolean } = { Pillar = true, RingPulse = true }
 
 -- A hex colour's red, green and blue, 0 to 255 each.
 local function channels(hex: string): (number, number, number)
@@ -45,23 +56,39 @@ end
 
 local function darken(layer: Types.EffectLayer): Types.EffectLayer
 	local out = copy(layer)
-	out.color = EffectsMath.Mix(layer.color, Effects.Dark.Color, Effects.Dark.Mix)
-	if layer.kind == "Emitter" or layer.kind == "Orbit" then
+	local mix = if MOMENT_KINDS[layer.kind] then Effects.Dark.MomentMix else Effects.Dark.Mix
+	out.color = EffectsMath.Mix(layer.color, Effects.Dark.Color, mix)
+	if FLOWING[layer.kind] or FIRED[layer.kind] then
 		out.glow = (layer.glow or Effects.Look.DefaultGlow) * Effects.Dark.GlowScale
 	end
 	return out
 end
 
--- The colour a species' extras and ring wear: its strongest layer's.
-local function signature(speciesId: string): string
+-- The colour a species' extras, ring and spawn moment wear: its accent, else its strongest layer's.
+function EffectsMath.Accent(speciesId: string): string
 	local fx = Effects.Species[speciesId]
-	local first = if fx then fx.layers[1] else nil
+	if not fx then
+		return FALLBACK_COLOR
+	end
+	if fx.accent ~= nil then
+		return fx.accent
+	end
+	local first = fx.layers[1]
 	return if first then first.color else FALLBACK_COLOR
 end
 
--- The layers a species draws at a tier, strongest first: nothing for an unknown species or tier.
--- Never more than Caps.MaxBeams beams or Caps.MaxLights lights. The returned rows are the data's own unless the tier is dark,
--- so a caller must not change them (Resolve copies).
+-- An extra in the species' accent.
+local function extra(layer: Types.EffectLayer, color: string): Types.EffectLayer
+	local out = copy(layer)
+	out.color = color
+	return out
+end
+
+-- The layers a species draws at a tier, strongest first: nothing for an unknown species or tier. A layer whose kind the tier
+-- may not draw is skipped and does not count against layersAllowed. Never more than Caps.MaxBeams beams, Caps.MaxLights
+-- lights or Caps.MaxPillars pillars. Then the tier's extras, each only when the species drew none of that kind (the ground
+-- ring only when it drew no RingPulse on a timer). The returned rows are the data's own unless they are extras or the tier is
+-- dark, so a caller must not change them (Resolve copies).
 function EffectsMath.LayersFor(speciesId: string, tier: string): { Types.EffectLayer }
 	local out: { Types.EffectLayer } = {}
 	local rule = Effects.Tiers[tier]
@@ -69,39 +96,44 @@ function EffectsMath.LayersFor(speciesId: string, tier: string): { Types.EffectL
 	if not rule or not fx then
 		return out
 	end
-	local beams, lights = 0, 0
-	local hasTrail, hasOrbit = false, false
-	for index, layer in ipairs(fx.layers) do
-		if index > rule.layersAllowed then
+	local taken = 0
+	local seen: { [string]: number } = {}
+	local timedRing = false
+	for _, layer in ipairs(fx.layers) do
+		if taken >= rule.layersAllowed then
 			break
 		end
-		if layer.kind == "Beam" then
-			if beams >= Effects.Caps.MaxBeams then
-				continue
-			end
-			beams += 1
-		elseif layer.kind == "Light" then
-			if lights >= Effects.Caps.MaxLights then
-				continue
-			end
-			lights += 1
-		elseif layer.kind == "Trail" then
-			hasTrail = true
-		elseif layer.kind == "Orbit" then
-			hasOrbit = true
+		local kind = layer.kind
+		if not rule.kinds[kind] then
+			continue
 		end
+		local have = seen[kind] or 0
+		if (kind == "Beam" and have >= Effects.Caps.MaxBeams) or (kind == "Light" and have >= Effects.Caps.MaxLights) or (kind == "Pillar" and have >= Effects.Caps.MaxPillars) then
+			continue
+		end
+		seen[kind] = have + 1
+		if kind == "RingPulse" and layer.every ~= nil then
+			timedRing = true
+		end
+		taken += 1
 		table.insert(out, layer)
 	end
-	local color = signature(speciesId)
-	if rule.orbit and not hasOrbit then
-		local extra = copy(Effects.Extras.Orbit)
-		extra.color = color
-		table.insert(out, extra)
+	local color = EffectsMath.Accent(speciesId)
+	local extras = Effects.Extras
+	if rule.orbit and not seen.Orbit then
+		table.insert(out, extra(extras.Orbit, color))
 	end
-	if rule.trail and not hasTrail then
-		local extra = copy(Effects.Extras.Trail)
-		extra.color = color
-		table.insert(out, extra)
+	if rule.trail and not seen.Trail then
+		table.insert(out, extra(extras.Trail, color))
+	end
+	if rule.groundRing and not timedRing then
+		table.insert(out, extra(extras.GroundRing, color))
+	end
+	if rule.aura and not seen.Aura then
+		table.insert(out, extra(extras.Aura, color))
+	end
+	if rule.pillar and not seen.Pillar then
+		table.insert(out, extra(extras.Pillar, color))
 	end
 	if rule.dark then
 		for index, layer in ipairs(out) do
@@ -111,15 +143,25 @@ function EffectsMath.LayersFor(speciesId: string, tier: string): { Types.EffectL
 	return out
 end
 
--- The ring that pulses out along the ground at a tier that asks for one (Legendary and up), in the species' colour; nil below.
-function EffectsMath.GroundRingFor(speciesId: string, tier: string): Types.EffectLayer?
+-- The spawn moment a wild arrival plays once at a tier that asks for one (Cosmic and Secret), in the species' accent (dark for a
+-- dark tier); empty below or for an unknown species or tier.
+function EffectsMath.MomentFor(speciesId: string, tier: string): { Types.EffectLayer }
+	local out: { Types.EffectLayer } = {}
 	local rule = Effects.Tiers[tier]
-	if not rule or not rule.groundRing then
-		return nil
+	if not rule or not rule.spawnMoment or not Effects.Species[speciesId] then
+		return out
 	end
-	local ring = copy(Effects.Extras.GroundRing)
-	ring.color = signature(speciesId)
-	return if rule.dark then darken(ring) else ring
+	local color = EffectsMath.Accent(speciesId)
+	for _, layer in ipairs(Effects.SpawnMoment) do
+		local piece = extra(layer, color)
+		table.insert(out, if rule.dark then darken(piece) else piece)
+	end
+	return out
+end
+
+-- Whether a layer fires on the flourish.
+function EffectsMath.OnFlourish(layer: Types.EffectLayer): boolean
+	return layer.flourish == true
 end
 
 -- The emitter rate cap for a device, particles per second.
@@ -127,9 +169,17 @@ function EffectsMath.RateCap(mobile: boolean): number
 	return if mobile then Effects.Caps.MobileRateCap else Effects.Caps.DesktopRateCap
 end
 
+-- The most particles one firing may throw at a tier on a device.
+function EffectsMath.BurstCap(tier: string, mobile: boolean): number
+	local rule = Effects.Tiers[tier]
+	local device = if mobile then Effects.Caps.MobileBurstMax else Effects.Caps.DesktopBurstMax
+	return if rule then math.min(rule.burstMax, device) else device
+end
+
 -- One layer as a tier and a device draw it (still in heights): the rate times the tier's rateScale and held under the device
--- cap; sizes (particles, beam width, light range) times the tier's sizeScale and the caller's `sizeScale`; light brightness
--- times lightScale. A copy; the data row is untouched. An unknown tier scales nothing.
+-- cap; a firing's count held under the tier's and the device's burst cap (one when the row names none); sizes (particles, beam
+-- and pillar width, light range) times the tier's sizeScale and the caller's `sizeScale`; light brightness times lightScale.
+-- A copy; the data row is untouched. An unknown tier scales nothing.
 function EffectsMath.Resolve(layer: Types.EffectLayer, tier: string, mobile: boolean, sizeScale: number): Types.EffectLayer
 	local out = copy(layer)
 	local rule = Effects.Tiers[tier]
@@ -141,10 +191,13 @@ function EffectsMath.Resolve(layer: Types.EffectLayer, tier: string, mobile: boo
 	if layer.rate ~= nil then
 		out.rate = math.min(layer.rate * rateScale, cap)
 	end
+	if FIRED[layer.kind] then
+		out.count = math.max(1, math.min(layer.count or 1, EffectsMath.BurstCap(tier, mobile)))
+	end
 	if layer.size ~= nil then
 		out.size = layer.size * grow
 	end
-	if layer.kind == "Beam" and layer.width ~= nil then
+	if (layer.kind == "Beam" or layer.kind == "Pillar") and layer.width ~= nil then
 		out.width = layer.width * grow
 	end
 	if layer.kind == "Light" then
@@ -156,6 +209,123 @@ function EffectsMath.Resolve(layer: Types.EffectLayer, tier: string, mobile: boo
 		end
 	end
 	return out
+end
+
+-- The live particles a set of layers keeps at once (rate times lifetime over the flowing kinds, an Orbit's per mote) plus the
+-- largest single firing: the number an alien's budget holds.
+function EffectsMath.LiveParticles(layers: { Types.EffectLayer }): number
+	local flowing, largest = 0, 0
+	for _, layer in ipairs(layers) do
+		if FLOWING[layer.kind] then
+			local motes = if layer.kind == "Orbit" then layer.count or 1 else 1
+			flowing += (layer.rate or 0) * (layer.lifetime or 0) * motes
+		elseif FIRED[layer.kind] then
+			largest = math.max(largest, layer.count or 1)
+		end
+	end
+	return flowing + largest
+end
+
+-- The per-alien live-particle budget on a device.
+function EffectsMath.AlienBudget(mobile: boolean): number
+	return if mobile then Effects.Caps.MobileAlienParticles else Effects.Caps.DesktopAlienParticles
+end
+
+-- Holds a set of resolved layers (Resolve's copies: this changes them) under the device's per-alien budget: when
+-- LiveParticles is over it, every rate and firing count is scaled by the same factor (a count never below one). Returns the
+-- factor (1 when it already fit).
+function EffectsMath.FitBudget(layers: { Types.EffectLayer }, mobile: boolean): number
+	local live = EffectsMath.LiveParticles(layers)
+	local budget = EffectsMath.AlienBudget(mobile)
+	if live <= budget or live <= 0 then
+		return 1
+	end
+	local factor = budget / live
+	for _, layer in ipairs(layers) do
+		if layer.rate ~= nil then
+			layer.rate *= factor
+		end
+		if FIRED[layer.kind] and layer.count ~= nil then
+			layer.count = math.max(1, math.floor(layer.count * factor))
+		end
+	end
+	return factor
+end
+
+-- A firing's count at a distance: the full count near the camera, FarRateScale of it (at least one) beyond NearDistance.
+function EffectsMath.FarCount(count: number, near: boolean): number
+	if near then
+		return count
+	end
+	return math.max(1, math.floor(count * Effects.Caps.FarRateScale + 0.5))
+end
+
+-- Sprites ---------------------------------------------------------------------
+
+-- The uploaded id a sprite key draws with, and its flipbook sheet: the key's own id (and its sheet) when it is real, else its
+-- SpriteFallback key's id (never a sheet: the fallback is a single sprite), else nil (the soft default sprite).
+function EffectsMath.SpriteFor(key: string?): (number?, Types.SpriteSheet?)
+	if key == nil then
+		return nil, nil
+	end
+	local own = Icons.Particles[key]
+	if own ~= nil and own ~= 0 then
+		return own, Effects.Sheets[key]
+	end
+	local fallback = Effects.SpriteFallback[key]
+	local other = if fallback ~= nil then Icons.Particles[fallback] else nil
+	if other ~= nil and other ~= 0 then
+		return other, nil
+	end
+	return nil, nil
+end
+
+-- Flourish --------------------------------------------------------------------
+
+-- Seconds between two flourishes of a species on its own timer.
+function EffectsMath.FlourishEvery(speciesId: string): number
+	local fx = Effects.Species[speciesId]
+	local every = if fx then fx.flourishEvery else nil
+	return if every ~= nil and every > 0 then every else Effects.Look.FlourishEvery
+end
+
+-- When an alien that has just come up flourishes first: between FlourishFirst and 1 of a period from `now`, slid by its
+-- `phase` (radians), so a crowd that comes up together does not flourish together.
+function EffectsMath.FirstFlourish(now: number, every: number, phase: number): number
+	local first = Effects.Look.FlourishFirst
+	local share = (phase % (math.pi * 2)) / (math.pi * 2)
+	return now + every * (first + (1 - first) * share)
+end
+
+-- Whether the alien's own flourish timer plays at `now`: its next time has come, and nobody outside (a rig animator calling
+-- SpeciesFx.Flourish) has flourished it within Look.ExternalHold periods (use -math.huge for never).
+function EffectsMath.FlourishDue(now: number, nextAt: number, externalAt: number, every: number): boolean
+	return now >= nextAt and now - externalAt >= every * Effects.Look.ExternalHold
+end
+
+-- A one-off's strength at `k` (0 to 1 of its life): rises from 0 over `rise`, holds at 1, falls to 0 over the last `fall`.
+-- 0 outside 0 to 1.
+function EffectsMath.Envelope(k: number, rise: number, fall: number): number
+	if k <= 0 or k >= 1 then
+		return 0
+	end
+	if rise > 0 and k < rise then
+		return k / rise
+	end
+	if fall > 0 and k > 1 - fall then
+		return (1 - k) / fall
+	end
+	return 1
+end
+
+-- A light's multiplier during a flourish flare, `since` seconds after it began: up to Look.FlareBoost and back to 1 over
+-- Look.FlareSeconds (1 outside it).
+function EffectsMath.Flare(since: number): number
+	local look = Effects.Look
+	if since < 0 or since >= look.FlareSeconds then
+		return 1
+	end
+	return 1 + (look.FlareBoost - 1) * math.sin(math.pi * since / look.FlareSeconds)
 end
 
 -- Motion helpers -----------------------------------------------------------
@@ -256,6 +426,10 @@ function EffectsMath.SoundBeat(now: number, period: number, offset: number): num
 	end
 	return math.floor((now + offset) / period)
 end
+
+-- The same clock for a timed firing (a Burst, Sparkle or RingPulse every `every` seconds, slid by `offset`): it fires when the
+-- beat changes.
+EffectsMath.Beat = EffectsMath.SoundBeat
 
 -- Whether an alien that last played at `lastPlayed` may play again at `now`: at least `everySeconds` apart (use -math.huge for
 -- an alien that has not played yet).

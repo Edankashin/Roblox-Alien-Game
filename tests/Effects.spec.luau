@@ -1,7 +1,8 @@
 --!strict
 -- The per-species effects (data/Effects) and the rules the client's World.SpeciesFx draws them by (Shared/EffectsMath): the
--- table shapes, the tier gate (LayersFor), the caps (Resolve, PickActive and the beam and light limits), the ground ring, the
--- dark variant, the idle, beam and orbit clocks and the sound clock (the beat, the spacing per alien and the per-second cap).
+-- table shapes, B46's steep tier ladder and its gate (LayersFor: the kinds each tier may draw, layersAllowed, the extras), the
+-- spawn moment, the caps (Resolve, FitBudget, PickActive, the burst, beam, light and pillar limits), the dark variant, the
+-- sprites and their fallbacks, the flourish timer, the idle, beam, orbit and envelope clocks and the sound clock.
 -- tools/lint_data.py checks the same data from the Python side.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local EffectsMath = require(Shared.EffectsMath)
@@ -11,7 +12,19 @@ local Tiers = require(Shared.data.Tiers)
 local Icons = require(Shared.data.Icons)
 local Sounds = require(Shared.data.Sounds)
 
-local KINDS = { Emitter = true, Beam = true, Light = true, Trail = true, Orbit = true }
+local KINDS = {
+	Emitter = true,
+	Beam = true,
+	Light = true,
+	Trail = true,
+	Orbit = true,
+	Burst = true,
+	Sparkle = true,
+	RingPulse = true,
+	Pillar = true,
+	Aura = true,
+}
+local FIRED = { Burst = true, Sparkle = true, RingPulse = true }
 local MOTIONS = { Still = true, Bob = true, Hover = true, Flap = true, Spin = true, Breathe = true }
 
 local function count(layers, kind: string): number
@@ -22,6 +35,14 @@ local function count(layers, kind: string): number
 		end
 	end
 	return total
+end
+
+local function has(layers, kind: string): boolean
+	return count(layers, kind) > 0
+end
+
+local function tierOf(id: string): string
+	return Species.ById[id].tier
 end
 
 describe("the data", function()
@@ -54,18 +75,45 @@ describe("the data", function()
 		end
 	end)
 
+	it("gives every firing a clock or the flourish, and a whole count", function()
+		for _, fx in pairs(Effects.Species) do
+			for _, layer in ipairs(fx.layers) do
+				if FIRED[layer.kind] then
+					expect(layer.every ~= nil or layer.flourish == true).toEqual(true)
+					local n = layer.count :: number
+					expect(n >= 1 and n == math.floor(n)).toEqual(true)
+				end
+				if layer.kind == "Pillar" then
+					expect(layer.flourish).toEqual(true)
+					expect((layer.reach :: number) > 0).toEqual(true)
+				end
+			end
+		end
+	end)
+
+	it("hangs nothing but a small sparkle at the eyes", function()
+		for _, fx in pairs(Effects.Species) do
+			for _, layer in ipairs(fx.layers) do
+				if layer.at == "Eyes" then
+					expect(layer.kind).toEqual("Sparkle")
+					expect((layer.size :: number) <= Effects.Look.EyeSparkleMax).toEqual(true)
+				end
+			end
+		end
+	end)
+
 	it("names the five regions the brief asks for", function()
 		for _, region in ipairs({ "Top", "Back", "Tail", "Eyes", "Feet" }) do
 			expect(Effects.Attach[region] ~= nil).toEqual(true)
 		end
 	end)
 
-	it("keeps the Thunderhog's lightning between two quill regions, striking every two seconds", function()
-		local beam = Effects.Species.Thunderhog.layers[1]
-		expect(beam.kind).toEqual("Beam")
-		expect(beam.at ~= beam.to).toEqual(true)
-		expect(beam.flicker).toEqual(2)
-		expect(Effects.Species.Thunderhog.layers[2].kind).toEqual("Emitter")
+	it("keeps the Thunderhog's lightning between two quill regions, striking every two seconds, and its spark burst", function()
+		local layers = Effects.Species.Thunderhog.layers
+		expect(layers[1].kind).toEqual("Beam")
+		expect(layers[1].at ~= layers[1].to).toEqual(true)
+		expect(layers[1].flicker).toEqual(2)
+		expect(has(layers, "Burst")).toEqual(true)
 	end)
 
 	it("gives a Flap species its wing part names, and nobody else", function()
@@ -97,44 +145,105 @@ describe("the tier ladder", function()
 		end
 	end)
 
-	it("never falls going up Tiers.Order", function()
+	it("never falls going up Tiers.Order: numbers, flags and kinds", function()
 		local previous = nil
 		for _, tier in ipairs(Tiers.Order) do
 			local rule = Effects.Tiers[tier]
 			if previous then
-				expect(rule.layersAllowed >= previous.layersAllowed).toEqual(true)
-				expect(rule.rateScale >= previous.rateScale).toEqual(true)
-				expect(rule.sizeScale >= previous.sizeScale).toEqual(true)
-				expect(rule.lightScale >= previous.lightScale).toEqual(true)
-				for _, flag in ipairs({ "trail", "orbit", "groundRing", "dark" }) do
-					expect(previous[flag] == true and rule[flag] ~= true).toEqual(false)
+				for _, key in ipairs({ "layersAllowed", "rateScale", "sizeScale", "lightScale", "burstMax" }) do
+					expect((rule :: any)[key] >= (previous :: any)[key]).toEqual(true)
+				end
+				for _, flag in ipairs({ "trail", "orbit", "groundRing", "aura", "pillar", "flourish", "spawnMoment", "dark" }) do
+					expect((previous :: any)[flag] == true and (rule :: any)[flag] ~= true).toEqual(false)
+				end
+				for kind in pairs(previous.kinds) do
+					expect(rule.kinds[kind]).toEqual(true)
 				end
 			end
 			previous = rule
 		end
 	end)
 
-	it("lets Common and Uncommon draw one layer, Rare two, Epic three", function()
-		expect(Effects.Tiers.Common.layersAllowed).toEqual(1)
-		expect(Effects.Tiers.Uncommon.layersAllowed).toEqual(1)
-		expect(Effects.Tiers.Rare.layersAllowed).toEqual(2)
-		expect(Effects.Tiers.Epic.layersAllowed).toEqual(3)
+	it("climbs steeply: 1, 2, 3, 5, 6, 8, 8 layers", function()
+		local wanted = { Common = 1, Uncommon = 2, Rare = 3, Epic = 5, Legendary = 6, Cosmic = 8, Secret = 8 }
+		for tier, layers in pairs(wanted) do
+			expect(Effects.Tiers[tier].layersAllowed).toEqual(layers)
+		end
 	end)
 
-	it("adds the ring from Legendary, the orbit and trail from Cosmic, the dark variant at Secret only", function()
-		expect(Effects.Tiers.Epic.groundRing).toEqual(false)
-		expect(Effects.Tiers.Legendary.groundRing).toEqual(true)
-		expect(Effects.Tiers.Legendary.orbit).toEqual(false)
-		expect(Effects.Tiers.Cosmic.orbit).toEqual(true)
-		expect(Effects.Tiers.Cosmic.trail).toEqual(true)
-		expect(Effects.Tiers.Cosmic.dark).toEqual(false)
+	it("keeps Common and Uncommon on the body without light, Epic on the body, the ground from Legendary, the sky from Cosmic", function()
+		for _, tier in ipairs({ "Common", "Uncommon" }) do
+			local kinds = Effects.Tiers[tier].kinds
+			expect(kinds.Light == nil and kinds.Beam == nil and kinds.Trail == nil).toEqual(true)
+			expect(kinds.Burst and kinds.Sparkle and kinds.Emitter).toEqual(true)
+		end
+		expect(Effects.Tiers.Rare.kinds.Light).toEqual(true)
+		for _, kind in ipairs({ "Orbit", "RingPulse", "Pillar", "Aura" }) do
+			expect(Effects.Tiers.Epic.kinds[kind] == nil).toEqual(true)
+		end
+		expect(Effects.Tiers.Legendary.kinds.Orbit and Effects.Tiers.Legendary.kinds.RingPulse).toEqual(true)
+		expect(Effects.Tiers.Legendary.kinds.Pillar == nil and Effects.Tiers.Legendary.kinds.Aura == nil).toEqual(true)
+		expect(Effects.Tiers.Cosmic.kinds.Pillar and Effects.Tiers.Cosmic.kinds.Aura).toEqual(true)
+	end)
+
+	it("adds the ring, orbit and flourish from Legendary, the trail, aura, pillar and spawn moment from Cosmic, the dark at Secret", function()
+		local epic, legendary, cosmic = Effects.Tiers.Epic, Effects.Tiers.Legendary, Effects.Tiers.Cosmic
+		expect(epic.groundRing or epic.orbit or epic.flourish).toEqual(false)
+		expect(legendary.groundRing and legendary.orbit and legendary.flourish).toEqual(true)
+		expect(legendary.trail or legendary.aura or legendary.pillar or legendary.spawnMoment).toEqual(false)
+		expect(cosmic.trail and cosmic.aura and cosmic.pillar and cosmic.spawnMoment).toEqual(true)
+		expect(cosmic.dark).toEqual(false)
 		expect(Effects.Tiers.Secret.dark).toEqual(true)
 	end)
 
-	it("defines at least as many layers for a species as its own tier draws, up to four", function()
+	it("defines at least as many layers for a species as its own tier draws, all of kinds its tier may draw", function()
 		for _, def in ipairs(Species.List) do
-			local wanted = math.min(Effects.Tiers[def.tier].layersAllowed, 4)
-			expect(#Effects.Species[def.id].layers >= wanted).toEqual(true)
+			local rule = Effects.Tiers[def.tier]
+			local fx = Effects.Species[def.id]
+			expect(#fx.layers >= rule.layersAllowed).toEqual(true)
+			for _, layer in ipairs(fx.layers) do
+				expect(rule.kinds[layer.kind]).toEqual(true)
+				if FIRED[layer.kind] then
+					expect((layer.count :: number) <= rule.burstMax).toEqual(true)
+				end
+			end
+		end
+	end)
+
+	it("shows each species' own rung: a second colour, a light and sparkle, a burst, a flourish, the ground and the sky", function()
+		for _, def in ipairs(Species.List) do
+			local drawn = EffectsMath.LayersFor(def.id, def.tier)
+			local tier = def.tier
+			if tier == "Common" then
+				expect(#drawn).toEqual(1)
+				expect(has(drawn, "Light")).toEqual(false)
+			elseif tier == "Uncommon" then
+				expect(#drawn).toEqual(2)
+				expect(drawn[1].color ~= drawn[2].color).toEqual(true)
+				expect(has(drawn, "Light")).toEqual(false)
+			end
+			if tier == "Rare" or tier == "Epic" then
+				expect(has(drawn, "Light") and has(drawn, "Sparkle")).toEqual(true)
+			end
+			if tier == "Epic" then
+				expect(has(drawn, "Burst")).toEqual(true)
+			end
+			if Effects.Tiers[tier].flourish then
+				local flourishes = false
+				for _, layer in ipairs(drawn) do
+					flourishes = flourishes or EffectsMath.OnFlourish(layer)
+				end
+				expect(flourishes).toEqual(true)
+				expect(has(drawn, "Orbit") and has(drawn, "RingPulse")).toEqual(true)
+			end
+			if tier == "Cosmic" or tier == "Secret" then
+				for _, kind in ipairs({ "Trail", "Orbit", "RingPulse", "Pillar", "Aura" }) do
+					expect(has(drawn, kind)).toEqual(true)
+				end
+				expect(#EffectsMath.MomentFor(def.id, tier) > 0).toEqual(true)
+			else
+				expect(#EffectsMath.MomentFor(def.id, tier)).toEqual(0)
+			end
 		end
 	end)
 end)
@@ -145,19 +254,23 @@ describe("LayersFor", function()
 		expect(#EffectsMath.LayersFor("Thunderhog", "Mythic")).toEqual(0)
 	end)
 
-	it("takes the first layers a tier allows, in the data's order", function()
+	it("takes the first layers a tier allows, in the data's order, skipping kinds the tier may not draw", function()
 		local common = EffectsMath.LayersFor("Thunderhog", "Common")
 		expect(#common).toEqual(1)
-		expect(common[1].kind).toEqual("Beam")
-		expect(#EffectsMath.LayersFor("Thunderhog", "Rare")).toEqual(2)
+		expect(common[1].kind).toEqual("Emitter") -- the beam is not a Common kind: skipped, and it does not count
+		local rare = EffectsMath.LayersFor("Thunderhog", "Rare")
+		expect(#rare).toEqual(3)
+		expect(rare[1].kind).toEqual("Beam")
+		expect(rare[2].kind).toEqual("Emitter")
+		expect(rare[3].kind).toEqual("Light")
 		local epic = EffectsMath.LayersFor("Thunderhog", "Epic")
-		expect(#epic).toEqual(3)
-		expect(epic[1].kind).toEqual("Beam")
-		expect(epic[2].kind).toEqual("Emitter")
-		expect(epic[3].kind).toEqual("Light")
+		expect(#epic).toEqual(5)
+		for index, layer in ipairs(epic) do
+			expect(layer).toEqual(Effects.Species.Thunderhog.layers[index]) -- the data's own rows, nothing added at Epic
+		end
 	end)
 
-	it("never draws more layers going up the ladder, for any species", function()
+	it("never draws fewer layers going up the ladder, for any species", function()
 		for _, def in ipairs(Species.List) do
 			local previous = 0
 			for _, tier in ipairs(Tiers.Order) do
@@ -168,7 +281,7 @@ describe("LayersFor", function()
 		end
 	end)
 
-	it("makes the species' own tier the grandest: more layers on average at each step up", function()
+	it("makes each step of the roster grander: more layers on average at each tier, steeply", function()
 		local sums: { [string]: number } = {}
 		local counts: { [string]: number } = {}
 		for _, def in ipairs(Species.List) do
@@ -183,16 +296,17 @@ describe("LayersFor", function()
 			previous = average
 		end
 		local common = (sums.Common :: number) / (counts.Common :: number)
-		local secret = (sums.Secret :: number) / (counts.Secret :: number)
-		expect(secret > common).toEqual(true)
+		local cosmic = (sums.Cosmic :: number) / (counts.Cosmic :: number)
+		expect(cosmic >= common * 8).toEqual(true)
 	end)
 
-	it("holds every species at every tier to the beam and light caps", function()
+	it("holds every species at every tier to the beam, light and pillar caps", function()
 		for _, def in ipairs(Species.List) do
 			for _, tier in ipairs(Tiers.Order) do
 				local layers = EffectsMath.LayersFor(def.id, tier)
 				expect(count(layers, "Beam") <= Effects.Caps.MaxBeams).toEqual(true)
 				expect(count(layers, "Light") <= Effects.Caps.MaxLights).toEqual(true)
+				expect(count(layers, "Pillar") <= Effects.Caps.MaxPillars).toEqual(true)
 			end
 		end
 	end)
@@ -225,83 +339,151 @@ describe("LayersFor", function()
 		expect(count(lights, "Beam")).toEqual(1)
 	end)
 
-	it("adds a trail and an orbit at Cosmic when the species has neither, in the species' colour", function()
+	it("adds the tier's extras when the species has none, in its accent", function()
 		local layers = EffectsMath.LayersFor("Mossbop", "Cosmic")
-		expect(#layers).toEqual(3)
-		expect(count(layers, "Orbit")).toEqual(1)
-		expect(count(layers, "Trail")).toEqual(1)
-		local signature = Effects.Species.Mossbop.layers[1].color
-		expect(layers[2].color).toEqual(signature)
-		expect(layers[3].color).toEqual(signature)
+		expect(#layers).toEqual(6) -- its one burst, then the orbit, trail, ground ring, aura and pillar
+		for _, kind in ipairs({ "Orbit", "Trail", "RingPulse", "Aura", "Pillar" }) do
+			expect(count(layers, kind)).toEqual(1)
+		end
+		local accent = Effects.Species.Mossbop.layers[1].color
+		expect(EffectsMath.Accent("Mossbop")).toEqual(accent)
+		for index = 2, #layers do
+			expect(layers[index].color).toEqual(accent)
+		end
+		local legendary = EffectsMath.LayersFor("Mossbop", "Legendary")
+		expect(count(legendary, "Orbit") == 1 and count(legendary, "RingPulse") == 1 and count(legendary, "Trail") == 0).toEqual(true)
 		expect(#EffectsMath.LayersFor("Mossbop", "Epic")).toEqual(1)
+		expect(EffectsMath.Accent("Gaiabloom")).toEqual(Effects.Species.Gaiabloom.accent)
+		local ring = EffectsMath.LayersFor("Gaiabloom", "Legendary")
+		expect(ring[#ring].kind).toEqual("RingPulse") -- its own ring fires only on the flourish, so the tier's timed ring is added
+		expect(ring[#ring].color).toEqual(Effects.Species.Gaiabloom.accent)
 	end)
 
-	it("does not double an orbit or a trail the species already has", function()
-		local radish = EffectsMath.LayersFor("Radish", "Cosmic")
-		expect(count(radish, "Orbit")).toEqual(1)
-		expect(count(radish, "Trail")).toEqual(1)
-		local fenripup = EffectsMath.LayersFor("Fenripup", "Cosmic")
-		expect(count(fenripup, "Orbit")).toEqual(1)
-		expect(count(fenripup, "Trail")).toEqual(1)
-		expect(#fenripup).toEqual(#Effects.Species.Fenripup.layers)
+	it("does not double an orbit, a trail, a timed ring, an aura or a pillar the species already has", function()
+		for _, id in ipairs({ "Radish", "Fenripup" }) do
+			local layers = EffectsMath.LayersFor(id, "Cosmic")
+			for _, kind in ipairs({ "Orbit", "Trail", "RingPulse", "Aura", "Pillar" }) do
+				expect(count(layers, kind)).toEqual(1)
+			end
+			expect(#layers).toEqual(#Effects.Species[id].layers)
+		end
 	end)
 
-	it("sinks Secret colours toward the dark colour and leaves Cosmic alone", function()
+	it("sinks Secret colours toward the dark colour (a pillar and ring only a little) and leaves Cosmic alone", function()
 		local data = Effects.Species.Panpipe.layers
 		local dark = EffectsMath.LayersFor("Panpipe", "Secret")
 		local plain = EffectsMath.LayersFor("Panpipe", "Cosmic")
-		expect(dark[1].color ~= data[1].color).toEqual(true)
 		expect(dark[1].color).toEqual(EffectsMath.Mix(data[1].color, Effects.Dark.Color, Effects.Dark.Mix))
 		expect(plain[1].color).toEqual(data[1].color)
 		expect(dark[1].glow).toBeClose((data[1].glow or Effects.Look.DefaultGlow) * Effects.Dark.GlowScale, 1e-9)
 		expect(data[1].color).toEqual("B28CFF") -- the data row itself is untouched
+		for index, layer in ipairs(dark) do
+			if layer.kind == "Pillar" or layer.kind == "RingPulse" then
+				expect(layer.color).toEqual(EffectsMath.Mix(plain[index].color, Effects.Dark.Color, Effects.Dark.MomentMix))
+			end
+		end
+		expect(count(dark, "Trail")).toEqual(1) -- the Secret row has no trail of its own: the tier adds it, in shadow
 	end)
 end)
 
-describe("the ground ring", function()
-	it("is for Legendary and above, flat, in the species' colour", function()
-		for _, tier in ipairs({ "Common", "Uncommon", "Rare", "Epic" }) do
-			expect(EffectsMath.GroundRingFor("Gaiabloom", tier) == nil).toEqual(true)
+describe("the spawn moment and the flourish", function()
+	it("plays for Cosmic and Secret only, reaches the sky, and wears the accent", function()
+		for _, tier in ipairs({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }) do
+			expect(#EffectsMath.MomentFor("Radish", tier)).toEqual(0)
 		end
-		for _, tier in ipairs({ "Legendary", "Cosmic" }) do
-			local ring = EffectsMath.GroundRingFor("Gaiabloom", tier)
-			expect(ring ~= nil).toEqual(true)
-			expect((ring :: any).flat).toEqual(true)
-			expect((ring :: any).color).toEqual(Effects.Species.Gaiabloom.layers[1].color)
+		local moment = EffectsMath.MomentFor("Radish", "Cosmic")
+		expect(#moment).toEqual(#Effects.SpawnMoment)
+		expect(has(moment, "Pillar")).toEqual(true)
+		for _, layer in ipairs(moment) do
+			expect(layer.color).toEqual(Effects.Species.Radish.accent)
 		end
-		local secret = EffectsMath.GroundRingFor("Panpipe", "Secret")
-		expect((secret :: any).color).toEqual(EffectsMath.Mix(Effects.Species.Panpipe.layers[1].color, Effects.Dark.Color, Effects.Dark.Mix))
-		expect(EffectsMath.GroundRingFor("Gaiabloom", "Mythic") == nil).toEqual(true)
+		local secret = EffectsMath.MomentFor("Panpipe", "Secret")
+		expect(secret[1].color ~= Effects.Species.Panpipe.accent).toEqual(true)
+		expect(#EffectsMath.MomentFor("Nobody", "Cosmic")).toEqual(0)
+		local pillar = moment[1]
+		expect(pillar.kind).toEqual("Pillar")
+		expect((pillar.reach :: number) >= 40).toEqual(true) -- 40 heights of a 2-stud alien is 80 studs: seen across the area
+	end)
+
+	it("uses a row's flourishEvery, else the default", function()
+		expect(EffectsMath.FlourishEvery("Radish")).toEqual(Effects.Species.Radish.flourishEvery)
+		expect(EffectsMath.FlourishEvery("Mossbop")).toEqual(Effects.Look.FlourishEvery)
+		expect(EffectsMath.FlourishEvery("Nobody")).toEqual(Effects.Look.FlourishEvery)
+	end)
+
+	it("slides the first flourish by the alien's phase, within a period", function()
+		local every = 10
+		local first = Effects.Look.FlourishFirst
+		expect(EffectsMath.FirstFlourish(100, every, 0)).toBeClose(100 + every * first, 1e-9)
+		local late = EffectsMath.FirstFlourish(100, every, math.pi * 2 - 1e-6)
+		expect(late <= 100 + every + 1e-9 and late > 100 + every * first).toEqual(true)
+	end)
+
+	it("stands its own timer down after a flourish from outside, for ExternalHold periods", function()
+		local every = 10
+		expect(EffectsMath.FlourishDue(50, 40, -math.huge, every)).toEqual(true)
+		expect(EffectsMath.FlourishDue(39, 40, -math.huge, every)).toEqual(false)
+		expect(EffectsMath.FlourishDue(50, 40, 45, every)).toEqual(false)
+		expect(EffectsMath.FlourishDue(50, 40, 50 - every * Effects.Look.ExternalHold, every)).toEqual(true)
+	end)
+
+	it("fades a one-off in and out, and flares a light only during the flourish", function()
+		expect(EffectsMath.Envelope(0, 0.2, 0.5)).toEqual(0)
+		expect(EffectsMath.Envelope(0.1, 0.2, 0.5)).toBeClose(0.5, 1e-9)
+		expect(EffectsMath.Envelope(0.4, 0.2, 0.5)).toEqual(1)
+		expect(EffectsMath.Envelope(0.75, 0.2, 0.5)).toBeClose(0.5, 1e-9)
+		expect(EffectsMath.Envelope(1, 0.2, 0.5)).toEqual(0)
+		expect(EffectsMath.Flare(-1)).toEqual(1)
+		expect(EffectsMath.Flare(Effects.Look.FlareSeconds)).toEqual(1)
+		expect(EffectsMath.Flare(Effects.Look.FlareSeconds / 2)).toBeClose(Effects.Look.FlareBoost, 1e-9)
+	end)
+
+	it("fires a timed firing once per `every`", function()
+		local every, offset = 3, 1.2
+		local previous = EffectsMath.Beat(0, every, offset)
+		local fired = 0
+		for tick = 1, 3000 do
+			local beat = EffectsMath.Beat(tick / 100, every, offset)
+			if beat ~= previous then
+				fired += 1
+				previous = beat
+			end
+		end
+		expect(fired).toEqual(10) -- thirty seconds at one every three
 	end)
 end)
 
 describe("the caps", function()
-	it("keeps the phone cap under the desktop cap, with positive budgets", function()
-		expect(Effects.Caps.MobileRateCap <= Effects.Caps.DesktopRateCap).toEqual(true)
-		expect(Effects.Caps.MobileRateCap).toEqual(100)
-		expect(Effects.Caps.DesktopRateCap).toEqual(400)
-		expect(Effects.Caps.MaxBeams).toEqual(4)
-		expect(Effects.Caps.MaxLights).toEqual(1)
-		expect(Effects.Caps.MaxActive).toEqual(12)
-		expect(Effects.Caps.MaxSoundsPerSecond).toEqual(2)
+	it("keeps the phone budgets under the desktop ones, with positive values", function()
+		local caps = Effects.Caps
+		expect(caps.MobileRateCap <= caps.DesktopRateCap).toEqual(true)
+		expect(caps.MobileAlienParticles <= caps.DesktopAlienParticles).toEqual(true)
+		expect(caps.MobileBurstMax <= caps.DesktopBurstMax).toEqual(true)
+		expect(caps.MaxActiveMobile <= caps.MaxActive).toEqual(true)
+		expect(caps.NearDistance < caps.ActiveDistance and caps.ActiveDistance < caps.MomentDistance).toEqual(true)
+		expect(caps.MobileRateCap).toEqual(100)
+		expect(caps.MaxBeams).toEqual(4)
+		expect(caps.MaxLights).toEqual(1)
+		expect(caps.MaxPillars).toEqual(1)
+		expect(caps.MaxActive).toEqual(12)
+		expect(caps.MaxSoundsPerSecond).toEqual(2)
 		expect(EffectsMath.RateCap(true)).toEqual(100)
 		expect(EffectsMath.RateCap(false)).toEqual(400)
 	end)
 
-	it("holds every resolved rate under the device cap, for every species, tier and device", function()
+	it("holds every resolved rate and firing under the device caps, for every species, tier and device", function()
 		for _, def in ipairs(Species.List) do
 			for _, tier in ipairs(Tiers.Order) do
-				local layers = EffectsMath.LayersFor(def.id, tier)
-				local ring = EffectsMath.GroundRingFor(def.id, tier)
-				if ring then
-					table.insert(layers, ring)
-				end
-				for _, layer in ipairs(layers) do
+				for _, layer in ipairs(EffectsMath.LayersFor(def.id, tier)) do
 					for _, mobile in ipairs({ true, false }) do
 						local resolved = EffectsMath.Resolve(layer, tier, mobile, 1)
 						if resolved.rate ~= nil then
 							expect(resolved.rate <= EffectsMath.RateCap(mobile)).toEqual(true)
 							expect(resolved.rate > 0).toEqual(true)
+						end
+						if FIRED[resolved.kind] then
+							local n = resolved.count :: number
+							expect(n >= 1 and n <= EffectsMath.BurstCap(tier, mobile)).toEqual(true)
 						end
 					end
 				end
@@ -309,15 +491,53 @@ describe("the caps", function()
 		end
 	end)
 
-	it("clamps a rate that would pass the cap, and leaves the data row alone", function()
-		local layer = { kind = "Emitter", color = "FFFFFF", at = "Top", rate = 300, size = 0.1, lifetime = 1, speed = 0.1, spread = 10 } :: any
+	it("keeps every species at its own tier under the per-alien budget on a phone, after the fit", function()
+		for _, def in ipairs(Species.List) do
+			for _, mobile in ipairs({ true, false }) do
+				local resolved = {}
+				for _, layer in ipairs(EffectsMath.LayersFor(def.id, def.tier)) do
+					table.insert(resolved, EffectsMath.Resolve(layer, def.tier, mobile, 1))
+				end
+				EffectsMath.FitBudget(resolved, mobile)
+				expect(EffectsMath.LiveParticles(resolved) <= EffectsMath.AlienBudget(mobile) + 1).toEqual(true)
+			end
+		end
+	end)
+
+	it("scales an over-budget set down by one factor, a count never below one", function()
+		local layers = {
+			{ kind = "Emitter", color = "FFFFFF", at = "Top", rate = 100, size = 0.1, lifetime = 2 },
+			{ kind = "Burst", color = "FFFFFF", at = "Top", count = 40, every = 2, size = 0.1, lifetime = 1 },
+			{ kind = "Sparkle", color = "FFFFFF", at = "Top", count = 1, every = 2, size = 0.1, lifetime = 1 },
+		} :: any
+		expect(EffectsMath.LiveParticles(layers)).toEqual(240)
+		local factor = EffectsMath.FitBudget(layers, true)
+		expect(factor).toBeClose(Effects.Caps.MobileAlienParticles / 240, 1e-9)
+		expect(layers[1].rate).toBeClose(100 * factor, 1e-9)
+		expect(layers[2].count).toEqual(math.floor(40 * factor))
+		expect(layers[3].count).toEqual(1)
+		expect(EffectsMath.FitBudget({ { kind = "Emitter", color = "FFFFFF", at = "Top", rate = 1, lifetime = 1 } } :: any, true)).toEqual(1)
+	end)
+
+	it("throws fewer at a distance, never none", function()
+		expect(EffectsMath.FarCount(20, true)).toEqual(20)
+		expect(EffectsMath.FarCount(20, false)).toEqual(math.max(1, math.floor(20 * Effects.Caps.FarRateScale + 0.5)))
+		expect(EffectsMath.FarCount(1, false)).toEqual(1)
+	end)
+
+	it("clamps a rate or a burst that would pass the cap, and leaves the data row alone", function()
+		local layer = { kind = "Emitter", color = "FFFFFF", at = "Top", rate = 360, size = 0.1, lifetime = 1, speed = 0.1, spread = 10 } :: any
 		expect(EffectsMath.Resolve(layer, "Cosmic", true, 1).rate).toEqual(100)
 		expect(EffectsMath.Resolve(layer, "Cosmic", false, 1).rate).toEqual(400)
-		expect(layer.rate).toEqual(300)
+		expect(layer.rate).toEqual(360)
+		local burst = { kind = "Burst", color = "FFFFFF", at = "Top", count = 99, every = 2, size = 0.1, lifetime = 1 } :: any
+		expect(EffectsMath.Resolve(burst, "Common", false, 1).count).toEqual(Effects.Tiers.Common.burstMax)
+		expect(EffectsMath.Resolve(burst, "Cosmic", true, 1).count).toEqual(Effects.Caps.MobileBurstMax)
+		expect(burst.count).toEqual(99)
 	end)
 
 	it("scales rate, size and light by the tier", function()
-		local mote = Effects.Species.Mossbop.layers[1]
+		local mote = Effects.Species.Snailbyte.layers[2]
 		local common = EffectsMath.Resolve(mote, "Common", false, 1)
 		local cosmic = EffectsMath.Resolve(mote, "Cosmic", false, 1)
 		expect(common.rate).toBeClose((mote.rate :: number) * Effects.Tiers.Common.rateScale, 1e-9)
@@ -325,11 +545,15 @@ describe("the caps", function()
 		expect((cosmic.rate :: number) > (common.rate :: number)).toEqual(true)
 		expect((cosmic.size :: number) > (common.size :: number)).toEqual(true)
 		expect(EffectsMath.Resolve(mote, "Common", false, 2).size).toBeClose((mote.size :: number) * Effects.Tiers.Common.sizeScale * 2, 1e-9)
-		local lantern = Effects.Species.Lanternewt.layers[1]
-		local dim = EffectsMath.Resolve(lantern, "Common", false, 1)
-		local bright = EffectsMath.Resolve(lantern, "Secret", false, 1)
+		local lamp = Effects.Species.Sparkfox.layers[2]
+		expect(lamp.kind).toEqual("Light")
+		local dim = EffectsMath.Resolve(lamp, "Rare", false, 1)
+		local bright = EffectsMath.Resolve(lamp, "Secret", false, 1)
 		expect((bright.brightness :: number) > (dim.brightness :: number)).toEqual(true)
-		expect(dim.brightness).toBeClose((lantern.brightness :: number) * Effects.Tiers.Common.lightScale, 1e-9)
+		expect(dim.brightness).toBeClose((lamp.brightness :: number) * Effects.Tiers.Rare.lightScale, 1e-9)
+		local pillar = Effects.Species.Radish.layers[5]
+		expect(pillar.kind).toEqual("Pillar")
+		expect(EffectsMath.Resolve(pillar, "Cosmic", false, 1).width).toBeClose((pillar.width :: number) * Effects.Tiers.Cosmic.sizeScale, 1e-9)
 	end)
 
 	it("picks the nearest MaxActive and no farther than the distance limit", function()
@@ -364,6 +588,43 @@ describe("the caps", function()
 			end
 		end
 		expect(kept).toEqual(Effects.Caps.MaxActive)
+	end)
+end)
+
+describe("sprites", function()
+	it("falls back from a pixel sprite that is not uploaded to an uploaded one, and never to a sheet", function()
+		for key, fallback in pairs(Effects.SpriteFallback) do
+			expect(Icons.Particles[key] ~= nil).toEqual(true)
+			expect(Icons.Particles[fallback] ~= nil).toEqual(true)
+		end
+		for key, sheet in pairs(Effects.Sheets) do
+			expect(Icons.Particles[key] ~= nil).toEqual(true)
+			expect(Effects.SpriteFallback[key] ~= nil).toEqual(true)
+			expect(sheet.fps > 0).toEqual(true)
+		end
+		local id, sheet = EffectsMath.SpriteFor("PixelFlake")
+		if Icons.Particles.PixelFlake == 0 then
+			expect(id).toEqual(Icons.Particles.Flake) -- the uploaded soft flake until the pixel one is up
+			expect(sheet == nil).toEqual(true)
+		end
+		local none = EffectsMath.SpriteFor(nil)
+		expect(none == nil).toEqual(true)
+		local twinkleId, twinkleSheet = EffectsMath.SpriteFor("PixelTwinkle")
+		if Icons.Particles.PixelTwinkle == 0 then
+			expect(twinkleSheet == nil).toEqual(true)
+			local fallback = Icons.Particles[Effects.SpriteFallback.PixelTwinkle]
+			expect(twinkleId).toEqual(if fallback ~= 0 then fallback else nil)
+		end
+	end)
+
+	it("dresses every species in the block-cell sprites", function()
+		for _, fx in pairs(Effects.Species) do
+			for _, layer in ipairs(fx.layers) do
+				if layer.sprite ~= nil then
+					expect(string.sub(layer.sprite, 1, 5)).toEqual("Pixel")
+				end
+			end
+		end
 	end)
 end)
 

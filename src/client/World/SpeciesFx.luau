@@ -2,25 +2,38 @@
 -- StarterPlayerScripts.Client.World.SpeciesFx: the per-species effects and idle motion (data/Effects), drawn on the client
 -- under the thing that is the alien: a mesh clone (a Model) or a placeholder part. Pure presentation: callers already know
 -- the species and tier from the server's record. The tier aura (WildRenderer's light and glow) stays the base layer; this
--- module adds the species layers the tier allows (Shared/EffectsMath.LayersFor), scaled by the tier's rate, size and light
--- scales, and held under the device's emitter-rate cap (UserInputService.TouchEnabled is a phone).
+-- module adds the species layers the tier allows (Shared/EffectsMath.LayersFor: B46's steep ladder, from one subtle touch on a
+-- Common to eight layers, a pillar of light and a spawn moment on a Cosmic), scaled by the tier's rate, size and light scales,
+-- held under the device's emitter-rate, burst and per-alien budgets (UserInputService.TouchEnabled is a phone).
 -- Attach(target, speciesId, tier, opts) registers an alien and returns its cleanup. Nothing is built until the alien is among
--- the nearest Effects.Caps.MaxActive on screen (re-ranked every Config.VfxFxRecheckSeconds by distance to the camera, and
--- within Effects.Caps.ActiveDistance): the farther ones keep only the aura, and an alien that falls out of the ranking has its
--- layers switched off, not destroyed. Hidden or silhouetted aliens call SetShown(target, false).
+-- the nearest Effects.Caps.MaxActive (MaxActiveMobile on a phone) on screen (re-ranked every Config.VfxFxRecheckSeconds by
+-- distance to the camera, within Effects.Caps.ActiveDistance): the farther ones keep only the aura, and an alien that falls out
+-- of the ranking has its layers switched off, not destroyed. Past Caps.NearDistance an active alien's rates and bursts drop to
+-- Caps.FarRateScale and its sparkles stop. Hidden or silhouetted aliens call SetShown(target, false).
 -- Layers hang on named body regions (Effects.Attach, fractions of the alien's measured bounds): a Model gets one invisible
 -- anchor part ("FxAnchor") at its pivot and every Attachment lives on it, so PivotTo carries them all; a part hosts its own.
--- Beams (lightning) strike every `flicker` seconds and redraw their bend a few times per strike; orbit motes circle on
--- attachments that move every frame; lights may pulse. All of that is one RenderStepped connection over the active aliens,
--- connected while any alien is attached. Every motion is an absolute function of os.clock() (EffectsMath), never accumulated.
+-- Kinds: an Emitter flows; a Burst, Sparkle or RingPulse fires `count` particles on its own clock (`every`, slid per alien so a
+-- crowd is out of step) and/or on the flourish; an Aura holds large glow sprites on the body; a Beam (lightning) strikes every
+-- `flicker` seconds and redraws its bend a few times per strike; a Trail is a ribbon; Orbit motes circle on attachments that
+-- move every frame; a Light may pulse, and flares on the flourish; a Pillar is a column of light straight up, shown only on the
+-- flourish. All of that is one RenderStepped connection over the active aliens, connected while any alien is attached. Every
+-- motion is an absolute function of os.clock() (EffectsMath), never accumulated.
+-- Flourish: a tier with `flourish` (Legendary and up) runs its own timer per alien (EffectsMath.FlourishEvery, the first one
+-- slid by the alien's phase). Another client module (the rig animator) may call Flourish(target) on its own timer instead: the
+-- alien's own timer then stands down for Look.ExternalHold periods, so the two never double up. OnFlourish(callback) hears
+-- every flourish that plays, from either side, so an animation can ride the effect.
+-- Spawn moment: a wild arrival of a tier with `spawnMoment` (Cosmic and Secret; WildRenderer passes opts.arrival, the server's
+-- spawn part) plays Effects.SpawnMoment once per arrival (a pillar into the sky, rings rolling out, a star burst), seen from
+-- Caps.MomentDistance whether or not the alien is among the nearest, at most Caps.MaxMoments at once.
 -- Idle motion cannot be a tween on the target's pivot: the renderers write the pivot absolutely every frame (a bob), and an
 -- offset added to it would be lost on a frame they run first and double on a frame they skip (a culled alien). So the renderer
 -- composes it: it calls Place(target, pivot) where it used to PivotTo or set CFrame, and Place writes pivot * the idle offset
 -- (a Model also swings its named wing parts about hinges, from the same pivot). An alien that is not attached is placed
 -- exactly as before. A renderer that does not call Place for an alien (culled, hidden) gets no motion and no drift.
--- Reduced Motion (Prefs): idle motion holds, and every emitter, beam, trail and orbit drops out for one still glow (the
--- species' own light held steady, or Effects.Reduced). Breathe rocks the alien about its feet instead of scaling it: a ScaleTo
--- every frame would also rescale every attachment, emitter and beam parented under the model and pile up float error.
+-- Reduced Motion (Prefs; the game's low-effects switch): idle motion holds, and every emitter, burst, sparkle, ring, beam,
+-- trail, orbit, aura, pillar, flourish and spawn moment drops out for one still glow (the species' own light held steady, or
+-- Effects.Reduced). Breathe rocks the alien about its feet instead of scaling it: a ScaleTo every frame would also rescale
+-- every attachment, emitter and beam parented under the model and pile up float error.
 -- Sound: a species row with a `sound` (a key of data/Sounds) plays it as a 3D one-shot at the alien (Builder.playSoundAt, through
 -- the UI sound group, so the player's Sounds level applies) while the alien is active and not under Reduced Motion's still glow,
 -- on its signature beat: the strike of its first beam, else the start of its idle cycle (EffectsMath.SoundClock and SoundBeat).
@@ -39,7 +52,6 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Effects = require(Shared:WaitForChild("data"):WaitForChild("Effects"))
-local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local EffectsMath = require(Shared:WaitForChild("EffectsMath"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -50,18 +62,25 @@ local SpeciesFx = {}
 local ANCHOR_NAME = "FxAnchor"
 local LIGHT_RANGE_LIMIT = 60 -- the engine's ceiling for PointLight.Range
 local UPRIGHT_Y = 0.9 -- a part whose up vector is at least this vertical is upright; a rolled cylinder is not
+local WHITE = "FFFFFF"
 
 export type Options = {
 	scale: number?, -- the alien's size against a 1.0-scale one: it multiplies the idle amplitude (studs); the layers read the real bounds
 	sizeScale: number?, -- an extra factor on particle, beam and light sizes
 	keepFacing: boolean?, -- the renderer owns the facing (camp, companions): a Spin species does not turn
+	arrival: Instance?, -- a wild arrival (the server's spawn part): its spawn moment plays once per arrival, at a tier that has one
 }
 
 type Bounds = { minX: number, minY: number, minZ: number, sizeX: number, sizeY: number, sizeZ: number }
 type FlapPart = { part: BasePart, rest: CFrame, hinge: Vector3, side: number, scale0: number } -- rest and hinge are in the pivot's space at the model's scale `scale0`
 type BeamRig = { beam: Beam, flicker: number, length: number, offset: number, step: number }
 type OrbitRig = { motes: { Attachment }, centre: Vector3, radius: number, period: number }
-type LightRig = { light: PointLight, base: number, pulse: number }
+type LightRig = { light: PointLight, base: number, pulse: number, flareAt: number }
+type FlowRig = { emitter: ParticleEmitter, rate: number } -- an emitter that flows at a rate (Emitter, Orbit mote, Aura)
+-- An emitter that fires: `count` at once on its clock (`every`, nil for the flourish only) and/or on the flourish.
+type FiredRig = { emitter: ParticleEmitter, kind: Types.EffectKind, count: number, every: number?, offset: number, beat: number?, flourish: boolean }
+type PillarRig = { outer: Beam, core: Beam, width: number, life: number, born: number } -- born is -math.huge while dark
+type MomentRig = { made: { Instance }, pillars: { PillarRig }, endsAt: number }
 
 type Handle = {
 	target: Instance,
@@ -80,17 +99,27 @@ type Handle = {
 	shown: boolean,
 	wanted: boolean, -- the ranking's verdict during a recheck
 	active: boolean, -- among the nearest, so its layers are on
+	near: boolean, -- within Caps.NearDistance at the last ranking
+	distance: number, -- studs to the camera at the last ranking
 	built: boolean,
 	dead: boolean,
 	bounds: Bounds?,
 	host: BasePart?,
 	anchor: Part?,
 	made: { Instance }, -- everything built on the host, for teardown
-	emitters: { ParticleEmitter },
+	flowing: { FlowRig },
+	fired: { FiredRig },
 	trails: { Trail },
 	lights: { LightRig },
 	beams: { BeamRig },
 	orbits: { OrbitRig },
+	pillars: { PillarRig },
+	flourishes: boolean, -- the tier runs its own flourish timer
+	flourishEvery: number,
+	nextFlourish: number?, -- os.clock() of its own next flourish; nil until the alien is up
+	externalAt: number, -- os.clock() of the last Flourish from outside
+	momentUntil: number, -- os.clock() past which a pending spawn moment is dropped
+	moment: MomentRig?,
 	soundId: string?, -- the species' sound as an asset id; nil when it has none or the id is still a placeholder
 	soundPeriod: number, -- the beat the sound rides (EffectsMath.SoundClock), set at each build
 	soundOffset: number,
@@ -106,12 +135,17 @@ local prefsConn: RBXScriptConnection? = nil
 local lastRecheck = -math.huge
 local rng = Random.new()
 local mobile = UserInputService.TouchEnabled
+local maxActive = if mobile then Effects.Caps.MaxActiveMobile else Effects.Caps.MaxActive
+local flourished = Instance.new("BindableEvent")
 -- Recheck buffers, cleared and refilled rather than rebuilt.
 local eligible: { Handle } = {}
 local distances: { number } = {}
 local picked: { [number]: boolean } = {}
 local actives: { Handle } = {}
 local recentSounds: { number } = {} -- when sounds started in the last second, across all aliens (EffectsMath.TakeSoundSlot)
+local pendingMoments: { Handle } = {} -- arrivals waiting to play their spawn moment
+local moments: { MomentRig } = {} -- spawn moments now playing
+local momentSeen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- arrivals whose moment has been taken
 
 local function noop() end
 
@@ -228,13 +262,17 @@ local function regionPoint(handle: Handle, region: string): Vector3
 	return Vector3.new(x, y - Effects.Look.AnchorStuds / 2, z)
 end
 
-local function attachment(handle: Handle, host: BasePart, region: string): Attachment
-	local made = Instance.new("Attachment")
-	made.Name = "Fx" .. region
-	made.Position = regionPoint(handle, region)
-	made.Parent = host
-	table.insert(handle.made, made)
-	return made
+local function attachmentAt(host: BasePart, name: string, position: Vector3, made: { Instance }): Attachment
+	local point = Instance.new("Attachment")
+	point.Name = name
+	point.Position = position
+	point.Parent = host
+	table.insert(made, point)
+	return point
+end
+
+local function attachment(handle: Handle, host: BasePart, region: string, made: { Instance }): Attachment
+	return attachmentAt(host, "Fx" .. region, regionPoint(handle, region), made)
 end
 
 -- Layers -----------------------------------------------------------------------
@@ -250,52 +288,139 @@ local function keypoints(...: NumberSequenceKeypoint): NumberSequence
 	return NumberSequence.new({ ... })
 end
 
--- A particle emitter for a resolved layer (still in heights) on `parent`, off until the alien is active.
-local function newEmitter(handle: Handle, parent: Instance, layer: Types.EffectLayer, height: number): ParticleEmitter
+-- The sprite a layer's key draws (EffectsMath.SpriteFor: the key, its fallback, or the soft default), with its flipbook.
+local function dressSprite(emitter: ParticleEmitter, key: string?)
+	local id, sheet = EffectsMath.SpriteFor(key)
+	if id == nil then
+		return
+	end
+	emitter.Texture = "rbxassetid://" .. id
+	if sheet then
+		local layout = (Enum.ParticleFlipbookLayout :: any)[sheet.layout]
+		local mode = (Enum.ParticleFlipbookMode :: any)[sheet.mode]
+		if layout and mode then
+			emitter.FlipbookLayout = layout
+			emitter.FlipbookMode = mode
+			emitter.FlipbookFramerate = NumberRange.new(sheet.fps)
+		end
+	end
+end
+
+-- A particle emitter for a resolved layer (still in heights) on `parent`, off: an Emitter, an Orbit mote or an Aura flows at
+-- its rate once switched on; a Burst, Sparkle or RingPulse has no rate and only ever Emits.
+local function makeEmitter(parent: Instance, layer: Types.EffectLayer, height: number): ParticleEmitter
 	local look = Effects.Look
+	local kind = layer.kind
 	local emitter = Instance.new("ParticleEmitter")
 	emitter.Enabled = false
-	emitter.Rate = layer.rate or 0
+	emitter.Rate = if kind == "Burst" or kind == "Sparkle" or kind == "RingPulse" then 0 else layer.rate or 0
 	emitter.Color = ColorSequence.new(Theme.Hex(layer.color))
 	emitter.LightEmission = layer.glow or look.DefaultGlow
 	local size = (layer.size or 0) * height
-	if layer.flat then
-		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, size * look.RingFrom), NumberSequenceKeypoint.new(1, size))
-		emitter.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
-	else
-		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, size), NumberSequenceKeypoint.new(1, size * look.EndSize))
-	end
-	emitter.Transparency = keypoints(
+	local fade = keypoints(
 		NumberSequenceKeypoint.new(0, 1),
 		NumberSequenceKeypoint.new(look.FadeIn, look.PeakTransparency),
 		NumberSequenceKeypoint.new(look.FadeOut, look.PeakTransparency),
 		NumberSequenceKeypoint.new(1, 1)
 	)
-	local lifetime = layer.lifetime or 1
-	emitter.Lifetime = NumberRange.new(lifetime)
 	local speed = (layer.speed or 0) * height
-	emitter.Speed = NumberRange.new(speed * look.SpeedSpread, speed)
 	local spread = layer.spread or 0
+	if kind == "RingPulse" or layer.flat then
+		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, size * look.RingFrom), NumberSequenceKeypoint.new(1, size))
+		emitter.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+		speed = math.max(speed, look.RingDrift * height)
+		if kind == "RingPulse" then
+			spread = 0
+		end
+	elseif kind == "Sparkle" then
+		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(look.SparklePeak, size), NumberSequenceKeypoint.new(1, 0))
+		emitter.LockedToPart = true
+		speed = 0
+	elseif kind == "Aura" then
+		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, size * look.AuraFrom), NumberSequenceKeypoint.new(1, size))
+		emitter.LockedToPart = true
+		speed = 0
+		spread = 0
+		fade = keypoints(
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(look.FadeIn, look.AuraTransparency),
+			NumberSequenceKeypoint.new(look.FadeOut, look.AuraTransparency),
+			NumberSequenceKeypoint.new(1, 1)
+		)
+	else
+		emitter.Size = keypoints(NumberSequenceKeypoint.new(0, size), NumberSequenceKeypoint.new(1, size * look.EndSize))
+	end
+	emitter.Transparency = fade
+	emitter.Lifetime = NumberRange.new(layer.lifetime or 1)
+	emitter.Speed = NumberRange.new(speed * look.SpeedSpread, speed)
 	emitter.SpreadAngle = Vector2.new(spread, spread)
 	emitter.Acceleration = Vector3.new(0, (layer.rise or 0) * height, 0)
 	emitter.EmissionDirection = EMISSION[layer.dir or "Up"] or Enum.NormalId.Top
-	local sprite = if layer.sprite ~= nil then Icons.Particles[layer.sprite] else nil
-	if sprite ~= nil and sprite ~= 0 then
-		emitter.Texture = "rbxassetid://" .. sprite
+	local spin = layer.spin or (if kind == "Sparkle" then look.SparkleSpin else nil)
+	if spin ~= nil then
+		emitter.Rotation = NumberRange.new(0, 360)
+		emitter.RotSpeed = NumberRange.new(spin)
 	end
+	dressSprite(emitter, layer.sprite)
 	emitter.Parent = parent
-	table.insert(handle.emitters, emitter)
 	return emitter
 end
 
-local function buildEmitter(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number)
-	newEmitter(handle, attachment(handle, host, layer.at), layer, height)
+local function buildFlowing(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number)
+	local emitter = makeEmitter(attachment(handle, host, layer.at, handle.made), layer, height)
+	table.insert(handle.made, emitter)
+	table.insert(handle.flowing, { emitter = emitter, rate = emitter.Rate })
+end
+
+local function buildFired(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number)
+	local emitter = makeEmitter(attachment(handle, host, layer.at, handle.made), layer, height)
+	table.insert(handle.made, emitter)
+	local every = layer.every
+	table.insert(handle.fired, {
+		emitter = emitter,
+		kind = layer.kind,
+		count = layer.count or 1,
+		every = every,
+		offset = if every then rng:NextNumber(0, every) else 0,
+		beat = nil,
+		flourish = layer.flourish == true,
+	})
+end
+
+-- A column of light from a region straight up `reach` heights: an outer beam in the layer's colour and a core beam nearer
+-- white, both dark until a flourish (or a spawn moment) lights them.
+local function buildPillar(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number, made: { Instance }): PillarRig
+	local look = Effects.Look
+	local from = attachment(handle, host, layer.at, made)
+	local up = host.CFrame:VectorToObjectSpace(Vector3.yAxis) * (layer.reach or 0) * height
+	local to = attachmentAt(host, "FxSky", from.Position + up, made)
+	local width = (layer.width or 0) * height
+	local function beam(color: string, across: number): Beam
+		local made1 = Instance.new("Beam")
+		made1.Attachment0 = from
+		made1.Attachment1 = to
+		made1.Color = ColorSequence.new(Theme.Hex(color))
+		made1.LightEmission = 1
+		made1.LightInfluence = 0
+		made1.FaceCamera = true
+		made1.Segments = 1
+		made1.Width0 = across
+		made1.Width1 = across
+		made1.Transparency = NumberSequence.new(1)
+		made1.Enabled = false
+		made1.Parent = host
+		table.insert(made, made1)
+		return made1
+	end
+	local outer = beam(layer.color, width)
+	local core = beam(EffectsMath.Mix(layer.color, WHITE, look.CoreMix), width * look.CoreWidth)
+	return { outer = outer, core = core, width = width, life = layer.lifetime or 1, born = -math.huge }
 end
 
 local function buildBeam(handle: Handle, host: BasePart, layer: Types.EffectLayer, height: number)
 	local look = Effects.Look
-	local from = attachment(handle, host, layer.at)
-	local to = attachment(handle, host, layer.to or layer.at)
+	local from = attachment(handle, host, layer.at, handle.made)
+	local to = attachment(handle, host, layer.to or layer.at, handle.made)
 	local length = (to.Position - from.Position).Magnitude
 	if length <= 0 then
 		return -- both ends on one spot: nothing to strike between
@@ -326,15 +451,15 @@ local function buildLight(handle: Handle, host: BasePart, layer: Types.EffectLay
 	light.Range = math.min((layer.range or 0) * height, LIGHT_RANGE_LIMIT)
 	light.Shadows = false
 	light.Enabled = false
-	light.Parent = attachment(handle, host, layer.at)
-	table.insert(handle.lights, { light = light, base = light.Brightness, pulse = if steady then 0 else layer.pulse or 0 })
+	light.Parent = attachment(handle, host, layer.at, handle.made)
+	table.insert(handle.lights, { light = light, base = light.Brightness, pulse = if steady then 0 else layer.pulse or 0, flareAt = -math.huge })
 end
 
 local function buildTrail(handle: Handle, host: BasePart, layer: Types.EffectLayer)
 	local look = Effects.Look
 	local trail = Instance.new("Trail")
-	trail.Attachment0 = attachment(handle, host, layer.at)
-	trail.Attachment1 = attachment(handle, host, layer.to or "Feet")
+	trail.Attachment0 = attachment(handle, host, layer.at, handle.made)
+	trail.Attachment1 = attachment(handle, host, layer.to or "Feet", handle.made)
 	trail.Color = ColorSequence.new(Theme.Hex(layer.color))
 	trail.LightEmission = layer.glow or look.DefaultGlow
 	trail.Lifetime = layer.lifetime or 1
@@ -353,13 +478,11 @@ local function buildOrbit(handle: Handle, host: BasePart, layer: Types.EffectLay
 	local motes: { Attachment } = {}
 	local centre = regionPoint(handle, layer.at)
 	for _ = 1, math.max(layer.count or 1, 1) do
-		local mote = Instance.new("Attachment")
-		mote.Name = "FxMote"
-		mote.Position = centre
-		mote.Parent = host
-		table.insert(handle.made, mote)
+		local mote = attachmentAt(host, "FxMote", centre, handle.made)
 		table.insert(motes, mote)
-		newEmitter(handle, mote, layer, height)
+		local emitter = makeEmitter(mote, layer, height)
+		table.insert(handle.made, emitter)
+		table.insert(handle.flowing, { emitter = emitter, rate = emitter.Rate })
 	end
 	table.insert(handle.orbits, { motes = motes, centre = centre, radius = (layer.radius or 0) * height, period = layer.period or 1 })
 end
@@ -369,15 +492,17 @@ local function teardown(handle: Handle)
 		made:Destroy()
 	end
 	table.clear(handle.made)
-	table.clear(handle.emitters)
+	table.clear(handle.flowing)
+	table.clear(handle.fired)
 	table.clear(handle.trails)
 	table.clear(handle.lights)
 	table.clear(handle.beams)
 	table.clear(handle.orbits)
+	table.clear(handle.pillars)
 	handle.built = false
 end
 
--- Builds the layers the tier allows (the still glow only, under Reduced Motion), all off.
+-- Builds the layers the tier allows (the still glow only, under Reduced Motion), all off, held under the per-alien budget.
 local function build(handle: Handle)
 	handle.built = true
 	handle.still = Prefs.ReducedMotion()
@@ -400,24 +525,27 @@ local function build(handle: Handle)
 		end
 		layers = glow
 	end
+	local resolved: { Types.EffectLayer } = {}
 	for _, layer in ipairs(layers) do
-		local resolved = EffectsMath.Resolve(layer, handle.tier, mobile, handle.sizeScale)
-		if resolved.kind == "Emitter" then
-			buildEmitter(handle, host, resolved, height)
-		elseif resolved.kind == "Beam" then
-			buildBeam(handle, host, resolved, height)
-		elseif resolved.kind == "Light" then
-			buildLight(handle, host, resolved, height, handle.still)
-		elseif resolved.kind == "Trail" then
-			buildTrail(handle, host, resolved)
-		elseif resolved.kind == "Orbit" then
-			buildOrbit(handle, host, resolved, height)
-		end
+		table.insert(resolved, EffectsMath.Resolve(layer, handle.tier, mobile, handle.sizeScale))
 	end
-	if not handle.still then
-		local ring = EffectsMath.GroundRingFor(handle.speciesId, handle.tier)
-		if ring then
-			buildEmitter(handle, host, EffectsMath.Resolve(ring, handle.tier, mobile, handle.sizeScale), height)
+	EffectsMath.FitBudget(resolved, mobile)
+	for _, layer in ipairs(resolved) do
+		local kind = layer.kind
+		if kind == "Emitter" or kind == "Aura" then
+			buildFlowing(handle, host, layer, height)
+		elseif kind == "Burst" or kind == "Sparkle" or kind == "RingPulse" then
+			buildFired(handle, host, layer, height)
+		elseif kind == "Beam" then
+			buildBeam(handle, host, layer, height)
+		elseif kind == "Light" then
+			buildLight(handle, host, layer, height, handle.still)
+		elseif kind == "Trail" then
+			buildTrail(handle, host, layer)
+		elseif kind == "Orbit" then
+			buildOrbit(handle, host, layer, height)
+		elseif kind == "Pillar" then
+			table.insert(handle.pillars, buildPillar(handle, host, layer, height, handle.made))
 		end
 	end
 	local firstBeam = handle.beams[1]
@@ -430,10 +558,24 @@ local function build(handle: Handle)
 	handle.soundBeat = nil
 end
 
--- Switches a built alien's layers on or off. Beams follow their own strike clock in the frame step.
+-- The flowing rates at the alien's distance: full near the camera, Caps.FarRateScale of them beyond Caps.NearDistance.
+local function applyRates(handle: Handle)
+	local factor = if handle.near then 1 else Effects.Caps.FarRateScale
+	for _, rig in ipairs(handle.flowing) do
+		rig.emitter.Rate = rig.rate * factor
+	end
+end
+
+local function darkenPillar(rig: PillarRig)
+	rig.born = -math.huge
+	rig.outer.Enabled = false
+	rig.core.Enabled = false
+end
+
+-- Switches a built alien's layers on or off. Beams follow their own strike clock, firings their own clocks, in the frame step.
 local function setEnabled(handle: Handle, on: boolean)
-	for _, emitter in ipairs(handle.emitters) do
-		emitter.Enabled = on
+	for _, rig in ipairs(handle.flowing) do
+		rig.emitter.Enabled = on
 	end
 	for _, trail in ipairs(handle.trails) do
 		trail.Enabled = on
@@ -441,12 +583,185 @@ local function setEnabled(handle: Handle, on: boolean)
 	for _, rig in ipairs(handle.lights) do
 		rig.light.Enabled = on
 	end
-	if not on then
+	if on then
+		applyRates(handle)
+	else
 		for _, rig in ipairs(handle.beams) do
 			rig.beam.Enabled = false
 			rig.step = 0
 		end
+		for _, rig in ipairs(handle.fired) do
+			rig.beat = nil
+		end
+		for _, rig in ipairs(handle.pillars) do
+			darkenPillar(rig)
+		end
 		handle.soundBeat = nil
+		handle.nextFlourish = nil
+	end
+end
+
+-- Firing and the flourish ---------------------------------------------------------
+
+-- Throws one firing: `count` particles at once (a RingPulse's rings one after another, Look.RingStagger apart). A sparkle beyond
+-- Caps.NearDistance is too small to see and is skipped; any other firing throws Caps.FarRateScale of its count there.
+local function fire(rig: FiredRig, near: boolean)
+	if rig.kind == "Sparkle" and not near then
+		return
+	end
+	local total = EffectsMath.FarCount(rig.count, near)
+	local emitter = rig.emitter
+	if rig.kind == "RingPulse" and total > 1 then
+		emitter:Emit(1)
+		for index = 1, total - 1 do
+			task.delay(index * Effects.Look.RingStagger, function()
+				if emitter.Parent ~= nil then
+					emitter:Emit(1)
+				end
+			end)
+		end
+		return
+	end
+	emitter:Emit(total)
+end
+
+-- A column of light rises now.
+local function lightPillar(rig: PillarRig, now: number)
+	rig.born = now
+	rig.outer.Enabled = true
+	rig.core.Enabled = true
+end
+
+-- Plays a flourish on an active alien: every firing marked `flourish`, every pillar, and a flare of its lights. Answers whether
+-- anything played (an alien whose tier draws nothing for the flourish plays nothing). OnFlourish hears it.
+local function flourish(handle: Handle, now: number): boolean
+	if handle.still or not handle.active or not handle.built then
+		return false
+	end
+	local played = false
+	for _, rig in ipairs(handle.fired) do
+		if rig.flourish then
+			fire(rig, handle.near)
+			played = true
+		end
+	end
+	for _, rig in ipairs(handle.pillars) do
+		lightPillar(rig, now)
+		played = true
+	end
+	if played then
+		for _, rig in ipairs(handle.lights) do
+			rig.flareAt = now
+		end
+		flourished:Fire(handle.target, handle.speciesId)
+	end
+	return played
+end
+
+-- A pillar's look at `now`: faded in and out over its life (EffectsMath.Envelope), dark again once its life is over.
+local function stepPillar(rig: PillarRig, now: number)
+	if rig.born == -math.huge then
+		return
+	end
+	local look = Effects.Look
+	local k = (now - rig.born) / rig.life
+	if k >= 1 then
+		darkenPillar(rig)
+		return
+	end
+	local strength = EffectsMath.Envelope(k, look.PillarIn, look.PillarOut)
+	local transparency = NumberSequence.new(1 - (1 - look.PillarTransparency) * strength)
+	local across = rig.width * (0.5 + 0.5 * strength)
+	rig.outer.Transparency = transparency
+	rig.outer.Width0 = across
+	rig.outer.Width1 = across
+	rig.core.Transparency = transparency
+	rig.core.Width0 = across * look.CoreWidth
+	rig.core.Width1 = across * look.CoreWidth
+end
+
+-- The spawn moment ----------------------------------------------------------------
+
+local function endMoment(rig: MomentRig)
+	for _, made in ipairs(rig.made) do
+		made:Destroy()
+	end
+	table.clear(rig.made)
+	table.clear(rig.pillars)
+	local at = table.find(moments, rig)
+	if at then
+		table.remove(moments, at)
+	end
+end
+
+-- Plays an arrival's spawn moment now: its own one-off parts on the host, removed once the longest piece is over.
+local function playMoment(handle: Handle, now: number)
+	local host = hostOf(handle)
+	if not host then
+		return
+	end
+	local height = heightOf(handle)
+	local rig: MomentRig = { made = {}, pillars = {}, endsAt = now }
+	local longest = 0
+	for _, layer in ipairs(EffectsMath.MomentFor(handle.speciesId, handle.tier)) do
+		local resolved = EffectsMath.Resolve(layer, handle.tier, mobile, handle.sizeScale)
+		local life = resolved.lifetime or 1
+		if resolved.kind == "Pillar" then
+			local pillar = buildPillar(handle, host, resolved, height, rig.made)
+			lightPillar(pillar, now)
+			table.insert(rig.pillars, pillar)
+		else
+			local emitter = makeEmitter(attachment(handle, host, resolved.at, rig.made), resolved, height)
+			table.insert(rig.made, emitter)
+			local total = resolved.count or 1
+			fire({ emitter = emitter, kind = resolved.kind, count = total, every = nil, offset = 0, beat = nil, flourish = false }, true)
+			if resolved.kind == "RingPulse" then
+				life += (total - 1) * Effects.Look.RingStagger
+			end
+		end
+		longest = math.max(longest, life)
+	end
+	rig.endsAt = now + longest + Effects.Look.MomentSlack
+	handle.moment = rig
+	table.insert(moments, rig)
+end
+
+local function positionOf(handle: Handle): Vector3
+	local model = handle.model
+	if model then
+		return model:GetPivot().Position
+	end
+	local part = handle.part
+	return if part then part.Position else Vector3.zero
+end
+
+-- Starts the pending spawn moments that may: within Caps.MomentDistance of the camera and under Caps.MaxMoments at once. One
+-- not started by Look.MomentWindow after its arrival is dropped (the moment is the arrival; later it means nothing).
+local function stepMoments(now: number)
+	for index = #moments, 1, -1 do
+		local rig = moments[index]
+		for _, pillar in ipairs(rig.pillars) do
+			stepPillar(pillar, now)
+		end
+		if now >= rig.endsAt then
+			endMoment(rig)
+		end
+	end
+	if #pendingMoments == 0 then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	local reduced = Prefs.ReducedMotion()
+	for index = #pendingMoments, 1, -1 do
+		local handle = pendingMoments[index]
+		if handle.dead or reduced or now > handle.momentUntil then
+			table.remove(pendingMoments, index)
+		elseif #moments < Effects.Caps.MaxMoments and camera and handle.target:IsDescendantOf(Workspace) then
+			if (positionOf(handle) - camera.CFrame.Position).Magnitude <= Effects.Caps.MomentDistance then
+				table.remove(pendingMoments, index)
+				playMoment(handle, now)
+			end
+		end
 	end
 end
 
@@ -517,17 +832,9 @@ end
 
 -- Ranking and the frame step ---------------------------------------------------------
 
-local function positionOf(handle: Handle): Vector3
-	local model = handle.model
-	if model then
-		return model:GetPivot().Position
-	end
-	local part = handle.part
-	return if part then part.Position else Vector3.zero
-end
-
--- Ranks every shown alien in the world by distance to the camera: the nearest Effects.Caps.MaxActive within
--- Effects.Caps.ActiveDistance are active (built on first use, then switched on); every other alien is switched off.
+-- Ranks every shown alien in the world by distance to the camera: the nearest `maxActive` within Effects.Caps.ActiveDistance
+-- are active (built on first use, then switched on); every other alien is switched off. An active alien beyond
+-- Caps.NearDistance draws at Caps.FarRateScale.
 local function recheck(now: number)
 	lastRecheck = now
 	local camera = Workspace.CurrentCamera
@@ -536,11 +843,13 @@ local function recheck(now: number)
 	for _, handle in pairs(handles) do
 		handle.wanted = false
 		if camera and handle.shown and handle.target:IsDescendantOf(Workspace) then
+			local distance = (positionOf(handle) - camera.CFrame.Position).Magnitude
+			handle.distance = distance
 			table.insert(eligible, handle)
-			table.insert(distances, (positionOf(handle) - camera.CFrame.Position).Magnitude)
+			table.insert(distances, distance)
 		end
 	end
-	EffectsMath.PickActive(distances, Effects.Caps.MaxActive, Effects.Caps.ActiveDistance, picked)
+	EffectsMath.PickActive(distances, maxActive, Effects.Caps.ActiveDistance, picked)
 	for index, handle in ipairs(eligible) do
 		handle.wanted = picked[index] == true
 	end
@@ -553,9 +862,14 @@ local function recheck(now: number)
 			end
 			table.insert(actives, handle)
 		end
+		local near = handle.distance <= Effects.Caps.NearDistance
 		if handle.wanted ~= handle.active then
 			handle.active = handle.wanted
+			handle.near = near
 			setEnabled(handle, handle.active)
+		elseif handle.active and near ~= handle.near then
+			handle.near = near
+			applyRates(handle)
 		end
 	end
 end
@@ -584,7 +898,36 @@ local function soundStep(handle: Handle, now: number, soundOn: boolean)
 	Builder.playSoundAt(id, host, look.SoundRollOffMin, look.SoundRollOffMax, look.SoundMaxSeconds)
 end
 
--- Beams, orbit motes, pulsing lights and sounds of the active aliens.
+-- An active alien's own clocks: its timed firings (a firing waits out the beat it came up in), and its flourish timer.
+local function clockStep(handle: Handle, now: number)
+	if handle.still then
+		return
+	end
+	for _, rig in ipairs(handle.fired) do
+		local every = rig.every
+		if every then
+			local beat = EffectsMath.Beat(now, every, rig.offset)
+			local previous = rig.beat
+			rig.beat = beat
+			if previous ~= nil and beat ~= previous then
+				fire(rig, handle.near)
+			end
+		end
+	end
+	if handle.flourishes then
+		local nextAt = handle.nextFlourish
+		if nextAt == nil then
+			handle.nextFlourish = EffectsMath.FirstFlourish(now, handle.flourishEvery, handle.phase)
+		elseif now >= nextAt then
+			handle.nextFlourish = now + handle.flourishEvery
+			if EffectsMath.FlourishDue(now, nextAt, handle.externalAt, handle.flourishEvery) then
+				flourish(handle, now)
+			end
+		end
+	end
+end
+
+-- Beams, orbit motes, pulsing and flaring lights, firings, pillars, flourishes, sounds and spawn moments.
 local function step(_dt: number)
 	local now = os.clock()
 	if now - lastRecheck >= Config.VfxFxRecheckSeconds then
@@ -593,6 +936,7 @@ local function step(_dt: number)
 	local soundOn = Prefs.SoundOn()
 	for _, handle in ipairs(actives) do
 		soundStep(handle, now, soundOn)
+		clockStep(handle, now)
 		for _, rig in ipairs(handle.beams) do
 			local on, bend = EffectsMath.BeamState(now, rig.flicker, rig.offset)
 			if on ~= rig.beam.Enabled then
@@ -613,11 +957,17 @@ local function step(_dt: number)
 			end
 		end
 		for _, rig in ipairs(handle.lights) do
-			if rig.pulse > 0 then
-				rig.light.Brightness = rig.base * EffectsMath.Pulse(now, rig.pulse, handle.phase)
+			local flaring = now - rig.flareAt < Effects.Look.FlareSeconds
+			if rig.pulse > 0 or flaring then
+				local pulse = if rig.pulse > 0 then EffectsMath.Pulse(now, rig.pulse, handle.phase) else 1
+				rig.light.Brightness = rig.base * pulse * EffectsMath.Flare(now - rig.flareAt)
 			end
 		end
+		for _, rig in ipairs(handle.pillars) do
+			stepPillar(rig, now)
+		end
 	end
+	stepMoments(now)
 end
 
 -- Reduced Motion (or anything else Prefs applies) may have changed: an alien built the other way is rebuilt at the next ranking.
@@ -655,6 +1005,10 @@ local function stopRunning()
 		prefsConn = nil
 	end
 	table.clear(actives)
+	table.clear(pendingMoments)
+	for index = #moments, 1, -1 do
+		endMoment(moments[index])
+	end
 end
 
 local function release(handle: Handle)
@@ -674,6 +1028,15 @@ local function release(handle: Handle)
 	local at = table.find(actives, handle)
 	if at then
 		table.remove(actives, at)
+	end
+	local pending = table.find(pendingMoments, handle)
+	if pending then
+		table.remove(pendingMoments, pending)
+	end
+	local moment = handle.moment
+	if moment then
+		endMoment(moment)
+		handle.moment = nil
 	end
 	if handle.target.Parent ~= nil and handle.flapAngle ~= 0 then
 		handle.flapAngle = 0
@@ -700,11 +1063,13 @@ end
 
 -- Gives `target` (the mesh clone, or the placeholder part when there is none) the effects and idle motion of `speciesId` at
 -- `tier`. Effects come up when the alien is among the nearest on screen and stay under the target, so they move with it.
--- Returns the cleanup; calling it twice is harmless, and so is attaching the same target again (the first is released).
--- An unknown species or tier attaches nothing.
+-- `opts.arrival` marks a wild arrival: a tier with a spawn moment plays it once per arrival instance. Returns the cleanup;
+-- calling it twice is harmless, and so is attaching the same target again (the first is released). An unknown species or tier
+-- attaches nothing.
 function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: string, opts: Options?): () -> ()
 	local fx = Effects.Species[speciesId]
-	if not fx or not Effects.Tiers[tier] then
+	local rule = Effects.Tiers[tier]
+	if not fx or not rule then
 		return noop
 	end
 	local previous = handles[target]
@@ -719,6 +1084,7 @@ function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: str
 		part = target :: BasePart
 	end
 	local flaps = if model then findFlaps(model, fx.idle.parts) else {}
+	local now = os.clock()
 	local handle: Handle = {
 		target = target,
 		model = model,
@@ -736,17 +1102,27 @@ function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: str
 		shown = true,
 		wanted = false,
 		active = false,
+		near = true,
+		distance = math.huge,
 		built = false,
 		dead = false,
 		bounds = nil,
 		host = nil,
 		anchor = nil,
 		made = {},
-		emitters = {},
+		flowing = {},
+		fired = {},
 		trails = {},
 		lights = {},
 		beams = {},
 		orbits = {},
+		pillars = {},
+		flourishes = rule.flourish,
+		flourishEvery = EffectsMath.FlourishEvery(speciesId),
+		nextFlourish = nil,
+		externalAt = -math.huge,
+		momentUntil = now + Effects.Look.MomentWindow,
+		moment = nil,
 		soundId = soundIdOf(fx.sound),
 		soundPeriod = 0,
 		soundOffset = 0,
@@ -759,11 +1135,35 @@ function SpeciesFx.Attach(target: BasePart | Model, speciesId: string, tier: str
 	handle.destroying = target.Destroying:Connect(function()
 		release(handle)
 	end)
+	local arrival = if opts then opts.arrival else nil
+	if arrival and rule.spawnMoment and not momentSeen[arrival] then
+		momentSeen[arrival] = true
+		table.insert(pendingMoments, handle)
+	end
 	lastRecheck = -math.huge -- rank on the next frame
 	startRunning()
 	return function()
 		release(handle)
 	end
+end
+
+-- Plays the flourish of an attached alien now (the rig animator calls this on its own flourish timer): its firings marked
+-- `flourish`, its pillar of light and a flare of its light, when it is active and not under Reduced Motion. The alien's own
+-- flourish timer then stands down for Effects.Look.ExternalHold periods. `speciesId`, when given, must match the attached one.
+-- Answers whether anything played.
+function SpeciesFx.Flourish(target: Instance, speciesId: string?): boolean
+	local handle = handles[target]
+	if not handle or (speciesId ~= nil and speciesId ~= handle.speciesId) then
+		return false
+	end
+	local now = os.clock()
+	handle.externalAt = now
+	return flourish(handle, now)
+end
+
+-- Hears every flourish that plays, from the alien's own timer or from Flourish: (target, speciesId).
+function SpeciesFx.OnFlourish(callback: (Instance, string) -> ()): RBXScriptConnection
+	return flourished.Event:Connect(callback)
 end
 
 -- Puts `target` at `pivot`, plus its idle motion: a Model is PivotTo'd (and its wings swung), a part gets a CFrame. A renderer
@@ -827,6 +1227,11 @@ function SpeciesFx.Refresh(target: Instance, scale: number?)
 	teardown(handle)
 	local anchor = handle.anchor
 	if anchor then
+		local moment = handle.moment
+		if moment then
+			endMoment(moment) -- its parts live on the old anchor
+			handle.moment = nil
+		end
 		anchor:Destroy() -- a rescaled model has scaled its anchor too; the next build makes a fresh one at the pivot
 		handle.anchor = nil
 		handle.host = nil

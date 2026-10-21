@@ -621,7 +621,7 @@ local function track(instance: Instance)
 		glowImage = glowImage,
 		glowTween = nil,
 		fxTarget = fxTarget,
-		fxCleanup = SpeciesFx.Attach(fxTarget, species, tier, { scale = factor }),
+		fxCleanup = SpeciesFx.Attach(fxTarget, species, tier, { scale = factor, arrival = instance :: Instance }), -- a Cosmic or Secret arrival plays its spawn moment once
 	}
 	records[instance] = record
 	instance.CFrame = base -- a record the render loop skips (hidden or far) still stands on its band's base

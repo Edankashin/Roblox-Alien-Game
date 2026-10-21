@@ -114,6 +114,32 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 | Syrinx: the pipe mouths, horn bands, sound bars and note step through violet, deep violet and lilac (its own palette only) | A Secret that glows in a colour from outside its palette |
 | Gaira: the glow is a saturated pink so the blossoms and dapples read as pink, not white | A pale pastel glow, which the light washes to white |
 
+### The effects ladder in the game (B46, 2026-10-21)
+
+[[Decisions]] B46: effects carry rarity and climb steeply; B45 holds every alien at 2 to 3.5 studs, so effects, detail and motion do the work a size step used to. The rows are `src/shared/data/Effects.luau` (Tiers, one row per species, strongest layer first); `Shared/EffectsMath.LayersFor` is the gate, `World/SpeciesFx` draws it. A layer of a kind the tier may not draw is skipped; the tier's extras come in the species' `accent` when its row has none of that kind.
+
+| Tier | Species layers | Kinds it may draw | Tier extras and moments |
+|---|---|---|---|
+| Common | 1, a subtle touch on a timer (a puff, a leaf, a blink) | Emitter, Burst, Sparkle; no light | none; bursts of 6 at most |
+| Uncommon | 2: the touch and a small one in a **second colour** | the same; no light | none; 8 at most |
+| Rare | 3, a **soft light and a sparkle** among them | + Light, Beam, Trail | none; 12 |
+| Epic | 5 kept **on the body**, a signature **Burst** among them | the same | none; 20 |
+| Legendary | 6, **touches the ground** | + Orbit, RingPulse | orbiting motes, a ground ring, a **flourish** every 10 to 14 s; 28 |
+| Cosmic | 8, **reaches the sky** | + Pillar, Aura | + trail, aura shell, a **pillar of light** on the flourish, a **spawn moment** on arrival (pillar, two rings, a star burst, seen from 350 studs); 36 |
+| Secret | 8, the Cosmic set | the same | the same in its shadow palette (colours 55 percent to near-black; pillars and rings only 25, so they still read) |
+
+- New kinds: **Burst** (`count` at once, `every` seconds and/or on the flourish), **Sparkle** (a twinkle that grows and shrinks at one point, like a blink; the only kind allowed at the Eyes, and no larger than `Look.EyeSparkleMax`, a catchlight, never a cloud over the face), **RingPulse** (a flat ring rolling out on the ground), **Pillar** (a column of light straight up, on the flourish), **Aura** (a held shell of stepped glow sprites).
+- The flourish: SpeciesFx runs its own timer from Legendary up; the rig animator can call `SpeciesFx.Flourish(target)` instead (the own timer then stands down for two periods) and hear every flourish through `SpeciesFx.OnFlourish`. Lights flare 2.5 times on it.
+- Phone budgets: 100 particles a second an emitter, **120 live particles an alien** (360 on desktop; a set over it is scaled down by one factor), bursts of 24 at most, 8 aliens with effects on a phone (12 on desktop), past 45 studs half the rates and no sparkles, two spawn moments at once. Reduced Motion is the low-effects switch: one still glow, no firings, flourish or moment.
+- Sprites are the block cells too: `tools/pixel_sprites.py` draws 19 white-and-grey 16-cell sprites (64 px, nearest-scaled; two 2 x 2 flipbook sheets, a twinkle and an ember flicker) into `assets/sprites/blocky`; their Icons ids are 0 until uploaded, and each falls back to the soft sprite it replaces (`Effects.SpriteFallback`).
+
+![The effects ladder v1: one block alien at one height per tier, each wearing its example species' stack at its own tier (drawn by tools/effects_ladder_sheet.py from Effects.luau)](refs/blocky/effects_ladder_v1.jpg)
+
+| Do | Don't |
+|---|---|
+| Rarity by layers, reach (body, ground, sky) and moments: a Common's one puff, a Cosmic's pillar | A bigger alien or a bigger copy of the same puff for a rarer tier |
+| A Secret's pillar and ring sunk only a little toward its shadow, so they read at night | A Secret pillar in the full dark mix: invisible against the sky |
+
 ## 8. Moving parts: separate pieces on pivots, at most four
 
 Each moving part (`moves: wing, tail, ear, halo, sprout, antenna, crest, float, jaw`) is its own object with its origin on its `pivot`, for the game's tweens (B39); a mirrored pair is two objects (`wingL`, `wingR`). **At most 4 moving objects** a creature, since each is one more MeshPart and draw call *(checked)*. Static parts merge into one mesh per slot.

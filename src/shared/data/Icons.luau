@@ -59,11 +59,33 @@ local Icons: { [string]: number } = {
 	WreckPlate = 121511498021953,
 }
 
+-- Particle sprites. The Pixel keys are the block-cell sprites (B44; tools/pixel_sprites.py draws them into
+-- assets/sprites/blocky). 0 until uploaded: an emitter then wears its data/Effects.SpriteFallback key, or the soft default
+-- sprite. PixelTwinkle and PixelEmberFlicker are 2 x 2 flipbook sheets (data/Effects.Sheets).
 local Particles: { [string]: number } = {
 	Confetti = 0,
 	Ember = 0,
 	Flake = 129925381033863,
 	Glow = 0,
+	PixelBubble = 0,
+	PixelDrop = 0,
+	PixelEmber = 0,
+	PixelEmberFlicker = 0,
+	PixelFlake = 0,
+	PixelGrit = 0,
+	PixelHalo = 0,
+	PixelLeaf = 0,
+	PixelMote = 0,
+	PixelNote = 0,
+	PixelPetal = 0,
+	PixelPuff = 0,
+	PixelRing = 0,
+	PixelRune = 0,
+	PixelSeed = 0,
+	PixelSpark = 0,
+	PixelSparkle = 0,
+	PixelStar = 0,
+	PixelTwinkle = 0,
 	Raindrop = 98219801826407,
 	Ring = 0,
 	Shine = 0,

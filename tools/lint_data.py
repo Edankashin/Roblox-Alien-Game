@@ -631,7 +631,7 @@ def lint_props(tables):
     return failures
 
 
-EFFECT_KINDS = ('Emitter', 'Beam', 'Light', 'Trail', 'Orbit')
+EFFECT_KINDS = ('Emitter', 'Beam', 'Light', 'Trail', 'Orbit', 'Burst', 'Sparkle', 'RingPulse', 'Pillar', 'Aura')
 EFFECT_DIRECTIONS = ('Up', 'Front', 'Back', 'Down')
 MOTION_KINDS = ('Still', 'Bob', 'Hover', 'Flap', 'Spin', 'Breathe')
 # The numbers each layer kind must carry (data/Effects; Types.EffectLayer lists them); lengths are in alien heights.
@@ -639,15 +639,70 @@ EFFECT_NUMBERS = {'Emitter': ('rate', 'size', 'lifetime', 'speed', 'spread'),
                   'Beam': ('width', 'flicker', 'segments'),
                   'Light': ('brightness', 'range'),
                   'Trail': ('lifetime', 'width'),
-                  'Orbit': ('count', 'radius', 'period', 'rate', 'size', 'lifetime')}
+                  'Orbit': ('count', 'radius', 'period', 'rate', 'size', 'lifetime'),
+                  'Burst': ('count', 'size', 'lifetime', 'speed', 'spread'),
+                  'Sparkle': ('count', 'size', 'lifetime'),
+                  'RingPulse': ('count', 'size', 'lifetime'),
+                  'Pillar': ('reach', 'width', 'lifetime'),
+                  'Aura': ('rate', 'size', 'lifetime')}
+# Kinds that fire `count` at once (on `every` and/or the flourish), and kinds that flow at a rate.
+EFFECT_FIRED = ('Burst', 'Sparkle', 'RingPulse')
+EFFECT_FLOWING = ('Emitter', 'Orbit', 'Aura')
 EFFECT_REQUIRED_REGIONS = ('Top', 'Back', 'Tail', 'Eyes', 'Feet')
-EFFECT_LADDER = ('layersAllowed', 'rateScale', 'sizeScale', 'lightScale')
-EFFECT_FLAGS = ('trail', 'orbit', 'groundRing', 'dark')
+EFFECT_LADDER = ('layersAllowed', 'rateScale', 'sizeScale', 'lightScale', 'burstMax')
+EFFECT_FLAGS = ('trail', 'orbit', 'groundRing', 'aura', 'pillar', 'flourish', 'spawnMoment', 'dark')
+EFFECT_CAPS = ('MobileRateCap', 'DesktopRateCap', 'MobileAlienParticles', 'DesktopAlienParticles', 'MobileBurstMax', 'DesktopBurstMax',
+               'MaxBeams', 'MaxLights', 'MaxPillars', 'MaxActive', 'MaxActiveMobile', 'ActiveDistance', 'NearDistance', 'FarRateScale',
+               'MomentDistance', 'MaxMoments', 'MaxSoundsPerSecond')
+EFFECT_SHEET_LAYOUTS = ('Grid2x2', 'Grid4x4')
+EFFECT_SHEET_MODES = ('Loop', 'OneShot', 'PingPong', 'Random')
+# B46's ladder, what a species' own tier must show in the layers it draws (the extras the tier adds count too):
+# Uncommon a second colour; Rare a soft light and a sparkle; Epic a signature Burst; Legendary and up a flourish, the ground
+# (an orbit and a ring); Cosmic and Secret the sky too (a trail, an aura and a pillar).
+EFFECT_TIER_MUSTS = {'Rare': ('Light', 'Sparkle'),
+                     'Epic': ('Light', 'Sparkle', 'Burst'),
+                     'Legendary': ('Orbit', 'RingPulse'),
+                     'Cosmic': ('Orbit', 'RingPulse', 'Trail', 'Aura', 'Pillar'),
+                     'Secret': ('Orbit', 'RingPulse', 'Trail', 'Aura', 'Pillar')}
+
+
+def drawn_layers(row, rule, caps):
+    """The species' own layers a tier draws, as EffectsMath.LayersFor takes them (kinds gate, layersAllowed, the beam, light and
+    pillar caps); the extras are not included."""
+    out, seen = [], {}
+    limits = {'Beam': caps.get('MaxBeams', 0), 'Light': caps.get('MaxLights', 0), 'Pillar': caps.get('MaxPillars', 0)}
+    allowed = rule.get('kinds', {})
+    for layer in row.get('layers', {}).values():
+        if len(out) >= rule.get('layersAllowed', 0):
+            break
+        kind = layer.get('kind') if isinstance(layer, dict) else None
+        if allowed.get(kind) is not True:
+            continue
+        if kind in limits and seen.get(kind, 0) >= limits[kind]:
+            continue
+        seen[kind] = seen.get(kind, 0) + 1
+        out.append(layer)
+    return out
+
+
+def live_particles(layers, rule):
+    """EffectsMath.LiveParticles of the layers at a tier's rateScale (flowing rate x lifetime, an Orbit's per mote, plus the
+    largest firing, held to the tier's burstMax)."""
+    flowing, largest = 0.0, 0
+    for layer in layers:
+        kind = layer.get('kind')
+        if kind in EFFECT_FLOWING:
+            motes = layer.get('count', 1) if kind == 'Orbit' else 1
+            flowing += layer.get('rate', 0) * rule.get('rateScale', 1) * layer.get('lifetime', 0) * motes
+        elif kind in EFFECT_FIRED:
+            largest = max(largest, min(layer.get('count', 1), rule.get('burstMax', 1)))
+    return flowing + largest
 
 
 def lint_effects(tables, types):
-    """data/Effects: every species has a row; layers name real regions and sprites; rates stay under the caps; the tier ladder
-    only climbs. The tier gate itself is covered by tests/Effects.spec.luau."""
+    """data/Effects: every species has a row; layers name real regions, kinds and sprites; rates stay under the caps; the tier
+    ladder only climbs (B46: Common one touch ... Cosmic and Secret the sky); each species shows its own tier's rung. The tier
+    gate itself is covered by tests/Effects.spec.luau."""
     effects = tables.get('Effects')
     if not isinstance(effects, dict):
         return ['Effects.luau: required table unavailable']
@@ -661,6 +716,8 @@ def lint_effects(tables, types):
         return finite(value) and value > 0
     def whole(value):
         return finite(value) and float(value).is_integer()
+    def fraction(value):
+        return finite(value) and 0 <= value <= 1
     def hexcolor(value):
         return isinstance(value, str) and re.fullmatch(r'[0-9A-Fa-f]{6}', value) is not None
     def union(name):
@@ -670,10 +727,16 @@ def lint_effects(tables, types):
     check(union('MotionKind') == set(MOTION_KINDS), 'Types.MotionKind: differs from the motions lint_data knows')
     check(union('EmitDirection') == set(EFFECT_DIRECTIONS), 'Types.EmitDirection: differs from the directions lint_data knows')
     caps, attach, look = effects['Caps'], effects['Attach'], effects['Look']
-    for key in ('MobileRateCap', 'DesktopRateCap', 'MaxBeams', 'MaxLights', 'MaxActive', 'ActiveDistance', 'MaxSoundsPerSecond'):
+    particles = tables['Icons']['Particles']
+    for key in EFFECT_CAPS:
         check(positive(caps.get(key)), f'Effects.Caps.{key}: expected a positive number')
-    check(positive(caps.get('MobileRateCap')) and positive(caps.get('DesktopRateCap')) and caps['MobileRateCap'] <= caps['DesktopRateCap'],
-          'Effects.Caps: the mobile rate cap must not exceed the desktop one')
+    for low, high in (('MobileRateCap', 'DesktopRateCap'), ('MobileAlienParticles', 'DesktopAlienParticles'),
+                      ('MobileBurstMax', 'DesktopBurstMax'), ('MaxActiveMobile', 'MaxActive'), ('NearDistance', 'ActiveDistance')):
+        check(positive(caps.get(low)) and positive(caps.get(high)) and caps[low] <= caps[high],
+              f'Effects.Caps: {low} must not exceed {high}')
+    check(fraction(caps.get('FarRateScale')), 'Effects.Caps.FarRateScale: expected 0 to 1')
+    for key in ('MaxBeams', 'MaxLights', 'MaxPillars', 'MaxActive', 'MaxActiveMobile', 'MaxMoments', 'MobileBurstMax', 'DesktopBurstMax'):
+        check(whole(caps.get(key)), f'Effects.Caps.{key}: expected a whole number')
     for region in EFFECT_REQUIRED_REGIONS:
         check(region in attach, f'Effects.Attach.{region}: required region missing')
     for name, point in attach.items():
@@ -687,17 +750,32 @@ def lint_effects(tables, types):
     check(0 < look['FadeIn'] < look['FadeOut'] < 1, 'Effects.Look: FadeIn must be below FadeOut, both inside 0 to 1')
     for key, value in look.items():
         check(finite(value) and value >= 0, f'Effects.Look.{key}: expected a non-negative number')
-    for key in ('SoundEverySeconds', 'SoundRollOffMin', 'SoundRollOffMax', 'SoundMaxSeconds'):
+    for key in ('SoundEverySeconds', 'SoundRollOffMin', 'SoundRollOffMax', 'SoundMaxSeconds', 'FlourishEvery', 'ExternalHold',
+                'FlareSeconds', 'MomentWindow', 'EyeSparkleMax', 'RingDrift'):
         check(positive(look.get(key)), f'Effects.Look.{key}: expected a positive number')
     check(positive(look.get('SoundRollOffMin')) and positive(look.get('SoundRollOffMax')) and look['SoundRollOffMin'] < look['SoundRollOffMax'],
           'Effects.Look: SoundRollOffMin must be below SoundRollOffMax')
+    for key in ('SparklePeak', 'AuraTransparency', 'AuraFrom', 'PillarTransparency', 'CoreWidth', 'CoreMix', 'FlourishFirst'):
+        check(fraction(look.get(key)) and 0 < look[key] < 1, f'Effects.Look.{key}: expected a fraction inside 0 to 1')
+    check(fraction(look.get('PillarIn')) and fraction(look.get('PillarOut')) and look['PillarIn'] + look['PillarOut'] <= 1,
+          'Effects.Look: PillarIn and PillarOut must fit inside the life together')
+    check(finite(look.get('FlareBoost')) and look['FlareBoost'] >= 1, 'Effects.Look.FlareBoost: expected 1 or more')
     for key, value in effects['Motion'].items():
         check(finite(value) and value >= 0, f'Effects.Motion.{key}: expected a non-negative number')
     for key, value in effects['Reduced'].items():
         check(positive(value), f'Effects.Reduced.{key}: expected a positive number')
     dark = effects['Dark']
-    check(hexcolor(dark.get('Color')) and finite(dark.get('Mix')) and 0 <= dark['Mix'] <= 1 and finite(dark.get('GlowScale')) and 0 <= dark['GlowScale'] <= 1,
-          'Effects.Dark: expected a hex Color, and a Mix and GlowScale between 0 and 1')
+    check(hexcolor(dark.get('Color')) and fraction(dark.get('Mix')) and fraction(dark.get('MomentMix')) and fraction(dark.get('GlowScale')),
+          'Effects.Dark: expected a hex Color, and a Mix, MomentMix and GlowScale between 0 and 1')
+    for key, fallback in effects['SpriteFallback'].items():
+        check(key in particles, f'Effects.SpriteFallback.{key}: not a key of Icons.Particles')
+        check(fallback in particles and fallback != key, f'Effects.SpriteFallback.{key}: {fallback!r} is not another key of Icons.Particles')
+    for key, sheet in effects['Sheets'].items():
+        where = f'Effects.Sheets.{key}'
+        check(key in particles, where + ': not a key of Icons.Particles')
+        check(isinstance(sheet, dict) and sheet.get('layout') in EFFECT_SHEET_LAYOUTS and sheet.get('mode') in EFFECT_SHEET_MODES
+              and positive(sheet.get('fps')), where + ': expected a layout (' + ', '.join(EFFECT_SHEET_LAYOUTS) + '), a mode and fps')
+        check(key in effects['SpriteFallback'], where + ': a sheet needs a SpriteFallback (a single sprite to wear until it is uploaded)')
     ladder = list(tables['Tiers']['Order'].values())
     rules = effects['Tiers']
     check(set(rules) == set(ladder), 'Effects.Tiers: expected exactly one rule per tier in Tiers.Order')
@@ -708,15 +786,20 @@ def lint_effects(tables, types):
         if not isinstance(rule, dict):
             continue
         where = f'Effects.Tiers.{tier}'
-        check(set(rule) == set(EFFECT_LADDER) | set(EFFECT_FLAGS), where + ': expected ' + ', '.join(EFFECT_LADDER + EFFECT_FLAGS))
-        check(all(positive(rule.get(key)) for key in EFFECT_LADDER) and whole(rule.get('layersAllowed')),
-              where + ': layersAllowed (whole) and the scales must be positive numbers')
-        check(all(isinstance(rule.get(key), bool) for key in EFFECT_FLAGS), where + ': trail, orbit, groundRing and dark must be true or false')
+        check(set(rule) == set(EFFECT_LADDER) | set(EFFECT_FLAGS) | {'kinds'}, where + ': expected kinds, ' + ', '.join(EFFECT_LADDER + EFFECT_FLAGS))
+        check(all(positive(rule.get(key)) for key in EFFECT_LADDER) and whole(rule.get('layersAllowed')) and whole(rule.get('burstMax')),
+              where + ': layersAllowed and burstMax (whole) and the scales must be positive numbers')
+        check(all(isinstance(rule.get(key), bool) for key in EFFECT_FLAGS), where + ': ' + ', '.join(EFFECT_FLAGS) + ' must be true or false')
+        kinds = rule.get('kinds')
+        kinds_ok = isinstance(kinds, dict) and len(kinds) > 0 and all(k in EFFECT_KINDS and v is True for k, v in kinds.items())
+        check(kinds_ok, where + '.kinds: expected a set of EffectKinds (Kind = true)')
         if previous is not None:
             for key in EFFECT_LADDER:
                 check(rule.get(key, 0) >= previous.get(key, 0), f'{where}.{key}: below the tier under it (the ladder must not fall)')
             for key in EFFECT_FLAGS:
                 check(rule.get(key) is True or previous.get(key) is not True, f'{where}.{key}: a higher tier cannot drop what the tier under it adds')
+            if kinds_ok and isinstance(previous.get('kinds'), dict):
+                check(set(kinds) >= set(previous['kinds']), f'{where}.kinds: a higher tier cannot drop a kind the tier under it draws')
         previous = rule
         top_rate = max(top_rate, rule.get('rateScale', 1))
     def layer_ok(layer, where):
@@ -740,17 +823,35 @@ def lint_effects(tables, types):
             check(whole(layer.get('segments')) and 2 <= layer['segments'] <= 16, where + '.segments: expected a whole number from 2 to 16')
         if kind == 'Orbit':
             check(whole(layer.get('count')) and 1 <= layer['count'] <= 8, where + '.count: expected a whole number from 1 to 8')
-        if kind in ('Emitter', 'Orbit') and positive(layer.get('rate')):
+        if kind in EFFECT_FIRED:
+            check(whole(layer.get('count')) and layer['count'] >= 1, where + '.count: expected a whole number of 1 or more')
+            check(layer.get('every') is not None or layer.get('flourish') is True or where.startswith('Effects.SpawnMoment'),
+                  where + ': a firing needs an `every` or `flourish = true` (the spawn moment fires once)')
+        check(layer.get('every') is None or positive(layer['every']), where + '.every: expected seconds above zero')
+        check(layer.get('flourish') is None or isinstance(layer['flourish'], bool), where + '.flourish: expected true or false')
+        if kind == 'Pillar':
+            check(layer.get('flourish') is True or where.startswith('Effects.SpawnMoment'), where + ': a Pillar shows on the flourish (flourish = true)')
+        if kind in ('Emitter', 'Orbit', 'Aura') and positive(layer.get('rate')):
             check(layer['rate'] * top_rate <= caps['MobileRateCap'],
                   f'{where}.rate: {layer["rate"]:g} x the top tier rateScale {top_rate:g} is over the mobile cap {caps["MobileRateCap"]}')
-        if kind == 'Emitter':
+        if kind in ('Emitter', 'Burst'):
             check(layer.get('dir') is None or layer['dir'] in EFFECT_DIRECTIONS, f'{where}.dir: unknown direction {layer.get("dir")!r}')
-        check(layer.get('glow') is None or (finite(layer['glow']) and 0 <= layer['glow'] <= 1), where + '.glow: expected 0 to 1')
+        if layer.get('at') == 'Eyes':
+            check(kind == 'Sparkle' and finite(layer.get('size')) and layer['size'] <= look['EyeSparkleMax'],
+                  f'{where}: only a Sparkle no larger than Look.EyeSparkleMax may hang at the Eyes (never a cloud over the face)')
+        check(layer.get('glow') is None or fraction(layer['glow']), where + '.glow: expected 0 to 1')
         check(layer.get('pulse') is None or positive(layer['pulse']), where + '.pulse: expected seconds above zero')
+        check(layer.get('spin') is None or finite(layer['spin']), where + '.spin: expected degrees a second')
         sprite = layer.get('sprite')
-        check(sprite is None or sprite in tables['Icons']['Particles'], f'{where}.sprite: {sprite!r} is not a key of Icons.Particles')
+        check(sprite is None or sprite in particles, f'{where}.sprite: {sprite!r} is not a key of Icons.Particles')
     for name, layer in effects['Extras'].items():
         layer_ok(layer, f'Effects.Extras.{name}')
+    moment = effects.get('SpawnMoment')
+    check(isinstance(moment, dict) and len(moment) > 0, 'Effects.SpawnMoment: expected a non-empty list of layers')
+    if isinstance(moment, dict):
+        for index, layer in moment.items():
+            layer_ok(layer, f'Effects.SpawnMoment.{index}')
+        check(any(layer.get('kind') == 'Pillar' for layer in moment.values()), 'Effects.SpawnMoment: the moment reaches the sky (a Pillar)')
     species = {row['id']: row for row in tables['Species']['List'].values()}
     rows = effects['Species']
     for sid in sorted(species.keys() - rows.keys()):
@@ -761,7 +862,11 @@ def lint_effects(tables, types):
         if sid not in species:
             continue
         where = f'Effects.Species.{sid}'
+        tier = species[sid]['tier']
+        rule = rules.get(tier, {})
         check(isinstance(row.get('element'), str) and row['element'] != '', where + '.element: expected a label')
+        check(row.get('accent') is None or hexcolor(row['accent']), where + '.accent: expected a six-digit hex colour')
+        check(row.get('flourishEvery') is None or positive(row['flourishEvery']), where + '.flourishEvery: expected seconds above zero')
         layers = row.get('layers')
         ok = isinstance(layers, dict) and len(layers) > 0 and set(layers) == set(range(1, len(layers) + 1))
         check(ok, where + '.layers: expected a dense, non-empty list')
@@ -771,9 +876,31 @@ def lint_effects(tables, types):
             kinds = [layer.get('kind') for layer in layers.values()]
             check(kinds.count('Beam') <= caps['MaxBeams'], f'{where}: more beams than Effects.Caps.MaxBeams')
             check(kinds.count('Light') <= caps['MaxLights'], f'{where}: more lights than Effects.Caps.MaxLights')
-            rule = rules.get(species[sid]['tier'], {})
-            wanted = min(rule.get('layersAllowed', 1), 4)
-            check(len(layers) >= wanted, f'{where}: a {species[sid]["tier"]} defines at least {wanted} layers (it defines {len(layers)})')
+            check(kinds.count('Pillar') <= caps['MaxPillars'], f'{where}: more pillars than Effects.Caps.MaxPillars')
+            allowed = rule.get('kinds', {})
+            for index, layer in layers.items():
+                check(allowed.get(layer.get('kind')) is True, f'{where}.layers.{index}: a {tier} may not draw a {layer.get("kind")}')
+                if layer.get('kind') in EFFECT_FIRED and whole(layer.get('count')):
+                    check(layer['count'] <= rule.get('burstMax', 0), f'{where}.layers.{index}.count: over the {tier} burstMax {rule.get("burstMax")}')
+            wanted = rule.get('layersAllowed', 1)
+            check(len(layers) >= wanted, f'{where}: a {tier} draws {wanted} layers (it defines {len(layers)})')
+            drawn = drawn_layers(row, rule, caps)
+            shown = {layer.get('kind') for layer in drawn}
+            if rule.get('orbit'):
+                shown.add('Orbit')
+            if rule.get('groundRing'):
+                shown.add('RingPulse')
+            for flag, kind in (('trail', 'Trail'), ('aura', 'Aura'), ('pillar', 'Pillar')):
+                if rule.get(flag):
+                    shown.add(kind)
+            for kind in EFFECT_TIER_MUSTS.get(tier, ()):
+                check(kind in shown, f'{where}: a {tier} shows a {kind} (B46 ladder)')
+            if tier == 'Uncommon':
+                check(len({layer.get('color') for layer in drawn}) >= 2, f'{where}: an Uncommon adds a touch in a second colour')
+            if rule.get('flourish'):
+                check(any(layer.get('flourish') is True for layer in drawn), f'{where}: a {tier} has a signature flourish (a layer with flourish = true)')
+            live = live_particles(drawn, rule)
+            check(live <= caps['DesktopAlienParticles'], f'{where}: about {live:.0f} live particles, over Caps.DesktopAlienParticles')
         idle = row.get('idle')
         if not isinstance(idle, dict) or idle.get('kind') not in MOTION_KINDS:
             failures.append(where + '.idle: expected a motion with a known kind')

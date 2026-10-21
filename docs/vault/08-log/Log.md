@@ -16,4 +16,5 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-19]]: the roll-out workers restarted after the weekly limit (World 1 roster, World 2 Frostbyte).
 - [[2026-10-20]]: the World 1 roster worker resumed after the session limit; the UI question (Decide-Now 43).
 - [[2026-10-21]]: the HUD in block cells (Decide-Now 43 a, HUD first). Lasting notes: [[UI-Playbook]] "Block cells".
+- [[2026-10-21]]: the effects ladder made steep (B46): five new effect kinds, the flourish, the spawn moment, all 35 rows, the pixel sprites. Lasting notes: [[Blocky-Style]].
 - [[2026-10-19]]: World 2 Frostbyte in block cells: the six cold cell materials, the snowfield diorama, six prop notes and the six World 2 aliens one per rung (Mitt to Fenrir, two face options for the hero). Lasting notes: [[Blocky-Style]].
