@@ -33,7 +33,7 @@ A rust-red crab whose claws are boulders, 3.125 studs to the tip of its antenna 
 
 **Hero block.** The `Claw` pair, boulders of grey stone with an amber gem in a dark iron socket each, unique in Verdant (Polish w1: a gold bezel round an amber gem was one warm blob; the dark socket makes the gem the brightest thing on the boulder).
 
-**Moving parts (five objects and the blink).** `clawR` and `clawL` (the boulder, its top step, thumb, nip, bezel and gem, turning on the shoulder: they lift and clack), `legR` and `legL` (the front legs scuttle), `antenna` (with its pebble, it sways); the face plate blinks and glints.
+**Moving parts (five objects and the blink).** `clawR` and `clawL` (the boulder, its top step, thumb, nip, bezel and gem, turning on the shoulder: they lift and clack), `legR` and `legL` (the front legs scuttle), `antenna` (with its pebble, it sways); the face plate blinks and glints. Rare pass w1: `geode` (the three lit amber crystals in the open geode on the carapace: they throb and pop) makes six objects and the blink.
 
 **Alien anatomy.** Claws of rock it did not grow, six jointed legs splayed like a crab's, and a single antenna with a pebble on it.
 
@@ -137,6 +137,14 @@ rig:
       - {part: antenna, kind: swish, amp: 25, axis: x, at: 0.9, for: 1.2}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Geode | `Crystal` (geode) | -0.07, 0.86, -0.02 | a few amber motes rising, a sparkle on the flourish | Top |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Rocklobber.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Rocklobber.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
@@ -166,3 +174,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-19, World 1 roster worker, two rounds. Round 1: the boulder claws read at once and the amber gems carry the Rare's light, but the gold cairn glyph on the flanks sat behind the claws where no camera saw it, and a bevelled claw could not move. Round 2: the claws plain stone boxes on the `jaw` pair, the glyph moved to the carapace. Wanted for: two boulders on a crab the size of a shoe that clack. Still cheap: the shell between the claws is small and flat; the legs are thin posts. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, one round. Kept at 3.125 studs (a squat crab, in the band already) and rebuilt to 35 blocks with smaller detail: each boulder in two steps with a thumb over it and a nip under it (a pincer at last), the gem in a gold bezel, knees on the front and hind legs, a rust dome step under the glyph, stone nubs on the back corners, a stepped pebble on the antenna. Its own `crescent` eyes in gold over an amber crescent that matches the gems, a cat mouth, blush cheeks; five moving objects and the blink (the boulders lift and clack, the front legs scuttle, the antenna sways); a flourish every 9 s (a hop with both boulders raised overhead, two clacks). Overlap 0.996 to 1, 502 triangles. Wanted for: two boulders held up like trophies, and the flourish reads across the meadow. Still weak: the gold bezel and the lit gem are close in value, so the frame reads only up close; the legs are still posts from the front. Status review.
 - 2026-10-21, Polish w1, one round. Two weak spots. The gem and its gold bezel were close in value (amber in gold, one warm blob): the bezel is now a dark iron socket (the second colour), so the amber gem is the brightest thing on each boulder. The legs read as posts: each is now a bent crab leg, a thigh rising 20 degrees out from under the shell's edge to a knee past its side and a thin eighth-stud shin dropping to the grass, all six splayed; the two stone nubs on the shell's back corners went to keep the Rare cap (35 blocks of 36). Overlap 0.996 to 0.999. Honest read: the gems now glow out of the boulders and the legs read as a crab's; the shins are thin enough to read as spindly at distance, which suits a crab. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: an open amber geode on the carapace's front left (a stone cup lined in gold, three lit glass crystals that throb and pop on the flourish), and a lit amber crack across each boulder; the glow is a deeper amber `#FF8C1A` (the pale `#FFB347` rendered yellow-white). The flourish gained a full turn. 48 blocks (the Rare band now 18 to 56), seven moving things. Round 1 put the geode at the carapace's back right, where the claw hid it from the three-quarter camera. Honest read: a crab with a glowing geode on its back reads at once and the lit cracks tie the boulders to it; the crystals are still small at the game camera's distance. Status review.

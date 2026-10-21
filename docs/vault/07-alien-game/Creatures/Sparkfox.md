@@ -33,7 +33,7 @@ An orange fox painter, 3 studs to its ear tips (B45: a small fox, mid-band): a s
 
 **Hero block.** The `Brush`, the orange bristle head of the tail, with its gold ferrule and plum handle under it and its glowing tip over it: unique in Verdant.
 
-**Moving parts (four objects and the blink).** `earR` and `earL` (each with its tip and inside: they twitch), `tail` (the whole brush: it sways and sweeps), `float` (the paint drop: it bobs and circles); the face plate blinks and glints.
+**Moving parts (four objects and the blink).** `earR` and `earL` (each with its tip and inside: they twitch), `tail` (the whole brush: it sways and sweeps), `float` (the paint drop: it bobs and circles); the face plate blinks and glints. Rare pass w1: `paletteL` (the floating paint palette at its left shoulder: it bobs, turns, leaps and spins on the flourish) makes five objects and the blink.
 
 **Alien anatomy.** The tail is a tool, not fur, and the paint drop floats free of it.
 
@@ -137,6 +137,14 @@ rig:
       - {part: float, kind: hop, amp: 0.4, at: 0.8, for: 0.8}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Palette | `Dab0` (palette) | -0.41, 0.83, -0.48 | a paint-spark sparkle, the falling-drop beat | FrontL |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Sparkfox.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Sparkfox.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
@@ -166,3 +174,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, block-cell worker, three rounds (cells). The orange keeps its punch; the cream muzzle cells sit in the face grid as before; the gold flame stays flat (detail blocks under three cells take no edge). Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, one round. Kept at 3 studs (a small fox, mid-band) and rebuilt to 33 blocks: a cream muzzle block with an ink nose under the plate (the face rows' muzzle, now in blocks), cream cheek tufts, a plum painter's beret tipped 15 degrees between the ears with a gold stalk, the flank flame in four rows. Its own `glimmer` eyes in teal ringed deep teal (a cool eye on the warmest body in Verdant), blush cheeks, no plate mouth; four moving objects and the blink; a flourish every 8 s (a hop and a full turn, the brush sweeping, ears flared, the drop leaping). Overlap 0.997 to 0.998. Wanted for: a painter fox with a lit brush, the first costume on the meadow. Still weak: the cheek tufts sit low and read as white paws from the three-quarter view; the beret is small between the ears at distance. Status review.
 - 2026-10-21, Polish w1, two rounds. The cream cheek tufts sat at the head's bottom corners beside the front legs and read as paws: they now flare out at cheek height beside the eyes (a tuft an eighth proud and a smaller tip a step further out and up), so the face widens at the cheeks like a fox's ruff. Round 1 made them a quarter proud with a bigger tip and pushed the front silhouette to 0.705 against Gaira; at an eighth it is 0.683. 35 blocks (Rare 18 to 36). Overlap 0.994 to 0.998. Honest read: the tufts read as cheek fluff now, nothing low reads as a paw but the paws; small at distance. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a painter's palette floating at its left shoulder, a plum board held up to face the front and tipped back 20 degrees, four dabs of paint (lit amber, cream, gold, orange) and a gold thumb ring; it bobs and turns, and leaps and spins on the flourish. Round 1 laid it flat at the right shoulder (seen edge-on, half behind the head), round 2 tipped it 20 degrees about z (still edge-on), round 3 a cream board read as nothing on the white backdrop; a plum board facing the front reads. 41 blocks, six moving things. Honest read: a painter fox with its palette, cute and clear; the palette is small, and the body is unchanged. Status review.

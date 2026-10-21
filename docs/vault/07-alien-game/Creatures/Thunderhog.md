@@ -34,7 +34,7 @@ A storm hedgehog on six stubby splayed legs (an alien hexapod), 3.375 studs to t
 
 **Hero block.** The `Crest`: a ten-row pixel lightning bolt cut flat like a sign, a quarter stud thick, its rows stepping sideways only (a slant down, a wide jog back, a second slant to a point), so it is a zigzag from the front and the three-quarter view, solid gold below and lit in its top two rows. Polish w1: the earlier rows stepped forward as well, and from the three-quarter view their plates stacked into a lit cluster. It is one moving part (it pulses and pops); the arcs start at its top cell, `Crest`.
 
-**Moving parts (five objects and the blink).** `crest` (the whole bolt: it pulses and sways), `antennaR` and `antennaL` (rod and bulb: they tilt), `tail` (the lit tail bolt: it wags), `spark` (a lit mote circling the crest); the face plate blinks and glints.
+**Moving parts (five objects and the blink).** `crest` (the whole bolt: it pulses and sways), `antennaR` and `antennaL` (rod and bulb: they tilt), `tail` (the lit tail bolt: it wags), `spark` (a lit mote circling the crest); the face plate blinks and glints. Rare pass w1: `cloudR` (a pocket thundercloud over the rump: it bobs, drifts and pops) and `charge` (a lit charge gauge down each side of the coat: it throbs) make seven objects and the blink.
 
 **Alien anatomy.** Six legs, and antennae that are lightning rods: the arcs run from the crest tip to the two antenna bulbs and the tail tip.
 
@@ -165,6 +165,15 @@ rig:
       - {part: root, kind: squash, amp: 0.08, axis: y, at: 1.8, for: 0.6}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Cloud | `CloudBolt3` (cloud) | 0.15, 0.76, 0.31 | rain sparks under the cloud, the arc's third end | Back |
+| Charge | `Charge0` (charge) | 0.34, 0.56, 0.04 | a flicker along the gauge | BackR |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Thunderhog.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Thunderhog.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
@@ -202,3 +211,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, block-cell worker, three rounds (cells). The banded torso reads as blocks of cells; the collar's rivets read only up close; the crest's diagonals catch the light in the preview. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: from 3.875 studs to 3.375 by redrawing the bolt in ten eighth-stud rows (it was seven quarter-stud rows) with a wide crossbar, the whole bolt one moving part, a spark circling it, lavender rivets on the collar; its own `starry` eyes, an open delighted mouth, blush cheeks. The shorter crown made it a box with a bump: 0.705 against Buzzik and 0.698 against Moop in the silhouette test. Round 2: the six legs splayed out under the body's edges and the lightning rods moved to the head's corners and leaned 25 degrees, so the box's top and bottom corners fill differently (0.647 and 0.640). Round 3: the star pupil was faint on a light violet iris (now a deeper violet under indigo), and the bolt hid behind the quills (quills shortened to half a stud, the bolt's rows widened). Five moving objects and the blink; a flourish every 8 s (a discharge: a hop, the bolt popping, the rods and tail whipping, a squash on landing). Overlap 0.996 to 0.998, 58 blocks. Wanted for: lit star eyes under a crown of lightning, a step up from the Rares at the same height. Still weak: from the three-quarter camera the bolt reads as a lit cluster more than a zigzag (the front view and the game's high camera show it); the head is still the plain cube of loop 1. Status review.
 - 2026-10-21, Polish w1, two rounds. The bolt read as a lit cluster from the three-quarter view: its ten rows were plates a half stud deep stepping forward as well as sideways, so from that angle they stacked, and four lit rows washed it to a glow. Rebuilt as a flat cut-out a quarter stud thick, every row in one plane, stepping sideways only (a slant down to the left, a wide jog back to the right, a second slant down to a point), lit in its top two rows and solid gold (not the pale crystal) below; moved a quarter stud toward its left so the right lightning rod no longer crosses it. Same ten blocks, 58 in all. Overlap 0.997 to 0.998. Honest read: a gold zigzag bolt reads at once from the front and the three-quarter view; from straight side it is a thin gold post, as any flat sign is (the high game camera rarely sees it so). Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a pocket thundercloud that follows it over the rump, a lavender puff on a dark underside with a lit zigzag hanging under it (it bobs and drifts and pops with the crest on the flourish), and a charge gauge of four lit glass cells along each side of the dark coat that throbs. A gold chest plate was tried and dropped: the head hides the collar's front. The flourish gained a full turn. 74 blocks, eight moving things. Honest read: a hedgehog with its own little storm cloud is the cutest thing on this sheet; the bolt under the cloud hides behind the quills from the three-quarter camera. Status review.

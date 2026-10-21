@@ -33,7 +33,7 @@ A small ivory fawn-stag, 3.45 studs to the top of its antler trees (B45: it was 
 
 **Hero block.** The `Antler` pair, two blossoming trees on a fawn's head, unique in Verdant.
 
-**Moving parts (seven objects and the blink).** `halo` (the floating flower crown: it turns once in 12 s), `antlerR` and `antlerL` (each tree, band to blossoms: they sway like trees in a breeze), `earR` and `earL` (they droop and lift), `tail` (the tuft and its leaf: it flicks), `butterfly` (it circles the antlers and flutters); the face plate blinks, glints and turns its petals.
+**Moving parts (seven objects and the blink).** `halo` (the floating flower crown: it turns once in 12 s), `antlerR` and `antlerL` (each tree, band to blossoms: they sway like trees in a breeze), `earR` and `earL` (they droop and lift), `tail` (the tuft and its leaf: it flicks), `butterfly` (it circles the antlers and flutters); the face plate blinks, glints and turns its petals. Rare pass w1: `cape` (the glass-petal mantle over the back: it lifts and settles, flares on the flourish) and `butterfly2L` (a second butterfly, smaller, circling the other way) make nine objects and the blink.
 
 **Alien anatomy.** Antlers that are living trees, a crown of flowers that floats and turns on its own, a body that lights up in a pattern, and a butterfly that keeps it company.
 
@@ -188,6 +188,15 @@ rig:
       - {part: tail, kind: flare, amp: 25, axis: x, at: 3, for: 0.8}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Mantle | `Petal3` (cape) | -0.02, 0.55, 0.30 | petals shed off the mantle on the flourish | Back |
+| Medallion | `MedallionHeart` (static) | -0.02, 0.24, -0.36 | a pink sparkle | Mouth |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Gaiabloom.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Gaiabloom.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
@@ -224,3 +233,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-19, World 1 roster worker (the snout). The eyes moved up a row block (rows 5 to 10 of 16, still in the lower half), and a muzzle block 1.5 by 0.625 by 0.5 is proud of the lower face with the nose and the smile on it as ink cells, so the head reads as a stag's against the pale sky. 84 blocks; the rest unchanged. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: rebuilt from 6 studs to 3.45 by redesign, not by scale: a 2-stud head (it was 2.5) on slim legs, the antler trees in sixteenth-stud parts (trunk, band, branch, tine, three leaf clumps, four blossoms a tree), the old 2.5-stud nimbus (a ring behind the head, too close to Raddis's sun disk at this size) replaced by a floating crown of moss and blossoms that turns over the head, a pink butterfly circling the antlers, a sixteenth-stud smile on the muzzle; its own `bloom` eyes at 32 pixels a stud (six pink and pale-gold petals turning round a gold heart in a moss-green ring), star cheeks. 70 blocks. Round 2: the trees stood straight up and read as two bushes on a box; leaned out 15 degrees and grown a sixteenth they read as antlers; the nose shrank to a quarter stud and the butterfly moved in front of the face's corner. Seven moving objects and the blink; a flourish every 12 s (a hop and a full turn, the crown popping, the trees shaking, the ears flared, the butterfly leaping). Overlap 0.992 to 0.996. Wanted for: a fawn with flowering trees for antlers and a flower turning in each eye, the first light that reaches the ground. Still weak: the body is a plain ivory box from the side (the dapples help only up close); the crown is thin from the three-quarter view; the butterfly is small at distance. Status review.
 - 2026-10-21, Polish w1, one round. The plain ivory box from the side: a moss mane now steps down from the back of the head, and a moss saddle-blanket covers the back and drapes half down each flank with a gold hem and four lit blossoms on it (two on top, one each side); the three back dapples went under the blanket and the side dapples moved below its hem. From the side the torso is now three bands (green moss, a gold line, ivory with pink dapples) and the head-to-back corner steps down instead of dropping. 78 blocks (Legendary 60 to 120). Overlap 0.992 to 0.995. Honest read: from the side it now reads as a fawn the forest has grown over, and the blanket ties the antler trees to the body; the legs are still four plain ivory posts, which is right for a fawn. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a mantle of glass petals over the back (six rows from the mane to the rump, pink lit glass between moss rows like a stained-glass window, every row edged in gold), the flank drapes rebuilt as stained-glass panels (moss and lit pink glass strips under the gold hem), a gilded leaf medallion with a lit heart on the ruff, and a second butterfly; the glow is a saturated pink `#F0287E` (the `#FF6FAE` washed to near white). 106 blocks, ten moving things. Honest read: from the side and the game's high camera the stained glass makes it a Legendary; from the three-quarter view the big ivory head still dominates and the mantle is a strip over the back. Status review.

@@ -33,7 +33,7 @@ A night moth in mauve and pale lilac whose wings are crystal, 3.44 studs to its 
 
 **Hero block.** The `ForeWing` pair, two broad crystal wings with rear lobes, plum edges and lit eyespots, unique in Verdant (Buzzik's wings are small membranes; Raddis's are the sun's).
 
-**Moving parts (seven objects and the blink).** `wingR` and `wingL` (the fore wings with their lobe, edge, ring and eyespot: they beat), `hindwingR` and `hindwingL` (they beat a little behind), `antennaR` and `antennaL` (stalk, feathers and lit tip: they tilt), `shard` (it circles and spins); the face plate blinks and glints.
+**Moving parts (seven objects and the blink).** `wingR` and `wingL` (the fore wings with their lobe, edge, ring and eyespot: they beat), `hindwingR` and `hindwingL` (they beat a little behind), `antennaR` and `antennaL` (stalk, feathers and lit tip: they tilt), `shard` (it circles and spins); the face plate blinks and glints. Rare pass w1: the four wings carry stained-glass panes (lit orchid glass and gold glass), so the objects stay seven and the blink at the Epic cap.
 
 **Alien anatomy.** Wings of crystal that look back with eyespots, six legs under a moth that stands, feathered antennae that light at the tip, and a shard of its own crystal that orbits it.
 
@@ -150,6 +150,14 @@ rig:
       - {part: wing, kind: swish, amp: 12, axis: z, at: 1.4, for: 1}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Panes | `Pane0` (wing) | 0.21, 0.53, -0.17 | a burst of orchid motes off the wings on the flourish | BackR |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Gloomoth.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Gloomoth.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
@@ -181,3 +189,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-19, World 1 roster worker, two rounds. Round 1: the fore wings stood up 65 degrees like sails and read as two white boards behind the head, and the eyespots faced sideways where the game's high camera would not see them. Round 2: the fore wings 2 studs square spread wide at 25 degrees (a 6-stud span) with the eyespots and gold rings on their tops, the hind pair low at 15; the silhouette against Syrinx fell from 0.69 to 0.50. Wanted for: the first wings in Verdant that catch the light. Still cheap: the comb antennae are busy (two stalks and six teeth), the ruff reads as a white collar block, the emblem on the crown is small. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: from 3.64 studs to 3.44 by slimming the antennae (a 0.125 stalk with two sixteenth-stud feather plates and the lit tip, for the old 0.625 blades), the fore wings each with a rear lobe, the hind wings with plum edges and moving, a gold crystal shard circling over the back, a crystal emblem on the forehead; its own `gem` eyes (amethyst iris, orchid diamond pupil, lit gold rim) with a smile and heart cheeks. Round 2: the moon-cream wings vanished against the pale backdrop and the three-cell emblem read as a plus (the medical-cross lesson of World 2), so the accent went to a pale lilac crystal `#D9C8FF` (wings and ruff) and the emblem is a five-row stepped diamond in sixteenth-stud plates. Seven moving objects and the blink; a flourish every 10 s (a hop shaking out all four wings, antennae swishing, the shard leaping). Overlap 0.992 to 0.998, 45 blocks. Wanted for: jewelled eyes and lit eyespots on a soft moth, a step up from every Rare at the same height. Still weak: from the three-quarter camera the fore wings are near edge-on (the game's high camera sees their tops); the six legs are still thin posts. Status review.
 - 2026-10-21, Polish w1, one round. The fore wings were spread flat and lifted 25 degrees, so the three-quarter camera saw them almost edge-on and the eyespots were slivers: each wing and everything on it now also pitches 25 degrees about its own span (rot [-25, 0, 25], every centre turned about the wing's pivot), leading edge down and trailing edge up, so the faces turn toward the front and the gold-ringed eyespots read from the review angle; the hind wings pitch 15 the same way. Not the 65-degree sails of the 2026-10-19 round 1 (two white boards behind the head): the wings still spread wide and low. 45 blocks. Overlap 0.995 to 0.998. Honest read: the wings now read as a moth's wings showing their eyespots, the first thing seen from the review angle. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: stained-glass wings, seven panes on each fore wing (lit orchid glass and gold glass, laid round the eyespot in the wing's own pitched frame) and three on each hind wing; the glow is a deep orchid `#B832E8` (the pale `#E08CFF` washed to white). The flourish snaps the wings open wider (35 degrees) with a full turn and a shard pop. 65 blocks, eight moving things. Honest read: the moth's wings read as stained glass from the three-quarter view; the body is unchanged. Status review.

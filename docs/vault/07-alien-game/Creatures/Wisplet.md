@@ -33,7 +33,7 @@ A will-o'-the-wisp, 3.5 studs to the tip of its flame: a cold blue flame the siz
 
 **Hero block.** The `Bail`, a lantern's iron handle arched over a flame with no lantern, hinged to pins on the belly, unique in Verdant (Lantrin's lamp is a caged ball on a tail; Gaira's nimbus is a closed ring behind its head).
 
-**Moving parts (five objects and the blink).** `halo` (the bail and its ring swing), `floatR` and `floatL` (the flamelets bob and circle), `tip` (the lit tip flickers), `tongue` (the left tongue licks); the plate blinks and glints.
+**Moving parts (five objects and the blink).** `halo` (the bail and its ring swing), `floatR` and `floatL` (the flamelets bob and circle), `tip` (the lit tip flickers), `tongue` (the left tongue licks); the plate blinks and glints. Rare pass w1: `glass` (the lantern's lost glass, four lit panes under iron bars on one slow orbit: it turns, bobs and leaps) makes six objects and the blink.
 
 **Alien anatomy.** A flame with a face that carries its own lantern handle and sheds flamelets that float beside it.
 
@@ -148,6 +148,14 @@ rig:
       - {part: float, kind: hop, amp: 0.3, at: 0.9, for: 1}
 ```
 
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Glass | `Pane0` (glass) | 0.00, 0.71, -0.48 | a lilac sparkle on each pane in turn, a soft light | Body |
+
 ## Build
 
 Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Wisplet.md --out <scratch>`; build and renders: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Wisplet.md --out <scratch>` (never `assets/models`; `glb` stays empty until Ethan approves the sheet; commands in full: [[Blocky-Style]] "The pipeline").
@@ -177,3 +185,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-20, World 1 fixes worker, two rounds. Round 1: a belly block with a three-step flame leaning right, a thin bail and two flamelets by the base: it built and read as a flame, but the boxed silhouette sat at 0.74 against Moop (a block with a sprout on top and a spore beside it), and an eighth-stud bail vanished at distance. Round 2: a second tongue licking up to the left, the flamelets moved wide of the belly at different heights, the bail a quarter stud thick and widened past its pins, the base steps swept left: 0.64 at worst (Syrinx). Overlap 0.996 to 0.997, 342 triangles, 22 blocks, 3.25 studs (the Rare cap). Wanted for: the night's own light in the event's two weeks. Still cheap: the ember tongues are subtle on the pale body in daylight (the VFX preview's cold light brings them up); the bail is half hidden behind the flame from the three-quarter view. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band (3.5 studs to its flickering tip, from 3.25); detail at the same size with smaller blocks, 31 blocks to the Uncommons' 16 to 19 (the Rare band is 18 to 36): a lit tip on the flame and on the left tongue, lit tips on both flamelets, a hanging ring on the bail, a fourth step on the glyph, and a lantern's iron rim with two rivets round its waist, all that is left of the glass it escaped. Its own `crescent` eyes: an ink drop over a violet band and a lilac-lit crescent, two glint frames, a shy smile and blush. Five moving objects and the blink: the tip flickers, the tongue licks, the bail swings, the flamelets bob and circle; and every 9 s a flourish that reads from across the meadow: it ducks, hops and spins round once while the bail swishes, the tip flares and the flamelets leap. Overlap 0.995 to 1.0, 448 triangles; worst silhouette pair 0.672 (Cosmoo). Wanted for: the event's shy blue flame, now visibly a step above the Uncommons in cells, light and motion. Still weak: the iron rim reads as a belt or a saucer under the belly more than as a lantern's rim, and the lilac tips are pale on the sky-blue flame in daylight (the VFX preview's dusk is where it shines). Status review.
 - 2026-10-21, Polish w1, one round. The iron rim round the waist read as a belt: four iron corner struts now rise from it up the belly's corners toward the bail's pins (an eighth proud of each corner, three quarters of a stud tall), so the rim reads as the bottom of a lantern's cage with the flame still in it, and the bail above finishes the lantern. 35 blocks (Rare 18 to 36). Overlap 0.995 to 1.000. Honest read: a lantern at once, the flame living in its broken cage; the struts frame the face without crossing it. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: the lantern's lost glass, four lit violet panes, each under an iron bar, drifting round the flame at four heights on one slow orbit (11 s a turn; on the flourish they leap and spin the other way); the glow is a deeper violet `#9466FF`. 43 blocks, seven moving things. Honest read: the escaped flame with its lantern's glass circling it tells the story at a glance; the panes read pale lilac in daylight and come into their own at night. Status review.
