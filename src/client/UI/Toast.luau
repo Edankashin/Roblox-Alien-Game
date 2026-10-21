@@ -1,12 +1,15 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Toast: short messages that stack top centre under the HUD's top
--- row. Each toast is a dark pill with a coloured square icon on the left and outlined white text (the
+-- row. Each toast is a dark block with a coloured square icon on the left and outlined white text (the
 -- square gives way to a pack icon when the caller names one that is uploaded). It
 -- slides down from above with a Back ease, waits Theme.Tween.Toast seconds, fades out, and the stack
 -- re-flows. At most three show at once; the oldest leaves first. A toast whose words do not fit one line at the minimum
 -- text size grows taller (up to MAX_LINES lines) instead of being cut. Pure presentation: callers decide
 -- what to say (usually a server refusal reason mapped to a TOAST_* string). Banner is the wide,
 -- coloured variant for server-wide announcements; it shares the stack.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): a toast is an edged dark block (a toast is built
+-- per message, so it takes the eight-frame edged form, not full cells), its square a flat block in the accent, a named icon the
+-- pixel icon first (Builder.blockIcon); a banner is an edged block in the accent. The stack, timings and quiet rules are as before.
 -- Quiet moments: while Toast.Quiet() is true (the Reveal is open or a catch is running, which the bootstrap tells
 -- through SetQuietProbe) nothing new is drawn, since the Reveal and the capture bar are the two moments nothing may
 -- cover. Toasts and banners queue instead, in order (Config.ToastHoldMax toasts, the oldest dropped past it; one pending
@@ -178,17 +181,20 @@ local function push(item: Held)
 	Builder.aspect(group, aspect)
 	group.Parent = root
 
-	-- A toast is a dark pill with a coloured icon; a banner is the colour itself, edge to edge.
-	local fill = if banner then accent else Theme.Colors.Trough
-	local pill = Builder.pill({
+	-- A toast is an edged dark block with a coloured square; a banner is an edged block in the colour itself. The plate keeps the
+	-- group's aspect, its rows from the toast's height, so its cells are the HUD's.
+	local fill = if banner then accent else Theme.Block.Trough
+	local pill = Builder.blockPlate({
 		parent = group,
 		name = "Pill",
 		color = fill,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
+		aspect = aspect,
+		rows = Builder.blockRows(height),
+		cells = false,
+		edges = true,
 		zIndex = 1,
 	})
-	Builder.gradient(pill, fill)
+	local top = Builder.blockTop(pill)
 	if banner then
 		Builder.label({
 			parent = pill,
@@ -198,38 +204,37 @@ local function push(item: Held)
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.94, 0.72),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 2,
+			zIndex = top,
 		})
 	else
-		local image: ImageLabel? = nil
+		local image: GuiObject? = nil
 		if iconKey then
-			image = Builder.icon({
+			image = Builder.blockIcon({
 				parent = pill,
 				name = "Icon",
 				key = iconKey,
 				position = UDim2.fromScale(ICON_X, 0.5),
 				size = UDim2.fromScale(ICON_H / aspect, ICON_H),
 				anchor = Vector2.new(0, 0.5),
-				zIndex = 2,
+				zIndex = top,
 			})
 		end
 		local textX = TEXT_X
 		if image then
 			textX = ICON_X + ICON_H / aspect + ICON_GAP
 		else
-			local icon = Builder.frame({
+			Builder.blockPlate({
 				parent = pill,
 				name = "Icon",
+				color = accent,
+				aspect = 1,
+				rows = Theme.Block.MinRows,
+				cells = false,
 				position = UDim2.fromScale(0.03, 0.5),
 				size = UDim2.fromScale(0.12, 0.62),
 				anchor = Vector2.new(0, 0.5),
-				color = accent,
-				corner = Theme.Corner.Card,
-				stroke = Theme.Stroke.Text,
-				aspect = 1,
-				zIndex = 2,
+				zIndex = top,
 			})
-			Builder.gradient(icon, accent)
 		end
 		Builder.label({
 			parent = pill,
@@ -240,7 +245,7 @@ local function push(item: Held)
 			size = UDim2.fromScale(TEXT_X + TEXT_W - textX, TEXT_H),
 			anchor = Vector2.new(0, 0.5),
 			xAlign = Enum.TextXAlignment.Left,
-			zIndex = 2,
+			zIndex = top,
 		})
 	end
 

@@ -8,6 +8,8 @@
 -- caller's canShow is polled every Config.NotifyRetrySeconds, Config.NotifyRetryCount times, then dropped
 -- (the server asks again on a later session). Yes stamps "yes" and raises the native prompt; Not now
 -- stamps "no". The pop-in is skipped under Reduced Motion.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the card a cream block plate at the panel cell with
+-- the block header tab, the two buttons block buttons in cells.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
@@ -94,45 +96,33 @@ local function build()
 	})
 	dim.Active = true
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Card",
+		color = Theme.Colors.Panel,
+		aspect = CARD_ASPECT,
+		rows = Builder.blockPanelRows(CARD_H),
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(CARD_W, CARD_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = CARD_ASPECT,
 		zIndex = 2,
 	})
 	card = body
+	local top = Builder.blockTop(body)
 
-	-- Header tab straddling the top edge, gold, title in white outlined text (the same tab as every panel).
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, HEADER_Y),
-		size = UDim2.fromScale(HEADER_W, HEADER_H),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.NOTIFY_TITLE,
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	-- Header tab straddling the top edge, gold, title in white outlined text (the same tab as every panel), at the Label size.
+	local _, title = Builder.blockHeader(
+		body,
+		CARD_ASPECT,
+		Strings.NOTIFY_TITLE,
+		Theme.Colors.Featured,
+		Vector2.new(HEADER_W, HEADER_H),
+		UDim2.fromScale(0.5, HEADER_Y)
+	)
+	local titleSizes = title:FindFirstChildOfClass("UITextSizeConstraint")
+	if titleSizes then
+		titleSizes.MaxTextSize = Theme.TextSize.Label
+	end
 
 	Builder.label({
 		parent = body,
@@ -144,10 +134,12 @@ local function build()
 		position = UDim2.fromScale(0.5, BODY_Y),
 		size = UDim2.fromScale(0.88, BODY_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = top,
 	})
 
-	Builder.button({
+	-- Fitted block buttons in cells (two, one-off): their size is a share of the card, so their rows come from its height.
+	local buttonRows = Builder.blockButtonRows(BUTTON_H * CARD_H)
+	Builder.blockButton({
 		parent = body,
 		name = "Yes",
 		text = Strings.NOTIFY_YES,
@@ -156,11 +148,12 @@ local function build()
 		size = UDim2.fromScale(BUTTON_W, BUTTON_H),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 3,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		answer("yes")
 	end)
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "No",
 		text = Strings.NOTIFY_NO,
@@ -169,7 +162,8 @@ local function build()
 		size = UDim2.fromScale(BUTTON_W, BUTTON_H),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 3,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		answer("no")
 	end)

@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 import lint_data  # noqa: E402
 
 # The screens rebuilt in block cells after the HUD, one per change (UI Playbook "Screens after the HUD").
-BLOCK_SCREENS = ("Compass.luau", "NearbyPanel.luau", "AliensScreen.luau", "ShopScreen.luau", "QuestsScreen.luau", "SettingsScreen.luau")
+BLOCK_SCREENS = ("Compass.luau", "NearbyPanel.luau", "AliensScreen.luau", "ShopScreen.luau", "QuestsScreen.luau", "SettingsScreen.luau", "Toast.luau", "NotifyCard.luau")
 
 
 def block_numbers():

@@ -421,6 +421,30 @@ describe("Block screens: Settings", function()
 	end
 end)
 
+describe("Block screens: Toast and NotifyCard", function()
+	-- Toast.luau: a one-line toast is 0.42 of the width at 7, a banner 0.7 at 9, each an edged block whose rows come from its
+	-- height; NotifyCard.luau: the card 0.5 x 0.6 at 1.5 at the panel cell, its buttons 0.22 of it tall.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": a toast and a banner are the HUD's cell and eight frames", function()
+			for _, shape in ipairs({ { 0.42, 7 }, { 0.7, 9 } }) do
+				local h = shape[1] * screen.w / shape[2]
+				local grid = BlockMath.Grid(shape[2], BlockMath.Rows(h / screen.h, CELL, INK, MIN_ROWS), INK)
+				local cell = h * grid.cellY
+				assert(cell >= 6 and cell <= 18, "toast cell is " .. cell .. " px")
+				expect(BlockMath.Frames(grid, false, SEED, true)).toEqual(8)
+			end
+		end)
+		it(label .. ": the notify card is panel cells and its buttons carry a 24 px label line", function()
+			local _, h, grid = panel(screen, 0.5, 0.6, 1.5)
+			assert(math.abs(BlockMath.Skew(grid, 1.5)) <= 0.06, "card cells off square")
+			local rows = BlockMath.Rows(0.22 * 0.6 - CELL, CELL, INK, MIN_ROWS)
+			local face = 0.22 * h * (1 - BlockMath.Lip(1, rows, INK))
+			assert(face * (1 - (2 * INK + 0.5) / (rows + 2 * INK)) >= TEXT_MIN, "a button face is " .. face .. " px")
+		end)
+	end
+end)
+
 describe("Block screens: Shop", function()
 	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
 	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
