@@ -123,6 +123,21 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Snowbun = {
+		height = 2.471,
+		parts = {
+			{ name = "earL", pivot = { -0.091, 1.5, -0.8125 }, clips = { { kind = "sway", amp = -10, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.909, 1.5, -0.8125 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = 15, period = 4, phase = 0, axis = "x" } } },
+			{ name = "nose", pivot = { 0.409, 1.0625, -1.4375 }, clips = { { kind = "bob", amp = 0.03, period = 0.5, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0.409, 0, 0.8125 }, clips = { { kind = "pulse", amp = 0.08, period = 4.5, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 10, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 }
 
 return {
