@@ -171,6 +171,17 @@ class TheRepo(unittest.TestCase):
             with self.subTest(sid):
                 self.assertTrue((ROOT / "assets/models" / sid / (sid + "_atlas.png")).exists())
 
+    def test_the_installers_block_cell_table_is_fresh(self):
+        source = (ROOT / "tools/studio/install_models.luau").read_text()
+        start = source.index("-- BEGIN BLOCK-CELL PASTE")
+        start = source.index("\n", start) + 1
+        end = source.index("-- END BLOCK-CELL PASTE")
+        self.assertEqual(source[start:end].strip(), X.emit_luau().strip(),
+                         "paste `python3 -I tools/blocky/export_models.py --emit-luau` into tools/studio/install_models.luau")
+
+    def test_no_texture_or_model_id_is_invented(self):
+        self.assertNotRegex(X.emit_luau(), r"(cellMap|faceMap) = [1-9]")
+
     def test_asset_ids_marks_the_new_files_not_uploaded_and_invents_no_id(self):
         ids = json.loads((ROOT / "assets/models/asset_ids.json").read_text())
         ready, _ = X.roster()

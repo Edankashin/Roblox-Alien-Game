@@ -655,6 +655,11 @@ def main():
     out_root = pathlib.Path(args.out)
     if not out_root.is_absolute():
         out_root = pathlib.Path.cwd() / out_root
+    # the blockouts are retired: a folder holding a block-cell export (tools/blocky/export_models.py, Decision B46) is never overwritten
+    shipped = [sp["id"] for sp in species_list if (out_root / sp["id"] / ("%s_atlas.png" % sp["id"])).exists()]
+    if shipped:
+        print("refusing to overwrite the block-cell models of %s; pass --out <scratch folder> to build blockouts" % ", ".join(shipped))
+        sys.exit(2)
 
     rows = []
     over_budget = []

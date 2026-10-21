@@ -460,6 +460,8 @@ def main():
     folders = sorted(p for p in models.iterdir() if p.is_dir() and (p / ("%s.glb" % p.name)).exists())
     if wanted:
         folders = [p for p in folders if p.name in wanted]
+    # a block-cell folder's previews come from tools/blocky/export_models.py (textured); the flat render here would cut the atlas off
+    folders = [p for p in folders if not (p / ("%s_atlas.png" % p.name)).exists()]
     if not folders:
         print("no GLBs found under %s" % models)
         sys.exit(2)

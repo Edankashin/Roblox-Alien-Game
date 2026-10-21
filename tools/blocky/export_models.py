@@ -23,6 +23,7 @@ Modes:
   $BPY tools/blocky/export_models.py --species Mossbop,Radish
   python3 -I tools/blocky/export_models.py --check         # no Blender: every exported folder against its note and Rigs.luau
   python3 -I tools/blocky/export_models.py --check --species Mossbop
+  python3 -I tools/blocky/export_models.py --emit-luau     # the BLOCK_CELL table for tools/studio/install_models.luau
 
 --check reads the GLB (header, JSON chunk and the binary chunk) and checks: every file present; the mesh nodes are exactly Body, Glow (when
 the alien has static glow), the rig's moving parts and FacePlate, one primitive each, translation only; each moving part's node sits on its
@@ -629,6 +630,32 @@ def run_export(only=None, previews=True):
     return 1 if failed else 0
 
 
+def emit_luau(models=MODELS, ids_file=IDS_FILE):
+    """The BLOCK_CELL table for tools/studio/install_models.luau (between its BLOCK-CELL PASTE markers), from every exported folder's
+    materials.json: per species its new Model asset id (0 while asset_ids.json still marks it pendingUpload, so the installer never loads
+    the old blockout), the cell atlas and face sheet image ids (0 until uploaded; typed in by hand after the upload), and its parts in GLB
+    order with the colour, Neon and the map each samples."""
+    ids = json.loads(pathlib.Path(ids_file).read_text(encoding="utf-8")) if pathlib.Path(ids_file).exists() else {}
+    lines = ["local BLOCK_CELL: { [string]: BlockCellRow } = {"]
+    for folder in sorted(p for p in pathlib.Path(models).iterdir() if p.is_dir()):
+        sid = folder.name
+        if not (folder / (sid + "_atlas.png")).exists():
+            continue
+        entry = ids.get(sid) if isinstance(ids.get(sid), dict) else {}
+        asset = int(entry.get("assetId", 0)) if entry and "pendingUpload" not in entry else 0
+        lines.append("\t%s = {" % sid)
+        lines.append("\t\tassetId = %d, cellMap = 0, faceMap = 0," % asset)
+        lines.append("\t\tparts = {")
+        for e in json.loads((folder / "materials.json").read_text(encoding="utf-8")):
+            neon = e.get("emission", 0) > 0
+            kind = "" if neon else ("face" if e.get("colorMap") == sid + "_face.png" else "cell")
+            lines.append('\t\t\t{ name = "%s", hex = "%s", neon = %s, map = "%s" },' % (e["name"], e["hex"], "true" if neon else "false", kind))
+        lines.append("\t\t},")
+        lines.append("\t},")
+    lines.append("}")
+    return "\n".join(lines)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
@@ -636,9 +663,13 @@ def main(argv=None):
     ap.add_argument("--all", action="store_true", help="every note on the B46 format")
     ap.add_argument("--species", default="", help="comma list of species ids")
     ap.add_argument("--check", action="store_true", help="verify the exported folders (no Blender needed)")
+    ap.add_argument("--emit-luau", action="store_true", help="print the BLOCK_CELL table for tools/studio/install_models.luau")
     ap.add_argument("--no-previews", action="store_true", help="skip the two 256 px renders (they must exist for --check)")
     a = ap.parse_args(argv)
     only = {s.strip() for s in a.species.split(",") if s.strip()} or None
+    if a.emit_luau:
+        print(emit_luau())
+        return 0
     if a.check:
         return run_check(only)
     if not a.all and not only:
