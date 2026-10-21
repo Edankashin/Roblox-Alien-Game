@@ -165,6 +165,16 @@
     "assetId": 129783775931423,
     "file": "assets/models/Gaiabloom/Gaiabloom.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Gaiabloom/Gaiabloom.glb",
+        "assets/models/Gaiabloom/Gaiabloom_atlas.png",
+        "assets/models/Gaiabloom/Gaiabloom_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Gaiabloom`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:17:48Z"
   },
   "GatherStation": {
@@ -205,6 +215,16 @@
     "assetId": 98177790783891,
     "file": "assets/models/Gloomoth/Gloomoth.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Gloomoth/Gloomoth.glb",
+        "assets/models/Gloomoth/Gloomoth_atlas.png",
+        "assets/models/Gloomoth/Gloomoth_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Gloomoth`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:11Z"
   },
   "HeaterLamp": {
@@ -329,6 +349,16 @@
     "assetId": 101992628838997,
     "file": "assets/models/Panpipe/Panpipe.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Panpipe/Panpipe.glb",
+        "assets/models/Panpipe/Panpipe_atlas.png",
+        "assets/models/Panpipe/Panpipe_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Panpipe`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:51Z"
   },
   "Pebblet": {
@@ -421,6 +451,16 @@
     "assetId": 129196086483452,
     "file": "assets/models/Rocklobber/Rocklobber.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Rocklobber/Rocklobber.glb",
+        "assets/models/Rocklobber/Rocklobber_atlas.png",
+        "assets/models/Rocklobber/Rocklobber_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Rocklobber`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:19:52Z"
   },
   "Shellberg": {
@@ -537,6 +577,16 @@
     "assetId": 118664559072176,
     "file": "assets/models/Sparkfox/Sparkfox.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Sparkfox/Sparkfox.glb",
+        "assets/models/Sparkfox/Sparkfox_atlas.png",
+        "assets/models/Sparkfox/Sparkfox_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Sparkfox`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:21:14Z"
   },
   "Spookum": {
@@ -559,6 +609,16 @@
     "assetId": 89950802531319,
     "file": "assets/models/Thunderhog/Thunderhog.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Thunderhog/Thunderhog.glb",
+        "assets/models/Thunderhog/Thunderhog_atlas.png",
+        "assets/models/Thunderhog/Thunderhog_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Thunderhog`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:21:28Z"
   },
   "Toastoad": {
@@ -613,6 +673,16 @@
     "assetId": 105877852533381,
     "file": "assets/models/Zapfinch/Zapfinch.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Zapfinch/Zapfinch.glb",
+        "assets/models/Zapfinch/Zapfinch_atlas.png",
+        "assets/models/Zapfinch/Zapfinch_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Zapfinch`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:22:00Z"
   }
 }

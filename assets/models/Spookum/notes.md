@@ -10,7 +10,7 @@
 - Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `Glow` (the static glow blocks, Neon); `armL` (moves, cells, pivot -1, 1.75, -0.2812); `armR` (moves, cells, pivot 1, 1.75, -0.2812); `hem` (moves, cells, pivot 0, 0.75, -0.0312); `lanternL` (moves, Neon, pivot -1.375, 2.375, -0.2812); `stem` (moves, cells, pivot 0, 2.75, -0.0312); `FacePlate` (the face sheet, frame 0)
 - Eyes: `hearty`; the face plate is 28x14 px a frame, 5 frames (open, half, closed, glint1, glint2) in Spookum_face.png, 4 a row (Rigs face.columns)
 - Rig: 5 moving parts, root clips 1, flourish every 10s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Spookum.glb (64560 bytes), Spookum.fbx (71516 bytes, texture embedded), Spookum_atlas.png, Spookum_face.png, materials.json, Spookum.png and Spookum_grey.png (256 px previews)
+- Files: Spookum.glb (64560 bytes), Spookum.fbx (71484 bytes, texture embedded), Spookum_atlas.png, Spookum_face.png, materials.json, Spookum.png and Spookum_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Spookum`; check with `python3 -I tools/blocky/export_models.py --check --species Spookum`.

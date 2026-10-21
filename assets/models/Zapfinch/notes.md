@@ -1,19 +1,16 @@
-# Zapfinch blockout
+# Zapfinch block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Zapfinch (Rare)
-- Concept: bird, antenna crest
-- Body: Ball, placeholder colour #5DADE2, placeholder scale 0.9
-- Accessory: the antenna crest: three glowing rods ending in round tips (silhouette pass; #FFE45C, emissive 1.5)
-- Tier dressing: tier size 110% (carried by placeholder.scale), metallic accessory
-- Triangles: 1440 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 2.86 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #5DADE2, BodyDark #2F5F8F, EyeWhite, Pupil, Mouth, Accessory #FFE45C
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Zapfinch.glb (38352 bytes), Zapfinch.fbx (39436 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Zapfinch.md (Zirrit, World 1, Rare, status review)
+- Height: 3.375 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 30
+- Triangles: 538 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Zapfinch_atlas.png 1024x256, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `crestL` (moves, Neon, pivot -0.375, 2.5, -0.8125); `crestR` (moves, Neon, pivot 0.375, 2.5, -0.8125); `tail` (moves, cells, pivot 0, 1.1875, 0.75); `wingL` (moves, cells, pivot -0.75, 1.25, 0); `wingR` (moves, cells, pivot 0.75, 1.25, 0); `FacePlate` (the face sheet, frame 0)
+- Eyes: `bubble`; the face plate is 28x12 px a frame, 5 frames (open, half, closed, glint1, glint2) in Zapfinch_face.png, 4 a row (Rigs face.columns)
+- Rig: 5 moving parts, root clips 1, flourish every 7s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Zapfinch.glb (50392 bytes), Zapfinch.fbx (63804 bytes, texture embedded), Zapfinch_atlas.png, Zapfinch_face.png, materials.json, Zapfinch.png and Zapfinch_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a plump bird balanced on two thin legs with a fan of three tail feathers behind, stubby wings out to the sides and a three-pronged antenna crest rising from the head. Hero: the antenna crest: three glowing rods ending in round tips.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Zapfinch`; check with `python3 -I tools/blocky/export_models.py --check --species Zapfinch`.

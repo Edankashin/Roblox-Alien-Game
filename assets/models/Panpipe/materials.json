@@ -2,60 +2,104 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "1A1A1A",
-    "roughness": 0.8,
+    "hex": "4A4166",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "B28CFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "beard",
+    "hex": "1E1A2E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "7A1F3D",
-    "roughness": 0.8,
+    "name": "bellR",
+    "hex": "8C86A6",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "E9DDBA",
-    "roughness": 0.8,
+    "name": "earL",
+    "hex": "4A4166",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "4FD8FF",
-    "roughness": 0.8,
+    "name": "earR",
+    "hex": "4A4166",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 3.0,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "noteL",
+    "hex": "B28CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
+    "name": "note2R",
+    "hex": "B28CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 9,
+    "name": "pipesR",
+    "hex": "B28CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 10,
+    "name": "tail",
+    "hex": "1E1A2E",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 11,
+    "name": "FacePlate",
+    "hex": "4A4166",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Panpipe_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

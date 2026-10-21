@@ -2,60 +2,72 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "C0392B",
-    "roughness": 0.8,
+    "hex": "C8553D",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "antennaR",
+    "hex": "A39E94",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "clawL",
+    "hex": "A39E94",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "clawR",
+    "hex": "A39E94",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "8A857D",
-    "roughness": 0.8,
+    "name": "legL",
+    "hex": "3A3238",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFA928",
-    "roughness": 0.35,
+    "name": "legR",
+    "hex": "3A3238",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Rocklobber_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "C8553D",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Rocklobber_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]
