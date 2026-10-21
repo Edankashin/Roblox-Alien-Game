@@ -92,6 +92,32 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Sparkfox = {
+		height = 3,
+		parts = {
+			{ name = "earL", pivot = { -0.875, 2.25, -1.4375 }, clips = { { kind = "wag", amp = -14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
+			{ name = "earR", pivot = { 0.375, 2.25, -1.4375 }, clips = { { kind = "wag", amp = 14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
+			{ name = "floatR", pivot = { 1.25, 2.1875, 2.1875 }, clips = { { kind = "bob", amp = 0.12, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 4, phase = 0, axis = "y" } } },
+			{ name = "tailR", pivot = { 0.125, 1.125, 1.1875 }, clips = { { kind = "sway", amp = 14, period = 2.2, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3.3, phase = 0.25, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 2.4, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 8, length = 2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.3, axis = "y", at = 0.1, length = 0.6 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.1, length = 1.4 },
+				{ part = "tailR", kind = "swish", amp = 30, axis = "z", at = 0.4, length = 1.4 },
+				{ part = "earL", kind = "flare", amp = -20, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "earR", kind = "flare", amp = 20, axis = "z", at = 0.2, length = 0.8 },
+				{ part = "floatR", kind = "hop", amp = 0.4, axis = "y", at = 0.8, length = 0.8 },
+			},
+		},
+	},
 }
 
 return {
