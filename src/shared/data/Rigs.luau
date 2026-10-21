@@ -17,6 +17,21 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Buzzlebee = {
+		height = 2.581,
+		parts = {
+			{ name = "antenna", pivot = { 0, 1.625, -1.0312 }, clips = { { kind = "sway", amp = 10, period = 1.6, phase = 0, axis = "x" } } },
+			{ name = "stinger", pivot = { 0, 0.9375, 1.2188 }, clips = { { kind = "wag", amp = 15, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.375, 1.625, 0.0938 }, clips = { { kind = "flap", amp = -20, period = 0.4, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.375, 1.625, 0.0938 }, clips = { { kind = "flap", amp = 20, period = 0.4, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "bob", amp = 0.08, period = 1.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Glimmo = {
 		height = 2.493,
 		parts = {
