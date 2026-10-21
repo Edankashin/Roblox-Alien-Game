@@ -1,0 +1,40 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "6E69AE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonPoolRing_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "2E8A78",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonPoolRing_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Trim",
+    "hex": "3BA88A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonPoolRing_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "FFB3E6",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

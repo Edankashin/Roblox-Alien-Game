@@ -116,6 +116,7 @@ local ASSET_IDS: { [string]: number } = {
 	Zapfinch = 105877852533381,
 }
 local PROP_NAMES: { [string]: boolean } = {
+	ArchBridge = true,
 	BlossomTree = true,
 	Boulder = true,
 	BuildStation = true,
@@ -128,6 +129,11 @@ local PROP_NAMES: { [string]: boolean } = {
 	GatherStation = true,
 	GeyserCone = true,
 	GeyserVent = true,
+	GlowFern = true,
+	GlowcapGiant = true,
+	GlowcapGiantBlue = true,
+	GlowcapGiantPink = true,
+	GlowcapSmall = true,
 	HeaterLamp = true,
 	IceCaveMouth = true,
 	IceCrystalCluster = true,
@@ -143,7 +149,12 @@ local PROP_NAMES: { [string]: boolean } = {
 	MeadowRockB = true,
 	MeadowTree = true,
 	MeadowTreeB = true,
+	MoonPoolRing = true,
+	MoonTree = true,
+	MoonTreeB = true,
+	MossStone = true,
 	Mushroom = true,
+	PathLantern = true,
 	Pedestal = true,
 	Reeds = true,
 	ShipHull = true,
@@ -155,8 +166,11 @@ local PROP_NAMES: { [string]: boolean } = {
 	SnowPine = true,
 	SnowPineB = true,
 	SparkStation = true,
+	StarIsland = true,
+	SteppingStone = true,
 }
 local MATERIALS: { [string]: { { string | number } } } = {
+	ArchBridge = { { "Body", "B07A56", 0.55, 0, 0 }, { "BodyDark", "6A4636", 0.55, 0, 0 }, { "Accessory", "3C3564", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "FFE7B0", 0.55, 0, 1.5 } },
 	BlossomTree = { { "Body", "FF9EC4", 0.55, 0, 0 }, { "BodyDark", "6B3F2A", 0.55, 0, 0 }, { "Accessory", "FFE3EE", 0.55, 0, 0 } },
 	Boulder = { { "Body", "9E9E8E", 0.55, 0, 0 }, { "BodyDark", "7C7C6E", 0.55, 0, 0 }, { "Accessory", "6CB04A", 0.55, 0, 0 }, { "Trim", "F2E6D0", 0.55, 0, 0 }, { "Glow", "FFB86B", 0.55, 0, 1.5 } },
 	BuildStation = { { "Wood", "8B5A2B", 0.8, 0, 0 }, { "Plank", "C99A5B", 0.8, 0, 0 }, { "Metal", "8A93A0", 0.5, 0.4, 0 } },
@@ -181,6 +195,11 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	GeyserVent = { { "Rock", "6B4A36", 0.8, 0, 0 }, { "Crack", "2A1A12", 0.8, 0, 0 }, { "Rim", "D98A4E", 0.8, 0, 0 }, { "Water", "4FB3D9", 0.8, 0, 0 }, { "Glow", "F2FBFF", 0.8, 0, 2 } },
 	Glimmo = { { "Body", "FFE066", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "E4A83A", 0.8, 0, 0 }, { "Accessory", "B8FF4F", 0.8, 0, 3 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Gloomoth = { { "Body", "A569BD", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "6B447B", 0.8, 0, 0 }, { "Accessory", "5CF0D0", 0.8, 0, 1.5 }, { "Trim", "C026D3", 0.3, 1, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
+	GlowFern = { { "Body", "2F9A8A", 0.55, 0, 0 }, { "BodyDark", "1F6670", 0.55, 0, 0 }, { "Glow", "A6E8FF", 0.55, 0, 1.5 } },
+	GlowcapGiant = { { "Body", "ECE6FF", 0.55, 0, 0 }, { "BodyDark", "D6CCEE", 0.55, 0, 0 }, { "Accessory", "9C8FD0", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "EEF6FF", 0.55, 0, 1.5 } },
+	GlowcapGiantBlue = { { "Body", "86C8F5", 0.55, 0, 0 }, { "BodyDark", "DCD6F2", 0.55, 0, 0 }, { "Accessory", "4A78C0", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "A6E8FF", 0.55, 0, 1.5 } },
+	GlowcapGiantPink = { { "Body", "F49AD8", 0.55, 0, 0 }, { "BodyDark", "E4DAF4", 0.55, 0, 0 }, { "Accessory", "B85CA6", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
+	GlowcapSmall = { { "Body", "F5A6DC", 0.55, 0, 0 }, { "BodyDark", "E6DEF6", 0.55, 0, 0 }, { "Accessory", "FFF4FB", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "D2B0FF", 0.55, 0, 1.5 } },
 	HeaterLamp = { { "Metal", "3A4049", 0.5, 0.4, 0 }, { "Glow", "FF8C42", 0.8, 0, 2 } },
 	IceCaveMouth = { { "Ice", "CFEAF7", 0.3, 0, 0 }, { "IceBlue", "6EC6F0", 0.25, 0, 0 }, { "Snow", "F7FBFF", 0.8, 0, 0 }, { "Dark", "0E1A26", 0.8, 0, 0 } },
 	IceCrystalCluster = { { "Body", "BFEBFA", 0.55, 0, 0 }, { "BodyDark", "7F8E99", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Glow", "68C9FE", 0.55, 0, 1.5 } },
@@ -198,10 +217,15 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	MeadowRockB = { { "Rock", "8E8E8E", 0.8, 0, 0 }, { "Moss", "3F9B3A", 0.8, 0, 0 } },
 	MeadowTree = { { "Trunk", "7B4A2D", 0.8, 0, 0 }, { "Leaves", "3F9B3A", 0.8, 0, 0 } },
 	MeadowTreeB = { { "Trunk", "7B4A2D", 0.8, 0, 0 }, { "Leaves", "3F9B3A", 0.8, 0, 0 } },
+	MoonPoolRing = { { "Body", "6E69AE", 0.55, 0, 0 }, { "Accessory", "2E8A78", 0.55, 0, 0 }, { "Trim", "3BA88A", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
+	MoonTree = { { "Body", "4752C4", 0.55, 0, 0 }, { "BodyDark", "3F2878", 0.55, 0, 0 }, { "Accessory", "2A8A94", 0.55, 0, 0 }, { "Trim", "CDC3F2", 0.55, 0, 0 }, { "Glow", "A6E8FF", 0.55, 0, 1.5 } },
+	MoonTreeB = { { "Body", "2A8A94", 0.55, 0, 0 }, { "BodyDark", "4A2F86", 0.55, 0, 0 }, { "Accessory", "3E44B0", 0.55, 0, 0 }, { "Trim", "D2B0FF", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
+	MossStone = { { "Body", "5D5BA0", 0.55, 0, 0 }, { "Accessory", "2E8A70", 0.55, 0, 0 }, { "Glow", "D2B0FF", 0.55, 0, 1.5 } },
 	Mossbop = { { "Body", "6BCB3F", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "3F8F2E", 0.8, 0, 0 }, { "Accessory", "FF8A3D", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Mushroom = { { "Body", "E8483D", 0.55, 0, 0 }, { "BodyDark", "F2E6D0", 0.55, 0, 0 }, { "Accessory", "FFF8EE", 0.55, 0, 0 }, { "Trim", "5E9E3A", 0.55, 0, 0 } },
 	Nebulyn = { { "Body", "7B5CFF", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "503CA6", 0.8, 0, 0 }, { "Accessory", "FFCC5C", 0.8, 0, 1.5 }, { "Trim", "F59E0B", 0.3, 1, 0 } },
 	Panpipe = { { "Body", "1A1A1A", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "7A1F3D", 0.8, 0, 0 }, { "BodyDark", "E9DDBA", 0.8, 0, 0 }, { "Accessory", "4FD8FF", 0.8, 0, 3 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
+	PathLantern = { { "Body", "3A3562", 0.55, 0, 0 }, { "BodyDark", "272340", 0.55, 0, 0 }, { "Accessory", "2C7F72", 0.55, 0, 0 }, { "Trim", "A891E6", 0.55, 0, 0 }, { "Glow", "FFE7B0", 0.55, 0, 1.5 } },
 	Pebblet = { { "Body", "9A9A9A", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "6B6760", 0.8, 0, 0 }, { "Accessory", "78C850", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Pedestal = { { "Stone", "C8C4A8", 0.8, 0, 0 } },
 	Pengoo = { { "Body", "2B3F5C", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "1C293C", 0.8, 0, 0 }, { "Accessory", "FF8A3D", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 }, { "Belly", "DDE6F0", 0.7, 0, 0 } },
@@ -226,6 +250,8 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	SparkStation = { { "Stem", "3F9B3A", 0.8, 0, 0 }, { "Petal", "A855F7", 0.8, 0, 0 }, { "Glow", "FFC83D", 0.8, 0, 2 } },
 	Sparkfox = { { "Body", "FF6B35", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "A8431C", 0.8, 0, 0 }, { "Accessory", "FFE066", 0.35, 0, 2 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Spookum = { { "Body", "F2F2FF", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "9D9DA6", 0.8, 0, 0 }, { "Accessory", "33B6FF", 0.8, 0, 0 }, { "Trim", "C026D3", 0.3, 1, 0 } },
+	StarIsland = { { "Body", "2E7F76", 0.55, 0, 0 }, { "BodyDark", "4C4894", 0.55, 0, 0 }, { "Accessory", "7FD2FF", 0.55, 0, 0 }, { "Trim", "CDC3F2", 0.55, 0, 0 }, { "Glow", "EEF6FF", 0.55, 0, 1.5 } },
+	SteppingStone = { { "Body", "8E88C6", 0.55, 0, 0 }, { "Accessory", "2E8A78", 0.55, 0, 0 } },
 	Thunderhog = { { "Body", "8E44AD", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "5C2C70", 0.8, 0, 0 }, { "Accessory", "FFE23B", 0.8, 0, 2 }, { "Trim", "C026D3", 0.3, 1, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Toastoad = { { "Body", "E8713A", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "974926", 0.8, 0, 0 }, { "Accessory", "9FB3C8", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
 	Twiglet = { { "Body", "8B5A2B", 0.8, 0, 0 }, { "EyeWhite", "FFFFFF", 0.5, 0, 0 }, { "Pupil", "08080A", 0.4, 0, 0 }, { "Mouth", "2E0D14", 0.8, 0, 0 }, { "BodyDark", "5C3A1C", 0.8, 0, 0 }, { "Accessory", "6FBF3F", 0.8, 0, 0 }, { "EyeHighlight", "FFFFFF", 0.3, 0, 0 } },
@@ -668,6 +694,16 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 -- END BLOCK-CELL PASTE
 -- BEGIN BLOCK-CELL PROPS PASTE: output of `python3 -I tools/blocky/export_models.py --emit-luau --props`
 local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
+	ArchBridge = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "B07A56", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "6A4636", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "3C3564", neon = false, map = "cell" },
+			{ name = "Trim", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFE7B0", neon = true, map = "" },
+		},
+	},
 	BlossomTree = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
@@ -777,6 +813,54 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "Accessory", hex = "F2FBFF", neon = false, map = "cell" },
 			{ name = "Trim", hex = "D98A4E", neon = false, map = "cell" },
 			{ name = "Glow", hex = "9FE8FF", neon = true, map = "" },
+		},
+	},
+	GlowFern = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2F9A8A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "1F6670", neon = false, map = "cell" },
+			{ name = "Glow", hex = "A6E8FF", neon = true, map = "" },
+		},
+	},
+	GlowcapGiant = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "ECE6FF", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "D6CCEE", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "9C8FD0", neon = false, map = "cell" },
+			{ name = "Trim", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Glow", hex = "EEF6FF", neon = true, map = "" },
+		},
+	},
+	GlowcapGiantBlue = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "86C8F5", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "DCD6F2", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "4A78C0", neon = false, map = "cell" },
+			{ name = "Trim", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Glow", hex = "A6E8FF", neon = true, map = "" },
+		},
+	},
+	GlowcapGiantPink = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F49AD8", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "E4DAF4", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "B85CA6", neon = false, map = "cell" },
+			{ name = "Trim", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB3E6", neon = true, map = "" },
+		},
+	},
+	GlowcapSmall = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F5A6DC", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "E6DEF6", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFF4FB", neon = false, map = "cell" },
+			{ name = "Trim", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Glow", hex = "D2B0FF", neon = true, map = "" },
 		},
 	},
 	HeaterLamp = {
@@ -913,6 +997,43 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "Accessory", hex = "FFF3F7", neon = false, map = "cell" },
 		},
 	},
+	MoonPoolRing = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6E69AE", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "2E8A78", neon = false, map = "cell" },
+			{ name = "Trim", hex = "3BA88A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB3E6", neon = true, map = "" },
+		},
+	},
+	MoonTree = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4752C4", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3F2878", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "2A8A94", neon = false, map = "cell" },
+			{ name = "Trim", hex = "CDC3F2", neon = false, map = "cell" },
+			{ name = "Glow", hex = "A6E8FF", neon = true, map = "" },
+		},
+	},
+	MoonTreeB = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2A8A94", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4A2F86", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5560D0", neon = false, map = "cell" },
+			{ name = "Trim", hex = "D2B0FF", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB3E6", neon = true, map = "" },
+		},
+	},
+	MossStone = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "5D5BA0", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "2E8A70", neon = false, map = "cell" },
+			{ name = "Glow", hex = "D2B0FF", neon = true, map = "" },
+		},
+	},
 	Mushroom = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
@@ -920,6 +1041,16 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "F2E6D0", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "FFF8EE", neon = false, map = "cell" },
 			{ name = "Trim", hex = "5E9E3A", neon = false, map = "cell" },
+		},
+	},
+	PathLantern = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "3A3562", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "272340", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "2C7F72", neon = false, map = "cell" },
+			{ name = "Trim", hex = "A891E6", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFE7B0", neon = true, map = "" },
 		},
 	},
 	Pedestal = {
@@ -1016,6 +1147,23 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "3F9B3A", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "5DBB3A", neon = false, map = "cell" },
 			{ name = "Glow", hex = "FFC83D", neon = true, map = "" },
+		},
+	},
+	StarIsland = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2E7F76", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4C4894", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "7FD2FF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "CDC3F2", neon = false, map = "cell" },
+			{ name = "Glow", hex = "EEF6FF", neon = true, map = "" },
+		},
+	},
+	SteppingStone = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "8E88C6", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "2E8A78", neon = false, map = "cell" },
 		},
 	},
 }

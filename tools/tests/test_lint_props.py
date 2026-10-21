@@ -27,9 +27,10 @@ class PropsLint(unittest.TestCase):
     def setUp(self):
         self.tables = copy.deepcopy(tables())
         self.exported = lint_data.block_cell_props(ROOT)
+        self.exported_slots = lint_data.block_cell_prop_slots(ROOT)
 
     def failures(self):
-        return lint_data.lint_props(self.tables, self.exported)
+        return lint_data.lint_props(self.tables, self.exported, self.exported_slots)
 
     def rows(self):
         return self.tables["Props"]["Rows"]
@@ -74,6 +75,29 @@ class PropsLint(unittest.TestCase):
         found = self.failures()
         self.assertTrue(any("MeadowRock" in f and "just collision" in f for f in found))
         self.assertTrue(any("IceRock" in f and "just collision" in f for f in found))
+
+    def test_slot_overrides_match_their_notes(self):
+        # the Starhollow props (Decision B48): a giant glowcap's stem boxes, its cap never collides
+        self.assertEqual(self.exported_slots["GlowcapGiant"]["Body"], "None")
+        for name, slots in self.exported_slots.items():
+            with self.subTest(name):
+                self.assertEqual(self.rows()[name].get("slots") or {}, slots)
+
+    def test_a_slot_override_that_disagrees_with_its_note_fails(self):
+        self.rows()["GlowcapGiant"]["slots"]["Body"] = "Box"
+        self.assertTrue(any("GlowcapGiant.slots" in f and "spec note" in f for f in self.failures()))
+
+    def test_an_unknown_slot_or_slot_collision_fails(self):
+        self.rows()["MeadowRock"]["slots"] = {"Leaves": "None"}
+        self.rows()["IceRock"]["slots"] = {"Glow": "Mesh"}
+        found = self.failures()
+        self.assertTrue(any("MeadowRock.slots.Leaves" in f for f in found))
+        self.assertTrue(any("IceRock.slots.Glow" in f for f in found))
+
+    def test_the_slot_lists_match(self):
+        luau = (ROOT / "src/shared/ModelInstall.luau").read_text(encoding="utf-8")
+        listed = re.search(r"ModelInstall\.PropSlots = \{([^}]*)\}", luau)[1]
+        self.assertEqual(tuple(re.findall(r'"(\w+)"', listed)), lint_data.PROP_SLOTS)
 
     def test_a_missing_table_fails(self):
         self.tables["Props"] = {}

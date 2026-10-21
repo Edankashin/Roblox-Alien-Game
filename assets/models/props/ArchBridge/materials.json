@@ -1,0 +1,50 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "B07A56",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ArchBridge_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "6A4636",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ArchBridge_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "3C3564",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ArchBridge_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "2C7F72",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ArchBridge_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "FFE7B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

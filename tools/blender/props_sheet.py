@@ -9,6 +9,9 @@ Two steps, because Blender's Python has no Pillow:
   $BPY tools/blender/props_sheet.py --out <scratch dir> [--size 520] [--samples 32]     # one lit PNG a row and rows.json (labels' places)
   python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/props_v1.jpg
 
+  $BPY tools/blender/props_sheet.py --out <scratch dir> --night      # the Starhollow Forest props at night (Decision B48), then
+  python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/starhollow_props_v1.jpg
+
 The rows: World 1's trees and rocks, World 1's small things, World 2, the landmarks, the camp, each on a floor in its world's tone (a
 mid tone, so white snow and pale ice read against it). Each prop faces the camera as the game's
 front (the note's -Z), turned a little so its side shows.
@@ -35,9 +38,56 @@ ROWS = [
     ("The shrine and the camp", "#B3AA94", ["Shrine", "Pedestal", "ShrineStone", "ShipHull", "BuildStation", "GatherStation", "SparkStation"]),
 ]
 GAP = 1.5
+# `--night`: the Starhollow Forest props (Decision B48) lit as the area is, at night: a deep indigo sky, a faint cool moon, and the
+# props' own glow cells as the light sources (each Glow mesh brighter, with a point light in its colour), on a floor of MoonGrass's tone
+ROWS_NIGHT = [
+    ("Starhollow Forest: the moon trees and the giant glowcaps", "#2B4F58",
+     ["MoonTree", "MoonTreeB", "GlowcapGiant", "GlowcapGiantPink", "GlowcapGiantBlue"]),
+    ("Starhollow Forest: the floating landmark, the bridge and the moon pool ring", "#2B4F58", ["StarIsland", "ArchBridge", "MoonPoolRing"]),
+    ("Starhollow Forest: the path lantern and the scatter", "#2B4F58",
+     ["PathLantern", "GlowcapSmall", "GlowFern", "MossStone", "SteppingStone"]),
+]
+NIGHT_SKY = (0.035, 0.04, 0.12)
+NIGHT_GLOW = 5.0
 
 
-def render_rows(out, size, samples):
+def night_lights(scene, centre, extent, objs, spec_by_obj):
+    """A faint cool moon and fill, then a point light at each Glow mesh in its own colour (the game's PointLights on the glow cells)."""
+    from mathutils import Vector
+    import bpy
+    import blocky_build as B
+    moon = bpy.data.lights.new("Moon", "SUN")
+    moon.energy = 0.55
+    moon.angle = math.radians(6.0)
+    moon.color = (0.72, 0.76, 1.0)
+    mo = bpy.data.objects.new("Moon", moon)
+    scene.collection.objects.link(mo)
+    mo.rotation_euler = (-Vector((-0.35, -0.6, 0.72))).to_track_quat("-Z", "Y").to_euler()
+    fill = bpy.data.lights.new("Fill", "AREA")
+    fill.energy = 18.0 * extent * extent / 4.0
+    fill.size = extent * 3.0
+    fill.color = (0.55, 0.5, 1.0)
+    fo = bpy.data.objects.new("Fill", fill)
+    scene.collection.objects.link(fo)
+    fo.location = centre + Vector((extent * 3.0, -extent * 2.0, extent * 2.0))
+    fo.rotation_euler = (centre - fo.location).to_track_quat("-Z", "Y").to_euler()
+    k = 0
+    for o in objs:
+        if not o.name.endswith("Glow") or o not in spec_by_obj:
+            continue
+        lo, hi = B.bounds([o])
+        size = max(hi - lo)
+        light = bpy.data.lights.new("GlowLight%d" % k, "POINT")
+        light.energy = min(900.0, 60.0 + 30.0 * size * size)
+        light.color = B.lin(spec_by_obj[o])[:3]
+        light.shadow_soft_size = max(0.3, size * 0.25)
+        lo_obj = bpy.data.objects.new("GlowLight%d" % k, light)
+        lo_obj.location = (lo + hi) * 0.5
+        scene.collection.objects.link(lo_obj)
+        k += 1
+
+
+def render_rows(out, size, samples, night=False):
     sys.path.insert(0, str(HERE))
     sys.path.insert(0, str(ROOT / "tools/blocky"))
     import bpy
@@ -48,9 +98,10 @@ def render_rows(out, size, samples):
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = []
-    for r, (title, floor, names) in enumerate(ROWS):
+    for r, (title, floor, names) in enumerate(ROWS_NIGHT if night else ROWS):
         scene = B.reset()
         objs = list(B.avatar((0, 0, 0), out_dir=out))
+        glow_hex = {}
         x = 2.0 + GAP
         tallest = 5.0
         centres = []
@@ -60,15 +111,25 @@ def render_rows(out, size, samples):
             w = hi[0] - lo[0]
             x += w / 2
             cx = -(lo[0] + hi[0]) / 2  # Blender X is the spec's -x: the bounds' centre lands on x
-            made = B.build(spec, out, offset=(x - cx, -(lo[2] + hi[2]) / 2, 0.0), prefix="R%d%s_" % (r, name), cell=C.WORLD_CELL)
+            made = B.build(spec, out, offset=(x - cx, -(lo[2] + hi[2]) / 2, 0.0), prefix="R%d%s_" % (r, name), cell=C.WORLD_CELL,
+                           glow=NIGHT_GLOW if night else B.GLOW_BUILD)
             objs += made["objects"]
+            pal = S.palette(spec)
+            for o in made["objects"]:
+                if o.name.endswith("Glow") and "glow" in pal:
+                    glow_hex[o] = pal["glow"]
             centres.append((name, x, hi[1]))
             x += w / 2 + GAP
             tallest = max(tallest, hi[1])
         aspect = max(2.0, round((x + 2.0) / tallest * 0.82, 2))
         cam, centre, extent = B.tq_camera(scene, objs, yaw=12.0, pitch=16.0, margin=1.08, aspect=aspect)
-        B.lit_setup(scene, size, samples, floor_hex=floor, extent=extent, centre=centre)
-        B.add_lights(scene, centre, extent)
+        if night:
+            B.lit_setup(scene, size, samples, sky=NIGHT_SKY, sky_strength=1.0, floor_hex=floor, extent=extent, centre=centre)
+            night_lights(scene, centre, extent, objs, glow_hex)
+            B.glare(scene, "Fog Glow", 0.6)
+        else:
+            B.lit_setup(scene, size, samples, floor_hex=floor, extent=extent, centre=centre)
+            B.add_lights(scene, centre, extent)
         scene.render.resolution_x = int(size * aspect)
         scene.render.resolution_y = size
         path = out / ("props_row%d.png" % r)
@@ -79,7 +140,7 @@ def render_rows(out, size, samples):
         for name, px, top in centres:
             p = world_to_camera_view(scene, cam, Vector((px, 0.0, 0.0)))
             labels.append({"name": name, "u": p.x, "v": 1.0 - p.y})
-        meta.append({"title": title, "png": path.name, "labels": labels})
+        meta.append({"title": title, "png": path.name, "labels": labels, "night": night})
         print("row %d: %s (%d props)" % (r, path, len(names)), flush=True)
     (out / "rows.json").write_text(json.dumps(meta, indent=1))
     return 0
@@ -107,8 +168,10 @@ def compose(folder, sheet):
     H = 110 + sum(im.height + 96 for _, im in rows)
     out = Image.new("RGB", (width + 40, H), "#F6F0E6")
     d = ImageDraw.Draw(out)
-    d.text((20, 16), "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar" %
-           sum(len(m["labels"]) for m, _ in rows), font=bold, fill="#1B1F3B")
+    night = any(m.get("night") for m, _ in rows)
+    head = ("Starhollow Forest props v1 (Decisions B44, B48): %d props at night, lit by their own glow cells, to scale beside the 5-stud avatar"
+            if night else "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar")
+    d.text((20, 16), head % sum(len(m["labels"]) for m, _ in rows), font=bold, fill="#1B1F3B")
     d.text((20, 50), "docs/vault/07-alien-game/Props/<Name>.md -> tools/blocky/export_models.py --props -> assets/models/props/<Name>/. World cell 0.25 studs; "
            "glow cells become Neon. Under each name: the triangles exported and the budget, and the collision.", font=reg, fill="#5F6375")
     y = 86
@@ -143,6 +206,7 @@ def main():
     ap.add_argument("--out", help="a scratch folder for the row renders (never assets/models)")
     ap.add_argument("--size", type=int, default=520, help="each row's height in pixels")
     ap.add_argument("--samples", type=int, default=32)
+    ap.add_argument("--night", action="store_true", help="the Starhollow Forest rows at night (ROWS_NIGHT), lit by their glow cells")
     ap.add_argument("--compose", help="the folder of row renders to compose (no Blender)")
     ap.add_argument("--sheet", default=str(ROOT / "media/studio/2026-10-21/props_v1.jpg"))
     a = ap.parse_args(argv)
@@ -153,7 +217,7 @@ def main():
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models")
         return 2
-    return render_rows(a.out, a.size, a.samples)
+    return render_rows(a.out, a.size, a.samples, night=a.night)
 
 
 if __name__ == "__main__":

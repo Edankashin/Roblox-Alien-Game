@@ -18,6 +18,8 @@ SURFACE_KEYS = ('material', 'texture', 'glossy')
 # The values a data/Props row's `collision` may take. Shared/ModelInstall.PropCollisions keeps the same list;
 # tools/tests/test_lint_props.py checks the two match.
 PROP_COLLISIONS = ('Box', 'Hull', 'Precise', 'None')
+# The colour slots a row's `slots` may override (a block-cell prop's MeshParts; Shared/ModelInstall.PropSlots keeps the same list).
+PROP_SLOTS = ('Body', 'BodyDark', 'Accessory', 'Trim', 'Glow')
 TEXTURE_FIELDS = ('colorMap', 'normalMap', 'roughnessMap')
 LEX = re.compile(r'''--\[(=*)\[.*?\]\1\]|--[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|\S''', re.S)
 
@@ -625,14 +627,34 @@ def block_cell_props(root=ROOT):
     return found
 
 
-def lint_props(tables, exported=None):
+def block_cell_prop_slots(root=ROOT):
+    """{name: {slot: collision}} from the `collision_slots: {Slot: Collision, ...}` line of each exported block-cell prop's spec note
+    (an empty map when the note has none), for the props block_cell_props() finds."""
+    found = {}
+    for name in block_cell_props(root):
+        note = Path(root) / 'docs/vault/07-alien-game/Props' / f'{name}.md'
+        match = re.search(r'^collision_slots:\s*\{([^}]*)\}\s*$', note.read_text(encoding='utf-8'), re.M) if note.is_file() else None
+        slots = {}
+        if match:
+            for pair in match[1].split(','):
+                if ':' in pair:
+                    k, v = (x.strip() for x in pair.split(':', 1))
+                    slots[k] = v
+        found[name] = slots
+    return found
+
+
+def lint_props(tables, exported=None, exported_slots=None):
     """data/Props: one row per imported prop (data/ModelAssets.PropNames) and per block-cell prop exported but not yet uploaded
-    (`exported`, block_cell_props()), each row's collision one of PROP_COLLISIONS, and a block-cell prop's row the collision its note names."""
+    (`exported`, block_cell_props()), each row's collision one of PROP_COLLISIONS, and a block-cell prop's row the collision its note names.
+    A row may add `slots` ({slot: collision}, the slots PROP_SLOTS); a block-cell prop's slots must be the note's `collision_slots`
+    (`exported_slots`, block_cell_prop_slots())."""
     rows = (tables.get('Props') or {}).get('Rows')
     names = (tables.get('ModelAssets') or {}).get('PropNames')
     if not isinstance(rows, dict) or not isinstance(names, dict):
         return ['Props.luau: Rows (and ModelAssets.PropNames) unavailable']
     exported = {} if exported is None else exported
+    exported_slots = {} if exported_slots is None else exported_slots
     failures = []
     for name in sorted(set(names) | set(exported), key=str):
         if name not in rows:
@@ -641,9 +663,22 @@ def lint_props(tables, exported=None):
         where = f'Props.Rows.{name}'
         if name not in names and name not in exported:
             failures.append(f'{where}: not in ModelAssets.PropNames and no block-cell export in assets/models/props/{name}')
-        if not isinstance(row, dict) or set(row) != {'collision'}:
-            failures.append(f'{where}: expected a row with just collision')
-        elif row['collision'] not in PROP_COLLISIONS:
+        if not isinstance(row, dict) or 'collision' not in row or set(row) - {'collision', 'slots'}:
+            failures.append(f'{where}: expected a row with just collision (and optional slots)')
+            continue
+        slots = row.get('slots')
+        if slots is not None:
+            if not isinstance(slots, dict) or not slots:
+                failures.append(f'{where}.slots: expected a map of colour slot to collision')
+                slots = {}
+            for slot, value in sorted(slots.items(), key=lambda kv: str(kv[0])):
+                if slot not in PROP_SLOTS:
+                    failures.append(f'{where}.slots.{slot}: not a colour slot ({", ".join(PROP_SLOTS)})')
+                elif value not in PROP_COLLISIONS:
+                    failures.append(f'{where}.slots.{slot}: {value!r} is not one of {", ".join(PROP_COLLISIONS)}')
+        if name in exported_slots and (slots or {}) != exported_slots[name]:
+            failures.append(f'{where}.slots: {slots or {}!r}, but its spec note (Props/{name}.md) says collision_slots {exported_slots[name]!r}')
+        if row['collision'] not in PROP_COLLISIONS:
             failures.append(f'{where}.collision: {row["collision"]!r} is not one of {", ".join(PROP_COLLISIONS)}')
         elif exported.get(name) and exported[name] != row['collision']:
             failures.append(f'{where}.collision: {row["collision"]!r}, but its spec note (Props/{name}.md) says {exported[name]!r}')
@@ -1188,7 +1223,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
-    failures.extend(lint_props(tables, block_cell_props(root)))
+    failures.extend(lint_props(tables, block_cell_props(root), block_cell_prop_slots(root)))
     failures.extend(lint_effects(tables, types))
     failures.extend(lint_reveal(tables, root))
     for finding in lint_shapes(tables, strings, types):

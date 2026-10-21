@@ -1,0 +1,30 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "5D5BA0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MossStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "2E8A70",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MossStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Glow",
+    "hex": "D2B0FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

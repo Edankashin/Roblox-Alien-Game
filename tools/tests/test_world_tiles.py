@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT / "tools/blocky"))
 import world_tiles as W  # noqa: E402
 
 KEYS = ("GrassTop", "GrassSide", "Dirt", "Path", "Stone", "Sand", "Water", "WoodPlank", "Snow", "SnowSide", "PackedSnow", "Ice",
-        "FrozenWater", "Rock")
+        "FrozenWater", "Rock", "MoonPath", "MoonGrass", "GlowWater")
 
 
 class WorldTiles(unittest.TestCase):

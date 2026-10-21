@@ -448,6 +448,37 @@ describe("ModelInstall.CollisionPlan", function()
 	end)
 end)
 
+describe("ModelInstall.SlotCollision", function()
+	it("takes a slot's own entry, else the row's collision, else nil", function()
+		local row: Types.PropRow = { collision = "Box", slots = { Body = "None", Glow = "None" } }
+		expect(ModelInstall.SlotCollision(row, "BodyDark")).toEqual("Box")
+		expect(ModelInstall.SlotCollision(row, "Body")).toEqual("None")
+		expect(ModelInstall.SlotCollision(row, "Glow")).toEqual("None")
+		expect(ModelInstall.SlotCollision({ collision = "Hull" }, "Body")).toEqual("Hull")
+		expect(ModelInstall.SlotCollision(nil, "Body")).toEqual(nil)
+	end)
+	it("names only colour slots in the data rows", function()
+		for _, name in ipairs(sortedNames(propRows)) do
+			local slots = propRows[name].slots
+			if slots then
+				for slot, collision in pairs(slots) do
+					assert(table.find(ModelInstall.PropSlots, slot) ~= nil, name .. " overrides the unknown slot " .. tostring(slot))
+					assert(table.find(ModelInstall.PropCollisions, collision) ~= nil, name .. "." .. slot .. " has an unknown collision")
+				end
+			end
+		end
+	end)
+	it("keeps the Starhollow glowcap caps and the bridge rails out of the way", function()
+		for _, name in ipairs({ "GlowcapGiant", "GlowcapGiantPink", "GlowcapGiantBlue" }) do
+			expect(ModelInstall.SlotCollision(propRows[name], "BodyDark")).toEqual("Box")
+			expect(ModelInstall.SlotCollision(propRows[name], "Body")).toEqual("None")
+		end
+		expect(ModelInstall.SlotCollision(propRows.ArchBridge, "Body")).toEqual("Hull")
+		expect(ModelInstall.SlotCollision(propRows.ArchBridge, "BodyDark")).toEqual("None")
+		expect(propRows.MoonPoolRing.collision).toEqual("Precise")
+	end)
+end)
+
 describe("ModelInstall.Assign (MeshParts to Materials rows: by name first, then slot order)", function()
 	it("a block-cell model keeps its part names whatever order the importer gives", function()
 		local parts = { "FacePlate", "sprout", "Body", "floatR" }

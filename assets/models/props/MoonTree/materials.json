@@ -1,0 +1,50 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "4752C4",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "3F2878",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "2A8A94",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "CDC3F2",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MoonTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "A6E8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

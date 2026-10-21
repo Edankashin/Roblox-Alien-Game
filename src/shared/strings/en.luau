@@ -127,7 +127,7 @@ return {
 	TUT_4 = "Puffpuff wants to help! Catch it and it will build.",
 	TUT_5 = "Catch 3 more aliens while they work.",
 	TUT_6 = "Your crew is building the Hull Frame. Watch the ship bar.",
-	TUT_7 = "Thrusters need Glowroot from the Forest. Follow the marker.",
+	TUT_7 = "Thrusters need Glowroot from Starhollow Forest. Follow the marker.",
 	TUT_DONE = "You know the loop: catch, build, fly.",
 	TUT_PROGRESS = "%d/%d",
 	WAYPOINT_DISTANCE = "%dm",
@@ -259,7 +259,7 @@ return {
 	HUD_BIOME = "%s", -- the biome chip; a prefix can be added here for other languages
 	BIOME_Home = "Home",
 	BIOME_Meadow = "Meadow",
-	BIOME_Forest = "Forest",
+	BIOME_Forest = "Starhollow Forest", -- World 1's Forest region, moonlit (Decision B48); the biome id stays Forest
 	BIOME_Cave = "Cave",
 	BIOME_Snowfield = "Snowfield",
 	BIOME_IceCave = "Ice Cave",

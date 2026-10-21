@@ -1,0 +1,50 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "ECE6FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GlowcapGiant_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "D6CCEE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GlowcapGiant_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "9C8FD0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GlowcapGiant_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "2C7F72",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GlowcapGiant_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "EEF6FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]
