@@ -1,0 +1,919 @@
+{
+  "ArchBridge/atlas": {
+    "assetId": 129624427842913,
+    "file": "assets/models/props/ArchBridge/ArchBridge_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:22:49Z"
+  },
+  "Bench/atlas": {
+    "assetId": 134766636221447,
+    "file": "assets/models/props/Bench/Bench_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:22:52Z"
+  },
+  "BlossomTree/atlas": {
+    "assetId": 129722605797188,
+    "file": "assets/models/props/BlossomTree/BlossomTree_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:22:55Z"
+  },
+  "Boulder/atlas": {
+    "assetId": 94190205341692,
+    "file": "assets/models/props/Boulder/Boulder_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:22:58Z"
+  },
+  "BuildStation/atlas": {
+    "assetId": 105110232673349,
+    "file": "assets/models/props/BuildStation/BuildStation_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:01Z"
+  },
+  "Bush/atlas": {
+    "assetId": 123490970202787,
+    "file": "assets/models/props/Bush/Bush_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:04Z"
+  },
+  "Buzzlebee/atlas": {
+    "assetId": 125828331053144,
+    "file": "assets/models/Buzzlebee/Buzzlebee_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:07Z"
+  },
+  "Buzzlebee/face": {
+    "assetId": 107456863720179,
+    "file": "assets/models/Buzzlebee/Buzzlebee_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:33Z"
+  },
+  "Capybubble/atlas": {
+    "assetId": 102170616995536,
+    "file": "assets/models/Capybubble/Capybubble_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:10Z"
+  },
+  "Capybubble/face": {
+    "assetId": 95868711382297,
+    "file": "assets/models/Capybubble/Capybubble_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:35Z"
+  },
+  "CaveMouth/atlas": {
+    "assetId": 115009141268915,
+    "file": "assets/models/props/CaveMouth/CaveMouth_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:13Z"
+  },
+  "Chipmole/atlas": {
+    "assetId": 134549476797596,
+    "file": "assets/models/Chipmole/Chipmole_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:16Z"
+  },
+  "Chipmole/face": {
+    "assetId": 77344125270716,
+    "file": "assets/models/Chipmole/Chipmole_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:38Z"
+  },
+  "CrashWreck/atlas": {
+    "assetId": 119101931353620,
+    "file": "assets/models/props/CrashWreck/CrashWreck_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:19Z"
+  },
+  "Drippo/atlas": {
+    "assetId": 84862197537322,
+    "file": "assets/models/Drippo/Drippo_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:22Z"
+  },
+  "Drippo/face": {
+    "assetId": 92463040257744,
+    "file": "assets/models/Drippo/Drippo_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:41Z"
+  },
+  "Emberchin/atlas": {
+    "assetId": 78788157525745,
+    "file": "assets/models/Emberchin/Emberchin_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:25Z"
+  },
+  "Emberchin/face": {
+    "assetId": 127586012111539,
+    "file": "assets/models/Emberchin/Emberchin_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:44Z"
+  },
+  "Fence/atlas": {
+    "assetId": 117230171501812,
+    "file": "assets/models/props/Fence/Fence_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:28Z"
+  },
+  "Fenripup/atlas": {
+    "assetId": 98805900704653,
+    "file": "assets/models/Fenripup/Fenripup_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:31Z"
+  },
+  "Fenripup/face": {
+    "assetId": 133467660892796,
+    "file": "assets/models/Fenripup/Fenripup_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:47Z"
+  },
+  "Flag/atlas": {
+    "assetId": 113041024008922,
+    "file": "assets/models/props/Flag/Flag_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:34Z"
+  },
+  "Flapsicle/atlas": {
+    "assetId": 139780094030151,
+    "file": "assets/models/Flapsicle/Flapsicle_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:37Z"
+  },
+  "Flapsicle/face": {
+    "assetId": 126084933620267,
+    "file": "assets/models/Flapsicle/Flapsicle_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:50Z"
+  },
+  "FlowerPatch/atlas": {
+    "assetId": 125316860287947,
+    "file": "assets/models/props/FlowerPatch/FlowerPatch_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:40Z"
+  },
+  "Flufflet/atlas": {
+    "assetId": 75701173304880,
+    "file": "assets/models/Flufflet/Flufflet_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:43Z"
+  },
+  "Flufflet/face": {
+    "assetId": 105670636258657,
+    "file": "assets/models/Flufflet/Flufflet_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:53Z"
+  },
+  "Fountain/atlas": {
+    "assetId": 124111844392060,
+    "file": "assets/models/props/Fountain/Fountain_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:45Z"
+  },
+  "Frostfang/atlas": {
+    "assetId": 82036490257617,
+    "file": "assets/models/Frostfang/Frostfang_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:48Z"
+  },
+  "Frostfang/face": {
+    "assetId": 115977475938324,
+    "file": "assets/models/Frostfang/Frostfang_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:56Z"
+  },
+  "FrozenLog/atlas": {
+    "assetId": 133851986392593,
+    "file": "assets/models/props/FrozenLog/FrozenLog_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:51Z"
+  },
+  "Gaiabloom/atlas": {
+    "assetId": 126348438051364,
+    "file": "assets/models/Gaiabloom/Gaiabloom_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:54Z"
+  },
+  "Gaiabloom/face": {
+    "assetId": 103379264295241,
+    "file": "assets/models/Gaiabloom/Gaiabloom_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:27:59Z"
+  },
+  "GatherStation/atlas": {
+    "assetId": 129725740251392,
+    "file": "assets/models/props/GatherStation/GatherStation_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:23:57Z"
+  },
+  "GeyserCone/atlas": {
+    "assetId": 101603878438678,
+    "file": "assets/models/props/GeyserCone/GeyserCone_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:00Z"
+  },
+  "GeyserVent/atlas": {
+    "assetId": 123851121079430,
+    "file": "assets/models/props/GeyserVent/GeyserVent_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:03Z"
+  },
+  "Glimmo/atlas": {
+    "assetId": 112956437373893,
+    "file": "assets/models/Glimmo/Glimmo_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:06Z"
+  },
+  "Glimmo/face": {
+    "assetId": 130023931960842,
+    "file": "assets/models/Glimmo/Glimmo_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:02Z"
+  },
+  "Gloomoth/atlas": {
+    "assetId": 109581033901605,
+    "file": "assets/models/Gloomoth/Gloomoth_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:09Z"
+  },
+  "Gloomoth/face": {
+    "assetId": 92719850114884,
+    "file": "assets/models/Gloomoth/Gloomoth_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:05Z"
+  },
+  "GlowFern/atlas": {
+    "assetId": 73941458757224,
+    "file": "assets/models/props/GlowFern/GlowFern_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:12Z"
+  },
+  "GlowcapGiant/atlas": {
+    "assetId": 104539172183329,
+    "file": "assets/models/props/GlowcapGiant/GlowcapGiant_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:15Z"
+  },
+  "GlowcapGiantBlue/atlas": {
+    "assetId": 107095366023849,
+    "file": "assets/models/props/GlowcapGiantBlue/GlowcapGiantBlue_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:18Z"
+  },
+  "GlowcapGiantPink/atlas": {
+    "assetId": 129883868548169,
+    "file": "assets/models/props/GlowcapGiantPink/GlowcapGiantPink_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:21Z"
+  },
+  "GlowcapSmall/atlas": {
+    "assetId": 104008883570900,
+    "file": "assets/models/props/GlowcapSmall/GlowcapSmall_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:24Z"
+  },
+  "HabitatFrostbyte/atlas": {
+    "assetId": 103033452417217,
+    "file": "assets/models/props/HabitatFrostbyte/HabitatFrostbyte_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:26Z"
+  },
+  "HabitatVerdant/atlas": {
+    "assetId": 96181932774541,
+    "file": "assets/models/props/HabitatVerdant/HabitatVerdant_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:29Z"
+  },
+  "HeaterLamp/atlas": {
+    "assetId": 122765120285670,
+    "file": "assets/models/props/HeaterLamp/HeaterLamp_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:32Z"
+  },
+  "IceCaveMouth/atlas": {
+    "assetId": 74879162045049,
+    "file": "assets/models/props/IceCaveMouth/IceCaveMouth_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:35Z"
+  },
+  "IceCrystalCluster/atlas": {
+    "assetId": 117418979960976,
+    "file": "assets/models/props/IceCrystalCluster/IceCrystalCluster_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:38Z"
+  },
+  "IceLantern/atlas": {
+    "assetId": 77319907790912,
+    "file": "assets/models/props/IceLantern/IceLantern_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:41Z"
+  },
+  "IceRock/atlas": {
+    "assetId": 113203427198247,
+    "file": "assets/models/props/IceRock/IceRock_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:44Z"
+  },
+  "IceRockB/atlas": {
+    "assetId": 93924392787747,
+    "file": "assets/models/props/IceRockB/IceRockB_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:47Z"
+  },
+  "IceSpire/atlas": {
+    "assetId": 125940857683806,
+    "file": "assets/models/props/IceSpire/IceSpire_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:50Z"
+  },
+  "Icicles/atlas": {
+    "assetId": 120918951138627,
+    "file": "assets/models/props/Icicles/Icicles_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:53Z"
+  },
+  "Kettlepuff/atlas": {
+    "assetId": 78941305435084,
+    "file": "assets/models/Kettlepuff/Kettlepuff_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:56Z"
+  },
+  "Kettlepuff/face": {
+    "assetId": 120734714956032,
+    "file": "assets/models/Kettlepuff/Kettlepuff_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:08Z"
+  },
+  "Lantern/atlas": {
+    "assetId": 95611539263761,
+    "file": "assets/models/props/Lantern/Lantern_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:24:59Z"
+  },
+  "Lanternewt/atlas": {
+    "assetId": 111368360073628,
+    "file": "assets/models/Lanternewt/Lanternewt_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:01Z"
+  },
+  "Lanternewt/face": {
+    "assetId": 75720678609398,
+    "file": "assets/models/Lanternewt/Lanternewt_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:10Z"
+  },
+  "LilyPad/atlas": {
+    "assetId": 79769707989030,
+    "file": "assets/models/props/LilyPad/LilyPad_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:04Z"
+  },
+  "Log/atlas": {
+    "assetId": 92471615252212,
+    "file": "assets/models/props/Log/Log_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:07Z"
+  },
+  "MeadowRock/atlas": {
+    "assetId": 130590423541272,
+    "file": "assets/models/props/MeadowRock/MeadowRock_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:10Z"
+  },
+  "MeadowRockB/atlas": {
+    "assetId": 120826401742022,
+    "file": "assets/models/props/MeadowRockB/MeadowRockB_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:13Z"
+  },
+  "MeadowTree/atlas": {
+    "assetId": 95839352432927,
+    "file": "assets/models/props/MeadowTree/MeadowTree_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:18Z"
+  },
+  "MeadowTreeB/atlas": {
+    "assetId": 89444257363166,
+    "file": "assets/models/props/MeadowTreeB/MeadowTreeB_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:21Z"
+  },
+  "MoonPoolRing/atlas": {
+    "assetId": 113281978619284,
+    "file": "assets/models/props/MoonPoolRing/MoonPoolRing_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:24Z"
+  },
+  "MoonTree/atlas": {
+    "assetId": 97610117317693,
+    "file": "assets/models/props/MoonTree/MoonTree_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:27Z"
+  },
+  "MoonTreeB/atlas": {
+    "assetId": 77859146288966,
+    "file": "assets/models/props/MoonTreeB/MoonTreeB_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:30Z"
+  },
+  "MossStone/atlas": {
+    "assetId": 137239239056564,
+    "file": "assets/models/props/MossStone/MossStone_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:33Z"
+  },
+  "Mossbop/atlas": {
+    "assetId": 85746211754423,
+    "file": "assets/models/Mossbop/Mossbop_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:36Z"
+  },
+  "Mossbop/face": {
+    "assetId": 102155247275289,
+    "file": "assets/models/Mossbop/Mossbop_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:13Z"
+  },
+  "Mushroom/atlas": {
+    "assetId": 88134393146293,
+    "file": "assets/models/props/Mushroom/Mushroom_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:39Z"
+  },
+  "Nebulyn/atlas": {
+    "assetId": 103044098131987,
+    "file": "assets/models/Nebulyn/Nebulyn_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:42Z"
+  },
+  "Nebulyn/face": {
+    "assetId": 137600768239299,
+    "file": "assets/models/Nebulyn/Nebulyn_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:16Z"
+  },
+  "Panpipe/atlas": {
+    "assetId": 127280744425204,
+    "file": "assets/models/Panpipe/Panpipe_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:44Z"
+  },
+  "Panpipe/face": {
+    "assetId": 118090998856873,
+    "file": "assets/models/Panpipe/Panpipe_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:19Z"
+  },
+  "PathLantern/atlas": {
+    "assetId": 130280974181426,
+    "file": "assets/models/props/PathLantern/PathLantern_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:47Z"
+  },
+  "Pebblet/atlas": {
+    "assetId": 96383895884335,
+    "file": "assets/models/Pebblet/Pebblet_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:50Z"
+  },
+  "Pebblet/face": {
+    "assetId": 137950855740241,
+    "file": "assets/models/Pebblet/Pebblet_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:22Z"
+  },
+  "Pedestal/atlas": {
+    "assetId": 92802503395914,
+    "file": "assets/models/props/Pedestal/Pedestal_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:53Z"
+  },
+  "Pengoo/atlas": {
+    "assetId": 102562844507379,
+    "file": "assets/models/Pengoo/Pengoo_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:56Z"
+  },
+  "Pengoo/face": {
+    "assetId": 86124235964670,
+    "file": "assets/models/Pengoo/Pengoo_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:25Z"
+  },
+  "Planter/atlas": {
+    "assetId": 131240820239975,
+    "file": "assets/models/props/Planter/Planter_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:25:59Z"
+  },
+  "Puffpuff/atlas": {
+    "assetId": 78566767126161,
+    "file": "assets/models/Puffpuff/Puffpuff_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:02Z"
+  },
+  "Puffpuff/face": {
+    "assetId": 114356190180239,
+    "file": "assets/models/Puffpuff/Puffpuff_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:28Z"
+  },
+  "Radish/atlas": {
+    "assetId": 118306079705716,
+    "file": "assets/models/Radish/Radish_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:05Z"
+  },
+  "Radish/face": {
+    "assetId": 130631797532326,
+    "file": "assets/models/Radish/Radish_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:31Z"
+  },
+  "Reeds/atlas": {
+    "assetId": 121459424618267,
+    "file": "assets/models/props/Reeds/Reeds_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:08Z"
+  },
+  "Reindazzle/atlas": {
+    "assetId": 84400200526128,
+    "file": "assets/models/Reindazzle/Reindazzle_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:11Z"
+  },
+  "Reindazzle/face": {
+    "assetId": 80486772257910,
+    "file": "assets/models/Reindazzle/Reindazzle_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:34Z"
+  },
+  "Rocklobber/atlas": {
+    "assetId": 93015135011546,
+    "file": "assets/models/Rocklobber/Rocklobber_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:14Z"
+  },
+  "Rocklobber/face": {
+    "assetId": 102358703541200,
+    "file": "assets/models/Rocklobber/Rocklobber_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:37Z"
+  },
+  "RoomCabin/atlas": {
+    "assetId": 89484414731982,
+    "file": "assets/models/props/RoomCabin/RoomCabin_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:17Z"
+  },
+  "RoomDome/atlas": {
+    "assetId": 96024240086279,
+    "file": "assets/models/props/RoomDome/RoomDome_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:19Z"
+  },
+  "RoomTower/atlas": {
+    "assetId": 102500293558631,
+    "file": "assets/models/props/RoomTower/RoomTower_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:22Z"
+  },
+  "Shellberg/atlas": {
+    "assetId": 118253824602593,
+    "file": "assets/models/Shellberg/Shellberg_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:25Z"
+  },
+  "Shellberg/face": {
+    "assetId": 105628960459948,
+    "file": "assets/models/Shellberg/Shellberg_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:40Z"
+  },
+  "Shimmerlynx/atlas": {
+    "assetId": 71772588785755,
+    "file": "assets/models/Shimmerlynx/Shimmerlynx_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:28Z"
+  },
+  "Shimmerlynx/face": {
+    "assetId": 76518919537230,
+    "file": "assets/models/Shimmerlynx/Shimmerlynx_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:43Z"
+  },
+  "ShipHull/atlas": {
+    "assetId": 134855472403075,
+    "file": "assets/models/props/ShipHull/ShipHull_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:31Z"
+  },
+  "Shrine/atlas": {
+    "assetId": 103294824574082,
+    "file": "assets/models/props/Shrine/Shrine_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:34Z"
+  },
+  "ShrineStone/atlas": {
+    "assetId": 84316452136736,
+    "file": "assets/models/props/ShrineStone/ShrineStone_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:37Z"
+  },
+  "Signpost/atlas": {
+    "assetId": 104994519064474,
+    "file": "assets/models/props/Signpost/Signpost_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:40Z"
+  },
+  "Skaddle/atlas": {
+    "assetId": 108311900711550,
+    "file": "assets/models/Skaddle/Skaddle_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:43Z"
+  },
+  "Skaddle/face": {
+    "assetId": 75365845771162,
+    "file": "assets/models/Skaddle/Skaddle_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:45Z"
+  },
+  "Snailbyte/atlas": {
+    "assetId": 82363186776298,
+    "file": "assets/models/Snailbyte/Snailbyte_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:46Z"
+  },
+  "Snailbyte/face": {
+    "assetId": 82854745987504,
+    "file": "assets/models/Snailbyte/Snailbyte_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:48Z"
+  },
+  "SnowBush/atlas": {
+    "assetId": 123180477676531,
+    "file": "assets/models/props/SnowBush/SnowBush_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:49Z"
+  },
+  "SnowDrift/atlas": {
+    "assetId": 106760437462558,
+    "file": "assets/models/props/SnowDrift/SnowDrift_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:52Z"
+  },
+  "SnowPine/atlas": {
+    "assetId": 117324495832922,
+    "file": "assets/models/props/SnowPine/SnowPine_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:55Z"
+  },
+  "SnowPineB/atlas": {
+    "assetId": 126983462029007,
+    "file": "assets/models/props/SnowPineB/SnowPineB_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:26:58Z"
+  },
+  "Snowbun/atlas": {
+    "assetId": 103412428606828,
+    "file": "assets/models/Snowbun/Snowbun_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:00Z"
+  },
+  "Snowbun/face": {
+    "assetId": 111913279215945,
+    "file": "assets/models/Snowbun/Snowbun_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:51Z"
+  },
+  "SparkStation/atlas": {
+    "assetId": 136955036719981,
+    "file": "assets/models/props/SparkStation/SparkStation_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:03Z"
+  },
+  "Sparkfox/atlas": {
+    "assetId": 137560215794126,
+    "file": "assets/models/Sparkfox/Sparkfox_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:06Z"
+  },
+  "Sparkfox/face": {
+    "assetId": 84763229482988,
+    "file": "assets/models/Sparkfox/Sparkfox_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:54Z"
+  },
+  "Spookum/atlas": {
+    "assetId": 115126173011812,
+    "file": "assets/models/Spookum/Spookum_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:09Z"
+  },
+  "Spookum/face": {
+    "assetId": 134582599794733,
+    "file": "assets/models/Spookum/Spookum_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:28:57Z"
+  },
+  "StarIsland/atlas": {
+    "assetId": 72958963692369,
+    "file": "assets/models/props/StarIsland/StarIsland_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:12Z"
+  },
+  "SteppingStone/atlas": {
+    "assetId": 78170330276846,
+    "file": "assets/models/props/SteppingStone/SteppingStone_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:15Z"
+  },
+  "Thunderhog/atlas": {
+    "assetId": 90267580906127,
+    "file": "assets/models/Thunderhog/Thunderhog_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:18Z"
+  },
+  "Thunderhog/face": {
+    "assetId": 88504877078696,
+    "file": "assets/models/Thunderhog/Thunderhog_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:29:00Z"
+  },
+  "Toastoad/atlas": {
+    "assetId": 123516660816798,
+    "file": "assets/models/Toastoad/Toastoad_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:21Z"
+  },
+  "Toastoad/face": {
+    "assetId": 80804548633545,
+    "file": "assets/models/Toastoad/Toastoad_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:29:03Z"
+  },
+  "Twiglet/atlas": {
+    "assetId": 107931547670836,
+    "file": "assets/models/Twiglet/Twiglet_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:24Z"
+  },
+  "Twiglet/face": {
+    "assetId": 99907634928674,
+    "file": "assets/models/Twiglet/Twiglet_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:29:06Z"
+  },
+  "Wisplet/atlas": {
+    "assetId": 103902318497723,
+    "file": "assets/models/Wisplet/Wisplet_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:27Z"
+  },
+  "Wisplet/face": {
+    "assetId": 109625190441968,
+    "file": "assets/models/Wisplet/Wisplet_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:29:09Z"
+  },
+  "Zapfinch/atlas": {
+    "assetId": 120957711423668,
+    "file": "assets/models/Zapfinch/Zapfinch_atlas.png",
+    "format": "png",
+    "kind": "atlas",
+    "uploadedAt": "2026-10-21T20:27:30Z"
+  },
+  "Zapfinch/face": {
+    "assetId": 94595005089492,
+    "file": "assets/models/Zapfinch/Zapfinch_face.png",
+    "format": "png",
+    "kind": "face",
+    "uploadedAt": "2026-10-21T20:29:12Z"
+  }
+}
