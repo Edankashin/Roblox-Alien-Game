@@ -13,7 +13,7 @@ up: "[[Art-Pipelines]]"
 
 1. **Describe** a world in `tools/blocky/worlds/world<id>.json`: features applied in order (noise, edge ridge, hills, plateaus with ledges, basins, rivers with falls, wall rings, paths cut as stairs, rooms under the ground, roofs, decks, fixed props, scatter by rule, props along a path, icicles off cliff edges, rare spots, sights, effects). `kit.json` holds the ground kinds (tile keys, fallback colour and Material, spawn, tint), the block placeholder of every scatter prop and the budget.
 2. **Generate**: `python3 -I tools/blocky/world_gen.py` writes `src/shared/data/WorldGen1.luau`, `WorldGen2.luau` and `WorldKit.luau`; `--report` prints the counts and the checks; `--check` fails when the committed data is stale. Standard library only, deterministic.
-3. **Preview**: `bpyenv/bin/python tools/blender/world_preview.py -- --world 1 --out <scratch> --views top,hero` (and `--night --views starhollow`); the sheets are `media/studio/2026-10-21/ingame_world1_preview.jpg` and `ingame_world2_preview.jpg`.
+3. **Preview**: `bpyenv/bin/python tools/blender/world_preview.py -- --world 1 --out <scratch> --views top,hero,camp` (and `--night --views starhollow`); every placed prop stands as its exported block-cell mesh (`assets/models/props/<Name>/<Name>.glb`, the block placeholder only where none is exported; `--placeholders` for the old look), with the layout's landmarks at their yaw, the camp's ShipHull and stations, and the shrine. The sheets are `media/studio/2026-10-21/ingame_world1_preview_v2.jpg` and `ingame_world2_preview_v2.jpg` (the first ones, all placeholders, are `ingame_world1_preview.jpg` and `ingame_world2_preview.jpg`).
 4. **Build**: `Services/Meadow` builds from `Shared/WorldGrid` at server start (skipped when `Workspace.World` exists; the home planet keeps the flat floor).
 
 ## The rules that made it work
@@ -23,10 +23,25 @@ up: "[[Art-Pipelines]]"
 - **Contours cost parts.** Noise rounded to studs makes bands; a lower amplitude, a larger scale, a terraced edge ridge (4-stud steps) and a clean-up that removes one-cell slivers halved the count. Colour patches split merges too (a lighter-green paint cost 970 caps; dropped).
 - **Paths cut in, never build up.** A path follows the ground but rises at most 0.4 studs a stud, cut as a trench into a hill (stairs), then every two touching path cells differ by one stud at most. Cut-only keeps both ends flush with the ground; a raised envelope left a step at the foot.
 - **Reachability is a check.** From the camp, on foot (climb 1): the shrine, every landmark, every spot not marked `jump`; and no column is a trap (the camp is reachable from everywhere with a 6-stud jump). The build fails otherwise.
-- **The camp contract.** The cap under the camp is `MeadowFloor` at the old floor top (clients read it); the camp is a flat green at height 0, radius 34.
+- **The camp contract.** The cap under the camp is `MeadowFloor` at the old floor top (clients read it); the camp is a flat green at height 0, radius 34. The camp deck over it is a solid with `walk` off, so the grid's surface at the camp stays the floor top, as it was under the old round pad ("The camp" below).
 - **Water over a room is overhead.** The nook behind the waterfall is carved under the river: its water keeps its own bed, and the grid ignores water whose bed is above the column.
 - **Props keep off the path.** A canopy scatter takes `pathGap` (no path column within 6 studs) or the crowns hide the path that should lead the eye.
 - **Fallbacks.** A tile id of 0 means no Texture: the kind's colour and a fitting Material. A prop mesh that is not imported means its block placeholder from `WorldKit.Recipes`; collidable placeholder parts are queryable so the wild aliens' wander raycast sees trunks and rocks.
+
+## The camp: the cosy heart of each world
+
+2026-10-21, the camp worker. The camp rendered as a blank cream disc on a pale square and the crash wreck as two grey boxes; now the camp is generator data in both worlds and the wreck a crashed little ship ([[CrashWreck]]).
+
+![World 1's camp in block cells: the hero view and the camp close up, every prop as its exported mesh](../../../media/studio/2026-10-21/ingame_world1_preview_v2.jpg)
+
+- **The deck**: a `solid` of kind `campDeck` (WoodPlank, C08A55) 24 studs square and `CampPadThickness` (0.4) tall at the origin, so the SpawnLocation stands on it exactly where it stood on the round pad. `Services/Meadow` draws no round `CampPad` when the generated ground has a solid of that height over the origin (`hasCampDeck`); the home planet keeps its disc.
+- **The kerb**: eight `solid`s 2 studs wide and 0.75 tall round the deck (World 1 `stone`, World 2 `rock`), an opening 14 studs wide in the middle of each side: north to the Spark station and the north path, south to the ship (the hull is 12 wide), east and west to the Build and Gather stations. Deck and kerb have `walk` off (see the camp contract).
+- **The ground paint**: a Path (World 2 trail) apron 32 studs square, walkways under the Gather and Build stations, a Stone (World 2 packed snow) bay under the ship's hull. Rectangles merge better than the old r18 circle: World 1 went from 4,255 ground parts to 4,251.
+- **The dressing** (fixed `prop` rows; a `lift` row stacks a crate on a crate): lanterns (World 2 ice lanterns) at the four kerb corners and the bay's far corners; a `Campfire` with three `Log` seats north-east of the deck (World 2: the `HeaterLamp` with `FrozenLog` seats); `CampCrate` stacks by the ship bay; the `CampFlag` (the ShipHull's yellow and cyan) at the bay's south-west corner; flower patches (World 1); and the sights signpost east of the north path: a `SightPost` with three arms (`SignArmHigh`, `SignArmMid`, `SignArmLow`, each an arm along its local +X with a coloured diamond tip) placed at the post's point, each yawed at its sight (yaw = atan2(-dz, dx)): World 1 the Starhollow Forest (lavender), the waterfall (blue), the lookout (gold); World 2 the aurora ridge, the lake, the ice cave. The seven are block placeholders in `kit.json` (no mesh yet; the props worker may model them under the same names).
+- **Kept clear** (a test, `test_the_camp_is_a_deck_with_a_kerb_and_keeps_its_gameplay_clear`): the stations and their worker slots, the spawn pad, the ship's hull and the Peddler's landing spot. It found the path signpost standing in the Build station (moved from x 18, z 6 to x 22, z 12); placing the wreck found the Peddler landing inside it (`data/Camp.PeddlerOffset` moved from x 26 to x -26, left of the camp).
+- **The wreck** stands at yaw 290 (`data/Meadow.luau`): the nose and its cracked dome face the camp, the furrow runs off east-south-east, its scorch and furrow keep 5.4 studs from a path's centre line. Its smoke and sparks are effect rows (`WreckSmoke`, `WreckSparks` in `data/WorldFx`) at the note's emitter points; turning or moving the landmark means moving those two rows.
+
+![World 2's camp: the rock kerb, the packed-snow apron, the heater lamp with its frozen-log seats](../../../media/studio/2026-10-21/ingame_world2_preview_v2.jpg)
 
 ## What each world has
 
@@ -55,12 +70,12 @@ World 1's Forest region (the same circle, the same spawn tables) rebuilt from th
 
 | | World 1 | World 2 | Budget |
 |---|---|---|---|
-| Ground parts (caps, bodies, water, falls, solids, base) | 4,255 | 3,684 | 4,400 |
-| Texture objects once every tile id is real | 10,222 | 8,714 | 10,500 |
-| Props placed | 834 | 415 | 1,000 |
-| Their placeholder parts | 3,072 | 1,481 | 4,200 |
-| PointLights | 48 | 33 | 72 |
-| Effect places | 21 | 17 | 24 |
+| Ground parts (caps, bodies, water, falls, solids, base) | 4,251 | 3,669 | 4,400 |
+| Texture objects once every tile id is real | 10,258 | 8,744 | 10,500 |
+| Props placed | 851 | 434 | 1,000 |
+| Their placeholder parts | 3,150 | 1,550 | 4,200 |
+| PointLights | 55 | 40 | 72 |
+| Effect places | 23 | 17 | 24 |
 
 Streaming: neither project file sets `StreamingEnabled`; the ground is in chunk Models (Default), every prop an Atomic Model, the landmarks Persistent, so the place works either way. If the Mac measures the Textures as too heavy on a phone, the fallback is one `MaterialVariant` per tile (no Texture objects; the sides then wear the top tile).
 
@@ -69,4 +84,6 @@ Streaming: neither project file sets `StreamingEnabled`; the ground is in chunk 
 - The Mac check (job 43 in [[Overnight]], TESTING "Generated worlds in block cells").
 - The tile ids (B47's upload fills `data/BlockTiles` rows); then the Texture alignment on body sides (`OffsetStudsV`) wants a look.
 - The night ground tint tweens every ground part (about 4,000) and does not reach Textures; to measure on a phone.
-- The compass or a hint naming the sights reads `WorldGen1.Sights` (not wired yet).
+- The compass or a hint naming the sights reads `WorldGen1.Sights` (not wired yet); the camp signpost's arms carry no text yet (a label per arm from the `SIGHT_*` strings).
+- The camp's seven new placeholders (`Campfire`, `CampCrate`, `CampFlag`, `SightPost`, the three arms) want block-cell prop notes; the campfire wants ember particles (World 1 has one effect place left).
+- The Mac check of the camp and the wreck (job 46, TESTING "The camp and the crash site").

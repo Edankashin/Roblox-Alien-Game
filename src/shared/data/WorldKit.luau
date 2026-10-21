@@ -92,7 +92,7 @@ local Recipes: { [string]: Types.PropRecipe } = {
 	CampCrate = {
 		boxes = {
 			{ size = { 2, 2, 2 }, at = { 0, 1, 0 }, color = "C08A55", material = "WoodPlanks", collide = true },
-			{ size = { 2.1, 0.3, 2.1 }, at = { 0, 1.85, 0 }, color = "8C5E32", material = "Wood" },
+			{ size = { 2.1, 0.3, 2.1 }, at = { 0, 1.8, 0 }, color = "8C5E32", material = "Wood" },
 			{ size = { 2.1, 0.3, 2.1 }, at = { 0, 0.15, 0 }, color = "8C5E32", material = "Wood" },
 			{ size = { 2.3, 0.25, 0.12 }, at = { 0, 1, -1.04 }, color = "8C5E32", material = "Wood", roll = 45 },
 			{ size = { 1, 0.45, 0.12 }, at = { 0, 1.15, 1.04 }, color = "FFC83D", material = "SmoothPlastic" },

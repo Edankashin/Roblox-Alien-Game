@@ -111,8 +111,8 @@ def tile_material(key: str, base: str, aux: str, water=False, glow=False) -> bpy
     return mat
 
 
-def flat_material(hexcol: str, neon=False) -> bpy.types.Material:
-    name = f"F_{hexcol}_{int(neon)}"
+def flat_material(hexcol: str, neon=False, alpha=1.0) -> bpy.types.Material:
+    name = f"F_{hexcol}_{int(neon)}_{alpha}"
     if name in _mats:
         return _mats[name]
     mat = bpy.data.materials.new(name)
@@ -120,6 +120,8 @@ def flat_material(hexcol: str, neon=False) -> bpy.types.Material:
     bsdf = mat.node_tree.nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = hex_lin(hexcol)
     bsdf.inputs["Roughness"].default_value = 0.8
+    if alpha < 1.0:
+        bsdf.inputs["Alpha"].default_value = alpha
     if neon:
         bsdf.inputs["Emission Color"].default_value = hex_lin(hexcol)
         bsdf.inputs["Emission Strength"].default_value = 4.0
@@ -347,9 +349,9 @@ def build(world_id: int):
     for e in world.fx:
         if e["kind"] == "WreckSmoke":
             y0 = FLOOR_TOP + world.top(e["x"], e["z"]) + e.get("lift", 0)
-            for dx, dy, dz, s, col in ((0, 0.6, 0, 1.4, "6E6862"), (0.5, 2.0, 0.2, 2.0, "8A847E"), (1.3, 3.7, 0.5, 2.5, "A39E98"),
-                                       (2.3, 5.6, 0.9, 2.8, "B9B4AD"), (3.4, 7.6, 1.3, 3.0, "CBC7C1")):
-                m = flat_material(col)
+            for dx, dy, dz, s, col in ((0, 0.8, 0, 1.0, "6E6862"), (0.4, 2.2, 0.2, 1.5, "8A847E"), (1.1, 3.9, 0.5, 2.0, "A39E98"),
+                                       (2.0, 5.8, 0.9, 2.4, "B9B4AD"), (3.1, 7.8, 1.3, 2.6, "CBC7C1")):
+                m = flat_material(col, alpha=0.55)
                 cx, cy, cz = e["x"] + dx, y0 + dy, e["z"] + dz
                 box_faces(batch, cx - s / 2, cy - s / 2, cz - s / 2, cx + s / 2, cy + s / 2, cz + s / 2, m, m, bottom_mat=m)
     # the landmarks of the layout, at their yaw on the ground under their centre
