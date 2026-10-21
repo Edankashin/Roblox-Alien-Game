@@ -152,6 +152,34 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Spookum = {
+		height = 3.319,
+		parts = {
+			{ name = "armL", pivot = { -1, 1.75, -0.2812 }, clips = { { kind = "flap", amp = -15, period = 1.6, phase = 0, axis = "z" } } },
+			{ name = "armR", pivot = { 1, 1.75, -0.2812 }, clips = { { kind = "flap", amp = 15, period = 1.6, phase = 0, axis = "z" } } },
+			{ name = "hem", pivot = { 0, 0.75, -0.0312 }, clips = { { kind = "sway", amp = 5, period = 2, phase = 0, axis = "x" }, { kind = "sway", amp = 4, period = 2.6, phase = 0.25, axis = "z" } } },
+			{ name = "lanternL", pivot = { -1.375, 2.375, -0.2812 }, clips = { { kind = "bob", amp = 0.15, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.12, period = 6, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 5, phase = 0, axis = "y" } } },
+			{ name = "stem", pivot = { 0, 2.75, -0.0312 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 3, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 4, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 10, length = 2.2,
+			moves = {
+				{ part = "root", kind = "squash", amp = 0.15, axis = "y", at = 0, length = 0.4 },
+				{ part = "root", kind = "hop", amp = 0.6, axis = "y", at = 0.3, length = 0.8 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.4, length = 1.6 },
+				{ part = "armL", kind = "flare", amp = -30, axis = "z", at = 0.3, length = 1.2 },
+				{ part = "armR", kind = "flare", amp = 30, axis = "z", at = 0.3, length = 1.2 },
+				{ part = "hem", kind = "swish", amp = 15, axis = "z", at = 0.5, length = 1 },
+				{ part = "lanternL", kind = "hop", amp = 0.3, axis = "y", at = 0.8, length = 0.9 },
+			},
+		},
+	},
 	Twiglet = {
 		height = 2.486,
 		parts = {
