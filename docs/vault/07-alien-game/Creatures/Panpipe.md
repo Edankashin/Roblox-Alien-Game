@@ -7,163 +7,195 @@ world: 1
 tier: Secret
 status: review
 element: Shadow
-height: 13
-blocks: 108
-tris: 1350
-bevel_width: 0.25
+height: 3.5
+blocks: 114
+tris: 1386
+bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#4A4166", "#1E1A2E", "#8E6BFF", "#8C86A6", "#B28CFF", "#0B0812"]
 roles: [body, second, accent, trim, glow, ink]
 glow_cycle: ["#B28CFF", "#7A3CFF", "#E2D6FF"]
 arcs: ["PipeMouth>PipeMouth4", "PipeMouth2>PipeMouth5"]
 hero: Pipe
-vfx: "the Cosmic set in shadow: the pipe mouths, the horn rings, the sound bars, the bell's clapper and the floating note glow and step through violet, deep violet and lilac every 2 s (its own palette only); notes drift from the pipes on a trill every 4 s and fall instead of rise; dark smoke falls at its hooves; a violet orbit and a slow violet ring under it; a shadow trail; the flourish is a hop and a vanish-and-return"
-ride: "Stride; the rider sits on the saddle blanket (4.75 by 3 studs, 6.75 studs up), between the head and the pipes"
+vfx: "the Cosmic set in shadow (Secret), eight layers in Effects.luau: every 4 s the pipes trill and five violet notes drift from them and fall instead of rising; a deep violet light breathes on its body; three violet notes orbit over its head; a violet ring rolls slowly backwards under its hooves every 3.5 s; dark smoke falls at its feet; a held aura of deep violet glow; and on the flourish it vanishes in a puff of dark smoke and returns under a violet column of light. The flourish (every 16 s) is that vanish-and-return: a hop, a sink into the smoke, a full turn, the pipes popping on the trill, the ears flared and the note leaping"
+ride: "Stride; mount form only (Decide-Now 44 a): it grows to riding size while ridden, the rider on the saddle blanket between the head and the pipes"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Panpipe_sheet.svg]]"
-render: "[[Panpipe_tq.jpg]]"
+render: "[[Panpipe_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.996, 0.998, 0.997]
-vfx_render: "[[Panpipe_vfx.jpg]]"
+overlap: [0.994, 0.996, 0.998, 0.995]
+vfx_render: "[[Panpipe_vfx_cells.jpg]]"
 cells_render: "[[Panpipe_tq_cells.jpg]]"
+idle_render: "[[Panpipe_idle.png]]"
 ---
 # Panpipe (Syrinx), Secret, World 1 Verdant
 
-A great shadow goat, slate and near-black, the Cosmic rung's detail in a dark palette with one accent, violet. Six dark reed pipes step down across its rump from right to left, their mouths and lips lit and bound in pewter bands; four pewter horns crown its head (a big pair that arches up and back like an ibex's, with a lit violet band, a dark ridge and lit tips, and a small pair leaning forward with lit tips); a dark beard, a pewter bell with a lit clapper, droopy ears with violet tips, shaggy dark wool hanging from its flanks and rump, cloven pewter hooves and a dark saddle blanket with a pewter pommel whose drapes carry lit sound bars. A lit music note floats over its left shoulder. Concept row in `src/shared/data/Species.luau`: "goat, reed pipes". Element: Shadow (`Effects.luau`); [[Roster-Redesign]] section 2 gives the drifting notes, the falling shadow, the turning ring and the vanish-and-return. Rules: [[Blocky-Style]].
+A small shadow goat kid, 3.5 studs to the tips of its horns (B45: it was 13, a church organ on legs; a goat kid stands top of the band by its horns, not its tier), slate and near-black with one accent, violet. Six dark reeds rise off its right haunch, tallest at the outside, stepping down toward its spine, their mouths and lips lit and bound in two pewter bands over a pewter foot; four pewter horns crown its head (a big pair stepping up and back like an ibex's, each with a dark ridge, two lit violet bands and a lit tip, and a small pair in front with lit tips), and a pewter circlet with a lit violet gem crosses its brow. A stepped dark beard, a pewter bell with a lit clapper, long droopy wool ears with violet tips, wool tufts on its cheeks, cloven pewter hooves under wool fetlocks, a dark saddle blanket with violet hems, pewter tassels and lit sound bars on its drapes, lit sound glyphs on the sides of its head, and two lit music notes that drift round it. Concept row in `src/shared/data/Species.luau`: "goat, reed pipes". Element: Shadow (`Effects.luau`); [[Roster-Redesign]] section 2 gives the drifting notes, the falling shadow, the turning ring and the vanish-and-return. Rules: [[Blocky-Style]].
 
-**What makes a player want it.** It is the one dark thing in a bright meadow: 13 studs of shadow, 2.6 avatars, that glows only in violet and plays a trill every 4 s, and it is a mount. Its face is the same soft house face as Moop's, so it reads as a gentle giant you were lucky to meet, not a boss.
+**What makes a player want it (B46).** It is the one dark thing in a bright meadow, no bigger than a Rare, and the most secret thing in it: 114 blocks, most of them sixteenth-stud cells (the reeds, the horn bands, the sound bars, the circlet); a 32-column face (0.0625 body cells, the finest grid, shared only with Raddis); its own `echo` eyes, which no other species wears: a dark iris where rings of violet ripple out from a lit core and fade, like a note heard from far away; nine moving things; and a flourish every 16 s that is a vanishing trick: it hops, sinks into dark smoke, turns and comes back as its pipes trill under a violet column. Where Raddis is a blaze of gold, Syrinx is a rumour: it beats the Cosmic for mystery, not size. Gentle, never a boss: a kid goat with a small smile.
 
-**Hero block.** The `Pipe` set, a panpipe the size of a church organ on a goat's back, unique in Verdant.
+**Hero block.** The `Pipe` set, six reeds of a panpipe grown into a goat's back, unique in Verdant.
 
-**Alien anatomy.** Four horns, a floating note that follows it (the `float` part) and an instrument grown into its back; four moving objects: the note, the two ears and the tail.
+**Moving parts (eight objects and the blink).** `pipes` (the six reeds, their mouths and lips, the bands and the foot: they breathe and pop on the trill), `earR` and `earL` (they droop and lift), `beard` (it sways), `bell` (strap, bell and clapper: it swings), `tail` (with its lit tip: it flicks), `note` and `note2` (the two floating notes: they circle and bob); the face plate blinks, glints and ripples.
 
-**World motif (Verdant).** The moss cell in shadow: the half-stud steps of the horns, the beard and the hanging wool.
+**Alien anatomy.** Four horns, notes that follow it and an instrument grown into its back.
+
+**World motif (Verdant).** The moss cell in shadow: the sixteenth-stud steps of the horns, the beard and the hanging wool.
 
 ## Parts
 
 ```yaml
 parts:
-  - {name: Head, slot: Body, size: [5.5, 5.5, 4.5], at: [0, 7, -2.5], bevel: true, material: wool}
-  - {name: Torso, slot: Body, size: [4.5, 3.75, 7], at: [0, 4.625, 2.5], bevel: true, material: wool}
-  # four legs on cloven pewter hooves, a wool fetlock over each
-  - {name: FrontLeg, slot: BodyDark, size: [1, 2.25, 1], at: [1.375, 1.625, -0.25], mirror: x}
-  - {name: FrontFetlock, slot: Body, size: [1.25, 0.375, 1.25], at: [1.375, 0.6875, -0.25], mirror: x, material: wool}
-  - {name: FrontHoof, slot: Trim, size: [0.5, 0.5, 1.25], at: [1.125, 0.25, -0.25], mirror: x}
-  - {name: FrontHoof2, slot: Trim, size: [0.5, 0.5, 1.25], at: [1.75, 0.25, -0.25], mirror: x}
-  - {name: HindLeg, slot: BodyDark, size: [1, 2.25, 1], at: [1.375, 1.625, 5.25], mirror: x}
-  - {name: HindFetlock, slot: Body, size: [1.25, 0.375, 1.25], at: [1.375, 0.6875, 5.25], mirror: x, material: wool}
-  - {name: HindHoof, slot: Trim, size: [0.5, 0.5, 1.25], at: [1.125, 0.25, 5.25], mirror: x}
-  - {name: HindHoof2, slot: Trim, size: [0.5, 0.5, 1.25], at: [1.75, 0.25, 5.25], mirror: x}
-  # a goat's beard under the chin and a pewter bell with a lit clapper under it
-  - {name: Beard, slot: BodyDark, size: [1.75, 0.5, 0.75], at: [0, 4, -4.25], material: wool}
-  - {name: Beard2, slot: BodyDark, size: [1.25, 0.5, 0.5], at: [0, 3.5, -4.25], material: wool}
-  - {name: Beard3, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 3, -4.25], material: wool}
-  - {name: Bell, slot: Trim, size: [0.75, 0.75, 0.75], at: [1.25, 3.375, -3.5], material: metal}
-  - {name: BellStrap, slot: Accessory, size: [0.25, 0.75, 0.25], at: [1.25, 4.125, -3.5]}
-  - {name: Clapper, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.25, 2.875, -3.5]}
-  - {name: Forelock, slot: BodyDark, size: [1.5, 0.5, 1.5], at: [0, 10, -2.75], material: wool}
-  # a lit rune low on each side of the head, a note on its side
-  - {name: Rune, slot: Glow, size: [0.125, 0.75, 0.25], at: [2.8125, 6.125, -1], mirror: x}
-  - {name: Rune2, slot: Glow, size: [0.125, 0.25, 0.5], at: [2.8125, 5.875, -1.25], mirror: x}
-  # droopy ears with violet tips, each one moving part
-  - {name: Ear, slot: Body, size: [1.25, 0.375, 1], at: [3.3125, 8, -2.5], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [2.75, 8.25, -2.5], material: wool}
-  - {name: EarTip, slot: Accessory, size: [0.5, 0.375, 1], at: [4.125, 7.625, -2.5], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [2.75, 8.25, -2.5]}
-  # alien anatomy: four horns; the big pair arches up and back like an ibex's, a lit violet band and a dark ridge on each, lit tips; a small pair leans forward
-  - {name: Horn, slot: Trim, size: [1, 1, 1], at: [1.625, 10, -2.375], rot: [12, 0, -15], mirror: x, material: metal}
-  - {name: HornRing, slot: Glow, size: [1.125, 0.25, 1.125], at: [1.8125, 10.5625, -2.25], rot: [22, 0, -15], mirror: x}
-  - {name: Horn2, slot: Trim, size: [0.875, 0.875, 0.875], at: [1.9375, 11.0625, -2.0625], rot: [22, 0, -15], mirror: x, material: metal}
-  - {name: HornRidge, slot: BodyDark, size: [1, 0.125, 1], at: [2.0625, 11.5, -1.875], rot: [25, 0, -15], mirror: x}
-  - {name: Horn3, slot: Trim, size: [0.75, 0.625, 0.75], at: [2.125, 11.8125, -1.6875], rot: [25, 0, -15], mirror: x, material: metal}
-  - {name: HornRing2, slot: Glow, size: [0.875, 0.125, 0.875], at: [2.1875, 12.1875, -1.5], rot: [25, 0, -15], mirror: x}
-  - {name: Horn4, slot: Trim, size: [0.625, 0.75, 0.625], at: [2.25, 12.375, -1.1875], rot: [65, 0, -15], mirror: x, material: metal}
-  - {name: HornTip, slot: Glow, size: [0.5, 0.5, 0.5], at: [2.3125, 12.5625, -0.5625], rot: [75, 0, -15], mirror: x}
-  # chain end at [2.344, 12.65, -0.338]
-  - {name: SmallHorn, slot: Trim, size: [0.5, 1.25, 0.5], at: [0.875, 10.375, -3.9375], rot: [-15, 0, 0], mirror: x, material: metal}
-  - {name: SmallHornTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [0.9375, 11.0625, -4.0625], shape: ico1, mirror: x}
-  # the saddle: a dark blanket over the back with violet hems and lit sound bars on its drapes (the rider sits in front of the pipes)
-  - {name: Pommel, slot: Trim, size: [1, 0.5, 0.5], at: [0, 7, 0.5], material: metal}
-  - {name: Blanket, slot: BodyDark, size: [4.75, 0.25, 3], at: [0, 6.625, 1.75]}
-  - {name: Drape, slot: BodyDark, size: [0.125, 1.5, 3], at: [2.3125, 6, 1.75], mirror: x}
-  - {name: Hem, slot: Accessory, size: [0.125, 0.25, 3], at: [2.3125, 5.125, 1.75], mirror: x}
-  - {name: SoundBar, slot: Glow, size: [0.125, 0.5, 0.25], at: [2.4375, 5.75, 1.125], mirror: x}
-  - {name: SoundBar2, slot: Glow, size: [0.125, 0.75, 0.25], at: [2.4375, 5.875, 1.75], mirror: x}
-  - {name: SoundBar3, slot: Glow, size: [0.125, 1, 0.25], at: [2.4375, 6, 2.375], mirror: x}
-  # shaggy dark wool hanging from the flanks and the rump, in uneven lengths
-  - {name: Fringe, slot: BodyDark, size: [0.25, 1, 0.75], at: [2.25, 2.75, -0.5], mirror: x, material: wool}
-  - {name: Fringe2, slot: BodyDark, size: [0.25, 0.75, 0.75], at: [2.25, 2.875, 0.75], mirror: x, material: wool}
-  - {name: Fringe3, slot: BodyDark, size: [0.25, 1.25, 0.75], at: [2.25, 2.625, 2], mirror: x, material: wool}
-  - {name: Fringe4, slot: BodyDark, size: [0.25, 0.75, 0.75], at: [2.25, 2.875, 3.25], mirror: x, material: wool}
-  - {name: Fringe5, slot: BodyDark, size: [0.25, 1, 0.75], at: [2.25, 2.75, 4.25], mirror: x, material: wool}
-  - {name: RumpFringe, slot: BodyDark, size: [1.5, 1, 0.25], at: [1, 3, 6.125], mirror: x, material: wool}
-  - {name: SpineTuft, slot: BodyDark, size: [1, 0.25, 0.75], at: [0, 6.625, 5.125], material: wool}
-  - {name: Tail, slot: BodyDark, size: [0.5, 1, 0.5], at: [0, 7, 5.75], moves: tail, pivot: [0, 6.5, 5.75]}
-  - {name: TailTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 7.625, 5.75], moves: tail, pivot: [0, 6.5, 5.75]}
-  - {name: Mane, slot: BodyDark, size: [2.5, 2, 0.5], at: [0, 8.5, 0], material: wool}
-  - {name: Fleece, slot: BodyDark, size: [0.125, 0.75, 1], at: [2.3125, 4.625, 4.5], mirror: x, material: wool}
-  # the hero: the reed pipes, six dark reeds stepping down from the right to the left across the rump, mouths lit, bound by two pewter bands
-  - {name: Pipe, slot: BodyDark, size: [0.75, 6.5, 0.75], at: [1.875, 9.5, 4.25], material: wood}
-  - {name: PipeMouth, slot: Glow, size: [0.75, 0.25, 0.75], at: [1.875, 12.875, 4.25]}
-  - {name: PipeLip, slot: Glow, size: [0.5, 0.25, 0.125], at: [1.875, 11.875, 3.8125]}
-  - {name: Pipe2, slot: BodyDark, size: [0.75, 5.75, 0.75], at: [1.125, 9.125, 4.25], material: wood}
-  - {name: PipeMouth2, slot: Glow, size: [0.75, 0.25, 0.75], at: [1.125, 12.125, 4.25]}
-  - {name: PipeLip2, slot: Glow, size: [0.5, 0.25, 0.125], at: [1.125, 11.125, 3.8125]}
-  - {name: Pipe3, slot: BodyDark, size: [0.75, 5, 0.75], at: [0.375, 8.75, 4.25], material: wood}
-  - {name: PipeMouth3, slot: Glow, size: [0.75, 0.25, 0.75], at: [0.375, 11.375, 4.25]}
-  - {name: PipeLip3, slot: Glow, size: [0.5, 0.25, 0.125], at: [0.375, 10.375, 3.8125]}
-  - {name: Pipe4, slot: BodyDark, size: [0.75, 4.25, 0.75], at: [-0.375, 8.375, 4.25], material: wood}
-  - {name: PipeMouth4, slot: Glow, size: [0.75, 0.25, 0.75], at: [-0.375, 10.625, 4.25]}
-  - {name: PipeLip4, slot: Glow, size: [0.5, 0.25, 0.125], at: [-0.375, 9.625, 3.8125]}
-  - {name: Pipe5, slot: BodyDark, size: [0.75, 3.5, 0.75], at: [-1.125, 8, 4.25], material: wood}
-  - {name: PipeMouth5, slot: Glow, size: [0.75, 0.25, 0.75], at: [-1.125, 9.875, 4.25]}
-  - {name: PipeLip5, slot: Glow, size: [0.5, 0.25, 0.125], at: [-1.125, 8.875, 3.8125]}
-  - {name: Pipe6, slot: BodyDark, size: [0.75, 2.75, 0.75], at: [-1.875, 7.625, 4.25], material: wood}
-  - {name: PipeMouth6, slot: Glow, size: [0.75, 0.25, 0.75], at: [-1.875, 9.125, 4.25]}
-  - {name: PipeLip6, slot: Glow, size: [0.5, 0.25, 0.125], at: [-1.875, 8.125, 3.8125]}
-  - {name: PipeBand, slot: Trim, size: [4.75, 0.5, 1], at: [0, 7.25, 4.25], material: metal}
-  - {name: PipeBand2, slot: Trim, size: [2.5, 0.5, 1], at: [1.125, 9.25, 4.25], material: metal}
-  - {name: PipeBand3, slot: Trim, size: [1, 0.25, 1], at: [1.875, 11.125, 4.25], material: metal}
-  # the floating accessory: a lit music note over its left shoulder
-  - {name: Note, slot: Glow, size: [0.75, 0.5, 0.25], at: [-4, 10.75, -4], moves: float, pivot: [-3.75, 11.375, -4]}
-  - {name: NoteStem, slot: Glow, size: [0.25, 1.25, 0.25], at: [-3.75, 11.625, -4], moves: float, pivot: [-3.75, 11.375, -4]}
-  - {name: NoteFlag, slot: Glow, size: [0.5, 0.25, 0.25], at: [-3.5, 12.125, -4], moves: float, pivot: [-3.75, 11.375, -4]}
-  - {name: NoteFlag2, slot: Glow, size: [0.25, 0.25, 0.25], at: [-3.25, 11.875, -4], moves: float, pivot: [-3.75, 11.375, -4]}
+  # four legs on cloven pewter hooves under wool fetlocks
+  - {name: FrontLeg, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0.5, 0.4375, -0.125], mirror: x}
+  - {name: FrontFetlock, slot: Body, size: [0.375, 0.125, 0.375], at: [0.5, 0.1875, -0.125], mirror: x, material: wool}
+  - {name: FrontHoof, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.4375, 0.0625, -0.125], mirror: x, material: metal}
+  - {name: FrontHoof2, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.5625, 0.0625, -0.125], mirror: x, material: metal}
+  - {name: HindLeg, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0.5, 0.4375, 1.625], mirror: x}
+  - {name: HindFetlock, slot: Body, size: [0.375, 0.125, 0.375], at: [0.5, 0.1875, 1.625], mirror: x, material: wool}
+  - {name: HindHoof, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.4375, 0.0625, 1.625], mirror: x, material: metal}
+  - {name: HindHoof2, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.5625, 0.0625, 1.625], mirror: x, material: metal}
+  - {name: KneeTuft, slot: Body, size: [0.375, 0.0625, 0.375], at: [0.5, 0.53125, -0.125], mirror: x, material: wool}
+  # the body and the big head, both wool; a dark wool mane behind the head, a forelock and a topknot between the horns, tufts on the cheeks
+  - {name: Torso, slot: Body, size: [1.5, 1, 2.25], at: [0, 1.125, 0.875], bevel: true, material: wool}
+  - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.75, -0.75], bevel: true, material: wool}
+  - {name: Mane, slot: BodyDark, size: [1.75, 0.5, 0.25], at: [0, 1.875, 0.125], material: wool}
+  - {name: Forelock, slot: BodyDark, size: [0.75, 0.125, 0.5], at: [0, 2.5625, -1], material: wool}
+  - {name: Topknot, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0, 2.6875, -1], material: wool}
+  - {name: CheekTuft, slot: Body, size: [0.0625, 0.25, 0.375], at: [1.03125, 1.25, -1], mirror: x, material: wool}
+  # a pewter circlet across the brow with a lit violet gem; lit sound glyphs (two bars) on the head's sides
+  - {name: Circlet, slot: Trim, size: [1, 0.125, 0.0625], at: [0, 2.3125, -1.53125], material: metal}
+  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.59375]}
+  - {name: Rune, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.03125, 1.4375, -0.34375], mirror: x}
+  - {name: Rune2, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.03125, 1.5, -0.21875], mirror: x}
+  # a stepped dark beard under the chin (it sways), a pewter bell with a lit clapper beside it (it swings)
+  - {name: Beard, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [0, 0.875, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool}
+  - {name: Beard2, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 0.625, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool}
+  - {name: BellStrap, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.5625, 0.9375, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625]}
+  - {name: Bell, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.5625, 0.75, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625], material: metal}
+  - {name: Clapper, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5625, 0.59375, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625]}
+  # long droopy wool ears with violet tips (they droop and lift)
+  - {name: Ear, slot: Body, size: [0.625, 0.125, 0.25], at: [1.28125, 2.0625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75], material: wool}
+  - {name: EarTip, slot: Accessory, size: [0.125, 0.125, 0.25], at: [1.625, 1.90625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75]}
+  # alien anatomy: four horns; the big pair steps up and back like an ibex's, a dark ridge and two lit violet bands on each, lit tips; a
+  # small pair in front
+  - {name: Horn, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.5625, 2.625, -0.8125], mirror: x, material: metal}
+  - {name: HornRing, slot: Glow, size: [0.25, 0.0625, 0.25], at: [0.5625, 2.78125, -0.8125], mirror: x}
+  - {name: Horn2, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.625, 2.9375, -0.6875], mirror: x, material: metal}
+  - {name: HornRidge, slot: BodyDark, size: [0.0625, 0.25, 0.25], at: [0.78125, 2.9375, -0.6875], mirror: x}
+  - {name: Horn3, slot: Trim, size: [0.1875, 0.25, 0.25], at: [0.65625, 3.1875, -0.5], mirror: x, material: metal}
+  - {name: HornRing2, slot: Glow, size: [0.1875, 0.0625, 0.25], at: [0.65625, 3.34375, -0.4375], mirror: x}
+  - {name: Horn4, slot: Trim, size: [0.1875, 0.125, 0.25], at: [0.65625, 3.4375, -0.25], mirror: x, material: metal}
+  - {name: HornTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 3.4375, -0.0625], mirror: x}
+  - {name: SmallHorn, slot: Trim, size: [0.125, 0.25, 0.125], at: [0.3125, 2.625, -1.25], mirror: x, material: metal}
+  - {name: SmallHornTip, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.3125, 2.78125, -1.25], mirror: x}
+  # the saddle: a dark blanket with a pewter pommel, drapes with violet hems, pewter tassels and lit sound bars
+  - {name: Blanket, slot: BodyDark, size: [1.625, 0.0625, 1], at: [0, 1.65625, 0.5]}
+  - {name: Pommel, slot: Trim, size: [0.25, 0.125, 0.125], at: [0, 1.75, 0.3125], material: metal}
+  - {name: Drape, slot: BodyDark, size: [0.0625, 0.5, 1], at: [0.84375, 1.4375, 0.5], mirror: x}
+  - {name: Hem, slot: Accessory, size: [0.0625, 0.0625, 1], at: [0.90625, 1.21875, 0.5], mirror: x}
+  - {name: SoundBar, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.90625, 1.3125, 0.25], mirror: x}
+  - {name: SoundBar2, slot: Glow, size: [0.0625, 0.25, 0.125], at: [0.90625, 1.375, 0.5], mirror: x}
+  - {name: SoundBar3, slot: Glow, size: [0.0625, 0.375, 0.125], at: [0.90625, 1.4375, 0.75], mirror: x}
+  - {name: Tassel, slot: Trim, size: [0.0625, 0.125, 0.0625], at: [0.84375, 1.125, 0.03125], mirror: x, material: metal}
+  - {name: Tassel2, slot: Trim, size: [0.0625, 0.125, 0.0625], at: [0.84375, 1.125, 0.96875], mirror: x, material: metal}
+  # wool: tufts along the spine between the saddle and the pipes, fringes hanging from the flanks and the rump, fleece on the haunches
+  - {name: SpineTuft, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0, 1.6875, 1.25], material: wool}
+  - {name: SpineTuft2, slot: BodyDark, size: [0.125, 0.125, 0.25], at: [0.5, 1.6875, 1.25], mirror: x, material: wool}
+  - {name: Fringe, slot: BodyDark, size: [0.0625, 0.25, 0.25], at: [0.78125, 0.625, 1.25], mirror: x, material: wool}
+  - {name: Fringe2, slot: BodyDark, size: [0.0625, 0.375, 0.25], at: [0.78125, 0.6875, 1.75], mirror: x, material: wool}
+  - {name: RumpFringe, slot: BodyDark, size: [0.75, 0.25, 0.0625], at: [0, 0.875, 2.03125], material: wool}
+  - {name: Fleece, slot: BodyDark, size: [0.0625, 0.25, 0.25], at: [0.78125, 1.25, 1.75], mirror: x, material: wool}
+  # a short tail with a lit tip (it flicks)
+  - {name: Tail, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0, 1.625, 2.0625], moves: tail, pivot: [0, 1.5, 2]}
+  - {name: TailTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 1.8125, 2.0625], moves: tail, pivot: [0, 1.5, 2]}
+  # alien anatomy: two lit notes that drift round it (each circles and bobs)
+  - {name: NoteHead, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.1875, 2.8125, -0.34375], moves: note, pivot: [-1.125, 2.875, -0.34375]}
+  - {name: NoteStem, slot: Glow, size: [0.0625, 0.3125, 0.0625], at: [-1.09375, 3.03125, -0.34375], moves: note, pivot: [-1.125, 2.875, -0.34375]}
+  - {name: NoteFlag, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [-1, 3.15625, -0.34375], moves: note, pivot: [-1.125, 2.875, -0.34375]}
+  - {name: Note2Head, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.25, 2.5625, 0.78125], moves: note2, pivot: [1.25, 2.625, 0.78125]}
+  - {name: Note2Stem, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.34375, 2.75, 0.78125], moves: note2, pivot: [1.25, 2.625, 0.78125]}
+  # the hero: the reed pipes, six dark reeds rising off the right haunch, tallest at the outside and stepping down toward the spine (the
+  # asymmetry is the silhouette), mouths and front lips lit, bound by two pewter bands over a pewter foot (they breathe and pop on the trill)
+  - {name: PipeFoot, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 1.65625, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
+  - {name: Pipe, slot: BodyDark, size: [0.125, 1.5, 0.25], at: [1.625, 2.375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth, slot: Glow, size: [0.125, 0.0625, 0.25], at: [1.625, 3.15625, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [1.625, 2.96875, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: Pipe2, slot: BodyDark, size: [0.125, 1.3125, 0.25], at: [1.4375, 2.28125, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth2, slot: Glow, size: [0.125, 0.0625, 0.25], at: [1.4375, 2.96875, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip2, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [1.4375, 2.78125, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: Pipe3, slot: BodyDark, size: [0.125, 1.125, 0.25], at: [1.25, 2.1875, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth3, slot: Glow, size: [0.125, 0.0625, 0.25], at: [1.25, 2.78125, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip3, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [1.25, 2.59375, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: Pipe4, slot: BodyDark, size: [0.125, 0.9375, 0.25], at: [1.0625, 2.09375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth4, slot: Glow, size: [0.125, 0.0625, 0.25], at: [1.0625, 2.59375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip4, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [1.0625, 2.40625, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: Pipe5, slot: BodyDark, size: [0.125, 0.75, 0.25], at: [0.875, 2, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth5, slot: Glow, size: [0.125, 0.0625, 0.25], at: [0.875, 2.40625, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip5, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [0.875, 2.21875, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: Pipe6, slot: BodyDark, size: [0.125, 0.5625, 0.25], at: [0.6875, 1.90625, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: wood}
+  - {name: PipeMouth6, slot: Glow, size: [0.125, 0.0625, 0.25], at: [0.6875, 2.21875, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeLip6, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [0.6875, 2.03125, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
+  - {name: PipeBand, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 1.84375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
+  - {name: PipeBand2, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 2.09375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
 ```
 
 ## Face
 
-The house face, 16 cells across the 5.5-stud head (0.34375 studs a cell, 16 rows for the square front); the eye's lit crescent is the violet glow, the cheeks a dusk pink.
+The head's front is the body cell grid (Blocky-Style C1): 32 columns across the 2-stud head, so the cell is 0.0625 studs (16 a stud) and the 1.5-stud front is 24 rows, the finest body grid with Raddis's; the eyes, the mouth and the cheeks are on the face plate.
 
 ```yaml
 face:
   host: Head
-  legend:
-    ".": body
-    "k": ink
-    "w": "#FFFFFF"
-    "g": glow
-    "p": "#D97BD0"
-  rows:
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "...kk......kk..."
-    - "..kwkk....kkwk.."
-    - "..kwkk....kkwk.."
-    - "..kkkk....kkkk.."
-    - "..kgwk....kwgk.."
-    - "...gg.k..k.gg..."
-    - "..pp...kk...pp.."
-    - "................"
-    - "................"
+  cols: 32
+```
+
+## Eyes
+
+Its own eyes, a new Secret design added to the eye library by this batch ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `echo`, a dark violet iris where rings of the one accent ripple outward from a lit core and fade as they go, like a note heard from far away, at 32 pixels a stud on a 1.75 x 0.75 stud plate (56 x 24 pixels, thirteen frames: open, half, closed, two glints, eight ripple frames). No other species wears it. A small smile and dim violet star cheeks.
+
+```yaml
+eyes:
+  key: echo
+  colours: {deep: "#221C38", mid: "#5B3FA8", rim: glow, sparkle: "#E2D6FF", cheek: "#7A5CD6"}
+  mouth: smile
+  cheeks: stars
+  plate: [1.75, 0.75]
+  at: [0, 1.84375]
+  spread: 0.5
+```
+
+## Rig
+
+The idle and the flourish ([[Blocky-Style]] rule 8): the pipes breathe, the ears droop and lift, the beard sways, the bell swings, the tail flicks, two notes drift round it, the goat breathes, the face blinks, glints and ripples. Nine moving things (eight objects and the blink; a Secret needs eight). The flourish, every 16 s: the vanish-and-return, a hop, a sink into the smoke, a full turn, the pipes popping on the trill, the ears flared and the note leaping.
+
+```yaml
+rig:
+  clips:
+    pipes: [{kind: pulse, amp: 0.03, period: 4}]
+    ear: [{kind: sway, amp: 8, period: 3.4, axis: z}]
+    beard: [{kind: sway, amp: 5, period: 3, axis: x}]
+    bell: [{kind: sway, amp: 12, period: 1.9, axis: x, phase: 0.2}]
+    tail: [{kind: wag, amp: 14, period: 2.8, axis: y}]
+    note: [{kind: orbit, amp: 0.25, period: 7}, {kind: bob, amp: 0.1, period: 2.2}]
+    note2: [{kind: orbit, amp: 0.2, period: 5, phase: 0.5}, {kind: bob, amp: 0.08, period: 2.6, phase: 0.3}]
+    root: [{kind: squash, amp: 0.025, period: 3.4}]
+    face: [{kind: blink, period: 6}]
+  flourish:
+    every: 16
+    length: 4
+    moves:
+      - {part: root, kind: hop, amp: 0.4, at: 0, for: 0.9}
+      - {part: root, kind: squash, amp: 0.2, axis: y, at: 0.9, for: 0.7}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 1.4, for: 1.6}
+      - {part: pipes, kind: pop, amp: 0.2, at: 2.6, for: 0.8}
+      - {part: ear, kind: flare, amp: 25, axis: z, at: 2.6, for: 1}
+      - {part: note, kind: hop, amp: 0.5, at: 2.8, for: 1}
 ```
 
 ## Build
 
-Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Panpipe.md --out <scratch>`; build and renders: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Panpipe.md --out <scratch>` ([[Blocky-Style]] "The pipeline").
+Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Panpipe.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Panpipe.md --out <scratch> --suffix _cells --idle --write` ([[Blocky-Style]] "The pipeline").
 
 ## Renders
 
@@ -175,13 +207,17 @@ VFX preview (Blender, labelled as one; the in-game effects are the species' row 
 
 ![[Panpipe_vfx.jpg]]
 
+The idle: eight frames of the clips and four of the flourish, and the face plate's frames:
+
+![[Panpipe_idle.png]]
+
 The concept sheet, drawn from the parts table above: [[Panpipe_sheet.svg]] (flat shapes and text, for the Claude Design canvas) and [[Panpipe_sheet.png]]. The build's four orthographic views (left of each pair) beside the sheet's masks (right), the silhouette check:
 
 ![[Panpipe_views.png]]
 
 ## Cells
 
-The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.344 studs (2.9 a stud), 38 cells tall; one atlas of 1024 x 1024 at 8 texels a cell (571 islands). Materials: wool on the head, torso, ears, mane, beard, fringes and fleece (shag blobs with a violet fleck in thirty), wood on the six reeds, metal on the horns, bell, bands and pommel.
+The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.0625 studs (16 a stud) on the 32-column face since the B45 resize (it was 0.344 on a 5.5-stud head), 56 cells tall, painted at 4 texels a cell. Materials: wool on the head, torso, ears, mane, beard, fringes, tufts and fleece (shag blobs with a violet fleck in thirty), wood on the six reeds, metal on the horns, hooves, bell, circlet, tassels, bands and pommel.
 
 ![[Panpipe_tq_cells.jpg]]
 
@@ -190,3 +226,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 ## Reviews
 - 2026-10-17, loop 2 worker, three rounds. Round 1: small pewter horns read as stubs and pewter pipes as a grey chimney behind the head. Round 2: bigger horns sweeping up, out and down read as branches. Round 3: ibex horns that arch back (a chain of tilted segments with a lit band, a dark ridge and lit tips), the pipes dark reeds with lit mouths and lit lips in pewter bands, the ears drooped; the preview gives it a violet ring and falling shadow smoke. Overlap 0.996 to 0.998, 1,504 triangles, 108 blocks, 13 studs. Wanted for: the one dark thing in a bright meadow, a gentle giant that plays its own organ and that you can ride. Still cheap: in daylight it is a muted purple box with a face; the beard and bell are small; the shadow wool reads as stripes on the legs from the side. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). The violet flecks and the grout lift the dark coat in daylight (the open item of loop 2, partly: it is still the darkest thing on the meadow, as a Secret should be); the reeds read as reeds. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
+- 2026-10-21, Roster w1_high worker, the B45 and B46 pass, two rounds. Round 1: rebuilt from 13 studs to 3.5 by redesign: a goat kid with a 2-stud head on a 32-column face (0.0625 cells, 56 cells tall), the ibex horns as sixteenth-stud steps with two lit bands each, a pewter circlet with a lit gem, a stepped beard and a swinging bell, a saddle with sound bars and tassels, two drifting notes, six reeds in sixteenth-stud cells; its own eyes, `echo`, a new Secret design added to the library (rings of violet rippling out of a lit core over eight frames), a smile, dim violet star cheeks. 114 blocks. The reeds across the rump, behind the head, made it a box with two horns: 0.720 against Gaira and 0.718 against Buzzik in the silhouette test. Round 2: the reeds moved a stud to the right so they rise off the right haunch, tallest at the outside (a stepped ramp beside the head from the front), and the ears grew a quarter stud: 0.675 and 0.64. Eight moving objects and the blink; a flourish every 16 s (the vanish-and-return: a hop, a sink, a full turn, the pipes popping on the trill). Overlap 0.994 to 0.998, 1,386 triangles. Wanted for: the one dark thing on the meadow, the size of a Rare, with eyes that ripple like a note from far off; a rumour beside Raddis's blaze. Still weak: the slate head is a flat plane between the circlet and the eyes; the horns read as stacked blocks more than an arch from the three-quarter view. Status review.

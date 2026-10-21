@@ -92,6 +92,37 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Panpipe = {
+		height = 3.5,
+		parts = {
+			{ name = "beard", pivot = { 0, 1, -1.5 }, clips = { { kind = "sway", amp = 5, period = 3, phase = 0, axis = "x" } } },
+			{ name = "bellR", pivot = { 0.5625, 1, -1.3125 }, clips = { { kind = "sway", amp = 12, period = 1.9, phase = 0.2, axis = "x" } } },
+			{ name = "earL", pivot = { -1, 2.1875, -1 }, clips = { { kind = "sway", amp = -8, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 1, 2.1875, -1 }, clips = { { kind = "sway", amp = 8, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "note2R", pivot = { 1.25, 2.625, 0.5312 }, clips = { { kind = "orbit", amp = 0.2, period = 5, phase = 0.5, axis = "y" }, { kind = "bob", amp = 0.08, period = 2.6, phase = 0.3, axis = "y" } } },
+			{ name = "noteL", pivot = { -1.125, 2.875, -0.5938 }, clips = { { kind = "orbit", amp = 0.25, period = 7, phase = 0, axis = "y" }, { kind = "bob", amp = 0.1, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "pipesR", pivot = { 1.1562, 1.625, 1.375 }, clips = { { kind = "pulse", amp = 0.03, period = 4, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 1.5, 1.75 }, clips = { { kind = "wag", amp = 14, period = 2.8, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.025, period = 3.4, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 24, columns = 4, frames = 13,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10, 11, 12 },
+			blinkEvery = 6, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 6,
+		},
+		flourish = {
+			every = 16, length = 4,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.4, axis = "y", at = 0, length = 0.9 },
+				{ part = "root", kind = "squash", amp = 0.2, axis = "y", at = 0.9, length = 0.7 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 1.4, length = 1.6 },
+				{ part = "pipesR", kind = "pop", amp = 0.2, axis = "y", at = 2.6, length = 0.8 },
+				{ part = "earL", kind = "flare", amp = -25, axis = "z", at = 2.6, length = 1 },
+				{ part = "earR", kind = "flare", amp = 25, axis = "z", at = 2.6, length = 1 },
+				{ part = "noteL", kind = "hop", amp = 0.5, axis = "y", at = 2.8, length = 1 },
+			},
+		},
+	},
 	Radish = {
 		height = 3.438,
 		parts = {
