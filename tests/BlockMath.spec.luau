@@ -298,4 +298,31 @@ describe("Block screens: Compass", function()
 		end)
 	end
 end)
+
+describe("Block screens: Nearby", function()
+	-- NearbyPanel.luau: the column is 0.1 of the width by 0.405 of the height (at its default top), a fitted plate in cells whose
+	-- rows come from its height; the list is 0.86 of it and 0.9 wide; a row is at most 0.24 of the list, its icon 0.62 of the row,
+	-- a flat block of three rows with the tier's ink; eight rows share the list with 0.015 gaps.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local colW, colH = 0.1 * screen.w, 0.405 * screen.h
+		local rows = BlockMath.Rows(0.405, CELL, INK, MIN_ROWS)
+		it(label .. ": the column's cells are near the HUD's, square within 6%, and under 90 frames", function()
+			local grid = fit(colW, colH, rows)
+			local cell = colH * grid.cellY
+			assert(cell >= 7 and cell <= 17, "column cell is " .. cell .. " px")
+			local skew = BlockMath.Skew(grid, colW / colH)
+			assert(math.abs(skew) <= 0.06, "column cells are " .. skew .. " off square")
+			local frames = BlockMath.Frames(grid, true, SEED)
+			assert(frames <= 90, "column draws " .. frames .. " frames")
+		end)
+		it(label .. ": a tall row's icon keeps a 2 px tier ink, a row of eight still a px", function()
+			local listH = 0.86 * colH
+			local tall = 0.24 * listH * 0.62
+			local short = (1 - 0.015 * 7) / 8 * listH * 0.62
+			assert(INK * tall / (3 + 2 * INK) >= 1.9, "tall icon ink is " .. INK * tall / (3 + 2 * INK) .. " px")
+			assert(INK * short / (3 + 2 * INK) >= 0.9, "short icon ink is " .. INK * short / (3 + 2 * INK) .. " px")
+		end)
+	end
+end)
 return true

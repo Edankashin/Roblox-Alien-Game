@@ -792,6 +792,9 @@ local BLOCK_ASPECT = "BlockAspect" -- attributes a plate carries so a later call
 local BLOCK_ROWS = "BlockRows"
 local BLOCK_COLS = "BlockCols"
 local BLOCK_COLOR = "BlockColor" -- the face colour now (setBlockColor moves it), which a fitted plate's redraw keeps
+local BLOCK_INK = "BlockInk" -- and the ink colour (setBlockInk)
+local BLOCK_FADE = "BlockFade" -- and the fade (setBlockFade)
+local FIT_RESHAPE = 0.01 -- a fitted plate whose aspect moves more than this (not a uniform scale) picks its rows again
 local BLOCK_ICON_SCALE = 0.8 -- a block button's icon, as a fraction of its face's padded box (about 0.6 of the face's height)
 local BLOCK_TEXT_PAD_X = 0.5 -- a block button's text keeps this many cells clear of the ink at each side
 local BLOCK_TEXT_PAD_Y = 0.25 -- and this many at the top and bottom
@@ -852,8 +855,9 @@ end
 
 -- Draws a plate's grid: the ink border and the face as two overlapping bars each (the cut corners), then, with `cells`, the lit
 -- top row and the shaded side and bottom cells (three cells or more both ways), the grout on every cell and the jittered cells.
--- The face takes the plate's current colour (the BlockColor attribute setBlockColor keeps), so a redraw keeps a recolour.
-local function drawGrid(plate: Frame, grid: BlockMath.Grid, ink: Color3, cells: boolean, seed: number)
+-- The face, the ink and the fade come from the plate's attributes (setBlockColor, setBlockInk and setBlockFade keep them), so a
+-- redraw keeps a recolour.
+local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, seed: number)
 	local old = drawnParts[plate]
 	if old then
 		for _, part in ipairs(old) do
@@ -864,10 +868,12 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, ink: Color3, cells: 
 	drawnParts[plate] = parts
 	local z = plate.ZIndex
 	local layers = Theme.Block.Layer
-	local color = plate:GetAttribute(BLOCK_COLOR)
+	local color, inkColor, fadeBy = plate:GetAttribute(BLOCK_COLOR), plate:GetAttribute(BLOCK_INK), plate:GetAttribute(BLOCK_FADE)
 	local face: Color3 = if typeof(color) == "Color3" then color else Theme.Colors.Panel
+	local ink: Color3 = if typeof(inkColor) == "Color3" then inkColor else Theme.Colors.Outline
+	local fade: number = if type(fadeBy) == "number" then fadeBy else 0
 	local function add(name: string, rect: BlockMath.Rect, shade: Color3, transparency: number, layer: number)
-		table.insert(parts, rectFrame(plate, name, rect, shade, transparency, z + layer))
+		table.insert(parts, rectFrame(plate, name, rect, shade, 1 - (1 - transparency) * (1 - fade), z + layer))
 	end
 	for _, rect in ipairs(BlockMath.Shape(grid, 0, 0)) do
 		add("Ink", rect, ink, 0, layers.Ink)
@@ -903,10 +909,11 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, ink: Color3, cells: 
 	end
 end
 
--- A fitted plate follows its box: it measures its px size, keeps `rows` (or picks them once from its height as a share of the
--- screen, again when the screen height changes) and redraws only when the whole number of columns nearest square cells changes.
--- A UIScale tween (a panel opening) scales both sides alike, so it never redraws; a rotation or a resize may. Before it is
--- measured it draws from a guess (its Size as a share of the screen), so it is never blank for a frame.
+-- A fitted plate follows its box: it measures its px size, keeps `rows` (or picks them from its height as a share of the screen,
+-- again when the screen height or the box's shape changes) and redraws only when the rows or the whole number of columns nearest
+-- square cells change. A UIScale tween (a panel opening) scales both sides alike, so it never re-picks or redraws; a rotation, a
+-- resize or a column growing shorter may. Before it is measured it draws from a guess (its Size as a share of the screen), so it
+-- is never blank for a frame.
 local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number, number) -> ())
 	local camera = workspace.CurrentCamera
 	local screen = if camera then camera.ViewportSize else Vector2.new(16, 9)
@@ -914,7 +921,7 @@ local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number,
 	local guessAspect = if size.Y.Scale > 0 and screen.Y > 0 then (size.X.Scale * screen.X) / (size.Y.Scale * screen.Y) else 1
 	local shownRows, shownCols = guessRows, BlockMath.Grid(guessAspect, guessRows, Theme.Block.Ink).cols
 	local pickedRows: number? = rows
-	local pickedFor = 0
+	local pickedFor, pickedAspect = 0, 0
 	draw(guessAspect, guessRows)
 	local function measure()
 		local box = plate.AbsoluteSize
@@ -922,13 +929,14 @@ local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number,
 			return
 		end
 		local height = viewportHeight()
+		local aspect = box.X / box.Y
 		local want = pickedRows
-		if rows == nil and (want == nil or pickedFor ~= height) then
+		local reshaped = pickedAspect <= 0 or math.abs(aspect / pickedAspect - 1) > FIT_RESHAPE
+		if rows == nil and (want == nil or pickedFor ~= height or reshaped) then
 			want = if height > 0 then Builder.blockRows(box.Y / height) else guessRows
-			pickedRows, pickedFor = want, height
+			pickedRows, pickedFor, pickedAspect = want, height, aspect
 		end
 		local wantRows = want or guessRows
-		local aspect = box.X / box.Y
 		local cols = BlockMath.Grid(aspect, wantRows, Theme.Block.Ink).cols
 		if cols ~= shownCols or wantRows ~= shownRows then
 			shownRows, shownCols = wantRows, cols
@@ -954,12 +962,12 @@ function Builder.blockPlate(props: BlockProps): Frame
 		aspect = props.aspect,
 	})
 	plate:SetAttribute(BLOCK_COLOR, props.color)
-	local ink = props.ink or Theme.Colors.Outline
+	plate:SetAttribute(BLOCK_INK, props.ink or Theme.Colors.Outline)
 	local cells = props.cells ~= false
 	local seed = props.seed or Theme.Block.Seed
 	local function draw(aspect: number, rows: number)
 		plate:SetAttribute(BLOCK_ASPECT, aspect)
-		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), ink, cells, seed)
+		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, seed)
 	end
 	local aspect = props.aspect
 	if aspect then
@@ -974,14 +982,39 @@ end
 -- Gives a plate (or a block button's Plate or Lip) a new face colour, at once or over `info`.
 function Builder.setBlockColor(plate: Instance, color: Color3, info: TweenInfo?)
 	plate:SetAttribute(BLOCK_COLOR, color)
-	for _, child in ipairs(plate:GetChildren()) do
-		if child:IsA("Frame") and child.Name == "Fill" then
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		if part.Name == "Fill" then
 			if info then
-				TweenService:Create(child, info, { BackgroundColor3 = color }):Play()
+				TweenService:Create(part, info, { BackgroundColor3 = color }):Play()
 			else
-				child.BackgroundColor3 = color
+				part.BackgroundColor3 = color
 			end
 		end
+	end
+end
+
+-- Gives a plate a new ink colour: a species icon's ring in its tier's colour (the rarity colours stay the rarity colours).
+function Builder.setBlockInk(plate: Instance, color: Color3)
+	plate:SetAttribute(BLOCK_INK, color)
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		if part.Name == "Ink" then
+			part.BackgroundColor3 = color
+		end
+	end
+end
+
+-- Fades a whole plate by `transparency` (0 as drawn, 1 gone): each of its frames keeps its own share of see-through (a lit row
+-- stays lighter than the face), so a dimmed row reads as the same block, fainter. Its content (labels, icons) fades on its own.
+function Builder.setBlockFade(plate: Instance, transparency: number)
+	plate:SetAttribute(BLOCK_FADE, transparency)
+	local base: { [string]: number } = {
+		Lit = Theme.Block.TopAlpha,
+		Edge = Theme.Block.EdgeAlpha,
+		Grout = Theme.Block.GroutAlpha,
+		Jitter = Theme.Block.JitterAlpha,
+	}
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		part.BackgroundTransparency = 1 - (1 - (base[part.Name] or 0)) * (1 - transparency)
 	end
 end
 
