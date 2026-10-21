@@ -48,6 +48,12 @@
 -- `reshadowIfFar`, the rule the Silhouettes preference re-applies. Judged on `applyPulse`, from the
 -- "buffs" topic and from every evaluate tick (the buff ends between server pushes; the client compares
 -- the end time with State.Now()). Client-only: the server owns the buff and its timer.
+-- The spectacle ladder (data/Spectacle, World.Spectacle): every tracked alien is handed to Spectacle.Track, which plays the tier's
+-- arrival (veiling the alien until its pop: applyVisibility hides a veiled one like a blizzard-hidden one), stands its beacon,
+-- dresses its presence and gives it a personality. Its pose (the leash walk, the idle, the turn to a player, the hops, a Cosmic's
+-- descent) is composed here: Spectacle.PoseOf answers the offset and turn this module adds to its bob, on the server part (the tap
+-- target walks with it) and the clone alike. When the server removes the part a catch is on, the clone is handed to
+-- Spectacle.TakeOver for the catch's outro instead of being destroyed.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -70,6 +76,7 @@ local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 local RigAnimator = require(script.Parent:WaitForChild("RigAnimator"))
+local Spectacle = require(script.Parent:WaitForChild("Spectacle"))
 
 local WildRenderer = {}
 
@@ -285,7 +292,9 @@ end
 -- The species effects show only while the alien itself does: not hidden by the blizzard rule and not still a silhouette
 -- (lightning off a dark shape would give the species away).
 local function syncFx(record: Record)
-	SpeciesFx.SetShown(record.fxTarget, not record.hidden and not record.shadowed)
+	local shown = not record.hidden and not record.shadowed and not Spectacle.IsVeiled(record.part)
+	SpeciesFx.SetShown(record.fxTarget, shown)
+	Spectacle.SetShown(record.part, not record.hidden and not record.shadowed)
 end
 
 local function applyShadow(record: Record)
@@ -495,7 +504,7 @@ end
 -- Draws or hides one record from its `hidden` flag: the server part (always invisible locally when a
 -- mesh clone stands in for it), every part of the clone, the nameplate and the aura.
 local function applyVisibility(record: Record)
-	local hide = record.hidden
+	local hide = record.hidden or Spectacle.IsVeiled(record.part) -- an arrival veils the alien until its pop
 	record.part.LocalTransparencyModifier = if hide or record.model then 1 else 0
 	local model = record.model
 	if model then
@@ -627,6 +636,19 @@ local function track(instance: Instance)
 	}
 	records[instance] = record
 	instance.CFrame = base -- a record the render loop skips (hidden or far) still stands on its band's base
+	Spectacle.Track(instance, {
+		fxTarget = fxTarget,
+		model = model,
+		species = species,
+		tier = tier,
+		height = topOffsetOf(instance, model) + instance.Size.Y / 2,
+		feet = modelBase or CFrame.new(feet),
+		setVeil = function(_veiled: boolean)
+			if records[instance] == record then
+				applyVisibility(record)
+			end
+		end,
+	})
 	setPulse(record)
 	if not known[species] and Prefs.Silhouettes() then
 		if pulseCovers(record, pulseRunning()) then
@@ -674,7 +696,10 @@ local function untrack(instance: Instance)
 		end
 		record.fxCleanup()
 		local model = record.model
-		if model then
+		-- the alien a catch is on goes to Spectacle for the outro (a spiral into the device, or a hop away)
+		local handed = Spectacle.TakeOver(instance :: Part, model)
+		Spectacle.Untrack(instance :: Part)
+		if model and not handed then
 			model:Destroy()
 		end
 	end
@@ -775,12 +800,13 @@ local function onRender()
 			end
 		end
 		local lift = Vector3.new(0, math.sin(now * omega + record.phase) * Config.WildBobStuds, 0)
+		local offset, yaw, pitch, roll = Spectacle.PoseOf(part) -- the walk, the idle, the turn, the hops (World.Spectacle)
 		local model, modelBase = record.model, record.modelBase
 		if model and modelBase then
-			part.CFrame = record.base + lift
-			SpeciesFx.Place(model, modelBase + lift)
+			part.CFrame = record.base + lift + offset
+			SpeciesFx.Place(model, (modelBase + lift + offset) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(pitch, 0, roll))
 		else
-			SpeciesFx.Place(part, record.base + lift)
+			SpeciesFx.Place(part, record.base + lift + offset)
 		end
 		if at and record.shadowed and (position - at).Magnitude <= Config.ShadowRevealDistance then
 			reveal(record)
@@ -802,6 +828,7 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	if not Models.Available() then
 		warn(("[%s] WildRenderer: ReplicatedStorage.%s is missing; placeholder shapes in use"):format(Config.WorkingTitle, Config.ModelFolderName))
 	end
+	Spectacle.Start(known)
 	local world = Workspace:WaitForChild("World")
 	local wild = world:WaitForChild("Wild") :: Folder
 	wildFolder = wild

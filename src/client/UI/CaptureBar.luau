@@ -10,6 +10,9 @@
 -- plate in cells; a trail of light that fills it cell by cell behind the sweep; the Good and Perfect zones lit bands under the
 -- grout, so they read as cells, with their edges exactly where the server scores (never snapped to a cell); the marker a stepped
 -- pixel arrow; the lure and countdown chips edged blocks; the sweep dots flat blocks. Timing, bindings and sounds as before.
+-- The spectacle ladder (data/Spectacle Catch): a Good or Perfect the server scored flashes the zone bands in the alien's own colour
+-- (BeginInfo.alienColor), more times up the tiers and once more on a Perfect (SpectacleMath.Flashes), each flash
+-- Spectacle.Look.FlashPeriod long, so nothing flashes more than three times a second.
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -25,6 +28,8 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Capture = require(Shared:WaitForChild("Capture"))
 local BlockMath = require(Shared:WaitForChild("BlockMath"))
 local CatchVariants = require(Shared:WaitForChild("data"):WaitForChild("CatchVariants"))
+local SpectacleData = require(Shared:WaitForChild("data"):WaitForChild("Spectacle"))
+local SpectacleMath = require(Shared:WaitForChild("SpectacleMath"))
 local Builder = require(script.Parent.Builder)
 
 local CaptureBar = {}
@@ -33,6 +38,8 @@ export type BeginInfo = {
 	speciesName: string,
 	tierName: string,
 	tierColor: Color3,
+	tier: string?, -- the alien's tier (how many times a hit flashes); nil is Common
+	alienColor: Color3?, -- the alien's own colour, which a hit flashes the zone in; nil: no flash
 	params: Types.CaptureStartResult,
 	onTap: (tapTime: number) -> (),
 }
@@ -89,6 +96,8 @@ local heldCenter: number? = nil -- where the zone centre was at that tap; the zo
 local onTap: ((number) -> ())? = nil
 local renderConn: RBXScriptConnection? = nil
 local feedbackToken = 0
+local alienColor: Color3? = nil
+local alienTier = "Common"
 
 local press: () -> () -- defined below; build() wires the backdrop to them
 local release: () -> ()
@@ -445,6 +454,26 @@ local function flashZone()
 	end
 end
 
+-- A scored hit flashes the zone bands in the alien's colour (a Perfect the Perfect band too): SpectacleMath.Flashes times, each one
+-- out and back over Spectacle.Look.FlashPeriod; the bands end on their own colour.
+local function flashAlien(hit: Types.HitOutcome?)
+	local color = alienColor
+	local count = SpectacleMath.Flashes(alienTier, hit)
+	if not color or count <= 0 then
+		return
+	end
+	local info = TweenInfo.new(SpectacleData.Look.FlashPeriod / 2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, count - 1, true)
+	for _, frame in ipairs(goodZone) do
+		TweenService:Create(frame, info, { BackgroundColor3 = color }):Play()
+	end
+	if hit == "Perfect" then
+		local bright = color:Lerp(Theme.Colors.White, 0.4)
+		for _, frame in ipairs(perfectZone) do
+			TweenService:Create(frame, info, { BackgroundColor3 = bright }):Play()
+		end
+	end
+end
+
 local function tap()
 	if not active or awaiting or not onTap then
 		return
@@ -575,6 +604,8 @@ function CaptureBar.Begin(info: BeginInfo)
 	row = CatchVariants.Rows[params.variant] or CatchVariants.Rows[CatchVariants.Default]
 	driftPhase = params.driftPhase
 	deadline = params.deadline
+	alienColor = info.alienColor
+	alienTier = info.tier or "Common"
 	setZones(params.zoneCenter, params.goodZone, params.perfectZone)
 	for _, frame in ipairs(goodZone) do
 		frame.BackgroundColor3 = Theme.Colors[row.look.zone] or Theme.Colors.Confirm
@@ -660,6 +691,9 @@ function CaptureBar.ApplyResult(result: Types.CaptureHitResult)
 		showFeedback(if bolted then Strings.CATCH_BOLTED else Strings.CATCH_ESCAPED, Theme.Colors.Close)
 		Builder.playSound(Sounds.Fled)
 		return
+	end
+	if hit == "Perfect" or hit == "Good" then
+		flashAlien(hit)
 	end
 	if hit == "Perfect" then
 		showFeedback(Strings.CATCH_PERFECT, Theme.Colors.Featured)

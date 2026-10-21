@@ -164,7 +164,7 @@ local caps = {
 -- way to clear over PoolPeriod (held still under Reduced Motion). Ornament: OrnamentStuds a cell, bobbing OrnamentBob heights.
 -- Footprint: one every FootprintStep studs of wandering, grows over FootprintGrow, holds, fades out by FootprintLife; FootprintStuds
 -- a cell. Beacon: BeaconTransparency at its brightest, swelling by BeaconBreathe over BeaconPeriod; BeaconFade seconds in and out.
--- Notice: TurnRate (a share a second the turn closes), HopSeconds a hop, FlashPeriod seconds one flash of the bar takes (at
+-- Notice: TurnRate (a share a second the turn closes), HopSeconds a hop, PerkSeconds the ears' perk, FlashPeriod seconds one flash of the bar takes (at
 -- least a third of a second, so nothing flashes more than three times a second), ForgetSeconds out of range before it may notice the same
 -- player again (and pop a bubble again). Wander: MoveShare of a cycle is walking, the rest is the idle; MaxStep studs of ground
 -- height difference it will not wander across. Idle amplitudes (before theatre): LookYaw degrees, StretchPitch degrees and
@@ -201,6 +201,7 @@ local look = {
 	BeaconFade = 0.8,
 	TurnRate = 4,
 	HopSeconds = 0.32,
+	PerkSeconds = 0.6,
 	FlashPeriod = 0.34,
 	ForgetSeconds = 20,
 	MoveShare = 0.35,
@@ -246,6 +247,10 @@ local glyphs: { [string]: { string } } = {
 	Z = { "XXXXX", "...X.", "..X..", ".X...", "XXXXX" },
 }
 
+-- The moving parts (data/Rigs names) that perk up when an alien notices a player (RigAnimator.Perk): a part whose name starts
+-- with one of these flares by the tier's `perk` degrees over Look.PerkSeconds, on the axis of its own first clip.
+local perkParts: { string } = { "ear", "antenna", "crest", "tail", "whisker", "tuft", "fin", "leaf", "sprout", "frond" }
+
 -- Particles one alien's presence keeps alive (for the budget): the aura's sprites, the trail's cells and the shimmer.
 -- PresenceLifetime: seconds each of them lives.
 local presenceLifetime = { aura = 1.6, trail = 0.9, shimmer = 1.8 }
@@ -260,5 +265,6 @@ return {
 	Footprints = footprints,
 	FootprintDefault = footprintDefault,
 	Glyphs = glyphs,
+	PerkParts = perkParts,
 	PresenceLifetime = presenceLifetime,
 }
