@@ -31,7 +31,7 @@ local Props: { ship: string, stations: { [string]: string } } = {
 
 return {
 	ShipOffset = Vector3.new(0, 0, -20), -- from the camp pad centre; the spawn faces -Z so the ship is straight ahead
-	PeddlerOffset = Vector3.new(-26, 0, -8), -- the merchant ship lands here, left of the camp (moved from the right, where the crash wreck stands at x 24, z -10)
+	PeddlerOffset = Vector3.new(-26, 0, -8), -- the merchant ship lands here, left of the camp (moved from the right, where the crash wreck stands at x 28, z -12)
 	TutorialSpawnOffset = Vector3.new(-30, 0, 4), -- the tutorial's guaranteed aliens wait here, left of the camp, outside the spawn clearance
 	PeddlerSize = Vector3.new(8, 3, 6),
 	PeddlerColor = "FFC83D",
