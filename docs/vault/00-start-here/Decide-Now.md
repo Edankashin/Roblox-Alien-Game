@@ -247,6 +247,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: ** **Taken 2026-10-20 under Ethan's "finalize everything" ([[Decisions]] B46): a**, the mount form; say if you want b or c instead.a**, because it keeps the one band at rest, keeps the mount progression the design counts on, and costs one scale tween; b is the simplest if riding never tested well.
 - Then: the answer goes into the design doc's mount section and the Blocky-Style ladder; the resize pass then runs on all 35 species, Cosmic and Secret first.
 
+**45. Upload the finished aliens and their art?** All 35 aliens are rebuilt on B45 and B46 and exported into `assets/models/` (GLB, cell atlas, face sheet, materials), with the HUD and every screen in block cells, 19 effect sprites and new pixel icons. Nothing is uploaded: the game still loads the old blockouts until it is. The boot loader now matches parts by name, so an upload will not scramble the moving parts.
+- Options: a) yes: the Mac uploads the 35 models, their atlases and face sheets, and the effect and reveal sprites through Open Cloud with the key in its shell, regenerates `ModelAssets.luau`, then runs Mac jobs 36 to 39; b) Studio check first: the Mac runs jobs 36 to 39 on local imports, then uploads; c) not yet (say what to change).
+- Recommend: **b**, because the Studio pass on local imports costs nothing and catches naming or scale problems before anything goes to Roblox moderation.
+- Then: the uploads and id fills in one commit per kind; the launch stays off (B27), nothing is published.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -305,4 +310,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 42: a* A, the house face | b B, heavier brow | c neither
 43: a* yes, the UI in block cells | b keep it rounded | c a mix
 44: a* mount form, grows only while ridden | b drop riding | c a few big mount species
+45: a upload now | b* Studio check first, then upload | c not yet
 ```
