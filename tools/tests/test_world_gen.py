@@ -148,6 +148,26 @@ class Worlds(unittest.TestCase):
                 self.assertTrue(-200 < x < 200 and -200 < z < 200)
                 self.assertTrue(0.5 <= scale <= 1.5)
 
+    def test_the_camp_is_a_deck_with_a_kerb_and_keeps_its_gameplay_clear(self):
+        """The camp deck (Services/Meadow draws no round pad over it) is CampPadThickness at the origin and off the grid (walk 0), so
+        SurfaceAt stays the floor top; the stations, the ship's hull, the spawn pad and the peddler's landing spot stay free of props."""
+        camp = (ROOT / "src/shared/data/Camp.luau").read_text(encoding="utf-8")
+        peddler = re.search(r"PeddlerOffset = Vector3.new\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\)", camp)
+        keep = [(-17, 6, 3.5), (17, 6, 3.5), (0, 19, 2), (0, 0, 4.5), (float(peddler[1]), float(peddler[3]), 4.5)]
+        for wid in WORLDS:
+            world = gen(wid)[0]
+            thick = float(re.search(r"CampPadThickness = ([\d.]+)", (ROOT / "src/shared/data" / ("Meadow.luau" if wid == 1 else "Frostbyte.luau"))
+                                    .read_text(encoding="utf-8"))[1])
+            decks = [s for s in world.solids if s[0] < 0 < s[3] and s[2] < 0 < s[5] and s[1] <= 0 and abs(s[4] - thick) < 0.01]
+            self.assertEqual(len(decks), 1)
+            self.assertEqual(decks[0][7], 0)
+            self.assertGreaterEqual(sum(1 for s in world.solids if abs(s[0]) <= 14 and abs(s[3]) <= 14 and abs(s[2]) <= 14 and abs(s[5]) <= 14) - 1, 8)
+            for name, x, y, z, yaw, scale in world.props:
+                for kx, kz, r in keep:
+                    self.assertGreater((x - kx) ** 2 + (z - kz) ** 2, r * r, f"world {wid}: {name} at ({x}, {z}) crowds ({kx}, {kz})")
+                self.assertFalse(-6 < x < 6 and -30 < z < -10, f"world {wid}: {name} at ({x}, {z}) is under the ship's hull")
+            self.assertTrue({"SightPost", "SignArmHigh", "SignArmMid", "SignArmLow", "CampCrate", "CampFlag"} <= {p[0] for p in world.props})
+
     def test_every_world_has_its_exploration(self):
         want = {1: {"Lookout", "WaterfallNook", "MoonPool", "GlowcapGrove", "CrystalGrotto"},
                 2: {"AuroraRidge", "FrozenFallNook", "CrystalHall", "HotSpring", "LakeIsle"}}

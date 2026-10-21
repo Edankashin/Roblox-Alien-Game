@@ -7,6 +7,7 @@ local Types = require(script.Parent.Parent.types.Types)
 
 local Kinds: { [string]: Types.GroundKind } = {
 	bed = { top = "Sand", side = "Sand", body = "Dirt", color = "C2AE78", sideColor = "B09C68", bodyColor = "8A5A3B", material = "Sand", spawn = false, tint = true },
+	campDeck = { top = "WoodPlank", side = "WoodPlank", body = "WoodPlank", color = "C08A55", sideColor = "9A6A3E", bodyColor = "7B4A2D", material = "WoodPlanks", spawn = false, tint = true },
 	cave = { top = "Stone", side = "Rock", body = "Rock", color = "6E6A78", sideColor = "5E5A68", bodyColor = "55515E", material = "Slate", spawn = true, tint = true },
 	cliff = { top = "GrassTop", side = "GrassSide", body = "Rock", color = "6FBF4A", sideColor = "8A5A3B", bodyColor = "8A8478", material = "Grass", spawn = true, tint = true },
 	cracked = { top = "FrozenWater", side = "Ice", body = "Ice", color = "98CBEE", sideColor = "86BCE0", bodyColor = "7DB2D8", material = "Glacier", spawn = true, tint = true },
@@ -86,6 +87,41 @@ local Recipes: { [string]: Types.PropRecipe } = {
 		boxes = {
 			{ size = { 3, 1.75, 3 }, at = { 0, 0.875, 0 }, color = "4E9B3A", material = "Grass" },
 			{ size = { 2, 0.75, 2 }, at = { 0, 2.1, 0 }, color = "5DAE48", material = "Grass" },
+		},
+	},
+	CampCrate = {
+		boxes = {
+			{ size = { 2, 2, 2 }, at = { 0, 1, 0 }, color = "C08A55", material = "WoodPlanks", collide = true },
+			{ size = { 2.1, 0.3, 2.1 }, at = { 0, 1.8, 0 }, color = "8C5E32", material = "Wood" },
+			{ size = { 2.1, 0.3, 2.1 }, at = { 0, 0.15, 0 }, color = "8C5E32", material = "Wood" },
+			{ size = { 2.3, 0.25, 0.12 }, at = { 0, 1, -1.04 }, color = "8C5E32", material = "Wood", roll = 45 },
+			{ size = { 1, 0.45, 0.12 }, at = { 0, 1.15, 1.04 }, color = "FFC83D", material = "SmoothPlastic" },
+		},
+	},
+	CampFlag = {
+		boxes = {
+			{ size = { 1.2, 0.4, 1.2 }, at = { 0, 0.2, 0 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.25, 8, 0.25 }, at = { 0, 4.2, 0 }, color = "B8C2CF", material = "Metal", collide = true },
+			{ size = { 0.5, 0.4, 0.5 }, at = { 0, 8.4, 0 }, color = "FFC83D", material = "Metal" },
+			{ size = { 3, 1.8, 0.12 }, at = { 1.65, 7.25, 0 }, color = "FFC83D", material = "Fabric" },
+			{ size = { 3, 0.5, 0.16 }, at = { 1.65, 7.25, 0 }, color = "68C9FE", material = "Fabric" },
+		},
+	},
+	Campfire = {
+		light = { color = "FFB050", range = 18, brightness = 1.6, at = { 0, 1.4, 0 } },
+		boxes = {
+			{ size = { 0.6, 0.5, 0.6 }, at = { 1.3, 0.25, 0 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.6, 0.5, 0.6 }, at = { -1.3, 0.25, 0 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.6, 0.45, 0.6 }, at = { 0.65, 0.225, 1.15 }, color = "7C7C72", material = "Slate", collide = true },
+			{ size = { 0.6, 0.5, 0.6 }, at = { -0.65, 0.25, 1.15 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.6, 0.5, 0.6 }, at = { 0.65, 0.25, -1.15 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.6, 0.45, 0.6 }, at = { -0.65, 0.225, -1.15 }, color = "7C7C72", material = "Slate", collide = true },
+			{ size = { 1.1, 0.2, 1.1 }, at = { 0, 0.1, 0 }, color = "FF7A1A", material = "Neon", neon = true },
+			{ size = { 2.2, 0.35, 0.35 }, at = { 0, 0.375, 0 }, color = "6B4226", material = "Wood" },
+			{ size = { 0.35, 0.35, 2.2 }, at = { 0, 0.725, 0 }, color = "7B4A2D", material = "Wood" },
+			{ size = { 0.75, 0.9, 0.75 }, at = { 0, 1.15, 0 }, color = "FF9A3D", material = "Neon", neon = true },
+			{ size = { 0.45, 0.7, 0.45 }, at = { 0.1, 1.85, 0.05 }, color = "FFD27A", material = "Neon", neon = true },
+			{ size = { 0.35, 0.5, 0.35 }, at = { -0.35, 1, 0.3 }, color = "FF7A1A", material = "Neon", neon = true },
 		},
 	},
 	Fence = {
@@ -338,6 +374,31 @@ local Recipes: { [string]: Types.PropRecipe } = {
 			{ size = { 0.25, 2, 0.25 }, at = { -0.3, 1, 0 }, color = "5C9E3A", material = "Grass" },
 			{ size = { 0.25, 2.5, 0.25 }, at = { 0.25, 1.25, 0.3 }, color = "6BAE45", material = "Grass" },
 			{ size = { 0.35, 0.6, 0.35 }, at = { 0.25, 2.6, 0.3 }, color = "7A4A2D", material = "SmoothPlastic" },
+		},
+	},
+	SightPost = {
+		boxes = {
+			{ size = { 1, 0.4, 1 }, at = { 0, 0.2, 0 }, color = "8E8E86", material = "Slate", collide = true },
+			{ size = { 0.4, 4.4, 0.4 }, at = { 0, 2.4, 0 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.7, 0.3, 0.7 }, at = { 0, 4.75, 0 }, color = "6B4226", material = "Wood" },
+		},
+	},
+	SignArmHigh = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 4, 0 }, color = "E8D4A8", material = "WoodPlanks" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 4, 0 }, color = "CBC2EE", material = "SmoothPlastic", roll = 45 },
+		},
+	},
+	SignArmLow = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 2.6, 0 }, color = "E8D4A8", material = "WoodPlanks" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 2.6, 0 }, color = "FFC83D", material = "SmoothPlastic", roll = 45 },
+		},
+	},
+	SignArmMid = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 3.3, 0 }, color = "E8D4A8", material = "WoodPlanks" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 3.3, 0 }, color = "3FA2E6", material = "SmoothPlastic", roll = 45 },
 		},
 	},
 	Signpost = {

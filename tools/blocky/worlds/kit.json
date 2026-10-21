@@ -34,7 +34,8 @@
     "moonPath": {"top": "MoonPath", "side": "MoonPath", "body": "Dirt", "color": "D2C2F4", "sideColor": "A894D6", "bodyColor": "3E3260", "material": "SmoothPlastic", "spawn": true, "tint": false},
     "moonCliff": {"top": "MoonGrass", "side": "GrassSide", "body": "Rock", "color": "3F8A74", "sideColor": "4A3A6A", "bodyColor": "5B4F86", "material": "Grass", "spawn": true},
     "moonStone": {"top": "Stone", "side": "Rock", "body": "Rock", "color": "8A96B8", "sideColor": "6E7A9E", "bodyColor": "5B4F86", "material": "Slate", "spawn": false},
-    "glowWater": {"top": "GlowWater", "side": "GlowWater", "body": "GlowWater", "color": "6FE6FF", "sideColor": "6FE6FF", "bodyColor": "6FE6FF", "material": "Neon", "spawn": false, "tint": false}
+    "glowWater": {"top": "GlowWater", "side": "GlowWater", "body": "GlowWater", "color": "6FE6FF", "sideColor": "6FE6FF", "bodyColor": "6FE6FF", "material": "Neon", "spawn": false, "tint": false},
+    "campDeck": {"top": "WoodPlank", "side": "WoodPlank", "body": "WoodPlank", "color": "C08A55", "sideColor": "9A6A3E", "bodyColor": "7B4A2D", "material": "WoodPlanks", "spawn": false}
   },
   "water": {"water": {"transparency": 0.3, "reflectance": 0.12}, "warm": {"transparency": 0.25, "reflectance": 0.1}, "openIce": {"transparency": 0.2, "reflectance": 0.15}, "glowWater": {"transparency": 0.35, "reflectance": 0.0, "neon": true}},
   "recipes": {
@@ -291,6 +292,51 @@
       {"size": [6, 3, 6], "at": [5, 17, 5], "color": "4B4FC9", "material": "Grass"},
       {"size": [3, 2, 3], "at": [-5, 12, 5], "color": "4AA3B0", "material": "Grass"},
       {"size": [2.4, 1, 2.4], "at": [-1, 11.5, -6], "color": "8FE6FF", "material": "SmoothPlastic", "neon": true}
+    ]},
+    "Campfire": {"light": {"color": "FFB050", "range": 18, "brightness": 1.6, "at": [0, 1.4, 0]}, "boxes": [
+      {"size": [0.6, 0.5, 0.6], "at": [1.3, 0.25, 0], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.6, 0.5, 0.6], "at": [-1.3, 0.25, 0], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.6, 0.45, 0.6], "at": [0.65, 0.225, 1.15], "color": "7C7C72", "material": "Slate", "collide": true},
+      {"size": [0.6, 0.5, 0.6], "at": [-0.65, 0.25, 1.15], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.6, 0.5, 0.6], "at": [0.65, 0.25, -1.15], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.6, 0.45, 0.6], "at": [-0.65, 0.225, -1.15], "color": "7C7C72", "material": "Slate", "collide": true},
+      {"size": [1.1, 0.2, 1.1], "at": [0, 0.1, 0], "color": "FF7A1A", "material": "Neon", "neon": true},
+      {"size": [2.2, 0.35, 0.35], "at": [0, 0.375, 0], "color": "6B4226", "material": "Wood"},
+      {"size": [0.35, 0.35, 2.2], "at": [0, 0.725, 0], "color": "7B4A2D", "material": "Wood"},
+      {"size": [0.75, 0.9, 0.75], "at": [0, 1.15, 0], "color": "FF9A3D", "material": "Neon", "neon": true},
+      {"size": [0.45, 0.7, 0.45], "at": [0.1, 1.85, 0.05], "color": "FFD27A", "material": "Neon", "neon": true},
+      {"size": [0.35, 0.5, 0.35], "at": [-0.35, 1.0, 0.3], "color": "FF7A1A", "material": "Neon", "neon": true}
+    ]},
+    "CampCrate": {"boxes": [
+      {"size": [2, 2, 2], "at": [0, 1, 0], "color": "C08A55", "material": "WoodPlanks", "collide": true},
+      {"size": [2.1, 0.3, 2.1], "at": [0, 1.8, 0], "color": "8C5E32", "material": "Wood"},
+      {"size": [2.1, 0.3, 2.1], "at": [0, 0.15, 0], "color": "8C5E32", "material": "Wood"},
+      {"size": [2.3, 0.25, 0.12], "at": [0, 1, -1.04], "color": "8C5E32", "material": "Wood", "roll": 45},
+      {"size": [1.0, 0.45, 0.12], "at": [0, 1.15, 1.04], "color": "FFC83D", "material": "SmoothPlastic"}
+    ]},
+    "CampFlag": {"boxes": [
+      {"size": [1.2, 0.4, 1.2], "at": [0, 0.2, 0], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.25, 8, 0.25], "at": [0, 4.2, 0], "color": "B8C2CF", "material": "Metal", "collide": true},
+      {"size": [0.5, 0.4, 0.5], "at": [0, 8.4, 0], "color": "FFC83D", "material": "Metal"},
+      {"size": [3, 1.8, 0.12], "at": [1.65, 7.25, 0], "color": "FFC83D", "material": "Fabric"},
+      {"size": [3, 0.5, 0.16], "at": [1.65, 7.25, 0], "color": "68C9FE", "material": "Fabric"}
+    ]},
+    "SightPost": {"boxes": [
+      {"size": [1.0, 0.4, 1.0], "at": [0, 0.2, 0], "color": "8E8E86", "material": "Slate", "collide": true},
+      {"size": [0.4, 4.4, 0.4], "at": [0, 2.4, 0], "color": "8C5E32", "material": "Wood", "collide": true},
+      {"size": [0.7, 0.3, 0.7], "at": [0, 4.75, 0], "color": "6B4226", "material": "Wood"}
+    ]},
+    "SignArmHigh": {"boxes": [
+      {"size": [2.2, 0.55, 0.14], "at": [1.3, 4.0, 0], "color": "E8D4A8", "material": "WoodPlanks"},
+      {"size": [0.42, 0.42, 0.16], "at": [2.45, 4.0, 0], "color": "CBC2EE", "material": "SmoothPlastic", "roll": 45}
+    ]},
+    "SignArmMid": {"boxes": [
+      {"size": [2.2, 0.55, 0.14], "at": [1.3, 3.3, 0], "color": "E8D4A8", "material": "WoodPlanks"},
+      {"size": [0.42, 0.42, 0.16], "at": [2.45, 3.3, 0], "color": "3FA2E6", "material": "SmoothPlastic", "roll": 45}
+    ]},
+    "SignArmLow": {"boxes": [
+      {"size": [2.2, 0.55, 0.14], "at": [1.3, 2.6, 0], "color": "E8D4A8", "material": "WoodPlanks"},
+      {"size": [0.42, 0.42, 0.16], "at": [2.45, 2.6, 0], "color": "FFC83D", "material": "SmoothPlastic", "roll": 45}
     ]}
   },
   "build": {"edgeWallHeight": 240, "edgeWallThickness": 2, "baseThickness": 1, "fallThickness": 1, "fallTransparency": 0.3, "fallColor": "CFEFFF", "decorShadowBelow": 1.5},

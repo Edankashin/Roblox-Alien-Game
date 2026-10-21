@@ -1,10 +1,14 @@
 """Preview of a generated block-cell world (tools/blocky/world_gen.py) in Blender: the ground exactly as Services/Meadow builds it (caps,
 bodies, water, falls, solids, the same rows), every face wearing a 2 x 2 stud tile of the B44 cell rules (tools/blocky/cells.py
-swatch faces in the kind's own colours, nearest filtering), and the scattered props as their block placeholders (data/WorldKit
-recipes), since the props worker's meshes are not imported here. Two views: the whole map from above and a hero three-quarter over
-the camp, the way the dioramas were shot.
+swatch faces in the kind's own colours, nearest filtering), every placed prop as its exported block-cell mesh
+(assets/models/props/<Name>/<Name>.glb, as Shared/Props places it) or, where none is exported, its block placeholder (data/WorldKit
+recipes), the landmarks of the world's layout (data/Meadow.luau or Frostbyte.luau Landmarks: the crash wreck, the cave mouths, the
+vent) at their yaw, the shrine, and the camp as CampRenderer stands it (data/Camp.luau: the ShipHull, the three stations, the yellow
+spawn pad on the camp deck). Views: the whole map from above, a hero three-quarter over the camp the way the dioramas were shot, and
+`camp`, the camp close up.
 
-    bpyenv/bin/python tools/blender/world_preview.py -- --world 1 --out <scratch> [--views top,hero] [--size 1600] [--samples 24]
+    bpyenv/bin/python tools/blender/world_preview.py -- --world 1 --out <scratch> [--views top,hero,camp] [--size 1600] [--samples 24]
+        [--placeholders]    (every prop as its block placeholder: the look before the meshes)
 
 Writes world<id>_<view>.png into --out (never under assets/). The review copies go to media/studio/<date>/ as JPEGs.
 """
@@ -19,8 +23,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT / "tools/blocky"))
 
+import re  # noqa: E402
+
 import bpy  # noqa: E402
-from mathutils import Vector  # noqa: E402
+from mathutils import Matrix, Vector  # noqa: E402
 
 import cells as C  # noqa: E402
 import world_gen as G  # noqa: E402
@@ -105,8 +111,8 @@ def tile_material(key: str, base: str, aux: str, water=False, glow=False) -> bpy
     return mat
 
 
-def flat_material(hexcol: str, neon=False) -> bpy.types.Material:
-    name = f"F_{hexcol}_{int(neon)}"
+def flat_material(hexcol: str, neon=False, alpha=1.0) -> bpy.types.Material:
+    name = f"F_{hexcol}_{int(neon)}_{alpha}"
     if name in _mats:
         return _mats[name]
     mat = bpy.data.materials.new(name)
@@ -114,11 +120,84 @@ def flat_material(hexcol: str, neon=False) -> bpy.types.Material:
     bsdf = mat.node_tree.nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = hex_lin(hexcol)
     bsdf.inputs["Roughness"].default_value = 0.8
+    if alpha < 1.0:
+        bsdf.inputs["Alpha"].default_value = alpha
     if neon:
         bsdf.inputs["Emission Color"].default_value = hex_lin(hexcol)
         bsdf.inputs["Emission Strength"].default_value = 4.0
     _mats[name] = mat
     return mat
+
+
+# ------------------------------------------------------------------------------------------------ the exported prop meshes
+PROPS_DIR = ROOT / "assets/models/props"
+DATA = ROOT / "src/shared/data"
+LAYOUT_FILE = {1: "Meadow.luau", 2: "Frostbyte.luau"}
+_lib: dict = {}
+USE_MESHES = True
+
+
+def prop_library(name: str):
+    """The exported mesh of a prop, imported once and kept out of the scene: ([(mesh data, matrix)], height), or None when the prop has
+    no export (its block placeholder stands in)."""
+    if name in _lib:
+        return _lib[name]
+    glb = PROPS_DIR / name / f"{name}.glb"
+    if not USE_MESHES or not name or not glb.is_file():
+        _lib[name] = None
+        return None
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(glb))
+    new = [o for o in bpy.data.objects if o not in before]
+    bpy.context.view_layer.update()
+    parts, top = [], 0.0
+    for o in new:
+        if o.type != "MESH":
+            continue
+        parts.append((o.data, o.matrix_world.copy()))
+        top = max(top, max((o.matrix_world @ Vector(c)).z for c in o.bound_box))
+        for slot in o.material_slots:
+            if slot.material and slot.material.node_tree:
+                for n in slot.material.node_tree.nodes:
+                    if n.type == "TEX_IMAGE":
+                        n.interpolation = "Closest"
+    for o in new:
+        bpy.data.objects.remove(o)
+    _lib[name] = (parts, top)
+    return _lib[name]
+
+
+def place_mesh(coll, name, x, y, z, yaw, scale, hang=False):
+    """Stand a prop's exported mesh at Roblox (x, y, z) turned `yaw` degrees about +Y (Blender +Z), as Props.Place does; a hanging prop
+    (icicles) is lowered by its height. False when the prop has no export."""
+    lib = prop_library(name)
+    if lib is None:
+        return False
+    parts, height = lib
+    drop = height * scale if hang else 0.0
+    m = Matrix.Translation(Vector(bl(x, y - drop, z))) @ Matrix.Rotation(math.radians(yaw), 4, "Z") @ Matrix.Scale(scale, 4)
+    for data, local in parts:
+        obj = bpy.data.objects.new(name, data)
+        obj.matrix_world = m @ local
+        coll.objects.link(obj)
+    return True
+
+
+def layout_landmarks(world_id: int):
+    """(name, x, z, yaw, scale) of every landmark in the world's layout (data/Meadow.luau or Frostbyte.luau Landmarks)."""
+    text = (DATA / LAYOUT_FILE[world_id]).read_text(encoding="utf-8")
+    pat = r'\{ name = "(\w+)", x = (-?[\d.]+), z = (-?[\d.]+), yaw = (-?[\d.]+), scale = ([\d.]+)'
+    return [(m[0], float(m[1]), float(m[2]), float(m[3]), float(m[4])) for m in re.findall(pat, text)]
+
+
+def camp_layout():
+    """The camp as data/Camp.luau lays it out: the ship's offset and model, each station's offset and model."""
+    text = (DATA / "Camp.luau").read_text(encoding="utf-8")
+    ship = re.search(r"ShipOffset = Vector3.new\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\)", text)
+    stations = {m[0]: (float(m[1]), float(m[3])) for m in re.findall(r"\t(Gather|Build|Spark) = \{ offset = Vector3.new\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\)", text)}
+    names = dict(re.findall(r"(Gather|Build|Spark) = \"(\w+)\"", text))
+    shipname = re.search(r'ship = "(\w+)"', text)
+    return {"ship": (float(ship[1]), float(ship[3])), "stations": stations, "names": names, "shipName": shipname[1] if shipname else "ShipHull"}
 
 
 class MeshBatch:
@@ -244,8 +323,14 @@ def build(world_id: int):
                   tile_material(k["side"], k["color"], k["sideColor"]), tile_material(k["body"], k["bodyColor"], k["bodyColor"]), pin_top=True)
     recipes = world.kit["recipes"]
     lights = []
+    coll = bpy.context.scene.collection
+    meshes = placeholders = 0
     for name, x, y, z, yaw, scale in world.props:
-        prop_boxes(batch, recipes[name], x, FLOOR_TOP + y, z, yaw, scale)
+        if place_mesh(coll, name, x, FLOOR_TOP + y, z, yaw, scale, hang=recipes[name].get("hang", False)):
+            meshes += 1
+        else:
+            placeholders += 1
+            prop_boxes(batch, recipes[name], x, FLOOR_TOP + y, z, yaw, scale)
         light = recipes[name].get("light")
         if light:
             at = mul(rot_y(math.radians(yaw)), tuple(v * scale for v in light["at"]))
@@ -260,19 +345,40 @@ def build(world_id: int):
                        [(0, 0), (1, 0), (1, 1), (0, 1)])
             batch.quad(mat, [(e["x"], y0, e["z"] - w2), (e["x"], y0, e["z"] + w2), (e["x"], y0 + 44, e["z"] + w2), (e["x"], y0 + 44, e["z"] - w2)],
                        [(0, 0), (1, 0), (1, 1), (0, 1)])
-    # the camp pad and the shrine stand-ins (the real ones are client and landmark models)
-    pad = flat_material("FFF4DC")
-    box_faces(batch, -11, FLOOR_TOP, -11, 11, FLOOR_TOP + 0.4, 11, pad, pad)
+    # the wreck's smoke: a few pale puffs drifting off the engine (the client's WorldFx emitter, data/WorldFx WreckSmoke)
+    for e in world.fx:
+        if e["kind"] == "WreckSmoke":
+            y0 = FLOOR_TOP + world.top(e["x"], e["z"]) + e.get("lift", 0)
+            for dx, dy, dz, s, col in ((0, 0.8, 0, 1.0, "6E6862"), (0.4, 2.2, 0.2, 1.5, "8A847E"), (1.1, 3.9, 0.5, 2.0, "A39E98"),
+                                       (2.0, 5.8, 0.9, 2.4, "B9B4AD"), (3.1, 7.8, 1.3, 2.6, "CBC7C1")):
+                m = flat_material(col, alpha=0.55)
+                cx, cy, cz = e["x"] + dx, y0 + dy, e["z"] + dz
+                box_faces(batch, cx - s / 2, cy - s / 2, cz - s / 2, cx + s / 2, cy + s / 2, cz + s / 2, m, m, bottom_mat=m)
+    # the landmarks of the layout, at their yaw on the ground under their centre
+    for name, x, z, yaw, scale in layout_landmarks(world_id):
+        if not place_mesh(coll, name, x, FLOOR_TOP + world.h[world.index_at(x, z)], z, yaw, scale):
+            print("no export for landmark", name, flush=True)
+    # the camp as CampRenderer stands it on MeadowFloor (the deck itself is a ground solid): the ship's hull, the stations, the spawn pad
+    camp = camp_layout()
+    place_mesh(coll, camp["shipName"], camp["ship"][0], FLOOR_TOP, camp["ship"][1], 0, 1)
+    for job, (x, z) in camp["stations"].items():
+        place_mesh(coll, camp["names"].get(job, ""), x, FLOOR_TOP, z, 0, 1)
+    spawn = flat_material("FFC83D")
+    box_faces(batch, -3, FLOOR_TOP + 0.4, -3, 3, FLOOR_TOP + 0.6, 3, spawn, spawn)
+    # the shrine: World 1's hero model; World 2's ring of shrine stones round the pedestal (data/<layout> Props)
     sx, sz = world.desc["shrine"]
     sy = FLOOR_TOP + world.h[world.index_at(sx, sz)]
-    stone = flat_material("9E9E8E" if world_id == 1 else "BFD9E6")
-    for n in range(8):
-        a = n / 8 * math.tau
-        cx, cz = sx + math.cos(a) * 10, sz + math.sin(a) * 10
-        box_faces(batch, cx - 1, sy, cz - 1, cx + 1, sy + 5, cz + 1, stone, stone)
-    glow = flat_material("2ECC71" if world_id == 1 else "68C9FE", neon=True)
-    box_faces(batch, sx - 1, sy + 1.5, sz - 1, sx + 1, sy + 3.5, sz + 1, glow, glow)
-    coll = bpy.context.scene.collection
+    if not (world_id == 1 and place_mesh(coll, "Shrine", sx, sy, sz, 0, 1)):
+        stone = flat_material("9E9E8E" if world_id == 1 else "BFD9E6")
+        for n in range(8):
+            a = n / 8 * math.tau
+            cx, cz = sx + math.cos(a) * 10, sz + math.sin(a) * 10
+            if not place_mesh(coll, "ShrineStone", cx, sy, cz, math.degrees(math.pi / 2 - a), 1):
+                box_faces(batch, cx - 1, sy, cz - 1, cx + 1, sy + 5, cz + 1, stone, stone)
+        if not place_mesh(coll, "Pedestal", sx, sy, sz, 0, 1):
+            glow = flat_material("2ECC71" if world_id == 1 else "68C9FE", neon=True)
+            box_faces(batch, sx - 1, sy + 1.5, sz - 1, sx + 1, sy + 3.5, sz + 1, glow, glow)
+    print("props: %d meshes, %d block placeholders" % (meshes, placeholders), flush=True)
     batch.flush(coll)
     world.preview_lights = lights
     return world, stats
@@ -341,10 +447,12 @@ def camera(scene, view, size, world_id):
 # scale, looking out to the world's set pieces; "wide" takes the whole map in from a corner.
 HERO = {
     1: {"hero": ((62.0, 44.0, -62.0), (-34.0, 4.0, 70.0), 26.0),
+        "camp": ((40.0, 24.0, -54.0), (6.0, 1.0, -4.0), 22.0),
         "falls": ((-30.0, 18.0, 66.0), (-66.0, 6.0, 104.0), 28.0),
         "starhollow": ((62.0, 48.0, 38.0), (138.0, 18.0, 136.0), 24.0),
         "wide": ((150.0, 120.0, -215.0), (-30.0, 0.0, 40.0), 30.0)},
     2: {"hero": ((62.0, 44.0, -40.0), (-40.0, 4.0, 60.0), 26.0),
+        "camp": ((34.0, 20.0, -44.0), (-2.0, 1.0, 2.0), 22.0),
         "lake": ((20.0, 30.0, -20.0), (70.0, 0.0, -90.0), 28.0),
         "wide": ((150.0, 120.0, -215.0), (-30.0, 0.0, 40.0), 30.0)},
 }
@@ -359,7 +467,10 @@ def main():
     ap.add_argument("--size", type=int, default=1600)
     ap.add_argument("--samples", type=int, default=24)
     ap.add_argument("--night", action="store_true", help="the moonlit look (the Starhollow Forest is night at any hour)")
+    ap.add_argument("--placeholders", action="store_true", help="every prop as its block placeholder (no exported meshes)")
     a = ap.parse_args(argv)
+    global USE_MESHES
+    USE_MESHES = not a.placeholders
     out = pathlib.Path(a.out)
     if "assets" in out.resolve().parts:
         print("refusing to write under assets/")
