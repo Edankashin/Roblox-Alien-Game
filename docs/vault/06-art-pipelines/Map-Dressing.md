@@ -70,6 +70,8 @@ Each prop is one mesh, flat shaded, one flat material per colour, no textures, s
 
 ## Bulk import through Open Cloud
 
+**Block-cell models (B46, B47): one command.** `tools/finalize_upload.sh` on the Mac runs `python3 -I tools/upload_assets.py --blocky`: every block-cell folder (species and props, a `materials.json` entry with `pixelated` true), its sheets, the pixel sprites and the world tiles, then `--fill-blocky` writes the ids through the generators and the checks run. `--blocky --dry-run` shows the plan with no key. The rest of this section is the older route for the blockouts and the props, still valid. Steps for a test run: [[Test-Run]]; the Mac job: [[Overnight]] job 40.
+
 Since 2026-10-12 the server does the install itself at boot (`Services/Models`, decision B18 in [[Decisions]]): every name in `data/ModelAssets` that is not already in the place is loaded with `InsertService:LoadAsset`, coloured from the same rows and parented under `ReplicatedStorage.Models`. The Studio installer below is kept for a place that must hold the models in its file (a Team Create place dressed by hand, or a Studio with no permission to load the owner's assets).
 
 Run `python3 -I tools/model_assets.py --write` after uploads or installer-data edits to regenerate `src/shared/data/ModelAssets.luau` (AssetIds, prop membership, material slots/renames and normalization settings); `--check` compares data, and data lint warns on requested meshes without IDs. The coordinator still supplies the runtime loader.

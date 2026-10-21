@@ -74,25 +74,31 @@ summary, is ignored), then fills imageId in both ids files wherever assetId is t
 that differs; --dry-run writes nothing). It exits 1 on a Decal that no ids file knows, a Decal given two different
 Image ids, or an Image id equal to its Decal id.
 
-Block cells (--blocky, --fill-blocky; Decisions B46 and B47): the one route for the rebuilt aliens and their art.
+Block cells (--blocky, --fill-blocky; Decisions B46 and B47): the one route for the rebuilt aliens, props and their art.
   python3 -I tools/upload_assets.py --blocky --dry-run       # the plan: every file, and where each id will land (no key)
   python3 -I tools/upload_assets.py --blocky                 # upload what is not done yet, resolve the Image ids, then fill
-  python3 -I tools/upload_assets.py --blocky --only Mossbop,PixelStar   # species ids (model, atlas, face) or sprite keys
+  python3 -I tools/upload_assets.py --blocky --only Mossbop,PixelStar   # folder names (model and sheets), sprite or tile keys
   python3 -I tools/upload_assets.py --fill-blocky [--dry-run]           # only write the known ids into the data files
-It covers, for each species folder with an <Id>_atlas.png (tools/blocky/export_models.py): <Id>.glb as a Model, which
-replaces the old blockout id in assets/models/asset_ids.json (the entry loses `pendingUpload` and gains `blockCell`
-true and `replacedAssetId`); <Id>_atlas.png and <Id>_face.png as Decals, recorded in assets/models/image_ids.json under
-"<Id>/atlas" and "<Id>/face" like the textures (assetId the Decal, imageId the Image); and every PNG under
-assets/sprites/blocky (tools/pixel_sprites.py) as a Decal in assets/icons/asset_ids.json, kind "particle". A file whose
-id is recorded is skipped (--redo uploads it again). The dry run also names the Icons.Particles keys the game reads that
-are 0 and have no PNG anywhere (they stay 0 and keep their fallback). After the uploads it resolves the Image ids (the
-Studio route above when the asset delivery service refuses) and runs the fill when no upload failed. The fill writes
-through the generators that exist: the installer's PASTE block (ASSET_IDS, PROP_NAMES and MATERIALS, where a species
-takes its new materials.json rows only once its block-cell model is uploaded, so an old blockout never gets the new
-rows) and its BLOCK-CELL block (export_models.py --emit-luau: assetId, cellMap, faceMap), src/shared/data/Rigs.luau
-(rigs.py reads the face sheets' Image ids), src/shared/data/ModelAssets.luau (model_assets.py --write) and the ids of
-src/shared/data/Icons.luau (an id is only ever raised from 0 or replaced, never set back to 0). tools/finalize_upload.sh
-is the Mac's one command for all of it.
+What it finds (any of it may be absent; the plan covers what is there):
+  - every block-cell model folder, assets/models/<Name>/ (a species) or assets/models/props/<Name>/ (a prop), told by its
+    materials.json having an entry with `pixelated` true (the export format of tools/blocky/export_models.py). <Name>.glb
+    goes up as a Model and replaces the old id in assets/models/asset_ids.json (the entry loses `pendingUpload` and gains
+    `blockCell` true and `replacedAssetId`). Every PNG the entries' `colorMap` fields name (<Name>_atlas.png, <Name>_face.png)
+    goes up as a Decal, recorded in assets/models/image_ids.json under "<Name>/<sheet>" (assetId the Decal, imageId the Image).
+  - every PNG under assets/sprites/blocky (tools/pixel_sprites.py): a Decal in assets/icons/asset_ids.json, kind "particle".
+  - every PNG under assets/textures/blocky_tiles (the world tiles): a Decal in assets/textures/blocky_tiles/asset_ids.json,
+    kind "tile". A tile's Image id is filled into the one row of any src/shared/data/*.luau that is keyed by the tile key
+    and has an `id` field on the same line (`<Key> = { id = 0, ... }` or `["<Key>"] = { id = 0, ... }`); a key two rows
+    match is left alone and the plan says so.
+A file whose id is recorded is skipped (--redo uploads it again). The dry run also names the Icons.Particles keys the game
+reads that are 0 and have no PNG anywhere (they stay 0 and keep their fallback). After the uploads it resolves the Image ids
+(the Studio route above when the asset delivery service refuses) and runs the fill when no upload failed. The fill writes
+through the generators that exist: the installer's PASTE block (ASSET_IDS, PROP_NAMES and MATERIALS, where a block-cell
+folder takes its new materials.json rows only once its model is uploaded, so an old blockout never gets the new rows) and
+its BLOCK-CELL block (export_models.py --emit-luau: assetId, cellMap, faceMap), src/shared/data/Rigs.luau (rigs.py reads
+the face sheets' Image ids), src/shared/data/ModelAssets.luau (model_assets.py --write), the ids of
+src/shared/data/Icons.luau and the tile rows (an id is only ever raised from 0 or replaced, never set back to 0).
+tools/finalize_upload.sh is the Mac's one command for all of it.
 
 Exit status: 0 all done (or nothing to do), 1 at least one model failed (or one Image id could not be
 resolved, or --from-studio found a problem), 2 bad usage or setup (or --emit-icons-luau or --emit-textures-luau
