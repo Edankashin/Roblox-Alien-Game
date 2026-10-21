@@ -1,26 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Cone",
+    "name": "Body",
     "hex": "8C5A3C",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserCone_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Rim",
-    "hex": "D9A066",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "4A2E1E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserCone_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Crater",
-    "hex": "4A2E1E",
-    "roughness": 0.8,
+    "name": "Accessory",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserCone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "D9A066",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "GeyserCone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "BFF3FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

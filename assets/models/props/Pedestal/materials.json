@@ -1,10 +1,30 @@
 [
   {
     "slot": 1,
-    "name": "Stone",
-    "hex": "C8C4A8",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "D8D2BC",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pedestal_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "B9B29A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Pedestal_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Glow",
+    "hex": "9BE7FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

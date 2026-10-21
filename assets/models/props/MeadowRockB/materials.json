@@ -1,18 +1,42 @@
 [
   {
     "slot": 1,
-    "name": "Rock",
-    "hex": "8E8E8E",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "9E9E8E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "MeadowRockB_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Moss",
-    "hex": "3F9B3A",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "7C7C6E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "MeadowRockB_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "5E9E3A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MeadowRockB_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "F7F3EA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MeadowRockB_atlas.png",
+    "pixelated": true
   }
 ]

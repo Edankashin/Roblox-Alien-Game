@@ -1,42 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Rock",
+    "name": "Body",
     "hex": "6B4A36",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserVent_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Crack",
+    "name": "BodyDark",
     "hex": "2A1A12",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserVent_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Rim",
-    "hex": "D98A4E",
-    "roughness": 0.8,
+    "name": "Accessory",
+    "hex": "F2FBFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserVent_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Water",
-    "hex": "4FB3D9",
-    "roughness": 0.8,
+    "name": "Trim",
+    "hex": "D98A4E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "GeyserVent_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
     "name": "Glow",
-    "hex": "F2FBFF",
-    "roughness": 0.8,
+    "hex": "9FE8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 1.5
   }
 ]

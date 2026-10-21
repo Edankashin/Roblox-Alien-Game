@@ -1,14 +1,15 @@
-# IceSpire prop
+# IceSpire block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/props_base.py, bpy 5.2.2 LTS
-- What: Faceted ice crystal cluster: a 10 tall shard and two leaning shards
-- Footprint (W x D x H, studs): 6.68 x 5.40 x 10.00 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 10.00; pivot at the bottom centre (origin), the model stands on z = 0
-- Triangles: 358 (budget 300 to 900)
-- Colours / materials (one per colour, flat, no textures): Ice #A9D8EA, IceTip #E8F7FD
-- Shading: flat; rocks and crowns carry a slight seeded vertex jitter, so a re-run reproduces the same file
-- Files: IceSpire.glb (21624 bytes), IceSpire.fbx (23244 bytes)
-- Studio import: File -> Import 3D on the GLB, scale 1, one MeshPart per material, rename the Model to exactly `IceSpire`, parent under ReplicatedStorage.Models.Props, Anchored on. See docs/vault/06-art-pipelines/Map-Dressing.md.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/IceSpire.md (Ice spire, World 2, status build)
+- Footprint (W x D x H, studs): 5.58 x 4.444 x 11.25; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 12
+- Triangles: 120 (budget 600)
+- Collision: Box (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 8 texels a cell, atlas IceSpire_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Glow` (Neon, no map)
+- Files: IceSpire.glb (28720 bytes), IceSpire.fbx (51612 bytes, texture embedded), IceSpire_atlas.png, materials.json, IceSpire.png and IceSpire_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
 
-Blockout tier: a procedural stand-in. Replace with a hand-modelled mesh of the same footprint and pivot when one exists.
+Regenerate with `$BPY tools/blocky/export_models.py --props IceSpire`; check with `python3 -I tools/blocky/export_models.py --check --props IceSpire`.

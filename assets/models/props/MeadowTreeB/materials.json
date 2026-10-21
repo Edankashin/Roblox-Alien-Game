@@ -1,18 +1,32 @@
 [
   {
     "slot": 1,
-    "name": "Trunk",
-    "hex": "7B4A2D",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "3F9B3A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "MeadowTreeB_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Leaves",
-    "hex": "3F9B3A",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "6B3F26",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "MeadowTreeB_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "FFF3F7",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MeadowTreeB_atlas.png",
+    "pixelated": true
   }
 ]

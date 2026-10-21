@@ -1,18 +1,40 @@
 [
   {
     "slot": 1,
-    "name": "Ice",
-    "hex": "A9D8EA",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "BFEBFA",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceSpire_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "IceTip",
-    "hex": "E8F7FD",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "7F8E99",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceSpire_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceSpire_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "7FE6FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

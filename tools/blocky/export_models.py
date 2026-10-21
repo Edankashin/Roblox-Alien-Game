@@ -656,24 +656,369 @@ def emit_luau(models=MODELS, ids_file=IDS_FILE):
     return "\n".join(lines)
 
 
+# ------------------------------------------------------------------------------------------------ props (the --props route)
+# A prop note (docs/vault/07-alien-game/Props/<Name>.md, `kind: prop`) whose frontmatter `glb` names assets/models/props/<Name>/<Name>.glb
+# is exported into that folder in the block-cell format: one MeshPart per colour slot the note uses (Body, BodyDark, Accessory, Trim on the
+# atlas; Glow Neon), static, the pivot at the bottom centre, the front (the note's -Z) on +Z in the game (the landmark contract of
+# data/Layouts.luau: "a model's front is +Z as exported"), at the world cell (0.25 studs). The older notes (Tree, Rock, ... used only by the
+# dioramas) have no such glb and are left alone.
+PROP_NOTES = ROOT / "docs/vault/07-alien-game/Props"
+PROP_MODELS = MODELS / "props"
+PROP_SLOTS = ("Body", "BodyDark", "Accessory", "Trim", "Glow")   # spec.SLOTS without Eye, in GLB order
+PROP_ATLAS_MAX = 1024     # Roblox scales an uploaded image down to 1024 a side, so a prop's atlas is made to fit
+PROP_PX = (8, 4)          # texels a cell: 8 like the creatures, 4 for a landmark whose surface would not fit 1024 at 8
+PROP_TOL = 0.011          # studs: the exported bounds against the note's height and footprint
+PROP_COLLISIONS = ("Box", "Hull", "Precise", "None")
+
+
+def prop_files(pid):
+    """Every file the --props export writes into assets/models/props/<Name>/."""
+    return [pid + ".glb", pid + ".fbx", pid + "_atlas.png", "materials.json", "notes.md", pid + ".png", pid + "_grey.png"]
+
+
+def prop_roster(only=None, folder=PROP_NOTES):
+    """([(pid, note path, spec)] of every prop note that exports into assets/models/props, [(pid, reason)] with spec errors), in note order."""
+    ready, skipped = [], []
+    for path in sorted(pathlib.Path(folder).glob("*.md")):
+        spec = S.load(path)
+        front = spec["front"]
+        pid = front.get("id") or path.stem
+        if not S.is_prop(spec) or not str(front.get("glb", "")).startswith("assets/models/props/"):
+            continue
+        if only and pid not in only:
+            continue
+        errors, _ = S.validate(spec)
+        if errors:
+            skipped.append((pid, "spec error: " + errors[0]))
+        else:
+            ready.append((pid, path, spec))
+    return ready, skipped
+
+
+def prop_slots(spec):
+    """The slots the note's parts use, in PROP_SLOTS order: the MeshParts the export makes."""
+    used = {p["slot"] for p in S.expand(spec["parts"])}
+    return [s for s in PROP_SLOTS if s in used]
+
+
+def prop_px(spec):
+    """Texels a cell for this prop: the first of PROP_PX whose packed atlas fits PROP_ATLAS_MAX a side (cells.pack, as the build packs it)."""
+    import cells as C
+    parts = S.expand(spec["parts"])
+    for px in PROP_PX:
+        isl = C.islands(parts, C.WORLD_CELL, statics=[p for p in parts if p["moves"] == "none"])
+        w, h = C.pack(isl, px)
+        if w <= PROP_ATLAS_MAX and h <= PROP_ATLAS_MAX:
+            return px
+    raise ValueError("%s: the atlas does not fit %d at %d texels a cell" % (spec["front"]["id"], PROP_ATLAS_MAX, PROP_PX[-1]))
+
+
+def prop_footprint(spec):
+    c = S.counts(spec)
+    return [c["width"], c["depth"], c["height"]]
+
+
+def check_prop_folder(folder, spec):
+    """Problems (strings) with one exported prop folder against its note; [] when it is right."""
+    folder = pathlib.Path(folder)
+    front = spec["front"]
+    pid = front["id"]
+    problems = []
+    for name in prop_files(pid):
+        f = folder / name
+        if not f.is_file() or f.stat().st_size == 0:
+            problems.append("missing " + name)
+    if problems:
+        return problems
+    try:
+        g = glb_summary(folder / (pid + ".glb"))
+    except (OSError, ValueError, KeyError, IndexError, struct.error) as exc:
+        return ["unreadable GLB: %s" % exc]
+    names = [n["name"] for n in g["nodes"]]
+    want = prop_slots(spec)
+    if names != want:
+        problems.append("the meshes are %s; the note's slots make %s" % (names, want))
+    for n in g["nodes"]:
+        if n["primitives"] != 1:
+            problems.append("%s has %d primitives (one material each, so one MeshPart each)" % (n["name"], n["primitives"]))
+        if n["rotated"] or any(abs(t) > TOL for t in n["translation"]):
+            problems.append("%s is moved, turned or scaled (a static prop's meshes sit at the origin)" % n["name"])
+    lo = [min(n["lo"][k] for n in g["nodes"]) for k in range(3)]
+    hi = [max(n["hi"][k] for n in g["nodes"]) for k in range(3)]
+    if abs(lo[1]) > TOL:
+        problems.append("the prop stands at y = %.4f, not 0" % lo[1])
+    if abs(lo[0] + hi[0]) / 2 > TOL or abs(lo[2] + hi[2]) / 2 > TOL:
+        problems.append("the pivot is not the bottom centre (bounds centre x %.4f, z %.4f)" % ((lo[0] + hi[0]) / 2, (lo[2] + hi[2]) / 2))
+    size = [hi[0] - lo[0], hi[2] - lo[2], hi[1] - lo[1]]
+    foot = prop_footprint(spec)
+    if any(abs(size[k] - foot[k]) > PROP_TOL for k in range(3)):
+        problems.append("the bounds are %s (W x D x H), the note's parts make %s" % (_fmt(size), _fmt(foot)))
+    if isinstance(front.get("height"), (int, float)) and abs(size[2] - front["height"]) > PROP_TOL:
+        problems.append("%.3f studs tall, the note says %s" % (size[2], front["height"]))
+    tris = sum(n["tris"] for n in g["nodes"])
+    budget = front.get("budget")
+    if not isinstance(budget, int) or budget <= 0:
+        problems.append("the note has no triangle budget")
+    elif tris > budget:
+        problems.append("%d triangles, over the note's budget of %d" % (tris, budget))
+    if front.get("collision") not in PROP_COLLISIONS:
+        problems.append("the note's collision %r is not one of %s" % (front.get("collision"), ", ".join(PROP_COLLISIONS)))
+    noted = notes_triangles((folder / "notes.md").read_text(encoding="utf-8"))
+    if noted != tris:
+        problems.append("notes.md says %s triangles, the GLB has %d" % (noted, tris))
+    textured = [n for n in names if n != GLOW]
+    if textured and (not g["samplers"] or any(mag != NEAREST or minf not in NEAREST_MIN for mag, minf in g["samplers"])):
+        problems.append("a texture sampler is not nearest (%s)" % g["samplers"])
+    try:
+        aw, ah = png_size(folder / (pid + "_atlas.png"))
+        if aw > PROP_ATLAS_MAX or ah > PROP_ATLAS_MAX:
+            problems.append("the atlas is %dx%d, over %d a side (Roblox would scale it down)" % (aw, ah, PROP_ATLAS_MAX))
+    except ValueError as exc:
+        problems.append("%s_atlas.png: %s" % (pid, exc))
+    try:
+        entries = json.loads((folder / "materials.json").read_text(encoding="utf-8"))
+    except ValueError as exc:
+        entries = []
+        problems.append("materials.json unreadable: %s" % exc)
+    if [e.get("name") for e in entries] != names:
+        problems.append("materials.json names %s, the GLB's meshes are %s" % ([e.get("name") for e in entries], names))
+    pal = S.palette(spec)
+    for i, e in enumerate(entries):
+        for key in ("slot", "name", "hex", "roughness", "metallic", "emission"):
+            if key not in e:
+                problems.append("materials.json entry %d has no %s" % (i + 1, key))
+        if e.get("slot") != i + 1:
+            problems.append("materials.json entry %d is slot %s" % (i + 1, e.get("slot")))
+        role = S.SLOT_ROLE.get(e.get("name"))
+        if role and _hex(pal.get(role, "")) != e.get("hex"):
+            problems.append("materials.json %s is %s, the note's %s is %s" % (e.get("name"), e.get("hex"), role, _hex(pal.get(role, ""))))
+        if (e.get("emission", 0) > 0) != (e.get("name") == GLOW):
+            problems.append("materials.json %s: only Glow is emissive (Neon)" % e.get("name"))
+        if "colorMap" in e and not (folder / e["colorMap"]).is_file():
+            problems.append("materials.json %s names %s, which is not in the folder" % (e.get("name"), e["colorMap"]))
+    return problems
+
+
+def run_prop_check(only=None, models=PROP_MODELS, notes=PROP_NOTES):
+    ready, skipped = prop_roster(only, notes)
+    bad = 0
+    for pid, _, spec in ready:
+        problems = check_prop_folder(pathlib.Path(models) / pid, spec)
+        if problems:
+            bad += 1
+            print("%-18s FAIL" % pid)
+            for p in problems:
+                print("    " + p)
+        else:
+            print("%-18s ok" % pid)
+    for pid, why in skipped:
+        bad += 1
+        print("%-18s FAIL %s" % (pid, why))
+    print("check: %d exported props, %d failed" % (len(ready), bad))
+    return 1 if bad else 0
+
+
+def export_prop(pid, note, spec, models=PROP_MODELS, previews=True):
+    """Build and write assets/models/props/<Name>/. Returns (summary dict, [deleted stale file names])."""
+    BB = _bpy_modules()
+    import bpy
+    from mathutils import Matrix
+    import cells as C
+    out = pathlib.Path(models) / pid
+    out.mkdir(parents=True, exist_ok=True)
+    pal = S.palette(spec)
+    px = prop_px(spec)
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="export_%s_" % pid))
+    try:
+        scene = BB.reset()
+        built = BB.build(spec, tmp, cell=C.WORLD_CELL, px=px)
+        objs = {o.name: o for o in built["objects"]}
+        atlas_png = tmp / ("%s_atlas.png" % pid)
+        atlas = next(i for i in bpy.data.images if i.name == "%s_atlas" % pid)
+        extra = set(objs) - set(PROP_SLOTS)
+        if extra:
+            raise RuntimeError("%s: objects %s are not colour slots (a prop has no moving parts)" % (pid, sorted(extra)))
+        parts = []
+        for slot in PROP_SLOTS:
+            obj = objs.get(slot)
+            if obj is None:
+                continue
+            mat = BB.make_material("%s_%s" % (pid, slot), pal[S.SLOT_ROLE[slot]], slot, atlas, BB.GLOW_BUILD if slot == GLOW else None)
+            # one material a MeshPart: the build's per-material copies (a slot with two cell materials) share the one atlas anyway
+            _one_material(obj, mat)
+            obj.data.name = slot
+            parts.append(obj)
+        # the pivot at the bottom centre of the bounds, baked into the meshes so every node sits at the origin
+        lo, hi = S.bounds(S.expand(spec["parts"]))
+        shift = BB.to_bl([(lo[0] + hi[0]) / 2, 0.0, (lo[2] + hi[2]) / 2])
+        for o in parts:
+            o.data.transform(Matrix.Translation(o.location - shift))
+            o.location = (0.0, 0.0, 0.0)
+        bpy.context.view_layer.update()
+        glb, fbx = out / (pid + ".glb"), out / (pid + ".fbx")
+        bpy.ops.export_scene.gltf(filepath=str(glb), export_format="GLB", use_selection=False, export_yup=True, export_apply=True,
+                                  export_materials="EXPORT", export_animations=False, export_lights=False, export_cameras=False)
+        bpy.ops.export_scene.fbx(filepath=str(fbx), use_selection=False, object_types={"MESH"}, apply_scale_options="FBX_SCALE_ALL",
+                                 mesh_smooth_type="FACE", bake_anim=False, add_leaf_bones=False, path_mode="COPY", embed_textures=True)
+        shutil.copyfile(atlas_png, out / (pid + "_atlas.png"))
+        summary = glb_summary(glb)
+        tris = sum(n["tris"] for n in summary["nodes"])
+        entries = []
+        for n in summary["nodes"]:
+            slot = n["name"]
+            hexcol = _hex(pal[S.SLOT_ROLE[slot]])
+            if slot == GLOW:
+                entry = {"hex": hexcol, "roughness": CELL_ROUGH, "metallic": 0.0, "emission": GLOW_EMISSION}
+            else:
+                entry = {"hex": hexcol, "roughness": CELL_ROUGH, "metallic": 0.0, "emission": 0.0, "colorMap": pid + "_atlas.png", "pixelated": True}
+            entries.append(dict({"slot": len(entries) + 1, "name": slot}, **entry))
+        (out / "materials.json").write_text(json.dumps(entries, indent=2) + "\n", encoding="utf-8")
+        aw, ah = png_size(out / (pid + "_atlas.png"))
+        info = {"pid": pid, "note": note, "spec": spec, "tris": tris, "nodes": [n["name"] for n in summary["nodes"]], "atlas": (aw, ah), "px": px,
+                "bpy": bpy.app.version_string, "glb": glb.stat().st_size, "fbx": fbx.stat().st_size}
+        (out / "notes.md").write_text(prop_notes_text(info), encoding="utf-8")
+        if previews:
+            _flat_preview(bpy, scene, parts, out / (pid + ".png"), out / (pid + "_grey.png"))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    keep = set(prop_files(pid))
+    stale = sorted(f.name for f in out.iterdir() if f.is_file() and f.name not in keep)
+    for name in stale:
+        (out / name).unlink()
+    return info, stale
+
+
+def prop_notes_text(info):
+    spec, pid = info["spec"], info["pid"]
+    front = spec["front"]
+    foot = prop_footprint(spec)
+    note_rel = pathlib.Path(info["note"]).resolve().relative_to(ROOT).as_posix()
+    kinds = {"Body": "cells", "BodyDark": "cells", "Accessory": "cells", "Trim": "cells", "Glow": "Neon, no map"}
+    lines = [
+        "# %s block-cell prop" % pid,
+        "",
+        "- Date: %s" % datetime.date.today().isoformat(),
+        "- Tool: %s --props (tools/blender/blocky_build.py, bpy %s); Decision B44. Not uploaded (B27): every texture and image id is 0" % (TOOL, info["bpy"]),
+        "- Spec note: %s (%s, World %s, status %s)" % (note_rel, front.get("name", pid), front.get("world", "?"), front.get("status", "?")),
+        "- Footprint (W x D x H, studs): %s x %s x %s; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike" % tuple(RG._num(v) for v in foot),
+        "- Blocks: %d" % S.counts(spec)["blocks"],
+        "- Triangles: %d (budget %s)" % (info["tris"], front.get("budget")),
+        "- Collision: %s (src/shared/data/Props.luau)" % front.get("collision"),
+        "- Cells: 0.25 studs a cell (the world cell), %d texels a cell, atlas %s_atlas.png %dx%d, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)" % (
+            info["px"], pid, info["atlas"][0], info["atlas"][1]),
+        "- Parts (one MeshPart a colour slot, in GLB order): %s" % "; ".join("`%s` (%s)" % (n, kinds[n]) for n in info["nodes"]),
+        "- Files: %s.glb (%d bytes), %s.fbx (%d bytes, texture embedded), %s_atlas.png, materials.json, %s.png and %s_grey.png (256 px previews)" % (
+            pid, info["glb"], pid, info["fbx"], pid, pid, pid),
+        "- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route",
+        "",
+        "Regenerate with `$BPY tools/blocky/export_models.py --props %s`; check with `python3 -I tools/blocky/export_models.py --check --props %s`." % (pid, pid),
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def mark_pending_props(pids, ids_file=IDS_FILE):
+    """asset_ids.json: an exported prop with an old upload gets `pendingUpload` (the new files, not uploaded), as mark_pending does for species."""
+    if not ids_file.exists():
+        return []
+    ids = json.loads(ids_file.read_text(encoding="utf-8"))
+    marked = []
+    for pid in pids:
+        entry = ids.get(pid)
+        if not isinstance(entry, dict):
+            continue
+        entry["pendingUpload"] = {
+            "files": ["assets/models/props/%s/%s" % (pid, f) for f in (pid + ".glb", pid + "_atlas.png")],
+            "exportedAt": datetime.date.today().isoformat(),
+            "uploaded": False,
+            "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only %s`" % pid,
+        }
+        marked.append(pid)
+    tmp = ids_file.with_name(ids_file.name + ".tmp")
+    tmp.write_text(json.dumps(ids, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    tmp.replace(ids_file)
+    return marked
+
+
+def run_prop_export(only=None, previews=True):
+    ready, skipped = prop_roster(only)
+    if only:
+        unknown = sorted(set(only) - {p for p, _, _ in ready} - {p for p, _ in skipped})
+        if unknown:
+            print("export_models: no exportable prop note for %s" % ", ".join(unknown))
+            return 2
+    done, deleted, failed = [], [], []
+    for pid, note, spec in ready:
+        info, stale = export_prop(pid, note, spec, previews=previews)
+        problems = check_prop_folder(PROP_MODELS / pid, spec)
+        deleted += ["%s/%s" % (pid, s) for s in stale]
+        if problems:
+            failed.append(pid)
+            print("%-18s FAIL %s" % (pid, "; ".join(problems)), flush=True)
+        else:
+            done.append(pid)
+            print("%-18s ok  %d tris (budget %s), %s, atlas %dx%d at %d px%s" % (
+                pid, info["tris"], spec["front"]["budget"], ", ".join(info["nodes"]), info["atlas"][0], info["atlas"][1], info["px"],
+                ("; deleted " + ", ".join(stale)) if stale else ""), flush=True)
+    marked = mark_pending_props(done)
+    for pid, why in skipped:
+        failed.append(pid)
+        print("%-18s FAIL %s" % (pid, why), flush=True)
+    print("export: %d props exported, %d failed; %d marked pendingUpload in asset_ids.json; stale files deleted: %s" % (
+        len(done), len(failed), len(marked), ", ".join(deleted) or "none"), flush=True)
+    return 1 if failed else 0
+
+
+def emit_luau_props(models=PROP_MODELS, ids_file=IDS_FILE):
+    """The BLOCK_CELL_PROPS table for tools/studio/install_models.luau (between its BLOCK-CELL PROPS PASTE markers): per block-cell prop its
+    new Model asset id (0 while asset_ids.json marks it pendingUpload or it was never uploaded), the atlas image id (0 until uploaded) and
+    its MeshParts in GLB order with the colour, Neon and the map each samples. The face map does not apply (a prop has no face)."""
+    ids = json.loads(pathlib.Path(ids_file).read_text(encoding="utf-8")) if pathlib.Path(ids_file).exists() else {}
+    lines = ["local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {"]
+    for folder in sorted(p for p in pathlib.Path(models).iterdir() if p.is_dir()):
+        pid = folder.name
+        if not (folder / (pid + "_atlas.png")).exists():
+            continue
+        entry = ids.get(pid) if isinstance(ids.get(pid), dict) else {}
+        asset = int(entry.get("assetId", 0)) if entry and "pendingUpload" not in entry else 0
+        lines.append("\t%s = {" % pid)
+        lines.append("\t\tassetId = %d, cellMap = 0, faceMap = 0," % asset)
+        lines.append("\t\tparts = {")
+        for e in json.loads((folder / "materials.json").read_text(encoding="utf-8")):
+            neon = e.get("emission", 0) > 0
+            lines.append('\t\t\t{ name = "%s", hex = "%s", neon = %s, map = "%s" },' % (e["name"], e["hex"], "true" if neon else "false", "" if neon else "cell"))
+        lines.append("\t\t},")
+        lines.append("\t},")
+    lines.append("}")
+    return "\n".join(lines)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--all", action="store_true", help="every note on the B46 format")
     ap.add_argument("--species", default="", help="comma list of species ids")
-    ap.add_argument("--check", action="store_true", help="verify the exported folders (no Blender needed)")
-    ap.add_argument("--emit-luau", action="store_true", help="print the BLOCK_CELL table for tools/studio/install_models.luau")
+    ap.add_argument("--props", nargs="?", const="*", default=None,
+                    help="the prop route: every exportable prop note, or a comma list of prop names (with --check or --emit-luau: props only)")
+    ap.add_argument("--check", action="store_true", help="verify the exported folders, species and props (no Blender needed)")
+    ap.add_argument("--emit-luau", action="store_true", help="print the BLOCK_CELL table (with --props, BLOCK_CELL_PROPS) for tools/studio/install_models.luau")
     ap.add_argument("--no-previews", action="store_true", help="skip the two 256 px renders (they must exist for --check)")
     a = ap.parse_args(argv)
     only = {s.strip() for s in a.species.split(",") if s.strip()} or None
+    props_only = None if a.props in (None, "*") else ({s.strip() for s in a.props.split(",") if s.strip()} or None)
     if a.emit_luau:
-        print(emit_luau())
+        print(emit_luau_props() if a.props is not None else emit_luau())
         return 0
     if a.check:
-        return run_check(only)
+        if a.props is not None:
+            return run_prop_check(props_only)
+        code = run_check(only)
+        return max(code, run_prop_check()) if only is None else code
+    if a.props is not None:
+        return run_prop_export(props_only, previews=not a.no_previews)
     if not a.all and not only:
-        ap.error("pass --all, --species A,B or --check")
+        ap.error("pass --all, --species A,B, --props [A,B] or --check")
     return run_export(only, previews=not a.no_previews)
 
 

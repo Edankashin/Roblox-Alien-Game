@@ -1,0 +1,30 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "2F6B5E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SnowBush_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SnowBush_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Glow",
+    "hex": "9FE8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

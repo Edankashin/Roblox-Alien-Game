@@ -1,13 +1,15 @@
-# Shrine hero piece
+# Shrine block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/heroes_base.py, bpy 5.2.2 LTS
-- What: World 1 Warden shrine: a ring of twelve mossy stones, three leaning monoliths, a glowing orb on a plinth
-- Footprint (W x D x H, studs): 18.40 x 17.80 x 8.43 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 8.43; pivot at the bottom centre (origin), the piece stands on z = 0
-- Triangles: 2398 (hero budget 1500 to 3000)
-- Colours / materials (one per colour, flat, no textures): Paving #B9B29A, Stone #8E8E80, Moss #5E9E3A, Glow #9BE7FF (emissive 2.0, Neon in Studio)
-- Read distance: built to read at 60 studs (big shapes, no small detail)
-- Files: Shrine.glb (182456 bytes), Shrine.fbx (84732 bytes), materials.json
-- Review render: docs/vault/05-ui-design/refs/look-l3/Shrine.png
-- Studio: upload with tools/upload_assets.py and install with tools/studio/install_models.luau (parts coloured from materials.json, emissive slots Neon), or File -> Import 3D on the GLB, rename the Model to `Shrine`, parent under ReplicatedStorage.Models.Props, Anchored on.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/Shrine.md (Shrine of the Warden, World 1, status build)
+- Footprint (W x D x H, studs): 17 x 18.5 x 8; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 33
+- Triangles: 320 (budget 1400)
+- Collision: Precise (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 4 texels a cell, atlas Shrine_atlas.png 1024x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Glow` (Neon, no map)
+- Files: Shrine.glb (92000 bytes), Shrine.fbx (103772 bytes, texture embedded), Shrine_atlas.png, materials.json, Shrine.png and Shrine_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
+
+Regenerate with `$BPY tools/blocky/export_models.py --props Shrine`; check with `python3 -I tools/blocky/export_models.py --check --props Shrine`.

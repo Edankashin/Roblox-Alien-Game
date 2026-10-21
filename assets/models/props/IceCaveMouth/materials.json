@@ -1,34 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Ice",
+    "name": "Body",
     "hex": "CFEAF7",
-    "roughness": 0.3,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceCaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "IceBlue",
-    "hex": "6EC6F0",
-    "roughness": 0.25,
+    "name": "BodyDark",
+    "hex": "0E1A26",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceCaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Snow",
+    "name": "Accessory",
     "hex": "F7FBFF",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceCaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Dark",
-    "hex": "0E1A26",
-    "roughness": 0.8,
+    "name": "Trim",
+    "hex": "6EC6F0",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceCaveMouth_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "68C9FE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

@@ -1,26 +1,40 @@
 [
   {
     "slot": 1,
-    "name": "Stem",
-    "hex": "3F9B3A",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "A855F7",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "SparkStation_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Petal",
-    "hex": "A855F7",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "3F9B3A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "SparkStation_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
+    "name": "Accessory",
+    "hex": "5DBB3A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SparkStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
     "name": "Glow",
     "hex": "FFC83D",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 1.5
   }
 ]

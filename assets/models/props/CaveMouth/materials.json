@@ -1,34 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Rock",
-    "hex": "6E6A64",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "7A756E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "CaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Dark",
+    "name": "BodyDark",
     "hex": "15120F",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "CaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Crystal",
-    "hex": "7FE3FF",
-    "roughness": 0.8,
+    "name": "Accessory",
+    "hex": "5E9E3A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 0.0,
+    "colorMap": "CaveMouth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "CrystalB",
+    "name": "Trim",
     "hex": "C084FC",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0
+    "emission": 0.0,
+    "colorMap": "CaveMouth_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "7FE3FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]
