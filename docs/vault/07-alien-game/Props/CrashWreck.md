@@ -6,75 +6,126 @@ name: Crash site
 world: 1
 kind: prop
 status: build
-height: 11.125
-blocks: 32
-tris: 380
+height: 7.279
+blocks: 82
+tris: 968
 budget: 1400
 collision: Hull
-footprint: [22.954, 17.625, 11.125]
-palette: ["#9AA3B0", "#3A3530", "#A8A39C", "#7FE3F0", "#FF7A1A"]
+footprint: [14.731, 24.128, 7.279]
+palette: ["#A4AEBC", "#463A31", "#FFC83D", "#8FE3F5", "#FF8A3D"]
 roles: [body, second, accent, trim, glow]
-render: "[[props_v1.jpg]]"
+render: "[[crashwreck_v2.jpg]]"
 glb: "assets/models/props/CrashWreck/CrashWreck.glb"
 ---
 # Crash site (World 1 Verdant)
 
-Where the player's ship came down: the hull broken in two on a scorched disc, the front half nose-down in a furrow it ploughed (clods thrown up round it), its cyan canopy cracked open to the sky, the rear half rolled the other way with its fin bent and its engine still glowing, a wing torn off and plates scattered. A column of block smoke climbs from the break, so the site reads from across the meadow; embers glow in the scorch for whoever walks up.
+Where the player's little ship came down, the first landmark anyone sees from the camp, built so it cannot read as anything but a crashed ship: the same ship as the [[ShipHull]] the player builds on (steel plating, yellow hazard stripes, cyan glass), its rounded hull broken in two. The front half lies nose-down in a mound of the earth it threw up, its glass cockpit dome cracked (dark crack lines, a corner of the top gone, shards scattered ahead of the nose), a yellow nose cap and one headlight still on. The rear half rolled the other way: its fin bent over with the yellow tip, its left wing bent up into the air, the right wing torn off and lying beside it, the engine dug in at the back with its exhaust still glowing. Between the halves the broken edges show dark insides and torn plates, and wires hang across the gap with sparks at their ends. Behind the engine runs the furrow it ploughed (a dark bed between two banks of thrown earth, clods past its end); the scorch is a compact patch under the break, so it stays off the camp paths.
 
-- **Cells**: `metal` panels and rivets on the hull halves, wing and plates; the canopy `crystal` (glossy); `dirt` on the scorch and clods; the smoke plain cells stepping up and drifting with the wind; embers and the exhaust `glow` (Neon)
-- **Read**: from far away: the smoke column and the two tilted halves; up close: the canopy, the stripe, the embers, the scattered plates
-- **Footprint**: 22.954 x 17.625 x 11.125 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract); the blockout it replaces was 24 x 18.8 x 7.7 (clearRadius 16 in data/Meadow.luau holds: the wreck reaches 11 studs from its centre).
-- **Budget**: 1400 triangles (the estimate before culling is 380); collision `Hull` in `src/shared/data/Props.luau`.
+- **Cells**: `metal` panels and rivets on the hull halves, fin, wings, plates and the engine; the dome and shards `crystal` (glossy); `dirt` on the scorch, furrow, mound and clods; the headlight, wing light, exhaust, sparks and embers `glow` (Neon, warm orange: the engine is still hot)
+- **Effects (the emitter attach points)**: the smoke rises from **EngineSmoke**, the top of the nozzle (`RNozzle`, note [-0.125, 2.0, 6.44]), and the sparks spit from **WireSparks**, the middle of the wire gap (`Spark`, note [1.25, 3.875, -2.0]). World 1 places them as effect rows (`tools/blocky/worlds/world1.json`, kinds `WreckSmoke` and `WreckSparks` in `src/shared/data/WorldFx.luau`) at those points as the landmark stands (x 24, z -10, yaw 290: EngineSmoke at world (31.6, -11.25), WireSparks at (22.9, -9.6)); move the landmark or turn it and those two rows move with it.
+- **Read**: from across the meadow: the two halves in a V, the fin and the bent-up wing against the sky, the smoke; from the camp: the cracked dome facing you, the yellow stripes; up close: the sparks, the furrow, the shards
+- **Footprint**: 14.731 x 24.128 x 7.279 studs (W x D x H), the pivot at the bottom centre; the front (the nose) faces -Z here and +Z in the game (the landmark contract). Placed at yaw 290 (`data/Meadow.luau` Landmarks) the nose points at the camp and the furrow runs off to the east-south-east, away from every path: the nearest part is 3.1 studs from a path's centre line (the path is 6 wide), the scorch and furrow 5.4; it reaches 13 studs from its centre, inside clearRadius 16 (and keepClear 16 in world1.json).
+- **Budget**: 1400 triangles (968 exported, 984 estimated); collision `Hull` in `src/shared/data/Props.luau`; the atlas 512 x 1024 at 4 texels a cell.
 
-Rules: [[Blocky-Style]] "Environment" (props follow the creature rules, at the world cell of 0.25 studs, no face). Built and exported by `tools/blocky/export_models.py --props`.
+Rules: [[Blocky-Style]] "Environment" (props follow the creature rules, at the world cell of 0.25 studs, no face). Built and exported by `tools/blocky/export_models.py --props`. The parts below are generated by a group rotation (each half is one tilt about its own pivot, snapped to the sixteenth grid), so every part of a half shares that half's `rot`.
 
 ## Parts
 
 ```yaml
 parts:
-  # the scorched disc, the furrow and thrown clods
-  - {name: Scorch, slot: BodyDark, size: [21, 0.125, 15], at: [1, 0.0625, 0.5], material: dirt}
-  - {name: ScorchIn, slot: BodyDark, size: [15, 0.25, 10], at: [0, 0.125, 0], material: dirt}
-  - {name: Furrow, slot: BodyDark, size: [3, 0.5, 6], at: [-6.5, 0.25, -6.5], material: dirt}
-  - {name: Clod, slot: BodyDark, size: [1.25, 0.75, 1.25], at: [-9, 0.75, -8.25], rot: [15, 0, 20], material: dirt}
-  - {name: Clod2, slot: BodyDark, size: [1, 0.5, 1], at: [-4, 0.5, -8.75], rot: [-18, 0, 12], material: dirt}
-  - {name: Clod3, slot: BodyDark, size: [0.75, 0.5, 0.75], at: [-10.5, 0.5, -4.5], rot: [20, 0, -15], material: dirt}
-  # the two hull halves, canopy, stripe, fin, engine and wings
-  - {name: Hull, slot: Body, size: [6.5, 4.5, 8], at: [-3.5, 3.8125, -2], rot: [14, 0, -12], material: metal}
-  - {name: Nose, slot: Body, size: [4, 2.5, 3], at: [-5, 2.0625, -6.75], rot: [20, 0, -10], material: metal}
-  - {name: Canopy, slot: Trim, size: [3.5, 1.5, 3.25], at: [-3.75, 5.25, -3.25], rot: [14, 0, -12], material: crystal}
-  - {name: Stripe, slot: Trim, size: [6.625, 0.75, 1], at: [-3.5, 3.25, 1.25], rot: [14, 0, -12], material: crystal}
-  - {name: Rear, slot: Body, size: [5.5, 4, 6], at: [5, 3.125, 2.5], rot: [-10, 0, 14], material: metal}
-  - {name: Engine, slot: BodyDark, size: [3.25, 3, 1.5], at: [5.75, 2.25, 6.25], rot: [-10, 0, 14], material: metal}
-  - {name: Fin, slot: Body, size: [0.5, 3.5, 3.5], at: [5.25, 5.5, 3.5], rot: [0, 0, 22], shape: wedge, material: metal}
-  - {name: Wing, slot: Body, size: [5, 0.5, 3], at: [9.5, 0.8125, 1], rot: [0, 0, -12], material: metal}
-  - {name: WingStub, slot: Body, size: [3, 0.5, 2.5], at: [-7.75, 0.75, 0], rot: [0, 0, 18], material: metal}
-  # scattered plates and a strut
-  - {name: Plate, slot: BodyDark, size: [2, 0.25, 1.5], at: [1.5, 0.4375, -5.5], rot: [0, 0, 15], material: metal}
-  - {name: Plate2, slot: Body, size: [1.5, 0.25, 1.25], at: [9, 0.375, -4], rot: [-12, 0, 0], material: metal}
-  - {name: Plate3, slot: BodyDark, size: [1.25, 0.25, 2], at: [-1, 0.4375, 6], rot: [15, 0, 0], material: metal}
-  - {name: Strut, slot: BodyDark, size: [0.5, 0.5, 3], at: [10, 0.5, 4.5], rot: [0, 0, 20], material: metal}
-  # embers and the engine's glow
-  - {name: Ember, slot: Glow, size: [0.5, 0.5, 0.5], at: [0.5, 0.5, -1]}
-  - {name: Ember2, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.1875, 0.4375, 0.6875]}
-  - {name: Ember3, slot: Glow, size: [0.5, 0.25, 0.5], at: [-0.5, 0.375, 1.75]}
-  - {name: Ember4, slot: Glow, size: [0.25, 0.25, 0.25], at: [3, 0.375, -2.5]}
-  - {name: Exhaust, slot: Glow, size: [2, 1.75, 0.25], at: [5.75, 2.25, 7.125], rot: [-10, 0, 14]}
-  - {name: Spark, slot: Glow, size: [0.25, 0.25, 0.25], at: [-2, 0.375, -4.25]}
-  # the smoke column and the engine's wisp
-  - {name: Smoke, slot: Accessory, size: [2.75, 2, 2.75], at: [0.75, 4.75, 0.5]}
-  - {name: Smoke2, slot: Accessory, size: [2.5, 1.75, 2.5], at: [1.5, 6.625, 0.75]}
-  - {name: Smoke3, slot: Accessory, size: [2, 1.5, 2], at: [2.25, 8.25, 1.25]}
-  - {name: Smoke4, slot: Accessory, size: [1.5, 1.25, 1.5], at: [3.25, 9.625, 1.5]}
-  - {name: Smoke5, slot: Accessory, size: [1, 0.75, 1], at: [4.25, 10.75, 2]}
-  - {name: Wisp, slot: Accessory, size: [1.25, 1, 1.25], at: [6.5, 5, 7.25]}
-  - {name: Wisp2, slot: Accessory, size: [0.75, 0.75, 0.75], at: [7.25, 6.25, 7.75]}
+  - {name: FBelly, slot: Body, size: [3.5, 0.5, 6], at: [-0.9375, 1, -5.3125], rot: [-14, 18, 0], material: metal}
+  - {name: FCore, slot: Body, size: [4.5, 2.5, 6.5], at: [-1.0625, 2.5, -5.6875], rot: [-14, 18, 0], material: metal}
+  - {name: FSideR, slot: Body, size: [0.5, 1.5, 6], at: [1.3125, 2.5, -6.4375], rot: [-14, 18, 0], material: metal}
+  - {name: FSideL, slot: Body, size: [0.5, 1.5, 6], at: [-3.4375, 2.5, -4.875], rot: [-14, 18, 0], material: metal}
+  - {name: FRoof, slot: Body, size: [3.5, 0.5, 5.5], at: [-1.0625, 4, -5.8125], rot: [-14, 18, 0], material: metal}
+  - {name: FNose, slot: Body, size: [3.5, 2, 1], at: [-2.1875, 1.5625, -9.125], rot: [-14, 18, 0], material: metal}
+  - {name: FNoseCap, slot: Accessory, size: [2.5, 1.25, 0.5], at: [-2.375, 1.375, -9.8125], rot: [-14, 18, 0], material: metal}
+  - {name: FStripeR, slot: Accessory, size: [0.25, 0.5, 5.5], at: [1.5, 3, -6.625], rot: [-14, 18, 0]}
+  - {name: FStripeL, slot: Accessory, size: [0.25, 0.5, 5.5], at: [-3.6875, 3, -4.9375], rot: [-14, 18, 0]}
+  - {name: FLight, slot: Glow, size: [0.5, 0.5, 0.25], at: [-1.25, 2.125, -10.25], rot: [-14, 18, 0]}
+  - {name: Dome, slot: Trim, size: [3, 1, 3.25], at: [-1.625, 4.3125, -7.4375], rot: [-14, 18, 0], material: crystal}
+  - {name: DomeTop, slot: Trim, size: [1.75, 0.5, 2], at: [-2.25, 5, -7.8125], rot: [-14, 18, 0], material: crystal}
+  - {name: DomeRim, slot: Body, size: [3.25, 0.25, 0.5], at: [-1.0625, 4.375, -5.75], rot: [-14, 18, 0], material: metal}
+  - {name: Crack, slot: BodyDark, size: [0.125, 0.125, 2.5], at: [-1.3125, 4.875, -7.6875], rot: [-14, 18, 0]}
+  - {name: Crack2, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [-1.75, 4.9375, -7.3125], rot: [-14, 18, 0]}
+  - {name: Crack3, slot: BodyDark, size: [0.125, 0.75, 0.125], at: [-0.25, 4.25, -8.3125], rot: [-14, 18, 0]}
+  - {name: FBreak, slot: BodyDark, size: [4, 2, 0.25], at: [-0.0625, 3.3125, -2.5625], rot: [-14, 18, 0], material: metal}
+  - {name: FJag, slot: Body, size: [1.5, 1, 0.75], at: [1, 4.5, -3.375], rot: [-14, 18, 0], material: metal}
+  - {name: FJag2, slot: Body, size: [1, 0.75, 0.5], at: [-1.625, 2.5, -1.6875], rot: [-14, 18, 0], material: metal}
+  - {name: FJag3, slot: Body, size: [0.75, 0.5, 0.5], at: [-1.5, 4.5625, -2.25], rot: [-14, 18, 0], material: metal}
+  - {name: RBelly, slot: Body, size: [3.5, 0.5, 5], at: [0.5625, 1.125, 2.3125], rot: [12, -12, -16], material: metal}
+  - {name: RCore, slot: Body, size: [4.5, 2.5, 5.5], at: [0.875, 2.5625, 2.625], rot: [12, -12, -16], material: metal}
+  - {name: RSideR, slot: Body, size: [0.5, 1.5, 5], at: [3.25, 1.875, 3.125], rot: [12, -12, -16], material: metal}
+  - {name: RSideL, slot: Body, size: [0.5, 1.5, 5], at: [-1.4375, 3.25, 2.0625], rot: [12, -12, -16], material: metal}
+  - {name: RRoof, slot: Body, size: [3.5, 0.5, 5], at: [1.25, 4, 2.9375], rot: [12, -12, -16], material: metal}
+  - {name: RStripeR, slot: Accessory, size: [0.25, 0.5, 4.5], at: [3.625, 2.3125, 3.25], rot: [12, -12, -16]}
+  - {name: RStripeL, slot: Accessory, size: [0.25, 0.5, 4.5], at: [-1.5625, 3.8125, 2.125], rot: [12, -12, -16]}
+  - {name: REngine, slot: BodyDark, size: [4, 3, 1], at: [0.0625, 2.125, 5.6875], rot: [12, -12, -16], material: metal}
+  - {name: RNozzle, slot: BodyDark, size: [3, 2, 0.5], at: [-0.125, 2, 6.4375], rot: [12, -12, -16], material: metal}
+  - {name: RExhaust, slot: Glow, size: [2, 1.25, 0.125], at: [-0.1875, 1.9375, 6.75], rot: [12, -12, -16]}
+  - {name: RVent, slot: BodyDark, size: [2, 0.5, 1.5], at: [0.9375, 4.25, 4.6875], rot: [12, -12, -16], material: metal}
+  - {name: FinBase, slot: Body, size: [0.375, 1.25, 3.25], at: [1.25, 4.75, 3.8125], rot: [12, -12, -16], material: metal}
+  - {name: FinRoot, slot: BodyDark, size: [0.875, 0.25, 3.5], at: [1.125, 4.25, 3.6875], rot: [12, -12, -16], material: metal}
+  - {name: RWing, slot: Body, size: [3.5, 0.375, 2.5], at: [-3.375, 3.9375, 2.1875], rot: [12, -12, -16], material: metal}
+  - {name: RWingTip, slot: Accessory, size: [0.5, 0.375, 2.5], at: [-5.3125, 4.5, 1.8125], rot: [12, -12, -16], material: metal}
+  - {name: RWingLight, slot: Glow, size: [0.25, 0.25, 0.5], at: [-5.4375, 4.6875, 1], rot: [12, -12, -16]}
+  - {name: RBreak, slot: BodyDark, size: [4, 2, 0.25], at: [1.625, 3, -0.125], rot: [12, -12, -16], material: metal}
+  - {name: RJag, slot: Body, size: [1.25, 1, 0.5], at: [0.6875, 4.5, 0], rot: [12, -12, -16], material: metal}
+  - {name: RJag2, slot: Body, size: [1, 0.75, 0.5], at: [2.8125, 1.875, 0.125], rot: [12, -12, -16], material: metal}
+  - {name: WireStub, slot: Accessory, size: [0.25, 0.25, 0.75], at: [2.5625, 3.3125, -0.375], rot: [12, -12, -16]}
+  - {name: WireStub2, slot: BodyDark, size: [0.25, 0.25, 1], at: [1.25, 3, -0.875], rot: [12, -12, -16]}
+  - {name: Fin, slot: Body, size: [0.375, 1, 2.5], at: [1.0625, 5.6875, 4.5], rot: [12, -12, 25], material: metal}
+  - {name: Fin2, slot: Body, size: [0.375, 0.75, 1.75], at: [0.625, 6.3125, 5.0625], rot: [12, -12, 25], material: metal}
+  - {name: FinTip, slot: Accessory, size: [0.375, 0.5, 1.25], at: [0.3125, 6.8125, 5.4375], rot: [12, -12, 25], material: metal}
+  - {name: Mound, slot: BodyDark, size: [4, 0.5, 1.5], at: [-2.375, 0.25, -10.5], material: dirt}
+  - {name: Mound2, slot: BodyDark, size: [2.5, 0.75, 1], at: [-2.125, 0.375, -11.5], material: dirt}
+  - {name: MoundR, slot: BodyDark, size: [1, 0.5, 2.5], at: [0.125, 0.25, -9.25], material: dirt}
+  - {name: MoundL, slot: BodyDark, size: [1, 0.375, 2], at: [-4.875, 0.1875, -9.5], material: dirt}
+  - {name: Clod5, slot: BodyDark, size: [0.75, 0.5, 0.5], at: [-0.625, 0.4375, -12.5625], rot: [18, 0, 14], material: dirt}
+  - {name: Clod6, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [-4.375, 0.375, -12.0625], rot: [-15, 0, 20], material: dirt}
+  - {name: Scorch, slot: BodyDark, size: [7, 0.125, 9], at: [0, 0.0625, -1.5], material: dirt}
+  - {name: ScorchR, slot: BodyDark, size: [1, 0.125, 6], at: [4, 0.0625, -1.5], material: dirt}
+  - {name: ScorchL, slot: BodyDark, size: [1, 0.125, 6], at: [-4, 0.0625, -1.5], material: dirt}
+  - {name: ScorchF, slot: BodyDark, size: [5, 0.125, 1], at: [0, 0.0625, -6.5], material: dirt}
+  - {name: Furrow, slot: BodyDark, size: [3, 0.125, 7.5], at: [0.5, 0.0625, 6.75], material: dirt}
+  - {name: FurrowBankR, slot: BodyDark, size: [1, 0.75, 6.5], at: [2.5, 0.375, 7.25], material: dirt}
+  - {name: FurrowBankL, slot: BodyDark, size: [1, 0.625, 6], at: [-1.5, 0.3125, 7.5], material: dirt}
+  - {name: FurrowEnd, slot: BodyDark, size: [3, 0.375, 0.75], at: [0.5, 0.1875, 10.875], material: dirt}
+  - {name: Clod, slot: BodyDark, size: [0.75, 0.5, 0.75], at: [3.25, 0.5, 5.5], rot: [15, 0, 20], material: dirt}
+  - {name: Clod2, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [-2.25, 0.375, 8.75], rot: [-18, 0, 12], material: dirt}
+  - {name: Clod3, slot: BodyDark, size: [0.75, 0.375, 0.5], at: [3, 0.375, 9.25], rot: [20, 0, -15], material: dirt}
+  - {name: Clod4, slot: BodyDark, size: [0.5, 0.375, 0.5], at: [-2.5, 0.3125, 4.5], rot: [0, 0, 18], material: dirt}
+  - {name: LooseWing, slot: Body, size: [3.5, 0.375, 2.5], at: [6, 0.75, -1], rot: [0, 22, 14], material: metal}
+  - {name: LooseWingTip, slot: Accessory, size: [0.5, 0.375, 2.5], at: [7.875, 1, -1.75], rot: [0, 22, 14], material: metal}
+  - {name: Plate, slot: Body, size: [1.5, 0.25, 1.25], at: [3.5, 0.375, -7.5], rot: [0, 20, 15], material: metal}
+  - {name: Plate2, slot: BodyDark, size: [1.25, 0.25, 1], at: [-4.75, 0.25, -6], rot: [-12, 15, 0], material: metal}
+  - {name: Plate3, slot: Body, size: [1.25, 0.25, 1.5], at: [5.5, 0.375, 4.5], rot: [15, -20, 0], material: metal}
+  - {name: Plate4, slot: Accessory, size: [1, 0.25, 0.75], at: [-5, 0.25, 2.5], rot: [0, 25, -12], material: metal}
+  - {name: Shard, slot: Trim, size: [0.5, 0.75, 0.25], at: [-3, 0.4375, -8.75], rot: [20, 15, 0], material: crystal}
+  - {name: Shard2, slot: Trim, size: [0.375, 0.5, 0.25], at: [-1.5, 0.3125, -9.5], rot: [-15, -20, 12], material: crystal}
+  - {name: Shard3, slot: Trim, size: [0.5, 0.375, 0.375], at: [2, 0.3125, -9], rot: [0, 18, 20], material: crystal}
+  - {name: Strut, slot: BodyDark, size: [0.375, 0.375, 2.5], at: [-5.5, 0.375, -2.5], rot: [0, 20, 14], material: metal}
+  - {name: Ember, slot: Glow, size: [0.5, 0.25, 0.5], at: [1.5, 0.25, 0.25]}
+  - {name: Ember2, slot: Glow, size: [0.25, 0.25, 0.25], at: [-2.5, 0.25, -3.5]}
+  - {name: Ember3, slot: Glow, size: [0.25, 0.25, 0.25], at: [3.25, 0.25, -4]}
+  - {name: Wire, slot: Accessory, size: [0.125, 0.125, 2.375], at: [1.25, 3.375, -1.375], rot: [18, 12, 0]}
+  - {name: Wire2, slot: BodyDark, size: [0.125, 0.125, 2.375], at: [0, 2.875, -1.375], rot: [-14, -15, 0]}
+  - {name: Wire3, slot: Accessory, size: [0.125, 0.125, 2.375], at: [2, 2.625, -1.375], rot: [12, -20, 0]}
+  - {name: Spark, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.25, 3.875, -2]}
+  - {name: Spark2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 3.375, -0.625]}
+  - {name: Spark3, slot: Glow, size: [0.25, 0.25, 0.25], at: [2, 3.125, -1.25]}
+  - {name: Spark4, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 4.375, -1.125]}
 ```
 
 ## Renders
 
-On the props sheet: ![[props_v1.jpg]]
+![[crashwreck_v2.jpg]]
+
+The three-quarter from the camp side and the view from behind the engine, beside a 5-stud avatar block (a scratch look render of the exported GLB).
+
+In the world (the hero view over the camp): ![World 1 preview v2](../../../../media/studio/2026-10-21/ingame_world1_preview_v2.jpg)
 
 ## Reviews
 
 - 2026-10-21, props worker. First block-cell build (replaces the smooth blockout where one existed). Status build: waiting for Ethan's look at the props sheet.
+- 2026-10-21, camp worker. Rebuilt: the first build read as two grey boxes on a scorch disc, and the disc reached the camp path at the avatar's feet. Now a crashed little ship on the ShipHull's palette (rounded hull broken in two, cracked dome, bent fin and wing, torn-off wing, plates, sparking wires, the hot engine with a smoke emitter, the furrow), the scorch compact under the break, turned to yaw 290 so the nose faces the camp and the furrow runs clear of the paths. Status build: waiting for Ethan's look.

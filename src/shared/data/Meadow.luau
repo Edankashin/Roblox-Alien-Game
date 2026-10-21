@@ -40,7 +40,7 @@ return {
 	-- hero set pieces (Look plan L3): the wreck beside the camp pad (inside the scatter-free ring), the cave
 	-- mouth just outside the Cave rim on the camp side, turned to face the camp (the rim is at x -130, z -120, r 60)
 	Landmarks = {
-		{ name = "CrashWreck", x = 24, z = -10, yaw = 200, scale = 1, clearRadius = 16, landmarkId = "CrashSite" },
+		{ name = "CrashWreck", x = 24, z = -10, yaw = 290, scale = 1, clearRadius = 16, landmarkId = "CrashSite" }, -- yaw 290: the nose at the camp, the furrow clear of the paths (Props/CrashWreck.md)
 		{ name = "CaveMouth", x = -82, z = -75, yaw = 47, scale = 1, clearRadius = 14, landmarkId = "CaveMouth" },
 	},
 	Seed = 20261004, -- deterministic scatter so every server builds the same meadow

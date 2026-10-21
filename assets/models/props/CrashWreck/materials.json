@@ -2,7 +2,7 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "9AA3B0",
+    "hex": "A4AEBC",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -12,7 +12,7 @@
   {
     "slot": 2,
     "name": "BodyDark",
-    "hex": "3A3530",
+    "hex": "463A31",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -22,7 +22,7 @@
   {
     "slot": 3,
     "name": "Accessory",
-    "hex": "A8A39C",
+    "hex": "FFC83D",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -32,7 +32,7 @@
   {
     "slot": 4,
     "name": "Trim",
-    "hex": "7FE3F0",
+    "hex": "8FE3F5",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -42,7 +42,7 @@
   {
     "slot": 5,
     "name": "Glow",
-    "hex": "FF7A1A",
+    "hex": "FF8A3D",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5

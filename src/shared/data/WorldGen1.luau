@@ -533,6 +533,8 @@ local gen: Types.WorldGen = {
 		{ kind = "Butterflies", x = -60, y = 2.5, z = 30, size = 40 },
 		{ kind = "Butterflies", x = 0, y = 4.5, z = 150, size = 30 },
 		{ kind = "Fireflies", x = -40, y = 1.75, z = 92, size = 30 },
+		{ kind = "WreckSmoke", x = 31.6, y = 2.6, z = -11.25, size = 3 },
+		{ kind = "WreckSparks", x = 22.9, y = 3.9, z = -9.6, size = 2 },
 		{ kind = "LightShaft", x = -118, y = 0, z = -108, size = 6 },
 		{ kind = "LightShaft", x = -150, y = 0, z = -96, size = 5 },
 		{ kind = "IslandFall", x = 158, y = 2.75, z = 160, size = 6 },
@@ -544,7 +546,7 @@ local gen: Types.WorldGen = {
 		{ kind = "MoonSparkle", x = 100, y = 2.95, z = 148, size = 10 },
 		{ kind = "GrottoGlint", x = 148, y = 5, z = 101, size = 22 },
 	},
-	Stats = { bodies = 1022, caps = 2993, falls = 4, fxEmitters = 21, groundParts = 4255, lights = 48, placeholderParts = 3072, scatter = 834, solids = 80, textures = 10222, water = 155 },
+	Stats = { bodies = 1022, caps = 2993, falls = 4, fxEmitters = 23, groundParts = 4255, lights = 48, placeholderParts = 3072, scatter = 834, solids = 80, textures = 10222, water = 155 },
 }
 
 return gen

@@ -752,11 +752,11 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 	CrashWreck = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
-			{ name = "Body", hex = "9AA3B0", neon = false, map = "cell" },
-			{ name = "BodyDark", hex = "3A3530", neon = false, map = "cell" },
-			{ name = "Accessory", hex = "A8A39C", neon = false, map = "cell" },
-			{ name = "Trim", hex = "7FE3F0", neon = false, map = "cell" },
-			{ name = "Glow", hex = "FF7A1A", neon = true, map = "" },
+			{ name = "Body", hex = "A4AEBC", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "463A31", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "8FE3F5", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FF8A3D", neon = true, map = "" },
 		},
 	},
 	Fence = {
