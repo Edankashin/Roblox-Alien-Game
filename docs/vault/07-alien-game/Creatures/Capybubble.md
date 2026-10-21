@@ -8,19 +8,20 @@ tier: Rare
 status: review
 element: Bubble
 height: 3.29
-blocks: 32
-tris: 634
+blocks: 36
+tris: 724
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#E0C3A0", "#5C4A2A", "#FFF1D6", "#FF9A2E", "#5FDCFF", "#2B1D12"]
 roles: [body, second, accent, trim, glow, ink]
 hero: Tangerine
+fx_hooks: {Top: TangerineTop, Mouth: Snout, Halo: Leaf, Ring: Ring2}
 vfx: "a soft light (Rare, Effects.luau): three snore bubbles drift out of its nose every 4 s (the Burst at Mouth, pale aqua), a soft teal light breathes on its body (pulse 3.4 s) and a white sparkle winks on its tangerine every 4 s (the Sparkle at Halo); the body breathes 3 percent; in the rig its three lit bubbles bob and circle, its ears twitch and the tangerine's leaf sways, and every 9 s it snorts awake: a hop and a full turn, ears flared, bubbles popping up, the leaf swishing"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Capybubble_sheet.svg]]"
 render: "[[Capybubble_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.987, 0.994, 0.994]
+overlap: [0.995, 0.986, 0.994, 0.995]
 vfx_render: "[[Capybubble_vfx_cells.jpg]]"
 cells_render: "[[Capybubble_tq_cells.jpg]]"
 idle_render: "[[Capybubble_idle.png]]"
@@ -33,7 +34,7 @@ A tan capybara loaf, long and low, dozing in the Geyser Field's warm pools, 3.3 
 
 **Hero block.** The `Tangerine`, a glossy orange orb on its head with a stem and a leaf that sways: unique in Frostbyte.
 
-**Moving parts (four objects and the blink).** `earR`, `earL` (they twitch), `leaf` (the tangerine's leaf sways), `float` (the three snore bubbles bob and circle); the face plate blinks and glints.
+**Moving parts (five objects and the blink).** `earR`, `earL` (they twitch), `leaf` (the tangerine's leaf sways), `float` (the three snore bubbles bob and circle), `ring` (the bubble ring turns round the tangerine once every 7 s and bobs); the face plate blinks and glints.
 
 **Alien anatomy.** The bubbles it snores are part of it, three orbs of light that float beside its head and never pop (only rise when it snorts); the tangerine grew there.
 
@@ -63,6 +64,13 @@ parts:
   - {name: Stem, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0, 2.9375, -0.875]}
   - {name: Leaf, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [0.3125, 3.0625, -0.875], rot: [0, 0, 20], moves: leaf, pivot: [0.125, 3, -0.875]}
   - {name: LeafTip, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0.625, 3.1875, -0.875], rot: [0, 0, 20], moves: leaf, pivot: [0.125, 3, -0.875]}
+  # the signature (Rare pass w2): a ring of five lit bubbles circling the tangerine like a planet's ring, level with its upper half and clear
+  # of the ears, turning once every 7 s; on the snort it whirls and puffs out
+  - {name: Ring, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.0625, 2.5625, -0.8125], shape: ico1, moves: ring, pivot: [0, 2.5, -0.875]}
+  - {name: Ring2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.375, 2.5, -1.875], shape: ico1, moves: ring, pivot: [0, 2.5, -0.875]}
+  - {name: Ring3, slot: Glow, size: [0.375, 0.375, 0.375], at: [-0.6875, 2.5625, -1.5625], shape: ico1, moves: ring, pivot: [0, 2.5, -0.875]}
+  - {name: Ring4, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.75, 2.5, -0.25], shape: ico1, moves: ring, pivot: [0, 2.5, -0.875]}
+  - {name: Ring5, slot: Glow, size: [0.375, 0.375, 0.375], at: [0.3125, 2.5625, 0.0625], shape: ico1, moves: ring, pivot: [0, 2.5, -0.875]}
   # the snore bubbles rising from beside the snout up the right side of the head, clear of the face, lit, one floating group
   - {name: Bubble, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.25, 1, -2], shape: ico1, moves: float, pivot: [1.25, 1, -1.75]}
   - {name: Bubble2, slot: Glow, size: [0.5, 0.5, 0.5], at: [1.5, 1.625, -1.75], shape: ico1, moves: float, pivot: [1.25, 1, -1.75]}
@@ -72,10 +80,9 @@ parts:
   - {name: Glyph2, slot: Trim, size: [0.125, 0.125, 0.75], at: [1.0625, 0.8125, 0.875], mirror: x}
   - {name: Glyph3, slot: Trim, size: [0.125, 0.5, 0.125], at: [1.0625, 1.125, 0.5625], mirror: x}
   - {name: Glyph4, slot: Trim, size: [0.125, 0.5, 0.125], at: [1.0625, 1.125, 1.1875], mirror: x}
-  # the spa towel folded across its back, two tangerine stripes on it
+  # the spa towel folded across its back, a tangerine stripe down its middle
   - {name: Towel, slot: Accessory, size: [1.25, 0.125, 1], at: [0, 1.8125, 1]}
-  - {name: Stripe, slot: Trim, size: [1.25, 0.125, 0.125], at: [0, 1.9375, 0.6875]}
-  - {name: Stripe2, slot: Trim, size: [1.25, 0.125, 0.125], at: [0, 1.9375, 1.3125]}
+  - {name: Stripe, slot: Trim, size: [1.25, 0.125, 0.25], at: [0, 1.9375, 1]}
 ```
 
 ## Face
@@ -114,15 +121,18 @@ rig:
     ear: [{kind: wag, amp: 20, period: 3.6, axis: z}]
     leaf: [{kind: sway, amp: 12, period: 2.8, axis: z}]
     float: [{kind: bob, amp: 0.15, period: 2.2}, {kind: orbit, amp: 0.06, period: 4.4}]
+    ring: [{kind: spin, amp: 360, period: 7}, {kind: bob, amp: 0.05, period: 1.75}]
     root: [{kind: squash, amp: 0.04, period: 3.4}]
     face: [{kind: blink, period: 5.2}]
   flourish:
     every: 9
-    length: 2.2
+    length: 2.4
     moves:
-      - {part: root, kind: hop, amp: 0.3, at: 0, for: 0.6}
+      - {part: root, kind: hop, amp: 0.35, at: 0, for: 0.6}
       - {part: root, kind: turn, amp: 360, at: 0.1, for: 1.4}
       - {part: ear, kind: flare, amp: 25, at: 0.2, for: 0.8}
+      - {part: ring, kind: turn, amp: 720, at: 0.1, for: 1.8}
+      - {part: ring, kind: pop, amp: 0.3, at: 0.9, for: 1}
       - {part: float, kind: pop, amp: 0.25, at: 0.6, for: 0.8}
       - {part: leaf, kind: swish, amp: 20, at: 0.8, for: 1.2}
 ```
@@ -156,3 +166,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a muzzle block hid the crescent rows, so the muzzle is drawn into the face and only the nose bar stands proud. Round 2: the glyph as a lit plus read as a first-aid cross, so it is a hollow square ring of eighth-stud bars in the glossy tangerine. Overlap 0.994 to 0.997, 458 triangles, 23 blocks, 3.12 studs, three moving objects (the ears, the bubble group). Wanted for: a capybara asleep under a tangerine, snoring bubbles. Still cheap: the bubbles rise on one side only; the torso's fur tufts are faint on tan. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, two rounds. Round 1: already in the band at 3.1 studs, so no resize; the face moved to the plate (`bubble` eyes in aqua over deep teal, blush cheeks) above a blunt cream snout block with the nose bar and a stepped ink smile on it, a spa towel with two tangerine stripes across its back, the tangerine's leaf now its own swaying part: 31 blocks. Round 2: the smallest snore bubble floated just under the right eye and read as a tear, so the bubble chain starts beside the snout and rises clear of the face. Rig: the ears twitch, the leaf sways, the bubbles bob and circle, it breathes and blinks (five moving things), and every 9 s it snorts awake with a hop and a full turn, ears flared and bubbles popping up. 3.29 studs, overlap 0.985 to 0.995, 538 triangles. Wanted for: the calmest thing in the snow, at the spa with a tangerine on its head, glossy aqua eyes and a hop that reads across the field. Still cheap: the tangerine is a faceted orb that reads a little like a gem; the towel's cream sits close to the tan body in value. Status review.
 - 2026-10-21, Polish w2 worker: the tangerine read as a gem (a glossy faceted icosahedron in the metal trim slot). It is now a third bevelled mass, a squat 1.25 x 1 x 1.25 stud round sunk an eighth into the crown, with a narrower step on top under the stem (a voxel round: the bevel strips give it a soft fruit highlight, the flat faces carry the cells), the leaf as before; one more block (32), 634 triangles, height unchanged at 3.29, overlap 0.987 to 0.994; silhouette worst pair with Snorzo 0.66 (Aurelyx). Honest read: a blocky orange with a stem, plainly fruit, no longer a jewel; it is bigger on the head than the gem was, which suits the joke.
+- 2026-10-21, Rare pass w2 (Ethan: "make the rare aliens 1000x cooler"): the signature is a **bubble planet ring**, five lit bubbles (three a quarter stud, two three eighths) circling the tangerine level with its upper half and clear of the ears, one moving part that turns every 7 s and bobs; on the snort it whirls twice and puffs out. Paid for by one towel stripe (the other widened to a quarter): 36 blocks, the Rare cap. Six moving things (from five), the flourish 2.4 s with seven moves. New attach point for effects: `Ring` (Ring2, the bubble at the front). Honest read: from three-quarter the tangerine now wears a ring of light and reads as a little planet on a capybara; the bubbles are still small at the game camera's distance, and a sixth needs the Rare block band raised.

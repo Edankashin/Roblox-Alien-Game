@@ -8,14 +8,15 @@ tier: Cosmic
 status: review
 element: Moon
 height: 3.5
-blocks: 138
-tris: 1714
+blocks: 155
+tris: 1950
 bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#4B3D8F", "#1E1A47", "#B9C6E0", "#D9E2F5", "#AEB8FF", "#0E0B1E"]
 roles: [body, second, accent, trim, glow, ink]
 glow_cycle: ["#AEB8FF", "#E6ECFF", "#7F74E6"]
 hero: MoonC
+fx_hooks: {Top: MoonD, Halo: MoonStar3, Mouth: Nose, Body: Rune, Tail: TailCore, Feet: FrontPaw, Moon: MoonD, Mane: ManeA}
 vfx: "to the sky (Cosmic, Effects.luau): a moonlight glow over its head pulses every 6 s (the Light at Top), four moon-dust motes orbit its body (the Orbit at Body), a ground ring of runes rolls out every 3 s and turns as it goes (the RingPulse at Feet), a held aura of pale moonlight (the Aura at Body), a low indigo mist breathes off its paws (the Emitter at Feet) and a violet trail streams from its tail while it moves (the Trail); every 20 s the howl (the flourish): a column of moonlight straight up from its head and a flare of twenty-four twinkles (the Pillar and Burst at Top); the floating moon, the tufts' and ears' tips, the flank runes, the leg marks, the tail's core, the mane's caught stars and the chain's broken ends glow and step through periwinkle, full-moon white and deep violet (the glow cycle); it breathes 3 percent; in the rig the moon bobs and rocks over its brow, the silver crescent rocks behind its mane, two lit motes circle its shoulders, the broken chain swings, the ears flick and the forked tail wags, and the howl is a crouch, a hop into a full turn, a rear back with the ears up, the moon and the crescent flaring and the motes leaping"
 ride: "Sprint (mount form, Decide-Now 44 a: it grows to riding size only while ridden); the rider sits on the mane behind the head"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
@@ -35,7 +36,7 @@ A moon wolf pup, 3.5 studs to its ear tips (B45; it was a 14-stud mount, redesig
 
 **Hero block.** The floating moon (`MoonC`, the widest of its six stepped rows), a disc of moonlight over the brow with two craters, unique in Frostbyte.
 
-**Moving parts (eight objects and the blink).** `moon` (it bobs and rocks), `halo` (the crescent rocks), `earR`, `earL` (the standing ear and the flopped one flick), `chain` (it swings), `tail` (it wags), `moteR`, `moteL` (they circle); the face plate blinks, glints and its moons wax and wane.
+**Moving parts (eleven objects and the blink).** `moon` (it bobs and rocks, and flips on the howl), `halo` (the crescent rocks), `earR`, `earL` (the standing ear and the flopped one flick), `chain` (it swings), `tail` (it wags), `moteR`, `moteL` (they circle), `shade` (the moon's dark limb and maria, moving with it), `mane` (the nebula mane breathes and lifts on the howl), `stars` (the mane's lit tips and caught stars, moving with it); the face plate blinks, glints and its moons wax and wane.
 
 **Alien anatomy.** Fangs of ice outside the mouth, a mane that is a stack of slabs with stars caught in it, a chain that is part of its body (the broken ends glow), a moon that floats on nothing, and a tail that forks round a core of light.
 
@@ -72,15 +73,34 @@ parts:
   - {name: Fang, slot: Trim, size: [0.125, 0.1875, 0.125], at: [0.3125, 1.28125, -1.75], mirror: x, material: ice}
   - {name: FangTip, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.3125, 1.125, -1.75], rot: [180, 0, 0], shape: cone6, mirror: x, material: ice}
   - {name: CheekTuft, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.0625, 1.5, -1.25], mirror: x, material: fur}
-  # the hero: a moon of stepped light floating over the brow, two craters on its face; it bobs and rocks
-  - {name: MoonA, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0, 2.78125, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: MoonB, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 2.84375, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: MoonC, slot: Glow, size: [0.625, 0.0625, 0.125], at: [0, 2.90625, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: MoonD, slot: Glow, size: [0.625, 0.0625, 0.125], at: [0, 2.96875, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: MoonE, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 3.03125, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: MoonF, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0, 3.09375, -1.6875], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: Crater, slot: Accessory, size: [0.125, 0.125, 0.0625], at: [0.125, 3, -1.78125], moves: moon, pivot: [0, 2.9375, -1.6875]}
-  - {name: Crater2, slot: Accessory, size: [0.125, 0.0625, 0.0625], at: [-0.1875, 2.84375, -1.78125], moves: moon, pivot: [0, 2.9375, -1.6875]}
+  # the hero: a full moon of stepped light rising over the brow, a stud wide (Rare pass w2: the 0.625 disc in front of the forehead read as a
+  # small white disc), nine sixteenth rows from just over the face plate to 0.375 above the crown, so half of it breaks the head's top edge
+  # against the sky; four indigo maria on its face (pale craters on a pale glow vanished); it bobs, rocks and, on the howl, flips
+  - {name: MoonA, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 2.96875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonADark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 2.96875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonB, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 3.03125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonBDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 3.03125, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonC0, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 3.09375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonC0Dark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 3.09375, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonC, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.15625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonCDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.15625, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonD, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.21875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonDDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.21875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonD2, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.28125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonD2Dark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.28125, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonE, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 3.34375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonEDark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 3.34375, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonF, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 3.40625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonFDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 3.40625, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonG, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 3.46875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonGDark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 3.46875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
+  - {name: Crater, slot: Trim, size: [0.125, 0.125, 0.0625], at: [0.1875, 3.3125, -1.78125], moves: shade, pivot: [0, 3.21875, -1.6875], material: metal}
+  - {name: Crater2, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0.0625, 3.09375, -1.78125], moves: shade, pivot: [0, 3.21875, -1.6875], material: metal}
+  - {name: Crater3, slot: Trim, size: [0.0625, 0.0625, 0.0625], at: [-0.03125, 3.34375, -1.78125], moves: shade, pivot: [0, 3.21875, -1.6875], material: metal}
+  - {name: Crater4, slot: Trim, size: [0.125, 0.125, 0.0625], at: [0.3125, 3.1875, -1.78125], moves: shade, pivot: [0, 3.21875, -1.6875], material: metal}
+  - {name: MoonStar, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.59375, 3.34375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonStar2, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.53125, 3.03125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonStar3, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [-0.40625, 3.40625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
   # tall ears with pale insides and lit tips, each one moving part
   - {name: Ear, slot: Body, size: [0.375, 0.5, 0.25], at: [-0.6875, 3.125, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: fur}
   - {name: InnerEar, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [-0.6875, 3.0625, -0.90625], moves: ear, pivot: [-0.6875, 2.875, -0.75]}
@@ -88,27 +108,28 @@ parts:
   # its right ear is a puppy's, flopped over sideways (the side the three-quarter camera sees)
   - {name: FlopEar, slot: Body, size: [0.375, 0.5, 0.25], at: [0.9375, 2.78125, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75], material: fur}
   - {name: FlopTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.21875, 2.6875, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75]}
-  # the mane: four near-black slabs stepping down the neck behind the head, a tuft tipped with moonlight out of each end of the top three,
-  # three ridge tufts lit at their tips down the back, and six stars caught in the slabs' fronts
-  - {name: ManeA, slot: BodyDark, size: [2.5, 0.375, 0.5], at: [0, 2.5625, 0.375], material: fur}
-  - {name: ManeB, slot: BodyDark, size: [2.75, 0.375, 0.5], at: [0, 2.1875, 0.5], material: fur}
-  - {name: ManeC, slot: BodyDark, size: [2.5, 0.375, 0.5], at: [0, 1.8125, 0.625], material: fur}
-  - {name: ManeD, slot: BodyDark, size: [2, 0.375, 0.5], at: [0, 1.4375, 0.75], material: fur}
-  - {name: Tuft, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.4375, 2.5, 0.375], rot: [0, 0, -110], shape: cone6, mirror: x, material: fur}
-  - {name: Tuft2, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.5625, 2.125, 0.5], rot: [0, 0, -110], shape: cone6, mirror: x, material: fur}
-  - {name: Tuft3, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.4375, 1.75, 0.625], rot: [0, 0, -110], shape: cone6, mirror: x, material: fur}
-  - {name: TuftLight, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 2.4375, 0.375], mirror: x}
-  - {name: TuftLight2, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.75, 2.0625, 0.5], mirror: x}
-  - {name: TuftLight3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.6875, 0.625], mirror: x}
-  - {name: Ridge, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.9375, 0.375], rot: [20, 0, 0], shape: cone6, material: fur}
-  - {name: Ridge2, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.5625, 0.6875], rot: [20, 0, 0], shape: cone6, material: fur}
-  - {name: Ridge3, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.1875, 0.8125], rot: [20, 0, 0], shape: cone6, material: fur}
-  - {name: RidgeLight, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 3.125, 0.4375]}
-  - {name: RidgeLight2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.75, 0.75]}
-  - {name: RidgeLight3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.375, 0.875]}
-  - {name: Star, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.15625, 2.59375, 0.09375], mirror: x}
-  - {name: Star2, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.21875, 2.15625, 0.21875], mirror: x}
-  - {name: Star3, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.09375, 1.84375, 0.34375], mirror: x}
+  # the nebula mane (Rare pass w2): four near-black slabs of star-field cells (the nebula motif, Cosmic only) stepping down the neck behind
+  # the head, a tuft tipped with moonlight out of each end of the top three, three ridge tufts lit at their tips down the back, and six stars
+  # caught in the slabs' fronts; the whole mane is one moving part that breathes and lifts on the howl
+  - {name: ManeA, slot: BodyDark, size: [2.5, 0.375, 0.5], at: [0, 2.5625, 0.375], material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: ManeB, slot: BodyDark, size: [2.75, 0.375, 0.5], at: [0, 2.1875, 0.5], material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: ManeC, slot: BodyDark, size: [2.5, 0.375, 0.5], at: [0, 1.8125, 0.625], material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: ManeD, slot: BodyDark, size: [2, 0.375, 0.5], at: [0, 1.4375, 0.75], material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: Tuft, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.4375, 2.5, 0.375], rot: [0, 0, -110], shape: cone6, mirror: x, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: Tuft2, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.5625, 2.125, 0.5], rot: [0, 0, -110], shape: cone6, mirror: x, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: Tuft3, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [1.4375, 1.75, 0.625], rot: [0, 0, -110], shape: cone6, mirror: x, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: TuftLight, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 2.4375, 0.375], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: TuftLight2, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.75, 2.0625, 0.5], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: TuftLight3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.6875, 0.625], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: Ridge, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.9375, 0.375], rot: [20, 0, 0], shape: cone6, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: Ridge2, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.5625, 0.6875], rot: [20, 0, 0], shape: cone6, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: Ridge3, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 2.1875, 0.8125], rot: [20, 0, 0], shape: cone6, material: nebula, moves: mane, pivot: [0, 1.25, 0.75]}
+  - {name: RidgeLight, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 3.125, 0.4375], moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: RidgeLight2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.75, 0.75], moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: RidgeLight3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.375, 0.875], moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: Star, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.15625, 2.59375, 0.09375], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: Star2, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.21875, 2.15625, 0.21875], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
+  - {name: Star3, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [1.09375, 1.84375, 0.34375], mirror: x, moves: stars, pivot: [0, 1.25, 0.75]}
   # a pale bib on the chest, the silver collar with three studs, and the chain: two links down the chest, the third broken, its ends lit; it swings
   - {name: Bib, slot: Accessory, size: [1, 0.375, 0.0625], at: [0, 1.0625, -0.90625], material: fur}
   - {name: Collar, slot: Trim, size: [1.625, 0.125, 1.125], at: [0, 1.3125, -0.375], material: metal}
@@ -130,7 +151,7 @@ parts:
   # the tail, held low and stiff in a silver band, forked at the tip round a core of light; one moving part
   - {name: Tail, slot: Body, size: [0.375, 0.375, 0.875], at: [0, 1.1875, 1.5], moves: tail, pivot: [0, 1.1875, 1.125], material: fur}
   - {name: TailBand, slot: Trim, size: [0.5, 0.5, 0.0625], at: [0, 1.1875, 1.53125], moves: tail, pivot: [0, 1.1875, 1.125], material: metal}
-  - {name: TailFork, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [0.125, 1.1875, 2.125], mirror: x, moves: tail, pivot: [0, 1.1875, 1.125], material: fur}
+  - {name: TailFork, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [0.125, 1.1875, 2.125], mirror: x, moves: tail, pivot: [0, 1.1875, 1.125], material: nebula}
   - {name: TailCore, slot: Glow, size: [0.125, 0.25, 0.25], at: [0, 1.1875, 2.0625], moves: tail, pivot: [0, 1.1875, 1.125]}
   # a silver crescent moon standing behind the mane on its right, where the three-quarter camera sees all of it beside the head (on the left the head hid all
   # but its top, which read as a pale horn); in glow cells it vanished against the pale backdrop; a quarter thin at both horns and seven eighths in the
@@ -203,21 +224,29 @@ rig:
     halo: [{kind: sway, amp: 6, period: 6, axis: z}]
     tail: [{kind: wag, amp: 18, period: 2.4, axis: y}]
     mote: [{kind: orbit, amp: 0.15, period: 3.6}, {kind: bob, amp: 0.05, period: 1.8, phase: 0.5}]
+    mane: [{kind: sway, amp: 3, period: 3.6, axis: x}, {kind: pulse, amp: 0.02, period: 2.4}]
+    shade: [{kind: bob, amp: 0.06, period: 2.6}, {kind: sway, amp: 8, period: 5.2, axis: z}]
+    stars: [{kind: sway, amp: 3, period: 3.6, axis: x}, {kind: pulse, amp: 0.02, period: 2.4}]
     root: [{kind: squash, amp: 0.03, period: 2.4}]
     face: [{kind: blink, period: 4.8}]
   flourish:
     every: 20
-    length: 3.2
+    length: 3.8
     moves:
       - {part: root, kind: squash, amp: 0.12, at: 0, for: 0.5}
-      - {part: root, kind: hop, amp: 0.45, at: 0.5, for: 0.9}
+      - {part: root, kind: hop, amp: 0.5, at: 0.5, for: 0.9}
       - {part: root, kind: turn, amp: 360, at: 0.6, for: 1.6}
       - {part: ear, kind: flare, amp: 25, at: 0.4, for: 1.2}
-      - {part: root, kind: flare, amp: 12, axis: x, at: 2.2, for: 0.9}
-      - {part: moon, kind: pop, amp: 0.3, at: 1.2, for: 1.4}
+      - {part: moon, kind: turn, amp: 360, axis: y, at: 0.8, for: 1.4}
+      - {part: shade, kind: turn, amp: 360, axis: y, at: 0.8, for: 1.4}
       - {part: tail, kind: swish, amp: 30, at: 1, for: 1.4}
       - {part: mote, kind: hop, amp: 0.3, at: 1.6, for: 1}
-      - {part: halo, kind: pop, amp: 0.12, at: 1.4, for: 1.2}
+      - {part: root, kind: flare, amp: 12, axis: x, at: 2.2, for: 1.4}
+      - {part: mane, kind: flare, amp: -15, axis: x, at: 2.2, for: 1.4}
+      - {part: stars, kind: flare, amp: -15, axis: x, at: 2.2, for: 1.4}
+      - {part: moon, kind: pop, amp: 0.35, at: 2.2, for: 1.4}
+      - {part: shade, kind: pop, amp: 0.35, at: 2.2, for: 1.4}
+      - {part: halo, kind: pop, amp: 0.15, at: 2.0, for: 1.6}
 ```
 
 ## Build
@@ -249,3 +278,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 - 2026-10-19, World 2 worker, two rounds. Round 1: a 5.5-stud head on a 14-stud wolf fell under rule 2's 40 percent, so the head is 6 studs (16 cells of 0.375, Raddis's cell) and the ears and tufts shortened to keep 14; a fifth moon row touched the eyes' top row, so the moon is four rows with a quarter stud of brow between. The chain's interlocking links shared faces where they crossed (they would shimmer), so each link hangs from the one above, touching. Round 2: the first build's mane read as a dark staircase behind the head, so each of the top three slabs got a tuft pointing out of each end (the mane is now 10 studs across and ragged, a ruff rather than a stack) and the ears grew from nubs to a stud and a half, set into the head's top so the height stays 14; the cheek ruffs and the chin tufts close the ring. Overlap 0.996 to 0.999, 1,436 triangles, 110 blocks, 14 studs, four moving objects (the ears, the tail, the orb). Wanted for: the most impressive thing in Frostbyte, a mount with a moon on its brow and a chain it broke. Still cheap: from the side the torso is a long box between the mane and the haunches; the leg marks are thin; 16 face cells over 6 studs are big pixels in a close-up (the Cosmic close-up question open in [[Blocky-Style]]). Status review, two face options on the sheet for Ethan.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, three rounds. Round 1: redesigned at 3.5 studs from 14, not scaled: a pup on four banded, clawed legs, a 2-stud head with a 32-column face (sixteenth-stud body cells), a pale snout block with a dark nose and ink smile, two small ice fangs, a floating moon of six stepped rows with two craters, a four-slab mane with lit tuft and ridge tips and six caught stars, the collar and a two-link chain whose broken ends glow, flank runes, leg marks, the forked tail round a core of light, two motes: 138 blocks. Its own eyes, `lunar`, added to the library for it (a moon waxing and waning across a starry iris over eight frames, 32 px a stud), star cheeks. Round 2 (the silhouette test): it sat at 0.70 with Sabrek, so a silver crescent of sixteenth-stud rows stands behind its mane on its left, its left ear flops like a puppy's and the motes sit high right and low left (0.66). Round 3: the crescent in glow cells vanished against the pale backdrop, so it is silver; the moon moved from lying over the crown to floating in front of the brow. Rig: the moon bobs and rocks, the crescent rocks, the ears flick, the chain swings, the tail wags, two motes circle, it breathes and blinks (nine moving things); every 20 s the howl: a crouch, a hop into a full turn, a rear back with the ears up, the moon and the crescent flaring, under the Effects.luau pillar of moonlight. Overlap 0.995 to 0.998, 1,714 triangles. Wanted for: World 2's hero by detail, eyes, light and motion at a Rare's height, a moon pup with a moon over its brow and a crescent at its back. Still cheap: from the three-quarter camera the crescent rises behind the head like a single pale horn before it reads as a moon; the floating moon is small and reads as a white disc; the flopped ear is on the side the camera does not see. Status review.
 - 2026-10-21, Polish w2 worker: the crescent read as a pale horn from three-quarter because the head hid all but its top. The whole asymmetry is mirrored (every unmirrored part across x): the crescent now stands behind the mane on its right, where the three-quarter and high cameras see all of it beside the head against the dark mane, the flopped puppy ear is on the camera's side, the motes swap shoulders; and the crescent's rows taper from a quarter stud at each horn to seven eighths at its middle, so both thin tips read and it is a moon, not a horn (a horn is thick at one end). 138 blocks, 1,714 triangles, overlap 0.995 to 0.998; silhouette worst pair Fenrir and Sabrek 0.67. Honest read: from three-quarter it is now a moon pup with a crescent at its back at first glance, and the flopped ear finally shows; from the front the crescent sits on the other side and still frames the head. Left as it was: the floating moon is still a small white disc (not on this pass's list).
+- 2026-10-21, Rare pass w2 (also the open item: the floating moon read as a small white disc): the moon is now **a moon in phase**, a stud wide in nine sixteenth rows floating clear over the crown from just above the face plate to the 3.5-stud top, gibbous: each row lit on one side and dark indigo on the other (the dark limb disappears into the head and shows against the sky, so the disc reads as a moon, like the lunar eyes), four silver maria and three attendant stars; it flips a full turn in the howl. The signature is the **nebula star mane**: the mane's slabs, tufts and ridge in the Cosmic-only nebula motif (star cells in the glow colour on near-black) and the tail's fork too; the whole mane is one moving part that breathes and lifts on the howl. The moon's dark limb and maria (`shade`) and the mane's lit cells (`stars`) are their own objects on the same pivots and clips, because the game makes a moving part Neon only when most of its faces are glow: split, the lit moon and the mane's stars still glow. 155 blocks, twelve moving things (from nine), the howl 3.8 s with twelve moves. New attach points: `Moon` (MoonD), `Mane` (ManeA). Honest read: from the front the moon reads as a moon in phase over its head and the mane as a slice of night sky; from three-quarter the moon is still small at the game camera's distance and the height band (3.5) caps it.
