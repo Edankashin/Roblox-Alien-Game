@@ -21,7 +21,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Radish_sheet.svg]]"
 render: "[[Radish_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.993, 0.991, 0.994]
+overlap: [0.996, 0.993, 0.997, 0.996]
 vfx_render: "[[Radish_vfx_cells.jpg]]"
 cells_render: "[[Radish_tq_cells.jpg]]"
 idle_render: "[[Radish_idle.png]]"
@@ -141,14 +141,16 @@ parts:
   - {name: Ray315b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.1875, 3.0625, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
   - {name: Ray225, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.0625, 0.8125, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
   - {name: Ray225b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.1875, 0.6875, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
-  # the wings of the winged sun: four feather rows behind the disk, lit tips; each wing turns on its root to beat
-  - {name: Wing, slot: Trim, size: [1.125, 0.125, 0.0625], at: [1.5625, 2.4375, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: Wing2, slot: Accessory, size: [1, 0.125, 0.0625], at: [1.5, 2.3125, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: Wing3, slot: Body, size: [0.75, 0.125, 0.0625], at: [1.375, 2.1875, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: Wing4, slot: Accessory, size: [0.5, 0.125, 0.0625], at: [1.25, 2.0625, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: WingTip, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.1875, 2.4375, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.0625, 2.3125, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
-  - {name: WingTip3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.8125, 2.1875, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  # the wings of the winged sun: four feather rows, lit tips; each wing turns on its root to beat. Polish w1: the roots start just outside
+  # the ring's rim (x 1.3125, the ring's outer edge is 1.25) and the wings sit a quarter stud behind its plane, so from the side and the
+  # three-quarter view the ring and the wings are two clean layers, the wings springing from the disk's edge like the winged sun's
+  - {name: Wing, slot: Trim, size: [1, 0.125, 0.0625], at: [1.8125, 2.4375, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: Wing2, slot: Accessory, size: [0.875, 0.125, 0.0625], at: [1.75, 2.3125, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: Wing3, slot: Body, size: [0.625, 0.125, 0.0625], at: [1.625, 2.1875, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: Wing4, slot: Accessory, size: [0.375, 0.125, 0.0625], at: [1.5, 2.0625, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: WingTip, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.375, 2.4375, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.25, 2.3125, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  - {name: WingTip3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2, 2.1875, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
 ```
 
 ## Face
@@ -232,3 +234,4 @@ The concept sheet, drawn from the parts table above: [[Radish_sheet.svg]] and [[
 - 2026-10-17, block-cell worker, three rounds (cells). At the face cell (0.375 studs) the 6-stud head is 16 cells across, chunky up close and one surface with the face; the root's grain reads as a radish's fibres. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, eyes and rigs worker, the B45 and B46 pilot, three rounds. Round 1: rebuilt from 13.96 studs to 3.44 by redesign, not by scale: a 2-stud head with a 32-column face (0.0625 body cells, 55 cells tall), the brow, lappets, collar and sun ring in eighth-stud cells, 132 blocks. Round 2: its own `solar` eyes on a 56 x 28 face plate (a sun in each eye whose rays swirl over 8 frames round a white-hot core, a lit turquoise rim, star cheeks), eleven moving objects and the blink, a flourish every 12 s (a hop and a full turn, wings flared, the disk popping, the orb leaping). Round 3: the VFX preview's light column scaled to the new height (1.6 studs wide read as a pillar block on a 3.4-stud alien). Overlap 0.991 to 0.993, 1,616 triangles. Wanted for: next to Moop it is plainly the rarer one at the same size, by its cells, its eyes, its light and its motion. Still cheap: the bulb under the face is a plain red block, and the sun ring hides behind the head from the front (it reads from the side and the back). Status review.
 - 2026-10-21, Roster w1_high worker, the two weak spots the pilot left, one round. The bulb under the face was a plain red block: it now carries a girdle of gold and turquoise cells round its sides and back (the collar's pattern carried round, the collar still covers the front) and cream lenticel dashes under it. The sun ring hid behind the head from the front: regenerated at 1.31 studs outer radius (it was 1.06) round a centre an eighth lower, so its sides stand a quarter stud past the head and its top over the crown, with the eight rays outside it and the top ray still under 3.5 studs; its top bar keeps the name `RingT` (the hero), the halo pivot moved with it. Overlap 0.991 to 0.994, 155 blocks, 1,806 triangles; height 3.44 and the motion unchanged. Wanted for: from the front it is now a radish framed by a turning sun. Still weak: the ring overlaps the wing roots from the side; the lower half of the ring reads behind the bulb as a gold U. Status review.
+- 2026-10-21, Polish w1, one round. From the side the sun ring overlapped the wing roots: the wings sat a sixteenth behind the ring's plane with their roots at x 1, inside the ring's rim, so from the side and the three-quarter view ring and wings were one tangle. The roots now start just outside the rim (x 1.3125, the rim is at 1.25) and the wings sit a quarter stud behind the ring's plane (z 1.28 against 1.0), each feather row an eighth shorter so the span grows only a little (to 2.44 from the centre). Same 155 blocks. Overlap 0.993 to 0.997. Honest read: from the side the ring and the wings are two clean layers, and from the front the wings spring from the disk's edge as the winged sun's do; the far wing still passes behind the head, as it should. Status review.

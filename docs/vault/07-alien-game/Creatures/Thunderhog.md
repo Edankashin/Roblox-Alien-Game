@@ -21,7 +21,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Thunderhog_sheet.svg]]"
 render: "[[Thunderhog_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.998, 0.998, 0.996]
+overlap: [0.997, 0.998, 0.998, 0.997]
 vfx_render: "[[Thunderhog_vfx_cells.jpg]]"
 cells_render: "[[Thunderhog_tq_cells.jpg]]"
 idle_render: "[[Thunderhog_idle.png]]"
@@ -32,7 +32,7 @@ A storm hedgehog on six stubby splayed legs (an alien hexapod), 3.375 studs to t
 
 **What makes a player want it (B46).** At a Rare's height it wears a crown no Rare has: a ten-row bolt lit at its top, two lit lightning rods and a spark that circles them, with arcs jumping between. 57 blocks (the Rares carry 30 to 35); its own `starry` eyes, a lit yellow star in a violet two-tone iris with gold lashes, and an open, excited smile; six moving things; and a flourish every 8 s that reads across the meadow: it hops and discharges, the bolt popping and the rods whipping while the effects crackle. Charged, never fierce: the face under the storm is a delighted one.
 
-**Hero block.** The `Crest`: a ten-row pixel lightning bolt whose rows step sideways as well as forward, so it is a bolt from the front and from the side, gold below and lit in its top four rows. It is one moving part (it pulses and pops); the arcs start at its top cell, `Crest`.
+**Hero block.** The `Crest`: a ten-row pixel lightning bolt cut flat like a sign, a quarter stud thick, its rows stepping sideways only (a slant down, a wide jog back, a second slant to a point), so it is a zigzag from the front and the three-quarter view, solid gold below and lit in its top two rows. Polish w1: the earlier rows stepped forward as well, and from the three-quarter view their plates stacked into a lit cluster. It is one moving part (it pulses and pops); the arcs start at its top cell, `Crest`.
 
 **Moving parts (five objects and the blink).** `crest` (the whole bolt: it pulses and sways), `antennaR` and `antennaL` (rod and bulb: they tilt), `tail` (the lit tail bolt: it wags), `spark` (a lit mote circling the crest); the face plate blinks and glints.
 
@@ -66,18 +66,19 @@ parts:
   - {name: Emblem, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1.5, 1.625], mirror: x}
   - {name: Emblem2, slot: Trim, size: [0.125, 0.25, 1], at: [0.9375, 1.25, 1.375], mirror: x}
   - {name: Emblem3, slot: Trim, size: [0.125, 0.25, 0.5], at: [0.9375, 1, 1.125], mirror: x}
-  # the hero: one lightning bolt standing on the coat in ten eighth-stud rows, a zigzag with a wide crossbar from the front and a forward
-  # lean from the side, lit in its top four rows (it pulses and pops); `Crest` is its top cell, where the arcs start
-  - {name: Crest, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.0625, 3.3125, 0.4375], moves: crest, pivot: [0, 2.125, 1]}
-  - {name: Crest2, slot: Glow, size: [0.25, 0.125, 0.25], at: [0, 3.1875, 0.5], moves: crest, pivot: [0, 2.125, 1]}
-  - {name: Crest3, slot: Glow, size: [0.375, 0.125, 0.375], at: [-0.0625, 3.0625, 0.5625], moves: crest, pivot: [0, 2.125, 1]}
-  - {name: Crest4, slot: Glow, size: [0.625, 0.125, 0.375], at: [-0.1875, 2.9375, 0.6875], moves: crest, pivot: [0, 2.125, 1]}
-  - {name: Crest5, slot: Trim, size: [0.5, 0.125, 0.5], at: [-0.25, 2.8125, 0.75], moves: crest, pivot: [0, 2.125, 1], material: crystal}
-  - {name: Crest6, slot: Trim, size: [1.125, 0.125, 0.5], at: [0.0625, 2.6875, 0.875], moves: crest, pivot: [0, 2.125, 1], material: crystal}
-  - {name: Crest7, slot: Trim, size: [0.5, 0.125, 0.5], at: [0.25, 2.5625, 1], moves: crest, pivot: [0, 2.125, 1], material: crystal}
-  - {name: Crest8, slot: Trim, size: [0.5, 0.125, 0.5], at: [0.125, 2.4375, 1.125], moves: crest, pivot: [0, 2.125, 1], material: crystal}
-  - {name: Crest9, slot: Trim, size: [0.5, 0.125, 0.5], at: [0, 2.3125, 1.25], moves: crest, pivot: [0, 2.125, 1], material: crystal}
-  - {name: Crest10, slot: Trim, size: [0.625, 0.125, 0.5], at: [-0.125, 2.1875, 1.375], moves: crest, pivot: [0, 2.125, 1], material: crystal}
+  # the hero: one lightning bolt standing on the coat in ten eighth-stud rows, flat like a cut-out (a quarter stud thick, Polish w1) so
+  # its zigzag reads from the front and the three-quarter view: a slant down to the left, a wide jog to the right, a second slant down
+  # to a point; lit in its top two rows only, solid gold below (it pulses and pops); `Crest` is its top cell, where the arcs start
+  - {name: Crest, slot: Glow, size: [0.25, 0.125, 0.25], at: [0.125, 3.3125, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest2, slot: Glow, size: [0.375, 0.125, 0.25], at: [0, 3.1875, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest3, slot: Trim, size: [0.375, 0.125, 0.25], at: [-0.125, 3.0625, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest4, slot: Trim, size: [0.375, 0.125, 0.25], at: [-0.25, 2.9375, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest5, slot: Trim, size: [0.75, 0.125, 0.25], at: [-0.125, 2.8125, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest6, slot: Trim, size: [0.375, 0.125, 0.25], at: [0, 2.6875, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest7, slot: Trim, size: [0.375, 0.125, 0.25], at: [-0.125, 2.5625, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest8, slot: Trim, size: [0.375, 0.125, 0.25], at: [-0.25, 2.4375, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest9, slot: Trim, size: [0.25, 0.125, 0.25], at: [-0.375, 2.3125, 1], moves: crest, pivot: [0, 2.125, 1]}
+  - {name: Crest10, slot: Trim, size: [0.125, 0.125, 0.25], at: [-0.4375, 2.1875, 1], moves: crest, pivot: [0, 2.125, 1]}
   # a lit spark circling the bolt
   - {name: Spark, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, 0.875], shape: ico1, moves: spark, pivot: [0.625, 2.875, 0.875]}
   # hedgehog quills down both sides of the bolt, leaning out 20 degrees, kept short so the bolt stands over them
@@ -179,3 +180,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, loop 2 worker, three rounds. Round 1: the torso in bands (a dark quill coat, violet flanks with the gold bolt, a lavender belly plate, the gold collar), two lavender toe cells on each foot instead of the anklets, lightning-rod antennae with lit bulbs instead of the cone ears, and a crest whose rows step sideways as well as forward, so it is a bolt from the front too. Round 2: the arcs go from the crest tip to the antenna bulbs and the tail tip. Round 3: the preview's sparks are kept off the face. Overlap 0.996 to 0.998, 812 triangles, 52 blocks, 3.88 studs. Wanted for: a lit crown and two lit antennae with lightning between them, readable as storm from across the meadow. Still cheap: the top is busy (the bolt, six quills, two antennae and four cheek spikes compete), and the toes vanish at distance. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). The banded torso reads as blocks of cells; the collar's rivets read only up close; the crest's diagonals catch the light in the preview. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: from 3.875 studs to 3.375 by redrawing the bolt in ten eighth-stud rows (it was seven quarter-stud rows) with a wide crossbar, the whole bolt one moving part, a spark circling it, lavender rivets on the collar; its own `starry` eyes, an open delighted mouth, blush cheeks. The shorter crown made it a box with a bump: 0.705 against Buzzik and 0.698 against Moop in the silhouette test. Round 2: the six legs splayed out under the body's edges and the lightning rods moved to the head's corners and leaned 25 degrees, so the box's top and bottom corners fill differently (0.647 and 0.640). Round 3: the star pupil was faint on a light violet iris (now a deeper violet under indigo), and the bolt hid behind the quills (quills shortened to half a stud, the bolt's rows widened). Five moving objects and the blink; a flourish every 8 s (a discharge: a hop, the bolt popping, the rods and tail whipping, a squash on landing). Overlap 0.996 to 0.998, 58 blocks. Wanted for: lit star eyes under a crown of lightning, a step up from the Rares at the same height. Still weak: from the three-quarter camera the bolt reads as a lit cluster more than a zigzag (the front view and the game's high camera show it); the head is still the plain cube of loop 1. Status review.
+- 2026-10-21, Polish w1, two rounds. The bolt read as a lit cluster from the three-quarter view: its ten rows were plates a half stud deep stepping forward as well as sideways, so from that angle they stacked, and four lit rows washed it to a glow. Rebuilt as a flat cut-out a quarter stud thick, every row in one plane, stepping sideways only (a slant down to the left, a wide jog back to the right, a second slant down to a point), lit in its top two rows and solid gold (not the pale crystal) below; moved a quarter stud toward its left so the right lightning rod no longer crosses it. Same ten blocks, 58 in all. Overlap 0.997 to 0.998. Honest read: a gold zigzag bolt reads at once from the front and the three-quarter view; from straight side it is a thin gold post, as any flat sign is (the high game camera rarely sees it so). Status review.

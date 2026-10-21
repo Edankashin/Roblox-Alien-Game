@@ -10,7 +10,7 @@
 - Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `antennaL` (moves, Neon, pivot -0.875, 2.25, -1.4375); `antennaR` (moves, Neon, pivot 0.875, 2.25, -1.4375); `crest` (moves, cells, pivot 0, 2.125, 0.3125); `sparkR` (moves, Neon, pivot 0.625, 2.875, 0.1875); `tail` (moves, cells, pivot 0, 1.625, 1.8125); `FacePlate` (the face sheet, frame 0)
 - Eyes: `starry`; the face plate is 28x14 px a frame, 5 frames (open, half, closed, glint1, glint2) in Thunderhog_face.png, 4 a row (Rigs face.columns)
 - Rig: 5 moving parts, root clips 1, flourish every 8s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Thunderhog.glb (88320 bytes), Thunderhog.fbx (85356 bytes, texture embedded), Thunderhog_atlas.png, Thunderhog_face.png, materials.json, Thunderhog.png and Thunderhog_grey.png (256 px previews)
+- Files: Thunderhog.glb (86800 bytes), Thunderhog.fbx (83756 bytes, texture embedded), Thunderhog_atlas.png, Thunderhog_face.png, materials.json, Thunderhog.png and Thunderhog_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Thunderhog`; check with `python3 -I tools/blocky/export_models.py --check --species Thunderhog`.
