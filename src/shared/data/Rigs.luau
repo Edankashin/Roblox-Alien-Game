@@ -31,6 +31,20 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Drippo = {
+		height = 2.5,
+		parts = {
+			{ name = "armR", pivot = { 1.0745, 1.25, 0.125 }, clips = { { kind = "wag", amp = 18, period = 1.4, phase = 0, axis = "z" } } },
+			{ name = "beadL", pivot = { -1.113, 0.125, -0.875 }, clips = { { kind = "pulse", amp = 0.15, period = 3, phase = 0.5, axis = "y" } } },
+			{ name = "dripL", pivot = { -0.363, 0.5, -0.5 }, clips = { { kind = "squash", amp = 0.2, period = 3, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 1.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
