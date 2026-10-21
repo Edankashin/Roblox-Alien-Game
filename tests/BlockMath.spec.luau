@@ -546,4 +546,65 @@ describe("Block screens: Shop", function()
 		end)
 	end
 end)
+
+describe("Block screens: Capture bar", function()
+	-- CaptureBar.luau: the trough a fitted plate in cells, 0.6 x 0.06 of the screen, rows from its height; the zones exact bands of
+	-- its face (BlockMath.Span), the trail a whole cell at a time (CellStep), the marker a 7 by 11 pixel arrow, a pixel a sixth of
+	-- the bar's height; the lure and countdown chips 0.2 x 0.05, edged blocks.
+	local Tiers = require(Shared.data.Tiers)
+	local narrowest = math.huge
+	for _, tier in pairs(Tiers.Tiers) do
+		narrowest = math.min(narrowest, tier.perfectZone)
+	end
+	it("measures the marker and the zones on one span, with exact edges", function()
+		local grid = BlockMath.Grid(17.8, 3, INK)
+		local inner = BlockMath.Inner(grid)
+		expect(BlockMath.Along(grid, 0)).toBeClose(inner.x, EPS)
+		expect(BlockMath.Along(grid, 1)).toBeClose(inner.x + inner.w, EPS)
+		expect(BlockMath.Along(grid, 2)).toBeClose(inner.x + inner.w, EPS)
+		local span = BlockMath.Span(grid, 0.44, 0.12)
+		expect(#span).toEqual(2)
+		for _, rect in ipairs(span) do
+			expect(rect.x).toBeClose(BlockMath.Along(grid, 0.44), EPS)
+			expect(rect.w).toBeClose(0.12 * inner.w, EPS)
+		end
+		-- At the bar's end the band keeps the stepped corner: the tall bar stops a cell short of the ink.
+		local edge = BlockMath.Span(grid, 0.98, 0.02)
+		local tall = edge[2]
+		expect(tall.x + tall.w).toBeClose(1 - grid.inkX - grid.cellX, EPS)
+		expect(BlockMath.Span(grid, 0.5, 0)[1].w).toEqual(0)
+	end)
+	it("steps the trail a whole cell at a time and never past the bar", function()
+		expect(BlockMath.CellStep(10, 0.34)).toBeClose(0.3, EPS)
+		expect(BlockMath.CellStep(10, 0.3)).toBeClose(0.3, EPS)
+		expect(BlockMath.CellStep(10, 1.4)).toEqual(1)
+		expect(BlockMath.CellStep(10, -1)).toEqual(0)
+		expect(BlockMath.CellStep(0, 0.37)).toBeClose(0.37, EPS)
+	end)
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local barW, barH = 0.6 * screen.w, 0.06 * screen.h
+		local grid = fit(barW, barH, BlockMath.Rows(0.06, CELL, INK, MIN_ROWS))
+		it(label .. ": the trough is three rows of square cells near the HUD's, under 160 frames", function()
+			expect(grid.rows).toEqual(3)
+			local cell = barH * grid.cellY
+			assert(cell >= 5 and cell <= 14, "trough cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, barW / barH)) <= 0.06, "trough cells off square")
+			local frames = BlockMath.Frames(grid, true, SEED)
+			assert(frames <= 160, "trough draws " .. frames .. " frames")
+		end)
+		it(label .. ": the narrowest Perfect zone is a cell wide or more, and the arrow's pixel 3 px or more", function()
+			local cellPx = barW * grid.cellX
+			local zonePx = narrowest * barW * (1 - 2 * grid.inkX)
+			assert(zonePx >= cellPx, "the narrowest Perfect zone is " .. zonePx .. " px, under a " .. cellPx .. " px cell")
+			assert(barH / 6 >= 3, "an arrow pixel is " .. barH / 6 .. " px")
+		end)
+		it(label .. ": a chip's face holds a 14 px line", function()
+			local chipH = 0.05 * screen.h
+			local rows = BlockMath.Rows(0.05, CELL, INK, MIN_ROWS)
+			local face = chipH * (1 - 2 * INK / (rows + 2 * INK))
+			assert(0.75 * chipH >= TEXT_MIN and face >= TEXT_MIN, "a chip holds " .. 0.75 * chipH .. " px of text")
+		end)
+	end
+end)
 return true
