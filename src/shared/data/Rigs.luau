@@ -794,6 +794,7 @@ local species: { [string]: Types.RigRow } = {
 		parts = {
 			{ name = "floatL", pivot = { -1.4375, 0.9375, 0.4375 }, clips = { { kind = "bob", amp = 0.15, period = 2.2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.1, period = 4.4, phase = 0, axis = "y" } } },
 			{ name = "floatR", pivot = { 1.4375, 1.9375, 0.4375 }, clips = { { kind = "bob", amp = 0.15, period = 2.2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.1, period = 4.4, phase = 0, axis = "y" } } },
+			{ name = "glass", pivot = { 0, 1.875, 0 }, clips = { { kind = "spin", amp = 360, period = 11, phase = 0, axis = "y" }, { kind = "bob", amp = 0.08, period = 2.9, phase = 0.3, axis = "y" }, { kind = "sway", amp = 5, period = 4.7, phase = 0, axis = "x" } } },
 			{ name = "halo", pivot = { 0, 1.5, 0.875 }, clips = { { kind = "sway", amp = 8, period = 2.8, phase = 0, axis = "x" } } },
 			{ name = "tipR", pivot = { 0.5, 3, 0 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "z" }, { kind = "pulse", amp = 0.15, period = 0.7, phase = 0, axis = "y" } } },
 			{ name = "tongueL", pivot = { -0.5625, 2.4375, 0 }, clips = { { kind = "sway", amp = -12, period = 1.1, phase = 0.4, axis = "z" } } },
@@ -805,11 +806,13 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
 		flourish = {
-			every = 9, length = 2.2,
+			every = 9, length = 2.4,
 			moves = {
 				{ part = "root", kind = "squash", amp = 0.12, axis = "y", at = 0, length = 0.4 },
 				{ part = "root", kind = "hop", amp = 0.5, axis = "y", at = 0.3, length = 0.9 },
+				{ part = "glass", kind = "hop", amp = 0.3, axis = "y", at = 0.3, length = 1 },
 				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.4, length = 1.4 },
+				{ part = "glass", kind = "turn", amp = -360, axis = "y", at = 0.4, length = 1.6 },
 				{ part = "halo", kind = "swish", amp = 20, axis = "z", at = 0.4, length = 1.2 },
 				{ part = "tipR", kind = "pop", amp = 0.3, axis = "y", at = 0.7, length = 0.8 },
 				{ part = "floatL", kind = "hop", amp = 0.3, axis = "y", at = 0.9, length = 1 },
@@ -820,6 +823,7 @@ local species: { [string]: Types.RigRow } = {
 	Zapfinch = {
 		height = 3.5,
 		parts = {
+			{ name = "arc", pivot = { 0, 3.375, -0.8125 }, clips = { { kind = "pulse", amp = 0.2, period = 0.5, phase = 0, axis = "y" }, { kind = "bob", amp = 0.04, period = 0.7, phase = 0.3, axis = "y" } } },
 			{ name = "crestL", pivot = { -0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
 			{ name = "crestR", pivot = { 0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
 			{ name = "tail", pivot = { 0, 1.1875, 0.75 }, clips = { { kind = "wag", amp = 14, period = 2.6, phase = 0, axis = "y" } } },
@@ -833,15 +837,18 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
 		flourish = {
-			every = 7, length = 1.8,
+			every = 7, length = 2.2,
 			moves = {
 				{ part = "root", kind = "hop", amp = 0.35, axis = "y", at = 0, length = 0.6 },
 				{ part = "wingL", kind = "flare", amp = -35, axis = "z", at = 0, length = 0.8 },
 				{ part = "wingR", kind = "flare", amp = 35, axis = "z", at = 0, length = 0.8 },
+				{ part = "arc", kind = "pop", amp = 0.5, axis = "y", at = 0.2, length = 0.5 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.3, length = 1.2 },
 				{ part = "crestL", kind = "swish", amp = -20, axis = "z", at = 0.5, length = 0.9 },
 				{ part = "crestR", kind = "swish", amp = 20, axis = "z", at = 0.5, length = 0.9 },
 				{ part = "tail", kind = "swish", amp = 25, axis = "y", at = 0.6, length = 0.9 },
-				{ part = "root", kind = "squash", amp = 0.1, axis = "y", at = 1.2, length = 0.6 },
+				{ part = "arc", kind = "hop", amp = 0.15, axis = "y", at = 1.2, length = 0.4 },
+				{ part = "root", kind = "squash", amp = 0.1, axis = "y", at = 1.6, length = 0.6 },
 			},
 		},
 	},

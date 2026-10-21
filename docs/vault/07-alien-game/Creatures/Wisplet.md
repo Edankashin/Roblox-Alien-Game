@@ -8,11 +8,11 @@ tier: Rare
 status: review
 element: Shadow
 height: 3.5
-blocks: 35
-tris: 488
+blocks: 43
+tris: 584
 bevel_width: 0.1
 bevel_segments: 2
-palette: ["#8FDCFF", "#2D5C9E", "#7B5CFF", "#6E6A85", "#B48CFF", "#141B33"]
+palette: ["#8FDCFF", "#2D5C9E", "#7B5CFF", "#6E6A85", "#9466FF", "#141B33"]
 roles: [body, second, accent, trim, glow, ink]
 hero: Bail
 vfx: "a soft light (Rare): Effects.luau's cold blue Light (9BE7FF, brightness 1.2, range 2.6) on the Body pulsing every 1.4 s, a faint wisp mote of the same blue rising off the Body at 0.7 a second, and a lilac Sparkle (C9A8FF) at the Top every 2.5 s; a Hover idle of 0.5 studs over 2.8 s. On the model the flame tip, the tongue tip and the flamelet tips are lilac glow cells. The rig adds the motion and the flourish: the tip flickers, the tongue licks, the bail swings, the flamelets bob and circle, and every 9 s it ducks, hops and spins with the bail swishing"
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Wisplet_sheet.svg]]"
 render: "[[Wisplet_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.995, 1, 0.997]
+overlap: [0.996, 0.994, 1, 0.996]
 vfx_render: "[[Wisplet_vfx_cells.jpg]]"
 cells_render: "[[Wisplet_tq_cells.jpg]]"
 idle_render: "[[Wisplet_idle.png]]"
@@ -83,6 +83,16 @@ parts:
   - {name: Glyph2, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.0625, 1.25, 0.25]}
   - {name: Glyph3, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 1.4375, 0.1875]}
   - {name: Glyph4, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 1.5625, 0.0625]}
+  # Rare pass w1, the signature piece: the lantern's lost glass, four lit violet panes each under an iron bar, drifting round the flame
+  # at different heights on one slow orbit (it turns, and on the flourish the panes leap and the ring spins round, `glass`)
+  - {name: Pane0, slot: Glow, size: [0.5, 0.5, 0.125], at: [0, 2.5, -1.5625], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: PaneBar0, slot: Trim, size: [0.5, 0.125, 0.125], at: [0, 2.8125, -1.5625], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Pane1, slot: Glow, size: [0.125, 0.5, 0.5], at: [1.5625, 1.25, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: PaneBar1, slot: Trim, size: [0.125, 0.125, 0.5], at: [1.5625, 1.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Pane2, slot: Glow, size: [0.125, 0.5, 0.5], at: [-1.5625, 2.25, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: PaneBar2, slot: Trim, size: [0.125, 0.125, 0.5], at: [-1.5625, 2.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Pane3, slot: Glow, size: [0.5, 0.5, 0.125], at: [0, 1.75, 1.5625], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: PaneBar3, slot: Trim, size: [0.5, 0.125, 0.125], at: [0, 2.0625, 1.5625], moves: glass, pivot: [0, 1.875, 0], material: metal}
 ```
 
 ## Face
@@ -121,15 +131,18 @@ rig:
     tongue: [{kind: sway, amp: 12, period: 1.1, axis: z, phase: 0.4}]
     halo: [{kind: sway, amp: 8, period: 2.8, axis: x}]
     float: [{kind: bob, amp: 0.15, period: 2.2}, {kind: orbit, amp: 0.1, period: 4.4}]
+    glass: [{kind: spin, amp: 360, period: 11, axis: y}, {kind: bob, amp: 0.08, period: 2.9, phase: 0.3}, {kind: sway, amp: 5, period: 4.7, axis: x}]
     root: [{kind: squash, amp: 0.06, period: 1.4}]
     face: [{kind: blink, period: 3.4}]
   flourish:
     every: 9
-    length: 2.2
+    length: 2.4
     moves:
       - {part: root, kind: squash, amp: 0.12, at: 0, for: 0.4}
       - {part: root, kind: hop, amp: 0.5, at: 0.3, for: 0.9}
+      - {part: glass, kind: hop, amp: 0.3, at: 0.3, for: 1}
       - {part: root, kind: turn, amp: 360, at: 0.4, for: 1.4}
+      - {part: glass, kind: turn, amp: -360, axis: y, at: 0.4, for: 1.6}
       - {part: halo, kind: swish, amp: 20, at: 0.4, for: 1.2}
       - {part: tip, kind: pop, amp: 0.3, at: 0.7, for: 0.8}
       - {part: float, kind: hop, amp: 0.3, at: 0.9, for: 1}

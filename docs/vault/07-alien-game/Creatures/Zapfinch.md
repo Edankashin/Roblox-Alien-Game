@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Lightning
 height: 3.5
-blocks: 33
-tris: 568
+blocks: 43
+tris: 688
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#4FA8E8", "#23386B", "#F3F0E2", "#F2C14E", "#FFEE55", "#101A33"]
@@ -21,7 +21,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Zapfinch_sheet.svg]]"
 render: "[[Zapfinch_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.994, 0.998, 0.994]
+overlap: [0.993, 0.994, 0.997, 0.993]
 vfx_render: "[[Zapfinch_vfx_cells.jpg]]"
 cells_render: "[[Zapfinch_tq_cells.jpg]]"
 idle_render: "[[Zapfinch_idle.png]]"
@@ -74,6 +74,16 @@ parts:
   - {name: Crest, slot: BodyDark, size: [0.125, 0.375, 0.125], at: [0.375, 2.875, -0.5625], rot: [0, 0, -15], mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
   - {name: Crest2, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.4375, 3.125, -0.5625], rot: [0, 0, 15], mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
   - {name: CrestTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [0.4375, 3.3125, -0.5625], shape: ico1, mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
+  # Rare pass w1, the signature piece: a spark gap, a lit zigzag arc of storm-yellow glass cells crackling between the two antenna tips
+  # (it flickers, jumps and pops on the flourish, `arc`)
+  - {name: Arc0, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.1875, 3.3125, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc1, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.0625, 3.4375, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.0625, 3.3125, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.1875, 3.4375, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  # Rare pass w1: electric wingtips, three lit glass feather cells along each wing's outer edge (they flick with the wing)
+  - {name: WingTip0, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, -0.0625], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
+  - {name: WingTip1, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, 0.25], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
+  - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, 0.5625], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
 ```
 
 ## Face
@@ -110,18 +120,22 @@ rig:
   clips:
     wing: [{kind: flap, amp: 15, period: 1.2, axis: z}]
     crest: [{kind: sway, amp: 8, period: 2.4, axis: z}, {kind: wag, amp: 6, period: 3, axis: x, phase: 0.4}]
+    arc: [{kind: pulse, amp: 0.2, period: 0.5}, {kind: bob, amp: 0.04, period: 0.7, phase: 0.3}]
     tail: [{kind: wag, amp: 14, period: 2.6, axis: y}]
     root: [{kind: bob, amp: 0.05, period: 1.1}]
     face: [{kind: blink, period: 3.8}]
   flourish:
     every: 7
-    length: 1.8
+    length: 2.2
     moves:
       - {part: root, kind: hop, amp: 0.35, at: 0, for: 0.6}
       - {part: wing, kind: flare, amp: 35, axis: z, at: 0, for: 0.8}
+      - {part: arc, kind: pop, amp: 0.5, at: 0.2, for: 0.5}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 0.3, for: 1.2}
       - {part: crest, kind: swish, amp: 20, axis: z, at: 0.5, for: 0.9}
       - {part: tail, kind: swish, amp: 25, axis: y, at: 0.6, for: 0.9}
-      - {part: root, kind: squash, amp: 0.1, axis: y, at: 1.2, for: 0.6}
+      - {part: arc, kind: hop, amp: 0.15, at: 1.2, for: 0.4}
+      - {part: root, kind: squash, amp: 0.1, axis: y, at: 1.6, for: 0.6}
 ```
 
 ## Build

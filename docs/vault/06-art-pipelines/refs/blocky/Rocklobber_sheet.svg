@@ -5,7 +5,7 @@
 <rect x="30.00" y="74.00" width="132.00" height="28.00" fill="#3B82F6"/>
 <text x="96.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">RARE</text>
 <text x="176.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#6B6F80" text-anchor="start">World 1  |  element Stone  |  status review  |  hero: Claw</text>
-<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.12 studs  |  35 blocks  |  506 triangles  |  bevel 0.1 x 2  |  1 stud = 58 px</text>
+<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.12 studs  |  48 blocks  |  506 triangles  |  bevel 0.1 x 2  |  1 stud = 58 px</text>
 <text x="1770.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#6B6F80" text-anchor="end">Concept sheet drawn from the spec note's parts table (tools/blocky/sheet.py); blocky style rules: Blocky-Style.md</text>
 <!-- view front -->
 <rect x="30.00" y="130.00" width="349.46" height="349.46" fill="#FFFFFF" stroke="#DDD6C8" stroke-width="1.00"/>
@@ -69,12 +69,25 @@
 <polygon points="124.28,416.01 151.64,425.97 154.13,419.13 126.77,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="255.32,419.13 257.81,425.97 285.18,416.01 282.69,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="212.01,326.57 226.57,326.57 226.57,319.29 212.01,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="204.73,326.57 248.41,326.57 248.41,304.73 204.73,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="233.85,319.29 241.13,319.29 241.13,297.45 233.85,297.45" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="161.05,333.85 248.41,333.85 248.41,326.57 161.05,326.57" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="219.29,319.29 233.85,319.29 226.57,268.33" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="241.13,326.57 248.41,326.57 248.41,304.73 241.13,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="204.73,326.57 212.01,326.57 212.01,319.29 204.73,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="212.01,326.57 241.13,326.57 241.13,319.29 212.01,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="124.64,450.33 131.92,450.33 131.92,413.93 124.64,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="277.53,450.33 284.81,450.33 284.81,413.93 277.53,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="124.28,416.01 151.64,425.97 154.13,419.13 126.77,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="255.32,419.13 257.81,425.97 285.18,416.01 282.69,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="80.96,319.29 88.24,319.29 88.24,312.01 80.96,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="321.21,319.29 328.49,319.29 328.49,312.01 321.21,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="212.01,319.29 219.29,319.29 219.29,290.17 212.01,290.17" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="146.49,421.21 262.97,421.21 262.97,348.41 146.49,348.41" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="204.73,333.85 248.41,333.85 248.41,326.57 204.73,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="204.73,326.57 248.41,326.57 248.41,312.01 204.73,312.01" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="88.24,319.29 110.08,319.29 110.08,312.01 88.24,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="299.37,319.29 321.21,319.29 321.21,312.01 299.37,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <rect x="168.33" y="362.97" width="3.64" height="3.64" fill="#1C1418"/>
 <rect x="171.97" y="362.97" width="3.64" height="3.64" fill="#1C1418"/>
 <rect x="175.61" y="362.97" width="3.64" height="3.64" fill="#1C1418"/>
@@ -163,30 +176,30 @@
 <rect x="233.85" y="384.81" width="3.64" height="3.64" fill="#E0B04A"/>
 <rect x="237.49" y="384.81" width="3.64" height="3.64" fill="#E0B04A"/>
 <rect x="241.13" y="384.81" width="3.64" height="3.64" fill="#1C1418"/>
-<rect x="164.69" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="168.33" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="171.97" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="175.61" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
+<rect x="164.69" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="168.33" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="171.97" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="175.61" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
 <rect x="179.25" y="388.45" width="3.64" height="3.64" fill="#FFFFFF"/>
-<rect x="182.89" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="222.93" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
+<rect x="182.89" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="222.93" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
 <rect x="226.57" y="388.45" width="3.64" height="3.64" fill="#FFFFFF"/>
-<rect x="230.21" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="233.85" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="237.49" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="241.13" y="388.45" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="164.69" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="168.33" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="171.97" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="175.61" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="179.25" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="182.89" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="222.93" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="226.57" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="230.21" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="233.85" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="237.49" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
-<rect x="241.13" y="392.09" width="3.64" height="3.64" fill="#FFB347"/>
+<rect x="230.21" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="233.85" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="237.49" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="241.13" y="388.45" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="164.69" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="168.33" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="171.97" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="175.61" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="179.25" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="182.89" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="222.93" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="226.57" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="230.21" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="233.85" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="237.49" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
+<rect x="241.13" y="392.09" width="3.64" height="3.64" fill="#FF8C1A"/>
 <rect x="157.41" y="395.73" width="3.64" height="3.64" fill="#FF9DBB"/>
 <rect x="161.05" y="395.73" width="3.64" height="3.64" fill="#FF9DBB"/>
 <rect x="197.45" y="395.73" width="3.64" height="3.64" fill="#1C1418"/>
@@ -209,8 +222,8 @@
 <polygon points="299.37,370.25 328.49,370.25 328.49,341.13 299.37,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="80.96,392.09 110.08,392.09 110.08,377.53 80.96,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="299.37,392.09 328.49,392.09 328.49,377.53 299.37,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="88.24,362.97 102.80,362.97 102.80,348.41 88.24,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="306.65,362.97 321.21,362.97 321.21,348.41 306.65,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="88.24,362.97 102.80,362.97 102.80,348.41 88.24,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="306.65,362.97 321.21,362.97 321.21,348.41 306.65,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <line x1="30.00" y1="450.33" x2="379.46" y2="450.33" stroke="#1B1F3B" stroke-width="2.00"/>
 <text x="204.73" y="476.33" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1B1F3B" text-anchor="middle">FRONT (from -Z)</text>
 <!-- view right -->
@@ -253,10 +266,12 @@
 <line x1="423.14" y1="173.68" x2="648.83" y2="173.68" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="423.14" y1="159.12" x2="648.83" y2="159.12" stroke="#D2CABB" stroke-width="1.00"/>
 <line x1="423.14" y1="144.56" x2="648.83" y2="144.56" stroke="#ECE7DD" stroke-width="0.60"/>
-<polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,319.29 554.18,319.29 554.18,312.01 539.62,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="568.74,319.29 605.15,319.29 605.15,297.45 568.74,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,392.09 619.71,392.09 619.71,377.53 605.15,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="554.18,319.29 561.46,319.29 561.46,312.01 554.18,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,333.85 590.59,333.85 590.59,319.29 539.62,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="532.34,392.09 605.15,392.09 605.15,333.85 532.34,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,450.33 554.18,450.33 554.18,413.93 539.62,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
@@ -266,8 +281,17 @@
 <polygon points="539.62,425.97 554.18,425.97 554.18,409.17 539.62,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="503.22,425.97 517.78,425.97 517.78,409.17 503.22,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="466.82,425.97 481.38,425.97 481.38,409.17 466.82,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="525.06,326.57 554.18,326.57 554.18,304.73 525.06,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="525.06,319.29 532.34,319.29 532.34,297.45 525.06,297.45" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="532.34,319.29 546.90,319.29 539.62,268.33" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="525.06,326.57 554.18,326.57 554.18,319.29 525.06,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="503.22,326.57 517.78,326.57 517.78,319.29 503.22,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="546.90,319.29 554.18,319.29 554.18,290.17 546.90,290.17" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="517.78,333.85 561.46,333.85 561.46,326.57 517.78,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="554.18,326.57 561.46,326.57 561.46,312.01 554.18,312.01" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="517.78,326.57 525.06,326.57 525.06,304.73 517.78,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="488.66,326.57 503.22,326.57 503.22,319.29 488.66,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="525.06,326.57 554.18,326.57 554.18,319.29 525.06,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="474.10,326.57 488.66,326.57 488.66,319.29 474.10,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="488.66,275.61 503.22,275.61 503.22,268.33 488.66,268.33" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="495.94,326.57 503.22,326.57 503.22,290.17 495.94,290.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
@@ -282,10 +306,12 @@
 <polygon points="503.22,425.97 517.78,425.97 517.78,409.17 503.22,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="466.82,425.97 481.38,425.97 481.38,409.17 466.82,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,392.09 568.74,392.09 568.74,362.97 539.62,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="554.18,319.29 561.46,319.29 561.46,312.01 554.18,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="568.74,319.29 605.15,319.29 605.15,297.45 568.74,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,392.09 619.71,392.09 619.71,377.53 605.15,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,319.29 554.18,319.29 554.18,312.01 539.62,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,333.85 590.59,333.85 590.59,319.29 539.62,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="532.34,392.09 605.15,392.09 605.15,333.85 532.34,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <line x1="423.14" y1="450.33" x2="648.83" y2="450.33" stroke="#1B1F3B" stroke-width="2.00"/>
@@ -355,23 +381,36 @@
 <polygon points="779.87,370.25 809.00,370.25 809.00,341.13 779.87,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="925.48,370.25 954.60,370.25 954.60,341.13 925.48,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="809.00,362.97 925.48,362.97 925.48,261.05 809.00,261.05" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="750.75,421.21 765.31,421.21 765.31,413.93 750.75,413.93" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="969.16,421.21 983.72,421.21 983.72,413.93 969.16,413.93" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="750.75,421.21 765.31,421.21 765.31,413.93 750.75,413.93" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="969.16,421.21 983.72,421.21 983.72,413.93 969.16,413.93" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="743.47,413.93 772.59,413.93 772.59,406.65 743.47,406.65" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="961.88,413.93 991.00,413.93 991.00,406.65 961.88,406.65" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="721.63,406.65 794.44,406.65 794.44,333.85 721.63,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="940.04,406.65 1012.85,406.65 1012.85,333.85 940.04,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="801.72,370.25 932.76,370.25 932.76,253.77 801.72,253.77" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="823.56,341.13 910.92,341.13 910.92,268.33 823.56,268.33" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="867.24,362.97 910.92,362.97 910.92,319.29 867.24,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="728.91,392.09 779.87,392.09 779.87,341.13 728.91,341.13" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="954.60,392.09 1005.56,392.09 1005.56,341.13 954.60,341.13" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="859.96,290.17 903.64,290.17 903.64,275.61 859.96,275.61" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="867.24,304.73 896.36,304.73 896.36,290.17 867.24,290.17" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="874.52,319.29 889.08,319.29 889.08,304.73 874.52,304.73" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="867.24,355.69 874.52,355.69 874.52,326.57 867.24,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="874.52,355.69 903.64,355.69 903.64,326.57 874.52,326.57" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="867.24,362.97 910.92,362.97 910.92,355.69 867.24,355.69" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="750.75,362.97 772.59,362.97 772.59,355.69 750.75,355.69" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="961.88,362.97 983.72,362.97 983.72,355.69 961.88,355.69" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="743.47,355.69 750.75,355.69 750.75,341.13 743.47,341.13" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="983.72,355.69 991.00,355.69 991.00,341.13 983.72,341.13" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="867.24,326.57 910.92,326.57 910.92,319.29 867.24,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="903.64,355.69 910.92,355.69 910.92,326.57 903.64,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="743.47,406.65 772.59,406.65 772.59,370.25 743.47,370.25" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="961.88,406.65 991.00,406.65 991.00,370.25 961.88,370.25" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="896.36,333.85 903.64,333.85 903.64,326.57 896.36,326.57" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="838.12,304.73 845.40,304.73 845.40,297.45 838.12,297.45" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="874.52,355.69 881.80,355.69 881.80,348.41 874.52,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="830.84,312.01 852.68,312.01 852.68,290.17 830.84,290.17" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="881.80,341.13 885.44,348.41 892.72,348.41 896.36,341.13 892.72,333.85 885.44,333.85" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="838.12,304.73 852.68,304.73 852.68,290.17 838.12,290.17" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <text x="867.24" y="476.33" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1B1F3B" text-anchor="middle">TOP (front down)</text>
 <!-- view back -->
@@ -422,14 +461,18 @@
 <line x1="1085.65" y1="173.68" x2="1435.10" y2="173.68" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="1085.65" y1="159.12" x2="1435.10" y2="159.12" stroke="#D2CABB" stroke-width="1.00"/>
 <line x1="1085.65" y1="144.56" x2="1435.10" y2="144.56" stroke="#ECE7DD" stroke-width="0.60"/>
-<polygon points="1362.30,362.97 1376.86,362.97 1376.86,348.41 1362.30,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1143.89,362.97 1158.45,362.97 1158.45,348.41 1143.89,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1362.30,362.97 1376.86,362.97 1376.86,348.41 1362.30,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1143.89,362.97 1158.45,362.97 1158.45,348.41 1143.89,348.41" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1355.02,392.09 1384.14,392.09 1384.14,377.53 1355.02,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1136.61,392.09 1165.73,392.09 1165.73,377.53 1136.61,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1355.02,370.25 1384.14,370.25 1384.14,341.13 1355.02,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1136.61,370.25 1165.73,370.25 1165.73,341.13 1136.61,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1355.02,319.29 1384.14,319.29 1384.14,297.45 1355.02,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1136.61,319.29 1165.73,319.29 1165.73,297.45 1136.61,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1216.69,326.57 1260.38,326.57 1260.38,312.01 1216.69,312.01" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1355.02,319.29 1376.86,319.29 1376.86,312.01 1355.02,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1143.89,319.29 1165.73,319.29 1165.73,312.01 1143.89,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1245.82,319.29 1253.10,319.29 1253.10,290.17 1245.82,290.17" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1347.74,333.85 1398.70,333.85 1398.70,319.29 1347.74,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1122.05,333.85 1173.01,333.85 1173.01,319.29 1122.05,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1318.62,392.09 1347.74,392.09 1347.74,362.97 1318.62,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
@@ -438,8 +481,17 @@
 <polygon points="1180.29,450.33 1187.57,450.33 1187.57,413.93 1180.29,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1310.97,419.13 1313.46,425.97 1340.83,416.01 1338.34,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1179.93,416.01 1207.29,425.97 1209.78,419.13 1182.42,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1376.86,319.29 1384.14,319.29 1384.14,312.01 1376.86,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1136.61,319.29 1143.89,319.29 1143.89,312.01 1136.61,312.01" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1333.18,392.09 1405.98,392.09 1405.98,333.85 1333.18,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1114.77,392.09 1187.57,392.09 1187.57,333.85 1114.77,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1231.26,319.29 1245.82,319.29 1238.54,268.33" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1216.69,326.57 1223.97,326.57 1223.97,304.73 1216.69,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1253.10,326.57 1260.38,326.57 1260.38,319.29 1253.10,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1223.97,326.57 1253.10,326.57 1253.10,319.29 1223.97,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1223.97,319.29 1231.26,319.29 1231.26,297.45 1223.97,297.45" fill="#FF8C1A" stroke="#9E5610" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1216.69,333.85 1260.38,333.85 1260.38,326.57 1216.69,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1216.69,326.57 1260.38,326.57 1260.38,304.73 1216.69,304.73" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1333.18,450.33 1340.46,450.33 1340.46,413.93 1333.18,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1180.29,450.33 1187.57,450.33 1187.57,413.93 1180.29,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1310.97,419.13 1313.46,425.97 1340.83,416.01 1338.34,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
@@ -718,7 +770,7 @@
 <text x="800.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">claw @ [1.25, 1.25, -0.75]</text>
 <rect x="30.00" y="881.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
-<rect x="164.00" y="884.33" width="10.00" height="10.00" fill="#FFB347" stroke="#996B2A" stroke-width="0.80"/>
+<rect x="164.00" y="884.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
 <text x="30.00" y="894.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Gem</text>
 <text x="180.00" y="894.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
 <text x="275.00" y="894.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
@@ -759,6 +811,122 @@
 <text x="750.00" y="948.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="948.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="860.00" y="948.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">antenna @ [0.4375, 2.125, 0.1875]</text>
+<rect x="30.00" y="953.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="956.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
+<text x="30.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeBase</text>
+<text x="180.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<text x="275.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.75, 0.125, 0.75]</text>
+<text x="485.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.375, 2.0625, -0.5]</text>
+<text x="640.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="966.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="164.00" y="974.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
+<text x="30.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeWall</text>
+<text x="180.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<text x="275.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.75, 0.25, 0.125]</text>
+<text x="485.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.375, 2.25, -0.8125]</text>
+<text x="640.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="984.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="30.00" y="989.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="992.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
+<text x="30.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeWall2</text>
+<text x="180.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<text x="275.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.75, 0.375, 0.125]</text>
+<text x="485.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.375, 2.3125, -0.1875]</text>
+<text x="640.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1002.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="164.00" y="1010.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
+<text x="30.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeSide</text>
+<text x="180.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<text x="275.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.375, 0.5]</text>
+<text x="485.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.6875, 2.3125, -0.5]</text>
+<text x="640.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1020.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="30.00" y="1025.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="1028.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
+<text x="30.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeSide2</text>
+<text x="180.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<text x="275.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.125, 0.5]</text>
+<text x="485.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.0625, 2.1875, -0.5]</text>
+<text x="640.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1038.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="164.00" y="1046.33" width="10.00" height="10.00" fill="#E0B04A" stroke="#86692C" stroke-width="0.80"/>
+<text x="30.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">GeodeLining</text>
+<text x="180.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Trim</text>
+<text x="275.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.5, 0.125, 0.5]</text>
+<text x="485.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.375, 2.1875, -0.5]</text>
+<text x="640.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1056.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<rect x="30.00" y="1061.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="1064.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
+<text x="30.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Crystal</text>
+<text x="180.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
+<text x="275.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">cone6</text>
+<text x="335.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.25, 0.875, 0.25]</text>
+<text x="485.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.375, 2.6875, -0.5]</text>
+<text x="640.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1074.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">geode @ [-0.375, 2.25, -0.5]</text>
+<rect x="164.00" y="1082.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
+<text x="30.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Crystal2</text>
+<text x="180.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
+<text x="275.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.5, 0.125]</text>
+<text x="485.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.1875, 2.5, -0.6875]</text>
+<text x="640.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1092.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">geode @ [-0.375, 2.25, -0.5]</text>
+<rect x="30.00" y="1097.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="1100.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
+<text x="30.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Crystal3</text>
+<text x="180.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
+<text x="275.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.375, 0.125]</text>
+<text x="485.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[-0.5625, 2.4375, -0.3125]</text>
+<text x="640.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="860.00" y="1110.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">geode @ [-0.375, 2.25, -0.5]</text>
+<rect x="164.00" y="1118.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
+<text x="30.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Crack</text>
+<text x="180.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
+<text x="275.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.375, 0.125, 0.125]</text>
+<text x="485.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.8125, 2.3125, -0.8125]</text>
+<text x="640.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
+<text x="860.00" y="1128.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">claw @ [1.25, 1.25, -0.75]</text>
+<rect x="30.00" y="1133.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
+<rect x="164.00" y="1136.33" width="10.00" height="10.00" fill="#FF8C1A" stroke="#99540F" stroke-width="0.80"/>
+<text x="30.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Crack2</text>
+<text x="180.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
+<text x="275.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
+<text x="335.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.125, 0.25]</text>
+<text x="485.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[2.0625, 2.3125, -0.625]</text>
+<text x="640.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
+<text x="860.00" y="1146.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">claw @ [1.25, 1.25, -0.75]</text>
 <!-- palette -->
 <text x="1060.00" y="520.33" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#1B1F3B" text-anchor="start">Palette (role, hex, greyscale L*)</text>
 <rect x="1060.00" y="538.33" width="56.00" height="32.00" fill="#C8553D" stroke="#783324" stroke-width="1.00"/>
@@ -773,9 +941,9 @@
 <rect x="1060.00" y="658.33" width="56.00" height="32.00" fill="#E0B04A" stroke="#86692C" stroke-width="1.00"/>
 <rect x="1120.00" y="658.33" width="32.00" height="32.00" fill="#B7B7B7" stroke="#999999" stroke-width="1.00"/>
 <text x="1164.00" y="679.33" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">trim  #E0B04A  L* 74</text>
-<rect x="1060.00" y="698.33" width="56.00" height="32.00" fill="#FFB347" stroke="#996B2A" stroke-width="1.00"/>
-<rect x="1120.00" y="698.33" width="32.00" height="32.00" fill="#C2C2C2" stroke="#999999" stroke-width="1.00"/>
-<text x="1164.00" y="719.33" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">glow  #FFB347  L* 78</text>
+<rect x="1060.00" y="698.33" width="56.00" height="32.00" fill="#FF8C1A" stroke="#99540F" stroke-width="1.00"/>
+<rect x="1120.00" y="698.33" width="32.00" height="32.00" fill="#AAAAAA" stroke="#999999" stroke-width="1.00"/>
+<text x="1164.00" y="719.33" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">glow  #FF8C1A  L* 70</text>
 <rect x="1060.00" y="738.33" width="56.00" height="32.00" fill="#1C1418" stroke="#100C0E" stroke-width="1.00"/>
 <rect x="1120.00" y="738.33" width="32.00" height="32.00" fill="#161616" stroke="#999999" stroke-width="1.00"/>
 <text x="1164.00" y="759.33" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">ink  #1C1418  L* 7</text>
@@ -870,30 +1038,30 @@
 <rect x="1148.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1152.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1156.00" y="850.33" width="4.00" height="4.00" fill="#1C1418"/>
-<rect x="1072.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1076.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1080.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1084.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1072.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1076.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1080.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1084.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1088.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1092.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1136.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1092.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1136.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1140.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1144.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1148.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1152.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1156.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1072.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1076.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1080.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1084.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1088.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1092.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1136.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1140.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1144.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1148.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1152.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1156.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1144.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1148.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1152.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1156.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1072.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1076.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1080.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1084.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1088.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1092.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1136.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1140.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1144.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1148.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1152.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1156.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1064.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1068.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1108.00" y="862.33" width="4.00" height="4.00" fill="#1C1418"/>
@@ -933,30 +1101,30 @@
 <rect x="1270.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1274.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1278.00" y="850.33" width="4.00" height="4.00" fill="#1C1418"/>
-<rect x="1194.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1198.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1202.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1206.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1194.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1198.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1202.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1206.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1210.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1214.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1258.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1214.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1258.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1262.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1266.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1270.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1274.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1278.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1194.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1198.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1202.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1206.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1210.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1214.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1258.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1262.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1266.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1270.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1274.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1278.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1266.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1270.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1274.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1278.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1194.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1198.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1202.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1206.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1210.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1214.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1258.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1262.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1266.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1270.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1274.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1278.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1186.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1190.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1230.00" y="862.33" width="4.00" height="4.00" fill="#1C1418"/>
@@ -1083,32 +1251,32 @@
 <rect x="1514.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1518.00" y="850.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1522.00" y="850.33" width="4.00" height="4.00" fill="#1C1418"/>
-<rect x="1438.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1442.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1446.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1450.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1438.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1442.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1446.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1450.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1454.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1458.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1502.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1506.00" y="854.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1510.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1514.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1518.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1522.00" y="854.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1438.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1442.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1446.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1450.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1510.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1514.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1518.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1522.00" y="854.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1438.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1442.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1446.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1450.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1454.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1458.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1462.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1498.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1502.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1506.00" y="858.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1510.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1514.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1518.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1522.00" y="858.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1510.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1514.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1518.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1522.00" y="858.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1430.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1434.00" y="862.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1458.00" y="862.33" width="4.00" height="4.00" fill="#FFFFFF"/>
@@ -1210,21 +1378,21 @@
 <rect x="1148.00" y="936.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1152.00" y="936.33" width="4.00" height="4.00" fill="#E0B04A"/>
 <rect x="1156.00" y="936.33" width="4.00" height="4.00" fill="#1C1418"/>
-<rect x="1072.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1076.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1080.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1084.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1072.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1076.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1080.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1084.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1088.00" y="940.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1092.00" y="940.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1136.00" y="940.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1140.00" y="940.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1144.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1148.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1152.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1156.00" y="940.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1072.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1076.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1080.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1144.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1148.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1152.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1156.00" y="940.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1072.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1076.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1080.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1084.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1088.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1092.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
@@ -1233,9 +1401,9 @@
 <rect x="1136.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1140.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1144.00" y="944.33" width="4.00" height="4.00" fill="#FFFFFF"/>
-<rect x="1148.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1152.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
-<rect x="1156.00" y="944.33" width="4.00" height="4.00" fill="#FFB347"/>
+<rect x="1148.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1152.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
+<rect x="1156.00" y="944.33" width="4.00" height="4.00" fill="#FF8C1A"/>
 <rect x="1064.00" y="948.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1068.00" y="948.33" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1092.00" y="948.33" width="4.00" height="4.00" fill="#FFFFFF"/>
@@ -1254,27 +1422,36 @@
 <rect x="1086.00" y="1067.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1085.00" y="1068.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1085.00" y="1069.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1096.00" y="1069.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1085.00" y="1070.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1096.00" y="1070.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1071.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1093.00" y="1071.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1068.00" y="1072.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1072.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1093.00" y="1072.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1098.00" y="1072.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1110.00" y="1072.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1068.00" y="1073.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1073.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1093.00" y="1073.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1098.00" y="1073.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1110.00" y="1073.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1068.00" y="1074.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1074.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1092.00" y="1074.33" width="8.00" height="1.00" fill="#111111"/>
 <rect x="1110.00" y="1074.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1068.00" y="1075.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1075.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1092.00" y="1075.33" width="8.00" height="1.00" fill="#111111"/>
 <rect x="1110.00" y="1075.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1066.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1076.33" width="2.00" height="1.00" fill="#111111"/>
-<rect x="1091.00" y="1076.33" width="8.00" height="1.00" fill="#111111"/>
+<rect x="1091.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1109.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1066.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1086.00" y="1077.33" width="2.00" height="1.00" fill="#111111"/>
-<rect x="1091.00" y="1077.33" width="8.00" height="1.00" fill="#111111"/>
+<rect x="1091.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1109.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1066.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1084.00" y="1078.33" width="16.00" height="1.00" fill="#111111"/>
@@ -1328,27 +1505,43 @@
 <rect x="1162.00" y="1058.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1162.00" y="1059.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1162.00" y="1060.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1177.00" y="1060.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1162.00" y="1061.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1061.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1162.00" y="1062.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1062.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1063.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1063.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1179.00" y="1063.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1064.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1064.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1179.00" y="1064.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1065.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1065.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1179.00" y="1065.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1066.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1173.00" y="1066.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1066.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1179.00" y="1066.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1066.33" width="11.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1067.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1173.00" y="1067.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1176.00" y="1067.33" width="5.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1067.33" width="11.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1068.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1171.00" y="1068.33" width="10.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1068.33" width="11.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1069.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1171.00" y="1069.33" width="10.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1069.33" width="11.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1070.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1171.00" y="1070.33" width="13.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1070.33" width="11.00" height="1.00" fill="#111111"/>
 <rect x="1164.00" y="1071.33" width="2.00" height="1.00" fill="#111111"/>
+<rect x="1171.00" y="1071.33" width="13.00" height="1.00" fill="#111111"/>
 <rect x="1186.00" y="1071.33" width="11.00" height="1.00" fill="#111111"/>
-<rect x="1158.00" y="1072.33" width="13.00" height="1.00" fill="#111111"/>
-<rect x="1177.00" y="1072.33" width="15.00" height="1.00" fill="#111111"/>
-<rect x="1158.00" y="1073.33" width="13.00" height="1.00" fill="#111111"/>
-<rect x="1177.00" y="1073.33" width="15.00" height="1.00" fill="#111111"/>
+<rect x="1158.00" y="1072.33" width="34.00" height="1.00" fill="#111111"/>
+<rect x="1158.00" y="1073.33" width="34.00" height="1.00" fill="#111111"/>
 <rect x="1155.00" y="1074.33" width="37.00" height="1.00" fill="#111111"/>
 <rect x="1155.00" y="1075.33" width="37.00" height="1.00" fill="#111111"/>
 <rect x="1151.00" y="1076.33" width="46.00" height="1.00" fill="#111111"/>
@@ -1456,27 +1649,36 @@
 <rect x="1312.00" y="1052.33" width="64.00" height="64.00" fill="#FFFFFF" stroke="#BBBBBB" stroke-width="1.00"/>
 <rect x="1347.00" y="1067.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1347.00" y="1068.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1339.00" y="1069.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1347.00" y="1069.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1339.00" y="1070.33" width="1.00" height="1.00" fill="#111111"/>
 <rect x="1347.00" y="1070.33" width="4.00" height="1.00" fill="#111111"/>
+<rect x="1339.00" y="1071.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1071.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1320.00" y="1072.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1337.00" y="1072.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1339.00" y="1072.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1072.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1362.00" y="1072.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1320.00" y="1073.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1337.00" y="1073.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1339.00" y="1073.33" width="4.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1073.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1362.00" y="1073.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1320.00" y="1074.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1336.00" y="1074.33" width="8.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1074.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1362.00" y="1074.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1320.00" y="1075.33" width="6.00" height="1.00" fill="#111111"/>
+<rect x="1336.00" y="1075.33" width="8.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1075.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1362.00" y="1075.33" width="6.00" height="1.00" fill="#111111"/>
 <rect x="1318.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
-<rect x="1337.00" y="1076.33" width="8.00" height="1.00" fill="#111111"/>
+<rect x="1336.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1076.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1361.00" y="1076.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1318.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
-<rect x="1337.00" y="1077.33" width="8.00" height="1.00" fill="#111111"/>
+<rect x="1336.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1348.00" y="1077.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1361.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1318.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
