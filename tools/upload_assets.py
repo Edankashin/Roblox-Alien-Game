@@ -30,7 +30,7 @@ Usage:
   python3 tools/upload_assets.py --emit-luau | pbcopy           # ASSET_IDS, PROP_NAMES, MATERIALS for Studio
   python3 tools/upload_assets.py --images --dry-run              # the icon and particle PNGs that would upload
   python3 tools/upload_assets.py --images                        # upload assets/icons/*.png and assets/particles/*.png as Decals, then resolve their Image ids
-  python3 tools/upload_assets.py --resolve-images                # only the resolve step (no key needed); --redo resolves every entry again
+  python3 tools/upload_assets.py --resolve-images                # only the resolve step (the key's Open Cloud route, else anonymous); --redo resolves every entry again
   python3 tools/upload_assets.py --images --emit-icons-luau     # the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau
   python3 tools/upload_assets.py --textures --dry-run            # the 15 texture PNGs (5 keys x color, normal, roughness) that would upload
   python3 tools/upload_assets.py --textures                      # upload assets/textures/<key>/<key>_<map>.png as Decals, then resolve their Image ids
@@ -46,10 +46,9 @@ square, loaded=false): they need the Image asset behind the Decal, whose id is i
 (InsertService:LoadAsset(decalId) gives a Decal with Texture rbxassetid://<imageId>). So each entry in
 assets/icons/asset_ids.json ({ key: { assetId, imageId, uploadedAt, file, kind } }, kind "icon" or
 "particle") keeps both: assetId is the Decal, imageId the Image. --resolve-images fills the missing
-imageId values by fetching https://assetdelivery.roblox.com/v1/asset/?id=<decalId> (a public, approved
-Decal needs no key; none is sent to that host) and reading the id out of the returned Decal XML, and
---images runs the same step after its uploads, so a fresh upload lands with both ids. If a Decal is
-still in moderation the fetch fails: re-run --resolve-images later. --emit-icons-luau prints the two
+imageId values by downloading the Decal and reading the id out of its Texture (see "Resolving the Image id"
+below for the routes), and --images runs the same step after its uploads, so a fresh upload lands with both
+ids. If a Decal is still in moderation the fetch fails: re-run --resolve-images later. --emit-icons-luau prints the two
 tables for src/shared/data/Icons.luau with the IMAGE ids, for every key the data file knows (0 when not
 uploaded), and refuses (exit 2, naming the keys) while any uploaded entry has no imageId.
 
@@ -63,9 +62,26 @@ src/shared/data/Textures.luau (the tiling of each row is kept from the file) and
 three maps of any row has no Image id, naming the ones not uploaded and the ones not resolved: the game adds a
 SurfaceAppearance only when all three ids are non-zero, so a half-filled set is no use. --only limits the rows.
 
-Resolving through Studio (--emit-decals-luau, --from-studio): the anonymous asset-delivery call now answers 401 and
-the Open Cloud route needs a scope the key lacks (Mac job 19, docs/vault/08-log/2026-10-14.md), so --resolve-images
-prints this route as the next step on a 401 or 403. --emit-decals-luau prints the Decal ids without an Image id (icons
+Resolving the Image id (--resolve-images, and the resolve step of --images, --textures and --blocky), in this order:
+  1. Open Cloud asset delivery, when the key is in the environment: GET
+     https://apis.roblox.com/asset-delivery-api/v1/assetId/<decalId> with x-api-key answers JSON whose `location` is a
+     temporary CDN URL for the asset's content; that URL is fetched WITHOUT the key (and a redirect never carries the key
+     to another host), gunzipped when gzipped, and the Decal (XML, or the binary format with LZ4 or zstd chunks) gives
+     its Texture id. The key needs the scope `legacy-asset:manage` (the Assets scopes asset:read and asset:write do not
+     cover it; Mac job 19 got 403 "Scope not authorized" without it). Rate limit 1000 calls a minute per key owner.
+     Source: content/en-us/reference/cloud/openapi.json in github.com/Roblox/creator-docs, operation
+     GET /asset-delivery-api/v1/assetId/{assetId} ("Retrieves an asset by its ID with OpenCloud auth", x-roblox-scopes
+     legacy-asset:manage, checked 2026-10-21). Why not the Assets API: GET /assets/v1/assets/{id}
+     (content/en-us/reference/cloud/assets/v1.json, schema Asset) has no field with a Decal's image id, and Create
+     takes "Decal" for a PNG (content/en-us/cloud/guides/usage-assets.md), so the Decal-to-Image step stays.
+  2. The anonymous route, https://assetdelivery.roblox.com/v1/asset/?id=<decalId> (no key is sent to that host). It
+     answers 401 "Authentication required to access Asset." since 2026-10-14 (Mac jobs 19 and 40); kept as a fallback.
+  3. Studio (below), which --resolve-images prints as the next step when both refuse with a 401 or 403.
+A 401 or 403 on route 1 (the scope missing) is remembered for the rest of the run, so each Decal then costs one call.
+
+Resolving through Studio (--emit-decals-luau, --from-studio): the fallback when the key lacks the scope above (Mac
+job 19, docs/vault/08-log/2026-10-14.md); --resolve-images prints this route as the next step on a 401 or 403.
+--emit-decals-luau prints the Decal ids without an Image id (icons
 and textures together; --images or --textures picks one file; --redo lists every uploaded one) as a Luau table for the
 PASTE block of tools/studio/resolve_decals.luau. That snippet runs in Studio (Edit mode), loads each Decal with
 game:GetObjects, and prints {"decal": <id>, "image": <id>} per id. The Mac saves the Output to a file and
@@ -90,12 +106,16 @@ What it finds (any of it may be absent; the plan covers what is there):
     kind "tile". A tile's Image id is filled into the one row of any src/shared/data/*.luau that is keyed by the tile key
     and has an `id` field on the same line (`<Key> = { id = 0, ... }` or `["<Key>"] = { id = 0, ... }`); a key two rows
     match is left alone and the plan says so.
-A file whose id is recorded is skipped (--redo uploads it again). The dry run also names the Icons.Particles keys the game
+A file whose id is recorded is skipped (--redo uploads it again), unless its content changed: every upload records the
+SHA-256 of the file it sent as `sha256` in its ids-file entry, and a file whose bytes no longer match goes up again (the
+plan marks it "content changed since upload of <old id>"; a new sheet or sprite then needs its Image id resolved again). An
+entry with no `sha256` (uploaded before hashes were kept) counts as current. The dry run also names the Icons.Particles keys the game
 reads that are 0 and have no PNG anywhere (they stay 0 and keep their fallback). After the uploads it resolves the Image ids
 (the Studio route above when the asset delivery service refuses) and runs the fill when no upload failed. The fill writes
 through the generators that exist: the installer's PASTE block (ASSET_IDS, PROP_NAMES and MATERIALS, where a block-cell
-folder takes its new materials.json rows only once its model is uploaded, so an old blockout never gets the new rows) and
-its BLOCK-CELL block (export_models.py --emit-luau: assetId, cellMap, faceMap), src/shared/data/Rigs.luau (rigs.py reads
+folder takes its new materials.json rows only once its model is uploaded, so an old blockout never gets the new rows),
+its BLOCK-CELL block (export_models.py --emit-luau: assetId, cellMap, faceMap) and its BLOCK-CELL PROPS block
+(export_models.py --emit-luau --props: assetId, cellMap), src/shared/data/Rigs.luau (rigs.py reads
 the face sheets' Image ids), src/shared/data/ModelAssets.luau (model_assets.py --write), the ids of
 src/shared/data/Icons.luau and the tile rows (an id is only ever raised from 0 or replaced, never set back to 0).
 tools/finalize_upload.sh is the Mac's one command for all of it.
@@ -141,6 +161,8 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import gzip
+import hashlib
 import json
 import os
 import pathlib
@@ -179,6 +201,10 @@ IMAGE_ASSET_TYPE = "Decal"
 # Resolves a Decal to the Image asset behind it. Test hook like API_BASE: point at a local mock.
 ASSET_DELIVERY_BASE = os.environ.get("ROBLOX_ASSET_DELIVERY_BASE",
                                      "https://assetdelivery.roblox.com/v1/asset").rstrip("/")
+# The Open Cloud asset delivery route (the key, scope legacy-asset:manage); the first route the resolve tries. Test hook too.
+CLOUD_DELIVERY_BASE = os.environ.get("ROBLOX_CLOUD_DELIVERY_BASE",
+                                     "https://apis.roblox.com/asset-delivery-api/v1").rstrip("/")
+DELIVERY_SCOPE = "legacy-asset:manage"
 
 GAME_NAME = "Roblox Alien Game"
 # Test hook: point the tool at a local mock instead of Roblox. Leave unset for real uploads.
@@ -542,19 +568,22 @@ def retry_wait(err: "urllib.error.HTTPError | None", attempt: int) -> float:
 
 def request_bytes(method: str, url: str, headers: "dict[str, str]", body: "bytes | None" = None,
                   retry_on: "tuple[int, ...]" = (), attempts: int = 1,
-                  fatal_codes: "tuple[int, ...]" = (401, 403), denied_hint: str = "") -> bytes:
+                  fatal_codes: "tuple[int, ...]" = (401, 403), denied_hint: str = "",
+                  opener: "urllib.request.OpenerDirector | None" = None) -> bytes:
     """One HTTP call with bounded retries (Retry-After, else exponential backoff). Returns the body bytes.
 
     A status in retry_on (or a network error) is retried up to `attempts` tries; any other error status
     raises UploadError, fatal when it is in fatal_codes (denied_hint is appended to those). Only the status
     and the first 300 characters of the error body are ever put in a message, never the headers.
+    opener: send through this opener instead of urllib's installed one (keyed_opener() for a keyed call that may redirect).
     """
     last = "no attempt made"
+    send = opener.open if opener is not None else urllib.request.urlopen
     for attempt in range(1, attempts + 1):
         req = urllib.request.Request(url, data=body, method=method, headers=headers)
         err = None
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
+            with send(req, timeout=120) as resp:
                 return resp.read()
         except urllib.error.HTTPError as exc:
             err = exc
@@ -598,16 +627,132 @@ _TEXTURE_BLOCK = re.compile(r'<Content\s+name="Texture"\s*>(.*?)</Content>', re.
 _ASSET_REF = re.compile(r'(?:rbxassetid://|[?&;]id=)(\d+)', re.I)
 
 
+BINARY_MAGIC = b"<roblox!"
+BINARY_HEADER_BYTES = 32        # magic 8, signature 6, version 2, class count 4, instance count 4, reserved 8
+CHUNK_HEADER_BYTES = 16         # name 4, compressed length 4, uncompressed length 4, reserved 4
+ZSTD_MAGIC = b"\x28\xb5\x2f\xfd"
+TEXTURE_PROPS = ("Texture", "TextureContent", "ColorMap", "ColorMapContent")   # where a Decal keeps its image
+
+
+def gunzip(body: bytes) -> bytes:
+    """body, decompressed when it is gzip (the CDN serves the asset gzipped when asked)."""
+    if body[:2] != b"\x1f\x8b":
+        return body
+    try:
+        return gzip.decompress(body)
+    except (OSError, EOFError) as exc:
+        raise UploadError("the asset came gzipped but does not decompress: %s" % exc)
+
+
+def lz4_block(src: bytes, size: int) -> bytes:
+    """Decompress one LZ4 block (the chunk compression of Roblox's binary model format) to `size` bytes."""
+    out = bytearray()
+    i, n = 0, len(src)
+    try:
+        while i < n:
+            token = src[i]
+            i += 1
+            length = token >> 4
+            if length == 15:
+                while True:
+                    extra = src[i]
+                    i += 1
+                    length += extra
+                    if extra != 255:
+                        break
+            out += src[i:i + length]
+            i += length
+            if i >= n:
+                break                                   # the last sequence has literals only
+            offset = src[i] | (src[i + 1] << 8)
+            i += 2
+            if offset == 0 or offset > len(out):
+                raise UploadError("bad LZ4 offset %d in the Decal" % offset)
+            length = token & 15
+            if length == 15:
+                while True:
+                    extra = src[i]
+                    i += 1
+                    length += extra
+                    if extra != 255:
+                        break
+            start = len(out) - offset
+            for k in range(length + 4):                 # byte by byte: a match may overlap what it copies
+                out.append(out[start + k])
+    except IndexError:
+        raise UploadError("the Decal's LZ4 chunk is cut off")
+    if len(out) != size:
+        raise UploadError("the Decal's LZ4 chunk gave %d bytes, its header says %d" % (len(out), size))
+    return bytes(out)
+
+
+def zstd_block(src: bytes, size: int) -> bytes:
+    """Decompress a zstd chunk with whatever module this Python has (3.14's compression.zstd, or zstandard)."""
+    try:
+        from compression import zstd  # type: ignore[import-not-found]  # Python 3.14+
+        return bytes(zstd.decompress(src))
+    except ImportError:
+        pass
+    try:
+        import zstandard  # type: ignore[import-not-found]
+        return bytes(zstandard.ZstdDecompressor().decompress(src, max_output_size=size))
+    except ImportError:
+        raise UploadError("the Decal came in zstd chunks and this Python has no zstd module; use the Studio route")
+
+
+def binary_chunks(body: bytes) -> "list[tuple[str, bytes]]":
+    """(chunk name, decompressed data) for every chunk of a binary model file (`<roblox!`), in file order."""
+    chunks: "list[tuple[str, bytes]]" = []
+    at = BINARY_HEADER_BYTES
+    while at + CHUNK_HEADER_BYTES <= len(body):
+        name = body[at:at + 4].rstrip(b"\x00").decode("ascii", "replace")
+        packed = int.from_bytes(body[at + 4:at + 8], "little")
+        size = int.from_bytes(body[at + 8:at + 12], "little")
+        at += CHUNK_HEADER_BYTES
+        raw = body[at:at + (packed or size)]
+        at += packed or size
+        if not packed:
+            data = raw
+        elif raw[:4] == ZSTD_MAGIC:
+            data = zstd_block(raw, size)
+        else:
+            data = lz4_block(raw, size)
+        chunks.append((name, data))
+        if name == "END":
+            break
+    return chunks
+
+
+def binary_texture_text(body: bytes) -> "tuple[str, str]":
+    """(the values of a Texture-like PROP chunk, every chunk's data) of a binary Decal, as latin-1 text to search."""
+    texture = ""
+    everything: "list[str]" = []
+    for name, data in binary_chunks(body):
+        everything.append(data.decode("latin-1"))
+        if name == "PROP" and len(data) >= 8 and not texture:
+            length = int.from_bytes(data[4:8], "little")
+            prop = data[8:8 + length].decode("utf-8", "replace")
+            if prop in TEXTURE_PROPS:
+                texture = data[8 + length:].decode("latin-1")
+    return texture, "\n".join(everything)
+
+
 def parse_image_id(body: bytes) -> int:
-    """The Image id out of a Decal's asset XML: its Texture content, either
-    <url>http://www.roblox.com/asset/?id=IMAGEID</url> or <url>rbxassetid://IMAGEID</url>."""
+    """The Image id out of a Decal's asset file: its Texture content, either
+    <url>http://www.roblox.com/asset/?id=IMAGEID</url> or <url>rbxassetid://IMAGEID</url> in the XML form, or the
+    same reference in the Texture property of the binary form (`<roblox!`, LZ4 or zstd chunks). Gzip is undone first."""
+    body = gunzip(body)
     if body[:8] == b"\x89PNG\r\n\x1a\n":
         raise UploadError("the asset is an image file itself, not a Decal; use its id as it is")
-    text = body.decode("utf-8", "replace")
-    block = _TEXTURE_BLOCK.search(text)
-    found = _ASSET_REF.findall(block.group(1) if block else text)
+    if body.startswith(BINARY_MAGIC):
+        texture, everything = binary_texture_text(body)
+        found = _ASSET_REF.findall(texture) or _ASSET_REF.findall(everything)
+    else:
+        text = body.decode("utf-8", "replace")
+        block = _TEXTURE_BLOCK.search(text)
+        found = _ASSET_REF.findall(block.group(1) if block else text)
     if not found or int(found[0]) <= 0:
-        raise UploadError("no Image id in the Decal XML (first 120 bytes: %r)" % (body[:120],))
+        raise UploadError("no Image id in the Decal (first 120 bytes: %r)" % (body[:120],))
     return int(found[0])
 
 
@@ -628,6 +773,101 @@ def fetch_image_id(decal_id: int) -> int:
     return resolved
 
 
+class _DropKeyOnRedirect(urllib.request.HTTPRedirectHandler):
+    """Follows a redirect without the x-api-key header, so the key never reaches another host."""
+
+    def redirect_request(self, req: urllib.request.Request, fp: typing.IO[bytes], code: int, msg: str,
+                         headers: typing.Any, newurl: str) -> "urllib.request.Request | None":
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is not None:
+            for name in [h for h in new.headers if h.lower() == "x-api-key"]:
+                del new.headers[name]
+            for name in [h for h in new.unredirected_hdrs if h.lower() == "x-api-key"]:
+                del new.unredirected_hdrs[name]
+        return new
+
+
+KEYED_EXTRA_HANDLERS: "list[urllib.request.BaseHandler]" = []   # test hook: the mock adds ProxyHandler({})
+
+
+def keyed_opener() -> urllib.request.OpenerDirector:
+    return urllib.request.build_opener(*KEYED_EXTRA_HANDLERS, _DropKeyOnRedirect())
+
+
+SCOPE_HINT = (" (the key needs the scope %s: Creator Dashboard > Open Cloud > API Keys > the key > Add API System, "
+              "legacy-asset, operation manage; see docs/vault/00-start-here/Launch-Steps.md step 2)" % DELIVERY_SCOPE)
+
+
+def fetch_image_id_cloud(decal_id: int, key: str) -> int:
+    """The Image id behind a Decal through Open Cloud asset delivery (the key, scope legacy-asset:manage).
+
+    GET <CLOUD_DELIVERY_BASE>/assetId/<id> answers {"location": <temporary CDN URL>, ...}; the Decal's file is fetched
+    from that URL without the key and parsed like the anonymous route's answer. A 401 or 403 is the scope missing."""
+    url = "%s/assetId/%d" % (CLOUD_DELIVERY_BASE, decal_id)
+    headers = {"x-api-key": key, "User-Agent": USER_AGENT, "Accept": "application/json", "Accept-Encoding": "gzip"}
+    raw = gunzip(request_bytes("GET", url, headers, retry_on=RETRYABLE_POLL, attempts=RESOLVE_ATTEMPTS,
+                               fatal_codes=(), denied_hint=SCOPE_HINT, opener=keyed_opener()))
+    try:
+        answer: object = json.loads(raw.decode("utf-8"))
+    except ValueError:
+        answer = None                                   # not JSON: the asset's file itself
+    if answer is None:
+        content = raw
+    else:
+        location = answer.get("location") if isinstance(answer, dict) else None
+        if not isinstance(location, str) or not location.startswith(("https://", "http://")):
+            raise UploadError("Open Cloud asset delivery gave no location: %r" % (raw[:200],))
+        content = request_bytes("GET", location, {"User-Agent": USER_AGENT, "Accept": "*/*", "Accept-Encoding": "gzip"},
+                                retry_on=RETRYABLE_POLL, attempts=RESOLVE_ATTEMPTS, fatal_codes=(),
+                                denied_hint=" (the temporary location was refused; run the resolve again)")
+    resolved = parse_image_id(content)
+    if resolved == decal_id:
+        raise UploadError("the Decal points at its own id, not at an Image")
+    return resolved
+
+
+class Resolver:
+    """Decal id -> Image id through the routes in order: Open Cloud asset delivery when a key is set, then the anonymous
+    route. A 401 or 403 from Open Cloud (the scope missing) is remembered, so the rest of the run goes straight to the
+    anonymous route. When both fail the error names both, with the status that decides whether the Studio route is
+    printed (401 or 403 from either)."""
+
+    def __init__(self, key: "str | None" = None,
+                 cloud: "typing.Callable[[int, str], int] | None" = None,
+                 anonymous: "typing.Callable[[int], int] | None" = None) -> None:
+        self.key = api_key() if key is None else key
+        self.cloud = cloud or fetch_image_id_cloud
+        self.anonymous = anonymous or fetch_image_id
+        self.cloud_refused: "UploadError | None" = None
+        self.told = False                               # SCOPE_ROUTE printed once a run
+
+    def describe(self) -> str:
+        if self.key and self.cloud_refused is None:
+            return "Open Cloud asset delivery (%s, the key), then %s" % (CLOUD_DELIVERY_BASE, ASSET_DELIVERY_BASE)
+        return ASSET_DELIVERY_BASE + ("" if self.key else " (no key in the environment, so not the Open Cloud route)")
+
+    def __call__(self, decal_id: int) -> int:
+        cloud_error: "UploadError | None" = None
+        if self.key and self.cloud_refused is None:
+            try:
+                return self.cloud(decal_id, self.key)
+            except UploadError as exc:
+                if exc.status in (401, 403):
+                    self.cloud_refused = exc
+                    log("      Open Cloud asset delivery refused (%s); the rest of this run uses the anonymous route" % exc)
+                else:
+                    cloud_error = exc
+        try:
+            return self.anonymous(decal_id)
+        except UploadError as exc:
+            first = cloud_error or self.cloud_refused
+            if first is None:
+                raise
+            status = exc.status if exc.status in (401, 403) else first.status
+            said = str(first) if cloud_error else "HTTP %s, the key lacks %s" % (first.status, DELIVERY_SCOPE)
+            raise UploadError("Open Cloud: %s; anonymous: %s" % (said, exc), status=status)
+
+
 def pending_images(ids: "dict[str, dict]", names: "typing.Iterable[str] | None" = None,
                    redo: bool = False) -> "list[str]":
     """Sorted keys with a Decal id that need an Image id: none yet, or all of them when redo.
@@ -644,7 +884,6 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
     Returns 0 all resolved (or nothing to do), 1 at least one failed, 130 interrupted. A run stops after
     RESOLVE_MAX_CONSECUTIVE_FAILS failures in a row (no network, or the Decals are not approved yet).
     """
-    fetch = fetch or fetch_image_id
     pending = pending_images(ids, names, redo)
     if not pending:
         log("nothing to resolve (every uploaded image already has an Image id; --redo resolves them again)")
@@ -654,7 +893,10 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
             log("would  %-14s resolve the Image id behind Decal %s" % (key, ids[key]["assetId"]))
         log("dry run: %d Image id(s) to resolve" % len(pending))
         return 0
-    log("resolving the Image id behind %d Decal(s) through %s" % (len(pending), ASSET_DELIVERY_BASE))
+    fetch = fetch or Resolver()
+    describe = getattr(fetch, "describe", None)
+    log("resolving the Image id behind %d Decal(s) through %s" % (len(pending), describe() if callable(describe)
+                                                                  else ASSET_DELIVERY_BASE))
     resolved_keys: "list[str]" = []
     failed: "list[str]" = []
     streak = 0
@@ -687,11 +929,19 @@ def run_resolve(ids: "dict[str, dict]", ids_file: pathlib.Path, names: "typing.I
                                                       len(left) - len(failed)))
     if left:
         log("no Image id yet: " + ", ".join(left) + "  (re-run: python3 -I tools/upload_assets.py --resolve-images)")
+        if isinstance(fetch, Resolver) and fetch.cloud_refused is not None and not fetch.told:
+            fetch.told = True
+            log(SCOPE_ROUTE)
         if denied:
             log(STUDIO_ROUTE)
         return 1
     return 0
 
+
+SCOPE_ROUTE = """Open Cloud asset delivery refused the key (HTTP 401 or 403): the key lacks the scope %s. The lasting fix:
+add it (Creator Dashboard > Open Cloud > API Keys > the key > Add API System > legacy-asset, operation manage; Save
+Changes; docs/vault/00-start-here/Launch-Steps.md step 2), then run tools/finalize_upload.sh again, which resolves through
+it. Or, without the scope, the Studio route below.""" % DELIVERY_SCOPE
 
 STUDIO_ROUTE = """the asset delivery service refused (HTTP 401 or 403): its anonymous route wants a login now, and a Decal
 still in moderation is refused the same way. Next step, resolve the Image ids through Studio:
@@ -907,9 +1157,22 @@ class BlockyItem(typing.NamedTuple):
     key: str                    # the ids-file key: <Name>, <Name>/<sheet>, the sprite key or the tile key
     file: pathlib.Path
     ids_file: pathlib.Path
-    todo: bool                  # True: upload it; False: its id is recorded
+    todo: bool                  # True: upload it; False: its id is recorded (and its content is the one uploaded)
     replaces: "int | None"      # a model: the old id it replaces
     lands: str                  # where the id lands once uploaded
+    changed: "int | None" = None    # the recorded id, when the file's content no longer matches the recorded sha256
+
+
+def file_sha256(path: pathlib.Path) -> str:
+    """The hex SHA-256 of a file's bytes: what an ids-file entry's `sha256` records for the file it uploaded."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def content_changed(entry: object, path: pathlib.Path) -> bool:
+    """True when the entry records a `sha256` and the file's content no longer matches it. An entry without one (uploaded
+    before hashes were kept) counts as current, and so does a file that is gone (discovery reports that)."""
+    recorded = entry.get("sha256") if isinstance(entry, dict) else None
+    return isinstance(recorded, str) and bool(recorded) and path.is_file() and file_sha256(path) != recorded
 
 
 def book_of(kind: str) -> str:
@@ -1028,16 +1291,23 @@ def plan_blocky(folders: "dict[str, CellFolder]", sprites: "dict[str, pathlib.Pa
         entry = ids[book].get(key)
         return isinstance(entry, dict) and _is_asset_id(entry.get("assetId"))
 
+    def stale(book: str, key: str, path: pathlib.Path) -> "int | None":
+        """The recorded id of an upload whose file has changed since (it goes up again without --redo), else None."""
+        entry = ids[book].get(key)
+        if isinstance(entry, dict) and recorded(book, key) and content_changed(entry, path):
+            return int(entry["assetId"])
+        return None
+
     for name in sorted(names):
         folder = folders[name]
         entry = ids["model"].get(name)
         done = is_blockcell_upload(entry)
         old = entry.get("assetId") if isinstance(entry, dict) and not done else None
         lands = "asset_ids.json %s; ModelAssets.luau AssetIds and Materials; installer ASSET_IDS, MATERIALS" % name
-        if not folder.prop:
-            lands += ", BLOCK_CELL.%s.assetId" % name
-        items.append(BlockyItem("model", name, folder.model, paths.model_ids, redo or not done,
-                                old if _is_asset_id(old) else None, lands))
+        lands += ", %s.%s.assetId" % ("BLOCK_CELL_PROPS" if folder.prop else "BLOCK_CELL", name)
+        changed = stale("model", name, folder.model) if done else None
+        items.append(BlockyItem("model", name, folder.model, paths.model_ids, redo or not done or changed is not None,
+                                old if _is_asset_id(old) else None, lands, changed))
     sheet_order = {"atlas": 0, "face": 1}
     every_sheet = sorted({s for n in names for s in folders[n].sheets}, key=lambda s: (sheet_order.get(s, 2), s))
     for sheet in every_sheet:
@@ -1048,17 +1318,24 @@ def plan_blocky(folders: "dict[str, CellFolder]", sprites: "dict[str, pathlib.Pa
             field = {"atlas": "cellMap", "face": "faceMap"}.get(sheet)
             if field and not folder.prop:
                 lands += "; installer BLOCK_CELL.%s.%s" % (name, field)
+            elif sheet == "atlas":
+                lands += "; installer BLOCK_CELL_PROPS.%s.cellMap" % name
             if sheet == "face" and not folder.prop:
                 lands += "; Rigs.luau %s.face.image" % name
+            changed = stale("image", key, folder.sheets[sheet])
             items.append(BlockyItem(sheet, key, folder.sheets[sheet], paths.image_ids,
-                                    redo or not recorded("image", key), None, lands))
+                                    redo or not recorded("image", key) or changed is not None, None, lands, changed))
     for key in sorted(sprite_keys):
-        items.append(BlockyItem("sprite", key, sprites[key], paths.sprite_ids, redo or not recorded("sprite", key), None,
-                                "icons/asset_ids.json %s; Icons.luau Particles.%s" % (key, key)))
+        changed = stale("sprite", key, sprites[key])
+        items.append(BlockyItem("sprite", key, sprites[key], paths.sprite_ids,
+                                redo or not recorded("sprite", key) or changed is not None, None,
+                                "icons/asset_ids.json %s; Icons.luau Particles.%s" % (key, key), changed))
     rows = tile_rows(paths.data_dir, tile_keys)
     for key in sorted(tile_keys):
-        items.append(BlockyItem("tile", key, tiles[key], paths.tile_ids, redo or not recorded("tile", key), None,
-                                tile_lands(key, rows[key])))
+        changed = stale("tile", key, tiles[key])
+        items.append(BlockyItem("tile", key, tiles[key], paths.tile_ids,
+                                redo or not recorded("tile", key) or changed is not None, None,
+                                tile_lands(key, rows[key]), changed))
     return items, unknown
 
 
@@ -1115,12 +1392,16 @@ def print_blocky_plan(items: "list[BlockyItem]", dry_run: bool, zero_keys: "list
         if not item.todo:
             continue
         replaces = "  (replaces %d)" % item.replaces if item.replaces else ""
+        if item.changed is not None:
+            replaces += "  (content changed since upload of %d)" % item.changed
         log("%s %-6s %-22s %s -> %s%s" % ("would " if dry_run else "upload", item.kind, item.key,
                                           _rel(item.file), item.lands, replaces))
     props = sum(1 for f in folders.values() if f.prop)
     log("block-cell folders: %d species, %d props" % (len(folders) - props, props))
-    log("%s: %s; %d upload call(s)" % ("blocky dry run" if dry_run else "blocky", plan_counts(items),
-                                       sum(1 for i in items if i.todo)))
+    changed = sum(1 for i in items if i.changed is not None)
+    log("%s: %s; %d upload call(s)%s" % ("blocky dry run" if dry_run else "blocky", plan_counts(items),
+                                         sum(1 for i in items if i.todo),
+                                         ", %d of them for content changed since upload" % changed if changed else ""))
     if zero_keys:
         log("stays 0, no PNG in the repo (the game keeps its fallback): Icons.Particles " + ", ".join(zero_keys))
 
@@ -1141,7 +1422,7 @@ def blocky_entry(item: BlockyItem, asset_id: int, previous: object) -> dict:
     """The ids-file entry for a finished upload. A model records the id it replaced and `blockCell` true."""
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     out: dict = {"assetId": asset_id, "uploadedAt": now, "file": _rel(item.file),
-                 "format": "glb" if item.kind == "model" else "png"}
+                 "format": "glb" if item.kind == "model" else "png", "sha256": file_sha256(item.file)}
     if item.kind == "model":
         out["blockCell"] = True
         old = previous.get("assetId") if isinstance(previous, dict) else None
@@ -1213,9 +1494,10 @@ def run_blocky(paths: BlockyPaths, only: "list[str] | None", redo: bool, dry_run
     else:
         log("nothing to upload (every block-cell file has an id; --redo uploads them again)")
     resolve_status = 0
+    resolver = Resolver()     # one for the three books, so a refused Open Cloud route costs one call, not three
     for book, keys in decal_keys.items():
         if pending_images(ids[book], keys):
-            resolve_status = max(resolve_status, run_resolve(ids[book], book_files[book], keys))
+            resolve_status = max(resolve_status, run_resolve(ids[book], book_files[book], keys, fetch=resolver))
     fill_status = (fill or (lambda dry: run_fill_blocky(paths, dry)))(False)
     if fill_status:
         return fill_status
@@ -1253,6 +1535,7 @@ def replace_block(source: str, begin: str, end: str, body: str) -> str:
 _MATERIALS_ROW = re.compile(r"^\t(\w+) = \{ \{")
 PASTE_BEGIN, PASTE_END = "-- BEGIN PASTE", "-- END PASTE"
 BLOCK_CELL_BEGIN, BLOCK_CELL_END = "-- BEGIN BLOCK-CELL PASTE", "-- END BLOCK-CELL PASTE"
+BLOCK_CELL_PROPS_BEGIN, BLOCK_CELL_PROPS_END = "-- BEGIN BLOCK-CELL PROPS PASTE", "-- END BLOCK-CELL PROPS PASTE"
 
 
 def installer_paste_body(ids: "dict[str, dict]", source: str, cell_species: "typing.Iterable[str]") -> str:
@@ -1331,6 +1614,31 @@ def fill_tile_rows(data_dir: pathlib.Path, tile_ids: "dict[str, dict]",
     return out
 
 
+# The installer's generated blocks after its PASTE block: (begin marker, end marker, export_models.py arguments, table).
+INSTALLER_GENERATED = ((BLOCK_CELL_BEGIN, BLOCK_CELL_END, ["--emit-luau"], "BLOCK_CELL"),
+                       (BLOCK_CELL_PROPS_BEGIN, BLOCK_CELL_PROPS_END, ["--emit-luau", "--props"], "BLOCK_CELL_PROPS"))
+
+
+def export_models_emit(args: "list[str]") -> str:
+    """tools/blocky/export_models.py's output for args (a generated installer table); UploadError when it fails."""
+    result = _tool([str(REPO / "tools" / "blocky" / "export_models.py")] + args)
+    if result.returncode != 0:
+        raise UploadError("export_models.py %s failed:\n%s%s" % (" ".join(args), result.stdout, result.stderr))
+    return result.stdout
+
+
+def fill_installer_text(source: str, model_ids: "dict[str, dict]", folders: "typing.Iterable[str]",
+                        emit: "typing.Callable[[list[str]], str]") -> "tuple[str, list[str]]":
+    """The installer with its PASTE block (installer_paste_body) and every generated block of INSTALLER_GENERATED
+    (BLOCK_CELL and BLOCK_CELL_PROPS, from emit(arguments)) written anew. Returns (text, the tables written, in order)."""
+    text = replace_block(source, PASTE_BEGIN, PASTE_END, installer_paste_body(model_ids, source, folders))
+    tables = ["ASSET_IDS", "MATERIALS"]
+    for begin, end, args, table in INSTALLER_GENERATED:
+        text = replace_block(text, begin, end, emit(args))
+        tables.append(table)
+    return text, tables
+
+
 def run_fill_blocky(paths: BlockyPaths, dry_run: bool = False) -> int:
     """Write the known ids into the installer (both PASTE blocks), Icons.luau, Rigs.luau, ModelAssets.luau and the tile
     rows of src/shared/data. Offline, no key. Returns 0, or 1 when a generator failed (its output is printed)."""
@@ -1340,15 +1648,14 @@ def run_fill_blocky(paths: BlockyPaths, dry_run: bool = False) -> int:
     changes: "list[str]" = []
 
     source = INSTALLER_LUAU.read_text(encoding="utf-8")
-    text = replace_block(source, PASTE_BEGIN, PASTE_END, installer_paste_body(ids["model"], source, species))
-    emitted = _tool([str(REPO / "tools" / "blocky" / "export_models.py"), "--emit-luau"])
-    if emitted.returncode != 0:
-        log("fill: export_models.py --emit-luau failed:\n" + emitted.stdout + emitted.stderr)
+    try:
+        text, tables = fill_installer_text(source, ids["model"], species, export_models_emit)
+    except UploadError as exc:
+        log("fill: %s" % exc)
         return 1
-    text = replace_block(text, BLOCK_CELL_BEGIN, BLOCK_CELL_END, emitted.stdout)
     installer_changed = text != source
     if installer_changed:
-        changes.append("%s (ASSET_IDS, MATERIALS, BLOCK_CELL)" % _rel(INSTALLER_LUAU))
+        changes.append("%s (%s)" % (_rel(INSTALLER_LUAU), ", ".join(tables)))
         if not dry_run:
             INSTALLER_LUAU.write_text(text, encoding="utf-8")
 
@@ -1418,7 +1725,8 @@ def main() -> int:
     ap.add_argument("--resolve-images", action="store_true",
                     help="only fetch the Image id behind every uploaded Decal that has none yet and record it as "
                          "imageId in assets/icons/asset_ids.json (assets/textures/asset_ids.json with --textures; "
-                         "no key needed; --redo does every entry; --only limits it; --dry-run lists them). On a 401 "
+                         "through Open Cloud asset delivery when the key is set (scope legacy-asset:manage), else the "
+                         "anonymous route; --redo does every entry; --only limits it; --dry-run lists them). On a 401 "
                          "or 403 it prints the Studio route (--emit-decals-luau, --from-studio)")
     ap.add_argument("--emit-icons-luau", action="store_true",
                     help="print the Icons and Particles tables (Image ids) for src/shared/data/Icons.luau and exit "

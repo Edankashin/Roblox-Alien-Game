@@ -4,6 +4,7 @@
     "file": "assets/textures/blocky_tiles/Dirt.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "d747d1bf547c90758b8c03734d3fc2fdb832c4fee8c705b3bf4549d06133311e",
     "uploadedAt": "2026-10-21T20:30:10Z"
   },
   "FrozenWater": {
@@ -11,6 +12,7 @@
     "file": "assets/textures/blocky_tiles/FrozenWater.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "3c929294387a7842b380589c1a2e27d3b5d8e443b9c156e5cdbe1da239598792",
     "uploadedAt": "2026-10-21T20:30:13Z"
   },
   "GlowWater": {
@@ -18,6 +20,7 @@
     "file": "assets/textures/blocky_tiles/GlowWater.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "807e0be36ed330bc122930d5b568ba33ef544c4fc7fc1f2754b4b0c0baab0c43",
     "uploadedAt": "2026-10-21T20:30:16Z"
   },
   "GrassSide": {
@@ -25,6 +28,7 @@
     "file": "assets/textures/blocky_tiles/GrassSide.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "42061a2674e8ef8e2654d548f3a10fbbd94fa7de33fe253b8cec0959af37e8b3",
     "uploadedAt": "2026-10-21T20:30:19Z"
   },
   "GrassTop": {
@@ -32,6 +36,7 @@
     "file": "assets/textures/blocky_tiles/GrassTop.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "1fba38127a1dfe2da7a414ee91d66b07150915c1ff7315a11df36ac909a3c7a8",
     "uploadedAt": "2026-10-21T20:30:22Z"
   },
   "Ice": {
@@ -39,6 +44,7 @@
     "file": "assets/textures/blocky_tiles/Ice.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "65915b559dd200f2d7ca06263c0265ca6307752c0b7b0b196407669d206eeccd",
     "uploadedAt": "2026-10-21T20:30:25Z"
   },
   "MoonGrass": {
@@ -46,6 +52,7 @@
     "file": "assets/textures/blocky_tiles/MoonGrass.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "148b2e807fa92ca640a6642e57f5a7cf0a2cfd4868e074030e03e086ebaa2bf0",
     "uploadedAt": "2026-10-21T20:30:28Z"
   },
   "MoonPath": {
@@ -53,6 +60,7 @@
     "file": "assets/textures/blocky_tiles/MoonPath.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "2c47a44e4363f13ff5b2e7136fecd7c8f981070ef5aa712f6c87393fc7e7be33",
     "uploadedAt": "2026-10-21T20:30:30Z"
   },
   "PackedSnow": {
@@ -60,6 +68,7 @@
     "file": "assets/textures/blocky_tiles/PackedSnow.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "8d943f8265c0554cf0fd8087bb472a653a1a05c05ce522050768c1a55709b89a",
     "uploadedAt": "2026-10-21T20:30:33Z"
   },
   "Path": {
@@ -67,6 +76,7 @@
     "file": "assets/textures/blocky_tiles/Path.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "4884bf91fb0ff1f51d9032778f708aa3543717200eb9cbdb95c74ec8eee8a76f",
     "uploadedAt": "2026-10-21T20:30:36Z"
   },
   "Rock": {
@@ -74,6 +84,7 @@
     "file": "assets/textures/blocky_tiles/Rock.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "50e39d5783218f840bd873344d3650984d226ea71f8c44e03f7b282d4a6f0985",
     "uploadedAt": "2026-10-21T20:30:39Z"
   },
   "Sand": {
@@ -81,6 +92,7 @@
     "file": "assets/textures/blocky_tiles/Sand.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "2fc2676691ac4445ed838b7b696bbfbee7f38aeeb91611378101b00605b20f46",
     "uploadedAt": "2026-10-21T20:30:42Z"
   },
   "Snow": {
@@ -88,6 +100,7 @@
     "file": "assets/textures/blocky_tiles/Snow.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "9d7f3b2373640d6e1dfc3e34fdcdca137028a50a52744a39095f7cdd261f9f90",
     "uploadedAt": "2026-10-21T20:30:45Z"
   },
   "SnowSide": {
@@ -95,6 +108,7 @@
     "file": "assets/textures/blocky_tiles/SnowSide.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "aacf5df67d5fb78a8fc1241ad9c2e9d025741fda4d99b6aac9beb37b06ffdc7a",
     "uploadedAt": "2026-10-21T20:30:48Z"
   },
   "Stone": {
@@ -102,6 +116,7 @@
     "file": "assets/textures/blocky_tiles/Stone.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "1c3440491395403aaec4c938534149d34ba138adf68ce9278588344a22f54cf8",
     "uploadedAt": "2026-10-21T20:30:51Z"
   },
   "Water": {
@@ -109,6 +124,7 @@
     "file": "assets/textures/blocky_tiles/Water.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "cac10bdcb7b30af27297d6804666e1137751d20e2b77f2a71a33cab0db5455e9",
     "uploadedAt": "2026-10-21T20:30:54Z"
   },
   "WoodPlank": {
@@ -116,6 +132,7 @@
     "file": "assets/textures/blocky_tiles/WoodPlank.png",
     "format": "png",
     "kind": "tile",
+    "sha256": "94a3cb01b4c20c73f5da0226650169bebcdb2d85d4595fa73ccee74e0916f006",
     "uploadedAt": "2026-10-21T20:30:57Z"
   }
 }

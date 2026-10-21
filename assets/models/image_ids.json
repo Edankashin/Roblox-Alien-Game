@@ -4,6 +4,7 @@
     "file": "assets/models/props/ArchBridge/ArchBridge_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f8dc0d14f3fe4166d6b49d704a45d2e18647c4160fdb137c62b329cac7dd2421",
     "uploadedAt": "2026-10-21T20:22:49Z"
   },
   "Bench/atlas": {
@@ -11,6 +12,7 @@
     "file": "assets/models/props/Bench/Bench_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f1bd119c55d501b78650b5f6af3dba9b7380e412c6ec64e464e6a5739b4f5490",
     "uploadedAt": "2026-10-21T20:22:52Z"
   },
   "BlossomTree/atlas": {
@@ -18,6 +20,7 @@
     "file": "assets/models/props/BlossomTree/BlossomTree_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "59ea515ecaab58362a3a3af74916b5d1c8ad130257411b5ef836057c7fbe5a45",
     "uploadedAt": "2026-10-21T20:22:55Z"
   },
   "Boulder/atlas": {
@@ -25,6 +28,7 @@
     "file": "assets/models/props/Boulder/Boulder_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "cc09671bed8fea4c77882fa5d6b029d2ce218edb970ad778993a3887d21ed73a",
     "uploadedAt": "2026-10-21T20:22:58Z"
   },
   "BuildStation/atlas": {
@@ -32,6 +36,7 @@
     "file": "assets/models/props/BuildStation/BuildStation_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f2736866c49aaf97cc3fa576c2a836821e96f143519a6874eec3c950147e792c",
     "uploadedAt": "2026-10-21T20:23:01Z"
   },
   "Bush/atlas": {
@@ -39,6 +44,7 @@
     "file": "assets/models/props/Bush/Bush_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "766236f9931f7424ba53bd55dc3f7867825f8101051a632ec5509f0a2a316684",
     "uploadedAt": "2026-10-21T20:23:04Z"
   },
   "Buzzlebee/atlas": {
@@ -46,6 +52,7 @@
     "file": "assets/models/Buzzlebee/Buzzlebee_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "e786d3098008a0b540cfe7a02e7af69545d5582f45ce0eb1ee95eb8eb8e2138d",
     "uploadedAt": "2026-10-21T20:23:07Z"
   },
   "Buzzlebee/face": {
@@ -53,6 +60,7 @@
     "file": "assets/models/Buzzlebee/Buzzlebee_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "a1e7ad222d50caa207102cce05350af8bddaf5b5413ec5c0f92de664dcde4dac",
     "uploadedAt": "2026-10-21T20:27:33Z"
   },
   "Capybubble/atlas": {
@@ -60,6 +68,7 @@
     "file": "assets/models/Capybubble/Capybubble_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "64e54b19bda6de7e1184aacd6ce7ff329e2fbd2d8517757d677c4e065774e82e",
     "uploadedAt": "2026-10-21T20:37:08Z"
   },
   "Capybubble/face": {
@@ -67,6 +76,7 @@
     "file": "assets/models/Capybubble/Capybubble_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "d7c6723f12d6ae2e70ad518bbe0bd1ea716a90624ebfa03290cbebf38ff9fc0e",
     "uploadedAt": "2026-10-21T20:37:59Z"
   },
   "CaveMouth/atlas": {
@@ -74,6 +84,7 @@
     "file": "assets/models/props/CaveMouth/CaveMouth_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "95dc6d7259e4aacc82c0f6a02b44f89c95018c7e633173f0e5ea6920231cfe7c",
     "uploadedAt": "2026-10-21T20:23:13Z"
   },
   "Chipmole/atlas": {
@@ -81,6 +92,7 @@
     "file": "assets/models/Chipmole/Chipmole_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ba363153d76bd5f78e4371ecf614b73746f5d313dc8514d8f6edee45ca6e30ef",
     "uploadedAt": "2026-10-21T20:23:16Z"
   },
   "Chipmole/face": {
@@ -88,6 +100,7 @@
     "file": "assets/models/Chipmole/Chipmole_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "b04c4976dd4172d07faa007a80f9e3b8892ae8f46d4b2f84f3fb487e34455cbb",
     "uploadedAt": "2026-10-21T20:27:38Z"
   },
   "CrashWreck/atlas": {
@@ -95,6 +108,7 @@
     "file": "assets/models/props/CrashWreck/CrashWreck_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "310f8799c885a07a41e147882d734b77eac5399c0e97b9c2115f7e81664fe07c",
     "uploadedAt": "2026-10-21T20:23:19Z"
   },
   "Drippo/atlas": {
@@ -102,6 +116,7 @@
     "file": "assets/models/Drippo/Drippo_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "5ccb953348819bacf3e7d7d7caea744f1a7884ec408b8f1798f3480f8504c3cd",
     "uploadedAt": "2026-10-21T20:23:22Z"
   },
   "Drippo/face": {
@@ -109,6 +124,7 @@
     "file": "assets/models/Drippo/Drippo_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "df994034d47d2fb604545212e3eb8c79237033edd352a43c77ac9faa9fee1117",
     "uploadedAt": "2026-10-21T20:27:41Z"
   },
   "Emberchin/atlas": {
@@ -116,6 +132,7 @@
     "file": "assets/models/Emberchin/Emberchin_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "3b3db76fe3e33cf451e1059dd26eb8d481017bd890aed03065dc96f6165f40b0",
     "uploadedAt": "2026-10-21T20:23:25Z"
   },
   "Emberchin/face": {
@@ -123,6 +140,7 @@
     "file": "assets/models/Emberchin/Emberchin_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "7c127fdd964388525d502011445589ebc87bd6835f723a2381f82afa03c537c7",
     "uploadedAt": "2026-10-21T20:27:44Z"
   },
   "Fence/atlas": {
@@ -130,6 +148,7 @@
     "file": "assets/models/props/Fence/Fence_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "8aa24e0de63e8af4c4b1a1d08c5c682bd3e0c5b12c3bf8705e874a30076aa279",
     "uploadedAt": "2026-10-21T20:23:28Z"
   },
   "Fenripup/atlas": {
@@ -137,6 +156,7 @@
     "file": "assets/models/Fenripup/Fenripup_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ef663f0cf3f8aad0c69e9a919d8b80b02adcdb190646f15fc28b12717a1ef8dd",
     "uploadedAt": "2026-10-21T20:37:11Z"
   },
   "Fenripup/face": {
@@ -144,6 +164,7 @@
     "file": "assets/models/Fenripup/Fenripup_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "bb91abcfd054b8ad8102abb6ea1a0cc7ee9a300066b26b0c0d0466638853ff0a",
     "uploadedAt": "2026-10-21T20:38:02Z"
   },
   "Flag/atlas": {
@@ -151,6 +172,7 @@
     "file": "assets/models/props/Flag/Flag_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "487f98331fd0a8794c4ad79cbeac82e836ed304daa21d79d112209b1e4547763",
     "uploadedAt": "2026-10-21T20:23:34Z"
   },
   "Flapsicle/atlas": {
@@ -158,6 +180,7 @@
     "file": "assets/models/Flapsicle/Flapsicle_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f7975a89b99d57189549f2efdd71bc139c09b43432e384d3ba9f0d4a7a61ad74",
     "uploadedAt": "2026-10-21T20:23:37Z"
   },
   "Flapsicle/face": {
@@ -165,6 +188,7 @@
     "file": "assets/models/Flapsicle/Flapsicle_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "97d4a6465222547ca9b90f80062ae15926d468863aff63f4db38ffd60d0d4584",
     "uploadedAt": "2026-10-21T20:27:50Z"
   },
   "FlowerPatch/atlas": {
@@ -172,6 +196,7 @@
     "file": "assets/models/props/FlowerPatch/FlowerPatch_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "6189c35b345815193bb75491c6c5e2cdc7422f76790222b12c7233741c5d5e97",
     "uploadedAt": "2026-10-21T20:23:40Z"
   },
   "Flufflet/atlas": {
@@ -179,6 +204,7 @@
     "file": "assets/models/Flufflet/Flufflet_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "cb591936b369d99411388c7aa76c698a82fe81a2d2217c6717b33d8c6df19a39",
     "uploadedAt": "2026-10-21T20:23:43Z"
   },
   "Flufflet/face": {
@@ -186,6 +212,7 @@
     "file": "assets/models/Flufflet/Flufflet_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "a3bf9b22f438c9d8bed974a2a48f4893f4d0304878b39e339ce124350abc3ed1",
     "uploadedAt": "2026-10-21T20:27:53Z"
   },
   "Fountain/atlas": {
@@ -193,6 +220,7 @@
     "file": "assets/models/props/Fountain/Fountain_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "337dc577377c9af3e5eea8cf8b55e0dcd891bc7405e61b8ec4f876dc786c2922",
     "uploadedAt": "2026-10-21T20:23:45Z"
   },
   "Frostfang/atlas": {
@@ -200,6 +228,7 @@
     "file": "assets/models/Frostfang/Frostfang_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "6ebffb01c394623f52804fa8ecbf8ee08e9f397d72e751ce4253a716f3435789",
     "uploadedAt": "2026-10-21T20:37:14Z"
   },
   "Frostfang/face": {
@@ -207,6 +236,7 @@
     "file": "assets/models/Frostfang/Frostfang_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "6aa47382ec27a739fe79a06363fa472bdfeb56b14d97a537978be31f4975ead4",
     "uploadedAt": "2026-10-21T20:38:03Z"
   },
   "FrozenLog/atlas": {
@@ -214,6 +244,7 @@
     "file": "assets/models/props/FrozenLog/FrozenLog_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "7a8d4c5b729339bfbdf8fe615e7fcd22d3b6a80bb56531ea81a931eb85f5da88",
     "uploadedAt": "2026-10-21T20:23:51Z"
   },
   "Gaiabloom/atlas": {
@@ -221,6 +252,7 @@
     "file": "assets/models/Gaiabloom/Gaiabloom_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "238a178289087afe9a6e23959bcc525e4b18013dde9b00caf135286fab1b3c9d",
     "uploadedAt": "2026-10-21T20:37:17Z"
   },
   "Gaiabloom/face": {
@@ -228,6 +260,7 @@
     "file": "assets/models/Gaiabloom/Gaiabloom_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "037c2ac4553884e57826ff7c3296449a28e01c1027c7e063aa4e099f323cd7d5",
     "uploadedAt": "2026-10-21T20:38:06Z"
   },
   "GatherStation/atlas": {
@@ -235,6 +268,7 @@
     "file": "assets/models/props/GatherStation/GatherStation_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "0df989fc3d12ac098410661cdd6de8b141c7aefa4175cc499e995a4947eb375c",
     "uploadedAt": "2026-10-21T20:23:57Z"
   },
   "GeyserCone/atlas": {
@@ -242,6 +276,7 @@
     "file": "assets/models/props/GeyserCone/GeyserCone_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "4b0f5b5c16b29c09c69a8c4707b8c558c00e4bc099c2ffe654720933b94b3b80",
     "uploadedAt": "2026-10-21T20:24:00Z"
   },
   "GeyserVent/atlas": {
@@ -249,6 +284,7 @@
     "file": "assets/models/props/GeyserVent/GeyserVent_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ed5d5df45f9471e34875ece9832e097d3dfbc32e200d6c7ba6c9def69ab165c1",
     "uploadedAt": "2026-10-21T20:24:03Z"
   },
   "Glimmo/atlas": {
@@ -256,6 +292,7 @@
     "file": "assets/models/Glimmo/Glimmo_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "6d1799c475521eefb20d66533b57c99b984282e3eb6568ac9a4a2ff355b8ef07",
     "uploadedAt": "2026-10-21T20:24:06Z"
   },
   "Glimmo/face": {
@@ -263,6 +300,7 @@
     "file": "assets/models/Glimmo/Glimmo_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "c5f9a2b76b2156cb93a34a504ba72e82af21802a682c77b9a61977e150f88ea7",
     "uploadedAt": "2026-10-21T20:28:02Z"
   },
   "Gloomoth/atlas": {
@@ -270,6 +308,7 @@
     "file": "assets/models/Gloomoth/Gloomoth_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ed82b993a7c96adf6b5e585b3cf33ea11b813beca5c5fa1bc3342c456ea88cef",
     "uploadedAt": "2026-10-21T20:37:20Z"
   },
   "Gloomoth/face": {
@@ -277,6 +316,7 @@
     "file": "assets/models/Gloomoth/Gloomoth_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "82d9e0cee2caaa5f4d5b61b4965a9faf4e9b859986d3cc88dcf9c54637c36796",
     "uploadedAt": "2026-10-21T20:38:09Z"
   },
   "GlowFern/atlas": {
@@ -284,6 +324,7 @@
     "file": "assets/models/props/GlowFern/GlowFern_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "cd6805cc5b448efaa15b29a52ad190eb9a24ea973ba7cd99e8b39442cb680a66",
     "uploadedAt": "2026-10-21T20:24:12Z"
   },
   "GlowcapGiant/atlas": {
@@ -291,6 +332,7 @@
     "file": "assets/models/props/GlowcapGiant/GlowcapGiant_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "5c4d3acfbb74e0a6a1fca2422f9fcc32608a1140566be4fd72f711ff7bf2f346",
     "uploadedAt": "2026-10-21T20:24:15Z"
   },
   "GlowcapGiantBlue/atlas": {
@@ -298,6 +340,7 @@
     "file": "assets/models/props/GlowcapGiantBlue/GlowcapGiantBlue_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "bd86833b84bcd500296f2efd50b58cbc8717326a488517594482f902ed13832d",
     "uploadedAt": "2026-10-21T20:24:18Z"
   },
   "GlowcapGiantPink/atlas": {
@@ -305,6 +348,7 @@
     "file": "assets/models/props/GlowcapGiantPink/GlowcapGiantPink_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "98d13e933386c999183d64d62df951ead81160d6d93eef309280b88270c62007",
     "uploadedAt": "2026-10-21T20:24:21Z"
   },
   "GlowcapSmall/atlas": {
@@ -312,6 +356,7 @@
     "file": "assets/models/props/GlowcapSmall/GlowcapSmall_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "3cc4b9c0debfce6bf32d4e09221a7dee1cef85ed7a72bb46ba8f767bf1b5a776",
     "uploadedAt": "2026-10-21T20:24:24Z"
   },
   "HabitatFrostbyte/atlas": {
@@ -319,6 +364,7 @@
     "file": "assets/models/props/HabitatFrostbyte/HabitatFrostbyte_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "530a030d5809b648465396a6cde71b18ee87a4cfe68d9056aca88fd38f8f2cdb",
     "uploadedAt": "2026-10-21T20:24:26Z"
   },
   "HabitatVerdant/atlas": {
@@ -326,6 +372,7 @@
     "file": "assets/models/props/HabitatVerdant/HabitatVerdant_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "20890ef2264e3abd0409781f3c1ddced656b97feda513a88a6333c770ebaf35a",
     "uploadedAt": "2026-10-21T20:24:29Z"
   },
   "HeaterLamp/atlas": {
@@ -333,6 +380,7 @@
     "file": "assets/models/props/HeaterLamp/HeaterLamp_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "daff246dd4cd504fcd76836b032bdcde7dcfedb1e1861ecb96292a700e5ebb82",
     "uploadedAt": "2026-10-21T20:24:32Z"
   },
   "IceCaveMouth/atlas": {
@@ -340,6 +388,7 @@
     "file": "assets/models/props/IceCaveMouth/IceCaveMouth_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "bc529f3c482e8131748193781222f208feb25f535f8e06b8b87ae240c151248f",
     "uploadedAt": "2026-10-21T20:24:35Z"
   },
   "IceCrystalCluster/atlas": {
@@ -347,6 +396,7 @@
     "file": "assets/models/props/IceCrystalCluster/IceCrystalCluster_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "61e89ed313a0af1b6eb587875534d74fd73d097ba0ca204aaebd3637fa8253b1",
     "uploadedAt": "2026-10-21T20:24:38Z"
   },
   "IceLantern/atlas": {
@@ -354,6 +404,7 @@
     "file": "assets/models/props/IceLantern/IceLantern_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f0ed53205c2509512e3b1a3ae57d6ac543108434b660f937bc61deba9e1cae98",
     "uploadedAt": "2026-10-21T20:24:41Z"
   },
   "IceRock/atlas": {
@@ -361,6 +412,7 @@
     "file": "assets/models/props/IceRock/IceRock_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "70d998ba4d9bf1793d0537b7ef79af9de045dc1d8dc71a80cf0a0ca932479aa6",
     "uploadedAt": "2026-10-21T20:24:44Z"
   },
   "IceRockB/atlas": {
@@ -368,6 +420,7 @@
     "file": "assets/models/props/IceRockB/IceRockB_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "b691c863471c906490f502031a40b6af811b512d339a2e0fd7e16fd8c90dc001",
     "uploadedAt": "2026-10-21T20:24:47Z"
   },
   "IceSpire/atlas": {
@@ -375,6 +428,7 @@
     "file": "assets/models/props/IceSpire/IceSpire_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "248c87dcc83e3147764c72eceef02f9abfa518000cda9e4361cdefb0390a5386",
     "uploadedAt": "2026-10-21T20:24:50Z"
   },
   "Icicles/atlas": {
@@ -382,6 +436,7 @@
     "file": "assets/models/props/Icicles/Icicles_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "c469d49b2f650c4f8facd8bfc13c75fd3b8acfdc50dfcbc8b1d6778dfe8edc56",
     "uploadedAt": "2026-10-21T20:24:53Z"
   },
   "Kettlepuff/atlas": {
@@ -389,6 +444,7 @@
     "file": "assets/models/Kettlepuff/Kettlepuff_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "485342e499245413f671b09f70b7e8010dc78044085921c10ad54d196c0b8647",
     "uploadedAt": "2026-10-21T20:24:56Z"
   },
   "Kettlepuff/face": {
@@ -396,6 +452,7 @@
     "file": "assets/models/Kettlepuff/Kettlepuff_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "c4ec01b8aff7b7dfed22aff83dc08fb8f309281a01a287f0444b40d37ac40b32",
     "uploadedAt": "2026-10-21T20:28:08Z"
   },
   "Lantern/atlas": {
@@ -403,6 +460,7 @@
     "file": "assets/models/props/Lantern/Lantern_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ac51504c84a346a2fbb6fbaf62e94e8d2f002b2497abd645459f7da7c45d0564",
     "uploadedAt": "2026-10-21T20:24:59Z"
   },
   "Lanternewt/atlas": {
@@ -410,6 +468,7 @@
     "file": "assets/models/Lanternewt/Lanternewt_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ae1084644a5499d1c5977cbd718cfe2e2410be63153b60eb085f719b9b75e0c4",
     "uploadedAt": "2026-10-21T20:25:01Z"
   },
   "Lanternewt/face": {
@@ -417,6 +476,7 @@
     "file": "assets/models/Lanternewt/Lanternewt_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "95b0c11ff403a755438fd5aa02b428f8c631386f134fc056f286007961d33d27",
     "uploadedAt": "2026-10-21T20:28:10Z"
   },
   "LilyPad/atlas": {
@@ -424,6 +484,7 @@
     "file": "assets/models/props/LilyPad/LilyPad_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "018694a7675fef991b9ef9e3bba041c05402a78592f583502b84fac75a18140c",
     "uploadedAt": "2026-10-21T20:25:04Z"
   },
   "Log/atlas": {
@@ -431,6 +492,7 @@
     "file": "assets/models/props/Log/Log_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f25991e239c22dbce6d0a087ec8efe4c864b2a8028a622501cce62cd4e2e738c",
     "uploadedAt": "2026-10-21T20:25:07Z"
   },
   "MeadowRock/atlas": {
@@ -438,6 +500,7 @@
     "file": "assets/models/props/MeadowRock/MeadowRock_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "5fc0925158b68af0a92306edf8cc5f738a1e5b898e8a97cf75c34d4160283fa2",
     "uploadedAt": "2026-10-21T20:25:10Z"
   },
   "MeadowRockB/atlas": {
@@ -445,6 +508,7 @@
     "file": "assets/models/props/MeadowRockB/MeadowRockB_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f6cfcfec8cc847887337791db4f4192d2c0539140952a0d57daad91268323bd0",
     "uploadedAt": "2026-10-21T20:25:13Z"
   },
   "MeadowTree/atlas": {
@@ -452,6 +516,7 @@
     "file": "assets/models/props/MeadowTree/MeadowTree_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "2c2aaad9c40835b5f8ded60d20e2b19c286267702e81b815cf22f6f293141a81",
     "uploadedAt": "2026-10-21T20:25:18Z"
   },
   "MeadowTreeB/atlas": {
@@ -459,6 +524,7 @@
     "file": "assets/models/props/MeadowTreeB/MeadowTreeB_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "db7ef07bd4078959d31cb8511984578fbe27ae822c6fd937803b1c85425e8b7a",
     "uploadedAt": "2026-10-21T20:25:21Z"
   },
   "MoonPoolRing/atlas": {
@@ -466,6 +532,7 @@
     "file": "assets/models/props/MoonPoolRing/MoonPoolRing_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ce592919ffe5b6afee9a7510821472b9791e98b1336312c1c2c28c2b59dc909e",
     "uploadedAt": "2026-10-21T20:25:24Z"
   },
   "MoonTree/atlas": {
@@ -473,6 +540,7 @@
     "file": "assets/models/props/MoonTree/MoonTree_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "a406785e60329734f0584dfa0dfc5d5ed82b30246b87f3caab9af0983f33aed5",
     "uploadedAt": "2026-10-21T20:25:27Z"
   },
   "MoonTreeB/atlas": {
@@ -480,6 +548,7 @@
     "file": "assets/models/props/MoonTreeB/MoonTreeB_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "7d70657f391304199daadf032504e013928ceff712d5946bbd882e79659c0382",
     "uploadedAt": "2026-10-21T20:25:30Z"
   },
   "MossStone/atlas": {
@@ -487,6 +556,7 @@
     "file": "assets/models/props/MossStone/MossStone_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "fde6606c0f0a087e0175470771f63a557b9cdd0208936b852f8cc233994f1787",
     "uploadedAt": "2026-10-21T20:25:33Z"
   },
   "Mossbop/atlas": {
@@ -494,6 +564,7 @@
     "file": "assets/models/Mossbop/Mossbop_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "7061f117ad6b56d3a728b87cdab26e87096652500d2753344295a1dd5fef89c4",
     "uploadedAt": "2026-10-21T20:25:36Z"
   },
   "Mossbop/face": {
@@ -501,6 +572,7 @@
     "file": "assets/models/Mossbop/Mossbop_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "a261037bb509a2498e6bb178469ed4fee891ccfd43f99c7f3b1992ca89c8912c",
     "uploadedAt": "2026-10-21T20:28:13Z"
   },
   "Mushroom/atlas": {
@@ -508,6 +580,7 @@
     "file": "assets/models/props/Mushroom/Mushroom_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "a5d89d8a0a3fb6fa95122018b394e5b99c8efbfc9403f9879b71565d5b4d00a0",
     "uploadedAt": "2026-10-21T20:25:39Z"
   },
   "Nebulyn/atlas": {
@@ -515,6 +588,7 @@
     "file": "assets/models/Nebulyn/Nebulyn_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "49052d98a11eb3c0e47e028f1d2aeb05d819ce5eba846935b85239ca7ec4a929",
     "uploadedAt": "2026-10-21T20:37:23Z"
   },
   "Nebulyn/face": {
@@ -522,6 +596,7 @@
     "file": "assets/models/Nebulyn/Nebulyn_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "8781985f2c99725a7141ff5f94709871a3d66cda9068b9d1e62799a6d76d26d6",
     "uploadedAt": "2026-10-21T20:38:12Z"
   },
   "Panpipe/atlas": {
@@ -529,6 +604,7 @@
     "file": "assets/models/Panpipe/Panpipe_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "9ca661175c7350011055c84ef89e4dc926cb0e10555c4754376b8f1070e595b5",
     "uploadedAt": "2026-10-21T20:37:26Z"
   },
   "Panpipe/face": {
@@ -536,6 +612,7 @@
     "file": "assets/models/Panpipe/Panpipe_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "e6d00c11797d7dcb6f6d49073d1bb19b385a0e75b699bae719602e29627ebc10",
     "uploadedAt": "2026-10-21T20:38:15Z"
   },
   "PathLantern/atlas": {
@@ -543,6 +620,7 @@
     "file": "assets/models/props/PathLantern/PathLantern_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "e73cae05326f22d42138daf7167680d3cc0b993bbdf780e9153679eff6da159f",
     "uploadedAt": "2026-10-21T20:25:47Z"
   },
   "Pebblet/atlas": {
@@ -550,6 +628,7 @@
     "file": "assets/models/Pebblet/Pebblet_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "25023b85813910a5cdaa2dac953aebd46628c277277d851db57e73d5711d57ed",
     "uploadedAt": "2026-10-21T20:25:50Z"
   },
   "Pebblet/face": {
@@ -557,6 +636,7 @@
     "file": "assets/models/Pebblet/Pebblet_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "04a2267826fac10f7eb4a0430fe4b01147d41ca24775ad0b1a6ccfe8024089d7",
     "uploadedAt": "2026-10-21T20:28:22Z"
   },
   "Pedestal/atlas": {
@@ -564,6 +644,7 @@
     "file": "assets/models/props/Pedestal/Pedestal_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "c86194843e13d855093b202d28018ba733e070e73f16a01cfc8e976d661af365",
     "uploadedAt": "2026-10-21T20:25:53Z"
   },
   "Pengoo/atlas": {
@@ -571,6 +652,7 @@
     "file": "assets/models/Pengoo/Pengoo_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "58ad2fd30f6abd3b95d41a7cde699448b8406259f453b88c215fa3e08e6d5d60",
     "uploadedAt": "2026-10-21T20:25:56Z"
   },
   "Pengoo/face": {
@@ -578,6 +660,7 @@
     "file": "assets/models/Pengoo/Pengoo_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "1c18212004f49e3082788247817f4e1b6711d5e513a4a4c3cd45b1581a2995eb",
     "uploadedAt": "2026-10-21T20:28:25Z"
   },
   "Planter/atlas": {
@@ -585,6 +668,7 @@
     "file": "assets/models/props/Planter/Planter_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "935d9544a42170d616c965311d6c2baefc1174234a7db29c772a034c73856917",
     "uploadedAt": "2026-10-21T20:25:59Z"
   },
   "Puffpuff/atlas": {
@@ -592,6 +676,7 @@
     "file": "assets/models/Puffpuff/Puffpuff_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "1a388fc46eaa4767bdfd6ee6471e2e89089014b87229d9f48e9c2875f665ebcf",
     "uploadedAt": "2026-10-21T20:26:02Z"
   },
   "Puffpuff/face": {
@@ -599,6 +684,7 @@
     "file": "assets/models/Puffpuff/Puffpuff_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "3755b0030bd6e24b4d36e9b8020381f5e83d0f42ca273564efbbfc4b9ff26d0f",
     "uploadedAt": "2026-10-21T20:28:28Z"
   },
   "Radish/atlas": {
@@ -606,6 +692,7 @@
     "file": "assets/models/Radish/Radish_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "923bbc026521e24ee609e0dc6f4b9fb1191c84a630bddf771605acbe074227ff",
     "uploadedAt": "2026-10-21T20:37:29Z"
   },
   "Radish/face": {
@@ -613,6 +700,7 @@
     "file": "assets/models/Radish/Radish_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "6f697e6bde53da93262c080264ffd10e484ed77f4f995a62e7c3d2cbb15f84a3",
     "uploadedAt": "2026-10-21T20:38:18Z"
   },
   "Reeds/atlas": {
@@ -620,6 +708,7 @@
     "file": "assets/models/props/Reeds/Reeds_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "a574bfd0ebaff960a1571a1b819030e80c38cd352246ca406755ab2a7c807d4d",
     "uploadedAt": "2026-10-21T20:26:08Z"
   },
   "Reindazzle/atlas": {
@@ -627,6 +716,7 @@
     "file": "assets/models/Reindazzle/Reindazzle_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "44c26bb5553d48254e8d7dc75dff8ea2ed2b2ed8b254c6f8dfb216f55f0e4000",
     "uploadedAt": "2026-10-21T20:37:32Z"
   },
   "Reindazzle/face": {
@@ -634,6 +724,7 @@
     "file": "assets/models/Reindazzle/Reindazzle_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "eca9334a4507024dbed44615e280e7f725d18aa420198890a09249ba2be36381",
     "uploadedAt": "2026-10-21T20:38:21Z"
   },
   "Rocklobber/atlas": {
@@ -641,6 +732,7 @@
     "file": "assets/models/Rocklobber/Rocklobber_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "0f4a9bf1e32d53d72cf8384a70de98524af6e80d6ecdaa93ed79b878af47a2ab",
     "uploadedAt": "2026-10-21T20:37:35Z"
   },
   "Rocklobber/face": {
@@ -648,6 +740,7 @@
     "file": "assets/models/Rocklobber/Rocklobber_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "632121dca6afd2ae3aad4b1f52d591c77d8fa45ecb15d8967c15e6f2f8ff3850",
     "uploadedAt": "2026-10-21T20:38:24Z"
   },
   "RoomCabin/atlas": {
@@ -655,6 +748,7 @@
     "file": "assets/models/props/RoomCabin/RoomCabin_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "04619388890fe5676232d36353f2f37c3b7cda8c612acaaf9548cd568d8706ac",
     "uploadedAt": "2026-10-21T20:26:17Z"
   },
   "RoomDome/atlas": {
@@ -662,6 +756,7 @@
     "file": "assets/models/props/RoomDome/RoomDome_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "9011a0d0944950c9428fe6f1eab124fa500a5e8d24d08ecb99de309c4a2facee",
     "uploadedAt": "2026-10-21T20:26:19Z"
   },
   "RoomTower/atlas": {
@@ -669,6 +764,7 @@
     "file": "assets/models/props/RoomTower/RoomTower_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "11cbfecec15515306d25817b9f409827822f6688225ed036bf48f9984b45a6c7",
     "uploadedAt": "2026-10-21T20:26:22Z"
   },
   "Shellberg/atlas": {
@@ -676,6 +772,7 @@
     "file": "assets/models/Shellberg/Shellberg_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "faf3da2de6af5193076b2941fa398e9f01dab522adaa8003406a88e8d7381adc",
     "uploadedAt": "2026-10-21T20:37:37Z"
   },
   "Shellberg/face": {
@@ -683,6 +780,7 @@
     "file": "assets/models/Shellberg/Shellberg_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "b99f56b1b3943c6323c2ac736645b46d5f80e4d78d0eba368b7a8bb8912c743b",
     "uploadedAt": "2026-10-21T20:38:27Z"
   },
   "Shimmerlynx/atlas": {
@@ -690,6 +788,7 @@
     "file": "assets/models/Shimmerlynx/Shimmerlynx_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "f6cdd5781add2ac75ab0c060cd0aa0c7a5be4aa45306362341286687ac11ffdc",
     "uploadedAt": "2026-10-21T20:37:40Z"
   },
   "Shimmerlynx/face": {
@@ -697,6 +796,7 @@
     "file": "assets/models/Shimmerlynx/Shimmerlynx_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "e3ffcf7752c3fe733e7132826750b3e5b8c58d02adb6ccf77f5f6863ddd3815b",
     "uploadedAt": "2026-10-21T20:38:28Z"
   },
   "ShipHull/atlas": {
@@ -704,6 +804,7 @@
     "file": "assets/models/props/ShipHull/ShipHull_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "2cc72bdb5b12c6cdac3fc5afeade4f827bb88113fb01a4e9fe61ae86f0e5d074",
     "uploadedAt": "2026-10-21T20:26:31Z"
   },
   "Shrine/atlas": {
@@ -711,6 +812,7 @@
     "file": "assets/models/props/Shrine/Shrine_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ed92e88429c0421106bf11e26f5c6ac57343c04c36945703d4397c11aa69df87",
     "uploadedAt": "2026-10-21T20:26:34Z"
   },
   "ShrineStone/atlas": {
@@ -718,6 +820,7 @@
     "file": "assets/models/props/ShrineStone/ShrineStone_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "da9b98a758434787d0d028fdbdbd95d7831e07afbf17c588b56ccbb23eb0be32",
     "uploadedAt": "2026-10-21T20:26:37Z"
   },
   "Signpost/atlas": {
@@ -725,6 +828,7 @@
     "file": "assets/models/props/Signpost/Signpost_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "ee7e55e564197e7acdfe43b76cde55ed35172b984dd2fdde35c9429390667e09",
     "uploadedAt": "2026-10-21T20:26:40Z"
   },
   "Skaddle/atlas": {
@@ -732,6 +836,7 @@
     "file": "assets/models/Skaddle/Skaddle_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "125cc18d8f43ad48f6743b91390f9dbfa8280adfbbbbd4bf60c7cb8f52c2f21c",
     "uploadedAt": "2026-10-21T20:37:43Z"
   },
   "Skaddle/face": {
@@ -739,6 +844,7 @@
     "file": "assets/models/Skaddle/Skaddle_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "7239d80b58506e0cbbd248f181dcc0db12d9714433cfc323ade6daf3d94d53f1",
     "uploadedAt": "2026-10-21T20:38:31Z"
   },
   "Snailbyte/atlas": {
@@ -746,6 +852,7 @@
     "file": "assets/models/Snailbyte/Snailbyte_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "e15e6d0d9b28bc78e0e60630b43f4900f3f212f6e0ef30b5ee16dbf4437719d8",
     "uploadedAt": "2026-10-21T20:26:46Z"
   },
   "Snailbyte/face": {
@@ -753,6 +860,7 @@
     "file": "assets/models/Snailbyte/Snailbyte_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "4f630131b196e7f836c2d53264b15c5f59ad7ffa6e9414c31dd38a165b803906",
     "uploadedAt": "2026-10-21T20:28:48Z"
   },
   "SnowBush/atlas": {
@@ -760,6 +868,7 @@
     "file": "assets/models/props/SnowBush/SnowBush_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "998a4beb33ef002cf2618834d8e20201c7adadfd1017178fa86e23dd6d1f1e6f",
     "uploadedAt": "2026-10-21T20:26:49Z"
   },
   "SnowDrift/atlas": {
@@ -767,6 +876,7 @@
     "file": "assets/models/props/SnowDrift/SnowDrift_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "c16caa05bd0453cb5e2b7da8888074fed81b6ba96926958f4a758e0c776068e2",
     "uploadedAt": "2026-10-21T20:26:52Z"
   },
   "SnowPine/atlas": {
@@ -774,6 +884,7 @@
     "file": "assets/models/props/SnowPine/SnowPine_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "d9530c2e09e2e17b16610368adc60f72191c630eec0c9add6b08bd49bdad51e7",
     "uploadedAt": "2026-10-21T20:26:55Z"
   },
   "SnowPineB/atlas": {
@@ -781,6 +892,7 @@
     "file": "assets/models/props/SnowPineB/SnowPineB_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "41e831f2061ef2f6f604c9375236d601d535c96119b2440ac268c8cd4b4aec25",
     "uploadedAt": "2026-10-21T20:26:58Z"
   },
   "Snowbun/atlas": {
@@ -788,6 +900,7 @@
     "file": "assets/models/Snowbun/Snowbun_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "a0ab9098604855d01fad0d71ce728d6aab0da2b94a3d033fcd01b15b2003ecd9",
     "uploadedAt": "2026-10-21T20:27:00Z"
   },
   "Snowbun/face": {
@@ -795,6 +908,7 @@
     "file": "assets/models/Snowbun/Snowbun_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "d48849f745bb2c6518f2d9f886cc6d7de3f0ab58390a6685fd5895a7bfb29cb0",
     "uploadedAt": "2026-10-21T20:28:51Z"
   },
   "SparkStation/atlas": {
@@ -802,6 +916,7 @@
     "file": "assets/models/props/SparkStation/SparkStation_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "74817d7755cb5ba33e4dd515dd663d51f4e3d9d481ed5a3117172ff5020a362e",
     "uploadedAt": "2026-10-21T20:27:03Z"
   },
   "Sparkfox/atlas": {
@@ -809,6 +924,7 @@
     "file": "assets/models/Sparkfox/Sparkfox_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "7aaed1297932f5320ebfe758457e9281b97287a7b964d9fb9a1c873d90615a0b",
     "uploadedAt": "2026-10-21T20:37:46Z"
   },
   "Sparkfox/face": {
@@ -816,6 +932,7 @@
     "file": "assets/models/Sparkfox/Sparkfox_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "1c13546c88f914c6b432a2e7abfe78d17e6784ff76f3b53b80e3f6032a36001e",
     "uploadedAt": "2026-10-21T20:38:34Z"
   },
   "Spookum/atlas": {
@@ -823,6 +940,7 @@
     "file": "assets/models/Spookum/Spookum_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "d748a91ad7cc1c5424891c2f2ea4ad2eba2c7f3fdb8028e01a2df7afe049339a",
     "uploadedAt": "2026-10-21T20:37:49Z"
   },
   "Spookum/face": {
@@ -830,6 +948,7 @@
     "file": "assets/models/Spookum/Spookum_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "375003ff3e3690be9e5571b6845963495acb3fcc7c7dca127a9b883c8c94170d",
     "uploadedAt": "2026-10-21T20:38:35Z"
   },
   "StarIsland/atlas": {
@@ -837,6 +956,7 @@
     "file": "assets/models/props/StarIsland/StarIsland_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "c9c700e50df05f2841559e6cb7591f63e9df256a6d5b9e848ea4edd58c0559aa",
     "uploadedAt": "2026-10-21T20:27:12Z"
   },
   "SteppingStone/atlas": {
@@ -844,6 +964,7 @@
     "file": "assets/models/props/SteppingStone/SteppingStone_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "0652880810c4b6069bca62a43174dbdb02e88a6d6f1ba6e8dc2713ca210ea2c0",
     "uploadedAt": "2026-10-21T20:27:15Z"
   },
   "Thunderhog/atlas": {
@@ -851,6 +972,7 @@
     "file": "assets/models/Thunderhog/Thunderhog_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "c433096dd38e57bd2d4e19d139ee1af2947a19fa1b4de1a7d17b6c838808e474",
     "uploadedAt": "2026-10-21T20:37:52Z"
   },
   "Thunderhog/face": {
@@ -858,6 +980,7 @@
     "file": "assets/models/Thunderhog/Thunderhog_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "b7ae9f3bc7e6854e6f018a7f9e22d0091594f5022ed24a0474e21f867a4ca2a7",
     "uploadedAt": "2026-10-21T20:38:38Z"
   },
   "Toastoad/atlas": {
@@ -865,6 +988,7 @@
     "file": "assets/models/Toastoad/Toastoad_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "d2c66bf626fa95be8774d002ada70d3fb3910597cfac8fd39261118de416a4f2",
     "uploadedAt": "2026-10-21T20:27:21Z"
   },
   "Toastoad/face": {
@@ -872,6 +996,7 @@
     "file": "assets/models/Toastoad/Toastoad_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "0bb4969115f462a3202cc38143526bfd6440c65f34da7b78195158d3a276d5d9",
     "uploadedAt": "2026-10-21T20:29:03Z"
   },
   "Twiglet/atlas": {
@@ -879,6 +1004,7 @@
     "file": "assets/models/Twiglet/Twiglet_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "5ffc2feb4106a4d6796ecdd4f501ac93b804bc3bc1fe189c2ce13670fcafb749",
     "uploadedAt": "2026-10-21T20:27:24Z"
   },
   "Twiglet/face": {
@@ -886,6 +1012,7 @@
     "file": "assets/models/Twiglet/Twiglet_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "2f763a447351284868ab580c767f01179c1518c5741a273e1de8a9f2fefce91b",
     "uploadedAt": "2026-10-21T20:29:06Z"
   },
   "Wisplet/atlas": {
@@ -893,6 +1020,7 @@
     "file": "assets/models/Wisplet/Wisplet_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "7c9a1cf102d0c15a92912124e10b92e033f9a86bb7a5e5f6f3353f084ef5d394",
     "uploadedAt": "2026-10-21T20:37:55Z"
   },
   "Wisplet/face": {
@@ -900,6 +1028,7 @@
     "file": "assets/models/Wisplet/Wisplet_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "e0e1f2eed3584a70ff3a5d57cf4ac0c9a62a0d10940d42c4c5d90200a2729198",
     "uploadedAt": "2026-10-21T20:38:41Z"
   },
   "Zapfinch/atlas": {
@@ -907,6 +1036,7 @@
     "file": "assets/models/Zapfinch/Zapfinch_atlas.png",
     "format": "png",
     "kind": "atlas",
+    "sha256": "513e8594a2d888e2b748851650732897762d7d3baabb597be55628886e137b57",
     "uploadedAt": "2026-10-21T20:37:58Z"
   },
   "Zapfinch/face": {
@@ -914,6 +1044,7 @@
     "file": "assets/models/Zapfinch/Zapfinch_face.png",
     "format": "png",
     "kind": "face",
+    "sha256": "79ab106e40f95b09757443d6e66c21a450f0f11beada5b9da13228c3776d19e2",
     "uploadedAt": "2026-10-21T20:38:42Z"
   }
 }

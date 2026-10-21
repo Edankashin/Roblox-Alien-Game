@@ -986,11 +986,13 @@ def run_prop_export(only=None, previews=True):
     return 1 if failed else 0
 
 
-def emit_luau_props(models=PROP_MODELS, ids_file=IDS_FILE):
+def emit_luau_props(models=PROP_MODELS, ids_file=IDS_FILE, image_ids_file=IMAGE_IDS_FILE):
     """The BLOCK_CELL_PROPS table for tools/studio/install_models.luau (between its BLOCK-CELL PROPS PASTE markers): per block-cell prop its
-    new Model asset id (0 while asset_ids.json marks it pendingUpload or it was never uploaded), the atlas image id (0 until uploaded) and
-    its MeshParts in GLB order with the colour, Neon and the map each samples. The face map does not apply (a prop has no face)."""
+    new Model asset id (0 while asset_ids.json marks it pendingUpload or it was never uploaded), the atlas Image id (assets/models/image_ids.json
+    "<Name>/atlas", 0 until uploaded and resolved) and its MeshParts in GLB order with the colour, Neon and the map each samples. The face map
+    does not apply (a prop has no face). upload_assets.py --fill-blocky pastes it."""
     ids = json.loads(pathlib.Path(ids_file).read_text(encoding="utf-8")) if pathlib.Path(ids_file).exists() else {}
+    images = json.loads(pathlib.Path(image_ids_file).read_text(encoding="utf-8")) if pathlib.Path(image_ids_file).exists() else {}
     lines = ["local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {"]
     for folder in sorted(p for p in pathlib.Path(models).iterdir() if p.is_dir()):
         pid = folder.name
@@ -999,7 +1001,7 @@ def emit_luau_props(models=PROP_MODELS, ids_file=IDS_FILE):
         entry = ids.get(pid) if isinstance(ids.get(pid), dict) else {}
         asset = int(entry.get("assetId", 0)) if entry and "pendingUpload" not in entry else 0
         lines.append("\t%s = {" % pid)
-        lines.append("\t\tassetId = %d, cellMap = 0, faceMap = 0," % asset)
+        lines.append("\t\tassetId = %d, cellMap = %d, faceMap = 0," % (asset, _image_id(images.get(pid + "/atlas"))))
         lines.append("\t\tparts = {")
         for e in json.loads((folder / "materials.json").read_text(encoding="utf-8")):
             neon = e.get("emission", 0) > 0

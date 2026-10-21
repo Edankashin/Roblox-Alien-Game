@@ -289,7 +289,7 @@ class TheRepoProps(unittest.TestCase):
         end = source.index("-- END BLOCK-CELL PROPS PASTE")
         self.assertEqual(source[start:end].strip(), X.emit_luau_props().strip(),
                          "paste `python3 -I tools/blocky/export_models.py --emit-luau --props` into tools/studio/install_models.luau")
-        self.assertNotRegex(X.emit_luau_props(), r"(cellMap|faceMap) = [1-9]")
+        self.assertNotRegex(X.emit_luau_props(), r"faceMap = [1-9]")   # a prop has no face sheet; cellMap is its atlas's Image id
 
 
 if __name__ == "__main__":
