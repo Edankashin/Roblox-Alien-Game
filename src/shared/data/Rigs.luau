@@ -104,6 +104,21 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Pengoo = {
+		height = 3,
+		parts = {
+			{ name = "pack", pivot = { 0, 0.875, 1 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
+			{ name = "tuft", pivot = { 0, 2.75, 0.125 }, clips = { { kind = "sway", amp = 15, period = 1.8, phase = 0, axis = "x" } } },
+			{ name = "wingL", pivot = { -1, 1.5, 0 }, clips = { { kind = "flap", amp = -15, period = 1.6, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 1, 1.5, 0 }, clips = { { kind = "flap", amp = 15, period = 1.6, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "sway", amp = 4, period = 2.2, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Radish = {
 		height = 3.438,
 		parts = {
