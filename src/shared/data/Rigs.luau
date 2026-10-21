@@ -65,6 +65,33 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Rocklobber = {
+		height = 3.125,
+		parts = {
+			{ name = "antennaR", pivot = { 0.4375, 2.125, 0.625 }, clips = { { kind = "sway", amp = 14, period = 1.8, phase = 0, axis = "x" }, { kind = "sway", amp = 8, period = 2.7, phase = 0.3, axis = "z" } } },
+			{ name = "clawL", pivot = { -1.25, 1.25, -0.3125 }, clips = { { kind = "flap", amp = -8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = -10, period = 5, phase = 0.2, axis = "y" } } },
+			{ name = "clawR", pivot = { 1.25, 1.25, -0.3125 }, clips = { { kind = "flap", amp = 8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = 10, period = 5, phase = 0.2, axis = "y" } } },
+			{ name = "legL", pivot = { -1, 0.5, -0.1875 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
+			{ name = "legR", pivot = { 1, 0.5, -0.1875 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 2.8, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 9, length = 2.2,
+			moves = {
+				{ part = "clawL", kind = "flare", amp = -35, axis = "z", at = 0, length = 1.2 },
+				{ part = "clawR", kind = "flare", amp = 35, axis = "z", at = 0, length = 1.2 },
+				{ part = "root", kind = "hop", amp = 0.35, axis = "y", at = 0.2, length = 0.7 },
+				{ part = "clawL", kind = "swish", amp = -18, axis = "y", at = 1.1, length = 1 },
+				{ part = "clawR", kind = "swish", amp = 18, axis = "y", at = 1.1, length = 1 },
+				{ part = "antennaR", kind = "swish", amp = 25, axis = "x", at = 0.9, length = 1.2 },
+			},
+		},
+	},
 }
 
 return {
