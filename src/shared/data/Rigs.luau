@@ -118,6 +118,34 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Zapfinch = {
+		height = 3.375,
+		parts = {
+			{ name = "crestL", pivot = { -0.375, 2.5, -0.8125 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "crestR", pivot = { 0.375, 2.5, -0.8125 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "tail", pivot = { 0, 1.1875, 0.75 }, clips = { { kind = "wag", amp = 14, period = 2.6, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.75, 1.25, 0 }, clips = { { kind = "flap", amp = -15, period = 1.2, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.75, 1.25, 0 }, clips = { { kind = "flap", amp = 15, period = 1.2, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 7, length = 1.8,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.35, axis = "y", at = 0, length = 0.6 },
+				{ part = "wingL", kind = "flare", amp = -35, axis = "z", at = 0, length = 0.8 },
+				{ part = "wingR", kind = "flare", amp = 35, axis = "z", at = 0, length = 0.8 },
+				{ part = "crestL", kind = "swish", amp = -20, axis = "z", at = 0.5, length = 0.9 },
+				{ part = "crestR", kind = "swish", amp = 20, axis = "z", at = 0.5, length = 0.9 },
+				{ part = "tail", kind = "swish", amp = 25, axis = "y", at = 0.6, length = 0.9 },
+				{ part = "root", kind = "squash", amp = 0.1, axis = "y", at = 1.2, length = 0.6 },
+			},
+		},
+	},
 }
 
 return {
