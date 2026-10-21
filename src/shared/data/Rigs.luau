@@ -74,6 +74,36 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Nebulyn = {
+		height = 3.5,
+		parts = {
+			{ name = "fallenR", pivot = { 0.75, 0.125, 0.9375 }, clips = { { kind = "pulse", amp = 0.25, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "planetL", pivot = { -1.25, 2.9375, -1.0625 }, clips = { { kind = "orbit", amp = 0.15, period = 7, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 4, phase = 0, axis = "y" } } },
+			{ name = "puff", pivot = { 0, 2.875, -0.75 }, clips = { { kind = "bob", amp = 0.06, period = 3.2, phase = 0.5, axis = "y" } } },
+			{ name = "starL", pivot = { -1.5625, 2.4375, -0.5 }, clips = { { kind = "bob", amp = 0.1, period = 2, phase = 0.5, axis = "y" }, { kind = "orbit", amp = 0.1, period = 5, phase = 0, axis = "y" } } },
+			{ name = "starR", pivot = { 1.5, 2.6875, -1.3125 }, clips = { { kind = "bob", amp = 0.12, period = 2.4, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 6, phase = 0, axis = "y" } } },
+			{ name = "tailR", pivot = { 0.25, 1.375, 0.0625 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "y" }, { kind = "sway", amp = 5, period = 4.8, phase = 0.3, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 3.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 26, columns = 4, frames = 11,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
+		},
+		flourish = {
+			every = 12, length = 3.2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.45, axis = "y", at = 0, length = 1 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.2, length = 1.8 },
+				{ part = "tailR", kind = "swish", amp = 25, axis = "z", at = 0.4, length = 1.6 },
+				{ part = "starR", kind = "hop", amp = 0.3, axis = "y", at = 1, length = 1 },
+				{ part = "starL", kind = "hop", amp = 0.3, axis = "y", at = 1.3, length = 1 },
+				{ part = "planetL", kind = "pop", amp = 0.3, axis = "y", at = 1.6, length = 1 },
+				{ part = "fallenR", kind = "hop", amp = 0.4, axis = "y", at = 2, length = 1 },
+				{ part = "puff", kind = "pop", amp = 0.2, axis = "y", at = 2.2, length = 0.8 },
+			},
+		},
+	},
 	Pebblet = {
 		height = 2.75,
 		parts = {
