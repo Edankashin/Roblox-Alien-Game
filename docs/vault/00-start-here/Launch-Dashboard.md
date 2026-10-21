@@ -27,10 +27,10 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [ ] Jobs 36 to 39 and 42 to 46: the Studio checks of the HUD, screens, reveal, models, spectacle, worlds, props, Starhollow and camp
 - [ ] Publish the private places from the repo (`tools/publish.py`) once the checks pass
 
-**Only Ethan**
+**Only Ethan** (step by step in [[Launch-Steps]])
 - [ ] Tell the Mac session to run the jobs (or approve the card that lets the coordinator message it)
 - [ ] Check the Open Cloud key has the Assets API and `universe-places:write` for this experience
-- [ ] Create the five missing shop products in the Creator Dashboard (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock; `docs/OWNER-GUIDE.md` Part C) and paste their ids, or say to hide them at launch
+- [x] The five shop rows without ids (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock): no feature grants them yet, so they stay hidden at launch; nothing to create
 - [ ] Pick the icon and thumbnails from the new set
 - [ ] Play the private game on your phone for ten minutes and say what feels wrong
 - [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
