@@ -26,6 +26,7 @@ How models, icons, scenery and music get made and into the game. The passes on t
 ## Scenery, tools and sound
 
 - [[Map-Dressing]]: how a world gets its props and the bulk import through Open Cloud. Read it before importing a model or placing scenery.
+- [[World-Gen]]: both worlds generated in block cells and built in the game (the description, the generator, the preview, the builder, the budget) and the Starhollow Forest (B48). Read it before changing a world's ground, props, effects or lighting.
 - [[Blender-MCP]]: the log of what the Blender MCP built (icons, particles, props, look passes). Read it before running a Blender script.
 - [[Music-Plan]]: music and sound picks per game state, with the pick tables. Read it before changing a track or filling a sound id.
 
