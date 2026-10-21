@@ -45,6 +45,21 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Flufflet = {
+		height = 2.5,
+		parts = {
+			{ name = "ball", pivot = { 0, 0.375, 0.1875 }, clips = { { kind = "sway", amp = 12, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -0.875, 1.75, 0.1875 }, clips = { { kind = "wag", amp = -18, period = 5, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 3, phase = 0.25, axis = "x" } } },
+			{ name = "earR", pivot = { 0.875, 1.75, 0.1875 }, clips = { { kind = "wag", amp = 18, period = 5, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 3, phase = 0.25, axis = "x" } } },
+			{ name = "scarfR", pivot = { 0.75, 0.875, -0.9375 }, clips = { { kind = "sway", amp = 10, period = 2.2, phase = 0, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 2.8, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 9, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
