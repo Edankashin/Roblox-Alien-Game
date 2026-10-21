@@ -149,6 +149,33 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Thunderhog = {
+		height = 3.375,
+		parts = {
+			{ name = "antennaL", pivot = { -0.875, 2.25, -1.4375 }, clips = { { kind = "sway", amp = -8, period = 2.2, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3.5, phase = 0.3, axis = "x" } } },
+			{ name = "antennaR", pivot = { 0.875, 2.25, -1.4375 }, clips = { { kind = "sway", amp = 8, period = 2.2, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3.5, phase = 0.3, axis = "x" } } },
+			{ name = "crest", pivot = { 0, 2.125, 0.3125 }, clips = { { kind = "pulse", amp = 0.05, period = 1.6, phase = 0, axis = "y" }, { kind = "sway", amp = 4, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "sparkR", pivot = { 0.625, 2.875, 0.1875 }, clips = { { kind = "orbit", amp = 0.3, period = 2.6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.1, period = 1.3, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 1.625, 1.8125 }, clips = { { kind = "wag", amp = 16, period = 2.4, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "bob", amp = 0.04, period = 1.1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 4.5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 8, length = 2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.3, axis = "y", at = 0, length = 0.6 },
+				{ part = "crest", kind = "pop", amp = 0.15, axis = "y", at = 0.2, length = 0.8 },
+				{ part = "antennaL", kind = "swish", amp = -18, axis = "z", at = 0.3, length = 1 },
+				{ part = "antennaR", kind = "swish", amp = 18, axis = "z", at = 0.3, length = 1 },
+				{ part = "tail", kind = "swish", amp = 25, axis = "y", at = 0.4, length = 1 },
+				{ part = "root", kind = "squash", amp = 0.08, axis = "y", at = 1.2, length = 0.8 },
+			},
+		},
+	},
 	Zapfinch = {
 		height = 3.375,
 		parts = {
