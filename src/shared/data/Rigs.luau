@@ -45,6 +45,22 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Emberchin = {
+		height = 2.75,
+		parts = {
+			{ name = "cinderR", pivot = { 0.875, 0.125, -0.9887 }, clips = { { kind = "bob", amp = 0.12, period = 1.6, phase = 0, axis = "y" }, { kind = "pulse", amp = 0.2, period = 1.6, phase = 0.25, axis = "y" } } },
+			{ name = "ember", pivot = { 0, 2.25, -0.1137 }, clips = { { kind = "pulse", amp = 0.15, period = 2, phase = 0, axis = "y" } } },
+			{ name = "pool", pivot = { 0, 0, -0.1137 }, clips = { { kind = "pulse", amp = 0.04, period = 2.5, phase = 0, axis = "y" } } },
+			{ name = "quillL", pivot = { -1, 1.75, -0.1137 }, clips = { { kind = "wag", amp = -12, period = 3, phase = 0, axis = "z" } } },
+			{ name = "quillR", pivot = { 1, 1.75, -0.1137 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.06, period = 1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Flufflet = {
 		height = 2.5,
 		parts = {
