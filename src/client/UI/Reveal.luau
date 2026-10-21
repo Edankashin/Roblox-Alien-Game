@@ -28,6 +28,14 @@
 -- A grant that carries overflowScrap (the storage cap was full, data/Storage: the alien turned into Scrap and no
 -- record was added) wears a red "Storage full: turned into N Scrap" ribbon above the card, has no "Place it" (there is
 -- nothing to place), and closing the Reveal toasts the hint to release or fuse aliens to keep new catches.
+-- The look is block cells (UI Playbook "Block cells" and "The reveal in block cells", Decisions B44 and B46): the card a cream
+-- plate at the panel cell in its tier's ink; the egg a pixel egg (RevealMath.EggBars) whose cracks are stepped pixels; the glow and
+-- the iris pixel octagons, the tap ring and the ground ring square dots; the shards flat blocks; the rays a fan of square cells;
+-- the chance line, the overlay badge, the NEW ribbon and the storage ribbon flat or edged blocks; the buttons block buttons in
+-- cells. At the hero beat (the card landing) the tier's rung of the intensity ladder plays (data/Reveal Ladder, climbing
+-- steeply): a pop, bursts of sparkle cells, a pixel starburst, a colour wash, a gold cell frame chasing round the card, a slower
+-- turn of the model, the pixel sky (from the shards on) and the name spelled in; World.SpeciesFx.Flourish is asked for the
+-- alien's own flourish on the same beat. Reduced Motion keeps the still versions only (the sky and the frame at rest).
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -51,6 +59,7 @@ local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 local RigAnimator = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("RigAnimator"))
 local MusicDirector = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MusicDirector"))
+local SpeciesFx = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("SpeciesFx"))
 
 local Reveal = {}
 
@@ -91,7 +100,6 @@ local CARD_SIZE = UDim2.fromScale(0.6, 0.56) -- ends at 0.75, clear of the Scrap
 local RAYS_WIDTH = 1.6 -- the sunburst sprite's width, in card widths
 local RAYS_TRANSPARENCY = 0.35
 local FLASH_START = 0.15 -- the Perfect flash's starting transparency; it fades from here to 1
-local FLASH_LAYER = 10 -- its ZIndex: over the card, the text lines (8), the buttons and the confetti (9)
 local TIER_LABEL_W = 0.9 -- the tier label's width, of the card
 local TIER_H = 0.08 -- its height, of the card; the rarity badge beside it is this tall and square
 local TIER_ICON_GAP = 0.015 -- of the card's width, between the badge and the tier text
@@ -102,17 +110,35 @@ local STORAGE_H = 0.09
 local BADGE_MIN_W = 0.42
 local BADGE_MAX_W = 0.92
 local BADGE_H = 0.09
--- Layers (ZIndex on the root): the dim, the extra dim, the rays and the iris and the sunburst, the card, the stage (egg, shards,
--- word) over it for beats 1 and 2, the footer, the text lines, the buttons and the confetti, the flash.
+-- Layers (ZIndex on the root): the dim, the pixel sky, the extra dim, the rays and the iris and the starburst, the gold frame,
+-- the card, the stage (egg, shards, word) over it for beats 1 and 2, the footer, the text lines, the buttons, the confetti and
+-- the sparkles, the colour wash, the flash.
 local Z_DIM = 1
-local Z_EXTRA_DIM = 2
-local Z_BEHIND = 3
-local Z_CARD = 4
-local Z_STAGE = 5
-local Z_FOOTER = 6
-local Z_LINES = 8
-local Z_BUTTONS = 9
-local ODDS_Z = 7 -- the chance pill on the card, over the card's own lines (4 to 7)
+local Z_SKY = 2
+local Z_EXTRA_DIM = 3
+local Z_BEHIND = 4
+local Z_FRAME = 5
+local Z_CARD = 6
+local Z_STAGE = 7
+local Z_FOOTER = 8
+local Z_LINES = 10
+local Z_BUTTONS = 11
+local Z_WASH = 12
+local FLASH_LAYER = 13 -- the Perfect flash: over everything on the reveal
+-- Inside the card (a block plate: its ink, face and cells take its ZIndex to four above it): content from CARD_TOP up.
+local CARD_TOP = Z_CARD + Theme.Block.Layer.Content
+local ODDS_Z = CARD_TOP + 8 -- the chance plate on the card, over the card's lines, badges and their plates
+local SHAPE_ROWS = 5 -- the placeholder shape square: an edged block of five rows
+local RIBBON_ROWS = 3 -- the NEW ribbon: a flat block
+local SHARD_ROWS = 7 -- a shard: a flat block 3 by 7 cells at ShardAspect
+local TAP_RING_DOTS = 24 -- the tap ring: square white dots round the egg (a ring is dots on a block screen)
+local TAP_RING_DOT = 0.035 -- a dot, of the ring's diameter
+local GROUND_RING_DOTS = 18 -- the gold ground ring under a Grand tier's model: square gold dots on an ellipse
+local GROUND_RING_DOT = 0.32 -- a dot, of the ring's height
+local GOLD_LIT_STRIDE = 8 -- every eighth cell of the gold frame is lit, and the lit ones chase round
+local STAR_TWINKLE_ALPHA = 0.7 -- a sky star twinkles out to this see-through and back
+local STARBURST_INNER = 0.14 -- the starburst's first cell, of the burst's diameter from the centre
+local STARBURST_CELL = 0.06 -- its largest (outermost) cell, of the burst's diameter
 
 local gui: ScreenGui? = nil
 local card: Frame? = nil
@@ -127,7 +153,7 @@ local spinAngle = 0
 local speciesByName: { [string]: Types.SpeciesDef }? = nil
 local nameLabel: TextLabel? = nil
 local tierLabel: TextLabel? = nil
-local tierBadge: ImageLabel? = nil -- the rarity badge left of the tier text; absent while its image is not uploaded
+local tierBadge: GuiObject? = nil -- the rarity badge left of the tier text (Builder.blockIcon); absent while it has no icon
 local stampLabel: TextLabel? = nil
 local stampScrapLabel: TextLabel? = nil
 local overlayBadge: Frame? = nil
@@ -147,12 +173,28 @@ local open = false
 
 -- The three beats' pieces.
 local dimExtra: Frame? = nil -- the further dim of a Secret
-local iris: Frame? = nil -- the dark iris of a Secret
+local iris: Frame? = nil -- the dark iris of a Secret (a pixel octagon's holder)
 local irisScale: UIScale? = nil
 local stageFrame: Frame? = nil
 local stageScale: UIScale? = nil
-local glowOuter: Frame? = nil
-local glowCore: Frame? = nil
+local glowOuter: { Frame } = {} -- the soft edge of the glow behind the egg: a pixel octagon's frames
+local glowCore: { Frame } = {} -- and its bright centre
+local burstScale: UIScale? = nil -- the ray ring's spin-up grows it from small
+local rayBars: { Frame } = {} -- the ray ring's bars through the middle; their cells are drawn per show (the tier's RayCells)
+local skyFrame: Frame? = nil -- the pixel sky of Cosmic and Secret
+local skyBands: { Frame } = {}
+local skyStars: { Frame } = {}
+local skyShown = false
+local goldFrame: Frame? = nil -- the gold cell frame round the card (Legendary and up)
+local goldCells: { Frame } = {}
+local goldToken = 0 -- bumped to stop the chase
+local spellCursor: Frame? = nil -- the cell that runs ahead of the name as it is spelled in
+local spellToken = 0 -- bumped to stop the spelling
+local spinScale = 1 -- the model's turn, times VIEW_SPIN (the tier's TurnScale)
+local heroDone = false -- the hero beat (or a settle that stood in for it) has played this show
+local speciesId = "" -- the species on the card, for its flourish
+local showGen = 0 -- bumped per Show and close: an effect that outlives a phase (the sky, the sparkles) drops out when stale
+local ambient: { Tween } = {} -- tweens that outlive a phase (the sky's twinkle); cancelled at the close and the next Show
 local tapRing: Frame? = nil
 local tapRingScale: UIScale? = nil
 local eggHolder: Frame? = nil
@@ -260,6 +302,40 @@ local function later(seconds: number, step: () -> ())
 	end)
 end
 
+-- Runs `step` after `seconds` unless the Reveal closed or showed again: for the hero beat's effects, which a tap that settles
+-- the card should not cut short.
+local function afterShow(seconds: number, step: () -> ())
+	local mine = showGen
+	task.delay(seconds, function()
+		if open and showGen == mine then
+			step()
+		end
+	end)
+end
+
+local function cancelAmbient()
+	for _, tween in ipairs(ambient) do
+		tween:Cancel()
+	end
+	table.clear(ambient)
+end
+
+-- The name as it ends: every letter shown, the cursor gone, any spelling stopped.
+local function finishSpell()
+	spellToken += 1
+	if nameLabel then
+		nameLabel.MaxVisibleGraphemes = -1
+	end
+	if spellCursor then
+		spellCursor.Visible = false
+	end
+end
+
+-- The gold frame stops chasing (it stays where it is until the card goes).
+local function stopGoldChase()
+	goldToken += 1
+end
+
 local function stopBurstLoop()
 	if burstTween then
 		burstTween:Cancel()
@@ -273,8 +349,12 @@ local function close()
 	end
 	open = false
 	seq += 1
+	showGen += 1
 	phase = "Idle"
 	cancelRunning()
+	cancelAmbient()
+	stopGoldChase()
+	finishSpell()
 	local root = gui
 	stopBurstLoop()
 	stopRays()
@@ -366,51 +446,60 @@ local function buildStage(root: ScreenGui)
 
 	local center = UDim2.fromScale(0.5, RevealData.StageY)
 	local middle = Vector2.new(0.5, 0.5)
-	-- The glow: the tier colour leaking from behind the egg, two discs so the edge is soft.
-	glowOuter = Builder.frame({
-		parent = stage,
-		name = "Glow",
-		position = center,
-		size = UDim2.fromScale(1, RevealData.GlowHeight),
-		anchor = middle,
-		color = Theme.Colors.White,
-		transparency = 1,
-		corner = Theme.Corner.Pill,
-		aspect = 1,
-		zIndex = 1,
-	})
-	glowCore = Builder.frame({
-		parent = stage,
-		name = "GlowCore",
-		position = center,
-		size = UDim2.fromScale(1, RevealData.GlowHeight * RevealData.GlowCoreScale),
-		anchor = middle,
-		color = Theme.Colors.White,
-		transparency = 1,
-		corner = Theme.Corner.Pill,
-		aspect = 1,
-		zIndex = 1,
-	})
-	-- The tap ring: a white ring round the egg that breathes, the cue that the egg is the thing to tap.
+	-- The glow: the tier colour leaking from behind the egg, two pixel octagons (ink the same colour, so no ring) so the edge
+	-- steps out softly.
+	local function glow(name: string, height: number, z: number): { Frame }
+		local octagon = Builder.pixelOctagon({
+			parent = stage,
+			name = name,
+			color = Theme.Colors.White,
+			ink = Theme.Colors.White,
+			position = center,
+			size = UDim2.fromScale(1, height),
+			anchor = middle,
+			zIndex = z,
+		})
+		local frames: { Frame } = {}
+		for _, frame in ipairs(octagon.ink) do
+			table.insert(frames, frame)
+		end
+		for _, frame in ipairs(octagon.fill) do
+			table.insert(frames, frame)
+		end
+		return frames
+	end
+	glowOuter = glow("Glow", RevealData.GlowHeight, 1)
+	glowCore = glow("GlowCore", RevealData.GlowHeight * RevealData.GlowCoreScale, 3)
+	-- The tap ring: square white dots round the egg that breathe, the cue that the egg is the thing to tap.
 	local ring = Builder.frame({
 		parent = stage,
 		name = "TapRing",
 		position = center,
 		size = UDim2.fromScale(1, RevealData.TapRingHeight),
 		anchor = middle,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.White,
 		aspect = 1,
-		zIndex = 2,
+		zIndex = 5,
 	})
+	for index = 1, TAP_RING_DOTS do
+		local angle = (index - 1) / TAP_RING_DOTS * math.pi * 2
+		Builder.frame({
+			parent = ring,
+			name = "Dot",
+			color = Theme.Colors.White,
+			position = UDim2.fromScale(0.5 + 0.5 * math.cos(angle), 0.5 + 0.5 * math.sin(angle)),
+			size = UDim2.fromScale(TAP_RING_DOT, TAP_RING_DOT),
+			anchor = middle,
+			zIndex = 5,
+		})
+	end
 	ring.Visible = false
 	tapRing = ring
 	local ringScale = Instance.new("UIScale")
 	ringScale.Parent = ring
 	tapRingScale = ringScale
 
-	-- The egg: a cream capsule with speckles; the crack lines are thin bars over it, one set per tap.
+	-- The egg: a pixel egg on its EggCols by EggRows grid (RevealMath.EggBars): the navy ink one pixel round the cream, the top
+	-- rows lit and the bottom rows shaded, square speckles; the cracks are stepped pixels, one set per tap.
 	local egg = Builder.frame({
 		parent = stage,
 		name = "Egg",
@@ -418,70 +507,74 @@ local function buildStage(root: ScreenGui)
 		size = UDim2.fromScale(1, RevealData.EggHeight),
 		anchor = middle,
 		aspect = RevealData.EggAspect,
-		zIndex = 3,
+		zIndex = 6,
 	})
 	egg.Visible = false
 	eggHolder = egg
 	local pulse = Instance.new("UIScale")
 	pulse.Parent = egg
 	eggPulse = pulse
-	local shell = Builder.frame({
-		parent = egg,
-		name = "Shell",
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Panel,
-		gloss = true,
-		zIndex = 1,
-	})
-	Builder.gradient(shell, Theme.Colors.Panel)
+	local cols, rows = RevealData.EggCols, RevealData.EggRows
+	local function pixelBar(name: string, bar: RevealMath.Bar, color: Color3, transparency: number, z: number): Frame
+		return Builder.frame({
+			parent = egg,
+			name = name,
+			position = UDim2.fromScale(bar.x / cols, bar.y / rows),
+			size = UDim2.fromScale(bar.w / cols, bar.h / rows),
+			color = color,
+			transparency = transparency,
+			zIndex = z,
+		})
+	end
+	local ink, fill, lit, shade = RevealMath.EggBars()
+	for _, bar in ipairs(ink) do
+		pixelBar("Ink", bar, Theme.Colors.Outline, 0, 1)
+	end
+	for _, bar in ipairs(fill) do
+		pixelBar("Shell", bar, Theme.Colors.Panel, 0, 2)
+	end
 	local speckleColor = Builder.darker(Theme.Colors.Panel, 0.12)
 	for index, row in ipairs(RevealData.Speckles) do
-		Builder.frame({
-			parent = egg,
-			name = "Speckle" .. index,
-			position = UDim2.fromScale(row[1], row[2]),
-			size = UDim2.fromScale(row[3], row[3] * RevealData.EggAspect),
-			anchor = middle,
-			color = speckleColor,
-			corner = Theme.Corner.Pill,
-			zIndex = 3,
-		})
+		local side = math.max(1, math.floor(row[3] * cols + 0.5))
+		local bar: RevealMath.Bar = {
+			x = math.floor(row[1] * cols - side / 2 + 0.5),
+			y = math.floor(row[2] * rows - side / 2 + 0.5),
+			w = side,
+			h = side,
+		}
+		pixelBar("Speckle" .. index, bar, speckleColor, 0, 3)
+	end
+	for _, bar in ipairs(lit) do
+		pixelBar("Lit", bar, Theme.Colors.White, Theme.Block.TopAlpha, 4)
+	end
+	for _, bar in ipairs(shade) do
+		pixelBar("Shade", bar, Theme.Colors.Black, Theme.Block.EdgeAlpha, 4)
 	end
 	table.clear(crackBars)
 	for tap = 1, RevealData.CrackTaps do
 		local bars: { Frame } = {}
-		for index, bar in ipairs(RevealMath.CrackLine(tap)) do
-			local piece = Builder.frame({
-				parent = egg,
-				name = "Crack" .. tap .. "_" .. index,
-				position = UDim2.fromScale(bar[1], bar[2]),
-				size = UDim2.fromScale(bar[3] / RevealData.EggAspect, RevealData.CrackThickness),
-				anchor = middle,
-				color = Theme.Colors.Outline,
-				corner = Theme.Corner.Pill,
-				zIndex = 4,
-			})
-			piece.Rotation = bar[4]
+		for index, cell in ipairs(RevealMath.CrackCells(tap)) do
+			local piece = pixelBar("Crack" .. tap .. "_" .. index, { x = cell[1], y = cell[2], w = 1, h = 1 }, Theme.Colors.Outline, 0, 5)
 			piece.Visible = false
 			table.insert(bars, piece)
 		end
 		table.insert(crackBars, bars)
 	end
 
-	-- The shards: tall narrow pieces with the navy outline; their colour is set per show (shell cream or the tier colour).
+	-- The shards: flat blocks 3 by 7 cells in the navy ink; their colour is set per show (shell cream or the tier colour).
 	table.clear(shardPieces)
 	for index = 1, RevealData.ShardCount do
-		local piece = Builder.frame({
+		local piece = Builder.blockPlate({
 			parent = stage,
 			name = "Shard" .. index,
+			color = Theme.Colors.Panel,
+			aspect = RevealData.ShardAspect,
+			rows = SHARD_ROWS,
+			cells = false,
 			position = center,
 			size = UDim2.fromScale(1, RevealData.ShardHeight),
 			anchor = middle,
-			color = Theme.Colors.Panel,
-			stroke = Theme.Stroke.Text,
-			aspect = RevealData.ShardAspect,
-			zIndex = 4,
+			zIndex = 7,
 		})
 		piece.Visible = false
 		table.insert(shardPieces, piece)
@@ -497,12 +590,12 @@ local function buildStage(root: ScreenGui)
 		size = UDim2.fromScale(RevealData.WordWidth, RevealMath.PxToScale(RevealData.WordPx)),
 		anchor = middle,
 		stroke = Theme.Stroke.Panel,
-		zIndex = 5,
+		zIndex = 12,
 	})
 	word.Visible = false
 	wordLabel = word
 
-	-- The prompt and the dots that count the taps.
+	-- The prompt and the dots that count the taps (square flat blocks in white ink).
 	local prompt = Builder.label({
 		parent = stage,
 		name = "Prompt",
@@ -511,7 +604,7 @@ local function buildStage(root: ScreenGui)
 		position = UDim2.fromScale(0.5, RevealData.PromptY),
 		size = UDim2.fromScale(RevealData.PromptWidth, RevealMath.PxToScale(RevealData.PromptPx)),
 		anchor = middle,
-		zIndex = 5,
+		zIndex = 12,
 	})
 	prompt.Visible = false
 	promptLabel = prompt
@@ -524,7 +617,7 @@ local function buildStage(root: ScreenGui)
 		size = UDim2.fromScale(1, RevealData.DotHeight),
 		anchor = middle,
 		aspect = across,
-		zIndex = 5,
+		zIndex = 12,
 	})
 	holder.Visible = false
 	dotsHolder = holder
@@ -537,23 +630,25 @@ local function buildStage(root: ScreenGui)
 	layout.Parent = holder
 	table.clear(dotFrames)
 	for index = 1, dots do
-		local dot = Builder.frame({
+		local dot = Builder.blockPlate({
 			parent = holder,
 			name = "Dot" .. index,
-			size = UDim2.fromScale(1 / across, 1),
 			color = Theme.Colors.Outline,
-			transparency = RevealData.DotEmptyTransparency,
-			corner = Theme.Corner.Pill,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.White,
-			zIndex = 5,
+			ink = Theme.Colors.White,
+			size = UDim2.fromScale(1 / across, 1),
+			aspect = 1,
+			rows = Theme.Block.MinRows,
+			cells = false,
+			zIndex = 12,
 		})
+		Builder.setBlockFade(dot, RevealData.DotEmptyTransparency)
 		dot.LayoutOrder = index
 		table.insert(dotFrames, dot)
 	end
 end
 
--- The two buttons of the card's last beat, in the bottom corners, in a holder that slides up as one.
+-- The two buttons of the card's last beat, in the bottom corners, in a holder that slides up as one: block buttons in cells
+-- (fitted to their box), with the 44 px hit area.
 local function buildButtons(root: ScreenGui)
 	local holder = Builder.frame({
 		parent = root,
@@ -563,7 +658,7 @@ local function buildButtons(root: ScreenGui)
 	holder.Visible = false
 	buttonsHolder = holder
 	local size = UDim2.fromScale(RevealData.ButtonWidth, RevealMath.PxToScale(RevealData.ButtonHeightPx))
-	placeButton = Builder.button({
+	placeButton = Builder.blockButton({
 		parent = holder,
 		name = "PlaceIt",
 		text = Strings.REVEAL_PLACE,
@@ -572,12 +667,13 @@ local function buildButtons(root: ScreenGui)
 		size = size,
 		anchor = Vector2.new(0, 1),
 		textSize = Theme.TextSize.Label,
+		rows = RevealData.ButtonRows,
 		zIndex = Z_BUTTONS,
 		hit = true,
 	}, function()
 		onPlaceIt()
 	end)
-	Builder.button({
+	Builder.blockButton({
 		parent = holder,
 		name = "KeepGoing",
 		text = Strings.REVEAL_KEEP,
@@ -586,11 +682,106 @@ local function buildButtons(root: ScreenGui)
 		size = size,
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
+		rows = RevealData.ButtonRows,
 		zIndex = Z_BUTTONS,
 		hit = true,
 	}, function()
 		onKeepGoing()
 	end)
+end
+
+-- The pixel sky of Cosmic and Secret: SkyBands full-width bands (coloured per show, from the tier's colour at the top stepping
+-- down to the night) and SkyStars square star cells, all clear until showSky. Takes no input.
+local function buildSky(root: ScreenGui)
+	local sky = Builder.frame({
+		parent = root,
+		name = "Sky",
+		zIndex = Z_SKY,
+	})
+	sky.Visible = false
+	skyFrame = sky
+	table.clear(skyBands)
+	local bands = RevealData.SkyBands
+	for index = 1, bands do
+		table.insert(
+			skyBands,
+			Builder.frame({
+				parent = sky,
+				name = "Band",
+				color = Theme.Colors.Outline,
+				transparency = 1,
+				position = UDim2.fromScale(0, (index - 1) / bands),
+				size = UDim2.fromScale(1, 1 / bands),
+				zIndex = Z_SKY,
+			})
+		)
+	end
+	table.clear(skyStars)
+	for _ = 1, RevealData.SkyStars do
+		table.insert(
+			skyStars,
+			Builder.frame({
+				parent = sky,
+				name = "Star",
+				color = Theme.Colors.White,
+				transparency = 1,
+				position = UDim2.fromScale(rng:NextNumber(0.03, 0.97), rng:NextNumber(0.03, 0.9)),
+				size = UDim2.fromScale(1, RevealData.SkyStarSize),
+				anchor = Vector2.new(0.5, 0.5),
+				aspect = 1,
+				zIndex = Z_SKY + 1,
+			})
+		)
+	end
+end
+
+-- The gold cell frame round the card (Legendary and up): GoldFrameCells square gold cells evenly round a rectangle GoldFrameGap
+-- outside the card, in a holder with the card's place, size and shape. Hidden until a tier with GoldFrame lands.
+local function buildGoldFrame(root: ScreenGui)
+	local holder = Builder.frame({
+		parent = root,
+		name = "GoldFrame",
+		position = CARD_POSITION,
+		size = CARD_SIZE,
+		anchor = Vector2.new(0.5, 0.5),
+		aspect = CARD_ASPECT,
+		zIndex = Z_FRAME,
+	})
+	holder.Visible = false
+	goldFrame = holder
+	local gap = RevealData.GoldFrameGap -- in card heights, the same px all round
+	local w, h = CARD_ASPECT + 2 * gap, 1 + 2 * gap -- the frame's sides, in card heights
+	local perimeter = 2 * (w + h)
+	local cell = RevealData.GoldFrameCellSize / CARD_SIZE.Y.Scale -- a cell, of the card's height
+	local gold = Builder.tierColor(RevealData.GroundRingRarity)
+	table.clear(goldCells)
+	for index = 0, RevealData.GoldFrameCells - 1 do
+		local d = index / RevealData.GoldFrameCells * perimeter
+		local x, y
+		if d < w then
+			x, y = d, 0
+		elseif d < w + h then
+			x, y = w, d - w
+		elseif d < 2 * w + h then
+			x, y = w - (d - w - h), h
+		else
+			x, y = 0, h - (d - 2 * w - h)
+		end
+		table.insert(
+			goldCells,
+			Builder.frame({
+				parent = holder,
+				name = "Cell",
+				color = gold,
+				transparency = RevealData.GoldFrameDimAlpha,
+				position = UDim2.fromScale((x - gap) / CARD_ASPECT, y - gap),
+				size = UDim2.fromScale(1, cell),
+				anchor = Vector2.new(0.5, 0.5),
+				aspect = 1,
+				zIndex = Z_FRAME,
+			})
+		)
+	end
 end
 
 local function build()
@@ -614,8 +805,9 @@ local function build()
 	backdrop.Activated:Connect(function()
 		Builder.playSound(onBackdropTap())
 	end)
+	buildSky(root)
 
-	-- A Secret dims the screen further and opens a dark iris behind the card.
+	-- A Secret dims the screen further and opens a dark iris behind the card: a black pixel octagon in the purple ink.
 	dimExtra = Builder.frame({
 		parent = root,
 		name = "DimExtra",
@@ -623,27 +815,25 @@ local function build()
 		transparency = 1,
 		zIndex = Z_EXTRA_DIM,
 	})
-	local eye = Builder.frame({
+	local eye = Builder.pixelOctagon({
 		parent = root,
 		name = "Iris",
+		color = Theme.Colors.Black,
+		ink = Theme.Colors.Codex,
 		position = UDim2.fromScale(0.5, RevealData.StageY),
 		size = UDim2.fromScale(1, RevealData.IrisHeight),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Black,
-		transparency = RevealData.IrisTransparency,
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Codex,
-		aspect = 1,
 		zIndex = Z_BEHIND,
 	})
-	eye.Visible = false
-	iris = eye
+	Builder.paintOctagon(eye, Theme.Colors.Black, RevealData.IrisTransparency, Theme.Colors.Codex, 0, false)
+	eye.holder.Visible = false
+	iris = eye.holder
 	local eyeScale = Instance.new("UIScale")
-	eyeScale.Parent = eye
+	eyeScale.Parent = eye.holder
 	irisScale = eyeScale
 
-	-- Radial burst: thin rays in the tier colour, spun up by the shard beat and then turned slowly while the card is up.
+	-- The ray ring: RayCount bars through the middle, each carrying square cells both ways out from the centre (drawn per show:
+	-- the tier's RayCells), spun up by the shard beat and then turned slowly while the card is up.
 	local rays = Builder.frame({
 		parent = root,
 		name = "Burst",
@@ -654,32 +844,36 @@ local function build()
 		zIndex = Z_BEHIND,
 	})
 	rays.Visible = false
+	local raysScale = Instance.new("UIScale")
+	raysScale.Parent = rays
+	burstScale = raysScale
+	table.clear(rayBars)
 	for i = 1, RevealData.RayCount do
-		local ray = Builder.frame({
+		local bar = Builder.frame({
 			parent = rays,
 			name = "Ray",
 			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.08, 1),
+			size = UDim2.fromScale(1, 0.05),
 			anchor = Vector2.new(0.5, 0.5),
-			color = Theme.Colors.White,
-			transparency = RevealData.RayTransparency,
 			zIndex = Z_BEHIND,
 		})
-		ray.Rotation = (180 / RevealData.RayCount) * (i - 1)
+		bar.Rotation = (180 / RevealData.RayCount) * (i - 1)
+		table.insert(rayBars, bar)
 	end
 	burst = rays
+	buildGoldFrame(root)
 
-	local panel = Builder.frame({
+	-- The card: a cream block plate at the card cell, its ink the tier's colour (set per show).
+	local panel = Builder.blockPlate({
 		parent = root,
 		name = "Card",
+		color = Theme.Colors.Panel,
+		ink = Theme.Rarity.Common,
+		aspect = CARD_ASPECT,
+		rows = Builder.blockRows(CARD_SIZE.Y.Scale, RevealData.CardCell),
 		position = CARD_POSITION,
 		size = CARD_SIZE,
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel + 2,
-		strokeColor = Theme.Rarity.Common,
-		aspect = CARD_ASPECT,
 		zIndex = Z_CARD,
 	})
 	panel.Visible = false
@@ -687,42 +881,57 @@ local function build()
 	local panelScale = Instance.new("UIScale") -- the close shrink and a size band's pop work on this
 	panelScale.Parent = panel
 
-	-- The gold ground ring under the model of a Grand tier: an empty ellipse with a gold stroke, under the viewport.
-	groundRing = Builder.frame({
+	-- The gold ground ring under the model of a Grand tier: square gold dots on an ellipse, under the viewport.
+	local ground = Builder.frame({
 		parent = panel,
 		name = "GroundRing",
 		position = UDim2.fromScale(0.5, RevealData.RingY),
 		size = UDim2.fromScale(RevealData.RingWidth, RevealData.RingHeight),
 		anchor = Vector2.new(0.5, 0.5),
-		corner = Theme.Corner.Pill,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Builder.tierColor(RevealData.GroundRingRarity),
-		zIndex = 3,
+		zIndex = CARD_TOP,
 	})
+	local gold = Builder.tierColor(RevealData.GroundRingRarity)
+	for index = 1, GROUND_RING_DOTS do
+		local angle = (index - 1) / GROUND_RING_DOTS * math.pi * 2
+		Builder.frame({
+			parent = ground,
+			name = "Dot",
+			color = gold,
+			position = UDim2.fromScale(0.5 + 0.5 * math.cos(angle), 0.5 + 0.5 * math.sin(angle)),
+			size = UDim2.fromScale(1, GROUND_RING_DOT),
+			anchor = Vector2.new(0.5, 0.5),
+			aspect = 1,
+			zIndex = CARD_TOP,
+		})
+	end
+	groundRing = ground
 
-	shapeBox = Builder.frame({
+	-- The placeholder shape: an edged block in the species colour (set per show) with the shape's name on it.
+	local box = Builder.blockPlate({
 		parent = panel,
 		name = "Shape",
+		color = Theme.Rarity.Common,
+		aspect = 1,
+		rows = SHAPE_ROWS,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.5, 0.34),
 		size = UDim2.fromScale(0.56, 0.56),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Rarity.Common,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		aspect = 1,
-		zIndex = 4,
+		zIndex = CARD_TOP + 1,
 	})
+	shapeBox = box
 	shapeLabel = Builder.label({
-		parent = shapeBox,
+		parent = box,
 		name = "ShapeName",
 		text = "",
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.3),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(box),
 	})
-	-- The mesh view, over the same square as the shape frame; only one of the two is visible at a time.
+	-- The mesh view, over the same square as the shape block; only one of the two is visible at a time.
 	local view = Instance.new("ViewportFrame")
 	view.Name = "Model"
 	view.BackgroundTransparency = 1
@@ -733,7 +942,7 @@ local function build()
 	view.Ambient = Builder.darker(Theme.Colors.White, 0.45) -- soft grey fill light
 	view.LightColor = Theme.Colors.White
 	view.LightDirection = Vector3.new(-1, -2, -1)
-	view.ZIndex = 4
+	view.ZIndex = CARD_TOP + 1
 	view.Visible = false
 	Builder.aspect(view, 1)
 	view.Parent = panel
@@ -743,7 +952,7 @@ local function build()
 	view.CurrentCamera = camera
 	viewBox = view
 	viewCamera = camera
-	nameLabel = Builder.label({
+	local name = Builder.label({
 		parent = panel,
 		name = "Species",
 		text = "",
@@ -751,8 +960,22 @@ local function build()
 		position = UDim2.fromScale(0.5, NAME_Y),
 		size = UDim2.fromScale(0.9, 0.12),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = CARD_TOP + 1,
 	})
+	nameLabel = name
+	-- The cell that runs ahead of the letters while a top tier's name spells in.
+	local cursor = Builder.frame({
+		parent = name,
+		name = "SpellCursor",
+		color = Theme.Colors.White,
+		position = UDim2.fromScale(0, 0.5),
+		size = UDim2.fromScale(1, RevealData.SpellCursor),
+		anchor = Vector2.new(0, 0.5),
+		aspect = 1,
+		zIndex = CARD_TOP + 2,
+	})
+	cursor.Visible = false
+	spellCursor = cursor
 	local tier = Builder.label({
 		parent = panel,
 		name = "Tier",
@@ -761,7 +984,7 @@ local function build()
 		position = UDim2.fromScale(0.5, TIER_Y),
 		size = UDim2.fromScale(TIER_LABEL_W, TIER_H),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = CARD_TOP + 1,
 	})
 	tierLabel = tier
 	tier:GetPropertyChangedSignal("TextBounds"):Connect(placeTierBadge)
@@ -777,7 +1000,7 @@ local function build()
 		size = UDim2.fromScale(0.94, 0.07),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Featured,
-		zIndex = 6,
+		zIndex = CARD_TOP + 3,
 	})
 	stamp.Visible = false
 	stampLabel = stamp
@@ -794,25 +1017,28 @@ local function build()
 	})
 	stampScrap.Visible = false
 	stampScrapLabel = stampScrap
-	overlayBadge = Builder.pill({
+	-- The overlay badge: a fitted flat block (BadgeFit sets its width, and the plate redraws its columns).
+	local badge = Builder.blockPlate({
 		parent = panel,
 		name = "Overlay",
+		color = Theme.Colors.Codex,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.96, 0.04),
 		size = UDim2.fromScale(BADGE_MIN_W, BADGE_H),
 		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Codex,
-		stroke = Theme.Stroke.Text,
-		zIndex = 6,
+		zIndex = CARD_TOP + 3,
 	})
+	overlayBadge = badge
 	overlayLabel = Builder.label({
-		parent = overlayBadge,
+		parent = badge,
 		name = "Text",
 		text = "",
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(Builder.BadgeTextFraction, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 7,
+		zIndex = Builder.blockTop(badge),
 	})
 	-- The badge is right-anchored, so fitting its width grows it to the left, toward the NEW! ribbon and no further than
 	-- BADGE_MAX_W. The longest overlay name sets it for every overlay, so the badge never changes size between catches.
@@ -821,20 +1047,21 @@ local function build()
 	if fitCamera then
 		fitCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fitOverlayBadge)
 	end
-	-- Diagonal NEW! ribbon across the top-left corner.
-	local ribbon = Builder.frame({
+	-- Diagonal NEW! ribbon across the top-left corner: an edged red block, tilted.
+	local ribbon = Builder.blockPlate({
 		parent = panel,
 		name = "New",
+		color = Theme.Colors.Close,
+		aspect = 0.5 * CARD_ASPECT / 0.09,
+		rows = RIBBON_ROWS,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.12, 0.08),
 		size = UDim2.fromScale(0.5, 0.09),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Close,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		zIndex = 6,
+		zIndex = CARD_TOP + 3,
 	})
 	ribbon.Rotation = -25
-	Builder.gradient(ribbon, Theme.Colors.Close)
 	newRibbon = ribbon
 	Builder.label({
 		parent = ribbon,
@@ -844,19 +1071,21 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 7,
+		zIndex = Builder.blockTop(ribbon),
 	})
-	-- The chance line: a navy pill hanging on the card's bottom edge, wider than the card (the card is 168 px across at 667x375,
-	-- too narrow for "1 in 67 · 1.5% chance" at the 14 px floor), white outlined text.
-	local odds = Builder.pill({
+	-- The chance line: a navy flat block hanging on the card's bottom edge, wider than the card (the card is 168 px across at
+	-- 667x375, too narrow for "1 in 67 · 1.5% chance" at the 14 px floor), its ink the tier's colour, white outlined text.
+	local odds = Builder.blockPlate({
 		parent = panel,
 		name = "Odds",
+		color = Theme.Colors.Outline,
+		ink = Theme.Colors.White,
+		aspect = RevealData.OddsWidth * CARD_ASPECT / RevealData.OddsHeight,
+		rows = RevealData.OddsRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, RevealData.OddsY),
 		size = UDim2.fromScale(RevealData.OddsWidth, RevealData.OddsHeight),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Outline,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.White,
 		zIndex = ODDS_Z,
 	})
 	odds.Visible = false
@@ -867,22 +1096,22 @@ local function build()
 		text = "",
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.92, 0.8),
+		size = UDim2.fromScale(0.92, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = ODDS_Z + 1,
+		zIndex = Builder.blockTop(odds),
 	})
-	-- Storage-full ribbon (shown only for a grant that overflowed the cap): a red pill above the card.
-	local storage = Builder.pill({
+	-- Storage-full ribbon (shown only for a grant that overflowed the cap): an edged red block above the card.
+	local storage = Builder.blockPlate({
 		parent = root,
 		name = "StorageFull",
+		color = Theme.Colors.Close,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.5, STORAGE_Y),
 		size = UDim2.fromScale(STORAGE_W, STORAGE_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Close,
-		stroke = Theme.Stroke.Text,
 		zIndex = Z_LINES,
 	})
-	Builder.gradient(storage, Theme.Colors.Close)
 	storage.Visible = false
 	storageRibbon = storage
 	storageLabel = Builder.label({
@@ -893,7 +1122,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.92, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Z_LINES + 1,
+		zIndex = Builder.blockTop(storage),
 	})
 	scrapLabel = Builder.label({
 		parent = root,
@@ -994,13 +1223,14 @@ local function confettiPiece(root: ScreenGui, color: Color3, sprite: number): (G
 		image.Parent = root
 		return image, "ImageTransparency"
 	end
-	local piece = Builder.frame({
+	local piece = Builder.frame({ -- a confetti cell: a square, like every cell on a block screen
 		parent = root,
 		name = "Confetti",
 		position = UDim2.fromScale(0.5, RevealData.StageY),
-		size = UDim2.fromScale(0.012, 0.025),
+		size = UDim2.fromScale(1, RevealData.SparkleSize),
 		anchor = Vector2.new(0.5, 0.5),
 		color = color,
+		aspect = 1,
 		zIndex = Z_BUTTONS,
 	})
 	return piece, "BackgroundTransparency"
@@ -1128,7 +1358,7 @@ local function showModel(def: Types.SpeciesDef?)
 	viewModel = model
 	RigAnimator.Attach(model, if def then def.id else "", { always = true }) -- the B46 idle in the viewport; released on destroy
 	spinConn = RunService.RenderStepped:Connect(function(dt: number)
-		spinAngle = (spinAngle + dt * VIEW_SPIN) % (math.pi * 2)
+		spinAngle = (spinAngle + dt * VIEW_SPIN * spinScale) % (math.pi * 2)
 		model:PivotTo(CFrame.Angles(0, spinAngle, 0))
 	end)
 end
@@ -1201,18 +1431,21 @@ end
 
 -- The glow behind the egg, at `transparency` at its centre (the outer disc, the soft edge, sits part of the way to clear).
 local function setGlow(transparency: number)
-	local outer, core = glowOuter, glowCore
-	if outer and core then
-		outer.BackgroundTransparency = transparency + (1 - transparency) * RevealData.GlowSoftness
-		core.BackgroundTransparency = transparency
+	for _, frame in ipairs(glowOuter) do
+		frame.BackgroundTransparency = transparency + (1 - transparency) * RevealData.GlowSoftness
+	end
+	for _, frame in ipairs(glowCore) do
+		frame.BackgroundTransparency = transparency
 	end
 end
 
 local function tweenGlow(transparency: number, seconds: number)
-	local outer, core = glowOuter, glowCore
-	if outer and core then
-		play(outer, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { BackgroundTransparency = transparency + (1 - transparency) * RevealData.GlowSoftness })
-		play(core, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { BackgroundTransparency = transparency })
+	local edge = transparency + (1 - transparency) * RevealData.GlowSoftness
+	for _, frame in ipairs(glowOuter) do
+		play(frame, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { BackgroundTransparency = edge })
+	end
+	for _, frame in ipairs(glowCore) do
+		play(frame, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { BackgroundTransparency = transparency })
 	end
 end
 
@@ -1225,10 +1458,10 @@ local function accentColor(info: RevealInfo): Color3
 end
 
 local function tintGlow(color: Color3)
-	local outer, core = glowOuter, glowCore
-	if outer and core then
-		outer.BackgroundColor3 = color
-		core.BackgroundColor3 = color
+	for _, frames in ipairs({ glowOuter, glowCore }) do
+		for _, frame in ipairs(frames) do
+			frame.BackgroundColor3 = color
+		end
 	end
 end
 
@@ -1255,11 +1488,7 @@ local function resetStage()
 	for _, piece in ipairs(shardPieces) do
 		piece.Visible = false
 		piece.Position = UDim2.fromScale(0.5, RevealData.StageY)
-		piece.BackgroundTransparency = 0
-		local stroke = piece:FindFirstChildOfClass("UIStroke")
-		if stroke then
-			stroke.Transparency = 0
-		end
+		Builder.setBlockFade(piece, 0)
 	end
 	setGlow(1)
 	if tapRing then
@@ -1283,8 +1512,8 @@ local function resetStage()
 		dotsHolder.Visible = false
 	end
 	for _, dot in ipairs(dotFrames) do
-		dot.BackgroundColor3 = Theme.Colors.Outline
-		dot.BackgroundTransparency = RevealData.DotEmptyTransparency
+		Builder.setBlockColor(dot, Theme.Colors.Outline)
+		Builder.setBlockFade(dot, RevealData.DotEmptyTransparency)
 		local scale = dot:FindFirstChildOfClass("UIScale")
 		if scale then
 			scale.Scale = 1
@@ -1305,6 +1534,19 @@ local function resetStage()
 	end
 	raysShown = false
 	irisShown = false
+	if burstScale then
+		burstScale.Scale = 1
+	end
+	cancelAmbient()
+	skyShown = false
+	if skyFrame then
+		skyFrame.Visible = false
+	end
+	stopGoldChase()
+	if goldFrame then
+		goldFrame.Visible = false
+	end
+	finishSpell()
 	if groundRing then
 		groundRing.Visible = false
 	end
@@ -1344,8 +1586,39 @@ local function startRaysLoop()
 	loop:Play()
 end
 
--- The ray ring in the tier colour (every other ray in the second colour where the tier has one), spun up from nothing over
--- `seconds`, or at rest at once. Then the Shine sprite, when uploaded.
+-- Draws the ray ring's cells for this show: `count` square cells along each bar both ways out from RayCellStart of the radius to
+-- the rim, RayCellGap of a cell apart, every other bar in the second colour (Cosmic). A bar is as thick as its cells, so they
+-- stay square (the ring keeps a 1:1 aspect).
+local function fillRays(count: number, first: Color3, second: Color3)
+	local start = RevealData.RayCellStart * 0.5 -- of the ring's width, from the centre
+	local reach = 0.5 - start
+	local side = if count > 0 then reach / (count + (count - 1) * RevealData.RayCellGap) else 0
+	for index, bar in ipairs(rayBars) do
+		for _, child in ipairs(bar:GetChildren()) do
+			child:Destroy()
+		end
+		bar.Size = UDim2.fromScale(1, math.max(side, 0.001))
+		local color = if index % 2 == 1 then first else second
+		for _, sign in ipairs({ -1, 1 }) do
+			for k = 0, count - 1 do
+				local offset = start + k * side * (1 + RevealData.RayCellGap) + side / 2
+				Builder.frame({
+					parent = bar,
+					name = "Cell",
+					color = color,
+					transparency = RevealData.RayTransparency,
+					position = UDim2.fromScale(0.5 + sign * offset, 0.5),
+					size = UDim2.fromScale(side, 1),
+					anchor = Vector2.new(0.5, 0.5),
+					zIndex = Z_BEHIND,
+				})
+			end
+		end
+	end
+end
+
+-- The ray ring in the tier colour (every other ray in the second colour where the tier has one), its cells the tier's RayCells:
+-- grown and spun up from small over `seconds`, or at rest at once. Then the Shine sprite, when uploaded.
 local function showRayRing(info: RevealInfo, seconds: number, spinUp: boolean)
 	local ring, root = burst, gui
 	if not ring or not root then
@@ -1357,22 +1630,20 @@ local function showRayRing(info: RevealInfo, seconds: number, spinUp: boolean)
 	local secondName = RevealMath.Flags(info.tier).SecondRayColor
 	local second = if secondName and colors[secondName] then colors[secondName] else first
 	local animate = spinUp and not reducedNow
+	fillRays(RevealMath.Ladder(info.tier).RayCells, first, second)
 	ring.Visible = true
-	local index = 0
-	for _, ray in ipairs(ring:GetChildren()) do
-		if ray:IsA("Frame") then
-			index += 1
-			ray.BackgroundColor3 = if index % 2 == 1 then first else second
-			ray.BackgroundTransparency = if animate then 1 else RevealData.RayTransparency
-			if animate then
-				play(ray, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { BackgroundTransparency = RevealData.RayTransparency })
-			end
-		end
-	end
 	ring.Rotation = 0
+	local grow = burstScale
 	if animate then
+		if grow then
+			grow.Scale = 0.2
+			play(grow, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { Scale = 1 })
+		end
 		play(ring, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, { Rotation = RevealData.RaySpinUpDegrees })
 	else
+		if grow then
+			grow.Scale = 1
+		end
 		startRaysLoop()
 	end
 	showRays(root, first)
@@ -1398,14 +1669,11 @@ end
 local function ensureRays(info: RevealInfo)
 	local flags = RevealMath.Flags(info.tier)
 	if flags.Rays then
-		local ring = burst
 		if not raysShown then
 			showRayRing(info, 0, false)
-		elseif ring then
-			for _, ray in ipairs(ring:GetChildren()) do
-				if ray:IsA("Frame") then
-					ray.BackgroundTransparency = RevealData.RayTransparency
-				end
+		else
+			if burstScale then
+				burstScale.Scale = 1
 			end
 			startRaysLoop()
 		end
@@ -1419,6 +1687,244 @@ local function ensureRays(info: RevealInfo)
 		if dimExtra then
 			dimExtra.BackgroundTransparency = 1 - flags.DimExtra
 		end
+	end
+end
+
+-- The ladder (data/Reveal Ladder) -------------------------------------------------
+
+-- The pixel sky of Cosmic and Secret: the bands step in from the top (the tier's colour stepping down to the night), the stars
+-- twinkle; at rest at once under Reduced Motion. Stays behind the card until the Reveal closes.
+local function showSky(info: RevealInfo, animate: boolean)
+	local sky = skyFrame
+	if not sky or skyShown then
+		return
+	end
+	skyShown = true
+	sky.Visible = true
+	local top = accentColor(info)
+	local bands = #skyBands
+	for index, band in ipairs(skyBands) do
+		band.BackgroundColor3 = top:Lerp(Theme.Colors.Outline, (index - 1) / math.max(1, bands - 1))
+		band.BackgroundTransparency = 1
+		local function land()
+			band.BackgroundTransparency = RevealData.SkyAlpha
+		end
+		if animate then
+			afterShow((index - 1) * RevealData.SkyInSeconds / bands, land)
+		else
+			land()
+		end
+	end
+	for _, star in ipairs(skyStars) do
+		star.BackgroundTransparency = 0
+		if animate then
+			local twinkle = TweenService:Create(
+				star,
+				TweenInfo.new(RevealData.SkyTwinkleSeconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true, rng:NextNumber(0, RevealData.SkyTwinkleSeconds)),
+				{ BackgroundTransparency = STAR_TWINKLE_ALPHA }
+			)
+			table.insert(ambient, twinkle)
+			twinkle:Play()
+		end
+	end
+end
+
+-- The gold cell frame round the card: every GOLD_LIT_STRIDE-th cell lit, the lit ones stepping round one cell each
+-- GoldFrameStepSeconds until the Reveal closes (still under Reduced Motion).
+local function showGoldFrame(animate: boolean)
+	local holder = goldFrame
+	if not holder then
+		return
+	end
+	holder.Visible = true
+	stopGoldChase()
+	local token = goldToken
+	local function paint(step: number)
+		for index, cell in ipairs(goldCells) do
+			cell.BackgroundTransparency = if (index - 1 - step) % GOLD_LIT_STRIDE == 0
+				then RevealData.GoldFrameLitAlpha
+				else RevealData.GoldFrameDimAlpha
+		end
+	end
+	paint(0)
+	if not animate then
+		return
+	end
+	task.spawn(function()
+		local step = 0
+		while open and goldToken == token do
+			task.wait(RevealData.GoldFrameStepSeconds)
+			if not open or goldToken ~= token then
+				return
+			end
+			step += 1
+			paint(step)
+		end
+	end)
+end
+
+-- One burst of sparkle cells from behind the card: square cells in white, gold and the tier's colour fly out and fade.
+local function sparkleBurst(root: ScreenGui, info: RevealInfo, count: number)
+	local aspect = viewportAspect()
+	local palette = { Theme.Colors.White, Theme.Colors.Featured, accentColor(info) }
+	local tweenInfo = TweenInfo.new(RevealData.SparkleSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	for index = 1, count do
+		local piece = Builder.frame({
+			parent = root,
+			name = "Sparkle",
+			color = palette[(index - 1) % #palette + 1],
+			position = UDim2.fromScale(0.5, RevealData.StageY),
+			size = UDim2.fromScale(1, RevealData.SparkleSize),
+			anchor = Vector2.new(0.5, 0.5),
+			aspect = 1,
+			zIndex = Z_BUTTONS,
+		})
+		local angle = (index - 1) / count * math.pi * 2 + rng:NextNumber(-0.2, 0.2)
+		local distance = RevealData.SparkleDistance * rng:NextNumber(0.6, 1.1)
+		local tween = TweenService:Create(piece, tweenInfo, {
+			Position = UDim2.fromScale(0.5 + math.cos(angle) * distance / aspect, RevealData.StageY + math.sin(angle) * distance),
+			BackgroundTransparency = 1,
+		})
+		tween.Completed:Once(function()
+			piece:Destroy()
+		end)
+		tween:Play()
+	end
+end
+
+-- The pixel starburst behind the card: `arms` lines of square cells out from the centre, growing outward, the tip white; it
+-- grows out and fades over StarburstSeconds, then goes. Axis-aligned cells on the diagonals: a pixel-art star.
+local function starburst(root: ScreenGui, info: RevealInfo, arms: number)
+	local holder = Builder.frame({
+		parent = root,
+		name = "Starburst",
+		position = UDim2.fromScale(0.5, RevealData.StageY),
+		size = UDim2.fromScale(1, RevealData.StarburstLength * 2),
+		anchor = Vector2.new(0.5, 0.5),
+		aspect = 1,
+		zIndex = Z_BEHIND,
+	})
+	local grow = Instance.new("UIScale")
+	grow.Scale = 0.3
+	grow.Parent = holder
+	local colors: { [string]: Color3 } = Theme.Colors
+	local first = accentColor(info)
+	local secondName = RevealMath.Flags(info.tier).SecondRayColor
+	local second = if secondName and colors[secondName] then colors[secondName] else first
+	local count = RevealData.StarburstCells
+	local tweenInfo = TweenInfo.new(RevealData.StarburstSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	for arm = 1, arms do
+		local angle = (arm - 1) / arms * math.pi * 2
+		for k = 1, count do
+			local share = k / count
+			local radius = STARBURST_INNER + (0.5 - STARBURST_INNER) * (k - 1) / math.max(1, count - 1)
+			local cell = Builder.frame({
+				parent = holder,
+				name = "Cell",
+				color = if k == count then Theme.Colors.White elseif arm % 2 == 1 then first else second,
+				position = UDim2.fromScale(0.5 + math.cos(angle) * radius, 0.5 + math.sin(angle) * radius),
+				size = UDim2.fromScale(STARBURST_CELL * (0.5 + 0.5 * share), STARBURST_CELL * (0.5 + 0.5 * share)),
+				anchor = Vector2.new(0.5, 0.5),
+				zIndex = Z_BEHIND,
+			})
+			TweenService:Create(cell, tweenInfo, { BackgroundTransparency = 1 }):Play()
+		end
+	end
+	local out = TweenService:Create(grow, TweenInfo.new(RevealData.StarburstSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 1 })
+	out.Completed:Once(function()
+		holder:Destroy()
+	end)
+	out:Play()
+end
+
+-- The colour wash: the whole screen flashes the tier's colour up to `peak` see-through and fades. Takes no input.
+local function colourWash(root: ScreenGui, color: Color3, peak: number)
+	local wash = Builder.frame({
+		parent = root,
+		name = "Wash",
+		color = color,
+		transparency = 1,
+		zIndex = Z_WASH,
+	})
+	local up = TweenService:Create(wash, TweenInfo.new(RevealData.WashPeakSeconds, Enum.EasingStyle.Linear), { BackgroundTransparency = peak })
+	up.Completed:Once(function()
+		local down = TweenService:Create(wash, TweenInfo.new(RevealData.WashSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+		down.Completed:Once(function()
+			wash:Destroy()
+		end)
+		down:Play()
+	end)
+	up:Play()
+end
+
+-- The species name spelled in: a letter a step (SpellSecondsPerLetter), a cell in the tier's colour running ahead of the
+-- letters across the centred line; then the whole name. A tap that settles the card shows it whole at once (finishSpell).
+local function spellName(info: RevealInfo)
+	local label, cursor = nameLabel, spellCursor
+	if not label then
+		return
+	end
+	finishSpell()
+	local token = spellToken
+	local letters = utf8.len(info.speciesName) or #info.speciesName
+	local width = label.AbsoluteSize.X
+	local share = if width > 0 then math.min(1, label.TextBounds.X / width) else 1 -- the whole name's share of its line
+	local function placeCursor(done: number)
+		if cursor then
+			cursor.Position = UDim2.fromScale(0.5 - share / 2 + share * done, 0.5)
+		end
+	end
+	label.MaxVisibleGraphemes = 0
+	if cursor then
+		cursor.BackgroundColor3 = accentColor(info)
+		cursor.Visible = true
+	end
+	placeCursor(0)
+	task.spawn(function()
+		for shown = 1, letters do
+			task.wait(RevealData.SpellSecondsPerLetter)
+			if not open or spellToken ~= token then
+				return
+			end
+			label.MaxVisibleGraphemes = shown
+			placeCursor(shown / math.max(1, letters))
+		end
+		if spellToken == token then
+			finishSpell()
+		end
+	end)
+end
+
+-- The hero beat, as the card lands: the pop (the size band's own when it is bigger), the alien's flourish (World.SpeciesFx, on
+-- the viewport's model; the burst is drawn here in 2D, as particles do not render in a ViewportFrame), then the tier's rung:
+-- sparkle bursts, the starburst, the colour wash, the gold frame and the name spelled in.
+local function heroBeat(info: RevealInfo, panel: Frame, band: Sizes.Band)
+	heroDone = true
+	local rung = RevealMath.Ladder(info.tier)
+	popCard(panel, math.max(band.revealPop, rung.Pop))
+	local model = viewModel
+	if model and speciesId ~= "" then
+		SpeciesFx.Flourish(model, speciesId)
+	end
+	local root = gui
+	if root then
+		for burstIndex = 0, rung.SparkleBursts - 1 do
+			afterShow(burstIndex * RevealData.SparkleGapSeconds, function()
+				sparkleBurst(root, info, rung.Sparkles)
+			end)
+		end
+		if rung.Starburst > 0 then
+			starburst(root, info, rung.Starburst)
+		end
+		if rung.Wash < 1 then
+			colourWash(root, accentColor(info), rung.Wash)
+		end
+	end
+	if rung.GoldFrame then
+		showGoldFrame(true)
+	end
+	if rung.SpellName then
+		spellName(info)
 	end
 end
 
@@ -1488,6 +1994,15 @@ end
 -- The entrance's last state in one go: for Reduced Motion, and for a tap that cannot wait.
 local function applyCardFinal()
 	cancelRunning()
+	finishSpell()
+	-- A tap before the landing skips the hero beat's motion, never the tier's frame: the card stays as exclusive as its tier.
+	local info = current
+	if info and not heroDone then
+		heroDone = true
+		if RevealMath.Ladder(info.tier).GoldFrame then
+			showGoldFrame(not reducedNow)
+		end
+	end
 	local panel = card
 	if panel then
 		panel.Position = CARD_POSITION
@@ -1576,8 +2091,9 @@ local function beginCard()
 		scale.Scale = 1
 	end
 	panel.Visible = true
+	local rung = RevealMath.Ladder(info.tier)
 	if reducedNow then
-		applyCardFinal()
+		applyCardFinal() -- the gold frame at rest, no chase, for a tier that has one
 		flyScrap(info.scrapGained)
 		return
 	end
@@ -1586,20 +2102,19 @@ local function beginCard()
 	play(panel, RevealData.CardDropSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out, { Position = CARD_POSITION })
 	local landing = RevealData.CardDropSeconds
 	later(landing, function()
-		if band.revealPop ~= 1 then
-			popCard(panel, band.revealPop)
-		end
+		heroBeat(info, panel, band)
 		flyScrap(info.scrapGained)
 		if info.perfect == true then
 			perfectFlash(root)
 		end
 	end)
+	-- The top tiers hold the moment longer (their HoldExtra) before the buttons slide up.
 	later(landing + RevealData.OddsDelaySeconds, revealOdds)
 	later(landing + RevealData.ChipDelaySeconds, revealChips)
-	later(landing + RevealData.ButtonDelaySeconds, function()
+	later(landing + RevealData.ButtonDelaySeconds + rung.HoldExtra, function()
 		showButtons(true)
 	end)
-	later(landing + RevealData.HoldSeconds, finishCard)
+	later(landing + RevealMath.HoldSeconds(info.tier), finishCard)
 end
 
 -- A tap while the entrance plays: land everything now, so the next tap can close.
@@ -1624,19 +2139,19 @@ local function flyShards(scale: number, color: Color3)
 		piece.Size = UDim2.fromScale(1, RevealData.ShardHeight * scale)
 		piece.Position = UDim2.fromScale(0.5, RevealData.StageY)
 		piece.Rotation = rng:NextNumber(0, 360)
-		piece.BackgroundColor3 = color
-		piece.BackgroundTransparency = 0
+		Builder.setBlockColor(piece, color)
+		Builder.setBlockFade(piece, 0)
 		piece.Visible = true
-		local stroke = piece:FindFirstChildOfClass("UIStroke")
-		if stroke then
-			stroke.Transparency = 0
-			play(stroke, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In, { Transparency = 1 })
+		-- The shard is a flat block: its ink and face frames fade together.
+		for _, part in ipairs(piece:GetChildren()) do
+			if part:IsA("Frame") then
+				play(part, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In, { BackgroundTransparency = 1 })
+			end
 		end
 		local spin = RevealData.ShardSpinDegrees * (if index % 2 == 0 then 1 else -1)
 		play(piece, seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, {
 			Position = UDim2.fromScale(0.5 + math.cos(angle) * distance / aspect, RevealData.StageY + math.sin(angle) * distance),
 			Rotation = piece.Rotation + spin,
-			BackgroundTransparency = 1,
 		})
 	end
 end
@@ -1689,6 +2204,10 @@ local function beginShards()
 			play(word, RevealData.WordDropSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out, { Position = UDim2.fromScale(0.5, RevealData.StageY) })
 		end
 	end
+	-- Cosmic and Secret: the pixel sky comes in with the burst (at rest at once under Reduced Motion).
+	if RevealMath.Ladder(info.tier).Sky then
+		showSky(info, not reducedNow)
+	end
 	if reducedNow then
 		-- One still frame: the glow full, the word, the static rays or the open iris; no shards, no confetti, no push-in.
 		setGlow(RevealData.GlowTransparencyEnd)
@@ -1738,8 +2257,8 @@ local function crackTap()
 	-- The dot fills with a pop.
 	local dot = dotFrames[tap]
 	if dot then
-		dot.BackgroundColor3 = Theme.Colors.Featured
-		dot.BackgroundTransparency = 0
+		Builder.setBlockColor(dot, Theme.Colors.Featured)
+		Builder.setBlockFade(dot, 0)
 		Builder.pop(dot, RevealData.PopScale + 0.2)
 	end
 	-- The crack line appears; the tier colour leaks a little more from behind the egg.
@@ -1918,6 +2437,8 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	onClose = onClosed
 	-- A Show over a Show starts the sequence again from nothing.
 	seq += 1
+	showGen += 1
+	heroDone = false
 	cancelRunning()
 	stopBurstLoop()
 	stopRays()
@@ -1930,17 +2451,17 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	local tierColor = Builder.tierColor(info.tier)
 	local band = Sizes.ById[info.size] or Sizes.ById[Sizes.Default]
 
-	local panelStroke = panel:FindFirstChildOfClass("UIStroke")
-	if panelStroke then
-		panelStroke.Color = tierColor
-	end
+	Builder.setBlockInk(panel, tierColor) -- the rarity ring is the card's ink
 	if shapeBox then
-		shapeBox.BackgroundColor3 = info.color
+		Builder.setBlockColor(shapeBox, info.color)
 	end
 	if shapeLabel then
 		shapeLabel.Text = Builder.text("SHAPE_" .. info.shape)
 	end
-	showModel(speciesFor(info))
+	local def = speciesFor(info)
+	speciesId = if def then def.id else ""
+	spinScale = RevealMath.Ladder(info.tier).TurnScale -- the top tiers turn slower, grander
+	showModel(def)
 	if nameLabel then
 		nameLabel.Text = info.speciesName
 	end
@@ -1953,18 +2474,18 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		tierBadge:Destroy()
 		tierBadge = nil
 	end
-	tierBadge = Builder.icon({
+	tierBadge = Builder.blockIcon({
 		parent = panel,
 		name = "TierBadge",
 		key = info.tier,
 		size = UDim2.fromScale(TIER_H / CARD_ASPECT, TIER_H),
 		anchor = Vector2.new(1, 0.5),
-		zIndex = 4,
+		zIndex = CARD_TOP + 1,
 	})
 	showStamp(info, band)
 	if overlayBadge and overlayLabel then
 		overlayBadge.Visible = info.overlay ~= "None"
-		overlayBadge.BackgroundColor3 = Builder.overlayColor(info.overlay)
+		Builder.setBlockColor(overlayBadge, Builder.overlayColor(info.overlay))
 		overlayLabel.Text = Builder.text("OVERLAY_" .. info.overlay)
 		if stopOverlayShine then
 			stopOverlayShine()
@@ -1985,9 +2506,8 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	if oddsLabel then
 		oddsLabel.Text = RevealMath.OddsLine(percent) or ""
 	end
-	local pillStroke = if oddsPill then oddsPill:FindFirstChildOfClass("UIStroke") else nil
-	if pillStroke then
-		pillStroke.Color = tierColor
+	if oddsPill then
+		Builder.setBlockInk(oddsPill, tierColor)
 	end
 	local overflow = info.overflowScrap
 	storageHint = overflow ~= nil

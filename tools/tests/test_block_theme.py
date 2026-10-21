@@ -44,6 +44,8 @@ BLOCK_SCREENS = (
     "ReleasePanel.luau",
     "BuildScreen.luau",
     "Radar.luau",
+    "CaptureBar.luau",
+    "Reveal.luau",
 )
 
 
@@ -104,6 +106,20 @@ class BlockTheme(unittest.TestCase):
             for helper in ("Builder.pill(", "Builder.button(", "Builder.gradient(", "Builder.gloss(", "Builder.corner(",
                            "Builder.restyleButton(", "corner = Theme.Corner", "UICorner", "UIGradient"):
                 self.assertNotIn(helper, source, f"{name}: {helper}")
+
+
+    def test_pixel_icons_name_real_theme_colours(self):
+        # data/PixelIcons: a colour that is not six hex digits is a Theme.Colors key (Builder.pixelIcon reads it there first).
+        theme = lint_data.uncomment((ROOT / "src/shared/Theme.luau").read_text())
+        block = re.search(r"Theme\.Colors\s*=\s*\{(.*?)\n\}", theme, re.S)
+        self.assertTrue(block, "Theme.Colors not found")
+        names = set(re.findall(r"^\s*(\w+)\s*=", block[1], re.M))
+        icons = (ROOT / "src/shared/data/PixelIcons.luau").read_text()
+        found = re.findall(r'\{ \d+, \d+, \d+, \d+, "(\w+)" \}', icons)
+        self.assertTrue(found)
+        for colour in found:
+            if not re.fullmatch(r"[0-9A-Fa-f]{6}", colour):
+                self.assertIn(colour, names, colour)
 
 
 if __name__ == "__main__":

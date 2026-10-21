@@ -1030,9 +1030,44 @@ def lint_reveal(tables, root=ROOT):
         if isinstance(rare, dict) and all(finite(data.get(k)) for k in needed):
             beat = data['ShardSeconds'] + (data['RaySpinSeconds'] if rare.get('Rays') or rare.get('Iris') else 0)
             beat *= data['LegendaryShardScale'] if rare.get('Grand') else 1
-            total = data['CrackTaps'] * data['CrackSecondsPerTap'] + beat + data['CardDropSeconds'] + data['HoldSeconds']
+            extra = ((data.get('Ladder') or {}).get('Rare') or {}).get('HoldExtra', 0)
+            extra = extra if finite(extra) else 0
+            total = data['CrackTaps'] * data['CrackSecondsPerTap'] + beat + data['CardDropSeconds'] + data['HoldSeconds'] + extra
             check(data['TotalMinSeconds'] <= total <= data['TotalMaxSeconds'],
                   f'Reveal: the Rare total is {total:g} s, outside {data["TotalMinSeconds"]:g} to {data["TotalMaxSeconds"]:g} s')
+    # The intensity ladder (B46): one rung per tier, every column climbing (never less from one tier to the next), ray cells
+    # exactly where the tier has rays.
+    ladder = data.get('Ladder')
+    check(isinstance(ladder, dict) and set(ladder) == set(order), 'Reveal.Ladder: needs exactly one rung for every tier of data/Tiers Order')
+    if isinstance(ladder, dict):
+        previous = None
+        for tier in order:
+            rung = ladder.get(tier)
+            where = f'Reveal.Ladder.{tier}'
+            if not isinstance(rung, dict):
+                previous = None
+                continue
+            numbers = ('Pop', 'Sparkles', 'SparkleBursts', 'Starburst', 'RayCells', 'Wash', 'TurnScale', 'HoldExtra')
+            ok = all(finite(rung.get(k)) for k in numbers) and all(type(rung.get(k)) is bool for k in ('GoldFrame', 'Sky', 'SpellName'))
+            check(ok, f'{where}: expected numbers {numbers} and booleans GoldFrame, Sky, SpellName')
+            if not ok:
+                previous = None
+                continue
+            check(rung['Pop'] >= 1, f'{where}.Pop: a pop of 1 or more')
+            check(0 < rung['Wash'] <= 1 and 0 < rung['TurnScale'] <= 1 and rung['HoldExtra'] >= 0, f'{where}: Wash and TurnScale in (0, 1], HoldExtra 0 or more')
+            for key in ('Sparkles', 'SparkleBursts', 'Starburst', 'RayCells'):
+                check(type(rung[key]) is int and rung[key] >= 0, f'{where}.{key}: expected a whole number')
+            row = flags.get(tier) if isinstance(flags, dict) else None
+            if isinstance(row, dict):
+                check((rung['RayCells'] > 0) == bool(row.get('Rays')), f'{where}.RayCells: ray cells exactly where Reveal.Tiers.{tier} has Rays')
+            if previous is not None:
+                for key in ('Pop', 'Sparkles', 'SparkleBursts', 'Starburst', 'HoldExtra'):
+                    check(rung[key] >= previous[key], f'{where}.{key}: a rarer tier never shows less than the one below')
+                for key in ('GoldFrame', 'Sky', 'SpellName'):
+                    check(rung[key] or not previous[key], f'{where}.{key}: a rarer tier keeps what the one below has')
+                check(rung['Wash'] <= previous['Wash'], f'{where}.Wash: a rarer tier washes at least as strongly')
+                check(rung['TurnScale'] <= previous['TurnScale'], f'{where}.TurnScale: a rarer tier turns at least as slowly')
+            previous = rung
     # The tick sound the crack plays exists.
     check(isinstance(tables.get('Sounds', {}).get('CrackTick'), str), 'Sounds.CrackTick: the Reveal crack tick is missing')
     return failures

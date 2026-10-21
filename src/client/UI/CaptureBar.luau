@@ -6,6 +6,10 @@
 -- is drawn and which input reports the time: the zones drift with the shared Capture.driftCenter() from
 -- the server's driftPhase, the reel scores on the release of a hold, and the chase shows a countdown
 -- and sends one last tap when it runs out so the server declares the loss.
+-- The look is block cells (UI Playbook "Block cells", "The capture bar in block cells", Decisions B44): the trough a fitted dark
+-- plate in cells; a trail of light that fills it cell by cell behind the sweep; the Good and Perfect zones lit bands under the
+-- grout, so they read as cells, with their edges exactly where the server scores (never snapped to a cell); the marker a stepped
+-- pixel arrow; the lure and countdown chips edged blocks; the sweep dots flat blocks. Timing, bindings and sounds as before.
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -19,6 +23,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Capture = require(Shared:WaitForChild("Capture"))
+local BlockMath = require(Shared:WaitForChild("BlockMath"))
 local CatchVariants = require(Shared:WaitForChild("data"):WaitForChild("CatchVariants"))
 local Builder = require(script.Parent.Builder)
 
@@ -35,6 +40,16 @@ export type BeginInfo = {
 local ACTION_NAME = "CaptureTap"
 local ROUND_INTRO_DELAY = 0.3 -- seconds the hit's own feedback (Perfect! / Good!) shows before the round intro replaces it
 local ROUND_INTRO_SHAKE = 0.006 -- half the miss shake, in Scale: a nudge, not a rebuke
+local TRAIL_ALPHA = 0.78 -- the trail of light behind the sweep: white at this transparency over the cells it has passed
+-- The marker: a stepped pixel arrow pointing down at the bar, on a 7 by 11 grid of square pixels, a pixel being a sixth of the
+-- bar's height. The head sits over the bar (rows 0 to 3), the stem runs through it (rows 4 to 9) and one ink pixel below.
+-- Bars { x, y, w, h }: the ink (the colour dilated by one pixel all round, so the ink keeps one thickness round every step),
+-- then the colour.
+local ARROW_W, ARROW_H = 7, 11
+local ARROW_UNIT = 1 / 6 -- a pixel, in bar heights
+local ARROW_TOP = 4 -- rows of the arrow above the bar's top edge
+local ARROW_INK = { { 0, 0, 7, 3 }, { 1, 3, 5, 1 }, { 2, 4, 3, 7 } }
+local ARROW_FILL = { { 1, 1, 5, 1 }, { 2, 2, 3, 1 }, { 3, 3, 1, 7 } }
 
 local gui: ScreenGui? = nil
 local nameLabel: TextLabel? = nil
@@ -42,10 +57,14 @@ local tierLabel: TextLabel? = nil
 local roundLabel: TextLabel? = nil
 local feedback: TextLabel? = nil
 local hint: TextLabel? = nil
-local bar: Frame? = nil
-local goodZone: Frame? = nil
-local perfectZone: Frame? = nil
-local ticker: Frame? = nil
+local bar: Frame? = nil -- the trough, a fitted block plate
+local goodZone: { Frame } = {} -- the Good band: four frames, the face's two bars cut either side of the Perfect band
+local perfectZone: { Frame } = {}
+local trail: { Frame } = {} -- the light behind the sweep, a whole cell at a time
+local ticker: Frame? = nil -- the marker's holder
+local tickerFill: { Frame } = {} -- the marker's colour bars (the variant's ticker colour)
+local tickerPos = 0 -- where the marker stands, 0 to 1 along the bar
+local trailShown = -1 -- the cell step the trail last drew
 local lureChip: Frame? = nil
 local lureLabel: TextLabel? = nil
 local countdownChip: Frame? = nil
@@ -73,6 +92,7 @@ local feedbackToken = 0
 
 local press: () -> () -- defined below; build() wires the backdrop to them
 local release: () -> ()
+local placeZones: (number) -> ()
 
 local function build()
 	if gui then
@@ -140,64 +160,87 @@ local function build()
 	feedbackLabel.Visible = false
 	feedback = feedbackLabel
 
-	-- The bar: dark trough pill, Good and Perfect zones, the ticker on top.
-	local trough = Builder.pill({
+	-- The bar: a fitted dark plate in cells (the trough), the Good and Perfect bands under its grout, the trail of light over its
+	-- cells, the marker over all. Every piece is placed from the plate's grid (Builder.blockGrid), again when the plate redraws.
+	local trough = Builder.blockPlate({
 		parent = root,
 		name = "Bar",
+		color = Theme.Block.Trough,
 		position = UDim2.fromScale(0.5, 0.8),
 		size = UDim2.fromScale(0.6, 0.06),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 2,
 	})
 	bar = trough
-	goodZone = Builder.frame({
-		parent = trough,
-		name = "Good",
-		position = UDim2.fromScale(0.3, 0),
-		size = UDim2.fromScale(0.4, 1),
-		color = Theme.Colors.Confirm,
-		corner = Theme.Corner.Card,
-		zIndex = 3,
-	})
-	perfectZone = Builder.frame({
-		parent = trough,
-		name = "Perfect",
-		position = UDim2.fromScale(0.44, 0),
-		size = UDim2.fromScale(0.12, 1),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		zIndex = 4,
-	})
-	ticker = Builder.frame({
+	local layers = Theme.Block.Layer
+	local function band(name: string, color: Color3, z: number, transparency: number): { Frame }
+		local frames: { Frame } = {}
+		for index = 1, 2 do
+			local frame = Builder.frame({
+				parent = trough,
+				name = name,
+				color = color,
+				transparency = transparency,
+				size = UDim2.fromScale(0, 0),
+				zIndex = z,
+			})
+			frames[index] = frame
+		end
+		return frames
+	end
+	-- Under the grout (the Bar layer), so a band reads as lit cells. The Good band is two pieces, either side of the Perfect band,
+	-- so no two bands overlap on the one layer (siblings at one ZIndex have no order to rely on).
+	goodZone = band("Good", Theme.Colors.Confirm, trough.ZIndex + layers.Bar, 0)
+	for _, frame in ipairs(band("Good", Theme.Colors.Confirm, trough.ZIndex + layers.Bar, 0)) do
+		table.insert(goodZone, frame)
+	end
+	perfectZone = band("Perfect", Theme.Colors.Featured, trough.ZIndex + layers.Bar, 0)
+	trail = band("Trail", Theme.Colors.White, Builder.blockTop(trough), TRAIL_ALPHA)
+	local top = Builder.blockTop(trough) + 1
+	local marker = Builder.frame({
 		parent = trough,
 		name = "Ticker",
-		position = UDim2.fromScale(0, 0.5),
-		size = UDim2.fromScale(0.012, 1.5),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 5,
+		position = UDim2.fromScale(0, -ARROW_TOP * ARROW_UNIT),
+		size = UDim2.fromScale(1, ARROW_H * ARROW_UNIT),
+		anchor = Vector2.new(0.5, 0),
+		aspect = ARROW_W / ARROW_H,
+		zIndex = top,
 	})
+	tickerFill = {}
+	for layer, bars in ipairs({ ARROW_INK, ARROW_FILL }) do
+		for _, rect in ipairs(bars) do
+			local piece = Builder.frame({
+				parent = marker,
+				name = if layer == 1 then "Ink" else "Fill",
+				position = UDim2.fromScale(rect[1] / ARROW_W, rect[2] / ARROW_H),
+				size = UDim2.fromScale(rect[3] / ARROW_W, rect[4] / ARROW_H),
+				color = if layer == 1 then Theme.Colors.Outline else Theme.Colors.White,
+				zIndex = top + layer,
+			})
+			if layer == 2 then
+				table.insert(tickerFill, piece)
+			end
+		end
+	end
+	ticker = marker
+	Builder.onBlockRedraw(trough, function()
+		trailShown = -1
+		placeZones(zoneCenter)
+	end)
 
 	-- Lure chip above the bar's left end, in the clear column beside the centred tier label. Shown only
-	-- for an encounter the server says consumed a lure.
-	local chip = Builder.pill({
+	-- for an encounter the server says consumed a lure. An edged block (a transient: eight frames).
+	local chip = Builder.blockPlate({
 		parent = root,
 		name = "Lure",
+		color = Theme.Colors.Select,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.2, 0.74),
 		size = UDim2.fromScale(0.2, 0.05),
 		anchor = Vector2.new(0, 0.5),
-		color = Theme.Colors.Select,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 2,
 	})
-	Builder.gradient(chip, Theme.Colors.Select)
 	chip.Visible = false
 	lureChip = chip
 	lureLabel = Builder.label({
@@ -208,19 +251,19 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(chip),
 	})
 
 	-- Chase clock above the bar's right end, mirroring the lure chip. Shown only for an encounter with a deadline.
-	local timer = Builder.pill({
+	local timer = Builder.blockPlate({
 		parent = root,
 		name = "Countdown",
+		color = Theme.Block.Trough,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.8, 0.74),
 		size = UDim2.fromScale(0.2, 0.05),
 		anchor = Vector2.new(1, 0.5),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 2,
 	})
 	timer.Visible = false
@@ -233,10 +276,10 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(timer),
 	})
 
-	-- Sweeps left as three dots under the bar.
+	-- Sweeps left as three square flat blocks under the bar.
 	local dotRow = Builder.frame({
 		parent = root,
 		name = "Sweeps",
@@ -249,19 +292,22 @@ local function build()
 	layout.FillDirection = Enum.FillDirection.Horizontal
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Padding = UDim.new(0.08, 0)
 	layout.Parent = dotRow
 	dots = {}
 	for i = 1, Config.CaptureSweepsPerEncounter do
-		local dot = Builder.pill({
+		local dot = Builder.blockPlate({
 			parent = dotRow,
 			name = "Dot" .. i,
-			size = UDim2.fromScale(0.2, 1),
 			color = Theme.Colors.White,
-			stroke = Theme.Stroke.Text,
+			size = UDim2.fromScale(0.2, 1),
 			aspect = 1,
+			rows = Theme.Block.MinRows,
+			cells = false,
 			zIndex = 2,
 		})
+		dot.LayoutOrder = i
 		table.insert(dots, dot)
 	end
 
@@ -289,19 +335,52 @@ local function build()
 	})
 end
 
--- Draw both zones centred on `center` at their current widths (the widths never drift, only the centre).
-local function placeZones(center: number)
+-- Puts `frames` (a band's two bars) over `left` to `left + width` of the bar, cut to the trough's face.
+local function placeBand(frames: { Frame }, grid: BlockMath.Grid, left: number, width: number, first: number?)
+	local from = (first or 1) - 1
+	for index, rect in ipairs(BlockMath.Span(grid, left, width)) do
+		local frame = frames[from + index]
+		if frame then
+			frame.Position = UDim2.fromScale(rect.x, rect.y)
+			frame.Size = UDim2.fromScale(rect.w, rect.h)
+			frame.Visible = rect.w > 0
+		end
+	end
+end
+
+-- Moves the marker to `pos` along the bar and lets the trail catch up a whole cell at a time (redrawn only when it steps).
+local function placeTicker(pos: number)
+	tickerPos = pos
+	local plate, marker = bar, ticker
+	local grid = if plate then Builder.blockGrid(plate) else nil
+	if not grid or not marker then
+		return
+	end
+	marker.Position = UDim2.fromScale(BlockMath.Along(grid, pos), -ARROW_TOP * ARROW_UNIT)
+	local step = BlockMath.CellStep(grid.cols, pos)
+	if step ~= trailShown then
+		trailShown = step
+		placeBand(trail, grid, 0, step)
+	end
+end
+
+-- Draw both zones centred on `center` at their current widths (the widths never drift, only the centre), exactly where the
+-- server scores them, on the trough's face.
+placeZones = function(center: number)
 	zoneCenter = center
-	if goodZone then
-		local left, width = Capture.zoneSpan(center, goodWidth)
-		goodZone.Position = UDim2.fromScale(left, 0)
-		goodZone.Size = UDim2.fromScale(width, 1)
+	local plate = bar
+	local grid = if plate then Builder.blockGrid(plate) else nil
+	if not grid then
+		return
 	end
-	if perfectZone then
-		local left, width = Capture.zoneSpan(center, perfectWidth)
-		perfectZone.Position = UDim2.fromScale(left, 0)
-		perfectZone.Size = UDim2.fromScale(width, 1)
-	end
+	local goodLeft, goodSpan = Capture.zoneSpan(center, goodWidth)
+	local perfectLeft, perfectSpan = Capture.zoneSpan(center, perfectWidth)
+	placeBand(perfectZone, grid, perfectLeft, perfectSpan)
+	-- The Good band either side of the Perfect one: together they cover exactly the Good span.
+	placeBand(goodZone, grid, goodLeft, math.max(0, perfectLeft - goodLeft), 1)
+	local perfectRight = perfectLeft + perfectSpan
+	placeBand(goodZone, grid, perfectRight, math.max(0, goodLeft + goodSpan - perfectRight), 3)
+	placeTicker(tickerPos)
 end
 
 local function setZones(center: number, good: number, perfect: number)
@@ -331,7 +410,7 @@ end
 
 local function setSweeps(left: number)
 	for i, dot in ipairs(dots) do
-		dot.BackgroundColor3 = if i <= left then Theme.Colors.White else Theme.Colors.Trough
+		Builder.setBlockColor(dot, if i <= left then Theme.Colors.White else Theme.Block.Trough)
 	end
 end
 
@@ -360,12 +439,10 @@ local function showFeedback(text: string, color: Color3)
 end
 
 local function flashZone()
-	local zone = goodZone
-	if not zone then
-		return
-	end
 	local info = TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 2, true)
-	TweenService:Create(zone, info, { BackgroundColor3 = Theme.Colors.White }):Play()
+	for _, frame in ipairs(goodZone) do
+		TweenService:Create(frame, info, { BackgroundColor3 = Theme.Colors.White }):Play()
+	end
 end
 
 local function tap()
@@ -438,7 +515,7 @@ local function onRender()
 	local now = workspace:GetServerTimeNow()
 	local held = heldPos
 	local pos: number = if held ~= nil then held else Capture.position(now - startClock, tickerSpeed)
-	t.Position = UDim2.fromScale(pos, 0.5)
+	placeTicker(pos)
 	local center = centerAt(now)
 	if row.driftAmplitude > 0 then
 		-- While a tap's feedback shows, the zones stay where that tap was scored.
@@ -499,12 +576,13 @@ function CaptureBar.Begin(info: BeginInfo)
 	driftPhase = params.driftPhase
 	deadline = params.deadline
 	setZones(params.zoneCenter, params.goodZone, params.perfectZone)
-	if goodZone then
-		goodZone.BackgroundColor3 = Theme.Colors[row.look.zone] or Theme.Colors.Confirm
+	for _, frame in ipairs(goodZone) do
+		frame.BackgroundColor3 = Theme.Colors[row.look.zone] or Theme.Colors.Confirm
 	end
-	if ticker then
-		ticker.BackgroundColor3 = Theme.Colors[row.look.ticker] or Theme.Colors.White
+	for _, frame in ipairs(tickerFill) do
+		frame.BackgroundColor3 = Theme.Colors[row.look.ticker] or Theme.Colors.White
 	end
+	placeTicker(0)
 	setSweeps(params.sweepsLeft)
 	setRound(params.round, params.roundsTotal)
 	if nameLabel then

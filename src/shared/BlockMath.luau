@@ -94,6 +94,38 @@ function BlockMath.Fill(grid: Grid, p: number): { Rect }
 	return out
 end
 
+-- Where a point `p` (0 to 1 along a bar, as Fill measures it) sits across the plate: the inner box's left plus p of its width.
+-- The capture bar's marker and zones use it, so the marker and the zones are measured on one span (what is seen is what scores).
+function BlockMath.Along(grid: Grid, p: number): number
+	local inner = BlockMath.Inner(grid)
+	return inner.x + math.clamp(p, 0, 1) * inner.w
+end
+
+-- A band of the face from `left` to `left + width` (fractions of the bar, as Along measures them), cut to the face's two bars so
+-- it keeps the stepped corners. Its edges are exact, never snapped to a cell: a timing zone shows exactly the span the server
+-- scores. A bar the band misses comes back with no width.
+function BlockMath.Span(grid: Grid, left: number, width: number): { Rect }
+	local a = BlockMath.Along(grid, left)
+	local b = BlockMath.Along(grid, left + width)
+	local out: { Rect } = {}
+	for _, bar in ipairs(BlockMath.Face(grid)) do
+		local l = math.max(a, bar.x)
+		local r = math.min(b, bar.x + bar.w)
+		table.insert(out, { x = l, y = bar.y, w = math.max(0, r - l), h = bar.h })
+	end
+	return out
+end
+
+-- A fill that steps a whole cell at a time: the share of a `cols`-column bar lit when a sweep stands at `p` (0 to 1), the whole
+-- cells behind it. The capture bar's trail fills with it, cell by cell.
+function BlockMath.CellStep(cols: number, p: number): number
+	local share = math.clamp(p, 0, 1)
+	if cols <= 0 then
+		return share
+	end
+	return math.floor(share * cols + 1e-9) / cols
+end
+
 -- The C3 bands: the top row lighter, the bottom row and the two side columns darker, each without the cut corner cells. Only on
 -- a plate with three cells or more both ways (a smaller block stays one flat colour).
 function BlockMath.Bands(grid: Grid): Bands

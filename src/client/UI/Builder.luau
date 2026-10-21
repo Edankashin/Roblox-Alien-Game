@@ -923,6 +923,17 @@ local function onRedraw(plate: Instance, hook: () -> ())
 	table.insert(hooks, hook)
 end
 
+-- The grid a block plate drew last, or nil for a frame that is not a block plate: a screen that places its own pieces on a
+-- plate's cells (the capture bar's zones, trail and marker) reads it. A fitted plate can redraw; Builder.onBlockRedraw hears it.
+function Builder.blockGrid(plate: Instance): BlockMath.Grid?
+	return blockGrid(plate)
+end
+
+-- Runs `hook` after every redraw of a fitted plate (its columns or rows changed), so pieces placed on its cells follow.
+function Builder.onBlockRedraw(plate: Instance, hook: () -> ())
+	onRedraw(plate, hook)
+end
+
 -- Draws a plate's grid: the ink border and the face as two overlapping bars each (the cut corners), then, with `cells`, the lit
 -- top row and the shaded side and bottom cells (three cells or more both ways), the grout on every cell and the jittered cells.
 -- The face, the ink and the fade come from the plate's attributes (setBlockColor, setBlockInk and setBlockFade keep them), so a

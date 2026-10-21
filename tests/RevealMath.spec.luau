@@ -173,4 +173,117 @@ describe("RevealMath chance line", function()
 		expect(RevealMath.OddsLine(EggMath.Percent(0)) == nil).toEqual(true)
 	end)
 end)
+describe("RevealMath ladder (B46: rarer is far more exclusive)", function()
+	local NUMBERS_UP = { "Pop", "Sparkles", "SparkleBursts", "Starburst", "HoldExtra" }
+	local FLAGS_UP = { "GoldFrame", "Sky", "SpellName" }
+	it("every tier has a rung, and no column ever drops from one tier to the next", function()
+		local previous: RevealMath.LadderRow? = nil
+		for _, tier in ipairs(Tiers.Order) do
+			local rung = RevealData.Ladder[tier]
+			assert(rung ~= nil, tier .. " has no rung")
+			local before = previous
+			if before then
+				for _, key in ipairs(NUMBERS_UP) do
+					assert((rung :: any)[key] >= (before :: any)[key], tier .. "." .. key .. " drops")
+				end
+				for _, key in ipairs(FLAGS_UP) do
+					assert(not (before :: any)[key] or (rung :: any)[key], tier .. "." .. key .. " drops")
+				end
+				assert(rung.Wash <= before.Wash, tier .. ".Wash gets fainter")
+				assert(rung.TurnScale <= before.TurnScale, tier .. ".TurnScale speeds up")
+			end
+			assert((rung.RayCells > 0) == RevealMath.Flags(tier).Rays, tier .. ": ray cells exactly where the tier has rays")
+			previous = rung
+		end
+	end)
+	it("climbs steeply: a Cosmic reveal draws five times a Common's effects or more, and every rung draws more than the last", function()
+		local common = RevealMath.EffectFrames("Common")
+		expect(RevealMath.EffectFrames("Cosmic") >= 5 * common).toEqual(true)
+		expect(RevealMath.EffectFrames("Secret") >= 5 * common).toEqual(true)
+		local previous = 0
+		for _, tier in ipairs({ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Cosmic" }) do
+			local frames = RevealMath.EffectFrames(tier)
+			assert(frames > previous, tier .. " draws no more than the tier below")
+			previous = frames
+		end
+	end)
+	it("keeps the Cosmic peak under 320 effect frames (the frame-rate check is Overnight job 38)", function()
+		for _, tier in ipairs(Tiers.Order) do
+			assert(RevealMath.EffectFrames(tier) <= 320, tier .. " draws " .. RevealMath.EffectFrames(tier) .. " effect frames")
+		end
+	end)
+	it("the hold grows by the tier's HoldExtra, and Total carries it", function()
+		expect(RevealMath.HoldSeconds("Common")).toBeClose(RevealData.HoldSeconds, 1e-9)
+		expect(RevealMath.HoldSeconds("Cosmic")).toBeClose(RevealData.HoldSeconds + RevealData.Ladder.Cosmic.HoldExtra, 1e-9)
+		local cosmic = RevealMath.CrackSeconds() + RevealMath.ShardBeatSeconds("Cosmic") + RevealData.CardDropSeconds + RevealMath.HoldSeconds("Cosmic")
+		expect(RevealMath.Total("Cosmic", true)).toBeClose(cosmic, 1e-9)
+	end)
+	it("spells a name a letter a step, and the top tiers' names are in before the buttons", function()
+		expect(RevealMath.SpellSeconds("Zorp")).toBeClose(4 * RevealData.SpellSecondsPerLetter, 1e-9)
+		expect(RevealMath.SpellSeconds("")).toEqual(0)
+		for _, tier in ipairs(Tiers.Order) do
+			if RevealMath.Ladder(tier).SpellName then
+				local window = RevealData.ButtonDelaySeconds + RevealMath.Ladder(tier).HoldExtra
+				assert(RevealMath.SpellSeconds("Abcdefghijklmn") <= window, tier .. ": a 14-letter name is still spelling when the buttons come")
+			end
+		end
+	end)
+	it("an unknown tier reads as Common", function()
+		expect(RevealMath.Ladder("Mythic")).toEqual(RevealData.Ladder.Common)
+	end)
+end)
+
+describe("RevealMath pixel egg", function()
+	it("rings the egg's colour with ink exactly one pixel thick, inside the grid", function()
+		local ink, fill = RevealMath.EggBars()
+		local cols, rows = RevealData.EggCols, RevealData.EggRows
+		expect(cols / rows).toBeClose(RevealData.EggAspect, 1e-9)
+		local function cover(bars: { RevealMath.Bar }): { [number]: boolean }
+			local out: { [number]: boolean } = {}
+			for _, bar in ipairs(bars) do
+				assert(bar.x >= 0 and bar.y >= 0 and bar.x + bar.w <= cols and bar.y + bar.h <= rows, "a bar leaves the grid")
+				for y = bar.y, bar.y + bar.h - 1 do
+					for x = bar.x, bar.x + bar.w - 1 do
+						out[y * cols + x] = true
+					end
+				end
+			end
+			return out
+		end
+		local inked, filled = cover(ink), cover(fill)
+		for y = 0, rows - 1 do
+			for x = 0, cols - 1 do
+				local near = false
+				for dy = -1, 1 do
+					for dx = -1, 1 do
+						local nx, ny = x + dx, y + dy
+						if nx >= 0 and ny >= 0 and nx < cols and ny < rows and filled[ny * cols + nx] then
+							near = true
+						end
+					end
+				end
+				assert((inked[y * cols + x] == true) == near, "pixel " .. x .. "," .. y .. " is ink " .. tostring(inked[y * cols + x]))
+			end
+		end
+	end)
+	it("lights its top rows and shades its bottom rows of colour", function()
+		local _, _, lit, shade = RevealMath.EggBars()
+		local litRows, shadeRows = 0, 0
+		for _, bar in ipairs(lit) do
+			litRows += bar.h
+		end
+		for _, bar in ipairs(shade) do
+			shadeRows += bar.h
+		end
+		expect(litRows).toEqual(RevealData.EggLitRows)
+		expect(shadeRows).toEqual(RevealData.EggShadeRows)
+	end)
+	it("draws each tap's crack as a few pixels inside the egg's colour", function()
+		for tap = 1, RevealData.CrackTaps do
+			local cells = RevealMath.CrackCells(tap)
+			assert(#cells >= 3 and #cells <= 24, "tap " .. tap .. " cracks " .. #cells .. " pixels")
+		end
+	end)
+end)
+
 return true

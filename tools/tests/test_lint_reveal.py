@@ -77,6 +77,16 @@ class RevealLint(unittest.TestCase):
         failures = self.mutated(lambda d: d["Tiers"]["Rare"].update(Confetti=True))
         self.assertTrue(any("Reveal.Tiers.Rare.Confetti" in f for f in failures), failures)
 
+    def test_the_ladder_only_climbs(self):
+        failures = self.mutated(lambda d: d["Ladder"]["Cosmic"].update(Sparkles=1))
+        self.assertTrue(any("Reveal.Ladder.Cosmic.Sparkles" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d["Ladder"]["Secret"].update(Sky=False))
+        self.assertTrue(any("Reveal.Ladder.Secret.Sky" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d["Ladder"]["Rare"].update(RayCells=0))
+        self.assertTrue(any("Reveal.Ladder.Rare.RayCells" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d["Ladder"].pop("Epic"))
+        self.assertTrue(any("Reveal.Ladder:" in f for f in failures), failures)
+
     def test_colour_keys_must_exist_in_the_theme(self):
         failures = self.mutated(lambda d: d["Tiers"]["Cosmic"].update(SecondRayColor="Chartreuse"))
         self.assertTrue(any("SecondRayColor" in f and "Theme.Colors" in f for f in failures), failures)

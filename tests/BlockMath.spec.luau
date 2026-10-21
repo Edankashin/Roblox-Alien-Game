@@ -420,8 +420,13 @@ describe("Block screens: Quests", function()
 end)
 
 describe("Block screens: Settings", function()
-	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; six rows share 0.68 of it with 0.03 gaps, each an edged block of three rows;
-	-- a control is 0.78 of a row, a flat block button of three rows over its one-cell lip.
+	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; the rows frame 0.705 of it, shared by every data/Settings row and the code
+	-- row with 0.02 gaps; a row an edged block of five rows; a control 0.84 of a row, a flat block button of five rows over its
+	-- one-cell lip, its text padded a quarter cell inside the ink (Builder.blockButton).
+	local SettingsData = require(Shared.data.Settings)
+	local count = #SettingsData.Order + 1
+	local CARD_ROWS, CONTROL_ROWS = 5, 5
+	local ROWS_H, GAP, CONTROL_H = 0.705, 0.02, 0.84
 	for _, screen in ipairs({ SE, IPAD }) do
 		local label = screen.w .. "x" .. screen.h
 		local w, h, grid = panel(screen, 0.6, 0.78, 1.3)
@@ -430,16 +435,23 @@ describe("Block screens: Settings", function()
 			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
 			shell(screen, w, h, 0.78)
 		end)
-		it(label .. ": a row's cells are near the HUD's, and a control's face inside its ink is near the 14 px floor", function()
-			local share = (1 - 0.03 * 5) / 6
-			local row = 0.68 * share * h
-			local cell = row / (3 + 2 * INK)
-			assert(cell >= 6, "row cell is " .. cell .. " px")
-			local control = 0.78 * row
-			local face = control * (1 - BlockMath.Lip(1, 3, INK))
-			local inner = face * (1 - 2 * INK / (3 + 2 * INK))
-			-- 13.7 px at iPhone SE: the 14 px line touches the ink there (a known squeeze, UI Playbook "Settings"); 29.7 on the iPad
-			assert(inner >= 13.5, "a control's face is " .. inner .. " px inside its ink")
+		it(label .. ": a control's text box keeps the 14 px floor inside its ink and padding, and sits in its card's face", function()
+			local row = ROWS_H * h * (1 - GAP * (count - 1)) / count
+			local cardFace = row * (1 - 2 * INK / (CARD_ROWS + 2 * INK))
+			local control = CONTROL_H * row
+			assert(control <= cardFace, "a control (" .. control .. " px) overflows its card's face (" .. cardFace .. " px)")
+			local lip = BlockMath.Lip(1, CONTROL_ROWS, INK)
+			local face = control * (1 - lip)
+			local text = face * (1 - (2 * INK + 0.5) / (CONTROL_ROWS + 2 * INK))
+			-- 14.4 px at iPhone SE (it was 9.5 at three rows and six-row spacing, with seven rows on screen); 24.5 on the iPad.
+			assert(text >= TEXT_MIN, "a control's text box is " .. text .. " px")
+			local ink = INK * face / (CONTROL_ROWS + 2 * INK)
+			assert(ink >= 1, "a control's ink is " .. ink .. " px")
+			assert(row / (CARD_ROWS + 2 * INK) >= 4, "a card cell is " .. row / (CARD_ROWS + 2 * INK) .. " px")
+		end)
+		it(label .. ": the hint holds two lines at the 14 px floor under the rows", function()
+			assert(0.875 >= 0.16 + ROWS_H, "the hint overlaps the rows")
+			assert(0.1 * h >= 2 * TEXT_MIN, "the hint band is " .. 0.1 * h .. " px")
 		end)
 	end
 end)
@@ -546,4 +558,106 @@ describe("Block screens: Shop", function()
 		end)
 	end
 end)
+
+describe("Block screens: Capture bar", function()
+	-- CaptureBar.luau: the trough a fitted plate in cells, 0.6 x 0.06 of the screen, rows from its height; the zones exact bands of
+	-- its face (BlockMath.Span), the trail a whole cell at a time (CellStep), the marker a 7 by 11 pixel arrow, a pixel a sixth of
+	-- the bar's height; the lure and countdown chips 0.2 x 0.05, edged blocks.
+	local Tiers = require(Shared.data.Tiers)
+	local narrowest = math.huge
+	for _, tier in pairs(Tiers.Tiers) do
+		narrowest = math.min(narrowest, tier.perfectZone)
+	end
+	it("measures the marker and the zones on one span, with exact edges", function()
+		local grid = BlockMath.Grid(17.8, 3, INK)
+		local inner = BlockMath.Inner(grid)
+		expect(BlockMath.Along(grid, 0)).toBeClose(inner.x, EPS)
+		expect(BlockMath.Along(grid, 1)).toBeClose(inner.x + inner.w, EPS)
+		expect(BlockMath.Along(grid, 2)).toBeClose(inner.x + inner.w, EPS)
+		local span = BlockMath.Span(grid, 0.44, 0.12)
+		expect(#span).toEqual(2)
+		for _, rect in ipairs(span) do
+			expect(rect.x).toBeClose(BlockMath.Along(grid, 0.44), EPS)
+			expect(rect.w).toBeClose(0.12 * inner.w, EPS)
+		end
+		-- At the bar's end the band keeps the stepped corner: the tall bar stops a cell short of the ink.
+		local edge = BlockMath.Span(grid, 0.98, 0.02)
+		local tall = edge[2]
+		expect(tall.x + tall.w).toBeClose(1 - grid.inkX - grid.cellX, EPS)
+		expect(BlockMath.Span(grid, 0.5, 0)[1].w).toEqual(0)
+	end)
+	it("steps the trail a whole cell at a time and never past the bar", function()
+		expect(BlockMath.CellStep(10, 0.34)).toBeClose(0.3, EPS)
+		expect(BlockMath.CellStep(10, 0.3)).toBeClose(0.3, EPS)
+		expect(BlockMath.CellStep(10, 1.4)).toEqual(1)
+		expect(BlockMath.CellStep(10, -1)).toEqual(0)
+		expect(BlockMath.CellStep(0, 0.37)).toBeClose(0.37, EPS)
+	end)
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local barW, barH = 0.6 * screen.w, 0.06 * screen.h
+		local grid = fit(barW, barH, BlockMath.Rows(0.06, CELL, INK, MIN_ROWS))
+		it(label .. ": the trough is three rows of square cells near the HUD's, under 160 frames", function()
+			expect(grid.rows).toEqual(3)
+			local cell = barH * grid.cellY
+			assert(cell >= 5 and cell <= 14, "trough cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, barW / barH)) <= 0.06, "trough cells off square")
+			local frames = BlockMath.Frames(grid, true, SEED)
+			assert(frames <= 160, "trough draws " .. frames .. " frames")
+		end)
+		it(label .. ": the narrowest Perfect zone is a cell wide or more, and the arrow's pixel 3 px or more", function()
+			local cellPx = barW * grid.cellX
+			local zonePx = narrowest * barW * (1 - 2 * grid.inkX)
+			assert(zonePx >= cellPx, "the narrowest Perfect zone is " .. zonePx .. " px, under a " .. cellPx .. " px cell")
+			assert(barH / 6 >= 3, "an arrow pixel is " .. barH / 6 .. " px")
+		end)
+		it(label .. ": a chip's face holds a 14 px line", function()
+			local chipH = 0.05 * screen.h
+			local rows = BlockMath.Rows(0.05, CELL, INK, MIN_ROWS)
+			local face = chipH * (1 - 2 * INK / (rows + 2 * INK))
+			assert(0.75 * chipH >= TEXT_MIN and face >= TEXT_MIN, "a chip holds " .. 0.75 * chipH .. " px of text")
+		end)
+	end
+end)
+describe("Block screens: Reveal", function()
+	-- Reveal.luau with data/Reveal: the card 0.6 x 0.56 of the screen at 0.8, rows from its height at CardCell; the buttons
+	-- ButtonHeightPx at the reference height (375) by ButtonWidth, fitted block buttons of ButtonRows; the chance plate OddsWidth x
+	-- OddsHeight of the card, a flat block of OddsRows; the pixel egg EggHeight of the screen on EggRows pixels; a shard a flat
+	-- block of 7 rows ShardHeight tall.
+	local RevealData = require(Shared.data.Reveal)
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local cardW, cardH = BlockMath.FitPx(0.6, 0.56, 0.8, screen.w, screen.h)
+		local cardGrid = BlockMath.Grid(0.8, BlockMath.Rows(0.56, RevealData.CardCell, INK, MIN_ROWS), INK)
+		it(label .. ": the card is the panel cell, square, under 100 frames", function()
+			local cell = cardH * cardGrid.cellY
+			assert(cell >= 12 and cell <= 34, "card cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(cardGrid, cardW / cardH)) <= 0.06, "card cells off square")
+			local frames = BlockMath.Frames(cardGrid, true, SEED)
+			assert(frames <= 100, "card draws " .. frames .. " frames")
+		end)
+		it(label .. ": a button's padded text box holds the 24 px label, and its face clears the 44 px hit floor with the hit area", function()
+			local h = RevealData.ButtonHeightPx / RevealData.ReferenceHeight * screen.h
+			local rows = RevealData.ButtonRows
+			local face = h * (1 - BlockMath.Lip(1, rows, INK))
+			local text = face * (1 - (2 * INK + 0.5) / (rows + 2 * INK))
+			assert(text >= TEXT_MIN, "a button's text box is " .. text .. " px")
+			local cell = face / (rows + 2 * INK)
+			assert(cell >= 4.5, "a button cell is " .. cell .. " px")
+			assert(h >= TAP_MIN, "a button is " .. h .. " px tall")
+		end)
+		it(label .. ": the chance plate's face holds a 14 px line", function()
+			local plateH = RevealData.OddsHeight * cardH
+			local face = plateH * (1 - 2 * INK / (RevealData.OddsRows + 2 * INK))
+			assert(face >= TEXT_MIN, "the chance plate's face is " .. face .. " px")
+		end)
+		it(label .. ": an egg pixel and a shard cell are 3 px or more", function()
+			local pixel = RevealData.EggHeight * screen.h / RevealData.EggRows
+			assert(pixel >= 3, "an egg pixel is " .. pixel .. " px")
+			local shard = RevealData.ShardHeight * screen.h / (7 + 2 * INK)
+			assert(shard >= 3, "a shard cell is " .. shard .. " px")
+		end)
+	end
+end)
+
 return true

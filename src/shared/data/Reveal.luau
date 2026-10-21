@@ -47,6 +47,40 @@ local Tiers: { [string]: TierFlags } = {
 	Secret = { Rays = false, Grand = true, GroundRing = true, Iris = true, DimExtra = 0.25, Word = true, WordAccent = "Codex", Confetti = true },
 }
 
+-- The intensity ladder (Decisions B46: "rarer aliens should look a lot more exclusive and cooler/cuter", and the climb is steep):
+-- what each tier adds at the hero beat, the moment the card lands and the alien is first seen. Everything is block cells
+-- (UI Playbook "The reveal in block cells"): square cells and stepped pixel shapes, no gradient, no round glow.
+--   Common: a pop and one burst of sparkle cells. Rare: a pixel starburst behind the card, the ray ring a short fan of cells.
+--   Epic: a fuller cell-ray fan and a colour wash. Legendary: a gold cell frame chasing round the card, a slower grander turn of
+--   the model, more confetti cells, a longer hold. Cosmic and Secret: a full-screen pixel sky moment (stepped bands and star
+--   cells) from the shard beat on, the longest hold, and the species name spelled in, a cell then a letter at a time.
+-- tools/lint_data.py keeps every column climbing (never less from one tier to the next) and RevealMath.EffectFrames counts
+-- what a tier draws (tests/RevealMath.spec.luau holds the Cosmic reveal under its frame budget).
+export type LadderRow = {
+	Pop: number, -- the card's landing pop, to this scale and back (a size band's own revealPop wins when it is bigger)
+	Sparkles: number, -- sparkle cells thrown from behind the card at the hero beat, per burst
+	SparkleBursts: number, -- how many bursts, SparkleGapSeconds apart
+	Starburst: number, -- arms of the pixel starburst behind the card at the hero beat (0: none)
+	RayCells: number, -- cells in each ray of the ray ring (0 for a tier without Rays in Tiers above)
+	Wash: number, -- the colour wash's peak see-through at the hero beat (1: no wash)
+	GoldFrame: boolean, -- a ring of gold cells round the card, a lit cell chasing round it
+	TurnScale: number, -- the model's turn in the card, times its usual speed (under 1: slower, grander)
+	Sky: boolean, -- the full-screen pixel sky moment
+	HoldExtra: number, -- seconds added to the card's hold before the buttons slide up
+	SpellName: boolean, -- the species name spelled in, a cell running ahead of the letters
+}
+
+local Ladder: { [string]: LadderRow } = {
+	Common = { Pop = 1.06, Sparkles = 6, SparkleBursts = 1, Starburst = 0, RayCells = 0, Wash = 1, GoldFrame = false, TurnScale = 1, Sky = false, HoldExtra = 0, SpellName = false },
+	Uncommon = { Pop = 1.08, Sparkles = 8, SparkleBursts = 1, Starburst = 0, RayCells = 0, Wash = 1, GoldFrame = false, TurnScale = 1, Sky = false, HoldExtra = 0, SpellName = false },
+	Rare = { Pop = 1.1, Sparkles = 10, SparkleBursts = 1, Starburst = 8, RayCells = 3, Wash = 1, GoldFrame = false, TurnScale = 1, Sky = false, HoldExtra = 0, SpellName = false },
+	Epic = { Pop = 1.12, Sparkles = 12, SparkleBursts = 2, Starburst = 8, RayCells = 4, Wash = 0.7, GoldFrame = false, TurnScale = 1, Sky = false, HoldExtra = 0, SpellName = false },
+	Legendary = { Pop = 1.15, Sparkles = 14, SparkleBursts = 2, Starburst = 12, RayCells = 5, Wash = 0.65, GoldFrame = true, TurnScale = 0.5, Sky = false, HoldExtra = 0.3, SpellName = false },
+	Cosmic = { Pop = 1.18, Sparkles = 16, SparkleBursts = 3, Starburst = 16, RayCells = 6, Wash = 0.6, GoldFrame = true, TurnScale = 0.4, Sky = true, HoldExtra = 0.8, SpellName = true },
+	-- Secret has no rays (its dark iris opens instead), so no ray cells; everything else is the top rung.
+	Secret = { Pop = 1.18, Sparkles = 16, SparkleBursts = 3, Starburst = 16, RayCells = 0, Wash = 0.6, GoldFrame = true, TurnScale = 0.4, Sky = true, HoldExtra = 1, SpellName = true },
+}
+
 -- One crack line per tap, a zig-zag of thin rotated bars drawn on the egg. Each bar is { x, y, length, degrees }: its
 -- centre as a fraction of the egg's width and height, its length in egg heights, its tilt. A fourth tap would reuse the first.
 local CrackLines: { { { number } } } = {
@@ -62,6 +96,30 @@ local Speckles: { { number } } = {
 	{ 0.74, 0.62, 0.11 },
 	{ 0.36, 0.78, 0.08 },
 	{ 0.56, 0.52, 0.06 },
+}
+
+-- The pixel egg (UI Playbook "The reveal in block cells"): its colour, row by row, on a grid of EggCols by EggRows square pixels
+-- (EggAspect wide per tall, so the pixels are square), as { row, left, width } (0-based). The ink is the colour grown by one
+-- pixel all round (RevealMath.EggBars), so it keeps one thickness round every step; narrow at the top, widest below the middle.
+local EggSpans: { { number } } = {
+	{ 1, 6, 4 },
+	{ 2, 5, 6 },
+	{ 3, 4, 8 },
+	{ 4, 3, 10 },
+	{ 5, 3, 10 },
+	{ 6, 2, 12 },
+	{ 7, 2, 12 },
+	{ 8, 2, 12 },
+	{ 9, 1, 14 },
+	{ 10, 1, 14 },
+	{ 11, 1, 14 },
+	{ 12, 1, 14 },
+	{ 13, 1, 14 },
+	{ 14, 1, 14 },
+	{ 15, 2, 12 },
+	{ 16, 2, 12 },
+	{ 17, 3, 10 },
+	{ 18, 5, 6 },
 }
 
 return {
@@ -130,6 +188,10 @@ return {
 	StageY = 0.47, -- the egg's, the word's and the card's centre, of the screen height
 	EggHeight = 0.5,
 	EggAspect = 0.8, -- width over height
+	EggCols = 16, -- the pixel egg's grid (EggCols / EggRows is EggAspect, so its pixels are square)
+	EggRows = 20,
+	EggLitRows = 2, -- its top rows of colour wear the lit overlay, its bottom rows the shade (Blocky-Style C3)
+	EggShadeRows = 4,
 	CrackThickness = 0.022, -- a crack bar's thickness, in egg heights
 	PromptPx = 30, -- "Tap to crack it!": its line is this tall at the reference height, and grows with a bigger screen up to PromptMaxPx
 	PromptMaxPx = 48,
@@ -149,11 +211,43 @@ return {
 	FooterWidth = 0.46,
 	FooterHeight = 0.08,
 	ButtonSlideDistance = 0.3, -- the buttons start this far below their place, of the screen height
+	ButtonRows = 5, -- the buttons' face rows (block buttons in cells: 7.5 px cells at the reference height)
+	CardCell = 0.04, -- the card's cell, of the screen height (the panel cell: 13 rows on the 0.56 card)
+	OddsRows = 3, -- the chance plate's rows (a flat block hanging on the card's bottom edge)
+
+	-- The hero beat (the Ladder above). Sizes are of the screen height unless they say otherwise.
+	SparkleSize = 0.022, -- a sparkle cell
+	SparkleDistance = 0.3, -- how far a sparkle flies from the card's centre
+	SparkleSeconds = 0.7, -- a sparkle's flight and fade
+	SparkleGapSeconds = 0.25, -- between two bursts
+	StarburstLength = 0.46, -- an arm's reach from the card's centre
+	StarburstCells = 4, -- cells along an arm, growing outward
+	StarburstSeconds = 0.6, -- the starburst grows out and fades
+	RayCellGap = 0.35, -- the gap after a ray cell, in cells
+	RayCellStart = 0.18, -- where a ray's first cell sits, as a share of the ring's radius
+	WashPeakSeconds = 0.08, -- the colour wash flashes up
+	WashSeconds = 0.5, -- and fades
+	GoldFrameCells = 32, -- gold cells round the card
+	GoldFrameCellSize = 0.028, -- a gold cell
+	GoldFrameGap = 0.02, -- how far the frame sits outside the card, of the card's height
+	GoldFrameStepSeconds = 0.06, -- the lit cell chases one cell on each step
+	GoldFrameLitAlpha = 0, -- the lit cell's see-through
+	GoldFrameDimAlpha = 0.45, -- every other cell's
+	SkyBands = 8, -- stepped bands from the tier colour (top) to the night (bottom)
+	SkyStars = 20, -- star cells scattered over the sky
+	SkyStarSize = 0.018,
+	SkyInSeconds = 0.45, -- the bands step in from the top over this
+	SkyAlpha = 0.25, -- a band's see-through at rest (the sky never hides the card or the buttons)
+	SkyTwinkleSeconds = 0.9, -- a star's twinkle, out and back
+	SpellSecondsPerLetter = 0.05, -- the name spelled in, a letter a step
+	SpellCursor = 0.7, -- the cell running ahead of the letters, of the name line's height
 	OddsWidth = 1.5, -- the odds pill hangs on the card's bottom edge: width, of the card
 	OddsHeight = 0.1, -- height, of the card
 	OddsY = 1,
 
 	CrackLines = CrackLines,
+	Ladder = Ladder,
+	EggSpans = EggSpans,
 	Speckles = Speckles,
 	Tiers = Tiers,
 }

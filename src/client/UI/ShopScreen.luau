@@ -682,7 +682,7 @@ local function buildCard(parent: ScrollingFrame, id: string, kind: Kind, categor
 		zIndex = CARD_Z + 1,
 	})
 	Builder.setBlockFade(glow, SHELF.Glow.Alpha)
-	local picture = Builder.icon({
+	local picture = Builder.blockIcon({ -- the pixel icon first on a block (a power-up, lure or egg card), else the pack
 		parent = card,
 		name = "Icon",
 		key = def.icon or id,
