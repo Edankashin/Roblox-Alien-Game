@@ -448,4 +448,40 @@ describe("ModelInstall.CollisionPlan", function()
 		expect(ModelInstall.CollisionPlan(nil, false).fidelity).toEqual(nil)
 	end)
 end)
+
+describe("ModelInstall.Assign (MeshParts to Materials rows: by name first, then slot order)", function()
+	it("a block-cell model keeps its part names whatever order the importer gives", function()
+		local parts = { "FacePlate", "sprout", "Body", "floatR" }
+		local entries = { { slot = 1, order = 1 }, { slot = 1, order = 2 }, { slot = 1, order = 3 }, { slot = 1, order = 4 } }
+		local got = ModelInstall.Assign(parts, entries, { "Body", "floatR", "sprout", "FacePlate" }, "Mossbop")
+		expect(got[1]).toEqual(3)
+		expect(got[2]).toEqual(4)
+		expect(got[3]).toEqual(2)
+		expect(got[4]).toEqual(1)
+	end)
+	it("an importer's model prefix or duplicate counter still matches by name", function()
+		local parts = { "Mossbop_sprout", "Body.001" }
+		local entries = { { slot = 1, order = 1 }, { slot = 1, order = 2 } }
+		local got = ModelInstall.Assign(parts, entries, { "Body", "sprout" }, "Mossbop")
+		expect(got[1]).toEqual(2)
+		expect(got[2]).toEqual(1)
+	end)
+	it("an old blockout with slot-numbered parts falls back to slot order", function()
+		local parts = { "Mossbop3", "Mossbop", "Mossbop2" }
+		local entries = {
+			{ slot = ModelInstall.SlotOf("Mossbop3", "Mossbop"), order = 1 },
+			{ slot = ModelInstall.SlotOf("Mossbop", "Mossbop"), order = 2 },
+			{ slot = ModelInstall.SlotOf("Mossbop2", "Mossbop"), order = 3 },
+		}
+		local got = ModelInstall.Assign(parts, entries, { "Body", "EyeWhite", "Pupil" }, "Mossbop")
+		expect(got[1]).toEqual(2)
+		expect(got[2]).toEqual(3)
+		expect(got[3]).toEqual(1)
+	end)
+	it("more rows than parts leaves the extra rows unassigned", function()
+		local got = ModelInstall.Assign({ "Body" }, { { slot = 1, order = 1 } }, { "Body", "Glow" }, "X")
+		expect(got[1]).toEqual(1)
+		expect(got[2]).toEqual(nil)
+	end)
+end)
 return true

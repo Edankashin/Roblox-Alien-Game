@@ -7,7 +7,7 @@
 -- InsertService:LoadAsset, so a Rojo-built place has every model and publishing needs no Studio.
 --
 -- Each load ports the installer exactly: pick the Model out of the loaded container, name it, colour its MeshParts
--- from ModelAssets.Materials (slot order, ModelInstall.SlotOf / Order / MaterialFor, the part renamed to the row's
+-- from ModelAssets.Materials (by name first, then slot order: ModelInstall.Assign / SlotOf / Order / MaterialFor, the part renamed to the row's
 -- name after colouring; a slot with a ModelAssets.Surfaces row then gets its Material, Reflectance and, once its texture
 -- ids are uploaded, a SurfaceAppearance cloned from the Rojo-built template of its texture, all planned by
 -- ModelInstall.SurfacePlan), normalise (every BasePart
@@ -146,22 +146,30 @@ end
 -- count differ.
 local function applyMaterials(model: Model, name: string, rows: { { string | number } }): number
 	local parts: { MeshPart } = {}
+	local partNames: { string } = {}
 	local entries: { ModelInstall.SlotEntry } = {}
 	for order, descendant in ipairs(model:GetDescendants()) do
 		if descendant:IsA("MeshPart") then
 			table.insert(parts, descendant)
+			table.insert(partNames, descendant.Name)
 			table.insert(entries, { slot = ModelInstall.SlotOf(descendant.Name, name), order = order })
 		end
+	end
+	local rowNames: { string } = {}
+	for _, row in ipairs(rows) do
+		table.insert(rowNames, row[1] :: string)
 	end
 	if #parts ~= #rows then
 		warn(("[%s] Models: %s has %d MeshParts but ModelAssets.Materials lists %d; colouring the parts that exist"):format(Config.WorkingTitle, name, #parts, #rows))
 	end
 	local surfaces = surfaceRows[name]
 	local coloured = 0
-	for position, index in ipairs(ModelInstall.Order(entries)) do
-		local row = rows[position]
-		if not row then
-			break
+	-- by name first (a block-cell model's moving parts and FacePlate must keep the names data/Rigs uses), then slot order
+	local assigned = ModelInstall.Assign(partNames, entries, rowNames, name)
+	for position, row in ipairs(rows) do
+		local index = assigned[position]
+		if not index then
+			continue
 		end
 		local part = parts[index]
 		local metallic = row[4] :: number

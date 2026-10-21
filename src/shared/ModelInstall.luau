@@ -95,6 +95,64 @@ function ModelInstall.Order(entries: { SlotEntry }): { number }
 	return indices
 end
 
+-- The bare name a loaded MeshPart answers to: the model's name stripped off the front (an importer may prefix it) and a
+-- trailing ".001" or digit suffix stripped off the end (the slot number of an old blockout, or a duplicate counter).
+function ModelInstall.BareName(partName: string, modelName: string): string
+	local rest = partName
+	if string.sub(rest, 1, #modelName) == modelName and #rest > #modelName then
+		rest = string.sub(rest, #modelName + 1)
+	end
+	rest = string.gsub(rest, "^[_%.%-]+", "")
+	rest = string.gsub(rest, "[%._]%d+$", "")
+	return rest
+end
+
+-- Pairs a model's MeshParts with its Materials rows. A part whose name (or BareName) is a row's name takes that row, so a
+-- block-cell model's moving parts and FacePlate keep the names data/Rigs looks them up by whatever order the importer gave
+-- them; the parts left over take the rows left over in slot order (ModelInstall.Order), as every old blockout did.
+-- Returns, for each row position, the index of its part in `partNames` (absent when there is no part for that row).
+function ModelInstall.Assign(partNames: { string }, entries: { SlotEntry }, rowNames: { string }, modelName: string): { [number]: number }
+	local assigned: { [number]: number } = {}
+	local usedPart: { [number]: boolean } = {}
+	local rowByName: { [string]: number } = {}
+	for position, rowName in ipairs(rowNames) do
+		if rowByName[rowName] == nil then
+			rowByName[rowName] = position
+		end
+	end
+	for _, pass in ipairs({ "exact", "bare" }) do
+		for index, partName in ipairs(partNames) do
+			if not usedPart[index] then
+				local key = if pass == "exact" then partName else ModelInstall.BareName(partName, modelName)
+				local position = rowByName[key]
+				if position and assigned[position] == nil then
+					assigned[position] = index
+					usedPart[index] = true
+				end
+			end
+		end
+	end
+	local freeRows: { number } = {}
+	for position in ipairs(rowNames) do
+		if assigned[position] == nil then
+			table.insert(freeRows, position)
+		end
+	end
+	local next = 1
+	for _, index in ipairs(ModelInstall.Order(entries)) do
+		if not usedPart[index] then
+			local position = freeRows[next]
+			if not position then
+				break
+			end
+			assigned[position] = index
+			usedPart[index] = true
+			next += 1
+		end
+	end
+	return assigned
+end
+
 -- True when a part name contains "glow", in any case. A prop with no Materials rows gets Neon on its MeshParts
 -- named like that.
 function ModelInstall.IsGlowName(name: string): boolean
