@@ -425,3 +425,14 @@ What the ten taught:
 - **Every one keeps a 2-stud head** again: Sizz's body widened from 1.75 to 2 so an Uncommon does not carry more cells per height than a Rare (C1's ordering).
 - **A hero's name is unique in its world** as well as its block: Eekle's wings are `IceWing` (Skadra has `Wing`), Soakum's pack is `PebblePack` (Pengoo has `Backpack`), Sizz's top quill `EmberQuill`.
 - The lessons in [[Decisions]] B43 and B44 stand; nothing under `assets/models` or `src/` changed.
+
+## Roster w1_high notes
+
+2026-10-21, the Roster w1_high worker: World 1 Rare to Secret on B45 and B46 ([[Rocklobber]], [[Sparkfox]], [[Zapfinch]], [[Gloomoth]], [[Thunderhog]], [[Gaiabloom]], [[Panpipe]]) and the two weak spots of the [[Radish]] pilot; sheet `media/studio/2026-10-21/Roster w1_high_v1.jpg` (copy `refs/blocky/roster_w1_high_v1.jpg`, silhouettes `refs/blocky/world1_silhouettes_w1_high.png`). One new Secret eye, `echo`, at the end of `tools/blocky/eyes.py`.
+
+- **Shrinking a crown makes a box with a bump.** Voltus at 3.375 studs (bolt in eighth-stud rows) fell to 0.705 against Buzzik; Syrinx at 3.5 with its reeds behind the head hit 0.72 against Gaira and Buzzik. Not more detail but a new outline fixed both: Voltus's legs splayed to the body's edges and its rods moved to the head's corners (0.647); Syrinx's reeds moved a stud right to rise off one haunch, tallest outside (0.675). At fixed height, the silhouette has to come from width and asymmetry.
+- **A pale wing on a pale backdrop vanishes in Verdant too** (World 2's lesson): Iridia's moon-cream crystal wings disappeared; a lilac crystal `#D9C8FF` reads. A three-cell plus on a forehead still reads as a medical cross; a five-row stepped diamond in sixteenth-stud plates reads as a gem.
+- **A small ring behind a 2-stud head is hidden**: Raddis's sun ring at radius 1.06 vanished from the front; at 1.31 round a centre an eighth lower it frames the head. And Gaira's nimbus could not stay: at 3.5 studs a ring behind the head is Raddis's sun disk, so Gaira's halo is a floating flower crown that turns over its head.
+- **Straight trees on a head read as bushes**: Gaira's antler trees leaned out 15 degrees about their band read as antlers (each part turned about the mover's pivot, its centre snapped to the 1/32 grid).
+- **A muzzle, beak or nose block can carry the mouth on B46** (`mouth: none` on the plate): Vixa's cream muzzle and ink nose, Zirrit's stepped beak, Gaira's sixteenth-stud smile on the muzzle.
+
