@@ -47,6 +47,20 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Lanternewt = {
+		height = 2.75,
+		parts = {
+			{ name = "gillL", pivot = { -1, 1.375, -1.1875 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0.5, axis = "z" } } },
+			{ name = "gillR", pivot = { 1, 1.375, -1.1875 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0, axis = "z" } } },
+			{ name = "tail", pivot = { 0, 1.125, 0.9375 }, clips = { { kind = "sway", amp = 6, period = 2.6, phase = 0, axis = "y" }, { kind = "sway", amp = 4, period = 3.9, phase = 0.2, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 2.6, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
