@@ -46,14 +46,14 @@ parts:
   - {name: ChunkR, slot: BodyDark, size: [2, 2.5, 4], at: [10, 9.75, 3], material: stone}
   - {name: ChunkL, slot: BodyDark, size: [2, 2, 4], at: [-10, 10, -4], material: stone}
   - {name: ChunkBack, slot: BodyDark, size: [5, 2, 2], at: [-3.5, 10, 8.5], material: stone}
-  - {name: ChunkLow, slot: BodyDark, size: [3, 2, 3], at: [5.5, 7, -4.5], material: stone}
+  - {name: ChunkLow, slot: BodyDark, size: [3, 2, 3], at: [5.75, 7, -4.75], material: stone}
   # the grassy top, a knoll and three bushes
   - {name: Grass, slot: Body, size: [18, 3, 16], at: [0, 12.5, -0.5], material: grass}
   - {name: GrassWest, slot: Body, size: [3, 3, 20], at: [-10.5, 12.5, 0], material: grass}
   - {name: GrassEast, slot: Body, size: [3, 3, 20], at: [10.5, 12.5, 0], material: grass}
   - {name: GrassNorth, slot: Body, size: [18, 3, 1.5], at: [0, 12.5, 8.25], material: grass}
   - {name: GrassSouth, slot: Body, size: [18, 3, 1.5], at: [0, 12.5, -9.25], material: grass}
-  - {name: Knoll, slot: Body, size: [7, 1, 6], at: [4.5, 14.5, 4], material: grass}
+  - {name: Knoll, slot: Body, size: [7, 1, 6], at: [6, 14.5, 4], material: grass}
   - {name: Bush, slot: Body, size: [3, 2, 3], at: [8.5, 15, -5.5], material: moss}
   - {name: Bush2, slot: Body, size: [2.5, 1.5, 2.5], at: [-8.5, 14.75, 6.5], material: moss}
   - {name: Bush3, slot: Body, size: [2, 1.5, 2], at: [6, 15.75, 5.5], material: moss}

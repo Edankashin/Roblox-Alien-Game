@@ -51,10 +51,10 @@ parts:
   - {name: Top, slot: Body, size: [3, 1.25, 3], at: [0, 18.375, 0], material: moss}
   - {name: TopTuft, slot: Body, size: [1.5, 0.75, 1.5], at: [0.5, 19.375, -0.5], material: moss}
   # indigo clumps on both tiers
-  - {name: Clump, slot: Accessory, size: [3, 1.5, 3], at: [-4.5, 11.25, -3.5], material: moss}
+  - {name: Clump, slot: Accessory, size: [3, 1.75, 3], at: [-4.5, 11.375, -3.625], material: moss}
   - {name: Clump2, slot: Accessory, size: [3.5, 1.5, 2.5], at: [2.75, 11.75, 4.75], material: moss}
-  - {name: Clump3, slot: Accessory, size: [2.5, 1.5, 3], at: [-4.25, 15.25, 2], material: moss}
-  - {name: Clump4, slot: Accessory, size: [3, 1.25, 2.5], at: [3.5, 16.125, -3.25], material: moss}
+  - {name: Clump3, slot: Accessory, size: [2.5, 1.5, 3], at: [-4.25, 15.25, 2.25], material: moss}
+  - {name: Clump4, slot: Accessory, size: [3, 1.25, 2.5], at: [3.5, 16.125, -3.375], material: moss}
   # pink light dripping from both tiers
   - {name: Drip, slot: Glow, size: [0.25, 1.5, 0.25], at: [-3.875, 9.25, -4.625]}
   - {name: Drip2, slot: Glow, size: [0.25, 1, 0.25], at: [4.625, 9.5, 2.125]}

@@ -60,8 +60,8 @@ parts:
   - {name: PostEndBack, slot: BodyDark, size: [0.5, 2.75, 0.5], at: [6.25, 1.875, 1.875], mirror: x, material: wood}
   - {name: PostMid, slot: BodyDark, size: [0.5, 1.875, 0.5], at: [2.25, 2.3125, -1.875], mirror: x, material: wood}
   - {name: PostMidBack, slot: BodyDark, size: [0.5, 1.875, 0.5], at: [2.25, 2.3125, 1.875], mirror: x, material: wood}
-  - {name: RailOuter, slot: BodyDark, size: [4.5, 0.25, 0.25], at: [4.25, 2.875, -1.875], mirror: x, material: wood}
-  - {name: RailOuterBack, slot: BodyDark, size: [4.5, 0.25, 0.25], at: [4.25, 2.875, 1.875], mirror: x, material: wood}
+  - {name: RailOuter, slot: BodyDark, size: [4, 0.25, 0.25], at: [4.25, 2.875, -1.875], mirror: x, material: wood}
+  - {name: RailOuterBack, slot: BodyDark, size: [4, 0.25, 0.25], at: [4.25, 2.875, 1.875], mirror: x, material: wood}
   - {name: RailMid, slot: BodyDark, size: [4, 0.25, 0.25], at: [0, 3.125, -1.875], material: wood}
   - {name: RailMidBack, slot: BodyDark, size: [4, 0.25, 0.25], at: [0, 3.125, 1.875], material: wood}
   # a lantern on each front end post

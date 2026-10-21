@@ -43,8 +43,8 @@ parts:
   - {name: MossTop, slot: Accessory, size: [1.25, 0.25, 1], at: [0.125, 2.625, 0.375], material: moss}
   - {name: MossFringe, slot: Accessory, size: [0.25, 0.75, 1.25], at: [-1.375, 1.375, 0.375], material: moss}
   - {name: Speck, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.875, 1.125, -1.125]}
-  - {name: Speck2, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.625, 2.125, -0.625]}
-  - {name: Speck3, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.25, 1.625, 0.75]}
+  - {name: Speck2, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.75, 2.125, -0.625]}
+  - {name: Speck3, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.25, 1.5, 0.75]}
   - {name: Speck4, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.5, 2.875, 0.375]}
 ```
 
