@@ -1,0 +1,121 @@
+{
+  "Dirt": {
+    "assetId": 122508582434541,
+    "file": "assets/textures/blocky_tiles/Dirt.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:10Z"
+  },
+  "FrozenWater": {
+    "assetId": 83748426282040,
+    "file": "assets/textures/blocky_tiles/FrozenWater.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:13Z"
+  },
+  "GlowWater": {
+    "assetId": 80429691734983,
+    "file": "assets/textures/blocky_tiles/GlowWater.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:16Z"
+  },
+  "GrassSide": {
+    "assetId": 135264617201047,
+    "file": "assets/textures/blocky_tiles/GrassSide.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:19Z"
+  },
+  "GrassTop": {
+    "assetId": 127833672158490,
+    "file": "assets/textures/blocky_tiles/GrassTop.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:22Z"
+  },
+  "Ice": {
+    "assetId": 111724295514551,
+    "file": "assets/textures/blocky_tiles/Ice.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:25Z"
+  },
+  "MoonGrass": {
+    "assetId": 122622259234104,
+    "file": "assets/textures/blocky_tiles/MoonGrass.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:28Z"
+  },
+  "MoonPath": {
+    "assetId": 96589298471381,
+    "file": "assets/textures/blocky_tiles/MoonPath.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:30Z"
+  },
+  "PackedSnow": {
+    "assetId": 136178599413111,
+    "file": "assets/textures/blocky_tiles/PackedSnow.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:33Z"
+  },
+  "Path": {
+    "assetId": 77924580527337,
+    "file": "assets/textures/blocky_tiles/Path.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:36Z"
+  },
+  "Rock": {
+    "assetId": 132890123446724,
+    "file": "assets/textures/blocky_tiles/Rock.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:39Z"
+  },
+  "Sand": {
+    "assetId": 77762949094590,
+    "file": "assets/textures/blocky_tiles/Sand.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:42Z"
+  },
+  "Snow": {
+    "assetId": 97033184369370,
+    "file": "assets/textures/blocky_tiles/Snow.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:45Z"
+  },
+  "SnowSide": {
+    "assetId": 75838038426520,
+    "file": "assets/textures/blocky_tiles/SnowSide.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:48Z"
+  },
+  "Stone": {
+    "assetId": 91293290202888,
+    "file": "assets/textures/blocky_tiles/Stone.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:51Z"
+  },
+  "Water": {
+    "assetId": 76270045570804,
+    "file": "assets/textures/blocky_tiles/Water.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:54Z"
+  },
+  "WoodPlank": {
+    "assetId": 71160956764095,
+    "file": "assets/textures/blocky_tiles/WoodPlank.png",
+    "format": "png",
+    "kind": "tile",
+    "uploadedAt": "2026-10-21T20:30:57Z"
+  }
+}
