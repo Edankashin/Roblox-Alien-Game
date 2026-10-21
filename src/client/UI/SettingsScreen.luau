@@ -35,27 +35,32 @@ local SettingsScreen = {}
 type Row = { def: Settings.SettingDef, levelButtons: { Frame }, toggle: Frame? }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the rows start under it; the hint takes the bottom. The rows frame shares its
--- height between the settings and the promo-code row (six at the moment: five settings, the home lock among
--- them, and the code), so the rows are slim: about 28 px a card, 22 px a button at iPhone SE height.
+-- reaches down to 0.155, so the rows start under it; the hint takes the bottom (two lines at the 14 px floor). The rows frame
+-- shares its height between the settings and the promo-code row (seven at the moment: six settings, the home lock among
+-- them, and the code), so the rows are slim: about 26 px a card, 22 px a button at iPhone SE height. tests/BlockMath.spec.luau
+-- ("Block screens: Settings") checks that a button's text box, inside its ink and padding, keeps the 14 px floor there.
 local PANEL_H = 0.78
-local ROWS_Y = 0.17
-local ROWS_H = 0.68
-local HINT_Y = 0.87
+local ROWS_Y = 0.16
+local ROWS_H = 0.705
+local HINT_Y = 0.875
 local HINT_H = 0.1
-local ROW_GAP = 0.03 -- of the rows frame, between rows
+local ROW_GAP = 0.02 -- of the rows frame, between rows
 local LABEL_X = 0.03 -- of a row
 local LABEL_W = 0.35
 local CONTROLS_X = 0.39
 local CONTROLS_W = 0.59
-local CONTROL_H = 0.78 -- of a row: with six rows that is about 0.075 of the panel
+local CONTROL_H = 0.84 -- of a row: inside the card's face (a five-row card's ink is 0.14 of it, both edges together)
 local LEVEL_GAP = 0.03 -- of the controls frame, between level buttons; three buttons are 0.31 of the frame each, about 67 px at iPhone SE size, enough for "Friends" at the minimum text size
 local TOGGLE_W = 0.4 -- of the controls frame
 local CODE_BOX_W = 0.62 -- of the controls frame: the text box; the Redeem button takes the rest after the gap
 local CODE_GAP = 0.03
 
 local PANEL_ASPECT = 1.3
-local FLAT_ROWS = 3 -- a control button: a flat block of the fewest rows a stepped corner takes (about 22 px at iPhone SE)
+-- A card and a control button are flat blocks of five rows, not three: the ink and the one-cell lip are a share of the rows, so
+-- five rows give the text more of a 22 px button (at three rows its text box was 9.5 px at iPhone SE, under the 14 px floor; at
+-- five it is 14.4). The cells are small (3.2 px on a button at SE), which a flat block can take: it has no grout to blur.
+local CARD_ROWS = 5
+local CONTROL_ROWS = 5
 
 local ACTIVE = Theme.Colors.Confirm
 local INACTIVE = Theme.Rarity.Common
@@ -195,7 +200,7 @@ local function buildLevelControls(controls: Frame, row: Row)
 			color = INACTIVE,
 			size = UDim2.fromScale(width, 1),
 			textSize = Theme.TextSize.Body,
-			rows = FLAT_ROWS,
+			rows = CONTROL_ROWS,
 			cells = false, -- a row of them on every setting: flat faces (UI Playbook "Frames")
 			zIndex = 4,
 		}, function()
@@ -220,7 +225,7 @@ local function buildToggleControl(controls: Frame, row: Row)
 		size = UDim2.fromScale(TOGGLE_W, 1),
 		anchor = Vector2.new(1, 0.5),
 		textSize = Theme.TextSize.Body,
-		rows = FLAT_ROWS,
+		rows = CONTROL_ROWS,
 		cells = false,
 		zIndex = 4,
 	}, function()
@@ -236,7 +241,7 @@ local function buildCard(parent: Frame, name: string, index: number, share: numb
 		name = name,
 		color = Theme.Colors.White,
 		ink = Theme.Rarity.Common,
-		rows = FLAT_ROWS,
+		rows = CARD_ROWS,
 		cells = false,
 		edges = true,
 		size = UDim2.fromScale(1, share),
@@ -306,7 +311,7 @@ local function buildCodesRow(parent: Frame, index: number, share: number)
 		size = UDim2.fromScale(1 - CODE_BOX_W - CODE_GAP, 1),
 		anchor = Vector2.new(1, 0.5),
 		textSize = Theme.TextSize.Body,
-		rows = FLAT_ROWS,
+		rows = CONTROL_ROWS,
 		cells = false,
 		zIndex = 4,
 	}, redeem)

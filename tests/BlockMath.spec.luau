@@ -420,8 +420,13 @@ describe("Block screens: Quests", function()
 end)
 
 describe("Block screens: Settings", function()
-	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; six rows share 0.68 of it with 0.03 gaps, each an edged block of three rows;
-	-- a control is 0.78 of a row, a flat block button of three rows over its one-cell lip.
+	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; the rows frame 0.705 of it, shared by every data/Settings row and the code
+	-- row with 0.02 gaps; a row an edged block of five rows; a control 0.84 of a row, a flat block button of five rows over its
+	-- one-cell lip, its text padded a quarter cell inside the ink (Builder.blockButton).
+	local SettingsData = require(Shared.data.Settings)
+	local count = #SettingsData.Order + 1
+	local CARD_ROWS, CONTROL_ROWS = 5, 5
+	local ROWS_H, GAP, CONTROL_H = 0.705, 0.02, 0.84
 	for _, screen in ipairs({ SE, IPAD }) do
 		local label = screen.w .. "x" .. screen.h
 		local w, h, grid = panel(screen, 0.6, 0.78, 1.3)
@@ -430,16 +435,23 @@ describe("Block screens: Settings", function()
 			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
 			shell(screen, w, h, 0.78)
 		end)
-		it(label .. ": a row's cells are near the HUD's, and a control's face inside its ink is near the 14 px floor", function()
-			local share = (1 - 0.03 * 5) / 6
-			local row = 0.68 * share * h
-			local cell = row / (3 + 2 * INK)
-			assert(cell >= 6, "row cell is " .. cell .. " px")
-			local control = 0.78 * row
-			local face = control * (1 - BlockMath.Lip(1, 3, INK))
-			local inner = face * (1 - 2 * INK / (3 + 2 * INK))
-			-- 13.7 px at iPhone SE: the 14 px line touches the ink there (a known squeeze, UI Playbook "Settings"); 29.7 on the iPad
-			assert(inner >= 13.5, "a control's face is " .. inner .. " px inside its ink")
+		it(label .. ": a control's text box keeps the 14 px floor inside its ink and padding, and sits in its card's face", function()
+			local row = ROWS_H * h * (1 - GAP * (count - 1)) / count
+			local cardFace = row * (1 - 2 * INK / (CARD_ROWS + 2 * INK))
+			local control = CONTROL_H * row
+			assert(control <= cardFace, "a control (" .. control .. " px) overflows its card's face (" .. cardFace .. " px)")
+			local lip = BlockMath.Lip(1, CONTROL_ROWS, INK)
+			local face = control * (1 - lip)
+			local text = face * (1 - (2 * INK + 0.5) / (CONTROL_ROWS + 2 * INK))
+			-- 14.4 px at iPhone SE (it was 9.5 at three rows and six-row spacing, with seven rows on screen); 24.5 on the iPad.
+			assert(text >= TEXT_MIN, "a control's text box is " .. text .. " px")
+			local ink = INK * face / (CONTROL_ROWS + 2 * INK)
+			assert(ink >= 1, "a control's ink is " .. ink .. " px")
+			assert(row / (CARD_ROWS + 2 * INK) >= 4, "a card cell is " .. row / (CARD_ROWS + 2 * INK) .. " px")
+		end)
+		it(label .. ": the hint holds two lines at the 14 px floor under the rows", function()
+			assert(0.875 >= 0.16 + ROWS_H, "the hint overlaps the rows")
+			assert(0.1 * h >= 2 * TEXT_MIN, "the hint band is " .. 0.1 * h .. " px")
 		end)
 	end
 end)
