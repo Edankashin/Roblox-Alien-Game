@@ -7,204 +7,212 @@ world: 1
 tier: Cosmic
 status: review
 element: Sun
-height: 13.96
-blocks: 141
-tris: 1608
-bevel_width: 0.125
+height: 3.44
+blocks: 132
+tris: 1616
+bevel_width: 0.03125
 bevel_segments: 2
 palette: ["#D7265C", "#FFF0D9", "#2CC5B2", "#FFB21E", "#FFE36B", "#2A1530"]
 roles: [body, second, accent, trim, glow, ink]
 glow_cycle: ["#FFE36B", "#FF9F45", "#FFF8DC"]
 hero: RingT
-vfx: "to the sky: the rays, the orb, the forehead gem and the wing tips glow and step through gold, amber and white every 2 s; the halo turns once in 8 s; gold motes orbit at 1.5 studs; a ground ring of light; a sunlight trail while it hovers; the flourish is a flare and a column of light from the orb"
-ride: "Hover; the rider sits on the flat front of the head top (6 by 2 studs, 10.75 studs up), in front of the crown step and the leaves"
+vfx: "to the sky: the rays, the orb, the motes, the forehead gem, the pendant and the wing tips glow and step through gold, amber and white every 2 s; the halo turns once in 12 s; gold motes circle the shoulders; a ground ring of light; a sunlight trail while it hovers; the flourish (every 12 s) is a hop and a full turn with the wings flared, the disk popping and the orb leaping, the moment Effects.luau can hang a flare and a column of light on (World.RigAnimator.OnFlourish)"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Radish_sheet.svg]]"
-render: "[[Radish_tq.jpg]]"
+render: "[[Radish_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.997, 0.995, 0.997]
-vfx_render: "[[Radish_vfx.jpg]]"
+overlap: [0.993, 0.993, 0.991, 0.993]
+vfx_render: "[[Radish_vfx_cells.jpg]]"
 cells_render: "[[Radish_tq_cells.jpg]]"
+idle_render: "[[Radish_idle.png]]"
 ---
 # Radish (Raddis), Cosmic, World 1 Verdant
 
-A giant radish that hovers: a deep radish-red head 6 studs square with the house face low on it, a narrower crown step over it and a narrower bulb under it, so the red body reads as a round, then a root that tapers in five steps from red to cream down to a thin tail with a curl at its tip and two root hairs. Seven broad turquoise leaves fan out of the back of the crown, the outer pair drooping over its shoulders. The face wears the pharaoh's brow: a band of gold and turquoise cells across the forehead with the lit sun gem on it, and striped lappets down both sides of the face; cream lenticel dashes mark the radish skin on the sides. A broad collar of gold and turquoise cells stands out under the chin, narrowing to a lit pendant. Behind it turns a stepped gold sun disk with six glowing rays and a pair of spread Egyptian wings, the winged sun of Ra, and a glowing orb floats over its crown. Concept row: "radiant radish, sun disk; echo of Ra". Element: Sun (`Effects.luau`; [[Roster-Redesign]] section 2 gives the corona, the turning disk, the orbiting motes, the ring, the trail and the flare). Rules: [[Blocky-Style]].
+A small radish that hovers, 3.44 studs tall (B45: every alien stands 2 to 3.5 studs; it was 13.96): a deep radish-red head 2 studs wide with the face plate low on it, a crown step over it and a bulb under it, then a root that tapers in five steps from red to cream to a curled tip with two root hairs. A centre leaf, a pair of fronds and four drooping blades fan out of the back of the crown. The face wears the pharaoh's brow in eighth-stud cells: a band of gold and turquoise over the eyes with a lit gem in a gold frame, striped lappets down both sides and three gold studs on the crown's front edge; cream lenticel dashes mark the radish skin. A broad collar of gold and turquoise cells stands out under the chin, narrowing to a lit pendant that swings. Behind it turns a ring of gold cells with eight lit rays and a pair of feathered wings, the winged sun of Ra; a sun orb floats over its crown and two motes circle its shoulders. Concept row: "radiant radish, sun disk; echo of Ra". Element: Sun (`Effects.luau`; [[Roster-Redesign]] section 2). Rules: [[Blocky-Style]].
 
-**What makes a player want it.** It is 13.96 studs tall and 16.5 studs across the wings, nearly three avatars high: it towers over the player, and it is a mount. The awe comes from the size, the turning sun and the light; the face stays the same soft house face as Moop's, which is the point (rare means worth finding, not fierce). Loop 2 makes it read as a radish first (the leaf fan, the round red body, the white root) and a lantern not at all (loop 1's striped head sides read as lantern ribs; they are gone).
+**What makes a player want it (B46).** Not its size any more: it stands a little under the avatar's shoulder like everyone else. What sets it apart from Moop is everything else: 132 blocks to Moop's 10, most of them eighth-stud cells of gold, turquoise and light (Moop has none); its own solar eyes, a sun in each eye whose pinwheel rays swirl round a white-hot core over a lit turquoise rim, with star cheeks (Moop has ink beans); twelve moving things to Moop's three (the turning disk, two beating wings, the bobbing orb, two circling motes, a nodding leaf, two swaying fronds, the pulsing gem, the swinging pendant, and the blink); and every 12 seconds a flourish: a hop and a full turn with the wings flared, the disk popping and the orb leaping. Rarer means more exclusive and cuter, never fiercer: the face is a soft smile and starry cheeks under sun eyes.
 
-**Hero block.** The sun disk (`RingT` to `RingB` and the rays): one moving part, the `halo`, that the game turns once in 8 s, unique in Verdant.
+**Hero block.** The sun disk (`RingT` and the ring cells and rays round it): one moving part, the `halo`, that the game turns once in 12 s, unique in Verdant.
 
-**Moving parts (four objects).** `halo` (the ring and its rays, pivot on the disk's centre), `wingR` and `wingL` (pivots at the disk's sides, they flap), `float` (the orb, it bobs).
+**Moving parts (eleven objects and the blink).** `halo` (the ring and its rays), `wingR` and `wingL` (they beat and sway), `orb` (it bobs and spins), `moteR` and `moteL` (they circle), `leaf` (it nods), `frondR` and `frondL` (they sway), `gem` (it pulses), `pendant` (it swings); the face plate blinks, glints and swirls.
 
 **Alien anatomy.** A root that hovers instead of standing, and a sun that turns behind it on nothing.
 
-**World motif (Verdant).** The moss cell, here as the half-stud cells of the ring, the brow band, the lappets and the collar.
+**World motif (Verdant).** The moss cell, here as the eighth-stud cells of the brow, the lappets, the collar and the ring.
 
 ## Parts
 
 ```yaml
 parts:
-  # the radish: a wide head with the face, a crown step over it, a bulb under it, then a root that tapers in steps from red to cream to a curled tip
-  - {name: Head, slot: Body, size: [6, 6, 5], at: [0, 7.75, 0], bevel: true}
-  - {name: Crown, slot: Body, size: [5, 0.5, 4], at: [0, 11, 0.25]}
-  - {name: Bulb, slot: Body, size: [5, 1.5, 4.5], at: [0, 4, 0], bevel: true}
-  - {name: Root, slot: Body, size: [3.75, 0.75, 3.5], at: [0, 2.875, 0]}
-  - {name: Root2, slot: BodyDark, size: [2.75, 0.75, 2.5], at: [0, 2.125, 0], material: wood}
-  - {name: Root3, slot: BodyDark, size: [1.75, 0.5, 1.5], at: [0, 1.5, 0], material: wood}
-  - {name: RootTip, slot: BodyDark, size: [1, 0.5, 1], at: [0, 1, 0], material: wood}
-  - {name: RootTail, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [0, 0.5, 0]}
-  - {name: RootCurl, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [0.125, 0.125, 0]}
-  - {name: RootHair, slot: BodyDark, size: [0.25, 0.75, 0.25], at: [1.5625, 1.875, 0], rot: [0, 0, 20], mirror: x}
-  # radish skin: short cream lenticel dashes on the head's sides
-  - {name: Dash, slot: BodyDark, size: [0.125, 0.125, 0.75], at: [3.0625, 9.6875, -0.75], mirror: x}
-  - {name: Dash2, slot: BodyDark, size: [0.125, 0.125, 1], at: [3.0625, 8.1875, 0.75], mirror: x}
-  - {name: Dash3, slot: BodyDark, size: [0.125, 0.125, 0.5], at: [3.0625, 6.4375, -0.25], mirror: x}
-  # the pharaoh's brow: a band of gold and turquoise cells across the forehead, the lit sun gem on it, striped lappets framing the face
-  - {name: Band, slot: Trim, size: [0.5, 0.5, 0.125], at: [0, 9, -2.5625]}
-  - {name: Band1, slot: Accessory, size: [0.5, 0.5, 0.125], at: [0.5, 9, -2.5625], mirror: x}
-  - {name: Band2, slot: Trim, size: [0.5, 0.5, 0.125], at: [1, 9, -2.5625], mirror: x}
-  - {name: Band3, slot: Accessory, size: [0.5, 0.5, 0.125], at: [1.5, 9, -2.5625], mirror: x}
-  - {name: Band4, slot: Trim, size: [0.5, 0.5, 0.125], at: [2, 9, -2.5625], mirror: x}
-  - {name: GemFrame, slot: Trim, size: [1.25, 0.75, 0.125], at: [0, 9.625, -2.5625], material: metal}
-  - {name: Gem, slot: Glow, size: [0.75, 0.5, 0.125], at: [0, 9.625, -2.6875]}
-  - {name: Lappet, slot: Trim, size: [0.5, 0.75, 0.125], at: [2.75, 8.875, -2.5625], mirror: x}
-  - {name: Lappet2, slot: Accessory, size: [0.5, 0.75, 0.125], at: [2.75, 8.125, -2.5625], mirror: x}
-  - {name: Lappet3, slot: Trim, size: [0.5, 0.75, 0.125], at: [2.75, 7.375, -2.5625], mirror: x}
-  - {name: Lappet4, slot: Accessory, size: [0.5, 0.75, 0.125], at: [2.75, 6.625, -2.5625], mirror: x}
-  - {name: Lappet5, slot: Trim, size: [0.5, 0.75, 0.125], at: [2.75, 5.875, -2.5625], mirror: x}
-  - {name: Lappet6, slot: Accessory, size: [0.5, 0.75, 0.125], at: [2.75, 5.125, -2.5625], mirror: x}
-  # the broad collar: three rows of gold and turquoise cells standing out past the chin, so it shows from above, narrowing to a lit pendant
-  - {name: CollarA, slot: Trim, size: [0.5, 0.5, 1], at: [0, 4.5, -2.625]}
-  - {name: CollarA1, slot: Accessory, size: [0.5, 0.5, 1], at: [0.5, 4.5, -2.625], mirror: x}
-  - {name: CollarA2, slot: Trim, size: [0.5, 0.5, 1], at: [1, 4.5, -2.625], mirror: x}
-  - {name: CollarA3, slot: Accessory, size: [0.5, 0.5, 1], at: [1.5, 4.5, -2.625], mirror: x}
-  - {name: CollarA4, slot: Trim, size: [0.5, 0.5, 1], at: [2, 4.5, -2.625], mirror: x}
-  - {name: CollarB, slot: Accessory, size: [0.5, 0.5, 0.875], at: [0, 4, -2.5625]}
-  - {name: CollarB1, slot: Trim, size: [0.5, 0.5, 0.875], at: [0.5, 4, -2.5625], mirror: x}
-  - {name: CollarB2, slot: Accessory, size: [0.5, 0.5, 0.875], at: [1, 4, -2.5625], mirror: x}
-  - {name: CollarB3, slot: Trim, size: [0.5, 0.5, 0.875], at: [1.5, 4, -2.5625], mirror: x}
-  - {name: CollarC, slot: Trim, size: [0.5, 0.5, 0.75], at: [0, 3.5, -2.5]}
-  - {name: CollarC1, slot: Accessory, size: [0.5, 0.5, 0.75], at: [0.5, 3.5, -2.5], mirror: x}
-  - {name: CollarC2, slot: Trim, size: [0.5, 0.5, 0.75], at: [1, 3.5, -2.5], mirror: x}
-  - {name: Pendant, slot: Glow, size: [0.5, 0.5, 0.5], at: [0, 3, -2.125]}
-  # the radish greens: seven broad turquoise leaves fanning out of the back of the crown (a stem, a wide blade, a narrower tip), the outer pair drooping
-  - {name: Leaf, slot: Accessory, size: [0.375, 0.375, 0.25], at: [0, 11.4375, 1.8125], rot: [15, 0, 0]}
-  - {name: Leaf2, slot: Accessory, size: [1.5, 1.25, 0.25], at: [0, 12.1875, 2], rot: [15, 0, 0]}
-  - {name: Leaf3, slot: Accessory, size: [1, 0.75, 0.25], at: [0, 13.1875, 2.25], rot: [15, 0, 0]}
-  - {name: Leaf4, slot: Accessory, size: [0.5, 0.375, 0.25], at: [0, 13.75, 2.4375], rot: [15, 0, 0]}
-  # Leaf top at [0, 13.906, 2.462]
-  - {name: SideLeaf, slot: Accessory, size: [0.375, 0.375, 0.25], at: [0.9375, 11.4375, 1.25], rot: [0, 0, -25], mirror: x}
-  - {name: SideLeaf2, slot: Accessory, size: [1.375, 1.25, 0.25], at: [1.3125, 12.1875, 1.25], rot: [0, 0, -25], mirror: x}
-  - {name: SideLeaf3, slot: Accessory, size: [1, 0.75, 0.25], at: [1.75, 13.0625, 1.25], rot: [0, 0, -25], mirror: x}
-  - {name: SideLeaf4, slot: Accessory, size: [0.5, 0.375, 0.25], at: [1.9375, 13.5625, 1.25], rot: [0, 0, -25], mirror: x}
-  # SideLeaf top at [2.037, 13.742, 1.25]
-  - {name: BackLeaf, slot: Accessory, size: [0.375, 0.375, 0.25], at: [0.6875, 11.4375, 1.8125], rot: [15, 0, -15], mirror: x}
-  - {name: BackLeaf2, slot: Accessory, size: [1.125, 1, 0.25], at: [0.875, 12.0625, 2], rot: [15, 0, -15], mirror: x}
-  - {name: BackLeaf3, slot: Accessory, size: [0.75, 0.75, 0.25], at: [1.0625, 12.875, 2.1875], rot: [15, 0, -15], mirror: x}
-  # BackLeaf top at [1.156, 13.233, 2.3]
-  - {name: OuterLeaf, slot: Accessory, size: [0.375, 0.375, 0.25], at: [1.9375, 11.0625, 0.75], rot: [0, 0, -65], mirror: x}
-  - {name: OuterLeaf2, slot: Accessory, size: [1, 1, 0.25], at: [2.5625, 11.375, 0.75], rot: [0, 0, -65], mirror: x}
-  - {name: OuterLeaf3, slot: Accessory, size: [0.75, 0.75, 0.25], at: [3.3125, 11.75, 0.75], rot: [0, 0, -65], mirror: x}
-  # OuterLeaf top at [3.676, 11.898, 0.75]
-  # the floating accessory: a sun orb over the crown, in front of the leaves
-  - {name: Orb, slot: Glow, size: [1, 1, 1], at: [0, 12.5, 0.25], shape: ico1, moves: float, pivot: [0, 12.5, 0.25]}
-  # the sun disk: a stepped ring of half-stud cells behind the head, turning on its centre
-  - {name: RingT, slot: Trim, size: [3, 0.5, 0.5], at: [0, 12, 2.875], moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingT1, slot: Trim, size: [5, 0.5, 0.5], at: [0, 11.5, 2.875], moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingT2, slot: Trim, size: [2, 0.5, 0.5], at: [2, 11, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingT3, slot: Trim, size: [1.5, 0.5, 0.5], at: [2.75, 10.5, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingT4, slot: Trim, size: [1.5, 0.5, 0.5], at: [3.25, 10, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingT5, slot: Trim, size: [1, 0.5, 0.5], at: [3.5, 9.5, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingSide, slot: Trim, size: [1, 3, 0.5], at: [4, 7.75, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB5, slot: Trim, size: [1, 0.5, 0.5], at: [3.5, 6, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB4, slot: Trim, size: [1.5, 0.5, 0.5], at: [3.25, 5.5, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB3, slot: Trim, size: [1.5, 0.5, 0.5], at: [2.75, 5, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB2, slot: Trim, size: [2, 0.5, 0.5], at: [2, 4.5, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB1, slot: Trim, size: [5, 0.5, 0.5], at: [0, 4, 2.875], moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  - {name: RingB, slot: Trim, size: [3, 0.5, 0.5], at: [0, 3.5, 2.875], moves: halo, pivot: [0, 7.75, 2.875], material: metal}
-  # six rays, stepped and tapering, colour-cycled glow
-  - {name: RayN, slot: Glow, size: [1.5, 0.5, 0.5], at: [0, 12.5, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayN2, slot: Glow, size: [1, 0.5, 0.5], at: [0, 13, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayN3, slot: Glow, size: [0.5, 0.5, 0.5], at: [0, 13.5, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayS, slot: Glow, size: [1.5, 0.5, 0.5], at: [0, 3, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayS2, slot: Glow, size: [1, 0.5, 0.5], at: [0, 2.5, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayS3, slot: Glow, size: [0.5, 0.5, 0.5], at: [0, 2, 2.875], moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayNE, slot: Glow, size: [0.75, 0.75, 0.5], at: [3.625, 11.375, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayNE2, slot: Glow, size: [0.5, 0.5, 0.5], at: [4.125, 11.875, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RayNE3, slot: Glow, size: [0.25, 0.25, 0.5], at: [4.375, 12.125, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RaySE, slot: Glow, size: [0.75, 0.75, 0.5], at: [3.625, 4.125, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RaySE2, slot: Glow, size: [0.5, 0.5, 0.5], at: [4.125, 3.625, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  - {name: RaySE3, slot: Glow, size: [0.25, 0.25, 0.5], at: [4.375, 3.375, 2.875], mirror: x, moves: halo, pivot: [0, 7.75, 2.875]}
-  # the wings of the winged sun: four feather rows behind the disk, lit tips; each wing turns on its root to flap
-  - {name: Wing, slot: Trim, size: [4, 0.5, 0.25], at: [6.25, 10.25, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: Wing2, slot: Accessory, size: [3.75, 0.75, 0.25], at: [6.125, 9.625, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: Wing3, slot: Body, size: [3.25, 0.75, 0.25], at: [5.875, 8.875, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: Wing4, slot: Accessory, size: [2.5, 0.75, 0.25], at: [5.5, 8.125, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: WingTip, slot: Glow, size: [0.25, 0.75, 0.25], at: [8.125, 9.625, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: WingTip2, slot: Glow, size: [0.25, 0.75, 0.25], at: [7.625, 8.875, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
-  - {name: WingTip3, slot: Glow, size: [0.25, 0.75, 0.25], at: [6.875, 8.125, 3.375], mirror: x, moves: wing, pivot: [4.25, 9, 3.375]}
+  # the radish: a bevelled head with the face plate, a bulb under it, a crown step over it, five root steps from red to cream to a curl
+  - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2, 0], bevel: true}
+  - {name: Bulb, slot: Body, size: [1.5, 0.5, 1.5], at: [0, 1, 0], bevel: true}
+  - {name: Crown, slot: Body, size: [1.5, 0.125, 1.25], at: [0, 2.8125, 0.0625]}
+  - {name: Root, slot: Body, size: [0.875, 0.125, 0.875], at: [0, 0.6875, 0]}
+  - {name: Root2, slot: BodyDark, size: [0.625, 0.125, 0.625], at: [0, 0.5625, 0]}
+  - {name: Root3, slot: BodyDark, size: [0.375, 0.125, 0.375], at: [0, 0.4375, 0], material: wood}
+  - {name: RootTip, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0, 0.3125, 0], material: wood}
+  - {name: RootTail, slot: BodyDark, size: [0.125, 0.1875, 0.125], at: [0, 0.15625, 0]}
+  - {name: RootCurl, slot: BodyDark, size: [0.1875, 0.0625, 0.125], at: [0.03125, 0.03125, 0]}
+  - {name: RootHair, slot: BodyDark, size: [0.0625, 0.25, 0.0625], at: [0.40625, 0.5, 0], rot: [0, 0, 20], mirror: x}
+  # radish skin: cream lenticel dashes on the head's sides
+  - {name: Dash, slot: BodyDark, size: [0.0625, 0.0625, 0.25], at: [1.03125, 2.46875, -0.25], mirror: x}
+  - {name: Dash2, slot: BodyDark, size: [0.0625, 0.0625, 0.375], at: [1.03125, 2.09375, 0.25], mirror: x}
+  - {name: Dash3, slot: BodyDark, size: [0.0625, 0.0625, 0.25], at: [1.03125, 1.59375, -0.125], mirror: x}
+  # the pharaoh's brow: a band of gold and turquoise cells over the face plate, a lit gem in a gold frame, striped lappets down the sides
+  - {name: Band, slot: Trim, size: [0.25, 0.125, 0.0625], at: [0, 2.5625, -0.90625], material: metal}
+  - {name: Band1, slot: Accessory, size: [0.25, 0.125, 0.0625], at: [0.25, 2.5625, -0.90625], mirror: x}
+  - {name: Band2, slot: Trim, size: [0.25, 0.125, 0.0625], at: [0.5, 2.5625, -0.90625], mirror: x}
+  - {name: Band3, slot: Accessory, size: [0.25, 0.125, 0.0625], at: [0.75, 2.5625, -0.90625], mirror: x}
+  - {name: GemFrame, slot: Trim, size: [0.375, 0.125, 0.0625], at: [0, 2.6875, -0.90625], material: metal}
+  - {name: Gem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.6875, -0.96875], moves: gem, pivot: [0, 2.6875, -0.96875]}
+  - {name: Lappet, slot: Trim, size: [0.125, 0.25, 0.0625], at: [0.9375, 2.375, -0.90625], mirror: x}
+  - {name: Lappet2, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [0.9375, 2.125, -0.90625], mirror: x}
+  - {name: Lappet3, slot: Trim, size: [0.125, 0.25, 0.0625], at: [0.9375, 1.875, -0.90625], mirror: x}
+  - {name: Lappet4, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [0.9375, 1.625, -0.90625], mirror: x}
+  # the crown's gold studs along its front edge
+  - {name: Stud, slot: Trim, size: [0.125, 0.0625, 0.125], at: [0, 2.90625, -0.4375], material: metal}
+  - {name: Stud2, slot: Trim, size: [0.125, 0.0625, 0.125], at: [0.375, 2.90625, -0.4375], mirror: x, material: metal}
+  - {name: Stud3, slot: Trim, size: [0.125, 0.0625, 0.125], at: [0.6875, 2.90625, -0.4375], mirror: x, material: metal}
+  # the broad collar: three rows of gold and turquoise cells standing out over the bulb under the chin, narrowing to a lit pendant that swings
+  - {name: CollarA, slot: Trim, size: [0.25, 0.125, 0.1875], at: [0, 1.1875, -0.78125], material: metal}
+  - {name: CollarA1, slot: Accessory, size: [0.25, 0.125, 0.1875], at: [0.25, 1.1875, -0.78125], mirror: x}
+  - {name: CollarA2, slot: Trim, size: [0.25, 0.125, 0.1875], at: [0.5, 1.1875, -0.78125], mirror: x}
+  - {name: CollarB, slot: Accessory, size: [0.25, 0.125, 0.1875], at: [0, 1.0625, -0.78125]}
+  - {name: CollarB1, slot: Trim, size: [0.25, 0.125, 0.1875], at: [0.25, 1.0625, -0.78125], mirror: x}
+  - {name: CollarC, slot: Trim, size: [0.25, 0.125, 0.1875], at: [0, 0.9375, -0.78125], material: metal}
+  - {name: Pendant, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 0.8125, -0.8125], moves: pendant, pivot: [0, 0.875, -0.8125]}
+  # the radish greens: a centre leaf that nods, a pair of fronds that sway, drooping outer leaves and back leaves (all broad turquoise blades)
+  - {name: LeafStem, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0, 2.9375, 0.4375], moves: leaf, pivot: [0, 2.875, 0.4375]}
+  - {name: Leaf, slot: Accessory, size: [0.375, 0.25, 0.125], at: [0, 3.125, 0.4375], moves: leaf, pivot: [0, 2.875, 0.4375]}
+  - {name: Leaf2, slot: Accessory, size: [0.25, 0.125, 0.125], at: [0, 3.3125, 0.4375], moves: leaf, pivot: [0, 2.875, 0.4375]}
+  - {name: LeafTip, slot: Accessory, size: [0.125, 0.0625, 0.125], at: [0, 3.40625, 0.4375], moves: leaf, pivot: [0, 2.875, 0.4375]}
+  - {name: FrondStem, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.28125, 2.9375, 0.3125], rot: [0, 0, -20], mirror: x, moves: frond, pivot: [0.25, 2.875, 0.3125]}
+  - {name: Frond, slot: Accessory, size: [0.3125, 0.25, 0.125], at: [0.375, 3.125, 0.3125], rot: [0, 0, -20], mirror: x, moves: frond, pivot: [0.25, 2.875, 0.3125]}
+  - {name: FrondTip, slot: Accessory, size: [0.1875, 0.125, 0.125], at: [0.4375, 3.3125, 0.3125], rot: [0, 0, -20], mirror: x, moves: frond, pivot: [0.25, 2.875, 0.3125]}
+  - {name: OuterLeaf, slot: Accessory, size: [0.375, 0.1875, 0.125], at: [0.65625, 2.90625, 0.1875], rot: [0, 0, -65], mirror: x}
+  - {name: OuterLeaf2, slot: Accessory, size: [0.25, 0.1875, 0.125], at: [0.8125, 3.0625, 0.1875], rot: [0, 0, -65], mirror: x}
+  - {name: BackLeaf, slot: Accessory, size: [0.3125, 0.25, 0.125], at: [0.21875, 3, 0.5625], rot: [15, 0, -15], mirror: x}
+  - {name: BackLeaf2, slot: Accessory, size: [0.1875, 0.125, 0.125], at: [0.28125, 3.1875, 0.59375], rot: [15, 0, -15], mirror: x}
+  # the floating accessories: a sun orb over the crown's front, two motes circling at the shoulders
+  - {name: Orb, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 3.125, -0.25], shape: ico1, moves: orb, pivot: [0, 3.125, -0.25]}
+  - {name: Mote, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 2.6875, -0.375], mirror: x, shape: ico1, moves: mote, pivot: [1.3125, 2.6875, -0.375]}
+  # the sun disk: a ring of eighth-stud cells behind the head with eight stepped rays, turning on its centre (the hero, `RingT`)
+  - {name: RingB8, slot: Trim, size: [0.75, 0.125, 0.125], at: [0, 0.9375, 1], moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB7, slot: Trim, size: [1.25, 0.125, 0.125], at: [0, 1.0625, 1], moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB6s3, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.5625, 1.1875, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB5s4, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.6875, 1.3125, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB4s5, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.8125, 1.4375, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB3s6, slot: Trim, size: [0.25, 0.125, 0.125], at: [0.875, 1.5625, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB2s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 1.6875, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB1s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 1.8125, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingB0s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 1.9375, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT0s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 2.0625, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT1s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 2.1875, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT2s7, slot: Trim, size: [0.25, 0.125, 0.125], at: [1, 2.3125, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT3s6, slot: Trim, size: [0.25, 0.125, 0.125], at: [0.875, 2.4375, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT4s5, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.8125, 2.5625, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT5s4, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.6875, 2.6875, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT6s3, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.5625, 2.8125, 1], mirror: x, moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT, slot: Trim, size: [1.25, 0.125, 0.125], at: [0, 2.9375, 1], moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: RingT8, slot: Trim, size: [0.75, 0.125, 0.125], at: [0, 3.0625, 1], moves: halo, pivot: [0, 2, 1], material: metal}
+  - {name: Ray0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 3.25, 1], moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray0b, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 3.375, 1], moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray180, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 0.75, 1], moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray180b, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 0.625, 1], moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray225, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 1.125, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray225b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 1, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray270, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.25, 2, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray270b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 2, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray315, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 2.875, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  - {name: Ray315b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 3, 1], mirror: x, moves: halo, pivot: [0, 2, 1]}
+  # the wings of the winged sun: four feather rows behind the disk, lit tips; each wing turns on its root to beat
+  - {name: Wing, slot: Trim, size: [1.125, 0.125, 0.0625], at: [1.5625, 2.4375, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: Wing2, slot: Accessory, size: [1, 0.125, 0.0625], at: [1.5, 2.3125, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: Wing3, slot: Body, size: [0.75, 0.125, 0.0625], at: [1.375, 2.1875, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: Wing4, slot: Accessory, size: [0.5, 0.125, 0.0625], at: [1.25, 2.0625, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: WingTip, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.1875, 2.4375, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.0625, 2.3125, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
+  - {name: WingTip3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.8125, 2.1875, 1.15625], mirror: x, moves: wing, pivot: [1, 2.25, 1.15625]}
 ```
 
 ## Face
 
-The house face, 16 cells across the 6-stud head (0.375 studs a cell, so 16 rows for the square front). The eyes sit low (rows 7 to 12); the brow band and the gem cover rows 2 to 5, the lappets the two outer columns.
+The head's front is the body cell grid (Blocky-Style C1): 32 columns across the 2-stud head, so the cell is 0.0625 studs (16 a stud) and the 1.5-stud front is 24 rows; the eyes, the mouth and the cheeks are on the face plate.
 
 ```yaml
 face:
   host: Head
-  legend:
-    ".": body
-    "k": ink
-    "w": "#FFFFFF"
-    "g": glow
-    "p": "#FF9DBB"
-  rows:
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "................"
-    - "...kk......kk..."
-    - "..kwkk....kkwk.."
-    - "..kwkk....kkwk.."
-    - "..kkkk....kkkk.."
-    - "..kgwk....kwgk.."
-    - "...gg.k..k.gg..."
-    - "..pp...kk...pp.."
-    - "................"
-    - "................"
+  cols: 32
+```
+
+## Eyes
+
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `solar`, a Cosmic design, a sun in each eye whose pinwheel rays swirl round a white-hot core over a lit turquoise rim, at 32 pixels a stud on a 1.75 x 0.875 stud plate (56 x 28 pixels, 13 frames: open, half, closed, two glints, eight swirl frames). A small smile and star cheeks.
+
+```yaml
+eyes:
+  key: solar
+  colours: {deep: "#C2410C", mid: trim, bright: glow, rim: accent, sparkle: "#FFFFFF"}
+  mouth: smile
+  cheeks: stars
+  plate: [1.75, 0.875]
+  at: [0, 1.96875]
+  spread: 0.4375
+```
+
+## Rig
+
+The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes them into `src/shared/data/Rigs.luau`, World.RigAnimator plays them). A key names a moving object, or the base name of a mirrored pair (both twins, the left mirrored); `root` is the whole body about its feet, `face` the plate.
+
+```yaml
+rig:
+  clips:
+    halo: [{kind: spin, amp: 360, period: 12, axis: z}]
+    wing: [{kind: flap, amp: 14, period: 2.8, axis: z}, {kind: sway, amp: 6, period: 5.6, axis: y, phase: 0.25}]
+    orb: [{kind: bob, amp: 0.12, period: 2.4}, {kind: spin, amp: 360, period: 6, axis: y}]
+    mote: [{kind: orbit, amp: 0.2, period: 3.6}, {kind: bob, amp: 0.08, period: 1.8, phase: 0.5}]
+    leaf: [{kind: sway, amp: 8, period: 3.2, axis: x}]
+    frond: [{kind: sway, amp: 10, period: 2.6, axis: z, phase: 0.3}]
+    gem: [{kind: pulse, amp: 0.2, period: 2}]
+    pendant: [{kind: sway, amp: 12, period: 1.9, axis: x}]
+    root: [{kind: bob, amp: 0.08, period: 3}]
+    face: [{kind: blink, period: 4.6}]
+  flourish:
+    every: 12
+    length: 3.2
+    moves:
+      - {part: root, kind: hop, amp: 0.4, at: 0, for: 0.9}
+      - {part: root, kind: turn, amp: 360, at: 0.15, for: 1.5}
+      - {part: wing, kind: flare, amp: 30, at: 0.3, for: 1.4}
+      - {part: halo, kind: pop, amp: 0.18, at: 1.4, for: 1}
+      - {part: orb, kind: hop, amp: 0.35, at: 1.8, for: 1}
+      - {part: frond, kind: swish, amp: 18, at: 2, for: 1.2}
 ```
 
 ## Build
 
-Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Radish.md --out <scratch>`; build and renders: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Radish.md --out <scratch>` ([[Blocky-Style]] "The pipeline").
+Sheet: `python3 -I tools/blocky/sheet.py docs/vault/07-alien-game/Creatures/Radish.md --out <scratch>`; build, renders and the idle preview: `tools/blender/blocky_build.py --spec docs/vault/07-alien-game/Creatures/Radish.md --out <scratch> --idle` ([[Blocky-Style]] "The pipeline").
 
 ## Renders
 
-Lit, three-quarter (Blender, Cycles):
-
-![[Radish_tq.jpg]]
-
-VFX preview (Blender, labelled as one; the in-game effects are the species' row in `src/shared/data/Effects.luau`, whose colours the preview reads):
-
-![[Radish_vfx.jpg]]
-
-The concept sheet, drawn from the parts table above: [[Radish_sheet.svg]] (flat shapes and text, for the Claude Design canvas) and [[Radish_sheet.png]]. The build's four orthographic views (left of each pair) beside the sheet's masks (right), the silhouette check:
-
-![[Radish_views.png]]
-
-## Cells
-
-The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.375 studs (2.7 a stud), 37 cells tall; one atlas of 512 x 1024 at 8 texels a cell (704 islands). Materials: wood on the root steps (fibre rows), metal on the sun disk and the gem frame, skin elsewhere.
+Lit, three-quarter, with cells (Blender, Cycles):
 
 ![[Radish_tq_cells.jpg]]
 
+VFX preview (Blender, labelled as one; the in-game effects are the species' row in `src/shared/data/Effects.luau`, whose colours the preview reads):
+
 ![[Radish_vfx_cells.jpg]]
+
+The idle: eight frames of the clips and four of the flourish, and the face plate's frames:
+
+![[Radish_idle.png]]
+
+The concept sheet, drawn from the parts table above: [[Radish_sheet.svg]] and [[Radish_sheet.png]]. The build's four orthographic views against the sheet's masks score the `overlap` in the frontmatter (the silhouette check). Before and after B45 and B46, beside Moop: `media/studio/2026-10-21/pilots_v1.jpg`.
 
 ## Reviews
 
 - 2026-10-17, worker, three rounds. Round 1: it read as a red box with wings (a short root, leaves like little antlers, an opaque white light column). Round 2: a four-step root taper to a thin tail with root hairs, three tall leaf blades, the upper body raised half a stud (13.75 studs, head 40 percent). Round 3: the preview's turning disk lit, a corona light, a wider translucent column. Overlap 0.996 to 0.997, 1,424 triangles, four moving objects. Wanted for: 2.8 avatars tall and 16.5 studs across the wings, a turning winged sun, a mount. Still cheap: the head front is a big flat red plane above the face, the collar hides under the head's overhang from above, and the wing rows read as flags from the side. Next: a stepped brow band or headdress edge across the top of the face, feather tips stepped at the wing ends, and the face at 32 cells for close-ups. Status review.
 - 2026-10-17, loop 2 worker, three rounds. Round 1: the brow band, the gem and the striped lappets frame the face and break up the red plane; the collar stands out past the chin so it shows from above; the striped head sides (they read as lantern ribs) are gone. Round 2: the leaves read as celery sticks (a cream midrib split each one), and the box still read as a lantern; the root was shortened so the leaves could grow. Round 3: a 6-stud head between a crown step and a bulb, a five-step root from red to cream to a curled tip, seven broad leaves with the outer pair drooping; the preview drops a spark that sat on its cheek. Overlap 0.995 to 0.997, 1,892 triangles, 141 blocks, 13.96 studs. Wanted for: nearly three avatars of radish behind a turning winged sun, a mount. Still cheap: from the side the head is still a tall box; the cream dashes are faint; 16 face cells over 6 studs are big pixels in a close-up. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). At the face cell (0.375 studs) the 6-stud head is 16 cells across, chunky up close and one surface with the face; the root's grain reads as a radish's fibres. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
+- 2026-10-21, eyes and rigs worker, the B45 and B46 pilot, three rounds. Round 1: rebuilt from 13.96 studs to 3.44 by redesign, not by scale: a 2-stud head with a 32-column face (0.0625 body cells, 55 cells tall), the brow, lappets, collar and sun ring in eighth-stud cells, 132 blocks. Round 2: its own `solar` eyes on a 56 x 28 face plate (a sun in each eye whose rays swirl over 8 frames round a white-hot core, a lit turquoise rim, star cheeks), eleven moving objects and the blink, a flourish every 12 s (a hop and a full turn, wings flared, the disk popping, the orb leaping). Round 3: the VFX preview's light column scaled to the new height (1.6 studs wide read as a pillar block on a 3.4-stud alien). Overlap 0.991 to 0.993, 1,616 triangles. Wanted for: next to Moop it is plainly the rarer one at the same size, by its cells, its eyes, its light and its motion. Still cheap: the bulb under the face is a plain red block, and the sun ring hides behind the head from the front (it reads from the side and the back). Status review.

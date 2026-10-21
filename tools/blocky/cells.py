@@ -34,6 +34,8 @@ import spec as S  # noqa: E402
 WORLD_CELL = 0.25       # studs: the cell of the ground and every prop, 4 a stud (the quarter-stud grid of rule 2)
 FACE_COLS = 16          # a creature's cell is its face cell: the head's width over the face's 16 columns
 PX = 8                  # texels a cell side in the atlas (nearest filtering: the cell is the pixel, PX only buys the grout and a bilinear fallback)
+TEXELS_PER_STUD = 64    # B46: a finer cell (0.0625, a Cosmic's 32-column face) keeps 64 texels a stud, so 4 a cell, and its atlas fits 1024
+PX_MIN = 4
 GUTTER = 2              # texels of each island's edge colour repeated round it, so mip levels and bilinear filtering never bleed
 ATLAS_MAX = 4096        # a creature fits 1024 at PX 8; the diorama's ground may need more
 STEP = 6.0              # L* of one shade step: motifs and edges move in steps
@@ -838,10 +840,16 @@ def face_cells(spec):
             "body": {ch for ch, v in legend.items() if str(v) == body_role}}
 
 
-def atlas(spec, px=PX, gutter=GUTTER, grout=GROUT, cell=None, flat=False, parts=None):
+def texels(cell):
+    """Texels a cell side for a cell of `cell` studs: PX (8) down to the 0.125 cell, then TEXELS_PER_STUD a stud (4 at 0.0625)."""
+    return max(PX_MIN, min(PX, int(round(TEXELS_PER_STUD * cell))))
+
+
+def atlas(spec, px=None, gutter=GUTTER, grout=GROUT, cell=None, flat=False, parts=None):
     """Plan, pack and paint one creature (or prop): {'cell', 'islands', 'width', 'height', 'rgb'}."""
     parts = parts if parts is not None else S.expand(spec["parts"])
     cell = cell or creature_cell(spec)
+    px = texels(cell) if px is None else px
     isl = islands(parts, cell)
     w, h = pack(isl, px, gutter)
     rgb = paint(isl, w, h, creature_colours(spec), face_cells(spec), px, gutter, grout, flat=flat)

@@ -40,26 +40,35 @@ The concept boards live on the Claude Design canvas [Catch an Alien Creatures](h
 | Moop: feet 0.25, base step 0.25, head 1.25, cap step 0.25, sprout to 2.5 (head 50%, legs 20%) | A head on a long neck, or a head smaller than the body |
 | Size a mass 1.75, centre it at 0 (faces at plus and minus 0.875) | Sizes like 0.6 or 1.3 that no other block lines up with |
 
-## 3. The face: the house eye, cute at every tier
+## 3. The face: the eye library on a face plate, cute at every tier
 
-Ours, not Pet Simulator's: a **tall ink drop** with a **shine bar on its outer top**, a **lit crescent along its bottom** in the species' glow colour (the accent on a tier with no glow), and a **sparkle on the crescent's inner side**; the right eye is the mirror of the left. A small open smile (four cells), two pink cheek cells under each eye. The pixel grid is **16 cells across the head** (32 for a later close-up variant), square cells, so the rows follow the head's aspect *(checked)*. The border of the grid is the head's own colour, the eyes are level, symmetric and in the lower half *(checked)*, each eye is **4 cells, 25 percent of the face width**, 6 rows tall. The eye stamp is in `spec.py` (`HOUSE_EYE_L`) and every face must contain it *(checked)*.
+2026-10-21, [[Decisions]] B46: "They shouldn't all have the same eyes." The single house eye is retired for the **eye library**, `tools/blocky/eyes.py`: **24 original designs**, each with a key, a **tier floor**, pixel frames and colour roles, and the ladder climbs by detail, never by fierceness. Every design is big, soft and has a shine; the shapes are ours (no other game's eyes).
 
-```
-.kk.    k ink, w white, g the lit crescent
-kwkk    (left eye; the right eye is mirrored)
-kwkk
-kkkk
-kgwk
-.gg.
-```
+| Rung | Designs (keys) | What the rung adds |
+|---|---|---|
+| Common | `bean`, `dot`, `happy`, `sleepy`, `button`, `pebble` | simple and readable: ink, one shine (the button takes the iris colour) |
+| Uncommon | `twotone`, `droplet`, `moonlet` | a two-tone iris |
+| Rare | `glimmer`, `crescent`, `bubble` | a coloured iris, a shine and a glint; two glint frames |
+| Epic | `starry`, `hearty`, `gem`, `rune` | a star, heart, gem or rune pupil; coloured lashes or a lit rim |
+| Legendary | `halo`, `bloom`, `aurora` | layered glowing irises and an animated sparkle; 6 iris-cycle frames; 32 px a stud |
+| Cosmic | `galaxy`, `nebula`, `solar` | galaxy, nebula or sun irises whose 8 frames swirl |
+| Secret | `void`, `eclipse` | dark eyes with one accent that turns |
 
-![The house face on all seven prototypes, Moop to Syrinx](refs/blocky/house_face.png)
+- **The face plate** (the design decision of B46): the eyes, the mouth and the cheeks are drawn on a thin quad named `FacePlate`, a sixty-fourth of a stud proud of the head's front, with **its own small texture** (nearest filtering, alpha), so the eye's resolution and its flipbook are independent of the body cell (C1 keeps the body). **16 pixels a stud** for the Common to Epic designs (two eye pixels a 0.125 body cell), **32** from Legendary up: rarer eyes sit on a finer face grid no lower species has. Moop's plate is 28 x 16 pixels, Raddis's 56 x 28.
+- **Frames**: open, half, closed (the blink) for every design; two glint frames from Rare up; an iris cycle of 6 (Legendary) or 8 (Cosmic, Secret) frames. The half and closed frames are drawn from the open one (a lid line, then a soft downward curve; an eye already closed in a smile flattens), so every design blinks. The plate's frames are laid out four a row in `<Id>_face.png`, one upload per species; in the game the plate flips them (rule 8).
+- **The tier floor** *(checked)*: a species wears a design of its own rung or the rung below (a Rare may wear an Uncommon `droplet`); Legendary, Cosmic and Secret wear their own rung's only. Each eye is **18 to 36 percent of the head's width** and the eyes' centre sits **40 percent down the head's front or lower** *(checked)*; the plate stays on the head's front and holds every piece *(checked)*. Mouths `smile`, `grin`, `open`, `cat`, `o`, `tooth`, `none`; cheeks `blush`, `dots`, `hearts` (Epic up), `stars` (Legendary up), `none`.
+- **Colours**: each design's roles (`ink`, `shine`, `sparkle`, `iris`, `iris2`, `glint`, `lash`, `rim`, `pupil`, `deep`, `mid`, `bright`, `tongue`, `cheek`) default to palette roles (`iris` the accent, `rim` the glow ...); the note's `eyes.colours` sets any of them to a palette role or a hex, which is how two species on one design still get their own eyes.
+
+![The eye library v1: 24 designs by rung with every frame (python3 -I tools/blocky/eyes.py --sheet)](refs/blocky/eye_library_v1.png)
+
+The house eye (a tall ink drop, a shine bar, a lit crescent; `HOUSE_EYE_L` in `spec.py`) stays the check for the notes still on the old format until their resize pass ("How a roster worker applies B46" below).
 
 | Do | Don't |
 |---|---|
-| Each species its own eye from the eye library, detail climbing by tier (B46); awe from ornament, eyes, motion, light and effects (not height, B45) | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
-| The face as a texture on the head's front, nearest filtering, cell to cell | Eye blocks stuck on the head, or a blurred, bilinear face |
-| A warm or saturated lit crescent (gold, amber, pink, violet); a muzzle or snout drawn into the grid in the second colour (Vixa's cream `c` cells) | A pale or sky-blue crescent: under the eye it reads as tears (Buzzik, round 1) |
+| Each species its own eye from the library, detail climbing by tier (B46); awe from ornament, eyes, motion, light and effects (not height, B45) | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
+| The face on its plate, nearest filtering, one shine at least, a soft smile | Eye blocks stuck on the head, or a blurred, bilinear face |
+| A warm or saturated rim or crescent (gold, amber, pink, violet, Raddis's turquoise rim round a sun) | A pale or sky-blue crescent: under the eye it reads as tears (Buzzik, round 1) |
+| Two species on one design told apart by `eyes.colours`, mouth and cheeks | The same key and colours on two species of one world |
 
 ## 4. Palette with roles, greyscale first
 
@@ -87,17 +96,17 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 
 ## 6. The rarity ladder: blocks, light, presence (not height)
 
-2026-10-20, [[Decisions]] B45: **rarity does not change height.** Every alien stands in one band, **2 to 3.5 studs** (the avatar is 5), and where a species sits in it is its own character, never its tier. The height column below is kept as the record of what the 35 scratch builds were made at; the resize pass brings every Legendary, Cosmic and Secret down into the band and keeps its detail by smaller blocks and more of them, lit cells, trim and effects. Until that pass runs, the ladder sheets still show the old heights. Each rung changes what a player sees from across the map. Blocks are *(checked)* against these bands, height against the one band; the effects and presence columns are for Effects.luau and the reveal.
+2026-10-20, [[Decisions]] B45: **rarity does not change height.** Every alien stands in one band, **2 to 3.5 studs** (the avatar is 5), and where a species sits in it is its own character, never its tier *(checked: an error on the B46 format, "B45 pending" on a note not yet resized)*. 2026-10-21, B46: at fixed height detail climbs by **more and smaller blocks**, so the block bands rise and from Epic up a detail block's faces may lie on the **sixteenth grid** (0.0625; masses stay on the quarter grid). Raddis, rebuilt at 3.44 studs, carries 132 blocks, most of them eighth-stud cells. The "height as built" column is the record of the 35 scratch builds before the resize pass. Blocks are *(checked)* against the B46 bands on a note on the B46 format (the old bands on the rest); the effects and presence columns are for Effects.luau and the reveal; the motion column is rule 8.
 
-| Tier | Blocks | Height as built (retired by B45; the target is 2 to 3.5 for every tier) | Effects, outward | Presence | Flat colours |
-|---|---|---|---|---|---|
-| Common | 5 to 10; one hero block; the face | 1.75 to 2.5 | none, or one procedural move | none | 2 to 3 |
-| Uncommon | 8 to 15; a two-tone body, one secondary block | 2 to 2.75 | one touch in a second colour | tier word in green | 2 to 3 |
-| Rare | 15 to 30; a stamped element glyph; one glossy trim slot | 2.5 to 3.25 | a soft light | name in blue | 3 to 4 |
-| Epic | 30 to 60; trim bands, stripes, a stepped emblem; glow on 2 or 3 extremities | 3.25 to 4.25 | light, glow, one emitter, kept **on the body** | outlined plate | 3 to 4 |
-| Legendary | 60 to 100; accessories, emissive lines or cells | 4.75 to 6.5 | adds orbiting particles and a ground ring: **touches the ground** | in-server banner | 3 to 4 |
-| Cosmic | 100 to 180; articulated parts, a floating accessory, colour-cycled glow | built at 10 to 14; target 2 to 3.5 (riding: Decide-Now 44) | adds a trail and a beam: **reaches the sky** | an in-server sky moment | 3 to 4 |
-| Secret | as Cosmic, a dark palette with one accent; glow cycles in its own palette | built at 10 to 14; target 2 to 3.5 | the Cosmic set in shadow colours | a cross-server line, no username | 3 to 4 |
+| Tier | Blocks (B46) | Detail grid | Height as built (retired by B45) | Moving things (rule 8) | Effects, outward | Presence | Flat colours |
+|---|---|---|---|---|---|---|---|
+| Common | 5 to 12; one hero block; the face plate | 0.125 | 1.75 to 2.5 | 2 or more; no flourish | none, or one procedural move | none | 2 to 3 |
+| Uncommon | 10 to 20; a two-tone body, one secondary block | 0.125 | 2 to 2.75 | 3; no flourish | one touch in a second colour | tier word in green | 2 to 3 |
+| Rare | 18 to 36; a stamped element glyph; one glossy trim slot | 0.125 | 2.5 to 3.25 | 4; a flourish | a soft light | name in blue | 3 to 4 |
+| Epic | 32 to 64; trim bands, stripes, a stepped emblem; glow on 2 or 3 extremities | 0.0625 | 3.25 to 4.25 | 5; a flourish | light, glow, one emitter, kept **on the body** | outlined plate | 3 to 4 |
+| Legendary | 60 to 120; accessories, emissive lines or cells | 0.0625 | 4.75 to 6.5 | 6; a longer flourish | adds orbiting particles and a ground ring: **touches the ground** | in-server banner | 3 to 4 |
+| Cosmic | 110 to 200; articulated parts, a floating accessory, colour-cycled glow | 0.0625 | 10 to 14 | 8; a longer flourish | adds a trail and a beam: **reaches the sky** | an in-server sky moment | 3 to 4 |
+| Secret | as Cosmic, a dark palette with one accent; glow cycles in its own palette | 0.0625 | 10 to 14 | 8; a longer flourish | the Cosmic set in shadow colours | a cross-server line, no username | 3 to 4 |
 
 ## 7. VFX: primary and secondary, outward by tier, never over the face
 
@@ -140,13 +149,22 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 | Rarity by layers, reach (body, ground, sky) and moments: a Common's one puff, a Cosmic's pillar | A bigger alien or a bigger copy of the same puff for a rarer tier |
 | A Secret's pillar and ring sunk only a little toward its shadow, so they read at night | A Secret pillar in the full dark mix: invisible against the sky |
 
-## 8. Moving parts: separate pieces on pivots, at most four
+## 8. The animation ladder: moving parts on pivots, clips, a blink and a flourish
 
-Each moving part (`moves: wing, tail, ear, halo, sprout, antenna, crest, float, jaw`) is its own object with its origin on its `pivot`, for the game's tweens (B39); a mirrored pair is two objects (`wingL`, `wingR`). **At most 4 moving objects** a creature, since each is one more MeshPart and draw call *(checked)*. Static parts merge into one mesh per slot.
+2026-10-21, [[Decisions]] B46 (3): every alien gets a multi-part idle, at least a blink, and the clip count, the layering and a signature flourish climb by tier. Each moving part (`moves: <a lower-case word>`: wing, tail, ear, halo, sprout, orb, mote, leaf, frond, gem, pendant ...) is its own object with its origin on its `pivot` (B39); a mirrored pair is two objects (`wingR`, `wingL`). Static parts merge into one mesh per slot; the face plate is its own object, `FacePlate`.
+
+- **Clips** (the note's `rig` block, keyed by a moving object, the base name of a mirrored pair, `root` for the whole body about its feet, or `face`): `kind` among **bob** (studs along the axis), **sway** (degrees, a sine), **flap** (degrees, out and back on one side), **spin** (degrees a period, continuous), **wag** (degrees, bursts), **squash** (a share: stretch along the axis, the others give half), **pulse** (a share, all three), **orbit** (studs, a circle round the axis), and **blink** for the face plate; with `amp`, `period` (0.4 to 20 s), `phase` (a share of the period) and `axis` (x, y or z of the alien: x its right, y up, z back). A pair's left twin is mirrored (a turn about y or z changes sign). Ranges *(checked)*: turns at most 45 degrees, bob and orbit at most 12 percent of the height, squash and pulse at most a quarter, a blink every 2.5 to 8 s.
+- **The ladder** *(checked)*: moving things (objects with a clip, plus the blink, which counts as one) at least **Common 2, Uncommon 3, Rare 4, Epic 5, Legendary 6, Cosmic and Secret 8**; every moving object has a clip; the object cap is Common 4, Uncommon 5, Rare 6, Epic 8, Legendary 10, Cosmic and Secret 12 (each is one more MeshPart and draw call).
+- **The flourish** *(checked)*: none on a Common or Uncommon; from Rare a multi-part move (two moves over two parts or more, 1 to 2.5 s); from Legendary a longer one (three moves or more, 2.5 to 5 s); every 6 to 20 s and at least twice its length. Moves: **hop** (studs, up and down), **turn** (degrees, eased: a full turn ends where it began), **flare**, **swish**, **pop**, **squash**, each with `part`, `amp`, `axis`, `at` and `for` (seconds inside the flourish). Raddis: a hop and a full turn with the wings flared, the disk popping, the orb leaping and the fronds swishing, every 12 s.
+- **In the game**: `python3 -I tools/blocky/rigs.py` writes every B46 note's rig into `src/shared/data/Rigs.luau` (pivots from the bottom centre of the bounds, the face plate's flipbook layout and timings; image ids 0 until uploaded); `World/RigAnimator` plays it on every clone (wild, companions, the reveal) with `Shared/RigMath`, absolute in time, writes each part from the model's pivot so the renderers' bob and SpeciesFx's idle carry it, leaves SpeciesFx's own wing parts alone, flips the plate's frames once uploaded (a blink squashes the plate until then), keeps to the nearest 12 on screen within 80 studs (6 on a phone), holds still under Reduced Motion (the blink stays), and on each flourish calls `SpeciesFx.Flourish` so the effects fire on the same beat. An old blockout (none of the rig's parts by name) is left alone.
+- **The idle preview**: `blocky_build.py --idle` renders `<Id>_idle.png`, eight idle frames, four of one flourish (Rare up) and the plate's frames, with the same math in Python (`rigs.py`), composed by `tools/blocky/idle_sheet.py`.
+
+![Raddis's idle: eight frames, a flourish and the plate's thirteen frames](refs/blocky/Radish_idle.png)
 
 | Do | Don't |
 |---|---|
-| Raddis: `halo` (the ring and its rays), `wingL`, `wingR`, `float` (the orb) | A bone rig, or a separate object per ray |
+| Raddis: twelve moving things (the turning `halo`, `wingR` and `wingL` beating, the `orb` bobbing and spinning, two circling `mote`s, the nodding `leaf`, two swaying `frond`s, the pulsing `gem`, the swinging `pendant`, the blink) | A bone rig, or a separate object per ray |
+| Moop: three (the sprout sways, the spore bobs and circles, the blink) and a gentle squash of the whole ball | A Common with a flourish, or a Cosmic that moves no more than a Common |
 
 ## 9. The silhouette test
 
@@ -166,7 +184,7 @@ Every species of a world as a **64 px black shape in one row**; no two may read 
 
 ### C1. Density: the face cell is the unit
 
-- A creature's cell is **its face cell: the head's width over the face's 16 columns** *(the build measures it)*. On every 2-stud head (Moop to Voltus) that is **0.125 studs, 8 a stud**; Gaira's 2.5-stud head 0.156; Syrinx's 5.5 0.344; Raddis's 6 0.375.
+- A creature's cell is **its face cell: the head's width over the face's 16 columns, or 32** *(the build measures it)*. B46: the eyes moved to the face plate, so the `face` block of a note on the B46 format names only `host` and `cols`; at fixed height (B45) a Cosmic or Secret takes **32 columns** for a finer body cell (Raddis: 0.0625 on a 2-stud head, 55 cells tall to Moop's 20), painted at 4 texels a cell so the atlas stays at 64 texels a stud and fits 1024. On every 2-stud head (Moop to Voltus) that is **0.125 studs, 8 a stud**; Gaira's 2.5-stud head 0.156; Syrinx's 5.5 0.344; Raddis's 6 0.375.
 - So **rarer creatures carry more cells per height**, which is the extra detail the ladder wants: Moop 20 cells tall, Buzzik 19, Vixa 24, Voltus 31, Gaira 38, Raddis 37, Syrinx 38 (Ethan's Void Hydra reference is 1/30 to 1/40 of its height, and the research report suggests shrinking the cell as the tier rises).
 - The **world cell is 0.25 studs, 4 a stud** (the quarter-stud grid of rule 2): ground and every prop. A 2-stud ground block is 8 cells across. It sits between the creatures' cells (twice a Common's, two thirds of Raddis's), so nothing in a scene is more than a factor of two off it.
 - Every face is divided into **a whole number of cells, round(side / cell), at least one**, so no face ends in a sliver; on the 0.125 grid (Commons to Epics, the world) that is exact and the cells run on one grid across neighbouring blocks; on Gaira, Raddis and Syrinx a small block's cell stretches a little to fit.
@@ -229,6 +247,7 @@ The swatch sheet, every motif as a 4 x 4 stud block (`python3 -I tools/blocky/ce
 ### C5. The face is drawn cell for cell, and stays calm
 
 - The head's front is one island of exactly the face's grid (16 columns by the head's rows): every face cell is a body cell, the house face of rule 3 drawn on it unchanged. Ink, shine, crescent and cheek cells take their exact colours, never jittered; the face's body-colour cells take the head's motif in the **top two rows** (Moop's moss fringe) and **plain skin cells below**, so no motif crowds the eyes.
+- B46: on a note on the B46 format the eyes, mouth and cheeks are on the face plate (rule 3), a quad in front of this island with its own texture; the island under it is all body cells (the moss fringe on top, plain skin below), so the plate's transparent pixels show a calm field.
 - Tested: Moop with moss over its whole front read as camouflage around the eyes.
 
 | Do | Don't |
@@ -311,7 +330,8 @@ The World 1 landscape sample, `tools/blender/blocky_scene.py`: a 48 x 32 stud me
 One note per creature in `07-alien-game/Creatures/<Id>.md`. Frontmatter: `id, name, world, tier, status (concept, board, build, review, approved), element, height, blocks, tris, bevel_width, bevel_segments, palette, roles, hero, vfx, artboard, sheet, render, vfx_render, glb, overlap` (Raddis and Syrinx add `glow_cycle` and `ride`, Voltus and Syrinx `arcs`). The body holds two fenced `yaml` blocks, the single source of truth for the drawing and the build:
 
 - `parts:` one flow mapping a line: `name, slot (Body, BodyDark, Accessory, Trim, Glow, Eye), size [x, y, z]` in studs, `at [x, y, z]` (the centre; +Y up, the creature faces -Z, its right is +X), `rot [x, y, z]` degrees (appendages, 10 to 25), `bevel` (masses only), `mirror` (x or none; the copy is named `<name>L` or `<name>R`), `shape` (box, wedge, cone6, ico1), `moves` with a `pivot`.
-- `face:` `host` (the head part), a `legend` from characters to roles or hexes, and `rows` (the pixel grid).
+- `face:` `host` (the head part), a `legend` from characters to roles or hexes, and `rows` (the pixel grid). On the B46 format: `face: {host, cols}` only (16 or 32; the head's front is plain body cells).
+- B46, two more blocks: `eyes:` with `key` (an eye library design), `colours` (eye roles to palette roles or hexes), `mouth`, `cheeks`, `plate` ([w, h] studs), `at` ([x, y], the plate's centre on the head's front) and `spread` (studs from the plate's centre to each eye's); and `rig:` with `clips` (per moving object, `root` and `face`) and the `flourish` (rule 8). A note with an `eyes` block is checked on the B46 format (rules 3, 6 and 8 as above, B45's band); without one it is the old format and gets "pending" warnings. Moop and Raddis are the two worked examples.
 
 A `Reviews` list ends the note, one dated line per review.
 
@@ -322,14 +342,27 @@ A `Reviews` list ends the note, one dated line per review.
 | 1. Style bible | Obsidian | this note | Ethan approves it |
 | 2. Spec note | Obsidian | `07-alien-game/Creatures/<Id>.md`; `python3 -I tools/blocky/spec.py <note> --write` validates and writes `blocks` and `tris` | `status: concept`, no errors |
 | 3. Concept board | Claude Design | `python3 -I tools/blocky/sheet.py <note> --out <dir>` draws `<Id>_sheet.svg` (flat shapes and text, for the canvas) and `.png`, and the four view masks; the SVG goes on the world's canvas | Ethan picks; `status: board`, `artboard` link saved |
-| 4. Build | Blender | `<python with bpy> tools/blender/blocky_build.py --spec <note> --sheet <dir> --out <scratch> --write` (the cell atlas `<Id>_atlas.png` from `tools/blocky/cells.py`, the GLB with every face on it, four orthographic views, a lit three-quarter view, a VFX preview from Rare up, the overlap per view written back); `--suffix _cells` names the outputs, `--flat` renders without cells; `--lineup a.md,b.md` renders a row to scale with the avatar. A prop note builds the same way; `tools/blender/blocky_scene.py --out <scratch>` builds and renders the World 1 diorama | overlap 0.9 or more each view; `status: build` |
+| 4. Build | Blender | `<python with bpy> tools/blender/blocky_build.py --spec <note> --sheet <dir> --out <scratch> --write` (the cell atlas `<Id>_atlas.png` from `tools/blocky/cells.py`, the GLB with every face on it, four orthographic views, a lit three-quarter view, a VFX preview from Rare up, the overlap per view written back); `--suffix _cells` names the outputs, `--flat` renders without cells, `--idle` (B46) adds the idle preview `<Id>_idle.png` and the plate sheet `<Id>_face.png`, and the GLB carries `FacePlate` and every moving object by its rig name; after a note changes, `python3 -I tools/blocky/rigs.py` rewrites `src/shared/data/Rigs.luau`; `--lineup a.md,b.md` renders a row to scale with the avatar. A prop note builds the same way; `tools/blender/blocky_scene.py --out <scratch>` builds and renders the World 1 diorama | overlap 0.9 or more each view; `status: build` |
 | 5. Review | all three | renders beside the sheet on the canvas; a dated line in the note's Reviews; lessons back into this note; `python3 -I tools/blocky/ladder.py --layout rows --notes <tier order> --build <dir> --sheets <dir> --out <jpg> --before <dir> --before-ids <ids>` draws the ladder sheet (a row per creature, a before/after strip, the silhouette row); `python3 -I tools/blocky/cells_review.py cells` (flat against cells, the material close-ups), `scene` (the diorama) and `copies` (the `_cells` renders and the swatch sheet into `refs/blocky/`) | `status: review`, then `approved` |
 | 6. Ship | Studio | only an approved note's GLB goes to `assets/models/<Id>/`; its cell atlas, face included, ships as the ColorMap of a SurfaceAppearance set to `ResampleMode = Pixelated` (the Mac checks it on a phone first; "In the game" above) | Ethan's yes |
 
 The review sheets: `media/studio/2026-10-17/blocky_ladder_v1.jpg` (loop 1, three rungs), `blocky_ladder_v2.jpg` (loop 2, all seven, the copy above), `blocky_cells_v1.jpg` (the seven flat and with cells) and `world1_scene_v1.jpg` (the diorama); each species' sheet, renders, VFX preview and silhouette views are in `refs/blocky/` under the same names (`<Id>_sheet.svg`, `_sheet.png`, `_tq.jpg`, `_vfx.jpg`, `_views.png`), the cell builds as `<Id>_tq_cells.jpg` and `<Id>_vfx_cells.jpg`, the diorama's two angles as `world1_hero.jpg` and `world1_low.jpg`, the swatches as `cell_materials.png`.
 
+## How a roster worker applies B46
+
+2026-10-21, the eyes and rigs worker, after the two pilots ([[Mossbop]], [[Radish]]; `media/studio/2026-10-21/pilots_v1.jpg`). One species at a time, in this order:
+
+1. **Resize (B45).** Bring the alien into 2 to 3.5 studs by its character, not its tier. Keep the head 40 to 60 percent of the height and the legs 10 to 25; a big build is redesigned at the new size, not scaled (Raddis's 6-stud head became 2 studs with its ornament in eighth-stud cells). From Epic up a detail block may use the sixteenth grid; a Cosmic or Secret takes a 32-column face (`face: {host: Head, cols: 32}`).
+2. **Detail at fixed height.** Hit the new block band (section 6) with smaller blocks: trim bands, cell rows, lit cells, layered parts, a floating accessory from Cosmic. Rarer reads as more exclusive and cuter, never fiercer.
+3. **Eyes.** Pick a design from the library of the alien's rung (or the rung below, up to Epic), set `eyes.colours` so no two species of a world share key and colours, a mouth and cheeks; size the plate on the head's front (`plate`, `at`, `spread`). Delete the old `rows` and `legend` from `face`.
+4. **Rig.** Give every moving object a clip, the face a blink, and reach the motion minimum; from Rare up write the flourish (a hop and a turn reads from across the meadow; keep it inside its window). Name moving parts by what they are (`moves: frond`), since the name is the part's name in the game.
+5. **Check and build.** `python3 -I tools/blocky/spec.py <note>` clean (no B45 or B46 error), `sheet.py`, then `blocky_build.py --spec <note> --sheet <dir> --out <scratch> --suffix _cells --idle --write` (overlap 0.9 or more each view), the VFX preview from Rare up.
+6. **Data and review.** `python3 -I tools/blocky/rigs.py` (Rigs.luau), copy the `_cells` renders, the sheet and `<Id>_idle.png` into `refs/blocky/`, add a dated line to the note's Reviews, and run `./tools/test.sh` (the rig data must be up to date) before committing.
+
 ## What is open
 
+- B46 on the Mac: the face plate's flipbook as a SurfaceGui with `ResampleMode = Pixelated` on a phone (until the `<Id>_face.png` sheets are uploaded the game blinks by squashing the plate), how the importer names and splits the moving objects and `FacePlate` (World.RigAnimator finds parts by name and leaves a model without them alone), and the cost of 12 rigged aliens on a phone.
+- The other 33 species: their resize pass, eyes and rigs ("How a roster worker applies B46"); until then spec.py prints "B45 pending" and "B46 pending" for them.
 - Ethan's yes on this bible, the house eye and the seven sheets; the boards on the Claude Design canvas (the SVGs are ready: flat shapes and text, no style, image or foreignObject).
 - Ethan's look at the cells (`blocky_cells_v1.jpg`, `world1_scene_v1.jpg`): the cell look, the grout (the strongest single choice: it is what makes the surface read as little blocks), the face cell as the unit, and the diorama as World 1's direction.
 - On the Mac: the atlas on a SurfaceAppearance with `ResampleMode = Pixelated` on a phone, at the game camera's distance, watching the grout for shimmer; if it shimmers, `GROUT = 0` in `tools/blocky/cells.py` rebuilds every atlas without it (variant B of the grout test). The SurfaceAppearance emissive mask for glow cells, or a Neon part.

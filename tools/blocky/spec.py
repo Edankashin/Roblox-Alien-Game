@@ -66,6 +66,37 @@ TIER_ORDER = tuple(TIERS)
 # bottom (g) and a sparkle (w) on the crescent's inner side. The right eye is the mirror image.
 HOUSE_EYE_L = (".kk.", "kwkk", "kwkk", "kkkk", "kgwk", ".gg.")
 HOUSE_EYE_R = tuple(row[::-1] for row in HOUSE_EYE_L)
+MOVE_NAME = re.compile(r"[a-z][a-z0-9]*\Z")   # B46: a moving object may take any lower-case word (MOVES above are the common ones)
+RESERVED_MOVES = ("root", "face")              # rig keys that are not parts: the whole body about its feet, and the face plate
+
+# ------------------------------------------------------------------------------------------------ B45 and B46 (2026-10-20 and 21)
+# B45: rarity does not change height; every alien stands 2 to 3.5 studs (the avatar is 5). B46: detail, eyes, animation and effects carry the
+# tier and climb steeply. A note with an `eyes` block is on the B46 format and every check below is an error for it; a note without one is the
+# old format waiting for its resize pass, and gets the B45 and B46 checks as "pending" warnings (Blocky-Style "How a roster worker applies B46").
+BAND_HEIGHT = (2.0, 3.5)
+# rule 6 at fixed height: more and smaller blocks as the tier climbs (Blocky-Style section 6)
+BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 36), "Epic": (32, 64), "Legendary": (60, 120), "Cosmic": (110, 200),
+             "Secret": (110, 200)}
+# rule 2 at fixed height: a detail block's faces lie on the half grid, and from Epic up on the sixteenth grid (smaller blocks, more of them)
+DETAIL_GRID = {"Common": 0.125, "Uncommon": 0.125, "Rare": 0.125, "Epic": 0.0625, "Legendary": 0.0625, "Cosmic": 0.0625, "Secret": 0.0625}
+# rule 8, the animation ladder: moving things at least (each moving object with a clip, plus the blink on the face plate), and the object cap
+MOTION_MIN = {"Common": 2, "Uncommon": 3, "Rare": 4, "Epic": 5, "Legendary": 6, "Cosmic": 8, "Secret": 8}
+MOVERS_CAP = {"Common": 4, "Uncommon": 5, "Rare": 6, "Epic": 8, "Legendary": 10, "Cosmic": 12, "Secret": 12}
+CLIP_KINDS = ("bob", "sway", "flap", "spin", "wag", "squash", "pulse", "orbit", "blink")
+CLIP_AXIS = {"bob": "y", "sway": "z", "flap": "z", "spin": "y", "wag": "y", "squash": "y", "pulse": "y", "orbit": "y", "blink": "y"}
+CLIP_ROTATES = ("sway", "flap", "wag")          # amp in degrees, at most CLIP_ANGLE_MAX (spin: degrees a period, any)
+CLIP_ANGLE_MAX = 45.0
+CLIP_STUDS_SHARE = 0.12                         # bob and orbit: amp in studs, at most this share of the height
+CLIP_SCALE_MAX = 0.25                           # squash and pulse: amp as a share of the size
+CLIP_PERIOD = (0.4, 20.0)                       # seconds
+BLINK_EVERY = (2.5, 8.0)                        # seconds between blinks
+FLOURISH_KINDS = ("hop", "turn", "flare", "swish", "pop", "squash")
+FLOURISH_FROM = "Rare"                          # Common and Uncommon have none; Rare and up must have one
+FLOURISH_LENGTH = {"Rare": (1.0, 2.5), "Epic": (1.0, 2.5), "Legendary": (2.5, 5.0), "Cosmic": (2.5, 5.0), "Secret": (2.5, 5.0)}
+FLOURISH_MOVES = {"Rare": 2, "Epic": 2, "Legendary": 3, "Cosmic": 3, "Secret": 3}   # moves at least (a multi-part move)
+FLOURISH_EVERY = (6.0, 20.0)
+PLATE_PROUD = 0.015625                          # the face plate's quad sits a sixty-fourth of a stud proud of the head's front
+EYE_SHARE = (0.18, 0.36)                        # each eye's width as a share of the head's width (rule 3's house eye was 25 percent)
 REQUIRED_FRONT = ("id", "name", "world", "tier", "status", "height", "blocks", "tris", "palette", "roles", "hero", "artboard", "render", "glb")
 # a prop note (07-alien-game/Props/<Id>.md, `kind: prop`): the same parts table, no face, no tier; it stands on y = 0
 REQUIRED_PROP = ("id", "name", "world", "kind", "status", "blocks", "tris", "palette", "roles")
@@ -288,7 +319,7 @@ def read_note(text):
     if not m:
         raise SpecError("no frontmatter")
     front = load_yaml(m.group(1)) or {}
-    parts, face = None, None
+    parts, face, eyes, rig = None, None, None, None
     for block in FENCE.finditer(text):
         data = load_yaml(block.group(1))
         if isinstance(data, dict) and "parts" in data:
@@ -297,9 +328,35 @@ def read_note(text):
             parts = data["parts"] or []
         elif isinstance(data, dict) and "face" in data:
             face = data["face"]
+        elif isinstance(data, dict) and "eyes" in data:
+            eyes = data["eyes"]
+        elif isinstance(data, dict) and "rig" in data:
+            rig = data["rig"]
     if parts is None:
         raise SpecError("no ```yaml block with a `parts` root key")
-    return {"front": front, "parts": parts, "face": face}
+    return {"front": front, "parts": parts, "face": face, "eyes": eyes, "rig": rig}
+
+
+def is_b46(spec):
+    """A note on the B46 format: it wears an eye from the library on a face plate (tools/blocky/eyes.py) and its rig has clips."""
+    return bool(spec.get("eyes"))
+
+
+def fill_face(spec):
+    """A B46 note's `face` may name only `host` and `cols` (16 or 32): the head's front is then plain body cells (the eyes, mouth and cheeks
+    are on the face plate), so the rows are filled in here for the cell texture and the sheet. Idempotent."""
+    face = spec.get("face")
+    if not face or face.get("rows"):
+        return spec
+    host = face_host(spec)
+    cols = int(face.get("cols") or 16)
+    if host is None:
+        return spec
+    n = cols * host["size"][1] / host["size"][0]
+    face["rows"] = ["." * cols] * max(1, int(round(n)))
+    face["legend"] = face.get("legend") or {".": SLOT_ROLE.get(host["slot"], "body")}
+    face["filled"] = True
+    return spec
 
 
 def load(path):
@@ -307,7 +364,7 @@ def load(path):
     spec = read_note(path.read_text(encoding="utf-8"))
     spec["path"] = str(path)
     spec["parts"] = [normalise(p, i) for i, p in enumerate(spec["parts"])]
-    return spec
+    return fill_face(spec)
 
 
 def _vec(value, name, field, n=3):
@@ -457,13 +514,14 @@ def counts(spec):
     lo, hi = bounds(parts)
     return {
         "blocks": len(parts),
-        "tris": sum(part_tris(p, seg) for p in parts),
+        "tris": sum(part_tris(p, seg) for p in parts) + (2 if is_b46(spec) else 0),   # the face plate is one quad
         "height": round(hi[1], 3),
         "bottom": round(lo[1], 3),
         "width": round(hi[0] - lo[0], 3),
         "depth": round(hi[2] - lo[2], 3),
         "masses": sum(1 for p in parts if p["bevel"]),
         "movers": len(movers(parts)),
+        "motion": motion_count(spec) if is_b46(spec) else len(movers(parts)),
     }
 
 
@@ -555,8 +613,10 @@ def validate(spec):
     if is_prop(spec):
         return validate_prop(spec)
     errors, warnings = [], []
+    fill_face(spec)
     front, parts_in = spec["front"], spec["parts"]
     err = errors.append
+    b46 = is_b46(spec)
     for key in REQUIRED_FRONT:
         if key not in front:
             err("frontmatter: missing `%s`" % key)
@@ -564,6 +624,7 @@ def validate(spec):
     if tier not in TIERS:
         err("frontmatter: tier %r is not one of %s" % (tier, ", ".join(TIERS)))
         tier = None
+    half = DETAIL_GRID[tier] if (b46 and tier) else HALF
     if front.get("status") not in STATUSES:
         err("frontmatter: status %r is not one of %s" % (front.get("status"), ", ".join(STATUSES)))
     names = [p["name"] for p in parts_in]
@@ -585,7 +646,10 @@ def validate(spec):
         elif pal and SLOT_ROLE[p["slot"]] not in pal:
             err("rule 4: %s: slot %s needs the palette role `%s`" % (n, p["slot"], SLOT_ROLE[p["slot"]]))
         _part_checks(p, err)
-        if p["moves"] not in MOVES:
+        if b46:
+            if p["moves"] != "none" and (not MOVE_NAME.match(p["moves"]) or p["moves"] in RESERVED_MOVES):
+                err("rule 8: %s: moves %r must be one lower-case word other than %s" % (n, p["moves"], " or ".join(RESERVED_MOVES)))
+        elif p["moves"] not in MOVES:
             err("%s: moves %r is not one of %s" % (n, p["moves"], ", ".join(MOVES)))
         if p["moves"] != "none" and p["pivot"] is None:
             err("rule 8: %s moves (%s) but has no pivot" % (n, p["moves"]))
@@ -594,7 +658,7 @@ def validate(spec):
         if min(p["size"]) <= 0:
             err("%s: every size must be positive" % n)
         # a tilted appendage's faces cannot sit on the grid; its centre sits on the sixteenth grid so it can meet its root
-        _grid_checks(p, err)
+        _grid_checks(p, err, half)
         if p["bevel"]:
             if p["shape"] != "box":
                 err("rule 1: %s: only a box mass is bevelled" % n)
@@ -641,12 +705,19 @@ def validate(spec):
     # the ladder
     if tier:
         band = TIERS[tier]
-        lo_b, hi_b = band["blocks"]
+        lo_b, hi_b = BANDS_B46[tier] if b46 else band["blocks"]
         if not lo_b <= c["blocks"] <= hi_b:
             err("rule 6: %d blocks; a %s has %d to %d" % (c["blocks"], tier, lo_b, hi_b))
-        lo_h, hi_h = band["height"]
-        if not lo_h - 1e-6 <= c["height"] <= hi_h + 1e-6:
-            err("rule 6: %.2f studs tall; a %s stands %g to %g" % (c["height"], tier, lo_h, hi_h))
+        in_band = BAND_HEIGHT[0] - 1e-6 <= c["height"] <= BAND_HEIGHT[1] + 1e-6
+        if b46 and not in_band:
+            err("B45: %.2f studs tall; every alien stands %g to %g studs whatever its tier (the avatar is 5)" % (c["height"], *BAND_HEIGHT))
+        elif not b46:
+            if not in_band:
+                warnings.append("B45 pending: %.2f studs tall; the resize pass brings every alien into %g to %g studs" % (c["height"], *BAND_HEIGHT))
+            warnings.append("B46 pending: no `eyes` block; the house eye is retired for the eye library on a face plate")
+            lo_h, hi_h = band["height"]
+            if not lo_h - 1e-6 <= c["height"] <= hi_h + 1e-6:
+                err("rule 6: %.2f studs tall; a %s stands %g to %g" % (c["height"], tier, lo_h, hi_h))
         flats = [r for r in FLAT_ROLES if r in pal]
         if pal and not band["flat"][0] <= len(flats) <= band["flat"][1]:
             err("rule 4: %d flat colours (%s); a %s has %d to %d plus the ink" % (len(flats), ", ".join(flats), tier, band["flat"][0], band["flat"][1]))
@@ -658,8 +729,9 @@ def validate(spec):
                 err("rule 7: an %s has glow regions" % tier)
     if c["tris"] > TRI_CAP:
         err("rule 1: %d triangles; the cap is %d" % (c["tris"], TRI_CAP))
-    if c["movers"] > MOVERS_MAX:
-        err("rule 8: %d moving objects; at most %d" % (c["movers"], MOVERS_MAX))
+    cap = MOVERS_CAP[tier] if (b46 and tier) else MOVERS_MAX
+    if c["movers"] > cap:
+        err("rule 8: %d moving objects; at most %d" % (c["movers"], cap))
     # palette
     if pal:
         if "ink" not in pal:
@@ -679,6 +751,11 @@ def validate(spec):
     if hero and hero not in names:
         err("rule 1: hero %r is not a part name" % hero)
     errors += validate_face(spec, host)
+    if b46 and tier and host is not None:
+        errors += validate_eyes(spec, host, tier, pal)
+        errors += validate_rig(spec, tier, c["height"])
+    elif spec.get("rig"):
+        errors.append("rule 8: a `rig` block needs the B46 format (an `eyes` block too)")
     return errors, warnings
 
 
@@ -695,8 +772,9 @@ def _part_checks(p, err):
         err("cells: %s: material %r is not one of %s" % (n, p.get("material"), ", ".join(MATERIALS)))
 
 
-def _grid_checks(p, err):
-    """Rule 1's tilt and rule 2's grid for one part (masses on the quarter grid, faces on the half grid, a tilted centre on the sixteenth)."""
+def _grid_checks(p, err, half=HALF):
+    """Rule 1's tilt and rule 2's grid for one part (masses on the quarter grid, faces on the half grid, a tilted centre on the sixteenth).
+    `half` is the detail grid: 0.125, or 0.0625 from Epic up on the B46 format (DETAIL_GRID); a tilted centre then lies on half of it."""
     n = p["name"]
     tilted = False
     for i, angle in enumerate(p["rot"]):
@@ -705,17 +783,18 @@ def _grid_checks(p, err):
             tilted = True
             if not TILT_MIN - 1e-6 <= t <= TILT_MAX + 1e-6:
                 err("rule 1: %s: rot %s %g is a tilt of %g degrees; a tilt is %g to %g off a quarter turn" % (n, "xyz"[i], angle, t, TILT_MIN, TILT_MAX))
-    step = GRID if p["bevel"] else HALF
+    step = GRID if p["bevel"] else half
+    snap = TILT_SNAP if half >= HALF else half / 2
     for i, axis in enumerate("xyz"):
         if not _on(p["size"][i], step):
             err("rule 2: %s: size %s = %g is off the %g grid" % (n, axis, p["size"][i], step))
         if tilted:
-            if not _on(p["at"][i], TILT_SNAP):
-                err("rule 2: %s: a tilted part's centre %s = %g is off the %g grid" % (n, axis, p["at"][i], TILT_SNAP))
+            if not _on(p["at"][i], snap):
+                err("rule 2: %s: a tilted part's centre %s = %g is off the %g grid" % (n, axis, p["at"][i], snap))
             continue
         for face_pos in (p["at"][i] - p["size"][i] / 2, p["at"][i] + p["size"][i] / 2):
-            if not _on(face_pos, HALF):
-                err("rule 2: %s: its %s face at %g is off the %g half grid" % (n, axis, face_pos, HALF))
+            if not _on(face_pos, half):
+                err("rule 2: %s: its %s face at %g is off the %g half grid" % (n, axis, face_pos, half))
                 break
 
 
@@ -814,6 +893,8 @@ def validate_face(spec, host):
     bad = {ch for ch in border if str(legend.get(ch)) != body_role}
     if bad:
         errors.append("rule 3: the face border must be the head's own colour (%s); found %s" % (body_role, " ".join(sorted(bad))))
+    if is_b46(spec):
+        return errors  # the eyes, mouth and cheeks are on the face plate (validate_eyes); the head's front is the body cell grid (C1)
     for need in ("k", "w", "g"):
         if need not in legend:
             errors.append("rule 3: the legend needs `%s` (the house eye)" % need)
@@ -844,6 +925,259 @@ def find_stamp(rows, stamp):
             if all(rows[r + i][c:c + sw] == stamp[i] for i in range(sh)):
                 hits.append((r, c))
     return hits
+
+
+# ------------------------------------------------------------------------------------------------ B46: the eyes on the face plate, the rig
+def _eyes_lib():
+    here = str(pathlib.Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import eyes as E  # noqa: PLC0415
+    return E
+
+
+def plate_layout(spec):
+    """The face plate's layout (eyes.plate_layout) for a B46 note, or None."""
+    host = face_host(spec)
+    if not is_b46(spec) or host is None:
+        return None
+    E, eyes = _eyes_lib(), spec["eyes"]
+    if eyes.get("key") not in E.DESIGNS or eyes.get("mouth", "smile") not in E.MOUTHS or eyes.get("cheeks", "blush") not in E.CHEEKS:
+        return None  # validate_eyes names the fault
+    return E.plate_layout(eyes, host)
+
+
+def face_plate(spec):
+    """The face plate as a part (name FacePlate, slot Eye): a quad the size of the plate, a sixty-fourth of a stud proud of the head's front,
+    centred where `eyes.at` puts it. Not a block (rule 6 counts the parts table); the build makes it its own object with its own texture."""
+    lay = plate_layout(spec)
+    if lay is None:
+        return None
+    host = face_host(spec)
+    front = host["at"][2] - host["size"][2] / 2
+    return {"name": "FacePlate", "source": "FacePlate", "slot": "Eye", "size": [lay["size"][0], lay["size"][1], 0.0],
+            "at": [lay["centre"][0], lay["centre"][1], front - PLATE_PROUD], "rot": [0.0, 0.0, 0.0], "bevel": False, "mirror": "none",
+            "shape": "box", "moves": "face", "pivot": [lay["centre"][0], lay["centre"][1], front - PLATE_PROUD], "material": "skin"}
+
+
+def _clip(raw, where, errors, flourish=False):
+    """One clip (or one flourish move) with its defaults filled: kind, amp, period, phase (0 to 1), axis; a flourish move has part, at, for."""
+    if not isinstance(raw, dict):
+        errors.append("rule 8: %s: a clip is a mapping, got %r" % (where, raw))
+        return None
+    kinds = FLOURISH_KINDS if flourish else CLIP_KINDS
+    kind = str(raw.get("kind"))
+    if kind not in kinds:
+        errors.append("rule 8: %s: kind %r is not one of %s" % (where, kind, ", ".join(kinds)))
+        return None
+    known = {"kind", "amp", "period", "phase", "axis"} | ({"part", "at", "for"} if flourish else set())
+    extra = set(raw) - known
+    if extra:
+        errors.append("rule 8: %s: unknown field(s) %s" % (where, ", ".join(sorted(extra))))
+    axis = str(raw.get("axis") or ("y" if kind in ("hop", "turn", "pop", "squash") else ("z" if kind in ("flare", "swish") else CLIP_AXIS.get(kind, "y"))))
+    if axis not in ("x", "y", "z"):
+        errors.append("rule 8: %s: axis %r is not x, y or z" % (where, axis))
+    out = {"kind": kind, "amp": float(raw.get("amp", 0) or 0), "axis": axis}
+    if flourish:
+        out.update({"part": str(raw.get("part") or "root"), "at": float(raw.get("at", 0) or 0), "for": float(raw.get("for", 0) or 0)})
+    else:
+        out.update({"period": float(raw.get("period", 0) or 0), "phase": float(raw.get("phase", 0) or 0)})
+    return out
+
+
+def _mirror_clip(c):
+    """The clip for the left twin of a mirrored pair: a turn about y or z, and a move along x, change sign; the rest hold."""
+    m = dict(c)
+    rotates = c["kind"] in CLIP_ROTATES or c["kind"] in ("spin", "turn", "flare", "swish")
+    if (rotates and c["axis"] in ("y", "z")) or (c["kind"] in ("bob", "orbit", "hop") and c["axis"] == "x"):
+        m["amp"] = -c["amp"]
+    return m
+
+
+def rig_targets(spec):
+    """{key: {'pivot', 'parts'}} of what a rig may move: every moving object (spec.movers: 'sprout', 'wingR', 'wingL' ...), 'root' (the whole
+    body about its feet) and, on the B46 format, 'face' (the face plate)."""
+    out = dict(movers(expand(spec["parts"])))
+    out["root"] = {"pivot": [0.0, 0.0, 0.0], "parts": []}
+    plate = face_plate(spec)
+    if plate is not None:
+        out["face"] = {"pivot": plate["pivot"], "parts": [plate]}
+    return out
+
+
+def rig(spec, errors=None):
+    """The note's `rig` block expanded per moving object: {'clips': {key: [clip]}, 'flourish': {...} or None}. A clip key may be an object key
+    ('wingR') or the base name of a mirrored pair ('wing'), which gives both twins the clip, the left one mirrored. Errors go to `errors`."""
+    errors = [] if errors is None else errors
+    raw = spec.get("rig") or {}
+    targets = rig_targets(spec)
+    clips = {}
+    for key, lst in (raw.get("clips") or {}).items():
+        key = str(key)
+        twins = [k for k in targets if k in (key + "R", key + "L")]
+        names = [key] if key in targets else twins
+        if not names:
+            errors.append("rule 8: rig clip key %r is not a moving object (%s)" % (key, ", ".join(sorted(targets))))
+            continue
+        for i, c in enumerate(lst if isinstance(lst, list) else [lst]):
+            clip = _clip(c, "%s clip %d" % (key, i + 1), errors)
+            if clip is None:
+                continue
+            for name in names:
+                clips.setdefault(name, []).append(_mirror_clip(clip) if name.endswith("L") and name not in (key,) and twins else clip)
+    flourish = None
+    fl = raw.get("flourish")
+    if fl:
+        moves = []
+        for i, m in enumerate(fl.get("moves") or []):
+            mv = _clip(m, "flourish move %d" % (i + 1), errors, flourish=True)
+            if mv is None:
+                continue
+            part = mv["part"]
+            twins = [k for k in targets if k in (part + "R", part + "L")]
+            names = [part] if part in targets else twins
+            if not names:
+                errors.append("rule 8: flourish move %d: part %r is not a moving object or root" % (i + 1, part))
+                continue
+            for name in names:
+                moves.append(dict(_mirror_clip(mv) if (name.endswith("L") and twins) else mv, part=name))
+        flourish = {"every": float(fl.get("every", 0) or 0), "length": float(fl.get("length", 0) or 0), "moves": moves}
+    return {"clips": clips, "flourish": flourish}
+
+
+def motion_count(spec):
+    """Rule 8's ladder number: the moving objects that have a clip, plus one for the blink on the face plate."""
+    r = rig(spec)
+    objects = [k for k in r["clips"] if k not in RESERVED_MOVES]
+    blink = any(c["kind"] == "blink" for c in r["clips"].get("face", []))
+    return len(objects) + (1 if blink else 0)
+
+
+def validate_eyes(spec, host, tier, pal):
+    """B46 (1): the eye library on the face plate. The key exists, the tier floor holds (a species wears its own rung's eyes or the rung below;
+    Legendary, Cosmic and Secret their own rung's), the mouth and cheeks exist, every colour is a palette role or a hex, the plate fits on the
+    head's front and holds every piece, each eye is 18 to 36 percent of the head's width, and the eyes sit in the lower part of the head."""
+    E = _eyes_lib()
+    errors = []
+    eyes = spec.get("eyes") or {}
+    key = eyes.get("key")
+    known = {"key", "colours", "mouth", "cheeks", "plate", "at", "spread", "eye_top"}
+    extra = set(eyes) - known
+    if extra:
+        errors.append("B46: eyes: unknown field(s) %s" % ", ".join(sorted(extra)))
+    if key not in E.DESIGNS:
+        return errors + ["B46: eyes.key %r is not in the eye library (%s)" % (key, ", ".join(E.DESIGNS))]
+    floor = E.DESIGNS[key]["tier"]
+    rank, frank = TIER_ORDER.index(tier), TIER_ORDER.index(floor)
+    if frank > rank:
+        errors.append("B46: the %s eye `%s` has a tier floor of %s; a %s cannot wear it" % (floor, key, floor, tier))
+    elif rank >= TIER_ORDER.index("Legendary") and frank != rank:
+        errors.append("B46: a %s wears eyes from its own rung (no lower species has them); `%s` is %s" % (tier, key, floor))
+    elif rank - frank > 1:
+        errors.append("B46: a %s wears eyes from its own rung or the one below; `%s` is %s" % (tier, key, floor))
+    mouth, cheeks = eyes.get("mouth", "smile"), eyes.get("cheeks", "blush")
+    if mouth not in E.MOUTHS:
+        errors.append("B46: eyes.mouth %r is not one of %s" % (mouth, ", ".join(E.MOUTHS)))
+    if cheeks not in E.CHEEKS:
+        errors.append("B46: eyes.cheeks %r is not one of %s" % (cheeks, ", ".join(E.CHEEKS)))
+    elif TIER_ORDER.index(E.CHEEK_FLOOR[cheeks]) > rank:
+        errors.append("B46: cheeks `%s` start at %s" % (cheeks, E.CHEEK_FLOOR[cheeks]))
+    for role, value in (eyes.get("colours") or {}).items():
+        if role not in E.ROLES.values():
+            errors.append("B46: eyes.colours: %r is not an eye role (%s)" % (role, ", ".join(sorted(set(E.ROLES.values())))))
+        elif str(value) not in pal and not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(value)):
+            errors.append("B46: eyes.colours.%s %r is neither a palette role nor a #hex" % (role, value))
+    if errors:
+        return errors
+    lay = E.plate_layout(eyes, host)
+    dens = lay["density"]
+    for i, axis in enumerate(("width", "height")):
+        if abs(lay["size"][i] * dens - round(lay["size"][i] * dens)) > 1e-6:
+            errors.append("B46: the plate %s %g is not a whole number of %d-a-stud pixels" % (axis, lay["size"][i], dens))
+    hw, hh = host["size"][0], host["size"][1]
+    (px, py), (pw, ph) = lay["centre"], lay["size"]
+    if abs(px - host["at"][0]) + pw / 2 > hw / 2 + 1e-6 or abs(py - host["at"][1]) + ph / 2 > hh / 2 + 1e-6:
+        errors.append("B46: the %g x %g plate at (%g, %g) runs off the head's %g x %g front" % (pw, ph, px, py, hw, hh))
+    try:
+        E.plate_frames(eyes, host)
+    except ValueError as exc:
+        errors.append("B46: %s" % exc)
+    share = lay["eye_w"] / dens / hw
+    if not EYE_SHARE[0] - 1e-6 <= share <= EYE_SHARE[1] + 1e-6:
+        errors.append("B46: each eye is %.0f%% of the head's width; it must be %d to %d%% (big, soft eyes)" % (share * 100, EYE_SHARE[0] * 100, EYE_SHARE[1] * 100))
+    eye_centre_y = py + ph / 2 - (lay["eye_l"][1] + lay["eye_h"] / 2) / dens
+    down = (host["at"][1] + hh / 2 - eye_centre_y) / hh
+    if down < 0.4:
+        errors.append("B46: the eyes' centre is %.0f%% down the head's front; they belong 40%% down or lower (rule 3: cute faces sit low)" % (down * 100))
+    return errors
+
+
+def validate_rig(spec, tier, height):
+    """B46 (3), rule 8's ladder: every moving object has a clip, the face plate blinks, the moving things reach the tier's minimum, clip numbers
+    stay in their ranges, and the flourish follows the tier gate (none below Rare; a multi-part one from Rare; a longer one from Legendary)."""
+    errors = []
+    raw = spec.get("rig")
+    if not raw:
+        return ["rule 8: the B46 format needs a `rig` block (clips for every moving object and the blink)"]
+    extra = set(raw) - {"clips", "flourish"}
+    if extra:
+        errors.append("rule 8: rig: unknown field(s) %s" % ", ".join(sorted(extra)))
+    r = rig(spec, errors)
+    targets = rig_targets(spec)
+    for key in targets:
+        if key not in RESERVED_MOVES and key not in r["clips"]:
+            errors.append("rule 8: the moving object %s has no clip (a part that never moves merges into its slot)" % key)
+    blinks = [c for c in r["clips"].get("face", []) if c["kind"] == "blink"]
+    if not blinks:
+        errors.append("rule 8: the face plate needs a blink clip (`face: [{kind: blink, period: 4}]`)")
+    for key, lst in r["clips"].items():
+        for c in lst:
+            where = "%s %s" % (key, c["kind"])
+            if c["kind"] == "blink":
+                if key != "face":
+                    errors.append("rule 8: %s: only the face plate blinks" % where)
+                if not BLINK_EVERY[0] <= c["period"] <= BLINK_EVERY[1]:
+                    errors.append("rule 8: %s: a blink every %g s; %g to %g" % (where, c["period"], *BLINK_EVERY))
+                continue
+            if key == "face":
+                errors.append("rule 8: %s: the face plate only blinks (its flipbook carries the rest)" % where)
+            if not CLIP_PERIOD[0] <= c["period"] <= CLIP_PERIOD[1]:
+                errors.append("rule 8: %s: period %g s; %g to %g" % (where, c["period"], *CLIP_PERIOD))
+            if not 0 <= c["phase"] < 1:
+                errors.append("rule 8: %s: phase %g is a share of the period, 0 to under 1" % (where, c["phase"]))
+            a = abs(c["amp"])
+            if a <= 0:
+                errors.append("rule 8: %s: amp must not be 0" % where)
+            elif c["kind"] in CLIP_ROTATES and a > CLIP_ANGLE_MAX:
+                errors.append("rule 8: %s: %g degrees; at most %g" % (where, a, CLIP_ANGLE_MAX))
+            elif c["kind"] in ("bob", "orbit") and a > CLIP_STUDS_SHARE * height + 1e-9:
+                errors.append("rule 8: %s: %g studs; at most %.2f (%d%% of the height)" % (where, a, CLIP_STUDS_SHARE * height, CLIP_STUDS_SHARE * 100))
+            elif c["kind"] in ("squash", "pulse") and a > CLIP_SCALE_MAX:
+                errors.append("rule 8: %s: %g of its size; at most %g" % (where, a, CLIP_SCALE_MAX))
+    n = len([k for k in r["clips"] if k not in RESERVED_MOVES]) + (1 if blinks else 0)
+    if n < MOTION_MIN[tier]:
+        errors.append("rule 8: %d moving things (objects with a clip, plus the blink); a %s has at least %d" % (n, tier, MOTION_MIN[tier]))
+    fl = r["flourish"]
+    rank = TIER_ORDER.index(tier)
+    if rank < TIER_ORDER.index(FLOURISH_FROM):
+        if fl:
+            errors.append("rule 8: a %s has no flourish (from %s up)" % (tier, FLOURISH_FROM))
+        return errors
+    if not fl:
+        return errors + ["rule 8: a %s has a flourish (a multi-part move every few seconds)" % tier]
+    lo, hi = FLOURISH_LENGTH[tier]
+    if not lo <= fl["length"] <= hi:
+        errors.append("rule 8: the flourish lasts %g s; a %s's lasts %g to %g" % (fl["length"], tier, lo, hi))
+    if not FLOURISH_EVERY[0] <= fl["every"] <= FLOURISH_EVERY[1] or fl["every"] < 2 * fl["length"]:
+        errors.append("rule 8: the flourish comes every %g s; %g to %g, and at least twice its length" % (fl["every"], *FLOURISH_EVERY))
+    if len(fl["moves"]) < FLOURISH_MOVES[tier] or len({m["part"] for m in fl["moves"]}) < 2:
+        errors.append("rule 8: a %s's flourish has %d moves or more over at least two parts" % (tier, FLOURISH_MOVES[tier]))
+    for m in fl["moves"]:
+        if m["at"] < 0 or m["for"] <= 0 or m["at"] + m["for"] > fl["length"] + 1e-6:
+            errors.append("rule 8: flourish %s %s runs %g to %g s, outside the flourish's %g s" % (m["part"], m["kind"], m["at"], m["at"] + m["for"], fl["length"]))
+        if m["kind"] == "hop" and abs(m["amp"]) > 0.25 * height:
+            errors.append("rule 8: flourish %s hop of %g studs; at most a quarter of the height" % (m["part"], m["amp"]))
+    return errors
 
 
 # ------------------------------------------------------------------------------------------------ write back
@@ -905,8 +1239,9 @@ def main(argv=None):
             bad += 1
             continue
         c = counts(spec)
-        print("%-12s %-9s blocks %3d  tris %4d (estimate)  height %.2f  masses %d  movers %d" % (
-            spec["front"].get("id"), spec["front"].get("tier") or "prop", c["blocks"], c["tris"], c["height"], c["masses"], c["movers"]))
+        print("%-12s %-9s blocks %3d  tris %4d (estimate)  height %.2f  masses %d  movers %d  moving things %d%s" % (
+            spec["front"].get("id"), spec["front"].get("tier") or "prop", c["blocks"], c["tris"], c["height"], c["masses"], c["movers"],
+            c["motion"], "  (B46: eyes %s)" % spec["eyes"].get("key") if is_b46(spec) else ""))
         for e in errors:
             print("  error: " + e)
         for w in warnings:

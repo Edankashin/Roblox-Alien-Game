@@ -9,7 +9,7 @@ status: review
 element: Bloom
 height: 2.48
 blocks: 10
-tris: 212
+tris: 214
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#6CCB5F", "#2F7A4B", "#D9F36B", "#142019"]
@@ -22,6 +22,7 @@ render: "[[Mossbop_tq.jpg]]"
 glb: ""
 overlap: [0.996, 0.995, 0.993, 0.996]
 cells_render: "[[Mossbop_tq_cells.jpg]]"
+idle_render: "[[Mossbop_idle.png]]"
 ---
 # Mossbop (Moop), Common, World 1 Verdant
 
@@ -54,28 +55,39 @@ parts:
 
 ## Face
 
-The house face ([[Blocky-Style]] rule 3) on the head's front, 16 cells across the 2-stud head, so one cell is 0.125 studs and the 1.25-stud front is 10 rows.
+The head's front is the body cell grid (Blocky-Style C1): 16 columns across the 2-stud head, so the cell is 0.125 studs and the 1.25-stud front is 10 rows (the moss fringe on the top two); the eyes, the mouth and the cheeks are on the face plate.
 
 ```yaml
 face:
   host: Head
-  legend:
-    ".": body
-    "k": ink
-    "w": "#FFFFFF"
-    "g": accent
-    "p": "#FF8FA3"
-  rows:
-    - "................"
-    - "................"
-    - "...kk......kk..."
-    - "..kwkk....kkwk.."
-    - "..kwkk....kkwk.."
-    - "..kkkk....kkkk.."
-    - "..kgwk....kwgk.."
-    - "...gg.k..k.gg..."
-    - "..pp...kk...pp.."
-    - "................"
+  cols: 16
+```
+
+## Eyes
+
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `bean`, a Common design, a tall soft ink bean with one square shine, at 16 pixels a stud on a 1.75 x 1 stud plate (28 x 16 pixels, three frames: open, half, closed). A small smile and blush cheeks: the plainest face on the meadow, and still the cutest.
+
+```yaml
+eyes:
+  key: bean
+  mouth: smile
+  cheeks: blush
+  plate: [1.75, 1]
+  at: [0, 1.0625]
+  spread: 0.5
+```
+
+## Rig
+
+The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/shared/data/Rigs.luau`, World.RigAnimator plays it): the sprout sways, the spore bobs and circles, the whole ball breathes, and the face blinks. Two moving objects and the blink (a Common needs two); no flourish (that starts at Rare).
+
+```yaml
+rig:
+  clips:
+    sprout: [{kind: sway, amp: 10, period: 3.2, axis: z}]
+    float: [{kind: bob, amp: 0.12, period: 2.4}, {kind: orbit, amp: 0.06, period: 4.8}]
+    root: [{kind: squash, amp: 0.04, period: 2.6}]
+    face: [{kind: blink, period: 4.2}]
 ```
 
 ## Build
@@ -92,6 +104,10 @@ The concept sheet, drawn from the parts table above: [[Mossbop_sheet.svg]] (flat
 
 ![[Mossbop_views.png]]
 
+The idle: eight frames of the clips, and the face plate's frames:
+
+![[Mossbop_idle.png]]
+
 ## Cells
 
 The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is the face cell, 0.125 studs (8.0 a stud), 20 cells tall; one atlas of 512 x 512 at 8 texels a cell (54 islands). Materials: moss on the head, cap and base (the moss cell of Verdant as a texture at last), wood on the stem and the three root feet.
@@ -103,3 +119,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, worker, three rounds. Round 1: the first house eye read as a white eyeball with a pupil, and the leaves lay flat on the head, so the sprout did not read. Round 2: the house eye v2 (shine bar, lit crescent, sparkle) and a stemmed sprout at 25 degrees; the belly dropped to half a stud so the sprout fits under 2.5 studs. Round 3: no change after the side-by-side. Overlap with the sheet 0.998 to 0.999, 312 triangles. Wanted for: the cutest thing on the meadow, a face that is all eyes and a sprout that moves. Still cheap: the belly is a plain dark box, and the side moss cells read as headphones. Next: try the cell as a moss tuft on the belly, and an idle squash of the head. Status review, waiting for Ethan's look at the board.
 - 2026-10-17, loop 2 worker, three rounds. Round 1: the dark belly box became a body-green base step and a narrower cap step went on top, so the head is the wide middle of a voxel round. Round 2: five tries at a moss motif in the one free block (a dark cap, a lime cap, a cap with a drip, a moss bib, a side patch): each read as a lid, a cake, a hat or a sticker, never as moss, so the block went to alien anatomy, a lime spore floating beside the sprout. Round 3: the spore moved off the leaf tip (it merged with it) to float over the front corner. Overlap 0.993 to 0.996, 224 triangles, 10 blocks, 2.48 studs. Wanted for: the cutest thing on the meadow, a round moss ball half of which is face, a sprout that moves and a spore that bobs. Still cheap: the moss reads as a soft green ball more than as moss (open in [[Blocky-Style]]: mottling in the texture), and it is still the boxiest shape in the row. Status review, artboard on the canvas.
 - 2026-10-17, block-cell worker, three rounds (cells). Round 1: with moss across the whole head the front read as camouflage round the eyes, so below a two-row fringe the face is plain skin cells. Round 2: half-step tufts still read as a soft green ball; full-step tufts in three-cell clumps with a lit, ragged fringe down the sides read as moss (the open item of loop 2). Round 3: with the grout the ball reads as built of little blocks. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
+- 2026-10-21, eyes and rigs worker, the B46 pilot, two rounds. Round 1: the house eye retired for the library's `bean` (7 x 9 pixels at 16 a stud, one square shine) on a 28 x 16 face plate with a small smile and blush cheeks; the head's front is now plain cells (the moss fringe on top). Round 2: the first beans were 6 pixels wide, 19 percent of the head, and read small; at 7 they are 22 percent. Its rig: the sprout sways, the spore bobs and circles, the ball breathes (a 4 percent squash), the face blinks every 4.2 s: three moving things, no flourish. Height 2.48 (in the B45 band), overlap 0.993 to 0.996, 214 triangles. Wanted for: the plainest face on the meadow and still the cutest. Status review.

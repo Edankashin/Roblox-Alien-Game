@@ -49,6 +49,7 @@ local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
+local RigAnimator = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("RigAnimator"))
 local MusicDirector = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MusicDirector"))
 
 local Reveal = {}
@@ -1125,6 +1126,7 @@ local function showModel(def: Types.SpeciesDef?)
 	model.Parent = view
 	frameCamera(camera, model)
 	viewModel = model
+	RigAnimator.Attach(model, if def then def.id else "", { always = true }) -- the B46 idle in the viewport; released on destroy
 	spinConn = RunService.RenderStepped:Connect(function(dt: number)
 		spinAngle = (spinAngle + dt * VIEW_SPIN) % (math.pi * 2)
 		model:PivotTo(CFrame.Angles(0, spinAngle, 0))

@@ -51,6 +51,7 @@ local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
+local RigAnimator = require(script.Parent:WaitForChild("RigAnimator"))
 
 local CompanionRenderer = {}
 
@@ -272,6 +273,7 @@ local function build(row: Types.CompanionRow, def: Types.SpeciesDef, from: Follo
 		part = newPart(row.uid, Enum.PartType.Block, Vector3.one * height, Color3.fromHex(def.placeholder.color))
 		part.Transparency = 1
 		model.Name = row.uid .. "Model"
+		RigAnimator.Attach(model, row.species) -- the B46 idle (data/Rigs); released when the model is destroyed
 	else
 		height = 2 * def.placeholder.scale * Companions.Scale * band.scale * grown
 		part = newPart(

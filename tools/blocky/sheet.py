@@ -92,8 +92,31 @@ def view_items(spec, view, parts=None):
     return [(d, kind, payload) for d, _, kind, payload in items]
 
 
+def plate_cells(spec, frame=0):
+    """B46: [(u0, v0, u1, v1, hex)] of every drawn pixel of the face plate's frame `frame` (the open eyes by default), front-view coordinates."""
+    E = S._eyes_lib()
+    host = S.face_host(spec)
+    lay = S.plate_layout(spec)
+    rows = E.plate_frames(spec["eyes"], host)[frame][1]
+    colours = E.resolve_colours(spec["eyes"], S.palette(spec))
+    px = 1.0 / lay["density"]
+    (cx, cy), (w, h) = lay["centre"], lay["size"]
+    out = []
+    for r, row in enumerate(rows):
+        for c, ch in enumerate(row):
+            if ch == ".":
+                continue
+            u0 = -(cx + w / 2) + c * px
+            v1 = cy + h / 2 - r * px
+            out.append((u0, v1 - px, u0 + px, v1, colours[ch]))
+    return out
+
+
 def face_cells(spec, host):
-    """[(u0, v0, u1, v1, hex)] of every non-body face cell, in front-view coordinates (column 0 at the viewer's left, the creature's +X)."""
+    """[(u0, v0, u1, v1, hex)] of every non-body face cell, in front-view coordinates (column 0 at the viewer's left, the creature's +X).
+    On the B46 format the head's front is plain body cells and the face is the plate's open frame."""
+    if S.is_b46(spec):
+        return plate_cells(spec)
     face = spec["face"]
     rows = face["rows"]
     cols = len(rows[0])
@@ -280,7 +303,7 @@ def draw_sheet(spec, canvas_cls, width=1800, overlap=None):
     parts, s, base, pad = L["parts"], L["scale"], L["base"], L["pad"]
     c_rows = len(spec["parts"])
     table_h = 70 + 18 * c_rows
-    right_h = 520 + (len((spec.get("face") or {}).get("rows") or []) * 14)
+    right_h = 520 + (len((spec.get("face") or {}).get("rows") or []) * 14 if not S.is_b46(spec) else 260)
     below = base + 70
     height = int(below + max(table_h, right_h) + 40)
     cv = canvas_cls(width, height)
@@ -388,7 +411,11 @@ def draw_sheet(spec, canvas_cls, width=1800, overlap=None):
     rows = face.get("rows") or []
     fy = ry + 18 + len(pal) * 40 + 30
     cv.group("face")
-    cv.text(rx, fy, "Face: %d x %d cells on %s's front (the house eye)" % (len(rows[0]) if rows else 0, len(rows), face.get("host")), 18, INK, True)
+    if S.is_b46(spec):
+        fy = _plate_panel(cv, spec, rx, fy)
+        rows = []
+    else:
+        cv.text(rx, fy, "Face: %d x %d cells on %s's front (the house eye)" % (len(rows[0]) if rows else 0, len(rows), face.get("host")), 18, INK, True)
     if rows:
         cell = min(14.0, 300.0 / len(rows[0]))
         for r, row in enumerate(rows):
@@ -424,6 +451,34 @@ def draw_sheet(spec, canvas_cls, width=1800, overlap=None):
     for i, line in enumerate(wrap("Element: %s.  VFX: %s" % (front.get("element", "-"), front.get("vfx", "none")), 95)):
         cv.text(rx, notes_y + i * 18, line, 13, INK)
     return cv
+
+
+def _plate_panel(cv, spec, rx, fy):
+    """B46: the face plate's frames (the eye library design, its tier floor, the plate's pixels) on the head colour, as small grids."""
+    E = S._eyes_lib()
+    eyes = spec["eyes"]
+    host = S.face_host(spec)
+    lay = S.plate_layout(spec)
+    frames = E.plate_frames(eyes, host)
+    colours = E.resolve_colours(eyes, S.palette(spec))
+    d = E.DESIGNS[eyes["key"]]
+    cv.text(rx, fy, "Face plate: `%s` (%s eye), %d x %d px at %d a stud, %d frames" % (eyes["key"], d["tier"], lay["w"], lay["h"], lay["density"],
+                                                                                      len(frames)), 18, INK, True)
+    body = S.slot_hex(spec, host["slot"])
+    cell = min(4.0, 150.0 / lay["w"])
+    fw, fh = lay["w"] * cell, lay["h"] * cell
+    per_row = max(1, int(560 // (fw + 10)))
+    shown = frames[:per_row * 3]
+    for i, (name, rows) in enumerate(shown):
+        ox = rx + (i % per_row) * (fw + 10)
+        oy = fy + 14 + (i // per_row) * (fh + 22)
+        cv.rect(ox, oy, fw, fh, body)
+        for r, row in enumerate(rows):
+            for c, ch in enumerate(row):
+                if ch != ".":
+                    cv.rect(ox + c * cell, oy + r * cell, cell, cell, colours[ch])
+        cv.text(ox, oy + fh + 13, name, 11, MUTED)
+    return fy + 14 + ((len(shown) - 1) // per_row + 1) * (fh + 22)
 
 
 def wrap(text, width):

@@ -237,9 +237,9 @@ class Notes(unittest.TestCase):
             spec = S.load(path)
             host = S.face_host(spec)
             cells[spec["front"]["id"]] = C.creature_cell(spec)
-            self.assertAlmostEqual(C.creature_cell(spec), host["size"][0] / 16)
+            self.assertAlmostEqual(C.creature_cell(spec), host["size"][0] / len(spec["face"]["rows"][0]))
         self.assertEqual(cells["Mossbop"], 0.125)
-        self.assertEqual(cells["Radish"], 0.375)
+        self.assertEqual(cells["Radish"], 0.0625)   # B45 and B46: a 2-stud head at 32 columns, so the Cosmic carries finer cells
 
     def test_every_creature_paints_with_its_face(self):
         for path in CREATURES:

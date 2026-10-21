@@ -43,7 +43,9 @@ import bmesh  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
 import cells as C  # noqa: E402
+import eyes as E  # noqa: E402
 import raster  # noqa: E402
+import rigs as RG  # noqa: E402
 import sheet as SH  # noqa: E402
 import spec as S  # noqa: E402
 
@@ -73,7 +75,7 @@ def cell_atlas(spec, parts, out_dir, name, cell=None, flat=False, px=None, grout
     """Plan, pack and paint the block-cell atlas of one creature or prop (tools/blocky/cells.py), save it as <name>_atlas.png and load it with
     nearest filtering. Returns {'image', 'index': {(part, orient): island}, 'w', 'h', 'px', 'cell'}."""
     cell = cell or C.creature_cell(spec)
-    px = C.PX if px is None else px
+    px = C.texels(cell) if px is None else px
     grout = C.GROUT if grout is None else grout
     # `hidden_by`: boxes that are not built but hide faces (the diorama's floor under its ground)
     isl = C.islands(parts, cell, statics=[p for p in parts if p["moves"] == "none"] + list(hidden_by))
@@ -256,7 +258,89 @@ def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), p
         mesh.calc_loop_triangles()
         tris += len(mesh.loop_triangles)
         objects.append(obj)
+    plate = face_plate(spec, out_dir, prefix, offset, rot)
+    if plate is not None:
+        objects.append(plate)
+        tris += 2
+        groups["FacePlate"] = None
     return {"objects": objects, "tris": tris, "groups": list(groups), "atlas": (atlas["w"], atlas["h"]), "cell": atlas["cell"]}
+
+
+def face_plate(spec, out_dir, prefix="", offset=(0.0, 0.0, 0.0), rot=(0.0, 0.0, 0.0)):
+    """B46: the face plate as its own object (`FacePlate`, origin at its centre, the name data/Rigs and World.RigAnimator look for): one
+    quad a sixty-fourth of a stud proud of the head's front, textured with the plate's flipbook sheet (<Id>_face.png, tools/blocky/eyes.py;
+    nearest filtering, alpha), its UVs on frame 0 (the open eyes). A Mapping node offsets the UVs to show another frame (set_plate_frame).
+    None for a note on the old format."""
+    part = S.face_plate(spec)
+    if part is None:
+        return None
+    sid = spec["front"]["id"]
+    eyes = spec["eyes"]
+    frames = E.plate_frames(eyes, S.face_host(spec))
+    W, H, rgba = E.plate_sheet_rgba(frames, E.resolve_colours(eyes, S.palette(spec)))
+    fw, fh = len(frames[0][1][0]), len(frames[0][1])
+    path = pathlib.Path(out_dir) / ("%s_face.png" % sid)
+    E.write_png_rgba(str(path), W, H, rgba)
+    img = bpy.data.images.load(str(path), check_existing=False)
+    img.name = "%s%s_face" % (prefix, sid)
+    img.alpha_mode = "STRAIGHT"
+    mat = bpy.data.materials.new("%s%s_Face" % (prefix, sid))
+    mat.use_nodes = True
+    nt = mat.node_tree
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    bsdf.inputs["Roughness"].default_value = 0.4
+    uvn = nt.nodes.new("ShaderNodeUVMap")
+    mapping = nt.nodes.new("ShaderNodeMapping")
+    mapping.name = "PlateFrame"
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.interpolation = "Closest"
+    tex.extension = "CLIP"
+    nt.links.new(uvn.outputs["UV"], mapping.inputs["Vector"])
+    nt.links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
+    if "plate" not in mat:
+        mat["plate"] = 1
+    mat["plate_grid"] = [W, H, fw, fh]
+    (cx, cy, cz), (w, h, _) = part["at"], part["size"]
+    bm = bmesh.new()
+    uv = bm.loops.layers.uv.new("UVMap")
+    corners = [((cx + w / 2, cy + h / 2), (0.0, 1.0)), ((cx - w / 2, cy + h / 2), (fw / W, 1.0)),
+               ((cx - w / 2, cy - h / 2), (fw / W, 1.0 - fh / H)), ((cx + w / 2, cy - h / 2), (0.0, 1.0 - fh / H))]
+    off = to_bl(part["pivot"])
+    vs = [bm.verts.new(to_bl((x, y, cz)) - off) for (x, y), _ in corners]
+    face = bm.faces.new(vs)
+    face.normal_update()
+    if face.normal.dot(to_bl((0.0, 0.0, -1.0))) < 0:
+        face.normal_flip()
+    for loop in face.loops:
+        k = vs.index(loop.vert)
+        loop[uv].uv = corners[k][1]
+    mesh = bpy.data.meshes.new("%s%s_FacePlate" % (prefix, sid))
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.materials.append(mat)
+    obj = bpy.data.objects.new("%sFacePlate" % prefix, mesh)
+    obj.location = to_bl(part["pivot"])
+    if any(rot):
+        obj.rotation_euler = tuple(rot)
+        obj.location = obj.rotation_euler.to_matrix() @ obj.location
+    obj.location += Vector(offset)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def set_plate_frame(obj, frame):
+    """Shows flipbook frame `frame` (0-based, SHEET_COLUMNS a row) on a face plate object built by face_plate."""
+    for mat in obj.data.materials:
+        if mat is None or "plate_grid" not in mat:
+            continue
+        W, H, fw, fh = (int(v) for v in mat["plate_grid"])
+        cols = max(1, W // fw)
+        node = mat.node_tree.nodes.get("PlateFrame")
+        if node is not None:
+            node.inputs["Location"].default_value = ((frame % cols) * fw / W, -(frame // cols) * fh / H, 0.0)
 
 
 def avatar_spec(colour=SH.AVATAR_HEX):
@@ -329,7 +413,16 @@ def flat_materials(objects):
             if tex is not None:
                 nt.links.new(tex.outputs["Color"], em.inputs["Color"])
             em.inputs["Strength"].default_value = 1.0
-            nt.links.new(em.outputs["Emission"], out.inputs["Surface"])
+            if "plate_grid" in mat and tex is not None:
+                # the face plate: transparent where the sheet is (the head shows through), the sheet's colour elsewhere
+                tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+                mix = nt.nodes.new("ShaderNodeMixShader")
+                nt.links.new(tex.outputs["Alpha"], mix.inputs["Fac"])
+                nt.links.new(tr.outputs["BSDF"], mix.inputs[1])
+                nt.links.new(em.outputs["Emission"], mix.inputs[2])
+                nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+            else:
+                nt.links.new(em.outputs["Emission"], out.inputs["Surface"])
             obj.data.materials[i] = flat
 
 
@@ -683,9 +776,10 @@ def vfx_layers(spec, objects, tier):
         col_h = height * 3.0
         beam = emissive("Beam", light_hex, GLOW_VFX * 0.7, alpha=0.3)
         c = to_bl((base[0], base[1] + col_h / 2, base[2]))
-        added.append(cube("beam", c, (1.6, 1.6, col_h), beam))
+        bw = min(1.6, 0.12 * height)   # B45: a 3.5-stud Cosmic gets a column in proportion (1.6 studs was for the 14-stud builds)
+        added.append(cube("beam", c, (bw, bw, col_h), beam))
         core = emissive("BeamCore", "#FFF6DC", GLOW_VFX * 1.2, alpha=0.6)
-        added.append(cube("beamcore", c, (0.4, 0.4, col_h), core))
+        added.append(cube("beamcore", c, (bw / 4, bw / 4, col_h), core))
         # the corona: a strong light at the centre of the turning part (the sun behind the head), rimming the head in its colour
         halo = [p for p in parts if p["moves"] == "halo"]
         if halo:
@@ -701,6 +795,104 @@ def vfx_layers(spec, objects, tier):
     return added
 
 
+# ------------------------------------------------------------------------------------------------ the idle preview (B46)
+SPEC_TO_BL = Matrix(((-1, 0, 0, 0), (0, 0, 1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))   # to_bl as a matrix (its own inverse)
+
+
+def _spec_matrix(pose, around):
+    """The pose (rigs.new_pose: offset, turn as Roblox's CFrame.Angles x y z, scale) about the spec point `around`, as a 4x4 in spec space."""
+    rx, ry, rz = pose["r"]
+    rot = Matrix.Rotation(rx, 4, "X") @ Matrix.Rotation(ry, 4, "Y") @ Matrix.Rotation(rz, 4, "Z")
+    sc = Matrix.Diagonal((pose["s"][0], pose["s"][1], pose["s"][2], 1.0))
+    a = Vector(around)
+    return Matrix.Translation(a + Vector(pose["p"])) @ rot @ sc @ Matrix.Translation(-a)
+
+
+def pose_objects(spec, objs, rest, row, now, offset=0.0, flourish_at=None):
+    """Poses the built objects for time `now` (seconds) with the same math as Shared/RigMath (tools/blocky/rigs.py): each moving object
+    about its pivot, then the whole body about its feet. `flourish_at`: seconds into the flourish to show instead of the clock's own."""
+    fl = row["flourish"]
+    elapsed = flourish_at if flourish_at is not None else -1.0
+    if flourish_at is None and fl and fl["every"] > 0:
+        into = (now + offset * fl["every"]) % fl["every"]
+        elapsed = into if into < fl["length"] else -1.0
+    root = RG.new_pose()
+    for c in row["root"]:
+        RG.accumulate(root, c, now, offset)
+    if fl and elapsed >= 0:
+        for m in fl["moves"]:
+            if m["part"] == "root":
+                RG.accumulate_move(root, m, elapsed)
+    m_root = _spec_matrix(root, (0.0, 0.0, 0.0))
+    parts = {p["name"]: p for p in row["parts"]}
+    centre = row["centre"]
+    for o in objs:
+        key = o.name
+        local = Matrix.Identity(4)
+        if key in parts:
+            pose = RG.new_pose()
+            for c in parts[key]["clips"]:
+                RG.accumulate(pose, c, now, offset)
+            if fl and elapsed >= 0:
+                for m in fl["moves"]:
+                    if m["part"] == key:
+                        RG.accumulate_move(pose, m, elapsed)
+            piv = parts[key]["pivot"]
+            local = _spec_matrix(pose, (piv[0] + centre[0], piv[1], piv[2] + centre[2]))
+        o.matrix_world = SPEC_TO_BL @ (m_root @ local) @ SPEC_TO_BL @ rest[o.name]
+
+
+def run_idle(spec, out, size, samples, frames=8):
+    """<Id>_idle.png: eight frames of the idle (between flourishes), four of one flourish (from Rare up), and the face plate's frames,
+    rendered lit at the three-quarter view, composed by tools/blocky/idle_sheet.py (Pillow, in the system Python)."""
+    import subprocess
+    sid = spec["front"]["id"]
+    row = RG.row(spec)
+    fdir = out / ("%s_idle_frames" % sid)
+    fdir.mkdir(parents=True, exist_ok=True)
+    for old in fdir.glob("*.png"):
+        old.unlink()
+    scene = reset()
+    objs = build(spec, out)["objects"]
+    bpy.context.view_layer.update()
+    rest = {o.name: o.matrix_world.copy() for o in objs}
+    cam, centre, extent = tq_camera(scene, objs, margin=1.5)
+    lit_setup(scene, size, samples, extent=extent, centre=centre)
+    add_lights(scene, centre, extent)
+    plate = next((o for o in objs if o.name == "FacePlate"), None)
+    face = row["face"]
+    fl = row["flourish"]
+    t0 = (fl["length"] + 0.6) if fl else 0.4
+    shots = []
+    for k in range(frames):
+        now = t0 + k * 0.45
+        frame = RG.face_frame(face, now, 0.0)
+        if k == 3:
+            frame = face["closed"]          # one frame shows the blink
+        elif k == 5 and face["glint"]:
+            frame = face["glint"][-1]       # and one the big glint
+        shots.append(("idle %.2fs" % now, now, None, frame))
+    if fl:
+        for s in (0.12, 0.35, 0.6, 0.85):
+            at = s * fl["length"]
+            shots.append(("flourish %.1fs" % at, 50.0, at, face["cycle"][int(at * 8) % len(face["cycle"])] if face["cycle"] else face["open"]))
+    names = []
+    for i, (name, now, at, frame) in enumerate(shots):
+        pose_objects(spec, objs, rest, row, now, 0.0, at)
+        if plate is not None:
+            set_plate_frame(plate, frame)
+        scene.render.filepath = str(fdir / ("f%02d.png" % i))
+        bpy.ops.render.render(write_still=True)
+        names.append(name)
+        print("%-12s idle %s" % (sid, name), flush=True)
+    (fdir / "labels.txt").write_text("\n".join(names), encoding="utf-8")
+    sheet = out / ("%s_idle.png" % sid)
+    cmd = ["python3", "-I", str(ROOT / "tools/blocky/idle_sheet.py"), str(fdir), str(out / ("%s_face.png" % sid)), str(sheet), "--id", sid,
+           "--tier", spec["front"]["tier"], "--frames", ",".join(E.frame_names(spec["eyes"]["key"])), "--frame-size", "%d,%d" % (face["frameWidth"], face["frameHeight"])]
+    subprocess.run(cmd, check=False)
+    print("%-12s %s" % (sid, sheet), flush=True)
+
+
 # ------------------------------------------------------------------------------------------------ the runs
 def export_glb(path):
     kwargs = dict(filepath=str(path), export_format="GLB", use_selection=False, export_yup=True, export_apply=True, export_materials="EXPORT")
@@ -711,7 +903,7 @@ def export_glb(path):
         bpy.ops.export_scene.gltf(**kwargs)
 
 
-def run_one(note, sheet_dir, out_dir, size, samples, skip, write, flat=False, suffix=""):
+def run_one(note, sheet_dir, out_dir, size, samples, skip, write, flat=False, suffix="", idle=False):
     spec = S.load(note)
     errors, _ = S.validate(spec)
     if errors:
@@ -774,6 +966,8 @@ def run_one(note, sheet_dir, out_dir, size, samples, skip, write, flat=False, su
         scene.render.filepath = str(out / ("%s_vfx%s.png" % (sid, suffix)))
         bpy.ops.render.render(write_still=True)
         print("%-12s %s" % (sid, scene.render.filepath), flush=True)
+    if idle and S.is_b46(spec):
+        run_idle(spec, out, min(size, 420), max(16, samples // 2))
     if write:
         updates = {"blocks": S.counts(spec)["blocks"], "tris": built["tris"]}
         if result["overlap"]:
@@ -828,6 +1022,7 @@ def main():
     ap.add_argument("--lineup", default="", help="comma list of notes rendered side by side to scale with the avatar")
     ap.add_argument("--flat", action="store_true", help="flat slot colours, no cells (the look before B44)")
     ap.add_argument("--suffix", default="", help="added to every output name, e.g. _cells")
+    ap.add_argument("--idle", action="store_true", help="B46: also render the idle preview <Id>_idle.png (8 idle frames, a flourish, the plate)")
     a = ap.parse_args(argv)
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models: builds go to a scratch folder until Ethan approves a sheet (B43)")
@@ -836,7 +1031,7 @@ def main():
         return run_lineup([n for n in a.lineup.split(",") if n], a.out, a.size, a.samples, a.flat, a.suffix)
     rc = 0
     for note in [n for n in a.spec.split(",") if n]:
-        rc |= run_one(note, a.sheet, a.out, a.size, a.samples, set(a.skip.split(",")), a.write, a.flat, a.suffix)
+        rc |= run_one(note, a.sheet, a.out, a.size, a.samples, set(a.skip.split(",")), a.write, a.flat, a.suffix, a.idle)
     return rc
 
 

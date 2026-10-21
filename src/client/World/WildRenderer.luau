@@ -69,6 +69,7 @@ local Models = require(script.Parent:WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
+local RigAnimator = require(script.Parent:WaitForChild("RigAnimator"))
 
 local WildRenderer = {}
 
@@ -202,6 +203,7 @@ local function buildModel(def: Types.SpeciesDef, feet: Vector3, factor: number):
 	local base = CFrame.new(feet) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
 	clone:PivotTo(base)
 	clone.Parent = parent
+	RigAnimator.Attach(clone, def.id) -- the B46 idle (data/Rigs); released when the clone is destroyed, a no-op on an old blockout
 	return clone, base
 end
 

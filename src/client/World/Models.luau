@@ -127,6 +127,7 @@ end
 -- Shadowed: every part painted Theme.Shadow in SmoothPlastic with any texture dropped (a SurfaceAppearance too), the original
 -- Color, Material and TextureID kept in attributes on the part. Un-shadowed: those restored exactly.
 function Models.SetShadow(model: Model, shadowed: boolean)
+	model:SetAttribute("Shadowed", shadowed) -- World.RigAnimator hides the face plate's flipbook on a silhouette
 	for _, descendant in ipairs(model:GetDescendants()) do
 		if not descendant:IsA("BasePart") then
 			continue
