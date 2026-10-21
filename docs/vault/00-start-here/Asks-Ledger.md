@@ -190,6 +190,12 @@ Built on 2026-10-15 from Ethan's own words in [[Transcripts]] (every `Ethan:` bl
 | 1 | I don't like these designs; not fiercer with rarity; too simplistic, not high enough quality; a blocky look like popular Roblox games (research what blocky means); rarer aliens get more detail and height and feel worth finding; VFX with them; every design done with a mix of Claude Design, Blender and Obsidian | decision, ask | in progress: B43 recorded; the research on the blocky style running; then the style note, Claude Design concept boards and Blender prototypes across the tiers | [[Decisions]] B43, [[Decide-Now]] |
 | 2 | Continue; this looks pretty nice; landscape, characters and everything consistent; characters made of little blocky texture; consistent throughout the whole game | decision, ask | in progress: B44; the cell texture system on the seven aliens and a matching World 1 landscape sample, then the canvas board | [[Decisions]] B44, [[Blocky-Style]] |
 
+## 2026-10-21
+
+| # | Ethan (shortened) | Kind | Status | Where |
+|---|---|---|---|---|
+| 1 | Three TikToks (batch 9): "They are super helpful and should definitely be implemented into the game" | ask | done: downloaded (Mac job 41), processed, noted with twelve lessons checked against the repo: 6 already done, 4 built before launch (the Scrap shortfall line, the Starter Pack button on the HUD, the luck buyer in chat, the benchmarks), 1 waits on Ethan (an offer under 10 Robux, [[Decide-Now]] 47), 2 for week one (offers on the map, a stacking multiplier, [[Decide-Now]] 49), 2 not copied (selling Scrap for the shortfall, decoy pricing; [[Decide-Now]] 48 and 50) | `media/tiktok/NOTES.md` "Batch 9", [[Launch-Dashboard]] "Launch week" |
+
 ## References Ethan sent
 
 Every link, by the day he sent it. *Downloaded* is the file in `media/tiktok/` (an mp4, or a folder of slides for a photo post), fetched on the Mac because the cloud cannot reach tiktok.com. *Processed* is `tools/watch_video.py` (contact sheets and a transcript, scratch under `media/tiktok/out/`) or a slide-by-slide read. *Noted* is a section in `media/tiktok/NOTES.md`. YouTube: he sent no links; the research of 2026-10-15 cites YouTube tutorials and their captions are overnight job 28 (partial, rate-limited).
@@ -231,6 +237,9 @@ Every link, by the day he sent it. *Downloaded* is the file in `media/tiktok/` (
 | ZPLSxw532 | 2026-10-15 | jarvislabsreal: the titan transformation | yes | yes | yes |
 | ZPLSQAhnb | 2026-10-15 | jarvislabsreal: 24 hours with a Claude model, Blender and Claude Design | yes | yes | yes; the roll reel for the reveal |
 | ZPLSxwKHm | 2026-10-15 | the same file as ZPLS5oJs2 | yes | yes | yes |
+| ZPLAB8GM3 | 2026-10-21 | palm_dev: three monetization tips (a tempting shop, one offer under 10 Robux, a Robux prompt for what you cannot afford, offers shown on the map and screen) | yes (job 41, 98547f2) | yes | yes (batch 9) |
+| ZPLAk7qKN | 2026-10-21 | bennettbenito: 5M Robux in a month, dashboard percentiles and three tips (slideshow) | yes (slides) | read | yes; [[Growth-Playbook]] benchmarks |
+| ZPLAkEnnf | 2026-10-21 | machv10: three secrets for thumbnail click-through | yes | yes | yes; [[Thumbnail-Research]] |
 
 ## Tools he named
 
