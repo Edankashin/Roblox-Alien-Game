@@ -59,6 +59,21 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Puffpuff = {
+		height = 2.5,
+		parts = {
+			{ name = "floatR", pivot = { 1.125, 2.25, -0.5 }, clips = { { kind = "bob", amp = 0.15, period = 2.8, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 5.6, phase = 0, axis = "y" } } },
+			{ name = "leafL", pivot = { -0.125, 0.25, 0 }, clips = { { kind = "flap", amp = -6, period = 3, phase = 0, axis = "z" } } },
+			{ name = "leafR", pivot = { 0.125, 0.25, 0 }, clips = { { kind = "flap", amp = 6, period = 3, phase = 0, axis = "z" } } },
+			{ name = "seeds", pivot = { 0, 2.125, 0 }, clips = { { kind = "sway", amp = 6, period = 2.2, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 3.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Radish = {
 		height = 3.438,
 		parts = {
