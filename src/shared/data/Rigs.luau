@@ -17,6 +17,37 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Gloomoth = {
+		height = 3.438,
+		parts = {
+			{ name = "antennaL", pivot = { -0.5, 2.5, -1.1562 }, clips = { { kind = "sway", amp = -9, period = 2.8, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3.7, phase = 0.35, axis = "x" } } },
+			{ name = "antennaR", pivot = { 0.5, 2.5, -1.1562 }, clips = { { kind = "sway", amp = 9, period = 2.8, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3.7, phase = 0.35, axis = "x" } } },
+			{ name = "hindwingL", pivot = { -0.75, 1.5, 1.0312 }, clips = { { kind = "flap", amp = -12, period = 1.8, phase = 0.2, axis = "z" } } },
+			{ name = "hindwingR", pivot = { 0.75, 1.5, 1.0312 }, clips = { { kind = "flap", amp = 12, period = 1.8, phase = 0.2, axis = "z" } } },
+			{ name = "shard", pivot = { 0, 3, 0.1562 }, clips = { { kind = "orbit", amp = 0.3, period = 5, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 3, phase = 0, axis = "y" }, { kind = "bob", amp = 0.08, period = 2.5, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.75, 1.75, -0.2188 }, clips = { { kind = "flap", amp = -18, period = 1.8, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.75, 1.75, -0.2188 }, clips = { { kind = "flap", amp = 18, period = 1.8, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 3, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 10, length = 2.2,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.3, axis = "y", at = 0, length = 0.7 },
+				{ part = "wingL", kind = "flare", amp = -30, axis = "z", at = 0, length = 1.2 },
+				{ part = "wingR", kind = "flare", amp = 30, axis = "z", at = 0, length = 1.2 },
+				{ part = "hindwingL", kind = "flare", amp = -20, axis = "z", at = 0.15, length = 1.1 },
+				{ part = "hindwingR", kind = "flare", amp = 20, axis = "z", at = 0.15, length = 1.1 },
+				{ part = "antennaL", kind = "swish", amp = -15, axis = "z", at = 0.6, length = 1.2 },
+				{ part = "antennaR", kind = "swish", amp = 15, axis = "z", at = 0.6, length = 1.2 },
+				{ part = "shard", kind = "hop", amp = 0.35, axis = "y", at = 0.9, length = 0.9 },
+			},
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
