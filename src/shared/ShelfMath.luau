@@ -8,7 +8,7 @@
 local ShelfMath = {}
 
 -- The part of a data/Shop row the live check reads.
-export type Sellable = { kind: "pass" | "product", productId: number?, passId: number? }
+export type Sellable = { kind: "pass" | "product", productId: number?, passId: number?, offSale: boolean? }
 
 -- The left edge of every card and the length of the whole row, from each card's width, the `gap` between neighbours and the
 -- `pad` at both ends (all in the same unit, px in the screen). No cards is a row of length 0.
@@ -90,6 +90,9 @@ end
 -- a pass reads passId, anything else productId, and a missing id or 0 is a placeholder). The tap on one that is not live
 -- shows "Coming soon"; the server still decides every purchase.
 function ShelfMath.IsLive(item: Sellable): boolean
+	if item.offSale == true then
+		return false -- held off sale in data (data/Shop `offSale`), whatever its id
+	end
 	local id = if item.kind == "pass" then item.passId else item.productId
 	return id ~= nil and id ~= 0
 end

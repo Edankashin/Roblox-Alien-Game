@@ -153,7 +153,7 @@ describe("ShelfMath", function()
 					local item = byId[id]
 					expect(item ~= nil).toEqual(true)
 					local liveId = if item.kind == "pass" then item.passId or 0 else item.productId or 0
-					expect(ShelfMath.IsLive(item)).toEqual(liveId ~= 0)
+					expect(ShelfMath.IsLive(item)).toEqual(liveId ~= 0 and item.offSale ~= true)
 				end
 			end
 		end)
@@ -260,6 +260,20 @@ describe("Shop shelf data", function()
 		-- the pill and the line under it clear each other
 		expect(Shop.Shelf.Card.Pill.Y + Shop.Shelf.Card.Pill.H <= Shop.Shelf.Card.Below.Y).toEqual(true)
 		expect(Shop.Shelf.Featured.Pill.Y + Shop.Shelf.Featured.Pill.H <= Shop.Shelf.Featured.Below.Y).toEqual(true)
+	end)
+end)
+
+describe("ShelfMath.IsLive with offSale", function()
+	it("an item held off sale is not live even with an id", function()
+		expect(ShelfMath.IsLive({ kind = "product", productId = 123, offSale = true })).toEqual(false)
+		expect(ShelfMath.IsSellable({ kind = "product", productId = 123, offSale = true }, { {} })).toEqual(false)
+	end)
+	it("the paid spins are held off sale at launch (Decide-Now 46)", function()
+		for _, item in ipairs(Shop.Items) do
+			if item.tab == "Spins" then
+				expect(ShelfMath.IsLive(item)).toEqual(false)
+			end
+		end
 	end)
 end)
 return true

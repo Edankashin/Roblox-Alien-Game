@@ -1,6 +1,8 @@
 --!strict
 -- Robux catalog. A productId or passId of 0 means the item does not exist on the dashboard yet (Buy refuses safely);
 -- the others were created by the owner on 2026-10-07 (owner guide Part C).
+-- offSale = true holds a created item off sale (hidden, never prompted); the paid spins are held at launch because the wheel
+-- can pay Scrap and Scrap is never sold for Robux (CLAUDE.md; Decide-Now 46).
 -- paidRandom = true means: show odds, no dud, hidden where PolicyService.ArePaidRandomItemsRestricted is true.
 -- oddsOnWheel = true: the item buys spins of the prize wheel; its shop tile links to the wheel, which shows every
 -- prize with its odds (data/Spins, summing to 100), so the odds are one tap away before the purchase.
@@ -14,6 +16,7 @@ export type ShopItem = {
 	once: boolean?,
 	paidRandom: boolean,
 	oddsOnWheel: boolean?,
+	offSale: boolean?,
 }
 
 -- The shelf (the Shop screen, UI Playbook "Shop shelf"): one row of tall cards, a tab rail that scrolls to a category.
@@ -45,9 +48,9 @@ local Items: { ShopItem } = {
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },
 	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 3717063366, paidRandom = true },
 	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 3717063502, paidRandom = true },
-	{ id = "Spins1", tab = "Spins", kind = "product", robux = 49, productId = 3718499778, paidRandom = true, oddsOnWheel = true },
-	{ id = "Spins5", tab = "Spins", kind = "product", robux = 199, productId = 3718499788, paidRandom = true, oddsOnWheel = true },
-	{ id = "Spins12", tab = "Spins", kind = "product", robux = 399, productId = 3718499794, paidRandom = true, oddsOnWheel = true },
+	{ id = "Spins1", tab = "Spins", kind = "product", offSale = true, robux = 49, productId = 3718499778, paidRandom = true, oddsOnWheel = true },
+	{ id = "Spins5", tab = "Spins", kind = "product", offSale = true, robux = 199, productId = 3718499788, paidRandom = true, oddsOnWheel = true },
+	{ id = "Spins12", tab = "Spins", kind = "product", offSale = true, robux = 399, productId = 3718499794, paidRandom = true, oddsOnWheel = true },
 }
 
 -- What a product or pass hands over, in order. alien: one alien of `tier` (choose = the player picked the

@@ -252,6 +252,11 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **b**, because the Studio pass on local imports costs nothing and catches naming or scale problems before anything goes to Roblox moderation.
 - Then: the uploads and id fills in one commit per kind; the launch stays off (B27), nothing is published.
 
+**46. Paid spins: how should they come back?** The pre-launch audit found the paid spins buy turns of the free prize wheel, which can pay Scrap, a Lucky Charm and a Double Shift, and Scrap is never sold for Robux (the project rule). So the three spin products are held off sale at launch (`offSale` in `data/Shop.luau`); the free wheel and everything else stay. Nothing to do before launch.
+- Options: a) a paid-only wheel with its own prizes (cosmetics, eggs, aliens; no Scrap or boosts), odds shown, then the spins go back on sale; b) keep them off sale; c) sell them on the current wheel anyway (breaks the rule; not recommended).
+- Recommend: **a** in launch week two.
+- Then: a paid wheel table in data, the odds screen, the policy check already in place.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -311,4 +316,5 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 43: a* yes, the UI in block cells | b keep it rounded | c a mix
 44: a* mount form, grows only while ridden | b drop riding | c a few big mount species
 45: a upload now | b* Studio check first, then upload | c not yet
+46: a* a paid-only wheel later | b keep spins off sale | c sell on the current wheel
 ```
