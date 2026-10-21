@@ -119,6 +119,32 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Shellberg = {
+		height = 3,
+		parts = {
+			{ name = "flagL", pivot = { -0.8125, 2.5, 0.3125 }, clips = { { kind = "sway", amp = -10, period = 2.4, phase = 0, axis = "z" } } },
+			{ name = "footL", pivot = { -0.6875, 0.375, -0.625 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "footR", pivot = { 1.1875, 0.375, -0.625 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "tail", pivot = { 0.25, 0.8125, 1.875 }, clips = { { kind = "wag", amp = 20, period = 2.2, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 4.5, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
+			blinkEvery = 6, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
+		},
+		flourish = {
+			every = 12, length = 2.4,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.25, axis = "y", at = 0, length = 0.6 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.2, length = 1.8 },
+				{ part = "flagL", kind = "swish", amp = -25, axis = "z", at = 0.4, length = 1.4 },
+				{ part = "footL", kind = "flare", amp = -20, axis = "z", at = 0.3, length = 1 },
+				{ part = "footR", kind = "flare", amp = 20, axis = "z", at = 0.3, length = 1 },
+				{ part = "tail", kind = "swish", amp = 25, axis = "z", at = 0.8, length = 1 },
+			},
+		},
+	},
 	Shimmerlynx = {
 		height = 3.5,
 		parts = {
