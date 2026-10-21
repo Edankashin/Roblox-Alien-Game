@@ -94,4 +94,11 @@ function ShelfMath.IsLive(item: Sellable): boolean
 	return id ~= nil and id ~= 0
 end
 
+-- Whether a purchase of the item can hand anything over: it is live and data/Shop.Grants gives it at least one row (a
+-- pass's passFlag counts). The server maps only these to receipts and pass prompts, so a product created on the dashboard
+-- before its feature exists (DirectRare, ModuleRush and the rest have no Grants row) never takes Robux for nothing.
+function ShelfMath.IsSellable(item: Sellable, grants: { any }?): boolean
+	return ShelfMath.IsLive(item) and grants ~= nil and #grants > 0
+end
+
 return ShelfMath

@@ -123,6 +123,26 @@ describe("ShelfMath", function()
 			expect(ShelfMath.IsLive({ kind = "product", productId = 0, passId = 9 })).toEqual(false)
 			expect(ShelfMath.IsLive({ kind = "product" })).toEqual(false)
 		end)
+		it("IsSellable needs a live id and at least one grant row", function()
+			local row = { { kind = "spins", amount = 1 } }
+			expect(ShelfMath.IsSellable({ kind = "product", productId = 7 }, row)).toEqual(true)
+			expect(ShelfMath.IsSellable({ kind = "product", productId = 7 }, {})).toEqual(false)
+			expect(ShelfMath.IsSellable({ kind = "product", productId = 7 }, nil)).toEqual(false)
+			expect(ShelfMath.IsSellable({ kind = "pass", passId = 0 }, row)).toEqual(false)
+		end)
+		it("finds a grant row for every launch item, so nothing on the shelf can sell nothing", function()
+			local byId: { [string]: Shop.ShopItem } = {}
+			for _, item in ipairs(Shop.Items) do
+				byId[item.id] = item
+			end
+			for _, section in ipairs(Shop.Launch) do
+				for _, id in ipairs(section.items) do
+					local grants = Shop.Grants[id]
+					expect(grants ~= nil and #grants > 0).toEqual(true)
+					expect(ShelfMath.IsSellable(byId[id], grants)).toEqual(ShelfMath.IsLive(byId[id]))
+				end
+			end
+		end)
 		it("agrees with the server's rule on every launch item: live exactly when its dashboard id is set", function()
 			local byId: { [string]: Shop.ShopItem } = {}
 			for _, item in ipairs(Shop.Items) do

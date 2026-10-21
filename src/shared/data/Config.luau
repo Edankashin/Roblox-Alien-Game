@@ -46,6 +46,10 @@ return {
 	-- saves
 	AutosaveSeconds = 180,
 	SessionLockSeconds = 600,
+	LoadRetries = 6, -- profile load attempts on join (a held lock or a DataStore error) before the player is asked to rejoin
+	LoadRetrySeconds = 5, -- pause between two load attempts
+	ReleaseSaveRetries = 3, -- attempts at the leave and shutdown save before the profile is dropped (the lock then expires on its own)
+	ReleaseSaveRetrySeconds = 1, -- pause before the second attempt; it doubles before each later one
 	UseDataStoreInStudio = true, -- Studio API access is on (owner guide Part B, 2026-10-07): Studio plays use the real saves
 
 	-- servers

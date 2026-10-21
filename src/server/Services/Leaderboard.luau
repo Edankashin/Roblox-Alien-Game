@@ -199,7 +199,9 @@ local function flushOne(userId: number)
 		return
 	end
 	pending[userId] = nil
-	if PlayerData.IsMemoryOnly() then
+	-- A Studio multi-client test player has a UserId of 0 or less: counted here only, never written to the live board,
+	-- where its row would have no name.
+	if PlayerData.IsMemoryOnly() or userId <= 0 then
 		known[userId] = (known[userId] or 0) + amount
 		return
 	end

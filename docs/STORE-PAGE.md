@@ -90,4 +90,4 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 
 ## 6. Known gaps shipping with the launch (fix in week one)
 
-Icons are the flat pack (icons v2 to come); music is a first blind pick; the Moonlit Forest dressing and camera anchors are not placed; worlds 3 to 7 are designed only; haptics unverified on a real phone.
+Icons are the flat pack where no pixel icon exists yet; music is a first blind pick; camera anchors are not placed; worlds 3 to 7 are designed only; haptics unverified on a real phone. Five shop items (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock) are not sold until their features exist (`docs/vault/04-roblox-engine/Prelaunch-Audit.md`).
