@@ -19,6 +19,22 @@ The cloud session cannot message your Mac's Claude session (Roblox Studio and th
    ```
 4. Optional, saves you doing this again: when the cloud session shows a card asking to let it reach your other sessions, approve it on your phone or Mac. Then the cloud session can message the Mac session itself.
 
+## 1b. Connect Roblox Studio to the Mac session (5 minutes; the Studio checks wait on it)
+
+The Mac session uploaded everything, but it has no Studio tools, so it cannot run the Studio checks (jobs 36 to 39 and 42 to 52). On the Mac:
+
+1. Open Roblox Studio and open any place (the Assistant button only appears with a place open). Keep it to one Studio window.
+2. Click **Assistant** (the purple atom icon, top right) > the **three dots** > **Manage MCP Servers** > **MCP Servers** > turn on **Enable Studio as MCP server**.
+3. In the Terminal window where the Mac's Claude session runs, type `/mcp` and press Return. You want one line `Roblox_Studio` marked connected. In Studio's MCP page, the green dot says "1 client connected".
+4. If `/mcp` does not show it: quit that Claude session (`/exit`), then in Terminal run these three lines, one at a time:
+   ```
+   claude mcp remove Roblox_Studio -s local
+   claude mcp remove Roblox_Studio -s user
+   cd ~/Roblox-Alien-Game && claude
+   ```
+   When it asks to use the project's MCP server from `.mcp.json`, answer **yes**. (Either remove line may say "not found"; that is fine.)
+5. Tell that session: `Studio is connected. Pull, then run the open Studio jobs in Overnight.md in order, starting with job 40's last step.`
+
 ## 2. Finish the Open Cloud key (5 minutes)
 
 You already added **universe-places** with **Write**. The rest, on the same key page (create.roblox.com > Open Cloud > API Keys > your key):
