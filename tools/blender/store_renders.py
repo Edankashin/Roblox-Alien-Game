@@ -25,6 +25,10 @@ wide awake with a brighter tail, Gaiabloom serene, Glim shy, Moop looking straig
 temporary copy of the model folders with the recipe's face patched in memory, so assets/models and species_recipes.py never change
 and a re-run always picks up the models and recipes as they are on the branch.
 
+The block-cell launch set (B49, 2026-10-22), one command, re-runnable after any model pass (store_blocky.py renders, then
+tools/store_blocky_compose.py finishes; the options for Ethan are icons A, B, C and thumbnails 1 to 6, with media/store/<set>/choices.jpg):
+  $BPY tools/blender/store_renders.py --set 2026-10-22 [--only A,B,C,1,2,3,4,5,6] [--samples 48] [--scale 0.5] [--raw-dir DIR]
+
 Usage: blender -b -P tools/blender/store_renders.py -- [--out media/store/2026-10-14] [--samples 64] [--suffix _v2]
        blender -b -P tools/blender/store_renders.py -- --target moment [--out media/store/2026-10-15] [--samples 64] [--scale 0.5]
        python3 tools/blender/store_renders.py --target moment      (with the bpy module; the same arguments)
@@ -67,7 +71,21 @@ def parse_args():
                     help="v2 (the default) is the original icons and thumbnails; the others are the thumbnail candidates")
     ap.add_argument("--raw-dir", default=None, help="where the raw renders go (default: a scratch folder in the system temp dir)")
     ap.add_argument("--scale", type=float, default=1.0, help="size multiplier for a quick look (0.5 is half size)")
+    ap.add_argument("--set", default=None, help="the block-cell launch set into media/store/<SET> (store_blocky.py), e.g. 2026-10-22")
+    ap.add_argument("--only", default="", help="with --set: the options to render, e.g. A,B,1 (default all; compose always runs)")
     return ap.parse_args(argv)
+
+
+def run_set(args):
+    """The block-cell set: render the raw passes, then compose the finals, the 64 px strip and the choice sheet with system python3."""
+    import store_blocky
+    out = pathlib.Path(args.out or ROOT / "media/store" / args.set)
+    raw = pathlib.Path(args.raw_dir or pathlib.Path(tempfile.gettempdir()) / ("store_raw_" + args.set))
+    only = [k.strip() for k in args.only.split(",") if k.strip()]
+    store_blocky.run(raw, only=only, samples=args.samples if "--samples" in sys.argv else 48, scale=args.scale)
+    cmd = ["python3", "-I", str(ROOT / "tools/store_blocky_compose.py"), str(raw), str(out)]
+    print("compose: " + " ".join(cmd), flush=True)
+    subprocess.run(cmd, check=True)
 
 
 def glb_path(name):
@@ -641,6 +659,10 @@ def main():
     global SCALE
     args = parse_args()
     SCALE = args.scale
+    if args.set:
+        sys.path.insert(0, str(HERE))
+        run_set(args)
+        return
     args.out = args.out or str(ROOT / ("media/store/2026-10-14" if args.target == "v2" else "media/store/2026-10-15"))
     if args.target != "v2":
         run_target(args)

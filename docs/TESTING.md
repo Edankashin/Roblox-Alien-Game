@@ -71,6 +71,20 @@ Both worlds' ground is generated in block cells (`tools/blocky/world_gen.py`, da
 7. Phone and frame rate. Device emulator at iPhone SE (667x375, landscape), then desktop: stand at the camp, in the Starhollow by the grove, at the Cave's grotto, and in World 2 at the lake; Developer Console (F9): the frame time and the memory; with Reduced Motion on, the butterflies and particles stop and the beams stay. Over 33 ms on the phone is a fail; note where.
 
 Known gaps: the textures (ids 0) and the props' meshes come later; the night ground tint tweens every ground part (about 4,000); the compass does not name the sights yet.
+## Store art matches the game (World 1 and World 2 places)
+
+The launch store set (B49): three icon options and six thumbnail options in block cells, `media/store/2026-10-22/` with the labelled sheet `choices.jpg` (`$BPY tools/blender/store_renders.py --set 2026-10-22`; `docs/STORE-PAGE.md` section 4). Roblox demotes a game whose thumbnail promises what the game does not show (`docs/vault/01-game-design/Thumbnail-Research.md` section 1), so each picture is checked against the game itself before it goes up. Nothing is uploaded or published here.
+
+1. The files. Pull; `media/store/2026-10-22/` holds `icon_A.png` to `icon_C.png` (512x512), `thumb_1.png` to `thumb_6.png` (1920x1080), `icons_64_strip.png` and `choices.jpg`; every PNG under 2 MB (`ls -l`).
+2. Tile size. Open `choices.jpg` on Ethan's phone: each icon's 64 px twin still shows a face and its colours; each thumbnail at the sheet's size shows its moment without zooming.
+3. The camp (thumb 1). `rojo serve`, Play in World 1, device emulator at iPhone SE (667x375, landscape), then iPad (1080x810): the camp deck, the ship on its slab with modules built and the rest as ghosts, aliens working at the stations; `/spawn Zapfinch` near the camp: the Rare's square portal of cells opens and it pops through. One `screen_capture` at each size.
+4. The catch (thumb 2). `/spawn Gaiabloom`, start a catch at iPhone SE and iPad: the block-cell bar (trough of cells, green and gold bands, the pixel arrow) and the Legendary's gold ground ring and motes look as in the thumbnail. One `screen_capture` each.
+5. The Starhollow (thumb 3). Walk the lavender path from the meadow side towards the floating island at iPhone SE and iPad: lanterns, glowcaps, the island and its waterfall read as in the thumbnail. One `screen_capture` each.
+6. Frostbyte (thumb 4). `rojo serve world2.project.json`, Play, `/night`, `/spawn Fenripup` by the frozen lake: Fenrir's moon and the lake as in the thumbnail (the painted aurora is the sky's mood; note whether the game's night sky has one). One `screen_capture` each at iPhone SE and iPad.
+7. The reveal (thumb 6). Catch or grant a Cosmic (`/spawn Radish`): the card lands in its pixel sky with the gold cell frame, as in the thumbnail. One `screen_capture` each at iPhone SE and iPad.
+
+Known gaps: the thumbnails are Blender renders of the exported models (not in-game captures), with painted skies and a thicker outline than the game draws; the icons have no in-game twin.
+
 ## Rare pass w1: World 1's rare aliens in Studio (a scratch place, then World 1)
 
 The Rare pass (Ethan, 2026-10-21: "make the rare aliens 1000x cooler") gave World 1's eleven Rare to Secret species and the three Haunted Nebula aliens a signature piece each, lit glass cells and more moving parts, at the same height: Boulden's amber geode, Vixa's paint palette, Zirrit's spark gap, Wispkin's orbiting lantern glass, Iridia's stained-glass wings, Voltus's pocket thundercloud, Grin's floating candles, Gaira's glass-petal mantle, Cosmoo's pet comet, Raddis's ring of orbiting sunstones and Syrinx's eclipse (`docs/vault/06-art-pipelines/Blocky-Style.md` "Rare pass w1 notes"; the review sheet `media/studio/2026-10-21/rare_w1_v1.jpg`). The models in `assets/models/<Id>/` are re-exported, not uploaded (B27, B47): an import stores the mesh in the importing account's inventory, so ask Ethan first, and never publish. Mac job: `docs/vault/02-how-we-work/Overnight.md` job 46.

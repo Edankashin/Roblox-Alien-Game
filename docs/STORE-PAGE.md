@@ -1,4 +1,4 @@
-# Store page and the launch morning (draft, 2026-10-14)
+# Store page and the launch morning (draft, 2026-10-14; art and description 2026-10-22)
 
 Everything the Creator Dashboard asks for when the game goes public, drafted so Ethan's part is a few clicks. Dashboard: create.roblox.com → Creations → Alien game → Configure.
 
@@ -8,15 +8,19 @@ Everything the Creator Dashboard asks for when the game goes public, drafted so 
 
 ## 2. Description (paste as is; under 1,000 characters)
 
+Refreshed 2026-10-22 for the block-cell game (B44 to B49): 797 characters. Every line is in the build: 35 species in `data/Species` (Common to Secret), the eye library and the effects ladder by tier ([[Blocky-Style]] 3 and 7), the Starhollow Forest (B48), Frostbyte's lake, Ice Cave, Geyser Field and blizzards, offline earnings, showers every 7,200 s (`Config.ShowerIntervalSeconds`), the Peddler, daily quests, gifts, fusion, three companion slots (`Config.CompanionSlots`), the home planet and visiting. "Ride the big ones" is gone: mounts are an open decision (Decide-Now 44, B45).
+
 ```
-You crash-landed on a strange planet. Cute aliens are everywhere!
+You crash-landed on a strange planet built of little blocks. Cute aliens are everywhere!
 
-Catch them with a quick timing bar, put them to work at your camp, and watch your ship come together piece by piece. Fill the ship bar, launch, and land on the next world: a frozen one with blizzards, then more.
+Catch them with a quick timing bar, put them to work at your camp, and watch your ship come together piece by piece. Fill the ship bar, launch, and land on World 2, Frostbyte: frozen lakes, ice caves, geysers and blizzards.
 
-- 35 aliens to find, from Common to Cosmic, with rare ones hiding at night and in the rain
+- 35 aliens to find, from Common to Cosmic and Secret
+- The rarer the alien, the more special its eyes, glow and effects
+- Explore the moonlit Starhollow Forest: glowcaps, lanterns and a floating island
 - Your camp earns while you are away
 - Meteor Showers every two hours, a travelling Peddler, daily quests and gifts
-- Fuse spare aliens, ride the big ones, bring three along as companions
+- Fuse spare aliens and bring three along as companions
 - Build your own home planet and visit your friends'
 
 One thumb, no stress, nothing you did is ever wasted.
@@ -32,11 +36,23 @@ One thumb, no stress, nothing you did is ever wasted.
 
 ## 4. Icon and thumbnails
 
-**Rendered overnight on 2026-10-14 (headless Blender, `tools/blender/store_renders.py`), in `media/store/2026-10-14/`.** The coordinator's picks: icon `icon_Mossbop_v2.png` (the navy outline reads like the top games' icons; `icon_Sparkfox_v2` and `icon_Thunderhog_v2` are the alternates); thumbnails in this order after the thumbnail research ([[Thumbnail-Research]], 2026-10-14 evening: show the real best moment, words in the top third only, one hero facing the lens, nothing essential in the bottom fifth): `thumb_legendary_v2_title.png` ("LEGENDARY!" in gold over Gaiabloom; it scored highest of the three), `thumb_verdant_v2_title.png` ("CATCH CUTE ALIENS", the title now in the top third), `thumb_frostbyte_v2_title.png` ("NEW WORLD: FROSTBYTE"; weakest: white aliens on white snow). These are the interim set; the three candidates the research specifies (a mid-catch Moment with the capture bar, the Reward, a Mystery peek) are rendered on the Mac from the new bodies once the surface pass is in, and the Moment goes first if its bar reads at 192x108. The untitled `_v2` files are the same shots without text; `_v1` is the plain first pass. The wreck brought closer is the first polish item after launch.
+**The launch set in block cells, 2026-10-22 (B49): `media/store/2026-10-22/`, options for Ethan to pick from.** The sheet `choices.jpg` shows every option with its big letter or number; answer like "icon B, thumbs 3, 1, 5". Rendered by one command from the exported block-cell models in `assets/models/` and the generated worlds, so it can be re-run after any model pass: `$BPY tools/blender/store_renders.py --set 2026-10-22` (`tools/blender/store_blocky.py` renders, `tools/store_blocky_compose.py` paints the stepped-cell sky, the bloom, the thick navy outline, the block-cell UI overlays and the Fredoka One title; `--only A,2` re-renders some options, the rest are kept). The rules from [[Thumbnail-Research]]: show the real best moment, words only in the top third, one hero facing the lens, nothing essential in the bottom fifth; our own art only.
 
+| Option | File | What it shows |
+|---|---|---|
+| Icon A | `icon_A.png` (512) | Moop's face close-up on the meadow grass, the crashed ship behind, a blue day sky |
+| Icon B | `icon_B.png` | Raddis (Cosmic) glowing at night in the Starhollow: its sunstones, solar eyes, a gold ground ring and motes |
+| Icon C | `icon_C.png` | Moop (Common), Aurelyx (Epic) and Vixa (Rare) squeezed together |
+| 64 px check | `icons_64_strip.png` | the three icons at 64 px, the smallest size they are seen at |
+| Thumb 1 | `thumb_1.png` (1920x1080) | the camp: aliens at work round the half-built ship (built part solid, the rest the blue module ghost), the player, a Rare (Zirrit) popping out of its portal of cells; title |
+| Thumb 2 | `thumb_2.png` | the catch: Gaira (Legendary) in its gold ring and light at dusk, the capture bar in block cells (Legendary's real zone widths) |
+| Thumb 3 | `thumb_3.png` | the Starhollow Forest at night: the lavender path, lanterns, glowcaps, the floating island and its waterfall, Lantrin on the path; title |
+| Thumb 4 | `thumb_4.png` | World 2 Frostbyte: Fenrir with its gibbous moon by the frozen lake, the ice spire, pines, a pixel moon and aurora |
+| Thumb 5 | `thumb_5.png` | the rarity ladder: Common to Secret on stepping blocks, each glowing more (pool, light, ring, motes, pillars); title |
+| Thumb 6 | `thumb_6.png` | the reveal: the Cosmic card landing in its pixel sky, the cell-ray fan, starburst, gold cell frame and confetti cells |
 
-- Icon 512x512: the Moop (or Sparkfox) face close-up on the meadow, rendered in Blender from the species model with the icons v2 light (`docs/vault/06-art-pipelines/Look-Plan.md` L5b), thick outline, the ship in the corner. Until that render exists: a Studio capture of a Moop catch moment, cropped square.
-- Thumbnails 1920x1080 (the first one is the one the tile shows; the research found no support for a five-slot limit or a Home autoplay, so treat the first slot as the whole game): (1) the camp with the half-built ship and aliens at work, (2) the capture bar on a Rare, (3) the Moonlit Forest at night, (4) the home planet with habitats. The Mac's overnight captures land in `media/store/2026-10-14/`; pick the four best, add the game name in Fredoka One with an outline on the first one.
+**Ethan's pick: icon _, thumbnails _, _, _ (in order).** The store-art worker's recommendation is in the 2026-10-21 log (Store art worker). The earlier sets stay for the record: `media/store/2026-10-14/` (the interim v2) and `media/store/2026-10-15/` (the pre-blocky candidates); neither matches the block-cell game, so neither goes up.
+
 - A 10-second clip for the store video can wait until after launch (the cinematic shots film it).
 
 ## 5. Launch morning checklist (Ethan, about 20 minutes)
@@ -72,15 +88,15 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 | Basic Settings | Description | section 2 above, pasted as is; append the LAUNCHWEEK line: "Code LAUNCHWEEK: 300 Scrap and a Lucky Charm, until Oct 31." |
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
-| Basic Settings | Icon | `media/store/2026-10-14/icon_Mossbop_v2.png` |
-| Basic Settings | Thumbnails (in order) | `thumb_legendary_v2_title.png`, `thumb_verdant_v2_title.png`, `thumb_frostbyte_v2_title.png` (interim; the Moment render replaces the first slot when it exists); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Basic Settings | Icon | `media/store/2026-10-22/icon_<Ethan's pick: A, B or C>.png` (section 4) |
+| Basic Settings | Thumbnails (in order) | `media/store/2026-10-22/thumb_<Ethan's pick>.png`, in the order he names (section 4; upload at least two so personalization runs); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
 | Places > World 1 | Max players | 8; server fill: Roblox optimised |
 | Access | Private servers | Off |
 | Access | Paid access | Off |
 | Communication | Chat | On (text) |
 | Monetization > Passes | SlotEveryStation2, CompanionSlot4, StorageBoost, ExplorerPack, SlotEveryStation1 | each "For sale" |
 | Monetization > Developer Products | Spins1, Spins5, Spins12, the boosts, Server Luck | each "For sale" |
-| Events | New event | Haunted Nebula, 2026-10-16 to 2026-10-30, one line from the season's strings, thumbnail `thumb_legendary_v2_title.png` |
+| Events | New event | Haunted Nebula, 2026-10-16 to 2026-10-30, one line from the season's strings, thumbnail: one of the 2026-10-22 set Ethan did not pick for the store (the docs want an event image that differs from the experience thumbnails; thumb 2 or 6 if free) |
 | Experience Questionnaire | Violence | none realistic; cartoon creatures caught with a timing bar, no blood, no weapons |
 | Experience Questionnaire | Fear | none (Haunted Nebula is cartoon spooky) |
 | Experience Questionnaire | Romance, crude humour, alcohol, gambling | none; paid random items: yes (spins and eggs), odds shown in game, no real-money payout, no Scrap sold for Robux |
