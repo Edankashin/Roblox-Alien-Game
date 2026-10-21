@@ -11,7 +11,8 @@
 -- (data/Shop Categories `scrap`), bought with ShopBuy exactly as before. Under every Robux price sits the grey "about $N.NN"
 -- (ShopMath.AboutLine); the Starter Pack is the one wide card, with the Rare picker, and the one that shines. Paid random items
 -- (Server Luck, the Spins) show only where GetPolicy allows, a Spins card's note is the link to the wheel and its odds table, and
--- an item with no dashboard id yet shows a grey SOON pill that says "Coming soon" on tap.
+-- a Robux item with no dashboard id yet is hidden (its tab too, when nothing else is in it), so a public server never shows a
+-- Buy button that cannot buy.
 -- Every value shown is read from the profile, the purchases mirror in State and the data tables; every tap asks the server
 -- (ShopBuy, SetStarterChoice, PromptPurchase) and a refusal becomes a toast. Nothing here decides an outcome and nothing here
 -- knows a product id: the server opens the prompt, grants on the receipt and pushes PurchasesChanged, which redraws the shelf.
@@ -876,14 +877,14 @@ end
 
 -- Redraws a Robux card from the purchases mirror: an owned pass or a claimed once-only product shows its chip instead of the
 -- price (and loses its about-line); the Starter Pack's pill stays grey until a Rare is stored, its price and about-line still
--- showing; an item with no dashboard id yet is a grey SOON pill with no price under it; paid random items show only once
--- GetPolicy has said they are allowed here.
+-- showing; an item with no dashboard id yet is hidden (the SOON pill below stays only as a fallback); paid random items show
+-- only once GetPolicy has said they are allowed here.
 local function refreshRobuxCard(view: CardView, state: Types.PurchasesState, showPaidRandom: boolean)
 	local item = view.item
 	if not item then
 		return
 	end
-	local visible = showPaidRandom or not item.paidRandom
+	local visible = ShelfMath.IsLive(item) and (showPaidRandom or not item.paidRandom)
 	if view.visible ~= visible then
 		view.visible = visible
 		layoutDirty = true
