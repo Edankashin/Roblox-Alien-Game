@@ -9,6 +9,33 @@ up: "[[Start-Here]]"
 
 One screen for Ethan. Written 2026-10-15 (Thursday) from [[Board]], the logs and the notes linked below; the Board is the live list, this is the picture. Launch week opens **Friday 2026-10-16**: the LaunchGold overlay and the Haunted Nebula event start then, and the experience is still private.
 
+## Launch week (B49, set 2026-10-21)
+
+Ethan: "I want to be able to launch this game by this week." The order matters: art lands, the Mac uploads and checks it in Studio, the coordinator fixes what the Mac finds, the Mac publishes the private places, Ethan plays on his phone, then launch morning.
+
+**Cloud (the coordinator and its workers; no action from Ethan)**
+- [ ] Rare aliens 1000x pass, both worlds (running) and the crash wreck and camp (running)
+- [ ] Pre-launch audit: server authority, saves, purchases and receipts, PolicyService for paid random items, the 14 px text floor, error paths on a cold server, analytics funnel; fix what it finds
+- [ ] Launch polish: the loading screen and the home place in block cells (the nine missing home props), sound hooks pointed at existing ids where we have them
+- [ ] New store icon and thumbnails in the block-cell look (after the rare pass), the description updated (Starhollow Forest, the new aliens)
+- [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
+- [ ] Fix everything the Mac's Studio jobs report, the same day
+
+**Mac session (Ethan starts it: "pull and run the jobs in Overnight.md in order")**
+- [ ] Job 41: download the three TikToks (batch 9)
+- [ ] Job 40: the one-command upload (`tools/finalize_upload.sh`), then commit the ids; moderation can take hours
+- [ ] Jobs 36 to 39 and 42 to 46: the Studio checks of the HUD, screens, reveal, models, spectacle, worlds, props, Starhollow and camp
+- [ ] Publish the private places from the repo (`tools/publish.py`) once the checks pass
+
+**Only Ethan**
+- [ ] Tell the Mac session to run the jobs (or approve the card that lets the coordinator message it)
+- [ ] Check the Open Cloud key has the Assets API and `universe-places:write` for this experience
+- [ ] Create the five missing shop products in the Creator Dashboard (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock; [[OWNER-GUIDE]] Part C) and paste their ids, or say to hide them at launch
+- [ ] Pick the icon and thumbnails from the new set
+- [ ] Play the private game on your phone for ten minutes and say what feels wrong
+- [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
+- Optional: the group Moop Games (100 Robux), music listen-through, rejoin notifications (decision 20)
+
 ## Live now (private)
 
 World 1 **v90**, World 2 **v5**, Home **v4**, published from the repo by the Mac session ([[2026-10-14]], job 21). They carry everything built on 2026-10-14 except the evening fixes; the six shop items are live. Nobody outside the team can join until you set the experience Public.
