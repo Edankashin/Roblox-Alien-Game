@@ -129,7 +129,7 @@ local species: { [string]: Types.RigRow } = {
 			{ name = "frondL", pivot = { -0.25, 2.875, 0.2188 }, clips = { { kind = "sway", amp = -10, period = 2.6, phase = 0.3, axis = "z" } } },
 			{ name = "frondR", pivot = { 0.25, 2.875, 0.2188 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0.3, axis = "z" } } },
 			{ name = "gem", pivot = { 0, 2.6875, -1.0625 }, clips = { { kind = "pulse", amp = 0.2, period = 2, phase = 0, axis = "y" } } },
-			{ name = "halo", pivot = { 0, 2, 0.9062 }, clips = { { kind = "spin", amp = 360, period = 12, phase = 0, axis = "z" } } },
+			{ name = "halo", pivot = { 0, 1.875, 0.9062 }, clips = { { kind = "spin", amp = 360, period = 12, phase = 0, axis = "z" } } },
 			{ name = "leaf", pivot = { 0, 2.875, 0.3438 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "x" } } },
 			{ name = "moteL", pivot = { -1.3125, 2.6875, -0.4688 }, clips = { { kind = "orbit", amp = 0.2, period = 3.6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.08, period = 1.8, phase = 0.5, axis = "y" } } },
 			{ name = "moteR", pivot = { 1.3125, 2.6875, -0.4688 }, clips = { { kind = "orbit", amp = 0.2, period = 3.6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.08, period = 1.8, phase = 0.5, axis = "y" } } },
