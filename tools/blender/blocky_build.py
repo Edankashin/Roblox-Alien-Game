@@ -343,15 +343,22 @@ def set_plate_frame(obj, frame):
             node.inputs["Location"].default_value = ((frame % cols) * fw / W, -(frame // cols) * fh / H, 0.0)
 
 
-def avatar_spec(colour=SH.AVATAR_HEX):
-    """The 5-stud scale figure as a spec, so it goes through the same cell route (skin cells at the world cell)."""
-    return {"front": {"id": "Avatar", "palette": [colour], "roles": ["body"]}, "parts": SH.avatar_parts(), "face": None}
+AVATAR_SKIN, AVATAR_SHIRT = "#A3A2A5", "#0D69AC"  # the plain Roblox-default look: medium stone grey skin, a bright blue shirt and trousers
 
 
-def avatar(offset, colour=SH.AVATAR_HEX, out_dir=None, flat=False):
+def avatar_spec(colour=AVATAR_SKIN, shirt=AVATAR_SHIRT):
+    """The 5-stud scale figure as a spec, so it goes through the same cell route (skin cells at the world cell). The parts go in unexpanded:
+    build() mirrors them once (SH.avatar_parts() is already expanded, and expanding it again stacked two copies of each arm and leg, whose
+    coincident faces recalc_face_normals turned inside out, so the lineups drew them black). Head and arms grey, torso and legs blue."""
+    parts = [S.normalise(dict(p, slot="BodyDark" if p["name"] in ("torso", "leg") else "Body"), i) for i, p in enumerate(SH.AVATAR)]
+    return {"front": {"id": "Avatar", "palette": [colour, shirt], "roles": ["body", "second"]}, "parts": parts, "face": None}
+
+
+def avatar(offset, colour=AVATAR_SKIN, out_dir=None, flat=False):
+    """The avatar's objects (the grey and the blue mesh)."""
     out_dir = out_dir or bpy.app.tempdir
     made = build(avatar_spec(colour), out_dir, offset=offset, prefix="", flat=flat, cell=C.WORLD_CELL)
-    return made["objects"][0]
+    return made["objects"]
 
 
 # ------------------------------------------------------------------------------------------------ scene, cameras, renders
@@ -983,7 +990,7 @@ def run_lineup(notes, out_dir, size, samples, flat=False, suffix=""):
     scene = reset()
     out = pathlib.Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    objs = [avatar((0, 0, 0), out_dir=out, flat=flat)]
+    objs = list(avatar((0, 0, 0), out_dir=out, flat=flat))
     gap = 1.5
     x = 2.0 + gap  # the avatar is 4 studs wide; the camera looks from -Y, so +X is to the right on screen
     tallest = 5.0
