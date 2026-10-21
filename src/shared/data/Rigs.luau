@@ -17,6 +17,21 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Glimmo = {
+		height = 2.493,
+		parts = {
+			{ name = "bulb", pivot = { 0, 1.5, 0 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "tendril", pivot = { 0, 0.5, -1.4375 }, clips = { { kind = "sway", amp = 10, period = 1.8, phase = 0.25, axis = "x" } } },
+			{ name = "wingL", pivot = { -0.25, 1.75, -0.625 }, clips = { { kind = "flap", amp = -10, period = 2.2, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.25, 1.75, -0.625 }, clips = { { kind = "flap", amp = 10, period = 2.2, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 2.4, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
