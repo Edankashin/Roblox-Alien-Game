@@ -231,7 +231,7 @@ local function rewardIconKey(reward: Reward): string?
 	elseif reward.kind == "lure" or reward.kind == "powerUp" then
 		return reward.id
 	elseif reward.kind == "egg" then
-		return reward.tier
+		return "Egg" .. (reward.tier or "") -- the pixel egg in its tier's speckles; the pack falls back to the tier badge
 	end
 	return nil
 end

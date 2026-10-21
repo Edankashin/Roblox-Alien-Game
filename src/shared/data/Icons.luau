@@ -97,6 +97,14 @@ local Particles: { [string]: number } = {
 -- data ids whose icon has another key
 local Aliases: { [string]: string } = {
 	Boots = "SpeedBoots",
+	-- an egg's pixel icon is Egg<Tier> (data/PixelIcons); in the pack it falls back to the tier's badge
+	EggCommon = "Common",
+	EggUncommon = "Uncommon",
+	EggRare = "Rare",
+	EggEpic = "Epic",
+	EggLegendary = "Legendary",
+	EggCosmic = "Cosmic",
+	EggSecret = "Secret",
 }
 
 return { Icons = Icons, Particles = Particles, Aliases = Aliases }
