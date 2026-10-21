@@ -371,26 +371,27 @@ def icon_b():
     area_light(cam_pos + Vector((0.8, 0, 1.2)), mid, "FFE2B8", 70, 2.0)
     area_light(p + Vector((2.5, 3.5, 3.5)), mid, "C9A8FF", 220, 3.0)
     camera(cam_pos, mid + Vector((0, 0, 0.12)), 38, focus=(cam_pos - mid).length, fstop=2.2)
-    finish("icon_B", {"sky": "night", "bloom": 1.0, "aura": "FFC24A"}, {"head": head, "mid": mid})
+    finish("icon_B", {"sky": "night", "bloom": 0.6, "aura": "FFC24A"}, {"head": head, "mid": mid})
 
 
 def icon_c():
     """Three aliens of rising rarity squeezed together: Moop (Common), Vixa (Rare) and Aurelyx (Epic) on the meadow."""
     sc, world = new_scene(1024, 1024, world_id=1, sky=((0.78, 0.86, 1.0), 1.0), sun=(3.2, (1.0, 0.95, 0.86), (48, 0, 200)))
     base = at(world, 32.0, 31.0)
-    cam_pos = base + Vector((0.0, -9.8, 3.1))
-    _, a = alien("Mossbop", base + Vector((-1.85, -0.45, 0)), face=cam_pos, yaw=10)
+    cam_pos = base + Vector((0.0, -9.8, 3.6))
+    clear_props(cam_pos, 6.0)
+    _, a = alien("Mossbop", base + Vector((-2.0, -0.45, 0)), face=cam_pos, yaw=10)
     # Aurelyx, the rarest, stands behind on a grass block so its face shows between the two
     batch = WP.MeshBatch()
-    gx, gy = base.x + 0.05, -(base.y + 1.0)
+    gx, gy = base.x - 0.45, -(base.y + 1.0)
     WP.box_faces(batch, gx - 1.0, base.z - 1.0, gy - 1.0, gx + 1.0, base.z + 1.0, gy + 1.0, WP.tile_material("GrassTop", "6FBF4A", "8A5A3B"),
                  WP.tile_material("GrassSide", "6FBF4A", "8A5A3B"), sides=0xF)
     batch.flush(bpy.data.collections["FX"])
-    _, b = alien("Shimmerlynx", base + Vector((0.05, 1.0, 1.0)), face=cam_pos, yaw=0, glow=1.0)
-    _, c = alien("Sparkfox", base + Vector((1.7, -0.5, 0)), face=cam_pos, yaw=-12)
+    _, b = alien("Shimmerlynx", base + Vector((-0.45, 1.0, 1.0)), face=cam_pos, yaw=0, glow=1.0)
+    _, c = alien("Sparkfox", base + Vector((1.9, -0.5, 0)), face=cam_pos, yaw=-12)
     lo, hi = bounds(a + b + c)
     mid = (lo + hi) / 2
-    pool(base + Vector((1.7, -0.5, 0)), 0.9, TIER_HEX["Rare"])
+    pool(base + Vector((1.9, -0.5, 0)), 0.9, TIER_HEX["Rare"])
     area_light(cam_pos + Vector((2, 0, 2)), mid, "FFF6E6", 260, 3.0)
     camera(cam_pos, mid + Vector((0, 0, 0.1)), 42, focus=(cam_pos - mid).length, fstop=2.8)
     finish("icon_C", {"sky": "day"}, {"mid": mid, "top": Vector((mid.x, mid.y, hi.z))})
@@ -445,20 +446,30 @@ def thumb_1():
     bpy.context.view_layer.active_layer_collection = layer
     made = B.build(S.load(SHIP_NOTE), str(tmp), offset=tuple(ship_at), cell=C.WORLD_CELL)
     for o in made["objects"]:   # the game's ship stands about 1.5 times the diorama prop on its 12 x 20 slab
-        o.scale = (1.5, 1.5, 1.5)
-        o.location = ship_at + (o.location - ship_at) * 1.5
-    ghost_above(made["objects"], ship_at.z + 3.6)
+        o.scale = (1.3, 1.3, 1.3)
+        o.location = ship_at + (o.location - ship_at) * 1.3
+    ghost_above(made["objects"], ship_at.z + 3.2)
     # the cast at the stations (Roblox offsets from data/Camp.luau), the player on the deck, the Rare's portal in front
-    cam_pos = Vector(WP.bl(-4.0, 5.2, 26.0))
-    clear_props(cam_pos, 9.0)
+    # the camera stands south-west of the ship on the deck (Roblox studs); d runs to the ship, r to the right of the view
+    cx, cz = -10.0, 1.0
+    dx, dz = sx - cx, sz - cz
+    dl = math.hypot(dx, dz)
+    dx, dz = dx / dl, dz / dl
+    rx, rz = -dz, dx
+
+    def rel(fwd, right):
+        return (cx + dx * fwd + rx * right, cz + dz * fwd + rz * right)
+
+    cam_pos = Vector(WP.bl(cx, 5.5, cz))
+    clear_props(cam_pos, 8.0)
     # the workers round the ship's front: carrying to it (facing it) or looking up at the camera; Buzzik flies a load over
-    workers = [("Twiglet", (-7.5, -9.5), "ship", 0), ("Pebblet", (6.5, -8.5), "ship", 0), ("Mossbop", (-10.5, 2.0), "cam", 0),
-               ("Puffpuff", (-3.0, -4.0), "cam", 0), ("Glimmo", (3.5, -1.0), "cam", 0), ("Buzzlebee", (1.0, -7.0), "ship", 3.2),
-               ("Snailbyte", (-13.0, -6.0), "ship", 0)]
+    workers = [("Twiglet", rel(17.0, -5.5), "ship", 0), ("Pebblet", rel(15.5, 5.0), "ship", 0), ("Mossbop", rel(11.0, -5.5), "cam", 0),
+               ("Puffpuff", rel(13.0, -1.5), "cam", 0), ("Glimmo", rel(11.0, 2.0), "cam", 0.6), ("Buzzlebee", rel(16.5, 0.5), "ship", 3.6),
+               ("Snailbyte", rel(18.0, -9.0), "ship", 0)]
     for sid, (x, z), look, lift in workers:
         alien(sid, at(world, x, z, lift), face=Vector(WP.bl(sx, 2, sz)) if look == "ship" else cam_pos, yaw=0, group="Cast")
-    player = at(world, -4.0, 9.0)
-    port = at(world, 6.5, 13.5, 1.0)
+    player = at(world, *rel(7.5, -2.2))
+    port = at(world, *rel(9.5, 5.0), 1.0)
     for o in B.avatar(tuple(player), out_dir=str(tmp)):
         for c in list(o.users_collection):
             c.objects.unlink(o)
@@ -487,8 +498,8 @@ def thumb_1():
              pale if k % 2 else blue, rot_z=a)
     point_light(rare + face_dir * 1.2, "6FA8FF", 260, 1.0)
     head, mid = head_of(robjs)
-    target = Vector(WP.bl(1.0, 3.6, -2.0))
-    camera(cam_pos, target, 24, focus=(cam_pos - mid).length, fstop=5.6)
+    target = Vector(WP.bl(*((lambda p: (p[0], 4.2, p[1]))(rel(18.0, 0.8)))))
+    camera(cam_pos, target, 22, focus=(cam_pos - mid).length, fstop=5.6)
     finish("thumb_1", {"sky": "day", "title": True}, {"rare": mid, "portal": port + Vector((0, 0, 0.6 + half))})
 
 
@@ -507,22 +518,21 @@ def thumb_2():
     area_light(cam_pos + Vector((1.5, 0, 2.0)), mid, "FFF1D8", 260, 3.0)
     area_light(p + Vector((-3, 4, 3)), mid, "B07BFF", 400, 3.0)
     camera(cam_pos, mid + Vector((0, 0, -0.85)), 40, focus=(cam_pos - mid).length, fstop=2.0)
-    finish("thumb_2", {"sky": "dusk", "bloom": 0.7, "aura": "F59E0B", "bar": "Legendary"}, {"head": head, "mid": mid, "feet": p})
+    finish("thumb_2", {"sky": "dusk", "bloom": 0.5, "aura": "F59E0B", "bar": "Legendary"}, {"head": head, "mid": mid, "feet": p})
 
 
 def thumb_3():
     """The Starhollow Forest at night: the lavender path, glowcaps, the floating island and its waterfall; Lantrin on the path."""
     sc, world = new_scene(1920, 1080, world_id=1, night=True)
-    cam_pos = Vector(WP.bl(96.0, 9.0, 100.0))
-    look = Vector(WP.bl(176.0, 31.0, 125.0))
-    clear_props(cam_pos, 5.0)
-    hp = at(world, 101.5, 106.5)
+    cam_pos = Vector(WP.bl(96.0, 4.8, 100.0))
+    look = Vector(WP.bl(172.0, 28.0, 128.0))
+    hp = at(world, 103.7, 102.7)
     _, objs = alien("Lanternewt", hp, face=cam_pos, yaw=6, glow=1.5)
     head, mid = head_of(objs)
     point_light(mid + Vector((0, 0, 0.8)), "FFD9A0", 60, 0.5)
     area_light(cam_pos + Vector((1, 0, 1.5)), mid, "D8C8FF", 120, 3.0)
-    camera(cam_pos, look, 24, focus=(cam_pos - mid).length, fstop=4.0)
-    finish("thumb_3", {"sky": "night", "bloom": 1.0, "title": True, "stars": True},
+    camera(cam_pos, look, 18, focus=(cam_pos - mid).length, fstop=5.6)
+    finish("thumb_3", {"sky": "night", "bloom": 1.0, "title": "left", "stars": True},
            {"hero": mid, "island": Vector(WP.bl(158.0, 52.0, 160.0))})
 
 
@@ -542,7 +552,7 @@ def thumb_4():
     ring(hp, 1.8, "8FD0FF", count=22, strength=3)
     area_light(cam_pos + Vector((1.2, 0, 1.5)), mid, "DDE9FF", 200, 2.5)
     area_light(hp + Vector((2.5, -3.0, 2.5)), mid, "7FE8D0", 300, 3.0)
-    look = mid + Vector((3.5, -10.0, 2.6))
+    look = mid + Vector((3.5, -10.0, 0.6))
     camera(cam_pos, look, 26, focus=(cam_pos - mid).length, fstop=3.2)
     finish("thumb_4", {"sky": "aurora", "bloom": 0.8, "stars": True}, {"hero": mid, "head": head})
 
