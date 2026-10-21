@@ -7,7 +7,7 @@ up: "[[UI-Design]]"
 
 The look, written to the level Claude can build from. Hex values here are the starting palette; the team's choices in PRE_PRODUCTION section 2 replace them. When a review corrects a panel, update this file in the same change.
 
-> **The UI is moving to block cells ([[Decisions]] B44 and B46, [[Decide-Now]] 43 a), one screen per change, HUD first.** The rules are [[#Block cells (2026-10-21)]]. A screen built in block cells follows that section where it differs from the older lines below (rounded corners, gradients, the gloss band, pills); a screen not yet rebuilt keeps the older lines until its own change. The HUD is in block cells as of 2026-10-21.
+> **The UI is moving to block cells ([[Decisions]] B44 and B46, [[Decide-Now]] 43 a), one screen per change, HUD first.** The rules are [[#Block cells (2026-10-21)]]. A screen built in block cells follows that section where it differs from the older lines below (rounded corners, gradients, the gloss band, pills); a screen not yet rebuilt keeps the older lines until its own change. The HUD is in block cells as of 2026-10-21, and every other screen under `src/client/UI` since the same day ([[#Screens after the HUD (2026-10-21)]]) except the Reveal and the capture bar, which have their own change.
 
 ## Font and text
 - Fredoka One for all UI text; Builder Sans only for long settings text.
@@ -452,7 +452,7 @@ Ethan, 2026-10-17: "make that consistent throughout the whole game" ([[Decisions
 
 ### Screens after the HUD (2026-10-21)
 
-The rest of the UI moves to block cells one screen per change, each a look change only (every binding, behaviour, string key and public function as before; the layout does not move). The rules the screens added:
+The rest of the UI moves to block cells one screen per change, each a look change only (every binding, behaviour, string key and public function as before; the layout does not move). Done on 2026-10-21 for every screen but the Reveal and the capture bar; `tools/tests/test_block_theme.py` lists them (`BLOCK_SCREENS`) and keeps the old helpers (`Builder.pill`, `Builder.button`, `Builder.gradient`, corners, gradients) out of them. Test steps: `docs/TESTING.md` "Screens in block cells"; the Mac check is [[Overnight]] job 37. The rules the screens added:
 
 - **Fitted plates.** A box whose shape changes with the screen (a band a share of the width and the height, a row in a list, a button in a row of buttons) has no aspect to keep, and an aspect constraint would move the layout. `Builder.blockPlate` and `Builder.blockButton` with no `aspect` make a fitted plate: no constraint, the plate measures its px box and draws the whole number of columns nearest square cells for it (within 6% of square from nine columns), again only when that number changes. Its rows are `rows` (or picked once from its height as a share of the screen). A panel opening scales both sides alike, so it never redraws mid-tween; a rotation or a resize may. A recolour (`setBlockColor`) and a bar (`blockBar`) survive a redraw.
 - **Thin bands are flat.** A plate under 0.05 of the screen tall is three rows of cells under 4.5 px at iPhone SE: all edge, no face, and its grout would be half a pixel. It is a flat block (`cells = false`), like a badge: the compass strip (15 px at SE, 3.9 px cells) and its heading block.
