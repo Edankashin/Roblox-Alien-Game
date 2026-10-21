@@ -9,7 +9,7 @@ status: review
 element: Stone
 height: 2.75
 blocks: 12
-tris: 232
+tris: 234
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#C4B9A6", "#5A5048", "#D27A16", "#1E1A17"]
@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Pebblet_sheet.svg]]"
 render: "[[Pebblet_tq_cells.jpg]]"
 glb: ""
-overlap: [0.993, 0.992, 0.996, 0.994]
+overlap: [0.993, 0.994, 0.997, 0.994]
 cells_render: "[[Pebblet_tq_cells.jpg]]"
 idle_render: "[[Pebblet_idle.png]]"
 ---
 # Pebblet (Pebblet), Common, World 1 Verdant
 
-A grey-tan pebble that grew four stubby slate legs and walks, 2.75 studs to the top of its cairn: a wide, low, soft-cornered stone (the head, half of which is face) with a chipped lower-right flank, on four stone stumps splayed out past its corners, so there is air under it. On its back it balances a cairn: three smaller stones stacked and stepped off to one side, the way a hiker leaves a marker on a trail, the bottom one a wide slab so the top of the pebble steps down on the other side, and a tiny pip of a pebble balanced on the very top. A patch of orange lichen grows on its right flank and a fleck of it on the cairn. Concept row in `src/shared/data/Species.luau`: "pebble with legs". Element and effect: [[Roster-Redesign]] section 2 (Stone; a puff of grit when it hops). The style rules it is checked against: [[Blocky-Style]].
+A grey-tan pebble that grew four stubby slate legs and walks, 2.75 studs to the top of its cairn: a wide, low, soft-cornered stone (the head, half of which is face) with a chipped lower-right flank, on four stone stumps splayed out past its corners, so there is air under it. On its back it balances a cairn: three smaller stones stacked and stepped off to one side, the way a hiker leaves a marker on a trail, the bottom one a wide slab so the top of the pebble steps down on the other side, and a tiny pip of a pebble balanced on the very top. A long crust of orange lichen grows low on its right flank, up from the ground line behind the leg, and a fleck of it on the cairn. Concept row in `src/shared/data/Species.luau`: "pebble with legs". Element and effect: [[Roster-Redesign]] section 2 (Stone; a puff of grit when it hops). The style rules it is checked against: [[Blocky-Style]].
 
 **What makes a player want it.** It is a rock with a face, which is already funny, and the cairn on its back says it is going somewhere and wants to be found again. B46: its own `pebble` eyes (wide soft ovals with a long shine) and a smile with one tooth showing, the goofiest face on the meadow; the cairn wobbles on every hop and never quite falls. The Common rung on purpose: three flat colours (stone, slate, lichen orange), no glow and no light.
 
@@ -55,8 +55,9 @@ parts:
   - {name: Cairn2, slot: BodyDark, size: [0.75, 0.25, 0.5], at: [0.5, 2.125, 0.125], material: stone, moves: cairn, pivot: [0.5, 2, 0.125]}
   - {name: Cairn3, slot: Body, size: [0.5, 0.25, 0.375], at: [0.625, 2.375, 0.1875], material: stone, moves: cairn, pivot: [0.5, 2, 0.125]}
   - {name: Pip, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0.5, 2.625, 0.25], material: stone, moves: cairn, pivot: [0.5, 2, 0.125]}
-  # a patch of orange lichen on the right flank, proud by an eighth, and a fleck of it on the cairn's slab
-  - {name: Lichen, slot: Accessory, size: [0.125, 0.5, 0.625], at: [1.0625, 1.25, 0.1875]}
+  # a patch of orange lichen low on the right flank, a long flat crust growing up from the ground line behind the leg, proud by an eighth
+  # (Polish w1: an upright patch at head height read as an ear), and a fleck of it on the cairn's slab
+  - {name: Lichen, slot: Accessory, size: [0.125, 0.25, 0.875], at: [1.0625, 0.625, 0.4375]}
   - {name: Fleck, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-0.125, 2.0625, -0.125]}
 ```
 
@@ -124,3 +125,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, three rounds. Round 1: a stone box on four stumps with the cairn centred read as a box with a hat, and the boxed silhouette sat at 0.70 against Moop. Round 2: the legs splayed out past the body's corners and the cairn leaning off to its right, the body a warmer stone (the pale first grey read as paper), the lichen a step darker so the accent clears the body in greyscale. Round 3: no change after the side-by-side. Wanted for: a rock with a face that carries a cairn. Still cheap: it is the boxiest of the nine (the cairn and the stance are what save it); the stone cobbles read only up close. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band already; a pip of a pebble balanced on the cairn (2.75 studs now, the head 45 percent) and a fleck of lichen on the slab bring it to the Common cap of 12 blocks. Its own `pebble` eyes (wide ovals, a long shine) with a one-tooth smile and dot cheeks, the goofiest face on the meadow; three moving objects and the blink: the top of the cairn wobbles on its slab, the front feet shuffle out of step in time with Effects.luau's 0.8 s hop, the stone squashes on each hop. Overlap 0.992 to 0.996, 232 triangles; worst silhouette pair 0.64 (Twiglo), from 0.68. Wanted for: a rock that grins with one tooth and carries a cairn that never quite falls. Still weak: the lichen patch on the flank reads as an ear from the three-quarter view, and the body is still the squarest block in the row. Status review.
+- 2026-10-21, Polish w1, one round. The lichen was an upright orange patch at head height on the flank and read as an ear: it is now a long low crust, a quarter tall and seven eighths long, growing up from the ground line behind the front leg on the right flank. 12 blocks, unchanged (the Common cap). Honest read: nothing reads as an ear; the lichen is quieter now, an orange line by the legs and the fleck on the cairn. Status review.

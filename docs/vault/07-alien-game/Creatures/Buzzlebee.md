@@ -9,7 +9,7 @@ status: review
 element: Pollen
 height: 2.58
 blocks: 19
-tris: 424
+tris: 428
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FFC83D", "#4A2F1F", "#FF6B9A", "#1A120C"]
@@ -26,7 +26,7 @@ idle_render: "[[Buzzlebee_idle.png]]"
 ---
 # Buzzlebee (Buzzik), Uncommon, World 1 Verdant
 
-A honey-yellow bee, 2.6 studs to its antenna tips, with a wide square head, a striped abdomen, four pink wings (two pairs, the big pair angled up) and a tiny pink backpack with a cocoa flap behind the wing roots, its two cocoa straps running forward over its back. Long antennae end in pink pompoms. It stands on two stubby front legs and lets its striped back end hang in the air. Concept row in `src/shared/data/Species.luau`: "bee, tiny backpack". Element: Pollen (the species' row in `src/shared/data/Effects.luau`); [[Roster-Redesign]] section 2 gives the buzz and the motes. Rules: [[Blocky-Style]].
+A honey-yellow bee, 2.6 studs to its antenna tips, with a wide square head, a striped abdomen, four pink wings (two pairs, the big pair angled up) and a tiny pink backpack with a cocoa flap behind the wing roots, its two cocoa straps sloping from the pack's top down over its back to the head. Long antennae end in pink pompoms. It stands on two stubby front legs and lets its striped back end hang in the air. Concept row in `src/shared/data/Species.luau`: "bee, tiny backpack". Element: Pollen (the species' row in `src/shared/data/Effects.luau`); [[Roster-Redesign]] section 2 gives the buzz and the motes. Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the first creature on the meadow with a *thing*: the backpack says it is going somewhere, and the four wings say it is not quite a bee. B46: its own `twotone` eyes, a pink iris under a cocoa top with a big pupil and a shine, over a toothy grin, and the most motion of the lower rungs: four wings beating, the pompom antennae nodding and the stinger wagging. It is the Uncommon rung exactly: a two-tone body (the yellow and cocoa stripes), one secondary block (the pack) and one small touch of a second colour (the pink on the pack, the wings, the pompoms and the eyes), so it reads as one step up from Moop and one step short of Vixa's glossy trim and light.
 
@@ -55,10 +55,12 @@ parts:
   # alien anatomy: four wings, a big pair angled up and a small pair behind, both on one pivot a side so they flap as one
   - {name: Wing, slot: Accessory, size: [1, 0.125, 0.625], at: [0.8125, 1.8125, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5], material: crystal}
   - {name: HindWing, slot: Accessory, size: [0.75, 0.125, 0.5], at: [0.75, 1.625, 0.875], rot: [0, 0, 15], mirror: x, moves: wing, pivot: [0.375, 1.625, 0.5], material: crystal}
-  # the hero: a tiny pink backpack behind the wing roots, its cocoa flap folded over the front, two cocoa straps running forward over the back
+  # the hero: a tiny pink backpack behind the wing roots, its cocoa flap folded over the front, two cocoa straps running from the pack's top
+  # down over the back to the head (Polish w1: level straps at the pack's foot read as the arms of a chair; sloping 25 degrees from the
+  # flap down to the shoulders they read as a pack worn on the back)
   - {name: Backpack, slot: Accessory, size: [0.75, 0.625, 0.5], at: [0, 1.6875, 1.375]}
   - {name: Flap, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [0, 2.0625, 1.25]}
-  - {name: Strap, slot: BodyDark, size: [0.125, 0.125, 0.75], at: [0.3125, 1.6875, 0.75], mirror: x}
+  - {name: Strap, slot: BodyDark, size: [0.125, 0.125, 0.875], at: [0.3125, 1.8125, 0.75], rot: [-25, 0, 0], mirror: x}
 ```
 
 ## Face
@@ -124,3 +126,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, loop 2 worker, three rounds. Round 1: a sky-blue accent: the blue crescent under each eye read as tears, and a dark lid over the pack lay on the wings like a board. Round 2: the accent went to pink (the crescents, the four wings, the pack) and the pack moved behind the wing roots with a small cocoa flap. Round 3: no change after the side-by-side. Overlap 0.993 to 0.998, 370 triangles, 15 blocks, 2.37 studs. Wanted for: four pink wings and a tiny backpack, the first creature that carries something. Still cheap: the pack reads as a pink box (straps do not fit in 15 blocks), and from the side the cocoa stripes darken the whole abdomen. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). At 1 : 2 : 1 jitter the yellow read as a sponge; at 1 : 6 : 1 with the grout it is a clean yellow of little blocks; the wings' diagonals read as shimmer. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band (2.58 studs to its pompoms, from 2.37): pink pompoms on the antenna tips and two cocoa straps from the pack over its back bring it to 19 blocks (the Uncommon band is 10 to 20). Its own `twotone` eyes, cocoa over pink with a big pupil, a toothy grin and dot cheeks; four moving objects and the blink: both wing pairs beat as one a side, the pompom antennae nod, the stinger wags in bursts, the bee bobs as it hovers. Overlap 0.995 to 0.998, 424 triangles; worst silhouette pair 0.668 (Twiglo), from 0.684. Wanted for: the first alien with a thing (the pack), and now the liveliest face of the lower rungs. Still weak: from the three-quarter view the straps read as the arms of a chair over the pack, and the pompoms crowd the big wings. Status review.
+- 2026-10-21, Polish w1, one round. The cocoa straps ran level at the pack's foot and, with the pack behind them, read as the arms of a chair: each strap now slopes 25 degrees from the pack's flap down over the back to the head's back edge, a pack worn over the shoulders. 19 blocks, unchanged. Overlap 0.995 to 0.998. Honest read: a backpack on a bee; the dark abdomen bands still stand behind the pack like two posts from the three-quarter view. Status review.

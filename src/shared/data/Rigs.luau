@@ -380,9 +380,9 @@ local species: { [string]: Types.RigRow } = {
 	Pebblet = {
 		height = 2.75,
 		parts = {
-			{ name = "cairnR", pivot = { 0.5, 2, 0.125 }, clips = { { kind = "sway", amp = 6, period = 1.6, phase = 0, axis = "z" }, { kind = "sway", amp = 4, period = 2.4, phase = 0.3, axis = "x" } } },
-			{ name = "legL", pivot = { -1.125, 0.5, -0.5 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0.5, axis = "x" } } },
-			{ name = "legR", pivot = { 1.125, 0.5, -0.5 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0, axis = "x" } } },
+			{ name = "cairnR", pivot = { 0.5, 2, 0.0625 }, clips = { { kind = "sway", amp = 6, period = 1.6, phase = 0, axis = "z" }, { kind = "sway", amp = 4, period = 2.4, phase = 0.3, axis = "x" } } },
+			{ name = "legL", pivot = { -1.125, 0.5, -0.5625 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0.5, axis = "x" } } },
+			{ name = "legR", pivot = { 1.125, 0.5, -0.5625 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0, axis = "x" } } },
 		},
 		root = { { kind = "squash", amp = 0.05, period = 0.8, phase = 0, axis = "y" } },
 		face = {
