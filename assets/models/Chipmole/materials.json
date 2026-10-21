@@ -31,8 +31,8 @@
   },
   {
     "slot": 4,
-    "name": "tail",
-    "hex": "2F3A4E",
+    "name": "tailR",
+    "hex": "3FD3F7",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,

@@ -226,7 +226,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 			{ name = "Body", hex = "5B6B85", neon = false, map = "cell" },
 			{ name = "pickL", hex = "3FD3F7", neon = false, map = "cell" },
 			{ name = "pickR", hex = "3FD3F7", neon = false, map = "cell" },
-			{ name = "tail", hex = "2F3A4E", neon = false, map = "cell" },
+			{ name = "tailR", hex = "3FD3F7", neon = false, map = "cell" },
 			{ name = "FacePlate", hex = "5B6B85", neon = false, map = "face" },
 		},
 	},

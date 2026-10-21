@@ -10,7 +10,7 @@
 - Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `floatR` (moves, cells, pivot 1.125, 2.25, -0.25); `handle` (moves, cells, pivot -0.625, 1.75, 0); `lid` (moves, cells, pivot -0.625, 1.75, 0); `wispR` (moves, cells, pivot 1.625, 2.375, -0.25); `FacePlate` (the face sheet, frame 0)
 - Eyes: `button`; the face plate is 28x12 px a frame, 3 frames (open, half, closed) in Kettlepuff_face.png, 3 a row (Rigs face.columns)
 - Rig: 4 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Kettlepuff.glb (34296 bytes), Kettlepuff.fbx (54172 bytes, texture embedded), Kettlepuff_atlas.png, Kettlepuff_face.png, materials.json, Kettlepuff.png and Kettlepuff_grey.png (256 px previews)
+- Files: Kettlepuff.glb (34300 bytes), Kettlepuff.fbx (54172 bytes, texture embedded), Kettlepuff_atlas.png, Kettlepuff_face.png, materials.json, Kettlepuff.png and Kettlepuff_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Kettlepuff`; check with `python3 -I tools/blocky/export_models.py --check --species Kettlepuff`.

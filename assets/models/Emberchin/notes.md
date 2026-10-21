@@ -10,7 +10,7 @@
 - Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `cinderR` (moves, cells, pivot 0.875, 0.125, -0.9887); `ember` (moves, cells, pivot 0, 2.25, -0.1137); `pool` (moves, cells, pivot 0, 0, -0.1137); `quillL` (moves, cells, pivot -1, 1.75, -0.1137); `quillR` (moves, cells, pivot 1, 1.75, -0.1137); `FacePlate` (the face sheet, frame 0)
 - Eyes: `kindle`; the face plate is 28x14 px a frame, 3 frames (open, half, closed) in Emberchin_face.png, 3 a row (Rigs face.columns)
 - Rig: 5 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Emberchin.glb (37508 bytes), Emberchin.fbx (57708 bytes, texture embedded), Emberchin_atlas.png, Emberchin_face.png, materials.json, Emberchin.png and Emberchin_grey.png (256 px previews)
+- Files: Emberchin.glb (37520 bytes), Emberchin.fbx (57708 bytes, texture embedded), Emberchin_atlas.png, Emberchin_face.png, materials.json, Emberchin.png and Emberchin_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Emberchin`; check with `python3 -I tools/blocky/export_models.py --check --species Emberchin`.

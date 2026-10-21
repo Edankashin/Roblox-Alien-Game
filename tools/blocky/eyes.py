@@ -539,7 +539,10 @@ def _extent(grid):
 
 
 def half_grid(key):
-    """The blink's half frame: the lid down to a little under half the eye, its edge an ink line (an arc eye sinks a pixel)."""
+    """The blink's half frame: the lid down to a little under half the eye, its edge an ink line (an arc eye sinks a pixel). A design with its
+    own `half` rows (Polish w2: kindle) uses them instead."""
+    if DESIGNS[key].get("half"):
+        return parse(DESIGNS[key]["half"])
     g = open_grid(key)
     h, w = len(g), len(g[0])
     if DESIGNS[key]["arc"]:
@@ -888,6 +891,29 @@ def _echo(k, n):
 
 design("echo", "Secret", "echo: a dark iris where rings of the one accent ripple out from a lit core and fade, a note heard from far away",
        draw=_echo, glint=(14, 3))
+# ------------------------------------------------------------------------------------------------ Polish w2 (2026-10-21)
+# World 2's polish pass. (1) kindle's half frame: the generic lid (a flat ink bar over the lit lower half) made Sizz look cross for its 0.18 s,
+# a scowl over two glowing lower corners; its own half is a rounded lid (an arch, like a content squint) over a dark iris with its shine, the
+# ember only in two bottom pixels (a first try kept the red iris band and the lit corners, and the half eye read as a pair of lips). (2) `beam`, one new Common design: Mitt's `happy` arcs (7 x 4) read small on its 2-stud snowball, so a bigger, bolder
+# closed smile, 9 x 5 with two-pixel arcs (28 percent of the head's width), for Frostbyte's one arc-eyed Common.
+DESIGNS["kindle"]["half"] = [
+    "........",
+    "........",
+    "........",
+    "........",
+    "..kkkk..",
+    ".kwkkkk.",
+    "kkkkkkkk",
+    ".kkiikk.",
+    "..kkkk..",
+]
+design("beam", "Common", "beam: a big closed smile, two-pixel arcs, for a round face that wants a bigger happy eye", arc=True, rows=[
+    "...kkk...",
+    ".kkkkkkk.",
+    "kkk...kkk",
+    "kk.....kk",
+    "k.......k",
+])
 
 
 if __name__ == "__main__":

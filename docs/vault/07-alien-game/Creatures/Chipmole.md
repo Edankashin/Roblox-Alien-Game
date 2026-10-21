@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Chipmole_sheet.svg]]"
 render: "[[Chipmole_tq_cells.jpg]]"
 glb: ""
-overlap: [0.999, 0.991, 0.994, 0.999]
+overlap: [0.999, 0.996, 0.998, 0.999]
 cells_render: "[[Chipmole_tq_cells.jpg]]"
 idle_render: "[[Chipmole_idle.png]]"
 ---
 # Chipmole (Digling), Common, World 2 Frostbyte
 
-A squat slate-blue mole, low to the ground, with a frost-nipped ice nose proud of its face, a dark rump, a stub tail behind its head, four dark paws, and two ice picks taller than itself held up out of its front paws: a dark wooden handle rising from each paw with a blade of bright ice pointing forward at the top. Concept row in `src/shared/data/Species.luau`: "mole, ice-pick claws, chips the floor". Element and effect: [[Roster-Redesign]] section 2 (ice chips kick up from the claws, a scratch at each chip). Rules: [[Blocky-Style]].
+A squat slate-blue mole, low to the ground, with a frost-nipped ice nose proud of its face, a dark rump, a frost-nipped stub tail standing up off its rump, four dark paws, and two ice picks taller than itself held up out of its front paws: a dark wooden handle rising from each paw with a blade of bright ice pointing forward at the top. Concept row in `src/shared/data/Species.luau`: "mole, ice-pick claws, chips the floor". Element and effect: [[Roster-Redesign]] section 2 (ice chips kick up from the claws, a scratch at each chip). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** The first dark thing on Frostbyte, a mole that cannot dig frozen ground and has grown two ice picks to chip at it instead, held up like a miner about to start. Plain on purpose: slate, one darker slate, one cyan, no glow and no light.
 
@@ -49,9 +49,10 @@ parts:
   # the hero: two ice picks, a wooden handle up from each front paw and a blade of ice pointing forward at the top
   - {name: Handle, slot: BodyDark, size: [0.25, 1.5, 0.25], at: [1, 1.25, -1.125], mirror: x, moves: pick, pivot: [1, 0.5, -1.125], material: wood}
   - {name: Pick, slot: Accessory, size: [0.5, 1, 0.5], at: [1, 2.125, -1.625], rot: [-90, 0, 0], shape: cone6, mirror: x, moves: pick, pivot: [1, 0.5, -1.125], material: ice}
-  # B46 detail: a frost-nipped nose proud of the face between the eyes, and a stub tail that wags behind the rump
+  # B46 detail: a frost-nipped nose proud of the face between the eyes, and a frost-nipped stub tail standing up off the rump's back corner on
+  # the camera's side, leaning back, that wags (straight out behind the rump, low and dark, the three-quarter camera never saw it)
   - {name: Nose, slot: Accessory, size: [0.25, 0.125, 0.125], at: [0, 0.9375, -1.1875], material: ice}
-  - {name: Tail, slot: BodyDark, size: [0.25, 0.25, 0.375], at: [0, 0.875, 1.8125], moves: tail, pivot: [0, 0.875, 1.625]}
+  - {name: Tail, slot: Accessory, size: [0.25, 0.5, 0.25], at: [0.375, 1.25, 1.625], rot: [20, 0, 0], material: ice, moves: tail, pivot: [0.375, 1, 1.5625]}
 ```
 
 ## Face
@@ -86,7 +87,7 @@ The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/sh
 rig:
   clips:
     pick: [{kind: sway, amp: 12, period: 2.4, axis: x}]
-    tail: [{kind: wag, amp: 20, period: 1.6, axis: y}]
+    tail: [{kind: wag, amp: 20, period: 1.6, axis: z}]
     root: [{kind: squash, amp: 0.04, period: 2.2}]
     face: [{kind: blink, period: 3.8}]
 ```
@@ -115,3 +116,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: the pick blades at a quarter stud read as cyan gems on two posts, so they are half-stud cones a stud long, which raised it to 2.38 studs. Round 2: the pick pair became the `jaw` mover the scratch tween needs. Overlap 0.996 to 0.999, 206 triangles, 10 blocks, 2.38 studs, two moving objects (the picks). Wanted for: the dark one, a mole with two ice picks held up over its shoulders. Still cheap: the handles are dark slate in the second colour and the wood grain hardly reads; the rump is a plain block. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), two rounds. Round 1: `sleepy` eyes read as a bored squint (the flat lid on a dark slate face is a frown), so they went to `pebble`, wide soft ovals with a long shine, on a 28 x 10 plate; the drawn pink snout became an ice `Nose` block proud of the plate with a buck `tooth` under it, and a stub `Tail` joined the rump. Rig: the picks rock 12 degrees as if chipping, the tail wags, the body breathes, a blink every 3.8 s (four moving things, three objects). Height 2.38 (in band, unchanged: it is a low mole), 12 blocks (the Common cap), 234 triangles, overlap 0.991 to 0.999. Wanted for: the dark one, a buck-toothed mole with an icy nose and two picks it rocks like a miner. Still weak: the tail is hidden from the three-quarter view, and the handles still read slate more than wood. Status review.
+- 2026-10-21, Polish w2 worker: the tail was unseen from three-quarter (low, dark and straight out behind the rump). It now stands up off the rump's back corner on the camera's side (x 0.375), half a stud tall and leaning back 20 degrees, frost-nipped in the ice accent like the nose, and it wags side to side (axis z) instead of twisting; still 12 blocks (the Common cap), 234 triangles, overlap 0.996 to 0.999. Honest read: the three-quarter and high cameras now see a little ice tail; from the front a sliver of it peeks over the head.

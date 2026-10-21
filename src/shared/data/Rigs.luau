@@ -61,9 +61,9 @@ local species: { [string]: Types.RigRow } = {
 	Chipmole = {
 		height = 2.375,
 		parts = {
-			{ name = "pickL", pivot = { -1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
-			{ name = "pickR", pivot = { 1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
-			{ name = "tail", pivot = { 0, 0.875, 1.6875 }, clips = { { kind = "wag", amp = 20, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "pickL", pivot = { -1, 0.5, -0.9765 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "pickR", pivot = { 1, 0.5, -0.9765 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "tailR", pivot = { 0.375, 1, 1.711 }, clips = { { kind = "wag", amp = 20, period = 1.6, phase = 0, axis = "z" } } },
 		},
 		root = { { kind = "squash", amp = 0.04, period = 2.2, phase = 0, axis = "y" } },
 		face = {
@@ -138,11 +138,11 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Flapsicle = {
-		height = 2.75,
+		height = 2.875,
 		parts = {
 			{ name = "earL", pivot = { -0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = -14, period = 3.4, phase = 0, axis = "z" } } },
 			{ name = "earR", pivot = { 0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = 14, period = 3.4, phase = 0, axis = "z" } } },
-			{ name = "perch", pivot = { 0, 2.625, 0.0625 }, clips = { { kind = "pulse", amp = 0.08, period = 3, phase = 0, axis = "y" } } },
+			{ name = "perch", pivot = { 0, 2.75, 0.0625 }, clips = { { kind = "pulse", amp = 0.08, period = 3, phase = 0, axis = "y" } } },
 			{ name = "wingL", pivot = { -0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = -16, period = 1.8, phase = 0, axis = "z" } } },
 			{ name = "wingR", pivot = { 0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = 16, period = 1.8, phase = 0, axis = "z" } } },
 		},
@@ -392,10 +392,10 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Pengoo = {
-		height = 3,
+		height = 3.114,
 		parts = {
 			{ name = "pack", pivot = { 0, 0.875, 1 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
-			{ name = "tuft", pivot = { 0, 2.75, 0.125 }, clips = { { kind = "sway", amp = 15, period = 1.8, phase = 0, axis = "x" } } },
+			{ name = "tuft", pivot = { 0, 2.75, 0.1875 }, clips = { { kind = "sway", amp = 15, period = 1.8, phase = 0, axis = "x" } } },
 			{ name = "wingL", pivot = { -1, 1.5, 0 }, clips = { { kind = "flap", amp = -15, period = 1.6, phase = 0, axis = "z" } } },
 			{ name = "wingR", pivot = { 1, 1.5, 0 }, clips = { { kind = "flap", amp = 15, period = 1.6, phase = 0, axis = "z" } } },
 		},
@@ -710,11 +710,11 @@ local species: { [string]: Types.RigRow } = {
 	Toastoad = {
 		height = 2.75,
 		parts = {
-			{ name = "belly", pivot = { 0, 0.375, -0.25 }, clips = { { kind = "pulse", amp = 0.12, period = 2.2, phase = 0, axis = "y" } } },
-			{ name = "bumpL", pivot = { -0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
-			{ name = "bumpR", pivot = { 0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
-			{ name = "pebbleR", pivot = { 0.25, 2.375, 0.375 }, clips = { { kind = "bob", amp = 0.05, period = 0.9, phase = 0, axis = "y" } } },
-			{ name = "stoneL", pivot = { -0.3125, 2.375, 0.3125 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
+			{ name = "belly", pivot = { 0, 0.375, -0.1875 }, clips = { { kind = "pulse", amp = 0.12, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "bumpL", pivot = { -0.375, 1.625, -0.5625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "bumpR", pivot = { 0.375, 1.625, -0.5625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "pebbleR", pivot = { 0.25, 2.375, 0.4375 }, clips = { { kind = "bob", amp = 0.05, period = 0.9, phase = 0, axis = "y" } } },
+			{ name = "stoneL", pivot = { -0.3125, 2.375, 0.375 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
 		},
 		root = { { kind = "sway", amp = 3, period = 2.6, phase = 0, axis = "x" } },
 		face = {

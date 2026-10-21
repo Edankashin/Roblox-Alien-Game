@@ -68,12 +68,12 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `bean`, a Common design, tall soft ink beans with a square shine, the biggest eyes in its world's Commons for the one that worries most, at 16 pixels a stud on a 1.75 x 0.875 stud plate (28 x 14 pixels, three frames). A small worried `o` mouth over the drip and `dots` cheeks. The only `bean` in Frostbyte.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `bean`, a Common design, tall soft ink beans with a square shine, the biggest eyes in its world's Commons for the one that worries most, at 16 pixels a stud on a 1.75 x 0.875 stud plate (28 x 14 pixels, three frames). A small `open` mouth with its tongue over the drip (the `o` read as a diamond) and `dots` cheeks. The only `bean` in Frostbyte.
 
 ```yaml
 eyes:
   key: bean
-  mouth: o
+  mouth: open
   cheeks: dots
   plate: [1.75, 0.875]
   at: [0, 1.0625]
@@ -118,3 +118,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a symmetric box with a point on quarter-stud legs overlapped Floe, Eekle and Soakum at 0.75 to 0.80 in the boxed test, so the legs grew to half a stud, the step went, the point grew to three quarters of a stud, one arm rose in a wave and the drip and the puddle moved to its left. Round 2: the pale ice body (L* 92) lost its point against the backdrop, so the body is the placeholder's ice blue with a deeper blue and a saturated cyan. Overlap 0.995 to 0.997, 182 triangles, 8 blocks, 2.5 studs, no moving parts (it bobs). Wanted for: a worried icicle that drips when looked at. Still cheap: the ice bands barely show on a 2-stud head; the drip is one small cone. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `bean` (7 x 9 pixels, 22 percent of the head) on a 28 x 14 plate with a worried `o` mouth and `dots` cheeks; it had no moving part, so the raised arm became the `arm` that waves in nervous bursts, the drip under the chin stretches on the 3 s beat of the falling drop, and a fallen `Bead` on the puddle wobbles half a beat later; a meltwater `Runnel` runs down its right cheek. Four moving things (three objects and the blink). Height 2.5 (in band, unchanged), 10 blocks, 214 triangles, overlap 0.995 to 0.997. Wanted for: the nervous one, big worried eyes over a drip that keeps forming. Still weak: the `o` mouth reads as a tiny diamond at the review size, and the runnel hides under the arm from the left. Status review.
+- 2026-10-21, Polish w2 worker: the `o` mouth read as a diamond. It is now `open` (a small open mouth with a pink tongue). 10 blocks, 214 triangles, overlap 0.995 to 0.997. Honest read: a mouth at last, still small, which suits the worrier; the runnel under the arm is as before.
