@@ -18,6 +18,9 @@
 -- attached with `always`, outside the ranking. Reduced Motion (Prefs): every clip and the flourish hold still; the blink stays.
 -- When an animated alien's flourish begins, SpeciesFx.Flourish(model, speciesId) plays the species' flourish effects on the same beat
 -- (a model SpeciesFx does not know, like the reveal's, is ignored there), and OnFlourish(callback) hears (model, speciesId) too.
+-- Perk(model, degrees): the notice (World.Spectacle): every moving part whose name starts with one of data/Spectacle PerkParts
+-- (ears, antennae, crest, tail ...) flares out and back over Spectacle.Look.PerkSeconds on the axis of its own first clip, mirrored
+-- with it, on top of its clips. Nothing under Reduced Motion (the rig holds still there anyway).
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -28,6 +31,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Rigs = require(Shared:WaitForChild("data"):WaitForChild("Rigs"))
 local Effects = require(Shared:WaitForChild("data"):WaitForChild("Effects"))
+local SpectacleData = require(Shared:WaitForChild("data"):WaitForChild("Spectacle"))
 local RigMath = require(Shared:WaitForChild("RigMath"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
@@ -43,7 +47,7 @@ export type Options = {
 }
 
 type Joint = { part: BasePart, rest: CFrame, size: Vector3 } -- the rest against the pivot at the attach scale
-type Mover = { name: string, pivot: Vector3, clips: { Types.RigClip }, joints: { Joint }, pose: Types.RigPose }
+type Mover = { name: string, pivot: Vector3, clips: { Types.RigClip }, joints: { Joint }, pose: Types.RigPose, perk: Types.RigMove? }
 type Handle = {
 	model: Model,
 	speciesId: string,
@@ -64,6 +68,7 @@ type Handle = {
 	atRest: boolean,
 	inFlourish: boolean,
 	forcedAt: number?, -- os.clock() when PlayFlourish started a flourish off the timer
+	perkAt: number?, -- os.clock() when Perk started the notice's flare
 	destroying: RBXScriptConnection?,
 }
 
@@ -298,6 +303,10 @@ local function step(handle: Handle, now: number, still: boolean)
 				end
 			end
 		end
+		local perk, perkAt = mover.perk, handle.perkAt
+		if perk and perkAt then
+			RigMath.AccumulateMove(pose, perk, now - perkAt)
+		end
 		local around = mover.pivot * studs
 		for _, j in ipairs(mover.joints) do
 			local cf, size = applyPose(pose, around, studs, scaled(j.rest, k), j.size * k)
@@ -419,6 +428,7 @@ function RigAnimator.Attach(model: Model, speciesId: string, opts: Options?): ()
 				clips = def.clips,
 				joints = joints,
 				pose = RigMath.NewPose(),
+				perk = nil,
 			})
 		end
 	end
@@ -471,6 +481,7 @@ function RigAnimator.Attach(model: Model, speciesId: string, opts: Options?): ()
 		atRest = true,
 		inFlourish = false,
 		forcedAt = nil,
+		perkAt = nil,
 		destroying = nil,
 	}
 	if face and rowFace then
@@ -501,6 +512,41 @@ function RigAnimator.PlayFlourish(model: Model): boolean
 	handle.forcedAt = os.clock()
 	handle.inFlourish = false -- so the effects fire on this beat
 	return true
+end
+
+-- Whether a moving part's name is one that perks (data/Spectacle PerkParts, by prefix, any case).
+local function perks(name: string): boolean
+	local lower = string.lower(name)
+	for _, prefix in ipairs(SpectacleData.PerkParts) do
+		if string.sub(lower, 1, #prefix) == prefix then
+			return true
+		end
+	end
+	return false
+end
+
+-- The notice: `model`'s ears, antennae, crest and tail (data/Spectacle PerkParts) flare out by `degrees` and back over
+-- Spectacle.Look.PerkSeconds, each on the axis of its own first clip and mirrored with it (a left ear the other way). Returns false
+-- when the model is not animated or has no such part.
+function RigAnimator.Perk(model: Model, degrees: number): boolean
+	local handle = byModel[model]
+	if not handle or degrees == 0 then
+		return false
+	end
+	local any = false
+	for _, mover in ipairs(handle.movers) do
+		if perks(mover.name) then
+			local clip = mover.clips[1]
+			local axis: Types.RigAxis = if clip then clip.axis else "z"
+			local sign = if clip and clip.amp < 0 then -1 elseif string.sub(mover.name, -1) == "L" then -1 else 1
+			mover.perk = { part = mover.name, kind = "flare", amp = degrees * sign, axis = axis, at = 0, length = SpectacleData.Look.PerkSeconds }
+			any = true
+		end
+	end
+	if any then
+		handle.perkAt = os.clock()
+	end
+	return any
 end
 
 -- Calls `callback(model, speciesId)` whenever an animated alien's flourish begins (the hook effects hang a burst on). Returns the

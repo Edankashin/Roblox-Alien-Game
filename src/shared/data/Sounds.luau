@@ -45,6 +45,26 @@ return {
 	RushStart = "rbxassetid://15675062723", -- a Catch Rush round begins (it has only the banner's cue today)
 	Arrival = "rbxassetid://1838007773", -- the player lands on a world (no distinct arrival cue today)
 	RestStart = "rbxassetid://15675081158", -- the crew starts resting
+	-- The spectacle ladder (data/Spectacle, World.Spectacle): hooks only, silent until the sound pass. TierAmbient is a soft loop
+	-- (ambient notes) at a wild alien of a tier with a presence, nearest few only; Arrive the one-shot as a tier's arrival lands;
+	-- CatchSpiral as a caught alien spirals into the device; EscapePuff as one hops away; BlinkOut as a Secret blinks out.
+	TierAmbient = {
+		Rare = "rbxassetid://0",
+		Epic = "rbxassetid://0",
+		Legendary = "rbxassetid://0",
+		Cosmic = "rbxassetid://0",
+		Secret = "rbxassetid://0",
+	} :: { [string]: string },
+	Arrive = {
+		Rare = "rbxassetid://0",
+		Epic = "rbxassetid://0",
+		Legendary = "rbxassetid://0",
+		Cosmic = "rbxassetid://0",
+		Secret = "rbxassetid://0",
+	} :: { [string]: string },
+	CatchSpiral = "rbxassetid://0",
+	EscapePuff = "rbxassetid://0",
+	BlinkOut = "rbxassetid://0",
 	Reveal = {
 		Common = "rbxassetid://15675043410",
 		Uncommon = "rbxassetid://9048764475",

@@ -149,6 +149,32 @@ Roles: `body` (the head and the main masses), `second` (the BodyDark slot: legs,
 | Rarity by layers, reach (body, ground, sky) and moments: a Common's one puff, a Cosmic's pillar | A bigger alien or a bigger copy of the same puff for a rarer tier |
 | A Secret's pillar and ring sunk only a little toward its shadow, so they read at night | A Secret pillar in the full dark mix: invisible against the sky |
 
+### The spectacle ladder: arrival, presence, personality, catch (2026-10-21)
+
+Ethan, 2026-10-21: "make the rare aliens 1000x cooler ... Don't forget about vfx and animation." The species' own layers above stay as they are; the spectacle ladder is the tier's stage round them, every row in `src/shared/data/Spectacle.luau`, the rules in `Shared/SpectacleMath` (tested headless by `tests/Spectacle.spec.luau`), drawn by `World/Spectacle` beside WildRenderer. The storyboard (`tools/spectacle_storyboard.py`, drawn from the data):
+
+![Spectacle v1: each tier's arrival, presence and catch, from data/Spectacle](refs/blocky/spectacle_v1.jpg)
+
+| Tier | Arrival (veiled until its pop) | Beacon | Presence | Notice | Catch (after the bar's flashes in its colour) |
+|---|---|---|---|---|---|
+| Common, Uncommon | none: simply there | none | none | turns, perks, one hop, "!" (a heart for a caught species) | cell burst, a spiral into the hand; a flight is a puff and two hops |
+| Rare | a square portal of cells opens, it pops through, the portal closes | none | a light pool (a stepped disc of three flat cells) | + its flourish the first time a player comes close | 2 flashes; a 1.5-turn spiral |
+| Epic | cells gather and burst out with a light pulse | 20 s | + one glyph cell orbiting the head | two hops | 2 flashes; 2 turns |
+| Legendary | a star falls trailing light, lands, a ring of cells blooms across the ground | while it stays | + two glyphs, a soft aura, footprints that bloom (World 1 flowers, World 2 frost) | two hops | 3 flashes; + a camera nudge and a ground shockwave |
+| Cosmic | the screen dims a touch, a beam comes down, it descends in it to a shockwave of cells (SpeciesFx's pillar and star burst on top) | while it stays | + three glyphs, a trail of cells while it walks, a star field | three hops | + a 0.6 s slow-mo (its own clocks slow, the view narrows 6 degrees) |
+| Secret | the screen's edge swells dark violet three times, it assembles from cells drawn in in glitchy steps | while it stays | as Cosmic with a dark haze for the stars | three hops | as Cosmic; a flight blinks it out |
+
+- **Personality for every alien**: a leash walk of 1.5 to 2.5 studs (a ground ray refuses a step of more than 0.6 studs, so never into a rock or the pond), and between walks an idle (look round, stretch, sit; a spin-and-hop "play" weighted up the tiers; sleep at night with Z cells). The tap target walks with it. The tier sets the theatre: notice distance, how fully it turns, hops, the ears' perk (`RigAnimator.Perk`: parts named ear, antenna, crest, tail and so on flare on their own clip's axis).
+- **Colours**: the arrival and beacon in the tier's colour (a silhouette's beacon still stands, since it does not give the species away); the pool, glyphs, trail and catch in the species' accent (Secret: its glow).
+- **Phone budget** (held by the specs): a Cosmic arrival with eight Cosmic aliens around is at most 1,300 live particles and 140 effect parts on a phone (8 x 120 species particles, presence, one arrival with SpeciesFx's moment, two beacons, twelve footprints); one arrival at a time on a phone (two on desktop), within 220 studs; presence on the nearest 8 (12). Nothing flashes or flickers more than three times a second.
+- **Reduced Motion**: the still versions: the alien is simply there with a steady beacon and pool, no walk, idle, hop, turn, Zz or orbit, a bubble without a pop, a caught or fled alien fades where it stood.
+
+| Do | Don't |
+|---|---|
+| Rarer arrives with more ceremony and reaches further (body, ground, sky) | A bigger alien, or a fiercer reaction, for a rarer tier (B45, B46) |
+| A Cosmic's beam and a Secret's glitch you can see from across the map, then a beacon to walk to | A full-screen flash or a hard strobe (the vignette swells, at most three a second) |
+| The client dresses the server's verdict (the spiral plays only on Caught) | A client-side outcome: an alien that "decides" to flee |
+
 ## 8. The animation ladder: moving parts on pivots, clips, a blink and a flourish
 
 2026-10-21, [[Decisions]] B46 (3): every alien gets a multi-part idle, at least a blink, and the clip count, the layering and a signature flourish climb by tier. Each moving part (`moves: <a lower-case word>`: wing, tail, ear, halo, sprout, orb, mote, leaf, frond, gem, pendant ...) is its own object with its origin on its `pivot` (B39); a mirrored pair is two objects (`wingR`, `wingL`). Static parts merge into one mesh per slot; the face plate is its own object, `FacePlate`.
