@@ -459,7 +459,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "A8805A", neon = false, map = "cell" },
-			{ name = "Glow", hex = "FF6B6B", neon = true, map = "" },
+			{ name = "Glow", hex = "E0202C", neon = true, map = "" },
 			{ name = "chimeL", hex = "A8E4FF", neon = false, map = "cell" },
 			{ name = "chimeR", hex = "A8E4FF", neon = false, map = "cell" },
 			{ name = "earL", hex = "A8805A", neon = false, map = "cell" },
@@ -484,7 +484,6 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "3FBFB0", neon = false, map = "cell" },
-			{ name = "Glow", hex = "2ED3F7", neon = true, map = "" },
 			{ name = "flagL", hex = "2ED3F7", neon = false, map = "cell" },
 			{ name = "footL", hex = "1F6F68", neon = false, map = "cell" },
 			{ name = "footR", hex = "1F6F68", neon = false, map = "cell" },

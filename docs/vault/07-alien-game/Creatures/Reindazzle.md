@@ -12,7 +12,7 @@ blocks: 36
 tris: 564
 bevel_width: 0.1
 bevel_segments: 2
-palette: ["#A8805A", "#4A3222", "#F2E9DC", "#A8E4FF", "#FF6B6B", "#1E1510"]
+palette: ["#A8805A", "#4A3222", "#F2E9DC", "#A8E4FF", "#E0202C", "#1E1510"]
 roles: [body, second, accent, trim, glow, ink]
 hero: Beam
 vfx: "a soft light (Rare, Effects.luau): the lantern nose glows red and pulses every 2 s (the Light at Mouth), two frost sparkles wink over the antlers every 4 s (the Sparkle at Top) and fine frost glitter drifts off them at 2.5 a second (the Emitter at Top); it bobs gently; in the rig the icicles under each antler swing like chimes, the ears twitch and the ice-bell tail swings, and every 10 s it prances: a hop and a full turn, the ears up, the bell swished and the icicles rung"
@@ -48,7 +48,7 @@ parts:
   # dark deer legs
   - {name: FrontLeg, slot: BodyDark, size: [0.5, 0.625, 0.5], at: [0.5, 0.3125, -0.5], mirror: x}
   - {name: HindLeg, slot: BodyDark, size: [0.5, 0.625, 0.5], at: [0.5, 0.3125, 1], mirror: x}
-  # the cream muzzle standing out of the head's lower front, the lantern nose on it and a small ink smile under the nose
+  # the cream muzzle standing out of the head's lower front, the lantern nose on it (a deep red glow: the coral one rendered pale pink) and a small ink smile under the nose
   - {name: Muzzle, slot: Accessory, size: [1, 0.375, 0.25], at: [0, 1.1875, -1.875]}
   - {name: Nose, slot: Glow, size: [0.5, 0.25, 0.25], at: [0, 1.375, -2.125]}
   - {name: MouthCorner, slot: Eye, size: [0.125, 0.125, 0.125], at: [0.1875, 1.1875, -2.0625], mirror: x}
@@ -150,3 +150,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-19, World 2 worker, two rounds. Round 1: antlers that rose up ran over the Rare height cap at 3.25, so the beams go out, rising 15 degrees, and the icicles hang from under them: the height stays at 3.19 and the silhouette gets its wide T. A six-point flake glyph with four corner cells put the count at 35; the sparkle plus keeps it at 27. Round 2: the ears moved forward on the head so the antler posts have the back of the skull. Overlap 0.995 to 0.996, 470 triangles, 27 blocks, 3.19 studs, three moving objects (the ears and the bell tail). Wanted for: a lantern nose that blinks in the dark under antlers of ice. Still cheap: the glyph is three thin blocks and reads at distance as a mark, not a flake; the bell is small. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, two rounds. Round 1: already in the band at 3.19 studs, so no resize; the face moved to the plate (`glimmer` eyes, amber ringed in umber, blush dots) over a cream muzzle block carrying the lantern nose and a stepped ink smile; a harness bib with an ice sleigh bell, the flank glyph rebuilt as a six-point flake of eighth-stud ice cells (the old plus read as a mark), the icicles under each antler made chimes that swing, the bell tail hung straight from the rump: 36 blocks, the top of the Rare band. Round 2: the glimmer's glint in ice blue sat under the iris and read as a tear, so it is a warm white. Rig: the chimes swing, the ears twitch, the bell swings, it bobs and blinks (six moving things), and every 10 s it prances, a hop and a full turn with the bell swished and the icicles rung. 3.19 studs, overlap 0.989 to 0.996, 564 triangles. Wanted for: a lantern nose that pulses under antlers that chime, dressed for the sleigh. Still cheap: the lit nose renders pale pink rather than red under the white light; the bib's bell is small from the game camera. Status review.
+- 2026-10-21, Polish w2 worker: the lit nose rendered pale pink (a coral glow `#FF6B6B` washes out under emission). The glow is now a deep lantern red `#E0202C`: in the lit view the nose reads red, in the VFX preview it blooms red round a hot core. Nothing else changed: 36 blocks, 564 triangles, overlap 0.989 to 0.996. Honest read: it is a red-nosed reindeer at a glance now; the Effects.luau light at the Mouth keeps its own colour.
