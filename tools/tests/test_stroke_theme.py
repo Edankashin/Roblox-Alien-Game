@@ -61,7 +61,8 @@ class StrokeTheme(unittest.TestCase):
     def test_the_loading_screen_mirrors_them(self):
         source = lint_data.uncomment((ROOT / "src/first/LoadingScreen.client.luau").read_text())
         self.assertIn(f"TEXT_JOIN = {self.block['TextJoin']}", source)
-        self.assertIn(f"SHAPE_JOIN = {self.block['ShapeJoin']}", source)
+        # In block cells (UI Playbook "The loading screen in block cells") no shape has a stroke: a block's border is its ink.
+        self.assertNotIn("SHAPE_JOIN", source)
         self.assertIn(f"TEXT_STROKE = {self.block['Text']}", source)
         self.assertIn(f"PANEL_STROKE = {self.block['Panel']}", source)
 

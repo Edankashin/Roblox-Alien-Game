@@ -62,8 +62,8 @@ class PropsLint(unittest.TestCase):
         self.assertTrue(any("MeadowTree" in f and "no row" in f for f in self.failures()))
 
     def test_a_row_for_an_unknown_prop_fails(self):
-        self.rows()["Bench"] = {"collision": "Hull"}
-        self.assertTrue(any("Bench" in f and "PropNames" in f for f in self.failures()))
+        self.rows()["Gazebo"] = {"collision": "Hull"}
+        self.assertTrue(any("Gazebo" in f and "PropNames" in f for f in self.failures()))
 
     def test_an_unknown_collision_fails(self):
         self.rows()["MeadowRock"]["collision"] = "Mesh"
