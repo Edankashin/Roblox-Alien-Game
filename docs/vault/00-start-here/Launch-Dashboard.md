@@ -30,7 +30,7 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 **Only Ethan**
 - [ ] Tell the Mac session to run the jobs (or approve the card that lets the coordinator message it)
 - [ ] Check the Open Cloud key has the Assets API and `universe-places:write` for this experience
-- [ ] Create the five missing shop products in the Creator Dashboard (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock; [[OWNER-GUIDE]] Part C) and paste their ids, or say to hide them at launch
+- [ ] Create the five missing shop products in the Creator Dashboard (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock; `docs/OWNER-GUIDE.md` Part C) and paste their ids, or say to hide them at launch
 - [ ] Pick the icon and thumbnails from the new set
 - [ ] Play the private game on your phone for ten minutes and say what feels wrong
 - [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
