@@ -5,7 +5,7 @@
 <rect x="30.00" y="74.00" width="132.00" height="28.00" fill="#57F96C"/>
 <text x="96.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="middle">UNCOMMON</text>
 <text x="176.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#6B6F80" text-anchor="start">World 2  |  element Ember  |  status review  |  hero: EmberQuill</text>
-<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 2.75 studs  |  18 blocks  |  292 triangles  |  bevel 0.1 x 2  |  1 stud = 71 px</text>
+<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 2.75 studs  |  18 blocks  |  300 triangles  |  bevel 0.1 x 2  |  1 stud = 71 px</text>
 <text x="1770.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#6B6F80" text-anchor="end">Concept sheet drawn from the spec note's parts table (tools/blocky/sheet.py); blocky style rules: Blocky-Style.md</text>
 <!-- view front -->
 <rect x="30.00" y="130.00" width="300.57" height="428.89" fill="#FFFFFF" stroke="#DDD6C8" stroke-width="1.00"/>
@@ -729,49 +729,53 @@
 <rect x="1116.00" y="859.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <text x="1060.00" y="884.15" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6B6F80" text-anchor="start">open</text>
 <rect x="1182.00" y="815.15" width="112.00" height="56.00" fill="#73365A"/>
-<rect x="1190.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1198.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1202.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1206.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1210.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1262.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1266.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1270.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1274.00" y="835.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1194.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1198.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1198.00" y="839.15" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1202.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1206.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1210.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1214.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1218.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1254.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1258.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1262.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1266.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1270.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1274.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1274.00" y="839.15" width="4.00" height="4.00" fill="#FFFFFF"/>
 <rect x="1278.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1282.00" y="839.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1190.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1194.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1198.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1194.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1198.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1202.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1206.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1210.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1214.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1210.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1214.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1218.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1254.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1258.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1262.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1258.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1262.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1266.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1270.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1274.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1278.00" y="843.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1274.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
+<rect x="1278.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1282.00" y="843.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1194.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1198.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1198.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1202.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
 <rect x="1206.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1210.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1210.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1214.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1258.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
-<rect x="1262.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1262.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1266.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
 <rect x="1270.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
-<rect x="1274.00" y="847.15" width="4.00" height="4.00" fill="#FF8C2E"/>
+<rect x="1274.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1278.00" y="847.15" width="4.00" height="4.00" fill="#1C0F1A"/>
 <rect x="1186.00" y="851.15" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1194.00" y="851.15" width="4.00" height="4.00" fill="#FF9DBB"/>

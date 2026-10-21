@@ -9,7 +9,7 @@ status: review
 element: Iceberg
 height: 3
 blocks: 35
-tris: 460
+tris: 464
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#3FBFB0", "#1F6F68", "#D3E6F5", "#8CC8F0", "#2ED3F7", "#0F2A2E"]
@@ -27,9 +27,9 @@ idle_render: "[[Shellberg_idle.png]]"
 ---
 # Shellberg (Floe), Rare, World 2 Frostbyte
 
-A teal tortoise whose shell is an iceberg, and the iceberg is nine-tenths hidden: all that shows above its white waterline is a stepped peak of snow off to its right and a smaller one on the shelf to its left (no iceberg is symmetric), while the great blue mass of the berg sits below the line, over the tortoise's back, down to its feet. On the small peak a tiny explorer's pennant of light flies from a dark pole, as if it had climbed itself. Icicles hang from the waterline's rim, a six-point frost flake of lit cells glows on each side of the berg, the patient round head pokes out the front with three dark scutes on its crown, and four dark flippers and a stub tail poke out from under. 3 studs to the peak and the pennant's tip (B45: its height is the berg's, never its tier). Concept row in `src/shared/data/Species.luau`: "tortoise, iceberg shell, nine-tenths hidden". Element and effect: [[Roster-Redesign]] section 2. Rules: [[Blocky-Style]].
+A teal tortoise whose shell is an iceberg, and the iceberg is nine-tenths hidden: all that shows above its white waterline is a stepped peak of snow off to its right and a smaller one on the shelf to its left (no iceberg is symmetric), while the great blue mass of the berg sits below the line, over the tortoise's back, down to its feet. On the small peak a tiny explorer's pennant of light flies from a dark pole, as if it had climbed itself. Icicles hang from the waterline's rim, a frost flake of dark teal cells is stamped on each side of the berg, the patient round head pokes out the front with three dark scutes on its crown, and four dark flippers and a stub tail poke out from under. 3 studs to the peak and the pennant's tip (B45: its height is the berg's, never its tier). Concept row in `src/shared/data/Species.luau`: "tortoise, iceberg shell, nine-tenths hidden". Element and effect: [[Roster-Redesign]] section 2. Rules: [[Blocky-Style]].
 
-**What makes a player want it (B46).** A joke, on purpose: it wears the whole iceberg, so the famous hidden nine-tenths is right there in plain view, and it has planted its own flag on top. Beside the Uncommons at the same height it carries more: 35 blocks (the stepped peaks, the hanging icicles, two stamped flakes in eighth-stud lit cells, the scutes, the pennant), its own `crescent` eyes (an ink drop over a lit gold crescent, a teal band of iris), five moving things and a slow pirouette every 12 s that reads from across the snowfield by its waving light.
+**What makes a player want it (B46).** A joke, on purpose: it wears the whole iceberg, so the famous hidden nine-tenths is right there in plain view, and it has planted its own flag on top. Beside the Uncommons at the same height it carries more: 35 blocks (the stepped peaks, the hanging icicles, two stamped flakes in eighth-stud dark teal cells, the scutes, the pennant), its own `crescent` eyes (an ink drop over a lit gold crescent, a teal band of iris), five moving things and a slow pirouette every 12 s that reads from across the snowfield by its waving light.
 
 **Hero block.** The `Peak`, the stepped snow tip above the waterline, four steps of two cells each leaning to one side, with the pennant on top: unique in Frostbyte.
 
@@ -37,7 +37,7 @@ A teal tortoise whose shell is an iceberg, and the iceberg is nine-tenths hidden
 
 **Alien anatomy.** The shell is ice, not bone, and most of it hangs below the waterline it carries round with it; the tortoise is nine-tenths inside its own iceberg, with only the head, the flippers and the tail out.
 
-**World motif (Frostbyte).** The ice facet as steps and points: the berg steps in twice below the line, the peak steps up four times above it, icicles hang from the rim; the six-point frost flake on each side in eighth-stud lit cells; `frozen_water` plates and cracks over the berg.
+**World motif (Frostbyte).** The ice facet as steps and points: the berg steps in twice below the line, the peak steps up four times above it, icicles hang from the rim; the frost flake stamped on each side in eighth-stud dark teal cells; `frozen_water` plates and cracks over the berg.
 
 ## Parts
 
@@ -68,13 +68,14 @@ parts:
   # the summit pennant on the small peak: a dark pole and a lit pennant that waves (it planted its own flag)
   - {name: Pole, slot: BodyDark, size: [0.125, 0.5, 0.125], at: [-1.0625, 2.75, 0.4375], moves: flag, pivot: [-1.0625, 2.5, 0.4375]}
   - {name: Pennant, slot: Glow, size: [0.375, 0.25, 0.125], at: [-1.3125, 2.875, 0.4375], moves: flag, pivot: [-1.0625, 2.5, 0.4375]}
-  # the stamped element glyph: a six-point frost flake of lit cells on each side of the berg (a cross of eighth-stud bars, four diagonal cells)
-  - {name: Glyph, slot: Glow, size: [0.125, 0.625, 0.125], at: [1.3125, 0.8125, 0.6875], mirror: x}
-  - {name: Glyph2, slot: Glow, size: [0.125, 0.125, 0.625], at: [1.3125, 0.8125, 0.6875], mirror: x}
-  - {name: Glyph3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 1.0625, 0.9375], mirror: x}
-  - {name: Glyph4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 1.0625, 0.4375], mirror: x}
-  - {name: Glyph5, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 0.5625, 0.9375], mirror: x}
-  - {name: Glyph6, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 0.5625, 0.4375], mirror: x}
+  # the stamped element glyph: a frost flake in dark teal cells on each side of the berg (a cross of eighth-stud bars, four diagonal cells); lit, the cyan
+  # cells bloomed into dots on the pale berg, dark they read as a stamp
+  - {name: Glyph, slot: BodyDark, size: [0.125, 0.875, 0.125], at: [1.3125, 0.8125, 0.6875], mirror: x}
+  - {name: Glyph2, slot: BodyDark, size: [0.125, 0.125, 0.875], at: [1.3125, 0.8125, 0.6875], mirror: x}
+  - {name: Glyph3, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [1.3125, 1.0625, 0.9375], mirror: x}
+  - {name: Glyph4, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [1.3125, 1.0625, 0.4375], mirror: x}
+  - {name: Glyph5, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [1.3125, 0.5625, 0.9375], mirror: x}
+  - {name: Glyph6, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [1.3125, 0.5625, 0.4375], mirror: x}
 ```
 
 ## Face
@@ -147,9 +148,10 @@ The concept sheet, drawn from the parts table above: [[Shellberg_sheet.svg]] (fl
 
 ## Cells
 
-The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette"): the cell is the face cell, 0.125 studs (8 a stud). Materials: `frozen_water` on the berg (plates parted by cracks, a trapped bubble, no grout, glossy), `snow` on the waterline and the peak (each step two cells tall, so its lip covers the whole side), `ice` on the icicles, the flakes and the pennant in glow cells, skin on the teal head, flippers and tail.
+The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette"): the cell is the face cell, 0.125 studs (8 a stud). Materials: `frozen_water` on the berg (plates parted by cracks, a trapped bubble, no grout, glossy), `snow` on the waterline and the peak (each step two cells tall, so its lip covers the whole side), `ice` on the icicles, the pennant in glow cells, skin on the dark teal flakes, skin on the teal head, flippers and tail.
 
 ## Reviews
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a symmetric berg with a centred peak was the worst shape in the row (0.80 with Dreep, 0.82 with Eekle, 0.79 with Soakum), so the peak leans to its right, the waterline shelves out to its left and a second small peak stands on the shelf. Round 2: a white peak (L* 97) vanished against the backdrop and the iceberg joke with it, so the accent is a tinted snow. Overlap 0.997 to 0.999, 292 triangles, 19 blocks, 3 studs, no moving parts (it breathes, slowly). Wanted for: a tortoise wearing a whole iceberg, the hidden nine-tenths in plain view. Still cheap: the head's back is inside the berg; the feet are four plain blocks. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, three rounds. Round 1: in the band at 3 studs, so no resize; the head grew to 1.5 studs (at 1.25 it fell to 36 percent under the first pennant) with three dark scutes on its crown, icicles hang from the waterline's rim, the flank glyph became a six-point flake of eighth-stud lit cells, the front flippers and the stub tail move, and an explorer's pennant of light flies over the berg: 35 blocks. Round 2: the pennant on the summit put Floe at 0.72 with Snowbun (two tall things at one corner), so it flies from the small shelf peak on its left and the height stays 3. Round 3: the `crescent` eyes' cyan crescent under the dark drop read as tears on the teal head, so the crescent is gold over a deep teal iris band. Rig: the pennant waves, the flippers paddle, the tail wags, it breathes slowly and blinks (five moving things); every 12 s a slow pirouette, a small hop and a full turn with the pennant swished. Overlap 0.997 to 0.999, 460 triangles. Wanted for: a tortoise wearing a whole iceberg with its own flag planted on it, gold-lit eyes and a patient smile. Still cheap: the flank flakes sit low on the berg and read as lit dots from the three-quarter view; the hind flippers are plain blocks. Status review.
+- 2026-10-21, Polish w2 worker: the flank flakes read as lit dots (small cyan glow cells bloomed apart on the pale glossy berg). The flake is now stamped in the dark teal `second`, its cross seven eighths of a stud each way (from five eighths), the four diagonal cells as before, so it reads as one dark frost flake on the ice; the pennant keeps the glow. 35 blocks, 464 triangles, overlap 0.997 to 0.999. Honest read: the flake now reads as a stamp from three-quarter and from the high camera; it is a dark mark rather than a light, so the Rare's light is the pennant and Effects.luau's soft light.

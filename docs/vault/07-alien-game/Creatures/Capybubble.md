@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Bubble
 height: 3.29
-blocks: 31
-tris: 538
+blocks: 32
+tris: 634
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#E0C3A0", "#5C4A2A", "#FFF1D6", "#FF9A2E", "#5FDCFF", "#2B1D12"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Capybubble_sheet.svg]]"
 render: "[[Capybubble_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.985, 0.994, 0.995]
+overlap: [0.994, 0.987, 0.994, 0.994]
 vfx_render: "[[Capybubble_vfx_cells.jpg]]"
 cells_render: "[[Capybubble_tq_cells.jpg]]"
 idle_render: "[[Capybubble_idle.png]]"
@@ -56,9 +56,11 @@ parts:
   - {name: Mouth, slot: Eye, size: [0.25, 0.125, 0.125], at: [0, 0.6875, -2.1875]}
   # small round ears, each one moving part
   - {name: Ear, slot: BodyDark, size: [0.375, 0.25, 0.25], at: [0.8125, 2.125, -1.375], mirror: x, moves: ear, pivot: [0.8125, 2, -1.375]}
-  # the hero: a glossy tangerine on its head, a stem and a two-step leaf that sways
-  - {name: Tangerine, slot: Trim, size: [1, 0.75, 1], at: [0, 2.375, -0.875], shape: ico1}
-  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 2.875, -0.875]}
+  # the hero: a glossy tangerine on its head, squat (sunk an eighth into the crown) and bevelled with a narrower step on top (a voxel round with a soft highlight; as a faceted
+  # icosahedron it read as a gem), a stem and a two-step leaf that sways
+  - {name: Tangerine, slot: Trim, size: [1.25, 1, 1.25], at: [0, 2.25, -0.875], bevel: true}
+  - {name: TangerineTop, slot: Trim, size: [0.75, 0.125, 0.75], at: [0, 2.8125, -0.875]}
+  - {name: Stem, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0, 2.9375, -0.875]}
   - {name: Leaf, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [0.3125, 3.0625, -0.875], rot: [0, 0, 20], moves: leaf, pivot: [0.125, 3, -0.875]}
   - {name: LeafTip, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0.625, 3.1875, -0.875], rot: [0, 0, 20], moves: leaf, pivot: [0.125, 3, -0.875]}
   # the snore bubbles rising from beside the snout up the right side of the head, clear of the face, lit, one floating group
@@ -153,3 +155,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a muzzle block hid the crescent rows, so the muzzle is drawn into the face and only the nose bar stands proud. Round 2: the glyph as a lit plus read as a first-aid cross, so it is a hollow square ring of eighth-stud bars in the glossy tangerine. Overlap 0.994 to 0.997, 458 triangles, 23 blocks, 3.12 studs, three moving objects (the ears, the bubble group). Wanted for: a capybara asleep under a tangerine, snoring bubbles. Still cheap: the bubbles rise on one side only; the torso's fur tufts are faint on tan. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, two rounds. Round 1: already in the band at 3.1 studs, so no resize; the face moved to the plate (`bubble` eyes in aqua over deep teal, blush cheeks) above a blunt cream snout block with the nose bar and a stepped ink smile on it, a spa towel with two tangerine stripes across its back, the tangerine's leaf now its own swaying part: 31 blocks. Round 2: the smallest snore bubble floated just under the right eye and read as a tear, so the bubble chain starts beside the snout and rises clear of the face. Rig: the ears twitch, the leaf sways, the bubbles bob and circle, it breathes and blinks (five moving things), and every 9 s it snorts awake with a hop and a full turn, ears flared and bubbles popping up. 3.29 studs, overlap 0.985 to 0.995, 538 triangles. Wanted for: the calmest thing in the snow, at the spa with a tangerine on its head, glossy aqua eyes and a hop that reads across the field. Still cheap: the tangerine is a faceted orb that reads a little like a gem; the towel's cream sits close to the tan body in value. Status review.
+- 2026-10-21, Polish w2 worker: the tangerine read as a gem (a glossy faceted icosahedron in the metal trim slot). It is now a third bevelled mass, a squat 1.25 x 1 x 1.25 stud round sunk an eighth into the crown, with a narrower step on top under the stem (a voxel round: the bevel strips give it a soft fruit highlight, the flat faces carry the cells), the leaf as before; one more block (32), 634 triangles, height unchanged at 3.29, overlap 0.987 to 0.994; silhouette worst pair with Snorzo 0.66 (Aurelyx). Honest read: a blocky orange with a stem, plainly fruit, no longer a jewel; it is bigger on the head than the gem was, which suits the joke.

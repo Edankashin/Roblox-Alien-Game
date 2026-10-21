@@ -5,7 +5,7 @@
 <rect x="30.00" y="74.00" width="132.00" height="28.00" fill="#B0B0B0"/>
 <text x="96.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="middle">COMMON</text>
 <text x="176.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#6B6F80" text-anchor="start">World 2  |  element Meltwater  |  status review  |  hero: Tip</text>
-<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 2.50 studs  |  10 blocks  |  182 triangles  |  bevel 0.1 x 2  |  1 stud = 75 px</text>
+<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 2.50 studs  |  10 blocks  |  222 triangles  |  bevel 0.1 x 2  |  1 stud = 75 px</text>
 <text x="1770.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#6B6F80" text-anchor="end">Concept sheet drawn from the spec note's parts table (tools/blocky/sheet.py); blocky style rules: Blocky-Style.md</text>
 <!-- view front -->
 <rect x="30.00" y="130.00" width="298.48" height="450.43" fill="#FFFFFF" stroke="#DDD6C8" stroke-width="1.00"/>
@@ -157,14 +157,18 @@
 <rect x="136.11" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="140.80" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="173.65" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
+<rect x="178.34" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="211.18" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="215.87" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="220.57" y="472.51" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="225.26" y="472.51" width="4.69" height="4.69" fill="#FF9DBB"/>
 <rect x="234.64" y="472.51" width="4.69" height="4.69" fill="#FF9DBB"/>
 <rect x="168.96" y="477.21" width="4.69" height="4.69" fill="#162B45"/>
-<rect x="178.34" y="477.21" width="4.69" height="4.69" fill="#162B45"/>
+<rect x="173.65" y="477.21" width="4.69" height="4.69" fill="#FF7F98"/>
+<rect x="178.34" y="477.21" width="4.69" height="4.69" fill="#FF7F98"/>
+<rect x="183.03" y="477.21" width="4.69" height="4.69" fill="#162B45"/>
 <rect x="173.65" y="481.90" width="4.69" height="4.69" fill="#162B45"/>
+<rect x="178.34" y="481.90" width="4.69" height="4.69" fill="#162B45"/>
 <polygon points="197.11,505.36 206.49,524.13 215.87,505.36" fill="#0FB4E0" stroke="#096F8A" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="253.41,524.13 256.99,533.51 268.59,533.51 272.18,524.13 268.59,514.74 256.99,514.74" fill="#0FB4E0" stroke="#096F8A" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="197.11,542.89 290.95,542.89 290.95,533.51 197.11,533.51" fill="#2F5F9F" stroke="#1D3A62" stroke-width="1.00" stroke-linejoin="round"/>
@@ -609,14 +613,18 @@
 <rect x="1080.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1084.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1112.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1116.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1144.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1148.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1152.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1156.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1164.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1108.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
-<rect x="1116.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1112.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1116.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1120.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1112.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1116.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
 <text x="1060.00" y="903.89" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6B6F80" text-anchor="start">open</text>
 <rect x="1182.00" y="834.89" width="112.00" height="56.00" fill="#A9D6F5"/>
 <rect x="1190.00" y="858.89" width="4.00" height="4.00" fill="#162B45"/>
@@ -663,14 +671,18 @@
 <rect x="1202.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1206.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1234.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1238.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1266.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1270.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1274.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1278.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1286.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1230.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
-<rect x="1238.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1234.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1238.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1242.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1234.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1238.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
 <text x="1182.00" y="903.89" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6B6F80" text-anchor="start">half</text>
 <rect x="1304.00" y="834.89" width="112.00" height="56.00" fill="#A9D6F5"/>
 <rect x="1312.00" y="858.89" width="4.00" height="4.00" fill="#162B45"/>
@@ -690,11 +702,15 @@
 <rect x="1308.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1316.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1356.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1360.00" y="870.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1400.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1408.00" y="870.89" width="4.00" height="4.00" fill="#FF9DBB"/>
 <rect x="1352.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
-<rect x="1360.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1356.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1360.00" y="874.89" width="4.00" height="4.00" fill="#FF7F98"/>
+<rect x="1364.00" y="874.89" width="4.00" height="4.00" fill="#162B45"/>
 <rect x="1356.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
+<rect x="1360.00" y="878.89" width="4.00" height="4.00" fill="#162B45"/>
 <text x="1304.00" y="903.89" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6B6F80" text-anchor="start">closed</text>
 <!-- silhouettes -->
 <text x="1060.00" y="956.89" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#1B1F3B" text-anchor="start">Silhouettes at 64 px (black shape, each view in its own frame)</text>

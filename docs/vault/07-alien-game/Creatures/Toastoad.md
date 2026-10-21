@@ -8,8 +8,8 @@ tier: Uncommon
 status: review
 element: Hot spring
 height: 2.75
-blocks: 17
-tris: 308
+blocks: 20
+tris: 338
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#E8713A", "#6E4A3C", "#FFC94D", "#2A1810"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Toastoad_sheet.svg]]"
 render: "[[Toastoad_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.995, 0.996, 0.994]
+overlap: [0.994, 0.996, 0.994, 0.994]
 cells_render: "[[Toastoad_tq_cells.jpg]]"
 idle_render: "[[Toastoad_idle.png]]"
 ---
@@ -49,6 +49,10 @@ parts:
   # the head is the toad: wide and low, bevelled; an amber belly sagging under it
   - {name: Head, slot: Body, size: [2, 1.25, 2], at: [0, 1, 0], bevel: true}
   - {name: Belly, slot: Accessory, size: [1.5, 0.25, 1.25], at: [0, 0.25, -0.125], moves: belly, pivot: [0, 0.375, -0.125]}
+  # a toad's wide smile across the face under the plate: an ink line a stud and a quarter wide, its corners turned up (the plate's small open mouth
+  # was a dot on a 2-stud toad)
+  - {name: Mouth, slot: Eye, size: [1.25, 0.125, 0.125], at: [0, 0.5625, -1.0625]}
+  - {name: MouthCorner, slot: Eye, size: [0.125, 0.125, 0.125], at: [0.6875, 0.6875, -1.0625], mirror: x}
   # two eye bumps on top of the head
   - {name: EyeBump, slot: Body, size: [0.5, 0.375, 0.5], at: [0.375, 1.8125, -0.5], mirror: x, moves: bump, pivot: [0.375, 1.625, -0.5]}
   # the hero: a pack of hot pebbles on its back, two loose pebbles on top, two amber straps over the shoulders
@@ -70,13 +74,13 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `droplet`, an Uncommon design, a dewdrop with a light band at its foot, here a hot-spring aqua iris with an amber band (the colour of its straps and belly), a toad's wet, glossy eye, at 16 pixels a stud on a 1.75 x 0.75 stud plate (28 x 12 pixels, three frames). An `open` mouth with its tongue showing (a toad's), and blush cheeks.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `droplet`, an Uncommon design, a dewdrop with a light band at its foot, here a hot-spring aqua iris with an amber band (the colour of its straps and belly), a toad's wet, glossy eye, at 16 pixels a stud on a 1.75 x 0.75 stud plate (28 x 12 pixels, three frames). No mouth on the plate (`mouth: none`): a toad's wide smile is geometry under it, an ink line a stud and a quarter wide with its corners turned up; blush cheeks.
 
 ```yaml
 eyes:
   key: droplet
   colours: {iris: "#3CC4D8", iris2: accent}
-  mouth: open
+  mouth: none
   cheeks: blush
   plate: [1.75, 0.75]
   at: [0, 0.9375]
@@ -122,3 +126,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a wide low box with two bumps on top overlapped Dreep, Eekle and Floe at 0.74 to 0.79 in the boxed test, so the hind legs splay out past the head and the eye bumps pulled in to the crown's middle, which empties the box's top corners. Overlap 0.995 to 0.997, 280 triangles, 15 blocks, 2.75 studs, no moving parts (it breathes). Wanted for: the Geyser Field's toad carrying its hot spring on its back. Still cheap: the eye bumps carry no eyes (the eyes are on the front, rule 3) and read as nubs; the straps are mostly under the pack. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `droplet`, a hot-spring aqua dewdrop with an amber band at its foot, on a 28 x 12 plate with an `open` mouth showing its tongue and blush; amber `Spot`s mark the outside of each haunch. It had no moving part: the belly under its chin is now the `belly` that swells like a throat sac on the 2.2 s breath, the eye bumps lift in a burst, the two loose pebbles on the pack jiggle out of step (`pebble`, `stone`), it rocks and blinks. Six moving things (five objects, the Uncommon cap, and the blink). Height 2.75 (in band, unchanged), 17 blocks, 308 triangles, overlap 0.994 to 0.996. Wanted for: the toad that carries its hot spring, glossy aqua eyes, a tongue and a throat that puffs. Still weak: the open mouth is four pixels on a two-stud head and reads small for a toad's wide smile (the library has no wide mouth), and the throat sac's swell is mostly hidden under the head from the high camera. Status review.
+- 2026-10-21, Polish w2 worker: the mouth was small for a toad (the plate's four-pixel `open`). The plate's mouth is `none` and the smile is geometry under it: an ink line 1.25 studs wide, an eighth proud of the face, with two corner blocks turned up; 20 blocks (the Uncommon cap), 338 triangles, overlap 0.994 to 0.996; silhouette unchanged. Honest read: a toad's wide grin, much more character; the line is heavy at close range, but it is what reads at the game camera's distance.

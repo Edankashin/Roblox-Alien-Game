@@ -5,7 +5,7 @@
 <rect x="30.00" y="74.00" width="132.00" height="28.00" fill="#3B82F6"/>
 <text x="96.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">RARE</text>
 <text x="176.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#6B6F80" text-anchor="start">World 2  |  element Frost  |  status review  |  hero: Beam</text>
-<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.19 studs  |  36 blocks  |  564 triangles  |  bevel 0.1 x 2  |  1 stud = 61 px</text>
+<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.19 studs  |  36 blocks  |  618 triangles  |  bevel 0.1 x 2  |  1 stud = 61 px</text>
 <text x="1770.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#6B6F80" text-anchor="end">Concept sheet drawn from the spec note's parts table (tools/blocky/sheet.py); blocky style rules: Blocky-Style.md</text>
 <!-- view front -->
 <rect x="30.00" y="130.00" width="311.91" height="364.20" fill="#FFFFFF" stroke="#DDD6C8" stroke-width="1.00"/>
@@ -212,7 +212,7 @@
 <polygon points="170.78,395.56 178.37,395.56 178.37,387.97 170.78,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="193.54,395.56 201.13,395.56 201.13,387.97 193.54,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="178.37,403.15 193.54,403.15 193.54,395.56 178.37,395.56" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="170.78,387.97 201.13,387.97 201.13,372.80 170.78,372.80" fill="#FF6B6B" stroke="#9E4242" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="170.78,387.97 201.13,387.97 201.13,372.80 170.78,372.80" fill="#E0202C" stroke="#8A131B" stroke-width="1.00" stroke-linejoin="round"/>
 <line x1="30.00" y1="463.85" x2="341.91" y2="463.85" stroke="#1B1F3B" stroke-width="2.00"/>
 <text x="185.96" y="489.85" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1B1F3B" text-anchor="middle">FRONT (from -Z)</text>
 <!-- view right -->
@@ -276,7 +276,7 @@
 <polygon points="660.58,395.56 668.17,395.56 668.17,387.97 660.58,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="660.58,403.15 668.17,403.15 668.17,395.56 660.58,395.56" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="592.30,425.91 599.88,425.91 599.88,410.74 592.30,410.74" fill="#A8E4FF" stroke="#688D9E" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="660.58,387.97 675.76,387.97 675.76,372.80 660.58,372.80" fill="#FF6B6B" stroke="#9E4242" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="660.58,387.97 675.76,387.97 675.76,372.80 660.58,372.80" fill="#E0202C" stroke="#8A131B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="417.78,410.74 448.13,410.74 448.13,380.39 417.78,380.39" fill="#A8E4FF" stroke="#688D9E" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="660.58,395.56 668.17,395.56 668.17,387.97 660.58,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="645.41,403.15 660.58,403.15 660.58,380.39 645.41,380.39" fill="#F2E9DC" stroke="#969088" stroke-width="1.00" stroke-linejoin="round"/>
@@ -367,7 +367,7 @@
 <polygon points="953.11,258.99 960.70,258.99 960.70,251.40 953.11,251.40" fill="#A8E4FF" stroke="#688D9E" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="854.48,289.34 862.06,289.34 862.06,281.75 854.48,281.75" fill="#A8E4FF" stroke="#688D9E" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="953.11,289.34 960.70,289.34 960.70,281.75 953.11,281.75" fill="#A8E4FF" stroke="#688D9E" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="892.41,433.50 922.76,433.50 922.76,418.32 892.41,418.32" fill="#FF6B6B" stroke="#9E4242" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="892.41,433.50 922.76,433.50 922.76,418.32 892.41,418.32" fill="#E0202C" stroke="#8A131B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="862.06,342.45 953.11,342.45 953.11,205.87 862.06,205.87" fill="#A8805A" stroke="#684F37" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="957.72,387.97 994.03,387.97 994.03,372.80 957.72,372.80" fill="#A8805A" stroke="#684F37" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="821.15,387.97 857.45,387.97 857.45,372.80 821.15,372.80" fill="#A8805A" stroke="#684F37" stroke-width="1.00" stroke-linejoin="round"/>
@@ -427,7 +427,7 @@
 <line x1="1109.07" y1="175.52" x2="1420.98" y2="175.52" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="1109.07" y1="160.35" x2="1420.98" y2="160.35" stroke="#D2CABB" stroke-width="1.00"/>
 <line x1="1109.07" y1="145.17" x2="1420.98" y2="145.17" stroke="#ECE7DD" stroke-width="0.60"/>
-<polygon points="1249.85,387.97 1280.20,387.97 1280.20,372.80 1249.85,372.80" fill="#FF6B6B" stroke="#9E4242" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1249.85,387.97 1280.20,387.97 1280.20,372.80 1249.85,372.80" fill="#E0202C" stroke="#8A131B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1272.61,395.56 1280.20,395.56 1280.20,387.97 1272.61,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1249.85,395.56 1257.43,395.56 1257.43,387.97 1249.85,387.97" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1257.43,403.15 1272.61,403.15 1272.61,395.56 1257.43,395.56" fill="#1E1510" stroke="#120D09" stroke-width="1.00" stroke-linejoin="round"/>
@@ -587,7 +587,7 @@
 <text x="750.00" y="655.85" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="655.85" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="860.00" y="655.85" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<rect x="164.00" y="663.85" width="10.00" height="10.00" fill="#FF6B6B" stroke="#994040" stroke-width="0.80"/>
+<rect x="164.00" y="663.85" width="10.00" height="10.00" fill="#E0202C" stroke="#86131A" stroke-width="0.80"/>
 <text x="30.00" y="673.85" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Nose</text>
 <text x="180.00" y="673.85" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Glow</text>
 <text x="275.00" y="673.85" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
@@ -779,9 +779,9 @@
 <rect x="1060.00" y="671.85" width="56.00" height="32.00" fill="#A8E4FF" stroke="#648899" stroke-width="1.00"/>
 <rect x="1120.00" y="671.85" width="32.00" height="32.00" fill="#DBDBDB" stroke="#999999" stroke-width="1.00"/>
 <text x="1164.00" y="692.85" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">trim  #A8E4FF  L* 88</text>
-<rect x="1060.00" y="711.85" width="56.00" height="32.00" fill="#FF6B6B" stroke="#994040" stroke-width="1.00"/>
-<rect x="1120.00" y="711.85" width="32.00" height="32.00" fill="#9B9B9B" stroke="#999999" stroke-width="1.00"/>
-<text x="1164.00" y="732.85" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">glow  #FF6B6B  L* 64</text>
+<rect x="1060.00" y="711.85" width="56.00" height="32.00" fill="#E0202C" stroke="#86131A" stroke-width="1.00"/>
+<rect x="1120.00" y="711.85" width="32.00" height="32.00" fill="#737373" stroke="#999999" stroke-width="1.00"/>
+<text x="1164.00" y="732.85" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">glow  #E0202C  L* 48</text>
 <rect x="1060.00" y="751.85" width="56.00" height="32.00" fill="#1E1510" stroke="#120C09" stroke-width="1.00"/>
 <rect x="1120.00" y="751.85" width="32.00" height="32.00" fill="#171717" stroke="#999999" stroke-width="1.00"/>
 <text x="1164.00" y="772.85" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1B1F3B" text-anchor="start">ink  #1E1510  L* 8</text>

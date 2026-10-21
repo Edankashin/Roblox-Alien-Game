@@ -72,13 +72,13 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `button`, a Common design, round copper buttons with two thread holes and a shine (the iris is the copper of the lid and spout), the eyes of a toy kettle, at 16 pixels a stud on a 1.75 x 0.75 stud plate (28 x 12 pixels, three frames). Its mouth is the round whistle, `o`, and blush cheeks. The only `button` in Frostbyte.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `button`, a Common design, here in a deep tea brown (`#4A2A1C`) so the thread holes sink into it and it reads as a glossy dark eye with a shine (in the copper of the lid and spout it read as a toy's button eyes), at 16 pixels a stud on a 1.75 x 0.75 stud plate (28 x 12 pixels, three frames). Its mouth is the whistle, `open` (a small open mouth with its tongue; the `o` read as a diamond), and blush cheeks. The only `button` in Frostbyte.
 
 ```yaml
 eyes:
   key: button
-  colours: {iris: second}
-  mouth: o
+  colours: {iris: "#4A2A1C"}
+  mouth: open
   cheeks: blush
   plate: [1.75, 0.75]
   at: [0, 1]
@@ -124,3 +124,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: the handle's posts ran a quarter stud up into the bar and the merged copper mesh's recalculated normals turned both ends inside out, black in the lit view and invisible in the flat orthographic views (0.998), so the posts now end where the bar begins (a lesson in [[Blocky-Style]]). Overlap 0.996 to 0.998, 208 triangles, 10 blocks, 2.5 studs, one moving object (the steam puff). Wanted for: the camp's kettle, cream and copper on the snow, whistling. Still cheap: the puff is one white icosahedron; the spout's turn is a single tilted block. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), two rounds. Round 1: the house face became the library's `button` with the accent amber iris; the amber squares with their two holes read as dice, so round 2 took the iris to the copper of the lid and spout, which reads as sewn-on toy buttons. The round whistle is the `o` mouth. A smaller `Wisp` puff drifts beside the first (above it, it took the height to 2.75 and the legs to 9 percent, so it stays beside), and a copper foot `Band` rings the enamel over the base. Rig: the lid and knob rattle on the steam's 4 s beat, the bail `handle` swings, the puff bobs and circles, the wisp swells half a beat behind, the kettle rocks 3 degrees and blinks. Five moving things (four objects, the Common cap, and the blink). Height 2.5 (in band, unchanged), 12 blocks, 254 triangles, overlap 0.995 to 0.998. Wanted for: the camp's kettle got up and walked, button-eyed and rattling its lid. Still weak: the button eyes are a toy's and less alive than the other Commons', and the white puffs vanish on a pale backdrop (the Effects puffs carry the steam in the game). Status review.
+- 2026-10-21, Polish w2 worker: the copper button eyes looked like a toy's. Still `button` (the only one in Frostbyte), its iris now a deep tea brown `#4A2A1C`, so the two thread holes sink into it and the eye reads as a glossy dark eye with its shine; the `o` mouth (a diamond at 16 px a stud, the w1_low lesson) became `open`, the whistle with a tongue. 12 blocks, 254 triangles, overlap 0.995 to 0.998. Honest read: alive and cute instead of stitched on; a new Common design was not needed.

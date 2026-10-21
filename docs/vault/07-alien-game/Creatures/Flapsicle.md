@@ -7,7 +7,7 @@ world: 2
 tier: Uncommon
 status: review
 element: Ice
-height: 2.75
+height: 2.88
 blocks: 19
 tris: 402
 bevel_width: 0.1
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Flapsicle_sheet.svg]]"
 render: "[[Flapsicle_tq_cells.jpg]]"
 glb: ""
-overlap: [0.988, 0.994, 0.996, 0.989]
+overlap: [0.99, 0.995, 0.996, 0.99]
 cells_render: "[[Flapsicle_tq_cells.jpg]]"
 idle_render: "[[Flapsicle_idle.png]]"
 ---
@@ -40,9 +40,10 @@ An indigo bat hanging upside down from nothing: a small block of ice floats in t
 
 ```yaml
 parts:
-  # the perch of nothing: a floating block of ice, the feet clamped round it
-  - {name: Perch, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0, 2.625, 0], material: ice, moves: perch, pivot: [0, 2.625, 0]}
-  - {name: Foot, slot: Body, size: [0.25, 0.25, 0.25], at: [0.375, 2.625, 0], mirror: x}
+  # the perch of nothing: a floating bar of ice wider than the body, the feet gripping it from below and curling over its front (a small block
+  # of ice centred on top read as a hat from the front; a long thin bar reads as something it hangs from)
+  - {name: Perch, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 2.75, 0], material: ice, moves: perch, pivot: [0, 2.75, 0]}
+  - {name: Foot, slot: Body, size: [0.25, 0.375, 0.125], at: [0.375, 2.6875, -0.1875], mirror: x}
   # the body hangs under the perch, the head hangs lowest and carries the face
   - {name: Body, slot: Body, size: [1.5, 1, 1.25], at: [0, 2, 0], bevel: true}
   - {name: Belly, slot: Accessory, size: [1, 0.5, 0.125], at: [0, 2, -0.6875]}
@@ -125,3 +126,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: wings hanging down beside the body cleared the head by a hair and the boxed test put it with Dreep, Soakum and Floe at 0.74 to 0.82, so the ice wings spread out and down from the shoulders five studs across (20 degrees under horizontal) with an icicle under each tip, and an icicle under the chin took the ground. Round 2: pale ice wings (L* 90) vanished against the backdrop, so the second colour is a mid ice blue. Overlap 0.992 to 0.998, 354 triangles, 15 blocks, 2.75 studs, four moving objects (the wings, the ears). Wanted for: a bat hanging from nothing, so low its chin rests on the snow. Still cheap: upside down with the face upright, the body over the head can read as a hat; the perch is one small block. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `moonlet`, an ice-blue iris over a pink moon crescent (warm, so it reads as lit, not as a tear), on a 28 x 12 plate with one little fang (`tooth`) and blush; the drawn nose became a pink `Nose` block proud of the plate. Detail: an indigo `Rib` along each ice wing's leading edge (the arm bone; it beats with the wing) and an ice `Tuft` on the chest under the belly patch. Rig: the wings beat slowly, the ears twitch in bursts, the perch of frozen air shimmers, the bat sways on its chin icicle and blinks. Six moving things (five objects, the Uncommon cap, and the blink). Height 2.75 (in band, unchanged), 19 blocks, 402 triangles, overlap 0.988 to 0.996. Wanted for: the night catch, an upside-down bat with moonlit eyes, ice wings that beat and a little fang. Still weak: hanging upside down only reads from the side (from the front the perch looks like a hat), and the ribs merge with the wing edge at a distance. Status review.
+- 2026-10-21, Polish w2 worker: from the front the perch read as a hat (a half-stud ice block centred on top). It is now a bar of ice 2.5 studs long, a quarter thick, wider than the body, and the feet are taller blocks gripping its front, so the bat plainly hangs from something; height 2.88 (from 2.75), 19 blocks, 402 triangles, overlap 0.990 to 0.996. Honest read: from the front it is a bat on a trapeze of ice, not a hat; the bar is pale like the wings, so it reads by shape, not colour.

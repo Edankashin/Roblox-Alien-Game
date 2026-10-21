@@ -7,9 +7,9 @@ world: 2
 tier: Uncommon
 status: review
 element: Snow spray
-height: 3
+height: 3.11
 blocks: 20
-tris: 400
+tris: 406
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#2B3F5C", "#F4F7FA", "#FFA63D", "#141B2B"]
@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Pengoo_sheet.svg]]"
 render: "[[Pengoo_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.998, 0.995, 0.996]
+overlap: [0.997, 0.996, 0.995, 0.997]
 cells_render: "[[Pengoo_tq_cells.jpg]]"
 idle_render: "[[Pengoo_idle.png]]"
 ---
 # Pengoo (Pengoo), Uncommon, World 2 Frostbyte
 
-A round navy penguin with a cream face and belly under a navy hood with a feather tuft, orange goggles on an ink strap pushed up against its crown, a short orange beak between its eyes, two flippers held out and up, and a tiny orange backpack with a cream flap and two straps down its front. It has no feet: it stands on, and belly-slides on, two orange runners. Concept row in `src/shared/data/Species.luau`: "round penguin, tiny backpack, belly-slides everywhere". Element and effect: [[Roster-Redesign]] section 2 (snow spray while it slides; the goggles glint). Rules: [[Blocky-Style]].
+A round navy penguin with a cream face and belly under a navy hood with a feather tuft, orange goggles on an ink strap pushed up onto its crown, a short orange beak between its eyes, two flippers held out and up, and a tiny orange backpack with a cream flap and two straps down its front. It has no feet: it stands on, and belly-slides on, two orange runners. Concept row in `src/shared/data/Species.luau`: "round penguin, tiny backpack, belly-slides everywhere". Element and effect: [[Roster-Redesign]] section 2 (snow spray while it slides; the goggles glint). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** The Uncommon rung exactly: a two-tone body (navy over cream), one secondary block (the backpack) and a second colour in the touch (the orange spray glint), at 2.75 studs to Mitt's 2.5. It is the one that is always going somewhere, sliding on its runners with its pack on.
 
@@ -49,11 +49,12 @@ parts:
   - {name: Crown, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 2.625, 0.25]}
   - {name: Nape, slot: Body, size: [2, 0.625, 0.125], at: [0, 2.1875, 0.9375]}
   - {name: Hood, slot: Body, size: [0.125, 1, 1.25], at: [1.0625, 2, 0.25], mirror: x}
-  - {name: Tuft, slot: Body, size: [0.25, 0.25, 0.25], at: [0, 2.875, 0.25], moves: tuft, pivot: [0, 2.75, 0.25]}
-  # the beak between the eyes (it is the mouth), the goggles pushed up against the crown: an ink strap and two orange lenses
+  - {name: Tuft, slot: Body, size: [0.25, 0.375, 0.25], at: [0, 2.9375, 0.375], rot: [20, 0, 0], shape: cone6, moves: tuft, pivot: [0, 2.75, 0.3125]}
+  # the beak between the eyes (it is the mouth), the goggles pushed up onto the crown: an ink strap across its top and two orange lenses standing
+  # on its front edge (flush with the crown's front they left the crown a flat plate from the high camera)
   - {name: Beak, slot: Accessory, size: [0.5, 0.25, 0.375], at: [0, 1.75, -1.0625]}
-  - {name: Goggles, slot: Eye, size: [1.75, 0.25, 0.25], at: [0, 2.625, -0.5]}
-  - {name: Lens, slot: Accessory, size: [0.5, 0.25, 0.125], at: [0.5, 2.625, -0.6875], mirror: x}
+  - {name: Goggles, slot: Eye, size: [1.75, 0.125, 0.125], at: [0, 2.8125, -0.0625]}
+  - {name: Lens, slot: Accessory, size: [0.5, 0.25, 0.25], at: [0.5, 2.875, -0.25], mirror: x}
   # flippers held out at a tilt, each one moving part
   - {name: Flipper, slot: Body, size: [0.25, 1.25, 0.5], at: [1.5625, 1.6875, 0.125], rot: [0, 0, -70], mirror: x, moves: wing, pivot: [1, 1.5, 0.125]}
   # the hero: a tiny backpack with a cream flap that bounces, and two straps down the front
@@ -125,3 +126,4 @@ The block-cell build ([[Blocky-Style]] "Cells"): the cell is the face cell, 0.12
 
 - 2026-10-19, World 2 worker, two rounds. Round 1: with the cream drawn right round the eyes the house eye's corner cells broke the stamp, so each eye sits in a navy patch the exact size of the stamp, which reads as the penguin's dark hood. Round 2: the beak dropped from the forehead to between the eyes so the smile stays under it; a tail was cut to keep 15 blocks. Round 3 (the silhouette test): as a plain block with its flippers close it overlapped Sabrek, Skadra and Fenrir at 0.73 to 0.78 in the boxed 64 px test, so the flippers went out and up (20 degrees off horizontal, a quarter stud longer): a penguin with its arms up, which leaves the box's corners empty and drops every pair under 0.7. Overlap 0.993 to 0.994, 346 triangles, 15 blocks, 2.75 studs, two moving objects (the flippers). Wanted for: a two-tone penguin always sliding somewhere with its pack on. Still cheap: the runners read as feet from the front; the glint is only in the effects. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), two rounds. The plate puts its eyes on the head's own cells, and its old cream face was drawn in the grid on a navy head, so the head became the cream face (`BodyDark`) under a navy hood. Round 1: a full-width navy crown read as a flat cap on a white cube. Round 2: the crown narrowed to a step, two hood sides cover the back three quarters of the head's sides (the front corners stay cream, so no headphones) and a nape closes the back: a penguin again. Eyes: `twotone`, navy over icy blue with two shines, on a 28 x 12 plate, blush, no drawn mouth (the beak carries it); the goggles' strap is ink so it reads on the cream. A feather `Tuft` on the crown (height 2.75 to 3, its own character: the tuft) sways, the pack bounces, the flippers flap, it waddles and blinks. Five moving things (four objects and the blink). 20 blocks (the Uncommon cap), 400 triangles, overlap 0.995 to 0.998. Wanted for: the busy one, a hooded penguin chick with goggles and a backpack, always about to slide off somewhere. Still weak: the crown step still reads flat from the high camera, and the backpack hides behind it from the front. Status review.
+- 2026-10-21, Polish w2 worker: the crown was a flat navy plate from the high camera (the goggles sat flush with its front). The goggles moved up onto the crown: an ink strap across its top and two orange lenses standing on its front edge, an eighth proud above it; the tuft became a navy `cone6` feather leaning back 20 degrees. Height 3.11 (from 3; the head is still 40 percent), 20 blocks (the Uncommon cap, so nothing was added), 406 triangles, overlap 0.995 to 0.997. Honest read: from the high camera the head now has relief and two bright lenses; the tuft is small and navy and only reads in profile.

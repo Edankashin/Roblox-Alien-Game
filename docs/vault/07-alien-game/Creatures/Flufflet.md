@@ -69,11 +69,11 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `happy`, a Common design, two soft arcs closed in a smile, over a `cat` mouth (a little w) and blush cheeks, the cosiest face on the snow (a ^w^), at 16 pixels a stud on a 1.75 x 0.5625 stud plate (28 x 9 pixels, three frames; its blink flattens the arcs). The only `happy` in Frostbyte.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `beam`, a Common design added for it in the Polish w2 pass, two bold two-pixel arcs closed in a big smile (9 x 5; the `happy` arcs at 7 x 4 read small on its snowball), over a `cat` mouth (a little w) and blush cheeks, the cosiest face on the snow (a ^w^), at 16 pixels a stud on a 1.75 x 0.5625 stud plate (28 x 9 pixels, three frames; its blink flattens the arcs). The only `beam` in the library.
 
 ```yaml
 eyes:
-  key: happy
+  key: beam
   mouth: cat
   cheeks: blush
   plate: [1.75, 0.5625]
@@ -120,3 +120,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 - 2026-10-19, World 2 worker, two rounds. Round 1: the mittens stood upright on the head and read as ears from the front and as mittens from the side; tilting them out put the thumbs over 2.5 studs, so they stay upright. The scarf in the body white vanished against the snowball; in the second blue with coral flecks it reads as a knit. Round 2: the tail hangs from the knot to the ground, so from the front the scarf has a direction. Overlap 0.998 to 1.000, 220 triangles, 10 blocks, 2.5 studs, two moving objects (the mittens). Wanted for: the cosiest thing on the snow, a snowball that is mostly face, dressed for the cold. Still cheap: at ten blocks the mittens are small; the base ball is only read from the side. Status review.
 - 2026-10-20, World 2 roster worker (the ladder review's fix): the head was still a soft cube, so it is 1.25 tall with two cap steps (1.5 then 1 wide), the scarf's knot and tail are one block hanging nearly to the ground, and the mittens grew to three quarters of a stud with bigger thumbs; the face is 10 rows. Overlap 0.998 to 1.000, 220 triangles, 10 blocks, 2.5 studs, two moving objects. Status review.
 - 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `happy` (two soft arcs closed in a smile) over a `cat` mouth and blush cheeks, a ^w^, on a 28 x 9 plate kept clear of the scarf's top; a coral `Knot` and fringe `Stripe` in the accent knit dress the scarf's tail, which now swings as the `scarf` object; the base snowball became the `ball` the body rocks on; the mittens flick out every 5 s. Five moving things (four objects, the Common cap, and the blink). Height 2.5 (in band, unchanged), 12 blocks, 246 triangles, overlap 0.998 to 1. Wanted for: the cosiest face on the snow, a ^w^ in a scarf with mittens for ears. Still weak: the arcs are 7 pixels on a 32-pixel head and could be a pixel bigger, and the ball hardly shows under the scarf, so its rock reads mostly as the whole body tipping. Status review.
+- 2026-10-21, Polish w2 worker: the arc eyes were small. A new Common design, `beam` (the Polish w2 block in `tools/blocky/eyes.py`): the same closed smile at 9 x 5 with two-pixel arcs, 28 percent of the head's width (from 22). 12 blocks, 246 triangles, overlap 0.998 to 1.000. Honest read: the ^w^ now carries from across the snow and is the cosiest face in Frostbyte.
