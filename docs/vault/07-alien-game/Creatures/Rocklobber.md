@@ -8,11 +8,11 @@ tier: Rare
 status: review
 element: Stone
 height: 3.125
-blocks: 35
-tris: 506
+blocks: 48
+tris: 628
 bevel_width: 0.1
 bevel_segments: 2
-palette: ["#C8553D", "#3A3238", "#A39E94", "#E0B04A", "#FFB347", "#1C1418"]
+palette: ["#C8553D", "#3A3238", "#A39E94", "#E0B04A", "#FF8C1A", "#1C1418"]
 roles: [body, second, accent, trim, glow, ink]
 hero: Claw
 vfx: "a soft light (Rare), three layers in Effects.luau: a warm amber light pulsing on its left claw (FrontL) where the gem sits; every 5 s the claws clack and a puff of six grey grit chips falls from that claw; a gold sparkle on the right claw's gem (FrontR) every 3 s. The flourish (every 9 s) raises both boulders overhead, hops and clacks them twice"
@@ -71,6 +71,20 @@ parts:
   - {name: Antenna, slot: BodyDark, size: [0.125, 0.625, 0.125], at: [0.4375, 2.4375, 0.1875], moves: antenna, pivot: [0.4375, 2.125, 0.1875]}
   - {name: AntennaPebble, slot: Accessory, size: [0.375, 0.25, 0.375], at: [0.4375, 2.875, 0.1875], moves: antenna, pivot: [0.4375, 2.125, 0.1875], material: stone}
   - {name: PebbleCap, slot: Accessory, size: [0.25, 0.125, 0.25], at: [0.375, 3.0625, 0.25], moves: antenna, pivot: [0.4375, 2.125, 0.1875], material: stone}
+  # Rare pass w1, the signature piece: a cracked-open geode on the carapace's front left, where the three-quarter camera sees it, a stone cup lined in gold with three lit amber crystals
+  # growing out of it (the crystals throb and pop on the flourish, `geode`)
+  - {name: GeodeBase, slot: Accessory, size: [0.75, 0.125, 0.75], at: [-0.375, 2.0625, -0.5], material: stone}
+  - {name: GeodeWall, slot: Accessory, size: [0.75, 0.25, 0.125], at: [-0.375, 2.25, -0.8125], material: stone}
+  - {name: GeodeWall2, slot: Accessory, size: [0.75, 0.375, 0.125], at: [-0.375, 2.3125, -0.1875], material: stone}
+  - {name: GeodeSide, slot: Accessory, size: [0.125, 0.375, 0.5], at: [-0.6875, 2.3125, -0.5], material: stone}
+  - {name: GeodeSide2, slot: Accessory, size: [0.125, 0.125, 0.5], at: [-0.0625, 2.1875, -0.5], material: stone}
+  - {name: GeodeLining, slot: Trim, size: [0.5, 0.125, 0.5], at: [-0.375, 2.1875, -0.5], material: metal}
+  - {name: Crystal, slot: Glow, size: [0.25, 0.875, 0.25], at: [-0.375, 2.6875, -0.5], shape: cone6, moves: geode, pivot: [-0.375, 2.25, -0.5], material: crystal}
+  - {name: Crystal2, slot: Glow, size: [0.125, 0.5, 0.125], at: [-0.1875, 2.5, -0.6875], moves: geode, pivot: [-0.375, 2.25, -0.5], material: crystal}
+  - {name: Crystal3, slot: Glow, size: [0.125, 0.375, 0.125], at: [-0.5625, 2.4375, -0.3125], moves: geode, pivot: [-0.375, 2.25, -0.5], material: crystal}
+  # Rare pass w1: a lit amber crack across the top of each boulder, the same light as the geode
+  - {name: Crack, slot: Glow, size: [0.375, 0.125, 0.125], at: [1.8125, 2.3125, -0.8125], mirror: x, moves: claw, pivot: [1.25, 1.25, -0.75]}
+  - {name: Crack2, slot: Glow, size: [0.125, 0.125, 0.25], at: [2.0625, 2.3125, -0.625], mirror: x, moves: claw, pivot: [1.25, 1.25, -0.75]}
 ```
 
 ## Face
@@ -108,14 +122,17 @@ rig:
     claw: [{kind: flap, amp: 8, period: 2.6, axis: z}, {kind: wag, amp: 10, period: 5, axis: y, phase: 0.2}]
     leg: [{kind: sway, amp: 10, period: 0.9, axis: x}]
     antenna: [{kind: sway, amp: 14, period: 1.8, axis: x}, {kind: sway, amp: 8, period: 2.7, axis: z, phase: 0.3}]
+    geode: [{kind: pulse, amp: 0.08, period: 2.2}]
     root: [{kind: sway, amp: 3, period: 2.8, axis: z}]
     face: [{kind: blink, period: 4.8}]
   flourish:
     every: 9
-    length: 2.2
+    length: 2.4
     moves:
       - {part: claw, kind: flare, amp: 35, axis: z, at: 0, for: 1.2}
       - {part: root, kind: hop, amp: 0.35, at: 0.2, for: 0.7}
+      - {part: geode, kind: pop, amp: 0.3, at: 0.3, for: 0.6}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 0.4, for: 1.4}
       - {part: claw, kind: swish, amp: 18, axis: y, at: 1.1, for: 1}
       - {part: antenna, kind: swish, amp: 25, axis: x, at: 0.9, for: 1.2}
 ```

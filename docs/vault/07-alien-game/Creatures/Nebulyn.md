@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Star
 height: 3.5
-blocks: 78
-tris: 874
+blocks: 84
+tris: 1006
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#6B4EC2", "#2E2166", "#E66BD2", "#FFD98A", "#FFF3B0", "#100A26"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Nebulyn_sheet.svg]]"
 render: "[[Nebulyn_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.995, 0.997, 0.995]
+overlap: [0.995, 0.996, 0.996, 0.995]
 vfx_render: "[[Nebulyn_vfx_cells.jpg]]"
 cells_render: "[[Nebulyn_tq_cells.jpg]]"
 idle_render: "[[Nebulyn_idle.png]]"
@@ -84,16 +84,16 @@ parts:
   - {name: Star7, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 0.5625, -0.625]}
   - {name: Star8, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.5625, 1.75, -0.125]}
   - {name: Star9, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.75, 1.25]}
-  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375]}
-  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375]}
-  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125]}
-  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875]}
-  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125]}
-  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125]}
-  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125]}
-  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125]}
+  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
   - {name: SparkleB, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.375, 1.25]}
   - {name: SparkleBArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.40625, 1.375, 1.25]}
   - {name: SparkleBArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.59375, 1.375, 1.25]}
@@ -135,6 +135,15 @@ parts:
   - {name: Planet, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.25, 2.9375, -0.25], shape: ico1, moves: planet, pivot: [-1.25, 2.9375, -0.25]}
   - {name: PlanetRing, slot: Trim, size: [0.5, 0.0625, 0.25], at: [-1.25, 2.9375, -0.25], rot: [0, 0, 15], moves: planet, pivot: [-1.25, 2.9375, -0.25]}
   - {name: Fallen, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 0.125, 1.75], shape: ico1, moves: fallen, pivot: [0.75, 0.125, 1.75]}
+  # Rare pass w1, the signature piece: a pet comet that circles the cloud above its brow (at rest over the face's top, flying to its left), a lit head with a magenta spark and a tail of
+  # gold and lit glass cells streaming behind it; the whole object turns about the cloud's centre, so the comet flies round it and
+  # always trails its tail (`comet`)
+  - {name: Comet, slot: Glow, size: [0.375, 0.375, 0.375], at: [-0.5, 3.25, -2], shape: ico1, moves: comet, pivot: [0, 3.25, 0]}
+  - {name: CometSpark, slot: Accessory, size: [0.125, 0.125, 0.125], at: [-0.75, 3.25, -2], moves: comet, pivot: [0, 3.25, 0]}
+  - {name: CometTail, slot: Trim, size: [0.375, 0.25, 0.25], at: [-0.125, 3.25, -2], moves: comet, pivot: [0, 3.25, 0], material: metal}
+  - {name: CometTail2, slot: Glow, size: [0.375, 0.125, 0.125], at: [0.25, 3.3125, -2], moves: comet, pivot: [0, 3.25, 0], material: crystal}
+  - {name: CometTail3, slot: Trim, size: [0.25, 0.125, 0.125], at: [0.5625, 3.375, -2], moves: comet, pivot: [0, 3.25, 0], material: metal}
+  - {name: CometTail4, slot: Glow, size: [0.25, 0.0625, 0.0625], at: [0.8125, 3.40625, -1.96875], moves: comet, pivot: [0, 3.25, 0], material: crystal}
 ```
 
 ## Face
@@ -171,24 +180,32 @@ rig:
   clips:
     tail: [{kind: sway, amp: 8, period: 3.2, axis: y}, {kind: sway, amp: 5, period: 4.8, axis: x, phase: 0.3}]
     puff: [{kind: bob, amp: 0.06, period: 3.2, phase: 0.5}]
+    comet: [{kind: spin, amp: 360, period: 9, axis: y}, {kind: bob, amp: 0.1, period: 2.7}]
+    twinkle: [{kind: pulse, amp: 0.25, period: 1.4}]
+    twinkle2: [{kind: pulse, amp: 0.25, period: 1.9, phase: 0.5}]
     starR: [{kind: bob, amp: 0.12, period: 2.4}, {kind: spin, amp: 360, period: 6, axis: y}]
     starL: [{kind: bob, amp: 0.1, period: 2, phase: 0.5}, {kind: orbit, amp: 0.1, period: 5}]
     planetL: [{kind: orbit, amp: 0.15, period: 7}, {kind: spin, amp: 360, period: 4, axis: y}]
     fallenR: [{kind: pulse, amp: 0.25, period: 1.6}]
-    root: [{kind: squash, amp: 0.04, period: 3.2}]
+    root: [{kind: squash, amp: 0.04, period: 3.2}, {kind: bob, amp: 0.05, period: 4, phase: 0.25}]
     face: [{kind: blink, period: 4.4}]
   flourish:
     every: 12
-    length: 3.2
+    length: 4.2
     moves:
       - {part: root, kind: hop, amp: 0.45, at: 0, for: 1}
+      - {part: comet, kind: turn, amp: 720, axis: y, at: 0, for: 2.4}
+      - {part: comet, kind: hop, amp: 0.25, at: 0.2, for: 1.2}
       - {part: root, kind: turn, amp: 360, at: 0.2, for: 1.8}
       - {part: tail, kind: swish, amp: 25, at: 0.4, for: 1.6}
+      - {part: twinkle, kind: pop, amp: 0.6, at: 0.8, for: 0.6}
       - {part: starR, kind: hop, amp: 0.3, at: 1, for: 1}
+      - {part: twinkle2, kind: pop, amp: 0.6, at: 1.2, for: 0.6}
       - {part: starL, kind: hop, amp: 0.3, at: 1.3, for: 1}
       - {part: planetL, kind: pop, amp: 0.3, at: 1.6, for: 1}
       - {part: fallenR, kind: hop, amp: 0.4, at: 2, for: 1}
       - {part: puff, kind: pop, amp: 0.2, at: 2.2, for: 0.8}
+      - {part: root, kind: squash, amp: 0.12, axis: y, at: 3.2, for: 0.8}
 ```
 
 ## Build

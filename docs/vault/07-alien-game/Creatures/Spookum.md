@@ -8,8 +8,8 @@ tier: Epic
 status: review
 element: Shadow
 height: 3.44
-blocks: 62
-tris: 790
+blocks: 85
+tris: 1032
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#E9E6FF", "#5B4A8A", "#FF9F1C", "#B89B5A", "#9D6BFF", "#1B1430"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Spookum_sheet.svg]]"
 render: "[[Spookum_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.996, 0.997, 0.995]
+overlap: [0.994, 0.993, 0.998, 0.994]
 vfx_render: "[[Spookum_vfx_cells.jpg]]"
 cells_render: "[[Spookum_tq_cells.jpg]]"
 idle_render: "[[Spookum_idle.png]]"
@@ -47,11 +47,11 @@ A round ghost with a pumpkin's grin, 3.44 studs (B45: it was 3.91): a soft lilac
 parts:
   # the body: one soft lilac-white block, the face plate and the grin on its front; a sheet's round from blocks (Polish w1): a flank bulge
   # proud of each side and three narrowing steps on top (the dome, the crown in its brass band, the cap), so it reads as a ghost's dome
-  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true}
-  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x}
-  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0]}
+  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true, material: nebula}
+  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x, material: nebula}
+  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0], material: nebula}
   - {name: CrownBand, slot: Trim, size: [1.25, 0.0625, 1.25], at: [0, 2.53125, 0], material: metal}
-  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0]}
+  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0], material: nebula}
   - {name: Cap, slot: Body, size: [0.625, 0.125, 0.625], at: [0, 2.8125, 0]}
   # the hero: a brass pumpkin stem with a drooping curl and a dusk-violet leaf on the crown (they sway)
   - {name: Stem, slot: Trim, size: [0.375, 0.375, 0.375], at: [0.1875, 3.0625, 0], moves: stem, pivot: [0, 2.875, 0]}
@@ -111,6 +111,31 @@ parts:
   - {name: Emblem3, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.78125, 1.0625]}
   - {name: EmblemStem, slot: BodyDark, size: [0.125, 0.1875, 0.125], at: [0, 1.96875, 1.0625]}
   - {name: EmblemEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [0.15625, 1.59375, 1.15625], mirror: x}
+  # Rare pass w1, the signature piece: a ring of three floating candles circling the dome, pumpkin-orange wax with cream drips on brass dishes, lit violet
+  # glass flames, like a haunted candelabra that follows it; the ring turns slowly and the flames flare on the flourish (`candles`)
+  - {name: Candle0, slot: Accessory, size: [0.25, 0.375, 0.25], at: [1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish0, slot: Trim, size: [0.375, 0.0625, 0.375], at: [1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip0, slot: Body, size: [0.0625, 0.125, 0.0625], at: [1.34375, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame0, slot: Glow, size: [0.125, 0.25, 0.125], at: [1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  - {name: Candle1, slot: Accessory, size: [0.25, 0.375, 0.25], at: [-1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish1, slot: Trim, size: [0.375, 0.0625, 0.375], at: [-1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip1, slot: Body, size: [0.0625, 0.125, 0.0625], at: [-1.03125, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame1, slot: Glow, size: [0.125, 0.25, 0.125], at: [-1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  - {name: Candle2, slot: Accessory, size: [0.25, 0.375, 0.25], at: [0, 2.75, 1.375], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish2, slot: Trim, size: [0.375, 0.0625, 0.375], at: [0, 2.53125, 1.375], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip2, slot: Body, size: [0.0625, 0.125, 0.0625], at: [0.15625, 2.875, 1.34375], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame2, slot: Glow, size: [0.125, 0.25, 0.125], at: [0, 3.0625, 1.375], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  # Rare pass w1: a spectral wisp curling up off the back between the ribs, lit violet glass (it sways like a sheet in a draught)
+  - {name: Wisp, slot: Glow, size: [0.25, 0.25, 0.125], at: [0, 2.125, 1.1875], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: Wisp2, slot: Glow, size: [0.1875, 0.25, 0.125], at: [0.03125, 2.375, 1.3125], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: Wisp3, slot: Glow, size: [0.125, 0.1875, 0.125], at: [0.0625, 2.59375, 1.4375], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: WispTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.125, 2.75, 1.5625], moves: wisp, pivot: [0, 2, 1.1875]}
+  # Rare pass w1: a band of lit violet glass cells round the sheet's waist over the hem, where the ghost fades into its glow
+  - {name: Waist, slot: Glow, size: [0.0625, 0.125, 1.75], at: [1.03125, 0.8125, 0], mirror: x, material: crystal}
+  - {name: WaistBack, slot: Glow, size: [1.75, 0.125, 0.0625], at: [0, 0.8125, 1.03125], material: crystal}
+  # Rare pass w1: two dusk-violet folds down each flank bulge, so the sheet reads as draped cloth from the three-quarter view
+  - {name: Fold, slot: BodyDark, size: [0.0625, 0.75, 0.125], at: [1.15625, 1.375, -0.375], mirror: x}
+  - {name: Fold2, slot: BodyDark, size: [0.0625, 0.5, 0.125], at: [1.15625, 1.25, 0.375], mirror: x}
 ```
 
 ## Face
@@ -149,17 +174,22 @@ rig:
     hem: [{kind: sway, amp: 5, period: 2, axis: x}, {kind: sway, amp: 4, period: 2.6, axis: z, phase: 0.25}]
     stem: [{kind: sway, amp: 8, period: 2.4, axis: z}]
     lanternL: [{kind: bob, amp: 0.15, period: 2}, {kind: orbit, amp: 0.12, period: 6}, {kind: spin, amp: 360, period: 5, axis: y}]
-    root: [{kind: squash, amp: 0.04, period: 3}]
+    candles: [{kind: spin, amp: 360, period: 14, axis: y}, {kind: bob, amp: 0.06, period: 2.2}]
+    wisp: [{kind: sway, amp: 12, period: 2.8, axis: z}, {kind: sway, amp: 8, period: 3.7, axis: x, phase: 0.4}]
+    root: [{kind: squash, amp: 0.04, period: 3}, {kind: bob, amp: 0.06, period: 3.6, phase: 0.3}]
     face: [{kind: blink, period: 4}]
   flourish:
     every: 10
-    length: 2.2
+    length: 2.4
     moves:
       - {part: root, kind: squash, amp: 0.15, at: 0, for: 0.4}
       - {part: root, kind: hop, amp: 0.6, at: 0.3, for: 0.8}
+      - {part: candles, kind: hop, amp: 0.25, at: 0.3, for: 1}
       - {part: root, kind: turn, amp: 360, at: 0.4, for: 1.6}
+      - {part: candles, kind: turn, amp: -360, axis: y, at: 0.4, for: 1.8}
       - {part: arm, kind: flare, amp: 30, at: 0.3, for: 1.2}
       - {part: hem, kind: swish, amp: 15, at: 0.5, for: 1}
+      - {part: wisp, kind: swish, amp: 20, axis: z, at: 0.6, for: 1.2}
       - {part: lanternL, kind: hop, amp: 0.3, at: 0.8, for: 0.9}
 ```
 

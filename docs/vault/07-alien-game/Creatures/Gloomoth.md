@@ -8,11 +8,11 @@ tier: Epic
 status: review
 element: Crystal
 height: 3.4375
-blocks: 45
-tris: 730
+blocks: 65
+tris: 970
 bevel_width: 0.125
 bevel_segments: 2
-palette: ["#8C6FB5", "#3B2454", "#D9C8FF", "#E8C45A", "#E08CFF", "#140C21"]
+palette: ["#8C6FB5", "#3B2454", "#D9C8FF", "#E8C45A", "#B832E8", "#140C21"]
 roles: [body, second, accent, trim, glow, ink]
 hero: ForeWing
 vfx: "kept on the body (Epic), five layers in Effects.luau: a lilac glint twinkles on the left wing (BackL) and a pale blue one on the right (BackR) every 3 s, a slow lilac dust drifts down from the back at 4 a second, a violet light pulses on the back, and the signature: every 7 s and on the flourish the wings shake out a burst of fourteen pink prism sparkles. The flourish (every 10 s) is a wing-shake: a hop, the fore and hind wings flared, the antennae swishing and the gold shard leaping"
@@ -82,6 +82,18 @@ parts:
   # the smaller hind wings, low behind, 15 degrees up and pitched 15 degrees the same way, a plum edge on each (they beat a little behind)
   - {name: HindWing, slot: Accessory, size: [1.25, 0.125, 1.5], at: [1.375, 1.6875, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   - {name: HindEdge, slot: BodyDark, size: [0.125, 0.1875, 1.5], at: [1.96875, 1.84375, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625]}
+  # Rare pass w1, the signature piece: stained-glass wings, panes of lit orchid glass and gold glass laid on each fore wing round its
+  # eyespot and on each hind wing, the lilac wing between them the leading; they beat with the wing and flash on the flourish
+  - {name: Pane0, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.1875, 1.8125, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane1, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.09375, 2, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane2, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1, 2.1875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane3, slot: Trim, size: [0.25, 0.0625, 0.25], at: [2.3125, 2.34375, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane4, slot: Glow, size: [0.25, 0.0625, 0.25], at: [2.125, 2.71875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane5, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.875, 2.0625, -0.21875], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane6, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.65625, 2.5625, 0.90625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: HindPane0, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.625, 1.75, 1.25], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
+  - {name: HindPane1, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.5625, 1.9375, 1.96875], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
+  - {name: HindPane2, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.125, 1.71875, 1.59375], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   # alien anatomy: a shard of gold crystal circling over its back
   - {name: Shard, slot: Trim, size: [0.25, 0.375, 0.25], at: [0, 3, 0.75], shape: ico1, moves: shard, pivot: [0, 3, 0.75], material: crystal}
 ```
@@ -118,21 +130,24 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the fore wings beat, the hi
 ```yaml
 rig:
   clips:
-    wing: [{kind: flap, amp: 18, period: 1.8, axis: z}]
+    wing: [{kind: flap, amp: 18, period: 1.8, axis: z}, {kind: sway, amp: 4, period: 3.6, axis: x, phase: 0.2}]
     hindwing: [{kind: flap, amp: 12, period: 1.8, axis: z, phase: 0.2}]
     antenna: [{kind: sway, amp: 9, period: 2.8, axis: z}, {kind: sway, amp: 6, period: 3.7, axis: x, phase: 0.35}]
     shard: [{kind: orbit, amp: 0.3, period: 5}, {kind: spin, amp: 360, period: 3, axis: y}, {kind: bob, amp: 0.08, period: 2.5}]
-    root: [{kind: squash, amp: 0.03, period: 3}]
+    root: [{kind: squash, amp: 0.03, period: 3}, {kind: bob, amp: 0.05, period: 1.8, phase: 0.3}]
     face: [{kind: blink, period: 5}]
   flourish:
     every: 10
-    length: 2.2
+    length: 2.5
     moves:
       - {part: root, kind: hop, amp: 0.3, at: 0, for: 0.7}
-      - {part: wing, kind: flare, amp: 30, axis: z, at: 0, for: 1.2}
-      - {part: hindwing, kind: flare, amp: 20, axis: z, at: 0.15, for: 1.1}
+      - {part: wing, kind: flare, amp: 35, axis: z, at: 0, for: 1.2}
+      - {part: hindwing, kind: flare, amp: 25, axis: z, at: 0.15, for: 1.1}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 0.3, for: 1.6}
       - {part: antenna, kind: swish, amp: 15, axis: z, at: 0.6, for: 1.2}
       - {part: shard, kind: hop, amp: 0.35, at: 0.9, for: 0.9}
+      - {part: shard, kind: pop, amp: 0.3, at: 1.2, for: 0.6}
+      - {part: wing, kind: swish, amp: 12, axis: z, at: 1.4, for: 1}
 ```
 
 ## Build

@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Ember
 height: 3
-blocks: 35
-tris: 578
+blocks: 41
+tris: 650
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FF7A30", "#FFF1DD", "#4A2433", "#FFC940", "#FFA53D", "#24141A"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Sparkfox_sheet.svg]]"
 render: "[[Sparkfox_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.997, 0.998, 0.994]
+overlap: [0.996, 0.996, 0.997, 0.996]
 vfx_render: "[[Sparkfox_vfx_cells.jpg]]"
 cells_render: "[[Sparkfox_tq_cells.jpg]]"
 idle_render: "[[Sparkfox_idle.png]]"
@@ -70,6 +70,15 @@ parts:
   - {name: BrushTip2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.9375, 2.75, 2.5625], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
   # alien anatomy: a drop of glowing paint floating free beside the brush
   - {name: Drop, slot: Glow, size: [0.25, 0.375, 0.25], at: [1.5, 2.1875, 2.75], shape: ico1, moves: float, pivot: [1.5, 2.1875, 2.75]}
+  # Rare pass w1, the signature piece: a painter's palette floating at its left shoulder, a plum board held up to face the front, tipped back 20 degrees toward the
+  # camera with four dabs of paint on it (lit amber, cream, gold, orange) and a gold thumb ring; it bobs and turns, and leaps with the
+  # flourish (`palette`)
+  - {name: Palette, slot: Accessory, size: [0.75, 0.125, 0.625], at: [-1.5, 2.625, -1.5], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5]}
+  - {name: Dab0, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.6875, 2.5, -1.6875], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5]}
+  - {name: Dab1, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [-1.3125, 2.5, -1.6875], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5]}
+  - {name: Dab2, slot: Trim, size: [0.125, 0.125, 0.125], at: [-1.3125, 2.875, -1.5625], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5]}
+  - {name: Dab3, slot: Body, size: [0.125, 0.125, 0.125], at: [-1.6875, 2.875, -1.5625], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5]}
+  - {name: ThumbRing, slot: Trim, size: [0.125, 0.125, 0.25], at: [-1.9375, 2.625, -1.5], rot: [-70, 0, 0], moves: palette, pivot: [-1.5, 2.625, -1.5], material: metal}
   # the stamped element glyph: a gold pixel flame on each flank (rows of eighth-stud cells, bottom to top)
   - {name: Flame, slot: Trim, size: [0.125, 0.125, 0.375], at: [0.8125, 0.6875, 0.8125], mirror: x}
   - {name: Flame2, slot: Trim, size: [0.125, 0.25, 0.625], at: [0.8125, 0.875, 0.8125], mirror: x}
@@ -112,16 +121,19 @@ rig:
     ear: [{kind: wag, amp: 14, period: 4, axis: z}, {kind: sway, amp: 5, period: 2.6, axis: x, phase: 0.3}]
     tail: [{kind: sway, amp: 14, period: 2.2, axis: z}, {kind: sway, amp: 6, period: 3.3, axis: x, phase: 0.25}]
     float: [{kind: bob, amp: 0.12, period: 2}, {kind: orbit, amp: 0.08, period: 4}]
+    palette: [{kind: bob, amp: 0.1, period: 2.6, phase: 0.4}, {kind: sway, amp: 8, period: 3.4, axis: y}]
     root: [{kind: squash, amp: 0.03, period: 2.4}]
     face: [{kind: blink, period: 4.4}]
   flourish:
     every: 8
-    length: 2
+    length: 2.2
     moves:
       - {part: root, kind: hop, amp: 0.3, at: 0.1, for: 0.6}
       - {part: root, kind: turn, amp: 360, axis: y, at: 0.1, for: 1.4}
       - {part: tail, kind: swish, amp: 30, axis: z, at: 0.4, for: 1.4}
       - {part: ear, kind: flare, amp: 20, axis: z, at: 0.2, for: 0.8}
+      - {part: palette, kind: hop, amp: 0.3, at: 0.3, for: 0.8}
+      - {part: palette, kind: turn, amp: 360, axis: y, at: 0.5, for: 1.2}
       - {part: float, kind: hop, amp: 0.4, at: 0.8, for: 0.8}
 ```
 

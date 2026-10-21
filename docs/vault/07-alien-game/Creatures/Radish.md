@@ -8,20 +8,20 @@ tier: Cosmic
 status: review
 element: Sun
 height: 3.44
-blocks: 155
-tris: 1806
+blocks: 181
+tris: 2182
 bevel_width: 0.03125
 bevel_segments: 2
-palette: ["#D7265C", "#FFF0D9", "#2CC5B2", "#FFB21E", "#FFE36B", "#2A1530"]
+palette: ["#D7265C", "#FFF0D9", "#2CC5B2", "#FFB21E", "#FFC21A", "#2A1530"]
 roles: [body, second, accent, trim, glow, ink]
-glow_cycle: ["#FFE36B", "#FF9F45", "#FFF8DC"]
+glow_cycle: ["#FFC21A", "#FF8A1F", "#FFE9A8"]
 hero: RingT
 vfx: "to the sky: the rays, the orb, the motes, the forehead gem, the pendant and the wing tips glow and step through gold, amber and white every 2 s; the halo turns once in 12 s; gold motes circle the shoulders; a ground ring of light; a sunlight trail while it hovers; the flourish (every 12 s) is a hop and a full turn with the wings flared, the disk popping and the orb leaping, the moment Effects.luau can hang a flare and a column of light on (World.RigAnimator.OnFlourish)"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Radish_sheet.svg]]"
 render: "[[Radish_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.993, 0.997, 0.996]
+overlap: [0.995, 0.989, 0.992, 0.995]
 vfx_render: "[[Radish_vfx_cells.jpg]]"
 cells_render: "[[Radish_tq_cells.jpg]]"
 idle_render: "[[Radish_idle.png]]"
@@ -46,7 +46,7 @@ A small radish that hovers, 3.44 studs tall (B45: every alien stands 2 to 3.5 st
 parts:
   # the radish: a bevelled head with the face plate, a bulb under it with a girdle of cells, a crown step over it, five root steps from red to cream to a curl
   - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2, 0], bevel: true}
-  - {name: Bulb, slot: Body, size: [1.5, 0.5, 1.5], at: [0, 1, 0], bevel: true}
+  - {name: Bulb, slot: Body, size: [1.5, 0.5, 1.5], at: [0, 1, 0], bevel: true, material: nebula}
   # the bulb's girdle: a ring of gold and turquoise cells round its upper step (the collar covers the front), cream lenticel dashes under it
   - {name: Girdle, slot: Trim, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.125, -0.5], mirror: x, material: metal}
   - {name: Girdle1, slot: Accessory, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.125, -0.25], mirror: x}
@@ -61,7 +61,7 @@ parts:
   - {name: BulbDash, slot: BodyDark, size: [0.0625, 0.0625, 0.25], at: [0.78125, 0.90625, 0.125], mirror: x}
   - {name: BulbDash2, slot: BodyDark, size: [0.0625, 0.0625, 0.25], at: [0.78125, 0.84375, -0.375], mirror: x}
   - {name: Crown, slot: Body, size: [1.5, 0.125, 1.25], at: [0, 2.8125, 0.0625]}
-  - {name: Root, slot: Body, size: [0.875, 0.125, 0.875], at: [0, 0.6875, 0]}
+  - {name: Root, slot: Body, size: [0.875, 0.125, 0.875], at: [0, 0.6875, 0], material: nebula}
   - {name: Root2, slot: BodyDark, size: [0.625, 0.125, 0.625], at: [0, 0.5625, 0]}
   - {name: Root3, slot: BodyDark, size: [0.375, 0.125, 0.375], at: [0, 0.4375, 0], material: wood}
   - {name: RootTip, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0, 0.3125, 0], material: wood}
@@ -110,6 +110,24 @@ parts:
   # the floating accessories: a sun orb over the crown's front, two motes circling at the shoulders
   - {name: Orb, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 3.125, -0.25], shape: ico1, moves: orb, pivot: [0, 3.125, -0.25]}
   - {name: Mote, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 2.6875, -0.375], mirror: x, shape: ico1, moves: mote, pivot: [1.3125, 2.6875, -0.375]}
+  # Rare pass w1, the signature piece: a ring of orbiting sunstones, eight lit suns strung with gold beads on a ring tilted 14 degrees
+  # round the root; it circles the other way to the disk, wobbles and rises with the flourish (one moving object, `sunstone`)
+  - {name: Sunstone0, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.375, 1.125, 0], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone1, slot: Trim, size: [0.25, 0.125, 0.25], at: [1.25, 1.0625, 0.5], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone2, slot: Glow, size: [0.25, 0.25, 0.25], at: [1, 1, 1], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone3, slot: Trim, size: [0.25, 0.125, 0.25], at: [0.5, 0.875, 1.25], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone4, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 0.75, 1.375], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone5, slot: Trim, size: [0.25, 0.125, 0.25], at: [-0.5, 0.625, 1.25], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone6, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1, 0.5, 1], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone7, slot: Trim, size: [0.25, 0.125, 0.25], at: [-1.25, 0.4375, 0.5], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone8, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.375, 0.375, 0], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone9, slot: Trim, size: [0.25, 0.125, 0.25], at: [-1.25, 0.4375, -0.5], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone10, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1, 0.5, -1], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone11, slot: Trim, size: [0.25, 0.125, 0.25], at: [-0.5, 0.625, -1.25], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone12, slot: Glow, size: [0.25, 0.25, 0.25], at: [0, 0.75, -1.375], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone13, slot: Trim, size: [0.25, 0.125, 0.25], at: [0.5, 0.875, -1.25], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
+  - {name: Sunstone14, slot: Glow, size: [0.25, 0.25, 0.25], at: [1, 1, -1], moves: sunstone, pivot: [0, 0.75, 0], shape: ico1}
+  - {name: Sunstone15, slot: Trim, size: [0.25, 0.125, 0.25], at: [1.25, 1.0625, -0.5], moves: sunstone, pivot: [0, 0.75, 0], material: metal}
   # the sun disk: a ring of eighth-stud cells behind the head with eight stepped rays, turning on its centre (the hero, `RingT`)
   - {name: RingB9, slot: Trim, size: [1, 0.125, 0.125], at: [0, 0.6875, 1], moves: halo, pivot: [0, 1.875, 1], material: metal}
   - {name: RingB8, slot: Trim, size: [1.5, 0.125, 0.125], at: [0, 0.8125, 1], moves: halo, pivot: [0, 1.875, 1], material: metal}
@@ -141,6 +159,15 @@ parts:
   - {name: Ray315b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.1875, 3.0625, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
   - {name: Ray225, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.0625, 0.8125, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
   - {name: Ray225b, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.1875, 0.6875, 1], mirror: x, moves: halo, pivot: [0, 1.875, 1]}
+  # Rare pass w1: a corona of lit glass cells between the rays, so the disk reads as a sun from across the meadow
+  - {name: Corona0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 3.1875, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona1, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 2.4375, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona2, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.3125, 1.3125, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 0.5625, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona4, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5625, 0.5625, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona5, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.3125, 1.3125, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona6, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.3125, 2.4375, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
+  - {name: Corona7, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5625, 3.1875, 1], moves: halo, pivot: [0, 1.875, 1], material: crystal}
   # the wings of the winged sun: four feather rows, lit tips; each wing turns on its root to beat. Polish w1: the roots start just outside
   # the ring's rim (x 1.3125, the ring's outer edge is 1.25) and the wings sit a quarter stud behind its plane, so from the side and the
   # three-quarter view the ring and the wings are two clean layers, the wings springing from the disk's edge like the winged sun's
@@ -151,6 +178,8 @@ parts:
   - {name: WingTip, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.375, 2.4375, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
   - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.25, 2.3125, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
   - {name: WingTip3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2, 2.1875, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125]}
+  # Rare pass w1: a fifth feather row of lit glass under each wing, so the wings read as stained glass when they beat
+  - {name: Wing5, slot: Glow, size: [0.25, 0.125, 0.0625], at: [1.4375, 1.9375, 1.28125], mirror: x, moves: wing, pivot: [1.3125, 2.25, 1.28125], material: crystal}
 ```
 
 ## Face
@@ -189,22 +218,29 @@ rig:
     wing: [{kind: flap, amp: 14, period: 2.8, axis: z}, {kind: sway, amp: 6, period: 5.6, axis: y, phase: 0.25}]
     orb: [{kind: bob, amp: 0.12, period: 2.4}, {kind: spin, amp: 360, period: 6, axis: y}]
     mote: [{kind: orbit, amp: 0.2, period: 3.6}, {kind: bob, amp: 0.08, period: 1.8, phase: 0.5}]
+    sunstone: [{kind: spin, amp: -360, period: 9, axis: y}, {kind: sway, amp: 7, period: 4.5, axis: x}, {kind: bob, amp: 0.06, period: 3, phase: 0.5}]
     leaf: [{kind: sway, amp: 8, period: 3.2, axis: x}]
     frond: [{kind: sway, amp: 10, period: 2.6, axis: z, phase: 0.3}]
     gem: [{kind: pulse, amp: 0.2, period: 2}]
     pendant: [{kind: sway, amp: 12, period: 1.9, axis: x}]
-    root: [{kind: bob, amp: 0.08, period: 3}]
+    root: [{kind: bob, amp: 0.08, period: 3}, {kind: sway, amp: 2, period: 6, axis: z, phase: 0.2}]
     face: [{kind: blink, period: 4.6}]
   flourish:
-    every: 12
-    length: 3.2
+    every: 14
+    length: 4.4
     moves:
       - {part: root, kind: hop, amp: 0.4, at: 0, for: 0.9}
+      - {part: sunstone, kind: hop, amp: 0.3, at: 0, for: 1.6}
+      - {part: sunstone, kind: turn, amp: -720, axis: y, at: 0, for: 2.2}
       - {part: root, kind: turn, amp: 360, at: 0.15, for: 1.5}
-      - {part: wing, kind: flare, amp: 30, at: 0.3, for: 1.4}
-      - {part: halo, kind: pop, amp: 0.18, at: 1.4, for: 1}
+      - {part: wing, kind: flare, amp: 35, at: 0.3, for: 1.6}
+      - {part: halo, kind: pop, amp: 0.2, at: 1.4, for: 1}
+      - {part: halo, kind: turn, amp: 180, axis: z, at: 1.4, for: 1.6}
+      - {part: gem, kind: pop, amp: 0.4, at: 1.6, for: 0.6}
       - {part: orb, kind: hop, amp: 0.35, at: 1.8, for: 1}
       - {part: frond, kind: swish, amp: 18, at: 2, for: 1.2}
+      - {part: leaf, kind: flare, amp: 14, axis: x, at: 2.2, for: 1}
+      - {part: pendant, kind: swish, amp: 20, axis: x, at: 2.6, for: 1.4}
 ```
 
 ## Build

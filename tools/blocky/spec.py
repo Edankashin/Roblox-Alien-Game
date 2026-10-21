@@ -75,8 +75,10 @@ RESERVED_MOVES = ("root", "face")              # rig keys that are not parts: th
 # old format waiting for its resize pass, and gets the B45 and B46 checks as "pending" warnings (Blocky-Style "How a roster worker applies B46").
 BAND_HEIGHT = (2.0, 3.5)
 # rule 6 at fixed height: more and smaller blocks as the tier climbs (Blocky-Style section 6)
-BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 36), "Epic": (32, 64), "Legendary": (60, 120), "Cosmic": (110, 200),
-             "Secret": (110, 200)}
+# Rare pass (2026-10-21, "make the rare aliens 1000x cooler"): the tops of the Rare to Secret bands rose so a signature piece, lit cells and
+# layered detail fit at the same height (Rare 36 to 56, Epic 64 to 90, Legendary 120 to 150, Cosmic and Secret 200 to 240)
+BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 56), "Epic": (32, 90), "Legendary": (60, 150), "Cosmic": (110, 240),
+             "Secret": (110, 240)}
 # rule 2 at fixed height: a detail block's faces lie on the half grid, and from Epic up on the sixteenth grid (smaller blocks, more of them)
 DETAIL_GRID = {"Common": 0.125, "Uncommon": 0.125, "Rare": 0.125, "Epic": 0.0625, "Legendary": 0.0625, "Cosmic": 0.0625, "Secret": 0.0625}
 # rule 8, the animation ladder: moving things at least (each moving object with a clip, plus the blink on the face plate), and the object cap

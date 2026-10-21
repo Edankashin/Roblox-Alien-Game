@@ -12,7 +12,7 @@
   {
     "slot": 2,
     "name": "Glow",
-    "hex": "B28CFF",
+    "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
@@ -59,30 +59,54 @@
   },
   {
     "slot": 7,
-    "name": "noteL",
-    "hex": "B28CFF",
+    "name": "echoR",
+    "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
     "slot": 8,
-    "name": "note2R",
-    "hex": "B28CFF",
+    "name": "eclipse",
+    "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
     "slot": 9,
-    "name": "pipesR",
-    "hex": "B28CFF",
+    "name": "gem",
+    "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
     "slot": 10,
+    "name": "noteL",
+    "hex": "9B5CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 11,
+    "name": "note2R",
+    "hex": "9B5CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 12,
+    "name": "pipesR",
+    "hex": "9B5CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 13,
     "name": "tail",
     "hex": "1E1A2E",
     "roughness": 0.55,
@@ -92,7 +116,7 @@
     "pixelated": true
   },
   {
-    "slot": 11,
+    "slot": 14,
     "name": "FacePlate",
     "hex": "4A4166",
     "roughness": 0.4,

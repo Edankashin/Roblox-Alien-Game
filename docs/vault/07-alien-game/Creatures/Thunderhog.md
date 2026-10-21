@@ -8,8 +8,8 @@ tier: Epic
 status: review
 element: Lightning
 height: 3.375
-blocks: 58
-tris: 834
+blocks: 74
+tris: 1026
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#8B5CF6", "#2E1F66", "#D4C6FF", "#FFC233", "#FFF27A", "#160F2E"]
@@ -93,6 +93,21 @@ parts:
   - {name: AntennaTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.3125, 3.1875, -0.75], shape: ico1, mirror: x, moves: antenna, pivot: [0.875, 2.25, -0.75]}
   - {name: Tail, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1.625, 2.75], moves: tail, pivot: [0, 1.625, 2.5]}
   - {name: TailTip, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 2.125, 2.875], moves: tail, pivot: [0, 1.625, 2.5]}
+  # Rare pass w1, the signature piece: a pocket thundercloud that follows it over the rump, a lavender puff on a dark underside with a
+  # lit zigzag hanging under it; it bobs and drifts, and on the flourish it pops and jumps with the crest (`cloud`)
+  - {name: CloudBase, slot: BodyDark, size: [0.875, 0.125, 0.5], at: [0.4375, 2.9375, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  - {name: Cloud, slot: Accessory, size: [0.875, 0.25, 0.5], at: [0.4375, 3.125, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  - {name: CloudPuff, slot: Accessory, size: [0.375, 0.125, 0.375], at: [0.25, 3.3125, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  - {name: CloudPuff2, slot: Accessory, size: [0.25, 0.125, 0.25], at: [0.625, 3.3125, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  - {name: CloudSide, slot: Accessory, size: [0.125, 0.25, 0.375], at: [0.9375, 3.0625, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  - {name: CloudBolt, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.8125, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125], material: crystal}
+  - {name: CloudBolt2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.375, 2.6875, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125], material: crystal}
+  - {name: CloudBolt3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.4375, 2.5625, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
+  # Rare pass w1: a charge gauge of four lit glass cells along each side of the dark coat, an emissive band that throbs (`charge`)
+  - {name: Charge0, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 0.875], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
+  - {name: Charge1, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 1.25], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
+  - {name: Charge2, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 1.625], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
+  - {name: Charge3, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 2], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
 ```
 
 ## Face
@@ -131,17 +146,23 @@ rig:
     antenna: [{kind: sway, amp: 8, period: 2.2, axis: z}, {kind: wag, amp: 6, period: 3.5, axis: x, phase: 0.3}]
     tail: [{kind: wag, amp: 16, period: 2.4, axis: y}]
     spark: [{kind: orbit, amp: 0.3, period: 2.6}, {kind: bob, amp: 0.1, period: 1.3}]
+    cloud: [{kind: bob, amp: 0.08, period: 2.6}, {kind: sway, amp: 5, period: 3.3, axis: z, phase: 0.2}, {kind: orbit, amp: 0.06, period: 5.2}]
+    charge: [{kind: pulse, amp: 0.03, period: 0.9}]
     root: [{kind: bob, amp: 0.04, period: 1.1}]
     face: [{kind: blink, period: 4.5}]
   flourish:
     every: 8
-    length: 2
+    length: 2.4
     moves:
       - {part: root, kind: hop, amp: 0.3, at: 0, for: 0.6}
       - {part: crest, kind: pop, amp: 0.15, at: 0.2, for: 0.8}
+      - {part: cloud, kind: hop, amp: 0.2, at: 0.2, for: 0.7}
+      - {part: cloud, kind: pop, amp: 0.25, at: 0.5, for: 0.6}
+      - {part: charge, kind: pop, amp: 0.08, at: 0.2, for: 0.6}
       - {part: antenna, kind: swish, amp: 18, axis: z, at: 0.3, for: 1}
       - {part: tail, kind: swish, amp: 25, axis: y, at: 0.4, for: 1}
-      - {part: root, kind: squash, amp: 0.08, axis: y, at: 1.2, for: 0.8}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 0.6, for: 1.4}
+      - {part: root, kind: squash, amp: 0.08, axis: y, at: 1.8, for: 0.6}
 ```
 
 ## Build
