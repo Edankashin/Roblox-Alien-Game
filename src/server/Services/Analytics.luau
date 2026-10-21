@@ -6,7 +6,9 @@
 -- would be sent; otherwise the AnalyticsService call, inside a pcall, so a bad field never breaks play.
 -- Every name comes from Shared/data/Analytics (they are the Creator Hub chart names). Passive income is
 -- accumulated per player and flushed as one Source event every AnalyticsData.IncomeFlushSeconds (and
--- on leave), so the income tick does not spam. Funnel steps go out once per player per session.
+-- on leave), so the income tick does not spam. Funnel steps go out once per player per session, through Roblox's onboarding
+-- funnel call, which counts each step once per user: a returning player who re-sends the steps it already passed is not
+-- counted again (a recurring funnel call with no session id would count it every session).
 -- Requires run one way: this module requires Config and its data table only; every service requires it.
 
 local Players = game:GetService("Players")
@@ -116,7 +118,7 @@ function Analytics.Funnel(player: Player, step: number, stepName: string)
 	sent[step] = true
 	local funnel = AnalyticsData.OnboardingFunnel
 	send(("funnel %s step=%d %s (%s)"):format(funnel, step, stepName, player.Name), function()
-		AnalyticsService:LogFunnelStepEvent(player, funnel, nil, step, stepName)
+		AnalyticsService:LogOnboardingFunnelStepEvent(player, step, stepName)
 	end)
 end
 

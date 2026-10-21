@@ -3,7 +3,7 @@
 -- treat them as stable once live. The onboarding funnel has one step per tutorial step (data/Tutorial
 -- Steps, in order) plus the final "Done" step; custom events carry a value and a few fields.
 return {
-	OnboardingFunnel = "Onboarding", -- LogFunnelStepEvent; step N = tutorial step N reached, step #Steps + 1 = done
+	OnboardingFunnel = "Onboarding", -- LogOnboardingFunnelStepEvent (Roblox's own onboarding funnel, counted once per user, so a returning player re-sending the steps it passed adds nothing); this name labels the Output line; step N = tutorial step N reached, step #Steps + 1 = done
 	Events = {
 		Catch = "Catch", -- value 1; fields friends (the player's Roblox friends in this server at the catch, 0 when none; split Catch rows by it for co-play), perfect, species. Roblox keeps three custom fields per event, so tier is not sent: it is the species' tier (data/Species)
 		CatchMiss = "CatchMiss", -- value 1; fields tier (a sweep missed)
