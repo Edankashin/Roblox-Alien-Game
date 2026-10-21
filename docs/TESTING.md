@@ -3,6 +3,14 @@
 Run in Studio with `rojo serve` connected. Report Output lines verbatim and a screenshot.
 
 Species display names changed on 2026-10-14 (decision B26): commands and asset folders still take the id (`/spawn Mossbop` spawns the Moop), screens and toasts show the new name. Steps below that name a species in prose may still use the old name; the id map is in `docs/vault/01-game-design/Species-Names.md`.
+## TikTok batch 9: the Scrap gap and the luck line in chat (World 1 place)
+
+From the monetization references of 2026-10-21 (`media/tiktok/NOTES.md` "Batch 9"). Client lines only, plus one server rule in `Monetization.startServerLuck`.
+
+1. The Scrap gap. `/scrap 100`, Shop, Scrap shelf, tap the grey Twig Lure pill: the toast reads "Need 50 more Scrap" (150 less 100; thousands separators on bigger gaps, "Need 1,400 more Scrap" for Radar Mk1). The same line on the Ship screen's Pay (the module's remaining Scrap less what you hold), a grey Build card tapped on the plot, a Peddler offer and the Storage Bay button. Never the bare "Not enough Scrap" while the price is known.
+2. The luck in chat. Two clients. On client 1 `/buy ServerLuck2x`: both clients show the gold banner "Player1 bought 2x luck for everyone!" and, in the chat window (bottom left), a system line "Player1 bought x2 luck for everyone! Anyone can add more time from the Shop." Once, not again on each countdown push.
+3. Extending names the new buyer. On client 2 `/buy ServerLuck2x` while it runs: the time grows by 15 minutes, and both clients show the banner and the chat line with Player2. On client 2 `/buy ServerLuck2x` once more: the time grows with no new banner or chat line (the same buyer and bonus as the last announcement). A `/buy ServerLuck4x` takes over and is announced; a `/buy ServerLuck2x` during it adds time and keeps the x4 buyer's name. A developer-panel gift shows its banner and no chat line.
+
 ## Pre-launch audit (World 1 place)
 
 The launch-week audit (`docs/vault/04-roblox-engine/Prelaunch-Audit.md`) fixed six things in source that only Studio can exercise: a pass is granted only once Roblox confirms ownership, one `ProcessReceipt` per purchase id at a time, an item with an id but no grant row is never sold, the save retries and releases its lock (a leave during the load, the leave and shutdown saves), Studio test players stay off the live weekly board, and a Robux card with id 0 is hidden. Use `rojo serve default.project.json`, Studio API access on (Owner guide Part B), and Test > Clients and Servers with 2 players where a step says so. Mac job:

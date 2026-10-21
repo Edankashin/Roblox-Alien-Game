@@ -1737,6 +1737,20 @@ local function start(profile: Types.Profile)
 	onSeason() -- the server's answer may already have landed
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
+	-- The same announcement as a system line in the general chat, so the buyer is named where everyone reads (TikTok batch 9
+	-- lesson 7: everyone sees someone spending, and anyone can add time). Client-side: DisplaySystemMessage shows only here.
+	local function chatLine(text: string)
+		local channels = TextChatService:FindFirstChild("TextChannels")
+		local general = if channels then channels:FindFirstChild("RBXGeneral") else nil
+		if general and general:IsA("TextChannel") then
+			local ok, err = pcall(function()
+				general:DisplaySystemMessage(text)
+			end)
+			if not ok then
+				print(("[%s] chat line skipped: %s"):format(Config.WorkingTitle, tostring(err)))
+			end
+		end
+	end
 	State.OnChanged("serverLuck", function()
 		local luckState = State.GetServerLuck()
 		if luckState then
@@ -1749,6 +1763,9 @@ local function start(profile: Types.Profile)
 					then Strings.TOAST_SERVERLUCK_GIFT:format(multiplierText)
 					else Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, multiplierText)
 				Toast.Banner(text, Theme.Colors.Featured, Config.AnnounceSeconds)
+				if luckState.playerName ~= Strings.ADMIN_LUCK_NAME then
+					chatLine(Strings.CHAT_SERVERLUCK_START:format(luckState.playerName, multiplierText))
+				end
 			end
 		else
 			serverLuckShown = nil

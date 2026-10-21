@@ -867,6 +867,7 @@ return {
 	TOAST_PURCHASE_THANKS = "Thanks! %s is yours",
 	TOAST_PURCHASE_FAILED = "The purchase did not go through",
 	TOAST_SERVERLUCK_START = "%s bought %sx luck for everyone!",
+	CHAT_SERVERLUCK_START = "%s bought x%s luck for everyone! Anyone can add more time from the Shop.", -- the same news as a system line in the general chat
 	TOAST_SERVERLUCK_GIFT = "%sx luck for everyone, from the team!", -- a window gifted from the developer panel
 	SERVERLUCK_BANNER = "%sx luck for everyone",
 	SERVERLUCK_LEFT = "%s left",
