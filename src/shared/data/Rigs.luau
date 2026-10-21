@@ -60,6 +60,21 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Kettlepuff = {
+		height = 2.5,
+		parts = {
+			{ name = "floatR", pivot = { 1.125, 2.25, -0.25 }, clips = { { kind = "bob", amp = 0.1, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 4, phase = 0, axis = "y" } } },
+			{ name = "handle", pivot = { -0.625, 1.75, 0 }, clips = { { kind = "sway", amp = 15, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "lid", pivot = { -0.625, 1.75, 0 }, clips = { { kind = "bob", amp = 0.04, period = 0.5, phase = 0, axis = "y" }, { kind = "wag", amp = 6, period = 4, phase = 0, axis = "z" } } },
+			{ name = "wispR", pivot = { 1.625, 2.375, -0.25 }, clips = { { kind = "bob", amp = 0.15, period = 2.6, phase = 0.5, axis = "y" }, { kind = "pulse", amp = 0.2, period = 2.6, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 3, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
