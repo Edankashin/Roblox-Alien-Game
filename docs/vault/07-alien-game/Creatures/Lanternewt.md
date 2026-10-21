@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Lanternewt_sheet.svg]]"
 render: "[[Lanternewt_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.995, 0.995, 0.996]
+overlap: [0.997, 0.996, 0.996, 0.997]
 cells_render: "[[Lanternewt_tq_cells.jpg]]"
 idle_render: "[[Lanternewt_idle.png]]"
 ---
 # Lanternewt (Lantrin), Uncommon, World 1 Verdant
 
-An orange newt that carries a lantern on its tail, 2.75 studs: a wide square head low to the ground, a long low body on four stubby legs, two dark feathery gills (two blades each) sweeping back from the head like an axolotl's, three yellow spots on its back, and a tail that curls up behind it to hold a lantern: a dark metal base and cap round a yellow glass with two cage bars across its front. Concept row in `src/shared/data/Species.luau`: "newt, glowing tail". Element and effect: [[Roster-Redesign]] section 2 (Light; the lamp breathes). Rules: [[Blocky-Style]].
+An orange newt that carries a lantern on its tail, 2.75 studs: a wide square head low to the ground, a long low body on four stubby legs, two broad plum gill fronds a side fanning up from the head's back corners like an axolotl's (one rising steeply, one swept out), three yellow spots on its back, and a tail that curls up behind it to hold a lantern: a dark metal base and cap round a yellow glass with two cage bars across its front. Concept row in `src/shared/data/Species.luau`: "newt, glowing tail". Element and effect: [[Roster-Redesign]] section 2 (Light; the lamp breathes). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It only comes out at night and it brings its own light: a small orange thing in the dark grass with a lantern held up behind it. B46: its own `moonlet` eyes, a lamp-yellow iris with a big pupil over an amber crescent, as if the lantern were lit in each eye, and gills that flutter as it breathes. An Uncommon has no glow region, so the glass is painted in the accent yellow and the game's held glow does the breathing; above it on the ladder the light becomes real.
 
@@ -36,7 +36,7 @@ An orange newt that carries a lantern on its tail, 2.75 studs: a wide square hea
 
 **Alien anatomy.** External gills on a creature that walks the meadow, and a tail that is a lamp post.
 
-**World motif (Verdant).** The moss cell as the quarter-stud spots and the eighth-stud gill feathers and cage bars.
+**World motif (Verdant).** The moss cell as the quarter-stud spots and the quarter-stud gill fronds and the eighth-stud cage bars.
 
 ## Parts
 
@@ -48,9 +48,10 @@ parts:
   # the head, wide and low, the face on its front; the long low body behind it
   - {name: Head, slot: Body, size: [2, 1.25, 1.5], at: [0, 1, -0.75], bevel: true}
   - {name: Body, slot: Body, size: [1.5, 1, 2], at: [0, 0.875, 1], bevel: true}
-  # alien anatomy: two feathery gills sweeping back and up from the head's sides, 20 degrees, two blades each; they flutter on their roots
-  - {name: Gill, slot: BodyDark, size: [0.75, 0.125, 0.125], at: [1.3125, 1.4375, -0.1875], rot: [0, 0, 20], mirror: x, moves: gill, pivot: [1, 1.375, -0.1875]}
-  - {name: GillFeather, slot: BodyDark, size: [0.5, 0.125, 0.125], at: [1.25, 1.625, -0.0625], rot: [0, 0, 20], mirror: x, moves: gill, pivot: [1, 1.375, -0.1875]}
+  # alien anatomy: an axolotl's gills, two broad plum fronds a side fanning from the head's back corners, one rising steeply (65 degrees)
+  # and one swept out (25 degrees); they flutter on their roots. Polish w1: two thin blades low on the cheeks read as whiskers
+  - {name: Gill, slot: BodyDark, size: [0.75, 0.25, 0.125], at: [1.1875, 1.8125, -0.125], rot: [0, 0, 65], mirror: x, moves: gill, pivot: [1, 1.5, -0.125]}
+  - {name: GillFeather, slot: BodyDark, size: [0.625, 0.25, 0.125], at: [1.3125, 1.625, 0], rot: [0, 0, 25], mirror: x, moves: gill, pivot: [1, 1.5, -0.125]}
   # three yellow spots on the back
   - {name: Spot, slot: Accessory, size: [0.25, 0.125, 0.25], at: [0.375, 1.4375, 0.75]}
   - {name: Spot2, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-0.25, 1.4375, 1.5]}
@@ -126,3 +127,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, two rounds. Round 1: built as drawn; the lamp on the upturned tail read at once, the gills as fins. Round 2: the body a stud tall so one bevel width fits both masses, the finial dropped to stay under 2.75 and 15 blocks. Wanted for: a small orange thing in the dark grass with its own lantern. Still cheap: the body is long and plain between the spots; the lamp's glass is painted, not lit (an Uncommon has no glow region). Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band already (2.75 studs). A second feather on each gill, a third back spot and two iron cage bars across the lamp's front bring it to 19 blocks (the Uncommon band is 10 to 20). Its own `moonlet` eyes: a big pupil in a lamp-yellow iris over a warm amber crescent, the lantern lit in each eye (warm, never pale: the tears lesson), a wide newt's smile. Three moving objects and the blink: the lamp tail sways and lifts, the gills flutter out of step, the body breathes. Overlap 0.995 to 0.996; worst silhouette pair 0.63 (Voltus). Wanted for: the night's lamp-carrier with the lamp's glow in its eyes. Still weak: from the three-quarter view the dark gill blades read as whiskers more than feathers, and the lamp could swing on its own (it moves only with the tail). Status review.
+- 2026-10-21, Polish w1, one round. The gills were two thin dark blades a side low on the cheeks and read as whiskers: each side is now two broad plum fronds a quarter stud wide fanning from the head's back corners, one rising steeply (65 degrees) and one swept out (25 degrees), so they read as an axolotl's gills; still the same four blocks and the same flutter. 19 blocks. Overlap 0.996 to 0.997; worst silhouette pair 0.682 (Grin). Honest read: no longer whiskers; from the three-quarter view the near pair can read as a small horn or ear as much as a gill, a frilled edge would settle it but the Uncommon cap has one block to spare. Status review.

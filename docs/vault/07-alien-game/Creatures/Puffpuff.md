@@ -9,7 +9,7 @@ status: review
 element: Wind
 height: 2.5
 blocks: 12
-tris: 224
+tris: 228
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#F4F1E8", "#4E9E3C", "#F5C542", "#1D2418"]
@@ -26,7 +26,7 @@ idle_render: "[[Puffpuff_idle.png]]"
 ---
 # Puffpuff (Dandel), Common, World 1 Verdant
 
-A dandelion clock with a face, 2.5 studs: a soft white seed-head (the head, in woolly cells, stepped narrower above and below so it reads as a round puff) on a yellow calyx with two small green sepals curling down under its front corners and a short green stem, standing on two broad green leaves that rise out from its foot like a rosette. Three seeds still stand on the puff, each an upturned cone with its parachute open, and one more has just let go and floats beside it. Concept row in `src/shared/data/Species.luau`: "dandelion puff, face". Element and effect: [[Roster-Redesign]] section 2 (Wind; a seed lifts off every 5 s). Rules: [[Blocky-Style]].
+A dandelion clock with a face, 2.5 studs: a soft white seed-head (the head, in woolly cells, stepped narrower above and below so it reads as a round puff) on a yellow calyx with two green sepals curling down and out from its front corners past the head's sides and a short green stem, standing on two broad green leaves that rise out from its foot like a rosette. Three seeds still stand on the puff, each an upturned cone with its parachute open, and one more has just let go and floats beside it. Concept row in `src/shared/data/Species.luau`: "dandelion puff, face". Element and effect: [[Roster-Redesign]] section 2 (Wind; a seed lifts off every 5 s). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** Everyone has blown one. It is the softest thing on the meadow (white wool cells, a round face) and it is slowly coming apart in the wind, which is the kind of small sadness a player wants to look after. B46: its own `dot` eyes, small round ink dots with one shine pixel, the simplest eyes on the meadow for the softest face, and a contented cat mouth: a flower in the sun while its seeds sway and one drifts off. The Common rung on purpose: white, green and one yellow, no glow and no light.
 
@@ -45,9 +45,10 @@ parts:
   # the seed-head: a soft white cube in woolly cells, the face on its front, a narrower woolly step on top so it reads as a round puff
   - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0, 1.25, 0], bevel: true, material: wool}
   - {name: Puff, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 2, 0], material: wool}
-  # the yellow calyx under it (the lower step of the round), two green sepals curling down from its front corners, the short green stem
+  # the yellow calyx under it (the lower step of the round), two green sepals curling down and out from its front corners past the head's
+  # sides (Polish w1: tucked under the head they were hidden from every camera), the short green stem
   - {name: Collar, slot: Accessory, size: [1.5, 0.25, 1.25], at: [0, 0.5, 0]}
-  - {name: Sepal, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [0.625, 0.3125, -0.5], mirror: x}
+  - {name: Sepal, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [1, 0.3125, -0.625], rot: [0, 0, -20], mirror: x}
   - {name: Stem, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0, 0.1875, 0]}
   # two broad leaves rising out from the foot, 25 degrees up; they rise and fall on their roots
   - {name: Leaf, slot: BodyDark, size: [1.5, 0.125, 0.5], at: [0.8125, 0.375, 0], rot: [0, 0, 25], mirror: x, moves: leaf, pivot: [0.125, 0.25, 0]}
@@ -123,3 +124,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, three rounds. Round 1: the seed stalks and the floating parachute were an eighth of a stud thick and did not read, and the leaves at 20 degrees sat at 0.70 against Twiglo. Round 2: the leaves 1.5 studs long rising 25 degrees from the foot, the stem a quarter taller so there is air under the head. Round 3: the seed stalks a quarter thick and the canopies 0.75 across, so the standing seed and the one floating off read as parachutes. Wanted for: the softest thing on the meadow, slowly coming apart. Still cheap: the wool's yellow flecks read as confetti more than seeds (the lit sprig of the motif is the accent); the puff is a cube. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, two rounds. In the band already (2.5 studs). Round 1: the library's `sleepy` read as unimpressed on the white face (a flat lid over a white field is a frown, not a doze); round 2 `dot`, round ink dots with one shine, and a `cat` mouth: the softest face on the meadow. Two green sepals under the calyx's front corners (12 blocks, the Common cap; the hind pair went to stay in the band), four moving objects and the blink: the loose seed bobs and drifts, the three seeds on the puff sway as one, the two leaves rise and fall, the puff breathes. Overlap 0.993 to 0.998, 224 triangles; worst silhouette pair 0.666 (Syrinx). Wanted for: a dandelion clock coming apart in the wind, with a face you want to keep. Still weak: the sepals hide under the head's overhang from the three-quarter view, and the seed cones read as paper cups up close. Status review.
+- 2026-10-21, Polish w1, one round. The two sepals were tucked under the head's front corners where no camera saw them: each is now three quarters of a stud long, curling down and out 20 degrees from the calyx's front corners past the head's sides. 12 blocks (the Common cap). Overlap 0.993 to 0.998. Honest read: visible now, and the calyx has a shape from the front; in the same green as the leaves they read as part of the rosette more than as sepals. Status review.

@@ -7,10 +7,10 @@
 - Blocks: 19
 - Triangles: 412 (cap 2500)
 - Cells: 0.125 studs a cell, atlas Lanternewt_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
-- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `gillL` (moves, cells, pivot -1, 1.375, -1.1875); `gillR` (moves, cells, pivot 1, 1.375, -1.1875); `tail` (moves, cells, pivot 0, 1.125, 0.9375); `FacePlate` (the face sheet, frame 0)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `gillL` (moves, cells, pivot -1, 1.5, -1.125); `gillR` (moves, cells, pivot 1, 1.5, -1.125); `tail` (moves, cells, pivot 0, 1.125, 0.9375); `FacePlate` (the face sheet, frame 0)
 - Eyes: `moonlet`; the face plate is 28x16 px a frame, 3 frames (open, half, closed) in Lanternewt_face.png, 3 a row (Rigs face.columns)
 - Rig: 3 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Lanternewt.glb (37420 bytes), Lanternewt.fbx (51500 bytes, texture embedded), Lanternewt_atlas.png, Lanternewt_face.png, materials.json, Lanternewt.png and Lanternewt_grey.png (256 px previews)
+- Files: Lanternewt.glb (37564 bytes), Lanternewt.fbx (51660 bytes, texture embedded), Lanternewt_atlas.png, Lanternewt_face.png, materials.json, Lanternewt.png and Lanternewt_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Lanternewt`; check with `python3 -I tools/blocky/export_models.py --check --species Lanternewt`.

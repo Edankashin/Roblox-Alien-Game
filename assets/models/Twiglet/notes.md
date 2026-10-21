@@ -7,10 +7,10 @@
 - Blocks: 12
 - Triangles: 236 (cap 2500)
 - Cells: 0.125 studs a cell, atlas Twiglet_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
-- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `antenna` (moves, cells, pivot 0, 1.75, -1.2676); `hat` (moves, cells, pivot 0, 1.75, -0.8926); `twig` (moves, cells, pivot 0, 1, -0.2676); `FacePlate` (the face sheet, frame 0)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `antenna` (moves, cells, pivot 0, 1.75, -1.3183); `hat` (moves, cells, pivot 0, 1.75, -0.9433); `twig` (moves, cells, pivot 0, 1, -0.3183); `FacePlate` (the face sheet, frame 0)
 - Eyes: `happy`; the face plate is 28x12 px a frame, 3 frames (open, half, closed) in Twiglet_face.png, 3 a row (Rigs face.columns)
 - Rig: 3 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Twiglet.glb (26496 bytes), Twiglet.fbx (46236 bytes, texture embedded), Twiglet_atlas.png, Twiglet_face.png, materials.json, Twiglet.png and Twiglet_grey.png (256 px previews)
+- Files: Twiglet.glb (26676 bytes), Twiglet.fbx (46428 bytes, texture embedded), Twiglet_atlas.png, Twiglet_face.png, materials.json, Twiglet.png and Twiglet_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Twiglet`; check with `python3 -I tools/blocky/export_models.py --check --species Twiglet`.

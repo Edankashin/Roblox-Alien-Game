@@ -292,8 +292,8 @@ local species: { [string]: Types.RigRow } = {
 	Lanternewt = {
 		height = 2.75,
 		parts = {
-			{ name = "gillL", pivot = { -1, 1.375, -1.1875 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0.5, axis = "z" } } },
-			{ name = "gillR", pivot = { 1, 1.375, -1.1875 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0, axis = "z" } } },
+			{ name = "gillL", pivot = { -1, 1.5, -1.125 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0.5, axis = "z" } } },
+			{ name = "gillR", pivot = { 1, 1.5, -1.125 }, clips = { { kind = "flap", amp = 14, period = 1.3, phase = 0, axis = "z" } } },
 			{ name = "tail", pivot = { 0, 1.125, 0.9375 }, clips = { { kind = "sway", amp = 6, period = 2.6, phase = 0, axis = "y" }, { kind = "sway", amp = 4, period = 3.9, phase = 0.2, axis = "x" } } },
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.6, phase = 0, axis = "y" } },
@@ -726,9 +726,9 @@ local species: { [string]: Types.RigRow } = {
 	Twiglet = {
 		height = 2.486,
 		parts = {
-			{ name = "antenna", pivot = { 0, 1.75, -1.2676 }, clips = { { kind = "sway", amp = 12, period = 1.4, phase = 0, axis = "x" } } },
-			{ name = "hat", pivot = { 0, 1.75, -0.8926 }, clips = { { kind = "sway", amp = 8, period = 2.6, phase = 0, axis = "z" } } },
-			{ name = "twig", pivot = { 0, 1, -0.2676 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "y" } } },
+			{ name = "antenna", pivot = { 0, 1.75, -1.3183 }, clips = { { kind = "sway", amp = 12, period = 1.4, phase = 0, axis = "x" } } },
+			{ name = "hat", pivot = { 0, 1.75, -0.9433 }, clips = { { kind = "sway", amp = 8, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "twig", pivot = { 0, 1, -0.3183 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "sway", amp = 3, period = 2.4, phase = 0, axis = "z" } },
 		face = {
