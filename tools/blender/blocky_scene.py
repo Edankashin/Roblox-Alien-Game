@@ -73,6 +73,70 @@ PROP_PLACES = [  # (note, X, Y, yaw, extra Euler x degrees, sink studs)
 ]
 
 
+# The block-cell props of 2026-10-21 (the notes `tools/blocky/export_models.py --props` exports into assets/models/props), the default
+# since then; `--old-props` renders the first sets above. (note, X, Y, yaw, extra Euler x degrees, sink studs). A landmark too big for the
+# 48 x 32 diorama (the cave mouth, the shrine) is shown on the props sheet only.
+PROP_PLACES_V1 = [
+    ("MeadowTree", 19.0, 12.0, 15, 0, 0.0), ("MeadowTreeB", -21.0, -12.5, -20, 0, 0.0), ("BlossomTree", 21.5, -12.5, 25, 0, 0.0),
+    ("MeadowTreeB", 2.5, 14.5, 10, 0, 0.0), ("BlossomTree", -21.0, 12.5, -10, 0, 0.0),
+    ("Boulder", -8.5, 13.5, 30, 0, 0.0), ("MeadowRock", 3.0, 3.5, 10, 0, 0.0), ("MeadowRockB", 18.5, -3.0, -25, 0, 0.0),
+    ("Bush", 22.0, 2.0, 0, 0, 0.0), ("Bush", -6.5, -14.5, 20, 0, 0.0), ("Mushroom", 10.5, -14.5, 15, 0, 0.0),
+    ("Mushroom", 0.5, 8.5, -30, 0, 0.0), ("Log", 13.0, 7.0, 80, 0, 0.0),
+    ("LilyPad", 9.5, -8.5, 20, 0, 0.0), ("LilyPad", 12.5, -6.5, -40, 0, 0.0), ("Reeds", 6.25, -8.0, 0, 0, 0.0), ("Reeds", 15.75, -9.5, 30, 0, 0.0),
+    ("Fence", -16.5, -10.0, 0, 0, 0.0), ("Fence", -12.0, -10.0, 0, 0, 0.0), ("Lantern", 3.5, -14.5, -20, 0, 0.0),
+    ("Signpost", -0.5, -7.5, 20, 0, 0.0),
+    ("CrashWreck", -14.0, 1.0, 15, 0, 0.0),
+]
+W2_PROP_PLACES_V1 = [
+    ("SnowPine", 20.5, 13.0, 15, 0, 0.0), ("SnowPineB", -21.0, -11.0, -20, 0, 0.0), ("SnowPine", 21.5, -11.5, 35, 0, 0.0),
+    ("SnowPineB", -21.5, 9.0, 10, 0, 0.0),
+    ("IceRock", 5.5, 4.5, 10, 0, 0.0), ("IceRockB", 17.5, -4.5, -25, 0, 0.0), ("IceRock", -16.5, -9.0, 40, 0, 0.0),
+    ("IceCrystalCluster", 21.0, 7.5, 20, 0, 0.0), ("IceCrystalCluster", 9.0, -13.5, -15, 0, 0.0), ("IceSpire", 16.5, 13.5, 10, 0, 0.0),
+    ("IceCaveMouth", -11.0, 10.5, 8, 0, 0.0),
+    ("HeaterLamp", -10.0, -8.0, 30, 0, 0.0), ("IceLantern", 3.0, -14.5, -10, 0, 0.0), ("IceLantern", -5.5, 1.5, 20, 0, 0.0),
+    ("SnowBush", -18.5, -3.0, 10, 0, 0.0), ("SnowBush", 9.5, -9.5, -20, 0, 0.0), ("FrozenLog", 19.5, 1.5, 70, 0, 0.0),
+    ("SnowDrift", -1.5, 5.0, 15, 0, 0.0), ("SnowDrift", 14.5, -14.0, -10, 0, 0.0), ("GeyserCone", 21.5, -5.5, 0, 0, 0.0),
+]
+# the lit props' lights in the diorama (the game's twin is a PointLight the world worker or the prop's service adds): note -> (colour,
+# energy, height of the glow over the prop's foot, studs in front of its centre)
+PROP_LIGHTS = {"Lantern": ("#FFC86B", 60.0, 2.1, 0.0), "IceLantern": ("#FFB347", 70.0, 3.1, 0.0), "HeaterLamp": ("#FFA64D", 90.0, 1.4, 1.2),
+               "IceCrystalCluster": ("#8ADBFF", 90.0, 1.8, 0.0), "IceSpire": ("#8ADBFF", 110.0, 4.0, 1.0),
+               "CrashWreck": ("#FF8A3D", 60.0, 1.0, 0.0), "Boulder": ("#FFB86B", 20.0, 3.0, 1.0)}
+
+
+def prop_radius(note):
+    """Half the larger side of a prop's footprint: creatures and the scatter keep this far from its centre."""
+    spec = S.load(PROPS / ("%s.md" % note))
+    lo, hi = S.bounds(S.expand(spec["parts"]))
+    return max(hi[0] - lo[0], hi[2] - lo[2]) / 2
+
+
+NEW_PROPS = True     # main() sets it from --old-props
+
+
+def inside(placed, x, y, pad):
+    """True when (x, y) lies within `pad` studs of one of the placed props' footprints (each (note, X, Y, yaw), the box turned by its yaw)."""
+    for note, X, Y, yaw in placed:
+        spec = S.load(PROPS / ("%s.md" % note))
+        lo, hi = S.bounds(S.expand(spec["parts"]))
+        a = math.radians(yaw)
+        dx, dy = x - X, y - Y
+        u = dx * math.cos(a) + dy * math.sin(a)      # along the prop's own Blender X (the spec's -x)
+        v = -dx * math.sin(a) + dy * math.cos(a)     # along its Blender Y (the spec's z)
+        if -hi[0] - pad <= u <= -lo[0] + pad and lo[2] - pad <= v <= hi[2] + pad:
+            return True
+    return False
+
+
+def prop_light(note, X, Y, Z, yaw, k):
+    if note not in PROP_LIGHTS:
+        return
+    colour, energy, up, ahead = PROP_LIGHTS[note]
+    a = math.radians(yaw)
+    at = Vector((math.sin(a) * ahead, -math.cos(a) * ahead, 0)) + Vector((X, Y, Z + up))
+    point_light("PropLight%d" % k, at, colour, energy, 0.5)
+
+
 def column_centre(i, j):
     return -WIDTH / 2 + COLUMN * i + COLUMN / 2, -DEPTH / 2 + COLUMN * j + COLUMN / 2
 
@@ -308,11 +372,18 @@ def build_scene2(out, creatures=True):
     print("ground: %d blocks, %d triangles, atlas %dx%d" % (len(ground["parts"]), made["tris"], made["atlas"][0], made["atlas"][1]), flush=True)
     taken = []
     stats = {"ground": made}
-    for k, (note, X, Y, yaw, pitch, sink) in enumerate(W2_PROP_PLACES):
+    big = []
+    for k, (note, X, Y, yaw, pitch, sink) in enumerate(W2_PROP_PLACES_V1 if NEW_PROPS else W2_PROP_PLACES):
         spec = S.load(PROPS / ("%s.md" % note))
         Z = ground_at2(X, Y, hm) - sink
         m = place(spec, out, X, Y, Z, yaw, pitch, prefix="P%d_" % k, cell=C.WORLD_CELL)
         stats["%s%d" % (note, k)] = m
+        if NEW_PROPS:
+            taken.append((X, Y, min(prop_radius(note), 3.0) + 0.5))
+            prop_light(note, X, Y, Z, yaw, k)
+            if prop_radius(note) >= 3.0:
+                big.append((note, X, Y, yaw))
+            continue
         taken.append((X, Y, {"PineTree": 3.0, "IceArch": 4.5, "Heater": 1.5}.get(note, 1.8)))
         if note == "IceCrystal":
             point_light("CrystalLight%d" % k, Vector((X, Y - 0.6, Z + 2.4)), "#8ADBFF", 120.0, 0.6)
@@ -323,6 +394,9 @@ def build_scene2(out, creatures=True):
             point_light("HeaterLight", front, "#FFA64D", 90.0, 0.5)
     if creatures:
         for note, X, Y, yaw in W2_CREATURE_PLACES:
+            if inside(big, X, Y, 0.5):
+                stats.setdefault("skipped", []).append(note)
+                continue
             spec = S.load(CREATURES / ("%s.md" % note))
             Z = ground_at2(X, Y, hm)
             place(spec, out, X, Y, Z, yaw, prefix="C_")
@@ -393,17 +467,18 @@ def place(spec, out, X, Y, Z, yaw=0.0, pitch=0.0, prefix="", cell=None):
     return B.build(spec, out, offset=(X, Y, Z), prefix=prefix, cell=cell, rot=(math.radians(pitch), 0.0, math.radians(yaw)))
 
 
-def flowers(hm, out, taken):
-    """Flowers on free grass, three petal colours, a deterministic scatter on the quarter-stud grid."""
-    base = S.load(PROPS / "Flower.md")
+def flowers(hm, out, taken, big=()):
+    """Flowers on free grass, three petal colours, a deterministic scatter on the quarter-stud grid (with the block-cell props, the
+    FlowerPatch clump at a third of the density, kept off the big props' footprints)."""
+    base = S.load(PROPS / ("FlowerPatch.md" if NEW_PROPS else "Flower.md"))
     n = 0
     for (i, j), (top, kind) in sorted(hm.items()):
-        if kind != "grass" or C.rand(5, i, j) > 0.22:
+        if kind != "grass" or C.rand(5, i, j) > (0.08 if NEW_PROPS else 0.22):
             continue
         x, y = column_centre(i, j)
         x += round((C.rand(6, i, j) - 0.5) * 1.2 * 4) / 4
         y += round((C.rand(8, i, j) - 0.5) * 1.2 * 4) / 4
-        if any(abs(x - tx) < r and abs(y - ty) < r for tx, ty, r in taken):
+        if any(abs(x - tx) < r and abs(y - ty) < r for tx, ty, r in taken) or inside(big, x, y, 0.5):
             continue
         colour = FLOWER_COLOURS[int(C.rand(10, i, j) * len(FLOWER_COLOURS))]
         spec = dict(base, front=dict(base["front"], palette=[colour] + list(base["front"]["palette"][1:])))
@@ -420,11 +495,18 @@ def build_scene(out, creatures=True):
     print("ground: %d blocks, %d triangles, atlas %dx%d" % (len(ground["parts"]), made["tris"], made["atlas"][0], made["atlas"][1]), flush=True)
     taken = []
     stats = {"ground": made}
-    for k, (note, X, Y, yaw, pitch, sink) in enumerate(PROP_PLACES):
+    big = []
+    for k, (note, X, Y, yaw, pitch, sink) in enumerate(PROP_PLACES_V1 if NEW_PROPS else PROP_PLACES):
         spec = S.load(PROPS / ("%s.md" % note))
         Z = ground_at(X, Y, hm) - sink
         m = place(spec, out, X, Y, Z, yaw, pitch, prefix="P%d_" % k, cell=C.WORLD_CELL)
         stats["%s%d" % (note, k)] = m
+        if NEW_PROPS:
+            taken.append((X, Y, min(prop_radius(note), 3.0) + 0.5))
+            prop_light(note, X, Y, Z, yaw, k)
+            if prop_radius(note) >= 3.0:
+                big.append((note, X, Y, yaw))
+            continue
         taken.append((X, Y, 6.0 if note == "Ship" else (3.0 if note == "Tree" else 1.8)))
         if note == "Crystal":
             point_light("CrystalLight", Vector((X, Y - 0.6, Z + 2.2)), "#9AF6FF", 140.0, 0.6)
@@ -438,6 +520,9 @@ def build_scene(out, creatures=True):
             point_light("Exhaust", tail, "#FFB347", 40.0, 0.4)
     if creatures:
         for note, X, Y, yaw in CREATURE_PLACES:
+            if inside(big, X, Y, 0.5):
+                stats.setdefault("skipped", []).append(note)
+                continue
             spec = S.load(CREATURES / ("%s.md" % note))
             Z = ground_at(X, Y, hm)
             place(spec, out, X, Y, Z, yaw, prefix="C_")
@@ -448,7 +533,7 @@ def build_scene(out, creatures=True):
         taken.append((X, Y, 1.5))
     for i, j in PATH:
         taken.append(column_centre(i, j) + (1.2,))
-    stats["flowers"] = flowers(hm, out, taken)
+    stats["flowers"] = flowers(hm, out, taken, big)
     world_and_sun(scene)
     return scene, stats
 
@@ -503,18 +588,21 @@ def main():
     ap.add_argument("--views", default="hero,low")
     ap.add_argument("--no-creatures", action="store_true")
     ap.add_argument("--world", type=int, default=1, choices=(1, 2), help="1 Verdant (the meadow), 2 Frostbyte (the snowfield)")
+    ap.add_argument("--old-props", action="store_true", help="the first prop sets (Tree, Rock, Ship ...) instead of the block-cell props")
     a = ap.parse_args(argv)
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models (B43)")
         return 2
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    global NEW_PROPS
+    NEW_PROPS = not a.old_props
     if a.world == 2:
         scene, stats = build_scene2(out, creatures=not a.no_creatures)
-        print("snow lumps: %d" % stats["lumps"], flush=True)
+        print("snow lumps: %d; creatures left out (inside a big prop): %s" % (stats["lumps"], ", ".join(stats.get("skipped", [])) or "none"), flush=True)
     else:
         scene, stats = build_scene(out, creatures=not a.no_creatures)
-        print("flowers: %d" % stats["flowers"], flush=True)
+        print("flowers: %d; creatures left out (inside a big prop): %s" % (stats["flowers"], ", ".join(stats.get("skipped", [])) or "none"), flush=True)
     for view in [v for v in a.views.split(",") if v]:
         render(scene, out, view, a.size, a.samples, a.world)
     return 0

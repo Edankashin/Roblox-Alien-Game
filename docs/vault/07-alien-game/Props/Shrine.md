@@ -7,11 +7,11 @@ world: 1
 kind: prop
 status: build
 height: 8
-blocks: 33
-tris: 396
+blocks: 35
+tris: 420
 budget: 1400
 collision: Precise
-footprint: [17, 18.5, 8]
+footprint: [18, 18.5, 8]
 palette: ["#9E9E8E", "#C8C0A6", "#5E9E3A", "#C9A15B", "#2ECC71"]
 roles: [body, second, accent, trim, glow]
 render: "[[props_v1.jpg]]"
@@ -23,8 +23,8 @@ World 1's landmark: a round paved plaza ringed by standing stones, entered from 
 
 - **Cells**: `stone` cobbles on the stones and paving (the paving a paler second colour); `moss` on the tops and the creepers; the runes `glow` in the meadow shrine's green (data/Meadow.luau Shrine.glowColor 2ECC71), Neon, so Props.Tint leaves them lit
 - **Read**: the gate and the ring of stones from far away; the runes pull you in; the centre is left clear for the Pedestal
-- **Footprint**: 17 x 18.5 x 8 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract); the blockout it replaces was 18.4 x 17.8 x 8.4.
-- **Budget**: 1400 triangles (the estimate before culling is 396); collision `Precise` in `src/shared/data/Props.luau`.
+- **Footprint**: 18 x 18.5 x 8 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract); the blockout it replaces was 18.4 x 17.8 x 8.4.
+- **Budget**: 1400 triangles (the estimate before culling is 420); collision `Precise` in `src/shared/data/Props.luau`.
 
 Rules: [[Blocky-Style]] "Environment" (props follow the creature rules, at the world cell of 0.25 studs, no face). Built and exported by `tools/blocky/export_models.py --props`.
 
@@ -33,9 +33,9 @@ Rules: [[Blocky-Style]] "Environment" (props follow the creature rules, at the w
 ```yaml
 parts:
   # the plaza: three slabs make an octagon, a step at the gate
-  - {name: Plaza, slot: BodyDark, size: [17, 0.25, 11], at: [0, 0.125, 0], material: stone}
-  - {name: PlazaCross, slot: BodyDark, size: [11, 0.25, 17], at: [0, 0.125, 0], material: stone}
-  - {name: PlazaDiag, slot: BodyDark, size: [15, 0.25, 15], at: [0, 0.125, 0], material: stone}
+  - {name: Plaza, slot: BodyDark, size: [11, 0.25, 17], at: [0, 0.125, 0], material: stone}
+  - {name: PlazaWing, slot: BodyDark, size: [2, 0.25, 15], at: [6.5, 0.125, 0], mirror: x, material: stone}
+  - {name: PlazaEdge, slot: BodyDark, size: [1.5, 0.25, 11], at: [8.25, 0.125, 0], mirror: x, material: stone}
   - {name: Step, slot: BodyDark, size: [5, 0.25, 1.5], at: [0, 0.125, -9.25], material: stone}
   # the gate, six standing stones and a fallen one
   - {name: GateL, slot: Body, size: [1.5, 6.5, 1.25], at: [-2.25, 3.5, -7], material: stone}

@@ -505,3 +505,42 @@ What the ten taught:
 - **An eye's generic half frame can scowl.** A flat lid over a lit lower half reads cross; a design may carry its own `half` rows (`tools/blocky/eyes.py`, the Polish w2 block: `kindle`'s rounded lid). A colour fix beats a new design where it works (Kettlet's `button` in deep tea brown); `beam` joined the library for Mitt (a bigger closed smile, 9 x 5).
 - **The `o` mouth is a diamond at 16 pixels a stud**: Dreep and Kettlet wear `open`.
 - **The lineup avatar** (`tools/blender/blocky_build.py`, `avatar_spec`): its parts were expanded twice, stacking two copies of each arm and leg whose coincident faces turned inside out, so they rendered black; now mirrored once, grey head and arms, blue torso and legs.
+
+## Props and the world tiles in block cells (2026-10-21)
+
+Ethan, 2026-10-21: "Make sure the worlds look amazing too. They should all inhabit the aesthetic and theme of the world very well, and make exploring enjoyable and a super pleasing sight." The props worker moved every scenery and camp prop to block cells (B44) and made the shared ground tiles. The sheet: `media/studio/2026-10-21/props_v1.jpg`; the tiles: `media/studio/2026-10-21/world_tiles_v1.png`.
+
+![Props v1: the 39 block-cell props lit and to scale, five rows, the 5-stud avatar in each](refs/blocky/props_v1.jpg)
+
+- **The props**: 39 spec notes in `07-alien-game/Props/` (the names the game looks up: [[MeadowTree]], [[MeadowTreeB]], [[BlossomTree]], [[MeadowRock]], [[MeadowRockB]], [[Boulder]], [[FlowerPatch]], [[Bush]], [[Mushroom]], [[07-alien-game/Props/Log|Log]], [[LilyPad]], [[Fence]], [[Lantern]], [[Signpost]], [[Reeds]]; [[SnowPine]], [[SnowPineB]], [[IceRock]], [[IceRockB]], [[IceSpire]], [[IceCrystalCluster]], [[SnowDrift]], [[Icicles]], [[FrozenLog]], [[SnowBush]], [[IceLantern]], [[HeaterLamp]]; [[CrashWreck]], [[ShipHull]], [[Shrine]], [[ShrineStone]], [[Pedestal]], [[CaveMouth]], [[IceCaveMouth]], [[GeyserCone]], [[GeyserVent]], [[BuildStation]], [[GatherStation]], [[SparkStation]]). Each note adds `budget` (triangles), `collision` (the `data/Props.luau` row, checked by `tools/lint_data.py`) and `footprint` to the prop frontmatter, and `glb: assets/models/props/<Name>/<Name>.glb`, which puts it on the export route. The older diorama notes (Tree, Rock, Crystal, Ship, Flower, PineTree, SnowRock, IceCrystal, IceArch, Heater) stay as they were; `blocky_scene.py --old-props` still renders them.
+- **The route**: `$BPY tools/blocky/export_models.py --props [A,B]` builds each note through `blocky_build.build` at the world cell and writes `assets/models/props/<Name>/` (GLB, FBX, `<Name>_atlas.png`, `materials.json`, `notes.md`, the two previews). One MeshPart per colour slot used (`Body`, `BodyDark`, `Accessory`, `Trim` on the atlas, `Glow` Neon), so a tree's trunk and crown still collide as two boxes; no moving parts; the pivot at the bottom centre; **the front (the note's -Z) on +Z in the game**, the landmark contract of `data/Layouts.luau` (the creatures face -Z; a prop is not turned the half turn). `--check` (no Blender) covers species and props; `--check --props` the props alone; `--emit-luau --props` prints the installer's `BLOCK_CELL_PROPS`. An old blockout tool (`props_base.py`, `heroes_base.py`) refuses a folder holding an atlas, and `materials_json.py` skips it.
+- **The atlas fits 1024** (Roblox scales a bigger image down): 8 texels a cell as on the creatures, 4 for the five landmarks whose surface would not fit (the wreck, both cave mouths, the vent, the shrine). Tested: every prop fits at one of the two.
+- **Budgets**: scatter 160 to 320 triangles, trees 500 to 600, landmarks 1,200 to 1,400; exported 62 (the drift) to 370 (the wreck), because the cells carry the detail and hidden faces are culled.
+- **Glow is the invitation**: one warm glow cell where the eye should go (the lantern's light, the boulder's two mushrooms, the wreck's embers and engine), the meadow shrine's green runes, Frostbyte's cyan crystal hearts and ice glints, and the ice lantern's and heater's warm FFB347 as World 2's one warm note.
+- **Lessons**: (1) overlapping coplanar slabs in one slot turn each other's normals over in the build (the shrine's plaza rendered black); lay a plaza as slabs that meet edge to edge. (2) Smoke in plain pale-grey cells reads against the sky only a step darker than the clouds (A8A39C, not D8D4CE). (3) A white floor hides snow props; review sheets stand each world on a mid tone of its own ground. (4) A reed or a crystal that leans must be lifted until its lowest corner touches y = 0 and a flat base block put under it, or the prop floats a sliver (the spec check wants the lowest point at exactly 0).
+
+### The world tiles
+
+`python3 -I tools/blocky/world_tiles.py` writes fourteen 64 x 64 PNGs to `assets/textures/blocky_tiles/<Key>.png` (one tile = 2 x 2 studs = 8 x 8 cells of 8 texels) and the contact sheet; `--check` and `tools/tests/test_world_tiles.py` keep them fresh and seamless. The keys are shared with the world worker, who references them through a data table with image id 0 until the Mac uploads them.
+
+![World tiles v1: each tile shown 3 x 3 so a seam would show](refs/blocky/world_tiles_v1.png)
+
+| Key | World | Colour | Motif |
+|---|---|---|---|
+| GrassTop | 1 | 6FBF4A | faint blobs, a lit blade in twenty, the rim half a step down (the tiles read as blocks) |
+| GrassSide | 1 | 6FBF4A over 8A5A3B | the fringe one to three cells deep over dirt: the top 2 studs of a grass cliff, Dirt below it |
+| Dirt | 1 | 8A5A3B | two 2 x 1 stud brick faces, blobs and pebbles, each brick framed half a step down |
+| Path | 1 | C9B48A | cobbles about three cells (nine a tile), one-cell cracks a step and a half down |
+| Stone | 1 | 9E9E8E | dressed slabs four cells square in a running bond, a joint a step down, a chip |
+| Sand | 1 | E8D3A0 | wind ripples wandering a row up and down, grains a step off |
+| Water | 1 | 3FA2E6 | diagonal ripple dashes, a sparkle; no grout |
+| WoodPlank | 1 | C08A55 | four planks two cells wide, a staggered joint, a nail, grain streaks |
+| Snow | 2 | F2F6FA | soft drifts, a sparkle, the rim a full step down |
+| SnowSide | 2 | F2F6FA over B9CADA | the snow lip two to four cells deep over packed snow (the top 2 studs of a snow cliff) |
+| PackedSnow | 2 | B9CADA | strata on rows 0, 3 and 6 (every third row, as near as eight rows allow), ice grains |
+| Ice | 2 | BFEBFA | a light band on the other diagonal every eight cells, a crossing band, a sparkle, the rim lit |
+| FrozenWater | 2 | A9D6F5 | four plates a tile, cracks on most borders, a bubble; no grout |
+| Rock | 2 | A9B7C0 | ledges three, two and three rows tall, lit tops, shadowed feet, broken by cracks |
+
+- **Seamless by construction**: every hash is on the cell's place modulo the tile, every lattice wraps on 8 cells, every row or column pattern has a period that divides 8 (crystal's six-cell band would not, so the tiles use ice's eight). `seamless()` paints each cell one tile over in every direction and compares.
+- **The block edge is in the pattern**: a field of GrassTop reads as 2-stud blocks, like the dioramas. On terrain the tile goes on a `MaterialVariant` with `StudsPerTile = 2` (the "In the game" route b); on block-built ground it is the same pattern the atlas paints.
