@@ -43,6 +43,41 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Fenripup = {
+		height = 3.5,
+		parts = {
+			{ name = "chain", pivot = { 0, 1.25, -1.125 }, clips = { { kind = "sway", amp = 10, period = 1.9, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -0.6875, 2.875, -0.9062 }, clips = { { kind = "wag", amp = -15, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.6875, 2.875, -0.9062 }, clips = { { kind = "wag", amp = 15, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "halo", pivot = { 0, 2, 1.2812 }, clips = { { kind = "sway", amp = 6, period = 6, phase = 0, axis = "z" } } },
+			{ name = "moon", pivot = { 0, 2.9375, -1.8438 }, clips = { { kind = "bob", amp = 0.06, period = 2.6, phase = 0, axis = "y" }, { kind = "sway", amp = 8, period = 5.2, phase = 0, axis = "z" } } },
+			{ name = "moteL", pivot = { -1.5, 1.625, -0.6562 }, clips = { { kind = "orbit", amp = 0.15, period = 3.6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 1.8, phase = 0.5, axis = "y" } } },
+			{ name = "moteR", pivot = { 1.5, 2.875, -0.9062 }, clips = { { kind = "orbit", amp = 0.15, period = 3.6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 1.8, phase = 0.5, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 1.1875, 0.9688 }, clips = { { kind = "wag", amp = 18, period = 2.4, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 2.4, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 28, columns = 4, frames = 13,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10, 11, 12 },
+			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 8,
+		},
+		flourish = {
+			every = 20, length = 3.2,
+			moves = {
+				{ part = "root", kind = "squash", amp = 0.12, axis = "y", at = 0, length = 0.5 },
+				{ part = "root", kind = "hop", amp = 0.45, axis = "y", at = 0.5, length = 0.9 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 0.6, length = 1.6 },
+				{ part = "earL", kind = "flare", amp = -25, axis = "z", at = 0.4, length = 1.2 },
+				{ part = "earR", kind = "flare", amp = 25, axis = "z", at = 0.4, length = 1.2 },
+				{ part = "root", kind = "flare", amp = 12, axis = "x", at = 2.2, length = 0.9 },
+				{ part = "moon", kind = "pop", amp = 0.3, axis = "y", at = 1.2, length = 1.4 },
+				{ part = "tail", kind = "swish", amp = 30, axis = "z", at = 1, length = 1.4 },
+				{ part = "moteL", kind = "hop", amp = 0.3, axis = "y", at = 1.6, length = 1 },
+				{ part = "moteR", kind = "hop", amp = 0.3, axis = "y", at = 1.6, length = 1 },
+				{ part = "halo", kind = "pop", amp = 0.12, axis = "y", at = 1.4, length = 1.2 },
+			},
+		},
+	},
 	Frostfang = {
 		height = 3.397,
 		parts = {
