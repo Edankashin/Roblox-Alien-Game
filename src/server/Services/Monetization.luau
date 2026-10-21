@@ -36,6 +36,7 @@ local ShopData = require(Shared.data.Shop)
 local Species = require(Shared.data.Species)
 local AnalyticsData = require(Shared.data.Analytics)
 local Net = require(Shared.Net)
+local ShelfMath = require(Shared.ShelfMath)
 local PlayerData = require(script.Parent.PlayerData)
 local Analytics = require(script.Parent.Analytics)
 
@@ -54,20 +55,24 @@ local PASS_RETRY_SECONDS = 1 -- pause between UserOwnsGamePassAsync attempts
 -- Catalog views ----------------------------------------------------------
 
 local ITEMS_BY_ID: { [string]: ShopData.ShopItem } = {}
-local ITEMS_BY_PRODUCT: { [number]: ShopData.ShopItem } = {} -- live developer product ids only (never 0)
-local ITEMS_BY_PASS: { [number]: ShopData.ShopItem } = {} -- live game pass ids only (never 0)
+local ITEMS_BY_PRODUCT: { [number]: ShopData.ShopItem } = {} -- live developer product ids with a Grants row only (never 0)
+local ITEMS_BY_PASS: { [number]: ShopData.ShopItem } = {} -- live game pass ids with a Grants row only (never 0)
 local LAUNCH_IDS: { [string]: boolean } = {} -- what the launch shop sells (Shop.Launch sections)
 local LAUNCH_PASSES: { ShopData.ShopItem } = {} -- the passes checked on every join
 local STARTER_CHOICES: { [string]: boolean } = {}
 
 for _, item in ipairs(ShopData.Items) do
 	ITEMS_BY_ID[item.id] = item
-	local productId = item.productId or 0
-	local passId = item.passId or 0
-	if item.kind == "product" and productId ~= 0 then
-		ITEMS_BY_PRODUCT[productId] = item
-	elseif item.kind == "pass" and passId ~= 0 then
-		ITEMS_BY_PASS[passId] = item
+	-- An item with an id but no Grants row (a product made on the dashboard before its feature exists) is never mapped: its
+	-- receipt answers NotProcessedYet (no Robux kept) instead of being granted nothing.
+	if ShelfMath.IsSellable(item, ShopData.Grants[item.id]) then
+		if item.kind == "product" then
+			ITEMS_BY_PRODUCT[item.productId or 0] = item
+		else
+			ITEMS_BY_PASS[item.passId or 0] = item
+		end
+	elseif ShelfMath.IsLive(item) then
+		warn(("[%s] Monetization: %s has a dashboard id but no Shop.Grants row; it is not sold"):format(Config.WorkingTitle, item.id))
 	end
 end
 for _, section in ipairs(ShopData.Launch) do
@@ -92,6 +97,7 @@ local serverLuck: ServerLuck? = nil
 local luckListeners: { (boolean) -> () } = {} -- Buffs.PushLuckAll, see the header
 local passListeners: { (Player, string) -> () } = {} -- Economy's storage push: a pass was bought or dropped this session
 local luckLoopRunning = false
+local receiptsInFlight: { [string]: boolean } = {} -- PurchaseIds whose ProcessReceipt is still running (a grant or the save yields)
 
 -- Helpers -----------------------------------------------------------------
 
@@ -353,12 +359,40 @@ local function onLoaded(player: Player, _profile: Types.Profile)
 	end
 end
 
+-- Whether Roblox says this player owns the pass (an in-game purchase updates its cache at once). A failed call answers
+-- false: the next join's checkPasses finds the pass and applies its grants then. In Studio a test purchase is simulated
+-- and never owned, so the finished signal is taken as it is there (no exploiter can reach a Studio session).
+local function confirmPass(player: Player, passId: number): boolean
+	if RunService:IsStudio() then
+		return true
+	end
+	local retries = math.max(1, Config.PassCheckRetries)
+	for attempt = 1, retries do
+		local ok, result = pcall(function()
+			return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
+		end)
+		if ok then
+			return result == true
+		end
+		if attempt < retries then
+			task.wait(PASS_RETRY_SECONDS)
+		end
+	end
+	return false
+end
+
 local function onPassPromptFinished(player: Player, passId: number, wasPurchased: boolean)
 	if not wasPurchased then
 		return
 	end
 	local item = ITEMS_BY_PASS[passId]
 	if not item then
+		return
+	end
+	-- The finished signal's wasPurchased is not proof of a purchase (it comes from the client's prompt), so ownership is
+	-- asked of Roblox before anything is granted.
+	if not confirmPass(player, passId) or player.Parent ~= Players then
+		warn(("[%s] Monetization: pass %s finished for %s but ownership is not confirmed; nothing granted now"):format(Config.WorkingTitle, item.id, player.Name))
 		return
 	end
 	ownedPasses(player.UserId)[item.id] = true
@@ -395,9 +429,15 @@ end
 -- receipt id recorded, and the profile saved (PlayerData.SaveNow) in both cases. NotProcessedYet: unknown product, player not in game or not loaded, or a grant
 -- refused (a Starter Pack with no choice, a granter failure); Roblox retries later. Never throws.
 local function processReceipt(receipt: { [string]: any }): Enum.ProductPurchaseDecision
+	local purchaseId = tostring(receipt.PurchaseId)
+	-- Roblox may call again for the same receipt while this call still yields (a granter or SaveNow): the second answers
+	-- NotProcessedYet and Roblox asks once more later, when the saved receipt id decides. Never two grants at once.
+	if receiptsInFlight[purchaseId] then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	receiptsInFlight[purchaseId] = true
 	local ok, decision = pcall(function(): Enum.ProductPurchaseDecision
 		local productId = tonumber(receipt.ProductId) or 0
-		local purchaseId = tostring(receipt.PurchaseId)
 		local item = ITEMS_BY_PRODUCT[productId]
 		if not item then
 			warn(("[%s] Monetization: receipt for unknown product %d"):format(Config.WorkingTitle, productId))
@@ -433,6 +473,7 @@ local function processReceipt(receipt: { [string]: any }): Enum.ProductPurchaseD
 		end
 		return Enum.ProductPurchaseDecision.PurchaseGranted
 	end)
+	receiptsInFlight[purchaseId] = nil
 	if not ok then
 		warn(("[%s] Monetization: ProcessReceipt failed: %s"):format(Config.WorkingTitle, tostring(decision)))
 		return Enum.ProductPurchaseDecision.NotProcessedYet
