@@ -57,6 +57,15 @@ local QuestsScreen = {}
 -- One objective line inside the expanded card: the task on the left, its count on the right.
 type ObjectiveLine = { frame: Frame, text: TextLabel, progress: TextLabel }
 
+-- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel a cream block plate at
+-- the panel cell with the block close button, the tabs fitted block buttons, the What's on band a dark plate in cells; every
+-- card (a step, a daily or weekly, an event row) a fitted edged block whose ink carries the state the old stroke did, its badge
+-- and buttons flat blocks, its progress bar a flat dark block filled cell-true (Builder.blockBar). Layout, bindings and string
+-- keys are as before.
+local PANEL_H = 0.78 -- the panel's height, of the screen (its rows and the tabs' come from it)
+local PANEL_ASPECT = 1.35
+local FLAT_ROWS = 3 -- a flat block (a badge, a card's button, a progress trough): the fewest rows a stepped corner takes
+
 -- One step row. Children are built once and re-laid-out for the compact or expanded shape.
 type Row = {
 	card: Frame,
@@ -81,7 +90,8 @@ type DailyRow = {
 	card: Frame,
 	objective: TextLabel,
 	reward: TextLabel,
-	fill: Frame,
+	fill: Frame, -- the progress trough (a block plate); setFill moves its bar and tintFill colours it
+	setFill: (number) -> (),
 	count: TextLabel,
 	claim: Frame,
 	reroll: Frame?, -- dailies only
@@ -96,7 +106,8 @@ type EventRow = {
 	card: Frame,
 	objective: TextLabel,
 	reward: TextLabel,
-	fill: Frame,
+	fill: Frame, -- the progress trough, as on a daily row
+	setFill: (number) -> (),
 	count: TextLabel,
 	claim: Frame,
 	questId: string, -- the track quest this row shows now; "" while hidden
@@ -362,37 +373,16 @@ end
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
+-- A step card's face and its ink (the accent, which the old stroke carried), and its badge in the accent.
 local function setCardStyle(row: Row, cardColor: Color3, accent: Color3)
-	row.card.BackgroundColor3 = cardColor
-	local stroke = row.card:FindFirstChildOfClass("UIStroke")
-	if stroke then
-		stroke.Color = accent
-	end
-	row.badge.BackgroundColor3 = accent
-	local gradient = row.badge:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(accent), accent)
-	end
+	Builder.setBlockColor(row.card, cardColor)
+	Builder.setBlockInk(row.card, accent)
+	Builder.setBlockColor(row.badge, accent)
 end
 
 -- Server call --------------------------------------------------------------
@@ -460,27 +450,28 @@ local function ensureLines(row: Row, count: number)
 end
 
 local function buildRow(parent: Frame, index: number): Row
-	local card = Builder.frame({
+	-- A fitted edged block: compact or expanded (layoutRow), it re-picks its rows when its shape changes.
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Step" .. index,
-		size = UDim2.fromScale(1, ROW_COMPACT),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
+		size = UDim2.fromScale(1, ROW_COMPACT),
 		zIndex = 3,
 	})
 	card.LayoutOrder = index
 
-	local badge = Builder.pill({
+	local badge = Builder.blockPlate({
 		parent = card,
 		name = "Badge",
 		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Text,
 		aspect = 1,
-		zIndex = 4,
+		rows = FLAT_ROWS,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(badge, Theme.Rarity.Common)
 	local badgeLabel = Builder.label({
 		parent = badge,
 		name = "Index",
@@ -489,7 +480,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.85),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(badge),
 	})
 	local title = Builder.label({
 		parent = card,
@@ -497,7 +488,7 @@ local function buildRow(parent: Frame, index: number): Row
 		text = "",
 		textSize = Theme.TextSize.Label,
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	local status = Builder.label({
 		parent = card,
@@ -505,7 +496,7 @@ local function buildRow(parent: Frame, index: number): Row
 		text = "",
 		textSize = Theme.TextSize.Body,
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 
 	-- Expanded-only children: the legend (navy, no stroke: long text on a light card),
@@ -520,7 +511,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.09, 0.2),
 		size = UDim2.fromScale(0.88, 0.2),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	legend.TextYAlignment = Enum.TextYAlignment.Top
 	local todo = Builder.label({
@@ -533,14 +524,14 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.09, 0.42),
 		size = UDim2.fromScale(0.5, 0.11),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	local objectives = Builder.frame({
 		parent = card,
 		name = "Objectives",
 		position = UDim2.fromScale(0.09, 0.53),
 		size = UDim2.fromScale(0.55, 0.27),
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
@@ -556,7 +547,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.09, 0.82),
 		size = UDim2.fromScale(0.16, 0.14),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	local rewards = Builder.label({
 		parent = card,
@@ -566,9 +557,9 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.26, 0.82),
 		size = UDim2.fromScale(0.38, 0.14),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
-	local claimButton = Builder.button({
+	local claimButton = Builder.blockButton({
 		parent = card,
 		name = "Claim",
 		text = Strings.QUESTS_CLAIM,
@@ -577,7 +568,9 @@ local function buildRow(parent: Frame, index: number): Row
 		size = UDim2.fromScale(0.3, 0.42),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = FLAT_ROWS,
+		cells = false, -- one on every step card: a flat face
+		zIndex = Builder.blockTop(card),
 	}, claim)
 
 	return {
@@ -747,12 +740,12 @@ local function setFaceText(container: Frame, text: string)
 	end
 end
 
--- Colours a progress fill (face and its gradient).
+-- Colours a progress trough's block bar (the "Bar" frames Builder.blockBar put in it).
 local function tintFill(fill: Frame, color: Color3)
-	fill.BackgroundColor3 = color
-	local gradient = fill:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
+	for _, child in ipairs(fill:GetChildren()) do
+		if child:IsA("Frame") and child.Name == "Bar" then
+			child.BackgroundColor3 = color
+		end
 	end
 end
 
@@ -835,20 +828,30 @@ end
 -- One quest card, the look of the Daily & Weekly list and of the Event tab: objective on top, the reward under it,
 -- the progress bar at the bottom; the Claim button on the right (over a Reroll on a daily; a single taller one,
 -- centred, when `tall`). `onClaim` is the tap.
-type CardParts = { card: Frame, objective: TextLabel, reward: TextLabel, fill: Frame, count: TextLabel, claim: Frame }
+type CardParts = {
+	card: Frame,
+	objective: TextLabel,
+	reward: TextLabel,
+	fill: Frame,
+	setFill: (number) -> (),
+	count: TextLabel,
+	claim: Frame,
+}
 
 local function buildQuestCard(parent: Instance, name: string, position: UDim2, size: UDim2, tall: boolean, claimText: string, onClaim: () -> ()): CardParts
-	local card = Builder.frame({
+	-- A fitted edged block; its ink goes green while its quest is ready (the old stroke).
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = name,
+		color = Theme.Colors.White,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		position = position,
 		size = size,
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
 		zIndex = 3,
 	})
+	local top = Builder.blockTop(card)
 	local objective = Builder.label({
 		parent = card,
 		name = "Objective",
@@ -859,7 +862,7 @@ local function buildQuestCard(parent: Instance, name: string, position: UDim2, s
 		position = UDim2.fromScale(0.025, 0.04),
 		size = UDim2.fromScale(0.58, 0.44),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
 	local reward = Builder.label({
 		parent = card,
@@ -870,33 +873,29 @@ local function buildQuestCard(parent: Instance, name: string, position: UDim2, s
 		position = UDim2.fromScale(0.025, 0.49),
 		size = UDim2.fromScale(0.58, 0.22),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
-	local trough = Builder.pill({
+	-- The progress trough: a fitted flat dark block, filled from the left inside its stepped corners (Builder.blockBar).
+	local trough = Builder.blockPlate({
 		parent = card,
 		name = "Trough",
+		color = Theme.Block.Trough,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.025, 0.73),
 		size = UDim2.fromScale(0.58, 0.23),
-		color = Theme.Colors.Trough,
-		zIndex = 4,
+		zIndex = top,
 	})
-	local fill = Builder.pill({
-		parent = trough,
-		name = "Fill",
-		size = UDim2.fromScale(0, 1),
-		color = Theme.Colors.Select,
-		zIndex = 5,
-	})
-	Builder.gradient(fill, Theme.Colors.Select)
+	local setFill = Builder.blockBar(trough, Theme.Colors.Select)
 	local count = Builder.label({
 		parent = trough,
 		name = "Count",
 		text = "",
 		textSize = Theme.TextSize.Body,
 		stroke = 2,
-		zIndex = 6,
+		zIndex = Builder.blockTop(trough),
 	})
-	local claim = Builder.button({
+	local claim = Builder.blockButton({
 		parent = card,
 		name = "Claim",
 		text = claimText,
@@ -905,9 +904,11 @@ local function buildQuestCard(parent: Instance, name: string, position: UDim2, s
 		size = UDim2.fromScale(0.34, if tall then 0.6 else 0.42),
 		anchor = Vector2.new(1, if tall then 0.5 else 0),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = FLAT_ROWS,
+		cells = false, -- one on every card: a flat face
+		zIndex = top,
 	}, onClaim)
-	return { card = card, objective = objective, reward = reward, fill = fill, count = count, claim = claim }
+	return { card = card, objective = objective, reward = reward, fill = trough, setFill = setFill, count = count, claim = claim }
 end
 
 -- One daily or weekly card: the shared card, plus a Reroll button under the Claim of a daily.
@@ -930,7 +931,7 @@ local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly",
 	)
 	local reroll: Frame? = nil
 	if daily then
-		reroll = Builder.button({
+		reroll = Builder.blockButton({
 			parent = parts.card,
 			name = "Reroll",
 			text = Strings.DQ_REROLL,
@@ -939,7 +940,9 @@ local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly",
 			size = UDim2.fromScale(0.34, 0.38),
 			anchor = Vector2.new(1, 1),
 			textSize = Theme.TextSize.Body,
-			zIndex = 4,
+			rows = FLAT_ROWS,
+			cells = false,
+			zIndex = Builder.blockTop(parts.card),
 		}, function()
 			local row = ref
 			if row then
@@ -955,6 +958,7 @@ local function buildDailyRow(parent: ScrollingFrame, period: "daily" | "weekly",
 		objective = parts.objective,
 		reward = parts.reward,
 		fill = parts.fill,
+		setFill = parts.setFill,
 		count = parts.count,
 		claim = parts.claim,
 		reroll = reroll,
@@ -1006,16 +1010,13 @@ local function refreshDaily()
 		row.objective.Text = row.objectiveText
 		row.reward.Text = rewardsList(quest.rewards)
 		row.count.Text = Strings.OBJ_PROGRESS:format(have, need)
-		row.fill.Size = UDim2.fromScale(if need > 0 then have / need else 1, 1)
+		row.setFill(if need > 0 then have / need else 1)
 		tintFill(row.fill, if have >= need then Theme.Colors.Confirm else Theme.Colors.Select)
 
 		local dim = Builder.lighter(Theme.Rarity.Common, 0.45)
 		local card = row.card
-		card.BackgroundColor3 = if claimed then Builder.lighter(Theme.Rarity.Common, 0.6) else Theme.Colors.White
-		local stroke = card:FindFirstChildOfClass("UIStroke")
-		if stroke then
-			stroke.Color = if ready then Theme.Colors.Confirm else Theme.Rarity.Common
-		end
+		Builder.setBlockColor(card, if claimed then Builder.lighter(Theme.Rarity.Common, 0.6) else Theme.Colors.White)
+		Builder.setBlockInk(card, if ready then Theme.Colors.Confirm else Theme.Rarity.Common)
 		recolorButton(row.claim, if ready then Theme.Colors.Confirm elseif claimed then dim else Theme.Rarity.Common)
 		setFaceText(row.claim, if claimed then Strings.DQ_CLAIMED else Strings.DQ_CLAIM)
 		if ready and not row.claimReady then
@@ -1088,6 +1089,7 @@ local function buildEventRow(parent: ScrollingFrame, index: number): EventRow
 		objective = parts.objective,
 		reward = parts.reward,
 		fill = parts.fill,
+		setFill = parts.setFill,
 		count = parts.count,
 		claim = parts.claim,
 		questId = "",
@@ -1159,13 +1161,10 @@ local function refreshEvent()
 		row.objective.Text = seasonObjectiveText(quest.objective, season)
 		row.reward.Text = row.rewardsText
 		row.count.Text = Strings.OBJ_PROGRESS:format(have, need)
-		row.fill.Size = UDim2.fromScale(if need > 0 then have / need else 1, 1)
+		row.setFill(if need > 0 then have / need else 1)
 		tintFill(row.fill, if have >= need then Theme.Colors.Confirm else Theme.Colors.Select)
-		row.card.BackgroundColor3 = if claimed then Builder.lighter(Theme.Rarity.Common, 0.6) else Theme.Colors.White
-		local stroke = row.card:FindFirstChildOfClass("UIStroke")
-		if stroke then
-			stroke.Color = if ready then Theme.Colors.Confirm else Theme.Rarity.Common
-		end
+		Builder.setBlockColor(row.card, if claimed then Builder.lighter(Theme.Rarity.Common, 0.6) else Theme.Colors.White)
+		Builder.setBlockInk(row.card, if ready then Theme.Colors.Confirm else Theme.Rarity.Common)
 		recolorButton(row.claim, if ready then Theme.Colors.Confirm elseif claimed then Theme.Rarity.Common else dim)
 		setFaceText(row.claim, if claimed then Strings.EVENT_CLAIMED else Strings.EVENT_CLAIM)
 		if ready and not row.claimReady then
@@ -1305,7 +1304,8 @@ local function setView(next: ViewName)
 end
 
 local function buildTab(parent: Frame, key: ViewName, text: string, color: Color3)
-	local frame = Builder.button({
+	-- A fitted block button in cells: layoutTabs gives it two widths, and its plates refit.
+	local frame = Builder.blockButton({
 		parent = parent,
 		name = if key == "notes" then "NotesTab" elseif key == "daily" then "DailyTab" else "EventTab",
 		text = text,
@@ -1314,7 +1314,8 @@ local function buildTab(parent: Frame, key: ViewName, text: string, color: Color
 		size = UDim2.fromScale(TAB_W, TAB_H),
 		anchor = Vector2.new(0, 0.5),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Builder.blockButtonRows(TAB_H * PANEL_H),
+		zIndex = Builder.blockTop(parent),
 	}, function()
 		setView(key)
 	end)
@@ -1370,7 +1371,7 @@ local function buildDailyList(body: Frame)
 	frame.BorderSizePixel = 0
 	frame.Position = UDim2.fromScale(Theme.Margin, LIST_TOP)
 	frame.Size = UDim2.fromScale(1 - Theme.Margin * 2, 1 - LIST_TOP - Theme.Margin)
-	frame.ZIndex = 3
+	frame.ZIndex = Builder.blockTop(body)
 	frame.ScrollingDirection = Enum.ScrollingDirection.Y
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
 	frame.CanvasSize = UDim2.fromScale(0, DQ_PAGES)
@@ -1403,7 +1404,7 @@ local function buildEventList(body: Frame)
 	frame.BorderSizePixel = 0
 	frame.Position = UDim2.fromScale(Theme.Margin, LIST_TOP)
 	frame.Size = UDim2.fromScale(1 - Theme.Margin * 2, EV_LIST_SHARE)
-	frame.ZIndex = 3
+	frame.ZIndex = Builder.blockTop(body)
 	frame.ScrollingDirection = Enum.ScrollingDirection.Y
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
 	frame.CanvasSize = UDim2.fromScale(0, EV_LIST_SHARE)
@@ -1553,18 +1554,17 @@ local function buildWhatsOn(body: Frame)
 		position = UDim2.fromScale(Theme.Margin, HEADER_TOP),
 		size = UDim2.fromScale(0.4, HEADER_HEIGHT),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
-	local band = Builder.frame({
+	-- A fitted dark plate in cells (one band, so it carries the grout and jitter).
+	local band = Builder.blockPlate({
 		parent = body,
 		name = "WhatsOn",
+		color = Theme.Block.Trough,
+		rows = Builder.blockRows(ON_HEIGHT * PANEL_H),
 		position = UDim2.fromScale(Theme.Margin, ON_TOP),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, ON_HEIGHT),
-		color = Theme.Colors.Trough,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	onLines = {}
 	for index, place in ipairs(ON_PLACES) do
@@ -1576,7 +1576,7 @@ local function buildWhatsOn(body: Frame)
 			position = UDim2.fromScale(place.x, place.y),
 			size = UDim2.fromScale(place.w, 0.5),
 			xAlign = Enum.TextXAlignment.Left,
-			zIndex = 4,
+			zIndex = Builder.blockTop(band),
 		})
 		line.TextWrapped = false
 		line.TextTruncate = Enum.TextTruncate.AtEnd
@@ -1609,20 +1609,20 @@ local function build()
 		QuestsScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	-- The panel: a cream block plate at the panel cell.
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
-		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H),
+		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		size = UDim2.fromScale(0.8, PANEL_H),
+		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 2,
 	})
 	panel = body
+	local top = Builder.blockTop(body)
 
 	-- Header tabs straddling the top edge: Field Notes (gold), Daily & Weekly (blue) and, while a season runs,
 	-- Event (Codex purple). The tapped one is raised and bright, the others lower and grey; layoutTabs spaces
@@ -1631,18 +1631,7 @@ local function build()
 	buildTab(body, "daily", Strings.DQ_TAB_DAILY, DAILY_COLOR)
 	buildTab(body, "event", Strings.DQ_TAB_EVENT, EVENT_COLOR)
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		QuestsScreen.Close()
 	end)
 
@@ -1655,7 +1644,7 @@ local function build()
 		position = UDim2.fromScale(0.46, HEADER_TOP),
 		size = UDim2.fromScale(0.4, HEADER_HEIGHT),
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 3,
+		zIndex = top,
 	})
 	buildWhatsOn(body)
 
@@ -1664,7 +1653,7 @@ local function build()
 		name = "Steps",
 		position = UDim2.fromScale(Theme.Margin, LIST_TOP),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, 1 - LIST_TOP - Theme.Margin),
-		zIndex = 3,
+		zIndex = top,
 	})
 	stepsFrame.ClipsDescendants = true
 	local layout = Instance.new("UIListLayout")

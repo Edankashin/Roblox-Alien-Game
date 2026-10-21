@@ -48,7 +48,7 @@ Theme.Stroke = {
 	TextJoin = Enum.LineJoinMode.Bevel,
 	ShapeJoin = Enum.LineJoinMode.Miter,
 }
-Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
+Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12, BannerLine = 2.5 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows; BannerLine: seconds each line of a one-line HUD event banner shows before the other takes its turn
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
 Theme.TapMin = 44 -- the smallest tappable face in px (UI Playbook, phone rules): a smaller face gets an invisible hit area this big (Builder.button `hit`)
@@ -69,11 +69,11 @@ Theme.Gloss = {
 	ShineAlpha = 0.55, -- the band's transparency at its centre (it fades to clear at both edges)
 	ShineEvery = 4, -- seconds of rest between two sweeps
 }
--- The shop's status shapes (Builder.ribbon, Builder.seal). A ribbon's swallowtail end is a diamond Tail tall (of the plate's height)
--- turned 45 degrees under each end. A seal is Spikes squares turned evenly through a quarter turn (three make twelve points):
--- Ink is the navy outline's side and Fill the colour's, of the seal's; Text is its label's width.
-Theme.Ribbon = { Tail = 0.7, Corner = 6 }
-Theme.Seal = { Spikes = 3, Ink = 0.72, Fill = 0.64, Text = 0.7 }
+-- The shop's status shapes (Builder.ribbon, Builder.seal), in block cells since the Shop's change: a ribbon's folded end is a
+-- darker flat square Tail tall (of the holder's height) under each end of its plate; a seal is a stepped pixel octagon whose
+-- label is Text of its width.
+Theme.Ribbon = { Tail = 0.7 }
+Theme.Seal = { Text = 0.7 }
 -- Block cells (UI Playbook "Block cells", Decisions B44, Decide-Now 43): a plate is a whole number of square cells with its four
 -- corner cells cut (the stepped pixel corner), a navy ink border, a lit top row, darker side and bottom cells, a grout line on each
 -- cell and a few cells a shade off (Blocky-Style C1 to C6): frames only, no image, no gradient, no gloss. Shared/BlockMath does the
@@ -94,6 +94,7 @@ Theme.Block = {
 	Seed = 44,
 	Hover = 1.04,
 	PixelGrid = 8,
+	PanelCell = 0.04, -- a modal panel's cell (Builder.blockPanelRows): twice Cell, as the world's cell is twice a creature's (C1)
 	Trough = Color3.fromHex("2A2F55"), -- a dark plate's face (the Scrap plate, the ship bar's trough, the idle Friend chip): the ink a step up
 	Layer = { Ink = 0, Fill = 1, Bar = 2, Cells = 3, Content = 4 },
 }

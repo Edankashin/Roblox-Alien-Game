@@ -5,6 +5,10 @@
 -- and dimmed. Every value shown is read from the profile mirror in State and extrapolated with the
 -- shared Economy math; every tap asks the server (ModulePay, ModuleInsertKey, StationOptimize) and
 -- a refusal becomes a toast. Nothing here decides an outcome.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the gold header and the close; a module card a fitted edged block (it re-picks its rows between compact and expanded) whose
+-- face and ink follow its state, its badge and Paid chip flat blocks, Pay and Add flat block buttons, its progress bar a flat
+-- dark block filled cell-true in gold; Star Chart and Optimize block buttons in cells.
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,8 +45,8 @@ type Row = {
 	keyLabel: TextLabel,
 	add: Frame,
 	addFace: TextButton,
-	bar: Frame,
-	fill: Frame,
+	bar: Frame, -- a flat dark block; setBar fills it cell-true (Builder.blockBar)
+	setBar: (number) -> (),
 	percent: TextLabel,
 	status: TextLabel,
 }
@@ -81,29 +85,14 @@ local function formatTime(seconds: number): string
 	return Strings.TIME_S:format(total)
 end
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
 local function setFill(row: Row, progress: number)
 	local p = math.clamp(progress, 0, 1)
-	row.fill.Size = UDim2.fromScale(p, 1)
+	row.setBar(p)
 	row.percent.Text = Strings.UI_PERCENT:format(math.floor(p * 100))
 end
 
@@ -167,27 +156,27 @@ end
 -- Rows ---------------------------------------------------------------------
 
 local function buildRow(parent: Frame, index: number): Row
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Module" .. index,
 		size = UDim2.fromScale(1, ROW_COMPACT),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
 	card.LayoutOrder = index
 
-	local badge = Builder.pill({
+	local badge = Builder.blockPlate({
 		parent = card,
 		name = "Badge",
 		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Text,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		aspect = 1,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(badge, Theme.Rarity.Common)
 	local badgeLabel = Builder.label({
 		parent = badge,
 		name = "Index",
@@ -196,7 +185,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.85),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(badge),
 	})
 	local name = Builder.label({
 		parent = card,
@@ -204,7 +193,7 @@ local function buildRow(parent: Frame, index: number): Row
 		text = "",
 		textSize = Theme.TextSize.Label,
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	local crew = Builder.label({
 		parent = card,
@@ -214,10 +203,10 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.6, 0.03),
 		size = UDim2.fromScale(0.39, 0.24),
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 
-	local pay = Builder.button({
+	local pay = Builder.blockButton({
 		parent = card,
 		name = "Pay",
 		text = Strings.SHIP_PAY:format("0"),
@@ -225,7 +214,9 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.09, 0.31),
 		size = UDim2.fromScale(0.23, 0.4),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false, -- one on every module card: a flat face
+		zIndex = Builder.blockTop(card),
 	}, function()
 		local moduleId = moduleIdAt(index)
 		if moduleId then
@@ -233,17 +224,16 @@ local function buildRow(parent: Frame, index: number): Row
 		end
 	end)
 	local payFace = pay:FindFirstChild("Face") :: TextButton
-	local paid = Builder.pill({
+	local paid = Builder.blockPlate({
 		parent = card,
 		name = "Paid",
 		position = UDim2.fromScale(0.09, 0.31),
 		size = UDim2.fromScale(0.23, 0.36),
 		color = Theme.Colors.Confirm,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(Theme.Colors.Confirm),
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(paid, Theme.Colors.Confirm)
 	Builder.label({
 		parent = paid,
 		name = "Text",
@@ -252,7 +242,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(paid),
 	})
 	local keyLabel = Builder.label({
 		parent = card,
@@ -262,9 +252,9 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.335, 0.31),
 		size = UDim2.fromScale(0.305, 0.4),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
-	local add = Builder.button({
+	local add = Builder.blockButton({
 		parent = card,
 		name = "Add",
 		text = Strings.SHIP_ADD:format(""),
@@ -272,7 +262,9 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.655, 0.31),
 		size = UDim2.fromScale(0.335, 0.4),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false, -- one on every module card: a flat face
+		zIndex = Builder.blockTop(card),
 	}, function()
 		local moduleId = moduleIdAt(index)
 		if moduleId then
@@ -281,23 +273,16 @@ local function buildRow(parent: Frame, index: number): Row
 	end)
 	local addFace = add:FindFirstChild("Face") :: TextButton
 
-	local bar = Builder.pill({
+	-- The progress bar: a fitted flat dark block filled cell-true in gold (Builder.blockBar); layoutRow resizes it.
+	local bar = Builder.blockPlate({
 		parent = card,
 		name = "Bar",
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		color = Theme.Block.Trough,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	bar.ClipsDescendants = true
-	local fill = Builder.pill({
-		parent = bar,
-		name = "Fill",
-		size = UDim2.fromScale(0, 1),
-		color = Theme.Colors.Featured,
-		zIndex = 5,
-	})
-	Builder.gradient(fill, Theme.Colors.Featured)
+	local setBar = Builder.blockBar(bar, Theme.Colors.Featured)
 	local percent = Builder.label({
 		parent = bar,
 		name = "Percent",
@@ -306,7 +291,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.blockTop(bar),
 	})
 	local status = Builder.label({
 		parent = card,
@@ -314,7 +299,7 @@ local function buildRow(parent: Frame, index: number): Row
 		text = "",
 		textSize = Theme.TextSize.Body,
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 
 	return {
@@ -330,7 +315,7 @@ local function buildRow(parent: Frame, index: number): Row
 		add = add,
 		addFace = addFace,
 		bar = bar,
-		fill = fill,
+		setBar = setBar,
 		percent = percent,
 		status = status,
 	}
@@ -347,16 +332,9 @@ local function ensureRows(count: number)
 end
 
 local function setCardStyle(row: Row, cardColor: Color3, accent: Color3)
-	row.card.BackgroundColor3 = cardColor
-	local stroke = row.card:FindFirstChildOfClass("UIStroke")
-	if stroke then
-		stroke.Color = accent
-	end
-	row.badge.BackgroundColor3 = accent
-	local gradient = row.badge:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(accent), accent)
-	end
+	Builder.setBlockColor(row.card, cardColor)
+	Builder.setBlockInk(row.card, accent)
+	Builder.setBlockColor(row.badge, accent)
 end
 
 -- Positions the shared children for the expanded (active) or compact (done, locked) shape.
@@ -523,17 +501,15 @@ local function build()
 		ShipScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, PANEL_Y), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
@@ -542,42 +518,9 @@ local function build()
 	end)
 
 	-- Header tab straddling the top edge, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.SHIP_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.SHIP_TITLE, Theme.Colors.Featured, Vector2.new(0.42, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		ShipScreen.Close()
 	end)
 
@@ -589,7 +532,7 @@ local function build()
 		position = UDim2.fromScale(Theme.Margin, 0.085),
 		size = UDim2.fromScale(0.84, 0.065),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 
 	local rowsFrame = Builder.frame({
@@ -597,7 +540,7 @@ local function build()
 		name = "Modules",
 		position = UDim2.fromScale(Theme.Margin, 0.16),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, 0.68),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
@@ -617,13 +560,13 @@ local function build()
 		anchor = Vector2.new(0, 1),
 		color = Theme.Colors.Featured,
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	complete.Visible = false
 	completeLabel = complete
 
 	-- Star Chart, bottom left: closes this screen and opens the chart. Mirrors Optimize on the right.
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "StarChart",
 		text = Strings.STARCHART_OPEN,
@@ -632,12 +575,13 @@ local function build()
 		size = UDim2.fromScale(FOOTER_W, 0.1),
 		anchor = Vector2.new(0, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		zIndex = Builder.blockTop(body) + 1,
 	}, function()
 		Screens.Open("StarChart") -- closes the Ship screen on the way
 	end)
 
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "Optimize",
 		text = Strings.OPTIMIZE,
@@ -646,7 +590,8 @@ local function build()
 		size = UDim2.fromScale(FOOTER_W, 0.1),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		zIndex = Builder.blockTop(body) + 1,
 	}, function()
 		ask("StationOptimize", nil)
 	end)

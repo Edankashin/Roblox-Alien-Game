@@ -75,6 +75,7 @@ export type ButtonProps = {
 	icon: string?, -- an Icons key: shown on the face instead of `text` once its image is uploaded (id not 0)
 	hit: boolean?, -- true adds an invisible hit area the face's size, grown to at least Theme.TapMin px each way and centred on it (the UI Playbook's 44 px floor for a small face)
 	rows: number?, -- Builder.blockButton only: the face's cell rows (default from size.Y as a Scale of the screen, less the one-cell lip)
+	cells: boolean?, -- Builder.blockButton only: false draws the face as a flat block (a button repeated down a list: UI Playbook "Frames")
 }
 
 export type RibbonProps = {
@@ -105,9 +106,14 @@ export type BlockProps = {
 	parent: Instance?,
 	name: string?,
 	color: Color3, -- the face colour; the shading is white and black overlays, so Builder.setBlockColor recolours it
-	aspect: number, -- the plate's width over its height in px: the plate keeps it, so its cells stay square
+	aspect: number?, -- the plate's width over its height in px: the plate keeps it, so its cells stay square. Nil makes a fitted
+	-- plate: no aspect constraint, it takes the box its Size gives (a row in a list, a band as wide as the screen) and draws the
+	-- whole number of columns nearest square cells for the box it measures, again when that box changes shape
 	rows: number?, -- cell rows across the face; default from size.Y (Builder.blockRows), so a cell is about Theme.Block.Cell of the screen
+	-- (a fitted plate with no rows picks them once from its measured height, again when the screen changes)
 	cells: boolean?, -- false: a flat block (ink, face and stepped corners, no bands, grout or jitter), for a badge or an icon square
+	edges: boolean?, -- with cells false: an edged block, the flat block plus the C3 lit top row and shaded edges (no grout, no
+	-- jitter): a card repeated down a list or across a grid, so it reads as a block at eight frames, not fifty (UI Playbook "Frames")
 	position: UDim2?,
 	size: UDim2?,
 	anchor: Vector2?,
@@ -646,10 +652,10 @@ function Builder.button(props: ButtonProps, onClick: () -> ()): Frame
 	return container
 end
 
--- A folded ribbon plate for a status word (BEST DEAL, NEW!): a navy-outlined plate in `color` with a gloss band, white outlined
--- text at the 14 px floor, and a darker diamond poking out under each end for the swallowtail. The holder is the size given
--- (`aspect` is its width over its height in px), the plate fills most of it (Theme.Ribbon), and nothing in it takes taps.
--- Returns the holder.
+-- A folded ribbon for a status word (BEST DEAL, NEW!), in block cells (UI Playbook "Screens after the HUD", the Shop): a flat block
+-- plate in `color` with white outlined text at the 14 px floor, over a darker flat square at each end dropped below it for the
+-- folded tail. The holder is the size given (`aspect` is its width over its height in px), the plate fills most of it
+-- (Theme.Ribbon), and nothing in it takes taps. Returns the holder.
 function Builder.ribbon(props: RibbonProps): Frame
 	local z = props.zIndex or 1
 	local holder = Builder.frame({
@@ -661,81 +667,134 @@ function Builder.ribbon(props: RibbonProps): Frame
 		zIndex = z,
 	})
 	local dark = Builder.darker(props.color)
+	local plateH = 1 - Theme.Ribbon.Tail / 4
 	for side = 0, 1 do
-		local tail = Builder.frame({
+		Builder.blockPlate({
 			parent = holder,
 			name = "Tail",
+			color = dark,
+			aspect = 1,
+			rows = Theme.Block.MinRows,
+			cells = false,
 			position = UDim2.fromScale(0.05 + side * 0.9, 0.5 + Theme.Ribbon.Tail / 4),
 			size = UDim2.fromScale(Theme.Ribbon.Tail / props.aspect, Theme.Ribbon.Tail),
 			anchor = Vector2.new(0.5, 0.5),
-			color = dark,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
 			zIndex = z,
 		})
-		tail.Rotation = 45
 	end
-	local plate = Builder.frame({
+	local plate = Builder.blockPlate({
 		parent = holder,
 		name = "Plate",
+		color = props.color,
+		aspect = 0.9 * props.aspect / plateH,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.05, 0),
-		size = UDim2.fromScale(0.9, 1 - Theme.Ribbon.Tail / 4),
-		color = Theme.Colors.White, -- the gradient is the colour (a gradient multiplies its frame's colour, so the frame is white)
-		corner = Theme.Ribbon.Corner,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		gloss = true,
-		zIndex = z + 1,
+		size = UDim2.fromScale(0.9, plateH),
+		zIndex = z + Theme.Block.Layer.Fill + 1, -- over both tails' ink and face
 	})
-	local tint = Instance.new("UIGradient")
-	tint.Rotation = 90
-	tint.Color = ColorSequence.new(Builder.lighter(props.color), props.color)
-	tint.Parent = plate
 	Builder.label({
 		parent = plate,
 		name = "Text",
 		text = props.text,
 		textSize = Theme.TextSize.Min,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.94, 0.9),
+		size = UDim2.fromScale(0.94, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = z + 3,
+		zIndex = Builder.blockTop(plate),
 	})
 	return holder
 end
 
--- A spiky starburst seal for a value claim (BEST VALUE): Theme.Seal.Spikes squares turned evenly through a quarter turn make
--- twice that many times two points; a navy set a little larger under a set in `color` gives the outline without a stroke
--- (overlapping strokes would show lines through the burst). The label is white outlined text over the middle. The caller sizes the
--- holder square and may turn it (`rotation`); nothing in it takes taps. Returns the holder.
-function Builder.seal(props: SealProps): Frame
+-- The stepped pixel octagon on an 8 by 8 grid (Theme.Block.PixelGrid) as overlapping bars { x, y, w, h }: the ink, then the colour
+-- one unit inside it all round (the ink keeps one thickness round every step, like the compass diamond); a thick ring insets the
+-- colour two units (a plus of two bars; the third bar hides).
+local OCTAGON_INK = { { 2, 0, 4, 8 }, { 1, 1, 6, 6 }, { 0, 2, 8, 4 } }
+local OCTAGON_FILL = { { 3, 1, 2, 6 }, { 2, 2, 4, 4 }, { 1, 3, 6, 2 } }
+local OCTAGON_THICK = { { 3, 2, 2, 4 }, { 2, 3, 4, 2 }, { 4, 4, 0, 0 } }
+
+-- A pixel octagon: the round thing of a block screen (a seal, a planet, the Star Chart's star and glow, a ready dot), frames only.
+export type OctagonProps = {
+	parent: Instance?,
+	name: string?,
+	color: Color3, -- the face
+	ink: Color3?, -- the ring (navy by default)
+	position: UDim2?,
+	size: UDim2?, -- the holder keeps a 1:1 aspect inside it
+	anchor: Vector2?,
+	zIndex: number?, -- the ink takes this, the face one more; content goes at two more (Builder.octagonTop)
+}
+export type Octagon = { holder: Frame, ink: { Frame }, fill: { Frame } }
+
+local function octagonRect(frame: Frame, bar: { number })
+	local grid = Theme.Block.PixelGrid
+	frame.Position = UDim2.fromScale(bar[1] / grid, bar[2] / grid)
+	frame.Size = UDim2.fromScale(bar[3] / grid, bar[4] / grid)
+	frame.Visible = bar[3] > 0 and bar[4] > 0
+end
+
+-- Builds a pixel octagon in a square holder; nothing in it takes taps. Returns its holder and its bars (for paintOctagon).
+function Builder.pixelOctagon(props: OctagonProps): Octagon
 	local z = props.zIndex or 1
 	local holder = Builder.frame({
-		parent = props.parent,
-		name = props.name or "Seal",
+		name = props.name or "Octagon",
 		position = props.position,
 		size = props.size,
 		anchor = props.anchor,
+		aspect = 1,
 		zIndex = z,
 	})
-	holder.Rotation = props.rotation or 0
-	local spikes = Theme.Seal.Spikes
-	local quarter = 90
-	for layer = 0, 1 do
-		local side = if layer == 0 then Theme.Seal.Ink else Theme.Seal.Fill
-		for index = 0, spikes - 1 do
-			local square = Builder.frame({
+	local out: Octagon = { holder = holder, ink = {}, fill = {} }
+	for layer, bars in ipairs({ OCTAGON_INK, OCTAGON_FILL }) do
+		for _, bar in ipairs(bars) do
+			local frame = Builder.frame({
 				parent = holder,
-				name = if layer == 0 then "Ink" else "Fill",
-				position = UDim2.fromScale(0.5, 0.5),
-				size = UDim2.fromScale(side, side),
-				anchor = Vector2.new(0.5, 0.5),
-				color = if layer == 0 then Theme.Colors.Outline else props.color,
-				zIndex = z + layer,
+				name = if layer == 1 then "Ink" else "Fill",
+				color = if layer == 1 then props.ink or Theme.Colors.Outline else props.color,
+				zIndex = z + layer - 1,
 			})
-			square.Rotation = index * quarter / spikes
+			octagonRect(frame, bar)
+			table.insert(if layer == 1 then out.ink else out.fill, frame)
 		end
 	end
+	holder.Parent = props.parent
+	return out
+end
+
+-- The ZIndex content on a pixel octagon takes (a planet's number, a seal's word).
+function Builder.octagonTop(octagon: Octagon): number
+	return octagon.holder.ZIndex + 2
+end
+
+-- Repaints a pixel octagon: its face and ring colours and see-through, and whether the ring is thick (two units: a selected
+-- planet).
+function Builder.paintOctagon(octagon: Octagon, fill: Color3, fillAlpha: number, ink: Color3, inkAlpha: number, thick: boolean)
+	for index, frame in ipairs(octagon.fill) do
+		frame.BackgroundColor3 = fill
+		frame.BackgroundTransparency = fillAlpha
+		octagonRect(frame, (if thick then OCTAGON_THICK else OCTAGON_FILL)[index])
+	end
+	for _, frame in ipairs(octagon.ink) do
+		frame.BackgroundColor3 = ink
+		frame.BackgroundTransparency = inkAlpha
+	end
+end
+
+-- A seal for a value claim (BEST VALUE), in block cells: a pixel octagon in `color` inside a navy ink, frames only (no stroke, no
+-- turned squares). The label is white outlined text over the middle. The caller sizes the holder square and may turn it
+-- (`rotation`, the stamp's tilt); nothing in it takes taps. Returns the holder.
+function Builder.seal(props: SealProps): Frame
+	local octagon = Builder.pixelOctagon({
+		parent = props.parent,
+		name = props.name or "Seal",
+		color = props.color,
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = props.zIndex,
+	})
+	local holder = octagon.holder
+	holder.Rotation = props.rotation or 0
 	Builder.label({
 		parent = holder,
 		name = "Text",
@@ -744,9 +803,24 @@ function Builder.seal(props: SealProps): Frame
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(Theme.Seal.Text, Theme.Seal.Text * 0.7),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = z + 3,
+		zIndex = Builder.octagonTop(octagon),
 	})
 	return holder
+end
+
+-- Recolours a block button's face and lip, keeping its text and whether it takes taps (a Shop tab going dark when another is
+-- active, a Settings level button turning green): the block twin of the screens' old in-place recolour.
+function Builder.recolorBlockButton(container: Instance?, color: Color3)
+	if not container then
+		return
+	end
+	local plate, lip = container:FindFirstChild("Plate"), container:FindFirstChild("Lip")
+	if plate then
+		Builder.setBlockColor(plate, color)
+	end
+	if lip then
+		Builder.setBlockColor(lip, Builder.darker(color))
+	end
 end
 
 -- Restyles a button made by Builder.button: the face, lip, border and gradient take a new colour, the face a new label, and
@@ -786,6 +860,11 @@ end
 
 local BLOCK_ASPECT = "BlockAspect" -- attributes a plate carries so a later call (blockBar, blockInner) can rebuild its grid
 local BLOCK_ROWS = "BlockRows"
+local BLOCK_COLS = "BlockCols"
+local BLOCK_COLOR = "BlockColor" -- the face colour now (setBlockColor moves it), which a fitted plate's redraw keeps
+local BLOCK_INK = "BlockInk" -- and the ink colour (setBlockInk)
+local BLOCK_FADE = "BlockFade" -- and the fade (setBlockFade)
+local FIT_RESHAPE = 0.01 -- a fitted plate whose aspect moves more than this (not a uniform scale) picks its rows again
 local BLOCK_ICON_SCALE = 0.8 -- a block button's icon, as a fraction of its face's padded box (about 0.6 of the face's height)
 local BLOCK_TEXT_PAD_X = 0.5 -- a block button's text keeps this many cells clear of the ink at each side
 local BLOCK_TEXT_PAD_Y = 0.25 -- and this many at the top and bottom
@@ -795,9 +874,10 @@ function Builder.blockTop(plate: GuiObject): number
 	return plate.ZIndex + Theme.Block.Layer.Content
 end
 
--- The cell rows of a plate `height` tall, as a Scale of the screen height: a cell is then about Theme.Block.Cell of the screen.
-function Builder.blockRows(height: number): number
-	return BlockMath.Rows(height, Theme.Block.Cell, Theme.Block.Ink, Theme.Block.MinRows)
+-- The cell rows of a plate `height` tall, as a Scale of the screen height: a cell is then about `cell` of the screen
+-- (Theme.Block.Cell by default; a modal panel passes Theme.Block.PanelCell, the density rule for big plates).
+function Builder.blockRows(height: number, cell: number?): number
+	return BlockMath.Rows(height, cell or Theme.Block.Cell, Theme.Block.Ink, Theme.Block.MinRows)
 end
 
 -- The face rows of a block button `height` tall (a Scale of the screen height): one cell of it is the lip.
@@ -828,49 +908,145 @@ local function rectFrame(parent: Instance, name: string, rect: BlockMath.Rect, c
 	return frame
 end
 
--- A block plate: the ink border and the face as two overlapping bars each (the cut corners), then, unless `cells` is false, the
--- lit top row and the shaded side and bottom cells (on a plate three cells or more both ways), the grout on every cell and the
--- jittered cells (BlockMath.Level: 1 in 8 a shade down, 1 in 8 a shade up). Returns the plate, a transparent frame that keeps
--- `aspect`; put labels and icons in it at Builder.blockTop(plate).
+-- What a plate drew (its ink, face and cell overlays), so a fitted plate can clear and redraw them without touching the content
+-- a screen put in it, and what to run after a redraw (a bar re-placing its fill, a button its padding). Weak keys: a destroyed
+-- plate drops out.
+local drawnParts: { [Instance]: { Frame } } = setmetatable({}, { __mode = "k" }) :: any
+local redrawHooks: { [Instance]: { () -> () } } = setmetatable({}, { __mode = "k" }) :: any
+
+local function onRedraw(plate: Instance, hook: () -> ())
+	local hooks = redrawHooks[plate]
+	if not hooks then
+		hooks = {}
+		redrawHooks[plate] = hooks
+	end
+	table.insert(hooks, hook)
+end
+
+-- Draws a plate's grid: the ink border and the face as two overlapping bars each (the cut corners), then, with `cells`, the lit
+-- top row and the shaded side and bottom cells (three cells or more both ways), the grout on every cell and the jittered cells.
+-- The face, the ink and the fade come from the plate's attributes (setBlockColor, setBlockInk and setBlockFade keep them), so a
+-- redraw keeps a recolour.
+local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edges: boolean, seed: number)
+	local old = drawnParts[plate]
+	if old then
+		for _, part in ipairs(old) do
+			part:Destroy()
+		end
+	end
+	local parts: { Frame } = {}
+	drawnParts[plate] = parts
+	local z = plate.ZIndex
+	local layers = Theme.Block.Layer
+	local color, inkColor, fadeBy = plate:GetAttribute(BLOCK_COLOR), plate:GetAttribute(BLOCK_INK), plate:GetAttribute(BLOCK_FADE)
+	local face: Color3 = if typeof(color) == "Color3" then color else Theme.Colors.Panel
+	local ink: Color3 = if typeof(inkColor) == "Color3" then inkColor else Theme.Colors.Outline
+	local fade: number = if type(fadeBy) == "number" then fadeBy else 0
+	local function add(name: string, rect: BlockMath.Rect, shade: Color3, transparency: number, layer: number)
+		table.insert(parts, rectFrame(plate, name, rect, shade, 1 - (1 - transparency) * (1 - fade), z + layer))
+	end
+	for _, rect in ipairs(BlockMath.Shape(grid, 0, 0)) do
+		add("Ink", rect, ink, 0, layers.Ink)
+	end
+	for _, rect in ipairs(BlockMath.Face(grid)) do
+		add("Fill", rect, face, 0, layers.Fill)
+	end
+	if cells or edges then
+		local bands = BlockMath.Bands(grid)
+		if bands.top then
+			add("Lit", bands.top, Theme.Colors.White, Theme.Block.TopAlpha, layers.Cells)
+		end
+		for _, rect in ipairs({ bands.bottom, bands.left, bands.right }) do
+			if rect then
+				add("Edge", rect, Theme.Colors.Black, Theme.Block.EdgeAlpha, layers.Cells)
+			end
+		end
+	end
+	if cells then
+		for _, rect in ipairs(BlockMath.Grout(grid, Theme.Block.Grout)) do
+			add("Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, layers.Cells)
+		end
+		for _, cell in ipairs(BlockMath.Jittered(grid, seed)) do
+			local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
+			add("Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, layers.Cells)
+		end
+	end
+	plate:SetAttribute(BLOCK_ROWS, grid.rows)
+	plate:SetAttribute(BLOCK_COLS, grid.cols)
+	local hooks = redrawHooks[plate]
+	if hooks then
+		for _, hook in ipairs(hooks) do
+			hook()
+		end
+	end
+end
+
+-- A fitted plate follows its box: it measures its px size, keeps `rows` (or picks them from its height as a share of the screen,
+-- again when the screen height or the box's shape changes) and redraws only when the rows or the whole number of columns nearest
+-- square cells change. A UIScale tween (a panel opening) scales both sides alike, so it never re-picks or redraws; a rotation, a
+-- resize or a column growing shorter may. Before it is measured it draws from a guess (its Size as a share of the screen), so it
+-- is never blank for a frame.
+local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number, number) -> ())
+	local camera = workspace.CurrentCamera
+	local screen = if camera then camera.ViewportSize else Vector2.new(16, 9)
+	local guessRows = rows or Builder.blockRows(size.Y.Scale)
+	local guessAspect = if size.Y.Scale > 0 and screen.Y > 0 then (size.X.Scale * screen.X) / (size.Y.Scale * screen.Y) else 1
+	local shownRows, shownCols = guessRows, BlockMath.Grid(guessAspect, guessRows, Theme.Block.Ink).cols
+	local pickedRows: number? = rows
+	local pickedFor, pickedAspect = 0, 0
+	draw(guessAspect, guessRows)
+	local function measure()
+		local box = plate.AbsoluteSize
+		if box.X <= 0 or box.Y <= 0 then
+			return
+		end
+		local height = viewportHeight()
+		local aspect = box.X / box.Y
+		local want = pickedRows
+		local reshaped = pickedAspect <= 0 or math.abs(aspect / pickedAspect - 1) > FIT_RESHAPE
+		if rows == nil and (want == nil or pickedFor ~= height or reshaped) then
+			want = if height > 0 then Builder.blockRows(box.Y / height) else guessRows
+			pickedRows, pickedFor, pickedAspect = want, height, aspect
+		end
+		local wantRows = want or guessRows
+		local cols = BlockMath.Grid(aspect, wantRows, Theme.Block.Ink).cols
+		if cols ~= shownCols or wantRows ~= shownRows then
+			shownRows, shownCols = wantRows, cols
+			draw(aspect, wantRows)
+		end
+	end
+	plate:GetPropertyChangedSignal("AbsoluteSize"):Connect(measure)
+	task.defer(measure)
+end
+
+-- A block plate (UI Playbook "Block cells"): ink, face and, unless `cells` is false, the C3 bands, the grout and the C2 jitter
+-- (BlockMath.Level: 1 in 8 a shade down, 1 in 8 a shade up). With `aspect` the plate keeps that shape (a UIAspectRatioConstraint)
+-- and its grid is fixed; without it the plate is fitted (fitPlate) to whatever box its Size gives. Returns the plate, a
+-- transparent frame; put labels and icons in it at Builder.blockTop(plate), and never a UIListLayout (it would stack the cells).
 function Builder.blockPlate(props: BlockProps): Frame
-	local z = props.zIndex or 1
 	local size = props.size or UDim2.fromScale(1, 1)
-	local grid = BlockMath.Grid(props.aspect, props.rows or Builder.blockRows(size.Y.Scale), Theme.Block.Ink)
 	local plate = Builder.frame({
 		name = props.name or "Plate",
 		position = props.position,
 		size = size,
 		anchor = props.anchor,
-		zIndex = z,
+		zIndex = props.zIndex or 1,
 		aspect = props.aspect,
 	})
-	plate:SetAttribute(BLOCK_ASPECT, props.aspect)
-	plate:SetAttribute(BLOCK_ROWS, grid.rows)
-	local layers = Theme.Block.Layer
-	for _, rect in ipairs(BlockMath.Shape(grid, 0, 0)) do
-		rectFrame(plate, "Ink", rect, props.ink or Theme.Colors.Outline, 0, z + layers.Ink)
+	plate:SetAttribute(BLOCK_COLOR, props.color)
+	plate:SetAttribute(BLOCK_INK, props.ink or Theme.Colors.Outline)
+	local cells = props.cells ~= false
+	local edges = props.edges == true
+	local seed = props.seed or Theme.Block.Seed
+	local function draw(aspect: number, rows: number)
+		plate:SetAttribute(BLOCK_ASPECT, aspect)
+		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, edges, seed)
 	end
-	for _, rect in ipairs(BlockMath.Face(grid)) do
-		rectFrame(plate, "Fill", rect, props.color, 0, z + layers.Fill)
-	end
-	if props.cells ~= false then
-		local cellsZ = z + layers.Cells
-		local bands = BlockMath.Bands(grid)
-		if bands.top then
-			rectFrame(plate, "Lit", bands.top, Theme.Colors.White, Theme.Block.TopAlpha, cellsZ)
-		end
-		for _, rect in ipairs({ bands.bottom, bands.left, bands.right }) do
-			if rect then
-				rectFrame(plate, "Edge", rect, Theme.Colors.Black, Theme.Block.EdgeAlpha, cellsZ)
-			end
-		end
-		for _, rect in ipairs(BlockMath.Grout(grid, Theme.Block.Grout)) do
-			rectFrame(plate, "Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, cellsZ)
-		end
-		for _, cell in ipairs(BlockMath.Jittered(grid, props.seed or Theme.Block.Seed)) do
-			local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
-			rectFrame(plate, "Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, cellsZ)
-		end
+	local aspect = props.aspect
+	if aspect then
+		draw(aspect, props.rows or Builder.blockRows(size.Y.Scale))
+	else
+		fitPlate(plate, size, props.rows, draw)
 	end
 	plate.Parent = props.parent
 	return plate
@@ -878,14 +1054,40 @@ end
 
 -- Gives a plate (or a block button's Plate or Lip) a new face colour, at once or over `info`.
 function Builder.setBlockColor(plate: Instance, color: Color3, info: TweenInfo?)
-	for _, child in ipairs(plate:GetChildren()) do
-		if child:IsA("Frame") and child.Name == "Fill" then
+	plate:SetAttribute(BLOCK_COLOR, color)
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		if part.Name == "Fill" then
 			if info then
-				TweenService:Create(child, info, { BackgroundColor3 = color }):Play()
+				TweenService:Create(part, info, { BackgroundColor3 = color }):Play()
 			else
-				child.BackgroundColor3 = color
+				part.BackgroundColor3 = color
 			end
 		end
+	end
+end
+
+-- Gives a plate a new ink colour: a species icon's ring in its tier's colour (the rarity colours stay the rarity colours).
+function Builder.setBlockInk(plate: Instance, color: Color3)
+	plate:SetAttribute(BLOCK_INK, color)
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		if part.Name == "Ink" then
+			part.BackgroundColor3 = color
+		end
+	end
+end
+
+-- Fades a whole plate by `transparency` (0 as drawn, 1 gone): each of its frames keeps its own share of see-through (a lit row
+-- stays lighter than the face), so a dimmed row reads as the same block, fainter. Its content (labels, icons) fades on its own.
+function Builder.setBlockFade(plate: Instance, transparency: number)
+	plate:SetAttribute(BLOCK_FADE, transparency)
+	local base: { [string]: number } = {
+		Lit = Theme.Block.TopAlpha,
+		Edge = Theme.Block.EdgeAlpha,
+		Grout = Theme.Block.GroutAlpha,
+		Jitter = Theme.Block.JitterAlpha,
+	}
+	for _, part in ipairs(drawnParts[plate] or {}) do
+		part.BackgroundTransparency = 1 - (1 - (base[part.Name] or 0)) * (1 - transparency)
 	end
 end
 
@@ -903,25 +1105,33 @@ end
 -- A progress fill in `color` across a plate's face from the left, under its cell overlays (so the fill shows the cells too) and
 -- inside its stepped corners. Returns a setter for the fill, 0 to 1; it starts empty.
 function Builder.blockBar(plate: Frame, color: Color3): (number) -> ()
-	local grid = blockGrid(plate)
-	if not grid then
+	local first = blockGrid(plate)
+	if not first then
 		return function(_p: number) end
 	end
 	local bars: { Frame } = {}
-	for index, rect in ipairs(BlockMath.Fill(grid, 0)) do
+	for index, rect in ipairs(BlockMath.Fill(first, 0)) do
 		local bar = rectFrame(plate, "Bar", rect, color, 0, plate.ZIndex + Theme.Block.Layer.Bar)
 		bar.Visible = false
 		bars[index] = bar
 	end
-	return function(p: number)
+	local shown = 0
+	local function set(p: number)
+		shown = p
+		local grid = blockGrid(plate) or first
 		for index, rect in ipairs(BlockMath.Fill(grid, p)) do
 			local bar = bars[index]
 			if bar then
+				bar.Position = UDim2.fromScale(rect.x, rect.y)
 				bar.Size = UDim2.fromScale(rect.w, rect.h)
 				bar.Visible = rect.w > 0
 			end
 		end
 	end
+	onRedraw(plate, function()
+		set(shown)
+	end)
+	return set
 end
 
 -- A pixel icon from data/PixelIcons (an 8 by 8 drawing) as frames in a square holder, or nil (nothing created) when the key has
@@ -981,12 +1191,13 @@ end
 -- a block standing on its own shadow), outlined white text or a pixel icon on the face. A press sinks the face exactly one cell
 -- onto the lip (no squash: blocks do not squash); a hover on a mouse grows it to Theme.Block.Hover. Every tap clicks. `hit` adds
 -- the invisible 44 px area as on Builder.button. Returns the container; "Face" is the TextButton (set its Text), "Plate" and "Lip"
--- the plates (Builder.restyleBlockButton recolours them).
+-- the plates (Builder.restyleBlockButton recolours them). With no `aspect` the button is fitted (its plates fit the box a row or a
+-- list gives it; pass `rows` when its size is a fraction of something other than the screen); `cells = false` makes its face flat.
 function Builder.blockButton(props: ButtonProps, onClick: () -> ()): Frame
-	local aspect = props.aspect or 1
+	local aspect = props.aspect -- nil: a fitted button (its plates fit the box a list or a parent frame gives it)
 	local size = props.size or UDim2.fromScale(1, 1)
 	local rows = props.rows or Builder.blockButtonRows(size.Y.Scale)
-	local lip, faceAspect = BlockMath.Lip(aspect, rows, Theme.Block.Ink)
+	local lip, faceAspect = BlockMath.Lip(aspect or 1, rows, Theme.Block.Ink)
 	local z = props.zIndex or 1
 	local container = Builder.frame({
 		parent = props.parent,
@@ -1012,12 +1223,13 @@ function Builder.blockButton(props: ButtonProps, onClick: () -> ()): Frame
 		parent = container,
 		name = "Plate",
 		color = props.color,
-		aspect = faceAspect,
+		aspect = if aspect then faceAspect else nil,
 		rows = rows,
+		cells = props.cells,
 		size = UDim2.fromScale(1, 1 - lip),
 		zIndex = z + 1,
 	})
-	local grid = BlockMath.Grid(faceAspect, rows, Theme.Block.Ink)
+	local grid = blockGrid(plate) or BlockMath.Grid(faceAspect, rows, Theme.Block.Ink)
 
 	local face = Instance.new("TextButton")
 	face.Name = "Face"
@@ -1041,6 +1253,15 @@ function Builder.blockButton(props: ButtonProps, onClick: () -> ()): Frame
 	padding.PaddingTop = UDim.new(grid.inkY + BLOCK_TEXT_PAD_Y * grid.cellY, 0)
 	padding.PaddingBottom = UDim.new(grid.inkY + BLOCK_TEXT_PAD_Y * grid.cellY, 0)
 	padding.Parent = face
+	if not aspect then
+		onRedraw(plate, function() -- a fitted face's columns can change: keep the text half a cell clear of the ink
+			local now = blockGrid(plate)
+			if now then
+				padding.PaddingLeft = UDim.new(now.inkX + BLOCK_TEXT_PAD_X * now.cellX, 0)
+				padding.PaddingRight = UDim.new(now.inkX + BLOCK_TEXT_PAD_X * now.cellX, 0)
+			end
+		end)
+	end
 	Builder.stroke(face, Theme.Stroke.Text, Theme.Colors.Outline)
 	if props.icon then
 		local image = Builder.blockIcon({
@@ -1129,18 +1350,98 @@ function Builder.restyleBlockButton(container: Frame?, text: string, color: Colo
 	end
 end
 
--- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
+local HEADER_SIZE = Vector2.new(0.42, 0.11) -- a panel's header tab, of the panel, straddling its top edge
+local CLOSE_POSITION = UDim2.fromScale(0.985, 0.015) -- a panel's close button: top right, anchored at its top right corner
+local CLOSE_SIZE = Vector2.new(0.11, 0.14)
+
+-- The rows of a modal panel `height` tall (a Scale of the screen height): the panel cell, Theme.Block.PanelCell (the UI Playbook's
+-- density rule: a big plate takes cells twice the HUD's, as the world's cell is twice a creature's, so a panel is about 19 rows).
+function Builder.blockPanelRows(height: number): number
+	return Builder.blockRows(height, Theme.Block.PanelCell)
+end
+
+-- The header tab a block panel wears straddling its top edge: a block plate in `color`, `size` of the panel (HEADER_SIZE by
+-- default), three rows of cells, its shape from the panel's `panelAspect` so the cells stay square, the title in white outlined
+-- Title text on top. Returns the tab and the title label.
+function Builder.blockHeader(
+	panel: Frame,
+	panelAspect: number,
+	title: string,
+	color: Color3,
+	size: Vector2?,
+	position: UDim2?,
+	zIndex: number?
+): (Frame, TextLabel)
+	local box = size or HEADER_SIZE
+	local tab = Builder.blockPlate({
+		parent = panel,
+		name = "Header",
+		color = color,
+		aspect = box.X * panelAspect / box.Y,
+		rows = Theme.Block.MinRows,
+		position = position or UDim2.fromScale(0.5, 0),
+		size = UDim2.fromScale(box.X, box.Y),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = zIndex or Builder.blockTop(panel),
+	})
+	local label = Builder.label({
+		parent = tab,
+		name = "Title",
+		text = title,
+		textSize = Theme.TextSize.Title,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.9, 0.72),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(tab),
+	})
+	return tab, label
+end
+
+-- The red close button a block panel wears at its top right: a square block button with the close glyph and the 44 px hit area.
+-- `panelHeight` is the panel's height as a Scale of the screen (its rows come from it); position and size default to the
+-- panels' common slot.
+function Builder.blockClose(panel: Frame, panelHeight: number, onClose: () -> (), position: UDim2?, size: Vector2?, zIndex: number?): Frame
+	local box = size or CLOSE_SIZE
+	return Builder.blockButton({
+		parent = panel,
+		name = "Close",
+		text = Strings.UI_CLOSE,
+		color = Theme.Colors.Close,
+		position = position or CLOSE_POSITION,
+		size = UDim2.fromScale(box.X, box.Y),
+		anchor = Vector2.new(1, 0),
+		textSize = Theme.TextSize.Label,
+		aspect = 1,
+		rows = Builder.blockButtonRows(box.Y * panelHeight),
+		hit = true,
+		zIndex = zIndex or Builder.blockTop(panel),
+	}, onClose)
+end
+
+-- A one-line input in the theme's look: panel-coloured box with a navy ink, Fredoka text with the
 -- no text stroke (navy on cream), left-aligned inside a scale padding. The text is kept when it gains focus (typing
 -- edits it); the caller reads .Text and listens to FocusLost for Enter.
+-- In block cells (the Settings change): the box sits in a fitted flat block plate in the panel cream with the navy ink (the
+-- plate takes the position, size and anchor; the box fills its face, clear, so it is the plate that shows). The box's Parent is
+-- that plate; a caller reads .Text and FocusLost as before.
 function Builder.textBox(props: TextBoxProps): TextBox
+	local holder = Builder.blockPlate({
+		parent = props.parent,
+		name = (props.name or "TextBox") .. "Plate",
+		color = Theme.Colors.Panel,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = props.zIndex,
+	})
 	local box = Instance.new("TextBox")
 	box.Name = props.name or "TextBox"
-	box.Position = props.position or UDim2.fromScale(0, 0)
-	box.Size = props.size or UDim2.fromScale(1, 1)
-	box.AnchorPoint = props.anchor or Vector2.zero
+	box.Position, box.Size = Builder.blockInner(holder)
 	box.BorderSizePixel = 0
-	box.BackgroundColor3 = Theme.Colors.Panel
-	box.ZIndex = props.zIndex or 1
+	box.BackgroundTransparency = 1
+	box.ZIndex = Builder.blockTop(holder)
 	box.FontFace = Font.fromEnum(Theme.Font)
 	box.Text = ""
 	box.PlaceholderText = props.placeholder
@@ -1151,19 +1452,15 @@ function Builder.textBox(props: TextBoxProps): TextBox
 	box.ClearTextOnFocus = false
 	box.MultiLine = false
 	box.ClipsDescendants = true
-	Builder.corner(box, Theme.Corner.Button)
-	Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline, Enum.ApplyStrokeMode.Border)
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min
 	sizes.MaxTextSize = math.max(Theme.TextSize.Min, props.textSize or Theme.TextSize.Body)
 	sizes.Parent = box
 	local padding = Instance.new("UIPadding")
 	padding.PaddingLeft = UDim.new(0.05, 0)
-	padding.PaddingRight = UDim.new(0.05, 0)
-	padding.PaddingTop = UDim.new(0.12, 0)
-	padding.PaddingBottom = UDim.new(0.12, 0)
+	padding.PaddingRight = UDim.new(0.05, 0) -- no top or bottom padding: the plate's ink is the margin, and the 14 px floor fits
 	padding.Parent = box
-	box.Parent = props.parent
+	box.Parent = holder
 	return box
 end
 
@@ -1329,6 +1626,15 @@ function Builder.shine(target: GuiObject): () -> ()
 	clip.Size = UDim2.fromScale(1, 1)
 	clip.ZIndex = target.ZIndex + SHINE_LAYER
 	roundLike(clip, matchingRadius(target, nil))
+	local block = blockGrid(target)
+	if block then
+		-- A block plate has no round corner to match: the sweep stays inside its face's wide bar (between the cut corner cells),
+		-- under the plate's content layer.
+		local wide = BlockMath.Face(block)[1]
+		clip.Position = UDim2.fromScale(wide.x, wide.y)
+		clip.Size = UDim2.fromScale(wide.w, wide.h)
+		clip.ZIndex = target.ZIndex + Theme.Block.Layer.Cells
+	end
 
 	local restX = UDim2.fromScale(-SHINE_OVERSHOOT, 0.5)
 	local band = Instance.new("Frame")

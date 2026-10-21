@@ -7,6 +7,8 @@
 -- bar, hidden until ShowSkip. Everything is Scale. The director owns the timing: Show when a moment starts, ShowSkip
 -- Cinematics.SkipAfterSeconds later, Hide when the camera is handed back; Hide with nothing shown does nothing. The
 -- button only calls the callback Show was given; ending the moment is the director's job.
+-- The Skip button is a block button (block cells, Decisions B44); the letterbox bars stay plain black frames: a letterbox is
+-- the screen edge, not a plate.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -54,7 +56,7 @@ local function build()
 		size = UDim2.fromScale(1, 0),
 		anchor = Vector2.new(0, 1),
 	})
-	local button = Builder.button({
+	local button = Builder.blockButton({ -- a fitted block button in cells (UI Playbook "Screens after the HUD")
 		parent = root,
 		name = "Skip",
 		text = Strings.SKIP,

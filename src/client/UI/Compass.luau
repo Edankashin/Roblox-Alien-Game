@@ -1,10 +1,13 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.Compass: the compass strip (data/Compass, UI Playbook "Event banner
 -- and compass"). A thin navy band along the top edge, centred above the HUD's ship bar: the four
--- cardinal letters and tick marks slide along it as the camera turns, a small dark pill at the centre
+-- cardinal letters and tick marks slide along it as the camera turns, a small dark block at the centre
 -- reads the heading in whole degrees, and one coloured diamond per data marker (the camp, the
 -- waypoint, the radar target, the Peddler, the landmarks) sits at its bearing. One line under the
 -- band names the marker the player is heading for and its flat distance ("Camp 42m").
+-- The look is block cells (UI Playbook "Block cells", Decisions B44): the band and the heading block are flat blocks (a band
+-- 15 px tall at iPhone SE is all edge at three rows of cells, so no grout or jitter: the Playbook's thin-band rule), the band
+-- fitted to the strip's box so its layout did not move; a diamond is a stepped pixel diamond, navy round the marker's colour.
 -- Bearings agree with the Radar minimap: world -Z is north (0), +X is east (90), clockwise, taken
 -- from the camera's look yaw. A thing `delta` degrees from the heading sits at x = 0.5 + delta /
 -- FieldOfViewDegrees and is hidden beyond half the field of view; near either end it fades.
@@ -34,6 +37,7 @@ type Item = {
 	object: GuiObject,
 	text: TextLabel?, -- set for a letter: its fade is TextTransparency, not BackgroundTransparency
 	stroke: UIStroke?, -- the outline that fades with it
+	parts: { Frame }?, -- set for a diamond: its pixel bars, which fade together (the holder itself is clear)
 	bearing: number, -- degrees, north 0, clockwise; ticks and letters only (a diamond's comes from its marker)
 }
 
@@ -46,23 +50,28 @@ local STRIP_TOP = 0.006 -- the strip hugs the top edge; the HUD's centre column 
 local STRIP_H = 0.04 -- about 15 px on a phone in landscape, so the 14 px minimum text fits the band
 local STRIP_W = CompassData.StripWidth -- clear of the round top buttons beside the clock chip: the Hud lays them out around it
 local LABEL_H = 0.022 -- the line under the strip fills the gap above the HUD's shifted ship bar
-local TRACK_INSET = 0.03 -- of the strip's width: bearings map inside this margin, so a thing on the rounded end still sits in the band
+local TRACK_INSET = 0.03 -- of the strip's width: bearings map inside this margin, so a thing at the stepped end still sits in the band
 local LETTER_W = 0.08 -- a cardinal letter's box
 local TICK_W = 0.003
 local TICK_H = 0.3
 local MAJOR_TICK_H = 0.5
-local DIAMOND_SIZE = 0.55 -- the square's side, of the strip's height; turned 45 degrees its corners reach about 0.78
+local DIAMOND_SIZE = 0.78 -- the pixel diamond's box, of the strip's height: its points reach where the old turned square's corners did
+local BAND_ROWS = 3 -- the band and the heading block: the fewest rows a stepped corner takes (Theme.Block.MinRows)
+-- The stepped diamond on an 8 by 8 grid (Theme.Block.PixelGrid) as overlapping bars { x, y, w, h }: the navy ink, then the colour
+-- one unit inside it, so the ink keeps one thickness round every step.
+local DIAMOND_INK = { { 3, 0, 2, 8 }, { 2, 1, 4, 6 }, { 1, 2, 6, 4 }, { 0, 3, 8, 2 } }
+local DIAMOND_FILL = { { 3, 1, 2, 6 }, { 2, 2, 4, 4 }, { 1, 3, 6, 2 } }
 local HEADING_H = 0.8
-local HEADING_W = 0.3 -- the heading pill's width bound; its aspect constraint derives the width from the height
+local HEADING_W = 0.3 -- the heading block's width bound; its aspect constraint derives the width from the height
 local HEADING_ASPECT = 2.4
-local HEADING_TEXT = Vector2.new(0.9, 0.8) -- the number's box inside the pill
+local HEADING_TEXT = Vector2.new(0.9, 0.8) -- the number's box inside the block
 
--- Layers inside the strip (Sibling z-order): the heading pill covers ticks and letters, but a diamond
--- always shows over it, so a marker dead ahead is never hidden.
-local Z_TICK = 1
-local Z_LETTER = 2
-local Z_HEADING = 3
-local Z_DIAMOND = 4 -- plus how far the marker's priority number is below the highest, so the lowest number is on top
+-- Layers inside the strip (Sibling z-order), above the band's own block layers (Builder.blockTop): the heading block covers
+-- ticks and letters, but a diamond always shows over it, so a marker dead ahead is never hidden.
+local Z_TICK = 0
+local Z_LETTER = 1
+local Z_HEADING = 2 -- the heading block's ink, face and number take Theme.Block.Layer steps above this
+local Z_DIAMOND = Z_HEADING + Theme.Block.Layer.Content + 1 -- plus two layers for each step the marker's priority is below the highest
 
 local FULL_TURN = 360
 local CARDINAL_STEP = 90 -- N, E, S, W
@@ -128,14 +137,19 @@ local function fadeAt(x: number): number
 end
 
 -- The fields are typed through this constructor so a Frame or TextLabel passes as the GuiObject.
-local function newItem(object: GuiObject, text: TextLabel?, stroke: UIStroke?, bearing: number): Item
-	return { object = object, text = text, stroke = stroke, bearing = bearing }
+local function newItem(object: GuiObject, text: TextLabel?, stroke: UIStroke?, bearing: number, parts: { Frame }?): Item
+	return { object = object, text = text, stroke = stroke, bearing = bearing, parts = parts }
 end
 
 local function fade(item: Item, transparency: number)
 	local text = item.text
+	local parts = item.parts
 	if text then
 		text.TextTransparency = transparency
+	elseif parts then
+		for _, part in ipairs(parts) do
+			part.BackgroundTransparency = transparency
+		end
 	else
 		item.object.BackgroundTransparency = transparency
 	end
@@ -243,7 +257,12 @@ local function refreshMarkers()
 					shownName[index] = waypointLabel or Builder.text(marker.labelKey)
 					-- The target diamond borrows the Legendary colour while it points at a walking Warden.
 					if marker.kind == "target" then
-						item.object.BackgroundColor3 = if waypointLabel == Strings.COMPASS_SIGHTING then Theme.Rarity.Legendary else colorOf(marker.color)
+						local color = if waypointLabel == Strings.COMPASS_SIGHTING then Theme.Rarity.Legendary else colorOf(marker.color)
+						for _, part in ipairs(item.parts or {}) do
+							if part.Name == "Fill" then
+								part.BackgroundColor3 = color
+							end
+						end
 					end
 					local rival = if best then CompassData.Markers[best] else nil
 					local rivalDistance = if best then shownDistance[best] else nil
@@ -324,6 +343,7 @@ end
 -- Build --------------------------------------------------------------------
 
 local function buildTicks(band: Frame)
+	local top = Builder.blockTop(band)
 	for bearing = 0, FULL_TURN - 1, CompassData.TickEveryDegrees do
 		if bearing % CARDINAL_STEP ~= 0 then -- a letter takes the place of the tick at N, E, S and W
 			local major = bearing % CompassData.MajorTickEveryDegrees == 0
@@ -333,7 +353,7 @@ local function buildTicks(band: Frame)
 				size = UDim2.fromScale(TICK_W, if major then MAJOR_TICK_H else TICK_H),
 				anchor = Vector2.new(0.5, 0.5),
 				color = Theme.Colors.White,
-				zIndex = Z_TICK,
+				zIndex = top + Z_TICK,
 			})
 			frame.Visible = false
 			table.insert(fixed, newItem(frame, nil, nil, bearing))
@@ -343,6 +363,7 @@ end
 
 local function buildLetters(band: Frame)
 	local letters = { Strings.COMPASS_N, Strings.COMPASS_E, Strings.COMPASS_S, Strings.COMPASS_W }
+	local top = Builder.blockTop(band)
 	for index, letter in ipairs(letters) do
 		local label = Builder.label({
 			parent = band,
@@ -351,26 +372,26 @@ local function buildLetters(band: Frame)
 			textSize = Theme.TextSize.Min,
 			size = UDim2.fromScale(LETTER_W, 1),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = Z_LETTER,
+			zIndex = top + Z_LETTER,
 		})
 		label.Visible = false
 		table.insert(fixed, newItem(label, label, label:FindFirstChildOfClass("UIStroke"), (index - 1) * CARDINAL_STEP))
 	end
 end
 
--- The heading in whole degrees, in a small dark pill at the centre of the band.
+-- The heading in whole degrees, in a small dark flat block at the centre of the band.
 local function buildHeading(band: Frame)
-	local pill = Builder.pill({
+	local pill = Builder.blockPlate({
 		parent = band,
 		name = "Heading",
+		color = Builder.darker(Theme.Block.Trough),
+		aspect = HEADING_ASPECT,
+		rows = BAND_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(HEADING_W, HEADING_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Builder.darker(Theme.Colors.Trough),
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = HEADING_ASPECT,
-		zIndex = Z_HEADING,
+		zIndex = Builder.blockTop(band) + Z_HEADING,
 	})
 	headingLabel = Builder.label({
 		parent = pill,
@@ -380,31 +401,55 @@ local function buildHeading(band: Frame)
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(HEADING_TEXT.X, HEADING_TEXT.Y),
 		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(pill),
 	})
 end
 
--- One diamond per data marker: a square on its point in the marker's colour with the outline stroke.
+-- A stepped pixel diamond in a square holder: the navy bars of DIAMOND_INK, then the marker's colour in DIAMOND_FILL (named
+-- "Fill", so the target diamond can recolour). Returns the holder and every bar, for the fade.
+local function pixelDiamond(band: Frame, name: string, color: Color3, z: number): (Frame, { Frame })
+	local holder = Builder.frame({
+		parent = band,
+		name = name,
+		size = UDim2.fromScale(1, DIAMOND_SIZE),
+		anchor = Vector2.new(0.5, 0.5),
+		aspect = 1,
+		zIndex = z,
+	})
+	local grid = Theme.Block.PixelGrid
+	local parts: { Frame } = {}
+	for layer, bars in ipairs({ DIAMOND_INK, DIAMOND_FILL }) do
+		for _, bar in ipairs(bars) do
+			table.insert(
+				parts,
+				Builder.frame({
+					parent = holder,
+					name = if layer == 1 then "Ink" else "Fill",
+					position = UDim2.fromScale(bar[1] / grid, bar[2] / grid),
+					size = UDim2.fromScale(bar[3] / grid, bar[4] / grid),
+					color = if layer == 1 then Theme.Colors.Outline else color,
+					zIndex = z + layer - 1,
+				})
+			)
+		end
+	end
+	return holder, parts
+end
+
+-- One diamond per data marker: a stepped pixel diamond in the marker's colour, ink round it.
 -- The lowest priority number is on top where two overlap (the waypoint over the radar target when
--- both stand on the same alien).
+-- both stand on the same alien): each marker takes two layers (ink, colour) above the next.
 local function buildDiamonds(band: Frame)
 	local maxPriority = 0
 	for _, marker in ipairs(CompassData.Markers) do
 		maxPriority = math.max(maxPriority, marker.priority)
 	end
+	local base = Builder.blockTop(band) + Z_DIAMOND
 	for _, marker in ipairs(CompassData.Markers) do
-		local frame = Builder.frame({
-			parent = band,
-			name = "Marker_" .. marker.id,
-			size = UDim2.fromScale(1, DIAMOND_SIZE),
-			anchor = Vector2.new(0.5, 0.5),
-			color = colorOf(marker.color),
-			aspect = 1,
-			zIndex = Z_DIAMOND + maxPriority - marker.priority,
-		})
-		frame.Rotation = 45
+		local z = base + 2 * (maxPriority - marker.priority)
+		local frame, parts = pixelDiamond(band, "Marker_" .. marker.id, colorOf(marker.color), z)
 		frame.Visible = false
-		local stroke = Builder.stroke(frame, Theme.Stroke.Text, Theme.Colors.Outline)
-		table.insert(diamonds, newItem(frame, nil, stroke, 0))
+		table.insert(diamonds, newItem(frame, nil, nil, 0, parts))
 	end
 end
 
@@ -419,17 +464,17 @@ function Compass.Start()
 	root.Enabled = visible
 	gui = root
 
-	local band = Builder.pill({
+	-- A fitted flat block (no aspect): the strip keeps its share of the screen's width and height on every shape of screen.
+	local band = Builder.blockPlate({
 		parent = root,
 		name = "Strip",
+		color = Theme.Block.Trough,
+		rows = BAND_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, STRIP_TOP),
 		size = UDim2.fromScale(STRIP_W, STRIP_H),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
 	})
-	Builder.gradient(band, Theme.Colors.Trough)
 	buildTicks(band)
 	buildLetters(band)
 	buildHeading(band)

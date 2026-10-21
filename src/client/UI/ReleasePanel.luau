@@ -10,6 +10,8 @@
 -- The counts and values are StorageMath over the profile mirror, so the card shows what the server will do; the
 -- server decides (ReleaseAliens, ReleaseAllOfTier, which re-check everything) and the cards redraw from its pushes.
 -- Nothing here changes the mirror. The card lives in the Aliens screen's ScreenGui and closes with it.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the card a cream plate at the panel cell with
+-- the block close, the swatch a flat block in its tier ink, every button a block button in cells.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -40,7 +42,8 @@ local CARD_SIZE = UDim2.fromScale(0.54, 0.7)
 local CARD_ASPECT = 1.25
 local DIM_Z = 20 -- over the Aliens panel (2) and everything in it
 local CARD_Z = DIM_Z + 1
-local BODY_Z = DIM_Z + 2
+local BODY_Z = CARD_Z + Theme.Block.Layer.Content -- over the card plate's own block layers (Builder.blockTop)
+local CARD_H = 0.7 -- CARD_SIZE's height, of the screen: the card's rows and its buttons' come from it
 
 -- Fractions of the card.
 local TITLE_Y = 0.03
@@ -168,10 +171,7 @@ local function refreshAlien()
 		infoLabel.TextColor3 = Builder.tierColor(tier)
 	end
 	if swatch then
-		local stroke = swatch:FindFirstChildOfClass("UIStroke")
-		if stroke then
-			stroke.Color = Builder.tierColor(tier)
-		end
+		Builder.setBlockInk(swatch, Builder.tierColor(tier))
 	end
 	if reasonLabel then
 		reasonLabel.Text = why or ""
@@ -179,11 +179,11 @@ local function refreshAlien()
 	end
 	local value = Builder.formatNumber(StorageMath.ReleaseValue(tier))
 	if inUse ~= nil then
-		Builder.restyleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Rarity.Common, false)
+		Builder.restyleBlockButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Rarity.Common, false)
 	elseif armed then
-		Builder.restyleButton(releaseButton, Strings.RELEASE_TAP_AGAIN, Theme.Colors.Close, true)
+		Builder.restyleBlockButton(releaseButton, Strings.RELEASE_TAP_AGAIN, Theme.Colors.Close, true)
 	else
-		Builder.restyleButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Colors.Featured, true)
+		Builder.restyleBlockButton(releaseButton, Strings.RELEASE_ALIEN_BUTTON:format(value), Theme.Colors.Featured, true)
 	end
 end
 
@@ -203,7 +203,7 @@ local function refreshMenu()
 		else
 			row.info.Text = Strings.RELEASE_ROW_INFO:format(Builder.formatNumber(row.count), Builder.formatNumber(row.scrap))
 		end
-		Builder.restyleButton(row.button, bulkLabel(row.tier), if row.count > 0 then Theme.Colors.Featured else Theme.Rarity.Common, row.count > 0)
+		Builder.restyleBlockButton(row.button, bulkLabel(row.tier), if row.count > 0 then Theme.Colors.Featured else Theme.Rarity.Common, row.count > 0)
 	end
 end
 
@@ -326,7 +326,7 @@ local function newPage(parent: Frame, name: string): Frame
 end
 
 local function addButtons(page: Frame, actionName: string, onCancel: () -> (), onAction: () -> ()): (Frame, Frame)
-	local cancel = Builder.button({
+	local cancel = Builder.blockButton({
 		parent = page,
 		name = "Cancel",
 		text = Strings.RELEASE_CANCEL,
@@ -334,9 +334,10 @@ local function addButtons(page: Frame, actionName: string, onCancel: () -> (), o
 		position = UDim2.fromScale(CANCEL_X, BUTTONS_Y),
 		size = UDim2.fromScale(CANCEL_W, BUTTONS_H),
 		textSize = Theme.TextSize.Label,
+		rows = Builder.blockButtonRows(BUTTONS_H * CARD_H),
 		zIndex = BODY_Z,
 	}, onCancel)
-	local action = Builder.button({
+	local action = Builder.blockButton({
 		parent = page,
 		name = actionName,
 		text = Strings.RELEASE_BUTTON,
@@ -344,6 +345,7 @@ local function addButtons(page: Frame, actionName: string, onCancel: () -> (), o
 		position = UDim2.fromScale(ACT_X, BUTTONS_Y),
 		size = UDim2.fromScale(ACT_W, BUTTONS_H),
 		textSize = Theme.TextSize.Label,
+		rows = Builder.blockButtonRows(BUTTONS_H * CARD_H),
 		zIndex = BODY_Z,
 	}, onAction)
 	return cancel, action
@@ -371,17 +373,15 @@ local function build(parent: ScreenGui)
 	dim = backdrop
 
 	-- The card is a sibling of the dim, above it, and Active so a press on it never falls through to the dim (which closes).
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = parent,
 		name = "ReleaseCard",
+		color = Theme.Colors.Panel,
+		aspect = CARD_ASPECT,
+		rows = Builder.blockPanelRows(CARD_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = CARD_POSITION,
 		size = CARD_SIZE,
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = CARD_ASPECT,
 		zIndex = CARD_Z,
 	})
 	body.Active = true
@@ -398,20 +398,9 @@ local function build(parent: ScreenGui)
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = BODY_Z,
 	})
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(CLOSE_X, CLOSE_Y),
-		size = UDim2.fromScale(CLOSE_W, CLOSE_H),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = BODY_Z,
-	}, function()
+	Builder.blockClose(body, CARD_H, function()
 		hide()
-	end)
+	end, UDim2.fromScale(CLOSE_X, CLOSE_Y), Vector2.new(CLOSE_W, CLOSE_H), BODY_Z)
 
 	-- Alien view.
 	local alien = newPage(body, "alien")
@@ -425,17 +414,18 @@ local function build(parent: ScreenGui)
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = BODY_Z,
 	})
-	swatch = Builder.frame({
+	-- The species colour in its tier's ink: a flat block.
+	swatch = Builder.blockPlate({
 		parent = alien,
 		name = "Swatch",
+		color = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, SWATCH_Y),
 		size = UDim2.fromScale(SWATCH_H, SWATCH_H),
 		anchor = Vector2.new(0.5, 0),
-		corner = Theme.Corner.Card,
-		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
-		aspect = 1,
 		zIndex = BODY_Z,
 	})
 	local reason = Builder.label({
@@ -457,7 +447,7 @@ local function build(parent: ScreenGui)
 	local menu = newPage(body, "menu")
 	for index, tier in ipairs(Storage.BulkReleaseTiers) do
 		local top = ROW_Y + (index - 1) * ROW_STEP
-		local button = Builder.button({
+		local button = Builder.blockButton({
 			parent = menu,
 			name = "Release" .. tier,
 			text = bulkLabel(tier),
@@ -465,6 +455,7 @@ local function build(parent: ScreenGui)
 			position = UDim2.fromScale(MARGIN, top),
 			size = UDim2.fromScale(1 - MARGIN * 2, ROW_H),
 			textSize = Theme.TextSize.Label,
+			rows = Builder.blockButtonRows(ROW_H * CARD_H),
 			zIndex = BODY_Z,
 		}, function()
 			for _, row in ipairs(rows) do
@@ -517,7 +508,7 @@ local function build(parent: ScreenGui)
 		end
 		refreshMenu()
 	end, releaseTier)
-	Builder.restyleButton(go, Strings.RELEASE_CONFIRM_BUTTON, Theme.Colors.Close, true)
+	Builder.restyleBlockButton(go, Strings.RELEASE_CONFIRM_BUTTON, Theme.Colors.Close, true)
 	back.Name = "Back"
 
 	for _, topic in ipairs({ "stations", "companions" }) do
@@ -571,7 +562,7 @@ function ReleasePanel.ShowAlien(uid: string, name: string, color: Color3)
 	currentUid = uid
 	currentName = name
 	if swatch then
-		swatch.BackgroundColor3 = color
+		Builder.setBlockColor(swatch, color)
 	end
 	if titleLabel then
 		titleLabel.Text = name

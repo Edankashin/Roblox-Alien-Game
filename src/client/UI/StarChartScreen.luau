@@ -61,11 +61,18 @@ local Prefs = require(script.Parent.Parent.Prefs)
 
 local StarChartScreen = {}
 
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with the
+-- blue header and the close; the map is pixel art: each orbit a ring of small square dots, the star, its glow and every planet a
+-- stepped pixel octagon (Builder.pixelOctagon) whose ring is its ink (thick while selected, two units), the current planet
+-- pulsing in size instead of in stroke; the level chip a flat block, the ready dot a small green octagon; the card a fitted
+-- edged block whose ink and face follow the selected world's state; its buttons fitted block buttons.
+
 -- One world's planet and the pieces refresh rewrites.
 type Planet = {
 	worldId: number,
-	disc: Frame,
-	stroke: UIStroke,
+	disc: Frame, -- the octagon's holder (the pulse scales it)
+	octagon: Builder.Octagon,
+	pulse: UIScale,
 	chip: Frame, -- "Lv 2", under the planet; only for an outpost
 	chipText: TextLabel,
 	dot: Frame, -- production is ready; on the planet's top right corner
@@ -73,8 +80,7 @@ type Planet = {
 
 -- The selected world's card and the pieces refresh rewrites.
 type Detail = {
-	frame: Frame,
-	stroke: UIStroke,
+	frame: Frame, -- an edged block plate: setBlockInk is its ring, setBlockColor and setBlockFade its face
 	name: TextLabel,
 	level: TextLabel, -- "Outpost Lv 2"
 	line: TextLabel, -- the status line, or the outpost's output per hour
@@ -121,14 +127,12 @@ local DOT = 0.42 -- of the planet disc
 local PLANET_ANGLES: { [number]: number } = { 165, 350, 70, 230, 115, 155, 315 }
 local FALLBACK_ANGLE_STEP = 137.5 -- a world past the table spirals on the golden angle
 
--- Strokes (px) and colours.
-local RING_STROKE = 2
+-- Orbits, rings and colours. An orbit is ORBIT_DOTS square dots ORBIT_DOT of the map wide; a planet's ring is its octagon's ink,
+-- two units thick while selected; the current planet pulses its size to PULSE_SCALE and back.
+local ORBIT_DOTS = 28
+local ORBIT_DOT = 0.012
 local RING_TRANSPARENCY = 0.75
-local STROKE_LIT = Theme.Stroke.Button
-local STROKE_LOCKED = Theme.Stroke.Text
-local STROKE_CURRENT = Theme.Stroke.Panel
-local STROKE_SELECTED = Theme.Stroke.Panel * 1.5 -- a selected planet's ring, whatever its state
-local PULSE_SWELL = Theme.Stroke.Panel * 0.5 -- the pulsing ring swells this far past its rest thickness
+local PULSE_SCALE = 1.12
 local NEXT_FILL_TRANSPARENCY = 0.75
 local LOCKED_FILL_TRANSPARENCY = 0.7
 local LOCKED_STROKE_TRANSPARENCY = 0.55
@@ -171,24 +175,9 @@ local tickThread: thread? = nil
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
 local function setButton(container: Frame, text: string, color: Color3)
@@ -239,15 +228,10 @@ end
 
 -- The pulse -----------------------------------------------------------------
 
--- The current planet's resting ring: gold, thicker while it is the selected one.
-local function restThickness(planet: Planet): number
-	return if planet.worldId == selected then STROKE_SELECTED else STROKE_CURRENT
-end
-
+-- The current planet at rest: green in a gold ring, thick while it is the selected one, its size back to 1.
 local function restStroke(planet: Planet)
-	planet.stroke.Color = Theme.Colors.Featured
-	planet.stroke.Transparency = 0
-	Builder.setStrokePx(planet.stroke, restThickness(planet))
+	Builder.paintOctagon(planet.octagon, Theme.Colors.Confirm, 0, Theme.Colors.Featured, 0, planet.worldId == selected)
+	planet.pulse.Scale = 1
 end
 
 -- Cancels the pulse and puts the planet's ring back to rest.
@@ -278,9 +262,9 @@ local function startPulse(planet: Planet)
 	end
 	local half = math.max(Config.StarChartPulseSeconds / 2, 0.05)
 	local tween = TweenService:Create(
-		planet.stroke,
+		planet.pulse,
 		TweenInfo.new(half, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-		{ Thickness = Builder.strokeThickness(restThickness(planet) + PULSE_SWELL) }
+		{ Scale = PULSE_SCALE }
 	)
 	pulseTween = tween
 	tween:Play()
@@ -302,21 +286,9 @@ local function showOnly(card: Detail, collect: boolean, upgrade: boolean, fly: b
 	card.visit.Size = UDim2.fromScale(if both then COLLECT_W else TEXT_W, BUTTON_H)
 end
 
--- Paints a planet that is not the current one. `thickness` is the state's resting ring; the selected
--- planet's ring is STROKE_SELECTED instead.
-local function paintPlanet(
-	planet: Planet,
-	fill: Color3,
-	fillTransparency: number,
-	ring: Color3,
-	ringTransparency: number,
-	thickness: number
-)
-	planet.disc.BackgroundColor3 = fill
-	planet.disc.BackgroundTransparency = fillTransparency
-	planet.stroke.Color = ring
-	planet.stroke.Transparency = ringTransparency
-	Builder.setStrokePx(planet.stroke, if planet.worldId == selected then STROKE_SELECTED else thickness)
+-- Paints a planet that is not the current one; the selected planet's ring is thick (two units of ink).
+local function paintPlanet(planet: Planet, fill: Color3, fillTransparency: number, ring: Color3, ringTransparency: number)
+	Builder.paintOctagon(planet.octagon, fill, fillTransparency, ring, ringTransparency, planet.worldId == selected)
 end
 
 local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: { [number]: boolean }, highest: number, now: number)
@@ -325,9 +297,7 @@ local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: {
 	planet.dot.Visible = false
 
 	if id == profile.world.current then
-		-- here: green, a gold ring that pulses; the ring is the tween's, so it is not touched here
-		planet.disc.BackgroundColor3 = Theme.Colors.Confirm
-		planet.disc.BackgroundTransparency = 0
+		-- here: green in a gold ring, pulsing (startPulse paints it at rest first)
 		startPulse(planet)
 		return
 	end
@@ -338,16 +308,16 @@ local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: {
 	if not unlocked[id] then
 		if id == highest + 1 then
 			-- the next stop: dim fill, gold ring
-			paintPlanet(planet, Theme.Colors.Featured, NEXT_FILL_TRANSPARENCY, Theme.Colors.Featured, 0, STROKE_LIT)
+			paintPlanet(planet, Theme.Colors.Featured, NEXT_FILL_TRANSPARENCY, Theme.Colors.Featured, 0)
 		else
 			-- locked: faint
-			paintPlanet(planet, Theme.Colors.Trough, LOCKED_FILL_TRANSPARENCY, Theme.Colors.Trough, LOCKED_STROKE_TRANSPARENCY, STROKE_LOCKED)
+			paintPlanet(planet, Theme.Colors.Trough, LOCKED_FILL_TRANSPARENCY, Theme.Colors.Trough, LOCKED_STROKE_TRANSPARENCY)
 		end
 		return
 	end
 
 	-- unlocked: lit; an outpost adds its chip, and a dot while it has something ready
-	paintPlanet(planet, Theme.Colors.Select, 0, Theme.Colors.Outline, 0, STROKE_LIT)
+	paintPlanet(planet, Theme.Colors.Select, 0, Theme.Colors.Outline, 0)
 	local state = if id == HOME_ID then nil else outpostOf(profile, id) -- the home is not an outpost
 	if state then
 		planet.chipText.Text = levelChip(state.level)
@@ -368,14 +338,13 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 	card.line.Size = UDim2.fromScale(TEXT_W, if id == HOME_ID then HOME_LINE_H else LINE_H)
 	card.level.Visible = false
 	card.pending.Visible = false
-	card.frame.BackgroundTransparency = 0
-	card.frame.BackgroundColor3 = Theme.Colors.White
+	Builder.setBlockFade(card.frame, 0)
+	Builder.setBlockColor(card.frame, Theme.Colors.White)
 
 	if id == profile.world.current then
 		if State.IsGuest() then
 			-- (e) a guest: the ship is not here but waits on this world; flying to it is the way back, like state (c)
-			card.stroke.Color = Theme.Colors.Select
-			Builder.setStrokePx(card.stroke, Theme.Stroke.Button)
+			Builder.setBlockInk(card.frame, Theme.Colors.Select)
 			card.line.Text = Strings.STARCHART_RETURN_LINE
 			card.line.TextColor3 = Theme.Colors.White
 			card.line.Size = UDim2.fromScale(TEXT_W, HOME_LINE_H) -- no outpost rows under it, so it takes their room like the home's line
@@ -384,8 +353,7 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 			return
 		end
 		-- (a) here: gold, no buttons; the home has a Visit button, since this is where its friends are reached from
-		card.stroke.Color = Theme.Colors.Featured
-		Builder.setStrokePx(card.stroke, Theme.Stroke.Panel)
+		Builder.setBlockInk(card.frame, Theme.Colors.Featured)
 		card.line.Text = Strings.STARCHART_HERE
 		card.line.TextColor3 = Theme.Colors.Heading
 		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
@@ -400,16 +368,14 @@ local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boole
 			then Strings.STARCHART_HOME_LOCKED
 			elseif id == highest + 1 then Strings.STARCHART_NEXT
 			else Strings.STARCHART_LOCKED
-		card.frame.BackgroundColor3 = DIM_COLOR
-		card.frame.BackgroundTransparency = LOCKED_TRANSPARENCY
-		card.stroke.Color = DIM_COLOR
-		Builder.setStrokePx(card.stroke, Theme.Stroke.Text)
+		Builder.setBlockColor(card.frame, DIM_COLOR)
+		Builder.setBlockFade(card.frame, LOCKED_TRANSPARENCY)
+		Builder.setBlockInk(card.frame, DIM_COLOR)
 		showOnly(card, false, false, false, false)
 		return
 	end
 
-	card.stroke.Color = Theme.Colors.Select
-	Builder.setStrokePx(card.stroke, Theme.Stroke.Button)
+	Builder.setBlockInk(card.frame, Theme.Colors.Select)
 	local state = if id == HOME_ID then nil else outpostOf(profile, id)
 	if not state then
 		-- (c) unlocked, no outpost: Fly alone (the home, which never has one, says what it is)
@@ -588,19 +554,18 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 	local cx, cy = planetCenter(worldId)
 	local isHome = worldId == HOME_ID
 	local diameter = if isHome then HOME else PLANET
-	local disc = Builder.frame({
+	local octagon = Builder.pixelOctagon({
 		parent = map,
 		name = "Planet_" .. worldId,
+		color = Theme.Colors.Select,
 		position = UDim2.fromScale(cx, cy),
 		size = UDim2.fromScale(diameter, diameter),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Pill,
-		stroke = STROKE_LIT,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 5,
 	})
-	local stroke = disc:FindFirstChildOfClass("UIStroke") :: UIStroke
+	local disc = octagon.holder
+	local pulse = Instance.new("UIScale")
+	pulse.Parent = disc
 	if not isHome then
 		Builder.label({
 			parent = disc,
@@ -611,29 +576,28 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 			size = UDim2.fromScale(0.8, 0.8),
 			anchor = Vector2.new(0.5, 0.5),
 			stroke = 2,
-			zIndex = 6,
+			zIndex = Builder.octagonTop(octagon),
 		})
 	end
-	local dot = Builder.frame({
+	local dot = Builder.pixelOctagon({
 		parent = disc,
 		name = "Ready",
+		color = Theme.Colors.Confirm,
 		position = UDim2.fromScale(0.9, 0.12),
 		size = UDim2.fromScale(DOT, DOT),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Confirm,
-		corner = Theme.Corner.Pill,
-		stroke = 2,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 7,
-	})
+		zIndex = Builder.octagonTop(octagon) + 1,
+	}).holder
 	dot.Visible = false
-	local chip = Builder.pill({
+	local chip = Builder.blockPlate({
 		parent = map,
 		name = "Chip_" .. worldId,
+		color = Theme.Block.Trough,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(cx, cy + diameter / 2 + CHIP_GAP),
 		size = UDim2.fromScale(CHIP_W, CHIP_H),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Trough,
 		zIndex = 5,
 	})
 	chip.Visible = false
@@ -645,8 +609,8 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.92, 0.9),
 		anchor = Vector2.new(0.5, 0.5),
-		stroke = 0, -- the chip is navy already; an outline would only blur the text
-		zIndex = 6,
+		stroke = 0, -- the chip is dark already; an outline would only blur the text
+		zIndex = Builder.blockTop(chip),
 	})
 
 	local hit = Instance.new("TextButton")
@@ -668,7 +632,8 @@ local function buildPlanet(map: Frame, worldId: number): Planet
 	return {
 		worldId = worldId,
 		disc = disc,
-		stroke = stroke,
+		octagon = octagon,
+		pulse = pulse,
 		chip = chip,
 		chipText = chipText,
 		dot = dot,
@@ -684,48 +649,46 @@ local function buildMap(body: Frame)
 		size = UDim2.fromScale(MAP_W, BODY_H),
 		anchor = Vector2.new(0.5, 0.5),
 		aspect = 1,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
+	-- Each orbit: ORBIT_DOTS square dots round its circle (a dotted pixel ring, faint navy).
 	for id = 1, #Worlds do
-		local diameter = ringDiameter(id)
-		local ring = Builder.frame({
-			parent = map,
-			name = "Ring_" .. id,
-			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(diameter, diameter),
-			anchor = Vector2.new(0.5, 0.5),
-			corner = Theme.Corner.Pill,
-			stroke = RING_STROKE,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 3,
-		})
-		local ringStroke = ring:FindFirstChildOfClass("UIStroke")
-		if ringStroke then
-			ringStroke.Transparency = RING_TRANSPARENCY
+		local radius = ringDiameter(id) / 2
+		local ring = Builder.frame({ parent = map, name = "Ring_" .. id, zIndex = 3 })
+		for dot = 0, ORBIT_DOTS - 1 do
+			local angle = 2 * math.pi * dot / ORBIT_DOTS
+			Builder.frame({
+				parent = ring,
+				name = "Dot",
+				position = UDim2.fromScale(0.5 + radius * math.cos(angle), 0.5 + radius * math.sin(angle)),
+				size = UDim2.fromScale(ORBIT_DOT, ORBIT_DOT),
+				anchor = Vector2.new(0.5, 0.5),
+				color = Theme.Colors.Outline,
+				transparency = RING_TRANSPARENCY,
+				zIndex = 3,
+			})
 		end
 	end
-	Builder.frame({
+	-- The star's glow: a faint gold octagon with no ring; then the star, a gold octagon in navy ink.
+	local glow = Builder.pixelOctagon({
 		parent = map,
 		name = "Glow",
+		color = Theme.Colors.Featured,
+		ink = Theme.Colors.Featured,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(GLOW, GLOW),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		transparency = 0.75,
-		corner = Theme.Corner.Pill,
 		zIndex = 4,
 	})
-	Builder.frame({
+	Builder.paintOctagon(glow, Theme.Colors.Featured, 0.75, Theme.Colors.Featured, 0.75, false)
+	Builder.pixelOctagon({
 		parent = map,
 		name = "Star",
+		color = Theme.Colors.Featured,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(STAR, STAR),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Pill,
-		stroke = STROKE_LIT,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		zIndex = 6,
 	})
 	planets = {}
 	for id = 1, #Worlds do
@@ -736,18 +699,19 @@ end
 
 -- The card on the right: every piece is built once; refresh decides which show and what they say.
 local function buildDetail(body: Frame)
-	local frame = Builder.frame({
+	local frame = Builder.blockPlate({
 		parent = body,
 		name = "Card",
+		color = Theme.Colors.White,
+		ink = DIM_COLOR,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(CARD_X, BODY_Y),
 		size = UDim2.fromScale(CARD_W, BODY_H),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = DIM_COLOR,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
-	local stroke = frame:FindFirstChildOfClass("UIStroke") :: UIStroke
+	local top = Builder.blockTop(frame)
+	local buttonRows = Builder.blockButtonRows(BUTTON_H * BODY_H * PANEL_H) -- the buttons are a share of the card
 	local name = Builder.label({
 		parent = frame,
 		name = "Name",
@@ -756,7 +720,7 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, NAME_Y),
 		size = UDim2.fromScale(TEXT_W, NAME_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
 	local level = Builder.label({
 		parent = frame,
@@ -766,7 +730,7 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, LEVEL_Y),
 		size = UDim2.fromScale(TEXT_W, LEVEL_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
 	local line = Builder.label({
 		parent = frame,
@@ -776,7 +740,7 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, LINE_Y),
 		size = UDim2.fromScale(TEXT_W, LINE_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
 	local pending = Builder.label({
 		parent = frame,
@@ -786,9 +750,9 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, PENDING_Y),
 		size = UDim2.fromScale(TEXT_W, PENDING_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
-	local collect = Builder.button({
+	local collect = Builder.blockButton({
 		parent = frame,
 		name = "Collect",
 		text = Strings.STARCHART_COLLECT,
@@ -796,11 +760,12 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, ROW_ONE_Y),
 		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		onCollect(selected)
 	end)
-	local upgrade = Builder.button({
+	local upgrade = Builder.blockButton({
 		parent = frame,
 		name = "Upgrade",
 		text = Strings.STARCHART_UPGRADE,
@@ -808,11 +773,12 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(UPGRADE_X, ROW_ONE_Y),
 		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		onUpgrade(selected)
 	end)
-	local fly = Builder.button({
+	local fly = Builder.blockButton({
 		parent = frame,
 		name = "Fly",
 		text = Strings.STARCHART_FLY,
@@ -820,11 +786,12 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(TEXT_X, ROW_TWO_Y),
 		size = UDim2.fromScale(TEXT_W, BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		onFly(selected)
 	end)
-	local visit = Builder.button({
+	local visit = Builder.blockButton({
 		parent = frame,
 		name = "Visit",
 		text = Strings.STARCHART_VISIT,
@@ -832,14 +799,14 @@ local function buildDetail(body: Frame)
 		position = UDim2.fromScale(UPGRADE_X, ROW_TWO_Y),
 		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = buttonRows,
+		zIndex = top,
 	}, function()
 		Screens.Open("Visit") -- closes the chart; the Visit screen asks the server, the chart decides nothing
 	end)
 	visit.Visible = false
 	detail = {
 		frame = frame,
-		stroke = stroke,
 		name = name,
 		level = level,
 		line = line,
@@ -874,58 +841,23 @@ local function build()
 		StarChartScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.33, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Select)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.STARCHART_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.STARCHART_TITLE, Theme.Colors.Select, Vector2.new(0.33, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		StarChartScreen.Close()
 	end)
 

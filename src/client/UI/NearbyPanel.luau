@@ -2,10 +2,13 @@
 -- StarterPlayerScripts.Client.UI.NearbyPanel: the free radar (tier 0). A narrow dark column on the
 -- right edge under the HUD's biome chip that lists the species that can appear where the player stands
 -- right now: Spawns.Biomes[biome].Any plus the list for the current condition, nothing else. Caught
--- species show their placeholder colour with a tier-coloured stroke; uncaught ones are dark silhouettes
+-- species show their placeholder colour inside a tier-coloured ink; uncaught ones are dark silhouettes
 -- with the unknown mark, named unless Secret. It re-reads the biome, the condition and the codex from
 -- State on every change and every Config.NearbyRefreshSeconds while visible. No interaction yet: a
 -- later milestone adds the compass direction. Pure presentation of State and the data tables.
+-- The look is block cells (UI Playbook "Block cells", Decisions B44): the column is a fitted dark plate in cells (it follows
+-- SetTop's height), each icon a flat block whose ink is the tier's colour (the old tier stroke) round the placeholder colour or
+-- the shadow; a dimmed row fades the whole block (Builder.setBlockFade).
 -- Radar Mk2 and up (profile.gear.radar >= data/Radar Mk2.Tier): after the species that are out now,
 -- up to Mk2.AbsentRows dimmed rows for the biome's species of tier Mk2.AbsentMinTier and up that are
 -- listed under a condition not active right now, uncaught first and then the higher tier first, each
@@ -36,8 +39,7 @@ local NearbyPanel = {}
 
 type Row = {
 	frame: Frame,
-	icon: Frame,
-	stroke: UIStroke,
+	icon: Frame, -- a flat block plate: its face is the species' colour, its ink the tier's
 	mark: TextLabel,
 	markStroke: UIStroke?,
 	name: TextLabel,
@@ -88,6 +90,7 @@ local ICON_SHARE = 0.62 -- of the row height; the name takes the rest
 -- so the name and the tag overlap a little there; the tag sits on the row's lower edge.
 local DIM_ICON_SHARE = 0.4
 local DIM_TRANSPARENCY = 0.55 -- the icon, its mark and the name of a species that is not out now
+local ICON_ROWS = 3 -- an icon is a flat block this many cells tall (about 19 px at iPhone SE: 5 px cells, a 2 px tier ink)
 -- Compact mode's fitting rule, in pixels (the sizes it sets stay Scale): a text line is LINE_HEIGHT times
 -- its size tall and a row is COMPACT_LINES lines.
 local LINE_HEIGHT = 1.25
@@ -115,19 +118,21 @@ local function buildRow(parent: Frame, index: number): Row
 		zIndex = 2,
 	})
 	frame.LayoutOrder = index
-	-- Square icon: the aspect fit keeps it inside both the row height and the column width.
-	local icon = Builder.frame({
+	-- Square icon: the aspect fit keeps it inside both the row height and the column width. A flat block (C3: a small detail
+	-- block stays one colour) whose ink is the tier's colour.
+	local icon = Builder.blockPlate({
 		parent = frame,
 		name = "Icon",
+		color = Theme.Shadow,
+		ink = Theme.Rarity.Common,
+		aspect = 1,
+		rows = ICON_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(1, ICON_SHARE),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Shadow,
-		corner = Theme.Corner.Card,
-		aspect = 1,
 		zIndex = 3,
 	})
-	local stroke = Builder.stroke(icon, Theme.Stroke.Text, Theme.Rarity.Common)
 	local mark = Builder.label({
 		parent = icon,
 		name = "Mark",
@@ -136,7 +141,7 @@ local function buildRow(parent: Frame, index: number): Row
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.6),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = Builder.blockTop(icon),
 	})
 	local name = Builder.label({
 		parent = frame,
@@ -166,7 +171,6 @@ local function buildRow(parent: Frame, index: number): Row
 	return {
 		frame = frame,
 		icon = icon,
-		stroke = stroke,
 		mark = mark,
 		markStroke = mark:FindFirstChildOfClass("UIStroke"),
 		name = name,
@@ -297,8 +301,7 @@ local function layoutRow(row: Row, mode: RowMode)
 		row.tag.Size = UDim2.fromScale(1.1, (1 - DIM_ICON_SHARE) / 2)
 	end
 	local fade = if dimmed then DIM_TRANSPARENCY else 0
-	row.icon.BackgroundTransparency = fade
-	row.stroke.Transparency = fade
+	Builder.setBlockFade(row.icon, fade)
 	row.mark.TextTransparency = fade
 	row.name.TextTransparency = fade
 	local markStroke, nameStroke = row.markStroke, row.nameStroke
@@ -396,13 +399,13 @@ local function refresh()
 		row.frame.Visible = true
 		row.frame.Size = UDim2.fromScale(1, rowHeight)
 		layoutRow(row, if compact then "compact" elseif absentEntry then "dimmed" else "present")
-		row.stroke.Color = Builder.tierColor(def.tier)
+		Builder.setBlockInk(row.icon, Builder.tierColor(def.tier))
 		if caught then
-			row.icon.BackgroundColor3 = Color3.fromHex(def.placeholder.color)
+			Builder.setBlockColor(row.icon, Color3.fromHex(def.placeholder.color))
 			row.mark.Visible = false
 			row.name.Text = def.name
 		else
-			row.icon.BackgroundColor3 = Theme.Shadow
+			Builder.setBlockColor(row.icon, Theme.Shadow)
 			row.mark.Visible = true
 			row.name.Text = if def.tier == "Secret" then Strings.CODEX_UNKNOWN else def.name
 		end
@@ -458,19 +461,19 @@ local function build()
 	local root = Builder.screen("Nearby", 10)
 	gui = root
 
-	local frame = Builder.pill({
+	-- A fitted dark plate in cells (no aspect: SetTop changes its height, and its rows follow): about 8 by 19 cells of 7.5 px at
+	-- iPhone SE, some 70 frames.
+	local frame = Builder.blockPlate({
 		parent = root,
 		name = "Column",
+		color = Theme.Block.Trough,
 		position = UDim2.fromScale(COLUMN_X, columnTop),
 		size = UDim2.fromScale(COLUMN_WIDTH, COLUMN_TOP + COLUMN_HEIGHT - columnTop),
 		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 1,
 	})
-	Builder.gradient(frame, Theme.Colors.Trough)
 	column = frame
+	local top = Builder.blockTop(frame)
 
 	titleLabel = Builder.label({
 		parent = frame,
@@ -480,7 +483,7 @@ local function build()
 		position = UDim2.fromScale(0.5, TITLE_TOP),
 		size = UDim2.fromScale(0.86, TITLE_HEIGHT),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 2,
+		zIndex = top,
 	})
 
 	local holder = Builder.frame({
@@ -489,7 +492,7 @@ local function build()
 		position = UDim2.fromScale(0.5, LIST_TOP),
 		size = UDim2.fromScale(0.9, LIST_HEIGHT),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 2,
+		zIndex = top,
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
@@ -509,7 +512,7 @@ local function build()
 		size = UDim2.fromScale(0.86, 0.5),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Rarity.Common,
-		zIndex = 2,
+		zIndex = top,
 	})
 	empty.Visible = false
 	emptyLabel = empty

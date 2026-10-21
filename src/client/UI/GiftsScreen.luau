@@ -11,6 +11,10 @@
 -- gift. A third column holds the social asks: join the team's group (the native prompt, then the
 -- server checks membership and pays) and invite friends (the native invite sheet); the server owns
 -- who is a member and what a referral pays, this only prompts, asks and shows the answer.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the gold header and the close; a calendar tile a fitted edged block whose face and ink follow its state, the day chip and
+-- Claimed flat blocks, Claim a flat block button; the wheel a dark pixel octagon that turns, its hub a cream octagon, the
+-- pointer a flat block on its corner; the odds table an edged block; the other buttons block buttons.
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -61,7 +65,7 @@ type Tile = {
 	claim: Frame,
 	claimed: Frame,
 	locked: TextLabel,
-	icon: ImageLabel?, -- the reward's icon, rebuilt by refreshTile (absent while its image is not uploaded)
+	icon: GuiObject?, -- the reward's icon (the pixel icon first), rebuilt by refreshTile (absent while the key has none)
 }
 
 -- One wheel segment: a block of name and odds labels that orbits the hub and is kept upright.
@@ -157,33 +161,14 @@ local rng = Random.new()
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
--- Recolours a pill chip in place (fill and gradient).
+-- Recolours a flat block chip in place.
 local function recolorChip(chip: Frame, color: Color3)
-	chip.BackgroundColor3 = color
-	local gradient = chip:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
-	end
+	Builder.setBlockColor(chip, color)
 end
 
 -- Sets the label of a Builder.button (its "Face" child).
@@ -300,11 +285,8 @@ end
 -- Refresh ----------------------------------------------------------------------
 
 local function setTileStyle(tile: Tile, cardColor: Color3, accent: Color3)
-	tile.card.BackgroundColor3 = cardColor
-	local stroke = tile.card:FindFirstChildOfClass("UIStroke")
-	if stroke then
-		stroke.Color = accent
-	end
+	Builder.setBlockColor(tile.card, cardColor)
+	Builder.setBlockInk(tile.card, accent)
 	recolorChip(tile.dayChip, accent)
 end
 
@@ -326,14 +308,14 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 	end
 	local iconKey = rewardIconKey(row.reward)
 	if iconKey then
-		tile.icon = Builder.icon({
+		tile.icon = Builder.blockIcon({ -- the pixel icon first on a block (PixelIcons.PreferOverPack)
 			parent = tile.card,
 			name = "RewardIcon",
 			key = iconKey,
 			position = UDim2.fromScale(1 - TILE_ICON_INSET, TILE_ICON_INSET),
 			size = UDim2.fromScale(TILE_ICON_W, TILE_ICON_W),
 			anchor = Vector2.new(1, 0),
-			zIndex = 6,
+			zIndex = Builder.blockTop(tile.card) + 2,
 		})
 	end
 	local dimmed = Builder.lighter(Theme.Rarity.Common, 0.6)
@@ -665,31 +647,30 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		zIndex = 3,
 	})
 	slot.LayoutOrder = index
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = slot,
 		name = "Card",
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(TILE_INSET, TILE_INSET),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
 
-	local dayChip = Builder.pill({
+	local dayChip = Builder.blockPlate({
 		parent = card,
 		name = "DayChip",
 		position = UDim2.fromScale(0.5, 0.06),
 		size = UDim2.fromScale(0.74, 0.2),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(dayChip, Theme.Colors.Featured)
 	local dayLabel = Builder.label({
 		parent = dayChip,
 		name = "Text",
@@ -698,7 +679,7 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(dayChip),
 	})
 	local reward = Builder.label({
 		parent = card,
@@ -708,10 +689,10 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		position = UDim2.fromScale(0.5, 0.3),
 		size = UDim2.fromScale(0.9, 0.34),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 
-	local claim = Builder.button({
+	local claim = Builder.blockButton({
 		parent = card,
 		name = "Claim",
 		text = Strings.GIFTS_CLAIM,
@@ -720,23 +701,24 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		size = UDim2.fromScale(0.8, 0.26),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false, -- one on every tile: a flat face
+		zIndex = Builder.blockTop(card),
 	}, function()
 		claim(row)
 	end)
 
-	local claimed = Builder.pill({
+	local claimed = Builder.blockPlate({
 		parent = card,
 		name = "Claimed",
 		position = UDim2.fromScale(0.5, 0.94),
 		size = UDim2.fromScale(0.8, 0.23),
 		anchor = Vector2.new(0.5, 1),
 		color = Theme.Colors.Confirm,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(Theme.Colors.Confirm),
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(claimed, Theme.Colors.Confirm)
 	Builder.label({
 		parent = claimed,
 		name = "Text",
@@ -745,7 +727,7 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(claimed),
 	})
 	claimed.Visible = false
 
@@ -758,7 +740,7 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		position = UDim2.fromScale(0.5, 0.94),
 		size = UDim2.fromScale(0.9, 0.24),
 		anchor = Vector2.new(0.5, 1),
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	locked.Visible = false
 
@@ -785,7 +767,7 @@ local function buildWedge(parent: Frame, index: number, segment: Segment): Wedge
 		position = ringPosition(angle, LABEL_RADIUS),
 		size = UDim2.fromScale(LABEL_W, LABEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = 5, -- over the disc octagon's bars (3 and 4), with its dividers
 	})
 	local name = Builder.label({
 		parent = block,
@@ -821,16 +803,17 @@ local function buildWheel(parent: Frame): Frame
 		zIndex = 3,
 	})
 
-	local disc = Builder.pill({
+	-- The disc: a dark pixel octagon in navy ink that turns (its bars, dividers and labels turn with it).
+	local discOctagon = Builder.pixelOctagon({
 		parent = holder,
 		name = "Disc",
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
+		color = Theme.Block.Trough,
+		size = UDim2.fromScale(1, 1),
 		zIndex = 3,
 	})
-	Builder.gradient(disc, Theme.Colors.Trough)
+	local disc = discOctagon.holder
 	wheel = disc
+	local onDisc = Builder.octagonTop(discOctagon)
 
 	local step = 360 / math.max(1, #segments)
 	wedges = {}
@@ -845,25 +828,24 @@ local function buildWheel(parent: Frame): Frame
 			anchor = Vector2.new(0.5, 0.5),
 			color = Theme.Colors.White,
 			transparency = 0.7,
-			zIndex = 3,
+			zIndex = onDisc,
 		})
 		divider.Rotation = boundary
 		table.insert(wedges, buildWedge(disc, index, segment))
 	end
 
-	local hub = Builder.pill({
+	-- The hub: a cream pixel octagon over the disc's middle, holding the Spin button.
+	local hubOctagon = Builder.pixelOctagon({
 		parent = holder,
 		name = "Hub",
+		color = Theme.Colors.Panel,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(HUB_SIZE, HUB_SIZE),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 5,
 	})
-	spinButton = Builder.button({
-		parent = hub,
+	spinButton = Builder.blockButton({
+		parent = hubOctagon.holder,
 		name = "Spin",
 		text = Strings.SPIN_BUTTON,
 		color = Theme.Rarity.Common,
@@ -871,24 +853,24 @@ local function buildWheel(parent: Frame): Frame
 		size = UDim2.fromScale(0.8, 0.45),
 		anchor = Vector2.new(0.5, 0.5),
 		textSize = Theme.TextSize.Label,
-		zIndex = 6,
+		rows = Theme.Block.MinRows,
+		zIndex = Builder.octagonTop(hubOctagon),
 	}, spin)
 
-	-- Pointer: a gold square turned 45 degrees so a corner points down into the rim.
-	local pointer = Builder.frame({
+	-- Pointer: a gold flat block turned 45 degrees so a stepped corner points down into the rim.
+	local pointer = Builder.blockPlate({
 		parent = holder,
 		name = "Pointer",
+		color = Theme.Colors.Featured,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(POINTER_SIZE, POINTER_SIZE),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
 		zIndex = 7,
 	})
 	pointer.Rotation = 45
-	Builder.gradient(pointer, Theme.Colors.Featured)
 
 	return holder
 end
@@ -897,16 +879,16 @@ end
 -- over the wheel and the lines under it. Hidden until the odds button opens it. The ring's labels show the
 -- same odds on the wheel itself; this is the full list, readable at any size.
 local function buildOddsTable(body: Frame): Frame
-	local tableFrame = Builder.frame({
+	local tableFrame = Builder.blockPlate({
 		parent = body,
 		name = "OddsTable",
 		position = UDim2.fromScale(MID_X, WHEEL_Y),
 		size = UDim2.fromScale(MID_W, ODDS_Y - ODDS_TABLE_GAP - WHEEL_Y),
 		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 8,
+		ink = Theme.Colors.Outline,
+		cells = false,
+		edges = true,
+		zIndex = Builder.blockTop(body) + 5,
 	})
 	tableFrame.Visible = false
 	tableFrame.Active = true -- a tap on the table never reaches the wheel under it
@@ -924,7 +906,7 @@ local function buildOddsTable(body: Frame): Frame
 			xAlign = Enum.TextXAlignment.Left,
 			position = UDim2.fromScale(ODDS_TABLE_PAD, y),
 			size = UDim2.fromScale(ODDS_NAME_W, rowH),
-			zIndex = 9,
+			zIndex = Builder.blockTop(tableFrame),
 		})
 		Builder.label({
 			parent = tableFrame,
@@ -936,7 +918,7 @@ local function buildOddsTable(body: Frame): Frame
 			xAlign = Enum.TextXAlignment.Right,
 			position = UDim2.fromScale(1 - ODDS_TABLE_PAD - ODDS_VALUE_W, y),
 			size = UDim2.fromScale(ODDS_VALUE_W, rowH),
-			zIndex = 9,
+			zIndex = Builder.blockTop(tableFrame),
 		})
 	end
 	-- Most likely first (ties keep the wheel's order); the header and total in navy like the rows, readable on cream.
@@ -964,7 +946,7 @@ end
 local function buildSocial(body: Frame)
 	local y = SOCIAL_Y
 	if Social.GroupId ~= 0 then
-		groupButton = Builder.button({
+		groupButton = Builder.blockButton({
 			parent = body,
 			name = "GroupGift",
 			text = Strings.SOCIAL_GROUP_JOIN,
@@ -972,7 +954,8 @@ local function buildSocial(body: Frame)
 			position = UDim2.fromScale(SOCIAL_X, y),
 			size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
 			textSize = Theme.TextSize.Body,
-			zIndex = 3,
+			rows = Theme.Block.MinRows,
+			zIndex = Builder.blockTop(body),
 		}, onGroupTap)
 		y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
 		local groupLine = Builder.label({
@@ -984,12 +967,12 @@ local function buildSocial(body: Frame)
 			stroke = 0,
 			position = UDim2.fromScale(SOCIAL_X, y),
 			size = UDim2.fromScale(SOCIAL_W, GROUP_LINE_H),
-			zIndex = 3,
+			zIndex = Builder.blockTop(body),
 		})
 		groupLine.TextYAlignment = Enum.TextYAlignment.Top
 		y += GROUP_LINE_H + SOCIAL_BLOCK_GAP
 	end
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "InviteFriends",
 		text = Strings.SOCIAL_INVITE,
@@ -997,7 +980,8 @@ local function buildSocial(body: Frame)
 		position = UDim2.fromScale(SOCIAL_X, y),
 		size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 3,
+		rows = Theme.Block.MinRows,
+		zIndex = Builder.blockTop(body),
 	}, onInviteTap)
 	y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
 	local inviteLine = Builder.label({
@@ -1009,7 +993,7 @@ local function buildSocial(body: Frame)
 		stroke = 0,
 		position = UDim2.fromScale(SOCIAL_X, y),
 		size = UDim2.fromScale(SOCIAL_W, INVITE_LINE_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	inviteLine.TextYAlignment = Enum.TextYAlignment.Top
 end
@@ -1039,58 +1023,23 @@ local function build()
 		GiftsScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(0.78), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.86, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, gold, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.34, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.GIFTS_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.GIFTS_TITLE, Theme.Colors.Featured, Vector2.new(0.34, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, 0.78, function()
 		GiftsScreen.Close()
 	end)
 
@@ -1104,7 +1053,7 @@ local function build()
 		strokeColor = Theme.Colors.Black,
 		position = UDim2.fromScale(LEFT_X, BODY_Y),
 		size = UDim2.fromScale(LEFT_W, HEADING_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	daysLabel = Builder.label({
 		parent = body,
@@ -1113,7 +1062,7 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(LEFT_X, DAYS_Y),
 		size = UDim2.fromScale(LEFT_W, DAYS_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	nextLabel = Builder.label({
 		parent = body,
@@ -1124,7 +1073,7 @@ local function build()
 		stroke = 0,
 		position = UDim2.fromScale(LEFT_X, NEXT_Y),
 		size = UDim2.fromScale(LEFT_W, NEXT_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	-- The hint fills the two free cells beside Day 7, the last row's only tile.
 	Builder.label({
@@ -1136,7 +1085,7 @@ local function build()
 		stroke = 0,
 		position = UDim2.fromScale(LEFT_X + LEFT_W / GRID_COLS, GRID_Y + GRID_H * (GRID_ROWS - 1) / GRID_ROWS),
 		size = UDim2.fromScale(LEFT_W * (GRID_COLS - 1) / GRID_COLS, GRID_H / GRID_ROWS),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 
 	-- The calendar: square slots in a grid (the aspect constraint on the layout keeps the cells square
@@ -1146,7 +1095,7 @@ local function build()
 		name = "Calendar",
 		position = UDim2.fromScale(LEFT_X, GRID_Y),
 		size = UDim2.fromScale(LEFT_W, GRID_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	local layout = Instance.new("UIGridLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal
@@ -1176,7 +1125,7 @@ local function build()
 		strokeColor = Theme.Colors.Black,
 		position = UDim2.fromScale(MID_X, BODY_Y),
 		size = UDim2.fromScale(MID_W, HEADING_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	buildWheel(body)
 	freeLabel = Builder.label({
@@ -1186,7 +1135,7 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(MID_X, FREE_Y),
 		size = UDim2.fromScale(MID_W, LINES_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	bankedLabel = Builder.label({
 		parent = body,
@@ -1195,13 +1144,13 @@ local function build()
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(MID_X, BANKED_Y),
 		size = UDim2.fromScale(MID_W, LINES_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	-- Every prize's odds, one per row, in a table this button opens over the wheel (paid spins link here).
 	local listFrame = buildOddsTable(body)
 	oddsTable = listFrame
 	local button: Frame
-	button = Builder.button({
+	button = Builder.blockButton({
 		parent = body,
 		name = "OddsButton",
 		text = Strings.SPIN_ODDS_SHOW,
@@ -1209,7 +1158,8 @@ local function build()
 		position = UDim2.fromScale(MID_X, ODDS_Y),
 		size = UDim2.fromScale(MID_W, ODDS_H),
 		textSize = Theme.TextSize.Body,
-		zIndex = 3,
+		rows = Theme.Block.MinRows,
+		zIndex = Builder.blockTop(body),
 	}, function()
 		listFrame.Visible = not listFrame.Visible
 		setButtonText(button, if listFrame.Visible then Strings.SPIN_ODDS_HIDE else Strings.SPIN_ODDS_SHOW)

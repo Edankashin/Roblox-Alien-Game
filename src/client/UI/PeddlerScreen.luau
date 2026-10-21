@@ -5,6 +5,9 @@
 -- read from the visit mirrored in State and the shared data tables; every Buy asks the server
 -- (PeddlerBuy) and a refusal becomes a toast. Nothing here decides an outcome: the server pushes the
 -- new Scrap and inventory, and an egg comes back as a GrantResult the bootstrap turns into a Reveal.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the gold header and the close; an offer card an edged white block whose ink is its accent, the kind chip and the Sold chip
+-- flat blocks, Buy a flat block button.
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -50,6 +53,7 @@ local COUNTDOWN_H = 0.07
 local ROW_Y = 0.26
 local ROW_H = 1 - Theme.Margin - ROW_Y
 local CARD_ASPECT = 0.52 -- width / height; three fit across the 1.35 panel with the gaps
+local PANEL_H = 0.78 -- the panel's height, of the screen: an offer card's rows come from its share of it
 local CARD_GAP = 0.03 -- of the row width
 local REFRESH_SECONDS = 1 -- the countdown line (and the visit-over check) refresh this often
 
@@ -80,37 +84,15 @@ local function formatTime(seconds: number): string
 	return Strings.TIME_S:format(total)
 end
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
--- Recolours a card's accent: its stroke and the kind chip (fill and gradient).
+-- Recolours a card's accent: its ink and the kind chip's face.
 local function recolorCard(card: Card, accent: Color3)
-	local stroke = card.frame:FindFirstChildOfClass("UIStroke")
-	if stroke then
-		stroke.Color = accent
-	end
-	card.chip.BackgroundColor3 = accent
-	local gradient = card.chip:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(accent), accent)
-	end
+	Builder.setBlockInk(card.frame, accent)
+	Builder.setBlockColor(card.chip, accent)
 end
 
 local function offerName(offer: Types.PeddlerOffer): string
@@ -213,31 +195,31 @@ end
 -- A white card: kind chip on top, name, description, price, and the Buy button (or the Sold chip
 -- that stands in for it) along the bottom.
 local function buildCard(parent: Frame, index: number): Card
-	local frame = Builder.frame({
+	local frame = Builder.blockPlate({
 		parent = parent,
 		name = "Offer" .. index,
 		size = UDim2.fromScale(1, 1),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		aspect = CARD_ASPECT,
+		rows = Builder.blockRows(ROW_H * PANEL_H), -- the HUD's cell on a card as tall as the offers row
 		zIndex = 3,
 	})
 	frame.LayoutOrder = index
 
-	local chip = Builder.pill({
+	local chip = Builder.blockPlate({
 		parent = frame,
 		name = "Kind",
 		position = UDim2.fromScale(0.5, 0.04),
 		size = UDim2.fromScale(0.84, 0.11),
 		anchor = Vector2.new(0.5, 0),
 		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(frame),
 	})
-	Builder.gradient(chip, Theme.Rarity.Common)
 	local chipLabel = Builder.label({
 		parent = chip,
 		name = "Text",
@@ -246,7 +228,7 @@ local function buildCard(parent: Frame, index: number): Card
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(chip),
 	})
 	local name = Builder.label({
 		parent = frame,
@@ -255,7 +237,7 @@ local function buildCard(parent: Frame, index: number): Card
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.05, 0.17),
 		size = UDim2.fromScale(0.9, 0.14),
-		zIndex = 4,
+		zIndex = Builder.blockTop(frame),
 	})
 	local description = Builder.label({
 		parent = frame,
@@ -264,7 +246,7 @@ local function buildCard(parent: Frame, index: number): Card
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.05, 0.32),
 		size = UDim2.fromScale(0.9, 0.26),
-		zIndex = 4,
+		zIndex = Builder.blockTop(frame),
 	})
 	local price = Builder.label({
 		parent = frame,
@@ -274,10 +256,10 @@ local function buildCard(parent: Frame, index: number): Card
 		color = Theme.Colors.Featured,
 		position = UDim2.fromScale(0.05, 0.6),
 		size = UDim2.fromScale(0.9, 0.12),
-		zIndex = 4,
+		zIndex = Builder.blockTop(frame),
 	})
 
-	local buy = Builder.button({
+	local buy = Builder.blockButton({
 		parent = frame,
 		name = "Buy",
 		text = Strings.PEDDLER_BUY,
@@ -286,23 +268,24 @@ local function buildCard(parent: Frame, index: number): Card
 		size = UDim2.fromScale(0.84, 0.21),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(frame),
 	}, function()
 		buy(index)
 	end)
 
-	local sold = Builder.pill({
+	local sold = Builder.blockPlate({
 		parent = frame,
 		name = "Sold",
 		position = UDim2.fromScale(0.5, 0.95),
 		size = UDim2.fromScale(0.84, 0.19),
 		anchor = Vector2.new(0.5, 1),
 		color = Theme.Rarity.Common,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(Theme.Rarity.Common),
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(frame),
 	})
-	Builder.gradient(sold, Theme.Rarity.Common)
 	Builder.label({
 		parent = sold,
 		name = "Text",
@@ -311,7 +294,7 @@ local function buildCard(parent: Frame, index: number): Card
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(sold),
 	})
 	sold.Visible = false
 
@@ -402,58 +385,23 @@ local function build()
 		PeddlerScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
-		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
 		aspect = 1.35,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		size = UDim2.fromScale(0.8, PANEL_H),
+		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, gold for the Peddler, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.PEDDLER_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, 1.35, Strings.PEDDLER_TITLE, Theme.Colors.Featured, Vector2.new(0.42, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		PeddlerScreen.Close()
 	end)
 
@@ -465,7 +413,7 @@ local function build()
 		position = UDim2.fromScale(0.5, BODY_Y),
 		size = UDim2.fromScale(0.6, COUNTDOWN_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 
 	-- The offer row: three aspect-fit cards centred, built once and refreshed in place.
@@ -474,7 +422,7 @@ local function build()
 		name = "Offers",
 		position = UDim2.fromScale(Theme.Margin, ROW_Y),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, ROW_H),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal

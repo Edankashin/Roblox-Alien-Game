@@ -8,6 +8,8 @@
 -- init.client decides when to show and hide this, what the button does (OnBack) and what the HUD's rate reads.
 -- Layer: 35, above the HUD (10), the panels (20) and the reveal (30), below the toasts (40), so the welcome-back toast
 -- and any refusal show over it. Hiding is instant (a shrink tween would race a quick re-show). Scale only.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the card a cream plate at the panel cell, Back
+-- a block button in cells, the rejoining line a flat dark block.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -110,20 +112,20 @@ local function build()
 	})
 	dim.Active = true
 
-	local body = Builder.frame({
+	-- A cream block plate at the panel cell (UI Playbook "Screens after the HUD").
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Card",
+		color = Theme.Colors.Panel,
+		aspect = CARD_ASPECT,
+		rows = Builder.blockPanelRows(CARD_H),
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(CARD_W, CARD_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = CARD_ASPECT,
 		zIndex = 2,
 	})
 	card = body
+	local top = Builder.blockTop(body)
 
 	Builder.label({
 		parent = body,
@@ -135,7 +137,7 @@ local function build()
 		position = UDim2.fromScale(0.5, TITLE_Y),
 		size = UDim2.fromScale(TEXT_W, TITLE_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = top,
 	})
 
 	local line = Builder.label({
@@ -148,7 +150,7 @@ local function build()
 		position = UDim2.fromScale(0.5, LINE_Y),
 		size = UDim2.fromScale(TEXT_W, LINE_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = top,
 	})
 	line.TextWrapped = true
 
@@ -162,7 +164,7 @@ local function build()
 		position = UDim2.fromScale(0.5, TIME_Y),
 		size = UDim2.fromScale(TEXT_W, TIME_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = top,
 	})
 
 	earnedLabel = Builder.label({
@@ -175,10 +177,10 @@ local function build()
 		position = UDim2.fromScale(0.5, EARNED_Y),
 		size = UDim2.fromScale(TEXT_W, EARNED_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = top,
 	})
 
-	backButton = Builder.button({
+	backButton = Builder.blockButton({
 		parent = body,
 		name = "Back",
 		text = Strings.AFK_BACK,
@@ -187,7 +189,8 @@ local function build()
 		size = UDim2.fromScale(BUTTON_W, BUTTON_H),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 3,
+		rows = Builder.blockButtonRows(BUTTON_H * CARD_H), -- a fitted block button: its size is a share of the card
+		zIndex = top,
 	}, function()
 		local callback = onBack
 		if callback then
@@ -195,16 +198,16 @@ local function build()
 		end
 	end)
 
-	local pill = Builder.pill({
+	local pill = Builder.blockPlate({
 		parent = body,
 		name = "Rejoining",
-		color = Theme.Colors.Trough,
+		color = Theme.Block.Trough,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, BUTTON_BOTTOM),
 		size = UDim2.fromScale(PILL_W, BUTTON_H),
 		anchor = Vector2.new(0.5, 1),
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 3,
+		zIndex = top,
 	})
 	Builder.label({
 		parent = pill,
@@ -214,7 +217,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.7),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = Builder.blockTop(pill),
 	})
 	rejoinPill = pill
 	applyRejoining()

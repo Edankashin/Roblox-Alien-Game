@@ -9,6 +9,8 @@
 -- trainee alien the server reserved for this player, the ship, or a biome's centre. Every target is
 -- re-resolved on each read, so a collected node or a caught alien hands the marker to the next one.
 -- Nothing here decides anything: the step and the counter are the server's (State.GetTutorial).
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the hint a gold block plate in cells at about
+-- the HUD cell, the step counter a flat dark block.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -128,20 +130,24 @@ local function build()
 	root.Enabled = false
 	gui = root
 
-	local frame = Builder.pill({
+	-- A gold block plate in cells (UI Playbook "Screens after the HUD"). The width binds its aspect fit, so its height share of
+	-- the screen (and its rows, about the HUD's cell) comes from the screen's shape: 5 rows on a phone held sideways, 3 on a 4:3.
+	local camera = workspace.CurrentCamera
+	local screen = if camera then camera.ViewportSize else Vector2.new(16, 9)
+	local tall = if screen.Y > 0 then math.min(HEIGHT, WIDTH * screen.X / (ASPECT * screen.Y)) else HEIGHT
+	local frame = Builder.blockPlate({
 		parent = root,
 		name = "Hint",
+		color = Theme.Colors.Featured,
+		aspect = ASPECT,
+		rows = Builder.blockRows(tall),
 		position = UDim2.fromScale(CENTRE, BOTTOM),
 		size = UDim2.fromScale(WIDTH, HEIGHT),
 		anchor = Vector2.new(0.5, 1),
-		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		aspect = ASPECT,
 	})
-	Builder.gradient(frame, Theme.Colors.Featured)
 	frame.Visible = false
 	pill = frame
+	local top = Builder.blockTop(frame)
 
 	hintLabel = Builder.label({
 		parent = frame,
@@ -151,22 +157,21 @@ local function build()
 		position = UDim2.fromScale(TEXT_X, 0.5),
 		size = UDim2.fromScale(TEXT_W_FULL, TEXT_H),
 		anchor = Vector2.new(0, 0.5),
-		zIndex = 2,
+		zIndex = top,
 	})
 
-	local counter = Builder.pill({
+	local counter = Builder.blockPlate({
 		parent = frame,
 		name = "Progress",
+		color = Theme.Block.Trough,
+		aspect = CHIP_ASPECT,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(CHIP_RIGHT, 0.5),
 		size = UDim2.fromScale(CHIP_W, CHIP_H),
 		anchor = Vector2.new(1, 0.5),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = CHIP_ASPECT,
-		zIndex = 3,
+		zIndex = top,
 	})
-	Builder.gradient(counter, Theme.Colors.Trough)
 	counter.Visible = false
 	chip = counter
 	chipLabel = Builder.label({
@@ -177,7 +182,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = Builder.blockTop(counter),
 	})
 end
 

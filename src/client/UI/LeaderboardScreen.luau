@@ -8,6 +8,9 @@
 -- The rows are built once and reused; the list's canvas is sized in Scale from the number of rows.
 -- While open two things run: a countdown thread that redraws the reset line once a minute, and the
 -- row stagger (tweens with a delay). Close cancels the thread and the tweens and puts the rows back.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the gold header tab and the close, each row a fitted edged block (gold with navy ink for the player, white in grey ink for
+-- the rest), the pinned row the same gold edged block.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -39,7 +42,7 @@ export type Payload = {
 
 -- One list row: a transparent slot the layout places, the card inside it (the stagger slides the card, so
 -- the layout never fights the tween), the card's outline and its two labels.
-type Row = { slot: Frame, card: Frame, stroke: UIStroke, name: TextLabel, count: TextLabel }
+type Row = { slot: Frame, card: Frame, name: TextLabel, count: TextLabel } -- card: an edged block plate (face and ink recolour)
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
 -- reaches down to 0.155, so the info lines sit between the two and the list starts under the lower one.
@@ -257,8 +260,8 @@ local function draw()
 		local name = if entry.name ~= "" then entry.name else tostring(entry.userId)
 		row.name.Text = Strings.LB_ROW:format(index, name)
 		row.count.Text = Strings.LB_COUNT:format(entry.count)
-		row.card.BackgroundColor3 = if mine then Theme.Colors.Featured else Theme.Colors.White
-		row.stroke.Color = if mine then Theme.Colors.Outline else Theme.Rarity.Common
+		Builder.setBlockColor(row.card, if mine then Theme.Colors.Featured else Theme.Colors.White)
+		Builder.setBlockInk(row.card, if mine then Theme.Colors.Outline else Theme.Rarity.Common)
 	end
 	for index = shown + 1, #rows do
 		rows[index].slot.Visible = false
@@ -370,16 +373,16 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 	})
 	slot.LayoutOrder = index
 	slot.Visible = false
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = slot,
 		name = "Card",
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
-	local stroke = card:FindFirstChildOfClass("UIStroke") or Builder.stroke(card, Theme.Stroke.Text, Theme.Rarity.Common)
+
 	-- Navy text, no stroke: the rows are small and sit on a card, not over the world.
 	local name = Builder.label({
 		parent = card,
@@ -392,7 +395,7 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		size = UDim2.fromScale(NAME_W, 1),
 		anchor = Vector2.new(0, 0.5),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	name.TextTruncate = Enum.TextTruncate.AtEnd
 	local count = Builder.label({
@@ -406,9 +409,9 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		size = UDim2.fromScale(COUNT_W, 1),
 		anchor = Vector2.new(1, 0.5),
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
-	return { slot = slot, card = card, stroke = stroke, name = name, count = count }
+	return { slot = slot, card = card, name = name, count = count }
 end
 
 local function build()
@@ -434,58 +437,23 @@ local function build()
 		LeaderboardScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = 1.15,
+		rows = Builder.blockPanelRows(0.8), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.62, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1.15,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, gold like the Ranks button, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(HEADER_W, HEADER_H),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.LB_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.94, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, 1.15, Strings.LB_TITLE, Theme.Colors.Featured, Vector2.new(HEADER_W, HEADER_H))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, 0.8, function()
 		LeaderboardScreen.Close()
 	end)
 
@@ -500,7 +468,7 @@ local function build()
 		position = UDim2.fromScale(0.5, COUNTDOWN_Y),
 		size = UDim2.fromScale(COUNTDOWN_W, COUNTDOWN_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	local note = Builder.label({
 		parent = body,
@@ -512,7 +480,7 @@ local function build()
 		position = UDim2.fromScale(0.5, NOTE_Y),
 		size = UDim2.fromScale(COUNTDOWN_W, NOTE_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	note.Visible = false
 	noteLabel = note
@@ -524,7 +492,7 @@ local function build()
 	frame.BorderSizePixel = 0
 	frame.Position = UDim2.fromScale(Theme.Margin, LIST_Y)
 	frame.Size = UDim2.fromScale(1 - 2 * Theme.Margin, LIST_BOTTOM - LIST_Y)
-	frame.ZIndex = 3
+	frame.ZIndex = Builder.blockTop(body)
 	frame.ScrollingDirection = Enum.ScrollingDirection.Y
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
 	frame.CanvasSize = UDim2.fromScale(0, 1)
@@ -558,24 +526,23 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.45),
 		size = UDim2.fromScale(0.8, 0.2),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	empty.Visible = false
 	emptyLabel = empty
 
 	-- The pinned row: the player's own count and rank, gold like their row in the list.
-	local you = Builder.frame({
+	local you = Builder.blockPlate({
 		parent = body,
 		name = "You",
 		position = UDim2.fromScale(Theme.Margin, YOU_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, YOU_H),
 		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 3,
+		ink = Theme.Colors.Outline,
+		cells = false,
+		edges = true,
+		zIndex = Builder.blockTop(body),
 	})
-	Builder.gradient(you, Theme.Colors.Featured)
 	you.Visible = false
 	youCard = you
 	youLabel = Builder.label({
@@ -588,7 +555,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.96, 0.9),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
+		zIndex = Builder.blockTop(you),
 	})
 end
 

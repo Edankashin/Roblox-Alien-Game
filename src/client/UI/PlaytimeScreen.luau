@@ -12,6 +12,9 @@
 -- Shared/PlaytimeMath on the server's seconds, never on the local clock, which only draws the countdown (it shows at least
 -- 0:01 until the server's next push says the gift is open). Every Claim asks the server (ClaimPlaytimeGift); a refusal is
 -- a toast and an egg comes back as a GrantResult the bootstrap turns into a Reveal. Nothing here decides an outcome.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the gold header and the close; a gift card a fitted edged block whose face and ink follow its state, the minutes, Claimed and
+-- time-left chips flat blocks, Claim a flat block button, the reward icon the pixel icon first.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -78,13 +81,9 @@ local onState: ((Types.PlaytimeState) -> ())? = nil
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a pill chip in place (fill and gradient).
+-- Recolours a flat block chip in place.
 local function recolorChip(chip: Frame, color: Color3)
-	chip.BackgroundColor3 = color
-	local gradient = chip:FindFirstChildOfClass("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new(Builder.lighter(color), color)
-	end
+	Builder.setBlockColor(chip, color)
 end
 
 -- The reward in words: an egg by its tier, everything else through the Gifts screen's reward lines ("150 Scrap",
@@ -144,21 +143,16 @@ local function refreshCard(entry: Card, index: number)
 	entry.locked.Visible = not unlocked and not isClaimed
 	entry.left.Text = timeLeftText(index)
 	local dimmed = Builder.lighter(Theme.Rarity.Common, 0.6)
-	local stroke = entry.card:FindFirstChildOfClass("UIStroke")
 	if unlocked and not isClaimed then
-		entry.card.BackgroundColor3 = Theme.Colors.White
+		Builder.setBlockColor(entry.card, Theme.Colors.White)
 		recolorChip(entry.chip, accent)
-		if stroke then
-			stroke.Color = accent
-		end
+		Builder.setBlockInk(entry.card, accent)
 	else
 		-- Claimed or locked: grey, except a locked egg keeps its tier colour so the hour's prize stays in view.
-		entry.card.BackgroundColor3 = dimmed
+		Builder.setBlockColor(entry.card, dimmed)
 		local edge = if not unlocked and gift.reward.kind == "egg" then accent else Theme.Rarity.Common
 		recolorChip(entry.chip, edge)
-		if stroke then
-			stroke.Color = edge
-		end
+		Builder.setBlockInk(entry.card, edge)
 	end
 end
 
@@ -233,30 +227,29 @@ end
 -- Claim button, the Claimed chip or the time-left pill (one visible at a time).
 local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, x: number, width: number): Card
 	local accent = accentOf(gift.reward)
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Gift" .. index,
 		position = UDim2.fromScale(x, CARDS_Y),
 		size = UDim2.fromScale(width, CARDS_H),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = accent,
+		ink = accent,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
 
-	local chip = Builder.pill({
+	local chip = Builder.blockPlate({
 		parent = card,
 		name = "MinutesChip",
 		position = UDim2.fromScale(0.5, CHIP_Y),
 		size = UDim2.fromScale(CHIP_W, CHIP_H),
 		anchor = Vector2.new(0.5, 0),
 		color = accent,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(chip, accent)
 	Builder.label({
 		parent = chip,
 		name = "Text",
@@ -265,21 +258,21 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(chip),
 	})
 
 	-- The reward's icon (absent while its image is not uploaded: the name then takes its room).
 	local iconKey = rewardIconKey(gift.reward)
-	local icon: ImageLabel? = nil
+	local icon: GuiObject? = nil
 	if iconKey then
-		icon = Builder.icon({
+		icon = Builder.blockIcon({ -- the pixel icon first on a block (PixelIcons.PreferOverPack)
 			parent = card,
 			name = "RewardIcon",
 			key = iconKey,
 			position = UDim2.fromScale(0.5, ICON_Y),
 			size = UDim2.fromScale(ICON_W, ICON_H),
 			anchor = Vector2.new(0.5, 0),
-			zIndex = 4,
+			zIndex = Builder.blockTop(card),
 		})
 	end
 	local name = Builder.label({
@@ -292,11 +285,11 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		position = UDim2.fromScale(0.5, if icon then NAME_ICON_Y else NAME_Y),
 		size = UDim2.fromScale(NAME_W, if icon then NAME_ICON_H else NAME_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	name.TextWrapped = true
 
-	local claimButton = Builder.button({
+	local claimButton = Builder.blockButton({
 		parent = card,
 		name = "Claim",
 		text = Strings.GIFTS_CLAIM,
@@ -305,23 +298,24 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		size = UDim2.fromScale(STATE_W, STATE_H),
 		anchor = Vector2.new(0.5, 1),
 		textSize = Theme.TextSize.Body,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	}, function()
 		claim(index)
 	end)
 
-	local claimed = Builder.pill({
+	local claimed = Builder.blockPlate({
 		parent = card,
 		name = "Claimed",
 		position = UDim2.fromScale(0.5, STATE_BOTTOM),
 		size = UDim2.fromScale(STATE_W, STATE_H * 0.9),
 		anchor = Vector2.new(0.5, 1),
 		color = Theme.Colors.Confirm,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(Theme.Colors.Confirm),
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
-	Builder.gradient(claimed, Theme.Colors.Confirm)
 	Builder.label({
 		parent = claimed,
 		name = "Text",
@@ -330,19 +324,21 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(claimed),
 	})
 	claimed.Visible = false
 
 	-- The time left, in white on a navy pill so it reads on the grey card.
-	local locked = Builder.pill({
+	local locked = Builder.blockPlate({
 		parent = card,
 		name = "Locked",
 		position = UDim2.fromScale(0.5, STATE_BOTTOM),
 		size = UDim2.fromScale(STATE_W, STATE_H * 0.9),
 		anchor = Vector2.new(0.5, 1),
 		color = Theme.Colors.Trough,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	})
 	local left = Builder.label({
 		parent = locked,
@@ -352,7 +348,7 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(locked),
 	})
 	locked.Visible = false
 
@@ -384,60 +380,25 @@ local function build()
 		PlaytimeScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, gold, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.3, 0.12),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.PLAYTIME_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.PLAYTIME_TITLE, Theme.Colors.Featured, Vector2.new(0.3, 0.12))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.99, 0.02),
-		size = UDim2.fromScale(0.07, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		PlaytimeScreen.Close()
-	end)
+	end, UDim2.fromScale(0.99, 0.02), Vector2.new(0.07, 0.14))
 
 	-- The row of cards, side by side inside the 2% margin.
 	local count = #gifts
@@ -458,7 +419,7 @@ local function build()
 		position = UDim2.fromScale(0.5, HINT_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, HINT_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 end
 

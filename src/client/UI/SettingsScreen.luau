@@ -10,6 +10,9 @@
 -- body font is allowed (a long sentence, UI Playbook). The last row is the promo-code field: a text box
 -- and a Redeem button (tap or Enter) that ask the server (RedeemCode, one request in flight); the server
 -- decides and pays, the toast names what the code paid or why it did not.
+-- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel a cream block plate at
+-- the panel cell with the block header tab and close, each row a fitted edged white block, every control a flat block button
+-- (green on, grey off, recoloured in place), the code box a flat block (Builder.textBox). Layout, bindings and keys as before.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -51,6 +54,9 @@ local TOGGLE_W = 0.4 -- of the controls frame
 local CODE_BOX_W = 0.62 -- of the controls frame: the text box; the Redeem button takes the rest after the gap
 local CODE_GAP = 0.03
 
+local PANEL_ASPECT = 1.3
+local FLAT_ROWS = 3 -- a control button: a flat block of the fewest rows a stepped corner takes (about 22 px at iPhone SE)
+
 local ACTIVE = Theme.Colors.Confirm
 local INACTIVE = Theme.Rarity.Common
 
@@ -64,24 +70,9 @@ local codeBox: TextBox? = nil
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
 local function faceOf(container: Frame): TextButton?
@@ -197,13 +188,15 @@ local function buildLevelControls(controls: Frame, row: Row)
 	local width = (1 - LEVEL_GAP * (count - 1)) / count
 	for index = 1, count do
 		local level = index - 1
-		local button = Builder.button({
+		local button = Builder.blockButton({
 			parent = controls,
 			name = "Level" .. level,
 			text = if def.levelKeys then Builder.text(def.levelKeys[index]) else Builder.text("SETTINGS_LEVEL_" .. level),
 			color = INACTIVE,
 			size = UDim2.fromScale(width, 1),
 			textSize = Theme.TextSize.Body,
+			rows = FLAT_ROWS,
+			cells = false, -- a row of them on every setting: flat faces (UI Playbook "Frames")
 			zIndex = 4,
 		}, function()
 			if currentValue(def) ~= level then
@@ -218,7 +211,7 @@ end
 -- One chunky button on the right that reads On or Off and asks for the other value.
 local function buildToggleControl(controls: Frame, row: Row)
 	local def = row.def
-	row.toggle = Builder.button({
+	row.toggle = Builder.blockButton({
 		parent = controls,
 		name = "Toggle",
 		text = Strings.SETTINGS_OFF,
@@ -227,25 +220,30 @@ local function buildToggleControl(controls: Frame, row: Row)
 		size = UDim2.fromScale(TOGGLE_W, 1),
 		anchor = Vector2.new(1, 0.5),
 		textSize = Theme.TextSize.Body,
+		rows = FLAT_ROWS,
+		cells = false,
 		zIndex = 4,
 	}, function()
 		send(def.key, if currentValue(def) == 1 then 0 else 1)
 	end)
 end
 
--- A white card: a name on the left and an empty controls frame on the right. Returns the controls frame.
+-- A white card (a fitted edged block in grey ink): a name on the left and an empty controls frame on the right. Returns the
+-- controls frame.
 local function buildCard(parent: Frame, name: string, index: number, share: number, labelText: string): Frame
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = name,
-		size = UDim2.fromScale(1, share),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		rows = FLAT_ROWS,
+		cells = false,
+		edges = true,
+		size = UDim2.fromScale(1, share),
 		zIndex = 3,
 	})
 	card.LayoutOrder = index
+	local top = Builder.blockTop(card)
 	Builder.label({
 		parent = card,
 		name = "Label",
@@ -255,7 +253,7 @@ local function buildCard(parent: Frame, name: string, index: number, share: numb
 		size = UDim2.fromScale(LABEL_W, 0.84),
 		anchor = Vector2.new(0, 0.5),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = top,
 	})
 	return Builder.frame({
 		parent = card,
@@ -263,7 +261,7 @@ local function buildCard(parent: Frame, name: string, index: number, share: numb
 		position = UDim2.fromScale(CONTROLS_X, 0.5),
 		size = UDim2.fromScale(CONTROLS_W, CONTROL_H),
 		anchor = Vector2.new(0, 0.5),
-		zIndex = 4,
+		zIndex = top,
 	})
 end
 
@@ -299,7 +297,7 @@ local function buildCodesRow(parent: Frame, index: number, share: number)
 			redeem()
 		end
 	end)
-	Builder.button({
+	Builder.blockButton({
 		parent = controls,
 		name = "Redeem",
 		text = Strings.CODES_REDEEM,
@@ -308,6 +306,8 @@ local function buildCodesRow(parent: Frame, index: number, share: number)
 		size = UDim2.fromScale(1 - CODE_BOX_W - CODE_GAP, 1),
 		anchor = Vector2.new(1, 0.5),
 		textSize = Theme.TextSize.Body,
+		rows = FLAT_ROWS,
+		cells = false,
 		zIndex = 4,
 	}, redeem)
 end
@@ -337,58 +337,24 @@ local function build()
 		SettingsScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	-- The panel: a cream block plate at the panel cell.
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H),
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.6, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1.3,
 		zIndex = 2,
 	})
 	panel = body
+	local top = Builder.blockTop(body)
 
 	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.44, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Select)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.SETTINGS_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
-
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.SETTINGS_TITLE, Theme.Colors.Select, Vector2.new(0.44, 0.11))
+	Builder.blockClose(body, PANEL_H, function()
 		SettingsScreen.Close()
 	end)
 
@@ -398,7 +364,7 @@ local function build()
 		name = "Rows",
 		position = UDim2.fromScale(Theme.Margin, ROWS_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, ROWS_H),
-		zIndex = 3,
+		zIndex = top,
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
@@ -425,7 +391,7 @@ local function build()
 		stroke = 0,
 		position = UDim2.fromScale(Theme.Margin, HINT_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, HINT_H),
-		zIndex = 3,
+		zIndex = top,
 	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).

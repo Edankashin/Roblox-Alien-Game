@@ -180,6 +180,26 @@ function BlockMath.Cell(grid: Grid, col: number, row: number): Rect
 	return { x = grid.inkX + col * grid.cellX, y = grid.inkY + row * grid.cellY, w = grid.cellX, h = grid.cellY }
 end
 
+-- How many frames Builder.blockPlate draws for a grid: two ink bars and two face bars, and with `cells` the C3 bands, the grout
+-- lines and the jittered cells (seed `seed`); an edged block (`edges`, no cells) the bands alone. The UI Playbook's frame budget
+-- ("Frames") counts with it.
+function BlockMath.Frames(grid: Grid, cells: boolean, seed: number, edges: boolean?): number
+	local count = 4
+	if not cells and not edges then
+		return count
+	end
+	local bands = BlockMath.Bands(grid)
+	for _, band in ipairs({ bands.top, bands.bottom, bands.left, bands.right }) do
+		if band then
+			count += 1
+		end
+	end
+	if not cells then
+		return count
+	end
+	return count + #BlockMath.Grout(grid, 1) + #BlockMath.Jittered(grid, seed)
+end
+
 -- A block button is its face plate over a lip one cell deep: the face is `rows` + 2 ink cells tall and the whole button one
 -- cell more. Answers the lip's share of the button's height (the press sinks the face by exactly this) and the face's aspect
 -- on a button box of `aspect`.

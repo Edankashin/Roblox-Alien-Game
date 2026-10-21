@@ -102,6 +102,12 @@ local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
 local BANNER_TEXT_WIDTH_FULL = 0.82 -- without a chip
 local BANNER_ASPECT = 6
 local BANNER_CHIP = Vector2.new(0.25, 0.68) -- the luck chip, as fractions of the banner
+-- The banner's lines, as fractions of its height: two lines (the name, then the time left under it) or one (either alone).
+-- Two lines need the smaller one to hold the 14 px floor: on a banner under Theme.TextSize.Min / BANNER_SUB_H px tall (41 px:
+-- iPhone SE's is 26) the banner shows one line at a time, the name and the time left taking turns (Theme.Tween.BannerLine each).
+local BANNER_NAME_Y, BANNER_NAME_H = 0.1, 0.46
+local BANNER_SUB_Y, BANNER_SUB_H = 0.56, 0.34
+local BANNER_ONE_Y, BANNER_ONE_H = 0.15, 0.7
 
 local SCRAP_ASPECT = 3.6
 local CHIP_ASPECT = 4.2 -- the clock, biome and shower chips and the ship bar
@@ -465,8 +471,8 @@ local function buildEventBanner(root: ScreenGui)
 		name = "Text",
 		text = "",
 		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.1),
-		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.46),
+		position = UDim2.fromScale(BANNER_TEXT_LEFT, BANNER_NAME_Y),
+		size = UDim2.fromScale(BANNER_TEXT_WIDTH, BANNER_NAME_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = top,
 	})
@@ -475,8 +481,8 @@ local function buildEventBanner(root: ScreenGui)
 		name = "Sub",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(BANNER_TEXT_LEFT, 0.56),
-		size = UDim2.fromScale(BANNER_TEXT_WIDTH, 0.34),
+		position = UDim2.fromScale(BANNER_TEXT_LEFT, BANNER_SUB_Y),
+		size = UDim2.fromScale(BANNER_TEXT_WIDTH, BANNER_SUB_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = top,
 	})
@@ -748,7 +754,9 @@ end
 -- The event banner in the luck line's slot: `text` is the event name (SHOWER_NOW), `subtitle` the
 -- smaller line beneath it (the time left, SHOWER_LEFT formatted) and `chip` the green chip's text
 -- (SHOWER_LUCK formatted); nil text hides the banner and gives the luck line its slot back. `iconKey` is an
--- Icons key for the square on the left; nil, or an icon not uploaded yet, leaves the purple placeholder.
+-- Icons key for the square on the left; nil, or an icon not uploaded yet, leaves the gold placeholder.
+-- On a banner too short for two lines at the 14 px floor (iPhone SE) the name and the subtitle take turns on one line, each
+-- for Theme.Tween.BannerLine seconds; the bootstrap calls this on its poll, which moves the turn along.
 function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, iconKey: string?)
 	local pill, label, sub = banner, bannerText, bannerSub
 	if not pill or not label or not sub then
@@ -760,13 +768,21 @@ function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, ico
 			bannerIconKey = iconKey
 			setSquareIcon(square, iconKey)
 		end
-		label.Text = text
-		sub.Text = subtitle or ""
-		sub.Visible = subtitle ~= nil
 		local width = if chip then BANNER_TEXT_WIDTH else BANNER_TEXT_WIDTH_FULL
-		label.Size = UDim2.fromScale(width, if subtitle then 0.46 else 0.7)
-		label.Position = UDim2.fromScale(BANNER_TEXT_LEFT, if subtitle then 0.1 else 0.15)
-		sub.Size = UDim2.fromScale(width, 0.34)
+		local tall = pill.AbsoluteSize.Y
+		local twoLines = subtitle ~= nil and (tall <= 0 or tall * BANNER_SUB_H >= Theme.TextSize.Min)
+		if twoLines then
+			label.Text = text
+			sub.Text = subtitle or ""
+		else
+			local turn = Theme.Tween.BannerLine
+			local showSub = subtitle ~= nil and os.clock() % (2 * turn) >= turn
+			label.Text = if showSub then subtitle or text else text
+		end
+		sub.Visible = twoLines
+		label.Size = UDim2.fromScale(width, if twoLines then BANNER_NAME_H else BANNER_ONE_H)
+		label.Position = UDim2.fromScale(BANNER_TEXT_LEFT, if twoLines then BANNER_NAME_Y else BANNER_ONE_Y)
+		sub.Size = UDim2.fromScale(width, BANNER_SUB_H)
 		if bannerChip then
 			bannerChip.Visible = chip ~= nil
 		end

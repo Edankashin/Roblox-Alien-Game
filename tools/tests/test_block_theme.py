@@ -18,6 +18,34 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import lint_data  # noqa: E402
 
+# The screens rebuilt in block cells after the HUD, one per change (UI Playbook "Screens after the HUD").
+BLOCK_SCREENS = (
+    "Compass.luau",
+    "NearbyPanel.luau",
+    "AliensScreen.luau",
+    "ShopScreen.luau",
+    "QuestsScreen.luau",
+    "SettingsScreen.luau",
+    "Toast.luau",
+    "NotifyCard.luau",
+    "CodexScreen.luau",
+    "MailScreen.luau",
+    "LeaderboardScreen.luau",
+    "PeddlerScreen.luau",
+    "PlaytimeScreen.luau",
+    "VisitScreen.luau",
+    "StarChartScreen.luau",
+    "GiftsScreen.luau",
+    "ShipScreen.luau",
+    "AfkScreen.luau",
+    "CinematicBars.luau",
+    "TutorialHint.luau",
+    "PowerUpBar.luau",
+    "ReleasePanel.luau",
+    "BuildScreen.luau",
+    "Radar.luau",
+)
+
 
 def block_numbers():
     source = lint_data.uncomment((ROOT / "src/shared/Theme.luau").read_text())
@@ -61,6 +89,21 @@ class BlockTheme(unittest.TestCase):
         for helper in ("Builder.pill(", "Builder.button(", "Builder.gradient(", "Builder.gloss(", "Builder.corner("):
             self.assertNotIn(helper, self.hud, helper)
         self.assertNotIn("UICorner", self.hud)
+
+    def test_the_spec_uses_the_panel_cell(self):
+        found = re.search(r"local PANEL_CELL = ([\d.]+)", self.spec)
+        self.assertTrue(found, "the spec's PANEL_CELL line moved")
+        self.assertEqual(float(found[1]), self.block["PanelCell"])
+        self.assertEqual(self.block["PanelCell"], 2 * self.block["Cell"], "Blocky-Style C1: the big cell is twice the small one")
+
+    def test_the_screens_moved_to_block_cells_keep_no_old_look(self):
+        # UI Playbook "Screens after the HUD": a screen in block cells has no rounded, gradient, gloss or chunky-pill helper left,
+        # and no corner, stroke or gradient instance of its own (a rarity ring is a plate's ink, a button a block button).
+        for name in BLOCK_SCREENS:
+            source = lint_data.uncomment((ROOT / "src/client/UI" / name).read_text())
+            for helper in ("Builder.pill(", "Builder.button(", "Builder.gradient(", "Builder.gloss(", "Builder.corner(",
+                           "Builder.restyleButton(", "corner = Theme.Corner", "UICorner", "UIGradient"):
+                self.assertNotIn(helper, source, f"{name}: {helper}")
 
 
 if __name__ == "__main__":

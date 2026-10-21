@@ -12,6 +12,9 @@
 -- it, pays the rewards and pushes the new list, which this redraws from; the toast names what the letter paid.
 -- Nothing here decides an outcome. Unknown means the letter is already gone (a double tap, or another server
 -- claimed it), so the list just redraws; any other refusal is only logged.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the block header and close, each letter and the Visitor Book a fitted edged white block in grey ink, Claim a flat block
+-- button.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -208,15 +211,17 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 	})
 	slot.LayoutOrder = index
 	slot.Visible = false
-	local card = Builder.frame({
+	-- A fitted edged white block in grey ink (a letter row repeats: UI Playbook "Frames").
+	local card = Builder.blockPlate({
 		parent = slot,
 		name = "Card",
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
+	local top = Builder.blockTop(card)
 	local from = Builder.label({
 		parent = card,
 		name = "From",
@@ -226,7 +231,7 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		xAlign = Enum.TextXAlignment.Left,
 		position = UDim2.fromScale(ROW_PAD_X, FROM_Y),
 		size = UDim2.fromScale(TEXT_W, FROM_H),
-		zIndex = 4,
+		zIndex = top,
 	})
 	from.TextTruncate = Enum.TextTruncate.AtEnd
 	local line = Builder.label({
@@ -239,7 +244,7 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		xAlign = Enum.TextXAlignment.Left,
 		position = UDim2.fromScale(ROW_PAD_X, LINE_Y),
 		size = UDim2.fromScale(TEXT_W, LINE_H),
-		zIndex = 4,
+		zIndex = top,
 	})
 	line.TextWrapped = true
 	line.TextTruncate = Enum.TextTruncate.AtEnd
@@ -252,11 +257,11 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		xAlign = Enum.TextXAlignment.Left,
 		position = UDim2.fromScale(ROW_PAD_X, REWARD_Y),
 		size = UDim2.fromScale(TEXT_W, REWARD_H),
-		zIndex = 4,
+		zIndex = top,
 	})
 	rewards.TextTruncate = Enum.TextTruncate.AtEnd
 	local row: Row = { slot = slot, from = from, text = line, rewards = rewards, uid = nil }
-	Builder.button({
+	Builder.blockButton({
 		parent = card,
 		name = "Claim",
 		text = Strings.MAIL_CLAIM,
@@ -264,7 +269,9 @@ local function buildRow(parent: ScrollingFrame, index: number): Row
 		position = UDim2.fromScale(CLAIM_X, CLAIM_Y),
 		size = UDim2.fromScale(CLAIM_W, CLAIM_H),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false, -- one on every letter: a flat face
+		zIndex = top,
 	}, function()
 		local uid = row.uid
 		if uid ~= nil then
@@ -297,58 +304,23 @@ local function build()
 		MailScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.34, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Select)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.MAIL_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.MAIL_TITLE, Theme.Colors.Select, Vector2.new(0.34, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		MailScreen.Close()
 	end)
 
@@ -359,7 +331,7 @@ local function build()
 	frame.BorderSizePixel = 0
 	frame.Position = UDim2.fromScale(Theme.Margin, LIST_Y)
 	frame.Size = UDim2.fromScale(1 - 2 * Theme.Margin, LIST_BOTTOM - LIST_Y)
-	frame.ZIndex = 3
+	frame.ZIndex = Builder.blockTop(body)
 	frame.ScrollingDirection = Enum.ScrollingDirection.Y
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
 	frame.CanvasSize = UDim2.fromScale(0, 1)
@@ -393,23 +365,23 @@ local function build()
 		position = UDim2.fromScale(0.5, (LIST_Y + LIST_BOTTOM) / 2),
 		size = UDim2.fromScale(0.8, 0.14),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	empty.Visible = false
 	emptyLabel = empty
 
 	-- The Visitor Book: a card under the list with its heading (yellow on black, like the other section
 	-- headings) and the names, one wrapped line of navy text.
-	local book = Builder.frame({
+	local book = Builder.blockPlate({
 		parent = body,
 		name = "VisitorBook",
+		color = Theme.Colors.White,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(Theme.Margin, BOOK_Y),
 		size = UDim2.fromScale(1 - 2 * Theme.Margin, BOOK_H),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	Builder.label({
 		parent = book,
@@ -421,7 +393,7 @@ local function build()
 		position = UDim2.fromScale(0.5, BOOK_TITLE_Y),
 		size = UDim2.fromScale(1 - 2 * ROW_PAD_X, BOOK_TITLE_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(book),
 	})
 	local names = Builder.label({
 		parent = book,
@@ -433,7 +405,7 @@ local function build()
 		position = UDim2.fromScale(0.5, BOOK_NAMES_Y),
 		size = UDim2.fromScale(1 - 2 * ROW_PAD_X, BOOK_NAMES_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(book),
 	})
 	names.TextWrapped = true
 	names.TextTruncate = Enum.TextTruncate.AtEnd

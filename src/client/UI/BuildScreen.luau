@@ -18,6 +18,9 @@
 -- back. A tap reaches OnWorldTap (the bootstrap routes it while the tray is open). It is cast from the camera against the
 -- plot and the ghost (placing) or the plot and the placed items (taking away), so a tap on the body of a tall item
 -- finds that item, not the ground behind it.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the tray a fitted cream plate at the panel cell
+-- (fitTray narrows it and its columns follow), its title tab a fitted blue plate in cells, each item card a fitted edged block
+-- in its tint (grey while it cannot be bought, its ink gold while picked), the footer block buttons in cells.
 
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
@@ -41,7 +44,7 @@ local BuildScreen = {}
 type Kind = HomeBuild.Kind
 
 -- One item card. Built once and refreshed in place.
-type Card = { id: string, tint: Color3, frame: Frame, stroke: UIStroke, gradient: UIGradient }
+type Card = { id: string, tint: Color3, frame: Frame } -- frame: an edged block plate (setBlockColor, setBlockInk)
 
 local KINDS: { Kind } = { "room", "furniture", "habitat" } -- the rows, top to bottom
 
@@ -87,24 +90,9 @@ local pending = false -- one server request in flight at a time
 
 -- Helpers ----------------------------------------------------------------
 
--- Recolours a Builder.button in place (lip, face, thick stroke, gradient).
+-- Recolours a block button in place (its face and lip), keeping its text.
 local function recolorButton(container: Frame, color: Color3)
-	local dark = Builder.darker(color)
-	local lip = container:FindFirstChild("Lip")
-	if lip and lip:IsA("Frame") then
-		lip.BackgroundColor3 = dark
-	end
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.BackgroundColor3 = color
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and Builder.strokePx(child) == Theme.Stroke.Button then
-				child.Color = dark
-			elseif child:IsA("UIGradient") then
-				child.Color = ColorSequence.new(Builder.lighter(color), color)
-			end
-		end
-	end
+	Builder.recolorBlockButton(container, color)
 end
 
 local function itemName(itemId: string): string
@@ -303,24 +291,20 @@ end
 
 -- Cards ---------------------------------------------------------------------
 
--- A card: the item's name over its price, tinted with its placeholder colour (grey while unaffordable, a thick
--- gold border while picked, both set by refresh), and an invisible button over all of it.
+-- A card: the item's name over its price, a fitted edged block tinted with its placeholder colour (grey while
+-- unaffordable, a gold ink while picked, both set by refresh), and an invisible button over all of it.
 local function buildCard(parent: ScrollingFrame, def: HomeBuild.Item, position: UDim2, size: UDim2): Card
 	local tint = Color3.fromHex(def.placeholder.color)
-	local frame = Builder.frame({
+	local frame = Builder.blockPlate({
 		parent = parent,
 		name = def.id,
+		color = tint,
+		cells = false,
+		edges = true,
 		position = position,
 		size = size,
-		color = tint,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 3,
 	})
-	local gradient = Builder.gradient(frame, tint)
-	local stroke = frame:FindFirstChildOfClass("UIStroke")
-	assert(stroke, "Builder.frame stroke")
 	Builder.label({
 		parent = frame,
 		name = "Name",
@@ -329,7 +313,7 @@ local function buildCard(parent: ScrollingFrame, def: HomeBuild.Item, position: 
 		position = UDim2.fromScale(0.5, 0.04),
 		size = UDim2.fromScale(0.92, 0.46),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(frame),
 	})
 	Builder.label({
 		parent = frame,
@@ -339,7 +323,7 @@ local function buildCard(parent: ScrollingFrame, def: HomeBuild.Item, position: 
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.92, 0.46),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = Builder.blockTop(frame),
 	})
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
@@ -348,13 +332,13 @@ local function buildCard(parent: ScrollingFrame, def: HomeBuild.Item, position: 
 	tap.BorderSizePixel = 0
 	tap.BackgroundTransparency = 1
 	tap.Size = UDim2.fromScale(1, 1)
-	tap.ZIndex = 6
+	tap.ZIndex = Builder.blockTop(frame) + 1
 	tap.Parent = frame
 	tap.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
 		pickItem(def.id)
 	end)
-	return { id = def.id, tint = tint, frame = frame, stroke = stroke, gradient = gradient }
+	return { id = def.id, tint = tint, frame = frame }
 end
 
 -- Refresh ----------------------------------------------------------------------
@@ -381,11 +365,9 @@ refresh = function()
 		local def = HomeBuild.ById[card.id]
 		local full = (counts[def.kind] or 0) >= (caps[def.kind] or 0) -- the kind's cap is reached: grey like unaffordable
 		local fill = if profile.scrap >= def.scrap and not full then card.tint else Theme.Rarity.Common
-		card.frame.BackgroundColor3 = fill
-		card.gradient.Color = ColorSequence.new(Builder.lighter(fill), fill)
+		Builder.setBlockColor(card.frame, fill)
 		local selected = not removing and picked == card.id
-		card.stroke.Color = if selected then Theme.Colors.Featured else Theme.Colors.Outline
-		Builder.setStrokePx(card.stroke, if selected then Theme.Stroke.Panel else Theme.Stroke.Text)
+		Builder.setBlockInk(card.frame, if selected then Theme.Colors.Featured else Theme.Colors.Outline)
 	end
 	local line = hint
 	if line then
@@ -410,46 +392,44 @@ local function build()
 	root.Enabled = false
 	gui = root
 
-	local body = Builder.frame({
+	-- A fitted cream plate at the panel cell (fitTray narrows it, and its columns follow).
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Tray",
+		color = Theme.Colors.Panel,
+		rows = Builder.blockPanelRows(TRAY_H),
 		position = UDim2.fromScale(1 - Theme.Margin, 1 - Theme.Margin), -- bottom right: the left edge clears the menu column
 		size = UDim2.fromScale(TRAY_W, TRAY_H),
 		anchor = Vector2.new(1, 1),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 2,
 	})
+	local top = Builder.blockTop(body)
 	body.Active = true -- sinks input, so a tap on the tray never reaches the world
 	panel = body
 	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		fitTray(root, body)
 	end)
 
-	local header = Builder.frame({
+	-- The title tab: a fitted blue block plate in cells (the tray keeps no aspect, so neither can its tab).
+	local header = Builder.blockPlate({
 		parent = body,
 		name = "Header",
+		color = Theme.Colors.Select,
+		rows = Theme.Block.MinRows,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(HEADER_W, HEADER_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
+		zIndex = top + 1,
 	})
-	Builder.gradient(header, Theme.Colors.Select)
 	Builder.label({
 		parent = header,
 		name = "Title",
 		text = Strings.BUILD_TITLE,
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
+		size = UDim2.fromScale(0.9, 0.72),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(header),
 	})
 
 	-- The rows: the items of each kind in data order, all rows on the same slot grid (as many slots as the
@@ -478,7 +458,7 @@ local function build()
 	scroller.BorderSizePixel = 0
 	scroller.Position = UDim2.fromScale(Theme.Margin, ROW_TOP - LIST_PAD)
 	scroller.Size = UDim2.fromScale(listW, listH)
-	scroller.ZIndex = 3
+	scroller.ZIndex = top
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
 	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
 	scroller.CanvasSize = UDim2.fromScale(0, canvasH)
@@ -531,9 +511,11 @@ local function build()
 		xAlign = Enum.TextXAlignment.Left,
 		position = UDim2.fromScale(Theme.Margin, FOOT_Y),
 		size = UDim2.fromScale(HINT_W, FOOT_H),
-		zIndex = 3,
+		zIndex = top,
 	})
-	turnButton = Builder.button({
+	-- The footer: fitted block buttons in cells, their rows from their share of the tray's screen height.
+	local footRows = Builder.blockButtonRows(FOOT_H * TRAY_H)
+	turnButton = Builder.blockButton({
 		parent = body,
 		name = "Turn",
 		text = Strings.BUILD_ROTATE,
@@ -541,9 +523,10 @@ local function build()
 		position = UDim2.fromScale(TURN_X, FOOT_Y),
 		size = UDim2.fromScale(TURN_W, FOOT_H),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = footRows,
+		zIndex = top,
 	}, turn)
-	removeButton = Builder.button({
+	removeButton = Builder.blockButton({
 		parent = body,
 		name = "TakeAway",
 		text = Strings.BUILD_REMOVE,
@@ -551,9 +534,10 @@ local function build()
 		position = UDim2.fromScale(REMOVE_X, FOOT_Y),
 		size = UDim2.fromScale(REMOVE_W, FOOT_H),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = footRows,
+		zIndex = top,
 	}, toggleRemove)
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "Done",
 		text = Strings.BUILD_DONE,
@@ -561,7 +545,8 @@ local function build()
 		position = UDim2.fromScale(DONE_X, FOOT_Y),
 		size = UDim2.fromScale(DONE_W, FOOT_H),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = footRows,
+		zIndex = top,
 	}, function()
 		BuildScreen.Close()
 	end)

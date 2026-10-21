@@ -6,6 +6,9 @@
 -- down each second from the end time State keeps between the server's BuffsChanged pushes. A tap asks
 -- the server (UsePowerUp) and a refusal becomes a toast. The whole bar hides when there is nothing to
 -- show. Nothing here decides anything: what is held and what is running are the server's.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): a slot's button is a square block button with the
+-- 44 px hit area (its face's ink turns Select while the power-up runs: the ring is the ink), the count badge and the timer
+-- under-bar flat blocks.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -32,7 +35,7 @@ type Slot = {
 	id: string,
 	frame: Frame,
 	button: Frame,
-	ring: UIStroke?, -- the face's border stroke, recoloured while the power-up runs
+	ring: Frame?, -- the button's face plate: its ink is the ring, Select while the power-up runs
 	badge: Frame,
 	badgeLabel: TextLabel,
 	bar: Frame,
@@ -86,19 +89,13 @@ local function applyVisible()
 	end
 end
 
--- The ring: the face's own border stroke, Select and thicker while running, the button's dark edge otherwise.
+-- The ring: the face plate's ink, Select while running, the navy ink otherwise.
 local function setRing(slot: Slot, active: boolean)
 	local ring = slot.ring
 	if not ring then
 		return
 	end
-	if active then
-		ring.Color = Theme.Colors.Select
-		Builder.setStrokePx(ring, Theme.Stroke.Panel)
-	else
-		ring.Color = Builder.darker(Theme.Colors.Featured)
-		Builder.setStrokePx(ring, Theme.Stroke.Button)
-	end
+	Builder.setBlockInk(ring, if active then Theme.Colors.Select else Theme.Colors.Outline)
 end
 
 -- Server calls -------------------------------------------------------------
@@ -135,7 +132,7 @@ local function buildSlot(parent: Frame, order: number, id: string): Slot
 	frame.LayoutOrder = order
 	frame.Visible = false
 
-	local button = Builder.button({
+	local button = Builder.blockButton({
 		parent = frame,
 		name = "Button",
 		text = string.upper(string.sub(powerUpName(id), 1, 1)),
@@ -145,30 +142,25 @@ local function buildSlot(parent: Frame, order: number, id: string): Slot
 		anchor = Vector2.new(0.5, 0),
 		textSize = Theme.TextSize.Title,
 		aspect = 1,
+		rows = Builder.blockButtonRows(BUTTON_H * ROW_H * HEIGHT), -- its size is a share of the slot: rows from its screen height
 		icon = id, -- the power-up ids are the icon keys
+		hit = true, -- about 35 px at iPhone SE: the 44 px floor
 	}, function()
 		use(id)
 	end)
-	local ring: UIStroke? = nil
-	local face = button:FindFirstChild("Face")
-	if face then
-		for _, child in ipairs(face:GetChildren()) do
-			if child:IsA("UIStroke") and child.ApplyStrokeMode == Enum.ApplyStrokeMode.Border then
-				ring = child
-			end
-		end
-	end
+	local plate = button:FindFirstChild("Plate")
+	local ring: Frame? = if plate and plate:IsA("Frame") then plate else nil
 
-	-- "xN" count badge bottom-right of the button while some are held.
-	local badge = Builder.pill({
+	-- "xN" count badge bottom-right of the button while some are held: a fitted flat block.
+	local badge = Builder.blockPlate({
 		parent = button,
 		name = "Count",
+		color = Theme.Block.Trough,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(1.08, 1.08),
 		size = UDim2.fromScale(0.62, 0.38),
 		anchor = Vector2.new(1, 1),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 5,
 	})
 	local badgeLabel = Builder.label({
@@ -179,23 +171,22 @@ local function buildSlot(parent: Frame, order: number, id: string): Slot
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.85),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.blockTop(badge),
 	})
 	badge.Visible = false
 
-	-- Under-bar with the time left while the power-up runs.
-	local bar = Builder.pill({
+	-- Under-bar with the time left while the power-up runs: a fitted flat block.
+	local bar = Builder.blockPlate({
 		parent = frame,
 		name = "Timer",
+		color = Theme.Colors.Select,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, 1),
 		size = UDim2.fromScale(1, BAR_H),
 		anchor = Vector2.new(0.5, 1),
-		color = Theme.Colors.Select,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 2,
 	})
-	Builder.gradient(bar, Theme.Colors.Select)
 	local barLabel = Builder.label({
 		parent = bar,
 		name = "Text",
@@ -204,7 +195,7 @@ local function buildSlot(parent: Frame, order: number, id: string): Slot
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.85),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = Builder.blockTop(bar),
 	})
 	bar.Visible = false
 

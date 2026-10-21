@@ -7,6 +7,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local BlockMath = require(Shared.BlockMath)
 
 local CELL, INK, MIN_ROWS, GROUT, SEED = 0.02, 0.4, 3, 0.125, 44
+local PANEL_CELL = 0.04 -- Theme.Block.PanelCell: a modal panel's cell, twice CELL (tools/tests/test_block_theme.py checks both)
 local TAP_MIN = 44 -- Theme.TapMin
 local TEXT_MIN = 14 -- Theme.TextSize.Min
 local EPS = 1e-9
@@ -244,5 +245,305 @@ describe("BlockMath HUD fit", function()
 		expect(small).toBeClose(4.93, 0.01) -- the biome and shower chips
 		expect(large).toBeClose(8.39, 0.01) -- the Scrap plate
 	end)
+end)
+
+describe("BlockMath HUD event banner", function()
+	-- Hud.luau: the banner is 0.4 x 0.07 at 6; two lines (0.46 and 0.34 of it) when the smaller holds 14 px, else one line of
+	-- 0.7 of it, the name and the time left taking turns. Either way every line shown holds the 14 px floor.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": every line the banner shows is 14 px or more", function()
+			local _, h = BlockMath.FitPx(0.4, 0.07, 6, screen.w, screen.h)
+			local twoLines = h * 0.34 >= TEXT_MIN
+			if twoLines then
+				assert(h * 0.46 >= TEXT_MIN, "the name line is " .. h * 0.46 .. " px")
+			else
+				assert(h * 0.7 >= TEXT_MIN, "the one line is " .. h * 0.7 .. " px")
+			end
+		end)
+	end
+	it("takes turns on one line at iPhone SE and shows both lines on the iPad", function()
+		local _, se = BlockMath.FitPx(0.4, 0.07, 6, SE.w, SE.h)
+		local _, ipad = BlockMath.FitPx(0.4, 0.07, 6, IPAD.w, IPAD.h)
+		assert(se * 0.34 < TEXT_MIN, "SE banner would show two lines")
+		assert(ipad * 0.34 >= TEXT_MIN, "iPad banner would show one line")
+	end)
+end)
+
+-- The screens after the HUD (UI Playbook "Block cells", "Screens after the HUD"). A fitted plate (Builder.blockPlate with no
+-- aspect) takes the px box its Size gives and the whole number of columns nearest square cells for it: `fit` is that grid.
+local function fit(wPx: number, hPx: number, rows: number): BlockMath.Grid
+	return BlockMath.Grid(wPx / hPx, rows, INK)
+end
+
+describe("BlockMath frames", function()
+	it("counts four frames for a flat block and adds the bands, grout and jitter for cells", function()
+		local grid = BlockMath.Grid(4.2, 3, INK)
+		expect(BlockMath.Frames(grid, false, SEED)).toEqual(4)
+		local cells = 4 + 4 + (grid.cols - 1 + grid.rows - 1) + #BlockMath.Jittered(grid, SEED)
+		expect(BlockMath.Frames(grid, true, SEED)).toEqual(cells)
+	end)
+	it("a fitted plate's cells are within 6% of square once it is nine columns or more wide", function()
+		for _, box in ipairs({ { 226.8, 15 }, { 367.2, 32.4 }, { 300, 40 }, { 90, 30 } }) do
+			local grid = fit(box[1], box[2], 3)
+			local skew = BlockMath.Skew(grid, box[1] / box[2])
+			if grid.cols >= 9 then
+				assert(math.abs(skew) <= 0.06, box[1] .. "x" .. box[2] .. " cells are " .. skew .. " off square")
+			end
+		end
+	end)
+end)
+
+describe("Block screens: Compass", function()
+	-- Compass.luau: the strip is CompassData.StripWidth (0.34) of the width by 0.04 of the height, a fitted flat block of three
+	-- rows; the heading block is 0.3 x 0.8 of the strip at aspect 2.4, flat, three rows; a diamond is 0.78 of the strip square.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local stripW, stripH = 0.34 * screen.w, 0.04 * screen.h
+		it(label .. ": the strip is three rows of whole cells, its ink a px and a half or more, flat (four frames)", function()
+			local grid = fit(stripW, stripH, MIN_ROWS)
+			expect(grid.rows).toEqual(3)
+			local cell = stripH * grid.cellY
+			assert(cell >= 3.5, "strip cell is " .. cell .. " px")
+			assert(INK * cell >= 1.5, "strip ink is " .. INK * cell .. " px")
+			expect(BlockMath.Frames(grid, false, SEED)).toEqual(4)
+		end)
+		it(label .. ": the heading block keeps a px of ink and the letters' caps fit the strip's face", function()
+			local _, h = BlockMath.FitPx(0.3 * stripW, 0.8 * stripH, 2.4, stripW, stripH)
+			local cell = h / (3 + 2 * INK)
+			assert(INK * cell >= 1, "heading ink is " .. INK * cell .. " px")
+			local grid = fit(stripW, stripH, MIN_ROWS)
+			local face = stripH * (1 - 2 * grid.inkY)
+			assert(face >= 0.7 * TEXT_MIN, "strip face is " .. face .. " px, under a 14 px line's cap height")
+		end)
+		it(label .. ": a diamond's pixel is a px or more", function()
+			local unit = 0.78 * stripH / 8
+			assert(unit >= 1, "diamond pixel is " .. unit .. " px")
+		end)
+	end
+end)
+
+describe("Block screens: Nearby", function()
+	-- NearbyPanel.luau: the column is 0.1 of the width by 0.405 of the height (at its default top), a fitted plate in cells whose
+	-- rows come from its height; the list is 0.86 of it and 0.9 wide; a row is at most 0.24 of the list, its icon 0.62 of the row,
+	-- a flat block of three rows with the tier's ink; eight rows share the list with 0.015 gaps.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local colW, colH = 0.1 * screen.w, 0.405 * screen.h
+		local rows = BlockMath.Rows(0.405, CELL, INK, MIN_ROWS)
+		it(label .. ": the column's cells are near the HUD's, square within 6%, and under 90 frames", function()
+			local grid = fit(colW, colH, rows)
+			local cell = colH * grid.cellY
+			assert(cell >= 7 and cell <= 17, "column cell is " .. cell .. " px")
+			local skew = BlockMath.Skew(grid, colW / colH)
+			assert(math.abs(skew) <= 0.06, "column cells are " .. skew .. " off square")
+			local frames = BlockMath.Frames(grid, true, SEED)
+			assert(frames <= 90, "column draws " .. frames .. " frames")
+		end)
+		it(label .. ": a tall row's icon keeps a 2 px tier ink, a row of eight still a px", function()
+			local listH = 0.86 * colH
+			local tall = 0.24 * listH * 0.62
+			local short = (1 - 0.015 * 7) / 8 * listH * 0.62
+			assert(INK * tall / (3 + 2 * INK) >= 1.9, "tall icon ink is " .. INK * tall / (3 + 2 * INK) .. " px")
+			assert(INK * short / (3 + 2 * INK) >= 0.9, "short icon ink is " .. INK * short / (3 + 2 * INK) .. " px")
+		end)
+	end
+end)
+
+-- A modal panel: Size (sizeX, height) of the screen at `aspect`, rows from its height at the panel cell. Answers its px box and grid.
+local function panel(screen: { w: number, h: number }, sizeX: number, height: number, aspect: number): (number, number, BlockMath.Grid)
+	local w, h = BlockMath.FitPx(sizeX, height, aspect, screen.w, screen.h)
+	return w, h, BlockMath.Grid(aspect, BlockMath.Rows(height, PANEL_CELL, INK, MIN_ROWS), INK)
+end
+
+-- The header tab (0.42 x 0.11 of the panel, three rows) and the close button (0.11 x 0.14, square, rows from 0.14 of the panel's
+-- height share) every modal shares (Builder.blockHeader, Builder.blockClose).
+local function shell(screen: { w: number, h: number }, panelW: number, panelH: number, height: number)
+	local headerGrid = BlockMath.Grid(0.42 * panelW / (0.11 * panelH), 3, INK)
+	local headerCell = 0.11 * panelH * headerGrid.cellY
+	assert(headerCell >= 4.5, "header cell is " .. headerCell .. " px")
+	assert(0.11 * panelH * (1 - 2 * headerGrid.inkY) >= TEXT_MIN, "the title's 14 px line does not fit the header face")
+	local closeRows = BlockMath.Rows(0.14 * height - CELL, CELL, INK, MIN_ROWS)
+	local lip = BlockMath.Lip(1, closeRows, INK)
+	local face = 0.14 * panelH * (1 - lip)
+	assert(face >= 0.6 * TAP_MIN, "the close face is " .. face .. " px (the hit area makes 44)")
+end
+
+describe("Block screens: Aliens", function()
+	-- AliensScreen.luau: the panel 0.8 x 0.78 at 1.35; a card is 0.22 of the grid (the panel less its margins and a 6 px bar),
+	-- square, an edged block of ten rows; a chip is 0.17 of the card tall, a fitted flat block of three rows.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h, grid = panel(screen, 0.8, 0.78, 1.35)
+		it(label .. ": the panel is 26 by 19 panel cells, square, under 200 frames, and its shell fits", function()
+			expect(grid.rows).toEqual(19)
+			expect(grid.cols).toEqual(26)
+			assert(math.abs(BlockMath.Skew(grid, 1.35)) <= 0.06, "panel cells off square")
+			local cell = h * grid.cellY
+			assert(cell >= 2 * 7 and cell <= 2 * 17, "panel cell is " .. cell .. " px")
+			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+			shell(screen, w, h, 0.78)
+		end)
+		it(label .. ": an alien card is ten rows of cells near the HUD's, eight frames, its chips a px of ink or more", function()
+			local card = 0.22 * ((1 - 2 * 0.02) * w - 6)
+			local cardGrid = BlockMath.Grid(1, 10, INK)
+			local cell = card * cardGrid.cellY
+			assert(cell >= 6 and cell <= 17, "card cell is " .. cell .. " px")
+			expect(BlockMath.Frames(cardGrid, false, SEED, true)).toEqual(8)
+			local chip = 0.17 * card
+			assert(INK * chip / (3 + 2 * INK) >= 1.4, "chip ink is " .. INK * chip / (3 + 2 * INK) .. " px")
+		end)
+	end
+end)
+
+describe("Block screens: Quests", function()
+	-- QuestsScreen.luau: the Aliens panel's shell (0.8 x 0.78 at 1.35); the What's on band 0.96 x 0.106 of the panel, a fitted plate
+	-- in cells, rows from its screen height; a tab 0.12 of the panel tall, a fitted block button.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h = panel(screen, 0.8, 0.78, 1.35)
+		it(label .. ": the What's on band is HUD cells, square, under 100 frames, and a 14 px line fits each half", function()
+			local bandW, bandH = 0.96 * w, 0.106 * h
+			local grid = fit(bandW, bandH, BlockMath.Rows(0.106 * 0.78, CELL, INK, MIN_ROWS))
+			local cell = bandH * grid.cellY
+			assert(cell >= 4.5, "band cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, bandW / bandH)) <= 0.06, "band cells off square")
+			assert(BlockMath.Frames(grid, true, SEED) <= 100, "band draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+		end)
+		it(label .. ": a tab is three rows or more with a 14 px face", function()
+			local rows = BlockMath.Rows(0.12 * 0.78 - CELL, CELL, INK, MIN_ROWS)
+			local lip = BlockMath.Lip(1, rows, INK)
+			local face = 0.12 * h * (1 - lip)
+			assert(face * (1 - 2 * INK / (rows + 2 * INK)) >= TEXT_MIN, "the tab face is " .. face .. " px")
+		end)
+	end
+end)
+
+describe("Block screens: Settings", function()
+	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; six rows share 0.68 of it with 0.03 gaps, each an edged block of three rows;
+	-- a control is 0.78 of a row, a flat block button of three rows over its one-cell lip.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h, grid = panel(screen, 0.6, 0.78, 1.3)
+		it(label .. ": the panel is panel cells, under 200 frames, and its shell fits", function()
+			assert(math.abs(BlockMath.Skew(grid, 1.3)) <= 0.06, "panel cells off square")
+			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+			shell(screen, w, h, 0.78)
+		end)
+		it(label .. ": a row's cells are near the HUD's, and a control's face inside its ink is near the 14 px floor", function()
+			local share = (1 - 0.03 * 5) / 6
+			local row = 0.68 * share * h
+			local cell = row / (3 + 2 * INK)
+			assert(cell >= 6, "row cell is " .. cell .. " px")
+			local control = 0.78 * row
+			local face = control * (1 - BlockMath.Lip(1, 3, INK))
+			local inner = face * (1 - 2 * INK / (3 + 2 * INK))
+			-- 13.7 px at iPhone SE: the 14 px line touches the ink there (a known squeeze, UI Playbook "Settings"); 29.7 on the iPad
+			assert(inner >= 13.5, "a control's face is " .. inner .. " px inside its ink")
+		end)
+	end
+end)
+
+describe("Block screens: Toast and NotifyCard", function()
+	-- Toast.luau: a one-line toast is 0.42 of the width at 7, a banner 0.7 at 9, each an edged block whose rows come from its
+	-- height; NotifyCard.luau: the card 0.5 x 0.6 at 1.5 at the panel cell, its buttons 0.22 of it tall.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": a toast and a banner are the HUD's cell and eight frames", function()
+			for _, shape in ipairs({ { 0.42, 7 }, { 0.7, 9 } }) do
+				local h = shape[1] * screen.w / shape[2]
+				local grid = BlockMath.Grid(shape[2], BlockMath.Rows(h / screen.h, CELL, INK, MIN_ROWS), INK)
+				local cell = h * grid.cellY
+				assert(cell >= 6 and cell <= 18, "toast cell is " .. cell .. " px")
+				expect(BlockMath.Frames(grid, false, SEED, true)).toEqual(8)
+			end
+		end)
+		it(label .. ": the notify card is panel cells and its buttons carry a 24 px label line", function()
+			local _, h, grid = panel(screen, 0.5, 0.6, 1.5)
+			assert(math.abs(BlockMath.Skew(grid, 1.5)) <= 0.06, "card cells off square")
+			local rows = BlockMath.Rows(0.22 * 0.6 - CELL, CELL, INK, MIN_ROWS)
+			local face = 0.22 * h * (1 - BlockMath.Lip(1, rows, INK))
+			assert(face * (1 - (2 * INK + 0.5) / (rows + 2 * INK)) >= TEXT_MIN, "a button face is " .. face .. " px")
+		end)
+	end
+end)
+
+-- Every other modal in block cells: its panel's Size (of the screen) and aspect, as in its file. Each keeps square panel cells,
+-- stays under 260 frames (a 1.6 panel is 31 by 19 cells, 209; the 2:1 Playtime panel 39 by 19, 256) and carries the shared
+-- header tab and close button (Builder.blockHeader, Builder.blockClose).
+local MODALS: { { name: string, w: number, h: number, aspect: number } } = {
+	{ name = "Codex", w = 0.8, h = 0.78, aspect = 1.35 },
+	{ name = "Release", w = 0.54, h = 0.7, aspect = 1.25 },
+	{ name = "Afk", w = 0.5, h = 0.7, aspect = 1.4 },
+	{ name = "Ship", w = 0.8, h = 0.78, aspect = 1.35 },
+	{ name = "Gifts", w = 0.86, h = 0.78, aspect = 1.8 },
+	{ name = "StarChart", w = 0.84, h = 0.78, aspect = 1.75 },
+	{ name = "Visit", w = 0.8, h = 0.78, aspect = 1.6 },
+	{ name = "Playtime", w = 0.92, h = 0.78, aspect = 2 },
+	{ name = "Peddler", w = 0.8, h = 0.78, aspect = 1.35 },
+	{ name = "Leaderboard", w = 0.62, h = 0.8, aspect = 1.15 },
+	{ name = "Mail", w = 0.8, h = 0.78, aspect = 1.6 },
+}
+
+describe("Block screens: modal panels", function()
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": every modal's panel is square panel cells under 260 frames, and its shell fits", function()
+			for _, modal in ipairs(MODALS) do
+				local w, h, grid = panel(screen, modal.w, modal.h, modal.aspect)
+				local skew = BlockMath.Skew(grid, modal.aspect)
+				assert(math.abs(skew) <= 0.06, modal.name .. " panel cells are " .. skew .. " off square")
+				local frames = BlockMath.Frames(grid, true, SEED)
+				assert(frames <= 260, modal.name .. " panel draws " .. frames .. " frames")
+				shell(screen, w, h, modal.h)
+			end
+		end)
+	end
+	it("a Star Chart planet's pixel and an orbit dot are two px or more at iPhone SE", function()
+		-- StarChartScreen.luau: the map square is the smaller of 0.58 of the panel's width and 0.8 of its height; a planet is 0.12
+		-- of it, an 8 by 8 pixel octagon; an orbit dot 0.012 of it.
+		local w, h = BlockMath.FitPx(0.84, 0.78, 1.75, SE.w, SE.h)
+		local map = math.min(0.58 * w, 0.8 * h)
+		assert(0.12 * map / 8 >= 2, "a planet pixel is " .. 0.12 * map / 8 .. " px")
+		assert(0.012 * map >= 2, "an orbit dot is " .. 0.012 * map .. " px")
+	end)
+	it("a Codex card of 81 px (iPhone SE's narrowest) is ten rows of the HUD's cell", function()
+		local cell = 81 / (10 + 2 * INK)
+		assert(cell >= 7 and cell <= 8.5, "Codex card cell is " .. cell .. " px")
+	end)
+end)
+
+describe("Block screens: Shop", function()
+	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
+	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
+	-- seal a pixel octagon 0.64 of the card's width; the scrollbar 0.026 of the screen, flat; the Scrap plate 0.2 x 0.095 at 3.6.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local cardH = 0.78 * screen.h
+		local cardW = 0.41 * cardH
+		it(label .. ": a card is the HUD's cell, eight frames, and its price and ribbon carry a 14 px line", function()
+			local grid = fit(cardW, cardH, BlockMath.Rows(0.78, CELL, INK, MIN_ROWS))
+			local cell = cardH * grid.cellY
+			assert(cell >= 7 and cell <= 17, "card cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, cardW / cardH)) <= 0.06, "card cells off square")
+			expect(BlockMath.Frames(grid, false, SEED, true)).toEqual(8)
+			local pill = 0.123 * cardH
+			local lip = BlockMath.Lip(1, 3, INK)
+			local face = pill * (1 - lip)
+			local inner = face * (1 - (2 * INK + 0.5) / (3 + 2 * INK)) -- inside the ink and the quarter-cell text padding
+			assert(inner >= TEXT_MIN, "the price face holds " .. inner .. " px of text")
+			local ribbon = 0.095 * cardH * (1 - 0.7 / 4)
+			assert(ribbon * (1 - 2 * INK / (3 + 2 * INK)) >= TEXT_MIN, "the ribbon face is " .. ribbon .. " px")
+			assert(0.64 * cardW / 8 >= 1, "a seal pixel is under a px")
+		end)
+		it(label .. ": the scrollbar is a thin flat band with a px of ink, the Scrap plate the HUD's", function()
+			local barH = 0.026 * screen.h
+			assert(INK * barH / (3 + 2 * INK) >= 1, "scrollbar ink is " .. INK * barH / (3 + 2 * INK) .. " px")
+			local _, h = BlockMath.FitPx(0.2, 0.095, 3.6, screen.w, screen.h)
+			local grid = BlockMath.Grid(3.6, BlockMath.Rows(0.095, CELL, INK, MIN_ROWS), INK)
+			local cell = h * grid.cellY
+			assert(cell >= 4.5, "Scrap plate cell is " .. cell .. " px")
+		end)
+	end
 end)
 return true

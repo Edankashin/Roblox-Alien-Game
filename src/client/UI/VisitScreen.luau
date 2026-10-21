@@ -24,6 +24,9 @@
 -- Heights are in visible-list heights (the viewport of the list is 1): a heading 0.13, a text line 0.22, a row 0.27
 -- and a 0.03 gap after each, so two rows and a heading fit at a glance on an iPhone SE (a row about 66 px) and the
 -- rest scrolls; on an iPad the same fractions give 116 px rows.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
+-- the blue header and the close; each person a fitted edged white block in grey ink, the Online chip a flat block, Visit a flat
+-- block button.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -291,15 +294,15 @@ end
 -- One person: a white card with the name at the left, the Online chip when it applies and the green Visit button at
 -- the right.
 local function buildRow(parent: Frame, person: Person, chip: boolean, y: number, h: number)
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Row",
 		position = UDim2.fromScale(0, y),
 		size = UDim2.fromScale(1, h),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Rarity.Common,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
 	local name = Builder.label({
@@ -312,19 +315,19 @@ local function buildRow(parent: Frame, person: Person, chip: boolean, y: number,
 		xAlign = Enum.TextXAlignment.Left,
 		position = UDim2.fromScale(ROW_PAD_X, 0.1),
 		size = UDim2.fromScale(if chip then NAME_W_CHIP else NAME_W_PLAIN, 0.8),
-		zIndex = 4,
+		zIndex = Builder.blockTop(card),
 	})
 	name.TextTruncate = Enum.TextTruncate.AtEnd
 	if chip then
-		local pill = Builder.pill({
+		local pill = Builder.blockPlate({
 			parent = card,
 			name = "Online",
 			position = UDim2.fromScale(CHIP_X, CHIP_Y),
 			size = UDim2.fromScale(CHIP_W, CHIP_H),
 			color = Theme.Colors.Confirm,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 4,
+			rows = Theme.Block.MinRows,
+			cells = false,
+			zIndex = Builder.blockTop(card),
 		})
 		Builder.label({
 			parent = pill,
@@ -334,10 +337,10 @@ local function buildRow(parent: Frame, person: Person, chip: boolean, y: number,
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.86, 0.8),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 5,
+			zIndex = Builder.blockTop(pill),
 		})
 	end
-	Builder.button({
+	Builder.blockButton({
 		parent = card,
 		name = "Visit",
 		text = Strings.VISIT_GO,
@@ -345,7 +348,9 @@ local function buildRow(parent: Frame, person: Person, chip: boolean, y: number,
 		position = UDim2.fromScale(GO_X, GO_Y),
 		size = UDim2.fromScale(GO_W, GO_H),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		zIndex = Builder.blockTop(card),
 	}, function()
 		visit(person.userId, person.name)
 	end)
@@ -415,58 +420,23 @@ local function build()
 		VisitScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = PANEL_ASPECT,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(HEADER_W, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Select,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Select)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.VISIT_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.VISIT_TITLE, Theme.Colors.Select, Vector2.new(HEADER_W, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, PANEL_H, function()
 		VisitScreen.Close()
 	end)
 
@@ -477,7 +447,7 @@ local function build()
 	frame.BorderSizePixel = 0
 	frame.Position = UDim2.fromScale(Theme.Margin, LIST_Y)
 	frame.Size = UDim2.fromScale(1 - 2 * Theme.Margin, LIST_BOTTOM - LIST_Y)
-	frame.ZIndex = 3
+	frame.ZIndex = Builder.blockTop(body)
 	frame.ScrollingDirection = Enum.ScrollingDirection.Y
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.None
 	frame.CanvasSize = UDim2.fromScale(0, 1)
