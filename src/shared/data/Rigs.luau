@@ -185,6 +185,22 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Toastoad = {
+		height = 2.75,
+		parts = {
+			{ name = "belly", pivot = { 0, 0.375, -0.25 }, clips = { { kind = "pulse", amp = 0.12, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "bumpL", pivot = { -0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "bumpR", pivot = { 0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "pebbleR", pivot = { 0.25, 2.375, 0.375 }, clips = { { kind = "bob", amp = 0.05, period = 0.9, phase = 0, axis = "y" } } },
+			{ name = "stoneL", pivot = { -0.3125, 2.375, 0.3125 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 2.6, phase = 0, axis = "x" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 }
 
 return {

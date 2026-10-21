@@ -8,20 +8,21 @@ tier: Uncommon
 status: review
 element: Hot spring
 height: 2.75
-blocks: 15
-tris: 280
+blocks: 17
+tris: 308
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#E8713A", "#6E4A3C", "#FFC94D", "#2A1810"]
 roles: [body, second, accent, ink]
 hero: PebblePack
-vfx: "one touch (Uncommon): steam wisps rise off the hot pebbles on its back at 2 a second (Effects.luau, the Wisp emitter at Back); a bubble pops on its nose when it blinks every 5 s; it breathes 4 percent (the belly); no moving parts, no glow, no light"
+vfx: "Uncommon, two layers (Effects.luau): an Emitter of white pixel puffs rises off the Back at 2 a second (the steaming pack), and a Burst of one pale blue bubble (A8E6FF) pops forward at the Mouth every 5 s, the second colour; the idle breathes 3 percent every 2.2 s; no light; the throat sac swells, the eye bumps lift, the pebbles jiggle and it rocks in the rig"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Toastoad_sheet.svg]]"
 render: "[[Toastoad_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.995, 0.997, 0.997]
+overlap: [0.994, 0.995, 0.996, 0.994]
 cells_render: "[[Toastoad_tq_cells.jpg]]"
+idle_render: "[[Toastoad_idle.png]]"
 ---
 # Toastoad (Soakum), Uncommon, World 2 Frostbyte
 
@@ -43,42 +44,58 @@ parts:
   - {name: FrontLeg, slot: BodyDark, size: [0.5, 0.375, 0.5], at: [0.875, 0.1875, -0.625], mirror: x}
   - {name: HindThigh, slot: Body, size: [0.75, 0.75, 0.75], at: [1.375, 0.625, 0.625], mirror: x}
   - {name: HindFoot, slot: BodyDark, size: [0.75, 0.25, 0.75], at: [1.375, 0.125, 0.875], mirror: x}
+  # B46 detail: an amber spot on the outside of each haunch
+  - {name: Spot, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.8125, 0.75, 0.625], mirror: x}
   # the head is the toad: wide and low, bevelled; an amber belly sagging under it
   - {name: Head, slot: Body, size: [2, 1.25, 2], at: [0, 1, 0], bevel: true}
-  - {name: Belly, slot: Accessory, size: [1.5, 0.25, 1.25], at: [0, 0.25, -0.125]}
+  - {name: Belly, slot: Accessory, size: [1.5, 0.25, 1.25], at: [0, 0.25, -0.125], moves: belly, pivot: [0, 0.375, -0.125]}
   # two eye bumps on top of the head
-  - {name: EyeBump, slot: Body, size: [0.5, 0.375, 0.5], at: [0.375, 1.8125, -0.5], mirror: x}
+  - {name: EyeBump, slot: Body, size: [0.5, 0.375, 0.5], at: [0.375, 1.8125, -0.5], mirror: x, moves: bump, pivot: [0.375, 1.625, -0.5]}
   # the hero: a pack of hot pebbles on its back, two loose pebbles on top, two amber straps over the shoulders
   - {name: PebblePack, slot: BodyDark, size: [1.25, 0.75, 0.75], at: [0, 2, 0.5], material: stone}
-  - {name: Pebble, slot: BodyDark, size: [0.5, 0.375, 0.5], at: [0.25, 2.5625, 0.5], shape: ico1, material: stone}
-  - {name: Pebble2, slot: BodyDark, size: [0.375, 0.375, 0.375], at: [-0.3125, 2.5625, 0.4375], shape: ico1, material: stone}
+  - {name: Pebble, slot: BodyDark, size: [0.5, 0.375, 0.5], at: [0.25, 2.5625, 0.5], shape: ico1, material: stone, moves: pebble, pivot: [0.25, 2.375, 0.5]}
+  - {name: Pebble2, slot: BodyDark, size: [0.375, 0.375, 0.375], at: [-0.3125, 2.5625, 0.4375], shape: ico1, material: stone, moves: stone, pivot: [-0.3125, 2.375, 0.4375]}
   - {name: Strap, slot: Accessory, size: [0.25, 0.125, 1], at: [0.625, 1.6875, 0.375], mirror: x}
 ```
 
 ## Face
 
-The house face on the head's front: 16 cells across the 2-stud head (0.125 a cell), 10 rows for the 1.25-stud front. A wide flat toad smile of six cells; the lit crescent is the accent amber (an Uncommon has no glow).
+The head's front is the body cell grid (Blocky-Style C1): 16 columns across the 2-stud head (0.125 a cell); the eyes, the mouth and the cheeks are on the face plate.
 
 ```yaml
 face:
   host: Head
-  legend:
-    ".": body
-    "k": ink
-    "w": "#FFFFFF"
-    "g": accent
-    "p": "#FF9C8A"
-  rows:
-    - "................"
-    - "................"
-    - "...kk......kk..."
-    - "..kwkk....kkwk.."
-    - "..kwkk....kkwk.."
-    - "..kkkk....kkkk.."
-    - "..kgwk....kwgk.."
-    - "...gg......gg..."
-    - "..pp.kkkkkk.pp.."
-    - "................"
+  cols: 16
+```
+
+## Eyes
+
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `droplet`, an Uncommon design, a dewdrop with a light band at its foot, here a hot-spring aqua iris with an amber band (the colour of its straps and belly), a toad's wet, glossy eye, at 16 pixels a stud on a 1.75 x 0.75 stud plate (28 x 12 pixels, three frames). An `open` mouth with its tongue showing (a toad's), and blush cheeks.
+
+```yaml
+eyes:
+  key: droplet
+  colours: {iris: "#3CC4D8", iris2: accent}
+  mouth: open
+  cheeks: blush
+  plate: [1.75, 0.75]
+  at: [0, 0.9375]
+  spread: 0.5
+```
+
+## Rig
+
+The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/shared/data/Rigs.luau`): the amber belly under its chin swells and settles like a throat sac (on the 2.2 s breath of Effects.luau), the two eye bumps lift in a burst, the two loose pebbles on the pack jiggle out of step in the steam, the toad rocks and the face blinks. Six moving things (five objects, the Uncommon cap, and the blink); no flourish (that starts at Rare).
+
+```yaml
+rig:
+  clips:
+    belly: [{kind: pulse, amp: 0.12, period: 2.2}]
+    bump: [{kind: bob, amp: 0.06, period: 5}]
+    pebble: [{kind: bob, amp: 0.05, period: 0.9}]
+    stone: [{kind: bob, amp: 0.05, period: 1.1, phase: 0.5}]
+    root: [{kind: sway, amp: 3, period: 2.6, axis: x}]
+    face: [{kind: blink, period: 5}]
 ```
 
 ## Build
@@ -91,6 +108,10 @@ Lit, three-quarter, in block cells (Blender, Cycles):
 
 ![[Toastoad_tq_cells.jpg]]
 
+The idle: eight frames of the clips, and the face plate's frames:
+
+![[Toastoad_idle.png]]
+
 The concept sheet, drawn from the parts table above: [[Toastoad_sheet.svg]] (flat shapes and text, for the Claude Design canvas). The review sheet with all sixteen World 2 species: `media/studio/2026-10-20/world2_roster_v1.jpg`.
 
 ## Cells
@@ -100,3 +121,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 ## Reviews
 
 - 2026-10-20, World 2 roster worker, two rounds. Round 1: a wide low box with two bumps on top overlapped Dreep, Eekle and Floe at 0.74 to 0.79 in the boxed test, so the hind legs splay out past the head and the eye bumps pulled in to the crown's middle, which empties the box's top corners. Overlap 0.995 to 0.997, 280 triangles, 15 blocks, 2.75 studs, no moving parts (it breathes). Wanted for: the Geyser Field's toad carrying its hot spring on its back. Still cheap: the eye bumps carry no eyes (the eyes are on the front, rule 3) and read as nubs; the straps are mostly under the pack. Status review.
+- 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `droplet`, a hot-spring aqua dewdrop with an amber band at its foot, on a 28 x 12 plate with an `open` mouth showing its tongue and blush; amber `Spot`s mark the outside of each haunch. It had no moving part: the belly under its chin is now the `belly` that swells like a throat sac on the 2.2 s breath, the eye bumps lift in a burst, the two loose pebbles on the pack jiggle out of step (`pebble`, `stone`), it rocks and blinks. Six moving things (five objects, the Uncommon cap, and the blink). Height 2.75 (in band, unchanged), 17 blocks, 308 triangles, overlap 0.994 to 0.996. Wanted for: the toad that carries its hot spring, glossy aqua eyes, a tongue and a throat that puffs. Still weak: the open mouth is four pixels on a two-stud head and reads small for a toad's wide smile (the library has no wide mouth), and the throat sac's swell is mostly hidden under the head from the high camera. Status review.
