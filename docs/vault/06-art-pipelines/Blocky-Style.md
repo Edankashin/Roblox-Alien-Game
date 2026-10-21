@@ -425,3 +425,17 @@ What the ten taught:
 - **Every one keeps a 2-stud head** again: Sizz's body widened from 1.75 to 2 so an Uncommon does not carry more cells per height than a Rare (C1's ordering).
 - **A hero's name is unique in its world** as well as its block: Eekle's wings are `IceWing` (Skadra has `Wing`), Soakum's pack is `PebblePack` (Pengoo has `Backpack`), Sizz's top quill `EmberQuill`.
 - The lessons in [[Decisions]] B43 and B44 stand; nothing under `assets/models` or `src/` changed.
+
+## Roster w2_low notes
+
+2026-10-21, the Roster w2_low worker: World 2's five Commons and four Uncommons on B45 and B46 ([[Chipmole]], [[Drippo]], [[Flufflet]], [[Kettlepuff]], [[Snowbun]], [[Emberchin]], [[Flapsicle]], [[Pengoo]], [[Toastoad]]); all were already in the height band, so the work was eyes, detail and motion. The sheet: `media/studio/2026-10-21/roster_w2_low_v1.jpg`.
+
+![Roster w2_low: the nine before and after, the lineup beside the avatar, World 2's silhouette row](refs/blocky/roster_w2_low_v1.jpg)
+
+- **`sleepy` reads as a bored squint** on a dark face (its flat top row of ink is a frown); Digling went to `pebble`, and no Frostbyte species wears it. Check a Common's eye on its own skin before the build.
+- **A face drawn on a second colour becomes blocks.** Pengoo's cream face was drawn in the old grid on a navy head; the plate draws on the head's own cells, so the head became the cream face and the navy hood is a crown step, a nape and two sides over the back three quarters of the head (a full-width crown read as a flat cap; sides on the back three quarters leave the front corners cream, so no headphones).
+- **A drawn nose becomes a block proud of the plate** (Digling's ice nose, Flurra's and Eekle's pink ones), an eighth thick between the eyes and above the mouth row; Flurra's twitches. Keep it on the half grid clear of the mouth's rows.
+- **Uncommon eyes ran one short**: four Uncommons, three designs, so `kindle` (a dark iris lit from below by two ember tongues) joined the library (`tools/blocky/eyes.py`, the Roster w2_low block at the end). Its half frame reads cross for its 0.18 s; a later pass could lift the lid line.
+- **A pale moving part on a pale part vanishes** (Sizz's steam bubble on the pool): it became a lit cinder in the accent. Motion only reads where the value contrast is.
+- **Every mover with a reason**: Commons reach four or five moving things from their own props (Mitt's scarf tail and ball, Kettlet's lid and handle, Dreep's arm, drip and fallen bead), Uncommons five or six; each clip is tied to its Effects.luau beat where there is one (Dreep's drip and Kettlet's lid on the drop and steam timers).
+

@@ -8,20 +8,21 @@ tier: Common
 status: review
 element: Snowfall
 height: 2.5
-blocks: 10
-tris: 220
+blocks: 12
+tris: 246
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#F2F6FA", "#9CC3E0", "#F0614A", "#1C2433"]
 roles: [body, second, accent, ink]
 hero: Scarf
-vfx: "none (Common): a snowflake lands on its head every 6 s and melts over 1 s (Effects.luau, the Flake emitter at Top); the mitten ears flap once every 5 s, a procedural move of the two ear parts; no particles beyond the one flake, no light"
+vfx: "Common, one layer (Effects.luau): a Burst of one pixel snowflake (F2F6FA) drifts down onto its head every 6 s and melts; the idle breathes 2.5 percent every 2.8 s; no light; the mitten ears flick, the scarf tail swings and the ball rocks in the rig"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Flufflet_sheet.svg]]"
 render: "[[Flufflet_tq_cells.jpg]]"
 glb: ""
 overlap: [0.999, 0.998, 1, 0.999]
 cells_render: "[[Flufflet_tq_cells.jpg]]"
+idle_render: "[[Flufflet_idle.png]]"
 ---
 # Flufflet (Mitt), Common, World 2 Frostbyte
 
@@ -44,10 +45,13 @@ parts:
   - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 1.875, 0], material: fur}
   - {name: Cap2, slot: Body, size: [1, 0.25, 0.75], at: [0, 2.125, 0], material: fur}
   # alien anatomy: it rolls on a smaller snowball in the scarf's blue
-  - {name: Base, slot: BodyDark, size: [0.75, 0.75, 0.75], at: [0, 0.375, 0], shape: ico1, material: fur}
+  - {name: Base, slot: BodyDark, size: [0.75, 0.75, 0.75], at: [0, 0.375, 0], shape: ico1, material: fur, moves: ball, pivot: [0, 0.375, 0]}
   # the hero: a knitted scarf round the base of the ball, its knot and tail hanging down the front right nearly to the ground
   - {name: Scarf, slot: BodyDark, size: [2.25, 0.375, 2], at: [0, 0.6875, 0], material: wool}
-  - {name: Tail, slot: BodyDark, size: [0.5, 0.75, 0.25], at: [0.75, 0.5, -1.125], material: wool}
+  - {name: Tail, slot: BodyDark, size: [0.5, 0.75, 0.25], at: [0.75, 0.5, -1.125], material: wool, moves: scarf, pivot: [0.75, 0.875, -1.125]}
+  # B46 detail: the knot over the tail and a fringe stripe near its end, coral knit in the accent, swinging with it
+  - {name: Knot, slot: Accessory, size: [0.5, 0.25, 0.125], at: [0.75, 0.75, -1.3125], material: wool, moves: scarf, pivot: [0.75, 0.875, -1.125]}
+  - {name: Stripe, slot: Accessory, size: [0.5, 0.125, 0.125], at: [0.75, 0.3125, -1.3125], material: wool, moves: scarf, pivot: [0.75, 0.875, -1.125]}
   # big mitten ears, thumbs out, each mitten one moving part
   - {name: Mitten, slot: Accessory, size: [0.75, 0.75, 0.5], at: [0.875, 2.125, 0], mirror: x, moves: ear, pivot: [0.875, 1.75, 0]}
   - {name: Thumb, slot: Accessory, size: [0.25, 0.375, 0.5], at: [1.375, 2.0625, 0], mirror: x, moves: ear, pivot: [0.875, 1.75, 0]}
@@ -55,28 +59,40 @@ parts:
 
 ## Face
 
-The house face ([[Blocky-Style]] rule 3) on the snowball's front, 16 cells across the 2-stud head, so one cell is 0.125 studs and the 1.25-stud front is 10 rows. The lit crescent is the accent coral (a Common has no glow).
+The head's front is the body cell grid (Blocky-Style C1): 16 columns across the 2-stud snowball (0.125 a cell), in soft fur cells; the eyes, the mouth and the cheeks are on the face plate, clear of the scarf's top.
 
 ```yaml
 face:
   host: Head
-  legend:
-    ".": body
-    "k": ink
-    "w": "#FFFFFF"
-    "g": accent
-    "p": "#FF8FA3"
-  rows:
-    - "................"
-    - "................"
-    - "...kk......kk..."
-    - "..kwkk....kkwk.."
-    - "..kwkk....kkwk.."
-    - "..kkkk....kkkk.."
-    - "..kgwk....kwgk.."
-    - "...gg.k..k.gg..."
-    - "..pp...kk...pp.."
-    - "................"
+  cols: 16
+```
+
+## Eyes
+
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `happy`, a Common design, two soft arcs closed in a smile, over a `cat` mouth (a little w) and blush cheeks, the cosiest face on the snow (a ^w^), at 16 pixels a stud on a 1.75 x 0.5625 stud plate (28 x 9 pixels, three frames; its blink flattens the arcs). The only `happy` in Frostbyte.
+
+```yaml
+eyes:
+  key: happy
+  mouth: cat
+  cheeks: blush
+  plate: [1.75, 0.5625]
+  at: [0, 1.125]
+  spread: 0.5
+```
+
+## Rig
+
+The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/shared/data/Rigs.luau`): the mitten ears flick out in a burst every 5 s and sway a little between, the scarf's tail swings with its knot and stripe, the whole snowball rocks on the ball it rides, it breathes and the face blinks. Five moving things (four objects, the Common cap, and the blink); no flourish (that starts at Rare).
+
+```yaml
+rig:
+  clips:
+    ear: [{kind: wag, amp: 18, period: 5, axis: z}, {kind: sway, amp: 5, period: 3, axis: x, phase: 0.25}]
+    scarf: [{kind: sway, amp: 10, period: 2.2, axis: x}]
+    ball: [{kind: sway, amp: 12, period: 2.8, axis: x}]
+    root: [{kind: squash, amp: 0.04, period: 2.8}]
+    face: [{kind: blink, period: 4.6}]
 ```
 
 ## Build
@@ -89,6 +105,10 @@ Lit, three-quarter, in block cells (Blender, Cycles):
 
 ![[Flufflet_tq_cells.jpg]]
 
+The idle: eight frames of the clips, and the face plate's frames:
+
+![[Flufflet_idle.png]]
+
 The concept sheet, drawn from the parts table above: [[Flufflet_sheet.svg]] (flat shapes and text, for the Claude Design canvas). The review sheet with the six World 2 rungs, the silhouette row and the numbers: `media/studio/2026-10-19/world2_ladder_v1.jpg`.
 
 ## Cells
@@ -99,3 +119,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-19, World 2 worker, two rounds. Round 1: the mittens stood upright on the head and read as ears from the front and as mittens from the side; tilting them out put the thumbs over 2.5 studs, so they stay upright. The scarf in the body white vanished against the snowball; in the second blue with coral flecks it reads as a knit. Round 2: the tail hangs from the knot to the ground, so from the front the scarf has a direction. Overlap 0.998 to 1.000, 220 triangles, 10 blocks, 2.5 studs, two moving objects (the mittens). Wanted for: the cosiest thing on the snow, a snowball that is mostly face, dressed for the cold. Still cheap: at ten blocks the mittens are small; the base ball is only read from the side. Status review.
 - 2026-10-20, World 2 roster worker (the ladder review's fix): the head was still a soft cube, so it is 1.25 tall with two cap steps (1.5 then 1 wide), the scarf's knot and tail are one block hanging nearly to the ground, and the mittens grew to three quarters of a stud with bigger thumbs; the face is 10 rows. Overlap 0.998 to 1.000, 220 triangles, 10 blocks, 2.5 studs, two moving objects. Status review.
+- 2026-10-21, Roster w2_low worker (B45, B46), one round. The house face became the library's `happy` (two soft arcs closed in a smile) over a `cat` mouth and blush cheeks, a ^w^, on a 28 x 9 plate kept clear of the scarf's top; a coral `Knot` and fringe `Stripe` in the accent knit dress the scarf's tail, which now swings as the `scarf` object; the base snowball became the `ball` the body rocks on; the mittens flick out every 5 s. Five moving things (four objects, the Common cap, and the blink). Height 2.5 (in band, unchanged), 12 blocks, 246 triangles, overlap 0.998 to 1. Wanted for: the cosiest face on the snow, a ^w^ in a scarf with mittens for ears. Still weak: the arcs are 7 pixels on a 32-pixel head and could be a pixel bigger, and the ball hardly shows under the scarf, so its rock reads mostly as the whole body tipping. Status review.

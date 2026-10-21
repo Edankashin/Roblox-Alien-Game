@@ -821,5 +821,20 @@ def main(argv=None):
     return 2
 
 
+# ------------------------------------------------------------------------------------------------ Roster w2_low (2026-10-21)
+# World 2's four Uncommons ran one design short of the Uncommon rung. Appended here in one block; drawn like the rest (the viewer's left eye).
+design("kindle", "Uncommon", "kindle: a dark iris lit from below, two tongues of ember glow rising beside a big pupil", rows=[
+    "..kkkk..",
+    ".kjjjjk.",
+    "kwwjjjjk",
+    "kwwkkjjk",
+    "kjkkkkjk",
+    "kikkkkik",
+    "kiikkiik",
+    ".kiiiik.",
+    "..kkkk..",
+])
+
+
 if __name__ == "__main__":
     sys.exit(main())

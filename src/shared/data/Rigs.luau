@@ -17,6 +17,96 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Chipmole = {
+		height = 2.375,
+		parts = {
+			{ name = "pickL", pivot = { -1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "pickR", pivot = { 1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "tail", pivot = { 0, 0.875, 1.6875 }, clips = { { kind = "wag", amp = 20, period = 1.6, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 2.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 10, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Drippo = {
+		height = 2.5,
+		parts = {
+			{ name = "armR", pivot = { 1.0745, 1.25, 0.125 }, clips = { { kind = "wag", amp = 18, period = 1.4, phase = 0, axis = "z" } } },
+			{ name = "beadL", pivot = { -1.113, 0.125, -0.875 }, clips = { { kind = "pulse", amp = 0.15, period = 3, phase = 0.5, axis = "y" } } },
+			{ name = "dripL", pivot = { -0.363, 0.5, -0.5 }, clips = { { kind = "squash", amp = 0.2, period = 3, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 1.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Emberchin = {
+		height = 2.75,
+		parts = {
+			{ name = "cinderR", pivot = { 0.875, 0.125, -0.9887 }, clips = { { kind = "bob", amp = 0.12, period = 1.6, phase = 0, axis = "y" }, { kind = "pulse", amp = 0.2, period = 1.6, phase = 0.25, axis = "y" } } },
+			{ name = "ember", pivot = { 0, 2.25, -0.1137 }, clips = { { kind = "pulse", amp = 0.15, period = 2, phase = 0, axis = "y" } } },
+			{ name = "pool", pivot = { 0, 0, -0.1137 }, clips = { { kind = "pulse", amp = 0.04, period = 2.5, phase = 0, axis = "y" } } },
+			{ name = "quillL", pivot = { -1, 1.75, -0.1137 }, clips = { { kind = "wag", amp = -12, period = 3, phase = 0, axis = "z" } } },
+			{ name = "quillR", pivot = { 1, 1.75, -0.1137 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "squash", amp = 0.06, period = 1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Flapsicle = {
+		height = 2.75,
+		parts = {
+			{ name = "earL", pivot = { -0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = -14, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = 14, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "perch", pivot = { 0, 2.625, 0.0625 }, clips = { { kind = "pulse", amp = 0.08, period = 3, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = -16, period = 1.8, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = 16, period = 1.8, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "sway", amp = 4, period = 3.2, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Flufflet = {
+		height = 2.5,
+		parts = {
+			{ name = "ball", pivot = { 0, 0.375, 0.1875 }, clips = { { kind = "sway", amp = 12, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -0.875, 1.75, 0.1875 }, clips = { { kind = "wag", amp = -18, period = 5, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 3, phase = 0.25, axis = "x" } } },
+			{ name = "earR", pivot = { 0.875, 1.75, 0.1875 }, clips = { { kind = "wag", amp = 18, period = 5, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 3, phase = 0.25, axis = "x" } } },
+			{ name = "scarfR", pivot = { 0.75, 0.875, -0.9375 }, clips = { { kind = "sway", amp = 10, period = 2.2, phase = 0, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 2.8, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 9, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Kettlepuff = {
+		height = 2.5,
+		parts = {
+			{ name = "floatR", pivot = { 1.125, 2.25, -0.25 }, clips = { { kind = "bob", amp = 0.1, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 4, phase = 0, axis = "y" } } },
+			{ name = "handle", pivot = { -0.625, 1.75, 0 }, clips = { { kind = "sway", amp = 15, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "lid", pivot = { -0.625, 1.75, 0 }, clips = { { kind = "bob", amp = 0.04, period = 0.5, phase = 0, axis = "y" }, { kind = "wag", amp = 6, period = 4, phase = 0, axis = "z" } } },
+			{ name = "wispR", pivot = { 1.625, 2.375, -0.25 }, clips = { { kind = "bob", amp = 0.15, period = 2.6, phase = 0.5, axis = "y" }, { kind = "pulse", amp = 0.2, period = 2.6, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 3, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
@@ -28,6 +118,21 @@ local species: { [string]: Types.RigRow } = {
 			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Pengoo = {
+		height = 3,
+		parts = {
+			{ name = "pack", pivot = { 0, 0.875, 1 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
+			{ name = "tuft", pivot = { 0, 2.75, 0.125 }, clips = { { kind = "sway", amp = 15, period = 1.8, phase = 0, axis = "x" } } },
+			{ name = "wingL", pivot = { -1, 1.5, 0 }, clips = { { kind = "flap", amp = -15, period = 1.6, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 1, 1.5, 0 }, clips = { { kind = "flap", amp = 15, period = 1.6, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "sway", amp = 4, period = 2.2, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
 	Radish = {
@@ -63,6 +168,37 @@ local species: { [string]: Types.RigRow } = {
 				{ part = "frondL", kind = "swish", amp = -18, axis = "z", at = 2, length = 1.2 },
 				{ part = "frondR", kind = "swish", amp = 18, axis = "z", at = 2, length = 1.2 },
 			},
+		},
+	},
+	Snowbun = {
+		height = 2.471,
+		parts = {
+			{ name = "earL", pivot = { -0.091, 1.5, -0.8125 }, clips = { { kind = "sway", amp = -10, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.909, 1.5, -0.8125 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = 15, period = 4, phase = 0, axis = "x" } } },
+			{ name = "nose", pivot = { 0.409, 1.0625, -1.4375 }, clips = { { kind = "bob", amp = 0.03, period = 0.5, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0.409, 0, 0.8125 }, clips = { { kind = "pulse", amp = 0.08, period = 4.5, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 1, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 10, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
+	Toastoad = {
+		height = 2.75,
+		parts = {
+			{ name = "belly", pivot = { 0, 0.375, -0.25 }, clips = { { kind = "pulse", amp = 0.12, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "bumpL", pivot = { -0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "bumpR", pivot = { 0.375, 1.625, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 5, phase = 0, axis = "y" } } },
+			{ name = "pebbleR", pivot = { 0.25, 2.375, 0.375 }, clips = { { kind = "bob", amp = 0.05, period = 0.9, phase = 0, axis = "y" } } },
+			{ name = "stoneL", pivot = { -0.3125, 2.375, 0.3125 }, clips = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0.5, axis = "y" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 2.6, phase = 0, axis = "x" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
 }
