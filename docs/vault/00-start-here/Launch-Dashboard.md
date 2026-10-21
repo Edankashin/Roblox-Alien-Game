@@ -15,7 +15,7 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 
 **Cloud (the coordinator and its workers; no action from Ethan)**
 - [ ] Rare aliens 1000x pass, both worlds (running) and the crash wreck and camp (running)
-- [ ] Pre-launch audit: server authority, saves, purchases and receipts, PolicyService for paid random items, the 14 px text floor, error paths on a cold server, analytics funnel; fix what it finds
+- [x] Pre-launch audit: server authority, saves, purchases and receipts, PolicyService for paid random items, the 14 px text floor, error paths on a cold server, analytics funnel; fix what it finds ([[Prelaunch-Audit]]: 6 fixes; Mac job 46)
 - [ ] Launch polish: the loading screen and the home place in block cells (the nine missing home props), sound hooks pointed at existing ids where we have them
 - [ ] New store icon and thumbnails in the block-cell look (after the rare pass), the description updated (Starhollow Forest, the new aliens)
 - [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
@@ -30,7 +30,8 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 **Only Ethan**
 - [ ] Tell the Mac session to run the jobs (or approve the card that lets the coordinator message it)
 - [ ] Check the Open Cloud key has the Assets API and `universe-places:write` for this experience
-- [ ] Create the five missing shop products in the Creator Dashboard (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock; `docs/OWNER-GUIDE.md` Part C) and paste their ids, or say to hide them at launch
+- [x] ~~Create the five missing shop products~~ Skip them: DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock have no feature yet, are not on the shelf, and the server will not sell one even with an id ([[Prelaunch-Audit]] finding 6)
+- [ ] Decide the paid spins: they spin the free wheel, which pays Scrap, a Lucky Charm and a Double Shift, all three "never sold" ([[Prelaunch-Audit]] finding 7: a paid wheel without them, accept it, or hide the spins at launch)
 - [ ] Pick the icon and thumbnails from the new set
 - [ ] Play the private game on your phone for ten minutes and say what feels wrong
 - [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
