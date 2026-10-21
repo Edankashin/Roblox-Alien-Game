@@ -31,7 +31,9 @@ TILE_MOTIF = {
     "Stone": ("stone", "+y"), "Sand": ("dirt", "+y"), "Water": ("water", "+y"), "WoodPlank": ("wood", "-z"),
     "Snow": ("snow", "+y"), "SnowSide": ("snow", "-z"), "PackedSnow": ("packed_snow", "-z"), "Ice": ("ice", "+y"),
     "FrozenWater": ("frozen_water", "+y"), "Rock": ("stone", "-z"),
+    "MoonPath": ("stone", "+y"), "MoonGrass": ("grass", "+y"), "GlowWater": ("water", "+y"),
 }
+NIGHT = ((0.035, 0.035, 0.11), (0.62, 0.70, 1.0), 0.5, (40.0, 0.0, 210.0))   # the Starhollow's moonlit sky and moon
 SKY = {1: ((0.62, 0.80, 0.95), (1.0, 0.96, 0.88), 3.6, (52.0, 0.0, 135.0)),
        2: ((0.52, 0.66, 0.84), (1.0, 0.97, 0.92), 2.2, (40.0, 0.0, 150.0))}
 FLOOR_TOP = 0.5
@@ -223,13 +225,15 @@ def build(world_id: int):
     for i, j, w, d, bottom, top, kind in waters:
         k = kinds[kind]
         x0, z0 = origin + i * cell, origin + j * cell
+        glow = world.kit["water"].get(kind, {}).get("neon", False)
         box_faces(batch, x0, FLOOR_TOP + bottom, z0, x0 + w * cell, FLOOR_TOP + top, z0 + d * cell,
-                  tile_material(k["top"], k["color"], k["color"], water=True), None, sides=0)
+                  tile_material(k["top"], k["color"], k["color"], water=True, glow=glow), None, sides=0)
     for x, z, width, bottom, top, yaw, kind in world.falls:
         k = kinds[kind]
         a = math.radians(yaw)
         ux, uz = math.cos(a), -math.sin(a)   # the sheet's local X (across the flow)
-        mat = tile_material(k["side"], "CFEFFF", "9FD8F5", water=True)
+        glow = world.kit["water"].get(kind, {}).get("neon", False)
+        mat = tile_material(k["side"], k["color"] if glow else "CFEFFF", "9FD8F5", water=True, glow=glow)
         p0 = (x - ux * width / 2, FLOOR_TOP + bottom, z - uz * width / 2)
         p1 = (x + ux * width / 2, FLOOR_TOP + bottom, z + uz * width / 2)
         batch.quad(mat, [p0, p1, (p1[0], FLOOR_TOP + top, p1[2]), (p0[0], FLOOR_TOP + top, p0[2])],
@@ -239,8 +243,23 @@ def build(world_id: int):
         box_faces(batch, x0, FLOOR_TOP + y0, z0, x1, FLOOR_TOP + y1, z1, tile_material(k["top"], k["color"], k["sideColor"]),
                   tile_material(k["side"], k["color"], k["sideColor"]), tile_material(k["body"], k["bodyColor"], k["bodyColor"]), pin_top=True)
     recipes = world.kit["recipes"]
+    lights = []
     for name, x, y, z, yaw, scale in world.props:
         prop_boxes(batch, recipes[name], x, FLOOR_TOP + y, z, yaw, scale)
+        light = recipes[name].get("light")
+        if light:
+            at = mul(rot_y(math.radians(yaw)), tuple(v * scale for v in light["at"]))
+            lights.append((x + at[0], FLOOR_TOP + y + at[1], z + at[2], light["color"], light["range"] * scale, light["brightness"]))
+    # the glowing falls of the effects rows drawn as an emissive sheet (the client's beam)
+    for e in world.fx:
+        if e["kind"] == "IslandFall":
+            y0 = FLOOR_TOP + world.top(e["x"], e["z"])
+            mat = flat_material("8FE6FF", neon=True)
+            w2 = e.get("size", 6) * 0.4
+            batch.quad(mat, [(e["x"] - w2, y0, e["z"]), (e["x"] + w2, y0, e["z"]), (e["x"] + w2, y0 + 44, e["z"]), (e["x"] - w2, y0 + 44, e["z"])],
+                       [(0, 0), (1, 0), (1, 1), (0, 1)])
+            batch.quad(mat, [(e["x"], y0, e["z"] - w2), (e["x"], y0, e["z"] + w2), (e["x"], y0 + 44, e["z"] + w2), (e["x"], y0 + 44, e["z"] - w2)],
+                       [(0, 0), (1, 0), (1, 1), (0, 1)])
     # the camp pad and the shrine stand-ins (the real ones are client and landmark models)
     pad = flat_material("FFF4DC")
     box_faces(batch, -11, FLOOR_TOP, -11, 11, FLOOR_TOP + 0.4, 11, pad, pad)
@@ -255,10 +274,23 @@ def build(world_id: int):
     box_faces(batch, sx - 1, sy + 1.5, sz - 1, sx + 1, sy + 3.5, sz + 1, glow, glow)
     coll = bpy.context.scene.collection
     batch.flush(coll)
+    world.preview_lights = lights
     return world, stats
 
 
-def setup(scene, world_id, samples):
+def night_lights(world, scene):
+    """The props' PointLights as Blender point lights (the night shot is lit by them, B48: light from the props)."""
+    for k, (x, y, z, color, rng, brightness) in enumerate(world.preview_lights):
+        data = bpy.data.lights.new(f"P{k}", "POINT")
+        data.color = hex_lin(color)[:3]
+        data.energy = 40.0 * brightness * (rng / 14.0) ** 2
+        data.shadow_soft_size = 0.6
+        obj = bpy.data.objects.new(f"P{k}", data)
+        obj.location = Vector(bl(x, y, z))
+        scene.collection.objects.link(obj)
+
+
+def setup(scene, world_id, samples, night=False):
     scene.render.engine = "CYCLES"
     scene.cycles.samples = samples
     scene.cycles.max_bounces = 3
@@ -267,12 +299,12 @@ def setup(scene, world_id, samples):
         scene.view_settings.view_transform = "Standard"
     except TypeError:
         pass
-    sky, sun_col, energy, rot = SKY[world_id]
+    sky, sun_col, energy, rot = NIGHT if night else SKY[world_id]
     w = bpy.data.worlds.new("Sky")
     w.use_nodes = True
     bg = w.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = sky + (1.0,)
-    bg.inputs["Strength"].default_value = 0.9
+    bg.inputs["Strength"].default_value = 2.2 if night else 0.9
     scene.world = w
     sun = bpy.data.lights.new("Sun", "SUN")
     sun.energy = energy
@@ -310,6 +342,7 @@ def camera(scene, view, size, world_id):
 HERO = {
     1: {"hero": ((62.0, 44.0, -62.0), (-34.0, 4.0, 70.0), 26.0),
         "falls": ((-30.0, 18.0, 66.0), (-66.0, 6.0, 104.0), 28.0),
+        "starhollow": ((62.0, 48.0, 38.0), (138.0, 18.0, 136.0), 24.0),
         "wide": ((150.0, 120.0, -215.0), (-30.0, 0.0, 40.0), 30.0)},
     2: {"hero": ((62.0, 44.0, -40.0), (-40.0, 4.0, 60.0), 26.0),
         "lake": ((20.0, 30.0, -20.0), (70.0, 0.0, -90.0), 28.0),
@@ -325,6 +358,7 @@ def main():
     ap.add_argument("--views", default="top,hero")
     ap.add_argument("--size", type=int, default=1600)
     ap.add_argument("--samples", type=int, default=24)
+    ap.add_argument("--night", action="store_true", help="the moonlit look (the Starhollow Forest is night at any hour)")
     a = ap.parse_args(argv)
     out = pathlib.Path(a.out)
     if "assets" in out.resolve().parts:
@@ -335,7 +369,9 @@ def main():
     scene = bpy.context.scene
     world, stats = build(a.world)
     print("built", stats, flush=True)
-    setup(scene, a.world, a.samples)
+    setup(scene, a.world, a.samples, a.night)
+    if a.night:
+        night_lights(world, scene)
     scene.render.image_settings.file_format = "PNG"
     for view in [v for v in a.views.split(",") if v]:
         camera(scene, view, a.size, a.world)

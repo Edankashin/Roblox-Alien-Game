@@ -628,6 +628,17 @@ class World:
                         return False
                     if not f.get("onPath") and nb in self.path_cells and f.get("pathClear", True):
                         return False
+        gap = f.get("pathGap")
+        if gap:
+            # a canopy keeps its crowns off the path: no path column within `pathGap` studs
+            n = self.n
+            i, j = idx % n, idx // n
+            reach_cells = int(math.ceil(gap / self.cell))
+            for dj in range(-reach_cells, reach_cells + 1):
+                for di in range(-reach_cells, reach_cells + 1):
+                    ii, jj = i + di, j + dj
+                    if 0 <= ii < n and 0 <= jj < n and (jj * n + ii) in self.path_cells and math.hypot(di, dj) * self.cell <= gap:
+                        return False
         near = f.get("nearWater")
         if near:
             if not any(self.water[self.index_at(x + dx, z + dz)] is not None for dx in (-near, 0, near) for dz in (-near, 0, near)):
