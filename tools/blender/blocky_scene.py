@@ -77,7 +77,7 @@ PROP_PLACES = [  # (note, X, Y, yaw, extra Euler x degrees, sink studs)
 # since then; `--old-props` renders the first sets above. (note, X, Y, yaw, extra Euler x degrees, sink studs). A landmark too big for the
 # 48 x 32 diorama (the cave mouth, the shrine) is shown on the props sheet only.
 PROP_PLACES_V1 = [
-    ("MeadowTree", 19.0, 12.0, 15, 0, 0.0), ("MeadowTreeB", -21.0, -12.5, -20, 0, 0.0), ("BlossomTree", 21.5, -12.5, 25, 0, 0.0),
+    ("MeadowTree", 19.0, 12.0, 15, 0, 0.0), ("MeadowTreeB", -21.0, -12.5, -20, 0, 0.0), ("Bush", 21.5, -12.5, 25, 0, 0.0),
     ("MeadowTreeB", 2.5, 14.5, 10, 0, 0.0), ("BlossomTree", -21.0, 12.5, -10, 0, 0.0),
     ("Boulder", -8.5, 13.5, 30, 0, 0.0), ("MeadowRock", 3.0, 3.5, 10, 0, 0.0), ("MeadowRockB", 18.5, -3.0, -25, 0, 0.0),
     ("Bush", 22.0, 2.0, 0, 0, 0.0), ("Bush", -6.5, -14.5, 20, 0, 0.0), ("Mushroom", 10.5, -14.5, 15, 0, 0.0),
@@ -85,7 +85,7 @@ PROP_PLACES_V1 = [
     ("LilyPad", 9.5, -8.5, 20, 0, 0.0), ("LilyPad", 12.5, -6.5, -40, 0, 0.0), ("Reeds", 6.25, -8.0, 0, 0, 0.0), ("Reeds", 15.75, -9.5, 30, 0, 0.0),
     ("Fence", -16.5, -10.0, 0, 0, 0.0), ("Fence", -12.0, -10.0, 0, 0, 0.0), ("Lantern", 3.5, -14.5, -20, 0, 0.0),
     ("Signpost", -0.5, -7.5, 20, 0, 0.0),
-    ("CrashWreck", -14.0, 1.0, 15, 0, 0.0),
+    ("CrashWreck", -15.5, 3.5, 10, 0, 0.0),
 ]
 W2_PROP_PLACES_V1 = [
     ("SnowPine", 20.5, 13.0, 15, 0, 0.0), ("SnowPineB", -21.0, -11.0, -20, 0, 0.0), ("SnowPine", 21.5, -11.5, 35, 0, 0.0),
@@ -469,11 +469,11 @@ def place(spec, out, X, Y, Z, yaw=0.0, pitch=0.0, prefix="", cell=None):
 
 def flowers(hm, out, taken, big=()):
     """Flowers on free grass, three petal colours, a deterministic scatter on the quarter-stud grid (with the block-cell props, the
-    FlowerPatch clump at a third of the density, kept off the big props' footprints)."""
+    FlowerPatch clump at about two thirds of the density, kept off the big props' footprints)."""
     base = S.load(PROPS / ("FlowerPatch.md" if NEW_PROPS else "Flower.md"))
     n = 0
     for (i, j), (top, kind) in sorted(hm.items()):
-        if kind != "grass" or C.rand(5, i, j) > (0.08 if NEW_PROPS else 0.22):
+        if kind != "grass" or C.rand(5, i, j) > (0.14 if NEW_PROPS else 0.22):
             continue
         x, y = column_centre(i, j)
         x += round((C.rand(6, i, j) - 0.5) * 1.2 * 4) / 4
