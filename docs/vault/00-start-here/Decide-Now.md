@@ -234,17 +234,17 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 **42. Fenrir's face: A or B?** World 2's Cosmic hero is built in block cells (14 studs, ridable; `media/studio/2026-10-19/world2_ladder_v1.jpg`, the Fenrir board on [Catch an Alien Creatures](https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD)). The parts are identical; only the face texture differs.
 - Options: a) A, the house face as every alien wears it (the awe from height and light); b) B, a heavier brow with a moon-lit eye crescent, for heroes only; c) neither (say what).
-- Recommend: **a**, because one face across the roster is what makes the aliens ours at a glance, and you said rarer should mean worth finding, not fiercer; B is the fallback if A reads too soft on a 14-stud wolf.
+- Recommend: ** **Closed 2026-10-20 by [[Decisions]] B46:** eyes now vary by species, so Fenrir gets its own eye from the library; A and B are both retired.a**, because one face across the roster is what makes the aliens ours at a glance, and you said rarer should mean worth finding, not fiercer; B is the fallback if A reads too soft on a 14-stud wolf.
 - Then: the pick goes into the Fenripup spec note and the heroes rule in [[Blocky-Style]].
 
 **43. The UI in block cells too?** Your "consistent throughout the whole game" (B44) reaches the HUD and screens. A board "HUD in block cells" sits beside the current phone HUD on the UI canvas [Catch an Alien UI](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4): the same layout and thumb-zone rules, stepped pixel corners instead of rounded ones, cell-textured plates and buttons, pixel icons on an 8 by 8 grid, block terraces for the world, the blocky renders in Nearby.
 - Options: a) yes: rebuild the HUD in Luau from that board, then the Aliens, Shop and reveal screens the same way, the [[UI-Playbook]] changing in the same commit (pixel corners, cell plates, pixel icons, Fredoka One kept); b) keep the rounded UI as it is and let only the world and creatures be blocky; c) a mix (say which parts).
-- Recommend: **a**, because a rounded glossy HUD over a block-cell world reads as two games; the top voxel-brick references dress their UI in the same bricks.
+- Recommend: ** **Taken 2026-10-20 under Ethan's "finalize everything" ([[Decisions]] B46): a**, the UI in block cells, one screen per change, HUD first.a**, because a rounded glossy HUD over a block-cell world reads as two games; the top voxel-brick references dress their UI in the same bricks.
 - Then: one screen per change, each checked at iPhone SE and iPad on the Mac before the next.
 
 **44. Mounts, now that rarer is not bigger.** You said (2026-10-20) you don't want the aliens bigger when rarer ([[Decisions]] B45), so every alien stands at 2 to 3.5 studs and the 10 to 14 stud Cosmic and Secret builds (Raddis, Syrinx, Fenrir) come down in the resize pass. `docs/GAME_DESIGN.md` section 6 still has ridable aliens from Epic up, which needs size.
 - Options: a) a mount form: an alien grows to riding size only while ridden (the same model scaled, a saddle effect), and stands in the band the rest of the time; b) drop riding, the hoverboard and glider carry that progression; c) a few named mount species are big by nature, as their character, spread across tiers.
-- Recommend: **a**, because it keeps the one band at rest, keeps the mount progression the design counts on, and costs one scale tween; b is the simplest if riding never tested well.
+- Recommend: ** **Taken 2026-10-20 under Ethan's "finalize everything" ([[Decisions]] B46): a**, the mount form; say if you want b or c instead.a**, because it keeps the one band at rest, keeps the mount progression the design counts on, and costs one scale tween; b is the simplest if riding never tested well.
 - Then: the answer goes into the design doc's mount section and the Blocky-Style ladder; the resize pass then runs on all 35 species, Cosmic and Secret first.
 
 ## Closed or parked, no answer needed

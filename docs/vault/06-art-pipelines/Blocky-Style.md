@@ -57,7 +57,7 @@ kgwk
 
 | Do | Don't |
 |---|---|
-| The same eye on a Common and a Cosmic; awe from ornament, light and effects (not height, B45) | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
+| Each species its own eye from the eye library, detail climbing by tier (B46); awe from ornament, eyes, motion, light and effects (not height, B45) | A fierce brow, slit pupils or a narrowed eye for rarity (B43 retired the temperament ladder) |
 | The face as a texture on the head's front, nearest filtering, cell to cell | Eye blocks stuck on the head, or a blurred, bilinear face |
 | A warm or saturated lit crescent (gold, amber, pink, violet); a muzzle or snout drawn into the grid in the second colour (Vixa's cream `c` cells) | A pale or sky-blue crescent: under the eye it reads as tears (Buzzik, round 1) |
 
