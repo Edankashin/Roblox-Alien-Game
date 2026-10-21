@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Ember
 height: 3
-blocks: 33
-tris: 558
+blocks: 35
+tris: 578
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FF7A30", "#FFF1DD", "#4A2433", "#FFC940", "#FFA53D", "#24141A"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Sparkfox_sheet.svg]]"
 render: "[[Sparkfox_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.997, 0.998, 0.997]
+overlap: [0.994, 0.997, 0.998, 0.994]
 vfx_render: "[[Sparkfox_vfx_cells.jpg]]"
 cells_render: "[[Sparkfox_tq_cells.jpg]]"
 idle_render: "[[Sparkfox_idle.png]]"
@@ -50,7 +50,10 @@ parts:
   # the fox's face in blocks under the plate: a cream muzzle with an ink nose on its top edge, cream cheek tufts out of the head's sides
   - {name: Muzzle, slot: BodyDark, size: [0.5, 0.375, 0.125], at: [0, 1.0625, -1.5625]}
   - {name: Nose, slot: Eye, size: [0.25, 0.125, 0.125], at: [0, 1.1875, -1.6875]}
-  - {name: Tuft, slot: BodyDark, size: [0.125, 0.375, 0.5], at: [1.0625, 0.9375, -1.125], mirror: x}
+  # Polish w1: the tufts sat at the head's bottom corners beside the front legs and read as paws; they now flare out at cheek height
+  # beside the eyes, a step out and a smaller step further out and up, so the face widens at the cheeks like a fox's ruff
+  - {name: Tuft, slot: BodyDark, size: [0.125, 0.375, 0.5], at: [1.0625, 1.3125, -1.125], mirror: x}
+  - {name: TuftTip, slot: BodyDark, size: [0.125, 0.125, 0.375], at: [1.1875, 1.4375, -1.1875], mirror: x}
   # stepped fox ears: an orange base, a plum tip and a cream inside, each ear one moving part
   - {name: Ear, slot: Body, size: [0.5, 0.5, 0.25], at: [0.625, 2.5, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
   - {name: EarTip, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.625, 2.875, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
@@ -150,3 +153,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, loop 2 worker, three rounds. Round 1: a cream brush on a pale sky read as a floating cloud, not joined to the fox. Round 2: the tail as one tilted stack (handle, ferrule, bristles, tip) that grows out of the rump; still pale, and the cube head of the brush read as a mallet. Round 3: a plum handle and orange bristles tapering in two steps to a lit point, the amber paint drop floating free; the tail lowered an eighth to keep 3 studs. Overlap 0.994 to 0.997, 548 triangles, 29 blocks, 3 studs. Wanted for: the first light on the meadow and a tail that is a paintbrush, with a stamped gold flame. Still cheap: the Rare preview is only a soft light (as the ladder says), so at night it is a lit tail and little else; the drop is small at distance. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). The orange keeps its punch; the cream muzzle cells sit in the face grid as before; the gold flame stays flat (detail blocks under three cells take no edge). Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, one round. Kept at 3 studs (a small fox, mid-band) and rebuilt to 33 blocks: a cream muzzle block with an ink nose under the plate (the face rows' muzzle, now in blocks), cream cheek tufts, a plum painter's beret tipped 15 degrees between the ears with a gold stalk, the flank flame in four rows. Its own `glimmer` eyes in teal ringed deep teal (a cool eye on the warmest body in Verdant), blush cheeks, no plate mouth; four moving objects and the blink; a flourish every 8 s (a hop and a full turn, the brush sweeping, ears flared, the drop leaping). Overlap 0.997 to 0.998. Wanted for: a painter fox with a lit brush, the first costume on the meadow. Still weak: the cheek tufts sit low and read as white paws from the three-quarter view; the beret is small between the ears at distance. Status review.
+- 2026-10-21, Polish w1, two rounds. The cream cheek tufts sat at the head's bottom corners beside the front legs and read as paws: they now flare out at cheek height beside the eyes (a tuft an eighth proud and a smaller tip a step further out and up), so the face widens at the cheeks like a fox's ruff. Round 1 made them a quarter proud with a bigger tip and pushed the front silhouette to 0.705 against Gaira; at an eighth it is 0.683. 35 blocks (Rare 18 to 36). Overlap 0.994 to 0.998. Honest read: the tufts read as cheek fluff now, nothing low reads as a paw but the paws; small at distance. Status review.

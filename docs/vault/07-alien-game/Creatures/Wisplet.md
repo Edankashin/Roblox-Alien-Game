@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Shadow
 height: 3.5
-blocks: 31
-tris: 448
+blocks: 35
+tris: 488
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#8FDCFF", "#2D5C9E", "#7B5CFF", "#6E6A85", "#B48CFF", "#141B33"]
@@ -20,14 +20,14 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Wisplet_sheet.svg]]"
 render: "[[Wisplet_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.995, 1, 0.996]
+overlap: [0.997, 0.995, 1, 0.997]
 vfx_render: "[[Wisplet_vfx_cells.jpg]]"
 cells_render: "[[Wisplet_tq_cells.jpg]]"
 idle_render: "[[Wisplet_idle.png]]"
 ---
 # Wisplet (Wispkin), Rare, World 1 Verdant, the Haunted Nebula event
 
-A will-o'-the-wisp, 3.5 studs to the tip of its flame: a cold blue flame the size of a lantern, floating a little off the grass with a shy face on its belly. The belly is a soft sky-blue block in flame cells (the lit tongues of the `ember` motif rising from its base), the flame narrows above it in three steps that lean to its right and end in a lilac-lit tip that flickers, with a second tongue licking up to the left with its own lit tip, and tapers below it through two deep-blue steps swept to the left to a wisp of flame that brushes the ground. Round its waist sits a lantern's iron rim with two rivets, all that is left of the glass it escaped; an iron bail handle, hinged to pins on the belly's sides with a hanging ring at its top, arches over the flame. Two small flamelets with lit tips float beside it at different heights, and a violet flame glyph of four steps is stamped on its right flank. Concept row in `src/shared/data/Species.luau`: "will-o'-the-wisp, a floating lantern flame with a shy face". Event: the Haunted Nebula (`src/shared/data/Seasons.luau`: two weeks from 2026-10-16, World 1, nights twice as long, a Spectral overlay). Element and effect: [[Roster-Redesign]] section 2 (Shadow; a cold blue flame that flickers, one faint ember rising, a soft blue light; `Effects.luau` calls the element Spirit). Rules: [[Blocky-Style]].
+A will-o'-the-wisp, 3.5 studs to the tip of its flame: a cold blue flame the size of a lantern, floating a little off the grass with a shy face on its belly. The belly is a soft sky-blue block in flame cells (the lit tongues of the `ember` motif rising from its base), the flame narrows above it in three steps that lean to its right and end in a lilac-lit tip that flickers, with a second tongue licking up to the left with its own lit tip, and tapers below it through two deep-blue steps swept to the left to a wisp of flame that brushes the ground. Round its waist sits a lantern's iron rim with two rivets and four iron corner struts rising from it up the belly's corners, the bottom of the cage it escaped, all that is left of the glass; an iron bail handle, hinged to pins on the belly's sides with a hanging ring at its top, arches over the flame. Two small flamelets with lit tips float beside it at different heights, and a violet flame glyph of four steps is stamped on its right flank. Concept row in `src/shared/data/Species.luau`: "will-o'-the-wisp, a floating lantern flame with a shy face". Event: the Haunted Nebula (`src/shared/data/Seasons.luau`: two weeks from 2026-10-16, World 1, nights twice as long, a Spectral overlay). Element and effect: [[Roster-Redesign]] section 2 (Shadow; a cold blue flame that flickers, one faint ember rising, a soft blue light; `Effects.luau` calls the element Spirit). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the night's own light in the two weeks of the event: a blue flame that drifts over the meadow at dusk, shy when you get near, and the first Rare that is itself a light rather than carrying one. B46: its own `crescent` eyes (a violet band of iris under an ink drop over a lilac-lit crescent, two glint frames), 31 blocks to the Uncommons' 16 to 19, six moving things, and a flourish every 9 s that reads from across the meadow: it ducks, hops and spins round once while the bail swishes and the tip flares. The Rare rung exactly: a stamped element glyph, one glossy trim slot (the iron bail and rim), a soft light, four flat colours and lilac glow at the tips.
 
@@ -49,6 +49,10 @@ parts:
   - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.5, 0], bevel: true, material: ember}
   - {name: Rim, slot: Trim, size: [2.25, 0.125, 1.75], at: [0, 0.8125, 0], material: metal}
   - {name: Rivet, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.8125, -0.9375], mirror: x}
+  # Polish w1: the rim alone read as a belt; four iron corner struts rise from it up the belly's corners to the bail's pins, so rim and
+  # struts read as the bottom of a lantern's cage with the flame living in it
+  - {name: Strut, slot: Trim, size: [0.125, 0.75, 0.125], at: [1.0625, 1.25, -0.8125], mirror: x, material: metal}
+  - {name: StrutBack, slot: Trim, size: [0.125, 0.75, 0.125], at: [1.0625, 1.25, 0.8125], mirror: x, material: metal}
   # the flame narrows above the belly in three steps leaning to its right, the top one lit with a flickering tip, and a second tongue
   # licks up to the left with its own lit tip
   - {name: Flame, slot: Body, size: [1.5, 0.375, 1], at: [0.125, 2.4375, 0], material: ember}
@@ -159,3 +163,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-20, World 1 fixes worker, two rounds. Round 1: a belly block with a three-step flame leaning right, a thin bail and two flamelets by the base: it built and read as a flame, but the boxed silhouette sat at 0.74 against Moop (a block with a sprout on top and a spore beside it), and an eighth-stud bail vanished at distance. Round 2: a second tongue licking up to the left, the flamelets moved wide of the belly at different heights, the bail a quarter stud thick and widened past its pins, the base steps swept left: 0.64 at worst (Syrinx). Overlap 0.996 to 0.997, 342 triangles, 22 blocks, 3.25 studs (the Rare cap). Wanted for: the night's own light in the event's two weeks. Still cheap: the ember tongues are subtle on the pale body in daylight (the VFX preview's cold light brings them up); the bail is half hidden behind the flame from the three-quarter view. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band (3.5 studs to its flickering tip, from 3.25); detail at the same size with smaller blocks, 31 blocks to the Uncommons' 16 to 19 (the Rare band is 18 to 36): a lit tip on the flame and on the left tongue, lit tips on both flamelets, a hanging ring on the bail, a fourth step on the glyph, and a lantern's iron rim with two rivets round its waist, all that is left of the glass it escaped. Its own `crescent` eyes: an ink drop over a violet band and a lilac-lit crescent, two glint frames, a shy smile and blush. Five moving objects and the blink: the tip flickers, the tongue licks, the bail swings, the flamelets bob and circle; and every 9 s a flourish that reads from across the meadow: it ducks, hops and spins round once while the bail swishes, the tip flares and the flamelets leap. Overlap 0.995 to 1.0, 448 triangles; worst silhouette pair 0.672 (Cosmoo). Wanted for: the event's shy blue flame, now visibly a step above the Uncommons in cells, light and motion. Still weak: the iron rim reads as a belt or a saucer under the belly more than as a lantern's rim, and the lilac tips are pale on the sky-blue flame in daylight (the VFX preview's dusk is where it shines). Status review.
+- 2026-10-21, Polish w1, one round. The iron rim round the waist read as a belt: four iron corner struts now rise from it up the belly's corners toward the bail's pins (an eighth proud of each corner, three quarters of a stud tall), so the rim reads as the bottom of a lantern's cage with the flame still in it, and the bail above finishes the lantern. 35 blocks (Rare 18 to 36). Overlap 0.995 to 1.000. Honest read: a lantern at once, the flame living in its broken cage; the struts frame the face without crossing it. Status review.
