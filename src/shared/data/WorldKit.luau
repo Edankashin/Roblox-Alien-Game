@@ -31,7 +31,7 @@ local Kinds: { [string]: Types.GroundKind } = {
 	snow = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "F2F6FA", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Snow", spawn = true },
 	snowB = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "E6EEF6", sideColor = "B9CADA", bodyColor = "AFC1D3", material = "Snow", spawn = true },
 	stone = { top = "Stone", side = "Rock", body = "Rock", color = "9E9E8E", sideColor = "86867A", bodyColor = "7C7C72", material = "Slate", spawn = true },
-	trail = { top = "PackedSnow", side = "SnowSide", body = "PackedSnow", color = "CFDAE6", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true },
+	trail = { top = "PackedSnow", side = "SnowSide", body = "PackedSnow", color = "DCE5EE", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true },
 	warm = { top = "Water", side = "Water", body = "Water", color = "6FD3DA", sideColor = "6FD3DA", bodyColor = "6FD3DA", material = "SmoothPlastic", spawn = false },
 	water = { top = "Water", side = "Water", body = "Water", color = "3FA2E6", sideColor = "3FA2E6", bodyColor = "3FA2E6", material = "SmoothPlastic", spawn = false },
 	wood = { top = "WoodPlank", side = "WoodPlank", body = "WoodPlank", color = "A8743F", sideColor = "8C5E32", bodyColor = "7B4A2D", material = "WoodPlanks", spawn = false },

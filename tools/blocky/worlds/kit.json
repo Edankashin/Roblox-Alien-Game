@@ -19,7 +19,7 @@
     "snow":    {"top": "Snow",        "side": "SnowSide",  "body": "PackedSnow", "color": "F2F6FA", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Snow",       "spawn": true},
     "snowB":   {"top": "Snow",        "side": "SnowSide",  "body": "PackedSnow", "color": "E6EEF6", "sideColor": "B9CADA", "bodyColor": "AFC1D3", "material": "Snow",       "spawn": true},
     "packed":  {"top": "PackedSnow",  "side": "PackedSnow","body": "PackedSnow", "color": "C9D7E4", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Sand",       "spawn": true},
-    "trail":   {"top": "PackedSnow",  "side": "SnowSide",  "body": "PackedSnow", "color": "CFDAE6", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Sand",       "spawn": true},
+    "trail":   {"top": "PackedSnow",  "side": "SnowSide",  "body": "PackedSnow", "color": "DCE5EE", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Sand",       "spawn": true},
     "rock":    {"top": "Rock",        "side": "Rock",      "body": "Rock",       "color": "A9B7C0", "sideColor": "93A1AB", "bodyColor": "8796A0", "material": "Slate",      "spawn": true},
     "ice":     {"top": "Ice",         "side": "Ice",       "body": "Ice",        "color": "BFEBFA", "sideColor": "A6DDF2", "bodyColor": "9FD3E8", "material": "Ice",        "spawn": true},
     "frozen":  {"top": "FrozenWater", "side": "Ice",       "body": "Ice",        "color": "A9D6F5", "sideColor": "93C6EA", "bodyColor": "86BCE0", "material": "Ice",        "spawn": true},

@@ -82,9 +82,9 @@
 
     {"type": "scatter", "names": ["SnowPine", "SnowPineB", "SnowPine"], "count": 120, "spacing": 9, "on": ["snow", "snowB"], "slope": 1, "seed": 4, "avoid": [[-130, -120, 64], [130, 120, 70], [70, -85, 52], [-46, 30, 12]], "scale": [0.9, 1.3]},
     {"type": "scatter", "names": ["SnowBush"], "count": 40, "spacing": 8, "on": ["snow", "snowB"], "slope": 1, "seed": 5, "avoid": [[-130, -120, 64], [130, 120, 64]]},
-    {"type": "scatter", "names": ["IceRock", "IceRockB"], "count": 46, "spacing": 11, "on": ["snow", "snowB", "packed"], "slope": 1, "seed": 6, "avoid": [[-130, -120, 64]]},
-    {"type": "scatter", "names": ["IceSpire"], "count": 10, "spacing": 14, "shape": {"type": "ellipse", "x": 70, "z": -85, "rx": 56, "rz": 40, "rot": -10}, "on": ["packed", "snow", "snowB"], "slope": 1, "seed": 7},
-    {"type": "scatter", "names": ["SnowDrift"], "count": 40, "spacing": 12, "on": ["snow", "snowB"], "slope": 1, "seed": 8, "avoid": [[130, 120, 64]]},
+    {"type": "scatter", "names": ["IceRock", "IceRockB"], "count": 56, "spacing": 11, "on": ["snow", "snowB", "packed"], "slope": 1, "seed": 6, "avoid": [[-130, -120, 64]]},
+    {"type": "scatter", "names": ["IceSpire"], "count": 6, "spacing": 14, "shape": {"type": "ellipse", "x": 70, "z": -85, "rx": 56, "rz": 40, "rot": -10}, "on": ["packed", "snow", "snowB"], "slope": 1, "seed": 7},
+    {"type": "scatter", "names": ["SnowDrift"], "count": 60, "spacing": 12, "on": ["snow", "snowB"], "slope": 1, "seed": 8, "avoid": [[130, 120, 64]]},
     {"type": "scatter", "names": ["FrozenLog"], "count": 10, "spacing": 30, "on": ["snow", "snowB"], "slope": 0, "seed": 10, "avoid": [[-130, -120, 64], [130, 120, 64]]},
     {"type": "scatter", "names": ["GeyserCone"], "count": 14, "spacing": 13, "shape": {"type": "circle", "x": 130, "z": 120, "r": 58}, "on": ["geo", "geoDark"], "slope": 1, "seed": 11, "avoid": [[130, 120, 16]]},
     {"type": "scatter", "names": ["IceRockB", "IceRock"], "count": 8, "spacing": 14, "shape": {"type": "circle", "x": 130, "z": 120, "r": 58}, "on": ["geo", "geoDark"], "slope": 1, "seed": 12, "avoid": [[130, 120, 16]]},
