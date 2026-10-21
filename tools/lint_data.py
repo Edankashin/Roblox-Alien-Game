@@ -610,24 +610,43 @@ def lint_surfaces(tables):
     return failures
 
 
-def lint_props(tables):
-    """data/Props: one row per imported prop (data/ModelAssets.PropNames), and each row's collision is one of PROP_COLLISIONS."""
+def block_cell_props(root=ROOT):
+    """{name: the collision its spec note names, or None} for every block-cell prop exported into assets/models/props/<Name>/ (its
+    <Name>_atlas.png is there; tools/blocky/export_models.py --props), uploaded or not."""
+    found = {}
+    folder = Path(root) / 'assets/models/props'
+    if not folder.is_dir():
+        return found
+    for d in sorted(folder.iterdir()):
+        if d.is_dir() and (d / f'{d.name}_atlas.png').is_file():
+            note = Path(root) / 'docs/vault/07-alien-game/Props' / f'{d.name}.md'
+            match = re.search(r'^collision:\s*(\w+)\s*$', note.read_text(encoding='utf-8'), re.M) if note.is_file() else None
+            found[d.name] = match[1] if match else None
+    return found
+
+
+def lint_props(tables, exported=None):
+    """data/Props: one row per imported prop (data/ModelAssets.PropNames) and per block-cell prop exported but not yet uploaded
+    (`exported`, block_cell_props()), each row's collision one of PROP_COLLISIONS, and a block-cell prop's row the collision its note names."""
     rows = (tables.get('Props') or {}).get('Rows')
     names = (tables.get('ModelAssets') or {}).get('PropNames')
     if not isinstance(rows, dict) or not isinstance(names, dict):
         return ['Props.luau: Rows (and ModelAssets.PropNames) unavailable']
+    exported = {} if exported is None else exported
     failures = []
-    for name in sorted(names, key=str):
+    for name in sorted(set(names) | set(exported), key=str):
         if name not in rows:
             failures.append(f'Props.Rows.{name}: no row for an imported prop (add one with a collision of {", ".join(PROP_COLLISIONS)})')
     for name, row in sorted(rows.items(), key=lambda kv: str(kv[0])):
         where = f'Props.Rows.{name}'
-        if name not in names:
-            failures.append(f'{where}: not in ModelAssets.PropNames')
+        if name not in names and name not in exported:
+            failures.append(f'{where}: not in ModelAssets.PropNames and no block-cell export in assets/models/props/{name}')
         if not isinstance(row, dict) or set(row) != {'collision'}:
             failures.append(f'{where}: expected a row with just collision')
         elif row['collision'] not in PROP_COLLISIONS:
             failures.append(f'{where}.collision: {row["collision"]!r} is not one of {", ".join(PROP_COLLISIONS)}')
+        elif exported.get(name) and exported[name] != row['collision']:
+            failures.append(f'{where}.collision: {row["collision"]!r}, but its spec note (Props/{name}.md) says {exported[name]!r}')
     return failures
 
 
@@ -1167,7 +1186,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
-    failures.extend(lint_props(tables))
+    failures.extend(lint_props(tables, block_cell_props(root)))
     failures.extend(lint_effects(tables, types))
     failures.extend(lint_reveal(tables, root))
     for finding in lint_shapes(tables, strings, types):

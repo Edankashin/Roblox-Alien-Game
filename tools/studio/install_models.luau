@@ -36,6 +36,12 @@
 --     SurfaceAppearance, and either way ResampleMode = Pixelated (Blocky-Style "In the game"). A Glow part is Neon in its colour, no map.
 --   * every part Anchored, CanCollide and CanQuery off; the Model's WorldPivot at the bottom centre; the Model under ReplicatedStorage.Models.
 -- BLOCK_CELL is generated: `python3 -I tools/blocky/export_models.py --emit-luau` (paste it between the BLOCK-CELL PASTE markers).
+--
+-- Block-cell props (Decision B44; assets/models/props/<Name>/ from `export_models.py --props`): a prop in BLOCK_CELL_PROPS is installed the
+-- same way into ReplicatedStorage.Models.Props, never from its old blockout id: the source is its new upload, else the selected imported Model,
+-- else one already under Models.Props with a part named Body, BodyDark, Accessory or Trim (a re-run). Its MeshParts are its colour slots
+-- (Body, BodyDark, Accessory, Trim on the atlas; Glow Neon); every part Anchored and collision left on (Shared/Props.Place sets CanCollide
+-- and the fidelity from data/Props). BLOCK_CELL_PROPS is `export_models.py --emit-luau --props` (between the BLOCK-CELL PROPS PASTE markers).
 
 local InsertService = game:GetService("InsertService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -624,6 +630,360 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 	},
 }
 -- END BLOCK-CELL PASTE
+-- BEGIN BLOCK-CELL PROPS PASTE: output of `python3 -I tools/blocky/export_models.py --emit-luau --props`
+local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
+	BlossomTree = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FF9EC4", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "6B3F2A", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFE3EE", neon = false, map = "cell" },
+		},
+	},
+	Boulder = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9E9E8E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7C7C6E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "6CB04A", neon = false, map = "cell" },
+			{ name = "Trim", hex = "F2E6D0", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB86B", neon = true, map = "" },
+		},
+	},
+	BuildStation = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C99A5B", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "8B5A2B", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "8FD3FF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "8A93A0", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFC86B", neon = true, map = "" },
+		},
+	},
+	Bush = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "57B04A", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FF5C8A", neon = false, map = "cell" },
+		},
+	},
+	CaveMouth = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "7A756E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "15120F", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5E9E3A", neon = false, map = "cell" },
+			{ name = "Trim", hex = "C084FC", neon = false, map = "cell" },
+			{ name = "Glow", hex = "7FE3FF", neon = true, map = "" },
+		},
+	},
+	CrashWreck = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9AA3B0", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3A3530", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "A8A39C", neon = false, map = "cell" },
+			{ name = "Trim", hex = "7FE3F0", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FF7A1A", neon = true, map = "" },
+		},
+	},
+	Fence = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "B98552", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "8A5A35", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5E9E3A", neon = false, map = "cell" },
+			{ name = "Trim", hex = "FF8FB0", neon = false, map = "cell" },
+		},
+	},
+	FlowerPatch = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FF8FB0", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3F8F2E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFD34D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "F7F3EA", neon = false, map = "cell" },
+		},
+	},
+	FrozenLog = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "BodyDark", hex = "4A3A2E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
+		},
+	},
+	GatherStation = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C99A5B", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "8B5A2B", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "E8483D", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFD98A", neon = true, map = "" },
+		},
+	},
+	GeyserCone = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "8C5A3C", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4A2E1E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "D9A066", neon = false, map = "cell" },
+			{ name = "Glow", hex = "BFF3FF", neon = true, map = "" },
+		},
+	},
+	GeyserVent = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6B4A36", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "2A1A12", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2FBFF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "D98A4E", neon = false, map = "cell" },
+			{ name = "Glow", hex = "9FE8FF", neon = true, map = "" },
+		},
+	},
+	HeaterLamp = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6B7580", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3D4556", neon = false, map = "cell" },
+			{ name = "Trim", hex = "C9CFD8", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB347", neon = true, map = "" },
+		},
+	},
+	IceCaveMouth = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "CFEAF7", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "0E1A26", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F7FBFF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "6EC6F0", neon = false, map = "cell" },
+			{ name = "Glow", hex = "68C9FE", neon = true, map = "" },
+		},
+	},
+	IceCrystalCluster = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7F8E99", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "68C9FE", neon = true, map = "" },
+		},
+	},
+	IceLantern = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7F8E99", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFB347", neon = true, map = "" },
+		},
+	},
+	IceRock = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A9B7C0", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "BFF3FF", neon = true, map = "" },
+		},
+	},
+	IceRockB = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A9B7C0", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "BFF3FF", neon = true, map = "" },
+		},
+	},
+	IceSpire = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7F8E99", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "7FE6FF", neon = true, map = "" },
+		},
+	},
+	Icicles = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "9FE3FF", neon = false, map = "cell" },
+			{ name = "Glow", hex = "E8FAFF", neon = true, map = "" },
+		},
+	},
+	Lantern = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4A3B2E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5E9E3A", neon = false, map = "cell" },
+			{ name = "Trim", hex = "C9A15B", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFC86B", neon = true, map = "" },
+		},
+	},
+	LilyPad = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4FAF4A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3F8F2E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFB3CC", neon = false, map = "cell" },
+			{ name = "Trim", hex = "FFD34D", neon = false, map = "cell" },
+		},
+	},
+	Log = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6CB04A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "E8843D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "F2E6D0", neon = false, map = "cell" },
+		},
+	},
+	MeadowRock = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9E9E8E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7C7C6E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "6CB04A", neon = false, map = "cell" },
+		},
+	},
+	MeadowRockB = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9E9E8E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7C7C6E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5E9E3A", neon = false, map = "cell" },
+			{ name = "Trim", hex = "F7F3EA", neon = false, map = "cell" },
+		},
+	},
+	MeadowTree = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4CAF46", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFD34D", neon = false, map = "cell" },
+		},
+	},
+	MeadowTreeB = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "3F9B3A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "6B3F26", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFF3F7", neon = false, map = "cell" },
+		},
+	},
+	Mushroom = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E8483D", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "F2E6D0", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFF8EE", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5E9E3A", neon = false, map = "cell" },
+		},
+	},
+	Pedestal = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "D8D2BC", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "B9B29A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "9BE7FF", neon = true, map = "" },
+		},
+	},
+	Reeds = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "7DB04A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4F7F3A", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "7B4A2D", neon = false, map = "cell" },
+		},
+	},
+	ShipHull = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "7A8494", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3A4049", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "B8C2CF", neon = false, map = "cell" },
+			{ name = "Glow", hex = "68C9FE", neon = true, map = "" },
+		},
+	},
+	Shrine = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9E9E8E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "C8C0A6", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5E9E3A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "2ECC71", neon = true, map = "" },
+		},
+	},
+	ShrineStone = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9E9E8E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7C7C6E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "6CB04A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "9BE7FF", neon = true, map = "" },
+		},
+	},
+	Signpost = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C08A55", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFF4DC", neon = false, map = "cell" },
+			{ name = "Trim", hex = "9E9E8E", neon = false, map = "cell" },
+		},
+	},
+	SnowBush = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2F6B5E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "9FE8FF", neon = true, map = "" },
+		},
+	},
+	SnowDrift = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFFFFF", neon = true, map = "" },
+		},
+	},
+	SnowPine = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2F6B5E", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4A3A2E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
+			{ name = "Glow", hex = "BFF3FF", neon = true, map = "" },
+		},
+	},
+	SnowPineB = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2A5F54", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "4A3A2E", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
+		},
+	},
+	SparkStation = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A855F7", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "3F9B3A", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5DBB3A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFC83D", neon = true, map = "" },
+		},
+	},
+}
+-- END BLOCK-CELL PROPS PASTE
 local FACE_PART = "FacePlate"
 
 local function ensureFolder(parent: Instance, name: string): Folder
@@ -826,7 +1186,7 @@ local function applyMap(part: BasePart, imageId: number, transparent: boolean): 
 end
 
 -- The block-cell fix-ups on one model (see the header). Returns a summary and the names of the parts it could not find.
-local function fixBlockCell(model: Model, row: BlockCellRow): (string, { string })
+local function fixBlockCell(model: Model, row: BlockCellRow, isProp: boolean): (string, { string })
 	local missing: { string } = {}
 	local textured, waiting, neon = 0, 0, 0
 	for _, def in row.parts do
@@ -857,28 +1217,41 @@ local function fixBlockCell(model: Model, row: BlockCellRow): (string, { string 
 			end
 		end
 	end
-	normalise(model, false, true)
+	normalise(model, isProp, true)
 	local box, size = model:GetBoundingBox()
 	model.WorldPivot = CFrame.new(box.Position - Vector3.new(0, size.Y / 2, 0))
 	return ("%d textured, %d Neon, %d waiting for a texture"):format(textured, neon, waiting), missing
 end
 
--- A block-cell model imported by hand: the selected Model named `name`, else one already installed that has a FacePlate.
-local function importedBlockCell(name: string, models: Folder): Model?
+-- The part names that mark an already-installed block-cell prop (its colour slots); no retired blockout prop used them.
+local PROP_SLOT_PARTS = { "Body", "BodyDark", "Accessory", "Trim" }
+
+-- A block-cell model imported by hand: the selected Model named `name`, else one already installed that has a FacePlate (a species) or a
+-- colour-slot part (a prop).
+local function importedBlockCell(name: string, models: Folder, isProp: boolean): Model?
 	for _, item in Selection:Get() do
 		if item:IsA("Model") and item.Name == name then
 			return item
 		end
 	end
 	local existing = models:FindFirstChild(name)
-	if existing and existing:IsA("Model") and findPart(existing, FACE_PART) then
-		return existing
+	if existing and existing:IsA("Model") then
+		if not isProp and findPart(existing, FACE_PART) then
+			return existing
+		end
+		if isProp then
+			for _, slot in PROP_SLOT_PARTS do
+				if findPart(existing, slot) then
+					return existing
+				end
+			end
+		end
 	end
 	return nil
 end
 
--- Installs one block-cell species. Returns ("ok" | "fail" | "wait", detail).
-local function installBlockCell(name: string, row: BlockCellRow, models: Folder): (string, string)
+-- Installs one block-cell species into `models` (or, with isProp, one block-cell prop into Models.Props). Returns ("ok" | "fail" | "wait", detail).
+local function installBlockCell(name: string, row: BlockCellRow, models: Folder, isProp: boolean): (string, string)
 	local model: Model? = nil
 	if row.assetId ~= 0 then
 		local ok, loaded = pcall(function(): Instance
@@ -898,16 +1271,21 @@ local function installBlockCell(name: string, row: BlockCellRow, models: Folder)
 			container:Destroy()
 		end
 	else
-		model = importedBlockCell(name, models)
+		model = importedBlockCell(name, models, isProp)
 		if not model then
-			return "wait", ("not uploaded (assetId 0): File > Import 3D assets/models/%s/%s.fbx, select the Model, run again"):format(name, name)
+			return "wait",
+				("not uploaded (assetId 0): File > Import 3D assets/models/%s%s/%s.fbx, select the Model, run again"):format(
+					if isProp then "props/" else "",
+					name,
+					name
+				)
 		end
 	end
 	local target = model :: Model
 	target.Name = name
-	local summary, missing = fixBlockCell(target, row)
+	local summary, missing = fixBlockCell(target, row, isProp)
 	if #missing > 0 then
-		warn(("install_models: %s has no part named %s; the import renamed or merged it, so it will not animate"):format(
+		warn(("install_models: %s has no part named %s; the import renamed or merged it, so it will not animate or colour"):format(
 			name,
 			table.concat(missing, ", ")
 		))
@@ -925,7 +1303,7 @@ end
 local function main()
 	local names: { string } = {}
 	for name in ASSET_IDS do
-		if not BLOCK_CELL[name] then -- a block-cell species never loads its old blockout id
+		if not BLOCK_CELL[name] and not BLOCK_CELL_PROPS[name] then -- a block-cell species or prop never loads its old blockout id
 			table.insert(names, name)
 		end
 	end
@@ -935,7 +1313,12 @@ local function main()
 		table.insert(cellNames, name)
 	end
 	table.sort(cellNames)
-	if #names == 0 and #cellNames == 0 then
+	local propNames: { string } = {}
+	for name in BLOCK_CELL_PROPS do
+		table.insert(propNames, name)
+	end
+	table.sort(propNames)
+	if #names == 0 and #cellNames == 0 and #propNames == 0 then
 		print("install_models: ASSET_IDS is empty; paste the output of `python3 tools/upload_assets.py --emit-luau`")
 		return
 	end
@@ -958,28 +1341,32 @@ local function main()
 			warn(("FAIL  %s <- %d  %s"):format(name, assetId, detail))
 		end
 	end
-	for _, name in cellNames do
-		local status, detail = installBlockCell(name, BLOCK_CELL[name], models)
-		if status == "ok" then
-			installed += 1
-			print(("ok    %s  (%s)"):format(name, detail))
-		elseif status == "wait" then
-			waiting += 1
-			table.insert(waitNames, name)
-		else
-			failed += 1
-			warn(("FAIL  %s  %s"):format(name, detail))
+	local function installCells(list: { string }, rows: { [string]: BlockCellRow }, target: Folder, isProp: boolean)
+		for _, name in list do
+			local status, detail = installBlockCell(name, rows[name], target, isProp)
+			if status == "ok" then
+				installed += 1
+				print(("ok    %s  (%s)"):format(name, detail))
+			elseif status == "wait" then
+				waiting += 1
+				table.insert(waitNames, name)
+			else
+				failed += 1
+				warn(("FAIL  %s  %s"):format(name, detail))
+			end
 		end
 	end
-	print(("install_models: %d installed, %d failed, %d block-cell species waiting for an import or upload, %d total"):format(
+	installCells(cellNames, BLOCK_CELL, models, false)
+	installCells(propNames, BLOCK_CELL_PROPS, props, true)
+	print(("install_models: %d installed, %d failed, %d block-cell species and props waiting for an import or upload, %d total"):format(
 		installed,
 		failed,
 		waiting,
-		#names + #cellNames
+		#names + #cellNames + #propNames
 	))
 	if #waitNames > 0 then
 		print(("waiting (not uploaded, not imported or selected): %s"):format(table.concat(waitNames, ", ")))
-		print("Import one with File > Import 3D (assets/models/<Id>/<Id>.fbx), select the Model it makes, and run this again.")
+		print("Import one with File > Import 3D (assets/models/<Id>/<Id>.fbx, or assets/models/props/<Name>/<Name>.fbx), select the Model it makes, and run this again.")
 	end
 	if failed > 0 then
 		print("A failure right after upload usually means the asset is still in moderation (up to a few hours); run again later.")

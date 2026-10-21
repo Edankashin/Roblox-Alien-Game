@@ -318,7 +318,8 @@ class BakedTextures(unittest.TestCase):
                     self.assertEqual(int.from_bytes(head[20:24], "big"), 512)
 
     def test_no_stray_texture_folder(self):
-        folders = {d.name for d in (ROOT / "assets/textures").iterdir() if d.is_dir()}
+        # blocky_tiles: the world's block-cell ground tiles (tools/blocky/world_tiles.py, Decision B44), not a Surface-pass set
+        folders = {d.name for d in (ROOT / "assets/textures").iterdir() if d.is_dir()} - {"blocky_tiles"}
         self.assertEqual(folders, set(TEXTURES))
 
 

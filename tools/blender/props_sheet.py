@@ -9,7 +9,8 @@ Two steps, because Blender's Python has no Pillow:
   $BPY tools/blender/props_sheet.py --out <scratch dir> [--size 520] [--samples 32]     # one lit PNG a row and rows.json (labels' places)
   python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/props_v1.jpg
 
-The rows: World 1's trees and rocks, World 1's small things, World 2, the landmarks, the camp. Each prop faces the camera as the game's
+The rows: World 1's trees and rocks, World 1's small things, World 2, the landmarks, the camp, each on a floor in its world's tone (a
+mid tone, so white snow and pale ice read against it). Each prop faces the camera as the game's
 front (the note's -Z), turned a little so its side shows.
 """
 from __future__ import annotations
@@ -25,13 +26,13 @@ ROOT = HERE.parent.parent
 PROPS = ROOT / "docs/vault/07-alien-game/Props"
 
 ROWS = [
-    ("World 1 Verdant: trees, rocks and the bigger scatter",
+    ("World 1 Verdant: trees, rocks and the bigger scatter", "#A9C98A",
      ["MeadowTree", "MeadowTreeB", "BlossomTree", "Boulder", "MeadowRock", "MeadowRockB", "Bush", "Log", "Mushroom"]),
-    ("World 1 Verdant: the small scatter and the paths", ["FlowerPatch", "LilyPad", "Reeds", "Fence", "Lantern", "Signpost"]),
-    ("World 2 Frostbyte", ["SnowPine", "SnowPineB", "IceSpire", "IceCrystalCluster", "IceRock", "IceRockB", "SnowBush", "FrozenLog",
+    ("World 1 Verdant: the small scatter and the paths", "#A9C98A", ["FlowerPatch", "LilyPad", "Reeds", "Fence", "Lantern", "Signpost"]),
+    ("World 2 Frostbyte", "#8EA2B4", ["SnowPine", "SnowPineB", "IceSpire", "IceCrystalCluster", "IceRock", "IceRockB", "SnowBush", "FrozenLog",
                            "SnowDrift", "Icicles", "IceLantern", "HeaterLamp"]),
-    ("Landmarks", ["CrashWreck", "CaveMouth", "IceCaveMouth", "GeyserVent", "GeyserCone"]),
-    ("The shrine and the camp", ["Shrine", "Pedestal", "ShrineStone", "ShipHull", "BuildStation", "GatherStation", "SparkStation"]),
+    ("Landmarks", "#B3AA94", ["CrashWreck", "CaveMouth", "IceCaveMouth", "GeyserVent", "GeyserCone"]),
+    ("The shrine and the camp", "#B3AA94", ["Shrine", "Pedestal", "ShrineStone", "ShipHull", "BuildStation", "GatherStation", "SparkStation"]),
 ]
 GAP = 1.5
 
@@ -47,7 +48,7 @@ def render_rows(out, size, samples):
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = []
-    for r, (title, names) in enumerate(ROWS):
+    for r, (title, floor, names) in enumerate(ROWS):
         scene = B.reset()
         objs = list(B.avatar((0, 0, 0), out_dir=out))
         x = 2.0 + GAP
@@ -61,15 +62,12 @@ def render_rows(out, size, samples):
             cx = -(lo[0] + hi[0]) / 2  # Blender X is the spec's -x: the bounds' centre lands on x
             made = B.build(spec, out, offset=(x - cx, -(lo[2] + hi[2]) / 2, 0.0), prefix="R%d%s_" % (r, name), cell=C.WORLD_CELL)
             objs += made["objects"]
-            for o in made["objects"]:
-                if o.name.endswith("Glow"):
-                    pass
             centres.append((name, x, hi[1]))
             x += w / 2 + GAP
             tallest = max(tallest, hi[1])
         aspect = max(2.0, round((x + 2.0) / tallest * 0.82, 2))
         cam, centre, extent = B.tq_camera(scene, objs, yaw=12.0, pitch=16.0, margin=1.08, aspect=aspect)
-        B.lit_setup(scene, size, samples, extent=extent, centre=centre)
+        B.lit_setup(scene, size, samples, floor_hex=floor, extent=extent, centre=centre)
         B.add_lights(scene, centre, extent)
         scene.render.resolution_x = int(size * aspect)
         scene.render.resolution_y = size
