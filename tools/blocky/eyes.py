@@ -867,6 +867,27 @@ design("kindle", "Uncommon", "kindle: a dark iris lit from below, two tongues of
     ".kiiiik.",
     "..kkkk..",
 ])
+# ------------------------------------------------------------------------------------------------ Roster w1_high (2026-10-21)
+# Added by the Roster w1_high batch, after the library above (kept above the __main__ guard so --list and --sheet see it).
+def _echo(k, n):
+    """Secret: a dark iris where rings of the one accent ripple outward from a lit core and fade as they go, like a note heard from far
+    away (Syrinx, the shadow goat with the pipes); a new ring is born every half cycle."""
+    g, body, inside, iris = _big_eye()
+    put(g, iris, "a")
+    spacing = 3.2
+    for x, y in iris:
+        r, _ = _polar(x, y)
+        wave = (r - spacing * k / n) % spacing
+        if r > 1.6 and wave < 0.95:
+            g[y][x] = "r" if r < 4.6 else "b"
+    put(g, disc(LW, LH, LC[0], LC[1] + 0.5, 1.4, 1.5) & iris, "r")
+    put(g, disc(LW, LH, LC[0], LC[1] + 0.5, 0.6, 0.6) & iris, "s")
+    put(g, {(3, 3), (4, 3), (3, 4)} & body, "w")
+    return g
+
+
+design("echo", "Secret", "echo: a dark iris where rings of the one accent ripple out from a lit core and fade, a note heard from far away",
+       draw=_echo, glint=(14, 3))
 
 
 if __name__ == "__main__":
