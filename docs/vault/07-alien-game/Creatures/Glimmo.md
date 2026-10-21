@@ -28,7 +28,7 @@ idle_render: "[[Glimmo_idle.png]]"
 
 A jelly firefly, 2.5 studs: a soft aqua jelly bell (the head, with the face) hovering with a yellow belly under it, three thin dark tendrils hanging from the bell that brush the grass, a firefly's yellow bulb curling up behind it like a tail in two steps with a dark firefly band round it, and two broad dark wing covers, a stud deep, hinged at its crown and lifted like a beetle about to fly. Concept row in `src/shared/data/Species.luau`: "jelly firefly". Element and effect: [[Roster-Redesign]] section 2 (Light; the bulb blinks every 3 s). Rules: [[Blocky-Style]].
 
-**What makes a player want it.** It is the night one: a jelly that floats at head height and blinks, the first thing a player sees move at dusk. B46: its own `button` eyes with a firefly-yellow iris, as if the bulb's light were in its eyes too, and a small smile. A Common has no glow region and no light, so the bulb is painted in the accent yellow and the game's Effects row does the blinking; everything above it on the ladder adds real light.
+**What makes a player want it.** It is the night one: a jelly that floats at head height and blinks, the first thing a player sees move at dusk. B46: its own `plush` eyes, round sewn buttons in its own dark teal like a plush toy's, and a small smile. A Common has no glow region and no light, so the bulb is painted in the accent yellow and the game's Effects row does the blinking; everything above it on the ladder adds real light.
 
 **Hero block.** The `Bulb`, a firefly's yellow lantern curling up behind the bell in two steps, unique in Verdant (Lantrin's lamp is a caged ball on a tail).
 
@@ -69,12 +69,12 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `button`, a Common design, a round iris button with two holes and a shine, the iris in the firefly yellow (the accent), so the bulb's light seems to be in its eyes too. At 16 pixels a stud on a 1.75 x 1 stud plate (28 x 16 pixels, three frames). A small smile and blush cheeks (round one tried an "o" mouth for wonder; at 16 pixels a stud it read as a sparkle, not a mouth). In World 1 only Glim wears `button`.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `plush`, a Common design added by Polish w1, a round sewn button (an octagon at 16 pixels a stud) with two holes and a shine, the iris in its own dark teal (the second colour). It wore `button` with a firefly-yellow iris until Polish w1: the square yellow buttons read as two lit screens. At 16 pixels a stud on a 1.75 x 1 stud plate (28 x 16 pixels, three frames). A small smile and blush cheeks (round one tried an "o" mouth for wonder; at 16 pixels a stud it read as a sparkle, not a mouth). In World 1 only Glim wears `plush`.
 
 ```yaml
 eyes:
-  key: button
-  colours: {iris: accent}
+  key: plush
+  colours: {iris: second}
   mouth: smile
   cheeks: blush
   plate: [1.75, 1]
@@ -122,3 +122,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, four rounds. Round 1: a cube with two crystal wings at the crown read as ears, the three tendrils as legs, and the bulb hung behind where the camera never saw it. Round 2: a bell with a flared rim and a cap step, which put it at 0.71 against Moop. Round 3: no rim, no cap; the bulb curls up behind the bell like a tail where the three-quarter and the game camera see it, a yellow belly under the bell, and wing covers lifted 25 degrees; five wing-cover variants scored on the silhouette alone (steep, flat, low, long, none), the long pair the only one under 0.68. Round 4: the covers half as deep. Wanted for: the night one, a jelly that blinks. Still cheap: the covers read as two sticks from a distance and the jelly reads as an aqua box; the blink is all Effects.luau's. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, two rounds. Already in the band (2.5 studs), so no resize: the work is the face and the motion. Round 1: the library's `button` with the iris in the firefly yellow, so the bulb's light seems to be in its eyes, and an "o" mouth for wonder, which at 16 pixels a stud read as a sparkle; round 2 a small smile. A dark firefly band round the bulb (10 blocks of the Common 12), four moving objects (the covers flick out of step, the bulb swings on its root, the front tendrils trail as one) and the blink, the bell pulsing 5 percent. Overlap 0.996 to 0.997, 214 triangles. Wanted for: the night one, now with lantern eyes. Still weak: the button eyes are square and read a little like screens; the bulb band sits behind the bell where the three-quarter camera barely sees it. Status review.
+- 2026-10-21, Polish w1, two rounds. The square yellow `button` eyes read as two lit screens. Round 1 kept `button` with the iris in the dark teal: no longer lit, still square. Round 2: a new Common eye, `plush` (appended to the eye library under Polish w1), an octagon with two holes and a shine, a plush toy's sewn button, in the dark teal. 10 blocks, unchanged. Overlap 0.996 to 0.997. Honest read: round dark button eyes, a plush toy's; the firefly yellow stays on the bulb, where the light is. Status review.

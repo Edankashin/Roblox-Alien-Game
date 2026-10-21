@@ -8,8 +8,8 @@ tier: Uncommon
 status: review
 element: Light
 height: 2.75
-blocks: 16
-tris: 302
+blocks: 20
+tris: 350
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#9FD9A6", "#2F6B4F", "#C9803E", "#14221A"]
@@ -20,13 +20,13 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Snailbyte_sheet.svg]]"
 render: "[[Snailbyte_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.998, 0.996, 0.997]
+overlap: [0.997, 0.998, 0.999, 0.997]
 cells_render: "[[Snailbyte_tq_cells.jpg]]"
 idle_render: "[[Snailbyte_idle.png]]"
 ---
 # Snailbyte (Snibble), Uncommon, World 1 Verdant
 
-A mint-green snail whose shell is a copper machine, 2.75 studs: a square soft head with the face at the front of a broad, flat, dark foot, two feelers leaning out with round knobs on their tips, and behind the head a riveted copper shell that is a stepped spiral standing edge-on, taller than the head and off to its left, the whole coil turned 20 degrees so its face looks toward the camera: a disc with the whorl drawn in cells on its flat faces, an outer turn of riveted panels winding round it in four steps that taper from the thick base behind the dark mouth to a thin lip down the front, and an aerial with a little dish (and a feed horn on it) on the foot's right shoulder. Concept row in `src/shared/data/Species.luau`: "snail, metal shell". Element and effect: [[Roster-Redesign]] section 2 (Light; a glint sweeps the shell every 4 s). Rules: [[Blocky-Style]].
+A mint-green snail whose shell is a copper machine, 2.75 studs: a square soft head with the face at the front of a broad, flat, dark foot, two feelers leaning out with round knobs on their tips, and behind the head a riveted copper shell that is a stepped spiral standing edge-on, taller than the head and off to its left, the whole coil turned 20 degrees so its face looks toward the camera: a disc with the whorl drawn in cells on its flat faces and a dark groove winding in from its rim on the camera's side, an outer turn of riveted panels winding round it in four steps that taper from the thick base behind the dark mouth to a thin lip down the front, and a tall aerial with a little dish tipped up toward the front and the right, a dark cup in it and a feed horn standing out of it, on the foot's right shoulder. Concept row in `src/shared/data/Species.luau`: "snail, metal shell". Element and effect: [[Roster-Redesign]] section 2 (Light; a glint sweeps the shell every 4 s). Rules: [[Blocky-Style]].
 
 **What makes a player want it.** It is the first thing on the meadow that is partly a machine: a snail that built itself a copper shell with an aerial, which says someone could fix a ship with it. B46: its own `droplet` eyes, copper dewdrops with a light band at their foot (the machine and the dew in one), its dish turning slowly as it listens and its feelers waving out of step. The Uncommon rung exactly: a two-tone body (mint over the dark foot), one secondary block (the shell) and one touch of a second colour (the copper on the shell, the dish and the eyes).
 
@@ -63,11 +63,18 @@ parts:
   - {name: ShellTop, slot: Accessory, size: [0.75, 0.375, 1.5], at: [-0.875, 2.5625, 0.75], rot: [0, 20, 0], material: metal}
   - {name: ShellLip, slot: Accessory, size: [0.75, 0.625, 0.25], at: [-1.1875, 2.0625, -0.0625], rot: [0, 20, 0], material: metal}
   - {name: Mouth, slot: BodyDark, size: [0.75, 0.625, 0.25], at: [-1.0625, 0.5625, 0.1875], rot: [0, 20, 0]}
+  # Polish w1: the whorl in the cells was faint from the review angle, so a dark groove winds in from the core's camera-side rim in three
+  # eighth-stud bars proud of its face (over the top, down the back, in along the bottom), turned with the coil, with the cell whorl inside
+  - {name: Groove, slot: BodyDark, size: [0.125, 0.125, 1], at: [-0.3125, 2.125, 0.5625], rot: [0, 20, 0]}
+  - {name: Groove2, slot: BodyDark, size: [0.125, 1.125, 0.125], at: [-0.125, 1.625, 1], rot: [0, 20, 0]}
+  - {name: Groove3, slot: BodyDark, size: [0.125, 0.125, 0.75], at: [-0.25, 1.125, 0.625], rot: [0, 20, 0]}
   # an aerial and a little dish with a feed horn on the right shoulder of the foot, where the three-quarter camera sees them beside the head;
-  # the dish turns on the aerial
-  - {name: Aerial, slot: BodyDark, size: [0.125, 0.75, 0.125], at: [1.4375, 0.75, 0.4375], material: metal}
-  - {name: Dish, slot: Accessory, size: [0.5, 0.125, 0.5], at: [1.5, 1.1875, 0.5], material: metal, moves: dish, pivot: [1.4375, 1.125, 0.4375]}
-  - {name: Horn, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [1.5625, 1.375, 0.5625], material: metal, moves: dish, pivot: [1.4375, 1.125, 0.4375]}
+  # the dish turns on the aerial. Polish w1: the flat dish on its post read as a table; it now tips 25 degrees up toward the front and the
+  # right (rot x and z) on a taller aerial, with a dark cup in its middle and the feed horn standing out of it along the dish's axis
+  - {name: Aerial, slot: BodyDark, size: [0.125, 1, 0.125], at: [1.5625, 0.75, 0.4375], material: metal}
+  - {name: Dish, slot: Accessory, size: [0.5, 0.125, 0.5], at: [1.5625, 1.3125, 0.4375], rot: [-25, 0, -25], material: metal, moves: dish, pivot: [1.5625, 1.25, 0.4375]}
+  - {name: DishCup, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [1.5625, 1.375, 0.4375], rot: [-25, 0, -25], moves: dish, pivot: [1.5625, 1.25, 0.4375]}
+  - {name: Horn, slot: BodyDark, size: [0.125, 0.375, 0.125], at: [1.6875, 1.5, 0.3125], rot: [-25, 0, -25], material: metal, moves: dish, pivot: [1.5625, 1.25, 0.4375]}
 ```
 
 ## Face
@@ -135,3 +142,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, four rounds. Round 1: a shell in three centred steps behind the head: a ziggurat, 0.83 against Moop. Round 2: shifted right with a wide foot, 0.73. Round 3: the shell as a tall coil stood edge-on (1 stud wide, 1.75 tall) off to one side, the head offset the other way, the foot wide: 0.68. Round 4: the coil to its left (Pebblet's cairn leans right) and a second step on top. Wanted for: a snail that built itself a copper machine. Still cheap: the coil reads as a riveted tower, not a spiral (a whorl needs cells drawn on the face, a later motif); the dish is hidden from the three-quarter camera. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, one round. In the band already (2.75 studs). Mint knobs on the feeler tips and a feed horn on the dish bring it to 16 blocks (the Uncommon band is 10 to 20). Its own `droplet` eyes, copper dewdrops with a light-copper band at their foot, the machine and the dew in one, with a small smile. Three moving objects and the blink: the feelers wave out of step, the dish turns once in 8 s on its aerial as it listens, the body creeps (a 3 percent stretch along its length). Overlap 0.996 to 0.998, 302 triangles; worst silhouette pair 0.686 (Moop): the closest pair in the batch, still under 0.7. Wanted for: a snail that built itself a copper machine, now with copper eyes and a turning dish. Still weak: the dish on its aerial reads as a little table or a mushroom from the three-quarter view, and the shell's whorl is faint in daylight. Status review.
+- 2026-10-21, Polish w1, four rounds. Two weak spots. The flat dish on its post read as a table: it now tips 25 degrees up toward the front and the right on an aerial a quarter taller, with a dark cup in its middle and the feed horn standing out along its axis. Every dish that faces the camera fills the right of the front silhouette: tilted at the old height it hit 0.70 to 0.706 against Moop; raised on the taller aerial it is 0.697, under the line with no margin. The whorl was faint: three dark eighth-stud bars wind in from the core's camera-side rim (over the top, down the back, in along the bottom), turned with the coil, round the cell whorl. 20 blocks (Uncommon 10 to 20, at the cap). Overlap 0.997 to 0.999. Honest read: a satellite dish now, small; the groove makes the coil read as a spiral from the review angle, though three bars are a start of a spiral, not a whole one (the cap allows no more). Status review.

@@ -921,6 +921,18 @@ def _starlit(k, n):
 
 design("starlit", "Legendary", "starlit: big layered rings that breathe outward round a four-point star pupil, three stars twinkling in turn",
        draw=_starlit, glint=(18, 4))
+# `plush` (Common): `button` is 7 x 7 with clipped corners, and on Glim it read as two little screens; this one is an octagon, rounder at 16
+# pixels a stud, a plush toy's sewn button with two holes and a shine.
+design("plush", "Common", "plush: a round sewn button, two holes, a shine", rows=[
+    "..kkkk..",
+    ".kwiiik.",
+    "kwwiiiik",
+    "kiiiiiik",
+    "kikiikik",
+    "kiiiiiik",
+    ".kiiiik.",
+    "..kkkk..",
+])
 
 
 if __name__ == "__main__":
