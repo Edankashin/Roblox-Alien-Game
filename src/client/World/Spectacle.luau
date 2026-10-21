@@ -68,6 +68,7 @@ local SPRITE_HALO = "PixelHalo"
 local SPRITE_PUFF = "PixelPuff"
 local GROUND_PROBE = 4 -- studs above a wander point the ground ray starts, and twice that its length
 local VIGNETTE_Z = 50
+local BEACON_RANGE = 1e6 -- studs: a beacon is seen from the whole map (the ranking only keeps the nearest few)
 
 type Pose = { offset: Vector3, yaw: number, pitch: number, roll: number }
 
@@ -97,7 +98,8 @@ type Record = {
 	home: Vector3, -- the feet where the server placed it
 	baseYaw: number,
 	seed: number,
-	shown: boolean,
+	shown: boolean, -- drawn in colour: not hidden by the blizzard and not a silhouette (the presence wears its species' colour)
+	visible: boolean, -- not hidden by the blizzard (a silhouette's beacon still stands: it is in the tier's colour, not the species')
 	setVeil: (boolean) -> (),
 	veiled: boolean,
 	-- personality
@@ -411,7 +413,7 @@ local function stepBeacon(record: Record, now: number, still: boolean)
 		dropBeacon(record)
 		return
 	end
-	beacon.beam.Enabled = record.beaconWanted and record.shown and not record.veiled
+	beacon.beam.Enabled = record.beaconWanted and record.visible and not record.veiled
 	-- the top fades out, so the column reads as light rising rather than a pole
 	beacon.beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, alpha), NumberSequenceKeypoint.new(1, 1) })
 end
@@ -1111,7 +1113,14 @@ local function recheck(now: number)
 		distances[index] = d
 	end
 	EffectsMath.PickActive(distances, maxPresence, Effects.Caps.ActiveDistance, picked)
-	EffectsMath.PickActive(distances, maxBeacons, math.huge, beaconPicked)
+	for index, record in ipairs(list) do
+		local d = math.huge
+		if camera and record.visible and record.part.Parent and SpectacleMath.Arrival(record.tier).beacon ~= 0 then
+			d = (record.home - camera.CFrame.Position).Magnitude
+		end
+		distances[index] = d
+	end
+	EffectsMath.PickActive(distances, maxBeacons, BEACON_RANGE, beaconPicked)
 	for index, record in ipairs(list) do
 		local on = picked[index] == true and not record.veiled
 		if on ~= record.active then
@@ -1425,6 +1434,7 @@ function Spectacle.Track(part: Part, info: TrackInfo)
 		baseYaw = yaw,
 		seed = rng:NextNumber(),
 		shown = true,
+		visible = true,
 		setVeil = info.setVeil,
 		veiled = false,
 		yaw = 0,
@@ -1496,13 +1506,16 @@ function Spectacle.PoseOf(part: Part): (Vector3, number, number, number)
 	return pose.offset, pose.yaw, pose.pitch, pose.roll
 end
 
--- The alien is drawn (true) or hidden (a blizzard, a silhouette): a hidden one wears no presence and no beacon.
-function Spectacle.SetShown(part: Part, shown: boolean)
+-- The alien is drawn in colour (`shown`: not hidden, not a silhouette) and at all (`visible`: not hidden by the blizzard). A
+-- silhouette wears no presence (its colour would give the species away) but keeps its beacon (the tier's colour); a hidden one
+-- wears neither.
+function Spectacle.SetShown(part: Part, shown: boolean, visible: boolean)
 	local record = records[part]
-	if not record or record.shown == shown then
+	if not record or (record.shown == shown and record.visible == visible) then
 		return
 	end
 	record.shown = shown
+	record.visible = visible
 	lastRecheck = -math.huge
 end
 

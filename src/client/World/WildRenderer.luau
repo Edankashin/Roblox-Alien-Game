@@ -294,7 +294,7 @@ end
 local function syncFx(record: Record)
 	local shown = not record.hidden and not record.shadowed and not Spectacle.IsVeiled(record.part)
 	SpeciesFx.SetShown(record.fxTarget, shown)
-	Spectacle.SetShown(record.part, not record.hidden and not record.shadowed)
+	Spectacle.SetShown(record.part, not record.hidden and not record.shadowed, not record.hidden)
 end
 
 local function applyShadow(record: Record)
