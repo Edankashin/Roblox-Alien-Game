@@ -1,26 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Wood",
-    "hex": "8B5A2B",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "C99A5B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "BuildStation_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Plank",
-    "hex": "C99A5B",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "8B5A2B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "BuildStation_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Metal",
+    "name": "Accessory",
+    "hex": "8FD3FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "BuildStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
     "hex": "8A93A0",
-    "roughness": 0.5,
-    "metallic": 0.4,
-    "emission": 0.0
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "BuildStation_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "FFC86B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

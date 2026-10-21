@@ -1,0 +1,32 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "FF9EC4",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "BlossomTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "6B3F2A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "BlossomTree_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "FFE3EE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "BlossomTree_atlas.png",
+    "pixelated": true
+  }
+]

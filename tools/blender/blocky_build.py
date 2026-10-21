@@ -195,17 +195,17 @@ def add_part(bm, part, pivot, mat_index, seg, width, uv, atlas=None):
 
 
 def build(spec, out_dir, cycle=False, glow=GLOW_BUILD, offset=(0.0, 0.0, 0.0), prefix="", flat=False, cell=None, rot=(0.0, 0.0, 0.0),
-          hidden_by=()):
+          hidden_by=(), px=None):
     """Make the creature's (or prop's) objects in the current scene, every face on its cell atlas. Returns {'objects': [...], 'tris': n,
     'atlas': (w, h)}. `flat` paints the atlas in flat slot colours (the look before B44); `rot` (Blender XYZ Euler, radians) turns the whole
-    build about its origin before `offset` (Blender space) moves it; `hidden_by` (spec boxes) cull faces without being built."""
+    build about its origin before `offset` (Blender space) moves it; `hidden_by` (spec boxes) cull faces without being built; `px` (texels a cell) overrides cells.texels (a big prop at 4 so its atlas fits 1024)."""
     front = spec["front"]
     sid = front["id"]
     seg = int(front.get("bevel_segments") or 2)
     width = float(front.get("bevel_width") or 0.0)
     parts = S.expand(spec["parts"])
     pal = S.palette(spec)
-    atlas = cell_atlas(spec, parts, out_dir, prefix + sid, cell, flat, hidden_by=hidden_by)
+    atlas = cell_atlas(spec, parts, out_dir, prefix + sid, cell, flat, hidden_by=hidden_by, px=px)
     mats = {}
 
     def material_for(p):

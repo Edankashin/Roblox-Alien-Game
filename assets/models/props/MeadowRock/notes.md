@@ -1,14 +1,15 @@
-# MeadowRock prop
+# MeadowRock block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/props_base.py, bpy 5.2.2 LTS
-- What: Lumpy grey boulder
-- Footprint (W x D x H, studs): 4.00 x 4.00 x 2.80 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 2.80; pivot at the bottom centre (origin), the model stands on z = 0
-- Triangles: 320 (budget 300 to 900)
-- Colours / materials (one per colour, flat, no textures): Rock #8E8E8E
-- Shading: flat; rocks and crowns carry a slight seeded vertex jitter, so a re-run reproduces the same file
-- Files: MeadowRock.glb (20928 bytes), MeadowRock.fbx (23452 bytes)
-- Studio import: File -> Import 3D on the GLB, scale 1, one MeshPart per material, rename the Model to exactly `MeadowRock`, parent under ReplicatedStorage.Models.Props, Anchored on. See docs/vault/06-art-pipelines/Map-Dressing.md.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/MeadowRock.md (Mossy rock, World 1, status build)
+- Footprint (W x D x H, studs): 4.75 x 3 x 3.125; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 7
+- Triangles: 72 (budget 300)
+- Collision: Hull (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 8 texels a cell, atlas MeadowRock_atlas.png 256x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells)
+- Files: MeadowRock.glb (14904 bytes), MeadowRock.fbx (35740 bytes, texture embedded), MeadowRock_atlas.png, materials.json, MeadowRock.png and MeadowRock_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
 
-Blockout tier: a procedural stand-in. Replace with a hand-modelled mesh of the same footprint and pivot when one exists.
+Regenerate with `$BPY tools/blocky/export_models.py --props MeadowRock`; check with `python3 -I tools/blocky/export_models.py --check --props MeadowRock`.

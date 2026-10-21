@@ -1,14 +1,15 @@
-# SparkStation prop
+# SparkStation block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/props_base.py, bpy 5.2.2 LTS
-- What: Glow flower: green stem, six purple petals, emissive centre ball
-- Footprint (W x D x H, studs): 2.12 x 1.95 x 4.00 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 4.00; pivot at the bottom centre (origin), the model stands on z = 0
-- Triangles: 716 (budget 300 to 900)
-- Colours / materials (one per colour, flat, no textures): Stem #3F9B3A, Petal #A855F7, Glow #FFC83D (emissive 2.0)
-- Shading: flat; rocks and crowns carry a slight seeded vertex jitter, so a re-run reproduces the same file
-- Files: SparkStation.glb (50512 bytes), SparkStation.fbx (31788 bytes)
-- Studio import: File -> Import 3D on the GLB, scale 1, one MeshPart per material, rename the Model to exactly `SparkStation`, parent under ReplicatedStorage.Models.Props, Anchored on. See docs/vault/06-art-pipelines/Map-Dressing.md.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/SparkStation.md (Glow flower, World 0, status build)
+- Footprint (W x D x H, studs): 2.275 x 1.75 x 4.5; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 12
+- Triangles: 122 (budget 260)
+- Collision: None (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 8 texels a cell, atlas SparkStation_atlas.png 256x256, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Glow` (Neon, no map)
+- Files: SparkStation.glb (15888 bytes), SparkStation.fbx (38348 bytes, texture embedded), SparkStation_atlas.png, materials.json, SparkStation.png and SparkStation_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
 
-Blockout tier: a procedural stand-in. Replace with a hand-modelled mesh of the same footprint and pivot when one exists.
+Regenerate with `$BPY tools/blocky/export_models.py --props SparkStation`; check with `python3 -I tools/blocky/export_models.py --check --props SparkStation`.

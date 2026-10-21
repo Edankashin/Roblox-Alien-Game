@@ -1,10 +1,32 @@
 [
   {
     "slot": 1,
-    "name": "Rock",
-    "hex": "8E8E8E",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "9E9E8E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "MeadowRock_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "7C7C6E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MeadowRock_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "6CB04A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "MeadowRock_atlas.png",
+    "pixelated": true
   }
 ]

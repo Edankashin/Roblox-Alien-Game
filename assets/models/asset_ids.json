@@ -3,6 +3,15 @@
     "assetId": 116557614446597,
     "file": "assets/models/props/BuildStation/BuildStation.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/BuildStation/BuildStation.glb",
+        "assets/models/props/BuildStation/BuildStation_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only BuildStation`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:42:53Z"
   },
   "Buzzlebee": {
@@ -41,6 +50,15 @@
     "assetId": 139357272098761,
     "file": "assets/models/props/CaveMouth/CaveMouth.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/CaveMouth/CaveMouth.glb",
+        "assets/models/props/CaveMouth/CaveMouth_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only CaveMouth`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:43:17Z"
   },
   "Chipmole": {
@@ -63,6 +81,15 @@
     "assetId": 128799758462514,
     "file": "assets/models/props/CrashWreck/CrashWreck.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/CrashWreck/CrashWreck.glb",
+        "assets/models/props/CrashWreck/CrashWreck_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only CrashWreck`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:43:40Z"
   },
   "Drippo": {
@@ -181,18 +208,45 @@
     "assetId": 71653599018169,
     "file": "assets/models/props/GatherStation/GatherStation.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/GatherStation/GatherStation.glb",
+        "assets/models/props/GatherStation/GatherStation_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GatherStation`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:44:47Z"
   },
   "GeyserCone": {
     "assetId": 105526893549220,
     "file": "assets/models/props/GeyserCone/GeyserCone.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/GeyserCone/GeyserCone.glb",
+        "assets/models/props/GeyserCone/GeyserCone_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GeyserCone`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:44:56Z"
   },
   "GeyserVent": {
     "assetId": 116657722898068,
     "file": "assets/models/props/GeyserVent/GeyserVent.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/GeyserVent/GeyserVent.glb",
+        "assets/models/props/GeyserVent/GeyserVent_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GeyserVent`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:45:05Z"
   },
   "Glimmo": {
@@ -231,30 +285,75 @@
     "assetId": 97262154954837,
     "file": "assets/models/props/HeaterLamp/HeaterLamp.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/HeaterLamp/HeaterLamp.glb",
+        "assets/models/props/HeaterLamp/HeaterLamp_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only HeaterLamp`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:45:26Z"
   },
   "IceCaveMouth": {
     "assetId": 130501861307704,
     "file": "assets/models/props/IceCaveMouth/IceCaveMouth.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/IceCaveMouth/IceCaveMouth.glb",
+        "assets/models/props/IceCaveMouth/IceCaveMouth_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceCaveMouth`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:45:35Z"
   },
   "IceRock": {
     "assetId": 78265443687401,
     "file": "assets/models/props/IceRock/IceRock.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/IceRock/IceRock.glb",
+        "assets/models/props/IceRock/IceRock_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceRock`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:45:40Z"
   },
   "IceRockB": {
     "assetId": 77643303762233,
     "file": "assets/models/props/IceRockB/IceRockB.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/IceRockB/IceRockB.glb",
+        "assets/models/props/IceRockB/IceRockB_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceRockB`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:45:54Z"
   },
   "IceSpire": {
     "assetId": 140159828144638,
     "file": "assets/models/props/IceSpire/IceSpire.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/IceSpire/IceSpire.glb",
+        "assets/models/props/IceSpire/IceSpire_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceSpire`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:46:09Z"
   },
   "Kettlepuff": {
@@ -293,24 +392,60 @@
     "assetId": 126312792013094,
     "file": "assets/models/props/MeadowRock/MeadowRock.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/MeadowRock/MeadowRock.glb",
+        "assets/models/props/MeadowRock/MeadowRock_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowRock`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:46:41Z"
   },
   "MeadowRockB": {
     "assetId": 85324815639574,
     "file": "assets/models/props/MeadowRockB/MeadowRockB.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/MeadowRockB/MeadowRockB.glb",
+        "assets/models/props/MeadowRockB/MeadowRockB_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowRockB`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:47:03Z"
   },
   "MeadowTree": {
     "assetId": 132093254516280,
     "file": "assets/models/props/MeadowTree/MeadowTree.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/MeadowTree/MeadowTree.glb",
+        "assets/models/props/MeadowTree/MeadowTree_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowTree`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:47:17Z"
   },
   "MeadowTreeB": {
     "assetId": 107521506795657,
     "file": "assets/models/props/MeadowTreeB/MeadowTreeB.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/MeadowTreeB/MeadowTreeB.glb",
+        "assets/models/props/MeadowTreeB/MeadowTreeB_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowTreeB`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:47:31Z"
   },
   "Mossbop": {
@@ -381,6 +516,15 @@
     "assetId": 84066445173923,
     "file": "assets/models/props/Pedestal/Pedestal.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/Pedestal/Pedestal.glb",
+        "assets/models/props/Pedestal/Pedestal_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only Pedestal`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:48:16Z"
   },
   "Pengoo": {
@@ -499,18 +643,45 @@
     "assetId": 123730962666508,
     "file": "assets/models/props/ShipHull/ShipHull.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/ShipHull/ShipHull.glb",
+        "assets/models/props/ShipHull/ShipHull_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only ShipHull`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:49:44Z"
   },
   "Shrine": {
     "assetId": 85357251439418,
     "file": "assets/models/props/Shrine/Shrine.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/Shrine/Shrine.glb",
+        "assets/models/props/Shrine/Shrine_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only Shrine`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:49:53Z"
   },
   "ShrineStone": {
     "assetId": 119263598508312,
     "file": "assets/models/props/ShrineStone/ShrineStone.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/ShrineStone/ShrineStone.glb",
+        "assets/models/props/ShrineStone/ShrineStone_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only ShrineStone`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:49:58Z"
   },
   "Skaddle": {
@@ -549,6 +720,15 @@
     "assetId": 97187940926297,
     "file": "assets/models/props/SnowPine/SnowPine.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/SnowPine/SnowPine.glb",
+        "assets/models/props/SnowPine/SnowPine_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only SnowPine`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:50:23Z"
   },
   "Snowbun": {
@@ -571,6 +751,15 @@
     "assetId": 71629414883882,
     "file": "assets/models/props/SparkStation/SparkStation.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/props/SparkStation/SparkStation.glb",
+        "assets/models/props/SparkStation/SparkStation_atlas.png"
+      ],
+      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only SparkStation`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-06T04:50:37Z"
   },
   "Sparkfox": {

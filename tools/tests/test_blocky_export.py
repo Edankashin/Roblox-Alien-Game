@@ -212,5 +212,85 @@ class TheRepo(unittest.TestCase):
                 self.assertNotIn("assetId", entry["pendingUpload"])
 
 
+PID = "MeadowTree"
+PROP_SOURCE = ROOT / "assets/models/props" / PID
+PROP_EXPORTED = (PROP_SOURCE / (PID + "_atlas.png")).exists()
+
+
+@unittest.skipUnless(PROP_EXPORTED, "assets/models/props/MeadowTree is not a block-cell export in this checkout")
+class CheckPropFolder(unittest.TestCase):
+    """The --props route: a copy of one exported prop broken one way at a time, and check_prop_folder must name each fault."""
+    @classmethod
+    def setUpClass(cls):
+        cls.spec = S.load(ROOT / "docs/vault/07-alien-game/Props" / (PID + ".md"))
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.folder = pathlib.Path(self._tmp.name) / PID
+        shutil.copytree(PROP_SOURCE, self.folder)
+        self.glb = self.folder / (PID + ".glb")
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def assertNamed(self, words, spec=None):
+        found = X.check_prop_folder(self.folder, spec or self.spec)
+        self.assertTrue(any(words in p for p in found), "expected %r in %r" % (words, found))
+
+    def test_the_real_export_is_clean(self):
+        self.assertEqual(X.check_prop_folder(self.folder, self.spec), [])
+
+    def test_a_missing_atlas(self):
+        (self.folder / (PID + "_atlas.png")).unlink()
+        self.assertNamed("missing %s_atlas.png" % PID)
+
+    def test_lifted_off_the_ground(self):
+        def lift(d):
+            for n in d["nodes"]:
+                n["translation"] = [0.0, 0.5, 0.0]
+        repack(self.glb, lift)
+        self.assertNamed("stands at y = 0.5000")
+
+    def test_a_slot_mesh_renamed(self):
+        repack(self.glb, lambda d: node(d, "BodyDark").update(name="Trunk"))
+        self.assertNamed("the note's slots make")
+
+    def test_over_the_budget(self):
+        spec = dict(self.spec, front=dict(self.spec["front"], budget=50))
+        self.assertNamed("over the note's budget of 50", spec)
+
+    def test_a_collision_off_the_list(self):
+        spec = dict(self.spec, front=dict(self.spec["front"], collision="Mesh"))
+        self.assertNamed("collision 'Mesh'", spec)
+
+    def test_a_colour_that_is_not_the_notes(self):
+        entries = json.loads((self.folder / "materials.json").read_text())
+        entries[0]["hex"] = "000000"
+        (self.folder / "materials.json").write_text(json.dumps(entries))
+        self.assertNamed("materials.json Body is 000000")
+
+
+class TheRepoProps(unittest.TestCase):
+    def test_every_exported_prop_passes_the_check(self):
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = X.run_prop_check()
+        self.assertEqual(code, 0, out.getvalue())
+
+    def test_the_prop_list_is_the_brief(self):
+        ready, skipped = X.prop_roster()
+        self.assertEqual(skipped, [])
+        self.assertEqual(len(ready), 39)
+
+    def test_the_installers_block_cell_props_table_is_fresh(self):
+        source = (ROOT / "tools/studio/install_models.luau").read_text()
+        start = source.index("-- BEGIN BLOCK-CELL PROPS PASTE")
+        start = source.index("\n", start) + 1
+        end = source.index("-- END BLOCK-CELL PROPS PASTE")
+        self.assertEqual(source[start:end].strip(), X.emit_luau_props().strip(),
+                         "paste `python3 -I tools/blocky/export_models.py --emit-luau --props` into tools/studio/install_models.luau")
+        self.assertNotRegex(X.emit_luau_props(), r"(cellMap|faceMap) = [1-9]")
+
+
 if __name__ == "__main__":
     unittest.main()

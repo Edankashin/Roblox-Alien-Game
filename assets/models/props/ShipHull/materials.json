@@ -1,26 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Plate",
-    "hex": "5B6472",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "7A8494",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "ShipHull_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Lip",
-    "hex": "8A93A0",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "3A4049",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "ShipHull_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Feet",
-    "hex": "3A4049",
-    "roughness": 0.8,
+    "name": "Accessory",
+    "hex": "FFC83D",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "ShipHull_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "B8C2CF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "ShipHull_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "68C9FE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

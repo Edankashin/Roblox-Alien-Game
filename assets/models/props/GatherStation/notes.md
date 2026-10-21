@@ -1,14 +1,15 @@
-# GatherStation prop
+# GatherStation block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/props_base.py, bpy 5.2.2 LTS
-- What: Picnic table: top at 1.5, two seat planks each side at 0.7, A-frame legs
-- Footprint (W x D x H, studs): 6.00 x 3.00 x 1.50 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 1.50; pivot at the bottom centre (origin), the model stands on z = 0
-- Triangles: 668 (budget 300 to 900)
-- Colours / materials (one per colour, flat, no textures): Top #FFC83D, Legs #A0722C
-- Shading: flat; rocks and crowns carry a slight seeded vertex jitter, so a re-run reproduces the same file
-- Files: GatherStation.glb (32480 bytes), GatherStation.fbx (22684 bytes)
-- Studio import: File -> Import 3D on the GLB, scale 1, one MeshPart per material, rename the Model to exactly `GatherStation`, parent under ReplicatedStorage.Models.Props, Anchored on. See docs/vault/06-art-pipelines/Map-Dressing.md.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/GatherStation.md (Picnic table, World 0, status build)
+- Footprint (W x D x H, studs): 6 x 4 x 2.375; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 18
+- Triangles: 192 (budget 320)
+- Collision: None (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 8 texels a cell, atlas GatherStation_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Trim` (cells); `Glow` (Neon, no map)
+- Files: GatherStation.glb (26192 bytes), GatherStation.fbx (48796 bytes, texture embedded), GatherStation_atlas.png, materials.json, GatherStation.png and GatherStation_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
 
-Blockout tier: a procedural stand-in. Replace with a hand-modelled mesh of the same footprint and pivot when one exists.
+Regenerate with `$BPY tools/blocky/export_models.py --props GatherStation`; check with `python3 -I tools/blocky/export_models.py --check --props GatherStation`.

@@ -81,6 +81,12 @@ World 2 Frostbyte's set, all in the snowfield diorama (`tools/blender/blocky_sce
 - [[IceArch]]: the Ice Cave's mouth, two ice pillars under a stepped lintel with icicles, the cave's dark behind.
 - [[Heater]]: the camp's heater, a steel drum with a lit grate, the world's one warm light.
 
+The game's props in block cells (2026-10-21; the names `Shared/Props` looks up, exported by `tools/blocky/export_models.py --props` into `assets/models/props/`, a row each in `data/Props.luau`; the sheet `media/studio/2026-10-21/props_v1.jpg`, the rules in [[Blocky-Style]] "Props and the world tiles in block cells"):
+
+- World 1 Verdant: [[MeadowTree]] (an oak with yellow fruit), [[MeadowTreeB]] (a tall tiered tree), [[BlossomTree]] (pink, petals on the ground), [[MeadowRock]], [[MeadowRockB]] (a flat rock with daisies), [[Boulder]] (climbable, two glowing mushrooms on a ledge), [[FlowerPatch]], [[Bush]] (berries), [[Mushroom]] (a spotted toadstool), [[07-alien-game/Props/Log|Log]], [[LilyPad]], [[Fence]], [[Lantern]] (a warm glow cell), [[Signpost]], [[Reeds]].
+- World 2 Frostbyte: [[SnowPine]] (a lit ice star on top), [[SnowPineB]], [[IceRock]], [[IceRockB]], [[IceSpire]] (lit cores), [[IceCrystalCluster]], [[SnowDrift]], [[Icicles]], [[FrozenLog]], [[SnowBush]] (lit frost-berries), [[IceLantern]] (the warm light as the one contrast), [[HeaterLamp]].
+- Landmarks and the camp: [[CrashWreck]] (two halves, a smoke column, embers), [[CaveMouth]], [[IceCaveMouth]], [[GeyserCone]], [[GeyserVent]], [[Shrine]] (green runes), [[ShrineStone]], [[Pedestal]], [[ShipHull]], [[BuildStation]], [[GatherStation]], [[SparkStation]].
+
 ## Plan documents outside the vault
 
 These live in `docs/`, where Obsidian cannot open them, so each has a short pointer note that keeps the links working:

@@ -1,13 +1,15 @@
-# CaveMouth hero piece
+# CaveMouth block-cell prop
 
-- Date: 2026-10-06
-- Tool: tools/blender/heroes_base.py, bpy 5.2.2 LTS
-- What: World 1 cave mouth: an arch of three boulders, a dark interior, two glowing crystal clusters
-- Footprint (W x D x H, studs): 15.40 x 7.39 x 12.30 (Blender X x Y x Z; Y becomes Roblox Z on export)
-- Vertical extent: z 0.00 to 12.30; pivot at the bottom centre (origin), the piece stands on z = 0
-- Triangles: 2236 (hero budget 1500 to 3000)
-- Colours / materials (one per colour, flat, no textures): Rock #6E6A64, Dark #15120F, Crystal #7FE3FF (emissive 2.0, Neon in Studio), CrystalB #C084FC (emissive 2.0, Neon in Studio)
-- Read distance: built to read at 60 studs (big shapes, no small detail)
-- Files: CaveMouth.glb (169084 bytes), CaveMouth.fbx (80076 bytes), materials.json
-- Review render: docs/vault/05-ui-design/refs/look-l3/CaveMouth.png
-- Studio: upload with tools/upload_assets.py and install with tools/studio/install_models.luau (parts coloured from materials.json, emissive slots Neon), or File -> Import 3D on the GLB, rename the Model to `CaveMouth`, parent under ReplicatedStorage.Models.Props, Anchored on.
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py --props (tools/blender/blocky_build.py, bpy 5.0.1); Decision B44. Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Props/CaveMouth.md (Cave mouth, World 1, status build)
+- Footprint (W x D x H, studs): 17.5 x 8.25 x 13.25; the origin is the bottom centre of the bounds; Y up, the front on +Z (the landmark contract of data/Layouts.luau), in the GLB and the FBX alike
+- Blocks: 26
+- Triangles: 282 (budget 1200)
+- Collision: Precise (src/shared/data/Props.luau)
+- Cells: 0.25 studs a cell (the world cell), 4 texels a cell, atlas CaveMouth_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart a colour slot, in GLB order): `Body` (cells); `BodyDark` (cells); `Accessory` (cells); `Trim` (cells); `Glow` (Neon, no map)
+- Files: CaveMouth.glb (74728 bytes), CaveMouth.fbx (92524 bytes, texture embedded), CaveMouth_atlas.png, materials.json, CaveMouth.png and CaveMouth_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected (BLOCK_CELL_PROPS); or the upload route
+
+Regenerate with `$BPY tools/blocky/export_models.py --props CaveMouth`; check with `python3 -I tools/blocky/export_models.py --check --props CaveMouth`.

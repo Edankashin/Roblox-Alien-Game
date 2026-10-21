@@ -1,10 +1,40 @@
 [
   {
     "slot": 1,
-    "name": "IceRock",
+    "name": "Body",
     "hex": "A9B7C0",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "IceRock_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceRock_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Trim",
+    "hex": "BFEBFA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceRock_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "BFF3FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]

@@ -1,18 +1,50 @@
 [
   {
     "slot": 1,
-    "name": "Trunk",
-    "hex": "7A8C96",
-    "roughness": 0.8,
+    "name": "Body",
+    "hex": "2F6B5E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "SnowPine_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "Snow",
-    "hex": "DDEFF5",
-    "roughness": 0.8,
+    "name": "BodyDark",
+    "hex": "4A3A2E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "SnowPine_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SnowPine_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "BFEBFA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SnowPine_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "Glow",
+    "hex": "BFF3FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
   }
 ]
