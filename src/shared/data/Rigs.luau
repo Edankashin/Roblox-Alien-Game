@@ -17,6 +17,37 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Gaiabloom = {
+		height = 3.452,
+		parts = {
+			{ name = "antlerL", pivot = { -0.5506, 2.5, -0.8438 }, clips = { { kind = "sway", amp = -4, period = 4.2, phase = 0.2, axis = "z" } } },
+			{ name = "antlerR", pivot = { 0.4494, 2.5, -0.8438 }, clips = { { kind = "sway", amp = 4, period = 4.2, phase = 0.2, axis = "z" } } },
+			{ name = "butterflyR", pivot = { 1.1994, 3, -1.9688 }, clips = { { kind = "orbit", amp = 0.3, period = 6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.12, period = 1.5, phase = 0, axis = "y" }, { kind = "squash", amp = 0.25, period = 0.5, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -1.0506, 2.3125, -0.5938 }, clips = { { kind = "sway", amp = -10, period = 3, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.9494, 2.3125, -0.5938 }, clips = { { kind = "sway", amp = 10, period = 3, phase = 0, axis = "z" } } },
+			{ name = "halo", pivot = { -0.0506, 2.625, -0.8438 }, clips = { { kind = "spin", amp = 360, period = 12, phase = 0, axis = "y" }, { kind = "bob", amp = 0.04, period = 3, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { -0.0506, 1.625, 1.9062 }, clips = { { kind = "wag", amp = 18, period = 2.5, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.025, period = 3.6, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 24, columns = 4, frames = 11,
+			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
+			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
+		},
+		flourish = {
+			every = 12, length = 3.6,
+			moves = {
+				{ part = "root", kind = "hop", amp = 0.35, axis = "y", at = 0, length = 0.8 },
+				{ part = "root", kind = "turn", amp = 360, axis = "y", at = 1.2, length = 2 },
+				{ part = "earL", kind = "flare", amp = -25, axis = "z", at = 0.3, length = 1 },
+				{ part = "earR", kind = "flare", amp = 25, axis = "z", at = 0.3, length = 1 },
+				{ part = "antlerL", kind = "swish", amp = -12, axis = "z", at = 0.4, length = 1.6 },
+				{ part = "antlerR", kind = "swish", amp = 12, axis = "z", at = 0.4, length = 1.6 },
+				{ part = "halo", kind = "pop", amp = 0.25, axis = "y", at = 0.6, length = 1.2 },
+				{ part = "butterflyR", kind = "hop", amp = 0.4, axis = "y", at = 1.5, length = 1.2 },
+			},
+		},
+	},
 	Gloomoth = {
 		height = 3.438,
 		parts = {
