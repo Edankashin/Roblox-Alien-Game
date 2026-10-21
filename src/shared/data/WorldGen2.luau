@@ -417,12 +417,16 @@ local gen: Types.WorldGen = {
 		{ kind = "Steam", x = 130, y = 1, z = 120, size = 10 },
 		{ kind = "Steam", x = 108, y = -1.05, z = 142, size = 6 },
 		{ kind = "Steam", x = 152, y = -1.05, z = 98, size = 6 },
+		{ kind = "Flurry", x = 0, y = 22, z = 0, size = 60 },
+		{ kind = "Flurry", x = 30, y = 38, z = 180, size = 60 },
+		{ kind = "Flurry", x = 70, y = 21, z = -85, size = 60 },
+		{ kind = "Flurry", x = -140, y = 39, z = 70, size = 60 },
 		{ kind = "Aurora", x = 10, y = 90, z = 240, size = 320 },
 		{ kind = "Aurora", x = -120, y = 80, z = 230, size = 220 },
 		{ kind = "LightShaft", x = -118, y = 0, z = -108, size = 6 },
 		{ kind = "LightShaft", x = -150, y = 0, z = -96, size = 5 },
 	},
-	Stats = { bodies = 1032, caps = 2556, falls = 0, fxEmitters = 13, groundParts = 3684, lights = 33, placeholderParts = 1429, scatter = 389, solids = 80, textures = 8714, water = 15 },
+	Stats = { bodies = 1032, caps = 2556, falls = 0, fxEmitters = 17, groundParts = 3684, lights = 33, placeholderParts = 1429, scatter = 389, solids = 80, textures = 8714, water = 15 },
 }
 
 return gen
