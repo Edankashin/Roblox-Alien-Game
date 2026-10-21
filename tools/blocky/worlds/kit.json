@@ -1,0 +1,170 @@
+{
+  "_doc": "The shared kit of both generated worlds (tools/blocky/world_gen.py emits it as src/shared/data/WorldKit.luau). kinds: a ground kind's tile keys (assets/textures/blocky_tiles/<Key>.png, ids in src/shared/data/BlockTiles.luau), its fallback colour and Roblox Material while the tile id is 0, its side and body colours, and whether aliens may spawn on it. recipes: the block-built placeholder of every scatter prop, used until the props worker's mesh of that name exists (boxes in studs at scale 1, feet at y = 0: size, centre offset, colour, material, collide, optional neon, optional yaw/roll in degrees, optional light). budgets: the per-world ceilings tools/tests/test_world_gen.py and tests/WorldGrid.spec.luau hold.",
+  "kinds": {
+    "grass":   {"top": "GrassTop",    "side": "GrassSide", "body": "Dirt",       "color": "6FBF4A", "sideColor": "8A5A3B", "bodyColor": "8A5A3B", "material": "Grass",      "spawn": true},
+    "lush":    {"top": "GrassTop",    "side": "GrassSide", "body": "Dirt",       "color": "5FB043", "sideColor": "8A5A3B", "bodyColor": "7E5236", "material": "Grass",      "spawn": true},
+    "forest":  {"top": "GrassTop",    "side": "GrassSide", "body": "Dirt",       "color": "4E9A3C", "sideColor": "7B4F33", "bodyColor": "6F4630", "material": "Grass",      "spawn": true},
+    "meadowB": {"top": "GrassTop",    "side": "GrassSide", "body": "Dirt",       "color": "86C955", "sideColor": "8A5A3B", "bodyColor": "8A5A3B", "material": "Grass",      "spawn": true},
+    "path":    {"top": "Path",        "side": "Dirt",      "body": "Dirt",       "color": "C9B48A", "sideColor": "8A5A3B", "bodyColor": "8A5A3B", "material": "Cobblestone", "spawn": true},
+    "plaza":   {"top": "Path",        "side": "Dirt",      "body": "Dirt",       "color": "D8C79C", "sideColor": "8A5A3B", "bodyColor": "8A5A3B", "material": "Cobblestone", "spawn": true},
+    "sand":    {"top": "Sand",        "side": "Sand",      "body": "Dirt",       "color": "E3CF94", "sideColor": "CDB57A", "bodyColor": "8A5A3B", "material": "Sand",       "spawn": true},
+    "dirt":    {"top": "Dirt",        "side": "Dirt",      "body": "Dirt",       "color": "8A5A3B", "sideColor": "8A5A3B", "bodyColor": "7A4E33", "material": "Ground",     "spawn": true},
+    "stone":   {"top": "Stone",       "side": "Rock",      "body": "Rock",       "color": "9E9E8E", "sideColor": "86867A", "bodyColor": "7C7C72", "material": "Slate",      "spawn": true},
+    "cave":    {"top": "Stone",       "side": "Rock",      "body": "Rock",       "color": "6E6A78", "sideColor": "5E5A68", "bodyColor": "55515E", "material": "Slate",      "spawn": true},
+    "cliff":   {"top": "GrassTop",    "side": "GrassSide", "body": "Rock",       "color": "6FBF4A", "sideColor": "8A5A3B", "bodyColor": "8A8478", "material": "Grass",      "spawn": true},
+    "wood":    {"top": "WoodPlank",   "side": "WoodPlank", "body": "WoodPlank",  "color": "A8743F", "sideColor": "8C5E32", "bodyColor": "7B4A2D", "material": "WoodPlanks", "spawn": false},
+    "bed":     {"top": "Sand",        "side": "Sand",      "body": "Dirt",       "color": "C2AE78", "sideColor": "B09C68", "bodyColor": "8A5A3B", "material": "Sand",       "spawn": false},
+    "water":   {"top": "Water",       "side": "Water",     "body": "Water",      "color": "3FA2E6", "sideColor": "3FA2E6", "bodyColor": "3FA2E6", "material": "SmoothPlastic", "spawn": false},
+    "crystal": {"top": "Ice",         "side": "Ice",       "body": "Ice",        "color": "7FE3F0", "sideColor": "7FE3F0", "bodyColor": "7FE3F0", "material": "Neon",       "spawn": false},
+    "snow":    {"top": "Snow",        "side": "SnowSide",  "body": "PackedSnow", "color": "F2F6FA", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Snow",       "spawn": true},
+    "snowB":   {"top": "Snow",        "side": "SnowSide",  "body": "PackedSnow", "color": "E6EEF6", "sideColor": "B9CADA", "bodyColor": "AFC1D3", "material": "Snow",       "spawn": true},
+    "packed":  {"top": "PackedSnow",  "side": "PackedSnow","body": "PackedSnow", "color": "C9D7E4", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Sand",       "spawn": true},
+    "trail":   {"top": "PackedSnow",  "side": "SnowSide",  "body": "PackedSnow", "color": "CFDAE6", "sideColor": "B9CADA", "bodyColor": "B9CADA", "material": "Sand",       "spawn": true},
+    "rock":    {"top": "Rock",        "side": "Rock",      "body": "Rock",       "color": "A9B7C0", "sideColor": "93A1AB", "bodyColor": "8796A0", "material": "Slate",      "spawn": true},
+    "ice":     {"top": "Ice",         "side": "Ice",       "body": "Ice",        "color": "BFEBFA", "sideColor": "A6DDF2", "bodyColor": "9FD3E8", "material": "Ice",        "spawn": true},
+    "frozen":  {"top": "FrozenWater", "side": "Ice",       "body": "Ice",        "color": "A9D6F5", "sideColor": "93C6EA", "bodyColor": "86BCE0", "material": "Ice",        "spawn": true},
+    "cracked": {"top": "FrozenWater", "side": "Ice",       "body": "Ice",        "color": "98CBEE", "sideColor": "86BCE0", "bodyColor": "7DB2D8", "material": "Glacier",    "spawn": true},
+    "geo":     {"top": "Rock",        "side": "Rock",      "body": "Rock",       "color": "C98B5A", "sideColor": "A8714A", "bodyColor": "8C5A3C", "material": "Sandstone",  "spawn": true},
+    "geoDark": {"top": "Dirt",        "side": "Rock",      "body": "Rock",       "color": "9C6644", "sideColor": "8C5A3C", "bodyColor": "7A4D33", "material": "Ground",     "spawn": true},
+    "warm":    {"top": "Water",       "side": "Water",     "body": "Water",      "color": "6FD3DA", "sideColor": "6FD3DA", "bodyColor": "6FD3DA", "material": "SmoothPlastic", "spawn": false},
+    "openIce": {"top": "Water",       "side": "Water",     "body": "Water",      "color": "4F9BD0", "sideColor": "4F9BD0", "bodyColor": "4F9BD0", "material": "SmoothPlastic", "spawn": false},
+    "edge":    {"top": "GrassTop",    "side": "GrassSide", "body": "Dirt",       "color": "5FA845", "sideColor": "8A5A3B", "bodyColor": "7A4E33", "material": "Grass",      "spawn": false},
+    "edgeSnow":{"top": "Snow",        "side": "SnowSide",  "body": "PackedSnow", "color": "E2EBF4", "sideColor": "B9CADA", "bodyColor": "AFC1D3", "material": "Snow",       "spawn": false}
+  },
+  "water": {"water": {"transparency": 0.3, "reflectance": 0.12}, "warm": {"transparency": 0.25, "reflectance": 0.1}, "openIce": {"transparency": 0.2, "reflectance": 0.15}},
+  "recipes": {
+    "MeadowTree":  {"boxes": [
+      {"size": [1.5, 6, 1.5], "at": [0, 3, 0], "color": "7B4A2D", "material": "Wood", "collide": true},
+      {"size": [7, 3.5, 7], "at": [0, 7.25, 0], "color": "3F9B3A", "material": "Grass"},
+      {"size": [5, 2, 5], "at": [0, 10, 0], "color": "4CA843", "material": "Grass"},
+      {"size": [0.5, 0.5, 0.5], "at": [2.6, 8.2, 3.3], "color": "F28CB8", "material": "SmoothPlastic"}]},
+    "MeadowTreeB": {"boxes": [
+      {"size": [1.25, 5, 1.25], "at": [0, 2.5, 0], "color": "7B4A2D", "material": "Wood", "collide": true},
+      {"size": [6, 3, 6], "at": [0, 6.25, 0], "color": "56AE45", "material": "Grass"},
+      {"size": [4, 2.5, 4], "at": [0, 9, 0], "color": "62B84E", "material": "Grass"}]},
+    "BlossomTree": {"boxes": [
+      {"size": [1.5, 6, 1.5], "at": [0, 3, 0], "color": "6E4128", "material": "Wood", "collide": true},
+      {"size": [7.5, 3.5, 7.5], "at": [0, 7.5, 0], "color": "F4A6C8", "material": "SmoothPlastic"},
+      {"size": [5, 2, 5], "at": [0, 10.2, 0], "color": "FFC4DC", "material": "SmoothPlastic"},
+      {"size": [0.5, 0.5, 0.5], "at": [-2.8, 6, 3.9], "color": "FFFFFF", "material": "SmoothPlastic"}]},
+    "MeadowRock":  {"boxes": [
+      {"size": [3, 2, 2.5], "at": [0, 1, 0], "color": "9E9E8E", "material": "Slate", "collide": true},
+      {"size": [2, 1, 1.75], "at": [0.25, 2.5, 0], "color": "AFAFA0", "material": "Slate", "collide": true}]},
+    "MeadowRockB": {"boxes": [
+      {"size": [2.5, 1.5, 3], "at": [0, 0.75, 0], "color": "9A9A8A", "material": "Slate", "collide": true},
+      {"size": [1.75, 0.5, 2], "at": [0, 1.75, 0], "color": "6FBF4A", "material": "Grass"}]},
+    "Boulder":     {"boxes": [
+      {"size": [6, 4, 5], "at": [0, 2, 0], "color": "8E8E80", "material": "Slate", "collide": true},
+      {"size": [4, 2, 3.5], "at": [-0.5, 5, 0.25], "color": "A2A294", "material": "Slate", "collide": true},
+      {"size": [2.5, 0.5, 2], "at": [-0.5, 6.25, 0.25], "color": "6FBF4A", "material": "Grass"}]},
+    "FlowerPatch": {"boxes": [
+      {"size": [2, 0.25, 2], "at": [0, 0.125, 0], "color": "4CA843", "material": "Grass"},
+      {"size": [0.5, 0.5, 0.5], "at": [-0.5, 0.75, 0.4], "color": "F28CB8", "material": "SmoothPlastic"},
+      {"size": [0.5, 0.5, 0.5], "at": [0.55, 0.6, -0.3], "color": "FFD447", "material": "SmoothPlastic"},
+      {"size": [0.5, 0.5, 0.5], "at": [0.1, 0.9, -0.6], "color": "FFFFFF", "material": "SmoothPlastic"}]},
+    "Bush":        {"boxes": [
+      {"size": [3, 1.75, 3], "at": [0, 0.875, 0], "color": "4E9B3A", "material": "Grass"},
+      {"size": [2, 0.75, 2], "at": [0, 2.1, 0], "color": "5DAE48", "material": "Grass"}]},
+    "Mushroom":    {"boxes": [
+      {"size": [0.5, 1, 0.5], "at": [0, 0.5, 0], "color": "F2E6D0", "material": "SmoothPlastic"},
+      {"size": [1.5, 0.5, 1.5], "at": [0, 1.25, 0], "color": "D94A3A", "material": "SmoothPlastic"},
+      {"size": [0.25, 0.1, 0.25], "at": [0.35, 1.55, 0.3], "color": "FFFFFF", "material": "SmoothPlastic"}]},
+    "Log":         {"boxes": [
+      {"size": [5, 1.25, 1.25], "at": [0, 0.625, 0], "color": "7B4A2D", "material": "Wood", "collide": true},
+      {"size": [3, 0.25, 1], "at": [0.5, 1.375, 0], "color": "5DAE48", "material": "Grass"}]},
+    "LilyPad":     {"boxes": [
+      {"size": [1.75, 0.1, 1.75], "at": [0, 0.05, 0], "color": "4CA843", "material": "SmoothPlastic"},
+      {"size": [0.4, 0.3, 0.4], "at": [0.3, 0.25, 0.2], "color": "F7B6D2", "material": "SmoothPlastic"}]},
+    "Fence":       {"boxes": [
+      {"size": [0.4, 2, 0.4], "at": [-2, 1, 0], "color": "8C5E32", "material": "Wood", "collide": true},
+      {"size": [0.4, 2, 0.4], "at": [2, 1, 0], "color": "8C5E32", "material": "Wood", "collide": true},
+      {"size": [4.4, 0.3, 0.25], "at": [0, 1.5, 0], "color": "A8743F", "material": "WoodPlanks", "collide": true},
+      {"size": [4.4, 0.3, 0.25], "at": [0, 0.75, 0], "color": "A8743F", "material": "WoodPlanks", "collide": true}]},
+    "Lantern":     {"boxes": [
+      {"size": [0.4, 3, 0.4], "at": [0, 1.5, 0], "color": "4A3A2E", "material": "Wood", "collide": true},
+      {"size": [0.9, 0.9, 0.9], "at": [0, 3.45, 0], "color": "FFD27A", "material": "Neon", "neon": true},
+      {"size": [1.1, 0.25, 1.1], "at": [0, 4.0, 0], "color": "4A3A2E", "material": "Wood"}],
+      "light": {"color": "FFD27A", "range": 14, "brightness": 1.2, "at": [0, 3.45, 0]}},
+    "Signpost":    {"boxes": [
+      {"size": [0.4, 3, 0.4], "at": [0, 1.5, 0], "color": "8C5E32", "material": "Wood", "collide": true},
+      {"size": [2.6, 0.8, 0.2], "at": [0.6, 2.5, 0], "color": "E8D4A8", "material": "WoodPlanks"}]},
+    "Reeds":       {"boxes": [
+      {"size": [0.25, 2, 0.25], "at": [-0.3, 1, 0], "color": "5C9E3A", "material": "Grass"},
+      {"size": [0.25, 2.5, 0.25], "at": [0.25, 1.25, 0.3], "color": "6BAE45", "material": "Grass"},
+      {"size": [0.35, 0.6, 0.35], "at": [0.25, 2.6, 0.3], "color": "7A4A2D", "material": "SmoothPlastic"}]},
+    "GrottoCrystal": {"boxes": [
+      {"size": [1, 4, 1], "at": [0, 2, 0], "color": "7FE3F0", "material": "Neon", "neon": true, "roll": 8},
+      {"size": [0.75, 2.5, 0.75], "at": [1, 1.25, 0.4], "color": "A8F0FA", "material": "Neon", "neon": true, "roll": -18},
+      {"size": [0.6, 1.75, 0.6], "at": [-0.9, 0.9, -0.3], "color": "B49CFF", "material": "Neon", "neon": true, "roll": 22},
+      {"size": [2.5, 0.5, 2], "at": [0, 0.25, 0], "color": "6E6A78", "material": "Slate"}],
+      "light": {"color": "7FE3F0", "range": 16, "brightness": 1.5, "at": [0, 2.5, 0]}},
+    "SnowPine":    {"boxes": [
+      {"size": [1.25, 2.5, 1.25], "at": [0, 1.25, 0], "color": "4A3A2E", "material": "Wood", "collide": true},
+      {"size": [6, 2, 6], "at": [0, 3.5, 0], "color": "2F6B5E", "material": "Grass"},
+      {"size": [4.5, 2, 4.5], "at": [0, 5.5, 0], "color": "347565", "material": "Grass"},
+      {"size": [3, 2, 3], "at": [0, 7.5, 0], "color": "2F6B5E", "material": "Grass"},
+      {"size": [3.2, 0.5, 3.2], "at": [0, 8.75, 0], "color": "F2F6FA", "material": "Snow"},
+      {"size": [1.25, 1.25, 1.25], "at": [0, 9.6, 0], "color": "2F6B5E", "material": "Grass"}]},
+    "SnowPineB":   {"boxes": [
+      {"size": [1, 2, 1], "at": [0, 1, 0], "color": "4A3A2E", "material": "Wood", "collide": true},
+      {"size": [5, 2, 5], "at": [0, 3, 0], "color": "2F6B5E", "material": "Grass"},
+      {"size": [5.2, 0.5, 5.2], "at": [0, 4.25, 0], "color": "F2F6FA", "material": "Snow"},
+      {"size": [3, 2, 3], "at": [0, 5.5, 0], "color": "347565", "material": "Grass"},
+      {"size": [3.2, 0.5, 3.2], "at": [0, 6.75, 0], "color": "F2F6FA", "material": "Snow"}]},
+    "IceRock":     {"boxes": [
+      {"size": [3, 2, 2.75], "at": [0, 1, 0], "color": "A9B7C0", "material": "Slate", "collide": true},
+      {"size": [2.6, 0.5, 2.25], "at": [0, 2.25, 0], "color": "F2F6FA", "material": "Snow", "collide": true}]},
+    "IceRockB":    {"boxes": [
+      {"size": [4, 2.5, 3], "at": [0, 1.25, 0], "color": "9AAAB5", "material": "Slate", "collide": true},
+      {"size": [2.5, 1, 2], "at": [0.5, 3, 0], "color": "A9B7C0", "material": "Slate", "collide": true},
+      {"size": [2.25, 0.4, 1.75], "at": [0.5, 3.7, 0], "color": "F2F6FA", "material": "Snow"}]},
+    "IceSpire":    {"boxes": [
+      {"size": [2.5, 1.5, 2.5], "at": [0, 0.75, 0], "color": "A9B7C0", "material": "Slate", "collide": true},
+      {"size": [1.5, 5, 1.5], "at": [0, 4, 0], "color": "BFEBFA", "material": "Ice", "collide": true},
+      {"size": [0.75, 2, 0.75], "at": [0, 7.5, 0], "color": "DDF6FF", "material": "Ice"}]},
+    "IceCrystalCluster": {"boxes": [
+      {"size": [1, 3.5, 1], "at": [0, 1.75, 0], "color": "68C9FE", "material": "Neon", "neon": true, "roll": 6},
+      {"size": [0.75, 2.25, 0.75], "at": [0.9, 1.1, 0.35], "color": "9FE0FF", "material": "Neon", "neon": true, "roll": -20},
+      {"size": [0.6, 1.5, 0.6], "at": [-0.85, 0.75, -0.3], "color": "BFEBFA", "material": "Neon", "neon": true, "roll": 18},
+      {"size": [2.5, 0.5, 2], "at": [0, 0.25, 0], "color": "A9B7C0", "material": "Slate"}],
+      "light": {"color": "68C9FE", "range": 16, "brightness": 1.4, "at": [0, 2.5, 0]}},
+    "SnowDrift":   {"boxes": [
+      {"size": [4, 1, 3], "at": [0, 0.5, 0], "color": "F2F6FA", "material": "Snow", "collide": true},
+      {"size": [2.5, 0.75, 2], "at": [0.4, 1.375, 0.1], "color": "F7FAFC", "material": "Snow", "collide": true}]},
+    "Icicles":     {"hang": true, "boxes": [
+      {"size": [3, 0.4, 0.6], "at": [0, -0.2, 0], "color": "DDF6FF", "material": "Ice"},
+      {"size": [0.4, 1.5, 0.4], "at": [-1, -1.15, 0], "color": "BFEBFA", "material": "Ice"},
+      {"size": [0.4, 1, 0.4], "at": [0, -0.9, 0], "color": "BFEBFA", "material": "Ice"},
+      {"size": [0.4, 2, 0.4], "at": [1, -1.4, 0], "color": "BFEBFA", "material": "Ice"}]},
+    "FrozenLog":   {"boxes": [
+      {"size": [5, 1.25, 1.25], "at": [0, 0.625, 0], "color": "4A3A2E", "material": "Wood", "collide": true},
+      {"size": [4, 0.3, 1.1], "at": [0.25, 1.4, 0], "color": "F2F6FA", "material": "Snow"}]},
+    "SnowBush":    {"boxes": [
+      {"size": [3, 1.5, 3], "at": [0, 0.75, 0], "color": "3E7E66", "material": "Grass"},
+      {"size": [2.6, 0.5, 2.6], "at": [0, 1.75, 0], "color": "F2F6FA", "material": "Snow"}]},
+    "IceLantern":  {"boxes": [
+      {"size": [0.4, 3, 0.4], "at": [0, 1.5, 0], "color": "4A3A2E", "material": "Wood", "collide": true},
+      {"size": [0.9, 0.9, 0.9], "at": [0, 3.45, 0], "color": "8FE3FF", "material": "Neon", "neon": true},
+      {"size": [1.1, 0.25, 1.1], "at": [0, 4.0, 0], "color": "F2F6FA", "material": "Snow"}],
+      "light": {"color": "9FE6FF", "range": 14, "brightness": 1.1, "at": [0, 3.45, 0]}},
+    "HeaterLamp":  {"boxes": [
+      {"size": [2, 0.5, 2], "at": [0, 0.25, 0], "color": "5A4A3E", "material": "Metal", "collide": true},
+      {"size": [0.5, 2.5, 0.5], "at": [0, 1.75, 0], "color": "5A4A3E", "material": "Metal", "collide": true},
+      {"size": [1.25, 1.25, 1.25], "at": [0, 3.6, 0], "color": "FFB347", "material": "Neon", "neon": true},
+      {"size": [1.5, 0.3, 1.5], "at": [0, 4.35, 0], "color": "5A4A3E", "material": "Metal"}],
+      "light": {"color": "FFB347", "range": 20, "brightness": 2, "at": [0, 3.6, 0]}},
+    "GeyserCone":  {"boxes": [
+      {"size": [5, 1.5, 5], "at": [0, 0.75, 0], "color": "8C5A3C", "material": "Sandstone", "collide": true},
+      {"size": [3.5, 1.5, 3.5], "at": [0, 2.25, 0], "color": "9C6644", "material": "Sandstone", "collide": true},
+      {"size": [2, 1, 2], "at": [0, 3.5, 0], "color": "C98B5A", "material": "Sandstone", "collide": true},
+      {"size": [1, 0.2, 1], "at": [0, 4.05, 0], "color": "E8F4F8", "material": "Neon", "neon": true}]}
+  },
+  "budgets": {
+    "groundParts": 4400,
+    "textures": 10500,
+    "scatter": 900,
+    "placeholderParts": 3200,
+    "lights": 48,
+    "fxEmitters": 24
+  }
+}

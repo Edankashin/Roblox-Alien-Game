@@ -83,6 +83,42 @@ export type TextureRow = { colorMap: number, normalMap: number, roughnessMap: nu
 export type PropCollision = "Box" | "Hull" | "Precise" | "None"
 export type PropRow = { collision: PropCollision }
 
+-- The generated worlds in block cells (tools/blocky/world_gen.py writes data/WorldGen1, WorldGen2 and WorldKit; Shared/WorldGrid reads
+-- them; Services/Meadow builds them). A ground kind: its tile keys (data/BlockTiles ids), the fallback colours and Roblox Material
+-- while a tile id is 0, and whether a wild alien may spawn on it.
+export type GroundKind = { top: string, side: string, body: string, color: string, sideColor: string, bodyColor: string, material: string, spawn: boolean }
+export type WaterLook = { transparency: number, reflectance: number }
+-- One box of a scatter prop's block-built placeholder (studs at scale 1, feet at y = 0); roll tilts it about its local Z, degrees.
+export type RecipeBox = { size: { number }, at: { number }, color: string, material: string, collide: boolean?, neon: boolean?, roll: number? }
+export type RecipeLight = { color: string, range: number, brightness: number, at: { number } }
+-- hang: the prop hangs from its point (icicles under a cliff edge) instead of standing on it.
+export type PropRecipe = { boxes: { RecipeBox }, light: RecipeLight?, hang: boolean? }
+export type WorldBudget = { groundParts: number, textures: number, scatter: number, placeholderParts: number, lights: number, fxEmitters: number }
+-- A beautiful place: rare-alien luck (a multiplier on the tier odds of a spawn inside its radius) and a name.
+export type WorldSpot = { id: string, x: number, y: number, z: number, radius: number, luck: number }
+export type WorldFxSpot = { kind: string, x: number, y: number, z: number, size: number }
+-- The generated rows are flat number arrays (strides in data/WorldKit's header and in Shared/WorldGrid).
+export type WorldGen = {
+	World: number,
+	Cell: number,
+	Count: number,
+	Origin: number,
+	Base: number,
+	Chunk: number,
+	Kinds: { string },
+	Props: { string },
+	Caps: { number },
+	Bodies: { number },
+	Water: { number },
+	Falls: { number },
+	Solids: { number },
+	NoSpawn: { number },
+	Place: { number },
+	Spots: { WorldSpot },
+	Fx: { WorldFxSpot },
+	Stats: { [string]: number },
+}
+
 export type TierDef = {
 	share: number, -- share of wild spawns, percent (Cosmic and Secret are 0: event or quest only)
 	workSpeed: number, -- multiplier versus Common
