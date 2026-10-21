@@ -21,6 +21,9 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
 - [ ] Fix everything the Mac's Studio jobs report, the same day
 
+**Week two (after launch)**
+- [ ] The paid-only prize wheel ([[Decisions]] B50), then the three spin products back on sale
+
 **Mac session (Ethan starts it: "pull and run the jobs in Overnight.md in order")**
 - [ ] Job 41: download the three TikToks (batch 9)
 - [ ] Job 40: the one-command upload (`tools/finalize_upload.sh`), then commit the ids; moderation can take hours
