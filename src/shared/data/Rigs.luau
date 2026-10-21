@@ -138,6 +138,20 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Snailbyte = {
+		height = 2.75,
+		parts = {
+			{ name = "dishR", pivot = { 1.4219, 1.125, 0.1479 }, clips = { { kind = "spin", amp = 360, period = 8, phase = 0, axis = "y" } } },
+			{ name = "feelerL", pivot = { -0.3906, 1.625, -0.9771 }, clips = { { kind = "sway", amp = 10, period = 2, phase = 0.5, axis = "z" }, { kind = "sway", amp = 6, period = 3, phase = 0.3, axis = "x" } } },
+			{ name = "feelerR", pivot = { 1.1094, 1.625, -0.9771 }, clips = { { kind = "sway", amp = 10, period = 2, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3, phase = 0, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.03, period = 2.8, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 16, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Twiglet = {
 		height = 2.486,
 		parts = {
