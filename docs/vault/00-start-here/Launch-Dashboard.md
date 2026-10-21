@@ -20,6 +20,8 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [ ] New store icon and thumbnails in the block-cell look (after the rare pass), the description updated (Starhollow Forest, the new aliens)
 - [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
 - [ ] Fix everything the Mac's Studio jobs report, the same day
+- [x] TikTok batch 9, the before-launch lessons (`media/tiktok/NOTES.md` "Batch 9"): a tap on a Scrap price you cannot pay says "Need N more Scrap"; the Starter Pack stands on the HUD as a top button until bought; a bought Server Luck names its buyer in chat too, and a repeat buyer is named; payer-conversion benchmarks in [[Growth-Playbook]] section 7. The Studio check is [[TESTING]] "TikTok batch 9" (a Mac job to number)
+- [ ] TikTok batch 9, after Ethan's answers: the Tiny Boost under 10 Robux if 47 is yes (about 30 minutes, then the Mac creates the product), Server Luck x4's value if 50 is yes (one number)
 
 **Mac session (Ethan starts it: "pull and run the jobs in Overnight.md in order")**
 - [ ] Job 41: download the three TikToks (batch 9)
@@ -34,6 +36,7 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [x] ~~Create the five missing shop products~~ Skip them: DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock have no feature yet, are not on the shelf, and the server will not sell one even with an id ([[Prelaunch-Audit]] finding 6)
 - [ ] Decide the paid spins: they spin the free wheel, which pays Scrap, a Lucky Charm and a Double Shift, all three "never sold" ([[Prelaunch-Audit]] finding 7: a paid wheel without them, accept it, or hide the spins at launch)
 - [ ] Pick the icon and thumbnails from the new set
+- [ ] [[Decide-Now]] 47 to 50, the batch 9 money questions: an offer under 10 Robux, keep Scrap unsold when a player is short, a stacking multiplier after launch week, Server Luck x4 made the better deal
 - [ ] Play the private game on your phone for ten minutes and say what feels wrong
 - [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
 - Optional: the group Moop Games (100 Robux), music listen-through, rejoin notifications (decision 20)
