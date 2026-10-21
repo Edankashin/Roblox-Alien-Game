@@ -94,6 +94,7 @@ Theme.Block = {
 	Seed = 44,
 	Hover = 1.04,
 	PixelGrid = 8,
+	PanelCell = 0.04, -- a modal panel's cell (Builder.blockPanelRows): twice Cell, as the world's cell is twice a creature's (C1)
 	Trough = Color3.fromHex("2A2F55"), -- a dark plate's face (the Scrap plate, the ship bar's trough, the idle Friend chip): the ink a step up
 	Layer = { Ink = 0, Fill = 1, Bar = 2, Cells = 3, Content = 4 },
 }

@@ -25,6 +25,10 @@
 -- asks to follow or stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, the
 -- Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the cards redraw from
 -- the camp, companion and home pushes the server sends back.
+-- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel is a cream block plate
+-- at the panel cell, the header tab, the close button and every button block plates and block buttons; the station cards and the
+-- alien cards are edged blocks (lit top row, shaded edges, no grout or jitter: a grid of them stays a few frames each), the slot
+-- squares and the chips flat blocks, a rarity ring the ink. The layout, every binding and every string key are as before.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -124,6 +128,11 @@ local STATUS_Y = 0.80
 local STATUS_H = 0.14
 local RIDE_Y = 0.78 -- the Ride button takes the status slot but stands taller (a 21 px tap target at the reference card, not 17)
 local RIDE_H = 0.18
+local CARD_ROWS = 10 -- an alien card is an edged block this many cells tall (about 7.5 px cells on an iPhone SE card of 83 px)
+local SQUARE_ROWS = 3 -- the shape square, a slot square and a chip: flat blocks of the fewest rows a stepped corner takes
+local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (the strip is 0.18 of the screen)
+local PANEL_H = 0.78 -- the panel's height, of the screen (its rows come from it, at the panel cell)
+local PANEL_ASPECT = 1.35
 
 -- The card's top corners: the speed chip top right, the overlay badge top left, and a fused copy's level chip
 -- (the speed chip's size) in the top-left corner too, or directly under the badge when the badge holds it.
@@ -504,14 +513,17 @@ local function toastFused(result: Types.FuseResult)
 	Toast.Show(Strings.TOAST_FUSED:format(name, result.level), Theme.Colors.Featured)
 end
 
--- The Fuse button's face fades and stops taking taps while a fusion is in flight.
+-- The Fuse button's face block and text fade and it stops taking taps while a fusion is in flight.
 local function setFuseBusy(busy: boolean)
 	local button = fuseButton
 	local face = if button then button:FindFirstChild("Face") else nil
+	local plate = if button then button:FindFirstChild("Plate") else nil
 	if face and face:IsA("TextButton") then
 		face.Active = not busy
-		face.BackgroundTransparency = if busy then FUSE_BUSY_ALPHA else 0
 		face.TextTransparency = if busy then FUSE_BUSY_ALPHA else 0
+	end
+	if plate then
+		Builder.setBlockFade(plate, if busy then FUSE_BUSY_ALPHA else 0)
 	end
 end
 
@@ -578,34 +590,31 @@ local function buildSlot(parent: Frame, index: number, width: number, profile: T
 
 	local uid = station.assigned[index]
 	local record = if uid then profile.aliens[uid] else nil
-	local square: Builder.FrameProps = {
+	-- A flat block: locked a darker grey in navy ink, filled the species colour in its tier's ink, open the panel cream in navy.
+	local square: Builder.BlockProps = {
 		parent = cell,
 		name = "Square",
+		color = Theme.Colors.Panel,
+		aspect = 1,
+		rows = SQUARE_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(1, 0.62),
 		anchor = Vector2.new(0.5, 0),
-		corner = Theme.Corner.Card,
-		aspect = 1,
 		zIndex = 4,
 	}
 	local label: string? = nil
 	if index > station.slots then
 		square.color = Builder.darker(Theme.Rarity.Common)
-		square.stroke = Theme.Stroke.Text
-		square.strokeColor = Theme.Colors.Outline
 	elseif record then
 		local def = Species.ById[record.species]
 		square.color = speciesColor(def)
-		square.stroke = Theme.Stroke.Button
-		square.strokeColor = Builder.tierColor(if def then def.tier else "Common")
+		square.ink = Builder.tierColor(if def then def.tier else "Common")
 		label = speciesName(def, record.species)
 	else
-		square.color = Theme.Colors.Panel
-		square.stroke = Theme.Stroke.Button
-		square.strokeColor = Theme.Colors.Outline
 		label = Strings.STATION_EMPTY_SLOT
 	end
-	Builder.frame(square)
+	Builder.blockPlate(square)
 	if label then
 		Builder.label({
 			parent = cell,
@@ -623,17 +632,20 @@ end
 local function buildStationCard(parent: Frame, index: number, width: number, job: string, profile: Types.Profile)
 	local station = stationOf(profile, job)
 	local assigned = #station.assigned
-	local card = Builder.frame({
+	-- A fitted edged block (its width is the strip's share), white, its ink gold while it has workers.
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Station" .. job,
-		size = UDim2.fromScale(width, 1),
 		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = if assigned > 0 then Theme.Colors.Featured else Theme.Rarity.Common,
+		ink = if assigned > 0 then Theme.Colors.Featured else Theme.Rarity.Common,
+		rows = STATION_ROWS,
+		cells = false,
+		edges = true,
+		size = UDim2.fromScale(width, 1),
 		zIndex = 3,
 	})
 	card.LayoutOrder = index
+	local cardTop = Builder.blockTop(card)
 
 	Builder.label({
 		parent = card,
@@ -643,7 +655,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 		position = UDim2.fromScale(0.04, 0.05),
 		size = UDim2.fromScale(0.6, 0.25),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = cardTop,
 	})
 	Builder.label({
 		parent = card,
@@ -654,7 +666,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 		size = UDim2.fromScale(0.3, 0.25),
 		anchor = Vector2.new(1, 0),
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 4,
+		zIndex = cardTop,
 	})
 	Builder.label({
 		parent = card,
@@ -664,7 +676,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 		position = UDim2.fromScale(0.04, 0.3),
 		size = UDim2.fromScale(0.46, 0.18),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 4,
+		zIndex = cardTop,
 	})
 	Builder.label({
 		parent = card,
@@ -676,7 +688,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 		size = UDim2.fromScale(0.46, 0.18),
 		anchor = Vector2.new(1, 0),
 		xAlign = Enum.TextXAlignment.Right,
-		zIndex = 4,
+		zIndex = cardTop,
 	})
 
 	local slots = Builder.frame({
@@ -684,7 +696,7 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 		name = "Slots",
 		position = UDim2.fromScale(0.04, 0.52),
 		size = UDim2.fromScale(0.92, 0.44),
-		zIndex = 4,
+		zIndex = cardTop,
 	})
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal
@@ -755,35 +767,51 @@ local function cornerRowY(row: number): number
 	return CORNER_Y + row * (CORNER_H + CORNER_GAP)
 end
 
+-- A chip on an alien card: a fitted flat block (the overlay badge's width changes as it fits its name) in `color`, its label on
+-- top. The caller adds the label at Builder.blockTop(chip).
+local function cardChip(card: Frame, name: string, color: Color3, position: UDim2, size: UDim2, anchor: Vector2?): Frame
+	return Builder.blockPlate({
+		parent = card,
+		name = name,
+		color = color,
+		rows = SQUARE_ROWS,
+		cells = false,
+		position = position,
+		size = size,
+		anchor = anchor,
+		zIndex = Builder.blockTop(card),
+	})
+end
+
 local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	local record, def = entry.record, entry.def
 	local tierColor = Builder.tierColor(if def then def.tier else "Common")
-	local card = Builder.frame({
+	-- An edged block in the tier's colour: square, its grid fixed (the grid's cell sets its size), a lit top row and shaded edges.
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = record.uid,
 		color = tierColor,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Builder.darker(tierColor),
 		aspect = 1,
+		rows = CARD_ROWS,
+		cells = false,
+		edges = true,
 		zIndex = 3,
 	})
 	card.LayoutOrder = index
-	Builder.gradient(card, tierColor)
+	local top = Builder.blockTop(card)
 
-	-- The placeholder stand-in until art exists: a square in the species colour with the shape name.
-	local shape = Builder.frame({
+	-- The placeholder stand-in until art exists: a flat block in the species colour with the shape name.
+	local shape = Builder.blockPlate({
 		parent = card,
 		name = "Shape",
+		color = speciesColor(def),
+		aspect = 1,
+		rows = SQUARE_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, SHAPE_Y),
 		size = UDim2.fromScale(SHAPE_W, SHAPE_W),
 		anchor = Vector2.new(0.5, 0.5),
-		color = speciesColor(def),
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
-		zIndex = 4,
+		zIndex = top,
 	})
 	Builder.label({
 		parent = shape,
@@ -793,7 +821,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.4),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(shape),
 	})
 	Builder.label({
 		parent = card,
@@ -803,20 +831,17 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		position = UDim2.fromScale(0.5, NAME_Y),
 		size = UDim2.fromScale(0.92, NAME_H),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 4,
+		zIndex = top,
 	})
 
-	local chip = Builder.pill({
-		parent = card,
-		name = "Speed",
-		position = UDim2.fromScale(1 - CORNER_X, CORNER_Y),
-		size = UDim2.fromScale(SPEED_W, CORNER_H),
-		anchor = Vector2.new(1, 0),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 5,
-	})
+	local chip = cardChip(
+		card,
+		"Speed",
+		Theme.Block.Trough,
+		UDim2.fromScale(1 - CORNER_X, CORNER_Y),
+		UDim2.fromScale(SPEED_W, CORNER_H),
+		Vector2.new(1, 0)
+	)
 	Builder.label({
 		parent = chip,
 		name = "Text",
@@ -825,7 +850,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.blockTop(chip),
 	})
 
 	-- The overlay badge, fitted to its name (BadgeFit.Card): one pill holding the whole name, or one pill per word when the
@@ -845,17 +870,13 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			if existing then
 				return existing, labels[row + 1]
 			end
-			local pill = Builder.pill({
-				parent = card,
-				name = if row == 0 then "Overlay" else "Overlay" .. (row + 1),
-				position = UDim2.fromScale(CORNER_X, cornerRowY(row)),
-				size = UDim2.fromScale(BADGE_W, CORNER_H),
-				color = color,
-				stroke = Theme.Stroke.Text,
-				strokeColor = Theme.Colors.Outline,
-				zIndex = 5,
-			})
-			Builder.gradient(pill, color)
+			local pill = cardChip(
+				card,
+				if row == 0 then "Overlay" else "Overlay" .. (row + 1),
+				color,
+				UDim2.fromScale(CORNER_X, cornerRowY(row)),
+				UDim2.fromScale(BADGE_W, CORNER_H)
+			)
 			if tinted then
 				Builder.shine(pill) -- the slow sparkle of a tinted overlay (Launch Gold); it stops when the card is rebuilt
 			end
@@ -867,7 +888,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 				position = UDim2.fromScale(0.5, 0.5),
 				size = UDim2.fromScale(Builder.BadgeTextFraction, 0.75),
 				anchor = Vector2.new(0.5, 0.5),
-				zIndex = 6,
+				zIndex = Builder.blockTop(pill),
 			})
 			pills[row + 1] = pill
 			labels[row + 1] = label
@@ -904,16 +925,13 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- A fused copy (level above 1; level 1 shows nothing) wears its level in gold: top left, the speed chip's
 	-- size, or directly under the overlay badge when the badge already sits in that corner.
 	if record.level > 1 then
-		local levelPill = Builder.pill({
-			parent = card,
-			name = "Level",
-			position = UDim2.fromScale(CORNER_X, cornerRowY(if record.overlay ~= "None" then 1 else 0)),
-			size = UDim2.fromScale(SPEED_W, CORNER_H),
-			color = Theme.Colors.Trough,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 5,
-		})
+		local levelPill = cardChip(
+			card,
+			"Level",
+			Theme.Block.Trough,
+			UDim2.fromScale(CORNER_X, cornerRowY(if record.overlay ~= "None" then 1 else 0)),
+			UDim2.fromScale(SPEED_W, CORNER_H)
+		)
 		levelChip = levelPill
 		Builder.label({
 			parent = levelPill,
@@ -924,7 +942,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.86, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 6,
+			zIndex = Builder.blockTop(levelPill),
 		})
 	end
 
@@ -933,17 +951,14 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	local displayed = record.habitat ~= nil
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
 	if band.label and not displayed then
-		local sizeChip = Builder.pill({
-			parent = card,
-			name = "Size",
-			position = UDim2.fromScale(0.02, CHIP_Y),
-			size = UDim2.fromScale(CHIP_W, CHIP_H),
-			anchor = Vector2.new(0, 0.5),
-			color = Theme.Colors.Trough,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 6,
-		})
+		local sizeChip = cardChip(
+			card,
+			"Size",
+			Theme.Block.Trough,
+			UDim2.fromScale(0.02, CHIP_Y),
+			UDim2.fromScale(CHIP_W, CHIP_H),
+			Vector2.new(0, 0.5)
+		)
 		Builder.label({
 			parent = sizeChip,
 			name = "Text",
@@ -953,7 +968,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.9, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 7,
+			zIndex = Builder.blockTop(sizeChip),
 		})
 	end
 
@@ -972,17 +987,14 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		chipText = Builder.text("STAGE_" .. stage.id)
 	end
 	if chipText and not displayed then
-		local stageChip = Builder.pill({
-			parent = card,
-			name = "Stage",
-			position = UDim2.fromScale(0.98, CHIP_Y),
-			size = UDim2.fromScale(CHIP_W, CHIP_H), -- the size chip's mirror
-			anchor = Vector2.new(1, 0.5),
-			color = Theme.Colors.Trough,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 6,
-		})
+		local stageChip = cardChip(
+			card,
+			"Stage",
+			Theme.Block.Trough,
+			UDim2.fromScale(0.98, CHIP_Y),
+			UDim2.fromScale(CHIP_W, CHIP_H), -- the size chip's mirror
+			Vector2.new(1, 0.5)
+		)
 		Builder.label({
 			parent = stageChip,
 			name = "Text",
@@ -992,7 +1004,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.9, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 7,
+			zIndex = Builder.blockTop(stageChip),
 		})
 	end
 
@@ -1026,17 +1038,14 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	if displayed then
 		-- The size and growth chips stand aside for a full-width pill (a displayed alien is not working, so it
 		-- has no growth countdown to show).
-		local pill = Builder.pill({
-			parent = card,
-			name = "OnDisplay",
-			position = UDim2.fromScale(0.5, CHIP_Y),
-			size = UDim2.fromScale(0.94, CHIP_H),
-			anchor = Vector2.new(0.5, 0.5),
-			color = Theme.Colors.Codex,
-			stroke = Theme.Stroke.Text,
-			strokeColor = Theme.Colors.Outline,
-			zIndex = 6,
-		})
+		local pill = cardChip(
+			card,
+			"OnDisplay",
+			Theme.Colors.Codex,
+			UDim2.fromScale(0.5, CHIP_Y),
+			UDim2.fromScale(0.94, CHIP_H),
+			Vector2.new(0.5, 0.5)
+		)
 		Builder.label({
 			parent = pill,
 			name = "Text",
@@ -1045,7 +1054,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			position = UDim2.fromScale(0.5, 0.5),
 			size = UDim2.fromScale(0.9, 0.75),
 			anchor = Vector2.new(0.5, 0.5),
-			zIndex = 7,
+			zIndex = Builder.blockTop(pill),
 		})
 	end
 	if not rideable and not canDisplay and not displayed then
@@ -1058,7 +1067,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			position = UDim2.fromScale(0.5, STATUS_Y),
 			size = UDim2.fromScale(0.94, STATUS_H),
 			anchor = Vector2.new(0.5, 0),
-			zIndex = 4,
+			zIndex = top,
 		})
 	end
 
@@ -1066,7 +1075,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- Tap overlay. It only asks: the card redraws from the server's push. No other card has one: a resting
 	-- mount shows none until it follows.
 	if rideable then
-		Builder.button({
+		Builder.blockButton({
 			parent = card,
 			name = "Ride",
 			text = if entry.riding then Strings.ALIENS_HOP_OFF else Strings.ALIENS_RIDE,
@@ -1075,6 +1084,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			size = UDim2.fromScale(0.94, RIDE_H),
 			anchor = Vector2.new(0.5, 0),
 			textSize = Theme.TextSize.Body,
+			rows = SQUARE_ROWS,
+			cells = false, -- one per card: a flat face
 			zIndex = RIDE_Z,
 		}, function()
 			setMount(if entry.riding then nil else record.uid, entry.name)
@@ -1085,7 +1096,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- the card redraws from the server's push.
 	if canDisplay and def ~= nil then
 		local world = def.world
-		Builder.button({
+		Builder.blockButton({
 			parent = card,
 			name = "Display",
 			text = Strings.ALIENS_DISPLAY,
@@ -1094,13 +1105,15 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			size = UDim2.fromScale(0.94, RIDE_H),
 			anchor = Vector2.new(0.5, 0),
 			textSize = Theme.TextSize.Body,
+			rows = SQUARE_ROWS,
+			cells = false, -- one per card: a flat face
 			zIndex = RIDE_Z,
 		}, function()
 			displayAlien(record.uid, entry.name, world)
 		end)
 	elseif canBringBack and def ~= nil then
 		local worldName = Builder.text("WORLD_" .. def.world)
-		Builder.button({
+		Builder.blockButton({
 			parent = card,
 			name = "BringBack",
 			text = Strings.ALIENS_BRING_BACK,
@@ -1109,6 +1122,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			size = UDim2.fromScale(0.94, RIDE_H),
 			anchor = Vector2.new(0.5, 0),
 			textSize = Theme.TextSize.Body,
+			rows = SQUARE_ROWS,
+			cells = false, -- one per card: a flat face
 			zIndex = RIDE_Z,
 		}, function()
 			setDisplay(record.uid, nil, entry.name, worldName)
@@ -1267,12 +1282,12 @@ local function refreshStorageRow()
 	local row, why = StorageMath.NextBayLevel(State.GetBayLevel(), profile.world.unlocked)
 	local perLevel = Builder.formatNumber(Storage.Bay.PerLevel)
 	if not row then
-		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_MAX, Theme.Rarity.Common, true)
+		Builder.restyleBlockButton(bayButton, Strings.STORAGE_BAY_MAX, Theme.Rarity.Common, true)
 	elseif why == "NeedsWorld" then
-		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_NEEDS_WORLD:format(perLevel, row.world), Theme.Rarity.Common, true)
+		Builder.restyleBlockButton(bayButton, Strings.STORAGE_BAY_NEEDS_WORLD:format(perLevel, row.world), Theme.Rarity.Common, true)
 	else
 		local color = if profile.scrap >= row.scrap then Theme.Colors.Confirm else Theme.Rarity.Common
-		Builder.restyleButton(bayButton, Strings.STORAGE_BAY_BUY:format(perLevel, Builder.formatNumber(row.scrap)), color, true)
+		Builder.restyleBlockButton(bayButton, Strings.STORAGE_BAY_BUY:format(perLevel, Builder.formatNumber(row.scrap)), color, true)
 	end
 end
 
@@ -1392,71 +1407,38 @@ local function build()
 		AliensScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	-- The panel: a cream block plate at the panel cell (about 26 by 19 cells), the header tab and the close button on it.
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
-		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H),
+		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		size = UDim2.fromScale(0.8, PANEL_H),
+		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 2,
 	})
 	panel = body
+	local top = Builder.blockTop(body)
 
 	-- Header tab straddling the top edge, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Featured)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.ALIENS_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
-
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockHeader(body, PANEL_ASPECT, Strings.ALIENS_TITLE, Theme.Colors.Featured)
+	Builder.blockClose(body, PANEL_H, function()
 		AliensScreen.Close()
 	end)
 
 	-- Release: the menu of "Release all unused" (and the hint about holding a card), over the panel.
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "Release",
 		text = Strings.RELEASE_BUTTON,
 		color = Theme.Colors.Select,
 		position = UDim2.fromScale(RELEASE_X, RELEASE_Y),
 		size = UDim2.fromScale(RELEASE_W, RELEASE_H),
+		rows = Builder.blockButtonRows(RELEASE_H * PANEL_H), -- a fitted block button: its size is a share of the panel
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		zIndex = top + 1,
 	}, function()
 		ReleasePanel.ShowMenu()
 	end)
@@ -1468,7 +1450,7 @@ local function build()
 		name = "Stations",
 		position = UDim2.fromScale(Theme.Margin, STRIP_Y),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, STRIP_H),
-		zIndex = 3,
+		zIndex = top,
 	})
 	local stripLayout = Instance.new("UIListLayout")
 	stripLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -1489,7 +1471,7 @@ local function build()
 		position = UDim2.fromScale(Theme.Margin, STORAGE_Y),
 		size = UDim2.fromScale(STORAGE_LEFT_W, COUNT_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = top,
 	})
 	companionsLabel = Builder.label({
 		parent = body,
@@ -1499,18 +1481,19 @@ local function build()
 		position = UDim2.fromScale(Theme.Margin, STORAGE_Y + COUNT_H),
 		size = UDim2.fromScale(STORAGE_LEFT_W, COUNT_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = top,
 	})
-	bayButton = Builder.button({
+	bayButton = Builder.blockButton({
 		parent = body,
 		name = "StorageBay",
 		text = Strings.STORAGE_BAY_BUY:format(Builder.formatNumber(Storage.Bay.PerLevel), Builder.formatNumber(Storage.Bay.Levels[1].scrap)),
 		color = Theme.Colors.Confirm,
 		position = UDim2.fromScale(1 - Theme.Margin, STORAGE_Y),
 		size = UDim2.fromScale(BAY_W, BAY_H),
+		rows = Builder.blockButtonRows(BAY_H * PANEL_H),
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		zIndex = top + 1,
 	}, buyStorageBay)
 	perksLabel = Builder.label({
 		parent = body,
@@ -1521,7 +1504,7 @@ local function build()
 		position = UDim2.fromScale(Theme.Margin, PERKS_Y),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, PERKS_H),
 		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
+		zIndex = top,
 	})
 
 	-- 3. The grid: a ScrollingFrame with a thin dark bar; cards are rebuilt on refresh.
@@ -1531,7 +1514,7 @@ local function build()
 	scroller.BorderSizePixel = 0
 	scroller.Position = UDim2.fromScale(Theme.Margin, GRID_Y)
 	scroller.Size = UDim2.fromScale(1 - Theme.Margin * 2, GRID_H)
-	scroller.ZIndex = 3
+	scroller.ZIndex = top
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
 	scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroller.CanvasSize = UDim2.fromScale(0, 0)
@@ -1562,7 +1545,7 @@ local function build()
 		position = UDim2.fromScale(0.5, GRID_Y + GRID_H / 2),
 		size = UDim2.fromScale(0.7, 0.1),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 3,
+		zIndex = top,
 	})
 	empty.Visible = false
 	emptyLabel = empty
@@ -1571,40 +1554,43 @@ local function build()
 	-- one-line hint in the minimum text size. Optimize asks the server to reseat the crew; Fuse asks it to fuse every
 	-- species with spare copies; the token button asks it to spend a Companion Token on a slot.
 	local buttonsBottom = 1 - Theme.Margin - HINT_H
-	Builder.button({
+	Builder.blockButton({
 		parent = body,
 		name = "Optimize",
 		text = Strings.OPTIMIZE,
 		color = Theme.Colors.Select,
 		position = UDim2.fromScale(1 - Theme.Margin, buttonsBottom),
 		size = UDim2.fromScale(FOOTER_BUTTON_W, FOOTER_H),
+		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		zIndex = top + 1,
 	}, function()
 		ask("StationOptimize")
 	end)
-	fuseButton = Builder.button({
+	fuseButton = Builder.blockButton({
 		parent = body,
 		name = "Fuse",
 		text = Strings.FUSE_BUTTON,
 		color = Theme.Colors.Featured,
 		position = UDim2.fromScale(1 - Theme.Margin - FOOTER_BUTTON_W - FOOTER_GAP, buttonsBottom),
 		size = UDim2.fromScale(FOOTER_BUTTON_W, FOOTER_H),
+		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		zIndex = top + 1,
 	}, fuseAll)
-	local token = Builder.button({
+	local token = Builder.blockButton({
 		parent = body,
 		name = "UseToken",
 		text = Strings.ALIENS_USE_TOKEN:format(0),
 		color = Theme.Colors.Select,
 		position = UDim2.fromScale(1 - Theme.Margin - 2 * (FOOTER_BUTTON_W + FOOTER_GAP), buttonsBottom), -- left of Fuse, a gap between
 		size = UDim2.fromScale(TOKEN_BUTTON_W, FOOTER_H),
+		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 1),
 		textSize = Theme.TextSize.Label,
-		zIndex = 4,
+		zIndex = top + 1,
 	}, useToken)
 	token.Visible = false -- shown by updateCompanionRows while a token is held
 	tokenButton = token
@@ -1617,7 +1603,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 1 - Theme.Margin),
 		size = UDim2.fromScale(1 - Theme.Margin * 2, HINT_H),
 		anchor = Vector2.new(0.5, 1),
-		zIndex = 3,
+		zIndex = top,
 	})
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).

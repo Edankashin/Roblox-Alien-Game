@@ -7,6 +7,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local BlockMath = require(Shared.BlockMath)
 
 local CELL, INK, MIN_ROWS, GROUT, SEED = 0.02, 0.4, 3, 0.125, 44
+local PANEL_CELL = 0.04 -- Theme.Block.PanelCell: a modal panel's cell, twice CELL (tools/tests/test_block_theme.py checks both)
 local TAP_MIN = 44 -- Theme.TapMin
 local TEXT_MIN = 14 -- Theme.TextSize.Min
 local EPS = 1e-9
@@ -322,6 +323,52 @@ describe("Block screens: Nearby", function()
 			local short = (1 - 0.015 * 7) / 8 * listH * 0.62
 			assert(INK * tall / (3 + 2 * INK) >= 1.9, "tall icon ink is " .. INK * tall / (3 + 2 * INK) .. " px")
 			assert(INK * short / (3 + 2 * INK) >= 0.9, "short icon ink is " .. INK * short / (3 + 2 * INK) .. " px")
+		end)
+	end
+end)
+
+-- A modal panel: Size (sizeX, height) of the screen at `aspect`, rows from its height at the panel cell. Answers its px box and grid.
+local function panel(screen: { w: number, h: number }, sizeX: number, height: number, aspect: number): (number, number, BlockMath.Grid)
+	local w, h = BlockMath.FitPx(sizeX, height, aspect, screen.w, screen.h)
+	return w, h, BlockMath.Grid(aspect, BlockMath.Rows(height, PANEL_CELL, INK, MIN_ROWS), INK)
+end
+
+-- The header tab (0.42 x 0.11 of the panel, three rows) and the close button (0.11 x 0.14, square, rows from 0.14 of the panel's
+-- height share) every modal shares (Builder.blockHeader, Builder.blockClose).
+local function shell(screen: { w: number, h: number }, panelW: number, panelH: number, height: number)
+	local headerGrid = BlockMath.Grid(0.42 * panelW / (0.11 * panelH), 3, INK)
+	local headerCell = 0.11 * panelH * headerGrid.cellY
+	assert(headerCell >= 4.5, "header cell is " .. headerCell .. " px")
+	assert(0.11 * panelH * (1 - 2 * headerGrid.inkY) >= TEXT_MIN, "the title's 14 px line does not fit the header face")
+	local closeRows = BlockMath.Rows(0.14 * height - CELL, CELL, INK, MIN_ROWS)
+	local lip = BlockMath.Lip(1, closeRows, INK)
+	local face = 0.14 * panelH * (1 - lip)
+	assert(face >= 0.6 * TAP_MIN, "the close face is " .. face .. " px (the hit area makes 44)")
+end
+
+describe("Block screens: Aliens", function()
+	-- AliensScreen.luau: the panel 0.8 x 0.78 at 1.35; a card is 0.22 of the grid (the panel less its margins and a 6 px bar),
+	-- square, an edged block of ten rows; a chip is 0.17 of the card tall, a fitted flat block of three rows.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h, grid = panel(screen, 0.8, 0.78, 1.35)
+		it(label .. ": the panel is 26 by 19 panel cells, square, under 200 frames, and its shell fits", function()
+			expect(grid.rows).toEqual(19)
+			expect(grid.cols).toEqual(26)
+			assert(math.abs(BlockMath.Skew(grid, 1.35)) <= 0.06, "panel cells off square")
+			local cell = h * grid.cellY
+			assert(cell >= 2 * 7 and cell <= 2 * 17, "panel cell is " .. cell .. " px")
+			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+			shell(screen, w, h, 0.78)
+		end)
+		it(label .. ": an alien card is ten rows of cells near the HUD's, eight frames, its chips a px of ink or more", function()
+			local card = 0.22 * ((1 - 2 * 0.02) * w - 6)
+			local cardGrid = BlockMath.Grid(1, 10, INK)
+			local cell = card * cardGrid.cellY
+			assert(cell >= 6 and cell <= 17, "card cell is " .. cell .. " px")
+			expect(BlockMath.Frames(cardGrid, false, SEED, true)).toEqual(8)
+			local chip = 0.17 * card
+			assert(INK * chip / (3 + 2 * INK) >= 1.4, "chip ink is " .. INK * chip / (3 + 2 * INK) .. " px")
 		end)
 	end
 end)

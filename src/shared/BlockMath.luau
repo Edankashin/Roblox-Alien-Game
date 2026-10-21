@@ -181,10 +181,11 @@ function BlockMath.Cell(grid: Grid, col: number, row: number): Rect
 end
 
 -- How many frames Builder.blockPlate draws for a grid: two ink bars and two face bars, and with `cells` the C3 bands, the grout
--- lines and the jittered cells (seed `seed`). The UI Playbook's frame budget ("Frames") counts with it.
-function BlockMath.Frames(grid: Grid, cells: boolean, seed: number): number
+-- lines and the jittered cells (seed `seed`); an edged block (`edges`, no cells) the bands alone. The UI Playbook's frame budget
+-- ("Frames") counts with it.
+function BlockMath.Frames(grid: Grid, cells: boolean, seed: number, edges: boolean?): number
 	local count = 4
-	if not cells then
+	if not cells and not edges then
 		return count
 	end
 	local bands = BlockMath.Bands(grid)
@@ -192,6 +193,9 @@ function BlockMath.Frames(grid: Grid, cells: boolean, seed: number): number
 		if band then
 			count += 1
 		end
+	end
+	if not cells then
+		return count
 	end
 	return count + #BlockMath.Grout(grid, 1) + #BlockMath.Jittered(grid, seed)
 end

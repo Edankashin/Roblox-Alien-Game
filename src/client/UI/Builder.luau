@@ -112,6 +112,8 @@ export type BlockProps = {
 	rows: number?, -- cell rows across the face; default from size.Y (Builder.blockRows), so a cell is about Theme.Block.Cell of the screen
 	-- (a fitted plate with no rows picks them once from its measured height, again when the screen changes)
 	cells: boolean?, -- false: a flat block (ink, face and stepped corners, no bands, grout or jitter), for a badge or an icon square
+	edges: boolean?, -- with cells false: an edged block, the flat block plus the C3 lit top row and shaded edges (no grout, no
+	-- jitter): a card repeated down a list or across a grid, so it reads as a block at eight frames, not fifty (UI Playbook "Frames")
 	position: UDim2?,
 	size: UDim2?,
 	anchor: Vector2?,
@@ -857,7 +859,7 @@ end
 -- top row and the shaded side and bottom cells (three cells or more both ways), the grout on every cell and the jittered cells.
 -- The face, the ink and the fade come from the plate's attributes (setBlockColor, setBlockInk and setBlockFade keep them), so a
 -- redraw keeps a recolour.
-local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, seed: number)
+local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edges: boolean, seed: number)
 	local old = drawnParts[plate]
 	if old then
 		for _, part in ipairs(old) do
@@ -881,7 +883,7 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, seed
 	for _, rect in ipairs(BlockMath.Face(grid)) do
 		add("Fill", rect, face, 0, layers.Fill)
 	end
-	if cells then
+	if cells or edges then
 		local bands = BlockMath.Bands(grid)
 		if bands.top then
 			add("Lit", bands.top, Theme.Colors.White, Theme.Block.TopAlpha, layers.Cells)
@@ -891,6 +893,8 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, seed
 				add("Edge", rect, Theme.Colors.Black, Theme.Block.EdgeAlpha, layers.Cells)
 			end
 		end
+	end
+	if cells then
 		for _, rect in ipairs(BlockMath.Grout(grid, Theme.Block.Grout)) do
 			add("Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, layers.Cells)
 		end
@@ -964,10 +968,11 @@ function Builder.blockPlate(props: BlockProps): Frame
 	plate:SetAttribute(BLOCK_COLOR, props.color)
 	plate:SetAttribute(BLOCK_INK, props.ink or Theme.Colors.Outline)
 	local cells = props.cells ~= false
+	local edges = props.edges == true
 	local seed = props.seed or Theme.Block.Seed
 	local function draw(aspect: number, rows: number)
 		plate:SetAttribute(BLOCK_ASPECT, aspect)
-		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, seed)
+		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, edges, seed)
 	end
 	local aspect = props.aspect
 	if aspect then
@@ -1277,6 +1282,74 @@ function Builder.restyleBlockButton(container: Frame?, text: string, color: Colo
 	end
 end
 
+local HEADER_SIZE = Vector2.new(0.42, 0.11) -- a panel's header tab, of the panel, straddling its top edge
+local CLOSE_POSITION = UDim2.fromScale(0.985, 0.015) -- a panel's close button: top right, anchored at its top right corner
+local CLOSE_SIZE = Vector2.new(0.11, 0.14)
+
+-- The rows of a modal panel `height` tall (a Scale of the screen height): the panel cell, Theme.Block.PanelCell (the UI Playbook's
+-- density rule: a big plate takes cells twice the HUD's, as the world's cell is twice a creature's, so a panel is about 19 rows).
+function Builder.blockPanelRows(height: number): number
+	return Builder.blockRows(height, Theme.Block.PanelCell)
+end
+
+-- The header tab a block panel wears straddling its top edge: a block plate in `color`, `size` of the panel (HEADER_SIZE by
+-- default), three rows of cells, its shape from the panel's `panelAspect` so the cells stay square, the title in white outlined
+-- Title text on top. Returns the tab and the title label.
+function Builder.blockHeader(
+	panel: Frame,
+	panelAspect: number,
+	title: string,
+	color: Color3,
+	size: Vector2?,
+	position: UDim2?,
+	zIndex: number?
+): (Frame, TextLabel)
+	local box = size or HEADER_SIZE
+	local tab = Builder.blockPlate({
+		parent = panel,
+		name = "Header",
+		color = color,
+		aspect = box.X * panelAspect / box.Y,
+		rows = Theme.Block.MinRows,
+		position = position or UDim2.fromScale(0.5, 0),
+		size = UDim2.fromScale(box.X, box.Y),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = zIndex or Builder.blockTop(panel),
+	})
+	local label = Builder.label({
+		parent = tab,
+		name = "Title",
+		text = title,
+		textSize = Theme.TextSize.Title,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.9, 0.72),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(tab),
+	})
+	return tab, label
+end
+
+-- The red close button a block panel wears at its top right: a square block button with the close glyph and the 44 px hit area.
+-- `panelHeight` is the panel's height as a Scale of the screen (its rows come from it); position and size default to the
+-- panels' common slot.
+function Builder.blockClose(panel: Frame, panelHeight: number, onClose: () -> (), position: UDim2?, size: Vector2?, zIndex: number?): Frame
+	local box = size or CLOSE_SIZE
+	return Builder.blockButton({
+		parent = panel,
+		name = "Close",
+		text = Strings.UI_CLOSE,
+		color = Theme.Colors.Close,
+		position = position or CLOSE_POSITION,
+		size = UDim2.fromScale(box.X, box.Y),
+		anchor = Vector2.new(1, 0),
+		textSize = Theme.TextSize.Label,
+		aspect = 1,
+		rows = Builder.blockButtonRows(box.Y * panelHeight),
+		hit = true,
+		zIndex = zIndex or Builder.blockTop(panel),
+	}, onClose)
+end
+
 -- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
 -- no text stroke (navy on cream), left-aligned inside a scale padding. The text is kept when it gains focus (typing
 -- edits it); the caller reads .Text and listens to FocusLost for Enter.
@@ -1477,6 +1550,15 @@ function Builder.shine(target: GuiObject): () -> ()
 	clip.Size = UDim2.fromScale(1, 1)
 	clip.ZIndex = target.ZIndex + SHINE_LAYER
 	roundLike(clip, matchingRadius(target, nil))
+	local block = blockGrid(target)
+	if block then
+		-- A block plate has no round corner to match: the sweep stays inside its face's wide bar (between the cut corner cells),
+		-- under the plate's content layer.
+		local wide = BlockMath.Face(block)[1]
+		clip.Position = UDim2.fromScale(wide.x, wide.y)
+		clip.Size = UDim2.fromScale(wide.w, wide.h)
+		clip.ZIndex = target.ZIndex + Theme.Block.Layer.Cells
+	end
 
 	local restX = UDim2.fromScale(-SHINE_OVERSHOOT, 0.5)
 	local band = Instance.new("Frame")
