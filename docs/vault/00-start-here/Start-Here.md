@@ -13,6 +13,7 @@ The front door of the vault, and the map of maps. A new teammate or a new Claude
 - [[Now]]: the hot note, 300 to 500 words: what the game is, the state today (launch off, and why), the bar, the three open threads, who owns what, where to read next. Read it on every start.
 - [[Decide-Now]]: Ethan's 36 open questions and rows in five groups, each with options, a recommendation and the next step, ending in a paste-back Answer sheet. Read it when you are Ethan and want to decide by number.
 - [[Launch-Dashboard]]: one screen for Ethan: the date, what is live, what is built and waiting, what only he can do, the decisions of 2026-10-14. Read it first on any working day.
+- [[Test-Run]]: test-run the finished game on the Mac in about ten minutes (after [[Overnight]] job 40 uploaded the art).
 - [[Handoff]]: the whole project in one file (people, the game, numbers, ids, the repo, the rules, tools, what is done and what comes next). Read it once, completely; return to its section 15 to find anything else.
 - [[Board]]: the shared to-do list for Ethan, the collaborator and every session. Read it at the start of a working block and claim a row before you work on it.
 - [[Asks-Ledger]]: every ask, decision, preference, idea and promise Ethan has voiced since 2026-10-04, one table per day, each with its status and the note that holds it; the references he sent, the tools he named, and the two owe-lists (his and ours). Read it before answering "did we do what I asked", and add a row the day he says something.

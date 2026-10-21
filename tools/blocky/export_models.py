@@ -32,8 +32,9 @@ along -Z; triangles under the cap and as notes.md says; materials.json names the
 the Rigs row's layout. A species that is still pending is listed, not checked. Exit 1 on any problem, 2 on bad usage.
 
 Files under the folder that the export does not write (an old blockout's leftovers) are deleted and printed. asset_ids.json is only marked:
-an exported species that has an old upload gets `pendingUpload` (the new files, not uploaded); its old assetId stays until Ethan uploads
-(`python3 tools/upload_assets.py --redo --only <Ids>`), so the game keeps its old mesh, which World.RigAnimator leaves alone, until then.
+an exported species that has an old upload gets `pendingUpload` (the new files, not uploaded); its old assetId stays until the Mac
+uploads (Decision B47: tools/finalize_upload.sh runs `python3 -I tools/upload_assets.py --blocky`), so the game keeps its old mesh,
+which World.RigAnimator leaves alone, until then. A re-export after the upload marks the species pending again (its files changed).
 """
 from __future__ import annotations
 
@@ -59,6 +60,7 @@ CREATURES = ROOT / "docs/vault/07-alien-game/Creatures"
 MODELS = ROOT / "assets/models"
 RIGS_LUAU = ROOT / "src/shared/data/Rigs.luau"
 IDS_FILE = MODELS / "asset_ids.json"
+IMAGE_IDS_FILE = MODELS / "image_ids.json"   # the atlas and face sheet Decal and Image ids (upload_assets.py --blocky)
 TOOL = "tools/blocky/export_models.py"
 
 HEIGHT_BAND = (2.0, 3.5)        # Decision B45: every alien 2 to 3.5 studs
@@ -630,21 +632,30 @@ def run_export(only=None, previews=True):
     return 1 if failed else 0
 
 
-def emit_luau(models=MODELS, ids_file=IDS_FILE):
+def _image_id(entry):
+    value = entry.get("imageId") if isinstance(entry, dict) else None
+    return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+
+def emit_luau(models=MODELS, ids_file=IDS_FILE, image_ids_file=IMAGE_IDS_FILE):
     """The BLOCK_CELL table for tools/studio/install_models.luau (between its BLOCK-CELL PASTE markers), from every exported folder's
-    materials.json: per species its new Model asset id (0 while asset_ids.json still marks it pendingUpload, so the installer never loads
-    the old blockout), the cell atlas and face sheet image ids (0 until uploaded; typed in by hand after the upload), and its parts in GLB
-    order with the colour, Neon and the map each samples."""
+    materials.json: per species its new Model asset id (0 until upload_assets.py --blocky records the block-cell upload in asset_ids.json:
+    `blockCell` true and no `pendingUpload`, so the installer never loads the old blockout), the Image ids of the cell atlas and the face
+    sheet (assets/models/image_ids.json "<Id>/atlas" and "<Id>/face", 0 until uploaded and resolved), and its parts in GLB order with the
+    colour, Neon and the map each samples. upload_assets.py --fill-blocky pastes it."""
     ids = json.loads(pathlib.Path(ids_file).read_text(encoding="utf-8")) if pathlib.Path(ids_file).exists() else {}
+    images = json.loads(pathlib.Path(image_ids_file).read_text(encoding="utf-8")) if pathlib.Path(image_ids_file).exists() else {}
     lines = ["local BLOCK_CELL: { [string]: BlockCellRow } = {"]
     for folder in sorted(p for p in pathlib.Path(models).iterdir() if p.is_dir()):
         sid = folder.name
         if not (folder / (sid + "_atlas.png")).exists():
             continue
         entry = ids.get(sid) if isinstance(ids.get(sid), dict) else {}
-        asset = int(entry.get("assetId", 0)) if entry and "pendingUpload" not in entry else 0
+        uploaded = entry.get("blockCell") is True and "pendingUpload" not in entry
+        asset = int(entry.get("assetId", 0)) if uploaded else 0
         lines.append("\t%s = {" % sid)
-        lines.append("\t\tassetId = %d, cellMap = 0, faceMap = 0," % asset)
+        lines.append("\t\tassetId = %d, cellMap = %d, faceMap = %d," % (
+            asset, _image_id(images.get(sid + "/atlas")), _image_id(images.get(sid + "/face"))))
         lines.append("\t\tparts = {")
         for e in json.loads((folder / "materials.json").read_text(encoding="utf-8")):
             neon = e.get("emission", 0) > 0

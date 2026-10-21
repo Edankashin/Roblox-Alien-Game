@@ -1145,11 +1145,13 @@ def lint(root: Path = ROOT) -> list[str]:
             if isinstance(value, str) and (key in fields or value.startswith(prefixes)):
                 reference(f'{name}.{path}', value, strings, 'strings key')
     images = tables['Icons']
-    pngs = {p.stem for directory in ('icons', 'particles') for p in (root / 'assets' / directory).rglob('*.png')}
+    # assets/sprites/blocky holds the block-cell particle sprites (tools/pixel_sprites.py), uploaded from there by
+    # tools/upload_assets.py --blocky
+    pngs = {p.stem for directory in ('icons', 'particles', 'sprites/blocky') for p in (root / 'assets' / directory).rglob('*.png')}
     for group in ('Icons', 'Particles'):
         for key, asset_id in images[group].items():
             if key not in pngs and not (group == 'Particles' and type(asset_id) is int and asset_id == 0):
-                failures.append(f'Icons.{group}.{key}: no PNG in assets/icons or assets/particles')
+                failures.append(f'Icons.{group}.{key}: no PNG in assets/icons, assets/particles or assets/sprites/blocky')
     for key in sorted(pngs - (images['Icons'].keys() | images['Particles'].keys())):
         failures.append(f'assets/{key}.png: no Icons or Particles key')
     previous = -math.inf
