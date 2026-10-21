@@ -781,10 +781,14 @@ local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instanc
 end
 
 -- The camp pad, its SpawnLocation, the home plot and the home stands, on the floor top (the old flat builder and the generated one
--- share it: the generated camp is a flat green at the floor top).
-local function buildCamp(floorTop: number, world: Instance)
-	local padY = floorTop + Layout.CampPadThickness / 2
-	uprightCylinder("CampPad", Layout.CampPadRadius, Layout.CampPadThickness, Vector3.new(0, padY, 0), Layout.CampPadColor, world)
+-- share it: the generated camp is a flat green at the floor top). `deckBuilt`: the generated ground already lays the camp's deck at
+-- the origin (a solid of CampPadThickness, world<id>.json), so the round pad is not drawn over it; the SpawnLocation stands
+-- at the same height either way.
+local function buildCamp(floorTop: number, world: Instance, deckBuilt: boolean?)
+	if not deckBuilt then
+		local padY = floorTop + Layout.CampPadThickness / 2
+		uprightCylinder("CampPad", Layout.CampPadRadius, Layout.CampPadThickness, Vector3.new(0, padY, 0), Layout.CampPadColor, world)
+	end
 
 	-- A thin visible square flush on the pad so the spawn point reads as part of the camp.
 	local spawn = Instance.new("SpawnLocation")
@@ -811,11 +815,24 @@ local function buildCamp(floorTop: number, world: Instance)
 	buildHomeStands(floorTop, world)
 end
 
+-- Whether the generated ground lays a deck over the camp's centre at the pad's height (the camp deck of world<id>.json; a solid
+-- with walk off, so the grid keeps the camp contract: SurfaceAt is the floor top there, as under the old round pad).
+local function hasCampDeck(gen: Types.WorldGen): boolean
+	local solids = gen.Solids
+	for r = 1, #solids, WorldGrid.Stride.Solids do
+		local x0, y0, z0, x1, y1, z1 = solids[r], solids[r + 1], solids[r + 2], solids[r + 3], solids[r + 4], solids[r + 5]
+		if y0 <= 0 and math.abs(y1 - Layout.CampPadThickness) < 0.01 and x0 < 0 and 0 < x1 and z0 < 0 and 0 < z1 then
+			return true
+		end
+	end
+	return false
+end
+
 -- A generated world: the ground, the camp, the props, then the shrine and the landmarks on the ground under them.
 local function buildGenerated(gen: Types.WorldGen, world: Instance, landmarks: Instance)
 	local floorTop = Layout.FloorThickness / 2
 	buildGround(gen, floorTop, world)
-	buildCamp(floorTop, world)
+	buildCamp(floorTop, world, hasCampDeck(gen))
 	local scatter = Instance.new("Folder")
 	scatter.Name = SCATTER_FOLDER
 	scatter.Parent = world
