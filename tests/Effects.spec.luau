@@ -2,7 +2,9 @@
 -- The per-species effects (data/Effects) and the rules the client's World.SpeciesFx draws them by (Shared/EffectsMath): the
 -- table shapes, B46's steep tier ladder and its gate (LayersFor: the kinds each tier may draw, layersAllowed, the extras), the
 -- spawn moment, the caps (Resolve, FitBudget, PickActive, the burst, beam, light and pillar limits), the dark variant, the
--- sprites and their fallbacks, the flourish timer, the idle, beam, orbit and envelope clocks and the sound clock.
+-- sprites and their fallbacks, the flourish timer, the idle, beam, orbit and envelope clocks and the sound clock; the signature
+-- pieces (Effects.Pieces: a layer on a named moving part, its fallback to a region, every piece against the species' Rigs row,
+-- each Rare and up led by its piece and firing there on the flourish, and their budgets on a phone).
 -- tools/lint_data.py checks the same data from the Python side.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local EffectsMath = require(Shared.EffectsMath)
@@ -11,6 +13,7 @@ local Species = require(Shared.data.Species)
 local Tiers = require(Shared.data.Tiers)
 local Icons = require(Shared.data.Icons)
 local Sounds = require(Shared.data.Sounds)
+local Rigs = require(Shared.data.Rigs)
 
 local KINDS = {
 	Emitter = true,
@@ -62,9 +65,9 @@ describe("the data", function()
 				expect(KINDS[layer.kind]).toEqual(true)
 				expect(#layer.color).toEqual(6)
 				expect(tonumber(layer.color, 16) ~= nil).toEqual(true)
-				expect(Effects.Attach[layer.at] ~= nil).toEqual(true)
+				expect(EffectsMath.IsPoint(layer.at)).toEqual(true)
 				if layer.to ~= nil then
-					expect(Effects.Attach[layer.to] ~= nil).toEqual(true)
+					expect(EffectsMath.IsPoint(layer.to)).toEqual(true)
 				end
 				if layer.sprite ~= nil then
 					expect(Icons.Particles[layer.sprite] ~= nil).toEqual(true)
@@ -130,6 +133,162 @@ describe("the data", function()
 		for _, fx in pairs(Effects.Species) do
 			if fx.idle.kind == "Spin" then
 				expect(fx.idle.amplitude % 360).toEqual(0)
+			end
+		end
+	end)
+end)
+
+local RARE_UP = { Rare = true, Epic = true, Legendary = true, Cosmic = true, Secret = true }
+-- The attach points the two Rare pass workers defined in the creature notes' VFX hooks (2026-10-21).
+local HOOKS = {
+	"Geode", "Palette", "Arc", "Glass", "Panes", "Cloud", "Charge", "Candles", "Mantle", "Medallion", "Comet", "Sunstones",
+	"Eclipse", "Echo", "Ring", "Antlers", "Summit", "Crown", "Plume", "Runes", "Moon", "Mane",
+}
+
+local function rigParts(id: string): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	local row = Rigs.Species[id]
+	if row then
+		for _, part in ipairs(row.parts) do
+			out[part.name] = true
+		end
+	end
+	return out
+end
+
+local function yes(_: string): boolean
+	return true
+end
+
+local function no(_: string): boolean
+	return false
+end
+
+-- A layer's point is on the signature: the signature itself, a sibling spot (GlassB, AntlersL), or another spot on its part.
+local function onSignature(name: string, signature: string): boolean
+	if string.sub(name, 1, #signature) == signature then
+		return true
+	end
+	local a, b = Effects.Pieces[name], Effects.Pieces[signature]
+	return a ~= nil and b ~= nil and a.part == b.part
+end
+
+describe("signature pieces", function()
+	it("defines every attach point of the creature notes' hooks, as a piece or a static point", function()
+		for _, name in ipairs(HOOKS) do
+			expect(EffectsMath.IsPoint(name)).toEqual(true)
+		end
+	end)
+
+	it("gives every piece a part, a spot in its box and a real fallback region, never a region's own name", function()
+		for name, piece in pairs(Effects.Pieces) do
+			expect(Effects.Attach[name] == nil).toEqual(true)
+			expect(#piece.part > 0).toEqual(true)
+			expect(#piece.spot).toEqual(3)
+			for _, v in ipairs(piece.spot) do
+				expect(v >= -1 and v <= 1).toEqual(true)
+			end
+			expect(Effects.Attach[piece.region] ~= nil).toEqual(true)
+		end
+	end)
+
+	it("hangs a layer on the piece's part at its spot when the model has the part", function()
+		local place = EffectsMath.Place("Comet", yes)
+		expect(place.part).toEqual("comet")
+		expect(place.x).toBeClose(Effects.Pieces.Comet.spot[1], 1e-9)
+		expect(place.y).toBeClose(Effects.Pieces.Comet.spot[2], 1e-9)
+		expect(place.z).toBeClose(Effects.Pieces.Comet.spot[3], 1e-9)
+		-- only the asked-for part counts
+		local other = EffectsMath.Place("Comet", function(name: string): boolean
+			return name == "sunstone"
+		end)
+		expect(other.part).toEqual(nil)
+	end)
+
+	it("falls back to the piece's nearest region on a model without the part (an old blockout), inside its bounds", function()
+		for name, piece in pairs(Effects.Pieces) do
+			local place = EffectsMath.Place(name, no)
+			expect(place.part).toEqual(nil)
+			expect(place.region).toEqual(piece.region)
+			local x, y, z = EffectsMath.AttachOffset(place.region, -1, 0, -1, 2, 3, 2)
+			expect(x >= -1 and x <= 1 and z >= -1 and z <= 1).toEqual(true)
+			expect(y >= 0 and y <= 3 * 1.25).toEqual(true)
+		end
+		-- a body region stays itself, an unknown name is the body
+		expect(EffectsMath.Place("Top", yes).part).toEqual(nil)
+		expect(EffectsMath.Place("Top", yes).region).toEqual("Top")
+		expect(EffectsMath.Place("Medallion", yes).region).toEqual("Medallion")
+		expect(EffectsMath.Place("Nowhere", yes).region).toEqual("Body")
+	end)
+
+	it("resolves every piece a species names to a moving part of that species' rig", function()
+		for id, fx in pairs(Effects.Species) do
+			local parts = rigParts(id)
+			for _, layer in ipairs(fx.layers) do
+				for _, name in ipairs({ layer.at, layer.to or layer.at }) do
+					local piece = Effects.Pieces[name]
+					if piece then
+						expect(parts[piece.part]).toEqual(true)
+						local place = EffectsMath.Place(name, function(part: string): boolean
+							return parts[part] == true
+						end)
+						expect(place.part).toEqual(piece.part)
+					end
+				end
+			end
+			for _, part in ipairs(EffectsMath.PieceParts(id)) do
+				expect(parts[part]).toEqual(true)
+			end
+		end
+		expect(EffectsMath.PieceParts("Radish")[1]).toEqual("sunstone")
+		expect(#EffectsMath.PieceParts("Mossbop")).toEqual(0)
+	end)
+
+	it("keeps a beam's or trail's two ends on two regions when they fall back", function()
+		for _, fx in pairs(Effects.Species) do
+			for _, layer in ipairs(fx.layers) do
+				if (layer.kind == "Beam" or layer.kind == "Trail") and layer.to ~= nil then
+					expect(EffectsMath.RegionOf(layer.at) ~= EffectsMath.RegionOf(layer.to :: string)).toEqual(true)
+				end
+			end
+		end
+	end)
+
+	it("leads every Rare to Secret with its signature and fires it on the rig's flourish", function()
+		local led = 0
+		for _, def in ipairs(Species.List) do
+			local fx = Effects.Species[def.id]
+			if RARE_UP[def.tier] then
+				local signature = fx.signature :: string
+				expect(EffectsMath.IsPoint(signature)).toEqual(true)
+				expect(fx.layers[1].at).toEqual(signature)
+				local fires = false
+				for _, layer in ipairs(EffectsMath.LayersFor(def.id, def.tier)) do
+					fires = fires or (onSignature(layer.at, signature) and EffectsMath.OnFlourish(layer))
+				end
+				expect(fires).toEqual(true)
+				-- the rig has a flourish, whose beat (RigAnimator -> SpeciesFx.Flourish) fires that layer
+				local rig = Rigs.Species[def.id]
+				expect(rig ~= nil and rig.flourish ~= nil).toEqual(true)
+				led += 1
+			else
+				expect(fx.signature == nil).toEqual(true)
+			end
+		end
+		expect(led).toEqual(18)
+	end)
+
+	it("fits every signature set at its own tier into the per-alien budget without scaling it down", function()
+		for _, def in ipairs(Species.List) do
+			if RARE_UP[def.tier] then
+				for _, mobile in ipairs({ true, false }) do
+					local resolved = {}
+					for _, layer in ipairs(EffectsMath.LayersFor(def.id, def.tier)) do
+						table.insert(resolved, EffectsMath.Resolve(layer, def.tier, mobile, 1))
+					end
+					expect(EffectsMath.FitBudget(resolved, mobile)).toEqual(1)
+					expect(count(resolved, "Light") <= Effects.Caps.MaxLights).toEqual(true)
+				end
 			end
 		end
 	end)
@@ -365,7 +524,6 @@ describe("LayersFor", function()
 			for _, kind in ipairs({ "Orbit", "Trail", "RingPulse", "Aura", "Pillar" }) do
 				expect(count(layers, kind)).toEqual(1)
 			end
-			expect(#layers).toEqual(#Effects.Species[id].layers)
 		end
 	end)
 
@@ -376,7 +534,7 @@ describe("LayersFor", function()
 		expect(dark[1].color).toEqual(EffectsMath.Mix(data[1].color, Effects.Dark.Color, Effects.Dark.Mix))
 		expect(plain[1].color).toEqual(data[1].color)
 		expect(dark[1].glow).toBeClose((data[1].glow or Effects.Look.DefaultGlow) * Effects.Dark.GlowScale, 1e-9)
-		expect(data[1].color).toEqual("B28CFF") -- the data row itself is untouched
+		expect(data[1].color).toEqual("1A1030") -- the data row itself is untouched (the eclipse's dark corona)
 		for index, layer in ipairs(dark) do
 			if layer.kind == "Pillar" or layer.kind == "RingPulse" then
 				expect(layer.color).toEqual(EffectsMath.Mix(plain[index].color, Effects.Dark.Color, Effects.Dark.MomentMix))

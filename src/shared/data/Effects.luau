@@ -5,7 +5,9 @@
 -- Species: one row per species id (all 35): an element label, the effect layers strongest first, and an idle motion.
 -- Tiers: what each rarity may draw of them: how many layers, which kinds (the body up to Epic, the ground from Legendary, the
 -- sky from Cosmic), the scales, and the extras it adds (trail, orbit, ground ring, aura, sky pillar, flourish, spawn moment).
--- Caps: the per-client budgets. Attach: the body regions layers hang on, as fractions of the alien's bounds.
+-- Caps: the per-client budgets. Attach: the body regions layers hang on, as fractions of the alien's bounds. Pieces: the
+-- signature pieces (Rare and up) on named moving parts, which a layer follows as the rig moves them; a row's `signature` names
+-- its piece, and its first layer hangs there.
 -- Every length in a layer is a fraction of the alien's own height ("heights"), so the data names no stud; the idle
 -- amplitudes are the only studs and degrees. Colours are hex. Sprites are keys of Icons.Particles: a key whose id is still 0
 -- wears its SpriteFallback key's sprite when that one is uploaded, else the soft default sprite. Lint (tools/lint_data.py)
@@ -28,6 +30,58 @@ local attach: { [string]: Types.AttachPoint } = {
 	FrontR = { x = 0.45, y = 0.3, z = -0.35 },
 	Tail = { x = 0, y = 0.4, z = 0.5 },
 	Feet = { x = 0, y = 0.02, z = 0 },
+	-- Signature pieces that do not move (part of the static Body mesh), so they are plain points of the bounds (the creature
+	-- notes' VFX hooks, Rare pass 2026-10-21): Blinkar's crystal antlers, Gaira's gilded medallion.
+	Antlers = { x = 0.32, y = 0.84, z = -0.18 },
+	AntlersL = { x = -0.32, y = 0.84, z = -0.18 },
+	Medallion = { x = -0.02, y = 0.24, z = -0.36 },
+}
+
+-- Signature pieces on moving parts (the Rare pass, 2026-10-21: every Rare to Secret alien got a named piece that moves on its own;
+-- the hook tables in the creature notes, docs/vault/07-alien-game/Creatures). A layer whose `at` (or `to`) names one of these hangs
+-- on the model's part named `part` (the Blender object's rig name, as data/Rigs names it and the GLB exports it), at `spot` in the
+-- part's own box (fractions of each side from its centre; up to 1 reaches a little past a face), so it follows the part as
+-- World.RigAnimator spins, sways and pops it: an orbiting comet carries its own sparkle trail, a pane its light. On a model without
+-- that part (today's old blockouts, until the block-cell upload) the layer falls back to `region`, the nearest body region. Spots
+-- are measured from each note's parts (the hook part's centre in its moving object's box); lint and tests/Effects.spec.luau check
+-- every piece a species names against that species' Rigs row. Paired names (Glass and GlassB) are two spots on one part.
+local pieces: { [string]: Types.FxPiece } = {
+	-- World 1
+	Geode = { part = "geodeL", spot = { 0, 0.45, 0 }, region = "Top" }, -- Boulden: the tip of the tall lit crystal
+	Palette = { part = "paletteL", spot = { -0.14, -0.21, -0.32 }, region = "FrontL" }, -- Vixa: the lit dab
+	Arc = { part = "arc", spot = { -0.38, -0.25, 0 }, region = "Halo" }, -- Zirrit: the spark gap's two ends
+	ArcEnd = { part = "arc", spot = { 0.38, 0.25, 0 }, region = "Top" },
+	Glass = { part = "glass", spot = { 0, 0.3, -0.48 }, region = "Body" }, -- Wispkin: the front pane and the back one
+	GlassB = { part = "glass", spot = { 0, -0.1, 0.48 }, region = "Back" },
+	Panes = { part = "wingR", spot = { -0.23, -0.25, -0.33 }, region = "BackR" }, -- Iridia: the stained glass of each wing
+	PanesL = { part = "wingL", spot = { 0.23, -0.25, -0.33 }, region = "BackL" },
+	Cloud = { part = "cloudR", spot = { -0.06, -0.43, 0 }, region = "Back" }, -- Voltus: under the thundercloud
+	Charge = { part = "charge", spot = { 0.49, 0, -0.41 }, region = "BackR" }, -- Voltus: the front cell of the gauge
+	Candles = { part = "candles", spot = { 0.43, 0.4, -0.42 }, region = "Halo" }, -- Grin: the three flames
+	CandlesB = { part = "candles", spot = { -0.43, 0.4, -0.42 }, region = "Top" },
+	CandlesC = { part = "candles", spot = { 0, 0.4, 0.42 }, region = "Back" },
+	Mantle = { part = "cape", spot = { 0, 0.5, 0.25 }, region = "Back" }, -- Gaira: the glass-petal mantle
+	Comet = { part = "comet", spot = { -0.32, 0, 0 }, region = "Halo" }, -- Cosmoo: the comet's head, and over it (the tail's span)
+	CometTail = { part = "comet", spot = { -0.32, 0.5, 0 }, region = "Top" },
+	Sunstones = { part = "sunstone", spot = { 0, 0, -0.46 }, region = "Feet" }, -- Raddis: the front sun, the back one, over the front one
+	SunstonesB = { part = "sunstone", spot = { 0, 0, 0.46 }, region = "Tail" },
+	SunstonesTop = { part = "sunstone", spot = { 0, 0.15, -0.46 }, region = "Body" },
+	Eclipse = { part = "eclipse", spot = { 0, 0, 0.8 }, region = "Halo" }, -- Syrinx: just behind the disc's middle (a corona shows round it)
+	EclipseRim = { part = "eclipse", spot = { 0.29, 0.29, -0.5 }, region = "Top" }, -- Syrinx: the diamond bead on the rim
+	Echo = { part = "echoR", spot = { 0, 0, 0 }, region = "BackR" }, -- Syrinx: the echo ring over the pipes
+	-- World 2
+	Ring = { part = "ring", spot = { 0.41, 0, 0.03 }, region = "Top" }, -- Snorzo: the big bubbles of the planet ring
+	RingB = { part = "ring", spot = { -0.41, 0, -0.31 }, region = "Halo" },
+	Summit = { part = "shardsR", spot = { 0.43, 0, 0 }, region = "Top" }, -- Floe: the two shard moons
+	SummitB = { part = "shardsR", spot = { -0.43, 0, 0 }, region = "Halo" },
+	Crown = { part = "crown", spot = { 0, 0, 0 }, region = "Top" }, -- Sabrek: the snowflake's middle and a tip
+	CrownTip = { part = "crown", spot = { 0.25, 0.25, 0 }, region = "Halo" },
+	Plume = { part = "tailR", spot = { 0, 0.5, 0 }, region = "Tail" }, -- Aurelyx: the plume's tip and its root (the ribbon's span)
+	PlumeBase = { part = "tailR", spot = { 0, 0.2, 0 }, region = "Back" },
+	Runes = { part = "halo", spot = { 0.43, 0.07, -0.42 }, region = "Halo" }, -- Skadra: two of the three runes
+	RunesB = { part = "halo", spot = { 0, 0.07, 0.42 }, region = "Top" },
+	Moon = { part = "moon", spot = { 0.09, 0, 0 }, region = "Top" }, -- Fenrir: the lit moon
+	Mane = { part = "mane", spot = { 0.3, 0.2, -0.21 }, region = "Back" }, -- Fenrir: the nebula mane
 }
 
 -- Budgets. The rate caps are particles per second for one emitter after the tier's rateScale; a phone is a device with a
@@ -265,7 +319,8 @@ local sheets: { [string]: Types.SpriteSheet } = {
 -- How the pieces are drawn. DefaultGlow: LightEmission when a layer names none. AnchorStuds: the invisible part a model's
 -- attachments sit on. Emitter transparency fades in over FadeIn of the life, holds at PeakTransparency until FadeOut, then
 -- fades out. Beam: a strike lasts BeamFlashSeconds and redraws its bend BeamSteps times; the bend is BeamCurve of the bolt's
--- length; BeamTransparency is the bolt's. TrailTransparency is the ribbon's start (it fades to 1 along its life). PulseDepth:
+-- length; BeamTransparency is the bolt's. TrailTransparency is the ribbon's start (it fades to 1 along its life, and narrows to
+-- TrailTaper of its width, so a comet's tail tapers). PulseDepth:
 -- a pulsing light dips to this fraction below its brightness. RingFrom: a ground ring starts at this fraction of its size;
 -- RingDrift (heights a second) gives it the small upward velocity a flat sprite needs to lie flat; RingStagger: seconds
 -- between the rings of one RingPulse firing. EndSize: a particle shrinks to this fraction of its size by the end of its life.
@@ -295,6 +350,7 @@ local look = {
 	BeamCurve = 0.35,
 	BeamTransparency = 0.05,
 	TrailTransparency = 0.25,
+	TrailTaper = 0.25,
 	PulseDepth = 0.5,
 	RingFrom = 0.25,
 	RingDrift = 0.01,
@@ -479,153 +535,195 @@ local species: { [string]: Types.SpeciesFx } = {
 		},
 		idle = { kind = "Bob", amplitude = 0.15, period = 1 },
 	},
-	-- Rare: three layers, a soft light and a sparkle among them -------------------------------------------------------------
+	-- Rare: three layers, a soft light and a sparkle among them, all on the signature piece -----------------------------------
 	Rocklobber = {
 		element = "Boulder",
+		signature = "Geode",
 		layers = {
+			-- the open amber geode: motes rise off the lit crystals, which throb with light
+			{ kind = "Emitter", color = "FF8C1A", at = "Geode", rate = 4, size = 0.05, lifetime = 1.3, speed = 0.12, spread = 30, rise = 0.12, glow = 1, sprite = "PixelMote" },
+			{ kind = "Light", color = "F5B342", at = "Geode", brightness = 1, range = 2.2, pulse = 2.2 },
+			-- the crystals glint, and flash on the flourish
+			{ kind = "Sparkle", color = "FFD27A", at = "Geode", every = 3, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
 			-- the claws clack: a dust puff and pebble chips
 			{ kind = "Burst", color = "A89F91", at = "FrontL", every = 5, count = 6, size = 0.07, lifetime = 0.8, speed = 0.3, spread = 70, rise = -0.6, glow = 0, sprite = "PixelGrit" },
-			{ kind = "Light", color = "F5B342", at = "FrontL", brightness = 0.8, range = 1.8, pulse = 3 },
-			{ kind = "Sparkle", color = "FFC766", at = "FrontR", every = 3, count = 1, size = 0.09, lifetime = 0.45, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Bob", amplitude = 0.15, period = 1.4 },
 	},
 	Zapfinch = {
 		element = "Static",
+		signature = "Arc",
 		layers = {
-			{ kind = "Beam", color = "8FD3FF", at = "Top", to = "Back", width = 0.05, flicker = 3, segments = 6 },
-			{ kind = "Light", color = "8FD3FF", at = "Top", brightness = 0.8, range = 2, pulse = 1.5 },
-			{ kind = "Sparkle", color = "CFEFFF", at = "Top", every = 1.2, count = 2, size = 0.08, lifetime = 0.35, glow = 1, sprite = "PixelSpark" },
+			-- the spark gap: an arc crackles between the two ends of the zigzag
+			{ kind = "Beam", color = "8FD3FF", at = "Arc", to = "ArcEnd", width = 0.04, flicker = 1.2, segments = 5 },
+			{ kind = "Light", color = "8FD3FF", at = "Arc", brightness = 0.9, range = 2.2, pulse = 1 },
+			-- sparks jump off the far end, and on the flourish
+			{ kind = "Sparkle", color = "CFEFFF", at = "ArcEnd", every = 1.6, flourish = true, count = 2, size = 0.09, lifetime = 0.35, glow = 1, sprite = "PixelSpark" },
+			{ kind = "Burst", color = "CFEFFF", at = "Arc", flourish = true, count = 10, size = 0.05, lifetime = 0.4, speed = 0.8, spread = 180, glow = 1, sprite = "PixelSpark" },
 		},
 		idle = { kind = "Flap", amplitude = 15, period = 0.35, parts = wings },
 	},
 	Sparkfox = {
 		element = "Ember",
+		signature = "Palette",
 		layers = {
+			-- the floating palette: paint drips off the lit dab and falls (more of it on the flourish)
+			{ kind = "Burst", color = "FF8A3D", at = "Palette", every = 2.5, flourish = true, count = 3, size = 0.05, lifetime = 0.9, speed = 0.05, spread = 20, rise = -0.9, glow = 0.8, dir = "Down", sprite = "PixelDrop" },
+			{ kind = "Light", color = "FFB45A", at = "Palette", brightness = 1, range = 2.2, pulse = 2 },
+			{ kind = "Sparkle", color = "FFD27A", at = "Palette", every = 2, count = 1, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
 			{ kind = "Emitter", color = "FF8A3D", at = "Tail", rate = 6, size = 0.06, lifetime = 0.8, speed = 0.3, spread = 35, rise = 0.35, glow = 1, sprite = "PixelEmberFlicker" },
-			{ kind = "Light", color = "FFB45A", at = "Tail", brightness = 1, range = 2.2, pulse = 2 },
-			-- the paint drop falls from the brush and reforms
-			{ kind = "Sparkle", color = "FFD27A", at = "Tail", every = 4, count = 1, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Bob", amplitude = 0.1, period = 1.3 },
 	},
 	Wisplet = {
 		element = "Spirit",
+		signature = "Glass",
 		layers = {
-			{ kind = "Light", color = "9BE7FF", at = "Body", brightness = 1.2, range = 2.6, pulse = 1.4 },
+			-- the orbiting lantern glass: the leading pane leaves a lilac glow behind it and carries the lantern's light round
+			{ kind = "Emitter", color = "9466FF", at = "Glass", rate = 6, size = 0.05, lifetime = 0.9, speed = 0.02, spread = 180, glow = 1, sprite = "PixelMote" },
+			{ kind = "Light", color = "9BE7FF", at = "Glass", brightness = 1.2, range = 2.6, pulse = 1.4 },
+			-- the far pane twinkles, and on the flourish
+			{ kind = "Sparkle", color = "C9A8FF", at = "GlassB", every = 2.5, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
 			{ kind = "Emitter", color = "9BE7FF", at = "Body", rate = 0.7, size = 0.09, lifetime = 1.8, speed = 0.08, spread = 60, rise = 0.15, glow = 1, sprite = "PixelMote" },
-			{ kind = "Sparkle", color = "C9A8FF", at = "Top", every = 2.5, count = 1, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Hover", amplitude = 0.5, period = 2.8 },
 	},
 	Reindazzle = {
 		element = "Frost",
+		signature = "Antlers",
 		layers = {
-			-- the red nose blinks
+			-- the branching crystal antlers: frost glints rise off the tines
+			{ kind = "Emitter", color = "DFF4FF", at = "Antlers", rate = 2.5, size = 0.05, lifetime = 0.7, speed = 0.04, spread = 180, glow = 1, sprite = "PixelSparkle" },
+			-- the lantern nose blinks red
 			{ kind = "Light", color = "FF4D4D", at = "Mouth", brightness = 1.1, range = 1.4, pulse = 2 },
-			{ kind = "Sparkle", color = "DFF4FF", at = "Top", every = 4, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
-			{ kind = "Emitter", color = "DFF4FF", at = "Top", rate = 2.5, size = 0.05, lifetime = 0.6, speed = 0.04, spread = 360, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Sparkle", color = "9FE3FF", at = "AntlersL", every = 3, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
+			{ kind = "Emitter", color = "DFF4FF", at = "AntlersL", rate = 2.5, size = 0.05, lifetime = 0.7, speed = 0.04, spread = 180, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Bob", amplitude = 0.1, period = 1.5 },
 	},
 	Shellberg = {
 		element = "Iceberg",
+		signature = "Summit",
 		layers = {
+			-- the summit shard moons: the leading shard trails ice glints round the peak and carries a cold light
+			{ kind = "Emitter", color = "CFF6F2", at = "Summit", rate = 5, size = 0.04, lifetime = 0.7, speed = 0.02, spread = 180, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Light", color = "9FD8FF", at = "Summit", brightness = 0.9, range = 2.4, pulse = 3 },
+			{ kind = "Sparkle", color = "FFFFFF", at = "SummitB", every = 2.5, flourish = true, count = 2, size = 0.11, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
 			-- cold mist rolls off the berg and pools at its feet
 			{ kind = "Emitter", color = "CFF6F2", at = "Back", rate = 3, size = 0.12, lifetime = 2, speed = 0.06, spread = 80, rise = -0.1, glow = 0, sprite = "PixelPuff" },
-			{ kind = "Light", color = "9FD8FF", at = "Top", brightness = 0.8, range = 2.2, pulse = 4.5 },
-			{ kind = "Sparkle", color = "FFFFFF", at = "Top", every = 4, count = 1, size = 0.11, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Breathe", amplitude = 2, period = 4.5 },
 	},
 	Capybubble = {
 		element = "Bubble",
+		signature = "Ring",
 		layers = {
+			-- the bubble planet ring: the big bubble leaves tiny bubbles behind as it circles, and glows sea green
+			{ kind = "Emitter", color = "BFEFFF", at = "Ring", rate = 3, size = 0.04, lifetime = 1.4, speed = 0.03, spread = 180, rise = 0.04, glow = 0.4, sprite = "PixelBubble" },
+			{ kind = "Light", color = "7FE0D0", at = "Ring", brightness = 0.8, range = 2.4, pulse = 3.4 },
+			{ kind = "Sparkle", color = "FFFFFF", at = "RingB", every = 3, flourish = true, count = 1, size = 0.1, lifetime = 0.45, glow = 1, sprite = "PixelSparkle" },
 			-- three snore bubbles drift out from its nose
 			{ kind = "Burst", color = "BFEFFF", at = "Mouth", every = 4, count = 3, size = 0.09, lifetime = 2.4, speed = 0.15, spread = 25, rise = 0.08, glow = 0.3, dir = "Front", sprite = "PixelBubble" },
-			{ kind = "Light", color = "7FE0D0", at = "Body", brightness = 0.7, range = 2.2, pulse = 3.4 },
-			{ kind = "Sparkle", color = "FFFFFF", at = "Halo", every = 4, count = 1, size = 0.08, lifetime = 0.35, glow = 0.8, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 3.4 },
 	},
-	-- Epic: five layers kept on the body, a signature Burst among them -----------------------------------------------------
+	-- Epic: five layers kept on the body, a signature Burst among them, the piece the star ------------------------------------
 	Thunderhog = {
 		element = "Lightning",
+		signature = "Cloud",
 		layers = {
-			{ kind = "Beam", color = "FFF27A", at = "BackL", to = "BackR", width = 0.07, flicker = 2, segments = 8 },
-			{ kind = "Emitter", color = "FFF27A", at = "Back", rate = 5, size = 0.05, lifetime = 0.3, speed = 0.5, spread = 180, glow = 1, sprite = "PixelSpark" },
-			{ kind = "Light", color = "C084FC", at = "Back", brightness = 1.1, range = 2.6 },
-			-- the quills discharge: a crackle of sparks every 6 s
-			{ kind = "Burst", color = "FFF8B0", at = "Back", every = 6, count = 12, size = 0.06, lifetime = 0.4, speed = 0.9, spread = 180, glow = 1, flourish = true, sprite = "PixelSpark" },
-			{ kind = "Sparkle", color = "FFF8B0", at = "Eyes", every = 4.5, count = 1, size = 0.05, lifetime = 0.3, glow = 1, sprite = "PixelSparkle" },
+			-- the pocket thundercloud strikes down to the charge gauge every 2 s
+			{ kind = "Beam", color = "FFF27A", at = "Cloud", to = "Charge", width = 0.06, flicker = 2, segments = 7 },
+			-- and drips rain
+			{ kind = "Emitter", color = "BFD9FF", at = "Cloud", rate = 7, size = 0.04, lifetime = 0.45, speed = 0.15, spread = 12, rise = -1.4, glow = 0.4, dir = "Down", sprite = "PixelDrop" },
+			{ kind = "Light", color = "C084FC", at = "Cloud", brightness = 1.1, range = 2.6, pulse = 2 },
+			-- the flourish: the cloud discharges in a crackle of sparks
+			{ kind = "Burst", color = "FFF8B0", at = "Cloud", every = 6, flourish = true, count = 14, size = 0.06, lifetime = 0.4, speed = 0.9, spread = 180, glow = 1, sprite = "PixelSpark" },
+			-- a flicker runs along the gauge
+			{ kind = "Sparkle", color = "FFF27A", at = "Charge", every = 1.5, count = 1, size = 0.08, lifetime = 0.3, glow = 1, sprite = "PixelSpark" },
+			{ kind = "Beam", color = "FFF27A", at = "BackL", to = "BackR", width = 0.05, flicker = 3, segments = 8 },
 		},
 		idle = { kind = "Bob", amplitude = 0.12, period = 1.1 },
 	},
 	Gloomoth = {
 		element = "Crystal",
+		signature = "Panes",
 		layers = {
-			-- a glint sweeps the crystal wings
-			{ kind = "Sparkle", color = "E1B8FF", at = "BackL", every = 3, count = 2, size = 0.12, lifetime = 0.6, glow = 1, sprite = "PixelTwinkle" },
-			{ kind = "Emitter", color = "C8A2E8", at = "Back", rate = 4, size = 0.06, lifetime = 1.6, speed = 0.08, spread = 100, rise = -0.15, glow = 0.4, sprite = "PixelMote" },
-			{ kind = "Light", color = "B07CFF", at = "Back", brightness = 0.9, range = 2.6, pulse = 2.6 },
-			-- a prism dust shaken from the wings
-			{ kind = "Burst", color = "FFC8F0", at = "Back", every = 7, count = 14, size = 0.07, lifetime = 1, speed = 0.5, spread = 120, rise = -0.2, glow = 1, flourish = true, sprite = "PixelSparkle" },
-			{ kind = "Sparkle", color = "9FE8FF", at = "BackR", every = 3, count = 2, size = 0.12, lifetime = 0.6, glow = 1, sprite = "PixelTwinkle" },
+			-- the stained-glass wings throw orchid light as they beat
+			{ kind = "Light", color = "B832E8", at = "Panes", brightness = 1.1, range = 3, pulse = 2.6 },
+			-- a glint sweeps the panes of each wing
+			{ kind = "Sparkle", color = "E1B8FF", at = "Panes", every = 2.4, count = 2, size = 0.12, lifetime = 0.6, glow = 1, sprite = "PixelTwinkle" },
+			-- the flourish: prism dust shaken off the panes
+			{ kind = "Burst", color = "FFC8F0", at = "Panes", every = 7, flourish = true, count = 14, size = 0.07, lifetime = 1.1, speed = 0.5, spread = 120, rise = -0.2, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Sparkle", color = "9FE8FF", at = "PanesL", every = 2.4, count = 2, size = 0.12, lifetime = 0.6, glow = 1, sprite = "PixelTwinkle" },
+			{ kind = "Emitter", color = "C8A2E8", at = "PanesL", rate = 3, size = 0.05, lifetime = 1.4, speed = 0.06, spread = 100, rise = -0.15, glow = 0.5, sprite = "PixelMote" },
 		},
 		idle = { kind = "Flap", amplitude = 22, period = 0.9, parts = wings },
 	},
 	Spookum = {
 		element = "Ghost",
+		signature = "Candles",
 		layers = {
-			-- the pumpkin grin lit from inside
-			{ kind = "Light", color = "FF9F1C", at = "Mouth", brightness = 1.2, range = 2.4, pulse = 2.4 },
+			-- three floating candles: real flame sprites on the wicks...
+			{ kind = "Emitter", color = "C77DFF", at = "Candles", rate = 9, size = 0.07, lifetime = 0.35, speed = 0.12, spread = 8, rise = 0.25, glow = 1, sprite = "PixelEmberFlicker" },
+			-- ...and a soft warm candlelight that flickers
+			{ kind = "Light", color = "FFB45A", at = "Candles", brightness = 1, range = 2.6, pulse = 0.9 },
+			-- "boo": a puff of violet wisps off the candles, and on the flourish
+			{ kind = "Burst", color = "C77DFF", at = "Candles", every = 9, flourish = true, count = 12, size = 0.09, lifetime = 1.1, speed = 0.4, spread = 180, glow = 0.6, sprite = "PixelPuff" },
+			{ kind = "Emitter", color = "C77DFF", at = "CandlesB", rate = 9, size = 0.07, lifetime = 0.35, speed = 0.12, spread = 8, rise = 0.25, glow = 1, sprite = "PixelEmberFlicker" },
+			{ kind = "Sparkle", color = "FFD27A", at = "CandlesC", every = 1.1, count = 1, size = 0.07, lifetime = 0.35, glow = 1, sprite = "PixelSparkle" },
 			{ kind = "Emitter", color = "E9E2FF", at = "Feet", rate = 3, size = 0.16, lifetime = 1.8, speed = 0.04, spread = 60, rise = 0.05, glow = 0.5, sprite = "PixelPuff" },
-			{ kind = "Emitter", color = "FFB347", at = "Top", rate = 2.5, size = 0.05, lifetime = 0.9, speed = 0.1, spread = 40, rise = 0.3, glow = 1, sprite = "PixelEmberFlicker" },
-			-- "boo": a ring of violet wisps as it fades and returns
-			{ kind = "Burst", color = "C77DFF", at = "Body", every = 5, count = 12, size = 0.1, lifetime = 1.2, speed = 0.4, spread = 180, glow = 0.6, flourish = true, sprite = "PixelPuff" },
-			{ kind = "Sparkle", color = "C77DFF", at = "Tail", every = 3, count = 2, size = 0.08, lifetime = 0.5, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Hover", amplitude = 0.35, period = 3 },
 	},
 	Shimmerlynx = {
 		element = "Aurora",
+		signature = "Plume",
 		layers = {
-			{ kind = "Trail", color = "7CFFC4", at = "Top", to = "Tail", lifetime = 1.4, width = 0.9 },
-			{ kind = "Emitter", color = "B38CFF", at = "Top", rate = 4, size = 0.07, lifetime = 1.8, speed = 0.1, spread = 40, rise = 0.15, glow = 1, sprite = "PixelMote" },
-			{ kind = "Light", color = "7CFFC4", at = "Top", brightness = 1, range = 2.8, pulse = 3 },
-			-- it purrs in colours: an aurora shimmer off the crest
-			{ kind = "Burst", color = "FF9BE0", at = "Top", every = 6, count = 12, size = 0.08, lifetime = 1.4, speed = 0.4, spread = 70, rise = 0.2, glow = 1, flourish = true, sprite = "PixelTwinkle" },
+			-- the aurora comet tail: a ribbon of aurora streams off the plume as it sways
+			{ kind = "Trail", color = "7CFFC4", at = "Plume", to = "PlumeBase", lifetime = 1.2, width = 1, glow = 1 },
+			{ kind = "Emitter", color = "B38CFF", at = "Plume", rate = 4, size = 0.07, lifetime = 1.8, speed = 0.1, spread = 40, rise = 0.15, glow = 1, sprite = "PixelMote" },
+			{ kind = "Light", color = "7CFFC4", at = "Plume", brightness = 1, range = 2.8, pulse = 3 },
+			-- it purrs in colours: an aurora shimmer off the plume, and on the flourish
+			{ kind = "Burst", color = "FF9BE0", at = "Plume", every = 6, flourish = true, count = 12, size = 0.08, lifetime = 1.4, speed = 0.4, spread = 70, rise = 0.2, glow = 1, sprite = "PixelTwinkle" },
 			{ kind = "Sparkle", color = "DFFFF3", at = "Eyes", every = 5, count = 1, size = 0.05, lifetime = 0.35, glow = 1, sprite = "PixelSparkle" },
 		},
 		idle = { kind = "Bob", amplitude = 0.1, period = 1.4 },
 	},
 	Frostfang = {
 		element = "Frost",
+		signature = "Crown",
 		layers = {
+			-- the snowflake crown: the flourish scatters crystal glints off it
+			{ kind = "Burst", color = "FFFFFF", at = "Crown", every = 12, flourish = true, count = 18, size = 0.07, lifetime = 1.1, speed = 0.7, spread = 180, glow = 1, spin = 120, sprite = "PixelSparkle" },
+			{ kind = "Light", color = "8AD0FF", at = "Crown", brightness = 1, range = 2.8, pulse = 3 },
+			-- a tip of the turning flake sparkles
+			{ kind = "Sparkle", color = "DFF6FF", at = "CrownTip", every = 1.5, count = 1, size = 0.1, lifetime = 0.45, glow = 1, sprite = "PixelTwinkle" },
 			-- the sneeze: twenty snowflakes thrown forward every 12 s
-			{ kind = "Burst", color = "FFFFFF", at = "Mouth", every = 12, count = 20, size = 0.07, lifetime = 1.2, speed = 0.8, spread = 40, rise = -0.3, glow = 0.4, dir = "Front", spin = 120, flourish = true, sprite = "PixelFlake" },
-			{ kind = "Emitter", color = "E6F6FF", at = "Mouth", rate = 2, size = 0.12, lifetime = 1.1, speed = 0.3, spread = 25, rise = 0.05, glow = 0.2, dir = "Front", sprite = "PixelPuff" },
-			{ kind = "Light", color = "8AD0FF", at = "Body", brightness = 0.9, range = 2.6 },
-			{ kind = "Emitter", color = "FFFFFF", at = "Top", rate = 2, size = 0.06, lifetime = 1.6, speed = 0.12, spread = 180, rise = -0.1, glow = 0.3, sprite = "PixelFlake" },
-			-- an icicle fang glints
-			{ kind = "Sparkle", color = "BFEFFF", at = "Mouth", every = 3, count = 1, size = 0.06, lifetime = 0.35, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Burst", color = "FFFFFF", at = "Mouth", every = 12, count = 20, size = 0.07, lifetime = 1.2, speed = 0.8, spread = 40, rise = -0.3, glow = 0.4, dir = "Front", spin = 120, sprite = "PixelFlake" },
+			-- flakes drift back off the crown, never over the face
+			{ kind = "Emitter", color = "FFFFFF", at = "Crown", rate = 2.5, size = 0.05, lifetime = 1.6, speed = 0.12, spread = 60, rise = -0.1, glow = 0.4, dir = "Back", sprite = "PixelFlake" },
 		},
 		idle = { kind = "Breathe", amplitude = 4, period = 1.8 },
 	},
-	-- Legendary: six layers, the ground ring, orbiting motes and a flourish ------------------------------------------------
+	-- Legendary: six layers, the ground ring, orbiting motes and a flourish, the piece the star -------------------------------
 	Gaiabloom = {
 		element = "Bloom",
 		accent = "F59E0B",
 		flourishEvery = 10,
+		signature = "Mantle",
 		layers = {
+			-- the glass-petal mantle sheds petals as it moves
+			{ kind = "Emitter", color = "F0287E", at = "Mantle", rate = 3, size = 0.06, lifetime = 2.4, speed = 0.08, spread = 140, rise = -0.1, glow = 0.4, spin = 90, sprite = "PixelPetal" },
+			-- the flourish: the mantle lifts and throws a shower of petals
+			{ kind = "Burst", color = "FFB7D5", at = "Mantle", flourish = true, count = 22, size = 0.07, lifetime = 2, speed = 0.55, spread = 140, rise = -0.12, glow = 0.3, spin = 120, sprite = "PixelPetal" },
+			{ kind = "Light", color = "F0287E", at = "Mantle", brightness = 1.3, range = 3.2, pulse = 3.6 },
 			{ kind = "Orbit", color = "FFB7D5", at = "Top", count = 4, radius = 0.45, period = 5, rate = 6, size = 0.06, lifetime = 0.6, glow = 0.5, spin = 90, sprite = "PixelPetal" },
+			{ kind = "RingPulse", color = "FF8FC0", at = "Feet", flourish = true, count = 1, size = 3, lifetime = 1.6, glow = 0.9, sprite = "PixelRing" },
+			-- the gilded medallion glints pink
+			{ kind = "Sparkle", color = "FF8FC0", at = "Medallion", every = 3, count = 1, size = 0.09, lifetime = 0.45, glow = 1, sprite = "PixelSparkle" },
 			-- a flower pops in each footprint
 			{ kind = "Burst", color = "FFE066", at = "Feet", every = 2.4, count = 4, size = 0.07, lifetime = 1, speed = 0.2, spread = 60, rise = 0.1, glow = 0.6, sprite = "PixelPetal" },
-			{ kind = "Light", color = "FFD966", at = "Top", brightness = 1.4, range = 3.2, pulse = 3.6 },
-			-- the flourish: the antlers shake and shed a ring of petals
-			{ kind = "Burst", color = "FFB7D5", at = "Top", flourish = true, count = 18, size = 0.07, lifetime = 2, speed = 0.5, spread = 120, rise = -0.12, glow = 0.3, spin = 120, sprite = "PixelPetal" },
-			{ kind = "RingPulse", color = "FF8FC0", at = "Feet", flourish = true, count = 1, size = 3, lifetime = 1.6, glow = 0.9, sprite = "PixelRing" },
-			{ kind = "Emitter", color = "7BD14A", at = "Back", rate = 1.5, size = 0.06, lifetime = 2.4, speed = 0.05, spread = 150, rise = 0.04, glow = 0.2, spin = 40, sprite = "PixelLeaf" },
 		},
 		idle = { kind = "Breathe", amplitude = 2.5, period = 3.6 },
 	},
@@ -633,14 +731,17 @@ local species: { [string]: Types.SpeciesFx } = {
 		element = "Nebula",
 		accent = "FFE9A8",
 		flourishEvery = 12,
+		signature = "Comet",
 		layers = {
+			-- the pet comet: a stream of gold stars left along its circle...
+			{ kind = "Emitter", color = "FFE9A8", at = "Comet", rate = 12, size = 0.05, lifetime = 1.1, speed = 0.02, spread = 180, glow = 1, sprite = "PixelTwinkle" },
+			-- ...and a proper tail, a gold ribbon off its head
+			{ kind = "Trail", color = "FFC21A", at = "Comet", to = "CometTail", lifetime = 0.9, width = 1, glow = 1 },
+			{ kind = "Light", color = "FFD27A", at = "Comet", brightness = 1.3, range = 3, pulse = 3 },
+			-- the flourish: the comet bursts into twinkles
+			{ kind = "Burst", color = "FFFFFF", at = "Comet", flourish = true, count = 24, size = 0.07, lifetime = 1.2, speed = 0.9, spread = 180, glow = 1, sprite = "PixelTwinkle" },
 			{ kind = "Orbit", color = "FFFFFF", at = "Body", count = 4, radius = 0.6, period = 6, rate = 6, size = 0.06, lifetime = 0.6, glow = 1, sprite = "PixelStar" },
-			{ kind = "Trail", color = "B79CFF", at = "Tail", to = "Body", lifetime = 1.6, width = 0.8 },
-			{ kind = "Emitter", color = "FFF6D8", at = "Tail", rate = 6, size = 0.06, lifetime = 1.4, speed = 0.2, spread = 25, glow = 1, dir = "Back", sprite = "PixelTwinkle" },
-			{ kind = "Light", color = "8F6BFF", at = "Body", brightness = 1.4, range = 3.4, pulse = 3.4 },
-			{ kind = "Emitter", color = "9D7BFF", at = "Body", rate = 4, size = 0.14, lifetime = 2, speed = 0.06, spread = 180, glow = 0.7, sprite = "PixelPuff" },
-			-- the flourish: a twinkle burst
-			{ kind = "Burst", color = "FFFFFF", at = "Body", flourish = true, count = 24, size = 0.07, lifetime = 1.2, speed = 0.9, spread = 180, glow = 1, sprite = "PixelTwinkle" },
+			{ kind = "Emitter", color = "9D7BFF", at = "Body", rate = 3, size = 0.14, lifetime = 2, speed = 0.06, spread = 180, glow = 0.7, sprite = "PixelPuff" },
 		},
 		idle = { kind = "Hover", amplitude = 0.45, period = 3.2 },
 	},
@@ -648,34 +749,40 @@ local species: { [string]: Types.SpeciesFx } = {
 		element = "Blizzard",
 		accent = "BFE6FF",
 		flourishEvery = 10,
+		signature = "Runes",
 		layers = {
-			-- a snow flurry swirls round it
+			-- the halo of frost runes: the leading rune trails frost round the crown and carries a cold light
+			{ kind = "Emitter", color = "BFE6FF", at = "Runes", rate = 8, size = 0.05, lifetime = 0.8, speed = 0.02, spread = 180, glow = 1, sprite = "PixelFlake" },
+			{ kind = "Light", color = "BFE6FF", at = "Runes", brightness = 1.3, range = 3.2, pulse = 3 },
+			-- the flourish: the halo whirls and throws rune glints and flakes
+			{ kind = "Burst", color = "FFFFFF", at = "Runes", flourish = true, count = 22, size = 0.07, lifetime = 1.2, speed = 0.9, spread = 180, rise = -0.2, glow = 0.6, spin = 120, sprite = "PixelFlake" },
 			{ kind = "Orbit", color = "FFFFFF", at = "Body", count = 6, radius = 0.6, period = 3, rate = 5, size = 0.06, lifetime = 0.7, glow = 0.4, spin = 90, sprite = "PixelFlake" },
+			{ kind = "RingPulse", color = "CFEFFF", at = "Feet", flourish = true, count = 1, size = 3.2, lifetime = 1.4, glow = 0.8, sprite = "PixelRing" },
+			-- gold glints off the rune behind (Legendary's gilded trim)
+			{ kind = "Emitter", color = "E8B23A", at = "RunesB", rate = 4, size = 0.04, lifetime = 0.8, speed = 0.02, spread = 180, glow = 1, sprite = "PixelSparkle" },
 			-- frost ski-tracks behind the skis
 			{ kind = "Trail", color = "CFEFFF", at = "FrontL", to = "FrontR", lifetime = 0.9, width = 0.4 },
-			{ kind = "Emitter", color = "FFFFFF", at = "Top", rate = 3, size = 0.06, lifetime = 1.8, speed = 0.05, spread = 180, rise = -0.2, glow = 0.3, sprite = "PixelFlake" },
-			{ kind = "Light", color = "BFE6FF", at = "Top", brightness = 1.3, range = 3.2, pulse = 3 },
-			-- the flourish: a gust lifts it and spreads the flurry
-			{ kind = "Burst", color = "FFFFFF", at = "Feet", flourish = true, count = 22, size = 0.07, lifetime = 1.2, speed = 0.9, spread = 90, rise = -0.2, glow = 0.3, spin = 120, sprite = "PixelFlake" },
-			{ kind = "RingPulse", color = "CFEFFF", at = "Feet", flourish = true, count = 1, size = 3.2, lifetime = 1.4, glow = 0.8, sprite = "PixelRing" },
 		},
 		idle = { kind = "Hover", amplitude = 0.3, period = 2.8 },
 	},
-	-- Cosmic: eight layers, reaching the sky: a pillar on the flourish, an aura, a spawn moment -----------------------------
+	-- Cosmic: eight layers, reaching the sky; the piece carries the light, the trail and the burst ------------------------------
 	Radish = {
 		element = "Sun",
 		accent = "FFD27A",
 		flourishEvery = 18,
+		signature = "Sunstones",
 		layers = {
-			{ kind = "Light", color = "FFD27A", at = "Top", brightness = 2, range = 4.5, pulse = 3 },
-			{ kind = "Orbit", color = "FFB347", at = "Top", count = 5, radius = 0.55, period = 4, rate = 7, size = 0.07, lifetime = 0.5, glow = 1, sprite = "PixelMote" },
-			{ kind = "Aura", color = "FFE9A8", at = "Body", rate = 1.5, size = 1.3, lifetime = 1.6, glow = 0.6, sprite = "PixelHalo" },
-			{ kind = "Emitter", color = "FFE9A8", at = "Top", rate = 6, size = 0.08, lifetime = 1, speed = 0.3, spread = 360, glow = 1, sprite = "PixelStar" },
-			-- the flourish: a flare and a column of light from the orb
+			-- the ring of orbiting sunstones: each sun leaves a short trail of gold sparks...
+			{ kind = "Emitter", color = "FFC21A", at = "Sunstones", rate = 14, size = 0.05, lifetime = 0.6, speed = 0.03, spread = 180, glow = 1, sprite = "PixelSpark" },
+			{ kind = "Emitter", color = "FFC21A", at = "SunstonesB", rate = 14, size = 0.05, lifetime = 0.6, speed = 0.03, spread = 180, glow = 1, sprite = "PixelSpark" },
+			-- ...and the sun's light rides the ring, pulsing
+			{ kind = "Light", color = "FFC21A", at = "Sunstones", brightness = 2, range = 4.5, pulse = 3 },
+			{ kind = "Trail", color = "FFD27A", at = "Sunstones", to = "SunstonesTop", lifetime = 0.5, width = 1, glow = 1 },
+			-- the flourish: the ring rises and whirls, a column of light from the orb and a star burst off the suns
 			{ kind = "Pillar", color = "FFF2C0", at = "Top", flourish = true, reach = 40, width = 0.4, lifetime = 2.2 },
-			{ kind = "Burst", color = "FFFFFF", at = "Top", flourish = true, count = 30, size = 0.08, lifetime = 1, speed = 1.2, spread = 180, glow = 1, sprite = "PixelStar" },
+			{ kind = "Burst", color = "FFE9A8", at = "Sunstones", flourish = true, count = 30, size = 0.08, lifetime = 1, speed = 1.2, spread = 180, glow = 1, sprite = "PixelStar" },
+			{ kind = "Orbit", color = "FFB347", at = "Top", count = 5, radius = 0.55, period = 4, rate = 7, size = 0.07, lifetime = 0.5, glow = 1, sprite = "PixelMote" },
 			{ kind = "RingPulse", color = "FFC266", at = "Feet", every = 2.5, count = 1, size = 2.2, lifetime = 1.8, glow = 0.9, spin = 30, sprite = "PixelRing" },
-			{ kind = "Trail", color = "FFD27A", at = "Tail", to = "Body", lifetime = 1.4, width = 0.8 },
 		},
 		idle = { kind = "Hover", amplitude = 0.5, period = 3 },
 	},
@@ -683,17 +790,21 @@ local species: { [string]: Types.SpeciesFx } = {
 		element = "Moon",
 		accent = "C9D6FF",
 		flourishEvery = 20,
+		signature = "Moon",
 		layers = {
-			{ kind = "Light", color = "C9D6FF", at = "Top", brightness = 1.6, range = 4, pulse = 6 },
-			{ kind = "Orbit", color = "DDE6FF", at = "Body", count = 4, radius = 0.55, period = 5, rate = 6, size = 0.06, lifetime = 0.6, glow = 1, sprite = "PixelMote" },
+			-- the moon in phase glows...
+			{ kind = "Light", color = "C9D6FF", at = "Moon", brightness = 1.6, range = 4, pulse = 6 },
+			-- ...and sheds frost motes that drift back over the head
+			{ kind = "Emitter", color = "DDE6FF", at = "Moon", rate = 6, size = 0.05, lifetime = 1.6, speed = 0.15, spread = 50, rise = -0.05, glow = 0.8, dir = "Back", sprite = "PixelFlake" },
+			{ kind = "Aura", color = "B8C8FF", at = "Moon", rate = 1.2, size = 0.45, lifetime = 2, glow = 0.5, sprite = "PixelHalo" },
+			-- stars twinkle in the nebula mane
+			{ kind = "Sparkle", color = "FFFFFF", at = "Mane", every = 2, count = 1, size = 0.08, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
+			-- the howl: a beam of moonlight from the moon and a flare of stars
+			{ kind = "Pillar", color = "E6ECFF", at = "Moon", flourish = true, reach = 45, width = 0.35, lifetime = 2.6 },
+			{ kind = "Burst", color = "E6ECFF", at = "Moon", flourish = true, count = 24, size = 0.07, lifetime = 1.4, speed = 0.8, spread = 120, rise = 0.1, glow = 1, dir = "Back", sprite = "PixelTwinkle" },
 			-- a ground ring of runes, turning once in 12 s
 			{ kind = "RingPulse", color = "8F7BFF", at = "Feet", every = 3, count = 1, size = 2.4, lifetime = 2, glow = 0.9, spin = 30, sprite = "PixelRune" },
-			{ kind = "Aura", color = "B8C8FF", at = "Body", rate = 1.2, size = 1.3, lifetime = 2, glow = 0.5, sprite = "PixelHalo" },
-			{ kind = "Emitter", color = "3A2C7A", at = "Feet", rate = 4, size = 0.16, lifetime = 1.8, speed = 0.12, spread = 90, rise = 0.08, glow = 0, sprite = "PixelPuff" },
-			{ kind = "Trail", color = "6C5CE7", at = "Tail", to = "Body", lifetime = 1.6, width = 0.8 },
-			-- the howl: a beam of moonlight from the forehead and a flare of stars
-			{ kind = "Pillar", color = "E6ECFF", at = "Top", flourish = true, reach = 45, width = 0.35, lifetime = 2.6 },
-			{ kind = "Burst", color = "E6ECFF", at = "Top", flourish = true, count = 24, size = 0.07, lifetime = 1.4, speed = 0.8, spread = 120, rise = 0.1, glow = 1, sprite = "PixelTwinkle" },
+			{ kind = "Orbit", color = "DDE6FF", at = "Body", count = 4, radius = 0.55, period = 5, rate = 6, size = 0.06, lifetime = 0.6, glow = 1, sprite = "PixelMote" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 2.4 },
 	},
@@ -702,17 +813,21 @@ local species: { [string]: Types.SpeciesFx } = {
 		element = "Shadow",
 		accent = "B28CFF",
 		flourishEvery = 20,
+		signature = "Eclipse",
 		layers = {
-			-- notes drift from the pipes on a trill every 4 s, and fall instead of rise
-			{ kind = "Burst", color = "B28CFF", at = "Top", every = 4, count = 5, size = 0.08, lifetime = 2.2, speed = 0.12, spread = 50, rise = -0.08, glow = 0.8, sprite = "PixelNote" },
-			{ kind = "Light", color = "7A3CFF", at = "Body", brightness = 1.4, range = 3.6, pulse = 2 },
+			-- the eclipse throws a dark corona (halo cells behind the disc, so only its rim shows)...
+			{ kind = "Emitter", color = "1A1030", at = "Eclipse", rate = 1.5, size = 0.62, lifetime = 1.6, speed = 0, spread = 0, glow = 0, sprite = "PixelHalo" },
+			-- ...lit at its rim by the accent, where the diamond bead turns
+			{ kind = "Light", color = "9B5CFF", at = "EclipseRim", brightness = 1.4, range = 3.6, pulse = 2 },
+			-- the flourish: the violet column rises from the eclipse and it throws a ring of dark motes
+			{ kind = "Pillar", color = "A07BFF", at = "Eclipse", flourish = true, reach = 40, width = 0.35, lifetime = 2 },
+			{ kind = "Burst", color = "2A1F3D", at = "Eclipse", flourish = true, count = 28, size = 0.1, lifetime = 1.4, speed = 0.7, spread = 180, glow = 0, sprite = "PixelPuff" },
+			-- a slow rain of dark motes off the disc, drifting back
+			{ kind = "Emitter", color = "3A2C5A", at = "Eclipse", rate = 3, size = 0.05, lifetime = 2.2, speed = 0.04, spread = 90, rise = -0.08, glow = 0, dir = "Back", sprite = "PixelMote" },
+			-- notes drift from the echo ring over the pipes on a trill every 4 s, and fall instead of rise
+			{ kind = "Burst", color = "B28CFF", at = "Echo", every = 4, count = 5, size = 0.08, lifetime = 2.2, speed = 0.12, spread = 50, rise = -0.08, glow = 0.8, sprite = "PixelNote" },
 			{ kind = "Orbit", color = "8E6BFF", at = "Top", count = 3, radius = 0.6, period = 5, rate = 6, size = 0.07, lifetime = 0.6, glow = 1, sprite = "PixelNote" },
 			{ kind = "RingPulse", color = "A07BFF", at = "Feet", every = 3.5, count = 1, size = 2.4, lifetime = 2.2, glow = 0.9, spin = -20, sprite = "PixelRing" },
-			{ kind = "Emitter", color = "1A1A1A", at = "Feet", rate = 4, size = 0.16, lifetime = 2, speed = 0.12, spread = 80, rise = -0.04, glow = 0, sprite = "PixelPuff" },
-			{ kind = "Aura", color = "5B3FA8", at = "Body", rate = 1.2, size = 1.3, lifetime = 2, glow = 0.5, sprite = "PixelHalo" },
-			-- the flourish: a hop, a vanish in smoke and a return under a violet column
-			{ kind = "Pillar", color = "A07BFF", at = "Top", flourish = true, reach = 40, width = 0.35, lifetime = 2 },
-			{ kind = "Burst", color = "2A1F3D", at = "Body", flourish = true, count = 28, size = 0.12, lifetime = 1.2, speed = 0.8, spread = 180, glow = 0, sprite = "PixelPuff" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 3 },
 	},
@@ -723,6 +838,7 @@ return {
 	Tiers = tiers,
 	Caps = caps,
 	Attach = attach,
+	Pieces = pieces,
 	Extras = extras,
 	SpawnMoment = spawnMoment,
 	Dark = dark,
