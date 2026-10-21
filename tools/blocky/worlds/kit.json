@@ -159,6 +159,15 @@
       {"size": [2, 1, 2], "at": [0, 3.5, 0], "color": "C98B5A", "material": "Sandstone", "collide": true},
       {"size": [1, 0.2, 1], "at": [0, 4.05, 0], "color": "E8F4F8", "material": "Neon", "neon": true}]}
   },
+  "build": {
+    "edgeWallHeight": 240,
+    "edgeWallThickness": 2,
+    "baseThickness": 1,
+    "fallThickness": 1,
+    "fallTransparency": 0.3,
+    "fallColor": "CFEFFF",
+    "decorShadowBelow": 1.5
+  },
   "budgets": {
     "groundParts": 4400,
     "textures": 10500,

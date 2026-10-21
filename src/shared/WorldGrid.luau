@@ -226,7 +226,7 @@ end
 
 -- The counts the budget (data/WorldKit Budget) holds, recomputed from the rows: ground parts (caps, bodies, water, falls, solids and
 -- the one base slab), Texture objects once every tile is real (a cap's top and shown sides, a body's shown sides, each water part's top
--- and each fall's face), scattered props, the parts of their placeholders and their lights.
+-- and each fall's face, all six faces of a solid), scattered props, the parts of their placeholders and their lights.
 function WorldGrid.Counts(gen: Types.WorldGen, recipes: { [string]: Types.PropRecipe }): { [string]: number }
 	local caps, bodies = #gen.Caps // CAP, #gen.Bodies // BODY
 	local textures = 0
@@ -237,7 +237,7 @@ function WorldGrid.Counts(gen: Types.WorldGen, recipes: { [string]: Types.PropRe
 		textures += bits(gen.Bodies[r + 6])
 	end
 	local water, falls, solids = #gen.Water // WATER, #gen.Falls // FALL, #gen.Solids // SOLID
-	textures += water + falls
+	textures += water + falls + 6 * solids
 	local scatter, parts, lights = 0, 0, 0
 	for r = 1, #gen.Place, PLACE do
 		scatter += 1

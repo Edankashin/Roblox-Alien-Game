@@ -3,7 +3,7 @@
 -- description and run `python3 -I tools/blocky/world_gen.py`. The ground of World 1 in block cells:
 -- every row is flat numbers (see data/WorldKit.luau for the row shapes); the builder is ServerScriptService.Server.Services.Meadow and
 -- Shared/WorldGrid answers the ground height at a point from Caps and Water.
--- Counts: 2951 caps, 1003 bodies, 139 water, 3 falls, 89 solids, 571 props (1829 placeholder parts, 33 lights), 9764 textures once the tiles are uploaded.
+-- Counts: 2951 caps, 1003 bodies, 139 water, 3 falls, 89 solids, 571 props (1829 placeholder parts, 33 lights), 10298 textures once the tiles are uploaded.
 local Types = require(script.Parent.Parent.types.Types)
 
 local gen: Types.WorldGen = {
@@ -494,7 +494,7 @@ local gen: Types.WorldGen = {
 		{ kind = "LightShaft", x = -118, y = 0, z = -108, size = 6 },
 		{ kind = "LightShaft", x = -150, y = 0, z = -96, size = 5 },
 	},
-	Stats = { bodies = 1003, caps = 2951, falls = 3, fxEmitters = 16, groundParts = 4186, lights = 33, placeholderParts = 1829, scatter = 571, solids = 89, textures = 9764, water = 139 },
+	Stats = { bodies = 1003, caps = 2951, falls = 3, fxEmitters = 16, groundParts = 4186, lights = 33, placeholderParts = 1829, scatter = 571, solids = 89, textures = 10298, water = 139 },
 }
 
 return gen

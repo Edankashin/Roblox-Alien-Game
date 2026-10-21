@@ -259,6 +259,10 @@ local Recipes: { [string]: Types.PropRecipe } = {
 	},
 }
 
+-- how the builder stands the ground: invisible walls at the map edge (height, thickness), the base slab under everything, the
+-- waterfall sheet (thickness, transparency, colour), and props whose placeholder is shorter than decorShadowBelow cast no shadow
+local Build: Types.WorldBuild = { baseThickness = 1, decorShadowBelow = 1.5, edgeWallHeight = 240, edgeWallThickness = 2, fallColor = "CFEFFF", fallThickness = 1, fallTransparency = 0.3 }
+
 -- per world: ground parts (caps, bodies, water, falls, solids and the base), Texture objects once every tile id is real, scattered
 -- props, the parts of their placeholders, PointLights, ambient emitters
 local Budget: Types.WorldBudget = { fxEmitters = 24, groundParts = 4400, lights = 48, placeholderParts = 3200, scatter = 900, textures = 10500 }
@@ -267,5 +271,6 @@ return {
 	Kinds = Kinds,
 	Water = Water,
 	Recipes = Recipes,
+	Build = Build,
 	Budget = Budget,
 }

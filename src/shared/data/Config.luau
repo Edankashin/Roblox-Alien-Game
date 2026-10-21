@@ -88,6 +88,11 @@ return {
 	SpawnMinDistanceFromPlayer = 10, -- never spawn right on top of someone
 	SpawnMinSeparation = 5, -- studs between wild aliens
 	SpawnCampClearance = 20, -- studs beyond the camp pad edge kept free of spawns (the ship and stations sit here)
+	-- Rare spots (the generated worlds' most beautiful places, data/WorldGen<id> Spots): this share of top-ups near a free spot (one
+	-- within SpawnRadius of the player with no alien in it) lands inside it, and a spawn inside a spot rolls its tier with the player's
+	-- luck times the spot's own luck (rarer, never bigger: the size roll is unchanged).
+	RareSpotShare = 0.12,
+	RareSpotInset = 0.8, -- a spot spawn lands within this fraction of the spot's radius
 	SpawnCullDistance = 180, -- spawns farther than this from every player are removed
 	SpawnTickSeconds = 1,
 	ShadowRevealDistance = 40,

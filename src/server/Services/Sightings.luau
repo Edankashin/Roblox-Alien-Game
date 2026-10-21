@@ -7,7 +7,7 @@
 -- ONE anchored, non-colliding, non-queryable Part named after the world's Warden species id under
 -- Workspace.World.Sightings (next to Wild), with the attributes SpeciesId and Progress (0..1 along the path), and
 -- every SightingData.TickSeconds sets its CFrame to the point `elapsed * speed` studs along the path's polyline
--- (interpolated inside a segment, facing the segment's direction), its bottom on the floor (Meadow.GetFloorTop(),
+-- (interpolated inside a segment, facing the segment's direction), its bottom on the ground there (Meadow.GetSurfaceTop,
 -- no hover). A server that boots or a sighting that is joined mid-interval draws the part from its current point.
 -- At the end the part is destroyed. Clients hear SightingChanged (FireAllClients) with a Types.SightingState at
 -- every start and end and every SightingData.PushSeconds while one runs, and a late joiner asks GetSighting once.
@@ -189,10 +189,10 @@ local function pointAt(distance: number): (number, number, number, number)
 	return last.ax + last.dirX * last.length, last.az + last.dirZ * last.length, last.dirX, last.dirZ
 end
 
--- Seats `target` at `elapsed` seconds into the walk: on the polyline, facing along its segment, its bottom on the floor.
+-- Seats `target` at `elapsed` seconds into the walk: on the polyline, facing along its segment, its bottom on the ground there.
 local function seat(target: Part, elapsed: number)
 	local x, z, dirX, dirZ = pointAt(elapsed * SightingData.SpeedStudsPerSecond)
-	local position = Vector3.new(x, Meadow.GetFloorTop() + target.Size.Y / 2, z)
+	local position = Vector3.new(x, Meadow.GetSurfaceTop(Vector3.new(x, 0, z)) + target.Size.Y / 2, z)
 	target.CFrame = CFrame.lookAt(position, position + Vector3.new(dirX, 0, dirZ))
 	target:SetAttribute("Progress", math.clamp(elapsed / duration, 0, 1))
 end

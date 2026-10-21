@@ -868,7 +868,7 @@ def counts(world: World, caps, bodies, waters) -> dict:
         textures += 1 + bin(row[6]).count("1")
     for row in bodies:
         textures += bin(row[6]).count("1")
-    textures += len(waters) + len(world.falls)
+    textures += len(waters) + len(world.falls) + 6 * len(world.solids)
     recipes = kit["recipes"]
     placeholder = sum(len(recipes[p[0]]["boxes"]) for p in world.props if p[0] in recipes)
     lights = sum(1 for p in world.props if p[0] in recipes and recipes[p[0]].get("light"))
@@ -1020,6 +1020,11 @@ def emit_kit(kit: dict) -> str:
         out.append("\t},")
     out.append("}")
     out.append("")
+    bd = kit["build"]
+    out.append("-- how the builder stands the ground: invisible walls at the map edge (height, thickness), the base slab under everything, the")
+    out.append("-- waterfall sheet (thickness, transparency, colour), and props whose placeholder is shorter than decorShadowBelow cast no shadow")
+    out.append("local Build: Types.WorldBuild = { " + ", ".join(f"{k} = {lua_str(v) if isinstance(v, str) else num(v)}" for k, v in sorted(bd.items())) + " }")
+    out.append("")
     b = kit["budgets"]
     out.append("-- per world: ground parts (caps, bodies, water, falls, solids and the base), Texture objects once every tile id is real, scattered")
     out.append("-- props, the parts of their placeholders, PointLights, ambient emitters")
@@ -1029,6 +1034,7 @@ def emit_kit(kit: dict) -> str:
     out.append("\tKinds = Kinds,")
     out.append("\tWater = Water,")
     out.append("\tRecipes = Recipes,")
+    out.append("\tBuild = Build,")
     out.append("\tBudget = Budget,")
     out.append("}")
     out.append("")

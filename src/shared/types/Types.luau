@@ -93,6 +93,7 @@ export type RecipeBox = { size: { number }, at: { number }, color: string, mater
 export type RecipeLight = { color: string, range: number, brightness: number, at: { number } }
 -- hang: the prop hangs from its point (icicles under a cliff edge) instead of standing on it.
 export type PropRecipe = { boxes: { RecipeBox }, light: RecipeLight?, hang: boolean? }
+export type WorldBuild = { edgeWallHeight: number, edgeWallThickness: number, baseThickness: number, fallThickness: number, fallTransparency: number, fallColor: string, decorShadowBelow: number }
 export type WorldBudget = { groundParts: number, textures: number, scatter: number, placeholderParts: number, lights: number, fxEmitters: number }
 -- A beautiful place: rare-alien luck (a multiplier on the tier odds of a spawn inside its radius) and a name.
 export type WorldSpot = { id: string, x: number, y: number, z: number, radius: number, luck: number }
