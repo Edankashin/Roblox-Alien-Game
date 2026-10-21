@@ -21,6 +21,9 @@ local BlockTiles = require(Shared:WaitForChild("data"):WaitForChild("BlockTiles"
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Place = require(Shared:WaitForChild("Place"))
 local WorldGrid = require(Shared:WaitForChild("WorldGrid"))
+local Biomes = require(Shared:WaitForChild("Biomes"))
+local Theme = require(Shared:WaitForChild("Theme"))
+local LightingData = require(Shared:WaitForChild("data"):WaitForChild("Lighting"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
@@ -80,17 +83,18 @@ end
 
 local function colorSequence(hexes: { string }): ColorSequence
 	if #hexes <= 1 then
-		return ColorSequence.new(Color3.fromHex(hexes[1] or "FFFFFF"))
+		return ColorSequence.new(Theme.Hex(hexes[1] or "FFFFFF"))
 	end
-	return ColorSequence.new(Color3.fromHex(hexes[1]), Color3.fromHex(hexes[#hexes]))
+	return ColorSequence.new(Theme.Hex(hexes[1]), Theme.Hex(hexes[#hexes]))
 end
 
--- Whether a row's time of day holds now.
-local function timeFits(when: FxData.When): boolean
+-- Whether a row's time of day holds now at a place: a place inside a biome that is night at any hour (data/Lighting BiomeAlways, the
+-- Starhollow Forest) counts as night there.
+local function timeFits(when: FxData.When, position: Vector3): boolean
 	if when == "always" then
 		return true
 	end
-	local night = State.GetClock().isNight
+	local night = State.GetClock().isNight or LightingData.BiomeAlways[Biomes.At(position)] == "Night"
 	return if when == "night" then night else not night
 end
 
@@ -137,7 +141,7 @@ end
 
 local function buildFlies(entry: Entry, row: FxData.Butterflies)
 	for index = 1, row.count do
-		local color = Color3.fromHex(row.colors[(index - 1) % #row.colors + 1])
+		local color = Theme.Hex(row.colors[(index - 1) % #row.colors + 1])
 		local function block(name: string, size: { number }, tint: Color3): Part
 			local part = invisiblePart(name, vec(size), entry.position)
 			part.Transparency = 1
@@ -146,7 +150,7 @@ local function buildFlies(entry: Entry, row: FxData.Butterflies)
 			return part
 		end
 		table.insert(entry.flies, {
-			body = block("Butterfly", row.body, Color3.fromHex(row.bodyColor)),
+			body = block("Butterfly", row.body, Theme.Hex(row.bodyColor)),
 			left = block("Wing", row.wing, color),
 			right = block("Wing", row.wing, color),
 			phase = (index - 1) / row.count,
@@ -169,8 +173,8 @@ local function buildShaft(entry: Entry, row: FxData.Shaft)
 	beam.Attachment1 = a1
 	beam.Width0 = entry.spot.size * row.width
 	beam.Width1 = entry.spot.size * row.width * 1.4
-	beam.Color = ColorSequence.new(Color3.fromHex(row.color))
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, row.transparency), NumberSequenceKeypoint.new(1, 1) })
+	beam.Color = ColorSequence.new(Theme.Hex(row.color))
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, row.transparency), NumberSequenceKeypoint.new(1, row.endTransparency) })
 	beam.LightEmission = row.lightEmission
 	beam.FaceCamera = true
 	beam.Segments = 2
@@ -251,7 +255,7 @@ local function refresh()
 	for _, entry in ipairs(entries) do
 		local row = entry.row
 		if row.sort == "shaft" or row.sort == "ribbon" then
-			local show = timeFits(row.when)
+			local show = timeFits(row.when, entry.position)
 			local anchor = entry.part
 			if anchor then
 				for _, child in ipairs(anchor:GetChildren()) do
@@ -260,7 +264,7 @@ local function refresh()
 					end
 				end
 			end
-		elseif not reduced and timeFits(row.when) and (entry.position - eye).Magnitude <= FxData.ActiveRadius then
+		elseif not reduced and timeFits(row.when, entry.position) and (entry.position - eye).Magnitude <= FxData.ActiveRadius then
 			table.insert(candidates, entry)
 		end
 	end
@@ -315,7 +319,7 @@ local function step(dt: number)
 			end
 		end
 	end
-	if BlockTiles.Ids.Water ~= 0 then
+	if BlockTiles.Ids.Water.id ~= 0 or BlockTiles.Ids.GlowWater.id ~= 0 then
 		waterDrift = (waterDrift + dt * BlockTiles.WaterDrift) % BlockTiles.StudsPerTile
 		fallDrift = (fallDrift + dt * BlockTiles.FallDrift) % BlockTiles.StudsPerTile
 		for _, part in ipairs(CollectionService:GetTagged(BlockTiles.WaterTag)) do

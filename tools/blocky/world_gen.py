@@ -189,6 +189,7 @@ class World:
         self.carve_under: list[tuple] = []
         self.props: list[tuple] = []     # (name, x, y, z, yaw, scale)
         self.spots: list[dict] = []
+        self.sights: list[dict] = []
         self.fx: list[dict] = []
         self.h: list[int] = []
 
@@ -413,6 +414,11 @@ class World:
 
     def f_spot(self, f):
         self.spots.append(dict(f))
+
+    def f_sight(self, f):
+        """A named sight (B48: the map as a list of named stops): its id, the strings key of its player name, its point (y: the ground
+        there plus `lift`, or `y` given)."""
+        self.sights.append(dict(f))
 
     def f_fx(self, f):
         self.fx.append(dict(f))
@@ -694,7 +700,7 @@ class World:
     # --- the build ---------------------------------------------------------------------------------------------------------------
 
     def run(self):
-        late = {"path", "under", "roof", "solid", "prop", "scatter", "hang", "spot", "fx", "along"}
+        late = {"path", "under", "roof", "solid", "prop", "scatter", "hang", "spot", "fx", "along", "sight"}
         feats = self.desc["features"]
         for f in feats:
             if f["type"] not in late:
@@ -962,6 +968,12 @@ def emit_world(world: World, caps, bodies, waters, stats) -> str:
         y = world.top(s["x"], s["z"])
         out.append(f"\t\t{{ id = {lua_str(s['id'])}, x = {num(s['x'])}, y = {num(y)}, z = {num(s['z'])}, radius = {num(s['r'])}, luck = {num(s.get('luck', 1))} }},")
     out.append("\t},")
+    out.append("\t-- the named sights (B48): a strings key for the player name and the point the compass or a hint points at")
+    out.append("\tSights = {")
+    for g in world.sights:
+        y = g["y"] if "y" in g else world.top(g["x"], g["z"]) + g.get("lift", 0)
+        out.append(f"\t\t{{ id = {lua_str(g['id'])}, name = {lua_str(g['name'])}, area = {lua_str(g['area'])}, x = {num(g['x'])}, y = {num(y)}, z = {num(g['z'])} }},")
+    out.append("\t},")
     out.append("\t-- ambient effects at a place (client only; their look is data/WorldFx by kind)")
     out.append("\tFx = {")
     for e in world.fx:
@@ -988,12 +1000,13 @@ def emit_kit(kit: dict) -> str:
            "local Kinds: { [string]: Types.GroundKind } = {"]
     for name, k in sorted(kit["kinds"].items()):
         out.append(f"\t{name} = {{ top = {lua_str(k['top'])}, side = {lua_str(k['side'])}, body = {lua_str(k['body'])}, color = {lua_str(k['color'])}, "
-                   f"sideColor = {lua_str(k['sideColor'])}, bodyColor = {lua_str(k['bodyColor'])}, material = {lua_str(k['material'])}, spawn = {num(k['spawn'])} }},")
+                   f"sideColor = {lua_str(k['sideColor'])}, bodyColor = {lua_str(k['bodyColor'])}, material = {lua_str(k['material'])}, spawn = {num(k['spawn'])}, "
+                   f"tint = {num(k.get('tint', True))} }},")
     out.append("}")
     out.append("")
     out.append("local Water: { [string]: Types.WaterLook } = {")
     for name, w in sorted(kit["water"].items()):
-        out.append(f"\t{name} = {{ transparency = {num(w['transparency'])}, reflectance = {num(w['reflectance'])} }},")
+        out.append(f"\t{name} = {{ transparency = {num(w['transparency'])}, reflectance = {num(w['reflectance'])}, neon = {num(w.get('neon', False))} }},")
     out.append("}")
     out.append("")
     out.append("local Recipes: { [string]: Types.PropRecipe } = {")

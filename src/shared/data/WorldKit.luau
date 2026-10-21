@@ -6,44 +6,67 @@
 local Types = require(script.Parent.Parent.types.Types)
 
 local Kinds: { [string]: Types.GroundKind } = {
-	bed = { top = "Sand", side = "Sand", body = "Dirt", color = "C2AE78", sideColor = "B09C68", bodyColor = "8A5A3B", material = "Sand", spawn = false },
-	cave = { top = "Stone", side = "Rock", body = "Rock", color = "6E6A78", sideColor = "5E5A68", bodyColor = "55515E", material = "Slate", spawn = true },
-	cliff = { top = "GrassTop", side = "GrassSide", body = "Rock", color = "6FBF4A", sideColor = "8A5A3B", bodyColor = "8A8478", material = "Grass", spawn = true },
-	cracked = { top = "FrozenWater", side = "Ice", body = "Ice", color = "98CBEE", sideColor = "86BCE0", bodyColor = "7DB2D8", material = "Glacier", spawn = true },
-	crystal = { top = "Ice", side = "Ice", body = "Ice", color = "7FE3F0", sideColor = "7FE3F0", bodyColor = "7FE3F0", material = "Neon", spawn = false },
-	dirt = { top = "Dirt", side = "Dirt", body = "Dirt", color = "8A5A3B", sideColor = "8A5A3B", bodyColor = "7A4E33", material = "Ground", spawn = true },
-	edge = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "5FA845", sideColor = "8A5A3B", bodyColor = "7A4E33", material = "Grass", spawn = false },
-	edgeSnow = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "E2EBF4", sideColor = "B9CADA", bodyColor = "AFC1D3", material = "Snow", spawn = false },
-	forest = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "4E9A3C", sideColor = "7B4F33", bodyColor = "6F4630", material = "Grass", spawn = true },
-	frozen = { top = "FrozenWater", side = "Ice", body = "Ice", color = "A9D6F5", sideColor = "93C6EA", bodyColor = "86BCE0", material = "Ice", spawn = true },
-	geo = { top = "Rock", side = "Rock", body = "Rock", color = "C98B5A", sideColor = "A8714A", bodyColor = "8C5A3C", material = "Sandstone", spawn = true },
-	geoDark = { top = "Dirt", side = "Rock", body = "Rock", color = "9C6644", sideColor = "8C5A3C", bodyColor = "7A4D33", material = "Ground", spawn = true },
-	grass = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "6FBF4A", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Grass", spawn = true },
-	ice = { top = "Ice", side = "Ice", body = "Ice", color = "BFEBFA", sideColor = "A6DDF2", bodyColor = "9FD3E8", material = "Ice", spawn = true },
-	lush = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "5FB043", sideColor = "8A5A3B", bodyColor = "7E5236", material = "Grass", spawn = true },
-	meadowB = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "86C955", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Grass", spawn = true },
-	openIce = { top = "Water", side = "Water", body = "Water", color = "4F9BD0", sideColor = "4F9BD0", bodyColor = "4F9BD0", material = "SmoothPlastic", spawn = false },
-	packed = { top = "PackedSnow", side = "PackedSnow", body = "PackedSnow", color = "C9D7E4", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true },
-	path = { top = "Path", side = "Dirt", body = "Dirt", color = "C9B48A", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Cobblestone", spawn = true },
-	plaza = { top = "Path", side = "Dirt", body = "Dirt", color = "D8C79C", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Cobblestone", spawn = true },
-	rock = { top = "Rock", side = "Rock", body = "Rock", color = "A9B7C0", sideColor = "93A1AB", bodyColor = "8796A0", material = "Slate", spawn = true },
-	sand = { top = "Sand", side = "Sand", body = "Dirt", color = "E3CF94", sideColor = "CDB57A", bodyColor = "8A5A3B", material = "Sand", spawn = true },
-	snow = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "F2F6FA", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Snow", spawn = true },
-	snowB = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "E6EEF6", sideColor = "B9CADA", bodyColor = "AFC1D3", material = "Snow", spawn = true },
-	stone = { top = "Stone", side = "Rock", body = "Rock", color = "9E9E8E", sideColor = "86867A", bodyColor = "7C7C72", material = "Slate", spawn = true },
-	trail = { top = "PackedSnow", side = "SnowSide", body = "PackedSnow", color = "DCE5EE", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true },
-	warm = { top = "Water", side = "Water", body = "Water", color = "6FD3DA", sideColor = "6FD3DA", bodyColor = "6FD3DA", material = "SmoothPlastic", spawn = false },
-	water = { top = "Water", side = "Water", body = "Water", color = "3FA2E6", sideColor = "3FA2E6", bodyColor = "3FA2E6", material = "SmoothPlastic", spawn = false },
-	wood = { top = "WoodPlank", side = "WoodPlank", body = "WoodPlank", color = "A8743F", sideColor = "8C5E32", bodyColor = "7B4A2D", material = "WoodPlanks", spawn = false },
+	bed = { top = "Sand", side = "Sand", body = "Dirt", color = "C2AE78", sideColor = "B09C68", bodyColor = "8A5A3B", material = "Sand", spawn = false, tint = true },
+	cave = { top = "Stone", side = "Rock", body = "Rock", color = "6E6A78", sideColor = "5E5A68", bodyColor = "55515E", material = "Slate", spawn = true, tint = true },
+	cliff = { top = "GrassTop", side = "GrassSide", body = "Rock", color = "6FBF4A", sideColor = "8A5A3B", bodyColor = "8A8478", material = "Grass", spawn = true, tint = true },
+	cracked = { top = "FrozenWater", side = "Ice", body = "Ice", color = "98CBEE", sideColor = "86BCE0", bodyColor = "7DB2D8", material = "Glacier", spawn = true, tint = true },
+	crystal = { top = "Ice", side = "Ice", body = "Ice", color = "7FE3F0", sideColor = "7FE3F0", bodyColor = "7FE3F0", material = "Neon", spawn = false, tint = true },
+	dirt = { top = "Dirt", side = "Dirt", body = "Dirt", color = "8A5A3B", sideColor = "8A5A3B", bodyColor = "7A4E33", material = "Ground", spawn = true, tint = true },
+	edge = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "5FA845", sideColor = "8A5A3B", bodyColor = "7A4E33", material = "Grass", spawn = false, tint = true },
+	edgeSnow = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "E2EBF4", sideColor = "B9CADA", bodyColor = "AFC1D3", material = "Snow", spawn = false, tint = true },
+	forest = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "4E9A3C", sideColor = "7B4F33", bodyColor = "6F4630", material = "Grass", spawn = true, tint = true },
+	frozen = { top = "FrozenWater", side = "Ice", body = "Ice", color = "A9D6F5", sideColor = "93C6EA", bodyColor = "86BCE0", material = "Ice", spawn = true, tint = true },
+	geo = { top = "Rock", side = "Rock", body = "Rock", color = "C98B5A", sideColor = "A8714A", bodyColor = "8C5A3C", material = "Sandstone", spawn = true, tint = true },
+	geoDark = { top = "Dirt", side = "Rock", body = "Rock", color = "9C6644", sideColor = "8C5A3C", bodyColor = "7A4D33", material = "Ground", spawn = true, tint = true },
+	glowWater = { top = "GlowWater", side = "GlowWater", body = "GlowWater", color = "6FE6FF", sideColor = "6FE6FF", bodyColor = "6FE6FF", material = "Neon", spawn = false, tint = false },
+	grass = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "6FBF4A", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Grass", spawn = true, tint = true },
+	ice = { top = "Ice", side = "Ice", body = "Ice", color = "BFEBFA", sideColor = "A6DDF2", bodyColor = "9FD3E8", material = "Ice", spawn = true, tint = true },
+	lush = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "5FB043", sideColor = "8A5A3B", bodyColor = "7E5236", material = "Grass", spawn = true, tint = true },
+	meadowB = { top = "GrassTop", side = "GrassSide", body = "Dirt", color = "86C955", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Grass", spawn = true, tint = true },
+	moonCliff = { top = "MoonGrass", side = "GrassSide", body = "Rock", color = "3F8A74", sideColor = "4A3A6A", bodyColor = "5B4F86", material = "Grass", spawn = true, tint = true },
+	moonGrass = { top = "MoonGrass", side = "GrassSide", body = "Dirt", color = "3F8A74", sideColor = "4A3A6A", bodyColor = "3E3260", material = "Grass", spawn = true, tint = true },
+	moonPath = { top = "MoonPath", side = "MoonPath", body = "Dirt", color = "D2C2F4", sideColor = "A894D6", bodyColor = "3E3260", material = "SmoothPlastic", spawn = true, tint = false },
+	moonStone = { top = "Stone", side = "Rock", body = "Rock", color = "8A96B8", sideColor = "6E7A9E", bodyColor = "5B4F86", material = "Slate", spawn = false, tint = true },
+	openIce = { top = "Water", side = "Water", body = "Water", color = "4F9BD0", sideColor = "4F9BD0", bodyColor = "4F9BD0", material = "SmoothPlastic", spawn = false, tint = true },
+	packed = { top = "PackedSnow", side = "PackedSnow", body = "PackedSnow", color = "C9D7E4", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true, tint = true },
+	path = { top = "Path", side = "Dirt", body = "Dirt", color = "C9B48A", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Cobblestone", spawn = true, tint = true },
+	plaza = { top = "Path", side = "Dirt", body = "Dirt", color = "D8C79C", sideColor = "8A5A3B", bodyColor = "8A5A3B", material = "Cobblestone", spawn = true, tint = true },
+	rock = { top = "Rock", side = "Rock", body = "Rock", color = "A9B7C0", sideColor = "93A1AB", bodyColor = "8796A0", material = "Slate", spawn = true, tint = true },
+	sand = { top = "Sand", side = "Sand", body = "Dirt", color = "E3CF94", sideColor = "CDB57A", bodyColor = "8A5A3B", material = "Sand", spawn = true, tint = true },
+	snow = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "F2F6FA", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Snow", spawn = true, tint = true },
+	snowB = { top = "Snow", side = "SnowSide", body = "PackedSnow", color = "E6EEF6", sideColor = "B9CADA", bodyColor = "AFC1D3", material = "Snow", spawn = true, tint = true },
+	stone = { top = "Stone", side = "Rock", body = "Rock", color = "9E9E8E", sideColor = "86867A", bodyColor = "7C7C72", material = "Slate", spawn = true, tint = true },
+	trail = { top = "PackedSnow", side = "SnowSide", body = "PackedSnow", color = "DCE5EE", sideColor = "B9CADA", bodyColor = "B9CADA", material = "Sand", spawn = true, tint = true },
+	warm = { top = "Water", side = "Water", body = "Water", color = "6FD3DA", sideColor = "6FD3DA", bodyColor = "6FD3DA", material = "SmoothPlastic", spawn = false, tint = true },
+	water = { top = "Water", side = "Water", body = "Water", color = "3FA2E6", sideColor = "3FA2E6", bodyColor = "3FA2E6", material = "SmoothPlastic", spawn = false, tint = true },
+	wood = { top = "WoodPlank", side = "WoodPlank", body = "WoodPlank", color = "A8743F", sideColor = "8C5E32", bodyColor = "7B4A2D", material = "WoodPlanks", spawn = false, tint = true },
 }
 
 local Water: { [string]: Types.WaterLook } = {
-	openIce = { transparency = 0.2, reflectance = 0.15 },
-	warm = { transparency = 0.25, reflectance = 0.1 },
-	water = { transparency = 0.3, reflectance = 0.12 },
+	glowWater = { transparency = 0.35, reflectance = 0, neon = true },
+	openIce = { transparency = 0.2, reflectance = 0.15, neon = false },
+	warm = { transparency = 0.25, reflectance = 0.1, neon = false },
+	water = { transparency = 0.3, reflectance = 0.12, neon = false },
 }
 
 local Recipes: { [string]: Types.PropRecipe } = {
+	ArchBridge = {
+		boxes = {
+			{ size = { 3.1, 0.4, 4.6 }, at = { -6, 0.4, 0 }, color = "B07A48", material = "WoodPlanks", collide = true },
+			{ size = { 3.1, 0.4, 4.6 }, at = { -3, 1, 0 }, color = "B07A48", material = "WoodPlanks", collide = true },
+			{ size = { 3.1, 0.4, 4.6 }, at = { 0, 1.3, 0 }, color = "B07A48", material = "WoodPlanks", collide = true },
+			{ size = { 3.1, 0.4, 4.6 }, at = { 3, 1, 0 }, color = "B07A48", material = "WoodPlanks", collide = true },
+			{ size = { 3.1, 0.4, 4.6 }, at = { 6, 0.4, 0 }, color = "B07A48", material = "WoodPlanks", collide = true },
+			{ size = { 14, 0.3, 0.3 }, at = { 0, 2.6, -2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 14, 0.3, 0.3 }, at = { 0, 2.6, 2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { -6, 1.2, -2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { -6, 1.2, 2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { 0, 1.6, -2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { 0, 1.6, 2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { 6, 1.2, -2.2 }, color = "8C5E32", material = "Wood", collide = true },
+			{ size = { 0.35, 1.6, 0.35 }, at = { 6, 1.2, 2.2 }, color = "8C5E32", material = "Wood", collide = true },
+		},
+	},
 	BlossomTree = {
 		boxes = {
 			{ size = { 1.5, 6, 1.5 }, at = { 0, 3, 0 }, color = "6E4128", material = "Wood", collide = true },
@@ -93,6 +116,53 @@ local Recipes: { [string]: Types.PropRecipe } = {
 			{ size = { 3.5, 1.5, 3.5 }, at = { 0, 2.25, 0 }, color = "9C6644", material = "Sandstone", collide = true },
 			{ size = { 2, 1, 2 }, at = { 0, 3.5, 0 }, color = "C98B5A", material = "Sandstone", collide = true },
 			{ size = { 1, 0.2, 1 }, at = { 0, 4.05, 0 }, color = "E8F4F8", material = "Neon", neon = true },
+		},
+	},
+	GlowFern = {
+		boxes = {
+			{ size = { 0.25, 1.4, 0.25 }, at = { 0, 0.7, 0 }, color = "5CF2C8", material = "SmoothPlastic", neon = true, roll = 10 },
+			{ size = { 0.25, 1.1, 0.25 }, at = { 0.4, 0.55, 0.3 }, color = "48D8B4", material = "SmoothPlastic", neon = true, roll = -25 },
+			{ size = { 0.25, 1, 0.25 }, at = { -0.4, 0.5, -0.2 }, color = "48D8B4", material = "SmoothPlastic", neon = true, roll = 28 },
+		},
+	},
+	GlowcapGiant = {
+		light = { color = "E8DEFF", range = 26, brightness = 1.6, at = { 0, 15, 0 } },
+		boxes = {
+			{ size = { 2.2, 16, 2.2 }, at = { 0, 8, 0 }, color = "EDE6FF", material = "SmoothPlastic", collide = true },
+			{ size = { 3.2, 1.2, 3.2 }, at = { 0, 0.6, 0 }, color = "E2D8FF", material = "SmoothPlastic", collide = true },
+			{ size = { 11, 0.5, 11 }, at = { 0, 16.25, 0 }, color = "E8DEFF", material = "SmoothPlastic", neon = true },
+			{ size = { 12, 1.6, 12 }, at = { 0, 17.3, 0 }, color = "F4EEFF", material = "SmoothPlastic", collide = true },
+			{ size = { 8, 1, 8 }, at = { 0, 18.6, 0 }, color = "F4EEFF", material = "SmoothPlastic" },
+		},
+	},
+	GlowcapGiantBlue = {
+		light = { color = "B8E4FF", range = 26, brightness = 1.6, at = { 0, 18, 0 } },
+		boxes = {
+			{ size = { 2.2, 19, 2.2 }, at = { 0, 9.5, 0 }, color = "EDE6FF", material = "SmoothPlastic", collide = true },
+			{ size = { 3.2, 1.2, 3.2 }, at = { 0, 0.6, 0 }, color = "E2D8FF", material = "SmoothPlastic", collide = true },
+			{ size = { 10, 0.5, 10 }, at = { 0, 19.25, 0 }, color = "B8E4FF", material = "SmoothPlastic", neon = true },
+			{ size = { 11, 1.6, 11 }, at = { 0, 20.3, 0 }, color = "7FC8FF", material = "SmoothPlastic", collide = true },
+			{ size = { 7, 1, 7 }, at = { 0, 21.6, 0 }, color = "7FC8FF", material = "SmoothPlastic" },
+		},
+	},
+	GlowcapGiantPink = {
+		light = { color = "FFB8EC", range = 26, brightness = 1.6, at = { 0, 12, 0 } },
+		boxes = {
+			{ size = { 2.2, 13, 2.2 }, at = { 0, 6.5, 0 }, color = "EDE6FF", material = "SmoothPlastic", collide = true },
+			{ size = { 3.2, 1.2, 3.2 }, at = { 0, 0.6, 0 }, color = "E2D8FF", material = "SmoothPlastic", collide = true },
+			{ size = { 9, 0.5, 9 }, at = { 0, 13.25, 0 }, color = "FFB8EC", material = "SmoothPlastic", neon = true },
+			{ size = { 10, 1.6, 10 }, at = { 0, 14.3, 0 }, color = "F48FD8", material = "SmoothPlastic", collide = true },
+			{ size = { 6, 1, 6 }, at = { 0, 15.6, 0 }, color = "F48FD8", material = "SmoothPlastic" },
+		},
+	},
+	GlowcapSmall = {
+		boxes = {
+			{ size = { 0.3, 0.8, 0.3 }, at = { 0, 0.4, 0 }, color = "EDE6FF", material = "SmoothPlastic" },
+			{ size = { 1, 0.35, 1 }, at = { 0, 0.95, 0 }, color = "B8E4FF", material = "SmoothPlastic", neon = true },
+			{ size = { 0.25, 0.55, 0.25 }, at = { 0.7, 0.28, 0.4 }, color = "EDE6FF", material = "SmoothPlastic" },
+			{ size = { 0.7, 0.3, 0.7 }, at = { 0.7, 0.7, 0.4 }, color = "FFB8EC", material = "SmoothPlastic", neon = true },
+			{ size = { 0.25, 0.45, 0.25 }, at = { -0.6, 0.23, -0.4 }, color = "EDE6FF", material = "SmoothPlastic" },
+			{ size = { 0.6, 0.25, 0.6 }, at = { -0.6, 0.57, -0.4 }, color = "E8DEFF", material = "SmoothPlastic", neon = true },
 		},
 	},
 	GrottoCrystal = {
@@ -206,11 +276,61 @@ local Recipes: { [string]: Types.PropRecipe } = {
 			{ size = { 4, 2.5, 4 }, at = { 0, 9, 0 }, color = "62B84E", material = "Grass" },
 		},
 	},
+	MoonPoolRing = {
+		boxes = {
+			{ size = { 2.4, 1.3, 1.8 }, at = { 8.6, 0.65, 0 }, color = "6E7A9E", material = "Slate", collide = true },
+			{ size = { 1.6, 0.3, 1.2 }, at = { 8.6, 1.45, 0 }, color = "4FA383", material = "Grass" },
+			{ size = { 2.4, 1.3, 1.8 }, at = { 6.96, 0.65, 5.05 }, color = "7C86A8", material = "Slate", collide = true },
+			{ size = { 2.4, 1.3, 1.8 }, at = { 2.66, 0.65, 8.18 }, color = "6E7A9E", material = "Slate", collide = true },
+			{ size = { 1.6, 0.3, 1.2 }, at = { 2.66, 1.45, 8.18 }, color = "4FA383", material = "Grass" },
+			{ size = { 2.4, 1.3, 1.8 }, at = { -2.66, 0.65, 8.18 }, color = "7C86A8", material = "Slate", collide = true },
+			{ size = { 2.4, 1.3, 1.8 }, at = { -6.96, 0.65, 5.05 }, color = "6E7A9E", material = "Slate", collide = true },
+			{ size = { 1.6, 0.3, 1.2 }, at = { -6.96, 1.45, 5.05 }, color = "4FA383", material = "Grass" },
+			{ size = { 2.4, 1.3, 1.8 }, at = { -8.6, 0.65, 0 }, color = "7C86A8", material = "Slate", collide = true },
+			{ size = { 2.4, 1.3, 1.8 }, at = { -6.96, 0.65, -5.05 }, color = "6E7A9E", material = "Slate", collide = true },
+			{ size = { 1.6, 0.3, 1.2 }, at = { -6.96, 1.45, -5.05 }, color = "4FA383", material = "Grass" },
+			{ size = { 2.4, 1.3, 1.8 }, at = { -2.66, 0.65, -8.18 }, color = "7C86A8", material = "Slate", collide = true },
+			{ size = { 2.4, 1.3, 1.8 }, at = { 2.66, 0.65, -8.18 }, color = "6E7A9E", material = "Slate", collide = true },
+			{ size = { 1.6, 0.3, 1.2 }, at = { 2.66, 1.45, -8.18 }, color = "4FA383", material = "Grass" },
+			{ size = { 2.4, 1.3, 1.8 }, at = { 6.96, 0.65, -5.05 }, color = "7C86A8", material = "Slate", collide = true },
+		},
+	},
+	MoonTree = {
+		boxes = {
+			{ size = { 2, 10, 2 }, at = { 0, 5, 0 }, color = "3E2F66", material = "Wood", collide = true },
+			{ size = { 10, 4, 10 }, at = { 0, 11, 0 }, color = "4B4FC9", material = "Grass" },
+			{ size = { 7, 3, 7 }, at = { 0.5, 14.5, -0.5 }, color = "4F63D6", material = "Grass" },
+			{ size = { 4, 2, 4 }, at = { 0, 17, 0 }, color = "5A6FE6", material = "Grass" },
+			{ size = { 0.5, 0.5, 0.5 }, at = { 3.6, 9.2, 2.4 }, color = "BFF6FF", material = "SmoothPlastic", neon = true },
+		},
+	},
+	MoonTreeB = {
+		boxes = {
+			{ size = { 1.75, 8, 1.75 }, at = { 0, 4, 0 }, color = "3A2C5E", material = "Wood", collide = true },
+			{ size = { 9, 3.5, 9 }, at = { 0, 9.25, 0 }, color = "3F8FA0", material = "Grass" },
+			{ size = { 6, 3, 6 }, at = { 0, 12.5, 0 }, color = "4AA3B0", material = "Grass" },
+			{ size = { 0.5, 0.5, 0.5 }, at = { -3.2, 7.7, 2.8 }, color = "FFE27A", material = "SmoothPlastic", neon = true },
+		},
+	},
+	MossStone = {
+		boxes = {
+			{ size = { 3, 1.6, 2.6 }, at = { 0, 0.8, 0 }, color = "6E7FA0", material = "Slate", collide = true },
+			{ size = { 2.2, 0.4, 1.8 }, at = { 0.2, 1.8, 0 }, color = "4FA383", material = "Grass" },
+		},
+	},
 	Mushroom = {
 		boxes = {
 			{ size = { 0.5, 1, 0.5 }, at = { 0, 0.5, 0 }, color = "F2E6D0", material = "SmoothPlastic" },
 			{ size = { 1.5, 0.5, 1.5 }, at = { 0, 1.25, 0 }, color = "D94A3A", material = "SmoothPlastic" },
 			{ size = { 0.25, 0.1, 0.25 }, at = { 0.35, 1.55, 0.3 }, color = "FFFFFF", material = "SmoothPlastic" },
+		},
+	},
+	PathLantern = {
+		light = { color = "E8DEFF", range = 12, brightness = 1.1, at = { 0, 3.05, 0 } },
+		boxes = {
+			{ size = { 0.4, 2.6, 0.4 }, at = { 0, 1.3, 0 }, color = "2E2648", material = "Wood", collide = true },
+			{ size = { 0.9, 0.9, 0.9 }, at = { 0, 3.05, 0 }, color = "F4EEFF", material = "SmoothPlastic", neon = true },
+			{ size = { 1.1, 0.25, 1.1 }, at = { 0, 3.6, 0 }, color = "2E2648", material = "Wood" },
 		},
 	},
 	Reeds = {
@@ -257,6 +377,28 @@ local Recipes: { [string]: Types.PropRecipe } = {
 			{ size = { 3.2, 0.5, 3.2 }, at = { 0, 6.75, 0 }, color = "F2F6FA", material = "Snow" },
 		},
 	},
+	StarIsland = {
+		light = { color = "C8E8FF", range = 48, brightness = 2, at = { 0, 12, 0 } },
+		boxes = {
+			{ size = { 4, 3, 4 }, at = { 0, 1.5, 0 }, color = "4A3F72", material = "Slate", collide = true },
+			{ size = { 10, 4, 10 }, at = { 0, 5, 0 }, color = "5B4F86", material = "Slate", collide = true },
+			{ size = { 18, 3, 18 }, at = { 0, 8.5, 0 }, color = "6A5E96", material = "Slate", collide = true },
+			{ size = { 19, 1, 19 }, at = { 0, 10.5, 0 }, color = "3F8A74", material = "Grass", collide = true },
+			{ size = { 1.2, 9, 1.2 }, at = { -5, 15.5, 0 }, color = "F4EEFF", material = "SmoothPlastic", neon = true },
+			{ size = { 1.2, 9, 1.2 }, at = { 5, 15.5, 0 }, color = "F4EEFF", material = "SmoothPlastic", neon = true },
+			{ size = { 11.2, 1.2, 1.2 }, at = { 0, 20.6, 0 }, color = "FFF2B0", material = "SmoothPlastic", neon = true },
+			{ size = { 1.5, 5, 1.5 }, at = { 5, 13.5, 5 }, color = "3E2F66", material = "Wood" },
+			{ size = { 6, 3, 6 }, at = { 5, 17, 5 }, color = "4B4FC9", material = "Grass" },
+			{ size = { 3, 2, 3 }, at = { -5, 12, 5 }, color = "4AA3B0", material = "Grass" },
+			{ size = { 2.4, 1, 2.4 }, at = { -1, 11.5, -6 }, color = "8FE6FF", material = "SmoothPlastic", neon = true },
+		},
+	},
+	SteppingStone = {
+		boxes = {
+			{ size = { 2.4, 0.7, 2.4 }, at = { 0, 0.35, 0 }, color = "8A96B8", material = "Slate", collide = true },
+			{ size = { 1.4, 0.15, 1.2 }, at = { 0.3, 0.75, -0.2 }, color = "4FA383", material = "Grass" },
+		},
+	},
 }
 
 -- how the builder stands the ground: invisible walls at the map edge (height, thickness), the base slab under everything, the
@@ -265,7 +407,7 @@ local Build: Types.WorldBuild = { baseThickness = 1, decorShadowBelow = 1.5, edg
 
 -- per world: ground parts (caps, bodies, water, falls, solids and the base), Texture objects once every tile id is real, scattered
 -- props, the parts of their placeholders, PointLights, ambient emitters
-local Budget: Types.WorldBudget = { fxEmitters = 24, groundParts = 4400, lights = 48, placeholderParts = 3200, scatter = 900, textures = 10500 }
+local Budget: Types.WorldBudget = { fxEmitters = 24, groundParts = 4400, lights = 72, placeholderParts = 4200, scatter = 1000, textures = 10500 }
 
 return {
 	Kinds = Kinds,

@@ -14,7 +14,7 @@
 -- seen) and every target is computed from it, so repeated applies never drift; a part that streams in mid-night is tinted
 -- on arrival. One tween per ground part per change, nothing per frame. Active conditions: "Night" while the
 -- clock mirror says night, the clock's weather when Conditions has a look for it (Fog, Snow, Rain,
--- Blizzard...), "Shower" while a Meteor Shower runs. ClockTime stays the server's (WorldClock) and is not touched.
+-- Blizzard...), "Shower" while a Meteor Shower runs. ClockTime stays the server's (WorldClock), except that a biome night at any hour (BiomeAlways, the Starhollow) holds this client's sky at night.
 -- Once at Start the place-level engine settings go on (applyEngineSettings): LightingStyle, then
 -- PrioritizeLightingQuality, then the deprecated Technology as the fallback, each in its own pcall. Pure presentation:
 -- the clock and the shower are the server's; this only picks how they look.
@@ -58,6 +58,9 @@ local sunRays: Instance? = nil
 local sky: Instance? = nil
 local groundParts: { [BasePart]: boolean } = {} -- every part tagged LightingData.GroundTag that exists now
 local groundGoal: GroundGoal? = nil -- the tint the current look names, nil while it names none
+local clockHeld = false -- true while a BiomeAlways biome holds the sky's ClockTime at night on this client
+local clockWasHeld = false -- true from the moment we moved ClockTime until we hand it back
+local clockEaseUntil = 0 -- os.clock() until which our own ClockTime ease runs (the hold below leaves it alone)
 
 -- Helpers ----------------------------------------------------------------
 
@@ -152,6 +155,11 @@ local function activeConditions(): { string }
 	local shower = State.GetShower()
 	if shower.active then
 		set["Shower"] = true
+	end
+	-- a biome that is night at any hour (data/Lighting BiomeAlways: the Starhollow Forest) counts its condition as active
+	local always = LightingData.BiomeAlways[State.GetBiome()]
+	if always then
+		set[always] = true
 	end
 	local out: { string } = {}
 	for _, name in ipairs(LightingData.ConditionOrder) do
@@ -317,6 +325,35 @@ local function applyEngineSettings()
 	end
 end
 
+-- The sky's time of day on this client: in a biome that is night at any hour (BiomeAlways "Night", the Starhollow Forest) it eases
+-- to Config.NightClockTime and stays there while the server's own clock replicates over it; outside, it goes back to the server's
+-- (night or day by the clock mirror), so leaving the forest at noon brings the sun back. Pure presentation: the server's ClockTime
+-- and conditions are unchanged.
+local function clockGoal(): number?
+	if LightingData.BiomeAlways[State.GetBiome()] == "Night" then
+		return Config.NightClockTime
+	end
+	return nil
+end
+
+local function applyClock(instant: boolean)
+	local goal = clockGoal()
+	clockHeld = goal ~= nil
+	if goal then
+		clockWasHeld = true
+	elseif clockWasHeld then
+		clockWasHeld = false -- hand the sky back once
+	else
+		return -- not ours to move: the server's clock and its own tween
+	end
+	local target = goal or (if State.GetClock().isNight then Config.NightClockTime else Config.DayClockTime)
+	if math.abs(Lighting.ClockTime - target) < 0.01 then
+		return
+	end
+	clockEaseUntil = os.clock() + (if instant then 0 else Config.LightingTweenSeconds)
+	drive(Lighting, { ClockTime = target }, instant)
+end
+
 -- Re-merges and applies the look. Unchanged inputs (world, active conditions and the biome when it matters) are skipped unless
 -- `force`, so the repeated "profile" fires every State topic also answers never restart a tween.
 local function apply(force: boolean)
@@ -358,6 +395,7 @@ local function apply(force: boolean)
 	end
 	applySky(look["Sky"] :: Table?)
 	applyGround(look["groundTint"] :: Table?, instant)
+	applyClock(instant)
 end
 
 -- Public ------------------------------------------------------------------
@@ -412,6 +450,12 @@ function LightingDirector.Start()
 	-- The Forest wears the stronger night; walking in or out tweens over Config.LightingTweenSeconds.
 	State.OnChanged("biome", function()
 		apply(false)
+	end)
+	-- The server's clock replicates over a held night sky (its tween on a day/night change): hold it.
+	Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
+		if clockHeld and os.clock() > clockEaseUntil and math.abs(Lighting.ClockTime - Config.NightClockTime) > 0.01 then
+			Lighting.ClockTime = Config.NightClockTime
+		end
 	end)
 	-- Reduced Motion only changes how the next change lands; one switched on mid-tween snaps it home.
 	Prefs.OnChanged(function()

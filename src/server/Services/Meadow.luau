@@ -506,7 +506,8 @@ local function enumMaterial(name: string): Enum.Material
 end
 
 local function tileId(key: string): number
-	return BlockTiles.Ids[key] or 0
+	local row = BlockTiles.Ids[key]
+	return if row then row.id else 0
 end
 
 -- One Texture tiling a block-cell tile over a face, StudsPerTile a side. `pinTop` aligns a side tile's top edge with the face's top (a
@@ -670,7 +671,9 @@ local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instanc
 				addTexture(part, kind.side, side.face)
 			end
 		end
-		markGround(part)
+		if kind.tint then
+			markGround(part)
+		end
 	end
 
 	local bodies = gen.Bodies
@@ -704,6 +707,9 @@ local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instanc
 		part.CastShadow = false
 		part.Transparency = if look then look.transparency else 0.3
 		part.Reflectance = if look then look.reflectance else 0
+		if look and look.neon then
+			part.Material = Enum.Material.Neon
+		end
 		addTexture(part, kind.top, Enum.NormalId.Top, nil, BlockTiles.WaterTransparency)
 		CollectionService:AddTag(part, WATER_TAG)
 	end
@@ -712,9 +718,13 @@ local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instanc
 	local build = WorldKit.Build
 	for r = 1, #falls, WorldGrid.Stride.Falls do
 		local x, z, width, bottom, top, yaw = falls[r], falls[r + 1], falls[r + 2], falls[r + 3], falls[r + 4], falls[r + 5]
-		local kind = WorldKit.Kinds[gen.Kinds[falls[r + 6]]]
+		local fallKind = gen.Kinds[falls[r + 6]]
+		local kind = WorldKit.Kinds[fallKind]
+		local look = WorldKit.Water[fallKind]
+		local glowing = look ~= nil and look.neon
 		local part = groundPart("Fall", Vector3.new(width, top - bottom, build.fallThickness),
-			Vector3.new(x, floorTop + (bottom + top) / 2, z), build.fallColor, Enum.Material.SmoothPlastic, world)
+			Vector3.new(x, floorTop + (bottom + top) / 2, z), if glowing then kind.color else build.fallColor,
+			if glowing then Enum.Material.Neon else Enum.Material.SmoothPlastic, world)
 		part.CFrame = CFrame.new(x, floorTop + (bottom + top) / 2, z) * CFrame.Angles(0, math.rad(yaw), 0)
 		part.CanCollide = false
 		part.CanQuery = false

@@ -86,8 +86,12 @@ export type PropRow = { collision: PropCollision }
 -- The generated worlds in block cells (tools/blocky/world_gen.py writes data/WorldGen1, WorldGen2 and WorldKit; Shared/WorldGrid reads
 -- them; Services/Meadow builds them). A ground kind: its tile keys (data/BlockTiles ids), the fallback colours and Roblox Material
 -- while a tile id is 0, and whether a wild alien may spawn on it.
-export type GroundKind = { top: string, side: string, body: string, color: string, sideColor: string, bodyColor: string, material: string, spawn: boolean }
-export type WaterLook = { transparency: number, reflectance: number }
+-- tint false: the night's ground tint (data/Lighting groundTint) leaves it alone (the Starhollow's glowing path and water).
+export type GroundKind = { top: string, side: string, body: string, color: string, sideColor: string, bodyColor: string, material: string, spawn: boolean, tint: boolean }
+-- neon: the water glows (the Starhollow's moon pool and waterfall).
+export type WaterLook = { transparency: number, reflectance: number, neon: boolean }
+-- A named sight (B48): `name` is a strings key, `area` the strings key of the area it is in.
+export type WorldSight = { id: string, name: string, area: string, x: number, y: number, z: number }
 -- One box of a scatter prop's block-built placeholder (studs at scale 1, feet at y = 0); roll tilts it about its local Z, degrees.
 export type RecipeBox = { size: { number }, at: { number }, color: string, material: string, collide: boolean?, neon: boolean?, roll: number? }
 export type RecipeLight = { color: string, range: number, brightness: number, at: { number } }
@@ -116,6 +120,7 @@ export type WorldGen = {
 	NoSpawn: { number },
 	Place: { number },
 	Spots: { WorldSpot },
+	Sights: { WorldSight },
 	Fx: { WorldFxSpot },
 	Stats: { [string]: number },
 }

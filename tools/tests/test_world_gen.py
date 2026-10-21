@@ -149,7 +149,7 @@ class Worlds(unittest.TestCase):
                 self.assertTrue(0.5 <= scale <= 1.5)
 
     def test_every_world_has_its_exploration(self):
-        want = {1: {"Lookout", "WaterfallNook", "HiddenGrove", "TreetopHollow", "CrystalGrotto"},
+        want = {1: {"Lookout", "WaterfallNook", "MoonPool", "GlowcapGrove", "CrystalGrotto"},
                 2: {"AuroraRidge", "FrozenFallNook", "CrystalHall", "HotSpring", "LakeIsle"}}
         for wid in WORLDS:
             world = gen(wid)[0]

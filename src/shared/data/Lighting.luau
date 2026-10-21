@@ -209,6 +209,11 @@ return {
 	Conditions = Conditions,
 	WorldConditions = WorldConditions,
 	BiomeConditions = BiomeConditions,
+	-- A biome that wears a condition's look at any hour while the local player stands in it (B48: the Starhollow Forest, World 1's
+	-- Forest region, is moonlit night even at noon). LightingDirector counts the condition as active there, so the Night row, World 1's
+	-- refinement and the Forest's own row all merge, eases the sky's ClockTime to Config.NightClockTime on the client (the server's
+	-- clock is untouched and comes back on the way out), and WeatherFx and WorldFx run their night layers there.
+	BiomeAlways = { Forest = "Night" } :: { [string]: string },
 	-- Merge order: the first listed is applied first, so the last active one listed here wins.
 	ConditionOrder = { "Fog", "Snow", "Night", "Aurora", "Rain", "Blizzard", "Shower" },
 }

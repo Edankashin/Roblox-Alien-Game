@@ -409,6 +409,9 @@ local gen: Types.WorldGen = {
 		{ id = "HotSpring", x = -46, y = 0, z = 19, radius = 3, luck = 1.75 },
 		{ id = "LakeIsle", x = 64, y = 0, z = -98, radius = 3.5, luck = 2 },
 	},
+	-- the named sights (B48): a strings key for the player name and the point the compass or a hint points at
+	Sights = {
+	},
 	-- ambient effects at a place (client only; their look is data/WorldFx by kind)
 	Fx = {
 		{ kind = "LakeMist", x = 70, y = -0.5, z = -85, size = 60 },

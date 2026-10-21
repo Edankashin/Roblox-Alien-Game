@@ -4,23 +4,28 @@
 -- made by the props worker with tools/blocky/cells.py. The keys are shared with the props worker; data/WorldKit's ground kinds name
 -- them per face (top, side, body). Ids are Decal/Image asset ids, 0 until the uploader fills them in: while a key's id is 0,
 -- Services/Meadow gives that face no Texture and the part keeps its kind's plain colour and fitting Material (data/WorldKit), so the
--- world reads the same, flatter, with or without the tiles.
+-- world reads the same, flatter, with or without the tiles. tools/upload_assets.py fills each row's id (the `<Key> = { id = 0 }`
+-- convention) from assets/textures/blocky_tiles/asset_ids.json. MoonPath, MoonGrass and GlowWater are the Starhollow Forest's
+-- (B48): the pale lavender path, the moonlit grass and the glowing water.
 
-local Ids: { [string]: number } = {
-	GrassTop = 0,
-	GrassSide = 0,
-	Dirt = 0,
-	Path = 0,
-	Stone = 0,
-	Sand = 0,
-	Water = 0,
-	WoodPlank = 0,
-	Snow = 0,
-	SnowSide = 0,
-	PackedSnow = 0,
-	Ice = 0,
-	FrozenWater = 0,
-	Rock = 0,
+local Ids: { [string]: { id: number } } = {
+	GrassTop = { id = 0 },
+	GrassSide = { id = 0 },
+	Dirt = { id = 0 },
+	Path = { id = 0 },
+	Stone = { id = 0 },
+	Sand = { id = 0 },
+	Water = { id = 0 },
+	WoodPlank = { id = 0 },
+	Snow = { id = 0 },
+	SnowSide = { id = 0 },
+	PackedSnow = { id = 0 },
+	Ice = { id = 0 },
+	FrozenWater = { id = 0 },
+	Rock = { id = 0 },
+	MoonPath = { id = 0 },
+	MoonGrass = { id = 0 },
+	GlowWater = { id = 0 },
 }
 
 -- The Roblox Material a face falls back to while its tile id is 0 (a cap uses its kind's own Material, data/WorldKit; a body and a
@@ -40,6 +45,9 @@ local FallbackMaterial: { [string]: string } = {
 	Ice = "Ice",
 	FrozenWater = "Ice",
 	Rock = "Slate",
+	MoonPath = "SmoothPlastic",
+	MoonGrass = "Grass",
+	GlowWater = "Neon",
 }
 
 return {

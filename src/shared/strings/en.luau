@@ -264,6 +264,11 @@ return {
 	BIOME_Snowfield = "Snowfield",
 	BIOME_IceCave = "Ice Cave",
 	BIOME_GeyserField = "Geyser Field",
+	-- the named sights of the generated worlds (data/WorldGen1 Sights, B48: the Starhollow Forest's stops)
+	SIGHT_MoonPool = "Moon Pool",
+	SIGHT_GiantGlowcaps = "Giant Glowcaps",
+	SIGHT_WaterfallBridge = "Waterfall Bridge",
+	SIGHT_StarIsland = "Star Island",
 	-- shared UI glyphs and number formats
 	UI_CLOSE = "X",
 	UI_PERCENT = "%d%%",

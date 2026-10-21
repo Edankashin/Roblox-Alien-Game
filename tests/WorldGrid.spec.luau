@@ -135,6 +135,81 @@ for _, worldId in ipairs({ 1, 2 }) do
 	end)
 end
 
+-- B48: World 1's Forest region is the Starhollow Forest: its sights are named in strings, its rare spots sit in the Forest biome,
+-- the moon pool and the island's fall are glowing water, the island floats high over the forest, and the path is the pale MoonPath.
+describe("the Starhollow Forest", function()
+	local Strings = require(Shared.strings.en)
+	local grid = WorldGrid.For(1)
+	assert(grid, "no grid")
+	local gen = grid.gen
+	local forest = Layouts[1].Regions.Forest
+
+	local function inForest(x: number, z: number): boolean
+		return (x - forest.x) ^ 2 + (z - forest.z) ^ 2 <= forest.radius ^ 2
+	end
+
+	it("names its four sights in strings, inside the Forest region", function()
+		local ids: { [string]: boolean } = {}
+		for _, sight in ipairs(gen.Sights) do
+			ids[sight.id] = true
+			expect((Strings :: any)[sight.name] ~= nil).toEqual(true)
+			expect(inForest(sight.x, sight.z)).toEqual(true)
+		end
+		for _, id in ipairs({ "MoonPool", "GiantGlowcaps", "WaterfallBridge", "StarIsland" }) do
+			expect(ids[id]).toEqual(true)
+		end
+	end)
+
+	it("floats the island well above the canopy", function()
+		for _, sight in ipairs(gen.Sights) do
+			if sight.id == "StarIsland" then
+				expect(sight.y - WorldGrid.GroundAt(grid, sight.x, sight.z) >= 40).toEqual(true)
+			end
+		end
+	end)
+
+	it("puts its rare spots in the grove and at the pool, in the Forest biome", function()
+		for _, id in ipairs({ "MoonPool", "GlowcapGrove" }) do
+			local found = false
+			for _, spot in ipairs(gen.Spots) do
+				if spot.id == id then
+					found = true
+					expect(inForest(spot.x, spot.z)).toEqual(true)
+					expect(spot.luck >= 2).toEqual(true)
+				end
+			end
+			expect(found).toEqual(true)
+		end
+	end)
+
+	it("lights the pool with glowing water and walks a MoonPath to it", function()
+		expect(WorldKit.Water.glowWater.neon).toEqual(true)
+		expect(WorldKit.Kinds.moonPath.top).toEqual("MoonPath")
+		expect(WorldKit.Kinds.moonPath.tint).toEqual(false)
+		expect(grid.water[WorldGrid.Index(grid, 114, 130)] ~= nil).toEqual(true)
+		local found = false
+		for x = 70, 160, 2 do
+			for z = 60, 160, 2 do
+				if WorldGrid.KindAt(grid, x, z) == "moonPath" then
+					found = true
+				end
+			end
+		end
+		expect(found).toEqual(true)
+	end)
+
+	it("places every Starhollow prop the props worker names", function()
+		local names: { [string]: boolean } = {}
+		for _, name in ipairs(gen.Props) do
+			names[name] = true
+		end
+		for _, name in ipairs({ "StarIsland", "MoonTree", "MoonTreeB", "GlowcapGiant", "GlowcapGiantPink", "GlowcapGiantBlue", "GlowcapSmall",
+			"PathLantern", "ArchBridge", "SteppingStone", "GlowFern", "MossStone", "MoonPoolRing" }) do
+			expect(names[name]).toEqual(true)
+		end
+	end)
+end)
+
 describe("WorldGrid without a generated world", function()
 	it("has no grid for the home planet or an unbuilt world", function()
 		expect(WorldGrid.For(0) == nil).toEqual(true)

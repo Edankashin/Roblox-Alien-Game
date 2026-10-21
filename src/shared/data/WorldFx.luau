@@ -46,7 +46,8 @@ export type Butterflies = {
 	loopSeconds: number, -- one lap of the flight path
 	height: { number }, -- {min, max} studs over the ground
 }
-export type Shaft = { sort: "shaft", when: When, color: string, width: number, height: number, transparency: number, lightEmission: number }
+-- endTransparency: the beam's transparency at its foot (a light shaft fades out, 1; a glowing waterfall stays, lower).
+export type Shaft = { sort: "shaft", when: When, color: string, width: number, height: number, transparency: number, lightEmission: number, endTransparency: number }
 export type Ribbon = {
 	sort: "ribbon",
 	when: When,
@@ -68,7 +69,13 @@ local Kinds: { [string]: Row } = {
 	GrottoGlint = { sort = "particles", when = "always", rate = 3, lifetime = { 1.5, 2.5 }, speed = { 0.1, 0.4 }, sizeStart = 0.3, sizeEnd = 0, color = { "A8F0FA", "B49CFF" }, transparency = 0.1, lightEmission = 1, spread = 180, direction = { 0, 1, 0 }, acceleration = { 0, 0.2, 0 }, drag = 0.4, box = { 1, 0.5, 1 }, texture = Icons.Particles.Glow, rotation = { 0, 0 } },
 	Fireflies = { sort = "particles", when = "night", rate = 1.5, lifetime = { 6, 8 }, speed = { 0.3, 0.8 }, sizeStart = 0.45, sizeEnd = 0.3, color = { "FFE27A" }, transparency = 0.1, lightEmission = 1, spread = 180, direction = { 0, 0.2, 0 }, acceleration = { 0, 0, 0 }, drag = 0.6, box = { 1, 0.3, 1 }, texture = Icons.Particles.Glow, rotation = { 0, 0 } },
 	Butterflies = { sort = "butterflies", when = "day", count = 4, colors = { "FFD447", "F28CB8", "8FD3FF", "FFFFFF" }, wing = { 0.5, 0.06, 0.4 }, body = { 0.12, 0.12, 0.45 }, bodyColor = "4A3A2E", flapSeconds = 0.35, loopSeconds = 14, height = { 1, 3.5 } },
-	LightShaft = { sort = "shaft", when = "day", color = "FFF2C8", width = 1, height = 14, transparency = 0.82, lightEmission = 0.8 },
+	LightShaft = { sort = "shaft", when = "day", color = "FFF2C8", width = 1, height = 14, transparency = 0.82, lightEmission = 0.8, endTransparency = 1 },
+	-- World 1's Starhollow Forest (B48), moonlit at any hour: the glowing fall from the Star Island into the forest (a beam and a stream of
+	-- glowing drops), the light shaft over the moon pool and the sparkle on its water.
+	IslandFall = { sort = "shaft", when = "always", color = "8FE6FF", width = 0.8, height = 44, transparency = 0.3, lightEmission = 1, endTransparency = 0.55 },
+	FallStream = { sort = "particles", when = "always", rate = 5, lifetime = { 2.2, 2.6 }, speed = { 16, 20 }, sizeStart = 0.7, sizeEnd = 0.35, color = { "BFF6FF", "8FE6FF" }, transparency = 0.1, lightEmission = 1, spread = 4, direction = { 0, -1, 0 }, acceleration = { 0, -2, 0 }, drag = 0, box = { 0.6, 0.05, 0.25 }, texture = Icons.Particles.Glow, rotation = { 0, 0 } },
+	MoonShaft = { sort = "shaft", when = "always", color = "E8DEFF", width = 0.8, height = 42, transparency = 0.78, lightEmission = 1, endTransparency = 0.95 },
+	MoonSparkle = { sort = "particles", when = "always", rate = 4, lifetime = { 0.8, 1.2 }, speed = { 0, 0.3 }, sizeStart = 0.45, sizeEnd = 0, color = { "FFFFFF", "BFF6FF" }, transparency = 0.05, lightEmission = 1, spread = 0, direction = { 0, 1, 0 }, acceleration = { 0, 0.3, 0 }, drag = 0, box = { 0.8, 0.05, 0.8 }, texture = Icons.Particles.Glow, rotation = { 0, 0 } },
 	-- World 2
 	LakeMist = { sort = "particles", when = "always", rate = 1.8, lifetime = { 6, 8 }, speed = { 0.4, 0.8 }, sizeStart = 5, sizeEnd = 9, color = { "EAF6FF" }, transparency = 0.8, lightEmission = 0.1, spread = 40, direction = { 1, 0.1, 0.3 }, acceleration = { 0.1, 0, 0 }, drag = 0.4, box = { 0.8, 0.05, 0.6 }, texture = Icons.Particles.Wisp, rotation = { -5, 5 } },
 	IceGlint = { sort = "particles", when = "always", rate = 3, lifetime = { 0.5, 0.9 }, speed = { 0, 0.1 }, sizeStart = 0.5, sizeEnd = 0, color = { "FFFFFF", "BFEBFA" }, transparency = 0.05, lightEmission = 1, spread = 0, direction = { 0, 1, 0 }, acceleration = { 0, 0, 0 }, drag = 0, box = { 0.8, 0.3, 0.8 }, texture = Icons.Particles.Glow, rotation = { 0, 0 } },
