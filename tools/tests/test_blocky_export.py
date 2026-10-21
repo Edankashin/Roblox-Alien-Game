@@ -9,6 +9,7 @@ from __future__ import annotations
 import io
 import json
 import pathlib
+import re
 import shutil
 import struct
 import sys
@@ -180,7 +181,19 @@ class TheRepo(unittest.TestCase):
                          "paste `python3 -I tools/blocky/export_models.py --emit-luau` into tools/studio/install_models.luau")
 
     def test_no_texture_or_model_id_is_invented(self):
-        self.assertNotRegex(X.emit_luau(), r"(cellMap|faceMap) = [1-9]")
+        """Every id in BLOCK_CELL comes from the ids files: a block-cell upload's assetId, a resolved sheet's Image id; else 0."""
+        ids = json.loads((ROOT / "assets/models/asset_ids.json").read_text())
+        path = ROOT / "assets/models/image_ids.json"
+        images = json.loads(path.read_text()) if path.exists() else {}
+        rows = re.findall(r"\n\t(\w+) = \{\n\t\tassetId = (\d+), cellMap = (\d+), faceMap = (\d+),", X.emit_luau())
+        self.assertTrue(rows)
+        for sid, asset, cell, face in rows:
+            with self.subTest(sid):
+                entry = ids.get(sid, {})
+                uploaded = entry.get("blockCell") is True and "pendingUpload" not in entry
+                self.assertEqual(int(asset), entry["assetId"] if uploaded else 0)
+                self.assertEqual(int(cell), images.get(sid + "/atlas", {}).get("imageId", 0))
+                self.assertEqual(int(face), images.get(sid + "/face", {}).get("imageId", 0))
 
     def test_asset_ids_marks_the_new_files_not_uploaded_and_invents_no_id(self):
         ids = json.loads((ROOT / "assets/models/asset_ids.json").read_text())
@@ -190,6 +203,10 @@ class TheRepo(unittest.TestCase):
             if entry is None:
                 continue
             with self.subTest(sid):
+                if "pendingUpload" not in entry:   # uploaded by upload_assets.py --blocky (Decision B47)
+                    self.assertIs(entry.get("blockCell"), True)
+                    self.assertEqual(entry["file"], "assets/models/%s/%s.glb" % (sid, sid))
+                    continue
                 self.assertIs(entry["pendingUpload"]["uploaded"], False)
                 self.assertIn("assets/models/%s/%s.glb" % (sid, sid), entry["pendingUpload"]["files"])
                 self.assertNotIn("assetId", entry["pendingUpload"])

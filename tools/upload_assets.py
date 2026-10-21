@@ -74,9 +74,30 @@ summary, is ignored), then fills imageId in both ids files wherever assetId is t
 that differs; --dry-run writes nothing). It exits 1 on a Decal that no ids file knows, a Decal given two different
 Image ids, or an Image id equal to its Decal id.
 
+Block cells (--blocky, --fill-blocky; Decisions B46 and B47): the one route for the rebuilt aliens and their art.
+  python3 -I tools/upload_assets.py --blocky --dry-run       # the plan: every file, and where each id will land (no key)
+  python3 -I tools/upload_assets.py --blocky                 # upload what is not done yet, resolve the Image ids, then fill
+  python3 -I tools/upload_assets.py --blocky --only Mossbop,PixelStar   # species ids (model, atlas, face) or sprite keys
+  python3 -I tools/upload_assets.py --fill-blocky [--dry-run]           # only write the known ids into the data files
+It covers, for each species folder with an <Id>_atlas.png (tools/blocky/export_models.py): <Id>.glb as a Model, which
+replaces the old blockout id in assets/models/asset_ids.json (the entry loses `pendingUpload` and gains `blockCell`
+true and `replacedAssetId`); <Id>_atlas.png and <Id>_face.png as Decals, recorded in assets/models/image_ids.json under
+"<Id>/atlas" and "<Id>/face" like the textures (assetId the Decal, imageId the Image); and every PNG under
+assets/sprites/blocky (tools/pixel_sprites.py) as a Decal in assets/icons/asset_ids.json, kind "particle". A file whose
+id is recorded is skipped (--redo uploads it again). The dry run also names the Icons.Particles keys the game reads that
+are 0 and have no PNG anywhere (they stay 0 and keep their fallback). After the uploads it resolves the Image ids (the
+Studio route above when the asset delivery service refuses) and runs the fill when no upload failed. The fill writes
+through the generators that exist: the installer's PASTE block (ASSET_IDS, PROP_NAMES and MATERIALS, where a species
+takes its new materials.json rows only once its block-cell model is uploaded, so an old blockout never gets the new
+rows) and its BLOCK-CELL block (export_models.py --emit-luau: assetId, cellMap, faceMap), src/shared/data/Rigs.luau
+(rigs.py reads the face sheets' Image ids), src/shared/data/ModelAssets.luau (model_assets.py --write) and the ids of
+src/shared/data/Icons.luau (an id is only ever raised from 0 or replaced, never set back to 0). tools/finalize_upload.sh
+is the Mac's one command for all of it.
+
 Exit status: 0 all done (or nothing to do), 1 at least one model failed (or one Image id could not be
 resolved, or --from-studio found a problem), 2 bad usage or setup (or --emit-icons-luau or --emit-textures-luau
-while Image ids are missing).
+while Image ids are missing), 3 (--blocky only) every upload went through but some Image ids are not resolved yet
+(the fill ran with the ids that are known; finish with the Studio route, then --fill-blocky).
 Names already in the JSON are skipped, so a re-run after a failure retries only the failures.
 --redo ignores those names and overwrites their entries (the old assets stay on the account,
 harmless; this is how the FBX ids of the first run are replaced by GLB ids).
@@ -119,6 +140,7 @@ import os
 import pathlib
 import re
 import ssl
+import subprocess
 import sys
 import time
 import typing
@@ -139,6 +161,12 @@ TEXTURE_IDS_FILE = TEXTURES_DIR / "asset_ids.json"
 TEXTURES_LUAU = REPO / "src" / "shared" / "data" / "Textures.luau"
 # (file suffix <key>_<suffix>.png, Textures.luau field) in the order the table lists them.
 TEXTURE_MAPS = (("color", "colorMap"), ("normal", "normalMap"), ("roughness", "roughnessMap"))
+BLOCKY_SPRITES_DIR = REPO / "assets" / "sprites" / "blocky"
+BLOCKY_IMAGE_IDS_FILE = MODELS_DIR / "image_ids.json"
+BLOCKY_TILES_DIR = TEXTURES_DIR / "blocky_tiles"
+BLOCKY_TILE_IDS_FILE = BLOCKY_TILES_DIR / "asset_ids.json"
+DATA_DIR = REPO / "src" / "shared" / "data"
+INSTALLER_LUAU = REPO / "tools" / "studio" / "install_models.luau"
 KEY_NAMES = ("ROBLOX_OPEN_CLOUD_KEY", "ROBLOX_API_KEY")   # the first one set is the key
 IMAGE_CONTENT_TYPE = "image/png"
 IMAGE_ASSET_TYPE = "Decal"
@@ -841,6 +869,521 @@ def upload_one(name: str, model: pathlib.Path, key: str, creator: "dict[str, str
     return asset_id, str(state).replace("MODERATION_STATE_", "").title()
 
 
+# --------------------------------------------------------------------------- block cells (--blocky, --fill-blocky)
+
+class BlockyPaths(typing.NamedTuple):
+    """Where the block-cell route reads and writes (tests point it at a temporary folder)."""
+    models: pathlib.Path        # assets/models: <Name>/ and props/<Name>/ with materials.json, <Name>.glb and the sheets
+    sprites: pathlib.Path       # assets/sprites/blocky/*.png
+    tiles: pathlib.Path         # assets/textures/blocky_tiles/*.png
+    model_ids: pathlib.Path     # assets/models/asset_ids.json
+    image_ids: pathlib.Path     # assets/models/image_ids.json ("<Name>/atlas", "<Name>/face", any other sheet)
+    sprite_ids: pathlib.Path    # assets/icons/asset_ids.json (the sprites join the icons and particles)
+    tile_ids: pathlib.Path      # assets/textures/blocky_tiles/asset_ids.json
+    icons_luau: pathlib.Path    # src/shared/data/Icons.luau
+    data_dir: pathlib.Path      # src/shared/data: where a tile's row (`<Key> = { id = 0, ... }`) is looked for
+
+
+def blocky_paths() -> BlockyPaths:
+    return BlockyPaths(MODELS_DIR, BLOCKY_SPRITES_DIR, BLOCKY_TILES_DIR, DEFAULT_IDS_FILE, BLOCKY_IMAGE_IDS_FILE,
+                       IMAGE_IDS_FILE, BLOCKY_TILE_IDS_FILE, ICONS_LUAU, DATA_DIR)
+
+
+class CellFolder(typing.NamedTuple):
+    name: str
+    prop: bool                  # under assets/models/props
+    model: pathlib.Path         # <Name>.glb
+    sheets: "dict[str, pathlib.Path]"   # sheet name ("atlas", "face", ...) -> the PNG a materials.json colorMap names
+
+
+class BlockyItem(typing.NamedTuple):
+    kind: str                   # "model", a sheet name ("atlas", "face", ...), "sprite" or "tile"
+    key: str                    # the ids-file key: <Name>, <Name>/<sheet>, the sprite key or the tile key
+    file: pathlib.Path
+    ids_file: pathlib.Path
+    todo: bool                  # True: upload it; False: its id is recorded
+    replaces: "int | None"      # a model: the old id it replaces
+    lands: str                  # where the id lands once uploaded
+
+
+def book_of(kind: str) -> str:
+    """Which ids file an item's id goes to: "model", "image" (a sheet), "sprite" or "tile"."""
+    return kind if kind in ("model", "sprite", "tile") else "image"
+
+
+def is_blockcell_upload(entry: object) -> bool:
+    """True when an asset_ids.json entry is the block-cell model's own upload (not an old blockout, not pending)."""
+    return (isinstance(entry, dict) and _is_asset_id(entry.get("assetId")) and "pendingUpload" not in entry
+            and entry.get("blockCell") is True)
+
+
+def sheet_name(folder: str, png: str) -> str:
+    """"Mossbop_atlas.png" in folder Mossbop -> "atlas"; a PNG without the folder's prefix keeps its whole stem."""
+    stem = pathlib.Path(png).stem
+    return stem[len(folder) + 1:] if stem.startswith(folder + "_") and len(stem) > len(folder) + 1 else stem
+
+
+def cell_folder(d: pathlib.Path, prop: bool) -> "tuple[CellFolder | None, str | None]":
+    """(the folder, None) when d is a block-cell export, (None, None) when it is not one, (None, problem) when it is one
+    with a file missing. A block-cell export is a folder whose materials.json has an entry with `pixelated` true (the
+    format tools/blocky/export_models.py writes); its sheets are the PNGs the entries' colorMap fields name."""
+    path = d / MATERIALS_FILE
+    if not path.is_file():
+        return None, None
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return None, "%s: cannot read %s (%s)" % (d.name, MATERIALS_FILE, exc)
+    if not isinstance(rows, list) or not any(isinstance(r, dict) and r.get("pixelated") is True for r in rows):
+        return None, None
+    sheets: "dict[str, pathlib.Path]" = {}
+    for row in rows:
+        cmap = row.get("colorMap") if isinstance(row, dict) else None
+        if isinstance(cmap, str) and cmap:
+            sheets.setdefault(sheet_name(d.name, cmap), d / cmap)
+    model = d / (d.name + ".glb")
+    missing = [f.name for f in [model] + list(sheets.values()) if not f.is_file()]
+    if missing:
+        return None, "%s: missing %s" % (d.name, ", ".join(missing))
+    return CellFolder(d.name, prop, model, sheets), None
+
+
+def _pngs(folder: pathlib.Path) -> "dict[str, pathlib.Path]":
+    return {f.stem: f for f in sorted(folder.glob("*.png"))} if folder.is_dir() else {}
+
+
+def discover_blocky(paths: BlockyPaths) -> "tuple[dict[str, CellFolder], dict[str, pathlib.Path], dict[str, pathlib.Path], list[str]]":
+    """({name: block-cell folder} for species and props, {sprite key: png}, {tile key: png}, [problems]). Any of them may
+    be empty: the route plans whatever exists."""
+    folders: "dict[str, CellFolder]" = {}
+    problems: "list[str]" = []
+    candidates: "list[tuple[pathlib.Path, bool]]" = []
+    if paths.models.is_dir():
+        candidates += [(d, False) for d in sorted(paths.models.iterdir()) if d.is_dir() and d.name != "props"]
+        props = paths.models / "props"
+        if props.is_dir():
+            candidates += [(d, True) for d in sorted(props.iterdir()) if d.is_dir()]
+    for d, prop in candidates:
+        found, problem = cell_folder(d, prop)
+        if problem:
+            problems.append(problem)
+        elif found:
+            if found.name in folders:
+                problems.append("%s is both a species and a prop folder" % found.name)
+            folders[found.name] = found
+    return folders, _pngs(paths.sprites), _pngs(paths.tiles), problems
+
+
+_DATA_ROW = re.compile(r'^(\s*\[?"?)(\w+)("?\]?\s*=\s*\{.*?\bid\s*=\s*)(\d+)(.*)$')
+
+
+def tile_rows(data_dir: pathlib.Path, keys: "typing.Iterable[str]") -> "dict[str, list[tuple[pathlib.Path, int]]]":
+    """The convention a tile's id is filled by: a row in any src/shared/data/*.luau keyed by the tile key with an `id`
+    field on the same line, `<Key> = { id = 0, ... }` (or ["<Key>"] = { id = 0, ... }). {tile key: [(file, line number)]}."""
+    wanted = set(keys)
+    found: "dict[str, list[tuple[pathlib.Path, int]]]" = {k: [] for k in wanted}
+    if not wanted or not data_dir.is_dir():
+        return found
+    for path in sorted(data_dir.glob("*.luau")):
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            match = _DATA_ROW.match(line)
+            if match and match.group(2) in wanted:
+                found[match.group(2)].append((path, number))
+    return found
+
+
+def tile_lands(key: str, rows: "list[tuple[pathlib.Path, int]]") -> str:
+    where = "blocky_tiles/asset_ids.json %s" % key
+    if len(rows) == 1:
+        return "%s; %s line %d, id" % (where, _rel(rows[0][0]), rows[0][1])
+    if not rows:
+        return "%s; no data row yet (convention: `%s = { id = 0, ... }` in a src/shared/data/*.luau)" % (where, key)
+    return "%s; %d data rows match, so none is filled: %s" % (
+        where, len(rows), ", ".join("%s line %d" % (_rel(p), n) for p, n in rows))
+
+
+def plan_blocky(folders: "dict[str, CellFolder]", sprites: "dict[str, pathlib.Path]", tiles: "dict[str, pathlib.Path]",
+                ids: "dict[str, dict[str, dict]]", paths: BlockyPaths, only: "list[str] | None" = None,
+                redo: bool = False) -> "tuple[list[BlockyItem], list[str]]":
+    """Every block-cell file in upload order (models, sheets, sprites, tiles) with whether it still needs an upload and
+    where its id lands, plus the --only tokens that name nothing. ids holds the ids files by book ("model", "image",
+    "sprite", "tile"). only takes folder names (the model and its sheets), sprite keys and tile keys."""
+    names, sprite_keys, tile_keys = list(folders), list(sprites), list(tiles)
+    unknown: "list[str]" = []
+    if only:
+        tokens = list(dict.fromkeys(only))
+        names = [t for t in tokens if t in folders]
+        sprite_keys = [t for t in tokens if t in sprites and t not in folders]
+        tile_keys = [t for t in tokens if t in tiles and t not in folders and t not in sprites]
+        unknown = [t for t in tokens if t not in folders and t not in sprites and t not in tiles]
+    items: "list[BlockyItem]" = []
+
+    def recorded(book: str, key: str) -> bool:
+        entry = ids[book].get(key)
+        return isinstance(entry, dict) and _is_asset_id(entry.get("assetId"))
+
+    for name in sorted(names):
+        folder = folders[name]
+        entry = ids["model"].get(name)
+        done = is_blockcell_upload(entry)
+        old = entry.get("assetId") if isinstance(entry, dict) and not done else None
+        lands = "asset_ids.json %s; ModelAssets.luau AssetIds and Materials; installer ASSET_IDS, MATERIALS" % name
+        if not folder.prop:
+            lands += ", BLOCK_CELL.%s.assetId" % name
+        items.append(BlockyItem("model", name, folder.model, paths.model_ids, redo or not done,
+                                old if _is_asset_id(old) else None, lands))
+    sheet_order = {"atlas": 0, "face": 1}
+    every_sheet = sorted({s for n in names for s in folders[n].sheets}, key=lambda s: (sheet_order.get(s, 2), s))
+    for sheet in every_sheet:
+        for name in sorted(n for n in names if sheet in folders[n].sheets):
+            folder = folders[name]
+            key = "%s/%s" % (name, sheet)
+            lands = "image_ids.json %s" % key
+            field = {"atlas": "cellMap", "face": "faceMap"}.get(sheet)
+            if field and not folder.prop:
+                lands += "; installer BLOCK_CELL.%s.%s" % (name, field)
+            if sheet == "face" and not folder.prop:
+                lands += "; Rigs.luau %s.face.image" % name
+            items.append(BlockyItem(sheet, key, folder.sheets[sheet], paths.image_ids,
+                                    redo or not recorded("image", key), None, lands))
+    for key in sorted(sprite_keys):
+        items.append(BlockyItem("sprite", key, sprites[key], paths.sprite_ids, redo or not recorded("sprite", key), None,
+                                "icons/asset_ids.json %s; Icons.luau Particles.%s" % (key, key)))
+    rows = tile_rows(paths.data_dir, tile_keys)
+    for key in sorted(tile_keys):
+        items.append(BlockyItem("tile", key, tiles[key], paths.tile_ids, redo or not recorded("tile", key), None,
+                                tile_lands(key, rows[key])))
+    return items, unknown
+
+
+_ICON_ROW = re.compile(r"^(\t)(\w+)( = )(\d+)(,.*)$")
+
+
+def icons_luau_values(path: pathlib.Path) -> "tuple[dict[str, int], dict[str, int]]":
+    """The Icons and Particles tables of Icons.luau as {key: id}, in file order."""
+    icons: "dict[str, int]" = {}
+    particles: "dict[str, int]" = {}
+    if not path.is_file():
+        return icons, particles
+    current: "dict[str, int] | None" = None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("local Icons"):
+            current = icons
+        elif stripped.startswith("local Particles"):
+            current = particles
+        elif stripped.startswith("local ") or stripped.startswith("return") or stripped == "}":
+            current = None
+        elif current is not None:
+            match = _ICON_ROW.match(line)
+            if match:
+                current[match.group(2)] = int(match.group(4))
+    return icons, particles
+
+
+def particles_without_png(paths: BlockyPaths) -> "list[str]":
+    """Icons.Particles keys at 0 that have no PNG under assets/icons, assets/particles or assets/sprites/blocky: nothing
+    can be uploaded for them, so they stay 0 and the game keeps its fallback (data/Effects.SpriteFallback, the reveal's
+    square cells, the default sprite)."""
+    _, particles = icons_luau_values(paths.icons_luau)
+    pngs: "set[str]" = set()
+    for folder in (ICONS_DIR, PARTICLES_DIR, paths.sprites):
+        pngs.update(_pngs(folder))
+    return sorted(k for k, v in particles.items() if v == 0 and k not in pngs)
+
+
+def plan_counts(items: "list[BlockyItem]") -> str:
+    """'35 models (0 done), 35 atlases (0 done), ...' by kind, in the order the kinds first appear."""
+    labels = {"model": "models", "atlas": "atlases", "face": "face sheets", "sprite": "sprites", "tile": "tiles"}
+    parts = []
+    for kind in dict.fromkeys(i.kind for i in items):
+        todo = sum(1 for i in items if i.kind == kind and i.todo)
+        done = sum(1 for i in items if i.kind == kind and not i.todo)
+        parts.append("%d %s (%d done)" % (todo, labels.get(kind, "'%s' sheets" % kind), done))
+    return ", ".join(parts) if parts else "nothing found"
+
+
+def print_blocky_plan(items: "list[BlockyItem]", dry_run: bool, zero_keys: "list[str]",
+                      folders: "dict[str, CellFolder]") -> None:
+    for item in items:
+        if not item.todo:
+            continue
+        replaces = "  (replaces %d)" % item.replaces if item.replaces else ""
+        log("%s %-6s %-22s %s -> %s%s" % ("would " if dry_run else "upload", item.kind, item.key,
+                                          _rel(item.file), item.lands, replaces))
+    props = sum(1 for f in folders.values() if f.prop)
+    log("block-cell folders: %d species, %d props" % (len(folders) - props, props))
+    log("%s: %s; %d upload call(s)" % ("blocky dry run" if dry_run else "blocky", plan_counts(items),
+                                       sum(1 for i in items if i.todo)))
+    if zero_keys:
+        log("stays 0, no PNG in the repo (the game keeps its fallback): Icons.Particles " + ", ".join(zero_keys))
+
+
+def _rel(path: pathlib.Path) -> str:
+    try:
+        return str(path.relative_to(REPO))
+    except ValueError:
+        return str(path)
+
+
+def load_blocky_ids(paths: BlockyPaths) -> "dict[str, dict[str, dict]]":
+    return {"model": load_ids(paths.model_ids), "image": load_ids(paths.image_ids), "sprite": load_ids(paths.sprite_ids),
+            "tile": load_ids(paths.tile_ids)}
+
+
+def blocky_entry(item: BlockyItem, asset_id: int, previous: object) -> dict:
+    """The ids-file entry for a finished upload. A model records the id it replaced and `blockCell` true."""
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    out: dict = {"assetId": asset_id, "uploadedAt": now, "file": _rel(item.file),
+                 "format": "glb" if item.kind == "model" else "png"}
+    if item.kind == "model":
+        out["blockCell"] = True
+        old = previous.get("assetId") if isinstance(previous, dict) else None
+        if isinstance(previous, dict) and previous.get("replacedAssetId"):
+            old = previous["replacedAssetId"]   # a --redo keeps the blockout's id, not the earlier block-cell one
+        if _is_asset_id(old) and old != asset_id:
+            out["replacedAssetId"] = old
+    else:
+        out["kind"] = "particle" if item.kind == "sprite" else item.kind
+    return out
+
+
+def run_blocky(paths: BlockyPaths, only: "list[str] | None", redo: bool, dry_run: bool, poll_interval: float,
+               fill: "typing.Callable[[bool], int] | None" = None) -> int:
+    """--blocky: plan, upload what is not done, resolve the Image ids, then fill. Returns the exit status."""
+    folders, sprites, tiles, problems = discover_blocky(paths)
+    if problems:
+        die("block-cell export incomplete (re-export it): " + "; ".join(problems))
+    ids = load_blocky_ids(paths)
+    items, unknown = plan_blocky(folders, sprites, tiles, ids, paths, only, redo)
+    if unknown:
+        die("unknown --only name(s): %s (block-cell folder names under assets/models or assets/models/props, sprite keys "
+            "under assets/sprites/blocky, tile keys under assets/textures/blocky_tiles)" % ", ".join(unknown))
+    print_blocky_plan(items, dry_run, particles_without_png(paths), folders)
+    decal_keys = {book: [i.key for i in items if book_of(i.kind) == book] for book in ("image", "sprite", "tile")}
+    book_files = {"model": paths.model_ids, "image": paths.image_ids, "sprite": paths.sprite_ids, "tile": paths.tile_ids}
+    if dry_run:
+        for book, keys in decal_keys.items():
+            if pending_images(ids[book], keys):
+                run_resolve(ids[book], book_files[book], keys, dry_run=True)
+        return 0
+    todo = [i for i in items if i.todo]
+    failed: "list[str]" = []
+    if todo:
+        key = api_key()
+        if not key:
+            die("ROBLOX_OPEN_CLOUD_KEY (or ROBLOX_API_KEY) is not set, so nothing was uploaded. On the Mac it lives in the "
+                "shell only (never in the repo); run tools/finalize_upload.sh there")
+        creator = creator_from_env()
+        done = 0
+        try:
+            for item in todo:
+                book = ids[book_of(item.kind)]
+                try:
+                    if item.kind == "model":
+                        asset_id, state = upload_one(item.key, item.file, key, creator, poll_interval, "glb")
+                    else:
+                        asset_id, state = upload_one(item.key.replace("/", "_"), item.file, key, creator, poll_interval,
+                                                     "png", IMAGE_ASSET_TYPE, IMAGE_CONTENT_TYPE)
+                except UploadError as exc:
+                    failed.append(item.key)
+                    log("FAIL   %-6s %-22s %s" % (item.kind, item.key, exc))
+                    if exc.fatal:
+                        log("stopping: this will fail for every file; fix the key or creator and re-run")
+                        break
+                    continue
+                book[item.key] = blocky_entry(item, asset_id, book.get(item.key))
+                save_ids(item.ids_file, book)
+                done += 1
+                log("ok     %-6s %-22s asset %d%s" % (item.kind, item.key, asset_id,
+                                                      "  moderation: " + state if state else ""))
+        except KeyboardInterrupt:
+            log("interrupted; %d uploaded this run are saved in the ids files" % done)
+            return 130
+        log("blocky: %d uploaded, %d failed, %d already done" % (done, len(failed), len(items) - len(todo)))
+        if failed:
+            log("failed: " + ", ".join(failed) + "  (re-run --blocky to retry only these; nothing was filled)")
+            return 1
+    else:
+        log("nothing to upload (every block-cell file has an id; --redo uploads them again)")
+    resolve_status = 0
+    for book, keys in decal_keys.items():
+        if pending_images(ids[book], keys):
+            resolve_status = max(resolve_status, run_resolve(ids[book], book_files[book], keys))
+    fill_status = (fill or (lambda dry: run_fill_blocky(paths, dry)))(False)
+    if fill_status:
+        return fill_status
+    if resolve_status:
+        log("blocky: uploads done and filled; some Image ids are still missing (above). Finish with the Studio route, "
+            "then python3 -I tools/upload_assets.py --fill-blocky")
+        return 3
+    return 0
+
+
+def creator_from_env() -> "dict[str, str]":
+    user = os.environ.get("ROBLOX_CREATOR_USER_ID", "").strip()
+    group = os.environ.get("ROBLOX_CREATOR_GROUP_ID", "").strip()
+    if bool(user) == bool(group):
+        die("set exactly one of ROBLOX_CREATOR_USER_ID (your Roblox user id) or ROBLOX_CREATOR_GROUP_ID "
+            "(the group that will own the assets)")
+    if not (user or group).isdigit():
+        die("the creator id must be digits only")
+    return {"userId": user} if user else {"groupId": group}
+
+
+# The fill: the ids into the files that need them, through the generators that exist.
+
+def replace_block(source: str, begin: str, end: str, body: str) -> str:
+    """source with the lines strictly between the line holding `begin` and the line holding `end` replaced by body."""
+    if source.count(begin) != 1 or source.count(end) != 1:
+        raise ValueError("expected one %r and one %r marker" % (begin, end))
+    start = source.index("\n", source.index(begin)) + 1
+    stop = source.rindex("\n", 0, source.index(end)) + 1
+    if stop < start:
+        raise ValueError("the %r marker comes after %r" % (begin, end))
+    return source[:start] + body.rstrip("\n") + "\n" + source[stop:]
+
+
+_MATERIALS_ROW = re.compile(r"^\t(\w+) = \{ \{")
+PASTE_BEGIN, PASTE_END = "-- BEGIN PASTE", "-- END PASTE"
+BLOCK_CELL_BEGIN, BLOCK_CELL_END = "-- BEGIN BLOCK-CELL PASTE", "-- END BLOCK-CELL PASTE"
+
+
+def installer_paste_body(ids: "dict[str, dict]", source: str, cell_species: "typing.Iterable[str]") -> str:
+    """The installer's PASTE block (emit_luau), except that a block-cell folder (species or prop) whose new model is not
+    uploaded keeps
+    the MATERIALS row the installer has now: the new materials.json rows name Body, the moving parts and FacePlate, and
+    the old blockout id it still loads has the old slots, so pairing them would colour the blockout wrong."""
+    begin = source.find(PASTE_BEGIN)
+    kept: "dict[str, str]" = {}
+    if begin >= 0:
+        for line in source[begin:source.find(PASTE_END, begin)].splitlines():
+            match = _MATERIALS_ROW.match(line)
+            if match:
+                kept[match.group(1)] = line
+    held = {sid for sid in cell_species if not is_blockcell_upload(ids.get(sid))}
+    lines = []
+    for line in emit_luau(ids).splitlines():
+        match = _MATERIALS_ROW.match(line)
+        if match and match.group(1) in held and match.group(1) in kept:
+            line = kept[match.group(1)]
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def fill_icons_text(source: str, ids: "dict[str, dict]") -> "tuple[str, list[str]]":
+    """Icons.luau with every key of its Icons and Particles tables set to its Image id from ids (the icons ids file,
+    which holds the sprites too). A key without an Image id keeps the id it has, so a fill never sets one back to 0.
+    Returns (text, the keys that changed)."""
+    out: "list[str]" = []
+    changed: "list[str]" = []
+    inside = False
+    for line in source.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("local Icons") or stripped.startswith("local Particles"):
+            inside = True
+        elif stripped.startswith("local ") or stripped.startswith("return") or stripped == "}":
+            inside = False
+        elif inside:
+            match = _ICON_ROW.match(line)
+            if match:
+                new = image_id(ids.get(match.group(2), {}))
+                if new and new != int(match.group(4)):
+                    line = "%s%s%s%d%s" % (match.group(1), match.group(2), match.group(3), new, match.group(5))
+                    changed.append(match.group(2))
+        out.append(line)
+    return "\n".join(out), changed
+
+
+def _tool(args: "list[str]") -> "subprocess.CompletedProcess[str]":
+    return subprocess.run([sys.executable, "-I"] + args, cwd=str(REPO), capture_output=True, text=True)
+
+
+def fill_tile_rows(data_dir: pathlib.Path, tile_ids: "dict[str, dict]",
+                   keys: "typing.Iterable[str]") -> "dict[pathlib.Path, tuple[str, list[str]]]":
+    """{data file: (new text, the tile keys whose id changed)} for every tile key with an Image id whose row the
+    convention finds exactly once (tile_rows): the row's `id` becomes the Image id. A key matched by two rows is left
+    alone (the plan names it), and an id is never set back to 0."""
+    rows = tile_rows(data_dir, keys)
+    edits: "dict[pathlib.Path, dict[int, int]]" = {}
+    for key, found in rows.items():
+        new = image_id(tile_ids.get(key, {}))
+        if new and len(found) == 1:
+            path, number = found[0]
+            edits.setdefault(path, {})[number] = new
+    out: "dict[pathlib.Path, tuple[str, list[str]]]" = {}
+    for path, by_line in edits.items():
+        lines = path.read_text(encoding="utf-8").split("\n")
+        changed: "list[str]" = []
+        for number, new in by_line.items():
+            match = _DATA_ROW.match(lines[number - 1])
+            if match and int(match.group(4)) != new:
+                lines[number - 1] = "%s%s%s%d%s" % (match.group(1), match.group(2), match.group(3), new, match.group(5))
+                changed.append(match.group(2))
+        if changed:
+            out[path] = ("\n".join(lines), sorted(changed))
+    return out
+
+
+def run_fill_blocky(paths: BlockyPaths, dry_run: bool = False) -> int:
+    """Write the known ids into the installer (both PASTE blocks), Icons.luau, Rigs.luau, ModelAssets.luau and the tile
+    rows of src/shared/data. Offline, no key. Returns 0, or 1 when a generator failed (its output is printed)."""
+    ids = load_blocky_ids(paths)
+    species, _, tiles, _ = discover_blocky(paths)
+    verb = "would update" if dry_run else "updated"
+    changes: "list[str]" = []
+
+    source = INSTALLER_LUAU.read_text(encoding="utf-8")
+    text = replace_block(source, PASTE_BEGIN, PASTE_END, installer_paste_body(ids["model"], source, species))
+    emitted = _tool([str(REPO / "tools" / "blocky" / "export_models.py"), "--emit-luau"])
+    if emitted.returncode != 0:
+        log("fill: export_models.py --emit-luau failed:\n" + emitted.stdout + emitted.stderr)
+        return 1
+    text = replace_block(text, BLOCK_CELL_BEGIN, BLOCK_CELL_END, emitted.stdout)
+    installer_changed = text != source
+    if installer_changed:
+        changes.append("%s (ASSET_IDS, MATERIALS, BLOCK_CELL)" % _rel(INSTALLER_LUAU))
+        if not dry_run:
+            INSTALLER_LUAU.write_text(text, encoding="utf-8")
+
+    icons_source = paths.icons_luau.read_text(encoding="utf-8")
+    icons_text, keys = fill_icons_text(icons_source, ids["sprite"])
+    if keys:
+        changes.append("%s (%d id(s): %s)" % (_rel(paths.icons_luau), len(keys), ", ".join(keys)))
+        if not dry_run:
+            paths.icons_luau.write_text(icons_text, encoding="utf-8")
+
+    for path, (tile_text, tile_keys) in sorted(fill_tile_rows(paths.data_dir, ids["tile"], tiles).items()):
+        changes.append("%s (tile id(s): %s)" % (_rel(path), ", ".join(tile_keys)))
+        if not dry_run:
+            path.write_text(tile_text, encoding="utf-8")
+
+    rigs = REPO / "tools" / "blocky" / "rigs.py"
+    if _tool([str(rigs), "--check"]).returncode != 0:
+        changes.append("src/shared/data/Rigs.luau (face.image, through tools/blocky/rigs.py)")
+        if not dry_run:
+            result = _tool([str(rigs)])
+            if result.returncode != 0:
+                log("fill: rigs.py failed:\n" + result.stdout + result.stderr)
+                return 1
+
+    model_assets = REPO / "tools" / "model_assets.py"
+    stale = installer_changed or _tool([str(model_assets), "--check"]).returncode != 0
+    if stale:
+        changes.append("src/shared/data/ModelAssets.luau (AssetIds, Materials, through tools/model_assets.py --write)")
+        if not dry_run:
+            result = _tool([str(model_assets), "--write"])
+            if result.returncode != 0:
+                log("fill: model_assets.py --write failed:\n" + result.stdout + result.stderr)
+                return 1
+    for line in changes:
+        log("fill   %s %s" % (verb, line))
+    uploaded = [name for name in species if is_blockcell_upload(ids["model"].get(name))]
+    log("fill: %s; %d of %d block-cell models uploaded" % (
+        "%d file(s) %s" % (len(changes), verb) if changes else "every file is up to date", len(uploaded), len(species)))
+    return 0
+
+
 
 # --------------------------------------------------------------------------- main
 
@@ -885,9 +1428,36 @@ def main() -> int:
                     help="read the {\"decal\": N, \"image\": M} lines that tools/studio/resolve_decals.luau printed "
                          "in Studio (the Output saved to FILE) and fill imageId for icons and textures alike "
                          "(--redo replaces a differing one; --dry-run writes nothing)")
+    ap.add_argument("--blocky", action="store_true",
+                    help="the block-cell route: every block-cell model folder (species and props, found by a "
+                         "materials.json entry with pixelated true) as a Model plus its sheets, every PNG under "
+                         "assets/sprites/blocky and assets/textures/blocky_tiles as Decals; skips what has an id (--redo "
+                         "uploads again), --only names folders, sprites or tiles, --dry-run plans and names where each "
+                         "id lands; then resolves the Image ids and runs --fill-blocky")
+    ap.add_argument("--fill-blocky", action="store_true",
+                    help="write the known block-cell ids into the installer, ModelAssets.luau, Rigs.luau, Icons.luau "
+                         "and the tile rows of src/shared/data (offline, no key; --dry-run lists the files)")
     ap.add_argument("--ids-file", type=pathlib.Path, default=DEFAULT_IDS_FILE, help=argparse.SUPPRESS)
     ap.add_argument("--poll-interval", type=float, default=1.0, help=argparse.SUPPRESS)
     args = ap.parse_args()
+    if args.blocky or args.fill_blocky:
+        others = [flag for flag, on in (("--props", args.props), ("--species", args.species), ("--images", args.images),
+                                        ("--textures", args.textures), ("--resolve-images", args.resolve_images),
+                                        ("--emit-luau", args.emit_luau), ("--emit-icons-luau", args.emit_icons_luau),
+                                        ("--emit-textures-luau", args.emit_textures_luau),
+                                        ("--emit-decals-luau", args.emit_decals_luau),
+                                        ("--from-studio", bool(args.from_studio)),
+                                        ("--format fbx", args.format != DEFAULT_FORMAT),
+                                        ("--ids-file", args.ids_file != DEFAULT_IDS_FILE)) if on]
+        if others or (args.blocky and args.fill_blocky):
+            die("--blocky and --fill-blocky stand alone (with --only, --redo and --dry-run); not with " +
+                ", ".join(others or ["each other"]))
+        if args.fill_blocky:
+            if args.only or args.redo:
+                die("--fill-blocky takes only --dry-run")
+            return run_fill_blocky(blocky_paths(), dry_run=args.dry_run)
+        only = [n.strip() for n in args.only.split(",") if n.strip()] if args.only else None
+        return run_blocky(blocky_paths(), only, args.redo, args.dry_run, args.poll_interval)
     textures_mode = args.textures or args.emit_textures_luau
     images_mode = args.images or args.emit_icons_luau or args.resolve_images or textures_mode
     explicit_ids_file = args.ids_file != DEFAULT_IDS_FILE
@@ -908,7 +1478,7 @@ def main() -> int:
     # Studio route: the Decal ids go out as a Luau table, the ids it prints come back from a file. The files are
     # both ids files unless --images or --textures (or --ids-file) picks one.
     studio_files = ([args.ids_file] if explicit_ids_file or images_mode
-                    else [IMAGE_IDS_FILE, TEXTURE_IDS_FILE])
+                    else [IMAGE_IDS_FILE, TEXTURE_IDS_FILE, BLOCKY_IMAGE_IDS_FILE, BLOCKY_TILE_IDS_FILE])
     if args.emit_decals_luau:
         rows = pending_decals(studio_files, redo=args.redo)
         if not rows:
@@ -928,7 +1498,10 @@ def main() -> int:
     if args.emit_luau:
         if not ids:
             print("upload_assets: %s has no ids yet; run the upload first" % args.ids_file, file=sys.stderr)
-        print(emit_luau(ids))
+        # A block-cell model not uploaded yet keeps the installer's current MATERIALS row (see installer_paste_body).
+        folders = discover_blocky(blocky_paths())[0] if args.ids_file == DEFAULT_IDS_FILE else {}
+        source = INSTALLER_LUAU.read_text(encoding="utf-8") if INSTALLER_LUAU.is_file() else ""
+        print(installer_paste_body(ids, source, folders))
         return 0
     if args.emit_icons_luau:
         if not ids:
@@ -1039,14 +1612,7 @@ def main() -> int:
     if not key:
         die("ROBLOX_OPEN_CLOUD_KEY (or ROBLOX_API_KEY) is not set. Make a key (Creator Dashboard > Open Cloud > API "
             "Keys, Assets API, Read and Write) and run: export ROBLOX_OPEN_CLOUD_KEY=...  (never put it in the repo)")
-    user = os.environ.get("ROBLOX_CREATOR_USER_ID", "").strip()
-    group = os.environ.get("ROBLOX_CREATOR_GROUP_ID", "").strip()
-    if bool(user) == bool(group):
-        die("set exactly one of ROBLOX_CREATOR_USER_ID (your Roblox user id) or ROBLOX_CREATOR_GROUP_ID "
-            "(the group that will own the assets)")
-    if not (user or group).isdigit():
-        die("the creator id must be digits only")
-    creator = {"userId": user} if user else {"groupId": group}
+    creator = creator_from_env()
 
     failed = []
     done = 0
