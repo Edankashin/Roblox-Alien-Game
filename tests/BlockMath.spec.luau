@@ -473,6 +473,7 @@ end)
 -- header tab and close button (Builder.blockHeader, Builder.blockClose).
 local MODALS: { { name: string, w: number, h: number, aspect: number } } = {
 	{ name = "Codex", w = 0.8, h = 0.78, aspect = 1.35 },
+	{ name = "StarChart", w = 0.84, h = 0.78, aspect = 1.75 },
 	{ name = "Visit", w = 0.8, h = 0.78, aspect = 1.6 },
 	{ name = "Playtime", w = 0.92, h = 0.78, aspect = 2 },
 	{ name = "Peddler", w = 0.8, h = 0.78, aspect = 1.35 },
@@ -494,6 +495,14 @@ describe("Block screens: modal panels", function()
 			end
 		end)
 	end
+	it("a Star Chart planet's pixel and an orbit dot are two px or more at iPhone SE", function()
+		-- StarChartScreen.luau: the map square is the smaller of 0.58 of the panel's width and 0.8 of its height; a planet is 0.12
+		-- of it, an 8 by 8 pixel octagon; an orbit dot 0.012 of it.
+		local w, h = BlockMath.FitPx(0.84, 0.78, 1.75, SE.w, SE.h)
+		local map = math.min(0.58 * w, 0.8 * h)
+		assert(0.12 * map / 8 >= 2, "a planet pixel is " .. 0.12 * map / 8 .. " px")
+		assert(0.012 * map >= 2, "an orbit dot is " .. 0.012 * map .. " px")
+	end)
 	it("a Codex card of 81 px (iPhone SE's narrowest) is ten rows of the HUD's cell", function()
 		local cell = 81 / (10 + 2 * INK)
 		assert(cell >= 7 and cell <= 8.5, "Codex card cell is " .. cell .. " px")

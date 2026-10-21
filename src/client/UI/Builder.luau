@@ -706,38 +706,95 @@ function Builder.ribbon(props: RibbonProps): Frame
 	return holder
 end
 
--- The seal's stepped octagon on an 8 by 8 grid (Theme.Block.PixelGrid) as overlapping bars { x, y, w, h }: the navy ink, then the
--- colour one unit inside it all round (the ink keeps one thickness round every step, like the compass diamond).
-local SEAL_INK = { { 2, 0, 4, 8 }, { 1, 1, 6, 6 }, { 0, 2, 8, 4 } }
-local SEAL_FILL = { { 3, 1, 2, 6 }, { 2, 2, 4, 4 }, { 1, 3, 6, 2 } }
+-- The stepped pixel octagon on an 8 by 8 grid (Theme.Block.PixelGrid) as overlapping bars { x, y, w, h }: the ink, then the colour
+-- one unit inside it all round (the ink keeps one thickness round every step, like the compass diamond); a thick ring insets the
+-- colour two units (a plus of two bars; the third bar hides).
+local OCTAGON_INK = { { 2, 0, 4, 8 }, { 1, 1, 6, 6 }, { 0, 2, 8, 4 } }
+local OCTAGON_FILL = { { 3, 1, 2, 6 }, { 2, 2, 4, 4 }, { 1, 3, 6, 2 } }
+local OCTAGON_THICK = { { 3, 2, 2, 4 }, { 2, 3, 4, 2 }, { 4, 4, 0, 0 } }
 
--- A seal for a value claim (BEST VALUE), in block cells: a stepped pixel octagon (SEAL_INK, SEAL_FILL) in `color` inside a navy
--- ink, frames only (no stroke, no turned squares). The label is white outlined text over the middle. The caller sizes the holder
--- square and may turn it (`rotation`, the stamp's tilt); nothing in it takes taps. Returns the holder.
-function Builder.seal(props: SealProps): Frame
+-- A pixel octagon: the round thing of a block screen (a seal, a planet, the Star Chart's star and glow, a ready dot), frames only.
+export type OctagonProps = {
+	parent: Instance?,
+	name: string?,
+	color: Color3, -- the face
+	ink: Color3?, -- the ring (navy by default)
+	position: UDim2?,
+	size: UDim2?, -- the holder keeps a 1:1 aspect inside it
+	anchor: Vector2?,
+	zIndex: number?, -- the ink takes this, the face one more; content goes at two more (Builder.octagonTop)
+}
+export type Octagon = { holder: Frame, ink: { Frame }, fill: { Frame } }
+
+local function octagonRect(frame: Frame, bar: { number })
+	local grid = Theme.Block.PixelGrid
+	frame.Position = UDim2.fromScale(bar[1] / grid, bar[2] / grid)
+	frame.Size = UDim2.fromScale(bar[3] / grid, bar[4] / grid)
+	frame.Visible = bar[3] > 0 and bar[4] > 0
+end
+
+-- Builds a pixel octagon in a square holder; nothing in it takes taps. Returns its holder and its bars (for paintOctagon).
+function Builder.pixelOctagon(props: OctagonProps): Octagon
 	local z = props.zIndex or 1
 	local holder = Builder.frame({
-		parent = props.parent,
-		name = props.name or "Seal",
+		name = props.name or "Octagon",
 		position = props.position,
 		size = props.size,
 		anchor = props.anchor,
+		aspect = 1,
 		zIndex = z,
 	})
-	holder.Rotation = props.rotation or 0
-	local grid = Theme.Block.PixelGrid
-	for layer, bars in ipairs({ SEAL_INK, SEAL_FILL }) do
+	local out: Octagon = { holder = holder, ink = {}, fill = {} }
+	for layer, bars in ipairs({ OCTAGON_INK, OCTAGON_FILL }) do
 		for _, bar in ipairs(bars) do
-			Builder.frame({
+			local frame = Builder.frame({
 				parent = holder,
 				name = if layer == 1 then "Ink" else "Fill",
-				position = UDim2.fromScale(bar[1] / grid, bar[2] / grid),
-				size = UDim2.fromScale(bar[3] / grid, bar[4] / grid),
-				color = if layer == 1 then Theme.Colors.Outline else props.color,
+				color = if layer == 1 then props.ink or Theme.Colors.Outline else props.color,
 				zIndex = z + layer - 1,
 			})
+			octagonRect(frame, bar)
+			table.insert(if layer == 1 then out.ink else out.fill, frame)
 		end
 	end
+	holder.Parent = props.parent
+	return out
+end
+
+-- The ZIndex content on a pixel octagon takes (a planet's number, a seal's word).
+function Builder.octagonTop(octagon: Octagon): number
+	return octagon.holder.ZIndex + 2
+end
+
+-- Repaints a pixel octagon: its face and ring colours and see-through, and whether the ring is thick (two units: a selected
+-- planet).
+function Builder.paintOctagon(octagon: Octagon, fill: Color3, fillAlpha: number, ink: Color3, inkAlpha: number, thick: boolean)
+	for index, frame in ipairs(octagon.fill) do
+		frame.BackgroundColor3 = fill
+		frame.BackgroundTransparency = fillAlpha
+		octagonRect(frame, (if thick then OCTAGON_THICK else OCTAGON_FILL)[index])
+	end
+	for _, frame in ipairs(octagon.ink) do
+		frame.BackgroundColor3 = ink
+		frame.BackgroundTransparency = inkAlpha
+	end
+end
+
+-- A seal for a value claim (BEST VALUE), in block cells: a pixel octagon in `color` inside a navy ink, frames only (no stroke, no
+-- turned squares). The label is white outlined text over the middle. The caller sizes the holder square and may turn it
+-- (`rotation`, the stamp's tilt); nothing in it takes taps. Returns the holder.
+function Builder.seal(props: SealProps): Frame
+	local octagon = Builder.pixelOctagon({
+		parent = props.parent,
+		name = props.name or "Seal",
+		color = props.color,
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = props.zIndex,
+	})
+	local holder = octagon.holder
+	holder.Rotation = props.rotation or 0
 	Builder.label({
 		parent = holder,
 		name = "Text",
@@ -746,7 +803,7 @@ function Builder.seal(props: SealProps): Frame
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(Theme.Seal.Text, Theme.Seal.Text * 0.7),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = z + 3,
+		zIndex = Builder.octagonTop(octagon),
 	})
 	return holder
 end
