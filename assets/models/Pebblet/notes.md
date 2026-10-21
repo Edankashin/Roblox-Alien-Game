@@ -1,19 +1,16 @@
-# Pebblet blockout
+# Pebblet block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Pebblet (Common)
-- Concept: pebble with legs
-- Body: Block, placeholder colour #9A9A9A, placeholder scale 0.9
-- Accessory: the legs: a pebble with real legs, daylight under its belly (silhouette pass; #78C850)
-- Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1108 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 2.37 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #9A9A9A, BodyDark #6B6760, EyeWhite, Pupil, Mouth, Accessory #78C850
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Pebblet.glb (39704 bytes), Pebblet.fbx (36476 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Pebblet.md (Pebblet, World 1, Common, status review)
+- Height: 2.75 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 12
+- Triangles: 232 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Pebblet_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `cairnR` (moves, cells, pivot 0.5, 2, 0.125); `legL` (moves, cells, pivot -1.125, 0.5, -0.5); `legR` (moves, cells, pivot 1.125, 0.5, -0.5); `FacePlate` (the face sheet, frame 0)
+- Eyes: `pebble`; the face plate is 28x14 px a frame, 3 frames (open, half, closed) in Pebblet_face.png, 3 a row (Rigs face.columns)
+- Rig: 3 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Pebblet.glb (28748 bytes), Pebblet.fbx (48652 bytes, texture embedded), Pebblet_atlas.png, Pebblet_face.png, materials.json, Pebblet.png and Pebblet_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a faceted egg-shaped stone lifted on two long legs with big flat feet, stone-chip fists out to the sides and a mossy patch on top. Hero: the legs: a pebble with real legs, daylight under its belly.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Pebblet`; check with `python3 -I tools/blocky/export_models.py --check --species Pebblet`.

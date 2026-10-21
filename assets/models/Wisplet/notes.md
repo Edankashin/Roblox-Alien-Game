@@ -1,18 +1,16 @@
-# Wisplet blockout
+# Wisplet block-cell model
 
-- Date: 2026-10-13
-- Tool: tools/blender/alien_base.py, bpy 5.2.2 LTS
-- Name: Wisplet (Rare)
-- Concept: will-o'-the-wisp, a floating lantern flame with a shy face
-- Body: Ball, placeholder colour #9BE7FF, placeholder scale 0.8
-- Accessory: tuft (keyword match on the concept; colour rule: complement, #FF7397, metallic)
-- Tier dressing: tier size 110% (carried by placeholder.scale), metallic accessory
-- Triangles: 1704 (look pass, tools/blender/event_species.py)
-- Height: 2.11 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #9BE7FF, BodyDark #6596A6, EyeWhite, Pupil, Mouth, Accessory #FF7397
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Wisplet.glb (35744 bytes), Wisplet.fbx (37932 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Wisplet.md (Wispkin, World 1, Rare, status review)
+- Height: 3.5 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 31
+- Triangles: 448 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Wisplet_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `floatL` (moves, cells, pivot -1.4375, 0.9375, 0.4375); `floatR` (moves, cells, pivot 1.4375, 1.9375, 0.4375); `halo` (moves, cells, pivot 0, 1.5, 0.875); `tipR` (moves, Neon, pivot 0.5, 3, 0); `tongueL` (moves, cells, pivot -0.5625, 2.4375, 0); `FacePlate` (the face sheet, frame 0)
+- Eyes: `crescent`; the face plate is 28x18 px a frame, 5 frames (open, half, closed, glint1, glint2) in Wisplet_face.png, 4 a row (Rigs face.columns)
+- Rig: 5 moving parts, root clips 1, flourish every 9s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Wisplet.glb (48640 bytes), Wisplet.fbx (63900 bytes, texture embedded), Wisplet_atlas.png, Wisplet_face.png, materials.json, Wisplet.png and Wisplet_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Look pass: Wisplet rebuilt from primitives by tools/blender/event_species.py to its concept (same slots, height and pivot).
+Regenerate with `$BPY tools/blocky/export_models.py --species Wisplet`; check with `python3 -I tools/blocky/export_models.py --check --species Wisplet`.

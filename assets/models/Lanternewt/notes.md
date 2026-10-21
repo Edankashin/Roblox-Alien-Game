@@ -1,19 +1,16 @@
-# Lanternewt blockout
+# Lanternewt block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Lanternewt (Uncommon)
-- Concept: newt, glowing tail
-- Body: Cylinder, placeholder colour #FF8C42, placeholder scale 1
-- Accessory: the glowing tail lantern, with a cage ring and a cap (silhouette pass; #FFD84A, emissive 2.5)
-- Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1698 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 2.27 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #FF8C42, BodyDark #8C3F1C, EyeWhite, Pupil, Mouth, Accessory #FFD84A
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Lanternewt.glb (51768 bytes), Lanternewt.fbx (41180 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Lanternewt.md (Lantrin, World 1, Uncommon, status review)
+- Height: 2.75 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 19
+- Triangles: 412 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Lanternewt_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `gillL` (moves, cells, pivot -1, 1.375, -1.1875); `gillR` (moves, cells, pivot 1, 1.375, -1.1875); `tail` (moves, cells, pivot 0, 1.125, 0.9375); `FacePlate` (the face sheet, frame 0)
+- Eyes: `moonlet`; the face plate is 28x16 px a frame, 3 frames (open, half, closed) in Lanternewt_face.png, 3 a row (Rigs face.columns)
+- Rig: 3 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Lanternewt.glb (37420 bytes), Lanternewt.fbx (51500 bytes, texture embedded), Lanternewt_atlas.png, Lanternewt_face.png, materials.json, Lanternewt.png and Lanternewt_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a long low newt on four splayed legs, chin near the ground, with its tail curling up and out to one side in a tall hook and a caged lantern hanging from the tip. Hero: the glowing tail lantern, with a cage ring and a cap.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Lanternewt`; check with `python3 -I tools/blocky/export_models.py --check --species Lanternewt`.

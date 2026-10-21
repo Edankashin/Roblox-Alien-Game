@@ -9,12 +9,32 @@
     "assetId": 116603587874487,
     "file": "assets/models/Buzzlebee/Buzzlebee.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Buzzlebee/Buzzlebee.glb",
+        "assets/models/Buzzlebee/Buzzlebee_atlas.png",
+        "assets/models/Buzzlebee/Buzzlebee_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Buzzlebee`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:08Z"
   },
   "Capybubble": {
     "assetId": 100133210702748,
     "file": "assets/models/Capybubble/Capybubble.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Capybubble/Capybubble.glb",
+        "assets/models/Capybubble/Capybubble_atlas.png",
+        "assets/models/Capybubble/Capybubble_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Capybubble`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:14Z"
   },
   "CaveMouth": {
@@ -27,6 +47,16 @@
     "assetId": 97070960829780,
     "file": "assets/models/Chipmole/Chipmole.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Chipmole/Chipmole.glb",
+        "assets/models/Chipmole/Chipmole_atlas.png",
+        "assets/models/Chipmole/Chipmole_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Chipmole`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:28Z"
   },
   "CrashWreck": {
@@ -39,36 +69,96 @@
     "assetId": 139160640965072,
     "file": "assets/models/Drippo/Drippo.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Drippo/Drippo.glb",
+        "assets/models/Drippo/Drippo_atlas.png",
+        "assets/models/Drippo/Drippo_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Drippo`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:42Z"
   },
   "Emberchin": {
     "assetId": 75128789895079,
     "file": "assets/models/Emberchin/Emberchin.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Emberchin/Emberchin.glb",
+        "assets/models/Emberchin/Emberchin_atlas.png",
+        "assets/models/Emberchin/Emberchin_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Emberchin`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:48Z"
   },
   "Fenripup": {
     "assetId": 111992346440272,
     "file": "assets/models/Fenripup/Fenripup.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Fenripup/Fenripup.glb",
+        "assets/models/Fenripup/Fenripup_atlas.png",
+        "assets/models/Fenripup/Fenripup_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Fenripup`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:16:56Z"
   },
   "Flapsicle": {
     "assetId": 93200790567617,
     "file": "assets/models/Flapsicle/Flapsicle.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Flapsicle/Flapsicle.glb",
+        "assets/models/Flapsicle/Flapsicle_atlas.png",
+        "assets/models/Flapsicle/Flapsicle_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Flapsicle`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:17:11Z"
   },
   "Flufflet": {
     "assetId": 132093842366384,
     "file": "assets/models/Flufflet/Flufflet.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Flufflet/Flufflet.glb",
+        "assets/models/Flufflet/Flufflet_atlas.png",
+        "assets/models/Flufflet/Flufflet_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Flufflet`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:17:19Z"
   },
   "Frostfang": {
     "assetId": 89121370968974,
     "file": "assets/models/Frostfang/Frostfang.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Frostfang/Frostfang.glb",
+        "assets/models/Frostfang/Frostfang_atlas.png",
+        "assets/models/Frostfang/Frostfang_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Frostfang`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:17:33Z"
   },
   "Gaiabloom": {
@@ -99,6 +189,16 @@
     "assetId": 92428034867797,
     "file": "assets/models/Glimmo/Glimmo.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Glimmo/Glimmo.glb",
+        "assets/models/Glimmo/Glimmo_atlas.png",
+        "assets/models/Glimmo/Glimmo_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Glimmo`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:17:56Z"
   },
   "Gloomoth": {
@@ -141,12 +241,32 @@
     "assetId": 136039795415171,
     "file": "assets/models/Kettlepuff/Kettlepuff.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Kettlepuff/Kettlepuff.glb",
+        "assets/models/Kettlepuff/Kettlepuff_atlas.png",
+        "assets/models/Kettlepuff/Kettlepuff_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Kettlepuff`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:20Z"
   },
   "Lanternewt": {
     "assetId": 77764118304137,
     "file": "assets/models/Lanternewt/Lanternewt.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Lanternewt/Lanternewt.glb",
+        "assets/models/Lanternewt/Lanternewt_atlas.png",
+        "assets/models/Lanternewt/Lanternewt_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Lanternewt`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:34Z"
   },
   "MeadowRock": {
@@ -177,12 +297,32 @@
     "assetId": 80168609957155,
     "file": "assets/models/Mossbop/Mossbop.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Mossbop/Mossbop.glb",
+        "assets/models/Mossbop/Mossbop_atlas.png",
+        "assets/models/Mossbop/Mossbop_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Mossbop`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:42Z"
   },
   "Nebulyn": {
     "assetId": 132111130182547,
     "file": "assets/models/Nebulyn/Nebulyn.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Nebulyn/Nebulyn.glb",
+        "assets/models/Nebulyn/Nebulyn_atlas.png",
+        "assets/models/Nebulyn/Nebulyn_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Nebulyn`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-13T07:53:28Z"
   },
   "Panpipe": {
@@ -195,6 +335,16 @@
     "assetId": 140009239774106,
     "file": "assets/models/Pebblet/Pebblet.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Pebblet/Pebblet.glb",
+        "assets/models/Pebblet/Pebblet_atlas.png",
+        "assets/models/Pebblet/Pebblet_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Pebblet`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:18:57Z"
   },
   "Pedestal": {
@@ -207,24 +357,64 @@
     "assetId": 84930553516849,
     "file": "assets/models/Pengoo/Pengoo.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Pengoo/Pengoo.glb",
+        "assets/models/Pengoo/Pengoo_atlas.png",
+        "assets/models/Pengoo/Pengoo_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Pengoo`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:19:11Z"
   },
   "Puffpuff": {
     "assetId": 108775875525202,
     "file": "assets/models/Puffpuff/Puffpuff.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Puffpuff/Puffpuff.glb",
+        "assets/models/Puffpuff/Puffpuff_atlas.png",
+        "assets/models/Puffpuff/Puffpuff_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Puffpuff`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:19:20Z"
   },
   "Radish": {
     "assetId": 75467711544687,
     "file": "assets/models/Radish/Radish.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Radish/Radish.glb",
+        "assets/models/Radish/Radish_atlas.png",
+        "assets/models/Radish/Radish_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Radish`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:19:29Z"
   },
   "Reindazzle": {
     "assetId": 86110280099855,
     "file": "assets/models/Reindazzle/Reindazzle.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Reindazzle/Reindazzle.glb",
+        "assets/models/Reindazzle/Reindazzle_atlas.png",
+        "assets/models/Reindazzle/Reindazzle_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Reindazzle`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:19:38Z"
   },
   "Rocklobber": {
@@ -237,12 +427,32 @@
     "assetId": 132568103336467,
     "file": "assets/models/Shellberg/Shellberg.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Shellberg/Shellberg.glb",
+        "assets/models/Shellberg/Shellberg_atlas.png",
+        "assets/models/Shellberg/Shellberg_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Shellberg`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:20:14Z"
   },
   "Shimmerlynx": {
     "assetId": 89901200352693,
     "file": "assets/models/Shimmerlynx/Shimmerlynx.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Shimmerlynx/Shimmerlynx.glb",
+        "assets/models/Shimmerlynx/Shimmerlynx_atlas.png",
+        "assets/models/Shimmerlynx/Shimmerlynx_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Shimmerlynx`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:20:28Z"
   },
   "ShipHull": {
@@ -267,12 +477,32 @@
     "assetId": 88220194343720,
     "file": "assets/models/Skaddle/Skaddle.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Skaddle/Skaddle.glb",
+        "assets/models/Skaddle/Skaddle_atlas.png",
+        "assets/models/Skaddle/Skaddle_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Skaddle`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:20:42Z"
   },
   "Snailbyte": {
     "assetId": 76807008771184,
     "file": "assets/models/Snailbyte/Snailbyte.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Snailbyte/Snailbyte.glb",
+        "assets/models/Snailbyte/Snailbyte_atlas.png",
+        "assets/models/Snailbyte/Snailbyte_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Snailbyte`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:20:51Z"
   },
   "SnowPine": {
@@ -285,6 +515,16 @@
     "assetId": 97283882148528,
     "file": "assets/models/Snowbun/Snowbun.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Snowbun/Snowbun.glb",
+        "assets/models/Snowbun/Snowbun_atlas.png",
+        "assets/models/Snowbun/Snowbun_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Snowbun`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:21:00Z"
   },
   "SparkStation": {
@@ -303,6 +543,16 @@
     "assetId": 110636694482164,
     "file": "assets/models/Spookum/Spookum.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Spookum/Spookum.glb",
+        "assets/models/Spookum/Spookum_atlas.png",
+        "assets/models/Spookum/Spookum_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Spookum`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-13T07:53:37Z"
   },
   "Thunderhog": {
@@ -315,18 +565,48 @@
     "assetId": 96561583720852,
     "file": "assets/models/Toastoad/Toastoad.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Toastoad/Toastoad.glb",
+        "assets/models/Toastoad/Toastoad_atlas.png",
+        "assets/models/Toastoad/Toastoad_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Toastoad`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:21:37Z"
   },
   "Twiglet": {
     "assetId": 93090404448607,
     "file": "assets/models/Twiglet/Twiglet.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Twiglet/Twiglet.glb",
+        "assets/models/Twiglet/Twiglet_atlas.png",
+        "assets/models/Twiglet/Twiglet_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Twiglet`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-15T13:21:46Z"
   },
   "Wisplet": {
     "assetId": 98470407282023,
     "file": "assets/models/Wisplet/Wisplet.glb",
     "format": "glb",
+    "pendingUpload": {
+      "exportedAt": "2026-10-21",
+      "files": [
+        "assets/models/Wisplet/Wisplet.glb",
+        "assets/models/Wisplet/Wisplet_atlas.png",
+        "assets/models/Wisplet/Wisplet_face.png"
+      ],
+      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Wisplet`",
+      "uploaded": false
+    },
     "uploadedAt": "2026-10-13T07:53:46Z"
   },
   "Zapfinch": {

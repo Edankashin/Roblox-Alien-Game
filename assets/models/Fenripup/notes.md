@@ -1,19 +1,16 @@
-# Fenripup blockout
+# Fenripup block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Fenripup (Cosmic)
-- Concept: puppy, glowing moon on its forehead; echo of Fenrir
-- Body: Ball, placeholder colour #3B2E6B, placeholder scale 1.2
-- Accessory: the forehead moon (silhouette pass; #FFC83D, emissive 3)
-- Tier dressing: tier size 150% (carried by placeholder.scale), emissive accessory
-- Triangles: 2148 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 4.05 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #3B2E6B, BodyDark #261E46, EyeWhite, Pupil, Mouth, Accessory #FFC83D
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Fenripup.glb (37856 bytes), Fenripup.fbx (39452 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Fenripup.md (Fenrir, World 2, Cosmic, status review)
+- Height: 3.5 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 138
+- Triangles: 1714 (cap 2500)
+- Cells: 0.0625 studs a cell, atlas Fenripup_atlas.png 1024x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `Glow` (the static glow blocks, Neon); `chain` (moves, cells, pivot 0, 1.25, -1.125); `earL` (moves, cells, pivot -0.6875, 2.875, -0.9062); `earR` (moves, cells, pivot 0.6875, 2.875, -0.9062); `halo` (moves, cells, pivot 0, 2, 1.2812); `moon` (moves, Neon, pivot 0, 2.9375, -1.8438); `moteL` (moves, Neon, pivot -1.5, 1.625, -0.6562); `moteR` (moves, Neon, pivot 1.5, 2.875, -0.9062); `tail` (moves, cells, pivot 0, 1.1875, 0.9688); `FacePlate` (the face sheet, frame 0)
+- Eyes: `lunar`; the face plate is 56x28 px a frame, 13 frames (open, half, closed, glint1, glint2, cycle0, cycle1, cycle2, cycle3, cycle4, cycle5, cycle6, cycle7) in Fenripup_face.png, 4 a row (Rigs face.columns)
+- Rig: 8 moving parts, root clips 1, flourish every 20s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Fenripup.glb (176244 bytes), Fenripup.fbx (134700 bytes, texture embedded), Fenripup_atlas.png, Fenripup_face.png, materials.json, Fenripup.png and Fenripup_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a big floppy-eared puppy sitting with a huge head, a thick tail curling up behind it, a glowing crescent moon on its forehead and four star shapes orbiting round it. Hero: the forehead moon.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Fenripup`; check with `python3 -I tools/blocky/export_models.py --check --species Fenripup`.

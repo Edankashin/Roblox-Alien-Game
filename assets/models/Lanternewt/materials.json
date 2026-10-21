@@ -2,61 +2,52 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "FF8C42",
-    "roughness": 0.8,
+    "hex": "F26B3A",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Lanternewt_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "gillL",
+    "hex": "4A2638",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Lanternewt_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "gillR",
+    "hex": "4A2638",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Lanternewt_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "tail",
+    "hex": "F26B3A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Lanternewt_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "8C3F1C",
-    "roughness": 0.8,
-    "metallic": 0.0,
-    "emission": 0.0
-  },
-  {
-    "slot": 6,
-    "name": "Accessory",
-    "hex": "FFD84A",
-    "roughness": 0.8,
-    "metallic": 0.0,
-    "emission": 2.5,
-    "material": "Neon"
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "F26B3A",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Lanternewt_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

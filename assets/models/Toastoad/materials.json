@@ -3,61 +3,71 @@
     "slot": 1,
     "name": "Body",
     "hex": "E8713A",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Leather"
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "belly",
+    "hex": "FFC94D",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "bumpL",
+    "hex": "E8713A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "bumpR",
+    "hex": "E8713A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "974926",
-    "roughness": 0.8,
+    "name": "pebbleR",
+    "hex": "6E4A3C",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Leather"
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "9FB3C8",
-    "roughness": 0.8,
+    "name": "stoneL",
+    "hex": "6E4A3C",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Pebble"
+    "colorMap": "Toastoad_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "E8713A",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Toastoad_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

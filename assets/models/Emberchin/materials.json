@@ -2,62 +2,72 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "FF9E4A",
-    "roughness": 0.8,
+    "hex": "73365A",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Pebble"
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "cinderR",
+    "hex": "FF8C2E",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "ember",
+    "hex": "FF8C2E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "pool",
+    "hex": "C8DCE4",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "A66730",
-    "roughness": 0.8,
+    "name": "quillL",
+    "hex": "FF8C2E",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Slate"
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFD23F",
-    "roughness": 0.8,
+    "name": "quillR",
+    "hex": "FF8C2E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.5,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Emberchin_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "73365A",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Emberchin_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

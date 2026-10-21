@@ -2,71 +2,90 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "6FB7E9",
-    "roughness": 0.8,
+    "hex": "4F9BD8",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "2ED3F7",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "earL",
+    "hex": "4F9BD8",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "C94F3D",
-    "roughness": 0.8,
+    "name": "earR",
+    "hex": "4F9BD8",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "487797",
-    "roughness": 0.8,
+    "name": "pawL",
+    "hex": "F2F7FB",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "E8F7FF",
-    "roughness": 0.8,
+    "name": "pawR",
+    "hex": "F2F7FB",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Ice",
-    "texture": "ice"
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "C026D3",
-    "roughness": 0.3,
-    "metallic": 1.0,
+    "name": "ruff",
+    "hex": "22406B",
+    "roughness": 0.55,
+    "metallic": 0.0,
     "emission": 0.0,
-    "material": "Fabric"
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 8,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "tailR",
+    "hex": "4F9BD8",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Frostfang_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
+    "name": "FacePlate",
+    "hex": "4F9BD8",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Frostfang_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

@@ -2,61 +2,52 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "9A9A9A",
-    "roughness": 0.8,
+    "hex": "C4B9A6",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Slate",
-    "texture": "stone"
+    "colorMap": "Pebblet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "cairnR",
+    "hex": "5A5048",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Pebblet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "legL",
+    "hex": "5A5048",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pebblet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "legR",
+    "hex": "5A5048",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pebblet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "6B6760",
-    "roughness": 0.8,
-    "metallic": 0.0,
-    "emission": 0.0
-  },
-  {
-    "slot": 6,
-    "name": "Accessory",
-    "hex": "78C850",
-    "roughness": 0.8,
-    "metallic": 0.0,
-    "emission": 0.0
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "C4B9A6",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Pebblet_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

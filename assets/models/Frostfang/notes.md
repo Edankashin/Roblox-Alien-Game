@@ -1,19 +1,16 @@
-# Frostfang blockout
+# Frostfang block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Frostfang (Epic)
-- Concept: sabre-tooth cub, icicle fangs, quill ruff, sneezes snowflakes
-- Body: Ball, placeholder colour #6FB7E9, placeholder scale 1.2
-- Accessory: the icicle fangs (silhouette pass; #E8F7FF)
-- Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 1548 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 3.37 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #6FB7E9, BodyDark #487797, EyeWhite, Pupil, Mouth, Accessory #E8F7FF, Trim #C026D3
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Frostfang.glb (46688 bytes), Frostfang.fbx (45196 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Frostfang.md (Sabrek, World 2, Epic, status review)
+- Height: 3.397 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 55
+- Triangles: 870 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Frostfang_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `Glow` (the static glow blocks, Neon); `earL` (moves, cells, pivot -0.625, 2.375, -1.0625); `earR` (moves, cells, pivot 0.625, 2.375, -1.0625); `pawL` (moves, cells, pivot -0.5, 0.25, -0.125); `pawR` (moves, cells, pivot 0.5, 0.25, -0.125); `ruff` (moves, cells, pivot 0, 1.625, 0); `tailR` (moves, cells, pivot 0.125, 2.25, 1.6875); `FacePlate` (the face sheet, frame 0)
+- Eyes: `frost`; the face plate is 28x12 px a frame, 5 frames (open, half, closed, glint1, glint2) in Frostfang_face.png, 4 a row (Rigs face.columns)
+- Rig: 6 moving parts, root clips 1, flourish every 12s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Frostfang.glb (79384 bytes), Frostfang.fbx (83052 bytes, texture embedded), Frostfang_atlas.png, Frostfang_face.png, materials.json, Frostfang.png and Frostfang_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a stocky sabre-tooth cub on all fours with an oversized head, two long icicle fangs hanging far below its open mouth and a spiked collar of nine ice quills round its neck. Hero: the icicle fangs.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Frostfang`; check with `python3 -I tools/blocky/export_models.py --check --species Frostfang`.

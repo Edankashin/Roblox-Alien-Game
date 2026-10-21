@@ -2,61 +2,62 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "DDEBF7",
-    "roughness": 0.8,
+    "hex": "B4A9E6",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Snow"
+    "colorMap": "Snowbun_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "earL",
+    "hex": "B4A9E6",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Snowbun_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "earR",
+    "hex": "B4A9E6",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Snowbun_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "nose",
+    "hex": "F0407F",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Snowbun_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "A9C3DD",
-    "roughness": 0.8,
+    "name": "tail",
+    "hex": "CFE2F3",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Snowbun_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF9EB5",
-    "roughness": 0.8,
-    "metallic": 0.0,
-    "emission": 0.0
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "B4A9E6",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Snowbun_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

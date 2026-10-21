@@ -2,63 +2,80 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "C9D6E8",
-    "roughness": 0.8,
+    "hex": "A8805A",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "FF6B6B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "chimeL",
+    "hex": "A8E4FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "chimeR",
+    "hex": "A8E4FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "8795AD",
-    "roughness": 0.8,
+    "name": "earL",
+    "hex": "A8805A",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Ice",
-    "texture": "ice"
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF6B4A",
-    "roughness": 0.35,
+    "name": "earR",
+    "hex": "A8805A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "tail",
+    "hex": "A8E4FF",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Reindazzle_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 8,
+    "name": "FacePlate",
+    "hex": "A8805A",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Reindazzle_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

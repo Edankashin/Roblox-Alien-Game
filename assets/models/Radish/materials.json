@@ -2,60 +2,122 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "FFB347",
-    "roughness": 0.8,
+    "hex": "D7265C",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "frondL",
+    "hex": "2CC5B2",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "frondR",
+    "hex": "2CC5B2",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "gem",
+    "hex": "FFE36B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "5DBB3A",
-    "roughness": 0.8,
+    "name": "halo",
+    "hex": "FFB21E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFC83D",
-    "roughness": 0.8,
+    "name": "leaf",
+    "hex": "2CC5B2",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 3.0,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "moteL",
+    "hex": "FFE36B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
+    "name": "moteR",
+    "hex": "FFE36B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 9,
+    "name": "orb",
+    "hex": "FFE36B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 10,
+    "name": "pendant",
+    "hex": "FFE36B",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 11,
+    "name": "wingL",
+    "hex": "FFB21E",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 12,
+    "name": "wingR",
+    "hex": "FFB21E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 13,
+    "name": "FacePlate",
+    "hex": "D7265C",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Radish_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

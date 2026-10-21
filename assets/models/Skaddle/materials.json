@@ -2,72 +2,100 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "F7F9FC",
-    "roughness": 0.8,
+    "hex": "F4F7FA",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Snow"
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "crest",
+    "hex": "9FA8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "hindwingL",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "hindwingR",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "A9C5E0",
-    "roughness": 0.8,
+    "name": "scarfR",
+    "hex": "8FD3F4",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "8FD8FF",
-    "roughness": 0.8,
+    "name": "tuftL",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Ice",
-    "texture": "ice"
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "F59E0B",
-    "roughness": 0.3,
-    "metallic": 1.0,
+    "name": "tuftR",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
     "emission": 0.0,
-    "material": "Neon"
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 8,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "wingL",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
+    "name": "wingR",
+    "hex": "F4F7FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 10,
+    "name": "FacePlate",
+    "hex": "F4F7FA",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Skaddle_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

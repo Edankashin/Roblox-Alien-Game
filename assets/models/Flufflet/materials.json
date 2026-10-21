@@ -3,61 +3,61 @@
     "slot": 1,
     "name": "Body",
     "hex": "F2F6FA",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Snow"
+    "colorMap": "Flufflet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "ball",
+    "hex": "9CC3E0",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Flufflet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "earL",
+    "hex": "F0614A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Flufflet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "earR",
+    "hex": "F0614A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Flufflet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "9DB7D5",
-    "roughness": 0.8,
+    "name": "scarfR",
+    "hex": "9CC3E0",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Fabric"
+    "colorMap": "Flufflet_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF7A59",
-    "roughness": 0.8,
+    "name": "FacePlate",
+    "hex": "F2F6FA",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "colorMap": "Flufflet_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

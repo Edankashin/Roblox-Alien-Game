@@ -2,61 +2,104 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "3B2E6B",
-    "roughness": 0.8,
+    "hex": "4B3D8F",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "chain",
+    "hex": "D9E2F5",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "earL",
+    "hex": "4B3D8F",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "261E46",
-    "roughness": 0.8,
+    "name": "earR",
+    "hex": "4B3D8F",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFC83D",
-    "roughness": 0.8,
+    "name": "halo",
+    "hex": "D9E2F5",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 3.0,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "moon",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
+    "name": "moteL",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 9,
+    "name": "moteR",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 10,
+    "name": "tail",
+    "hex": "4B3D8F",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 11,
+    "name": "FacePlate",
+    "hex": "4B3D8F",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Fenripup_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

@@ -3,60 +3,59 @@
     "slot": 1,
     "name": "Body",
     "hex": "E0C3A0",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Capybubble_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "earL",
+    "hex": "5C4A2A",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Capybubble_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "earR",
+    "hex": "5C4A2A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Capybubble_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "floatR",
+    "hex": "5FDCFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "927F68",
-    "roughness": 0.8,
+    "name": "leafR",
+    "hex": "5C4A2A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Capybubble_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF8A1F",
-    "roughness": 0.35,
-    "metallic": 0.0,
-    "emission": 1.0,
-    "material": "Neon"
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "E0C3A0",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Capybubble_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

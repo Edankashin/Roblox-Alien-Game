@@ -3,69 +3,61 @@
     "slot": 1,
     "name": "Body",
     "hex": "2B3F5C",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Pengoo_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "pack",
+    "hex": "FFA63D",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Pengoo_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "tuft",
+    "hex": "2B3F5C",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pengoo_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "wingL",
+    "hex": "2B3F5C",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pengoo_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "1C293C",
-    "roughness": 0.8,
+    "name": "wingR",
+    "hex": "2B3F5C",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Pengoo_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF8A3D",
-    "roughness": 0.8,
+    "name": "FacePlate",
+    "hex": "F4F7FA",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "SmoothPlastic"
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
-  },
-  {
-    "slot": 8,
-    "name": "Belly",
-    "hex": "DDE6F0",
-    "roughness": 0.7,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "material": "SmoothPlastic"
+    "colorMap": "Pengoo_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]
