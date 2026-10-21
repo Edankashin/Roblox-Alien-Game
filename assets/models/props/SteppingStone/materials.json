@@ -1,0 +1,22 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "8E88C6",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SteppingStone_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "Accessory",
+    "hex": "2E8A78",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "SteppingStone_atlas.png",
+    "pixelated": true
+  }
+]

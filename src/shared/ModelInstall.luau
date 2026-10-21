@@ -201,6 +201,35 @@ end
 -- PROP_COLLISIONS and tools/tests/test_lint_props.py checks the two match).
 ModelInstall.PropCollisions = { "Box", "Hull", "Precise", "None" } :: { string }
 
+-- The colour slots a block-cell prop's MeshParts are named by (tools/blocky/export_models.py PROP_SLOTS), the keys a row's
+-- `slots` may use (tools/lint_data.py keeps the same list in PROP_SLOTS).
+ModelInstall.PropSlots = { "Body", "BodyDark", "Accessory", "Trim", "Glow" } :: { string }
+
+-- The collision one part of a placed prop takes: the row's `slots` entry for the part's name when it has one, else the row's
+-- own collision; nil when the prop has no row.
+function ModelInstall.SlotCollision(row: Types.PropRow?, partName: string): PropCollision?
+	if row == nil then
+		return nil
+	end
+	local slots = row.slots
+	if slots == nil then
+		return row.collision
+	end
+	local own: PropCollision? = nil
+	if partName == "Body" then
+		own = slots.Body
+	elseif partName == "BodyDark" then
+		own = slots.BodyDark
+	elseif partName == "Accessory" then
+		own = slots.Accessory
+	elseif partName == "Trim" then
+		own = slots.Trim
+	elseif partName == "Glow" then
+		own = slots.Glow
+	end
+	return own or row.collision
+end
+
 -- The plan for one placed prop. `collision` is its data/Props row (nil = no row: the caller's `collide` and the imported
 -- fidelity stand); `collide` is what the caller asked for (Props.Place's argument). A "None" row never collides, and a caller
 -- that turns collision off gets no collision from any row; either way nothing touches the part, so it takes Box, the cheapest

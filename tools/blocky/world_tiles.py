@@ -11,6 +11,7 @@ brick's border) is part of the pattern: a field of tiles reads as a field of 2-s
 The keys are shared with the world worker, who references them through a data table (image id 0 until the Mac uploads them):
 
   GrassTop GrassSide Dirt Path Stone Sand Water WoodPlank Snow SnowSide PackedSnow Ice FrozenWater Rock
+  MoonPath MoonGrass GlowWater   (World 1's Starhollow Forest, the moonlit region of Decision B48)
 
   python3 -I tools/blocky/world_tiles.py                     # write assets/textures/blocky_tiles/<Key>.png and the contact sheet
   python3 -I tools/blocky/world_tiles.py --sheet <png>       # the contact sheet elsewhere (each tile 3 x 3, so a seam would show)
@@ -34,7 +35,7 @@ N = 8                   # cells a tile side: 2 studs at the world cell of 0.25
 PX = C.PX               # texels a cell (8), so a tile is 64 x 64
 SIZE = N * PX
 OUT = ROOT / "assets/textures/blocky_tiles"
-SHEET = ROOT / "media/studio/2026-10-21/world_tiles_v1.png"
+SHEET = ROOT / "media/studio/2026-10-21/world_tiles_v2.png"   # v1 (the fourteen) stays beside it
 STEP = C.STEP
 
 # key: (world, material whose PARAMS (jitter, grout) it takes, base hex, aux hex, accent hex, what it is)
@@ -53,6 +54,10 @@ TILES = {
     "Ice": (2, "ice", "#BFEBFA", None, None, "clear ice: a light band on the other diagonal every eight cells, a sparkle"),
     "FrozenWater": (2, "frozen_water", "#A9D6F5", None, None, "the frozen pond: four plates a tile, cracks on most borders, a bubble"),
     "Rock": (2, "stone", "#A9B7C0", None, None, "Frostbyte rock: ledges two or three rows tall, broken by cracks, chips"),
+    # World 1's Starhollow Forest (B48), moonlit: a pale lavender path, deep teal-green grass, glowing pool water
+    "MoonPath": (1, "stone", "#CBC2EE", None, None, "Starhollow's pale lavender path: cobbles about three cells, one-cell cracks"),
+    "MoonGrass": (1, "grass", "#2B6F68", None, "#9A7EE6", "Starhollow's grass: deep teal-green blobs, a lit blade, violet specks"),
+    "GlowWater": (1, "water", "#2648B8", None, "#9FE6FF", "the moon pool and the stream: deep blue, bright ripple dashes, sparkles"),
 }
 KEYS = tuple(TILES)
 
@@ -294,9 +299,29 @@ def rock(i, j):
     return "base", lv, "stone"
 
 
+def moon_grass(i, j):
+    # the meadow's grass top (blobs, a lit blade, the half-step rim) with a violet speck (the accent) in about fourteen
+    key, lvl, mat = grass_top(i, j)
+    if h(311, i, j) < 0.07 and lvl < 0.75:
+        return "accent", 0.0, mat
+    return key, lvl, mat
+
+
+def glow_water(i, j):
+    # the pool: deep blue, ripple dashes on the water diagonal in the bright accent (the light on the water), a lit row beside them, a
+    # sparkle in thirty, a slow half-step swell between; no grout (water)
+    if (i + 2 * j) % N == 0 and C.rand(321, (i % N) // 3, j % N) < 0.75:
+        return "accent", 0.0, "water"
+    if (i + 2 * j) % N == 1 and C.rand(323, (i % N) // 3, j % N) < 0.45:
+        return "base", 1.5, "water"
+    if h(325, i, j) < 0.035:
+        return "accent", 1.5, "water"
+    return "base", 0.5 * C.level(pnoise(327, i, j, 4)), "water"
+
+
 RAW = {"GrassTop": grass_top, "GrassSide": grass_side, "Dirt": dirt, "Path": path, "Stone": stone, "Sand": sand, "Water": water,
             "WoodPlank": wood_plank, "Snow": snow, "SnowSide": snow_side, "PackedSnow": packed_snow, "Ice": ice, "FrozenWater": frozen_water,
-            "Rock": rock}
+            "Rock": rock, "MoonPath": path, "MoonGrass": moon_grass, "GlowWater": glow_water}
 # the painters as the tile calls them: a cell's place taken modulo the tile, so a lookup one tile over is the same cell
 PAINTERS = {k: (lambda f: (lambda i, j: f(i % N, j % N)))(f) for k, f in RAW.items()}
 
@@ -365,7 +390,7 @@ def contact_sheet(path=SHEET, repeat=3, scale=2):
     W, H = cols * cell_w + 30, rows * cell_h + 110
     sheet = Image.new("RGB", (W, H), "#F6F0E6")
     d = ImageDraw.Draw(sheet)
-    d.text((20, 16), "World tiles v1 (Blocky-Style, Cells; Decision B44): each 64 x 64 tile (2 x 2 studs, 8 x 8 cells) shown 3 x 3 at 2x, "
+    d.text((20, 16), "World tiles v2 (Blocky-Style, Cells; Decision B44): each 64 x 64 tile (2 x 2 studs, 8 x 8 cells) shown 3 x 3 at 2x, "
            "so a seam would cross every square", font=bold, fill="#1B1F3B")
     d.text((20, 50), "assets/textures/blocky_tiles/<Key>.png from tools/blocky/world_tiles.py. Flat cells, jitter in L* only at 1 : 6 : 1, motifs "
            "in steps of L* 6, the block edge in the pattern, a one-texel grout a step down (half on grass, snow and ice, none on water)",

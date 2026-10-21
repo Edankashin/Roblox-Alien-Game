@@ -20,12 +20,19 @@
 -- A caller that passes `collide = false` (the heater lamp on its disc, the hangar trophy) turns collision off for any row, and
 -- that part takes Box, the cheapest fidelity, since nothing touches it.
 --
+-- `slots` (Types.PropRow) overrides the collision for one colour slot of a block-cell prop, matched by the MeshPart's name
+-- (ModelInstall.SlotCollision; the note's `collision_slots`, checked by tools/lint_data.py). The Starhollow Forest props
+-- (Decision B48) use it: a giant glowcap's stem (BodyDark) boxes while its cap, gills, rim and moss never collide; the
+-- arched bridge's deck (Body) is one walkable hull while its rails and posts (BodyDark) stay out of it (a box or a hull of
+-- both rails would wall the deck in); the moon pool ring is Precise so the pool stays open; light (Glow) never collides.
+--
 -- The Shrine also holds a glowing orb, the GeyserVent a steam column, the CrashWreck embers and the cave mouths crystals: those
 -- slots collide with the rest of their prop today; a per-slot override would be a field on the row if it ever matters.
 
 local Types = require(script.Parent.Parent.types.Types)
 
 local Rows: { [string]: Types.PropRow } = {
+	ArchBridge = { collision = "Hull", slots = { BodyDark = "None", Accessory = "None", Glow = "None", Trim = "None" } },
 	BlossomTree = { collision = "Box" },
 	Boulder = { collision = "Hull" },
 	BuildStation = { collision = "None" },
@@ -38,6 +45,11 @@ local Rows: { [string]: Types.PropRow } = {
 	GatherStation = { collision = "None" },
 	GeyserCone = { collision = "Box" },
 	GeyserVent = { collision = "Hull" },
+	GlowcapGiant = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None", Trim = "None" } },
+	GlowcapGiantBlue = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None", Trim = "None" } },
+	GlowcapGiantPink = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None", Trim = "None" } },
+	GlowcapSmall = { collision = "None" },
+	GlowFern = { collision = "None" },
 	HeaterLamp = { collision = "Box" },
 	IceCaveMouth = { collision = "Precise" },
 	IceCrystalCluster = { collision = "Hull" },
@@ -53,7 +65,12 @@ local Rows: { [string]: Types.PropRow } = {
 	MeadowRockB = { collision = "Hull" },
 	MeadowTree = { collision = "Box" },
 	MeadowTreeB = { collision = "Box" },
+	MoonPoolRing = { collision = "Precise", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
+	MoonTree = { collision = "Box", slots = { Glow = "None", Trim = "None" } },
+	MoonTreeB = { collision = "Box", slots = { Glow = "None", Trim = "None" } },
+	MossStone = { collision = "Hull", slots = { Glow = "None" } },
 	Mushroom = { collision = "Hull" },
+	PathLantern = { collision = "Box", slots = { Accessory = "None" } },
 	Pedestal = { collision = "Hull" },
 	Reeds = { collision = "None" },
 	ShipHull = { collision = "Hull" },
@@ -65,6 +82,8 @@ local Rows: { [string]: Types.PropRow } = {
 	SnowPine = { collision = "Box" },
 	SnowPineB = { collision = "Box" },
 	SparkStation = { collision = "None" },
+	StarIsland = { collision = "Hull", slots = { Glow = "None", Accessory = "None" } },
+	SteppingStone = { collision = "Hull", slots = { Accessory = "None" } },
 }
 
 return {

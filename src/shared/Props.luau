@@ -81,7 +81,8 @@ end
 -- BasePart comes out Anchored with CanQuery and CanTouch off; CanCollide is `collide` (trees, rocks and
 -- the shrine keep it on so players walk around them; the heater lamp turns it off) unless the prop's row in
 -- data/Props says "None". Every MeshPart also gets the CollisionFidelity that row names (Box, Hull or Precise;
--- ModelInstall.CollisionPlan), where the import left the engine's Default. The model's pivot is the bottom centre
+-- ModelInstall.CollisionPlan), where the import left the engine's Default; a row's `slots` gives a colour slot its own
+-- collision (the Starhollow glowcaps: the stem boxes, the cap never collides). The model's pivot is the bottom centre
 -- of its bounding box. Returns the placed Model, or nil when the prop was never
 -- imported, so the caller builds its placeholder.
 function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instance, collide: boolean): Model?
@@ -97,10 +98,11 @@ function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instan
 	local clone = source:Clone()
 	clone.Name = name
 	local row = PropData.Rows[name]
-	local plan = ModelInstall.CollisionPlan(if row then row.collision else nil, collide)
-	local fidelity = if plan.fidelity then FIDELITY[plan.fidelity] else nil
 	for _, descendant in ipairs(clone:GetDescendants()) do
 		if descendant:IsA("BasePart") then
+			-- a row's `slots` can give one colour slot its own collision (ModelInstall.SlotCollision)
+			local plan = ModelInstall.CollisionPlan(ModelInstall.SlotCollision(row, descendant.Name), collide)
+			local fidelity = if plan.fidelity then FIDELITY[plan.fidelity] else nil
 			descendant.Anchored = true
 			descendant.CanCollide = plan.canCollide
 			descendant.CanQuery = false

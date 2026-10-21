@@ -81,7 +81,16 @@ export type TextureRow = { colorMap: number, normalMap: number, roughnessMap: nu
 -- the silhouette). Precise: a prop with an opening to walk through, an arch or a ring, which a box or a hull would plug. None: purely
 -- visual, CanCollide off whatever the caller asks.
 export type PropCollision = "Box" | "Hull" | "Precise" | "None"
-export type PropRow = { collision: PropCollision }
+-- `slots` overrides `collision` for a block-cell prop's MeshParts by colour slot name (Body, BodyDark, Accessory, Trim, Glow):
+-- a giant glowcap's stem boxes while its cap, rim and moss never collide.
+export type PropSlotCollisions = {
+	Body: PropCollision?,
+	BodyDark: PropCollision?,
+	Accessory: PropCollision?,
+	Trim: PropCollision?,
+	Glow: PropCollision?,
+}
+export type PropRow = { collision: PropCollision, slots: PropSlotCollisions? }
 
 -- The generated worlds in block cells (tools/blocky/world_gen.py writes data/WorldGen1, WorldGen2 and WorldKit; Shared/WorldGrid reads
 -- them; Services/Meadow builds them). A ground kind: its tile keys (data/BlockTiles ids), the fallback colours and Roblox Material
