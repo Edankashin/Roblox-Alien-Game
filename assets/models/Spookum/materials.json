@@ -39,6 +39,16 @@
   },
   {
     "slot": 5,
+    "name": "candles",
+    "hex": "FF9F1C",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 6,
     "name": "hem",
     "hex": "5B4A8A",
     "roughness": 0.55,
@@ -48,7 +58,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "lanternL",
     "hex": "9D6BFF",
     "roughness": 0.55,
@@ -56,7 +66,7 @@
     "emission": 1.5
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "stem",
     "hex": "B89B5A",
     "roughness": 0.55,
@@ -66,7 +76,15 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 9,
+    "name": "wisp",
+    "hex": "9D6BFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 10,
     "name": "FacePlate",
     "hex": "E9E6FF",
     "roughness": 0.4,

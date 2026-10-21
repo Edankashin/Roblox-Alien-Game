@@ -12,7 +12,7 @@
   {
     "slot": 2,
     "name": "Glow",
-    "hex": "FF6FAE",
+    "hex": "F0287E",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
@@ -40,13 +40,31 @@
   {
     "slot": 5,
     "name": "butterflyR",
-    "hex": "FF6FAE",
+    "hex": "F0287E",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
     "slot": 6,
+    "name": "butterfly2L",
+    "hex": "F0287E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 7,
+    "name": "cape",
+    "hex": "4FB84E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 8,
     "name": "earL",
     "hex": "F0E6CE",
     "roughness": 0.55,
@@ -56,7 +74,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 9,
     "name": "earR",
     "hex": "F0E6CE",
     "roughness": 0.55,
@@ -66,7 +84,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 10,
     "name": "halo",
     "hex": "4FB84E",
     "roughness": 0.55,
@@ -76,7 +94,7 @@
     "pixelated": true
   },
   {
-    "slot": 9,
+    "slot": 11,
     "name": "tail",
     "hex": "F0E6CE",
     "roughness": 0.55,
@@ -86,7 +104,7 @@
     "pixelated": true
   },
   {
-    "slot": 10,
+    "slot": 12,
     "name": "FacePlate",
     "hex": "F0E6CE",
     "roughness": 0.4,

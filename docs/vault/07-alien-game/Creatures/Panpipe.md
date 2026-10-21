@@ -8,13 +8,13 @@ tier: Secret
 status: review
 element: Shadow
 height: 3.5
-blocks: 119
-tris: 1436
+blocks: 172
+tris: 2082
 bevel_width: 0.0625
 bevel_segments: 2
-palette: ["#4A4166", "#1E1A2E", "#8E6BFF", "#8C86A6", "#B28CFF", "#0B0812"]
+palette: ["#4A4166", "#1E1A2E", "#8E6BFF", "#8C86A6", "#9B5CFF", "#0B0812"]
 roles: [body, second, accent, trim, glow, ink]
-glow_cycle: ["#B28CFF", "#7A3CFF", "#E2D6FF"]
+glow_cycle: ["#9B5CFF", "#6A2BE8", "#C9A8FF"]
 arcs: ["PipeMouth>PipeMouth4", "PipeMouth2>PipeMouth5"]
 hero: Pipe
 vfx: "the Cosmic set in shadow (Secret), eight layers in Effects.luau: every 4 s the pipes trill and five violet notes drift from them and fall instead of rising; a deep violet light breathes on its body; three violet notes orbit over its head; a violet ring rolls slowly backwards under its hooves every 3.5 s; dark smoke falls at its feet; a held aura of deep violet glow; and on the flourish it vanishes in a puff of dark smoke and returns under a violet column of light. The flourish (every 16 s) is that vanish-and-return: a hop, a sink into the smoke, a full turn, the pipes popping on the trill, the ears flared and the note leaping"
@@ -23,7 +23,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Panpipe_sheet.svg]]"
 render: "[[Panpipe_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.997, 0.998, 0.995]
+overlap: [0.995, 0.997, 0.998, 0.996]
 vfx_render: "[[Panpipe_vfx_cells.jpg]]"
 cells_render: "[[Panpipe_tq_cells.jpg]]"
 idle_render: "[[Panpipe_idle.png]]"
@@ -36,7 +36,7 @@ A small shadow goat kid, 3.5 studs to the tips of its horns (B45: it was 13, a c
 
 **Hero block.** The `Pipe` set, six reeds of a panpipe grown into a goat's back, unique in Verdant.
 
-**Moving parts (eight objects and the blink).** `pipes` (the six reeds, their mouths and lips, the bands and the foot: they breathe and pop on the trill), `earR` and `earL` (they droop and lift), `beard` (it sways), `bell` (strap, bell and clapper: it swings), `tail` (with its lit tip: it flicks), `note` and `note2` (the two floating notes: they circle and bob); the face plate blinks, glints and ripples.
+**Moving parts (eight objects and the blink).** `pipes` (the six reeds, their mouths and lips, the bands and the foot: they breathe and pop on the trill), `earR` and `earL` (they droop and lift), `beard` (it sways), `bell` (strap, bell and clapper: it swings), `tail` (with its lit tip: it flicks), `note` and `note2` (the two floating notes: they circle and bob); the face plate blinks, glints and ripples. Rare pass w1: `eclipse` (the dark moon in its lit corona behind the horns: it turns slowly, bobs, pops and turns on the flourish), `echoR` (the echo ring over the pipes: it swells) and `gem` (the circlet's gem: the one accent that pulses) make eleven objects and the blink.
 
 **Alien anatomy.** Four horns, notes that follow it and an instrument grown into its back.
 
@@ -70,7 +70,7 @@ parts:
   - {name: BrowCurl, slot: BodyDark, size: [0.375, 0.125, 0.1875], at: [0.5625, 2.5625, -1.53125], mirror: x, material: wool}
   - {name: BrowLock, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.8125, 2.125, -1.5625], mirror: x, material: wool}
   - {name: Circlet, slot: Trim, size: [1, 0.125, 0.0625], at: [0, 2.3125, -1.65625], material: metal}
-  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.71875]}
+  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.71875], moves: gem, pivot: [0, 2.3125, -1.71875]}
   - {name: Rune, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.03125, 1.4375, -0.34375], mirror: x}
   - {name: Rune2, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.03125, 1.5, -0.21875], mirror: x}
   # a stepped dark beard under the chin (it sways), a pewter bell with a lit clapper beside it (it swings)
@@ -143,6 +143,49 @@ parts:
   - {name: PipeLip6, slot: Glow, size: [0.125, 0.0625, 0.0625], at: [0.6875, 2.03125, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
   - {name: PipeBand, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 1.84375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
   - {name: PipeBand2, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 2.09375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
+  # Rare pass w1, the signature piece: an eclipse rising behind the horns, a dark moon disc (rows of quarter-stud cells) inside a lit
+  # violet corona of glass cells with four rays, Raddis's sun disk in shadow; it turns slowly, bobs and flares on the flourish (`eclipse`)
+  - {name: Moon0, slot: BodyDark, size: [0.5, 0.125, 0.125], at: [0, 1.9375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 1.9375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon1, slot: BodyDark, size: [1, 0.125, 0.125], at: [0, 2.0625, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 2.0625, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon2, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 2.1875, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 2.1875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon3, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 2.3125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 2.3125, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon4, slot: BodyDark, size: [1.5, 0.125, 0.125], at: [0, 2.4375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona4, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.4375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon5, slot: BodyDark, size: [1.5, 0.125, 0.125], at: [0, 2.5625, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona5, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.5625, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon6, slot: BodyDark, size: [1.5, 0.125, 0.125], at: [0, 2.6875, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona6, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.6875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon7, slot: BodyDark, size: [1.5, 0.125, 0.125], at: [0, 2.8125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona7, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.8125, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon8, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 2.9375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona8, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 2.9375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon9, slot: BodyDark, size: [1.25, 0.125, 0.125], at: [0, 3.0625, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona9, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 3.0625, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon10, slot: BodyDark, size: [1, 0.125, 0.125], at: [0, 3.1875, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona10, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 3.1875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Moon11, slot: BodyDark, size: [0.5, 0.125, 0.125], at: [0, 3.3125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: Corona11, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 3.3125, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: CoronaTop, slot: Glow, size: [0.5, 0.125, 0.125], at: [0, 3.4375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: CoronaBottom, slot: Glow, size: [0.5, 0.125, 0.125], at: [0, 1.8125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
+  - {name: Diamond, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.5, 3.125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], shape: ico1}
+  - {name: CoronaRay0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.75, 3.375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  - {name: CoronaRay1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.75, 1.875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875]}
+  # Rare pass w1: an echo ring, a hollow square of lit sixteenth-stud bars floating over the pipes' mouths, that swells and fades like a
+  # note heard from far away (`echo`); and a lit finger hole of violet glass on each reed
+  - {name: Echo, slot: Glow, size: [0.625, 0.0625, 0.0625], at: [1.25, 3.40625, 1.34375], moves: echo, pivot: [1.25, 3.375, 1.625]}
+  - {name: Echo2, slot: Glow, size: [0.625, 0.0625, 0.0625], at: [1.25, 3.40625, 1.90625], moves: echo, pivot: [1.25, 3.375, 1.625]}
+  - {name: Echo3, slot: Glow, size: [0.0625, 0.0625, 0.5], at: [0.96875, 3.40625, 1.625], moves: echo, pivot: [1.25, 3.375, 1.625]}
+  - {name: Echo4, slot: Glow, size: [0.0625, 0.0625, 0.5], at: [1.53125, 3.40625, 1.625], moves: echo, pivot: [1.25, 3.375, 1.625]}
+  - {name: Hole0, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.625, 2.375, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
+  - {name: Hole1, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.4375, 2.3125, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
+  - {name: Hole2, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.25, 2.1875, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
+  - {name: Hole3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.0625, 2.125, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
+  - {name: Hole4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.875, 2.0625, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
+  - {name: Hole5, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.6875, 1.9375, 1.46875], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: crystal}
 ```
 
 ## Face
@@ -178,6 +221,9 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the pipes breathe, the ears
 rig:
   clips:
     pipes: [{kind: pulse, amp: 0.03, period: 4}]
+    eclipse: [{kind: spin, amp: 360, period: 20, axis: z}, {kind: bob, amp: 0.05, period: 4.4}, {kind: sway, amp: 6, period: 6.6, axis: y, phase: 0.3}]
+    echo: [{kind: pulse, amp: 0.25, period: 1.6}, {kind: bob, amp: 0.06, period: 1.6, phase: 0.25}]
+    gem: [{kind: pulse, amp: 0.25, period: 2.2}]
     ear: [{kind: sway, amp: 8, period: 3.4, axis: z}]
     beard: [{kind: sway, amp: 5, period: 3, axis: x}]
     bell: [{kind: sway, amp: 12, period: 1.9, axis: x, phase: 0.2}]
@@ -188,15 +234,30 @@ rig:
     face: [{kind: blink, period: 6}]
   flourish:
     every: 16
-    length: 4
+    length: 4.6
     moves:
       - {part: root, kind: hop, amp: 0.4, at: 0, for: 0.9}
+      - {part: eclipse, kind: pop, amp: 0.25, at: 0, for: 1.2}
       - {part: root, kind: squash, amp: 0.2, axis: y, at: 0.9, for: 0.7}
       - {part: root, kind: turn, amp: 360, axis: y, at: 1.4, for: 1.6}
+      - {part: eclipse, kind: turn, amp: -180, axis: z, at: 1.4, for: 1.8}
+      - {part: gem, kind: pop, amp: 0.5, at: 2.4, for: 0.6}
       - {part: pipes, kind: pop, amp: 0.2, at: 2.6, for: 0.8}
+      - {part: echo, kind: pop, amp: 0.6, at: 2.6, for: 1.2}
       - {part: ear, kind: flare, amp: 25, axis: z, at: 2.6, for: 1}
       - {part: note, kind: hop, amp: 0.5, at: 2.8, for: 1}
+      - {part: bell, kind: swish, amp: 20, axis: x, at: 3, for: 1.4}
+      - {part: tail, kind: flare, amp: 30, axis: x, at: 3.2, for: 1}
 ```
+
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Eclipse | `Diamond` (eclipse) | 0.15, 0.89, 0.00 | the violet column's foot on the flourish, a slow dark mote rain | Halo |
+| Echo | `Echo` (echo) | 0.37, 0.97, 0.30 | the trill's notes rising from the ring | BackR |
 
 ## Build
 
@@ -233,3 +294,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, block-cell worker, three rounds (cells). The violet flecks and the grout lift the dark coat in daylight (the open item of loop 2, partly: it is still the darkest thing on the meadow, as a Secret should be); the reeds read as reeds. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, two rounds. Round 1: rebuilt from 13 studs to 3.5 by redesign: a goat kid with a 2-stud head on a 32-column face (0.0625 cells, 56 cells tall), the ibex horns as sixteenth-stud steps with two lit bands each, a pewter circlet with a lit gem, a stepped beard and a swinging bell, a saddle with sound bars and tassels, two drifting notes, six reeds in sixteenth-stud cells; its own eyes, `echo`, a new Secret design added to the library (rings of violet rippling out of a lit core over eight frames), a smile, dim violet star cheeks. 114 blocks. The reeds across the rump, behind the head, made it a box with two horns: 0.720 against Gaira and 0.718 against Buzzik in the silhouette test. Round 2: the reeds moved a stud to the right so they rise off the right haunch, tallest at the outside (a stepped ramp beside the head from the front), and the ears grew a quarter stud: 0.675 and 0.64. Eight moving objects and the blink; a flourish every 16 s (the vanish-and-return: a hop, a sink, a full turn, the pipes popping on the trill). Overlap 0.994 to 0.998, 1,386 triangles. Wanted for: the one dark thing on the meadow, the size of a Rare, with eyes that ripple like a note from far off; a rumour beside Raddis's blaze. Still weak: the slate head is a flat plane between the circlet and the eyes; the horns read as stacked blocks more than an arch from the three-quarter view. Status review.
 - 2026-10-21, Polish w1, two rounds. The flat forehead between the circlet and the eyes: a fringe of dark wool now stands an eighth proud of the forehead across the head's width, curled at its top corners and hanging in a lock beside each eye, and the pewter circlet and its lit gem sit on it, so the face steps back in three layers (gem, circlet, fringe) to the eyes and the dark fringe frames the slate face. Round 1 made the ridge in the slate body colour and it vanished; the dark wool reads. 119 blocks (Secret 110 to 200). Overlap 0.995 to 0.998. Honest read: the face now has a brow and a frame, the circlet reads as jewellery on a forelock; below the eyes the face is still one slate plane, which keeps the face calm. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: an eclipse rising behind the horns, a dark moon disc in twelve sixteenth-stud rows inside a corona of lit violet glass cells with four rays and a diamond-ring bead, Raddis's sun disk in shadow (it turns once in 20 s and turns half round on the flourish); an echo ring of lit bars over the pipes' mouths that swells like a note far away; a lit glass finger hole on each reed; the circlet's gem pulses (the Secret's one accent); the glow is a deeper violet `#9B5CFF` and the cycle with it (the lilac `#B28CFF` read pale). Round 1's disc in quarter-stud rows read as a dark slab; eighth-stud rows read round. The flourish is 4.6 s. 172 blocks, twelve moving things. Honest read: the shadow goat with an eclipse behind its horns is the Secret's answer to Raddis's sun; at a distance the dark disc can read as a chair back without its corona lit. Status review.

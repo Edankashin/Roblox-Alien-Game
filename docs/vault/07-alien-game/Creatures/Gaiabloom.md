@@ -8,11 +8,11 @@ tier: Legendary
 status: review
 element: Bloom
 height: 3.452
-blocks: 78
-tris: 1048
+blocks: 106
+tris: 1336
 bevel_width: 0.1
 bevel_segments: 2
-palette: ["#F0E6CE", "#6B4A2E", "#4FB84E", "#F5B83D", "#FF6FAE", "#1F1A17"]
+palette: ["#F0E6CE", "#6B4A2E", "#4FB84E", "#F5B83D", "#F0287E", "#1F1A17"]
 roles: [body, second, accent, trim, glow, ink]
 hero: Antler
 vfx: "touches the ground (Legendary), six layers in Effects.luau: four pink petals orbit the crown half a stud out, a little flower of four yellow petals pops in each footprint every 2.4 s, a warm gold light pulses over the antlers, a green leaf drifts off its back every so often, and on the flourish the antlers shed a burst of eighteen pink petals while a pink ring rolls out over the ground from its hooves. The flourish (every 12 s) is a spring blessing: a hop and a full turn, the flower crown popping, the antler trees shaking, the ears flared and the butterfly leaping"
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Gaiabloom_sheet.svg]]"
 render: "[[Gaiabloom_tq_cells.jpg]]"
 glb: ""
-overlap: [0.992, 0.994, 0.995, 0.993]
+overlap: [0.992, 0.994, 0.996, 0.993]
 vfx_render: "[[Gaiabloom_vfx_cells.jpg]]"
 cells_render: "[[Gaiabloom_tq_cells.jpg]]"
 idle_render: "[[Gaiabloom_idle.png]]"
@@ -33,7 +33,7 @@ A small ivory fawn-stag, 3.45 studs to the top of its antler trees (B45: it was 
 
 **Hero block.** The `Antler` pair, two blossoming trees on a fawn's head, unique in Verdant.
 
-**Moving parts (seven objects and the blink).** `halo` (the floating flower crown: it turns once in 12 s), `antlerR` and `antlerL` (each tree, band to blossoms: they sway like trees in a breeze), `earR` and `earL` (they droop and lift), `tail` (the tuft and its leaf: it flicks), `butterfly` (it circles the antlers and flutters); the face plate blinks, glints and turns its petals.
+**Moving parts (seven objects and the blink).** `halo` (the floating flower crown: it turns once in 12 s), `antlerR` and `antlerL` (each tree, band to blossoms: they sway like trees in a breeze), `earR` and `earL` (they droop and lift), `tail` (the tuft and its leaf: it flicks), `butterfly` (it circles the antlers and flutters); the face plate blinks, glints and turns its petals. Rare pass w1: `cape` (the glass-petal mantle over the back: it lifts and settles, flares on the flourish) and `butterfly2L` (a second butterfly, smaller, circling the other way) make nine objects and the blink.
 
 **Alien anatomy.** Antlers that are living trees, a crown of flowers that floats and turns on its own, a body that lights up in a pattern, and a butterfly that keeps it company.
 
@@ -90,12 +90,37 @@ parts:
   - {name: Mane, slot: Accessory, size: [0.75, 0.5, 0.25], at: [0, 2, 0.125], material: moss}
   - {name: Mane2, slot: Accessory, size: [0.5, 0.25, 0.25], at: [0, 1.875, 0.375], material: moss}
   - {name: Saddle, slot: Accessory, size: [1.375, 0.125, 1.375], at: [0, 1.8125, 0.875], material: moss}
-  - {name: Drape, slot: Accessory, size: [0.0625, 0.5, 1.375], at: [0.78125, 1.5, 0.875], mirror: x, material: moss}
+  # Rare pass w1: the drape is a stained-glass panel down each flank, moss and lit pink glass in quarter-stud strips under the gold hem
+  - {name: Drape0, slot: Accessory, size: [0.0625, 0.5, 0.25], at: [0.78125, 1.5, 0.3125], mirror: x, material: moss}
+  - {name: Drape1, slot: Glow, size: [0.0625, 0.5, 0.25], at: [0.78125, 1.5, 0.5625], mirror: x, material: crystal}
+  - {name: Drape2, slot: Accessory, size: [0.0625, 0.5, 0.25], at: [0.78125, 1.5, 0.8125], mirror: x, material: moss}
+  - {name: Drape3, slot: Glow, size: [0.0625, 0.5, 0.25], at: [0.78125, 1.5, 1.0625], mirror: x, material: crystal}
+  - {name: Drape4, slot: Accessory, size: [0.0625, 0.5, 0.25], at: [0.78125, 1.5, 1.3125], mirror: x, material: moss}
+  - {name: Drape5, slot: Accessory, size: [0.0625, 0.5, 0.125], at: [0.78125, 1.5, 1.5], mirror: x, material: moss}
   - {name: DrapeHem, slot: Trim, size: [0.0625, 0.0625, 1.375], at: [0.84375, 1.28125, 0.875], mirror: x, material: metal}
-  - {name: SaddleBloom, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.25, 1.9375, 0.5]}
-  - {name: SaddleBloom2, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.3125, 1.9375, 1.1875]}
-  - {name: DrapeBloom, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.84375, 1.5625, 0.5], mirror: x}
-  - {name: DrapeBloom2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.84375, 1.4375, 1.25], mirror: x}
+  # Rare pass w1, the signature piece: a mantle of glass petals over the back, six rows from the mane to the rump, pink lit glass
+  # between moss rows like a stained-glass window, every row edged in gold (Legendary gilding); it lifts and settles like a breeze
+  # under it and flares up on the flourish (`cape`)
+  - {name: Petal0, slot: Accessory, size: [0.5, 0.0625, 0.25], at: [0, 1.90625, 0.5], moves: cape, pivot: [0, 1.90625, 0.375], material: moss}
+  - {name: PetalGild0, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.3125, 1.90625, 0.5], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  - {name: Petal1, slot: Glow, size: [0.75, 0.0625, 0.25], at: [0, 1.90625, 0.75], moves: cape, pivot: [0, 1.90625, 0.375], material: crystal}
+  - {name: PetalGild1, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.4375, 1.90625, 0.75], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  - {name: Petal2, slot: Accessory, size: [1, 0.0625, 0.25], at: [0, 1.90625, 1], moves: cape, pivot: [0, 1.90625, 0.375], material: moss}
+  - {name: PetalGild2, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.5625, 1.90625, 1], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  - {name: Petal3, slot: Glow, size: [1, 0.0625, 0.25], at: [0, 1.90625, 1.25], moves: cape, pivot: [0, 1.90625, 0.375], material: crystal}
+  - {name: PetalGild3, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.5625, 1.90625, 1.25], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  - {name: Petal4, slot: Accessory, size: [1.25, 0.0625, 0.25], at: [0, 1.90625, 1.5], moves: cape, pivot: [0, 1.90625, 0.375], material: moss}
+  - {name: PetalGild4, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.6875, 1.90625, 1.5], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  - {name: Petal5, slot: Glow, size: [1.25, 0.0625, 0.25], at: [0, 1.90625, 1.75], moves: cape, pivot: [0, 1.90625, 0.375], material: crystal}
+  - {name: PetalGild5, slot: Trim, size: [0.125, 0.0625, 0.25], at: [0.6875, 1.90625, 1.75], mirror: x, moves: cape, pivot: [0, 1.90625, 0.375], material: metal}
+  # Rare pass w1: a gilded leaf medallion with a lit heart on the ruff (Legendary gilding at the sixteenth grid)
+  - {name: Medallion, slot: Trim, size: [0.25, 0.25, 0.0625], at: [0, 0.8125, -1.53125], material: metal}
+  - {name: MedallionTip, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0, 0.65625, -1.53125], material: metal}
+  - {name: MedallionHeart, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 0.8125, -1.59375], material: crystal}
+  # Rare pass w1: a second butterfly, smaller, circling the other way behind the left antler
+  - {name: Moth, slot: BodyDark, size: [0.125, 0.0625, 0.125], at: [-1.1875, 2.84375, 0.25], moves: butterfly2, pivot: [-1.1875, 2.8125, 0.25]}
+  - {name: MothWing, slot: Glow, size: [0.125, 0.0625, 0.25], at: [-1.3125, 2.90625, 0.25], moves: butterfly2, pivot: [-1.1875, 2.8125, 0.25]}
+  - {name: MothWing2, slot: Glow, size: [0.125, 0.0625, 0.25], at: [-1.0625, 2.90625, 0.25], moves: butterfly2, pivot: [-1.1875, 2.8125, 0.25]}
   - {name: Dapple, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.0625, 0.375], mirror: x}
   - {name: Dapple2, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 0.9375, 1], mirror: x}
   - {name: Dapple4, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.125, 1.6875], mirror: x}
@@ -138,23 +163,39 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the crown turns, the antler
 rig:
   clips:
     halo: [{kind: spin, amp: 360, period: 12, axis: y}, {kind: bob, amp: 0.04, period: 3}]
-    antler: [{kind: sway, amp: 4, period: 4.2, axis: z, phase: 0.2}]
-    ear: [{kind: sway, amp: 10, period: 3, axis: z}]
+    antler: [{kind: sway, amp: 4, period: 4.2, axis: z, phase: 0.2}, {kind: sway, amp: 2, period: 2.9, axis: x, phase: 0.6}]
+    cape: [{kind: sway, amp: 5, period: 3.8, axis: x}, {kind: sway, amp: 2, period: 5.1, axis: z, phase: 0.4}]
+    ear: [{kind: sway, amp: 10, period: 3, axis: z}, {kind: wag, amp: 8, period: 5.5, axis: y, phase: 0.3}]
     tail: [{kind: wag, amp: 18, period: 2.5, axis: y}]
     butterfly: [{kind: orbit, amp: 0.3, period: 6}, {kind: bob, amp: 0.12, period: 1.5}, {kind: squash, amp: 0.25, period: 0.5, axis: x}]
+    butterfly2: [{kind: orbit, amp: 0.25, period: 4.6, phase: 0.5}, {kind: bob, amp: 0.1, period: 1.3, phase: 0.2}, {kind: squash, amp: 0.25, period: 0.4, axis: x}]
     root: [{kind: squash, amp: 0.025, period: 3.6}]
     face: [{kind: blink, period: 5.2}]
   flourish:
     every: 12
-    length: 3.6
+    length: 4.2
     moves:
       - {part: root, kind: hop, amp: 0.35, at: 0, for: 0.8}
-      - {part: root, kind: turn, amp: 360, axis: y, at: 1.2, for: 2}
+      - {part: cape, kind: flare, amp: -25, axis: x, at: 0, for: 1.4}
       - {part: ear, kind: flare, amp: 25, axis: z, at: 0.3, for: 1}
       - {part: antler, kind: swish, amp: 12, axis: z, at: 0.4, for: 1.6}
       - {part: halo, kind: pop, amp: 0.25, at: 0.6, for: 1.2}
+      - {part: halo, kind: hop, amp: 0.25, at: 0.6, for: 1.4}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 1.2, for: 2}
       - {part: butterfly, kind: hop, amp: 0.4, at: 1.5, for: 1.2}
+      - {part: butterfly2, kind: hop, amp: 0.35, at: 1.9, for: 1.2}
+      - {part: cape, kind: swish, amp: 10, axis: x, at: 2.6, for: 1.4}
+      - {part: tail, kind: flare, amp: 25, axis: x, at: 3, for: 0.8}
 ```
+
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Mantle | `Petal3` (cape) | -0.02, 0.55, 0.30 | petals shed off the mantle on the flourish | Back |
+| Medallion | `MedallionHeart` (static) | -0.02, 0.24, -0.36 | a pink sparkle | Mouth |
 
 ## Build
 
@@ -192,3 +233,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-19, World 1 roster worker (the snout). The eyes moved up a row block (rows 5 to 10 of 16, still in the lower half), and a muzzle block 1.5 by 0.625 by 0.5 is proud of the lower face with the nose and the smile on it as ink cells, so the head reads as a stag's against the pale sky. 84 blocks; the rest unchanged. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: rebuilt from 6 studs to 3.45 by redesign, not by scale: a 2-stud head (it was 2.5) on slim legs, the antler trees in sixteenth-stud parts (trunk, band, branch, tine, three leaf clumps, four blossoms a tree), the old 2.5-stud nimbus (a ring behind the head, too close to Raddis's sun disk at this size) replaced by a floating crown of moss and blossoms that turns over the head, a pink butterfly circling the antlers, a sixteenth-stud smile on the muzzle; its own `bloom` eyes at 32 pixels a stud (six pink and pale-gold petals turning round a gold heart in a moss-green ring), star cheeks. 70 blocks. Round 2: the trees stood straight up and read as two bushes on a box; leaned out 15 degrees and grown a sixteenth they read as antlers; the nose shrank to a quarter stud and the butterfly moved in front of the face's corner. Seven moving objects and the blink; a flourish every 12 s (a hop and a full turn, the crown popping, the trees shaking, the ears flared, the butterfly leaping). Overlap 0.992 to 0.996. Wanted for: a fawn with flowering trees for antlers and a flower turning in each eye, the first light that reaches the ground. Still weak: the body is a plain ivory box from the side (the dapples help only up close); the crown is thin from the three-quarter view; the butterfly is small at distance. Status review.
 - 2026-10-21, Polish w1, one round. The plain ivory box from the side: a moss mane now steps down from the back of the head, and a moss saddle-blanket covers the back and drapes half down each flank with a gold hem and four lit blossoms on it (two on top, one each side); the three back dapples went under the blanket and the side dapples moved below its hem. From the side the torso is now three bands (green moss, a gold line, ivory with pink dapples) and the head-to-back corner steps down instead of dropping. 78 blocks (Legendary 60 to 120). Overlap 0.992 to 0.995. Honest read: from the side it now reads as a fawn the forest has grown over, and the blanket ties the antler trees to the body; the legs are still four plain ivory posts, which is right for a fawn. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a mantle of glass petals over the back (six rows from the mane to the rump, pink lit glass between moss rows like a stained-glass window, every row edged in gold), the flank drapes rebuilt as stained-glass panels (moss and lit pink glass strips under the gold hem), a gilded leaf medallion with a lit heart on the ruff, and a second butterfly; the glow is a saturated pink `#F0287E` (the `#FF6FAE` washed to near white). 106 blocks, ten moving things. Honest read: from the side and the game's high camera the stained glass makes it a Legendary; from the three-quarter view the big ivory head still dominates and the mantle is a strip over the back. Status review.

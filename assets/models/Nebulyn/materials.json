@@ -19,7 +19,7 @@
   },
   {
     "slot": 3,
-    "name": "fallenR",
+    "name": "comet",
     "hex": "FFF3B0",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -27,6 +27,14 @@
   },
   {
     "slot": 4,
+    "name": "fallenR",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 5,
     "name": "planetL",
     "hex": "E66BD2",
     "roughness": 0.55,
@@ -36,7 +44,7 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 6,
     "name": "puff",
     "hex": "6B4EC2",
     "roughness": 0.55,
@@ -46,7 +54,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "starL",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -54,7 +62,7 @@
     "emission": 1.5
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "starR",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -62,7 +70,7 @@
     "emission": 1.5
   },
   {
-    "slot": 8,
+    "slot": 9,
     "name": "tailR",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -70,7 +78,23 @@
     "emission": 1.5
   },
   {
-    "slot": 9,
+    "slot": 10,
+    "name": "twinkleR",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 11,
+    "name": "twinkle2R",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 12,
     "name": "FacePlate",
     "hex": "6B4EC2",
     "roughness": 0.4,

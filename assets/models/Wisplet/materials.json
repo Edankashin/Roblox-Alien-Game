@@ -31,6 +31,16 @@
   },
   {
     "slot": 4,
+    "name": "glass",
+    "hex": "9466FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Wisplet_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
     "name": "halo",
     "hex": "6E6A85",
     "roughness": 0.55,
@@ -40,15 +50,15 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 6,
     "name": "tipR",
-    "hex": "B48CFF",
+    "hex": "9466FF",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "tongueL",
     "hex": "8FDCFF",
     "roughness": 0.55,
@@ -58,7 +68,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "FacePlate",
     "hex": "8FDCFF",
     "roughness": 0.4,

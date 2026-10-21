@@ -8,8 +8,8 @@ tier: Epic
 status: review
 element: Shadow
 height: 3.44
-blocks: 62
-tris: 790
+blocks: 85
+tris: 1032
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#E9E6FF", "#5B4A8A", "#FF9F1C", "#B89B5A", "#9D6BFF", "#1B1430"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Spookum_sheet.svg]]"
 render: "[[Spookum_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.996, 0.997, 0.995]
+overlap: [0.994, 0.993, 0.998, 0.994]
 vfx_render: "[[Spookum_vfx_cells.jpg]]"
 cells_render: "[[Spookum_tq_cells.jpg]]"
 idle_render: "[[Spookum_idle.png]]"
@@ -33,7 +33,7 @@ A round ghost with a pumpkin's grin, 3.44 studs (B45: it was 3.91): a soft lilac
 
 **Hero block.** The `Stem`, a brass pumpkin stem with a curl and a leaf on a ghost's crown: the one block that says this ghost is a pumpkin, unique in Verdant (Moop's sprout is a lime leaf).
 
-**Moving parts (five objects and the blink).** `armR` and `armL` (the arms wave; the chain and lock swing with the right one), `hem` (the hem and its tatters stir), `stem` (the stem, its curl and leaf sway), `lanternL` (the little jack-o'-lantern bobs, circles and turns); the plate blinks and glints.
+**Moving parts (five objects and the blink).** `armR` and `armL` (the arms wave; the chain and lock swing with the right one), `hem` (the hem and its tatters stir), `stem` (the stem, its curl and leaf sway), `lanternL` (the little jack-o'-lantern bobs, circles and turns); the plate blinks and glints. Rare pass w1: `candles` (three floating candles circling the dome: they turn, bob and leap) and `wisp` (a spectral wisp off the back: it sways) make seven objects and the blink.
 
 **Alien anatomy.** A ghost that is also a pumpkin: a stem on its crown, ribs on its body, a grin that glows from inside, a hem of tatters it floats on, and a pumpkin of its own that follows it like a pet.
 
@@ -47,11 +47,11 @@ A round ghost with a pumpkin's grin, 3.44 studs (B45: it was 3.91): a soft lilac
 parts:
   # the body: one soft lilac-white block, the face plate and the grin on its front; a sheet's round from blocks (Polish w1): a flank bulge
   # proud of each side and three narrowing steps on top (the dome, the crown in its brass band, the cap), so it reads as a ghost's dome
-  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true}
-  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x}
-  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0]}
+  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true, material: nebula}
+  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x, material: nebula}
+  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0], material: nebula}
   - {name: CrownBand, slot: Trim, size: [1.25, 0.0625, 1.25], at: [0, 2.53125, 0], material: metal}
-  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0]}
+  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0], material: nebula}
   - {name: Cap, slot: Body, size: [0.625, 0.125, 0.625], at: [0, 2.8125, 0]}
   # the hero: a brass pumpkin stem with a drooping curl and a dusk-violet leaf on the crown (they sway)
   - {name: Stem, slot: Trim, size: [0.375, 0.375, 0.375], at: [0.1875, 3.0625, 0], moves: stem, pivot: [0, 2.875, 0]}
@@ -111,6 +111,31 @@ parts:
   - {name: Emblem3, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.78125, 1.0625]}
   - {name: EmblemStem, slot: BodyDark, size: [0.125, 0.1875, 0.125], at: [0, 1.96875, 1.0625]}
   - {name: EmblemEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [0.15625, 1.59375, 1.15625], mirror: x}
+  # Rare pass w1, the signature piece: a ring of three floating candles circling the dome, pumpkin-orange wax with cream drips on brass dishes, lit violet
+  # glass flames, like a haunted candelabra that follows it; the ring turns slowly and the flames flare on the flourish (`candles`)
+  - {name: Candle0, slot: Accessory, size: [0.25, 0.375, 0.25], at: [1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish0, slot: Trim, size: [0.375, 0.0625, 0.375], at: [1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip0, slot: Body, size: [0.0625, 0.125, 0.0625], at: [1.34375, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame0, slot: Glow, size: [0.125, 0.25, 0.125], at: [1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  - {name: Candle1, slot: Accessory, size: [0.25, 0.375, 0.25], at: [-1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish1, slot: Trim, size: [0.375, 0.0625, 0.375], at: [-1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip1, slot: Body, size: [0.0625, 0.125, 0.0625], at: [-1.03125, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame1, slot: Glow, size: [0.125, 0.25, 0.125], at: [-1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  - {name: Candle2, slot: Accessory, size: [0.25, 0.375, 0.25], at: [0, 2.75, 1.375], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: CandleDish2, slot: Trim, size: [0.375, 0.0625, 0.375], at: [0, 2.53125, 1.375], moves: candles, pivot: [0, 2.75, 0], material: metal}
+  - {name: CandleDrip2, slot: Body, size: [0.0625, 0.125, 0.0625], at: [0.15625, 2.875, 1.34375], moves: candles, pivot: [0, 2.75, 0]}
+  - {name: Flame2, slot: Glow, size: [0.125, 0.25, 0.125], at: [0, 3.0625, 1.375], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  # Rare pass w1: a spectral wisp curling up off the back between the ribs, lit violet glass (it sways like a sheet in a draught)
+  - {name: Wisp, slot: Glow, size: [0.25, 0.25, 0.125], at: [0, 2.125, 1.1875], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: Wisp2, slot: Glow, size: [0.1875, 0.25, 0.125], at: [0.03125, 2.375, 1.3125], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: Wisp3, slot: Glow, size: [0.125, 0.1875, 0.125], at: [0.0625, 2.59375, 1.4375], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
+  - {name: WispTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.125, 2.75, 1.5625], moves: wisp, pivot: [0, 2, 1.1875]}
+  # Rare pass w1: a band of lit violet glass cells round the sheet's waist over the hem, where the ghost fades into its glow
+  - {name: Waist, slot: Glow, size: [0.0625, 0.125, 1.75], at: [1.03125, 0.8125, 0], mirror: x, material: crystal}
+  - {name: WaistBack, slot: Glow, size: [1.75, 0.125, 0.0625], at: [0, 0.8125, 1.03125], material: crystal}
+  # Rare pass w1: two dusk-violet folds down each flank bulge, so the sheet reads as draped cloth from the three-quarter view
+  - {name: Fold, slot: BodyDark, size: [0.0625, 0.75, 0.125], at: [1.15625, 1.375, -0.375], mirror: x}
+  - {name: Fold2, slot: BodyDark, size: [0.0625, 0.5, 0.125], at: [1.15625, 1.25, 0.375], mirror: x}
 ```
 
 ## Face
@@ -149,19 +174,32 @@ rig:
     hem: [{kind: sway, amp: 5, period: 2, axis: x}, {kind: sway, amp: 4, period: 2.6, axis: z, phase: 0.25}]
     stem: [{kind: sway, amp: 8, period: 2.4, axis: z}]
     lanternL: [{kind: bob, amp: 0.15, period: 2}, {kind: orbit, amp: 0.12, period: 6}, {kind: spin, amp: 360, period: 5, axis: y}]
-    root: [{kind: squash, amp: 0.04, period: 3}]
+    candles: [{kind: spin, amp: 360, period: 14, axis: y}, {kind: bob, amp: 0.06, period: 2.2}]
+    wisp: [{kind: sway, amp: 12, period: 2.8, axis: z}, {kind: sway, amp: 8, period: 3.7, axis: x, phase: 0.4}]
+    root: [{kind: squash, amp: 0.04, period: 3}, {kind: bob, amp: 0.06, period: 3.6, phase: 0.3}]
     face: [{kind: blink, period: 4}]
   flourish:
     every: 10
-    length: 2.2
+    length: 2.4
     moves:
       - {part: root, kind: squash, amp: 0.15, at: 0, for: 0.4}
       - {part: root, kind: hop, amp: 0.6, at: 0.3, for: 0.8}
+      - {part: candles, kind: hop, amp: 0.25, at: 0.3, for: 1}
       - {part: root, kind: turn, amp: 360, at: 0.4, for: 1.6}
+      - {part: candles, kind: turn, amp: -360, axis: y, at: 0.4, for: 1.8}
       - {part: arm, kind: flare, amp: 30, at: 0.3, for: 1.2}
       - {part: hem, kind: swish, amp: 15, at: 0.5, for: 1}
+      - {part: wisp, kind: swish, amp: 20, axis: z, at: 0.6, for: 1.2}
       - {part: lanternL, kind: hop, amp: 0.3, at: 0.8, for: 0.9}
 ```
+
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Candles | `Flame0` (candles) | 0.31, 0.89, -0.34 | a violet flicker on each flame, a puff on the flourish | Halo |
 
 ## Build
 
@@ -192,3 +230,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-20, World 1 fixes worker, one round. Built as drawn: the jack-o'-lantern grin under the house eyes reads at once, the brass stem says pumpkin, the chain swings from the right hand on the camera's side, the three lit tatter tips put the Epic's glow at the hem where the mist pools in the game. Overlap 0.994 to 0.996, 416 triangles, 31 blocks, 3.91 studs; the boxed silhouette's worst pair is Zirrit at 0.65. Wanted for: the event's face, a ghost whose grin is a pumpkin's. Still cheap: the arms are two plain white bars; the back emblem and ribs are behind the three-quarter camera (the game's high camera sees the ribs on the sides). Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 pass, two rounds. Brought to 3.32 studs from 3.91 by a shorter body (1.75 studs, the head 53 percent), not a scale; 49 blocks in sixteenth-stud detail (the Epic band is 32 to 64): a brass band round the crown, a leaf and a drooping curl on the stem, the jack-o'-lantern grin rebuilt as geometry proud of the front under the plate (an orange slit on the glow material, upturned corners, an ink line, three white teeth), a five-link chain to a brass lock with a lit keyhole, a tiny floating jack-o'-lantern with a lit face, two lit eyes on the back emblem. Round 1 wore `starry`: at 16 pixels a stud the orange star read as a plus, a crosshair in each eye; round 2 `hearty`, an orange heart pupil in a violet iris with orange lashes, and blush cheeks. Five moving objects and the blink (the arms wave with the chain, the hem and tatters stir, the stem sways, the lantern bobs, circles and turns) and the boo every 10 s: a squash, a hop and a full turn with the arms flung wide. Overlap 0.994 to 0.995, 638 triangles; worst silhouette pair 0.669 (Dandel). Wanted for: the event's face, a pumpkin ghost with heart eyes and a lantern of its own. Still weak: the body is still a cube, and the three white tatters read as legs from the three-quarter view (as before). Status review.
 - 2026-10-21, Polish w1, four rounds. The cube and the leg-like tatters. The body is 1.5 studs tall now with a bulge proud of each flank and three narrowing steps on top (a dome 1.625, the crown 1.125 in its brass band, a cap 0.625), so the front and side outlines step in like a dome; the plate and the grin moved down a sixteenth to stay in the lower half. The hem flares to 2.25 studs and the six tatters (three white ones with lit tips read as two legs and feet) became a ragged fringe of fifteen narrow violet points from an eighth to three eighths long all round, three of them lit and none at a corner (a lit corner point read as a foot). A white hem was tried and read as a table on legs. 62 blocks (Epic 32 to 64), 3.44 studs. Overlap 0.994 to 0.997. Honest read: the hem now reads as a ghost's ragged skirt and nothing reads as legs; from the three-quarter view the white body is still mostly a block with a domed top (white on white hides the steps; the front view shows them clearly). Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a ring of three floating candles circling the dome, pumpkin-orange wax with cream drips on brass dishes and lit violet glass flames (a haunted candelabra; it turns once in 14 s and spins the other way on the flourish), and a spectral wisp of lit violet glass curling off the back. The white block: the body, dome, crown and flank bulges take the `nebula` cells (star-mist: violet star cells on the ghost white), two dusk-violet folds hang down each flank bulge and a band of lit violet glass runs round the waist over the hem. Round 1 made the candles cream (white on white, invisible). 85 blocks, eight moving things. Honest read: the candles and the starry sheet make it a haunted thing at last; from the three-quarter view the body is still mostly one pale block, now a speckled one with folds, and the folds read only at the side. Status review.

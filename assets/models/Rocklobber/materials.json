@@ -41,6 +41,14 @@
   },
   {
     "slot": 5,
+    "name": "geodeL",
+    "hex": "FF8C1A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 6,
     "name": "legL",
     "hex": "3A3238",
     "roughness": 0.55,
@@ -50,7 +58,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "legR",
     "hex": "3A3238",
     "roughness": 0.55,
@@ -60,7 +68,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "FacePlate",
     "hex": "C8553D",
     "roughness": 0.4,

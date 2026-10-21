@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Lightning
 height: 3.5
-blocks: 33
-tris: 568
+blocks: 43
+tris: 688
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#4FA8E8", "#23386B", "#F3F0E2", "#F2C14E", "#FFEE55", "#101A33"]
@@ -21,7 +21,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Zapfinch_sheet.svg]]"
 render: "[[Zapfinch_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.994, 0.998, 0.994]
+overlap: [0.993, 0.994, 0.997, 0.993]
 vfx_render: "[[Zapfinch_vfx_cells.jpg]]"
 cells_render: "[[Zapfinch_tq_cells.jpg]]"
 idle_render: "[[Zapfinch_idle.png]]"
@@ -34,7 +34,7 @@ A round sky-blue finch with a gold beak, 3.5 studs to its crest tips (it was 3.2
 
 **Hero block.** The `Crest` pair: two zigzag antennae with lit tips, unique in Verdant (Voltus's are lightning rods beside a bolt; this is a spark gap on a songbird).
 
-**Moving parts (five objects and the blink).** `wingR` and `wingL` (each with its covert: they flick), `crestR` and `crestL` (collar, both zig steps and the lit tip: they tilt and quiver), `tail` (the three feathers and their tips: it wags); the face plate blinks and glints.
+**Moving parts (five objects and the blink).** `wingR` and `wingL` (each with its covert: they flick), `crestR` and `crestL` (collar, both zig steps and the lit tip: they tilt and quiver), `tail` (the three feathers and their tips: it wags); the face plate blinks and glints. Rare pass w1: `arc` (a lit zigzag spark between the antenna tips: it flickers and pops) makes six objects and the blink; the wings carry lit glass tips.
 
 **Alien anatomy.** A bird with antennae instead of a crest of feathers.
 
@@ -74,6 +74,16 @@ parts:
   - {name: Crest, slot: BodyDark, size: [0.125, 0.375, 0.125], at: [0.375, 2.875, -0.5625], rot: [0, 0, -15], mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
   - {name: Crest2, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.4375, 3.125, -0.5625], rot: [0, 0, 15], mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
   - {name: CrestTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [0.4375, 3.3125, -0.5625], shape: ico1, mirror: x, moves: crest, pivot: [0.375, 2.625, -0.5625]}
+  # Rare pass w1, the signature piece: a spark gap, a lit zigzag arc of storm-yellow glass cells crackling between the two antenna tips
+  # (it flickers, jumps and pops on the flourish, `arc`)
+  - {name: Arc0, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.1875, 3.3125, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc1, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.0625, 3.4375, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.0625, 3.3125, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  - {name: Arc3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.1875, 3.4375, -0.5625], moves: arc, pivot: [0, 3.375, -0.5625], material: crystal}
+  # Rare pass w1: electric wingtips, three lit glass feather cells along each wing's outer edge (they flick with the wing)
+  - {name: WingTip0, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, -0.0625], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
+  - {name: WingTip1, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, 0.25], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
+  - {name: WingTip2, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.8125, 1, 0.5625], rot: [0, 0, -15], mirror: x, moves: wing, pivot: [0.75, 1.25, 0.25], material: crystal}
 ```
 
 ## Face
@@ -110,19 +120,31 @@ rig:
   clips:
     wing: [{kind: flap, amp: 15, period: 1.2, axis: z}]
     crest: [{kind: sway, amp: 8, period: 2.4, axis: z}, {kind: wag, amp: 6, period: 3, axis: x, phase: 0.4}]
+    arc: [{kind: pulse, amp: 0.2, period: 0.5}, {kind: bob, amp: 0.04, period: 0.7, phase: 0.3}]
     tail: [{kind: wag, amp: 14, period: 2.6, axis: y}]
     root: [{kind: bob, amp: 0.05, period: 1.1}]
     face: [{kind: blink, period: 3.8}]
   flourish:
     every: 7
-    length: 1.8
+    length: 2.2
     moves:
       - {part: root, kind: hop, amp: 0.35, at: 0, for: 0.6}
       - {part: wing, kind: flare, amp: 35, axis: z, at: 0, for: 0.8}
+      - {part: arc, kind: pop, amp: 0.5, at: 0.2, for: 0.5}
+      - {part: root, kind: turn, amp: 360, axis: y, at: 0.3, for: 1.2}
       - {part: crest, kind: swish, amp: 20, axis: z, at: 0.5, for: 0.9}
       - {part: tail, kind: swish, amp: 25, axis: y, at: 0.6, for: 0.9}
-      - {part: root, kind: squash, amp: 0.1, axis: y, at: 1.2, for: 0.6}
+      - {part: arc, kind: hop, amp: 0.15, at: 1.2, for: 0.4}
+      - {part: root, kind: squash, amp: 0.1, axis: y, at: 1.6, for: 0.6}
 ```
+
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Arc | `Arc1` (arc) | -0.02, 0.98, -0.23 | the arc beam between the two crest tips, a spark burst on the flourish | Halo |
 
 ## Build
 
@@ -153,3 +175,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-19, World 1 roster worker, one round. Built as drawn: the gold beak proud of the face, the lit crest tips, the bolt on the cream belly, the wings held low and the fan tail all read; the bolt's rows and the tail's middle feather moved onto the half grid. Wanted for: a bird with a spark gap on its head. Still cheap: from straight ahead the crest is two posts with balls; the Rare preview is a soft light and little else. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, two rounds. Round 1: 31 blocks: the crest as two zig steps in gold collars, sky-blue coverts on the navy wings, cream tips on the three tail feathers, a stepped beak with a hook, a navy forelock; its own `bubble` eyes in gold with an amber arc and a white glint, blush cheeks, the beak as the mouth. The forelock read as a stray dark box beside an antenna and the zigzag was too short to read. Round 2: the forelock gone, the upper zig step raised so the tips stand at 3.375 studs. Five moving objects and the blink (wings flick, antennae tilt and quiver, the tail wags); a flourish every 7 s (a jolt: a hop with the wings flared, the antennae whipping, the tail fanning, a squash on landing). Overlap 0.991 to 0.997, 30 blocks. Wanted for: a songbird with a spark gap on its head and eyes like two little suns. Still weak: the gold iris sits close in hue to the gold beak, so the face is one warm patch at distance; the cube head is still the boxiest bird in any world. Status review.
 - 2026-10-21, Polish w1, two rounds. The gold `bubble` iris sat right over the gold beak and the two merged into one gold blob from the review angle: the iris is now navy (the wing colour) with a periwinkle arc and a storm-yellow glint, so the eyes are big, dark and glossy over a gold beak. The square head is rounded from blocks: a narrower crown step (the antennae and their collars rise an eighth onto it, 3.5 studs now) and a sky-blue cheek fluff proud of each side; round 1 tried the cheeks in cream and they read as headphones, so they stay body blue. 33 blocks (Rare 18 to 36). Overlap 0.994 to 0.998. Honest read: the head now reads as a rounded songbird's and the face reads at once (dark eyes, gold beak); it is still a big block of a head, which is the house style. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a spark gap, a lit zigzag of four storm-yellow glass cells crackling between the two antenna tips (it flickers at 2 Hz and pops on the flourish), and three lit glass feather cells along each wing's outer edge. The flourish gained a full turn. 43 blocks, seven moving things. Honest read: the songbird now carries its own spark; the arc is small and pale yellow in the lit view and is the night shot's best feature. Status review.

@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Star
 height: 3.5
-blocks: 78
-tris: 874
+blocks: 84
+tris: 1006
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#6B4EC2", "#2E2166", "#E66BD2", "#FFD98A", "#FFF3B0", "#100A26"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Nebulyn_sheet.svg]]"
 render: "[[Nebulyn_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.995, 0.997, 0.995]
+overlap: [0.995, 0.996, 0.996, 0.995]
 vfx_render: "[[Nebulyn_vfx_cells.jpg]]"
 cells_render: "[[Nebulyn_tq_cells.jpg]]"
 idle_render: "[[Nebulyn_idle.png]]"
@@ -33,7 +33,7 @@ A small nebula with a face, 3.5 studs to the sparkle at its tail's tip (B45: it 
 
 **Hero block.** The `Tail`, a tail of cloud curling up behind it in five steps with stars along it and a sparkle at its tip, unique in Verdant (Vixa's tail is a brush, Glim's bulb curls up in two steps).
 
-**Moving parts (six objects and the blink).** `tail` (its five steps, their stars and the tip sparkle swish), `puff` (the top puff and its star breathe), `starR` and `starL` (the shoulder stars bob, turn and drift), `planetL` (the ringed planet circles and spins), `fallenR` (the fallen star twinkles); the plate blinks, glints and its irises breathe.
+**Moving parts (six objects and the blink).** `tail` (its five steps, their stars and the tip sparkle swish), `puff` (the top puff and its star breathe), `starR` and `starL` (the shoulder stars bob, turn and drift), `planetL` (the ringed planet circles and spins), `fallenR` (the fallen star twinkles); the plate blinks, glints and its irises breathe. Rare pass w1: `comet` (a pet comet that circles the cloud above its brow, always trailing its tail), `twinkleR` and `twinkle2R` (the front and top sparkle crosses: they pulse) make nine objects and the blink.
 
 **Alien anatomy.** A cloud that has eyes and a tail, lit from inside by stars, with a constellation on its skin and a planet for a pet.
 
@@ -84,16 +84,16 @@ parts:
   - {name: Star7, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 0.5625, -0.625]}
   - {name: Star8, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.5625, 1.75, -0.125]}
   - {name: Star9, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.75, 1.25]}
-  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375]}
-  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375]}
-  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125]}
-  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875]}
-  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125]}
-  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125]}
-  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125]}
-  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125]}
+  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
+  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
   - {name: SparkleB, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.375, 1.25]}
   - {name: SparkleBArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.40625, 1.375, 1.25]}
   - {name: SparkleBArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.59375, 1.375, 1.25]}
@@ -135,6 +135,15 @@ parts:
   - {name: Planet, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.25, 2.9375, -0.25], shape: ico1, moves: planet, pivot: [-1.25, 2.9375, -0.25]}
   - {name: PlanetRing, slot: Trim, size: [0.5, 0.0625, 0.25], at: [-1.25, 2.9375, -0.25], rot: [0, 0, 15], moves: planet, pivot: [-1.25, 2.9375, -0.25]}
   - {name: Fallen, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 0.125, 1.75], shape: ico1, moves: fallen, pivot: [0.75, 0.125, 1.75]}
+  # Rare pass w1, the signature piece: a pet comet that circles the cloud above its brow (at rest over the face's top, flying to its left), a lit head with a magenta spark and a tail of
+  # gold and lit glass cells streaming behind it; the whole object turns about the cloud's centre, so the comet flies round it and
+  # always trails its tail (`comet`)
+  - {name: Comet, slot: Glow, size: [0.375, 0.375, 0.375], at: [-0.5, 3.25, -2], shape: ico1, moves: comet, pivot: [0, 3.25, 0]}
+  - {name: CometSpark, slot: Accessory, size: [0.125, 0.125, 0.125], at: [-0.75, 3.25, -2], moves: comet, pivot: [0, 3.25, 0]}
+  - {name: CometTail, slot: Trim, size: [0.375, 0.25, 0.25], at: [-0.125, 3.25, -2], moves: comet, pivot: [0, 3.25, 0], material: metal}
+  - {name: CometTail2, slot: Glow, size: [0.375, 0.125, 0.125], at: [0.25, 3.3125, -2], moves: comet, pivot: [0, 3.25, 0], material: crystal}
+  - {name: CometTail3, slot: Trim, size: [0.25, 0.125, 0.125], at: [0.5625, 3.375, -2], moves: comet, pivot: [0, 3.25, 0], material: metal}
+  - {name: CometTail4, slot: Glow, size: [0.25, 0.0625, 0.0625], at: [0.8125, 3.40625, -1.96875], moves: comet, pivot: [0, 3.25, 0], material: crystal}
 ```
 
 ## Face
@@ -171,25 +180,41 @@ rig:
   clips:
     tail: [{kind: sway, amp: 8, period: 3.2, axis: y}, {kind: sway, amp: 5, period: 4.8, axis: x, phase: 0.3}]
     puff: [{kind: bob, amp: 0.06, period: 3.2, phase: 0.5}]
+    comet: [{kind: spin, amp: 360, period: 9, axis: y}, {kind: bob, amp: 0.1, period: 2.7}]
+    twinkle: [{kind: pulse, amp: 0.25, period: 1.4}]
+    twinkle2: [{kind: pulse, amp: 0.25, period: 1.9, phase: 0.5}]
     starR: [{kind: bob, amp: 0.12, period: 2.4}, {kind: spin, amp: 360, period: 6, axis: y}]
     starL: [{kind: bob, amp: 0.1, period: 2, phase: 0.5}, {kind: orbit, amp: 0.1, period: 5}]
     planetL: [{kind: orbit, amp: 0.15, period: 7}, {kind: spin, amp: 360, period: 4, axis: y}]
     fallenR: [{kind: pulse, amp: 0.25, period: 1.6}]
-    root: [{kind: squash, amp: 0.04, period: 3.2}]
+    root: [{kind: squash, amp: 0.04, period: 3.2}, {kind: bob, amp: 0.05, period: 4, phase: 0.25}]
     face: [{kind: blink, period: 4.4}]
   flourish:
     every: 12
-    length: 3.2
+    length: 4.2
     moves:
       - {part: root, kind: hop, amp: 0.45, at: 0, for: 1}
+      - {part: comet, kind: turn, amp: 720, axis: y, at: 0, for: 2.4}
+      - {part: comet, kind: hop, amp: 0.25, at: 0.2, for: 1.2}
       - {part: root, kind: turn, amp: 360, at: 0.2, for: 1.8}
       - {part: tail, kind: swish, amp: 25, at: 0.4, for: 1.6}
+      - {part: twinkle, kind: pop, amp: 0.6, at: 0.8, for: 0.6}
       - {part: starR, kind: hop, amp: 0.3, at: 1, for: 1}
+      - {part: twinkle2, kind: pop, amp: 0.6, at: 1.2, for: 0.6}
       - {part: starL, kind: hop, amp: 0.3, at: 1.3, for: 1}
       - {part: planetL, kind: pop, amp: 0.3, at: 1.6, for: 1}
       - {part: fallenR, kind: hop, amp: 0.4, at: 2, for: 1}
       - {part: puff, kind: pop, amp: 0.2, at: 2.2, for: 0.8}
+      - {part: root, kind: squash, amp: 0.12, axis: y, at: 3.2, for: 0.8}
 ```
+
+## VFX hooks
+
+Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' layers: the existing attach regions stay as they are; these are the new attach points the pass proposes (fractions of the alien's bounds as `Effects.luau` measures them: x and z from the centre, -0.5 to 0.5, the face toward -z; y from the feet, 0, to the top, 1), each on a named part of the GLB. Not wired in `Effects.luau` (another worker's file); listed in the day log for it.
+
+| Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
+|---|---|---|---|---|
+| Comet | `Comet` (comet) | -0.15, 0.93, -0.46 | a trail of star motes behind the comet, the flourish's burst | Halo |
 
 ## Build
 
@@ -220,3 +245,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): a 32-column 
 - 2026-10-20, World 1 fixes worker, one round. Built as drawn: a core with puffs stepping off it on the nebula motif, sixteen star cells, two gold constellations on the side puffs, and the tail of five steps curling up behind with eight stars along it, a big one at its tip, two floating past it and one fallen to the grass. The VFX preview is the Legendary set: the tail's stars lit, ten stars orbiting a stud out, a gold ring of starlight on the ground. Overlap 0.994 to 0.997, 752 triangles, 60 blocks (the floor of the Legendary band), 5.63 studs; the boxed silhouette's worst pair is Buzzik at 0.67. Wanted for: the event's prize, a piece of the night sky with a tail. Still cheap: the core still reads as a cube from the front (the puffs are on its top, sides and underside); the constellations are small gold marks at the review size; the tail's eight studs of depth make the body a third of the frame. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 rebuild, one round. Redesigned at 3.5 studs from 5.63, not scaled: a 2-stud core with a 32-column face (0.0625 body cells, 56 cells tall) and puffs breaking all four edges of the front at different heights (three bumps on top, the middle tallest; a bulge low on the right and higher on the left; a narrower step underneath with three wisps of mist), so the front reads as a cloud and no longer as a cube (the open item of 2026-10-20). 76 blocks in eighth- and sixteenth-stud cells (the Legendary band is 60 to 120): a dust lane, nine star cells, four sparkle crosses, a gold constellation, a magenta band in the tail and a sparkle at its tip, a star at each shoulder, a ringed planet and a fallen star. Its own `halo` eyes (rings of indigo, magenta and cream breathing outward round a dark pupil, a sparkle circling, six ring frames at 32 pixels a stud) with star cheeks; six moving objects and the blink, and a flourish every 12 s: a hop and one full turn with the tail swishing, the stars leaping, the planet popping and the fallen star jumping up. Overlap 0.995 to 0.997, 854 triangles; worst silhouette pair 0.672 (Wispkin). Wanted for: the event's prize, a piece of the night sky with a planet for a pet, now plainly the rarest of the three at the same size. Still weak: the core's front is still one flat panel round the face (the lumps are all at its edges), and the halo eyes read small at the review distance. Status review.
 - 2026-10-21, Polish w1, one round. The face sat on one flat panel and the eyes read small: a new Legendary eye, `starlit` (appended to the eye library under Polish w1), 22 x 24 pixels to the library's 16 x 18, so each eye is a third of the head's width instead of a quarter, with a four-point star for a pupil inside the breathing nebula rings and three stars that twinkle in turn; the plate grew to 1 stud tall and the eyes moved a sixteenth closer. A puff of cloud now stands a quarter proud of the front over the eyes (the front sparkle cross moved onto it) and a smaller one under the smile, off-centre, so the face sits in a hollow of the cloud. 78 blocks (Legendary 60 to 120). Overlap 0.995 to 0.997. Honest read: the eyes now read first, as a Legendary's should, and the face is framed; the core's corners still show as a block behind the puffs from the three-quarter view. Status review.
+- 2026-10-21, Rare pass w1, the "1000x cooler" pass. Signature piece: a pet comet circling its brow, a lit head with a magenta spark and a tail of gold and lit glass cells; the whole object turns about the cloud's centre, so the comet flies round it nose first, and on the flourish it loops twice and rises. The front and top sparkle crosses twinkle. Round 1 put the comet at its right shoulder (hidden by the tail), round 2 over the face in magenta (lost against the violet puffs); gold at 3.25 studs reads. 84 blocks, ten moving things. Honest read: the comet makes it a little universe; it is small in the three-quarter view and lives in motion. Status review.
