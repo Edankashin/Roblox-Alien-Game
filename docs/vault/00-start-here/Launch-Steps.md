@@ -25,16 +25,17 @@ You already added **universe-places** with **Write**. The rest, on the same key 
 
 1. In the **universe-places** row, find the experience picker (labelled **Select Experience**, or a **Restrict by Experience** switch). Turn the restriction on and choose **Catch an Alien**. Leave the operation as **Write**.
 2. Make sure there is also an **Assets** row. If not: click **Select API System** (or **Add API System**), choose **Assets**, then in **Select Operations** tick **Read** and **Write**. Assets has no experience picker.
-3. **Security**: leave **Restrict IP addresses** off (your Mac's address changes; Roblox says leave it off if you have no fixed IP).
-4. **Expiration**: pick a date at least two weeks away, or no expiration.
-5. Click **Save Changes** (or **Save & Generate key** if this is a new key).
-6. Only if Roblox showed you a new secret (a new key, or after **Regenerate Key**): on the Mac open Terminal and paste this one line; it asks for the key without showing it, then saves it:
+3. Add one more row, for the uploaded art's image ids: click **Add API System** (or **Select API System**), choose **legacy-asset** (it may read **Legacy Asset**), then in **Select Operations** tick **manage** (the scope is `legacy-asset:manage`; without it every sheet, sprite and tile stays without its image id, Mac job 40). It has no experience picker.
+4. **Security**: leave **Restrict IP addresses** off (your Mac's address changes; Roblox says leave it off if you have no fixed IP).
+5. **Expiration**: pick a date at least two weeks away, or no expiration.
+6. Click **Save Changes** (or **Save & Generate key** if this is a new key).
+7. Only if Roblox showed you a new secret (a new key, or after **Regenerate Key**): on the Mac open Terminal and paste this one line; it asks for the key without showing it, then saves it:
    ```
    read -s "K?Paste the new key and press Return: " && sed -i '' '/ROBLOX_OPEN_CLOUD_KEY/d' ~/.zshrc && echo "export ROBLOX_OPEN_CLOUD_KEY=$K" >> ~/.zshrc && unset K && source ~/.zshrc && echo " saved"
    ```
    If you only edited the existing key, skip this: the Mac already has it.
 
-If the page will not let you change an existing key's experience, make a new key (**Create API Key**, name `alien-game-launch`, both rows as above, **Save & Generate key**) and do step 6.
+If the page will not let you change an existing key's experience, make a new key (**Create API Key**, name `alien-game-launch`, all three rows as above, **Save & Generate key**) and do step 7.
 
 ## 3. The five shop items without ids: nothing to do
 
