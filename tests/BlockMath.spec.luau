@@ -619,4 +619,45 @@ describe("Block screens: Capture bar", function()
 		end)
 	end
 end)
+describe("Block screens: Reveal", function()
+	-- Reveal.luau with data/Reveal: the card 0.6 x 0.56 of the screen at 0.8, rows from its height at CardCell; the buttons
+	-- ButtonHeightPx at the reference height (375) by ButtonWidth, fitted block buttons of ButtonRows; the chance plate OddsWidth x
+	-- OddsHeight of the card, a flat block of OddsRows; the pixel egg EggHeight of the screen on EggRows pixels; a shard a flat
+	-- block of 7 rows ShardHeight tall.
+	local RevealData = require(Shared.data.Reveal)
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local cardW, cardH = BlockMath.FitPx(0.6, 0.56, 0.8, screen.w, screen.h)
+		local cardGrid = BlockMath.Grid(0.8, BlockMath.Rows(0.56, RevealData.CardCell, INK, MIN_ROWS), INK)
+		it(label .. ": the card is the panel cell, square, under 100 frames", function()
+			local cell = cardH * cardGrid.cellY
+			assert(cell >= 12 and cell <= 34, "card cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(cardGrid, cardW / cardH)) <= 0.06, "card cells off square")
+			local frames = BlockMath.Frames(cardGrid, true, SEED)
+			assert(frames <= 100, "card draws " .. frames .. " frames")
+		end)
+		it(label .. ": a button's padded text box holds the 24 px label, and its face clears the 44 px hit floor with the hit area", function()
+			local h = RevealData.ButtonHeightPx / RevealData.ReferenceHeight * screen.h
+			local rows = RevealData.ButtonRows
+			local face = h * (1 - BlockMath.Lip(1, rows, INK))
+			local text = face * (1 - (2 * INK + 0.5) / (rows + 2 * INK))
+			assert(text >= TEXT_MIN, "a button's text box is " .. text .. " px")
+			local cell = face / (rows + 2 * INK)
+			assert(cell >= 4.5, "a button cell is " .. cell .. " px")
+			assert(h >= TAP_MIN, "a button is " .. h .. " px tall")
+		end)
+		it(label .. ": the chance plate's face holds a 14 px line", function()
+			local plateH = RevealData.OddsHeight * cardH
+			local face = plateH * (1 - 2 * INK / (RevealData.OddsRows + 2 * INK))
+			assert(face >= TEXT_MIN, "the chance plate's face is " .. face .. " px")
+		end)
+		it(label .. ": an egg pixel and a shard cell are 3 px or more", function()
+			local pixel = RevealData.EggHeight * screen.h / RevealData.EggRows
+			assert(pixel >= 3, "an egg pixel is " .. pixel .. " px")
+			local shard = RevealData.ShardHeight * screen.h / (7 + 2 * INK)
+			assert(shard >= 3, "a shard cell is " .. shard .. " px")
+		end)
+	end
+end)
+
 return true

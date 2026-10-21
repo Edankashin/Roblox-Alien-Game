@@ -45,6 +45,7 @@ BLOCK_SCREENS = (
     "BuildScreen.luau",
     "Radar.luau",
     "CaptureBar.luau",
+    "Reveal.luau",
 )
 
 

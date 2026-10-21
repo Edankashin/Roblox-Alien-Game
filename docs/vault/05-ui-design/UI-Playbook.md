@@ -7,7 +7,7 @@ up: "[[UI-Design]]"
 
 The look, written to the level Claude can build from. Hex values here are the starting palette; the team's choices in PRE_PRODUCTION section 2 replace them. When a review corrects a panel, update this file in the same change.
 
-> **The UI is moving to block cells ([[Decisions]] B44 and B46, [[Decide-Now]] 43 a), one screen per change, HUD first.** The rules are [[#Block cells (2026-10-21)]]. A screen built in block cells follows that section where it differs from the older lines below (rounded corners, gradients, the gloss band, pills); a screen not yet rebuilt keeps the older lines until its own change. The HUD is in block cells as of 2026-10-21, and every other screen under `src/client/UI` since the same day ([[#Screens after the HUD (2026-10-21)]]) except the Reveal, which has its own change; the capture bar followed the same day.
+> **The UI is moving to block cells ([[Decisions]] B44 and B46, [[Decide-Now]] 43 a), one screen per change, HUD first.** The rules are [[#Block cells (2026-10-21)]]. A screen built in block cells follows that section where it differs from the older lines below (rounded corners, gradients, the gloss band, pills); a screen not yet rebuilt keeps the older lines until its own change. The HUD is in block cells as of 2026-10-21, and every other screen under `src/client/UI` since the same day ([[#Screens after the HUD (2026-10-21)]]), the capture bar and the Reveal last ([[#The reveal in block cells (2026-10-21)]]): one look across the whole game.
 
 ## Font and text
 - Fredoka One for all UI text; Builder Sans only for long settings text.
@@ -338,6 +338,8 @@ Reduced Motion: 0.6 s still frame (word, static rays or open iris, no shards, no
 
 **Fit at 667x375** (Fredoka One advance widths from `assets/fonts/FredokaOne.ttf`): the longest chance line any data produces is "1 in 3 · 33.3% chance", 135 px at the 14 px floor in a 232 px text box (162 px at the 16.8 px the box scales to); the prompt is 215 px at 30 px in a 467 px box; "UNCOMMON!" is 410 px at 64 px in a 600 px box; "Keep going" is 73 px at the floor and 125 px at 24 in a 160 px face; the footer is 176 px at the floor in a 307 px box (172 px on a 375x667 phone, where it takes two lines). At 667x375 every string clears its box with 5 px or more to spare; on the portrait phone the footer wraps to its second line and "Keep going" has 17 px to spare in its 90 px face.
 
+**Since 2026-10-21 the Reveal is in block cells** and climbs a steep per-tier ladder at the hero beat: [[#The reveal in block cells (2026-10-21)]]. The beats, the taps, the skip, the quiet moment and the chance line below are unchanged; the egg, the shards, the rays, the iris, the rings, the card and its plates are now drawn as that section says, and the top tiers hold longer (the table's totals gain the tier's `HoldExtra`: Legendary 4.00 s egg and 3.25 s wild, Cosmic 4.50 and 3.75, Secret 4.70 and 3.95).
+
 **Decisions and what is still placeholder.**
 - *Camera push-in*: the existing Legendary push-in (`Cinematics` "Legendary", `CameraDirector.PlayShots`) is a world-camera move toward a live alien before the catch bar opens; by the Reveal the alien is gone, and an egg has no target. So the push-in here is the stage's `UIScale` easing to 1.06 over the shard beat and back as the card drops (skipped under Reduced Motion).
 - The egg and the shards are code-drawn frames (a pill, rotated rectangles); the polygon shards and an egg with a painted shell come with the art pass (`Icons.Particles` has no egg or shard sprite). Particles do not render in a `ViewportFrame`, so the burst is 2D, as the research says.
@@ -402,6 +404,42 @@ The Shop rebuilt from the reference above and the "Shop v2" board on the Claude 
 - NEW is a data flag (`new` on the card), not a per-player "seen" state: remove the flag when the card stops being new.
 - Where an icon id is 0 the card shows a letter from `SHOP_GLYPH_<id>` in the picture's place (the Robux cards have no icons yet; the lures, boots, hoverboard, radars, speed burst, steady hands, scrap magnet and the Gifts wheel do), and the game runs with every id at 0.
 
+## The reveal in block cells (2026-10-21)
+
+The last screen into block cells ([[Decisions]] B44), and the place B46 asks for most: "rarer aliens should look a lot more exclusive and cooler/cuter". The three beats of [[#The reveal in three beats (2026-10-15)]] keep their order, timing, taps, skip and Reduced Motion; the look changes and a per-tier **intensity ladder** plays at the **hero beat** (the moment the card lands and the alien is first seen). Code: `src/client/UI/Reveal.luau`; numbers in `src/shared/data/Reveal.luau` (`Ladder`, the hero-beat sizes and times, the pixel egg); the pure half in `src/shared/RevealMath.luau` (`Ladder`, `HoldSeconds`, `EffectFrames`, `SpellSeconds`, `EggBars`, `CrackCells`); `tools/lint_data.py` keeps the ladder climbing; specs "RevealMath ladder", "RevealMath pixel egg" and "Block screens: Reveal". Mac check: [[Overnight]] job 38.
+
+**The pieces, in cells**
+- The card: a cream plate at the card cell (`CardCell` 0.04, the panel cell: 13 by 10 cells of 15.2 px at iPhone SE, about 60 frames), its **ink the tier's colour** (the rarity ring is the ink). Content on it starts at `CARD_TOP` (the card's ZIndex plus `Layer.Content`).
+- The egg: a **pixel egg** on a 16 by 20 grid of square pixels (9.4 px at SE), its colour row by row in `EggSpans`, the navy ink the colour grown one pixel all round (`RevealMath.EggBars`, so the ink is one pixel thick round every step), the top two rows lit and the bottom four shaded, square speckles. A crack is the old crack line traced a pixel at a time (`RevealMath.CrackCells`): a stepped pixel zig-zag, never a rotated bar.
+- The glow behind the egg and the Secret's iris: pixel octagons (the glow's ink its own colour, so it steps out with no ring). The tap ring: 24 square white dots. The gold ground ring: 18 square gold dots on an ellipse.
+- The shards: flat blocks 3 by 7 cells (the navy ink and stepped corners), their ink and face fading together.
+- The rays: each of the 8 bars through the middle carries the tier's `RayCells` square cells each way, with gaps (a **cell-ray fan**), drawn per show; the spin-up grows the ring from 0.2 as it turns, instead of fading 96 cells one by one.
+- The chance line a navy flat block in the tier's ink; the overlay badge a fitted flat block (BadgeFit still sets its width; the shine stays inside its face); NEW an edged red block, tilted; the storage ribbon an edged red block; the tap dots square flat blocks; confetti square cells; the buttons block buttons in cells (`ButtonRows` 5: 7.5 px cells, a 34 px text box at SE, the 44 px hit area).
+
+**The ladder** (`data/Reveal` `Ladder`, one rung per tier; every column climbs, never less than the tier below; spec and lint)
+
+| Tier | At the hero beat | Effect frames at the peak |
+|---|---|---|
+| Common | a 1.06 pop and one burst of 6 sparkle cells | 6 |
+| Uncommon | a 1.08 pop, 8 sparkle cells | 8 |
+| Rare | a 1.1 pop, 10 sparkles, an 8-arm **pixel starburst** (square cells on the diagonals, growing outward, a white tip), the ray ring a short fan of 3 cells a ray | 90 |
+| Epic | 2 bursts of 12, the starburst, a **cell-ray fan** of 4 a ray, a **colour wash** (the screen flashes the tier colour to 0.7 see-through), confetti cells | 141 |
+| Legendary | 2 bursts of 14, a 12-arm starburst, 5 a ray, a stronger wash, a **gold cell frame** (32 gold cells round the card, every eighth lit and chasing), the model's turn at half speed, 36 confetti cells, +0.3 s hold | 225 |
+| Cosmic | 3 bursts of 16, a 16-arm starburst in pink and blue, 6 a ray, the frame, a 0.4 turn, the **pixel sky** from the shard beat on (8 stepped bands from the tier colour down to the night, 20 twinkling star cells), the **name spelled in** (a letter every 0.05 s, a cell running ahead), +0.8 s hold | 306 |
+| Secret | as Cosmic, the sky from purple, the dark iris instead of rays, +1 s hold | 210 |
+
+- The alien's own flourish: `World.SpeciesFx.Flourish(model, speciesId)` is called on the viewport's model at the hero beat. Particles do not render in a ViewportFrame, so the sparkles, the starburst and the wash are the 2D burst the research asks for. Found 2026-10-21: SpeciesFx.Flourish answers false on the reveal's model, because nothing attaches SpeciesFx to a viewport model, and RigAnimator has no call that starts a rig flourish on demand (its flourish runs on its own timer); the hook is in place for the World owner to make it play.
+- **Reduced Motion**: the still frame, then the card whole; the sky at rest (no twinkle, no stepping in), the gold frame at rest (no chase); no sparkles, starburst, wash or spelling.
+- **A tap never takes a tier's exclusivity away**: a tap that settles the card before it lands skips the hero beat's motion, but the gold frame still shows (`heroDone`), and the name shows whole at once.
+- **Frames**: the card and its plates are about 110 frames, the two buttons about 60 each (fitted, 5 rows in cells), the egg stage about 90; the effects add the counts above at their peak (`RevealMath.EffectFrames`, capped at 320 in the spec), most of them for under a second. The sky's twinkle and the frame's chase are the only motion that lasts; job 38 measures the frame rate on a phone during a Cosmic reveal.
+
+| Do | Don't |
+|---|---|
+| A rarer tier adds something new at the hero beat, and keeps everything the tier below has | A rare reveal that is the common one in another colour |
+| Square cells and stepped pixel shapes for every burst, ring and ray | A round glow, a soft radial gradient, a rotated thin bar |
+| Grow or step a group of cells as one (a UIScale, a band at a time) | A tween on each of a hundred cells |
+| The tier's colour as the card's ink | A stroke round the card |
+
 ## Block cells (2026-10-21)
 
 Ethan, 2026-10-17: "make that consistent throughout the whole game" ([[Decisions]] B44); [[Decide-Now]] 43 taken **a** on 2026-10-20 (B46): the UI in block cells, one screen per change, HUD first, because a rounded glossy HUD over a block-cell world reads as two games. The approved board is "HUD in block cells" on the [Catch an Alien UI canvas](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4), beside the phone HUD it replaces. The cell rules are the creatures' and the world's ([[Blocky-Style]] C1 to C6), applied to flat UI. Code: the helpers in `src/client/UI/Builder.luau` (section "Block cells"), the arithmetic in `src/shared/BlockMath.luau` (`tests/BlockMath.spec.luau`), the tokens in `Theme.Block`, the icons in `src/shared/data/PixelIcons.luau`. First screen: the HUD (`src/client/UI/Hud.luau`). Test steps: `docs/TESTING.md` "HUD in block cells"; the Mac check is [[Overnight]] job 36.
@@ -452,7 +490,7 @@ Ethan, 2026-10-17: "make that consistent throughout the whole game" ([[Decisions
 
 ### Screens after the HUD (2026-10-21)
 
-The rest of the UI moves to block cells one screen per change, each a look change only (every binding, behaviour, string key and public function as before; the layout does not move). Done on 2026-10-21 for every screen but the Reveal (the capture bar came in its own change the same day); `tools/tests/test_block_theme.py` lists them (`BLOCK_SCREENS`) and keeps the old helpers (`Builder.pill`, `Builder.button`, `Builder.gradient`, corners, gradients) out of them. Test steps: `docs/TESTING.md` "Screens in block cells"; the Mac check is [[Overnight]] job 37. The rules the screens added:
+The rest of the UI moves to block cells one screen per change, each a look change only (every binding, behaviour, string key and public function as before; the layout does not move). Done on 2026-10-21 for every screen (the capture bar and the Reveal in their own changes the same day); `tools/tests/test_block_theme.py` lists them (`BLOCK_SCREENS`) and keeps the old helpers (`Builder.pill`, `Builder.button`, `Builder.gradient`, corners, gradients) out of them. Test steps: `docs/TESTING.md` "Screens in block cells"; the Mac check is [[Overnight]] job 37. The rules the screens added:
 
 - **Fitted plates.** A box whose shape changes with the screen (a band a share of the width and the height, a row in a list, a button in a row of buttons) has no aspect to keep, and an aspect constraint would move the layout. `Builder.blockPlate` and `Builder.blockButton` with no `aspect` make a fitted plate: no constraint, the plate measures its px box and draws the whole number of columns nearest square cells for it (within 6% of square from nine columns), again only when that number changes. Its rows are `rows` (or picked once from its height as a share of the screen). A panel opening scales both sides alike, so it never redraws mid-tween; a rotation or a resize may. A recolour (`setBlockColor`) and a bar (`blockBar`) survive a redraw.
 - **Thin bands are flat.** A plate under 0.05 of the screen tall is three rows of cells under 4.5 px at iPhone SE: all edge, no face, and its grout would be half a pixel. It is a flat block (`cells = false`), like a badge: the compass strip (15 px at SE, 3.9 px cells) and its heading block.
