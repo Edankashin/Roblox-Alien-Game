@@ -541,7 +541,7 @@ local species: { [string]: Types.SpeciesFx } = {
 		signature = "Geode",
 		layers = {
 			-- the open amber geode: motes rise off the lit crystals, which throb with light
-			{ kind = "Emitter", color = "FF8C1A", at = "Geode", rate = 4, size = 0.05, lifetime = 1.3, speed = 0.12, spread = 30, rise = 0.12, glow = 1, sprite = "PixelMote" },
+			{ kind = "Emitter", color = "FF8C1A", at = "Geode", rate = 6, size = 0.06, lifetime = 1.3, speed = 0.12, spread = 30, rise = 0.12, glow = 1, sprite = "PixelMote" },
 			{ kind = "Light", color = "F5B342", at = "Geode", brightness = 1, range = 2.2, pulse = 2.2 },
 			-- the crystals glint, and flash on the flourish
 			{ kind = "Sparkle", color = "FFD27A", at = "Geode", every = 3, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
@@ -580,7 +580,7 @@ local species: { [string]: Types.SpeciesFx } = {
 		signature = "Glass",
 		layers = {
 			-- the orbiting lantern glass: the leading pane leaves a lilac glow behind it and carries the lantern's light round
-			{ kind = "Emitter", color = "9466FF", at = "Glass", rate = 6, size = 0.05, lifetime = 0.9, speed = 0.02, spread = 180, glow = 1, sprite = "PixelMote" },
+			{ kind = "Emitter", color = "9466FF", at = "Glass", rate = 8, size = 0.06, lifetime = 0.9, speed = 0.02, spread = 180, glow = 1, sprite = "PixelMote" },
 			{ kind = "Light", color = "9BE7FF", at = "Glass", brightness = 1.2, range = 2.6, pulse = 1.4 },
 			-- the far pane twinkles, and on the flourish
 			{ kind = "Sparkle", color = "C9A8FF", at = "GlassB", every = 2.5, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
@@ -593,7 +593,7 @@ local species: { [string]: Types.SpeciesFx } = {
 		signature = "Antlers",
 		layers = {
 			-- the branching crystal antlers: frost glints rise off the tines
-			{ kind = "Emitter", color = "DFF4FF", at = "Antlers", rate = 2.5, size = 0.05, lifetime = 0.7, speed = 0.04, spread = 180, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Emitter", color = "DFF4FF", at = "Antlers", rate = 4, size = 0.06, lifetime = 0.7, speed = 0.04, spread = 180, glow = 1, sprite = "PixelSparkle" },
 			-- the lantern nose blinks red
 			{ kind = "Light", color = "FF4D4D", at = "Mouth", brightness = 1.1, range = 1.4, pulse = 2 },
 			{ kind = "Sparkle", color = "9FE3FF", at = "AntlersL", every = 3, flourish = true, count = 2, size = 0.1, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
@@ -606,7 +606,7 @@ local species: { [string]: Types.SpeciesFx } = {
 		signature = "Summit",
 		layers = {
 			-- the summit shard moons: the leading shard trails ice glints round the peak and carries a cold light
-			{ kind = "Emitter", color = "CFF6F2", at = "Summit", rate = 5, size = 0.04, lifetime = 0.7, speed = 0.02, spread = 180, glow = 1, sprite = "PixelSparkle" },
+			{ kind = "Emitter", color = "CFF6F2", at = "Summit", rate = 7, size = 0.05, lifetime = 0.7, speed = 0.02, spread = 180, glow = 1, sprite = "PixelSparkle" },
 			{ kind = "Light", color = "9FD8FF", at = "Summit", brightness = 0.9, range = 2.4, pulse = 3 },
 			{ kind = "Sparkle", color = "FFFFFF", at = "SummitB", every = 2.5, flourish = true, count = 2, size = 0.11, lifetime = 0.5, glow = 1, sprite = "PixelTwinkle" },
 			-- cold mist rolls off the berg and pools at its feet
@@ -619,7 +619,7 @@ local species: { [string]: Types.SpeciesFx } = {
 		signature = "Ring",
 		layers = {
 			-- the bubble planet ring: the big bubble leaves tiny bubbles behind as it circles, and glows sea green
-			{ kind = "Emitter", color = "BFEFFF", at = "Ring", rate = 3, size = 0.04, lifetime = 1.4, speed = 0.03, spread = 180, rise = 0.04, glow = 0.4, sprite = "PixelBubble" },
+			{ kind = "Emitter", color = "BFEFFF", at = "Ring", rate = 4, size = 0.05, lifetime = 1.4, speed = 0.03, spread = 180, rise = 0.04, glow = 0.4, sprite = "PixelBubble" },
 			{ kind = "Light", color = "7FE0D0", at = "Ring", brightness = 0.8, range = 2.4, pulse = 3.4 },
 			{ kind = "Sparkle", color = "FFFFFF", at = "RingB", every = 3, flourish = true, count = 1, size = 0.1, lifetime = 0.45, glow = 1, sprite = "PixelSparkle" },
 			-- three snore bubbles drift out from its nose
