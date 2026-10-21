@@ -890,5 +890,38 @@ design("echo", "Secret", "echo: a dark iris where rings of the one accent ripple
        draw=_echo, glint=(14, 3))
 
 
+# ------------------------------------------------------------------------------------------------ Polish w1 (2026-10-21)
+# Added by the Polish w1 batch. `starlit` (Legendary): the library's big eyes are 16 x 18 pixels at 32 a stud, a quarter of a 2-stud head;
+# Cosmoo's read small on its cloud, so this one is 22 x 24 (a third of the head): layered rings that breathe outward like `halo`, a four-point
+# star for a pupil and three twinkling stars in the iris that take turns over the 6 frames.
+SW, SH = 22, 24
+SC = (SW / 2, SH / 2)
+
+
+def _starlit(k, n):
+    g = blank(SW, SH)
+    body = disc(SW, SH, SC[0], SC[1], SW / 2, SH / 2)
+    put(g, body, "k")
+    inside = body - rim(body)
+    iris = disc(SW, SH, SC[0], SC[1] + 0.5, 8.6, 9.4) & inside
+    cy = SC[1] + 0.5
+    for x, y in iris:
+        r = math.hypot(x + 0.5 - SC[0], y + 0.5 - cy)
+        g[y][x] = "abc"[int(math.floor(r * 0.6 - k * 3.0 / n)) % 3]
+    star = {(x, y) for x, y in iris if abs(x + 0.5 - SC[0]) ** 0.5 + abs(y + 0.5 - cy) ** 0.5 <= 2.25}
+    put(g, star, "k")
+    twinkles = [(6, 15), (15, 8), (14, 16)]
+    for i, (tx, ty) in enumerate(twinkles):
+        if (k + 2 * i) % n < 3:
+            put(g, {(tx, ty)} & iris, "s")
+    put(g, {(4, 4), (5, 4), (6, 4), (4, 5), (5, 5), (6, 5), (4, 6), (5, 6), (7, 4)} & body, "w")
+    put(g, {(16, 18), (17, 17)} & body, "w")
+    return g
+
+
+design("starlit", "Legendary", "starlit: big layered rings that breathe outward round a four-point star pupil, three stars twinkling in turn",
+       draw=_starlit, glint=(18, 4))
+
+
 if __name__ == "__main__":
     sys.exit(main())

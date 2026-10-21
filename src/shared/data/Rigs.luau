@@ -319,16 +319,16 @@ local species: { [string]: Types.RigRow } = {
 	Nebulyn = {
 		height = 3.5,
 		parts = {
-			{ name = "fallenR", pivot = { 0.75, 0.125, 0.9375 }, clips = { { kind = "pulse", amp = 0.25, period = 1.6, phase = 0, axis = "y" } } },
-			{ name = "planetL", pivot = { -1.25, 2.9375, -1.0625 }, clips = { { kind = "orbit", amp = 0.15, period = 7, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 4, phase = 0, axis = "y" } } },
-			{ name = "puff", pivot = { 0, 2.875, -0.75 }, clips = { { kind = "bob", amp = 0.06, period = 3.2, phase = 0.5, axis = "y" } } },
-			{ name = "starL", pivot = { -1.5625, 2.4375, -0.5 }, clips = { { kind = "bob", amp = 0.1, period = 2, phase = 0.5, axis = "y" }, { kind = "orbit", amp = 0.1, period = 5, phase = 0, axis = "y" } } },
-			{ name = "starR", pivot = { 1.5, 2.6875, -1.3125 }, clips = { { kind = "bob", amp = 0.12, period = 2.4, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 6, phase = 0, axis = "y" } } },
-			{ name = "tailR", pivot = { 0.25, 1.375, 0.0625 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "y" }, { kind = "sway", amp = 5, period = 4.8, phase = 0.3, axis = "x" } } },
+			{ name = "fallenR", pivot = { 0.75, 0.125, 1.0625 }, clips = { { kind = "pulse", amp = 0.25, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "planetL", pivot = { -1.25, 2.9375, -0.9375 }, clips = { { kind = "orbit", amp = 0.15, period = 7, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 4, phase = 0, axis = "y" } } },
+			{ name = "puff", pivot = { 0, 2.875, -0.625 }, clips = { { kind = "bob", amp = 0.06, period = 3.2, phase = 0.5, axis = "y" } } },
+			{ name = "starL", pivot = { -1.5625, 2.4375, -0.375 }, clips = { { kind = "bob", amp = 0.1, period = 2, phase = 0.5, axis = "y" }, { kind = "orbit", amp = 0.1, period = 5, phase = 0, axis = "y" } } },
+			{ name = "starR", pivot = { 1.5, 2.6875, -1.1875 }, clips = { { kind = "bob", amp = 0.12, period = 2.4, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 6, phase = 0, axis = "y" } } },
+			{ name = "tailR", pivot = { 0.25, 1.375, 0.1875 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "y" }, { kind = "sway", amp = 5, period = 4.8, phase = 0.3, axis = "x" } } },
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3.2, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 26, columns = 4, frames = 11,
+			part = "FacePlate", image = 0, frameWidth = 56, frameHeight = 32, columns = 4, frames = 11,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
 		},

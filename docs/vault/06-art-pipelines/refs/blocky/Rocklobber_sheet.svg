@@ -5,7 +5,7 @@
 <rect x="30.00" y="74.00" width="132.00" height="28.00" fill="#3B82F6"/>
 <text x="96.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">RARE</text>
 <text x="176.00" y="94.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#6B6F80" text-anchor="start">World 1  |  element Stone  |  status review  |  hero: Claw</text>
-<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.12 studs  |  35 blocks  |  338 triangles  |  bevel 0.1 x 2  |  1 stud = 58 px</text>
+<text x="1770.00" y="58.00" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1B1F3B" text-anchor="end">height 3.12 studs  |  35 blocks  |  506 triangles  |  bevel 0.1 x 2  |  1 stud = 58 px</text>
 <text x="1770.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#6B6F80" text-anchor="end">Concept sheet drawn from the spec note's parts table (tools/blocky/sheet.py); blocky style rules: Blocky-Style.md</text>
 <!-- view front -->
 <rect x="30.00" y="130.00" width="349.46" height="349.46" fill="#FFFFFF" stroke="#DDD6C8" stroke-width="1.00"/>
@@ -55,25 +55,25 @@
 <line x1="30.00" y1="173.68" x2="379.46" y2="173.68" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="30.00" y1="159.12" x2="379.46" y2="159.12" stroke="#D2CABB" stroke-width="1.00"/>
 <line x1="30.00" y1="144.56" x2="379.46" y2="144.56" stroke="#ECE7DD" stroke-width="0.60"/>
-<polygon points="139.21,333.85 153.77,333.85 153.77,326.57 139.21,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,333.85 270.25,333.85 270.25,326.57 255.69,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="139.21,450.33 153.77,450.33 153.77,421.21 139.21,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,450.33 270.25,450.33 270.25,421.21 255.69,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="131.92,428.49 153.77,428.49 153.77,421.21 131.92,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,428.49 277.53,428.49 277.53,421.21 255.69,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.64,450.33 131.92,450.33 131.92,413.93 124.64,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="277.53,450.33 284.81,450.33 284.81,413.93 277.53,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.28,416.01 151.64,425.97 154.13,419.13 126.77,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="255.32,419.13 257.81,425.97 285.18,416.01 282.69,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="197.45,326.57 241.13,326.57 241.13,319.29 197.45,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="204.73,326.57 233.85,326.57 233.85,319.29 204.73,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="175.61,275.61 190.17,275.61 190.17,268.33 175.61,268.33" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="175.61,326.57 182.89,326.57 182.89,290.17 175.61,290.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="168.33,290.17 190.17,290.17 190.17,275.61 168.33,275.61" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="139.21,450.33 153.77,450.33 153.77,421.21 139.21,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,450.33 270.25,450.33 270.25,421.21 255.69,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.64,450.33 131.92,450.33 131.92,413.93 124.64,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="277.53,450.33 284.81,450.33 284.81,413.93 277.53,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.28,416.01 151.64,425.97 154.13,419.13 126.77,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="255.32,419.13 257.81,425.97 285.18,416.01 282.69,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="212.01,326.57 226.57,326.57 226.57,319.29 212.01,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="161.05,333.85 248.41,333.85 248.41,326.57 161.05,326.57" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="139.21,450.33 153.77,450.33 153.77,421.21 139.21,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,450.33 270.25,450.33 270.25,421.21 255.69,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="131.92,428.49 153.77,428.49 153.77,421.21 131.92,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="255.69,428.49 277.53,428.49 277.53,421.21 255.69,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.64,450.33 131.92,450.33 131.92,413.93 124.64,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="277.53,450.33 284.81,450.33 284.81,413.93 277.53,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="124.28,416.01 151.64,425.97 154.13,419.13 126.77,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="255.32,419.13 257.81,425.97 285.18,416.01 282.69,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="146.49,421.21 262.97,421.21 262.97,348.41 146.49,348.41" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
 <rect x="168.33" y="362.97" width="3.64" height="3.64" fill="#1C1418"/>
 <rect x="171.97" y="362.97" width="3.64" height="3.64" fill="#1C1418"/>
@@ -205,8 +205,8 @@
 <polygon points="277.53,392.09 350.33,392.09 350.33,333.85 277.53,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="80.96,319.29 110.08,319.29 110.08,297.45 80.96,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="299.37,319.29 328.49,319.29 328.49,297.45 299.37,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="80.96,370.25 110.08,370.25 110.08,341.13 80.96,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="299.37,370.25 328.49,370.25 328.49,341.13 299.37,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="80.96,370.25 110.08,370.25 110.08,341.13 80.96,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="299.37,370.25 328.49,370.25 328.49,341.13 299.37,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="80.96,392.09 110.08,392.09 110.08,377.53 80.96,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="299.37,392.09 328.49,392.09 328.49,377.53 299.37,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="88.24,362.97 102.80,362.97 102.80,348.41 88.24,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
@@ -256,16 +256,16 @@
 <polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="568.74,319.29 605.15,319.29 605.15,297.45 568.74,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,392.09 619.71,392.09 619.71,377.53 605.15,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,333.85 590.59,333.85 590.59,319.29 539.62,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="532.34,392.09 605.15,392.09 605.15,333.85 532.34,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,450.33 554.18,450.33 554.18,413.93 539.62,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="503.22,450.33 517.78,450.33 517.78,413.93 503.22,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="466.82,450.33 481.38,450.33 481.38,413.93 466.82,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,392.09 568.74,392.09 568.74,362.97 539.62,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="539.62,428.49 554.18,428.49 554.18,421.21 539.62,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="466.82,428.49 481.38,428.49 481.38,421.21 466.82,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="539.62,450.33 554.18,450.33 554.18,421.21 539.62,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="503.22,450.33 517.78,450.33 517.78,421.21 503.22,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="466.82,450.33 481.38,450.33 481.38,421.21 466.82,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="459.54,333.85 474.10,333.85 474.10,326.57 459.54,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,425.97 554.18,425.97 554.18,409.17 539.62,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="503.22,425.97 517.78,425.97 517.78,409.17 503.22,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="466.82,425.97 481.38,425.97 481.38,409.17 466.82,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="503.22,326.57 517.78,326.57 517.78,319.29 503.22,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="488.66,326.57 503.22,326.57 503.22,319.29 488.66,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="474.10,326.57 488.66,326.57 488.66,319.29 474.10,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
@@ -275,17 +275,17 @@
 <polygon points="466.82,333.85 539.62,333.85 539.62,326.57 466.82,326.57" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="459.54,421.21 561.46,421.21 561.46,348.41 459.54,348.41" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="452.26,348.41 568.74,348.41 568.74,333.85 452.26,333.85" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="539.62,450.33 554.18,450.33 554.18,421.21 539.62,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="503.22,450.33 517.78,450.33 517.78,421.21 503.22,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="466.82,450.33 481.38,450.33 481.38,421.21 466.82,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="459.54,333.85 474.10,333.85 474.10,326.57 459.54,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="539.62,428.49 554.18,428.49 554.18,421.21 539.62,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="466.82,428.49 481.38,428.49 481.38,421.21 466.82,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,450.33 554.18,450.33 554.18,413.93 539.62,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="503.22,450.33 517.78,450.33 517.78,413.93 503.22,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="466.82,450.33 481.38,450.33 481.38,413.93 466.82,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="539.62,425.97 554.18,425.97 554.18,409.17 539.62,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="503.22,425.97 517.78,425.97 517.78,409.17 503.22,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="466.82,425.97 481.38,425.97 481.38,409.17 466.82,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,392.09 568.74,392.09 568.74,362.97 539.62,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="612.43,362.97 619.71,362.97 619.71,348.41 612.43,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="568.74,319.29 605.15,319.29 605.15,297.45 568.74,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="605.15,392.09 619.71,392.09 619.71,377.53 605.15,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="605.15,370.25 612.43,370.25 612.43,341.13 605.15,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="539.62,333.85 590.59,333.85 590.59,319.29 539.62,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="532.34,392.09 605.15,392.09 605.15,333.85 532.34,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <line x1="423.14" y1="450.33" x2="648.83" y2="450.33" stroke="#1B1F3B" stroke-width="2.00"/>
@@ -338,16 +338,18 @@
 <line x1="692.51" y1="166.40" x2="1041.97" y2="166.40" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="692.51" y1="151.84" x2="1041.97" y2="151.84" stroke="#ECE7DD" stroke-width="0.60"/>
 <line x1="692.51" y1="137.28" x2="1041.97" y2="137.28" stroke="#D2CABB" stroke-width="1.00"/>
-<polygon points="801.72,355.69 816.28,355.69 816.28,341.13 801.72,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,355.69 932.76,355.69 932.76,341.13 918.20,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="801.72,319.29 816.28,319.29 816.28,304.73 801.72,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,319.29 932.76,319.29 932.76,304.73 918.20,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="801.72,282.89 816.28,282.89 816.28,268.33 801.72,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,282.89 932.76,282.89 932.76,268.33 918.20,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="794.44,355.69 816.28,355.69 816.28,341.13 794.44,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,355.69 940.04,355.69 940.04,341.13 918.20,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="794.44,282.89 816.28,282.89 816.28,268.33 794.44,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,282.89 940.04,282.89 940.04,268.33 918.20,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="787.15,355.69 794.44,355.69 794.44,341.13 787.15,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="940.04,355.69 947.32,355.69 947.32,341.13 940.04,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="787.15,319.29 794.44,319.29 794.44,304.73 787.15,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="940.04,319.29 947.32,319.29 947.32,304.73 940.04,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="787.15,282.89 794.44,282.89 794.44,268.33 787.15,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="940.04,282.89 947.32,282.89 947.32,268.33 940.04,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="786.79,355.69 816.64,355.69 816.64,341.13 786.79,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="917.83,355.69 947.69,355.69 947.69,341.13 917.83,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="786.79,319.29 816.64,319.29 816.64,304.73 786.79,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="917.83,319.29 947.69,319.29 947.69,304.73 917.83,304.73" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="786.79,282.89 816.64,282.89 816.64,268.33 786.79,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="917.83,282.89 947.69,282.89 947.69,268.33 917.83,268.33" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="743.47,421.21 772.59,421.21 772.59,406.65 743.47,406.65" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="961.88,421.21 991.00,421.21 991.00,406.65 961.88,406.65" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="779.87,370.25 809.00,370.25 809.00,341.13 779.87,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
@@ -355,14 +357,12 @@
 <polygon points="809.00,362.97 925.48,362.97 925.48,261.05 809.00,261.05" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="750.75,421.21 765.31,421.21 765.31,413.93 750.75,413.93" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="969.16,421.21 983.72,421.21 983.72,413.93 969.16,413.93" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="743.47,413.93 772.59,413.93 772.59,406.65 743.47,406.65" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="961.88,413.93 991.00,413.93 991.00,406.65 961.88,406.65" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="743.47,413.93 772.59,413.93 772.59,406.65 743.47,406.65" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="961.88,413.93 991.00,413.93 991.00,406.65 961.88,406.65" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="721.63,406.65 794.44,406.65 794.44,333.85 721.63,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="940.04,406.65 1012.85,406.65 1012.85,333.85 940.04,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="801.72,370.25 932.76,370.25 932.76,253.77 801.72,253.77" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="823.56,341.13 910.92,341.13 910.92,268.33 823.56,268.33" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="801.72,275.61 816.28,275.61 816.28,261.05 801.72,261.05" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="918.20,275.61 932.76,275.61 932.76,261.05 918.20,261.05" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="728.91,392.09 779.87,392.09 779.87,341.13 728.91,341.13" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="954.60,392.09 1005.56,392.09 1005.56,341.13 954.60,341.13" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="859.96,290.17 903.64,290.17 903.64,275.61 859.96,275.61" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
@@ -426,22 +426,24 @@
 <polygon points="1143.89,362.97 1158.45,362.97 1158.45,348.41 1143.89,348.41" fill="#FFB347" stroke="#9E6E2C" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1355.02,392.09 1384.14,392.09 1384.14,377.53 1355.02,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1136.61,392.09 1165.73,392.09 1165.73,377.53 1136.61,377.53" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1355.02,370.25 1384.14,370.25 1384.14,341.13 1355.02,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1136.61,370.25 1165.73,370.25 1165.73,341.13 1136.61,341.13" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1355.02,370.25 1384.14,370.25 1384.14,341.13 1355.02,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1136.61,370.25 1165.73,370.25 1165.73,341.13 1136.61,341.13" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1355.02,319.29 1384.14,319.29 1384.14,297.45 1355.02,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1136.61,319.29 1165.73,319.29 1165.73,297.45 1136.61,297.45" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1347.74,333.85 1398.70,333.85 1398.70,319.29 1347.74,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1122.05,333.85 1173.01,333.85 1173.01,319.29 1122.05,319.29" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1318.62,392.09 1347.74,392.09 1347.74,362.97 1318.62,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1173.01,392.09 1202.13,392.09 1202.13,362.97 1173.01,362.97" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,450.33 1325.90,450.33 1325.90,421.21 1311.34,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1194.85,450.33 1209.41,450.33 1209.41,421.21 1194.85,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,428.49 1333.18,428.49 1333.18,421.21 1311.34,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1187.57,428.49 1209.41,428.49 1209.41,421.21 1187.57,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1333.18,450.33 1340.46,450.33 1340.46,413.93 1333.18,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1180.29,450.33 1187.57,450.33 1187.57,413.93 1180.29,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1310.97,419.13 1313.46,425.97 1340.83,416.01 1338.34,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1179.93,416.01 1207.29,425.97 1209.78,419.13 1182.42,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1333.18,392.09 1405.98,392.09 1405.98,333.85 1333.18,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1114.77,392.09 1187.57,392.09 1187.57,333.85 1114.77,333.85" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,450.33 1325.90,450.33 1325.90,421.21 1311.34,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1194.85,450.33 1209.41,450.33 1209.41,421.21 1194.85,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1333.18,450.33 1340.46,450.33 1340.46,413.93 1333.18,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1180.29,450.33 1187.57,450.33 1187.57,413.93 1180.29,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1310.97,419.13 1313.46,425.97 1340.83,416.01 1338.34,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1179.93,416.01 1207.29,425.97 1209.78,419.13 1182.42,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1238.54,326.57 1253.10,326.57 1253.10,319.29 1238.54,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1282.22,326.57 1289.50,326.57 1289.50,290.17 1282.22,290.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1274.94,290.17 1296.78,290.17 1296.78,275.61 1274.94,275.61" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
@@ -449,13 +451,11 @@
 <polygon points="1274.94,275.61 1289.50,275.61 1289.50,268.33 1274.94,268.33" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1223.97,326.57 1267.66,326.57 1267.66,319.29 1223.97,319.29" fill="#E0B04A" stroke="#8A6D2D" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1216.69,333.85 1304.06,333.85 1304.06,326.57 1216.69,326.57" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,450.33 1325.90,450.33 1325.90,421.21 1311.34,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1194.85,450.33 1209.41,450.33 1209.41,421.21 1194.85,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,428.49 1333.18,428.49 1333.18,421.21 1311.34,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1187.57,428.49 1209.41,428.49 1209.41,421.21 1187.57,421.21" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1333.18,450.33 1340.46,450.33 1340.46,413.93 1333.18,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1180.29,450.33 1187.57,450.33 1187.57,413.93 1180.29,413.93" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1310.97,419.13 1313.46,425.97 1340.83,416.01 1338.34,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="1179.93,416.01 1207.29,425.97 1209.78,419.13 1182.42,409.17" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1202.13,421.21 1318.62,421.21 1318.62,348.41 1202.13,348.41" fill="#C8553D" stroke="#7C3425" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1311.34,333.85 1325.90,333.85 1325.90,326.57 1311.34,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
-<polygon points="1194.85,333.85 1209.41,333.85 1209.41,326.57 1194.85,326.57" fill="#A39E94" stroke="#65615B" stroke-width="1.00" stroke-linejoin="round"/>
 <polygon points="1194.85,348.41 1325.90,348.41 1325.90,333.85 1194.85,333.85" fill="#3A3238" stroke="#231F22" stroke-width="1.00" stroke-linejoin="round"/>
 <line x1="1085.65" y1="450.33" x2="1435.10" y2="450.33" stroke="#1B1F3B" stroke-width="2.00"/>
 <text x="1260.38" y="476.33" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1B1F3B" text-anchor="middle">BACK (from +Z)</text>
@@ -533,8 +533,8 @@
 <text x="30.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Leg</text>
 <text x="180.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.25, 0.5, 0.25]</text>
-<text x="485.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1, 0.25, -0.625]</text>
+<text x="335.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.625, 0.25]</text>
+<text x="485.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.3125, 0.3125, -0.625]</text>
 <text x="640.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="750.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="570.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
@@ -543,9 +543,9 @@
 <text x="30.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Knee</text>
 <text x="180.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.375, 0.125, 0.25]</text>
-<text x="485.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.0625, 0.4375, -0.625]</text>
-<text x="640.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="335.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.5, 0.125, 0.25]</text>
+<text x="485.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.125, 0.5625, -0.625]</text>
+<text x="640.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 0, 20]</text>
 <text x="750.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="588.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">leg @ [1, 0.5, -0.625]</text>
@@ -554,74 +554,74 @@
 <text x="30.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">MidLeg</text>
 <text x="180.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.25, 0.5, 0.25]</text>
-<text x="485.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1, 0.25, 0]</text>
+<text x="335.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.625, 0.25]</text>
+<text x="485.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.3125, 0.3125, 0]</text>
 <text x="640.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="750.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="606.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <rect x="164.00" y="614.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
-<text x="30.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">HindLeg</text>
+<text x="30.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">MidKnee</text>
 <text x="180.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.25, 0.5, 0.25]</text>
-<text x="485.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1, 0.25, 0.625]</text>
-<text x="640.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="335.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.5, 0.125, 0.25]</text>
+<text x="485.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.125, 0.5625, 0]</text>
+<text x="640.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 0, 20]</text>
 <text x="750.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="624.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <rect x="30.00" y="629.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
 <rect x="164.00" y="632.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
-<text x="30.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">HindKnee</text>
+<text x="30.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">HindLeg</text>
 <text x="180.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.375, 0.125, 0.25]</text>
-<text x="485.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.0625, 0.4375, 0.625]</text>
+<text x="335.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.125, 0.625, 0.25]</text>
+<text x="485.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.3125, 0.3125, 0.625]</text>
 <text x="640.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="750.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="642.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<rect x="164.00" y="650.33" width="10.00" height="10.00" fill="#C8553D" stroke="#783324" stroke-width="0.80"/>
-<text x="30.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Head</text>
-<text x="180.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Body</text>
+<rect x="164.00" y="650.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
+<text x="30.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">HindKnee</text>
+<text x="180.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[2, 1.25, 1.75]</text>
-<text x="485.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 1.125, 0]</text>
-<text x="640.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<text x="750.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">yes</text>
-<text x="800.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="335.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.5, 0.125, 0.25]</text>
+<text x="485.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.125, 0.5625, 0.625]</text>
+<text x="640.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 0, 20]</text>
+<text x="750.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="800.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="660.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <rect x="30.00" y="665.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
-<rect x="164.00" y="668.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
-<text x="30.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Carapace</text>
-<text x="180.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
+<rect x="164.00" y="668.33" width="10.00" height="10.00" fill="#C8553D" stroke="#783324" stroke-width="0.80"/>
+<text x="30.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Head</text>
+<text x="180.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Body</text>
 <text x="275.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[2.25, 0.25, 2]</text>
-<text x="485.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 1.875, 0]</text>
+<text x="335.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[2, 1.25, 1.75]</text>
+<text x="485.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 1.125, 0]</text>
 <text x="640.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<text x="750.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
+<text x="750.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">yes</text>
 <text x="800.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="860.00" y="678.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<rect x="164.00" y="686.33" width="10.00" height="10.00" fill="#C8553D" stroke="#783324" stroke-width="0.80"/>
-<text x="30.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Dome</text>
-<text x="180.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Body</text>
+<rect x="164.00" y="686.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
+<text x="30.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Carapace</text>
+<text x="180.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.5, 0.125, 1.25]</text>
-<text x="485.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 2.0625, 0.125]</text>
+<text x="335.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[2.25, 0.25, 2]</text>
+<text x="485.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 1.875, 0]</text>
 <text x="640.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="750.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="860.00" y="696.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <rect x="30.00" y="701.33" width="1000.00" height="18.00" fill="#EFE9DD"/>
-<rect x="164.00" y="704.33" width="10.00" height="10.00" fill="#A39E94" stroke="#615E58" stroke-width="0.80"/>
-<text x="30.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Nub</text>
-<text x="180.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Accessory</text>
+<rect x="164.00" y="704.33" width="10.00" height="10.00" fill="#C8553D" stroke="#783324" stroke-width="0.80"/>
+<text x="30.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Dome</text>
+<text x="180.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Body</text>
 <text x="275.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
-<text x="335.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.25, 0.125, 0.25]</text>
-<text x="485.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1, 2.0625, 0.75]</text>
+<text x="335.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.5, 0.125, 1.25]</text>
+<text x="485.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0, 2.0625, 0.125]</text>
 <text x="640.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="750.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
-<text x="800.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
+<text x="800.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="860.00" y="714.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <rect x="164.00" y="722.33" width="10.00" height="10.00" fill="#E0B04A" stroke="#86692C" stroke-width="0.80"/>
 <text x="30.00" y="732.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Glyph</text>
@@ -707,9 +707,9 @@
 <text x="750.00" y="858.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">-</text>
 <text x="800.00" y="858.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">x</text>
 <text x="860.00" y="858.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">claw @ [1.25, 1.25, -0.75]</text>
-<rect x="164.00" y="866.33" width="10.00" height="10.00" fill="#E0B04A" stroke="#86692C" stroke-width="0.80"/>
+<rect x="164.00" y="866.33" width="10.00" height="10.00" fill="#3A3238" stroke="#221E21" stroke-width="0.80"/>
 <text x="30.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1B1F3B" text-anchor="start">Bezel</text>
-<text x="180.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">Trim</text>
+<text x="180.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">BodyDark</text>
 <text x="275.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">box</text>
 <text x="335.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[0.5, 0.5, 0.125]</text>
 <text x="485.00" y="876.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1B1F3B" text-anchor="start">[1.875, 1.625, -1.6875]</text>
@@ -1277,9 +1277,7 @@
 <rect x="1091.00" y="1077.33" width="8.00" height="1.00" fill="#111111"/>
 <rect x="1109.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1066.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
-<rect x="1079.00" y="1078.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1084.00" y="1078.33" width="16.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1078.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1109.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1064.00" y="1079.33" width="14.00" height="1.00" fill="#111111"/>
 <rect x="1079.00" y="1079.33" width="26.00" height="1.00" fill="#111111"/>
@@ -1308,18 +1306,22 @@
 <rect x="1081.00" y="1091.33" width="22.00" height="1.00" fill="#111111"/>
 <rect x="1081.00" y="1092.33" width="22.00" height="1.00" fill="#111111"/>
 <rect x="1081.00" y="1093.33" width="22.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1094.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1081.00" y="1094.33" width="22.00" height="1.00" fill="#111111"/>
-<rect x="1081.00" y="1095.33" width="22.00" height="1.00" fill="#111111"/>
-<rect x="1078.00" y="1096.33" width="4.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1096.33" width="4.00" height="1.00" fill="#111111"/>
-<rect x="1079.00" y="1097.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1097.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1079.00" y="1098.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1098.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1079.00" y="1099.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1099.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1079.00" y="1100.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1102.00" y="1100.33" width="3.00" height="1.00" fill="#111111"/>
+<rect x="1104.00" y="1094.33" width="3.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1095.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1081.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1102.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1106.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1097.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1106.00" y="1097.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1098.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1106.00" y="1098.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1099.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1106.00" y="1099.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1077.00" y="1100.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1106.00" y="1100.33" width="1.00" height="1.00" fill="#111111"/>
 <text x="1092.00" y="1132.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6B6F80" text-anchor="middle">front 1.00</text>
 <rect x="1144.00" y="1052.33" width="64.00" height="64.00" fill="#FFFFFF" stroke="#BBBBBB" stroke-width="1.00"/>
 <rect x="1162.00" y="1057.33" width="4.00" height="1.00" fill="#111111"/>
@@ -1347,8 +1349,8 @@
 <rect x="1177.00" y="1072.33" width="15.00" height="1.00" fill="#111111"/>
 <rect x="1158.00" y="1073.33" width="13.00" height="1.00" fill="#111111"/>
 <rect x="1177.00" y="1073.33" width="15.00" height="1.00" fill="#111111"/>
-<rect x="1153.00" y="1074.33" width="39.00" height="1.00" fill="#111111"/>
-<rect x="1153.00" y="1075.33" width="39.00" height="1.00" fill="#111111"/>
+<rect x="1155.00" y="1074.33" width="37.00" height="1.00" fill="#111111"/>
+<rect x="1155.00" y="1075.33" width="37.00" height="1.00" fill="#111111"/>
 <rect x="1151.00" y="1076.33" width="46.00" height="1.00" fill="#111111"/>
 <rect x="1151.00" y="1077.33" width="46.00" height="1.00" fill="#111111"/>
 <rect x="1151.00" y="1078.33" width="46.00" height="1.00" fill="#111111"/>
@@ -1402,21 +1404,21 @@
 <rect x="1155.00" y="1110.33" width="5.00" height="1.00" fill="#111111"/>
 <rect x="1166.00" y="1110.33" width="5.00" height="1.00" fill="#111111"/>
 <rect x="1177.00" y="1110.33" width="4.00" height="1.00" fill="#111111"/>
-<text x="1176.00" y="1132.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6B6F80" text-anchor="middle">right 0.99</text>
+<text x="1176.00" y="1132.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6B6F80" text-anchor="middle">right 1.00</text>
 <rect x="1228.00" y="1052.33" width="64.00" height="64.00" fill="#FFFFFF" stroke="#BBBBBB" stroke-width="1.00"/>
 <rect x="1247.00" y="1068.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1069.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1070.33" width="26.00" height="1.00" fill="#111111"/>
-<rect x="1246.00" y="1071.33" width="28.00" height="1.00" fill="#111111"/>
-<rect x="1246.00" y="1072.33" width="28.00" height="1.00" fill="#111111"/>
-<rect x="1246.00" y="1073.33" width="28.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1071.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1072.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1073.33" width="30.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1074.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1075.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1076.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1077.33" width="26.00" height="1.00" fill="#111111"/>
-<rect x="1247.00" y="1078.33" width="26.00" height="1.00" fill="#111111"/>
-<rect x="1247.00" y="1079.33" width="26.00" height="1.00" fill="#111111"/>
-<rect x="1247.00" y="1080.33" width="26.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1078.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1079.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1245.00" y="1080.33" width="30.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1081.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1247.00" y="1082.33" width="26.00" height="1.00" fill="#111111"/>
 <rect x="1232.00" y="1083.33" width="14.00" height="1.00" fill="#111111"/>
@@ -1478,9 +1480,7 @@
 <rect x="1348.00" y="1077.33" width="2.00" height="1.00" fill="#111111"/>
 <rect x="1361.00" y="1077.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1318.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
-<rect x="1331.00" y="1078.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1336.00" y="1078.33" width="16.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1078.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1361.00" y="1078.33" width="9.00" height="1.00" fill="#111111"/>
 <rect x="1316.00" y="1079.33" width="14.00" height="1.00" fill="#111111"/>
 <rect x="1331.00" y="1079.33" width="26.00" height="1.00" fill="#111111"/>
@@ -1509,18 +1509,22 @@
 <rect x="1333.00" y="1091.33" width="22.00" height="1.00" fill="#111111"/>
 <rect x="1333.00" y="1092.33" width="22.00" height="1.00" fill="#111111"/>
 <rect x="1333.00" y="1093.33" width="22.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1094.33" width="3.00" height="1.00" fill="#111111"/>
 <rect x="1333.00" y="1094.33" width="22.00" height="1.00" fill="#111111"/>
-<rect x="1333.00" y="1095.33" width="22.00" height="1.00" fill="#111111"/>
-<rect x="1330.00" y="1096.33" width="4.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1096.33" width="4.00" height="1.00" fill="#111111"/>
-<rect x="1331.00" y="1097.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1097.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1331.00" y="1098.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1098.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1331.00" y="1099.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1099.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1331.00" y="1100.33" width="3.00" height="1.00" fill="#111111"/>
-<rect x="1354.00" y="1100.33" width="3.00" height="1.00" fill="#111111"/>
+<rect x="1356.00" y="1094.33" width="3.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1095.33" width="30.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1333.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1354.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1358.00" y="1096.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1097.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1358.00" y="1097.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1098.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1358.00" y="1098.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1099.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1358.00" y="1099.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1329.00" y="1100.33" width="1.00" height="1.00" fill="#111111"/>
+<rect x="1358.00" y="1100.33" width="1.00" height="1.00" fill="#111111"/>
 <text x="1344.00" y="1132.33" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6B6F80" text-anchor="middle">back 1.00</text>
 <text x="1060.00" y="1162.33" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1B1F3B" text-anchor="start">Element: Stone. VFX: a soft light (Rare), three layers in Effects.luau: a warm amber light</text>
 <text x="1060.00" y="1180.33" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1B1F3B" text-anchor="start">pulsing on its left claw (FrontL) where the gem sits; every 5 s the claws clack and a puff of</text>

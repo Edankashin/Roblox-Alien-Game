@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Star
 height: 3.5
-blocks: 76
-tris: 854
+blocks: 78
+tris: 874
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#6B4EC2", "#2E2166", "#E66BD2", "#FFD98A", "#FFF3B0", "#100A26"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Nebulyn_sheet.svg]]"
 render: "[[Nebulyn_tq_cells.jpg]]"
 glb: ""
-overlap: [0.995, 0.996, 0.997, 0.995]
+overlap: [0.995, 0.995, 0.997, 0.995]
 vfx_render: "[[Nebulyn_vfx_cells.jpg]]"
 cells_render: "[[Nebulyn_tq_cells.jpg]]"
 idle_render: "[[Nebulyn_idle.png]]"
@@ -29,7 +29,7 @@ idle_render: "[[Nebulyn_idle.png]]"
 
 A small nebula with a face, 3.5 studs to the sparkle at its tail's tip (B45: it was 5.63): a violet cloud a little under the avatar's shoulder, built round a 2-stud soft core with puffs stepping off it on every side at different heights, so from the front it reads as a cloud and never a cube: three bumps on its top (the middle one tallest, with a puff on it that breathes, the right one magenta), a bulge low on its right with a magenta puff beyond it, a higher one on its left, a magenta puff low on the left and a narrower step underneath trailing three wisps of indigo mist. An indigo dust lane drifts across its top. Star cells lit cream are sunk into the cloud all over, four of them sparkle crosses of a cell and four sixteenth-stud arms; a gold constellation of three stars steps across its right puffs. Its tail of cloud curls up and back behind it in five tapering steps (the middle one magenta) with five stars along it and a sparkle cross at its tip. A star floats at each shoulder, a tiny ringed planet circles its left ear, and one star has fallen to the grass behind it. Concept row in `src/shared/data/Species.luau`: "a small nebula cloud with two bright eyes and a trailing tail of stars". Event: the Haunted Nebula (`src/shared/data/Seasons.luau`: the event track's last reward, through the quest only). Element and effect: [[Roster-Redesign]] section 2 (Star; a tail of stars trails behind it, small stars orbit, a ground ring of starlight; `Effects.luau` calls the element Nebula). Rules: [[Blocky-Style]].
 
-**What makes a player want it.** It is the event's prize and the one that cannot be caught, only earned: 25 event catches for a piece of the night sky that follows you home. B45 took its size (it no longer stands taller than you); B46 gives back more than it took: 76 blocks in eighth- and sixteenth-stud cells, a 32-column face, its own `halo` eyes (rings of indigo, magenta and cream that breathe outward like a planetary nebula round a dark pupil, a sparkle circling each iris, on a face plate twice as fine as any lower rung's), star cheeks, seven moving things and a flourish every 12 s that reads from across the meadow. The Legendary rung: accessories (the planet, the floating stars), emissive cells (the stars and crosses), the effects touching the ground (the ring, and the star that fell).
+**What makes a player want it.** It is the event's prize and the one that cannot be caught, only earned: 25 event catches for a piece of the night sky that follows you home. B45 took its size (it no longer stands taller than you); B46 gives back more than it took: 78 blocks in eighth- and sixteenth-stud cells, a 32-column face set in a hollow of the cloud, its own big `starlit` eyes (rings of indigo, magenta and cream that breathe outward like a planetary nebula round a four-point star pupil, three stars twinkling in turn in each iris, on a face plate twice as fine as any lower rung's), star cheeks, seven moving things and a flourish every 12 s that reads from across the meadow. The Legendary rung: accessories (the planet, the floating stars), emissive cells (the stars and crosses), the effects touching the ground (the ring, and the star that fell).
 
 **Hero block.** The `Tail`, a tail of cloud curling up behind it in five steps with stars along it and a sparkle at its tip, unique in Verdant (Vixa's tail is a brush, Glim's bulb curls up in two steps).
 
@@ -60,6 +60,10 @@ parts:
   - {name: Under, slot: Body, size: [1.625, 0.375, 1.375], at: [0.0625, 0.5625, 0.0625], material: nebula}
   - {name: Under2, slot: BodyDark, size: [1, 0.25, 0.875], at: [-0.125, 0.25, 0.125], material: nebula}
   - {name: BackPuff, slot: Body, size: [0.75, 0.875, 0.375], at: [-0.5, 1.5625, 1.0625], material: nebula}
+  # Polish w1: the face sat on one flat panel; a puff of cloud proud of the front over the eyes (a sparkle cross on it) and a smaller one
+  # under the smile, off-centre, so the face sits in a hollow of the cloud
+  - {name: BrowPuff, slot: Body, size: [1.5, 0.25, 0.25], at: [-0.125, 2.125, -1], material: nebula}
+  - {name: ChinPuff, slot: Body, size: [1, 0.25, 0.25], at: [0.375, 0.875, -1], material: nebula}
   # a dust lane of indigo cells drifting across the top bumps, and three wisps of mist trailing under the cloud
   - {name: Dust, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [-0.5, 2.65625, -0.375]}
   - {name: Dust2, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [0.0625, 2.90625, 0.375]}
@@ -85,11 +89,11 @@ parts:
   - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375]}
   - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125]}
   - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875]}
-  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -0.875]}
-  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -0.875]}
-  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -0.875]}
-  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -0.875]}
-  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -0.875]}
+  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125]}
+  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125]}
+  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125]}
+  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125]}
+  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125]}
   - {name: SparkleB, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.375, 1.25]}
   - {name: SparkleBArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.40625, 1.375, 1.25]}
   - {name: SparkleBArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.59375, 1.375, 1.25]}
@@ -145,17 +149,17 @@ face:
 
 ## Eyes
 
-Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `halo`, a Legendary design, layered glowing rings that breathe outward round a dark pupil, here indigo (the second colour), magenta (the accent) and star cream (the glow), with a sparkle circling each iris; a planetary nebula in each eye. At 32 pixels a stud (Legendary up: eyes no lower species has, on a finer grid) on a 1.75 x 0.8125 stud plate (56 x 26 pixels, 11 frames: open, half, closed, two glints, six ring frames). A small smile and star cheeks. In World 1 only Cosmoo wears `halo`.
+Its own eyes from the eye library ([[Blocky-Style]] rule 3, `tools/blocky/eyes.py`): `starlit`, a Legendary design added by Polish w1, layered glowing rings that breathe outward round a four-point star pupil, here indigo (the second colour), magenta (the accent) and star cream (the glow), with three stars twinkling in turn in each iris; a planetary nebula with a star at its heart. It is 22 x 24 pixels where the library's big eyes are 16 x 18, so each eye is a third of the head's width (it wore `halo` until Polish w1, and on the cloud those read small). At 32 pixels a stud (Legendary up: eyes no lower species has, on a finer grid) on a 1.75 x 1 stud plate (56 x 32 pixels, 11 frames: open, half, closed, two glints, six ring frames), the eyes a little closer together (spread 0.4375). A small smile and star cheeks. In World 1 only Cosmoo wears `starlit`.
 
 ```yaml
 eyes:
-  key: halo
+  key: starlit
   colours: {deep: second, mid: accent, bright: glow}
   mouth: smile
   cheeks: stars
-  plate: [1.75, 0.8125]
-  at: [0, 1.5625]
-  spread: 0.5
+  plate: [1.75, 1]
+  at: [0, 1.5]
+  spread: 0.4375
 ```
 
 ## Rig
@@ -215,3 +219,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): a 32-column 
 
 - 2026-10-20, World 1 fixes worker, one round. Built as drawn: a core with puffs stepping off it on the nebula motif, sixteen star cells, two gold constellations on the side puffs, and the tail of five steps curling up behind with eight stars along it, a big one at its tip, two floating past it and one fallen to the grass. The VFX preview is the Legendary set: the tail's stars lit, ten stars orbiting a stud out, a gold ring of starlight on the ground. Overlap 0.994 to 0.997, 752 triangles, 60 blocks (the floor of the Legendary band), 5.63 studs; the boxed silhouette's worst pair is Buzzik at 0.67. Wanted for: the event's prize, a piece of the night sky with a tail. Still cheap: the core still reads as a cube from the front (the puffs are on its top, sides and underside); the constellations are small gold marks at the review size; the tail's eight studs of depth make the body a third of the frame. Status review.
 - 2026-10-21, roster worker w1_low, the B45 and B46 rebuild, one round. Redesigned at 3.5 studs from 5.63, not scaled: a 2-stud core with a 32-column face (0.0625 body cells, 56 cells tall) and puffs breaking all four edges of the front at different heights (three bumps on top, the middle tallest; a bulge low on the right and higher on the left; a narrower step underneath with three wisps of mist), so the front reads as a cloud and no longer as a cube (the open item of 2026-10-20). 76 blocks in eighth- and sixteenth-stud cells (the Legendary band is 60 to 120): a dust lane, nine star cells, four sparkle crosses, a gold constellation, a magenta band in the tail and a sparkle at its tip, a star at each shoulder, a ringed planet and a fallen star. Its own `halo` eyes (rings of indigo, magenta and cream breathing outward round a dark pupil, a sparkle circling, six ring frames at 32 pixels a stud) with star cheeks; six moving objects and the blink, and a flourish every 12 s: a hop and one full turn with the tail swishing, the stars leaping, the planet popping and the fallen star jumping up. Overlap 0.995 to 0.997, 854 triangles; worst silhouette pair 0.672 (Wispkin). Wanted for: the event's prize, a piece of the night sky with a planet for a pet, now plainly the rarest of the three at the same size. Still weak: the core's front is still one flat panel round the face (the lumps are all at its edges), and the halo eyes read small at the review distance. Status review.
+- 2026-10-21, Polish w1, one round. The face sat on one flat panel and the eyes read small: a new Legendary eye, `starlit` (appended to the eye library under Polish w1), 22 x 24 pixels to the library's 16 x 18, so each eye is a third of the head's width instead of a quarter, with a four-point star for a pupil inside the breathing nebula rings and three stars that twinkle in turn; the plate grew to 1 stud tall and the eyes moved a sixteenth closer. A puff of cloud now stands a quarter proud of the front over the eyes (the front sparkle cross moved onto it) and a smaller one under the smile, off-centre, so the face sits in a hollow of the cloud. 78 blocks (Legendary 60 to 120). Overlap 0.995 to 0.997. Honest read: the eyes now read first, as a Legendary's should, and the face is framed; the core's corners still show as a block behind the puffs from the three-quarter view. Status review.
