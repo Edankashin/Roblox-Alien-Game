@@ -9,6 +9,11 @@
 -- was found, the caught count and the best overlay, or a hint line and the first-catch payout.
 -- Everything shown is read from the profile mirror in State and the shared data tables; nothing here
 -- decides an outcome.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with the
+-- block header and close; a grid card a square edged block whose ink is its tier's colour (Codex purple while selected: the
+-- stroke's thickness step is now a colour step), its square a flat block, its count badge a flat block; the progress bar a flat
+-- dark block filled cell-true; the detail card a fitted edged block in its tier's ink, the turning view on a flat block in the
+-- tier's lighter colour.
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -35,8 +40,7 @@ local CodexScreen = {}
 -- One grid card. Built once per slot and refilled on every refresh.
 type Cell = {
 	slot: Frame,
-	card: Frame,
-	stroke: UIStroke,
+	card: Frame, -- an edged block plate: setBlockInk is its ring
 	square: Frame,
 	mark: TextLabel,
 	name: TextLabel,
@@ -49,12 +53,11 @@ type Cell = {
 
 -- The detail card on the right.
 type Detail = {
-	card: Frame,
-	stroke: UIStroke,
+	card: Frame, -- a fitted edged block plate, its ink the tier's colour
 	prompt: TextLabel,
 	content: Frame,
 	viewport: ViewportFrame,
-	viewStroke: UIStroke,
+	view: Frame, -- the flat block the viewport stands on: its face the tier's lighter colour, its ink the tier's
 	camera: Camera,
 	part: Part, -- the placeholder; hidden while a mesh clone stands on the pedestal
 	model: Model?,
@@ -84,7 +87,13 @@ local STAMP_X = 0.06
 local STAMP_Y = 0.03
 local STAMP_W = 0.84
 local STAMP_H = 0.14 -- one line of the minimum text; taller touched the unknown mark on an 81 px cell
-local STAMP_Z = 7 -- above the square (5) and its mark (6), below the tap button (9)
+-- A grid card's layers: the card plate at 4 takes 4 to 7 (its ink, face and edges); on it the square at CARD_TOP (its mark at
+-- its own top), the badge one above, the stamp over both, the tap button over everything.
+local CARD_TOP = 4 + Theme.Block.Layer.Content
+local STAMP_Z = CARD_TOP + Theme.Block.Layer.Content + 2 -- above the square's mark and the badge's label
+local TAP_Z = STAMP_Z + 1
+local CARD_ROWS = 10 -- a grid card is an edged block this many cells tall (an 81 px card at iPhone SE: 7.4 px cells)
+local FLAT_ROWS = 3 -- a flat block (the square, the badge, the bar, the view's block)
 local SECONDS_PER_HOUR = 3600 -- unit conversions for the "Nd Nh" time left of the Alien of the Week and of the season
 local SECONDS_PER_DAY = 86400
 
@@ -130,7 +139,7 @@ local SHAPES: { [string]: Enum.PartType } = {
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
 local titleLabel: TextLabel? = nil
-local barFill: Frame? = nil
+local setBar: ((number) -> ())? = nil -- the progress bar's block fill
 local barPercent: TextLabel? = nil
 local grid: ScrollingFrame? = nil
 local gridLayout: UIGridLayout? = nil
@@ -260,7 +269,7 @@ local function fillDetail(profile: Types.Profile)
 	if not def then
 		d.prompt.Visible = true
 		d.content.Visible = false
-		d.stroke.Color = Theme.Rarity.Common
+		Builder.setBlockInk(d.card, Theme.Rarity.Common)
 		return
 	end
 
@@ -270,9 +279,9 @@ local function fillDetail(profile: Types.Profile)
 	local tierColor = Builder.tierColor(def.tier)
 	d.prompt.Visible = false
 	d.content.Visible = true
-	d.stroke.Color = tierColor
-	d.viewStroke.Color = tierColor
-	d.viewport.BackgroundColor3 = Builder.lighter(tierColor, 0.55) -- the backdrop in its rarity colour
+	Builder.setBlockInk(d.card, tierColor)
+	Builder.setBlockInk(d.view, tierColor)
+	Builder.setBlockColor(d.view, Builder.lighter(tierColor, 0.55)) -- the backdrop in its rarity colour
 	setPart(d, def, caught)
 	d.mark.Visible = not caught
 	d.name.Text = displayName(def, caught)
@@ -325,30 +334,31 @@ local function fillDetail(profile: Types.Profile)
 	end
 end
 
--- Purple stroke on the selected card, tier stroke on the rest, then the detail card follows.
+-- Purple ink on the selected card, the tier's ink on the rest, then the detail card follows.
 local function applySelection(profile: Types.Profile)
 	for _, cell in ipairs(cells) do
 		if not cell.slot.Visible then
 			continue
 		end
 		local isSelected = cell.speciesId == selected
-		cell.stroke.Color = if isSelected then Theme.Colors.Codex else Builder.tierColor(cell.tier)
-		Builder.setStrokePx(cell.stroke, if isSelected then Theme.Stroke.Button else Theme.Stroke.Text)
+		Builder.setBlockInk(cell.card, if isSelected then Theme.Colors.Codex else Builder.tierColor(cell.tier))
 	end
 	fillDetail(profile)
 end
 
 local function buildDetail(parent: Frame): Detail
-	local card = Builder.frame({
+	local card = Builder.blockPlate({
 		parent = parent,
 		name = "Detail",
+		color = Theme.Colors.White,
+		ink = Theme.Rarity.Common,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(DETAIL_X, DETAIL_TOP),
 		size = UDim2.fromScale(1 - DETAIL_X - Theme.Margin, 1 - DETAIL_TOP - Theme.Margin),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
-		zIndex = 3,
+		zIndex = Builder.blockTop(parent),
 	})
-	local stroke = Builder.stroke(card, Theme.Stroke.Button, Theme.Rarity.Common)
+	local top = Builder.blockTop(card)
 
 	local prompt = Builder.label({
 		parent = card,
@@ -359,33 +369,41 @@ local function buildDetail(parent: Frame): Detail
 		size = UDim2.fromScale(0.86, 0.3),
 		anchor = Vector2.new(0.5, 0.5),
 		color = Theme.Rarity.Common,
-		zIndex = 4,
+		zIndex = top,
 	})
 
 	local content = Builder.frame({
 		parent = card,
 		name = "Content",
-		zIndex = 4,
+		zIndex = top,
 	})
 	content.Visible = false
 
-	-- The alien on a pedestal, turning slowly. Square, as wide as the card allows.
+	-- The alien on a pedestal, turning slowly. Square, as wide as the card allows: a flat block in the tier's lighter colour
+	-- and ink, the viewport clear on its face.
+	local view = Builder.blockPlate({
+		parent = content,
+		name = "ViewBlock",
+		color = Builder.lighter(Theme.Rarity.Common, 0.55),
+		ink = Theme.Rarity.Common,
+		aspect = 1,
+		rows = FLAT_ROWS,
+		cells = false,
+		position = UDim2.fromScale(0.5, 0.03),
+		size = UDim2.fromScale(0.9, 0.42),
+		anchor = Vector2.new(0.5, 0),
+		zIndex = top + 1,
+	})
 	local viewport = Instance.new("ViewportFrame")
 	viewport.Name = "View"
 	viewport.BorderSizePixel = 0
-	viewport.BackgroundColor3 = Builder.lighter(Theme.Rarity.Common, 0.55)
-	viewport.BackgroundTransparency = 0
-	viewport.Position = UDim2.fromScale(0.5, 0.03)
-	viewport.Size = UDim2.fromScale(0.9, 0.42)
-	viewport.AnchorPoint = Vector2.new(0.5, 0)
+	viewport.BackgroundTransparency = 1
+	viewport.Position, viewport.Size = Builder.blockInner(view)
 	viewport.Ambient = Builder.darker(Theme.Colors.White, 0.45) -- soft grey fill light
 	viewport.LightColor = Theme.Colors.White
 	viewport.LightDirection = Vector3.new(-1, -2, -1)
-	viewport.ZIndex = 5
-	Builder.corner(viewport, Theme.Corner.Card)
-	local viewStroke = Builder.stroke(viewport, Theme.Stroke.Button, Theme.Rarity.Common)
-	Builder.aspect(viewport, 1)
-	viewport.Parent = content
+	viewport.ZIndex = Builder.blockTop(view)
+	viewport.Parent = view
 
 	local camera = Instance.new("Camera")
 	camera.FieldOfView = CAMERA_FOV
@@ -419,7 +437,7 @@ local function buildDetail(parent: Frame): Detail
 		position = UDim2.fromScale(0.5, 0.45),
 		size = UDim2.fromScale(0.6, 0.4),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = viewport.ZIndex + 1,
 	})
 
 	local function line(name: string, top: number, height: number, textSize: number): TextLabel
@@ -431,17 +449,16 @@ local function buildDetail(parent: Frame): Detail
 			position = UDim2.fromScale(0.5, top),
 			size = UDim2.fromScale(0.94, height),
 			anchor = Vector2.new(0.5, 0),
-			zIndex = 5,
+			zIndex = top + 1,
 		})
 	end
 
 	return {
 		card = card,
-		stroke = stroke,
 		prompt = prompt,
 		content = content,
 		viewport = viewport,
-		viewStroke = viewStroke,
+		view = view,
 		camera = camera,
 		part = part,
 		model = nil,
@@ -481,31 +498,34 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 	})
 	slot.LayoutOrder = index
 
-	local card = Builder.frame({
+	-- A square edged block (the slot is square) whose ink is the tier's colour, set on every fill.
+	local card = Builder.blockPlate({
 		parent = slot,
 		name = "Card",
+		color = Theme.Colors.White,
+		ink = Theme.Rarity.Common,
+		aspect = 1,
+		rows = CARD_ROWS,
+		cells = false,
+		edges = true,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(CARD_INSET, CARD_INSET),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.White,
-		corner = Theme.Corner.Card,
 		zIndex = 4,
 	})
-	local stroke = Builder.stroke(card, Theme.Stroke.Text, Theme.Rarity.Common)
 
-	-- The placeholder colour square (or the silhouette), with the shape name or the unknown mark inside.
-	local square = Builder.frame({
+	-- The placeholder colour square (or the silhouette), a flat block, with the shape name or the unknown mark inside.
+	local square = Builder.blockPlate({
 		parent = card,
 		name = "Square",
+		color = Theme.Shadow,
+		aspect = 1,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0.07),
 		size = UDim2.fromScale(0.7, 0.56),
 		anchor = Vector2.new(0.5, 0),
-		color = Theme.Shadow,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
-		zIndex = 5,
+		zIndex = CARD_TOP,
 	})
 	local mark = Builder.label({
 		parent = square,
@@ -515,7 +535,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.5),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.blockTop(square),
 	})
 	local name = Builder.label({
 		parent = card,
@@ -525,22 +545,21 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		position = UDim2.fromScale(0.5, 0.67),
 		size = UDim2.fromScale(0.96, 0.26),
 		anchor = Vector2.new(0.5, 0),
-		zIndex = 5,
+		zIndex = CARD_TOP,
 	})
 
-	-- Count badge over the square's bottom-right corner, shown from the second catch on.
-	local badge = Builder.pill({
+	-- Count badge over the square's bottom-right corner, shown from the second catch on: a fitted flat block.
+	local badge = Builder.blockPlate({
 		parent = card,
 		name = "Count",
+		color = Theme.Colors.Codex,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0.97, 0.64),
 		size = UDim2.fromScale(0.62, 0.16),
 		anchor = Vector2.new(1, 1),
-		color = Theme.Colors.Codex,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 7,
+		zIndex = CARD_TOP + 2,
 	})
-	Builder.gradient(badge, Theme.Colors.Codex)
 	local badgeLabel = Builder.label({
 		parent = badge,
 		name = "Text",
@@ -549,7 +568,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 8,
+		zIndex = Builder.blockTop(badge),
 	})
 	badge.Visible = false
 
@@ -569,7 +588,6 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 	local cell: Cell = {
 		slot = slot,
 		card = card,
-		stroke = stroke,
 		square = square,
 		mark = mark,
 		name = name,
@@ -588,7 +606,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 	tap.BorderSizePixel = 0
 	tap.BackgroundTransparency = 1
 	tap.Size = UDim2.fromScale(1, 1)
-	tap.ZIndex = 9
+	tap.ZIndex = TAP_Z
 	tap.Parent = card
 	tap.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
@@ -618,15 +636,15 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	cell.slot.Visible = true
 	local caught = count > 0
 	if caught then
-		cell.card.BackgroundColor3 = Theme.Colors.White
-		cell.square.BackgroundColor3 = Color3.fromHex(def.placeholder.color)
+		Builder.setBlockColor(cell.card, Theme.Colors.White)
+		Builder.setBlockColor(cell.square, Color3.fromHex(def.placeholder.color))
 		cell.mark.Text = Builder.text("SHAPE_" .. def.placeholder.shape)
 		cell.name.TextColor3 = Theme.Colors.White
 	else
 		-- Dimmed card, the name in grey, the unknown mark; the square is a dark silhouette while the
 		-- Silhouettes preference is on and the species colour otherwise.
-		cell.card.BackgroundColor3 = Builder.lighter(Theme.Rarity.Common, 0.6)
-		cell.square.BackgroundColor3 = if Prefs.Silhouettes() then Theme.Shadow else Color3.fromHex(def.placeholder.color)
+		Builder.setBlockColor(cell.card, Builder.lighter(Theme.Rarity.Common, 0.6))
+		Builder.setBlockColor(cell.square, if Prefs.Silhouettes() then Theme.Shadow else Color3.fromHex(def.placeholder.color))
 		cell.mark.Text = UNKNOWN_MARK
 		cell.name.TextColor3 = Theme.Rarity.Common
 	end
@@ -698,8 +716,8 @@ local function refresh()
 		titleLabel.Text = Strings.CODEX_PAGE:format(worldName, caught, #list)
 	end
 	local p = if #list > 0 then caught / #list else 0
-	if barFill then
-		barFill.Size = UDim2.fromScale(p, 1)
+	if setBar then
+		setBar(p)
 	end
 	if barPercent then
 		barPercent.Text = Strings.UI_PERCENT:format(math.floor(p * 100))
@@ -732,58 +750,23 @@ local function build()
 		CodexScreen.Close()
 	end)
 
-	local body = Builder.frame({
+	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
+		color = Theme.Colors.Panel,
+		aspect = 1.35,
+		rows = Builder.blockPanelRows(0.78), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, 0.78),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		corner = Theme.Corner.Panel,
-		stroke = Theme.Stroke.Panel,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1.35,
 		zIndex = 2,
 	})
 	panel = body
 
 	-- Header tab straddling the top edge, purple for the codex, title in white outlined text.
-	local header = Builder.frame({
-		parent = body,
-		name = "Header",
-		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(0.42, 0.11),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Codex,
-		corner = Theme.Corner.Card,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
-		zIndex = 4,
-	})
-	Builder.gradient(header, Theme.Colors.Codex)
-	Builder.label({
-		parent = header,
-		name = "Title",
-		text = Strings.CODEX_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
+	Builder.blockHeader(body, 1.35, Strings.CODEX_TITLE, Theme.Colors.Codex, Vector2.new(0.42, 0.11))
 
-	Builder.button({
-		parent = body,
-		name = "Close",
-		text = Strings.UI_CLOSE,
-		color = Theme.Colors.Close,
-		position = UDim2.fromScale(0.985, 0.015),
-		size = UDim2.fromScale(0.11, 0.14),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		zIndex = 4,
-	}, function()
+	Builder.blockClose(body, 0.78, function()
 		CodexScreen.Close()
 	end)
 
@@ -793,7 +776,7 @@ local function build()
 		name = "Page",
 		position = UDim2.fromScale(Theme.Margin, 0.085),
 		size = UDim2.fromScale(PAGE_WIDTH, 1 - 0.085 - Theme.Margin),
-		zIndex = 3,
+		zIndex = Builder.blockTop(body),
 	})
 	titleLabel = Builder.label({
 		parent = page,
@@ -805,26 +788,18 @@ local function build()
 		zIndex = 3,
 	})
 
-	local bar = Builder.pill({
+	-- The progress bar: a fitted flat dark block, filled cell-true in Codex purple (Builder.blockBar).
+	local bar = Builder.blockPlate({
 		parent = page,
 		name = "Bar",
+		color = Theme.Block.Trough,
+		rows = FLAT_ROWS,
+		cells = false,
 		position = UDim2.fromScale(0, 0.1),
 		size = UDim2.fromScale(1, 0.06),
-		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
 		zIndex = 3,
 	})
-	bar.ClipsDescendants = true
-	local fill = Builder.pill({
-		parent = bar,
-		name = "Fill",
-		size = UDim2.fromScale(0, 1),
-		color = Theme.Colors.Codex,
-		zIndex = 4,
-	})
-	Builder.gradient(fill, Theme.Colors.Codex)
-	barFill = fill
+	setBar = Builder.blockBar(bar, Theme.Colors.Codex)
 	barPercent = Builder.label({
 		parent = bar,
 		name = "Percent",
@@ -833,7 +808,7 @@ local function build()
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.8),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
+		zIndex = Builder.blockTop(bar),
 	})
 
 	local scroller = Instance.new("ScrollingFrame")

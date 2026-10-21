@@ -468,6 +468,32 @@ describe("Block screens: Toast and NotifyCard", function()
 	end
 end)
 
+-- Every other modal in block cells: its panel's Size (of the screen) and aspect, as in its file. Each keeps square panel cells,
+-- stays under 200 frames and carries the shared header tab and close button (Builder.blockHeader, Builder.blockClose).
+local MODALS: { { name: string, w: number, h: number, aspect: number } } = {
+	{ name = "Codex", w = 0.8, h = 0.78, aspect = 1.35 },
+}
+
+describe("Block screens: modal panels", function()
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": every modal's panel is square panel cells under 200 frames, and its shell fits", function()
+			for _, modal in ipairs(MODALS) do
+				local w, h, grid = panel(screen, modal.w, modal.h, modal.aspect)
+				local skew = BlockMath.Skew(grid, modal.aspect)
+				assert(math.abs(skew) <= 0.06, modal.name .. " panel cells are " .. skew .. " off square")
+				local frames = BlockMath.Frames(grid, true, SEED)
+				assert(frames <= 200, modal.name .. " panel draws " .. frames .. " frames")
+				shell(screen, w, h, modal.h)
+			end
+		end)
+	end
+	it("a Codex card of 81 px (iPhone SE's narrowest) is ten rows of the HUD's cell", function()
+		local cell = 81 / (10 + 2 * INK)
+		assert(cell >= 7 and cell <= 8.5, "Codex card cell is " .. cell .. " px")
+	end)
+end)
+
 describe("Block screens: Shop", function()
 	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
 	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
