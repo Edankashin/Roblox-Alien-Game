@@ -61,6 +61,22 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Flapsicle = {
+		height = 2.75,
+		parts = {
+			{ name = "earL", pivot = { -0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = -14, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.75, 0.875, -0.0625 }, clips = { { kind = "wag", amp = 14, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "perch", pivot = { 0, 2.625, 0.0625 }, clips = { { kind = "pulse", amp = 0.08, period = 3, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = -16, period = 1.8, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.75, 2.25, 0.0625 }, clips = { { kind = "flap", amp = 16, period = 1.8, phase = 0, axis = "z" } } },
+		},
+		root = { { kind = "sway", amp = 4, period = 3.2, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Flufflet = {
 		height = 2.5,
 		parts = {
