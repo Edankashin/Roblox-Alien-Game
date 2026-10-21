@@ -11,8 +11,16 @@
   },
   {
     "slot": 2,
-    "name": "flagL",
+    "name": "Glow",
     "hex": "2ED3F7",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 3,
+    "name": "dripL",
+    "hex": "8CC8F0",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -20,7 +28,15 @@
     "pixelated": true
   },
   {
-    "slot": 3,
+    "slot": 4,
+    "name": "flagL",
+    "hex": "2ED3F7",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 5,
     "name": "footL",
     "hex": "1F6F68",
     "roughness": 0.55,
@@ -30,7 +46,7 @@
     "pixelated": true
   },
   {
-    "slot": 4,
+    "slot": 6,
     "name": "footR",
     "hex": "1F6F68",
     "roughness": 0.55,
@@ -40,7 +56,15 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 7,
+    "name": "shardsR",
+    "hex": "2ED3F7",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
     "name": "tail",
     "hex": "1F6F68",
     "roughness": 0.55,
@@ -50,7 +74,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 9,
     "name": "FacePlate",
     "hex": "3FBFB0",
     "roughness": 0.4,

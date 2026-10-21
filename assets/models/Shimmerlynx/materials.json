@@ -39,8 +39,16 @@
   },
   {
     "slot": 5,
-    "name": "tailR",
-    "hex": "C8C2F0",
+    "name": "mote",
+    "hex": "9D7CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 6,
+    "name": "pendant",
+    "hex": "8FA6C4",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -48,7 +56,15 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
+    "name": "tailR",
+    "hex": "9D7CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
     "name": "whiskerL",
     "hex": "4B4470",
     "roughness": 0.55,
@@ -58,7 +74,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 9,
     "name": "whiskerR",
     "hex": "4B4470",
     "roughness": 0.55,
@@ -68,7 +84,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 10,
     "name": "FacePlate",
     "hex": "C8C2F0",
     "roughness": 0.4,

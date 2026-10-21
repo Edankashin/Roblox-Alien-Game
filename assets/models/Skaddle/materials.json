@@ -11,7 +11,7 @@
   },
   {
     "slot": 2,
-    "name": "crest",
+    "name": "Glow",
     "hex": "4A55E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -19,6 +19,22 @@
   },
   {
     "slot": 3,
+    "name": "crest",
+    "hex": "4A55E8",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 4,
+    "name": "halo",
+    "hex": "4A55E8",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 5,
     "name": "hindwingL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -28,7 +44,7 @@
     "pixelated": true
   },
   {
-    "slot": 4,
+    "slot": 6,
     "name": "hindwingR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -38,7 +54,17 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 7,
+    "name": "quiverL",
+    "hex": "5C708A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 8,
     "name": "scarfR",
     "hex": "8FD3F4",
     "roughness": 0.55,
@@ -48,7 +74,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 9,
     "name": "tuftL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -58,7 +84,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 10,
     "name": "tuftR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -68,7 +94,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 11,
     "name": "wingL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -78,7 +104,7 @@
     "pixelated": true
   },
   {
-    "slot": 9,
+    "slot": 12,
     "name": "wingR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -88,7 +114,7 @@
     "pixelated": true
   },
   {
-    "slot": 10,
+    "slot": 13,
     "name": "FacePlate",
     "hex": "F4F7FA",
     "roughness": 0.4,

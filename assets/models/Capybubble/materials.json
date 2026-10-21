@@ -49,6 +49,14 @@
   },
   {
     "slot": 6,
+    "name": "ring",
+    "hex": "5FDCFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 7,
     "name": "FacePlate",
     "hex": "E0C3A0",
     "roughness": 0.4,

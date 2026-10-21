@@ -8,20 +8,21 @@ tier: Epic
 status: review
 element: Aurora
 height: 3.5
-blocks: 51
-tris: 952
+blocks: 59
+tris: 1046
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#C8C2F0", "#4B4470", "#FFF4E6", "#8FA6C4", "#9D7CFF", "#1A1530"]
 roles: [body, second, accent, trim, glow, ink]
 glow_cycle: ["#9D7CFF", "#7CFFC4", "#FF8FD8"]
 hero: AuroraC
+fx_hooks: {Top: AuroraC, Tail: PlumeC, Eyes: Gem, Plume: PlumeC, Halo: Mote}
 vfx: "kept on the body (Epic, Effects.luau): a mint aurora trail waves off its crest back to its tail (the Trail from Top to Tail), violet motes rise off the crest at 4 a second (the Emitter at Top), a mint light on the crest pulses every 3 s, every 6 s it purrs in colours, a burst of twelve pink twinkles off the crest (the flourish Burst at Top), and a catchlight winks in its eyes every 5 s (the Sparkle at Eyes); the crest, the ear tufts and the tail tip glow and step through violet, mint and pink every 6 s (the glow cycle); it bobs gently; in the rig the crest ribbons wave, the ears flick, the whiskers twitch and the tail sways, and every 12 s it hops into a full turn with the crest swished"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Shimmerlynx_sheet.svg]]"
 render: "[[Shimmerlynx_tq_cells.jpg]]"
 glb: ""
-overlap: [0.996, 0.996, 0.996, 0.996]
+overlap: [0.997, 0.996, 0.996, 0.997]
 vfx_render: "[[Shimmerlynx_vfx_cells.jpg]]"
 cells_render: "[[Shimmerlynx_tq_cells.jpg]]"
 idle_render: "[[Shimmerlynx_idle.png]]"
@@ -34,7 +35,7 @@ A lavender lynx sitting up, the Ice Cave's night Epic, 3.5 studs to its ear tuft
 
 **Hero block.** `AuroraC`, the centre ribbon of the crest, with two shorter ribbons each side: unique in Frostbyte.
 
-**Moving parts (six objects and the blink).** `crest` (the five ribbons wave as one), `earR`, `earL` (they flick), `whiskerR`, `whiskerL` (they twitch), `tail` (it sways); the face plate blinks and glints.
+**Moving parts (eight objects and the blink).** `crest` (the five ribbons wave as one), `earR`, `earL` (they flick), `whiskerR`, `whiskerL` (they twitch), `tail` (it sways, the aurora plume with it), `mote` (two aurora motes circle the crest), `pendant` (the gem on the collar swings); the face plate blinks and glints.
 
 **Alien anatomy.** The crest is an aurora it grew, not fur; its ear tufts and its tail end in light, and the tail stands straight up like a lantern it carries.
 
@@ -49,6 +50,10 @@ parts:
   - {name: Haunch, slot: Body, size: [1, 1, 1.25], at: [0.75, 0.875, 0.375], bevel: true, mirror: x, material: fur}
   - {name: Torso, slot: Body, size: [1.5, 1.25, 1.25], at: [0, 1, 0.25], bevel: true, material: fur}
   - {name: Chest, slot: Accessory, size: [1, 0.75, 0.0625], at: [0, 0.875, -0.40625]}
+  # a silver collar under the chin and a pendant on it, a lit aurora gem in a silver bezel that swings (Rare pass w2: chest detail)
+  - {name: Collar, slot: Trim, size: [1.25, 0.125, 0.0625], at: [0, 1.1875, -0.46875], material: metal}
+  - {name: Bezel, slot: Trim, size: [0.25, 0.25, 0.0625], at: [0, 1, -0.53125], material: metal, moves: pendant, pivot: [0, 1.125, -0.53125]}
+  - {name: Gem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 1, -0.59375], moves: pendant, pivot: [0, 1.125, -0.53125]}
   - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 2, -0.375], bevel: true}
   # two straight front legs on cream paws in silver bands
   - {name: Leg, slot: Body, size: [0.375, 0.875, 0.375], at: [0.5, 0.8125, -0.8125], mirror: x}
@@ -70,11 +75,19 @@ parts:
   - {name: AuroraC, slot: Glow, size: [0.125, 0.75, 0.375], at: [0, 3.125, 0.0625], moves: crest, pivot: [0, 2.75, 0.0625]}
   - {name: Aurora2, slot: Glow, size: [0.125, 0.625, 0.375], at: [0.1875, 3.0625, 0.0625], mirror: x, moves: crest, pivot: [0, 2.75, 0.0625]}
   - {name: Aurora3, slot: Glow, size: [0.125, 0.5, 0.375], at: [0.375, 3, 0.0625], mirror: x, moves: crest, pivot: [0, 2.75, 0.0625]}
+  # two aurora motes circling the crest (Rare pass w2), one high and one low, turning about the crest once every 5 s
+  - {name: Mote, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 3.25, 0.0625], moves: mote, pivot: [0, 3, 0.0625]}
+  - {name: Mote2, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5625, 2.9375, 0.0625], moves: mote, pivot: [0, 3, 0.0625]}
   # the tail held straight up beside its right haunch in two dark rings, ending in a block of light; one moving part
   - {name: Tail, slot: Body, size: [0.375, 1.5, 0.375], at: [1.4375, 1, 0.875], moves: tail, pivot: [1.4375, 0.25, 0.875]}
   - {name: TailRing, slot: BodyDark, size: [0.5, 0.125, 0.5], at: [1.4375, 1.25, 0.875], moves: tail, pivot: [1.4375, 0.25, 0.875]}
   - {name: TailRing2, slot: BodyDark, size: [0.5, 0.125, 0.5], at: [1.4375, 1.5625, 0.875], moves: tail, pivot: [1.4375, 0.25, 0.875]}
   - {name: TailTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.4375, 1.9375, 0.875], moves: tail, pivot: [1.4375, 0.25, 0.875]}
+  # the aurora plume (Rare pass w2): three ribbons of light fanning up out of the tail's lit tip like a comet's tail, the middle tallest; they
+  # step through violet, mint and pink with the crest, so the cat carries a second aurora on its tail
+  - {name: PlumeC, slot: Glow, size: [0.125, 0.625, 0.25], at: [1.4375, 2.4375, 0.875], moves: tail, pivot: [1.4375, 0.25, 0.875]}
+  - {name: Plume2, slot: Glow, size: [0.125, 0.5, 0.25], at: [1.59375, 2.34375, 0.875], rot: [0, 0, -20], moves: tail, pivot: [1.4375, 0.25, 0.875]}
+  - {name: Plume3, slot: Glow, size: [0.125, 0.5, 0.25], at: [1.28125, 2.34375, 0.875], rot: [0, 0, 20], moves: tail, pivot: [1.4375, 0.25, 0.875]}
   # lynx spots high on each haunch, and the stepped emblem under them: an aurora wave of three silver steps
   - {name: Spot, slot: BodyDark, size: [0.0625, 0.125, 0.125], at: [1.28125, 1.0625, -0.0625], mirror: x}
   - {name: Spot2, slot: BodyDark, size: [0.0625, 0.125, 0.125], at: [1.28125, 1.1875, 0.1875], mirror: x}
@@ -120,17 +133,22 @@ rig:
     ear: [{kind: wag, amp: 15, period: 3.4, axis: z}]
     whisker: [{kind: wag, amp: 10, period: 1.6, axis: y}]
     tail: [{kind: sway, amp: 10, period: 2.6, axis: z}]
+    mote: [{kind: spin, amp: 360, period: 5}, {kind: bob, amp: 0.08, period: 1.7}]
+    pendant: [{kind: sway, amp: 12, period: 2.1, axis: x}]
     root: [{kind: squash, amp: 0.03, period: 2.8}]
     face: [{kind: blink, period: 5}]
   flourish:
     every: 12
-    length: 2.2
+    length: 2.4
     moves:
-      - {part: root, kind: hop, amp: 0.3, at: 0, for: 0.6}
+      - {part: root, kind: hop, amp: 0.35, at: 0, for: 0.6}
       - {part: root, kind: turn, amp: 360, at: 0.1, for: 1.4}
       - {part: crest, kind: swish, amp: 20, at: 0.3, for: 1.4}
       - {part: ear, kind: flare, amp: 20, at: 0.2, for: 0.8}
       - {part: tail, kind: swish, amp: 20, at: 0.5, for: 1.2}
+      - {part: mote, kind: turn, amp: 720, at: 0.2, for: 1.6}
+      - {part: crest, kind: pop, amp: 0.25, at: 1.4, for: 0.9}
+      - {part: pendant, kind: swish, amp: 25, at: 0.6, for: 1.2}
 ```
 
 ## Build
@@ -162,3 +180,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 - 2026-10-20, World 2 roster worker, three rounds. Round 1: standing on four legs it was Sabrek to the boxed test (0.83), so it sits: two bevelled haunches, straight front legs, the head on the chest, four masses, bevel 0.1. Round 2: the lower torso made it a wide box like Soakum (0.71) and the crest's 0.75-stud blocks behind the ears read as a pink crown, so the tail stands straight up beside the right haunch with its lit tip at shoulder height (0.68), the ribbons grew to a stud, a quarter wide and three eighths deep, and the cheek ruffs shrank. Overlap 0.989 to 0.996, 812 triangles, 38 blocks, 4.25 studs, four moving objects (the crest, the ears, the tail); three glow extremities. Wanted for: a curtain of aurora on a sitting cat, changing colour as it purrs. Still cheap: the emblem and spots sit on the haunch's outer face and the front view never sees them; the torso is mostly behind the head. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, one round. Redesigned at 3.5 studs from 4.25, not scaled: the head lowered onto the chest, the stud-tall crest became five eighth-wide ribbons in a stepped skyline between ears moved out to the head's edges (the ears now carry the lit tufts at the top of the band), the front legs straight on banded paws, the tail up beside the right haunch in two dark rings; a lynx's dark M on the brow, twitching cream whiskers, spots and the stepped emblem in sixteenth-grid cells: 49 blocks. Its own `starry` eyes (a pink star in mint over deep violet under violet lashes), a cat's mouth and heart cheeks on the plate. Rig: the crest waves, the ears flick, the whiskers twitch, the tail sways, it breathes and blinks (seven moving things), and every 12 s it hops into a full turn with the crest swished. Overlap 0.996 to 0.997, 928 triangles. Wanted for: a sitting cat with a skyline of aurora between its ears and a star in each eye. Still cheap: the cream whiskers barely read on lavender; the white-hot render washes the crest towards pink white, so its three cycle colours show only in the game's glow cycle. Status review.
 - 2026-10-21, Polish w2 worker: the whiskers barely read (two quarter-stud cream bars on a lavender head against a pale sky). They are now three a side in the dark indigo `second`, half a stud long from the head's front edge, the top one fanned up 15 degrees and the bottom one down 15, all on the one `whisker` mover each side (no new moving object). 51 blocks, 952 triangles, overlap 0.996; silhouette worst pair with Aurelyx 0.66 (Soakum). Honest read: the whiskers are now the first thing after the eyes from every angle and make it plainly a cat; dark on pale is the lesson (the cream ones vanished).
+- 2026-10-21, Rare pass w2: the signature is an **aurora comet tail**: three ribbons of light fan up out of the tail's lit tip (the middle tallest, the outer two at 20 degrees) and step through violet, mint and pink with the crest, so the cat carries a second aurora; two aurora motes circle the crest every 5 s (they whirl twice in the flourish), and a silver collar holds a lit gem pendant that swings (sixteenth-grid chest detail). 59 blocks, nine moving things (from seven), the flourish 2.4 s with eight moves (the crest swells). New attach point: `Plume` (PlumeC). Honest read: the plume doubles the aurora and reads as a comet's tail from the three-quarter camera; the pendant sits under the chin, where the head hides it from the high camera, and the pale glow washes toward pink in daylight (it reads at night).
