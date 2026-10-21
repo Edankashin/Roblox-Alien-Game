@@ -373,6 +373,29 @@ describe("Block screens: Aliens", function()
 	end
 end)
 
+describe("Block screens: Quests", function()
+	-- QuestsScreen.luau: the Aliens panel's shell (0.8 x 0.78 at 1.35); the What's on band 0.96 x 0.106 of the panel, a fitted plate
+	-- in cells, rows from its screen height; a tab 0.12 of the panel tall, a fitted block button.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h = panel(screen, 0.8, 0.78, 1.35)
+		it(label .. ": the What's on band is HUD cells, square, under 100 frames, and a 14 px line fits each half", function()
+			local bandW, bandH = 0.96 * w, 0.106 * h
+			local grid = fit(bandW, bandH, BlockMath.Rows(0.106 * 0.78, CELL, INK, MIN_ROWS))
+			local cell = bandH * grid.cellY
+			assert(cell >= 4.5, "band cell is " .. cell .. " px")
+			assert(math.abs(BlockMath.Skew(grid, bandW / bandH)) <= 0.06, "band cells off square")
+			assert(BlockMath.Frames(grid, true, SEED) <= 100, "band draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+		end)
+		it(label .. ": a tab is three rows or more with a 14 px face", function()
+			local rows = BlockMath.Rows(0.12 * 0.78 - CELL, CELL, INK, MIN_ROWS)
+			local lip = BlockMath.Lip(1, rows, INK)
+			local face = 0.12 * h * (1 - lip)
+			assert(face * (1 - 2 * INK / (rows + 2 * INK)) >= TEXT_MIN, "the tab face is " .. face .. " px")
+		end)
+	end
+end)
+
 describe("Block screens: Shop", function()
 	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
 	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
