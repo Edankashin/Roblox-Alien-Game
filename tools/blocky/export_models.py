@@ -24,6 +24,12 @@ Modes:
   python3 -I tools/blocky/export_models.py --check         # no Blender: every exported folder against its note and Rigs.luau
   python3 -I tools/blocky/export_models.py --check --species Mossbop
   python3 -I tools/blocky/export_models.py --emit-luau     # the BLOCK_CELL table for tools/studio/install_models.luau
+  $BPY tools/blocky/export_models.py --props [A,B]         # the props (docs/vault/07-alien-game/Props/, Decision B44) into assets/models/props
+  python3 -I tools/blocky/export_models.py --check --props # every exported prop folder against its note (plain --check covers both)
+  python3 -I tools/blocky/export_models.py --emit-luau --props   # the BLOCK_CELL_PROPS table for the installer
+
+The prop route ("props" section below): one MeshPart per colour slot (Body, BodyDark, Accessory, Trim on the atlas; Glow Neon), static,
+the pivot at the bottom centre, the front (the note's -Z) on +Z in the game, the atlas at most 1024 a side (8 texels a cell, or 4).
 
 --check reads the GLB (header, JSON chunk and the binary chunk) and checks: every file present; the mesh nodes are exactly Body, Glow (when
 the alien has static glow), the rig's moving parts and FacePlate, one primitive each, translation only; each moving part's node sits on its
