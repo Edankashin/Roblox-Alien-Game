@@ -7,8 +7,10 @@
 #    (ROBLOX_CREATOR_USER_ID or ROBLOX_CREATOR_GROUP_ID; when neither is set, Ethan's public user id from docs/vault Handoff)
 # 2. plans: python3 -I tools/upload_assets.py --blocky --dry-run
 # 3. uploads: --blocky (the block-cell models, their sheets, the pixel sprites and the world tiles; what has an id is skipped),
-#    which resolves the Image ids and runs the fill. Exit 3 there means every upload went through but some Image ids are not
-#    resolved yet (moderation, or the asset delivery service refusing): the script goes on and says how to finish at the end.
+#    which resolves the Image ids and runs the fill. A file whose content changed since its upload (the ids files keep a sha256)
+#    goes up again without --redo. The Image ids resolve through Open Cloud asset delivery with the key (it needs the scope
+#    legacy-asset:manage; Launch-Steps step 2), else the anonymous route. Exit 3 there means every upload went through but some
+#    Image ids are not resolved yet (moderation, or the scope missing): the script goes on and says how to finish at the end.
 # 4. fills again (--fill-blocky; a no-op when step 3 filled) so the data files match the ids files
 # 5. checks: analyze, tests, lint, data lint, model_assets --check, rigs --check, export_models --check
 # 6. prints a summary and the git commands to commit and push the ids
@@ -72,8 +74,10 @@ git status --short -- "${FILES[@]}"
 if [[ "$RESOLVE_PENDING" == 1 ]]; then
   cat <<'EOF'
 
-Some Image ids are still missing (a Decal in moderation, or the asset delivery service refusing). Commit what is here now,
-then finish with the Studio route when the Decals are approved:
+Some Image ids are still missing (a Decal in moderation, or the key lacking the scope legacy-asset:manage). Commit what is
+here now. If the upload step said "Open Cloud asset delivery refused the key": add that scope to the key (Launch-Steps step 2)
+and run tools/finalize_upload.sh again; it resolves them. Otherwise (or without the scope) finish with the Studio route when
+the Decals are approved:
   python3 -I tools/upload_assets.py --emit-decals-luau | pbcopy
   (paste between the PASTE markers of tools/studio/resolve_decals.luau, run it in Studio in Edit mode, save the Output to a file)
   python3 -I tools/upload_assets.py --from-studio <that file>

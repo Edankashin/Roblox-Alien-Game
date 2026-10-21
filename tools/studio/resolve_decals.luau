@@ -4,9 +4,9 @@
 -- the server datamodel. Studio must be signed in as the user (or a member of the group) that owns the Decals.
 --
 -- Why: an ImageLabel, a ParticleEmitter and a SurfaceAppearance draw the Image asset behind a Decal, not the Decal.
--- The anonymous assetdelivery.roblox.com route answers 401 now (Mac job 19, 2026-10-14) and the Open Cloud route
--- needs a scope the key lacks, so `upload_assets.py --resolve-images` cannot read the Decal's Texture any more.
--- Studio can: game:GetObjects("rbxassetid://<decalId>") gives the Decal and its Texture holds the Image id.
+-- The anonymous assetdelivery.roblox.com route answers 401 now (Mac jobs 19 and 40) and the Open Cloud route
+-- `upload_assets.py --resolve-images` tries first needs the scope legacy-asset:manage on the key. This snippet is the
+-- fallback while the key lacks it: game:GetObjects("rbxassetid://<decalId>") gives the Decal and its Texture holds the Image id.
 --
 -- 1. python3 -I tools/upload_assets.py --emit-decals-luau | pbcopy     (the Decal ids that have no Image id yet;
 --                                                                       icons and textures together)

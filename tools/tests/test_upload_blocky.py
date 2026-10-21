@@ -128,10 +128,12 @@ class DiscoverAndPlanTest(TreeCase):
         self.assertTrue(all(i.todo for i in items))
         by = {i.key: i for i in items}
         self.assertIn("BLOCK_CELL.Mossbop.assetId", by["Mossbop"].lands)
-        self.assertNotIn("BLOCK_CELL", by["Hut"].lands)            # props have no BLOCK_CELL row
+        self.assertNotIn("BLOCK_CELL.Hut", by["Hut"].lands)        # props have no BLOCK_CELL row, a BLOCK_CELL_PROPS one
+        self.assertIn("BLOCK_CELL_PROPS.Hut.assetId", by["Hut"].lands)
         self.assertIn("BLOCK_CELL.Mossbop.cellMap", by["Mossbop/atlas"].lands)
         self.assertIn("Rigs.luau Mossbop.face.image", by["Mossbop/face"].lands)
-        self.assertNotIn("BLOCK_CELL", by["Hut/atlas"].lands)
+        self.assertNotIn("BLOCK_CELL.Hut", by["Hut/atlas"].lands)
+        self.assertIn("BLOCK_CELL_PROPS.Hut.cellMap", by["Hut/atlas"].lands)
         self.assertIn("Icons.luau Particles.PixelStar", by["PixelStar"].lands)
         self.assertIn("Tiles.luau line 2", by["MeadowGrass"].lands)
         self.assertEqual(by["Mossbop"].ids_file, self.tree.paths.model_ids)
@@ -155,6 +157,45 @@ class DiscoverAndPlanTest(TreeCase):
         self.assertTrue(by["Radish/face"].todo)
         redo = {i.key: i for i in self.tree.plan(ids, redo=True)[0]}
         self.assertTrue(all(i.todo for i in redo.values()))
+
+    def test_a_file_whose_content_changed_since_upload_goes_up_again_without_redo(self) -> None:
+        self.tree.species("Mossbop")
+        self.tree.sprite("PixelStar")
+        self.tree.tile("Dirt")
+        folder = self.tree.root / "models/Mossbop"
+        same = ua.file_sha256(folder / "Mossbop.glb")
+        write(folder / "Mossbop_face.png", PNG + b"rebuilt")
+        ids = {"model": {"Mossbop": {"assetId": 900, "blockCell": True, "sha256": same}},
+               "image": {"Mossbop/atlas": {"assetId": 5, "imageId": 6, "sha256": same},
+                         "Mossbop/face": {"assetId": 7, "imageId": 8, "sha256": same}},
+               "sprite": {"PixelStar": {"assetId": 9, "imageId": 10}},              # no hash: uploaded before hashes
+               "tile": {"Dirt": {"assetId": 11, "sha256": "0" * 64}}}
+        by = {i.key: i for i in self.tree.plan(ids)[0]}
+        self.assertEqual((by["Mossbop"].todo, by["Mossbop"].changed), (False, None))
+        self.assertEqual((by["Mossbop/atlas"].todo, by["Mossbop/atlas"].changed), (False, None))
+        self.assertEqual((by["Mossbop/face"].todo, by["Mossbop/face"].changed), (True, 7))
+        self.assertEqual((by["PixelStar"].todo, by["PixelStar"].changed), (False, None))
+        self.assertEqual((by["Dirt"].todo, by["Dirt"].changed), (True, 11))
+        write(folder / "Mossbop.glb", PNG + b"rebuilt")
+        by = {i.key: i for i in self.tree.plan(ids)[0]}
+        self.assertEqual((by["Mossbop"].todo, by["Mossbop"].changed, by["Mossbop"].replaces), (True, 900, None))
+        items, _, _, folders = self.tree.plan(ids)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ua.print_blocky_plan(items, True, [], folders)
+        text = out.getvalue()
+        self.assertIn("would  face   Mossbop/face", text)
+        self.assertIn("(content changed since upload of 7)", text)
+        self.assertIn("(content changed since upload of 900)", text)
+        self.assertNotIn("Mossbop/atlas", text)
+        self.assertIn("3 upload call(s), 3 of them for content changed since upload", text)
+
+    def test_content_changed_needs_a_recorded_hash(self) -> None:
+        path = write(self.tree.root / "a.png", PNG)
+        self.assertFalse(ua.content_changed({"assetId": 1}, path))
+        self.assertFalse(ua.content_changed({"assetId": 1, "sha256": ua.file_sha256(path)}, path))
+        self.assertTrue(ua.content_changed({"assetId": 1, "sha256": "ab"}, path))
+        self.assertFalse(ua.content_changed({"assetId": 1, "sha256": "ab"}, self.tree.root / "gone.png"))
+        self.assertFalse(ua.content_changed(None, path))
 
     def test_an_old_prop_id_without_block_cell_mark_is_not_done(self) -> None:
         self.tree.species("Hut", sheets=("atlas",), prop=True)
@@ -210,6 +251,11 @@ class EntryTest(unittest.TestCase):
         out = ua.blocky_entry(self.item, 901, {"assetId": 900, "blockCell": True, "replacedAssetId": 111})
         self.assertEqual(out["replacedAssetId"], 111)
 
+    def test_an_entry_records_the_hash_of_the_file_it_sent(self) -> None:
+        out = ua.blocky_entry(self.item, 900, None)
+        self.assertEqual(out["sha256"], ua.file_sha256(self.item.file))
+        self.assertEqual(len(out["sha256"]), 64)
+
     def test_a_sheet_and_a_sprite_record_their_kind(self) -> None:
         sheet = self.item._replace(kind="face", key="Mossbop/face")
         sprite = self.item._replace(kind="sprite", key="PixelStar")
@@ -236,6 +282,9 @@ local MATERIALS: { [string]: { { string | number } } } = {
 -- BEGIN BLOCK-CELL PASTE: output of export_models
 local BLOCK_CELL = {}
 -- END BLOCK-CELL PASTE
+-- BEGIN BLOCK-CELL PROPS PASTE: output of export_models --props
+local BLOCK_CELL_PROPS = {}
+-- END BLOCK-CELL PROPS PASTE
 """
 
 NEW_EMIT = """local ASSET_IDS: { [string]: number } = {
@@ -269,6 +318,43 @@ class FillTest(TreeCase):
         self.assertIn('"EyeWhite"', out)
         with self.assertRaises(ValueError):
             ua.replace_block("no markers", ua.PASTE_BEGIN, ua.PASTE_END, "")
+
+    def test_the_fill_writes_block_cell_and_block_cell_props(self) -> None:
+        asked: "list[list[str]]" = []
+
+        def emit(args: "list[str]") -> str:
+            asked.append(args)
+            if "--props" in args:
+                return "local BLOCK_CELL_PROPS = { Hut = { assetId = 77, cellMap = 78 } }\n"
+            return "local BLOCK_CELL = { Mossbop = { assetId = 900 } }\n"
+
+        uploaded = {"Mossbop": {"assetId": 900, "blockCell": True}}
+        with unittest.mock.patch.object(ua, "emit_luau", return_value=NEW_EMIT % 900):
+            text, tables = ua.fill_installer_text(INSTALLER, uploaded, ["Mossbop"], emit)
+            again, _ = ua.fill_installer_text(text, uploaded, ["Mossbop"], emit)
+        self.assertEqual(again, text)                              # a second fill changes nothing
+        self.assertEqual(asked[:2], [["--emit-luau"], ["--emit-luau", "--props"]])
+        self.assertEqual(tables, ["ASSET_IDS", "MATERIALS", "BLOCK_CELL", "BLOCK_CELL_PROPS"])
+        self.assertIn("-- BEGIN BLOCK-CELL PASTE: output of export_models\nlocal BLOCK_CELL = { Mossbop = { assetId = 900 } }\n"
+                      "-- END BLOCK-CELL PASTE\n", text)
+        self.assertIn("-- BEGIN BLOCK-CELL PROPS PASTE: output of export_models --props\nlocal BLOCK_CELL_PROPS = { Hut = { "
+                      "assetId = 77, cellMap = 78 } }\n-- END BLOCK-CELL PROPS PASTE\n", text)
+        self.assertIn("Mossbop = 900,", text)
+
+    def test_a_failing_generator_stops_the_installer_fill(self) -> None:
+        def emit(args: "list[str]") -> str:
+            raise ua.UploadError("export_models.py %s failed" % " ".join(args))
+
+        with unittest.mock.patch.object(ua, "emit_luau", return_value=NEW_EMIT % 111), self.assertRaises(ua.UploadError):
+            ua.fill_installer_text(INSTALLER, {}, [], emit)
+
+    def test_the_real_installer_has_both_generated_blocks(self) -> None:
+        source = ua.INSTALLER_LUAU.read_text(encoding="utf-8")
+        for begin, end, args, table in ua.INSTALLER_GENERATED:
+            self.assertEqual((source.count(begin), source.count(end)), (1, 1), table)
+            block = source.split(begin, 1)[1].split(end, 1)[0]
+            self.assertIn("local %s:" % table, block)
+            self.assertIn("--emit-luau", args)
 
     def test_icons_fill_raises_ids_and_never_sets_one_back_to_zero(self) -> None:
         source = ("local Icons: { [string]: number } = {\n\tShop = 5,\n}\n\nlocal Particles: { [string]: number } = {\n"
@@ -321,6 +407,17 @@ class GeneratorTest(TreeCase):
         text = X.emit_luau(self.tree.root / "models", ids, images)
         self.assertIn("\tMossbop = {\n\t\tassetId = 900, cellMap = 31, faceMap = 32,", text)
         self.assertIn("\tRadish = {\n\t\tassetId = 0, cellMap = 0, faceMap = 0,", text)
+
+    def test_block_cell_props_emit_takes_the_atlas_image_id(self) -> None:
+        self.tree.species("Hut", sheets=("atlas",), prop=True)
+        self.tree.species("Bench", sheets=("atlas",), prop=True)
+        ids = write(self.tree.root / "asset_ids.json", json.dumps({
+            "Hut": {"assetId": 700, "blockCell": True}, "Bench": {"assetId": 701, "pendingUpload": {"uploaded": False}}}))
+        images = write(self.tree.root / "image_ids.json", json.dumps({
+            "Hut/atlas": {"assetId": 1, "imageId": 41}, "Bench/atlas": {"assetId": 2}}))
+        text = X.emit_luau_props(self.tree.root / "models/props", ids, images)
+        self.assertIn("\tHut = {\n\t\tassetId = 700, cellMap = 41, faceMap = 0,", text)
+        self.assertIn("\tBench = {\n\t\tassetId = 0, cellMap = 0, faceMap = 0,", text)    # pending; atlas not resolved
 
 
 def run_main(argv: "list[str]", env: "dict[str, str]") -> "tuple[int, str, str]":
@@ -407,13 +504,37 @@ class BlockyFlowTest(T.MockServerCase):
         self.assertIn("nothing to upload", out)
         self.assertEqual(T._MockRoblox.log, [])
 
+    def test_a_changed_file_goes_up_again_on_the_next_run_without_redo(self) -> None:
+        self.assertEqual(self.run_blocky()[0], 0)
+        self.assertEqual(len(ua.load_ids(self.tree.paths.sprite_ids)["PixelStar"]["sha256"]), 64)
+        write(self.tree.root / "sprites/PixelStar.png", PNG + b"redrawn")
+        T._MockRoblox.log.clear()
+        code, out = self.run_blocky()
+        self.assertEqual(code, 0, out)
+        self.assertIn("(content changed since upload of 555)", out)
+        self.assertIn("1 upload call(s), 1 of them for content changed since upload", out)
+        self.assertEqual(len([m for m, _, _ in T._MockRoblox.log if m == "POST"]), 1)
+        entry = ua.load_ids(self.tree.paths.sprite_ids)["PixelStar"]
+        self.assertEqual(entry["sha256"], ua.file_sha256(self.tree.root / "sprites/PixelStar.png"))
+        self.assertEqual(entry["imageId"], T.SHOP_IMAGE)                  # resolved again for the new Decal
+
+    def test_resolves_through_the_key_route(self) -> None:
+        code, out = self.run_blocky()
+        self.assertEqual(code, 0, out)
+        paths = [p for m, p, _ in T._MockRoblox.log if m == "GET"]
+        self.assertIn("/asset-delivery-api/v1/assetId/555", paths)
+        self.assertNotIn("/v1/asset/?id=555", paths)
+
     def test_unresolved_image_ids_exit_3_after_the_fill(self) -> None:
+        T._MockRoblox.cloud_denied = True                    # the key lacks legacy-asset:manage, as on the Mac
         for path in ("/v1/asset/?id=555",):
             T._MockRoblox.delivery_failures[path] = [403] * 40
         code, out = self.run_blocky()
         self.assertEqual(code, 3, out)
         self.assertEqual(self.fills, [False])
         self.assertIn("Studio route", out)
+        self.assertEqual(out.count("Open Cloud asset delivery refused the key"), 1)     # one hint for the three books
+        self.assertEqual(len([p for _, p, _ in T._MockRoblox.log if p.startswith("/asset-delivery-api/")]), 1)
 
     def test_no_key_uploads_nothing(self) -> None:
         self.env = dict(NO_KEY)

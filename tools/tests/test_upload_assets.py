@@ -2,12 +2,14 @@
 textures upload route and the Studio resolve (--emit-decals-luau, --from-studio).
 
 Standard library only. Run:  python3 -I -m unittest discover -s tools/tests -p 'test_*.py'
-(./tools/test.sh runs it too). No test talks to Roblox: the Decal fetch and the Open Cloud create call go to a
-local mock server on 127.0.0.1, so the live assetdelivery.roblox.com call is covered only by these fixtures.
+(./tools/test.sh runs it too). No test talks to Roblox: the Decal fetch (the Open Cloud asset delivery route, its CDN
+location and the anonymous route) and the Open Cloud create call go to a local mock server on 127.0.0.1, so the live
+calls are covered only by these fixtures (the Open Cloud answer's shape is the documented one: JSON with `location`).
 """
 from __future__ import annotations
 
 import contextlib
+import gzip
 import http.server
 import importlib.util
 import io
@@ -231,12 +233,53 @@ class RunResolveTest(unittest.TestCase):
         self.assertIn("stopping", out.getvalue())
 
 
+def lz4_literals(data: bytes) -> bytes:
+    """An LZ4 block holding data as one literal run (valid LZ4: the last sequence has literals only)."""
+    if len(data) < 15:
+        return bytes([len(data) << 4]) + data
+    rest, extra = len(data) - 15, bytearray()
+    while rest >= 255:
+        extra.append(255)
+        rest -= 255
+    extra.append(rest)
+    return bytes([0xF0]) + bytes(extra) + data
+
+
+def binary_chunk(name: bytes, data: bytes, compress: bool) -> bytes:
+    packed = lz4_literals(data) if compress else b""
+    head = name.ljust(4, b"\x00") + len(packed).to_bytes(4, "little") + len(data).to_bytes(4, "little") + b"\x00" * 4
+    return head + (packed if compress else data)
+
+
+def prop_chunk(prop: str, value: str, compress: bool = True) -> bytes:
+    """A PROP chunk of class 0 with one String value."""
+    raw = value.encode()
+    data = (0).to_bytes(4, "little") + len(prop).to_bytes(4, "little") + prop.encode() + b"\x01" + len(raw).to_bytes(4, "little") + raw
+    return binary_chunk(b"PROP", data, compress)
+
+
+def binary_decal(image: int, compress: bool = True) -> bytes:
+    """A binary model file (`<roblox!`) holding one Decal whose Texture is the Image id; a decoy reference comes first."""
+    header = b"<roblox!" + b"\x89\xff\r\n\x1a\n" + (0).to_bytes(2, "little") + (1).to_bytes(4, "little") + (1).to_bytes(4, "little") + b"\x00" * 8
+    inst = (0).to_bytes(4, "little") + (5).to_bytes(4, "little") + b"Decal" + b"\x00" + (1).to_bytes(4, "little") + b"\x00" * 4
+    return (header + binary_chunk(b"INST", inst, compress) + prop_chunk("Name", "Decal", compress)
+            + prop_chunk("Other", "rbxassetid://111", compress)
+            + prop_chunk("Texture", "http://www.roblox.com/asset/?id=%d" % image, compress)
+            + binary_chunk(b"END", b"</roblox>", False))
+
+
 class _MockRoblox(http.server.BaseHTTPRequestHandler):
-    """Open Cloud create (POST /assets/v1/assets) and asset delivery (GET /v1/asset/?id=) on one port."""
+    """Open Cloud create (POST /assets/v1/assets), Open Cloud asset delivery (GET /asset-delivery-api/v1/assetId/<id>, which
+    answers a `location` on /cdn/<id>, or for 558 redirects there), the CDN (/cdn/<id>, gzipped) and the anonymous asset
+    delivery (GET /v1/asset/?id=) on one port. cloud_denied: the key lacks legacy-asset:manage (403, as on the Mac)."""
     server_version = "mock"
     log: "list[tuple[str, str, dict[str, str]]]" = []
     bodies: "list[bytes]" = []                           # the bodies of the POSTs, in order
     delivery_failures: "dict[str, list[int]]" = {}      # path -> statuses to answer before the real one
+    cloud_denied = False
+    CDN = {"555": lambda: (FIXTURES / "decal_url.xml").read_bytes(),
+           "556": lambda: (FIXTURES / "decal_rbxassetid.xml").read_bytes(),
+           "557": lambda: binary_decal(SHOP_IMAGE)}
 
     def log_message(self, *args: object) -> None:
         pass
@@ -260,6 +303,24 @@ class _MockRoblox(http.server.BaseHTTPRequestHandler):
         pending = self.delivery_failures.get(self.path, [])
         if pending:
             self._reply(pending.pop(0), b"busy", "text/plain")
+        elif self.path.startswith("/asset-delivery-api/v1/assetId/"):
+            asset = self.path.rsplit("/", 1)[1]
+            if "x-api-key" not in {k.lower() for k in self.headers}:
+                self._reply(401, b'{"errors":[{"code":0,"message":"Authorization has been denied for this request."}]}')
+            elif self.cloud_denied:
+                self._reply(403, b'{"errors":[{"code":0,"message":"Scope not authorized"}]}')
+            elif asset == "558":
+                self.send_response(302)
+                self.send_header("Location", "/cdn/555")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+            elif asset in self.CDN:
+                host = self.headers.get("Host", "")
+                self._reply(200, json.dumps({"location": "http://%s/cdn/%s" % (host, asset), "requestId": "r1"}).encode())
+            else:
+                self._reply(404, b'{"errors":[{"code":0,"message":"Asset not found"}]}')
+        elif self.path.startswith("/cdn/") and self.path[5:] in self.CDN:
+            self._reply(200, gzip.compress(self.CDN[self.path[5:]]()), "application/octet-stream")
         elif self.path == "/v1/asset/?id=555":
             self._reply(200, (FIXTURES / "decal_url.xml").read_bytes(), "text/xml")
         elif self.path == "/v1/asset/?id=556":
@@ -273,6 +334,7 @@ class MockServerCase(unittest.TestCase):
         _MockRoblox.log = []
         _MockRoblox.bodies = []
         _MockRoblox.delivery_failures = {}
+        _MockRoblox.cloud_denied = False
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _MockRoblox)
         threading.Thread(target=self.server.serve_forever, args=(0.01,), daemon=True).start()
         self.base = "http://127.0.0.1:%d" % self.server.server_address[1]
@@ -280,6 +342,8 @@ class MockServerCase(unittest.TestCase):
         urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler({})))
         patches = [unittest.mock.patch.object(ua, "ASSET_DELIVERY_BASE", self.base + "/v1/asset"),
                    unittest.mock.patch.object(ua, "API_BASE", self.base + "/assets/v1"),
+                   unittest.mock.patch.object(ua, "CLOUD_DELIVERY_BASE", self.base + "/asset-delivery-api/v1"),
+                   unittest.mock.patch.object(ua, "KEYED_EXTRA_HANDLERS", [urllib.request.ProxyHandler({})]),
                    unittest.mock.patch.object(ua.time, "sleep", lambda s: None)]
         for p in patches:
             p.start()
@@ -314,6 +378,153 @@ class FetchImageIdTest(MockServerCase):
         self.assertEqual(len(_MockRoblox.log), 1)            # 403 is not retried
 
 
+class DecalFormatsTest(unittest.TestCase):
+    """What the Open Cloud CDN location may serve: gzip, the XML Decal, or the binary format with LZ4 chunks."""
+
+    def test_gzipped_xml(self) -> None:
+        self.assertEqual(ua.parse_image_id(gzip.compress((FIXTURES / "decal_url.xml").read_bytes())), SHOP_IMAGE)
+
+    def test_binary_decal_with_lz4_chunks_reads_the_texture_property_first(self) -> None:
+        self.assertEqual(ua.parse_image_id(binary_decal(SHOP_IMAGE)), SHOP_IMAGE)       # not the decoy 111
+
+    def test_binary_decal_with_raw_chunks(self) -> None:
+        self.assertEqual(ua.parse_image_id(gzip.compress(binary_decal(4242, compress=False))), 4242)
+
+    def test_lz4_block_with_an_overlapping_match(self) -> None:
+        # literals "abcd", then a match at offset 4 of length 8, then the last literal "x"
+        block = bytes([0x44]) + b"abcd" + bytes([4, 0]) + bytes([0x10]) + b"x"
+        self.assertEqual(ua.lz4_block(block, 13), b"abcdabcdabcdx")
+        self.assertEqual(ua.lz4_block(lz4_literals(b"y" * 300), 300), b"y" * 300)
+
+    def test_bad_lz4_is_an_upload_error(self) -> None:
+        for block, size in ((bytes([0x44]) + b"abcd" + bytes([9, 0]), 12), (bytes([0x44]) + b"ab", 4),
+                            (lz4_literals(b"abc"), 5)):
+            with self.assertRaises(ua.UploadError):
+                ua.lz4_block(block, size)
+
+    def test_a_binary_file_without_a_reference_is_an_error(self) -> None:
+        header = binary_decal(1)[:32]
+        with self.assertRaises(ua.UploadError):
+            ua.parse_image_id(header + prop_chunk("Name", "Decal") + binary_chunk(b"END", b"</roblox>", False))
+
+
+class CloudFetchTest(MockServerCase):
+    """The Open Cloud asset delivery route: keyed call, then the CDN location without the key."""
+
+    def test_resolves_through_the_location_and_the_key_stays_on_the_api_host(self) -> None:
+        self.assertEqual(ua.fetch_image_id_cloud(555, "test-key-not-real"), SHOP_IMAGE)
+        self.assertEqual([p for _, p, _ in _MockRoblox.log], ["/asset-delivery-api/v1/assetId/555", "/cdn/555"])
+        self.assertEqual(_MockRoblox.log[0][2].get("x-api-key"), "test-key-not-real")
+        self.assertNotIn("x-api-key", _MockRoblox.log[1][2])
+
+    def test_a_binary_decal(self) -> None:
+        self.assertEqual(ua.fetch_image_id_cloud(557, "k"), SHOP_IMAGE)
+
+    def test_a_redirect_is_followed_without_the_key(self) -> None:
+        self.assertEqual(ua.fetch_image_id_cloud(558, "test-key-not-real"), SHOP_IMAGE)
+        self.assertEqual([p for _, p, _ in _MockRoblox.log], ["/asset-delivery-api/v1/assetId/558", "/cdn/555"])
+        self.assertNotIn("x-api-key", _MockRoblox.log[1][2])
+
+    def test_a_missing_scope_is_a_403_that_names_the_scope(self) -> None:
+        _MockRoblox.cloud_denied = True
+        with self.assertRaises(ua.UploadError) as ctx:
+            ua.fetch_image_id_cloud(555, "k")
+        self.assertEqual(ctx.exception.status, 403)
+        self.assertFalse(ctx.exception.fatal)
+        self.assertIn("legacy-asset:manage", str(ctx.exception))
+        self.assertEqual(len(_MockRoblox.log), 1)                          # not retried
+
+    def test_gateway_errors_are_retried(self) -> None:
+        _MockRoblox.delivery_failures["/asset-delivery-api/v1/assetId/555"] = [503]
+        _MockRoblox.delivery_failures["/cdn/555"] = [502]
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ua.fetch_image_id_cloud(555, "k"), SHOP_IMAGE)
+        self.assertEqual(len(_MockRoblox.log), 4)
+
+    def test_resolve_images_uses_the_key_route_when_a_key_is_set(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "asset_ids.json"
+            ua.save_ids(path, {"Shop": entry(556), "Star": entry(557, kind="particle")})
+            code, out, err = run_main(["--resolve-images", "--ids-file", str(path)], {"ROBLOX_OPEN_CLOUD_KEY": "k"})
+            saved = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(code, 0, out + err)
+        self.assertEqual((saved["Shop"]["imageId"], saved["Star"]["imageId"]), (SHOP_IMAGE, SHOP_IMAGE))
+        self.assertIn("Open Cloud asset delivery", out)
+        self.assertNotIn("/v1/asset/?id=", " ".join(p for _, p, _ in _MockRoblox.log))   # the anonymous route not needed
+
+    def test_with_the_scope_missing_it_falls_back_to_the_anonymous_route(self) -> None:
+        _MockRoblox.cloud_denied = True
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "asset_ids.json"
+            ua.save_ids(path, {"A": entry(555), "B": entry(556)})
+            code, out, err = run_main(["--resolve-images", "--ids-file", str(path)], {"ROBLOX_OPEN_CLOUD_KEY": "k"})
+        self.assertEqual(code, 0, out + err)
+        paths = [p for _, p, _ in _MockRoblox.log]
+        self.assertEqual(paths.count("/asset-delivery-api/v1/assetId/555"), 1)
+        self.assertNotIn("/asset-delivery-api/v1/assetId/556", paths)       # the refusal is remembered
+        self.assertIn("/v1/asset/?id=556", paths)
+
+
+class ResolverTest(unittest.TestCase):
+    """The route order, without a server."""
+
+    def make(self, key: str, cloud_status: "int | None", anon_status: "int | None" = None) -> "tuple[ua.Resolver, list[str]]":
+        calls: "list[str]" = []
+
+        def cloud(decal: int, key: str) -> int:
+            calls.append("cloud %d" % decal)
+            if cloud_status is not None:
+                raise ua.UploadError("HTTP %d" % cloud_status, status=cloud_status)
+            return decal + 1
+
+        def anonymous(decal: int) -> int:
+            calls.append("anon %d" % decal)
+            if anon_status is not None:
+                raise ua.UploadError("HTTP %d" % anon_status, status=anon_status)
+            return decal + 2
+
+        return ua.Resolver(key, cloud, anonymous), calls
+
+    def test_the_key_route_first(self) -> None:
+        resolver, calls = self.make("k", None)
+        self.assertEqual(resolver(10), 11)
+        self.assertEqual(calls, ["cloud 10"])
+
+    def test_no_key_means_the_anonymous_route_only(self) -> None:
+        resolver, calls = self.make("", None)
+        self.assertEqual(resolver(10), 12)
+        self.assertEqual(calls, ["anon 10"])
+
+    def test_a_refused_key_is_remembered(self) -> None:
+        resolver, calls = self.make("k", 403)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual((resolver(10), resolver(20)), (12, 22))
+        self.assertEqual(calls, ["cloud 10", "anon 10", "anon 20"])
+        self.assertIsNotNone(resolver.cloud_refused)
+
+    def test_another_cloud_failure_is_not_remembered(self) -> None:
+        resolver, calls = self.make("k", 404)
+        self.assertEqual((resolver(10), resolver(20)), (12, 22))
+        self.assertEqual(calls, ["cloud 10", "anon 10", "cloud 20", "anon 20"])
+
+    def test_both_failing_names_both_and_keeps_the_denied_status(self) -> None:
+        resolver, _ = self.make("k", 403, 500)
+        with contextlib.redirect_stdout(io.StringIO()), self.assertRaises(ua.UploadError) as ctx:
+            resolver(10)
+        self.assertEqual(ctx.exception.status, 403)
+        self.assertIn("legacy-asset:manage", str(ctx.exception))
+        self.assertIn("anonymous: HTTP 500", str(ctx.exception))
+
+    def test_run_resolve_prints_the_scope_step_once(self) -> None:
+        resolver, _ = self.make("k", 403, 401)
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()) as out:
+            path = pathlib.Path(tmp) / "ids.json"
+            self.assertEqual(ua.run_resolve({"A": entry(1)}, path, fetch=resolver), 1)
+            self.assertEqual(ua.run_resolve({"B": entry(2)}, path, fetch=resolver), 1)
+        self.assertEqual(out.getvalue().count("Open Cloud asset delivery refused the key"), 1)
+        self.assertIn("resolve_decals.luau", out.getvalue())
+
+
 class ImagesFlowTest(MockServerCase):
     """main() --images uploads, then resolves, so a fresh upload lands with both ids."""
 
@@ -339,14 +550,16 @@ class ImagesFlowTest(MockServerCase):
         saved = json.loads(self.ids.read_text(encoding="utf-8"))
         self.assertEqual((saved["Shop"]["assetId"], saved["Shop"]["imageId"]), (555, SHOP_IMAGE))
         self.assertIn("Decal 555 -> Image %d" % SHOP_IMAGE, out)
-        gets = [h for m, _, h in _MockRoblox.log if m == "GET"]
+        gets = [(path, h) for m, path, h in _MockRoblox.log if m == "GET"]
         posts = [h for m, _, h in _MockRoblox.log if m == "POST"]
-        self.assertEqual((len(posts), len(gets)), (1, 1))
-        self.assertEqual(posts[0].get("x-api-key"), "test-key-not-real")   # the Open Cloud call has the key
-        self.assertNotIn("x-api-key", gets[0])                              # the asset delivery call never does
+        self.assertEqual((len(posts), [p for p, _ in gets]), (1, ["/asset-delivery-api/v1/assetId/555", "/cdn/555"]))
+        self.assertEqual(posts[0].get("x-api-key"), "test-key-not-real")   # the Open Cloud calls have the key
+        self.assertEqual(gets[0][1].get("x-api-key"), "test-key-not-real")
+        self.assertNotIn("x-api-key", gets[1][1])                           # the CDN location never does
         self.assertNotIn("test-key-not-real", out + err)
 
     def test_a_failed_resolve_after_a_good_upload_exits_1_and_says_how_to_finish(self) -> None:
+        _MockRoblox.cloud_denied = True
         _MockRoblox.delivery_failures["/v1/asset/?id=555"] = [403, 403, 403, 403]
         code, out, _ = run_main(["--images", "--ids-file", str(self.ids), "--poll-interval", "0"], self.env)
         self.assertEqual(code, 1)
@@ -596,10 +809,10 @@ class TexturesFlowTest(MockServerCase):
         self.assertIn(b'"assetType": "Decal"', posts[0])
         self.assertIn(b'"displayName": "fur_color"', posts[0])                # no slash in the display name
         self.assertIn(b"image/png", posts[0])
-        keyed = [h for m, _, h in _MockRoblox.log if m == "POST"]
+        keyed = [h for m, path, h in _MockRoblox.log if m == "POST" or path.startswith("/asset-delivery-api/")]
         self.assertTrue(all(h.get("x-api-key") == "test-key-not-real" for h in keyed))
-        gets = [h for m, _, h in _MockRoblox.log if m == "GET"]
-        self.assertTrue(gets and all("x-api-key" not in h for h in gets))
+        others = [h for m, path, h in _MockRoblox.log if m == "GET" and not path.startswith("/asset-delivery-api/")]
+        self.assertTrue(others and all("x-api-key" not in h for h in others))     # the CDN and anonymous hosts never get it
         self.assertNotIn("test-key-not-real", out + err + self.ids.read_text(encoding="utf-8"))
 
     def test_only_takes_a_single_map_and_rejects_unknown_names(self) -> None:
@@ -636,13 +849,16 @@ class TexturesFlowTest(MockServerCase):
         self.assertEqual(code, 0, out)
         self.assertEqual(sorted(json.loads(self.ids.read_text(encoding="utf-8"))), ["ice/color"])
 
-    def test_a_refused_resolve_prints_the_studio_route(self) -> None:
+    def test_a_refused_resolve_prints_the_scope_and_the_studio_route(self) -> None:
+        _MockRoblox.cloud_denied = True                      # the key lacks legacy-asset:manage, as on the Mac
         _MockRoblox.delivery_failures["/v1/asset/?id=555"] = [401]
         code, out, _ = self.run_textures(["--only", "ice/color"])
         self.assertEqual(code, 1)
         saved = json.loads(self.ids.read_text(encoding="utf-8"))
         self.assertEqual(saved["ice/color"]["assetId"], 555)
         self.assertNotIn("imageId", saved["ice/color"])
+        self.assertIn("legacy-asset:manage", out)
+        self.assertEqual(out.count("Open Cloud asset delivery refused the key"), 1)
         self.assertIn("--emit-decals-luau", out)
         self.assertIn("--from-studio", out)
 
