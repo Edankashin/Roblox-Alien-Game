@@ -8,8 +8,8 @@ tier: Secret
 status: review
 element: Shadow
 height: 3.5
-blocks: 114
-tris: 1386
+blocks: 119
+tris: 1436
 bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#4A4166", "#1E1A2E", "#8E6BFF", "#8C86A6", "#B28CFF", "#0B0812"]
@@ -23,16 +23,16 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Panpipe_sheet.svg]]"
 render: "[[Panpipe_tq_cells.jpg]]"
 glb: ""
-overlap: [0.994, 0.996, 0.998, 0.995]
+overlap: [0.995, 0.997, 0.998, 0.995]
 vfx_render: "[[Panpipe_vfx_cells.jpg]]"
 cells_render: "[[Panpipe_tq_cells.jpg]]"
 idle_render: "[[Panpipe_idle.png]]"
 ---
 # Panpipe (Syrinx), Secret, World 1 Verdant
 
-A small shadow goat kid, 3.5 studs to the tips of its horns (B45: it was 13, a church organ on legs; a goat kid stands top of the band by its horns, not its tier), slate and near-black with one accent, violet. Six dark reeds rise off its right haunch, tallest at the outside, stepping down toward its spine, their mouths and lips lit and bound in two pewter bands over a pewter foot; four pewter horns crown its head (a big pair stepping up and back like an ibex's, each with a dark ridge, two lit violet bands and a lit tip, and a small pair in front with lit tips), and a pewter circlet with a lit violet gem crosses its brow. A stepped dark beard, a pewter bell with a lit clapper, long droopy wool ears with violet tips, wool tufts on its cheeks, cloven pewter hooves under wool fetlocks, a dark saddle blanket with violet hems, pewter tassels and lit sound bars on its drapes, lit sound glyphs on the sides of its head, and two lit music notes that drift round it. Concept row in `src/shared/data/Species.luau`: "goat, reed pipes". Element: Shadow (`Effects.luau`); [[Roster-Redesign]] section 2 gives the drifting notes, the falling shadow, the turning ring and the vanish-and-return. Rules: [[Blocky-Style]].
+A small shadow goat kid, 3.5 studs to the tips of its horns (B45: it was 13, a church organ on legs; a goat kid stands top of the band by its horns, not its tier), slate and near-black with one accent, violet. Six dark reeds rise off its right haunch, tallest at the outside, stepping down toward its spine, their mouths and lips lit and bound in two pewter bands over a pewter foot; four pewter horns crown its head (a big pair stepping up and back like an ibex's, each with a dark ridge, two lit violet bands and a lit tip, and a small pair in front with lit tips), and a pewter circlet with a lit violet gem crosses its brow on a fringe of dark wool that frames the face, curled at its top corners and hanging in a lock beside each eye. A stepped dark beard, a pewter bell with a lit clapper, long droopy wool ears with violet tips, wool tufts on its cheeks, cloven pewter hooves under wool fetlocks, a dark saddle blanket with violet hems, pewter tassels and lit sound bars on its drapes, lit sound glyphs on the sides of its head, and two lit music notes that drift round it. Concept row in `src/shared/data/Species.luau`: "goat, reed pipes". Element: Shadow (`Effects.luau`); [[Roster-Redesign]] section 2 gives the drifting notes, the falling shadow, the turning ring and the vanish-and-return. Rules: [[Blocky-Style]].
 
-**What makes a player want it (B46).** It is the one dark thing in a bright meadow, no bigger than a Rare, and the most secret thing in it: 114 blocks, most of them sixteenth-stud cells (the reeds, the horn bands, the sound bars, the circlet); a 32-column face (0.0625 body cells, the finest grid, shared only with Raddis); its own `echo` eyes, which no other species wears: a dark iris where rings of violet ripple out from a lit core and fade, like a note heard from far away; nine moving things; and a flourish every 16 s that is a vanishing trick: it hops, sinks into dark smoke, turns and comes back as its pipes trill under a violet column. Where Raddis is a blaze of gold, Syrinx is a rumour: it beats the Cosmic for mystery, not size. Gentle, never a boss: a kid goat with a small smile.
+**What makes a player want it (B46).** It is the one dark thing in a bright meadow, no bigger than a Rare, and the most secret thing in it: 119 blocks, most of them sixteenth-stud cells (the reeds, the horn bands, the sound bars, the circlet); a 32-column face (0.0625 body cells, the finest grid, shared only with Raddis); its own `echo` eyes, which no other species wears: a dark iris where rings of violet ripple out from a lit core and fade, like a note heard from far away; nine moving things; and a flourish every 16 s that is a vanishing trick: it hops, sinks into dark smoke, turns and comes back as its pipes trill under a violet column. Where Raddis is a blaze of gold, Syrinx is a rumour: it beats the Cosmic for mystery, not size. Gentle, never a boss: a kid goat with a small smile.
 
 **Hero block.** The `Pipe` set, six reeds of a panpipe grown into a goat's back, unique in Verdant.
 
@@ -63,9 +63,14 @@ parts:
   - {name: Forelock, slot: BodyDark, size: [0.75, 0.125, 0.5], at: [0, 2.5625, -1], material: wool}
   - {name: Topknot, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0, 2.6875, -1], material: wool}
   - {name: CheekTuft, slot: Body, size: [0.0625, 0.25, 0.375], at: [1.03125, 1.25, -1], mirror: x, material: wool}
-  # a pewter circlet across the brow with a lit violet gem; lit sound glyphs (two bars) on the head's sides
-  - {name: Circlet, slot: Trim, size: [1, 0.125, 0.0625], at: [0, 2.3125, -1.53125], material: metal}
-  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.59375]}
+  # Polish w1: a fringe of dark wool proud of the forehead by an eighth, a curl on each end of its top edge and a lock hanging from each end
+  # beside the eyes, and on it the pewter circlet with its lit violet gem, so the face steps back in three layers from the gem to the eyes
+  # and the dark fringe frames it; lit sound glyphs (two bars) on the head's sides
+  - {name: Brow, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0, 2.375, -1.5625], material: wool}
+  - {name: BrowCurl, slot: BodyDark, size: [0.375, 0.125, 0.1875], at: [0.5625, 2.5625, -1.53125], mirror: x, material: wool}
+  - {name: BrowLock, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.8125, 2.125, -1.5625], mirror: x, material: wool}
+  - {name: Circlet, slot: Trim, size: [1, 0.125, 0.0625], at: [0, 2.3125, -1.65625], material: metal}
+  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.71875]}
   - {name: Rune, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.03125, 1.4375, -0.34375], mirror: x}
   - {name: Rune2, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.03125, 1.5, -0.21875], mirror: x}
   # a stepped dark beard under the chin (it sways), a pewter bell with a lit clapper beside it (it swings)
@@ -227,3 +232,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, loop 2 worker, three rounds. Round 1: small pewter horns read as stubs and pewter pipes as a grey chimney behind the head. Round 2: bigger horns sweeping up, out and down read as branches. Round 3: ibex horns that arch back (a chain of tilted segments with a lit band, a dark ridge and lit tips), the pipes dark reeds with lit mouths and lit lips in pewter bands, the ears drooped; the preview gives it a violet ring and falling shadow smoke. Overlap 0.996 to 0.998, 1,504 triangles, 108 blocks, 13 studs. Wanted for: the one dark thing in a bright meadow, a gentle giant that plays its own organ and that you can ride. Still cheap: in daylight it is a muted purple box with a face; the beard and bell are small; the shadow wool reads as stripes on the legs from the side. Status review.
 - 2026-10-17, block-cell worker, three rounds (cells). The violet flecks and the grout lift the dark coat in daylight (the open item of loop 2, partly: it is still the darkest thing on the meadow, as a Secret should be); the reeds read as reeds. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, two rounds. Round 1: rebuilt from 13 studs to 3.5 by redesign: a goat kid with a 2-stud head on a 32-column face (0.0625 cells, 56 cells tall), the ibex horns as sixteenth-stud steps with two lit bands each, a pewter circlet with a lit gem, a stepped beard and a swinging bell, a saddle with sound bars and tassels, two drifting notes, six reeds in sixteenth-stud cells; its own eyes, `echo`, a new Secret design added to the library (rings of violet rippling out of a lit core over eight frames), a smile, dim violet star cheeks. 114 blocks. The reeds across the rump, behind the head, made it a box with two horns: 0.720 against Gaira and 0.718 against Buzzik in the silhouette test. Round 2: the reeds moved a stud to the right so they rise off the right haunch, tallest at the outside (a stepped ramp beside the head from the front), and the ears grew a quarter stud: 0.675 and 0.64. Eight moving objects and the blink; a flourish every 16 s (the vanish-and-return: a hop, a sink, a full turn, the pipes popping on the trill). Overlap 0.994 to 0.998, 1,386 triangles. Wanted for: the one dark thing on the meadow, the size of a Rare, with eyes that ripple like a note from far off; a rumour beside Raddis's blaze. Still weak: the slate head is a flat plane between the circlet and the eyes; the horns read as stacked blocks more than an arch from the three-quarter view. Status review.
+- 2026-10-21, Polish w1, two rounds. The flat forehead between the circlet and the eyes: a fringe of dark wool now stands an eighth proud of the forehead across the head's width, curled at its top corners and hanging in a lock beside each eye, and the pewter circlet and its lit gem sit on it, so the face steps back in three layers (gem, circlet, fringe) to the eyes and the dark fringe frames the slate face. Round 1 made the ridge in the slate body colour and it vanished; the dark wool reads. 119 blocks (Secret 110 to 200). Overlap 0.995 to 0.998. Honest read: the face now has a brow and a frame, the circlet reads as jewellery on a forelock; below the eyes the face is still one slate plane, which keeps the face calm. Status review.

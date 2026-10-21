@@ -20,14 +20,14 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Gloomoth_sheet.svg]]"
 render: "[[Gloomoth_tq_cells.jpg]]"
 glb: ""
-overlap: [0.992, 0.995, 0.998, 0.992]
+overlap: [0.995, 0.995, 0.998, 0.995]
 vfx_render: "[[Gloomoth_vfx_cells.jpg]]"
 cells_render: "[[Gloomoth_tq_cells.jpg]]"
 idle_render: "[[Gloomoth_idle.png]]"
 ---
 # Gloomoth (Iridia), Epic, World 1 Verdant
 
-A night moth in mauve and pale lilac whose wings are crystal, 3.44 studs to its antenna tips (B45: it was 3.64; a moth is tall only by its feelers): a big square head in a shaggy lilac ruff that steps out wide at the top with a tuft at each shoulder and a wool tuft on the crown, a stepped gold crystal diamond on its forehead over the face plate, two slender feathered antennae leaning apart (a stalk, two stepped feather plates on its outer side and a lit orchid tip), a fuzzy banded abdomen behind on six thin legs, and four pale crystal wings spread off its back: the big fore pair lifted, each with a rear lobe stepped out behind, a plum edge and a gold-ringed orchid eyespot, the hind pair low behind with plum edges. A small gold crystal shard circles over its back. Concept row in `src/shared/data/Species.luau`: "moth, crystal wings". Element and effect: [[Roster-Redesign]] section 2 (Crystal; a glint sweeps the wings and light dust falls). Rules: [[Blocky-Style]].
+A night moth in mauve and pale lilac whose wings are crystal, 3.44 studs to its antenna tips (B45: it was 3.64; a moth is tall only by its feelers): a big square head in a shaggy lilac ruff that steps out wide at the top with a tuft at each shoulder and a wool tuft on the crown, a stepped gold crystal diamond on its forehead over the face plate, two slender feathered antennae leaning apart (a stalk, two stepped feather plates on its outer side and a lit orchid tip), a fuzzy banded abdomen behind on six thin legs, and four pale crystal wings spread off its back: the big fore pair lifted and pitched toward the front so their faces show, each with a rear lobe stepped out behind, a plum edge and a gold-ringed orchid eyespot, the hind pair low behind with plum edges. A small gold crystal shard circles over its back. Concept row in `src/shared/data/Species.luau`: "moth, crystal wings". Element and effect: [[Roster-Redesign]] section 2 (Crystal; a glint sweeps the wings and light dust falls). Rules: [[Blocky-Style]].
 
 **What makes a player want it (B46).** At the height of a Rare it is plainly a step up: 45 blocks to the Rares' 30 to 35, most of them sixteenth-stud plates (the antennae's feathers, the wing lobes and edges, the forehead diamond); its own `gem` eyes (an amethyst iris with an orchid diamond pupil inside a lit gold rim, and heart cheeks, the first in Verdant below the Legendary); seven moving objects and the blink (fore wings, hind wings, antennae, the circling shard); and a flourish every 10 s that reads across the meadow: it hops and shakes out all four wings while the effects throw a burst of prism sparkles. Exclusive by its jewellery and its light, never by size or a fierce face.
 
@@ -71,16 +71,17 @@ parts:
   - {name: Feather, slot: BodyDark, size: [0.25, 0.5, 0.0625], at: [0.8125, 2.875, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
   - {name: Feather2, slot: BodyDark, size: [0.1875, 0.25, 0.0625], at: [1.03125, 2.8125, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
   - {name: AntennaTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 3.3125, -0.5625], shape: ico1, mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
-  # the hero: the crystal fore wings spread wide and lifted 25 degrees, a lobe stepped out behind, a plum edge along the outer rim, a
-  # gold-ringed orchid eyespot on each (they beat)
-  - {name: ForeWing, slot: Accessory, size: [2, 0.125, 1.75], at: [1.6875, 2.1875, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: WingLobe, slot: Accessory, size: [1, 0.125, 0.5], at: [2.03125, 2.34375, 1.5], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: WingEdge, slot: BodyDark, size: [0.125, 0.25, 1.75], at: [2.5, 2.625, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
-  - {name: EyeRing, slot: Trim, size: [0.625, 0.125, 0.625], at: [1.75, 2.375, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: metal}
-  - {name: Eyespot, slot: Glow, size: [0.375, 0.125, 0.375], at: [1.75, 2.4375, 0.375], rot: [0, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
-  # the smaller hind wings, low behind, 15 degrees up, a plum edge on each (they beat a little behind the fore pair)
-  - {name: HindWing, slot: Accessory, size: [1.25, 0.125, 1.5], at: [1.375, 1.6875, 1.625], rot: [0, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
-  - {name: HindEdge, slot: BodyDark, size: [0.125, 0.1875, 1.5], at: [1.96875, 1.84375, 1.625], rot: [0, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625]}
+  # the hero: the crystal fore wings spread wide and lifted 25 degrees, and (Polish w1) pitched 25 degrees about their own span, leading
+  # edge down and trailing edge up, so their faces turn to the front and the three-quarter camera sees the eyespots, not an edge; a lobe
+  # stepped out behind, a plum edge along the outer rim, a gold-ringed orchid eyespot on each (they beat)
+  - {name: ForeWing, slot: Accessory, size: [2, 0.125, 1.75], at: [1.6875, 2.1875, 0.375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: WingLobe, slot: Accessory, size: [1, 0.125, 0.5], at: [1.84375, 2.78125, 1.40625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: WingEdge, slot: BodyDark, size: [0.125, 0.25, 1.75], at: [2.5, 2.625, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
+  - {name: EyeRing, slot: Trim, size: [0.625, 0.125, 0.625], at: [1.75, 2.375, 0.3125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: metal}
+  - {name: Eyespot, slot: Glow, size: [0.375, 0.125, 0.375], at: [1.75, 2.40625, 0.28125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
+  # the smaller hind wings, low behind, 15 degrees up and pitched 15 degrees the same way, a plum edge on each (they beat a little behind)
+  - {name: HindWing, slot: Accessory, size: [1.25, 0.125, 1.5], at: [1.375, 1.6875, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
+  - {name: HindEdge, slot: BodyDark, size: [0.125, 0.1875, 1.5], at: [1.96875, 1.84375, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625]}
   # alien anatomy: a shard of gold crystal circling over its back
   - {name: Shard, slot: Trim, size: [0.25, 0.375, 0.25], at: [0, 3, 0.75], shape: ico1, moves: shard, pivot: [0, 3, 0.75], material: crystal}
 ```
@@ -164,3 +165,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 
 - 2026-10-19, World 1 roster worker, two rounds. Round 1: the fore wings stood up 65 degrees like sails and read as two white boards behind the head, and the eyespots faced sideways where the game's high camera would not see them. Round 2: the fore wings 2 studs square spread wide at 25 degrees (a 6-stud span) with the eyespots and gold rings on their tops, the hind pair low at 15; the silhouette against Syrinx fell from 0.69 to 0.50. Wanted for: the first wings in Verdant that catch the light. Still cheap: the comb antennae are busy (two stalks and six teeth), the ruff reads as a white collar block, the emblem on the crown is small. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: from 3.64 studs to 3.44 by slimming the antennae (a 0.125 stalk with two sixteenth-stud feather plates and the lit tip, for the old 0.625 blades), the fore wings each with a rear lobe, the hind wings with plum edges and moving, a gold crystal shard circling over the back, a crystal emblem on the forehead; its own `gem` eyes (amethyst iris, orchid diamond pupil, lit gold rim) with a smile and heart cheeks. Round 2: the moon-cream wings vanished against the pale backdrop and the three-cell emblem read as a plus (the medical-cross lesson of World 2), so the accent went to a pale lilac crystal `#D9C8FF` (wings and ruff) and the emblem is a five-row stepped diamond in sixteenth-stud plates. Seven moving objects and the blink; a flourish every 10 s (a hop shaking out all four wings, antennae swishing, the shard leaping). Overlap 0.992 to 0.998, 45 blocks. Wanted for: jewelled eyes and lit eyespots on a soft moth, a step up from every Rare at the same height. Still weak: from the three-quarter camera the fore wings are near edge-on (the game's high camera sees their tops); the six legs are still thin posts. Status review.
+- 2026-10-21, Polish w1, one round. The fore wings were spread flat and lifted 25 degrees, so the three-quarter camera saw them almost edge-on and the eyespots were slivers: each wing and everything on it now also pitches 25 degrees about its own span (rot [-25, 0, 25], every centre turned about the wing's pivot), leading edge down and trailing edge up, so the faces turn toward the front and the gold-ringed eyespots read from the review angle; the hind wings pitch 15 the same way. Not the 65-degree sails of the 2026-10-19 round 1 (two white boards behind the head): the wings still spread wide and low. 45 blocks. Overlap 0.995 to 0.998. Honest read: the wings now read as a moth's wings showing their eyespots, the first thing seen from the review angle. Status review.

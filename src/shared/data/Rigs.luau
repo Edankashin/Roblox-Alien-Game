@@ -349,14 +349,14 @@ local species: { [string]: Types.RigRow } = {
 	Panpipe = {
 		height = 3.5,
 		parts = {
-			{ name = "beard", pivot = { 0, 1, -1.5 }, clips = { { kind = "sway", amp = 5, period = 3, phase = 0, axis = "x" } } },
-			{ name = "bellR", pivot = { 0.5625, 1, -1.3125 }, clips = { { kind = "sway", amp = 12, period = 1.9, phase = 0.2, axis = "x" } } },
-			{ name = "earL", pivot = { -1, 2.1875, -1 }, clips = { { kind = "sway", amp = -8, period = 3.4, phase = 0, axis = "z" } } },
-			{ name = "earR", pivot = { 1, 2.1875, -1 }, clips = { { kind = "sway", amp = 8, period = 3.4, phase = 0, axis = "z" } } },
-			{ name = "note2R", pivot = { 1.25, 2.625, 0.5312 }, clips = { { kind = "orbit", amp = 0.2, period = 5, phase = 0.5, axis = "y" }, { kind = "bob", amp = 0.08, period = 2.6, phase = 0.3, axis = "y" } } },
-			{ name = "noteL", pivot = { -1.125, 2.875, -0.5938 }, clips = { { kind = "orbit", amp = 0.25, period = 7, phase = 0, axis = "y" }, { kind = "bob", amp = 0.1, period = 2.2, phase = 0, axis = "y" } } },
-			{ name = "pipesR", pivot = { 1.1562, 1.625, 1.375 }, clips = { { kind = "pulse", amp = 0.03, period = 4, phase = 0, axis = "y" } } },
-			{ name = "tail", pivot = { 0, 1.5, 1.75 }, clips = { { kind = "wag", amp = 14, period = 2.8, phase = 0, axis = "y" } } },
+			{ name = "beard", pivot = { 0, 1, -1.4375 }, clips = { { kind = "sway", amp = 5, period = 3, phase = 0, axis = "x" } } },
+			{ name = "bellR", pivot = { 0.5625, 1, -1.25 }, clips = { { kind = "sway", amp = 12, period = 1.9, phase = 0.2, axis = "x" } } },
+			{ name = "earL", pivot = { -1, 2.1875, -0.9375 }, clips = { { kind = "sway", amp = -8, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 1, 2.1875, -0.9375 }, clips = { { kind = "sway", amp = 8, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "note2R", pivot = { 1.25, 2.625, 0.5938 }, clips = { { kind = "orbit", amp = 0.2, period = 5, phase = 0.5, axis = "y" }, { kind = "bob", amp = 0.08, period = 2.6, phase = 0.3, axis = "y" } } },
+			{ name = "noteL", pivot = { -1.125, 2.875, -0.5312 }, clips = { { kind = "orbit", amp = 0.25, period = 7, phase = 0, axis = "y" }, { kind = "bob", amp = 0.1, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "pipesR", pivot = { 1.1562, 1.625, 1.4375 }, clips = { { kind = "pulse", amp = 0.03, period = 4, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 1.5, 1.8125 }, clips = { { kind = "wag", amp = 14, period = 2.8, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "squash", amp = 0.025, period = 3.4, phase = 0, axis = "y" } },
 		face = {

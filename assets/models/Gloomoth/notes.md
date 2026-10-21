@@ -10,7 +10,7 @@
 - Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `antennaL` (moves, Neon, pivot -0.5, 2.5, -1.1562); `antennaR` (moves, Neon, pivot 0.5, 2.5, -1.1562); `hindwingL` (moves, cells, pivot -0.75, 1.5, 1.0312); `hindwingR` (moves, cells, pivot 0.75, 1.5, 1.0312); `shard` (moves, cells, pivot 0, 3, 0.1562); `wingL` (moves, cells, pivot -0.75, 1.75, -0.2188); `wingR` (moves, cells, pivot 0.75, 1.75, -0.2188); `FacePlate` (the face sheet, frame 0)
 - Eyes: `gem`; the face plate is 28x14 px a frame, 5 frames (open, half, closed, glint1, glint2) in Gloomoth_face.png, 4 a row (Rigs face.columns)
 - Rig: 7 moving parts, root clips 1, flourish every 10s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
-- Files: Gloomoth.glb (84600 bytes), Gloomoth.fbx (92188 bytes, texture embedded), Gloomoth_atlas.png, Gloomoth_face.png, materials.json, Gloomoth.png and Gloomoth_grey.png (256 px previews)
+- Files: Gloomoth.glb (84444 bytes), Gloomoth.fbx (92540 bytes, texture embedded), Gloomoth_atlas.png, Gloomoth_face.png, materials.json, Gloomoth.png and Gloomoth_grey.png (256 px previews)
 - Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
 Regenerate with `$BPY tools/blocky/export_models.py --species Gloomoth`; check with `python3 -I tools/blocky/export_models.py --check --species Gloomoth`.
