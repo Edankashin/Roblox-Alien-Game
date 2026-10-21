@@ -428,7 +428,9 @@ What the ten taught:
 
 ## Roster w2_high notes
 
-2026-10-21, the Roster w2_high worker: World 2's Rare to Cosmic ([[Capybubble]], [[Reindazzle]], [[Shellberg]], [[Frostfang]], [[Shimmerlynx]], [[Skaddle]], [[Fenripup]]) through "How a roster worker applies B46"; two eye designs added to the library (`frost`, Epic, a snowflake pupil; `lunar`, Cosmic, a waxing and waning moon). The batch sheet: `media/studio/2026-10-21/Roster w2_high_v1.jpg`. What the seven taught:
+2026-10-21, the Roster w2_high worker: World 2's Rare to Cosmic ([[Capybubble]], [[Reindazzle]], [[Shellberg]], [[Frostfang]], [[Shimmerlynx]], [[Skaddle]], [[Fenripup]]) through "How a roster worker applies B46"; two eye designs added to the library (`frost`, Epic, a snowflake pupil; `lunar`, Cosmic, a waxing and waning moon). The batch sheet: `media/studio/2026-10-21/Roster w2_high_v1.jpg` (copied to `refs/blocky/`); World 2's sixteen now sit at 0.68 or under (worst Flurra and Floe, 0.68; `refs/blocky/world2_silhouettes_b46.png`; the Commons and Uncommons are still their 2026-10-20 builds here). What the seven taught:
+
+![Roster w2_high v1: the seven before and after, VFX previews, face plates, the lineup to scale and the silhouette row](refs/blocky/Roster%20w2_high_v1.jpg)
 
 - **A snout is a block under the plate.** Snorzo, Blinkar, Sabrek and Fenrir carry their nose and mouth on a muzzle block standing out of the head's lower front (`mouth: none` on the plate), and the plate stops at the muzzle's top: the eyes stay 40 percent down, the snout reads in profile, and the face is still one plate. Plain eighth-stud ink cells (two corners and a bar) make the smile; a single cell centred on x = 0 is off the grid at Rare (a centred block takes an even number of cells).
 - **Cool light under a dark eye is a tear, whatever the design.** Blinkar's ice-blue glimmer glint and Floe's cyan crescent on a teal head both read as tears; a warm white glint and a gold crescent read as lit. A floating part near the cheek does it too: Snorzo's smallest snore bubble under its eye was a tear until the chain rose beside the snout.
