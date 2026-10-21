@@ -17,6 +17,20 @@ local budget: Types.RigBudget = {
 }
 
 local species: { [string]: Types.RigRow } = {
+	Chipmole = {
+		height = 2.375,
+		parts = {
+			{ name = "pickL", pivot = { -1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "pickR", pivot = { 1, 0.5, -1.0625 }, clips = { { kind = "sway", amp = 12, period = 2.4, phase = 0, axis = "x" } } },
+			{ name = "tail", pivot = { 0, 0.875, 1.6875 }, clips = { { kind = "wag", amp = 20, period = 1.6, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "squash", amp = 0.04, period = 2.2, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 10, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Mossbop = {
 		height = 2.475,
 		parts = {
