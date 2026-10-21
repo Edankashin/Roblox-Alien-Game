@@ -37,7 +37,9 @@
 -- says where it is for the house grid. After the plot the home also stands three trophy-hangar pads in a row on -Z
 -- of the camp (HangarPad1..3, flat cylinders the client draws the launched worlds' hulls on), a placeholder Kiosk
 -- block for the spin wheel and a placeholder Mailbox block, each only when the layout sets its fields; the
--- placeholders' sizes and colours are layout data (data/Home).
+-- placeholders' sizes and colours are layout data (data/Home). The home's flat floor and its plot wear block-cell tiles
+-- (Decision B44; data/Home FloorTile, FloorSideTile, PlotTile: grass over the grass-and-dirt side, cobbles on the plot), each
+-- falling back to its layout colour and the tile's fallback Material while the tile's image id is 0.
 
 local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
@@ -54,6 +56,7 @@ local Types = require(Shared.types.Types)
 local WorldGrid = require(Shared.WorldGrid)
 local WorldKit = require(Shared.data.WorldKit)
 local BlockTiles = require(Shared.data.BlockTiles)
+local HomeLayout = require(Shared.data.Home) -- the home planet's floor and plot tiles (FloorTile, FloorSideTile, PlotTile), read only at home
 
 local Meadow = {}
 
@@ -530,6 +533,23 @@ local function addTexture(part: BasePart, key: string, face: Enum.NormalId, face
 	texture.Parent = part
 end
 
+-- A flat builder part (the home planet's floor and plot; data/Layouts FloorTile, FloorSideTile, PlotTile) in block-cell tiles: `top` on
+-- its top face and `side` on its four sides, pinned like a generated cap's (the tile's top edge on the part's top). While a key's id is
+-- 0 the face gets no Texture and the part takes that tile's fallback Material over its layout colour, so it reads the same, flatter.
+local function tileFlat(part: BasePart, top: string?, side: string?)
+	if top then
+		if tileId(top) == 0 then
+			part.Material = enumMaterial(BlockTiles.FallbackMaterial[top] or "SmoothPlastic")
+		end
+		addTexture(part, top, Enum.NormalId.Top)
+	end
+	if side then
+		for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left, Enum.NormalId.Back, Enum.NormalId.Front }) do
+			addTexture(part, side, face)
+		end
+	end
+end
+
 -- The side faces a row's bits name: 1 +X (Right), 2 -X (Left), 4 +Z (Back), 8 -Z (Front).
 local SIDE_FACES: { { bit: number, face: Enum.NormalId } } = {
 	{ bit = 1, face = Enum.NormalId.Right },
@@ -804,7 +824,8 @@ local function buildCamp(floorTop: number, world: Instance)
 	-- The home's plot for the house grid: a flat block on the floor, past the pad on +Z.
 	local plot = plotShape()
 	if plot then
-		basePart("Plot", Enum.PartType.Block, Vector3.new(plot.side, plot.thickness, plot.side), CFrame.new(0, floorTop + plot.thickness / 2, plot.centerZ), plot.color, world)
+		local part = basePart("Plot", Enum.PartType.Block, Vector3.new(plot.side, plot.thickness, plot.side), CFrame.new(0, floorTop + plot.thickness / 2, plot.centerZ), plot.color, world)
+		tileFlat(part, if Place.IsHome() then HomeLayout.PlotTile else nil, nil)
 	end
 
 	-- The trophy hangar's pads, the spin wheel kiosk and the mailbox (home only: other layouts set none of them).
@@ -856,9 +877,12 @@ function Meadow.Init()
 		return
 	end
 
-	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
+	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2. On the home planet it wears block-cell tiles.
 	local floorTop = Layout.FloorThickness / 2
-	markGround(basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world))
+	local floor = markGround(basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world))
+	if Place.IsHome() then
+		tileFlat(floor, HomeLayout.FloorTile, HomeLayout.FloorSideTile)
+	end
 
 	-- Camp pad at the origin with the SpawnLocation on top, the home plot and stands.
 	buildCamp(floorTop, world)

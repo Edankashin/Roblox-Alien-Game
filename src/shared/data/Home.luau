@@ -39,7 +39,12 @@ return {
 	Seed = 20261006,
 	FloorSize = 200,
 	FloorThickness = 1,
-	FloorColor = "9ED6F0",
+	FloorColor = "6FBF4A", -- World 1 grass (Blocky-Style E3), the GrassTop tile's colour, so the floor reads the same before the upload
+	-- block-cell tiles (data/BlockTiles, Decision B44): grass on the floor's top over the grass-and-dirt side, cobbles on the plot.
+	-- While a tile's id is 0 the face keeps the colour and the tile's fallback Material (Services/Meadow)
+	FloorTile = "GrassTop",
+	FloorSideTile = "GrassSide",
+	PlotTile = "Path",
 	CampPadRadius = 12,
 	CampPadThickness = 0.4,
 	CampPadColor = "FFF4DC",
@@ -73,7 +78,7 @@ return {
 	PlotCells = 6,
 	PlotCellStuds = 4,
 	PlotOffsetStuds = 24,
-	PlotColor = "E8DCC0",
+	PlotColor = "C9B48A", -- the Path tile's colour (cobbles)
 	PlotThickness = 0.3,
 	-- the trophy hangar (42d): one scaled ship per world the player has launched from, in a row on -Z of the camp
 	HangarCenterZ = -40, -- the row's centre, studs from the origin on -Z
