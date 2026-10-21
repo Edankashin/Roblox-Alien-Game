@@ -1361,18 +1361,30 @@ function Builder.blockClose(panel: Frame, panelHeight: number, onClose: () -> ()
 	}, onClose)
 end
 
--- A one-line input in the theme's look: panel-coloured box with a navy border, Fredoka text with the
+-- A one-line input in the theme's look: panel-coloured box with a navy ink, Fredoka text with the
 -- no text stroke (navy on cream), left-aligned inside a scale padding. The text is kept when it gains focus (typing
 -- edits it); the caller reads .Text and listens to FocusLost for Enter.
+-- In block cells (the Settings change): the box sits in a fitted flat block plate in the panel cream with the navy ink (the
+-- plate takes the position, size and anchor; the box fills its face, clear, so it is the plate that shows). The box's Parent is
+-- that plate; a caller reads .Text and FocusLost as before.
 function Builder.textBox(props: TextBoxProps): TextBox
+	local holder = Builder.blockPlate({
+		parent = props.parent,
+		name = (props.name or "TextBox") .. "Plate",
+		color = Theme.Colors.Panel,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		position = props.position,
+		size = props.size,
+		anchor = props.anchor,
+		zIndex = props.zIndex,
+	})
 	local box = Instance.new("TextBox")
 	box.Name = props.name or "TextBox"
-	box.Position = props.position or UDim2.fromScale(0, 0)
-	box.Size = props.size or UDim2.fromScale(1, 1)
-	box.AnchorPoint = props.anchor or Vector2.zero
+	box.Position, box.Size = Builder.blockInner(holder)
 	box.BorderSizePixel = 0
-	box.BackgroundColor3 = Theme.Colors.Panel
-	box.ZIndex = props.zIndex or 1
+	box.BackgroundTransparency = 1
+	box.ZIndex = Builder.blockTop(holder)
 	box.FontFace = Font.fromEnum(Theme.Font)
 	box.Text = ""
 	box.PlaceholderText = props.placeholder
@@ -1383,19 +1395,15 @@ function Builder.textBox(props: TextBoxProps): TextBox
 	box.ClearTextOnFocus = false
 	box.MultiLine = false
 	box.ClipsDescendants = true
-	Builder.corner(box, Theme.Corner.Button)
-	Builder.stroke(box, Theme.Stroke.Text, Theme.Colors.Outline, Enum.ApplyStrokeMode.Border)
 	local sizes = Instance.new("UITextSizeConstraint")
 	sizes.MinTextSize = Theme.TextSize.Min
 	sizes.MaxTextSize = math.max(Theme.TextSize.Min, props.textSize or Theme.TextSize.Body)
 	sizes.Parent = box
 	local padding = Instance.new("UIPadding")
 	padding.PaddingLeft = UDim.new(0.05, 0)
-	padding.PaddingRight = UDim.new(0.05, 0)
-	padding.PaddingTop = UDim.new(0.12, 0)
-	padding.PaddingBottom = UDim.new(0.12, 0)
+	padding.PaddingRight = UDim.new(0.05, 0) -- no top or bottom padding: the plate's ink is the margin, and the 14 px floor fits
 	padding.Parent = box
-	box.Parent = props.parent
+	box.Parent = holder
 	return box
 end
 

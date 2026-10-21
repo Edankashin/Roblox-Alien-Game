@@ -396,6 +396,31 @@ describe("Block screens: Quests", function()
 	end
 end)
 
+describe("Block screens: Settings", function()
+	-- SettingsScreen.luau: the panel 0.6 x 0.78 at 1.3; six rows share 0.68 of it with 0.03 gaps, each an edged block of three rows;
+	-- a control is 0.78 of a row, a flat block button of three rows over its one-cell lip.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local w, h, grid = panel(screen, 0.6, 0.78, 1.3)
+		it(label .. ": the panel is panel cells, under 200 frames, and its shell fits", function()
+			assert(math.abs(BlockMath.Skew(grid, 1.3)) <= 0.06, "panel cells off square")
+			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
+			shell(screen, w, h, 0.78)
+		end)
+		it(label .. ": a row's cells are near the HUD's, and a control's face inside its ink is near the 14 px floor", function()
+			local share = (1 - 0.03 * 5) / 6
+			local row = 0.68 * share * h
+			local cell = row / (3 + 2 * INK)
+			assert(cell >= 6, "row cell is " .. cell .. " px")
+			local control = 0.78 * row
+			local face = control * (1 - BlockMath.Lip(1, 3, INK))
+			local inner = face * (1 - 2 * INK / (3 + 2 * INK))
+			-- 13.7 px at iPhone SE: the 14 px line touches the ink there (a known squeeze, UI Playbook "Settings"); 29.7 on the iPad
+			assert(inner >= 13.5, "a control's face is " .. inner .. " px inside its ink")
+		end)
+	end
+end)
+
 describe("Block screens: Shop", function()
 	-- ShopScreen.luau with data/Shop.Shelf: a card is 0.78 of the screen tall at 0.41 (fitted, edged, rows from its height); its
 	-- price a fitted flat block button 0.123 of the card tall; the ribbon 0.095 of the card (a flat plate 1 - 0.7 / 4 of it); the
