@@ -26,6 +26,10 @@
 -- arched bridge's deck (Body) is one walkable hull while its rails and posts (BodyDark) stay out of it (a box or a hull of
 -- both rails would wall the deck in); the moon pool ring is Precise so the pool stays open; light (Glow) never collides.
 --
+-- The home planet's nine props (the house grid's rooms, furniture and habitats, data/HomeBuild `prop`; Decision B49) are block-cell
+-- props too: a room hulls or boxes as one shape to walk round, a habitat is Precise so its pen stays open, and banners, water,
+-- flowers and glow never collide.
+--
 -- The Shrine also holds a glowing orb, the GeyserVent a steam column, the CrashWreck embers and the cave mouths crystals: those
 -- slots collide with the rest of their prop today; a per-slot override would be a field on the row if it ever matters.
 
@@ -33,6 +37,7 @@ local Types = require(script.Parent.Parent.types.Types)
 
 local Rows: { [string]: Types.PropRow } = {
 	ArchBridge = { collision = "Hull", slots = { BodyDark = "None", Accessory = "None", Glow = "None", Trim = "None" } },
+	Bench = { collision = "Box", slots = { Accessory = "None" } },
 	BlossomTree = { collision = "Box" },
 	Boulder = { collision = "Hull" },
 	BuildStation = { collision = "None" },
@@ -40,7 +45,9 @@ local Rows: { [string]: Types.PropRow } = {
 	CaveMouth = { collision = "Precise" },
 	CrashWreck = { collision = "Hull" },
 	Fence = { collision = "Box" },
+	Flag = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None" } },
 	FlowerPatch = { collision = "None" },
+	Fountain = { collision = "Hull", slots = { Trim = "None", Glow = "None", Accessory = "None" } },
 	FrozenLog = { collision = "Hull" },
 	GatherStation = { collision = "None" },
 	GeyserCone = { collision = "Box" },
@@ -50,6 +57,8 @@ local Rows: { [string]: Types.PropRow } = {
 	GlowcapGiantPink = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None", Trim = "None" } },
 	GlowcapSmall = { collision = "None" },
 	GlowFern = { collision = "None" },
+	HabitatFrostbyte = { collision = "Precise", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
+	HabitatVerdant = { collision = "Precise", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
 	HeaterLamp = { collision = "Box" },
 	IceCaveMouth = { collision = "Precise" },
 	IceCrystalCluster = { collision = "Hull" },
@@ -72,7 +81,11 @@ local Rows: { [string]: Types.PropRow } = {
 	Mushroom = { collision = "Hull" },
 	PathLantern = { collision = "Box", slots = { Accessory = "None" } },
 	Pedestal = { collision = "Hull" },
+	Planter = { collision = "Box", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
 	Reeds = { collision = "None" },
+	RoomCabin = { collision = "Hull", slots = { Glow = "None" } },
+	RoomDome = { collision = "Hull", slots = { Glow = "None", Accessory = "None" } },
+	RoomTower = { collision = "Box", slots = { Accessory = "None", Glow = "None" } },
 	ShipHull = { collision = "Hull" },
 	Shrine = { collision = "Precise" },
 	ShrineStone = { collision = "Box" },

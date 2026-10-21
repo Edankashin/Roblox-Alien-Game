@@ -12,6 +12,9 @@ Two steps, because Blender's Python has no Pillow:
   $BPY tools/blender/props_sheet.py --out <scratch dir> --night      # the Starhollow Forest props at night (Decision B48), then
   python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/starhollow_props_v1.jpg
 
+  $BPY tools/blender/props_sheet.py --out <scratch dir> --home       # the home planet's nine props (the house grid, Decision B49), then
+  python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/home_props_v1.jpg
+
 The rows: World 1's trees and rocks, World 1's small things, World 2, the landmarks, the camp, each on a floor in its world's tone (a
 mid tone, so white snow and pale ice read against it). Each prop faces the camera as the game's
 front (the note's -Z), turned a little so its side shows.
@@ -46,6 +49,14 @@ ROWS_NIGHT = [
     ("Starhollow Forest: the floating landmark, the bridge and the moon pool ring", "#2B4F58", ["StarIsland", "ArchBridge", "MoonPoolRing"]),
     ("Starhollow Forest: the path lantern and the scatter", "#2B4F58",
      ["PathLantern", "GlowcapSmall", "GlowFern", "MossStone", "SteppingStone"]),
+]
+# `--home`: the home planet's house-grid props (data/HomeBuild `prop`), on the home's grass, in daylight
+ROWS_HOME = [
+    ("The home planet: the rooms (the cabin and the dome 2 x 2 cells, the tower 1 x 1; a cell is 4 studs)", "#A9C98A",
+     ["RoomCabin", "RoomDome", "RoomTower"]),
+    ("The home planet: the habitats (3 x 3 cells), where caught aliens of each world roam on display", "#A9C98A",
+     ["HabitatVerdant", "HabitatFrostbyte"]),
+    ("The home planet: the furniture (the fountain 2 x 2 cells, the rest 1 x 1)", "#A9C98A", ["Fountain", "Bench", "Planter", "Flag"]),
 ]
 NIGHT_SKY = (0.035, 0.04, 0.12)
 NIGHT_GLOW = 5.0
@@ -87,7 +98,7 @@ def night_lights(scene, centre, extent, objs, spec_by_obj):
         k += 1
 
 
-def render_rows(out, size, samples, night=False):
+def render_rows(out, size, samples, night=False, home=False):
     sys.path.insert(0, str(HERE))
     sys.path.insert(0, str(ROOT / "tools/blocky"))
     import bpy
@@ -98,7 +109,7 @@ def render_rows(out, size, samples, night=False):
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = []
-    for r, (title, floor, names) in enumerate(ROWS_NIGHT if night else ROWS):
+    for r, (title, floor, names) in enumerate(ROWS_NIGHT if night else (ROWS_HOME if home else ROWS)):
         scene = B.reset()
         objs = list(B.avatar((0, 0, 0), out_dir=out))
         glow_hex = {}
@@ -140,7 +151,7 @@ def render_rows(out, size, samples, night=False):
         for name, px, top in centres:
             p = world_to_camera_view(scene, cam, Vector((px, 0.0, 0.0)))
             labels.append({"name": name, "u": p.x, "v": 1.0 - p.y})
-        meta.append({"title": title, "png": path.name, "labels": labels, "night": night})
+        meta.append({"title": title, "png": path.name, "labels": labels, "night": night, "home": home})
         print("row %d: %s (%d props)" % (r, path, len(names)), flush=True)
     (out / "rows.json").write_text(json.dumps(meta, indent=1))
     return 0
@@ -169,8 +180,10 @@ def compose(folder, sheet):
     out = Image.new("RGB", (width + 40, H), "#F6F0E6")
     d = ImageDraw.Draw(out)
     night = any(m.get("night") for m, _ in rows)
+    home = any(m.get("home") for m, _ in rows)
     head = ("Starhollow Forest props v1 (Decisions B44, B48): %d props at night, lit by their own glow cells, to scale beside the 5-stud avatar"
-            if night else "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar")
+            if night else ("Home props v1 in block cells (Decisions B44, B49): the house grid's %d props, to scale beside the 5-stud avatar"
+                           if home else "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar"))
     d.text((20, 16), head % sum(len(m["labels"]) for m, _ in rows), font=bold, fill="#1B1F3B")
     d.text((20, 50), "docs/vault/07-alien-game/Props/<Name>.md -> tools/blocky/export_models.py --props -> assets/models/props/<Name>/. World cell 0.25 studs; "
            "glow cells become Neon. Under each name: the triangles exported and the budget, and the collision.", font=reg, fill="#5F6375")
@@ -207,6 +220,7 @@ def main():
     ap.add_argument("--size", type=int, default=520, help="each row's height in pixels")
     ap.add_argument("--samples", type=int, default=32)
     ap.add_argument("--night", action="store_true", help="the Starhollow Forest rows at night (ROWS_NIGHT), lit by their glow cells")
+    ap.add_argument("--home", action="store_true", help="the home planet's house-grid props (ROWS_HOME), in daylight")
     ap.add_argument("--compose", help="the folder of row renders to compose (no Blender)")
     ap.add_argument("--sheet", default=str(ROOT / "media/studio/2026-10-21/props_v1.jpg"))
     a = ap.parse_args(argv)
@@ -217,7 +231,7 @@ def main():
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models")
         return 2
-    return render_rows(a.out, a.size, a.samples, night=a.night)
+    return render_rows(a.out, a.size, a.samples, night=a.night, home=a.home)
 
 
 if __name__ == "__main__":

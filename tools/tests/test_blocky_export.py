@@ -280,7 +280,7 @@ class TheRepoProps(unittest.TestCase):
     def test_the_prop_list_is_the_brief(self):
         ready, skipped = X.prop_roster()
         self.assertEqual(skipped, [])
-        self.assertEqual(len(ready), 52)   # the 39 of the props pass and the 13 of the Starhollow Forest (B48)
+        self.assertEqual(len(ready), 61)   # the 39 of the props pass, the 13 of the Starhollow Forest (B48) and the home planet's 9 (B49)
 
     def test_the_installers_block_cell_props_table_is_fresh(self):
         source = (ROOT / "tools/studio/install_models.luau").read_text()

@@ -28,9 +28,10 @@ local Items: { Item } = {
 	{ id = "Planter", kind = "furniture", cellsX = 1, cellsZ = 1, scrap = 50, prop = "Planter", placeholder = { shape = "Block", color = "3F9B3A", height = 1.5 } },
 	{ id = "Fountain", kind = "furniture", cellsX = 2, cellsZ = 2, scrap = 250, prop = "Fountain", placeholder = { shape = "Cylinder", color = "68C9FE", height = 2.5 } },
 	{ id = "Flag", kind = "furniture", cellsX = 1, cellsZ = 1, scrap = 40, prop = "Flag", placeholder = { shape = "Cylinder", color = "FF8AD8", height = 6 } },
-	-- habitats (data/Habitats): a pad with a fence where up to `capacity` resting aliens of `worldId` roam on display
-	{ id = "HabitatVerdant", kind = "habitat", cellsX = 3, cellsZ = 3, scrap = 600, prop = "HabitatVerdant", placeholder = { shape = "Block", color = "6FBF4A", height = 0.3 }, worldId = 1, capacity = 3 },
-	{ id = "HabitatFrostbyte", kind = "habitat", cellsX = 3, cellsZ = 3, scrap = 800, prop = "HabitatFrostbyte", placeholder = { shape = "Block", color = "DCEFF7", height = 0.3 }, worldId = 2, capacity = 3 },
+	-- habitats (data/Habitats): a pad with a fence where up to `capacity` resting aliens of `worldId` roam on display; the
+	-- placeholder height is the block-cell prop's pad top (0.25 studs, Props/HabitatVerdant.md), where the aliens on display stand
+	{ id = "HabitatVerdant", kind = "habitat", cellsX = 3, cellsZ = 3, scrap = 600, prop = "HabitatVerdant", placeholder = { shape = "Block", color = "6FBF4A", height = 0.25 }, worldId = 1, capacity = 3 },
+	{ id = "HabitatFrostbyte", kind = "habitat", cellsX = 3, cellsZ = 3, scrap = 800, prop = "HabitatFrostbyte", placeholder = { shape = "Block", color = "DCEFF7", height = 0.25 }, worldId = 2, capacity = 3 },
 }
 
 local ById: { [string]: Item } = {}
