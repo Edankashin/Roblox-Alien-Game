@@ -1904,7 +1904,9 @@ local function heroBeat(info: RevealInfo, panel: Frame, band: Sizes.Band)
 	popCard(panel, math.max(band.revealPop, rung.Pop))
 	local model = viewModel
 	if model and speciesId ~= "" then
-		SpeciesFx.Flourish(model, speciesId)
+		if not RigAnimator.PlayFlourish(model) then -- the rig's flourish fires SpeciesFx.Flourish itself on this beat
+			SpeciesFx.Flourish(model, speciesId)
+		end
 	end
 	local root = gui
 	if root then

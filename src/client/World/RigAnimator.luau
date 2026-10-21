@@ -63,6 +63,7 @@ type Handle = {
 	active: boolean,
 	atRest: boolean,
 	inFlourish: boolean,
+	forcedAt: number?, -- os.clock() when PlayFlourish started a flourish off the timer
 	destroying: RBXScriptConnection?,
 }
 
@@ -259,6 +260,14 @@ local function step(handle: Handle, now: number, still: boolean)
 	handle.atRest = false
 	local flourish = row.flourish
 	local elapsed = if flourish then RigMath.FlourishElapsed(flourish, now, handle.offset) else -1
+	local forcedAt = handle.forcedAt
+	if flourish and forcedAt then
+		if now - forcedAt < flourish.length then
+			elapsed = now - forcedAt -- a flourish asked for by PlayFlourish runs its whole length from that moment
+		else
+			handle.forcedAt = nil
+		end
+	end
 	if elapsed >= 0 and not handle.inFlourish then
 		fireFlourish(handle)
 	end
@@ -461,6 +470,7 @@ function RigAnimator.Attach(model: Model, speciesId: string, opts: Options?): ()
 		active = false,
 		atRest = true,
 		inFlourish = false,
+		forcedAt = nil,
 		destroying = nil,
 	}
 	if face and rowFace then
@@ -478,6 +488,19 @@ function RigAnimator.Attach(model: Model, speciesId: string, opts: Options?): ()
 	return function()
 		release(handle)
 	end
+end
+
+-- Starts `model`'s flourish now, off its timer (the reveal's hero beat). Returns false when the model is not animated or its
+-- species has no flourish (Commons and Uncommons). The rig's own timer carries on afterwards; a timed flourish that falls inside
+-- this one is absorbed by it.
+function RigAnimator.PlayFlourish(model: Model): boolean
+	local handle = byModel[model]
+	if not handle or not handle.row.flourish then
+		return false
+	end
+	handle.forcedAt = os.clock()
+	handle.inFlourish = false -- so the effects fire on this beat
+	return true
 end
 
 -- Calls `callback(model, speciesId)` whenever an animated alien's flourish begins (the hook effects hang a burst on). Returns the
