@@ -23,9 +23,23 @@
 -- and both counts. Roughness is in the table but Roblox has no per-part roughness, so it is not applied.
 -- A model without a MATERIALS entry keeps the old rule: a prop MeshPart named "Glow" gets Neon.
 -- Folder names match Config.ModelFolderName and Config.PropsFolderName in src/shared/data/Config.luau.
+--
+-- Block-cell aliens (Decision B46; assets/models/<Id>/ from tools/blocky/export_models.py): a species in BLOCK_CELL is installed by
+-- name, never by slot, and never from its ASSET_IDS entry (that id is the retired blockout until the new GLB is uploaded):
+--   * the source is BLOCK_CELL[name].assetId when it is not 0 (the new upload), else a Model of that name that you imported with
+--     File > Import 3D (assets/models/<Id>/<Id>.fbx or .glb, scale 1) and selected before running this, else one already under
+--     ReplicatedStorage.Models that has a FacePlate (a re-run). A species with none of these is listed as waiting, not as a failure.
+--   * every part keeps its name: Body (the cell blocks), Glow, the moving parts World.RigAnimator finds by name (data/Rigs) and FacePlate.
+--     A part the import renamed or merged is warned about by name (that part will not animate). No part is renamed or recoloured by slot.
+--   * the texture: a cell part's SurfaceAppearance ColorMap is the atlas (cellMap) and the plate's the face sheet (faceMap, AlphaMode
+--     Transparency) once those image ids are typed in; while they are 0 a texture the importer brought in (TextureID) moves into the
+--     SurfaceAppearance, and either way ResampleMode = Pixelated (Blocky-Style "In the game"). A Glow part is Neon in its colour, no map.
+--   * every part Anchored, CanCollide and CanQuery off; the Model's WorldPivot at the bottom centre; the Model under ReplicatedStorage.Models.
+-- BLOCK_CELL is generated: `python3 -I tools/blocky/export_models.py --emit-luau` (paste it between the BLOCK-CELL PASTE markers).
 
 local InsertService = game:GetService("InsertService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Selection = game:GetService("Selection")
 
 local MODELS_FOLDER = "Models"
 local PROPS_FOLDER = "Props"
@@ -178,6 +192,441 @@ local MATERIALS: { [string]: { { string | number } } } = {
 }
 -- END PASTE
 
+-- One part of a block-cell model: its name (the GLB node), its colour, Neon or not, and the map it samples ("cell", "face" or "").
+type BlockCellPart = { name: string, hex: string, neon: boolean, map: string }
+-- assetId: the new Model upload (0 until uploaded); cellMap, faceMap: the Image ids of <Id>_atlas.png and <Id>_face.png (0 until uploaded).
+type BlockCellRow = { assetId: number, cellMap: number, faceMap: number, parts: { BlockCellPart } }
+-- BEGIN BLOCK-CELL PASTE: output of `python3 -I tools/blocky/export_models.py --emit-luau`
+local BLOCK_CELL: { [string]: BlockCellRow } = {
+	Buzzlebee = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "antenna", hex = "FF6B9A", neon = false, map = "cell" },
+			{ name = "stinger", hex = "4A2F1F", neon = false, map = "cell" },
+			{ name = "wingL", hex = "FF6B9A", neon = false, map = "cell" },
+			{ name = "wingR", hex = "FF6B9A", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "FFC83D", neon = false, map = "face" },
+		},
+	},
+	Capybubble = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E0C3A0", neon = false, map = "cell" },
+			{ name = "earL", hex = "5C4A2A", neon = false, map = "cell" },
+			{ name = "earR", hex = "5C4A2A", neon = false, map = "cell" },
+			{ name = "floatR", hex = "5FDCFF", neon = true, map = "" },
+			{ name = "leafR", hex = "5C4A2A", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "E0C3A0", neon = false, map = "face" },
+		},
+	},
+	Chipmole = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "5B6B85", neon = false, map = "cell" },
+			{ name = "pickL", hex = "3FD3F7", neon = false, map = "cell" },
+			{ name = "pickR", hex = "3FD3F7", neon = false, map = "cell" },
+			{ name = "tail", hex = "2F3A4E", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "5B6B85", neon = false, map = "face" },
+		},
+	},
+	Drippo = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A9D6F5", neon = false, map = "cell" },
+			{ name = "armR", hex = "2F5F9F", neon = false, map = "cell" },
+			{ name = "beadL", hex = "0FB4E0", neon = false, map = "cell" },
+			{ name = "dripL", hex = "0FB4E0", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "A9D6F5", neon = false, map = "face" },
+		},
+	},
+	Emberchin = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "73365A", neon = false, map = "cell" },
+			{ name = "cinderR", hex = "FF8C2E", neon = false, map = "cell" },
+			{ name = "ember", hex = "FF8C2E", neon = false, map = "cell" },
+			{ name = "pool", hex = "C8DCE4", neon = false, map = "cell" },
+			{ name = "quillL", hex = "FF8C2E", neon = false, map = "cell" },
+			{ name = "quillR", hex = "FF8C2E", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "73365A", neon = false, map = "face" },
+		},
+	},
+	Fenripup = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4B3D8F", neon = false, map = "cell" },
+			{ name = "Glow", hex = "AEB8FF", neon = true, map = "" },
+			{ name = "chain", hex = "D9E2F5", neon = false, map = "cell" },
+			{ name = "earL", hex = "4B3D8F", neon = false, map = "cell" },
+			{ name = "earR", hex = "4B3D8F", neon = false, map = "cell" },
+			{ name = "halo", hex = "D9E2F5", neon = false, map = "cell" },
+			{ name = "moon", hex = "AEB8FF", neon = true, map = "" },
+			{ name = "moteL", hex = "AEB8FF", neon = true, map = "" },
+			{ name = "moteR", hex = "AEB8FF", neon = true, map = "" },
+			{ name = "tail", hex = "4B3D8F", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "4B3D8F", neon = false, map = "face" },
+		},
+	},
+	Flapsicle = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "3F4C8C", neon = false, map = "cell" },
+			{ name = "earL", hex = "3F4C8C", neon = false, map = "cell" },
+			{ name = "earR", hex = "3F4C8C", neon = false, map = "cell" },
+			{ name = "perch", hex = "8FC9F0", neon = false, map = "cell" },
+			{ name = "wingL", hex = "8FC9F0", neon = false, map = "cell" },
+			{ name = "wingR", hex = "8FC9F0", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "3F4C8C", neon = false, map = "face" },
+		},
+	},
+	Flufflet = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "ball", hex = "9CC3E0", neon = false, map = "cell" },
+			{ name = "earL", hex = "F0614A", neon = false, map = "cell" },
+			{ name = "earR", hex = "F0614A", neon = false, map = "cell" },
+			{ name = "scarfR", hex = "9CC3E0", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F2F6FA", neon = false, map = "face" },
+		},
+	},
+	Frostfang = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4F9BD8", neon = false, map = "cell" },
+			{ name = "Glow", hex = "2ED3F7", neon = true, map = "" },
+			{ name = "earL", hex = "4F9BD8", neon = false, map = "cell" },
+			{ name = "earR", hex = "4F9BD8", neon = false, map = "cell" },
+			{ name = "pawL", hex = "F2F7FB", neon = false, map = "cell" },
+			{ name = "pawR", hex = "F2F7FB", neon = false, map = "cell" },
+			{ name = "ruff", hex = "22406B", neon = false, map = "cell" },
+			{ name = "tailR", hex = "4F9BD8", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "4F9BD8", neon = false, map = "face" },
+		},
+	},
+	Gaiabloom = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F0E6CE", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FF6FAE", neon = true, map = "" },
+			{ name = "antlerL", hex = "4FB84E", neon = false, map = "cell" },
+			{ name = "antlerR", hex = "4FB84E", neon = false, map = "cell" },
+			{ name = "butterflyR", hex = "FF6FAE", neon = true, map = "" },
+			{ name = "earL", hex = "F0E6CE", neon = false, map = "cell" },
+			{ name = "earR", hex = "F0E6CE", neon = false, map = "cell" },
+			{ name = "halo", hex = "4FB84E", neon = false, map = "cell" },
+			{ name = "tail", hex = "F0E6CE", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F0E6CE", neon = false, map = "face" },
+		},
+	},
+	Glimmo = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4FCFC0", neon = false, map = "cell" },
+			{ name = "bulb", hex = "FFE566", neon = false, map = "cell" },
+			{ name = "tendril", hex = "2E7F78", neon = false, map = "cell" },
+			{ name = "wingL", hex = "2E7F78", neon = false, map = "cell" },
+			{ name = "wingR", hex = "2E7F78", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "4FCFC0", neon = false, map = "face" },
+		},
+	},
+	Gloomoth = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "8C6FB5", neon = false, map = "cell" },
+			{ name = "antennaL", hex = "E08CFF", neon = true, map = "" },
+			{ name = "antennaR", hex = "E08CFF", neon = true, map = "" },
+			{ name = "hindwingL", hex = "D9C8FF", neon = false, map = "cell" },
+			{ name = "hindwingR", hex = "D9C8FF", neon = false, map = "cell" },
+			{ name = "shard", hex = "E8C45A", neon = false, map = "cell" },
+			{ name = "wingL", hex = "D9C8FF", neon = false, map = "cell" },
+			{ name = "wingR", hex = "D9C8FF", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "8C6FB5", neon = false, map = "face" },
+		},
+	},
+	Kettlepuff = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F5EDE0", neon = false, map = "cell" },
+			{ name = "floatR", hex = "F5EDE0", neon = false, map = "cell" },
+			{ name = "handle", hex = "C8743A", neon = false, map = "cell" },
+			{ name = "lid", hex = "C8743A", neon = false, map = "cell" },
+			{ name = "wispR", hex = "F5EDE0", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F5EDE0", neon = false, map = "face" },
+		},
+	},
+	Lanternewt = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F26B3A", neon = false, map = "cell" },
+			{ name = "gillL", hex = "4A2638", neon = false, map = "cell" },
+			{ name = "gillR", hex = "4A2638", neon = false, map = "cell" },
+			{ name = "tail", hex = "F26B3A", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F26B3A", neon = false, map = "face" },
+		},
+	},
+	Mossbop = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6CCB5F", neon = false, map = "cell" },
+			{ name = "floatR", hex = "D9F36B", neon = false, map = "cell" },
+			{ name = "sprout", hex = "D9F36B", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "6CCB5F", neon = false, map = "face" },
+		},
+	},
+	Nebulyn = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "6B4EC2", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFF3B0", neon = true, map = "" },
+			{ name = "fallenR", hex = "FFF3B0", neon = true, map = "" },
+			{ name = "planetL", hex = "E66BD2", neon = false, map = "cell" },
+			{ name = "puff", hex = "6B4EC2", neon = false, map = "cell" },
+			{ name = "starL", hex = "FFF3B0", neon = true, map = "" },
+			{ name = "starR", hex = "FFF3B0", neon = true, map = "" },
+			{ name = "tailR", hex = "FFF3B0", neon = true, map = "" },
+			{ name = "FacePlate", hex = "6B4EC2", neon = false, map = "face" },
+		},
+	},
+	Panpipe = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4A4166", neon = false, map = "cell" },
+			{ name = "Glow", hex = "B28CFF", neon = true, map = "" },
+			{ name = "beard", hex = "1E1A2E", neon = false, map = "cell" },
+			{ name = "bellR", hex = "8C86A6", neon = false, map = "cell" },
+			{ name = "earL", hex = "4A4166", neon = false, map = "cell" },
+			{ name = "earR", hex = "4A4166", neon = false, map = "cell" },
+			{ name = "noteL", hex = "B28CFF", neon = true, map = "" },
+			{ name = "note2R", hex = "B28CFF", neon = true, map = "" },
+			{ name = "pipesR", hex = "B28CFF", neon = true, map = "" },
+			{ name = "tail", hex = "1E1A2E", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "4A4166", neon = false, map = "face" },
+		},
+	},
+	Pebblet = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C4B9A6", neon = false, map = "cell" },
+			{ name = "cairnR", hex = "5A5048", neon = false, map = "cell" },
+			{ name = "legL", hex = "5A5048", neon = false, map = "cell" },
+			{ name = "legR", hex = "5A5048", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "C4B9A6", neon = false, map = "face" },
+		},
+	},
+	Pengoo = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "2B3F5C", neon = false, map = "cell" },
+			{ name = "pack", hex = "FFA63D", neon = false, map = "cell" },
+			{ name = "tuft", hex = "2B3F5C", neon = false, map = "cell" },
+			{ name = "wingL", hex = "2B3F5C", neon = false, map = "cell" },
+			{ name = "wingR", hex = "2B3F5C", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F4F7FA", neon = false, map = "face" },
+		},
+	},
+	Puffpuff = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F4F1E8", neon = false, map = "cell" },
+			{ name = "floatR", hex = "F4F1E8", neon = false, map = "cell" },
+			{ name = "leafL", hex = "4E9E3C", neon = false, map = "cell" },
+			{ name = "leafR", hex = "4E9E3C", neon = false, map = "cell" },
+			{ name = "seeds", hex = "F4F1E8", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F4F1E8", neon = false, map = "face" },
+		},
+	},
+	Radish = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "D7265C", neon = false, map = "cell" },
+			{ name = "frondL", hex = "2CC5B2", neon = false, map = "cell" },
+			{ name = "frondR", hex = "2CC5B2", neon = false, map = "cell" },
+			{ name = "gem", hex = "FFE36B", neon = true, map = "" },
+			{ name = "halo", hex = "FFB21E", neon = false, map = "cell" },
+			{ name = "leaf", hex = "2CC5B2", neon = false, map = "cell" },
+			{ name = "moteL", hex = "FFE36B", neon = true, map = "" },
+			{ name = "moteR", hex = "FFE36B", neon = true, map = "" },
+			{ name = "orb", hex = "FFE36B", neon = true, map = "" },
+			{ name = "pendant", hex = "FFE36B", neon = true, map = "" },
+			{ name = "wingL", hex = "FFB21E", neon = false, map = "cell" },
+			{ name = "wingR", hex = "FFB21E", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "D7265C", neon = false, map = "face" },
+		},
+	},
+	Reindazzle = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A8805A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FF6B6B", neon = true, map = "" },
+			{ name = "chimeL", hex = "A8E4FF", neon = false, map = "cell" },
+			{ name = "chimeR", hex = "A8E4FF", neon = false, map = "cell" },
+			{ name = "earL", hex = "A8805A", neon = false, map = "cell" },
+			{ name = "earR", hex = "A8805A", neon = false, map = "cell" },
+			{ name = "tail", hex = "A8E4FF", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "A8805A", neon = false, map = "face" },
+		},
+	},
+	Rocklobber = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C8553D", neon = false, map = "cell" },
+			{ name = "antennaR", hex = "A39E94", neon = false, map = "cell" },
+			{ name = "clawL", hex = "A39E94", neon = false, map = "cell" },
+			{ name = "clawR", hex = "A39E94", neon = false, map = "cell" },
+			{ name = "legL", hex = "3A3238", neon = false, map = "cell" },
+			{ name = "legR", hex = "3A3238", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "C8553D", neon = false, map = "face" },
+		},
+	},
+	Shellberg = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "3FBFB0", neon = false, map = "cell" },
+			{ name = "Glow", hex = "2ED3F7", neon = true, map = "" },
+			{ name = "flagL", hex = "2ED3F7", neon = false, map = "cell" },
+			{ name = "footL", hex = "1F6F68", neon = false, map = "cell" },
+			{ name = "footR", hex = "1F6F68", neon = false, map = "cell" },
+			{ name = "tail", hex = "1F6F68", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "3FBFB0", neon = false, map = "face" },
+		},
+	},
+	Shimmerlynx = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C8C2F0", neon = false, map = "cell" },
+			{ name = "crest", hex = "9D7CFF", neon = true, map = "" },
+			{ name = "earL", hex = "C8C2F0", neon = false, map = "cell" },
+			{ name = "earR", hex = "C8C2F0", neon = false, map = "cell" },
+			{ name = "tailR", hex = "C8C2F0", neon = false, map = "cell" },
+			{ name = "whiskerL", hex = "FFF4E6", neon = false, map = "cell" },
+			{ name = "whiskerR", hex = "FFF4E6", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "C8C2F0", neon = false, map = "face" },
+		},
+	},
+	Skaddle = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "crest", hex = "9FA8FF", neon = true, map = "" },
+			{ name = "hindwingL", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "hindwingR", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "scarfR", hex = "8FD3F4", neon = false, map = "cell" },
+			{ name = "tuftL", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "tuftR", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "wingL", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "wingR", hex = "F4F7FA", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "F4F7FA", neon = false, map = "face" },
+		},
+	},
+	Snailbyte = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9FD9A6", neon = false, map = "cell" },
+			{ name = "dishR", hex = "C9803E", neon = false, map = "cell" },
+			{ name = "feelerL", hex = "9FD9A6", neon = false, map = "cell" },
+			{ name = "feelerR", hex = "9FD9A6", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "9FD9A6", neon = false, map = "face" },
+		},
+	},
+	Snowbun = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "B4A9E6", neon = false, map = "cell" },
+			{ name = "earL", hex = "B4A9E6", neon = false, map = "cell" },
+			{ name = "earR", hex = "B4A9E6", neon = false, map = "cell" },
+			{ name = "nose", hex = "F0407F", neon = false, map = "cell" },
+			{ name = "tail", hex = "CFE2F3", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "B4A9E6", neon = false, map = "face" },
+		},
+	},
+	Sparkfox = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FF7A30", neon = false, map = "cell" },
+			{ name = "earL", hex = "FF7A30", neon = false, map = "cell" },
+			{ name = "earR", hex = "FF7A30", neon = false, map = "cell" },
+			{ name = "floatR", hex = "FFA53D", neon = true, map = "" },
+			{ name = "tailR", hex = "FF7A30", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "FF7A30", neon = false, map = "face" },
+		},
+	},
+	Spookum = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E9E6FF", neon = false, map = "cell" },
+			{ name = "Glow", hex = "9D6BFF", neon = true, map = "" },
+			{ name = "armL", hex = "E9E6FF", neon = false, map = "cell" },
+			{ name = "armR", hex = "E9E6FF", neon = false, map = "cell" },
+			{ name = "hem", hex = "5B4A8A", neon = false, map = "cell" },
+			{ name = "lanternL", hex = "9D6BFF", neon = true, map = "" },
+			{ name = "stem", hex = "B89B5A", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "E9E6FF", neon = false, map = "face" },
+		},
+	},
+	Thunderhog = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "8B5CF6", neon = false, map = "cell" },
+			{ name = "antennaL", hex = "FFF27A", neon = true, map = "" },
+			{ name = "antennaR", hex = "FFF27A", neon = true, map = "" },
+			{ name = "crest", hex = "FFC233", neon = false, map = "cell" },
+			{ name = "sparkR", hex = "FFF27A", neon = true, map = "" },
+			{ name = "tail", hex = "2E1F66", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "8B5CF6", neon = false, map = "face" },
+		},
+	},
+	Toastoad = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E8713A", neon = false, map = "cell" },
+			{ name = "belly", hex = "FFC94D", neon = false, map = "cell" },
+			{ name = "bumpL", hex = "E8713A", neon = false, map = "cell" },
+			{ name = "bumpR", hex = "E8713A", neon = false, map = "cell" },
+			{ name = "pebbleR", hex = "6E4A3C", neon = false, map = "cell" },
+			{ name = "stoneL", hex = "6E4A3C", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "E8713A", neon = false, map = "face" },
+		},
+	},
+	Twiglet = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "9C6B3F", neon = false, map = "cell" },
+			{ name = "antenna", hex = "4A2E1A", neon = false, map = "cell" },
+			{ name = "hat", hex = "7FC94A", neon = false, map = "cell" },
+			{ name = "twig", hex = "9C6B3F", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "9C6B3F", neon = false, map = "face" },
+		},
+	},
+	Wisplet = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "8FDCFF", neon = false, map = "cell" },
+			{ name = "floatL", hex = "8FDCFF", neon = false, map = "cell" },
+			{ name = "floatR", hex = "8FDCFF", neon = false, map = "cell" },
+			{ name = "halo", hex = "6E6A85", neon = false, map = "cell" },
+			{ name = "tipR", hex = "B48CFF", neon = true, map = "" },
+			{ name = "tongueL", hex = "8FDCFF", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "8FDCFF", neon = false, map = "face" },
+		},
+	},
+	Zapfinch = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "4FA8E8", neon = false, map = "cell" },
+			{ name = "crestL", hex = "FFEE55", neon = true, map = "" },
+			{ name = "crestR", hex = "FFEE55", neon = true, map = "" },
+			{ name = "tail", hex = "23386B", neon = false, map = "cell" },
+			{ name = "wingL", hex = "23386B", neon = false, map = "cell" },
+			{ name = "wingR", hex = "23386B", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "4FA8E8", neon = false, map = "face" },
+		},
+	},
+}
+-- END BLOCK-CELL PASTE
+local FACE_PART = "FacePlate"
+
 local function ensureFolder(parent: Instance, name: string): Folder
 	local existing = parent:FindFirstChild(name)
 	if existing then
@@ -324,13 +773,170 @@ local function install(name: string, assetId: number, models: Folder, props: Fol
 	return true, target:GetFullName() .. note
 end
 
+-- The first BasePart of `model` named `name`, or under a descendant named `name` (an import may wrap a mesh in a Model).
+local function findPart(model: Instance, name: string): BasePart?
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local node: Instance? = descendant
+			while node and node ~= model do
+				if node.Name == name then
+					return descendant
+				end
+				node = node.Parent
+			end
+		end
+	end
+	return nil
+end
+
+-- Puts `imageId` (or, at 0, the texture the importer brought in) on the part's SurfaceAppearance with Pixelated resampling. Returns a note.
+local function applyMap(part: BasePart, imageId: number, transparent: boolean): string
+	if not part:IsA("MeshPart") then
+		return "not a MeshPart"
+	end
+	local mesh = part :: MeshPart
+	local content = if imageId ~= 0 then "rbxassetid://" .. tostring(imageId) else mesh.TextureID
+	local appearance = mesh:FindFirstChildOfClass("SurfaceAppearance")
+	if not appearance and content == "" then
+		return "no texture yet"
+	end
+	if not appearance then
+		local ok, made = pcall(function(): SurfaceAppearance
+			local created = Instance.new("SurfaceAppearance")
+			created.Parent = mesh
+			return created
+		end)
+		if not ok then
+			mesh.TextureID = content
+			return "TextureID only (no SurfaceAppearance here)"
+		end
+		appearance = made
+	end
+	local surface = appearance :: SurfaceAppearance
+	if content ~= "" then
+		surface.ColorMap = content
+		mesh.TextureID = ""
+	end
+	if transparent then
+		surface.AlphaMode = Enum.AlphaMode.Transparency
+	end
+	local pixelated = pcall(function()
+		surface.ResampleMode = Enum.ResamplerMode.Pixelated
+	end)
+	return if pixelated then "pixelated" else "textured (ResampleMode unavailable)"
+end
+
+-- The block-cell fix-ups on one model (see the header). Returns a summary and the names of the parts it could not find.
+local function fixBlockCell(model: Model, row: BlockCellRow): (string, { string })
+	local missing: { string } = {}
+	local textured, waiting, neon = 0, 0, 0
+	for _, def in row.parts do
+		local part = findPart(model, def.name)
+		if not part then
+			table.insert(missing, def.name)
+			continue
+		end
+		part.Color = Color3.fromHex(def.hex)
+		if def.neon then
+			part.Material = Enum.Material.Neon
+			local appearance = part:FindFirstChildOfClass("SurfaceAppearance")
+			if appearance then
+				appearance:Destroy()
+			end
+			if part:IsA("MeshPart") then
+				(part :: MeshPart).TextureID = ""
+			end
+			neon += 1
+		else
+			part.Material = Enum.Material.SmoothPlastic
+			local id = if def.map == "face" then row.faceMap else row.cellMap
+			local note = applyMap(part, id, def.name == FACE_PART)
+			if note == "no texture yet" then
+				waiting += 1
+			else
+				textured += 1
+			end
+		end
+	end
+	normalise(model, false, true)
+	local box, size = model:GetBoundingBox()
+	model.WorldPivot = CFrame.new(box.Position - Vector3.new(0, size.Y / 2, 0))
+	return ("%d textured, %d Neon, %d waiting for a texture"):format(textured, neon, waiting), missing
+end
+
+-- A block-cell model imported by hand: the selected Model named `name`, else one already installed that has a FacePlate.
+local function importedBlockCell(name: string, models: Folder): Model?
+	for _, item in Selection:Get() do
+		if item:IsA("Model") and item.Name == name then
+			return item
+		end
+	end
+	local existing = models:FindFirstChild(name)
+	if existing and existing:IsA("Model") and findPart(existing, FACE_PART) then
+		return existing
+	end
+	return nil
+end
+
+-- Installs one block-cell species. Returns ("ok" | "fail" | "wait", detail).
+local function installBlockCell(name: string, row: BlockCellRow, models: Folder): (string, string)
+	local model: Model? = nil
+	if row.assetId ~= 0 then
+		local ok, loaded = pcall(function(): Instance
+			return InsertService:LoadAsset(row.assetId)
+		end)
+		if not ok then
+			return "fail", tostring(loaded)
+		end
+		local container = loaded :: Instance
+		model = pickModel(container)
+		if not model then
+			container:Destroy()
+			return "fail", "asset loaded but holds no Model with parts"
+		end
+		model.Parent = nil
+		if container ~= model then
+			container:Destroy()
+		end
+	else
+		model = importedBlockCell(name, models)
+		if not model then
+			return "wait", ("not uploaded (assetId 0): File > Import 3D assets/models/%s/%s.fbx, select the Model, run again"):format(name, name)
+		end
+	end
+	local target = model :: Model
+	target.Name = name
+	local summary, missing = fixBlockCell(target, row)
+	if #missing > 0 then
+		warn(("install_models: %s has no part named %s; the import renamed or merged it, so it will not animate"):format(
+			name,
+			table.concat(missing, ", ")
+		))
+	end
+	if target.Parent ~= models then
+		local old = models:FindFirstChild(name)
+		if old and old ~= target then
+			old:Destroy()
+		end
+		target.Parent = models
+	end
+	return "ok", ("%s (block-cell: %s)"):format(models:GetFullName(), summary)
+end
+
 local function main()
 	local names: { string } = {}
 	for name in ASSET_IDS do
-		table.insert(names, name)
+		if not BLOCK_CELL[name] then -- a block-cell species never loads its old blockout id
+			table.insert(names, name)
+		end
 	end
 	table.sort(names)
-	if #names == 0 then
+	local cellNames: { string } = {}
+	for name in BLOCK_CELL do
+		table.insert(cellNames, name)
+	end
+	table.sort(cellNames)
+	if #names == 0 and #cellNames == 0 then
 		print("install_models: ASSET_IDS is empty; paste the output of `python3 tools/upload_assets.py --emit-luau`")
 		return
 	end
@@ -340,6 +946,8 @@ local function main()
 
 	local installed = 0
 	local failed = 0
+	local waiting = 0
+	local waitNames: { string } = {}
 	for _, name in names do
 		local assetId = ASSET_IDS[name]
 		local ok, detail = install(name, assetId, models, props)
@@ -351,7 +959,29 @@ local function main()
 			warn(("FAIL  %s <- %d  %s"):format(name, assetId, detail))
 		end
 	end
-	print(("install_models: %d installed, %d failed, %d total"):format(installed, failed, #names))
+	for _, name in cellNames do
+		local status, detail = installBlockCell(name, BLOCK_CELL[name], models)
+		if status == "ok" then
+			installed += 1
+			print(("ok    %s  (%s)"):format(name, detail))
+		elseif status == "wait" then
+			waiting += 1
+			table.insert(waitNames, name)
+		else
+			failed += 1
+			warn(("FAIL  %s  %s"):format(name, detail))
+		end
+	end
+	print(("install_models: %d installed, %d failed, %d block-cell species waiting for an import or upload, %d total"):format(
+		installed,
+		failed,
+		waiting,
+		#names + #cellNames
+	))
+	if #waitNames > 0 then
+		print(("waiting (not uploaded, not imported or selected): %s"):format(table.concat(waitNames, ", ")))
+		print("Import one with File > Import 3D (assets/models/<Id>/<Id>.fbx), select the Model it makes, and run this again.")
+	end
 	if failed > 0 then
 		print("A failure right after upload usually means the asset is still in moderation (up to a few hours); run again later.")
 	end

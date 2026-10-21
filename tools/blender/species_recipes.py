@@ -2893,7 +2893,23 @@ def slots_used(parts):
     return {p["slot"] for p in parts}
 
 
+# Since 2026-10-21 assets/models holds the block-cell models (tools/blocky/export_models.py, Decision B46); the blockouts these recipes were
+# built to are retired, and their heights and slots live on in this snapshot, read whenever a folder holds a block-cell export.
+BLOCKOUT_REFERENCE = ROOT / "tools/tests/fixtures/blockout_reference.json"
+
+
+def _blockout(sid):
+    """The retired blockout's {height, slots} when assets/models/<Id> holds a block-cell export (its <Id>_atlas.png), else None."""
+    if not (MODELS / sid / ("%s_atlas.png" % sid)).exists() or not BLOCKOUT_REFERENCE.exists():
+        return None
+    import json
+    return json.loads(BLOCKOUT_REFERENCE.read_text())["species"].get(sid)
+
+
 def notes_height(sid):
+    ref = _blockout(sid)
+    if ref is not None:
+        return ref["height"]
     f = MODELS / sid / "notes.md"
     if not f.exists():
         return None
@@ -2902,7 +2918,11 @@ def notes_height(sid):
 
 
 def material_slots(sid):
-    """The slot names of assets/models/<Id>/materials.json, in order (None when the folder has none)."""
+    """The slot names of assets/models/<Id>/materials.json, in order (None when the folder has none); the retired blockout's for a
+    block-cell export."""
+    ref = _blockout(sid)
+    if ref is not None:
+        return list(ref["slots"])
     f = MODELS / sid / "materials.json"
     if not f.exists():
         return None

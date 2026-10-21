@@ -2,57 +2,82 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "7B5CFF",
-    "roughness": 0.8,
+    "hex": "6B4EC2",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "fallenR",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "planetL",
+    "hex": "E66BD2",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "503CA6",
-    "roughness": 0.8,
+    "name": "puff",
+    "hex": "6B4EC2",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFCC5C",
-    "roughness": 0.8,
+    "name": "starL",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 1.5
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "F59E0B",
-    "roughness": 0.3,
-    "metallic": 1.0,
-    "emission": 0.0
+    "name": "starR",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 8,
+    "name": "tailR",
+    "hex": "FFF3B0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 9,
+    "name": "FacePlate",
+    "hex": "6B4EC2",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Nebulyn_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

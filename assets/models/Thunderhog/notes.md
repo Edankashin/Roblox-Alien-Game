@@ -1,19 +1,16 @@
-# Thunderhog blockout
+# Thunderhog block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Thunderhog (Epic)
-- Concept: hedgehog, lightning quills
-- Body: Ball, placeholder colour #8E44AD, placeholder scale 1.2
-- Accessory: the lightning quills: zigzag bolts that glow (silhouette pass; #FFE23B, emissive 2)
-- Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 1856 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 3.37 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #8E44AD, BodyDark #5C2C70, EyeWhite, Pupil, Mouth, Accessory #FFE23B, Trim #C026D3
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Thunderhog.glb (46676 bytes), Thunderhog.fbx (45180 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Thunderhog.md (Voltus, World 1, Epic, status review)
+- Height: 3.375 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 58
+- Triangles: 834 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Thunderhog_atlas.png 1024x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `antennaL` (moves, Neon, pivot -0.875, 2.25, -1.4375); `antennaR` (moves, Neon, pivot 0.875, 2.25, -1.4375); `crest` (moves, cells, pivot 0, 2.125, 0.3125); `sparkR` (moves, Neon, pivot 0.625, 2.875, 0.1875); `tail` (moves, cells, pivot 0, 1.625, 1.8125); `FacePlate` (the face sheet, frame 0)
+- Eyes: `starry`; the face plate is 28x14 px a frame, 5 frames (open, half, closed, glint1, glint2) in Thunderhog_face.png, 4 a row (Rigs face.columns)
+- Rig: 5 moving parts, root clips 1, flourish every 8s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Thunderhog.glb (88320 bytes), Thunderhog.fbx (85356 bytes, texture embedded), Thunderhog_atlas.png, Thunderhog_face.png, materials.json, Thunderhog.png and Thunderhog_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a low pear-shaped hedgehog nosing forward, a magenta collar behind the face and a mane of thirteen jagged lightning-bolt quills fanned over its back. Hero: the lightning quills: zigzag bolts that glow.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Thunderhog`; check with `python3 -I tools/blocky/export_models.py --check --species Thunderhog`.

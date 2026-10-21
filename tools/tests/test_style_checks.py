@@ -404,10 +404,12 @@ class PlanOutline(unittest.TestCase):
 
 
 SHIPPED = ROOT / "assets/models/Mossbop/Mossbop.glb"
+# the block-cell export (tools/blocky/export_models.py, Decision B46) replaced the blockout these checks were written for
+BLOCK_CELL = (ROOT / "assets/models/Mossbop/Mossbop_atlas.png").exists()
 
 
 class WholeRun(unittest.TestCase):
-    @unittest.skipUnless(SHIPPED.exists(), "assets/models/Mossbop/Mossbop.glb is not in this checkout")
+    @unittest.skipUnless(SHIPPED.exists() and not BLOCK_CELL, "assets/models/Mossbop/Mossbop.glb is not a blockout in this checkout")
     def test_a_shipped_model_gets_all_three_results(self):
         bb = sc.load_glb_reader()
         row = sc.run_species(sr, bb, "Mossbop", SHIPPED, "Mossbop", sc.MODELS)
@@ -493,7 +495,7 @@ print(n, hard)
 
 
 class AgainstBlender(unittest.TestCase):
-    @unittest.skipUnless(BPY and SHIPPED.exists(), "bpy is not importable here (set BPY_PYTHON to a Python that has it)")
+    @unittest.skipUnless(BPY and SHIPPED.exists() and not BLOCK_CELL, "bpy is not importable here (set BPY_PYTHON to a Python that has it)")
     def test_the_edge_and_hard_edge_counts_match_blenders_bmesh(self):
         probe = subprocess.run([BPY, "-c", BMESH_PROBE, str(SHIPPED)], capture_output=True, text=True, check=True)
         edges, hard = (int(v) for v in probe.stdout.split()[-2:])

@@ -2,68 +2,66 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "8E44AD",
-    "roughness": 0.8,
+    "hex": "8B5CF6",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Thunderhog_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "antennaL",
+    "hex": "FFF27A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "antennaR",
+    "hex": "FFF27A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "crest",
+    "hex": "FFC233",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Thunderhog_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "5C2C70",
-    "roughness": 0.8,
+    "name": "sparkR",
+    "hex": "FFF27A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFE23B",
-    "roughness": 0.8,
+    "name": "tail",
+    "hex": "2E1F66",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 2.0,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Thunderhog_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "C026D3",
-    "roughness": 0.3,
-    "metallic": 1.0,
-    "emission": 0.0
-  },
-  {
-    "slot": 8,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "8B5CF6",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Thunderhog_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

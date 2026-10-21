@@ -32,6 +32,8 @@ except ImportError:  # the tool and these tests work without it
     Image = None
 
 SPECIES = ("Sparkfox", "Mossbop")
+BLOCK_CELL = any((ROOT / "assets/models" / s / (s + "_atlas.png")).exists() for s in SPECIES)
+RETIRED = "assets/models holds the block-cell models now (tools/blocky/export_models.py, Decision B46); this tool was built for the retired blockouts"
 
 
 def quiet(*args):
@@ -122,6 +124,7 @@ def quad_glb(material=None, uv_scale=1.0):
     return pack_glb(doc, blob)
 
 
+@unittest.skipIf(BLOCK_CELL, RETIRED)
 class BuiltSpecies(unittest.TestCase):
     """Sparkfox and Mossbop written once into a temporary folder."""
 

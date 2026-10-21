@@ -2,68 +2,88 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "A569BD",
-    "roughness": 0.8,
+    "hex": "8C6FB5",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "antennaL",
+    "hex": "E08CFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "antennaR",
+    "hex": "E08CFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "hindwingL",
+    "hex": "D9C8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "6B447B",
-    "roughness": 0.8,
+    "name": "hindwingR",
+    "hex": "D9C8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "5CF0D0",
-    "roughness": 0.8,
+    "name": "shard",
+    "hex": "E8C45A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5,
-    "material": "Glass"
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "C026D3",
-    "roughness": 0.3,
-    "metallic": 1.0,
-    "emission": 0.0
+    "name": "wingL",
+    "hex": "D9C8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 8,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "wingR",
+    "hex": "D9C8FF",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
+    "name": "FacePlate",
+    "hex": "8C6FB5",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gloomoth_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

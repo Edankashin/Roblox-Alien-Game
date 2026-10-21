@@ -38,6 +38,17 @@ def model_folders():
     return [d for d in folders if (d / "materials.json").is_file()]
 
 
+def block_cell(sid):
+    """assets/models/<Id> holds the block-cell model (tools/blocky/export_models.py, Decision B46): its surface is the cell atlas, and
+    the Surface pass below (a material, a tiled texture or a gloss per blockout slot) no longer applies to it."""
+    return (ROOT / "assets/models" / sid / (sid + "_atlas.png")).exists()
+
+
+def blockouts(names):
+    """The names whose folder still holds a blockout."""
+    return [sid for sid in names if not block_cell(sid)]
+
+
 class MaterialList(unittest.TestCase):
     def test_luau_and_python_lists_match(self):
         source = lint_data.uncomment((ROOT / "src/shared/ModelInstall.luau").read_text())
@@ -126,7 +137,19 @@ class MaterialsJson(unittest.TestCase):
                     if "glossy" in entry:
                         self.assertIsInstance(entry["glossy"], bool)
                     seen += any(k in entry for k in lint_data.SURFACE_KEYS)
-        self.assertGreater(seen, 0)
+        if blockouts(d.name for d in model_folders() if d.parent.name != "props"):  # the props never had surface fields
+            self.assertGreater(seen, 0)
+
+    def test_a_block_cell_export_carries_its_surface_in_the_atlas(self):
+        # No Surface-pass field on a block-cell model: every textured part samples <Id>_atlas.png or <Id>_face.png (B44, B46)
+        for folder in model_folders():
+            if not block_cell(folder.name):
+                continue
+            for entry in json.loads((folder / "materials.json").read_text()):
+                with self.subTest(model=folder.name, slot=entry["name"]):
+                    self.assertFalse(any(k in entry for k in lint_data.SURFACE_KEYS))
+                    if "colorMap" in entry:
+                        self.assertTrue((folder / entry["colorMap"]).is_file())
 
     def test_the_world_one_species_follow_the_concept_list(self):
         # Mossbop, Buzzlebee and Lanternewt were Grass, Fabric and none with a moss, fur and scales map: the maps read as grain, so
@@ -138,7 +161,8 @@ class MaterialsJson(unittest.TestCase):
             "Sparkfox": {"Body": "SmoothPlastic", "Accessory": "Neon"}, "Thunderhog": {"Accessory": "Neon"}, "Gloomoth": {"Accessory": "Glass"},
             "Gaiabloom": {"Trim": "Neon"}, "Radish": {"Accessory": "Neon"}, "Panpipe": {"Accessory": "Neon"}, "Puffpuff": {},
         }
-        for sid, materials in wanted.items():
+        for sid in blockouts(wanted):
+            materials = wanted[sid]
             entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}
             for slot, entry in entries.items():
                 with self.subTest(model=sid, slot=slot):
@@ -167,7 +191,8 @@ class MaterialsJson(unittest.TestCase):
             "Fenripup": {"Body": "SmoothPlastic", "Accessory": "Neon"},
         }
         self.assertEqual(len(wanted), 16)
-        for sid, materials in wanted.items():
+        for sid in blockouts(wanted):
+            materials = wanted[sid]
             entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}
             for slot, entry in entries.items():
                 with self.subTest(model=sid, slot=slot):
@@ -201,7 +226,8 @@ class NoGrain(unittest.TestCase):
                 with self.subTest(model=folder.name, slot=entry["name"]):
                     self.assertEqual(sd.violations(entry), [])
                     kept += "texture" in entry
-        self.assertGreater(kept, 0, "stone and ice are still in use")
+        if any(blockouts([sid]) for sid in ("Pebblet", "Drippo", "Shellberg")):
+            self.assertGreater(kept, 0, "stone and ice are still in use")
 
     def test_a_kept_texture_keeps_its_material(self):
         for folder in model_folders():
@@ -218,7 +244,8 @@ class NoGrain(unittest.TestCase):
         smooth = {"Buzzlebee": ["Body"], "Capybubble": ["Body"], "Chipmole": ["Body"], "Fenripup": ["Body"], "Flapsicle": ["Body"],
                   "Frostfang": ["Body"], "Lanternewt": ["Body"], "Mossbop": ["Body"], "Pengoo": ["Body", "Belly"], "Reindazzle": ["Body"],
                   "Shimmerlynx": ["Body"], "Skaddle": ["BodyDark"], "Snowbun": ["BodyDark"], "Sparkfox": ["Body"]}
-        for sid, slots in smooth.items():
+        for sid in blockouts(smooth):
+            slots = smooth[sid]
             entries = {e["name"]: e for e in json.loads((ROOT / "assets/models" / sid / "materials.json").read_text())}
             for slot in slots:
                 with self.subTest(model=sid, slot=slot):

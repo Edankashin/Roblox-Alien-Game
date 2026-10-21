@@ -362,6 +362,10 @@ def main():
     failed = []
     surface = None if args.no_surface else SR.SURFACE
     for sid in SR.ids_for(args.species):
+        if (models / sid / ("%s_atlas.png" % sid)).exists():
+            # a block-cell export (tools/blocky/export_models.py, Decision B46) replaced this blockout: never overwrite it
+            print("%-12s skipped: %s holds the block-cell model; pass --models <a copy> to build the retired body" % (sid, models / sid), flush=True)
+            continue
         try:
             try:
                 tris, lo, hi, scale, slots = build(sid, models, surface)

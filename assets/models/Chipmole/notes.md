@@ -1,19 +1,16 @@
-# Chipmole blockout
+# Chipmole block-cell model
 
-- Date: 2026-10-05
-- Tool: tools/blender/alien_base.py, bpy 5.0.1
-- Name: Chipmole (Common)
-- Concept: mole, ice-pick claws, chips the floor
-- Body: Block, placeholder colour #5B6B85, placeholder scale 0.9
-- Accessory: the ice-pick claws, raised like a cheer (silhouette pass; #9CD3F0)
-- Tier dressing: none (Common/Uncommon: the accessory is the prop)
-- Triangles: 1458 (silhouette pass, tools/blender/species_bodies.py)
-- Height: 1.98 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #5B6B85, BodyDark #3B4656, EyeWhite, Pupil, Mouth, Accessory #9CD3F0
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Chipmole.glb (42884 bytes), Chipmole.fbx (38172 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Chipmole.md (Digling, World 2, Common, status review)
+- Height: 2.375 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 12
+- Triangles: 234 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Chipmole_atlas.png 512x512, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `pickL` (moves, cells, pivot -1, 0.5, -1.0625); `pickR` (moves, cells, pivot 1, 0.5, -1.0625); `tail` (moves, cells, pivot 0, 0.875, 1.6875); `FacePlate` (the face sheet, frame 0)
+- Eyes: `pebble`; the face plate is 28x10 px a frame, 3 frames (open, half, closed) in Chipmole_face.png, 3 a row (Rigs face.columns)
+- Rig: 3 moving parts, root clips 1, flourish none; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Chipmole.glb (27864 bytes), Chipmole.fbx (47676 bytes, texture embedded), Chipmole_atlas.png, Chipmole_face.png, materials.json, Chipmole.png and Chipmole_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Silhouette pass 2026-10-15: rebuilt from primitives by tools/blender/species_bodies.py from tools/blender/species_recipes.py. Silhouette: a squat mole with a pointed snout and both arms raised, each fist gripping a tall pickaxe with a double-ended ice head, ice chips scattered round its feet. Hero: the ice-pick claws, raised like a cheer.
-- Surface pass 2026-10-15: smooth by angle (55 degrees), a 0.05-stud bevel with 2 segments on thick cubes and cylinders, a greyscale vertex gradient exported in the GLB (crown 1, belly 0.7, 0.18 more facing down); per-slot material, texture and glossy live in materials.json (docs/vault/06-art-pipelines/Surface-Pass.md).
+Regenerate with `$BPY tools/blocky/export_models.py --species Chipmole`; check with `python3 -I tools/blocky/export_models.py --check --species Chipmole`.

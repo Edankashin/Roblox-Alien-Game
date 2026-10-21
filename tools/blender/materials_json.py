@@ -33,10 +33,11 @@ from alien_base import ROOT, material_entries, write_materials_entries  # noqa: 
 
 
 def find_models(models_root):
-    """(name, glb path) for every species folder and props/<Name> folder holding <name>.glb, species first."""
+    """(name, glb path) for every species folder and props/<Name> folder holding <name>.glb, species first. A block-cell species folder
+    (<Id>_atlas.png beside the GLB) is skipped: tools/blocky/export_models.py writes its materials.json, with keys this tool cannot know."""
     found = []
     for d in sorted(models_root.iterdir()):
-        if d.is_dir() and d.name != "props" and (d / (d.name + ".glb")).exists():
+        if d.is_dir() and d.name != "props" and (d / (d.name + ".glb")).exists() and not (d / (d.name + "_atlas.png")).exists():
             found.append((d.name, d / (d.name + ".glb")))
     props = models_root / "props"
     if props.is_dir():

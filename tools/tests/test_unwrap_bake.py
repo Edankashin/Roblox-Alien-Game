@@ -27,6 +27,8 @@ ROOT = HERE.parent.parent
 TOOL = ROOT / "tools/blender/unwrap_bake.py"
 MODELS = ROOT / "assets/models"
 SPECIES = ("Sparkfox", "Mossbop")
+BLOCK_CELL = any((MODELS / s / (s + "_atlas.png")).exists() for s in SPECIES)
+RETIRED = "assets/models holds the block-cell models now (tools/blocky/export_models.py, Decision B46); this tool was built for the retired blockouts"
 SIZE = 512
 
 _SPEC = importlib.util.spec_from_file_location("to_bbmodel", ROOT / "tools/blockbench/to_bbmodel.py")
@@ -114,6 +116,7 @@ def overlap_share(glb, side=256):
 
 
 @unittest.skipIf(PYTHON is None, SKIP)
+@unittest.skipIf(BLOCK_CELL, RETIRED)
 class UnwrapAndBake(unittest.TestCase):
     """Sparkfox and Mossbop through the tool once, into a temporary folder."""
 

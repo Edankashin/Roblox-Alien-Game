@@ -3,61 +3,61 @@
     "slot": 1,
     "name": "Body",
     "hex": "F5EDE0",
-    "roughness": 0.8,
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Metal"
+    "colorMap": "Kettlepuff_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "floatR",
+    "hex": "F5EDE0",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Kettlepuff_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "handle",
+    "hex": "C8743A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Kettlepuff_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "lid",
+    "hex": "C8743A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Kettlepuff_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "9F9A92",
-    "roughness": 0.8,
+    "name": "wispR",
+    "hex": "F5EDE0",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Metal"
+    "colorMap": "Kettlepuff_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "E8793A",
-    "roughness": 0.8,
+    "name": "FacePlate",
+    "hex": "F5EDE0",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "material": "Metal"
-  },
-  {
-    "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "colorMap": "Kettlepuff_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

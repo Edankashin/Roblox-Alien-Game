@@ -2,57 +2,78 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "F2F2FF",
-    "roughness": 0.8,
+    "hex": "E9E6FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "9D6BFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "armL",
+    "hex": "E9E6FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "armR",
+    "hex": "E9E6FF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "9D9DA6",
-    "roughness": 0.8,
+    "name": "hem",
+    "hex": "5B4A8A",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "33B6FF",
-    "roughness": 0.8,
+    "name": "lanternL",
+    "hex": "9D6BFF",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "C026D3",
-    "roughness": 0.3,
-    "metallic": 1.0,
-    "emission": 0.0
+    "name": "stem",
+    "hex": "B89B5A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Spookum_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 8,
+    "name": "FacePlate",
+    "hex": "E9E6FF",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Spookum_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

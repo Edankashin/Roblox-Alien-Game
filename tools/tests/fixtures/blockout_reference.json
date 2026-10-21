@@ -1,0 +1,431 @@
+{
+ "_about": "The retired blockouts' heights (notes.md) and material slots (materials.json) as they stood before tools/blocky/export_models.py replaced them with the block-cell models (B46, 2026-10-21); the reference the retired V2 recipes (tools/blender/species_recipes.py) were built to.",
+ "species": {
+  "Buzzlebee": {
+   "height": 1.76,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Capybubble": {
+   "height": 2.98,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Chipmole": {
+   "height": 1.98,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Drippo": {
+   "height": 2.11,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Emberchin": {
+   "height": 2.24,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Fenripup": {
+   "height": 4.05,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Flapsicle": {
+   "height": 1.76,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Flufflet": {
+   "height": 2.64,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Frostfang": {
+   "height": 3.37,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Gaiabloom": {
+   "height": 4.14,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Glimmo": {
+   "height": 2.7,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Gloomoth": {
+   "height": 2.64,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Kettlepuff": {
+   "height": 2.2,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Lanternewt": {
+   "height": 2.27,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Mossbop": {
+   "height": 2.64,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Nebulyn": {
+   "height": 3.52,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim"
+   ]
+  },
+  "Panpipe": {
+   "height": 3.4,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Pebblet": {
+   "height": 2.37,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Pengoo": {
+   "height": 1.98,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight",
+    "Belly"
+   ]
+  },
+  "Puffpuff": {
+   "height": 2.2,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Radish": {
+   "height": 3.64,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Reindazzle": {
+   "height": 3.65,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Rocklobber": {
+   "height": 2.42,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Shellberg": {
+   "height": 2.76,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Shimmerlynx": {
+   "height": 3.82,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Skaddle": {
+   "height": 3.98,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Snailbyte": {
+   "height": 2.51,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Snowbun": {
+   "height": 2.04,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Sparkfox": {
+   "height": 2.5,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Spookum": {
+   "height": 3.17,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim"
+   ]
+  },
+  "Thunderhog": {
+   "height": 3.37,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "Trim",
+    "EyeHighlight"
+   ]
+  },
+  "Toastoad": {
+   "height": 1.98,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Twiglet": {
+   "height": 2.71,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  },
+  "Wisplet": {
+   "height": 2.11,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory"
+   ]
+  },
+  "Zapfinch": {
+   "height": 2.86,
+   "slots": [
+    "Body",
+    "EyeWhite",
+    "Pupil",
+    "Mouth",
+    "BodyDark",
+    "Accessory",
+    "EyeHighlight"
+   ]
+  }
+ }
+}

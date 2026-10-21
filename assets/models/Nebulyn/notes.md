@@ -1,18 +1,16 @@
-# Nebulyn blockout
+# Nebulyn block-cell model
 
-- Date: 2026-10-13
-- Tool: tools/blender/alien_base.py, bpy 5.2.2 LTS
-- Name: Nebulyn (Legendary)
-- Concept: a small nebula cloud with two bright eyes and a trailing tail of stars
-- Body: Ball, placeholder colour #7B5CFF, placeholder scale 1.3
-- Accessory: tail (keyword match on the concept; colour rule: complement, #FFCD5C)
-- Tier dressing: tier size 125% (carried by placeholder.scale), halo torus, ground ring torus
-- Triangles: 2068 (look pass, tools/blender/event_species.py)
-- Height: 3.52 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #7B5CFF, BodyDark #503CA6, EyeWhite, Pupil, Mouth, Accessory #FFCD5C, Trim #F59E0B
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Nebulyn.glb (50992 bytes), Nebulyn.fbx (48076 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Nebulyn.md (Cosmoo, World 1, Legendary, status review)
+- Height: 3.5 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 76
+- Triangles: 854 (cap 2500)
+- Cells: 0.0625 studs a cell, atlas Nebulyn_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `Glow` (the static glow blocks, Neon); `fallenR` (moves, Neon, pivot 0.75, 0.125, 0.9375); `planetL` (moves, cells, pivot -1.25, 2.9375, -1.0625); `puff` (moves, cells, pivot 0, 2.875, -0.75); `starL` (moves, Neon, pivot -1.5625, 2.4375, -0.5); `starR` (moves, Neon, pivot 1.5, 2.6875, -1.3125); `tailR` (moves, Neon, pivot 0.25, 1.375, 0.0625); `FacePlate` (the face sheet, frame 0)
+- Eyes: `halo`; the face plate is 56x26 px a frame, 11 frames (open, half, closed, glint1, glint2, cycle0, cycle1, cycle2, cycle3, cycle4, cycle5) in Nebulyn_face.png, 4 a row (Rigs face.columns)
+- Rig: 6 moving parts, root clips 1, flourish every 12s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Nebulyn.glb (112648 bytes), Nebulyn.fbx (108860 bytes, texture embedded), Nebulyn_atlas.png, Nebulyn_face.png, materials.json, Nebulyn.png and Nebulyn_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Look pass: Nebulyn rebuilt from primitives by tools/blender/event_species.py to its concept (same slots, height and pivot).
+Regenerate with `$BPY tools/blocky/export_models.py --species Nebulyn`; check with `python3 -I tools/blocky/export_models.py --check --species Nebulyn`.

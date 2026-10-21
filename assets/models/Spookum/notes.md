@@ -1,18 +1,16 @@
-# Spookum blockout
+# Spookum block-cell model
 
-- Date: 2026-10-13
-- Tool: tools/blender/alien_base.py, bpy 5.2.2 LTS
-- Name: Spookum (Epic)
-- Concept: round ghost, pumpkin grin, drifts an inch off the ground
-- Body: Ball, placeholder colour #F2F2FF, placeholder scale 1.2
-- Accessory: tuft (keyword match on the concept; colour rule: sky, #33B6FF)
-- Tier dressing: tier size 120% (carried by placeholder.scale), collar torus
-- Triangles: 2376 (look pass, tools/blender/event_species.py)
-- Height: 3.17 units (1 unit = 1 stud), standing on the origin, built Z-up and exported Y-up
-- Materials (one per colour, flat, no textures): Body #F2F2FF, BodyDark #9D9DA6, EyeWhite, Pupil, Mouth, Accessory #33B6FF, Trim #C026D3
-- Facing: the face is on -Y in Blender. The FBX exporter (forward -Z, up Y) writes it on -Z, Roblox's front; the GLB exporter writes it on +Z (glTF forward), so a GLB import needs Config.ModelFacesPlusZ = true.
-- Files: Spookum.glb (41624 bytes), Spookum.fbx (42908 bytes)
-- Studio import: File -> Import 3D, keep scale 1, one MeshPart per material (each part gets its Color).
+- Date: 2026-10-21
+- Tool: tools/blocky/export_models.py (tools/blender/blocky_build.py, bpy 5.0.1); Decision B46, "Then finalize". Not uploaded (B27): every texture and image id is 0
+- Spec note: docs/vault/07-alien-game/Creatures/Spookum.md (Grin, World 1, Epic, status review)
+- Height: 3.319 studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike
+- Blocks: 49
+- Triangles: 638 (cap 2500)
+- Cells: 0.125 studs a cell, atlas Spookum_atlas.png 512x1024, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)
+- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): `Body` (every static block, the cell atlas); `Glow` (the static glow blocks, Neon); `armL` (moves, cells, pivot -1, 1.75, -0.2812); `armR` (moves, cells, pivot 1, 1.75, -0.2812); `hem` (moves, cells, pivot 0, 0.75, -0.0312); `lanternL` (moves, Neon, pivot -1.375, 2.375, -0.2812); `stem` (moves, cells, pivot 0, 2.75, -0.0312); `FacePlate` (the face sheet, frame 0)
+- Eyes: `hearty`; the face plate is 28x14 px a frame, 5 frames (open, half, closed, glint1, glint2) in Spookum_face.png, 4 a row (Rigs face.columns)
+- Rig: 5 moving parts, root clips 1, flourish every 10s; played by World.RigAnimator from Rigs.luau (the blink squashes the plate until the face sheet is uploaded)
+- Files: Spookum.glb (64560 bytes), Spookum.fbx (71484 bytes, texture embedded), Spookum_atlas.png, Spookum_face.png, materials.json, Spookum.png and Spookum_grey.png (256 px previews)
+- Studio: File > Import 3D (the FBX or the GLB, scale 1), then tools/studio/install_models.luau with the model selected; or the upload route. See .claude/skills/import-model
 
-Blockout tier: a procedural stand-in. Replace with an AI-generated or hand-modelled mesh of the same height when one exists.
-- Look pass: Spookum rebuilt from primitives by tools/blender/event_species.py to its concept (same slots, height and pivot).
+Regenerate with `$BPY tools/blocky/export_models.py --species Spookum`; check with `python3 -I tools/blocky/export_models.py --check --species Spookum`.

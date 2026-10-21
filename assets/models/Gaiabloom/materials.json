@@ -2,68 +2,98 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "2ECC71",
-    "roughness": 0.8,
+    "hex": "F0E6CE",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "Glow",
+    "hex": "FF6FAE",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "antlerL",
+    "hex": "4FB84E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "antlerR",
+    "hex": "4FB84E",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "8A5A2F",
-    "roughness": 0.8,
+    "name": "butterflyR",
+    "hex": "FF6FAE",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FF8FB3",
-    "roughness": 0.8,
+    "name": "earL",
+    "hex": "F0E6CE",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "Trim",
-    "hex": "F59E0B",
-    "roughness": 0.3,
-    "metallic": 1.0,
+    "name": "earR",
+    "hex": "F0E6CE",
+    "roughness": 0.55,
+    "metallic": 0.0,
     "emission": 0.0,
-    "material": "Neon"
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 8,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "halo",
+    "hex": "4FB84E",
+    "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
+    "name": "tail",
+    "hex": "F0E6CE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 10,
+    "name": "FacePlate",
+    "hex": "F0E6CE",
+    "roughness": 0.4,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gaiabloom_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]

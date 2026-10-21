@@ -2,60 +2,68 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "5DADE2",
-    "roughness": 0.8,
+    "hex": "4FA8E8",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Zapfinch_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 2,
-    "name": "EyeWhite",
-    "hex": "FFFFFF",
-    "roughness": 0.5,
+    "name": "crestL",
+    "hex": "FFEE55",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0,
-    "glossy": true
+    "emission": 1.5
   },
   {
     "slot": 3,
-    "name": "Pupil",
-    "hex": "08080A",
-    "roughness": 0.4,
+    "name": "crestR",
+    "hex": "FFEE55",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 1.5
   },
   {
     "slot": 4,
-    "name": "Mouth",
-    "hex": "2E0D14",
-    "roughness": 0.8,
+    "name": "tail",
+    "hex": "23386B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Zapfinch_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
-    "name": "BodyDark",
-    "hex": "2F5F8F",
-    "roughness": 0.8,
+    "name": "wingL",
+    "hex": "23386B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 0.0
+    "emission": 0.0,
+    "colorMap": "Zapfinch_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 6,
-    "name": "Accessory",
-    "hex": "FFE45C",
-    "roughness": 0.35,
+    "name": "wingR",
+    "hex": "23386B",
+    "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5,
-    "material": "Neon"
+    "emission": 0.0,
+    "colorMap": "Zapfinch_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
-    "name": "EyeHighlight",
-    "hex": "FFFFFF",
-    "roughness": 0.3,
+    "name": "FacePlate",
+    "hex": "4FA8E8",
+    "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,
-    "glossy": true
+    "colorMap": "Zapfinch_face.png",
+    "pixelated": true,
+    "alphaMode": "Transparency"
   }
 ]
