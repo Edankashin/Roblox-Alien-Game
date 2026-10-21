@@ -10,6 +10,15 @@
 -- Workspace.World already exists (a hand-built or saved world wins). The service keeps its World 1
 -- name: it is the one world builder, whichever world the place is.
 --
+-- Generated ground (B44 block cells, 2026-10-21): a world with a generated grid (Shared/WorldGrid over data/WorldGen1 and WorldGen2,
+-- written by tools/blocky/world_gen.py) is built from it instead of the flat floor and its coloured patches: caps, bodies, water,
+-- waterfalls and solids (roofs, bridges, decks) as plain Parts in streaming chunk Models under World/Ground, each face wearing its
+-- block-cell tile (data/BlockTiles) once that id is real and the kind's colour and Material until then; one base slab under everything;
+-- invisible walls only at the map edge. The cap under the camp is MeadowFloor (its top is the old floor top, so every client that reads
+-- it still finds the camp ground). The scattered props (World/Scatter) are the props worker's meshes where imported, else block-built
+-- placeholders from data/WorldKit. The shrine and the landmarks stand on the generated ground; the regions keep their ids and circles
+-- (Shared/Biomes), only the look moved into the ground. GetSurfaceTop, IsSpawnable and GetGrid answer from the grid.
+--
 -- Landmarks: the layout's Landmarks list stands each hero set piece (the crash wreck, a cave mouth, the
 -- great vent) from Shared/Props at its fixed point under Workspace.World.Landmarks, builds nothing when
 -- its prop is missing, and makes the open-floor and region scatter keep clear of its clearRadius. When
@@ -41,6 +50,10 @@ local LightingData = require(Shared.data.Lighting)
 local Place = require(Shared.Place)
 local Biomes = require(Shared.Biomes)
 local Props = require(Shared.Props)
+local Types = require(Shared.types.Types)
+local WorldGrid = require(Shared.WorldGrid)
+local WorldKit = require(Shared.data.WorldKit)
+local BlockTiles = require(Shared.data.BlockTiles)
 
 local Meadow = {}
 
@@ -48,10 +61,20 @@ local Layout: Layouts.Layout = Place.Layout() -- this place's world; fixed for t
 local propNames: Layouts.PropNames? = Layout.Props -- nil: this world imports nothing, every landmark is a placeholder
 local NO_NAMES: { string } = {}
 local landmarkList: { Layouts.Landmark } = Layout.Landmarks or {} -- hero set pieces; empty when the layout lists none
+-- The generated block-cell ground of this world (data/WorldGen<id>), or nil (the home planet keeps the flat placeholder floor).
+local grid: WorldGrid.Grid? = WorldGrid.For(Layout.WorldId)
+local builtGenerated = false -- true once Init built the generated ground (a hand-built Workspace.World skips it and keeps flat heights)
+local spawnKinds: { [string]: boolean } = {}
+for kindName, kind in pairs(WorldKit.Kinds) do
+	spawnKinds[kindName] = kind.spawn
+end
 
 local WORLD_FOLDER = "World"
 local WILD_FOLDER = "Wild"
 local LANDMARKS_FOLDER = "Landmarks"
+local SCATTER_FOLDER = "Scatter" -- the generated world's props, each its own atomic Model
+local WATER_TAG = BlockTiles.WaterTag -- the client drifts the water tile on these (World.WorldFx)
+local FALL_TAG = BlockTiles.FallTag
 -- The floor part's name is historical (the World 1 placeholder was "the Meadow"); it is the same in
 -- every world because clients wait for it by name (World.Waypoint reads the floor top from it).
 local FLOOR_NAME = "MeadowFloor"
@@ -106,6 +129,16 @@ local function regionLift(position: Vector3): number
 		end
 	end
 	return 0
+end
+
+-- How far the walkable surface sits above the floor top at a flat point: the generated ground's column, water or deck there when
+-- this world has one, else the old region patch thickness.
+local function surfaceLift(position: Vector3): number
+	local generated = grid
+	if generated then
+		return WorldGrid.SurfaceAt(generated, position.X, position.Z)
+	end
+	return regionLift(position)
 end
 
 local function flatDistance(a: Vector3, b: Vector3): number
@@ -435,7 +468,7 @@ local function placeLandmarks(floorTop: number, parent: Instance)
 	local missing: { string } = {}
 	for _, landmark in ipairs(landmarkList) do
 		local flat = Vector3.new(landmark.x, 0, landmark.z)
-		local ground = floorTop + regionLift(flat)
+		local ground = floorTop + surfaceLift(flat)
 		local frame = CFrame.new(landmark.x, ground, landmark.z) * CFrame.Angles(0, math.rad(landmark.yaw), 0)
 		local model = Props.Place(landmark.name, frame, landmark.scale, parent, true)
 		if model then
@@ -463,26 +496,293 @@ local function placeLandmarks(floorTop: number, parent: Instance)
 	print(line)
 end
 
-function Meadow.Init()
-	if Workspace:FindFirstChild(WORLD_FOLDER) then
+-- The generated ground (B44 block cells) -------------------------------------------------------------------------------------------
+
+local function enumMaterial(name: string): Enum.Material
+	local ok, material = pcall(function(): Enum.Material
+		return (Enum.Material :: any)[name]
+	end)
+	return if ok and material then material else Enum.Material.SmoothPlastic
+end
+
+local function tileId(key: string): number
+	local row = BlockTiles.Ids[key]
+	return if row then row.id else 0
+end
+
+-- One Texture tiling a block-cell tile over a face, StudsPerTile a side. `pinTop` aligns a side tile's top edge with the face's top (a
+-- cap shows the grass fringe); otherwise the tile is pinned to the world's 2-stud rows from `faceTop`.
+local function addTexture(part: BasePart, key: string, face: Enum.NormalId, faceTop: number?, transparency: number?)
+	local id = tileId(key)
+	if id == 0 then
 		return
 	end
-	local world = Instance.new("Folder")
-	world.Name = WORLD_FOLDER
+	local texture = Instance.new("Texture")
+	texture.Name = key
+	texture.Texture = "rbxassetid://" .. id
+	texture.Face = face
+	texture.StudsPerTileU = BlockTiles.StudsPerTile
+	texture.StudsPerTileV = BlockTiles.StudsPerTile
+	if faceTop then
+		texture.OffsetStudsV = faceTop % BlockTiles.StudsPerTile
+	end
+	texture.Transparency = transparency or 0
+	texture.Parent = part
+end
 
-	local wild = Instance.new("Folder")
-	wild.Name = WILD_FOLDER
-	wild.Parent = world
+-- The side faces a row's bits name: 1 +X (Right), 2 -X (Left), 4 +Z (Back), 8 -Z (Front).
+local SIDE_FACES: { { bit: number, face: Enum.NormalId } } = {
+	{ bit = 1, face = Enum.NormalId.Right },
+	{ bit = 2, face = Enum.NormalId.Left },
+	{ bit = 4, face = Enum.NormalId.Back },
+	{ bit = 8, face = Enum.NormalId.Front },
+}
 
-	local landmarks = Instance.new("Folder")
-	landmarks.Name = LANDMARKS_FOLDER
-	landmarks.Parent = world
+local function groundPart(name: string, size: Vector3, position: Vector3, hex: string, material: Enum.Material, parent: Instance): Part
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.CFrame = CFrame.new(position)
+	part.Color = Color3.fromHex(hex)
+	part.Material = material
+	part.Anchored = true
+	part.CanTouch = false
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = parent
+	return part
+end
 
-	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
-	local floorTop = Layout.FloorThickness / 2
-	markGround(basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world))
+-- The streaming chunk Model a column belongs to, made on first use (World/Ground/Chunk_<ci>_<cj>).
+local function chunkOf(chunks: { [string]: Model }, groundFolder: Instance, gen: Types.WorldGen, i: number, j: number): Model
+	local key = (i // gen.Chunk) .. "_" .. (j // gen.Chunk)
+	local known: Model? = chunks[key]
+	if known then
+		return known
+	end
+	local created = Instance.new("Model")
+	created.Name = "Chunk_" .. key
+	created.ModelStreamingMode = Enum.ModelStreamingMode.Default
+	created.Parent = groundFolder
+	chunks[key] = created
+	return created
+end
 
-	-- Camp pad at the origin with the SpawnLocation on top.
+-- A scatter prop's block-built placeholder (data/WorldKit Recipes) standing on `cframe` at `scale`: a Model of plain parts, the
+-- collidable ones (trunks, rocks, logs, fences) queryable so the wild aliens' wander raycast sees them, the decor (leaves, petals,
+-- flowers) neither colliding nor queryable. A recipe with a light carries one PointLight.
+local function buildRecipe(name: string, recipe: Types.PropRecipe, cframe: CFrame, scale: number, parent: Instance): Model
+	local model = Instance.new("Model")
+	model.Name = name
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	local tall = 0
+	for _, box in ipairs(recipe.boxes) do
+		tall = math.max(tall, (box.at[2] + box.size[2] / 2) * scale)
+	end
+	local first: Part? = nil
+	for index, box in ipairs(recipe.boxes) do
+		local part = Instance.new("Part")
+		part.Name = if index == 1 then "Base" else "Block" .. index
+		part.Size = Vector3.new(box.size[1], box.size[2], box.size[3]) * scale
+		part.CFrame = cframe * CFrame.new(box.at[1] * scale, box.at[2] * scale, box.at[3] * scale) * CFrame.Angles(0, 0, math.rad(box.roll or 0))
+		part.Color = Color3.fromHex(box.color)
+		part.Material = if box.neon then Enum.Material.Neon else enumMaterial(box.material)
+		part.Anchored = true
+		part.CanCollide = box.collide == true
+		part.CanQuery = box.collide == true
+		part.CanTouch = false
+		part.CastShadow = tall >= WorldKit.Build.decorShadowBelow and not box.neon
+		part.TopSurface = Enum.SurfaceType.Smooth
+		part.BottomSurface = Enum.SurfaceType.Smooth
+		part.Parent = model
+		if first == nil then
+			first = part
+		end
+	end
+	local light = recipe.light
+	if light and first then
+		local attachment = Instance.new("Attachment")
+		attachment.Name = "Light"
+		attachment.WorldCFrame = cframe * CFrame.new(light.at[1] * scale, light.at[2] * scale, light.at[3] * scale)
+		attachment.Parent = first
+		local point = Instance.new("PointLight")
+		point.Color = Color3.fromHex(light.color)
+		point.Range = light.range * scale
+		point.Brightness = light.brightness
+		point.Shadows = false
+		point.Parent = attachment
+	end
+	model.PrimaryPart = first
+	model.Parent = parent
+	return model
+end
+
+-- Every scattered prop of the generated world: the props worker's mesh of that name when it is imported (Shared/Props), else the
+-- block-built placeholder. A hanging prop (icicles) hangs below its point: a mesh is lowered by its own height.
+local function placeGeneratedProps(gen: Types.WorldGen, floorTop: number, parent: Instance)
+	local place = gen.Place
+	local meshes, placeholders = 0, 0
+	for r = 1, #place, WorldGrid.Stride.Place do
+		local name = gen.Props[place[r]]
+		local cframe = CFrame.new(place[r + 1], floorTop + place[r + 2], place[r + 3]) * CFrame.Angles(0, math.rad(place[r + 4]), 0)
+		local scale = place[r + 5]
+		local recipe = WorldKit.Recipes[name]
+		local mesh = Props.Place(name, cframe, scale, parent, true)
+		if mesh then
+			meshes += 1
+			mesh.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+			if recipe and recipe.hang then
+				mesh:PivotTo(mesh:GetPivot() * CFrame.new(0, -mesh:GetExtentsSize().Y, 0))
+			end
+		elseif recipe then
+			placeholders += 1
+			buildRecipe(name, recipe, cframe, scale, parent)
+		end
+	end
+	print(("[%s] world %d: %d props (%d meshes, %d block placeholders)"):format(Config.WorkingTitle, gen.World, meshes + placeholders, meshes, placeholders))
+end
+
+-- The generated ground of this world (data/WorldGen<id>, Shared/WorldGrid): caps, bodies, water, falls and solids as plain Parts in
+-- streaming chunks under World/Ground, the base slab under everything and invisible walls at the map edge. A face wears its block-cell
+-- tile (data/BlockTiles) when that id is real, else the kind's colour and a fitting Material. The cap under the camp is MeadowFloor.
+local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instance)
+	local cell, origin = gen.Cell, gen.Origin
+	local groundFolder = Instance.new("Folder")
+	groundFolder.Name = "Ground"
+	groundFolder.Parent = world
+	local chunks: { [string]: Model } = {}
+	local campI = math.floor((0 - origin) / cell)
+	local floorNamed = false
+
+	local caps = gen.Caps
+	for r = 1, #caps, WorldGrid.Stride.Caps do
+		local i, j, w, d, top = caps[r], caps[r + 1], caps[r + 2], caps[r + 3], caps[r + 4]
+		local kindName = gen.Kinds[caps[r + 5]]
+		local kind = WorldKit.Kinds[kindName]
+		local textured = tileId(kind.top) ~= 0
+		local isFloor = not floorNamed and top == 0 and i <= campI and campI < i + w and j <= campI and campI < j + d
+		local part = groundPart(if isFloor then FLOOR_NAME else "Cap", Vector3.new(w * cell, 1, d * cell),
+			Vector3.new(origin + (i + w / 2) * cell, floorTop + top - 0.5, origin + (j + d / 2) * cell),
+			kind.color, if textured then Enum.Material.SmoothPlastic else enumMaterial(kind.material), chunkOf(chunks, groundFolder, gen, i, j))
+		floorNamed = floorNamed or isFloor
+		addTexture(part, kind.top, Enum.NormalId.Top)
+		for _, side in ipairs(SIDE_FACES) do
+			if bit32.band(caps[r + 6], side.bit) ~= 0 then
+				addTexture(part, kind.side, side.face)
+			end
+		end
+		if kind.tint then
+			markGround(part)
+		end
+	end
+
+	local bodies = gen.Bodies
+	for r = 1, #bodies, WorldGrid.Stride.Bodies do
+		local i, j, w, d, top = bodies[r], bodies[r + 1], bodies[r + 2], bodies[r + 3], bodies[r + 4]
+		local kind = WorldKit.Kinds[gen.Kinds[bodies[r + 5]]]
+		local height = top - gen.Base
+		local textured = tileId(kind.body) ~= 0
+		local part = groundPart("Body", Vector3.new(w * cell, height, d * cell),
+			Vector3.new(origin + (i + w / 2) * cell, floorTop + gen.Base + height / 2, origin + (j + d / 2) * cell),
+			kind.bodyColor, if textured then Enum.Material.SmoothPlastic else enumMaterial(BlockTiles.FallbackMaterial[kind.body] or kind.material),
+			chunkOf(chunks, groundFolder, gen, i, j))
+		for _, side in ipairs(SIDE_FACES) do
+			if bit32.band(bodies[r + 6], side.bit) ~= 0 then
+				addTexture(part, kind.body, side.face, top)
+			end
+		end
+		markGround(part)
+	end
+
+	local water = gen.Water
+	for r = 1, #water, WorldGrid.Stride.Water do
+		local i, j, w, d, bottom, top = water[r], water[r + 1], water[r + 2], water[r + 3], water[r + 4], water[r + 5]
+		local kindName = gen.Kinds[water[r + 6]]
+		local kind = WorldKit.Kinds[kindName]
+		local look = WorldKit.Water[kindName]
+		local part = groundPart("Water", Vector3.new(w * cell, top - bottom, d * cell),
+			Vector3.new(origin + (i + w / 2) * cell, floorTop + (bottom + top) / 2, origin + (j + d / 2) * cell),
+			kind.color, Enum.Material.SmoothPlastic, chunkOf(chunks, groundFolder, gen, i, j))
+		part.CanCollide = false
+		part.CastShadow = false
+		part.Transparency = if look then look.transparency else 0.3
+		part.Reflectance = if look then look.reflectance else 0
+		if look and look.neon then
+			part.Material = Enum.Material.Neon
+		end
+		addTexture(part, kind.top, Enum.NormalId.Top, nil, BlockTiles.WaterTransparency)
+		CollectionService:AddTag(part, WATER_TAG)
+	end
+
+	local falls = gen.Falls
+	local build = WorldKit.Build
+	for r = 1, #falls, WorldGrid.Stride.Falls do
+		local x, z, width, bottom, top, yaw = falls[r], falls[r + 1], falls[r + 2], falls[r + 3], falls[r + 4], falls[r + 5]
+		local fallKind = gen.Kinds[falls[r + 6]]
+		local kind = WorldKit.Kinds[fallKind]
+		local look = WorldKit.Water[fallKind]
+		local glowing = look ~= nil and look.neon
+		local part = groundPart("Fall", Vector3.new(width, top - bottom, build.fallThickness),
+			Vector3.new(x, floorTop + (bottom + top) / 2, z), if glowing then kind.color else build.fallColor,
+			if glowing then Enum.Material.Neon else Enum.Material.SmoothPlastic, world)
+		part.CFrame = CFrame.new(x, floorTop + (bottom + top) / 2, z) * CFrame.Angles(0, math.rad(yaw), 0)
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CastShadow = false
+		part.Transparency = build.fallTransparency
+		addTexture(part, kind.side, Enum.NormalId.Front, nil, BlockTiles.WaterTransparency)
+		addTexture(part, kind.side, Enum.NormalId.Back, nil, BlockTiles.WaterTransparency)
+		CollectionService:AddTag(part, FALL_TAG)
+	end
+
+	local solids = gen.Solids
+	for r = 1, #solids, WorldGrid.Stride.Solids do
+		local x0, y0, z0, x1, y1, z1 = solids[r], solids[r + 1], solids[r + 2], solids[r + 3], solids[r + 4], solids[r + 5]
+		local kind = WorldKit.Kinds[gen.Kinds[solids[r + 6]]]
+		local textured = tileId(kind.top) ~= 0
+		local i = math.floor(((x0 + x1) / 2 - origin) / cell)
+		local j = math.floor(((z0 + z1) / 2 - origin) / cell)
+		local part = groundPart(if solids[r + 7] == 1 then "Deck" else "Roof", Vector3.new(x1 - x0, y1 - y0, z1 - z0),
+			Vector3.new((x0 + x1) / 2, floorTop + (y0 + y1) / 2, (z0 + z1) / 2), kind.color,
+			if textured then Enum.Material.SmoothPlastic else enumMaterial(kind.material), chunkOf(chunks, groundFolder, gen, math.clamp(i, 0, gen.Count - 1), math.clamp(j, 0, gen.Count - 1)))
+		addTexture(part, kind.top, Enum.NormalId.Top)
+		addTexture(part, kind.body, Enum.NormalId.Bottom)
+		for _, side in ipairs(SIDE_FACES) do
+			addTexture(part, kind.side, side.face)
+		end
+		markGround(part)
+	end
+
+	-- the base slab: nothing can fall out of the world from under a column
+	local span = gen.Count * cell
+	local baseKind = WorldKit.Kinds[gen.Kinds[1]]
+	local base = groundPart("WorldBase", Vector3.new(span, build.baseThickness, span),
+		Vector3.new(origin + span / 2, floorTop + gen.Base - build.baseThickness / 2, origin + span / 2), baseKind.bodyColor,
+		enumMaterial(BlockTiles.FallbackMaterial[baseKind.body] or "Ground"), groundFolder)
+	base.CastShadow = false
+
+	-- invisible walls at the map edge, the only invisible walls in the world
+	local wallY = floorTop + gen.Base + build.edgeWallHeight / 2
+	local half = build.edgeWallThickness / 2
+	for _, wall in ipairs({
+		{ size = Vector3.new(build.edgeWallThickness, build.edgeWallHeight, span), at = Vector3.new(origin - half, wallY, origin + span / 2) },
+		{ size = Vector3.new(build.edgeWallThickness, build.edgeWallHeight, span), at = Vector3.new(origin + span + half, wallY, origin + span / 2) },
+		{ size = Vector3.new(span, build.edgeWallHeight, build.edgeWallThickness), at = Vector3.new(origin + span / 2, wallY, origin - half) },
+		{ size = Vector3.new(span, build.edgeWallHeight, build.edgeWallThickness), at = Vector3.new(origin + span / 2, wallY, origin + span + half) },
+	}) do
+		local part = groundPart("EdgeWall", wall.size, wall.at, "FFFFFF", Enum.Material.SmoothPlastic, world)
+		part.Transparency = 1
+		part.CanQuery = false
+		part.CastShadow = false
+	end
+	if not floorNamed then
+		warn(("[%s] world %d: no generated cap at the camp at height 0; MeadowFloor is missing"):format(Config.WorkingTitle, gen.World))
+	end
+end
+
+-- The camp pad, its SpawnLocation, the home plot and the home stands, on the floor top (the old flat builder and the generated one
+-- share it: the generated camp is a flat green at the floor top).
+local function buildCamp(floorTop: number, world: Instance)
 	local padY = floorTop + Layout.CampPadThickness / 2
 	uprightCylinder("CampPad", Layout.CampPadRadius, Layout.CampPadThickness, Vector3.new(0, padY, 0), Layout.CampPadColor, world)
 
@@ -509,6 +809,59 @@ function Meadow.Init()
 
 	-- The trophy hangar's pads, the spin wheel kiosk and the mailbox (home only: other layouts set none of them).
 	buildHomeStands(floorTop, world)
+end
+
+-- A generated world: the ground, the camp, the props, then the shrine and the landmarks on the ground under them.
+local function buildGenerated(gen: Types.WorldGen, world: Instance, landmarks: Instance)
+	local floorTop = Layout.FloorThickness / 2
+	buildGround(gen, floorTop, world)
+	buildCamp(floorTop, world)
+	local scatter = Instance.new("Folder")
+	scatter.Name = SCATTER_FOLDER
+	scatter.Parent = world
+	placeGeneratedProps(gen, floorTop, scatter)
+	if not Place.IsHome() then
+		buildShrine(floorTop + surfaceLift(shrineFlat()), landmarks)
+		placeLandmarks(floorTop, landmarks)
+	end
+	for _, model in ipairs(landmarks:GetChildren()) do
+		if model:IsA("Model") then
+			model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+		end
+	end
+	print(("[%s] world %d: generated ground built (%d ground parts, budget %d)"):format(Config.WorkingTitle, gen.World, gen.Stats.groundParts, WorldKit.Budget.groundParts))
+end
+
+function Meadow.Init()
+	if Workspace:FindFirstChild(WORLD_FOLDER) then
+		return
+	end
+	local world = Instance.new("Folder")
+	world.Name = WORLD_FOLDER
+
+	local wild = Instance.new("Folder")
+	wild.Name = WILD_FOLDER
+	wild.Parent = world
+
+	local landmarks = Instance.new("Folder")
+	landmarks.Name = LANDMARKS_FOLDER
+	landmarks.Parent = world
+
+	-- A world with generated ground (Worlds 1 and 2) is built from it; the rest (the home planet) keep the flat placeholder below.
+	local generated = grid
+	if generated then
+		buildGenerated(generated.gen, world, landmarks)
+		builtGenerated = true
+		world.Parent = Workspace
+		return
+	end
+
+	-- Floor: the part sits at Y = 0 so its top surface is at FloorThickness / 2.
+	local floorTop = Layout.FloorThickness / 2
+	markGround(basePart(FLOOR_NAME, Enum.PartType.Block, Vector3.new(Layout.FloorSize, Layout.FloorThickness, Layout.FloorSize), CFrame.new(0, 0, 0), Layout.FloorColor, world))
+
+	-- Camp pad at the origin with the SpawnLocation on top, the home plot and stands.
+	buildCamp(floorTop, world)
 
 	-- Deterministic scatter so every server (and every reconnect) sees the same landmarks. One rng
 	-- feeds the regions and then the open floor; regions go in name order because pairs() order is
@@ -559,8 +912,27 @@ end
 
 -- Height of the walkable surface at a flat point: the region patch top inside any region, else the
 -- floor top. The Spawner and Materials seat aliens and nodes relative to it.
+-- On a generated world it is the ground under the point (Shared/WorldGrid: the column, the water over it or a bridge or deck).
 function Meadow.GetSurfaceTop(position: Vector3): number
+	if builtGenerated then
+		return Meadow.GetFloorTop() + surfaceLift(position)
+	end
 	return Meadow.GetFloorTop() + regionLift(position)
+end
+
+-- Whether a wild alien may land at a flat point: on a generated world, not in water, not under a bridge or a log, on a ground kind
+-- that allows it (data/WorldKit); anywhere on the old flat floor.
+function Meadow.IsSpawnable(position: Vector3): boolean
+	local generated = grid
+	if builtGenerated and generated then
+		return WorldGrid.IsSpawnable(generated, position.X, position.Z, spawnKinds)
+	end
+	return true
+end
+
+-- The generated ground's grid (the Spawner reads its rare spots), or nil on a flat placeholder world.
+function Meadow.GetGrid(): WorldGrid.Grid?
+	return if builtGenerated then grid else nil
 end
 
 function Meadow.GetHalfSize(): number

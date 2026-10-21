@@ -165,4 +165,21 @@ describe("Moonlit Forest night looks", function()
 		end
 	end)
 end)
+
+-- Frostbyte's aurora night (2026-10-21 worlds pass): teal from above, never darker than the plain Night.
+describe("Frostbyte aurora night", function()
+	local aurora = Lighting.WorldConditions[2].Night
+	it("keeps every ambient channel at or above the plain Night and leaves brightness alone", function()
+		for _, field in ipairs({ "Ambient", "OutdoorAmbient" }) do
+			for channel = 1, 3 do
+				expect(aurora[field][channel] >= plain[field][channel]).toEqual(true)
+			end
+		end
+		expect(aurora.Brightness == nil and aurora.ExposureCompensation == nil).toEqual(true)
+	end)
+	it("lights the tops green-teal, not white", function()
+		local top = aurora.ColorShift_Top
+		expect(top[2] > top[1] and top[2] > top[3]).toEqual(true)
+	end)
+end)
 return true

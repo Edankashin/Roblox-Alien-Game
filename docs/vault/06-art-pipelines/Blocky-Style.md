@@ -345,6 +345,8 @@ The World 1 landscape sample, `tools/blender/blocky_scene.py`: a 48 x 32 stud me
 
 ## In the game (a plan; no code under `src/` yet)
 
+2026-10-21: the ground is built in the game now, by route (a) below as plain Parts with a Texture per tile: [[World-Gen]] (the generator, the builder, the budget, the Starhollow Forest).
+
 - **The texture**: each creature's atlas ships as the `ColorMap` of one `SurfaceAppearance` with **`ResampleMode = Pixelated`** (nearest filtering; in the Creator Docs since 5 May 2026; **to be confirmed on the Mac on a real phone**, with the grout's fine lines at a distance the thing to watch). If Pixelated fails, the 8-texel cell is the fallback: bilinear filtering softens only inside a texel, so cells stay crisp. A Trim slot's gold becomes a `MetalnessMap` on the same layout; `AlphaMode = TintMask` with the body cells opaque in the alpha recolours a variant (Gold, Crystal) without touching the face.
 - **One atlas per creature**: 512 x 512 (Moop) to 1024 x 1024 (Voltus, Syrinx) at 8 texels a cell; Buzzik, Vixa, Gaira and Raddis 512 x 1024. About 0.25 to 1 MB each on the GPU once block-compressed. The UVs are in the GLB already (one UV layer, every face on its island).
 - **Draw calls**: with one atlas, every static slot merges into **one MeshPart**; a Neon glow part stays separate unless the SurfaceAppearance emissive mask holds up on the Mac; each moving object stays its own MeshPart (B39). Moop 4 today to 3, Buzzik 5 to 3, Vixa 7 to 5, Voltus 8 to 5, Gaira, Raddis and Syrinx 9 to 6. Identical species share mesh and texture, so a herd of one species instances.

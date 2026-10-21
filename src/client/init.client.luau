@@ -79,6 +79,7 @@ local MusicMath = require(Shared:WaitForChild("MusicMath"))
 local CinematicMath = require(Shared:WaitForChild("CinematicMath"))
 local LightingDirector = require(script:WaitForChild("World"):WaitForChild("LightingDirector"))
 local WeatherFx = require(script:WaitForChild("World"):WaitForChild("WeatherFx"))
+local WorldFx = require(script:WaitForChild("World"):WaitForChild("WorldFx"))
 local CameraDirector = require(script:WaitForChild("World"):WaitForChild("CameraDirector"))
 local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("LaunchSequence"))
 local Prefs = require(script:WaitForChild("Prefs"))
@@ -1870,6 +1871,7 @@ local function start(profile: Types.Profile)
 	MusicDirector.Start() -- the first clock push below picks the world's bed (the home planet, world 0, plays Home)
 	LightingDirector.Start()
 	WeatherFx.Start()
+	WorldFx.Start() -- the generated world's ambient effects at their places (mist, sparkle, petals, butterflies, steam, aurora)
 
 	-- The first arrival in this place. A brand-new profile on the tutorial's world opens with the crash landing: the camera
 	-- drops from the sky to the wreck while the HUD waits (anything already started, a plate collected or a rejoin, skips it);

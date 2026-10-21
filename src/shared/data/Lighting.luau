@@ -60,18 +60,36 @@ local Base: Look = {
 
 -- Per world (Worlds.luau ids). A world without an entry uses Base.
 local Worlds: { [number]: Look } = {
-	-- Verdant Crash Site: warm green-gold meadow light, a touch more saturation.
+	-- Verdant Crash Site, block cells (2026-10-21 worlds pass): the dioramas' warm toy light. A clear blue sky over a pale warm horizon
+	-- (Blocky-Style E3: day blue 62B3EC over D8EEF5), warm sun on the tops (ColorShift_Top), soft but present shadows so every block
+	-- edge reads, saturation lifted so the greens and the petals pop, a little bloom on the lanterns and the water, gentle sun rays.
 	[1] = {
-		Atmosphere = { Density = 0.32, Color = { 210, 190, 120 }, Glare = 0.3, Haze = 1.2 },
-		Bloom = { Intensity = 0.7 },
-		ColorCorrection = { Saturation = 0.2, TintColor = { 255, 250, 235 } },
+		Brightness = 2.3,
+		OutdoorAmbient = { 140, 136, 122 },
+		ColorShift_Top = { 36, 26, 8 },
+		EnvironmentSpecularScale = 0.6,
+		ShadowSoftness = 0.35,
+		Atmosphere = { Density = 0.27, Offset = 0.2, Color = { 216, 236, 244 }, Decay = { 98, 170, 230 }, Glare = 0.3, Haze = 1 },
+		Bloom = { Intensity = 0.65, Size = 26, Threshold = 1.4 },
+		ColorCorrection = { Contrast = 0.12, Saturation = 0.26, TintColor = { 255, 248, 232 } },
+		SunRays = { Intensity = 0.12, Spread = 0.5 },
+		Sky = { Bk = 0, Dn = 0, Ft = 0, Lf = 0, Rt = 0, Up = 0, SunAngularSize = 16, StarCount = 3000 },
 	},
-	-- Frostbyte: cold blue-white, hazier, desaturated, soft sun.
+	-- Frostbyte, block cells: crisp, cold and still colourful (not grey). A cold blue sky over a pale haze (78A8D6 over DDE8F2), cool
+	-- light on the tops, the exposure eased a touch so the snow never clips white, bloom a little stronger so snow and ice glow
+	-- softly, saturation kept above zero so the pines, the heater's orange and the aliens hold their colour.
 	[2] = {
-		OutdoorAmbient = { 150, 165, 185 },
-		Atmosphere = { Density = 0.38, Color = { 200, 220, 240 }, Decay = { 160, 190, 220 }, Glare = 0.1, Haze = 2 },
-		ColorCorrection = { Contrast = 0.15, Saturation = 0, TintColor = { 235, 245, 255 } },
-		SunRays = { Intensity = 0.05 },
+		Brightness = 2.4,
+		OutdoorAmbient = { 158, 172, 198 },
+		ColorShift_Top = { 10, 20, 34 },
+		ExposureCompensation = -0.1,
+		EnvironmentSpecularScale = 0.9,
+		ShadowSoftness = 0.3,
+		Atmosphere = { Density = 0.32, Offset = 0.25, Color = { 221, 232, 242 }, Decay = { 120, 168, 214 }, Glare = 0.15, Haze = 1.4 },
+		Bloom = { Intensity = 0.75, Size = 28, Threshold = 1.3 },
+		ColorCorrection = { Contrast = 0.13, Saturation = 0.12, TintColor = { 238, 246, 255 } },
+		SunRays = { Intensity = 0.08, Spread = 0.4 },
+		Sky = { Bk = 0, Dn = 0, Ft = 0, Lf = 0, Rt = 0, Up = 0, SunAngularSize = 11, StarCount = 4500 },
 	},
 }
 
@@ -129,6 +147,19 @@ local Conditions: { [string]: Look } = {
 -- that line. Saturation goes from -0.1 to +0.1 so the indigo reads as colour, not grey, and the tint is a touch
 -- warmer than the plain row's ({ 210, 220, 255 }) so warm-white lights glow against it.
 local WorldConditions: { [number]: ConditionLooks } = {
+	-- Frostbyte's night is the aurora night (data/WorldFx Aurora ribbons hang in its sky): teal-green light from above over a deep
+	-- blue fog, never darker than the plain Night row (every ambient channel at or above it, brightness and exposure unchanged), the
+	-- snow catching the colour. No groundTint: World 2 keeps its ground (tests/Lighting.spec.luau).
+	[2] = {
+		Night = {
+			Ambient = { 44, 60, 80 },
+			OutdoorAmbient = { 72, 96, 124 },
+			ColorShift_Top = { 30, 92, 78 },
+			Atmosphere = { Density = 0.3, Offset = 0.3, Color = { 70, 118, 132 }, Decay = { 40, 52, 112 }, Glare = 0, Haze = 1.2 },
+			Bloom = { Intensity = 1, Size = 32, Threshold = 1 },
+			ColorCorrection = { Saturation = 0.15, TintColor = { 226, 242, 255 } },
+		},
+	},
 	[1] = {
 		Night = {
 			Ambient = { 46, 46, 84 },
@@ -178,6 +209,11 @@ return {
 	Conditions = Conditions,
 	WorldConditions = WorldConditions,
 	BiomeConditions = BiomeConditions,
+	-- A biome that wears a condition's look at any hour while the local player stands in it (B48: the Starhollow Forest, World 1's
+	-- Forest region, is moonlit night even at noon). LightingDirector counts the condition as active there, so the Night row, World 1's
+	-- refinement and the Forest's own row all merge, eases the sky's ClockTime to Config.NightClockTime on the client (the server's
+	-- clock is untouched and comes back on the way out), and WeatherFx and WorldFx run their night layers there.
+	BiomeAlways = { Forest = "Night" } :: { [string]: string },
 	-- Merge order: the first listed is applied first, so the last active one listed here wins.
 	ConditionOrder = { "Fog", "Snow", "Night", "Aurora", "Rain", "Blizzard", "Shower" },
 }

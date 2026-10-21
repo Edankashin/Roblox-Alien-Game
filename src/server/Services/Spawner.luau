@@ -30,6 +30,9 @@
 -- placed (reserved) spawn neither counts toward it nor is blocked by it. The top-up places one spawn per player per
 -- pass, so at the ceiling every player still gets a share of what is free.
 -- The home planet (Place.IsHome, world 0) has no wild: Start runs no tick there, so nothing ever spawns.
+-- On a generated world (Meadow.GetGrid) a spawn never lands in water or under a bridge (Meadow.IsSpawnable), and the world's rare
+-- spots (its most beautiful places: the lookout, the waterfall nook, the crystal grotto...) take Config.RareSpotShare of the top-ups
+-- near them, one alien at a time, rolling the tier with luck times the spot's luck.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -49,6 +52,7 @@ local CatchVariants = require(Shared.data.CatchVariants)
 local Worlds = require(Shared.data.Worlds)
 local Biomes = require(Shared.Biomes)
 local Place = require(Shared.Place)
+local WorldGrid = require(Shared.WorldGrid)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
 local Buffs = require(script.Parent.Buffs)
@@ -236,7 +240,7 @@ local function findPosition(around: Vector3, size: number): Vector3?
 		local x = math.clamp(around.X + math.cos(angle) * radius, -half, half)
 		local z = math.clamp(around.Z + math.sin(angle) * radius, -half, half)
 		local position = Vector3.new(x, floorTop + Config.WildHoverStuds + size / 2, z)
-		if math.sqrt(x * x + z * z) >= campClear and not tooCloseToOthers(position) then
+		if math.sqrt(x * x + z * z) >= campClear and not tooCloseToOthers(position) and Meadow.IsSpawnable(position) then
 			return position
 		end
 	end
@@ -318,11 +322,43 @@ local function place(def: Types.SpeciesDef, flat: Vector3, overlay: Types.Overla
 	return spawn
 end
 
+-- A point inside a rare spot near `around` (Config.RareSpotShare of the time, and only a spot with no alien in it yet), or nil. The
+-- generated worlds name their spots (Meadow.GetGrid); a flat placeholder world has none.
+local function spotPosition(around: Vector3): Vector3?
+	local grid = Meadow.GetGrid()
+	if grid == nil or rng:NextNumber() >= Config.RareSpotShare then
+		return nil
+	end
+	local near = WorldGrid.SpotsNear(grid, around.X, around.Z, Config.SpawnRadius)
+	if #near == 0 then
+		return nil
+	end
+	local spot = near[rng:NextInteger(1, #near)]
+	local angle = rng:NextNumber(0, math.pi * 2)
+	local radius = spot.radius * Config.RareSpotInset * math.sqrt(rng:NextNumber())
+	local position = Vector3.new(spot.x + math.cos(angle) * radius, 0, spot.z + math.sin(angle) * radius)
+	for _, other in pairs(spawns) do
+		if flatDistance(other.position, Vector3.new(spot.x, 0, spot.z)) <= spot.radius then
+			return nil -- one alien at a time in a spot
+		end
+	end
+	if not Meadow.IsSpawnable(position) then
+		return nil
+	end
+	return position
+end
+
 local function createSpawn(around: Vector3, conditions: { Types.Condition }, luck: number): WildSpawn?
-	-- where it lands decides which biome's table it rolls from
-	local flat = findPosition(around, BASE_SIZE)
+	-- where it lands decides which biome's table it rolls from; now and then it lands in a rare spot nearby
+	local flat = spotPosition(around) or findPosition(around, BASE_SIZE)
 	if not flat then
 		return nil
+	end
+	-- a rare spot multiplies the tier luck of a spawn that lands inside it
+	local grid = Meadow.GetGrid()
+	local spot = if grid then WorldGrid.SpotAt(grid, flat.X, flat.Z) else nil
+	if spot then
+		luck *= spot.luck
 	end
 	local biome: Types.Biome = Biomes.At(flat)
 	-- the season's event aliens take their share of the world's spawns, in any biome, then the species it brings

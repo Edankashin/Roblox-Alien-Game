@@ -23,6 +23,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Weather = require(Shared:WaitForChild("data"):WaitForChild("Weather"))
 local Place = require(Shared:WaitForChild("Place"))
+local LightingData = require(Shared:WaitForChild("data"):WaitForChild("Lighting"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 
 local WeatherFx = {}
@@ -233,7 +234,7 @@ local function layerWanted(layer: Weather.Layer): boolean
 	if layer.world ~= Place.WorldId() then
 		return false
 	end
-	if layer.night and not State.GetClock().isNight then
+	if layer.night and not State.GetClock().isNight and LightingData.BiomeAlways[State.GetBiome()] ~= "Night" then
 		return false
 	end
 	local biome = layer.biome

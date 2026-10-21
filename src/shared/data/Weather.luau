@@ -63,7 +63,16 @@ local Sheets: { [string]: Sheet } = {
 -- Sprites: Fireflies wear Icons.Particles.Glow, which is still 0, so they show Roblox's default particle (a soft four-point
 -- sparkle) until the Glow sprite is uploaded and its id lands in data/Icons; LightDrips wear Raindrop, which is real, and
 -- stretch it into a pale streak. No new upload is needed for either.
+-- Pollen (World 1, 2026-10-21, the worlds pass): a few warm motes drifting at head height everywhere in the world, day and night (at
+-- night they read as faint dust in the lantern light). 1.5 x 5 = 7.5 alive, so World 1's layers come to 43.5, under the raised
+-- LayerParticleMax of 45: with Rain (95) that is 140, and the places of data/WorldFx (ParticleBudget 60) bring it to 200.
 local Layers: { [string]: Layer } = {
+	Pollen = {
+		night = false,
+		world = 1,
+		biome = nil,
+		sheet = { rate = 1.5, lifetime = { 4, 5 }, speed = { 0.2, 0.6 }, sizeStart = 0.22, sizeEnd = 0.15, color = "FFF1B8", transparency = 0.25, direction = { 0.6, 0.15, 0.3 }, spread = 180, span = 40, height = 1, lightEmission = 0.6, drag = 0.5, rotationSpeed = { 0, 0 }, texture = Icons.Particles.Glow, squash = 1, velocityParallel = false, mode = "drift", thickness = 5 },
+	},
 	Fireflies = {
 		night = true,
 		world = 1,
@@ -81,7 +90,7 @@ local Layers: { [string]: Layer } = {
 return {
 	Sheets = Sheets,
 	Layers = Layers,
-	LayerParticleMax = 40, -- the layers on at once together: their summed rate x max lifetime stays under this (a phone budget, with a weather sheet and a Shower on top)
+	LayerParticleMax = 45, -- the layers on at once together: their summed rate x max lifetime stays under this (a phone budget, with a weather sheet and a Shower on top)
 	FollowSeconds = 0.1, -- the sheet re-centres over the camera this often
 	FadeSeconds = 1.5, -- a weather change ramps the old sheet's rate to 0 and the new one up over this long
 }
