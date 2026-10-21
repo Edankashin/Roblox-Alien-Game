@@ -51,12 +51,12 @@
     "uploadedAt": "2026-10-21T20:05:50Z"
   },
   "Capybubble": {
-    "assetId": 86944495702096,
+    "assetId": 84603056756412,
     "blockCell": true,
     "file": "assets/models/Capybubble/Capybubble.glb",
     "format": "glb",
     "replacedAssetId": 100133210702748,
-    "uploadedAt": "2026-10-21T20:05:59Z"
+    "uploadedAt": "2026-10-21T20:34:02Z"
   },
   "CaveMouth": {
     "assetId": 132103896359941,
@@ -106,12 +106,12 @@
     "uploadedAt": "2026-10-21T20:06:56Z"
   },
   "Fenripup": {
-    "assetId": 97332912704652,
+    "assetId": 136522039433595,
     "blockCell": true,
     "file": "assets/models/Fenripup/Fenripup.glb",
     "format": "glb",
     "replacedAssetId": 111992346440272,
-    "uploadedAt": "2026-10-21T20:07:05Z"
+    "uploadedAt": "2026-10-21T20:34:17Z"
   },
   "Flag": {
     "assetId": 90062331463442,
@@ -151,12 +151,12 @@
     "uploadedAt": "2026-10-21T20:08:04Z"
   },
   "Frostfang": {
-    "assetId": 119760886054875,
+    "assetId": 117709206870484,
     "blockCell": true,
     "file": "assets/models/Frostfang/Frostfang.glb",
     "format": "glb",
     "replacedAssetId": 89121370968974,
-    "uploadedAt": "2026-10-21T20:08:13Z"
+    "uploadedAt": "2026-10-21T20:34:31Z"
   },
   "FrozenLog": {
     "assetId": 85556402993990,
@@ -166,12 +166,12 @@
     "uploadedAt": "2026-10-21T20:08:21Z"
   },
   "Gaiabloom": {
-    "assetId": 122682108984802,
+    "assetId": 95423002586391,
     "blockCell": true,
     "file": "assets/models/Gaiabloom/Gaiabloom.glb",
     "format": "glb",
     "replacedAssetId": 129783775931423,
-    "uploadedAt": "2026-10-21T20:08:43Z"
+    "uploadedAt": "2026-10-21T20:34:40Z"
   },
   "GatherStation": {
     "assetId": 109164418132495,
@@ -206,12 +206,12 @@
     "uploadedAt": "2026-10-21T20:09:20Z"
   },
   "Gloomoth": {
-    "assetId": 93544763737222,
+    "assetId": 76597842100680,
     "blockCell": true,
     "file": "assets/models/Gloomoth/Gloomoth.glb",
     "format": "glb",
     "replacedAssetId": 98177790783891,
-    "uploadedAt": "2026-10-21T20:09:25Z"
+    "uploadedAt": "2026-10-21T20:34:54Z"
   },
   "GlowFern": {
     "assetId": 125072432310618,
@@ -436,20 +436,20 @@
     "uploadedAt": "2026-10-21T20:14:52Z"
   },
   "Nebulyn": {
-    "assetId": 86052478850521,
+    "assetId": 111058708181183,
     "blockCell": true,
     "file": "assets/models/Nebulyn/Nebulyn.glb",
     "format": "glb",
     "replacedAssetId": 132111130182547,
-    "uploadedAt": "2026-10-21T20:15:06Z"
+    "uploadedAt": "2026-10-21T20:35:02Z"
   },
   "Panpipe": {
-    "assetId": 93713758189586,
+    "assetId": 109050287306710,
     "blockCell": true,
     "file": "assets/models/Panpipe/Panpipe.glb",
     "format": "glb",
     "replacedAssetId": 101992628838997,
-    "uploadedAt": "2026-10-21T20:15:28Z"
+    "uploadedAt": "2026-10-21T20:35:11Z"
   },
   "PathLantern": {
     "assetId": 130101963365955,
@@ -498,12 +498,12 @@
     "uploadedAt": "2026-10-21T20:16:44Z"
   },
   "Radish": {
-    "assetId": 78150887608243,
+    "assetId": 105003378884357,
     "blockCell": true,
     "file": "assets/models/Radish/Radish.glb",
     "format": "glb",
     "replacedAssetId": 75467711544687,
-    "uploadedAt": "2026-10-21T20:16:52Z"
+    "uploadedAt": "2026-10-21T20:35:20Z"
   },
   "Reeds": {
     "assetId": 122578038240807,
@@ -513,20 +513,20 @@
     "uploadedAt": "2026-10-21T20:17:06Z"
   },
   "Reindazzle": {
-    "assetId": 134113307144236,
+    "assetId": 84892422323615,
     "blockCell": true,
     "file": "assets/models/Reindazzle/Reindazzle.glb",
     "format": "glb",
     "replacedAssetId": 86110280099855,
-    "uploadedAt": "2026-10-21T20:17:12Z"
+    "uploadedAt": "2026-10-21T20:35:29Z"
   },
   "Rocklobber": {
-    "assetId": 137772285726368,
+    "assetId": 74100842685887,
     "blockCell": true,
     "file": "assets/models/Rocklobber/Rocklobber.glb",
     "format": "glb",
     "replacedAssetId": 129196086483452,
-    "uploadedAt": "2026-10-21T20:17:26Z"
+    "uploadedAt": "2026-10-21T20:35:34Z"
   },
   "RoomCabin": {
     "assetId": 105761041582148,
@@ -550,20 +550,20 @@
     "uploadedAt": "2026-10-21T20:18:10Z"
   },
   "Shellberg": {
-    "assetId": 84666737457456,
+    "assetId": 124257490870470,
     "blockCell": true,
     "file": "assets/models/Shellberg/Shellberg.glb",
     "format": "glb",
     "replacedAssetId": 132568103336467,
-    "uploadedAt": "2026-10-21T20:18:15Z"
+    "uploadedAt": "2026-10-21T20:35:43Z"
   },
   "Shimmerlynx": {
-    "assetId": 109594609458861,
+    "assetId": 133495730477978,
     "blockCell": true,
     "file": "assets/models/Shimmerlynx/Shimmerlynx.glb",
     "format": "glb",
     "replacedAssetId": 89901200352693,
-    "uploadedAt": "2026-10-21T20:18:29Z"
+    "uploadedAt": "2026-10-21T20:35:52Z"
   },
   "ShipHull": {
     "assetId": 81470422409500,
@@ -597,12 +597,12 @@
     "uploadedAt": "2026-10-21T20:19:28Z"
   },
   "Skaddle": {
-    "assetId": 128670936949191,
+    "assetId": 130925559617254,
     "blockCell": true,
     "file": "assets/models/Skaddle/Skaddle.glb",
     "format": "glb",
     "replacedAssetId": 88220194343720,
-    "uploadedAt": "2026-10-21T20:19:37Z"
+    "uploadedAt": "2026-10-21T20:36:00Z"
   },
   "Snailbyte": {
     "assetId": 116652291605113,
@@ -658,20 +658,20 @@
     "uploadedAt": "2026-10-21T20:20:50Z"
   },
   "Sparkfox": {
-    "assetId": 106712913482714,
+    "assetId": 90329581788192,
     "blockCell": true,
     "file": "assets/models/Sparkfox/Sparkfox.glb",
     "format": "glb",
     "replacedAssetId": 118664559072176,
-    "uploadedAt": "2026-10-21T20:20:58Z"
+    "uploadedAt": "2026-10-21T20:36:15Z"
   },
   "Spookum": {
-    "assetId": 94501755432490,
+    "assetId": 75835527523202,
     "blockCell": true,
     "file": "assets/models/Spookum/Spookum.glb",
     "format": "glb",
     "replacedAssetId": 110636694482164,
-    "uploadedAt": "2026-10-21T20:21:07Z"
+    "uploadedAt": "2026-10-21T20:36:23Z"
   },
   "StarIsland": {
     "assetId": 94576361220525,
@@ -688,12 +688,12 @@
     "uploadedAt": "2026-10-21T20:21:26Z"
   },
   "Thunderhog": {
-    "assetId": 123993501619549,
+    "assetId": 111355227047635,
     "blockCell": true,
     "file": "assets/models/Thunderhog/Thunderhog.glb",
     "format": "glb",
     "replacedAssetId": 89950802531319,
-    "uploadedAt": "2026-10-21T20:21:40Z"
+    "uploadedAt": "2026-10-21T20:36:37Z"
   },
   "Toastoad": {
     "assetId": 126160728707927,
@@ -712,19 +712,19 @@
     "uploadedAt": "2026-10-21T20:22:11Z"
   },
   "Wisplet": {
-    "assetId": 98990260677960,
+    "assetId": 93803172018288,
     "blockCell": true,
     "file": "assets/models/Wisplet/Wisplet.glb",
     "format": "glb",
     "replacedAssetId": 98470407282023,
-    "uploadedAt": "2026-10-21T20:22:32Z"
+    "uploadedAt": "2026-10-21T20:36:51Z"
   },
   "Zapfinch": {
-    "assetId": 81530101085866,
+    "assetId": 76804173153353,
     "blockCell": true,
     "file": "assets/models/Zapfinch/Zapfinch.glb",
     "format": "glb",
     "replacedAssetId": 105877852533381,
-    "uploadedAt": "2026-10-21T20:22:46Z"
+    "uploadedAt": "2026-10-21T20:37:05Z"
   }
 }
