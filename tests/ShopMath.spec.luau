@@ -2,6 +2,7 @@
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Math = require(Shared.ShopMath)
 local Shop = require(Shared.data.Shop)
+local Gear = require(Shared.data.Gear)
 local Strings = require(Shared.strings.en)
 local F = require(script.Parent.Fixtures)
 -- Units in one cent of the display, the definition of the format and not a game value. The half-up rule below is the
@@ -81,6 +82,32 @@ describe("ShopMath", function()
 		local robux = F.two * F.two + F.one
 		expect(Math.AboutLine(robux, other, "%s|%s")).toEqual("T|" .. written(halfUpCents(robux * other.perRobux)))
 		expect(Math.AboutLine(F.zero, other, "%s|%s")).toEqual("T|" .. written(F.zero))
+	end)
+	it("ScrapShort is the whole Scrap still needed, and 0 once the player can pay", function()
+		-- Every Scrap price the shop shows for gear, from the data, so a repriced row moves the test with it.
+		for _, price in ipairs({ Gear.Boots.scrap, Gear.Hoverboard.scrap, Gear.Glider.scrap }) do
+			expect(Math.ScrapShort(price, F.zero)).toEqual(price)
+			expect(Math.ScrapShort(price, price - F.one)).toEqual(F.one)
+			expect(Math.ScrapShort(price, price)).toEqual(F.zero)
+			expect(Math.ScrapShort(price, price + F.one)).toEqual(F.zero)
+			-- a part of a Scrap short still needs a whole one
+			expect(Math.ScrapShort(price, price - F.half)).toEqual(F.one)
+		end
+	end)
+	it("ShortLine names the gap, and falls back to the plain line when the price is unknown or nothing is short", function()
+		local price = Gear.Boots.scrap
+		local held = price - F.two
+		local short = "%s|short"
+		local plain = "plain"
+		expect(Math.ShortLine(price, held, short, plain, tostring)).toEqual(tostring(F.two) .. "|short")
+		expect(Math.ShortLine(nil, held, short, plain, tostring)).toEqual(plain)
+		expect(Math.ShortLine(price, price, short, plain, tostring)).toEqual(plain)
+		expect(Math.ShortLine(price, price + F.one, short, plain, tostring)).toEqual(plain)
+		-- the English strings: the template takes the formatted gap
+		expect(Math.ShortLine(price, F.zero, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, tostring))
+			.toEqual(string.format(Strings.TOAST_SCRAP_SHORT, tostring(price)))
+		expect(Math.ShortLine(nil, F.zero, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, tostring))
+			.toEqual(Strings.TOAST_NOT_ENOUGH_SCRAP)
 	end)
 end)
 return true

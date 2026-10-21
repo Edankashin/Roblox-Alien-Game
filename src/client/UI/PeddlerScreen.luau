@@ -21,6 +21,7 @@ local Lures = require(Shared:WaitForChild("data"):WaitForChild("Lures"))
 local PowerUps = require(Shared:WaitForChild("data"):WaitForChild("PowerUps"))
 local Peddler = require(Shared:WaitForChild("data"):WaitForChild("Peddler"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -146,7 +147,12 @@ local function handleRefusal(index: number, reason: any)
 		bought[index] = true
 		Toast.Show(Strings.TOAST_PEDDLER_SOLD, Theme.Rarity.Common)
 	elseif reason == "NotEnoughScrap" then
-		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
+		-- How much more, never a bare refusal (TikTok batch 9 lesson 3).
+		local visit = State.GetPeddler()
+		local offer = if visit then visit.offers[index] else nil
+		local held = if State.Has() then State.Get().scrap else 0
+		local price = if offer then offer.scrap else nil
+		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
 	else
 		print(("[%s] PeddlerBuy refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 	end

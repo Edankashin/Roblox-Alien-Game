@@ -341,7 +341,11 @@ end
 
 local function handleRefusal(kind: "lure" | "gear", id: string, reason: any)
 	if reason == "NotEnoughScrap" then
-		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
+		-- How much more, never a bare refusal (TikTok batch 9 lesson 3).
+		local lure, gear = lureDefs[id], GEAR_BY_ID[id]
+		local price = if kind == "lure" then (if lure then lure.scrap else nil) else (if gear then gear.scrap else nil)
+		local held = if State.Has() then State.Get().scrap else 0
+		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
 	elseif reason == "Locked" then
 		Toast.Show(Strings.TOAST_LOCKED_GEAR:format(scrapName(kind, id)), Theme.Rarity.Common)
 	else

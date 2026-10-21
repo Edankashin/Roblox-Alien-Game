@@ -33,4 +33,25 @@ function ShopMath.AboutLine(robux: number, currency: Currency, template: string)
 	return string.format(template, currency.symbol, ShopMath.RealPrice(robux, currency.perRobux))
 end
 
+-- The Scrap a price still needs beyond what the player holds: a whole number, 0 when they can pay (TikTok batch 9 lesson 3:
+-- a tap on something the player cannot afford never ends at a bare "not enough"; it says how much more). Scrap is never sold
+-- for Robux, so the line only names the gap; the server still decides every purchase.
+function ShopMath.ScrapShort(price: number, held: number): number
+	return math.max(0, math.ceil(price - held))
+end
+
+-- The refusal line for a Scrap price: `shortTemplate` (strings/en TOAST_SCRAP_SHORT) filled with the gap written by
+-- `formatNumber` (the screen's thousands separator), or `fallback` (TOAST_NOT_ENOUGH_SCRAP) when the price is unknown or the
+-- client's mirror says nothing is short (the server's balance moved first, so its refusal stands without a wrong number).
+function ShopMath.ShortLine(price: number?, held: number, shortTemplate: string, fallback: string, formatNumber: (number) -> string): string
+	if price == nil then
+		return fallback
+	end
+	local short = ShopMath.ScrapShort(price, held)
+	if short <= 0 then
+		return fallback
+	end
+	return string.format(shortTemplate, formatNumber(short))
+end
+
 return ShopMath
