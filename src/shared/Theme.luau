@@ -48,7 +48,7 @@ Theme.Stroke = {
 	TextJoin = Enum.LineJoinMode.Bevel,
 	ShapeJoin = Enum.LineJoinMode.Miter,
 }
-Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows
+Theme.Tween = { Open = 0.25, Close = 0.15, Press = 0.08, Toast = 2.5, StaggerStep = 0.025, StaggerRows = 12, BannerLine = 2.5 } -- StaggerStep: delay between list rows sliding in on open, over the first StaggerRows rows; BannerLine: seconds each line of a one-line HUD event banner shows before the other takes its turn
 Theme.Scale = { PressDown = 0.92, Hover = 1.05, Breathe = 1.04 }
 Theme.Margin = 0.02 -- 2% inner margin on panels
 Theme.TapMin = 44 -- the smallest tappable face in px (UI Playbook, phone rules): a smaller face gets an invisible hit area this big (Builder.button `hit`)

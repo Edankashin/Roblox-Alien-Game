@@ -247,7 +247,30 @@ describe("BlockMath HUD fit", function()
 	end)
 end)
 
--- The screens after the HUD (UI Playbook "Block cells", "Screens in block cells"). A fitted plate (Builder.blockPlate with no
+describe("BlockMath HUD event banner", function()
+	-- Hud.luau: the banner is 0.4 x 0.07 at 6; two lines (0.46 and 0.34 of it) when the smaller holds 14 px, else one line of
+	-- 0.7 of it, the name and the time left taking turns. Either way every line shown holds the 14 px floor.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		it(label .. ": every line the banner shows is 14 px or more", function()
+			local _, h = BlockMath.FitPx(0.4, 0.07, 6, screen.w, screen.h)
+			local twoLines = h * 0.34 >= TEXT_MIN
+			if twoLines then
+				assert(h * 0.46 >= TEXT_MIN, "the name line is " .. h * 0.46 .. " px")
+			else
+				assert(h * 0.7 >= TEXT_MIN, "the one line is " .. h * 0.7 .. " px")
+			end
+		end)
+	end
+	it("takes turns on one line at iPhone SE and shows both lines on the iPad", function()
+		local _, se = BlockMath.FitPx(0.4, 0.07, 6, SE.w, SE.h)
+		local _, ipad = BlockMath.FitPx(0.4, 0.07, 6, IPAD.w, IPAD.h)
+		assert(se * 0.34 < TEXT_MIN, "SE banner would show two lines")
+		assert(ipad * 0.34 >= TEXT_MIN, "iPad banner would show one line")
+	end)
+end)
+
+-- The screens after the HUD (UI Playbook "Block cells", "Screens after the HUD"). A fitted plate (Builder.blockPlate with no
 -- aspect) takes the px box its Size gives and the whole number of columns nearest square cells for it: `fit` is that grid.
 local function fit(wPx: number, hPx: number, rows: number): BlockMath.Grid
 	return BlockMath.Grid(wPx / hPx, rows, INK)
