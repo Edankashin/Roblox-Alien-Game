@@ -509,7 +509,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		assetId = 0, cellMap = 0, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "F4F7FA", neon = false, map = "cell" },
-			{ name = "crest", hex = "9FA8FF", neon = true, map = "" },
+			{ name = "crest", hex = "4A55E8", neon = true, map = "" },
 			{ name = "hindwingL", hex = "F4F7FA", neon = false, map = "cell" },
 			{ name = "hindwingR", hex = "F4F7FA", neon = false, map = "cell" },
 			{ name = "scarfR", hex = "8FD3F4", neon = false, map = "cell" },
