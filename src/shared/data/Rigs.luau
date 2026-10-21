@@ -109,6 +109,20 @@ local species: { [string]: Types.RigRow } = {
 			},
 		},
 	},
+	Twiglet = {
+		height = 2.486,
+		parts = {
+			{ name = "antenna", pivot = { 0, 1.75, -1.2676 }, clips = { { kind = "sway", amp = 12, period = 1.4, phase = 0, axis = "x" } } },
+			{ name = "hat", pivot = { 0, 1.75, -0.8926 }, clips = { { kind = "sway", amp = 8, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "twig", pivot = { 0, 1, -0.2676 }, clips = { { kind = "wag", amp = 12, period = 3, phase = 0, axis = "y" } } },
+		},
+		root = { { kind = "sway", amp = 3, period = 2.4, phase = 0, axis = "z" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 }
 
 return {
