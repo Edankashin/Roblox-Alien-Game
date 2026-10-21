@@ -473,6 +473,7 @@ end)
 -- header tab and close button (Builder.blockHeader, Builder.blockClose).
 local MODALS: { { name: string, w: number, h: number, aspect: number } } = {
 	{ name = "Codex", w = 0.8, h = 0.78, aspect = 1.35 },
+	{ name = "Visit", w = 0.8, h = 0.78, aspect = 1.6 },
 	{ name = "Playtime", w = 0.92, h = 0.78, aspect = 2 },
 	{ name = "Peddler", w = 0.8, h = 0.78, aspect = 1.35 },
 	{ name = "Leaderboard", w = 0.62, h = 0.8, aspect = 1.15 },
