@@ -653,17 +653,17 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Spookum = {
-		height = 3.319,
+		height = 3.444,
 		parts = {
 			{ name = "armL", pivot = { -1, 1.75, -0.2812 }, clips = { { kind = "flap", amp = -15, period = 1.6, phase = 0, axis = "z" } } },
 			{ name = "armR", pivot = { 1, 1.75, -0.2812 }, clips = { { kind = "flap", amp = 15, period = 1.6, phase = 0, axis = "z" } } },
 			{ name = "hem", pivot = { 0, 0.75, -0.0312 }, clips = { { kind = "sway", amp = 5, period = 2, phase = 0, axis = "x" }, { kind = "sway", amp = 4, period = 2.6, phase = 0.25, axis = "z" } } },
 			{ name = "lanternL", pivot = { -1.375, 2.375, -0.2812 }, clips = { { kind = "bob", amp = 0.15, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.12, period = 6, phase = 0, axis = "y" }, { kind = "spin", amp = 360, period = 5, phase = 0, axis = "y" } } },
-			{ name = "stem", pivot = { 0, 2.75, -0.0312 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" } } },
+			{ name = "stem", pivot = { 0, 2.875, -0.0312 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" } } },
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 4, frames = 5,
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 12, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -766,10 +766,10 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Zapfinch = {
-		height = 3.375,
+		height = 3.5,
 		parts = {
-			{ name = "crestL", pivot = { -0.375, 2.5, -0.8125 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
-			{ name = "crestR", pivot = { 0.375, 2.5, -0.8125 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "crestL", pivot = { -0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "crestR", pivot = { 0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
 			{ name = "tail", pivot = { 0, 1.1875, 0.75 }, clips = { { kind = "wag", amp = 14, period = 2.6, phase = 0, axis = "y" } } },
 			{ name = "wingL", pivot = { -0.75, 1.25, 0 }, clips = { { kind = "flap", amp = -15, period = 1.2, phase = 0, axis = "z" } } },
 			{ name = "wingR", pivot = { 0.75, 1.25, 0 }, clips = { { kind = "flap", amp = 15, period = 1.2, phase = 0, axis = "z" } } },

@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Bloom
 height: 3.452
-blocks: 70
-tris: 972
+blocks: 78
+tris: 1048
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#F0E6CE", "#6B4A2E", "#4FB84E", "#F5B83D", "#FF6FAE", "#1F1A17"]
@@ -20,16 +20,16 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Gaiabloom_sheet.svg]]"
 render: "[[Gaiabloom_tq_cells.jpg]]"
 glb: ""
-overlap: [0.992, 0.994, 0.996, 0.993]
+overlap: [0.992, 0.994, 0.995, 0.993]
 vfx_render: "[[Gaiabloom_vfx_cells.jpg]]"
 cells_render: "[[Gaiabloom_tq_cells.jpg]]"
 idle_render: "[[Gaiabloom_idle.png]]"
 ---
 # Gaiabloom (Gaira), Legendary, World 1 Verdant
 
-A small ivory fawn-stag, 3.45 studs to the top of its antler trees (B45: it was 6, the size of the player; a slender deer stands tall in the band by its antlers and legs, not its tier). A big square head with a snout (a muzzle block proud of the lower face, a dark nose on its tip and a smile in sixteenth-stud ink cells), drooping ears, slim legs on gold hooves, a moss ruff under the chin with one blossom in it, and lit pink dapples along its flanks and back like a fawn's spots. On its head the antlers are two little trees in bloom, each leaning out 15 degrees, a bark trunk in a gold band with a branch out and a tine up, three moss leaf clumps and four lit pink blossoms; between them a crown of moss and blossoms floats a sixteenth of a stud over the head and turns slowly, and a pink butterfly flutters round the antlers. Its tail is a white tuft with a leaf on it. Concept row in `src/shared/data/Species.luau`: "stag, tree antlers, flowers bloom where it steps". Element: Bloom (`Effects.luau`); [[Roster-Redesign]] section 2 gives the footprint flowers, the orbiting petals and the ground ring. Rules: [[Blocky-Style]].
+A small ivory fawn-stag, 3.45 studs to the top of its antler trees (B45: it was 6, the size of the player; a slender deer stands tall in the band by its antlers and legs, not its tier). A big square head with a snout (a muzzle block proud of the lower face, a dark nose on its tip and a smile in sixteenth-stud ink cells), drooping ears, slim legs on gold hooves, a moss ruff under the chin with one blossom in it, a moss mane stepping down from the back of its head to a moss saddle-blanket that drapes half down each flank with a gold hem and lit blossoms on it (the forest has grown over its back), and lit pink dapples along its flanks under the blanket like a fawn's spots. On its head the antlers are two little trees in bloom, each leaning out 15 degrees, a bark trunk in a gold band with a branch out and a tine up, three moss leaf clumps and four lit pink blossoms; between them a crown of moss and blossoms floats a sixteenth of a stud over the head and turns slowly, and a pink butterfly flutters round the antlers. Its tail is a white tuft with a leaf on it. Concept row in `src/shared/data/Species.luau`: "stag, tree antlers, flowers bloom where it steps". Element: Bloom (`Effects.luau`); [[Roster-Redesign]] section 2 gives the footprint flowers, the orbiting petals and the ground ring. Rules: [[Blocky-Style]].
 
-**What makes a player want it (B46).** Not its size any more: it stands at the avatar's chest like the Rares do. What makes it Legendary is everything at that height: 70 blocks, most of them sixteenth-stud cells (the blossoms, the crown, the smile, the dapples, the butterfly); its own `bloom` eyes on a 32-pixel face plate no Epic has, a flower of six petals in pink and pale gold turning slowly round a gold heart inside a moss-green ring, with star cheeks; eight moving things (the turning crown, two swaying antler trees, two ears, the tail, the butterfly, the blink); and its light reaches the ground, with a flourish every 12 s that reads from across the meadow: it springs and turns, the crown pops, the trees shake out a burst of petals and a pink ring rolls over the grass. Cuter, never fiercer: a fawn with flowers for antlers and a flower in each eye.
+**What makes a player want it (B46).** Not its size any more: it stands at the avatar's chest like the Rares do. What makes it Legendary is everything at that height: 78 blocks, most of them sixteenth-stud cells (the blossoms, the crown, the smile, the dapples, the butterfly); its own `bloom` eyes on a 32-pixel face plate no Epic has, a flower of six petals in pink and pale gold turning slowly round a gold heart inside a moss-green ring, with star cheeks; eight moving things (the turning crown, two swaying antler trees, two ears, the tail, the butterfly, the blink); and its light reaches the ground, with a flourish every 12 s that reads from across the meadow: it springs and turns, the crown pops, the trees shake out a burst of petals and a pink ring rolls over the grass. Cuter, never fiercer: a fawn with flowers for antlers and a flower in each eye.
 
 **Hero block.** The `Antler` pair, two blossoming trees on a fawn's head, unique in Verdant.
 
@@ -85,14 +85,20 @@ parts:
   - {name: CrownBloom, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.75, -1.5625], moves: halo, pivot: [0, 2.625, -0.875]}
   - {name: CrownBloom2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0, 2.75, -0.1875], moves: halo, pivot: [0, 2.625, -0.875]}
   - {name: CrownBloom3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 2.75, -0.875], mirror: x, moves: halo, pivot: [0, 2.625, -0.875]}
-  # lit fawn dapples on the flanks and the back
-  - {name: Dapple, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.4375, 0.25], mirror: x}
-  - {name: Dapple2, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.1875, 0.75], mirror: x}
-  - {name: Dapple3, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.5, 1.25], mirror: x}
-  - {name: Dapple4, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.125, 1.625], mirror: x}
-  - {name: BackDapple, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.25, 1.78125, 0.5]}
-  - {name: BackDapple2, slot: Glow, size: [0.25, 0.0625, 0.125], at: [-0.25, 1.78125, 1.125]}
-  - {name: BackDapple3, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.125, 1.78125, 1.625]}
+  # Polish w1: a mossy saddle so the torso is not a plain box from the side: a moss mane stepping down from the head's back, a moss
+  # blanket over the back that drapes half down each flank, a gold hem along its edge and lit blossoms on it; lit dapples below it
+  - {name: Mane, slot: Accessory, size: [0.75, 0.5, 0.25], at: [0, 2, 0.125], material: moss}
+  - {name: Mane2, slot: Accessory, size: [0.5, 0.25, 0.25], at: [0, 1.875, 0.375], material: moss}
+  - {name: Saddle, slot: Accessory, size: [1.375, 0.125, 1.375], at: [0, 1.8125, 0.875], material: moss}
+  - {name: Drape, slot: Accessory, size: [0.0625, 0.5, 1.375], at: [0.78125, 1.5, 0.875], mirror: x, material: moss}
+  - {name: DrapeHem, slot: Trim, size: [0.0625, 0.0625, 1.375], at: [0.84375, 1.28125, 0.875], mirror: x, material: metal}
+  - {name: SaddleBloom, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.25, 1.9375, 0.5]}
+  - {name: SaddleBloom2, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.3125, 1.9375, 1.1875]}
+  - {name: DrapeBloom, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.84375, 1.5625, 0.5], mirror: x}
+  - {name: DrapeBloom2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.84375, 1.4375, 1.25], mirror: x}
+  - {name: Dapple, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.0625, 0.375], mirror: x}
+  - {name: Dapple2, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 0.9375, 1], mirror: x}
+  - {name: Dapple4, slot: Glow, size: [0.0625, 0.125, 0.25], at: [0.78125, 1.125, 1.6875], mirror: x}
   # alien anatomy: a pink butterfly that keeps it company, circling the antlers
   - {name: Butterfly, slot: BodyDark, size: [0.125, 0.0625, 0.25], at: [1.25, 3.03125, -2], moves: butterfly, pivot: [1.25, 3, -2]}
   - {name: ButterflyWing, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.0625, 3.09375, -2], moves: butterfly, pivot: [1.25, 3, -2]}
@@ -185,3 +191,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, block-cell worker, three rounds (cells). The ivory body gains value: the grout and the darker edge cells draw every block of it (the open item of loop 2, partly: against a pale sky the head still wants a snout). The antlers now read as bark and leaves. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-19, World 1 roster worker (the snout). The eyes moved up a row block (rows 5 to 10 of 16, still in the lower half), and a muzzle block 1.5 by 0.625 by 0.5 is proud of the lower face with the nose and the smile on it as ink cells, so the head reads as a stag's against the pale sky. 84 blocks; the rest unchanged. Status review.
 - 2026-10-21, Roster w1_high worker, the B45 and B46 pass, three rounds. Round 1: rebuilt from 6 studs to 3.45 by redesign, not by scale: a 2-stud head (it was 2.5) on slim legs, the antler trees in sixteenth-stud parts (trunk, band, branch, tine, three leaf clumps, four blossoms a tree), the old 2.5-stud nimbus (a ring behind the head, too close to Raddis's sun disk at this size) replaced by a floating crown of moss and blossoms that turns over the head, a pink butterfly circling the antlers, a sixteenth-stud smile on the muzzle; its own `bloom` eyes at 32 pixels a stud (six pink and pale-gold petals turning round a gold heart in a moss-green ring), star cheeks. 70 blocks. Round 2: the trees stood straight up and read as two bushes on a box; leaned out 15 degrees and grown a sixteenth they read as antlers; the nose shrank to a quarter stud and the butterfly moved in front of the face's corner. Seven moving objects and the blink; a flourish every 12 s (a hop and a full turn, the crown popping, the trees shaking, the ears flared, the butterfly leaping). Overlap 0.992 to 0.996. Wanted for: a fawn with flowering trees for antlers and a flower turning in each eye, the first light that reaches the ground. Still weak: the body is a plain ivory box from the side (the dapples help only up close); the crown is thin from the three-quarter view; the butterfly is small at distance. Status review.
+- 2026-10-21, Polish w1, one round. The plain ivory box from the side: a moss mane now steps down from the back of the head, and a moss saddle-blanket covers the back and drapes half down each flank with a gold hem and four lit blossoms on it (two on top, one each side); the three back dapples went under the blanket and the side dapples moved below its hem. From the side the torso is now three bands (green moss, a gold line, ivory with pink dapples) and the head-to-back corner steps down instead of dropping. 78 blocks (Legendary 60 to 120). Overlap 0.992 to 0.995. Honest read: from the side it now reads as a fawn the forest has grown over, and the blanket ties the antler trees to the body; the legs are still four plain ivory posts, which is right for a fawn. Status review.
