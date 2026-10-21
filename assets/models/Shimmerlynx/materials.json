@@ -50,7 +50,7 @@
   {
     "slot": 6,
     "name": "whiskerL",
-    "hex": "FFF4E6",
+    "hex": "4B4470",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -60,7 +60,7 @@
   {
     "slot": 7,
     "name": "whiskerR",
-    "hex": "FFF4E6",
+    "hex": "4B4470",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,

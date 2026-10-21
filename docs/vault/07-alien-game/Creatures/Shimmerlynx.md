@@ -8,8 +8,8 @@ tier: Epic
 status: review
 element: Aurora
 height: 3.5
-blocks: 49
-tris: 928
+blocks: 51
+tris: 952
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#C8C2F0", "#4B4470", "#FFF4E6", "#8FA6C4", "#9D7CFF", "#1A1530"]
@@ -21,14 +21,14 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Shimmerlynx_sheet.svg]]"
 render: "[[Shimmerlynx_tq_cells.jpg]]"
 glb: ""
-overlap: [0.997, 0.996, 0.996, 0.997]
+overlap: [0.996, 0.996, 0.996, 0.996]
 vfx_render: "[[Shimmerlynx_vfx_cells.jpg]]"
 cells_render: "[[Shimmerlynx_tq_cells.jpg]]"
 idle_render: "[[Shimmerlynx_idle.png]]"
 ---
 # Shimmerlynx (Aurelyx), Epic, World 2 Frostbyte
 
-A lavender lynx sitting up, the Ice Cave's night Epic, 3.5 studs to its ear tufts (B45; it was 4.25: a sitting cat is as tall as its ears): a square head with a lynx's dark M of three streaks on its brow, cream whiskers that twitch, cream cheek ruffs flaring down from the jaw, tall ears with cream insides and lit tufts, and between the ears the aurora crest: five ribbons of light in a stepped skyline, the centre tallest, in violet, mint and pink. It sits on two furred haunches with its front legs straight on cream paws in silver ankle bands, a cream chest between them, dark lynx spots and a stepped aurora emblem in silver on each haunch, and its tail held straight up beside its right haunch in two dark rings, ending in a block of light. Concept row in `src/shared/data/Species.luau`: "lynx, glowing aurora crest, purrs in colours". Element: Aurora (`Effects.luau`); [[Roster-Redesign]] section 2. Rules: [[Blocky-Style]].
+A lavender lynx sitting up, the Ice Cave's night Epic, 3.5 studs to its ear tufts (B45; it was 4.25: a sitting cat is as tall as its ears): a square head with a lynx's dark M of three streaks on its brow, dark indigo whiskers, three a side fanned out past its cheeks, that twitch, cream cheek ruffs flaring down from the jaw, tall ears with cream insides and lit tufts, and between the ears the aurora crest: five ribbons of light in a stepped skyline, the centre tallest, in violet, mint and pink. It sits on two furred haunches with its front legs straight on cream paws in silver ankle bands, a cream chest between them, dark lynx spots and a stepped aurora emblem in silver on each haunch, and its tail held straight up beside its right haunch in two dark rings, ending in a block of light. Concept row in `src/shared/data/Species.luau`: "lynx, glowing aurora crest, purrs in colours". Element: Aurora (`Effects.luau`); [[Roster-Redesign]] section 2. Rules: [[Blocky-Style]].
 
 **What makes a player want it (B46).** The one you see at night from across the cave: a curtain of aurora standing on a cat's head between its tufted ears, changing colour as it purrs, sitting the way a cat sits when it has decided you may approach. At the same height as the Rares it carries 49 blocks, much of it sixteenth-grid detail (the brow M, the whiskers, the spots, the emblem steps, the tail rings, the ankle bands), its own `starry` eyes (a pink star pupil in a mint and violet iris under violet lashes) with a cat's mouth and heart cheeks, seven moving things and a hop into a full turn every 12 s with the crest swished. Cuter and cooler, never fiercer.
 
@@ -54,12 +54,14 @@ parts:
   - {name: Leg, slot: Body, size: [0.375, 0.875, 0.375], at: [0.5, 0.8125, -0.8125], mirror: x}
   - {name: Paw, slot: Accessory, size: [0.5, 0.375, 0.625], at: [0.5, 0.1875, -0.875], mirror: x}
   - {name: Band, slot: Trim, size: [0.5, 0.0625, 0.5], at: [0.5, 0.40625, -0.8125], mirror: x, material: metal}
-  # the face: a lynx's dark M of three streaks on the brow, cream cheek ruffs flaring from the jaw, cream whiskers that twitch
+  # the face: a lynx's dark M of three streaks on the brow, cream cheek ruffs flaring from the jaw
   - {name: Streak, slot: BodyDark, size: [0.125, 0.375, 0.0625], at: [0, 2.5625, -1.15625]}
   - {name: Streak2, slot: BodyDark, size: [0.125, 0.25, 0.0625], at: [0.3125, 2.5, -1.15625], mirror: x}
   - {name: CheekRuff, slot: Accessory, size: [0.25, 0.5, 0.375], at: [1.0625, 1.5, -0.75], rot: [0, 0, 20], mirror: x}
-  - {name: Whisker, slot: Accessory, size: [0.25, 0.0625, 0.0625], at: [1.125, 1.71875, -1.03125], mirror: x, moves: whisker, pivot: [1, 1.65625, -1.03125]}
-  - {name: Whisker2, slot: Accessory, size: [0.25, 0.0625, 0.0625], at: [1.125, 1.59375, -1.03125], mirror: x, moves: whisker, pivot: [1, 1.65625, -1.03125]}
+  # whiskers: three a side in the dark indigo, half a stud long and fanned 15 degrees (two short cream ones on the lavender barely read)
+  - {name: Whisker, slot: BodyDark, size: [0.5, 0.0625, 0.0625], at: [1.25, 1.65625, -1.03125], mirror: x, moves: whisker, pivot: [1, 1.65625, -1.03125]}
+  - {name: Whisker2, slot: BodyDark, size: [0.5, 0.0625, 0.0625], at: [1.25, 1.8125, -1.03125], rot: [0, 0, 15], mirror: x, moves: whisker, pivot: [1, 1.65625, -1.03125]}
+  - {name: Whisker3, slot: BodyDark, size: [0.5, 0.0625, 0.0625], at: [1.25, 1.5, -1.03125], rot: [0, 0, -15], mirror: x, moves: whisker, pivot: [1, 1.65625, -1.03125]}
   # tall ears with cream insides and lit tufts, each one moving part
   - {name: Ear, slot: Body, size: [0.375, 0.5, 0.25], at: [0.8125, 3, -0.375], mirror: x, moves: ear, pivot: [0.8125, 2.75, -0.375]}
   - {name: InnerEar, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [0.8125, 2.9375, -0.53125], mirror: x, moves: ear, pivot: [0.8125, 2.75, -0.375]}
@@ -159,3 +161,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 
 - 2026-10-20, World 2 roster worker, three rounds. Round 1: standing on four legs it was Sabrek to the boxed test (0.83), so it sits: two bevelled haunches, straight front legs, the head on the chest, four masses, bevel 0.1. Round 2: the lower torso made it a wide box like Soakum (0.71) and the crest's 0.75-stud blocks behind the ears read as a pink crown, so the tail stands straight up beside the right haunch with its lit tip at shoulder height (0.68), the ribbons grew to a stud, a quarter wide and three eighths deep, and the cheek ruffs shrank. Overlap 0.989 to 0.996, 812 triangles, 38 blocks, 4.25 studs, four moving objects (the crest, the ears, the tail); three glow extremities. Wanted for: a curtain of aurora on a sitting cat, changing colour as it purrs. Still cheap: the emblem and spots sit on the haunch's outer face and the front view never sees them; the torso is mostly behind the head. Status review.
 - 2026-10-21, Roster w2_high worker, the B45 and B46 pass, one round. Redesigned at 3.5 studs from 4.25, not scaled: the head lowered onto the chest, the stud-tall crest became five eighth-wide ribbons in a stepped skyline between ears moved out to the head's edges (the ears now carry the lit tufts at the top of the band), the front legs straight on banded paws, the tail up beside the right haunch in two dark rings; a lynx's dark M on the brow, twitching cream whiskers, spots and the stepped emblem in sixteenth-grid cells: 49 blocks. Its own `starry` eyes (a pink star in mint over deep violet under violet lashes), a cat's mouth and heart cheeks on the plate. Rig: the crest waves, the ears flick, the whiskers twitch, the tail sways, it breathes and blinks (seven moving things), and every 12 s it hops into a full turn with the crest swished. Overlap 0.996 to 0.997, 928 triangles. Wanted for: a sitting cat with a skyline of aurora between its ears and a star in each eye. Still cheap: the cream whiskers barely read on lavender; the white-hot render washes the crest towards pink white, so its three cycle colours show only in the game's glow cycle. Status review.
+- 2026-10-21, Polish w2 worker: the whiskers barely read (two quarter-stud cream bars on a lavender head against a pale sky). They are now three a side in the dark indigo `second`, half a stud long from the head's front edge, the top one fanned up 15 degrees and the bottom one down 15, all on the one `whisker` mover each side (no new moving object). 51 blocks, 952 triangles, overlap 0.996; silhouette worst pair with Aurelyx 0.66 (Soakum). Honest read: the whiskers are now the first thing after the eyes from every angle and make it plainly a cat; dark on pale is the lesson (the cream ones vanished).

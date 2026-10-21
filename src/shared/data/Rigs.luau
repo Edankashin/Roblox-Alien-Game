@@ -540,12 +540,12 @@ local species: { [string]: Types.RigRow } = {
 	Shimmerlynx = {
 		height = 3.5,
 		parts = {
-			{ name = "crest", pivot = { -0.1875, 2.75, 0.0938 }, clips = { { kind = "sway", amp = 8, period = 3, phase = 0, axis = "x" } } },
-			{ name = "earL", pivot = { -1, 2.75, -0.3438 }, clips = { { kind = "wag", amp = -15, period = 3.4, phase = 0, axis = "z" } } },
-			{ name = "earR", pivot = { 0.625, 2.75, -0.3438 }, clips = { { kind = "wag", amp = 15, period = 3.4, phase = 0, axis = "z" } } },
-			{ name = "tailR", pivot = { 1.25, 0.25, 0.9062 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0, axis = "z" } } },
-			{ name = "whiskerL", pivot = { -1.1875, 1.6562, -1 }, clips = { { kind = "wag", amp = -10, period = 1.6, phase = 0, axis = "y" } } },
-			{ name = "whiskerR", pivot = { 0.8125, 1.6562, -1 }, clips = { { kind = "wag", amp = 10, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "crest", pivot = { -0.0938, 2.75, 0.0938 }, clips = { { kind = "sway", amp = 8, period = 3, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -0.9062, 2.75, -0.3438 }, clips = { { kind = "wag", amp = -15, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.7188, 2.75, -0.3438 }, clips = { { kind = "wag", amp = 15, period = 3.4, phase = 0, axis = "z" } } },
+			{ name = "tailR", pivot = { 1.3438, 0.25, 0.9062 }, clips = { { kind = "sway", amp = 10, period = 2.6, phase = 0, axis = "z" } } },
+			{ name = "whiskerL", pivot = { -1.0938, 1.6562, -1 }, clips = { { kind = "wag", amp = -10, period = 1.6, phase = 0, axis = "y" } } },
+			{ name = "whiskerR", pivot = { 0.9062, 1.6562, -1 }, clips = { { kind = "wag", amp = 10, period = 1.6, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.8, phase = 0, axis = "y" } },
 		face = {
