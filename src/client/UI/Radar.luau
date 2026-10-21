@@ -87,10 +87,16 @@ for key in pairs(tiers) do
 	end
 end
 
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the disc is a dark pixel octagon in navy ink
+-- (Builder.pixelOctagon), the range ring a ring of small square dots, a blip or a ping a small pixel octagon whose face is the fill
+-- and whose ink is the ring the stroke was, the camp a cream flat block, the Peddler and the player turned flat blocks, the
+-- player's facing dot a white octagon. The pulse's breath tweens two NumberValues that set the ring dots' and the disc ink's
+-- see-through (a stroke's transparency, frames now).
+
 -- One pooled alien blip. Built once, restyled and re-placed on every refresh, hidden while spare.
 type Blip = {
-	frame: Frame,
-	stroke: UIStroke,
+	frame: Frame, -- the octagon's holder (placed, sized and swollen)
+	octagon: Builder.Octagon,
 	hit: TextButton, -- the invisible tap area, a child so it follows the frame
 	label: TextLabel, -- the "???" of a secret ping; hidden on a plain blip
 	pulse: UIScale, -- the beat's swell; 1 at rest
@@ -129,6 +135,8 @@ local PLAYER_TIP = 0.28 -- the facing dot at the top of the box, of the box
 local EDGE = 0.5 - BLIP_SIZE / 2 -- how far a blip's centre may sit from the disc centre and stay inside
 local PING_EDGE = 0.5 - PING_SIZE / 2 -- the same for a ping
 local SILHOUETTE = Builder.darker(Theme.Colors.Trough) -- fill for a species not yet caught
+local RING_DOTS = 24 -- the range ring: this many square dots round its circle
+local RING_DOT = 0.03 -- a dot's side, of the disc
 
 local localPlayer = Players.LocalPlayer
 
@@ -136,8 +144,17 @@ local gui: ScreenGui? = nil
 local holder: Frame? = nil -- the square the aspect fit sizes; its height is the disc's height
 local disc: Frame? = nil
 local rangeLabel: TextLabel? = nil
-local ringStroke: UIStroke? = nil -- the range ring's stroke: Select at rest, Codex and breathing in the pulse
-local discStroke: UIStroke? = nil -- the disc's own outline: Outline at rest, Codex and breathing in the pulse
+local ringStroke: NumberValue? = nil -- the range ring's see-through (its dots follow): Select at rest, Codex and breathing in the pulse
+local discStroke: NumberValue? = nil -- the disc ink's see-through (its bars follow): Outline at rest, Codex and breathing in the pulse
+local ringDots: { Frame } = {}
+local discInk: { Frame } = {}
+
+-- Colours every frame of a ring (the range ring's dots, the disc's ink bars).
+local function paintFrames(frames: { Frame }, color: Color3)
+	for _, frame in ipairs(frames) do
+		frame.BackgroundColor3 = color
+	end
+end
 local breathTweens: { Tween } = {}
 local pulseActive = false -- the Scanner Pulse runs, as of the last refresh
 local playerMarker: Frame? = nil
@@ -281,18 +298,18 @@ local function applyPulseLook()
 	end
 	if not pulseActive then
 		stopBreath()
-		ring.Color = Theme.Colors.Select
-		ring.Transparency = RING_TRANSPARENCY
-		outline.Color = Theme.Colors.Outline
-		outline.Transparency = DISC_TRANSPARENCY
+		paintFrames(ringDots, Theme.Colors.Select)
+		ring.Value = RING_TRANSPARENCY
+		paintFrames(discInk, Theme.Colors.Outline)
+		outline.Value = DISC_TRANSPARENCY
 		return
 	end
-	ring.Color = Theme.Colors.Codex
-	outline.Color = Theme.Colors.Codex
+	paintFrames(ringDots, Theme.Colors.Codex)
+	paintFrames(discInk, Theme.Colors.Codex)
 	if Prefs.ReducedMotion() then
 		stopBreath()
-		ring.Transparency = (RING_TRANSPARENCY + PULSE_RING_BRIGHT) / 2
-		outline.Transparency = (DISC_TRANSPARENCY + PULSE_DISC_DIM) / 2
+		ring.Value = (RING_TRANSPARENCY + PULSE_RING_BRIGHT) / 2
+		outline.Value = (DISC_TRANSPARENCY + PULSE_DISC_DIM) / 2
 		return
 	end
 	if not shown then
@@ -302,11 +319,11 @@ local function applyPulseLook()
 	if #breathTweens > 0 then
 		return
 	end
-	ring.Transparency = RING_TRANSPARENCY
-	outline.Transparency = DISC_TRANSPARENCY
+	ring.Value = RING_TRANSPARENCY
+	outline.Value = DISC_TRANSPARENCY
 	local info = TweenInfo.new(pulseRow.pulseSeconds / BREATH_PHASES, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-	local ringTween = TweenService:Create(ring, info, { Transparency = PULSE_RING_BRIGHT })
-	local discTween = TweenService:Create(outline, info, { Transparency = PULSE_DISC_DIM })
+	local ringTween = TweenService:Create(ring, info, { Value = PULSE_RING_BRIGHT })
+	local discTween = TweenService:Create(outline, info, { Value = PULSE_DISC_DIM })
 	table.insert(breathTweens, ringTween)
 	table.insert(breathTweens, discTween)
 	ringTween:Play()
@@ -336,18 +353,17 @@ local function stopPulse(blip: Blip)
 end
 
 local function newBlip(parent: Frame): Blip
-	local frame = Builder.pill({
+	local octagon = Builder.pixelOctagon({
 		parent = parent,
 		name = "Blip",
+		color = Theme.Rarity.Common,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(BLIP_SIZE, BLIP_SIZE),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Rarity.Common,
-		aspect = 1,
 		zIndex = 5,
 	})
+	local frame = octagon.holder
 	frame.Visible = false
-	local stroke = Builder.stroke(frame, Theme.Stroke.Text, Theme.Colors.Outline)
 	-- Invisible tap area twice the blip, a child so it moves with it; a click on every tap.
 	local hit = Instance.new("TextButton")
 	hit.Name = "Tap"
@@ -358,7 +374,7 @@ local function newBlip(parent: Frame): Blip
 	hit.Position = UDim2.fromScale(0.5, 0.5)
 	hit.Size = UDim2.fromScale(HIT_SCALE, HIT_SCALE)
 	hit.AnchorPoint = Vector2.new(0.5, 0.5)
-	hit.ZIndex = 6
+	hit.ZIndex = Builder.octagonTop(octagon) + 1
 	hit.Parent = frame
 	local pulse = Instance.new("UIScale") -- scales about the frame's centre, so the swell stays on the dot
 	pulse.Parent = frame
@@ -371,10 +387,10 @@ local function newBlip(parent: Frame): Blip
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(1, 0.7),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
+		zIndex = Builder.octagonTop(octagon),
 	})
 	label.Visible = false
-	local blip: Blip = { frame = frame, stroke = stroke, hit = hit, label = label, pulse = pulse, pulseTween = nil, ping = false, part = nil }
+	local blip: Blip = { frame = frame, octagon = octagon, hit = hit, label = label, pulse = pulse, pulseTween = nil, ping = false, part = nil }
 	hit.Activated:Connect(function()
 		Builder.playSound(Sounds.Click)
 		local part = blip.part
@@ -407,8 +423,7 @@ end
 -- player), and the "???" in it. Nothing about the species is told.
 local function stylePing(blip: Blip, reservedForMe: boolean)
 	setPing(blip, true)
-	blip.frame.BackgroundColor3 = SILHOUETTE
-	blip.stroke.Color = if reservedForMe then Theme.Colors.Featured else Theme.Colors.White
+	Builder.paintOctagon(blip.octagon, SILHOUETTE, 0, if reservedForMe then Theme.Colors.Featured else Theme.Colors.White, 0, false)
 end
 
 -- Caught species: solid tier colour with the outline. Uncaught: the silhouette rule, a dark fill with
@@ -418,16 +433,12 @@ end
 local function styleBlip(blip: Blip, tierName: string, caught: boolean, reservedForMe: boolean)
 	setPing(blip, false)
 	local tierColor = Builder.tierColor(tierName)
-	if caught then
-		blip.frame.BackgroundColor3 = tierColor
-		blip.stroke.Color = Theme.Colors.Outline
-	else
-		blip.frame.BackgroundColor3 = SILHOUETTE
-		blip.stroke.Color = tierColor
-	end
+	local fill = if caught then tierColor else SILHOUETTE
+	local ring = if caught then Theme.Colors.Outline else tierColor
 	if reservedForMe then
-		blip.stroke.Color = Theme.Colors.Featured
+		ring = Theme.Colors.Featured
 	end
+	Builder.paintOctagon(blip.octagon, fill, 0, ring, 0, false)
 end
 
 -- The camp square and, while a visit is on, the Peddler diamond; both clamp to the rim when far.
@@ -694,30 +705,57 @@ end
 -- Build ----------------------------------------------------------------------
 
 local function buildDisc(parent: Frame): Frame
-	local face = Builder.pill({
+	-- The disc: a dark pixel octagon in navy ink filling the square (its inscribed circle is the old disc, so a blip
+	-- clamped to the rim still sits on it). Its ink's see-through follows discStroke.
+	local octagon = Builder.pixelOctagon({
 		parent = parent,
 		name = "Disc",
 		color = Theme.Colors.Trough,
-		stroke = Theme.Stroke.Button,
-		strokeColor = Theme.Colors.Outline,
+		size = UDim2.fromScale(1, 1),
 		zIndex = 1,
 	})
-	Builder.gradient(face, Theme.Colors.Trough)
+	local face = octagon.holder
+	discInk = octagon.ink
+	local outline = Instance.new("NumberValue")
+	outline.Name = "InkAlpha"
+	outline.Value = DISC_TRANSPARENCY
+	outline.Changed:Connect(function(value: number)
+		for _, bar in ipairs(discInk) do
+			bar.BackgroundTransparency = value
+		end
+	end)
+	outline.Parent = face
+	discStroke = outline
 
-	-- Faint range ring at half the radius, with half the range on its top edge.
-	local ring = Builder.pill({
-		parent = face,
-		name = "Ring",
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(RING_SIZE, RING_SIZE),
-		anchor = Vector2.new(0.5, 0.5),
-		aspect = 1,
-		zIndex = 2,
-	})
-	local ringLine = Builder.stroke(ring, Theme.Stroke.Text, Theme.Colors.Select)
-	ringLine.Transparency = RING_TRANSPARENCY
-	ringStroke = ringLine
-	discStroke = face:FindFirstChildOfClass("UIStroke") -- the disc's own outline, made by the pill's stroke prop
+	-- Faint range ring at half the radius, with half the range on its top edge: RING_DOTS square dots.
+	local ring = Builder.frame({ parent = face, name = "Ring", zIndex = 3 })
+	ringDots = {}
+	for dot = 0, RING_DOTS - 1 do
+		local angle = 2 * math.pi * dot / RING_DOTS
+		table.insert(
+			ringDots,
+			Builder.frame({
+				parent = ring,
+				name = "Dot",
+				position = UDim2.fromScale(0.5 + RING_SIZE / 2 * math.cos(angle), 0.5 + RING_SIZE / 2 * math.sin(angle)),
+				size = UDim2.fromScale(RING_DOT, RING_DOT),
+				anchor = Vector2.new(0.5, 0.5),
+				color = Theme.Colors.Select,
+				transparency = RING_TRANSPARENCY,
+				zIndex = 3,
+			})
+		)
+	end
+	local ringAlpha = Instance.new("NumberValue")
+	ringAlpha.Name = "RingAlpha"
+	ringAlpha.Value = RING_TRANSPARENCY
+	ringAlpha.Changed:Connect(function(value: number)
+		for _, frame in ipairs(ringDots) do
+			frame.BackgroundTransparency = value
+		end
+	end)
+	ringAlpha.Parent = face
+	ringStroke = ringAlpha
 	rangeLabel = Builder.label({
 		parent = face,
 		name = "Range",
@@ -745,34 +783,34 @@ local function buildDisc(parent: Frame): Frame
 end
 
 local function buildMarkers(face: Frame)
-	local camp = Builder.frame({
+	local camp = Builder.blockPlate({
 		parent = face,
 		name = "Camp",
+		color = Theme.Colors.Panel,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(MARKER_SIZE, MARKER_SIZE),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Panel,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
 		zIndex = 4,
 	})
 	camp.Visible = false
 	campMarker = camp
 
-	local peddler = Builder.frame({
+	local peddler = Builder.blockPlate({
 		parent = face,
 		name = "Peddler",
+		color = Theme.Colors.Featured,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(MARKER_SIZE, MARKER_SIZE),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
 		zIndex = 4,
 	})
-	peddler.Rotation = 45 -- a square on its point reads as a diamond
+	peddler.Rotation = 45 -- a flat block on its stepped corner reads as a diamond
 	peddler.Visible = false
 	peddlerMarker = peddler
 end
@@ -789,30 +827,27 @@ local function buildPlayerMarker(face: Frame)
 		aspect = 1,
 		zIndex = 7,
 	})
-	local diamond = Builder.frame({
+	local diamond = Builder.blockPlate({
 		parent = marker,
 		name = "Diamond",
+		color = Theme.Colors.Featured,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(PLAYER_DIAMOND, PLAYER_DIAMOND),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.Featured,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
 		zIndex = 7,
 	})
 	diamond.Rotation = 45
-	Builder.pill({
+	Builder.pixelOctagon({
 		parent = marker,
 		name = "Tip",
+		color = Theme.Colors.White,
 		position = UDim2.fromScale(0.5, 0),
 		size = UDim2.fromScale(PLAYER_TIP, PLAYER_TIP),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Colors.White,
-		stroke = Theme.Stroke.Text,
-		strokeColor = Theme.Colors.Outline,
-		aspect = 1,
-		zIndex = 8,
+		zIndex = 12, -- over the diamond's block layers (7 to 9)
 	})
 	playerMarker = marker
 end
@@ -924,6 +959,8 @@ function Radar.Stop()
 	pulseActive = false
 	ringStroke = nil
 	discStroke = nil
+	ringDots = {}
+	discInk = {}
 	for _, connection in ipairs(connections) do
 		connection:Disconnect()
 	end
