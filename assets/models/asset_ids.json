@@ -1,877 +1,730 @@
 {
+  "ArchBridge": {
+    "assetId": 100866168947335,
+    "blockCell": true,
+    "file": "assets/models/props/ArchBridge/ArchBridge.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:04:32Z"
+  },
+  "Bench": {
+    "assetId": 129578936462861,
+    "blockCell": true,
+    "file": "assets/models/props/Bench/Bench.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:04:41Z"
+  },
+  "BlossomTree": {
+    "assetId": 86047383661807,
+    "blockCell": true,
+    "file": "assets/models/props/BlossomTree/BlossomTree.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:05:02Z"
+  },
+  "Boulder": {
+    "assetId": 116759392207271,
+    "blockCell": true,
+    "file": "assets/models/props/Boulder/Boulder.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:05:16Z"
+  },
   "BuildStation": {
-    "assetId": 116557614446597,
+    "assetId": 102869559733997,
+    "blockCell": true,
     "file": "assets/models/props/BuildStation/BuildStation.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/BuildStation/BuildStation.glb",
-        "assets/models/props/BuildStation/BuildStation_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only BuildStation`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:42:53Z"
+    "replacedAssetId": 116557614446597,
+    "uploadedAt": "2026-10-21T20:05:21Z"
+  },
+  "Bush": {
+    "assetId": 131412714992852,
+    "blockCell": true,
+    "file": "assets/models/props/Bush/Bush.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:05:41Z"
   },
   "Buzzlebee": {
-    "assetId": 116603587874487,
+    "assetId": 119752658923886,
+    "blockCell": true,
     "file": "assets/models/Buzzlebee/Buzzlebee.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Buzzlebee/Buzzlebee.glb",
-        "assets/models/Buzzlebee/Buzzlebee_atlas.png",
-        "assets/models/Buzzlebee/Buzzlebee_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Buzzlebee`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:08Z"
+    "replacedAssetId": 116603587874487,
+    "uploadedAt": "2026-10-21T20:05:50Z"
   },
   "Capybubble": {
-    "assetId": 100133210702748,
+    "assetId": 84603056756412,
+    "blockCell": true,
     "file": "assets/models/Capybubble/Capybubble.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Capybubble/Capybubble.glb",
-        "assets/models/Capybubble/Capybubble_atlas.png",
-        "assets/models/Capybubble/Capybubble_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Capybubble`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:14Z"
+    "replacedAssetId": 100133210702748,
+    "uploadedAt": "2026-10-21T20:34:02Z"
   },
   "CaveMouth": {
-    "assetId": 139357272098761,
+    "assetId": 132103896359941,
+    "blockCell": true,
     "file": "assets/models/props/CaveMouth/CaveMouth.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/CaveMouth/CaveMouth.glb",
-        "assets/models/props/CaveMouth/CaveMouth_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only CaveMouth`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:43:17Z"
+    "replacedAssetId": 139357272098761,
+    "uploadedAt": "2026-10-21T20:06:04Z"
   },
   "Chipmole": {
-    "assetId": 97070960829780,
+    "assetId": 117467113100506,
+    "blockCell": true,
     "file": "assets/models/Chipmole/Chipmole.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Chipmole/Chipmole.glb",
-        "assets/models/Chipmole/Chipmole_atlas.png",
-        "assets/models/Chipmole/Chipmole_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Chipmole`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:28Z"
+    "replacedAssetId": 97070960829780,
+    "uploadedAt": "2026-10-21T20:06:18Z"
   },
   "CrashWreck": {
-    "assetId": 128799758462514,
+    "assetId": 74817192673896,
+    "blockCell": true,
     "file": "assets/models/props/CrashWreck/CrashWreck.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/CrashWreck/CrashWreck.glb",
-        "assets/models/props/CrashWreck/CrashWreck_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only CrashWreck`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:43:40Z"
+    "replacedAssetId": 128799758462514,
+    "uploadedAt": "2026-10-21T20:06:23Z"
   },
   "Drippo": {
-    "assetId": 139160640965072,
+    "assetId": 106318594226249,
+    "blockCell": true,
     "file": "assets/models/Drippo/Drippo.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Drippo/Drippo.glb",
-        "assets/models/Drippo/Drippo_atlas.png",
-        "assets/models/Drippo/Drippo_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Drippo`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:42Z"
+    "replacedAssetId": 139160640965072,
+    "uploadedAt": "2026-10-21T20:06:37Z"
   },
   "Emberchin": {
-    "assetId": 75128789895079,
+    "assetId": 135851602205855,
+    "blockCell": true,
     "file": "assets/models/Emberchin/Emberchin.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Emberchin/Emberchin.glb",
-        "assets/models/Emberchin/Emberchin_atlas.png",
-        "assets/models/Emberchin/Emberchin_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Emberchin`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:48Z"
+    "replacedAssetId": 75128789895079,
+    "uploadedAt": "2026-10-21T20:06:43Z"
+  },
+  "Fence": {
+    "assetId": 102938140774553,
+    "blockCell": true,
+    "file": "assets/models/props/Fence/Fence.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:06:56Z"
   },
   "Fenripup": {
-    "assetId": 111992346440272,
+    "assetId": 136522039433595,
+    "blockCell": true,
     "file": "assets/models/Fenripup/Fenripup.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Fenripup/Fenripup.glb",
-        "assets/models/Fenripup/Fenripup_atlas.png",
-        "assets/models/Fenripup/Fenripup_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Fenripup`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:16:56Z"
+    "replacedAssetId": 111992346440272,
+    "uploadedAt": "2026-10-21T20:34:17Z"
+  },
+  "Flag": {
+    "assetId": 90062331463442,
+    "blockCell": true,
+    "file": "assets/models/props/Flag/Flag.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:07:27Z"
   },
   "Flapsicle": {
-    "assetId": 93200790567617,
+    "assetId": 115082896046437,
+    "blockCell": true,
     "file": "assets/models/Flapsicle/Flapsicle.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Flapsicle/Flapsicle.glb",
-        "assets/models/Flapsicle/Flapsicle_atlas.png",
-        "assets/models/Flapsicle/Flapsicle_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Flapsicle`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:17:11Z"
+    "replacedAssetId": 93200790567617,
+    "uploadedAt": "2026-10-21T20:07:41Z"
+  },
+  "FlowerPatch": {
+    "assetId": 135752098587893,
+    "blockCell": true,
+    "file": "assets/models/props/FlowerPatch/FlowerPatch.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:07:50Z"
   },
   "Flufflet": {
-    "assetId": 132093842366384,
+    "assetId": 131464257898009,
+    "blockCell": true,
     "file": "assets/models/Flufflet/Flufflet.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Flufflet/Flufflet.glb",
-        "assets/models/Flufflet/Flufflet_atlas.png",
-        "assets/models/Flufflet/Flufflet_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Flufflet`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:17:19Z"
+    "replacedAssetId": 132093842366384,
+    "uploadedAt": "2026-10-21T20:07:58Z"
+  },
+  "Fountain": {
+    "assetId": 83951227918407,
+    "blockCell": true,
+    "file": "assets/models/props/Fountain/Fountain.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:08:04Z"
   },
   "Frostfang": {
-    "assetId": 89121370968974,
+    "assetId": 117709206870484,
+    "blockCell": true,
     "file": "assets/models/Frostfang/Frostfang.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Frostfang/Frostfang.glb",
-        "assets/models/Frostfang/Frostfang_atlas.png",
-        "assets/models/Frostfang/Frostfang_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Frostfang`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:17:33Z"
+    "replacedAssetId": 89121370968974,
+    "uploadedAt": "2026-10-21T20:34:31Z"
+  },
+  "FrozenLog": {
+    "assetId": 85556402993990,
+    "blockCell": true,
+    "file": "assets/models/props/FrozenLog/FrozenLog.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:08:21Z"
   },
   "Gaiabloom": {
-    "assetId": 129783775931423,
+    "assetId": 95423002586391,
+    "blockCell": true,
     "file": "assets/models/Gaiabloom/Gaiabloom.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Gaiabloom/Gaiabloom.glb",
-        "assets/models/Gaiabloom/Gaiabloom_atlas.png",
-        "assets/models/Gaiabloom/Gaiabloom_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Gaiabloom`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:17:48Z"
+    "replacedAssetId": 129783775931423,
+    "uploadedAt": "2026-10-21T20:34:40Z"
   },
   "GatherStation": {
-    "assetId": 71653599018169,
+    "assetId": 109164418132495,
+    "blockCell": true,
     "file": "assets/models/props/GatherStation/GatherStation.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/GatherStation/GatherStation.glb",
-        "assets/models/props/GatherStation/GatherStation_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GatherStation`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:44:47Z"
+    "replacedAssetId": 71653599018169,
+    "uploadedAt": "2026-10-21T20:08:52Z"
   },
   "GeyserCone": {
-    "assetId": 105526893549220,
+    "assetId": 105425785899723,
+    "blockCell": true,
     "file": "assets/models/props/GeyserCone/GeyserCone.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/GeyserCone/GeyserCone.glb",
-        "assets/models/props/GeyserCone/GeyserCone_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GeyserCone`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:44:56Z"
+    "replacedAssetId": 105526893549220,
+    "uploadedAt": "2026-10-21T20:09:00Z"
   },
   "GeyserVent": {
-    "assetId": 116657722898068,
+    "assetId": 112138566520848,
+    "blockCell": true,
     "file": "assets/models/props/GeyserVent/GeyserVent.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/GeyserVent/GeyserVent.glb",
-        "assets/models/props/GeyserVent/GeyserVent_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only GeyserVent`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:45:05Z"
+    "replacedAssetId": 116657722898068,
+    "uploadedAt": "2026-10-21T20:09:14Z"
   },
   "Glimmo": {
-    "assetId": 92428034867797,
+    "assetId": 71855079356845,
+    "blockCell": true,
     "file": "assets/models/Glimmo/Glimmo.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Glimmo/Glimmo.glb",
-        "assets/models/Glimmo/Glimmo_atlas.png",
-        "assets/models/Glimmo/Glimmo_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Glimmo`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:17:56Z"
+    "replacedAssetId": 92428034867797,
+    "uploadedAt": "2026-10-21T20:09:20Z"
   },
   "Gloomoth": {
-    "assetId": 98177790783891,
+    "assetId": 76597842100680,
+    "blockCell": true,
     "file": "assets/models/Gloomoth/Gloomoth.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Gloomoth/Gloomoth.glb",
-        "assets/models/Gloomoth/Gloomoth_atlas.png",
-        "assets/models/Gloomoth/Gloomoth_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Gloomoth`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:11Z"
+    "replacedAssetId": 98177790783891,
+    "uploadedAt": "2026-10-21T20:34:54Z"
+  },
+  "GlowFern": {
+    "assetId": 125072432310618,
+    "blockCell": true,
+    "file": "assets/models/props/GlowFern/GlowFern.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:09:39Z"
+  },
+  "GlowcapGiant": {
+    "assetId": 117920330924486,
+    "blockCell": true,
+    "file": "assets/models/props/GlowcapGiant/GlowcapGiant.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:09:44Z"
+  },
+  "GlowcapGiantBlue": {
+    "assetId": 89013956645212,
+    "blockCell": true,
+    "file": "assets/models/props/GlowcapGiantBlue/GlowcapGiantBlue.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:09:49Z"
+  },
+  "GlowcapGiantPink": {
+    "assetId": 113989154132526,
+    "blockCell": true,
+    "file": "assets/models/props/GlowcapGiantPink/GlowcapGiantPink.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:09:58Z"
+  },
+  "GlowcapSmall": {
+    "assetId": 94355790262720,
+    "blockCell": true,
+    "file": "assets/models/props/GlowcapSmall/GlowcapSmall.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:10:03Z"
+  },
+  "HabitatFrostbyte": {
+    "assetId": 89002985688787,
+    "blockCell": true,
+    "file": "assets/models/props/HabitatFrostbyte/HabitatFrostbyte.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:10:12Z"
+  },
+  "HabitatVerdant": {
+    "assetId": 115551193652891,
+    "blockCell": true,
+    "file": "assets/models/props/HabitatVerdant/HabitatVerdant.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:10:21Z"
   },
   "HeaterLamp": {
-    "assetId": 97262154954837,
+    "assetId": 90164225940384,
+    "blockCell": true,
     "file": "assets/models/props/HeaterLamp/HeaterLamp.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/HeaterLamp/HeaterLamp.glb",
-        "assets/models/props/HeaterLamp/HeaterLamp_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only HeaterLamp`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:45:26Z"
+    "replacedAssetId": 97262154954837,
+    "uploadedAt": "2026-10-21T20:10:30Z"
   },
   "IceCaveMouth": {
-    "assetId": 130501861307704,
+    "assetId": 73067765487784,
+    "blockCell": true,
     "file": "assets/models/props/IceCaveMouth/IceCaveMouth.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/IceCaveMouth/IceCaveMouth.glb",
-        "assets/models/props/IceCaveMouth/IceCaveMouth_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceCaveMouth`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:45:35Z"
+    "replacedAssetId": 130501861307704,
+    "uploadedAt": "2026-10-21T20:10:44Z"
+  },
+  "IceCrystalCluster": {
+    "assetId": 121312349675975,
+    "blockCell": true,
+    "file": "assets/models/props/IceCrystalCluster/IceCrystalCluster.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:11:06Z"
+  },
+  "IceLantern": {
+    "assetId": 121933457814748,
+    "blockCell": true,
+    "file": "assets/models/props/IceLantern/IceLantern.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:11:20Z"
   },
   "IceRock": {
-    "assetId": 78265443687401,
+    "assetId": 76857079544887,
+    "blockCell": true,
     "file": "assets/models/props/IceRock/IceRock.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/IceRock/IceRock.glb",
-        "assets/models/props/IceRock/IceRock_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceRock`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:45:40Z"
+    "replacedAssetId": 78265443687401,
+    "uploadedAt": "2026-10-21T20:11:25Z"
   },
   "IceRockB": {
-    "assetId": 77643303762233,
+    "assetId": 134221683669516,
+    "blockCell": true,
     "file": "assets/models/props/IceRockB/IceRockB.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/IceRockB/IceRockB.glb",
-        "assets/models/props/IceRockB/IceRockB_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceRockB`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:45:54Z"
+    "replacedAssetId": 77643303762233,
+    "uploadedAt": "2026-10-21T20:11:34Z"
   },
   "IceSpire": {
-    "assetId": 140159828144638,
+    "assetId": 87856482527354,
+    "blockCell": true,
     "file": "assets/models/props/IceSpire/IceSpire.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/IceSpire/IceSpire.glb",
-        "assets/models/props/IceSpire/IceSpire_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only IceSpire`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:46:09Z"
+    "replacedAssetId": 140159828144638,
+    "uploadedAt": "2026-10-21T20:11:43Z"
+  },
+  "Icicles": {
+    "assetId": 116751160175551,
+    "blockCell": true,
+    "file": "assets/models/props/Icicles/Icicles.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:11:48Z"
   },
   "Kettlepuff": {
-    "assetId": 136039795415171,
+    "assetId": 86496760967732,
+    "blockCell": true,
     "file": "assets/models/Kettlepuff/Kettlepuff.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Kettlepuff/Kettlepuff.glb",
-        "assets/models/Kettlepuff/Kettlepuff_atlas.png",
-        "assets/models/Kettlepuff/Kettlepuff_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Kettlepuff`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:20Z"
+    "replacedAssetId": 136039795415171,
+    "uploadedAt": "2026-10-21T20:12:02Z"
+  },
+  "Lantern": {
+    "assetId": 113167192482454,
+    "blockCell": true,
+    "file": "assets/models/props/Lantern/Lantern.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:12:10Z"
   },
   "Lanternewt": {
-    "assetId": 77764118304137,
+    "assetId": 101568412058372,
+    "blockCell": true,
     "file": "assets/models/Lanternewt/Lanternewt.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Lanternewt/Lanternewt.glb",
-        "assets/models/Lanternewt/Lanternewt_atlas.png",
-        "assets/models/Lanternewt/Lanternewt_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Lanternewt`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:34Z"
+    "replacedAssetId": 77764118304137,
+    "uploadedAt": "2026-10-21T20:12:24Z"
+  },
+  "LilyPad": {
+    "assetId": 122673551171714,
+    "blockCell": true,
+    "file": "assets/models/props/LilyPad/LilyPad.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:12:33Z"
+  },
+  "Log": {
+    "assetId": 131627870594501,
+    "blockCell": true,
+    "file": "assets/models/props/Log/Log.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:12:47Z"
   },
   "MeadowRock": {
-    "assetId": 126312792013094,
+    "assetId": 88678220176697,
+    "blockCell": true,
     "file": "assets/models/props/MeadowRock/MeadowRock.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/MeadowRock/MeadowRock.glb",
-        "assets/models/props/MeadowRock/MeadowRock_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowRock`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:46:41Z"
+    "replacedAssetId": 126312792013094,
+    "uploadedAt": "2026-10-21T20:12:56Z"
   },
   "MeadowRockB": {
-    "assetId": 85324815639574,
+    "assetId": 132263048949650,
+    "blockCell": true,
     "file": "assets/models/props/MeadowRockB/MeadowRockB.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/MeadowRockB/MeadowRockB.glb",
-        "assets/models/props/MeadowRockB/MeadowRockB_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowRockB`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:47:03Z"
+    "replacedAssetId": 85324815639574,
+    "uploadedAt": "2026-10-21T20:13:10Z"
   },
   "MeadowTree": {
-    "assetId": 132093254516280,
+    "assetId": 121178738911533,
+    "blockCell": true,
     "file": "assets/models/props/MeadowTree/MeadowTree.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/MeadowTree/MeadowTree.glb",
-        "assets/models/props/MeadowTree/MeadowTree_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowTree`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:47:17Z"
+    "replacedAssetId": 132093254516280,
+    "uploadedAt": "2026-10-21T20:13:24Z"
   },
   "MeadowTreeB": {
-    "assetId": 107521506795657,
+    "assetId": 93870949713381,
+    "blockCell": true,
     "file": "assets/models/props/MeadowTreeB/MeadowTreeB.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/MeadowTreeB/MeadowTreeB.glb",
-        "assets/models/props/MeadowTreeB/MeadowTreeB_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only MeadowTreeB`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:47:31Z"
+    "replacedAssetId": 107521506795657,
+    "uploadedAt": "2026-10-21T20:13:38Z"
+  },
+  "MoonPoolRing": {
+    "assetId": 112182609320789,
+    "blockCell": true,
+    "file": "assets/models/props/MoonPoolRing/MoonPoolRing.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:13:43Z"
+  },
+  "MoonTree": {
+    "assetId": 132229763849776,
+    "blockCell": true,
+    "file": "assets/models/props/MoonTree/MoonTree.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:13:57Z"
+  },
+  "MoonTreeB": {
+    "assetId": 135628295699646,
+    "blockCell": true,
+    "file": "assets/models/props/MoonTreeB/MoonTreeB.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:14:11Z"
+  },
+  "MossStone": {
+    "assetId": 72806329723798,
+    "blockCell": true,
+    "file": "assets/models/props/MossStone/MossStone.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:14:33Z"
   },
   "Mossbop": {
-    "assetId": 80168609957155,
+    "assetId": 139692484199899,
+    "blockCell": true,
     "file": "assets/models/Mossbop/Mossbop.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Mossbop/Mossbop.glb",
-        "assets/models/Mossbop/Mossbop_atlas.png",
-        "assets/models/Mossbop/Mossbop_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Mossbop`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:42Z"
+    "replacedAssetId": 80168609957155,
+    "uploadedAt": "2026-10-21T20:14:47Z"
+  },
+  "Mushroom": {
+    "assetId": 72020219398485,
+    "blockCell": true,
+    "file": "assets/models/props/Mushroom/Mushroom.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:14:52Z"
   },
   "Nebulyn": {
-    "assetId": 132111130182547,
+    "assetId": 111058708181183,
+    "blockCell": true,
     "file": "assets/models/Nebulyn/Nebulyn.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Nebulyn/Nebulyn.glb",
-        "assets/models/Nebulyn/Nebulyn_atlas.png",
-        "assets/models/Nebulyn/Nebulyn_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Nebulyn`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-13T07:53:28Z"
+    "replacedAssetId": 132111130182547,
+    "uploadedAt": "2026-10-21T20:35:02Z"
   },
   "Panpipe": {
-    "assetId": 101992628838997,
+    "assetId": 109050287306710,
+    "blockCell": true,
     "file": "assets/models/Panpipe/Panpipe.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Panpipe/Panpipe.glb",
-        "assets/models/Panpipe/Panpipe_atlas.png",
-        "assets/models/Panpipe/Panpipe_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Panpipe`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:51Z"
+    "replacedAssetId": 101992628838997,
+    "uploadedAt": "2026-10-21T20:35:11Z"
+  },
+  "PathLantern": {
+    "assetId": 130101963365955,
+    "blockCell": true,
+    "file": "assets/models/props/PathLantern/PathLantern.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:15:42Z"
   },
   "Pebblet": {
-    "assetId": 140009239774106,
+    "assetId": 131113021360381,
+    "blockCell": true,
     "file": "assets/models/Pebblet/Pebblet.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Pebblet/Pebblet.glb",
-        "assets/models/Pebblet/Pebblet_atlas.png",
-        "assets/models/Pebblet/Pebblet_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Pebblet`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:18:57Z"
+    "replacedAssetId": 140009239774106,
+    "uploadedAt": "2026-10-21T20:15:51Z"
   },
   "Pedestal": {
-    "assetId": 84066445173923,
+    "assetId": 98463678388823,
+    "blockCell": true,
     "file": "assets/models/props/Pedestal/Pedestal.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/Pedestal/Pedestal.glb",
-        "assets/models/props/Pedestal/Pedestal_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only Pedestal`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:48:16Z"
+    "replacedAssetId": 84066445173923,
+    "uploadedAt": "2026-10-21T20:16:05Z"
   },
   "Pengoo": {
-    "assetId": 84930553516849,
+    "assetId": 109154104596844,
+    "blockCell": true,
     "file": "assets/models/Pengoo/Pengoo.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Pengoo/Pengoo.glb",
-        "assets/models/Pengoo/Pengoo_atlas.png",
-        "assets/models/Pengoo/Pengoo_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Pengoo`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:19:11Z"
+    "replacedAssetId": 84930553516849,
+    "uploadedAt": "2026-10-21T20:16:26Z"
+  },
+  "Planter": {
+    "assetId": 114986346522730,
+    "blockCell": true,
+    "file": "assets/models/props/Planter/Planter.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:16:35Z"
   },
   "Puffpuff": {
-    "assetId": 108775875525202,
+    "assetId": 138419220916583,
+    "blockCell": true,
     "file": "assets/models/Puffpuff/Puffpuff.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Puffpuff/Puffpuff.glb",
-        "assets/models/Puffpuff/Puffpuff_atlas.png",
-        "assets/models/Puffpuff/Puffpuff_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Puffpuff`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:19:20Z"
+    "replacedAssetId": 108775875525202,
+    "uploadedAt": "2026-10-21T20:16:44Z"
   },
   "Radish": {
-    "assetId": 75467711544687,
+    "assetId": 105003378884357,
+    "blockCell": true,
     "file": "assets/models/Radish/Radish.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Radish/Radish.glb",
-        "assets/models/Radish/Radish_atlas.png",
-        "assets/models/Radish/Radish_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Radish`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:19:29Z"
+    "replacedAssetId": 75467711544687,
+    "uploadedAt": "2026-10-21T20:35:20Z"
+  },
+  "Reeds": {
+    "assetId": 122578038240807,
+    "blockCell": true,
+    "file": "assets/models/props/Reeds/Reeds.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:17:06Z"
   },
   "Reindazzle": {
-    "assetId": 86110280099855,
+    "assetId": 84892422323615,
+    "blockCell": true,
     "file": "assets/models/Reindazzle/Reindazzle.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Reindazzle/Reindazzle.glb",
-        "assets/models/Reindazzle/Reindazzle_atlas.png",
-        "assets/models/Reindazzle/Reindazzle_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Reindazzle`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:19:38Z"
+    "replacedAssetId": 86110280099855,
+    "uploadedAt": "2026-10-21T20:35:29Z"
   },
   "Rocklobber": {
-    "assetId": 129196086483452,
+    "assetId": 74100842685887,
+    "blockCell": true,
     "file": "assets/models/Rocklobber/Rocklobber.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Rocklobber/Rocklobber.glb",
-        "assets/models/Rocklobber/Rocklobber_atlas.png",
-        "assets/models/Rocklobber/Rocklobber_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Rocklobber`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:19:52Z"
+    "replacedAssetId": 129196086483452,
+    "uploadedAt": "2026-10-21T20:35:34Z"
+  },
+  "RoomCabin": {
+    "assetId": 105761041582148,
+    "blockCell": true,
+    "file": "assets/models/props/RoomCabin/RoomCabin.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:17:34Z"
+  },
+  "RoomDome": {
+    "assetId": 117777283592193,
+    "blockCell": true,
+    "file": "assets/models/props/RoomDome/RoomDome.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:17:48Z"
+  },
+  "RoomTower": {
+    "assetId": 108272738122563,
+    "blockCell": true,
+    "file": "assets/models/props/RoomTower/RoomTower.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:18:10Z"
   },
   "Shellberg": {
-    "assetId": 132568103336467,
+    "assetId": 124257490870470,
+    "blockCell": true,
     "file": "assets/models/Shellberg/Shellberg.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Shellberg/Shellberg.glb",
-        "assets/models/Shellberg/Shellberg_atlas.png",
-        "assets/models/Shellberg/Shellberg_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Shellberg`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:20:14Z"
+    "replacedAssetId": 132568103336467,
+    "uploadedAt": "2026-10-21T20:35:43Z"
   },
   "Shimmerlynx": {
-    "assetId": 89901200352693,
+    "assetId": 133495730477978,
+    "blockCell": true,
     "file": "assets/models/Shimmerlynx/Shimmerlynx.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Shimmerlynx/Shimmerlynx.glb",
-        "assets/models/Shimmerlynx/Shimmerlynx_atlas.png",
-        "assets/models/Shimmerlynx/Shimmerlynx_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Shimmerlynx`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:20:28Z"
+    "replacedAssetId": 89901200352693,
+    "uploadedAt": "2026-10-21T20:35:52Z"
   },
   "ShipHull": {
-    "assetId": 123730962666508,
+    "assetId": 81470422409500,
+    "blockCell": true,
     "file": "assets/models/props/ShipHull/ShipHull.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/ShipHull/ShipHull.glb",
-        "assets/models/props/ShipHull/ShipHull_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only ShipHull`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:49:44Z"
+    "replacedAssetId": 123730962666508,
+    "uploadedAt": "2026-10-21T20:18:51Z"
   },
   "Shrine": {
-    "assetId": 85357251439418,
+    "assetId": 76438506078117,
+    "blockCell": true,
     "file": "assets/models/props/Shrine/Shrine.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/Shrine/Shrine.glb",
-        "assets/models/props/Shrine/Shrine_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only Shrine`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:49:53Z"
+    "replacedAssetId": 85357251439418,
+    "uploadedAt": "2026-10-21T20:19:05Z"
   },
   "ShrineStone": {
-    "assetId": 119263598508312,
+    "assetId": 78669584933977,
+    "blockCell": true,
     "file": "assets/models/props/ShrineStone/ShrineStone.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/ShrineStone/ShrineStone.glb",
-        "assets/models/props/ShrineStone/ShrineStone_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only ShrineStone`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:49:58Z"
+    "replacedAssetId": 119263598508312,
+    "uploadedAt": "2026-10-21T20:19:19Z"
+  },
+  "Signpost": {
+    "assetId": 74047329484786,
+    "blockCell": true,
+    "file": "assets/models/props/Signpost/Signpost.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:19:28Z"
   },
   "Skaddle": {
-    "assetId": 88220194343720,
+    "assetId": 130925559617254,
+    "blockCell": true,
     "file": "assets/models/Skaddle/Skaddle.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Skaddle/Skaddle.glb",
-        "assets/models/Skaddle/Skaddle_atlas.png",
-        "assets/models/Skaddle/Skaddle_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Skaddle`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:20:42Z"
+    "replacedAssetId": 88220194343720,
+    "uploadedAt": "2026-10-21T20:36:00Z"
   },
   "Snailbyte": {
-    "assetId": 76807008771184,
+    "assetId": 116652291605113,
+    "blockCell": true,
     "file": "assets/models/Snailbyte/Snailbyte.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Snailbyte/Snailbyte.glb",
-        "assets/models/Snailbyte/Snailbyte_atlas.png",
-        "assets/models/Snailbyte/Snailbyte_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Snailbyte`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:20:51Z"
+    "replacedAssetId": 76807008771184,
+    "uploadedAt": "2026-10-21T20:19:50Z"
+  },
+  "SnowBush": {
+    "assetId": 121498439469799,
+    "blockCell": true,
+    "file": "assets/models/props/SnowBush/SnowBush.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:19:56Z"
+  },
+  "SnowDrift": {
+    "assetId": 81110116382095,
+    "blockCell": true,
+    "file": "assets/models/props/SnowDrift/SnowDrift.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:20:04Z"
   },
   "SnowPine": {
-    "assetId": 97187940926297,
+    "assetId": 113692517294473,
+    "blockCell": true,
     "file": "assets/models/props/SnowPine/SnowPine.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/SnowPine/SnowPine.glb",
-        "assets/models/props/SnowPine/SnowPine_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only SnowPine`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:50:23Z"
+    "replacedAssetId": 97187940926297,
+    "uploadedAt": "2026-10-21T20:20:13Z"
+  },
+  "SnowPineB": {
+    "assetId": 140047894378836,
+    "blockCell": true,
+    "file": "assets/models/props/SnowPineB/SnowPineB.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:20:27Z"
   },
   "Snowbun": {
-    "assetId": 97283882148528,
+    "assetId": 79648695514572,
+    "blockCell": true,
     "file": "assets/models/Snowbun/Snowbun.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Snowbun/Snowbun.glb",
-        "assets/models/Snowbun/Snowbun_atlas.png",
-        "assets/models/Snowbun/Snowbun_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Snowbun`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:21:00Z"
+    "replacedAssetId": 97283882148528,
+    "uploadedAt": "2026-10-21T20:20:36Z"
   },
   "SparkStation": {
-    "assetId": 71629414883882,
+    "assetId": 132831465418886,
+    "blockCell": true,
     "file": "assets/models/props/SparkStation/SparkStation.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/props/SparkStation/SparkStation.glb",
-        "assets/models/props/SparkStation/SparkStation_atlas.png"
-      ],
-      "note": "block-cell prop export (B44); assetId is still the old blockout until `upload_assets.py --redo --only SparkStation`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-06T04:50:37Z"
+    "replacedAssetId": 71629414883882,
+    "uploadedAt": "2026-10-21T20:20:50Z"
   },
   "Sparkfox": {
-    "assetId": 118664559072176,
+    "assetId": 90329581788192,
+    "blockCell": true,
     "file": "assets/models/Sparkfox/Sparkfox.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Sparkfox/Sparkfox.glb",
-        "assets/models/Sparkfox/Sparkfox_atlas.png",
-        "assets/models/Sparkfox/Sparkfox_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Sparkfox`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:21:14Z"
+    "replacedAssetId": 118664559072176,
+    "uploadedAt": "2026-10-21T20:36:15Z"
   },
   "Spookum": {
-    "assetId": 110636694482164,
+    "assetId": 75835527523202,
+    "blockCell": true,
     "file": "assets/models/Spookum/Spookum.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Spookum/Spookum.glb",
-        "assets/models/Spookum/Spookum_atlas.png",
-        "assets/models/Spookum/Spookum_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Spookum`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-13T07:53:37Z"
+    "replacedAssetId": 110636694482164,
+    "uploadedAt": "2026-10-21T20:36:23Z"
+  },
+  "StarIsland": {
+    "assetId": 94576361220525,
+    "blockCell": true,
+    "file": "assets/models/props/StarIsland/StarIsland.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:21:21Z"
+  },
+  "SteppingStone": {
+    "assetId": 129219870310799,
+    "blockCell": true,
+    "file": "assets/models/props/SteppingStone/SteppingStone.glb",
+    "format": "glb",
+    "uploadedAt": "2026-10-21T20:21:26Z"
   },
   "Thunderhog": {
-    "assetId": 89950802531319,
+    "assetId": 111355227047635,
+    "blockCell": true,
     "file": "assets/models/Thunderhog/Thunderhog.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Thunderhog/Thunderhog.glb",
-        "assets/models/Thunderhog/Thunderhog_atlas.png",
-        "assets/models/Thunderhog/Thunderhog_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Thunderhog`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:21:28Z"
+    "replacedAssetId": 89950802531319,
+    "uploadedAt": "2026-10-21T20:36:37Z"
   },
   "Toastoad": {
-    "assetId": 96561583720852,
+    "assetId": 126160728707927,
+    "blockCell": true,
     "file": "assets/models/Toastoad/Toastoad.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Toastoad/Toastoad.glb",
-        "assets/models/Toastoad/Toastoad_atlas.png",
-        "assets/models/Toastoad/Toastoad_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Toastoad`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:21:37Z"
+    "replacedAssetId": 96561583720852,
+    "uploadedAt": "2026-10-21T20:21:49Z"
   },
   "Twiglet": {
-    "assetId": 93090404448607,
+    "assetId": 123980274233910,
+    "blockCell": true,
     "file": "assets/models/Twiglet/Twiglet.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Twiglet/Twiglet.glb",
-        "assets/models/Twiglet/Twiglet_atlas.png",
-        "assets/models/Twiglet/Twiglet_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Twiglet`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:21:46Z"
+    "replacedAssetId": 93090404448607,
+    "uploadedAt": "2026-10-21T20:22:11Z"
   },
   "Wisplet": {
-    "assetId": 98470407282023,
+    "assetId": 93803172018288,
+    "blockCell": true,
     "file": "assets/models/Wisplet/Wisplet.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Wisplet/Wisplet.glb",
-        "assets/models/Wisplet/Wisplet_atlas.png",
-        "assets/models/Wisplet/Wisplet_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Wisplet`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-13T07:53:46Z"
+    "replacedAssetId": 98470407282023,
+    "uploadedAt": "2026-10-21T20:36:51Z"
   },
   "Zapfinch": {
-    "assetId": 105877852533381,
+    "assetId": 76804173153353,
+    "blockCell": true,
     "file": "assets/models/Zapfinch/Zapfinch.glb",
     "format": "glb",
-    "pendingUpload": {
-      "exportedAt": "2026-10-21",
-      "files": [
-        "assets/models/Zapfinch/Zapfinch.glb",
-        "assets/models/Zapfinch/Zapfinch_atlas.png",
-        "assets/models/Zapfinch/Zapfinch_face.png"
-      ],
-      "note": "block-cell export (B46); assetId is still the old blockout until `upload_assets.py --redo --only Zapfinch`",
-      "uploaded": false
-    },
-    "uploadedAt": "2026-10-15T13:22:00Z"
+    "replacedAssetId": 105877852533381,
+    "uploadedAt": "2026-10-21T20:37:05Z"
   }
 }

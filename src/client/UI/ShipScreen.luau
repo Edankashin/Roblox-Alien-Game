@@ -17,6 +17,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
+local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
@@ -104,7 +105,20 @@ end
 
 local function handleRefusal(name: string, moduleId: string?, reason: any)
 	if reason == "NotEnoughScrap" then
-		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
+		-- How much more the module still needs, never a bare refusal (TikTok batch 9 lesson 3).
+		local price: number? = nil
+		local held = 0
+		if moduleId and State.Has() then
+			local profile = State.Get()
+			held = profile.scrap
+			local worldId = profile.world.current
+			local def = Economy.moduleDef(worldId, moduleId)
+			if def then
+				local state = Economy.moduleState(profile, worldId, moduleId)
+				price = def.scrap - (if state then state.scrapPaid else 0)
+			end
+		end
+		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
 		return
 	end
 	if reason == "InFlight" then

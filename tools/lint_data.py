@@ -756,7 +756,9 @@ def live_particles(layers, rule):
 def lint_effects(tables, types):
     """data/Effects: every species has a row; layers name real regions, kinds and sprites; rates stay under the caps; the tier
     ladder only climbs (B46: Common one touch ... Cosmic and Secret the sky); each species shows its own tier's rung. The tier
-    gate itself is covered by tests/Effects.spec.luau."""
+    gate itself is covered by tests/Effects.spec.luau. Signature pieces (Effects.Pieces, the Rare pass): each names a moving part, a
+    spot in its box and a fallback region; every piece a species hangs a layer on is a part of that species' data/Rigs row; a Rare
+    and up row names its `signature`, hangs its first layer there and fires a layer there on the flourish (the rig's beat)."""
     effects = tables.get('Effects')
     if not isinstance(effects, dict):
         return ['Effects.luau: required table unavailable']
@@ -781,7 +783,23 @@ def lint_effects(tables, types):
     check(union('MotionKind') == set(MOTION_KINDS), 'Types.MotionKind: differs from the motions lint_data knows')
     check(union('EmitDirection') == set(EFFECT_DIRECTIONS), 'Types.EmitDirection: differs from the directions lint_data knows')
     caps, attach, look = effects['Caps'], effects['Attach'], effects['Look']
+    pieces = effects.get('Pieces') or {}
+    points = set(attach) | set(pieces)
     particles = tables['Icons']['Particles']
+    rigs = (tables.get('Rigs') or {}).get('Species')
+    for name, piece in pieces.items():
+        where = f'Effects.Pieces.{name}'
+        check(name not in attach, where + ': a piece may not share a name with a body region')
+        ok = isinstance(piece, dict) and isinstance(piece.get('part'), str) and piece['part'] != ''
+        check(ok, where + '.part: expected the name of a moving part')
+        spot = piece.get('spot') if isinstance(piece, dict) else None
+        check(isinstance(spot, dict) and set(spot) == {1, 2, 3} and all(finite(v) and -1 <= v <= 1 for v in spot.values()),
+              where + '.spot: expected three fractions of the part\'s box, -1 to 1')
+        check(isinstance(piece, dict) and piece.get('region') in attach, f'{where}.region: the fallback must be a body region of Effects.Attach')
+    def region_of(name):
+        if name in attach:
+            return name
+        return pieces[name].get('region') if name in pieces else 'Body'
     for key in EFFECT_CAPS:
         check(positive(caps.get(key)), f'Effects.Caps.{key}: expected a positive number')
     for low, high in (('MobileRateCap', 'DesktopRateCap'), ('MobileAlienParticles', 'DesktopAlienParticles'),
@@ -862,7 +880,7 @@ def lint_effects(tables, types):
             failures.append(f'{where}.kind: unknown kind {kind!r}')
             return
         check(hexcolor(layer.get('color')), where + '.color: expected a six-digit hex colour')
-        check(layer.get('at') in attach, f'{where}.at: unknown region {layer.get("at")!r}')
+        check(layer.get('at') in points, f'{where}.at: unknown region or piece {layer.get("at")!r}')
         for key in EFFECT_NUMBERS[kind]:
             value = layer.get(key)
             if key in ('speed', 'spread'):
@@ -870,7 +888,9 @@ def lint_effects(tables, types):
             else:
                 check(positive(value), f'{where}.{key}: a {kind} needs a positive {key}')
         if kind in ('Beam', 'Trail'):
-            check(layer.get('to') in attach, f'{where}.to: unknown region {layer.get("to")!r}')
+            check(layer.get('to') in points, f'{where}.to: unknown region or piece {layer.get("to")!r}')
+            check(layer.get('to') not in points or layer.get('at') not in points or region_of(layer['to']) != region_of(layer['at']),
+                  where + ': its two ends fall back to one region on a model without the piece (give the pieces different regions)')
         if kind == 'Beam':
             check(layer.get('to') != layer.get('at'), where + ': a beam needs two different regions')
             check(positive(layer.get('flicker')) and layer['flicker'] > look['BeamFlashSeconds'], where + '.flicker: must be longer than Look.BeamFlashSeconds')
@@ -953,6 +973,29 @@ def lint_effects(tables, types):
                 check(len({layer.get('color') for layer in drawn}) >= 2, f'{where}: an Uncommon adds a touch in a second colour')
             if rule.get('flourish'):
                 check(any(layer.get('flourish') is True for layer in drawn), f'{where}: a {tier} has a signature flourish (a layer with flourish = true)')
+            rig_parts = None
+            if isinstance(rigs, dict):
+                rig = rigs.get(sid)
+                rig_parts = {part.get('name') for part in (rig.get('parts') or {}).values()} if isinstance(rig, dict) else set()
+            for index, layer in layers.items():
+                for end in ('at', 'to'):
+                    name = layer.get(end)
+                    if name in pieces and rig_parts is not None:
+                        check(pieces[name].get('part') in rig_parts,
+                              f'{where}.layers.{index}.{end}: piece {name!r} hangs on part {pieces[name].get("part")!r}, which is not a moving part of Rigs.Species.{sid}')
+            signature = row.get('signature')
+            if tier in ('Rare', 'Epic', 'Legendary', 'Cosmic', 'Secret'):
+                check(signature in points, f'{where}.signature: a {tier} names its signature piece (a key of Effects.Pieces or Effects.Attach)')
+                if signature in points:
+                    check(layers[1].get('at') == signature, f'{where}: its first (strongest) layer hangs on its signature {signature!r}')
+                    def on_signature(name, signature=signature):
+                        # the signature point, a sibling spot of it (GlassB, AntlersL) or another spot on the same moving part
+                        same_part = name in pieces and signature in pieces and pieces[name].get('part') == pieces[signature].get('part')
+                        return isinstance(name, str) and (name.startswith(signature) or same_part)
+                    check(any(on_signature(layer.get('at')) and layer.get('flourish') is True for layer in drawn),
+                          f'{where}: a layer it draws on its signature {signature!r} fires on the flourish (the rig\'s beat)')
+            else:
+                check(signature is None, f'{where}.signature: only Rare and up carry a signature piece')
             live = live_particles(drawn, rule)
             check(live <= caps['DesktopAlienParticles'], f'{where}: about {live:.0f} live particles, over Caps.DesktopAlienParticles')
         idle = row.get('idle')

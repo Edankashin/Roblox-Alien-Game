@@ -207,6 +207,7 @@ return {
 	TOAST_MODULE_DONE = "%s complete!",
 	TOAST_SLOT_UNLOCKED = "Every station now has %d slots!",
 	TOAST_NOT_ENOUGH_SCRAP = "Not enough Scrap",
+	TOAST_SCRAP_SHORT = "Need %s more Scrap", -- a Scrap price the player cannot pay: the gap (Shared/ShopMath.ShortLine), never a bare refusal
 	TOAST_NO_MATERIAL = "Find %s in the %s",
 	TOAST_NODE_EMPTY = "Nothing here yet",
 	NODE_HIDDEN_HINT = "Only at %s", -- shown on a node's plate while its condition is not met
@@ -291,6 +292,8 @@ return {
 	MENU_Ranks = "Ranks",
 	MENU_GLYPH_Ranks = "#",
 	MENU_Playtime = "Playtime",
+	MENU_StarterPack = "Starter Pack", -- the HUD offer button (data/Shop HudOffer); its face is the pixel present
+	MENU_GLYPH_StarterPack = "+",
 	MENU_GLYPH_Playtime = ">",
 	-- weekly leaderboard (data/Leaderboard)
 	LB_TITLE = "Top catchers this week",
@@ -645,7 +648,6 @@ return {
 	STORAGE_BAY_MAX = "Storage Bay maxed out",
 	TOAST_STORAGE_GAINED = "+%s alien storage", -- a finished ship module (or the Storage Bay) raised the cap
 	TOAST_STORAGE_BAY_BOUGHT = "Storage Bay upgraded: +%s alien storage",
-	TOAST_STORAGE_BAY_NEED_SCRAP = "Not enough Scrap for the Storage Bay",
 	TOAST_STORAGE_BAY_NEEDS_WORLD = "The next Storage Bay level needs World %d",
 	TOAST_STORAGE_BAY_MAX = "The Storage Bay is fully upgraded",
 	TOAST_STORAGE_BAY_FAILED = "Could not upgrade the Storage Bay right now",
@@ -867,6 +869,7 @@ return {
 	TOAST_PURCHASE_THANKS = "Thanks! %s is yours",
 	TOAST_PURCHASE_FAILED = "The purchase did not go through",
 	TOAST_SERVERLUCK_START = "%s bought %sx luck for everyone!",
+	CHAT_SERVERLUCK_START = "%s bought x%s luck for everyone! Anyone can add more time from the Shop.", -- the same news as a system line in the general chat
 	TOAST_SERVERLUCK_GIFT = "%sx luck for everyone, from the team!", -- a window gifted from the developer panel
 	SERVERLUCK_BANNER = "%sx luck for everyone",
 	SERVERLUCK_LEFT = "%s left",

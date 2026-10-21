@@ -129,6 +129,20 @@ Roblox's own advice: fun inside the first five minutes, no long tutorials, learn
 
 Built as milestone 27 (decision 18, 2026-10-06): gift 1 opens as the T6 payoff (the Gifts screen with its "Tomorrow" line, after the fanfare and the pan); the Peddler's landing banner and the Shower chip and banner stay off a new player's screen until the tutorial ends, while the events themselves run server-wide as ever; the notification card already waits for session 2 and there is no shop pop-up. All of it is the `Script` block in `data/Tutorial.luau`. Hint strings TUT_1 to TUT_7 stay as written.
 
+## 7. Benchmarks from a creator's dashboard (2026-10-21)
+
+The first real percentiles we have, read off two Creator Hub screenshots in TikTok ZPLAk7qKN (bennettbenito, "5,000,000 Robux on my first ever Roblox game in a month"; `media/tiktok/NOTES.md` batch 9). Roblox draws each bar against similar experiences; one game, one day, so a yardstick, not a target set.
+
+| Metric | Median (50th) | Top tenth (90th) | That game | Ours to watch in week one |
+|---|---|---|---|---|
+| Average playtime | 12.8 min | 30.0 min | 37.6 min (93rd) | the 30-minute first session of section 6 and [[Balance-Report]] |
+| Day 1 retention | 10.00% | 16.90% | 16.60% (88th) | the PRE_PRODUCTION 5c gate |
+| Day 7 retention | 0.90% | 2.94% | 1.88% (76th) | |
+| Payer conversion (share of players who pay) | 0.55% | 2.46% | 2.10% (87th) | the first purchase: the Starter Pack button on the HUD, Decide-Now 47 (an offer under 10 Robux) |
+| Average revenue per paying user | 65.9 Robux | 292.7 Robux | 307.1 Robux (90th) | the passes and the Starter Pack |
+
+How to read them: payer conversion is what palm_dev's "one thing under 10 Robux" moves (ZPLAB8GM3: "it signals to Roblox that people who play your game want to spend money"); spend per payer is what the bigger passes and his "scaling multiplier" move. Section 1's retrieval stage reads engagement, retention and monetization, so all five feed discovery. Read ours on the Creator Hub's Engagement and Monetization pages after the first full week, against this table.
+
 ## Sources (all read 2026-10-05)
 
 Opened, Roblox creator-docs (GitHub mirror of create.roblox.com/docs; base `https://github.com/Roblox/creator-docs/blob/main/content/en-us/`):

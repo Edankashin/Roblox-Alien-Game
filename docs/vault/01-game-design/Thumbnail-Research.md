@@ -183,6 +183,8 @@ The Moment. A stranger has three seconds and no reviews, and the name tells them
 
 ## 10. Test plan, and what to read
 
+Cross-check from TikTok ZPLAkEnnf (machv10, 2026-10-21, `media/tiktok/NOTES.md` batch 9): his three CTR rules are this note's recipe in other words. "Keep it simple" is section 6 (one hero, zero to three words); "match the game name" is section 0 item 4 and section 9 (the name says catch and alien, the Moment shows both); "give a reason to click" is the three concept arms; "A/B test more than one thumbnail" is this section. Nothing to change; the block-cell set is the Launch-week row.
+
 - Activate the three at launch (Creator Hub, Home Page tab, 2 to 5 active). The remaining story frames (the ship being built, the codex, Frostbyte) go in as inactive gallery images, in order, behind them; the video goes first on the detail page when the Mac's clip exists.
 - Change nothing for seven days; the metric is a rolling 7-day value and the bandit re-weights hourly.
 - Read, per thumbnail, qualified PTR **and** average playtime. A thumbnail with a high PTR and a short playtime is a clickbait arm; keep the one with both.

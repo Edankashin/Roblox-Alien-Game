@@ -32,6 +32,8 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local GrowthData = require(Shared:WaitForChild("data"):WaitForChild("Growth"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
+local ShopData = require(Shared:WaitForChild("data"):WaitForChild("Shop"))
+local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local State = require(script:WaitForChild("State"))
 local Builder = require(script:WaitForChild("UI"):WaitForChild("Builder"))
@@ -1454,6 +1456,32 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("gifts", refreshGiftBadge)
 
+	-- The offer on the screen (TikTok batch 9 lesson 4, data/Shop HudOffer): a top button with the Starter Pack's pixel present,
+	-- leftmost in the top row, shown while the pack can be sold and this player has not bought it (Shared/ShelfMath.OfferShows);
+	-- a tap opens the Shop, which starts on the Featured shelf where the pack is the first card.
+	local offerId = ShopData.HudOffer
+	local offerItem: ShopData.ShopItem? = nil
+	for _, item in ipairs(ShopData.Items) do
+		if item.id == offerId then
+			offerItem = item
+		end
+	end
+	Hud.AddTopButton(offerId, Theme.Colors.Featured, function()
+		if not inCapture and not Reveal.IsOpen() then
+			Screens.Open("Shop")
+		end
+	end)
+	Hud.SetTopButtonVisible(offerId, false)
+	local function refreshOfferButton()
+		local purchases, known = State.GetPurchases()
+		local item = offerItem
+		local shows = item ~= nil
+			and ShelfMath.OfferShows(item, ShopData.Grants[offerId], purchases.purchases[offerId] or 0, known)
+		Hud.SetTopButtonVisible(offerId, shows)
+	end
+	State.OnChanged("purchases", refreshOfferButton)
+	refreshOfferButton()
+
 	-- The five-minute script's payoff: when the step named by TutorialData.Script.GiftPopAfterStep falls
 	-- behind the player and the day-1 gift is unclaimed, the Gifts screen opens by itself, once a session.
 	-- It waits out the module-complete camera pan and any open panel, and gives up quietly after
@@ -1737,6 +1765,20 @@ local function start(profile: Types.Profile)
 	onSeason() -- the server's answer may already have landed
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
+	-- The same announcement as a system line in the general chat, so the buyer is named where everyone reads (TikTok batch 9
+	-- lesson 7: everyone sees someone spending, and anyone can add time). Client-side: DisplaySystemMessage shows only here.
+	local function chatLine(text: string)
+		local channels = TextChatService:FindFirstChild("TextChannels")
+		local general = if channels then channels:FindFirstChild("RBXGeneral") else nil
+		if general and general:IsA("TextChannel") then
+			local ok, err = pcall(function()
+				general:DisplaySystemMessage(text)
+			end)
+			if not ok then
+				print(("[%s] chat line skipped: %s"):format(Config.WorkingTitle, tostring(err)))
+			end
+		end
+	end
 	State.OnChanged("serverLuck", function()
 		local luckState = State.GetServerLuck()
 		if luckState then
@@ -1749,6 +1791,9 @@ local function start(profile: Types.Profile)
 					then Strings.TOAST_SERVERLUCK_GIFT:format(multiplierText)
 					else Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, multiplierText)
 				Toast.Banner(text, Theme.Colors.Featured, Config.AnnounceSeconds)
+				if luckState.playerName ~= Strings.ADMIN_LUCK_NAME then
+					chatLine(Strings.CHAT_SERVERLUCK_START:format(luckState.playerName, multiplierText))
+				end
 			end
 		else
 			serverLuckShown = nil

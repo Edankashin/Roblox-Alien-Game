@@ -32,6 +32,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local HomeBuild = require(Shared:WaitForChild("data"):WaitForChild("HomeBuild"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -125,7 +126,7 @@ end
 -- Server calls -------------------------------------------------------------
 
 -- A refused placement becomes a toast; anything else the player cannot fix is only logged.
-local function refusePlace(reason: any, kind: Kind)
+local function refusePlace(reason: any, kind: Kind, price: number)
 	if reason == "Taken" then
 		Toast.Show(Strings.TOAST_BUILD_TAKEN, Theme.Colors.Select)
 	elseif reason == "OffPlot" then
@@ -133,7 +134,8 @@ local function refusePlace(reason: any, kind: Kind)
 	elseif reason == "Full" then
 		Toast.Show(Strings.TOAST_BUILD_FULL:format(Builder.text("BUILD_KIND_" .. kind)), Theme.Colors.Select)
 	elseif reason == "NotEnoughScrap" then
-		Toast.Show(Strings.TOAST_NOT_ENOUGH_SCRAP, Theme.Colors.Close)
+		local held = if State.Has() then State.Get().scrap else 0 -- how much more, never a bare refusal (TikTok batch 9 lesson 3)
+		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
 	else
 		print(("[%s] PlaceHomeItem refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 	end
@@ -158,7 +160,7 @@ local function placeItem(itemId: string, cellX: number, cellZ: number)
 				clearGhost()
 			end
 		else
-			refusePlace(reason, def.kind)
+			refusePlace(reason, def.kind, def.scrap)
 		end
 		refresh()
 	end)

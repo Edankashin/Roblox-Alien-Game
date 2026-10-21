@@ -19,15 +19,22 @@ The cloud session cannot message your Mac's Claude session (Roblox Studio and th
    ```
 4. Optional, saves you doing this again: when the cloud session shows a card asking to let it reach your other sessions, approve it on your phone or Mac. Then the cloud session can message the Mac session itself.
 
-## 2. Check the Open Cloud key (3 minutes)
+## 2. Finish the Open Cloud key (5 minutes)
 
-1. Go to create.roblox.com, sign in, top menu **Open Cloud** (or the left column **Open Cloud > API Keys**).
-2. Open the key you made for this game (named like `alien-game-assets`).
-3. Under **Access Permissions** it needs:
-   - **Assets**: Read and Write.
-   - **Universe-places** (sometimes shown as "Place Publishing"): Write, with the experience **Catch an Alien** (universe 10769415131) selected. Add it with **Add API System** if it is missing.
-4. **Expiration**: a date at least two weeks away. **IP allowlist**: `0.0.0.0/0` or your Mac's address.
-5. Click **Save Changes**. Do not copy the secret anywhere; the Mac already has it in `~/.zshrc`. If you had to make a new key, put it on the Mac only: Terminal `nano ~/.zshrc`, replace the line `export ROBLOX_OPEN_CLOUD_KEY=...`, save, then `source ~/.zshrc`.
+You already added **universe-places** with **Write**. The rest, on the same key page (create.roblox.com > Open Cloud > API Keys > your key):
+
+1. In the **universe-places** row, find the experience picker (labelled **Select Experience**, or a **Restrict by Experience** switch). Turn the restriction on and choose **Catch an Alien**. Leave the operation as **Write**.
+2. Make sure there is also an **Assets** row. If not: click **Select API System** (or **Add API System**), choose **Assets**, then in **Select Operations** tick **Read** and **Write**. Assets has no experience picker.
+3. **Security**: leave **Restrict IP addresses** off (your Mac's address changes; Roblox says leave it off if you have no fixed IP).
+4. **Expiration**: pick a date at least two weeks away, or no expiration.
+5. Click **Save Changes** (or **Save & Generate key** if this is a new key).
+6. Only if Roblox showed you a new secret (a new key, or after **Regenerate Key**): on the Mac open Terminal and paste this one line; it asks for the key without showing it, then saves it:
+   ```
+   read -s "K?Paste the new key and press Return: " && sed -i '' '/ROBLOX_OPEN_CLOUD_KEY/d' ~/.zshrc && echo "export ROBLOX_OPEN_CLOUD_KEY=$K" >> ~/.zshrc && unset K && source ~/.zshrc && echo " saved"
+   ```
+   If you only edited the existing key, skip this: the Mac already has it.
+
+If the page will not let you change an existing key's experience, make a new key (**Create API Key**, name `alien-game-launch`, both rows as above, **Save & Generate key**) and do step 6.
 
 ## 3. The five shop items without ids: nothing to do
 

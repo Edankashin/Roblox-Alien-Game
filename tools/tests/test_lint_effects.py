@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 import lint_data  # noqa: E402
 import pixel_sprites  # noqa: E402
 
-NAMES = ("Effects", "Tiers", "Icons", "Species", "Sounds")
+NAMES = ("Effects", "Tiers", "Icons", "Species", "Sounds", "Rigs")
 
 
 def tables():
@@ -75,8 +75,32 @@ class EffectsLint(unittest.TestCase):
         self.assertFails("a firing needs")
 
     def test_only_a_small_sparkle_at_the_eyes(self):
-        self.species("Thunderhog")["layers"][5]["size"] = 0.3
+        layer = self.species("Shimmerlynx")["layers"][5]
+        self.assertEqual(layer["at"], "Eyes")
+        layer["size"] = 0.3
         self.assertFails("at the Eyes")
+
+    def test_a_piece_must_be_a_moving_part_of_the_species_rig(self):
+        self.tables["Effects"]["Pieces"]["Comet"]["part"] = "nosuchpart"
+        self.assertFails("which is not a moving part of Rigs.Species.Nebulyn")
+
+    def test_a_piece_names_a_real_fallback_region(self):
+        self.tables["Effects"]["Pieces"]["Geode"]["region"] = "Nowhere"
+        self.assertFails("Effects.Pieces.Geode.region")
+
+    def test_a_rare_names_its_signature_and_hangs_its_strongest_layer_there(self):
+        self.species("Rocklobber").pop("signature")
+        self.assertFails("names its signature piece")
+        self.species("Radish")["signature"] = "Feet"
+        self.assertFails("its first (strongest) layer hangs on its signature")
+
+    def test_the_signature_fires_on_the_flourish(self):
+        self.species("Shellberg")["layers"][3].pop("flourish")
+        self.assertFails("fires on the flourish")
+
+    def test_a_trail_between_two_pieces_needs_two_fallback_regions(self):
+        self.tables["Effects"]["Pieces"]["CometTail"]["region"] = "Halo"
+        self.assertFails("fall back to one region")
 
     def test_a_burst_over_its_tier_is_caught(self):
         self.species("Pebblet")["layers"][1]["count"] = 40

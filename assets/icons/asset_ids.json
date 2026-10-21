@@ -191,6 +191,139 @@
     "kind": "icon",
     "uploadedAt": "2026-10-13T05:41:38Z"
   },
+  "PixelBubble": {
+    "assetId": 91683154519430,
+    "file": "assets/sprites/blocky/PixelBubble.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:15Z"
+  },
+  "PixelDrop": {
+    "assetId": 133098217227875,
+    "file": "assets/sprites/blocky/PixelDrop.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:18Z"
+  },
+  "PixelEmber": {
+    "assetId": 92227663289201,
+    "file": "assets/sprites/blocky/PixelEmber.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:20Z"
+  },
+  "PixelEmberFlicker": {
+    "assetId": 91472107001653,
+    "file": "assets/sprites/blocky/PixelEmberFlicker.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:23Z"
+  },
+  "PixelFlake": {
+    "assetId": 125672541891819,
+    "file": "assets/sprites/blocky/PixelFlake.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:26Z"
+  },
+  "PixelGrit": {
+    "assetId": 114694669746989,
+    "file": "assets/sprites/blocky/PixelGrit.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:29Z"
+  },
+  "PixelHalo": {
+    "assetId": 107558147745232,
+    "file": "assets/sprites/blocky/PixelHalo.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:32Z"
+  },
+  "PixelLeaf": {
+    "assetId": 130552965464729,
+    "file": "assets/sprites/blocky/PixelLeaf.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:35Z"
+  },
+  "PixelMote": {
+    "assetId": 131274551235862,
+    "file": "assets/sprites/blocky/PixelMote.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:38Z"
+  },
+  "PixelNote": {
+    "assetId": 115682801923055,
+    "file": "assets/sprites/blocky/PixelNote.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:41Z"
+  },
+  "PixelPetal": {
+    "assetId": 117678342423274,
+    "file": "assets/sprites/blocky/PixelPetal.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:44Z"
+  },
+  "PixelPuff": {
+    "assetId": 103709924537523,
+    "file": "assets/sprites/blocky/PixelPuff.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:47Z"
+  },
+  "PixelRing": {
+    "assetId": 96326957209840,
+    "file": "assets/sprites/blocky/PixelRing.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:50Z"
+  },
+  "PixelRune": {
+    "assetId": 115100683371161,
+    "file": "assets/sprites/blocky/PixelRune.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:53Z"
+  },
+  "PixelSeed": {
+    "assetId": 130321074521161,
+    "file": "assets/sprites/blocky/PixelSeed.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:56Z"
+  },
+  "PixelSpark": {
+    "assetId": 93688358866770,
+    "file": "assets/sprites/blocky/PixelSpark.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:29:58Z"
+  },
+  "PixelSparkle": {
+    "assetId": 83675244165020,
+    "file": "assets/sprites/blocky/PixelSparkle.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:30:01Z"
+  },
+  "PixelStar": {
+    "assetId": 133824892305228,
+    "file": "assets/sprites/blocky/PixelStar.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:30:04Z"
+  },
+  "PixelTwinkle": {
+    "assetId": 87514819095334,
+    "file": "assets/sprites/blocky/PixelTwinkle.png",
+    "format": "png",
+    "kind": "particle",
+    "uploadedAt": "2026-10-21T20:30:07Z"
+  },
   "Quests": {
     "assetId": 139334842946197,
     "file": "assets/icons/Quests.png",

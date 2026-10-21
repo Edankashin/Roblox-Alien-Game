@@ -252,10 +252,34 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 - Recommend: **b**, because the Studio pass on local imports costs nothing and catches naming or scale problems before anything goes to Roblox moderation.
 - Then: the uploads and id fills in one commit per kind; the launch stays off (B27), nothing is published.
 
-**46. Paid spins: how should they come back?** The pre-launch audit found the paid spins buy turns of the free prize wheel, which can pay Scrap, a Lucky Charm and a Double Shift, and Scrap is never sold for Robux (the project rule). So the three spin products are held off sale at launch (`offSale` in `data/Shop.luau`); the free wheel and everything else stay. Nothing to do before launch.
+**46. Paid spins: how should they come back?** **Answered 2026-10-21: a, a paid-only wheel with its own prizes in launch week two; the spins stay off sale until then.** The pre-launch audit found the paid spins buy turns of the free prize wheel, which can pay Scrap, a Lucky Charm and a Double Shift, and Scrap is never sold for Robux (the project rule). So the three spin products are held off sale at launch (`offSale` in `data/Shop.luau`); the free wheel and everything else stay. Nothing to do before launch.
 - Options: a) a paid-only wheel with its own prizes (cosmetics, eggs, aliens; no Scrap or boosts), odds shown, then the spins go back on sale; b) keep them off sale; c) sell them on the current wheel anyway (breaks the rule; not recommended).
 - Recommend: **a** in launch week two.
 - Then: a paid wheel table in data, the odds screen, the policy check already in place.
+
+## Added 2026-10-21: TikTok batch 9 (monetization)
+
+Your three TikToks of 2026-10-21 ("they should definitely be implemented"), noted in `media/tiktok/NOTES.md` "Batch 9". Four of their lessons were built the same evening with no decision needed (the Scrap shortfall line, the Starter Pack button on the HUD, the luck buyer named in chat, the benchmarks in [[Growth-Playbook]]). These four need you, because each touches a price or the one-currency rule.
+
+**47. An offer under 10 Robux?** palm_dev: "one thing has to be cheap ... under 10 Robux", because the share of players who pay at all tells Roblox to push the game (the benchmark median is 0.55% of players, the top tenth 2.46%). Our cheapest is Speed Burst x5 at 49. A single cheap unit of an item we already sell in a bundle would make the bundle the worse deal, so the options avoid that.
+- Options: a) a once-per-player **Tiny Boost** at 9 Robux: two Speed Bursts and one Steady Hands, first on the Boosts shelf (a data row and a grant; no new feature); b) Scanner Pulse x1 at 9 Robux, repeatable (a power-up we never sold for Robux); c) Speed Burst x1 at 9 and Speed Burst x5 cut to 39 so the bundle stays the better deal; d) no cheap offer.
+- Recommend: **a**, because a once-only first purchase is the classic payer-conversion step, it cannot undercut a bundle, and it sells nothing the free loop does not also give.
+- Then: one row in `data/Shop.luau` (productId 0, so it stays hidden), its grant, card and strings in the cloud (about 30 minutes); the Mac creates the product (`tools/create_products.py --apply`) and fills the id. Can land before launch.
+
+**48. When a player cannot afford something: sell the missing Scrap?** palm_dev's "most games miss this": prompt the smallest Robux cash pack that covers the gap, then buy the item automatically. That is selling Scrap for Robux, which our rule forbids (`CLAUDE.md`: "One currency, Scrap. It is never sold for Robux."; `data/Shop` NeverSold). Built tonight instead: the tap now says "Need 340 more Scrap", never a bare "Not enough Scrap".
+- Options: a) keep the rule: the gap line only; b) sell Scrap packs with the top-up prompt (reverses the rule and the design's section 14; about a week, and every Scrap price becomes a Robux price); c) keep the rule, and after the gap line show the Boosts shelf at Scrap Magnet (a catch bonus, not Scrap).
+- Recommend: **a**, because Scrap that is never bought is a promise to the kids and parents who play, and c reads as selling Scrap through a side door.
+- Then: nothing for a (it is built); b would need a new decision row in [[Decisions]] and a Scrap-pack design pass.
+
+**49. A stacking multiplier whose price climbs?** bennettbenito's tip 1: "a stackable 2x multiplier that starts at a low price and rises with every purchase". A developer product has one fixed price, so it is a ladder of products or passes, one per step.
+- Options: a) after launch week, a three-step ladder of passes on catch Scrap only (+25% at 49, +25% more at 149, +50% more at 399; station income untouched), each step shown only once the one before is owned; b) the same ladder on personal luck instead; c) no ladder.
+- Recommend: **a**, after the first week's payer numbers are in, because it follows the design's "Robux buys faster, never impossible" and caps at x2; b mixes money into the odds, which the paid-random rules make harder to show honestly.
+- Then: a design line in `docs/GAME_DESIGN.md` 14, three rows in `data/Shop.luau`, the multiplier read where the catch pays Scrap, the passes created on the Mac.
+
+**50. Server Luck x4 is the worse deal per point of luck.** x2 is 249 Robux for +1.0 luck for 15 minutes; x4 is 999 for +3.0, so 333 per point against 249. bennettbenito's tip 3 (decoy pricing: make the middle pack look bad so players jump to the top) is not one we copy, but the honest version is that the bigger pack is the better deal.
+- Options: a) x4 down to 599 Robux (200 per point; a dashboard price change on the Mac); b) keep 999 and make x4 last 30 minutes (one number in `data/Shop.luau` Grants; the card already reads its minutes from it); c) keep it as it is.
+- Recommend: **b**, because it needs no price change on Roblox, x4 becomes the clear best value, and 30 minutes of shared luck is a bigger moment for the whole server.
+- Then: one number and a TESTING line; the card shows "ALL · 30 MIN" by itself.
 
 ## Closed or parked, no answer needed
 
@@ -317,4 +341,8 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 44: a* mount form, grows only while ridden | b drop riding | c a few big mount species
 45: a upload now | b* Studio check first, then upload | c not yet
 46: a* a paid-only wheel later | b keep spins off sale | c sell on the current wheel
+47: a* Tiny Boost once at 9 | b Scanner Pulse x1 at 9 | c Speed Burst x1 at 9, x5 to 39 | d none
+48: a* keep the rule, the gap line only | b sell Scrap packs | c gap line then the Boosts shelf
+49: a* Scrap ladder after launch week | b luck ladder | c none
+50: a x4 at 599 | b* x4 lasts 30 minutes | c keep
 ```

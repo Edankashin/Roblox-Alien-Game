@@ -130,6 +130,39 @@ describe("ShelfMath", function()
 			expect(ShelfMath.IsSellable({ kind = "product", productId = 7 }, nil)).toEqual(false)
 			expect(ShelfMath.IsSellable({ kind = "pass", passId = 0 }, row)).toEqual(false)
 		end)
+		it("OfferShows only once the purchases are known, while unbought, for a sellable item", function()
+			local row = { { kind = "spins", amount = 1 } }
+			local live: ShelfMath.Sellable = { kind = "product", productId = 7 }
+			expect(ShelfMath.OfferShows(live, row, 0, true)).toEqual(true)
+			expect(ShelfMath.OfferShows(live, row, 0, false)).toEqual(false)
+			expect(ShelfMath.OfferShows(live, row, 1, true)).toEqual(false)
+			expect(ShelfMath.OfferShows(live, nil, 0, true)).toEqual(false)
+			expect(ShelfMath.OfferShows({ kind = "product", productId = 7, offSale = true }, row, 0, true)).toEqual(false)
+			expect(ShelfMath.OfferShows({ kind = "product", productId = 0 }, row, 0, true)).toEqual(false)
+		end)
+		it("names a HUD offer that is a one-time launch item on the Featured shelf, with a pixel icon and a menu name", function()
+			local PixelIcons = require(Shared.data.PixelIcons)
+			local id = Shop.HudOffer
+			local found: Shop.ShopItem? = nil
+			for _, item in ipairs(Shop.Items) do
+				if item.id == id then
+					found = item
+				end
+			end
+			assert(found ~= nil, "HudOffer " .. id .. " is not in Shop.Items")
+			expect(found.once).toEqual(true)
+			expect(found.paidRandom).toEqual(false)
+			local onShelf = false
+			for _, section in ipairs(Shop.Launch) do
+				if section.section == "Featured" and table.find(section.items, id) then
+					onShelf = true
+				end
+			end
+			expect(onShelf).toEqual(true)
+			expect(Shop.Grants[id] ~= nil).toEqual(true)
+			expect(PixelIcons.Icons[id] ~= nil).toEqual(true)
+			expect(type((Strings :: any)["MENU_" .. id])).toEqual("string")
+		end)
 		it("finds a grant row for every launch item, so nothing on the shelf can sell nothing", function()
 			local byId: { [string]: Shop.ShopItem } = {}
 			for _, item in ipairs(Shop.Items) do

@@ -9,7 +9,8 @@
 -- whole set under its live-particle budget. Idle, FlapAngle, BeamState, Pulse, OrbitAngle, Beat and Envelope are absolute
 -- functions of the clock (never accumulated), so a skipped frame cannot make a motion drift. FlourishEvery and FlourishDue
 -- are the flourish timer. SpriteFor resolves a sprite key to an uploaded id (and its flipbook sheet), through the fallbacks.
--- PickActive is the nearest-first cap. AttachOffset turns a region name and a bounds box into a point.
+-- PickActive is the nearest-first cap. AttachOffset turns a region name and a bounds box into a point; Place resolves a layer's
+-- point to a signature piece on a named moving part (Effects.Pieces) or, when the model has no such part, its fallback region.
 -- The sound clock: SoundClock picks the beat an alien's sound rides (a beam's strike clock, else its idle cycle), SoundBeat says
 -- which beat a moment falls in, SoundDue is the per-alien spacing and TakeSoundSlot the per-second cap across all aliens.
 
@@ -458,6 +459,56 @@ end
 function EffectsMath.AttachOffset(region: string, minX: number, minY: number, minZ: number, sizeX: number, sizeY: number, sizeZ: number): (number, number, number)
 	local point = Effects.Attach[region] or Effects.Attach[FALLBACK_REGION]
 	return minX + sizeX / 2 + point.x * sizeX, minY + point.y * sizeY, minZ + sizeZ / 2 + point.z * sizeZ
+end
+
+-- Whether `name` is a point a layer may hang on: a body region (Effects.Attach) or a signature piece (Effects.Pieces).
+function EffectsMath.IsPoint(name: string?): boolean
+	return name ~= nil and (Effects.Attach[name] ~= nil or Effects.Pieces[name] ~= nil)
+end
+
+-- The body region a point stands for on a model without its piece: the region itself, a piece's fallback region, else the body.
+function EffectsMath.RegionOf(name: string): string
+	if Effects.Attach[name] ~= nil then
+		return name
+	end
+	local piece = Effects.Pieces[name]
+	if piece ~= nil and Effects.Attach[piece.region] ~= nil then
+		return piece.region
+	end
+	return FALLBACK_REGION
+end
+
+-- Where a layer's point resolves on one model. A signature piece whose part the model has (`hasPart(part)` true) hangs on that
+-- part at its spot (x y z: fractions of the part's own size from its centre), so it follows the part as the rig moves it; a piece
+-- whose part is missing (an old blockout) falls back to its region, and a region (or an unknown name) is a bounds point as before
+-- (x y z 0; AttachOffset places it).
+function EffectsMath.Place(name: string, hasPart: (string) -> boolean): Types.FxPlace
+	local piece = Effects.Pieces[name]
+	if piece ~= nil and hasPart(piece.part) then
+		local spot = piece.spot
+		return { part = piece.part, region = EffectsMath.RegionOf(name), x = spot[1] or 0, y = spot[2] or 0, z = spot[3] or 0 }
+	end
+	return { part = nil, region = EffectsMath.RegionOf(name), x = 0, y = 0, z = 0 }
+end
+
+-- The parts a species' layers hang on (its pieces' part names, each once, in layer order): what a renderer looks up in the model.
+function EffectsMath.PieceParts(speciesId: string): { string }
+	local out: { string } = {}
+	local fx = Effects.Species[speciesId]
+	if not fx then
+		return out
+	end
+	local seen: { [string]: boolean } = {}
+	for _, layer in ipairs(fx.layers) do
+		for _, name in ipairs({ layer.at, layer.to or layer.at }) do
+			local piece = Effects.Pieces[name]
+			if piece ~= nil and not seen[piece.part] then
+				seen[piece.part] = true
+				table.insert(out, piece.part)
+			end
+		end
+	end
+	return out
 end
 
 local ranking: { number } = {}
