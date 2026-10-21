@@ -340,11 +340,12 @@ class RepoTest(unittest.TestCase):
         self.assertIn("block-cell folders:", out)
 
     def test_the_real_run_refuses_without_a_key_and_writes_nothing(self) -> None:
+        _, plan, _ = run_main(["--blocky", "--dry-run"], NO_KEY)
+        if " 0 upload call(s)" in plan:   # after the upload the real run would resolve and fill, not refuse
+            self.skipTest("everything is uploaded in this checkout")
         files = [ua.DEFAULT_IDS_FILE, ua.BLOCKY_IMAGE_IDS_FILE, ua.IMAGE_IDS_FILE, ua.BLOCKY_TILE_IDS_FILE]
         before = [f.read_bytes() if f.exists() else None for f in files]
         code, out, err = run_main(["--blocky"], NO_KEY)
-        if "nothing to upload" in out:
-            self.skipTest("everything is uploaded in this checkout")
         self.assertEqual(code, 2)
         self.assertIn("is not set, so nothing was uploaded", err)
         self.assertEqual([f.read_bytes() if f.exists() else None for f in files], before)
