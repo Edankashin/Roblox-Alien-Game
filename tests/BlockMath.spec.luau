@@ -245,4 +245,57 @@ describe("BlockMath HUD fit", function()
 		expect(large).toBeClose(8.39, 0.01) -- the Scrap plate
 	end)
 end)
+
+-- The screens after the HUD (UI Playbook "Block cells", "Screens in block cells"). A fitted plate (Builder.blockPlate with no
+-- aspect) takes the px box its Size gives and the whole number of columns nearest square cells for it: `fit` is that grid.
+local function fit(wPx: number, hPx: number, rows: number): BlockMath.Grid
+	return BlockMath.Grid(wPx / hPx, rows, INK)
+end
+
+describe("BlockMath frames", function()
+	it("counts four frames for a flat block and adds the bands, grout and jitter for cells", function()
+		local grid = BlockMath.Grid(4.2, 3, INK)
+		expect(BlockMath.Frames(grid, false, SEED)).toEqual(4)
+		local cells = 4 + 4 + (grid.cols - 1 + grid.rows - 1) + #BlockMath.Jittered(grid, SEED)
+		expect(BlockMath.Frames(grid, true, SEED)).toEqual(cells)
+	end)
+	it("a fitted plate's cells are within 6% of square once it is nine columns or more wide", function()
+		for _, box in ipairs({ { 226.8, 15 }, { 367.2, 32.4 }, { 300, 40 }, { 90, 30 } }) do
+			local grid = fit(box[1], box[2], 3)
+			local skew = BlockMath.Skew(grid, box[1] / box[2])
+			if grid.cols >= 9 then
+				assert(math.abs(skew) <= 0.06, box[1] .. "x" .. box[2] .. " cells are " .. skew .. " off square")
+			end
+		end
+	end)
+end)
+
+describe("Block screens: Compass", function()
+	-- Compass.luau: the strip is CompassData.StripWidth (0.34) of the width by 0.04 of the height, a fitted flat block of three
+	-- rows; the heading block is 0.3 x 0.8 of the strip at aspect 2.4, flat, three rows; a diamond is 0.78 of the strip square.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local stripW, stripH = 0.34 * screen.w, 0.04 * screen.h
+		it(label .. ": the strip is three rows of whole cells, its ink a px and a half or more, flat (four frames)", function()
+			local grid = fit(stripW, stripH, MIN_ROWS)
+			expect(grid.rows).toEqual(3)
+			local cell = stripH * grid.cellY
+			assert(cell >= 3.5, "strip cell is " .. cell .. " px")
+			assert(INK * cell >= 1.5, "strip ink is " .. INK * cell .. " px")
+			expect(BlockMath.Frames(grid, false, SEED)).toEqual(4)
+		end)
+		it(label .. ": the heading block keeps a px of ink and the letters' caps fit the strip's face", function()
+			local _, h = BlockMath.FitPx(0.3 * stripW, 0.8 * stripH, 2.4, stripW, stripH)
+			local cell = h / (3 + 2 * INK)
+			assert(INK * cell >= 1, "heading ink is " .. INK * cell .. " px")
+			local grid = fit(stripW, stripH, MIN_ROWS)
+			local face = stripH * (1 - 2 * grid.inkY)
+			assert(face >= 0.7 * TEXT_MIN, "strip face is " .. face .. " px, under a 14 px line's cap height")
+		end)
+		it(label .. ": a diamond's pixel is a px or more", function()
+			local unit = 0.78 * stripH / 8
+			assert(unit >= 1, "diamond pixel is " .. unit .. " px")
+		end)
+	end
+end)
 return true
