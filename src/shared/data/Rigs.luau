@@ -45,6 +45,20 @@ local species: { [string]: Types.RigRow } = {
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
 	},
+	Pebblet = {
+		height = 2.75,
+		parts = {
+			{ name = "cairnR", pivot = { 0.5, 2, 0.125 }, clips = { { kind = "sway", amp = 6, period = 1.6, phase = 0, axis = "z" }, { kind = "sway", amp = 4, period = 2.4, phase = 0.3, axis = "x" } } },
+			{ name = "legL", pivot = { -1.125, 0.5, -0.5 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0.5, axis = "x" } } },
+			{ name = "legR", pivot = { 1.125, 0.5, -0.5 }, clips = { { kind = "sway", amp = 12, period = 0.8, phase = 0, axis = "x" } } },
+		},
+		root = { { kind = "squash", amp = 0.05, period = 0.8, phase = 0, axis = "y" } },
+		face = {
+			part = "FacePlate", image = 0, frameWidth = 28, frameHeight = 14, columns = 3, frames = 3,
+			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
+			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
+		},
+	},
 	Radish = {
 		height = 3.438,
 		parts = {
