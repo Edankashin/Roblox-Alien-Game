@@ -600,6 +600,8 @@ local function addRecipeLight(holder: BasePart, light: Types.RecipeLight, cframe
 	point.Range = light.range * scale
 	point.Brightness = light.brightness
 	point.Shadows = false
+	-- The client's LampDirector keeps only the nearest few lit and lifts them at night (data/Lighting Lamps).
+	CollectionService:AddTag(point, LightingData.Lamps.Tag)
 	point.Parent = attachment
 end
 

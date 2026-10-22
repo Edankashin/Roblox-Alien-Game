@@ -12,7 +12,7 @@
 -- clock and the weather are the server's.
 -- Layers (data/Weather Layers) are the same kind of sheet but not tied to the weather: each is on while the clock is at
 -- night (when it says so), the place is its world and the player stands in its biome (State.GetBiome), and ramps in and
--- out like a weather sheet. The Moonlit Forest's fireflies and light drips are the first.
+-- out like a weather sheet. The Moonlit Forest's fireflies and teal spore motes are the first (Reduced Motion turns every layer off).
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
@@ -25,6 +25,7 @@ local Weather = require(Shared:WaitForChild("data"):WaitForChild("Weather"))
 local Place = require(Shared:WaitForChild("Place"))
 local LightingData = require(Shared:WaitForChild("data"):WaitForChild("Lighting"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local WeatherFx = {}
 
@@ -231,7 +232,7 @@ end
 
 -- Whether an ambient layer is on right now: its world, night and biome conditions all hold.
 local function layerWanted(layer: Weather.Layer): boolean
-	if layer.world ~= Place.WorldId() then
+	if layer.world ~= Place.WorldId() or Prefs.ReducedMotion() then
 		return false
 	end
 	if layer.night and not State.GetClock().isNight and LightingData.BiomeAlways[State.GetBiome()] ~= "Night" then
@@ -307,9 +308,16 @@ function WeatherFx.Start()
 	State.OnChanged("biome", applyLayers)
 	apply(State.GetClock().weather)
 	applyLayers()
+	local reduced = Prefs.ReducedMotion()
 	task.spawn(function()
 		while true do
 			follow()
+			-- Reduced Motion can be switched in the settings or by the system while the layers run
+			local nowReduced = Prefs.ReducedMotion()
+			if nowReduced ~= reduced then
+				reduced = nowReduced
+				applyLayers()
+			end
 			task.wait(Weather.FollowSeconds)
 		end
 	end)

@@ -308,7 +308,7 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	Mushroom = { { "Body", "E8483D", 0.55, 0, 0 }, { "BodyDark", "F2E6D0", 0.55, 0, 0 }, { "Accessory", "FFF8EE", 0.55, 0, 0 }, { "Trim", "5E9E3A", 0.55, 0, 0 } },
 	Nebulyn = { { "Body", "6B4EC2", 0.55, 0, 0 }, { "Glow", "FFF3B0", 0.55, 0, 1.5 }, { "comet", "FFF3B0", 0.55, 0, 1.5 }, { "fallenR", "FFF3B0", 0.55, 0, 1.5 }, { "planetL", "E66BD2", 0.55, 0, 0 }, { "puff", "6B4EC2", 0.55, 0, 0 }, { "starL", "FFF3B0", 0.55, 0, 1.5 }, { "starR", "FFF3B0", 0.55, 0, 1.5 }, { "tailR", "FFF3B0", 0.55, 0, 1.5 }, { "twinkleR", "FFF3B0", 0.55, 0, 1.5 }, { "twinkle2R", "FFF3B0", 0.55, 0, 1.5 }, { "FacePlate", "6B4EC2", 0.4, 0, 0 } },
 	Panpipe = { { "Body", "4A4166", 0.55, 0, 0 }, { "Glow", "9B5CFF", 0.55, 0, 1.5 }, { "beard", "1E1A2E", 0.55, 0, 0 }, { "bellR", "8C86A6", 0.55, 0, 0 }, { "earL", "4A4166", 0.55, 0, 0 }, { "earR", "4A4166", 0.55, 0, 0 }, { "echoR", "9B5CFF", 0.55, 0, 1.5 }, { "eclipse", "9B5CFF", 0.55, 0, 1.5 }, { "gem", "9B5CFF", 0.55, 0, 1.5 }, { "noteL", "9B5CFF", 0.55, 0, 1.5 }, { "note2R", "9B5CFF", 0.55, 0, 1.5 }, { "pipesR", "9B5CFF", 0.55, 0, 1.5 }, { "tail", "1E1A2E", 0.55, 0, 0 }, { "FacePlate", "4A4166", 0.4, 0, 0 } },
-	PathLantern = { { "Body", "3A3562", 0.55, 0, 0 }, { "BodyDark", "272340", 0.55, 0, 0 }, { "Accessory", "2C7F72", 0.55, 0, 0 }, { "Trim", "A891E6", 0.55, 0, 0 }, { "Glow", "FFE7B0", 0.55, 0, 1.5 } },
+	PathLantern = { { "Body", "3A3562", 0.55, 0, 0 }, { "BodyDark", "272340", 0.55, 0, 0 }, { "Accessory", "2C7F72", 0.55, 0, 0 }, { "Trim", "A891E6", 0.55, 0, 0 }, { "Glow", "FFB84D", 0.55, 0, 1.5 } },
 	Pebblet = { { "Body", "C4B9A6", 0.55, 0, 0 }, { "cairnR", "5A5048", 0.55, 0, 0 }, { "legL", "5A5048", 0.55, 0, 0 }, { "legR", "5A5048", 0.55, 0, 0 }, { "FacePlate", "C4B9A6", 0.4, 0, 0 } },
 	Pedestal = { { "Body", "D8D2BC", 0.55, 0, 0 }, { "BodyDark", "B9B29A", 0.55, 0, 0 }, { "Glow", "9BE7FF", 0.55, 0, 1.5 } },
 	Pengoo = { { "Body", "2B3F5C", 0.55, 0, 0 }, { "pack", "FFA63D", 0.55, 0, 0 }, { "tuft", "2B3F5C", 0.55, 0, 0 }, { "wingL", "2B3F5C", 0.55, 0, 0 }, { "wingR", "2B3F5C", 0.55, 0, 0 }, { "FacePlate", "F4F7FA", 0.4, 0, 0 } },
@@ -1285,7 +1285,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "272340", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "2C7F72", neon = false, map = "cell" },
 			{ name = "Trim", hex = "A891E6", neon = false, map = "cell" },
-			{ name = "Glow", hex = "FFE7B0", neon = true, map = "" },
+			{ name = "Glow", hex = "FFB84D", neon = true, map = "" },
 		},
 	},
 	Pedestal = {

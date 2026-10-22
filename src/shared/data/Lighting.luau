@@ -109,11 +109,11 @@ local Conditions: { [string]: Look } = {
 	},
 	Night = {
 		Brightness = 1,
-		Ambient = { 40, 45, 60 },
-		OutdoorAmbient = { 60, 70, 95 },
+		Ambient = { 52, 58, 82 },
+		OutdoorAmbient = { 84, 96, 128 },
 		Atmosphere = { Density = 0.35, Glare = 0, Haze = 1.5 },
 		Bloom = { Intensity = 0.8 },
-		ColorCorrection = { Saturation = -0.1, TintColor = { 210, 220, 255 } },
+		ColorCorrection = { Saturation = 0, TintColor = { 212, 222, 255 } },
 		SunRays = { Intensity = 0 },
 	},
 	Fog = { Atmosphere = { Density = 0.5, Color = { 190, 195, 200 }, Decay = { 180, 180, 180 }, Haze = 4, Glare = 0 }, ColorCorrection = { Saturation = -0.1 } },
@@ -139,39 +139,43 @@ local Conditions: { [string]: Look } = {
 }
 
 -- A condition seen in one world (Worlds.luau ids), merged right after the plain Conditions look of the same name.
--- World 1's Night is the Moonlit Forest palette (media/tiktok/NOTES.md ZPLYSA3uR: indigo, violet and teal with
--- warm-white light from the props, not a dark scene). This is the mild version, the one the Meadow and the Cave
--- wear, so the catch bar and the wild aliens stay easy to read. Against the plain Night row nothing is lower:
--- Brightness stays 1, ExposureCompensation stays at the Base 0 (unset), and every channel of Ambient and
--- OutdoorAmbient is at least the plain row's ({ 40, 45, 60 } and { 60, 70, 95 }); tests/Lighting.spec.luau holds
--- that line. Saturation goes from -0.1 to +0.1 so the indigo reads as colour, not grey, and the tint is a touch
--- warmer than the plain row's ({ 210, 220, 255 }) so warm-white lights glow against it.
+-- World 1's Night is the Moonlit Forest palette (media/tiktok/NOTES.md ZPLYSA3uR: teal and violet with warm lantern
+-- light from the props, not a dark scene). This is the mild version, the one the Meadow and the Cave wear: a soft
+-- blue-green, so the catch bar and the wild aliens stay easy to read. The night pass of 2026-10-22 (Mac job 53 step 5: the
+-- game's Starhollow was one flat navy against the store thumbnail) lifted every ambient channel by about 40 and moved the
+-- ground tint from indigo to teal: a surface shows its colour times the ambient, so a dark ambient on a dark tint gave navy
+-- twice. Against the plain Night row nothing is lower: Brightness stays 1, ExposureCompensation is never below the Base 0,
+-- and every channel of Ambient and OutdoorAmbient is at least the plain row's ({ 52, 58, 82 } and { 84, 96, 128 });
+-- tests/Lighting.spec.luau holds that line. Saturation is above the plain row's and the tint a touch warmer
+-- ({ 212, 222, 255 }) so the warm lantern light glows against the cool air.
 local WorldConditions: { [number]: ConditionLooks } = {
-	-- Frostbyte's night is the aurora night (data/WorldFx Aurora ribbons hang in its sky): teal-green light from above over a deep
-	-- blue fog, never darker than the plain Night row (every ambient channel at or above it, brightness and exposure unchanged), the
-	-- snow catching the colour. No groundTint: World 2 keeps its ground (tests/Lighting.spec.luau).
+	-- Frostbyte's night is the aurora night (data/WorldFx Aurora ribbons hang in its sky): teal-green light from above over a cool
+	-- cyan air, never darker than the plain Night row (every ambient channel at or above it, brightness and exposure unchanged), the
+	-- snow and ice catching the colour (lifted 2026-10-22 so the frozen lake reads cyan, not slate). No groundTint: World 2 keeps
+	-- its ground (tests/Lighting.spec.luau).
 	[2] = {
 		Night = {
-			Ambient = { 44, 60, 80 },
-			OutdoorAmbient = { 72, 96, 124 },
+			Ambient = { 62, 90, 116 },
+			OutdoorAmbient = { 96, 134, 166 },
 			ColorShift_Top = { 30, 92, 78 },
-			Atmosphere = { Density = 0.3, Offset = 0.3, Color = { 70, 118, 132 }, Decay = { 40, 52, 112 }, Glare = 0, Haze = 1.2 },
-			Bloom = { Intensity = 1, Size = 32, Threshold = 1 },
-			ColorCorrection = { Saturation = 0.15, TintColor = { 226, 242, 255 } },
+			Atmosphere = { Density = 0.3, Offset = 0.3, Color = { 84, 138, 158 }, Decay = { 44, 84, 134 }, Glare = 0, Haze = 1.2 },
+			Bloom = { Intensity = 1, Size = 32, Threshold = 1.1 },
+			ColorCorrection = { Saturation = 0.2, TintColor = { 224, 242, 255 } },
 		},
 	},
 	[1] = {
 		Night = {
-			Ambient = { 46, 46, 84 },
-			OutdoorAmbient = { 74, 76, 128 },
-			ColorShift_Top = { 24, 22, 56 },
-			-- Violet-blue fog; the Offset is raised from 0.25 so far trees keep their outline against the sky.
-			Atmosphere = { Density = 0.35, Offset = 0.32, Color = { 78, 72, 138 }, Decay = { 50, 56, 120 }, Glare = 0, Haze = 1.5 },
-			Bloom = { Intensity = 0.9, Size = 28, Threshold = 1.2 },
-			ColorCorrection = { Saturation = 0.1, TintColor = { 222, 224, 255 } },
-			-- The ground wore its day green into the night (Studio retest 2026-10-14: "green field at night"): it is lerped
-			-- toward the fog's indigo. The Meadow floor (6FBF4A) reads 5A836C, still a ground but no longer a green field.
-			groundTint = { color = { 64, 58, 150 }, strength = 0.45 },
+			Ambient = { 74, 92, 128 },
+			OutdoorAmbient = { 108, 134, 172 },
+			ColorShift_Top = { 20, 40, 64 },
+			-- A soft blue-green fog; the Offset is raised from 0.25 so far trees keep their outline against the sky.
+			Atmosphere = { Density = 0.33, Offset = 0.3, Color = { 84, 110, 160 }, Decay = { 52, 96, 140 }, Glare = 0, Haze = 1.4 },
+			Bloom = { Intensity = 0.7, Size = 26, Threshold = 1.3 },
+			ColorCorrection = { Saturation = 0.2, TintColor = { 226, 238, 255 } },
+			-- The ground wore its day green into the night (Studio retest 2026-10-14: "green field at night") and then, in the
+			-- indigo version, went navy (job 53 step 5): it is lerped toward a teal, so the Meadow floor (6FBF4A) reads 5CA164,
+			-- a cool green that is still a ground but no longer a daytime field.
+			groundTint = { color = { 64, 116, 138 }, strength = 0.4 },
 		},
 	},
 }
@@ -184,18 +188,39 @@ local WorldConditions: { [number]: ConditionLooks } = {
 local BiomeConditions: { [string]: ConditionLooks } = {
 	Forest = {
 		Night = {
-			Ambient = { 50, 46, 96 },
-			OutdoorAmbient = { 78, 74, 140 },
-			ColorShift_Top = { 44, 30, 96 },
-			-- Denser, more violet fog with a higher Offset: the far trees stand as dark silhouettes in it.
-			Atmosphere = { Density = 0.42, Offset = 0.5, Color = { 70, 60, 142 }, Decay = { 36, 70, 118 }, Glare = 0, Haze = 2 },
-			Bloom = { Intensity = 1.1, Size = 36, Threshold = 0.9 },
-			ColorCorrection = { Saturation = 0.2, TintColor = { 232, 226, 255 } },
-			-- Deeper into the violet than the Meadow's, and stronger: every ground part is tinted by it while the player
-			-- stands in the Forest (the Forest's own patch, 2E6B2B, reads 36486B; the Meadow floor reads 506978).
-			groundTint = { color = { 60, 48, 150 }, strength = 0.6 },
+			-- Violet in the shade, teal-blue from the sky, a lift of exposure on top: the trees keep their blue-violet and teal and the
+			-- ground its moss, lit from the lanterns' warm pools (Lamps below), never one dark navy (job 53 step 5).
+			Ambient = { 108, 100, 164 },
+			OutdoorAmbient = { 116, 140, 196 },
+			ColorShift_Top = { 50, 64, 120 },
+			ExposureCompensation = 0.4,
+			-- Denser, more violet fog with a higher Offset, its decay teal so the horizon glows teal under the violet: the far trees
+			-- stand as silhouettes in it.
+			Atmosphere = { Density = 0.38, Offset = 0.42, Color = { 92, 100, 172 }, Decay = { 52, 104, 150 }, Glare = 0, Haze = 1.8 },
+			-- The threshold sits above a lit surface so only the Neon lamps, glowcaps and motes bloom: at 0.9 every lit tree glowed white.
+			Bloom = { Intensity = 0.85, Size = 32, Threshold = 1.15 },
+			ColorCorrection = { Saturation = 0.3, TintColor = { 238, 236, 255 } },
+			-- Teal-violet and stronger than the Meadow's: every ground part is tinted by it while the player stands in the Forest
+			-- (the Forest's own patch, 2E6B2B, reads 315D5B, a mossy teal; the Meadow floor reads 5CA164).
+			groundTint = { color = { 52, 80, 140 }, strength = 0.5 },
 		},
 	},
+}
+
+-- The warm lamps of the generated worlds (lanterns, the campfire, the glowcaps, the crystals): every recipe PointLight of
+-- data/WorldKit carries the tag; the client's LampDirector keeps only the nearest few lit (a phone cannot light 55 lamps),
+-- fades the rest, and at night lifts the ones that stay: brightness x NightBrightnessScale, range x NightRangeScale, so a
+-- lantern throws a warm pool on the path while its day value (the recipe's own) is a barely visible fill. The recipe's colour,
+-- range and brightness stay in tools/blocky/worlds/kit.json; these are the caps and the night lift.
+local Lamps = {
+	Tag = "RecipeLamp", -- the CollectionService tag the server puts on every recipe PointLight (Services/Meadow)
+	MaxLit = 12, -- lamps lit at once: the nearest to the camera
+	MaxLitTouch = 7, -- the same on a touch device (a phone)
+	Radius = 90, -- studs from the camera past which a lamp is never lit, however few are near
+	CheckSeconds = 0.5, -- how often the nearest are re-picked
+	FadeSeconds = 0.6, -- a lamp fades in or out over this when the pick changes
+	NightBrightnessScale = 1.9, -- brightness multiplier at night (eased in with the lighting tween)
+	NightRangeScale = 1.25, -- range multiplier at night
 }
 
 return {
@@ -209,6 +234,7 @@ return {
 	Conditions = Conditions,
 	WorldConditions = WorldConditions,
 	BiomeConditions = BiomeConditions,
+	Lamps = Lamps,
 	-- A biome that wears a condition's look at any hour while the local player stands in it (B48: the Starhollow Forest, World 1's
 	-- Forest region, is moonlit night even at noon). LightingDirector counts the condition as active there, so the Night row, World 1's
 	-- refinement and the Forest's own row all merge, eases the sky's ClockTime to Config.NightClockTime on the client (the server's

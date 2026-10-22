@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(script.Parent.data.Config)
 local PropData = require(script.Parent.data.Props)
+local ModelAssets = require(script.Parent.data.ModelAssets)
 local ModelInstall = require(script.Parent.ModelInstall)
 
 local Props = {}
@@ -92,6 +93,23 @@ function Props.Find(name: string): Model?
 	return nil
 end
 
+-- A prop's Glow slot wears the colour data/ModelAssets names for it, so a lamp recoloured in data (the Starhollow path lantern went
+-- from warm white to amber, 2026-10-22) shows at once on a model that was installed in the place with the old hex; a prop with no
+-- Glow row is left alone. Only Neon parts are touched (the slot is Neon by its emission).
+local function glowColor(name: string): Color3?
+	local rows = ModelAssets.Materials[name]
+	if rows == nil then
+		return nil
+	end
+	for _, row in ipairs(rows) do
+		local hex = row[2]
+		if row[1] == "Glow" and type(hex) == "string" then
+			return Color3.fromHex(hex)
+		end
+	end
+	return nil
+end
+
 -- Clones the prop, scales it to `scale` times the source's own size, stands it on `cframe` (the point
 -- under the model's bottom centre, with the CFrame's rotation) and parents it under `parent`. Every
 -- BasePart comes out Anchored with CanQuery and CanTouch off; CanCollide is `collide` (trees, rocks and
@@ -115,8 +133,12 @@ function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instan
 	local clone = source:Clone()
 	clone.Name = name
 	local row = PropData.Rows[name]
+	local glow = glowColor(name)
 	for _, descendant in ipairs(clone:GetDescendants()) do
 		if descendant:IsA("BasePart") then
+			if glow and descendant.Name == "Glow" and descendant.Material == Enum.Material.Neon then
+				descendant.Color = glow
+			end
 			-- a row's `slots` can give one colour slot its own collision (ModelInstall.SlotCollision)
 			local plan = ModelInstall.CollisionPlan(ModelInstall.SlotCollision(row, descendant.Name), collide)
 			local fidelity = if plan.fidelity then FIDELITY[plan.fidelity] else nil
