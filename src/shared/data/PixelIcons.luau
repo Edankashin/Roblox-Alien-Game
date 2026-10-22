@@ -25,6 +25,23 @@ local Icons: { [string]: { Pixel } } = {
 		{ 2, 2, 2, 1, "FFE9A6" },
 		{ 5, 4, 1, 2, "D99A00" },
 	},
+	-- the prize wheel: four coloured quarters round a white hub (a free spin's reward, the Playtime and Welcome Week cards)
+	Spin = {
+		{ 2, 0, 4, 1, "Outline" },
+		{ 1, 1, 6, 1, "Outline" },
+		{ 0, 2, 8, 4, "Outline" },
+		{ 1, 6, 6, 1, "Outline" },
+		{ 2, 7, 4, 1, "Outline" },
+		{ 2, 1, 2, 1, "Featured" },
+		{ 1, 2, 3, 2, "Featured" },
+		{ 4, 1, 2, 1, "Select" },
+		{ 4, 2, 3, 2, "Select" },
+		{ 1, 4, 3, 2, "Confirm" },
+		{ 2, 6, 2, 1, "Confirm" },
+		{ 4, 4, 3, 2, "Codex" },
+		{ 4, 6, 2, 1, "Codex" },
+		{ 3, 3, 2, 2, "White" },
+	},
 	-- a falling star with two embers
 	Shower = {
 		{ 5, 0, 3, 3, "White" },

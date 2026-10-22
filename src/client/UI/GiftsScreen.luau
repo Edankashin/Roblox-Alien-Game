@@ -36,6 +36,7 @@ local Gifts = require(Shared:WaitForChild("data"):WaitForChild("Gifts"))
 local Spins = require(Shared:WaitForChild("data"):WaitForChild("Spins"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local RewardIcon = require(Shared:WaitForChild("RewardIcon"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -234,19 +235,6 @@ local function rewardListText(rewards: { Social.Reward }): string
 	return table.concat(parts, Strings.SOCIAL_REWARD_SEPARATOR)
 end
 
--- The icon key for a gift reward: Scrap, a lure or power-up by its id, an egg by its tier's rarity badge.
--- A spin has no icon.
-local function rewardIconKey(reward: Reward): string?
-	if reward.kind == "scrap" then
-		return "Scrap"
-	elseif reward.kind == "lure" or reward.kind == "powerUp" then
-		return reward.id
-	elseif reward.kind == "egg" then
-		return "Egg" .. (reward.tier or "") -- the pixel egg in its tier's speckles; the pack falls back to the tier badge
-	end
-	return nil
-end
-
 -- The tile's accent: an egg takes its tier colour (Day 7's Epic egg reads Epic), the rest gold.
 local function giftAccent(row: GiftRow): Color3
 	if row.reward.kind == "egg" then
@@ -318,7 +306,7 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 		previousIcon:Destroy()
 		tile.icon = nil
 	end
-	local iconKey = rewardIconKey(row.reward)
+	local iconKey = RewardIcon.Key(row.reward)
 	if iconKey then
 		tile.icon = Builder.blockIcon({ -- the pixel icon first on a block (PixelIcons.PreferOverPack)
 			parent = tile.card,

@@ -29,6 +29,7 @@ local PlaytimeData = require(Shared:WaitForChild("data"):WaitForChild("Playtime"
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local PlaytimeMath = require(Shared:WaitForChild("PlaytimeMath"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local RewardIcon = require(Shared:WaitForChild("RewardIcon"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -96,18 +97,6 @@ local function rewardText(reward: PlaytimeData.Reward): string
 		return Strings.PLAYTIME_EGG:format(Builder.text("TIER_" .. (reward.tier or "Common")))
 	end
 	return GiftsScreen.RewardText({ reward } :: any)
-end
-
--- The icon key for a reward: Scrap, a lure or power-up by its id, an egg by its tier's rarity badge; a spin has none.
-local function rewardIconKey(reward: PlaytimeData.Reward): string?
-	if reward.kind == "scrap" then
-		return "Scrap"
-	elseif reward.kind == "lure" or reward.kind == "powerUp" then
-		return reward.id
-	elseif reward.kind == "egg" then
-		return "Egg" .. (reward.tier or "") -- the pixel egg in its tier's speckles; the pack falls back to the tier badge
-	end
-	return nil
 end
 
 -- The card's accent: an egg takes its tier colour (the hour's Rare egg reads Rare), the rest gold.
@@ -266,7 +255,7 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 	})
 
 	-- The reward's icon (absent while its image is not uploaded: the name then takes its room).
-	local iconKey = rewardIconKey(gift.reward)
+	local iconKey = RewardIcon.Key(gift.reward :: any) -- the data row's kind is a narrower union
 	local icon: GuiObject? = nil
 	if iconKey then
 		icon = Builder.blockIcon({ -- the pixel icon first on a block (PixelIcons.PreferOverPack)
