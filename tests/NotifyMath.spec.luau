@@ -4,6 +4,7 @@
 -- gap, the Announcements levels and the offline welcome toast. UI/Toast draws exactly this.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Notify = require(Shared.data.Notify)
+local Settings = require(Shared.data.Settings)
 local NotifyMath = require(Shared.NotifyMath)
 local Strings = require(Shared.strings.en)
 local Tiers = require(Shared.data.Tiers)
@@ -121,6 +122,25 @@ describe("someone else's catch", function()
 				last = now
 			end
 		end
+	end)
+
+	it("matches the Announcements row of the Settings: levels 0 to 2, default Big only, three level names, after Silhouettes", function()
+		local row = Settings.ById.Announcements
+		expect(row ~= nil).toEqual(true)
+		local def = row :: Settings.SettingDef
+		expect(def.kind).toEqual("level")
+		expect(#(def.levels :: { number })).toEqual(3)
+		expect(def.default).toEqual(Notify.AnnounceLevelDefault)
+		expect(#(def.levelKeys :: { string })).toEqual(3)
+		local silhouettes, announcements = 0, 0
+		for index, entry in ipairs(Settings.Order) do
+			if entry.key == "Silhouettes" then
+				silhouettes = index
+			elseif entry.key == "Announcements" then
+				announcements = index
+			end
+		end
+		expect(announcements).toEqual(silhouettes + 1)
 	end)
 
 	it("has a row for each of the three Announcements levels, and a name for each", function()
