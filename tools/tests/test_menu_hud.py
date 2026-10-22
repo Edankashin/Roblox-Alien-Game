@@ -98,5 +98,76 @@ class MenuHud(unittest.TestCase):
         self.assertIn("MenuMath.FriendBoostShown(boost)", self.hud)
 
 
+class QuietHud(unittest.TestCase):
+    """The clean UI pass, package A (docs/vault/05-ui-design/Clean-UI-Pass.md): the quiet HUD keeps its public API, hides behind
+    panels, grows in stages, and keeps its numbers in data."""
+
+    def setUp(self):
+        self.hud = source("src/client/UI/Hud.luau")
+        self.hint = source("src/client/UI/TutorialHint.luau")
+        self.compass = source("src/client/UI/Compass.luau")
+        self.compass_data = source("src/shared/data/Compass.luau")
+        self.tutorial = source("src/shared/data/Tutorial.luau")
+        self.hud_data = source("src/shared/data/Hud.luau")
+        self.stages_spec = (ROOT / "tests/HudStages.spec.luau").read_text()
+        self.theme = source("src/shared/Theme.luau")
+        self.strings = source("src/shared/strings/en.luau")
+
+    def test_the_bootstraps_calls_still_exist(self):
+        for name in ("SetEventBanner", "SetEventCountdown", "SetLuck", "SetFriendBoost", "SetBiome", "SetBiomeLabel", "SetClock",
+                     "SetShip", "SetShipTicks", "SetMenuVisible", "SetVisible", "SetStage"):
+            self.assertRegex(self.hud, rf"function Hud\.{name}\(", name)
+
+    def test_the_hud_hides_behind_a_panel_by_polling_the_screens(self):
+        self.assertIn("Screens.IsAnyOpen()", self.hud)
+        self.assertIn("HudData.PanelPollSeconds", self.hud)
+        self.assertRegex(self.hud_data, r"PanelPollSeconds\s*=\s*0\.1\b")
+
+    def test_the_old_centre_column_is_gone(self):
+        for name in ("buildLuckLine", "buildEventBanner", "buildBiomeChip", "buildShowerChip", "CENTER_SHIFT", "BANNER_SUB_H"):
+            self.assertNotIn(name, self.hud)
+
+    def test_the_tutorial_hint_is_the_objective_line_and_drives_the_stages(self):
+        self.assertNotIn("BOTTOM = 0.79", self.hint)
+        self.assertIn("Hud.SetStage(", self.hint)
+        self.assertIn("Compass.SetStage(", self.hint)
+        self.assertIn("HudStages.Objective(", self.hint)
+        self.assertIn("TUT_DONE", self.hint)
+
+    def test_every_staged_element_has_a_stage_in_data(self):
+        for element in ("Shop", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks"):
+            self.assertRegex(self.tutorial, rf'\b{element}\s*=\s*"T\d"', element)
+
+    def test_the_spec_floor_is_the_themes_text_floor(self):
+        floor = re.search(r"local FLOOR = (\d+)", self.stages_spec)
+        self.assertTrue(floor, "the spec's FLOOR line moved")
+        sizes = re.search(r"Theme\.TextSize\s*=\s*\{[^}]*\bMin\s*=\s*(\d+)", self.theme)
+        self.assertTrue(sizes, "Theme.TextSize not found")
+        self.assertEqual(int(floor[1]), int(sizes[1]))
+
+    def test_the_compass_line_names_only_goals_and_landmarks_wait(self):
+        rows = re.findall(r'\{ id = "(\w+)", kind = "(\w+)".*?goal = (true|false)(, afterTutorial = true)? \}', self.compass_data)
+        self.assertGreaterEqual(len(rows), 8)
+        for ident, kind, goal, after in rows:
+            self.assertEqual(goal == "true", kind in ("waypoint", "target", "peddler"), ident)
+            self.assertEqual(bool(after), kind == "landmark", ident)
+        self.assertIn("marker.goal", self.compass)
+        self.assertIn("marker.afterTutorial", self.compass)
+
+    def test_the_power_up_caption_is_gone(self):
+        self.assertNotIn("HUD_POWERUPS", self.strings)
+        self.assertNotIn("Caption", source("src/client/UI/PowerUpBar.luau"))
+
+    def test_the_new_strings_sit_after_their_anchor(self):
+        self.assertRegex(self.strings, r'TUT_PROGRESS = "%d/%d",\s+HUD_EVENT_LINE = ')
+
+    def test_the_hud_keeps_strings_and_numbers_out_of_logic(self):
+        # Scale only, and the layout numbers come from data/Hud
+        self.assertNotIn("UDim2.fromOffset", self.hud)
+        self.assertNotIn("UDim2.new(", self.hud)
+        for key in ("Goal", "Chips", "Plates"):
+            self.assertRegex(self.hud_data, rf"\b{key}\s*=\s*\{{")
+
+
 if __name__ == "__main__":
     unittest.main()

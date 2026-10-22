@@ -23,6 +23,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local CompassData = require(Shared:WaitForChild("data"):WaitForChild("Compass"))
+local HudStages = require(Shared:WaitForChild("HudStages"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local World = script.Parent.Parent:WaitForChild("World")
@@ -95,6 +96,7 @@ local shownDistance: { [number]: number } = {} -- by marker index: flat studs, o
 local shownName: { [number]: string } = {}
 local lineIndex: number? = nil -- the marker the line names
 local lineSince = 0 -- os.clock() when the line took it
+local landmarksShown = true -- the staged reveal (SetStage): the landmark diamonds wait for the end of the tutorial
 
 -- Helpers ------------------------------------------------------------------
 
@@ -233,8 +235,9 @@ local function readHeading()
 end
 
 -- Places every diamond and picks the marker the line names. A marker is shown when the player is far
--- enough (and, with a maxDistance, near enough) and it is within the strip's field of view. The line
--- takes the lowest priority number, the nearest of equals, and keeps its marker for LabelHoldSeconds
+-- enough (and, with a maxDistance, near enough) and it is within the strip's field of view; a landmark marked afterTutorial waits
+-- for the end of the tutorial. The line names only a goal marker (data goal = true): the tutorial's or a quest's waypoint, the
+-- Warden, the Peddler. It takes the lowest priority number, the nearest of equals, and keeps its marker for LabelHoldSeconds
 -- before switching (at once when that marker leaves the strip).
 local function refreshMarkers()
 	local at = rootPosition()
@@ -245,6 +248,9 @@ local function refreshMarkers()
 		shownName[index] = nil
 		local position, waypointLabel = markerPlace(marker)
 		local onStrip = false
+		if marker.afterTutorial and not landmarksShown then
+			position = nil -- not on the strip yet: a new player cannot use a cave or a vent
+		end
 		if at and position then
 			local dx = position.X - at.X
 			local dz = position.Z - at.Z
@@ -268,10 +274,11 @@ local function refreshMarkers()
 					local rival = if best then CompassData.Markers[best] else nil
 					local rivalDistance = if best then shownDistance[best] else nil
 					if
-						not rival
+						marker.goal -- the line under the strip names only a goal (Clean-UI-Pass): the camp and the landmarks keep their diamond, no line
+						and (not rival
 						or not rivalDistance
 						or marker.priority < rival.priority
-						or (marker.priority == rival.priority and distance < rivalDistance)
+						or (marker.priority == rival.priority and distance < rivalDistance))
 					then
 						best = index
 					end
@@ -514,6 +521,12 @@ function Compass.SetVisible(value: boolean)
 	else
 		stopTicking()
 	end
+end
+
+-- The staged reveal (HudStages "Landmarks"): UI/TutorialHint calls this with the server's tutorial step on each change. The landmark
+-- diamonds (data/Compass afterTutorial) stay off the strip until the player has earned them; a finished tutorial shows them.
+function Compass.SetStage(step: number)
+	landmarksShown = HudStages.Shown("Landmarks", step, HudStages.IsDone(step))
 end
 
 -- The part the "target" marker follows, or nil once it is cleared; the marker shows while the part has a parent. Only the Warden

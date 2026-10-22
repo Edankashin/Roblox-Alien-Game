@@ -1,17 +1,22 @@
 --!strict
--- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
--- number) with the Scrap-per-minute line under it, the ship bar top centre under the compass strip
--- (UI/Compass; tap opens the ship panel) with the luck line or the event banner under it, the
--- Day/Night + weather chip top-right with the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual
--- action button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
--- in by the bootstrap from server state; nothing here computes anything that matters.
+-- StarterPlayerScripts.Client.UI.Hud: the always-on HUD, the quiet one (docs/vault/05-ui-design/Clean-UI-Pass.md, package A). The Scrap
+-- pill top-left (icon + rolling number) with the Scrap-per-minute line under it; the goal plate top centre under the compass strip: the
+-- ship bar (tap opens the ship panel) with, joined under it, the objective line (UI/TutorialHint); the place chip top-right (the biome,
+-- then "Day · Rain") with the one event chip under it (a running event, a countdown or luck, by Shared/HudStages.EventSlot; a tap opens
+-- Quests) and the Friend Boost chip under that; and the contextual action button bottom-right that shows "Catch!" near a wild alien.
+-- A dumb view: every value shown is pushed in by the bootstrap from server state; nothing here computes anything that matters.
+-- Three rules keep it quiet. (1) While a panel is open (UI/Screens, polled) everything but the Scrap pill hides, and comes back with no
+-- pop. (2) SetMenuVisible(false) (a capture, a reveal) hides the goal plate, the chips and the left column, so the capture bar is alone
+-- with the Scrap pill. (3) A new player earns the elements: SetStage(step) shows the Shop, the Menu, the ship bar, the place chip and
+-- the event chip at the steps data/Tutorial HudStages names (Shared/HudStages), each popping once as it appears; a finished tutorial
+-- shows them all, no pops. A line that would read zero (Friend Boost +0%, luck x1.0) is hidden, not dimmed.
 -- The left edge holds two buttons (Decision B53): the Shop on its own (it earns money, so it stays in view) and the Menu under it.
 -- The Menu drops a panel of full-width rows, one per other screen (Aliens, Codex, Ship, Quests, Gifts, Mail, Settings, the
 -- Leaderboard and whatever else is added with AddMenuRow), each an icon that depicts the screen and its name; a row's red count
--- adds up on the Menu button. Lines that would read zero (Friend Boost +0%, luck x1.0) are hidden, not dimmed.
+-- (claimable now, never "new to read") adds up on the Menu button.
 -- The look is block cells (Decisions B44, Decide-Now 43, the "HUD in block cells" board): every plate, chip and button is a
 -- Builder.blockPlate or Builder.blockButton (square cells, stepped corners, navy ink, a lit top row, grout), icons are the pixel
--- icons of data/PixelIcons (16 by 16 for the Menu's), and the layout is the one the HUD had (the slots other screens read did not move).
+-- icons of data/PixelIcons (16 by 16 for the Menu's). The numbers are data/Hud; the arithmetic is Shared/HudStages.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,9 +29,13 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local MenuData = require(Shared:WaitForChild("data"):WaitForChild("Menu"))
 local MenuMath = require(Shared:WaitForChild("MenuMath"))
+local HudData = require(Shared:WaitForChild("data"):WaitForChild("Hud"))
+local HudStages = require(Shared:WaitForChild("HudStages"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Builder = require(script.Parent.Builder)
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
+local Screens = require(script.Parent.Screens)
+local State = require(script.Parent.Parent.State)
 
 local Hud = {}
 
@@ -49,10 +58,7 @@ local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {} -- the left-edge buttons by id: the Shop, and the Menu
 local menuCount = 0 -- standalone buttons added with AddMenuButton (the Shop); the Menu button sits in the slot after them
 
-local CLOCK_RIGHT = 0.985 -- the clock chip's right edge, in screen Scale
-local CLOCK_TOP = 0.025
-local CLOCK_SIZE = Vector2.new(0.3, 0.075) -- the chip's Size bounds; its aspect constraint derives the width from the height
-local CLOCK_ASPECT = 4.2
+local CLOCK_ASPECT = 4.2 -- the place chip's shape (it was the clock chip's); data/Hud Chips gives its height and where it stands
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
 local MENU_TOP = 0.19 -- the left column starts here, under the Scrap pill and its rate line
@@ -82,17 +88,17 @@ local shipTicks: Frame? = nil
 local shipTween: Tween? = nil
 local onShipTapped: (() -> ())? = nil
 local rateLabel: TextLabel? = nil
-local luckLabel: TextLabel? = nil
-local luckShown = false -- the luck line's own rule (luck is not exactly 1); the event banner overrides it
-local showerChip: Frame? = nil
-local showerLabel: TextLabel? = nil
-local banner: Frame? = nil
-local bannerText: TextLabel? = nil
-local bannerSub: TextLabel? = nil -- the smaller second line (the time left)
-local bannerChip: Frame? = nil
-local bannerChipLabel: TextLabel? = nil
-local bannerIcon: Frame? = nil -- the placeholder square an event icon fills
-local bannerIconKey: string? = nil -- the key shown now, so a repeated SetEventBanner leaves the image alone
+local panelGroup: Frame? = nil -- everything on the HUD but the Scrap pill: it hides while a panel is open (applyVisibility)
+local edgeGroup: Frame? = nil -- the goal plate and the chips, inside panelGroup: they also hide with SetMenuVisible(false)
+local shipBar: Frame? = nil -- the goal plate's bar (the objective line is UI/TutorialHint's)
+local eventChip: Frame? = nil -- the one event chip
+local eventLabel: TextLabel? = nil
+local eventBlock: Frame? = nil -- the green block on its right (the luck multiplier, the Rush score, the overlay)
+local eventBlockLabel: TextLabel? = nil
+local eventBanner: { text: string, subtitle: string?, chip: string? }? = nil -- what SetEventBanner last said, nil when nothing runs
+local eventCountdown: string? = nil -- the chip's line while a Rush or a shower is due (SetEventCountdown)
+local luckShown = false -- luck is not exactly x1.0 (MenuMath.LuckShown)
+local luckLine = "" -- "Luck x2.0"
 local friendChip: Frame? = nil
 local friendLabel: TextLabel? = nil
 local friendCountShown = 0
@@ -121,42 +127,28 @@ local menuOpen = false
 local menuToken = 0 -- a newer open or close cancels an older close's hide
 local layoutKey = "" -- the numbers layoutMenu last used: a call with the same ones does nothing
 
--- The centre column (ship bar, luck line, event banner, Friend Boost chip) sits this far lower than the
--- top row so the compass strip (UI/Compass: 0.008 to 0.038) has the top edge: the strip's height plus a gap.
-local CENTER_SHIFT = 0.046 -- the compass strip (0.006 + 0.04) over the centre column
-
-local FRIEND_CHIP_TOP = 0.18 + CENTER_SHIFT -- under the luck line / event banner slot (the banner ends at 0.175 + CENTER_SHIFT), centred
-local FRIEND_CHIP_SIZE = Vector2.new(0.3, 0.055) -- Size bounds; the aspect constraint derives the width from the height
+-- The goal plate and the chips (data/Hud: where they stand, and how tall on a short screen). The compass strip (UI/Compass: 0.006 to
+-- 0.046, its line under it to 0.068) has the top edge; the ship bar stands under it at Goal.Top.
 local FRIEND_CHIP_ASPECT = 5.5
-
-local BANNER_TEXT_LEFT = 0.14 -- the banner text starts after the icon square
-local BANNER_TEXT_WIDTH = 0.56 -- with the luck chip showing on the right
-local BANNER_TEXT_WIDTH_FULL = 0.82 -- without a chip
-local BANNER_ASPECT = 6
-local BANNER_CHIP = Vector2.new(0.25, 0.68) -- the luck chip, as fractions of the banner
--- The banner's lines, as fractions of its height: two lines (the name, then the time left under it) or one (either alone).
--- Two lines need the smaller one to hold the 14 px floor: on a banner under Theme.TextSize.Min / BANNER_SUB_H px tall (41 px:
--- iPhone SE's is 26) the banner shows one line at a time, the name and the time left taking turns (Theme.Tween.BannerLine each).
-local BANNER_NAME_Y, BANNER_NAME_H = 0.1, 0.46
-local BANNER_SUB_Y, BANNER_SUB_H = 0.56, 0.34
-local BANNER_ONE_Y, BANNER_ONE_H = 0.15, 0.7
+local BANNER_ASPECT = 6 -- the event chip's shape
+local EVENT_TEXT_WIDTH = 0.58 -- the event chip's line, of the chip, with the green block showing...
+local EVENT_TEXT_WIDTH_FULL = 0.92 -- ...and without it
+local EVENT_BLOCK = Vector2.new(0.3, 0.66) -- the green block, as fractions of the chip
+local POP = 1.1 -- a newly shown element pops to this once
 
 local SCRAP_ASPECT = 3.6
-local CHIP_ASPECT = 4.2 -- the clock, biome and shower chips and the ship bar
+local CHIP_ASPECT = 4.2 -- the ship bar is never narrower than a chip of this shape at its height (HudStages.GoalSlots)
 local ACTION_ASPECT = 2.3
 local BADGE_ROWS = 3 -- a notification dot is a flat block this many cells tall (its stepped corners read at 12 px)
 local ICON_ROWS = 3 -- and so is an icon square's placeholder
 
--- m:ss for the event countdown chip (TIME_MS past a minute, TIME_S under it).
+-- m:ss for the event chip's countdown ("Rush in 0:19").
 local function formatCountdown(seconds: number): string
 	if seconds ~= seconds or seconds == math.huge then
 		seconds = 0
 	end
 	local total = math.max(0, math.ceil(seconds))
-	if total >= 60 then
-		return Strings.TIME_MS:format(total // 60, total % 60)
-	end
-	return Strings.TIME_S:format(total)
+	return Strings.TIME_CLOCK:format(total // 60, total % 60)
 end
 
 -- Tween lengths shrink by Config.ReducedMotionFactor when reduced motion is on (Prefs folds the
@@ -211,30 +203,6 @@ local function setSquareIcon(square: Frame, key: string?)
 	end
 end
 
--- A chip: a block plate in `color` with one centred outlined line on it. Returns the plate and the label.
-local function chipPlate(root: ScreenGui, name: string, color: Color3, position: UDim2, size: Vector2, aspect: number, text: string): (Frame, TextLabel)
-	local chip = Builder.blockPlate({
-		parent = root,
-		name = name,
-		color = color,
-		aspect = aspect,
-		position = position,
-		size = UDim2.fromScale(size.X, size.Y),
-		anchor = Vector2.new(1, 0),
-	})
-	local label = Builder.label({
-		parent = chip,
-		name = "Text",
-		text = text,
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.7),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.blockTop(chip),
-	})
-	return chip, label
-end
-
 -- The Scrap plate: a dark block plate (the board's) with the pixel Scrap cube and the rolling count.
 local function buildScrapPill(root: ScreenGui)
 	local pill = Builder.blockPlate({
@@ -263,49 +231,42 @@ local function buildScrapPill(root: ScreenGui)
 	setScrapValue = Builder.rolling(number)
 end
 
-local function buildClockChip(root: ScreenGui)
-	local chip, label = chipPlate(
-		root,
-		"ClockChip",
-		Theme.Colors.Featured,
-		UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
-		CLOCK_SIZE,
-		CLOCK_ASPECT,
-		Strings.HUD_DAY
-	)
+-- The place chip, top right: a block plate with two lines, where the player is (the biome, or the visit label) and when ("Day · Rain");
+-- gold by day, blue by night (SetClock). It keeps CLOCK_ASPECT; its height is data/Hud Chips.PlaceHeight (layoutRight puts it, with a
+-- pixel floor on a short screen).
+local function buildPlaceChip(parent: Instance)
+	local chips = HudData.Chips
+	local chip = Builder.blockPlate({
+		parent = parent,
+		name = "PlaceChip",
+		color = Theme.Colors.Featured,
+		aspect = CLOCK_ASPECT,
+		position = UDim2.fromScale(chips.Right, chips.Top),
+		size = UDim2.fromScale(chips.MaxWidth, chips.PlaceHeight),
+		anchor = Vector2.new(1, 0),
+	})
+	local top = Builder.blockTop(chip)
 	clockChip = chip
-	clockLabel = label
-end
-
--- Biome chip under the clock chip: which part of the world the player is standing in.
-local function buildBiomeChip(root: ScreenGui)
-	local _, label = chipPlate(
-		root,
-		"BiomeChip",
-		Theme.Colors.Select,
-		UDim2.fromScale(0.985, 0.108),
-		Vector2.new(0.2, 0.05),
-		CHIP_ASPECT,
-		Strings.HUD_BIOME:format(Strings.BIOME_Meadow)
-	)
-	biomeLabel = label
-end
-
--- Meteor Shower countdown chip under the biome chip: "Shower in m:ss", purple, hidden until the
--- bootstrap feeds a countdown in (Config.ShowerWarnSeconds before a shower).
-local function buildShowerChip(root: ScreenGui)
-	local chip, label = chipPlate(
-		root,
-		"ShowerChip",
-		Theme.Colors.Codex,
-		UDim2.fromScale(0.985, 0.165),
-		Vector2.new(0.2, 0.05),
-		CHIP_ASPECT,
-		Strings.SHOWER_CHIP:format(formatCountdown(0))
-	)
-	chip.Visible = false
-	showerChip = chip
-	showerLabel = label
+	biomeLabel = Builder.label({
+		parent = chip,
+		name = "Place",
+		text = Strings.HUD_BIOME:format(Strings.BIOME_Meadow),
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.5, 0.1),
+		size = UDim2.fromScale(0.9, 0.44),
+		anchor = Vector2.new(0.5, 0),
+		zIndex = top,
+	})
+	clockLabel = Builder.label({
+		parent = chip,
+		name = "Time",
+		text = Strings.HUD_DAY,
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.55),
+		size = UDim2.fromScale(0.9, 0.36),
+		anchor = Vector2.new(0.5, 0),
+		zIndex = top,
+	})
 end
 
 -- A red notification block with a count on the button's top-right corner, hidden until SetBadge. `size` is its width as a
@@ -709,19 +670,20 @@ local function defaultTicks(): { number }
 	return out
 end
 
--- Ship bar top centre: a dark block trough whose face fills cell-true in the Select blue (Builder.blockBar keeps the stepped
--- corners and draws the grout over the fill), milestone ticks, centred "Ship N%" text, and an invisible button over it all so a
--- tap opens the ship panel.
-local function buildShipBar(root: ScreenGui)
+-- Ship bar top centre, the goal plate's top half (the objective line, UI/TutorialHint, joins under it): a dark block trough whose
+-- face fills cell-true in the Select blue (Builder.blockBar keeps the stepped corners and draws the grout over the fill), milestone
+-- ticks, centred "Ship N%" text, and an invisible button over it all so a tap opens the ship panel. A fitted plate: layoutGoal gives
+-- it its size from the screen (data/Hud Goal, HudStages.GoalSlots).
+local function buildShipBar(parent: Instance)
 	local trough = Builder.blockPlate({
-		parent = root,
+		parent = parent,
 		name = "ShipBar",
 		color = Theme.Block.Trough,
-		aspect = CHIP_ASPECT,
-		position = UDim2.fromScale(0.5, CLOCK_TOP + CENTER_SHIFT), -- the top row's y, shifted under the strip
-		size = UDim2.fromScale(0.3, 0.075),
+		position = UDim2.fromScale(0.5, HudData.Goal.Top),
+		size = UDim2.fromScale(HudData.Goal.Width, HudData.Goal.ShipHeight),
 		anchor = Vector2.new(0.5, 0),
 	})
+	shipBar = trough
 	local setFill = Builder.blockBar(trough, Theme.Colors.Select)
 	local value = Instance.new("NumberValue")
 	value.Name = "Fill"
@@ -767,9 +729,9 @@ local function buildShipBar(root: ScreenGui)
 end
 
 -- "+N/min" under the Scrap pill; hidden while the camp earns nothing.
-local function buildRateLine(root: ScreenGui)
+local function buildRateLine(parent: Instance)
 	local label = Builder.label({
-		parent = root,
+		parent = parent,
 		name = "Rate",
 		text = Strings.HUD_SCRAP_PER_MIN:format(Builder.formatNumber(0)),
 		textSize = Theme.TextSize.Body,
@@ -782,98 +744,85 @@ local function buildRateLine(root: ScreenGui)
 	rateLabel = label
 end
 
--- "Luck xN.N" under the ship bar; hidden while luck is exactly 1.
-local function buildLuckLine(root: ScreenGui)
-	local label = Builder.label({
-		parent = root,
-		name = "Luck",
-		text = Strings.HUD_LUCK:format(("%.1f"):format(1)),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.105 + CENTER_SHIFT),
-		size = UDim2.fromScale(0.3, 0.045),
-		anchor = Vector2.new(0.5, 0),
-		color = Theme.Colors.Featured,
-	})
-	label.Visible = false
-	luckLabel = label
-end
-
--- Event banner in the luck line's slot under the ship bar (UI Playbook, "Event banner and compass"; the
--- board's event chip): a Codex-purple block plate with the event's pixel icon on the left, the event text
--- left-aligned, and a flat green block on the right for the luck multiplier. Hidden until SetEventBanner;
--- while it shows, the luck line stays hidden (the chip carries the number).
-local function buildEventBanner(root: ScreenGui)
-	local pill = Builder.blockPlate({
-		parent = root,
-		name = "EventBanner",
+-- The event chip under the place chip: a Codex-purple block plate with one line (the event's name and its time, "Meteor Shower 4m 12s",
+-- "Rush in 0:19", "Luck x2.0") and, while the event has one, a flat green block on the right (the luck multiplier, the Rush score, the
+-- overlay). It shows only while an event, a countdown or luck is on (HudStages.EventSlot): the one place that says "something is on".
+-- A tap opens the Quests screen's What's on band. Hidden until the bootstrap feeds one of SetEventBanner, SetEventCountdown, SetLuck.
+local function buildEventChip(parent: Instance)
+	local chips = HudData.Chips
+	local chip = Builder.blockPlate({
+		parent = parent,
+		name = "EventChip",
 		color = Theme.Colors.Codex,
 		aspect = BANNER_ASPECT,
-		position = UDim2.fromScale(0.5, 0.105 + CENTER_SHIFT),
-		size = UDim2.fromScale(0.4, 0.07),
-		anchor = Vector2.new(0.5, 0),
+		position = UDim2.fromScale(chips.Right, chips.Top),
+		size = UDim2.fromScale(chips.MaxWidth, chips.EventHeight),
+		anchor = Vector2.new(1, 0),
 	})
-	pill.Visible = false
-	banner = pill
-	local top = Builder.blockTop(pill)
-	-- the placeholder is a gold flat block (the purple of the old square would vanish on the purple plate)
-	bannerIcon = iconSquare(pill, UDim2.fromScale(0.03, 0.5), UDim2.fromScale(0.1, 0.6), Theme.Colors.Featured, top)
-	-- Two lines, per the Playbook: the event name bold on top, the time left smaller beneath it.
-	bannerText = Builder.label({
-		parent = pill,
+	chip.Visible = false
+	eventChip = chip
+	local top = Builder.blockTop(chip)
+	eventLabel = Builder.label({
+		parent = chip,
 		name = "Text",
 		text = "",
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(BANNER_TEXT_LEFT, BANNER_NAME_Y),
-		size = UDim2.fromScale(BANNER_TEXT_WIDTH, BANNER_NAME_H),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = top,
-	})
-	bannerSub = Builder.label({
-		parent = pill,
-		name = "Sub",
-		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(BANNER_TEXT_LEFT, BANNER_SUB_Y),
-		size = UDim2.fromScale(BANNER_TEXT_WIDTH, BANNER_SUB_H),
+		position = UDim2.fromScale(0.04, 0.5),
+		size = UDim2.fromScale(EVENT_TEXT_WIDTH, 0.7),
+		anchor = Vector2.new(0, 0.5),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = top,
 	})
-	local chip = Builder.blockPlate({
-		parent = pill,
-		name = "Chip",
+	local block = Builder.blockPlate({
+		parent = chip,
+		name = "Block",
 		color = Theme.Colors.Confirm,
-		aspect = BANNER_ASPECT * BANNER_CHIP.X / BANNER_CHIP.Y, -- its px shape on the banner, so the box does not move
+		aspect = BANNER_ASPECT * EVENT_BLOCK.X / EVENT_BLOCK.Y, -- its px shape on the chip, so the box does not move
 		rows = BADGE_ROWS,
 		cells = false,
 		position = UDim2.fromScale(0.97, 0.5),
-		size = UDim2.fromScale(BANNER_CHIP.X, BANNER_CHIP.Y),
+		size = UDim2.fromScale(EVENT_BLOCK.X, EVENT_BLOCK.Y),
 		anchor = Vector2.new(1, 0.5),
 		zIndex = top,
 	})
-	bannerChip = chip
-	bannerChipLabel = Builder.label({
-		parent = chip,
+	eventBlock = block
+	eventBlockLabel = Builder.label({
+		parent = block,
 		name = "Text",
 		text = "",
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.75),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.blockTop(chip),
+		zIndex = Builder.blockTop(block),
 	})
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.AutoButtonColor = false
+	tap.Text = ""
+	tap.BorderSizePixel = 0
+	tap.BackgroundTransparency = 1
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = top + 2
+	tap.Parent = chip
+	tap.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		Screens.Open("Quests") -- the What's on band
+	end)
 end
 
--- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", a green block, hidden while the boost is +0%
+-- Friend Boost chip under the event chip: "Friend Boost +N%", a green block, hidden while the boost is +0%
 -- (Hud.SetFriendBoost shows it); a tap opens the invite sheet (the bootstrap's callback).
-local function buildFriendChip(root: ScreenGui)
+local function buildFriendChip(parent: Instance)
+	local chips = HudData.Chips
 	local chip = Builder.blockPlate({
-		parent = root,
+		parent = parent,
 		name = "FriendChip",
 		color = Theme.Block.Trough,
 		aspect = FRIEND_CHIP_ASPECT,
-		position = UDim2.fromScale(0.5, FRIEND_CHIP_TOP),
-		size = UDim2.fromScale(FRIEND_CHIP_SIZE.X, FRIEND_CHIP_SIZE.Y),
-		anchor = Vector2.new(0.5, 0),
+		position = UDim2.fromScale(chips.Right, chips.Top),
+		size = UDim2.fromScale(chips.MaxWidth, chips.FriendHeight),
+		anchor = Vector2.new(1, 0),
 	})
 	chip.Visible = false -- nobody has joined yet: +0% is not shown
 	friendChip = chip
@@ -907,19 +856,51 @@ local function buildFriendChip(root: ScreenGui)
 	end)
 end
 
--- The luck line shows by its own rule (luck is not exactly 1) unless the event banner has its slot.
-local function applyLuckLine()
-	local label = luckLabel
-	if not label then
+-- Layout: the goal plate and the right-hand stack from the screen's size -------------------
+
+-- The ship bar's size: data/Hud Goal.Width wide and ShipHeight tall, taller on a short screen so its 14 px line holds (HudStages).
+local function layoutGoal()
+	local root, bar = gui, shipBar
+	if not root or not bar then
 		return
 	end
-	local pill = banner
-	label.Visible = luckShown and not (pill ~= nil and pill.Visible)
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return
+	end
+	local slots = HudStages.GoalSlots(screen.X, screen.Y, CHIP_ASPECT)
+	bar.Position = UDim2.fromScale(0.5, HudData.Goal.Top)
+	bar.Size = UDim2.fromScale(slots.shipWidth, slots.shipHeight)
 end
 
-local function buildActionButton(root: ScreenGui)
+-- The top-right stack: the place chip, then the event chip, then the Friend Boost chip, each under the last, a hidden one taking no room
+-- (HudStages.Stack). Heights are the data's fractions, or the pixel floor on a short screen (HudStages.AtLeast): the chip keeps its
+-- aspect, so its width follows.
+local function layoutRight()
+	local root, place, event, friend = gui, clockChip, eventChip, friendChip
+	if not root or not place or not event or not friend then
+		return
+	end
+	local screen = root.AbsoluteSize
+	if screen.Y <= 0 then
+		return
+	end
+	local chips = HudData.Chips
+	local heights = {
+		HudStages.AtLeast(chips.PlaceHeight, chips.PlaceMinPx, screen.Y),
+		HudStages.AtLeast(chips.EventHeight, chips.EventMinPx, screen.Y),
+		HudStages.AtLeast(chips.FriendHeight, chips.FriendMinPx, screen.Y),
+	}
+	local tops = HudStages.Stack(chips.Top, chips.Gap, heights, { place.Visible, event.Visible, friend.Visible })
+	for index, chip in ipairs({ place, event, friend }) do
+		chip.Position = UDim2.fromScale(chips.Right, tops[index])
+		chip.Size = UDim2.fromScale(chips.MaxWidth, heights[index])
+	end
+end
+
+local function buildActionButton(parent: Instance)
 	local button = Builder.blockButton({
-		parent = root,
+		parent = parent,
 		name = "Action",
 		text = Strings.ACTION_CATCH,
 		color = Theme.Colors.Confirm,
@@ -939,6 +920,101 @@ local function buildActionButton(root: ScreenGui)
 	actionFace = button:FindFirstChild("Face") :: TextButton
 end
 
+-- Visibility and the staged reveal ---------------------------------------------------------
+
+local hudOn = true -- SetVisible: the bootstrap hides the whole HUD for the loading screen and the cinematics
+local menuOn = true -- SetMenuVisible: false behind a capture or a reveal, so the capture bar is alone with the Scrap pill
+local panelOpen = false -- a modal panel is up (Screens.IsAnyOpen, polled): everything but the Scrap pill hides
+local STAGED = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip" } -- the elements HudStages gates (Landmarks is the compass's)
+local stageShown: { [string]: boolean } = { Shop = true, Menu = true, ShipBar = true, PlaceChip = true, EventChip = true }
+local stageReady = false -- SetStage has run once: a newly shown element pops from then on (the first call only settles)
+
+-- Applies the three rules to the two ScreenGuis and the two groups. Nothing pops: a panel closing brings the HUD back as it was.
+local function applyVisibility()
+	if gui then
+		gui.Enabled = hudOn
+	end
+	if panelGroup then
+		panelGroup.Visible = not panelOpen
+	end
+	if edgeGroup then
+		edgeGroup.Visible = menuOn
+	end
+	local menuShows = hudOn and menuOn and not panelOpen
+	if menuGui then
+		menuGui.Enabled = menuShows
+	end
+	if not menuShows then
+		setMenuOpen(false, true) -- a drop-down open when the column goes is closed at once
+	end
+end
+
+-- A newly shown element pops once and is still (Reduced Motion: it just appears).
+local function popIn(target: GuiObject)
+	if not Prefs.ReducedMotion() then
+		Builder.pop(target, POP)
+	end
+end
+
+-- Judges the event chip: which source it shows (HudStages.EventSlot), its text, and whether the staged reveal has let it in yet.
+local function refreshEvent()
+	local chip, label, block, blockLabel = eventChip, eventLabel, eventBlock, eventBlockLabel
+	if not chip or not label or not block or not blockLabel then
+		return
+	end
+	local slot = HudStages.EventSlot(eventBanner ~= nil, eventCountdown ~= nil, luckShown)
+	local banner = eventBanner
+	local hasBlock = false
+	if slot == "banner" and banner then
+		label.Text = HudStages.EventLine(banner.text, banner.subtitle, Strings.HUD_EVENT_LEFT, Strings.HUD_EVENT_LINE)
+		blockLabel.Text = banner.chip or ""
+		hasBlock = banner.chip ~= nil
+	elseif slot == "countdown" then
+		label.Text = eventCountdown or ""
+	elseif slot == "luck" then
+		label.Text = luckLine
+	end
+	block.Visible = hasBlock
+	label.Size = UDim2.fromScale(if hasBlock then EVENT_TEXT_WIDTH else EVENT_TEXT_WIDTH_FULL, 0.7)
+	local show = slot ~= nil and stageShown.EventChip
+	if show ~= chip.Visible then
+		chip.Visible = show
+		if show then
+			popIn(chip)
+		end
+		layoutRight()
+	end
+end
+
+-- Shows or hides what the tutorial has not let in yet: the Shop (and the offer beside it, its child) and the Menu slots, the ship
+-- bar, the place chip, the event chip. With `pop`, an element that appears pops once.
+local function applyStage(pop: boolean)
+	for _, id in ipairs({ "Shop", "Menu" }) do
+		local button = menuButtons[id]
+		local slot = if button then button.Parent else nil
+		if button and slot and slot:IsA("Frame") then
+			local show = stageShown[id]
+			if slot.Visible ~= show then
+				slot.Visible = show
+				if show and pop then
+					popIn(button)
+				end
+			end
+		end
+	end
+	local gated: { [string]: Frame? } = { ShipBar = shipBar, PlaceChip = clockChip }
+	for element, plate in pairs(gated) do
+		if plate and plate.Visible ~= stageShown[element] then
+			plate.Visible = stageShown[element]
+			if stageShown[element] and pop then
+				popIn(plate)
+			end
+		end
+	end
+	refreshEvent()
+	layoutRight()
+end
+
 -- Public API -------------------------------------------------------------
 
 function Hud.Build()
@@ -949,15 +1025,18 @@ function Hud.Build()
 	gui = root
 	menuGui = Builder.screen("Menu", MENU_DISPLAY_ORDER)
 	buildScrapPill(root)
-	buildClockChip(root)
-	buildBiomeChip(root)
-	buildShowerChip(root)
-	buildShipBar(root)
-	buildRateLine(root)
-	buildLuckLine(root)
-	buildEventBanner(root)
-	buildFriendChip(root)
-	buildActionButton(root)
+	-- Everything but the Scrap pill sits in one group (it hides while a panel is open), the goal plate and the chips in a second inside
+	-- it (they also hide behind a capture or a reveal). Both fill the screen, so every Scale below means what it did on the root.
+	local panel = Builder.frame({ parent = root, name = "Panel" })
+	panelGroup = panel
+	local edge = Builder.frame({ parent = panel, name = "Edge" })
+	edgeGroup = edge
+	buildPlaceChip(edge)
+	buildShipBar(edge)
+	buildEventChip(edge)
+	buildFriendChip(edge)
+	buildRateLine(panel)
+	buildActionButton(panel)
 	-- The Menu button under the Shop's slot, and the panel it drops; AddMenuRow fills the panel, one row per screen.
 	local menu = menuGui
 	if menu then
@@ -966,6 +1045,41 @@ function Hud.Build()
 			setMenuOpen(not menuOpen)
 		end)
 	end
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		layoutGoal()
+		layoutRight()
+	end)
+	layoutGoal()
+	layoutRight()
+	-- The profile is live when the HUD is built, so a new player never sees the whole HUD flash before UI/TutorialHint tells it the step.
+	if State.Has() then
+		local step = State.GetTutorial()
+		Hud.SetStage(step)
+	else
+		applyStage(false)
+	end
+	task.spawn(function()
+		while gui do
+			local open = Screens.IsAnyOpen()
+			if open ~= panelOpen then
+				panelOpen = open
+				applyVisibility()
+			end
+			task.wait(HudData.PanelPollSeconds)
+		end
+	end)
+end
+
+-- The staged reveal (Shared/HudStages, data/Tutorial HudStages): UI/TutorialHint calls this with the server's tutorial step each time it
+-- changes (past the last step: the tutorial is over and everything shows). An element the step has earned appears, popping once; the
+-- first call only settles the HUD, so a returning player sees no pops.
+function Hud.SetStage(step: number)
+	local done = HudStages.IsDone(step)
+	for _, element in ipairs(STAGED) do
+		stageShown[element] = HudStages.Shown(element, step, done)
+	end
+	applyStage(stageReady)
+	stageReady = true
 end
 
 -- Ship completion 0..1: eases the fill and shows the whole percent.
@@ -1030,19 +1144,16 @@ function Hud.SetRate(perSecond: number)
 end
 
 -- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck reads x1.0 (a zero-value line is not shown,
--- MenuMath.LuckShown), and stays hidden while the event banner holds its slot (the banner's chip carries the number).
+-- MenuMath.LuckShown). It is the event chip's lowest source: a running event, server luck or a countdown takes the chip first
+-- (HudStages.EventSlot), and the chip itself says "Luck x2.0" otherwise.
 function Hud.SetLuck(luck: number)
-	local label = luckLabel
-	if not label then
-		return
-	end
 	luckShown = MenuMath.LuckShown(luck)
 	if luckShown then
 		-- Round half up to one decimal before formatting (1.25 must read x1.3, and %.1f would print 1.2).
 		luck = math.floor(luck * 10 + 0.5) / 10
-		label.Text = Strings.HUD_LUCK:format(("%.1f"):format(luck))
+		luckLine = Strings.HUD_LUCK:format(("%.1f"):format(luck))
 	end
-	applyLuckLine()
+	refreshEvent()
 end
 
 -- The Friend Boost (FriendBoostChanged): `boost` is a fraction, shown as a whole percent. The chip shows only while the boost is
@@ -1055,7 +1166,11 @@ function Hud.SetFriendBoost(count: number, boost: number)
 	end
 	label.Text = Strings.HUD_FRIEND_BOOST:format(math.floor(boost * 100 + 0.5))
 	local active = MenuMath.FriendBoostShown(boost)
+	local changed = chip.Visible ~= active
 	chip.Visible = active
+	if changed then
+		layoutRight() -- the stack closes up (or opens) under the event chip
+	end
 	if active then
 		Builder.setBlockColor(chip, Theme.Colors.Confirm)
 		label.TextColor3 = Theme.Colors.White
@@ -1070,73 +1185,21 @@ function Hud.OnFriendChipTapped(callback: () -> ())
 	onFriendChipTapped = callback
 end
 
--- The event banner in the luck line's slot: `text` is the event name (SHOWER_NOW), `subtitle` the
--- smaller line beneath it (the time left, SHOWER_LEFT formatted) and `chip` the green chip's text
--- (SHOWER_LUCK formatted); nil text hides the banner and gives the luck line its slot back. `iconKey` is an
--- Icons key for the square on the left; nil, or an icon not uploaded yet, leaves the gold placeholder.
--- On a banner too short for two lines at the 14 px floor (iPhone SE) the name and the subtitle take turns on one line, each
--- for Theme.Tween.BannerLine seconds; the bootstrap calls this on its poll, which moves the turn along.
-function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, iconKey: string?)
-	local pill, label, sub = banner, bannerText, bannerSub
-	if not pill or not label or not sub then
-		return
-	end
-	if text then
-		local square = bannerIcon
-		if square and iconKey ~= bannerIconKey then
-			bannerIconKey = iconKey
-			setSquareIcon(square, iconKey)
-		end
-		local width = if chip then BANNER_TEXT_WIDTH else BANNER_TEXT_WIDTH_FULL
-		local tall = pill.AbsoluteSize.Y
-		local twoLines = subtitle ~= nil and (tall <= 0 or tall * BANNER_SUB_H >= Theme.TextSize.Min)
-		if twoLines then
-			label.Text = text
-			sub.Text = subtitle or ""
-		else
-			local turn = Theme.Tween.BannerLine
-			local showSub = subtitle ~= nil and os.clock() % (2 * turn) >= turn
-			label.Text = if showSub then subtitle or text else text
-		end
-		sub.Visible = twoLines
-		label.Size = UDim2.fromScale(width, if twoLines then BANNER_NAME_H else BANNER_ONE_H)
-		label.Position = UDim2.fromScale(BANNER_TEXT_LEFT, if twoLines then BANNER_NAME_Y else BANNER_ONE_Y)
-		sub.Size = UDim2.fromScale(width, BANNER_SUB_H)
-		if bannerChip then
-			bannerChip.Visible = chip ~= nil
-		end
-		if bannerChipLabel then
-			bannerChipLabel.Text = chip or ""
-		end
-		if not pill.Visible then
-			pill.Visible = true
-			Builder.pop(pill, 1.1)
-		end
-	else
-		pill.Visible = false
-	end
-	applyLuckLine()
+-- The event chip's first source, a running event, server luck, the seasonal or the weekly event: `text` is the event's name (SHOWER_NOW),
+-- `subtitle` the time left under it (SHOWER_LEFT formatted: the chip shows "Meteor Shower 4m 12s", HudStages.EventLine) and `chip` the
+-- green block's text (SHOWER_LUCK formatted); nil text says nothing runs. `iconKey` is kept for the callers that pass one: the chip has
+-- no icon (a plate that small reads as words). The bootstrap calls this on its poll.
+function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, _iconKey: string?)
+	eventBanner = if text then { text = text, subtitle = subtitle, chip = chip } else nil
+	refreshEvent()
 end
 
--- Event countdown chip under the biome chip: seconds until the event, or nil to hide it. `format` is the
--- chip's string with one %s for the time (SHOWER_CHIP when nil; the Catch Rush passes RUSH_CHIP).
+-- The event chip's second source: seconds until a Rush or a shower, or nil for none. `format` is the chip's string with one %s for the
+-- m:ss (SHOWER_CHIP when nil; the Catch Rush passes RUSH_CHIP).
 function Hud.SetEventCountdown(seconds: number?, format: string?)
-	local chip, label = showerChip, showerLabel
-	if not chip or not label then
-		return
-	end
-	if seconds then
-		label.Text = (format or Strings.SHOWER_CHIP):format(formatCountdown(seconds))
-		if not chip.Visible then
-			chip.Visible = true
-			Builder.pop(chip, 1.1)
-		end
-	else
-		chip.Visible = false
-	end
+	eventCountdown = if seconds then (format or Strings.SHOWER_CHIP):format(formatCountdown(seconds)) else nil
+	refreshEvent()
 end
-
--- Meteor Shower countdown chip under the biome chip: seconds until the shower, or nil to hide it.
 
 function Hud.SetScrap(amount: number)
 	if setScrapValue then
@@ -1211,6 +1274,7 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	end
 	buildMenuButton(root, id, color, menuCount, onClick)
 	menuCount += 1
+	applyStage(false) -- a new player's Shop waits for the first catch
 end
 
 -- Adds a button beside the Shop (Decide-Now B53a, Ethan 2026-10-22: the Starter Pack offer stays in view, never only a Menu row).
@@ -1272,15 +1336,11 @@ function Hud.IsMenuOpen(): boolean
 	return menuOpen
 end
 
--- The left column hides during a capture or a reveal (it sits above those dims) and shows otherwise; a drop-down open at the time
--- closes at once.
+-- Behind a capture or a reveal the left column, the goal plate and the chips hide (the column sits above those dims; the capture bar is
+-- alone with the Scrap pill); a drop-down open at the time closes at once.
 function Hud.SetMenuVisible(visible: boolean)
-	if not visible then
-		setMenuOpen(false, true)
-	end
-	if menuGui and menuGui.Enabled ~= visible then
-		menuGui.Enabled = visible
-	end
+	menuOn = visible
+	applyVisibility()
 end
 
 -- Shows a red dot with a count on a Menu row or a standalone left button (the Shop); 0 hides it. A row's count also adds up on the
@@ -1379,15 +1439,8 @@ function Hud.OnAction(callback: () -> ())
 end
 
 function Hud.SetVisible(visible: boolean)
-	if gui then
-		gui.Enabled = visible
-	end
-	if not visible then
-		setMenuOpen(false, true)
-	end
-	if menuGui then
-		menuGui.Enabled = visible
-	end
+	hudOn = visible
+	applyVisibility()
 end
 
 return Hud
