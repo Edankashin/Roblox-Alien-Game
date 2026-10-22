@@ -63,6 +63,7 @@ local MENU_LEFT = Theme.Menu.Left
 local MENU_BADGE_SIZE = 0.34 -- the left buttons' notification dot, as a fraction of the button
 local MENU_ID = "Menu" -- the drop-down's button: id, label (MENU_Menu) and icon
 local MENU_SLOT_INDEX = 1 -- the Menu button's slot: under the Shop's (slot 0)
+local BESIDE_GAP = 0.15 -- the gap between the Shop and the offer beside it, as a fraction of the Shop slot's width
 local MENU_LAYER = 3 -- the drop-down's panel sits over its outside-tap layer (1) and the left buttons (2)
 local MENU_INK_SLACK = 1.15 -- the panel's scroll window is inset by its ink (Theme.Block.Ink cells) times this, so a row never touches the ink
 local MENU_ROW_LIFT = 0.12 -- a row's face is the trough lightened this much; a press or a hover lightens it once more
@@ -337,17 +338,34 @@ end
 
 -- A left-edge button (the Shop, the Menu): a plain chunky block square with its label beneath, in slot `index` of the column. The face
 -- shows the id's pixel icon (data/PixelIcons); while an id has none it shows the MENU_GLYPH_<id> glyph.
-local function buildMenuButton(root: ScreenGui, id: string, color: Color3, index: number, onClick: () -> ()): Frame
+-- `beside`: a slot to stand to the right of (the Starter Pack offer beside the Shop, Decide-Now B53a); the new slot is a child of
+-- it at its own size, so it follows the Shop's real width whatever the aspect constraint left it.
+local function buildMenuButton(
+	root: ScreenGui,
+	id: string,
+	color: Color3,
+	index: number,
+	onClick: () -> (),
+	beside: Frame?
+): Frame
 	local label = Builder.text("MENU_" .. id)
 	local glyph = Builder.text("MENU_GLYPH_" .. id)
-	local slot = Builder.frame({
-		parent = root,
-		name = "Menu_" .. id,
-		position = UDim2.fromScale(MENU_LEFT, MENU_TOP + index * MENU_SLOT),
-		size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
-		aspect = Theme.Menu.Aspect,
-		zIndex = 2, -- over the drop-down's outside-tap layer, under its panel
-	})
+	local slot = if beside
+		then Builder.frame({
+			parent = beside,
+			name = "Menu_" .. id,
+			position = UDim2.fromScale(1 + BESIDE_GAP, 0),
+			size = UDim2.fromScale(1, 1),
+			zIndex = 2,
+		})
+		else Builder.frame({
+			parent = root,
+			name = "Menu_" .. id,
+			position = UDim2.fromScale(MENU_LEFT, MENU_TOP + index * MENU_SLOT),
+			size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
+			aspect = Theme.Menu.Aspect,
+			zIndex = 2, -- over the drop-down's outside-tap layer, under its panel
+		})
 	local button = Builder.blockButton({
 		parent = slot,
 		name = "Button",
@@ -1193,6 +1211,30 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	end
 	buildMenuButton(root, id, color, menuCount, onClick)
 	menuCount += 1
+end
+
+-- Adds a button beside the Shop (Decide-Now B53a, Ethan 2026-10-22: the Starter Pack offer stays in view, never only a Menu row).
+-- Hidden until SetSideButtonVisible(id, true). Call after AddMenuButton("Shop"); without the Shop it does nothing.
+function Hud.AddSideButton(id: string, color: Color3, onClick: () -> ())
+	local root = menuGui
+	local shop = menuButtons.Shop
+	local shopSlot = if shop then shop.Parent else nil
+	if not root or menuButtons[id] or not shopSlot or not shopSlot:IsA("Frame") then
+		return
+	end
+	local button = buildMenuButton(root, id, color, 0, onClick, shopSlot)
+	local slot = button.Parent
+	if slot and slot:IsA("Frame") then
+		slot.Visible = false
+	end
+end
+
+function Hud.SetSideButtonVisible(id: string, visible: boolean)
+	local button = menuButtons[id]
+	local slot = if button then button.Parent else nil
+	if slot and slot:IsA("Frame") then
+		slot.Visible = visible
+	end
 end
 
 -- Adds a row to the Menu drop-down: the id's pixel icon on a tile in `color`, the MENU_<id> name, a red count (SetBadge) and a tap
