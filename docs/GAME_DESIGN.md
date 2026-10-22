@@ -257,12 +257,12 @@ Epic mounts match Hoverboard speed. Legendary mounts are 20% faster. Cosmic moun
 |---|---|---|---|
 | Speed Burst | +50% speed | 60 s | Peddler, spins, Welcome Week, event tracks |
 | Steady Hands | timing zones +30% wider | 10 min | Peddler, quests |
-| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins |
+| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins, one at a time in the Shop (9 Robux) |
 | Lucky Charm | +50% personal luck | 10 min | quests, spins, Welcome Week, events. Earned only |
 | Scrap Magnet | catches pay +50% Scrap | 10 min | Peddler, spins |
 | Double Shift | stations produce 2x Scrap | 10 min | spins and event tracks only. Never sold |
 
-Rules: one active per type, timers run only while online so a kid never wastes one by closing the app, active buffs show as small rings under the ship bar, and activation has a sound and a brief screen tint. Speed Burst, Steady Hands, and Scrap Magnet may be sold in fixed bundles (no randomness). Lucky Charm and Double Shift stay earned-only: one is a probability modifier and the other is the income multiplier the research warns against selling.
+Rules: one active per type, timers run only while online so a kid never wastes one by closing the app, active buffs show as small rings under the ship bar, and activation has a sound and a brief screen tint. Speed Burst, Steady Hands, and Scrap Magnet may be sold in fixed bundles (no randomness), and Scanner Pulse one at a time (Decision B51). Lucky Charm and Double Shift stay earned-only: one is a probability modifier and the other is the income multiplier the research warns against selling.
 
 ### The Radar
 
@@ -579,7 +579,7 @@ Two rules from the monetization references (TikTok batch 9, 2026-10-21): one off
 
 ### Catalog
 
-Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,699). Items under 50 Robux are impulse buys; passes are the recurring earners. The research's developer-education sources report that games with five or more passes earn about 2.3x more than games with fewer, with the caveat that the methodology was not disclosed.
+Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,699), plus one 9 Robux single (Scanner Pulse x1). Items under 50 Robux are impulse buys; passes are the recurring earners. The research's developer-education sources report that games with five or more passes earn about 2.3x more than games with fewer, with the caveat that the methodology was not disclosed.
 
 **Aliens**
 
@@ -622,6 +622,7 @@ Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,69
 
 | Item | Type | R$ | Earnable alternative | Notes |
 |---|---|---|---|---|
+| Scanner Pulse x1 | Dev Product | 9 | quests, spins | The one offer under 10 Robux, first on the shelf and repeatable (B51): the share of players who pay at all is what Roblox ranks by, and a single unit of something we sell in no bundle undercuts nothing |
 | Speed Burst x5 | Dev Product | 49 | Peddler, spins | Fixed bundle |
 | Steady Hands x3 | Dev Product | 79 | Peddler, quests | Fixed bundle |
 | Scrap Magnet x3 | Dev Product | 99 | Peddler, spins | Catch bonus, not station income |

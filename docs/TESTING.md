@@ -27,6 +27,12 @@ The five things the Mac found on 2026-10-22 (log `docs/vault/08-log/2026-10-22.m
 
 Known gaps: the companion, home and sighting plates are still stud-sized without a ceiling (only the wild plates were reported); a station with the bonus fourth slot shows a shortened "Mo..." for four-letter names at iPhone SE.
 
+## Ethan's shop answers (Decision B51, World 1 place)
+
+Decide-Now 47 to 50, answered 2026-10-22 and built the same day (log `docs/vault/08-log/2026-10-22.md`). The rules are covered headless in `tests/ShelfMath.spec.luau` and `tests/ShopMath.spec.luau`; these steps are what only Studio shows. Check each at the default window, then in the device emulator at iPhone SE (667x375, landscape) and iPad (1080x810).
+
+1. Scanner Pulse x1 (needs its product id: Overnight job, `tools/create_products.py --apply`). Shop, Boosts: the first Boosts card is "Scanner Pulse x1" with the red "NEW!" ribbon, the note "1 USE", the pixel Scanner Pulse (the round navy radar screen with its green sweep) as its picture, "R$ 9" on the pill and "about $0.11" under it; the Boosts tab carries the NEW chip. `/buy ScannerPulse1` twice: two thank-you toasts and the power-up bar's Scanner Pulse count goes up by 2 (a repeatable product: no Claimed chip). With `productId = 0` the card is hidden and the Boosts shelf starts at Speed Burst x5.
+
 ## TikTok batch 9: the Scrap gap, the luck line in chat, the Starter Pack button (World 1 place)
 
 From the monetization references of 2026-10-21 (`media/tiktok/NOTES.md` "Batch 9"). Client lines only, plus one server rule in `Monetization.startServerLuck`.

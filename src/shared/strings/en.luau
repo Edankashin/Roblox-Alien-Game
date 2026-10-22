@@ -794,6 +794,7 @@ return {
 	SHOP_NOTE_Forever = "FOREVER",
 	SHOP_NOTE_Everyone = "ALL · %d MIN", -- a shared boost: who gets it and for how long (the minutes come from the grant row); "EVERYONE · 15 MIN" is 130 px, past the card
 	SHOP_NOTE_Uses = "%d USES", -- a bundle of power-ups (the count comes from the grant row)
+	SHOP_NOTE_Use = "%d USE", -- the same note when the grant row hands over exactly one (Scanner Pulse x1)
 	SHOP_NOTE_SeeOdds = "SEE THE ODDS", -- 100 px, a link to the wheel and its odds table
 	SHOP_SOON = "SOON", -- the grey pill of an item with no dashboard id yet; a tap shows COMING_SOON
 	SHOP_CHEVRON_NEXT = ">",
@@ -813,6 +814,7 @@ return {
 	SHOP_GLYPH_StorageBoost = "+",
 	SHOP_GLYPH_AutoOptimize = "A",
 	SHOP_GLYPH_ExplorerPack = "E",
+	SHOP_GLYPH_ScannerPulse1 = "x1",
 	SHOP_GLYPH_SpeedBurstx5 = "x5",
 	SHOP_GLYPH_SteadyHandsx3 = "x3",
 	SHOP_GLYPH_ScrapMagnetx3 = "x3",
@@ -856,6 +858,8 @@ return {
 	SHOP_DESC_AutoOptimize = "New aliens go to their best station.",
 	SHOP_ITEM_ExplorerPack = "Explorer Pack",
 	SHOP_DESC_ExplorerPack = "Boots, Hoverboard and Radar Mk1 now.",
+	SHOP_ITEM_ScannerPulse1 = "Scanner Pulse x1",
+	SHOP_DESC_ScannerPulse1 = "One Scanner Pulse: every alien here on your radar.",
 	SHOP_ITEM_SpeedBurstx5 = "Speed Burst x5",
 	SHOP_DESC_SpeedBurstx5 = "Five Speed Bursts for your bar.",
 	SHOP_ITEM_SteadyHandsx3 = "Steady Hands x3",

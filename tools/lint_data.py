@@ -338,6 +338,10 @@ def lint_shapes(tables, strings, types):
                           or ('EventAliens' in never and kind == 'alien' and gid in event_ids)
                           or ('Mounts' in never and kind == 'alien' and alien.get('ride') is not None))
             check(not prohibited, f'Shop.Grants.{sid}.{i}: violates NeverSold')
+            # A power-up a Robux product hands over must say so in data/PowerUps (`sellable`), so selling one is a data decision.
+            if kind == 'powerUp':
+                check(tables['PowerUps'].get(gid, {}).get('sellable') is True,
+                      f'Shop.Grants.{sid}.{i}: power-up {gid!r} is not sellable in data/PowerUps')
     for row in tables['Settings']['Order'].values():
         where = 'Settings.' + row['key']
         levels = row.get('levels') or {}

@@ -43,6 +43,7 @@ local Items: { ShopItem } = {
 	{ id = "ModuleRush", tab = "Camp", kind = "product", robux = 59, productId = 0, paidRandom = false },
 	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 2014814394, paidRandom = false },
 	{ id = "RadarMk1Unlock", tab = "Gear", kind = "product", robux = 149, productId = 0, paidRandom = false },
+	{ id = "ScannerPulse1", tab = "Boosts", kind = "product", robux = 9, productId = 0, paidRandom = false }, -- the cheap first purchase (B51): one Scanner Pulse, repeatable
 	{ id = "SpeedBurstx5", tab = "Boosts", kind = "product", robux = 49, productId = 3717062564, paidRandom = false },
 	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 3717062704, paidRandom = false },
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },
@@ -68,6 +69,7 @@ local Grants: { [string]: { ShopGrant } } = {
 	StorageBoost = { { kind = "passFlag", id = "StorageBoost" } }, -- Economy reads the pass live: Storage.PassBonus more alien storage (Robux buys space, never Scrap)
 	AutoOptimize = { { kind = "passFlag", id = "AutoOptimize" } },
 	ExplorerPack = { { kind = "gear", id = "Boots" }, { kind = "gear", id = "Hoverboard" }, { kind = "gear", id = "Radar1" } },
+	ScannerPulse1 = { { kind = "powerUp", id = "ScannerPulse", amount = 1 } }, -- one unit, so no bundle of ours is undercut (we sell no Scanner bundle)
 	SpeedBurstx5 = { { kind = "powerUp", id = "SpeedBurst", amount = 5 } },
 	SteadyHandsx3 = { { kind = "powerUp", id = "SteadyHands", amount = 3 } },
 	ScrapMagnetx3 = { { kind = "powerUp", id = "ScrapMagnet", amount = 3 } },
@@ -111,6 +113,7 @@ local Cards: { [string]: CardDef } = {
 	StorageBoost = { ribbon = "Pass", note = "Forever", icon = "Aliens" },
 	AutoOptimize = { ribbon = "Pass", note = "Forever" },
 	ExplorerPack = { ribbon = "TopDeal", note = "Forever", icon = "Hoverboard" },
+	ScannerPulse1 = { ribbon = "New", note = "Uses", icon = "ScannerPulse", new = true },
 	SpeedBurstx5 = { ribbon = "Popular", note = "Uses", icon = "SpeedBurst" },
 	SteadyHandsx3 = { note = "Uses", icon = "SteadyHands" },
 	ScrapMagnetx3 = { note = "Uses", icon = "ScrapMagnet" },
@@ -203,7 +206,7 @@ return {
 	Launch = {
 		{ section = "Featured", items = { "StarterPack" } },
 		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "StorageBoost", "AutoOptimize", "ExplorerPack" } },
-		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
+		{ section = "Boosts", items = { "ScannerPulse1", "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},
 	-- The one offer that stands on the screen, not only behind the Shop button (TikTok batch 9 lesson 4): a HUD top button with

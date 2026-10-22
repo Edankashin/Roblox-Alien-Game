@@ -302,7 +302,7 @@ local function gearNote(profile: Types.Profile, item: GearItem): string
 end
 
 -- A Robux card's note from its data row: the string, with the minutes of a shared boost or the count of a power-up bundle read
--- from the grant row so the line never disagrees with what the server grants.
+-- from the grant row so the line never disagrees with what the server grants ("1 USE" when the row hands over exactly one).
 local function robuxNote(item: ShopItem, noteId: string?): string
 	if not noteId then
 		return ""
@@ -314,7 +314,7 @@ local function robuxNote(item: ShopItem, noteId: string?): string
 			if noteId == "Everyone" and grant.kind == "serverLuck" and grant.seconds then
 				return text:format(math.floor(grant.seconds / 60))
 			elseif noteId == "Uses" and grant.kind == "powerUp" and grant.amount then
-				return text:format(grant.amount)
+				return (if grant.amount == 1 then Strings.SHOP_NOTE_Use else text):format(grant.amount)
 			end
 		end
 	end
