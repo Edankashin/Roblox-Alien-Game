@@ -43,7 +43,7 @@ local Items: { ShopItem } = {
 	{ id = "ModuleRush", tab = "Camp", kind = "product", robux = 59, productId = 0, paidRandom = false },
 	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 2014814394, paidRandom = false },
 	{ id = "RadarMk1Unlock", tab = "Gear", kind = "product", robux = 149, productId = 0, paidRandom = false },
-	{ id = "ScannerPulse1", tab = "Boosts", kind = "product", robux = 9, productId = 0, paidRandom = false }, -- the cheap first purchase (B51): one Scanner Pulse, repeatable
+	{ id = "ScannerPulse1", tab = "Boosts", kind = "product", robux = 9, productId = 3721127003, paidRandom = false }, -- the cheap first purchase (B51): one Scanner Pulse, repeatable
 	{ id = "SpeedBurstx5", tab = "Boosts", kind = "product", robux = 49, productId = 3717062564, paidRandom = false },
 	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 3717062704, paidRandom = false },
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },

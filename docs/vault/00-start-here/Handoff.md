@@ -148,7 +148,7 @@ Offline earnings (50% of the live rate, capped), resting in game (after 2 min id
 | Item | Kind | Robux | Id |
 |---|---|---|---|
 | StarterPack | product | 199 | 3717062435 |
-| ScannerPulse1 (B51) | product | 9 | 0 until the Mac creates it (`tools/create_products.py --apply`) |
+| ScannerPulse1 (B51) | product | 9 | 3721127003 |
 | SpeedBurstx5 | product | 49 | 3717062564 |
 | SteadyHandsx3 | product | 79 | 3717062704 |
 | ScrapMagnetx3 | product | 99 | 3717062935 |
