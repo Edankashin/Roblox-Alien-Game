@@ -67,7 +67,7 @@ Your answers to [[Decide-Now]] 47 and 50 ([[Decisions]] B51): a new product, Sca
 4. Back on the list, hover over its picture, click **⋯**, choose **Copy Asset ID**, and send it to the coordinator as `ScannerPulse1: <the number>`. Until that id is in the game the card stays hidden.
 5. On the same list, click **Server Luck x4** to open it. In **Price** replace `999` with `599`. Click **Save Changes** (or **Save**). Nothing to send: the game already says 599.
 
-To let the Mac do it next time instead: on your key's page (step 2), **Add API System** > **developer-product**, tick **Read** and **Write**, choose **Catch an Alien** in its experience picker, **Save Changes**.
+To let the Mac do it next time instead: on your key's page (step 2), **Add API System** > **developer-product**, tick **Read** and **Write**, choose **Catch an Alien** in its experience picker; then **Add API System** > **game-pass**, tick **Read**, choose **Catch an Alien**; **Save Changes**.
 
 ## 4. Pick the icon and thumbnails (5 minutes)
 
