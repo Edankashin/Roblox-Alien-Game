@@ -401,4 +401,83 @@ describe("the glyphs", function()
 		expect(#none).toEqual(0)
 	end)
 end)
+
+describe("the Clean UI pass: fewer, calmer", function()
+	local look = Spectacle.Look
+
+	it("dresses only the nearest six aliens (four on a phone) in their presence", function()
+		expect(Spectacle.Caps.MaxPresence).toEqual(6)
+		expect(Spectacle.Caps.MaxPresenceMobile).toEqual(4)
+	end)
+
+	it("keeps the glyph orbit and the trail of cells to Rare and up, whatever a row says", function()
+		local ornamentFrom = table.find(ORDER, look.OrnamentMinTier) :: number
+		local trailFrom = table.find(ORDER, look.TrailMinTier) :: number
+		for rank, tier in ipairs(ORDER) do
+			local row = SpectacleMath.Presence(tier)
+			if rank < ornamentFrom then
+				expect(row.ornaments).toEqual(0)
+			end
+			if rank < trailFrom then
+				expect(row.trail).toEqual(0)
+			end
+		end
+		expect(ornamentFrom >= table.find(ORDER, "Rare")).toEqual(true)
+		expect(trailFrom >= table.find(ORDER, "Rare")).toEqual(true)
+	end)
+
+	it("leaves every other presence field as the data has it", function()
+		local row: any = Spectacle.Presence.Uncommon
+		local savedOrnaments, savedTrail = row.ornaments, row.trail
+		-- the gate is applied when SpectacleMath loads, so check the shipped rows agree with their gated copies
+		expect(SpectacleMath.Presence("Uncommon").pool).toEqual(row.pool)
+		expect(savedOrnaments).toEqual(0)
+		expect(savedTrail).toEqual(0)
+		expect(SpectacleMath.Presence("Cosmic").ornaments).toEqual(Spectacle.Presence.Cosmic.ornaments)
+		expect(SpectacleMath.Presence("Cosmic").trail).toEqual(Spectacle.Presence.Cosmic.trail)
+	end)
+
+	it("fades a beacon out between 40 and 25 studs and shows it whole from afar", function()
+		expect(look.BeaconNearFadeStuds).toEqual(40)
+		expect(look.BeaconHideStuds).toEqual(25)
+		expect(SpectacleMath.BeaconNear(200)).toEqual(1)
+		expect(SpectacleMath.BeaconNear(look.BeaconNearFadeStuds)).toEqual(1)
+		expect(SpectacleMath.BeaconNear(look.BeaconHideStuds)).toEqual(0)
+		expect(SpectacleMath.BeaconNear(5)).toEqual(0)
+		expect(SpectacleMath.BeaconNear(0)).toEqual(0)
+		local mid = SpectacleMath.BeaconNear((look.BeaconNearFadeStuds + look.BeaconHideStuds) / 2)
+		expect(mid).toBeClose(0.5, 1e-9)
+	end)
+
+	it("only ever fades more as the camera comes closer", function()
+		local last = 1
+		for distance = 60, 0, -1 do
+			local now = SpectacleMath.BeaconNear(distance)
+			expect(now <= last + 1e-12).toEqual(true)
+			expect(now >= 0 and now <= 1).toEqual(true)
+			last = now
+		end
+	end)
+
+	it("never dims the screen over an open panel, nor within DimGapSeconds of the last dim", function()
+		expect(look.DimGapSeconds).toEqual(8)
+		expect(SpectacleMath.DimAllowed(100, -math.huge, false)).toEqual(true)
+		expect(SpectacleMath.DimAllowed(100, -math.huge, true)).toEqual(false)
+		expect(SpectacleMath.DimAllowed(100, 95, false)).toEqual(false)
+		expect(SpectacleMath.DimAllowed(100, 100 - look.DimGapSeconds + 0.01, false)).toEqual(false)
+		expect(SpectacleMath.DimAllowed(100, 100 - look.DimGapSeconds, false)).toEqual(true)
+		expect(SpectacleMath.DimAllowed(100, 80, true)).toEqual(false)
+	end)
+
+	it("spaces a Cosmic and then a Secret arrival at least DimGapSeconds apart", function()
+		local lastDimAt, played = -math.huge, 0
+		for _, at in ipairs({ 0, 3, 7.9, 8, 12, 17 }) do
+			if SpectacleMath.DimAllowed(at, lastDimAt, false) then
+				lastDimAt = at
+				played += 1
+			end
+		end
+		expect(played).toEqual(3) -- at 0, 8 and 17
+	end)
+end)
 return true

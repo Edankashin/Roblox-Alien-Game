@@ -166,6 +166,8 @@ local skyEffect: ColorCorrectionEffect? = nil
 local vignette: ScreenGui? = nil
 local vignetteFrames: { Frame } = {}
 local localPlayer = Players.LocalPlayer
+local lastDimAt = -math.huge -- os.clock() of the last arrival dim or vignette that played (SpectacleMath.DimAllowed spaces them)
+local panelProbe: (() -> boolean)? = nil -- the bootstrap's Screens.IsAnyOpen: no screen dim over an open panel
 
 local caps = SpectacleData.Caps
 local look = SpectacleData.Look
@@ -422,9 +424,18 @@ local function stepBeacon(record: Record, now: number, still: boolean)
 		dropBeacon(record)
 		return
 	end
-	beacon.beam.Enabled = record.beaconWanted and record.visible and not record.veiled
+	-- Close to the camera the column would fill the screen with light: it fades out between Look.BeaconNearFadeStuds and BeaconHideStuds
+	-- (measured along the ground) and is gone inside the second.
+	local camera = Workspace.CurrentCamera
+	local near = 1
+	if camera then
+		local offset = record.home - camera.CFrame.Position
+		near = SpectacleMath.BeaconNear(Vector3.new(offset.X, 0, offset.Z).Magnitude)
+	end
+	beacon.beam.Enabled = record.beaconWanted and record.visible and not record.veiled and near > 0
 	-- the top fades out, so the column reads as light rising rather than a pole
-	beacon.beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, alpha), NumberSequenceKeypoint.new(1, 1) })
+	local shown = 1 - (1 - alpha) * near
+	beacon.beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, shown), NumberSequenceKeypoint.new(1, 1) })
 end
 
 -- Presence --------------------------------------------------------------------------
@@ -732,6 +743,16 @@ end
 
 local function startArrival(record: Record, now: number)
 	local plan = SpectacleMath.ArrivalPlan(record.tier, mobile, Prefs.ReducedMotion())
+	-- A screen dim (the Cosmic's sky, the Secret's edge flicker) never plays over an open panel or within Look.DimGapSeconds of another.
+	if plan.skyDim > 0 or plan.vignette then
+		local panelOpen = panelProbe ~= nil and panelProbe()
+		if SpectacleMath.DimAllowed(now, lastDimAt, panelOpen) then
+			lastDimAt = now
+		else
+			plan.skyDim = 0
+			plan.vignette = false
+		end
+	end
 	if plan.beacon ~= 0 then
 		raiseBeacon(record, now, plan.beacon)
 	end
@@ -1414,6 +1435,11 @@ export type TrackInfo = {
 }
 
 -- Starts the module: `knownSpecies` is the player's caught set (WildRenderer's, kept live), so a heart greets a species they know.
+-- The bootstrap hands in Screens.IsAnyOpen so an arrival's screen dim waits for a clear screen.
+function Spectacle.SetPanelProbe(probe: (() -> boolean)?)
+	panelProbe = probe
+end
+
 function Spectacle.Start(knownSpecies: { [string]: boolean })
 	known = knownSpecies
 	startedAt = os.clock()

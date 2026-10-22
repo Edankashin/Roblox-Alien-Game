@@ -98,7 +98,6 @@ local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 
 local ACTION_POLL_SECONDS = 0.1 -- how often the contextual button re-decides its verb
 local TOAST_TOP_WITH_PANEL = 0.03 -- with a panel open, toasts sit over the dimmed HUD row instead of the panel's header
-local TOAST_TOP_WITH_BANNER = 0.29 -- with or without the event banner the centre column ends at the Friend Boost chip (0.281), so toasts start under it (Studio 2026-10-06: a shower toast covered the chip at 0.235)
 local SHIP_POLL_SECONDS = 0.5 -- how often the ship bar extrapolates assembly progress
 local PROFILE_PULL_SECONDS = 1 -- retry interval while the server is still loading the profile
 local BIOME_POLL_SECONDS = 0.5 -- how often the biome chip re-reads the player's position
@@ -1411,6 +1410,7 @@ local function start(profile: Types.Profile)
 
 	-- Modal screens: one open at a time, each behind a left-edge menu button.
 	Toast.SetPanelProbe(Screens.IsAnyOpen) -- banners drop to the bottom slot while a panel is open
+	Spectacle.SetPanelProbe(Screens.IsAnyOpen) -- an arrival's screen dim waits for a clear screen
 	Toast.SetQuietProbe(quietMoment) -- toasts and banners wait while the Reveal or a catch is up
 	Screens.Register("Ship", ShipScreen)
 	Screens.Register("Shop", ShopScreen)
@@ -1650,16 +1650,21 @@ local function start(profile: Types.Profile)
 		-- The rush's edges first (a toast at the start and at the end); the banner slot below still goes to
 		-- a running shower, which keeps priority when both are up.
 		if rushState.active then
-			if held or shower.active then
+			if held then
 				if not rushWasActive then
-					rushBannerHeld = true -- it began unseen; announced when the slot frees
+					rushBannerHeld = true -- it began unseen under the tutorial's hold
 				end
 			else
 				if not rushWasActive or rushBannerHeld then
 					if not rushWasActive then
-						Builder.playSound(Sounds.RushStart) -- the round begins; a banner that waited for a free slot has no second cue
+						Builder.playSound(Sounds.RushStart) -- the round begins; a banner that waited for the hold has no second cue
 					end
-					Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds, "rush")
+					-- A hold that just lifted releases only the highest-priority banner still running: with a shower on too, the
+					-- shower's banner (below) shows and the rush is already in the event chip. A rush that starts later queues behind a
+					-- banner on screen (Toast keeps one at a time).
+					if not (rushBannerHeld and shower.active) then
+						Toast.Banner(Strings.RUSH_NOW, Theme.Colors.Featured, Config.AnnounceSeconds, "rush")
+					end
 				end
 				rushBannerHeld = false
 			end
@@ -2067,7 +2072,7 @@ local function start(profile: Types.Profile)
 		RadarColumn.SetVisible(not modalOpen() and not cinematic)
 		setChatShown(not modalOpen())
 		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
-		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
+		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil) -- the centre column is gone (the event chip carries events): the stack starts at its default under the banner's slot
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).
