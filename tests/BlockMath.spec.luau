@@ -437,6 +437,15 @@ describe("Aliens header and grid", function()
 			assert(BAY_W * w >= BAY_PX and TOKEN_W * w >= TOKEN_PX and OPTIMIZE_W * w >= OPTIMIZE_PX + 12, "a footer button is too narrow")
 			assert(FUSE_W * w >= 60, "Fuse is " .. FUSE_W * w .. " px")
 		end)
+		it(screen.name .. ": a footer button's 44 px hit area grows only up and down, never into its neighbour or far into the grid", function()
+			-- The hit area is the face's width (every button is 44 px or wider, so it stays that wide) and 44 px tall, centred on the face
+			-- (Builder.blockButton `hit`, Theme.TapMin): it reaches (44 - face) / 2 px above and below the face.
+			local face = FOOTER_H * h
+			local reach = math.max(0, (44 - face) / 2)
+			assert(FUSE_W * w >= 44 and OPTIMIZE_W * w >= 44 and TOKEN_W * w >= 44 and BAY_W * w >= 44, "a footer button is under 44 px wide")
+			assert(reach <= 12, "the hit area reaches " .. reach .. " px past the face")
+			assert(reach - (FOOTER_Y - (GRID_Y + GRID_H)) * h <= 10, "it overlaps the grid's last row by " .. reach .. " px")
+		end)
 	end
 end)
 

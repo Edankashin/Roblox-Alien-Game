@@ -1160,6 +1160,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			textSize = Theme.TextSize.Body,
 			rows = SQUARE_ROWS,
 			cells = false, -- one per card: a flat face
+			hit = true, -- 44 px floor
 			zIndex = RIDE_Z,
 		}, function()
 			setMount(if entry.riding then nil else record.uid, entry.name)
@@ -1181,6 +1182,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			textSize = Theme.TextSize.Body,
 			rows = SQUARE_ROWS,
 			cells = false, -- one per card: a flat face
+			hit = true, -- 44 px floor
 			zIndex = RIDE_Z,
 		}, function()
 			displayAlien(record.uid, entry.name, world)
@@ -1198,6 +1200,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			textSize = Theme.TextSize.Body,
 			rows = SQUARE_ROWS,
 			cells = false, -- one per card: a flat face
+			hit = true, -- 44 px floor
 			zIndex = RIDE_Z,
 		}, function()
 			setDisplay(record.uid, nil, entry.name, worldName)
@@ -1516,6 +1519,7 @@ local function build()
 		size = UDim2.fromScale(RELEASE_W, RELEASE_H),
 		rows = Builder.blockButtonRows(RELEASE_H * PANEL_H), -- a fitted block button: its size is a share of the panel
 		textSize = Theme.TextSize.Label,
+		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, function()
 		ReleasePanel.ShowMenu()
@@ -1581,6 +1585,7 @@ local function build()
 		size = UDim2.fromScale(BAY_W, FOOTER_H),
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		textSize = Theme.TextSize.Label,
+		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, buyStorageBay)
 
@@ -1644,6 +1649,7 @@ local function build()
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
+		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, function()
 		ask("StationOptimize")
@@ -1659,6 +1665,7 @@ local function build()
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
+		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, fuseAll)
 	local token = Builder.blockButton({
@@ -1671,6 +1678,7 @@ local function build()
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
+		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, useToken)
 	token.Visible = false -- shown by updateCompanionRows while a token is held
