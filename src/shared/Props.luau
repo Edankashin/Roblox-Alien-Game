@@ -28,8 +28,8 @@ local FIDELITY: { [string]: Enum.CollisionFidelity } = {
 -- once and every clone scales from that baseline; nothing done to a clone later can shift it.
 local sourceScale: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
--- CollisionFidelity is writable only from a plugin or Open Cloud (the installer in Edit mode), not from a game
--- script: a runtime-loaded mesh keeps the fidelity it was uploaded with, and the first refusal is warned once.
+-- CollisionFidelity is writable only from a plugin or Open Cloud (Edit mode), not from a game script: a mesh keeps
+-- the fidelity it was uploaded or installed with, and the first refusal is warned once.
 local fidelityWarned = false
 local function setFidelity(part: MeshPart, fidelity: Enum.CollisionFidelity)
 	if part.CollisionFidelity == fidelity then
@@ -40,7 +40,7 @@ local function setFidelity(part: MeshPart, fidelity: Enum.CollisionFidelity)
 	end)
 	if not ok and not fidelityWarned then
 		fidelityWarned = true
-		warn(("[%s] Props: CollisionFidelity stays as loaded (%s); install_models.luau sets it in Edit mode"):format(Config.WorkingTitle, tostring(err)))
+		warn(("[%s] Props: CollisionFidelity stays as uploaded (%s); only Edit mode (a plugin) can set it"):format(Config.WorkingTitle, tostring(err)))
 	end
 end
 

@@ -681,9 +681,11 @@ local function buildGround(gen: Types.WorldGen, floorTop: number, world: Instanc
 		local kind = WorldKit.Kinds[kindName]
 		local textured = tileId(kind.top) ~= 0
 		local isFloor = not floorNamed and top == 0 and i <= campI and campI < i + w and j <= campI and campI < j + d
+		-- the floor cap goes straight under World: Meadow.GetFloorTop, the camp, the Peddler and the waypoint find it there by name
 		local part = groundPart(if isFloor then FLOOR_NAME else "Cap", Vector3.new(w * cell, 1, d * cell),
 			Vector3.new(origin + (i + w / 2) * cell, floorTop + top - 0.5, origin + (j + d / 2) * cell),
-			kind.color, if textured then Enum.Material.SmoothPlastic else enumMaterial(kind.material), chunkOf(chunks, groundFolder, gen, i, j))
+			kind.color, if textured then Enum.Material.SmoothPlastic else enumMaterial(kind.material),
+			if isFloor then world else chunkOf(chunks, groundFolder, gen, i, j))
 		floorNamed = floorNamed or isFloor
 		addTexture(part, kind.top, Enum.NormalId.Top)
 		for _, side in ipairs(SIDE_FACES) do

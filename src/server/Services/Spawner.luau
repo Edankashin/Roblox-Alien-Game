@@ -74,6 +74,7 @@ export type WildSpawn = {
 	position: Vector3,
 	part: Part,
 	reservedFor: number?, -- UserId of the one player who may catch it (a summoned Warden); nil for wild spawns
+	timed: boolean?, -- placed by SpawnAt with its own lifetime (a dev /spawn): that lifetime ends it, not its condition
 }
 
 -- "retreat" is a despawn the caller asked for (a reserved encounter was abandoned), so a listener can tell.
@@ -459,13 +460,13 @@ local function tick()
 	end
 
 	-- conditional spawns leave when their condition ends; far spawns are culled. A reserved spawn lives
-	-- on its own lifetime (SpawnAt) and is left alone by both. The Alien of the Week ignores its own condition
+	-- on its own lifetime (SpawnAt) and is left alone by both; a timed wild one skips the condition check. The Alien of the Week ignores its own condition
 	-- (Panpipe's is Quest, which no clock ever offers), so it stays while its week runs, and so does a season's
 	-- event or returning species (Seasons.IsEventSpawn).
 	local weekly = Weekly.ActiveSpecies()
 	for spawnId, spawn in pairs(spawns) do
 		local wild = spawn.reservedFor == nil
-		if wild and spawn.condition ~= "Any" and spawn.species ~= weekly and not Seasons.IsEventSpawn(spawn.species) and not table.find(conditions, spawn.condition) then
+		if wild and not spawn.timed and spawn.condition ~= "Any" and spawn.species ~= weekly and not Seasons.IsEventSpawn(spawn.species) and not table.find(conditions, spawn.condition) then
 			Spawner.RemoveSpawn(spawnId, "despawn")
 		elseif wild and #roots > 0 then
 			local nearest = math.huge
@@ -542,6 +543,7 @@ function Spawner.SpawnAt(position: Vector3, speciesId: string, overlay: Types.Ov
 	local band: string = if size == nil then rollSize() elseif Sizes.ById[size] then size else Sizes.Default
 	local spawn = place(def, position, overlay, band, reservedFor)
 	if lifetimeSeconds and lifetimeSeconds > 0 then
+		spawn.timed = true
 		local spawnId = spawn.spawnId
 		task.delay(lifetimeSeconds, function()
 			if spawns[spawnId] == spawn then
