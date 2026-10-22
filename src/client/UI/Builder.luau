@@ -953,6 +953,9 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edge
 	local face: Color3 = if typeof(color) == "Color3" then color else Theme.Colors.Panel
 	local ink: Color3 = if typeof(inkColor) == "Color3" then inkColor else Theme.Colors.Outline
 	local fade: number = if type(fadeBy) == "number" then fadeBy else 0
+	if cells and not BlockMath.WithinBudget(grid, Theme.Block.MaxCells) then
+		cells, edges = false, true -- no screen makes a grid this big; draw it edged rather than spend seconds on its cells
+	end
 	local function add(name: string, rect: BlockMath.Rect, shade: Color3, transparency: number, layer: number)
 		table.insert(parts, rectFrame(plate, name, rect, shade, 1 - (1 - transparency) * (1 - fade), z + layer))
 	end
@@ -974,10 +977,10 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edge
 		end
 	end
 	if cells then
-		for _, rect in ipairs(BlockMath.Grout(grid, Theme.Block.Grout)) do
+		for _, rect in ipairs(BlockMath.GroutCached(grid, Theme.Block.Grout)) do
 			add("Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, layers.Cells)
 		end
-		for _, cell in ipairs(BlockMath.Jittered(grid, seed)) do
+		for _, cell in ipairs(BlockMath.JitteredCached(grid, seed)) do
 			local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
 			add("Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, layers.Cells)
 		end
@@ -997,6 +1000,59 @@ end
 -- square cells change. A UIScale tween (a panel opening) scales both sides alike, so it never re-picks or redraws; a rotation, a
 -- resize or a column growing shorter may. Before it is measured it draws from a guess (its Size as a share of the screen), so it
 -- is never blank for a frame.
+-- The fitted plates' measurements wait in one queue and run in batches of Theme.Block.FitBudget seconds a frame, yielding between
+-- batches: a screen that builds or resizes a hundred fitted plates at once (the HUD at start, while the server loads) spreads
+-- their redraws over a few frames instead of running them all in one go (Studio 2026-10-22: "Script timeout: exhausted allowed
+-- execution time" in fitPlate's measure, then draw). Every plate drew its guess when it was built, so nothing is blank meanwhile.
+local fitQueue: { () -> () } = {}
+local fitQueued: { [() -> ()]: boolean } = {}
+local fitDraining = false
+
+local function drainFits()
+	local started = os.clock()
+	local head = 1
+	while head <= #fitQueue do
+		local measure = fitQueue[head]
+		head += 1
+		fitQueued[measure] = nil -- a change from here on queues it again
+		local ok, problem = pcall(function(): string?
+			measure()
+			return nil
+		end)
+		if not ok then
+			warn("[Builder] a fitted plate's measure failed: " .. tostring(problem))
+		end
+		if head <= #fitQueue and os.clock() - started > Theme.Block.FitBudget then
+			task.wait() -- the rest wait a frame
+			started = os.clock()
+		end
+	end
+	table.clear(fitQueue)
+	fitDraining = false
+end
+
+local function scheduleFit(measure: () -> ())
+	if fitQueued[measure] then
+		return
+	end
+	fitQueued[measure] = true
+	table.insert(fitQueue, measure)
+	if not fitDraining then
+		fitDraining = true
+		task.defer(drainFits)
+	end
+end
+
+-- The height of the screen a plate is on: its ScreenGui's (Builder.screen ignores the inset, so it is the whole viewport, and it
+-- is laid out with the plate, so the two always agree), else the camera's viewport.
+local function screenHeight(plate: Instance): number
+	local gui = plate:FindFirstAncestorWhichIsA("ScreenGui")
+	if gui and gui.AbsoluteSize.Y > 0 then
+		return gui.AbsoluteSize.Y
+	end
+	return viewportHeight()
+end
+
 local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number, number) -> ())
 	local camera = workspace.CurrentCamera
 	local screen = if camera then camera.ViewportSize else Vector2.new(16, 9)
@@ -1011,12 +1067,17 @@ local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number,
 		if box.X <= 0 or box.Y <= 0 then
 			return
 		end
-		local height = viewportHeight()
+		local height = screenHeight(plate)
 		local aspect = box.X / box.Y
 		local want = pickedRows
 		local reshaped = pickedAspect <= 0 or math.abs(aspect / pickedAspect - 1) > FIT_RESHAPE
 		if rows == nil and (want == nil or pickedFor ~= height or reshaped) then
-			want = if height > 0 then Builder.blockRows(box.Y / height) else guessRows
+			-- 0: not a screen's measurement yet (a 1 px viewport at start); keep what is drawn until a real one comes
+			local fresh = BlockMath.ScreenRows(box.Y, height, Theme.Block.Cell, Theme.Block.Ink, Theme.Block.MinRows, 0)
+			if fresh <= 0 then
+				return
+			end
+			want = fresh
 			pickedRows, pickedFor, pickedAspect = want, height, aspect
 		end
 		local wantRows = want or guessRows
@@ -1026,8 +1087,10 @@ local function fitPlate(plate: Frame, size: UDim2, rows: number?, draw: (number,
 			draw(aspect, wantRows)
 		end
 	end
-	plate:GetPropertyChangedSignal("AbsoluteSize"):Connect(measure)
-	task.defer(measure)
+	plate:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		scheduleFit(measure)
+	end)
+	scheduleFit(measure)
 end
 
 -- A block plate (UI Playbook "Block cells"): ink, face and, unless `cells` is false, the C3 bands, the grout and the C2 jitter

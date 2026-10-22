@@ -309,4 +309,62 @@ describe("ShelfMath.IsLive with offSale", function()
 		end
 	end)
 end)
+
+describe("Shop header clears the cards", function()
+	-- Studio 2026-10-22: at the default window the red X covered the third card's ribbon. The shelf scrolls, so any card can pass
+	-- under the header; the fix is vertical: the header (the title, the Scrap pill and the X, all from data/Shop Shelf) ends above
+	-- the top of every ribbon, even a card's lifted on hover. Sizes: iPhone SE and iPad (the device pass), the Mac's 16:9 default
+	-- window, a wide phone and a 1080p window. Builder.blockClose: a square within W by H of the screen; the Scrap pill keeps its
+	-- aspect within W by H; a ribbon starts Card.Ribbon.Y (negative) of the card above the card's top.
+	local shelf = Shop.Shelf
+	local screens = {
+		{ name = "iPhone SE", w = 667, h = 375 },
+		{ name = "iPad", w = 1080, h = 810 },
+		{ name = "default 16:9", w = 1280, h = 720 },
+		{ name = "wide phone", w = 844, h = 390 },
+		{ name = "1080p", w = 1920, h = 1080 },
+	}
+	local function headerBottom(w: number, h: number): number
+		local close = shelf.Close
+		local side = math.min(close.W * w, close.H * h)
+		local pill = shelf.Currency
+		local pillH = math.min(pill.H * h, pill.W * w / pill.Aspect)
+		local title = shelf.Title
+		return math.max(close.Y * h + side, pill.Y * h + pillH, title.Y * h + title.H * h)
+	end
+	local function ribbonTop(h: number, lifted: boolean): number
+		local cardH = shelf.CardH * h
+		local top = shelf.CardTop * h + math.min(shelf.Card.Ribbon.Y, shelf.Featured.Ribbon.Y) * cardH
+		return if lifted then top - shelf.Motion.HoverLift * cardH else top
+	end
+	for _, screen in ipairs(screens) do
+		it(screen.name .. ": the X, the Scrap pill and the title end above every ribbon, lifted or not", function()
+			local bottom = headerBottom(screen.w, screen.h)
+			local lifted = ribbonTop(screen.h, true)
+			assert(lifted >= bottom + 1, "a lifted ribbon starts at " .. lifted .. " px, the header ends at " .. bottom)
+			assert(ribbonTop(screen.h, false) > lifted, "the lift goes up")
+		end)
+	end
+	it("the cards still fit the window (the ribbons and the lift inside its clip) and keep the text floor at iPhone SE", function()
+		local window = shelf.Window
+		local liftedTop = shelf.CardTop + (shelf.Card.Ribbon.Y - shelf.Motion.HoverLift) * shelf.CardH
+		assert(liftedTop >= window.Y, "a lifted ribbon leaves the window's clip")
+		assert(shelf.CardTop + shelf.CardH <= window.Y + window.H, "the cards run past the window")
+		assert(shelf.CardTop + shelf.CardH <= shelf.Scrollbar.Y, "the cards run over the scrollbar")
+		local cardPx = shelf.CardH * 375
+		for _, band in ipairs({ shelf.Card.Note, shelf.Card.Below, shelf.Featured.Note, shelf.Featured.Below }) do
+			assert(band.H * cardPx >= 14, "a one-line band is " .. band.H * cardPx .. " px")
+		end
+		assert(shelf.Card.Name.H * cardPx >= 2 * 14, "the name's two lines do not fit")
+		assert(shelf.Card.Ribbon.H * cardPx >= 14 + 4, "the ribbon's line does not fit")
+		local middle = shelf.CardTop + shelf.CardH / 2
+		assert(math.abs(shelf.Chevron.Y - middle) <= 0.005, "the arrows are off the row's middle")
+	end)
+	it("the X keeps a face of at least 0.6 of the tap floor at iPhone SE (its hit area makes 44 px)", function()
+		local side = math.min(shelf.Close.W * 667, shelf.Close.H * 375)
+		local rows = math.max(3, math.floor((shelf.Close.H - 0.02) / 0.02 - 0.8 + 0.5)) -- Builder.blockButtonRows
+		local face = side * (1 - 1 / (rows + 0.8 + 1))
+		assert(face >= 0.6 * 44, "the X's face is " .. face .. " px")
+	end)
+end)
 return true

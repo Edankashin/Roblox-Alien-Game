@@ -97,6 +97,8 @@ Theme.Block = {
 	PanelCell = 0.04, -- a modal panel's cell (Builder.blockPanelRows): twice Cell, as the world's cell is twice a creature's (C1)
 	Trough = Color3.fromHex("2A2F55"), -- a dark plate's face (the Scrap plate, the ship bar's trough, the idle Friend chip): the ink a step up
 	Layer = { Ink = 0, Fill = 1, Bar = 2, Cells = 3, Content = 4 },
+	MaxCells = 6000, -- a grid of more cells draws as an edged block (BlockMath.WithinBudget): a whole 21:9 screen at the HUD cell is about 5,600; the start-up measurement asked for millions
+	FitBudget = 0.004, -- seconds of fitted-plate measuring and redrawing per frame; the rest waits for the next frame (Builder fitPlate)
 }
 Theme.Lighten = 0.25 -- gradient top: how far toward white
 Theme.Darken = 0.35 -- strokes and lips: how far toward black

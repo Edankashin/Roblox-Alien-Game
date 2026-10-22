@@ -40,6 +40,18 @@ function BlockMath.Rows(height: number, cell: number, ink: number, minRows: numb
 	return math.max(minRows, math.floor(height / cell - 2 * ink + 0.5))
 end
 
+-- The rows of a fitted plate measured at `boxY` px on a screen `screenY` px tall (Builder's fitPlate), or `fallback` when the
+-- measurement cannot be a screen's: no screen yet, or a plate taller than its screen. At start the camera's viewport can read
+-- 1 px while the GUI is already laid out, and 300 px of plate over 1 px of screen asked for some fifteen thousand rows, a grid
+-- whose jitter pass ran past the script timeout (Studio 2026-10-22, `UI.Builder` "Script timeout: exhausted allowed execution
+-- time" in fitPlate's measure). The plate keeps its first guess until a real measurement comes.
+function BlockMath.ScreenRows(boxY: number, screenY: number, cell: number, ink: number, minRows: number, fallback: number): number
+	if screenY <= 0 or boxY <= 0 or boxY > screenY then
+		return fallback
+	end
+	return BlockMath.Rows(boxY / screenY, cell, ink, minRows)
+end
+
 -- The grid of a plate whose box is `aspect` (width over height, in px) with `rows` rows: the columns are the whole number that
 -- comes closest to square cells, round(aspect * (rows + 2 ink) - 2 ink), never under 3.
 function BlockMath.Grid(aspect: number, rows: number, ink: number): Grid
@@ -230,6 +242,59 @@ function BlockMath.Frames(grid: Grid, cells: boolean, seed: number, edges: boole
 		return count
 	end
 	return count + #BlockMath.Grout(grid, 1) + #BlockMath.Jittered(grid, seed)
+end
+
+-- Whether a grid is small enough to draw in full cells: `maxCells` (Theme.Block.MaxCells) or fewer. A grid over it draws as an
+-- edged block (eight frames) instead, whatever asked for it: the last guard against a measurement no screen makes. The largest
+-- real grid is the Playtime panel's 39 by 19 (tests/BlockMath.spec.luau "Block budget").
+function BlockMath.WithinBudget(grid: Grid, maxCells: number): boolean
+	return grid.rows * grid.cols <= maxCells
+end
+
+-- Cached grout and jitter (Builder's drawGrid): a plate's grout lines and jittered cells depend only on its rows, columns, ink
+-- and the grout width or the seed, and the screens draw many plates of one size (the HUD's buttons, a list's rows, every redraw
+-- of a fitted plate at the same columns), so each grid is worked out once. The answers are shared: callers only read them. The
+-- cache forgets everything past CACHE_LIMIT entries, so a resize sweep cannot grow it without bound.
+local CACHE_LIMIT = 256
+local groutCache: { [string]: { Rect } } = {}
+local jitterCache: { [string]: { Jitter } } = {}
+local groutCount, jitterCount = 0, 0
+
+function BlockMath.GroutCached(grid: Grid, width: number): { Rect }
+	local key = grid.rows .. ":" .. grid.cols .. ":" .. grid.ink .. ":" .. width
+	local hit = groutCache[key]
+	if hit then
+		return hit
+	end
+	if groutCount >= CACHE_LIMIT then
+		table.clear(groutCache)
+		groutCount = 0
+	end
+	local made = BlockMath.Grout(grid, width)
+	groutCache[key] = made
+	groutCount += 1
+	return made
+end
+
+function BlockMath.JitteredCached(grid: Grid, seed: number): { Jitter }
+	local key = grid.rows .. ":" .. grid.cols .. ":" .. seed
+	local hit = jitterCache[key]
+	if hit then
+		return hit
+	end
+	if jitterCount >= CACHE_LIMIT then
+		table.clear(jitterCache)
+		jitterCount = 0
+	end
+	local made = BlockMath.Jittered(grid, seed)
+	jitterCache[key] = made
+	jitterCount += 1
+	return made
+end
+
+-- How many grids each cache holds now (the spec checks the bound).
+function BlockMath.CacheSize(): (number, number)
+	return groutCount, jitterCount
 end
 
 -- A block button is its face plate over a lip one cell deep: the face is `rows` + 2 ink cells tall and the whole button one
