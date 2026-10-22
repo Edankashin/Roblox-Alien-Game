@@ -55,17 +55,15 @@ function SpeciesThumb.New(host: Frame, z: number, aspect: number): Thumb
 	return { view = view, camera = camera, model = nil, species = nil, shadowed = false, aspect = aspect }
 end
 
--- Puts `def`'s model in the view (shadowed as a silhouette when `shadowed`), framed whole. Answers whether a model shows; false
+-- Puts `def`'s model in the view (shadowed as an all-black silhouette when `shadowed`: no texture, no decal, no colour), framed whole. Answers whether a model shows; false
 -- (no def, or no model for it) hides the view, and the caller keeps its backdrop and shows the species' display name.
 function SpeciesThumb.Show(thumb: Thumb, def: Types.SpeciesDef?, shadowed: boolean): boolean
-	if def and thumb.model and thumb.species == def.id then
-		if thumb.shadowed ~= shadowed then
-			Models.SetShadow(thumb.model, shadowed)
-			thumb.shadowed = shadowed
-		end
+	if def and thumb.model and thumb.species == def.id and thumb.shadowed == shadowed then
 		thumb.view.Visible = true
 		return true
 	end
+	-- A different species, or the same one in the other shade: the clone is rebuilt (a silhouette strips the model's decals, which
+	-- SetShadow leaves, and cannot be put back by un-shadowing).
 	if thumb.model then
 		thumb.model:Destroy()
 		thumb.model = nil
@@ -79,6 +77,11 @@ function SpeciesThumb.Show(thumb: Thumb, def: Types.SpeciesDef?, shadowed: boole
 	model:PivotTo(CFrame.identity)
 	if shadowed then
 		Models.SetShadow(model, true)
+		for _, descendant in ipairs(model:GetDescendants()) do
+			if descendant:IsA("Decal") or descendant:IsA("Texture") then
+				descendant:Destroy() -- a painted-on face would show through the black
+			end
+		end
 	end
 	model.Parent = thumb.view
 	local box, size = model:GetBoundingBox()

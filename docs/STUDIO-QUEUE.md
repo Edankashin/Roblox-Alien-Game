@@ -1,6 +1,6 @@
 # Studio run queue
 
-Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `1e048e49cc89235d`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `c537764288b9d252`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 103 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -61,7 +61,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 2.** Walk away from the camp: past 30 studs a green diamond for the camp appears at its bearing and the line reads "Camp 42m" (the number falling as you walk back); within 30 studs it hides. The gold Shrine diamond shows from 20 studs out with "Shrine 155m" when it is the nearest or highest-priority marker.
 
-**TESTING step 3.** Tutorial running: the gold waypoint diamond points at the marker's target and the line uses the waypoint's own label ("Wreck Plate 18m"); it beats the camp. Tap a radar blip (Radar Mk1): a sky-blue Target diamond appears and the line reads "Target 61m" until you reach it.
+**TESTING step 3.** Tutorial running: the gold waypoint diamond points at the marker's target and the line uses the waypoint's own label ("Wreck Plate 18m"); it beats the camp. The radar no longer marks aliens (Decision B52): there is no Target diamond from it; only the Warden shows one (Milestone 39).
 
 ### Milestone 31: the icon pack (World 1 place; before and after the image upload)
 
@@ -447,7 +447,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **Send back:** standard evidence above; original steps 3.
 
-**TESTING step 3.** The buff ring under the ship bar counts the 60 s down; at the end the rim blips go, the ring returns to blue, the silhouettes return. Rejoin mid-pulse (real saves with Studio API access and `memoryOnly=false`): the timer resumes and the reveal with it. Output clean.
+**TESTING step 3.** The buff ring under the ship bar counts the 60 s down; at the end the extra slots go (with no radar the whole column goes), the chip returns to dark, the silhouettes return. Rejoin mid-pulse (real saves with Studio API access and `memoryOnly=false`): the timer resumes and the column with it. Output clean.
 
 ## Published game
 

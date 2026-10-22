@@ -22,7 +22,6 @@ return {
 	WardenAppear = "rbxassetid://0",
 	Mount = "rbxassetid://0", -- the player hops onto a mount
 	Dismount = "rbxassetid://1841354575",
-	Heartbeat = "rbxassetid://1839090417", -- Radar Mk2: a secret is in range; the beat quickens as the player nears it
 	Launch = "rbxassetid://12222065", -- reserved for the launch sequence (World 2)
 	-- looping ambiences, crossfaded by the client as the conditions change
 	Ambience = {
@@ -41,7 +40,6 @@ return {
 	-- consumer wires in as its id lands (LegendaryRumble already plays with the Legendary opening).
 	LegendaryRumble = "rbxassetid://1842481856", -- the low rumble under the screen shake before a Legendary or higher catch bar opens
 	BarOpen = "rbxassetid://15675012262", -- the catch bar opens
-	RareNearby = "rbxassetid://15675085146", -- a rare alien comes into range
 	RushStart = "rbxassetid://15675062723", -- a Catch Rush round begins (it has only the banner's cue today)
 	Arrival = "rbxassetid://1838007773", -- the player lands on a world (no distinct arrival cue today)
 	RestStart = "rbxassetid://15675081158", -- the crew starts resting

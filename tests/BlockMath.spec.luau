@@ -323,29 +323,35 @@ describe("Block screens: Compass", function()
 	end
 end)
 
-describe("Block screens: Nearby", function()
-	-- NearbyPanel.luau: the column is 0.1 of the width by 0.405 of the height (at its default top), a fitted plate in cells whose
-	-- rows come from its height; the list is 0.86 of it and 0.9 wide; a row is at most 0.24 of the list, its icon 0.62 of the row,
-	-- a flat block of three rows with the tier's ink; eight rows share the list with 0.015 gaps.
+describe("Block screens: Radar column", function()
+	-- RadarColumn.luau (Decision B52): on the right edge from 0.228 of the height, a head chip 0.05 tall (aspect 3, three rows), 0.008
+	-- under it nine square slots 0.054 tall with 0.005 between (flat blocks of three rows), nearest at the top. The Catch button's top
+	-- is at 0.96 - 0.13 = 0.83 (Hud.luau) and the shower chip ends at 0.165 + 0.05 = 0.215.
+	local TOP, HEAD_H, HEAD_GAP, SLOT_H, SLOT_GAP, SLOTS = 0.228, 0.05, 0.008, 0.054, 0.005, 9
+	local ACTION_TOP, SHOWER_BOTTOM = 0.96 - 0.13, 0.165 + 0.05
+	local bottom = TOP + HEAD_H + HEAD_GAP + SLOTS * SLOT_H + (SLOTS - 1) * SLOT_GAP
+	it("stands under the shower chip and clear of the Catch button, with nine slots", function()
+		assert(TOP >= SHOWER_BOTTOM, "the column starts over the shower chip")
+		assert(bottom <= ACTION_TOP - 0.01, "the column ends at " .. bottom .. ", too near the Catch button at " .. ACTION_TOP)
+	end)
 	for _, screen in ipairs({ SE, IPAD }) do
 		local label = screen.w .. "x" .. screen.h
-		local colW, colH = 0.1 * screen.w, 0.405 * screen.h
-		local rows = BlockMath.Rows(0.405, CELL, INK, MIN_ROWS)
-		it(label .. ": the column's cells are near the HUD's, square within 6%, and under 90 frames", function()
-			local grid = fit(colW, colH, rows)
-			local cell = colH * grid.cellY
-			assert(cell >= 7 and cell <= 17, "column cell is " .. cell .. " px")
-			local skew = BlockMath.Skew(grid, colW / colH)
-			assert(math.abs(skew) <= 0.06, "column cells are " .. skew .. " off square")
-			local frames = BlockMath.Frames(grid, true, SEED)
-			assert(frames <= 90, "column draws " .. frames .. " frames")
+		local slot = SLOT_H * screen.h
+		local rows = BlockMath.Rows(SLOT_H, CELL, INK, MIN_ROWS)
+		it(label .. ": a slot is a square of three rows, a px of ink or more, eight frames or fewer", function()
+			expect(rows).toEqual(3)
+			local grid = BlockMath.Grid(1, rows, INK)
+			expect(grid.cols).toEqual(3)
+			local ink = INK * slot * grid.cellY
+			assert(ink >= 1.5, "slot ink is " .. ink .. " px")
+			assert(slot >= 19, "slot is " .. slot .. " px")
+			assert(BlockMath.Frames(grid, false, SEED) <= 8, "slot draws " .. BlockMath.Frames(grid, false, SEED) .. " frames")
 		end)
-		it(label .. ": a tall row's icon keeps a 2 px tier ink, a row of eight still a px", function()
-			local listH = 0.86 * colH
-			local tall = 0.24 * listH * 0.62
-			local short = (1 - 0.015 * 7) / 8 * listH * 0.62
-			assert(INK * tall / (3 + 2 * INK) >= 1.9, "tall icon ink is " .. INK * tall / (3 + 2 * INK) .. " px")
-			assert(INK * short / (3 + 2 * INK) >= 0.9, "short icon ink is " .. INK * short / (3 + 2 * INK) .. " px")
+		it(label .. ": the head chip's face holds a 14 px line, and the slots are narrower than the holder", function()
+			local grid = BlockMath.Grid(3, MIN_ROWS, INK)
+			local face = HEAD_H * screen.h * (1 - 2 * grid.inkY)
+			assert(face >= TEXT_MIN, "head face is " .. face .. " px, under a 14 px line")
+			assert(slot <= 0.1 * screen.w, "a slot is wider than the holder")
 		end)
 	end
 end)

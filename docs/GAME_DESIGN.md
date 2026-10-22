@@ -52,7 +52,7 @@ The plot stays one sentence: *catch aliens, build the ship, reach the next world
 |---|---|---|
 | Every 1 to 5 s | Scrap ticks, aliens work | Floating numbers, work-loop animations, soft chime on round numbers |
 | Every 30 to 90 s | A catch | Timing-bar hit sound, catch burst, rarity-colored card, codex "NEW" stamp |
-| First sight of a new species | A shadow silhouette resolves into color as you approach | "Who's that?" chime, radar blip turns from shadow to icon |
+| First sight of a new species | A shadow silhouette resolves into color as you approach | "Who's that?" chime; its radar slot stays a shadow until the first catch, then shows the face |
 | Every 3 to 10 min | Module sub-bar completes | Aliens swarm, part snaps on, camera pan, ship bar jumps with a bass hit |
 | Every session | Return reward | Offline chest, daily gift, daily quest complete, one free spin |
 | Every 2 h (server clock) | Meteor Shower | Server banner, sky changes, beacons, Epic+ spawns, Cosmic chance |
@@ -203,13 +203,13 @@ Rules for the Pantheon:
 ## 5. Exploration (the Pokémon GO model)
 
 - **Density:** 12 to 20 wild aliens are visible around the player at all times. Commons respawn 60 to 90 seconds after a catch. The world is never empty.
-- **Nearby panel:** a small panel lists the species present in this biome right now as silhouettes. Caught species show in color, uncaught as dark silhouettes, secrets as "???". Tapping one shows a compass direction, not a pin. The chase is the content.
+- **No free list of what is here:** there is no panel naming the species present in this biome (the free Nearby panel went with Decision B52). The chase is the content: the player walks, looks and finds. The Codex says what each species needs; the Radar (section 6) gives only a column of shadows, nearest first.
 - **Compass strip (P1):** a thin strip along the top edge with cardinal letters, the heading number in a small pill, and coloured diamond markers for the camp, the current Field Notes target, the Peddler and any live event, with a "Camp 42m" label under it. Reads better on a phone than a minimap and is what the dinosaur-ranch reference (batch 3) uses for its waypoints.
 - **Node markers:** key-material nodes carry a floating verb marker ("✦ Collect") readable from far away; the material name shows only up close. Verbs over nouns at distance tell the player what to do before they know what it is.
 - **Gating ladder:** rarity is gated by *where* (biome), *when* (day/night, weather), and *how* (lure tier, companion perks). Day/night cycle is 3 minutes day and 90 seconds night (a 15-minute session gets three nights). Weather rolls randomly for 2 to 5 minutes from the world's own list, and each world has one special weather with a signature alien (section 8).
 - **Hidden places:** rares spawn in nested spots: cave depths, treetops, behind a waterfall, under ice. Finding the spot is a one-time discovery that the codex remembers.
-- **Secret cues:** a secret alien in the area plays a unique chirp and shows a glint on the horizon. The Nearby panel shows "???". Nothing else is told.
-- **Radar:** a tiered, Scrap-upgradable radar that shows nearby aliens as blips, with uncaught species drawn as shadow silhouettes. Full spec in section 6.
+- **Secret cues:** a secret alien in the area plays a unique chirp and shows a glint on the horizon. The radar never lists it, not even as a shadow. Nothing else is told.
+- **Radar:** a tiered, Scrap-upgradable column of shadows on the right edge, nearest alien first, no map and no rarity (Decision B52). Full spec in section 6.
 - **Gear:** speed boots, a hoverboard, a glider, and rideable aliens make the map bigger as the player gets stronger. Section 6.
 - **Meteor Shower:** every 2 hours on a fixed server clock, a 3-minute window. Server-wide banner, sky turns, beacons mark spawns, Epic+ rates rise, Cosmics can appear. It is the only place Cosmics spawn, which turns the rarest find into a shared appointment rather than a private slot machine.
 - **Server announcements:** Legendary and Cosmic spawns announce to the whole server with location, the pattern Steal a Brainrot and Steal an Egg use. Seeing someone else's catch is content. Every catch of Rare and above (the threshold is `Config.AnnounceMinTier`) also posts a server-wide banner in the tier's colour naming the player, the rarity and the species ("Ethan caught a Shiny Epic Thunderhog!"), so rarity is read aloud to the whole server, not just to the catcher.
@@ -257,7 +257,7 @@ Epic mounts match Hoverboard speed. Legendary mounts are 20% faster. Cosmic moun
 |---|---|---|---|
 | Speed Burst | +50% speed | 60 s | Peddler, spins, Welcome Week, event tracks |
 | Steady Hands | timing zones +30% wider | 10 min | Peddler, quests |
-| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins, one at a time in the Shop (9 Robux) |
+| Scanner Pulse | every alien in the current biome shows on the radar column whatever the range, and the column works even without a radar; shadows and order only | 60 s | quests, spins, one at a time in the Shop (9 Robux) |
 | Lucky Charm | +50% personal luck | 10 min | quests, spins, Welcome Week, events. Earned only |
 | Scrap Magnet | catches pay +50% Scrap | 10 min | Peddler, spins |
 | Double Shift | stations produce 2x Scrap | 10 min | spins and event tracks only. Never sold |
@@ -266,14 +266,27 @@ Rules: one active per type, timers run only while online so a kid never wastes o
 
 ### The Radar
 
-The radar is the shadow idea made into a progression item. Uncaught species always appear as **shadow silhouettes**, both on the radar and in the world, and the silhouettes are the same art the codex uses, so the radar is literally a to-do list for the codex.
+Ethan, 2026-10-22 (Decision B52): "having a map of where the aliens are and what rarities defeats the whole struggle aspect of the game. We want them to search for the aliens like a pokemon game. Having that makes the game way too easy. At most (comes with a cost or you have to unlock) we should have a radar which is depicted on the screen by a column of the silhouettes of each alien listed from closest to furthest from you. It should be a shadow and shouldn't show the actual alien unless you have already discovered one before."
 
-| Tier | Radar | Range | What it shows | How to earn | Robux |
+The radar is therefore **not a map**. It is a narrow column on the right edge of the screen (under the weather and biome chips, where the minimap used to be): a head chip reading "Radar", then up to nine small square slots, the **nearest** wild alien at the top and the furthest at the bottom, re-sorted a couple of times a second. It is the shape of Pokemon GO's "Nearby" tracker: a bar of portraits, nearest first, a grey shadow for a species you have not registered and the real portrait for one you have, no map and no distances. Each slot is the species' model (the same viewport art the Codex uses): an all-black silhouette until the player has caught one of that species, the real model after. A slot never shows a name, a rarity colour, a distance, a direction or a tap action. The column says "something of this kind is near, and this one is nearer than that one", and the player has to go and look.
+
+| Tier | Radar | Range | Slots | How to earn | Robux |
 |---|---|---|---|---|---|
-| 0 | Nearby panel (free) | this biome | species present now: caught in color, uncaught as shadows, secrets as "???"; compass direction only | always | |
-| 1 | Radar Mk1 | 120 studs | minimap blips; uncaught species as shadow silhouettes with a rarity-colored outline; tap a blip to set a waypoint | Field Notes step 2, or 1,500 Scrap | early unlock 149; skins |
-| 2 | Radar Mk2 | 250 studs | hidden spots once you have passed within 50 studs; for rares that are not here right now, the condition they need ("appears: night, Rain"); a "???" ping and a heartbeat sound that quickens as you approach a secret | 8,000 Scrap, or World 2 | skins |
-| 3 | Radar Mk3 | whole biome | Meteor Shower spawn preview 30 seconds early; a glint icon on any spawn carrying an overlay within 60 studs | 25,000 Scrap, or World 3 | skins |
+| 0 | none | | 0: nothing is drawn on the right edge | always | |
+| 1 | Radar Mk1 | 120 studs | 5 | Field Notes step 2, or 1,500 Scrap | early unlock 149; skins |
+| 2 | Radar Mk2 | 250 studs | 7 | 8,000 Scrap, or World 2 | skins |
+| 3 | Radar Mk3 | the whole world | 9 | 25,000 Scrap, or World 3 | skins |
+
+(`src/shared/data/Radar.luau` holds the numbers; Mk3 still waits on World 3 and has no buy rule.)
+
+Rules, all client presentation of wild parts the client already sees (the server still owns every spawn and catch):
+- Only aliens within the tier's range of the player (flat distance, height ignored) are listed, at most the tier's slot count; the order is by distance, nearest first. An alien reserved for another player, and one the Blizzard rule hides, are not listed.
+- **Secret-tier aliens are never listed, not even as a shadow.** The old Mk2 "???" ping and its quickening heartbeat are gone: a sound that quickens as you near a Secret tells a direction.
+- A slot shows the shadow while the player's codex has no catch of the species, and the real model once it has one. Catching one turns that species' shadows into faces at once.
+- No rarity is shown anywhere on the radar: no tier colour, no glow, no ink in the tier's colour, and the "a rare is near" cue is gone.
+- Tapping nothing marks nothing: the alien-picking waypoint and the compass's radar target are gone. The compass keeps its place markers (camp, Peddler, landmarks, the tutorial waypoint) and the Warden.
+- The free Nearby panel (a list of the species possible in this biome, with the conditions rares need) is gone too: it told the player what to look for before looking. The Codex remains the place that says what a species needs.
+- **Scanner Pulse** (60 s, one at a time for 9 Robux): while it runs the column lists the nearest nine aliens of the player's current biome whatever the range, and it works even without a Radar Mk1. Still shadows and order only, no positions. Its head turns purple while it runs.
 
 **Shadow reveal in the world:** uncaught species render as dark silhouettes beyond about 40 studs and resolve into full color as the player approaches. Every first sighting becomes a small "Who's that?" moment, and it costs almost nothing to build: a client-side material swap keyed on the player's codex. An accessibility toggle turns it off.
 
@@ -728,7 +741,7 @@ The fastest way for a Roblox game to look amateur or machine-made is a clean, fl
 | Top left | **Scrap counter** as a gradient pill: Scrap icon, rolling-digit number, a green round "+" that opens the shop. Beneath it, small "+24/min" | Pet Sim 99 and Grow a Garden currency pills |
 | Top right | Weather icon and day/night dial; **Meteor Shower countdown chip**; event banner when one is on. Toasts stack beneath | Grow a Garden weather banner and restock timer |
 | Left edge | **Vertical icon stack**, 6 square rounded buttons with labels under them: Shop, Aliens, Codex, Quests, Gifts & Spin, Settings. Red notification dots and diagonal "NEW!" ribbons | Pet Sim 99, Adopt Me, Bubble Gum Simulator Infinity |
-| Right edge | Circular **radar minimap** on top; **gear quick-slots** under it (hoverboard toggle, two power-up slots) | Fisch and Pet Catchers minimaps |
+| Right edge | The **radar column** (Decision B52): a "Radar" chip and up to nine shadow slots, nearest alien first, under the weather and biome chips; **gear quick-slots** are a later addition | Pokemon GO's Nearby tracker |
 | Bottom center | **Companion bar**: three slots showing the following aliens, tap to swap | Pet Sim 99 pet equip bar |
 | Bottom right | One big **contextual action button** that changes with context: Catch!, Build, Ride, Collect, Launch. It gently "breathes" when there is something to do | Steal a Brainrot's steal prompt, Adopt Me's task button |
 | Bottom left | Star Chart button at camp; Roblox chat bubble stays where the platform puts it | |

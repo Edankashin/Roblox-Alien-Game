@@ -108,8 +108,7 @@ return {
 	NameplateMaxScreenShare = 0.1, -- a wild nameplate is never taller than this share of the screen (Shared/PlateMath; it grew huge within a few studs, Studio 2026-10-22)
 	NameplateMinScale = 0.05, -- the least its stud size is scaled to, with the camera nearly inside it
 	NameplateRescaleStep = 0.02, -- a plate's size is rewritten only when its scale moves more than this (relative)
-	RadarRefreshSeconds = 0.1, -- the minimap re-places its blips this often
-	RadarWaypointArriveStuds = 8, -- a blip's waypoint clears once the player is this close
+	RadarRefreshSeconds = 0.5, -- the radar column re-sorts the nearby aliens this often (a slower beat than the minimap's 0.1 s: the column has no positions to keep smooth, and two aliens at near the same distance swap places less often)
 
 	-- juice: presentation timings and sizes (client only; nothing here decides an outcome)
 	CameraPanSeconds = 2.5, -- the camera glides to a finished module over this
@@ -165,7 +164,6 @@ return {
 	HeaterSeconds = 60,
 	HeaterMaxActive = 2, -- heaters one player may have burning at once
 	HeaterPlaceStuds = 6, -- placed this far in front of the player
-	NearbyRefreshSeconds = 1, -- the Nearby panel re-reads the biome, condition and codex this often
 	WildBobStuds = 0.3, -- client-side idle bob amplitude
 	WildBobHz = 0.6,
 	WildHoverStuds = 1, -- wild aliens float this far above the ground

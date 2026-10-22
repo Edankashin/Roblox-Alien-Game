@@ -184,8 +184,8 @@ def walk(value, path=''):
             yield from walk(child, location)
 
 
-# Explicit shape exception: legacy Radar.Mk2 is skipped by numeric-row consumers.
-NUMERIC_STRING_KEYS = {'Radar': {'Mk2'}, 'Layouts': set(), 'Worlds': set()}
+# Explicit shape exception: Radar.Pulse (the Scanner Pulse's column rule) is skipped by numeric-row consumers.
+NUMERIC_STRING_KEYS = {'Radar': {'Pulse'}, 'Layouts': set(), 'Worlds': set()}
 # CompanionSlot4 is read live by Companions, rather than granted at purchase.
 LIVE_PASSES = {'CompanionSlot4'}
 # Exact existing findings only; new findings must fail. Empty after baseline inspection.

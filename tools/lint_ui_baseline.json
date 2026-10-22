@@ -17,11 +17,6 @@
       "count": 3
     },
     {
-      "path": "src/client/UI/NearbyPanel.luau",
-      "expression": "Color3 . fromHex ( def . placeholder . color )",
-      "count": 1
-    },
-    {
       "path": "src/client/World/CampRenderer.luau",
       "expression": "Color3 . fromHex ( hex )",
       "count": 1
