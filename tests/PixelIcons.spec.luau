@@ -1,23 +1,26 @@
 --!strict
--- data/PixelIcons: every icon is whole rectangles on the 8 by 8 grid (Theme.Block.PixelGrid) with a colour that is a Theme.Colors
--- key or a six-digit hex string, and every power-up, lure and egg tier the UI shows has one (UI Playbook "Block cells", "Pixel
--- icons"). tools/tests/test_block_theme.py checks that a named colour is a real Theme.Colors key (Theme needs the Roblox runtime).
+-- data/PixelIcons: every icon is whole rectangles on its grid (8 by 8, Theme.Block.PixelGrid, or the finer one Grids names) with a
+-- colour that is a Theme.Colors key or a six-digit hex string, and every power-up, lure and egg tier the UI shows has one (UI
+-- Playbook "Block cells", "Pixel icons"). tools/tests/test_block_theme.py checks that a named colour is a real Theme.Colors key and
+-- that the default grid equals Theme.Block.PixelGrid (Theme needs the Roblox runtime).
 local Shared = game:GetService("ReplicatedStorage").Shared
 local PixelIcons = require(Shared.data.PixelIcons)
 local PowerUps = require(Shared.data.PowerUps)
 local Lures = require(Shared.data.Lures)
 local Tiers = require(Shared.data.Tiers)
 
-local GRID = 8
+-- The Menu's icons (Decision B53): each depicts its screen, on a 16 by 16 grid.
+local MENU_ICONS = { "Shop", "Aliens", "Codex", "Ship", "Quests", "Gifts", "Settings", "Ranks", "Mail", "Menu", "Friends" }
 
 local function whole(n: number): boolean
 	return n == math.floor(n)
 end
 
 describe("PixelIcons", function()
-	it("draws every icon as whole rectangles inside the 8 by 8 grid in a known colour", function()
+	it("draws every icon as whole rectangles inside its grid in a known colour", function()
 		for key, pixels in pairs(PixelIcons.Icons) do
 			assert(#pixels > 0, key .. " is empty")
+			local GRID = PixelIcons.GridOf(key)
 			for index, pixel in ipairs(pixels) do
 				local x, y, w, h, colour = pixel[1], pixel[2], pixel[3], pixel[4], pixel[5]
 				local where = key .. " #" .. index
@@ -43,9 +46,33 @@ describe("PixelIcons", function()
 			assert(PixelIcons.Icons["Egg" .. tier] ~= nil, "no egg for " .. tier)
 		end
 	end)
-	it("keeps the new icons small: 20 frames or fewer each", function()
+	it("keeps the icons small: 20 frames or fewer each on 8 by 8, 70 on 16 by 16", function()
 		for key, pixels in pairs(PixelIcons.Icons) do
-			assert(#pixels <= 20, key .. " draws " .. #pixels .. " frames")
+			local limit = if PixelIcons.GridOf(key) > PixelIcons.DefaultGrid then 70 else 20
+			assert(#pixels <= limit, key .. " draws " .. #pixels .. " frames")
+		end
+	end)
+	it("names only real icons in Grids, and an icon with no entry is on the default grid", function()
+		for key, grid in pairs(PixelIcons.Grids) do
+			assert(PixelIcons.Icons[key] ~= nil, key .. " has a grid but no icon")
+			assert(grid == 16, key .. " is on a grid of " .. grid)
+		end
+		assert(PixelIcons.GridOf("Scrap") == PixelIcons.DefaultGrid, "Scrap is not on the default grid")
+		assert(PixelIcons.DefaultGrid == 8, "the default grid moved")
+	end)
+	it("has a 16 by 16 icon for every Menu screen, the Menu button itself and the Shop", function()
+		for _, key in ipairs(MENU_ICONS) do
+			assert(PixelIcons.Icons[key] ~= nil, key .. " has no pixel icon")
+			assert(PixelIcons.GridOf(key) == 16, key .. " is not on the 16 by 16 grid")
+		end
+	end)
+	it("covers a good share of a Menu icon's grid, so it reads (no speck)", function()
+		for _, key in ipairs(MENU_ICONS) do
+			local area = 0
+			for _, pixel in ipairs(PixelIcons.Icons[key]) do
+				area += (pixel[3] :: number) * (pixel[4] :: number)
+			end
+			assert(area >= 16 * 16 / 3, key .. " covers only " .. area .. " pixels")
 		end
 	end)
 end)

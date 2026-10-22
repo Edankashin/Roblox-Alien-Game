@@ -1397,23 +1397,26 @@ local function start(profile: Types.Profile)
 		end
 	end
 	Hud.AddMenuButton("Shop", Theme.Colors.Confirm, menu("Shop"))
-	Hud.AddMenuButton("Aliens", Theme.Colors.Featured, menu("Aliens"))
-	Hud.AddMenuButton("Codex", Theme.Colors.Codex, menu("Codex"))
-	Hud.AddMenuButton("Ship", Theme.Colors.Select, menu("Ship"))
-	Hud.AddMenuButton("Quests", Theme.Colors.Heading, menu("Quests"))
-	Hud.AddMenuButton("Gifts", Theme.Colors.Close, menu("Gifts"))
-	Hud.AddTopButton("Settings", Theme.Colors.Select, menu("Settings"))
-	-- Top buttons stack leftwards from the clock in the order added, so Settings (first) stays rightmost.
-	Hud.AddTopButton("Ranks", Theme.Colors.Featured, menu("Ranks"))
+	-- The Shop stays on the left edge on its own; every other screen is a row of the Menu drop-down under it (Decision B53), shown
+	-- in the order added. A row's badge counts also add up on the Menu button.
+	Hud.AddMenuRow("Aliens", Theme.Colors.Featured, menu("Aliens"))
+	Hud.AddMenuRow("Codex", Theme.Colors.Codex, menu("Codex"))
+	Hud.AddMenuRow("Ship", Theme.Colors.Select, menu("Ship"))
+	Hud.AddMenuRow("Quests", Theme.Colors.Heading, menu("Quests"))
+	Hud.AddMenuRow("Gifts", Theme.Colors.Close, menu("Gifts"))
+	Hud.AddMenuRow("Mail", Theme.Colors.Select, menu("Mail"))
+	Hud.AddMenuRow("Friends", Theme.Colors.Confirm, onFriendChipTap) -- the invite sheet; the Friend Boost chip hides at +0%
+	Hud.AddMenuRow("Ranks", Theme.Colors.Featured, menu("Ranks"))
+	Hud.AddMenuRow("Settings", Theme.Colors.Select, menu("Settings"))
 	-- Playtime gifts (data/Playtime): the button stays hidden until the server says the gifts are on, and its badge counts
 	-- the gifts unlocked and not yet claimed. PlaytimeChanged pushes the state whenever that changes; one pull seeds a
 	-- client that joined after the last push (a push that already landed is newer and wins).
-	Hud.AddTopButton("Playtime", Theme.Colors.Confirm, menu("Playtime"))
-	Hud.SetTopButtonVisible("Playtime", false)
+	Hud.AddMenuRow("Playtime", Theme.Colors.Confirm, menu("Playtime"))
+	Hud.SetMenuRowVisible("Playtime", false)
 	PlaytimeScreen.OnGrant(showGrantReveal)
 	local playtimeBadge = -1 -- what the badge shows now, so a state that changes nothing does not pop the button
 	PlaytimeScreen.OnState(function(playtime: Types.PlaytimeState)
-		Hud.SetTopButtonVisible("Playtime", playtime.enabled)
+		Hud.SetMenuRowVisible("Playtime", playtime.enabled)
 		local ready = if playtime.enabled then PlaytimeScreen.ReadyCount() else 0
 		if ready ~= playtimeBadge then
 			playtimeBadge = ready
@@ -1440,9 +1443,9 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("gifts", refreshGiftBadge)
 
-	-- The offer on the screen (TikTok batch 9 lesson 4, data/Shop HudOffer): a top button with the Starter Pack's pixel present,
-	-- leftmost in the top row, shown while the pack can be sold and this player has not bought it (Shared/ShelfMath.OfferShows);
-	-- a tap opens the Shop, which starts on the Featured shelf where the pack is the first card.
+	-- The offer (TikTok batch 9 lesson 4, data/Shop HudOffer): a Menu row with the Starter Pack's pixel present, shown while the
+	-- pack can be sold and this player has not bought it (Shared/ShelfMath.OfferShows); a tap opens the Shop, which starts on the
+	-- Featured shelf where the pack is the first card.
 	local offerId = ShopData.HudOffer
 	local offerItem: ShopData.ShopItem? = nil
 	for _, item in ipairs(ShopData.Items) do
@@ -1450,18 +1453,18 @@ local function start(profile: Types.Profile)
 			offerItem = item
 		end
 	end
-	Hud.AddTopButton(offerId, Theme.Colors.Featured, function()
+	Hud.AddMenuRow(offerId, Theme.Colors.Featured, function()
 		if not inCapture and not Reveal.IsOpen() then
 			Screens.Open("Shop")
 		end
 	end)
-	Hud.SetTopButtonVisible(offerId, false)
+	Hud.SetMenuRowVisible(offerId, false)
 	local function refreshOfferButton()
 		local purchases, known = State.GetPurchases()
 		local item = offerItem
 		local shows = item ~= nil
 			and ShelfMath.OfferShows(item, ShopData.Grants[offerId], purchases.purchases[offerId] or 0, known)
-		Hud.SetTopButtonVisible(offerId, shows)
+		Hud.SetMenuRowVisible(offerId, shows)
 	end
 	State.OnChanged("purchases", refreshOfferButton)
 	refreshOfferButton()

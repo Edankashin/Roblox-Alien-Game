@@ -290,12 +290,18 @@ return {
 	MENU_GLYPH_Ship = "^",
 	MENU_GLYPH_Quests = "!",
 	MENU_Gifts = "Gifts",
-	MENU_Ranks = "Ranks",
+	MENU_Ranks = "Leaderboard", -- the Menu row that opens the Ranks screen
 	MENU_GLYPH_Ranks = "#",
 	MENU_Playtime = "Playtime",
 	MENU_StarterPack = "Starter Pack", -- the HUD offer button (data/Shop HudOffer); its face is the pixel present
 	MENU_GLYPH_StarterPack = "+",
 	MENU_GLYPH_Playtime = ">",
+	MENU_Menu = "Menu", -- the left-edge button that drops the list of screens (Decision B53)
+	MENU_GLYPH_Menu = "=",
+	MENU_Mail = "Mail", -- a Menu row: the mailbox, from anywhere
+	MENU_GLYPH_Mail = "@",
+	MENU_Friends = "Invite friends", -- a Menu row: the invite sheet (the Friend Boost chip shows only once a friend has joined)
+	MENU_GLYPH_Friends = "&",
 	-- weekly leaderboard (data/Leaderboard)
 	LB_TITLE = "Top catchers this week",
 	LB_RESETS = "Resets in %s",

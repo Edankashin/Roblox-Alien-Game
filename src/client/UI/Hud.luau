@@ -2,13 +2,16 @@
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD. The Scrap pill top-left (icon + rolling
 -- number) with the Scrap-per-minute line under it, the ship bar top centre under the compass strip
 -- (UI/Compass; tap opens the ship panel) with the luck line or the event banner under it, the
--- Day/Night + weather chip top-right (square block buttons such as the Settings cog sit just left of it,
--- AddTopButton) with the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual action
--- button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
+-- Day/Night + weather chip top-right with the biome chip and the Meteor Shower countdown chip stacked beneath, and the contextual
+-- action button bottom-right that shows "Catch!" near a wild alien. A dumb view: every value shown is pushed
 -- in by the bootstrap from server state; nothing here computes anything that matters.
+-- The left edge holds two buttons (Decision B53): the Shop on its own (it earns money, so it stays in view) and the Menu under it.
+-- The Menu drops a panel of full-width rows, one per other screen (Aliens, Codex, Ship, Quests, Gifts, Mail, Settings, the
+-- Leaderboard and whatever else is added with AddMenuRow), each an icon that depicts the screen and its name; a row's red count
+-- adds up on the Menu button. Lines that would read zero (Friend Boost +0%, luck x1.0) are hidden, not dimmed.
 -- The look is block cells (Decisions B44, Decide-Now 43, the "HUD in block cells" board): every plate, chip and button is a
--- Builder.blockPlate or Builder.blockButton (square cells, stepped corners, navy ink, a lit top row, grout), icons are the 8 by 8
--- pixel icons of data/PixelIcons, and the layout is the one the HUD had (the slots other screens read did not move).
+-- Builder.blockPlate or Builder.blockButton (square cells, stepped corners, navy ink, a lit top row, grout), icons are the pixel
+-- icons of data/PixelIcons (16 by 16 for the Menu's), and the layout is the one the HUD had (the slots other screens read did not move).
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,7 +22,8 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
-local CompassData = require(Shared:WaitForChild("data"):WaitForChild("Compass"))
+local MenuData = require(Shared:WaitForChild("data"):WaitForChild("Menu"))
+local MenuMath = require(Shared:WaitForChild("MenuMath"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local Builder = require(script.Parent.Builder)
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -42,26 +46,30 @@ local setScrapValue: ((number) -> ())? = nil
 local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
-local menuButtons: { [string]: Frame } = {}
-local menuCount = 0
-local topButtons: { Frame } = {} -- square buttons left of the clock chip, in the order added (the first sits nearest the chip)
-local topButtonIds: { [string]: boolean } = {}
-local topButtonById: { [string]: Frame } = {} -- the same buttons by id, for SetBadge and SetTopButtonVisible
+local menuButtons: { [string]: Frame } = {} -- the left-edge buttons by id: the Shop, and the Menu
+local menuCount = 0 -- standalone buttons added with AddMenuButton (the Shop); the Menu button sits in the slot after them
 
 local CLOCK_RIGHT = 0.985 -- the clock chip's right edge, in screen Scale
 local CLOCK_TOP = 0.025
 local CLOCK_SIZE = Vector2.new(0.3, 0.075) -- the chip's Size bounds; its aspect constraint derives the width from the height
 local CLOCK_ASPECT = 4.2
-local TOP_BUTTON_H = 0.075 -- the top buttons share the chip's height
-local TOP_GAP = 0.01 -- between the chip and the first button, and between buttons
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
-local MENU_TOP = 0.19 -- the icon stack starts here, under the Scrap pill and its rate line
-local MENU_SLOT = Theme.Menu.SlotH -- vertical space per entry: the square button plus its label; six entries end at 0.97
+local MENU_TOP = 0.19 -- the left column starts here, under the Scrap pill and its rate line
+local MENU_SLOT = Theme.Menu.SlotH -- vertical space per button: the square button plus its label
 local MENU_BUTTON = 0.095 -- square button height (width follows through the aspect constraint)
+local MENU_BUTTON_ROWS = 6 -- its face is six cells a side: a plain rounded square, not the three-cell plus the corner cuts left
 local MENU_LEFT = Theme.Menu.Left
-local MENU_BADGE_SIZE = 0.34 -- the menu buttons' notification dot, as a fraction of the button
-local TOP_BADGE_SIZE = 0.5 -- a top button is small (about 28 px at iPhone SE height), so its dot is bigger
+local MENU_BADGE_SIZE = 0.34 -- the left buttons' notification dot, as a fraction of the button
+local MENU_ID = "Menu" -- the drop-down's button: id, label (MENU_Menu) and icon
+local MENU_SLOT_INDEX = 1 -- the Menu button's slot: under the Shop's (slot 0)
+local MENU_LAYER = 3 -- the drop-down's panel sits over its outside-tap layer (1) and the left buttons (2)
+local MENU_INK_SLACK = 1.15 -- the panel's scroll window is inset by its ink (Theme.Block.Ink cells) times this, so a row never touches the ink
+local MENU_ROW_LIFT = 0.12 -- a row's face is the trough lightened this much; a press or a hover lightens it once more
+local MENU_ROW_PRESS = 0.12
+local MENU_ROW_GAP_X = 0.03 -- space round a row's icon tile and label, as a fraction of the row's width
+local MENU_LABEL_RIGHT = 0.2 -- the row's right edge kept clear for its count
+local MENU_BADGE_FIT = 0.3 -- a row's count block, as a fraction of the row's width at most (its aspect keeps it square)
 local actionButton: Frame? = nil
 local actionFace: TextButton? = nil
 local breathe: Tween? = nil
@@ -88,6 +96,29 @@ local friendChip: Frame? = nil
 local friendLabel: TextLabel? = nil
 local friendCountShown = 0
 local onFriendChipTapped: (() -> ())? = nil
+
+-- The Menu drop-down: one row per screen in a scrolling panel that drops under the Menu button.
+type Row = {
+	id: string,
+	frame: Frame, -- the row in the panel's canvas; layoutMenu sizes and places it
+	plate: Frame, -- its face (lightened under a press)
+	tile: Frame, -- the icon tile
+	label: TextLabel,
+	badge: Frame,
+	badgeCount: TextLabel,
+	count: number, -- what the badge shows now
+	visible: boolean, -- a feature switched off hides its row (SetMenuRowVisible)
+}
+local rows: { Row } = {} -- in the order added, which is the order shown
+local rowById: { [string]: Row } = {}
+local menuButton: Frame? = nil -- the Menu button (menuButtons.Menu)
+local menuBackdrop: TextButton? = nil -- a clear layer under the panel: a tap outside closes the drop-down
+local menuHolder: Frame? = nil -- the panel's clip: it shows only what has dropped
+local menuSlide: Frame? = nil -- the panel itself, slid down into the holder on open
+local menuScroll: ScrollingFrame? = nil
+local menuOpen = false
+local menuToken = 0 -- a newer open or close cancels an older close's hide
+local layoutKey = "" -- the numbers layoutMenu last used: a call with the same ones does nothing
 
 -- The centre column (ship bar, luck line, event banner, Friend Boost chip) sits this far lower than the
 -- top row so the compass strip (UI/Compass: 0.008 to 0.038) has the top edge: the strip's height plus a gap.
@@ -304,19 +335,18 @@ local function addBadge(button: Frame, size: number)
 	badge.Visible = false
 end
 
--- Left-edge icon stack: square buttons with a label beneath, as the hit sims lay them out. The face shows
--- the id's icon from the pack; while that icon is not uploaded it shows the MENU_GLYPH_<id> glyph.
-local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onClick: () -> ()): Frame
+-- A left-edge button (the Shop, the Menu): a plain chunky block square with its label beneath, in slot `index` of the column. The face
+-- shows the id's pixel icon (data/PixelIcons); while an id has none it shows the MENU_GLYPH_<id> glyph.
+local function buildMenuButton(root: ScreenGui, id: string, color: Color3, index: number, onClick: () -> ()): Frame
 	local label = Builder.text("MENU_" .. id)
 	local glyph = Builder.text("MENU_GLYPH_" .. id)
-	local top = MENU_TOP + menuCount * MENU_SLOT
-	menuCount += 1
 	local slot = Builder.frame({
 		parent = root,
 		name = "Menu_" .. id,
-		position = UDim2.fromScale(MENU_LEFT, top),
+		position = UDim2.fromScale(MENU_LEFT, MENU_TOP + index * MENU_SLOT),
 		size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
 		aspect = Theme.Menu.Aspect,
+		zIndex = 2, -- over the drop-down's outside-tap layer, under its panel
 	})
 	local button = Builder.blockButton({
 		parent = slot,
@@ -329,7 +359,7 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 		anchor = Vector2.new(0.5, 0),
 		textSize = Theme.TextSize.Title,
 		aspect = 1,
-		rows = Builder.blockButtonRows(MENU_BUTTON), -- its size is a fraction of the slot, so the rows come from its screen height
+		rows = MENU_BUTTON_ROWS, -- six cells a side, so the corner cuts leave a rounded square, not a plus
 		hit = true, -- about 36 px at iPhone SE height: the 44 px floor
 	}, onClick)
 	Builder.label({
@@ -344,6 +374,310 @@ local function buildMenuButton(root: ScreenGui, id: string, color: Color3, onCli
 	addBadge(button, MENU_BADGE_SIZE)
 	menuButtons[id] = button
 	return button
+end
+
+-- The Menu drop-down ------------------------------------------------------------
+
+-- The Menu slot's bottom edge in screen Scale: where the panel hangs from. The slot is Theme.Menu.SlotH tall on a wide screen and
+-- shorter on a tall one (its aspect keeps it narrow), so this reads the screen.
+local function dropTop(screen: Vector2): number
+	local slotH = MenuMath.SlotHeight(MENU_SLOT, Theme.Menu.SlotW, Theme.Menu.Aspect, screen.X, screen.Y)
+	return MENU_TOP + MENU_SLOT * MENU_SLOT_INDEX + slotH
+end
+
+-- The Menu button's red count: the rows' counts added up (a hidden row counts nothing), popped when the total grows.
+local menuBadgeTotal = 0
+local function refreshMenuBadge()
+	local button = menuButton
+	if not button then
+		return
+	end
+	local counts: { [string]: number } = {}
+	local hidden: { [string]: boolean } = {}
+	for _, row in ipairs(rows) do
+		counts[row.id] = row.count
+		hidden[row.id] = not row.visible
+	end
+	local total = MenuMath.BadgeTotal(counts, hidden)
+	local badge = button:FindFirstChild("Badge")
+	if badge and badge:IsA("Frame") then
+		badge.Visible = total > 0
+		local label = badge:FindFirstChild("Count")
+		if label and label:IsA("TextLabel") then
+			label.Text = MenuMath.BadgeText(total)
+		end
+	end
+	if total > menuBadgeTotal then
+		Builder.pop(button, 1.15)
+	end
+	menuBadgeTotal = total
+end
+
+-- Sizes and places the panel and its rows from the screen: the panel hangs from the Menu slot, is as tall as its rows (up to the
+-- bottom margin; past that the rows scroll), and each row is at least the 44 px tap floor tall. Does nothing when the numbers
+-- have not changed since the last call.
+local function layoutMenu()
+	local root, holder, scroll = menuGui, menuHolder, menuScroll
+	if not root or not holder or not scroll then
+		return
+	end
+	local screen = root.AbsoluteSize
+	if screen.X <= 0 or screen.Y <= 0 then
+		return
+	end
+	local shown: { Row } = {}
+	local ids: { string } = {}
+	for _, row in ipairs(rows) do
+		row.frame.Visible = row.visible
+		if row.visible then
+			table.insert(shown, row)
+			table.insert(ids, row.id)
+		end
+	end
+	local rowH = MenuMath.RowHeight(screen.Y, MenuData.RowHeight, MenuData.MinRowPx)
+	local top = dropTop(screen)
+	local inkH = Theme.Block.Ink * Theme.Block.Cell * MENU_INK_SLACK
+	local window = MenuMath.Panel(#shown, rowH, MenuData.RowGap, MenuData.Pad, MenuData.Bottom - top - 2 * inkH)
+	local height = if window.height > 0 then window.height + 2 * inkH else 0
+	local width = MenuMath.PanelWidth(screen.X, screen.Y, rowH, MenuData.WidthAspect, MenuData.MaxWidth)
+	local key = ("%s|%.5f|%.5f|%.5f|%.5f|%.5f"):format(table.concat(ids, ","), rowH, top, width, height, screen.X / screen.Y)
+	if key == layoutKey then
+		return
+	end
+	layoutKey = key
+	holder.Position = UDim2.fromScale(MENU_LEFT, top)
+	holder.Size = UDim2.fromScale(width, height)
+	holder.Visible = menuOpen and height > 0
+	if height <= 0 then
+		return
+	end
+	-- the scroll window sits inside the panel's ink; its width in px follows from the panel's
+	local inkW = inkH * screen.Y / (width * screen.X)
+	scroll.Position = UDim2.fromScale(inkW, inkH / height)
+	scroll.Size = UDim2.fromScale(1 - 2 * inkW, window.height / height)
+	scroll.CanvasSize = UDim2.fromScale(0, window.canvas)
+	scroll.ScrollingEnabled = window.scrolls
+	local scrollW = width * screen.X * (1 - 2 * inkW)
+	local padX = MenuData.Pad * screen.Y / scrollW
+	local rowAspect = scrollW * (1 - 2 * padX) / (rowH * screen.Y) -- a row's width over its height, in px
+	local tileW = MenuData.IconShare / rowAspect -- the icon tile is square: this share of the row's width
+	local labelX = MENU_ROW_GAP_X + tileW + MENU_ROW_GAP_X
+	for index, row in ipairs(shown) do
+		row.frame.Position = UDim2.fromScale(padX, window.rowY[index])
+		row.frame.Size = UDim2.fromScale(1 - 2 * padX, window.rowH)
+		row.tile.Position = UDim2.fromScale(MENU_ROW_GAP_X, 0.5)
+		row.tile.Size = UDim2.fromScale(tileW, MenuData.IconShare)
+		row.label.Position = UDim2.fromScale(labelX, 0.5)
+		row.label.Size = UDim2.fromScale(math.max(0.1, 1 - labelX - MENU_LABEL_RIGHT), 0.7)
+	end
+end
+
+-- Opens or closes the drop-down: the panel slides down out of the Menu button (Theme.Tween.Open; Reduced Motion, and `instant`:
+-- at once) over a clear layer that closes it on a tap anywhere outside.
+local function setMenuOpen(open: boolean, instant: boolean?)
+	local holder, slide, backdrop = menuHolder, menuSlide, menuBackdrop
+	if not holder or not slide or not backdrop or menuOpen == open then
+		return
+	end
+	menuOpen = open
+	menuToken += 1
+	local token = menuToken
+	local still = instant == true or Prefs.ReducedMotion()
+	if open then
+		layoutMenu()
+		if holder.Size.Y.Scale <= 0 then
+			menuOpen = false -- no rows to show
+			return
+		end
+		backdrop.Visible = true
+		holder.Visible = true
+		if still then
+			slide.Position = UDim2.fromScale(0, 0)
+		else
+			slide.Position = UDim2.fromScale(0, -1)
+			local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			TweenService:Create(slide, info, { Position = UDim2.fromScale(0, 0) }):Play()
+		end
+	else
+		backdrop.Visible = false
+		if still then
+			holder.Visible = false
+		else
+			local info = TweenInfo.new(Theme.Tween.Close, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+			local tween = TweenService:Create(slide, info, { Position = UDim2.fromScale(0, -1) })
+			tween.Completed:Once(function()
+				if token == menuToken then
+					holder.Visible = false
+				end
+			end)
+			tween:Play()
+		end
+	end
+end
+
+-- The panel: a clear outside-tap layer, then a clipped holder with the sliding panel (a flat block plate in the trough colour) and
+-- the scrolling window of rows inside its ink. Built once, empty and closed; AddMenuRow fills it.
+local function buildMenuPanel(root: ScreenGui)
+	local backdrop = Instance.new("TextButton")
+	backdrop.Name = "MenuBackdrop"
+	backdrop.AutoButtonColor = false
+	backdrop.Text = ""
+	backdrop.BorderSizePixel = 0
+	backdrop.BackgroundColor3 = Theme.Colors.Black
+	backdrop.BackgroundTransparency = 1 - MenuData.Dim
+	backdrop.Size = UDim2.fromScale(1, 1)
+	backdrop.ZIndex = 1
+	backdrop.Visible = false
+	backdrop.Parent = root
+	backdrop.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		setMenuOpen(false)
+	end)
+	menuBackdrop = backdrop
+	local holder = Builder.frame({
+		parent = root,
+		name = "MenuDrop",
+		position = UDim2.fromScale(MENU_LEFT, MENU_TOP),
+		size = UDim2.fromScale(0.2, 0.2),
+		zIndex = MENU_LAYER,
+	})
+	holder.ClipsDescendants = true
+	holder.Visible = false
+	menuHolder = holder
+	local slide = Builder.frame({ parent = holder, name = "Slide", zIndex = 1 })
+	menuSlide = slide
+	Builder.blockPlate({ parent = slide, name = "Plate", color = Theme.Block.Trough, cells = false, zIndex = 1 })
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Name = "Rows"
+	scroll.BackgroundTransparency = 1
+	scroll.BorderSizePixel = 0
+	scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+	scroll.CanvasSize = UDim2.fromScale(0, 1)
+	scroll.ScrollBarThickness = 4
+	scroll.ScrollBarImageColor3 = Theme.Colors.Panel
+	scroll.VerticalScrollBarInset = Enum.ScrollBarInset.None
+	scroll.ZIndex = Theme.Block.Layer.Content + 2
+	scroll.Parent = slide
+	menuScroll = scroll
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutMenu)
+end
+
+-- One row of the panel: a face, an icon tile in the screen's colour with its pixel icon, the name, a red count, and a tap over it all.
+local function buildRow(scroll: ScrollingFrame, id: string, color: Color3, onClick: () -> ()): Row
+	local frame = Builder.frame({ parent = scroll, name = "Row_" .. id })
+	local rest = Builder.lighter(Theme.Block.Trough, MENU_ROW_LIFT)
+	local pressed = Builder.lighter(Theme.Block.Trough, MENU_ROW_LIFT + MENU_ROW_PRESS)
+	local plate = Builder.blockPlate({ parent = frame, name = "Plate", color = rest, cells = false, zIndex = 1 })
+	local top = Builder.blockTop(plate)
+	local tile = Builder.blockPlate({
+		parent = frame,
+		name = "Tile",
+		color = color,
+		aspect = 1,
+		rows = 4,
+		cells = false,
+		position = UDim2.fromScale(MENU_ROW_GAP_X, 0.5),
+		size = UDim2.fromScale(0.2, MenuData.IconShare),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = top,
+	})
+	local icon = Builder.blockIcon({
+		parent = tile,
+		name = "Icon",
+		key = id,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.78, 0.78),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(tile),
+	})
+	local text = Builder.text("MENU_" .. id)
+	if not icon then
+		Builder.label({
+			parent = tile,
+			name = "Glyph",
+			text = string.upper(string.sub(text, 1, 1)),
+			textSize = Theme.TextSize.Label,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.8, 0.8),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = Builder.blockTop(tile),
+		})
+	end
+	local label = Builder.label({
+		parent = frame,
+		name = "Label",
+		text = text,
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.3, 0.5),
+		size = UDim2.fromScale(0.5, 0.7),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
+	})
+	local badge = Builder.blockPlate({
+		parent = frame,
+		name = "Badge",
+		color = Theme.Colors.Close,
+		aspect = 1,
+		rows = BADGE_ROWS,
+		cells = false,
+		position = UDim2.fromScale(1 - MENU_ROW_GAP_X, 0.5),
+		size = UDim2.fromScale(MENU_BADGE_FIT, MenuData.BadgeShare),
+		anchor = Vector2.new(1, 0.5),
+		zIndex = top,
+	})
+	local badgeCount = Builder.label({
+		parent = badge,
+		name = "Count",
+		text = "",
+		textSize = Theme.TextSize.Min,
+		size = UDim2.fromScale(0.9, 0.9),
+		position = UDim2.fromScale(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(badge),
+	})
+	badge.Visible = false
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.AutoButtonColor = false
+	tap.Text = ""
+	tap.BorderSizePixel = 0
+	tap.BackgroundTransparency = 1
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = top + 3
+	tap.Parent = frame
+	local function lit(on: boolean)
+		Builder.setBlockColor(plate, if on then pressed else rest)
+	end
+	tap.MouseButton1Down:Connect(function()
+		lit(true)
+	end)
+	tap.MouseButton1Up:Connect(function()
+		lit(false)
+	end)
+	tap.MouseEnter:Connect(function()
+		lit(true)
+	end)
+	tap.MouseLeave:Connect(function()
+		lit(false)
+	end)
+	tap.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		lit(false)
+		setMenuOpen(false)
+		onClick()
+	end)
+	return {
+		id = id,
+		frame = frame,
+		plate = plate,
+		tile = tile,
+		label = label,
+		badge = badge,
+		badgeCount = badgeCount,
+		count = 0,
+		visible = true,
+	}
 end
 
 -- Cumulative module weights for the default world, until the bootstrap calls SetShipTicks.
@@ -511,8 +845,8 @@ local function buildEventBanner(root: ScreenGui)
 	})
 end
 
--- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", a dark block at 0 and
--- green above it; a tap opens the invite sheet (the bootstrap's callback).
+-- Friend Boost chip under the luck line / event banner slot: "Friend Boost +N%", a green block, hidden while the boost is +0%
+-- (Hud.SetFriendBoost shows it); a tap opens the invite sheet (the bootstrap's callback).
 local function buildFriendChip(root: ScreenGui)
 	local chip = Builder.blockPlate({
 		parent = root,
@@ -523,6 +857,7 @@ local function buildFriendChip(root: ScreenGui)
 		size = UDim2.fromScale(FRIEND_CHIP_SIZE.X, FRIEND_CHIP_SIZE.Y),
 		anchor = Vector2.new(0.5, 0),
 	})
+	chip.Visible = false -- nobody has joined yet: +0% is not shown
 	friendChip = chip
 	local top = Builder.blockTop(chip)
 	friendLabel = Builder.label({
@@ -586,50 +921,6 @@ local function buildActionButton(root: ScreenGui)
 	actionFace = button:FindFirstChild("Face") :: TextButton
 end
 
--- Top buttons (left of the clock chip) ----------------------------------------
-
--- The clock chip's width in screen Scale. Its aspect constraint derives the width from the height
--- (never past its Size bound), so the width in Scale depends on the screen's shape.
-local function clockChipWidth(root: ScreenGui): number
-	local screen = root.AbsoluteSize
-	if screen.X <= 0 or screen.Y <= 0 then
-		return CLOCK_SIZE.X
-	end
-	return math.min(CLOCK_SIZE.X, CLOCK_SIZE.Y * CLOCK_ASPECT * screen.Y / screen.X)
-end
-
--- Places the top buttons in a row leftwards from the chip. Each is a square of TOP_BUTTON_H, so its
--- width in Scale is TOP_BUTTON_H * (screen height / screen width); anchored (1, 0), its x is its right edge.
--- The row stops short of the centre column: the ship bar (the clock chip's size, centred) and the compass
--- strip above it (CompassData.StripWidth) are in the way at 4:3, where the top buttons are as tall as the chip.
--- A button that would reach them goes in a column under the row's first button instead (below the clock chip's
--- left neighbour, where the biome chip and the radar are further right and the event banner is further left).
-local function layoutTopButtons()
-	local root = gui
-	if not root then
-		return
-	end
-	local screen = root.AbsoluteSize
-	local ratio = if screen.X > 0 then screen.Y / screen.X else 1
-	local buttonW = TOP_BUTTON_H * ratio
-	local start = CLOCK_RIGHT - clockChipWidth(root) - TOP_GAP
-	local limit = 0.5 + math.max(clockChipWidth(root), CompassData.StripWidth) / 2 + TOP_GAP
-	local right = start
-	local stacked = 0
-	for _, button in ipairs(topButtons) do
-		if not button.Visible then
-			continue -- a hidden button leaves no gap
-		end
-		if right == start or right - buttonW >= limit then
-			button.Position = UDim2.fromScale(right, CLOCK_TOP)
-			right -= buttonW + TOP_GAP
-		else
-			stacked += 1
-			button.Position = UDim2.fromScale(start, CLOCK_TOP + stacked * (TOP_BUTTON_H + TOP_GAP))
-		end
-	end
-end
-
 -- Public API -------------------------------------------------------------
 
 function Hud.Build()
@@ -649,7 +940,14 @@ function Hud.Build()
 	buildEventBanner(root)
 	buildFriendChip(root)
 	buildActionButton(root)
-	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutTopButtons)
+	-- The Menu button under the Shop's slot, and the panel it drops; AddMenuRow fills the panel, one row per screen.
+	local menu = menuGui
+	if menu then
+		buildMenuPanel(menu)
+		menuButton = buildMenuButton(menu, MENU_ID, Theme.Colors.Select, MENU_SLOT_INDEX, function()
+			setMenuOpen(not menuOpen)
+		end)
+	end
 end
 
 -- Ship completion 0..1: eases the fill and shows the whole percent.
@@ -713,14 +1011,14 @@ function Hud.SetRate(perSecond: number)
 	label.Visible = true
 end
 
--- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck is exactly 1,
--- and stays hidden while the event banner holds its slot (the banner's chip carries the number).
+-- The server's luck multiplier (LuckChanged), one decimal; the line hides while luck reads x1.0 (a zero-value line is not shown,
+-- MenuMath.LuckShown), and stays hidden while the event banner holds its slot (the banner's chip carries the number).
 function Hud.SetLuck(luck: number)
 	local label = luckLabel
 	if not label then
 		return
 	end
-	luckShown = luck ~= 1
+	luckShown = MenuMath.LuckShown(luck)
 	if luckShown then
 		-- Round half up to one decimal before formatting (1.25 must read x1.3, and %.1f would print 1.2).
 		luck = math.floor(luck * 10 + 0.5) / 10
@@ -729,20 +1027,23 @@ function Hud.SetLuck(luck: number)
 	applyLuckLine()
 end
 
--- The Friend Boost (FriendBoostChanged): `boost` is a fraction, shown as a whole percent. The chip
--- is dim at 0, green above it, and pops when the friend count grows.
+-- The Friend Boost (FriendBoostChanged): `boost` is a fraction, shown as a whole percent. The chip shows only while the boost is
+-- above +0% (a zero-value line is not shown, MenuMath.FriendBoostShown; the Menu's "Invite friends" row opens the same invite sheet),
+-- green, and pops when the friend count grows.
 function Hud.SetFriendBoost(count: number, boost: number)
 	local chip, label = friendChip, friendLabel
 	if not chip or not label then
 		return
 	end
 	label.Text = Strings.HUD_FRIEND_BOOST:format(math.floor(boost * 100 + 0.5))
-	local active = boost > 0
-	local color = if active then Theme.Colors.Confirm else Theme.Block.Trough
-	label.TextColor3 = if active then Theme.Colors.White else Theme.Rarity.Common
-	Builder.setBlockColor(chip, color, TweenInfo.new(Theme.Tween.Open))
-	if count > friendCountShown then
-		Builder.pop(chip, 1.1)
+	local active = MenuMath.FriendBoostShown(boost)
+	chip.Visible = active
+	if active then
+		Builder.setBlockColor(chip, Theme.Colors.Confirm)
+		label.TextColor3 = Theme.Colors.White
+		if count > friendCountShown then
+			Builder.pop(chip, 1.1)
+		end
 	end
 	friendCountShown = count
 end
@@ -883,66 +1184,75 @@ function Hud.FlyGain(amount: number)
 	fly:Play()
 end
 
--- Adds an entry to the left icon stack. Call after Hud.Build, once per screen, in display order.
+-- Adds a standalone button to the left edge: the Shop, which stays in view because it earns money. Call after Hud.Build; only the
+-- slot above the Menu button is free, so a second call does nothing. Every other screen is a row of the Menu (AddMenuRow).
 function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	local root = menuGui
-	if not root or menuButtons[id] then
+	if not root or menuButtons[id] or menuCount >= MENU_SLOT_INDEX then
 		return
 	end
-	buildMenuButton(root, id, color, onClick)
+	buildMenuButton(root, id, color, menuCount, onClick)
+	menuCount += 1
 end
 
--- A square block button just left of the clock chip (then left of the previous one, or under the first once the row
--- would reach the ship bar and the compass), with the id's pixel icon as its face (the MENU_GLYPH_<id> glyph when the id has
--- no icon). It lives in the HUD gui, so it hides with SetVisible. Call after Hud.Build, once per id.
-function Hud.AddTopButton(id: string, color: Color3, onClick: () -> ())
-	local root = gui
-	if not root or topButtonIds[id] then
+-- Adds a row to the Menu drop-down: the id's pixel icon on a tile in `color`, the MENU_<id> name, a red count (SetBadge) and a tap
+-- that closes the drop-down and runs `onClick`. Rows show in the order added. Call after Hud.Build, once per id.
+function Hud.AddMenuRow(id: string, color: Color3, onClick: () -> ())
+	local scroll = menuScroll
+	if not scroll or rowById[id] then
 		return
 	end
-	topButtonIds[id] = true
-	local label = Builder.text("MENU_" .. id)
-	local glyph = Builder.text("MENU_GLYPH_" .. id)
-	local button = Builder.blockButton({
-		parent = root,
-		name = "Top_" .. id,
-		text = if glyph == "MENU_GLYPH_" .. id then string.upper(string.sub(label, 1, 1)) else glyph,
-		icon = id,
-		color = color,
-		position = UDim2.fromScale(CLOCK_RIGHT, CLOCK_TOP),
-		size = UDim2.fromScale(CLOCK_SIZE.X, TOP_BUTTON_H),
-		anchor = Vector2.new(1, 0),
-		textSize = Theme.TextSize.Label,
-		aspect = 1,
-		hit = true, -- about 28 px at iPhone SE height: the 44 px floor
-	}, onClick)
-	addBadge(button, TOP_BADGE_SIZE)
-	table.insert(topButtons, button)
-	topButtonById[id] = button
-	layoutTopButtons()
+	local row = buildRow(scroll, id, color, onClick)
+	table.insert(rows, row)
+	rowById[id] = row
+	layoutKey = "" -- a new row changes the panel
+	layoutMenu()
 end
 
--- Shows or hides a top button (a feature switched off in its data table hides its button entirely); the others close
--- up the gap. Unknown ids do nothing.
-function Hud.SetTopButtonVisible(id: string, visible: boolean)
-	local button = topButtonById[id]
-	if not button or button.Visible == visible then
+-- Shows or hides a row (a feature switched off in its data table hides its row entirely); the others close up the gap and a
+-- hidden row's count leaves the Menu button's. Unknown ids do nothing.
+function Hud.SetMenuRowVisible(id: string, visible: boolean)
+	local row = rowById[id]
+	if not row or row.visible == visible then
 		return
 	end
-	button.Visible = visible
-	layoutTopButtons()
+	row.visible = visible
+	layoutMenu()
+	refreshMenuBadge()
 end
 
--- The icon stack hides during a capture or a reveal (it sits above those dims) and shows otherwise.
+-- Opens or closes the drop-down by code (the bootstrap closes it when something else takes the screen).
+function Hud.SetMenuOpen(open: boolean)
+	setMenuOpen(open)
+end
+
+function Hud.IsMenuOpen(): boolean
+	return menuOpen
+end
+
+-- The left column hides during a capture or a reveal (it sits above those dims) and shows otherwise; a drop-down open at the time
+-- closes at once.
 function Hud.SetMenuVisible(visible: boolean)
+	if not visible then
+		setMenuOpen(false, true)
+	end
 	if menuGui and menuGui.Enabled ~= visible then
 		menuGui.Enabled = visible
 	end
 end
 
--- Shows a red dot with a count on a menu button or a top button; 0 hides it.
+-- Shows a red dot with a count on a Menu row or a standalone left button (the Shop); 0 hides it. A row's count also adds up on the
+-- Menu button.
 function Hud.SetBadge(id: string, count: number)
-	local button = menuButtons[id] or topButtonById[id]
+	local row = rowById[id]
+	if row then
+		row.count = math.max(0, count)
+		row.badge.Visible = count > 0
+		row.badgeCount.Text = MenuMath.BadgeText(count)
+		refreshMenuBadge()
+		return
+	end
+	local button = menuButtons[id]
 	if not button then
 		return
 	end
@@ -953,7 +1263,7 @@ function Hud.SetBadge(id: string, count: number)
 	badge.Visible = count > 0
 	local label = badge:FindFirstChild("Count")
 	if label and label:IsA("TextLabel") then
-		label.Text = if count > 0 then tostring(count) else ""
+		label.Text = MenuMath.BadgeText(count)
 	end
 	if count > 0 then
 		Builder.pop(button, 1.15)
@@ -1029,6 +1339,9 @@ end
 function Hud.SetVisible(visible: boolean)
 	if gui then
 		gui.Enabled = visible
+	end
+	if not visible then
+		setMenuOpen(false, true)
 	end
 	if menuGui then
 		menuGui.Enabled = visible
