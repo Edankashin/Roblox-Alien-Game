@@ -3,6 +3,18 @@
 Run in Studio with `rojo serve` connected. Report Output lines verbatim and a screenshot.
 
 Species display names changed on 2026-10-14 (decision B26): commands and asset folders still take the id (`/spawn Mossbop` spawns the Moop), screens and toasts show the new name. Steps below that name a species in prose may still use the old name; the id map is in `docs/vault/01-game-design/Species-Names.md`.
+## Clean UI fixes (World 1 place)
+
+Worker CLEAN-FIX, 2026-10-22 (the findings of Mac jobs 64 to 66; [[Clean-UI-Pass]]; default Studio window, World 1, `screen_capture` for every pass line to `media/studio/2026-10-22/cleanFix-<step>-default.png`). Headless first: `./tools/test.sh` (`tests/NotifyMath.spec.luau`, `tests/RewardIcon.spec.luau`, `tests/HudStages.spec.luau`, `tests/PlateMath.spec.luau`, `tests/Spectacle.spec.luau`) and `./tools/analyze.sh` clean.
+
+1. Banner over a panel. Finished-tutorial profile; `/rush` (or wait for the Peddler about 30 s in) and, while its banner stands at the top (about 4 s), open Gifts (Menu), then repeat and open Ship. Pass: the banner drops to the bottom of the screen the moment the panel opens; the panel's header tab and close button stay clear in both panels. A banner raised while a panel is already open lands at the bottom at once.
+2. Spin icons. `/playtime 30`, open Playtime: the 30 min card shows the small four-colour prize wheel above "1 free spin", like the other cards' icons. Open Gifts: Welcome Week Day 5 ("Spins") shows the same icon.
+3. Radar staged. A fresh in-memory profile that owns Radar Mk1 (the Explorer Pack) at T1: no radar column on the right edge. `/tutorial 7`: still none. Finish the tutorial (`/tutorial 8`): the column appears. A finished-tutorial profile shows it at once on Play.
+4. Rush countdown under luck. `/admin luck`, then `/rush in 20`. Pass: the event chip reads "Rush in 0:19" counting down (not the luck line), then "Catch Rush ..." with the green score block when it starts, then the luck line returns when it ends.
+5. Plates. `/spawn` six aliens (any) 8 to 9 studs from you. Pass: at most five name plates draw; where aliens stand together at most three plates stack and none rises into the compass strip (the top 0.05 of the screen).
+6. Beacon fade. `/spawn Radish` (Cosmic) and, in the client command bar, read `Workspace.ClientSpectacle` children named "Beacon": find the one whose `Species` attribute is Radish, then at 60, 40, 32, 25 and 12 studs from it print its `NearFade`, `CameraStuds`, `AvatarStuds` attributes and `Beam.Transparency`. Pass: `NearFade` is 1 at 40 studs and farther, about 0.5 at 32, 0 at 25 and closer; the beam's first keypoint rises to 1 as it goes (the beam is disabled at 0); the screen never whites out beside it. If `NearFade` is 1 at 12 studs, print `CameraStuds` and say what the camera is doing.
+7. Two small things. Open Ranks (Menu): the header reads "Top catchers" with room either side. Open Gifts, tap "Group and friends" (no group set): the card holds the Invite friends button and its line with the wheel hidden behind it, not two thirds empty; the button reads "Back" and brings the wheel back.
+
 ## Clean UI pass, package A: the quiet HUD and the first five minutes (World 1 place)
 
 Worker CLEAN-A, 2026-10-22 ([[Clean-UI-Pass]] package A, [[UI-Playbook]] "Clean pass: the HUD"; default Studio window, World 1, `screen_capture` for every pass line; wireframe `media/studio/2026-10-22/clean_hud_wireframe.png`). Headless first: `./tools/test.sh` (`tests/HudStages.spec.luau`, `tests/PlateMath.spec.luau`, `tests/BlockMath.spec.luau` goal plate and chips) and `./tools/analyze.sh`.
