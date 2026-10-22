@@ -21,10 +21,11 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
 - [ ] Fix everything the Mac's Studio jobs report, the same day
 - [x] TikTok batch 9, the before-launch lessons (`media/tiktok/NOTES.md` "Batch 9"): a tap on a Scrap price you cannot pay says "Need N more Scrap"; the Starter Pack stands on the HUD as a top button until bought; a bought Server Luck names its buyer in chat too, and a repeat buyer is named; payer-conversion benchmarks in [[Growth-Playbook]] section 7. The Studio check is [[TESTING]] "TikTok batch 9" (a Mac job to number)
-- [ ] TikTok batch 9, after Ethan's answers: the Tiny Boost under 10 Robux if 47 is yes (about 30 minutes, then the Mac creates the product), Server Luck x4's value if 50 is yes (one number)
+- [x] TikTok batch 9, after Ethan's answers ([[Decisions]] B51): Scanner Pulse x1 at 9 Robux on the Boosts shelf (hidden until the Mac creates it), the "Earn faster" chip on "Need N more Scrap" opening the Boosts shelf at Scrap Magnet, Server Luck x4 at 599 in data and `tools/create_products.py --prices` to change the live price. The Mac job in [[Overnight]] creates the product, updates the price and runs the Studio check ([[TESTING]] "Ethan's shop answers")
 
 **Week two (after launch)**
 - [ ] The paid-only prize wheel ([[Decisions]] B50), then the three spin products back on sale
+- [ ] The Scrap ladder ([[Decisions]] B51, [[Decide-Now]] 49a), once the first week's payer numbers are in: three passes on catch Scrap only, +25% at 49, +25% more at 149, +50% more at 399, capped at x2, each shown once the one before is owned (`docs/GAME_DESIGN.md` section 14). Three rows in `data/Shop.luau`, the multiplier read where a catch pays Scrap, a spec of the cap, the passes created on the Mac
 
 **Mac session (Ethan starts it: "pull and run the jobs in Overnight.md in order")**
 - [ ] Job 41: download the three TikToks (batch 9)
@@ -39,7 +40,7 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [x] ~~Create the five missing shop products~~ Skip them: DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock have no feature yet, are not on the shelf, and the server will not sell one even with an id ([[Prelaunch-Audit]] finding 6)
 - [ ] Decide the paid spins: they spin the free wheel, which pays Scrap, a Lucky Charm and a Double Shift, all three "never sold" ([[Prelaunch-Audit]] finding 7: a paid wheel without them, accept it, or hide the spins at launch)
 - [ ] Pick the icon and thumbnails from the new set
-- [ ] [[Decide-Now]] 47 to 50, the batch 9 money questions: an offer under 10 Robux, keep Scrap unsold when a player is short, a stacking multiplier after launch week, Server Luck x4 made the better deal
+- [x] [[Decide-Now]] 47 to 50, the batch 9 money questions (answered 2026-10-22: b, c, a, a): an offer under 10 Robux, keep Scrap unsold when a player is short, a stacking multiplier after launch week, Server Luck x4 made the better deal
 - [ ] Play the private game on your phone for ten minutes and say what feels wrong
 - [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
 - Optional: the group Moop Games (100 Robux), music listen-through, rejoin notifications (decision 20)

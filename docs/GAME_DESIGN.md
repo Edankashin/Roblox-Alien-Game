@@ -629,6 +629,8 @@ Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,69
 | Server luck 2x, 15 min | Dev Product | 249 | Meteor Shower, events | Shared by all 8 players; odds shown live; PolicyService gated |
 | Server luck 4x, 15 min | Dev Product | 599 | | Same rules. 599 since B51 (was 999): 200 Robux a point of luck against x2's 249, so the bigger pack is the better deal, never a decoy |
 
+After launch week, once the first week's payer numbers are in (Decision B51, not built yet): the **Scrap ladder**, three passes that raise the Scrap a catch pays and nothing else (station income, gifts and quests untouched): +25% at 49 Robux, +25% more at 149, +50% more at 399, adding up to x2 with all three owned, the cap. Each step shows on the shelf only once the one before is owned. A pass, never a product, so the multiplier is bought once and kept; Double Shift and income passes stay unsold.
+
 **Home**
 
 | Item | Type | R$ | Earnable alternative | Notes |
