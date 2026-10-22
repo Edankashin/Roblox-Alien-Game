@@ -11,7 +11,7 @@ export type MarkerKind = "camp" | "landmark" | "peddler" | "waypoint" | "target"
 export type Marker = {
 	id: string,
 	kind: MarkerKind, -- camp: the ship; landmark: a LandmarkId under Workspace.World.Landmarks; peddler: the visiting ship;
-	-- waypoint: the tutorial or Field Notes marker (World/Waypoint); target: the alien marked from the radar
+	-- waypoint: the tutorial or Field Notes marker (World/Waypoint); target: the Warden walking the land (World/SightingRenderer)
 	landmarkId: string?, -- for kind landmark
 	labelKey: string, -- strings key for the line under the strip
 	color: string, -- Theme.Colors or Theme.Rarity key for the diamond

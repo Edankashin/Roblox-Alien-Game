@@ -21,7 +21,6 @@ import lint_data  # noqa: E402
 # The screens rebuilt in block cells after the HUD, one per change (UI Playbook "Screens after the HUD").
 BLOCK_SCREENS = (
     "Compass.luau",
-    "NearbyPanel.luau",
     "AliensScreen.luau",
     "ShopScreen.luau",
     "QuestsScreen.luau",
@@ -43,7 +42,7 @@ BLOCK_SCREENS = (
     "PowerUpBar.luau",
     "ReleasePanel.luau",
     "BuildScreen.luau",
-    "Radar.luau",
+    "RadarColumn.luau",
     "CaptureBar.luau",
     "Reveal.luau",
 )

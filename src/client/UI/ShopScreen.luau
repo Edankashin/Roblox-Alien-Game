@@ -55,7 +55,7 @@ local ShopScreen = {}
 
 type LureDef = { name: string, tier: number, scrap: number, zoneBonus: number }
 type GearDef = { name: string, speedMultiplier: number, scrap: number, unlock: string }
-type RadarTier = { name: string, range: number, scrap: number, unlock: string? }
+type RadarTier = { name: string, range: number, slots: number, scrap: number, unlock: string? }
 type GearField = "boots" | "hoverboard" | "glider" | "radar"
 -- A gear card. Movement gear carries its Gear def (the speed bonus); a radar carries the tier it grants, and its range is read
 -- from the Radar table. `scrap` is the price either way.
@@ -270,18 +270,19 @@ local function ownsGear(profile: Types.Profile, item: GearItem): boolean
 	return gear.glider == true
 end
 
--- The long effect line (the detail card): the minimap range for a radar (Mk2 says what it adds, or the unlock note while it is
--- locked), the walk-speed bonus for movement gear, or, for gear that does nothing yet (the Glider), the unlock note while it is
+-- The long effect line (the detail card): the radar column's slots and range for a radar (Mk2 says what it adds, or the unlock note
+-- while it is locked), the walk-speed bonus for movement gear, or, for gear that does nothing yet (the Glider), the unlock note while it is
 -- locked and what it will do once it is not.
 local function effectText(profile: Types.Profile, item: GearItem): string
 	local radarTier = item.radarTier
 	if radarTier then
 		local row = radarTiers[radarTier]
 		local range = if row then row.range else 0
+		local slots = if row then row.slots else 0
 		if radarTier == RADAR_MK2 then
-			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED else Strings.SHOP_GEAR_RADAR2:format(range)
+			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED else Strings.SHOP_GEAR_RADAR2:format(slots, range)
 		end
-		return Strings.SHOP_GEAR_RADAR:format(range)
+		return Strings.SHOP_GEAR_RADAR:format(slots, range)
 	end
 	local def = item.def
 	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0
@@ -297,10 +298,11 @@ local function gearNote(profile: Types.Profile, item: GearItem): string
 	if radarTier then
 		local row = radarTiers[radarTier]
 		local range = if row then row.range else 0
+		local slots = if row then row.slots else 0
 		if radarTier == RADAR_MK2 then
-			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED_NOTE else Strings.SHOP_GEAR_RADAR2_NOTE:format(range)
+			return if gearLocked(profile, item) then Strings.SHOP_RADAR_LOCKED_NOTE else Strings.SHOP_GEAR_RADAR2_NOTE:format(range, slots)
 		end
-		return Strings.SHOP_GEAR_RADAR_NOTE:format(range)
+		return Strings.SHOP_GEAR_RADAR_NOTE:format(range, slots)
 	end
 	local def = item.def
 	local bonus = if def then math.floor((def.speedMultiplier - 1) * 100) else 0

@@ -3,12 +3,13 @@
 -- and compass"). A thin navy band along the top edge, centred above the HUD's ship bar: the four
 -- cardinal letters and tick marks slide along it as the camera turns, a small dark block at the centre
 -- reads the heading in whole degrees, and one coloured diamond per data marker (the camp, the
--- waypoint, the radar target, the Peddler, the landmarks) sits at its bearing. One line under the
+-- waypoint, the Warden when one walks the land, the Peddler, the landmarks) sits at its bearing.
+-- The radar has no marker here (Decision B52): it is a column of shadows, never a direction. One line under the
 -- band names the marker the player is heading for and its flat distance ("Camp 42m").
 -- The look is block cells (UI Playbook "Block cells", Decisions B44): the band and the heading block are flat blocks (a band
 -- 15 px tall at iPhone SE is all edge at three rows of cells, so no grout or jitter: the Playbook's thin-band rule), the band
 -- fitted to the strip's box so its layout did not move; a diamond is a stepped pixel diamond, navy round the marker's colour.
--- Bearings agree with the Radar minimap: world -Z is north (0), +X is east (90), clockwise, taken
+-- Bearings: world -Z is north (0), +X is east (90), clockwise, taken
 -- from the camera's look yaw. A thing `delta` degrees from the heading sits at x = 0.5 + delta /
 -- FieldOfViewDegrees and is hidden beyond half the field of view; near either end it fades.
 -- Client-only and pure presentation: it reads positions the world renderers already hold (and the
@@ -89,7 +90,7 @@ local accumulator = 0
 local heading = 0 -- degrees, 0 to 360; kept while the camera looks straight up or down
 local headingShown = -1
 local visible = false -- the bootstrap's SetVisible: captures, reveals, open panels and cinematics hide it
-local targetPart: Part? = nil -- the alien marked from the radar (SetTarget)
+local targetPart: Part? = nil -- the Warden walking the land (World/SightingRenderer sets it through SetTarget)
 local shownDistance: { [number]: number } = {} -- by marker index: flat studs, only for a marker on the strip this refresh
 local shownName: { [number]: string } = {}
 local lineIndex: number? = nil -- the marker the line names
@@ -121,7 +122,7 @@ local function deltaFrom(bearing: number): number
 	return (bearing - heading + FULL_TURN / 2) % FULL_TURN - FULL_TURN / 2
 end
 
--- North (-Z) is 0, east (+X) is 90, clockwise: the Radar's convention.
+-- North (-Z) is 0, east (+X) is 90, clockwise.
 local function bearingOf(dx: number, dz: number): number
 	return math.deg(math.atan2(dx, -dz))
 end
@@ -199,11 +200,11 @@ local function markerPlace(marker: CompassData.Marker): (Vector3?, string?)
 		return nil, nil
 	end
 	local at = part.Position
-	-- A part under the Sightings folder is the Warden walking the land, not a radar-marked alien: its own name.
+	-- A part under the Sightings folder is the Warden walking the land: its own name.
 	local sightings = sightingsFolder()
 	local label = if sightings and part.Parent == sightings then Strings.COMPASS_SIGHTING else nil
-	-- A radar-marked alien also gets the waypoint: when the waypoint already points here, one diamond
-	-- (the waypoint's, which carries the alien's name on the line), not two on top of each other.
+	-- When the waypoint already points here, one diamond (the waypoint's, which carries the name on the line), not two on top of
+	-- each other.
 	local waypointAt = Waypoint.Target()
 	if waypointAt and (Vector3.new(at.X, 0, at.Z) - Vector3.new(waypointAt.X, 0, waypointAt.Z)).Magnitude < CompassData.SameSpotStuds then
 		return nil, nil
@@ -437,8 +438,8 @@ local function pixelDiamond(band: Frame, name: string, color: Color3, z: number)
 end
 
 -- One diamond per data marker: a stepped pixel diamond in the marker's colour, ink round it.
--- The lowest priority number is on top where two overlap (the waypoint over the radar target when
--- both stand on the same alien): each marker takes two layers (ink, colour) above the next.
+-- The lowest priority number is on top where two overlap (the waypoint over the Warden marker when
+-- both stand on the same spot): each marker takes two layers (ink, colour) above the next.
 local function buildDiamonds(band: Frame)
 	local maxPriority = 0
 	for _, marker in ipairs(CompassData.Markers) do
@@ -515,9 +516,9 @@ function Compass.SetVisible(value: boolean)
 	end
 end
 
--- The wild part a tapped radar blip marked, or nil once it is cleared; the "target" marker shows
--- while the part has a parent. A part under Workspace.World.Sightings (the Warden walking the land) is
--- marked too and named COMPASS_SIGHTING on the line.
+-- The part the "target" marker follows, or nil once it is cleared; the marker shows while the part has a parent. Only the Warden
+-- walking the land (a part under Workspace.World.Sightings) is set here now, named COMPASS_SIGHTING on the line; the radar no longer
+-- marks aliens (Decision B52).
 function Compass.SetTarget(part: Part?)
 	targetPart = part
 end

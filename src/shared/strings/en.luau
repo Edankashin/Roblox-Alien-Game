@@ -165,7 +165,7 @@ return {
 	POWERUP_DoubleShift = "Double Shift",
 	POWERUP_DESC_SpeedBurst = "+50%% speed for %s",
 	POWERUP_DESC_SteadyHands = "Catch zones +30%% for %s",
-	POWERUP_DESC_ScannerPulse = "Shows every uncaught alien nearby for %s",
+	POWERUP_DESC_ScannerPulse = "Every alien in this area shows on your radar column for %s",
 	POWERUP_DESC_LuckyCharm = "+50%% luck for %s",
 	POWERUP_DESC_ScrapMagnet = "Catches pay +50%% Scrap for %s",
 	POWERUP_DESC_DoubleShift = "Stations pay double for %s",
@@ -761,18 +761,15 @@ return {
 	COND_PHRASE_Rain = "in the rain",
 	COND_PHRASE_Quest = "by quest",
 	COND_PHRASE_Shower = "in a Meteor Shower",
-	COND_SHORT_Shower = "in a Shower", -- the Nearby panel's narrow tag; other conditions use their COND_PHRASE
+	COND_SHORT_Shower = "in a Shower", -- a narrow tag; other conditions use their COND_PHRASE
 	COND_PHRASE_Blizzard = "in a blizzard",
 	COND_PHRASE_PowerSurge = "during a power surge",
 	COND_PHRASE_Ashfall = "in ashfall",
 	COND_PHRASE_KingTide = "at king tide",
 	COND_PHRASE_GravityFlip = "when gravity flips",
 	COND_PHRASE_Eclipse = "during an eclipse",
-	-- Nearby panel
-	NEARBY_TITLE = "Nearby",
-	NEARBY_NONE = "Nothing out right now",
-	NEARBY_ABSENT_TAG = "not now",
-	NEARBY_APPEARS = "%s",
+	-- Radar column (Decision B52): the only word on it is its head; the slots are shadows and faces with no text
+	RADAR_COLUMN_TITLE = "Radar",
 	-- Scrap shop
 	SHOP_TITLE = "Shop",
 	-- The shelf (UI Playbook "Shop shelf"). Every string on a 120 px card is one line of at most 105 px at the 14 px floor, or two lines for a name.
@@ -801,8 +798,8 @@ return {
 	SHOP_CHEVRON_PREV = "<",
 	SHOP_LURE_NOTE = "+%d%% zones", -- the Scrap cards' notes (the long forms below stay for the detail card): at most 98 px
 	SHOP_GEAR_SPEED_NOTE = "+%d%% speed",
-	SHOP_GEAR_RADAR_NOTE = "%dm range",
-	SHOP_GEAR_RADAR2_NOTE = "%dm + ???",
+	SHOP_GEAR_RADAR_NOTE = "%dm, %d slots",
+	SHOP_GEAR_RADAR2_NOTE = "%dm, %d slots",
 	SHOP_GEAR_LOCKED_NOTE = "After launch",
 	SHOP_RADAR_LOCKED_NOTE = "Needs World 2",
 	SHOP_GEAR_SOON_NOTE = "World 3 gear",
@@ -859,7 +856,7 @@ return {
 	SHOP_ITEM_ExplorerPack = "Explorer Pack",
 	SHOP_DESC_ExplorerPack = "Boots, Hoverboard and Radar Mk1 now.",
 	SHOP_ITEM_ScannerPulse1 = "Scanner Pulse x1",
-	SHOP_DESC_ScannerPulse1 = "One Scanner Pulse: every alien here on your radar.",
+	SHOP_DESC_ScannerPulse1 = "One Scanner Pulse: every alien in this area on your radar column for 60 s.",
 	SHOP_ITEM_SpeedBurstx5 = "Speed Burst x5",
 	SHOP_DESC_SpeedBurstx5 = "Five Speed Bursts for your bar.",
 	SHOP_ITEM_SteadyHandsx3 = "Steady Hands x3",
@@ -884,8 +881,8 @@ return {
 	SHOP_GEAR_SPEED = "+%d%% walk speed, forever",
 	SHOP_GEAR_LOCKED = "Unlocks with your first launch",
 	SHOP_GEAR_SOON = "Glide from any height (coming with World 3)",
-	SHOP_GEAR_RADAR = "Aliens within %dm on a minimap. Tap a blip to mark it.",
-	SHOP_GEAR_RADAR2 = "Aliens within %dm, secrets as ???, and who appears when",
+	SHOP_GEAR_RADAR = "A radar column on the right: shadows of the %d nearest aliens within %dm. Catch a kind to see its face.",
+	SHOP_GEAR_RADAR2 = "A longer radar column: shadows of the %d nearest aliens within %dm.",
 	SHOP_RADAR_LOCKED = "Unlocks with World 2",
 	SHOP_SCRAP_PRICE = "%s Scrap",
 	LURE_Lure1 = "Twig Lure",
@@ -901,9 +898,6 @@ return {
 	TOAST_CRAFTED = "%s crafted",
 	TOAST_BOUGHT = "%s bought",
 	TOAST_LOCKED_GEAR = "%s unlocks later",
-	TOAST_RADAR_MARKED = "Marked: %s",
-	TOAST_RADAR_TUTORIAL = "Finish the first steps before marking aliens",
-	RADAR_NORTH = "N",
 	-- compass strip (data/Compass)
 	COMPASS_N = "N",
 	COMPASS_E = "E",
@@ -912,14 +906,13 @@ return {
 	COMPASS_HEADING = "%d°",
 	COMPASS_LABEL = "%s %dm", -- marker name, studs
 	COMPASS_WAYPOINT = "Marker",
-	COMPASS_TARGET = "Target",
+	COMPASS_TARGET = "Target", -- the Warden walking the land (COMPASS_SIGHTING names it on the line)
 	COMPASS_PEDDLER = "Peddler",
 	COMPASS_CAMP = "Camp",
 	COMPASS_SHRINE = "Shrine",
 	COMPASS_CAVE = "Cave",
 	COMPASS_ICECAVE = "Ice Cave",
 	COMPASS_VENT = "Great Vent",
-	RADAR_RANGE = "%dm",
 	CATCH_LURE_USED = "%s used",
 	CATCH_PERFECT_BONUS = "x%d Scrap!",
 	-- catch variants (data/CatchVariants)

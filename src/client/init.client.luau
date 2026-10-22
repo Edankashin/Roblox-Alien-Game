@@ -51,7 +51,6 @@ local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"
 local MailScreen = require(script:WaitForChild("UI"):WaitForChild("MailScreen"))
 local VisitScreen = require(script:WaitForChild("UI"):WaitForChild("VisitScreen"))
 local AfkScreen = require(script:WaitForChild("UI"):WaitForChild("AfkScreen"))
-local NearbyPanel = require(script:WaitForChild("UI"):WaitForChild("NearbyPanel"))
 local WildRenderer = require(script:WaitForChild("World"):WaitForChild("WildRenderer"))
 local CampRenderer = require(script:WaitForChild("World"):WaitForChild("CampRenderer"))
 local HomeRenderer = require(script:WaitForChild("World"):WaitForChild("HomeRenderer"))
@@ -67,11 +66,9 @@ local TutorialHint = require(script:WaitForChild("UI"):WaitForChild("TutorialHin
 local GiftsScreen = require(script:WaitForChild("UI"):WaitForChild("GiftsScreen"))
 local PlaytimeScreen = require(script:WaitForChild("UI"):WaitForChild("PlaytimeScreen"))
 local NotifyCard = require(script:WaitForChild("UI"):WaitForChild("NotifyCard"))
-local Radar = require(script:WaitForChild("UI"):WaitForChild("Radar"))
+local RadarColumn = require(script:WaitForChild("UI"):WaitForChild("RadarColumn"))
 local Compass = require(script:WaitForChild("UI"):WaitForChild("Compass"))
-local Waypoint = require(script:WaitForChild("World"):WaitForChild("Waypoint"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
-local RadarData = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Spectacle = require(script:WaitForChild("World"):WaitForChild("Spectacle"))
@@ -112,24 +109,9 @@ local started = false
 local inCapture = false
 local captureToken: string? = nil
 local collecting = false
-local radarTarget: Part? = nil -- the wild part a tapped radar blip marked with the waypoint
 local capturePart: Part? = nil -- the wild part the current catch is for
 local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
 local cinematic = false -- the crash-landing opener or a cinematic moment (playCinematic) is running: the HUD, hint and radar stay hidden
-local radarTier = 0 -- the radar tier the server says the player holds (gear.radar), mirrored for the Nearby column
-local RADAR_MK2_TIER: number = (RadarData :: any).Mk2.Tier -- data/Radar: the tier from which the Nearby column lists what is not out now
-
--- The Nearby column shows without a radar (the free list) and from Radar Mk2 up (the compact "not now" list
--- under the disc, only while the disc itself shows); Mk1 has the disc alone. Never during a cinematic.
-local function nearbyShows(): boolean
-	if cinematic then
-		return false
-	end
-	if radarTier < 1 then
-		return true
-	end
-	return radarTier >= RADAR_MK2_TIER and Radar.IsShown()
-end
 
 type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail" | "Wave"
 local currentAction: Action? = nil
@@ -1869,44 +1851,15 @@ local function start(profile: Types.Profile)
 			announcedStep = nil
 		end
 	end)
-	NearbyPanel.Start()
-
-	-- Radar Mk1: the minimap takes the Nearby column's slot once a radar is owned; the free column (tier 0)
-	-- hides at Mk1, since its rows would not fit under the disc. From Mk2 the column comes back under the
-	-- disc as the compact "not now" list: the disc's bottom edge moves its top (the slot's own top, the
-	-- default, while the disc is hidden or no radar is held).
-	Radar.Build()
-	Radar.OnLayout(function(bottom: number)
-		NearbyPanel.SetTop(if Radar.IsShown() then bottom else NearbyPanel.DefaultTop())
-	end)
+	-- The radar column (Decision B52): a column of shadows on the right edge once a radar is owned (or while a Scanner Pulse runs).
+	-- It is presentation of the wild parts the client already sees; nothing on it can be tapped.
+	RadarColumn.Build()
 	Compass.Start() -- the strip along the top edge; the refresh below shows it with the other HUD extras
 	local function refreshRadarTier()
-		local tier = if State.Has() then State.Get().gear.radar else 0
-		Radar.SetTier(tier)
-		radarTier = tier
-		NearbyPanel.SetVisible(nearbyShows())
+		RadarColumn.SetTier(if State.Has() then State.Get().gear.radar else 0)
 	end
 	refreshRadarTier()
 	State.OnChanged("gear", refreshRadarTier)
-	-- A tapped blip marks that alien until the player reaches it or it is gone. The tutorial owns the
-	-- marker while it runs, so a tap then only explains.
-	Radar.OnBlipTapped(function(part: Part)
-		local step = State.GetTutorial()
-		if step <= #TutorialData.Steps then
-			Toast.Show(Strings.TOAST_RADAR_TUTORIAL, Theme.Rarity.Common)
-			return
-		end
-		local speciesId = part:GetAttribute("SpeciesId")
-		local def = if type(speciesId) == "string" then Species.ById[speciesId] else nil
-		local entry = if type(speciesId) == "string" and State.Has() then State.Get().codex[speciesId] else nil
-		local name = if def and entry and entry.count > 0 then def.name else Strings.CODEX_UNKNOWN
-		radarTarget = part
-		Compass.SetTarget(part)
-		Waypoint.Show(function()
-			return if part.Parent then part.Position else nil
-		end, name)
-		Toast.Show(Strings.TOAST_RADAR_MARKED:format(name), Theme.Colors.Select)
-	end)
 
 	local known: { [string]: boolean } = {}
 	for species, entry in pairs(profile.codex) do
@@ -2051,22 +2004,9 @@ local function start(profile: Types.Profile)
 		PowerUpBar.SetVisible(not inCapture and not Reveal.IsOpen() and not cinematic) -- it shares the lower third with the capture bar
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
-		Radar.SetVisible(not modalOpen() and not cinematic)
+		RadarColumn.SetVisible(not modalOpen() and not cinematic)
 		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
-		NearbyPanel.SetVisible(nearbyShows())
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
-		-- A marked alien's waypoint clears on arrival or when the alien is gone (caught, fled, culled).
-		local target = radarTarget
-		if target then
-			local character = localPlayer.Character
-			local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-			local arrived = root and root:IsA("BasePart") and (root.Position - target.Position).Magnitude <= Config.RadarWaypointArriveStuds
-			if not target.Parent or arrived then
-				radarTarget = nil
-				Compass.SetTarget(nil)
-				Waypoint.Clear()
-			end
-		end
 	end)
 
 	-- Space / gamepad A start a catch on the nearest alien (the CaptureBar rebinds these while open).
