@@ -39,9 +39,9 @@
 -- motion cannot be an offset applied after this module's bob (the bob writes the pose absolutely every frame), so the bob
 -- places the alien through SpeciesFx.Place, which writes the pose plus the idle offset. A hidden (blizzard) or silhouetted
 -- alien shows no species effects (syncFx), and a change of size band rebuilds them (SpeciesFx.Refresh).
--- The Scanner Pulse (data/PowerUps ScannerPulse, effect "reveal"): while State.GetBuffs() holds it, every
--- tracked alien whose Biome attribute is the player's biome counts as revealed whatever its distance, so
--- no silhouette stands in that biome: `applyPulse` unshadows the shadowed ones (the ordinary `reveal`, its
+-- The Scanner Pulse (data/PowerUps ScannerPulse, effect "reveal"): since B52 it no longer unshadows anything in the world
+-- (`pulseCovers` is false; the pulse only widens the radar column). Before B52 every tracked alien of the player's biome
+-- counted as revealed while it ran: `applyPulse` unshadows the shadowed ones (the ordinary `reveal`, its
 -- plate pop once) and a part that arrives meanwhile is never shadowed. `pulseRevealed` marks the records
 -- the pulse covers; when the pulse ends, or the player leaves the biome, each marked record the shadow rule
 -- would shadow (uncaught, Silhouettes on, beyond ShadowRevealDistance) is shadowed again by
@@ -358,9 +358,11 @@ local function pulseRunning(): boolean
 	return endsAt ~= nil and endsAt > State.Now()
 end
 
--- Whether the pulse covers this alien right now: it runs and the alien's Biome attribute is the player's.
-local function pulseCovers(record: Record, running: boolean): boolean
-	return running and record.part:GetAttribute("Biome") == State.GetBiome()
+-- Whether the pulse unshadows this alien in the world. Never since B52 (Ethan, 2026-10-22: no shortcut that shows an
+-- undiscovered alien): the pulse only widens the radar column (UI/RadarColumn), which keeps its shadows, so a pulsed alien
+-- stays under the ordinary shadow rule. The plumbing stays so a marked record from an older pulse is re-judged.
+local function pulseCovers(_record: Record, _running: boolean): boolean
+	return false
 end
 
 local pulseEndToken = 0 -- bumped per scheduled end check, so only the latest one runs
