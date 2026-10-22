@@ -14,7 +14,7 @@ local Menu = {
 	MaxWidth = 0.4, -- of the screen width, at most
 	IconShare = 0.74, -- the icon tile's height, as a fraction of the row's
 	BadgeShare = 0.5, -- a row's red count, as a fraction of the row's height
-	Dim = 0.55, -- the outside-tap layer's dim over the world while the drop-down is open (0 clear, 1 black)
+	Dim = 0.3, -- the outside-tap layer's dim over the world while the drop-down is open (0 clear, 1 black)
 }
 
 return Menu
