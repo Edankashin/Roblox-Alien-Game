@@ -122,22 +122,24 @@ local Cards: { [string]: CardDef } = {
 }
 
 -- The shelf's geometry and motion. Fractions are of the screen unless a band says it is of a card. At 667x375 (iPhone SE) a card
--- is 0.78 of the height tall and 0.41 of that wide (120 x 292 px, 0.18 of the width); the featured card is two widths and a gap.
--- Every band is measured against the 14 px text floor (docs/vault/05-ui-design/UI-Playbook.md "Shop shelf").
+-- is 0.735 of the height tall and 0.41 of that wide (113 x 276 px, 0.17 of the width); the featured card is two widths and a gap.
+-- Every band is measured against the 14 px text floor (docs/vault/05-ui-design/UI-Playbook.md "Shop shelf"). The header (the
+-- title, the Scrap pill and the X) sits wholly above the ribbons, even a card's lifted on hover, so a card scrolled under the X
+-- never meets it (Studio 2026-10-22: the X covered the third card's ribbon; tests/ShelfMath.spec.luau "Shop header clears the cards").
 local Shelf = {
 	Window = { X = 0.14, Y = 0.075, W = 0.86, H = 0.875 }, -- the scrolling frame; it clips, so it leaves room above the cards for the ribbons (they straddle the top edge) and the hover lift
-	CardTop = 0.15, -- the cards' top edge, of the screen height
-	CardH = 0.78, -- the cards' height, of the screen height
+	CardTop = 0.195, -- the cards' top edge, of the screen height: the lifted ribbons' top (0.136) under the header's bottom (0.132)
+	CardH = 0.735, -- the cards' height, of the screen height (the bottom stays at 0.93)
 	CardAspect = 0.41, -- card width over card height: the width follows the height, so a card is the same shape in any window
 	CardGap = 0.1, -- between cards, of a card's width
 	EndPad = 0.1, -- at both ends of the row, of a card's width
 	Rail = { X = 0.012, Y = 0.17, W = 0.118, TabH = 0.125, Gap = 0.02, Nudge = 0.012 }, -- the tab rail (Nudge: the active tab sits this far right); 0.125 of 375 is 47 px, over the 44 px tap floor
 	Chip = { W = 0.55, H = 0.4, X = 0.62, Y = -0.1, Bang = 0.42, BangW = 0.3 }, -- the NEW chip (of a tab; Y negative is above its top edge) and the square "!" block (Bang: its height, BangW: the widest it may be, of a tab; an aspect constraint keeps it square)
 	Title = { X = 0.16, Y = 0.012, W = 0.3, H = 0.1 }, -- "Shop", clear of Roblox's own buttons at the top left
-	Close = { W = 0.1, H = 0.14, Right = 0.985, Y = 0.02 }, -- the red X (an aspect constraint makes it square within W by H): 52 px at 375, a 47 px face
+	Close = { W = 0.1, H = 0.12, Right = 0.985, Y = 0.012 }, -- the red X (an aspect constraint makes it square within W by H): 45 px at 375, a 37 px face and the 44 px hit area
 	Currency = { Right = 0.835, Y = 0.027, W = 0.2, H = 0.095, Aspect = 3.6, Icon = { X = 0.04, Y = 0.5, W = 0.2, H = 0.72 }, Amount = { X = 0.3, Y = 0.5, W = 0.66, H = 0.7 } }, -- the Scrap pill, left of the X (Aspect: width over height; Icon and Amount: the square and the count, of the pill)
 	Scrollbar = { X = 0.3, Y = 0.958, W = 0.5, H = 0.026, MinThumb = 0.12, Grips = 3, GripGap = 0.15, GripW = 0.03 }, -- the bar under the shelf (MinThumb: the thumb's least width, of the bar; the grip ticks' spacing and width, of the thumb)
-	Chevron = { W = 0.1, H = 0.125, Y = 0.54, Right = 0.955, Left = 0.165 }, -- the edge arrows (Y: the middle of the card row; Right and Left: their centres)
+	Chevron = { W = 0.1, H = 0.125, Y = 0.5625, Right = 0.955, Left = 0.165 }, -- the edge arrows (Y: the middle of the card row; Right and Left: their centres)
 	Detail = { -- the detail card (a tap on a card's body): the panel in the middle of the screen, then its bands as shares of the panel
 		Panel = { X = 0.5, Y = 0.5, W = 0.56, H = 0.6 },
 		HeaderH = 0.3,
