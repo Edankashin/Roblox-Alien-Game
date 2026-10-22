@@ -7,9 +7,13 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local MenuMath = require(Shared.MenuMath)
 local Menu = require(Shared.data.Menu)
 
--- The drop-down's top is the Menu slot's bottom: the stack starts at 0.19 and each slot is 0.13 tall (Theme.Menu.SlotH).
--- tools/tests/test_menu_hud.py keeps these equal to the HUD's.
-local DROP_TOP = 0.19 + 2 * 0.13
+-- The drop-down hangs from the Menu slot's bottom: the column starts at 0.19, the Menu slot is the second and each slot is 0.13 tall
+-- at most (Theme.Menu: SlotW 0.12, SlotH 0.13, Aspect 0.8). tools/tests/test_menu_hud.py keeps these equal to the HUD's.
+local COLUMN_TOP, SLOT_H, SLOT_W, SLOT_ASPECT = 0.19, 0.13, 0.12, 0.8
+
+local function dropTop(screen: { w: number, h: number }): number
+	return COLUMN_TOP + SLOT_H + MenuMath.SlotHeight(SLOT_H, SLOT_W, SLOT_ASPECT, screen.w, screen.h)
+end
 local ROWS = 8 -- Aliens, Codex, Ship, Quests, Gifts, Mail, Settings, Leaderboard (plus Friends, Playtime and the offer when they show)
 local MOST_ROWS = 11
 
@@ -22,8 +26,23 @@ local SCREENS = {
 
 local function layout(screen: { name: string, w: number, h: number }, rows: number): MenuMath.Layout
 	local rowH = MenuMath.RowHeight(screen.h, Menu.RowHeight, Menu.MinRowPx)
-	return MenuMath.Panel(rows, rowH, Menu.RowGap, Menu.Pad, Menu.Bottom - DROP_TOP)
+	return MenuMath.Panel(rows, rowH, Menu.RowGap, Menu.Pad, Menu.Bottom - dropTop(screen))
 end
+
+describe("MenuMath.SlotHeight", function()
+	it("is the full slot on a wide screen", function()
+		expect(MenuMath.SlotHeight(0.13, 0.12, 0.8, 1154, 663)).toEqual(0.13)
+		expect(MenuMath.SlotHeight(0.13, 0.12, 0.8, 667, 375)).toEqual(0.13)
+	end)
+	it("is shorter on a tall narrow one, where the slot's aspect keeps it narrow", function()
+		local tall = MenuMath.SlotHeight(0.13, 0.12, 0.8, 375, 667)
+		assert(tall < 0.13, "a portrait slot is shorter")
+		expect(tall * 667).toBeClose(0.12 * 375 / 0.8, 1e-6)
+	end)
+	it("falls back to the slot with no screen yet", function()
+		expect(MenuMath.SlotHeight(0.13, 0.12, 0.8, 0, 0)).toEqual(0.13)
+	end)
+end)
 
 describe("MenuMath.RowHeight", function()
 	it("never goes under the tap floor in pixels", function()
@@ -48,7 +67,7 @@ describe("MenuMath.Panel", function()
 		for _, screen in ipairs(SCREENS) do
 			for rows = 1, 12 do
 				local panel = layout(screen, rows)
-				assert(DROP_TOP + panel.height <= Menu.Bottom + 1e-9, screen.name .. " with " .. rows .. " rows runs off the screen")
+				assert(dropTop(screen) + panel.height <= Menu.Bottom + 1e-9, screen.name .. " with " .. rows .. " rows runs off the screen")
 			end
 		end
 	end)

@@ -17,6 +17,15 @@ export type Layout = {
 	scrolls: boolean,
 }
 
+-- A left-column slot's real height as a fraction of the screen height: `slotH` on a wide screen; on a tall one the slot's aspect
+-- (width over height) keeps it narrow, `slotW` of the width, so it is shorter. The drop-down hangs from the Menu slot's bottom.
+function MenuMath.SlotHeight(slotH: number, slotW: number, aspect: number, screenW: number, screenH: number): number
+	if screenW <= 0 or screenH <= 0 or aspect <= 0 then
+		return slotH
+	end
+	return math.min(slotH, slotW * screenW / aspect / screenH)
+end
+
 -- A row's height as a fraction of the screen height: `frac`, but never fewer than `minPx` pixels on a screen `screenPx` tall.
 function MenuMath.RowHeight(screenPx: number, frac: number, minPx: number): number
 	if screenPx <= 0 then
