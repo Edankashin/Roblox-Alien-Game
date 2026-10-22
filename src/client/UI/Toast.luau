@@ -646,6 +646,21 @@ function Toast.SetTop(y: number?)
 	end
 end
 
+-- A banner already standing in the top slot when a panel opens would cover the panel's header and close button: it slides down to the
+-- bottom slot at once (the bootstrap calls this every poll). A banner that draws while a panel is open already takes the bottom slot.
+function Toast.SyncPanel()
+	local entry = bannerEntry
+	if entry == nil or entry.leaving or panelOpen == nil then
+		return
+	end
+	if NotifyMath.BannerMustMoveDown(entry.top, panelOpen()) then
+		entry.top = false
+		local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(entry.group, info, { Position = UDim2.fromScale(0.5, 1 - BANNER_BOTTOM_MARGIN - entry.height) }):Play()
+		reflow() -- the stack no longer gives way to a banner in the top slot
+	end
+end
+
 -- The bootstrap hands in Screens.IsAnyOpen so banners know when a panel owns the top of the screen.
 function Toast.SetPanelProbe(probe: (() -> boolean)?)
 	panelOpen = probe

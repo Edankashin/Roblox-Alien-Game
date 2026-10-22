@@ -2073,6 +2073,7 @@ local function start(profile: Types.Profile)
 		RadarColumn.SetVisible(not modalOpen() and not cinematic)
 		setChatShown(not modalOpen() and not Hud.IsMenuOpen()) -- the Menu drop-down's lower rows sit under it too
 		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
+		Toast.SyncPanel() -- a banner already up when a panel opens drops to the bottom slot, off the panel's header
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil) -- the centre column is gone (the event chip carries events): the stack starts at its default under the banner's slot
 	end)
 
