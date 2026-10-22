@@ -13,7 +13,7 @@ local FLOOR = 14 -- Theme.TextSize.Min (the headless sandbox cannot require Them
 local SE = { w = 667, h = 375 }
 local IPAD = { w = 1024, h = 768 }
 local WIDE = { w = 1600, h = 900 }
-local ELEMENTS = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks" }
+local ELEMENTS = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks", "Radar" }
 local DONE = #Tutorial.Steps + 1
 
 local function indexOf(id: string): number
@@ -77,6 +77,11 @@ describe("HudStages staged reveal", function()
 		expect(HudStages.Shown("ShipBar", indexOf("T4"), false)).toEqual(true)
 		expect(HudStages.Shown("Landmarks", indexOf("T7"), false)).toEqual(false)
 		expect(HudStages.Shown("Landmarks", DONE, false)).toEqual(true)
+		-- The radar column waits for the end of the tutorial even when the account owns Radar Mk1 (Explorer Pack), and a finished tutorial shows it at once.
+		expect(HudStages.Shown("Radar", 1, false)).toEqual(false)
+		expect(HudStages.Shown("Radar", indexOf("T7"), false)).toEqual(false)
+		expect(HudStages.Shown("Radar", DONE, false)).toEqual(true)
+		expect(HudStages.Shown("Radar", 1, true)).toEqual(true)
 	end)
 	it("T0 shows an element from the first frame and nothing else changes", function()
 		local ids = { "T1", "T2", "T3" }
