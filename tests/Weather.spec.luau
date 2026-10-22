@@ -1,5 +1,5 @@
 --!strict
--- The weather sheets and the ambient layers (data/Weather): the Moonlit Forest's fireflies and light drips stay inside
+-- The weather sheets and the ambient layers (data/Weather): the Moonlit Forest's fireflies and spore motes stay inside
 -- the phone budget, name a real world and biome, and wear sprites that already exist (no new upload).
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Weather = require(Shared.data.Weather)
@@ -14,13 +14,33 @@ end
 
 describe("ambient layers", function()
 	it("exist for World 1's Forest at night", function()
-		for _, name in ipairs({ "Fireflies", "LightDrips" }) do
+		for _, name in ipairs({ "Fireflies", "SporeMotes" }) do
 			local layer = Weather.Layers[name]
 			expect(layer ~= nil).toEqual(true)
 			expect(layer.night).toEqual(true)
 			expect(layer.world).toEqual(1)
 			expect(layer.biome).toEqual("Forest")
 		end
+		-- the falling pale streaks read as rain over the navy forest (Mac job 53 step 5): no night layer falls or streaks
+		expect(Weather.Layers.LightDrips == nil).toEqual(true)
+	end)
+
+	it("keeps the Forest's night motes small, slow, few and drifting, not falling streaks", function()
+		for _, name in ipairs({ "Fireflies", "SporeMotes" }) do
+			local sheet = Weather.Layers[name].sheet
+			expect(sheet.mode).toEqual("drift")
+			expect(sheet.velocityParallel).toEqual(false)
+			expect(sheet.squash).toEqual(1)
+			expect(sheet.sizeStart <= 0.35 and sheet.sizeEnd <= 0.35).toEqual(true)
+			expect(sheet.speed[2] <= 0.6).toEqual(true)
+			expect(sheet.rate <= 2.5).toEqual(true)
+			expect(sheet.spread >= 90).toEqual(true)
+			expect(sheet.texture ~= 0).toEqual(true)
+		end
+		-- warm and teal
+		local warm, teal = Weather.Layers.Fireflies.sheet.color, Weather.Layers.SporeMotes.sheet.color
+		expect(tonumber(warm:sub(1, 2), 16) > tonumber(warm:sub(5, 6), 16)).toEqual(true)
+		expect(tonumber(teal:sub(3, 4), 16) > tonumber(teal:sub(1, 2), 16)).toEqual(true)
 	end)
 
 	it("name a real world and one of its biomes", function()

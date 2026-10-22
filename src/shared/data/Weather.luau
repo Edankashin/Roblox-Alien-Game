@@ -52,20 +52,20 @@ local Sheets: { [string]: Sheet } = {
 	Mist = { rate = 6, lifetime = { 6, 9 }, speed = { 1, 2 }, sizeStart = 10, sizeEnd = 16, color = "CFE6EC", transparency = 0.85, direction = { 1, 0, 0.2 }, spread = 30, span = 60, height = 3, lightEmission = 0, drag = 0.5, rotationSpeed = { -3, 3 }, texture = Icons.Particles.Wisp, squash = 1, velocityParallel = false, mode = "drift" },
 }
 
--- World 1's Moonlit Forest at night (media/tiktok/NOTES.md ZPLYSA3uR: "fireflies, slow, small, everywhere" and "light
--- drips under the canopy"). Both are local, follow the player like a weather sheet and fade with it.
--- Phone budget, particles alive at once (rate x max lifetime): Fireflies 3 x 9 = 27, LightDrips 3 x 3 = 9, so 36 for the
--- pair, under LayerParticleMax below. On top of World 1's heaviest weather sheet (Rain, 190 x 0.5 = 95) and a Shower
--- (about 7) that is about 138, under Config.WeatherParticleMax (200) and the Look plan's "under 200 on screen".
--- tests/Weather.spec.luau holds two lines (a world's layers under LayerParticleMax, and LayerParticleMax plus that world's
--- heaviest weather sheet under WeatherParticleMax), so a busier row fails the test before it reaches a phone.
+-- World 1's Moonlit Forest at night (media/tiktok/NOTES.md ZPLYSA3uR: "fireflies, slow, small, everywhere"). Two slow motes,
+-- both local, following the player like a weather sheet and fading with it: warm Fireflies and teal SporeMotes. They replaced the
+-- first pair (Fireflies and LightDrips, falling pale streaks) on 2026-10-22: the Mac's game shot (job 53 step 5) showed the
+-- streaks as white rain over a navy forest, big and fast. Motes are the point: small (0.2 to 0.3 studs), a few, drifting at
+-- 0.1 to 0.5 studs a second with a wide spread so each wanders its own way, wearing the PixelMote sprite (real, no new upload).
+-- Phone budget, particles alive at once (rate x max lifetime): Fireflies 1.6 x 9 = 14.4, SporeMotes 2 x 9 = 18, Pollen (every
+-- hour, below) 7.5: 39.9 for the three, under LayerParticleMax below (45); the night pair alone is 32.4. On top of
+-- World 1's heaviest weather sheet (Rain, 190 x 0.5 = 95) and the places of data/WorldFx (ParticleBudget 60) that stays under
+-- Config.WeatherParticleMax (200). tests/Weather.spec.luau holds two lines (a world's layers under LayerParticleMax, and
+-- LayerParticleMax plus that world's heaviest weather sheet under WeatherParticleMax), so a busier row fails the test before it
+-- reaches a phone. Reduced Motion: WeatherFx turns every layer off (no drifting particles).
 -- Fireflies are born in a 6-stud-thick band centred 1 stud over the player's root part, about 1 to 7 studs above the ground.
--- Sprites: Fireflies wear Icons.Particles.Glow, which is still 0, so they show Roblox's default particle (a soft four-point
--- sparkle) until the Glow sprite is uploaded and its id lands in data/Icons; LightDrips wear Raindrop, which is real, and
--- stretch it into a pale streak. No new upload is needed for either.
 -- Pollen (World 1, 2026-10-21, the worlds pass): a few warm motes drifting at head height everywhere in the world, day and night (at
--- night they read as faint dust in the lantern light). 1.5 x 5 = 7.5 alive, so World 1's layers come to 43.5, under the raised
--- LayerParticleMax of 45: with Rain (95) that is 140, and the places of data/WorldFx (ParticleBudget 60) bring it to 200.
+-- night they read as faint dust in the lantern light; texture unchanged, so the day look is too).
 local Layers: { [string]: Layer } = {
 	Pollen = {
 		night = false,
@@ -77,13 +77,13 @@ local Layers: { [string]: Layer } = {
 		night = true,
 		world = 1,
 		biome = "Forest",
-		sheet = { rate = 3, lifetime = { 6, 9 }, speed = { 0.3, 0.9 }, sizeStart = 0.5, sizeEnd = 0.35, color = "FFE27A", transparency = 0.1, direction = { 0.4, 0.1, 0.2 }, spread = 180, span = 36, height = 1, lightEmission = 1, drag = 0.6, rotationSpeed = { 0, 0 }, texture = Icons.Particles.Glow, squash = 1, velocityParallel = false, mode = "drift", thickness = 6 },
+		sheet = { rate = 1.6, lifetime = { 6, 9 }, speed = { 0.15, 0.5 }, sizeStart = 0.3, sizeEnd = 0.2, color = "FFD36A", transparency = 0.1, direction = { 0.3, 0.1, 0.2 }, spread = 180, span = 36, height = 1, lightEmission = 1, drag = 0.8, rotationSpeed = { 0, 0 }, texture = Icons.Particles.PixelMote, squash = 1, velocityParallel = false, mode = "drift", thickness = 6 },
 	},
-	LightDrips = {
+	SporeMotes = {
 		night = true,
 		world = 1,
 		biome = "Forest",
-		sheet = { rate = 3, lifetime = { 2.2, 3 }, speed = { 3, 4.5 }, sizeStart = 0.5, sizeEnd = 0.4, color = "CFE0FF", transparency = 0.5, direction = { 0, -1, 0 }, spread = 2, span = 30, height = 9, lightEmission = 0.8, drag = 0, rotationSpeed = { 0, 0 }, texture = Icons.Particles.Raindrop, squash = 3, velocityParallel = true, mode = "fall" },
+		sheet = { rate = 2, lifetime = { 6, 9 }, speed = { 0.1, 0.4 }, sizeStart = 0.26, sizeEnd = 0.16, color = "7FF0E0", transparency = 0.2, direction = { 0.15, 0.5, 0.1 }, spread = 180, span = 34, height = 1, lightEmission = 1, drag = 0.8, rotationSpeed = { 0, 0 }, texture = Icons.Particles.PixelMote, squash = 1, velocityParallel = false, mode = "drift", thickness = 7 },
 	},
 }
 

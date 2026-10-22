@@ -1,7 +1,7 @@
 --!strict
--- The Moonlit Forest night (data/Lighting WorldConditions and BiomeConditions): the colour goes indigo, violet and
--- teal, and nothing becomes harder to see than the plain Night row it refines (the catch bar and the wild aliens stay
--- readable). The merge itself is LightingDirector's; these tests read the data rows it merges.
+-- The Moonlit Forest night (data/Lighting WorldConditions and BiomeConditions): the colour goes teal and violet (lifted
+-- 2026-10-22 so it is never one flat navy), and nothing becomes harder to see than the plain Night row it refines (the catch bar
+-- and the wild aliens stay readable). The merge itself is LightingDirector's; these tests read the data rows it merges.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Lighting = require(Shared.data.Lighting)
 local Worlds = require(Shared.data.Worlds)
@@ -38,11 +38,16 @@ describe("Moonlit Forest night looks", function()
 				end
 			end)
 
-			it("reads blue-violet: blue over red over green in the fog, blue over the rest in the ambient light", function()
+			it("reads cool, not navy: blue is the strongest channel of the fog and the ambient light, and no channel of the ambient is dark", function()
 				local fog = look.Atmosphere.Color
-				expect(fog[3] > fog[1] and fog[1] > fog[2]).toEqual(true)
+				expect(fog[3] > fog[1] and fog[3] > fog[2]).toEqual(true)
 				for _, field in ipairs({ "Ambient", "OutdoorAmbient" }) do
 					expect(look[field][3] > look[field][1] and look[field][3] > look[field][2]).toEqual(true)
+					-- the 2026-10-22 night pass (job 53 step 5): a surface is its colour times the ambient, so none of the three channels
+					-- may sit near zero (the old rows had a red of 46 and a green of 46 against a blue of 84)
+					for channel = 1, 3 do
+						expect(look[field][channel] >= 70).toEqual(true)
+					end
 				end
 			end)
 
@@ -66,7 +71,7 @@ describe("Moonlit Forest night looks", function()
 		expect(forest.OutdoorAmbient[3] > meadow.OutdoorAmbient[3]).toEqual(true)
 	end)
 
-	describe("night ground tint (the grass joins the indigo)", function()
+	describe("night ground tint (the grass joins the teal)", function()
 		-- A part colour from its hex, and the lerp the director does (Color3:Lerp) on whole 0..255 channels.
 		local function rgb(hex: string): { number }
 			return { tonumber(hex:sub(1, 2), 16) :: number, tonumber(hex:sub(3, 4), 16) :: number, tonumber(hex:sub(5, 6), 16) :: number }
@@ -106,12 +111,19 @@ describe("Moonlit Forest night looks", function()
 			end
 		end)
 
-		it("is indigo (blue over red, blue over green) and stronger in the Forest than in the Meadow", function()
+		it("is cool teal or violet (blue over red and over green) and stronger in the Forest than in the Meadow", function()
 			for _, look in ipairs({ meadow, forest }) do
 				local color = look.groundTint.color
 				expect(color[3] > color[1] and color[3] > color[2]).toEqual(true)
 			end
 			expect(forest.groundTint.strength > meadow.groundTint.strength).toEqual(true)
+		end)
+
+		it("keeps the Forest patch a colour with some light in it, never the old navy (job 53 step 5: 36486B)", function()
+			local night = lerp(forestPatch, forest.groundTint.color, forest.groundTint.strength)
+			expect(luma(night) >= 60).toEqual(true)
+			-- teal-green: green over red, and the blue not above the green by more than a third
+			expect(night[2] > night[1] and night[3] < night[2] * 1.34).toEqual(true)
 		end)
 
 		it("turns the Meadow floor and the Forest patch less green, bluer and no lighter than by day", function()
@@ -162,6 +174,47 @@ describe("Moonlit Forest night looks", function()
 			for name in pairs(rows) do
 				expect(Lighting.Conditions[name] ~= nil).toEqual(true)
 			end
+		end
+	end)
+end)
+
+-- The lamp cap and the night lift (data/Lighting Lamps, client World/LampDirector): a phone never lights every lamp, and a lamp at
+-- night is stronger than by day (2026-10-22, Mac job 53 step 5: the lanterns were unlit white blocks).
+describe("Lamps", function()
+	local Lamps = Lighting.Lamps
+	local Kit = require(Shared.data.WorldKit)
+
+	it("caps the lit lamps, fewer on a phone, inside the lights each world builds", function()
+		expect(Lamps.MaxLit >= 1 and Lamps.MaxLitTouch >= 1).toEqual(true)
+		expect(Lamps.MaxLitTouch <= Lamps.MaxLit).toEqual(true)
+		expect(Lamps.MaxLit <= 16).toEqual(true)
+		expect(Lamps.MaxLit < Kit.Budget.lights).toEqual(true)
+	end)
+
+	it("lifts a lamp at night and fades the pick over a moment", function()
+		expect(Lamps.NightBrightnessScale > 1 and Lamps.NightRangeScale > 1).toEqual(true)
+		expect(Lamps.FadeSeconds > 0 and Lamps.CheckSeconds > 0 and Lamps.Radius > 0).toEqual(true)
+		expect(type(Lamps.Tag) == "string" and #Lamps.Tag > 0).toEqual(true)
+	end)
+
+	it("lights the lanterns warm: the lamp cell and the light are yellow-orange, red over green over blue", function()
+		local function rgb(hex: string): { number }
+			return { tonumber(hex:sub(1, 2), 16) :: number, tonumber(hex:sub(3, 4), 16) :: number, tonumber(hex:sub(5, 6), 16) :: number }
+		end
+		for _, name in ipairs({ "PathLantern", "Lantern" }) do
+			local recipe = Kit.Recipes[name]
+			local light = rgb(recipe.light.color)
+			expect(light[1] > light[2] and light[2] > light[3]).toEqual(true)
+			local lamp = nil
+			for _, box in ipairs(recipe.boxes) do
+				if box.neon then
+					lamp = rgb(box.color)
+				end
+			end
+			expect(lamp ~= nil).toEqual(true)
+			expect(lamp[1] > lamp[2] and lamp[2] > lamp[3]).toEqual(true)
+			-- not white: the blue channel is well under the red
+			expect(lamp[3] < lamp[1] * 0.6).toEqual(true)
 		end
 	end)
 end)
