@@ -1,3 +1,7 @@
+---
+tags: [art, reference]
+up: "[[Blocky-Style]]"
+---
 # Blocky style references: sources
 
 Store screenshots from the Roblox thumbnails API (inspiration only, never imported into the game). Fetched 2026-10-22.
@@ -31,3 +35,5 @@ Kept only the shots that show pets or creatures: Grow a Garden (plants only), Bu
 | `adopt-me-4.png` | [🎃] Adopt Me! | 383310974 | 920587237 | https://www.roblox.com/games/920587237 |
 | `adopt-me-5.png` | [🎃] Adopt Me! | 383310974 | 920587237 | https://www.roblox.com/games/920587237 |
 | `adopt-me-6.png` | [🎃] Adopt Me! | 383310974 | 920587237 | https://www.roblox.com/games/920587237 |
+
+Used by [[Blocky-Style]].
