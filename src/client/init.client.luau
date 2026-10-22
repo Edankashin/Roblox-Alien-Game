@@ -1299,6 +1299,22 @@ local function start(profile: Types.Profile)
 		chatWindow.HorizontalAlignment = Enum.HorizontalAlignment.Left
 		chatWindow.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	end
+	-- Down there it covers a panel's lower-left corner, and the chat (CoreGui) takes a tap before any game button under it,
+	-- faded or not (Studio, 2026-10-22: the Aliens footer's Storage Bay never fired). It steps aside while a modal is up.
+	local chatInputBar = TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration")
+	local chatShown = true
+	local function setChatShown(shown: boolean)
+		if shown == chatShown then
+			return
+		end
+		chatShown = shown
+		if chatWindow then
+			chatWindow.Enabled = shown
+		end
+		if chatInputBar then
+			chatInputBar.Enabled = shown
+		end
+	end
 
 	Hud.Build()
 	Hud.SetScrap(profile.scrap)
@@ -2008,6 +2024,7 @@ local function start(profile: Types.Profile)
 		TutorialHint.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		Compass.SetVisible(not inCapture and not Reveal.IsOpen() and not Screens.IsAnyOpen() and not cinematic)
 		RadarColumn.SetVisible(not modalOpen() and not cinematic)
+		setChatShown(not modalOpen())
 		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL elseif State.GetShower().active or State.GetRush().active or State.GetServerLuck() ~= nil then TOAST_TOP_WITH_BANNER else nil)
 	end)
