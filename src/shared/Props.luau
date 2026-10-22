@@ -28,6 +28,22 @@ local FIDELITY: { [string]: Enum.CollisionFidelity } = {
 -- once and every clone scales from that baseline; nothing done to a clone later can shift it.
 local sourceScale: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
+-- CollisionFidelity is writable only from a plugin or Open Cloud (the installer in Edit mode), not from a game
+-- script: a runtime-loaded mesh keeps the fidelity it was uploaded with, and the first refusal is warned once.
+local fidelityWarned = false
+local function setFidelity(part: MeshPart, fidelity: Enum.CollisionFidelity)
+	if part.CollisionFidelity == fidelity then
+		return
+	end
+	local ok, err = pcall(function()
+		part.CollisionFidelity = fidelity
+	end)
+	if not ok and not fidelityWarned then
+		fidelityWarned = true
+		warn(("[%s] Props: CollisionFidelity stays as loaded (%s); install_models.luau sets it in Edit mode"):format(Config.WorkingTitle, tostring(err)))
+	end
+end
+
 local function folder(): Instance?
 	local models = ReplicatedStorage:FindFirstChild(Config.ModelFolderName)
 	if not models then
@@ -108,7 +124,7 @@ function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instan
 			descendant.CanQuery = false
 			descendant.CanTouch = false
 			if fidelity and descendant:IsA("MeshPart") then
-				descendant.CollisionFidelity = fidelity
+				setFidelity(descendant, fidelity)
 			end
 		end
 	end

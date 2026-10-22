@@ -180,6 +180,15 @@ local function applyMaterials(model: Model, name: string, rows: { { string | num
 		local spec = if surfaces then surfaces[slotName] else nil
 		local plan = ModelInstall.SurfacePlan(base, spec, textureRows, Config.ModelGlossReflectance)
 		part.Material = materialByName[plan.material] or materialByName[base]
+		if part.Material == Enum.Material.Neon then
+			-- the FBX import gives a glow part a SurfaceAppearance whose EmissiveMap names a texture the upload never
+			-- carried (rbxassetid://3 and the like), which errors on every load; Neon draws without it
+			for _, child in ipairs(part:GetChildren()) do
+				if child:IsA("SurfaceAppearance") then
+					child:Destroy()
+				end
+			end
+		end
 		if plan.reflectance > 0 then
 			part.Reflectance = plan.reflectance
 		end
