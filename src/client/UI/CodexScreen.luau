@@ -1,8 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.UI.CodexScreen: the codex panel. The left two-thirds is the page for the
 -- player's current world: a title with the caught/total count, a purple progress bar, and a scrolling
--- grid of one square card per species (Tiers.Order, then name). Caught species show their placeholder
--- colour and shape; uncaught ones are dark silhouettes with the unknown mark, named unless Secret so
+-- grid of one square card per species (Tiers.Order, then name). Caught species show their model, still, on their
+-- colour (UI.SpeciesThumb; the name without a model); uncaught ones are dark silhouettes with the unknown mark, named unless Secret so
 -- players know what to chase. The right third is the detail card: a slowly turning ViewportFrame of
 -- the species mesh (World.Models; shadowed while uncaught) or, without one, the placeholder part on a
 -- pedestal, the name, the tier in its colour, the jobs, and either where it
@@ -31,6 +31,7 @@ local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local Builder = require(script.Parent.Builder)
+local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local State = require(script.Parent.Parent.State)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -47,6 +48,7 @@ type Cell = {
 	badge: Frame,
 	badgeLabel: TextLabel,
 	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Event" for an event alien (or a returning drop) while its season runs, "Vaulted" for a limited species out of its window
+	thumb: SpeciesThumb.Thumb, -- the species' model, still, on the square (hidden without one)
 	speciesId: string,
 	tier: string,
 }
@@ -535,8 +537,9 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.86, 0.5),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.blockTop(square),
+		zIndex = Builder.blockTop(square) + 1, -- over the model view
 	})
+	local thumb = SpeciesThumb.New(square)
 	local name = Builder.label({
 		parent = card,
 		name = "Name",
@@ -594,6 +597,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		badge = badge,
 		badgeLabel = badgeLabel,
 		stamp = stamp,
+		thumb = thumb,
 		speciesId = "",
 		tier = "Common",
 	}
@@ -636,15 +640,21 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	cell.slot.Visible = true
 	local caught = count > 0
 	if caught then
+		-- The species' model, still, on its colour square (SpeciesThumb); without a model, its name. Never the placeholder
+		-- shape's name (Studio 2026-10-22).
 		Builder.setBlockColor(cell.card, Theme.Colors.White)
 		Builder.setBlockColor(cell.square, Color3.fromHex(def.placeholder.color))
-		cell.mark.Text = Builder.text("SHAPE_" .. def.placeholder.shape)
+		local shown = SpeciesThumb.Show(cell.thumb, def, false)
+		cell.mark.Text = if shown then "" else displayName(def, true)
 		cell.name.TextColor3 = Theme.Colors.White
 	else
 		-- Dimmed card, the name in grey, the unknown mark; the square is a dark silhouette while the
-		-- Silhouettes preference is on and the species colour otherwise.
+		-- Silhouettes preference is on and the species colour otherwise. The model stands in it shadowed the same way (a
+		-- Secret's always: its colours would give away what its hidden name keeps), the mark over it.
+		local silhouette = Prefs.Silhouettes()
 		Builder.setBlockColor(cell.card, Builder.lighter(Theme.Rarity.Common, 0.6))
-		Builder.setBlockColor(cell.square, if Prefs.Silhouettes() then Theme.Shadow else Color3.fromHex(def.placeholder.color))
+		Builder.setBlockColor(cell.square, if silhouette then Theme.Shadow else Color3.fromHex(def.placeholder.color))
+		SpeciesThumb.Show(cell.thumb, def, silhouette or def.tier == "Secret")
 		cell.mark.Text = UNKNOWN_MARK
 		cell.name.TextColor3 = Theme.Rarity.Common
 	end

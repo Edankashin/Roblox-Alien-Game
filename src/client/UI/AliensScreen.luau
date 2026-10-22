@@ -53,7 +53,9 @@ local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
 local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local ViewFit = require(Shared:WaitForChild("ViewFit"))
 local Builder = require(script.Parent.Builder)
+local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local Toast = require(script.Parent.Toast)
 local ReleasePanel = require(script.Parent.ReleasePanel)
 local State = require(script.Parent.Parent.State)
@@ -190,6 +192,12 @@ local open = false
 local pending = false -- one server request in flight at a time
 local bayBusy = false -- a BuyStorageBay request is in flight
 
+-- The cards' model views (SpeciesThumb): one entry per card drawn, its view made only while the card is within a window's height
+-- of the grid's visible window (ViewFit.Near) and dropped when it scrolls farther, so a full storage holds a few rows of
+-- ViewportFrames. Without a model the card's square shows the species' name (never the placeholder shape's).
+type CardView = { square: Frame, label: TextLabel, def: Types.SpeciesDef?, thumb: SpeciesThumb.Thumb? }
+local cardViews: { CardView } = {}
+
 -- Helpers ----------------------------------------------------------------
 
 local function speciesColor(def: Types.SpeciesDef?): Color3
@@ -200,8 +208,29 @@ local function speciesName(def: Types.SpeciesDef?, id: string): string
 	return if def then def.name else id
 end
 
-local function shapeName(def: Types.SpeciesDef?): string
-	return Builder.text("SHAPE_" .. (if def then def.placeholder.shape else "Ball"))
+-- Gives the cards near the grid's window their model views and drops the views of cards far from it.
+local function syncCardViews()
+	local frame = grid
+	if not frame or #cardViews == 0 then
+		return
+	end
+	local viewTop = frame.AbsolutePosition.Y
+	local viewBottom = viewTop + frame.AbsoluteSize.Y
+	local margin = frame.AbsoluteSize.Y
+	for _, entry in ipairs(cardViews) do
+		local top = entry.square.AbsolutePosition.Y
+		local near = ViewFit.Near(top, top + entry.square.AbsoluteSize.Y, viewTop, viewBottom, margin)
+		local thumb = entry.thumb
+		if near and not thumb then
+			local made = SpeciesThumb.New(entry.square)
+			entry.thumb = made
+			entry.label.Visible = not SpeciesThumb.Show(made, entry.def, false)
+		elseif not near and thumb then
+			SpeciesThumb.Destroy(thumb)
+			entry.thumb = nil
+			entry.label.Visible = true
+		end
+	end
 end
 
 -- The server creates one station per job with StationStartSlots; until its first push lands, show the same shape.
@@ -827,16 +856,19 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = top,
 	})
-	Builder.label({
+	-- The species' real model in a still view (SpeciesThumb, made by syncCardViews while the card is near the grid's window);
+	-- without one, the species' display name on the square. Never the placeholder shape's name.
+	local speciesLabel = Builder.label({
 		parent = shape,
-		name = "ShapeName",
-		text = shapeName(def),
+		name = "SpeciesName",
+		text = speciesName(def, record.species),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(0.5, 0.5),
 		size = UDim2.fromScale(0.9, 0.4),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = Builder.blockTop(shape),
 	})
+	table.insert(cardViews, { square = shape, label = speciesLabel, def = def, thumb = nil })
 	Builder.label({
 		parent = card,
 		name = "Name",
@@ -1244,10 +1276,12 @@ local function rebuildGrid(profile: Types.Profile)
 	cardCount = #entries
 	clearChildren(frame)
 	table.clear(badgeFits) -- the old cards' badges are gone with them
+	table.clear(cardViews) -- and their views
 	for index, entry in ipairs(entries) do
 		buildCard(frame, index, entry)
 	end
 	layoutGrid()
+	task.defer(syncCardViews) -- once the grid layout has placed the new cards
 	if emptyLabel then
 		emptyLabel.Visible = cardCount == 0
 	end
@@ -1552,6 +1586,10 @@ local function build()
 	grid = scroller
 	gridLayout = cells
 	scroller:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutGrid)
+	scroller:GetPropertyChangedSignal("CanvasPosition"):Connect(syncCardViews)
+	scroller:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		task.defer(syncCardViews)
+	end)
 
 	local empty = Builder.label({
 		parent = body,

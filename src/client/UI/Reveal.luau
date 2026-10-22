@@ -2458,7 +2458,7 @@ function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 		Builder.setBlockColor(shapeBox, info.color)
 	end
 	if shapeLabel then
-		shapeLabel.Text = Builder.text("SHAPE_" .. info.shape)
+		shapeLabel.Text = info.speciesName -- shown only without a model; the species, never the placeholder shape's name
 	end
 	local def = speciesFor(info)
 	speciesId = if def then def.id else ""
