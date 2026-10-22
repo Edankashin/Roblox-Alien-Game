@@ -122,6 +122,11 @@ local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
 -- square card has no room for a second line anywhere.
 local SHAPE_Y = 0.38
 local SHAPE_W = 0.36
+-- The picture area, where the species' model fills the card (framed whole by its bounding box, SpeciesThumb): under the corner chips
+-- and the chip row, above the name. The plus block of SHAPE_Y stays only as the empty state, when there is no model.
+local PICTURE_Y = 0.08
+local PICTURE_W = 0.8
+local PICTURE_H = 0.58
 local CHIP_W = 0.38
 local CHIP_Y = 0.59
 local CHIP_H = 0.14
@@ -195,8 +200,9 @@ local bayBusy = false -- a BuyStorageBay request is in flight
 
 -- The cards' model views (SpeciesThumb): one entry per card drawn, its view made only while the card is within a window's height
 -- of the grid's visible window (ViewFit.Near) and dropped when it scrolls farther, so a full storage holds a few rows of
--- ViewportFrames. Without a model the card's square shows the species' name (never the placeholder shape's).
-type CardView = { square: Frame, label: TextLabel, def: Types.SpeciesDef?, thumb: SpeciesThumb.Thumb? }
+-- ViewportFrames. A model fills the card's picture area and the colour square (the plus block) goes; without a model the square
+-- stays and shows the species' name (never the placeholder shape's).
+type CardView = { square: Frame, picture: Frame, label: TextLabel, def: Types.SpeciesDef?, thumb: SpeciesThumb.Thumb? }
 local cardViews: { CardView } = {}
 
 -- Helpers ----------------------------------------------------------------
@@ -223,13 +229,13 @@ local function syncCardViews()
 		local near = ViewFit.Near(top, top + entry.square.AbsoluteSize.Y, viewTop, viewBottom, margin)
 		local thumb = entry.thumb
 		if near and not thumb then
-			local made = SpeciesThumb.New(entry.square)
+			local made = SpeciesThumb.New(entry.picture, 1, PICTURE_W / PICTURE_H)
 			entry.thumb = made
-			entry.label.Visible = not SpeciesThumb.Show(made, entry.def, false)
+			entry.square.Visible = not SpeciesThumb.Show(made, entry.def, false)
 		elseif not near and thumb then
 			SpeciesThumb.Destroy(thumb)
 			entry.thumb = nil
-			entry.label.Visible = true
+			entry.square.Visible = true
 		end
 	end
 end
@@ -857,8 +863,17 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = top,
 	})
-	-- The species' real model in a still view (SpeciesThumb, made by syncCardViews while the card is near the grid's window);
-	-- without one, the species' display name on the square. Never the placeholder shape's name.
+	local picture = Builder.frame({
+		parent = card,
+		name = "Picture",
+		position = UDim2.fromScale(0.5, PICTURE_Y),
+		size = UDim2.fromScale(PICTURE_W, PICTURE_H),
+		anchor = Vector2.new(0.5, 0),
+		zIndex = top,
+	})
+	-- The species' real model in a still view filling the picture area (SpeciesThumb, made by syncCardViews while the card is
+	-- near the grid's window, and the square goes); without one, the species' display name on the square. Never the placeholder
+	-- shape's name.
 	local speciesLabel = Builder.label({
 		parent = shape,
 		name = "SpeciesName",
@@ -869,7 +884,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = Builder.blockTop(shape),
 	})
-	table.insert(cardViews, { square = shape, label = speciesLabel, def = def, thumb = nil })
+	table.insert(cardViews, { square = shape, picture = picture, label = speciesLabel, def = def, thumb = nil })
 	Builder.label({
 		parent = card,
 		name = "Name",

@@ -42,13 +42,14 @@ local CodexScreen = {}
 type Cell = {
 	slot: Frame,
 	card: Frame, -- an edged block plate: setBlockInk is its ring
-	square: Frame,
+	square: Frame, -- the colour block behind the picture: the empty state, hidden while the species' model shows
+	picture: Frame, -- the card's picture area: the model's view fills it; the mark stands over it
 	mark: TextLabel,
 	name: TextLabel,
 	badge: Frame,
 	badgeLabel: TextLabel,
 	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Event" for an event alien (or a returning drop) while its season runs, "Vaulted" for a limited species out of its window
-	thumb: SpeciesThumb.Thumb, -- the species' model, still, on the square (hidden without one)
+	thumb: SpeciesThumb.Thumb, -- the species' model, still, filling the picture area (hidden without one)
 	speciesId: string,
 	tier: string,
 }
@@ -95,6 +96,9 @@ local CARD_TOP = 4 + Theme.Block.Layer.Content
 local STAMP_Z = CARD_TOP + Theme.Block.Layer.Content + 2 -- above the square's mark and the badge's label
 local TAP_Z = STAMP_Z + 1
 local CARD_ROWS = 10 -- a grid card is an edged block this many cells tall (an 81 px card at iPhone SE: 7.4 px cells)
+local PICTURE_Y = 0.04 -- the picture area on a card: the model's view fills it, over the card's face (no colour block behind a real model)
+local PICTURE_W = 0.9
+local PICTURE_H = 0.6
 local FLAT_ROWS = 3 -- a flat block (the square, the badge, the bar, the view's block)
 local SECONDS_PER_HOUR = 3600 -- unit conversions for the "Nd Nh" time left of the Alien of the Week and of the season
 local SECONDS_PER_DAY = 86400
@@ -529,17 +533,26 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		anchor = Vector2.new(0.5, 0),
 		zIndex = CARD_TOP,
 	})
+	-- The picture area: a real model fills it (the colour block above is only the empty state), the mark stands over it.
+	local picture = Builder.frame({
+		parent = card,
+		name = "Picture",
+		position = UDim2.fromScale(0.5, PICTURE_Y),
+		size = UDim2.fromScale(PICTURE_W, PICTURE_H),
+		anchor = Vector2.new(0.5, 0),
+		zIndex = CARD_TOP,
+	})
 	local mark = Builder.label({
-		parent = square,
+		parent = picture,
 		name = "Mark",
 		text = "",
 		textSize = Theme.TextSize.Label,
 		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.5),
+		size = UDim2.fromScale(0.62, 0.5),
 		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.blockTop(square) + 1, -- over the model view
+		zIndex = 2, -- over the model view
 	})
-	local thumb = SpeciesThumb.New(square)
+	local thumb = SpeciesThumb.New(picture, 1, PICTURE_W / PICTURE_H)
 	local name = Builder.label({
 		parent = card,
 		name = "Name",
@@ -592,6 +605,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		slot = slot,
 		card = card,
 		square = square,
+		picture = picture,
 		mark = mark,
 		name = name,
 		badge = badge,
@@ -640,11 +654,12 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	cell.slot.Visible = true
 	local caught = count > 0
 	if caught then
-		-- The species' model, still, on its colour square (SpeciesThumb); without a model, its name. Never the placeholder
+		-- The species' model, still, filling the picture area (SpeciesThumb); without a model, the colour square and its name. Never the placeholder
 		-- shape's name (Studio 2026-10-22).
 		Builder.setBlockColor(cell.card, Theme.Colors.White)
 		Builder.setBlockColor(cell.square, Color3.fromHex(def.placeholder.color))
 		local shown = SpeciesThumb.Show(cell.thumb, def, false)
+		cell.square.Visible = not shown
 		cell.mark.Text = if shown then "" else displayName(def, true)
 		cell.name.TextColor3 = Theme.Colors.White
 	else
@@ -654,7 +669,7 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 		local silhouette = Prefs.Silhouettes()
 		Builder.setBlockColor(cell.card, Builder.lighter(Theme.Rarity.Common, 0.6))
 		Builder.setBlockColor(cell.square, if silhouette then Theme.Shadow else Color3.fromHex(def.placeholder.color))
-		SpeciesThumb.Show(cell.thumb, def, silhouette or def.tier == "Secret")
+		cell.square.Visible = not SpeciesThumb.Show(cell.thumb, def, silhouette or def.tier == "Secret")
 		cell.mark.Text = UNKNOWN_MARK
 		cell.name.TextColor3 = Theme.Rarity.Common
 	end
