@@ -351,6 +351,39 @@ describe("ShelfMath.IsLive with offSale", function()
 	end)
 end)
 
+describe("Shop arrows clear the cards", function()
+	-- Studio 2026-10-22 (second run): the ">" sat on the third card's "+2" icon at the default window. The shelf scrolls, so a card
+	-- passes everywhere inside the window: each arrow stands in a gutter beside it. Builder.blockButton aspect 1: a square within
+	-- Chevron.W by Chevron.H of the screen, centred on Chevron.Left or Right; the tab rail's right edge is Rail.X + Rail.W, the
+	-- active tab nudged Rail.Nudge to the right of it.
+	local shelf = Shop.Shelf
+	local screens = {
+		{ name = "iPhone SE", w = 667, h = 375 },
+		{ name = "iPad", w = 1080, h = 810 },
+		{ name = "default window", w = 1154, h = 663 },
+		{ name = "default 16:9", w = 1280, h = 720 },
+		{ name = "wide phone", w = 844, h = 390 },
+		{ name = "1080p", w = 1920, h = 1080 },
+	}
+	for _, screen in ipairs(screens) do
+		it(screen.name .. ": neither arrow touches the window, the tab rail or the screen's edge", function()
+			local side = math.min(shelf.Chevron.W * screen.w, shelf.Chevron.H * screen.h) / screen.w -- of the width
+			local leftLo, leftHi = shelf.Chevron.Left - side / 2, shelf.Chevron.Left + side / 2
+			local rightLo, rightHi = shelf.Chevron.Right - side / 2, shelf.Chevron.Right + side / 2
+			local railEdge = shelf.Rail.X + shelf.Rail.W + shelf.Rail.Nudge
+			assert(leftLo >= railEdge, "the left arrow meets the rail: " .. leftLo .. " against " .. railEdge)
+			assert(leftHi <= shelf.Window.X, "the left arrow is over the window: " .. leftHi .. " against " .. shelf.Window.X)
+			assert(rightLo >= shelf.Window.X + shelf.Window.W, "the right arrow is over the window")
+			assert(rightHi <= 1, "the right arrow leaves the screen")
+		end)
+	end
+	it("the window still holds the featured card and a plain one at iPhone SE (the shelf is not squeezed away)", function()
+		local cardW = shelf.CardH * shelf.CardAspect * 375 / 667
+		-- the featured card (two widths and a gap), a plain card and the gaps and end pads round them
+		assert(shelf.Window.W >= cardW * (3 + 2 * shelf.CardGap + 2 * shelf.EndPad), "window is " .. shelf.Window.W)
+	end)
+end)
+
 describe("Shop header clears the cards", function()
 	-- Studio 2026-10-22: at the default window the red X covered the third card's ribbon. The shelf scrolls, so any card can pass
 	-- under the header; the fix is vertical: the header (the title, the Scrap pill and the X, all from data/Shop Shelf) ends above

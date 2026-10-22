@@ -1481,6 +1481,7 @@ local function buildChevron(parent: Frame, forward: boolean): Frame
 		anchor = Vector2.new(0.5, 0.5),
 		textSize = Theme.TextSize.Title,
 		aspect = 1,
+		hit = true, -- the face is 37 px at iPhone SE; the hit area makes the 44 px floor
 		zIndex = 16,
 	}, function()
 		scrollBy((if forward then 1 else -1) * MOTION.ChevronStep * windowPx.X)
