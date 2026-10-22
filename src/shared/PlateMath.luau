@@ -45,11 +45,34 @@ function PlateMath.StackLifts(xs: { number }, zs: { number }, radius: number, st
 	return lifts
 end
 
--- Which wild aliens wear a nameplate (Clean-UI-Pass, "World labels"): the nearest `maxShown` within `range` studs, plus every one within
--- `alwaysStuds` however many there are. `distances` is one number per alien in a fixed order (a hidden alien passes math.huge and is
--- never shown); the answer is one boolean per alien, in the same order. Equal distances keep their order, so the choice does not
--- flicker between two aliens at the same spot.
-function PlateMath.Shown(distances: { number }, maxShown: number, alwaysStuds: number, range: number): { boolean }
+-- The stack with a depth limit: like StackLifts, but an alien that would stand more than `maxDepth` steps up (`maxDepth` or more earlier
+-- plates within `radius`) loses its plate, so a crowd of plates never climbs into the compass strip. Only plates that are kept count
+-- as neighbours below a later one. Returns the lifts and, per alien, whether its plate is kept (a dropped alien's lift is 0).
+function PlateMath.Stack(xs: { number }, zs: { number }, radius: number, step: number, maxDepth: number): ({ number }, { boolean })
+	local lifts: { number } = {}
+	local keeps: { boolean } = {}
+	local radiusSquared = radius * radius
+	for i = 1, #xs do
+		local below = 0
+		for j = 1, i - 1 do
+			if keeps[j] then
+				local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
+				if dx * dx + dz * dz < radiusSquared then
+					below += 1
+				end
+			end
+		end
+		keeps[i] = below < maxDepth
+		lifts[i] = if keeps[i] then below * step else 0
+	end
+	return lifts, keeps
+end
+
+-- Which wild aliens wear a nameplate (Clean-UI-Pass, "World labels"): the nearest `maxShown` within `range` studs, never more (a crowd
+-- close by does not lift the cap: six aliens 8 studs away draw five plates). `distances` is one number per alien in a fixed order (a
+-- hidden alien passes math.huge and is never shown); the answer is one boolean per alien, in the same order. Equal distances keep their
+-- order, so the choice does not flicker between two aliens at the same spot.
+function PlateMath.Shown(distances: { number }, maxShown: number, range: number): { boolean }
 	local order: { number } = {}
 	for index = 1, #distances do
 		order[index] = index
@@ -66,11 +89,7 @@ function PlateMath.Shown(distances: { number }, maxShown: number, alwaysStuds: n
 	end
 	local count = 0
 	for _, index in ipairs(order) do
-		local distance = distances[index]
-		if distance <= alwaysStuds then
-			shown[index] = true
-			count += 1
-		elseif distance <= range and count < maxShown then
+		if distances[index] <= range and count < maxShown then
 			shown[index] = true
 			count += 1
 		end

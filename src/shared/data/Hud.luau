@@ -44,8 +44,8 @@ local Hud = {
 	PanelPollSeconds = 0.1, -- how often the HUD asks whether a panel is open (everything but the Scrap pill hides while one is)
 	-- World labels (WildRenderer, NodeRenderer): only what is near wears a name.
 	Plates = {
-		MaxShown = 5, -- a wild alien's plate shows for the nearest this many in range...
-		AlwaysStuds = 15, -- ...plus any within this
+		MaxShown = 5, -- a wild alien's plate shows for the nearest this many in range, never more (no "plus any within 15 studs")
+		StackMaxDepth = 3, -- of aliens standing side by side (Config.NameplateStackRadiusStuds) only this many plates stack up; the later ones' plates are dropped, so none climbs into the compass strip
 		TierStuds = 30, -- its tier line only within this (farther, the name alone)
 		NodeStuds = 30, -- a node's plate shows within this...
 		NodeTargetStuds = 5000, -- ...and the node a tutorial or quest marker points at from any distance

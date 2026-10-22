@@ -101,7 +101,7 @@ Read from `store-3-starhollow-night-game.png`, `r4-6-default.png`, `night-starho
 
 | Element | Source | When today | Verdict | Reason | Pkg |
 |---|---|---|---|---|---|
-| Wild nameplate (name + tier) | `World/WildRenderer.luau` | every alien within 60 studs (`Config.NameplateDistance`) | contextual | the nearest 5, plus any within 15 studs; the tier line within 30 studs | A |
+| Wild nameplate (name + tier) | `World/WildRenderer.luau` | every alien within 60 studs (`Config.NameplateDistance`) | contextual | the nearest 5 and never more (a close crowd does not lift the cap); the tier line within 30 studs | A |
 | "!" or heart bubble | `World/Spectacle.luau` | on notice | keep | small, earned by walking up | none |
 | Node plate (name, condition) | `World/NodeRenderer.luau` | within its draw distance | contextual | within 30 studs, or the tutorial's target node | A |
 | Landmark plates | `World/LandmarkRenderer.luau` | in range | keep | landmarks are places, read rarely | none |
@@ -156,7 +156,7 @@ What stays everywhere: block cells (B44), the radar column (B52), the Menu with 
 
 **Power-ups** (`PowerUpBar.luau`, A): remove the "Power-ups" caption; the slots stay where they are.
 
-**World labels** (`World/WildRenderer.luau`, `World/NodeRenderer.luau`, A; numbers in `data/Hud.luau` `Plates`): a wild plate shows for the nearest `MaxShown` 5 aliens in range plus any within `AlwaysStuds` 15; its tier line only within `TierStuds` 30 (the name alone farther). A node plate shows within `NodeStuds` 30, and the tutorial's target node at any distance. The stacking and screen-share rules of 2026-10-22 stay.
+**World labels** (`World/WildRenderer.luau`, `World/NodeRenderer.luau`, A; numbers in `data/Hud.luau` `Plates`): a wild plate shows for the nearest `MaxShown` 5 aliens in range and never more (the old "plus any within 15 studs" is gone: six aliens 8 studs away drew six, Mac job 65); of aliens standing together only `StackMaxDepth` 3 plates stack up and the later ones are dropped, so none climbs under the compass strip; its tier line only within `TierStuds` 30 (the name alone farther). A node plate shows within `NodeStuds` 30, and the tutorial's target node at any distance. The stacking and screen-share rules of 2026-10-22 stay.
 
 **Toasts and banners** (`Toast.luau`, B): the budget above. The banner gets its own ScreenGui child frame and its own slot (top centre at 0.19, 0.6 wide, aspect 9; bottom slot while a panel is open), the stack keeps 0.42 wide and starts at 0.27, `MAX_VISIBLE` 2, plus the class and merge rules. Public API stays (`Show`, `ShowAction`, `Banner`, `Hush`, `QuietFor`, `SetTop`, `SetPanelProbe`); add `Toast.Quiet(text, color?, iconKey?)` for the quiet class and an optional `mergeKey` as a fifth argument of `Show`.
 

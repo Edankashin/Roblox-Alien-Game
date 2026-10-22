@@ -70,11 +70,45 @@ describe("PlateMath.StackLifts", function()
 		assert(STEP > Config.NameplateStudsH, "a step is shorter than a plate")
 	end)
 end)
+describe("PlateMath.Stack (a crowd's plates never climb into the compass strip)", function()
+	local RADIUS, STEP = Config.NameplateStackRadiusStuds, Config.NameplateStackStepStuds
+	local DEPTH = require(Shared.data.Hud).Plates.StackMaxDepth
+	it("lifts like StackLifts below the depth limit", function()
+		local lifts, keeps = PlateMath.Stack({ 0, 3, 1 }, { 0, 0, 3 }, RADIUS, STEP, DEPTH)
+		expect(lifts[1]).toEqual(0)
+		expect(lifts[2]).toEqual(STEP)
+		expect(lifts[3]).toEqual(2 * STEP)
+		expect(keeps[1] and keeps[2] and keeps[3]).toEqual(true)
+	end)
+	it("drops the plate of an alien that would stand past the depth limit, and the highest kept lift stays under it", function()
+		local xs, zs = { 0, 1, 2, 3, 4 }, { 0, 0, 0, 0, 0 } -- five in a clump
+		local lifts, keeps = PlateMath.Stack(xs, zs, RADIUS, STEP, DEPTH)
+		local highest = 0
+		for index = 1, #xs do
+			if keeps[index] then
+				highest = math.max(highest, lifts[index])
+			else
+				expect(lifts[index]).toEqual(0)
+			end
+		end
+		expect(highest <= (DEPTH - 1) * STEP).toEqual(true)
+		expect(keeps[DEPTH]).toEqual(true)
+		expect(keeps[DEPTH + 1]).toEqual(false)
+		expect(keeps[DEPTH + 2]).toEqual(false)
+	end)
+	it("does not count a dropped plate as a neighbour below a later one in another clump", function()
+		-- 1..4 clump at x 0 to 3 (the fourth is dropped at depth 3); the fifth stands 10 studs off the dropped one but beside the first three
+		local lifts, keeps = PlateMath.Stack({ 0, 1, 2, 3, 6 }, { 0, 0, 0, 0, 0 }, RADIUS, STEP, DEPTH)
+		expect(keeps[4]).toEqual(false)
+		expect(keeps[5]).toEqual(false) -- three kept plates within the radius: depth reached
+		expect(lifts[5]).toEqual(0)
+	end)
+end)
 describe("PlateMath.Shown (the clean HUD's nameplate budget)", function()
 	local HudData = require(Shared.data.Hud)
 	local P = HudData.Plates
 	local function shown(distances: { number }): { boolean }
-		return PlateMath.Shown(distances, P.MaxShown, P.AlwaysStuds, Config.NameplateDistance)
+		return PlateMath.Shown(distances, P.MaxShown, Config.NameplateDistance)
 	end
 	local function count(flags: { boolean }): number
 		local n = 0
@@ -103,26 +137,29 @@ describe("PlateMath.Shown (the clean HUD's nameplate budget)", function()
 		expect(flags[3]).toEqual(false)
 		expect(flags[5]).toEqual(false)
 	end)
-	it("shows every alien within 15 studs even past five", function()
-		local flags = shown({ 3, 4, 5, 6, 7, 8, 9, 40, 41 })
-		for index = 1, 7 do
-			expect(flags[index]).toEqual(true)
+	it("keeps the cap of five even when more aliens stand close (six at 8 to 9 studs draw five, job 65)", function()
+		local flags = shown({ 8, 8.5, 9, 8.2, 8.8, 9 })
+		expect(count(flags)).toEqual(P.MaxShown)
+		expect(flags[6]).toEqual(false) -- the sixth in order at the farthest distance loses
+		local near = shown({ 3, 4, 5, 6, 7, 8, 9, 40, 41 })
+		expect(count(near)).toEqual(P.MaxShown)
+		for index = 1, P.MaxShown do
+			expect(near[index]).toEqual(true) -- the nearest five win
 		end
-		expect(flags[8]).toEqual(false)
-		expect(flags[9]).toEqual(false)
+		expect(near[6]).toEqual(false)
 	end)
 	it("lets a far alien in when fewer than five stand near", function()
 		local flags = shown({ 5, 6, 50 })
 		expect(count(flags)).toEqual(3)
 	end)
 	it("keeps the order of two aliens at the same distance, so the choice never flickers", function()
-		local flags = PlateMath.Shown({ 30, 30, 30 }, 2, 15, 60)
+		local flags = PlateMath.Shown({ 30, 30, 30 }, 2, 60)
 		expect(flags[1]).toEqual(true)
 		expect(flags[2]).toEqual(true)
 		expect(flags[3]).toEqual(false)
 	end)
 	it("a hidden alien takes no place", function()
-		local flags = PlateMath.Shown({ math.huge, 30, 31, 32, 33, 34 }, 5, 15, 60)
+		local flags = PlateMath.Shown({ math.huge, 30, 31, 32, 33, 34 }, 5, 60)
 		expect(flags[1]).toEqual(false)
 		expect(count(flags)).toEqual(5)
 	end)
@@ -134,7 +171,7 @@ describe("PlateMath.Shown (the clean HUD's nameplate budget)", function()
 		assert(P.NodeTargetStuds > Config.NameplateDistance, "a marker's node is not farther than a wild plate")
 	end)
 	it("keeps the budget inside the plate's own range", function()
-		assert(P.AlwaysStuds <= P.TierStuds and P.TierStuds <= Config.NameplateDistance, "the distances are out of order")
+		assert(P.TierStuds <= Config.NameplateDistance, "the tier line is drawn farther than the plate")
 		assert(P.NodeStuds <= Config.NameplateDistance, "a node's plate is drawn farther than a wild one")
 	end)
 end)
