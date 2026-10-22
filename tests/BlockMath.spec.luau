@@ -400,7 +400,7 @@ describe("Aliens slot names", function()
 	-- AliensScreen.luau buildStationCard / buildSlot (Studio 2026-10-22: "Moo" for Moop, "Ope" for Open). The strip is the panel
 	-- less two 0.02 margins and 0.23 of its height; a station card (1 - 0.02 (jobs - 1)) / jobs of it; the slot row SLOTS_W 0.96
 	-- of the card and 0.44 of its height; a slot (1 - 0.02 (n - 1)) / n of the row, its name one line across the slot's pitch
-	-- (its width and the gap) on the row's lower 1 - SLOT_SQUARE_H (0.5). Widths at the 14 px floor in Fredoka One
+	-- (its own width, no wider: the gap stays a gap between names) on the row's lower 1 - SLOT_SQUARE_H (0.5). Widths at the 14 px floor in Fredoka One
 	-- (assets/fonts/FredokaOne.ttf): the open slot's "Open" (Strings.STATION_EMPTY_SLOT), the Moop, and Boulden, the longest
 	-- species name in data/Species. A name wider than its label ends in an ellipsis (TextTruncate), never a cut second line.
 	local OPEN_PX, MOOP_PX, LONGEST_PX = 35.5, 37.1, 55.4
@@ -411,11 +411,11 @@ describe("Aliens slot names", function()
 		local card = (1 - GAP * (jobs - 1)) / jobs * strip
 		local row = SLOTS_W * card
 		local slot = (1 - GAP * (slots - 1)) / slots
-		return (slot + GAP) * row, (1 - SQUARE_H) * 0.44 * 0.23 * h
+		return slot * row, (1 - SQUARE_H) * 0.44 * 0.23 * h
 	end
 	it("iPhone SE, three stations of three slots: Open and Moop fit whole on one line at the floor", function()
 		local width, height = slotLabel(SE, 3, 3)
-		assert(width >= MOOP_PX + 2 and width >= OPEN_PX + 2, "slot label is " .. width .. " px")
+		assert(width >= MOOP_PX and width >= OPEN_PX, "slot label is " .. width .. " px")
 		assert(height >= TEXT_MIN, "slot label is " .. height .. " px tall")
 	end)
 	it("iPad: every species name fits whole, three slots or the bonus fourth", function()
@@ -425,11 +425,13 @@ describe("Aliens slot names", function()
 			assert(height >= TEXT_MIN, "slot label is " .. height .. " px tall")
 		end
 	end)
-	it("the label is wider than the old one (the slot alone, in a 0.92 row)", function()
+	it("the label is as wide as the slot and keeps a gap to its neighbour", function()
+		-- the label is the slot (1 - 0.02 (n - 1)) / n of the row; the pitch to the next slot is the slot and the gap, so a gap of
+		-- 0.02 of the row (about 2 px at SE) lies between two names and they never meet
 		local width = slotLabel(SE, 3, 3)
 		local w = BlockMath.FitPx(0.8, 0.78, 1.35, SE.w, SE.h)
-		local old = 0.32 * 0.92 * 0.32 * (1 - 2 * 0.02) * w
-		assert(width > old * 1.1, "no wider: " .. width .. " against " .. old)
+		local row = SLOTS_W * (1 - GAP * 2) / 3 * (1 - 2 * 0.02) * w
+		assert(row - 3 * width > 0 and (row - 3 * width) / 2 >= 0.019 * row, "no gap between names: " .. width .. " in " .. row)
 	end)
 end)
 

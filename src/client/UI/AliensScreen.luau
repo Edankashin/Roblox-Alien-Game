@@ -135,9 +135,10 @@ local CARD_ROWS = 10 -- an alien card is an edged block this many cells tall (ab
 local SQUARE_ROWS = 3 -- the shape square, a slot square and a chip: flat blocks of the fewest rows a stepped corner takes
 local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (the strip is 0.18 of the screen)
 -- A station card's slot row (UI Playbook "Aliens slot names"): the row is SLOTS_W of the card from SLOTS_X; a slot's square is
--- SLOT_SQUARE_H of the row and its name the rest, one line at the 14 px floor across the slot's whole pitch (its width and the
--- gap), so "Moop" and "Open" fit whole with three slots at iPhone SE (39.6 px of label, tests/BlockMath.spec.luau "Aliens slot
--- names") and a longer name ends in an ellipsis instead of wrapping into a cut second line ("Moo", Studio 2026-10-22).
+-- SLOT_SQUARE_H of the row and its name the rest, one line at the 14 px floor in the slot's own width and no wider, so the gap
+-- between two slots is a gap between their names too ("MoopMoopMoop", Studio 2026-10-22). "Moop" and "Open" fit whole with three
+-- slots at iPhone SE (40 px of label, tests/BlockMath.spec.luau "Aliens slot names"); a name wider than its slot ends in an
+-- ellipsis instead of wrapping into a cut second line ("Moo") or running into its neighbour.
 local SLOTS_X = 0.02
 local SLOTS_W = 0.96
 local SLOT_SQUARE_H = 0.5
