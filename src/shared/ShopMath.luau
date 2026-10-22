@@ -54,4 +54,18 @@ function ShopMath.ShortLine(price: number?, held: number, shortTemplate: string,
 	return string.format(shortTemplate, formatNumber(short))
 end
 
+-- What the Earn faster chip decides on (data/Shop EarnFaster, Decision B51): the Scrap still short (ScrapShort), whether the boost
+-- product can be sold here (Shared/ShelfMath.IsSellable), whether its power-up is running now, how many of it the player holds
+-- unused, and how often the chip has been offered this session against the data's cap.
+export type BoostOffer = { short: number, sellable: boolean, active: boolean, held: number, shown: number, perSession: number }
+
+-- Whether a tap that ended at "Need N more Scrap" also offers the one-tap Earn faster chip, which opens the Shop's Boosts shelf at
+-- Scrap Magnet (Decide-Now 48c). Only after a real gap (a known price above what is held: the plain refusal never carries it),
+-- only while the boost is on sale, never while a Scrap Magnet already runs or one waits unused in the power-up bar (the player
+-- needs no shop for that), and at most `perSession` times a session (GAME_DESIGN 14: an offer never more than once a session).
+-- The chip opens the Shop and nothing else: no Robux prompt comes straight from the gap, and Scrap itself is never sold.
+function ShopMath.OfferBoost(offer: BoostOffer): boolean
+	return offer.short > 0 and offer.sellable and not offer.active and offer.held <= 0 and offer.shown < offer.perSession
+end
+
 return ShopMath

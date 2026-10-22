@@ -148,11 +148,12 @@ Offline earnings (50% of the live rate, capped), resting in game (after 2 min id
 | Item | Kind | Robux | Id |
 |---|---|---|---|
 | StarterPack | product | 199 | 3717062435 |
+| ScannerPulse1 (B51) | product | 9 | 0 until the Mac creates it (`tools/create_products.py --apply`) |
 | SpeedBurstx5 | product | 49 | 3717062564 |
 | SteadyHandsx3 | product | 79 | 3717062704 |
 | ScrapMagnetx3 | product | 99 | 3717062935 |
 | ServerLuck2x (paid random) | product | 249 | 3717063366 |
-| ServerLuck4x (paid random) | product | 999 | 3717063502 |
+| ServerLuck4x (paid random) | product | 599 (B51; the live product says 999 until the Mac runs `tools/create_products.py --prices --apply --only ServerLuck4x`) | 3717063502 |
 | SlotEveryStation1 | pass | 399 | 2013608394 |
 | AutoOptimize | pass | 299 | 2014838379 |
 | ExplorerPack | pass | 399 | 2014814394 |

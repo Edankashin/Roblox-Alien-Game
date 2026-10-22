@@ -44,6 +44,7 @@ local Toast = require(script:WaitForChild("UI"):WaitForChild("Toast"))
 local Screens = require(script:WaitForChild("UI"):WaitForChild("Screens"))
 local ShipScreen = require(script:WaitForChild("UI"):WaitForChild("ShipScreen"))
 local ShopScreen = require(script:WaitForChild("UI"):WaitForChild("ShopScreen"))
+local ScrapGap = require(script:WaitForChild("UI"):WaitForChild("ScrapGap"))
 local AliensScreen = require(script:WaitForChild("UI"):WaitForChild("AliensScreen"))
 local CodexScreen = require(script:WaitForChild("UI"):WaitForChild("CodexScreen"))
 local BuildScreen = require(script:WaitForChild("UI"):WaitForChild("BuildScreen"))
@@ -1481,6 +1482,16 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("purchases", refreshOfferButton)
 	refreshOfferButton()
+
+	-- The Earn faster chip (Decision B51, Decide-Now 48c): a tap on it, on the "Need N more Scrap" toast of any Scrap screen, opens
+	-- the Shop on the Boosts shelf at Scrap Magnet (UI/ScrapGap decides when it shows). Never during a catch or the Reveal, and it
+	-- only opens the Shop: buying is still the card's own pill.
+	ScrapGap.SetOpener(function(itemId: string)
+		if not inCapture and not Reveal.IsOpen() then
+			Screens.Open("Shop")
+			ShopScreen.Focus(itemId)
+		end
+	end)
 
 	-- The five-minute script's payoff: when the step named by TutorialData.Script.GiftPopAfterStep falls
 	-- behind the player and the day-1 gift is unclaimed, the Gifts screen opens by itself, once a session.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plan/create missing launch shop items; --dry-run is offline and the default.
+"""Plan/create missing launch shop items, or bring live prices in line with data/Shop; --dry-run is offline and the default.
 
 Official references verified 2026-10-07:
 https://create.roblox.com/docs/cloud/reference/features/game-passes
@@ -11,6 +11,18 @@ POST /developer-products/v2/universes/{universeId}/developer-products
 (same multipart fields; developer-product:write).
 GET same path + /creator (developer-product:read): developerProducts, nextPageToken.
 GET /universes/v1/places/{placeId}/universe resolves universeId.
+
+Prices (--prices; checked 2026-10-22 against openapi.json in the creator-docs repository,
+content/en-us/reference/cloud/openapi.json, the file create.roblox.com/docs/cloud/openapi.json serves):
+GET  /developer-products/v2/universes/{universeId}/developer-products/{productId}/creator
+     (developer-product:read): priceInformation.defaultPriceInRobux, isManagedPricingEnabled.
+PATCH /developer-products/v2/universes/{universeId}/developer-products/{productId}
+     (developer-product:write; multipart; "only fields provided in the request will be updated"; 204 No Content).
+GET  /game-passes/v1/universes/{universeId}/game-passes/{gamePassId}/creator (game-pass:read) and
+PATCH /game-passes/v1/universes/{universeId}/game-passes/{gamePassId} (game-pass:write) are the same for a pass.
+--prices alone is the offline plan; --prices --check reads every live price and writes nothing;
+--prices --apply reads, then PATCHes only a price that differs from data/Shop `robux` and reads it back.
+--only ID[,ID] limits either job to those data/Shop ids (and so to the scopes of their kinds).
 All use https://apis.roblox.com; --apply reads the key from ROBLOX_API_KEY, else ROBLOX_OPEN_CLOUD_KEY (the name the Mac's shell uses).
 Self-tests use fake HTTP and temporary copies, never the environment key or network.
 """
@@ -71,7 +83,9 @@ class HTTP:
         request=urllib.request.Request(API+path,data=body,headers=headers,method=method)
         try:
             with self.opener.open(request,timeout=30) as response:
-                result=json.load(response)
+                raw=response.read()
+            if not raw.strip():return {}  # an update answers 204 No Content
+            result=json.loads(raw)
             if not isinstance(result,dict):raise ToolError('unexpected API response shape')
             return result
         except urllib.error.HTTPError as exc:
@@ -124,6 +138,57 @@ def plan(root=ROOT):
             out.append(dict(id=sid,kind=row['kind'],name=strings['SHOP_ITEM_'+sid],
                             description=strings['SHOP_DESC_'+sid],price=row['robux'],icon=icons[sid]))
     return out
+
+
+def price_plan(root=ROOT,only=None):
+    """Every live launch item (its id set, not offSale) with the price data/Shop gives it, in shelf order."""
+    shop=load(root/'src/shared/data/Shop.luau')
+    items={r['id']:r for r in shop['Items']}
+    wanted=set(only) if only else None
+    if wanted and not wanted<=set(items):raise ToolError('unknown data/Shop id: '+', '.join(sorted(wanted-set(items))))
+    out=[]
+    for section in shop['Launch']:
+        for sid in section['items']:
+            row=items[sid];value=row.get(KINDS[row['kind']][4]) or 0
+            if (wanted and sid not in wanted) or not value or row.get('offSale'):continue
+            out.append(dict(id=sid,kind=row['kind'],remote=positive(value),price=positive(row['robux'])))
+    if wanted and {r['id'] for r in out}!=wanted:raise ToolError('not a live launch item (id 0 or off sale): '+', '.join(sorted(wanted-{r['id'] for r in out})))
+    return out
+
+
+def form(fields):
+    boundary='RobloxAlienGameProvisionBoundary'
+    chunks=[f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode() for name,value in sorted(fields.items())]
+    chunks.append(f'--{boundary}--\r\n'.encode())
+    return b''.join(chunks),'multipart/form-data; boundary='+boundary
+
+
+def remote_price(record):
+    info=record.get('priceInformation') or {}
+    price=info.get('defaultPriceInRobux') if isinstance(info,dict) else None
+    return price if isinstance(price,int) and not isinstance(price,bool) else None
+
+
+def sync_prices(http,rows,universe,write,pause=lambda:None):
+    """(id, live price, data price, action) per row: same, differs (read only), updated, or managed (skipped: Roblox sets it)."""
+    result=[]
+    for row in rows:
+        path=path_for(row['kind'],universe)+'/'+str(positive(row['remote']))
+        record=http.request('GET',path+'/creator')
+        current=remote_price(record)
+        if record.get('isManagedPricingEnabled') is True:
+            result.append((row['id'],current,row['price'],'managed: skipped'));continue
+        if current==row['price']:
+            result.append((row['id'],current,row['price'],'same'));continue
+        if not write:
+            result.append((row['id'],current,row['price'],'differs'));continue
+        pause()
+        body,content_type=form({'price':str(row['price'])})
+        http.request('PATCH',path,body,content_type)
+        after=remote_price(http.request('GET',path+'/creator'))
+        if after!=row['price']:raise ToolError(f'{row["id"]}: price reads {after} after the update, expected {row["price"]}')
+        result.append((row['id'],current,row['price'],'updated'))
+    return result
 
 
 def multipart(row,root):
@@ -272,6 +337,45 @@ def self_test():
     except ToolError as exc:
         assert 'fake-fixture-secret' not in str(exc) and 'HTTP 403' in str(exc);checks+=1
     else:raise AssertionError('HTTP error swallowed')
+    # Prices: the plan reads live data/Shop rows; the sync reads, PATCHes only a difference, and checks the read-back.
+    live=price_plan()
+    assert live and all(r['remote']>0 and r['price']>0 for r in live);checks+=1
+    one=price_plan(only=[live[0]['id']]);assert [r['id'] for r in one]==[live[0]['id']];checks+=1
+    for bad in (['NoSuchItem'],['DirectRare']):
+        try:price_plan(only=bad)
+        except ToolError:checks+=1
+        else:raise AssertionError('bad --only accepted: '+bad[0])
+    class PriceFake:
+        def __init__(self,prices,managed=(),stuck=False):self.prices=dict(prices);self.managed=set(managed);self.stuck=stuck;self.calls=[]
+        def request(self,method,path,body=None,content_type=None):
+            self.calls.append((method,path))
+            remote=int(path.rstrip('/').split('/')[-2 if path.endswith('/creator') else -1])
+            if method=='GET':
+                return {'priceInformation':{'defaultPriceInRobux':self.prices[remote],'enabledFeatures':[]},'isManagedPricingEnabled':remote in self.managed}
+            assert method=='PATCH' and content_type.startswith('multipart/form-data;') and b'name="price"' in body
+            assert b'name="name"' not in body and b'name="isForSale"' not in body
+            if not self.stuck:self.prices[remote]=int(body.split(b'\r\n\r\n')[1].split(b'\r\n')[0])
+            return {}
+    rows=[dict(id='A',kind='product',remote=11,price=599),dict(id='B',kind='pass',remote=12,price=399),dict(id='C',kind='product',remote=13,price=49)]
+    fake=PriceFake({11:999,12:399,13:79},managed={13})
+    got=sync_prices(fake,rows,1,False)
+    assert [g[3] for g in got]==['differs','same','managed: skipped'] and not any(c[0]=='PATCH' for c in fake.calls);checks+=1
+    got=sync_prices(fake,rows,1,True)
+    assert [g[3] for g in got]==['updated','same','managed: skipped'] and fake.prices[11]==599;checks+=1
+    patches=[c for c in fake.calls if c[0]=='PATCH']
+    assert patches==[('PATCH','/developer-products/v2/universes/1/developer-products/11')];checks+=1
+    assert [c for c in fake.calls if c[0]=='GET'][-1][1].startswith('/developer-products/v2/universes/1/developer-products/13/');checks+=1
+    try:sync_prices(PriceFake({11:999},stuck=True),rows[:1],1,True)
+    except ToolError:checks+=1
+    else:raise AssertionError('an update that did not stick was accepted')
+    class EmptyOpener:
+        def open(self,*args,**kwargs):
+            class Response(io.BytesIO):
+                def __enter__(self):return self
+                def __exit__(self,*exc):return False
+            return Response(b'')
+    http=HTTP('fake-fixture-secret');http.opener=EmptyOpener()
+    assert http.request('PATCH','/fixture')=={};checks+=1
     print(f'create products self-test: {checks} passed (fake HTTP, no network)')
 
 
@@ -281,11 +385,31 @@ def main():
     modes.add_argument('--dry-run',action='store_true')
     modes.add_argument('--apply',action='store_true')
     modes.add_argument('--self-test',action='store_true')
+    modes.add_argument('--check',action='store_true',help='with --prices: read the live prices, write nothing')
+    parser.add_argument('--prices',action='store_true',help='bring live prices in line with data/Shop robux instead of creating items')
+    parser.add_argument('--only',help='with --prices: comma-separated data/Shop ids')
     parser.add_argument('--universe',type=int)
     args=parser.parse_args()
     try:
         if args.self_test:self_test();return 0
         if args.universe is not None:positive(args.universe)
+        if args.check and not args.prices:raise ToolError('--check goes with --prices')
+        if args.only and not args.prices:raise ToolError('--only goes with --prices')
+        if args.prices:
+            rows=price_plan(only=[s.strip() for s in args.only.split(',') if s.strip()] if args.only else None)
+            scope=lambda access:', '.join(sorted({('developer-product' if r['kind']=='product' else 'game-pass')+':'+access for r in rows}))
+            print('id | kind | live id | data price')
+            for r in rows:print(f'{r["id"]} | {r["kind"]} | {r["remote"]} | {r["price"]}')
+            if not (args.check or args.apply):
+                print(f'dry-run: {len(rows)} live items; no network or file changes. --check reads each live price (key scopes: {scope("read")}); '
+                      f'--apply also updates a price that differs from data and reads it back (adds {scope("write")})')
+                return 0
+            http=HTTP(os.environ.get('ROBLOX_API_KEY') or os.environ.get('ROBLOX_OPEN_CLOUD_KEY') or '')
+            universe=resolve_universe(http,ROOT,args.universe)
+            print('id | live price | data price | action')
+            for sid,current,price,action in sync_prices(http,rows,universe,args.apply,pause=lambda:time.sleep(.4)):
+                print(f'{sid} | {current} | {price} | {action}')
+            return 0
         rows=plan()
         print('id | name | Robux | kind | icon')
         for r in rows:

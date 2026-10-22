@@ -151,14 +151,14 @@ I flip the game's matching switch (`UseDataStoreInStudio`) and push.
 Why: every Robux item in the shop is a row in the game's shop table with its id set to 0, which makes its Buy button refuse safely. Each item needs creating on the dashboard once; then its id goes into the table.
 
 Two kinds:
-- **Developer products** can be bought again and again (boosts and spins). 9 of them.
+- **Developer products** can be bought again and again (boosts and spins). 10 of them (Scanner Pulse x1 added 2026-10-22, Decision B51).
 - **Passes** are bought once and kept forever. 6 of them.
 
-Only these fifteen are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
+Only these sixteen are in the shop today. The game's table lists more (paid spins, direct-buy aliens, Module Rush and others); their features come later, and creating them now would put items on sale that grant nothing. I'll add a short list for them when they are built.
 
 The pictures: every item uses an icon file that is already in the game's folder. When the upload window opens, press **Cmd + Shift + G**, paste the path from the table (for example `~/Roblox-Alien-Game/assets/icons/Gifts.png`), press Return, then click **Open**.
 
-### C1. Developer products (do this 9 times)
+### C1. Developer products (do this 10 times)
 - [ ] Creator Dashboard, click the game's tile. Left column: **Monetization**, then **Developer Products**.
 - [ ] Click **Create developer product** (top right).
 - [ ] Upload the image from the table. Type the **Name** and **Description** exactly as in the table. **Price**: the number in the table. Leave everything else as it is. Click **Create** (or **Save**).
@@ -167,11 +167,12 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | Row id (for the Send me block) | Name to type | Price (Robux) | Description to type | Image |
 |---|---|---|---|---|
 | StarterPack | Starter Pack | 199 | A Rare alien of your choice, Speed Boots now, 5 spins and a hoverboard skin. Once per account. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
+| ScannerPulse1 | Scanner Pulse x1 | 9 | One Scanner Pulse: every alien here on your radar. | `~/Roblox-Alien-Game/assets/icons/ScannerPulse.png` |
 | SpeedBurstx5 | Speed Burst x5 | 49 | Five Speed Bursts for your power-up bar. | `~/Roblox-Alien-Game/assets/icons/SpeedBurst.png` |
 | SteadyHandsx3 | Steady Hands x3 | 79 | Three Steady Hands: wider catch zones for ten minutes each. | `~/Roblox-Alien-Game/assets/icons/SteadyHands.png` |
 | ScrapMagnetx3 | Scrap Magnet x3 | 99 | Three Scrap Magnets: more Scrap per catch for ten minutes each. | `~/Roblox-Alien-Game/assets/icons/ScrapMagnet.png` |
 | ServerLuck2x | Server Luck x2 | 249 | Doubles everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
-| ServerLuck4x | Server Luck x4 | 999 | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
+| ServerLuck4x | Server Luck x4 | 599 (999 until 2026-10-22; to change the live price see `docs/vault/00-start-here/Launch-Steps.md`, step 3b, "the 9 Robux Scanner Pulse and the new Server Luck x4 price") | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
 | Spins1 | 1 Spin | 49 | One spin of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 | Spins5 | 5 Spins | 199 | Five spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 | Spins12 | 12 Spins | 399 | Twelve spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
@@ -197,6 +198,7 @@ Server Luck and the spins are paid random items in Roblox's rules: the game alre
 ```
 Part C done.
 StarterPack: 
+ScannerPulse1: 
 SpeedBurstx5: 
 SteadyHandsx3: 
 ScrapMagnetx3: 

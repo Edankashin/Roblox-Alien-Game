@@ -109,5 +109,73 @@ describe("ShopMath", function()
 		expect(Math.ShortLine(nil, F.zero, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, tostring))
 			.toEqual(Strings.TOAST_NOT_ENOUGH_SCRAP)
 	end)
+	describe("the Earn faster chip (B51, Decide-Now 48c)", function()
+		local cap = Shop.EarnFaster.perSession
+		local function base(): Math.BoostOffer
+			return { short = Gear.Boots.scrap, sellable = true, active = false, held = F.zero, shown = F.zero, perSession = cap }
+		end
+		it("offers the chip after a real gap while the boost is on sale and none is running or held", function()
+			expect(Math.OfferBoost(base())).toEqual(true)
+			local small = base()
+			small.short = F.one
+			expect(Math.OfferBoost(small)).toEqual(true)
+		end)
+		it("never offers it without a gap: an unknown price or a price the player can pay", function()
+			local none = base()
+			none.short = Math.ScrapShort(Gear.Boots.scrap, Gear.Boots.scrap)
+			expect(Math.OfferBoost(none)).toEqual(false)
+		end)
+		it("never offers it while a Scrap Magnet runs, or while one waits unused in the bar", function()
+			local running = base()
+			running.active = true
+			expect(Math.OfferBoost(running)).toEqual(false)
+			local held = base()
+			held.held = F.one
+			expect(Math.OfferBoost(held)).toEqual(false)
+		end)
+		it("never offers it when the boost cannot be sold here (no product id, off sale, no grant row)", function()
+			local unsold = base()
+			unsold.sellable = false
+			expect(Math.OfferBoost(unsold)).toEqual(false)
+		end)
+		it("offers it at most perSession times a session", function()
+			expect(cap >= F.one).toEqual(true)
+			local spent = base()
+			spent.shown = cap - F.one
+			expect(Math.OfferBoost(spent)).toEqual(true)
+			spent.shown = cap
+			expect(Math.OfferBoost(spent)).toEqual(false)
+		end)
+		it("points at a Boosts product that hands over a catch-Scrap power-up: never Scrap, never random, never a pass", function()
+			local PowerUps = require(Shared.data.PowerUps)
+			local id = Shop.EarnFaster.item
+			local found: Shop.ShopItem? = nil
+			for _, item in ipairs(Shop.Items) do
+				if item.id == id then
+					found = item
+				end
+			end
+			assert(found ~= nil, "EarnFaster names " .. id .. ", which is not in Shop.Items")
+			expect(found.kind).toEqual("product")
+			expect(found.paidRandom).toEqual(false)
+			expect(found.once == true).toEqual(false)
+			local onBoosts = false
+			for _, section in ipairs(Shop.Launch) do
+				if section.section == "Boosts" and table.find(section.items, id) then
+					onBoosts = true
+				end
+			end
+			expect(onBoosts).toEqual(true)
+			local grants = Shop.Grants[id]
+			expect(#grants > F.zero).toEqual(true)
+			for _, grant in ipairs(grants) do
+				expect(grant.kind).toEqual("powerUp")
+				local row = (PowerUps :: any)[grant.id :: string]
+				expect(row.effect).toEqual("catchScrap")
+			end
+			expect(Shop.EarnFaster.seconds > F.zero).toEqual(true)
+			expect(type(Strings.TOAST_EARN_FASTER)).toEqual("string")
+		end)
+	end)
 end)
 return true

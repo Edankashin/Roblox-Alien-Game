@@ -163,6 +163,47 @@ describe("ShelfMath", function()
 			expect(PixelIcons.Icons[id] ~= nil).toEqual(true)
 			expect(type((Strings :: any)["MENU_" .. id])).toEqual("string")
 		end)
+		it("sells one Scanner Pulse as the cheapest launch item, repeatable, first on the Boosts shelf (B51)", function()
+			local PowerUps = require(Shared.data.PowerUps)
+			local PixelIcons = require(Shared.data.PixelIcons)
+			local id = "ScannerPulse1"
+			local found: Shop.ShopItem? = nil
+			local launch: { [string]: boolean } = {}
+			for _, section in ipairs(Shop.Launch) do
+				for _, sid in ipairs(section.items) do
+					launch[sid] = true
+				end
+				if section.section == "Boosts" then
+					expect(section.items[1]).toEqual(id)
+				end
+			end
+			for _, item in ipairs(Shop.Items) do
+				if item.id == id then
+					found = item
+				end
+			end
+			assert(found ~= nil, id .. " is not in Shop.Items")
+			expect(found.kind).toEqual("product")
+			expect(found.tab).toEqual("Boosts")
+			expect(found.once == true).toEqual(false)
+			expect(found.paidRandom).toEqual(false)
+			for _, item in ipairs(Shop.Items) do
+				if launch[item.id] and item.id ~= id then
+					expect(found.robux < item.robux).toEqual(true)
+				end
+			end
+			local grants = Shop.Grants[id]
+			expect(#grants).toEqual(1)
+			expect(grants[1].kind).toEqual("powerUp")
+			expect(grants[1].id).toEqual("ScannerPulse")
+			expect(grants[1].amount).toEqual(1)
+			expect(PowerUps.ScannerPulse.sellable).toEqual(true)
+			expect(Shop.Cards[id].icon).toEqual("ScannerPulse")
+			expect(PixelIcons.Icons.ScannerPulse ~= nil).toEqual(true)
+			expect(type((Strings :: any)["SHOP_ITEM_" .. id])).toEqual("string")
+			expect(type((Strings :: any)["SHOP_DESC_" .. id])).toEqual("string")
+			expect(string.format(Strings.SHOP_NOTE_Use, 1)).toEqual("1 USE")
+		end)
 		it("finds a grant row for every launch item, so nothing on the shelf can sell nothing", function()
 			local byId: { [string]: Shop.ShopItem } = {}
 			for _, item in ipairs(Shop.Items) do

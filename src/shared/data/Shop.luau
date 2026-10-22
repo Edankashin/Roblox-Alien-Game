@@ -43,11 +43,12 @@ local Items: { ShopItem } = {
 	{ id = "ModuleRush", tab = "Camp", kind = "product", robux = 59, productId = 0, paidRandom = false },
 	{ id = "ExplorerPack", tab = "Gear", kind = "pass", robux = 399, passId = 2014814394, paidRandom = false },
 	{ id = "RadarMk1Unlock", tab = "Gear", kind = "product", robux = 149, productId = 0, paidRandom = false },
+	{ id = "ScannerPulse1", tab = "Boosts", kind = "product", robux = 9, productId = 0, paidRandom = false }, -- the cheap first purchase (B51): one Scanner Pulse, repeatable
 	{ id = "SpeedBurstx5", tab = "Boosts", kind = "product", robux = 49, productId = 3717062564, paidRandom = false },
 	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 3717062704, paidRandom = false },
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },
 	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 3717063366, paidRandom = true },
-	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 3717063502, paidRandom = true },
+	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 599, productId = 3717063502, paidRandom = true }, -- 599 since B51 (was 999): +3.0 luck at 200 a point against x2's 249, so the bigger pack is the better deal. The live product keeps its old price until `tools/create_products.py --prices --apply --only ServerLuck4x` runs on the Mac
 	{ id = "Spins1", tab = "Spins", kind = "product", offSale = true, robux = 49, productId = 3718499778, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins5", tab = "Spins", kind = "product", offSale = true, robux = 199, productId = 3718499788, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins12", tab = "Spins", kind = "product", offSale = true, robux = 399, productId = 3718499794, paidRandom = true, oddsOnWheel = true },
@@ -68,6 +69,7 @@ local Grants: { [string]: { ShopGrant } } = {
 	StorageBoost = { { kind = "passFlag", id = "StorageBoost" } }, -- Economy reads the pass live: Storage.PassBonus more alien storage (Robux buys space, never Scrap)
 	AutoOptimize = { { kind = "passFlag", id = "AutoOptimize" } },
 	ExplorerPack = { { kind = "gear", id = "Boots" }, { kind = "gear", id = "Hoverboard" }, { kind = "gear", id = "Radar1" } },
+	ScannerPulse1 = { { kind = "powerUp", id = "ScannerPulse", amount = 1 } }, -- one unit, so no bundle of ours is undercut (we sell no Scanner bundle)
 	SpeedBurstx5 = { { kind = "powerUp", id = "SpeedBurst", amount = 5 } },
 	SteadyHandsx3 = { { kind = "powerUp", id = "SteadyHands", amount = 3 } },
 	ScrapMagnetx3 = { { kind = "powerUp", id = "ScrapMagnet", amount = 3 } },
@@ -111,6 +113,7 @@ local Cards: { [string]: CardDef } = {
 	StorageBoost = { ribbon = "Pass", note = "Forever", icon = "Aliens" },
 	AutoOptimize = { ribbon = "Pass", note = "Forever" },
 	ExplorerPack = { ribbon = "TopDeal", note = "Forever", icon = "Hoverboard" },
+	ScannerPulse1 = { ribbon = "New", note = "Uses", icon = "ScannerPulse", new = true },
 	SpeedBurstx5 = { ribbon = "Popular", note = "Uses", icon = "SpeedBurst" },
 	SteadyHandsx3 = { note = "Uses", icon = "SteadyHands" },
 	ScrapMagnetx3 = { note = "Uses", icon = "ScrapMagnet" },
@@ -203,13 +206,18 @@ return {
 	Launch = {
 		{ section = "Featured", items = { "StarterPack" } },
 		{ section = "Passes", items = { "SlotEveryStation1", "SlotEveryStation2", "CompanionSlot4", "StorageBoost", "AutoOptimize", "ExplorerPack" } },
-		{ section = "Boosts", items = { "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
+		{ section = "Boosts", items = { "ScannerPulse1", "SpeedBurstx5", "SteadyHandsx3", "ScrapMagnetx3", "ServerLuck2x", "ServerLuck4x" } },
 		{ section = "Spins", items = { "Spins1", "Spins5", "Spins12" } },
 	},
 	-- The one offer that stands on the screen, not only behind the Shop button (TikTok batch 9 lesson 4): a HUD top button with
 	-- its pixel icon, shown while it can be sold and the player has not bought it (Shared/ShelfMath.OfferShows); a tap opens the
 	-- Shop on the Featured shelf. A one-time, not paid-random item from the Featured launch section (tests/ShelfMath.spec).
 	HudOffer = "StarterPack",
+	-- The Earn faster chip (Decision B51, Decide-Now 48c): after a tap ends at "Need N more Scrap" (Shared/ShopMath.ShortLine), the
+	-- toast carries a one-tap chip that opens the Shop on this item's card (the Boosts shelf scrolled to Scrap Magnet, a catch
+	-- bonus, never Scrap). Shared/ShopMath.OfferBoost decides when; `perSession` caps it, `seconds` is how long that toast stays
+	-- (longer than a plain toast, so there is time to tap). The chip only opens the Shop: no purchase prompt comes from the gap.
+	EarnFaster = { item = "ScrapMagnetx3", perSession = 1, seconds = 5 },
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
 	NeverSold = { "Scrap", "DoubleShift", "LuckyCharm", "Mounts", "LegendaryAliens", "EventAliens" },
 	-- The real-currency equivalent shown under every Robux price (GAME_DESIGN 14, "every price shows its real-currency

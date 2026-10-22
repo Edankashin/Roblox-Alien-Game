@@ -17,7 +17,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local Economy = require(Shared:WaitForChild("Economy"))
-local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Place = require(Shared:WaitForChild("Place"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
@@ -26,6 +25,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
+local ScrapGap = require(script.Parent.ScrapGap)
 local State = require(script.Parent.Parent.State)
 local Screens = require(script.Parent.Screens)
 
@@ -118,7 +118,7 @@ local function handleRefusal(name: string, moduleId: string?, reason: any)
 				price = def.scrap - (if state then state.scrapPaid else 0)
 			end
 		end
-		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
+		ScrapGap.Show(price, held, Theme.Colors.Close)
 		return
 	end
 	if reason == "InFlight" then

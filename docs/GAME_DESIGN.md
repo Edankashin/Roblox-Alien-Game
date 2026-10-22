@@ -257,12 +257,12 @@ Epic mounts match Hoverboard speed. Legendary mounts are 20% faster. Cosmic moun
 |---|---|---|---|
 | Speed Burst | +50% speed | 60 s | Peddler, spins, Welcome Week, event tracks |
 | Steady Hands | timing zones +30% wider | 10 min | Peddler, quests |
-| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins |
+| Scanner Pulse | reveals every hidden spot and every uncaught alien in the biome on the radar | 60 s | quests, spins, one at a time in the Shop (9 Robux) |
 | Lucky Charm | +50% personal luck | 10 min | quests, spins, Welcome Week, events. Earned only |
 | Scrap Magnet | catches pay +50% Scrap | 10 min | Peddler, spins |
 | Double Shift | stations produce 2x Scrap | 10 min | spins and event tracks only. Never sold |
 
-Rules: one active per type, timers run only while online so a kid never wastes one by closing the app, active buffs show as small rings under the ship bar, and activation has a sound and a brief screen tint. Speed Burst, Steady Hands, and Scrap Magnet may be sold in fixed bundles (no randomness). Lucky Charm and Double Shift stay earned-only: one is a probability modifier and the other is the income multiplier the research warns against selling.
+Rules: one active per type, timers run only while online so a kid never wastes one by closing the app, active buffs show as small rings under the ship bar, and activation has a sound and a brief screen tint. Speed Burst, Steady Hands, and Scrap Magnet may be sold in fixed bundles (no randomness), and Scanner Pulse one at a time (Decision B51). Lucky Charm and Double Shift stay earned-only: one is a probability modifier and the other is the income multiplier the research warns against selling.
 
 ### The Radar
 
@@ -295,7 +295,7 @@ Luck is one visible number, "Luck x1.0," under the ship bar. Tapping it shows th
 | Weekly Weather and seasonal events | +100% | event window | section 12 |
 | Meteor Shower | +200% server-wide | 3 min | section 5 |
 | Codex page complete | +5% permanent per world page | forever | the collector's reward |
-| Server Luck (purchased) | 2x or 4x, shared by all eight players | 15 min | 249 / 999 Robux, full disclosure, PolicyService gated |
+| Server Luck (purchased) | 2x or 4x, shared by all eight players | 15 min | 249 / 599 Robux, full disclosure, PolicyService gated |
 | Soft pity ("scanner charge") | rises each catch without a Rare+, resets on one | until a Rare+ | shown inside the readout |
 
 **Monetization stance.** Sell shared server luck at launch, as the monetization section already does. A permanent personal luck pass (x1.5 for 299 to 399 Robux) is the Roblox norm and converts well, but it is a probability modifier bought by a kids-skewed audience, so it is listed as a later option, not a launch SKU. If it ships, it needs the same disclosure and PolicyService gate as server luck, and the readout must show it.
@@ -565,7 +565,7 @@ Rule: keep randomness in the free loop; sell certainty, capacity, convenience, a
 
 A single Shop button on the HUD opens a store with six tabs. The Featured tab rotates weekly with the event calendar. Every price shows its real-currency equivalent beneath it. Regional pricing is on from day one (Roblox reports 4 to 10% more total spend and 43 to 52% more pass purchases in discounted regions).
 
-Two rules from the monetization references (TikTok batch 9, 2026-10-21): one offer stands on the HUD itself, the Starter Pack as a top button until it is bought, so a player sees it without opening the Shop; and a tap on a Scrap price the player cannot pay says how much more Scrap is needed, never a bare refusal. Scrap is still never sold to close that gap.
+Two rules from the monetization references (TikTok batch 9, 2026-10-21): one offer stands on the HUD itself, the Starter Pack as a top button until it is bought, so a player sees it without opening the Shop; and a tap on a Scrap price the player cannot pay says how much more Scrap is needed, never a bare refusal. Scrap is still never sold to close that gap. Instead (Decision B51) that line carries one "Earn faster" chip, once a session, which opens the Shop on the Boosts shelf at Scrap Magnet, a catch bonus: never a Scrap pack and never a purchase prompt straight from the gap, and not while a Scrap Magnet runs or waits unused in the power-up bar.
 
 | Tab | What lives there |
 |---|---|
@@ -579,7 +579,7 @@ Two rules from the monetization references (TikTok batch 9, 2026-10-21): one off
 
 ### Catalog
 
-Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,699). Items under 50 Robux are impulse buys; passes are the recurring earners. The research's developer-education sources report that games with five or more passes earn about 2.3x more than games with fewer, with the caveat that the methodology was not disclosed.
+Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,699), plus one 9 Robux single (Scanner Pulse x1). Items under 50 Robux are impulse buys; passes are the recurring earners. The research's developer-education sources report that games with five or more passes earn about 2.3x more than games with fewer, with the caveat that the methodology was not disclosed.
 
 **Aliens**
 
@@ -622,11 +622,14 @@ Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,69
 
 | Item | Type | R$ | Earnable alternative | Notes |
 |---|---|---|---|---|
+| Scanner Pulse x1 | Dev Product | 9 | quests, spins | The one offer under 10 Robux, first on the shelf and repeatable (B51): the share of players who pay at all is what Roblox ranks by, and a single unit of something we sell in no bundle undercuts nothing |
 | Speed Burst x5 | Dev Product | 49 | Peddler, spins | Fixed bundle |
 | Steady Hands x3 | Dev Product | 79 | Peddler, quests | Fixed bundle |
 | Scrap Magnet x3 | Dev Product | 99 | Peddler, spins | Catch bonus, not station income |
 | Server luck 2x, 15 min | Dev Product | 249 | Meteor Shower, events | Shared by all 8 players; odds shown live; PolicyService gated |
-| Server luck 4x, 15 min | Dev Product | 999 | | Same rules |
+| Server luck 4x, 15 min | Dev Product | 599 | | Same rules. 599 since B51 (was 999): 200 Robux a point of luck against x2's 249, so the bigger pack is the better deal, never a decoy |
+
+After launch week, once the first week's payer numbers are in (Decision B51, not built yet): the **Scrap ladder**, three passes that raise the Scrap a catch pays and nothing else (station income, gifts and quests untouched): +25% at 49 Robux, +25% more at 149, +50% more at 399, adding up to x2 with all three owned, the cap. Each step shows on the shelf only once the one before is owned. A pass, never a product, so the multiplier is bought once and kept; Double Shift and income passes stay unsold.
 
 **Home**
 
@@ -668,6 +671,7 @@ Offers show up at the moment they make sense and never more than once per sessio
 | Moment | Offer |
 |---|---|
 | First shop open | Starter Pack on Featured |
+| A tap on a Scrap price ends at "Need N more Scrap" | An "Earn faster" chip on that line, opening the Boosts shelf at Scrap Magnet (not while one runs or waits unused; the chip opens the Shop, never a prompt) |
 | All station slots full and an alien is waiting | +1 slot on every station |
 | A module has more than 10 minutes left and the player is idle at camp | Module rush, once |
 | Perfect catch on a Rare or Epic | "Dress up [name]?" hat shelf for that alien |
