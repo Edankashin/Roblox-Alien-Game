@@ -108,11 +108,11 @@ type Record = {
 	hidden: boolean, -- the blizzard hide rule: out of sight beyond BlizzardHideStuds and outside every Heater
 	plate: BillboardGui,
 	plateScale: number, -- the factor on the plate's stud size now (PlateMath: 1 at range, less with the camera close)
-	plateLift: number, -- studs the plate stands above its own height so a neighbour's plate is not under it (restackPlates)
+	plateLift: number, -- studs the plate stands above its own height so a neighbour's plate is not under it (judgePlates)
 	order: number, -- the order the alien appeared in; the stack's first alien keeps its plate where it was
 	nameLabel: TextLabel,
 	tierLabel: TextLabel, -- the plate's second line; only within data/Hud Plates.TierStuds
-	plateOn: boolean, -- the plate budget (judgePlates): the nearest MaxShown in range, plus any within AlwaysStuds
+	plateOn: boolean, -- the plate budget (judgePlates): the nearest MaxShown in range, and not past the stack depth
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
 	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
 	baseSize: Vector3, -- the part's Size as the server made it, before the size band
@@ -541,41 +541,7 @@ local function applyVisibility(record: Record)
 	syncFx(record)
 end
 
-local restackPlates: () -> () -- defined after topOffsetOf; evaluate calls it
-
--- The plate budget (Clean-UI-Pass, "World labels"; data/Hud Plates, Shared/PlateMath.Shown): of the aliens in range only the nearest
--- MaxShown wear a plate, plus any within AlwaysStuds, and the tier line shows only within TierStuds (farther, the name alone). A hidden
--- alien (the blizzard rule, a veiled arrival) takes no place. Judged with the hide rule, four times a second; a plate is written only
--- when its state changes. Without a character every plate shows, as before.
-local function judgePlates(at: Vector3?)
-	local plates = HudData.Plates
-	local live: { Record } = {}
-	local distances: { number } = {}
-	for _, record in pairs(records) do
-		if record.part.Parent then
-			table.insert(live, record)
-			if record.hidden then
-				distances[#live] = math.huge
-			elseif at then
-				distances[#live] = (record.base.Position - at).Magnitude
-			else
-				distances[#live] = 0
-			end
-		end
-	end
-	local shown = PlateMath.Shown(distances, plates.MaxShown, plates.AlwaysStuds, Config.NameplateDistance)
-	for index, record in ipairs(live) do
-		local on = shown[index]
-		local tierOn = on and PlateMath.TierShown(distances[index], plates.TierStuds)
-		if tierOn ~= record.tierLabel.Visible then
-			record.tierLabel.Visible = tierOn
-		end
-		if on ~= record.plateOn then
-			record.plateOn = on
-			applyVisibility(record)
-		end
-	end
-end
+local judgePlates: (Vector3?) -> () -- defined after topOffsetOf; evaluate calls it
 
 -- Re-judges the hide rule for every tracked alien (and the Scanner Pulse's reveal, via applyPulse). Without
 -- a blizzard everything is shown; with no character yet the hide rule changes nothing.
@@ -596,7 +562,6 @@ local function evaluate()
 			applyVisibility(record)
 		end
 	end
-	restackPlates()
 	judgePlates(at)
 end
 
@@ -609,32 +574,66 @@ local function topOffsetOf(part: Part, model: Model?): number
 	return part.Size.Y / 2
 end
 
--- Two wild aliens standing side by side put their 7-stud plates on one another (Studio 2026-10-22: Wispkin and a neighbour). The
--- aliens within Config.NameplateStackRadiusStuds of each other form a stack: the one that appeared first keeps its plate, each later
--- one's stands Config.NameplateStackStepStuds higher per earlier neighbour (PlateMath.StackLifts). Judged with the hide rule, four
--- times a second; a plate is written only when its lift changes, and a hidden alien neither takes a place nor counts.
-function restackPlates()
+-- The plate budget (Clean-UI-Pass, "World labels"; data/Hud Plates, Shared/PlateMath): of the aliens in range only the nearest MaxShown
+-- wear a plate (a hard cap: six aliens 8 studs off draw five, Mac job 65), and the tier line shows only within TierStuds (farther, the
+-- name alone). Of those, aliens within Config.NameplateStackRadiusStuds of each other form a stack: the one that appeared first keeps its
+-- plate, each later one's stands Config.NameplateStackStepStuds higher (PlateMath.Stack), and past Plates.StackMaxDepth the plate is
+-- dropped, so a crowd never climbs into the compass strip. A hidden alien (the blizzard rule, a veiled arrival) takes no place. Judged
+-- with the hide rule, four times a second; a plate is written only when its state or lift changes. Without a character every plate shows.
+function judgePlates(at: Vector3?)
+	local plates = HudData.Plates
 	local live: { Record } = {}
+	local distances: { number } = {}
 	for _, record in pairs(records) do
-		if not record.hidden and record.part.Parent then
+		if record.part.Parent then
 			table.insert(live, record)
+			if record.hidden then
+				distances[#live] = math.huge
+			elseif at then
+				distances[#live] = (record.base.Position - at).Magnitude
+			else
+				distances[#live] = 0
+			end
 		end
 	end
-	table.sort(live, function(a: Record, b: Record): boolean
+	local capped = PlateMath.Shown(distances, plates.MaxShown, Config.NameplateDistance)
+	-- The stack: only the aliens that made the cap, in the order they appeared in.
+	local stacked: { Record } = {}
+	for index, record in ipairs(live) do
+		if capped[index] then
+			table.insert(stacked, record)
+		end
+	end
+	table.sort(stacked, function(a: Record, b: Record): boolean
 		return a.order < b.order
 	end)
 	local xs: { number } = {}
 	local zs: { number } = {}
-	for index, record in ipairs(live) do
+	for index, record in ipairs(stacked) do
 		local position = record.base.Position
 		xs[index], zs[index] = position.X, position.Z
 	end
-	local lifts = PlateMath.StackLifts(xs, zs, Config.NameplateStackRadiusStuds, Config.NameplateStackStepStuds)
+	local lifts, keeps = PlateMath.Stack(xs, zs, Config.NameplateStackRadiusStuds, Config.NameplateStackStepStuds, plates.StackMaxDepth)
+	local liftOf: { [Record]: number } = {}
+	local keptSet: { [Record]: boolean } = {}
+	for index, record in ipairs(stacked) do
+		liftOf[record] = lifts[index]
+		keptSet[record] = keeps[index]
+	end
 	for index, record in ipairs(live) do
-		local lift = lifts[index]
+		local on = capped[index] and keptSet[record] == true
+		local lift = liftOf[record] or 0
+		local tierOn = on and PlateMath.TierShown(distances[index], plates.TierStuds)
+		if tierOn ~= record.tierLabel.Visible then
+			record.tierLabel.Visible = tierOn
+		end
 		if math.abs(lift - record.plateLift) > 1e-6 then
 			record.plateLift = lift
 			record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(record.part, record.model)) + Vector3.new(0, lift, 0)
+		end
+		if on ~= record.plateOn then
+			record.plateOn = on
+			applyVisibility(record)
 		end
 	end
 end

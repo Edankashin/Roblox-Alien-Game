@@ -9,7 +9,7 @@
 -- the step's material, the trainee alien the server reserved for this player, the ship, or a biome's centre. Every target is
 -- re-resolved on each read, so a collected node or a caught alien hands the marker to the next one.
 -- Nothing here decides anything: the step and the counter are the server's (State.GetTutorial). It also tells the HUD and the compass
--- which step the player is on (Hud.SetStage, Compass.SetStage: the staged reveal, data/Tutorial HudStages).
+-- which step the player is on (Hud.SetStage, Compass.SetStage, RadarColumn.SetStage: the staged reveal, data/Tutorial HudStages).
 -- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the objective a dark block plate in cells at about
 -- the HUD cell, the step counter a flat dark block.
 
@@ -26,6 +26,7 @@ local Place = require(Shared:WaitForChild("Place"))
 local Builder = require(script.Parent.Builder)
 local Hud = require(script.Parent.Hud)
 local Compass = require(script.Parent.Compass)
+local RadarColumn = require(script.Parent.RadarColumn)
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local State = require(script.Parent.Parent.State)
 local CampRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CampRenderer"))
@@ -321,6 +322,7 @@ local function pushStage(index: number)
 	pushedStage = index
 	Hud.SetStage(index)
 	Compass.SetStage(index)
+	RadarColumn.SetStage(index)
 end
 
 local function refresh()

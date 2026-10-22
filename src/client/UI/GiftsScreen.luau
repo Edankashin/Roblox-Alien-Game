@@ -36,6 +36,7 @@ local Gifts = require(Shared:WaitForChild("data"):WaitForChild("Gifts"))
 local Spins = require(Shared:WaitForChild("data"):WaitForChild("Spins"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local RewardIcon = require(Shared:WaitForChild("RewardIcon"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -128,6 +129,7 @@ local SOCIAL_LINE_GAP = 0.015
 local GROUP_LINE_H = 0.25
 local INVITE_LINE_H = 0.32
 local SOCIAL_BLOCK_GAP = 0.03
+local SOCIAL_NO_GROUP_SHARE = 0.62 -- with no group gift the card is only this share of its full height (the invite block's content, not two thirds empty cream)
 
 -- Wheel geometry, as fractions of the wheel square (the ring reads at any size).
 -- At iPhone SE height the ring is 146 px across: a block is 44 px wide and 29 px high, so the name (a short
@@ -149,6 +151,7 @@ local panel: Frame? = nil
 local daysLabel: TextLabel? = nil
 local tiles: { Tile } = {}
 local wheel: Frame? = nil
+local wheelHolder: Frame? = nil -- the wheel with its pointer and hub; it and the two spin counts hide while the social card is open (a shorter card would show half of them under it)
 local wedges: { Wedge } = {}
 local spinButton: Frame? = nil
 local freeLabel: TextLabel? = nil
@@ -234,19 +237,6 @@ local function rewardListText(rewards: { Social.Reward }): string
 	return table.concat(parts, Strings.SOCIAL_REWARD_SEPARATOR)
 end
 
--- The icon key for a gift reward: Scrap, a lure or power-up by its id, an egg by its tier's rarity badge.
--- A spin has no icon.
-local function rewardIconKey(reward: Reward): string?
-	if reward.kind == "scrap" then
-		return "Scrap"
-	elseif reward.kind == "lure" or reward.kind == "powerUp" then
-		return reward.id
-	elseif reward.kind == "egg" then
-		return "Egg" .. (reward.tier or "") -- the pixel egg in its tier's speckles; the pack falls back to the tier badge
-	end
-	return nil
-end
-
 -- The tile's accent: an egg takes its tier colour (Day 7's Epic egg reads Epic), the rest gold.
 local function giftAccent(row: GiftRow): Color3
 	if row.reward.kind == "egg" then
@@ -318,7 +308,7 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 		previousIcon:Destroy()
 		tile.icon = nil
 	end
-	local iconKey = rewardIconKey(row.reward)
+	local iconKey = RewardIcon.Key(row.reward)
 	if iconKey then
 		tile.icon = Builder.blockIcon({ -- the pixel icon first on a block (PixelIcons.PreferOverPack)
 			parent = tile.card,
@@ -957,11 +947,17 @@ end
 -- pays, on an edged cream block over the wheel's column; hidden until the "Group and friends" button opens it. The labels start at the
 -- top so a long line grows downwards.
 local function buildSocial(body: Frame): Frame
+	-- With no group gift the card shrinks to the invite block; every vertical fraction below is of the card, so each is divided by the
+	-- share to keep the buttons and lines the same size on screen.
+	local share = if Social.GroupId ~= 0 then 1 else SOCIAL_NO_GROUP_SHARE
+	local buttonH = SOCIAL_BUTTON_H / share
+	local lineGap = SOCIAL_LINE_GAP / share
+	local pad = SOCIAL_PAD / share
 	local card = Builder.blockPlate({
 		parent = body,
 		name = "SocialCard",
 		position = UDim2.fromScale(MID_X, BODY_Y),
-		size = UDim2.fromScale(MID_W, GROUP_Y - ODDS_TABLE_GAP - BODY_Y),
+		size = UDim2.fromScale(MID_W, (GROUP_Y - ODDS_TABLE_GAP - BODY_Y) * share),
 		color = Theme.Colors.Panel,
 		ink = Theme.Colors.Outline,
 		cells = false,
@@ -971,9 +967,9 @@ local function buildSocial(body: Frame): Frame
 	card.Visible = false
 	card.Active = true -- a tap on the card never reaches the wheel under it
 	local top = Builder.blockTop(card)
-	local cardH = (GROUP_Y - ODDS_TABLE_GAP - BODY_Y) * PANEL_H -- the card's height, of the screen: its buttons' rows come from it
+	local cardH = (GROUP_Y - ODDS_TABLE_GAP - BODY_Y) * share * PANEL_H -- the card's height, of the screen: its buttons' rows come from it
 	local inner = 1 - 2 * SOCIAL_PAD
-	local y = SOCIAL_PAD
+	local y = pad
 	if Social.GroupId ~= 0 then
 		groupButton = Builder.blockButton({
 			parent = card,
@@ -981,13 +977,13 @@ local function buildSocial(body: Frame): Frame
 			text = Strings.SOCIAL_GROUP_JOIN,
 			color = Theme.Colors.Select,
 			position = UDim2.fromScale(SOCIAL_PAD, y),
-			size = UDim2.fromScale(inner, SOCIAL_BUTTON_H),
+			size = UDim2.fromScale(inner, buttonH),
 			textSize = Theme.TextSize.Body,
-			rows = Builder.blockButtonRows(SOCIAL_BUTTON_H * cardH),
+			rows = Builder.blockButtonRows(buttonH * cardH),
 			hit = true,
 			zIndex = top,
 		}, onGroupTap)
-		y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
+		y += buttonH + lineGap
 		local groupLine = Builder.label({
 			parent = card,
 			name = "GroupLine",
@@ -1008,13 +1004,13 @@ local function buildSocial(body: Frame): Frame
 		text = Strings.SOCIAL_INVITE,
 		color = Theme.Colors.Featured,
 		position = UDim2.fromScale(SOCIAL_PAD, y),
-		size = UDim2.fromScale(inner, SOCIAL_BUTTON_H),
+		size = UDim2.fromScale(inner, buttonH),
 		textSize = Theme.TextSize.Body,
-		rows = Builder.blockButtonRows(SOCIAL_BUTTON_H * cardH),
+		rows = Builder.blockButtonRows(buttonH * cardH),
 		hit = true,
 		zIndex = top,
 	}, onInviteTap)
-	y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
+	y += buttonH + lineGap
 	local inviteLine = Builder.label({
 		parent = card,
 		name = "InviteLine",
@@ -1023,11 +1019,27 @@ local function buildSocial(body: Frame): Frame
 		color = Theme.Colors.Outline,
 		stroke = 0,
 		position = UDim2.fromScale(SOCIAL_PAD, y),
-		size = UDim2.fromScale(inner, INVITE_LINE_H),
+		size = UDim2.fromScale(inner, INVITE_LINE_H / share),
 		zIndex = top,
 	})
 	inviteLine.TextYAlignment = Enum.TextYAlignment.Top
 	return card
+end
+
+-- Shows or hides the social card; while it is open the wheel and the spin counts hide with the rest of the column, so a card shorter than
+-- the column (no group gift) never floats over half a wheel.
+local function setSocialShown(card: Frame, show: boolean)
+	card.Visible = show
+	local holder, free, banked = wheelHolder, freeLabel, bankedLabel
+	if holder then
+		holder.Visible = not show
+	end
+	if free then
+		free.Visible = not show
+	end
+	if banked then
+		banked.Visible = not show
+	end
 end
 
 -- Build ----------------------------------------------------------------------
@@ -1160,7 +1172,7 @@ local function build()
 		size = UDim2.fromScale(MID_W, HEADING_H),
 		zIndex = Builder.blockTop(body),
 	})
-	buildWheel(body)
+	wheelHolder = buildWheel(body)
 	freeLabel = Builder.label({
 		parent = body,
 		name = "FreeSpins",
@@ -1199,7 +1211,7 @@ local function build()
 		setButtonText(button, if listFrame.Visible then Strings.SPIN_ODDS_HIDE else Strings.SPIN_ODDS_SHOW)
 		local card = socialCard
 		if card and listFrame.Visible then
-			card.Visible = false -- one card over the wheel at a time
+			setSocialShown(card, false) -- one card over the wheel at a time
 			local opener = socialButton
 			if opener then
 				setButtonText(opener, Strings.GIFTS_GROUP_FRIENDS)
@@ -1224,7 +1236,7 @@ local function build()
 		hit = true,
 		zIndex = Builder.blockTop(body),
 	}, function()
-		card.Visible = not card.Visible
+		setSocialShown(card, not card.Visible)
 		setButtonText(opener, if card.Visible then Strings.GIFTS_SOCIAL_BACK else Strings.GIFTS_GROUP_FRIENDS)
 		if card.Visible then
 			listFrame.Visible = false -- one card over the wheel at a time
@@ -1261,7 +1273,7 @@ function GiftsScreen.Open()
 	end
 	local card, opener = socialCard, socialButton
 	if card and opener then
-		card.Visible = false
+		setSocialShown(card, false)
 		setButtonText(opener, Strings.GIFTS_GROUP_FRIENDS)
 	end
 	refresh()

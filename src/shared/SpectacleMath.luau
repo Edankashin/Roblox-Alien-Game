@@ -462,6 +462,26 @@ function SpectacleMath.BeaconNear(distance: number): number
 	return smooth((distance - look.BeaconHideStuds) / (look.BeaconNearFadeStuds - look.BeaconHideStuds))
 end
 
+-- How much of a beacon shows with its nearest watcher: the camera, or the avatar the camera follows (a camera a script holds far from the
+-- player would otherwise leave the column whole beside them). `cameraStuds` and `avatarStuds` are along the ground; nil is no such watcher.
+-- The least of the two fades (BeaconNear), 1 when neither is known.
+function SpectacleMath.BeaconNearest(cameraStuds: number?, avatarStuds: number?): number
+	local near = 1
+	if cameraStuds then
+		near = math.min(near, SpectacleMath.BeaconNear(cameraStuds))
+	end
+	if avatarStuds then
+		near = math.min(near, SpectacleMath.BeaconNear(avatarStuds))
+	end
+	return near
+end
+
+-- The beam's transparency from the breathing alpha (BeaconAlpha) and the near fade (BeaconNear): the alpha when near is whole, 1 (gone)
+-- when near is 0, and every step between. 1 is gone.
+function SpectacleMath.BeaconShown(alpha: number, near: number): number
+	return 1 - (1 - alpha) * near
+end
+
 -- Whether an arrival's screen dim (the Cosmic's sky, the Secret's edge vignette) may play at `now`: not while a panel is open, and not
 -- within Look.DimGapSeconds of the last one that did (`lastDimAt`; -math.huge for none).
 function SpectacleMath.DimAllowed(now: number, lastDimAt: number, panelOpen: boolean): boolean

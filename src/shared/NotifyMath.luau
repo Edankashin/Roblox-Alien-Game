@@ -105,6 +105,13 @@ function NotifyMath.NextBanner(queue: { Banner }, now: number, freeAt: number): 
 	return table.remove(queue, 1) :: Banner
 end
 
+-- Where a banner stands: the top slot, or the bottom one while a modal panel is open (the panel owns the top band: header and close).
+-- True when a banner standing at the top (`atTop`) must give way because a panel is open now, whether the panel opened after the
+-- banner drew (it was up first) or the banner was queued behind it.
+function NotifyMath.BannerMustMoveDown(atTop: boolean, panelOpen: boolean): boolean
+	return atTop and panelOpen
+end
+
 -- The toast stack ---------------------------------------------------------------------
 
 export type StackAnswer = "show" | "wait" | "drop"

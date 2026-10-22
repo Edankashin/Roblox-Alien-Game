@@ -35,6 +35,7 @@ local RadarTiers = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local RadarMath = require(Shared:WaitForChild("RadarMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local HudStages = require(Shared:WaitForChild("HudStages"))
 local Builder = require(script.Parent.Builder)
 local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local State = require(script.Parent.Parent.State)
@@ -103,6 +104,7 @@ local nearDistance: { number } = {} -- the nearest-first list RadarMath.Offer ke
 local nearPart: { Part } = {}
 local tier = 0 -- the radar tier the server says the player holds (SetTier); 0 shows nothing
 local visible = true -- the bootstrap's SetVisible: captures, reveals and open panels hide the HUD extras
+local stageShown = false -- the staged reveal (SetStage): hidden until the tutorial has earned the column, whatever radar the account owns
 local shown = false
 local pulseLook = false -- whether the head is dressed for a Scanner Pulse
 
@@ -330,7 +332,7 @@ end
 -- Ticking ----------------------------------------------------------------------
 
 local function wantShown(): boolean
-	if not visible or not gui then
+	if not visible or not stageShown or not gui then
 		return false
 	end
 	return RadarMath.Slots(tierRow().slots, WildRenderer.ScannerPulseActive(), pulseSlots) > 0
@@ -463,6 +465,13 @@ function RadarColumn.SetTier(next: number)
 			Builder.pop(chip, 1.15) -- the chip, not the holder: a scale on the holder would move the layout
 		end
 	end
+end
+
+-- The staged reveal (HudStages "Radar"): UI/TutorialHint calls this with the server's tutorial step on each change. A new player with
+-- Radar Mk1 already owned (the Explorer Pack) sees no column until the stage the data names; a finished tutorial shows it at once.
+function RadarColumn.SetStage(step: number)
+	stageShown = HudStages.Shown("Radar", step, HudStages.IsDone(step))
+	applyShown()
 end
 
 -- The bootstrap hides the column during a capture, a reveal or an open panel, like the other HUD extras.

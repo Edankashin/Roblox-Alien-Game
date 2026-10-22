@@ -328,7 +328,7 @@ return {
 	MENU_Friends = "Invite friends", -- a Menu row: the invite sheet (the Friend Boost chip shows only once a friend has joined)
 	MENU_GLYPH_Friends = "&",
 	-- weekly leaderboard (data/Leaderboard)
-	LB_TITLE = "Top catchers this week",
+	LB_TITLE = "Top catchers",
 	LB_RESETS = "Resets in %s",
 	LB_ROW = "%d. %s",
 	LB_COUNT = "%d",

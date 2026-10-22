@@ -1687,7 +1687,7 @@ local function start(profile: Types.Profile)
 				Hud.SetEventCountdown(nil)
 				return
 			end
-			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeLeftText(shower.secondsLeft - elapsed)), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)), "Shower")
+			Hud.SetEventBanner(Strings.SHOWER_NOW, Strings.SHOWER_LEFT:format(timeLeftText(shower.secondsLeft - elapsed)), Strings.SHOWER_LUCK:format(("%.1f"):format(math.floor(State.GetLuck() * 10 + 0.5) / 10)), "Shower", true)
 			Hud.SetEventCountdown(nil)
 			if not showerWasActive then
 				Builder.playSound(Sounds.ShowerHorn)
@@ -1726,7 +1726,7 @@ local function start(profile: Types.Profile)
 			end
 			local top = if rushState.rows[1] then rushState.rows[1].catches else 0
 			-- no icon for the rush yet: the banner shows its placeholder square
-			Hud.SetEventBanner(Strings.RUSH_NOW, Strings.RUSH_LEFT:format(timeLeftText(rushState.secondsLeft - rushElapsed)), Strings.RUSH_SCORE:format(own, top), nil)
+			Hud.SetEventBanner(Strings.RUSH_NOW, Strings.RUSH_LEFT:format(timeLeftText(rushState.secondsLeft - rushElapsed)), Strings.RUSH_SCORE:format(own, top), nil, true)
 		elseif luckState and luckState.secondsLeft - luckElapsed > 0 then
 			local timeText = timeLeftText(luckState.secondsLeft - luckElapsed)
 			local multiplier = ("%d"):format(1 + luckState.bonus)
@@ -2073,6 +2073,7 @@ local function start(profile: Types.Profile)
 		RadarColumn.SetVisible(not modalOpen() and not cinematic)
 		setChatShown(not modalOpen() and not Hud.IsMenuOpen()) -- the Menu drop-down's lower rows sit under it too
 		MusicDirector.SetMenuOpen(Screens.IsAnyOpen()) -- a panel lowers the bed
+		Toast.SyncPanel() -- a banner already up when a panel opens drops to the bottom slot, off the panel's header
 		Toast.SetTop(if Screens.IsAnyOpen() then TOAST_TOP_WITH_PANEL else nil) -- the centre column is gone (the event chip carries events): the stack starts at its default under the banner's slot
 	end)
 

@@ -56,6 +56,7 @@ local HudStages = {
 	PlaceChip = "T4",
 	EventChip = "T7",
 	Landmarks = "T7", -- the compass's cave, shrine and vent diamonds
+	Radar = "T7", -- the radar column (Radar Mk1 from the Explorer Pack included): the spec names no earlier stage, so it waits for the end of the tutorial
 }
 
 return { Steps = Steps, World = World, Script = Script, HudStages = HudStages }

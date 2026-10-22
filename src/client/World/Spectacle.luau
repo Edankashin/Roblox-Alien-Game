@@ -426,16 +426,31 @@ local function stepBeacon(record: Record, now: number, still: boolean)
 	end
 	-- Close to the camera the column would fill the screen with light: it fades out between Look.BeaconNearFadeStuds and BeaconHideStuds
 	-- (measured along the ground) and is gone inside the second.
+	-- It stands where the alien stands now (its leash walk included), and fades by the nearer of the camera and the avatar.
+	local feet = feetOf(record)
 	local camera = Workspace.CurrentCamera
-	local near = 1
+	local cameraStuds: number? = nil
 	if camera then
-		local offset = record.home - camera.CFrame.Position
-		near = SpectacleMath.BeaconNear(Vector3.new(offset.X, 0, offset.Z).Magnitude)
+		local offset = feet - camera.CFrame.Position
+		cameraStuds = Vector3.new(offset.X, 0, offset.Z).Magnitude
 	end
+	local avatarStuds: number? = nil
+	local at = rootAt
+	if at then
+		local offset = feet - at
+		avatarStuds = Vector3.new(offset.X, 0, offset.Z).Magnitude
+	end
+	local near = SpectacleMath.BeaconNearest(cameraStuds, avatarStuds)
+	beacon.part.CFrame = CFrame.new(feet)
 	beacon.beam.Enabled = record.beaconWanted and record.visible and not record.veiled and near > 0
 	-- the top fades out, so the column reads as light rising rather than a pole
-	local shown = 1 - (1 - alpha) * near
+	local shown = SpectacleMath.BeaconShown(alpha, near)
 	beacon.beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, shown), NumberSequenceKeypoint.new(1, 1) })
+	-- Readable from a Studio check (which beacon this is, how far its watchers stand, how much of it shows), one beacon part per alien.
+	beacon.part:SetAttribute("Species", record.species)
+	beacon.part:SetAttribute("NearFade", near)
+	beacon.part:SetAttribute("CameraStuds", cameraStuds)
+	beacon.part:SetAttribute("AvatarStuds", avatarStuds)
 end
 
 -- Presence --------------------------------------------------------------------------

@@ -55,14 +55,18 @@ end
 
 export type EventSlot = "banner" | "countdown" | "luck"
 
--- Which of the three event sources the one chip shows, highest first: a running event, server luck or the weekly or seasonal event
--- (all of them the "banner" the bootstrap feeds Hud.SetEventBanner), a countdown to a Rush or a shower, luck that is not x1.0. Nothing
--- when none holds: the chip is gone, not dimmed.
-function HudStages.EventSlot(hasBanner: boolean, hasCountdown: boolean, luckShown: boolean): EventSlot?
-	if hasBanner then
+-- Which of the sources the one chip shows, highest first: a Rush or a Shower that is running now (the "banner" the bootstrap feeds
+-- Hud.SetEventBanner with `bannerLive` true), a countdown to a Rush or a shower (the player can join in seconds), then the banner of a
+-- standing state (server luck, the seasonal or the weekly event: it lasts minutes to days, so an imminent Rush outranks it, the Mac's
+-- job 65 finding), then luck that is not x1.0. Nothing when none holds: the chip is gone, not dimmed. The countdown is only ever fed
+-- inside its warning window, so it never hides a state for long.
+function HudStages.EventSlot(hasBanner: boolean, bannerLive: boolean, hasCountdown: boolean, luckShown: boolean): EventSlot?
+	if hasBanner and bannerLive then
 		return "banner"
 	elseif hasCountdown then
 		return "countdown"
+	elseif hasBanner then
+		return "banner"
 	elseif luckShown then
 		return "luck"
 	end
