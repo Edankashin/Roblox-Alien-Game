@@ -676,7 +676,18 @@ local function buildSlot(parent: Frame, index: number, width: number, profile: T
 		nameLabel.TextScaled = false
 		nameLabel.TextWrapped = false
 		nameLabel.TextSize = Theme.TextSize.Min
-		nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+		-- A name that does not fit whole at the floor is hidden rather than cut to "M..." (six slots at the default window,
+		-- Studio 2026-10-22): the square's species colour still says who works there.
+		nameLabel.TextTruncate = Enum.TextTruncate.None
+		local function fit()
+			nameLabel.TextTransparency = if nameLabel.TextFits then 0 else 1
+			local outline = nameLabel:FindFirstChildOfClass("UIStroke")
+			if outline then
+				outline.Enabled = nameLabel.TextFits
+			end
+		end
+		nameLabel:GetPropertyChangedSignal("TextFits"):Connect(fit)
+		fit()
 	end
 end
 
