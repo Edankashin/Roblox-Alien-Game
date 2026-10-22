@@ -396,6 +396,43 @@ describe("Block screens: Aliens", function()
 	end
 end)
 
+describe("Aliens slot names", function()
+	-- AliensScreen.luau buildStationCard / buildSlot (Studio 2026-10-22: "Moo" for Moop, "Ope" for Open). The strip is the panel
+	-- less two 0.02 margins and 0.23 of its height; a station card (1 - 0.02 (jobs - 1)) / jobs of it; the slot row SLOTS_W 0.96
+	-- of the card and 0.44 of its height; a slot (1 - 0.02 (n - 1)) / n of the row, its name one line across the slot's pitch
+	-- (its width and the gap) on the row's lower 1 - SLOT_SQUARE_H (0.5). Widths at the 14 px floor in Fredoka One
+	-- (assets/fonts/FredokaOne.ttf): the open slot's "Open" (Strings.STATION_EMPTY_SLOT), the Moop, and Boulden, the longest
+	-- species name in data/Species. A name wider than its label ends in an ellipsis (TextTruncate), never a cut second line.
+	local OPEN_PX, MOOP_PX, LONGEST_PX = 35.5, 37.1, 55.4
+	local GAP, SLOTS_W, SQUARE_H = 0.02, 0.96, 0.5
+	local function slotLabel(screen: { w: number, h: number }, jobs: number, slots: number): (number, number)
+		local w, h = BlockMath.FitPx(0.8, 0.78, 1.35, screen.w, screen.h)
+		local strip = (1 - 2 * 0.02) * w
+		local card = (1 - GAP * (jobs - 1)) / jobs * strip
+		local row = SLOTS_W * card
+		local slot = (1 - GAP * (slots - 1)) / slots
+		return (slot + GAP) * row, (1 - SQUARE_H) * 0.44 * 0.23 * h
+	end
+	it("iPhone SE, three stations of three slots: Open and Moop fit whole on one line at the floor", function()
+		local width, height = slotLabel(SE, 3, 3)
+		assert(width >= MOOP_PX + 2 and width >= OPEN_PX + 2, "slot label is " .. width .. " px")
+		assert(height >= TEXT_MIN, "slot label is " .. height .. " px tall")
+	end)
+	it("iPad: every species name fits whole, three slots or the bonus fourth", function()
+		for _, slots in ipairs({ 3, 4 }) do
+			local width, height = slotLabel(IPAD, 3, slots)
+			assert(width >= LONGEST_PX + 2, slots .. " slots: label is " .. width .. " px")
+			assert(height >= TEXT_MIN, "slot label is " .. height .. " px tall")
+		end
+	end)
+	it("the label is wider than the old one (the slot alone, in a 0.92 row)", function()
+		local width = slotLabel(SE, 3, 3)
+		local w = BlockMath.FitPx(0.8, 0.78, 1.35, SE.w, SE.h)
+		local old = 0.32 * 0.92 * 0.32 * (1 - 2 * 0.02) * w
+		assert(width > old * 1.1, "no wider: " .. width .. " against " .. old)
+	end)
+end)
+
 describe("Block screens: Quests", function()
 	-- QuestsScreen.luau: the Aliens panel's shell (0.8 x 0.78 at 1.35); the What's on band 0.96 x 0.106 of the panel, a fitted plate
 	-- in cells, rows from its screen height; a tab 0.12 of the panel tall, a fitted block button.

@@ -132,6 +132,13 @@ local RIDE_H = 0.18
 local CARD_ROWS = 10 -- an alien card is an edged block this many cells tall (about 7.5 px cells on an iPhone SE card of 83 px)
 local SQUARE_ROWS = 3 -- the shape square, a slot square and a chip: flat blocks of the fewest rows a stepped corner takes
 local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (the strip is 0.18 of the screen)
+-- A station card's slot row (UI Playbook "Aliens slot names"): the row is SLOTS_W of the card from SLOTS_X; a slot's square is
+-- SLOT_SQUARE_H of the row and its name the rest, one line at the 14 px floor across the slot's whole pitch (its width and the
+-- gap), so "Moop" and "Open" fit whole with three slots at iPhone SE (39.6 px of label, tests/BlockMath.spec.luau "Aliens slot
+-- names") and a longer name ends in an ellipsis instead of wrapping into a cut second line ("Moo", Studio 2026-10-22).
+local SLOTS_X = 0.02
+local SLOTS_W = 0.96
+local SLOT_SQUARE_H = 0.5
 local PANEL_H = 0.78 -- the panel's height, of the screen (its rows come from it, at the panel cell)
 local PANEL_ASPECT = 1.35
 
@@ -600,7 +607,7 @@ local function buildSlot(parent: Frame, index: number, width: number, profile: T
 		rows = SQUARE_ROWS,
 		cells = false,
 		position = UDim2.fromScale(0.5, 0),
-		size = UDim2.fromScale(1, 0.62),
+		size = UDim2.fromScale(1, SLOT_SQUARE_H),
 		anchor = Vector2.new(0.5, 0),
 		zIndex = 4,
 	}
@@ -617,16 +624,22 @@ local function buildSlot(parent: Frame, index: number, width: number, profile: T
 	end
 	Builder.blockPlate(square)
 	if label then
-		Builder.label({
+		-- One line at the floor across the slot's pitch (its own width and the gap, so neighbours meet and never overlap); a
+		-- name wider than that ends in an ellipsis rather than wrapping into a second line the row cuts off.
+		local nameLabel = Builder.label({
 			parent = cell,
 			name = "Name",
 			text = label,
 			textSize = Theme.TextSize.Min,
-			position = UDim2.fromScale(0.5, 0.66),
-			size = UDim2.fromScale(1, 0.34),
+			position = UDim2.fromScale(0.5, SLOT_SQUARE_H),
+			size = UDim2.fromScale((width + STRIP_GAP) / width, 1 - SLOT_SQUARE_H),
 			anchor = Vector2.new(0.5, 0),
 			zIndex = 5,
 		})
+		nameLabel.TextScaled = false
+		nameLabel.TextWrapped = false
+		nameLabel.TextSize = Theme.TextSize.Min
+		nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
 	end
 end
 
@@ -695,8 +708,8 @@ local function buildStationCard(parent: Frame, index: number, width: number, job
 	local slots = Builder.frame({
 		parent = card,
 		name = "Slots",
-		position = UDim2.fromScale(0.04, 0.52),
-		size = UDim2.fromScale(0.92, 0.44),
+		position = UDim2.fromScale(SLOTS_X, 0.52),
+		size = UDim2.fromScale(SLOTS_W, 0.44),
 		zIndex = cardTop,
 	})
 	local layout = Instance.new("UIListLayout")
