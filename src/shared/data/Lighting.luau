@@ -190,8 +190,8 @@ local BiomeConditions: { [string]: ConditionLooks } = {
 		Night = {
 			-- Violet in the shade, teal-blue from the sky, a lift of exposure on top: the trees keep their blue-violet and teal and the
 			-- ground its moss, lit from the lanterns' warm pools (Lamps below), never one dark navy (job 53 step 5).
-			Ambient = { 108, 100, 164 },
-			OutdoorAmbient = { 116, 140, 196 },
+			Ambient = { 120, 114, 156 },
+			OutdoorAmbient = { 124, 146, 182 },
 			ColorShift_Top = { 50, 64, 120 },
 			ExposureCompensation = 0.4,
 			-- Denser, more violet fog with a higher Offset, its decay teal so the horizon glows teal under the violet: the far trees
