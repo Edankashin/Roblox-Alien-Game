@@ -1208,10 +1208,11 @@ function Builder.blockBar(plate: Frame, color: Color3): (number) -> ()
 	return set
 end
 
--- A pixel icon from data/PixelIcons (an 8 by 8 drawing) as frames in a square holder, or nil (nothing created) when the key has
+-- A pixel icon from data/PixelIcons (an 8 by 8 drawing, or the finer grid its key names) as frames in a square holder, or nil (nothing created) when the key has
 -- none. The holder keeps a 1:1 aspect inside the size given; nothing in it takes taps.
 function Builder.pixelIcon(props: IconProps): Frame?
-	local pixels = PixelIcons.Icons[props.key] or PixelIcons.Icons[Icons.Aliases[props.key] or ""]
+	local key = if PixelIcons.Icons[props.key] then props.key else Icons.Aliases[props.key] or ""
+	local pixels = PixelIcons.Icons[key]
 	if not pixels then
 		return nil
 	end
@@ -1224,17 +1225,17 @@ function Builder.pixelIcon(props: IconProps): Frame?
 		zIndex = z,
 		aspect = 1,
 	})
-	local grid = Theme.Block.PixelGrid
+	local grid = PixelIcons.GridOf(key) -- 8 by 8 unless the icon names a finer grid (the Menu's 16 by 16 icons)
 	local colors: { [string]: Color3 } = Theme.Colors
 	for index, pixel in ipairs(pixels) do
-		local key = pixel[5] :: string
+		local colorKey = pixel[5] :: string
 		local rect: BlockMath.Rect = {
 			x = (pixel[1] :: number) / grid,
 			y = (pixel[2] :: number) / grid,
 			w = (pixel[3] :: number) / grid,
 			h = (pixel[4] :: number) / grid,
 		}
-		rectFrame(holder, "Pixel", rect, colors[key] or Theme.Hex(key), 0, z + index)
+		rectFrame(holder, "Pixel", rect, colors[colorKey] or Theme.Hex(colorKey), 0, z + index)
 	end
 	holder.Parent = props.parent
 	return holder

@@ -78,6 +78,11 @@ class BlockTheme(unittest.TestCase):
         self.assertEqual(self.block["Seed"], 44)
         self.assertEqual(self.block["Grout"], 1 / 8)
         self.assertEqual(self.block["PixelGrid"], 8)
+        # data/PixelIcons.DefaultGrid is the same number (the headless spec cannot require Theme); the Menu's icons name 16 in Grids.
+        icons = (ROOT / "src/shared/data/PixelIcons.luau").read_text()
+        default = re.search(r"PixelIcons\.DefaultGrid = (\d+)", icons)
+        self.assertTrue(default, "PixelIcons.DefaultGrid moved")
+        self.assertEqual(int(default[1]), self.block["PixelGrid"])
         for key in ("GroutAlpha", "TopAlpha", "EdgeAlpha", "JitterAlpha"):
             self.assertTrue(0 < self.block[key] < 1, key)
 
