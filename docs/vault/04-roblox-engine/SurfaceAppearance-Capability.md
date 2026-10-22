@@ -26,3 +26,9 @@ New texture row, or new ids after an upload: edit `Textures.luau`, run `--write`
 
 - A hand-installed model in a Studio place does not get surfaces at all (the installer does not apply them), so this concerns the runtime loader only.
 - Fabric darkens saturated warm colours: Sparkfox's `FF6B35` read as a dark maroon in daylight, so its Body is SmoothPlastic now. `python3 -I tools/fabric_audit.py` lists the other slots on Fabric, Grass, Slate or Sand with a luminance and flags the warm mid-light ones for a look in Studio; it changes nothing ([[Surface-Pass]]).
+
+## CollisionFidelity is not script-writable either (2026-10-22)
+
+`MeshPart.CollisionFidelity` set from a game Script fails with `The current thread cannot write 'CollisionFidelity' (lacking capability PluginOrOpenCloud)`. A runtime-loaded mesh keeps the fidelity it was uploaded or installed with; only an Edit-mode plugin (the installer, the command bar) or Open Cloud can change it. `Shared/Props.Place` skips a match and warns once instead of throwing (it used to kill `Meadow.Init`, so no world was built).
+
+The FBX import also gives a glow part a SurfaceAppearance whose EmissiveMap names a texture the upload never carried (`rbxassetid://3`, `5`, `6`...), which errors on every load (`Unable to load ... EmissiveMap 'rbxassetid://3'`). Neon draws without it, so `Services/Models` and the installer destroy it on Neon parts. A script can destroy a SurfaceAppearance; it cannot make one.
