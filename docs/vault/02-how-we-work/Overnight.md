@@ -22,6 +22,18 @@ Ethan approved on 2026-10-14, before sleeping: (A) create the six shop items thr
 - Memory: run `tools/mac_memory.sh` first and keep `tools/mac_memory.sh --watch` running in the background all night; one Studio process at all times. A `WARN:` line or notification means close the extra Studio windows (Don't Save, never force-quit) before the next job ([[Setup-and-Tips]], "Memory on the Mac").
 - **Never force-quit Studio** (`kill -9` dropped the saved sign-in on 2026-10-14 and only Ethan can sign in again). To rebuild after a pull that changed `src/`: stop Play, leave the old window open, `open build/world1.rbxl` again and use the new `studio_id`; or skip the rebuild and note which commit the window runs. If Studio is signed out, do every job that needs no Studio (6, 7, the web half of 5) and write the rest as blocked.
 
+## Launch queue (2026-10-22 evening): run these, in this order, and nothing else
+
+Ethan chose no device emulator (his phone playtest covers phone sizes), so every Studio step runs at the default window; the iPhone SE and iPad steps of the older jobs are dropped. Ethan approves any 3D Importer import these jobs need (B47).
+
+1. **Job 67**: the clean UI fixes (default window).
+2. **Job 46**: the pre-launch audit's Studio checks with Test > Clients and Servers, 2 players (exploit attempts, test purchases, the save lock, the shutdown save). The last safety check before players.
+3. **Job 47**: the loading screen and the home place in block cells (default window).
+4. **Job 43**: walk World 1 and World 2 end to end with the Starhollow Forest, default window, with the F9 frame time.
+5. **Publish**: `python3 -I tools/publish.py --dry-run`, then Ethan runs `! python3 -I tools/publish.py --apply` himself (the Mac's permission check blocks it). Private only; Public is Ethan's own click on launch morning.
+
+Superseded (do not run): 28 to 33, 36 to 38, 42, 44, 45, 48, 49, 53. Their checks were covered by jobs 54 to 66 at the default window, by the B52 radar and B53 menu, and by the clean UI pass, or they need the emulator.
+
 ## Jobs (tick `[x]` done, `[b]` blocked with the reason in the log)
 
 - [x] **0. Setup.** `cd ~/Roblox-Alien-Game && git pull --rebase origin claude/alien-system-research`; `export PATH=$HOME/.rokit/bin:$HOME/.local/bin:$PATH`; `caffeinate -dims &`; `./tools/analyze.sh` prints `analyze: clean`; `./tools/test.sh` passes (305). `mkdir -p build && rojo build default.project.json -o build/world1.rbxl && open build/world1.rbxl`. Wait for Studio, then `list_roblox_studios` shows it. Log the Studio version.

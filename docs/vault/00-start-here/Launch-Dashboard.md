@@ -9,42 +9,26 @@ up: "[[Start-Here]]"
 
 One screen for Ethan. Written 2026-10-15 (Thursday) from [[Board]], the logs and the notes linked below; the Board is the live list, this is the picture. Launch week opens **Friday 2026-10-16**: the LaunchGold overlay and the Haunted Nebula event start then, and the experience is still private.
 
-## Launch week (B49, set 2026-10-21)
+## Launch week (B49, set 2026-10-21; updated 2026-10-22 evening)
 
-Ethan: "I want to be able to launch this game by this week." The order matters: art lands, the Mac uploads and checks it in Studio, the coordinator fixes what the Mac finds, the Mac publishes the private places, Ethan plays on his phone, then launch morning.
+Ethan: "I want to be able to launch this game by this week."
 
-**Cloud (the coordinator and its workers; no action from Ethan)**
-- [ ] Rare aliens 1000x pass, both worlds (running) and the crash wreck and camp (running)
-- [x] Pre-launch audit: server authority, saves, purchases and receipts, PolicyService for paid random items, the 14 px text floor, error paths on a cold server, analytics funnel; fix what it finds ([[Prelaunch-Audit]]: 6 fixes; Mac job 46)
-- [ ] Launch polish: the loading screen and the home place in block cells (the nine missing home props), sound hooks pointed at existing ids where we have them
-- [ ] New store icon and thumbnails in the block-cell look (after the rare pass), the description updated (Starhollow Forest, the new aliens)
-- [ ] Phone performance pass on the generated worlds if the Mac's job 43 shows a cost
-- [ ] Fix everything the Mac's Studio jobs report, the same day
-- [x] TikTok batch 9, the before-launch lessons (`media/tiktok/NOTES.md` "Batch 9"): a tap on a Scrap price you cannot pay says "Need N more Scrap"; the Starter Pack stands on the HUD as a top button until bought; a bought Server Luck names its buyer in chat too, and a repeat buyer is named; payer-conversion benchmarks in [[Growth-Playbook]] section 7. The Studio check is [[TESTING]] "TikTok batch 9" (a Mac job to number)
-- [x] TikTok batch 9, after Ethan's answers ([[Decisions]] B51): Scanner Pulse x1 at 9 Robux on the Boosts shelf (hidden until the Mac creates it), the "Earn faster" chip on "Need N more Scrap" opening the Boosts shelf at Scrap Magnet, Server Luck x4 at 599 in data and `tools/create_products.py --prices` to change the live price. The Mac job in [[Overnight]] creates the product, updates the price and runs the Studio check ([[TESTING]] "Ethan's shop answers")
+**Done today (cloud and Mac)**
+- [x] Rare aliens pass, camp and wreck, Starhollow Forest, 72 block-cell props, all 107 models uploaded and installed; the runtime loader proved (Mac job 60)
+- [x] Pre-launch audit in code; TikTok batch 9 and Ethan's shop answers (B51; Scanner Pulse x1 created at 9 Robux; Server Luck x4 stays 999, the Shop shows live prices)
+- [x] Night look, lanterns, Storage Bay tap (the chat window), Aliens and Shop layout fixes
+- [x] B52: the radar is a silhouette column, no map; B53: Shop + gold Starter Pack + Menu drop-down, icons that say what they do
+- [x] The clean UI pass ([[Clean-UI-Pass]]): quiet HUD, staged tutorial HUD, notification budget, calm panels; Mac jobs 63 to 66 run, their findings fixed
+
+**Left before launch**
+- [ ] Mac: the Launch queue in [[Overnight]] (jobs 67, 46, 47, 43), then the private publish
+- [ ] Ethan: run `tools/publish.py --apply` on the Mac ([[Launch-Steps]]), then ten minutes on his phone
+- [ ] Cloud: fix what the Mac and the phone playtest find, the same day
+- [ ] Ethan, launch morning: store page (icon A, thumbs S3, 2, 1), rename to Catch an Alien, questionnaire, Public ([[STORE-PAGE]] section 5)
 
 **Week two (after launch)**
 - [ ] The paid-only prize wheel ([[Decisions]] B50), then the three spin products back on sale
-- [ ] The Scrap ladder ([[Decisions]] B51, [[Decide-Now]] 49a), once the first week's payer numbers are in: three passes on catch Scrap only, +25% at 49, +25% more at 149, +50% more at 399, capped at x2, each shown once the one before is owned (`docs/GAME_DESIGN.md` section 14). Three rows in `data/Shop.luau`, the multiplier read where a catch pays Scrap, a spec of the cap, the passes created on the Mac
-
-**Mac session (Ethan starts it: "pull and run the jobs in Overnight.md in order")**
-- [ ] Job 41: download the three TikToks (batch 9)
-- [ ] Job 40: the one-command upload (`tools/finalize_upload.sh`), then commit the ids; moderation can take hours
-- [ ] Jobs 36 to 39 and 42 to 46: the Studio checks of the HUD, screens, reveal, models, spectacle, worlds, props, Starhollow and camp
-- [ ] Job 56: create Scanner Pulse x1 and set Server Luck x4 to 599 with `tools/create_products.py` ([[Decisions]] B51), then the Studio check of the Earn faster chip and the new card; if the key is refused, [[Launch-Steps]] step 3b
-- [ ] Publish the private places from the repo (`tools/publish.py`) once the checks pass
-
-**Only Ethan** (step by step in [[Launch-Steps]])
-- [ ] Tell the Mac session to run the jobs (or approve the card that lets the coordinator message it)
-- [ ] Check the Open Cloud key has the Assets API and `universe-places:write` for this experience
-- [x] The five shop rows without ids (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock): no feature grants them yet, so they stay hidden at launch; nothing to create
-- [x] ~~Create the five missing shop products~~ Skip them: DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock have no feature yet, are not on the shelf, and the server will not sell one even with an id ([[Prelaunch-Audit]] finding 6)
-- [ ] Decide the paid spins: they spin the free wheel, which pays Scrap, a Lucky Charm and a Double Shift, all three "never sold" ([[Prelaunch-Audit]] finding 7: a paid wheel without them, accept it, or hide the spins at launch)
-- [ ] Pick the icon and thumbnails from the new set
-- [x] [[Decide-Now]] 47 to 50, the batch 9 money questions (answered 2026-10-22: b, c, a, a): an offer under 10 Robux, keep Scrap unsold when a player is short, a stacking multiplier after launch week, Server Luck x4 made the better deal
-- [ ] Play the private game on your phone for ten minutes and say what feels wrong
-- [ ] Launch morning, about 20 minutes: store page from the run sheet, the Experience Questionnaire, Privacy: Public ([[STORE-PAGE]] section 5)
-- Optional: the group Moop Games (100 Robux), music listen-through, rejoin notifications (decision 20)
+- [ ] The Scrap ladder ([[Decisions]] B51, [[Decide-Now]] 49a), once the first week's payer numbers are in
 
 ## Live now (private)
 
