@@ -103,12 +103,18 @@ describe("HudStages staged reveal", function()
 end)
 
 describe("HudStages event chip", function()
-	it("shows a running event first, then a countdown, then luck, else nothing", function()
-		expect(HudStages.EventSlot(true, true, true)).toEqual("banner")
-		expect(HudStages.EventSlot(false, true, true)).toEqual("countdown")
-		expect(HudStages.EventSlot(false, false, true)).toEqual("luck")
-		expect(HudStages.EventSlot(false, false, false)).toEqual(nil)
-		expect(HudStages.EventSlot(true, false, false)).toEqual("banner")
+	it("shows a running Rush or Shower first, then a countdown, then a standing event, then luck, else nothing", function()
+		expect(HudStages.EventSlot(true, true, true, true)).toEqual("banner") -- a Rush or Shower running now
+		expect(HudStages.EventSlot(true, true, false, true)).toEqual("banner")
+		expect(HudStages.EventSlot(false, false, true, true)).toEqual("countdown")
+		expect(HudStages.EventSlot(false, false, false, true)).toEqual("luck")
+		expect(HudStages.EventSlot(false, false, false, false)).toEqual(nil)
+		expect(HudStages.EventSlot(true, false, false, false)).toEqual("banner")
+	end)
+	it("lets a countdown to a Rush take the chip from server luck, the season and the weekly event (job 65: /rush in 20 under server luck)", function()
+		expect(HudStages.EventSlot(true, false, true, true)).toEqual("countdown") -- a standing banner and a countdown due
+		expect(HudStages.EventSlot(true, false, true, false)).toEqual("countdown")
+		expect(HudStages.EventSlot(true, false, false, true)).toEqual("banner") -- the countdown ended: the standing banner returns
 	end)
 	it("makes one line of the name and the time left", function()
 		local suffix, format = Strings.HUD_EVENT_LEFT, Strings.HUD_EVENT_LINE

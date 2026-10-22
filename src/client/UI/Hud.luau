@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.UI.Hud: the always-on HUD, the quiet one (docs/vault/05-ui-design/Clean-UI-Pass.md, package A). The Scrap
 -- pill top-left (icon + rolling number) with the Scrap-per-minute line under it; the goal plate top centre under the compass strip: the
 -- ship bar (tap opens the ship panel) with, joined under it, the objective line (UI/TutorialHint); the place chip top-right (the biome,
--- then "Day · Rain") with the one event chip under it (a running event, a countdown or luck, by Shared/HudStages.EventSlot; a tap opens
+-- then "Day · Rain") with the one event chip under it (a running Rush or Shower, a countdown, a standing event or luck, by Shared/HudStages.EventSlot; a tap opens
 -- Quests) and the Friend Boost chip under that; and the contextual action button bottom-right that shows "Catch!" near a wild alien.
 -- A dumb view: every value shown is pushed in by the bootstrap from server state; nothing here computes anything that matters.
 -- Three rules keep it quiet. (1) While a panel is open (UI/Screens, polled) everything but the Scrap pill hides, and comes back with no
@@ -95,7 +95,7 @@ local eventChip: Frame? = nil -- the one event chip
 local eventLabel: TextLabel? = nil
 local eventBlock: Frame? = nil -- the green block on its right (the luck multiplier, the Rush score, the overlay)
 local eventBlockLabel: TextLabel? = nil
-local eventBanner: { text: string, subtitle: string?, chip: string? }? = nil -- what SetEventBanner last said, nil when nothing runs
+local eventBanner: { text: string, subtitle: string?, chip: string?, live: boolean }? = nil -- what SetEventBanner last said, nil when nothing runs
 local eventCountdown: string? = nil -- the chip's line while a Rush or a shower is due (SetEventCountdown)
 local luckShown = false -- luck is not exactly x1.0 (MenuMath.LuckShown)
 local luckLine = "" -- "Luck x2.0"
@@ -962,7 +962,7 @@ local function refreshEvent()
 	if not chip or not label or not block or not blockLabel then
 		return
 	end
-	local slot = HudStages.EventSlot(eventBanner ~= nil, eventCountdown ~= nil, luckShown)
+	local slot = HudStages.EventSlot(eventBanner ~= nil, eventBanner ~= nil and eventBanner.live, eventCountdown ~= nil, luckShown)
 	local banner = eventBanner
 	local hasBlock = false
 	if slot == "banner" and banner then
@@ -1188,9 +1188,10 @@ end
 -- The event chip's first source, a running event, server luck, the seasonal or the weekly event: `text` is the event's name (SHOWER_NOW),
 -- `subtitle` the time left under it (SHOWER_LEFT formatted: the chip shows "Meteor Shower 4m 12s", HudStages.EventLine) and `chip` the
 -- green block's text (SHOWER_LUCK formatted); nil text says nothing runs. `iconKey` is kept for the callers that pass one: the chip has
--- no icon (a plate that small reads as words). The bootstrap calls this on its poll.
-function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, _iconKey: string?)
-	eventBanner = if text then { text = text, subtitle = subtitle, chip = chip } else nil
+-- no icon (a plate that small reads as words). `live` is true for a Rush or a Shower running now (it outranks a countdown); server luck,
+-- the season and the weekly event are standing states a countdown to a Rush outranks (HudStages.EventSlot). The bootstrap calls this on its poll.
+function Hud.SetEventBanner(text: string?, subtitle: string?, chip: string?, _iconKey: string?, live: boolean?)
+	eventBanner = if text then { text = text, subtitle = subtitle, chip = chip, live = live == true } else nil
 	refreshEvent()
 end
 
