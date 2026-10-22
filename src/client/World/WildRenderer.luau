@@ -70,6 +70,7 @@ local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local PlateMath = require(Shared:WaitForChild("PlateMath"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -82,6 +83,8 @@ local WildRenderer = {}
 
 local VISUAL_FOLDER = "ClientWild" -- client-made Workspace folder for the mesh clones; nothing in it replicates
 local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and its nameplate
+local PLATE_STUDS_W = 7 -- the nameplate's size in studs at range; near the camera it is scaled down (Shared/PlateMath)
+local PLATE_STUDS_H = 2
 local EVALUATE_SECONDS = 0.25 -- how often the blizzard hide rule is re-judged for every tracked alien
 local BLIZZARD = "Blizzard" -- the condition (the world's special weather) under which the hide rule runs
 local SCANNER_PULSE = "ScannerPulse" -- the power-up id (data/PowerUps) whose buff reveals every alien in the biome
@@ -102,6 +105,7 @@ type Record = {
 	pulseRevealed: boolean, -- the Scanner Pulse covers this alien (or unshadowed it); re-judged when the pulse ends
 	hidden: boolean, -- the blizzard hide rule: out of sight beyond BlizzardHideStuds and outside every Heater
 	plate: BillboardGui,
+	plateScale: number, -- the factor on the plate's stud size now (PlateMath: 1 at range, less with the camera close)
 	nameLabel: TextLabel,
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
 	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
@@ -159,7 +163,7 @@ local function buildPlate(part: Part, name: string, tier: string, topOffset: num
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
-	plate.Size = UDim2.fromScale(7, 2) -- studs
+	plate.Size = UDim2.fromScale(PLATE_STUDS_W, PLATE_STUDS_H) -- studs; scaled down near the camera (clampPlate)
 	plate.StudsOffsetWorldSpace = plateOffset(topOffset)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = false
@@ -624,6 +628,7 @@ local function track(instance: Instance)
 		pulseRevealed = false,
 		hidden = false,
 		plate = plate,
+		plateScale = 1,
 		nameLabel = nameLabel,
 		model = model,
 		modelBase = modelBase,
@@ -778,6 +783,25 @@ local function unwatch(instance: Instance)
 	end
 end
 
+-- Holds a nameplate's height on the screen at Config.NameplateMaxScreenShare as the camera comes close (Shared/PlateMath): a
+-- stud-sized billboard grows as 1 / distance, and within a few studs it covered the screen and its neighbours (Studio
+-- 2026-10-22). Beyond the clamp (about 14 studs at the default field of view) the plate is exactly its stud size, as before.
+-- Writes Size only when the factor moves more than NameplateRescaleStep, and only inside NameplateDistance (it is not drawn
+-- farther).
+local function clampPlate(record: Record, cameraPosition: Vector3, fov: number)
+	local plate = record.plate
+	local distance = (record.part.Position + plate.StudsOffsetWorldSpace - cameraPosition).Magnitude
+	if distance > Config.NameplateDistance then
+		return
+	end
+	local scale = PlateMath.Scale(distance, PLATE_STUDS_H, fov, Config.NameplateMaxScreenShare, Config.NameplateMinScale)
+	if math.abs(scale / record.plateScale - 1) <= Config.NameplateRescaleStep and (scale < 1 or record.plateScale == 1) then
+		return
+	end
+	record.plateScale = scale
+	plate.Size = UDim2.fromScale(PLATE_STUDS_W * scale, PLATE_STUDS_H * scale)
+end
+
 local function onRender()
 	local now = os.clock()
 	local at = rootPosition()
@@ -785,6 +809,9 @@ local function onRender()
 	if now - lastEvaluate >= EVALUATE_SECONDS then
 		evaluate()
 	end
+	local camera = Workspace.CurrentCamera
+	local cameraPosition = if camera then camera.CFrame.Position else nil
+	local fov = if camera then camera.FieldOfView else 0 -- read only with a camera
 	local cullSquared = Config.SpawnCullDistance * Config.SpawnCullDistance
 	for part, record in pairs(records) do
 		if not part.Parent then
@@ -810,6 +837,9 @@ local function onRender()
 		end
 		if at and record.shadowed and (position - at).Magnitude <= Config.ShadowRevealDistance then
 			reveal(record)
+		end
+		if cameraPosition then
+			clampPlate(record, cameraPosition, fov)
 		end
 	end
 end

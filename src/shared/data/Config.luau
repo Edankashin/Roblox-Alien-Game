@@ -101,6 +101,9 @@ return {
 	SpawnTickSeconds = 1,
 	ShadowRevealDistance = 40,
 	NameplateDistance = 60, -- nameplates render inside this
+	NameplateMaxScreenShare = 0.1, -- a wild nameplate is never taller than this share of the screen (Shared/PlateMath; it grew huge within a few studs, Studio 2026-10-22)
+	NameplateMinScale = 0.05, -- the least its stud size is scaled to, with the camera nearly inside it
+	NameplateRescaleStep = 0.02, -- a plate's size is rewritten only when its scale moves more than this (relative)
 	RadarRefreshSeconds = 0.1, -- the minimap re-places its blips this often
 	RadarWaypointArriveStuds = 8, -- a blip's waypoint clears once the player is this close
 
