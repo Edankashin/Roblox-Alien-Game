@@ -1495,6 +1495,7 @@ local function build()
 		color = Theme.Colors.Panel,
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.555), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),

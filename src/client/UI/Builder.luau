@@ -120,6 +120,8 @@ export type BlockProps = {
 	zIndex: number?,
 	seed: number?, -- the jitter hash's seed (Theme.Block.Seed by default); a neighbour can take another so two plates differ
 	ink: Color3?, -- the border colour (the navy Outline by default)
+	quiet: boolean?, -- a modal panel's body (Clean UI pass, package C): the cells without the noise, the grout at Theme.Block.QuietGroutAlpha
+	-- and no jittered cells, so the cream face reads as one surface behind text. The lit top row and the shaded edges stay.
 }
 
 export type IconProps = {
@@ -864,6 +866,7 @@ local BLOCK_COLS = "BlockCols"
 local BLOCK_COLOR = "BlockColor" -- the face colour now (setBlockColor moves it), which a fitted plate's redraw keeps
 local BLOCK_INK = "BlockInk" -- and the ink colour (setBlockInk)
 local BLOCK_FADE = "BlockFade" -- and the fade (setBlockFade)
+local BLOCK_QUIET = "BlockQuiet" -- and whether it is a quiet panel face (BlockProps.quiet)
 local FIT_RESHAPE = 0.01 -- a fitted plate whose aspect moves more than this (not a uniform scale) picks its rows again
 local BLOCK_ICON_SCALE = 0.8 -- a block button's icon, as a fraction of its face's padded box (about 0.6 of the face's height)
 local BLOCK_TEXT_PAD_X = 0.5 -- a block button's text keeps this many cells clear of the ink at each side
@@ -938,7 +941,7 @@ end
 -- top row and the shaded side and bottom cells (three cells or more both ways), the grout on every cell and the jittered cells.
 -- The face, the ink and the fade come from the plate's attributes (setBlockColor, setBlockInk and setBlockFade keep them), so a
 -- redraw keeps a recolour.
-local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edges: boolean, seed: number)
+local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edges: boolean, seed: number, quiet: boolean)
 	local old = drawnParts[plate]
 	if old then
 		for _, part in ipairs(old) do
@@ -978,11 +981,13 @@ local function drawGrid(plate: Frame, grid: BlockMath.Grid, cells: boolean, edge
 	end
 	if cells then
 		for _, rect in ipairs(BlockMath.GroutCached(grid, Theme.Block.Grout)) do
-			add("Grout", rect, Theme.Colors.Black, Theme.Block.GroutAlpha, layers.Cells)
+			add("Grout", rect, Theme.Colors.Black, if quiet then Theme.Block.QuietGroutAlpha else Theme.Block.GroutAlpha, layers.Cells)
 		end
-		for _, cell in ipairs(BlockMath.JitteredCached(grid, seed)) do
-			local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
-			add("Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, layers.Cells)
+		if not quiet then -- a quiet panel face has no jitter: one cream surface in cells, not graph paper
+			for _, cell in ipairs(BlockMath.JitteredCached(grid, seed)) do
+				local shade = if cell.level > 0 then Theme.Colors.White else Theme.Colors.Black
+				add("Jitter", BlockMath.Cell(grid, cell.col, cell.row), shade, Theme.Block.JitterAlpha, layers.Cells)
+			end
 		end
 	end
 	plate:SetAttribute(BLOCK_ROWS, grid.rows)
@@ -1112,9 +1117,11 @@ function Builder.blockPlate(props: BlockProps): Frame
 	local cells = props.cells ~= false
 	local edges = props.edges == true
 	local seed = props.seed or Theme.Block.Seed
+	local quiet = props.quiet == true
+	plate:SetAttribute(BLOCK_QUIET, quiet)
 	local function draw(aspect: number, rows: number)
 		plate:SetAttribute(BLOCK_ASPECT, aspect)
-		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, edges, seed)
+		drawGrid(plate, BlockMath.Grid(aspect, rows, Theme.Block.Ink), cells, edges, seed, quiet)
 	end
 	local aspect = props.aspect
 	if aspect then
@@ -1157,7 +1164,7 @@ function Builder.setBlockFade(plate: Instance, transparency: number)
 	local base: { [string]: number } = {
 		Lit = Theme.Block.TopAlpha,
 		Edge = Theme.Block.EdgeAlpha,
-		Grout = Theme.Block.GroutAlpha,
+		Grout = if plate:GetAttribute(BLOCK_QUIET) == true then Theme.Block.QuietGroutAlpha else Theme.Block.GroutAlpha,
 		Jitter = Theme.Block.JitterAlpha,
 	}
 	for _, part in ipairs(drawnParts[plate] or {}) do

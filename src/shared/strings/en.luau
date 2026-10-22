@@ -181,6 +181,17 @@ return {
 	SHIP_PAY = "Pay %s",
 	SHIP_PAID = "Paid",
 	SHIP_ADD = "Add %s",
+	-- Clean UI pass, package C (calm panels; docs/vault/05-ui-design/Clean-UI-Pass.md)
+	SETTINGS_SECTION_Sound = "Sound and motion",
+	SETTINGS_SECTION_Home = "Home",
+	GIFTS_GROUP_FRIENDS = "Group and friends",
+	GIFTS_SOCIAL_BACK = "Back",
+	STORAGE_BAY_SHORT = "+%s for %s", -- the Storage Bay button while a Companion Token button shares the row: the storage it adds and its price
+	WHATS_ON_MANY = "%d events on, tap for more",
+	WHATS_ON_ONE = "1 event on, tap for more",
+	WHATS_ON_LATER = "Something is coming, tap to see",
+	WHATS_ON_NONE = "Nothing on right now",
+	CODEX_TIER_EVENT = "%s, %s event", -- the tier word, then the event the species belongs to (SEASON_<id>)
 	SHIP_KEY_COUNT = "%d/%d %s",
 	SHIP_WAITING = "Pay Scrap and add parts to start",
 	SHIP_ASSEMBLING = "Assembling, %s left",
@@ -644,7 +655,7 @@ return {
 	SETTINGS_LEVEL_3 = "High",
 	SETTINGS_ON = "On",
 	SETTINGS_OFF = "Off",
-	SETTINGS_HINT = "Saved to your profile. Reduced motion also follows your Roblox setting.",
+	SETTINGS_HINT = "Reduced motion also follows your Roblox setting.",
 	-- Aliens screen
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",

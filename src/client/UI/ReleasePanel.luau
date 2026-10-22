@@ -379,6 +379,7 @@ local function build(parent: ScreenGui)
 		color = Theme.Colors.Panel,
 		aspect = CARD_ASPECT,
 		rows = Builder.blockPanelRows(CARD_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = CARD_POSITION,
 		size = CARD_SIZE,
 		anchor = Vector2.new(0.5, 0.5),

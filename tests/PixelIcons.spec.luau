@@ -75,6 +75,16 @@ describe("PixelIcons", function()
 			assert(area >= 16 * 16 / 3, key .. " covers only " .. area .. " pixels")
 		end
 	end)
+	it("has the padlock a locked Ship module row wears: 8 by 8, small, and a share of its grid covered so it reads", function()
+		local lock = PixelIcons.Icons.Lock
+		assert(lock ~= nil, "no Lock icon")
+		expect(PixelIcons.GridOf("Lock")).toEqual(PixelIcons.DefaultGrid)
+		local area = 0
+		for _, pixel in ipairs(lock) do
+			area += (pixel[3] :: number) * (pixel[4] :: number)
+		end
+		assert(area >= 8 * 8 / 2 and #lock <= 12, "the padlock covers " .. area .. " pixels in " .. #lock .. " frames")
+	end)
 end)
 
 return true
