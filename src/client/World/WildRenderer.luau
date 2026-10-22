@@ -1,7 +1,8 @@
 --!strict
 -- StarterPlayerScripts.Client.World.WildRenderer: presentation for every wild alien part under
 -- Workspace.World.Wild. The server places a plain anchored part with attributes; this module adds the
--- nameplate (name + tier in its colour, visible within NameplateDistance), bobs the part locally
+-- nameplate (name + tier in its colour; only the nearest few wear one and the tier line shows only close: judgePlates, data/Hud
+-- Plates), bobs the part locally
 -- (the server never moves it, so a local CFrame does not fight replication), and renders species
 -- the player has not caught as dark silhouettes until they walk within ShadowRevealDistance (only while
 -- the Silhouettes preference is on, Prefs.Silhouettes; off, every alien shows in colour). A part
@@ -71,6 +72,7 @@ local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local PlateMath = require(Shared:WaitForChild("PlateMath"))
+local HudData = require(Shared:WaitForChild("data"):WaitForChild("Hud"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 local Models = require(script.Parent:WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
@@ -109,6 +111,8 @@ type Record = {
 	plateLift: number, -- studs the plate stands above its own height so a neighbour's plate is not under it (restackPlates)
 	order: number, -- the order the alien appeared in; the stack's first alien keeps its plate where it was
 	nameLabel: TextLabel,
+	tierLabel: TextLabel, -- the plate's second line; only within data/Hud Plates.TierStuds
+	plateOn: boolean, -- the plate budget (judgePlates): the nearest MaxShown in range, plus any within AlwaysStuds
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
 	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
 	baseSize: Vector3, -- the part's Size as the server made it, before the size band
@@ -162,7 +166,7 @@ end
 
 -- `topOffset` is the distance from the part's centre up to the top of what the player sees: half the
 -- part for a placeholder, the mesh's top for a model (both after the size band).
-local function buildPlate(part: Part, name: string, tier: string, topOffset: number): (BillboardGui, TextLabel)
+local function buildPlate(part: Part, name: string, tier: string, topOffset: number): (BillboardGui, TextLabel, TextLabel)
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
@@ -181,7 +185,7 @@ local function buildPlate(part: Part, name: string, tier: string, topOffset: num
 		textSize = Theme.TextSize.Label,
 		size = UDim2.fromScale(1, 0.55),
 	})
-	Builder.label({
+	local tierLabel = Builder.label({
 		parent = plate,
 		name = "Tier",
 		text = Builder.text("TIER_" .. tier),
@@ -191,7 +195,7 @@ local function buildPlate(part: Part, name: string, tier: string, topOffset: num
 		color = Builder.tierColor(tier),
 	})
 	plate.Parent = part
-	return plate, nameLabel
+	return plate, nameLabel, tierLabel
 end
 
 -- The band for a wild part's Size attribute; a missing or unknown id is the default band.
@@ -525,7 +529,7 @@ local function applyVisibility(record: Record)
 		end
 	end
 	if record.plate.Parent then
-		record.plate.Enabled = not hide
+		record.plate.Enabled = not hide and record.plateOn
 	end
 	local light, glow = record.light, record.glow
 	if light then
@@ -538,6 +542,40 @@ local function applyVisibility(record: Record)
 end
 
 local restackPlates: () -> () -- defined after topOffsetOf; evaluate calls it
+
+-- The plate budget (Clean-UI-Pass, "World labels"; data/Hud Plates, Shared/PlateMath.Shown): of the aliens in range only the nearest
+-- MaxShown wear a plate, plus any within AlwaysStuds, and the tier line shows only within TierStuds (farther, the name alone). A hidden
+-- alien (the blizzard rule, a veiled arrival) takes no place. Judged with the hide rule, four times a second; a plate is written only
+-- when its state changes. Without a character every plate shows, as before.
+local function judgePlates(at: Vector3?)
+	local plates = HudData.Plates
+	local live: { Record } = {}
+	local distances: { number } = {}
+	for _, record in pairs(records) do
+		if record.part.Parent then
+			table.insert(live, record)
+			if record.hidden then
+				distances[#live] = math.huge
+			elseif at then
+				distances[#live] = (record.base.Position - at).Magnitude
+			else
+				distances[#live] = 0
+			end
+		end
+	end
+	local shown = PlateMath.Shown(distances, plates.MaxShown, plates.AlwaysStuds, Config.NameplateDistance)
+	for index, record in ipairs(live) do
+		local on = shown[index]
+		local tierOn = on and PlateMath.TierShown(distances[index], plates.TierStuds)
+		if tierOn ~= record.tierLabel.Visible then
+			record.tierLabel.Visible = tierOn
+		end
+		if on ~= record.plateOn then
+			record.plateOn = on
+			applyVisibility(record)
+		end
+	end
+end
 
 -- Re-judges the hide rule for every tracked alien (and the Scanner Pulse's reveal, via applyPulse). Without
 -- a blizzard everything is shown; with no character yet the hide rule changes nothing.
@@ -559,6 +597,7 @@ local function evaluate()
 		end
 	end
 	restackPlates()
+	judgePlates(at)
 end
 
 -- Distance from a part's centre up to the top of what the player sees: half the part for a placeholder,
@@ -649,7 +688,7 @@ local function track(instance: Instance)
 	if def then
 		model, modelBase = buildModel(def, feet, factor)
 	end
-	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
+	local plate, nameLabel, tierLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
 	local light, glow, glowImage = buildAura(instance, tier)
 	local fxTarget: BasePart | Model = model or instance
 	nextOrder += 1
@@ -671,6 +710,8 @@ local function track(instance: Instance)
 		plateLift = 0,
 		order = nextOrder,
 		nameLabel = nameLabel,
+		tierLabel = tierLabel,
+		plateOn = true,
 		model = model,
 		modelBase = modelBase,
 		light = light,

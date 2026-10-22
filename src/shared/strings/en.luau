@@ -130,6 +130,8 @@ return {
 	TUT_7 = "Thrusters need Glowroot from Starhollow Forest. Follow the marker.",
 	TUT_DONE = "You know the loop: catch, build, fly.",
 	TUT_PROGRESS = "%d/%d",
+	HUD_EVENT_LINE = "%s %s", -- the event chip's one line: the event's name, then the time left ("Meteor Shower 4m 12s")
+	HUD_EVENT_LEFT = " left", -- the ending the chip drops from a banner's "4m 12s left" (the chip has no room for the word)
 	WAYPOINT_DISTANCE = "%dm",
 	WAYPOINT_node = "%s", -- material name
 	WAYPOINT_spawn = "%s", -- species name
@@ -171,7 +173,6 @@ return {
 	POWERUP_DESC_DoubleShift = "Stations pay double for %s",
 	TOAST_POWERUP_USED = "%s on!",
 	TOAST_POWERUP_ACTIVE = "%s is already running",
-	HUD_POWERUPS = "Power-ups",
 	ANNOUNCE_CATCH = "%s caught %s %s!", -- player, TIER_A_<tier>, species
 	ANNOUNCE_CATCH_OVERLAY = "%s caught %s %s %s!", -- player, OVERLAY_A_<overlay>, tier, species
 	SHOWER_NOW = "Meteor Shower!",

@@ -3,7 +3,8 @@
 -- places under Workspace.World.Materials. Each node is a plain anchored part with attributes
 -- (MaterialId, NodeId, Available, WaitingFor); the server hides it while it is collected and dims it
 -- while its condition is not met (WaitingFor names the condition, e.g. "Night"). This module adds the
--- nameplate (the material's name, plus "Only at night" while waiting, visible within NameplateDistance)
+-- nameplate (the material's name, plus "Only at night" while waiting, visible within data/Hud Plates.NodeStuds, or from any distance
+-- for the node a tutorial or quest marker points at)
 -- and a gentle bob and slow spin, both local: the server never moves a node, so a local CFrame does
 -- not fight replication. Both pause while a node is unavailable. Nothing here decides anything; the
 -- Collect flow asks the server.
@@ -17,8 +18,11 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Place = require(Shared:WaitForChild("Place"))
+local PlateMath = require(Shared:WaitForChild("PlateMath"))
+local HudData = require(Shared:WaitForChild("data"):WaitForChild("Hud"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
+local Waypoint = require(script.Parent:WaitForChild("Waypoint"))
 
 local NodeRenderer = {}
 
@@ -51,6 +55,7 @@ local rng = Random.new()
 local renderConn: RBXScriptConnection? = nil
 local folderConns: { RBXScriptConnection } = {}
 local running = false
+local targetAccumulator = 0 -- seconds since the nodes last judged the marker rule
 local localPlayer = Players.LocalPlayer
 
 local function rootPosition(): Vector3?
@@ -71,7 +76,7 @@ local function buildPlate(part: Part, materialId: string): (BillboardGui, TextLa
 	plate.Adornee = part
 	plate.Size = UDim2.fromScale(PLATE_W, PLATE_H) -- studs
 	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + Config.WildBobStuds + PLATE_LIFT, 0)
-	plate.MaxDistance = Config.NameplateDistance
+	plate.MaxDistance = HudData.Plates.NodeStuds
 	plate.AlwaysOnTop = false
 	plate.LightInfluence = 0
 	plate.ResetOnSpawn = false
@@ -178,7 +183,31 @@ local function untrack(instance: Instance)
 	end
 end
 
-local function onRender()
+-- A node's plate is drawn within NodeStuds, and from any distance for the node a marker (the tutorial's, a quest's) points at: that
+-- marker is where the player is being sent, so its name is worth reading from far. Judged a few times a second.
+local function judgeTargets()
+	local plates = HudData.Plates
+	local target = Waypoint.Target()
+	local sameSpot = plates.TargetSameSpotStuds * plates.TargetSameSpotStuds
+	for _, record in pairs(records) do
+		local isTarget = false
+		if target then
+			local dx, dz = record.base.Position.X - target.X, record.base.Position.Z - target.Z
+			isTarget = dx * dx + dz * dz <= sameSpot
+		end
+		local range = PlateMath.NodeRange(isTarget, plates.NodeStuds, plates.NodeTargetStuds)
+		if record.plate.MaxDistance ~= range then
+			record.plate.MaxDistance = range
+		end
+	end
+end
+
+local function onRender(dt: number)
+	targetAccumulator += dt
+	if targetAccumulator >= HudData.Plates.PollSeconds then
+		targetAccumulator = 0
+		judgeTargets()
+	end
 	local now = os.clock()
 	local omega = math.pi * 2 * Config.WildBobHz
 	local spin = math.pi * 2 / Place.Layout().NodeSpinSeconds

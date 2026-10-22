@@ -45,4 +45,47 @@ function PlateMath.StackLifts(xs: { number }, zs: { number }, radius: number, st
 	return lifts
 end
 
+-- Which wild aliens wear a nameplate (Clean-UI-Pass, "World labels"): the nearest `maxShown` within `range` studs, plus every one within
+-- `alwaysStuds` however many there are. `distances` is one number per alien in a fixed order (a hidden alien passes math.huge and is
+-- never shown); the answer is one boolean per alien, in the same order. Equal distances keep their order, so the choice does not
+-- flicker between two aliens at the same spot.
+function PlateMath.Shown(distances: { number }, maxShown: number, alwaysStuds: number, range: number): { boolean }
+	local order: { number } = {}
+	for index = 1, #distances do
+		order[index] = index
+	end
+	table.sort(order, function(a: number, b: number): boolean
+		if distances[a] == distances[b] then
+			return a < b
+		end
+		return distances[a] < distances[b]
+	end)
+	local shown: { boolean } = {}
+	for index = 1, #distances do
+		shown[index] = false
+	end
+	local count = 0
+	for _, index in ipairs(order) do
+		local distance = distances[index]
+		if distance <= alwaysStuds then
+			shown[index] = true
+			count += 1
+		elseif distance <= range and count < maxShown then
+			shown[index] = true
+			count += 1
+		end
+	end
+	return shown
+end
+
+-- Whether a plate's second line (the tier) shows at `distance` studs: within `tierStuds`; farther, the name alone.
+function PlateMath.TierShown(distance: number, tierStuds: number): boolean
+	return distance <= tierStuds
+end
+
+-- How far a node's plate is drawn: `nodeStuds` for any node, `targetStuds` (far) for the one a marker points at.
+function PlateMath.NodeRange(isTarget: boolean, nodeStuds: number, targetStuds: number): number
+	return if isTarget then targetStuds else nodeStuds
+end
+
 return PlateMath

@@ -70,4 +70,73 @@ describe("PlateMath.StackLifts", function()
 		assert(STEP > Config.NameplateStudsH, "a step is shorter than a plate")
 	end)
 end)
+describe("PlateMath.Shown (the clean HUD's nameplate budget)", function()
+	local HudData = require(Shared.data.Hud)
+	local P = HudData.Plates
+	local function shown(distances: { number }): { boolean }
+		return PlateMath.Shown(distances, P.MaxShown, P.AlwaysStuds, Config.NameplateDistance)
+	end
+	local function count(flags: { boolean }): number
+		local n = 0
+		for _, flag in ipairs(flags) do
+			if flag then
+				n += 1
+			end
+		end
+		return n
+	end
+	it("shows a lone alien in range and none out of range", function()
+		expect(shown({ 40 })[1]).toEqual(true)
+		expect(shown({ Config.NameplateDistance + 1 })[1]).toEqual(false)
+		expect(shown({ math.huge })[1]).toEqual(false)
+	end)
+	it("shows the nearest five and no more when they stand beyond 15 studs", function()
+		local flags = shown({ 50, 20, 40, 25, 55, 22, 35, 30 })
+		expect(count(flags)).toEqual(P.MaxShown)
+		-- the five nearest are 20, 22, 25, 30 and 35
+		expect(flags[2]).toEqual(true)
+		expect(flags[6]).toEqual(true)
+		expect(flags[4]).toEqual(true)
+		expect(flags[8]).toEqual(true)
+		expect(flags[7]).toEqual(true)
+		expect(flags[1]).toEqual(false)
+		expect(flags[3]).toEqual(false)
+		expect(flags[5]).toEqual(false)
+	end)
+	it("shows every alien within 15 studs even past five", function()
+		local flags = shown({ 3, 4, 5, 6, 7, 8, 9, 40, 41 })
+		for index = 1, 7 do
+			expect(flags[index]).toEqual(true)
+		end
+		expect(flags[8]).toEqual(false)
+		expect(flags[9]).toEqual(false)
+	end)
+	it("lets a far alien in when fewer than five stand near", function()
+		local flags = shown({ 5, 6, 50 })
+		expect(count(flags)).toEqual(3)
+	end)
+	it("keeps the order of two aliens at the same distance, so the choice never flickers", function()
+		local flags = PlateMath.Shown({ 30, 30, 30 }, 2, 15, 60)
+		expect(flags[1]).toEqual(true)
+		expect(flags[2]).toEqual(true)
+		expect(flags[3]).toEqual(false)
+	end)
+	it("a hidden alien takes no place", function()
+		local flags = PlateMath.Shown({ math.huge, 30, 31, 32, 33, 34 }, 5, 15, 60)
+		expect(flags[1]).toEqual(false)
+		expect(count(flags)).toEqual(5)
+	end)
+	it("shows the tier line only within its distance, and a node's plate by the marker rule", function()
+		expect(PlateMath.TierShown(P.TierStuds, P.TierStuds)).toEqual(true)
+		expect(PlateMath.TierShown(P.TierStuds + 0.1, P.TierStuds)).toEqual(false)
+		expect(PlateMath.NodeRange(false, P.NodeStuds, P.NodeTargetStuds)).toEqual(P.NodeStuds)
+		expect(PlateMath.NodeRange(true, P.NodeStuds, P.NodeTargetStuds)).toEqual(P.NodeTargetStuds)
+		assert(P.NodeTargetStuds > Config.NameplateDistance, "a marker's node is not farther than a wild plate")
+	end)
+	it("keeps the budget inside the plate's own range", function()
+		assert(P.AlwaysStuds <= P.TierStuds and P.TierStuds <= Config.NameplateDistance, "the distances are out of order")
+		assert(P.NodeStuds <= Config.NameplateDistance, "a node's plate is drawn farther than a wild one")
+	end)
+end)
+
 return true

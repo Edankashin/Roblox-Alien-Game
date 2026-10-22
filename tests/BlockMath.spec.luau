@@ -5,6 +5,8 @@
 -- the sizes and aspects in src/client/UI/Hud.luau: change one, change the other.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local BlockMath = require(Shared.BlockMath)
+local HudData = require(Shared.data.Hud)
+local HudStages = require(Shared.HudStages)
 
 local CELL, INK, MIN_ROWS, GROUT, SEED = 0.02, 0.4, 3, 0.125, 44
 local PANEL_CELL = 0.04 -- Theme.Block.PanelCell: a modal panel's cell, twice CELL (tools/tests/test_block_theme.py checks both)
@@ -26,16 +28,14 @@ type Plate = {
 	text: boolean?, -- carries one centred line of text at the 14 px floor or more
 }
 
--- Hud.luau: the Scrap plate, the clock, biome and shower chips, the ship bar, the event banner, the Friend chip, a top button,
--- a menu button (its size is 0.095 of the screen height inside a 0.12 x 0.13 slot at aspect 0.8) and the action button.
+-- Hud.luau (the quiet HUD, data/Hud Chips): the Scrap plate, the place chip (two lines), the event chip, the Friend chip, a top button,
+-- a menu button (its size is 0.095 of the screen height inside a 0.12 x 0.13 slot at aspect 0.8) and the action button. The ship bar
+-- is a fitted plate, not an aspect plate: its own describe below ("BlockMath HUD goal plate").
 local HUD: { Plate } = {
 	{ name = "ScrapPill", sizeX = 0.3, sizeY = 0.085, aspect = 3.6, height = 0.085, text = true },
-	{ name = "ClockChip", sizeX = 0.3, sizeY = 0.075, aspect = 4.2, height = 0.075, text = true },
-	{ name = "BiomeChip", sizeX = 0.2, sizeY = 0.05, aspect = 4.2, height = 0.05, text = true },
-	{ name = "ShowerChip", sizeX = 0.2, sizeY = 0.05, aspect = 4.2, height = 0.05, text = true },
-	{ name = "ShipBar", sizeX = 0.3, sizeY = 0.075, aspect = 4.2, height = 0.075, text = true },
-	{ name = "EventBanner", sizeX = 0.4, sizeY = 0.07, aspect = 6, height = 0.07 },
-	{ name = "FriendChip", sizeX = 0.3, sizeY = 0.055, aspect = 5.5, height = 0.055, text = true },
+	{ name = "PlaceChip", sizeX = 0.4, sizeY = 0.075, aspect = 4.2, height = 0.075, text = true },
+	{ name = "EventChip", sizeX = 0.4, sizeY = 0.048, aspect = 6, height = 0.048, text = true },
+	{ name = "FriendChip", sizeX = 0.4, sizeY = 0.055, aspect = 5.5, height = 0.055, text = true },
 	{ name = "TopButton", sizeX = 0.3, sizeY = 0.075, aspect = 1, height = 0.075, button = true, hit = true },
 	{ name = "MenuButton", sizeX = 0.12, sizeY = 0.095, aspect = 1, height = 0.095, button = true, hit = true },
 	{ name = "Action", sizeX = 0.3, sizeY = 0.13, aspect = 2.3, height = 0.13, button = true, hit = true, text = true },
@@ -235,39 +235,78 @@ describe("BlockMath HUD fit", function()
 			end
 		end)
 	end
-	it("iPhone SE: the cells are 4.9 to 8.4 px, near the board's 8 px at 390 tall", function()
+	it("iPhone SE: the cells are 4.7 to 8.4 px, near the board's 8 px at 390 tall", function()
 		local small, large = math.huge, 0
 		for _, plate in ipairs(HUD) do
 			local _, h, grid = measure(plate, SE)
 			local cell = h * grid.cellY
 			small, large = math.min(small, cell), math.max(large, cell)
 		end
-		expect(small).toBeClose(4.93, 0.01) -- the biome and shower chips
+		expect(small).toBeClose(4.74, 0.01) -- the event chip at its nominal height (layoutRight floors it taller on a phone)
 		expect(large).toBeClose(8.39, 0.01) -- the Scrap plate
 	end)
 end)
 
-describe("BlockMath HUD event banner", function()
-	-- Hud.luau: the banner is 0.4 x 0.07 at 6; two lines (0.46 and 0.34 of it) when the smaller holds 14 px, else one line of
-	-- 0.7 of it, the name and the time left taking turns. Either way every line shown holds the 14 px floor.
+describe("BlockMath HUD chips on a short screen", function()
+	-- Hud.luau layoutRight: a chip is the data's height share, or its pixel floor when that is taller (HudStages.AtLeast); it keeps its
+	-- aspect, so the width follows. The place chip holds two lines (0.44 and 0.36 of it), the event chip one (0.7), the Friend chip one.
+	local chips = HudData.Chips
 	for _, screen in ipairs({ SE, IPAD }) do
 		local label = screen.w .. "x" .. screen.h
-		it(label .. ": every line the banner shows is 14 px or more", function()
-			local _, h = BlockMath.FitPx(0.4, 0.07, 6, screen.w, screen.h)
-			local twoLines = h * 0.34 >= TEXT_MIN
-			if twoLines then
-				assert(h * 0.46 >= TEXT_MIN, "the name line is " .. h * 0.46 .. " px")
-			else
-				assert(h * 0.7 >= TEXT_MIN, "the one line is " .. h * 0.7 .. " px")
+		local place = HudStages.AtLeast(chips.PlaceHeight, chips.PlaceMinPx, screen.h) * screen.h
+		local event = HudStages.AtLeast(chips.EventHeight, chips.EventMinPx, screen.h) * screen.h
+		local friend = HudStages.AtLeast(chips.FriendHeight, chips.FriendMinPx, screen.h) * screen.h
+		it(label .. ": every line the place chip shows is 14 px or more, and the event and Friend chips' one line too", function()
+			assert(place * 0.36 >= TEXT_MIN, "the place chip's time line is " .. place * 0.36 .. " px")
+			assert(place * 0.44 >= TEXT_MIN, "the place chip's name line is " .. place * 0.44 .. " px")
+			assert(event * 0.7 >= TEXT_MIN, "the event chip's line is " .. event * 0.7 .. " px")
+			assert(friend * 0.7 >= TEXT_MIN, "the Friend chip's line is " .. friend * 0.7 .. " px")
+		end)
+		it(label .. ": the chips' widths (their aspects) stay inside the screen and the size bound", function()
+			for _, row in ipairs({ { 4.2, place }, { 6, event }, { 5.5, friend } }) do
+				local width = row[1] * row[2]
+				assert(width <= chips.MaxWidth * screen.w + 1e-6, "a chip is " .. width .. " px wide, past its bound")
+				assert(width <= 0.4 * screen.w, "a chip takes " .. width / screen.w .. " of the width")
 			end
 		end)
 	end
-	it("takes turns on one line at iPhone SE and shows both lines on the iPad", function()
-		local _, se = BlockMath.FitPx(0.4, 0.07, 6, SE.w, SE.h)
-		local _, ipad = BlockMath.FitPx(0.4, 0.07, 6, IPAD.w, IPAD.h)
-		assert(se * 0.34 < TEXT_MIN, "SE banner would show two lines")
-		assert(ipad * 0.34 >= TEXT_MIN, "iPad banner would show one line")
+	it("the three chips and the radar column's top (0.228) fit on a wide screen, and on an iPad", function()
+		for _, screen in ipairs({ { w = 1600, h = 900 }, IPAD }) do
+			local total = chips.Top
+			for _, row in ipairs({ { chips.PlaceHeight, chips.PlaceMinPx }, { chips.EventHeight, chips.EventMinPx }, { chips.FriendHeight, chips.FriendMinPx } }) do
+				total += HudStages.AtLeast(row[1], row[2], screen.h) + chips.Gap
+			end
+			assert(total - chips.Gap <= 0.228, screen.w .. "x" .. screen.h .. ": the chips end at " .. total - chips.Gap)
+		end
 	end)
+end)
+
+describe("BlockMath HUD goal plate", function()
+	-- Hud.luau layoutGoal and UI/TutorialHint layout: the ship bar is a fitted plate of data/Hud Goal.Width by ShipHeight (taller on a
+	-- short screen, never narrower than a 4.2 chip of its height), its rows picked from its real box (Builder fitPlate); the objective
+	-- line under it is the same kind of plate, as tall as its lines need.
+	for _, screen in ipairs({ SE, IPAD }) do
+		local label = screen.w .. "x" .. screen.h
+		local slots = HudStages.GoalSlots(screen.w, screen.h, 4.2)
+		local w, h = slots.shipWidth * screen.w, slots.shipHeight * screen.h
+		it(label .. ": the ship bar holds a 14 px line inside its ink, with cells of 4.5 px or more", function()
+			local rows = BlockMath.ScreenRows(h, screen.h, CELL, INK, MIN_ROWS, 0)
+			local grid = BlockMath.Grid(w / h, rows, INK)
+			local cell = h * grid.cellY
+			assert(cell >= 4.5, "the cell is " .. cell .. " px")
+			assert(h * (1 - 2 * grid.inkY) >= TEXT_MIN, "the face is " .. h * (1 - 2 * grid.inkY) .. " px tall")
+			assert(GROUT * cell >= 0.5, "the grout is " .. GROUT * cell .. " px")
+		end)
+		it(label .. ": the objective line holds 14 px lines and its cells stay near square", function()
+			local o = HudStages.Objective(60, true, screen.w, screen.h, TEXT_MIN)
+			local ow, oh = o.width * screen.w, o.height * screen.h
+			local rows = BlockMath.ScreenRows(oh, screen.h, CELL, INK, MIN_ROWS, 0)
+			local grid = BlockMath.Grid(ow / oh, rows, INK)
+			assert(oh * (1 - 2 * grid.inkY) >= o.lines * TEXT_MIN, "the face is " .. oh * (1 - 2 * grid.inkY) .. " px for " .. o.lines .. " lines")
+			local skew = (ow * grid.cellX) / (oh * grid.cellY) - 1
+			assert(math.abs(skew) <= 0.12, "the cells are " .. skew .. " off square")
+		end)
+	end
 end)
 
 -- The screens after the HUD (UI Playbook "Block cells", "Screens after the HUD"). A fitted plate (Builder.blockPlate with no
@@ -326,12 +365,12 @@ end)
 describe("Block screens: Radar column", function()
 	-- RadarColumn.luau (Decision B52): on the right edge from 0.228 of the height, a head chip 0.05 tall (aspect 3, three rows), 0.008
 	-- under it nine square slots 0.054 tall with 0.005 between (flat blocks of three rows), nearest at the top. The Catch button's top
-	-- is at 0.96 - 0.13 = 0.83 (Hud.luau) and the shower chip ends at 0.165 + 0.05 = 0.215.
+	-- is at 0.96 - 0.13 = 0.83 (Hud.luau) and the chip stack (place, event, Friend: data/Hud Chips) ends at 0.025 + 0.075 + 0.008 + 0.048 + 0.008 + 0.055 = 0.219.
 	local TOP, HEAD_H, HEAD_GAP, SLOT_H, SLOT_GAP, SLOTS = 0.228, 0.05, 0.008, 0.054, 0.005, 9
-	local ACTION_TOP, SHOWER_BOTTOM = 0.96 - 0.13, 0.165 + 0.05
+	local ACTION_TOP, SHOWER_BOTTOM = 0.96 - 0.13, 0.025 + 0.075 + 0.008 + 0.048 + 0.008 + 0.055
 	local bottom = TOP + HEAD_H + HEAD_GAP + SLOTS * SLOT_H + (SLOTS - 1) * SLOT_GAP
-	it("stands under the shower chip and clear of the Catch button, with nine slots", function()
-		assert(TOP >= SHOWER_BOTTOM, "the column starts over the shower chip")
+	it("stands under the chip stack and clear of the Catch button, with nine slots", function()
+		assert(TOP >= SHOWER_BOTTOM, "the column starts over the chip stack")
 		assert(bottom <= ACTION_TOP - 0.01, "the column ends at " .. bottom .. ", too near the Catch button at " .. ACTION_TOP)
 	end)
 	for _, screen in ipairs({ SE, IPAD }) do

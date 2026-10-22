@@ -1,6 +1,5 @@
 --!strict
--- StarterPlayerScripts.Client.UI.PowerUpBar: the power-up row bottom-left. A small "Power-ups" caption
--- over one square slot per power-up the player holds or has running, in data order: a chunky button
+-- StarterPlayerScripts.Client.UI.PowerUpBar: the power-up row bottom centre. One square slot per power-up the player holds or has running, in data order: a chunky button
 -- with the power-up's icon (its initial until the icon is uploaded), an "xN" count badge bottom-right while some are held, and while one is
 -- running a Select-coloured ring around the face plus a Select under-bar with the time left, counted
 -- down each second from the end time State keeps between the server's BuffsChanged pushes. A tap asks
@@ -47,9 +46,8 @@ type Slot = {
 local CENTRE = 0.5 -- bottom centre, clear of the chat window (bottom-left) and the action button (bottom-right)
 local BOTTOM = 0.975
 local WIDTH = 0.6
-local HEIGHT = 0.17 -- caption plus slot row
-local CAPTION_H = 0.165 -- of the bar
-local ROW_Y = 0.2
+local HEIGHT = 0.17 -- the slot row (the "Power-ups" caption it once had is gone: the icons and count badges say it, Clean-UI-Pass)
+local ROW_Y = 0.2 -- the row keeps its place, so the slots did not move
 local ROW_H = 0.8
 local SLOT_GAP = 0.012 -- of the row width
 local SLOT_ASPECT = 0.7 -- a square button with the under-bar beneath it
@@ -261,14 +259,6 @@ function PowerUpBar.Build()
 		position = UDim2.fromScale(CENTRE, BOTTOM),
 		size = UDim2.fromScale(WIDTH, HEIGHT),
 		anchor = Vector2.new(0.5, 1),
-	})
-	Builder.label({
-		parent = bar,
-		name = "Caption",
-		text = Strings.HUD_POWERUPS,
-		textSize = Theme.TextSize.Min,
-		size = UDim2.fromScale(1, CAPTION_H),
-		xAlign = Enum.TextXAlignment.Center,
 	})
 	local row = Builder.frame({
 		parent = bar,

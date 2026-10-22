@@ -18,17 +18,20 @@ export type Marker = {
 	minDistance: number, -- hidden when the player is closer than this (studs), so the marker is not in your face
 	maxDistance: number, -- hidden when farther than this; 0 means never hidden by distance
 	priority: number, -- lower wins the line under the strip when several markers are shown
+	goal: boolean, -- true: the marker is somewhere the player is being sent (the tutorial's or a quest's marker, the Warden, the Peddler), so the
+	-- line under the strip may name it; false: a diamond only, never a line (Clean-UI-Pass: the line names a goal, not the scenery)
+	afterTutorial: boolean?, -- true: the diamond stays off the strip until the tutorial is over (HudStages "Landmarks"): noise before the player can use it
 }
 
 local Markers: { Marker } = {
-	{ id = "waypoint", kind = "waypoint", labelKey = "COMPASS_WAYPOINT", color = "Featured", minDistance = 6, maxDistance = 0, priority = 1 },
-	{ id = "target", kind = "target", labelKey = "COMPASS_TARGET", color = "Select", minDistance = 6, maxDistance = 0, priority = 2 },
-	{ id = "peddler", kind = "peddler", labelKey = "COMPASS_PEDDLER", color = "Featured", minDistance = 14, maxDistance = 0, priority = 3 },
-	{ id = "camp", kind = "camp", labelKey = "COMPASS_CAMP", color = "Confirm", minDistance = 30, maxDistance = 0, priority = 4 },
-	{ id = "shrine", kind = "landmark", landmarkId = "Shrine", labelKey = "COMPASS_SHRINE", color = "Legendary", minDistance = 20, maxDistance = 0, priority = 5 },
-	{ id = "cave", kind = "landmark", landmarkId = "CaveMouth", labelKey = "COMPASS_CAVE", color = "Codex", minDistance = 20, maxDistance = 0, priority = 6 },
-	{ id = "icecave", kind = "landmark", landmarkId = "IceCaveMouth", labelKey = "COMPASS_ICECAVE", color = "Codex", minDistance = 20, maxDistance = 0, priority = 6 },
-	{ id = "vent", kind = "landmark", landmarkId = "GreatVent", labelKey = "COMPASS_VENT", color = "Close", minDistance = 20, maxDistance = 0, priority = 7 },
+	{ id = "waypoint", kind = "waypoint", labelKey = "COMPASS_WAYPOINT", color = "Featured", minDistance = 6, maxDistance = 0, priority = 1, goal = true },
+	{ id = "target", kind = "target", labelKey = "COMPASS_TARGET", color = "Select", minDistance = 6, maxDistance = 0, priority = 2, goal = true },
+	{ id = "peddler", kind = "peddler", labelKey = "COMPASS_PEDDLER", color = "Featured", minDistance = 14, maxDistance = 0, priority = 3, goal = true },
+	{ id = "camp", kind = "camp", labelKey = "COMPASS_CAMP", color = "Confirm", minDistance = 30, maxDistance = 0, priority = 4, goal = false },
+	{ id = "shrine", kind = "landmark", landmarkId = "Shrine", labelKey = "COMPASS_SHRINE", color = "Legendary", minDistance = 20, maxDistance = 0, priority = 5, goal = false, afterTutorial = true },
+	{ id = "cave", kind = "landmark", landmarkId = "CaveMouth", labelKey = "COMPASS_CAVE", color = "Codex", minDistance = 20, maxDistance = 0, priority = 6, goal = false, afterTutorial = true },
+	{ id = "icecave", kind = "landmark", landmarkId = "IceCaveMouth", labelKey = "COMPASS_ICECAVE", color = "Codex", minDistance = 20, maxDistance = 0, priority = 6, goal = false, afterTutorial = true },
+	{ id = "vent", kind = "landmark", landmarkId = "GreatVent", labelKey = "COMPASS_VENT", color = "Close", minDistance = 20, maxDistance = 0, priority = 7, goal = false, afterTutorial = true },
 }
 
 return {

@@ -1,27 +1,32 @@
 --!strict
--- StarterPlayerScripts.Client.UI.TutorialHint: the first eight minutes, one line at a time. A wide
--- Featured-coloured pill bottom centre, above the power-up bar, with the current tutorial step's hint
--- (data/Tutorial.luau, a strings key) in white outlined text and, for a counted step, a small
--- "2/3" chip on the right. A new step slides the pill in and pops the text; a counter tick pops the
--- chip. When the server says the tutorial is over (tutorialStep past the last step) the pill shows
--- TUT_DONE for Theme.Tween.Toast seconds and then hides for good. The pill also drives the world
--- marker (World.Waypoint) from the step's waypoint kind: the nearest node of the step's material, the
--- trainee alien the server reserved for this player, the ship, or a biome's centre. Every target is
+-- StarterPlayerScripts.Client.UI.TutorialHint: the first eight minutes, one line at a time, as the HUD's objective line. A dark
+-- block plate with a gold ink joined under the ship bar in the goal plate (top centre, UI/Hud; the numbers are data/Hud Goal) holding
+-- the current tutorial step's hint (data/Tutorial, a strings key) in white outlined text and, for a counted step, a small "2/3" chip
+-- on the right. A new step pops the plate and turns its face gold for data/Hud Goal.StepPopSeconds, then back to the trough; a counter
+-- tick pops the chip. The plate is as wide and as tall as the hint needs to hold whole at the 14 px floor (Shared/HudStages.Objective).
+-- When the server says the tutorial is over (tutorialStep past the last step) the plate shows TUT_DONE for Theme.Tween.Toast seconds
+-- and then hides for good. The hint also drives the world marker (World.Waypoint) from the step's waypoint kind: the nearest node of
+-- the step's material, the trainee alien the server reserved for this player, the ship, or a biome's centre. Every target is
 -- re-resolved on each read, so a collected node or a caught alien hands the marker to the next one.
--- Nothing here decides anything: the step and the counter are the server's (State.GetTutorial).
--- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the hint a gold block plate in cells at about
+-- Nothing here decides anything: the step and the counter are the server's (State.GetTutorial). It also tells the HUD and the compass
+-- which step the player is on (Hud.SetStage, Compass.SetStage: the staged reveal, data/Tutorial HudStages).
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the objective a dark block plate in cells at about
 -- the HUD cell, the step counter a flat dark block.
 
-local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Tutorial = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
+local HudData = require(Shared:WaitForChild("data"):WaitForChild("Hud"))
+local HudStages = require(Shared:WaitForChild("HudStages"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Place = require(Shared:WaitForChild("Place"))
 local Builder = require(script.Parent.Builder)
+local Hud = require(script.Parent.Hud)
+local Compass = require(script.Parent.Compass)
+local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local State = require(script.Parent.Parent.State)
 local CampRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("CampRenderer"))
 local Waypoint = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Waypoint"))
@@ -30,22 +35,16 @@ local TutorialHint = {}
 
 local DISPLAY_ORDER = 15 -- over the HUD (10), under the modal screens (20)
 
--- Screen layout. The pill's bottom edge sits above the power-up bar (whose top is near y 0.805) and
--- between the chat window (bottom-left) and the action button (bottom-right).
+-- Screen layout: the plate's place and size come from Shared/HudStages (GoalSlots, Objective) and data/Hud Goal; what is here is
+-- what is inside the plate.
 local CENTRE = 0.5
-local BOTTOM = 0.79
-local WIDTH = 0.5
-local HEIGHT = 0.12 -- generous cap so the width stays the binding side of the aspect fit
-local ASPECT = 8
-local SLIDE = 0.05 -- a new step rises this much of the screen into place
 local TEXT_X = 0.04
-local TEXT_H = 0.72
-local TEXT_W_FULL = 0.92 -- no chip
-local TEXT_W_WITH_CHIP = 0.72
+local TEXT_H = 0.86 -- of the plate: the label fills it and the text scales to the lines it holds
 local CHIP_RIGHT = 0.97
 local CHIP_W = 0.2
 local CHIP_H = 0.64
 local CHIP_ASPECT = 2.2
+local BAR_MIN_ASPECT = 4.2 -- the ship bar above is never narrower than a chip of its height (Hud's CHIP_ASPECT): the goal slots need it
 
 local gui: ScreenGui? = nil
 local pill: Frame? = nil
@@ -57,6 +56,8 @@ local shownStep: number? = nil -- the step the pill currently shows; nil while n
 local shownCounter: number? = nil
 local finished = false -- the done message has played (or the tutorial was already over on Start)
 local doneGeneration = 0 -- a done message in flight; a later refresh retires it
+local goldGeneration = 0 -- a gold face in flight; a newer step restarts it and an older one's return to the trough yields
+local pushedStage: number? = nil -- the step last told to the HUD and the compass
 
 -- Visibility ---------------------------------------------------------------
 
@@ -120,7 +121,36 @@ local function applyWaypoint(step: Tutorial.Step?)
 	end
 end
 
--- Pill ---------------------------------------------------------------------------
+-- Objective line ---------------------------------------------------------------------
+
+-- The screen's size in pixels: the gui's (it ignores the inset, so it is the whole viewport), else the camera's.
+local function screenSize(): Vector2
+	local root = gui
+	if root and root.AbsoluteSize.X > 0 and root.AbsoluteSize.Y > 0 then
+		return root.AbsoluteSize
+	end
+	local camera = workspace.CurrentCamera
+	return if camera then camera.ViewportSize else Vector2.new(16, 9)
+end
+
+-- Sizes and places the plate for the hint it holds now: as many lines and as wide as the text needs to stay whole at the 14 px floor,
+-- under the ship bar's slot (Shared/HudStages). Cheap, and called on every new line, every counter change and every resize.
+local function layout()
+	local frame, text, counterChip = pill, hintLabel, chip
+	if not frame or not text or not counterChip then
+		return
+	end
+	local screen = screenSize()
+	local counted = counterChip.Visible
+	local slots = HudStages.GoalSlots(screen.X, screen.Y, BAR_MIN_ASPECT)
+	local goal = HudStages.Objective(utf8.len(text.Text) or #text.Text, counted, screen.X, screen.Y, Theme.TextSize.Min)
+	frame.AnchorPoint = Vector2.new(0.5, 0)
+	frame.Position = UDim2.fromScale(CENTRE, slots.lineTop)
+	frame.Size = UDim2.fromScale(goal.width, goal.height)
+	local share = if counted then HudData.Goal.TextShareCounter else HudData.Goal.TextShare
+	text.Position = UDim2.fromScale(TEXT_X, 0.5)
+	text.Size = UDim2.fromScale(share - TEXT_X, TEXT_H)
+end
 
 local function build()
 	if gui then
@@ -130,20 +160,15 @@ local function build()
 	root.Enabled = false
 	gui = root
 
-	-- A gold block plate in cells (UI Playbook "Screens after the HUD"). The width binds its aspect fit, so its height share of
-	-- the screen (and its rows, about the HUD's cell) comes from the screen's shape: 5 rows on a phone held sideways, 3 on a 4:3.
-	local camera = workspace.CurrentCamera
-	local screen = if camera then camera.ViewportSize else Vector2.new(16, 9)
-	local tall = if screen.Y > 0 then math.min(HEIGHT, WIDTH * screen.X / (ASPECT * screen.Y)) else HEIGHT
+	-- A dark block plate with a gold ink in cells (UI Playbook "Screens after the HUD"), fitted to whatever box layout() gives it.
 	local frame = Builder.blockPlate({
 		parent = root,
 		name = "Hint",
-		color = Theme.Colors.Featured,
-		aspect = ASPECT,
-		rows = Builder.blockRows(tall),
-		position = UDim2.fromScale(CENTRE, BOTTOM),
-		size = UDim2.fromScale(WIDTH, HEIGHT),
-		anchor = Vector2.new(0.5, 1),
+		color = Theme.Block.Trough,
+		ink = Theme.Colors.Featured,
+		position = UDim2.fromScale(CENTRE, HudData.Goal.Top + HudData.Goal.ShipHeight + HudData.Goal.LineGap),
+		size = UDim2.fromScale(HudData.Goal.Width, HudData.Goal.LineHeight),
+		anchor = Vector2.new(0.5, 0),
 	})
 	frame.Visible = false
 	pill = frame
@@ -153,9 +178,9 @@ local function build()
 		parent = frame,
 		name = "Text",
 		text = "",
-		textSize = Theme.TextSize.Label,
+		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(TEXT_X, 0.5),
-		size = UDim2.fromScale(TEXT_W_FULL, TEXT_H),
+		size = UDim2.fromScale(HudData.Goal.TextShare - TEXT_X, TEXT_H),
 		anchor = Vector2.new(0, 0.5),
 		zIndex = top,
 	})
@@ -163,7 +188,7 @@ local function build()
 	local counter = Builder.blockPlate({
 		parent = frame,
 		name = "Progress",
-		color = Theme.Block.Trough,
+		color = Builder.darker(Theme.Block.Trough),
 		aspect = CHIP_ASPECT,
 		rows = Theme.Block.MinRows,
 		cells = false,
@@ -184,9 +209,11 @@ local function build()
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = Builder.blockTop(counter),
 	})
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
+	layout()
 end
 
--- Fills the chip for a counted step (counter/count) or hides it, widening the text to the full pill.
+-- Fills the chip for a counted step (counter/count) or hides it; the layout then gives the text the room.
 local function setProgress(step: Tutorial.Step?, counter: number)
 	local counterChip, text, label = chip, hintLabel, chipLabel
 	if not counterChip or not text or not label then
@@ -196,27 +223,33 @@ local function setProgress(step: Tutorial.Step?, counter: number)
 	if count and count > 0 then
 		label.Text = Strings.TUT_PROGRESS:format(math.clamp(counter, 0, count), count)
 		counterChip.Visible = true
-		text.Size = UDim2.fromScale(TEXT_W_WITH_CHIP, TEXT_H)
 	else
 		counterChip.Visible = false
-		text.Size = UDim2.fromScale(TEXT_W_FULL, TEXT_H)
 	end
+	layout()
 end
 
--- Slides the pill up into place and scales it in (Builder.open), popping the text for the new line.
+-- A new line: the plate scales in (Builder.open) and its face is gold for StepPopSeconds, then the dark trough again; the text pops.
+-- Reduced Motion keeps the gold (it is the message, "something changed") and drops the scale and the pop.
 local function present()
 	local frame, text = pill, hintLabel
 	if not frame or not text then
 		return
 	end
-	frame.Position = UDim2.fromScale(CENTRE, BOTTOM + SLIDE)
-	Builder.open(frame)
-	TweenService:Create(
-		frame,
-		TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ Position = UDim2.fromScale(CENTRE, BOTTOM) }
-	):Play()
-	Builder.pop(text, 1.15)
+	goldGeneration += 1
+	local mine = goldGeneration
+	Builder.setBlockColor(frame, Theme.Colors.Featured)
+	if not Prefs.ReducedMotion() then
+		Builder.open(frame)
+		Builder.pop(text, 1.15)
+	else
+		frame.Visible = true
+	end
+	task.delay(HudData.Goal.StepPopSeconds, function()
+		if goldGeneration == mine then
+			Builder.setBlockColor(frame, Theme.Block.Trough, TweenInfo.new(Theme.Tween.Open))
+		end
+	end)
 end
 
 local function showStep(step: Tutorial.Step, index: number, counter: number)
@@ -280,11 +313,22 @@ local function showDone()
 	end)
 end
 
+-- Tells the HUD and the compass which step the player is on (the staged reveal); only when it changed.
+local function pushStage(index: number)
+	if pushedStage == index then
+		return
+	end
+	pushedStage = index
+	Hud.SetStage(index)
+	Compass.SetStage(index)
+end
+
 local function refresh()
+	local index, counter = State.GetTutorial()
+	pushStage(index)
 	if finished then
 		return
 	end
-	local index, counter = State.GetTutorial()
 	local step = Tutorial.Steps[index]
 	if step then
 		if shownStep == index then

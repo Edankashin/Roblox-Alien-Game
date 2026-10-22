@@ -45,4 +45,17 @@ local Script = {
 	HoldEventBannersWhileActive = true, -- Peddler arrival banner, shower countdown chip and shower banner wait for the tutorial to end
 }
 
-return { Steps = Steps, World = World, Script = Script }
+-- The quiet HUD grows with the player (docs/vault/05-ui-design/Clean-UI-Pass.md, "The first five minutes"): an element shows once the
+-- named step is complete ("T0": from the first frame), and a finished tutorial shows all of them at once. Shared/HudStages is the rule;
+-- UI/Hud and UI/Compass apply it. Open question for Ethan, default as written: the Shop and the Starter Pack wait for the first catch
+-- ("T2" is "Catch a Moop"); set Shop to "T0" to show them from the first frame, nothing else changes.
+local HudStages = {
+	Shop = "T2", -- the Shop and the gold Starter Pack beside it
+	Menu = "T2",
+	ShipBar = "T3", -- the ship bar slides in once the Hull Frame is paid
+	PlaceChip = "T4",
+	EventChip = "T7",
+	Landmarks = "T7", -- the compass's cave, shrine and vent diamonds
+}
+
+return { Steps = Steps, World = World, Script = Script, HudStages = HudStages }
