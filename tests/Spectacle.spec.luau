@@ -449,6 +449,30 @@ describe("the Clean UI pass: fewer, calmer", function()
 		expect(mid).toBeClose(0.5, 1e-9)
 	end)
 
+	it("fades by the nearer of the camera and the avatar, and shows whole when neither is known", function()
+		expect(SpectacleMath.BeaconNearest(nil, nil)).toEqual(1)
+		expect(SpectacleMath.BeaconNearest(100, nil)).toEqual(1)
+		expect(SpectacleMath.BeaconNearest(100, 5)).toEqual(0) -- the camera far off, the avatar beside it
+		expect(SpectacleMath.BeaconNearest(5, 100)).toEqual(0)
+		expect(SpectacleMath.BeaconNearest(32.5, 100)).toBeClose(0.5, 1e-9)
+	end)
+
+	it("turns the near fade into the beam's transparency: the breathing alpha from afar, clear beside it", function()
+		local alpha = 0.4
+		expect(SpectacleMath.BeaconShown(alpha, 1)).toBeClose(alpha, 1e-9)
+		expect(SpectacleMath.BeaconShown(alpha, 0)).toEqual(1)
+		-- sampled from 60 studs in to 4, the transparency only ever rises from the alpha to 1 across 40 to 25 studs
+		local last = alpha
+		for distance = 60, 4, -1 do
+			local shown = SpectacleMath.BeaconShown(alpha, SpectacleMath.BeaconNear(distance))
+			expect(shown >= last - 1e-12).toEqual(true)
+			last = shown
+		end
+		expect(last).toEqual(1)
+		expect(SpectacleMath.BeaconShown(alpha, SpectacleMath.BeaconNear(60))).toBeClose(alpha, 1e-9)
+		expect(SpectacleMath.BeaconShown(alpha, SpectacleMath.BeaconNear(32.5)) > alpha + 0.2).toEqual(true)
+	end)
+
 	it("only ever fades more as the camera comes closer", function()
 		local last = 1
 		for distance = 60, 0, -1 do

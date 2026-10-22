@@ -106,7 +106,7 @@ Read from `store-3-starhollow-night-game.png`, `r4-6-default.png`, `night-starho
 | Node plate (name, condition) | `World/NodeRenderer.luau` | within its draw distance | contextual | within 30 studs, or the tutorial's target node | A |
 | Landmark plates | `World/LandmarkRenderer.luau` | in range | keep | landmarks are places, read rarely | none |
 | Presence (pool, glyph orbit, footprints, aura, trail, haze, ambient loop) | `Spectacle.luau`, `data/Spectacle` Caps | nearest 12 (8 on a phone) | contextual, fewer | nearest 6 (4 on a phone); glyph orbit and trail from Rare | B |
-| Beacons | `Spectacle.luau` | Epic 20 s, Legendary+ while it stays; 4 (2 phone) | keep, fade near | a beacon is for finding from far; within 25 studs of the camera it fades out | B |
+| Beacons | `Spectacle.luau` | Epic 20 s, Legendary+ while it stays; 4 (2 phone) | keep, fade near | a beacon is for finding from far; within 25 studs of the camera or the avatar (the nearer) it fades out; each beacon part carries `NearFade`, `CameraStuds`, `AvatarStuds` and `Species` attributes for a Studio check | B |
 | Arrival sky dim (Cosmic), edge vignette (Secret) | `Spectacle.luau` | each arrival | keep, spaced | never within 8 s of another dim, never over an open panel | B |
 | Shakes (crash, Legendary rumble), Perfect flash, assembly flash | `CameraDirector`, `Vfx` | their moments | keep | already short, already skipped by Reduced Motion | none |
 | Weather particles, shower sky | `WeatherFx`, `Vfx.SetShowerSky` | weather and showers | keep | world, not UI | none |
