@@ -25,4 +25,24 @@ function PlateMath.Scale(distance: number, studsTall: number, fovDeg: number, ma
 	return math.max(minScale, maxShare / share)
 end
 
+-- How high each plate of a crowd stands so two never lie on one another. `xs` and `zs` are the aliens' flat positions in a fixed
+-- order (the order they appeared in): each takes `step` studs per earlier alien within `radius` studs of it, so the first of a
+-- pair stays where it was and the second stands one step up, a third two. Returns one lift per alien, in the same order.
+-- Camera-free on purpose: the stack is the same from every side, and it is judged a few times a second, not every frame.
+function PlateMath.StackLifts(xs: { number }, zs: { number }, radius: number, step: number): { number }
+	local lifts: { number } = {}
+	local radiusSquared = radius * radius
+	for i = 1, #xs do
+		local below = 0
+		for j = 1, i - 1 do
+			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
+			if dx * dx + dz * dz < radiusSquared then
+				below += 1
+			end
+		end
+		lifts[i] = below * step
+	end
+	return lifts
+end
+
 return PlateMath

@@ -386,7 +386,7 @@ local Recipes: { [string]: Types.PropRecipe } = {
 		light = { color = "FFC46B", range = 14, brightness = 1.2, at = { 0, 3.05, 0 } },
 		boxes = {
 			{ size = { 0.4, 2.6, 0.4 }, at = { 0, 1.3, 0 }, color = "2E2648", material = "Wood", collide = true },
-			{ size = { 0.9, 0.9, 0.9 }, at = { 0, 3.05, 0 }, color = "FFB84D", material = "SmoothPlastic", neon = true },
+			{ size = { 0.9, 0.9, 0.9 }, at = { 0, 3.05, 0 }, color = "FF9A2E", material = "SmoothPlastic", neon = true },
 			{ size = { 1.1, 0.25, 1.1 }, at = { 0, 3.6, 0 }, color = "2E2648", material = "Wood" },
 		},
 	},

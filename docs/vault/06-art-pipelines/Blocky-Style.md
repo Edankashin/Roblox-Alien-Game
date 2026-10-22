@@ -340,6 +340,7 @@ The World 1 landscape sample, `tools/blender/blocky_scene.py`: a 48 x 32 stud me
 | Ground, props and creatures at one rule set, so a creature looks made of the world | Smooth terrain or a photographic texture beside a cell-built creature |
 | A prop as a note and a parts table, built and checked like a creature | A prop modelled by hand outside the route (no spec, no check, no board) |
 | Glow sparingly: one crystal in the meadow, the ship's exhaust | Emissive cells scattered over the ground |
+| A Neon glow slot in a deep saturated colour (the Starhollow drips `1B9C94` teal and `9B3FD0` violet, the path lantern `FFB84D` amber), checked at night in the game | A pastel Neon slot (`A6E8FF`, `FFB3E6`, `FFC86B`): night bloom washes it to white and the thin drips read as falling streaks (Mac job 58, 2026-10-22) |
 
 ### World 2: Frostbyte palette
 

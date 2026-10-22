@@ -14,7 +14,7 @@ budget: 700
 collision: Box
 collision_slots: {Glow: None, Trim: None}
 footprint: [16, 14, 19]
-palette: ["#4752C4", "#3F2878", "#2A8A94", "#CDC3F2", "#A6E8FF"]
+palette: ["#4752C4", "#3F2878", "#2A8A94", "#CDC3F2", "#1B9C94"]
 roles: [body, second, accent, trim, glow]
 render: "[[starhollow_props_v1.jpg]]"
 glb: "assets/models/props/MoonTree/MoonTree.glb"
@@ -23,7 +23,7 @@ glb: "assets/models/props/MoonTree/MoonTree.glb"
 
 Starhollow's everyday tree, taller than the meadow oak: a violet bark trunk on root flares and two branches, a broad stepped indigo crown with teal clumps breaking its box on every side, pale lavender shelf fungus on the trunk, and light dripping from the crown's edge: eight sky-blue drips, two ending in a bead. The canopy's underside is at 11 to 12 studs, so the path runs under it.
 
-- **Cells**: the trunk, roots and branches in `wood`; the crown and clumps in `moss` (the teal accent as the sprig cell in the indigo); the drips `glow` (Neon in the game: the light the scene is lit by)
+- **Cells**: the trunk, roots and branches in `wood`; the crown and clumps in `moss` (the teal accent as the sprig cell in the indigo); the drips `glow`, deep teal 1B9C94 (Neon in the game; it was pale A6E8FF, which bloomed to white streaks at night, Mac job 58; Props.Place recolours the slot from ModelAssets)
 - **The reference**: the tall dark-trunked trees of the forest TikTok (ZPLYSA3uR, 5 to 9 s), with the falling light under the canopy; the drips are the still part of that light, the falling streaks are the world worker's particles
 - **Collision**: the trunk (BodyDark) and the crown (Body, Accessory) box apart; the drips and the shelves never collide
 - **Footprint**: 16 x 14 x 19 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract).

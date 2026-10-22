@@ -106,6 +106,8 @@ type Record = {
 	hidden: boolean, -- the blizzard hide rule: out of sight beyond BlizzardHideStuds and outside every Heater
 	plate: BillboardGui,
 	plateScale: number, -- the factor on the plate's stud size now (PlateMath: 1 at range, less with the camera close)
+	plateLift: number, -- studs the plate stands above its own height so a neighbour's plate is not under it (restackPlates)
+	order: number, -- the order the alien appeared in; the stack's first alien keeps its plate where it was
 	nameLabel: TextLabel,
 	model: Model?, -- the mesh clone when the species has one; the server part is then hidden locally
 	modelBase: CFrame?, -- the clone's rest pivot: feet where the placeholder's bottom sits
@@ -121,6 +123,7 @@ type Record = {
 }
 
 local records: { [Part]: Record } = {}
+local nextOrder = 0 -- counts the aliens tracked, for Record.order
 local known: { [string]: boolean } = {}
 local rng = Random.new()
 local wildFolder: Folder? = nil
@@ -532,6 +535,8 @@ local function applyVisibility(record: Record)
 	syncFx(record)
 end
 
+local restackPlates: () -> () -- defined after topOffsetOf; evaluate calls it
+
 -- Re-judges the hide rule for every tracked alien (and the Scanner Pulse's reveal, via applyPulse). Without
 -- a blizzard everything is shown; with no character yet the hide rule changes nothing.
 local function evaluate()
@@ -551,6 +556,7 @@ local function evaluate()
 			applyVisibility(record)
 		end
 	end
+	restackPlates()
 end
 
 -- Distance from a part's centre up to the top of what the player sees: half the part for a placeholder,
@@ -560,6 +566,36 @@ local function topOffsetOf(part: Part, model: Model?): number
 		return Models.Height(model) - part.Size.Y / 2
 	end
 	return part.Size.Y / 2
+end
+
+-- Two wild aliens standing side by side put their 7-stud plates on one another (Studio 2026-10-22: Wispkin and a neighbour). The
+-- aliens within Config.NameplateStackRadiusStuds of each other form a stack: the one that appeared first keeps its plate, each later
+-- one's stands Config.NameplateStackStepStuds higher per earlier neighbour (PlateMath.StackLifts). Judged with the hide rule, four
+-- times a second; a plate is written only when its lift changes, and a hidden alien neither takes a place nor counts.
+function restackPlates()
+	local live: { Record } = {}
+	for _, record in pairs(records) do
+		if not record.hidden and record.part.Parent then
+			table.insert(live, record)
+		end
+	end
+	table.sort(live, function(a: Record, b: Record): boolean
+		return a.order < b.order
+	end)
+	local xs: { number } = {}
+	local zs: { number } = {}
+	for index, record in ipairs(live) do
+		local position = record.base.Position
+		xs[index], zs[index] = position.X, position.Z
+	end
+	local lifts = PlateMath.StackLifts(xs, zs, Config.NameplateStackRadiusStuds, Config.NameplateStackStepStuds)
+	for index, record in ipairs(live) do
+		local lift = lifts[index]
+		if math.abs(lift - record.plateLift) > 1e-6 then
+			record.plateLift = lift
+			record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(record.part, record.model)) + Vector3.new(0, lift, 0)
+		end
+	end
 end
 
 -- Re-reads the part's Size attribute for a tracked alien (the server may set it after the part
@@ -579,7 +615,7 @@ local function applySize(record: Record)
 	if model then
 		model:ScaleTo(model:GetScale() * ratio)
 	end
-	record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(part, model))
+	record.plate.StudsOffsetWorldSpace = plateOffset(topOffsetOf(part, model)) + Vector3.new(0, record.plateLift, 0)
 	SpeciesFx.Refresh(record.fxTarget, factor) -- measured again at the new size
 end
 
@@ -614,6 +650,7 @@ local function track(instance: Instance)
 	local plate, nameLabel = buildPlate(instance, displayName, tier, topOffsetOf(instance, model))
 	local light, glow, glowImage = buildAura(instance, tier)
 	local fxTarget: BasePart | Model = model or instance
+	nextOrder += 1
 	local record: Record = {
 		part = instance,
 		species = species,
@@ -629,6 +666,8 @@ local function track(instance: Instance)
 		hidden = false,
 		plate = plate,
 		plateScale = 1,
+		plateLift = 0,
+		order = nextOrder,
 		nameLabel = nameLabel,
 		model = model,
 		modelBase = modelBase,

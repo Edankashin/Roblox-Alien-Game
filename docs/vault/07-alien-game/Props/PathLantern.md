@@ -14,7 +14,7 @@ budget: 260
 collision: Box
 collision_slots: {Accessory: None}
 footprint: [1.75, 1.5, 5.5]
-palette: ["#3A3562", "#272340", "#2C7F72", "#A891E6", "#FFB84D"]
+palette: ["#3A3562", "#272340", "#2C7F72", "#A891E6", "#FF9A2E"]
 roles: [body, second, accent, trim, glow]
 render: "[[starhollow_props_v1.jpg]]"
 glb: "assets/models/props/PathLantern/PathLantern.glb"
@@ -23,7 +23,7 @@ glb: "assets/models/props/PathLantern/PathLantern.glb"
 
 The lantern that lines Starhollow's paths, about the avatar's height: a dark post on a stone foot, a box lantern of warm-white light in a dark iron frame with a stepped roof and a violet knob, moss at its foot. Every few studs along the pale path, it is the warm note in the cool forest.
 
-- **Cells**: the post in `wood`, the foot in `stone`, the frame and roof in `metal`; the light `glow`, warm amber FFB84D (it was warm white FFE7B0, which read as an unlit white block under bloom at night, Mac job 53 step 5; the world kit adds a PointLight in the same family, FFC46B)
+- **Cells**: the post in `wood`, the foot in `stone`, the frame and roof in `metal`; the light `glow`, deep amber FF9A2E (FFB84D read pale cream at a distance in the camp at night, Mac job 58; it was warm white FFE7B0, which read as an unlit white block under bloom at night, Mac job 53 step 5; the world kit adds a PointLight in the same family, FFC46B)
 - **The reference**: the lantern posts beside the glowcaps in ZPLYSA3uR (15 to 19 s)
 - **Collision**: Box (post and lantern); the moss none
 - **Footprint**: 1.75 x 1.5 x 5.5 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract).

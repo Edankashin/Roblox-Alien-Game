@@ -456,6 +456,7 @@ local function build(parent: ScreenGui)
 			size = UDim2.fromScale(1 - MARGIN * 2, ROW_H),
 			textSize = Theme.TextSize.Label,
 			rows = Builder.blockButtonRows(ROW_H * CARD_H),
+			hit = true, -- 37 px at iPhone SE: the 44 px floor
 			zIndex = BODY_Z,
 		}, function()
 			for _, row in ipairs(rows) do
