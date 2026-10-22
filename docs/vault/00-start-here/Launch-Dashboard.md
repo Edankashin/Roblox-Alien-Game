@@ -31,6 +31,7 @@ Ethan: "I want to be able to launch this game by this week." The order matters: 
 - [ ] Job 41: download the three TikToks (batch 9)
 - [ ] Job 40: the one-command upload (`tools/finalize_upload.sh`), then commit the ids; moderation can take hours
 - [ ] Jobs 36 to 39 and 42 to 46: the Studio checks of the HUD, screens, reveal, models, spectacle, worlds, props, Starhollow and camp
+- [ ] Job 56: create Scanner Pulse x1 and set Server Luck x4 to 599 with `tools/create_products.py` ([[Decisions]] B51), then the Studio check of the Earn faster chip and the new card; if the key is refused, [[Launch-Steps]] step 3b
 - [ ] Publish the private places from the repo (`tools/publish.py`) once the checks pass
 
 **Only Ethan** (step by step in [[Launch-Steps]])

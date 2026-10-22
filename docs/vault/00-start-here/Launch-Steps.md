@@ -57,6 +57,18 @@ If the page will not let you change an existing key's experience, make a new key
 
 DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock are rows in the shop table, but no game feature is wired to them yet (checked 2026-10-21: nothing in the code grants them). Creating them on the dashboard would sell items that give nothing, so do not. With an id of 0 the game hides them; the pre-launch audit makes sure of that. The 15 items that work are already created and on sale.
 
+## 3b. Optional: the 9 Robux Scanner Pulse and the new Server Luck x4 price (5 minutes; only if Mac job 56 could not)
+
+Your answers to [[Decide-Now]] 47 and 50 ([[Decisions]] B51): a new product, Scanner Pulse x1 at 9 Robux, and Server Luck x4 down from 999 to 599. The Mac session does both with `tools/create_products.py` (job 56). Do this only if its log says the key was refused. Creator Dashboard (create.roblox.com) > **Creations** > **Catch an Alien**, then in the left column **Monetization** > **Developer Products**:
+
+1. Click **Create developer product** (top right).
+2. Click the image box, press **Cmd + Shift + G**, paste `~/Roblox-Alien-Game/assets/icons/ScannerPulse.png`, press Return, click **Open**.
+3. **Name**: `Scanner Pulse x1`. **Description**: `One Scanner Pulse: every alien here on your radar.` **Price**: `9`. Leave everything else as it is. Click **Create** (or **Save**).
+4. Back on the list, hover over its picture, click **⋯**, choose **Copy Asset ID**, and send it to the coordinator as `ScannerPulse1: <the number>`. Until that id is in the game the card stays hidden.
+5. On the same list, click **Server Luck x4** to open it. In **Price** replace `999` with `599`. Click **Save Changes** (or **Save**). Nothing to send: the game already says 599.
+
+To let the Mac do it next time instead: on your key's page (step 2), **Add API System** > **developer-product**, tick **Read** and **Write**, choose **Catch an Alien** in its experience picker, **Save Changes**.
+
 ## 4. Pick the icon and thumbnails (5 minutes)
 
 1. The coordinator sends a new set in the block-cell look (one icon, about six thumbnails) and puts it in `media/store/2026-10-22/`.
