@@ -419,6 +419,18 @@ describe("Shop header clears the cards", function()
 			assert(ribbonTop(screen.h, false) > lifted, "the lift goes up")
 		end)
 	end
+	it("the Scrap pill stands clear of the toast stack (0.42 wide, centred) and of the X, at every size", function()
+		-- Studio 2026-10-22: a toast covered the Scrap pill while the Shop was open. Toast.luau WIDTH 0.42 at x 0.5 (top 0.03 while a panel is open).
+		local toastRight = 0.5 + 0.42 / 2
+		local pill, close = shelf.Currency, shelf.Close
+		for _, screen in ipairs(screens) do
+			local pillW = math.min(pill.W * screen.w, pill.H * screen.h * pill.Aspect)
+			local left = pill.Right * screen.w - pillW
+			local closeLeft = close.Right * screen.w - math.min(close.W * screen.w, close.H * screen.h)
+			assert(left >= toastRight * screen.w + 2, screen.name .. ": the pill starts at " .. left .. " px, the toast ends at " .. toastRight * screen.w)
+			assert(pill.Right * screen.w <= closeLeft - 2, screen.name .. ": the pill meets the X")
+		end
+	end)
 	it("the cards still fit the window (the ribbons and the lift inside its clip) and keep the text floor at iPhone SE", function()
 		local window = shelf.Window
 		local liftedTop = shelf.CardTop + (shelf.Card.Ribbon.Y - shelf.Motion.HoverLift) * shelf.CardH
