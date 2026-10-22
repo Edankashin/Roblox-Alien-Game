@@ -29,6 +29,9 @@
 -- the card only subtracts and formats them (Shared/Countdown). A thing happening now (a shower or a round
 -- running, the Peddler's ship down) is Featured gold with the time left as m:ss; a thing to come reads white with
 -- the short form. The card redraws once a second while the screen is open and not at all while it is closed.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the card is one line, "2 events on, tap for more", until a
+-- tap opens its four lines (QuestsScreen.OpenWhatsOn opens the screen with it already open: the HUD's event chip calls it); the
+-- panel opens on the tab with something to claim (Shared/PanelQuiet.QuestTab), Field Notes when none has.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -44,6 +47,7 @@ local Seasons = require(Shared:WaitForChild("data"):WaitForChild("Seasons"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local Countdown = require(Shared:WaitForChild("Countdown"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Place = require(Shared:WaitForChild("Place"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
@@ -197,6 +201,8 @@ local gui: ScreenGui? = nil
 local panel: Frame? = nil
 local stepLabel: TextLabel? = nil
 local onLines: { TextLabel } = {} -- the What's on card's four lines, in ON_PLACES order
+local onSummary: TextLabel? = nil -- the card's one line while it is closed
+local onExpanded = false -- the card shows its four lines (a tap on it flips this; the screen opens with it closed)
 local onToken = 0 -- bumped to stop the card's once-a-second loop (close)
 local list: Frame? = nil
 local doneLabel: TextLabel? = nil
@@ -1512,15 +1518,49 @@ end
 
 local ON_LINES: { () -> OnLine? } = { showerLine, rushLine, peddlerLine, eventLine } -- ON_PLACES order
 
+-- The card's one closed line: how many things are on now, else that something is coming, else that nothing is.
+local function summaryText(now: number, later: number): string
+	local summary = PanelQuiet.OnSummary(now, later)
+	if summary.kind == "many" then
+		return Strings.WHATS_ON_MANY:format(summary.count)
+	elseif summary.kind == "one" then
+		return Strings.WHATS_ON_ONE
+	elseif summary.kind == "later" then
+		return Strings.WHATS_ON_LATER
+	end
+	return Strings.WHATS_ON_NONE
+end
+
 local function refreshOn()
+	local now, later = 0, 0
 	for index, label in ipairs(onLines) do
 		local line = ON_LINES[index]()
 		if line then
 			label.Text = line.text
 			label.TextColor3 = if line.now then Theme.Colors.Featured else Theme.Colors.White
+			if line.now then
+				now += 1
+			else
+				later += 1
+			end
 		else
 			label.Text = ""
 		end
+		label.Visible = onExpanded
+	end
+	local summary = onSummary
+	if summary then
+		summary.Visible = not onExpanded
+		summary.Text = summaryText(now, later)
+		summary.TextColor3 = if now > 0 then Theme.Colors.Featured else Theme.Colors.White
+	end
+end
+
+-- Opens or closes the card's four lines (a tap on the card).
+local function setOnExpanded(expanded: boolean)
+	onExpanded = expanded
+	if open then
+		refreshOn()
 	end
 end
 
@@ -1582,6 +1622,82 @@ local function buildWhatsOn(body: Frame)
 		line.TextTruncate = Enum.TextTruncate.AtEnd
 		table.insert(onLines, line)
 	end
+	-- The closed card: one centred line, and over the whole band an invisible button that opens or closes the four lines.
+	local summary = Builder.label({
+		parent = band,
+		name = "Summary",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.96, 0.6),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(band),
+	})
+	summary.TextWrapped = false
+	summary.TextTruncate = Enum.TextTruncate.AtEnd
+	onSummary = summary
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.AutoButtonColor = false
+	tap.Text = ""
+	tap.BorderSizePixel = 0
+	tap.BackgroundTransparency = 1
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = Builder.blockTop(band) + 2
+	tap.Parent = band
+	tap.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		setOnExpanded(not onExpanded)
+	end)
+end
+
+-- Which tabs have something to claim now, from the mirror: Field Notes when the current step's objectives are all met, Daily & Weekly
+-- when a dealt quest is done and not taken, Event when a track quest is. The panel opens on the first of them.
+local function claimableTabs(): { [string]: boolean }
+	local ready: { [string]: boolean } = {}
+	if not State.Has() then
+		return ready
+	end
+	local profile = State.Get()
+	local world = profile.world.current
+	local steps: { Quests.Step }? = Quests.FieldNotes[world]
+	local notesState = State.GetQuests()
+	if steps then
+		local step: Quests.Step? = steps[notesState.fieldNotes[tostring(world)] or 1]
+		if step and #step.objectives > 0 then
+			local allDone = true
+			for _, objective in ipairs(step.objectives) do
+				if (notesState.progress[objective.id] or 0) < objective.count then
+					allDone = false
+					break
+				end
+			end
+			ready.notes = allDone
+		end
+	end
+	local quests = profile.quests
+	for _, period in ipairs({ "daily", "weekly" }) do
+		local state = if period == "daily" then quests.daily else quests.weekly
+		local byId = if period == "daily" then dailyById else weeklyById
+		for _, id in ipairs(state.ids) do
+			local quest = byId[id]
+			if quest and state.claimed[id] ~= true and (state.progress[id] or 0) >= quest.objective.count then
+				ready.daily = true
+			end
+		end
+	end
+	local current = State.GetSeason()
+	if current then
+		local savedId, saved = State.GetSeasonProgress()
+		if savedId == current.season.id and saved then
+			for _, quest in ipairs(current.season.track) do
+				if saved.claimed[quest.id] ~= true and SeasonMath.TrackDone(quest, saved.progress) then
+					ready.event = true
+				end
+			end
+		end
+	end
+	return ready
 end
 
 -- Build ----------------------------------------------------------------------
@@ -1616,6 +1732,7 @@ local function build()
 		color = Theme.Colors.Panel,
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
@@ -1703,19 +1820,43 @@ function QuestsScreen.RewardsText(rewards: { DailyQuests.Reward }): string
 	return rewardsList(rewards)
 end
 
-function QuestsScreen.Open()
+-- Opens the panel on the tab with something to claim (Field Notes when none has), the What's on card closed to its one line, or
+-- already open with its four lines when `showOn`.
+local function openScreen(showOn: boolean)
 	build()
 	local root, body = gui, panel
-	if open or not root or not body then
+	if not root or not body then
+		return
+	end
+	if open then
+		if showOn then
+			setOnExpanded(true)
+		end
 		return
 	end
 	open = true
-	view = "notes" -- always opens on the Field Notes, whichever tab was showing last
+	onExpanded = showOn
+	view = PanelQuiet.QuestTab(claimableTabs(), State.GetSeason() ~= nil) :: ViewName
 	applyView()
 	refresh()
 	root.Enabled = true
 	Builder.open(body)
 	startOnTicker()
+	if view == "daily" then
+		fetchDaily()
+		startTicker()
+	elseif view == "event" and eventScroller then
+		eventScroller.CanvasPosition = Vector2.zero -- opens at the title
+	end
+end
+
+function QuestsScreen.Open()
+	openScreen(false)
+end
+
+-- Opens the panel with the What's on card already open (the HUD's event chip taps here); if the panel is up, opens the card.
+function QuestsScreen.OpenWhatsOn()
+	openScreen(true)
 end
 
 function QuestsScreen.Close()

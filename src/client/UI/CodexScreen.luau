@@ -14,6 +14,9 @@
 -- stroke's thickness step is now a colour step), its square a flat block, its count badge a flat block; the progress bar a flat
 -- dark block filled cell-true; the detail card a fitted edged block in its tier's ink, the turning view on a flat block in the
 -- tier's lighter colour.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the detail card is never an empty pane, it opens on the most
+-- recently caught species (or the first entry; Shared/PanelQuiet.CodexDefault), and an event species wears a small purple block in
+-- its corner instead of the word "Event" (the detail card names the event). "This week" and "Vaulted" stay words: they ask for action.
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +31,7 @@ local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local Builder = require(script.Parent.Builder)
@@ -48,7 +52,8 @@ type Cell = {
 	name: TextLabel,
 	badge: Frame,
 	badgeLabel: TextLabel,
-	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Event" for an event alien (or a returning drop) while its season runs, "Vaulted" for a limited species out of its window
+	stamp: TextLabel, -- top-left: "This week" for the Alien of the Week, "Vaulted" for a limited species out of its window
+	eventMark: Frame, -- top-left: a small purple block for an event alien (or a returning drop) while its season runs
 	thumb: SpeciesThumb.Thumb, -- the species' model, still, filling the picture area (hidden without one)
 	speciesId: string,
 	tier: string,
@@ -90,6 +95,7 @@ local STAMP_X = 0.06
 local STAMP_Y = 0.03
 local STAMP_W = 0.84
 local STAMP_H = 0.14 -- one line of the minimum text; taller touched the unknown mark on an 81 px cell
+local EVENT_MARK_W = 0.13 -- the event block's side, of the card: about 10 px on an 81 px card
 -- A grid card's layers: the card plate at 4 takes 4 to 7 (its ink, face and edges); on it the square at CARD_TOP (its mark at
 -- its own top), the badge one above, the stamp over both, the tap button over everything.
 local CARD_TOP = 4 + Theme.Block.Layer.Content
@@ -293,6 +299,11 @@ local function fillDetail(profile: Types.Profile)
 	d.name.Text = displayName(def, caught)
 	d.tier.Text = Builder.text("TIER_" .. def.tier)
 	d.tier.TextColor3 = tierColor
+	local eventSeason = SeasonMath.Current(State.Now(), State.GetSeasonOverride())
+	if eventSeason and limitedState(def.id, State.Now(), State.GetWeeklyOffset(), State.GetSeasonOverride()) == "event" then
+		-- an event species: the card says which event brought it
+		d.tier.Text = Strings.CODEX_TIER_EVENT:format(d.tier.Text, Builder.text("SEASON_" .. eventSeason.season.id))
+	end
 	d.jobs.Text = jobsText(def)
 
 	local biome = Builder.text("BIOME_" .. def.biome)
@@ -601,6 +612,20 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 	})
 	stamp.Visible = false
 
+	-- An event alien's mark: a small purple flat block where the stamp would stand.
+	local eventMark = Builder.blockPlate({
+		parent = card,
+		name = "EventMark",
+		color = Theme.Colors.Codex,
+		aspect = 1,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		position = UDim2.fromScale(STAMP_X, STAMP_Y),
+		size = UDim2.fromScale(EVENT_MARK_W, EVENT_MARK_W),
+		zIndex = STAMP_Z,
+	})
+	eventMark.Visible = false
+
 	local cell: Cell = {
 		slot = slot,
 		card = card,
@@ -611,6 +636,7 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		badge = badge,
 		badgeLabel = badgeLabel,
 		stamp = stamp,
+		eventMark = eventMark,
 		thumb = thumb,
 		speciesId = "",
 		tier = "Common",
@@ -681,13 +707,10 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	-- The stamp: the Alien of the Week now, Event for an event alien while its season runs (and for a weekly drop it
 	-- brings back), else Vaulted for a limited species that is out of its window.
 	local state = limitedState(def.id, now, offset, override)
+	cell.eventMark.Visible = state == "event"
 	if state == "week" then
 		cell.stamp.Text = Strings.CODEX_THIS_WEEK
 		cell.stamp.TextColor3 = Theme.Colors.Featured
-		cell.stamp.Visible = true
-	elseif state == "event" then
-		cell.stamp.Text = Strings.CODEX_EVENT
-		cell.stamp.TextColor3 = Theme.Colors.Codex
 		cell.stamp.Visible = true
 	elseif state == "vaulted" then
 		cell.stamp.Text = Strings.CODEX_VAULTED
@@ -699,6 +722,24 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 end
 
 -- Refresh ----------------------------------------------------------------------
+
+-- When each species the player owns was last caught: its newest alien's catch time, or its first catch (a released species still
+-- counts in the codex). Read only while nothing is selected, to pick the card the detail opens on.
+local function recentCatches(profile: Types.Profile): { [string]: number }
+	local recent: { [string]: number } = {}
+	for id, entry in pairs(profile.codex) do
+		if entry.count > 0 then
+			recent[id] = entry.firstCaughtAt
+		end
+	end
+	for _, record in pairs(profile.aliens) do
+		local known = recent[record.species]
+		if known == nil or record.caughtAt > known then
+			recent[record.species] = record.caughtAt
+		end
+	end
+	return recent
+end
 
 local function refresh()
 	if not open or not State.Has() then
@@ -733,6 +774,14 @@ local function refresh()
 		if not def or def.world ~= worldId then
 			selected = nil
 		end
+	end
+	if selected == nil then
+		-- Never an empty pane: the most recent catch of this page, else its first species.
+		local ids: { string } = {}
+		for _, def in ipairs(list) do
+			table.insert(ids, def.id)
+		end
+		selected = PanelQuiet.CodexDefault(ids, recentCatches(profile))
 	end
 
 	local world = Worlds[worldId]
@@ -781,6 +830,7 @@ local function build()
 		color = Theme.Colors.Panel,
 		aspect = 1.35,
 		rows = Builder.blockPanelRows(0.78), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, 0.78),
 		anchor = Vector2.new(0.5, 0.5),

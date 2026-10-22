@@ -88,6 +88,7 @@ Theme.Block = {
 	MinRows = 3,
 	Grout = 0.125,
 	GroutAlpha = 0.9,
+	QuietGroutAlpha = 0.95, -- a quiet panel face's grout (Builder.blockPlate quiet = true, Clean UI pass package C): fainter, with no jitter
 	TopAlpha = 0.7,
 	EdgeAlpha = 0.8,
 	JitterAlpha = 0.9,

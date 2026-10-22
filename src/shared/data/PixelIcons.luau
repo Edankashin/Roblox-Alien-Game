@@ -31,6 +31,18 @@ local Icons: { [string]: { Pixel } } = {
 		{ 3, 3, 2, 2, "FFE9A6" },
 		{ 1, 5, 2, 2, "Featured" },
 	},
+	-- a small grey padlock: a locked ship module row (Clean UI pass, package C)
+	Lock = {
+		{ 2, 0, 4, 1, "Outline" },
+		{ 1, 1, 6, 3, "Outline" },
+		{ 2, 1, 4, 1, "B8BDD0" },
+		{ 2, 2, 1, 2, "B8BDD0" },
+		{ 5, 2, 1, 2, "B8BDD0" },
+		{ 0, 4, 8, 4, "Outline" },
+		{ 1, 5, 6, 2, "8A8FA3" },
+		{ 1, 5, 6, 1, "B8BDD0" },
+		{ 3, 6, 2, 1, "Outline" },
+	},
 	-- MENU ICONS BEGIN (tools/menu_icons.py writes this block: the Menu's 16 x 16 icons, Decision B53)
 	-- a gold shopping bag with a red heart and a handle
 	Shop = {

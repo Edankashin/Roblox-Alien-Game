@@ -15,6 +15,10 @@
 -- the gold header and the close; a calendar tile a fitted edged block whose face and ink follow its state, the day chip and
 -- Claimed flat blocks, Claim a flat block button; the wheel a dark pixel octagon that turns, its hub a cream octagon, the
 -- pointer a flat block on its corner; the odds table an edged block; the other buttons block buttons.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): two columns, the calendar and the wheel. The social asks are
+-- one block button under the wheel, "Group and friends", that opens the group gift and the invite as a small card over the wheel's
+-- column (as the odds button opens the table). A calendar tile is green only while its gift can be taken (gold ink, a Claim button);
+-- a taken one is pale, a day still ahead grey with no button (Shared/PanelQuiet.GiftState).
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -31,6 +35,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Gifts = require(Shared:WaitForChild("data"):WaitForChild("Gifts"))
 local Spins = require(Shared:WaitForChild("data"):WaitForChild("Spins"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -71,19 +76,18 @@ type Tile = {
 -- One wheel segment: a block of name and odds labels that orbits the hub and is kept upright.
 type Wedge = { block: Frame, name: TextLabel, odds: TextLabel }
 
--- Panel layout, as fractions of the panel. The panel is wide (PANEL_ASPECT) so three columns sit side by
--- side on a phone: Welcome Week, the wheel and the social column. The header tab straddles the top edge
--- and the close button reaches down to 0.155, so every column starts under it.
-local PANEL_ASPECT = 1.8
+-- Panel layout, as fractions of the panel. Two columns sit side by side: Welcome Week and the wheel (the social asks are a button
+-- under the wheel). The header tab straddles the top edge and the close button reaches down to 0.155, so both start under it. The
+-- calendar's three square tiles a row keep the size they had (about 60 px at iPhone SE), which fixes the panel's shape.
+local PANEL_ASPECT = 1.4
+local PANEL_H = 0.78
 local BODY_Y = 0.16
 local HEADING_H = 0.065
 local COL_GAP = Theme.Margin
 local LEFT_X = Theme.Margin
-local LEFT_W = 0.34
+local LEFT_W = 0.44
 local MID_X = LEFT_X + LEFT_W + COL_GAP
-local MID_W = 0.32
-local SOCIAL_X = MID_X + MID_W + COL_GAP
-local SOCIAL_W = 1 - Theme.Margin - SOCIAL_X
+local MID_W = 1 - Theme.Margin - MID_X
 local DAYS_Y = 0.225
 local DAYS_H = 0.045
 local NEXT_Y = 0.272 -- the Tomorrow line, under Days played
@@ -98,27 +102,32 @@ local TILE_ICON_W = 0.25
 local TILE_ICON_INSET = 0.03
 local WHEEL_Y = 0.235
 local WHEEL_H = 0.5
--- The two spin counts sit one under the other at the column's full width, 17 px high each at iPhone SE height
--- (one 14 px line): side by side, "Banked spins: 0" (102 px) did not fit the 84 px half and lost its number.
+-- The two spin counts sit side by side under the wheel, one 14 px line (17 px at iPhone SE height); the column is 205 px wide
+-- there, so "Free spins: 0" (85 px) and "Banked spins: 0" (102 px) each have room. Then the odds button and the social button, each
+-- 23 px tall, a gap between, the last one ending at the panel's margin.
 local LINES_H = 0.06
 local FREE_Y = 0.745
-local BANKED_Y = FREE_Y + LINES_H
-local ODDS_Y = BANKED_Y + LINES_H + 0.005
-local ODDS_H = 1 - Theme.Margin - ODDS_Y
+local FREE_W = 0.42 -- of the column
+local BANKED_X = FREE_W
+local BANKED_W = 1 - FREE_W
+local ODDS_Y = 0.81
+local ODDS_H = 0.08
+local GROUP_Y = ODDS_Y + ODDS_H + 0.01
+local GROUP_H = 1 - Theme.Margin - GROUP_Y
 -- The odds table: laid over the wheel and the lines under it, one row per prize so each stays readable at
 -- phone sizes (a single line of nine prizes did not fit under 800 px wide).
-local ODDS_TABLE_GAP = 0.015 -- between the table's bottom and the odds button
+local ODDS_TABLE_GAP = 0.015 -- between the table's bottom and the odds button (the social card ends there too)
 local ODDS_TABLE_PAD = 0.04 -- inside the table, of its size
 local ODDS_NAME_W = 0.62
 local ODDS_VALUE_W = 0.3
--- The social column: the group block (button over the line saying what it pays), then the invite block.
--- With no group (Social.GroupId == 0) the invite block takes the top slot.
-local SOCIAL_Y = 0.17
-local SOCIAL_BUTTON_H = 0.1
-local SOCIAL_LINE_GAP = 0.01
-local GROUP_LINE_H = 0.19
-local INVITE_LINE_H = 0.3
-local SOCIAL_BLOCK_GAP = 0.04
+-- The social card (the "Group and friends" button opens it over the wheel's column): the group block (button over the line saying what
+-- it pays), then the invite block, as fractions of the card. With no group (Social.GroupId == 0) the invite block takes the top slot.
+local SOCIAL_PAD = 0.05
+local SOCIAL_BUTTON_H = 0.15
+local SOCIAL_LINE_GAP = 0.015
+local GROUP_LINE_H = 0.25
+local INVITE_LINE_H = 0.32
+local SOCIAL_BLOCK_GAP = 0.03
 
 -- Wheel geometry, as fractions of the wheel square (the ring reads at any size).
 -- At iPhone SE height the ring is 146 px across: a block is 44 px wide and 29 px high, so the name (a short
@@ -153,6 +162,8 @@ local invitePending = false
 local open = false
 local oddsTable: Frame? = nil -- the odds table and the button that opens it (built once)
 local oddsButton: Frame? = nil
+local socialCard: Frame? = nil -- the group and invite card and the button that opens it (built once)
+local socialButton: Frame? = nil
 local pending = false -- one server request in flight at a time
 local spinning = false -- the wheel is turning; the Spin button stays grey until it settles
 local claimedLocal: { [string]: boolean } = {} -- days the server confirmed, until the next GiftsChanged
@@ -295,11 +306,12 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 	local isClaimed = gifts.claimed[key] == true or claimedLocal[key] == true
 	local unlocked = row.day <= gifts.daysPlayed
 	local accent = giftAccent(row)
+	local state = PanelQuiet.GiftState(unlocked, isClaimed)
 	tile.dayLabel.Text = Strings.GIFTS_DAY:format(row.day)
 	tile.reward.Text = tileLabel(row)
-	tile.claim.Visible = unlocked and not isClaimed
-	tile.claimed.Visible = isClaimed
-	tile.locked.Visible = not unlocked and not isClaimed
+	tile.claim.Visible = state == "claimable"
+	tile.claimed.Visible = state == "claimed"
+	tile.locked.Visible = state == "future"
 	-- The corner icon is rebuilt on every refresh, so a re-render never stacks a second one.
 	local previousIcon = tile.icon
 	if previousIcon then
@@ -319,9 +331,9 @@ local function refreshTile(tile: Tile, row: GiftRow, gifts: Types.GiftState)
 		})
 	end
 	local dimmed = Builder.lighter(Theme.Rarity.Common, 0.6)
-	if isClaimed then
+	if state == "claimed" then
 		setTileStyle(tile, dimmed, Theme.Rarity.Common)
-	elseif unlocked then
+	elseif state == "claimable" then
 		setTileStyle(tile, Theme.Colors.White, accent)
 	else
 		-- Locked: grey, except an egg keeps its tier colour so the week's prize stays in view.
@@ -714,7 +726,7 @@ local function buildTile(parent: Frame, index: number, row: GiftRow): Tile
 		position = UDim2.fromScale(0.5, 0.94),
 		size = UDim2.fromScale(0.8, 0.23),
 		anchor = Vector2.new(0.5, 1),
-		color = Theme.Colors.Confirm,
+		color = Theme.Rarity.Common, -- pale: a taken gift is done, not a call to act
 		rows = Theme.Block.MinRows,
 		cells = false,
 		zIndex = Builder.blockTop(card),
@@ -882,8 +894,8 @@ local function buildOddsTable(body: Frame): Frame
 	local tableFrame = Builder.blockPlate({
 		parent = body,
 		name = "OddsTable",
-		position = UDim2.fromScale(MID_X, WHEEL_Y),
-		size = UDim2.fromScale(MID_W, ODDS_Y - ODDS_TABLE_GAP - WHEEL_Y),
+		position = UDim2.fromScale(MID_X, BODY_Y),
+		size = UDim2.fromScale(MID_W, ODDS_Y - ODDS_TABLE_GAP - BODY_Y),
 		color = Theme.Colors.Panel,
 		ink = Theme.Colors.Outline,
 		cells = false,
@@ -941,61 +953,81 @@ local function buildOddsTable(body: Frame): Frame
 	return tableFrame
 end
 
--- The social column: the group gift (button, then what it pays) when the team has a group, then the
--- invite button and what a referral pays. The labels start at the top so a long line grows downwards.
-local function buildSocial(body: Frame)
-	local y = SOCIAL_Y
+-- The social card: the group gift (button, then what it pays) when the team has a group, then the invite button and what a referral
+-- pays, on an edged cream block over the wheel's column; hidden until the "Group and friends" button opens it. The labels start at the
+-- top so a long line grows downwards.
+local function buildSocial(body: Frame): Frame
+	local card = Builder.blockPlate({
+		parent = body,
+		name = "SocialCard",
+		position = UDim2.fromScale(MID_X, BODY_Y),
+		size = UDim2.fromScale(MID_W, GROUP_Y - ODDS_TABLE_GAP - BODY_Y),
+		color = Theme.Colors.Panel,
+		ink = Theme.Colors.Outline,
+		cells = false,
+		edges = true,
+		zIndex = Builder.blockTop(body) + 5,
+	})
+	card.Visible = false
+	card.Active = true -- a tap on the card never reaches the wheel under it
+	local top = Builder.blockTop(card)
+	local cardH = (GROUP_Y - ODDS_TABLE_GAP - BODY_Y) * PANEL_H -- the card's height, of the screen: its buttons' rows come from it
+	local inner = 1 - 2 * SOCIAL_PAD
+	local y = SOCIAL_PAD
 	if Social.GroupId ~= 0 then
 		groupButton = Builder.blockButton({
-			parent = body,
+			parent = card,
 			name = "GroupGift",
 			text = Strings.SOCIAL_GROUP_JOIN,
 			color = Theme.Colors.Select,
-			position = UDim2.fromScale(SOCIAL_X, y),
-			size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
+			position = UDim2.fromScale(SOCIAL_PAD, y),
+			size = UDim2.fromScale(inner, SOCIAL_BUTTON_H),
 			textSize = Theme.TextSize.Body,
-			rows = Theme.Block.MinRows,
-			zIndex = Builder.blockTop(body),
+			rows = Builder.blockButtonRows(SOCIAL_BUTTON_H * cardH),
+			hit = true,
+			zIndex = top,
 		}, onGroupTap)
 		y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
 		local groupLine = Builder.label({
-			parent = body,
+			parent = card,
 			name = "GroupLine",
 			text = Strings.SOCIAL_GROUP_LINE:format(rewardListText(Social.GroupReward)),
 			textSize = Theme.TextSize.Body,
 			color = Theme.Colors.Outline,
 			stroke = 0,
-			position = UDim2.fromScale(SOCIAL_X, y),
-			size = UDim2.fromScale(SOCIAL_W, GROUP_LINE_H),
-			zIndex = Builder.blockTop(body),
+			position = UDim2.fromScale(SOCIAL_PAD, y),
+			size = UDim2.fromScale(inner, GROUP_LINE_H),
+			zIndex = top,
 		})
 		groupLine.TextYAlignment = Enum.TextYAlignment.Top
 		y += GROUP_LINE_H + SOCIAL_BLOCK_GAP
 	end
 	Builder.blockButton({
-		parent = body,
+		parent = card,
 		name = "InviteFriends",
 		text = Strings.SOCIAL_INVITE,
 		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(SOCIAL_X, y),
-		size = UDim2.fromScale(SOCIAL_W, SOCIAL_BUTTON_H),
+		position = UDim2.fromScale(SOCIAL_PAD, y),
+		size = UDim2.fromScale(inner, SOCIAL_BUTTON_H),
 		textSize = Theme.TextSize.Body,
-		rows = Theme.Block.MinRows,
-		zIndex = Builder.blockTop(body),
+		rows = Builder.blockButtonRows(SOCIAL_BUTTON_H * cardH),
+		hit = true,
+		zIndex = top,
 	}, onInviteTap)
 	y += SOCIAL_BUTTON_H + SOCIAL_LINE_GAP
 	local inviteLine = Builder.label({
-		parent = body,
+		parent = card,
 		name = "InviteLine",
 		text = Strings.SOCIAL_INVITE_LINE:format(rewardListText(Social.ReferralInviter), rewardListText(Social.ReferralInvitee)),
 		textSize = Theme.TextSize.Body,
 		color = Theme.Colors.Outline,
 		stroke = 0,
-		position = UDim2.fromScale(SOCIAL_X, y),
-		size = UDim2.fromScale(SOCIAL_W, INVITE_LINE_H),
-		zIndex = Builder.blockTop(body),
+		position = UDim2.fromScale(SOCIAL_PAD, y),
+		size = UDim2.fromScale(inner, INVITE_LINE_H),
+		zIndex = top,
 	})
 	inviteLine.TextYAlignment = Enum.TextYAlignment.Top
+	return card
 end
 
 -- Build ----------------------------------------------------------------------
@@ -1028,9 +1060,10 @@ local function build()
 		name = "Panel",
 		color = Theme.Colors.Panel,
 		aspect = PANEL_ASPECT,
-		rows = Builder.blockPanelRows(0.78), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.86, 0.78),
+		size = UDim2.fromScale(0.8, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 2,
 	})
@@ -1039,7 +1072,7 @@ local function build()
 	-- Header tab straddling the top edge, gold, title in white outlined text.
 	Builder.blockHeader(body, PANEL_ASPECT, Strings.GIFTS_TITLE, Theme.Colors.Featured, Vector2.new(0.34, 0.11))
 
-	Builder.blockClose(body, 0.78, function()
+	Builder.blockClose(body, PANEL_H, function()
 		GiftsScreen.Close()
 	end)
 
@@ -1134,7 +1167,7 @@ local function build()
 		text = Strings.SPIN_FREE:format(0),
 		textSize = Theme.TextSize.Body,
 		position = UDim2.fromScale(MID_X, FREE_Y),
-		size = UDim2.fromScale(MID_W, LINES_H),
+		size = UDim2.fromScale(MID_W * FREE_W, LINES_H),
 		zIndex = Builder.blockTop(body),
 	})
 	bankedLabel = Builder.label({
@@ -1142,8 +1175,8 @@ local function build()
 		name = "BankedSpins",
 		text = Strings.SPIN_BANKED:format(0),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(MID_X, BANKED_Y),
-		size = UDim2.fromScale(MID_W, LINES_H),
+		position = UDim2.fromScale(MID_X + MID_W * BANKED_X, FREE_Y),
+		size = UDim2.fromScale(MID_W * BANKED_W, LINES_H),
 		zIndex = Builder.blockTop(body),
 	})
 	-- Every prize's odds, one per row, in a table this button opens over the wheel (paid spins link here).
@@ -1158,15 +1191,47 @@ local function build()
 		position = UDim2.fromScale(MID_X, ODDS_Y),
 		size = UDim2.fromScale(MID_W, ODDS_H),
 		textSize = Theme.TextSize.Body,
-		rows = Theme.Block.MinRows,
+		rows = Builder.blockButtonRows(ODDS_H * PANEL_H),
+		hit = true,
 		zIndex = Builder.blockTop(body),
 	}, function()
 		listFrame.Visible = not listFrame.Visible
 		setButtonText(button, if listFrame.Visible then Strings.SPIN_ODDS_HIDE else Strings.SPIN_ODDS_SHOW)
+		local card = socialCard
+		if card and listFrame.Visible then
+			card.Visible = false -- one card over the wheel at a time
+			local opener = socialButton
+			if opener then
+				setButtonText(opener, Strings.GIFTS_GROUP_FRIENDS)
+			end
+		end
 	end)
 	oddsButton = button
 
-	buildSocial(body)
+	-- The social asks: one button under the odds button; it opens the group and invite card over the wheel's column.
+	local card = buildSocial(body)
+	socialCard = card
+	local opener: Frame
+	opener = Builder.blockButton({
+		parent = body,
+		name = "SocialButton",
+		text = Strings.GIFTS_GROUP_FRIENDS,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(MID_X, GROUP_Y),
+		size = UDim2.fromScale(MID_W, GROUP_H),
+		textSize = Theme.TextSize.Body,
+		rows = Builder.blockButtonRows(GROUP_H * PANEL_H),
+		hit = true,
+		zIndex = Builder.blockTop(body),
+	}, function()
+		card.Visible = not card.Visible
+		setButtonText(opener, if card.Visible then Strings.GIFTS_SOCIAL_BACK else Strings.GIFTS_GROUP_FRIENDS)
+		if card.Visible then
+			listFrame.Visible = false -- one card over the wheel at a time
+			setButtonText(button, Strings.SPIN_ODDS_SHOW)
+		end
+	end)
+	socialButton = opener
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
 	State.OnChanged("gifts", function()
@@ -1193,6 +1258,11 @@ function GiftsScreen.Open()
 	if odds and oddsBtn then
 		odds.Visible = false
 		setButtonText(oddsBtn, Strings.SPIN_ODDS_SHOW)
+	end
+	local card, opener = socialCard, socialButton
+	if card and opener then
+		card.Visible = false
+		setButtonText(opener, Strings.GIFTS_GROUP_FRIENDS)
 	end
 	refresh()
 	root.Enabled = true

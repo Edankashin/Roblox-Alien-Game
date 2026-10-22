@@ -29,6 +29,10 @@
 -- at the panel cell, the header tab, the close button and every button block plates and block buttons; the station cards and the
 -- alien cards are edged blocks (lit top row, shaded edges, no grout or jitter: a grid of them stays a few frames each), the slot
 -- squares and the chips flat blocks, a rarity ring the ink. The layout, every binding and every string key are as before.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): a station slot is its square alone (the species colour; the
+-- names under the squares are gone, the card keeps "4/4" and the rate); Release moved from the header's left corner into the footer's
+-- button row, left of the Storage Bay button; the footer has one green button at a time (the Bay button, while a level can be
+-- bought). Shared/PanelQuiet.AliensFooter places the row, with and without a Companion Token button.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -49,8 +53,10 @@ local Jobs = require(Shared:WaitForChild("data"):WaitForChild("Jobs"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local ViewFit = require(Shared:WaitForChild("ViewFit"))
 local Builder = require(script.Parent.Builder)
@@ -94,20 +100,13 @@ local FOOTER_Y = 0.864 -- the button row
 local FOOTER_H = 0.072
 local INFO_Y = 0.939 -- one line of 14 px text under the buttons
 local INFO_H = 0.041
-local BAY_W = 0.38 -- the Storage Bay button at the left margin: "+20 storage: 2,500 Scrap" is about 156 px at the 14 px floor
-local TOKEN_BUTTON_W = 0.21 -- the Companion Token button, left of Fuse while a token is held ("Use Token (1)" is about 86 px)
-local FUSE_BUTTON_W = 0.165
-local OPTIMIZE_BUTTON_W = 0.175 -- at the right margin
-local FOOTER_GAP = 0.01 -- between the buttons
+-- The footer's button widths and places are data/Panels.AliensFooter, worked out by PanelQuiet.AliensFooter: Release then the Storage
+-- Bay button ("+20 storage: 2,500 Scrap" is about 156 px at the 14 px floor; "+20 for 2,500" while a token button shares the row) at
+-- the left, the Companion Token button (while a token is held, "Use Token (1)" about 86 px), Fuse and Optimize at the right.
 local INFO_COUNT_W = 0.3 -- the owned count, then the companions label, then the perks line takes the rest of the row
 local INFO_COMPANIONS_X = 0.32
 local INFO_PERKS_X = 0.64
 local FUSE_BUSY_ALPHA = 0.5 -- the Fuse button's face and text fade by this while a fusion is in flight
--- The Release button at the top left, opposite the Close button and clear of the header tab (which starts at 0.29).
-local RELEASE_X = 0.015
-local RELEASE_Y = 0.02
-local RELEASE_W = 0.2
-local RELEASE_H = 0.1
 
 -- Grid: five square cards per row; the cell width is a fraction of the grid's canvas width and the
 -- cell height is derived from it so the cells come out square (see layoutGrid).
@@ -140,14 +139,11 @@ local RIDE_H = 0.18
 local CARD_ROWS = 10 -- an alien card is an edged block this many cells tall (about 7.5 px cells on an iPhone SE card of 83 px)
 local SQUARE_ROWS = 3 -- the shape square, a slot square and a chip: flat blocks of the fewest rows a stepped corner takes
 local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (the strip is 0.18 of the screen)
--- A station card's slot row (UI Playbook "Aliens slot names"): the row is SLOTS_W of the card from SLOTS_X; a slot's square is
--- SLOT_SQUARE_H of the row and its name the rest, one line at the 14 px floor in the slot's own width and no wider, so the gap
--- between two slots is a gap between their names too ("MoopMoopMoop", Studio 2026-10-22). "Moop" and "Open" fit whole with three
--- slots at iPhone SE (40 px of label, tests/BlockMath.spec.luau "Aliens slot names"); a name wider than its slot ends in an
--- ellipsis instead of wrapping into a cut second line ("Moo") or running into its neighbour.
+-- A station card's slot row: the row is SLOTS_W of the card from SLOTS_X; a slot is its square alone, the whole height of the row (the
+-- names under the squares went in the clean pass: the square's colour says who works there, the card says "4/4" and the rate).
 local SLOTS_X = 0.02
 local SLOTS_W = 0.96
-local SLOT_SQUARE_H = 0.46
+local SLOT_SQUARE_H = 1
 local PANEL_H = 0.84 -- the panel's height, of the screen (its rows come from it, at the panel cell)
 local PANEL_ASPECT = 1.35
 
@@ -194,6 +190,9 @@ local gridLayout: UIGridLayout? = nil
 local badgeFits: { (number) -> () } = {} -- one per overlay badge on the cards now drawn; each takes the card's width in px and refits its badge
 local emptyLabel: TextLabel? = nil
 local fuseButton: Frame? = nil
+local releaseButton: Frame? = nil
+local optimizeButton: Frame? = nil
+local tokenHeld = false -- a Companion Token is held: the token button shows and the footer row re-spaces
 local cardCount = 0
 local open = false
 local pending = false -- one server request in flight at a time
@@ -622,8 +621,8 @@ end
 
 -- Station strip ------------------------------------------------------------
 
--- One slot square: filled (species colour, tier stroke, name beneath), open (outlined, "Open"
--- beneath) or locked (darker, no label) for slots the station has not grown into yet.
+-- One slot square: filled (species colour, tier ring), open (the cream square) or locked (darker) for slots the station has not
+-- grown into yet. No label under it.
 local function buildSlot(parent: Frame, index: number, width: number, profile: Types.Profile, station: Types.StationState)
 	local cell = Builder.frame({
 		parent = parent,
@@ -648,47 +647,14 @@ local function buildSlot(parent: Frame, index: number, width: number, profile: T
 		anchor = Vector2.new(0.5, 0),
 		zIndex = 4,
 	}
-	local label: string? = nil
 	if index > station.slots then
 		square.color = Builder.darker(Theme.Rarity.Common)
 	elseif record then
 		local def = Species.ById[record.species]
 		square.color = speciesColor(def)
 		square.ink = Builder.tierColor(if def then def.tier else "Common")
-		label = speciesName(def, record.species)
-	else
-		label = Strings.STATION_EMPTY_SLOT
 	end
 	Builder.blockPlate(square)
-	if label then
-		-- One line at the floor across the slot's pitch (its own width and the gap, so neighbours meet and never overlap); a
-		-- name wider than that ends in an ellipsis rather than wrapping into a second line the row cuts off.
-		local nameLabel = Builder.label({
-			parent = cell,
-			name = "Name",
-			text = label,
-			textSize = Theme.TextSize.Min,
-			position = UDim2.fromScale(0.5, SLOT_SQUARE_H),
-			size = UDim2.fromScale((width + STRIP_GAP) / width, 1 - SLOT_SQUARE_H),
-			anchor = Vector2.new(0.5, 0),
-			zIndex = 5,
-		})
-		nameLabel.TextScaled = false
-		nameLabel.TextWrapped = false
-		nameLabel.TextSize = Theme.TextSize.Min
-		-- A name that does not fit whole at the floor is hidden rather than cut to "M..." (six slots at the default window,
-		-- Studio 2026-10-22): the square's species colour still says who works there.
-		nameLabel.TextTruncate = Enum.TextTruncate.None
-		local function fit()
-			nameLabel.TextTransparency = if nameLabel.TextFits then 0 else 1
-			local outline = nameLabel:FindFirstChildOfClass("UIStroke")
-			if outline then
-				outline.Enabled = nameLabel.TextFits
-			end
-		end
-		nameLabel:GetPropertyChangedSignal("TextFits"):Connect(fit)
-		fit()
-	end
 end
 
 local function buildStationCard(parent: Frame, index: number, width: number, job: string, profile: Types.Profile)
@@ -1321,6 +1287,23 @@ end
 
 -- The count row's companion label, the perks line and the Companion Token button: slots in use, the perks they
 -- give, and the button shown only while a token is held (its label carries how many).
+-- Places the footer's buttons for whether a token is held (Shared/PanelQuiet.AliensFooter): every button stands at its left edge.
+local function layoutFooter()
+	local footer = PanelQuiet.AliensFooter(tokenHeld)
+	local function place(button: Frame?, slot: PanelQuiet.Slot?)
+		if button and slot then
+			button.AnchorPoint = Vector2.zero
+			button.Position = UDim2.fromScale(slot.x, FOOTER_Y)
+			button.Size = UDim2.fromScale(slot.w, FOOTER_H)
+		end
+	end
+	place(releaseButton, footer.release)
+	place(bayButton, footer.bay)
+	place(tokenButton, footer.token)
+	place(fuseButton, footer.fuse)
+	place(optimizeButton, footer.optimize)
+end
+
 local function updateCompanionRows(profile: Types.Profile)
 	if companionsLabel then
 		companionsLabel.Text = Strings.ALIENS_COMPANIONS:format(#profile.companions, State.GetCompanionSlots())
@@ -1334,6 +1317,10 @@ local function updateCompanionRows(profile: Types.Profile)
 	if button then
 		local tokens = profile.inventory.items[Companions.TokenItem] or 0
 		button.Visible = tokens > 0
+		if (tokens > 0) ~= tokenHeld then
+			tokenHeld = tokens > 0
+			layoutFooter() -- Release, the Bay button and the rest re-space (the Bay's words follow in refreshStorageRow)
+		end
 		local face = button:FindFirstChild("Face")
 		if face and face:IsA("TextButton") then
 			face.Text = Strings.ALIENS_USE_TOKEN:format(tokens)
@@ -1365,8 +1352,10 @@ local function refreshStorageRow()
 	elseif why == "NeedsWorld" then
 		Builder.restyleBlockButton(bayButton, Strings.STORAGE_BAY_NEEDS_WORLD:format(perLevel, row.world), Theme.Rarity.Common, true)
 	else
+		-- the one green button of the footer, while a level can be bought; its short words while the token button shares the row
 		local color = if profile.scrap >= row.scrap then Theme.Colors.Confirm else Theme.Rarity.Common
-		Builder.restyleBlockButton(bayButton, Strings.STORAGE_BAY_BUY:format(perLevel, Builder.formatNumber(row.scrap)), color, true)
+		local template = if tokenHeld then Strings.STORAGE_BAY_SHORT else Strings.STORAGE_BAY_BUY
+		Builder.restyleBlockButton(bayButton, template:format(perLevel, Builder.formatNumber(row.scrap)), color, true)
 	end
 end
 
@@ -1436,6 +1425,7 @@ end
 local function refreshCompanionRows()
 	if open and State.Has() then
 		updateCompanionRows(State.Get())
+		refreshStorageRow() -- the Bay button's words depend on whether the token button is up
 	end
 end
 
@@ -1495,6 +1485,7 @@ local function build()
 		color = Theme.Colors.Panel,
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.555), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(0.8, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
@@ -1509,15 +1500,16 @@ local function build()
 		AliensScreen.Close()
 	end)
 
-	-- Release: the menu of "Release all unused" (and the hint about holding a card), over the panel.
-	Builder.blockButton({
+	-- Release (the menu of "Release all unused", and the hint about holding a card) sits in the footer's button row, left of the
+	-- Storage Bay button; layoutFooter places it.
+	releaseButton = Builder.blockButton({
 		parent = body,
 		name = "Release",
 		text = Strings.RELEASE_BUTTON,
 		color = Theme.Colors.Select,
-		position = UDim2.fromScale(RELEASE_X, RELEASE_Y),
-		size = UDim2.fromScale(RELEASE_W, RELEASE_H),
-		rows = Builder.blockButtonRows(RELEASE_H * PANEL_H), -- a fitted block button: its size is a share of the panel
+		position = UDim2.fromScale(Theme.Margin, FOOTER_Y),
+		size = UDim2.fromScale(Panels.AliensFooter.Release, FOOTER_H),
+		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H), -- a fitted block button: its size is a share of the panel
 		textSize = Theme.TextSize.Label,
 		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
@@ -1581,8 +1573,8 @@ local function build()
 		name = "StorageBay",
 		text = Strings.STORAGE_BAY_BUY:format(Builder.formatNumber(Storage.Bay.PerLevel), Builder.formatNumber(Storage.Bay.Levels[1].scrap)),
 		color = Theme.Colors.Confirm,
-		position = UDim2.fromScale(Theme.Margin, FOOTER_Y),
-		size = UDim2.fromScale(BAY_W, FOOTER_H),
+		position = UDim2.fromScale(Theme.Margin, FOOTER_Y), -- layoutFooter places it
+		size = UDim2.fromScale(Panels.AliensFooter.Bay, FOOTER_H),
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
 		textSize = Theme.TextSize.Label,
 		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
@@ -1639,31 +1631,28 @@ local function build()
 	-- 4. Footer: the button row at the right (Companion Token while one is held, Fuse, then Optimize at the right edge) beside the
 	-- Storage Bay button. Optimize asks the server to reseat the crew; Fuse asks it to fuse every species with spare copies (the
 	-- toast of a tap with nothing to fuse says what a fusion needs); the token button asks it to spend a Companion Token on a slot.
-	Builder.blockButton({
+	optimizeButton = Builder.blockButton({
 		parent = body,
 		name = "Optimize",
 		text = Strings.OPTIMIZE,
 		color = Theme.Colors.Select,
-		position = UDim2.fromScale(1 - Theme.Margin, FOOTER_Y),
-		size = UDim2.fromScale(OPTIMIZE_BUTTON_W, FOOTER_H),
+		position = UDim2.fromScale(1 - Theme.Margin - Panels.AliensFooter.Optimize, FOOTER_Y), -- layoutFooter places it
+		size = UDim2.fromScale(Panels.AliensFooter.Optimize, FOOTER_H),
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
-		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
 		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, function()
 		ask("StationOptimize")
 	end)
-	local fuseRight = 1 - Theme.Margin - OPTIMIZE_BUTTON_W - FOOTER_GAP
 	fuseButton = Builder.blockButton({
 		parent = body,
 		name = "Fuse",
 		text = Strings.FUSE_BUTTON,
 		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(fuseRight, FOOTER_Y),
-		size = UDim2.fromScale(FUSE_BUTTON_W, FOOTER_H),
+		position = UDim2.fromScale(0, FOOTER_Y), -- layoutFooter places it
+		size = UDim2.fromScale(Panels.AliensFooter.Fuse, FOOTER_H),
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
-		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
 		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
@@ -1673,16 +1662,16 @@ local function build()
 		name = "UseToken",
 		text = Strings.ALIENS_USE_TOKEN:format(0),
 		color = Theme.Colors.Select,
-		position = UDim2.fromScale(fuseRight - FUSE_BUTTON_W - FOOTER_GAP, FOOTER_Y), -- left of Fuse, a gap between
-		size = UDim2.fromScale(TOKEN_BUTTON_W, FOOTER_H),
+		position = UDim2.fromScale(0, FOOTER_Y), -- left of Fuse, a gap between (layoutFooter places it)
+		size = UDim2.fromScale(Panels.AliensFooter.Token, FOOTER_H),
 		rows = Builder.blockButtonRows(FOOTER_H * PANEL_H),
-		anchor = Vector2.new(1, 0),
 		textSize = Theme.TextSize.Label,
 		hit = true, -- the face is under the 44 px floor: an invisible 44 px area over it (Theme.TapMin)
 		zIndex = top + 1,
 	}, useToken)
 	token.Visible = false -- shown by updateCompanionRows while a token is held
 	tokenButton = token
+	layoutFooter()
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
 	for _, topic in ipairs({ "stations", "rate", "companions", "home", "visit" }) do

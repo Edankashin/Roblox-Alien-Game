@@ -9,6 +9,10 @@
 -- the gold header and the close; a module card a fitted edged block (it re-picks its rows between compact and expanded) whose
 -- face and ink follow its state, its badge and Paid chip flat blocks, Pay and Add flat block buttons, its progress bar a flat
 -- dark block filled cell-true in gold; Star Chart and Optimize block buttons in cells.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): a locked row is its number, its name and a small padlock,
+-- and the first locked row alone says "Finish the module above first"; the intro line shows only until the first module's Scrap is
+-- paid; the active card has one green button, the next step (Pay, then Add while parts are missing), the other blue or grey
+-- (Shared/PanelQuiet decides each).
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +27,7 @@ local Modules = require(Shared:WaitForChild("data"):WaitForChild("Modules"))
 local KeyMaterials = require(Shared:WaitForChild("data"):WaitForChild("KeyMaterials"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local ScrapGap = require(script.Parent.ScrapGap)
@@ -39,6 +44,7 @@ type Row = {
 	badge: Frame,
 	badgeLabel: TextLabel,
 	name: TextLabel,
+	lock: GuiObject?, -- the padlock a locked row wears (absent if the pixel icon is missing)
 	crew: TextLabel,
 	pay: Frame,
 	payFace: TextButton,
@@ -59,6 +65,20 @@ local PANEL_W, PANEL_H, PANEL_ASPECT, PANEL_Y = 0.8, 0.78, 1.35, 0.55
 local ROW_COMPACT = 0.125 -- of the list height
 local ROW_EXPANDED = 0.425
 local ROW_GAP = 0.0175
+-- A locked row: the name takes less of the card, the padlock stands after it and the one hint (first locked row only) after that.
+local LOCK_X, LOCK_W, LOCK_H = 0.39, 0.045, 0.6
+local LOCKED_NAME_W = 0.3
+local LOCKED_STATUS_X, LOCKED_STATUS_W = 0.45, 0.54
+
+-- A button's colour by its role in the active card: the one green button is the next step, the other blue while it can act.
+local function roleColor(role: string): Color3
+	if role == "primary" then
+		return Theme.Colors.Confirm
+	elseif role == "secondary" then
+		return Theme.Colors.Select
+	end
+	return Theme.Rarity.Common
+end
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
@@ -209,6 +229,18 @@ local function buildRow(parent: Frame, index: number): Row
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = Builder.blockTop(card),
 	})
+	local lock = Builder.pixelIcon({
+		parent = card,
+		name = "Lock",
+		key = "Lock",
+		position = UDim2.fromScale(LOCK_X, 0.5),
+		size = UDim2.fromScale(LOCK_W, LOCK_H),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = Builder.blockTop(card),
+	})
+	if lock then
+		lock.Visible = false
+	end
 	local crew = Builder.label({
 		parent = card,
 		name = "Crew",
@@ -321,6 +353,7 @@ local function buildRow(parent: Frame, index: number): Row
 		badge = badge,
 		badgeLabel = badgeLabel,
 		name = name,
+		lock = lock,
 		crew = crew,
 		pay = pay,
 		payFace = payFace,
@@ -352,8 +385,11 @@ local function setCardStyle(row: Row, cardColor: Color3, accent: Color3)
 end
 
 -- Positions the shared children for the expanded (active) or compact (done, locked) shape.
-local function layoutRow(row: Row, expanded: boolean, showBar: boolean)
+local function layoutRow(row: Row, expanded: boolean, showBar: boolean, locked: boolean?)
 	row.card.Size = UDim2.fromScale(1, if expanded then ROW_EXPANDED else ROW_COMPACT)
+	if row.lock then
+		row.lock.Visible = locked == true
+	end
 	row.crew.Visible = expanded
 	row.keyLabel.Visible = expanded
 	row.add.Visible = expanded
@@ -376,8 +412,11 @@ local function layoutRow(row: Row, expanded: boolean, showBar: boolean)
 		row.badge.AnchorPoint = Vector2.new(0, 0.5)
 		row.badge.Size = UDim2.fromScale(0.06, 0.78)
 		row.name.Position = UDim2.fromScale(0.08, 0.1)
-		row.name.Size = UDim2.fromScale(0.38, 0.8)
-		if showBar then
+		row.name.Size = UDim2.fromScale(if locked == true then LOCKED_NAME_W else 0.38, 0.8)
+		if locked == true then
+			row.status.Position = UDim2.fromScale(LOCKED_STATUS_X, 0.1)
+			row.status.Size = UDim2.fromScale(LOCKED_STATUS_W, 0.8)
+		elseif showBar then
 			row.bar.Position = UDim2.fromScale(0.47, 0.5)
 			row.bar.AnchorPoint = Vector2.new(0, 0.5)
 			row.bar.Size = UDim2.fromScale(0.28, 0.72)
@@ -414,10 +453,10 @@ local function refresh()
 		local speed = speeds[def.job] or Config.AssemblyPlayerSpeed
 
 		if activeIndex ~= nil and index > activeIndex then
-			-- Locked: dimmed, waiting on the module above.
-			layoutRow(row, false, false)
+			-- Locked: dimmed, waiting on the module above. Number, name, padlock; only the first locked row says why.
+			layoutRow(row, false, false, true)
 			setCardStyle(row, Builder.lighter(Theme.Rarity.Common, 0.6), Theme.Rarity.Common)
-			row.status.Text = Strings.SHIP_LOCKED
+			row.status.Text = if PanelQuiet.ShipLockedHint(index, activeIndex) then Strings.SHIP_LOCKED else ""
 			row.status.TextColor3 = Theme.Colors.White
 		elseif Economy.isComplete(state) then
 			layoutRow(row, false, true)
@@ -432,19 +471,20 @@ local function refresh()
 			local scrapPaid = if state then state.scrapPaid else 0
 			local keyPaid = if state then state.keyPaid else 0
 			local scrapDone = scrapPaid >= def.scrap
+			local partsMissing = keyPaid < def.keyCount
+			local owned = profile.inventory.keyMaterials[def.keyMaterial] or 0
+			local canAdd = owned > 0 and partsMissing
+			local payRole, addRole = PanelQuiet.ShipRoles(scrapDone, partsMissing, canAdd)
 			row.paid.Visible = scrapDone
 			row.pay.Visible = not scrapDone
 			if not scrapDone then
 				row.payFace.Text = Strings.SHIP_PAY:format(Builder.formatNumber(def.scrap))
-				local affordable = profile.scrap >= def.scrap - scrapPaid
-				recolorButton(row.pay, if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
+				recolorButton(row.pay, roleColor(payRole))
 			end
 			local material = materialName(def.keyMaterial)
 			row.keyLabel.Text = Strings.SHIP_KEY_COUNT:format(keyPaid, def.keyCount, material)
 			row.addFace.Text = Strings.SHIP_ADD:format(material)
-			local owned = profile.inventory.keyMaterials[def.keyMaterial] or 0
-			local canAdd = owned > 0 and keyPaid < def.keyCount
-			recolorButton(row.add, if canAdd then Theme.Colors.Select else Theme.Rarity.Common)
+			recolorButton(row.add, roleColor(addRole))
 
 			local progress = if state then Economy.progressAt(def, state, speed, now) else 0
 			setFill(row, progress)
@@ -462,8 +502,12 @@ local function refresh()
 
 	local help = helpLabel
 	if help then
+		-- The intro line is for the very first payment only; after that the card says it all.
 		local activeDef = if activeIndex then defs[activeIndex] else nil
-		help.Visible = activeDef ~= nil
+		local firstDef = defs[1]
+		local firstState = if firstDef then Economy.moduleState(profile, worldId, firstDef.id) else nil
+		local firstScrapPaid = firstDef ~= nil and firstState ~= nil and firstState.scrapPaid >= firstDef.scrap
+		help.Visible = activeDef ~= nil and PanelQuiet.ShipIntroShown(activeIndex, firstScrapPaid, Economy.isComplete(firstState))
 		if activeDef then
 			help.Text = Strings.SHIP_HELP:format(Builder.text("JOB_" .. activeDef.job))
 		end
@@ -521,6 +565,7 @@ local function build()
 		color = Theme.Colors.Panel,
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, PANEL_Y), -- below the HUD's top row; the header tab straddles the top edge
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),

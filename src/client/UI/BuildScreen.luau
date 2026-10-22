@@ -400,6 +400,7 @@ local function build()
 		name = "Tray",
 		color = Theme.Colors.Panel,
 		rows = Builder.blockPanelRows(TRAY_H),
+		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(1 - Theme.Margin, 1 - Theme.Margin), -- bottom right: the left edge clears the menu column
 		size = UDim2.fromScale(TRAY_W, TRAY_H),
 		anchor = Vector2.new(1, 1),
