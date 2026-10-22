@@ -473,7 +473,7 @@ function CameraDirector.CrashLanding(onDone: (() -> ())?)
 
 		cam.CameraType = Enum.CameraType.Scriptable
 		cam.CFrame = CFrame.lookAt(start, at)
-		Toast.Banner(Strings.CRASH_LINE_1, Theme.Colors.Close, Config.CrashLineSeconds)
+		Toast.Banner(Strings.CRASH_LINE_1, Theme.Colors.Close, Config.CrashLineSeconds, "crash")
 		if not glide(mine, cam, seatCFrame, seconds, Enum.EasingDirection.In) then
 			return
 		end
@@ -483,7 +483,7 @@ function CameraDirector.CrashLanding(onDone: (() -> ())?)
 				return
 			end
 		end
-		Toast.Banner(Strings.CRASH_LINE_2, Theme.Colors.Featured, Config.CrashLineSeconds)
+		Toast.Banner(Strings.CRASH_LINE_2, Theme.Colors.Featured, Config.CrashLineSeconds, "crash2")
 		release()
 	end)
 end

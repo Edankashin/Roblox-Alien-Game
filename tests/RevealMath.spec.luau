@@ -286,4 +286,58 @@ describe("RevealMath pixel egg", function()
 	end)
 end)
 
+describe("the quick card for a repeat catch", function()
+	local function input(tier: string, change: { [string]: any }?): RevealMath.ModeInput
+		local base: any = { tier = tier, isNew = false, fromEgg = false, overlay = "None", labelledSize = false, overflow = false }
+		for key, value in pairs(change or {}) do
+			base[key] = value
+		end
+		return base
+	end
+
+	it("is the reveal of a wild catch of a known species at Common or Uncommon", function()
+		expect(RevealMath.IsQuick(input("Common"))).toEqual(true)
+		expect(RevealMath.IsQuick(input("Uncommon"))).toEqual(true)
+	end)
+
+	it("keeps the full three beats for a new species at any tier", function()
+		for _, tier in ipairs(Tiers.Order) do
+			expect(RevealMath.IsQuick(input(tier, { isNew = true }))).toEqual(false)
+		end
+	end)
+
+	it("keeps the full three beats for Rare and up, known species or not", function()
+		for _, tier in ipairs({ "Rare", "Epic", "Legendary", "Cosmic", "Secret" }) do
+			expect(RevealMath.IsQuick(input(tier))).toEqual(false)
+		end
+	end)
+
+	it("keeps the full three beats for every egg or grant, even a repeat Common", function()
+		expect(RevealMath.IsQuick(input("Common", { fromEgg = true }))).toEqual(false)
+		expect(RevealMath.IsQuick(input("Uncommon", { fromEgg = true }))).toEqual(false)
+	end)
+
+	it("keeps the full three beats when something about the catch is special", function()
+		expect(RevealMath.IsQuick(input("Common", { overlay = "Gold" }))).toEqual(false)
+		expect(RevealMath.IsQuick(input("Common", { labelledSize = true }))).toEqual(false)
+		expect(RevealMath.IsQuick(input("Uncommon", { overflow = true }))).toEqual(false)
+	end)
+
+	it("only lists tiers below Rare, and the card costs about a second and a half", function()
+		for _, tier in ipairs(RevealData.QuickTiers) do
+			expect(Tiers.Tiers[tier] ~= nil).toEqual(true)
+			expect(table.find(Tiers.Order, tier) < table.find(Tiers.Order, "Rare")).toEqual(true)
+		end
+		expect(RevealData.QuickSeconds).toEqual(1.6)
+		expect(RevealData.QuickWidth).toEqual(0.3)
+		expect(RevealMath.QuickQuietSeconds()).toEqual(RevealData.QuickSeconds)
+		expect(RevealMath.QuickHoldSeconds() > 0).toEqual(true)
+		expect(RevealMath.QuickHoldSeconds() + RevealData.QuickInSeconds + RevealData.QuickOutSeconds).toBeClose(RevealData.QuickSeconds, 1e-9)
+	end)
+
+	it("is shorter than the Rare reveal's authored band, and needs no tap to continue", function()
+		expect(RevealMath.QuickQuietSeconds() < RevealData.TotalMinSeconds).toEqual(true)
+	end)
+end)
+
 return true

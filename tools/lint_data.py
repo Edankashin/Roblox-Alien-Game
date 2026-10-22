@@ -1194,6 +1194,19 @@ def lint_reveal(tables, root=ROOT):
                 check(rung['Wash'] <= previous['Wash'], f'{where}.Wash: a rarer tier washes at least as strongly')
                 check(rung['TurnScale'] <= previous['TurnScale'], f'{where}.TurnScale: a rarer tier turns at least as slowly')
             previous = rung
+    # The quick card of a repeat catch (Clean UI pass, package B): only the tiers below Rare, a short stay, a small card.
+    quick = data.get('QuickTiers')
+    names = list(quick.values()) if isinstance(quick, dict) else []
+    check(len(names) >= 1 and all(name in order for name in names), 'Reveal.QuickTiers: expected tier names that exist in data/Tiers Order')
+    if 'Rare' in order:
+        check(all(name in order and order.index(name) < order.index('Rare') for name in names),
+              'Reveal.QuickTiers: a Rare or rarer catch keeps the full ceremony (only tiers below Rare may be quick)')
+    check(finite(data.get('QuickSeconds')) and 0.5 <= data['QuickSeconds'] <= 3, 'Reveal.QuickSeconds: expected between 0.5 and 3 seconds (a repeat catch costs a moment, not a ceremony)')
+    check(finite(data.get('QuickWidth')) and 0.1 <= data['QuickWidth'] <= 0.4, 'Reveal.QuickWidth: expected a card between 0.1 and 0.4 of the screen width')
+    for key in ('QuickAspect', 'QuickInSeconds', 'QuickOutSeconds', 'QuickRise', 'QuickRight', 'QuickBottom'):
+        check(finite(data.get(key)) and data[key] > 0, f'Reveal.{key}: expected a positive number')
+    check(finite(data.get('QuickSeconds')) and finite(data.get('QuickInSeconds')) and finite(data.get('QuickOutSeconds'))
+          and data['QuickInSeconds'] + data['QuickOutSeconds'] < data['QuickSeconds'], 'Reveal: the quick card must be in and out inside QuickSeconds')
     # The tick sound the crack plays exists.
     check(isinstance(tables.get('Sounds', {}).get('CrackTick'), str), 'Sounds.CrackTick: the Reveal crack tick is missing')
     return failures

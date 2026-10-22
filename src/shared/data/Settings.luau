@@ -13,6 +13,9 @@ local Order: { SettingDef } = {
 	{ key = "Sounds", kind = "level", levels = { 0, 0.33, 0.66, 1 }, default = 3 }, -- multiplies Sounds.Volume.UI
 	{ key = "ReducedMotion", kind = "toggle", default = 0 }, -- shortens tweens and skips shakes (on top of the system setting)
 	{ key = "Silhouettes", kind = "toggle", default = 1 }, -- uncaught species render as shadows until approached
+	-- which of the other players' catches announce to this player (data/Notify OthersCatch): Off, Big only (a Rare in chat, an Epic as a toast,
+	-- a Legendary and up as a banner) or All (a Rare as a quiet line too). The Rush, Shower, Warden, Peddler and Server Luck always banner.
+	{ key = "Announcements", kind = "level", levels = { 0, 1, 2 }, levelKeys = { "SETTINGS_Announce_0", "SETTINGS_Announce_1", "SETTINGS_Announce_2" }, default = 1 },
 	-- who may visit the home planet (data/Visiting LockOwnerOnly, LockFriends, LockAnyone): the stored index is the value
 	{ key = "HomeLock", kind = "level", levels = { 0, 1, 2 }, levelKeys = { "SETTINGS_HomeLock_0", "SETTINGS_HomeLock_1", "SETTINGS_HomeLock_2" }, default = 1 },
 }

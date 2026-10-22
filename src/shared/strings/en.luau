@@ -233,6 +233,19 @@ return {
 	CONDITION_GravityFlip = "gravity flip",
 	CONDITION_Eclipse = "eclipse",
 	OFFLINE_MODULES = "%s finished while you were away!",
+	-- Clean UI pass, package B (notification budget; UI/Toast, Shared/NotifyMath): the one welcome-back toast is built from short lines (at
+	-- most three), a merged quiet line counts the aliens that grew, the Announcements setting names its levels, and the quick catch card says what a tap does
+	OFFLINE_SUMMARY = "Welcome back! +%s Scrap", -- the Scrap the aliens gathered while away, formatted
+	OFFLINE_LINE_MODULE = "%s finished", -- a ship module finished while away
+	OFFLINE_LINE_MODULES = "%d modules finished",
+	OFFLINE_LINE_GREW_ONE = "1 alien grew up",
+	OFFLINE_LINE_GREW = "%d aliens grew up",
+	TOAST_ALIENS_GREW = "%d aliens grew up!", -- the quiet line when several grow within a few seconds
+	SETTINGS_Announcements = "Other players' catches",
+	SETTINGS_Announce_0 = "Off",
+	SETTINGS_Announce_1 = "Big only",
+	SETTINGS_Announce_2 = "All",
+	REVEAL_QUICK_HINT = "Tap to place it", -- the quick card for a repeat catch: what a tap on it does
 	TIME_DH = "%dd %dh",
 	TIME_HM = "%dh %dm",
 	TIME_H = "%dh",

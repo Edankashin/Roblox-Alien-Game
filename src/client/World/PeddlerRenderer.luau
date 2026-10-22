@@ -124,7 +124,10 @@ local function refreshPlate()
 	if not built or not visit then
 		return
 	end
-	built.leaves.Text = Strings.PEDDLER_LEAVES:format(formatTime(visit.endsAt - State.Now()))
+	local text = Strings.PEDDLER_LEAVES:format(formatTime(visit.endsAt - State.Now()))
+	if built.leaves.Text ~= text then
+		built.leaves.Text = text -- once a second at most; no write, no relayout, when the line is the same
+	end
 end
 
 -- Flight ---------------------------------------------------------------------
@@ -244,6 +247,17 @@ end
 
 -- Visits ---------------------------------------------------------------------------
 
+-- Runs `step` in a thread of its own, one frame from now. A landing used to do everything in the one resumption that heard the visit
+-- (the banner's block plates, the ship's landing, its sound), and the Mac saw "Script timeout: exhausted allowed execution time" in the
+-- tick loop while the Peddler landed (2026-10-22, job 62): a hitched frame while the world loads charges the whole resumption. Each step
+-- now gets its own, so none runs long enough to be charged for another's frame.
+local function inItsOwnFrame(step: () -> ())
+	task.spawn(function()
+		task.wait()
+		step()
+	end)
+end
+
 -- The one code path for a visit, pushed or fetched: a new visit lands the ship (and toasts), the same
 -- visit again is kept, nil (or a visit the clock says is over) takes off.
 local function apply(visit: Types.PeddlerVisit?)
@@ -258,10 +272,14 @@ local function apply(visit: Types.PeddlerVisit?)
 	current = visit
 	if visit then
 		shownEndsAt = visit.endsAt
+		land() -- the ship starts to come down now; it is cheap
 		if not (TutorialData.Script.HoldEventBannersWhileActive and tutorialActive()) then
-			Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds, "peddler") -- an event, so it stays up
+			inItsOwnFrame(function()
+				if current == visit then -- still the visit that landed
+					Toast.Banner(Strings.PEDDLER_ARRIVED, Theme.Colors.Featured, Config.AnnounceSeconds, "peddler") -- an event, so it stays up
+				end
+			end)
 		end
-		land()
 	elseif shownEndsAt ~= nil then
 		shownEndsAt = nil
 		takeOff()
@@ -321,7 +339,7 @@ function PeddlerRenderer.Start()
 		while running do
 			task.wait(TICK_SECONDS)
 			if running then
-				tick()
+				task.spawn(tick) -- its own thread: the loop's resumption stays trivial whatever the tick does
 			end
 		end
 	end)

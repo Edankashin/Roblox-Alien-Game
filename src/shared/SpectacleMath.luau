@@ -13,6 +13,7 @@
 -- Screen: VignetteAlpha, SkyDim, BeaconAlpha. Footprints: FootprintColors, FootprintAlpha. Glyphs: GlyphCells.
 
 local Spectacle = require(script.Parent.data.Spectacle)
+local Tiers = require(script.Parent.data.Tiers)
 local Effects = require(script.Parent.data.Effects)
 local EffectsMath = require(script.Parent.EffectsMath)
 local Types = require(script.Parent.types.Types)
@@ -36,8 +37,27 @@ function SpectacleMath.Arrival(tier: string): Spectacle.Arrival
 	return Spectacle.Arrivals[tier] or Spectacle.Arrivals[FALLBACK_TIER]
 end
 
+-- The presence rows as the client draws them: the glyph orbit and the trail of cells only from Look.OrnamentMinTier / TrailMinTier up (the
+-- Clean UI pass keeps the quiet tiers quiet whatever a data row says); every other field is the row's own.
+local function gatedPresence(): { [string]: Spectacle.Presence }
+	local out: { [string]: Spectacle.Presence } = {}
+	for tier, row in pairs(Spectacle.Presence) do
+		local copy = table.clone(row)
+		local rank = table.find(Tiers.Order, tier) or 0
+		if rank < (table.find(Tiers.Order, Spectacle.Look.OrnamentMinTier) or 0) then
+			copy.ornaments = 0
+		end
+		if rank < (table.find(Tiers.Order, Spectacle.Look.TrailMinTier) or 0) then
+			copy.trail = 0
+		end
+		out[tier] = copy
+	end
+	return out
+end
+local presenceRows = gatedPresence()
+
 function SpectacleMath.Presence(tier: string): Spectacle.Presence
-	return Spectacle.Presence[tier] or Spectacle.Presence[FALLBACK_TIER]
+	return presenceRows[tier] or presenceRows[FALLBACK_TIER]
 end
 
 function SpectacleMath.Personality(tier: string): Spectacle.Personality
@@ -426,6 +446,26 @@ function SpectacleMath.BeaconAlpha(now: number, born: number, duration: number, 
 	local breathe = if still then 0 else look.BeaconBreathe * (0.5 + 0.5 * math.sin(TAU * now / look.BeaconPeriod))
 	local base = look.BeaconTransparency + breathe * (1 - look.BeaconTransparency)
 	return 1 - (1 - base) * strength
+end
+
+-- How much of a beacon shows with the camera `distance` studs from it along the ground, 1 to 0: whole from Look.BeaconNearFadeStuds out,
+-- gone by Look.BeaconHideStuds in, a smooth ramp between. A beacon is a column for finding an alien from far; close to it, it would fill the
+-- screen with light.
+function SpectacleMath.BeaconNear(distance: number): number
+	local look = Spectacle.Look
+	if distance >= look.BeaconNearFadeStuds then
+		return 1
+	end
+	if distance <= look.BeaconHideStuds then
+		return 0
+	end
+	return smooth((distance - look.BeaconHideStuds) / (look.BeaconNearFadeStuds - look.BeaconHideStuds))
+end
+
+-- Whether an arrival's screen dim (the Cosmic's sky, the Secret's edge vignette) may play at `now`: not while a panel is open, and not
+-- within Look.DimGapSeconds of the last one that did (`lastDimAt`; -math.huge for none).
+function SpectacleMath.DimAllowed(now: number, lastDimAt: number, panelOpen: boolean): boolean
+	return not panelOpen and now - lastDimAt >= Spectacle.Look.DimGapSeconds
 end
 
 -- Footprints ------------------------------------------------------------------------

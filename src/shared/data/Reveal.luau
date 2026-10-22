@@ -245,6 +245,21 @@ return {
 	OddsHeight = 0.1, -- height, of the card
 	OddsY = 1,
 
+	-- The quick card (Clean UI pass, package B; RevealMath.IsQuick): a wild catch of a species the codex already has, at one of QuickTiers
+	-- and with nothing special about it (no overlay, no named size, no overflow), costs QuickSeconds and no ceremony: no dim, no shards, no tier
+	-- word, no "Tap anywhere". A small card (QuickWidth of the screen, QuickAspect wide for its height) slides up QuickRise (of the screen's
+	-- height) into its place, its right edge at QuickRight and its bottom edge at QuickBottom, over the Catch button; a tap on it opens the
+	-- Aliens screen. Every egg, every new species and every Rare or rarer catch keeps the three beats above.
+	QuickTiers = { "Common", "Uncommon" },
+	QuickSeconds = 1.6, -- from the card landing to its leaving, in and out included
+	QuickWidth = 0.3,
+	QuickAspect = 2.6,
+	QuickRight = 0.975,
+	QuickBottom = 0.8,
+	QuickRise = 0.08,
+	QuickInSeconds = 0.25,
+	QuickOutSeconds = 0.2,
+
 	CrackLines = CrackLines,
 	Ladder = Ladder,
 	EggSpans = EggSpans,
