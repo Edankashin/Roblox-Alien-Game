@@ -49,22 +49,46 @@
     "uploadedAt": "2026-10-21T20:05:41Z"
   },
   "Buzzlebee": {
-    "assetId": 119752658923886,
+    "assetId": 90983073121915,
     "blockCell": true,
     "file": "assets/models/Buzzlebee/Buzzlebee.glb",
     "format": "glb",
     "replacedAssetId": 116603587874487,
-    "sha256": "d8a30315de87dd31e9ddabba3e89c0b04344733a46d446d621cd2fffbee1e4b8",
-    "uploadedAt": "2026-10-21T20:05:50Z"
+    "sha256": "ff9d31d602ed35eb1a6067a93400ed89648af20c82fa78ebc7e7864d930c9df5",
+    "uploadedAt": "2026-10-22T05:17:09Z"
+  },
+  "CampCrate": {
+    "assetId": 70497878511393,
+    "blockCell": true,
+    "file": "assets/models/props/CampCrate/CampCrate.glb",
+    "format": "glb",
+    "sha256": "8fd9f4c68be5aa678fb8b074b9d9d899babb8feeafb3111d5bf150cdfc2836d0",
+    "uploadedAt": "2026-10-22T05:17:23Z"
+  },
+  "CampFlag": {
+    "assetId": 95659454055737,
+    "blockCell": true,
+    "file": "assets/models/props/CampFlag/CampFlag.glb",
+    "format": "glb",
+    "sha256": "786271d92570cd9f0659fb97b4f1113c976a4ae34bd808eb8e55e0c27dfa988a",
+    "uploadedAt": "2026-10-22T05:17:28Z"
+  },
+  "Campfire": {
+    "assetId": 122461350675998,
+    "blockCell": true,
+    "file": "assets/models/props/Campfire/Campfire.glb",
+    "format": "glb",
+    "sha256": "e6f03d705c012a7932686da0015144393f610ec4577ac2ecb17a25fd3ff81046",
+    "uploadedAt": "2026-10-22T05:17:33Z"
   },
   "Capybubble": {
-    "assetId": 84603056756412,
+    "assetId": 107898420617031,
     "blockCell": true,
     "file": "assets/models/Capybubble/Capybubble.glb",
     "format": "glb",
     "replacedAssetId": 100133210702748,
-    "sha256": "ea3e8df974fb5624f86ce1127bdb64d6b2257c822e6ef9b0fd7fffbb21435fc1",
-    "uploadedAt": "2026-10-21T20:34:02Z"
+    "sha256": "74f6235a5f9a200a5ffea780b46a8da79c2ade0c8f02cf1e3fdaff9a138e8fe3",
+    "uploadedAt": "2026-10-22T05:17:47Z"
   },
   "CaveMouth": {
     "assetId": 132103896359941,
@@ -76,13 +100,13 @@
     "uploadedAt": "2026-10-21T20:06:04Z"
   },
   "Chipmole": {
-    "assetId": 117467113100506,
+    "assetId": 99728350452516,
     "blockCell": true,
     "file": "assets/models/Chipmole/Chipmole.glb",
     "format": "glb",
     "replacedAssetId": 97070960829780,
-    "sha256": "75d51b0f91449764a80aa81d6fc516625ddfc5ee1026c55292a4ba4c1f73533d",
-    "uploadedAt": "2026-10-21T20:06:18Z"
+    "sha256": "db59de12f351e974acc82c52e22fe145d0e759b514df5b1e4ab0323e4e705fd1",
+    "uploadedAt": "2026-10-22T05:17:56Z"
   },
   "CrashWreck": {
     "assetId": 74817192673896,
@@ -94,22 +118,22 @@
     "uploadedAt": "2026-10-21T20:06:23Z"
   },
   "Drippo": {
-    "assetId": 106318594226249,
+    "assetId": 85644366482246,
     "blockCell": true,
     "file": "assets/models/Drippo/Drippo.glb",
     "format": "glb",
     "replacedAssetId": 139160640965072,
-    "sha256": "12a5722eca1861949772ba358e9732436c01ae9a7added4d6b75c354860866ec",
-    "uploadedAt": "2026-10-21T20:06:37Z"
+    "sha256": "f18a3e0a1c0cab42478dbb6cda90d594460679769dd7af13fcfda3fb0fcbb93c",
+    "uploadedAt": "2026-10-22T05:18:05Z"
   },
   "Emberchin": {
-    "assetId": 135851602205855,
+    "assetId": 121001466165205,
     "blockCell": true,
     "file": "assets/models/Emberchin/Emberchin.glb",
     "format": "glb",
     "replacedAssetId": 75128789895079,
-    "sha256": "5a930fa73325812403be5367ad9fbb78a3afe1b3a1d0b8caba391da8d71ddc9d",
-    "uploadedAt": "2026-10-21T20:06:43Z"
+    "sha256": "c545070d7bd954d04660c6e33ce97c57bbc4ffe89696831f920a524dfb2d2437",
+    "uploadedAt": "2026-10-22T05:18:10Z"
   },
   "Fence": {
     "assetId": 102938140774553,
@@ -120,13 +144,13 @@
     "uploadedAt": "2026-10-21T20:06:56Z"
   },
   "Fenripup": {
-    "assetId": 136522039433595,
+    "assetId": 75070069889969,
     "blockCell": true,
     "file": "assets/models/Fenripup/Fenripup.glb",
     "format": "glb",
     "replacedAssetId": 111992346440272,
-    "sha256": "13f95f1e0fcb489958d599c6eb6b28ea657f8156075cae6040d5091003755b51",
-    "uploadedAt": "2026-10-21T20:34:17Z"
+    "sha256": "dcef624ff7f64d4c4ee14c80da8867da1e74922cce44c59fa7d262a3de9e7e3f",
+    "uploadedAt": "2026-10-22T05:18:24Z"
   },
   "Flag": {
     "assetId": 90062331463442,
@@ -137,13 +161,13 @@
     "uploadedAt": "2026-10-21T20:07:27Z"
   },
   "Flapsicle": {
-    "assetId": 115082896046437,
+    "assetId": 101851912195987,
     "blockCell": true,
     "file": "assets/models/Flapsicle/Flapsicle.glb",
     "format": "glb",
     "replacedAssetId": 93200790567617,
-    "sha256": "b8e201d3510b5b67c458b0c2f3c2650c2f7d324c921a54c330dff75385692ef4",
-    "uploadedAt": "2026-10-21T20:07:41Z"
+    "sha256": "fa29dd6830f277575c4308190f65b67c37d87236f734101be64da8d8934caaed",
+    "uploadedAt": "2026-10-22T05:18:29Z"
   },
   "FlowerPatch": {
     "assetId": 135752098587893,
@@ -154,13 +178,13 @@
     "uploadedAt": "2026-10-21T20:07:50Z"
   },
   "Flufflet": {
-    "assetId": 131464257898009,
+    "assetId": 83783025796871,
     "blockCell": true,
     "file": "assets/models/Flufflet/Flufflet.glb",
     "format": "glb",
     "replacedAssetId": 132093842366384,
-    "sha256": "68be5260d57c6a5967d6c3221f24da0b4a9eb1305f91c5f454777b1c158a517d",
-    "uploadedAt": "2026-10-21T20:07:58Z"
+    "sha256": "db3f66a3cd085d2390fb0cbe3f31301926b76ce0692129c768c201b04788079f",
+    "uploadedAt": "2026-10-22T05:18:43Z"
   },
   "Fountain": {
     "assetId": 83951227918407,
@@ -171,13 +195,13 @@
     "uploadedAt": "2026-10-21T20:08:04Z"
   },
   "Frostfang": {
-    "assetId": 117709206870484,
+    "assetId": 106945588536399,
     "blockCell": true,
     "file": "assets/models/Frostfang/Frostfang.glb",
     "format": "glb",
     "replacedAssetId": 89121370968974,
-    "sha256": "dc18cbe7a8ac92743ed386954a500d185adfe635cdaeea389caa375932e716af",
-    "uploadedAt": "2026-10-21T20:34:31Z"
+    "sha256": "5978bf4490063b6f647e521e4f1860277323b39f277f3b7a0f61da80092207bb",
+    "uploadedAt": "2026-10-22T05:18:52Z"
   },
   "FrozenLog": {
     "assetId": 85556402993990,
@@ -188,13 +212,13 @@
     "uploadedAt": "2026-10-21T20:08:21Z"
   },
   "Gaiabloom": {
-    "assetId": 95423002586391,
+    "assetId": 98176134122001,
     "blockCell": true,
     "file": "assets/models/Gaiabloom/Gaiabloom.glb",
     "format": "glb",
     "replacedAssetId": 129783775931423,
-    "sha256": "d3412d72cb3bda2cb1ce345b1c8db05a959ccfeef627d49c7b09a4087b51c7d3",
-    "uploadedAt": "2026-10-21T20:34:40Z"
+    "sha256": "7806b88917cb570180019c59803f9b330ed616b5af7101fd7ff8e32291a59858",
+    "uploadedAt": "2026-10-22T05:19:01Z"
   },
   "GatherStation": {
     "assetId": 109164418132495,
@@ -224,22 +248,22 @@
     "uploadedAt": "2026-10-21T20:09:14Z"
   },
   "Glimmo": {
-    "assetId": 71855079356845,
+    "assetId": 86858457841953,
     "blockCell": true,
     "file": "assets/models/Glimmo/Glimmo.glb",
     "format": "glb",
     "replacedAssetId": 92428034867797,
-    "sha256": "db73d33e7e9af6378c76123ef53b2e7dd59e25fdc5ea7efc5868e1da17a3c254",
-    "uploadedAt": "2026-10-21T20:09:20Z"
+    "sha256": "cbe79501a36ff4ce88d0e44464f74ffcf508ca3d186c2d18a2134d9a7845393b",
+    "uploadedAt": "2026-10-22T05:19:10Z"
   },
   "Gloomoth": {
-    "assetId": 76597842100680,
+    "assetId": 118890551905521,
     "blockCell": true,
     "file": "assets/models/Gloomoth/Gloomoth.glb",
     "format": "glb",
     "replacedAssetId": 98177790783891,
-    "sha256": "24874b7e9a35f67e6aacb43ff3f2365800e9119b5555c3f9f12bce13bb6b492e",
-    "uploadedAt": "2026-10-21T20:34:54Z"
+    "sha256": "3adb032a9b7498d5a9385e8ae6e5e195b7ee8d9f8eb1a0706b917661423a9bc1",
+    "uploadedAt": "2026-10-22T05:19:24Z"
   },
   "GlowFern": {
     "assetId": 125072432310618,
@@ -280,6 +304,14 @@
     "format": "glb",
     "sha256": "aecf2f51f39bf2eb32c9f0dd890855bfcc9a58f6b4bd37fe79e72eeceed0ee5a",
     "uploadedAt": "2026-10-21T20:10:03Z"
+  },
+  "GrottoCrystal": {
+    "assetId": 135279166472081,
+    "blockCell": true,
+    "file": "assets/models/props/GrottoCrystal/GrottoCrystal.glb",
+    "format": "glb",
+    "sha256": "59d25f93cb9be0ce7bba6f9c4b8f2f42822b2844cd0fbba1c5a18468ac8ef21d",
+    "uploadedAt": "2026-10-22T05:19:33Z"
   },
   "HabitatFrostbyte": {
     "assetId": 89002985688787,
@@ -349,6 +381,30 @@
     "sha256": "3353d67f3ea1e36e2071f71530b616ae720201f53951a87b51b2812ee0a88de6",
     "uploadedAt": "2026-10-21T20:11:34Z"
   },
+  "IceSignArmHigh": {
+    "assetId": 110560294652685,
+    "blockCell": true,
+    "file": "assets/models/props/IceSignArmHigh/IceSignArmHigh.glb",
+    "format": "glb",
+    "sha256": "0bb4916bde3b87244f33b4a00268332025cd09b07e219bd9dbbeda0a39066d92",
+    "uploadedAt": "2026-10-22T05:19:42Z"
+  },
+  "IceSignArmLow": {
+    "assetId": 84897250093660,
+    "blockCell": true,
+    "file": "assets/models/props/IceSignArmLow/IceSignArmLow.glb",
+    "format": "glb",
+    "sha256": "70ec86f8c6462c67c3a5c9e3cfbd0ee696315eae85ba38dbd641d72afffe8dae",
+    "uploadedAt": "2026-10-22T05:19:51Z"
+  },
+  "IceSignArmMid": {
+    "assetId": 123109088414678,
+    "blockCell": true,
+    "file": "assets/models/props/IceSignArmMid/IceSignArmMid.glb",
+    "format": "glb",
+    "sha256": "cd2cb8d795da970904a7bcfb0df55ff80154693f2c106c5d5678dbbc88f0521f",
+    "uploadedAt": "2026-10-22T05:20:05Z"
+  },
   "IceSpire": {
     "assetId": 87856482527354,
     "blockCell": true,
@@ -367,13 +423,13 @@
     "uploadedAt": "2026-10-21T20:11:48Z"
   },
   "Kettlepuff": {
-    "assetId": 86496760967732,
+    "assetId": 89382463269455,
     "blockCell": true,
     "file": "assets/models/Kettlepuff/Kettlepuff.glb",
     "format": "glb",
     "replacedAssetId": 136039795415171,
-    "sha256": "082da96c98dd7c49be372df41f3a960f183be942324c3f5ea380fd050b6732bb",
-    "uploadedAt": "2026-10-21T20:12:02Z"
+    "sha256": "66a05fcf57c7c51c6203f18be1a8a1da37b7d4d6fa3cd21a6cc3667098d8816c",
+    "uploadedAt": "2026-10-22T05:20:10Z"
   },
   "Lantern": {
     "assetId": 113167192482454,
@@ -384,13 +440,13 @@
     "uploadedAt": "2026-10-21T20:12:10Z"
   },
   "Lanternewt": {
-    "assetId": 101568412058372,
+    "assetId": 115058641916832,
     "blockCell": true,
     "file": "assets/models/Lanternewt/Lanternewt.glb",
     "format": "glb",
     "replacedAssetId": 77764118304137,
-    "sha256": "d0c504aea1da6b145850dd122e2a6f99235e67cec4de36f220449a51abc38c58",
-    "uploadedAt": "2026-10-21T20:12:24Z"
+    "sha256": "18b4bd1c41f877207b6dfcaab0d95556d557bec19fc57cbc8b968fcb2d49dddf",
+    "uploadedAt": "2026-10-22T05:20:24Z"
   },
   "LilyPad": {
     "assetId": 122673551171714,
@@ -477,13 +533,13 @@
     "uploadedAt": "2026-10-21T20:14:33Z"
   },
   "Mossbop": {
-    "assetId": 139692484199899,
+    "assetId": 76286989342632,
     "blockCell": true,
     "file": "assets/models/Mossbop/Mossbop.glb",
     "format": "glb",
     "replacedAssetId": 80168609957155,
-    "sha256": "9f74c821844deb13a934f4bd515ca7bc81954c0530de275f5b458bc861012c9c",
-    "uploadedAt": "2026-10-21T20:14:47Z"
+    "sha256": "a29bd1caf06de8612dbc878639512dbec630dfce4a066eb98bc5334c710b5151",
+    "uploadedAt": "2026-10-22T05:20:30Z"
   },
   "Mushroom": {
     "assetId": 72020219398485,
@@ -494,22 +550,22 @@
     "uploadedAt": "2026-10-21T20:14:52Z"
   },
   "Nebulyn": {
-    "assetId": 111058708181183,
+    "assetId": 112291898528534,
     "blockCell": true,
     "file": "assets/models/Nebulyn/Nebulyn.glb",
     "format": "glb",
     "replacedAssetId": 132111130182547,
-    "sha256": "7ea1a9e8b6c07f3ac63f58ab95f373effa899ab0fd4676b17477efcc0e06bf0a",
-    "uploadedAt": "2026-10-21T20:35:02Z"
+    "sha256": "8d8c35226d1e61bcebc8f2e3c515527c40ee97f5f023fc5bc41d9428364f2959",
+    "uploadedAt": "2026-10-22T05:20:51Z"
   },
   "Panpipe": {
-    "assetId": 109050287306710,
+    "assetId": 93548551011238,
     "blockCell": true,
     "file": "assets/models/Panpipe/Panpipe.glb",
     "format": "glb",
     "replacedAssetId": 101992628838997,
-    "sha256": "d1158d9942b20f78decfffcc004324c35a5c6388ed3855344eaffe23b2573620",
-    "uploadedAt": "2026-10-21T20:35:11Z"
+    "sha256": "1e9ddd9260e0a41dbd7c5b5433df7e082324514b17904b238f6bbddd92eae932",
+    "uploadedAt": "2026-10-22T05:21:21Z"
   },
   "PathLantern": {
     "assetId": 130101963365955,
@@ -520,13 +576,13 @@
     "uploadedAt": "2026-10-21T20:15:42Z"
   },
   "Pebblet": {
-    "assetId": 131113021360381,
+    "assetId": 120711912140485,
     "blockCell": true,
     "file": "assets/models/Pebblet/Pebblet.glb",
     "format": "glb",
     "replacedAssetId": 140009239774106,
-    "sha256": "3622a78e8922280fd28386d379422661b94f4846b0fcc2fbd92b532f905477ce",
-    "uploadedAt": "2026-10-21T20:15:51Z"
+    "sha256": "d6ebdf0167f80ee2e72bbe98ae0aa1d58da76724d24534e46b62125ca5e1d381",
+    "uploadedAt": "2026-10-22T05:21:35Z"
   },
   "Pedestal": {
     "assetId": 98463678388823,
@@ -538,13 +594,13 @@
     "uploadedAt": "2026-10-21T20:16:05Z"
   },
   "Pengoo": {
-    "assetId": 109154104596844,
+    "assetId": 75587289427504,
     "blockCell": true,
     "file": "assets/models/Pengoo/Pengoo.glb",
     "format": "glb",
     "replacedAssetId": 84930553516849,
-    "sha256": "bf3ef7df5a7c57bbee88508c4e638371ad4fcc072be372e154f296a23cd3ac0c",
-    "uploadedAt": "2026-10-21T20:16:26Z"
+    "sha256": "b579a24851431ec572634fdb1d4de0d3e369957bdb82c5321c57b76d95b9e08f",
+    "uploadedAt": "2026-10-22T05:21:49Z"
   },
   "Planter": {
     "assetId": 114986346522730,
@@ -555,22 +611,22 @@
     "uploadedAt": "2026-10-21T20:16:35Z"
   },
   "Puffpuff": {
-    "assetId": 138419220916583,
+    "assetId": 128760821641478,
     "blockCell": true,
     "file": "assets/models/Puffpuff/Puffpuff.glb",
     "format": "glb",
     "replacedAssetId": 108775875525202,
-    "sha256": "7f78ae72e9a7c8daad012b8d77b5d676ab61c935bd965167f6b73bfc4bf6b35f",
-    "uploadedAt": "2026-10-21T20:16:44Z"
+    "sha256": "ce78c902c6f1c6736399d204ffbdb7b29c43d206c3718fdf332d9265795d054e",
+    "uploadedAt": "2026-10-22T05:21:54Z"
   },
   "Radish": {
-    "assetId": 105003378884357,
+    "assetId": 118232011556551,
     "blockCell": true,
     "file": "assets/models/Radish/Radish.glb",
     "format": "glb",
     "replacedAssetId": 75467711544687,
-    "sha256": "f2398e47b0c56160d4f8b8496d0ab6379f7cd54fc06f15f0b0e0c5ba8e094a7b",
-    "uploadedAt": "2026-10-21T20:35:20Z"
+    "sha256": "b8cfd6d70a65c044be88adec560272f8c009c3d00510e9a0864fb98d89994d6d",
+    "uploadedAt": "2026-10-22T05:22:16Z"
   },
   "Reeds": {
     "assetId": 122578038240807,
@@ -581,22 +637,22 @@
     "uploadedAt": "2026-10-21T20:17:06Z"
   },
   "Reindazzle": {
-    "assetId": 84892422323615,
+    "assetId": 81819705890422,
     "blockCell": true,
     "file": "assets/models/Reindazzle/Reindazzle.glb",
     "format": "glb",
     "replacedAssetId": 86110280099855,
-    "sha256": "3506adad583aad3bc3d62e70ea066ff13179585ae73dd9adfc3dad8c76d37048",
-    "uploadedAt": "2026-10-21T20:35:29Z"
+    "sha256": "1b9951ab00162255070fb7b2ff2d509d02b7bbfec2e2be547d64fef00617145e",
+    "uploadedAt": "2026-10-22T05:22:30Z"
   },
   "Rocklobber": {
-    "assetId": 74100842685887,
+    "assetId": 91046356996222,
     "blockCell": true,
     "file": "assets/models/Rocklobber/Rocklobber.glb",
     "format": "glb",
     "replacedAssetId": 129196086483452,
-    "sha256": "d6982f2ebc59aa09e8fb89ed7a5b25d64eb5a64d10e89b79091d60918caa1f73",
-    "uploadedAt": "2026-10-21T20:35:34Z"
+    "sha256": "c8ec487b1d81a78ff353b3f5381bed265ba68e1e7a5dda5cb33f4f01c56193d6",
+    "uploadedAt": "2026-10-22T05:22:38Z"
   },
   "RoomCabin": {
     "assetId": 105761041582148,
@@ -623,22 +679,22 @@
     "uploadedAt": "2026-10-21T20:18:10Z"
   },
   "Shellberg": {
-    "assetId": 124257490870470,
+    "assetId": 98400901055778,
     "blockCell": true,
     "file": "assets/models/Shellberg/Shellberg.glb",
     "format": "glb",
     "replacedAssetId": 132568103336467,
-    "sha256": "3e9585dfaf447c063bc654f106846c4326200954c5eee0bfa314451648f833c4",
-    "uploadedAt": "2026-10-21T20:35:43Z"
+    "sha256": "204d61af7a55c0ffffbaffe5c815ae567f4904e282c0c1bc9e288aebd4862456",
+    "uploadedAt": "2026-10-22T05:22:47Z"
   },
   "Shimmerlynx": {
-    "assetId": 133495730477978,
+    "assetId": 97482261000062,
     "blockCell": true,
     "file": "assets/models/Shimmerlynx/Shimmerlynx.glb",
     "format": "glb",
     "replacedAssetId": 89901200352693,
-    "sha256": "3d80f0673e225993e1bf02fad3d56a8db07d31ba26931f0e2f5c76c1ccfae980",
-    "uploadedAt": "2026-10-21T20:35:52Z"
+    "sha256": "43721929d9cf9cd60f5c4568f964c57b8d53631f9aba390a9f7cbfda0048ae6a",
+    "uploadedAt": "2026-10-22T05:22:56Z"
   },
   "ShipHull": {
     "assetId": 81470422409500,
@@ -667,6 +723,38 @@
     "sha256": "cf44531547bafae99f1fe274912e9c131287155cde682f49844b034c7faba35d",
     "uploadedAt": "2026-10-21T20:19:19Z"
   },
+  "SightPost": {
+    "assetId": 93919081600426,
+    "blockCell": true,
+    "file": "assets/models/props/SightPost/SightPost.glb",
+    "format": "glb",
+    "sha256": "2a0d6ffeab282eb20bb99d9aed2736f76b4a2923c3057110076646ee3e388b8f",
+    "uploadedAt": "2026-10-22T05:23:10Z"
+  },
+  "SignArmHigh": {
+    "assetId": 137349550790300,
+    "blockCell": true,
+    "file": "assets/models/props/SignArmHigh/SignArmHigh.glb",
+    "format": "glb",
+    "sha256": "ee3aa6265943cf1d5a1efe95567a2f4c820c1088b153eec3c288ef65026ffbe7",
+    "uploadedAt": "2026-10-22T05:23:15Z"
+  },
+  "SignArmLow": {
+    "assetId": 129431571109068,
+    "blockCell": true,
+    "file": "assets/models/props/SignArmLow/SignArmLow.glb",
+    "format": "glb",
+    "sha256": "d731251fea97e2e1100e53e235619768998cd6b58b23e6a2733414e406040077",
+    "uploadedAt": "2026-10-22T05:23:29Z"
+  },
+  "SignArmMid": {
+    "assetId": 71757621384434,
+    "blockCell": true,
+    "file": "assets/models/props/SignArmMid/SignArmMid.glb",
+    "format": "glb",
+    "sha256": "b60899ced78009987ed17bed415edb06832b5b0787b0fea65579c724f84e970b",
+    "uploadedAt": "2026-10-22T05:23:38Z"
+  },
   "Signpost": {
     "assetId": 74047329484786,
     "blockCell": true,
@@ -676,22 +764,22 @@
     "uploadedAt": "2026-10-21T20:19:28Z"
   },
   "Skaddle": {
-    "assetId": 130925559617254,
+    "assetId": 138821009662968,
     "blockCell": true,
     "file": "assets/models/Skaddle/Skaddle.glb",
     "format": "glb",
     "replacedAssetId": 88220194343720,
-    "sha256": "55fccb3ffb93cdca8777de2f8e79d72a99416bf580880f491ee246862953516f",
-    "uploadedAt": "2026-10-21T20:36:00Z"
+    "sha256": "1ba84bd38ecff47d909a29c7066e35002716667593106d4d8701eaccd5914628",
+    "uploadedAt": "2026-10-22T05:23:52Z"
   },
   "Snailbyte": {
-    "assetId": 116652291605113,
+    "assetId": 127624587145029,
     "blockCell": true,
     "file": "assets/models/Snailbyte/Snailbyte.glb",
     "format": "glb",
     "replacedAssetId": 76807008771184,
-    "sha256": "54093d905f3ad1fd054c97abca586a65814bcac2c84abfbe3ac0291c9695d85a",
-    "uploadedAt": "2026-10-21T20:19:50Z"
+    "sha256": "650c72602565925e3c77ba9765637ad760528b340ba38d05d1be3ee4048f68c6",
+    "uploadedAt": "2026-10-22T05:24:06Z"
   },
   "SnowBush": {
     "assetId": 121498439469799,
@@ -727,13 +815,13 @@
     "uploadedAt": "2026-10-21T20:20:27Z"
   },
   "Snowbun": {
-    "assetId": 79648695514572,
+    "assetId": 112987344531192,
     "blockCell": true,
     "file": "assets/models/Snowbun/Snowbun.glb",
     "format": "glb",
     "replacedAssetId": 97283882148528,
-    "sha256": "d29d4e6512f393082163daddf7e2f14aead1dce885a9ffdefe211fd383374d2c",
-    "uploadedAt": "2026-10-21T20:20:36Z"
+    "sha256": "95c9c4a4d2dd9a3aeda7989db5387ac841018fad3e9d35a1ffe1d3b1ed714b33",
+    "uploadedAt": "2026-10-22T05:24:14Z"
   },
   "SparkStation": {
     "assetId": 132831465418886,
@@ -745,22 +833,22 @@
     "uploadedAt": "2026-10-21T20:20:50Z"
   },
   "Sparkfox": {
-    "assetId": 90329581788192,
+    "assetId": 129902686231899,
     "blockCell": true,
     "file": "assets/models/Sparkfox/Sparkfox.glb",
     "format": "glb",
     "replacedAssetId": 118664559072176,
-    "sha256": "a645a14524a67f3a22cd677a29aab85fe5d2101d0f9ad790458fdd21d3f49393",
-    "uploadedAt": "2026-10-21T20:36:15Z"
+    "sha256": "d98bb6f09ee12336f8dccac0f5f455c1c40659783f198e9ab7d147f107bf5110",
+    "uploadedAt": "2026-10-22T05:24:23Z"
   },
   "Spookum": {
-    "assetId": 75835527523202,
+    "assetId": 107247366211382,
     "blockCell": true,
     "file": "assets/models/Spookum/Spookum.glb",
     "format": "glb",
     "replacedAssetId": 110636694482164,
-    "sha256": "2879faba1ad42c24427d834ba659fea203c46a75fb3ac9e631cb7ca72750b7d6",
-    "uploadedAt": "2026-10-21T20:36:23Z"
+    "sha256": "c7466f4311cf40f0c9ec512e92c64c04a9979aa9f554587205edccf913b06f2f",
+    "uploadedAt": "2026-10-22T05:24:32Z"
   },
   "StarIsland": {
     "assetId": 94576361220525,
@@ -779,48 +867,48 @@
     "uploadedAt": "2026-10-21T20:21:26Z"
   },
   "Thunderhog": {
-    "assetId": 111355227047635,
+    "assetId": 138702894272903,
     "blockCell": true,
     "file": "assets/models/Thunderhog/Thunderhog.glb",
     "format": "glb",
     "replacedAssetId": 89950802531319,
-    "sha256": "e65d6e04f095e34a47c83741bf4dfd46507eb36e87f81e25bf5d55343cc1979e",
-    "uploadedAt": "2026-10-21T20:36:37Z"
+    "sha256": "a00cb2cd0341e013e8d7b3b4fb3a4047fc9135b44168596acb5e84bee3af59ab",
+    "uploadedAt": "2026-10-22T05:24:46Z"
   },
   "Toastoad": {
-    "assetId": 126160728707927,
+    "assetId": 76456734696236,
     "blockCell": true,
     "file": "assets/models/Toastoad/Toastoad.glb",
     "format": "glb",
     "replacedAssetId": 96561583720852,
-    "sha256": "4a7010d6756cdd0f86bb01919a9f6651d3b182ac0bbf8d540a806f3418b26037",
-    "uploadedAt": "2026-10-21T20:21:49Z"
+    "sha256": "3dc932923d952232cc9f8b0458ca4b891930b866e76a32c4a95c235d1923a416",
+    "uploadedAt": "2026-10-22T05:24:55Z"
   },
   "Twiglet": {
-    "assetId": 123980274233910,
+    "assetId": 137645911740591,
     "blockCell": true,
     "file": "assets/models/Twiglet/Twiglet.glb",
     "format": "glb",
     "replacedAssetId": 93090404448607,
-    "sha256": "0c1bfb99d49db41e88494cd47c64402df8d27ad6889d172dd7380c24bfacdbf9",
-    "uploadedAt": "2026-10-21T20:22:11Z"
+    "sha256": "16e42c3322bf6fc2f221c44976111165394100b8d4f225998c8162d3fd6944cc",
+    "uploadedAt": "2026-10-22T05:25:09Z"
   },
   "Wisplet": {
-    "assetId": 93803172018288,
+    "assetId": 110004797552628,
     "blockCell": true,
     "file": "assets/models/Wisplet/Wisplet.glb",
     "format": "glb",
     "replacedAssetId": 98470407282023,
-    "sha256": "0aa6a21117ac149bb2d0fb514e068c5be67e26bfa6a62f124a6d87773090dc17",
-    "uploadedAt": "2026-10-21T20:36:51Z"
+    "sha256": "bfdb16509cc155cf3e00de3c7fa6a8c74aaee00f93d92c01f3d319f042ec1890",
+    "uploadedAt": "2026-10-22T05:25:14Z"
   },
   "Zapfinch": {
-    "assetId": 76804173153353,
+    "assetId": 102395774185067,
     "blockCell": true,
     "file": "assets/models/Zapfinch/Zapfinch.glb",
     "format": "glb",
     "replacedAssetId": 105877852533381,
-    "sha256": "f0878c93c3d365269786a5d26f9c05f20835dd90da2cbf69ad08c88e46697461",
-    "uploadedAt": "2026-10-21T20:37:05Z"
+    "sha256": "31207b6a26f92260d3b131a7421915d22eada8d2ab0087386b6a66719d6b0d65",
+    "uploadedAt": "2026-10-22T05:25:36Z"
   }
 }
