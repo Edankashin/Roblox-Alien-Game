@@ -28,7 +28,7 @@ class CreateProducts(unittest.TestCase):
 
     def test_price_plan_matches_data(self):
         rows = {row["id"]: row for row in create_products.price_plan()}
-        self.assertEqual(rows["ServerLuck4x"]["price"], 599)
+        self.assertEqual(rows["ServerLuck4x"]["price"], 999)  # Roblox manages its price (2026-10-22); the row matches the live 999
         self.assertEqual(rows["ServerLuck4x"]["kind"], "product")
 
 

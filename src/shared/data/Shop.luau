@@ -48,7 +48,7 @@ local Items: { ShopItem } = {
 	{ id = "SteadyHandsx3", tab = "Boosts", kind = "product", robux = 79, productId = 3717062704, paidRandom = false },
 	{ id = "ScrapMagnetx3", tab = "Boosts", kind = "product", robux = 99, productId = 3717062935, paidRandom = false },
 	{ id = "ServerLuck2x", tab = "Boosts", kind = "product", robux = 249, productId = 3717063366, paidRandom = true },
-	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 599, productId = 3717063502, paidRandom = true }, -- 599 since B51 (was 999): +3.0 luck at 200 a point against x2's 249, so the bigger pack is the better deal. The live product keeps its old price until `tools/create_products.py --prices --apply --only ServerLuck4x` runs on the Mac
+	{ id = "ServerLuck4x", tab = "Boosts", kind = "product", robux = 999, productId = 3717063502, paidRandom = true }, -- B51 wanted 599 (+3.0 luck at 200 a point against x2's 249), but Roblox manages this product's price (create_products.py: "managed: skipped", 2026-10-22), so the row matches the live 999 until Ethan turns that off; the card shows the live price either way (UI/LivePrice)
 	{ id = "Spins1", tab = "Spins", kind = "product", offSale = true, robux = 49, productId = 3718499778, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins5", tab = "Spins", kind = "product", offSale = true, robux = 199, productId = 3718499788, paidRandom = true, oddsOnWheel = true },
 	{ id = "Spins12", tab = "Spins", kind = "product", offSale = true, robux = 399, productId = 3718499794, paidRandom = true, oddsOnWheel = true },

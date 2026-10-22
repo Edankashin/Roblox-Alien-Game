@@ -46,6 +46,7 @@ local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
 local Builder = require(script.Parent.Builder)
 local Screens = require(script.Parent.Screens)
 local Toast = require(script.Parent.Toast)
+local LivePrice = require(script.Parent.LivePrice)
 local ScrapGap = require(script.Parent.ScrapGap)
 local State = require(script.Parent.Parent.State)
 local Prefs = require(script.Parent.Parent.Prefs)
@@ -906,7 +907,8 @@ local function refreshRobuxCard(view: CardView, state: Types.PurchasesState, sho
 		return
 	end
 	showPill(view)
-	local about = ShopMath.AboutLine(item.robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE)
+	local robux = LivePrice.Get(item) -- what the purchase dialog will charge, never only the data row
+	local about = ShopMath.AboutLine(robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE)
 	if not ShelfMath.IsLive(item) then
 		setPill(view, Strings.SHOP_SOON, Theme.Rarity.Common)
 		view.below.Text = ""
@@ -914,7 +916,7 @@ local function refreshRobuxCard(view: CardView, state: Types.PurchasesState, sho
 		setPill(view, Strings.SHOP_STARTER_PICK, Theme.Rarity.Common)
 		view.below.Text = about
 	else
-		setPill(view, Strings.SHOP_ROBUX_PRICE:format(item.robux), Theme.Colors.Confirm)
+		setPill(view, Strings.SHOP_ROBUX_PRICE:format(robux), Theme.Colors.Confirm)
 		view.below.Text = about
 	end
 end
@@ -1749,6 +1751,7 @@ function ShopScreen.Open()
 	end
 	open = true
 	fetchPolicy()
+	LivePrice.Prefetch(Shop.Items, refresh)
 	local _, purchasesPushed = State.GetPurchases()
 	if not purchasesPushed then
 		fetchPurchases(true) -- the join push has not landed: ask once so Owned chips are right

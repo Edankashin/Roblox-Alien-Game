@@ -59,13 +59,13 @@ DirectRare, DirectEpic, AutoCollect, ModuleRush and RadarMk1Unlock are rows in t
 
 ## 3b. Optional: the 9 Robux Scanner Pulse and the new Server Luck x4 price (5 minutes; only if Mac job 56 could not)
 
-Your answers to [[Decide-Now]] 47 and 50 ([[Decisions]] B51): a new product, Scanner Pulse x1 at 9 Robux, and Server Luck x4 down from 999 to 599. The Mac session does both with `tools/create_products.py` (job 56). Do this only if its log says the key was refused. Creator Dashboard (create.roblox.com) > **Creations** > **Catch an Alien**, then in the left column **Monetization** > **Developer Products**:
+Your answers to [[Decide-Now]] 47 and 50 ([[Decisions]] B51): a new product, Scanner Pulse x1 at 9 Robux, and Server Luck x4 down from 999 to 599. The Mac session does both with `tools/create_products.py` (job 56). Do this only if its log says the key was refused. Creator Dashboard (create.roblox.com) > **Creations** > **alien game** (the experience's dashboard name until launch morning renames it), then in the left column **Monetization** > **Developer Products**:
 
 1. Click **Create developer product** (top right).
 2. Click the image box, press **Cmd + Shift + G**, paste `~/Roblox-Alien-Game/assets/icons/ScannerPulse.png`, press Return, click **Open**.
 3. **Name**: `Scanner Pulse x1`. **Description**: `One Scanner Pulse: every alien here on your radar.` **Price**: `9`. Leave everything else as it is. Click **Create** (or **Save**).
 4. Back on the list, hover over its picture, click **⋯**, choose **Copy Asset ID**, and send it to the coordinator as `ScannerPulse1: <the number>`. Until that id is in the game the card stays hidden.
-5. On the same list, click **Server Luck x4** to open it. In **Price** replace `999` with `599`. Click **Save Changes** (or **Save**). Nothing to send: the game already says 599.
+5. Server Luck x4 stays at 999 for now: Roblox manages its price (the tool skipped it, 2026-10-22), and the Shop card shows whatever Roblox charges. To get 599, open **Server Luck x4** on the same list, turn off the price-management switch Roblox shows there (its exact name varies), set **Price** to `599`, **Save**, and tell the coordinator so the data row follows.
 
 To let the Mac do it next time instead: on your key's page (step 2), **Add API System** > **developer-product**, tick **Read** and **Write**, choose **Catch an Alien** in its experience picker; then **Add API System** > **game-pass**, tick **Read**, choose **Catch an Alien**; **Save Changes**.
 
@@ -84,7 +84,7 @@ To let the Mac do it next time instead: on your key's page (step 2), **Add API S
 
 ## 6. Launch morning (about 20 minutes)
 
-Creator Dashboard (create.roblox.com) > **Creations** > **Catch an Alien**. Every value is in `docs/STORE-PAGE.md` section 5d; in order:
+Creator Dashboard (create.roblox.com) > **Creations** > **alien game** (the experience's dashboard name until launch morning renames it). Every value is in `docs/STORE-PAGE.md` section 5d; in order:
 
 1. **Basic Settings**: Name `Catch an Alien`; Description: paste section 2 of STORE-PAGE as is, plus the LAUNCHWEEK line; Genre **Adventure**; Devices: Computer, Phone, Tablet on, Console and VR off. **Save**.
 2. **Icon**: upload your pick. **Thumbnails**: upload your picks in your order. **Save**.
