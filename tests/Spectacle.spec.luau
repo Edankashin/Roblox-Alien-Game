@@ -14,6 +14,19 @@ local Sounds = require(Shared.data.Sounds)
 local ORDER = Tiers.Order
 local KIND_RANK = { None = 0, Pop = 1, Burst = 2, Star = 3, Beam = 4, Glitch = 4 }
 
+describe("the greeting bubble", function()
+	local Config = require(Shared.data.Config)
+	it("stands wholly above the nameplate, at any alien height", function()
+		for _, top in ipairs({ 0.5, 1, 1.6, 3.5 }) do
+			local lift = SpectacleMath.BubbleLift(top, Config.WildBobStuds, Config.NameplateLiftStuds, Config.NameplateStudsH, Spectacle.Look.BubbleGap, Spectacle.Look.BubbleStuds)
+			local plateTop = top + Config.WildBobStuds + Config.NameplateLiftStuds + Config.NameplateStudsH / 2
+			local bubbleBottom = lift - Spectacle.Look.BubbleStuds / 2
+			assert(bubbleBottom >= plateTop + Spectacle.Look.BubbleGap - 1e-9, "bubble bottom " .. bubbleBottom .. " under plate top " .. plateTop)
+			assert(Spectacle.Look.BubbleGap > 0, "a gap between them")
+		end
+	end)
+end)
+
 describe("the data", function()
 	it("has one row of each table per tier, and nothing else", function()
 		for _, name in ipairs({ "Arrivals", "Presence", "Personality", "Catch" }) do

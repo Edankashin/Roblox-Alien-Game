@@ -344,7 +344,16 @@ local function showBubble(record: Record)
 	end
 	local heart = known[record.species] == true
 	local half = record.part.Size.Y / 2
-	local lift = record.height - half + look.BubbleLift + look.BubbleStuds / 2
+	-- Above the nameplate, never over its name (SpectacleMath.BubbleLift; the Rare "!" had covered the middle of the plate, Studio
+	-- 2026-10-22).
+	local lift = SpectacleMath.BubbleLift(
+		record.height - half,
+		Config.WildBobStuds,
+		Config.NameplateLiftStuds,
+		Config.NameplateStudsH,
+		look.BubbleGap,
+		look.BubbleStuds
+	)
 	record.bubble = glyphBubble(record.part, if heart then "Heart" else "Alert", Theme.Hex(if heart then look.HeartColor else look.AlertColor), lift, look.BubbleStuds, look.BubbleSeconds, true)
 end
 

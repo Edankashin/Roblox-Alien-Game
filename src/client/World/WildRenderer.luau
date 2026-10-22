@@ -82,9 +82,9 @@ local Spectacle = require(script.Parent:WaitForChild("Spectacle"))
 local WildRenderer = {}
 
 local VISUAL_FOLDER = "ClientWild" -- client-made Workspace folder for the mesh clones; nothing in it replicates
-local PLATE_LIFT = 1.2 -- studs between the top of the alien (plus its bob) and its nameplate
+local PLATE_LIFT = Config.NameplateLiftStuds -- studs between the top of the alien (plus its bob) and the centre of its nameplate
 local PLATE_STUDS_W = 7 -- the nameplate's size in studs at range; near the camera it is scaled down (Shared/PlateMath)
-local PLATE_STUDS_H = 2
+local PLATE_STUDS_H = Config.NameplateStudsH
 local EVALUATE_SECONDS = 0.25 -- how often the blizzard hide rule is re-judged for every tracked alien
 local BLIZZARD = "Blizzard" -- the condition (the world's special weather) under which the hide rule runs
 local SCANNER_PULSE = "ScannerPulse" -- the power-up id (data/PowerUps) whose buff reveals every alien in the biome

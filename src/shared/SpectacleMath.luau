@@ -470,4 +470,12 @@ function SpectacleMath.GlyphCells(name: string): ({ { number } }, number, number
 	return cells, width, #rows
 end
 
+-- How many studs over a wild part's centre a bubble's centre stands: over the top of the alien (`topOffset`: the part's centre up
+-- to the top of what the player sees), its bob and its nameplate (`plateLift` studs to the plate's centre, `plateStuds` tall at
+-- range; the plate only shrinks nearer), a `gap` clear, and half the bubble's own `bubbleStuds`. The bubble's bottom is so over the
+-- plate's top at every distance: the Rare "!" covered the middle of the plate when it stood 0.8 over the alien (Studio 2026-10-22).
+function SpectacleMath.BubbleLift(topOffset: number, bob: number, plateLift: number, plateStuds: number, gap: number, bubbleStuds: number): number
+	return topOffset + bob + plateLift + plateStuds / 2 + gap + bubbleStuds / 2
+end
+
 return SpectacleMath
