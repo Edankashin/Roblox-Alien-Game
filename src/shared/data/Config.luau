@@ -101,6 +101,8 @@ return {
 	SpawnTickSeconds = 1,
 	ShadowRevealDistance = 40,
 	NameplateDistance = 60, -- nameplates render inside this
+	NameplateLiftStuds = 1.2, -- studs between the top of a wild alien (plus its bob) and the centre of its nameplate
+	NameplateStudsH = 2, -- a wild nameplate's height in studs at range (WildRenderer scales it down near the camera); a bubble over the alien stands above it (Spectacle)
 	NameplateMaxScreenShare = 0.1, -- a wild nameplate is never taller than this share of the screen (Shared/PlateMath; it grew huge within a few studs, Studio 2026-10-22)
 	NameplateMinScale = 0.05, -- the least its stud size is scaled to, with the camera nearly inside it
 	NameplateRescaleStep = 0.02, -- a plate's size is rewritten only when its scale moves more than this (relative)

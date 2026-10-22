@@ -130,7 +130,7 @@ local Cards: { [string]: CardDef } = {
 -- title, the Scrap pill and the X) sits wholly above the ribbons, even a card's lifted on hover, so a card scrolled under the X
 -- never meets it (Studio 2026-10-22: the X covered the third card's ribbon; tests/ShelfMath.spec.luau "Shop header clears the cards").
 local Shelf = {
-	Window = { X = 0.14, Y = 0.075, W = 0.86, H = 0.875 }, -- the scrolling frame; it clips, so it leaves room above the cards for the ribbons (they straddle the top edge) and the hover lift
+	Window = { X = 0.21, Y = 0.075, W = 0.725, H = 0.875 }, -- the scrolling frame; it clips, so it leaves room above the cards for the ribbons (they straddle the top edge) and the hover lift. It stands between the arrows' gutters: the tab rail's (right edge 0.142 with the active tab's nudge) to 0.21 on the left, 0.935 to the screen's edge on the right (Studio 2026-10-22: the ">" sat on the third card's "+2" icon; spec "Shop arrows clear the cards")
 	CardTop = 0.195, -- the cards' top edge, of the screen height: the lifted ribbons' top (0.136) under the header's bottom (0.132)
 	CardH = 0.735, -- the cards' height, of the screen height (the bottom stays at 0.93)
 	CardAspect = 0.41, -- card width over card height: the width follows the height, so a card is the same shape in any window
@@ -142,7 +142,7 @@ local Shelf = {
 	Close = { W = 0.1, H = 0.12, Right = 0.985, Y = 0.012 }, -- the red X (an aspect constraint makes it square within W by H): 45 px at 375, a 37 px face and the 44 px hit area
 	Currency = { Right = 0.835, Y = 0.027, W = 0.2, H = 0.095, Aspect = 3.6, Icon = { X = 0.04, Y = 0.5, W = 0.2, H = 0.72 }, Amount = { X = 0.3, Y = 0.5, W = 0.66, H = 0.7 } }, -- the Scrap pill, left of the X (Aspect: width over height; Icon and Amount: the square and the count, of the pill)
 	Scrollbar = { X = 0.3, Y = 0.958, W = 0.5, H = 0.026, MinThumb = 0.12, Grips = 3, GripGap = 0.15, GripW = 0.03 }, -- the bar under the shelf (MinThumb: the thumb's least width, of the bar; the grip ticks' spacing and width, of the thumb)
-	Chevron = { W = 0.1, H = 0.125, Y = 0.5625, Right = 0.955, Left = 0.165 }, -- the edge arrows (Y: the middle of the card row; Right and Left: their centres)
+	Chevron = { W = 0.055, H = 0.125, Y = 0.5625, Right = 0.9675, Left = 0.176 }, -- the edge arrows, each in its own gutter beside the window, never over a card (Y: the middle of the card row; Right and Left: their centres; a square within W by H of the screen with a 44 px hit area)
 	Detail = { -- the detail card (a tap on a card's body): the panel in the middle of the screen, then its bands as shares of the panel
 		Panel = { X = 0.5, Y = 0.5, W = 0.56, H = 0.6 },
 		HeaderH = 0.3,

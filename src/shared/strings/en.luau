@@ -682,7 +682,6 @@ return {
 	PERK_luck = "+%d%% luck",
 	PERK_radar = "+%d%% radar",
 	FUSE_BUTTON = "Fuse",
-	FUSE_HINT = "4 spare copies of a species fuse into +1 level (up to Lv %d)",
 	TOAST_FUSED = "%s fused to Lv %d!",
 	TOAST_FUSE_NONE = "Nothing to fuse yet: keep 4 spare copies of one species",
 	-- releasing aliens for Scrap (data/Storage)

@@ -1,6 +1,7 @@
 # Studio run queue
 
 Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `93b8ae4eefd02c16`.
+Generated from `PRE_PRODUCTION.md` §5b and `TESTING.md`; input fingerprint `09f2669fe53e9c58`.
 Regenerate: `python3 -I tools/studio_queue.py --write`. Check: `python3 -I tools/studio_queue.py` (also in `tools/lint.sh`).
 
 **29 pending milestones; 103 numbered steps; each milestone appears once.** Do the place-only blocks first, then multiplayer, persistence and published-server checks. Multi-requirement milestones stay together in the strongest prerequisite block; keep each project open for adjacent entries. Empty groups mean no independent pending check.
@@ -252,7 +253,7 @@ For every entry send: commit/build, project and WorldId, player count, original 
 
 **TESTING step 7.** The hard cap holds. In Studio set `HardCap = 150` in `src/shared/data/Storage.luau` (Rojo syncs it; put 1,500 back afterwards), then `/complete`, `/storage bay 10` and `/pass StorageBoost`: the count reads "N / 150" (not 380 or 480) and `/storage cap` prints `= 480, hard cap 150`; `/storage fill` stops at 150. The headless spec "CapFor never passes the hard cap" checks the same with the real data.
 
-**TESTING step 8.** Check the Aliens screen at iPhone SE (667x375) and iPad sizes in the device emulator: the count, the companion line and the Storage Bay button stay inside the panel and clear of the station cards above and the perks line below; the button's text is one line for every level (check "+20 storage: 1,000,000 Scrap" with `/storage bay 9` and `/scrap 2000000`) and at the grey states; the count line "Aliens: 1,234 / 1,500" (`/storage fill` with a raised cap) is not cut off; the Release button, the X and the header tab are where they were.
+**TESTING step 8.** Check the Aliens screen at iPhone SE (667x375) and iPad sizes in the device emulator: the Storage Bay button (footer, left), the count, the companion line and the perks (the info line under the buttons) stay inside the panel, clear of the grid above (see "Second-run UI fixes", 2026-10-22); the button's text is one line for every level (check "+20 storage: 1,000,000 Scrap" with `/storage bay 9` and `/scrap 2000000`) and at the grey states; the count line "Aliens: 1,234 / 1,500" (`/storage fill` with a raised cap) is not cut off; the Release button, the X and the header tab are where they were.
 
 ### Milestone 51a: music and sound system (World 1 place)
 

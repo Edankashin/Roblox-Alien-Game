@@ -370,48 +370,92 @@ local function shell(screen: { w: number, h: number }, panelW: number, panelH: n
 end
 
 describe("Block screens: Aliens", function()
-	-- AliensScreen.luau: the panel 0.8 x 0.78 at 1.35; a card is 0.22 of the grid (the panel less its margins and a 6 px bar),
-	-- square, an edged block of ten rows; a chip is 0.17 of the card tall, a fitted flat block of three rows.
+	-- AliensScreen.luau: the panel 0.8 x 0.84 at 1.35; a card is 0.18 of the grid (the panel less its margins and a 6 px bar),
+	-- square, an edged block of ten rows; a chip is 0.19 of the card tall, a fitted flat block of three rows.
 	for _, screen in ipairs({ SE, IPAD }) do
 		local label = screen.w .. "x" .. screen.h
-		local w, h, grid = panel(screen, 0.8, 0.78, 1.35)
-		it(label .. ": the panel is 26 by 19 panel cells, square, under 200 frames, and its shell fits", function()
-			expect(grid.rows).toEqual(19)
-			expect(grid.cols).toEqual(26)
+		local w, h, grid = panel(screen, 0.8, 0.84, 1.35)
+		it(label .. ": the panel is 27 by 20 panel cells, square, under 200 frames, and its shell fits", function()
+			expect(grid.rows).toEqual(20)
+			expect(grid.cols).toEqual(27)
 			assert(math.abs(BlockMath.Skew(grid, 1.35)) <= 0.06, "panel cells off square")
 			local cell = h * grid.cellY
 			assert(cell >= 2 * 7 and cell <= 2 * 17, "panel cell is " .. cell .. " px")
 			assert(BlockMath.Frames(grid, true, SEED) <= 200, "panel draws " .. BlockMath.Frames(grid, true, SEED) .. " frames")
-			shell(screen, w, h, 0.78)
+			shell(screen, w, h, 0.84)
 		end)
 		it(label .. ": an alien card is ten rows of cells near the HUD's, eight frames, its chips a px of ink or more", function()
-			local card = 0.22 * ((1 - 2 * 0.02) * w - 6)
+			local card = 0.18 * ((1 - 2 * 0.02) * w - 6)
 			local cardGrid = BlockMath.Grid(1, 10, INK)
 			local cell = card * cardGrid.cellY
 			assert(cell >= 6 and cell <= 17, "card cell is " .. cell .. " px")
 			expect(BlockMath.Frames(cardGrid, false, SEED, true)).toEqual(8)
-			local chip = 0.17 * card
+			local chip = 0.19 * card
 			assert(INK * chip / (3 + 2 * INK) >= 1.4, "chip ink is " .. INK * chip / (3 + 2 * INK) .. " px")
+		end)
+	end
+end)
+
+describe("Aliens header and grid", function()
+	-- AliensScreen.luau "Panel layout" (Studio 2026-10-22, second run: one row of cards at the default window). The panel 0.8 x 0.84
+	-- at 1.35; down it the strip, the grid (five cards of 0.18 of its width with 0.02 between, a 6 px bar), the footer's button row
+	-- and the info line, none over another and the last clear of the panel's edge; the grid is two rows of cards tall.
+	local STRIP_Y, STRIP_H, GRID_Y, GRID_H = 0.158, 0.195, 0.358, 0.50
+	local FOOTER_Y, FOOTER_H, INFO_Y, INFO_H = 0.864, 0.072, 0.939, 0.041
+	local CELL_W, CELL_GAP = 0.18, 0.02
+	local BAY_W, TOKEN_W, FUSE_W, OPTIMIZE_W, FOOTER_GAP, MARGIN = 0.38, 0.21, 0.165, 0.175, 0.01, 0.02
+	-- Widths at the 14 px floor in Fredoka One: "+20 storage: 2,500 Scrap", "Use Token (1)", "Optimize".
+	local BAY_PX, TOKEN_PX, OPTIMIZE_PX = 156, 86, 57
+	local screens = {
+		{ name = "iPhone SE", w = 667, h = 375 },
+		{ name = "iPad", w = 1080, h = 810 },
+		{ name = "default window", w = 1154, h = 663 },
+		{ name = "1280x720", w = 1280, h = 720 },
+		{ name = "844x390", w = 844, h = 390 },
+		{ name = "1920x1080", w = 1920, h = 1080 },
+	}
+	it("the strip, the grid, the buttons and the info line stand one under another inside the panel", function()
+		assert(STRIP_Y >= 0.155, "the strip starts under the close button")
+		assert(STRIP_Y + STRIP_H <= GRID_Y, "strip over grid")
+		assert(GRID_Y + GRID_H <= FOOTER_Y, "grid over buttons")
+		assert(FOOTER_Y + FOOTER_H <= INFO_Y, "buttons over info line")
+		assert(INFO_Y + INFO_H <= 1 - MARGIN + 1e-9, "the info line is clear of the panel's edge")
+		assert(MARGIN + BAY_W + FOOTER_GAP <= 1 - MARGIN - OPTIMIZE_W - FOOTER_GAP - FUSE_W - FOOTER_GAP - TOKEN_W + 1e-9, "Bay under the token button")
+	end)
+	for _, screen in ipairs(screens) do
+		local w, h = BlockMath.FitPx(0.8, 0.84, 1.35, screen.w, screen.h)
+		it(screen.name .. ": two full rows of cards fit the grid, and each card is 70 px or more wide", function()
+			local gridW = (1 - 2 * MARGIN) * w
+			local cell = CELL_W * gridW -- layoutGrid: the cell's height is CELL_W of the grid's whole width
+			local gap = CELL_GAP * gridW
+			assert(2 * cell + gap <= GRID_H * h, "two rows are " .. 2 * cell + gap .. " px in " .. GRID_H * h)
+			assert(CELL_W * (gridW - 6) >= 70, "a card is " .. CELL_W * (gridW - 6) .. " px wide")
+		end)
+		it(screen.name .. ": the strip holds its three lines, the info line a 14 px line, and the buttons their words", function()
+			assert(STRIP_H * h >= 3 * 14 + 12, "strip is " .. STRIP_H * h .. " px")
+			assert(INFO_H * h >= 12.5, "info line is " .. INFO_H * h .. " px")
+			assert(BAY_W * w >= BAY_PX and TOKEN_W * w >= TOKEN_PX and OPTIMIZE_W * w >= OPTIMIZE_PX + 12, "a footer button is too narrow")
+			assert(FUSE_W * w >= 60, "Fuse is " .. FUSE_W * w .. " px")
 		end)
 	end
 end)
 
 describe("Aliens slot names", function()
 	-- AliensScreen.luau buildStationCard / buildSlot (Studio 2026-10-22: "Moo" for Moop, "Ope" for Open). The strip is the panel
-	-- less two 0.02 margins and 0.23 of its height; a station card (1 - 0.02 (jobs - 1)) / jobs of it; the slot row SLOTS_W 0.96
+	-- less two 0.02 margins and 0.195 of its height; a station card (1 - 0.02 (jobs - 1)) / jobs of it; the slot row SLOTS_W 0.96
 	-- of the card and 0.44 of its height; a slot (1 - 0.02 (n - 1)) / n of the row, its name one line across the slot's pitch
-	-- (its width and the gap) on the row's lower 1 - SLOT_SQUARE_H (0.5). Widths at the 14 px floor in Fredoka One
+	-- (its own width, no wider: the gap stays a gap between names) on the row's lower 1 - SLOT_SQUARE_H (0.54). Widths at the 14 px floor in Fredoka One
 	-- (assets/fonts/FredokaOne.ttf): the open slot's "Open" (Strings.STATION_EMPTY_SLOT), the Moop, and Boulden, the longest
 	-- species name in data/Species. A name wider than its label ends in an ellipsis (TextTruncate), never a cut second line.
 	local OPEN_PX, MOOP_PX, LONGEST_PX = 35.5, 37.1, 55.4
-	local GAP, SLOTS_W, SQUARE_H = 0.02, 0.96, 0.5
+	local GAP, SLOTS_W, SQUARE_H = 0.02, 0.96, 0.46
 	local function slotLabel(screen: { w: number, h: number }, jobs: number, slots: number): (number, number)
-		local w, h = BlockMath.FitPx(0.8, 0.78, 1.35, screen.w, screen.h)
+		local w, h = BlockMath.FitPx(0.8, 0.84, 1.35, screen.w, screen.h)
 		local strip = (1 - 2 * 0.02) * w
 		local card = (1 - GAP * (jobs - 1)) / jobs * strip
 		local row = SLOTS_W * card
 		local slot = (1 - GAP * (slots - 1)) / slots
-		return (slot + GAP) * row, (1 - SQUARE_H) * 0.44 * 0.23 * h
+		return slot * row, (1 - SQUARE_H) * 0.44 * 0.195 * h
 	end
 	it("iPhone SE, three stations of three slots: Open and Moop fit whole on one line at the floor", function()
 		local width, height = slotLabel(SE, 3, 3)
@@ -425,11 +469,13 @@ describe("Aliens slot names", function()
 			assert(height >= TEXT_MIN, "slot label is " .. height .. " px tall")
 		end
 	end)
-	it("the label is wider than the old one (the slot alone, in a 0.92 row)", function()
+	it("the label is as wide as the slot and keeps a gap to its neighbour", function()
+		-- the label is the slot (1 - 0.02 (n - 1)) / n of the row; the pitch to the next slot is the slot and the gap, so a gap of
+		-- 0.02 of the row (about 2 px at SE) lies between two names and they never meet
 		local width = slotLabel(SE, 3, 3)
-		local w = BlockMath.FitPx(0.8, 0.78, 1.35, SE.w, SE.h)
-		local old = 0.32 * 0.92 * 0.32 * (1 - 2 * 0.02) * w
-		assert(width > old * 1.1, "no wider: " .. width .. " against " .. old)
+		local w = BlockMath.FitPx(0.8, 0.84, 1.35, SE.w, SE.h)
+		local row = SLOTS_W * (1 - GAP * 2) / 3 * (1 - 2 * 0.02) * w
+		assert(row - 3 * width > 0 and (row - 3 * width) / 2 >= 0.019 * row, "no gap between names: " .. width .. " in " .. row)
 	end)
 end)
 
