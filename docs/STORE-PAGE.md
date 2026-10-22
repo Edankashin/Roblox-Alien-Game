@@ -51,7 +51,7 @@ One thumb, no stress, nothing you did is ever wasted.
 | Thumb 5 | `thumb_5.png` | the rarity ladder: Common to Secret on stepping blocks, each glowing more (pool, light, ring, motes, pillars); title |
 | Thumb 6 | `thumb_6.png` | the reveal: the Cosmic card landing in its pixel sky, the cell-ray fan, starburst, gold cell frame and confetti cells |
 
-**Ethan's pick (2026-10-22): icon A.** For the thumbnails he asked for scenery: "I want the thumbnail to show the most beautiful version of the world so that it is scenic and shows what the game offers." So slot 1 is **Ethan's pick from S1 to S3** below (answer "S1", "S2" or "S3" on `scenic_choices.jpg`), slots 2 and 3 are suggested from the first set: **thumb 2** (the catch), then **thumb 1** (the camp).
+**Ethan's picks (2026-10-22): icon A, first thumbnail S3 (the two-worlds panorama).** For the thumbnails he asked for scenery: "I want the thumbnail to show the most beautiful version of the world so that it is scenic and shows what the game offers." So slot 1 is **Ethan's pick from S1 to S3** below (answer "S1", "S2" or "S3" on `scenic_choices.jpg`), slots 2 and 3 are suggested from the first set: **thumb 2** (the catch), then **thumb 1** (the camp).
 
 | Option | File | What it shows |
 |---|---|---|
@@ -100,7 +100,7 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
 | Basic Settings | Icon | `media/store/2026-10-22/icon_A.png` (Ethan's pick, 2026-10-22; section 4) |
-| Basic Settings | Thumbnails (in order) | 1: `media/store/2026-10-22/thumb_S<Ethan's pick: 1, 2 or 3>.png`; 2: `thumb_2.png`; 3: `thumb_1.png` (section 4; at least two so personalization runs; drop any that job 53 finds the game does not show); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Basic Settings | Thumbnails (in order) | 1: `media/store/2026-10-22/thumb_S3.png` (Ethan's pick, 2026-10-22: the two-worlds panorama); ``; 2: `thumb_2.png`; 3: `thumb_1.png` (section 4; at least two so personalization runs; drop any that job 53 finds the game does not show); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
 | Places > World 1 | Max players | 8; server fill: Roblox optimised |
 | Access | Private servers | Off |
 | Access | Paid access | Off |
