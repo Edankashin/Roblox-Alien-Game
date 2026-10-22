@@ -3,6 +3,18 @@
 Run in Studio with `rojo serve` connected. Report Output lines verbatim and a screenshot.
 
 Species display names changed on 2026-10-14 (decision B26): commands and asset folders still take the id (`/spawn Mossbop` spawns the Moop), screens and toasts show the new name. Steps below that name a species in prose may still use the old name; the id map is in `docs/vault/01-game-design/Species-Names.md`.
+## Studio fixes after the block cells (World 1 place)
+
+The five things the Mac found on 2026-10-22 (log `docs/vault/08-log/2026-10-22.md`, "Mac session: Studio connected"), each fixed in its own change; rules in `docs/vault/05-ui-design/UI-Playbook.md`, the section headed Studio fixes after the block cells. The math is covered headless: `tests/BlockMath.spec.luau` ("Aliens slot names", "Block budget"), `tests/ViewFit.spec.luau`, `tests/ShelfMath.spec.luau` ("Shop header clears the cards") and `tests/PlateMath.spec.luau`. Check each at the default window, then in the device emulator at iPhone SE (667x375, landscape) and iPad (1080x810).
+
+1. The start. Stop and press Play three times, the Output open: no `Script timeout: exhausted allowed execution time` from `UI.Builder` (it printed once at each start before). The HUD draws whole on its first frame (every plate with its cells, nothing blank), and the Aliens and Shop screens open with their plates in cells.
+2. The Aliens slot names. `/spawn Mossbop`, catch it and seat it at the Picnic Table (Optimize). Open Aliens: under each slot square the name is one whole line, "Moop" (not "Moo") and "Open" (not "Ope"); a name longer than its slot ends in "..." at iPhone SE (with three slots a station, a seven-letter name such as Boulden), never a second line cut off. On the iPad every name is whole.
+3. The cards show the aliens. With the models installed (`Models: N loaded` in the Output at Play), the Aliens cards' squares and the Codex grid's caught species show the species' model, still, framed whole on the colour square (its face toward you, front-left); no card says "Ball", "Block" or any other shape name. An uncaught species in the Codex stands as a dark silhouette (Silhouettes on) with the "?" over it. Scroll the Aliens grid on 30 or more aliens (`/dupes Mossbop 30`): the views appear on the rows you scroll to, the frame time steady. In a place without the Models folder every card shows the species' name in its square instead.
+4. The Shop's X. Open the Shop at the default window, then at iPhone SE and iPad: the red X top right covers no card's ribbon, the Scrap pill and the title neither. Scroll the shelf all the way right and hover each card with the mouse (it lifts): no ribbon ever reaches the X. The X is still a chunky red block button that clicks and closes (a tap just outside its face still counts).
+5. The wild name plates. `/spawn Mossbop` twice close together and walk up until the camera is two or three studs from them, then zoom in and out: the plates stop growing about 14 studs out and stay a tenth of the screen tall from there in (both lines readable, the tier line 14 px or more at SE), and the two plates no longer cover each other or the screen. Back off past 14 studs: the plates are their old size, and they vanish at 60 studs as before.
+
+Known gaps: the companion, home and sighting plates are still stud-sized without a ceiling (only the wild plates were reported); a station with the bonus fourth slot shows a shortened "Mo..." for four-letter names at iPhone SE.
+
 ## TikTok batch 9: the Scrap gap, the luck line in chat, the Starter Pack button (World 1 place)
 
 From the monetization references of 2026-10-21 (`media/tiktok/NOTES.md` "Batch 9"). Client lines only, plus one server rule in `Monetization.startServerLuck`.
