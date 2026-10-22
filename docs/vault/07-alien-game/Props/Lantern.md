@@ -12,7 +12,7 @@ tris: 144
 budget: 260
 collision: Box
 footprint: [2.25, 1.25, 3.25]
-palette: ["#4A3B2E", "#7B4A2D", "#5E9E3A", "#C9A15B", "#FFC86B"]
+palette: ["#4A3B2E", "#7B4A2D", "#5E9E3A", "#C9A15B", "#FF9A2E"]
 roles: [body, second, accent, trim, glow]
 render: "[[props_v1.jpg]]"
 glb: "assets/models/props/Lantern/Lantern.glb"
@@ -22,7 +22,7 @@ glb: "assets/models/props/Lantern/Lantern.glb"
 A lantern on a wooden post for the meadow's paths and the camp's edge: a crooked arm, a brass hook and a little iron cage with a roof, and inside it a block of warm light. At dusk it is what the eye finds first.
 
 - **Cells**: `wood` on the post and arm; `metal` on the roof and frame; the light a `glow` block (Neon in the game, with a PointLight from the world worker if wanted)
-- **Light**: the warm FFC86B is World 1's lamp colour; Frostbyte's IceLantern uses the same warmth as its one contrast
+- **Light**: the PointLight is the warm FFC86B, World 1's lamp colour, while the lamp cell is a deeper amber FF9A2E (the cell in FFC86B read pale cream at a distance at night, Mac job 58); Frostbyte's IceLantern uses the same warmth as its one contrast
 - **Footprint**: 2.25 x 1.25 x 3.25 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract).
 - **Budget**: 260 triangles (the estimate before culling is 144); collision `Box` in `src/shared/data/Props.luau`.
 
