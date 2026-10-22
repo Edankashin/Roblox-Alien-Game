@@ -98,6 +98,13 @@ class BlockTheme(unittest.TestCase):
         self.assertEqual(float(found[1]), self.block["PanelCell"])
         self.assertEqual(self.block["PanelCell"], 2 * self.block["Cell"], "Blocky-Style C1: the big cell is twice the small one")
 
+    def test_the_spec_uses_the_cell_budget(self):
+        # Studio 2026-10-22, the start-up script timeout: the spec's "Block budget" checks every real grid against this number.
+        found = re.search(r"local MAX_CELLS = (\d+)", self.spec)
+        self.assertTrue(found, "the spec's MAX_CELLS line moved")
+        self.assertEqual(float(found[1]), self.block["MaxCells"])
+        self.assertTrue(0 < self.block["FitBudget"] < 1 / 60, "a fitted-plate batch must leave most of a frame")
+
     def test_the_screens_moved_to_block_cells_keep_no_old_look(self):
         # UI Playbook "Screens after the HUD": a screen in block cells has no rounded, gradient, gloss or chunky-pill helper left,
         # and no corner, stroke or gradient instance of its own (a rarity ring is a plate's ink, a button a block button).

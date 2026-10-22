@@ -697,4 +697,76 @@ describe("Block screens: Reveal", function()
 	end
 end)
 
+describe("Block budget", function()
+	-- Studio 2026-10-22: "UI.Builder Script timeout: exhausted allowed execution time" once at each start, in fitPlate's measure
+	-- then draw, while the server loads. A 1 px camera viewport under a laid-out GUI asked for thousands of rows. Builder now
+	-- picks a fitted plate's rows with BlockMath.ScreenRows (no screen yet: keep the guess), draws a grid over MAX_CELLS as an
+	-- edged block, caches grout and jitter per grid, and runs the measures in batches of Theme.Block.FitBudget a frame.
+	local MAX_CELLS = 6000 -- Theme.Block.MaxCells (tools/tests/test_block_theme.py checks it)
+	it("a real measurement picks the rows as before; one no screen makes keeps the fallback", function()
+		expect(BlockMath.ScreenRows(0.085 * SE.h, SE.h, CELL, INK, MIN_ROWS, 0)).toEqual(BlockMath.Rows(0.085, CELL, INK, MIN_ROWS))
+		expect(BlockMath.ScreenRows(300, 1, CELL, INK, MIN_ROWS, 0)).toEqual(0) -- the 1 px viewport at start
+		expect(BlockMath.ScreenRows(300, 0, CELL, INK, MIN_ROWS, 7)).toEqual(7)
+		expect(BlockMath.ScreenRows(0, 375, CELL, INK, MIN_ROWS, 7)).toEqual(7)
+		-- the most rows a real plate can ask for is a whole screen's
+		expect(BlockMath.ScreenRows(SE.h, SE.h, CELL, INK, MIN_ROWS, 0)).toEqual(BlockMath.Rows(1, CELL, INK, MIN_ROWS))
+	end)
+	it("every real grid is within the budget; the start-up one was not", function()
+		local playtime = BlockMath.Grid(2, BlockMath.Rows(0.78, PANEL_CELL, INK, MIN_ROWS), INK) -- the widest panel, 39 by 19
+		expect(playtime.cols * playtime.rows).toEqual(741)
+		assert(BlockMath.WithinBudget(playtime, MAX_CELLS), "the Playtime panel is over the budget")
+		-- a fitted plate the size of the whole screen, its rows picked at the HUD's cell, on a phone and a 21:9 monitor
+		for _, aspect in ipairs({ SE.w / SE.h, 21 / 9 }) do
+			local wholeScreen = BlockMath.Grid(aspect, BlockMath.Rows(1, CELL, INK, MIN_ROWS), INK)
+			assert(BlockMath.WithinBudget(wholeScreen, MAX_CELLS), "a full-screen plate at the HUD cell is " .. wholeScreen.rows * wholeScreen.cols)
+		end
+		local captureBar = BlockMath.Grid(0.6 * SE.w / (0.06 * SE.h), 3, INK)
+		assert(BlockMath.WithinBudget(captureBar, MAX_CELLS), "the capture bar is over the budget")
+		local startup = BlockMath.Grid(1.5, BlockMath.Rows(300 / 1, CELL, INK, MIN_ROWS), INK)
+		expect(BlockMath.WithinBudget(startup, MAX_CELLS)).toEqual(false)
+		-- and its frames, had it drawn, against an edged block's eight
+		assert(startup.rows * startup.cols > 1e7, "the start-up grid is " .. startup.rows * startup.cols .. " cells")
+		expect(BlockMath.Frames(startup, false, SEED, true)).toEqual(8)
+	end)
+	it("the cached grout and jitter are the uncached ones, worked out once per grid", function()
+		for _, aspect in ipairs({ 1, 3.6, 4.2, 6, 1.35 }) do
+			for _, rows in ipairs({ 3, 5, 10, 19 }) do
+				local grid = BlockMath.Grid(aspect, rows, INK)
+				local grout, jitter = BlockMath.Grout(grid, GROUT), BlockMath.Jittered(grid, SEED)
+				local cachedGrout, cachedJitter = BlockMath.GroutCached(grid, GROUT), BlockMath.JitteredCached(grid, SEED)
+				expect(#cachedGrout).toEqual(#grout)
+				expect(#cachedJitter).toEqual(#jitter)
+				for index, rect in ipairs(grout) do
+					local other = cachedGrout[index]
+					expect(other.x).toBeClose(rect.x, EPS)
+					expect(other.y).toBeClose(rect.y, EPS)
+					expect(other.w).toBeClose(rect.w, EPS)
+					expect(other.h).toBeClose(rect.h, EPS)
+				end
+				for index, cell in ipairs(jitter) do
+					local other = cachedJitter[index]
+					expect(other.col).toEqual(cell.col)
+					expect(other.row).toEqual(cell.row)
+					expect(other.level).toEqual(cell.level)
+				end
+				-- the same grid again is the same answer, not a new one
+				expect(BlockMath.GroutCached(BlockMath.Grid(aspect, rows, INK), GROUT) == cachedGrout).toEqual(true)
+				expect(BlockMath.JitteredCached(BlockMath.Grid(aspect, rows, INK), SEED) == cachedJitter).toEqual(true)
+			end
+		end
+		-- another seed is another answer
+		local grid = BlockMath.Grid(3.6, 5, INK)
+		expect(BlockMath.JitteredCached(grid, SEED) == BlockMath.JitteredCached(grid, SEED + 1)).toEqual(false)
+	end)
+	it("the caches stay bounded through a resize sweep", function()
+		for cols = 3, 400 do
+			local grid = BlockMath.Grid(cols / 3.8, 3, INK)
+			BlockMath.GroutCached(grid, GROUT)
+			BlockMath.JitteredCached(grid, SEED)
+		end
+		local grouts, jitters = BlockMath.CacheSize()
+		assert(grouts <= 256 and jitters <= 256, "the caches hold " .. grouts .. " and " .. jitters)
+	end)
+end)
+
 return true
