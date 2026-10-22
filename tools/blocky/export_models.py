@@ -40,7 +40,8 @@ the Rigs row's layout. A species that is still pending is listed, not checked. E
 Files under the folder that the export does not write (an old blockout's leftovers) are deleted and printed. asset_ids.json is only marked:
 an exported species that has an old upload gets `pendingUpload` (the new files, not uploaded); its old assetId stays until the Mac
 uploads (Decision B47: tools/finalize_upload.sh runs `python3 -I tools/upload_assets.py --blocky`), so the game keeps its old mesh,
-which World.RigAnimator leaves alone, until then. A re-export after the upload marks the species pending again (its files changed).
+which World.RigAnimator leaves alone, until then. An upload that records its file's sha256 is never marked: the upload sends a
+changed file again by its hash, and the game keeps the uploaded id until then.
 """
 from __future__ import annotations
 
@@ -591,7 +592,9 @@ def mark_pending(sids, ids_file=IDS_FILE):
     marked = []
     for sid in sids:
         entry = ids.get(sid)
-        if not isinstance(entry, dict):
+        # an upload that records its file's sha256 needs no mark: upload_assets.py --blocky sends a changed file again by its hash, and
+        # the game keeps the uploaded id (ModelAssets, the installer) until then, where a mark would zero it at the next fill
+        if not isinstance(entry, dict) or entry.get("sha256"):
             continue
         entry["pendingUpload"] = {
             "files": ["assets/models/%s/%s" % (sid, f) for f in (sid + ".glb", sid + "_atlas.png", sid + "_face.png")],
@@ -942,7 +945,7 @@ def mark_pending_props(pids, ids_file=IDS_FILE):
     marked = []
     for pid in pids:
         entry = ids.get(pid)
-        if not isinstance(entry, dict):
+        if not isinstance(entry, dict) or entry.get("sha256"):   # re-uploaded by its hash (mark_pending)
             continue
         entry["pendingUpload"] = {
             "files": ["assets/models/props/%s/%s" % (pid, f) for f in (pid + ".glb", pid + "_atlas.png")],

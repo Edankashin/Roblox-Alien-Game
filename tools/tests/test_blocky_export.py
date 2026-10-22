@@ -133,7 +133,7 @@ class CheckFolder(unittest.TestCase):
 
     def test_a_face_sheet_of_the_wrong_size(self):
         shutil.copyfile(self.folder / (SID + "_atlas.png"), self.folder / (SID + "_face.png"))
-        self.assertNamed("the Rigs.luau layout wants 84x16")
+        self.assertNamed("the Rigs.luau layout wants 672x128")
 
 
 class Roster(unittest.TestCase):
