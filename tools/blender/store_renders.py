@@ -28,6 +28,8 @@ and a re-run always picks up the models and recipes as they are on the branch.
 The block-cell launch set (B49, 2026-10-22), one command, re-runnable after any model pass (store_blocky.py renders, then
 tools/store_blocky_compose.py finishes; the options for Ethan are icons A, B, C and thumbnails 1 to 6, with media/store/<set>/choices.jpg):
   $BPY tools/blender/store_renders.py --set 2026-10-22 [--only A,B,C,1,2,3,4,5,6] [--samples 48] [--scale 0.5] [--raw-dir DIR]
+The scenic hero thumbnails (Ethan's brief of 2026-10-22, scenic_choices.jpg, each with a _notitle twin and the 400 px strip):
+  $BPY tools/blender/store_renders.py --set 2026-10-22 --only S1,S2,S3
 
 Usage: blender -b -P tools/blender/store_renders.py -- [--out media/store/2026-10-14] [--samples 64] [--suffix _v2]
        blender -b -P tools/blender/store_renders.py -- --target moment [--out media/store/2026-10-15] [--samples 64] [--scale 0.5]

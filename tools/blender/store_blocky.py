@@ -6,6 +6,7 @@ tools/store_blocky_compose.py (Pillow, system python3): the painted sky, bloom, 
 Run through store_renders.py, so it can be re-run after any model pass lands (it reads assets/models as they are on the branch):
 
     $BPY tools/blender/store_renders.py --set 2026-10-22 [--only A,B,1] [--samples 48] [--scale 0.5]
+    $BPY tools/blender/store_renders.py --set 2026-10-22 --only S1,S2,S3      (the scenic hero thumbnails; each also writes <shot>_depth.png)
 
 Each shot writes into a scratch folder (--raw-dir, default the system temp dir): <shot>_raw.png (RGBA, the sky transparent), the alien
 masks <shot>_hero.png and <shot>_cast.png (the alpha of each group as seen, everything else held out) and <shot>.json (the frame size and the
@@ -432,14 +433,15 @@ def ghost_above(objs, cut_z):
             nt.links.new(mix.outputs[0], out.inputs["Surface"])
 
 
-def thumb_1():
-    """The camp moment: aliens at work round the half-built ship, the player, a Rare popping out of its portal of cells."""
+def half_built_ship(cut=3.2, offset=(0.0, 0.0)):
+    """The ship on the camp's bay, built from its prop note at the world cell, scaled as the game stands it, every part above `cut` studs the
+    blue module ghost (the modules not yet built). `offset` moves it (Roblox x, z) with a shifted world. Returns (Roblox ship x, z)."""
     import blocky_build as B
     import cells as C
     import spec as S
-    sc, world = new_scene(1920, 1080, world_id=1, sky=((0.75, 0.86, 1.0), 1.0), sun=(3.4, (1.0, 0.95, 0.85), (52, 0, 150)))
     camp = WP.camp_layout()
     sx, sz = camp["ship"]
+    sx, sz = sx + offset[0], sz + offset[1]
     ship_at = Vector(WP.bl(sx, WP.FLOOR_TOP + 1.25, sz))
     tmp = pathlib.Path(bpy.app.tempdir or "/tmp")
     layer = bpy.context.view_layer.layer_collection.children["FX"]
@@ -448,7 +450,16 @@ def thumb_1():
     for o in made["objects"]:   # the game's ship stands about 1.5 times the diorama prop on its 12 x 20 slab
         o.scale = (1.3, 1.3, 1.3)
         o.location = ship_at + (o.location - ship_at) * 1.3
-    ghost_above(made["objects"], ship_at.z + 3.2)
+    ghost_above(made["objects"], ship_at.z + cut)
+    return sx, sz
+
+
+def thumb_1():
+    """The camp moment: aliens at work round the half-built ship, the player, a Rare popping out of its portal of cells."""
+    import blocky_build as B
+    sc, world = new_scene(1920, 1080, world_id=1, sky=((0.75, 0.86, 1.0), 1.0), sun=(3.4, (1.0, 0.95, 0.85), (52, 0, 150)))
+    sx, sz = half_built_ship()
+    tmp = pathlib.Path(bpy.app.tempdir or "/tmp")
     # the cast at the stations (Roblox offsets from data/Camp.luau), the player on the deck, the Rare's portal in front
     # the camera stands south-west of the ship on the deck (Roblox studs); d runs to the ship, r to the right of the view
     cx, cz = -10.0, 1.0
@@ -613,8 +624,411 @@ def thumb_6():
     finish("thumb_6", {"sky": "none", "card": "Cosmic"}, {"mid": mid})
 
 
+# ------------------------------------------------------------------------------------------------ scenic hero thumbnails S1 to S3
+# Ethan, 2026-10-22: "I want the thumbnail to show the most beautiful version of the world so that it is scenic and shows what the game
+# offers." Three vistas of the generated worlds with the real models, each finished by compose's scenic path (store_blocky_compose.py):
+# the stepped-cell sky, aerial haze from a depth pass, bloom on the glow cells, an aura behind each glowing rare, the navy outline per
+# group, the title over the top third (and a no-title copy).
+def rb(x, y, z):
+    """A Roblox point (x, y up, z) as a Blender Vector."""
+    return Vector(WP.bl(x, y, z))
+
+
+def group(name):
+    """A collection of the scene (made if missing); each one gets its own mask, outline and aura in compose."""
+    if name not in bpy.data.collections:
+        bpy.context.scene.collection.children.link(bpy.data.collections.new(name))
+    return name
+
+
+def aim(pos, toward, pitch):
+    """A look-at point from Blender `pos`, level with it in the ground direction of Blender `toward`, tilted `pitch` degrees (down < 0)."""
+    d = Vector(toward) - Vector(pos)
+    d.z = 0
+    d.normalize()
+    return Vector(pos) + d * 50.0 + Vector((0, 0, 50.0 * math.tan(math.radians(pitch))))
+
+
+def view_axes(cam):
+    """The camera's level forward and right unit vectors in the Blender ground plane."""
+    m = cam.matrix_world.to_3x3()
+    f, r = m @ Vector((0, 0, -1)), m @ Vector((1, 0, 0))
+    f.z = r.z = 0
+    return f.normalized(), r.normalized()
+
+
+def ground_in_view(world, cam, fx, dist, lift=0.0, shift=(0.0, 0.0)):
+    """The ground point `dist` studs out along the frame column `fx` (0 left, 1 right): where to stand an alien so it lands in that
+    column. `shift` is the world's Roblox (x, z) offset when two worlds share a scene (S3)."""
+    f, r = view_axes(cam)
+    d = (f + r * ((2 * fx - 1) * 18.0 / cam.data.lens)).normalized()
+    p = cam.location + d * dist
+    return at(world, p.x - shift[0], -p.y - shift[1], lift) + Vector((shift[0], -shift[1], 0))
+
+
+def focus(cam, distance, fstop):
+    """Gentle depth of field on a camera already placed."""
+    cam.data.dof.use_dof = True
+    cam.data.dof.focus_distance = distance
+    cam.data.dof.aperture_fstop = fstop
+
+
+def sun_from(direction, energy, colour, angle=3.0):
+    """Turn the scene's sun so its light comes from `direction` (a Blender vector pointing at the sun)."""
+    s = bpy.data.objects["Sun"]
+    s.data.energy, s.data.color, s.data.angle = energy, colour, math.radians(angle)
+    s.rotation_euler = Vector(direction).normalized().to_track_quat("Z", "Y").to_euler()
+    return s
+
+
+def ambient(colour, strength):
+    """The sky's light on the scene (compose paints the sky the camera sees)."""
+    bg = bpy.context.scene.world.node_tree.nodes["Background"]
+    bg.inputs["Color"].default_value = (*colour, 1.0)
+    bg.inputs["Strength"].default_value = strength
+
+
+def depth_pass(path, far):
+    """The camera distance of every visible surface over `far` (clamped to 1), as a 16-bit grey PNG (sRGB-encoded by the Standard view);
+    the sky stays transparent. Compose turns it into aerial haze. One material override, a few samples, no denoise."""
+    sc = bpy.context.scene
+    mat = bpy.data.materials.new("DepthOverride")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    cam, div, emit, out = (nt.nodes.new("ShaderNodeCameraData"), nt.nodes.new("ShaderNodeMath"), nt.nodes.new("ShaderNodeEmission"),
+                           nt.nodes.new("ShaderNodeOutputMaterial"))
+    div.operation, div.use_clamp = "DIVIDE", True
+    div.inputs[1].default_value = far
+    nt.links.new(cam.outputs["View Distance"], div.inputs[0])
+    nt.links.new(div.outputs[0], emit.inputs["Color"])
+    nt.links.new(emit.outputs[0], out.inputs["Surface"])
+    vl = bpy.context.view_layer
+    vl.material_override = mat
+    st = sc.render.image_settings
+    bg = sc.world.node_tree.nodes["Background"]
+    saved = (sc.cycles.samples, sc.cycles.use_denoising, st.color_depth, st.color_mode, sc.render.film_transparent,
+             tuple(bg.inputs["Color"].default_value), bg.inputs["Strength"].default_value)
+    sc.cycles.samples, sc.cycles.use_denoising, sc.render.film_transparent = 4, False, False
+    st.color_mode, st.color_depth = "BW", "16"
+    bg.inputs["Color"].default_value, bg.inputs["Strength"].default_value = (1.0, 1.0, 1.0, 1.0), 1.0   # the sky reads as far
+    sc.render.filepath = str(path)
+    bpy.ops.render.render(write_still=True)
+    sc.cycles.samples, sc.cycles.use_denoising, st.color_depth, st.color_mode, sc.render.film_transparent = saved[:5]
+    bg.inputs["Color"].default_value, bg.inputs["Strength"].default_value = saved[5], saved[6]
+    vl.material_override = None
+
+
+def finish_scenic(shot, meta, groups, points=None):
+    """The beauty pass, the depth pass, one mask per alien group and the JSON for compose. `groups` maps a collection name to its
+    {"outline": px at 1080 high, "aura": hex or None}."""
+    sc = bpy.context.scene
+    sc.render.filepath = str(RAW / f"{shot}_raw.png")
+    bpy.ops.render.render(write_still=True)
+    print("rendered", shot, flush=True)
+    depth_pass(RAW / f"{shot}_depth.png", meta["far"])
+    for name in groups:
+        if bpy.data.collections[name].all_objects:
+            mask(name, RAW / f"{shot}_{name.lower()}.png")
+    meta = dict(meta, scenic=True, groups=groups, size=[sc.render.resolution_x, sc.render.resolution_y], points=project(points or {}))
+    (RAW / f"{shot}.json").write_text(json.dumps(meta, indent=1))
+
+
+def scatter_cells(cam, hexcols, count, near, far, size, seed, strength=0.0, low=0.15, high=0.75, group_name="FX", spread=1.0, centre=0.5):
+    """Small cells floating in the view between `near` and `far` studs (petals by day, fireflies at night when `strength` > 0), placed by
+    frame fractions so they land where the camera looks; rows `low` to `high` of the frame (0 top)."""
+    import random as _r
+    rnd = _r.Random(seed)
+    mats = [emissive(f"Mote{h}{strength}", h, strength) if strength > 0 else WP.flat_material(h) for h in hexcols]
+    m = cam.matrix_world.to_3x3()
+    fwd, right, up = m @ Vector((0, 0, -1)), m @ Vector((1, 0, 0)), m @ Vector((0, 1, 0))
+    tx, ty = 18.0 / cam.data.lens, 10.125 / cam.data.lens
+    for k in range(count):
+        d = rnd.uniform(near, far)
+        fx, fy = rnd.uniform(centre - spread / 2, centre + spread / 2), rnd.uniform(low, high)
+        p = cam.location + fwd * d + right * ((2 * fx - 1) * tx * d) + up * ((1 - 2 * fy) * ty * d)
+        s = size * rnd.uniform(0.7, 1.3)
+        cube(p, s, mats[k % len(mats)], rot_z=rnd.uniform(0, 3), group=group_name).rotation_euler = (rnd.uniform(0, 1), rnd.uniform(0, 1), 0)
+
+
+def glow_up(sid, p, tier, cam_pos, hexcol=None, light=1.0, flying=False):
+    """A rare's presence at its feet (Spectacle, rarer is cooler): the light pool from Rare, the ground ring and the orbiting motes from
+    Legendary, a warm point light on the face."""
+    col = hexcol or TIER_HEX[tier]
+    rank = list(GLOW).index(tier)
+    if not flying and rank >= 4:   # below Legendary a flat pool reads as a rug in a wide shot; the light alone carries it
+        pool(p, 1.0 + 0.1 * rank, col, strength=0.3 + 0.12 * rank)
+    if rank >= 4:
+        ring(p, 2.0, col, count=26, strength=4)
+        motes(p, 1.9, col, count=8, height=2.5, avoid=cam_pos, seed=rank, strength=4)
+    point_light(p + (Vector(cam_pos) - Vector(p)).normalized() * 2.2 + Vector((0, 0, 2.6)), col, (25 + 18 * rank) * light, 1.2)
+
+
+def place_cast(world, cam, cast, glows=(), shift=(0.0, 0.0), side=None):
+    """Stand each (species, group, frame column fx, distance, lift, yaw, face frame) in the view, clearing the props round its feet; the
+    species in `glows` get their presence (glow_up). With `side` ("near" or "far", S3) a spot on the wrong side of the seam, or in the
+    river, is pushed further out along its column. Prints where each lands and whether the terrain hides its head. Returns
+    {species: (feet, middle, head)}."""
+    sc = bpy.context.scene
+    out = {}
+    for sid, grp, fx, dist, lift, yaw, frame in cast:
+        p = ground_in_view(world, cam, fx, dist, lift, shift)
+        for _ in range(120 if side else 0):
+            x, z = p.x, -p.y
+            if (z < seam_z(x) - 8.0) if side == "near" else (z > seam_z(x) + 2.0):
+                break
+            dist += 1.0
+            p = ground_in_view(world, cam, fx, dist, lift, shift)
+        clear_props(p, 2.5)
+        _, objs = alien(sid, p, face=cam.location, yaw=yaw, frame=frame, group=grp)
+        head, mid = head_of(objs)
+        if sid in glows:
+            glow_up(sid, p - Vector((0, 0, lift)), glows[sid][0], cam.location, hexcol=glows[sid][1], light=glows[sid][2], flying=lift > 0)
+        ray = head - cam.location
+        hit, _, _, _, obj, _ = sc.ray_cast(bpy.context.view_layer.depsgraph, cam.location, ray.normalized(), distance=ray.length)
+        hidden = hit and obj not in objs
+        v = world_to_camera_view(sc, cam, mid)
+        print(f"  cast {sid}: frame {v.x:.2f},{1 - v.y:.2f} at {(mid - cam.location).length:.0f} studs{' HIDDEN by ' + obj.name if hidden else ''}",
+              flush=True)
+        out[sid] = (p, mid, head)
+    return out
+
+
+def open_sightline(cam_pos, target, radius, names=("MoonTree",), rays=24):
+    """Leave out the placed props named `names` that stand between the camera and a landmark (a disc of `radius` studs round `target`):
+    the one liberty the scenic shots take with the world, so the floating island shows through the canopy. Prints what it removed."""
+    import random as _r
+    sc = bpy.context.scene
+    rnd = _r.Random(3)
+    gone = set()
+    for k in range(rays):
+        t = Vector(target) + Vector((rnd.uniform(-radius, radius), rnd.uniform(-radius, radius), rnd.uniform(-radius, radius) * 0.6))
+        for _ in range(6):
+            bpy.context.view_layer.update()
+            d = t - Vector(cam_pos)
+            hit, _, _, _, obj, _ = sc.ray_cast(bpy.context.view_layer.depsgraph, Vector(cam_pos), d.normalized(), distance=d.length)
+            if not hit or not obj.name.startswith(names):
+                break
+            gone.add(obj.name)
+            bpy.data.objects.remove(obj)
+    print(f"  sightline: removed {len(gone)} props ({', '.join(sorted(gone))})", flush=True)
+    return len(gone)
+
+
+def scenic_s1():
+    """S1, the meadow vista: from the highlands by the lookout over World 1 at golden hour. The plateau's river running to the waterfall into
+    the pond, blossom trees, the camp with the half-built ship and its flag, the crashed ship smoking, the paths, aliens of rising rarity
+    spread from the plateau rim to the meadow (Moop near the camera, Gaira glowing mid-ground), the Starhollow's violet canopy and the
+    floating island with its glowing fall on the horizon. The sun is low behind the camera's right shoulder."""
+    sc, world = new_scene(1920, 1080, world_id=1)
+    ambient((0.55, 0.62, 0.98), 0.55)
+    half_built_ship()
+    cam_pos = rb(-112.0, 16.0, 100.0)
+    camp_p, isle_p = at(world, 0.0, 0.0), rb(158.0, 50.0, 160.0)
+    d1, d2 = camp_p - cam_pos, isle_p - cam_pos
+    d1.z = d2.z = 0
+    toward = cam_pos + d1.normalized() * 0.5 + d2.normalized() * 0.5
+    cam = camera(cam_pos, aim(cam_pos, toward, -5.5), 22)
+    f, r = view_axes(cam)
+    sun_from(-f * 0.45 + r * 0.9 + Vector((0, 0, 0.30)), 4.2, (1.0, 0.70, 0.44))
+    ambient((0.50, 0.58, 0.98), 0.45)
+    groups = {"Hero": {"outline": 12, "aura": None}, "Legend": {"outline": 7, "aura": "F59E0B", "aura_r": 22},
+              "Rare": {"outline": 6, "aura": "3B82F6", "aura_r": 16}, "Cast": {"outline": 5, "aura": None}}
+    for g in groups:
+        group(g)
+    cast = place_cast(world, cam, [("Mossbop", "Hero", 0.30, 19.5, 0.0, -10, "open"),
+                                   ("Puffpuff", "Cast", 0.42, 26.0, 0.0, 6, "open"),
+                                   ("Sparkfox", "Rare", 0.52, 29.0, 0.0, 4, "glint1"),
+                                   ("Buzzlebee", "Cast", 0.36, 26.0, 4.2, 8, "open"),
+                                   ("Gaiabloom", "Legend", 0.63, 33.0, 0.0, -10, "cycle1"),
+                                   ("Gloomoth", "Cast", 0.84, 26.0, 2.6, -18, "glint1")],
+                      glows={"Gaiabloom": ("Legendary", None, 3.5), "Sparkfox": ("Rare", None, 2.0)})
+    feet, mid, head = cast["Mossbop"]
+    area_light(cam_pos + r * 3.0 + Vector((0, 0, -2.0)), mid, "FFE9D0", 500, 4.0)
+    scatter_cells(cam, ("FFC2DC", "FFE0EC", "FF9EC4"), 40, 14.0, 70.0, 0.08, seed=7, low=0.1, high=0.75)
+    focus(cam, (cam_pos - mid).length, 2.4)
+    horizon = cam_pos + f * 2000.0
+    finish_scenic("thumb_S1", {"sky": "golden", "far": 420.0, "haze": [0.34, 40.0], "bloom": 0.45, "title": "left",
+                               "leak": ["FFD29A", 1.0, 0.0, 0.9, 0.35], "grade": "warm"},
+                  groups, {"horizon": horizon, "hero": mid, "head": head, "island": isle_p, "camp": camp_p})
+
+
+def scenic_s2():
+    """S2, the Starhollow at dusk: from the meadow's edge where the lavender path enters the forest, the moon trees with their light drips,
+    the lanterns and glowcaps along the path, fireflies, the Star Island floating over the far end with its halo and glowing fall, and
+    three rares in their signature glow on the path (Raddis in its gold sun ring, Iridia fluttering, Lantrin with its lamp); the meadow on
+    the right still in the low sun's warm light, the sky going from violet night over the forest to the sunset over the meadow."""
+    sc, world = new_scene(1920, 1080, world_id=1, night=True)
+    ambient((0.17, 0.14, 0.40), 1.0)
+    cam_pos = at(world, 58.0, 56.0, 3.8)
+    isle_p = rb(158.0, 50.0, 160.0)
+    toward = rb(120.0, 0.0, 150.0)
+    cam = camera(cam_pos, aim(cam_pos, toward, 4.0), 18)
+    clear_props(cam_pos, 10.0)
+    open_sightline(cam_pos, isle_p + Vector((0, 0, 4.0)), 14.0, rays=70)
+    open_sightline(cam_pos, isle_p - Vector((0, 0, 22.0)), 4.0, rays=20)   # and the top of its glowing fall
+    boost_glow([o for o in bpy.context.scene.objects if o.type == "MESH" and o.name.startswith("StarIsland")], 3.0)
+    point_light(isle_p + Vector((0, 0, -6.0)), "BFE6FF", 2500, 4.0)
+    f, r = view_axes(cam)
+    west = Vector((-1.0, 0.0, 0.0))
+    sun_from(west + Vector((0, 0, 0.12)), 2.6, (1.0, 0.56, 0.36))
+    groups = {"Hero": {"outline": 12, "aura": "FFB347", "aura_r": 30}, "Iridia": {"outline": 7, "aura": "B57CFF", "aura_r": 22},
+              "Lantrin": {"outline": 7, "aura": "FFC46B", "aura_r": 16}, "Cast": {"outline": 5, "aura": None}}
+    for g in groups:
+        group(g)
+    cast = place_cast(world, cam, [("Radish", "Hero", 0.50, 15.0, 0.0, 4, "cycle2"),
+                                   ("Lanternewt", "Lantrin", 0.30, 18.0, 0.0, 10, "open"),
+                                   ("Gloomoth", "Iridia", 0.71, 17.0, 2.2, -14, "glint1")],
+                      glows={"Radish": ("Cosmic", "FFB347", 2.0), "Gloomoth": ("Epic", "B57CFF", 1.6), "Lanternewt": ("Uncommon", "FFC46B", 1.2)})
+    feet, mid, head = cast["Radish"]
+    area_light(cam_pos + r * 2.0 + Vector((0, 0, 1.0)), mid, "FFE2B8", 120, 2.5)
+    area_light(feet + Vector((0, 0, 4.0)) - f * 3.0, mid, "C9A8FF", 300, 3.0)
+    scatter_cells(cam, ("FFF6C8", "C8F4FF", "FFC8EE", "E2CCFF"), 150, 9.0, 60.0, 0.09, seed=11, strength=9.0, low=0.15, high=0.75)
+    focus(cam, (cam_pos - mid).length, 2.2)
+    horizon = cam_pos + f * 2000.0
+    finish_scenic("thumb_S2", {"sky": "dusk_right", "far": 300.0, "haze": [0.28, 30.0], "bloom": 0.9, "title": "left",
+                               "leak": ["FFB27A", 1.0, 0.25, 0.8, 0.3], "grade": None},
+                  groups, {"horizon": horizon, "hero": mid, "head": head, "island": isle_p})
+
+
+# S3 joins the two generated worlds along World 1's own meadow river: World 1 keeps its rows on the camp's side of the river (the water and
+# its near bank included), World 2 is shifted by S3_OFFSET and keeps its rows on the far side, so Frostbyte's snow, frozen lake, spires and
+# pines begin at the river's far bank. Boxes the seam cuts are split in 2-stud strips and closed with their cut face; props stand only well
+# inside their own side. Nothing is written back: both worlds are generated from their rows exactly as the game builds them.
+S3_RIVER = [(-30, 84), (-10, 74), (20, 66), (50, 56), (80, 40), (110, 18), (140, -6), (170, -30), (204, -50)]   # data: world1.json river
+S3_OFFSET = (-50.0, 195.0)   # World 2's (x, z) shift: its frozen lake lands just across the river, its camp and cave out of view
+
+
+def seam_z(x):
+    """The seam's Roblox z at x: World 1's river centre line plus its half width (the far water edge), extended past its ends."""
+    pts = S3_RIVER
+    if x <= pts[0][0]:
+        (ax, az), (bx, bz) = pts[0], pts[1]
+    elif x >= pts[-1][0]:
+        (ax, az), (bx, bz) = pts[-2], pts[-1]
+    else:
+        k = next(i for i in range(len(pts) - 1) if pts[i][0] <= x <= pts[i + 1][0])
+        (ax, az), (bx, bz) = pts[k], pts[k + 1]
+    return az + (bz - az) * (x - ax) / (bx - ax) + 3.0
+
+
+def build_clipped(world_id, near_side, offset=(0.0, 0.0)):
+    """WP.build of one world shifted by `offset` (Roblox x, z) and clipped to one side of the seam (near_side: World 1's camp side, else the
+    far side). Returns (world, the new objects)."""
+    ox, oz = offset
+
+    def keep(x, z, tol=0.0):
+        return z <= seam_z(x) + tol if near_side else z >= seam_z(x) - tol
+
+    orig = WP.bl, WP.box_faces, WP.MeshBatch.quad, WP.place_mesh
+
+    def bl(x, y, z):
+        return (x + ox, -(z + oz), y)
+
+    def quad(self, mat, verts, uvs):
+        if keep(sum(v[0] for v in verts) / 4 + ox, sum(v[2] for v in verts) / 4 + oz, 0.05):
+            orig[2](self, mat, verts, uvs)
+
+    def box(batch, x0, y0, z0, x1, y1, z1, top_mat, side_mat, bottom_mat=None, sides=0xF, top=True, pin_top=True):
+        corner = (x1, z1) if near_side else (x0, z0)   # the seam's z falls with x, so this corner decides a whole box
+        if keep(corner[0] + ox, corner[1] + oz):
+            return orig[1](batch, x0, y0, z0, x1, y1, z1, top_mat, side_mat, bottom_mat, sides, top, pin_top)
+        x = x0
+        while x < x1 - 1e-6:
+            xe = min(x1, x + 2.0)
+            zs = seam_z((x + xe) / 2 + ox) - oz
+            a, b = (z0, min(z1, zs)) if near_side else (max(z0, zs), z1)
+            if b > a + 1e-6:
+                more = ((4 if near_side else 8) | 3) if side_mat is not None else 0
+                orig[1](batch, x, y0, a, xe, y1, b, top_mat, side_mat, bottom_mat, sides | more, top, pin_top)
+            x = xe
+
+    def place(coll, name, x, y, z, yaw, scale, hang=False):
+        if not keep(x + ox, z + oz, -2.0):
+            return True   # across the seam: neither the mesh nor its placeholder
+        return orig[3](coll, name, x, y, z, yaw, scale, hang)
+
+    before = set(bpy.data.objects)
+    WP.bl, WP.box_faces, WP.MeshBatch.quad, WP.place_mesh = bl, box, quad, place
+    try:
+        world, _ = WP.build(world_id)
+        world.preview_lights = [lt for lt in world.preview_lights if keep(lt[0] + ox, lt[2] + oz, -1.0)]
+        WP.night_lights(world, bpy.context.scene)
+    finally:
+        WP.bl, WP.box_faces, WP.MeshBatch.quad, WP.place_mesh = orig
+    return world, [o for o in bpy.data.objects if o not in before]
+
+
+def into(objs, name):
+    """Move objects into a scene collection of their own (made if missing)."""
+    group(name)
+    coll = bpy.data.collections[name]
+    for o in objs:
+        for c in list(o.users_collection):
+            c.objects.unlink(o)
+        coll.objects.link(o)
+    return coll
+
+
+def link_light(light_obj, names):
+    """Light only the collections named (Cycles light linking): World 1's sun on World 1, Frostbyte's moon on Frostbyte."""
+    rc = bpy.data.collections.new(light_obj.name + "Receivers")
+    for n in names:
+        rc.children.link(bpy.data.collections[n])
+    light_obj.light_linking.receiver_collection = rc
+
+
+def scenic_s3():
+    """S3, the two worlds: one panorama from the camp's side of World 1's meadow river. On the left the sunlit meadow, the camp with the
+    half-built ship and the crashed ship, Moop and friends in golden light; across the river Frostbyte begins: snow, the frozen lake with
+    its ice spires, snow pines, Fenrir with its moon glow and Mitt, under an aurora night sky. The river is the seam, so it reads as one
+    place with two worlds in it."""
+    sc, _ = new_scene(1920, 1080)
+    w1, objs1 = build_clipped(1, True)
+    into(objs1, "W1")
+    half_built_ship()
+    into(list(bpy.data.collections["FX"].objects), "W1")
+    w2, objs2 = build_clipped(2, False, S3_OFFSET)
+    into(objs2, "W2")
+    ambient((0.42, 0.50, 0.85), 0.55)
+    cam_pos = at(w1, -45.0, 80.0, 10.0)
+    toward = cam_pos + Vector((math.cos(math.radians(28)), math.sin(math.radians(28)), 0))
+    cam = camera(cam_pos, aim(cam_pos, toward, -6.0), 18)
+    f, r = view_axes(cam)
+    groups = {"Hero": {"outline": 11, "aura": None}, "Cast": {"outline": 5, "aura": None},
+              "Fenrir": {"outline": 11, "aura": "8FD0FF", "aura_r": 30}, "Cast2": {"outline": 5, "aura": None}}
+    for g in groups:
+        group(g)
+    place_cast(w1, cam, [("Mossbop", "Hero", 0.40, 19.0, 0.0, -14, "open"),
+                         ("Buzzlebee", "Cast", 0.26, 24.0, 3.6, 10, "open"),
+                         ("Sparkfox", "Cast", 0.50, 32.0, 0.0, -4, "glint1")],
+               glows={"Sparkfox": ("Rare", None, 1.5)}, side="near")
+    fen = place_cast(w2, cam, [("Fenripup", "Fenrir", 0.79, 23.0, 0.0, 16, "cycle3"),
+                               ("Flufflet", "Cast2", 0.67, 38.0, 0.0, 12, "open"),
+                               ("Pengoo", "Cast2", 0.91, 30.0, 0.0, 20, "open")],
+                     glows={"Fenripup": ("Cosmic", "8FD0FF", 2.0)}, shift=S3_OFFSET, side="far")
+    feet, mid, head = fen["Fenripup"]
+    area_light(cam_pos + r * 2.0 + Vector((0, 0, 0.5)), mid, "DDE9FF", 200, 2.5)
+    scatter_cells(cam, ("FFFFFF", "E6F2FF"), 70, 8.0, 60.0, 0.08, seed=5, strength=1.3, low=0.05, high=0.7, spread=0.4, centre=0.8)
+    focus(cam, (cam_pos - mid).length, 2.8)
+    day = sun_from(-f * 0.5 - r * 0.3 + Vector((0, 0, 0.45)), 4.0, (1.0, 0.80, 0.58))
+    link_light(day, ["W1", "Hero", "Cast"])
+    moon_data = bpy.data.lights.new("Moon", "SUN")
+    moon_data.energy, moon_data.color, moon_data.angle = 1.6, (0.62, 0.76, 1.0), math.radians(2)
+    moon = bpy.data.objects.new("Moon", moon_data)
+    sc.collection.objects.link(moon)
+    moon.rotation_euler = (f * 0.6 - r * 0.4 + Vector((0, 0, 0.5))).normalized().to_track_quat("Z", "Y").to_euler()
+    link_light(moon, ["W2", "Fenrir", "Cast2"])
+    horizon = cam_pos + f * 2000.0
+    seam_far = rb(150.0, 0.0, seam_z(150.0))
+    finish_scenic("thumb_S3", {"sky": "twoworld", "far": 460.0, "haze": [0.26, 40.0], "bloom": 0.6, "title": "center", "grade": None},
+                  groups, {"horizon": horizon, "seam_far": seam_far, "hero": mid})
+
+
 SHOTS = {"A": ("icon_A", icon_a), "B": ("icon_B", icon_b), "C": ("icon_C", icon_c), "1": ("thumb_1", thumb_1), "2": ("thumb_2", thumb_2),
-         "3": ("thumb_3", thumb_3), "4": ("thumb_4", thumb_4), "5": ("thumb_5", thumb_5), "6": ("thumb_6", thumb_6)}
+         "3": ("thumb_3", thumb_3), "4": ("thumb_4", thumb_4), "5": ("thumb_5", thumb_5), "6": ("thumb_6", thumb_6),
+         "S1": ("thumb_S1", scenic_s1), "S2": ("thumb_S2", scenic_s2), "S3": ("thumb_S3", scenic_s3)}
 
 
 def run(raw_dir, only=None, samples=48, scale=1.0):
