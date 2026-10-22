@@ -195,6 +195,7 @@
     "assetId": 91683154519430,
     "file": "assets/sprites/blocky/PixelBubble.png",
     "format": "png",
+    "imageId": 134761407189436,
     "kind": "particle",
     "sha256": "b158d851da972963a7e7c03819765c168edc38f9bd5f967dd15a6632aef572d5",
     "uploadedAt": "2026-10-21T20:29:15Z"
@@ -203,6 +204,7 @@
     "assetId": 133098217227875,
     "file": "assets/sprites/blocky/PixelDrop.png",
     "format": "png",
+    "imageId": 77447948285506,
     "kind": "particle",
     "sha256": "2c90b52c955b313222e3fdbfbe67d4fea34cdd6b0711e5b3a705afd64f90551c",
     "uploadedAt": "2026-10-21T20:29:18Z"
@@ -211,6 +213,7 @@
     "assetId": 92227663289201,
     "file": "assets/sprites/blocky/PixelEmber.png",
     "format": "png",
+    "imageId": 134163727026264,
     "kind": "particle",
     "sha256": "cbc43a096d983516cf229db85cf3f5f7d207cb4f8a1cc7c5dc21bfc44c051041",
     "uploadedAt": "2026-10-21T20:29:20Z"
@@ -219,6 +222,7 @@
     "assetId": 91472107001653,
     "file": "assets/sprites/blocky/PixelEmberFlicker.png",
     "format": "png",
+    "imageId": 129173615162086,
     "kind": "particle",
     "sha256": "affdd00e8abc818584f92f373da0c335d24c88086b4ab67fa2254cf0ffcff3d5",
     "uploadedAt": "2026-10-21T20:29:23Z"
@@ -227,6 +231,7 @@
     "assetId": 125672541891819,
     "file": "assets/sprites/blocky/PixelFlake.png",
     "format": "png",
+    "imageId": 125781983242227,
     "kind": "particle",
     "sha256": "3e07ec664d66687936bf1ca78ea0fdf77b22f7b0f982370a0f5f6ba1cfb257c5",
     "uploadedAt": "2026-10-21T20:29:26Z"
@@ -235,6 +240,7 @@
     "assetId": 114694669746989,
     "file": "assets/sprites/blocky/PixelGrit.png",
     "format": "png",
+    "imageId": 121081425188653,
     "kind": "particle",
     "sha256": "6dc0065516fb4dec894b55c4b5edcaa4e549c2ca230cb449921365d75ff880d7",
     "uploadedAt": "2026-10-21T20:29:29Z"
@@ -243,6 +249,7 @@
     "assetId": 107558147745232,
     "file": "assets/sprites/blocky/PixelHalo.png",
     "format": "png",
+    "imageId": 99471287978379,
     "kind": "particle",
     "sha256": "81781fbc68f8b3a596cb4fdfb49842da5eb99ef86f969a68af32cf6aed63bc49",
     "uploadedAt": "2026-10-21T20:29:32Z"
@@ -251,6 +258,7 @@
     "assetId": 130552965464729,
     "file": "assets/sprites/blocky/PixelLeaf.png",
     "format": "png",
+    "imageId": 115544524555881,
     "kind": "particle",
     "sha256": "bc0a065fbacdb219684df0dd552c30f8290cbab1cd2cc41c232a02ff75b82113",
     "uploadedAt": "2026-10-21T20:29:35Z"
@@ -259,6 +267,7 @@
     "assetId": 131274551235862,
     "file": "assets/sprites/blocky/PixelMote.png",
     "format": "png",
+    "imageId": 105051486934791,
     "kind": "particle",
     "sha256": "a22561516ed7cd29d1c94d7a9e1c68b94bb1873dfe4d8251c1f241b3026ec017",
     "uploadedAt": "2026-10-21T20:29:38Z"
@@ -267,6 +276,7 @@
     "assetId": 115682801923055,
     "file": "assets/sprites/blocky/PixelNote.png",
     "format": "png",
+    "imageId": 114694407975997,
     "kind": "particle",
     "sha256": "a1915a34d822a67641b7045e7bc150257262a5bf918513e46d89a11d679129b1",
     "uploadedAt": "2026-10-21T20:29:41Z"
@@ -275,6 +285,7 @@
     "assetId": 117678342423274,
     "file": "assets/sprites/blocky/PixelPetal.png",
     "format": "png",
+    "imageId": 91467526425555,
     "kind": "particle",
     "sha256": "0cb15b349e2ef7f1d9d87a10330a5f510a151d7c4ec3aa214ae8c0a20e6a9e95",
     "uploadedAt": "2026-10-21T20:29:44Z"
@@ -283,6 +294,7 @@
     "assetId": 103709924537523,
     "file": "assets/sprites/blocky/PixelPuff.png",
     "format": "png",
+    "imageId": 92602637492092,
     "kind": "particle",
     "sha256": "60d49836872811f743151a5ae6cb67ea73c62c067ce5f0e2a79075a55e45225f",
     "uploadedAt": "2026-10-21T20:29:47Z"
@@ -291,6 +303,7 @@
     "assetId": 96326957209840,
     "file": "assets/sprites/blocky/PixelRing.png",
     "format": "png",
+    "imageId": 136746197177795,
     "kind": "particle",
     "sha256": "a105b2ada2b2a382b17d62e2d30816c02814f752edfcb76f2e5c157340afeb42",
     "uploadedAt": "2026-10-21T20:29:50Z"
@@ -299,6 +312,7 @@
     "assetId": 115100683371161,
     "file": "assets/sprites/blocky/PixelRune.png",
     "format": "png",
+    "imageId": 118794281091823,
     "kind": "particle",
     "sha256": "54455f7cc47ba02f2ddef2032e45dff7dc51aa85e09f451b8413803f6318b8e0",
     "uploadedAt": "2026-10-21T20:29:53Z"
@@ -307,6 +321,7 @@
     "assetId": 130321074521161,
     "file": "assets/sprites/blocky/PixelSeed.png",
     "format": "png",
+    "imageId": 132607662365287,
     "kind": "particle",
     "sha256": "fa8f09443784cf568646016ec581d4972bc1f817bf37b3540427118c57be3f32",
     "uploadedAt": "2026-10-21T20:29:56Z"
@@ -315,6 +330,7 @@
     "assetId": 93688358866770,
     "file": "assets/sprites/blocky/PixelSpark.png",
     "format": "png",
+    "imageId": 71906734975404,
     "kind": "particle",
     "sha256": "f7b04c05b355068dc02e85770381dea24c7c64fedb9d71be3d4c82a2adccc57c",
     "uploadedAt": "2026-10-21T20:29:58Z"
@@ -323,6 +339,7 @@
     "assetId": 83675244165020,
     "file": "assets/sprites/blocky/PixelSparkle.png",
     "format": "png",
+    "imageId": 70983716518223,
     "kind": "particle",
     "sha256": "1767c5c536aee429d59702e29c8dbbca4e55e4b7e37edfa0f12256e79253e3c1",
     "uploadedAt": "2026-10-21T20:30:01Z"
@@ -331,6 +348,7 @@
     "assetId": 133824892305228,
     "file": "assets/sprites/blocky/PixelStar.png",
     "format": "png",
+    "imageId": 115024891664384,
     "kind": "particle",
     "sha256": "2ba6e5c5d0947c1e91fb61a5322126ce14450f1af05e849a0307bcfa3fb16e14",
     "uploadedAt": "2026-10-21T20:30:04Z"
@@ -339,6 +357,7 @@
     "assetId": 87514819095334,
     "file": "assets/sprites/blocky/PixelTwinkle.png",
     "format": "png",
+    "imageId": 130917330208516,
     "kind": "particle",
     "sha256": "1588885c24f3738c95cb468e48e974c5f8fb6768e51f610e59a29a2b199cfefb",
     "uploadedAt": "2026-10-21T20:30:07Z"

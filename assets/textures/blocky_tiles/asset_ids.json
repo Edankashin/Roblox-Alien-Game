@@ -3,6 +3,7 @@
     "assetId": 122508582434541,
     "file": "assets/textures/blocky_tiles/Dirt.png",
     "format": "png",
+    "imageId": 87039096831974,
     "kind": "tile",
     "sha256": "d747d1bf547c90758b8c03734d3fc2fdb832c4fee8c705b3bf4549d06133311e",
     "uploadedAt": "2026-10-21T20:30:10Z"
@@ -11,6 +12,7 @@
     "assetId": 83748426282040,
     "file": "assets/textures/blocky_tiles/FrozenWater.png",
     "format": "png",
+    "imageId": 77491655426458,
     "kind": "tile",
     "sha256": "3c929294387a7842b380589c1a2e27d3b5d8e443b9c156e5cdbe1da239598792",
     "uploadedAt": "2026-10-21T20:30:13Z"
@@ -19,6 +21,7 @@
     "assetId": 80429691734983,
     "file": "assets/textures/blocky_tiles/GlowWater.png",
     "format": "png",
+    "imageId": 99487710748544,
     "kind": "tile",
     "sha256": "807e0be36ed330bc122930d5b568ba33ef544c4fc7fc1f2754b4b0c0baab0c43",
     "uploadedAt": "2026-10-21T20:30:16Z"
@@ -27,6 +30,7 @@
     "assetId": 135264617201047,
     "file": "assets/textures/blocky_tiles/GrassSide.png",
     "format": "png",
+    "imageId": 93929327563572,
     "kind": "tile",
     "sha256": "42061a2674e8ef8e2654d548f3a10fbbd94fa7de33fe253b8cec0959af37e8b3",
     "uploadedAt": "2026-10-21T20:30:19Z"
@@ -35,6 +39,7 @@
     "assetId": 127833672158490,
     "file": "assets/textures/blocky_tiles/GrassTop.png",
     "format": "png",
+    "imageId": 72071000941144,
     "kind": "tile",
     "sha256": "1fba38127a1dfe2da7a414ee91d66b07150915c1ff7315a11df36ac909a3c7a8",
     "uploadedAt": "2026-10-21T20:30:22Z"
@@ -43,6 +48,7 @@
     "assetId": 111724295514551,
     "file": "assets/textures/blocky_tiles/Ice.png",
     "format": "png",
+    "imageId": 117869840481831,
     "kind": "tile",
     "sha256": "65915b559dd200f2d7ca06263c0265ca6307752c0b7b0b196407669d206eeccd",
     "uploadedAt": "2026-10-21T20:30:25Z"
@@ -51,6 +57,7 @@
     "assetId": 122622259234104,
     "file": "assets/textures/blocky_tiles/MoonGrass.png",
     "format": "png",
+    "imageId": 111155293601459,
     "kind": "tile",
     "sha256": "148b2e807fa92ca640a6642e57f5a7cf0a2cfd4868e074030e03e086ebaa2bf0",
     "uploadedAt": "2026-10-21T20:30:28Z"
@@ -59,6 +66,7 @@
     "assetId": 96589298471381,
     "file": "assets/textures/blocky_tiles/MoonPath.png",
     "format": "png",
+    "imageId": 83599135331067,
     "kind": "tile",
     "sha256": "2c47a44e4363f13ff5b2e7136fecd7c8f981070ef5aa712f6c87393fc7e7be33",
     "uploadedAt": "2026-10-21T20:30:30Z"
@@ -67,6 +75,7 @@
     "assetId": 136178599413111,
     "file": "assets/textures/blocky_tiles/PackedSnow.png",
     "format": "png",
+    "imageId": 85243641260203,
     "kind": "tile",
     "sha256": "8d943f8265c0554cf0fd8087bb472a653a1a05c05ce522050768c1a55709b89a",
     "uploadedAt": "2026-10-21T20:30:33Z"
@@ -75,6 +84,7 @@
     "assetId": 77924580527337,
     "file": "assets/textures/blocky_tiles/Path.png",
     "format": "png",
+    "imageId": 128350674031844,
     "kind": "tile",
     "sha256": "4884bf91fb0ff1f51d9032778f708aa3543717200eb9cbdb95c74ec8eee8a76f",
     "uploadedAt": "2026-10-21T20:30:36Z"
@@ -83,6 +93,7 @@
     "assetId": 132890123446724,
     "file": "assets/textures/blocky_tiles/Rock.png",
     "format": "png",
+    "imageId": 132549908191567,
     "kind": "tile",
     "sha256": "50e39d5783218f840bd873344d3650984d226ea71f8c44e03f7b282d4a6f0985",
     "uploadedAt": "2026-10-21T20:30:39Z"
@@ -91,6 +102,7 @@
     "assetId": 77762949094590,
     "file": "assets/textures/blocky_tiles/Sand.png",
     "format": "png",
+    "imageId": 92025485252134,
     "kind": "tile",
     "sha256": "2fc2676691ac4445ed838b7b696bbfbee7f38aeeb91611378101b00605b20f46",
     "uploadedAt": "2026-10-21T20:30:42Z"
@@ -99,6 +111,7 @@
     "assetId": 97033184369370,
     "file": "assets/textures/blocky_tiles/Snow.png",
     "format": "png",
+    "imageId": 81900410980982,
     "kind": "tile",
     "sha256": "9d7f3b2373640d6e1dfc3e34fdcdca137028a50a52744a39095f7cdd261f9f90",
     "uploadedAt": "2026-10-21T20:30:45Z"
@@ -107,6 +120,7 @@
     "assetId": 75838038426520,
     "file": "assets/textures/blocky_tiles/SnowSide.png",
     "format": "png",
+    "imageId": 101995460155466,
     "kind": "tile",
     "sha256": "aacf5df67d5fb78a8fc1241ad9c2e9d025741fda4d99b6aac9beb37b06ffdc7a",
     "uploadedAt": "2026-10-21T20:30:48Z"
@@ -115,6 +129,7 @@
     "assetId": 91293290202888,
     "file": "assets/textures/blocky_tiles/Stone.png",
     "format": "png",
+    "imageId": 73817659093323,
     "kind": "tile",
     "sha256": "1c3440491395403aaec4c938534149d34ba138adf68ce9278588344a22f54cf8",
     "uploadedAt": "2026-10-21T20:30:51Z"
@@ -123,6 +138,7 @@
     "assetId": 76270045570804,
     "file": "assets/textures/blocky_tiles/Water.png",
     "format": "png",
+    "imageId": 97411225063277,
     "kind": "tile",
     "sha256": "cac10bdcb7b30af27297d6804666e1137751d20e2b77f2a71a33cab0db5455e9",
     "uploadedAt": "2026-10-21T20:30:54Z"
@@ -131,6 +147,7 @@
     "assetId": 71160956764095,
     "file": "assets/textures/blocky_tiles/WoodPlank.png",
     "format": "png",
+    "imageId": 74331885950873,
     "kind": "tile",
     "sha256": "94a3cb01b4c20c73f5da0226650169bebcdb2d85d4595fa73ccee74e0916f006",
     "uploadedAt": "2026-10-21T20:30:57Z"

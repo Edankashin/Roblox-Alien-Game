@@ -93,7 +93,9 @@ describe("ModelInstall.MaterialFor (Neon, Metal or SmoothPlastic)", function()
 		expect(ModelInstall.MaterialFor(step, step + step, step, step + step)).toEqual("Neon")
 		expect(ModelInstall.MaterialFor(step, step, step, step + step)).toEqual("SmoothPlastic")
 	end)
-	it("the data rows use all three materials, and every row named Glow is Neon", function()
+	-- The block-cell export (B47) writes metallic 0 on every part (metal reads through the cell texture), so no data row is
+	-- Metal any more; the Metal threshold stays covered by the MaterialFor cases above.
+	it("the data rows use Neon and SmoothPlastic, and every row named Glow is Neon", function()
 		local seen = {}
 		for _, name in ipairs(sortedNames(ModelAssets.Materials)) do
 			for _, row in ipairs(ModelAssets.Materials[name]) do
@@ -105,7 +107,6 @@ describe("ModelInstall.MaterialFor (Neon, Metal or SmoothPlastic)", function()
 			end
 		end
 		expect(seen.Neon).toEqual(true)
-		expect(seen.Metal).toEqual(true)
 		expect(seen.SmoothPlastic).toEqual(true)
 	end)
 end)
