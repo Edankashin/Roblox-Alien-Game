@@ -1,0 +1,40 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "FF8A2A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Campfire_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "7B4A2D",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Campfire_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Trim",
+    "hex": "8E8E86",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Campfire_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Glow",
+    "hex": "FFD34D",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  }
+]

@@ -289,5 +289,53 @@ class SpecMaterial(unittest.TestCase):
         self.assertTrue(any("stands on y = 0" in e for e in errors), errors)
 
 
+
+class Lettering(unittest.TestCase):
+    """A part's `text` (the sights signpost arms): the 3 x 5 font, the size check, the ink on both broad faces, the `origin` rule."""
+
+    def test_the_font_has_every_letter_and_a_letter_is_one_cell_wide(self):
+        for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ -":
+            self.assertIn(ch, C.FONT)
+            self.assertEqual(len(C.FONT[ch]), C.GLYPH_H)
+            self.assertTrue(all(len(row) == C.GLYPH_W for row in C.FONT[ch]))
+        self.assertEqual(C.lettering_size("AB", 8), (14, 10))          # (2 x 4 - 1) x 2 texels, 5 x 2 texels
+        self.assertEqual(C.lettering_size("AB|C", 8), (14, 22))
+
+    def test_the_text_is_inked_on_the_front_and_the_back(self):
+        spec = S.load(ROOT / "docs/vault/07-alien-game/Props/SignArmLow.md")
+        parts = S.expand(spec["parts"])
+        isl = C.islands(parts, C.WORLD_CELL)
+        w, h = C.pack(isl, 8)
+        rgb = C.paint(isl, w, h, C.creature_colours(spec), None, 8)
+        ink = bytes(S.hex_rgb(S.palette(spec)["ink"]))
+        for orient, want in (("-z", True), ("+z", True), ("+y", False)):
+            board = next(i for i in isl if i["part"] == "Board" and i["orient"] == orient)
+            found = False
+            for y in range(board["y"], board["y"] + board["nv"] * 8):
+                k = (y * w + board["x"]) * 3
+                if ink in bytes(rgb[k:k + board["nu"] * 8 * 3]):
+                    found = True
+                    break
+            self.assertEqual(found, want, orient)
+
+    def test_text_that_does_not_fit_or_lacks_a_letter_is_an_error(self):
+        spec = S.load(ROOT / "docs/vault/07-alien-game/Props/SignArmLow.md")
+        board = next(p for p in spec["parts"] if p["name"] == "Board")
+        board["text"] = "THE LONGEST LOOKOUT"
+        self.assertTrue(any("texels" in e for e in S.validate(spec)[0]))
+        board["text"] = "LOOK@OUT"
+        self.assertTrue(any("font lacks" in e for e in S.validate(spec)[0]))
+
+    def test_a_floating_prop_needs_its_origin(self):
+        spec = S.load(ROOT / "docs/vault/07-alien-game/Props/SignArmHigh.md")
+        self.assertEqual(S.validate(spec)[0], [])
+        self.assertEqual(spec["front"]["origin"], S.prop_origin(spec))
+        spec["front"].pop("origin")
+        self.assertTrue(any("stands on y = 0" in e for e in S.validate(spec)[0]))
+        spec2 = S.load(ROOT / "docs/vault/07-alien-game/Props/SignArmHigh.md")
+        spec2["front"]["origin"] = [0, 0, 0]
+        self.assertTrue(any("origin" in e for e in S.validate(spec2)[0]))
+
+
 if __name__ == "__main__":
     unittest.main()

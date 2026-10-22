@@ -133,7 +133,7 @@ class CheckFolder(unittest.TestCase):
 
     def test_a_face_sheet_of_the_wrong_size(self):
         shutil.copyfile(self.folder / (SID + "_atlas.png"), self.folder / (SID + "_face.png"))
-        self.assertNamed("the Rigs.luau layout wants 84x16")
+        self.assertNamed("the Rigs.luau layout wants 672x128")
 
 
 class Roster(unittest.TestCase):
@@ -280,7 +280,9 @@ class TheRepoProps(unittest.TestCase):
     def test_the_prop_list_is_the_brief(self):
         ready, skipped = X.prop_roster()
         self.assertEqual(skipped, [])
-        self.assertEqual(len(ready), 61)   # the 39 of the props pass, the 13 of the Starhollow Forest (B48) and the home planet's 9 (B49)
+        # the 39 of the props pass, the 13 of the Starhollow Forest (B48), the home planet's 9 (B49) and the 11 that replaced the last
+        # block placeholders (the camp pieces, the sights signpost and its six arms, the grotto crystal; Studio 2026-10-22)
+        self.assertEqual(len(ready), 72)
 
     def test_the_installers_block_cell_props_table_is_fresh(self):
         source = (ROOT / "tools/studio/install_models.luau").read_text()

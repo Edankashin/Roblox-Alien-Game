@@ -28,9 +28,10 @@ class PropsLint(unittest.TestCase):
         self.tables = copy.deepcopy(tables())
         self.exported = lint_data.block_cell_props(ROOT)
         self.exported_slots = lint_data.block_cell_prop_slots(ROOT)
+        self.exported_origins = lint_data.block_cell_prop_origins(ROOT)
 
     def failures(self):
-        return lint_data.lint_props(self.tables, self.exported, self.exported_slots)
+        return lint_data.lint_props(self.tables, self.exported, self.exported_slots, self.exported_origins)
 
     def rows(self):
         return self.tables["Props"]["Rows"]
@@ -75,6 +76,19 @@ class PropsLint(unittest.TestCase):
         found = self.failures()
         self.assertTrue(any("MeadowRock" in f and "just collision" in f for f in found))
         self.assertTrue(any("IceRock" in f and "just collision" in f for f in found))
+
+    def test_origins_match_their_notes(self):
+        # the sights signpost arms hang at their post's foot (data/Props `origin`, the note's frontmatter `origin`)
+        for name in ("SignArmHigh", "SignArmMid", "SignArmLow", "IceSignArmHigh", "IceSignArmMid", "IceSignArmLow", "CampFlag"):
+            with self.subTest(name):
+                self.assertIn(name, self.exported_origins)
+                self.assertEqual([self.rows()[name]["origin"][k] for k in (1, 2, 3)], self.exported_origins[name])
+        self.rows()["SignArmHigh"]["origin"] = {1: 0, 2: 0, 3: 0}
+        self.assertTrue(any("SignArmHigh.origin" in f and "spec note" in f for f in self.failures()))
+        self.rows()["SignArmHigh"]["origin"] = {1: 0, 2: 0}
+        self.assertTrue(any("SignArmHigh.origin" in f and "three numbers" in f for f in self.failures()))
+        del self.rows()["CampFlag"]["origin"]
+        self.assertTrue(any("CampFlag.origin" in f for f in self.failures()))
 
     def test_slot_overrides_match_their_notes(self):
         # the Starhollow props (Decision B48): a giant glowcap's stem boxes, its cap never collides

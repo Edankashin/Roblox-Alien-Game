@@ -277,8 +277,9 @@ def face_plate(spec, out_dir, prefix="", offset=(0.0, 0.0, 0.0), rot=(0.0, 0.0, 
     sid = spec["front"]["id"]
     eyes = spec["eyes"]
     frames = E.plate_frames(eyes, S.face_host(spec))
-    W, H, rgba = E.plate_sheet_rgba(frames, E.resolve_colours(eyes, S.palette(spec)))
-    fw, fh = len(frames[0][1][0]), len(frames[0][1])
+    k = E.sheet_scale(len(frames[0][1][0]), len(frames[0][1]), len(frames))   # texels a face pixel (eyes.SHEET_SCALES; data/Rigs agrees)
+    W, H, rgba = E.plate_sheet_rgba(frames, E.resolve_colours(eyes, S.palette(spec)), scale=k)
+    fw, fh = len(frames[0][1][0]) * k, len(frames[0][1]) * k
     path = pathlib.Path(out_dir) / ("%s_face.png" % sid)
     E.write_png_rgba(str(path), W, H, rgba)
     img = bpy.data.images.load(str(path), check_existing=False)

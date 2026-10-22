@@ -588,6 +588,21 @@ local function chunkOf(chunks: { [string]: Model }, groundFolder: Instance, gen:
 	return created
 end
 
+-- A recipe's PointLight (data/WorldKit Recipes `light`) on an Attachment under `holder`, at the recipe's point from `cframe`, scaled.
+-- The placeholder and the imported mesh both carry it, so a lantern, a glowcap or the campfire still lights the night once its mesh is in.
+local function addRecipeLight(holder: BasePart, light: Types.RecipeLight, cframe: CFrame, scale: number)
+	local attachment = Instance.new("Attachment")
+	attachment.Name = "Light"
+	attachment.WorldCFrame = cframe * CFrame.new(light.at[1] * scale, light.at[2] * scale, light.at[3] * scale)
+	attachment.Parent = holder
+	local point = Instance.new("PointLight")
+	point.Color = Color3.fromHex(light.color)
+	point.Range = light.range * scale
+	point.Brightness = light.brightness
+	point.Shadows = false
+	point.Parent = attachment
+end
+
 -- A scatter prop's block-built placeholder (data/WorldKit Recipes) standing on `cframe` at `scale`: a Model of plain parts, the
 -- collidable ones (trunks, rocks, logs, fences) queryable so the wild aliens' wander raycast sees them, the decor (leaves, petals,
 -- flowers) neither colliding nor queryable. A recipe with a light carries one PointLight.
@@ -621,16 +636,7 @@ local function buildRecipe(name: string, recipe: Types.PropRecipe, cframe: CFram
 	end
 	local light = recipe.light
 	if light and first then
-		local attachment = Instance.new("Attachment")
-		attachment.Name = "Light"
-		attachment.WorldCFrame = cframe * CFrame.new(light.at[1] * scale, light.at[2] * scale, light.at[3] * scale)
-		attachment.Parent = first
-		local point = Instance.new("PointLight")
-		point.Color = Color3.fromHex(light.color)
-		point.Range = light.range * scale
-		point.Brightness = light.brightness
-		point.Shadows = false
-		point.Parent = attachment
+		addRecipeLight(first, light, cframe, scale)
 	end
 	model.PrimaryPart = first
 	model.Parent = parent
@@ -638,7 +644,8 @@ local function buildRecipe(name: string, recipe: Types.PropRecipe, cframe: CFram
 end
 
 -- Every scattered prop of the generated world: the props worker's mesh of that name when it is imported (Shared/Props), else the
--- block-built placeholder. A hanging prop (icicles) hangs below its point: a mesh is lowered by its own height.
+-- block-built placeholder. A hanging prop (icicles) hangs below its point: a mesh is lowered by its own height. A mesh keeps its
+-- recipe's light (the placeholder's PointLight; data/WorldKit counts it in the lights budget).
 local function placeGeneratedProps(gen: Types.WorldGen, floorTop: number, parent: Instance)
 	local place = gen.Place
 	local meshes, placeholders = 0, 0
@@ -653,6 +660,10 @@ local function placeGeneratedProps(gen: Types.WorldGen, floorTop: number, parent
 			mesh.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 			if recipe and recipe.hang then
 				mesh:PivotTo(mesh:GetPivot() * CFrame.new(0, -mesh:GetExtentsSize().Y, 0))
+			end
+			local holder = mesh:FindFirstChildWhichIsA("BasePart", true)
+			if recipe and recipe.light and holder then
+				addRecipeLight(holder, recipe.light, cframe, scale)
 			end
 		elseif recipe then
 			placeholders += 1

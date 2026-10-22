@@ -33,6 +33,12 @@ DENSITY = {"Common": 16, "Uncommon": 16, "Rare": 16, "Epic": 16, "Legendary": 32
 CYCLE_FRAMES = {"Legendary": 6, "Cosmic": 8, "Secret": 8}   # iris-cycle frames by the design's tier floor
 GLINT_FRAMES = 2            # Rare and up: two glint frames (a small sparkle, then a bigger one)
 SHEET_COLUMNS = 4           # frames per row in a species' plate sheet (a squarish image for one upload)
+SHEET_MAX = 1024            # Roblox scales an uploaded image down to 1024 a side, so the exported sheet fits it
+SHEET_SCALES = (8, 4)       # texels a face pixel in the exported sheet: 8 where the sheet fits SHEET_MAX at 8, else 4 (the 32-a-stud faces).
+                            # One texel a face pixel read soft in Studio (Aurelyx at 3 studs, 2026-10-22): Roblox block-compresses an image
+                            # in 4 x 4 texel blocks, and a block holding four or five colours of a multicolour eye (Aurelyx's pink-dotted
+                            # mint iris, its rune cross, its lilac sparkle pixels) comes out as blended mud with a dotted alpha fringe, then
+                            # filters it; at 4 or 8 texels a face pixel every block holds one colour and filtering only touches a pixel's rim
 # the timings the game plays the frames at (written into data/Rigs by tools/blocky/rigs.py; every number in data)
 BLINK_SECONDS = 0.18        # one blink: half, closed, half
 GLINT_EVERY = {"Rare": 3.5, "Epic": 3.0, "Legendary": 2.5, "Cosmic": 2.5, "Secret": 3.0}   # seconds between glints
@@ -731,20 +737,33 @@ def sheet_layout(n, columns=SHEET_COLUMNS):
     return cols, (n + cols - 1) // cols
 
 
-def plate_sheet_rgba(frames, colours, columns=SHEET_COLUMNS):
-    """(width, height, RGBA bytes, row 0 at the top) of the plate's flipbook: frame i at column i % columns, row i // columns."""
+def sheet_scale(frame_w, frame_h, n, columns=SHEET_COLUMNS):
+    """Texels a face pixel in the exported sheet of `n` frames of frame_w x frame_h pixels: the first of SHEET_SCALES that keeps the sheet
+    within SHEET_MAX a side (1 if none does)."""
+    cols, nrows = sheet_layout(n, columns)
+    for k in SHEET_SCALES:
+        if cols * frame_w * k <= SHEET_MAX and nrows * frame_h * k <= SHEET_MAX:
+            return k
+    return 1
+
+
+def plate_sheet_rgba(frames, colours, columns=SHEET_COLUMNS, scale=1):
+    """(width, height, RGBA bytes, row 0 at the top) of the plate's flipbook: frame i at column i % columns, row i // columns, each face
+    pixel a `scale` x `scale` block of texels (nearest: the same picture, crisp under block compression and filtering; sheet_scale)."""
     fh, fw = len(frames[0][1]), len(frames[0][1][0])
     cols, nrows = sheet_layout(len(frames), columns)
-    W, H = cols * fw, nrows * fh
+    W, H = cols * fw * scale, nrows * fh * scale
     buf = bytearray(W * H * 4)
     for i, (_, rows) in enumerate(frames):
-        ox, oy = (i % cols) * fw, (i // cols) * fh
+        ox, oy = (i % cols) * fw * scale, (i // cols) * fh * scale
         for y, r in enumerate(rows):
             for x, ch in enumerate(r):
                 if ch == ".":
                     continue
-                k = ((oy + y) * W + ox + x) * 4
-                buf[k:k + 4] = bytes(_rgb(colours[ch]) + (255,))
+                texel = bytes(_rgb(colours[ch]) + (255,)) * scale
+                for dy in range(scale):
+                    k = ((oy + y * scale + dy) * W + ox + x * scale) * 4
+                    buf[k:k + 4 * scale] = texel
     return W, H, bytes(buf)
 
 

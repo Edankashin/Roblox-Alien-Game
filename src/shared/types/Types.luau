@@ -90,7 +90,9 @@ export type PropSlotCollisions = {
 	Trim: PropCollision?,
 	Glow: PropCollision?,
 }
-export type PropRow = { collision: PropCollision, slots: PropSlotCollisions? }
+-- `origin` places a prop by another point than its bottom centre: that point from the mesh's bottom centre, studs at scale 1 in the
+-- spec note's axes (its frontmatter `origin`): a sign arm by its post's foot, the camp flag by its pole.
+export type PropRow = { collision: PropCollision, slots: PropSlotCollisions?, origin: { number }? }
 
 -- The generated worlds in block cells (tools/blocky/world_gen.py writes data/WorldGen1, WorldGen2 and WorldKit; Shared/WorldGrid reads
 -- them; Services/Meadow builds them). A ground kind: its tile keys (data/BlockTiles ids), the fallback colours and Roblox Material

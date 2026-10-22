@@ -32,6 +32,11 @@
 --
 -- The Shrine also holds a glowing orb, the GeyserVent a steam column, the CrashWreck embers and the cave mouths crystals: those
 -- slots collide with the rest of their prop today; a per-slot override would be a field on the row if it ever matters.
+--
+-- `origin` (the note's frontmatter `origin`, checked by tools/lint_data.py) places a prop by another point than its mesh's bottom centre:
+-- that point from it, studs at scale 1 in the spec note's axes, which Shared/Props.Place turns into the model's pivot. The camp's sights
+-- signpost arms (SignArmHigh, Mid, Low; World 2's IceSignArm*) hang at their post's foot, so the layout's yaw swings each about the post;
+-- the CampFlag stands by its pole. The camp pieces and the grotto crystals replaced the last block placeholders (Studio 2026-10-22).
 
 local Types = require(script.Parent.Parent.types.Types)
 
@@ -42,6 +47,9 @@ local Rows: { [string]: Types.PropRow } = {
 	Boulder = { collision = "Hull" },
 	BuildStation = { collision = "None" },
 	Bush = { collision = "Hull" },
+	CampCrate = { collision = "Box", slots = { Accessory = "None", Trim = "None" } },
+	Campfire = { collision = "Box", slots = { Body = "None", Glow = "None" } },
+	CampFlag = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None" }, origin = { -1.5, 0, 0 } },
 	CaveMouth = { collision = "Precise" },
 	CrashWreck = { collision = "Hull" },
 	Fence = { collision = "Box" },
@@ -57,6 +65,7 @@ local Rows: { [string]: Types.PropRow } = {
 	GlowcapGiantPink = { collision = "Box", slots = { Body = "None", Accessory = "None", Glow = "None", Trim = "None" } },
 	GlowcapSmall = { collision = "None" },
 	GlowFern = { collision = "None" },
+	GrottoCrystal = { collision = "Hull" },
 	HabitatFrostbyte = { collision = "Precise", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
 	HabitatVerdant = { collision = "Precise", slots = { Accessory = "None", Trim = "None", Glow = "None" } },
 	HeaterLamp = { collision = "Box" },
@@ -65,6 +74,9 @@ local Rows: { [string]: Types.PropRow } = {
 	IceLantern = { collision = "Box" },
 	IceRock = { collision = "Hull" },
 	IceRockB = { collision = "Hull" },
+	IceSignArmHigh = { collision = "None", origin = { -2.125, -4.375, 0 } },
+	IceSignArmLow = { collision = "None", origin = { -2.125, -2.125, 0 } },
+	IceSignArmMid = { collision = "None", origin = { -2.125, -3.25, 0 } },
 	IceSpire = { collision = "Box" },
 	Icicles = { collision = "None" },
 	Lantern = { collision = "Box" },
@@ -89,6 +101,10 @@ local Rows: { [string]: Types.PropRow } = {
 	ShipHull = { collision = "Hull" },
 	Shrine = { collision = "Precise" },
 	ShrineStone = { collision = "Box" },
+	SightPost = { collision = "Box", slots = { Glow = "None" } },
+	SignArmHigh = { collision = "None", origin = { -2.125, -4.375, 0 } },
+	SignArmLow = { collision = "None", origin = { -2.125, -2.125, 0 } },
+	SignArmMid = { collision = "None", origin = { -2.125, -3.25, 0 } },
 	Signpost = { collision = "Box" },
 	SnowBush = { collision = "Hull" },
 	SnowDrift = { collision = "None" },

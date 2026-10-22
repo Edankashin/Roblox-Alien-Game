@@ -771,6 +771,60 @@ def island_cells(island, colours, face=None, flat=False):
     return out
 
 
+# ------------------------------------------------------------------------------------------------ pixel lettering (a sign board's text)
+# A part's `text` (spec.normalise; "|" breaks a line) is drawn on its front and back faces (-z, +z) after the cells, in the palette's `ink`
+# (else the base three steps down): a 3 x 5 pixel font, a letter pixel LETTER_TEXELS texels a side at 8 texels a cell (a quarter cell, so a
+# letter and its gap are one cell wide and 1.25 cells tall), each line centred, the block centred on the face. Both faces read left to right
+# from outside (ORIENTS runs u from the viewer's left on -z and on +z). The cell is the pixel everywhere else; the lettering is the one
+# sub-cell drawing on a prop, like the face plate on a creature (Blocky-Style "Environment", the sign arms).
+FONT = {
+    "A": (".X.", "X.X", "XXX", "X.X", "X.X"), "B": ("XX.", "X.X", "XX.", "X.X", "XX."), "C": (".XX", "X..", "X..", "X..", ".XX"),
+    "D": ("XX.", "X.X", "X.X", "X.X", "XX."), "E": ("XXX", "X..", "XX.", "X..", "XXX"), "F": ("XXX", "X..", "XX.", "X..", "X.."),
+    "G": (".XX", "X..", "X.X", "X.X", ".XX"), "H": ("X.X", "X.X", "XXX", "X.X", "X.X"), "I": ("XXX", ".X.", ".X.", ".X.", "XXX"),
+    "J": ("..X", "..X", "..X", "X.X", ".X."), "K": ("X.X", "X.X", "XX.", "X.X", "X.X"), "L": ("X..", "X..", "X..", "X..", "XXX"),
+    "M": ("X.X", "XXX", "XXX", "X.X", "X.X"), "N": ("XX.", "X.X", "X.X", "X.X", "X.X"), "O": (".X.", "X.X", "X.X", "X.X", ".X."),
+    "P": ("XX.", "X.X", "XX.", "X..", "X.."), "Q": (".X.", "X.X", "X.X", "XX.", ".XX"), "R": ("XX.", "X.X", "XX.", "X.X", "X.X"),
+    "S": (".XX", "X..", ".X.", "..X", "XX."), "T": ("XXX", ".X.", ".X.", ".X.", ".X."), "U": ("X.X", "X.X", "X.X", "X.X", "XXX"),
+    "V": ("X.X", "X.X", "X.X", "X.X", ".X."), "W": ("X.X", "X.X", "XXX", "XXX", "X.X"), "X": ("X.X", "X.X", ".X.", "X.X", "X.X"),
+    "Y": ("X.X", "X.X", ".X.", ".X.", ".X."), "Z": ("XXX", "..X", ".X.", "X..", "XXX"), " ": ("...", "...", "...", "...", "..."),
+    "-": ("...", "...", "XXX", "...", "..."), "'": (".X.", ".X.", "...", "...", "..."),
+}
+GLYPH_W, GLYPH_H, GLYPH_GAP, LINE_GAP = 3, 5, 1, 1   # font pixels
+LETTER_TEXELS = 2                                    # texels a font pixel at PX 8 (scaled with px: px // 4)
+
+
+def lettering_size(text, px=PX):
+    """(width, height) in texels of `text` ("|" breaks lines) at `px` texels a cell."""
+    s = max(1, px // 4)
+    lines = text.split("|")
+    w = max(len(line) for line in lines) * (GLYPH_W + GLYPH_GAP) - GLYPH_GAP
+    h = len(lines) * (GLYPH_H + LINE_GAP) - LINE_GAP
+    return w * s, h * s
+
+
+def letter(buf, stride, island, text, rgb, px=PX):
+    """Draws `text` on one painted island of the atlas buffer, centred, in `rgb`."""
+    s = max(1, px // 4)
+    w_px, h_px = island["nu"] * px, island["nv"] * px
+    lines = text.split("|")
+    _, th = lettering_size(text, px)
+    y = island["y"] + (h_px - th) // 2
+    ink = bytes(rgb) * s
+    for line in lines:
+        lw = (len(line) * (GLYPH_W + GLYPH_GAP) - GLYPH_GAP) * s
+        x = island["x"] + (w_px - lw) // 2
+        for ch in line:
+            for gy, row in enumerate(FONT[ch]):
+                for gx, on in enumerate(row):
+                    if on != "X":
+                        continue
+                    for dy in range(s):
+                        k = (y + gy * s + dy) * stride + (x + gx * s) * 3
+                        buf[k:k + 3 * s] = ink
+            x += (GLYPH_W + GLYPH_GAP) * s
+        y += (GLYPH_H + LINE_GAP) * s
+
+
 def paint(isl, width, height, colours_of, face=None, px=PX, gutter=GUTTER, grout=GROUT, background=(255, 0, 255), flat=False):
     """The atlas as RGB bytes, row 0 at the top. `colours_of(island)` gives the island's {'base', 'aux', 'accent'}; `face` (as island_cells)
     applies to the island whose part is face['part'] and orient is the front. Each island's edge texels repeat into its gutter. `flat`
@@ -799,6 +853,9 @@ def paint(isl, width, height, colours_of, face=None, px=PX, gutter=GUTTER, grout
                 for r in range(px - grout, px):
                     k = (gy + r) * stride + gx * 3
                     buf[k:k + px * 3] = dark * px
+        text = isl_["src"].get("text") if isinstance(isl_.get("src"), dict) else None
+        if text and isl_["orient"] in ("-z", "+z"):
+            letter(buf, stride, isl_, text, cols.get("ink") or shade(cols["base"], -3 * STEP), px)
         # the gutter: repeat the island's edge texels outward
         w_px, h_px = isl_["nu"] * px, isl_["nv"] * px
         for r in range(h_px):
@@ -824,7 +881,8 @@ def creature_colours(spec):
 
     def colours_of(island):
         base = pal[S.SLOT_ROLE[island["slot"]]]
-        return {"base": base, "aux": pal.get("second", base), "accent": pal.get("accent", base), "glow": pal.get("glow", base)}
+        return {"base": base, "aux": pal.get("second", base), "accent": pal.get("accent", base), "glow": pal.get("glow", base),
+                "ink": pal.get("ink")}
     return colours_of
 
 

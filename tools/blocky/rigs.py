@@ -81,10 +81,11 @@ def row(spec, images=None):
     lay = S.plate_layout(spec)
     names = E.frame_names(key)
     cols, _ = E.sheet_layout(len(names))
+    k = E.sheet_scale(lay["w"], lay["h"], len(names))   # the exported sheet's texels a face pixel (eyes.SHEET_SCALES)
     blink = next(cl for cl in r["clips"]["face"] if cl["kind"] == "blink")
     floor = E.DESIGNS[key]["tier"]
     face = {
-        "part": FACE_PART, "image": (images or {}).get(sid, 0), "frameWidth": lay["w"], "frameHeight": lay["h"], "columns": cols,
+        "part": FACE_PART, "image": (images or {}).get(sid, 0), "frameWidth": lay["w"] * k, "frameHeight": lay["h"] * k, "columns": cols,
         "frames": len(names), "open": names.index("open"), "half": names.index("half"), "closed": names.index("closed"),
         "glint": [i for i, n in enumerate(names) if n.startswith("glint")], "cycle": [i for i, n in enumerate(names) if n.startswith("cycle")],
         "blinkEvery": blink["period"], "blinkLength": E.BLINK_SECONDS,
@@ -126,6 +127,25 @@ def uploaded_face_images(path=IMAGE_IDS):
         value = entry.get("imageId") if isinstance(entry, dict) else None
         if sheet == "face" and isinstance(value, int) and not isinstance(value, bool) and value > 0:
             out[sid] = value
+    return out
+
+
+def stale_face_images(path=IMAGE_IDS, root=ROOT):
+    """Species whose uploaded face sheet is no longer the file in the repo (its sha256 in assets/models/image_ids.json differs from the
+    PNG's: a re-export changed it, the Mac has not uploaded it yet). Their flipbook stays off (image 0) until the new sheet is uploaded,
+    because the old Image no longer matches the frame size in this file; the plate shows the baked open frame meanwhile."""
+    import hashlib
+    if not pathlib.Path(path).exists():
+        return set()
+    data = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    out = set()
+    for key, entry in (data.items() if isinstance(data, dict) else []):
+        sid, _, sheet = key.partition("/")
+        if sheet != "face" or not isinstance(entry, dict) or not entry.get("sha256") or not entry.get("file"):
+            continue
+        f = pathlib.Path(root) / entry["file"]
+        if f.is_file() and hashlib.sha256(f.read_bytes()).hexdigest() != entry["sha256"]:
+            out.add(sid)
     return out
 
 
@@ -179,6 +199,8 @@ def render(rows):
 def generate(folder=CREATURES, out=OUT, image_ids=IMAGE_IDS):
     images = existing_images(out)
     images.update(uploaded_face_images(image_ids))
+    for sid in stale_face_images(image_ids):
+        images[sid] = 0
     rows = []
     for spec in b46_notes(folder):
         errors, _ = S.validate(spec)
