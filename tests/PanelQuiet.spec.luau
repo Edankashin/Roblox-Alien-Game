@@ -113,10 +113,10 @@ describe("Settings list", function()
 		expect(8 * row + 2 * heading + 9 * Panels.SettingsGap).toBeClose(1, 1e-9)
 		expect(heading).toBeClose(row * Panels.SettingsHeadingWeight, 1e-9)
 	end)
-	-- SettingsScreen.luau: the panel 0.64 x 0.84 at 1.3; the rows frame from 0.15 to 0.925 of it, a card an edged block of six rows,
+	-- SettingsScreen.luau: the panel 0.64 x 0.84 at 1.3; the rows frame from 0.16 to 0.925 of it, a card an edged block of six rows,
 	-- a control 0.86 of a row, a flat block button of six rows over its one-cell lip, its text padded a quarter cell inside the ink.
 	local PANEL_W, PANEL_H, ASPECT = 0.64, 0.84, 1.3
-	local ROWS_Y, ROWS_BOTTOM = 0.15, 0.925
+	local ROWS_Y, ROWS_BOTTOM = 0.16, 0.925
 	local HINT_Y, HINT_H = 0.935, 0.05
 	local CARD_ROWS, CONTROL_ROWS, CONTROL_H = 6, 6, 0.86
 	for _, screen in ipairs({ SE, IPAD }) do

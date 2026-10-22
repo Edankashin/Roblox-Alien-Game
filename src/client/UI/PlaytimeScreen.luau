@@ -15,6 +15,8 @@
 -- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
 -- the gold header and the close; a gift card a fitted edged block whose face and ink follow its state, the minutes, Claimed and
 -- time-left chips flat blocks, Claim a flat block button, the reward icon the pixel icon first.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the claimable card is the only green one; a claimed card's
+-- chip is pale and a card still ahead is grey with its time left (Shared/PanelQuiet.GiftState, the Gifts screen's rule).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -26,6 +28,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local PlaytimeData = require(Shared:WaitForChild("data"):WaitForChild("Playtime"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local PlaytimeMath = require(Shared:WaitForChild("PlaytimeMath"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -138,12 +141,13 @@ local function refreshCard(entry: Card, index: number)
 	local isClaimed = state.claimed[key] == true or claimedLocal[key] == true
 	local unlocked = PlaytimeMath.IsUnlocked(state.seconds, index)
 	local accent = accentOf(gift.reward)
-	entry.claim.Visible = unlocked and not isClaimed
-	entry.claimed.Visible = isClaimed
-	entry.locked.Visible = not unlocked and not isClaimed
+	local giftState = PanelQuiet.GiftState(unlocked, isClaimed)
+	entry.claim.Visible = giftState == "claimable"
+	entry.claimed.Visible = giftState == "claimed"
+	entry.locked.Visible = giftState == "future"
 	entry.left.Text = timeLeftText(index)
 	local dimmed = Builder.lighter(Theme.Rarity.Common, 0.6)
-	if unlocked and not isClaimed then
+	if giftState == "claimable" then
 		Builder.setBlockColor(entry.card, Theme.Colors.White)
 		recolorChip(entry.chip, accent)
 		Builder.setBlockInk(entry.card, accent)
@@ -311,7 +315,7 @@ local function buildCard(parent: Frame, index: number, gift: PlaytimeData.Gift, 
 		position = UDim2.fromScale(0.5, STATE_BOTTOM),
 		size = UDim2.fromScale(STATE_W, STATE_H * 0.9),
 		anchor = Vector2.new(0.5, 1),
-		color = Theme.Colors.Confirm,
+		color = Theme.Rarity.Common, -- pale: a taken gift is done, not a call to act
 		rows = Theme.Block.MinRows,
 		cells = false,
 		zIndex = Builder.blockTop(card),

@@ -13,6 +13,9 @@
 -- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel a cream block plate at
 -- the panel cell with the block header tab and close, each row a fitted edged white block, every control a flat block button
 -- (green on, grey off, recoloured in place), the code box a flat block (Builder.textBox). Layout, bindings and keys as before.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the list has two section headings, "Sound and motion" and
+-- "Home" (data/Panels.SettingsSections maps each data/Settings key to one; Shared/PanelQuiet.SettingsItems builds the list, so a
+-- setting added to the data shows by itself, under the first heading if nobody mapped it), then the promo-code row.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -22,6 +25,8 @@ local Net = require(Shared:WaitForChild("Net"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Codes = require(Shared:WaitForChild("data"):WaitForChild("Codes"))
 local Settings = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
+local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -35,32 +40,34 @@ local SettingsScreen = {}
 type Row = { def: Settings.SettingDef, levelButtons: { Frame }, toggle: Frame? }
 
 -- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the rows start under it; the hint takes the bottom (two lines at the 14 px floor). The rows frame
--- shares its height between the settings and the promo-code row (seven at the moment: six settings, the home lock among
--- them, and the code), so the rows are slim: about 26 px a card, 22 px a button at iPhone SE height. tests/BlockMath.spec.luau
--- ("Block screens: Settings") checks that a button's text box, inside its ink and padding, keeps the 14 px floor there.
-local PANEL_H = 0.78
+-- reaches down to 0.155, so the rows start under it; the hint takes the bottom (one line at the 14 px floor). The rows frame
+-- shares its height between the settings, the promo-code row and the two headings (eight rows and two headings once the
+-- Announcements row is in): a row is 23 px and a button 20 px at iPhone SE height, a heading 16 px. tests/PanelQuiet.spec.luau
+-- ("Settings list") checks that a button's text box, inside its ink and padding, keeps the 14 px floor there, with and without it.
+local PANEL_W = 0.64
+local PANEL_H = 0.84
 local ROWS_Y = 0.16
-local ROWS_H = 0.705
-local HINT_Y = 0.875
-local HINT_H = 0.1
-local ROW_GAP = 0.02 -- of the rows frame, between rows
+local ROWS_H = 0.765
+local HINT_Y = 0.935
+local HINT_H = 0.05
+local ROW_GAP = Panels.SettingsGap -- of the rows frame, between two items
+local HEADING_INDENT = 0.02 -- of a heading's width
 local LABEL_X = 0.03 -- of a row
 local LABEL_W = 0.35
 local CONTROLS_X = 0.39
 local CONTROLS_W = 0.59
-local CONTROL_H = 0.84 -- of a row: inside the card's face (a five-row card's ink is 0.14 of it, both edges together)
+local CONTROL_H = 0.86 -- of a row: inside the card's face (a six-row card's ink is 0.12 of it, both edges together)
 local LEVEL_GAP = 0.03 -- of the controls frame, between level buttons; three buttons are 0.31 of the frame each, about 67 px at iPhone SE size, enough for "Friends" at the minimum text size
 local TOGGLE_W = 0.4 -- of the controls frame
 local CODE_BOX_W = 0.62 -- of the controls frame: the text box; the Redeem button takes the rest after the gap
 local CODE_GAP = 0.03
 
 local PANEL_ASPECT = 1.3
--- A card and a control button are flat blocks of five rows, not three: the ink and the one-cell lip are a share of the rows, so
--- five rows give the text more of a 22 px button (at three rows its text box was 9.5 px at iPhone SE, under the 14 px floor; at
--- five it is 14.4). The cells are small (3.2 px on a button at SE), which a flat block can take: it has no grout to blur.
-local CARD_ROWS = 5
-local CONTROL_ROWS = 5
+-- A card and a control button are flat blocks of six rows, not three: the ink and the one-cell lip are a share of the rows, so
+-- six rows give the text more of a 20 px button (at three rows its text box was 9.5 px at iPhone SE, under the 14 px floor; at
+-- six it is 14.1). The cells are small (2.6 px on a button at SE), which a flat block can take: it has no grout to blur.
+local CARD_ROWS = 6
+local CONTROL_ROWS = 6
 
 local ACTIVE = Theme.Colors.Confirm
 local INACTIVE = Theme.Rarity.Common
@@ -317,6 +324,25 @@ local function buildCodesRow(parent: Frame, index: number, share: number)
 	}, redeem)
 end
 
+-- A section heading in the list: a small gold label at the left, the height the share gives it.
+local function buildHeading(parent: Frame, index: number, title: string, share: number)
+	local heading = Builder.label({
+		parent = parent,
+		name = "Heading_" .. title,
+		text = Builder.text(title),
+		textSize = Theme.TextSize.Min,
+		color = Theme.Colors.Heading,
+		strokeColor = Theme.Colors.Black,
+		size = UDim2.fromScale(1, share),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 3,
+	})
+	heading.LayoutOrder = index
+	local indent = Instance.new("UIPadding")
+	indent.PaddingLeft = UDim.new(HEADING_INDENT, 0)
+	indent.Parent = heading
+end
+
 -- Build ----------------------------------------------------------------------
 
 local function build()
@@ -351,7 +377,7 @@ local function build()
 		rows = Builder.blockPanelRows(PANEL_H),
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
 		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.6, PANEL_H),
+		size = UDim2.fromScale(PANEL_W, PANEL_H),
 		anchor = Vector2.new(0.5, 0.5),
 		zIndex = 2,
 	})
@@ -379,13 +405,33 @@ local function build()
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 	layout.Padding = UDim.new(ROW_GAP, 0)
 	layout.Parent = holder
-	local count = #Settings.Order + 1 -- the settings, then the promo-code row
-	local share = (1 - ROW_GAP * (count - 1)) / count
-	rows = {}
-	for index, def in ipairs(Settings.Order) do
-		table.insert(rows, buildRow(holder, index, def, share))
+	-- The headings and the settings under them (data/Panels), then the promo-code row; the shares fill the frame exactly.
+	local keys: { string } = {}
+	for _, def in ipairs(Settings.Order) do
+		table.insert(keys, def.key)
 	end
-	buildCodesRow(holder, count, share)
+	local items = PanelQuiet.SettingsItems(keys, Panels.SettingsSections)
+	local headings = 0
+	for _, item in ipairs(items) do
+		if item.kind == "heading" then
+			headings += 1
+		end
+	end
+	local share, headingShare = PanelQuiet.SettingsShares(#keys + 1, headings, Panels.SettingsHeadingWeight, ROW_GAP)
+	rows = {}
+	local order = 0
+	for _, item in ipairs(items) do
+		order += 1
+		if item.kind == "heading" then
+			buildHeading(holder, order, item.title, headingShare)
+		else
+			local def = Settings.ById[item.key]
+			if def then
+				table.insert(rows, buildRow(holder, order, def, share))
+			end
+		end
+	end
+	buildCodesRow(holder, order + 1, share)
 
 	-- The hint: the one long line, Fredoka like every other label (the playbook's one font), navy, no stroke.
 	Builder.label({
