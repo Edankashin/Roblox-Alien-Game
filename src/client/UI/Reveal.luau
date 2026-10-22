@@ -55,6 +55,7 @@ local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
+local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local Prefs = require(script.Parent.Parent.Prefs)
 local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 local RigAnimator = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("RigAnimator"))
@@ -2411,6 +2412,212 @@ onPlaceIt = function()
 	end
 end
 
+-- The quick card ------------------------------------------------------------------------
+
+-- A repeat catch of a species the codex already has, at a tier below Rare, costs a moment and no ceremony (RevealMath.IsQuick, data/Reveal
+-- Quick*): no dim, no shards, no tier word, no "Tap anywhere". A small cream block (an edged plate in the tier's ink) slides up over the
+-- Catch button with the species' model, its name and the size chip, stays QuickSeconds in all and fades; a tap on it opens the Aliens screen
+-- (the same "Place it" the full card offers). It is not a quiet moment of its own (Reveal.IsOpen stays false, so the next Catch! works at
+-- once); it asks Toast.QuietFor for its short time only. Reduced Motion: it fades in place instead of sliding.
+local QUICK_NAME_X = 0.37 -- of the card, the text column's left edge
+local QUICK_TEXT_W = 0.6
+local QUICK_THUMB_H = 0.78 -- of the card's height, a square at the left
+local QUICK_FALLBACK_HEIGHT = 0.2
+
+local quickGui: ScreenGui? = nil
+local quickGroup: CanvasGroup? = nil
+local quickPlate: GuiObject? = nil
+local quickBackdrop: GuiObject? = nil
+local quickThumb: SpeciesThumb.Thumb? = nil
+local quickName: TextLabel? = nil
+local quickChipLabel: TextLabel? = nil
+local quickToken = 0 -- bumped per show and per hide: a delayed step drops out when stale
+local quickVisible = false
+
+local function hideQuick(immediate: boolean)
+	quickToken += 1
+	local group = quickGroup
+	if not group or not quickVisible then
+		return
+	end
+	quickVisible = false
+	if immediate then
+		group.Visible = false
+		return
+	end
+	local token = quickToken
+	local out = TweenService:Create(group, TweenInfo.new(RevealData.QuickOutSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { GroupTransparency = 1 })
+	out.Completed:Once(function()
+		if quickToken == token and not quickVisible then
+			group.Visible = false
+		end
+	end)
+	out:Play()
+end
+
+local function quickTapped()
+	if not quickVisible then
+		return
+	end
+	hideQuick(false)
+	local handler = placeHandler
+	if handler then
+		handler()
+	end
+end
+
+local function buildQuick()
+	if quickGui then
+		return
+	end
+	local root = Builder.screen("RevealQuick", 25) -- over the HUD (10) and the panels (20), under the Reveal (30) and the toasts (40)
+	quickGui = root
+	local abs = root.AbsoluteSize
+	-- The card's height in screen Scale, from its width and aspect (its cells follow it).
+	local height = if abs.X > 0 and abs.Y > 0 then RevealData.QuickWidth * abs.X / (RevealData.QuickAspect * abs.Y) else QUICK_FALLBACK_HEIGHT
+	local group = Instance.new("CanvasGroup")
+	group.Name = "Quick"
+	group.BackgroundTransparency = 1
+	group.BorderSizePixel = 0
+	group.AnchorPoint = Vector2.new(1, 1)
+	group.Size = UDim2.fromScale(RevealData.QuickWidth, 0.5)
+	group.Position = UDim2.fromScale(RevealData.QuickRight, RevealData.QuickBottom)
+	group.GroupTransparency = 1
+	group.Visible = false
+	Builder.aspect(group, RevealData.QuickAspect)
+	group.Parent = root
+	quickGroup = group
+	local plate = Builder.blockPlate({
+		parent = group,
+		name = "Card",
+		color = Theme.Colors.Panel,
+		ink = Theme.Rarity.Common,
+		aspect = RevealData.QuickAspect,
+		rows = Builder.blockRows(height),
+		cells = false,
+		edges = true,
+		zIndex = 1,
+	})
+	quickPlate = plate
+	local top = Builder.blockTop(plate)
+	-- The picture: the species colour behind, the model over it when one is imported.
+	local host = Builder.blockPlate({
+		parent = plate,
+		name = "Picture",
+		color = Theme.Rarity.Common,
+		aspect = 1,
+		rows = SHAPE_ROWS,
+		cells = false,
+		edges = true,
+		position = UDim2.fromScale(0.04, 0.5),
+		size = UDim2.fromScale(0.3, QUICK_THUMB_H),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = top,
+	})
+	quickBackdrop = host
+	quickThumb = SpeciesThumb.New(host, Builder.blockTop(host), 1)
+	quickName = Builder.label({
+		parent = plate,
+		name = "Species",
+		text = "",
+		textSize = Theme.TextSize.Title,
+		position = UDim2.fromScale(QUICK_NAME_X, 0.3),
+		size = UDim2.fromScale(QUICK_TEXT_W, 0.3),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
+	})
+	local chip = Builder.blockPlate({
+		parent = plate,
+		name = "SizeChip",
+		color = Theme.Colors.Select,
+		aspect = 3,
+		rows = Theme.Block.MinRows,
+		cells = false,
+		edges = true,
+		position = UDim2.fromScale(QUICK_NAME_X, 0.57),
+		size = UDim2.fromScale(0.3, 0.2),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = top,
+	})
+	quickChipLabel = Builder.label({
+		parent = chip,
+		name = "ChipText",
+		text = "",
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.9, 0.7),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(chip),
+	})
+	Builder.label({
+		parent = plate,
+		name = "Hint",
+		text = Strings.REVEAL_QUICK_HINT,
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(QUICK_NAME_X, 0.82),
+		size = UDim2.fromScale(QUICK_TEXT_W, 0.2),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
+	})
+	-- The whole card is the button: a tap on it opens the Aliens screen.
+	local tap = Instance.new("TextButton")
+	tap.Name = "Tap"
+	tap.Text = ""
+	tap.AutoButtonColor = false
+	tap.BackgroundTransparency = 1
+	tap.BorderSizePixel = 0
+	tap.Size = UDim2.fromScale(1, 1)
+	tap.ZIndex = top + 2
+	tap.Parent = plate
+	tap.Activated:Connect(function()
+		Builder.playSound(Sounds.Click)
+		quickTapped()
+	end)
+end
+
+-- Shows the quick card for `info` (a wild catch that RevealMath.IsQuick approved). A card already up is replaced.
+local function showQuick(info: RevealInfo)
+	buildQuick()
+	local group, plate, thumb = quickGroup, quickPlate, quickThumb
+	if not group or not plate or not thumb then
+		return
+	end
+	quickToken += 1
+	local token = quickToken
+	Builder.setBlockInk(plate, Builder.tierColor(info.tier))
+	if quickBackdrop then
+		Builder.setBlockColor(quickBackdrop, info.color)
+	end
+	local def = speciesFor(info)
+	local modeled = SpeciesThumb.Show(thumb, def, false)
+	if not modeled then
+		thumb.view.Visible = false
+	end
+	if quickName then
+		quickName.Text = info.speciesName
+	end
+	local band = Sizes.ById[info.size] or Sizes.ById[Sizes.Default]
+	if quickChipLabel then
+		quickChipLabel.Text = Builder.text("SIZE_" .. band.id)
+	end
+	Toast.QuietFor(RevealMath.QuickQuietSeconds())
+	local home = UDim2.fromScale(RevealData.QuickRight, RevealData.QuickBottom)
+	local reduced = Prefs.ReducedMotion()
+	quickVisible = true
+	group.Visible = true
+	group.GroupTransparency = 1
+	group.Position = if reduced then home else UDim2.fromScale(RevealData.QuickRight, RevealData.QuickBottom + RevealData.QuickRise)
+	local info_in = TweenInfo.new(RevealData.QuickInSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(group, info_in, { GroupTransparency = 0, Position = home }):Play()
+	task.delay(RevealData.QuickInSeconds + RevealMath.QuickHoldSeconds(), function()
+		if quickToken == token and quickVisible then
+			hideQuick(false)
+		end
+	end)
+end
+
 -- Public API -------------------------------------------------------------
 
 function Reveal.IsOpen(): boolean
@@ -2423,11 +2630,40 @@ function Reveal.OnPlace(handler: (() -> ())?)
 	placeHandler = handler
 end
 
+-- The reveal of a wild catch, in the ceremony it deserves (Clean UI pass): the quick card for a repeat catch of a species the codex
+-- already has below Rare with nothing special about it (RevealMath.IsQuick), else the three beats. `onClosed` runs when the three beats
+-- close; the quick card has no close to wait for. Grants (an egg, a quest alien) call Show directly: they always get the three beats.
+function Reveal.Present(info: RevealInfo, onClosed: (() -> ())?)
+	local band = Sizes.ById[info.size] or Sizes.ById[Sizes.Default]
+	local quick = RevealMath.IsQuick({
+		tier = info.tier,
+		isNew = info.isNew,
+		fromEgg = info.fromEgg == true,
+		overlay = info.overlay,
+		labelledSize = band.label,
+		overflow = info.overflowScrap ~= nil,
+	})
+	if quick and not open then
+		showQuick(info)
+		if onClosed then
+			onClosed()
+		end
+		return
+	end
+	Reveal.Show(info, onClosed)
+end
+
+-- True while the quick card is on screen (it is not a quiet moment: the next catch may start under it).
+function Reveal.IsQuickShown(): boolean
+	return quickVisible
+end
+
 function Reveal.Show(info: RevealInfo, onClosed: (() -> ())?)
 	-- The card is a quiet moment and it starts here, before build() or anything else can take a frame: `open` first (the
 	-- toast queue's probe reads it, so the drain Hush starts finds the moment already quiet and draws nothing), then
 	-- whatever is on screen goes back in the queue and replays after the close.
 	open = true
+	hideQuick(true) -- a quick card still up gives way to the full ceremony
 	Toast.Hush()
 	build()
 	local root = gui

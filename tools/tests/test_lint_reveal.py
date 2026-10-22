@@ -110,5 +110,22 @@ class RevealLint(unittest.TestCase):
         self.assertTrue(any("GlowTransparencyEnd" in f for f in failures), failures)
 
 
+    def test_the_quick_card_is_for_tiers_below_rare_only(self):
+        failures = self.mutated(lambda d: d.update(QuickTiers={1: "Common", 2: "Rare"}))
+        self.assertTrue(any("full ceremony" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d.update(QuickTiers={1: "Mythic"}))
+        self.assertTrue(any("Reveal.QuickTiers" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d.update(QuickTiers={}))
+        self.assertTrue(any("Reveal.QuickTiers" in f for f in failures), failures)
+
+    def test_the_quick_card_stays_short_and_small(self):
+        failures = self.mutated(lambda d: d.update(QuickSeconds=4))
+        self.assertTrue(any("Reveal.QuickSeconds" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d.update(QuickWidth=0.6))
+        self.assertTrue(any("Reveal.QuickWidth" in f for f in failures), failures)
+        failures = self.mutated(lambda d: d.update(QuickInSeconds=1.0, QuickOutSeconds=0.8))
+        self.assertTrue(any("in and out inside QuickSeconds" in f for f in failures), failures)
+
+
 if __name__ == "__main__":
     unittest.main()

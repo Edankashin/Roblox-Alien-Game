@@ -30,7 +30,6 @@ local AfkData = require(Shared:WaitForChild("data"):WaitForChild("Afk"))
 local CatchRush = require(Shared:WaitForChild("data"):WaitForChild("CatchRush"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
-local GrowthData = require(Shared:WaitForChild("data"):WaitForChild("Growth"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local ShopData = require(Shared:WaitForChild("data"):WaitForChild("Shop"))
 local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
@@ -70,6 +69,9 @@ local RadarColumn = require(script:WaitForChild("UI"):WaitForChild("RadarColumn"
 local Compass = require(script:WaitForChild("UI"):WaitForChild("Compass"))
 local TutorialData = require(Shared:WaitForChild("data"):WaitForChild("Tutorial"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local NotifyMath = require(Shared:WaitForChild("NotifyMath"))
+local Notify = require(Shared:WaitForChild("data"):WaitForChild("Notify"))
+local SettingsData = require(Shared:WaitForChild("data"):WaitForChild("Settings"))
 local Vfx = require(script:WaitForChild("World"):WaitForChild("Vfx"))
 local Spectacle = require(script:WaitForChild("World"):WaitForChild("Spectacle"))
 local Ambience = require(script:WaitForChild("World"):WaitForChild("Ambience"))
@@ -159,9 +161,48 @@ local function blizzardActive(): boolean
 end
 
 -- A quiet moment: a catch is running (from the tap, the Legendary opening included, to the Reveal's close) or the Reveal is up.
--- Toast.Quiet answers from this, so banners and toasts wait while nothing may cover the Reveal or the capture bar.
+-- Toast.IsQuiet answers from this, so banners and toasts wait while nothing may cover the Reveal or the capture bar.
 local function quietMoment(): boolean
 	return inCapture or Reveal.IsOpen()
+end
+
+-- A system line in the general chat, shown on this client only (DisplaySystemMessage): a Rare catch by someone else at Announcements "Big only",
+-- and a bought Server Luck (TikTok batch 9 lesson 7: everyone sees someone spending, and anyone can add time).
+local function chatLine(text: string)
+	local channels = TextChatService:FindFirstChild("TextChannels")
+	local general = if channels then channels:FindFirstChild("RBXGeneral") else nil
+	if general and general:IsA("TextChannel") then
+		local ok, err = pcall(function()
+			general:DisplaySystemMessage(text)
+		end)
+		if not ok then
+			print(("[%s] chat line skipped: %s"):format(Config.WorkingTitle, tostring(err)))
+		end
+	end
+end
+
+-- The player's Announcements level (data/Settings: 0 Off, 1 Big only, 2 All), the data default while the row or the profile is missing.
+local function announceLevel(): number
+	if SettingsData.ById.Announcements == nil then
+		return Notify.AnnounceLevelDefault
+	end
+	return Prefs.Level("Announcements")
+end
+
+-- Routes a named message (data/Notify Messages) to its class (docs/vault/05-ui-design/Clean-UI-Pass.md "The notification budget"): a banner
+-- for what the player can join now, a toast for their own results, a quiet line for the rest, a chat line, or nothing. A banner's id is its
+-- kind (its priority in the queue); `mergeKey` lets a later message with the same key update a live toast in place.
+local function notify(id: string, text: string, color: Color3, iconKey: string?, mergeKey: string?)
+	local class = NotifyMath.MessageClass(id)
+	if class == "Banner" then
+		Toast.Banner(text, color, Config.AnnounceSeconds, id)
+	elseif class == "Quiet" then
+		Toast.Quiet(text, color, iconKey, mergeKey)
+	elseif class == "Toast" then
+		Toast.Show(text, color, iconKey, nil, mergeKey)
+	elseif class == "Chat" then
+		chatLine(text)
+	end
 end
 
 -- A catch in progress or a modal screen blocks every other action.
@@ -209,7 +250,7 @@ local function onCaught(result: Types.CaptureHitResult)
 	end
 	task.delay(0.6, function()
 		finishCapture()
-		Reveal.Show({
+		Reveal.Present({ -- the quick card for a repeat of a known species below Rare, else the three beats
 			speciesId = species,
 			speciesName = if def then def.name else species,
 			shape = if def then def.placeholder.shape else "Ball",
@@ -594,7 +635,7 @@ local function tryWave()
 			local def = Species.ById[speciesId]
 			local paid = if type(scrap) == "number" then scrap else 0
 			Builder.playSound(Sounds.GiftClaim)
-			Toast.Show(Strings.TOAST_WAVE_SENT:format(ownerName, if def then def.name else speciesId, Builder.formatNumber(paid)), Theme.Colors.Confirm)
+			notify("waveSent", Strings.TOAST_WAVE_SENT:format(ownerName, if def then def.name else speciesId, Builder.formatNumber(paid)), Theme.Colors.Confirm)
 			local where = HomeRenderer.DisplayedPosition(target) or before
 			if where then
 				Vfx.CatchBurst(where, Theme.Colors.Featured)
@@ -737,6 +778,8 @@ local function alienName(uid: string): string?
 end
 
 local function connectToasts()
+	local materialRun: { [string]: { total: number, at: number } } = {} -- the running count of each material's merged toast
+	local grewRun = { total = 0, at = -math.huge } -- and of the aliens that grew, in their merged quiet line
 	-- Friends joined or left this server: the server sends the count and the boost (a fraction), and the
 	-- arriving friend's name when one just joined.
 	task.spawn(function()
@@ -747,15 +790,20 @@ local function connectToasts()
 			local first = not friendBoostSeen
 			friendBoostSeen = true
 			if arrivedName then
-				Toast.Show(Strings.TOAST_FRIEND_JOINED:format(arrivedName, percent), Theme.Colors.Confirm)
+				notify("friendJoined", Strings.TOAST_FRIEND_JOINED:format(arrivedName, percent), Theme.Colors.Confirm)
 			elseif not (first and count == 0) then
-				Toast.Show(Strings.TOAST_FRIEND_LEFT:format(percent), Theme.Colors.Select)
+				notify("friendLeft", Strings.TOAST_FRIEND_LEFT:format(percent), Theme.Colors.Select)
 			end
 		end)
 	end)
 	task.spawn(function()
 		Net.event("MaterialCollected").OnClientEvent:Connect(function(material: string, count: number)
-			Toast.Show(Strings.TOAST_MATERIAL:format(count, Builder.text("MATERIAL_" .. material)), Theme.Colors.Featured, material)
+			-- Pickups within a few seconds merge into one toast that counts up ("+1", "+2", "+3 Wreck Plate"), one ding for the run.
+			local key = "material:" .. material
+			local run = materialRun[material]
+			local total = if run and Toast.IsMerging(key) then NotifyMath.MergedTotal(run.total, run.at, os.clock(), count) else count
+			materialRun[material] = { total = total, at = os.clock() }
+			notify("material", Strings.TOAST_MATERIAL:format(total, Builder.text("MATERIAL_" .. material)), Theme.Colors.Featured, material, key)
 		end)
 	end)
 	task.spawn(function()
@@ -818,7 +866,7 @@ local function connectToasts()
 	task.spawn(function()
 		local function toastIncome(paid: any)
 			if type(paid) == "number" and paid > 0 then
-				Toast.Show(Strings.TOAST_HABITAT_INCOME:format(Builder.formatNumber(paid)), Theme.Colors.Confirm)
+				notify("habitatIncome", Strings.TOAST_HABITAT_INCOME:format(Builder.formatNumber(paid)), Theme.Colors.Confirm)
 			end
 		end
 		Net.event("HabitatIncome").OnClientEvent:Connect(toastIncome)
@@ -844,7 +892,7 @@ local function connectToasts()
 	-- reads the mirror).
 	task.spawn(function()
 		Net.event("VisitorArrived").OnClientEvent:Connect(function(name: string)
-			Toast.Show(Strings.TOAST_VISITOR_ARRIVED:format(tostring(name)), Theme.Colors.Select)
+			notify("visitor", Strings.TOAST_VISITOR_ARRIVED:format(tostring(name)), Theme.Colors.Select)
 			State.RefreshVisitors()
 		end)
 	end)
@@ -859,7 +907,7 @@ local function connectToasts()
 	task.spawn(function()
 		Net.event("WaveReceived").OnClientEvent:Connect(function(name: string, species: string, scrap: number)
 			local def = Species.ById[species]
-			Toast.Show(Strings.TOAST_WAVE_GOT:format(tostring(name), if def then def.name else tostring(species), Builder.formatNumber(scrap)), Theme.Colors.Featured)
+			notify("waveGot", Strings.TOAST_WAVE_GOT:format(tostring(name), if def then def.name else tostring(species), Builder.formatNumber(scrap)), Theme.Colors.Featured)
 		end)
 	end)
 	-- The outposts table the server holds (a collect, an upgrade, a launch that opens one) replaces the mirror's.
@@ -884,7 +932,7 @@ local function connectToasts()
 			local worldKey = "WORLD_" .. tostring(worldId)
 			local worldDef = Worlds[worldId]
 			local name = if Builder.text(worldKey) ~= worldKey then Builder.text(worldKey) elseif worldDef then worldDef.name else worldKey
-			Toast.Banner(Strings.FLY_LINE:format(name), Theme.Colors.Select, Config.FlyTeleportDelaySeconds)
+			Toast.Banner(Strings.FLY_LINE:format(name), Theme.Colors.Select, Config.FlyTeleportDelaySeconds, "fly")
 			local function lift(afterwards: (() -> ())?)
 				LaunchSequence.Fade(Config.FlyTeleportDelaySeconds, false, function()
 					flying = false
@@ -912,28 +960,39 @@ local function connectToasts()
 			end)
 		end)
 	end)
-	-- Server-wide banners: a rare find in the tier's colour, or the Catch Rush winner in the Featured gold.
+	-- Server-wide announcements, each in the class it earns (docs/vault/05-ui-design/Clean-UI-Pass.md "The notification budget"): someone
+	-- else's catch by its tier and the player's Announcements setting (a Rare as a chat line, an Epic as a toast, a Legendary and up as a
+	-- banner; "All" adds a quiet line for the Rare, "Off" shows none), the Catch Rush winner as a toast (not something to join), a line from
+	-- the team as a banner. The server announces every Rare and up to everyone, so the catcher's own client skips the lower three classes.
 	task.spawn(function()
 		Net.event("Announcement").OnClientEvent:Connect(function(note: Types.Announcement)
-			local text: string
-			local color: Color3
 			if note.kind == "rush" then
-				text = Strings.ANNOUNCE_RUSH:format(note.playerName, note.catches or 0)
-				color = Theme.Colors.Featured
+				notify("rushWinner", Strings.ANNOUNCE_RUSH:format(note.playerName, note.catches or 0), Theme.Colors.Featured)
+				return
 			elseif note.kind == "notice" then
 				-- A line from the team (the developer panel), shown as typed in the Codex purple.
-				text = Strings.ANNOUNCE_NOTICE:format(note.text or "")
-				color = Theme.Colors.Codex
-			else
-				local def = Species.ById[note.species]
-				local speciesName = if def then def.name else note.species
-				text = if note.overlay ~= "None"
-					then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
-					else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
-				color = Builder.tierColor(note.tier)
+				notify("announce", Strings.ANNOUNCE_NOTICE:format(note.text or ""), Theme.Colors.Codex)
+				return
 			end
-			-- The Reveal and the capture bar own the screen: Toast holds the banner until they are gone (the latest announcement wins).
-			Toast.Banner(text, color, Config.AnnounceSeconds, "announce")
+			local class = NotifyMath.OthersCatchClass(announceLevel(), note.tier)
+			if class == "None" or (class ~= "Banner" and note.playerName == localPlayer.DisplayName) then
+				return
+			end
+			local def = Species.ById[note.species]
+			local speciesName = if def then def.name else note.species
+			local text = if note.overlay ~= "None"
+				then Strings.ANNOUNCE_CATCH_OVERLAY:format(note.playerName, Builder.text("OVERLAY_A_" .. note.overlay), Builder.text("TIER_" .. note.tier), speciesName)
+				else Strings.ANNOUNCE_CATCH:format(note.playerName, Builder.text("TIER_A_" .. note.tier), speciesName)
+			local color = Builder.tierColor(note.tier)
+			if class == "Banner" then
+				notify("announce", text, color) -- the Reveal and the capture bar own the screen: Toast holds the banner until they are gone (the latest announcement wins)
+			elseif class == "Toast" then
+				Toast.Show(text, color)
+			elseif class == "Quiet" then
+				Toast.Quiet(text, color)
+			else
+				chatLine(text)
+			end
 		end)
 	end)
 	-- The player's own Catch Rush result: placed and paid (rank 1 to TopCount), paid for taking part (past
@@ -983,12 +1042,12 @@ local function connectToasts()
 	task.spawn(function()
 		Net.event("WardenSummoned").OnClientEvent:Connect(function()
 			Builder.playSound(Sounds.WardenAppear)
-			Toast.Banner(Strings.TOAST_WARDEN_AWAKE, Builder.tierColor("Legendary"), Config.AnnounceSeconds)
+			notify("warden", Strings.TOAST_WARDEN_AWAKE, Builder.tierColor("Legendary"))
 		end)
 	end)
 	task.spawn(function()
 		Net.event("WardenRetreated").OnClientEvent:Connect(function()
-			Toast.Show(Strings.TOAST_WARDEN_RETREAT, Builder.tierColor("Legendary"))
+			notify("wardenRetreat", Strings.TOAST_WARDEN_RETREAT, Builder.tierColor("Legendary"))
 		end)
 	end)
 	-- The Warden's sighting: a banner when it starts to cross the land and a toast when it has wandered off (the
@@ -1017,14 +1076,10 @@ local function connectToasts()
 			if state.active then
 				local def = Species.ById[state.species]
 				Builder.playSound(Sounds.WardenAppear)
-				Toast.Banner(
-					Strings.SIGHTING_BANNER:format(sightingName(state.species)),
-					Builder.tierColor(if def then def.tier else "Common"),
-					Config.AnnounceSeconds
-				)
+				notify("sighting", Strings.SIGHTING_BANNER:format(sightingName(state.species)), Builder.tierColor(if def then def.tier else "Common"))
 			else
 				local species = if Species.ById[state.species] then state.species else sightingSpecies
-				Toast.Show(Strings.SIGHTING_OVER:format(sightingName(species)), Theme.Rarity.Common)
+				notify("sightingOver", Strings.SIGHTING_OVER:format(sightingName(species)), Theme.Rarity.Common)
 			end
 		end)
 		local ok, answer = pcall(function()
@@ -1086,7 +1141,16 @@ local function connectToasts()
 			end
 			local name = alienName(uid)
 			if name then
-				Toast.Show(Strings.TOAST_ALIEN_GREW:format(name, Builder.text("STAGE_" .. stageId)), Theme.Colors.Featured)
+				-- A quiet line; several growing within a few seconds merge into one that counts them ("3 aliens grew up!").
+				local total = if Toast.IsMerging("grew") then NotifyMath.MergedTotal(grewRun.total, grewRun.at, os.clock(), 1) else 1
+				grewRun = { total = total, at = os.clock() }
+				notify(
+					"alienGrew",
+					if total == 1 then Strings.TOAST_ALIEN_GREW:format(name, Builder.text("STAGE_" .. stageId)) else Strings.TOAST_ALIENS_GREW:format(total),
+					Theme.Colors.Featured,
+					nil,
+					"grew"
+				)
 			end
 			CampRenderer.Grew(uid)
 		end)
@@ -1098,27 +1162,18 @@ local function connectToasts()
 		if not summary then
 			return
 		end
-		Toast.Show(Strings.OFFLINE_TITLE, Theme.Colors.Featured)
-		if summary.scrap > 0 then
-			Toast.Show(Strings.OFFLINE_BODY:format(Builder.formatNumber(summary.scrap)), Theme.Colors.Featured)
-		end
+		-- One welcome toast, one line per kind, three lines at most (NotifyMath.OfflineLines): the Scrap, the finished modules, the growth.
+		-- (It used to be six or more toasts and dings in the first seconds.)
+		local moduleNames: { string } = {}
 		for _, moduleId in ipairs(summary.completedModules) do
-			Toast.Show(Strings.OFFLINE_MODULES:format(Builder.text("MODULE_" .. moduleId)), Theme.Colors.Confirm)
+			table.insert(moduleNames, Builder.text("MODULE_" .. moduleId))
 		end
-		-- Aliens that grew while away: one line with the count, then the first few by name.
-		local grown = summary.grown
-		if grown and #grown > 0 then
-			Toast.Show(Strings.OFFLINE_GREW:format(#grown), Theme.Colors.Featured)
-			for index, entry in ipairs(grown) do
-				if index > GrowthData.GrewToastMax then
-					break
-				end
-				local name = if type(entry.uid) == "string" and type(entry.stage) == "string" then alienName(entry.uid) else nil
-				if name then
-					Toast.Show(Strings.TOAST_ALIEN_GREW:format(name, Builder.text("STAGE_" .. entry.stage)), Theme.Colors.Featured)
-				end
-			end
-		end
+		local lines = NotifyMath.OfflineLines({
+			scrapText = if summary.scrap > 0 then Builder.formatNumber(summary.scrap) else nil,
+			moduleNames = moduleNames,
+			grown = if summary.grown then #summary.grown else 0,
+		})
+		notify("welcomeBack", table.concat(lines, "\n"), Theme.Colors.Featured)
 	end)
 end
 
@@ -1643,7 +1698,7 @@ local function start(profile: Types.Profile)
 		if showerWasActive then
 			Vfx.SetShowerSky(false)
 			if not showerBannerHeld then -- a shower the player never saw announced needs no goodbye
-				Toast.Show(Strings.SHOWER_OVER, Theme.Colors.Codex)
+				notify("showerOver", Strings.SHOWER_OVER, Theme.Colors.Codex)
 			end
 		end
 		showerWasActive = false
@@ -1735,7 +1790,7 @@ local function start(profile: Types.Profile)
 		weeklyAnnounced = key
 		local name = weeklyName(current)
 		local weather = weeklyWeather(current)
-		Toast.Banner(if weather then Strings.WEEKLY_NOW_WEATHER:format(name, weather) else Strings.WEEKLY_NOW:format(name), Theme.Colors.Codex, Config.AnnounceSeconds)
+		notify("weeklyStart", if weather then Strings.WEEKLY_NOW_WEATHER:format(name, weather) else Strings.WEEKLY_NOW:format(name), Theme.Colors.Codex) -- it lasts a week: a toast now, the event chip afterwards
 	end
 	State.OnChanged("weekly", function()
 		announceWeekly()
@@ -1777,20 +1832,7 @@ local function start(profile: Types.Profile)
 	onSeason() -- the server's answer may already have landed
 	-- A bought server luck announces itself once to everyone and then counts down in the banner slot.
 	local serverLuckShown: string? = nil
-	-- The same announcement as a system line in the general chat, so the buyer is named where everyone reads (TikTok batch 9
-	-- lesson 7: everyone sees someone spending, and anyone can add time). Client-side: DisplaySystemMessage shows only here.
-	local function chatLine(text: string)
-		local channels = TextChatService:FindFirstChild("TextChannels")
-		local general = if channels then channels:FindFirstChild("RBXGeneral") else nil
-		if general and general:IsA("TextChannel") then
-			local ok, err = pcall(function()
-				general:DisplaySystemMessage(text)
-			end)
-			if not ok then
-				print(("[%s] chat line skipped: %s"):format(Config.WorkingTitle, tostring(err)))
-			end
-		end
-	end
+	-- The same announcement as a system line in the general chat (chatLine), so the buyer is named where everyone reads.
 	State.OnChanged("serverLuck", function()
 		local luckState = State.GetServerLuck()
 		if luckState then
@@ -1802,7 +1844,7 @@ local function start(profile: Types.Profile)
 				local text = if luckState.playerName == Strings.ADMIN_LUCK_NAME
 					then Strings.TOAST_SERVERLUCK_GIFT:format(multiplierText)
 					else Strings.TOAST_SERVERLUCK_START:format(luckState.playerName, multiplierText)
-				Toast.Banner(text, Theme.Colors.Featured, Config.AnnounceSeconds)
+				notify("serverluck", text, Theme.Colors.Featured)
 				if luckState.playerName ~= Strings.ADMIN_LUCK_NAME then
 					chatLine(Strings.CHAT_SERVERLUCK_START:format(luckState.playerName, multiplierText))
 				end
@@ -1966,7 +2008,7 @@ local function start(profile: Types.Profile)
 		if blizzardActive() then
 			if not blizzardHinted then
 				blizzardHinted = true
-				Toast.Banner(Strings.BLIZZARD_HINT:format(Config.BlizzardHideStuds), Theme.Colors.Select, Config.AnnounceSeconds)
+				notify("blizzard", Strings.BLIZZARD_HINT:format(Config.BlizzardHideStuds), Theme.Colors.Select)
 			end
 		else
 			blizzardHinted = false
@@ -1975,7 +2017,7 @@ local function start(profile: Types.Profile)
 		if world and world.weather.special.speciesId ~= "" and state.weather == world.weather.special.id and lastWeather ~= nil and lastWeather ~= state.weather then
 			local def = Species.ById[world.weather.special.speciesId]
 			local text = Strings.WEATHER_SPECIAL_BANNER:format(Builder.text("WEATHER_" .. state.weather), if def then def.name else world.weather.special.speciesId)
-			Toast.Banner(text, if def then Builder.tierColor(def.tier) else Theme.Colors.Select, Config.AnnounceSeconds)
+			notify("specialWeather", text, if def then Builder.tierColor(def.tier) else Theme.Colors.Select, state.weather)
 		end
 		lastWeather = state.weather
 	end

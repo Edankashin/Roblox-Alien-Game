@@ -200,6 +200,31 @@ function RevealMath.QuietTotal(tier: string, withCrack: boolean, reduced: boolea
 	return sequence + RevealData.QuietSeconds
 end
 
+-- What decides the ceremony of one reveal: the tier, whether the server called the species new to the codex, whether it is a grant (an egg
+-- claim, a Peddler egg, a quest alien), and whether anything about it is special (an overlay, a size band that names itself, a storage
+-- overflow ribbon).
+export type ModeInput = { tier: string, isNew: boolean, fromEgg: boolean, overlay: string, labelledSize: boolean, overflow: boolean }
+
+-- Whether a reveal is the quick card (the Clean UI pass): a wild catch (never an egg) of a species the codex already has, at one of
+-- data/Reveal QuickTiers, with nothing special about it. Everything else keeps the three beats. The novelty is the server's word (isNew), so
+-- this never guesses.
+function RevealMath.IsQuick(input: ModeInput): boolean
+	if input.fromEgg or input.isNew or input.overlay ~= "None" or input.labelledSize or input.overflow then
+		return false
+	end
+	return table.find(RevealData.QuickTiers, input.tier) ~= nil
+end
+
+-- The quiet moment Toast.QuietFor is asked for while a quick card shows: just its time.
+function RevealMath.QuickQuietSeconds(): number
+	return RevealData.QuickSeconds
+end
+
+-- The seconds the quick card holds still between sliding in and fading out.
+function RevealMath.QuickHoldSeconds(): number
+	return math.max(0, RevealData.QuickSeconds - RevealData.QuickInSeconds - RevealData.QuickOutSeconds)
+end
+
 -- The confetti pieces the burst throws: none for a tier without Confetti, else ConfettiCount times the shard scale, whole.
 function RevealMath.ConfettiCount(tier: string): number
 	if not RevealMath.Flags(tier).Confetti then
