@@ -51,7 +51,18 @@ One thumb, no stress, nothing you did is ever wasted.
 | Thumb 5 | `thumb_5.png` | the rarity ladder: Common to Secret on stepping blocks, each glowing more (pool, light, ring, motes, pillars); title |
 | Thumb 6 | `thumb_6.png` | the reveal: the Cosmic card landing in its pixel sky, the cell-ray fan, starburst, gold cell frame and confetti cells |
 
-**Ethan's pick: icon _, thumbnails _, _, _ (in order).** The store-art worker's recommendation is in the 2026-10-21 log (Store art worker). The earlier sets stay for the record: `media/store/2026-10-14/` (the interim v2) and `media/store/2026-10-15/` (the pre-blocky candidates); neither matches the block-cell game, so neither goes up.
+**Ethan's pick (2026-10-22): icon A.** For the thumbnails he asked for scenery: "I want the thumbnail to show the most beautiful version of the world so that it is scenic and shows what the game offers." So slot 1 is **Ethan's pick from S1 to S3** below (answer "S1", "S2" or "S3" on `scenic_choices.jpg`), slots 2 and 3 are suggested from the first set: **thumb 2** (the catch), then **thumb 1** (the camp).
+
+| Option | File | What it shows |
+|---|---|---|
+| S1 | `thumb_S1.png` (and `thumb_S1_notitle.png`) | the meadow vista from the highland plateau by the lookout at golden hour: the river running to the falls, blossom trees, the camp with the half-built ship and flag, the wreck, paths, Moop, Dandel, Vixa (Rare), Buzzik, Gaira (Legendary, glowing) and Iridia on the rim; the Starhollow's violet canopy and the floating island with its glowing fall on the horizon; title top left |
+| S2 | `thumb_S2.png` (and `_notitle`) | the Starhollow at dusk from where the lavender path leaves the meadow: lanterns, glowcaps, light drips, fireflies, the island and its fall through the canopy, Raddis (Cosmic) in its gold sun ring, Lantrin with its lamp and Iridia, the meadow's trees still warm on the right under the sunset; title top left |
+| S3 | `thumb_S3.png` (and `_notitle`) | the two worlds in one panorama joined along World 1's meadow river: the sunlit meadow, camp and Moop, Buzzik and Vixa on the left; across the river Frostbyte's snow, frozen lake, ice spires and pines under the aurora and moon, with Fenrir (Cosmic), Pengoo and Mitt; title centred |
+| 400 px check | `scenic_400_strip.png` | S1 to S3 at 400 px, the size of a phone's game list |
+
+Rendered by the same route, one command: `$BPY tools/blender/store_renders.py --set 2026-10-22 --only S1,S2,S3` (the generated worlds and the real models; a depth pass for aerial haze, bloom on the glow cells, an aura behind each glowing rare, gentle depth of field; [[Thumbnail-Research]] section 14). Two liberties, both for job 53 to judge: S2 leaves out the few moon trees standing in the sightline to the island, and S3 joins two places that are separate worlds in the game.
+
+The store-art worker's recommendation is in the 2026-10-21 log (Store art worker). The earlier sets stay for the record: `media/store/2026-10-14/` (the interim v2) and `media/store/2026-10-15/` (the pre-blocky candidates); neither matches the block-cell game, so neither goes up.
 
 - A 10-second clip for the store video can wait until after launch (the cinematic shots film it).
 
@@ -88,8 +99,8 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 | Basic Settings | Description | section 2 above, pasted as is; append the LAUNCHWEEK line: "Code LAUNCHWEEK: 300 Scrap and a Lucky Charm, until Oct 31." |
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
-| Basic Settings | Icon | `media/store/2026-10-22/icon_<Ethan's pick: A, B or C>.png` (section 4) |
-| Basic Settings | Thumbnails (in order) | `media/store/2026-10-22/thumb_<Ethan's pick>.png`, in the order he names (section 4; upload at least two so personalization runs); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Basic Settings | Icon | `media/store/2026-10-22/icon_A.png` (Ethan's pick, 2026-10-22; section 4) |
+| Basic Settings | Thumbnails (in order) | 1: `media/store/2026-10-22/thumb_S<Ethan's pick: 1, 2 or 3>.png`; 2: `thumb_2.png`; 3: `thumb_1.png` (section 4; at least two so personalization runs; drop any that job 53 finds the game does not show); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
 | Places > World 1 | Max players | 8; server fill: Roblox optimised |
 | Access | Private servers | Off |
 | Access | Paid access | Off |

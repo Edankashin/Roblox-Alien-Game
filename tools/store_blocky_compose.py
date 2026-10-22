@@ -13,6 +13,9 @@ and 5. Writes into OUT_DIR:
   thumb_1.png ... thumb_6.png                1920 x 1080
   icons_64_strip.png                         the three icons at 64 px (the smallest size they are seen at)
   choices.jpg                                the labelled sheet for Ethan: icons A to C at full size and at 64 px, thumbnails 1 to 6
+  thumb_S1.png ... thumb_S3.png              the scenic set (and <shot>_notitle.png), 1920 x 1080
+  scenic_400_strip.png, scenic_choices.jpg   S1 to S3 at 400 px; the labelled scenic sheet with icon A (Ethan's pick)
+The two sheets are rewritten only when one of their own shots was composed in this run.
 Every PNG is kept under 2 MB (truecolour; a 256-colour palette only as a fallback). Our own art only.
 """
 from __future__ import annotations
@@ -214,7 +217,7 @@ def title(img, text, k, align="center", width=0.62):
     size = int((width * w - 2 * stroke) * 100 / (r - l))
     font = ImageFont.truetype(FONT, size)
     l, t, r, b = probe.textbbox((0, 0), text, font=font, stroke_width=stroke)
-    x = {"center": (w - (r - l)) / 2, "left": 0.035 * w}[align] - l
+    x = {"center": (w - (r - l)) / 2, "left": 0.035 * w, "right": 0.965 * w - (r - l)}[align] - l
     y = 0.045 * h - t
     shadow = Image.new("L", pil.size, 0)
     ImageDraw.Draw(shadow).text((x, y + stroke * 0.45), text, font=font, fill=255, stroke_width=stroke, stroke_fill=255)
@@ -425,6 +428,146 @@ def reveal_card(raw_rgba, k, tier="Cosmic"):
     return np.asarray(pil.convert("RGB"), dtype=np.float32) / 255.0
 
 
+# ------------------------------------------------------------------------------------------------ the scenic set (S1 to S3)
+def band_sky(w, h, stops, hz, cell, seed=44):
+    """A stepped cell gradient whose stop positions are fractions of the horizon row `hz` (0 the top of the frame, 1 the horizon); below the
+    horizon it holds the last colour (the terrain covers it)."""
+    stops = [(p * hz, c) for p, c in stops] + [(1.0, stops[-1][1])]
+    return cell_gradient(w, h, stops, cell)
+
+
+def blend_x(a, b, x0, x1, cell):
+    """Blend sky `a` into sky `b` across the columns x0..x1 (frame fractions), in whole cell columns (a stepped seam, never smooth)."""
+    h, w, _ = a.shape
+    cols = np.arange(w) // cell * cell / w
+    t = np.clip((cols - x0) / max(1e-6, x1 - x0), 0, 1)
+    t = (t * t * (3 - 2 * t))[None, :, None]
+    return a * (1 - t) + b * t
+
+
+def warm_clouds(img, cell, seed, count, top, bottom, lit="FFE9CF", shade="F2B7A8", x0=0.0, x1=1.0):
+    """Block clouds lit by a low sun: a warm lit top row, a rosy underside."""
+    rnd = random.Random(seed)
+    h, w, _ = img.shape
+    for _ in range(count):
+        cw, ch = rnd.randint(7, 16), rnd.randint(2, 3)
+        x0p = rnd.randrange(int(x0 * w), max(int(x0 * w) + 1, int(x1 * w) - cw * cell))
+        y0 = rnd.randrange(int(top * h), max(int(top * h) + 1, int(bottom * h)))
+        for j in range(ch):
+            inset = (ch - 1 - j) * rnd.randint(1, 3)
+            for i in range(inset, cw - inset // 2):
+                c = f3(lit) if j < ch - 1 else f3(shade)
+                y, x = y0 + j * cell, x0p + i * cell
+                img[y:y + cell, x:x + cell] = img[y:y + cell, x:x + cell] * 0.15 + c * 0.85
+    return img
+
+
+def scenic_sky(kind, w, h, k, hz, seam=0.52):
+    cell = max(4, int(round(12 * k)))
+    if kind == "golden":   # the east at golden hour: azure overhead, lavender, then the warm peach band at the horizon
+        img = band_sky(w, h, [(0, "2F63CF"), (0.35, "5E8FE6"), (0.62, "9DB3EE"), (0.8, "E3B7CF"), (0.93, "FFC7A3"), (1, "FFDDB2")], hz, cell)
+        return warm_clouds(img, cell, 5, 5, 0.05, hz * 0.62)
+    if kind == "dusk":     # S2: the meadow's warm sunset on the left, the Starhollow's violet night with stars on the right
+        warm = band_sky(w, h, [(0, "3B3C9A"), (0.4, "7B62C2"), (0.7, "E08FB6"), (0.88, "FFB48A"), (1, "FFD49A")], hz, cell)
+        warm = warm_clouds(warm, cell, 8, 3, 0.18, hz * 0.7, lit="FFC9A0", shade="C77BA8", x1=0.4)
+        night = band_sky(w, h, [(0, "0B0A2E"), (0.45, "251F6B"), (0.8, "4A3593"), (1, "7A4FB8")], hz, cell)
+        night = star_cells(night, cell, 110, 11, 0, hz * 0.95, "FFF4DC")
+        return blend_x(warm, night, 0.0, 0.55, cell)
+    if kind == "dusk_right":   # the same with the sunset on the right (the camera faces away from the west, the meadow on its right)
+        night = band_sky(w, h, [(0, "0B0A2E"), (0.45, "251F6B"), (0.8, "4A3593"), (1, "7A4FB8")], hz, cell)
+        night = star_cells(night, cell, 110, 11, 0, hz * 0.95, "FFF4DC")
+        warm = band_sky(w, h, [(0, "2E2C86"), (0.45, "6A55B8"), (0.72, "D486B4"), (0.9, "FFAE86"), (1, "FFD08E")], hz, cell)
+        warm = warm_clouds(warm, cell, 8, 3, 0.2, hz * 0.7, lit="FFC9A0", shade="C77BA8", x0=0.65)
+        return blend_x(night, warm, 0.45, 1.0, cell)
+    if kind == "twoworld":  # S3: World 1's golden afternoon on the left, Frostbyte's aurora night with its moon on the right
+        day = band_sky(w, h, [(0, "2F6BD6"), (0.45, "6EA6EE"), (0.8, "BFD9F4"), (0.93, "FFE0B8"), (1, "FFE9C6")], hz, cell)
+        day = warm_clouds(day, cell, 3, 4, 0.04, hz * 0.55, lit="FFFFFF", shade="E9D9EE", x1=0.42)
+        night = band_sky(w, h, [(0, "060A24"), (0.5, "10285F"), (0.85, "2C5A9E"), (1, "5C86C4")], hz, cell)
+        night = star_cells(night, cell, 120, 21, 0, hz * 0.9)
+        night = aurora(night, cell)
+        night = moon(night, w * 0.86, h * 0.15, h * 0.055, cell)
+        return blend_x(day, night, seam - 0.1, seam + 0.1, cell)
+    return sky(kind, w, h, k)
+
+
+def load_depth(path, size):
+    """The depth pass (a 16-bit grey PNG, sRGB-encoded, the sky white) as camera distance over `far`, 0..1."""
+    if not path.exists():
+        return np.ones((size[1], size[0]), dtype=np.float32)
+    im = Image.open(path)
+    v = np.asarray(im, dtype=np.float32) / (65535.0 if im.mode.startswith("I") else 255.0)
+    if v.ndim == 3:
+        v = v[..., 0]
+    return np.where(v <= 0.04045, v / 12.92, ((v + 0.055) / 1.055) ** 2.4).astype(np.float32)
+
+
+def grade(img, kind):
+    """A gentle finish: a little more saturation and a soft S-curve (saturated, never garish); `warm` lifts the highlights' warmth."""
+    lum = (img @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32))[..., None]
+    img = np.clip(lum + (img - lum) * 1.12, 0, 1)
+    s = img * img * (3 - 2 * img)
+    img = img * 0.82 + s * 0.18
+    if kind == "warm":
+        img = np.clip(img * np.array([1.03, 1.0, 0.95], dtype=np.float32), 0, 1)
+    return img
+
+
+def light_leak(img, colour, cx, cy, radius, strength):
+    """A soft low-sun glow from a corner, screened over the frame."""
+    h, w, _ = img.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    d = np.hypot(xx / w - cx, (yy / h - cy) * h / w) / radius
+    a = (np.clip(1 - d, 0, 1) ** 2 * strength)[..., None]
+    return 1 - (1 - img) * (1 - f3(colour) * a)
+
+
+def vignette(img, strength=0.16):
+    h, w, _ = img.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    d = np.hypot((xx / w - 0.5) * 1.2, yy / h - 0.5)
+    a = (np.clip((d - 0.42) / 0.4, 0, 1) ** 1.6 * strength)[..., None]
+    return img * (1 - a) + f3("1B1F3B") * a
+
+
+def compose_scenic(raw_dir, shot, meta):
+    """S1 to S3: sky, the render over it, aerial haze from the depth pass, the grade, the auras behind the glowing rares, bloom, the
+    outlines per group, the light leak and the vignette. Returns (with title, without)."""
+    raw = Image.open(raw_dir / f"{shot}_raw.png").convert("RGBA")
+    w, h = raw.size
+    k = h / 1080
+    alpha = np.asarray(raw.getchannel("A"), dtype=np.float32)[..., None] / 255.0
+    col = np.asarray(raw.convert("RGB"), dtype=np.float32) / 255.0
+    hz = float(np.clip(meta["points"].get("horizon", [0.5, 0.45])[1], 0.15, 0.95))
+    sk = scenic_sky(meta["sky"], w, h, k, hz, float(meta["points"].get("seam_far", [0.52, 0])[0]))
+    img = sk * (1 - alpha) + col * alpha
+    if meta.get("haze"):
+        amount, near = meta["haze"]
+        depth = load_depth(raw_dir / f"{shot}_depth.png", (w, h))
+        far = meta["far"]
+        t = np.clip((depth * far - near) / max(1.0, far - near), 0, 1) ** 1.25 * amount * alpha[..., 0]   # the terrain only
+        row = sk[max(0, int(hz * h) - int(24 * k))]   # each column hazes towards its own sky just over the horizon,
+        row = blur(row[None, :, :].repeat(8, axis=0), 30 * k)[4][None, :, :]   # smoothed so a star cell there cannot streak a column
+        img = img * (1 - t[..., None]) + row * t[..., None]
+    img = grade(img, meta.get("grade"))
+    masks = {g: load_mask(raw_dir / f"{shot}_{g.lower()}.png", (w, h)) for g in meta["groups"]}
+    for g, spec in meta["groups"].items():
+        if spec.get("aura") and masks[g].any():
+            img = aura(img, masks[g], spec["aura"], spec.get("aura_r", 26) * k, spec.get("aura_a", 0.6))
+    if meta.get("bloom"):
+        img = bloom(img, meta["bloom"], k)
+    for g, spec in meta["groups"].items():
+        if masks[g].any():
+            img = outline(img, masks[g], spec["outline"] * k)
+    if meta.get("leak"):
+        colour, cx, cy, radius, strength = meta["leak"]
+        img = light_leak(img, colour, cx, cy, radius, strength)
+    img = vignette(img)
+    plain = img
+    align = meta.get("title") or "center"
+    titled = title(img, TITLE, k, align, 0.5 if align != "center" else 0.6)
+    return titled, plain
+
+
 # ------------------------------------------------------------------------------------------------ the shots
 def compose(raw_dir, shot):
     meta = json.loads((raw_dir / f"{shot}.json").read_text())
@@ -514,29 +657,88 @@ def sheet(out_dir, finals):
     print(f"{path}: {W}x{H}, {os.path.getsize(path) / 1e6:.2f} MB")
 
 
+SCENIC = {"thumb_S1": ("S1", "The meadow vista from the highlands, golden hour"),
+          "thumb_S2": ("S2", "The Starhollow at dusk, the meadow glowing behind"),
+          "thumb_S3": ("S3", "Two worlds: the meadow and Frostbyte, one panorama")}
+
+
+def scenic_strip(out_dir, finals):
+    """scenic_400_strip.png: S1 to S3 at 400 px wide (their size in a phone's game list), titled, side by side."""
+    keys = [k for k in SCENIC if k in finals]
+    strip = Image.new("RGB", (len(keys) * 400 + (len(keys) - 1) * 10, 225), rgb(NAVY))
+    for i, key in enumerate(keys):
+        strip.paste(finals[key].resize((400, 225), Image.LANCZOS), (i * 410, 0))
+    strip.save(out_dir / "scenic_400_strip.png", optimize=True)
+    print(out_dir / "scenic_400_strip.png")
+    return strip
+
+
+def scenic_sheet(out_dir, finals, icon):
+    """scenic_choices.jpg: S1, S2 and S3 side by side with their big labels, each again at 400 px under it, and icon A (Ethan's pick)."""
+    W, gap, tw, th = 2040, 30, 640, 360
+    H = 130 + th + 70 + 225 + 60 + 300 + 40
+    canvas = Image.new("RGB", (W, H), rgb("F3EEDF"))
+    d = ImageDraw.Draw(canvas)
+    d.text((gap, 26), "Catch an Alien: scenic thumbnails (2026-10-22)", font=ImageFont.truetype(FONT, 46), fill=rgb(NAVY))
+    d.text((gap, 82), "Pick the first thumbnail: answer \"S1\", \"S2\" or \"S3\". Under each, the same at 400 px, as a phone's game list shows it.",
+           font=ImageFont.truetype(FONT, 24), fill=rgb("4A4F6B"))
+    small = ImageFont.truetype(FONT, 22)
+    for n, key in enumerate(SCENIC):
+        if key not in finals:
+            continue
+        x = gap + n * (tw + gap)
+        canvas.paste(finals[key].resize((tw, th), Image.LANCZOS), (x, 130))
+        badge(d, x + 10, 130 + th - 104, SCENIC[key][0], 92)
+        d.text((x, 130 + th + 8), SCENIC[key][1], font=small, fill=rgb(NAVY))
+        canvas.paste(finals[key].resize((400, 225), Image.LANCZOS), (x, 130 + th + 50))
+    y = 130 + th + 50 + 225 + 40
+    if icon is not None:
+        canvas.paste(icon.resize((300, 300), Image.LANCZOS), (gap, y))
+        canvas.paste(icon.resize((64, 64), Image.LANCZOS), (gap + 314, y + 236))
+        badge(d, gap + 10, y, "A", 80)
+        d.text((gap + 400, y + 110), "Icon A, Ethan's pick (2026-10-22): Moop close-up on the meadow, the crashed ship behind.",
+               font=ImageFont.truetype(FONT, 26), fill=rgb(NAVY))
+        d.text((gap + 400, y + 150), "Thumbnails 2 and 3 of the store: thumb 2 (the catch) and thumb 1 (the camp) from the first set.",
+               font=small, fill=rgb("4A4F6B"))
+    path = out_dir / "scenic_choices.jpg"
+    canvas.save(path, quality=88, optimize=True)
+    print(f"{path}: {W}x{H}, {os.path.getsize(path) / 1e6:.2f} MB")
+
+
 def main():
     raw_dir, out_dir = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
     if "assets" in out_dir.resolve().parts:
         print("refusing to write under assets/")
         return 2
     out_dir.mkdir(parents=True, exist_ok=True)
-    finals = {}
-    for shot in LABELS:
+    finals, fresh = {}, set()
+    for shot in list(LABELS) + list(SCENIC):
         if not (raw_dir / f"{shot}.json").exists():
             if (out_dir / f"{shot}.png").exists():
                 finals[shot] = Image.open(out_dir / f"{shot}.png").convert("RGB")
             continue
         print("compose", shot, flush=True)
+        fresh.add(shot)
+        meta = json.loads((raw_dir / f"{shot}.json").read_text())
+        if meta.get("scenic"):
+            titled, plain = compose_scenic(raw_dir, shot, meta)
+            save_png(plain, out_dir / f"{shot}_notitle.png", (1920, 1080))
+            finals[shot] = save_png(titled, out_dir / f"{shot}.png", (1920, 1080))
+            continue
         img = compose(raw_dir, shot)
         finals[shot] = save_png(img, out_dir / f"{shot}.png", (512, 512) if shot.startswith("icon") else (1920, 1080))
     icons = [finals[k] for k in ("icon_A", "icon_B", "icon_C") if k in finals]
-    if icons:
+    if icons and fresh & {"icon_A", "icon_B", "icon_C"}:
         strip = Image.new("RGB", (len(icons) * 64 + (len(icons) - 1) * 8, 64), rgb(NAVY))
         for i, im in enumerate(icons):
             strip.paste(im.resize((64, 64), Image.LANCZOS), (i * 72, 0))
         strip.save(out_dir / "icons_64_strip.png", optimize=True)
         print(out_dir / "icons_64_strip.png")
-    sheet(out_dir, finals)
+    if fresh & set(LABELS):   # the first set's sheet is rewritten only when one of its options was re-rendered
+        sheet(out_dir, finals)
+    if fresh & set(SCENIC) or "icon_A" in fresh:
+        scenic_strip(out_dir, finals)
+        scenic_sheet(out_dir, finals, finals.get("icon_A"))
     return 0
 
 

@@ -18,3 +18,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-21]]: the HUD in block cells (Decide-Now 43 a, HUD first). Lasting notes: [[UI-Playbook]] "Block cells".
 - [[2026-10-21]]: the effects ladder made steep (B46): five new effect kinds, the flourish, the spawn moment, all 35 rows, the pixel sprites. Lasting notes: [[Blocky-Style]].
 - [[2026-10-19]]: World 2 Frostbyte in block cells: the six cold cell materials, the snowfield diorama, six prop notes and the six World 2 aliens one per rung (Mitt to Fenrir, two face options for the hero). Lasting notes: [[Blocky-Style]].
+- [[2026-10-22]]: icon A picked; three scenic thumbnails S1 to S3 for Ethan (the meadow vista, the Starhollow at dusk, the two worlds). Lasting notes: [[Thumbnail-Research]] section 14, [[STORE-PAGE]] section 4.
