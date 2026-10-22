@@ -295,7 +295,7 @@ Luck is one visible number, "Luck x1.0," under the ship bar. Tapping it shows th
 | Weekly Weather and seasonal events | +100% | event window | section 12 |
 | Meteor Shower | +200% server-wide | 3 min | section 5 |
 | Codex page complete | +5% permanent per world page | forever | the collector's reward |
-| Server Luck (purchased) | 2x or 4x, shared by all eight players | 15 min | 249 / 999 Robux, full disclosure, PolicyService gated |
+| Server Luck (purchased) | 2x or 4x, shared by all eight players | 15 min | 249 / 599 Robux, full disclosure, PolicyService gated |
 | Soft pity ("scanner charge") | rises each catch without a Rare+, resets on one | until a Rare+ | shown inside the readout |
 
 **Monetization stance.** Sell shared server luck at launch, as the monetization section already does. A permanent personal luck pass (x1.5 for 299 to 399 Robux) is the Roblox norm and converts well, but it is a probability modifier bought by a kids-skewed audience, so it is listed as a later option, not a launch SKU. If it ships, it needs the same disclosure and PolicyService gate as server luck, and the readout must show it.
@@ -627,7 +627,7 @@ Prices use Roblox's standard anchors (49, 99, 149, 199, 299, 399, 799, 999, 1,69
 | Steady Hands x3 | Dev Product | 79 | Peddler, quests | Fixed bundle |
 | Scrap Magnet x3 | Dev Product | 99 | Peddler, spins | Catch bonus, not station income |
 | Server luck 2x, 15 min | Dev Product | 249 | Meteor Shower, events | Shared by all 8 players; odds shown live; PolicyService gated |
-| Server luck 4x, 15 min | Dev Product | 999 | | Same rules |
+| Server luck 4x, 15 min | Dev Product | 599 | | Same rules. 599 since B51 (was 999): 200 Robux a point of luck against x2's 249, so the bigger pack is the better deal, never a decoy |
 
 **Home**
 

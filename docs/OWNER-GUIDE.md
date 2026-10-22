@@ -172,7 +172,7 @@ The pictures: every item uses an icon file that is already in the game's folder.
 | SteadyHandsx3 | Steady Hands x3 | 79 | Three Steady Hands: wider catch zones for ten minutes each. | `~/Roblox-Alien-Game/assets/icons/SteadyHands.png` |
 | ScrapMagnetx3 | Scrap Magnet x3 | 99 | Three Scrap Magnets: more Scrap per catch for ten minutes each. | `~/Roblox-Alien-Game/assets/icons/ScrapMagnet.png` |
 | ServerLuck2x | Server Luck x2 | 249 | Doubles everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
-| ServerLuck4x | Server Luck x4 | 999 | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
+| ServerLuck4x | Server Luck x4 | 599 (999 until 2026-10-22; to change the live price see `docs/vault/00-start-here/Launch-Steps.md`, the optional step "the 9 Robux Scanner Pulse and the new Server Luck x4 price") | Four times everyone's luck on this planet for 15 minutes. | `~/Roblox-Alien-Game/assets/icons/LuckyCharm.png` |
 | Spins1 | 1 Spin | 49 | One spin of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 | Spins5 | 5 Spins | 199 | Five spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
 | Spins12 | 12 Spins | 399 | Twelve spins of the prize wheel. Every prize and its odds are shown on the wheel. | `~/Roblox-Alien-Game/assets/icons/Gifts.png` |
