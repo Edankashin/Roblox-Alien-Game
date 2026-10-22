@@ -544,8 +544,9 @@ def compose_scenic(raw_dir, shot, meta):
         amount, near = meta["haze"]
         depth = load_depth(raw_dir / f"{shot}_depth.png", (w, h))
         far = meta["far"]
-        t = np.clip((depth * far - near) / max(1.0, far - near), 0, 1) ** 1.25 * amount
-        row = sk[max(0, int(hz * h) - int(24 * k))][None, :, :]   # each column hazes towards its own sky just over the horizon
+        t = np.clip((depth * far - near) / max(1.0, far - near), 0, 1) ** 1.25 * amount * alpha[..., 0]   # the terrain only
+        row = sk[max(0, int(hz * h) - int(24 * k))]   # each column hazes towards its own sky just over the horizon,
+        row = blur(row[None, :, :].repeat(8, axis=0), 30 * k)[4][None, :, :]   # smoothed so a star cell there cannot streak a column
         img = img * (1 - t[..., None]) + row * t[..., None]
     img = grade(img, meta.get("grade"))
     masks = {g: load_mask(raw_dir / f"{shot}_{g.lower()}.png", (w, h)) for g in meta["groups"]}
