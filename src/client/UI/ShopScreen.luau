@@ -46,6 +46,7 @@ local ShelfMath = require(Shared:WaitForChild("ShelfMath"))
 local Builder = require(script.Parent.Builder)
 local Screens = require(script.Parent.Screens)
 local Toast = require(script.Parent.Toast)
+local ScrapGap = require(script.Parent.ScrapGap)
 local State = require(script.Parent.Parent.State)
 local Prefs = require(script.Parent.Parent.Prefs)
 
@@ -181,6 +182,8 @@ local canvasPx = 0
 local cardPx = 0
 local starts: { number } = {}
 local startTabs: { TabView } = {}
+local leftById: { [string]: number } = {} -- the offset that brings each shown card to the left edge (its left less the end pad)
+local pendingFocus: string? = nil -- a card ShopScreen.Focus asked for before the shelf had its first layout
 local maxOffset = 0
 local layoutDirty = true
 local activeTab: TabView? = nil
@@ -345,7 +348,7 @@ local function handleRefusal(kind: "lure" | "gear", id: string, reason: any)
 		local lure, gear = lureDefs[id], GEAR_BY_ID[id]
 		local price = if kind == "lure" then (if lure then lure.scrap else nil) else (if gear then gear.scrap else nil)
 		local held = if State.Has() then State.Get().scrap else 0
-		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
+		ScrapGap.Show(price, held, Theme.Colors.Close)
 	elseif reason == "Locked" then
 		Toast.Show(Strings.TOAST_LOCKED_GEAR:format(scrapName(kind, id)), Theme.Rarity.Common)
 	else
@@ -1028,9 +1031,11 @@ local function layoutShelf()
 	canvasPx = canvas
 	maxOffset = ShelfMath.MaxOffset(canvas, window.X)
 	frame.CanvasSize = UDim2.fromScale(canvas / window.X, 1)
+	table.clear(leftById)
 	for index, view in ipairs(shown) do
 		view.slot.Position = UDim2.fromScale(lefts[index] / canvas, top)
 		view.slot.Size = UDim2.fromScale(widths[index] / canvas, cardH / window.Y)
+		leftById[view.id] = lefts[index] - pad
 	end
 	starts = {}
 	startTabs = {}
@@ -1130,6 +1135,29 @@ local function onTabTap(tab: TabView)
 			return
 		end
 	end
+end
+
+-- Brings one card to the left edge and makes its tab active (ShopScreen.Focus). False while the shelf has no layout yet (the
+-- window had no size), so the caller can wait for it; true otherwise, also when the card is not on the shelf (nothing to show).
+local function applyFocus(id: string): boolean
+	if layoutDirty then
+		layoutShelf()
+	end
+	if windowPx.X <= 0 then
+		return false
+	end
+	local view = viewById[id]
+	local left = leftById[id]
+	if not view or not view.visible or left == nil then
+		return true
+	end
+	for _, tab in ipairs(tabs) do
+		if tab.id == view.category then
+			setActive(tab)
+		end
+	end
+	scrollTo(left)
+	return true
 end
 
 local function refresh()
@@ -1598,6 +1626,11 @@ local function build()
 	frame:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
 		layoutShelf()
 		updateFollow()
+		local focus = pendingFocus
+		if focus and open and windowPx.X > 0 then
+			pendingFocus = nil
+			applyFocus(focus)
+		end
 	end)
 	frame:GetPropertyChangedSignal("CanvasPosition"):Connect(updateFollow)
 	-- Input is read from UserInputService, not from the row: a card's button sinks the events its parent would have heard. A press
@@ -1732,11 +1765,26 @@ function ShopScreen.Open()
 	playEntrance()
 end
 
+-- Opens the Shop (when it is not open already) on one card: its tab turns active and the row scrolls until the card stands at
+-- the left edge (a springy ease, or straight there under Reduced Motion). The Earn faster chip comes here with Scrap Magnet
+-- (UI/ScrapGap, data/Shop EarnFaster, Decision B51). A card that is not on the shelf (no dashboard id yet, held off sale) leaves
+-- the Shop at its start. Opening a card is all it does: a purchase is still the card's own pill, asking the server.
+function ShopScreen.Focus(id: string)
+	if not open then
+		ShopScreen.Open()
+	end
+	if not open then
+		return
+	end
+	pendingFocus = if applyFocus(id) then nil else id
+end
+
 function ShopScreen.Close()
 	if not open then
 		return
 	end
 	open = false
+	pendingFocus = nil
 	stopMotion()
 	hideDetail()
 	local root = gui

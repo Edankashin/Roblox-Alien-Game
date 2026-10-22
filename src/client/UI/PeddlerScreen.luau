@@ -21,10 +21,10 @@ local Lures = require(Shared:WaitForChild("data"):WaitForChild("Lures"))
 local PowerUps = require(Shared:WaitForChild("data"):WaitForChild("PowerUps"))
 local Peddler = require(Shared:WaitForChild("data"):WaitForChild("Peddler"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
-local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
+local ScrapGap = require(script.Parent.ScrapGap)
 local State = require(script.Parent.Parent.State)
 
 local PeddlerScreen = {}
@@ -152,7 +152,7 @@ local function handleRefusal(index: number, reason: any)
 		local offer = if visit then visit.offers[index] else nil
 		local held = if State.Has() then State.Get().scrap else 0
 		local price = if offer then offer.scrap else nil
-		Toast.Show(ShopMath.ShortLine(price, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Colors.Close)
+		ScrapGap.Show(price, held, Theme.Colors.Close)
 	else
 		print(("[%s] PeddlerBuy refused: %s"):format(Config.WorkingTitle, tostring(reason)))
 	end

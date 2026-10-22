@@ -208,6 +208,7 @@ return {
 	TOAST_SLOT_UNLOCKED = "Every station now has %d slots!",
 	TOAST_NOT_ENOUGH_SCRAP = "Not enough Scrap",
 	TOAST_SCRAP_SHORT = "Need %s more Scrap", -- a Scrap price the player cannot pay: the gap (Shared/ShopMath.ShortLine), never a bare refusal
+	TOAST_EARN_FASTER = "Earn faster", -- the chip on that toast (data/Shop EarnFaster): opens the Shop's Boosts shelf at Scrap Magnet
 	TOAST_NO_MATERIAL = "Find %s in the %s",
 	TOAST_NODE_EMPTY = "Nothing here yet",
 	NODE_HIDDEN_HINT = "Only at %s", -- shown on a node's plate while its condition is not met

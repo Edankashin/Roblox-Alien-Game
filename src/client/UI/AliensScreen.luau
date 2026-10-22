@@ -51,12 +51,12 @@ local Sizes = require(Shared:WaitForChild("data"):WaitForChild("Sizes"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
-local ShopMath = require(Shared:WaitForChild("ShopMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local ViewFit = require(Shared:WaitForChild("ViewFit"))
 local Builder = require(script.Parent.Builder)
 local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local Toast = require(script.Parent.Toast)
+local ScrapGap = require(script.Parent.ScrapGap)
 local ReleasePanel = require(script.Parent.ReleasePanel)
 local State = require(script.Parent.Parent.State)
 local HomeRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("HomeRenderer"))
@@ -1360,7 +1360,7 @@ local function buyStorageBay()
 	end
 	if profile.scrap < row.scrap then
 		-- How much more, never a bare refusal (TikTok batch 9 lesson 3).
-		Toast.Show(ShopMath.ShortLine(row.scrap, profile.scrap, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Rarity.Common)
+		ScrapGap.Show(row.scrap, profile.scrap, Theme.Rarity.Common)
 		return
 	end
 	bayBusy = true
@@ -1378,7 +1378,7 @@ local function buyStorageBay()
 		print(("[%s] BuyStorageBay refused: %s"):format(Config.WorkingTitle, refusal))
 		if refusal == "NotEnoughScrap" then
 			local held = if State.Has() then State.Get().scrap else 0
-			Toast.Show(ShopMath.ShortLine(row.scrap, held, Strings.TOAST_SCRAP_SHORT, Strings.TOAST_NOT_ENOUGH_SCRAP, Builder.formatNumber), Theme.Rarity.Common)
+			ScrapGap.Show(row.scrap, held, Theme.Rarity.Common)
 		elseif refusal == "NeedsWorld" then
 			Toast.Show(Strings.TOAST_STORAGE_BAY_NEEDS_WORLD:format(row.world), Theme.Rarity.Common)
 		elseif refusal == "Max" then

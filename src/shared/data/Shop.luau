@@ -213,6 +213,11 @@ return {
 	-- its pixel icon, shown while it can be sold and the player has not bought it (Shared/ShelfMath.OfferShows); a tap opens the
 	-- Shop on the Featured shelf. A one-time, not paid-random item from the Featured launch section (tests/ShelfMath.spec).
 	HudOffer = "StarterPack",
+	-- The Earn faster chip (Decision B51, Decide-Now 48c): after a tap ends at "Need N more Scrap" (Shared/ShopMath.ShortLine), the
+	-- toast carries a one-tap chip that opens the Shop on this item's card (the Boosts shelf scrolled to Scrap Magnet, a catch
+	-- bonus, never Scrap). Shared/ShopMath.OfferBoost decides when; `perSession` caps it, `seconds` is how long that toast stays
+	-- (longer than a plain toast, so there is time to tap). The chip only opens the Shop: no purchase prompt comes from the gap.
+	EarnFaster = { item = "ScrapMagnetx3", perSession = 1, seconds = 5 },
 	StarterChoices = { "Rocklobber", "Zapfinch", "Sparkfox" }, -- the Rares a Starter Pack may pick (World 1)
 	NeverSold = { "Scrap", "DoubleShift", "LuckyCharm", "Mounts", "LegendaryAliens", "EventAliens" },
 	-- The real-currency equivalent shown under every Robux price (GAME_DESIGN 14, "every price shows its real-currency

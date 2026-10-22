@@ -565,7 +565,7 @@ Rule: keep randomness in the free loop; sell certainty, capacity, convenience, a
 
 A single Shop button on the HUD opens a store with six tabs. The Featured tab rotates weekly with the event calendar. Every price shows its real-currency equivalent beneath it. Regional pricing is on from day one (Roblox reports 4 to 10% more total spend and 43 to 52% more pass purchases in discounted regions).
 
-Two rules from the monetization references (TikTok batch 9, 2026-10-21): one offer stands on the HUD itself, the Starter Pack as a top button until it is bought, so a player sees it without opening the Shop; and a tap on a Scrap price the player cannot pay says how much more Scrap is needed, never a bare refusal. Scrap is still never sold to close that gap.
+Two rules from the monetization references (TikTok batch 9, 2026-10-21): one offer stands on the HUD itself, the Starter Pack as a top button until it is bought, so a player sees it without opening the Shop; and a tap on a Scrap price the player cannot pay says how much more Scrap is needed, never a bare refusal. Scrap is still never sold to close that gap. Instead (Decision B51) that line carries one "Earn faster" chip, once a session, which opens the Shop on the Boosts shelf at Scrap Magnet, a catch bonus: never a Scrap pack and never a purchase prompt straight from the gap, and not while a Scrap Magnet runs or waits unused in the power-up bar.
 
 | Tab | What lives there |
 |---|---|
@@ -669,6 +669,7 @@ Offers show up at the moment they make sense and never more than once per sessio
 | Moment | Offer |
 |---|---|
 | First shop open | Starter Pack on Featured |
+| A tap on a Scrap price ends at "Need N more Scrap" | An "Earn faster" chip on that line, opening the Boosts shelf at Scrap Magnet (not while one runs or waits unused; the chip opens the Shop, never a prompt) |
 | All station slots full and an alien is waiting | +1 slot on every station |
 | A module has more than 10 minutes left and the player is idle at camp | Module rush, once |
 | Perfect catch on a Rare or Epic | "Dress up [name]?" hat shelf for that alien |

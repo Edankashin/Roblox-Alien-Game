@@ -19,6 +19,9 @@
 -- with its full time again, so they replay after the moment (a banner drawn a second before the tap is as unwelcome over the
 -- capture bar as one drawn during it). QuietFor adds a timed quiet moment (the module-complete assembly burst, and the tap
 -- on an egg claim or purchase, which starts the calm before the server's answer and its Reveal arrive).
+-- ShowAction is a toast with one chip on its right end, a chunky block button (the only toast a player can tap): the Earn faster
+-- chip after "Need N more Scrap" (UI/ScrapGap, Decision B51). A tap runs the caller's action and takes the toast down; it queues,
+-- hushes and replays like any toast.
 
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
@@ -51,10 +54,18 @@ local TEXT_X = 0.16 -- the text's left edge beside the coloured square
 local TEXT_W = 0.81
 local TEXT_H = 0.7 -- the text box's height, of the toast
 local MAX_LINES = 3 -- a toast never grows past this many lines of text
+-- An action toast's chip: its width and height as shares of the toast, its right edge, and the gap between the text and it.
+local ACTION_W = 0.3
+local ACTION_H = 0.72
+local ACTION_RIGHT = 0.975
+local ACTION_GAP = 0.02
+
+-- The chip an action toast carries: its words, its colour, and what a tap does.
+export type Action = { text: string, color: Color3, onTap: () -> () }
 
 -- A toast or banner that arrived in a quiet moment (or behind one that did). `kind` keys a banner: a newer banner of the
 -- same kind replaces the pending one.
-type Held = { banner: boolean, kind: string, text: string, color: Color3, seconds: number, iconKey: string? }
+type Held = { banner: boolean, kind: string, text: string, color: Color3, seconds: number, iconKey: string?, action: Action? }
 -- A toast or banner on screen, with the item it was drawn from so Hush can put it back in the queue.
 type Entry = { group: CanvasGroup, leaving: boolean, height: number, item: Held }
 
@@ -149,7 +160,9 @@ local function push(item: Held)
 	if not root then
 		return
 	end
-	local text, accent, banner, seconds, iconKey = item.text, item.color, item.banner, item.seconds, item.iconKey
+	local text, accent, banner, seconds, iconKey, action = item.text, item.color, item.banner, item.seconds, item.iconKey, item.action
+	-- The text's right edge, of the toast: short of the chip on an action toast.
+	local textRight = if action then ACTION_RIGHT - ACTION_W - ACTION_GAP else TEXT_X + TEXT_W
 	while #entries >= MAX_VISIBLE do
 		dismiss(entries[1])
 	end
@@ -159,7 +172,7 @@ local function push(item: Held)
 	local minPx: number? = nil
 	if not banner and abs.X > 0 then
 		-- Wrapping: a toast that needs more than one line at the minimum size is taller (its text box is TEXT_H of it).
-		local lines, lineHeight = measureLines(text, TEXT_W * width * abs.X)
+		local lines, lineHeight = measureLines(text, (textRight - TEXT_X) * width * abs.X)
 		if lines > 1 then
 			minPx = lines * lineHeight / TEXT_H
 		end
@@ -242,7 +255,7 @@ local function push(item: Held)
 			text = text,
 			textSize = Theme.TextSize.Body,
 			position = UDim2.fromScale(textX, 0.5),
-			size = UDim2.fromScale(TEXT_X + TEXT_W - textX, TEXT_H),
+			size = UDim2.fromScale(textRight - textX, TEXT_H),
 			anchor = Vector2.new(0, 0.5),
 			xAlign = Enum.TextXAlignment.Left,
 			zIndex = top,
@@ -250,6 +263,28 @@ local function push(item: Held)
 	end
 
 	local entry: Entry = { group = group, leaving = false, height = height, item = item }
+	if action and not banner then
+		Builder.blockButton({
+			parent = pill,
+			name = "Action",
+			text = action.text,
+			color = action.color,
+			position = UDim2.fromScale(ACTION_RIGHT, 0.5),
+			size = UDim2.fromScale(ACTION_W, ACTION_H),
+			anchor = Vector2.new(1, 0.5),
+			textSize = Theme.TextSize.Min,
+			rows = Builder.blockButtonRows(ACTION_H * height),
+			cells = false,
+			hit = true,
+			zIndex = top + 1,
+		}, function()
+			if entry.leaving then
+				return
+			end
+			dismiss(entry)
+			action.onTap()
+		end)
+	end
 	table.insert(live, entry)
 	local info = TweenInfo.new(Theme.Tween.Open, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 	if banner and panelOpen ~= nil and panelOpen() then
@@ -392,6 +427,19 @@ function Toast.Show(text: string, color: Color3?, iconKey: string?)
 	show({ banner = false, kind = "", text = text, color = color or Theme.Colors.Featured, seconds = Theme.Tween.Toast, iconKey = iconKey })
 end
 
+-- A toast with one tappable chip on its right end (see the header): `seconds` how long it stays (nil: a plain toast's time).
+function Toast.ShowAction(text: string, color: Color3?, action: Action, seconds: number?)
+	show({
+		banner = false,
+		kind = "",
+		text = text,
+		color = color or Theme.Colors.Featured,
+		seconds = seconds or Theme.Tween.Toast,
+		iconKey = nil,
+		action = action,
+	})
+end
+
 -- Where the stack starts, in screen Scale; nil restores the default. Live toasts re-flow.
 function Toast.SetTop(y: number?)
 	local next = y or TOP_DEFAULT
@@ -411,7 +459,7 @@ end
 -- ("announce", "peddler", "shower", "rush"): in a quiet moment a newer banner of the same kind replaces the one
 -- waiting; without a kind the text is the kind, so only a repeat of the same line replaces.
 function Toast.Banner(text: string, color: Color3, seconds: number?, kind: string?)
-	show({ banner = true, kind = kind or text, text = text, color = color, seconds = seconds or Theme.Tween.Toast, iconKey = nil })
+	show({ banner = true, kind = kind or text, text = text, color = color, seconds = seconds or Theme.Tween.Toast, iconKey = nil, action = nil })
 end
 
 return Toast
