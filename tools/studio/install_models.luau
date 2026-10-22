@@ -64,33 +64,37 @@ local ASSET_IDS: { [string]: number } = {
 	Boulder = 116759392207271,
 	BuildStation = 102869559733997,
 	Bush = 131412714992852,
-	Buzzlebee = 119752658923886,
-	Capybubble = 84603056756412,
+	Buzzlebee = 90983073121915,
+	CampCrate = 70497878511393,
+	CampFlag = 95659454055737,
+	Campfire = 122461350675998,
+	Capybubble = 107898420617031,
 	CaveMouth = 132103896359941,
-	Chipmole = 117467113100506,
+	Chipmole = 99728350452516,
 	CrashWreck = 74817192673896,
-	Drippo = 106318594226249,
-	Emberchin = 135851602205855,
+	Drippo = 85644366482246,
+	Emberchin = 121001466165205,
 	Fence = 102938140774553,
-	Fenripup = 136522039433595,
+	Fenripup = 75070069889969,
 	Flag = 90062331463442,
-	Flapsicle = 115082896046437,
+	Flapsicle = 101851912195987,
 	FlowerPatch = 135752098587893,
-	Flufflet = 131464257898009,
+	Flufflet = 83783025796871,
 	Fountain = 83951227918407,
-	Frostfang = 117709206870484,
+	Frostfang = 106945588536399,
 	FrozenLog = 85556402993990,
-	Gaiabloom = 95423002586391,
+	Gaiabloom = 98176134122001,
 	GatherStation = 109164418132495,
 	GeyserCone = 105425785899723,
 	GeyserVent = 112138566520848,
-	Glimmo = 71855079356845,
-	Gloomoth = 76597842100680,
+	Glimmo = 86858457841953,
+	Gloomoth = 118890551905521,
 	GlowFern = 125072432310618,
 	GlowcapGiant = 117920330924486,
 	GlowcapGiantBlue = 89013956645212,
 	GlowcapGiantPink = 113989154132526,
 	GlowcapSmall = 94355790262720,
+	GrottoCrystal = 135279166472081,
 	HabitatFrostbyte = 89002985688787,
 	HabitatVerdant = 115551193652891,
 	HeaterLamp = 90164225940384,
@@ -99,11 +103,14 @@ local ASSET_IDS: { [string]: number } = {
 	IceLantern = 121933457814748,
 	IceRock = 76857079544887,
 	IceRockB = 134221683669516,
+	IceSignArmHigh = 110560294652685,
+	IceSignArmLow = 84897250093660,
+	IceSignArmMid = 123109088414678,
 	IceSpire = 87856482527354,
 	Icicles = 116751160175551,
-	Kettlepuff = 86496760967732,
+	Kettlepuff = 89382463269455,
 	Lantern = 113167192482454,
-	Lanternewt = 101568412058372,
+	Lanternewt = 115058641916832,
 	LilyPad = 122673551171714,
 	Log = 131627870594501,
 	MeadowRock = 88678220176697,
@@ -114,46 +121,50 @@ local ASSET_IDS: { [string]: number } = {
 	MoonTree = 132229763849776,
 	MoonTreeB = 135628295699646,
 	MossStone = 72806329723798,
-	Mossbop = 139692484199899,
+	Mossbop = 76286989342632,
 	Mushroom = 72020219398485,
-	Nebulyn = 111058708181183,
-	Panpipe = 109050287306710,
+	Nebulyn = 112291898528534,
+	Panpipe = 93548551011238,
 	PathLantern = 130101963365955,
-	Pebblet = 131113021360381,
+	Pebblet = 120711912140485,
 	Pedestal = 98463678388823,
-	Pengoo = 109154104596844,
+	Pengoo = 75587289427504,
 	Planter = 114986346522730,
-	Puffpuff = 138419220916583,
-	Radish = 105003378884357,
+	Puffpuff = 128760821641478,
+	Radish = 118232011556551,
 	Reeds = 122578038240807,
-	Reindazzle = 84892422323615,
-	Rocklobber = 74100842685887,
+	Reindazzle = 81819705890422,
+	Rocklobber = 91046356996222,
 	RoomCabin = 105761041582148,
 	RoomDome = 117777283592193,
 	RoomTower = 108272738122563,
-	Shellberg = 124257490870470,
-	Shimmerlynx = 133495730477978,
+	Shellberg = 98400901055778,
+	Shimmerlynx = 97482261000062,
 	ShipHull = 81470422409500,
 	Shrine = 76438506078117,
 	ShrineStone = 78669584933977,
+	SightPost = 93919081600426,
+	SignArmHigh = 137349550790300,
+	SignArmLow = 129431571109068,
+	SignArmMid = 71757621384434,
 	Signpost = 74047329484786,
-	Skaddle = 130925559617254,
-	Snailbyte = 116652291605113,
+	Skaddle = 138821009662968,
+	Snailbyte = 127624587145029,
 	SnowBush = 121498439469799,
 	SnowDrift = 81110116382095,
 	SnowPine = 113692517294473,
 	SnowPineB = 140047894378836,
-	Snowbun = 79648695514572,
+	Snowbun = 112987344531192,
 	SparkStation = 132831465418886,
-	Sparkfox = 90329581788192,
-	Spookum = 75835527523202,
+	Sparkfox = 129902686231899,
+	Spookum = 107247366211382,
 	StarIsland = 94576361220525,
 	SteppingStone = 129219870310799,
-	Thunderhog = 111355227047635,
-	Toastoad = 126160728707927,
-	Twiglet = 123980274233910,
-	Wisplet = 93803172018288,
-	Zapfinch = 76804173153353,
+	Thunderhog = 138702894272903,
+	Toastoad = 76456734696236,
+	Twiglet = 137645911740591,
+	Wisplet = 110004797552628,
+	Zapfinch = 102395774185067,
 }
 local PROP_NAMES: { [string]: boolean } = {
 	ArchBridge = true,
@@ -347,7 +358,7 @@ type BlockCellRow = { assetId: number, cellMap: number, faceMap: number, parts: 
 -- BEGIN BLOCK-CELL PASTE: output of `python3 -I tools/blocky/export_models.py --emit-luau`
 local BLOCK_CELL: { [string]: BlockCellRow } = {
 	Buzzlebee = {
-		assetId = 119752658923886, cellMap = 128693248108922, faceMap = 134752637485845,
+		assetId = 90983073121915, cellMap = 128693248108922, faceMap = 137311837248040,
 		parts = {
 			{ name = "Body", hex = "FFC83D", neon = false, map = "cell" },
 			{ name = "antenna", hex = "FF6B9A", neon = false, map = "cell" },
@@ -358,7 +369,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Capybubble = {
-		assetId = 84603056756412, cellMap = 101294572473565, faceMap = 88422510721978,
+		assetId = 107898420617031, cellMap = 101294572473565, faceMap = 82136169363124,
 		parts = {
 			{ name = "Body", hex = "E0C3A0", neon = false, map = "cell" },
 			{ name = "earL", hex = "5C4A2A", neon = false, map = "cell" },
@@ -370,7 +381,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Chipmole = {
-		assetId = 117467113100506, cellMap = 77446403761312, faceMap = 130738520185829,
+		assetId = 99728350452516, cellMap = 77446403761312, faceMap = 95913860129053,
 		parts = {
 			{ name = "Body", hex = "5B6B85", neon = false, map = "cell" },
 			{ name = "pickL", hex = "3FD3F7", neon = false, map = "cell" },
@@ -380,7 +391,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Drippo = {
-		assetId = 106318594226249, cellMap = 91255509702154, faceMap = 118791000135182,
+		assetId = 85644366482246, cellMap = 91255509702154, faceMap = 101118448833680,
 		parts = {
 			{ name = "Body", hex = "A9D6F5", neon = false, map = "cell" },
 			{ name = "armR", hex = "2F5F9F", neon = false, map = "cell" },
@@ -390,7 +401,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Emberchin = {
-		assetId = 135851602205855, cellMap = 81940390116779, faceMap = 95587213304879,
+		assetId = 121001466165205, cellMap = 81940390116779, faceMap = 130015865753912,
 		parts = {
 			{ name = "Body", hex = "73365A", neon = false, map = "cell" },
 			{ name = "cinderR", hex = "FF8C2E", neon = false, map = "cell" },
@@ -402,7 +413,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Fenripup = {
-		assetId = 136522039433595, cellMap = 88604149153432, faceMap = 127715323043966,
+		assetId = 75070069889969, cellMap = 88604149153432, faceMap = 73195796678331,
 		parts = {
 			{ name = "Body", hex = "4B3D8F", neon = false, map = "cell" },
 			{ name = "Glow", hex = "AEB8FF", neon = true, map = "" },
@@ -421,7 +432,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Flapsicle = {
-		assetId = 115082896046437, cellMap = 133671891939282, faceMap = 103503309558769,
+		assetId = 101851912195987, cellMap = 133671891939282, faceMap = 112842277122541,
 		parts = {
 			{ name = "Body", hex = "3F4C8C", neon = false, map = "cell" },
 			{ name = "earL", hex = "3F4C8C", neon = false, map = "cell" },
@@ -433,7 +444,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Flufflet = {
-		assetId = 131464257898009, cellMap = 132824877532578, faceMap = 128787616337328,
+		assetId = 83783025796871, cellMap = 132824877532578, faceMap = 136415585203846,
 		parts = {
 			{ name = "Body", hex = "F2F6FA", neon = false, map = "cell" },
 			{ name = "ball", hex = "9CC3E0", neon = false, map = "cell" },
@@ -444,7 +455,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Frostfang = {
-		assetId = 117709206870484, cellMap = 122483013101607, faceMap = 122856447150083,
+		assetId = 106945588536399, cellMap = 122483013101607, faceMap = 78193673813294,
 		parts = {
 			{ name = "Body", hex = "4F9BD8", neon = false, map = "cell" },
 			{ name = "Glow", hex = "2ED3F7", neon = true, map = "" },
@@ -459,7 +470,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Gaiabloom = {
-		assetId = 95423002586391, cellMap = 127928382075210, faceMap = 90267402956971,
+		assetId = 98176134122001, cellMap = 127928382075210, faceMap = 132302858833968,
 		parts = {
 			{ name = "Body", hex = "F0E6CE", neon = false, map = "cell" },
 			{ name = "Glow", hex = "F0287E", neon = true, map = "" },
@@ -476,7 +487,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Glimmo = {
-		assetId = 71855079356845, cellMap = 74579049135613, faceMap = 127963863488958,
+		assetId = 86858457841953, cellMap = 74579049135613, faceMap = 90393874594798,
 		parts = {
 			{ name = "Body", hex = "4FCFC0", neon = false, map = "cell" },
 			{ name = "bulb", hex = "FFE566", neon = false, map = "cell" },
@@ -487,7 +498,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Gloomoth = {
-		assetId = 76597842100680, cellMap = 116034763012203, faceMap = 136969499307426,
+		assetId = 118890551905521, cellMap = 116034763012203, faceMap = 72706783678772,
 		parts = {
 			{ name = "Body", hex = "8C6FB5", neon = false, map = "cell" },
 			{ name = "antennaL", hex = "B832E8", neon = true, map = "" },
@@ -501,7 +512,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Kettlepuff = {
-		assetId = 86496760967732, cellMap = 110248563118243, faceMap = 90534649458931,
+		assetId = 89382463269455, cellMap = 110248563118243, faceMap = 129085282846385,
 		parts = {
 			{ name = "Body", hex = "F5EDE0", neon = false, map = "cell" },
 			{ name = "floatR", hex = "F5EDE0", neon = false, map = "cell" },
@@ -512,7 +523,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Lanternewt = {
-		assetId = 101568412058372, cellMap = 128733646857953, faceMap = 112723067442910,
+		assetId = 115058641916832, cellMap = 128733646857953, faceMap = 136408703590879,
 		parts = {
 			{ name = "Body", hex = "F26B3A", neon = false, map = "cell" },
 			{ name = "gillL", hex = "4A2638", neon = false, map = "cell" },
@@ -522,7 +533,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Mossbop = {
-		assetId = 139692484199899, cellMap = 87836738289077, faceMap = 119699561381514,
+		assetId = 76286989342632, cellMap = 87836738289077, faceMap = 89438306939577,
 		parts = {
 			{ name = "Body", hex = "6CCB5F", neon = false, map = "cell" },
 			{ name = "floatR", hex = "D9F36B", neon = false, map = "cell" },
@@ -531,7 +542,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Nebulyn = {
-		assetId = 111058708181183, cellMap = 124863958086054, faceMap = 122877140791442,
+		assetId = 112291898528534, cellMap = 124863958086054, faceMap = 78605573120182,
 		parts = {
 			{ name = "Body", hex = "6B4EC2", neon = false, map = "cell" },
 			{ name = "Glow", hex = "FFF3B0", neon = true, map = "" },
@@ -548,7 +559,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Panpipe = {
-		assetId = 109050287306710, cellMap = 132372087186562, faceMap = 90988271868917,
+		assetId = 93548551011238, cellMap = 132372087186562, faceMap = 95813780358437,
 		parts = {
 			{ name = "Body", hex = "4A4166", neon = false, map = "cell" },
 			{ name = "Glow", hex = "9B5CFF", neon = true, map = "" },
@@ -567,7 +578,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Pebblet = {
-		assetId = 131113021360381, cellMap = 110562673033118, faceMap = 110653791636816,
+		assetId = 120711912140485, cellMap = 110562673033118, faceMap = 74579668010165,
 		parts = {
 			{ name = "Body", hex = "C4B9A6", neon = false, map = "cell" },
 			{ name = "cairnR", hex = "5A5048", neon = false, map = "cell" },
@@ -577,7 +588,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Pengoo = {
-		assetId = 109154104596844, cellMap = 75649084888199, faceMap = 137808845179214,
+		assetId = 75587289427504, cellMap = 75649084888199, faceMap = 106375707270260,
 		parts = {
 			{ name = "Body", hex = "2B3F5C", neon = false, map = "cell" },
 			{ name = "pack", hex = "FFA63D", neon = false, map = "cell" },
@@ -588,7 +599,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Puffpuff = {
-		assetId = 138419220916583, cellMap = 73394681523898, faceMap = 127346895514139,
+		assetId = 128760821641478, cellMap = 73394681523898, faceMap = 94739602351822,
 		parts = {
 			{ name = "Body", hex = "F4F1E8", neon = false, map = "cell" },
 			{ name = "floatR", hex = "F4F1E8", neon = false, map = "cell" },
@@ -599,7 +610,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Radish = {
-		assetId = 105003378884357, cellMap = 111532604962185, faceMap = 126873920275141,
+		assetId = 118232011556551, cellMap = 111532604962185, faceMap = 131372874937049,
 		parts = {
 			{ name = "Body", hex = "D7265C", neon = false, map = "cell" },
 			{ name = "frondL", hex = "2CC5B2", neon = false, map = "cell" },
@@ -618,7 +629,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Reindazzle = {
-		assetId = 84892422323615, cellMap = 106765933193978, faceMap = 104515052157037,
+		assetId = 81819705890422, cellMap = 106765933193978, faceMap = 111147116820289,
 		parts = {
 			{ name = "Body", hex = "A8805A", neon = false, map = "cell" },
 			{ name = "chimeL", hex = "A8E4FF", neon = false, map = "cell" },
@@ -631,7 +642,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Rocklobber = {
-		assetId = 74100842685887, cellMap = 100652787863233, faceMap = 125035995396781,
+		assetId = 91046356996222, cellMap = 100652787863233, faceMap = 91599993746426,
 		parts = {
 			{ name = "Body", hex = "C8553D", neon = false, map = "cell" },
 			{ name = "antennaR", hex = "A39E94", neon = false, map = "cell" },
@@ -644,7 +655,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Shellberg = {
-		assetId = 124257490870470, cellMap = 103486202857780, faceMap = 85435650213859,
+		assetId = 98400901055778, cellMap = 103486202857780, faceMap = 106242584652958,
 		parts = {
 			{ name = "Body", hex = "3FBFB0", neon = false, map = "cell" },
 			{ name = "Glow", hex = "2ED3F7", neon = true, map = "" },
@@ -658,7 +669,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Shimmerlynx = {
-		assetId = 133495730477978, cellMap = 100995364175378, faceMap = 90724531592827,
+		assetId = 97482261000062, cellMap = 100995364175378, faceMap = 138781625479543,
 		parts = {
 			{ name = "Body", hex = "C8C2F0", neon = false, map = "cell" },
 			{ name = "crest", hex = "9D7CFF", neon = true, map = "" },
@@ -673,7 +684,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Skaddle = {
-		assetId = 130925559617254, cellMap = 89516848138318, faceMap = 73589809628299,
+		assetId = 138821009662968, cellMap = 89516848138318, faceMap = 116741755641603,
 		parts = {
 			{ name = "Body", hex = "F4F7FA", neon = false, map = "cell" },
 			{ name = "Glow", hex = "4A55E8", neon = true, map = "" },
@@ -691,7 +702,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Snailbyte = {
-		assetId = 116652291605113, cellMap = 133509775708088, faceMap = 96759831498668,
+		assetId = 127624587145029, cellMap = 133509775708088, faceMap = 81584769439486,
 		parts = {
 			{ name = "Body", hex = "9FD9A6", neon = false, map = "cell" },
 			{ name = "dishR", hex = "C9803E", neon = false, map = "cell" },
@@ -701,7 +712,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Snowbun = {
-		assetId = 79648695514572, cellMap = 116823320284144, faceMap = 103401756992785,
+		assetId = 112987344531192, cellMap = 116823320284144, faceMap = 88833999114939,
 		parts = {
 			{ name = "Body", hex = "B4A9E6", neon = false, map = "cell" },
 			{ name = "earL", hex = "B4A9E6", neon = false, map = "cell" },
@@ -712,7 +723,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Sparkfox = {
-		assetId = 90329581788192, cellMap = 92155920456472, faceMap = 89653100429080,
+		assetId = 129902686231899, cellMap = 92155920456472, faceMap = 86129235005522,
 		parts = {
 			{ name = "Body", hex = "FF7A30", neon = false, map = "cell" },
 			{ name = "earL", hex = "FF7A30", neon = false, map = "cell" },
@@ -724,7 +735,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Spookum = {
-		assetId = 75835527523202, cellMap = 102578211007674, faceMap = 70866152913806,
+		assetId = 107247366211382, cellMap = 102578211007674, faceMap = 106928205674360,
 		parts = {
 			{ name = "Body", hex = "E9E6FF", neon = false, map = "cell" },
 			{ name = "Glow", hex = "9D6BFF", neon = true, map = "" },
@@ -739,7 +750,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Thunderhog = {
-		assetId = 111355227047635, cellMap = 79789189923150, faceMap = 118770893593283,
+		assetId = 138702894272903, cellMap = 79789189923150, faceMap = 80992519326881,
 		parts = {
 			{ name = "Body", hex = "8B5CF6", neon = false, map = "cell" },
 			{ name = "antennaL", hex = "FFF27A", neon = true, map = "" },
@@ -753,7 +764,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Toastoad = {
-		assetId = 126160728707927, cellMap = 75160205052760, faceMap = 111278435154177,
+		assetId = 76456734696236, cellMap = 75160205052760, faceMap = 132068667511975,
 		parts = {
 			{ name = "Body", hex = "E8713A", neon = false, map = "cell" },
 			{ name = "belly", hex = "FFC94D", neon = false, map = "cell" },
@@ -765,7 +776,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Twiglet = {
-		assetId = 123980274233910, cellMap = 81835984508717, faceMap = 122690094721065,
+		assetId = 137645911740591, cellMap = 81835984508717, faceMap = 125849274342039,
 		parts = {
 			{ name = "Body", hex = "9C6B3F", neon = false, map = "cell" },
 			{ name = "antenna", hex = "4A2E1A", neon = false, map = "cell" },
@@ -775,7 +786,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Wisplet = {
-		assetId = 93803172018288, cellMap = 86748887022809, faceMap = 138726659360979,
+		assetId = 110004797552628, cellMap = 86748887022809, faceMap = 123249151171223,
 		parts = {
 			{ name = "Body", hex = "8FDCFF", neon = false, map = "cell" },
 			{ name = "floatL", hex = "8FDCFF", neon = false, map = "cell" },
@@ -788,7 +799,7 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		},
 	},
 	Zapfinch = {
-		assetId = 76804173153353, cellMap = 120674569637136, faceMap = 131606530664579,
+		assetId = 102395774185067, cellMap = 120674569637136, faceMap = 140081956415430,
 		parts = {
 			{ name = "Body", hex = "4FA8E8", neon = false, map = "cell" },
 			{ name = "arc", hex = "FFEE55", neon = true, map = "" },
@@ -859,7 +870,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	CampCrate = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 70497878511393, cellMap = 71193549662506, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "C08A55", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "8C5E32", neon = false, map = "cell" },
@@ -868,7 +879,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	CampFlag = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 95659454055737, cellMap = 91648705460230, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "FFC83D", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "6E7690", neon = false, map = "cell" },
@@ -878,7 +889,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	Campfire = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 122461350675998, cellMap = 95366736176150, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "FF8A2A", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
@@ -1031,7 +1042,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	GrottoCrystal = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 135279166472081, cellMap = 74073549986650, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "A8F0FA", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "6E6A78", neon = false, map = "cell" },
@@ -1116,7 +1127,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	IceSignArmHigh = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 110560294652685, cellMap = 106459290073453, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
@@ -1125,7 +1136,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	IceSignArmLow = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 84897250093660, cellMap = 134033316780958, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
@@ -1134,7 +1145,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	IceSignArmMid = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 123109088414678, cellMap = 136256810815922, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
@@ -1362,7 +1373,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	SightPost = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 93919081600426, cellMap = 132801105576507, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "A8794A", neon = false, map = "cell" },
 			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
@@ -1371,7 +1382,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	SignArmHigh = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 137349550790300, cellMap = 117532531498029, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "CBC2EE", neon = false, map = "cell" },
@@ -1379,7 +1390,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	SignArmLow = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 129431571109068, cellMap = 127243664653672, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
@@ -1387,7 +1398,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 		},
 	},
 	SignArmMid = {
-		assetId = 0, cellMap = 0, faceMap = 0,
+		assetId = 71757621384434, cellMap = 125395846811798, faceMap = 0,
 		parts = {
 			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "3FA2E6", neon = false, map = "cell" },

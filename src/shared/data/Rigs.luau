@@ -27,7 +27,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.08, period = 1.2, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
+			part = "FacePlate", image = 137311837248040, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -43,7 +43,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 82136169363124, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -70,7 +70,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 2.2, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 80, columns = 3, frames = 3,
+			part = "FacePlate", image = 95913860129053, frameWidth = 224, frameHeight = 80, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -84,7 +84,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.05, period = 1.2, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
+			part = "FacePlate", image = 101118448833680, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -100,7 +100,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.06, period = 1, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
+			part = "FacePlate", image = 130015865753912, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -122,7 +122,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 13,
+			part = "FacePlate", image = 73195796678331, frameWidth = 224, frameHeight = 112, columns = 4, frames = 13,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10, 11, 12 },
 			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 8,
 		},
@@ -159,7 +159,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 4, period = 3.2, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
+			part = "FacePlate", image = 112842277122541, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -174,7 +174,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 2.8, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 72, columns = 3, frames = 3,
+			part = "FacePlate", image = 136415585203846, frameWidth = 224, frameHeight = 72, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -192,7 +192,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 1.8, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 78193673813294, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -228,7 +228,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.025, period = 3.6, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 11,
+			part = "FacePlate", image = 132302858833968, frameWidth = 224, frameHeight = 96, columns = 4, frames = 11,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
 			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
 		},
@@ -261,7 +261,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.05, period = 2.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
+			part = "FacePlate", image = 90393874594798, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -279,7 +279,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 3, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 1.8, phase = 0.3, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
+			part = "FacePlate", image = 72706783678772, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -311,7 +311,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 3, period = 3, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
+			part = "FacePlate", image = 129085282846385, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -325,7 +325,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.6, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
+			part = "FacePlate", image = 136408703590879, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -338,7 +338,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 2.6, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
+			part = "FacePlate", image = 89438306939577, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -358,7 +358,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3.2, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 4, phase = 0.25, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 4, frames = 11,
+			part = "FacePlate", image = 78605573120182, frameWidth = 224, frameHeight = 128, columns = 4, frames = 11,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
 		},
@@ -398,7 +398,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.025, period = 3.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 13,
+			part = "FacePlate", image = 95813780358437, frameWidth = 224, frameHeight = 96, columns = 4, frames = 13,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10, 11, 12 },
 			blinkEvery = 6, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 6,
 		},
@@ -430,7 +430,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.05, period = 0.8, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
+			part = "FacePlate", image = 74579668010165, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -445,7 +445,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 4, period = 2.2, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
+			part = "FacePlate", image = 106375707270260, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -460,7 +460,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3.2, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
+			part = "FacePlate", image = 94739602351822, frameWidth = 224, frameHeight = 112, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 5.2, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -483,7 +483,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.08, period = 3, phase = 0, axis = "y" }, { kind = "sway", amp = 2, period = 6, phase = 0.2, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 13,
+			part = "FacePlate", image = 131372874937049, frameWidth = 224, frameHeight = 112, columns = 4, frames = 13,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10, 11, 12 },
 			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 8,
 		},
@@ -519,7 +519,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.06, period = 1.5, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 111147116820289, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -551,7 +551,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 3, period = 2.8, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 4, frames = 5,
+			part = "FacePlate", image = 91599993746426, frameWidth = 224, frameHeight = 128, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4.8, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -581,7 +581,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 4.5, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
+			part = "FacePlate", image = 106242584652958, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 6, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -614,7 +614,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.8, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
+			part = "FacePlate", image = 138781625479543, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -649,7 +649,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.08, period = 2.8, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 11,
+			part = "FacePlate", image = 116741755641603, frameWidth = 224, frameHeight = 112, columns = 4, frames = 11,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = { 5, 6, 7, 8, 9, 10 },
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 2.5, glintLength = 0.3, cycleFps = 6,
 		},
@@ -681,7 +681,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.8, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
+			part = "FacePlate", image = 81584769439486, frameWidth = 224, frameHeight = 128, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -696,7 +696,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.05, period = 1, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 80, columns = 3, frames = 3,
+			part = "FacePlate", image = 88833999114939, frameWidth = 224, frameHeight = 80, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 3.6, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -712,7 +712,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 86129235005522, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -743,7 +743,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.04, period = 3, phase = 0, axis = "y" }, { kind = "bob", amp = 0.06, period = 3.6, phase = 0.3, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 106928205674360, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -776,7 +776,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.04, period = 1.1, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
+			part = "FacePlate", image = 80992519326881, frameWidth = 224, frameHeight = 112, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 4.5, blinkLength = 0.18, glintEvery = 3, glintLength = 0.3, cycleFps = 0,
 		},
@@ -807,7 +807,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 3, period = 2.6, phase = 0, axis = "x" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
+			part = "FacePlate", image = 132068667511975, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 5, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -821,7 +821,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "sway", amp = 3, period = 2.4, phase = 0, axis = "z" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
+			part = "FacePlate", image = 125849274342039, frameWidth = 224, frameHeight = 96, columns = 3, frames = 3,
 			open = 0, half = 1, closed = 2, glint = {}, cycle = {},
 			blinkEvery = 4.4, blinkLength = 0.18, glintEvery = 0, glintLength = 0, cycleFps = 0,
 		},
@@ -838,7 +838,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "squash", amp = 0.06, period = 1.4, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 144, columns = 4, frames = 5,
+			part = "FacePlate", image = 123249151171223, frameWidth = 224, frameHeight = 144, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 3.4, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
@@ -869,7 +869,7 @@ local species: { [string]: Types.RigRow } = {
 		},
 		root = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0, axis = "y" } },
 		face = {
-			part = "FacePlate", image = 0, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
+			part = "FacePlate", image = 140081956415430, frameWidth = 224, frameHeight = 96, columns = 4, frames = 5,
 			open = 0, half = 1, closed = 2, glint = { 3, 4 }, cycle = {},
 			blinkEvery = 3.8, blinkLength = 0.18, glintEvery = 3.5, glintLength = 0.3, cycleFps = 0,
 		},
