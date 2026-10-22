@@ -185,6 +185,11 @@ local starts: { number } = {}
 local startTabs: { TabView } = {}
 local leftById: { [string]: number } = {} -- the offset that brings each shown card to the left edge (its left less the end pad)
 local pendingFocus: string? = nil -- a card ShopScreen.Focus asked for before the shelf had its first layout
+-- The card a tab tap or ShopScreen.Focus brought to the left edge, until the player moves the row. A relayout puts it back there:
+-- cards before it can appear after the scroll started (the purchases and the policy land after Open), which moves every card
+-- right while the scroll's target stays in pixels.
+local anchorId: string? = nil
+local startIds: { string } = {}
 local maxOffset = 0
 local layoutDirty = true
 local activeTab: TabView? = nil
@@ -1008,7 +1013,8 @@ local function layoutShelf()
 		return
 	end
 	local window = frame.AbsoluteWindowSize
-	if window.X <= 0 or window.Y <= 0 then
+	local stage = (frame.Parent :: GuiObject).AbsoluteSize
+	if window.X <= 0 or window.Y <= 0 or stage.X <= 0 or stage.Y <= 0 then
 		return
 	end
 	layoutDirty = false
@@ -1032,7 +1038,9 @@ local function layoutShelf()
 	local canvas = math.max(total, window.X)
 	canvasPx = canvas
 	maxOffset = ShelfMath.MaxOffset(canvas, window.X)
-	frame.CanvasSize = UDim2.fromScale(canvas / window.X, 1)
+	-- CanvasSize's Scale is relative to the shelf's PARENT (the stage), not to the shelf, so it is converted through the
+	-- stage's pixels; the shelf is narrower than the stage since the arrows got their gutters.
+	frame.CanvasSize = UDim2.fromScale(canvas / stage.X, window.Y / stage.Y)
 	table.clear(leftById)
 	for index, view in ipairs(shown) do
 		view.slot.Position = UDim2.fromScale(lefts[index] / canvas, top)
@@ -1041,12 +1049,14 @@ local function layoutShelf()
 	end
 	starts = {}
 	startTabs = {}
+	startIds = {}
 	for _, tab in ipairs(tabs) do
 		if tab.visible then
 			for index, view in ipairs(shown) do
 				if view.category == tab.id then
 					table.insert(starts, lefts[index] - pad)
 					table.insert(startTabs, tab)
+					table.insert(startIds, view.id)
 					break
 				end
 			end
@@ -1125,7 +1135,25 @@ end
 local function scrollBy(delta: number)
 	local frame = shelf
 	if frame then
+		anchorId = nil
 		scrollTo(frame.CanvasPosition.X + delta)
+	end
+end
+
+-- After a relayout: the anchored card back at the left edge, by retargeting a running scroll or, once it has ended, straight
+-- there (the cards moved under the row, so this is no jump the player sees as one).
+local function reanchor()
+	local frame, id = shelf, anchorId
+	if not frame or not id or not open then
+		return
+	end
+	local left = leftById[id]
+	if left == nil then
+		anchorId = nil
+	elseif scrollTween then
+		scrollTo(left)
+	else
+		frame.CanvasPosition = Vector2.new(ShelfMath.ScrollTarget(left, maxOffset), 0)
 	end
 end
 
@@ -1133,6 +1161,7 @@ local function onTabTap(tab: TabView)
 	for index, entry in ipairs(startTabs) do
 		if entry == tab then
 			setActive(tab)
+			anchorId = startIds[index]
 			scrollTo(starts[index])
 			return
 		end
@@ -1158,6 +1187,7 @@ local function applyFocus(id: string): boolean
 			setActive(tab)
 		end
 	end
+	anchorId = id
 	scrollTo(left)
 	return true
 end
@@ -1193,6 +1223,7 @@ local function refresh()
 	if layoutDirty then
 		layoutShelf()
 		updateFollow()
+		reanchor()
 	end
 end
 
@@ -1629,6 +1660,7 @@ local function build()
 	frame:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
 		layoutShelf()
 		updateFollow()
+		reanchor()
 		local focus = pendingFocus
 		if focus and open and windowPx.X > 0 then
 			pendingFocus = nil
@@ -1639,13 +1671,17 @@ local function build()
 	-- Input is read from UserInputService, not from the row: a card's button sinks the events its parent would have heard. A press
 	-- takes the row back from a running tab scroll (a tap on a tab starts its scroll on release, after this); the wheel scrolls it.
 	UserInputService.InputBegan:Connect(function(input: InputObject)
-		if open and scrollTween and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-			stopScroll()
+		if open and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+			anchorId = nil -- the player has the row now; a tab or chip tap sets it again on release
+			if scrollTween then
+				stopScroll()
+			end
 		end
 	end)
 	UserInputService.InputChanged:Connect(function(input: InputObject)
 		local card = detailLayer
 		if open and input.UserInputType == Enum.UserInputType.MouseWheel and not (card and card.Visible) then
+			anchorId = nil
 			stopScroll()
 			local x = ShelfMath.ScrollTarget(frame.CanvasPosition.X - input.Position.Z * MOTION.WheelStep * windowPx.X, maxOffset)
 			frame.CanvasPosition = Vector2.new(x, 0)
@@ -1758,6 +1794,7 @@ function ShopScreen.Open()
 	end
 	hideDetail()
 	activeTab = nil
+	anchorId = nil
 	layoutDirty = true
 	refresh()
 	root.Enabled = true
@@ -1789,6 +1826,7 @@ function ShopScreen.Close()
 	end
 	open = false
 	pendingFocus = nil
+	anchorId = nil
 	stopMotion()
 	hideDetail()
 	local root = gui
