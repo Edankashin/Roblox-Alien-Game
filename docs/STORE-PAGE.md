@@ -100,7 +100,7 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 | Basic Settings | Genre | Adventure |
 | Basic Settings | Playable devices | Computer, Phone, Tablet on; Console and VR off |
 | Basic Settings | Icon | `media/store/2026-10-22/icon_A.png` (Ethan's pick, 2026-10-22; section 4) |
-| Basic Settings | Thumbnails (in order) | 1: `media/store/2026-10-22/thumb_S3.png` (Ethan's pick, 2026-10-22: the two-worlds panorama); ``; 2: `thumb_2.png`; 3: `thumb_1.png` (section 4; at least two so personalization runs; drop any that job 53 finds the game does not show); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
+| Basic Settings | Thumbnails (in order) | 1: `media/store/2026-10-22/thumb_S3.png` (Ethan's pick, 2026-10-22: the two-worlds panorama); 2: `thumb_2.png`; 3: `thumb_1.png` (section 4; at least two so personalization runs; drop any that job 53 finds the game does not show); video `media/store/2026-10-14/clip_catch.mp4` once the Mac's job 18 delivers it |
 | Places > World 1 | Max players | 8; server fill: Roblox optimised |
 | Access | Private servers | Off |
 | Access | Paid access | Off |
