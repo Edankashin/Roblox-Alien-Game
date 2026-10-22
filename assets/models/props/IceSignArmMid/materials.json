@@ -1,0 +1,42 @@
+[
+  {
+    "slot": 1,
+    "name": "Body",
+    "hex": "D4B483",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceSignArmMid_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 2,
+    "name": "BodyDark",
+    "hex": "F2F6FA",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceSignArmMid_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 3,
+    "name": "Accessory",
+    "hex": "68C9FE",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceSignArmMid_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 4,
+    "name": "Trim",
+    "hex": "5A5A66",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "IceSignArmMid_atlas.png",
+    "pixelated": true
+  }
+]

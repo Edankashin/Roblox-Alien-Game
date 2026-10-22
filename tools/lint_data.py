@@ -644,7 +644,19 @@ def block_cell_prop_slots(root=ROOT):
     return found
 
 
-def lint_props(tables, exported=None, exported_slots=None):
+def block_cell_prop_origins(root=ROOT):
+    """{name: [x, y, z]} from the `origin: [x, y, z]` line of each exported block-cell prop's spec note that has one (a prop the layout
+    places by another point than its bottom centre: the sign arms, the camp flag)."""
+    found = {}
+    for name in block_cell_props(root):
+        note = Path(root) / 'docs/vault/07-alien-game/Props' / f'{name}.md'
+        match = re.search(r'^origin:\s*\[([^\]]*)\]\s*$', note.read_text(encoding='utf-8'), re.M) if note.is_file() else None
+        if match:
+            found[name] = [float(v) for v in match[1].split(',')]
+    return found
+
+
+def lint_props(tables, exported=None, exported_slots=None, exported_origins=None):
     """data/Props: one row per imported prop (data/ModelAssets.PropNames) and per block-cell prop exported but not yet uploaded
     (`exported`, block_cell_props()), each row's collision one of PROP_COLLISIONS, and a block-cell prop's row the collision its note names.
     A row may add `slots` ({slot: collision}, the slots PROP_SLOTS); a block-cell prop's slots must be the note's `collision_slots`
@@ -655,6 +667,7 @@ def lint_props(tables, exported=None, exported_slots=None):
         return ['Props.luau: Rows (and ModelAssets.PropNames) unavailable']
     exported = {} if exported is None else exported
     exported_slots = {} if exported_slots is None else exported_slots
+    exported_origins = {} if exported_origins is None else exported_origins
     failures = []
     for name in sorted(set(names) | set(exported), key=str):
         if name not in rows:
@@ -663,9 +676,21 @@ def lint_props(tables, exported=None, exported_slots=None):
         where = f'Props.Rows.{name}'
         if name not in names and name not in exported:
             failures.append(f'{where}: not in ModelAssets.PropNames and no block-cell export in assets/models/props/{name}')
-        if not isinstance(row, dict) or 'collision' not in row or set(row) - {'collision', 'slots'}:
-            failures.append(f'{where}: expected a row with just collision (and optional slots)')
+        if not isinstance(row, dict) or 'collision' not in row or set(row) - {'collision', 'slots', 'origin'}:
+            failures.append(f'{where}: expected a row with just collision (and optional slots, origin)')
             continue
+        origin = row.get('origin')
+        if origin is not None:
+            values = [origin.get(k) for k in (1, 2, 3)] if isinstance(origin, dict) and set(origin) == {1, 2, 3} else None
+            if values is None or not all(type(v) in (int, float) and math.isfinite(v) for v in values):
+                failures.append(f'{where}.origin: expected {{ x, y, z }} (three numbers, studs)')
+                values = None
+        else:
+            values = None
+        if name in exported and (values is not None or name in exported_origins):
+            want = exported_origins.get(name)
+            if want is None or values is None or any(abs(a - b) > 1e-3 for a, b in zip(values, want)):
+                failures.append(f'{where}.origin: {values!r}, but its spec note (Props/{name}.md) says origin {want!r}')
         slots = row.get('slots')
         if slots is not None:
             if not isinstance(slots, dict) or not slots:
@@ -1266,7 +1291,7 @@ def lint(root: Path = ROOT) -> list[str]:
     failures.extend(lint_music(tables))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
-    failures.extend(lint_props(tables, block_cell_props(root), block_cell_prop_slots(root)))
+    failures.extend(lint_props(tables, block_cell_props(root), block_cell_prop_slots(root), block_cell_prop_origins(root)))
     failures.extend(lint_effects(tables, types))
     failures.extend(lint_reveal(tables, root))
     for finding in lint_shapes(tables, strings, types):

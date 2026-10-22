@@ -162,6 +162,9 @@ local PROP_NAMES: { [string]: boolean } = {
 	Boulder = true,
 	BuildStation = true,
 	Bush = true,
+	CampCrate = true,
+	CampFlag = true,
+	Campfire = true,
 	CaveMouth = true,
 	CrashWreck = true,
 	Fence = true,
@@ -177,6 +180,7 @@ local PROP_NAMES: { [string]: boolean } = {
 	GlowcapGiantBlue = true,
 	GlowcapGiantPink = true,
 	GlowcapSmall = true,
+	GrottoCrystal = true,
 	HabitatFrostbyte = true,
 	HabitatVerdant = true,
 	HeaterLamp = true,
@@ -185,6 +189,9 @@ local PROP_NAMES: { [string]: boolean } = {
 	IceLantern = true,
 	IceRock = true,
 	IceRockB = true,
+	IceSignArmHigh = true,
+	IceSignArmLow = true,
+	IceSignArmMid = true,
 	IceSpire = true,
 	Icicles = true,
 	Lantern = true,
@@ -209,6 +216,10 @@ local PROP_NAMES: { [string]: boolean } = {
 	ShipHull = true,
 	Shrine = true,
 	ShrineStone = true,
+	SightPost = true,
+	SignArmHigh = true,
+	SignArmLow = true,
+	SignArmMid = true,
 	Signpost = true,
 	SnowBush = true,
 	SnowDrift = true,
@@ -226,6 +237,9 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	BuildStation = { { "Body", "C99A5B", 0.55, 0, 0 }, { "BodyDark", "8B5A2B", 0.55, 0, 0 }, { "Accessory", "8FD3FF", 0.55, 0, 0 }, { "Trim", "8A93A0", 0.55, 0, 0 }, { "Glow", "FFC86B", 0.55, 0, 1.5 } },
 	Bush = { { "Body", "57B04A", 0.55, 0, 0 }, { "Accessory", "FF5C8A", 0.55, 0, 0 } },
 	Buzzlebee = { { "Body", "FFC83D", 0.55, 0, 0 }, { "antenna", "FF6B9A", 0.55, 0, 0 }, { "stinger", "4A2F1F", 0.55, 0, 0 }, { "wingL", "FF6B9A", 0.55, 0, 0 }, { "wingR", "FF6B9A", 0.55, 0, 0 }, { "FacePlate", "FFC83D", 0.4, 0, 0 } },
+	CampCrate = { { "Body", "C08A55", 0.55, 0, 0 }, { "BodyDark", "8C5E32", 0.55, 0, 0 }, { "Accessory", "FFC83D", 0.55, 0, 0 }, { "Trim", "68C9FE", 0.55, 0, 0 } },
+	CampFlag = { { "Body", "FFC83D", 0.55, 0, 0 }, { "BodyDark", "6E7690", 0.55, 0, 0 }, { "Accessory", "68C9FE", 0.55, 0, 0 }, { "Trim", "8E8E86", 0.55, 0, 0 }, { "Glow", "FFE36B", 0.55, 0, 1.5 } },
+	Campfire = { { "Body", "FF8A2A", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Trim", "8E8E86", 0.55, 0, 0 }, { "Glow", "FFD34D", 0.55, 0, 1.5 } },
 	Capybubble = { { "Body", "E0C3A0", 0.55, 0, 0 }, { "earL", "5C4A2A", 0.55, 0, 0 }, { "earR", "5C4A2A", 0.55, 0, 0 }, { "floatR", "5FDCFF", 0.55, 0, 1.5 }, { "leafR", "5C4A2A", 0.55, 0, 0 }, { "ring", "5FDCFF", 0.55, 0, 1.5 }, { "FacePlate", "E0C3A0", 0.4, 0, 0 } },
 	CaveMouth = { { "Body", "7A756E", 0.55, 0, 0 }, { "BodyDark", "15120F", 0.55, 0, 0 }, { "Accessory", "5E9E3A", 0.55, 0, 0 }, { "Trim", "C084FC", 0.55, 0, 0 }, { "Glow", "7FE3FF", 0.55, 0, 1.5 } },
 	Chipmole = { { "Body", "5B6B85", 0.55, 0, 0 }, { "pickL", "3FD3F7", 0.55, 0, 0 }, { "pickR", "3FD3F7", 0.55, 0, 0 }, { "tailR", "3FD3F7", 0.55, 0, 0 }, { "FacePlate", "5B6B85", 0.4, 0, 0 } },
@@ -252,6 +266,7 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	GlowcapGiantBlue = { { "Body", "86C8F5", 0.55, 0, 0 }, { "BodyDark", "DCD6F2", 0.55, 0, 0 }, { "Accessory", "4A78C0", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "A6E8FF", 0.55, 0, 1.5 } },
 	GlowcapGiantPink = { { "Body", "F49AD8", 0.55, 0, 0 }, { "BodyDark", "E4DAF4", 0.55, 0, 0 }, { "Accessory", "B85CA6", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
 	GlowcapSmall = { { "Body", "F5A6DC", 0.55, 0, 0 }, { "BodyDark", "E6DEF6", 0.55, 0, 0 }, { "Accessory", "FFF4FB", 0.55, 0, 0 }, { "Trim", "2C7F72", 0.55, 0, 0 }, { "Glow", "D2B0FF", 0.55, 0, 1.5 } },
+	GrottoCrystal = { { "Body", "A8F0FA", 0.55, 0, 0 }, { "BodyDark", "6E6A78", 0.55, 0, 0 }, { "Accessory", "B49CFF", 0.55, 0, 0 }, { "Trim", "6CB04A", 0.55, 0, 0 }, { "Glow", "7FE3F0", 0.55, 0, 1.5 } },
 	HabitatFrostbyte = { { "Body", "F2F6FA", 0.55, 0, 0 }, { "BodyDark", "4A3A2E", 0.55, 0, 0 }, { "Accessory", "2F6B5E", 0.55, 0, 0 }, { "Trim", "BFEBFA", 0.55, 0, 0 }, { "Glow", "7FE3F0", 0.55, 0, 1.5 } },
 	HabitatVerdant = { { "Body", "6FBF4A", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Accessory", "F49AD8", 0.55, 0, 0 }, { "Trim", "3FA2E6", 0.55, 0, 0 }, { "Glow", "FFC86B", 0.55, 0, 1.5 } },
 	HeaterLamp = { { "Body", "6B7580", 0.55, 0, 0 }, { "BodyDark", "3D4556", 0.55, 0, 0 }, { "Trim", "C9CFD8", 0.55, 0, 0 }, { "Glow", "FFB347", 0.55, 0, 1.5 } },
@@ -260,6 +275,9 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	IceLantern = { { "Body", "BFEBFA", 0.55, 0, 0 }, { "BodyDark", "7F8E99", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Glow", "FFB347", 0.55, 0, 1.5 } },
 	IceRock = { { "Body", "A9B7C0", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Trim", "BFEBFA", 0.55, 0, 0 }, { "Glow", "BFF3FF", 0.55, 0, 1.5 } },
 	IceRockB = { { "Body", "A9B7C0", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Trim", "BFEBFA", 0.55, 0, 0 }, { "Glow", "BFF3FF", 0.55, 0, 1.5 } },
+	IceSignArmHigh = { { "Body", "D4B483", 0.55, 0, 0 }, { "BodyDark", "F2F6FA", 0.55, 0, 0 }, { "Accessory", "5CE0B8", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
+	IceSignArmLow = { { "Body", "D4B483", 0.55, 0, 0 }, { "BodyDark", "F2F6FA", 0.55, 0, 0 }, { "Accessory", "B49CFF", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
+	IceSignArmMid = { { "Body", "D4B483", 0.55, 0, 0 }, { "BodyDark", "F2F6FA", 0.55, 0, 0 }, { "Accessory", "68C9FE", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
 	IceSpire = { { "Body", "BFEBFA", 0.55, 0, 0 }, { "BodyDark", "7F8E99", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Glow", "7FE6FF", 0.55, 0, 1.5 } },
 	Icicles = { { "Body", "BFEBFA", 0.55, 0, 0 }, { "Accessory", "F2F6FA", 0.55, 0, 0 }, { "Trim", "9FE3FF", 0.55, 0, 0 }, { "Glow", "E8FAFF", 0.55, 0, 1.5 } },
 	Kettlepuff = { { "Body", "F5EDE0", 0.55, 0, 0 }, { "floatR", "F5EDE0", 0.55, 0, 0 }, { "handle", "C8743A", 0.55, 0, 0 }, { "lid", "C8743A", 0.55, 0, 0 }, { "wispR", "F5EDE0", 0.55, 0, 0 }, { "FacePlate", "F5EDE0", 0.4, 0, 0 } },
@@ -297,6 +315,10 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	ShipHull = { { "Body", "7A8494", 0.55, 0, 0 }, { "BodyDark", "3A4049", 0.55, 0, 0 }, { "Accessory", "FFC83D", 0.55, 0, 0 }, { "Trim", "B8C2CF", 0.55, 0, 0 }, { "Glow", "68C9FE", 0.55, 0, 1.5 } },
 	Shrine = { { "Body", "9E9E8E", 0.55, 0, 0 }, { "BodyDark", "C8C0A6", 0.55, 0, 0 }, { "Accessory", "5E9E3A", 0.55, 0, 0 }, { "Glow", "2ECC71", 0.55, 0, 1.5 } },
 	ShrineStone = { { "Body", "9E9E8E", 0.55, 0, 0 }, { "BodyDark", "7C7C6E", 0.55, 0, 0 }, { "Accessory", "6CB04A", 0.55, 0, 0 }, { "Glow", "9BE7FF", 0.55, 0, 1.5 } },
+	SightPost = { { "Body", "A8794A", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Trim", "8E8E86", 0.55, 0, 0 }, { "Glow", "FFE36B", 0.55, 0, 1.5 } },
+	SignArmHigh = { { "Body", "E8D4A8", 0.55, 0, 0 }, { "Accessory", "CBC2EE", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
+	SignArmLow = { { "Body", "E8D4A8", 0.55, 0, 0 }, { "Accessory", "FFC83D", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
+	SignArmMid = { { "Body", "E8D4A8", 0.55, 0, 0 }, { "Accessory", "3FA2E6", 0.55, 0, 0 }, { "Trim", "5A5A66", 0.55, 0, 0 } },
 	Signpost = { { "Body", "C08A55", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Accessory", "FFF4DC", 0.55, 0, 0 }, { "Trim", "9E9E8E", 0.55, 0, 0 } },
 	Skaddle = { { "Body", "F4F7FA", 0.55, 0, 0 }, { "Glow", "4A55E8", 0.55, 0, 1.5 }, { "crest", "4A55E8", 0.55, 0, 1.5 }, { "halo", "4A55E8", 0.55, 0, 1.5 }, { "hindwingL", "F4F7FA", 0.55, 0, 0 }, { "hindwingR", "F4F7FA", 0.55, 0, 0 }, { "quiverL", "5C708A", 0.55, 0, 0 }, { "scarfR", "8FD3F4", 0.55, 0, 0 }, { "tuftL", "F4F7FA", 0.55, 0, 0 }, { "tuftR", "F4F7FA", 0.55, 0, 0 }, { "wingL", "F4F7FA", 0.55, 0, 0 }, { "wingR", "F4F7FA", 0.55, 0, 0 }, { "FacePlate", "F4F7FA", 0.4, 0, 0 } },
 	Snailbyte = { { "Body", "9FD9A6", 0.55, 0, 0 }, { "dishR", "C9803E", 0.55, 0, 0 }, { "feelerL", "9FD9A6", 0.55, 0, 0 }, { "feelerR", "9FD9A6", 0.55, 0, 0 }, { "FacePlate", "9FD9A6", 0.4, 0, 0 } },
@@ -836,6 +858,34 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "Accessory", hex = "FF5C8A", neon = false, map = "cell" },
 		},
 	},
+	CampCrate = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "C08A55", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "8C5E32", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "68C9FE", neon = false, map = "cell" },
+		},
+	},
+	CampFlag = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "6E7690", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "68C9FE", neon = false, map = "cell" },
+			{ name = "Trim", hex = "8E8E86", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFE36B", neon = true, map = "" },
+		},
+	},
+	Campfire = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "FF8A2A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "8E8E86", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFD34D", neon = true, map = "" },
+		},
+	},
 	CaveMouth = {
 		assetId = 132103896359941, cellMap = 103210189633036, faceMap = 0,
 		parts = {
@@ -980,6 +1030,16 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "Glow", hex = "D2B0FF", neon = true, map = "" },
 		},
 	},
+	GrottoCrystal = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A8F0FA", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "6E6A78", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "B49CFF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "6CB04A", neon = false, map = "cell" },
+			{ name = "Glow", hex = "7FE3F0", neon = true, map = "" },
+		},
+	},
 	HabitatFrostbyte = {
 		assetId = 89002985688787, cellMap = 71741076207941, faceMap = 0,
 		parts = {
@@ -1053,6 +1113,33 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "Accessory", hex = "F2F6FA", neon = false, map = "cell" },
 			{ name = "Trim", hex = "BFEBFA", neon = false, map = "cell" },
 			{ name = "Glow", hex = "BFF3FF", neon = true, map = "" },
+		},
+	},
+	IceSignArmHigh = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "5CE0B8", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
+		},
+	},
+	IceSignArmLow = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "B49CFF", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
+		},
+	},
+	IceSignArmMid = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "D4B483", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "F2F6FA", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "68C9FE", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
 		},
 	},
 	IceSpire = {
@@ -1272,6 +1359,39 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "7C7C6E", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "6CB04A", neon = false, map = "cell" },
 			{ name = "Glow", hex = "9BE7FF", neon = true, map = "" },
+		},
+	},
+	SightPost = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "A8794A", neon = false, map = "cell" },
+			{ name = "BodyDark", hex = "7B4A2D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "8E8E86", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFE36B", neon = true, map = "" },
+		},
+	},
+	SignArmHigh = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "CBC2EE", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
+		},
+	},
+	SignArmLow = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "FFC83D", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
+		},
+	},
+	SignArmMid = {
+		assetId = 0, cellMap = 0, faceMap = 0,
+		parts = {
+			{ name = "Body", hex = "E8D4A8", neon = false, map = "cell" },
+			{ name = "Accessory", hex = "3FA2E6", neon = false, map = "cell" },
+			{ name = "Trim", hex = "5A5A66", neon = false, map = "cell" },
 		},
 	},
 	Signpost = {

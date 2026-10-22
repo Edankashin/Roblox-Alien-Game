@@ -734,8 +734,9 @@ def prop_px(spec):
 
 
 def prop_footprint(spec):
+    """[W, D, H] of the prop's bounds in studs (H from its lowest point: a floating sign arm is as tall as its board)."""
     c = S.counts(spec)
-    return [c["width"], c["depth"], c["height"]]
+    return [c["width"], c["depth"], round(c["height"] - c["bottom"], 3)]
 
 
 def check_prop_folder(folder, spec):
@@ -868,9 +869,10 @@ def export_prop(pid, note, spec, models=PROP_MODELS, previews=True):
             _one_material(obj, mat)
             obj.data.name = slot
             parts.append(obj)
-        # the pivot at the bottom centre of the bounds, baked into the meshes so every node sits at the origin
+        # the pivot at the bottom centre of the bounds, baked into the meshes so every node sits at the origin (a prop with an `origin`,
+        # a floating sign arm, is lowered onto y = 0 too: data/Props `origin` puts its layout point back)
         lo, hi = S.bounds(S.expand(spec["parts"]))
-        shift = BB.to_bl([(lo[0] + hi[0]) / 2, 0.0, (lo[2] + hi[2]) / 2])
+        shift = BB.to_bl([(lo[0] + hi[0]) / 2, lo[1], (lo[2] + hi[2]) / 2])
         for o in parts:
             o.data.transform(Matrix.Translation(o.location - shift))
             o.location = (0.0, 0.0, 0.0)
@@ -924,6 +926,8 @@ def prop_notes_text(info):
         "- Blocks: %d" % S.counts(spec)["blocks"],
         "- Triangles: %d (budget %s)" % (info["tris"], front.get("budget")),
         "- Collision: %s (src/shared/data/Props.luau)" % front.get("collision"),
+    ] + (["- Origin: the layout places the note's (0, 0, 0), %s studs from the bottom centre in the note's axes (data/Props `origin`)" % (
+        ", ".join(RG._num(v) for v in front["origin"]))] if front.get("origin") is not None else []) + [
         "- Cells: 0.25 studs a cell (the world cell), %d texels a cell, atlas %s_atlas.png %dx%d, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)" % (
             info["px"], pid, info["atlas"][0], info["atlas"][1]),
         "- Parts (one MeshPart a colour slot, in GLB order): %s" % "; ".join("`%s` (%s)" % (n, kinds[n]) for n in info["nodes"]),

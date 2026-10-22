@@ -249,6 +249,27 @@ local Recipes: { [string]: Types.PropRecipe } = {
 			{ size = { 2.25, 0.4, 1.75 }, at = { 0.5, 3.7, 0 }, color = "F2F6FA", material = "Snow" },
 		},
 	},
+	IceSignArmHigh = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 4, 0 }, color = "D4B483", material = "WoodPlanks" },
+			{ size = { 2, 0.12, 0.24 }, at = { 1.3, 4.33, 0 }, color = "F2F6FA", material = "Snow" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 4, 0 }, color = "5CE0B8", material = "SmoothPlastic", roll = 45 },
+		},
+	},
+	IceSignArmLow = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 2.6, 0 }, color = "D4B483", material = "WoodPlanks" },
+			{ size = { 2, 0.12, 0.24 }, at = { 1.3, 2.93, 0 }, color = "F2F6FA", material = "Snow" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 2.6, 0 }, color = "B49CFF", material = "SmoothPlastic", roll = 45 },
+		},
+	},
+	IceSignArmMid = {
+		boxes = {
+			{ size = { 2.2, 0.55, 0.14 }, at = { 1.3, 3.3, 0 }, color = "D4B483", material = "WoodPlanks" },
+			{ size = { 2, 0.12, 0.24 }, at = { 1.3, 3.63, 0 }, color = "F2F6FA", material = "Snow" },
+			{ size = { 0.42, 0.42, 0.16 }, at = { 2.45, 3.3, 0 }, color = "68C9FE", material = "SmoothPlastic", roll = 45 },
+		},
+	},
 	IceSpire = {
 		boxes = {
 			{ size = { 2.5, 1.5, 2.5 }, at = { 0, 0.75, 0 }, color = "A9B7C0", material = "Slate", collide = true },

@@ -381,7 +381,7 @@ def normalise(raw, index=0):
     if not isinstance(raw, dict):
         raise SpecError("part %d is not a mapping: %r" % (index, raw))
     name = str(raw.get("name") or "part%d" % index)
-    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot", "material"}
+    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot", "material", "text"}
     extra = set(raw) - known
     if extra:
         raise SpecError("%s: unknown field(s) %s" % (name, ", ".join(sorted(extra))))
@@ -398,6 +398,8 @@ def normalise(raw, index=0):
         "pivot": _vec(raw["pivot"], name, "pivot") if raw.get("pivot") is not None else None,
         "material": str(raw.get("material") or ("glow" if raw.get("slot") == "Glow" else DEFAULT_MATERIAL)),
     }
+    if raw.get("text") is not None:
+        part["text"] = str(raw["text"])   # pixel lettering on the part's front and back faces (cells.lettering; a prop's sign board)
     return part
 
 
@@ -841,14 +843,23 @@ def validate_prop(spec):
         _grid_checks(p, err)
         if p["bevel"] and (p["shape"] != "box" or any(abs(a) > 1e-9 for a in p["rot"])):
             err("rule 1: %s: only an axis-aligned box is bevelled" % n)
+        if p.get("text") is not None:
+            _text_checks(p, err)
     if errors:
         return errors, warnings
     c = counts(spec)
-    if abs(c["bottom"]) > 1e-6:
-        err("rule 2: the lowest point is at y = %.3f; a prop stands on y = 0" % c["bottom"])
+    origin = front.get("origin")
+    if origin is None and abs(c["bottom"]) > 1e-6:
+        err("rule 2: the lowest point is at y = %.3f; a prop stands on y = 0 (or names its `origin`, the point the layout places)" % c["bottom"])
+    if origin is not None:
+        want = prop_origin(spec)
+        if not isinstance(origin, list) or len(origin) != 3 or any(not isinstance(v, (int, float)) or abs(v - w) > 1e-3 for v, w in zip(origin, want)):
+            err("frontmatter: origin %r is not the note's (0, 0, 0) from the bounds' bottom centre, %s" % (origin, [round(v, 4) for v in want]))
+        if c["bottom"] < -1e-6:
+            err("rule 2: the lowest point is at y = %.3f, under the origin's ground" % c["bottom"])
     height = front.get("height")
-    if height is not None and (not isinstance(height, (int, float)) or abs(height - c["height"]) > 0.011):
-        err("rule 2: frontmatter height %r does not match the tallest point %.2f" % (height, c["height"]))
+    if height is not None and (not isinstance(height, (int, float)) or abs(height - (c["height"] - c["bottom"])) > 0.011):
+        err("rule 2: frontmatter height %r does not match the prop's height %.2f" % (height, c["height"] - c["bottom"]))
     if c["tris"] > TRI_CAP:
         err("rule 1: %d triangles; the cap is %d" % (c["tris"], TRI_CAP))
     if c["movers"] > MOVERS_MAX:
@@ -856,6 +867,33 @@ def validate_prop(spec):
     if "body" in pal and "second" in pal and abs(lstar(pal["body"]) - lstar(pal["second"])) < LSTAR_GAP[("body", "second")]:
         warnings.append("rule 4: body and second are %.0f apart in greyscale (L*)" % abs(lstar(pal["body"]) - lstar(pal["second"])))
     return errors, warnings
+
+
+def prop_origin(spec):
+    """Where the note's (0, 0, 0) lies from the bounds' bottom centre (studs, the note's axes): the frontmatter `origin` of a prop placed by
+    another point than its bottom centre (a sign arm by its post's foot, the camp flag by its pole), data/Props `origin` in the game."""
+    lo, hi = bounds(expand(spec["parts"]))
+    return [-(lo[0] + hi[0]) / 2.0, -lo[1], -(lo[2] + hi[2]) / 2.0]
+
+
+def _text_checks(p, err):
+    """A part's `text`: letters the pixel font has, on an unrotated box, fitting its front face (cells.lettering_size)."""
+    here = str(pathlib.Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import cells as C  # noqa: PLC0415
+    n = p["name"]
+    bad = sorted({ch for ch in p["text"].replace("|", "") if ch not in C.FONT})
+    if bad:
+        err("%s: text %r has letters the pixel font lacks: %s" % (n, p["text"], "".join(bad)))
+        return
+    if p["shape"] != "box" or any(abs(a) > 1e-9 for a in p["rot"]):
+        err("%s: text goes on an unrotated box" % n)
+        return
+    w, h = C.lettering_size(p["text"], 8)
+    fw, fh = p["size"][0] / C.WORLD_CELL * 8, p["size"][1] / C.WORLD_CELL * 8
+    if w + 4 > fw or h + 4 > fh:
+        err("%s: text %r is %dx%d texels at 8 a cell, its face %dx%d (two texels of margin a side)" % (n, p["text"], w, h, fw, fh))
 
 
 def validate_face(spec, host):

@@ -166,7 +166,8 @@ class Worlds(unittest.TestCase):
                 for kx, kz, r in keep:
                     self.assertGreater((x - kx) ** 2 + (z - kz) ** 2, r * r, f"world {wid}: {name} at ({x}, {z}) crowds ({kx}, {kz})")
                 self.assertFalse(-6 < x < 6 and -30 < z < -10, f"world {wid}: {name} at ({x}, {z}) is under the ship's hull")
-            self.assertTrue({"SightPost", "SignArmHigh", "SignArmMid", "SignArmLow", "CampCrate", "CampFlag"} <= {p[0] for p in world.props})
+            arms = ("SignArmHigh", "SignArmMid", "SignArmLow") if wid == 1 else ("IceSignArmHigh", "IceSignArmMid", "IceSignArmLow")
+            self.assertTrue({"SightPost", "CampCrate", "CampFlag", *arms} <= {p[0] for p in world.props})
 
     def test_every_world_has_its_exploration(self):
         want = {1: {"Lookout", "WaterfallNook", "MoonPool", "GlowcapGrove", "CrystalGrotto"},

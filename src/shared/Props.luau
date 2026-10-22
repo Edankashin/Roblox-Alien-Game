@@ -99,8 +99,9 @@ end
 -- data/Props says "None". Every MeshPart also gets the CollisionFidelity that row names (Box, Hull or Precise;
 -- ModelInstall.CollisionPlan), where the import left the engine's Default; a row's `slots` gives a colour slot its own
 -- collision (the Starhollow glowcaps: the stem boxes, the cap never collides). The model's pivot is the bottom centre
--- of its bounding box. Returns the placed Model, or nil when the prop was never
--- imported, so the caller builds its placeholder.
+-- of its bounding box, or, for a row with `origin` (a sign arm, the camp flag), the point that far from it in the spec note's axes, turned
+-- so the note's axes are the model's (the arm's local +X, which the layout yaws at its sight). Returns the placed Model, or nil when the
+-- prop was never imported, so the caller builds its placeholder.
 function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instance, collide: boolean): Model?
 	local source = Props.Find(name)
 	if not source then
@@ -130,7 +131,15 @@ function Props.Place(name: string, cframe: CFrame, scale: number, parent: Instan
 	end
 	clone:ScaleTo(baseline * scale)
 	local minV, maxV = worldBounds(clone)
-	clone.WorldPivot = CFrame.new((minV.X + maxV.X) / 2, minV.Y, (minV.Z + maxV.Z) / 2)
+	local pivot = CFrame.new((minV.X + maxV.X) / 2, minV.Y, (minV.Z + maxV.Z) / 2)
+	local origin = row and row.origin
+	if origin then
+		-- the export writes the note's -Z on the GLB's +Z; an upload arrives turned half a turn (Config.ModelFacesPlusZ), which puts the
+		-- note's axes back on the place's, else the pivot takes that half turn itself
+		local turn = if Config.ModelFacesPlusZ then CFrame.identity else CFrame.Angles(0, math.pi, 0)
+		pivot = pivot * turn * CFrame.new(origin[1] * scale, origin[2] * scale, origin[3] * scale)
+	end
+	clone.WorldPivot = pivot
 	clone:PivotTo(cframe)
 	clone.Parent = parent
 	return clone

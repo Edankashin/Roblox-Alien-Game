@@ -15,6 +15,12 @@ Two steps, because Blender's Python has no Pillow:
   $BPY tools/blender/props_sheet.py --out <scratch dir> --home       # the home planet's nine props (the house grid, Decision B49), then
   python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-21/home_props_v1.jpg
 
+  $BPY tools/blender/props_sheet.py --out <scratch dir> --placeholders   # the 11 props that replaced the last block placeholders, then
+  python3 -I tools/blender/props_sheet.py --compose <scratch dir> --sheet media/studio/2026-10-22/placeholder_props_v1.jpg
+
+A row entry is a prop name, or an assembly: (label, [(name, yaw degrees), ...]) built at one point, each turned about it as the layout
+turns it in the game (the sights signpost: the post and its three arms, each yawed at its sight, data/WorldGen<id>).
+
 The rows: World 1's trees and rocks, World 1's small things, World 2, the landmarks, the camp, each on a floor in its world's tone (a
 mid tone, so white snow and pale ice read against it). Each prop faces the camera as the game's
 front (the note's -Z), turned a little so its side shows.
@@ -58,6 +64,20 @@ ROWS_HOME = [
      ["HabitatVerdant", "HabitatFrostbyte"]),
     ("The home planet: the furniture (the fountain 2 x 2 cells, the rest 1 x 1)", "#A9C98A", ["Fountain", "Bench", "Planter", "Flag"]),
 ]
+# `--placeholders`: the 11 props that replaced the last block placeholders of the generated worlds (Studio 2026-10-22: 22 in World 1, 10 in
+# World 2), then each world's sights signpost assembled at the camp's yaws (tools/blocky/worlds/world<id>.json)
+ROWS_PLACEHOLDERS = [
+    ("The camp pieces (both worlds) and World 1's grotto crystal", "#B3AA94", ["Campfire", "CampCrate", "CampFlag", "SightPost", "GrottoCrystal"]),
+    ("The sights signpost arms, World 1 then World 2 (each at its height on the post, the arrow on its local +X)", "#B3AA94",
+     ["SignArmHigh", "SignArmMid", "SignArmLow", "IceSignArmHigh", "IceSignArmMid", "IceSignArmLow"]),
+    ("World 1's sights signpost as the camp places it (the post and three arms, each yawed at its sight)", "#A9C98A",
+     [("World 1 signpost", [("SightPost", 0.0), ("SignArmHigh", -39.9), ("SignArmMid", 231.6), ("SignArmLow", 218.5)]),
+      ("World 1 signpost, the far side", [("SightPost", 180.0), ("SignArmHigh", 140.1), ("SignArmMid", 51.6), ("SignArmLow", 38.5)])]),
+    ("World 2's sights signpost as the camp places it", "#8EA2B4",
+     [("World 2 signpost", [("SightPost", 0.0), ("IceSignArmHigh", -82.25), ("IceSignArmMid", 58.3), ("IceSignArmLow", 134.05)]),
+      ("World 2 signpost, the far side", [("SightPost", 180.0), ("IceSignArmHigh", 97.75), ("IceSignArmMid", 238.3), ("IceSignArmLow", 314.05)])]),
+]
+ASSEMBLY_REACH = 4.0   # studs: an arm's reach from the post (its arrow's tip), so an assembly's width is twice it
 NIGHT_SKY = (0.035, 0.04, 0.12)
 NIGHT_GLOW = 5.0
 
@@ -98,7 +118,7 @@ def night_lights(scene, centre, extent, objs, spec_by_obj):
         k += 1
 
 
-def render_rows(out, size, samples, night=False, home=False):
+def render_rows(out, size, samples, night=False, home=False, placeholders=False):
     sys.path.insert(0, str(HERE))
     sys.path.insert(0, str(ROOT / "tools/blocky"))
     import bpy
@@ -109,7 +129,8 @@ def render_rows(out, size, samples, night=False, home=False):
     out = pathlib.Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = []
-    for r, (title, floor, names) in enumerate(ROWS_NIGHT if night else (ROWS_HOME if home else ROWS)):
+    rows = ROWS_NIGHT if night else (ROWS_HOME if home else (ROWS_PLACEHOLDERS if placeholders else ROWS))
+    for r, (title, floor, names) in enumerate(rows):
         scene = B.reset()
         objs = list(B.avatar((0, 0, 0), out_dir=out))
         glow_hex = {}
@@ -117,6 +138,21 @@ def render_rows(out, size, samples, night=False, home=False):
         tallest = 5.0
         centres = []
         for name in names:
+            if isinstance(name, tuple):
+                # an assembly: every member at the one point (each note's own origin), turned by its yaw about the vertical
+                label, members = name
+                x += ASSEMBLY_REACH
+                top = 0.0
+                for k, (member, yaw) in enumerate(members):
+                    mspec = S.load(PROPS / ("%s.md" % member))
+                    made = B.build(mspec, out, offset=(x, 0.0, 0.0), prefix="R%dA%d%d%s_" % (r, len(centres), k, member), cell=C.WORLD_CELL,
+                                   rot=(0.0, 0.0, math.radians(yaw)), glow=NIGHT_GLOW if night else B.GLOW_BUILD)
+                    objs += made["objects"]
+                    top = max(top, S.bounds(S.expand(mspec["parts"]))[1][1])
+                centres.append(({"label": label, "members": [m for m, _ in members]}, x, top))
+                x += ASSEMBLY_REACH + GAP
+                tallest = max(tallest, top)
+                continue
             spec = S.load(PROPS / ("%s.md" % name))
             lo, hi = S.bounds(S.expand(spec["parts"]))
             w = hi[0] - lo[0]
@@ -150,8 +186,11 @@ def render_rows(out, size, samples, night=False, home=False):
         labels = []
         for name, px, top in centres:
             p = world_to_camera_view(scene, cam, Vector((px, 0.0, 0.0)))
-            labels.append({"name": name, "u": p.x, "v": 1.0 - p.y})
-        meta.append({"title": title, "png": path.name, "labels": labels, "night": night, "home": home})
+            if isinstance(name, dict):
+                labels.append(dict(name, u=p.x, v=1.0 - p.y))
+            else:
+                labels.append({"name": name, "u": p.x, "v": 1.0 - p.y})
+        meta.append({"title": title, "png": path.name, "labels": labels, "night": night, "home": home, "placeholders": placeholders})
         print("row %d: %s (%d props)" % (r, path, len(names)), flush=True)
     (out / "rows.json").write_text(json.dumps(meta, indent=1))
     return 0
@@ -181,10 +220,13 @@ def compose(folder, sheet):
     d = ImageDraw.Draw(out)
     night = any(m.get("night") for m, _ in rows)
     home = any(m.get("home") for m, _ in rows)
+    placeholders = any(m.get("placeholders") for m, _ in rows)
     head = ("Starhollow Forest props v1 (Decisions B44, B48): %d props at night, lit by their own glow cells, to scale beside the 5-stud avatar"
             if night else ("Home props v1 in block cells (Decisions B44, B49): the house grid's %d props, to scale beside the 5-stud avatar"
-                           if home else "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar"))
-    d.text((20, 16), head % sum(len(m["labels"]) for m, _ in rows), font=bold, fill="#1B1F3B")
+                           if home else ("The last block placeholders, in block cells (Decision B44): %d props, to scale beside the 5-stud avatar, "
+                                         "then each world's sights signpost as placed" if placeholders else
+                                         "Props v1 in block cells (Decision B44): %d props, each lit and to scale in its row beside the 5-stud avatar")))
+    d.text((20, 16), head % sum(1 for m, _ in rows for lab in m["labels"] if "members" not in lab), font=bold, fill="#1B1F3B")
     d.text((20, 50), "docs/vault/07-alien-game/Props/<Name>.md -> tools/blocky/export_models.py --props -> assets/models/props/<Name>/. World cell 0.25 studs; "
            "glow cells become Neon. Under each name: the triangles exported and the budget, and the collision.", font=reg, fill="#5F6375")
     y = 86
@@ -193,16 +235,22 @@ def compose(folder, sheet):
         y += 32
         out.paste(im, (20, y))
         for lab in m["labels"]:
-            spec = S.load(PROPS / ("%s.md" % lab["name"]))
-            notes = ROOT / "assets/models/props" / lab["name"] / "notes.md"
-            tris = "?"
-            if notes.exists():
-                for line in notes.read_text().splitlines():
-                    if line.startswith("- Triangles:"):
-                        tris = line.split(":", 1)[1].split()[0]
+            def tris_of(name):
+                notes = ROOT / "assets/models/props" / name / "notes.md"
+                if notes.exists():
+                    for line in notes.read_text().splitlines():
+                        if line.startswith("- Triangles:"):
+                            return line.split(":", 1)[1].split()[0]
+                return "?"
             cx = 20 + lab["u"] * im.width
-            t1 = lab["name"]
-            t2 = "%s / %s tris, %s" % (tris, spec["front"].get("budget"), spec["front"].get("collision"))
+            if "members" in lab:
+                t1 = lab["label"]
+                counted = [tris_of(n) for n in lab["members"]]
+                t2 = "%s tris in %d props" % (sum(int(t) for t in counted) if "?" not in counted else "?", len(counted))
+            else:
+                spec = S.load(PROPS / ("%s.md" % lab["name"]))
+                t1 = lab["name"]
+                t2 = "%s / %s tris, %s" % (tris_of(lab["name"]), spec["front"].get("budget"), spec["front"].get("collision"))
             for t, f, dy, col in ((t1, small, 6, "#1B1F3B"), (t2, reg, 26, "#5F6375")):
                 tw = d.textlength(t, font=f)
                 d.text((cx - tw / 2, y + im.height + dy), t, font=f, fill=col)
@@ -221,6 +269,7 @@ def main():
     ap.add_argument("--samples", type=int, default=32)
     ap.add_argument("--night", action="store_true", help="the Starhollow Forest rows at night (ROWS_NIGHT), lit by their glow cells")
     ap.add_argument("--home", action="store_true", help="the home planet's house-grid props (ROWS_HOME), in daylight")
+    ap.add_argument("--placeholders", action="store_true", help="the props that replaced the last block placeholders (ROWS_PLACEHOLDERS)")
     ap.add_argument("--compose", help="the folder of row renders to compose (no Blender)")
     ap.add_argument("--sheet", default=str(ROOT / "media/studio/2026-10-21/props_v1.jpg"))
     a = ap.parse_args(argv)
@@ -231,7 +280,7 @@ def main():
     if "assets/models" in str(pathlib.Path(a.out).resolve()):
         print("refusing to write under assets/models")
         return 2
-    return render_rows(a.out, a.size, a.samples, night=a.night, home=a.home)
+    return render_rows(a.out, a.size, a.samples, night=a.night, home=a.home, placeholders=a.placeholders)
 
 
 if __name__ == "__main__":
