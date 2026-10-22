@@ -14,7 +14,7 @@ budget: 700
 collision: Box
 collision_slots: {Glow: None, Trim: None}
 footprint: [13.5, 11.125, 19.75]
-palette: ["#2A8A94", "#4A2F86", "#5560D0", "#D2B0FF", "#FFB3E6"]
+palette: ["#2A8A94", "#4A2F86", "#5560D0", "#D2B0FF", "#9B3FD0"]
 roles: [body, second, accent, trim, glow]
 render: "[[starhollow_props_v1.jpg]]"
 glb: "assets/models/props/MoonTreeB/MoonTreeB.glb"
@@ -23,7 +23,7 @@ glb: "assets/models/props/MoonTreeB/MoonTreeB.glb"
 
 The second moon tree, so a grove never repeats: a taller, slimmer violet trunk carrying two teal tiers with the trunk showing between them and a tuft on top, indigo clumps on both tiers, violet bracket fungus up the trunk and pink light dripping from both tiers.
 
-- **Cells**: the trunk in `wood`; the tiers and clumps in `moss` (the indigo accent as the sprig cell in the teal); the drips `glow`
+- **Cells**: the trunk in `wood`; the tiers and clumps in `moss` (the indigo accent as the sprig cell in the teal); the drips `glow`, deep violet 9B3FD0 (it was pale pink FFB3E6, which bloomed to white at night, Mac job 58)
 - **Silhouette**: the gap between the tiers is the shape the reference's stacked trees have; MoonTree is one broad crown, this is two layers
 - **Collision**: trunk and tiers box apart; drips and fungus none
 - **Footprint**: 13.5 x 11.125 x 19.75 studs (W x D x H), the pivot at the bottom centre; the front faces -Z here and +Z in the game (the landmark contract).

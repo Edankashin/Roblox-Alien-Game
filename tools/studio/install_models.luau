@@ -301,8 +301,8 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	MeadowTree = { { "Body", "4CAF46", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Accessory", "FFD34D", 0.55, 0, 0 } },
 	MeadowTreeB = { { "Body", "3F9B3A", 0.55, 0, 0 }, { "BodyDark", "6B3F26", 0.55, 0, 0 }, { "Accessory", "FFF3F7", 0.55, 0, 0 } },
 	MoonPoolRing = { { "Body", "6E69AE", 0.55, 0, 0 }, { "Accessory", "2E8A78", 0.55, 0, 0 }, { "Trim", "3BA88A", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
-	MoonTree = { { "Body", "4752C4", 0.55, 0, 0 }, { "BodyDark", "3F2878", 0.55, 0, 0 }, { "Accessory", "2A8A94", 0.55, 0, 0 }, { "Trim", "CDC3F2", 0.55, 0, 0 }, { "Glow", "A6E8FF", 0.55, 0, 1.5 } },
-	MoonTreeB = { { "Body", "2A8A94", 0.55, 0, 0 }, { "BodyDark", "4A2F86", 0.55, 0, 0 }, { "Accessory", "5560D0", 0.55, 0, 0 }, { "Trim", "D2B0FF", 0.55, 0, 0 }, { "Glow", "FFB3E6", 0.55, 0, 1.5 } },
+	MoonTree = { { "Body", "4752C4", 0.55, 0, 0 }, { "BodyDark", "3F2878", 0.55, 0, 0 }, { "Accessory", "2A8A94", 0.55, 0, 0 }, { "Trim", "CDC3F2", 0.55, 0, 0 }, { "Glow", "1B9C94", 0.55, 0, 1.5 } },
+	MoonTreeB = { { "Body", "2A8A94", 0.55, 0, 0 }, { "BodyDark", "4A2F86", 0.55, 0, 0 }, { "Accessory", "5560D0", 0.55, 0, 0 }, { "Trim", "D2B0FF", 0.55, 0, 0 }, { "Glow", "9B3FD0", 0.55, 0, 1.5 } },
 	MossStone = { { "Body", "5D5BA0", 0.55, 0, 0 }, { "Accessory", "2E8A70", 0.55, 0, 0 }, { "Glow", "D2B0FF", 0.55, 0, 1.5 } },
 	Mossbop = { { "Body", "6CCB5F", 0.55, 0, 0 }, { "floatR", "D9F36B", 0.55, 0, 0 }, { "sprout", "D9F36B", 0.55, 0, 0 }, { "FacePlate", "6CCB5F", 0.4, 0, 0 } },
 	Mushroom = { { "Body", "E8483D", 0.55, 0, 0 }, { "BodyDark", "F2E6D0", 0.55, 0, 0 }, { "Accessory", "FFF8EE", 0.55, 0, 0 }, { "Trim", "5E9E3A", 0.55, 0, 0 } },
@@ -1248,7 +1248,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "3F2878", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "2A8A94", neon = false, map = "cell" },
 			{ name = "Trim", hex = "CDC3F2", neon = false, map = "cell" },
-			{ name = "Glow", hex = "A6E8FF", neon = true, map = "" },
+			{ name = "Glow", hex = "1B9C94", neon = true, map = "" },
 		},
 	},
 	MoonTreeB = {
@@ -1258,7 +1258,7 @@ local BLOCK_CELL_PROPS: { [string]: BlockCellRow } = {
 			{ name = "BodyDark", hex = "4A2F86", neon = false, map = "cell" },
 			{ name = "Accessory", hex = "5560D0", neon = false, map = "cell" },
 			{ name = "Trim", hex = "D2B0FF", neon = false, map = "cell" },
-			{ name = "Glow", hex = "FFB3E6", neon = true, map = "" },
+			{ name = "Glow", hex = "9B3FD0", neon = true, map = "" },
 		},
 	},
 	MossStone = {
