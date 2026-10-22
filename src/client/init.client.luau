@@ -1459,9 +1459,9 @@ local function start(profile: Types.Profile)
 	end
 	State.OnChanged("gifts", refreshGiftBadge)
 
-	-- The offer (TikTok batch 9 lesson 4, data/Shop HudOffer): a Menu row with the Starter Pack's pixel present, shown while the
-	-- pack can be sold and this player has not bought it (Shared/ShelfMath.OfferShows); a tap opens the Shop, which starts on the
-	-- Featured shelf where the pack is the first card.
+	-- The offer (TikTok batch 9 lesson 4, data/Shop HudOffer): a gold button beside the Shop with the Starter Pack's pixel present
+	-- (Ethan chose it over a Menu row, B53a), shown while the pack can be sold and this player has not bought it
+	-- (Shared/ShelfMath.OfferShows); a tap opens the Shop, which starts on the Featured shelf where the pack is the first card.
 	local offerId = ShopData.HudOffer
 	local offerItem: ShopData.ShopItem? = nil
 	for _, item in ipairs(ShopData.Items) do
@@ -1469,18 +1469,17 @@ local function start(profile: Types.Profile)
 			offerItem = item
 		end
 	end
-	Hud.AddMenuRow(offerId, Theme.Colors.Featured, function()
+	Hud.AddSideButton(offerId, Theme.Colors.Featured, function()
 		if not inCapture and not Reveal.IsOpen() then
 			Screens.Open("Shop")
 		end
 	end)
-	Hud.SetMenuRowVisible(offerId, false)
 	local function refreshOfferButton()
 		local purchases, known = State.GetPurchases()
 		local item = offerItem
 		local shows = item ~= nil
 			and ShelfMath.OfferShows(item, ShopData.Grants[offerId], purchases.purchases[offerId] or 0, known)
-		Hud.SetMenuRowVisible(offerId, shows)
+		Hud.SetSideButtonVisible(offerId, shows)
 	end
 	State.OnChanged("purchases", refreshOfferButton)
 	refreshOfferButton()
