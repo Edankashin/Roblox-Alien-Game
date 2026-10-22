@@ -66,6 +66,7 @@
     "assetId": 122154027752973,
     "file": "assets/models/Buzzlebee/Buzzlebee_face.png",
     "format": "png",
+    "imageId": 137311837248040,
     "kind": "face",
     "sha256": "61465160ba2faf30408239135ae9956154ebfa9ef5f659393963c03effbe182d",
     "uploadedAt": "2026-10-22T05:26:11Z"
@@ -74,6 +75,7 @@
     "assetId": 121711233506883,
     "file": "assets/models/props/CampCrate/CampCrate_atlas.png",
     "format": "png",
+    "imageId": 71193549662506,
     "kind": "atlas",
     "sha256": "89e6319c6b1311e41974be2d9b19d8e53f10bdfb08d02f641c29f0c58acd5210",
     "uploadedAt": "2026-10-22T05:25:39Z"
@@ -82,6 +84,7 @@
     "assetId": 127679146836714,
     "file": "assets/models/props/CampFlag/CampFlag_atlas.png",
     "format": "png",
+    "imageId": 91648705460230,
     "kind": "atlas",
     "sha256": "f8aeaf7faefd436122219be2fea95d6a0818895713320b689a91ce33996e8a49",
     "uploadedAt": "2026-10-22T05:25:42Z"
@@ -90,6 +93,7 @@
     "assetId": 74695514806684,
     "file": "assets/models/props/Campfire/Campfire_atlas.png",
     "format": "png",
+    "imageId": 95366736176150,
     "kind": "atlas",
     "sha256": "043ee3399372c5d722898a00333598187d464a4f724ed05ee1cc75800bd275a5",
     "uploadedAt": "2026-10-22T05:25:45Z"
@@ -107,6 +111,7 @@
     "assetId": 80779953298400,
     "file": "assets/models/Capybubble/Capybubble_face.png",
     "format": "png",
+    "imageId": 82136169363124,
     "kind": "face",
     "sha256": "898e4dd4411623320e116b1dc1ee92d40f396850ec7dd00c4d1c91d13b582df4",
     "uploadedAt": "2026-10-22T05:26:14Z"
@@ -133,6 +138,7 @@
     "assetId": 84730281769460,
     "file": "assets/models/Chipmole/Chipmole_face.png",
     "format": "png",
+    "imageId": 95913860129053,
     "kind": "face",
     "sha256": "bb3cbaef61768c1547e5dacf93945d07f8453100640e1a18a630f5470e7770e1",
     "uploadedAt": "2026-10-22T05:26:17Z"
@@ -159,6 +165,7 @@
     "assetId": 91872887507868,
     "file": "assets/models/Drippo/Drippo_face.png",
     "format": "png",
+    "imageId": 101118448833680,
     "kind": "face",
     "sha256": "a0d39e2150f5636746f59f0a3e5112095d8771e817997077557d064d948409c4",
     "uploadedAt": "2026-10-22T05:26:20Z"
@@ -176,6 +183,7 @@
     "assetId": 92125063272538,
     "file": "assets/models/Emberchin/Emberchin_face.png",
     "format": "png",
+    "imageId": 130015865753912,
     "kind": "face",
     "sha256": "896ee04e0e4d004d2704694a221e7c0633ca4c4687336b792e7663db14655ca1",
     "uploadedAt": "2026-10-22T05:26:23Z"
@@ -202,6 +210,7 @@
     "assetId": 103169273849929,
     "file": "assets/models/Fenripup/Fenripup_face.png",
     "format": "png",
+    "imageId": 73195796678331,
     "kind": "face",
     "sha256": "93b850b02eb1aa85717e51ce18efe553d4510cf215589438e9b60b3bc075a5af",
     "uploadedAt": "2026-10-22T05:26:26Z"
@@ -228,6 +237,7 @@
     "assetId": 100815190645332,
     "file": "assets/models/Flapsicle/Flapsicle_face.png",
     "format": "png",
+    "imageId": 112842277122541,
     "kind": "face",
     "sha256": "646fcaea39e7db3e3bcb3535e4886d8d23c3888e24ffed28da46d59cbc177d4a",
     "uploadedAt": "2026-10-22T05:26:29Z"
@@ -254,6 +264,7 @@
     "assetId": 90302626859211,
     "file": "assets/models/Flufflet/Flufflet_face.png",
     "format": "png",
+    "imageId": 136415585203846,
     "kind": "face",
     "sha256": "4c37b2c43443de177e1ed07dd297269f3f9dd614d23121d390479bb11898e5d5",
     "uploadedAt": "2026-10-22T05:26:32Z"
@@ -280,6 +291,7 @@
     "assetId": 116399865550887,
     "file": "assets/models/Frostfang/Frostfang_face.png",
     "format": "png",
+    "imageId": 78193673813294,
     "kind": "face",
     "sha256": "178b55f62322f1e7cd984f3342dcc6b4a77c71d200818e22c3d0a1e102cb66b3",
     "uploadedAt": "2026-10-22T05:26:35Z"
@@ -306,6 +318,7 @@
     "assetId": 123129260942652,
     "file": "assets/models/Gaiabloom/Gaiabloom_face.png",
     "format": "png",
+    "imageId": 132302858833968,
     "kind": "face",
     "sha256": "87ba528d09046076dfd7ad223c22cc516038a85b715f3d6d5556285da3f72600",
     "uploadedAt": "2026-10-22T05:26:38Z"
@@ -350,6 +363,7 @@
     "assetId": 80801906933609,
     "file": "assets/models/Glimmo/Glimmo_face.png",
     "format": "png",
+    "imageId": 90393874594798,
     "kind": "face",
     "sha256": "3ac9c861deaa7490fffee6eb9d3595d0557b2bd85a08692e8ddb593fea975873",
     "uploadedAt": "2026-10-22T05:26:40Z"
@@ -367,6 +381,7 @@
     "assetId": 125172583492279,
     "file": "assets/models/Gloomoth/Gloomoth_face.png",
     "format": "png",
+    "imageId": 72706783678772,
     "kind": "face",
     "sha256": "adbbbe54bf5e8a593a8cfc0c872cf7180882614ca5f7c01668028340114654f8",
     "uploadedAt": "2026-10-22T05:26:43Z"
@@ -420,6 +435,7 @@
     "assetId": 127258218511186,
     "file": "assets/models/props/GrottoCrystal/GrottoCrystal_atlas.png",
     "format": "png",
+    "imageId": 74073549986650,
     "kind": "atlas",
     "sha256": "d4f7d2cb43767257ad2f3e6a5e7bae2a21dd70537b4a506bed2cedd6c77446a7",
     "uploadedAt": "2026-10-22T05:25:48Z"
@@ -500,6 +516,7 @@
     "assetId": 114872771518091,
     "file": "assets/models/props/IceSignArmHigh/IceSignArmHigh_atlas.png",
     "format": "png",
+    "imageId": 106459290073453,
     "kind": "atlas",
     "sha256": "53620f851cb526472e32e7320a6881b47d4880850df2400cd061ad74c10a95c2",
     "uploadedAt": "2026-10-22T05:25:51Z"
@@ -508,6 +525,7 @@
     "assetId": 81595529807341,
     "file": "assets/models/props/IceSignArmLow/IceSignArmLow_atlas.png",
     "format": "png",
+    "imageId": 134033316780958,
     "kind": "atlas",
     "sha256": "dc9f215773a7217c0ce7fe350784e985ea41b9dfb637076d18f6fa1e13ff4e50",
     "uploadedAt": "2026-10-22T05:25:54Z"
@@ -516,6 +534,7 @@
     "assetId": 91884718613260,
     "file": "assets/models/props/IceSignArmMid/IceSignArmMid_atlas.png",
     "format": "png",
+    "imageId": 136256810815922,
     "kind": "atlas",
     "sha256": "3cab817f07ad1e27af9cac20de2e4da1f193cbc74b3392236ccee2132366d085",
     "uploadedAt": "2026-10-22T05:25:57Z"
@@ -551,6 +570,7 @@
     "assetId": 77758895563843,
     "file": "assets/models/Kettlepuff/Kettlepuff_face.png",
     "format": "png",
+    "imageId": 129085282846385,
     "kind": "face",
     "sha256": "4ff1aa08a53fcee6120a8c4d6e6a87abd6df4bc3e6426b82c9669c00a98f4511",
     "uploadedAt": "2026-10-22T05:26:46Z"
@@ -577,6 +597,7 @@
     "assetId": 98399790867475,
     "file": "assets/models/Lanternewt/Lanternewt_face.png",
     "format": "png",
+    "imageId": 136408703590879,
     "kind": "face",
     "sha256": "9b11e3ac50292f7a628a855558157d63a4da621fdecc6444a6d7551729c547e6",
     "uploadedAt": "2026-10-22T05:26:49Z"
@@ -684,6 +705,7 @@
     "assetId": 122275432429109,
     "file": "assets/models/Mossbop/Mossbop_face.png",
     "format": "png",
+    "imageId": 89438306939577,
     "kind": "face",
     "sha256": "af2604146f50a370c89c14d76433dacabc125ac046367df8327a5c75a9b9d184",
     "uploadedAt": "2026-10-22T05:26:52Z"
@@ -710,6 +732,7 @@
     "assetId": 71304847211704,
     "file": "assets/models/Nebulyn/Nebulyn_face.png",
     "format": "png",
+    "imageId": 78605573120182,
     "kind": "face",
     "sha256": "33195737d68997656fdac6fddb4bb0502d6e31d9743257c40d8db3735b4c9216",
     "uploadedAt": "2026-10-22T05:26:55Z"
@@ -727,6 +750,7 @@
     "assetId": 86339628586940,
     "file": "assets/models/Panpipe/Panpipe_face.png",
     "format": "png",
+    "imageId": 95813780358437,
     "kind": "face",
     "sha256": "3ae9a6410fddc33d3499df11b1bab0f6de1c807fd6a347ca80d1c188e322c0b9",
     "uploadedAt": "2026-10-22T05:26:58Z"
@@ -753,6 +777,7 @@
     "assetId": 134838733831456,
     "file": "assets/models/Pebblet/Pebblet_face.png",
     "format": "png",
+    "imageId": 74579668010165,
     "kind": "face",
     "sha256": "da462456fad1bfe72618729da48d77df5f09bfc309fc44d7d8eae8b8db0d04c7",
     "uploadedAt": "2026-10-22T05:27:01Z"
@@ -779,6 +804,7 @@
     "assetId": 116135631461533,
     "file": "assets/models/Pengoo/Pengoo_face.png",
     "format": "png",
+    "imageId": 106375707270260,
     "kind": "face",
     "sha256": "61a83b918c8cd4c0f76a845ec60b938fa5a76286d9439810867d87c9a570060e",
     "uploadedAt": "2026-10-22T05:27:04Z"
@@ -805,6 +831,7 @@
     "assetId": 117178153366148,
     "file": "assets/models/Puffpuff/Puffpuff_face.png",
     "format": "png",
+    "imageId": 94739602351822,
     "kind": "face",
     "sha256": "5afbfece214dda382298f8644b71724aae90096a17358c1258229c0a441c56d3",
     "uploadedAt": "2026-10-22T05:27:07Z"
@@ -822,6 +849,7 @@
     "assetId": 110640810424209,
     "file": "assets/models/Radish/Radish_face.png",
     "format": "png",
+    "imageId": 131372874937049,
     "kind": "face",
     "sha256": "8981e09dd99ae2de77e3e50744df43b5a535727ed8373d6ff30d9a9a1ada600c",
     "uploadedAt": "2026-10-22T05:27:10Z"
@@ -848,6 +876,7 @@
     "assetId": 110584374393892,
     "file": "assets/models/Reindazzle/Reindazzle_face.png",
     "format": "png",
+    "imageId": 111147116820289,
     "kind": "face",
     "sha256": "542e41103e52b6c5053946c250c33ecbd02ecc05823ed37f43d7014cd355b7c9",
     "uploadedAt": "2026-10-22T05:27:13Z"
@@ -865,6 +894,7 @@
     "assetId": 138042887098769,
     "file": "assets/models/Rocklobber/Rocklobber_face.png",
     "format": "png",
+    "imageId": 91599993746426,
     "kind": "face",
     "sha256": "7e54257f0426938ecfc56775c27f1d02e4b26eb3c1848af56c5b6593fde5ab8f",
     "uploadedAt": "2026-10-22T05:27:15Z"
@@ -909,6 +939,7 @@
     "assetId": 131210341321338,
     "file": "assets/models/Shellberg/Shellberg_face.png",
     "format": "png",
+    "imageId": 106242584652958,
     "kind": "face",
     "sha256": "088667fecfd7cd583173a9666012d3e0c58bf307848a2d152e175841eb9a2160",
     "uploadedAt": "2026-10-22T05:27:18Z"
@@ -926,6 +957,7 @@
     "assetId": 76620170441965,
     "file": "assets/models/Shimmerlynx/Shimmerlynx_face.png",
     "format": "png",
+    "imageId": 138781625479543,
     "kind": "face",
     "sha256": "5c03003ad51f492073ae6f33343061fb4bde1f511e8d7d03246645372d82d593",
     "uploadedAt": "2026-10-22T05:27:21Z"
@@ -961,6 +993,7 @@
     "assetId": 126636782914107,
     "file": "assets/models/props/SightPost/SightPost_atlas.png",
     "format": "png",
+    "imageId": 132801105576507,
     "kind": "atlas",
     "sha256": "2e1eaefe4be569b493218c7e3204ac152fb4d4a3d417c3cc10eaf35857b68a3b",
     "uploadedAt": "2026-10-22T05:26:00Z"
@@ -969,6 +1002,7 @@
     "assetId": 79900033765820,
     "file": "assets/models/props/SignArmHigh/SignArmHigh_atlas.png",
     "format": "png",
+    "imageId": 117532531498029,
     "kind": "atlas",
     "sha256": "6d18fe49261633d23d08cd9c5e02840a99b435c1df383ac3403323bd1b6b8498",
     "uploadedAt": "2026-10-22T05:26:02Z"
@@ -977,6 +1011,7 @@
     "assetId": 87971012644110,
     "file": "assets/models/props/SignArmLow/SignArmLow_atlas.png",
     "format": "png",
+    "imageId": 127243664653672,
     "kind": "atlas",
     "sha256": "3f566f232a194edacdcd984271f86cb0a1b69e6db6111de6abc632c92fc06d41",
     "uploadedAt": "2026-10-22T05:26:05Z"
@@ -985,6 +1020,7 @@
     "assetId": 80667183184536,
     "file": "assets/models/props/SignArmMid/SignArmMid_atlas.png",
     "format": "png",
+    "imageId": 125395846811798,
     "kind": "atlas",
     "sha256": "e0ff805b6858a5c50332eb7efc549e9e5e2dfe4d1491f41700feb01562a3cfb2",
     "uploadedAt": "2026-10-22T05:26:08Z"
@@ -1011,6 +1047,7 @@
     "assetId": 108088043001711,
     "file": "assets/models/Skaddle/Skaddle_face.png",
     "format": "png",
+    "imageId": 116741755641603,
     "kind": "face",
     "sha256": "8c02a6277d87b77b7cff20cdc78fe2719909db11c7a0cfe889c21b216d93613c",
     "uploadedAt": "2026-10-22T05:27:24Z"
@@ -1028,6 +1065,7 @@
     "assetId": 131607132012622,
     "file": "assets/models/Snailbyte/Snailbyte_face.png",
     "format": "png",
+    "imageId": 81584769439486,
     "kind": "face",
     "sha256": "c9ee2879ffdbbd119056f287612fe2917e3277fe96e3292f3f9fd25afc4717fc",
     "uploadedAt": "2026-10-22T05:27:27Z"
@@ -1081,6 +1119,7 @@
     "assetId": 78145049567961,
     "file": "assets/models/Snowbun/Snowbun_face.png",
     "format": "png",
+    "imageId": 88833999114939,
     "kind": "face",
     "sha256": "62e135add9ce5a972e0b0c57ce4ec8d719569ecefb8c7e0a5e03be8d318a04f7",
     "uploadedAt": "2026-10-22T05:27:30Z"
@@ -1107,6 +1146,7 @@
     "assetId": 86700458196128,
     "file": "assets/models/Sparkfox/Sparkfox_face.png",
     "format": "png",
+    "imageId": 86129235005522,
     "kind": "face",
     "sha256": "b780075a6858f1af839db6e34420db1e76f06c5997097f1a67d9c847dbc2ce1f",
     "uploadedAt": "2026-10-22T05:27:33Z"
@@ -1124,6 +1164,7 @@
     "assetId": 102564996282214,
     "file": "assets/models/Spookum/Spookum_face.png",
     "format": "png",
+    "imageId": 106928205674360,
     "kind": "face",
     "sha256": "4ce0ac9ecb594d7dd351c404eb502b92161d3bda92174d1e7826cc2701ae6166",
     "uploadedAt": "2026-10-22T05:27:36Z"
@@ -1159,6 +1200,7 @@
     "assetId": 71565516883265,
     "file": "assets/models/Thunderhog/Thunderhog_face.png",
     "format": "png",
+    "imageId": 80992519326881,
     "kind": "face",
     "sha256": "b4e7289d65dd3850077e6a5339b1c1cb67e9994950fdc800e6c099e7bd0aacb2",
     "uploadedAt": "2026-10-22T05:27:39Z"
@@ -1176,6 +1218,7 @@
     "assetId": 83498868870478,
     "file": "assets/models/Toastoad/Toastoad_face.png",
     "format": "png",
+    "imageId": 132068667511975,
     "kind": "face",
     "sha256": "187598b93e7bf1f710214b912c951e276387522d6b99399868fd962a2d1179aa",
     "uploadedAt": "2026-10-22T05:27:42Z"
@@ -1193,6 +1236,7 @@
     "assetId": 101694745065207,
     "file": "assets/models/Twiglet/Twiglet_face.png",
     "format": "png",
+    "imageId": 125849274342039,
     "kind": "face",
     "sha256": "dd822411477ec6dcdfaf89ebf76c8c4e26e3655d464d2beb16f09e64c67e8191",
     "uploadedAt": "2026-10-22T05:27:45Z"
@@ -1210,6 +1254,7 @@
     "assetId": 126695978856124,
     "file": "assets/models/Wisplet/Wisplet_face.png",
     "format": "png",
+    "imageId": 123249151171223,
     "kind": "face",
     "sha256": "4335d8a1d01ed37fe8929e0ef257a09fa4535ae18fcb64c46fcbadda65edc1be",
     "uploadedAt": "2026-10-22T05:27:48Z"
@@ -1227,6 +1272,7 @@
     "assetId": 115714601176985,
     "file": "assets/models/Zapfinch/Zapfinch_face.png",
     "format": "png",
+    "imageId": 140081956415430,
     "kind": "face",
     "sha256": "bd40868ea00399a027c14cb2240f5486ac0dc45cb02ab525f8eeb1c71c08c18b",
     "uploadedAt": "2026-10-22T05:27:50Z"
