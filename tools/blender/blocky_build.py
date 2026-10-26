@@ -145,8 +145,11 @@ def add_part(bm, part, pivot, mat_index, seg, width, uv, atlas=None):
     if part["bevel"]:
         made = bmesh.ops.create_cube(bm, size=1.0)
         verts = made["verts"]
+        turn = S.rot_matrix(part["rot"]) if any(abs(r) > 1e-9 for r in part["rot"]) else None   # B54: a rest-posed mass is turned about its centre
         for v in verts:
             local = (v.co.x * part["size"][0], v.co.y * part["size"][1], v.co.z * part["size"][2])
+            if turn is not None:
+                local = tuple(sum(turn[i][k] * local[k] for k in range(3)) for i in range(3))
             # create_cube is built in Blender space; read it as spec space so the sizes go on the right axes
             spec_pt = (local[0] + part["at"][0], local[1] + part["at"][1], local[2] + part["at"][2])
             v.co = to_bl(spec_pt) - off
@@ -307,10 +310,10 @@ def face_plate(spec, out_dir, prefix="", offset=(0.0, 0.0, 0.0), rot=(0.0, 0.0, 
     (cx, cy, cz), (w, h, _) = part["at"], part["size"]
     bm = bmesh.new()
     uv = bm.loops.layers.uv.new("UVMap")
-    corners = [((cx + w / 2, cy + h / 2), (0.0, 1.0)), ((cx - w / 2, cy + h / 2), (fw / W, 1.0)),
-               ((cx - w / 2, cy - h / 2), (fw / W, 1.0 - fh / H)), ((cx + w / 2, cy - h / 2), (0.0, 1.0 - fh / H))]
+    uvs = [(0.0, 1.0), (fw / W, 1.0), (fw / W, 1.0 - fh / H), (0.0, 1.0 - fh / H)]
+    corners = list(zip(part["corners"], uvs))   # creature space, already posed with the head (spec.face_plate)
     off = to_bl(part["pivot"])
-    vs = [bm.verts.new(to_bl((x, y, cz)) - off) for (x, y), _ in corners]
+    vs = [bm.verts.new(to_bl(pt) - off) for pt, _ in corners]
     face = bm.faces.new(vs)
     face.normal_update()
     if face.normal.dot(to_bl((0.0, 0.0, -1.0))) < 0:

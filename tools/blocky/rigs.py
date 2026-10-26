@@ -73,9 +73,16 @@ def row(spec, images=None):
     targets = S.rig_targets(spec)
     c = centre_of(spec)
     parts = []
+    groups = S.rest_groups(spec)
     for key in sorted(k for k in r["clips"] if k not in S.RESERVED_MOVES):
         piv = targets[key]["pivot"]
-        parts.append({"name": key, "pivot": [piv[0] - c[0], piv[1], piv[2] - c[2]], "clips": r["clips"][key]})
+        entry = {"name": key, "pivot": [piv[0] - c[0], piv[1], piv[2] - c[2]], "clips": r["clips"][key]}
+        poses = {m.get("pose") for m in targets[key]["parts"]}
+        if len(poses) == 1 and next(iter(poses)) in groups:   # B54: the object stands in a rest pose, baked into its mesh (the turn, degrees)
+            rot = groups[next(iter(poses))]["rot"]
+            flip = -1 if key.endswith("L") else 1            # the left twin of a pair is the mirror image: yaw and roll change sign
+            entry["rest"] = [rot[0], rot[1] * flip, rot[2] * flip]
+        parts.append(entry)
     eyes = spec["eyes"]
     key = eyes["key"]
     lay = S.plate_layout(spec)
@@ -170,7 +177,8 @@ def render(rows):
         lines.append("\t\theight = %s," % _num(r["height"]))
         lines.append("\t\tparts = {")
         for p in r["parts"]:
-            lines.append('\t\t\t{ name = "%s", pivot = %s, clips = { %s } },' % (p["name"], _vec(p["pivot"]), ", ".join(_clip(c) for c in p["clips"])))
+            rest = ", rest = %s" % _vec(p["rest"]) if p.get("rest") else ""
+            lines.append('\t\t\t{ name = "%s", pivot = %s%s, clips = { %s } },' % (p["name"], _vec(p["pivot"]), rest, ", ".join(_clip(c) for c in p["clips"])))
         lines.append("\t\t},")
         lines.append("\t\troot = { %s }," % ", ".join(_clip(c) for c in r["root"]) if r["root"] else "\t\troot = {},")
         f = r["face"]

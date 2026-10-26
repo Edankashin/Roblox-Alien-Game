@@ -25,8 +25,9 @@ QUARTER = 0.25
 TIER_COUNT = {"Common": (1, 1), "Uncommon": (2, 2), "Rare": (3, 4), "Epic": (5, 6), "Legendary": (7, 99), "Cosmic": (7, 99), "Secret": (7, 99)}
 SATELLITES = (6, 10)          # Rare and up: modelled pieces on the signature-piece orbit
 SATELLITE_FROM = "Rare"
-BACKDROP_FROM = "Legendary"   # one disc, ring or crest behind the body, under a stud deep
-BACKDROP_DEPTH = 1.0
+SATELLITE_SIZE = (0.0, 1.0)   # PILOT-2: a satellite piece is half a stud to a stud across its longest side (fewer and bigger beats many and tiny)
+BACKDROP_FROM = "Legendary"   # one disc, ring or crest behind the body, under half a stud deep (PILOT-2; v1 allowed a stud)
+BACKDROP_DEPTH = 0.5
 AURA_FROM = "Cosmic"          # Cosmic and Secret: a ground ring of cells
 TIERS = ("Common", "Uncommon", "Rare", "Epic", "Legendary", "Cosmic", "Secret")
 

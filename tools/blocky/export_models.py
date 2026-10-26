@@ -71,7 +71,7 @@ IMAGE_IDS_FILE = MODELS / "image_ids.json"   # the atlas and face sheet Decal an
 TOOL = "tools/blocky/export_models.py"
 
 HEIGHT_BAND = (2.0, 3.5)        # Decision B45: every alien 2 to 3.5 studs
-TRI_CAP = S.TRI_CAP
+TRI_CAP = S.TRI_CAP             # the cap of a prop; an alien's is S.tri_cap(its tier) (B54: Epic 4,000, Legendary and up 6,000)
 CELLS = "Body"                  # the merged static cell mesh
 GLOW = "Glow"                   # the static glow blocks (Neon)
 FACE = RG.FACE_PART             # "FacePlate"
@@ -272,11 +272,12 @@ def check_folder(folder, spec, row):
     if abs(height - row["height"]) > HEIGHT_TOL:
         problems.append("%.3f studs tall, Rigs.luau says %.3f" % (height, row["height"]))
     plate = by.get(FACE)
-    if plate and (plate["normal"] is None or plate["normal"][2] > -0.9):
+    if plate and (plate["normal"] is None or plate["normal"][2] > -0.85):   # a head turned up to 25 degrees (B54 rest pose) still looks -Z
         problems.append("the face plate does not look along -Z (normal %s)" % _fmt(plate["normal"] or []))
     tris = sum(n["tris"] for n in g["nodes"])
-    if tris > TRI_CAP:
-        problems.append("%d triangles, over the cap of %d" % (tris, TRI_CAP))
+    cap = S.tri_cap(spec["front"].get("tier"))
+    if tris > cap:
+        problems.append("%d triangles, over the cap of %d" % (tris, cap))
     noted = notes_triangles((folder / "notes.md").read_text(encoding="utf-8"))
     if noted != tris:
         problems.append("notes.md says %s triangles, the GLB has %d" % (noted, tris))
@@ -566,7 +567,7 @@ def notes_text(info):
         "- Spec note: %s (%s, World %s, %s, status %s)" % (note_rel, front.get("name", sid), front.get("world", "?"), front.get("tier", "?"), front.get("status", "?")),
         "- Height: %s studs (1 unit = 1 stud); the origin is the bottom centre of the bounds; Y up, facing -Z (Roblox's front), its right on +X, in the GLB and the FBX alike" % RG._num(row["height"]),
         "- Blocks: %d" % S.counts(spec)["blocks"],
-        "- Triangles: %d (cap %d)" % (info["tris"], TRI_CAP),
+        "- Triangles: %d (cap %d)" % (info["tris"], S.tri_cap(front.get("tier"))),
         "- Cells: %s studs a cell, atlas %s_atlas.png %dx%d, nearest filtering (in Studio a SurfaceAppearance ColorMap with ResampleMode Pixelated)" % (
             RG._num(info["cell"]), sid, info["atlas"][0], info["atlas"][1]),
         "- Parts (one MeshPart each, in GLB order, names as in src/shared/data/Rigs.luau): %s" % "; ".join(listed),
