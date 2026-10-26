@@ -129,7 +129,7 @@ class SpecB46(unittest.TestCase):
 
     def test_motion_ladder_and_blink(self):
         spec = S.load(RADDIS)
-        for key in ("halo", "wing", "orb", "frond", "leaf"):
+        for key in ("halo", "wing", "flame", "frond"):
             del spec["rig"]["clips"][key]
         errs = errors_of(spec)
         self.assertTrue(any("has no clip" in e for e in errs))

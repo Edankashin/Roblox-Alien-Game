@@ -25,7 +25,7 @@ QUARTER = 0.25
 TIER_COUNT = {"Common": (1, 1), "Uncommon": (2, 2), "Rare": (3, 4), "Epic": (5, 6), "Legendary": (7, 99), "Cosmic": (7, 99), "Secret": (7, 99)}
 SATELLITES = (6, 10)          # Rare and up: modelled pieces on the signature-piece orbit
 SATELLITE_FROM = "Rare"
-SATELLITE_SIZE = (0.0, 1.0)   # PILOT-2: a satellite piece is half a stud to a stud across its longest side (fewer and bigger beats many and tiny)
+SATELLITE_SIZE = (0.5, 0.9)   # PILOT-2: a satellite piece is half a stud to nine tenths of one across its longest side (fewer and bigger beats many and tiny)
 BACKDROP_FROM = "Legendary"   # one disc, ring or crest behind the body, under half a stud deep (PILOT-2; v1 allowed a stud)
 BACKDROP_DEPTH = 0.5
 AURA_FROM = "Cosmic"          # Cosmic and Secret: a ground ring of cells
@@ -157,31 +157,42 @@ def _aurora_wisp(g, lite=False):
 # Each is a flat cell figure that faces outward from the ring it is strung on. The world kits supply two (the leaf blade, the frost shard),
 # and every alien adds its own theme: Raddis's suns, Syrinx's eclipse shards and wool tufts, Fenrir's moon phases.
 def _sun_cross(g, lite=False):
-    # a lit pixel sun: two crossing bars and a raised amber heart (Epic and up grid)
-    return [_box(-0.25, 0.25, -0.0625, 0.0625, 0, 0.125, "Glow", "crystal"), _box(-0.0625, 0.0625, -0.25, 0.25, 0, 0.125, "Glow", "crystal"),
-            _box(-0.125, 0.125, -0.125, 0.125, 0.125, 0.1875, "Trim", "metal")]
+    # a lit pixel sun, seven eighths of a stud across (PILOT-2): an amber plus of two bars a quarter stud thick, four diagonal nubs and a raised
+    # glowing heart; only the heart is Glow, so the orbit stays a cell mesh and not a flat Neon one
+    out = [_box(-0.4375, 0.4375, -0.125, 0.125, 0, 0.125, "Trim", "metal"), _box(-0.125, 0.125, -0.4375, 0.4375, 0, 0.125, "Trim", "metal")]
+    out += [_box(0.1875 if sx > 0 else -0.375, 0.375 if sx > 0 else -0.1875, 0.1875 if sy > 0 else -0.375, 0.375 if sy > 0 else -0.1875, 0, 0.125, "Trim", "metal")
+            for sx in (-1, 1) for sy in (-1, 1)]
+    out.append(_box(-0.1875, 0.1875, -0.1875, 0.1875, 0.125, 0.25, "Glow", "crystal"))
+    return out
 
 
 def _leaf_blade(g, lite=False):
-    # a broad leaf cut in two cells, leaning 15 degrees: the Verdant satellite
-    return [_box(-0.1875, 0.1875, 0, 0.3125, 0, 0.0625, "Accessory", "moss", "box", (0, 0, 15)),
-            _box(-0.0625, 0.0625, 0.3125, 0.4375, 0, 0.0625, "Accessory", "moss", "box", (0, 0, 15))]
+    # a broad leaf, seven eighths of a stud long and five eighths across at its belly, five stepped cells on a stem: the Verdant satellite
+    return [_box(-0.0625, 0.0625, 0, 0.125, 0, 0.125, "BodyDark", "wood"),
+            _box(-0.1875, 0.1875, 0.125, 0.375, 0, 0.125, "Accessory", "moss"),
+            _box(-0.3125, 0.3125, 0.375, 0.625, 0, 0.125, "Accessory", "moss"),
+            _box(-0.1875, 0.1875, 0.625, 0.8125, 0, 0.125, "Accessory", "moss"),
+            _box(-0.0625, 0.0625, 0.8125, 0.875, 0, 0.125, "Accessory", "moss")]
 
 
 def _frost_shard(g, lite=False):
-    # one faceted shard, a cone6, leaning: the Frostbyte satellite
-    return [_box(-0.125, 0.125, -0.125, 0.125, 0, 0.5, "Accessory", "ice", "cone6", (18, 0, 0))]
+    # one faceted shard, a cone6 four fifths of a stud tall and a quarter across, leaning, in the body's violet so it reads on snow: the Frostbyte satellite
+    return [_box(-0.125, 0.125, -0.125, 0.125, 0, 0.8125, "Body", "ice", "cone6", (18, 0, 0))]
 
 
 def _eclipse_shard(g, lite=False):
-    # a chip of the dark moon: a slab with a lit violet rim cell on its edge
-    return [_box(-0.1875, 0.1875, -0.1875, 0.125, 0, 0.0625, "BodyDark", None, "box", (0, 0, 15)),
-            _box(-0.1875, 0.1875, 0.125, 0.1875, 0, 0.0625, "Glow", "crystal", "box", (0, 0, 15))]
+    # a chip of the dark moon, seven eighths of a stud across: a dark slab wrapped in a lit violet rim on its top and right edges, so the dark
+    # half reads against the grass by the light beside it
+    return [_box(-0.4375, 0.3125, -0.4375, 0.1875, 0, 0.125, "Body", None),
+            _box(-0.3125, -0.0625, -0.3125, -0.0625, 0.125, 0.1875, "Accessory"),
+            _box(-0.4375, 0.4375, 0.1875, 0.3125, 0, 0.125, "Glow", "glow"),
+            _box(0.3125, 0.4375, -0.4375, 0.1875, 0, 0.125, "Glow", "glow")]
 
 
 def _wool_tuft(g, lite=False):
-    # a puff of dark wool: two stacked cells
-    return [_box(-0.1875, 0.1875, -0.1875, 0.1875, 0, 0.125, "BodyDark", "wool"), _box(-0.125, 0.25, -0.125, 0.25, 0.125, 0.1875, "BodyDark", "wool")]
+    # a puff of wool three quarters of a stud across: a dark base, a lighter fleece on it and a violet bud on its top
+    return [_box(-0.375, 0.375, -0.375, 0.25, 0, 0.1875, "BodyDark", "wool"), _box(-0.3125, 0.25, -0.25, 0.3125, 0.1875, 0.3125, "Body", "wool"),
+            _box(0.0625, 0.25, -0.0625, 0.125, 0.3125, 0.4375, "Accessory")]
 
 
 def _note_glyph(g, lite=False):
@@ -191,25 +202,25 @@ def _note_glyph(g, lite=False):
 
 
 def _moon_full(g, lite=False):
-    # a gibbous moon, half a stud across: a lit octagon of two bars with a dark limb on its right, so it reads against snow
-    return [_box(-0.25, 0.125, -0.125, 0.125, 0, 0.0625, "Glow", "crystal"), _box(-0.125, 0.125, -0.25, 0.25, 0, 0.0625, "Glow", "crystal"),
-            _box(0.125, 0.25, -0.125, 0.125, 0, 0.0625, "Body", "fur")]
+    # a gibbous moon, seven eighths of a stud across: a lit octagon with a dark limb on its right, so it reads against snow
+    return [_box(-0.4375, 0.1875, -0.25, 0.25, 0, 0.125, "Glow", "crystal"), _box(-0.25, 0.1875, -0.4375, 0.4375, 0, 0.125, "Glow", "crystal"),
+            _box(0.1875, 0.4375, -0.25, 0.25, 0, 0.125, "BodyDark", "fur")]
 
 
 def _moon_half(g, lite=False):
-    return [_box(0, 0.25, -0.125, 0.125, 0, 0.0625, "Glow", "crystal"), _box(0, 0.125, -0.25, 0.25, 0, 0.0625, "Glow", "crystal"),
-            _box(-0.25, 0, -0.125, 0.125, 0, 0.0625, "Body", "fur"), _box(-0.125, 0, -0.25, 0.25, 0, 0.0625, "Body", "fur")]
+    return [_box(0, 0.4375, -0.25, 0.25, 0, 0.125, "Glow", "crystal"), _box(0, 0.25, -0.4375, 0.4375, 0, 0.125, "Glow", "crystal"),
+            _box(-0.4375, 0, -0.25, 0.25, 0, 0.125, "BodyDark", "fur"), _box(-0.25, 0, -0.4375, 0.4375, 0, 0.125, "BodyDark", "fur")]
 
 
 def _moon_crescent(g, lite=False):
-    return [_box(-0.25, 0.125, -0.125, 0.125, 0, 0.0625, "Body", "fur"), _box(-0.125, 0, -0.25, 0.25, 0, 0.0625, "Body", "fur"),
-            _box(0.125, 0.25, -0.125, 0.125, 0, 0.0625, "Glow", "crystal"), _box(0, 0.125, 0.125, 0.25, 0, 0.0625, "Glow", "crystal"),
-            _box(0, 0.125, -0.25, -0.125, 0, 0.0625, "Glow", "crystal")]
+    return [_box(-0.4375, 0.1875, -0.25, 0.25, 0, 0.125, "BodyDark", "fur"), _box(-0.25, 0.0625, -0.4375, 0.4375, 0, 0.125, "BodyDark", "fur"),
+            _box(0.1875, 0.4375, -0.25, 0.25, 0, 0.125, "Glow", "crystal"), _box(0.0625, 0.25, 0.25, 0.4375, 0, 0.125, "Glow", "crystal"),
+            _box(0.0625, 0.25, -0.4375, -0.25, 0, 0.125, "Glow", "crystal")]
 
 
 def _moon_new(g, lite=False):
-    return [_box(-0.25, 0.25, -0.125, 0.125, 0, 0.0625, "Body", "fur"), _box(-0.125, 0.125, -0.25, 0.25, 0, 0.0625, "Body", "fur"),
-            _box(0.125, 0.1875, 0, 0.0625, 0.0625, 0.125, "Glow", "crystal")]
+    return [_box(-0.4375, 0.4375, -0.25, 0.25, 0, 0.125, "BodyDark", "fur"), _box(-0.25, 0.25, -0.4375, 0.4375, 0, 0.125, "BodyDark", "fur"),
+            _box(0.1875, 0.3125, 0, 0.125, 0.125, 0.1875, "Glow", "crystal")]
 
 
 PIECES = {p.name: p for p in (
@@ -221,13 +232,13 @@ PIECES = {p.name: p for p in (
     Piece("ice_shard", "Frostbyte", "two faceted cone6 shards leaning apart", ("head_top", "back", "shoulder", "haunch", "tail"), _ice_shard),
     Piece("snowflake_stud", "Frostbyte", "a six-point silver glyph flat on a flank or a plate", ("flank", "shoulder", "cheek", "plate"), _snowflake, "Epic"),
     Piece("frost_rim", "Frostbyte", "a lip of pale ice with three icicle teeth along an edge", ("head_top", "back", "edge", "ear"), _frost_rim, "Epic"),
-    Piece("leaf_blade", "Verdant", "a broad leaf in two cells leaning 15 degrees (a satellite)", ("orbit",), _leaf_blade),
-    Piece("frost_shard", "Frostbyte", "one faceted cone6 shard leaning (a satellite)", ("orbit",), _frost_shard),
-    Piece("sun_cross", "Raddis", "a lit pixel sun: two crossing bars and a raised heart (a satellite)", ("orbit",), _sun_cross, "Epic"),
-    Piece("eclipse_shard", "Syrinx", "a chip of the dark moon with a lit violet rim (a satellite)", ("orbit",), _eclipse_shard, "Epic"),
+    Piece("leaf_blade", "Verdant", "a broad leaf seven eighths of a stud long in five stepped cells (a satellite)", ("orbit",), _leaf_blade),
+    Piece("frost_shard", "Frostbyte", "one faceted cone6 shard four fifths of a stud tall, leaning (a satellite)", ("orbit",), _frost_shard),
+    Piece("sun_cross", "Raddis", "a seven-eighths-stud pixel sun: an amber plus with four nubs and a raised lit heart (a satellite)", ("orbit",), _sun_cross, "Epic"),
+    Piece("eclipse_shard", "Syrinx", "a seven-eighths-stud chip of the dark moon wrapped in a lit violet rim (a satellite)", ("orbit",), _eclipse_shard, "Epic"),
     Piece("note_glyph", "Syrinx", "a lit music note: head, stem and flag (a satellite)", ("orbit",), _note_glyph, "Epic"),
-    Piece("wool_tuft", "Syrinx", "a puff of dark wool in two cells (a satellite)", ("orbit",), _wool_tuft, "Epic"),
-    Piece("moon_full", "Fenrir", "a gibbous moon, a lit octagon with a dark limb (a satellite)", ("orbit",), _moon_full, "Epic"),
+    Piece("wool_tuft", "Syrinx", "a puff of wool in two tones with a violet bud (a satellite)", ("orbit",), _wool_tuft, "Epic"),
+    Piece("moon_full", "Fenrir", "a gibbous moon seven eighths of a stud across, a lit octagon with a dark limb (a satellite)", ("orbit",), _moon_full, "Epic"),
     Piece("moon_half", "Fenrir", "a half moon, the left half dark (a satellite)", ("orbit",), _moon_half, "Epic"),
     Piece("moon_crescent", "Fenrir", "a crescent moon, only its right rim lit (a satellite)", ("orbit",), _moon_crescent, "Epic"),
     Piece("moon_new", "Fenrir", "a new moon, dark with one lit pixel (a satellite)", ("orbit",), _moon_new, "Epic"),
@@ -251,7 +262,7 @@ def _fmt(v):
     return str(int(v)) if v == int(v) else ("%.5f" % v).rstrip("0").rstrip(".")
 
 
-def part(name, slot, size, at, rot=None, shape="box", material=None, mirror=False, moves=None, pivot=None):
+def part(name, slot, size, at, rot=None, shape="box", material=None, mirror=False, moves=None, pivot=None, pose=None):
     """A part dict in the spec's own vocabulary (size and at in studs)."""
     p = {"name": name, "slot": slot, "size": [round(s, 5) for s in size], "at": [round(a, 5) for a in at]}
     if rot and any(abs(r) > 1e-9 for r in rot):
@@ -265,12 +276,14 @@ def part(name, slot, size, at, rot=None, shape="box", material=None, mirror=Fals
     if moves:
         p["moves"] = moves
         p["pivot"] = [round(v, 5) for v in pivot]
+    if pose:
+        p["pose"] = pose
     return p
 
 
 def line(p):
     """One part as the note's flow mapping."""
-    keys = ["name", "slot", "size", "at", "rot", "shape", "mirror", "moves", "pivot", "material"]
+    keys = ["name", "slot", "size", "at", "rot", "shape", "mirror", "moves", "pivot", "pose", "material"]
     out = []
     for k in keys:
         if k not in p:
@@ -282,7 +295,7 @@ def line(p):
     return "  - {" + ", ".join(out) + "}"
 
 
-def place(piece, name, at, normal="+y", g=0.125, mirror=False, spin=0, moves=None, pivot=None, scale=1.0, lite=False, slots=None):
+def place(piece, name, at, normal="+y", g=0.125, mirror=False, spin=0, moves=None, pivot=None, scale=1.0, lite=False, slots=None, pose=None):
     """The parts of one piece placed with its origin at `at` on a surface with outward `normal`. `spin` quarter turns (0 to 3) of the piece about
     its own outward axis; the tilts of a cell (the shard's lean) are given about the local axes and carried over to the world's (a lean about
     local x on a top is a lean about world x; on a wall the axes swap). `lite` builds the cheap version (no glow); `slots` maps a cell's slot to
@@ -302,11 +315,11 @@ def place(piece, name, at, normal="+y", g=0.125, mirror=False, spin=0, moves=Non
             ws[wi] = ls[li]
             rot[wi] += sg * c.tilt[li]
         wc = [at[i2] + wc[i2] for i2 in range(3)]
-        out.append(part("%s%s" % (name, "abcdefghijklmnopqrstuvwxyz"[i]), (slots or {}).get(c.slot, c.slot), ws, wc, rot, c.shape, c.material, mirror, moves, pivot))
+        out.append(part("%s%s" % (name, "abcdefghijklmnopqrstuvwxyz"[i]), (slots or {}).get(c.slot, c.slot), ws, wc, rot, c.shape, c.material, mirror, moves, pivot, pose))
     return out
 
 
-def band(name, centre, size, t=0.125, h=0.125, slot="BodyDark", material="wood", faces=("-z", "+z", "+x", "-x"), moves=None, pivot=None):
+def band(name, centre, size, t=0.125, h=0.125, slot="BodyDark", material="wood", faces=("-z", "+z", "+x", "-x"), moves=None, pivot=None, pose=None):
     """A ring of cells round a column or a body at `centre` (the middle of the ring), `size` = (w, d) of what it wraps; `t` proud, `h` tall.
     One strip a face (leave out the one a collar or a plate already covers); the strips on the +x and -x faces run the whole depth and the
     front and back ones the whole width plus the corners."""
@@ -322,11 +335,11 @@ def band(name, centre, size, t=0.125, h=0.125, slot="BodyDark", material="wood",
             sz, at = (t, h, d), (cx + (w + t) / 2, cy, cz)
         else:
             sz, at = (t, h, d), (cx - (w + t) / 2, cy, cz)
-        out.append(part("%s%s" % (name, {"-z": "F", "+z": "B", "+x": "R", "-x": "L"}[face]), slot, sz, at, None, "box", material, False, moves, pivot))
+        out.append(part("%s%s" % (name, {"-z": "F", "+z": "B", "+x": "R", "-x": "L"}[face]), slot, sz, at, None, "box", material, False, moves, pivot, pose))
     return out
 
 
-def vine_wrap(name, base, size, height, steps=4, t=0.125, slot="Accessory", material="moss", moves=None, pivot=None, faces=("-z", "+x", "+z", "-x")):
+def vine_wrap(name, base, size, height, steps=4, t=0.125, slot="Accessory", material="moss", moves=None, pivot=None, faces=("-z", "+x", "+z", "-x"), pose=None):
     """A vine winding up a column of footprint `size` = (w, d) centred on `base` (x, y of its lowest point, z): one strip a quarter turn, each a
     step higher, so from every side it reads as a diagonal wrap. `steps` strips over `height`; `faces` is the order of the faces it crosses
     (leave out the one a collar or a plate already covers)."""
@@ -345,7 +358,7 @@ def vine_wrap(name, base, size, height, steps=4, t=0.125, slot="Accessory", mate
             sz, at = (t, h, d + 2 * t), (cx + (w + t) / 2, y, cz)
         else:
             sz, at = (t, h, d + 2 * t), (cx - (w + t) / 2, y, cz)
-        out.append(part("%s%d" % (name, k), slot, sz, at, None, "box", material, False, moves, pivot))
+        out.append(part("%s%d" % (name, k), slot, sz, at, None, "box", material, False, moves, pivot, pose))
     return out
 
 
@@ -440,10 +453,11 @@ def aura_ring(name, centre, r_out, cell, slot="Glow", material="crystal", thick=
     return out
 
 
-def orbit(pieces, name, centre, radius, y, tilt=0.0, moves="sat", pivot=None, g=0.125, start=0.0, scales=None, spins=None):
+def orbit(pieces, name, centre, radius, y, tilt=0.0, moves="sat", pivot=None, g=0.125, start=0.0, scales=None, spins=None, lift=0.0, facing="out", drops=None):
     """Pieces strung on one circle round `centre` (x, z), at height `y` plus `tilt` times the sine of the angle (the ring tilted, as Raddis's sun
     ring is). `pieces` is a list of Piece or (Piece, normal) in order; each faces outward (the nearest side of the four). All are one moving
-    object `moves` whose pivot is the ring's centre at the mean height, so the rig's spin turns the whole ring."""
+    object `moves` whose pivot is the ring's centre at the mean height, so the rig's spin turns the whole ring. `lift` (studs) drops the front of the
+    ring and raises its back by that much."""
     cx, cz = centre
     pivot = pivot or [cx, y, cz]
     n = len(pieces)
@@ -452,14 +466,98 @@ def orbit(pieces, name, centre, radius, y, tilt=0.0, moves="sat", pivot=None, g=
         piece, normal = pc if isinstance(pc, tuple) else (pc, None)
         a = start + 2 * math.pi * i / n
         px, pz = cx + radius * math.sin(a), cz - radius * math.cos(a)   # a = 0 is the front (-z)
-        py = y + tilt * math.sin(a)
+        py = y + tilt * math.sin(a) - lift * math.cos(a)   # `lift`: the front of the ring (a = 0) lower and the back higher, so no piece hangs over the face
+        if normal is None and facing == "front":
+            normal = "-z" if math.cos(a) > -0.5 else "+z"   # every flat piece faces the viewer (the back ones face back), so none is edge-on from the front
         if normal is None:
             nx, nz = math.sin(a), -math.cos(a)
             normal = ("+x" if nx > 0 else "-x") if abs(nx) > abs(nz) else ("+z" if nz > 0 else "-z")
         # the piece's footprint centre sits on the circle; snap to the sixteenth grid so every face lies on a grid
+        py -= drops[i] if drops else 0.0   # a piece built upward from its footprint (a leaf, a shard) sits lower so its middle is on the ring
         out += place(piece, "%s%d" % (name, i), (snap(px, g / 2), snap(py, g / 2), snap(pz, g / 2)), normal, g,
                      moves=moves, pivot=pivot, scale=(scales[i] if scales else 1.0), spin=(spins[i] if spins else 0))
     return out
+
+
+# ------------------------------------------------------------------------------------------------ PILOT-2: the big shapes (discs, coronas, flames, rings)
+def disc(name, centre, rings, z, row=0.25, cell=0.25, thick=0.125, moves=None, pivot=None, skip=None):
+    """A stepped disc standing behind the body (a backdrop), in cells: `rings` is [(radius, slot, material)] from the outside in, each cell takes
+    the slot of the innermost ring that still holds its centre; runs of one slot in a row merge into one block. `centre` = (x, y), the disc in the
+    plane z (its front face), `thick` deep. `skip` is a (x0, x1, y0, y1) box whose cells are left out (the part of the disc a body hides from
+    every side but the back)."""
+    cx, cy = centre
+    rmax = max(r for r, _, _ in rings)
+    n = int(math.ceil(rmax / row))
+    out = []
+    k = 0
+    for j in range(-n, n):
+        yc = cy + (j + 0.5) * row
+        runs = []
+        for i in range(-int(math.ceil(rmax / cell)) - 1, int(math.ceil(rmax / cell)) + 1):
+            xc = cx + (i + 0.5) * cell
+            d = math.hypot(xc - cx, yc - cy)
+            hit = [(r, s, m) for r, s, m in rings if d <= r + 1e-9]
+            if not hit:
+                continue
+            _, slot, mat = min(hit, key=lambda h: h[0])
+            if skip and skip[0] <= xc <= skip[1] and skip[2] <= yc <= skip[3]:
+                continue
+            if runs and runs[-1][1] == slot and runs[-1][2] == mat and abs(runs[-1][3] - (xc - cell / 2)) < 1e-9:
+                runs[-1][3] = xc + cell / 2
+            else:
+                runs.append([xc - cell / 2, slot, mat, xc + cell / 2, xc - cell / 2])
+        for x0, slot, mat, x1, _ in ((r[0], r[1], r[2], r[3], r[0]) for r in runs):
+            out.append(part("%s%d" % (name, k), slot, (x1 - x0, row, thick), ((x0 + x1) / 2, yc, z + thick / 2), None, "box", mat, False, moves, pivot))
+            k += 1
+    return out
+
+
+def corona(name, centre, r_in, z, angles=(45, 90, 135, 180, 225, 270, 315, 0), step=0.25, thick=0.125, long=2, slot="Glow", material="crystal",
+           moves=None, pivot=None, cut=None):
+    """Stepped rays round a disc: for each compass angle (degrees, 0 = up, clockwise as seen from the front) a ray `long` cells long, each cell
+    `step` studs and narrower than the one under it (0.5, 0.25 ... of a cell wide for a cardinal ray, a diagonal staircase for the others),
+    starting at radius `r_in`. `cut` (y) drops cells under that height (a ground the ray would pierce)."""
+    cx, cy = centre
+    out = []
+    k = 0
+    for ang in angles:
+        a = math.radians(ang)
+        dx, dy = round(math.sin(a)), round(math.cos(a))
+        diag = dx != 0 and dy != 0
+        for s in range(long):
+            if diag:
+                d = (r_in / math.sqrt(2)) + s * step * 0.75
+                w = step if s == 0 else step * 0.5
+                x, y = cx + dx * (d + w / 2), cy + dy * (d + w / 2)
+                size = (w, w, thick)
+            else:
+                d = r_in + s * step
+                wide = step * 2 if s == 0 else step
+                x, y = cx + dx * (d + step / 2), cy + dy * (d + step / 2)
+                size = (wide if dy else step, step if dy else wide, thick)
+            if cut is not None and y - size[1] / 2 < cut:
+                continue
+            x0, y0 = snap(x - size[0] / 2, 0.0625), snap(y - size[1] / 2, 0.0625)   # the faces lie on the sixteenth grid
+            out.append(part("%s%d" % (name, k), slot, size, (x0 + size[0] / 2, y0 + size[1] / 2, z + thick / 2), None, "box", material, False, moves, pivot))
+            k += 1
+    return out
+
+
+def teardrop(name, base, rows, row_h, depth, z, slot="Glow", material="crystal", moves=None, pivot=None, mirror=False):
+    """A teardrop flame of stacked rows centred on x = base[0], standing on y = base[1], each row `row_h` tall and as wide as the next number in
+    `rows` (wide at the belly, narrowing to the tip), `depth` deep and centred on z. One block a row."""
+    out = []
+    for i, w in enumerate(rows):
+        out.append(part("%s%d" % (name, i), slot, (w, row_h, depth), (base[0], base[1] + row_h * (i + 0.5), z), None, "box", material, False, moves, pivot))
+    return out
+
+
+def square_ring(name, centre, outer, bar, z, depth, slot="Glow", material="crystal", moves=None, pivot=None):
+    """A hollow square ring facing the front, built of four bars (`outer` across, `bar` thick, `depth` deep), centred on x, y and the plane z."""
+    cx, cy = centre
+    h = (outer - bar) / 2
+    spec = [(outer, bar, (cx, cy + h)), (outer, bar, (cx, cy - h)), (bar, outer - 2 * bar, (cx - h, cy)), (bar, outer - 2 * bar, (cx + h, cy))]
+    return [part("%s%s" % (name, "TBLR"[i]), slot, (w, hh, depth), (x, y, z), None, "box", material, False, moves, pivot) for i, (w, hh, (x, y)) in enumerate(spec)]
 
 
 def counts(parts):

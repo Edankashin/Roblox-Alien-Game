@@ -205,7 +205,7 @@ class Sheet(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             SH.draw_sheet(spec, SH.SvgCanvas).save(d + "/s.svg")
             svg = pathlib.Path(d + "/s.svg").read_text()
-        for needle in ("FRONT (from -Z)", "RIGHT (from +X)", "TOP (front down)", "BACK (from +Z)", "AVATAR", "Moop", "H 2.47", "Face plate: `bean`", "#6CCB5F"):
+        for needle in ("FRONT (from -Z)", "RIGHT (from +X)", "TOP (front down)", "BACK (from +Z)", "AVATAR", "Moop", "H 2.87", "Face plate: `bean`", "#6CCB5F"):
             self.assertIn(needle, svg)
         parts = len(S.expand(spec["parts"]))
         self.assertGreaterEqual(svg.count("<polygon"), parts * 4)

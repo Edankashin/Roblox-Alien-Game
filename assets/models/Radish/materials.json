@@ -27,6 +27,16 @@
   },
   {
     "slot": 4,
+    "name": "flame",
+    "hex": "FFB21E",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
     "name": "frondL",
     "hex": "2CC5B2",
     "roughness": 0.55,
@@ -36,7 +46,7 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 6,
     "name": "frondR",
     "hex": "2CC5B2",
     "roughness": 0.55,
@@ -46,7 +56,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "gem",
     "hex": "FFC21A",
     "roughness": 0.55,
@@ -54,7 +64,7 @@
     "emission": 1.5
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "halo",
     "hex": "FFB21E",
     "roughness": 0.55,
@@ -64,25 +74,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
-    "name": "leaf",
-    "hex": "2CC5B2",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "colorMap": "Radish_atlas.png",
-    "pixelated": true
-  },
-  {
     "slot": 9,
-    "name": "orb",
-    "hex": "FFC21A",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
-    "slot": 10,
     "name": "pendant",
     "hex": "FFC21A",
     "roughness": 0.55,
@@ -90,9 +82,9 @@
     "emission": 1.5
   },
   {
-    "slot": 11,
+    "slot": 10,
     "name": "sunstone",
-    "hex": "FFC21A",
+    "hex": "FFB21E",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -100,7 +92,7 @@
     "pixelated": true
   },
   {
-    "slot": 12,
+    "slot": 11,
     "name": "wingL",
     "hex": "FFB21E",
     "roughness": 0.55,
@@ -110,7 +102,7 @@
     "pixelated": true
   },
   {
-    "slot": 13,
+    "slot": 12,
     "name": "wingR",
     "hex": "FFB21E",
     "roughness": 0.55,
@@ -120,7 +112,7 @@
     "pixelated": true
   },
   {
-    "slot": 14,
+    "slot": 13,
     "name": "FacePlate",
     "hex": "D7265C",
     "roughness": 0.4,

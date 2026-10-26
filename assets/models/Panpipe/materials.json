@@ -27,7 +27,7 @@
   },
   {
     "slot": 4,
-    "name": "beard",
+    "name": "beardR",
     "hex": "1E1A2E",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -83,7 +83,7 @@
   },
   {
     "slot": 10,
-    "name": "gem",
+    "name": "gemR",
     "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,

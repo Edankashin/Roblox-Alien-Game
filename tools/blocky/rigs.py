@@ -80,7 +80,7 @@ def row(spec, images=None):
         poses = {m.get("pose") for m in targets[key]["parts"]}
         if len(poses) == 1 and next(iter(poses)) in groups:   # B54: the object stands in a rest pose, baked into its mesh (the turn, degrees)
             rot = groups[next(iter(poses))]["rot"]
-            flip = -1 if key.endswith("L") else 1            # the left twin of a pair is the mirror image: yaw and roll change sign
+            flip = -1 if (key.endswith("L") and groups[next(iter(poses))].get("mirror")) else 1   # the left twin of a mirrored group: yaw and roll change sign
             entry["rest"] = [rot[0], rot[1] * flip, rot[2] * flip]
         parts.append(entry)
     eyes = spec["eyes"]

@@ -7,9 +7,9 @@ world: 1
 tier: Common
 status: review
 element: Bloom
-height: 2.48
+height: 2.87
 blocks: 12
-tris: 234
+tris: 250
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#6CCB5F", "#2F7A4B", "#FFD45C", "#142019"]
@@ -26,7 +26,7 @@ idle_render: "[[Mossbop_idle.png]]"
 bar_world: Verdant
 bar_kit: 1
 bar_pieces: [sap_run]
-bar_stance: "slumped: the cap leans a quarter stud right and the base an eighth left, the tripod caught mid-step, one leaf up and one drooping"
+bar_stance: "a clear slump: the whole ball rolled 14 degrees about its feet to its right, the tripod caught mid-step, one leaf standing straight up like an ear and the other drooping"
 ---
 # Mossbop (Moop), Common, World 1 Verdant
 
@@ -54,25 +54,25 @@ A ball of moss built in voxel steps: a wide, soft-cornered middle (the head, wit
 
 ```yaml
 parts:
-  # a moss ball in voxel steps, posed: the head is its wide middle, shifted an eighth to its right; the cap step over it slumps a quarter
-  # further right and the base step under it an eighth left, so the whole ball leans like a sleepy sprout (the stance, about 18 degrees)
-  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0.125, 1.125, 0], bevel: true, material: moss}
-  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0.375, 1.875, 0], material: moss}
-  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [-0.125, 0.375, 0], material: moss}
+  # a moss ball in voxel steps, standing in the `lean` rest pose (PILOT-2: the whole ball rolled 14 degrees about its feet, a clear slump to its
+  # right, instead of a quarter stud of shear): the head is its wide middle, the cap step over it and the base step under it
+  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0, 1.125, 0], bevel: true, material: moss, pose: lean}
+  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 1.875, 0], material: moss, pose: lean}
+  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 0.375, 0], material: moss, pose: lean}
   # the tripod, caught mid-step: the right root foot forward and out, the left one back and under, the hind foot behind
   - {name: FootR, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, -0.5], material: wood}
   - {name: FootL, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.5, 0.125, -0.125], material: wood}
   - {name: HindFoot, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.125, 0.125, 0.375], material: wood}
   # alien anatomy: a spore the sprout has let go of, floating beside it (its own moving part), a mote of pollen in the amber accent
-  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.25, -0.75], shape: ico1, moves: float, pivot: [1.125, 2.25, -0.75]}
-  # the sprout grows off the slumped cap: its right leaf reaches up, its left leaf droops (two amber leaves, the hero)
-  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0.375, 2.125, 0], material: wood}
-  - {name: LeafR, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.75, 2.3125, 0], rot: [0, 0, 25], moves: sprout, pivot: [0, 2.25, 0]}
-  - {name: LeafL, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0, 2.25, 0], rot: [0, 0, 15], moves: sprout, pivot: [0, 2.25, 0]}
+  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.375, 2.5, -0.75], shape: ico1, moves: float, pivot: [1.375, 2.5, -0.75]}
+  # the sprout grows off the cap: one leaf stands straight up (an ear up, the hero), the other droops (two amber leaves)
+  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 2.125, 0], material: wood, pose: lean}
+  - {name: LeafR, slot: Accessory, size: [0.625, 0.125, 0.5], at: [0.4375, 2.125, 0], rot: [0, 0, -25], moves: sprout, pivot: [0, 2.25, 0], pose: lean}
+  - {name: LeafL, slot: Accessory, size: [0.625, 0.125, 0.5], at: [-0.25, 2.5625, 0], rot: [0, 0, -65], moves: sprout, pivot: [0, 2.25, 0], pose: lean}
   # pilot bar: begin (tools/blocky/pilots.py writes this region: the Verdant kit's one piece, a sap drop)
-  # the Verdant kit's one piece (a Common wears one): amber sap running down the head's right side from under the cap
-  - {name: Sapa, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.1875, 1.5625, -0.1875], material: metal}
-  - {name: Sapb, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.1875, 1.375, -0.25], material: metal}
+  # the Verdant kit's one piece (a Common wears one): amber sap, half a stud long, running down the head's right side from under the cap
+  - {name: Sapa, slot: Accessory, size: [0.125, 0.125, 0.25], at: [1.0625, 1.6875, -0.25], pose: lean, material: metal}
+  - {name: Sapb, slot: Accessory, size: [0.125, 0.375, 0.25], at: [1.0625, 1.4375, -0.25], pose: lean, material: metal}
   # pilot bar: end
 ```
 
@@ -106,6 +106,8 @@ The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/sh
 
 ```yaml
 rig:
+  rest:
+    lean: {rot: [0, 0, -14], pivot: [0, 0.25, 0]}
   clips:
     sprout: [{kind: sway, amp: 10, period: 3.2, axis: z}]
     float: [{kind: bob, amp: 0.12, period: 2.4}, {kind: orbit, amp: 0.06, period: 4.8}]

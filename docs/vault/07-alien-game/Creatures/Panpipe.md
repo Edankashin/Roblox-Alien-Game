@@ -8,8 +8,8 @@ tier: Secret
 status: review
 element: Shadow
 height: 3.5
-blocks: 189
-tris: 2246
+blocks: 206
+tris: 2666
 bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#4A4166", "#1E1A2E", "#8E6BFF", "#B08A3E", "#9B5CFF", "#0B0812"]
@@ -28,10 +28,10 @@ vfx_render: "[[Panpipe_vfx_cells.jpg]]"
 cells_render: "[[Panpipe_tq_cells.jpg]]"
 idle_render: "[[Panpipe_idle.png]]"
 bar_world: Verdant
-bar_kit: 10
+bar_kit: 13
 bar_pieces: [bark_band, blossom_bud, moss_cells, sap_drop, vine_wrap]
-bar_stance: "an ibex about to step: the right foreleg lifted a quarter stud, the left planted, the tail cocked up"
-bar_satellites: 8
+bar_stance: "an ibex in mid-stride: the head turned 25 degrees to its right, the right foreleg swung forward 45 degrees off the ground, the tail cocked, a dark eclipse behind it"
+bar_satellites: 7
 bar_orbit: shards
 bar_backdrop: eclipse
 bar_aura: aura
@@ -67,12 +67,12 @@ A small shadow goat kid, 3.5 studs to the tips of its horns (B45: it was 13, a c
 ```yaml
 parts:
   # four legs on cloven hooves under wool fetlocks (the hind pair mirrored)
-  # the stance: an ibex about to step: the right foreleg is lifted a quarter stud (hooves, fetlock and leg together), the left one planted, the
-  # tail cocked up behind it
-  - {name: FrontLegR, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0.5, 0.6875, -0.125]}
-  - {name: FrontFetlockR, slot: Body, size: [0.375, 0.125, 0.375], at: [0.5, 0.4375, -0.125], material: wool}
-  - {name: FrontHoofR, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.4375, 0.3125, -0.125], material: metal}
-  - {name: FrontHoof2R, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.5625, 0.3125, -0.125], material: metal}
+  # the stance: an ibex in mid-stride. The right foreleg is built planted like the left and stands in the `fore` rest pose (swung forward 35
+  # degrees at the shoulder, so its hoof is off the ground), the head in the `head` rest pose (turned 22 degrees to its right), the tail cocked
+  - {name: FrontLegR, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [0.5, 0.4375, -0.125], pose: fore}
+  - {name: FrontFetlockR, slot: Body, size: [0.375, 0.125, 0.375], at: [0.5, 0.1875, -0.125], material: wool, pose: fore}
+  - {name: FrontHoofR, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.4375, 0.0625, -0.125], material: metal, pose: fore}
+  - {name: FrontHoof2R, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.5625, 0.0625, -0.125], material: metal, pose: fore}
   - {name: FrontLegL, slot: BodyDark, size: [0.25, 0.375, 0.25], at: [-0.5, 0.4375, -0.125]}
   - {name: FrontFetlockL, slot: Body, size: [0.375, 0.125, 0.375], at: [-0.5, 0.1875, -0.125], material: wool}
   - {name: FrontHoofL, slot: Trim, size: [0.125, 0.125, 0.25], at: [-0.5625, 0.0625, -0.125], material: metal}
@@ -83,40 +83,40 @@ parts:
   - {name: HindHoof2, slot: Trim, size: [0.125, 0.125, 0.25], at: [0.5625, 0.0625, 1.625], mirror: x, material: metal}
   # the body and the big head, both wool; a dark wool mane behind the head, a forelock and a topknot between the horns, tufts on the cheeks
   - {name: Torso, slot: Body, size: [1.5, 1, 2.25], at: [0, 1.125, 0.875], bevel: true, material: wool}
-  - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.75, -0.75], bevel: true, material: wool}
+  - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.75, -0.75], bevel: true, material: wool, pose: head}
   - {name: Mane, slot: BodyDark, size: [1.75, 0.5, 0.25], at: [0, 1.875, 0.125], material: wool}
-  - {name: Forelock, slot: BodyDark, size: [0.75, 0.125, 0.5], at: [0, 2.5625, -1], material: wool}
-  - {name: Topknot, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0, 2.6875, -1], material: wool}
+  - {name: Forelock, slot: BodyDark, size: [0.75, 0.125, 0.5], at: [0, 2.5625, -1], material: wool, pose: head}
+  - {name: Topknot, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0, 2.6875, -1], material: wool, pose: head}
   # Polish w1: a fringe of dark wool proud of the forehead by an eighth, a curl on each end of its top edge and a lock hanging from each end
   # beside the eyes, and on it the brass circlet with its lit violet gem, so the face steps back in three layers from the gem to the eyes
   # and the dark fringe frames it; lit sound glyphs (two bars) on the head's sides
-  - {name: Brow, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0, 2.375, -1.5625], material: wool}
-  - {name: BrowCurl, slot: BodyDark, size: [0.375, 0.125, 0.1875], at: [0.5625, 2.5625, -1.53125], mirror: x, material: wool}
-  - {name: BrowLock, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.8125, 2.125, -1.5625], mirror: x, material: wool}
-  - {name: Circlet, slot: Trim, size: [1, 0.125, 0.0625], at: [0, 2.3125, -1.65625], material: metal}
-  - {name: CircletGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0, 2.3125, -1.71875], moves: gem, pivot: [0, 2.3125, -1.71875]}
-  - {name: Rune, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.03125, 1.4375, -0.34375], mirror: x}
-  - {name: Rune2, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.03125, 1.5, -0.21875], mirror: x}
+  - {name: Brow, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0, 2.375, -1.5625], material: wool, pose: head}
+  - {name: BrowCurl, slot: BodyDark, size: [0.375, 0.125, 0.1875], at: [0.5625, 2.5625, -1.53125], mirror: x, material: wool, pose: head}
+  - {name: BrowLock, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.8125, 2.125, -1.5625], mirror: x, material: wool, pose: head}
+  - {name: Circlet, slot: Trim, size: [2.125, 0.25, 0.125], at: [0, 2.3125, -1.6875], material: metal, pose: head}
+  - {name: CircletGem, slot: Glow, size: [0.25, 0.25, 0.0625], at: [0, 2.3125, -1.78125], moves: gem, pivot: [0, 2.3125, -1.78125], pose: head}
+  - {name: Rune, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.03125, 1.4375, -0.34375], mirror: x, pose: head}
+  - {name: Rune2, slot: Glow, size: [0.0625, 0.25, 0.0625], at: [1.03125, 1.5, -0.21875], mirror: x, pose: head}
   # a stepped dark beard under the chin (it sways), a brass bell with a lit clapper beside it (it swings)
-  - {name: Beard, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [0, 0.875, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool}
-  - {name: Beard2, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 0.625, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool}
+  - {name: Beard, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [0, 0.875, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool, pose: head}
+  - {name: Beard2, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 0.625, -1.25], moves: beard, pivot: [0, 1, -1.25], material: wool, pose: head}
   - {name: BellStrap, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.5625, 0.9375, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625]}
   - {name: Bell, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.5625, 0.75, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625], material: metal}
   - {name: Clapper, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5625, 0.59375, -1.0625], moves: bell, pivot: [0.5625, 1, -1.0625]}
   # long droopy wool ears with violet tips (they droop and lift)
-  - {name: Ear, slot: Body, size: [0.625, 0.125, 0.25], at: [1.28125, 2.0625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75], material: wool}
-  - {name: EarTip, slot: Accessory, size: [0.125, 0.125, 0.25], at: [1.625, 1.90625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75]}
+  - {name: Ear, slot: Body, size: [0.625, 0.125, 0.25], at: [1.28125, 2.0625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75], material: wool, pose: head}
+  - {name: EarTip, slot: Accessory, size: [0.125, 0.125, 0.25], at: [1.625, 1.90625, -0.75], rot: [0, 0, -25], mirror: x, moves: ear, pivot: [1, 2.1875, -0.75], pose: head}
   # alien anatomy: four horns; the big pair steps up and back like an ibex's, a dark ridge and two lit violet bands on each, lit tips; a
   # small pair in front
-  - {name: Horn, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.5625, 2.625, -0.8125], mirror: x, material: metal}
-  - {name: HornRing, slot: Glow, size: [0.25, 0.0625, 0.25], at: [0.5625, 2.78125, -0.8125], mirror: x}
-  - {name: Horn2, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.625, 2.9375, -0.6875], mirror: x, material: metal}
-  - {name: Horn3, slot: Trim, size: [0.1875, 0.25, 0.25], at: [0.65625, 3.1875, -0.5], mirror: x, material: metal}
-  - {name: HornRing2, slot: Glow, size: [0.1875, 0.0625, 0.25], at: [0.65625, 3.34375, -0.4375], mirror: x}
-  - {name: Horn4, slot: Trim, size: [0.1875, 0.125, 0.25], at: [0.65625, 3.4375, -0.25], mirror: x, material: metal}
-  - {name: HornTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 3.4375, -0.0625], mirror: x}
-  - {name: SmallHorn, slot: Trim, size: [0.125, 0.25, 0.125], at: [0.3125, 2.625, -1.25], mirror: x, material: metal}
-  - {name: SmallHornTip, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.3125, 2.78125, -1.25], mirror: x}
+  - {name: Horn, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.5625, 2.625, -0.8125], mirror: x, material: metal, pose: head}
+  - {name: HornRing, slot: Glow, size: [0.25, 0.0625, 0.25], at: [0.5625, 2.78125, -0.8125], mirror: x, pose: head}
+  - {name: Horn2, slot: Trim, size: [0.25, 0.25, 0.25], at: [0.625, 2.9375, -0.6875], mirror: x, material: metal, pose: head}
+  - {name: Horn3, slot: Trim, size: [0.1875, 0.25, 0.25], at: [0.65625, 3.1875, -0.5], mirror: x, material: metal, pose: head}
+  - {name: HornRing2, slot: Glow, size: [0.1875, 0.0625, 0.25], at: [0.65625, 3.34375, -0.4375], mirror: x, pose: head}
+  - {name: Horn4, slot: Trim, size: [0.1875, 0.125, 0.25], at: [0.65625, 3.4375, -0.25], mirror: x, material: metal, pose: head}
+  - {name: HornTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 3.4375, -0.0625], mirror: x, pose: head}
+  - {name: SmallHorn, slot: Trim, size: [0.125, 0.25, 0.125], at: [0.3125, 2.625, -1.25], mirror: x, material: metal, pose: head}
+  - {name: SmallHornTip, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.3125, 2.78125, -1.25], mirror: x, pose: head}
   # the saddle: a dark blanket with a brass pommel, drapes with violet hems, brass tassels and lit sound bars
   - {name: Blanket, slot: BodyDark, size: [1.625, 0.0625, 1], at: [0, 1.65625, 0.5]}
   - {name: Pommel, slot: Trim, size: [0.25, 0.125, 0.125], at: [0, 1.75, 0.3125], material: metal}
@@ -148,27 +148,6 @@ parts:
   - {name: PipeMouth6, slot: Glow, size: [0.125, 0.0625, 0.25], at: [0.6875, 2.21875, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625]}
   - {name: PipeBand, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 1.84375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
   - {name: PipeBand2, slot: Trim, size: [1.0625, 0.0625, 0.375], at: [1.15625, 2.09375, 1.625], moves: pipes, pivot: [1.15625, 1.625, 1.625], material: metal}
-  # Rare pass w1, the signature piece: an eclipse rising behind the horns, a dark moon disc (rows of quarter-stud cells) inside a lit
-  # violet corona of glass cells with four rays, Raddis's sun disk in shadow; it turns slowly, bobs and flares on the flourish (`eclipse`)
-  - {name: Moon0, slot: BodyDark, size: [0.5, 0.125, 0.125], at: [0, 1.9375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 1.9375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon1, slot: BodyDark, size: [1, 0.125, 0.125], at: [0, 2.0625, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 2.0625, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon2, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [0, 2.25, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona2, slot: Glow, size: [0.125, 0.25, 0.125], at: [0.6875, 2.25, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon4, slot: BodyDark, size: [1.5, 0.5, 0.125], at: [0, 2.625, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona4, slot: Glow, size: [0.125, 0.5, 0.125], at: [0.8125, 2.625, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon8, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [0, 3, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona8, slot: Glow, size: [0.125, 0.25, 0.125], at: [0.6875, 3, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon10, slot: BodyDark, size: [1, 0.125, 0.125], at: [0, 3.1875, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona10, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5625, 3.1875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Moon11, slot: BodyDark, size: [0.5, 0.125, 0.125], at: [0, 3.3125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: Corona11, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 3.3125, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: CoronaTop, slot: Glow, size: [0.5, 0.125, 0.125], at: [0, 3.4375, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: CoronaBottom, slot: Glow, size: [0.5, 0.125, 0.125], at: [0, 1.8125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], material: crystal}
-  - {name: Diamond, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.5, 3.125, 0.1875], moves: eclipse, pivot: [0, 2.625, 0.1875], shape: ico1}
-  - {name: CoronaRay0, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.75, 3.375, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875]}
-  - {name: CoronaRay1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.75, 1.875, 0.1875], mirror: x, moves: eclipse, pivot: [0, 2.625, 0.1875]}
   # Rare pass w1: an echo ring, a hollow square of lit sixteenth-stud bars floating over the pipes' mouths, that swells and fades like a
   # note heard from far away (`echo`); and a lit finger hole of violet glass on each reed
   - {name: Echo, slot: Glow, size: [0.625, 0.0625, 0.0625], at: [1.25, 3.40625, 1.34375], moves: echo, pivot: [1.25, 3.375, 1.625]}
@@ -192,59 +171,105 @@ parts:
   - {name: MossCa, slot: BodyDark, size: [0.5, 0.125, 0.5], at: [0, 1.6875, 1.75], material: moss}
   - {name: MossCb, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0.0625, 1.8125, 1.75], material: moss}
   - {name: MossCc, slot: Accessory, size: [0.125, 0.125, 0.125], at: [-0.0625, 1.9375, 1.6875], material: moss}
-  # violet blossom buds on the head's top corners
-  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.9375, 2.625, -0.3125], mirror: x, material: wood}
-  - {name: Budb, slot: Accessory, size: [0.375, 0.125, 0.125], at: [0.9375, 2.8125, -0.3125], mirror: x}
-  - {name: Budc, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.9375, 2.9375, -0.3125], mirror: x}
-  # a vine winding up the lifted foreleg
-  - {name: Vine0, slot: Accessory, size: [0.375, 0.125, 0.0625], at: [0.5, 0.5625, -0.28125], material: moss}
-  - {name: Vine1, slot: Accessory, size: [0.0625, 0.125, 0.375], at: [0.65625, 0.6875, -0.125], material: moss}
-  - {name: Vine2, slot: Accessory, size: [0.375, 0.125, 0.0625], at: [0.5, 0.8125, 0.03125], material: moss}
-  # brass sap drops hanging from the blanket's hem
-  - {name: Sapa, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.9375, 1.125, 0.3125], mirror: x, material: metal}
-  - {name: Sapb, slot: Trim, size: [0.25, 0.125, 0.25], at: [0.875, 1, 0.25], mirror: x, material: metal}
-  - {name: Sapc, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.9375, 0.875, 0.3125], mirror: x, material: crystal}
-  # brass bark bands round the hind legs
-  - {name: BandRF, slot: Trim, size: [0.375, 0.125, 0.0625], at: [0.5, 0.4375, 1.46875], material: wood}
-  - {name: BandRB, slot: Trim, size: [0.375, 0.125, 0.0625], at: [0.5, 0.4375, 1.78125], material: wood}
-  - {name: BandRR, slot: Trim, size: [0.0625, 0.125, 0.25], at: [0.65625, 0.4375, 1.625], material: wood}
-  - {name: BandRL, slot: Trim, size: [0.0625, 0.125, 0.25], at: [0.34375, 0.4375, 1.625], material: wood}
-  - {name: BandLF, slot: Trim, size: [0.375, 0.125, 0.0625], at: [-0.5, 0.4375, 1.46875], material: wood}
-  - {name: BandLB, slot: Trim, size: [0.375, 0.125, 0.0625], at: [-0.5, 0.4375, 1.78125], material: wood}
-  - {name: BandLR, slot: Trim, size: [0.0625, 0.125, 0.25], at: [-0.34375, 0.4375, 1.625], material: wood}
-  - {name: BandLL, slot: Trim, size: [0.0625, 0.125, 0.25], at: [-0.65625, 0.4375, 1.625], material: wood}
-  # the satellite set (`shards`, one orbit below the face): three eclipse shards, three wool tufts and two music notes
-  - {name: Sat0a, slot: Glow, size: [0.25, 0.125, 0.0625], at: [0, 0.8125, -1.65625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat0b, slot: Glow, size: [0.125, 0.375, 0.0625], at: [0.0625, 1.0625, -1.65625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat0c, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.1875, 1.1875, -1.65625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat1a, slot: BodyDark, size: [0.375, 0.3125, 0.0625], at: [1.3125, 1.09375, -1.09375], rot: [0, 0, -15], moves: shards, pivot: [0, 1, 0.25]}
-  - {name: Sat1b, slot: Glow, size: [0.375, 0.0625, 0.0625], at: [1.3125, 1.28125, -1.09375], rot: [0, 0, -15], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat2a, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [1.9375, 1.1875, 0.25], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  - {name: Sat2b, slot: BodyDark, size: [0.0625, 0.375, 0.375], at: [2.03125, 1.25, 0.3125], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  - {name: Sat3a, slot: BodyDark, size: [0.0625, 0.3125, 0.375], at: [1.34375, 1.09375, 1.5625], rot: [15, 0, 0], moves: shards, pivot: [0, 1, 0.25]}
-  - {name: Sat3b, slot: Glow, size: [0.0625, 0.0625, 0.375], at: [1.34375, 1.28125, 1.5625], rot: [15, 0, 0], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat4a, slot: Glow, size: [0.25, 0.125, 0.0625], at: [0, 0.8125, 2.15625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat4b, slot: Glow, size: [0.125, 0.375, 0.0625], at: [-0.0625, 1.0625, 2.15625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat4c, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.1875, 1.1875, 2.15625], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat5a, slot: BodyDark, size: [0.375, 0.375, 0.125], at: [-1.3125, 0.875, 1.625], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  - {name: Sat5b, slot: BodyDark, size: [0.375, 0.375, 0.0625], at: [-1.375, 0.9375, 1.71875], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  - {name: Sat6a, slot: BodyDark, size: [0.0625, 0.3125, 0.375], at: [-1.90625, 0.78125, 0.25], rot: [-15, 0, 0], moves: shards, pivot: [0, 1, 0.25]}
-  - {name: Sat6b, slot: Glow, size: [0.0625, 0.0625, 0.375], at: [-1.90625, 0.96875, 0.25], rot: [-15, 0, 0], moves: shards, pivot: [0, 1, 0.25], material: crystal}
-  - {name: Sat7a, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [-1.375, 0.875, -1.0625], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  - {name: Sat7b, slot: BodyDark, size: [0.0625, 0.375, 0.375], at: [-1.46875, 0.9375, -1.125], moves: shards, pivot: [0, 1, 0.25], material: wool}
-  # the ground aura (`aura`, it breathes): twelve violet dashes in a circle round the hooves
-  - {name: Aura0, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura1, slot: Glow, size: [0.5, 0.0625, 0.125], at: [1, 0.03125, -1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura2, slot: Glow, size: [0.125, 0.0625, 0.5], at: [1.75, 0.03125, -0.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura3, slot: Glow, size: [0.125, 0.0625, 0.5], at: [2, 0.03125, 0.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura4, slot: Glow, size: [0.125, 0.0625, 0.5], at: [1.75, 0.03125, 1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura5, slot: Glow, size: [0.5, 0.0625, 0.125], at: [1, 0.03125, 2.125], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura6, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 0.03125, 2.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura7, slot: Glow, size: [0.5, 0.0625, 0.125], at: [-1, 0.03125, 2.125], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura8, slot: Glow, size: [0.125, 0.0625, 0.5], at: [-1.75, 0.03125, 1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura9, slot: Glow, size: [0.125, 0.0625, 0.5], at: [-2, 0.03125, 0.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura10, slot: Glow, size: [0.125, 0.0625, 0.5], at: [-1.75, 0.03125, -0.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
-  - {name: Aura11, slot: Glow, size: [0.5, 0.0625, 0.125], at: [-1, 0.03125, -1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  # violet blossom buds on the turned head's top corners (they turn with it)
+  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.9375, 2.625, -0.3125], mirror: x, pose: head, material: wood}
+  - {name: Budb, slot: Accessory, size: [0.375, 0.125, 0.125], at: [0.9375, 2.8125, -0.3125], mirror: x, pose: head}
+  - {name: Budc, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.9375, 2.9375, -0.3125], mirror: x, pose: head}
+  # a vine winding up the lifted foreleg in three strips, an eighth proud (it swings with the leg)
+  - {name: Vine0, slot: Accessory, size: [0.5, 0.125, 0.125], at: [0.5, 0.3125, -0.3125], pose: fore, material: moss}
+  - {name: Vine1, slot: Accessory, size: [0.125, 0.125, 0.5], at: [0.6875, 0.4375, -0.125], pose: fore, material: moss}
+  - {name: Vine2, slot: Accessory, size: [0.5, 0.125, 0.125], at: [0.5, 0.5625, 0.0625], pose: fore, material: moss}
+  # brass sap drops, half a stud long, hanging from the blanket's hem
+  - {name: Sapa, slot: Trim, size: [0.1875, 0.1875, 0.1875], at: [1.03125, 1.09375, 0.40625], mirror: x, material: metal}
+  - {name: Sapb, slot: Trim, size: [0.375, 0.1875, 0.375], at: [0.9375, 0.90625, 0.3125], mirror: x, material: metal}
+  - {name: Sapc, slot: Glow, size: [0.1875, 0.1875, 0.1875], at: [1.03125, 0.71875, 0.40625], mirror: x, material: crystal}
+  # brass cuffs, a quarter stud tall and an eighth proud, round all four legs (the right foreleg's swings with it)
+  - {name: CuffH, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.5, 0.4375, 1.625], mirror: x, material: metal}
+  - {name: CuffFL, slot: Trim, size: [0.5, 0.25, 0.5], at: [-0.5, 0.4375, -0.125], material: metal}
+  - {name: CuffFR, slot: Trim, size: [0.5, 0.25, 0.5], at: [0.5, 0.4375, -0.125], pose: fore, material: metal}
+  # the brass girth: a quarter stud wide, an eighth proud, right round the barrel behind the saddle blanket
+  - {name: Girth, slot: Trim, size: [1.75, 1.25, 0.25], at: [0, 1.125, 0.875], material: metal}
+  # the backdrop (`eclipse`, it turns once in 20 s): a dark moon 2.8 studs across behind the rump, a lit violet rim a cell thick and seven stepped rays round it, a quarter stud deep
+  - {name: Moon0, slot: Glow, size: [0.5, 0.25, 0.25], at: [0, 0.375, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon1, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.625, 0.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon2, slot: BodyDark, size: [1, 0.25, 0.25], at: [0, 0.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon3, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.625, 0.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon4, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.875, 0.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon5, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 0.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon6, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.875, 0.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon7, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.125, 1.125, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon8, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 1.125, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon9, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.125, 1.125, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon10, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.375, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon11, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.375, 1.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon12, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon13, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.375, 1.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon14, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.375, 1.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon15, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon16, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.375, 1.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon17, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 2.125, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon18, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.125, 2.375, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon19, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 2.375, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon20, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.125, 2.375, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon21, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.875, 2.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon22, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 2.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon23, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.875, 2.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon24, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.625, 2.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon25, slot: BodyDark, size: [1, 0.25, 0.25], at: [0, 2.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125]}
+  - {name: Moon26, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.625, 2.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Moon27, slot: Glow, size: [0.5, 0.25, 0.25], at: [0, 3.125, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray0, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.125, 2.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray1, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.25, 3, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray2, slot: Glow, size: [0.25, 0.5, 0.25], at: [1.5, 1.75, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray3, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.75, 1.75, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray4, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.125, 0.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray5, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.25, 0.5, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray6, slot: Glow, size: [0.5, 0.25, 0.25], at: [0, 0.25, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray7, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.125, 0.625, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray8, slot: Glow, size: [0.125, 0.125, 0.25], at: [-1.25, 0.5, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray9, slot: Glow, size: [0.25, 0.5, 0.25], at: [-1.5, 1.75, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray10, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.75, 1.75, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray11, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.125, 2.875, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  - {name: Ray12, slot: Glow, size: [0.125, 0.125, 0.25], at: [-1.25, 3, 2.3125], moves: eclipse, pivot: [0, 1.75, 2.3125], material: glow}
+  # the satellite set (`shards`, one wide ring, the front low): four eclipse shards wrapped in violet light and three wool tufts, seven eighths of a stud each
+  - {name: Sat0a, slot: Body, size: [0.75, 0.625, 0.125], at: [0.75, 0.9375, -2.0625], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat0b, slot: Accessory, size: [0.25, 0.25, 0.0625], at: [0.625, 0.875, -2.15625], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat0c, slot: Glow, size: [0.875, 0.125, 0.125], at: [0.8125, 1.3125, -2.0625], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat0d, slot: Glow, size: [0.125, 0.625, 0.125], at: [1.1875, 0.9375, -2.0625], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat1a, slot: BodyDark, size: [0.75, 0.625, 0.1875], at: [2.25, 1.4375, -0.59375], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat1b, slot: Body, size: [0.5625, 0.5625, 0.125], at: [2.21875, 1.53125, -0.75], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat1c, slot: Accessory, size: [0.1875, 0.1875, 0.125], at: [2.40625, 1.53125, -0.875], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2a, slot: Body, size: [0.75, 0.625, 0.125], at: [2.0625, 1.75, 1.625], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2b, slot: Accessory, size: [0.25, 0.25, 0.0625], at: [2.1875, 1.6875, 1.71875], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2c, slot: Glow, size: [0.875, 0.125, 0.125], at: [2, 2.125, 1.625], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat2d, slot: Glow, size: [0.125, 0.625, 0.125], at: [1.625, 1.75, 1.625], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat3a, slot: BodyDark, size: [0.75, 0.625, 0.1875], at: [0.25, 1.9375, 2.71875], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat3b, slot: Body, size: [0.5625, 0.5625, 0.125], at: [0.28125, 2.03125, 2.875], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat3c, slot: Accessory, size: [0.1875, 0.1875, 0.125], at: [0.09375, 2.03125, 3], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4a, slot: Body, size: [0.75, 0.625, 0.125], at: [-1.625, 1.625, 2], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4b, slot: Accessory, size: [0.25, 0.25, 0.0625], at: [-1.5, 1.5625, 2.09375], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4c, slot: Glow, size: [0.875, 0.125, 0.125], at: [-1.6875, 2, 2], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat4d, slot: Glow, size: [0.125, 0.625, 0.125], at: [-2.0625, 1.625, 2], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat5a, slot: BodyDark, size: [0.75, 0.625, 0.1875], at: [-2.375, 1.25, -0.15625], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat5b, slot: Body, size: [0.5625, 0.5625, 0.125], at: [-2.40625, 1.34375, -0.3125], moves: shards, pivot: [0, 1.5, 0.25], material: wool}
+  - {name: Sat5c, slot: Accessory, size: [0.1875, 0.1875, 0.125], at: [-2.21875, 1.34375, -0.4375], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat6a, slot: Body, size: [0.75, 0.625, 0.125], at: [-1.3125, 0.875, -1.875], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat6b, slot: Accessory, size: [0.25, 0.25, 0.0625], at: [-1.4375, 0.8125, -1.96875], moves: shards, pivot: [0, 1.5, 0.25]}
+  - {name: Sat6c, slot: Glow, size: [0.875, 0.125, 0.125], at: [-1.25, 1.25, -1.875], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  - {name: Sat6d, slot: Glow, size: [0.125, 0.625, 0.125], at: [-0.875, 0.875, -1.875], moves: shards, pivot: [0, 1.5, 0.25], material: glow}
+  # the ground aura (`aura`, it breathes): twelve violet runes, three quarters of a stud long, in a circle round the hooves
+  - {name: Aura0, slot: Glow, size: [0.75, 0.0625, 0.25], at: [0, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura1, slot: Glow, size: [0.75, 0.0625, 0.25], at: [1, 0.03125, -1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura2, slot: Glow, size: [0.25, 0.0625, 0.75], at: [1.75, 0.03125, -0.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura3, slot: Glow, size: [0.25, 0.0625, 0.75], at: [2, 0.03125, 0.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura4, slot: Glow, size: [0.25, 0.0625, 0.75], at: [1.75, 0.03125, 1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura5, slot: Glow, size: [0.75, 0.0625, 0.25], at: [1, 0.03125, 2.125], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura6, slot: Glow, size: [0.75, 0.0625, 0.25], at: [0, 0.03125, 2.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura7, slot: Glow, size: [0.75, 0.0625, 0.25], at: [-1, 0.03125, 2.125], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura8, slot: Glow, size: [0.25, 0.0625, 0.75], at: [-1.75, 0.03125, 1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura9, slot: Glow, size: [0.25, 0.0625, 0.75], at: [-2, 0.03125, 0.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura10, slot: Glow, size: [0.25, 0.0625, 0.75], at: [-1.75, 0.03125, -0.625], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
+  - {name: Aura11, slot: Glow, size: [0.75, 0.0625, 0.25], at: [-1, 0.03125, -1.375], moves: aura, pivot: [0, 0.03125, 0.4], material: crystal}
   # pilot bar: end
 ```
 
@@ -279,6 +304,9 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the pipes breathe, the ears
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [0, -25, 0], pivot: [0, 1.5, -0.125]}
+    fore: {rot: [45, 0, 0], pivot: [0.5, 1.0, -0.125]}
   clips:
     pipes: [{kind: pulse, amp: 0.03, period: 4}]
     eclipse: [{kind: spin, amp: 360, period: 20, axis: z}, {kind: bob, amp: 0.05, period: 4.4}, {kind: sway, amp: 6, period: 6.6, axis: y, phase: 0.3}]

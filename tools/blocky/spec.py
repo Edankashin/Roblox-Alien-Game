@@ -371,7 +371,12 @@ def fill_face(spec):
 
 def load(path):
     path = pathlib.Path(path)
-    spec = read_note(path.read_text(encoding="utf-8"))
+    return load_text(path.read_text(encoding="utf-8"), str(path))
+
+
+def load_text(text, path=""):
+    """load() for a note already read (tools/blocky/pilots.py checks the text it is about to write)."""
+    spec = read_note(text)
     spec["path"] = str(path)
     spec["parts"] = [normalise(p, i) for i, p in enumerate(spec["parts"])]
     attach_rest(spec)
@@ -386,7 +391,8 @@ def rest_groups(spec):
         return out
     for key, v in raw.items():
         try:
-            out[str(key)] = {"rot": _vec(v.get("rot"), str(key), "rest rot"), "pivot": _vec(v.get("pivot"), str(key), "rest pivot")}
+            out[str(key)] = {"rot": _vec(v.get("rot"), str(key), "rest rot"), "pivot": _vec(v.get("pivot"), str(key), "rest pivot"),
+                             "mirror": bool(v.get("mirror", False)), "move": _vec(v.get("move", [0, 0, 0]), str(key), "rest move")}
         except (AttributeError, SpecError):
             pass
     return out
@@ -453,19 +459,31 @@ def _mat_mul(m, n):
     return tuple(tuple(sum(m[i][k] * n[k][j] for k in range(3)) for j in range(3)) for i in range(3))
 
 
-def apply_rest(p):
+def mirror_rest(rest):
+    """The rest of the left twin of a mirrored pair in a `mirror: true` group: the reflection across x = 0 (roll and yaw change sign)."""
+    if not rest or not rest.get("mirror"):
+        return rest
+    mv = rest.get("move") or [0.0, 0.0, 0.0]
+    return {"rot": [rest["rot"][0], -rest["rot"][1], -rest["rot"][2]], "pivot": [-rest["pivot"][0], rest["pivot"][1], rest["pivot"][2]], "mirror": True,
+            "move": [-mv[0], mv[1], mv[2]]}
+
+
+def apply_rest(p, rest=None):
     """B54: a part of a rest-pose group (`pose: head`, the note's `rig.rest` gave it a `rest` = {rot, pivot}) turned about the group's pivot:
     its centre swings round the pivot and its own rotation composes with the group's, so the authored masses stay axis-aligned (rule 1) and
-    the expanded model is posed. A pivot the part carries (a moving part riding the group) swings with it. The result has no `rest`."""
-    rest = p.get("rest")
+    the expanded model is posed. A pivot the part carries (a moving part riding the group) swings with it. The result has no `rest`.
+    `rest` overrides the part's own (the left twin of a mirrored pair in a `mirror: true` group gets the reflected turn). A rest may also carry
+    a `move` [x, y, z] (studs), applied after the turn: a head set lower on its shoulders."""
+    rest = rest if rest is not None else p.get("rest")
     if not rest:
-        return p
+        return {k: v for k, v in p.items() if k != "rest"}
     m = rot_matrix(rest["rot"])
     pv = rest["pivot"]
+    mv = rest.get("move") or [0.0, 0.0, 0.0]
 
     def swing(v):
         d = [v[i] - pv[i] for i in range(3)]
-        return [round(pv[i] + sum(m[i][k] * d[k] for k in range(3)), 6) + 0.0 for i in range(3)]
+        return [round(pv[i] + mv[i] + sum(m[i][k] * d[k] for k in range(3)), 6) + 0.0 for i in range(3)]
     out = {k: v for k, v in p.items() if k != "rest"}
     out["at"] = swing(p["at"])
     out["rot"] = matrix_euler(_mat_mul(m, rot_matrix(p["rot"])))
@@ -480,17 +498,22 @@ def expand(parts):
     rest-pose group is posed first (apply_rest), so the mirror reflects the posed part."""
     out = []
     for p in parts:
-        p = apply_rest(p)
         if p["mirror"] != "x":
-            out.append(dict(p, source=p["name"]))
+            out.append(dict(apply_rest(p), source=p["name"]))
             continue
-        a = dict(p, source=p["name"])
-        b = dict(p, source=p["name"])
+        # the twins first, then each turned by its group's rest: the same turn for both (a head, a body: one rigid group), or the reflection for
+        # the left one in a `mirror: true` group (a pair of wings spread to both sides)
+        q = {k: v for k, v in p.items()}
+        a = dict(q, source=p["name"])
+        b = dict(q, source=p["name"])
         b["at"] = [-p["at"][0], p["at"][1], p["at"][2]]
         b["rot"] = [p["rot"][0], -p["rot"][1], -p["rot"][2]]
         if p["pivot"] is not None:
             b["pivot"] = [-p["pivot"][0], p["pivot"][1], p["pivot"][2]]
         right, left = (a, b) if p["at"][0] >= 0 else (b, a)
+        rest = p.get("rest")
+        right = apply_rest(right, rest) if rest else right
+        left = apply_rest(left, mirror_rest(rest)) if rest else left
         right["name"], left["name"] = p["name"] + "R", p["name"] + "L"
         out += [right, left]
     return out
@@ -1297,7 +1320,8 @@ def validate_eyes(spec, host, tier, pal):
     return errors
 
 
-REST_MAX = 35.0         # B54: a rest-pose group turns at most this many degrees about each axis (a stance, not a fall)
+REST_MAX = 60.0         # B54: a rest-pose group turns at most this many degrees about each axis (a stance, not a fall)
+REST_MOVE_MAX = 0.75    # and shifts at most this many studs along an axis (a head set lower on its shoulders)
 REST_HEAD_MAX = 25.0    # and the group that holds the face host at most this (the face plate stays readable from the front)
 
 
@@ -1321,6 +1345,8 @@ def validate_rest(spec):
         errors.append("rule 8: rig.rest %s is not used by any part (`pose: %s`)" % (key, key))
     host = face_host(spec)
     for key, g in groups.items():
+        if max(abs(v) for v in g["move"]) > REST_MOVE_MAX + 1e-9:
+            errors.append("rule 8: rig.rest %s moves %s studs; at most %g a side" % (key, g["move"], REST_MOVE_MAX))
         limit = REST_HEAD_MAX if (host is not None and host.get("pose") == key) else REST_MAX
         for i, a in enumerate(g["rot"]):
             if abs(a) > limit + 1e-9:

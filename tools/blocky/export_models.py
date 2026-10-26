@@ -78,7 +78,8 @@ FACE = RG.FACE_PART             # "FacePlate"
 CELL_ROUGH = 0.55               # blocky_build.ROUGH (SmoothPlastic)
 PLATE_ROUGH = 0.4
 GLOW_EMISSION = 1.5             # blocky_build.GLOW_BUILD: emission > 0 makes the installer pick Neon
-TOL = 1e-3                      # studs, for pivots and the bottom centre
+TOL = 1e-3                      # studs, for pivots
+TOL_CENTRE = 0.02               # studs, for the bottom centre: the rounded corners of a rest-posed bevelled mass sit up to 0.02 inside its sharp box (B54)
 HEIGHT_TOL = 0.01               # studs, the exported height against the Rigs row
 PLATE_PROUD = 1.0 / 64.0        # the face plate stands this far proud of the head (spec.face_plate); when it is the front-most point the
                                 # bounds' centre moves half of it from the one rigs.centre_of measures the pivots from
@@ -265,7 +266,7 @@ def check_folder(folder, spec, row):
     height = hi[1] - lo[1]
     if abs(lo[1]) > TOL:
         problems.append("the feet are at y = %.4f, not 0" % lo[1])
-    if abs(lo[0] + hi[0]) / 2 > TOL or abs(lo[2] + hi[2]) / 2 > PLATE_PROUD / 2 + TOL:
+    if abs(lo[0] + hi[0]) / 2 > TOL_CENTRE or abs(lo[2] + hi[2]) / 2 > PLATE_PROUD / 2 + TOL_CENTRE:
         problems.append("the pivot is not the bottom centre (bounds centre x %.4f, z %.4f)" % ((lo[0] + hi[0]) / 2, (lo[2] + hi[2]) / 2))
     if not HEIGHT_BAND[0] - TOL <= height <= HEIGHT_BAND[1] + TOL:
         problems.append("%.3f studs tall, outside %g to %g (B45)" % (height, *HEIGHT_BAND))
