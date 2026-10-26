@@ -181,10 +181,11 @@ def _frost_shard(g, lite=False):
 
 
 def _eclipse_shard(g, lite=False):
-    # a chip of the dark moon, seven eighths of a stud across: a dark slab wrapped in a lit violet rim on its top and right edges, so the dark
-    # half reads against the grass by the light beside it
-    return [_box(-0.4375, 0.3125, -0.4375, 0.1875, 0, 0.125, "Body", None),
-            _box(-0.3125, -0.0625, -0.3125, -0.0625, 0.125, 0.1875, "Accessory"),
+    # a chip of the lit moon, seven eighths of a stud across (PILOT-3: it was a dark slab and read as debris): a pale violet slab (the accent in the
+    # crystal's light diagonals) wrapped in a lit rim on its top and right edges, with a small dark crater to read against; the crater stays Body so
+    # the shards stay a cell mesh (over half Glow makes a moving object Neon)
+    return [_box(-0.4375, 0.3125, -0.4375, 0.1875, 0, 0.125, "Accessory", "crystal"),
+            _box(-0.3125, -0.0625, -0.3125, -0.0625, 0.125, 0.1875, "Body"),
             _box(-0.4375, 0.4375, 0.1875, 0.3125, 0, 0.125, "Glow", "glow"),
             _box(0.3125, 0.4375, -0.4375, 0.1875, 0, 0.125, "Glow", "glow")]
 
@@ -513,10 +514,11 @@ def disc(name, centre, rings, z, row=0.25, cell=0.25, thick=0.125, moves=None, p
 
 
 def corona(name, centre, r_in, z, angles=(45, 90, 135, 180, 225, 270, 315, 0), step=0.25, thick=0.125, long=2, slot="Glow", material="crystal",
-           moves=None, pivot=None, cut=None):
+           moves=None, pivot=None, cut=None, top=None):
     """Stepped rays round a disc: for each compass angle (degrees, 0 = up, clockwise as seen from the front) a ray `long` cells long, each cell
     `step` studs and narrower than the one under it (0.5, 0.25 ... of a cell wide for a cardinal ray, a diagonal staircase for the others),
-    starting at radius `r_in`. `cut` (y) drops cells under that height (a ground the ray would pierce)."""
+    starting at radius `r_in`. `cut` (y) drops cells under that height (a ground the ray would pierce), `top` (y) cells that rise above it (a
+    height limit)."""
     cx, cy = centre
     out = []
     k = 0
@@ -536,6 +538,8 @@ def corona(name, centre, r_in, z, angles=(45, 90, 135, 180, 225, 270, 315, 0), s
                 x, y = cx + dx * (d + step / 2), cy + dy * (d + step / 2)
                 size = (wide if dy else step, step if dy else wide, thick)
             if cut is not None and y - size[1] / 2 < cut:
+                continue
+            if top is not None and y + size[1] / 2 > top + 1e-9:
                 continue
             x0, y0 = snap(x - size[0] / 2, 0.0625), snap(y - size[1] / 2, 0.0625)   # the faces lie on the sixteenth grid
             out.append(part("%s%d" % (name, k), slot, size, (x0 + size[0] / 2, y0 + size[1] / 2, z + thick / 2), None, "box", material, False, moves, pivot))

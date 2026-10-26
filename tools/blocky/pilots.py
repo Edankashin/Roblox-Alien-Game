@@ -131,9 +131,11 @@ def panpipe():
     p.wear("# brass cuffs, a quarter stud tall and an eighth proud, round all four legs (the right foreleg's swings with it)", cuffs, ["bark_band"] * 4)
     p.wear("# the brass girth: a quarter stud wide, an eighth proud, right round the barrel behind the saddle blanket",
            [K.part("Girth", "Trim", (1.75, 1.25, 0.25), (0, 1.125, 0.875), material="metal")], ["bark_band"])
-    disc = K.disc("Moon", (0, 1.75), [(1.4, "Glow", "glow"), (1.2, "BodyDark", None)], 2.1875, thick=0.25, moves="eclipse", pivot=[0, 1.75, 2.3125])
-    disc += K.corona("Ray", (0, 1.75), 1.4, 2.1875, angles=(45, 90, 135, 180, 225, 270, 315), thick=0.25, material="glow", moves="eclipse", pivot=[0, 1.75, 2.3125], cut=0.0)
-    p.regions.append(("# the backdrop (`eclipse`, it turns once in 20 s): a dark moon 2.8 studs across behind the rump, a lit violet rim a cell thick and seven stepped rays round it, a quarter stud deep", disc))
+    # PILOT-3: the eclipse has to read against the near-black body: a lit violet rim two cells thick (the tier light, the Glow slot), a darker face
+    # (the second colour) so the body stands out against it, and eight stepped rays of pale light (crystal's light diagonals on the Glow slot)
+    disc = K.disc("Moon", (0, 1.75), [(1.5, "Glow", "glow"), (1.0, "BodyDark", None)], 2.1875, thick=0.25, moves="eclipse", pivot=[0, 1.75, 2.3125])
+    disc += K.corona("Ray", (0, 1.75), 1.5, 2.1875, angles=(0, 45, 90, 135, 180, 225, 270, 315), long=3, thick=0.25, material="crystal", moves="eclipse", pivot=[0, 1.75, 2.3125], cut=0.0, top=3.5)
+    p.regions.append(("# the backdrop (`eclipse`, it turns once in 20 s): a dark moon 3 studs across behind the rump, a lit violet rim two cells thick round a darker face, and eight stepped rays of pale light round it, a quarter stud deep", disc))
     sats = K.orbit([P["eclipse_shard"], P["wool_tuft"], P["eclipse_shard"], P["wool_tuft"], P["eclipse_shard"], P["wool_tuft"], P["eclipse_shard"]], "Sat", (0, 0.25), 2.4, 1.5,
                    tilt=0.15, moves="shards", pivot=[0, 1.5, 0.25], start=math.radians(20), lift=0.5, facing="front")
     p.regions.append(("# the satellite set (`shards`, one wide ring, the front low): four eclipse shards wrapped in violet light and three wool tufts, seven eighths of a stud each", sats))
