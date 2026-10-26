@@ -246,6 +246,7 @@ The full digest of every reference video and the face study (B55) is [[Character
 5. **Three colour roles on every body**: base in two tones (lighter underside), one emissive accent, one metal accent (Verdant: amber or brass; Frostbyte: silver). Rare eyes may glow in the accent.
 6. **Detail must read from the game camera** (12 to 20 studs, slightly above): a piece under a quarter stud is cut or merged; a part that reads as the wrong thing from above ("the pipes must not look like a tail") is reshaped.
 7. **The method**: a per-tier prompt list naming each alien's theme and its three or four visible parts with must-nots; rounds reviewed on a roster sheet beside the 5-stud avatar, front and side, before the next round.
+8. **Mass clarity and value contrast** (from the v2b review, 2026-10-26: Fenrir's white crescent, white frost mane and pale body blurred into one mass; Syrinx's dark shards read as floating debris). Three values on every rare: the body one value, the kit and trim a clear step lighter or darker, the backdrop a third value with a dark outline against the body. Satellites in one lit colour, never the body's; a satellite that reads as a loose box is cut. From 16 studs the silhouette must separate into body, backdrop and orbit at a glance; if it reads as noise, remove pieces before adding any.
 
 Unchanged: the face stays cute at every tier (B46; the reference's fierce top tiers are [[Decide-Now]] 51), the height band 2 to 3.5 studs (B45), one world motif, alien anatomy, no copies (section 5).
 
