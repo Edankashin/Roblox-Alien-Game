@@ -3,7 +3,8 @@
 avatar, with its tier and height printed, and a strip of each pilot from the game camera's distance (16 studs, slightly above).
 
 Python 3 with Pillow (system Python, not Blender's). The renders come from tools/blender/pilot_shots.py (<Id>_front.png, _tq.png, _cam.png in a
-folder for each state); the numbers come from the notes (tools/blocky/spec.py), the before ones from a folder of the old notes.
+folder for each state); the numbers come from the notes (tools/blocky/spec.py), the before ones from a folder of the old notes
+(the 2026-10-21 export's, from commit ceed6b6).
 
   python3 -I tools/blocky/pilot_sheet.py --before-notes <dir> --before-shots <dir> --after-shots <dir> --out media/studio/2026-10-26/pilot_bar_v1.jpg
 """
@@ -59,7 +60,7 @@ def facts(spec):
     c = S.counts(spec)
     f = spec["front"]
     return {"name": f["name"], "id": f["id"], "tier": f["tier"], "world": int(f.get("world", 1)), "height": c["height"], "blocks": c["blocks"],
-            "tris": c["tris"], "objects": c["movers"], "motion": c["motion"], "kit": f.get("bar_kit", 0), "sats": f.get("bar_satellites", 0),
+            "tris": int(f.get("tris") or c["tris"]), "objects": c["movers"], "motion": c["motion"], "kit": f.get("bar_kit", 0), "sats": f.get("bar_satellites", 0),
             "stance": f.get("bar_stance", "")}
 
 
@@ -100,7 +101,7 @@ def main(argv=None):
         d.text((MARGIN, y + 38), "%s, World %d (%s)" % (n["tier"], n["world"], "Verdant" if n["world"] == 1 else "Frostbyte"), font=f_txt, fill=INK)
         d.text((MARGIN, y + 62), "height %.2f studs (avatar 5)" % n["height"], font=f_txt, fill=INK)
         lines = [
-            "blocks %d to %d, triangles %d to %d" % (b["blocks"], n["blocks"], b["tris"], n["tris"]),
+            "blocks %d to %d, triangles %d to %d (Blender)" % (b["blocks"], n["blocks"], b["tris"], n["tris"]),
             "moving things %d to %d" % (b["motion"], n["motion"]),
             "kit pieces %d to %d" % (b.get("kit", 0), n["kit"]),
         ]
