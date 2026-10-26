@@ -19,6 +19,14 @@
   },
   {
     "slot": 3,
+    "name": "aura",
+    "hex": "9B5CFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 4,
     "name": "beard",
     "hex": "1E1A2E",
     "roughness": 0.55,
@@ -28,9 +36,9 @@
     "pixelated": true
   },
   {
-    "slot": 4,
+    "slot": 5,
     "name": "bellR",
-    "hex": "8C86A6",
+    "hex": "B08A3E",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -38,7 +46,7 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 6,
     "name": "earL",
     "hex": "4A4166",
     "roughness": 0.55,
@@ -48,7 +56,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "earR",
     "hex": "4A4166",
     "roughness": 0.55,
@@ -58,7 +66,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "echoR",
     "hex": "9B5CFF",
     "roughness": 0.55,
@@ -66,7 +74,7 @@
     "emission": 1.5
   },
   {
-    "slot": 8,
+    "slot": 9,
     "name": "eclipse",
     "hex": "9B5CFF",
     "roughness": 0.55,
@@ -74,7 +82,7 @@
     "emission": 1.5
   },
   {
-    "slot": 9,
+    "slot": 10,
     "name": "gem",
     "hex": "9B5CFF",
     "roughness": 0.55,
@@ -82,16 +90,8 @@
     "emission": 1.5
   },
   {
-    "slot": 10,
-    "name": "noteL",
-    "hex": "9B5CFF",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
     "slot": 11,
-    "name": "note2R",
+    "name": "pipesR",
     "hex": "9B5CFF",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -99,11 +99,13 @@
   },
   {
     "slot": 12,
-    "name": "pipesR",
-    "hex": "9B5CFF",
+    "name": "shards",
+    "hex": "1E1A2E",
     "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 0.0,
+    "colorMap": "Panpipe_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 13,

@@ -69,6 +69,7 @@ local pieces: { [string]: Types.FxPiece } = {
 	Eclipse = { part = "eclipse", spot = { 0, 0, 0.8 }, region = "Halo" }, -- Syrinx: just behind the disc's middle (a corona shows round it)
 	EclipseRim = { part = "eclipse", spot = { 0.29, 0.29, -0.5 }, region = "Top" }, -- Syrinx: the diamond bead on the rim
 	Echo = { part = "echoR", spot = { 0, 0, 0 }, region = "BackR" }, -- Syrinx: the echo ring over the pipes
+	Shards = { part = "shards", spot = { 0, 0, -0.46 }, region = "Body" }, -- Syrinx: the front of the satellite ring (eclipse shards, wool tufts, notes)
 	-- World 2
 	Ring = { part = "ring", spot = { 0.41, 0, 0.03 }, region = "Top" }, -- Snorzo: the big bubbles of the planet ring
 	RingB = { part = "ring", spot = { -0.41, 0, -0.31 }, region = "Halo" },
@@ -82,6 +83,7 @@ local pieces: { [string]: Types.FxPiece } = {
 	RunesB = { part = "halo", spot = { 0, 0.07, 0.42 }, region = "Top" },
 	Moon = { part = "moon", spot = { 0.09, 0, 0 }, region = "Top" }, -- Fenrir: the lit moon
 	Mane = { part = "mane", spot = { 0.3, 0.2, -0.21 }, region = "Back" }, -- Fenrir: the nebula mane
+	Phases = { part = "phases", spot = { 0, 0, -0.46 }, region = "Body" }, -- Fenrir: the front of the satellite ring (moon phases and frost shards)
 }
 
 -- Budgets. The rate caps are particles per second for one emitter after the tier's rateScale; a phone is a device with a
@@ -804,7 +806,8 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Burst", color = "E6ECFF", at = "Moon", flourish = true, count = 24, size = 0.07, lifetime = 1.4, speed = 0.8, spread = 120, rise = 0.1, glow = 1, dir = "Back", sprite = "PixelTwinkle" },
 			-- a ground ring of runes, turning once in 12 s
 			{ kind = "RingPulse", color = "8F7BFF", at = "Feet", every = 3, count = 1, size = 2.4, lifetime = 2, glow = 0.9, spin = 30, sprite = "PixelRune" },
-			{ kind = "Orbit", color = "DDE6FF", at = "Body", count = 4, radius = 0.55, period = 5, rate = 6, size = 0.06, lifetime = 0.6, glow = 1, sprite = "PixelMote" },
+			-- the moon phases and frost shards are modelled now (the `phases` ring): frost motes shed off it as it turns
+			{ kind = "Emitter", color = "DDE6FF", at = "Phases", rate = 6, size = 0.06, lifetime = 0.8, speed = 0.03, spread = 180, glow = 1, sprite = "PixelMote" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 2.4 },
 	},
@@ -826,7 +829,8 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Emitter", color = "3A2C5A", at = "Eclipse", rate = 3, size = 0.05, lifetime = 2.2, speed = 0.04, spread = 90, rise = -0.08, glow = 0, dir = "Back", sprite = "PixelMote" },
 			-- notes drift from the echo ring over the pipes on a trill every 4 s, and fall instead of rise
 			{ kind = "Burst", color = "B28CFF", at = "Echo", every = 4, count = 5, size = 0.08, lifetime = 2.2, speed = 0.12, spread = 50, rise = -0.08, glow = 0.8, sprite = "PixelNote" },
-			{ kind = "Orbit", color = "8E6BFF", at = "Top", count = 3, radius = 0.6, period = 5, rate = 6, size = 0.07, lifetime = 0.6, glow = 1, sprite = "PixelNote" },
+			-- the satellites are modelled now (eclipse shards, wool tufts, notes on the `shards` ring): notes drift off the ring and fall
+			{ kind = "Emitter", color = "8E6BFF", at = "Shards", rate = 6, size = 0.07, lifetime = 0.9, speed = 0.03, spread = 180, rise = -0.06, glow = 1, sprite = "PixelNote" },
 			{ kind = "RingPulse", color = "A07BFF", at = "Feet", every = 3.5, count = 1, size = 2.4, lifetime = 2.2, glow = 0.9, spin = -20, sprite = "PixelRing" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 3 },

@@ -236,7 +236,7 @@ Every species of a world as a **64 px black shape in one row**; no two may read 
 
 The reference is in `media/tiktok/NOTES.md` "Batch 10". Its pets are voxel like ours but read as finished characters; the difference is four habits, now rules on top of sections 1 to 9:
 
-1. **The world accent kit.** Each world owns a small kit of modelled accents, and every alien of that world wears some of it, more with rarity: Common one piece, Uncommon two, Rare three or four, Epic five or six, Legendary and up as many as the silhouette holds. Verdant: moss cells, vine wraps, blossom buds, amber sap drops, bark bands. Frostbyte: frost rims, ice shards, snowflake studs, silver bands, aurora wisps. The kit is listed per world in `tools/blocky/` (the pilot adds it) and a spec note names which pieces an alien wears and where.
+1. **The world accent kit.** Each world owns a small kit of modelled accents, and every alien of that world wears some of it, more with rarity: Common one piece, Uncommon two, Rare three or four, Epic five or six, Legendary and up as many as the silhouette holds. Verdant: moss cells, vine wraps, blossom buds, amber sap drops, bark bands. Frostbyte: frost rims, ice shards, snowflake studs, silver bands, aurora wisps. The kit is listed per world in `tools/blocky/kits.py` (each piece a small cell-built element with a size on the quarter-stud grid and the zones of a body it may sit on; "Pilot bar notes" below) and a spec note names which pieces an alien wears and where (the `bar_*` keys of its frontmatter, written by `tools/blocky/pilots.py` and checked by `tools/blocky/spec.py`).
 2. **The satellite set.** Rare and up carry 6 to 10 small modelled pieces orbiting at mid height on the signature-piece orbit (section 7 "Signature pieces lead the effects"): the world kit plus the alien's own theme (Raddis: sunstones and leaves; Fenrir: moon phases and frost shards). Legendary and up add one backdrop prop behind the body (a disc, a ring, a crest) that frames the alien from the front; Cosmic and Secret add a ground aura ring. Satellites are cells, lit by the tier's light, never particles alone.
 3. **A posed silhouette.** The idle is a stance (a lean, a coil, a hover tilt, a spread), never a box at rest; the silhouette test (section 9) is run on the posed idle.
 4. **Shaped energy.** Flames are layered teardrops, crystals faceted shards, bubbles rings, lightning stepped bolts: modelled cells first, a particle only on top. The reference's own fix: "they look like spiky hair, not fire".
@@ -245,6 +245,63 @@ The reference is in `media/tiktok/NOTES.md` "Batch 10". Its pets are voxel like 
 7. **The method**: a per-tier prompt list naming each alien's theme and its three or four visible parts with must-nots; rounds reviewed on a roster sheet beside the 5-stud avatar, front and side, before the next round.
 
 Unchanged: the face stays cute at every tier (B46; the reference's fierce top tiers are [[Decide-Now]] 51), the height band 2 to 3.5 studs (B45), one world motif, alien anatomy, no copies (section 5).
+
+## Pilot bar notes (2026-10-26, [[Decisions]] B54)
+
+The four pilots, one a band: [[Mossbop]] (Moop, Common, Verdant), [[Radish]] (Raddis, Cosmic, Verdant), [[Panpipe]] (Syrinx, Secret, Verdant) and [[Fenripup]] (Fenrir, Cosmic, Frostbyte). The tiers in the pilot are the aliens' own (the brief's Legendary pair, Raddis and Fenrir, are Cosmic in the data, so they carry the Cosmic extras too: the aura). Each keeps its face, name and height. The sheet: `media/studio/2026-10-26/pilot_bar_v1.jpg` (each before and after, front and three-quarter beside the 5-stud avatar, and each from the game camera's distance); `python3 -I tools/blocky/pilot_sheet.py`, the renders `tools/blender/pilot_shots.py`.
+
+![Pilot bar v1: each pilot before and after, and from 16 studs](../../../media/studio/2026-10-26/pilot_bar_v1.jpg)
+
+### The two kits (`tools/blocky/kits.py`)
+
+| World | Piece | What it is | Sits on | Cost |
+|---|---|---|---|---|
+| Verdant | `moss_cells` | a pad of stepped moss cells with a lit tuft (0.5 x 0.5 x 0.375) | head top, back, haunch | 3 blocks |
+| Verdant | `vine_wrap` | strips a quarter turn each, a step higher each, so from every side it reads as a diagonal wrap | a column or a head, leaving the covered face out | 3 to 4 blocks |
+| Verdant | `blossom_bud` | a stalk and a closed bud of two petals (0.375 x 0.125 x 0.5) | head top, crown | 3 blocks |
+| Verdant | `sap_drop` | an amber teardrop: a neck, a full middle, a lit tip; hangs from an edge | an underside | 3 blocks |
+| Verdant | `sap_run` | the same sap running down a wall | a side | 2 to 3 blocks |
+| Verdant | `bark_band` | a ring of wood cells round a limb (`band()`, the slot sets the colour) | limbs, a body | 3 to 4 blocks |
+| Frostbyte | `frost_rim` | a lip of pale ice with three icicle teeth | head top, edges | 4 blocks |
+| Frostbyte | `ice_shard` | two faceted cone6 shards leaning apart (10 triangles each) | back, mane, shoulders | 2 blocks |
+| Frostbyte | `snowflake_stud` | a silver plus with a lit heart (six-point with corners: 6 blocks) | a flank, a plate | 3 blocks |
+| Frostbyte | `silver_band` | a ring of silver cells (`band()` on the Trim slot) | limbs, ears, tail | 3 to 4 blocks |
+| Frostbyte | `aurora_wisp` | six lit cells stepping sideways as they rise | mane, tail | 6 blocks |
+
+The satellites are the kit's `leaf_blade` and `frost_shard` plus each alien's own: Raddis's `sun_cross`, Syrinx's `eclipse_shard`, `wool_tuft` and `note_glyph`, Fenrir's four moon phases. The backdrop builder `crescent_backdrop` and the aura builder `aura_dashes` are in the same module.
+
+### What each piece is and why
+
+- **One piece, a world.** The kit is five shapes that every alien of the world can wear in its own colours (a `slots` map sends a piece's slots to the alien's: Moop wears the sap in its accent amber, Raddis wears the moss on its turquoise accent). The world, not the species, owns the look; the alien's own theme goes on the satellite set.
+- **Counts by tier (checked).** Common 1, Uncommon 2, Rare 3 or 4, Epic 5 or 6, Legendary and up 7 or more; a mirrored pair is two pieces. Rare and up a satellite set of 6 to 10 on one moving object; Legendary and up a backdrop under a stud deep behind the body (z greater than 0); Cosmic and Secret a ground aura of 6 or more cells on the ground. `spec.py validate_bar` checks the `bar_*` keys against these and against the parts of the note.
+- **The satellites are one moving object.** All eight pieces are parts of one rig object (`sunstone`, `shards`, `phases`), so the rig spins the ring (against the backdrop) and bobs it, and the flourish hops it; `Effects.Pieces` names a spot on it (Sunstones already, Shards and Phases new) so particles hang on the cells and the cells are what you see. The ring is placed below the face (a stud above the ground), where it never crosses the eyes from the front.
+- **The aura is twelve dashes.** A ring of cells cut to the circle is 20 to 70 blocks (`kits.ring_rects`); twelve dashes along the circle's tangent read as a ring of runes for 12 blocks, one moving object that breathes (a 10 percent pulse every 3 to 4 s).
+- **A stance is geometry.** A mass stays axis-aligned (rule 1), so a lean is a shear (steps shifted an eighth or a quarter stud: Moop), a hover tilt is a swooping root and unequal wings (Raddis), a pose is paws split front and back and a cocked tail (Fenrir), a lifted foreleg (Syrinx). The idle clips move around the pose, and the face plate's `at` moves with a head that moves.
+- **Shaped energy as cells.** Raddis's orb is a three-cell teardrop (0.375, 0.25, 0.125 wide), the ice shards are cone6 facets, the aurora wisps stepped ribbons; no new particle.
+
+### Lessons the pilot found
+
+- **The triangle cap is the real budget.** A spec counts 12 triangles a block with no culling, and the cap is 2,500: Raddis stood at 2,454 before it began. Everything the bar added was paid for by cutting what the game camera cannot read (a quarter-stud rule: Raddis's girdle and dashes, Syrinx's tassels and reed lips, Fenrir's claws), by merging straight runs (the sun ring, the eclipse rows, the crescent's rows) and by trading a ring of cells for dashes.
+- **More than half glow makes an object Neon.** The export makes a moving object a Neon part when over half of its faces are Glow-slot, and a Neon part has no cell texture. Merging the sun ring's trim cells into one block tipped it over; an aurora wisp on the tail made the whole tail glow. Keep a glow piece on an object that has plenty of plain faces (the mane), and keep a merged ring in several blocks.
+- **A moving object with its pivot off the middle gets a side suffix.** A pivot at x greater than 0 is named `<name>R` and the rig key `sprout` then misses it; Moop's sprout keeps its pivot on x = 0 although its stem moved right.
+- **White is not a colour on snow.** Frostbyte stands on white snow, so a pale satellite or an all-white aura vanishes; the moon phases carry a dark half, the aura alternates dark dashes, and the pilot sheet's camera strip is rendered on snow and on grass as in play. The same holds for dark pieces on dark ground (Syrinx's shards read as debris): the lit rim cell carries them.
+- **From 16 studs a three-and-a-half-stud alien is about 60 pixels tall on a 1080p screen.** A piece under a quarter stud is a speck; what reads is the silhouette, the lit satellites and the colour blocks, so the satellites were grown from 0.25 to 0.4 to 0.5 studs after the first sheet.
+- **A brass or amber metal needs a value step.** Moop's accent (an amber `#FFD45C`) had to sit 12 L* from the moss (rule 4's greyscale check), so it is a light amber; a Common has 2 to 3 flat colours and no glow, so its three roles are the two-tone base and the amber.
+
+| Pilot | Tier | Kit | Satellites | Backdrop | Aura | Blocks | Triangles (Blender) | Moving things |
+|---|---|---|---|---|---|---|---|---|
+| Moop | Common | 1 | none | none | none | 10 to 12 | 214 to 234 | 3 to 3 |
+| Raddis | Cosmic | 7 | 8 | the sun disk | 12 dashes, gold | 181 to 180 | 2,182 to 2,154 | 13 to 12 |
+| Syrinx | Secret | 10 | 8 | the eclipse | 12 dashes, violet | 172 to 189 | 2,082 to 2,246 | 12 to 12 |
+| Fenrir | Cosmic | 11 | 8 | the crescent | 12 dashes, lit and dark | 151 to 189 | 1,882 to 2,324 | 12 to 12 |
+
+| Do | Don't |
+|---|---|
+| Give a world five kit shapes and let every alien wear them in its own colours | Make a kit piece a species' own (that is the satellite set's job) |
+| Strip a ring of cells to dashes; merge straight runs; cut what is under a quarter stud | Raise the triangle cap, or spend it on detail that is a speck at 16 studs |
+| Keep a glow piece on an object that is mostly plain | Put lit cells on a plain object until over half of it is lit (it exports as a flat Neon part) |
+| Check a pale piece on the world's own ground (snow, grass) | Judge a Frostbyte alien on a cream roster sheet |
+| Move the face plate with a head that moves | Tilt a mass (rule 1: only appendages tilt) |
 
 ## Cells: every face is made of little blocks
 
@@ -436,7 +493,7 @@ The review sheets: `media/studio/2026-10-17/blocky_ladder_v1.jpg` (loop 1, three
 ## What is open
 
 - B46 on the Mac: the face plate's flipbook as a SurfaceGui with `ResampleMode = Pixelated` on a phone (until the `<Id>_face.png` sheets are uploaded the game blinks by squashing the plate), how the importer names and splits the moving objects and `FacePlate` (World.RigAnimator finds parts by name and leaves a model without them alone), and the cost of 12 rigged aliens on a phone.
-- The other 33 species: their resize pass, eyes and rigs ("How a roster worker applies B46"); until then spec.py prints "B45 pending" and "B46 pending" for them.
+- The other 33 species: their resize pass, eyes and rigs ("How a roster worker applies B46"); until then spec.py prints "B45 pending" and "B46 pending" for them. The character bar for the roster ([[Decisions]] B54) follows the pilot: Ethan's look at `media/studio/2026-10-26/pilot_bar_v1.jpg` first, then a per-tier prompt list with must-nots.
 - Ethan's yes on this bible, the house eye and the seven sheets; the boards on the Claude Design canvas (the SVGs are ready: flat shapes and text, no style, image or foreignObject).
 - Ethan's look at the cells (`blocky_cells_v1.jpg`, `world1_scene_v1.jpg`): the cell look, the grout (the strongest single choice: it is what makes the surface read as little blocks), the face cell as the unit, and the diorama as World 1's direction.
 - On the Mac: the atlas on a SurfaceAppearance with `ResampleMode = Pixelated` on a phone, at the game camera's distance, watching the grout for shimmer; if it shimmers, `GROUT = 0` in `tools/blocky/cells.py` rebuilds every atlas without it (variant B of the grout test). The SurfaceAppearance emissive mask for glow cells, or a Neon part.

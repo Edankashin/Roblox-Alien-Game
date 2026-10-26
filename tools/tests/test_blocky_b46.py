@@ -129,7 +129,7 @@ class SpecB46(unittest.TestCase):
 
     def test_motion_ladder_and_blink(self):
         spec = S.load(RADDIS)
-        for key in ("halo", "wing", "orb", "mote", "leaf"):
+        for key in ("halo", "wing", "orb", "frond", "leaf"):
             del spec["rig"]["clips"][key]
         errs = errors_of(spec)
         self.assertTrue(any("has no clip" in e for e in errs))
@@ -159,7 +159,10 @@ class SpecB46(unittest.TestCase):
     def test_mirrored_clip_changes_sign(self):
         r = S.rig(S.load(RADDIS))
         self.assertEqual(r["clips"]["wingR"][0]["amp"], -r["clips"]["wingL"][0]["amp"])
-        self.assertEqual(r["clips"]["moteR"][0]["amp"], r["clips"]["moteL"][0]["amp"])   # an orbit about y keeps its sign
+        spec = S.load(RADDIS)
+        spec["rig"]["clips"]["frond"] = [{"kind": "orbit", "amp": 0.2, "period": 3.6}]
+        r = S.rig(spec)
+        self.assertEqual(r["clips"]["frondR"][0]["amp"], r["clips"]["frondL"][0]["amp"])   # an orbit about y keeps its sign
 
     def test_new_bands_and_finer_grid(self):
         self.assertEqual(S.DETAIL_GRID["Cosmic"], 0.0625)

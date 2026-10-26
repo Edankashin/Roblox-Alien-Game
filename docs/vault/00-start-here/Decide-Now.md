@@ -286,7 +286,7 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 **51. Fierce faces at the top tiers?** The reference's Legendary and Mythic pets glare: red glowing eyes, fangs, an open jaw. [[Decisions]] B46 says rarer is "cooler or cuter, never fiercer". The pilot takes everything else from the reference (the world accent kit, the satellite set, posed stances, shaped energy; [[Blocky-Style]] section 10).
 - Options: a) keep B46: cute at every tier, and the top tiers get their presence from the kit, satellites, backdrop and glow; b) allow **awe** at Legendary and up: calm glowing eyes, closed mouths, no fangs or glares (cool, never scary); c) allow fierce at Legendary and up as in the reference (glowing eyes, fangs, open jaws).
 - Recommend: **b**, because a 9-plus audience and the game's cute pitch keep the faces kind, while glowing eyes and a still, proud stance give the top tiers the weight the reference has.
-- Then: the pilot sheet shows the four pilots with b; a letter back switches the eye library's top-tier set.
+- Then: the pilot sheet shows the four pilots with b; a letter back switches the eye library's top-tier set. Built 2026-10-26: the pilot sheet `media/studio/2026-10-26/pilot_bar_v1.jpg` shows the four with b (Fenrir lost its two little fangs; every mouth is closed, the eyes are the calm library eyes; [[Blocky-Style]] "Pilot bar notes").
 
 ## Closed or parked, no answer needed
 
