@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import json
 import math
 from pathlib import Path
 import re
@@ -1212,6 +1213,73 @@ def lint_reveal(tables, root=ROOT):
     return failures
 
 
+def asset_id_uses(tables, root=ROOT):
+    """Every real asset id the data names, as {id: [(type, where), ...]}. Types: sound (Sounds, Music), image (Icons,
+    BlockTiles, Textures, Lighting sky), model (ModelAssets.AssetIds), and from the uploader's asset_ids.json files decal
+    (an `assetId` of an image upload: a Decal, not drawable as an Image) and model. 0 means not uploaded and is skipped."""
+    uses = {}
+
+    def add(value, kind, where):
+        if isinstance(value, str) and value.startswith('rbxassetid://'):
+            value = value[len('rbxassetid://'):]
+        if isinstance(value, str) and value.isdigit():
+            value = int(value)
+        if type(value) is int and value > 0:
+            uses.setdefault(value, []).append((kind, where))
+
+    for key, value in (tables.get('Sounds') or {}).items():
+        for path, _, child, _ in walk({key: value}):
+            add(child, 'sound', f'Sounds.{path}')
+    for name, row in ((tables.get('Music') or {}).get('Rows') or {}).items():
+        add(row.get('assetId'), 'sound', f'Music.Rows.{name}.assetId')
+    icons = tables.get('Icons') or {}
+    for group in ('Icons', 'Particles'):
+        for name, value in (icons.get(group) or {}).items():
+            add(value, 'image', f'Icons.{group}.{name}')
+    for name, row in ((tables.get('BlockTiles') or {}).get('Ids') or {}).items():
+        add(row.get('id'), 'image', f'BlockTiles.Ids.{name}')
+    for name, row in (tables.get('Textures') or {}).items():
+        if isinstance(row, dict):
+            for field in ('colorMap', 'normalMap', 'roughnessMap', 'metalnessMap'):
+                add(row.get(field), 'image', f'Textures.{name}.{field}')
+    for path, key, value, _ in walk(tables.get('Lighting') or {}):
+        if key in ('Bk', 'Dn', 'Ft', 'Lf', 'Rt', 'Up'):
+            add(value, 'image', f'Lighting.{path}')
+    for name, value in ((tables.get('ModelAssets') or {}).get('AssetIds') or {}).items():
+        add(value, 'model', f'ModelAssets.AssetIds.{name}')
+    for manifest in ('icons', 'models', 'textures', 'textures/blocky_tiles'):
+        path = root / 'assets' / manifest / 'asset_ids.json'
+        if not path.exists():
+            continue
+        try:
+            rows = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        for name, row in rows.items():
+            if not isinstance(row, dict):
+                continue
+            if row.get('imageId'):
+                add(row['imageId'], 'image', f'assets/{manifest}/asset_ids.json {name}.imageId')
+                add(row.get('assetId'), 'decal', f'assets/{manifest}/asset_ids.json {name}.assetId')
+            else:
+                add(row.get('assetId'), 'model' if manifest == 'models' else 'image',
+                    f'assets/{manifest}/asset_ids.json {name}.assetId')
+    return uses
+
+
+def lint_asset_ids(tables, root=ROOT):
+    """No asset id is used under two asset types. Roblox answers "Asset type does not match requested type" (engine
+    AssetDelivery403IncorrectAssetType) when a Sound loads a Decal, an ImageLabel an audio file and so on; this catches the
+    paste of one id into the wrong table before a Play does."""
+    failures = []
+    for asset_id, rows in sorted(asset_id_uses(tables, root).items()):
+        kinds = sorted({kind for kind, _ in rows})
+        if len(kinds) > 1:
+            places = '; '.join(f'{kind} at {where}' for kind, where in rows)
+            failures.append(f'asset id {asset_id} is used as {" and ".join(kinds)}: {places}')
+    return failures
+
+
 def lint(root: Path = ROOT) -> list[str]:
     data = root / 'src/shared/data'
     reader = TableReader()
@@ -1306,6 +1374,7 @@ def lint(root: Path = ROOT) -> list[str]:
     for finding in model_asset_warnings(tables, root):
         print('warning: ' + finding)
     failures.extend(lint_music(tables))
+    failures.extend(lint_asset_ids(tables, root))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
     failures.extend(lint_props(tables, block_cell_props(root), block_cell_prop_slots(root), block_cell_prop_origins(root)))

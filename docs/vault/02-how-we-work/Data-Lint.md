@@ -60,6 +60,7 @@ Run `python3 -I tools/lint_data.py`; `--help` describes the entry point. The sam
 | Setting levelKeys are dense, match levels in length and exist in strings | Settings, strings/en |
 | Setting defaults are integer indices in range | Settings |
 | Promo code reward kinds, amounts and ids are valid | Codes, Lures, PowerUps |
+| **No asset id is used under two asset types** (2026-10-26): every real id (not 0) in Sounds and Music (sound), Icons, BlockTiles, Textures and the Lighting sky (image), ModelAssets.AssetIds (model) and the uploader's four `asset_ids.json` files (an image upload's `assetId` is a Decal and its `imageId` the Image; models are models) must have one type. Engine message when it breaks: `ContentId: rbxassetid://N failed due to: Asset type does not match requested type`. `tools/tests/test_lint_asset_ids.py` mutates a pasted id into each wrong table. | Sounds, Music, Icons, BlockTiles, Textures, Lighting, ModelAssets |
 
 Found: **none** on the current tree. The exact-finding warning baseline is empty; any new finding fails. No data values were changed. **31 isolated in-memory mutations** each produced diagnostics, covering holes/nil, unknown references, dimensions/caps, windows, duplicate ids, prohibited grants, reward shapes and settings. Lint runtime was below one second on the Mac.
 
