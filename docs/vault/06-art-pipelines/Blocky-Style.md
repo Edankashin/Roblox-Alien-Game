@@ -255,6 +255,8 @@ The four pilots, one a band: [[Mossbop]] (Moop, Common, Verdant), [[Radish]] (Ra
 
 ![Pilot bar v2: each pilot before and after, and from 16 studs (v1 in between)](../../../media/studio/2026-10-26/pilot_bar_v2.jpg)
 
+![Pilot bar v2b: Syrinx and Fenrir, v2 beside v2b, from the front and from 16 studs](../../../media/studio/2026-10-26/pilot_bar_v2b.jpg)
+
 The first sheet (`pilot_bar_v1.jpg`) was judged too timid by the coordinator: set beside its "before" nothing new read at 16 studs. v2 (PILOT-2, the same day, [[Decisions]] B54) is the bolder pass; the section "Second pass (v2)" below says what changed and why, and the v1 notes under it are kept as the record of what was too small.
 
 ### Second pass (v2, PILOT-2): what makes it read at 16 studs
@@ -285,6 +287,12 @@ What v2 found:
 - **Pivots move with the pose.** A moving part in a posed group has its pivot swung with it, so Moop's `sprout` (pivot at x = 0) is `sproutR` after a lean and Syrinx's `beard` and `gem` are `beardR` and `gemR`: the rig keys still name them by the base word.
 
 Triangles (Blender) and blocks, before, v1 and v2: Moop 214, 234, 250 and 10, 12, 12; Raddis 2,182, 2,154, 2,266 and 181, 180, 184; Syrinx 2,082, 2,246, 2,568 and 172, 189, 206; Fenrir 1,882, 2,324, 2,716 and 151, 189, 219. Heights: Moop 2.87 (the standing leaf), the others 3.5.
+
+**v2b (PILOT-3, the coordinator's review of v2: Raddis and Fenrir read as new at 16 studs, two reads still wrong).** The sheet `pilot_bar_v2b.jpg` (`tools/blocky/pilot_sheet_v2b.py`) sets Syrinx and Fenrir, v2 beside v2b.
+
+- **Syrinx's eclipse was dark on dark.** Its disc and its body were both near-black violet, so at 16 studs the backdrop vanished. The disc is now 3 studs across with a lit rim two cells (0.5 stud) thick in the tier light (the Glow slot), a face in the second colour (L* 11 against the body's 30, so the body stands out against it) and eight stepped rays (a compass point each, three cells long, crystal's light diagonals on the Glow slot so some cells wash toward white; the top ray stops at the 3.5 height limit, `kits.corona(top=)`). The eclipse shards are a pale violet slab (the accent) with a lit rim and a small dark crater; the accent went from `#8E6BFF` to a pale violet `#BFA8FF` (L* 56 to 74) and the brass one tone (6 L*) brighter, `#B08A3E` to `#C49A48`; the face is byte-identical. The disc is behind a body that is 2 studs wide on a 3-stud disc, so from the front only a half stud of rim shows on each side and the rays carry the read: the eclipse is better, still the weakest backdrop of the four.
+- **Fenrir had two moons and a muddled head.** The brow moon is cut (parts, the `moon` and `shade` objects, their clips and flourish moves), the crescent is the hero and `Effects.Pieces.Moon` hangs on its front face; the head is up 12 degrees (was 25) with a 0.2 stud move, so the face plate reads square-on; the frost rings moved clear of the face (the nearest 1.1 studs from the middle, above the cheek and ear) and got a dark indigo outline each, because pale rings vanished on snow; the silver is `#E6EDFA` (L* 94). The tail stays up 55. Pale pieces on snow die again: a ring with no outline was invisible even clear of the face.
+- Numbers: Syrinx 213 blocks, 2,652 triangles; Fenrir 210 blocks, 2,608 triangles, 11 moving things (from 13).
 
 ### The two kits (`tools/blocky/kits.py`)
 
