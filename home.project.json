@@ -33,7 +33,8 @@
           "WorldId": {
             "Float64": 0
           }
-        }
+        },
+        "StreamingEnabled": false
       }
     },
     "SoundService": {

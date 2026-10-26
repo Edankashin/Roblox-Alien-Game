@@ -44,6 +44,7 @@ local Worlds = require(Shared.data.Worlds)
 local Net = require(Shared.Net)
 local Place = require(Shared.Place)
 local OnceGate = require(Shared.OnceGate)
+local WorldContainer = require(Shared.WorldContainer)
 local Meadow = require(script.Parent.Meadow)
 local Analytics = require(script.Parent.Analytics)
 
@@ -164,16 +165,9 @@ end
 
 -- The part ----------------------------------------------------------------
 
-local function sightingsFolder(): Folder
-	local world = Workspace:WaitForChild("World")
-	local existing = world:FindFirstChild(FOLDER_NAME)
-	if existing and existing:IsA("Folder") then
-		return existing
-	end
-	local created = Instance.new("Folder")
-	created.Name = FOLDER_NAME
-	created.Parent = world
-	return created
+-- Workspace.World.Sightings, a Persistent Model (Shared/WorldContainer): the compass follows the Warden from any distance.
+local function sightingsFolder(): Instance
+	return WorldContainer.Get(Workspace:WaitForChild("World"), FOLDER_NAME)
 end
 
 -- The flat point `distance` studs along the path (clamped to its ends) and the unit direction of the segment it is in.

@@ -33,7 +33,11 @@
           "WorldId": {
             "Float64": 1
           }
-        }
+        },
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 128,
+        "StreamingTargetRadius": 280,
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea"
       }
     },
     "SoundService": {

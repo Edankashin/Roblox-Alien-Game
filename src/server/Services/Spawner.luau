@@ -52,6 +52,7 @@ local CatchVariants = require(Shared.data.CatchVariants)
 local Worlds = require(Shared.data.Worlds)
 local Biomes = require(Shared.Biomes)
 local Place = require(Shared.Place)
+local WorldContainer = require(Shared.WorldContainer)
 local WorldGrid = require(Shared.WorldGrid)
 local WorldClock = require(script.Parent.WorldClock)
 local Meadow = require(script.Parent.Meadow)
@@ -94,22 +95,17 @@ local BASE_SIZE = 2 -- studs across at placeholder scale 1; also the nominal siz
 local rng = Random.new()
 local spawns: { [string]: WildSpawn } = {}
 local pending: { PendingRespawn } = {}
-local wildFolder: Folder? = nil
+local wildFolder: Instance? = nil
 local removedListeners: { (WildSpawn, RemoveReason) -> () } = {} -- Quests tracks the Warden through these
 
-local function folder(): Folder
+-- Workspace.World.Wild: a Persistent Model (Shared/WorldContainer), so every spawn part reaches every client whatever the streaming radius.
+local function folder(): Instance
 	if wildFolder then
 		return wildFolder
 	end
-	local world = Workspace:WaitForChild("World")
-	local wild = world:FindFirstChild("Wild")
-	if not wild then
-		wild = Instance.new("Folder")
-		wild.Name = "Wild"
-		wild.Parent = world
-	end
-	wildFolder = wild :: Folder
-	return wild :: Folder
+	local wild = WorldContainer.Get(Workspace:WaitForChild("World"), "Wild")
+	wildFolder = wild
+	return wild
 end
 
 -- Luck scales every share above Common; Common takes what is left (or 0 if luck pushes past 100%).

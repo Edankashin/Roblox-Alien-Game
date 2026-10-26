@@ -1213,6 +1213,68 @@ def lint_reveal(tables, root=ROOT):
     return failures
 
 
+STREAMING_PROJECTS = ('default.project.json', 'home.project.json', 'world2.project.json')
+STREAMING_CONTAINER_FILES = ('Meadow', 'Spawner', 'Materials', 'Heaters', 'Sightings')
+
+
+def lint_streaming(tables, root=ROOT):
+    """data/Streaming against the three Rojo project files (which cannot read it) and against the rules it keeps: the minimum radius
+    covers the spawn ring (Config.SpawnRadius), the target is not below it and not past the farthest corner of a streamed world, the
+    place's Workspace properties equal the table's for its WorldId, and the server makes every Persistent container through
+    Shared/WorldContainer."""
+    data = tables.get('Streaming')
+    if data is None:
+        return ['Streaming.luau: table unavailable']
+    failures = []
+    low, high = data.get('MinRadius'), data.get('TargetRadius')
+    if type(low) not in (int, float) or type(high) not in (int, float):
+        return ['Streaming: MinRadius and TargetRadius must be numbers']
+    spawn_radius = tables['Config']['SpawnRadius']
+    if low < spawn_radius:
+        failures.append(f'Streaming.MinRadius {low} is under Config.SpawnRadius {spawn_radius}: aliens would be placed on ground that is not loaded')
+    if high < low:
+        failures.append(f'Streaming.TargetRadius {high} is under MinRadius {low}')
+    enabled = data.get('Enabled') or {}
+    for world, gen in ((1, 'WorldGen1'), (2, 'WorldGen2')):
+        grid = tables.get(gen) or {}
+        if enabled.get(world) and 'Count' in grid and 'Cell' in grid:
+            corner = math.ceil(grid['Count'] * grid['Cell'] / 2 * math.sqrt(2))
+            if high > corner:
+                failures.append(f'Streaming.TargetRadius {high} is past World {world}\'s farthest corner from the camp ({corner}): nothing more exists to stream')
+    for world, row in tables['Worlds'].items():
+        if isinstance(row, dict) and row.get('built', True) and world not in enabled:
+            failures.append(f'Streaming.Enabled has no row for built world {world}')
+    names = list((data.get('Persistent') or {}).values())
+    if len(names) != len(set(names)):
+        failures.append('Streaming.Persistent lists a container twice')
+    for name in ('Wild', 'Materials', 'Heaters', 'Sightings'):
+        if name not in names:
+            failures.append(f'Streaming.Persistent must list {name}: the client scans Workspace.World.{name} by name')
+    for project in STREAMING_PROJECTS:
+        path = root / project
+        if not path.exists():
+            continue
+        try:
+            workspace = json.loads(path.read_text())['tree']['Workspace']['$properties']
+        except (OSError, ValueError, KeyError) as exc:
+            failures.append(f'{project}: cannot read the Workspace properties: {exc}')
+            continue
+        world = int(workspace.get('Attributes', {}).get('WorldId', {}).get('Float64', 1))
+        want = enabled.get(world)
+        if workspace.get('StreamingEnabled') is not bool(want):
+            failures.append(f'{project}: StreamingEnabled is {workspace.get("StreamingEnabled")!r}, data/Streaming.Enabled[{world}] is {want!r}')
+        if want:
+            for prop, key in (('StreamingMinRadius', 'MinRadius'), ('StreamingTargetRadius', 'TargetRadius'),
+                              ('StreamingIntegrityMode', 'IntegrityMode')):
+                if workspace.get(prop) != data.get(key):
+                    failures.append(f'{project}: {prop} is {workspace.get(prop)!r}, data/Streaming.{key} is {data.get(key)!r}')
+    for service in STREAMING_CONTAINER_FILES:
+        path = root / 'src/server/Services' / f'{service}.luau'
+        if path.exists() and 'WorldContainer.Get(' not in path.read_text():
+            failures.append(f'src/server/Services/{service}.luau: makes a streamed container without Shared/WorldContainer.Get (a Folder streams out; a Persistent Model does not)')
+    return failures
+
+
 def asset_id_uses(tables, root=ROOT):
     """Every real asset id the data names, as {id: [(type, where), ...]}. Types: sound (Sounds, Music), image (Icons,
     BlockTiles, Textures, Lighting sky), model (ModelAssets.AssetIds), and from the uploader's asset_ids.json files decal
@@ -1295,7 +1357,7 @@ def lint(root: Path = ROOT) -> list[str]:
         return failures + [f'en.luau: parse failure: {exc}']
     required = {'Species', 'Worlds', 'Spawns', 'KeyMaterials', 'Modules', 'Quests',
                 'Tutorial', 'Layouts', 'Sizes', 'Spins', 'Icons', 'CatchVariants', 'Growth', 'Tiers', 'Props', 'ModelAssets',
-                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds', 'Reveal'}
+                'Radar', 'Mounts', 'HomeBuild', 'Home', 'Weekly', 'Seasons', 'Shop', 'Settings', 'Codes', 'Lures', 'PowerUps', 'Textures', 'Effects', 'Sounds', 'Reveal', 'Streaming', 'Config', 'WorldGen1', 'WorldGen2'}
     for name in sorted(required - tables.keys()):
         failures.append(f'{name}.luau: required table unavailable')
     if not required <= tables.keys():
@@ -1375,6 +1437,7 @@ def lint(root: Path = ROOT) -> list[str]:
         print('warning: ' + finding)
     failures.extend(lint_music(tables))
     failures.extend(lint_asset_ids(tables, root))
+    failures.extend(lint_streaming(tables, root))
     failures.extend(lint_cinematics(tables))
     failures.extend(lint_surfaces(tables))
     failures.extend(lint_props(tables, block_cell_props(root), block_cell_prop_slots(root), block_cell_prop_origins(root)))

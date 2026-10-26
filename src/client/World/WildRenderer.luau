@@ -130,7 +130,7 @@ local records: { [Part]: Record } = {}
 local nextOrder = 0 -- counts the aliens tracked, for Record.order
 local known: { [string]: boolean } = {}
 local rng = Random.new()
-local wildFolder: Folder? = nil
+local wildFolder: Instance? = nil
 local visualFolder: Folder? = nil
 local renderConn: RBXScriptConnection? = nil
 local prefsConn: RBXScriptConnection? = nil
@@ -941,7 +941,7 @@ function WildRenderer.Start(knownSpecies: { [string]: boolean })
 	end
 	Spectacle.Start(known)
 	local world = Workspace:WaitForChild("World")
-	local wild = world:WaitForChild("Wild") :: Folder
+	local wild = world:WaitForChild("Wild") -- a Persistent Model (Shared/WorldContainer): every spawn part arrives, whatever the streaming radius
 	wildFolder = wild
 	watchHeaters(world)
 	for _, child in ipairs(wild:GetChildren()) do
