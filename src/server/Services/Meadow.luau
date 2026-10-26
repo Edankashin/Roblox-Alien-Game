@@ -897,21 +897,31 @@ local function reportStreaming()
 		TargetRadius = StreamingData.TargetRadius,
 		IntegrityMode = StreamingData.IntegrityMode,
 	}
+	-- StreamingMinRadius, StreamingTargetRadius and StreamingIntegrityMode are NotScriptable (the API dump): no Lua, not even the
+	-- command bar, can read them, so only StreamingEnabled is compared live; the radii are the project file's (rojo build writes them)
 	local okMode, mode = pcall(function()
 		return (Workspace :: any).StreamingIntegrityMode.Name :: string
 	end)
+	local okMin, minRadius = pcall(function()
+		return (Workspace :: any).StreamingMinRadius :: number
+	end)
+	local okTarget, targetRadius = pcall(function()
+		return (Workspace :: any).StreamingTargetRadius :: number
+	end)
+	local readable = okMode and okMin and okTarget
 	local live: StreamingMath.Live = {
 		enabled = Workspace.StreamingEnabled,
-		minRadius = Workspace.StreamingMinRadius,
-		targetRadius = Workspace.StreamingTargetRadius,
-		integrityMode = if okMode then mode else "unknown",
+		minRadius = if okMin then minRadius else want.MinRadius,
+		targetRadius = if okTarget then targetRadius else want.TargetRadius,
+		integrityMode = if okMode then mode else want.IntegrityMode,
 	}
 	local problems = StreamingMath.Mismatch(live, want)
 	for _, problem in ipairs(problems) do
 		warn(("[%s] streaming: %s; sync the place from its Rojo project file"):format(Config.WorkingTitle, problem))
 	end
 	if #problems == 0 then
-		print(("[%s] streaming: %s (min %d, target %d studs)"):format(Config.WorkingTitle, if live.enabled then "on" else "off", live.minRadius, live.targetRadius))
+		print(("[%s] streaming: %s (min %d, target %d studs%s)"):format(Config.WorkingTitle, if live.enabled then "on" else "off", live.minRadius, live.targetRadius,
+			if readable then "" else ", radii from data/Streaming: Lua cannot read the Workspace's"))
 	end
 end
 
