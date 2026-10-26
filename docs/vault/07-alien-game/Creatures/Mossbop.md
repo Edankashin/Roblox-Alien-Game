@@ -12,9 +12,9 @@ blocks: 10
 tris: 214
 bevel_width: 0.1
 bevel_segments: 2
-palette: ["#6CCB5F", "#2F7A4B", "#D9F36B", "#142019"]
+palette: ["#6CCB5F", "#2F7A4B", "#FFD45C", "#142019"]
 roles: [body, second, accent, ink]
-hero: Leaf
+hero: LeafR
 vfx: "none (Common): the sprout's two leaves unfurl and fold every 6 s and the spore bobs beside it, procedural moves of the sprout and float parts; no particles, no light"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Mossbop_sheet.svg]]"
@@ -23,6 +23,10 @@ glb: ""
 overlap: [0.996, 0.995, 0.993, 0.996]
 cells_render: "[[Mossbop_tq_cells.jpg]]"
 idle_render: "[[Mossbop_idle.png]]"
+bar_world: Verdant
+bar_kit: 1
+bar_pieces: [sap_run]
+bar_stance: "slumped: the cap leans a quarter stud right and the base an eighth left, the tripod caught mid-step, one leaf up and one drooping"
 ---
 # Mossbop (Moop), Common, World 1 Verdant
 
@@ -40,17 +44,26 @@ A ball of moss built in voxel steps: a wide, soft-cornered middle (the head, wit
 
 ```yaml
 parts:
-  # a moss ball in voxel steps: the head is its wide middle, a narrower cap step above and a narrower base step below round it off
-  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0, 1.125, 0], bevel: true, material: moss}
-  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 1.875, 0], material: moss}
-  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 0.375, 0], material: moss}
-  # the tripod: two root feet in front, one behind
-  - {name: Foot, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0.5, 0.125, -0.25], mirror: x, material: wood}
-  - {name: HindFoot, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0, 0.125, 0.375], material: wood}
-  # alien anatomy: a spore the sprout has let go of, floating beside it (its own moving part)
-  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.75, 2.25, -0.875], shape: ico1, moves: float, pivot: [0.75, 2.25, -0.875]}
-  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 2.125, 0], material: wood}
-  - {name: Leaf, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.375, 2.3125, 0], rot: [0, 0, 25], mirror: x, moves: sprout, pivot: [0, 2.25, 0]}
+  # a moss ball in voxel steps, posed: the head is its wide middle, shifted an eighth to its right; the cap step over it slumps a quarter
+  # further right and the base step under it an eighth left, so the whole ball leans like a sleepy sprout (the stance, about 18 degrees)
+  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0.125, 1.125, 0], bevel: true, material: moss}
+  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0.375, 1.875, 0], material: moss}
+  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [-0.125, 0.375, 0], material: moss}
+  # the tripod, caught mid-step: the right root foot forward and out, the left one back and under, the hind foot behind
+  - {name: FootR, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, -0.5], material: wood}
+  - {name: FootL, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.5, 0.125, -0.125], material: wood}
+  - {name: HindFoot, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.125, 0.125, 0.375], material: wood}
+  # alien anatomy: a spore the sprout has let go of, floating beside it (its own moving part), a mote of pollen in the amber accent
+  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.25, -0.75], shape: ico1, moves: float, pivot: [1.125, 2.25, -0.75]}
+  # the sprout grows off the slumped cap: its right leaf reaches up, its left leaf droops (two amber leaves, the hero)
+  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0.375, 2.125, 0], material: wood}
+  - {name: LeafR, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.75, 2.3125, 0], rot: [0, 0, 25], moves: sprout, pivot: [0, 2.25, 0]}
+  - {name: LeafL, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0, 2.25, 0], rot: [0, 0, 15], moves: sprout, pivot: [0, 2.25, 0]}
+  # pilot bar: begin (tools/blocky/pilots.py writes this region: the Verdant kit's one piece, a sap drop)
+  # the Verdant kit's one piece (a Common wears one): amber sap running down the head's right side from under the cap
+  - {name: Sapa, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.1875, 1.5625, -0.1875], material: metal}
+  - {name: Sapb, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.1875, 1.375, -0.25], material: metal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -73,7 +86,7 @@ eyes:
   mouth: smile
   cheeks: blush
   plate: [1.75, 1]
-  at: [0, 1.0625]
+  at: [0.125, 1.0625]
   spread: 0.5
 ```
 

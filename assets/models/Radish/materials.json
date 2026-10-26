@@ -11,6 +11,22 @@
   },
   {
     "slot": 2,
+    "name": "Glow",
+    "hex": "FFC21A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 3,
+    "name": "aura",
+    "hex": "FFC21A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 4,
     "name": "frondL",
     "hex": "2CC5B2",
     "roughness": 0.55,
@@ -20,7 +36,7 @@
     "pixelated": true
   },
   {
-    "slot": 3,
+    "slot": 5,
     "name": "frondR",
     "hex": "2CC5B2",
     "roughness": 0.55,
@@ -30,7 +46,7 @@
     "pixelated": true
   },
   {
-    "slot": 4,
+    "slot": 6,
     "name": "gem",
     "hex": "FFC21A",
     "roughness": 0.55,
@@ -38,7 +54,7 @@
     "emission": 1.5
   },
   {
-    "slot": 5,
+    "slot": 7,
     "name": "halo",
     "hex": "FFB21E",
     "roughness": 0.55,
@@ -48,7 +64,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 8,
     "name": "leaf",
     "hex": "2CC5B2",
     "roughness": 0.55,
@@ -56,22 +72,6 @@
     "emission": 0.0,
     "colorMap": "Radish_atlas.png",
     "pixelated": true
-  },
-  {
-    "slot": 7,
-    "name": "moteL",
-    "hex": "FFC21A",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
-    "slot": 8,
-    "name": "moteR",
-    "hex": "FFC21A",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
   },
   {
     "slot": 9,
@@ -95,7 +95,9 @@
     "hex": "FFC21A",
     "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 0.0,
+    "colorMap": "Radish_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 12,

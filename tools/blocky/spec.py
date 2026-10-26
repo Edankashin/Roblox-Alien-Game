@@ -760,7 +760,61 @@ def validate(spec):
         errors += validate_rig(spec, tier, c["height"])
     elif spec.get("rig"):
         errors.append("rule 8: a `rig` block needs the B46 format (an `eyes` block too)")
+    if "bar_kit" in front and tier:
+        errors += validate_bar(spec, tier, parts)
     return errors, warnings
+
+
+def validate_bar(spec, tier, parts):
+    """The character bar (Decision B54, Blocky-Style section 10) for a note that records what it wears in `bar_*` frontmatter (tools/blocky/pilots.py
+    writes the keys from the plan): the kit pieces by tier count, the satellite set (Rare and up), the backdrop (Legendary and up), the ground aura
+    (Cosmic and Secret) and a stance, each backed by parts in the note."""
+    import kits as K
+    front = spec["front"]
+    errors = []
+    err = errors.append
+    n = front.get("bar_kit")
+    lo, hi = K.TIER_COUNT[tier]
+    if not isinstance(n, int) or not lo <= n <= hi:
+        err("B54: %r kit pieces; a %s wears %d to %d" % (n, tier, lo, hi))
+    for name in front.get("bar_pieces") or []:
+        if name not in K.PIECES and name not in K.WRAPS:
+            err("B54: kit piece %r is not in tools/blocky/kits.py" % name)
+    if front.get("bar_world") not in K.KITS:
+        err("B54: bar_world %r is not a world kit (%s)" % (front.get("bar_world"), ", ".join(K.KITS)))
+    if not str(front.get("bar_stance") or "").strip():
+        err("B54: a `bar_stance` names the posed idle (never a box at rest)")
+    keys = movers(parts)
+    rank = TIER_ORDER.index(tier)
+    if rank >= TIER_ORDER.index(K.SATELLITE_FROM):
+        sats = front.get("bar_satellites")
+        orbit = front.get("bar_orbit")
+        if not isinstance(sats, int) or not K.SATELLITES[0] <= sats <= K.SATELLITES[1]:
+            err("B54: %r satellites; a %s carries %d to %d on its orbit" % (sats, tier, *K.SATELLITES))
+        elif orbit not in keys:
+            err("B54: bar_orbit %r is not a moving object of the note (the satellites ride the rig)" % orbit)
+        elif len(keys[orbit]["parts"]) < sats:
+            err("B54: the orbit %s has %d parts for %d satellites" % (orbit, len(keys[orbit]["parts"]), sats))
+    if rank >= TIER_ORDER.index(K.BACKDROP_FROM):
+        name = front.get("bar_backdrop")
+        members = keys.get(name, {}).get("parts") or [p for p in parts if p["source"] == name]
+        if not members:
+            err("B54: a %s has a backdrop prop behind it; bar_backdrop %r names no part or moving object" % (tier, name))
+        else:
+            lo_b, hi_b = bounds(members)
+            if hi_b[2] - lo_b[2] > K.BACKDROP_DEPTH + 1e-6:
+                err("B54: the backdrop %s is %.2f studs deep; under a stud" % (name, hi_b[2] - lo_b[2]))
+            if hi_b[2] < 0:
+                err("B54: the backdrop %s stands in front of the body (it goes behind, z > 0)" % name)
+    if rank >= TIER_ORDER.index(K.AURA_FROM):
+        name = front.get("bar_aura")
+        if name not in keys or len(keys[name]["parts"]) < 6:
+            err("B54: a %s has a ground aura ring of cells (6 or more) as the moving object bar_aura; %r is not one" % (tier, name))
+        else:
+            lo_b, hi_b = bounds(keys[name]["parts"])
+            if lo_b[1] < -1e-6 or hi_b[1] > 0.125 + 1e-6:
+                err("B54: the aura %s lies on the ground (y 0 to 0.125), not y %.2f to %.2f" % (name, lo_b[1], hi_b[1]))
+    return errors
 
 
 def _part_checks(p, err):
