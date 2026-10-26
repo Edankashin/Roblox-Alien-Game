@@ -88,6 +88,11 @@ BAND_HEIGHT = (2.0, 3.5)
 BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 56), "Epic": (32, 90), "Legendary": (60, 150), "Cosmic": (110, 240),
              "Secret": (110, 240)}
 # rule 2 at fixed height: a detail block's faces lie on the half grid, and from Epic up on the sixteenth grid (smaller blocks, more of them)
+# B54 and B56 (BAR-W1, 2026-10-26): a note that wears the character bar (`bar_kit` in its frontmatter) carries a kit, 6 to 8 satellites of 0.5 to 0.9 stud, metal
+# trim and, from Legendary, a backdrop on top of the body the B46 bands were drawn for, and the satellite ring (and the backdrop) are moving objects of their own:
+# so Rare, Epic and Legendary take wider block bands and two more moving objects (Cosmic and Secret already have room: the pilots sit at 184 to 206 of 240)
+BANDS_BAR = {"Rare": (18, 130), "Epic": (32, 190), "Legendary": (60, 260)}
+MOVERS_BAR_EXTRA = {"Rare": 2, "Epic": 2, "Legendary": 2}
 DETAIL_GRID = {"Common": 0.125, "Uncommon": 0.125, "Rare": 0.125, "Epic": 0.0625, "Legendary": 0.0625, "Cosmic": 0.0625, "Secret": 0.0625}
 # rule 8, the animation ladder: moving things at least (each moving object with a clip, plus the blink on the face plate), and the object cap
 MOTION_MIN = {"Common": 2, "Uncommon": 3, "Rare": 4, "Epic": 5, "Legendary": 6, "Cosmic": 8, "Secret": 8}
@@ -806,6 +811,8 @@ def validate(spec):
     if tier:
         band = TIERS[tier]
         lo_b, hi_b = BANDS_B46[tier] if b46 else band["blocks"]
+        if b46 and "bar_kit" in front and tier in BANDS_BAR:
+            lo_b, hi_b = BANDS_BAR[tier]
         if not lo_b <= c["blocks"] <= hi_b:
             err("rule 6: %d blocks; a %s has %d to %d" % (c["blocks"], tier, lo_b, hi_b))
         in_band = BAND_HEIGHT[0] - 1e-6 <= c["height"] <= BAND_HEIGHT[1] + 1e-6
@@ -830,6 +837,8 @@ def validate(spec):
     if c["tris"] > tri_cap(tier):
         err("rule 1: %d triangles; the cap of a %s is %d" % (c["tris"], tier or "creature", tri_cap(tier)))
     cap = MOVERS_CAP[tier] if (b46 and tier) else MOVERS_MAX
+    if b46 and tier and "bar_kit" in front:
+        cap += MOVERS_BAR_EXTRA.get(tier, 0)
     if c["movers"] > cap:
         err("rule 8: %d moving objects; at most %d" % (c["movers"], cap))
     # palette

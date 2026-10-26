@@ -543,12 +543,13 @@ local species: { [string]: Types.RigRow } = {
 	Rocklobber = {
 		height = 3.125,
 		parts = {
-			{ name = "antennaR", pivot = { 0.4375, 2.125, 0.625 }, clips = { { kind = "sway", amp = 14, period = 1.8, phase = 0, axis = "x" }, { kind = "sway", amp = 8, period = 2.7, phase = 0.3, axis = "z" } } },
-			{ name = "clawL", pivot = { -1.25, 1.25, -0.3125 }, clips = { { kind = "flap", amp = -8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = -10, period = 5, phase = 0.2, axis = "y" } } },
-			{ name = "clawR", pivot = { 1.25, 1.25, -0.3125 }, clips = { { kind = "flap", amp = 8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = 10, period = 5, phase = 0.2, axis = "y" } } },
-			{ name = "geodeL", pivot = { -0.375, 2.25, -0.0625 }, clips = { { kind = "pulse", amp = 0.08, period = 2.2, phase = 0, axis = "y" } } },
-			{ name = "legL", pivot = { -1, 0.5, -0.1875 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
-			{ name = "legR", pivot = { 1, 0.5, -0.1875 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
+			{ name = "antennaR", pivot = { 0.4375, 2.125, 0.1875 }, clips = { { kind = "sway", amp = 14, period = 1.8, phase = 0, axis = "x" }, { kind = "sway", amp = 8, period = 2.7, phase = 0.3, axis = "z" } } },
+			{ name = "clawL", pivot = { -1.35, 1.1, -0.75 }, rest = { 0, 0, 15 }, clips = { { kind = "flap", amp = -8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = -10, period = 5, phase = 0.2, axis = "y" } } },
+			{ name = "clawR", pivot = { 1.55, 1.35, -0.75 }, rest = { 0, 0, 30 }, clips = { { kind = "flap", amp = 8, period = 2.6, phase = 0, axis = "z" }, { kind = "wag", amp = 10, period = 5, phase = 0.2, axis = "y" } } },
+			{ name = "geodeL", pivot = { -0.375, 2.25, -0.5 }, clips = { { kind = "pulse", amp = 0.08, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "legL", pivot = { -1, 0.5, -0.625 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
+			{ name = "legR", pivot = { 1, 0.5, -0.625 }, clips = { { kind = "sway", amp = 10, period = 0.9, phase = 0, axis = "x" } } },
+			{ name = "trophies", pivot = { 0, 1.7, 0 }, clips = { { kind = "spin", amp = 360, period = 20, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 3.2, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "sway", amp = 3, period = 2.8, phase = 0, axis = "z" } },
 		face = {
