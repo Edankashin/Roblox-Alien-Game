@@ -148,12 +148,12 @@ def panpipe():
 def fenripup():
     """Cosmic, Frostbyte (PILOT-2, bold): frost rims on the turned-up head, ice shards on the mane, a bright frost edge down the mane's steps, a
     silver ear band (silver cuffs on the legs and tail are in the note's own parts), aurora wisps; a full crescent moon standing behind the pup,
-    taller than its body; seven satellites (four moon phases, three frost shards, seven eighths of a stud each) on a wide ring; a breath of three
-    frost rings from the muzzle; and a ground aura. The head stands in the `head` rest pose (up 25 degrees, mid-howl), the tail in the `tail` one."""
+    taller than its body (the only moon: the brow moon was cut in v2b); seven satellites (four moon phases, three frost shards, seven eighths of a stud each) on a wide ring; a breath of three
+    frost rings from the muzzle; and a ground aura. The head stands in the `head` rest pose (up 12 degrees, mid-howl), the tail in the `tail` one."""
     P = K.PIECES
     mane = {"moves": "mane", "pivot": [0, 1.25, 0.75]}
-    head_rest = {"rot": [25, 0, 0], "pivot": [0, 1.5, 0.1], "move": [0, -0.45, 0]}
-    p = Plan("Frostbyte", "a pup mid-howl: the head turned up 25 degrees, the tail cocked up 55 degrees over the back, a full crescent moon standing taller than it behind, a breath of frost rings")
+    head_rest = {"rot": [12, 0, 0], "pivot": [0, 1.5, 0.1], "move": [0, -0.2, 0]}   # PILOT-3: the head up 12 degrees, not 25, so the face plate reads square-on
+    p = Plan("Frostbyte", "a pup mid-howl: the head tipped up 12 degrees (the face square-on to the camera), the tail cocked up 55 degrees over the back, a full crescent moon standing taller than it behind, a clean brow, a breath of frost rings clear of the face")
     p.wear("# the Frostbyte kit: frost rims on the head's top front (they turn up with the head)", K.place(P["frost_rim"], "Rim", (0.5, 2.875, -1.25), "+y", mirror=True, pose="head"), ["frost_rim"] * 2)
     kit = K.place(P["ice_shard"], "ShardA", (0.875, 2.5625, 0.5), "+y", mirror=True, scale=1.5, **mane)
     kit += K.place(P["ice_shard"], "ShardB", (1.125, 2.1875, 0.625), "+y", mirror=True, scale=1.5, **mane)
@@ -184,12 +184,15 @@ def fenripup():
     breath = []
     bz = None
     for i, outer in enumerate((0.5, 0.625, 0.75)):
-        cx = round((nose[0] - 0.8 - 0.55 * i) / 0.0625) * 0.0625
-        cy = round((nose[1] + 0.15 + 0.3 * i) / 0.0625) * 0.0625
-        zc = round((nose[2] - 0.2 - 0.3 * i) / 0.0625) * 0.0625
+        # PILOT-3: clear of the face, a full head's half width (1 stud) and a ring's half beside the nose on the viewer's right, and rising away from the muzzle
+        cx = round((nose[0] - 1.5 - 0.3 * i) / 0.0625) * 0.0625
+        cy = round((nose[1] + 0.2 + 0.35 * i) / 0.0625) * 0.0625
+        zc = round((nose[2] + 0.5 - 0.15 * i) / 0.0625) * 0.0625
         bz = bz if bz is not None else [cx, cy, zc]   # one moving object: the rings share the first one's pivot
         breath += K.square_ring("Breath%d" % i, (cx, cy), outer, 0.125, zc, 0.125, "Glow", "crystal", moves="breath", pivot=bz)
-    p.regions.append(("# the frost breath (`breath`, shaped energy): three square rings of lit frost in the air along the muzzle's line, 0.5, 0.625 and 0.75 across, drifting up", breath))
+        # a dark indigo outline an eighth proud all round and behind, so the pale ring reads on snow (as the crescent's does)
+        breath += K.square_ring("BreathO%d" % i, (cx, cy), outer + 0.25, 0.25, zc + 0.125, 0.125, "BodyDark", "nebula", moves="breath", pivot=bz)
+    p.regions.append(("# the frost breath (`breath`, shaped energy): three square rings of lit frost in the air beside the head, clear of the face, 0.5, 0.625 and 0.75 across, each with a dark indigo outline behind it, drifting up and out", breath))
     p.regions.append(("# the ground aura (`aura`, it breathes): twelve runes, lit and dark in turn so the ring reads on snow, three quarters of a stud long",
                       K.aura_dashes("Aura", (0, 0.2), 2.15, n=12, long=0.75, wide=0.25, alt=("BodyDark", "nebula"))))
     p.aura = "aura"

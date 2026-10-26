@@ -81,7 +81,7 @@ local pieces: { [string]: Types.FxPiece } = {
 	PlumeBase = { part = "tailR", spot = { 0, 0.2, 0 }, region = "Back" },
 	Runes = { part = "halo", spot = { 0.43, 0.07, -0.42 }, region = "Halo" }, -- Skadra: two of the three runes
 	RunesB = { part = "halo", spot = { 0, 0.07, 0.42 }, region = "Top" },
-	Moon = { part = "moon", spot = { 0.09, 0, 0 }, region = "Top" }, -- Fenrir: the lit moon
+	Moon = { part = "halo", spot = { 0, 0.15, -0.46 }, region = "Top" }, -- Fenrir: the silver crescent behind it, its front face (the brow moon was cut, v2b)
 	Mane = { part = "mane", spot = { 0.3, 0.2, -0.21 }, region = "Back" }, -- Fenrir: the nebula mane
 	Phases = { part = "phases", spot = { 0, 0, -0.46 }, region = "Body" }, -- Fenrir: the front of the satellite ring (moon phases and frost shards)
 }
@@ -794,9 +794,9 @@ local species: { [string]: Types.SpeciesFx } = {
 		flourishEvery = 20,
 		signature = "Moon",
 		layers = {
-			-- the moon in phase glows...
+			-- the crescent moon glows...
 			{ kind = "Light", color = "C9D6FF", at = "Moon", brightness = 1.6, range = 4, pulse = 6 },
-			-- ...and sheds frost motes that drift back over the head
+			-- ...and sheds frost motes that drift back over the pup
 			{ kind = "Emitter", color = "DDE6FF", at = "Moon", rate = 6, size = 0.05, lifetime = 1.6, speed = 0.15, spread = 50, rise = -0.05, glow = 0.8, dir = "Back", sprite = "PixelFlake" },
 			{ kind = "Aura", color = "B8C8FF", at = "Moon", rate = 1.2, size = 0.45, lifetime = 2, glow = 0.5, sprite = "PixelHalo" },
 			-- stars twinkle in the nebula mane
