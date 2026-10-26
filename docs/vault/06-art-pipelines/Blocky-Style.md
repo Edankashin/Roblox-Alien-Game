@@ -240,7 +240,7 @@ Every species of a world as a **64 px black shape in one row**; no two may read 
 The reference is in `media/tiktok/NOTES.md` "Batch 10". Its pets are voxel like ours but read as finished characters; the difference is four habits, now rules on top of sections 1 to 9:
 
 1. **The world accent kit.** Each world owns a small kit of modelled accents, and every alien of that world wears some of it, more with rarity: Common one piece, Uncommon two, Rare three or four, Epic five or six, Legendary and up as many as the silhouette holds. Verdant: moss cells, vine wraps, blossom buds, amber sap drops, bark bands. Frostbyte: frost rims, ice shards, snowflake studs, silver bands, aurora wisps. The kit is listed per world in `tools/blocky/kits.py` (each piece a small cell-built element with a size on the quarter-stud grid and the zones of a body it may sit on; "Pilot bar notes" below) and a spec note names which pieces an alien wears and where (the `bar_*` keys of its frontmatter, written by `tools/blocky/pilots.py` and checked by `tools/blocky/spec.py`).
-2. **The satellite set.** Rare and up carry 6 to 10 small modelled pieces orbiting at mid height on the signature-piece orbit (section 7 "Signature pieces lead the effects"): the world kit plus the alien's own theme (Raddis: sunstones and leaves; Fenrir: moon phases and frost shards). Legendary and up add one backdrop prop behind the body (a disc, a ring, a crest) that frames the alien from the front; Cosmic and Secret add a ground aura ring. Satellites are cells, lit by the tier's light, never particles alone.
+2. **The satellite set.** Rare and up carry **6 to 8 modelled pieces of 0.5 to 0.9 stud each** (PILOT-2: fewer and bigger beats many and tiny; v1 had eight of a quarter to half a stud and nothing read at 16 studs) orbiting on a ring about 1.4 times the body's radius, its front low and its back high so none hangs over the face, every flat piece turned to face the viewer on the signature-piece orbit (section 7 "Signature pieces lead the effects"): the world kit plus the alien's own theme (Raddis: sunstones and leaves; Fenrir: moon phases and frost shards). Legendary and up add one backdrop prop behind the body **as big as the body and under half a stud deep** (a disc 2.4 to 3 studs across, a moon as tall as the alien; `BACKDROP_DEPTH` 0.5) that frames the alien from the front; Cosmic and Secret add a ground aura ring. Satellites are cells, lit by the tier's light, never particles alone.
 3. **A posed silhouette.** The idle is a stance (a lean, a coil, a hover tilt, a spread), never a box at rest; the silhouette test (section 9) is run on the posed idle.
 4. **Shaped energy.** Flames are layered teardrops, crystals faceted shards, bubbles rings, lightning stepped bolts: modelled cells first, a particle only on top. The reference's own fix: "they look like spiky hair, not fire".
 5. **Three colour roles on every body**: base in two tones (lighter underside), one emissive accent, one metal accent (Verdant: amber or brass; Frostbyte: silver). Rare eyes may glow in the accent.
@@ -253,7 +253,38 @@ Unchanged: the face stays cute at every tier (B46; the reference's fierce top ti
 
 The four pilots, one a band: [[Mossbop]] (Moop, Common, Verdant), [[Radish]] (Raddis, Cosmic, Verdant), [[Panpipe]] (Syrinx, Secret, Verdant) and [[Fenripup]] (Fenrir, Cosmic, Frostbyte). The tiers in the pilot are the aliens' own (the brief's Legendary pair, Raddis and Fenrir, are Cosmic in the data, so they carry the Cosmic extras too: the aura). Each keeps its face, name and height. The sheet: `media/studio/2026-10-26/pilot_bar_v1.jpg` (each before and after, front and three-quarter beside the 5-stud avatar, and each from the game camera's distance); `python3 -I tools/blocky/pilot_sheet.py`, the renders `tools/blender/pilot_shots.py`.
 
-![Pilot bar v1: each pilot before and after, and from 16 studs](../../../media/studio/2026-10-26/pilot_bar_v1.jpg)
+![Pilot bar v2: each pilot before and after, and from 16 studs (v1 in between)](../../../media/studio/2026-10-26/pilot_bar_v2.jpg)
+
+The first sheet (`pilot_bar_v1.jpg`) was judged too timid by the coordinator: set beside its "before" nothing new read at 16 studs. v2 (PILOT-2, the same day, [[Decisions]] B54) is the bolder pass; the section "Second pass (v2)" below says what changed and why, and the v1 notes under it are kept as the record of what was too small.
+
+### Second pass (v2, PILOT-2): what makes it read at 16 studs
+
+The reference's pets read as new characters because every addition is big: a backdrop the size of the body, satellites of a half to a whole stud, metal you can see, a stance that changes the outline. The four habits, now measured:
+
+| Habit | v1 | v2 | Checked |
+|---|---|---|---|
+| Triangle cap | 2,500 for all | Epic 4,000, Legendary, Cosmic and Secret 6,000 (the pilots use 2,300 to 2,700: the block bands, 240 at the top, bind first) | `spec.TRI_CAPS`, `export_models --check` |
+| Backdrop | 0.125 to 1 stud deep, a ring, a thin crescent | a gold sun disc 3 studs across with seven stepped rays; a dark eclipse 2.8 across with a lit rim and rays; a silver crescent 3.5 tall with a dark outline, under 0.5 deep | `validate_bar` |
+| Satellites | 8, 0.25 to 0.5 stud, edge-on from the front | 6 or 7, 0.5 to 0.9 stud, facing the viewer, front of the ring low | `validate_bar`, `SATELLITE_SIZE` |
+| Metal | bands 0.0625 to 0.125 thick | brass collar, girth and cuffs, silver cuffs, a brass headband: 0.25 tall, 0.125 proud, one box each | `tests/test_pilots.py` |
+| Shaped energy | a three-cell flame, ring dashes | a three-layer teardrop flame crown (amber, yellow, cream); an eclipse corona of stepped rays; a three-ring frost breath | `tests/test_pilots.py` |
+| Stance | geometry only (a shear, split paws) | **rest-pose groups**: Moop rolled 14 degrees, Raddis's wings 22 degrees up, Syrinx's head turned 25 and foreleg swung 45, Fenrir's head up 25 and tail up 55 | `validate_rest`, section 8 |
+
+New builders in `kits.py`: `disc` (a stepped disc in rings of slots, cells of a quarter stud), `corona` (stepped rays, cardinal and diagonal), `teardrop` (layered flame rows), `square_ring` (a hollow ring facing the front), `orbit(lift=, facing="front", drops=)`. A part may now say `pose: <group>` (`spec.py` `apply_rest`, `matrix_euler`): the group's turn about its pivot (and an optional `move`) is applied by `expand`, so the Blender build, the export, the sheets and the bounds all see the posed alien and the notes stay axis-aligned. `rigs.py` records `rest = { x, y, z }` (degrees) beside a moving part's pivot (`Types.RigPart.rest`); the mesh has it baked in and the client does not apply it.
+
+What v2 found:
+
+- **A disc the size of the head hides itself.** The first v2 disc (1.25 radius round a 2-stud head) showed only its turquoise rim; the gold was behind the head. At 1.5 radius (3 studs, 1.5 times the head) and with the vine cut to three strips it reads as a sun round a red block. A backdrop has to stand clear of the body by at least a quarter of the body's width on every side it should show.
+- **The height limit is the real ceiling, not the triangles.** Every alien stays 2 to 3.5 studs, so a rest pose that raises the head (Fenrir's 25 degrees) pushes the moon hero, the ears and the breath over 3.5: the group carries a `move` (the head set 0.45 lower on its shoulders), the brow moon was lowered a quarter stud, the shards stand on the lower mane steps, and the crescent (3.5) stays taller than the pup (3.42).
+- **A face may turn 25 degrees, a body part 60.** The face plate is a quad and stays readable to about 25 (the export still checks it looks along -Z within 31); a head up in a howl is therefore a nod, so the energy (the moon, the rings, the crescent) carries the howl.
+- **Pale on snow dies, again.** Fenrir's v1 pieces were pale on white; the v2 crescent has a dark indigo outline behind its silver, the moon phases a dark indigo half, the shards the body's violet. Dark pieces on dark bodies die too (Syrinx's v1 shards): the v2 shards are the body's lighter violet slab with a lit rim and a lit crater.
+- **A flat piece seen edge-on is a line.** v1 strung satellites facing outward, so those at the sides were edge-on from the front camera. v2 turns every flat piece to face the viewer (`facing="front"`, the back ones face back).
+- **Things in front of a face hide it.** The first frost breath stood in front of the muzzle and covered the eyes in the three-quarter view; it now drifts up and out on the creature's left, away from the camera's side.
+- **Mirrored groups.** A pair in a group turns rigidly by default (a head is one rigid group); a `mirror: true` group turns the left twin by the reflection (a pair of wings spread to both sides).
+- **A rest-posed bevelled mass has rounded corners inside its sharp box** (up to 0.02 stud at 14 degrees and a 0.1 bevel), so the exported bounds centre can sit 0.012 off the spec's; the export's centre tolerance is 0.02.
+- **Pivots move with the pose.** A moving part in a posed group has its pivot swung with it, so Moop's `sprout` (pivot at x = 0) is `sproutR` after a lean and Syrinx's `beard` and `gem` are `beardR` and `gemR`: the rig keys still name them by the base word.
+
+Triangles (Blender) and blocks, before, v1 and v2: Moop 214, 234, 250 and 10, 12, 12; Raddis 2,182, 2,154, 2,266 and 181, 180, 184; Syrinx 2,082, 2,246, 2,568 and 172, 189, 206; Fenrir 1,882, 2,324, 2,716 and 151, 189, 219. Heights: Moop 2.87 (the standing leaf), the others 3.5.
 
 ### The two kits (`tools/blocky/kits.py`)
 
