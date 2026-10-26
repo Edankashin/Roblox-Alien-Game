@@ -81,4 +81,42 @@ def rocklobber():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber}
+# ------------------------------------------------------------------------------------------------ Zirrit (Zapfinch)
+def _bolt_zig(g, lite=False):
+    # a stepped lightning bolt, seven eighths of a stud tall, the same from both sides: gold steps with a lit storm-yellow head and tip
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.25, 0.625, 0.875, z0, z1, "Glow", "crystal"), _box(-0.25, 0.125, 0.375, 0.625, z0, z1, "Trim", "metal"),
+            _box(-0.25, 0.375, 0.25, 0.375, z0, z1, "Trim", "metal"), _box(0.0, 0.25, 0.125, 0.25, z0, z1, "Trim", "metal"),
+            _box(0.0, 0.125, 0.0, 0.125, z0, z1, "Glow", "crystal")]
+
+
+def _spark_ring(g, lite=False):
+    # a square ring of gold five eighths of a stud across with a lit heart: a held spark
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.25, 0.375, 0.25, 0.375, z0, z1, "Trim", "metal"), _box(-0.25, 0.375, -0.375, -0.25, z0, z1, "Trim", "metal"),
+            _box(-0.375, -0.25, -0.25, 0.25, z0, z1, "Trim", "metal"), _box(0.25, 0.375, -0.25, 0.25, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.125, 0.125, z0, z1, "Glow", "crystal")]
+
+
+own("bolt_zig", "Zirrit", "a seven-eighths-stud stepped lightning bolt, gold with a lit head and tip (a satellite)", _bolt_zig)
+own("spark_ring", "Zirrit", "a three-quarter-stud gold square ring round a lit heart (a satellite)", _spark_ring)
+
+
+def zapfinch():
+    """Rare, Verdant, Lightning: a songbird mid-song. Four kit pieces (moss pads on its back, cream blossom buds on the crown behind the antennae), six
+    satellites in one lit gold and yellow (three stepped bolts, three held sparks) on a wide low ring clear of the wings; wings flicked up, head cocked,
+    tail cocked."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a songbird mid-song: the head cocked to its right, both wings flicked up, the tail cocked high, a ring of lit bolts and sparks round it")
+    kit = K.place(P_["moss_cells"], "Moss", (0.375, 1.5, 0.75), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"})
+    p.wear("# the Verdant kit: cream moss pads with a lit tuft on its back behind the wings' roots", kit, ["moss_cells"] * 2)
+    kit = K.place(P_["blossom_bud"], "Bud", (0.75, 2.5, 0.0), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Accessory"}, pose="head")
+    p.wear("# cream blossom buds on the crown's back corners (they turn with the cocked head)", kit, ["blossom_bud"] * 2)
+    sats = K.orbit([P_["bolt_zig"], P_["spark_ring"]] * 3, "Sat", (0, 0.25), 2.6, 1.55, tilt=0.15, moves="bolts", pivot=[0, 1.55, 0.25], start=math.radians(30),
+                   lift=0.9, facing="front", drops=[0.375, 0, 0.375, 0, 0.375, 0], g=0.25)
+    p.regions.append(("# the satellite set (`bolts`, one wide ring clear of the wings, the front low): three stepped bolts and three held sparks, all gold with a lit heart", sats))
+    p.satellites, p.orbit = 6, "bolts"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber}   # zapfinch() is drafted below but not applied to its note yet (BAR-W1 paused)
