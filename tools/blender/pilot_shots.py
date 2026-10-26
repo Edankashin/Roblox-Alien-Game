@@ -78,8 +78,12 @@ def render_cam(spec, out, name, size, samples, distance=16.0, pitch=18.0, yaw=24
     floor, sky = (("#E4EEF6", (0.80, 0.87, 0.96)) if int(spec["front"].get("world", 1)) == 2 else ("#7DBE5C", (0.74, 0.88, 1.0)))
     BB.lit_setup(scene, size, samples, extent=6.0, centre=centre, floor_hex=floor, sky=sky)
     BB.add_lights(scene, centre, 6.0)
-    scene.render.resolution_x = int(size * 16 / 9)
-    scene.render.resolution_y = size
+    # a 1080p frame (what a phone held sideways shows), rendered only in its middle: the alien and the avatar, 640 x 432 pixels at 1:1
+    scene.render.resolution_x, scene.render.resolution_y = 1920, 1080
+    scene.render.use_border = True
+    scene.render.use_crop_to_border = True
+    scene.render.border_min_x, scene.render.border_max_x = 0.32, 0.6533
+    scene.render.border_min_y, scene.render.border_max_y = 0.30, 0.70
     scene.render.filepath = str(pathlib.Path(out) / name)
     bpy.ops.render.render(write_still=True)
 
@@ -104,7 +108,7 @@ def main():
         if "tq" in views:
             render_ortho(spec, out, "%s_tq.png" % sid, 30.0, 16.0, a.size, a.samples)
         if "cam" in views:
-            render_cam(spec, out, "%s_cam.png" % sid, 540, a.samples)
+            render_cam(spec, out, "%s_cam.png" % sid, 1080, a.samples)
         print("%-10s done" % sid, flush=True)
     return 0
 

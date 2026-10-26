@@ -8,8 +8,8 @@ tier: Common
 status: review
 element: Bloom
 height: 2.48
-blocks: 10
-tris: 214
+blocks: 12
+tris: 234
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#6CCB5F", "#2F7A4B", "#FFD45C", "#142019"]
@@ -20,7 +20,7 @@ artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
 sheet: "[[Mossbop_sheet.svg]]"
 render: "[[Mossbop_tq.jpg]]"
 glb: ""
-overlap: [0.996, 0.995, 0.993, 0.996]
+overlap: [0.996, 0.997, 0.997, 0.996]
 cells_render: "[[Mossbop_tq_cells.jpg]]"
 idle_render: "[[Mossbop_idle.png]]"
 bar_world: Verdant
@@ -30,15 +30,25 @@ bar_stance: "slumped: the cap leans a quarter stud right and the base an eighth 
 ---
 # Mossbop (Moop), Common, World 1 Verdant
 
-A ball of moss built in voxel steps: a wide, soft-cornered middle (the head, with the face), a narrower cap step over it and a narrower base step under it, so from the front it reads as a round, not a cube. It stands on three dark root feet, two in front and one behind (a tripod: no pet animal stands like that), a two-leaf sprout grows out of its cap, and a lime spore the sprout has let go of floats beside it. Concept row in `src/shared/data/Species.luau`: "moss ball, eyes". Element and effect: [[Roster-Redesign]] section 2 (Bloom; the sprout unfurls every 6 s). The style rules it is checked against: [[Blocky-Style]].
+A ball of moss built in voxel steps: a wide, soft-cornered middle (the head, with the face), a narrower cap step over it and a narrower base step under it, so from the front it reads as a round, not a cube. It stands on three dark root feet, two in front and one behind (a tripod: no pet animal stands like that), a two-leaf sprout grows out of its cap, and an amber spore of pollen the sprout has let go of floats beside it. Since the character bar pilot (2026-10-26) the whole ball leans (the cap slumps a quarter stud to its right, the base an eighth to its left), the tripod is caught mid-step and amber sap runs down its right side. Concept row in `src/shared/data/Species.luau`: "moss ball, eyes". Element and effect: [[Roster-Redesign]] section 2 (Bloom; the sprout unfurls every 6 s). The style rules it is checked against: [[Blocky-Style]].
 
-**What makes a player want it.** It is the first thing they catch, so it has to be the cutest thing on the meadow: a round moss ball half of which is face, a sprout that moves and a spore that bobs beside it. It stays plain on purpose: two greens, one lime accent, no glow and no light, so everything above it in the ladder reads as more.
+**What makes a player want it.** It is the first thing they catch, so it has to be the cutest thing on the meadow: a round moss ball half of which is face, a sprout that moves and a spore that bobs beside it. It stays plain on purpose: two greens, one amber accent, no glow and no light, so everything above it in the ladder reads as more.
 
-**Hero block.** The `Leaf` pair on its dark `Stem`, lime against the moss green, tilted up 25 degrees; together they are the sprout part the game turns to unfurl them.
+**Hero block.** The `LeafR` and `LeafL` pair on its dark `Stem`, amber against the moss green: the right leaf reaches up 25 degrees, the left one droops 15; together they are the sprout part the game turns to unfurl them.
 
 **Alien anatomy.** The tripod, and the floating `Spore` (a `float` part the game bobs), so it is a plant that walks rather than a cube with a face.
 
 **World motif (Verdant).** The moss cell as the body itself: the cap and base are quarter-stud steps on the half-stud grid that round the ball off. Loop 1's dark side plates are gone (they read as headphones).
+
+## The character bar (B54, pilot 2026-10-26)
+
+[[Blocky-Style]] section 10 and "Pilot bar notes"; the plan is `tools/blocky/pilots.py` (`moop()`), the kit `tools/blocky/kits.py`. A Common keeps its plain look and wears the bar in the smallest way, inside the 12 blocks of its band:
+
+- **Kit (one piece).** `sap_run`, amber sap running down the head's right side from under the cap: a neck and a fat drop, two blocks, no lit speck (a Common has no glow). It is the Verdant kit's amber and the alien's one metal-and-accent colour.
+- **Stance.** A lean: the cap step shifts a quarter stud right of the head, the head an eighth right of the base, the base an eighth left, so the ball slumps like a sleepy sprout (about 18 degrees over its height); the right root foot steps forward and out, the left sits back and under, the hind foot behind; the right leaf up, the left leaf drooping. The head moved an eighth, so the face plate's `at` moved with it (`[0.125, 1.0625]`); the face is unchanged.
+- **Colours.** A Common keeps two to three flat colours: moss and root green (the two-tone base) and amber (accent, the leaves, the spore and the sap, `#FFD45C`, a step lighter than the moss so it reads in greyscale). No glow, so no emissive role: that starts at Rare.
+- **No satellites, backdrop or aura**: they start at Rare, Legendary and Cosmic.
+- Blocks 10 to 12, triangles 214 to 234, height 2.48 (unchanged), moving things 3 (unchanged).
 
 ## Parts
 
@@ -133,3 +143,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, loop 2 worker, three rounds. Round 1: the dark belly box became a body-green base step and a narrower cap step went on top, so the head is the wide middle of a voxel round. Round 2: five tries at a moss motif in the one free block (a dark cap, a lime cap, a cap with a drip, a moss bib, a side patch): each read as a lid, a cake, a hat or a sticker, never as moss, so the block went to alien anatomy, a lime spore floating beside the sprout. Round 3: the spore moved off the leaf tip (it merged with it) to float over the front corner. Overlap 0.993 to 0.996, 224 triangles, 10 blocks, 2.48 studs. Wanted for: the cutest thing on the meadow, a round moss ball half of which is face, a sprout that moves and a spore that bobs. Still cheap: the moss reads as a soft green ball more than as moss (open in [[Blocky-Style]]: mottling in the texture), and it is still the boxiest shape in the row. Status review, artboard on the canvas.
 - 2026-10-17, block-cell worker, three rounds (cells). Round 1: with moss across the whole head the front read as camouflage round the eyes, so below a two-row fringe the face is plain skin cells. Round 2: half-step tufts still read as a soft green ball; full-step tufts in three-cell clumps with a lit, ragged fringe down the sides read as moss (the open item of loop 2). Round 3: with the grout the ball reads as built of little blocks. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, eyes and rigs worker, the B46 pilot, two rounds. Round 1: the house eye retired for the library's `bean` (7 x 9 pixels at 16 a stud, one square shine) on a 28 x 16 face plate with a small smile and blush cheeks; the head's front is now plain cells (the moss fringe on top). Round 2: the first beans were 6 pixels wide, 19 percent of the head, and read small; at 7 they are 22 percent. Its rig: the sprout sways, the spore bobs and circles, the ball breathes (a 4 percent squash), the face blinks every 4.2 s: three moving things, no flourish. Height 2.48 (in the B45 band), overlap 0.993 to 0.996, 214 triangles. Wanted for: the plainest face on the meadow and still the cutest. Status review.
+- 2026-10-26, character bar pilot worker, two rounds. Round 1: the cap and base shifted a quarter stud and an eighth, the tripod split into a stride, the sprout asymmetric (right leaf up, left drooping), the accent moved from lime to amber so the Verdant metal reads on a Common, and one sap piece hung under the head (it read as a stray block under the chin). Round 2: the sap moved to the head's right side as `sap_run` and the head and its face plate shifted an eighth right so the lean is real. Overlap 0.996 to 0.997, 12 blocks, 234 triangles. Wanted for: the same cutest-thing-on-the-meadow face, now leaning and stepping, the first rung of the bar. Still plain: from 16 studs the lean is a small change of silhouette (the sheet `media/studio/2026-10-26/pilot_bar_v1.jpg`); a Common has no room for more under 12 blocks.
