@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import math
 import pathlib
 import sys
 import unittest
@@ -197,7 +198,41 @@ class SecondPass(unittest.TestCase):
             self.assertEqual(S.validate_rest(spec), [], sid)
         spec = self.spec("Fenripup")
         plate = S.face_plate(spec)
-        self.assertAlmostEqual(plate["rot"][0], 25.0, places=3)                           # the head is up 25 degrees, the face plate with it
+        self.assertAlmostEqual(plate["rot"][0], 12.0, places=3)                           # the head is up 12 degrees (v2b: the face reads square-on), the plate with it
+
+    def test_v2b_syrinx_eclipse_reads_against_the_dark_body(self):
+        spec = self.spec("Panpipe")
+        parts = S.expand(spec["parts"])
+        disc = [p for p in parts if p["name"].startswith("Moon") and p["moves"] == "eclipse"]
+        rim = [p for p in disc if p["slot"] == "Glow"]
+        face = [p for p in disc if p["slot"] == "BodyDark"]
+        self.assertTrue(rim and face)
+        centre = max(p["at"][1] + p["size"][1] / 2 for p in disc) - 1.5                    # the disc is 3 studs across
+        self.assertAlmostEqual(centre, 1.75, places=3)
+        top_rim = max(p["at"][1] + p["size"][1] / 2 for p in rim)
+        top_face = max(p["at"][1] + p["size"][1] / 2 for p in face)
+        self.assertGreaterEqual(top_rim - top_face, 0.5 - 1e-9)                            # the lit rim is two cells (0.5 stud) thick
+        rays = [p for p in parts if p["name"].startswith("Ray") and p["moves"] == "eclipse"]
+        self.assertTrue(rays)
+        octants = {round(math.degrees(math.atan2(p["at"][0], p["at"][1] - 1.75)) / 45) % 8 for p in rays}
+        self.assertEqual(len(octants), 8)                                                  # eight rays, one a compass point
+        palette = S.palette(spec)
+        self.assertGreater(S.lstar(palette["accent"]), 65)                                 # the accent is a pale violet: the shards and buds read as lit
+        self.assertGreater(S.lstar(palette["trim"]), 63)                                   # the brass one tone brighter (it was 60)
+        shards = [p for p in parts if p["moves"] == "shards" and p["name"].startswith(("Sat0", "Sat2", "Sat4", "Sat6"))]
+        self.assertTrue(any(p["slot"] == "Accessory" for p in shards))                     # the eclipse shards are lit slabs, not the body's dark violet
+
+    def test_v2b_fenrir_has_one_moon_a_clean_brow_and_a_breath_clear_of_the_face(self):
+        spec = self.spec("Fenripup")
+        parts = S.expand(spec["parts"])
+        self.assertFalse([p["name"] for p in parts if p["name"].startswith("Moon")])       # the brow moon is cut: the crescent is the moon
+        self.assertEqual(spec["front"]["hero"], "Crescent1")
+        self.assertLessEqual(spec["rig"]["rest"]["head"]["rot"][0], 12)                    # the head turns up no more than 12 degrees
+        head = next(p for p in parts if p["name"] == "Head")
+        hx = max(abs(head["at"][0]) + head["size"][0] / 2, 1.0)
+        for p in parts:
+            if p["name"].startswith("Breath"):
+                self.assertGreaterEqual(abs(p["at"][0]) - p["size"][0] / 2, hx - 1e-6, p["name"])   # beside the head, not over it
 
     def test_moop_leans_and_has_one_leaf_up(self):
         parts = {p["name"]: p for p in S.expand(self.spec("Mossbop")["parts"])}
