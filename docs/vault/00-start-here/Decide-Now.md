@@ -283,10 +283,12 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 
 ## Added 2026-10-26: the character bar (TikTok ZPLAV8hDw)
 
-**51. Fierce faces at the top tiers?** The reference's Legendary and Mythic pets glare: red glowing eyes, fangs, an open jaw. [[Decisions]] B46 says rarer is "cooler or cuter, never fiercer". The pilot takes everything else from the reference (the world accent kit, the satellite set, posed stances, shaped energy; [[Blocky-Style]] section 10).
+**51. Fierce faces at the top tiers?** **Answered 2026-10-26: none of a, b, c. "They can be unique to their own design. No algorithm or formula for how the faces should look. However, they definitely should not be ugly. Look at how others design their characters and keep all that in mind."** The eye library stays a library to pick from, never a rule per tier; every face is designed for its alien and reviewed on a sheet for appeal before it ships. The reference's Legendary and Mythic pets glare: red glowing eyes, fangs, an open jaw. [[Decisions]] B46 says rarer is "cooler or cuter, never fiercer". The pilot takes everything else from the reference (the world accent kit, the satellite set, posed stances, shaped energy; [[Blocky-Style]] section 10).
 - Options: a) keep B46: cute at every tier, and the top tiers get their presence from the kit, satellites, backdrop and glow; b) allow **awe** at Legendary and up: calm glowing eyes, closed mouths, no fangs or glares (cool, never scary); c) allow fierce at Legendary and up as in the reference (glowing eyes, fangs, open jaws).
 - Recommend: **b**, because a 9-plus audience and the game's cute pitch keep the faces kind, while glowing eyes and a still, proud stance give the top tiers the weight the reference has.
 - Then: the pilot sheet shows the four pilots with b; a letter back switches the eye library's top-tier set. Built 2026-10-26: the pilot sheet `media/studio/2026-10-26/pilot_bar_v1.jpg` shows the four with b (Fenrir lost its two little fangs; every mouth is closed, the eyes are the calm library eyes; [[Blocky-Style]] "Pilot bar notes").
+
+**52. How far to roll the character bar?** **Answered 2026-10-26: b.** a) all 35 now; b) the 18 Rare-and-up first, Commons and Uncommons after; c) stop at the pilots until after launch.
 
 ## Closed or parked, no answer needed
 
@@ -302,7 +304,7 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 Paste this back with your letters (a bare letter is enough; `*` marks the recommendation). Money items 22 to 28 need their own letter.
 
 ```
-51: a keep cute | b* awe at Legendary+ | c fierce at Legendary+
+51: answered (unique per design, never ugly)
 1: a* quit Studio now | b keep one window | c later
 2: a* macOS app | b browser build | c later
 3: a* CLI and plugin | b CLI only | c later
