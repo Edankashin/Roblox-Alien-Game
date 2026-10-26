@@ -11,6 +11,7 @@ How models, icons, scenery and music get made and into the game. The passes on t
 - [[Look-Plan]]: how the game gets its final look, pass by pass (lighting, ground, dressing, creatures, UI, store). Read it before any art task.
 - [[Blocky-Style]]: the blocky style bible (B43): nine numbered rules with a number and a do and a don't each (shape, proportions, the house face, palette, originality, the rarity ladder, VFX, moving parts, silhouettes), the spec note format and the six-step pipeline (Obsidian note, Claude Design sheet, Blender build, review, ship). Read it before designing, building or reviewing any creature; it replaces the smooth-skin passes below as the direction.
 - [[Blocky-Reference-Sources]]: the store screenshots of the popular pet games in `refs/blocky/` (inspiration only), with each game's universe and place.
+- [[Character-References]]: how others design their characters: a 12-row apply checklist, the face study (unique per design, never ugly, B55) and every TikTok Ethan sent, entry by entry with what we apply and what not yet. A roster worker reads it before building any alien (B56).
 
 ## Creatures, in the order they were done
 
