@@ -717,6 +717,24 @@ Ethan: "look at these models and be able to replicate these ideas and character 
 - Keep the creator's method: a per-tier prompt list with must-nots, rounds reviewed on a sheet beside the avatar, front and side.
 - Inspiration only: no clockwork or Atlantis kit, no wolf, stallion, kraken, mammoth or serpent; our aliens keep their own anatomy ([[Blocky-Style]] section 5).
 
-### ZPLAVdpnX: Ethan's UI reference (not yet downloaded)
+### ZPLAVdpnX: "Did Claude cook?" (ecrobloxgroup, 24 s; studied 2026-10-26)
 
-Ethan: "examine this ui. See how everything seems complete and less basic. There is more going on while also looking clean and easy to navigate around. I want that replicated." Mac job 69 downloads it; the study follows.
+Ethan: "examine this ui. See how everything seems complete and less basic. There is more going on while also looking clean and easy to navigate around. I want that replicated." A mining pet game in a neon void (a black hole, purple planets, pink crystal nodes): the HUD at rest, a Mines picker, a minecart ride into "Void Abyss", and a Pickaxe Skins panel with a roll (gacha) box.
+
+**What the UI does** (frames in the coordinator's scratchpad, never committed):
+1. **The HUD at rest is one goal card and little else.** Top centre: a gold tab "QUEST 21: WRECKING CREW #5" over a dark card with "Break 200 nodes", a cyan progress bar "50 / 200" and the reward "+$4.09K" in green. Left edge: a short stack of stat chips and a green SELL button. In the world: node plates with a name, a tier and a health bar ("Shadowstone, Epic 26/26"). Everything else lives in panels. This is our clean pass, with one addition: the goal always shows its bar and its reward.
+2. **Every panel has the same anatomy.** A saturated header band (teal, the game's colour) with an icon and the title on the left, one or two status pills on the right ("MINES OPEN 10/10", "PICKAXE POWER 260"; "COLLECTION 18/36", "EQUIPPED: VOID"), a red X in the corner; a soft-tinted body (dark purple over the purple world) holding cards. Three colour roles per panel: header colour, body tint, one accent for the action buttons (teal or green), orange for the money buttons.
+3. **A place picker is a grid of illustrated cards.** Each mine is a big card with the mine's own picture as its background, a numbered badge, the name in bold outlined white, a row of small icons of what is found there (with "?" for the unknown ones), a coloured border in the mine's colour, and one button: grey HERE on the current one, teal TRAVEL on the rest. Two columns, scrolling.
+4. **Featured plus grid.** The skins panel shows the selected skin big on the left (a 3D preview on a plinth, a PREMIUM tag, the name, two description lines, one big green EQUIP button) beside a grid of small tiles on the right (icon, name, OWNED, a gold frame on the rare ones) under a section label ("PREMIUM + ROBUX", "SECRET / HALLOWEEN EVENT"). The roll box sits above the grid with its prices ("1 roll", "10 rolls"), its odds line in full (Common 50% ... Legendary 1%) and two orange ROLL buttons.
+5. **Travel is a moment.** Picking a mine rides a minecart through a tunnel with speed lines, particles and a screen-wide outlined title "VOID ABYSS / NOW ARRIVING".
+6. **Counts and states everywhere.** Collection 18/36, mines open 10/10, OWNED and EQUIPPED on tiles, HERE on the current place, a health bar on every node. The player never wonders what they have or where they are.
+7. **Icons on every chip and card**, bold outlined names, pill chips in saturated fills, flat pill buttons with a dark outline, and the panel palette drawn from the world's palette.
+
+**Lessons for us** (the build is the [[UI-Richness-Pass]], on top of [[Clean-UI-Pass]]; the notification budget stands):
+- The goal line gets a progress bar and the reward beside it.
+- Every panel gets the same anatomy: icon + title in the header band, one or two status pills on the header's right (Aliens: "34 / 160", "Companions 2/4"; Codex: "Found 12/35"; Shop: Scrap; Ship: "Hull 3/5"; Quests: "2 to claim"), a tinted body, one accent for the main button, orange for Robux.
+- The Star Chart and the Ship's world list become illustrated world cards: the world's render as the card, its number, its name, the aliens found there as silhouettes with "?" for the uncaught, a colour border, and HERE or TRAVEL.
+- Aliens and Codex get featured-plus-grid: the selected alien big with its model, tier tag, one line of flavour and one main button, beside the grid with OWNED and tier frames.
+- Flights to a world show a screen-wide outlined title card ("Frostbyte / Now arriving") with speed lines.
+- Counts on tiles and headers: Owned, Equipped, Riding, Companion; Found n/N.
+- Not copied: the mining, the minecart, the pickaxe gacha; a gacha with Robux prices stays under the paid-random rules (odds shown, no dud, hidden where restricted).
