@@ -281,6 +281,13 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 - Recommend: **b**, because it needs no price change on Roblox, x4 becomes the clear best value, and 30 minutes of shared luck is a bigger moment for the whole server.
 - Then: one number and a TESTING line; the card shows "ALL · 30 MIN" by itself.
 
+## Added 2026-10-26: the character bar (TikTok ZPLAV8hDw)
+
+**51. Fierce faces at the top tiers?** The reference's Legendary and Mythic pets glare: red glowing eyes, fangs, an open jaw. [[Decisions]] B46 says rarer is "cooler or cuter, never fiercer". The pilot takes everything else from the reference (the world accent kit, the satellite set, posed stances, shaped energy; [[Blocky-Style]] section 10).
+- Options: a) keep B46: cute at every tier, and the top tiers get their presence from the kit, satellites, backdrop and glow; b) allow **awe** at Legendary and up: calm glowing eyes, closed mouths, no fangs or glares (cool, never scary); c) allow fierce at Legendary and up as in the reference (glowing eyes, fangs, open jaws).
+- Recommend: **b**, because a 9-plus audience and the game's cute pitch keep the faces kind, while glowing eyes and a still, proud stance give the top tiers the weight the reference has.
+- Then: the pilot sheet shows the four pilots with b; a letter back switches the eye library's top-tier set.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -295,6 +302,7 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 Paste this back with your letters (a bare letter is enough; `*` marks the recommendation). Money items 22 to 28 need their own letter.
 
 ```
+51: a keep cute | b* awe at Legendary+ | c fierce at Legendary+
 1: a* quit Studio now | b keep one window | c later
 2: a* macOS app | b browser build | c later
 3: a* CLI and plugin | b CLI only | c later

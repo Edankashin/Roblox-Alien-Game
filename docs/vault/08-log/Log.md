@@ -21,4 +21,6 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-22]]: icon A picked; three scenic thumbnails S1 to S3 for Ethan (the meadow vista, the Starhollow at dusk, the two worlds). Lasting notes: [[Thumbnail-Research]] section 14, [[STORE-PAGE]] section 4.
 - [[2026-10-23]]: the Mac's desktop chat stopped by its auto-mode check before the Launch queue; Ethan to restart it from Terminal.
 - [[2026-10-24]]: Ethan's character-design TikTok ZPLAV8hDw (Mac job 68 downloads it; the cloud cannot reach tiktok.com).
+- [[2026-10-26]]: the character bar studied (B54, Decide-Now 51); pilot and audit-fix workers.
 - [[2026-10-24]] (Mac): the Launch queue (jobs 67, 46, 47, 43) and the publish dry run.
+- [[2026-10-26]]: the character bar studied (B54, Decide-Now 51); pilot and audit-fix workers.

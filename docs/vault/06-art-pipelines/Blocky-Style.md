@@ -232,6 +232,20 @@ Every species of a world as a **64 px black shape in one row**; no two may read 
 |---|---|
 | Read the row at thumbnail size before colour | Rely on hue to tell two species apart |
 
+## 10. The character bar (Ethan, 2026-10-24: reference ZPLAV8hDw, "these designs should be what we aim for")
+
+The reference is in `media/tiktok/NOTES.md` "Batch 10". Its pets are voxel like ours but read as finished characters; the difference is four habits, now rules on top of sections 1 to 9:
+
+1. **The world accent kit.** Each world owns a small kit of modelled accents, and every alien of that world wears some of it, more with rarity: Common one piece, Uncommon two, Rare three or four, Epic five or six, Legendary and up as many as the silhouette holds. Verdant: moss cells, vine wraps, blossom buds, amber sap drops, bark bands. Frostbyte: frost rims, ice shards, snowflake studs, silver bands, aurora wisps. The kit is listed per world in `tools/blocky/` (the pilot adds it) and a spec note names which pieces an alien wears and where.
+2. **The satellite set.** Rare and up carry 6 to 10 small modelled pieces orbiting at mid height on the signature-piece orbit (section 7 "Signature pieces lead the effects"): the world kit plus the alien's own theme (Raddis: sunstones and leaves; Fenrir: moon phases and frost shards). Legendary and up add one backdrop prop behind the body (a disc, a ring, a crest) that frames the alien from the front; Cosmic and Secret add a ground aura ring. Satellites are cells, lit by the tier's light, never particles alone.
+3. **A posed silhouette.** The idle is a stance (a lean, a coil, a hover tilt, a spread), never a box at rest; the silhouette test (section 9) is run on the posed idle.
+4. **Shaped energy.** Flames are layered teardrops, crystals faceted shards, bubbles rings, lightning stepped bolts: modelled cells first, a particle only on top. The reference's own fix: "they look like spiky hair, not fire".
+5. **Three colour roles on every body**: base in two tones (lighter underside), one emissive accent, one metal accent (Verdant: amber or brass; Frostbyte: silver). Rare eyes may glow in the accent.
+6. **Detail must read from the game camera** (12 to 20 studs, slightly above): a piece under a quarter stud is cut or merged; a part that reads as the wrong thing from above ("the pipes must not look like a tail") is reshaped.
+7. **The method**: a per-tier prompt list naming each alien's theme and its three or four visible parts with must-nots; rounds reviewed on a roster sheet beside the 5-stud avatar, front and side, before the next round.
+
+Unchanged: the face stays cute at every tier (B46; the reference's fierce top tiers are [[Decide-Now]] 51), the height band 2 to 3.5 studs (B45), one world motif, alien anatomy, no copies (section 5).
+
 ## Cells: every face is made of little blocks
 
 2026-10-17, after the seven-rung ladder, Ethan: "I think the character designs should be made up of little blocky texture. Let's try that. And make that consistent throughout the whole game." That is [[Decisions]] B44. Every face of every block carries a texture of small square cells, the same rules on creatures, ground and props, so creature and world read as one (his references: the voxel-brick ground of ZPL8MtkYu and the cube-cell creatures of ZPLSHwXqp in `media/tiktok/NOTES.md`). The cells are a texture, not geometry: a creature keeps its blocks and triangles. `tools/blocky/cells.py` holds every number below and makes the texture; `tools/blender/blocky_build.py` box-projects every face onto it. The rules replace B41's "flat colour" for creature surfaces; B41's ban on grain stands, and these rules are how it is kept.

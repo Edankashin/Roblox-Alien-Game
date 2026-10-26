@@ -691,3 +691,32 @@ Checked against the code, data and vault on 2026-10-21. "Before launch" means un
 | 12 | A/B test more than one thumbnail | **done** as a plan; the block-cell set is the store worker's | Thumbnail-Research section 10 (three active thumbnails through Roblox's personalization); the new set is the Launch-week cloud row "New store icon and thumbnails" |
 
 Totals: 6 done (1, 7a, 9, 10, 11, 12), 5 before launch (3a, 4a, 5, 7b built; 2 waits on Ethan), 2 week one (4b, 6), 2 not copied (3b, 8).
+
+## Batch 10 (2026-10-24, studied 2026-10-26): the character bar
+
+### ZPLAV8hDw: "all models made with claude btw" (jubydandev, 11 s)
+
+Ethan: "look at these models and be able to replicate these ideas and character design. We want to keep the sort of blocky look but these designs should be what we aim for." A pet game ("Diga pet update 1", egg hatching, rarities to Mythic 0.1%) shown in a custom model viewer with Idle / Move / Ability / Still tabs, height in studs, GLB and OBJ exports. Six pets on screen: a Blood Moon Wolf (Legendary), a Nightmare Stallion (Mythic), a kraken, a clockwork mammoth, a sea serpent, and a prompt document listing every pet by tier.
+
+**What the models do** (frames in the coordinator's scratchpad, never committed):
+1. **Still voxel.** Every body is cube cells, like ours, but the silhouette is posed and dynamic: the stallion rears, the serpent coils, the tentacles spread, the mammoth's fur hangs in layered strips. Nothing stands as a box.
+2. **One world accent kit, worn by every pet of that world, more of it as rarity rises.** "Clockwork": brass bands, rivets, plate seams, a windup key on the back, gears, a gear ring round the face, steam pipes, a clock. "Atlantis": gold bands, barnacles between spikes, a gold shell, bubbles, anchors. The kit is what makes a world's roster read as one family.
+3. **Rare and up carry a satellite set**: 6 to 10 small themed objects orbiting the body at mid height (red shards and a blood-moon disc behind the wolf; violet shards and bone pieces round the stallion; gold anchors and ship bits round the kraken; gears round the mammoth; gold pillars, bottles and bubbles round the serpent). The top tiers add one **big backdrop prop** (the moon disc, a halo ring with clock numerals) that frames the whole pet from the front.
+4. **Three colour roles on every body**: a base in two tones (lighter underside), one emissive accent (crystal mint, flame magenta, rune yellow) and one metal accent (gold or brass). Eyes glow in the accent colour on rares.
+5. **Energy is shaped, not sprayed**: flames are "layered teardrop forms" (the creator rejected the first pass as "spiky hair"); crystals are faceted shards; bubbles are rings. Each effect is modelled cells, so it reads at a glance from the game camera.
+6. **Detail must read from the game camera**: "leave as is, unless the theme details are too small to see from above"; "the pipes must not look like a tail"; "remove any eagle-looking blocks"; "one smooth connected body, never a row of spheres".
+7. **The prompt method**: a numbered list per tier (Commons, Uncommons, Rares, Epic, Legendaries) naming each pet's theme and three or four visible parts, with must-nots; work in rounds, each round shown side by side next to a Roblox avatar from the front and the side before the next; every pet gets an idle and a movement cycle plus an ability pose.
+8. **The top tiers are fierce** (red eyes, fangs, an open jaw). That is the one place the reference and our [[Decisions]] B46 ("cooler or cuter, never fiercer") disagree; [[Decide-Now]] 51.
+
+**Lessons for us** (the rules go in [[Blocky-Style]] section 10; the pilot is Decide-Now 51):
+- Give each world an accent kit and put it on every alien of that world, by tier count: Verdant gets moss cells, vine wraps, blossom buds, amber sap drops and bark bands; Frostbyte gets frost rims, ice shards, snowflake studs, silver bands and aurora wisps.
+- Rare and up: a satellite set of 6 to 10 modelled pieces on the signature-piece orbit, from the world kit plus the alien's own theme; Legendary and up add a backdrop prop; Cosmic and Secret add a ground aura ring.
+- Pose the silhouette: every alien's idle is a stance, never a box at rest.
+- Shape every effect as cells (teardrop flames, faceted shards, ring bubbles) before any particle.
+- Keep the face rule and the height rule: cute at every tier (B46, pending Decide-Now 51), 2 to 3.5 studs (B45).
+- Keep the creator's method: a per-tier prompt list with must-nots, rounds reviewed on a sheet beside the avatar, front and side.
+- Inspiration only: no clockwork or Atlantis kit, no wolf, stallion, kraken, mammoth or serpent; our aliens keep their own anatomy ([[Blocky-Style]] section 5).
+
+### ZPLAVdpnX: Ethan's UI reference (not yet downloaded)
+
+Ethan: "examine this ui. See how everything seems complete and less basic. There is more going on while also looking clean and easy to navigate around. I want that replicated." Mac job 69 downloads it; the study follows.
