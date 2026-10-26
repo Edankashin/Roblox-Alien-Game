@@ -41,6 +41,8 @@ local Cinematics = require(Shared:WaitForChild("data"):WaitForChild("Cinematics"
 local CinematicMath = require(Shared:WaitForChild("CinematicMath"))
 local LaunchCamera = require(Shared:WaitForChild("LaunchCamera"))
 local Place = require(Shared:WaitForChild("Place"))
+local StreamingData = require(Shared:WaitForChild("data"):WaitForChild("Streaming"))
+local StreamingMath = require(Shared:WaitForChild("StreamingMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Toast = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Toast"))
 local CinematicBars = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("CinematicBars"))
@@ -515,6 +517,31 @@ function CameraDirector.Rumble(seconds: number, studs: number): boolean
 	return true
 end
 
+-- With Workspace streaming on, the camera does not move the streaming focus (the character does), so a shot far from the character
+-- would fly over ground that has not arrived. Before a moment plays, ask the server to stream around up to
+-- Streaming.CinematicRequests of its shot positions that lie past Streaming.MinRadius from the character (StreamingMath.FarPoints).
+-- Each request runs in its own thread and a failure (streaming off, a timeout) is ignored: the shots still play, over whatever
+-- has arrived. Presentation only.
+local function requestStreaming(shots: { Cinematics.Shot }, cam: Camera, root: BasePart, context: ShotContext?)
+	if StreamingData.Enabled[Place.WorldId()] ~= true then
+		return
+	end
+	local points: { StreamingMath.Point } = {}
+	for _, shot in ipairs(shots) do
+		local view = viewFor(shot, cam, context)
+		if view then
+			table.insert(points, toVec(view.Position))
+		end
+	end
+	for _, point in ipairs(StreamingMath.FarPoints(points, toVec(root.Position), StreamingData.MinRadius, StreamingData.CinematicRequests)) do
+		task.spawn(function()
+			pcall(function()
+				(Players.LocalPlayer :: any):RequestStreamAroundAsync(Vector3.new(point.x, point.y, point.z), StreamingData.RequestTimeoutSeconds)
+			end)
+		end)
+	end
+end
+
 -- Plays the cinematic moment `momentId` (Shared/data/Cinematics): the camera takes the shots one after another, each
 -- tweening from where the last left off, the letterbox bars frame it and a Skip button appears after
 -- Cinematics.SkipAfterSeconds. onDone runs once the camera is handed back (also when Cancel or Skip ends the moment early;
@@ -569,6 +596,7 @@ function CameraDirector.PlayShots(momentId: string, onDone: (() -> ())?, context
 			return
 		end
 
+		requestStreaming(shots, cam, root, context)
 		for _, shot in ipairs(shots) do
 			if shot.blur > 0 then
 				local effect = Instance.new("DepthOfFieldEffect")

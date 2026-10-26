@@ -17,6 +17,7 @@ local Types = require(Shared.types.Types)
 local Config = require(Shared.data.Config)
 local Worlds = require(Shared.data.Worlds)
 local Place = require(Shared.Place)
+local WorldContainer = require(Shared.WorldContainer)
 local Props = require(Shared.Props)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
@@ -39,26 +40,19 @@ local SINK_SKU = "Heater" -- Analytics.Economy sink name (not yet in AnalyticsDa
 
 local ruleOn = Worlds[Place.WorldId()].rule == RULE
 local burning: { [number]: number } = {} -- UserId -> heaters of theirs that are lit right now
-local heaterFolder: Folder? = nil
+local heaterFolder: Instance? = nil
 
 -- Workspace.World.Heaters, made once. Meadow's Init has already made Workspace.World by the time any
 -- player can place one; if it is somehow missing the folder sits directly under Workspace.
-local function folder(): Folder
+local function folder(): Instance
 	local existing = heaterFolder
 	if existing and existing.Parent then
 		return existing
 	end
 	local parent: Instance = Workspace:FindFirstChild("World") or Workspace
-	local found = parent:FindFirstChild(FOLDER_NAME)
-	if found and found:IsA("Folder") then
-		heaterFolder = found
-		return found
-	end
-	local created = Instance.new("Folder")
-	created.Name = FOLDER_NAME
-	created.Parent = parent
-	heaterFolder = created
-	return created
+	local made = WorldContainer.Get(parent, FOLDER_NAME) -- a Persistent Model: every heater reaches every client (the warmth rings read it)
+	heaterFolder = made
+	return made
 end
 
 local function rootPart(player: Player): BasePart?

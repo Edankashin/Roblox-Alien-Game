@@ -19,6 +19,7 @@ local Config = require(Shared.data.Config)
 local KeyMaterials = require(Shared.data.KeyMaterials)
 local Layouts = require(Shared.data.Layouts)
 local Place = require(Shared.Place)
+local WorldContainer = require(Shared.WorldContainer)
 local Biomes = require(Shared.Biomes)
 local Net = require(Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
@@ -214,12 +215,7 @@ function Materials.Init()
 
 	-- Meadow has already built (or found) Workspace.World by this point in the boot order.
 	local world = Workspace:WaitForChild("World")
-	local folder = world:FindFirstChild(FOLDER_NAME)
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = FOLDER_NAME
-		folder.Parent = world
-	end
+	local folder = WorldContainer.Get(world, FOLDER_NAME) -- a Persistent Model: every node reaches every client (the waypoint finds the nearest one)
 	if Place.IsHome() then
 		print(("[%s] Materials: this is the home planet; no nodes scattered"):format(Config.WorkingTitle))
 		return

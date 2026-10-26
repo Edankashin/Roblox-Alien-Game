@@ -54,6 +54,9 @@ local Biomes = require(Shared.Biomes)
 local Props = require(Shared.Props)
 local Types = require(Shared.types.Types)
 local WorldGrid = require(Shared.WorldGrid)
+local WorldContainer = require(Shared.WorldContainer)
+local StreamingData = require(Shared.data.Streaming)
+local StreamingMath = require(Shared.StreamingMath)
 local WorldKit = require(Shared.data.WorldKit)
 local BlockTiles = require(Shared.data.BlockTiles)
 local HomeLayout = require(Shared.data.Home) -- the home planet's floor and plot tiles (FloorTile, FloorSideTile, PlotTile), read only at home
@@ -885,16 +888,42 @@ local function buildGenerated(gen: Types.WorldGen, world: Instance, landmarks: I
 	print(("[%s] world %d: generated ground built (%d ground parts, budget %d)"):format(Config.WorkingTitle, gen.World, gen.Stats.groundParts, WorldKit.Budget.groundParts))
 end
 
+-- Prints the place's streaming state once and warns when it differs from data/Streaming (a place opened without Rojo, or saved before
+-- the properties were added): the containers are Persistent either way, so a mismatch is a performance matter, not a broken game.
+local function reportStreaming()
+	local want: StreamingMath.Want = {
+		Enabled = StreamingData.Enabled[Place.WorldId()] == true,
+		MinRadius = StreamingData.MinRadius,
+		TargetRadius = StreamingData.TargetRadius,
+		IntegrityMode = StreamingData.IntegrityMode,
+	}
+	local okMode, mode = pcall(function()
+		return (Workspace :: any).StreamingIntegrityMode.Name :: string
+	end)
+	local live: StreamingMath.Live = {
+		enabled = Workspace.StreamingEnabled,
+		minRadius = Workspace.StreamingMinRadius,
+		targetRadius = Workspace.StreamingTargetRadius,
+		integrityMode = if okMode then mode else "unknown",
+	}
+	local problems = StreamingMath.Mismatch(live, want)
+	for _, problem in ipairs(problems) do
+		warn(("[%s] streaming: %s; sync the place from its Rojo project file"):format(Config.WorkingTitle, problem))
+	end
+	if #problems == 0 then
+		print(("[%s] streaming: %s (min %d, target %d studs)"):format(Config.WorkingTitle, if live.enabled then "on" else "off", live.minRadius, live.targetRadius))
+	end
+end
+
 function Meadow.Init()
 	if Workspace:FindFirstChild(WORLD_FOLDER) then
 		return
 	end
+	reportStreaming()
 	local world = Instance.new("Folder")
 	world.Name = WORLD_FOLDER
 
-	local wild = Instance.new("Folder")
-	wild.Name = WILD_FOLDER
-	wild.Parent = world
+	WorldContainer.Get(world, WILD_FOLDER) -- a Persistent Model: the spawn parts the radar and the renderers read reach every client
 
 	local landmarks = Instance.new("Folder")
 	landmarks.Name = LANDMARKS_FOLDER
