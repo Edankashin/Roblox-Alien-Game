@@ -8,8 +8,8 @@ tier: Cosmic
 status: review
 element: Moon
 height: 3.5
-blocks: 189
-tris: 2324
+blocks: 219
+tris: 2782
 bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#4B3D8F", "#1E1A47", "#B9C6E0", "#D9E2F5", "#AEB8FF", "#0E0B1E"]
@@ -28,10 +28,10 @@ vfx_render: "[[Fenripup_vfx_cells.jpg]]"
 cells_render: "[[Fenripup_tq_cells.jpg]]"
 idle_render: "[[Fenripup_idle.png]]"
 bar_world: Frostbyte
-bar_kit: 11
+bar_kit: 17
 bar_pieces: [aurora_wisp, frost_rim, ice_shard, silver_band, snowflake_stud]
-bar_stance: "a pup braced to howl: the paws split front and back, the tail cocked up over the rump, a crescent moon standing behind it"
-bar_satellites: 8
+bar_stance: "a pup mid-howl: the head turned up 25 degrees, the tail cocked up 55 degrees over the back, a full crescent moon standing taller than it behind, a breath of frost rings"
+bar_satellites: 7
 bar_orbit: phases
 bar_backdrop: halo
 bar_aura: aura
@@ -50,80 +50,81 @@ A moon wolf pup, 3.5 studs to its ear tips (B45; it was a 14-stud mount, redesig
 
 **World motif (Frostbyte).** Icicles (the frost rims, the shards) and the ice facet as steps: the moon is a stepped disc, the mane a stepped stack, the tufts stepped points.
 
-## The character bar (B54, pilot 2026-10-26)
+## The character bar (B54, pilot 2026-10-26; second pass, bolder)
 
-[[Blocky-Style]] section 10 and "Pilot bar notes"; the plan is `tools/blocky/pilots.py` (`fenripup()`), the pieces `tools/blocky/kits.py`. A Cosmic in World 2's kit (Frostbyte: frost, shards, flakes, silver, aurora):
+[[Blocky-Style]] section 10 and "Pilot bar notes (v2)"; the plan is `tools/blocky/pilots.py` (`fenripup()`), the pieces `tools/blocky/kits.py`. A Cosmic in World 2's kit (Frostbyte), built to read on white snow (pale pieces vanish there, so every pale piece has a dark outline or a dark neighbour):
 
-- **Kit (11 pieces).** Two `frost_rim`s on the head's top front (pale ice lips with three icicle teeth), four `ice_shard`s (two faceted cone6 shards leaning apart each) standing on the mane's top two slabs and riding the mane, two `snowflake_stud`s (a silver plus and a lit heart) on the shoulder plates, a `silver_band` at the left ear's root that rides the ear, two `aurora_wisp`s (six lit cells stepping sideways) rising off the mane's top slab. The existing silver bands (ankles, collar, tail) were already the silver metal.
-- **Satellites (8, `phases`).** The moon in four phases (gibbous with a dark limb, half, crescent, new: one twice) and three `frost_shard`s on a ring of radius 1.95 round the body just under a stud above the ground, tilted a fifth of a stud, below the face. It turns against the mane; `Effects.Pieces` Phases hangs a frost-mote emitter on it.
-- **Backdrop.** The crescent (`halo`) is rebuilt as `crescent_backdrop` in thirteen quarter-stud rows (it was 24 eighth-stud rows) and centred behind the whole alien, 3.25 studs tall, thick on its right, horns to the left, 0.125 deep: it now frames the head from the front.
-- **Aura.** `aura`: twelve dashes on a circle of radius 2.15, lit periwinkle and dark indigo in turn (an all-white ring vanishes on snow), breathing every 3.4 s.
-- **Stance, a pup braced to howl.** The right forepaw a quarter stud forward and the left back, the right hind back and the left hind forward; the tail cocked up over the rump in two steps (it was held low and stiff). Claws (12 parts) and two of the three moon marks per foreleg are cut (under a quarter stud). The two fangs are removed (Decide-Now 51, option b: calm glowing eyes, closed mouth).
-- **Colours.** Indigo and deep indigo (the two-tone base), periwinkle (emissive), silver (metal).
-- Blocks 151 to 189, triangles 1882 to 2324 (Blender), 12 moving things to 12, height 3.5 (unchanged).
+- **Backdrop (`halo`).** A full crescent moon 3.5 studs tall, taller than the pup, standing behind its tail: a silver moon with a dark indigo outline behind it (an eighth proud all round, so it reads on snow), thick on its right, horns to the left, a quarter stud deep, rocking slowly.
+- **Satellites (7, `phases`).** The moon in four phases (lit half and indigo half) and three frost shards in the body's violet, seven eighths of a stud each, on a ring of radius 2.3, front low, facing the viewer.
+- **Metal.** Silver cuffs, a quarter stud tall and an eighth proud, round all four legs and the tail's joint (single blocks 0.625 across, round legs 0.375 wide), the silver ear band.
+- **Shaped energy (`breath`).** A frost breath of three square rings of lit frost (0.5, 0.625, 0.75 across) drifting up and out from the muzzle on the creature's left, away from the camera's side so they never cross the face.
+- **Kit (17 pieces).** Frost rims on the head, ice shards half again as big on the mane, the bright frost edge (a pale cap on each step of the mane, the "edge along the back"), snowflake studs, the ear band and the five silver cuffs (`silver_band`), aurora wisps.
+- **Stance (rest poses `head` and `tail`).** Mid-howl: the head (with ears, rims, the moon over the brow and the face plate) turned up 25 degrees and set 0.45 stud lower on its shoulders (`rig.rest.head`); the tail, built straight back, turned up 55 degrees at the rump (`rig.rest.tail`), cocked high; the paws split front and back. No fangs (Decide-Now 51, option b): the face stays calm.
+- **Aura.** Twelve runes three quarters of a stud long, lit and dark in turn.
+- Blocks 151 to 219, triangles 1882 to 2716 (Blender, v1 2324), moving things 13, height 3.5 (unchanged).
 
 ## Parts
 
 ```yaml
 parts:
   # the stance, a pup braced to howl: the right forepaw planted a quarter stud forward, the left one back, the hind pair split the same way
-  # (the right hind back, the left hind forward); a silver band at each ankle and one moon mark on each foreleg (the claws were under a
+  # (the right hind back, the left hind forward); a silver cuff, a quarter stud tall and an eighth proud, round each leg and one moon mark on each foreleg (the claws were under a
   # quarter stud, so they are cut)
   - {name: FrontPawR, slot: BodyDark, size: [0.5, 0.25, 0.625], at: [0.5, 0.125, -1], material: fur}
   - {name: FrontLegR, slot: Body, size: [0.375, 0.5, 0.375], at: [0.5, 0.5, -0.875], material: fur}
-  - {name: FrontBandR, slot: Trim, size: [0.5, 0.0625, 0.5], at: [0.5, 0.28125, -0.875], material: metal}
+  - {name: FrontBandR, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5, 0.5, -0.875], material: metal}
   - {name: FrontPawL, slot: BodyDark, size: [0.5, 0.25, 0.625], at: [-0.5, 0.125, -0.625], material: fur}
   - {name: FrontLegL, slot: Body, size: [0.375, 0.5, 0.375], at: [-0.5, 0.5, -0.5], material: fur}
-  - {name: FrontBandL, slot: Trim, size: [0.5, 0.0625, 0.5], at: [-0.5, 0.28125, -0.5], material: metal}
+  - {name: FrontBandL, slot: Trim, size: [0.625, 0.25, 0.625], at: [-0.5, 0.5, -0.5], material: metal}
   - {name: HindPawR, slot: BodyDark, size: [0.5, 0.25, 0.625], at: [0.5, 0.125, 1.125], material: fur}
   - {name: HindLegR, slot: Body, size: [0.375, 0.5, 0.375], at: [0.5, 0.5, 1], material: fur}
-  - {name: HindBandR, slot: Trim, size: [0.5, 0.0625, 0.5], at: [0.5, 0.28125, 1], material: metal}
+  - {name: HindBandR, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5, 0.5, 1], material: metal}
   - {name: HindPawL, slot: BodyDark, size: [0.5, 0.25, 0.625], at: [-0.5, 0.125, 0.875], material: fur}
   - {name: HindLegL, slot: Body, size: [0.375, 0.5, 0.375], at: [-0.5, 0.5, 0.75], material: fur}
-  - {name: HindBandL, slot: Trim, size: [0.5, 0.0625, 0.5], at: [-0.5, 0.28125, 0.75], material: metal}
+  - {name: HindBandL, slot: Trim, size: [0.625, 0.25, 0.625], at: [-0.5, 0.5, 0.75], material: metal}
   - {name: MarkR, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [0.71875, 0.625, -0.84375]}
   - {name: MarkL, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [-0.71875, 0.625, -0.46875]}
   # the masses: the torso and the square head (a 32-column face)
   - {name: Torso, slot: Body, size: [1.5, 0.75, 2], at: [0, 1.125, 0.125], bevel: true, material: fur}
-  - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2.125, -0.625], bevel: true}
+  - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2.125, -0.625], bevel: true, pose: head}
   # the face's blocks: a pale snout with a dark nose and a small ink smile, pale cheek tufts (the two little ice fangs are gone: the face stays calm at every tier, Decide-Now 51 option b)
-  - {name: Snout, slot: Accessory, size: [0.875, 0.5, 0.375], at: [0, 1.625, -1.6875]}
-  - {name: Nose, slot: Eye, size: [0.375, 0.1875, 0.125], at: [0, 1.78125, -1.9375]}
-  - {name: Philtrum, slot: Eye, size: [0.125, 0.0625, 0.0625], at: [0, 1.65625, -1.90625]}
-  - {name: MouthCurl, slot: Eye, size: [0.125, 0.0625, 0.0625], at: [0.125, 1.59375, -1.90625], mirror: x}
-  - {name: CheekTuft, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.0625, 1.5, -1.25], mirror: x, material: fur}
+  - {name: Snout, slot: Accessory, size: [0.875, 0.5, 0.375], at: [0, 1.625, -1.6875], pose: head}
+  - {name: Nose, slot: Eye, size: [0.375, 0.1875, 0.125], at: [0, 1.78125, -1.9375], pose: head}
+  - {name: Philtrum, slot: Eye, size: [0.125, 0.0625, 0.0625], at: [0, 1.65625, -1.90625], pose: head}
+  - {name: MouthCurl, slot: Eye, size: [0.125, 0.0625, 0.0625], at: [0.125, 1.59375, -1.90625], mirror: x, pose: head}
+  - {name: CheekTuft, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.0625, 1.5, -1.25], mirror: x, material: fur, pose: head}
   # the hero: a full moon of stepped light rising over the brow, a stud wide (Rare pass w2: the 0.625 disc in front of the forehead read as a
   # small white disc), nine sixteenth rows from just over the face plate to 0.375 above the crown, so half of it breaks the head's top edge
   # against the sky; no craters (pale ones on a pale glow vanished, indigo ones read as spots, silver ones at night as a skull or a 9:
   # the phase alone says moon); it bobs, rocks and, on the howl, flips
-  - {name: MoonA, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 2.96875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonADark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 2.96875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonB, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 3.03125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonBDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 3.03125, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonC0, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 3.09375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonC0Dark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 3.09375, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonC, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.15625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonCDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.15625, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonD, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.21875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonDDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.21875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonD2, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.28125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonD2Dark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.28125, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonE, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 3.34375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonEDark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 3.34375, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonF, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 3.40625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonFDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 3.40625, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonG, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 3.46875, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonGDark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 3.46875, -1.6875], moves: shade, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonStar, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.59375, 3.34375, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonStar2, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.53125, 3.03125, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
-  - {name: MoonStar3, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [-0.40625, 3.40625, -1.6875], moves: moon, pivot: [0, 3.21875, -1.6875]}
+  - {name: MoonA, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 2.71875, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonADark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 2.71875, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonB, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 2.78125, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonBDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 2.78125, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonC0, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 2.84375, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonC0Dark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 2.84375, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonC, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 2.90625, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonCDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 2.90625, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonD, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 2.96875, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonDDark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 2.96875, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonD2, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0.1875, 3.03125, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonD2Dark, slot: Body, size: [0.375, 0.0625, 0.125], at: [-0.25, 3.03125, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonE, slot: Glow, size: [0.4375, 0.0625, 0.125], at: [0.15625, 3.09375, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonEDark, slot: Body, size: [0.3125, 0.0625, 0.125], at: [-0.21875, 3.09375, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonF, slot: Glow, size: [0.375, 0.0625, 0.125], at: [0.125, 3.15625, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonFDark, slot: Body, size: [0.25, 0.0625, 0.125], at: [-0.1875, 3.15625, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonG, slot: Glow, size: [0.25, 0.0625, 0.125], at: [0.0625, 3.21875, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonGDark, slot: Body, size: [0.125, 0.0625, 0.125], at: [-0.125, 3.21875, -1.6875], moves: shade, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonStar, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.59375, 3.09375, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonStar2, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [0.53125, 2.78125, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
+  - {name: MoonStar3, slot: Glow, size: [0.0625, 0.0625, 0.125], at: [-0.40625, 3.15625, -1.6875], moves: moon, pivot: [0, 2.96875, -1.6875], pose: head}
   # tall ears with pale insides and lit tips, each one moving part
-  - {name: Ear, slot: Body, size: [0.375, 0.5, 0.25], at: [-0.6875, 3.125, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: fur}
-  - {name: InnerEar, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [-0.6875, 3.0625, -0.90625], moves: ear, pivot: [-0.6875, 2.875, -0.75]}
-  - {name: EarTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.6875, 3.4375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75]}
+  - {name: Ear, slot: Body, size: [0.375, 0.5, 0.25], at: [-0.6875, 3.125, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: fur, pose: head}
+  - {name: InnerEar, slot: Accessory, size: [0.125, 0.25, 0.0625], at: [-0.6875, 3.0625, -0.90625], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head}
+  - {name: EarTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.6875, 3.4375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head}
   # its right ear is a puppy's, flopped over sideways (the side the three-quarter camera sees)
-  - {name: FlopEar, slot: Body, size: [0.375, 0.5, 0.25], at: [0.9375, 2.78125, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75], material: fur}
-  - {name: FlopTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.21875, 2.6875, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75]}
+  - {name: FlopEar, slot: Body, size: [0.375, 0.5, 0.25], at: [0.9375, 2.78125, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75], material: fur, pose: head}
+  - {name: FlopTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.21875, 2.6875, -0.75], rot: [0, 0, -110], moves: ear, pivot: [0.6875, 2.875, -0.75], pose: head}
   # the nebula mane (Rare pass w2): four near-black slabs of star-field cells (the nebula motif, Cosmic only) stepping down the neck behind
   # the head, a tuft tipped with moonlight out of each end of the top three, three ridge tufts lit at their tips down the back, and six stars
   # caught in the slabs' fronts; the whole mane is one moving part that breathes and lifts on the howl
@@ -163,90 +164,122 @@ parts:
   - {name: Rune, slot: Glow, size: [0.0625, 0.375, 0.0625], at: [0.78125, 1, 0.53125], mirror: x}
   - {name: Rune2, slot: Glow, size: [0.0625, 0.0625, 0.1875], at: [0.78125, 1.15625, 0.40625], mirror: x}
   - {name: Rune3, slot: Glow, size: [0.0625, 0.0625, 0.1875], at: [0.78125, 0.84375, 0.65625], mirror: x}
-  # the tail, cocked up over the rump in two steps (it was held low and stiff): a silver band at the joint, forked at the tip round a core of
-  # light; one moving part
-  - {name: Tail, slot: Body, size: [0.375, 0.375, 0.625], at: [0, 1.3125, 1.4375], moves: tail, pivot: [0, 1.1875, 1.125], material: fur}
-  - {name: TailMid, slot: Body, size: [0.375, 0.5, 0.375], at: [0, 1.75, 1.5625], moves: tail, pivot: [0, 1.1875, 1.125], material: fur}
-  - {name: TailBand, slot: Trim, size: [0.5, 0.0625, 0.5], at: [0, 1.53125, 1.5625], moves: tail, pivot: [0, 1.1875, 1.125], material: metal}
-  - {name: TailFork, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [0.125, 2.1875, 1.5625], mirror: x, moves: tail, pivot: [0, 1.1875, 1.125], material: nebula}
-  - {name: TailCore, slot: Glow, size: [0.125, 0.25, 0.25], at: [0, 2.125, 1.5625], moves: tail, pivot: [0, 1.1875, 1.125]}
+  # the tail, built straight back and standing in the `tail` rest pose (turned up 55 degrees at the rump, so it is cocked high over the back): a
+  # silver cuff a quarter stud wide at the joint, forked at the tip round a core of light; one moving part
+  - {name: Tail, slot: Body, size: [0.375, 0.375, 0.75], at: [0, 1.3125, 1.5], moves: tail, pivot: [0, 1.25, 1.125], material: fur, pose: tail}
+  - {name: TailBand, slot: Trim, size: [0.625, 0.625, 0.25], at: [0, 1.3125, 1.5], moves: tail, pivot: [0, 1.25, 1.125], material: metal, pose: tail}
+  - {name: TailMid, slot: Body, size: [0.375, 0.375, 0.5], at: [0, 1.3125, 2], moves: tail, pivot: [0, 1.25, 1.125], material: fur, pose: tail}
+  - {name: TailFork, slot: BodyDark, size: [0.125, 0.375, 0.375], at: [0.125, 1.3125, 2.4375], mirror: x, moves: tail, pivot: [0, 1.25, 1.125], material: nebula, pose: tail}
+  - {name: TailCore, slot: Glow, size: [0.125, 0.25, 0.25], at: [0, 1.3125, 2.4375], moves: tail, pivot: [0, 1.25, 1.125], pose: tail}
   # pilot bar: begin (tools/blocky/pilots.py writes this region: the Frostbyte kit, the crescent backdrop, the satellite set and the aura)
-  # the Frostbyte kit: frost rims on the head's top front
-  - {name: Rima, slot: Accessory, size: [0.5, 0.0625, 0.125], at: [0.5, 2.90625, -1.3125], mirror: x, material: ice}
-  - {name: Rimb, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.34375, 3, -1.3125], mirror: x, material: ice}
-  - {name: Rimc, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.53125, 3, -1.3125], mirror: x, material: ice}
-  - {name: Rimd, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.71875, 3, -1.3125], mirror: x, material: ice}
-  # ice shards standing on the mane's top two slabs (they ride the mane)
-  - {name: ShardAa, slot: Accessory, size: [0.25, 0.5, 0.25], at: [0.875, 3, 0.375], rot: [14, 0, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
-  - {name: ShardAb, slot: Accessory, size: [0.125, 0.25, 0.125], at: [1, 2.875, 0.375], rot: [0, -16, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
-  - {name: ShardBa, slot: Accessory, size: [0.25, 0.5, 0.25], at: [1.125, 2.625, 0.5], rot: [14, 0, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
-  - {name: ShardBb, slot: Accessory, size: [0.125, 0.25, 0.125], at: [1.25, 2.5, 0.5], rot: [0, -16, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  # the Frostbyte kit: frost rims on the head's top front (they turn up with the head)
+  - {name: Rima, slot: Accessory, size: [0.5, 0.0625, 0.125], at: [0.5, 2.90625, -1.3125], mirror: x, pose: head, material: ice}
+  - {name: Rimb, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.34375, 3, -1.3125], mirror: x, pose: head, material: ice}
+  - {name: Rimc, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.53125, 3, -1.3125], mirror: x, pose: head, material: ice}
+  - {name: Rimd, slot: Accessory, size: [0.0625, 0.125, 0.125], at: [0.71875, 3, -1.3125], mirror: x, pose: head, material: ice}
+  # ice shards, half again as big, standing on the mane's second and third slabs (they ride the mane)
+  - {name: ShardAa, slot: Accessory, size: [0.375, 0.75, 0.375], at: [0.875, 2.9375, 0.5], rot: [14, 0, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: ShardAb, slot: Accessory, size: [0.1875, 0.375, 0.1875], at: [1.0625, 2.75, 0.5], rot: [0, -16, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: ShardBa, slot: Accessory, size: [0.375, 0.75, 0.375], at: [1.125, 2.5625, 0.625], rot: [14, 0, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: ShardBb, slot: Accessory, size: [0.1875, 0.375, 0.1875], at: [1.3125, 2.375, 0.625], rot: [0, -16, 0], shape: cone6, mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  # a bright frost edge along the back: a pale cap, three sixteenths tall, on each step of the mane (they ride it)
+  - {name: RimA, slot: Accessory, size: [2.5, 0.1875, 0.5], at: [0, 2.84375, 0.375], moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: RimB, slot: Accessory, size: [2.75, 0.1875, 0.5], at: [0, 2.46875, 0.5], moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: RimC, slot: Accessory, size: [2.5, 0.1875, 0.5], at: [0, 2.09375, 0.625], moves: mane, pivot: [0, 1.25, 0.75], material: ice}
+  - {name: RimD, slot: Accessory, size: [2, 0.1875, 0.5], at: [0, 1.71875, 0.75], moves: mane, pivot: [0, 1.25, 0.75], material: ice}
   # snowflake studs on the shoulder plates
   - {name: Flakea, slot: Trim, size: [0.0625, 0.0625, 0.25], at: [0.84375, 1.15625, -0.5], mirror: x, material: metal}
   - {name: Flakeb, slot: Trim, size: [0.0625, 0.25, 0.0625], at: [0.84375, 1.125, -0.46875], mirror: x, material: metal}
   - {name: Flakec, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [0.90625, 1.15625, -0.46875], mirror: x, material: crystal}
-  # a silver band at the left ear's root (it rides the ear)
-  - {name: EarBandF, slot: Trim, size: [0.5, 0.125, 0.0625], at: [-0.6875, 2.9375, -0.90625], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: metal}
-  - {name: EarBandB, slot: Trim, size: [0.5, 0.125, 0.0625], at: [-0.6875, 2.9375, -0.59375], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: metal}
-  - {name: EarBandR, slot: Trim, size: [0.0625, 0.125, 0.25], at: [-0.46875, 2.9375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: metal}
-  - {name: EarBandL, slot: Trim, size: [0.0625, 0.125, 0.25], at: [-0.90625, 2.9375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], material: metal}
-  # aurora wisps rising off the mane's top slab (they ride the mane)
-  - {name: Wispa, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 2.8125, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  - {name: Wispb, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5625, 2.9375, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  - {name: Wispc, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 3.0625, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  - {name: Wispd, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5625, 3.1875, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  - {name: Wispe, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 3.3125, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  - {name: Wispf, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.4375, 3.4375, 0.34375], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
-  # the backdrop: a crescent moon thirteen cells tall standing behind the whole alien, thick on its right, its horns to the left, rocking slowly (the halo)
-  - {name: Crescent0, slot: Trim, size: [1.75, 0.25, 0.125], at: [0, 0.375, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent1, slot: Trim, size: [1.375, 0.25, 0.125], at: [0.4375, 0.625, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent2, slot: Trim, size: [1.125, 0.25, 0.125], at: [0.8125, 0.875, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent3, slot: Trim, size: [1, 0.25, 0.125], at: [1, 1.125, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent4, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 1.375, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent5, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 1.625, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent6, slot: Trim, size: [0.75, 0.25, 0.125], at: [1.25, 1.875, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent7, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 2.125, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent8, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 2.375, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent9, slot: Trim, size: [1, 0.25, 0.125], at: [1, 2.625, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent10, slot: Trim, size: [1.125, 0.25, 0.125], at: [0.8125, 2.875, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent11, slot: Trim, size: [1.375, 0.25, 0.125], at: [0.4375, 3.125, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  - {name: Crescent12, slot: Trim, size: [1.75, 0.25, 0.125], at: [0, 3.375, 1.4375], moves: halo, pivot: [0, 1.875, 1.4375], material: metal}
-  # the satellite set (`phases`, one orbit turning against the mane): the moon in four phases (one twice) and three frost shards, below the face
-  - {name: Sat0a, slot: Glow, size: [0.375, 0.25, 0.0625], at: [-0.0625, 0.9375, -1.78125], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat0b, slot: Glow, size: [0.25, 0.5, 0.0625], at: [0, 0.9375, -1.78125], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat0c, slot: Body, size: [0.125, 0.25, 0.0625], at: [0.1875, 0.9375, -1.78125], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat1a, slot: Accessory, size: [0.25, 0.5, 0.25], at: [1.375, 1.3125, -1.1875], rot: [18, 0, 0], shape: cone6, moves: phases, pivot: [0, 0.95, 0.2], material: ice}
-  - {name: Sat2a, slot: Glow, size: [0.0625, 0.25, 0.25], at: [1.96875, 1.125, 0.3125], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat2b, slot: Glow, size: [0.0625, 0.5, 0.125], at: [1.96875, 1.125, 0.25], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat2c, slot: Body, size: [0.0625, 0.25, 0.25], at: [1.96875, 1.125, 0.0625], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat2d, slot: Body, size: [0.0625, 0.5, 0.125], at: [1.96875, 1.125, 0.125], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat3a, slot: Accessory, size: [0.25, 0.5, 0.25], at: [1.375, 1.3125, 1.5625], rot: [18, 0, 0], shape: cone6, moves: phases, pivot: [0, 0.95, 0.2], material: ice}
-  - {name: Sat4a, slot: Body, size: [0.375, 0.25, 0.0625], at: [0.0625, 0.9375, 2.15625], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat4b, slot: Body, size: [0.125, 0.5, 0.0625], at: [0.0625, 0.9375, 2.15625], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat4c, slot: Glow, size: [0.125, 0.25, 0.0625], at: [-0.1875, 0.9375, 2.15625], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat4d, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.0625, 1.125, 2.15625], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat4e, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.0625, 0.75, 2.15625], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat5a, slot: Body, size: [0.5, 0.25, 0.0625], at: [-1.375, 0.8125, 1.59375], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat5b, slot: Body, size: [0.25, 0.5, 0.0625], at: [-1.375, 0.8125, 1.59375], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat5c, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [-1.53125, 0.84375, 1.65625], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat6a, slot: Accessory, size: [0.25, 0.5, 0.25], at: [-1.9375, 1, 0.1875], rot: [18, 0, 0], shape: cone6, moves: phases, pivot: [0, 0.95, 0.2], material: ice}
-  - {name: Sat7a, slot: Glow, size: [0.0625, 0.25, 0.25], at: [-1.40625, 0.8125, -1.3125], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat7b, slot: Glow, size: [0.0625, 0.5, 0.125], at: [-1.40625, 0.8125, -1.25], moves: phases, pivot: [0, 0.95, 0.2], material: crystal}
-  - {name: Sat7c, slot: Body, size: [0.0625, 0.25, 0.25], at: [-1.40625, 0.8125, -1.0625], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  - {name: Sat7d, slot: Body, size: [0.0625, 0.5, 0.125], at: [-1.40625, 0.8125, -1.125], moves: phases, pivot: [0, 0.95, 0.2], material: fur}
-  # the ground aura (`aura`, it breathes): twelve dashes, lit and dark in turn so the ring reads on snow
-  - {name: Aura0, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 0.03125, -2], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura1, slot: BodyDark, size: [0.5, 0.0625, 0.125], at: [1.125, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
-  - {name: Aura2, slot: Glow, size: [0.125, 0.0625, 0.5], at: [1.875, 0.03125, -0.875], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura3, slot: BodyDark, size: [0.125, 0.0625, 0.5], at: [2.125, 0.03125, 0.25], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
-  - {name: Aura4, slot: Glow, size: [0.125, 0.0625, 0.5], at: [1.875, 0.03125, 1.25], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura5, slot: BodyDark, size: [0.5, 0.0625, 0.125], at: [1.125, 0.03125, 2], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
-  - {name: Aura6, slot: Glow, size: [0.5, 0.0625, 0.125], at: [0, 0.03125, 2.375], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura7, slot: BodyDark, size: [0.5, 0.0625, 0.125], at: [-1.125, 0.03125, 2], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
-  - {name: Aura8, slot: Glow, size: [0.125, 0.0625, 0.5], at: [-1.875, 0.03125, 1.25], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura9, slot: BodyDark, size: [0.125, 0.0625, 0.5], at: [-2.125, 0.03125, 0.25], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
-  - {name: Aura10, slot: Glow, size: [0.125, 0.0625, 0.5], at: [-1.875, 0.03125, -0.875], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
-  - {name: Aura11, slot: BodyDark, size: [0.5, 0.0625, 0.125], at: [-1.125, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  # a silver band, a quarter stud tall and an eighth proud, at the left ear's root (it rides the ear and the head)
+  - {name: EarBandF, slot: Trim, size: [0.625, 0.25, 0.125], at: [-0.6875, 2.9375, -0.9375], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head, material: metal}
+  - {name: EarBandB, slot: Trim, size: [0.625, 0.25, 0.125], at: [-0.6875, 2.9375, -0.5625], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head, material: metal}
+  - {name: EarBandR, slot: Trim, size: [0.125, 0.25, 0.25], at: [-0.4375, 2.9375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head, material: metal}
+  - {name: EarBandL, slot: Trim, size: [0.125, 0.25, 0.25], at: [-0.9375, 2.9375, -0.75], moves: ear, pivot: [-0.6875, 2.875, -0.75], pose: head, material: metal}
+  # aurora wisps rising off the mane's second slab (they ride the mane)
+  - {name: Wispa, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 2.625, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  - {name: Wispb, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5625, 2.75, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  - {name: Wispc, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  - {name: Wispd, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5625, 3, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  - {name: Wispe, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 3.125, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  - {name: Wispf, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.4375, 3.25, 0.46875], mirror: x, moves: mane, pivot: [0, 1.25, 0.75], material: crystal}
+  # the backdrop: a full crescent moon 3.5 studs tall (taller than the pup), a quarter stud deep, standing behind the tail: a silver moon with a dark indigo outline behind it, thick on its right, its horns to the left, rocking slowly (the halo)
+  - {name: Crescent0, slot: Trim, size: [0.125, 0.25, 0.125], at: [-0.8125, 0.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent1, slot: Trim, size: [1.5, 0.25, 0.125], at: [0.125, 0.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent2, slot: Trim, size: [1.375, 0.25, 0.125], at: [0.4375, 0.5, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent3, slot: Trim, size: [1.125, 0.25, 0.125], at: [0.8125, 0.75, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent4, slot: Trim, size: [1, 0.25, 0.125], at: [1, 1, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent5, slot: Trim, size: [1, 0.25, 0.125], at: [1.125, 1.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent6, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 1.5, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent7, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 1.75, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent8, slot: Trim, size: [0.875, 0.25, 0.125], at: [1.1875, 2, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent9, slot: Trim, size: [1, 0.25, 0.125], at: [1.125, 2.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent10, slot: Trim, size: [1, 0.25, 0.125], at: [1, 2.5, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent11, slot: Trim, size: [1.125, 0.25, 0.125], at: [0.8125, 2.75, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent12, slot: Trim, size: [1.375, 0.25, 0.125], at: [0.4375, 3, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent13, slot: Trim, size: [0.125, 0.25, 0.125], at: [-0.8125, 3.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: Crescent14, slot: Trim, size: [1.5, 0.25, 0.125], at: [0.125, 3.25, 2.0625], moves: halo, pivot: [0, 1.75, 2.125], material: metal}
+  - {name: CrescentO0, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0, 0.125, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO1, slot: BodyDark, size: [2.5, 0.25, 0.125], at: [0, 0.375, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO2, slot: BodyDark, size: [0.375, 0.25, 0.125], at: [-1.1875, 0.625, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO3, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0.5, 0.625, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO4, slot: BodyDark, size: [1.5, 0.25, 0.125], at: [0.875, 0.875, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO5, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [1, 1.125, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO6, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [1.125, 1.375, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO7, slot: BodyDark, size: [1.125, 0.25, 0.125], at: [1.1875, 1.625, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO8, slot: BodyDark, size: [1.125, 0.25, 0.125], at: [1.1875, 1.875, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO9, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [1.125, 2.125, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO10, slot: BodyDark, size: [1.25, 0.25, 0.125], at: [1, 2.375, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO11, slot: BodyDark, size: [1.5, 0.25, 0.125], at: [0.875, 2.625, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO12, slot: BodyDark, size: [0.375, 0.25, 0.125], at: [-1.1875, 2.875, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO13, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0.5, 2.875, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO14, slot: BodyDark, size: [2.5, 0.25, 0.125], at: [0, 3.125, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  - {name: CrescentO15, slot: BodyDark, size: [1.75, 0.25, 0.125], at: [0, 3.375, 2.1875], moves: halo, pivot: [0, 1.75, 2.125], material: nebula}
+  # the satellite set (`phases`, one wide ring, the front low): the moon in four phases and three frost shards, seven eighths of a stud each
+  - {name: Sat0a, slot: Glow, size: [0.625, 0.5, 0.125], at: [0.875, 1.1875, -2.0625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat0b, slot: Glow, size: [0.4375, 0.875, 0.125], at: [0.96875, 1.1875, -2.0625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat0c, slot: BodyDark, size: [0.25, 0.5, 0.125], at: [1.3125, 1.1875, -2.0625], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat1a, slot: Body, size: [0.25, 0.25, 0.8125], at: [2.25, 1.1875, -0.84375], rot: [18, 0, 0], shape: cone6, moves: phases, pivot: [0, 1.55, 0.1], material: ice}
+  - {name: Sat2a, slot: Glow, size: [0.4375, 0.5, 0.125], at: [1.59375, 2, 1.5625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat2b, slot: Glow, size: [0.25, 0.875, 0.125], at: [1.6875, 2, 1.5625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat2c, slot: BodyDark, size: [0.4375, 0.5, 0.125], at: [2.03125, 2, 1.5625], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat2d, slot: BodyDark, size: [0.25, 0.875, 0.125], at: [1.9375, 2, 1.5625], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat3a, slot: Body, size: [0.25, 0.25, 0.8125], at: [0, 1.625, 2.78125], rot: [-18, 0, 0], shape: cone6, moves: phases, pivot: [0, 1.55, 0.1], material: ice}
+  - {name: Sat4a, slot: BodyDark, size: [0.625, 0.5, 0.125], at: [-1.625, 1.75, 1.625], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat4b, slot: BodyDark, size: [0.3125, 0.875, 0.125], at: [-1.65625, 1.75, 1.625], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat4c, slot: Glow, size: [0.25, 0.5, 0.125], at: [-2.0625, 1.75, 1.625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat4d, slot: Glow, size: [0.1875, 0.1875, 0.125], at: [-1.90625, 2.09375, 1.625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat4e, slot: Glow, size: [0.1875, 0.1875, 0.125], at: [-1.90625, 1.40625, 1.625], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat5a, slot: BodyDark, size: [0.875, 0.5, 0.125], at: [-2.25, 1.3125, -0.4375], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat5b, slot: BodyDark, size: [0.5, 0.875, 0.125], at: [-2.25, 1.3125, -0.4375], moves: phases, pivot: [0, 1.55, 0.1], material: fur}
+  - {name: Sat5c, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-2, 1.375, -0.53125], moves: phases, pivot: [0, 1.55, 0.1], material: crystal}
+  - {name: Sat6a, slot: Body, size: [0.25, 0.25, 0.8125], at: [-1, 0.625, -2.34375], rot: [18, 0, 0], shape: cone6, moves: phases, pivot: [0, 1.55, 0.1], material: ice}
+  # the frost breath (`breath`, shaped energy): three square rings of lit frost in the air along the muzzle's line, 0.5, 0.625 and 0.75 across, drifting up
+  - {name: Breath0T, slot: Glow, size: [0.5, 0.125, 0.125], at: [-0.8125, 2.5, -1.8125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath0B, slot: Glow, size: [0.5, 0.125, 0.125], at: [-0.8125, 2.125, -1.8125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath0L, slot: Glow, size: [0.125, 0.25, 0.125], at: [-1, 2.3125, -1.8125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath0R, slot: Glow, size: [0.125, 0.25, 0.125], at: [-0.625, 2.3125, -1.8125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath1T, slot: Glow, size: [0.625, 0.125, 0.125], at: [-1.375, 2.875, -2.125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath1B, slot: Glow, size: [0.625, 0.125, 0.125], at: [-1.375, 2.375, -2.125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath1L, slot: Glow, size: [0.125, 0.375, 0.125], at: [-1.625, 2.625, -2.125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath1R, slot: Glow, size: [0.125, 0.375, 0.125], at: [-1.125, 2.625, -2.125], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath2T, slot: Glow, size: [0.75, 0.125, 0.125], at: [-1.875, 3.25, -2.4375], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath2B, slot: Glow, size: [0.75, 0.125, 0.125], at: [-1.875, 2.625, -2.4375], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath2L, slot: Glow, size: [0.125, 0.5, 0.125], at: [-2.1875, 2.9375, -2.4375], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  - {name: Breath2R, slot: Glow, size: [0.125, 0.5, 0.125], at: [-1.5625, 2.9375, -2.4375], moves: breath, pivot: [-0.8125, 2.3125, -1.8125], material: crystal}
+  # the ground aura (`aura`, it breathes): twelve runes, lit and dark in turn so the ring reads on snow, three quarters of a stud long
+  - {name: Aura0, slot: Glow, size: [0.75, 0.0625, 0.25], at: [0, 0.03125, -2], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura1, slot: BodyDark, size: [0.75, 0.0625, 0.25], at: [1.125, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  - {name: Aura2, slot: Glow, size: [0.25, 0.0625, 0.75], at: [1.875, 0.03125, -0.875], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura3, slot: BodyDark, size: [0.25, 0.0625, 0.75], at: [2.125, 0.03125, 0.25], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  - {name: Aura4, slot: Glow, size: [0.25, 0.0625, 0.75], at: [1.875, 0.03125, 1.25], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura5, slot: BodyDark, size: [0.75, 0.0625, 0.25], at: [1.125, 0.03125, 2], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  - {name: Aura6, slot: Glow, size: [0.75, 0.0625, 0.25], at: [0, 0.03125, 2.375], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura7, slot: BodyDark, size: [0.75, 0.0625, 0.25], at: [-1.125, 0.03125, 2], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  - {name: Aura8, slot: Glow, size: [0.25, 0.0625, 0.75], at: [-1.875, 0.03125, 1.25], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura9, slot: BodyDark, size: [0.25, 0.0625, 0.75], at: [-2.125, 0.03125, 0.25], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
+  - {name: Aura10, slot: Glow, size: [0.25, 0.0625, 0.75], at: [-1.875, 0.03125, -0.875], moves: aura, pivot: [0, 0.03125, 0.2], material: crystal}
+  - {name: Aura11, slot: BodyDark, size: [0.75, 0.0625, 0.25], at: [-1.125, 0.03125, -1.625], moves: aura, pivot: [0, 0.03125, 0.2], material: nebula}
   # pilot bar: end
 ```
 
@@ -282,7 +315,11 @@ The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` write
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [25, 0, 0], pivot: [0, 1.5, 0.1], move: [0, -0.45, 0]}
+    tail: {rot: [-55, 0, 0], pivot: [0, 1.25, 1.125]}
   clips:
+    breath: [{kind: bob, amp: 0.08, period: 2.2}, {kind: pulse, amp: 0.12, period: 2.2}]
     moon: [{kind: bob, amp: 0.06, period: 2.6}, {kind: sway, amp: 8, period: 5.2, axis: z}]
     ear: [{kind: wag, amp: 15, period: 3.2, axis: z}]
     chain: [{kind: sway, amp: 10, period: 1.9, axis: x}]
@@ -314,6 +351,7 @@ rig:
       - {part: moon, kind: pop, amp: 0.35, at: 2.2, for: 1.4}
       - {part: shade, kind: pop, amp: 0.35, at: 2.2, for: 1.4}
       - {part: halo, kind: pop, amp: 0.15, at: 2.0, for: 1.6}
+      - {part: breath, kind: pop, amp: 0.4, at: 1.0, for: 1.8}
 ```
 
 ## Build
@@ -347,3 +385,4 @@ The block-cell build ([[Blocky-Style]] "Cells" and "World 2: Frostbyte palette")
 - 2026-10-21, Polish w2 worker: the crescent read as a pale horn from three-quarter because the head hid all but its top. The whole asymmetry is mirrored (every unmirrored part across x): the crescent now stands behind the mane on its right, where the three-quarter and high cameras see all of it beside the head against the dark mane, the flopped puppy ear is on the camera's side, the motes swap shoulders; and the crescent's rows taper from a quarter stud at each horn to seven eighths at its middle, so both thin tips read and it is a moon, not a horn (a horn is thick at one end). 138 blocks, 1,714 triangles, overlap 0.995 to 0.998; silhouette worst pair Fenrir and Sabrek 0.67. Honest read: from three-quarter it is now a moon pup with a crescent at its back at first glance, and the flopped ear finally shows; from the front the crescent sits on the other side and still frames the head. Left as it was: the floating moon is still a small white disc (not on this pass's list).
 - 2026-10-21, Rare pass w2 (also the open item: the floating moon read as a small white disc): the moon is now **a moon in phase**, a stud wide in nine sixteenth rows floating clear over the crown from just above the face plate to the 3.5-stud top, gibbous: each row lit on one side and dark indigo on the other (the dark limb disappears into the head and shows against the sky, so the disc reads as a moon, like the lunar eyes), no maria (dark cells on a lit disc read as a face or a glyph at night: four as a skull, two as a 9; the phase alone says moon) and three attendant stars; it flips a full turn in the howl. The signature is the **nebula star mane**: the mane's slabs, tufts and ridge in the Cosmic-only nebula motif (star cells in the glow colour on near-black) and the tail's fork too; the whole mane is one moving part that breathes and lifts on the howl. The moon's dark limb (`shade`) and the mane's lit cells (`stars`) are their own objects on the same pivots and clips, because the game makes a moving part Neon only when most of its faces are glow: split, the lit moon and the mane's stars still glow. 151 blocks, twelve moving things (from nine), the howl 3.8 s with twelve moves. New attach points: `Moon` (MoonD), `Mane` (ManeA). Honest read: from the front the moon reads as a moon in phase over its head and the mane as a slice of night sky; from three-quarter the moon is still small at the game camera's distance and the height band (3.5) caps it.
 - 2026-10-26, character bar pilot worker, three rounds. Round 1: claws and fangs cut, legs split into a stance, the tail raised, the crescent regenerated centred behind it, the kit and a satellite ring and aura written by `pilots.py`. Round 2: white satellites and a white aura vanished on the snow, so the moon phases carry a dark half or limb, the aura alternates dark dashes, and the camera strip of the pilot sheet stands on snow. Round 3: an aurora wisp on the tail made the `tail` object more than half glow and the export made the whole tail a Neon part, so both wisps ride the mane. Overlap 0.994 to 0.996, 189 blocks, 2,324 triangles (Blender), eleven objects and the blink. Wanted for: a pup braced under its own moon, framed by a crescent, with frost shards on its mane and the phases of the moon turning round it. Still weak: the pale shards and rims are quiet on snow; the head cube still dominates the front view.
+- 2026-10-26, PILOT-2 (the second pass, bolder), one round after the coordinator's verdict that v1 was too timid (nothing new read at 16 studs): the caps lifted (Epic 4,000, Legendary and up 6,000), rest-pose groups so a head, a leg, a tail or a whole body can turn without a mass leaving its axis, and every addition made big (a body-sized backdrop, satellites of 0.5 to 0.9 stud, metal a quarter stud thick, a stance that changes the outline). See "The character bar" above; sheet `media/studio/2026-10-26/pilot_bar_v2.jpg`.

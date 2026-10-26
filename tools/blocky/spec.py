@@ -32,7 +32,15 @@ BEVEL_SHARE = (0.06, 0.10)  # rule 1: one bevel width, 6 to 10 percent of the sm
 MASSES = (1, 4)             # rule 1: one to four bevelled masses (a Common may be head and body in one)
 HEAD_SHARE = (0.40, 0.60)   # rule 2: the face host is 40 to 60 percent of the height
 LEG_SHARE = (0.10, 0.25)    # rule 2: the gap under the lowest mass is 10 to 25 percent of the height
-TRI_CAP = 2500              # the project's per-creature cap (Character-Pipeline)
+TRI_CAP = 2500              # the project's per-creature cap (Character-Pipeline), and the cap of a prop
+# B54 (PILOT-2, 2026-10-26): the cap climbs with the tier, because the rarer an alien the fewer of it there are on a server (one of each
+# Legendary, Cosmic and Secret at most) and a phone draws them fine; Common to Rare stay at 2,500, Epic 4,000, Legendary and up 6,000
+TRI_CAPS = {"Common": 2500, "Uncommon": 2500, "Rare": 2500, "Epic": 4000, "Legendary": 6000, "Cosmic": 6000, "Secret": 6000}
+
+
+def tri_cap(tier):
+    """The triangle cap of an alien of `tier` (TRI_CAP for a tier not on the ladder)."""
+    return TRI_CAPS.get(tier, TRI_CAP)
 MOVERS_MAX = 4              # rule 8: at most four moving objects (each is one more MeshPart and draw call)
 FACE_COLS = (16, 32)        # rule 3
 INK_LSTAR_MAX = 20.0        # rule 4: the ink is near-black
@@ -363,10 +371,41 @@ def fill_face(spec):
 
 def load(path):
     path = pathlib.Path(path)
-    spec = read_note(path.read_text(encoding="utf-8"))
+    return load_text(path.read_text(encoding="utf-8"), str(path))
+
+
+def load_text(text, path=""):
+    """load() for a note already read (tools/blocky/pilots.py checks the text it is about to write)."""
+    spec = read_note(text)
     spec["path"] = str(path)
     spec["parts"] = [normalise(p, i) for i, p in enumerate(spec["parts"])]
+    attach_rest(spec)
     return fill_face(spec)
+
+
+def rest_groups(spec):
+    """{key: {'rot': [x, y, z] degrees, 'pivot': [x, y, z] studs}} of the note's `rig.rest` (B54), shape-checked by validate_rig."""
+    out = {}
+    raw = (spec.get("rig") or {}).get("rest")
+    if not isinstance(raw, dict):
+        return out
+    for key, v in raw.items():
+        try:
+            out[str(key)] = {"rot": _vec(v.get("rot"), str(key), "rest rot"), "pivot": _vec(v.get("pivot"), str(key), "rest pivot"),
+                             "mirror": bool(v.get("mirror", False)), "move": _vec(v.get("move", [0, 0, 0]), str(key), "rest move")}
+        except (AttributeError, SpecError):
+            pass
+    return out
+
+
+def attach_rest(spec):
+    """Gives every part of a rest-pose group its group's turn (B54), so S.expand poses it. Run again after the parts or the rig change."""
+    groups = rest_groups(spec)
+    for p in spec["parts"]:
+        p.pop("rest", None)
+        if p.get("pose") in groups:
+            p["rest"] = groups[p["pose"]]
+    return spec
 
 
 def _vec(value, name, field, n=3):
@@ -381,7 +420,7 @@ def normalise(raw, index=0):
     if not isinstance(raw, dict):
         raise SpecError("part %d is not a mapping: %r" % (index, raw))
     name = str(raw.get("name") or "part%d" % index)
-    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot", "material", "text"}
+    known = {"name", "slot", "size", "at", "rot", "bevel", "mirror", "shape", "moves", "pivot", "material", "text", "pose"}
     extra = set(raw) - known
     if extra:
         raise SpecError("%s: unknown field(s) %s" % (name, ", ".join(sorted(extra))))
@@ -398,26 +437,83 @@ def normalise(raw, index=0):
         "pivot": _vec(raw["pivot"], name, "pivot") if raw.get("pivot") is not None else None,
         "material": str(raw.get("material") or ("glow" if raw.get("slot") == "Glow" else DEFAULT_MATERIAL)),
     }
+    if raw.get("pose") is not None:
+        part["pose"] = str(raw["pose"])   # B54: the rest-pose group this part belongs to (the note's `rig.rest` turns the group about its pivot)
     if raw.get("text") is not None:
         part["text"] = str(raw["text"])   # pixel lettering on the part's front and back faces (cells.lettering; a prop's sign board)
     return part
 
 
+def matrix_euler(m):
+    """3x3 rows -> Euler XYZ degrees (the inverse of rot_matrix: R = Rz . Ry . Rx)."""
+    sb = max(-1.0, min(1.0, -m[2][0]))
+    b = math.asin(sb)
+    if abs(sb) < 1 - 1e-9:
+        a, c = math.atan2(m[2][1], m[2][2]), math.atan2(m[1][0], m[0][0])
+    else:                      # gimbal lock: fold the roll into x
+        a, c = math.atan2(-m[1][2], m[1][1]), 0.0
+    return [round(math.degrees(v), 6) + 0.0 for v in (a, b, c)]
+
+
+def _mat_mul(m, n):
+    return tuple(tuple(sum(m[i][k] * n[k][j] for k in range(3)) for j in range(3)) for i in range(3))
+
+
+def mirror_rest(rest):
+    """The rest of the left twin of a mirrored pair in a `mirror: true` group: the reflection across x = 0 (roll and yaw change sign)."""
+    if not rest or not rest.get("mirror"):
+        return rest
+    mv = rest.get("move") or [0.0, 0.0, 0.0]
+    return {"rot": [rest["rot"][0], -rest["rot"][1], -rest["rot"][2]], "pivot": [-rest["pivot"][0], rest["pivot"][1], rest["pivot"][2]], "mirror": True,
+            "move": [-mv[0], mv[1], mv[2]]}
+
+
+def apply_rest(p, rest=None):
+    """B54: a part of a rest-pose group (`pose: head`, the note's `rig.rest` gave it a `rest` = {rot, pivot}) turned about the group's pivot:
+    its centre swings round the pivot and its own rotation composes with the group's, so the authored masses stay axis-aligned (rule 1) and
+    the expanded model is posed. A pivot the part carries (a moving part riding the group) swings with it. The result has no `rest`.
+    `rest` overrides the part's own (the left twin of a mirrored pair in a `mirror: true` group gets the reflected turn). A rest may also carry
+    a `move` [x, y, z] (studs), applied after the turn: a head set lower on its shoulders."""
+    rest = rest if rest is not None else p.get("rest")
+    if not rest:
+        return {k: v for k, v in p.items() if k != "rest"}
+    m = rot_matrix(rest["rot"])
+    pv = rest["pivot"]
+    mv = rest.get("move") or [0.0, 0.0, 0.0]
+
+    def swing(v):
+        d = [v[i] - pv[i] for i in range(3)]
+        return [round(pv[i] + mv[i] + sum(m[i][k] * d[k] for k in range(3)), 6) + 0.0 for i in range(3)]
+    out = {k: v for k, v in p.items() if k != "rest"}
+    out["at"] = swing(p["at"])
+    out["rot"] = matrix_euler(_mat_mul(m, rot_matrix(p["rot"])))
+    if p.get("pivot") is not None:
+        out["pivot"] = swing(p["pivot"])
+    return out
+
+
 def expand(parts):
     """Mirror every `mirror: x` part across x = 0. The copy's rot is (a, -b, -c), its pivot x is negated, and the pair is named <name>R (on +x,
-    the creature's right) and <name>L. Unmirrored parts pass through. Every expanded part keeps `source`, the name in the note."""
+    the creature's right) and <name>L. Unmirrored parts pass through. Every expanded part keeps `source`, the name in the note. A part of a
+    rest-pose group is posed first (apply_rest), so the mirror reflects the posed part."""
     out = []
     for p in parts:
         if p["mirror"] != "x":
-            out.append(dict(p, source=p["name"]))
+            out.append(dict(apply_rest(p), source=p["name"]))
             continue
-        a = dict(p, source=p["name"])
-        b = dict(p, source=p["name"])
+        # the twins first, then each turned by its group's rest: the same turn for both (a head, a body: one rigid group), or the reflection for
+        # the left one in a `mirror: true` group (a pair of wings spread to both sides)
+        q = {k: v for k, v in p.items()}
+        a = dict(q, source=p["name"])
+        b = dict(q, source=p["name"])
         b["at"] = [-p["at"][0], p["at"][1], p["at"][2]]
         b["rot"] = [p["rot"][0], -p["rot"][1], -p["rot"][2]]
         if p["pivot"] is not None:
             b["pivot"] = [-p["pivot"][0], p["pivot"][1], p["pivot"][2]]
         right, left = (a, b) if p["at"][0] >= 0 else (b, a)
+        rest = p.get("rest")
+        right = apply_rest(right, rest) if rest else right
+        left = apply_rest(left, mirror_rest(rest)) if rest else left
         right["name"], left["name"] = p["name"] + "R", p["name"] + "L"
         out += [right, left]
     return out
@@ -731,8 +827,8 @@ def validate(spec):
             regions = {p["source"] for p in parts if p["slot"] == "Glow"}
             if not regions:
                 err("rule 7: an %s has glow regions" % tier)
-    if c["tris"] > TRI_CAP:
-        err("rule 1: %d triangles; the cap is %d" % (c["tris"], TRI_CAP))
+    if c["tris"] > tri_cap(tier):
+        err("rule 1: %d triangles; the cap of a %s is %d" % (c["tris"], tier or "creature", tri_cap(tier)))
     cap = MOVERS_CAP[tier] if (b46 and tier) else MOVERS_MAX
     if c["movers"] > cap:
         err("rule 8: %d moving objects; at most %d" % (c["movers"], cap))
@@ -795,6 +891,16 @@ def validate_bar(spec, tier, parts):
             err("B54: bar_orbit %r is not a moving object of the note (the satellites ride the rig)" % orbit)
         elif len(keys[orbit]["parts"]) < sats:
             err("B54: the orbit %s has %d parts for %d satellites" % (orbit, len(keys[orbit]["parts"]), sats))
+        else:
+            pieces = {}
+            for p in keys[orbit]["parts"]:
+                m = re.match(r"(.*\d+)[a-z]*\Z", p["name"])
+                pieces.setdefault(m.group(1) if m else p["name"], []).append(p)
+            for pname, members in sorted(pieces.items()):
+                lo_b, hi_b = bounds(members)
+                longest = max(hi_b[i] - lo_b[i] for i in range(3))
+                if not K.SATELLITE_SIZE[0] - 1e-6 <= longest <= K.SATELLITE_SIZE[1] + 1e-6:
+                    err("B54: satellite %s is %.2f studs across; a satellite is %g to %g studs" % (pname, longest, *K.SATELLITE_SIZE))
     if rank >= TIER_ORDER.index(K.BACKDROP_FROM):
         name = front.get("bar_backdrop")
         members = keys.get(name, {}).get("parts") or [p for p in parts if p["source"] == name]
@@ -1049,9 +1155,17 @@ def face_plate(spec):
         return None
     host = face_host(spec)
     front = host["at"][2] - host["size"][2] / 2
-    return {"name": "FacePlate", "source": "FacePlate", "slot": "Eye", "size": [lay["size"][0], lay["size"][1], 0.0],
-            "at": [lay["centre"][0], lay["centre"][1], front - PLATE_PROUD], "rot": [0.0, 0.0, 0.0], "bevel": False, "mirror": "none",
-            "shape": "box", "moves": "face", "pivot": [lay["centre"][0], lay["centre"][1], front - PLATE_PROUD], "material": "skin"}
+    cx, cy, cz = lay["centre"][0], lay["centre"][1], front - PLATE_PROUD
+    w, h = lay["size"][0], lay["size"][1]
+    # the corners in creature space (+x +y, -x +y, -x -y, +x -y), posed with the head when the head is in a rest-pose group (B54)
+    corners = [[cx + w / 2, cy + h / 2, cz], [cx - w / 2, cy + h / 2, cz], [cx - w / 2, cy - h / 2, cz], [cx + w / 2, cy - h / 2, cz]]
+    at, rot = [cx, cy, cz], [0.0, 0.0, 0.0]
+    if host.get("rest"):
+        turned = apply_rest({"at": at, "rot": rot, "pivot": at, "rest": host["rest"]})
+        corners = [apply_rest({"at": c, "rot": rot, "pivot": None, "rest": host["rest"]})["at"] for c in corners]
+        at, rot = turned["at"], turned["rot"]
+    return {"name": "FacePlate", "source": "FacePlate", "slot": "Eye", "size": [w, h, 0.0], "at": at, "rot": rot, "bevel": False,
+            "mirror": "none", "shape": "box", "moves": "face", "pivot": list(at), "material": "skin", "corners": corners}
 
 
 def _clip(raw, where, errors, flourish=False):
@@ -1206,6 +1320,41 @@ def validate_eyes(spec, host, tier, pal):
     return errors
 
 
+REST_MAX = 60.0         # B54: a rest-pose group turns at most this many degrees about each axis (a stance, not a fall)
+REST_MOVE_MAX = 0.75    # and shifts at most this many studs along an axis (a head set lower on its shoulders)
+REST_HEAD_MAX = 25.0    # and the group that holds the face host at most this (the face plate stays readable from the front)
+
+
+def validate_rest(spec):
+    """B54, rest-pose groups: each part's `pose` names a group of the note's `rig.rest` ({rot: [x, y, z] degrees, pivot: [x, y, z] studs}); every
+    group is used, turns within REST_MAX (REST_HEAD_MAX when it holds the face host), and a mass of the group stays authored axis-aligned
+    (the group turns it, rule 1 holds for the note's own numbers). The expanded model is the posed one (apply_rest)."""
+    errors = []
+    raw = (spec.get("rig") or {}).get("rest")
+    if raw is not None and not isinstance(raw, dict):
+        return ["rule 8: rig.rest is a mapping of group -> {rot: [x, y, z], pivot: [x, y, z]}"]
+    raw = raw or {}
+    groups = rest_groups(spec)
+    for key, v in raw.items():
+        if str(key) not in groups:
+            errors.append("rule 8: rig.rest %s needs `rot` and `pivot`, each a list of three numbers" % key)
+    used = {p["pose"] for p in spec["parts"] if p.get("pose")}
+    for key in sorted(used - set(groups)):
+        errors.append("rule 8: parts name the rest-pose group %r but `rig.rest` has no such group" % key)
+    for key in sorted(set(groups) - used):
+        errors.append("rule 8: rig.rest %s is not used by any part (`pose: %s`)" % (key, key))
+    host = face_host(spec)
+    for key, g in groups.items():
+        if max(abs(v) for v in g["move"]) > REST_MOVE_MAX + 1e-9:
+            errors.append("rule 8: rig.rest %s moves %s studs; at most %g a side" % (key, g["move"], REST_MOVE_MAX))
+        limit = REST_HEAD_MAX if (host is not None and host.get("pose") == key) else REST_MAX
+        for i, a in enumerate(g["rot"]):
+            if abs(a) > limit + 1e-9:
+                errors.append("rule 8: rig.rest %s turns %s %g degrees; at most %g%s" % (
+                    key, "xyz"[i], a, limit, " (it holds the face)" if limit == REST_HEAD_MAX else ""))
+    return errors
+
+
 def validate_rig(spec, tier, height):
     """B46 (3), rule 8's ladder: every moving object has a clip, the face plate blinks, the moving things reach the tier's minimum, clip numbers
     stay in their ranges, and the flourish follows the tier gate (none below Rare; a multi-part one from Rare; a longer one from Legendary)."""
@@ -1213,9 +1362,10 @@ def validate_rig(spec, tier, height):
     raw = spec.get("rig")
     if not raw:
         return ["rule 8: the B46 format needs a `rig` block (clips for every moving object and the blink)"]
-    extra = set(raw) - {"clips", "flourish"}
+    extra = set(raw) - {"clips", "flourish", "rest"}
     if extra:
         errors.append("rule 8: rig: unknown field(s) %s" % ", ".join(sorted(extra)))
+    errors += validate_rest(spec)
     r = rig(spec, errors)
     targets = rig_targets(spec)
     for key in targets:

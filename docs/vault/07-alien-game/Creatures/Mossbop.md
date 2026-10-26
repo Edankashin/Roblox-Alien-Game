@@ -7,9 +7,9 @@ world: 1
 tier: Common
 status: review
 element: Bloom
-height: 2.48
+height: 2.87
 blocks: 12
-tris: 234
+tris: 250
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#6CCB5F", "#2F7A4B", "#FFD45C", "#142019"]
@@ -26,7 +26,7 @@ idle_render: "[[Mossbop_idle.png]]"
 bar_world: Verdant
 bar_kit: 1
 bar_pieces: [sap_run]
-bar_stance: "slumped: the cap leans a quarter stud right and the base an eighth left, the tripod caught mid-step, one leaf up and one drooping"
+bar_stance: "a clear slump: the whole ball rolled 14 degrees about its feet to its right, the tripod caught mid-step, one leaf standing straight up like an ear and the other drooping"
 ---
 # Mossbop (Moop), Common, World 1 Verdant
 
@@ -40,39 +40,39 @@ A ball of moss built in voxel steps: a wide, soft-cornered middle (the head, wit
 
 **World motif (Verdant).** The moss cell as the body itself: the cap and base are quarter-stud steps on the half-stud grid that round the ball off. Loop 1's dark side plates are gone (they read as headphones).
 
-## The character bar (B54, pilot 2026-10-26)
+## The character bar (B54, pilot 2026-10-26; second pass, bolder)
 
-[[Blocky-Style]] section 10 and "Pilot bar notes"; the plan is `tools/blocky/pilots.py` (`moop()`), the kit `tools/blocky/kits.py`. A Common keeps its plain look and wears the bar in the smallest way, inside the 12 blocks of its band:
+[[Blocky-Style]] section 10 and "Pilot bar notes (v2)"; the plan is `tools/blocky/pilots.py` (`moop()`), the kit `tools/blocky/kits.py`. A Common stays inside its 12 blocks and 2 to 3 flat colours; the first pass shifted its steps a quarter stud and nothing read, so v2 changes the outline instead:
 
-- **Kit (one piece).** `sap_run`, amber sap running down the head's right side from under the cap: a neck and a fat drop, two blocks, no lit speck (a Common has no glow). It is the Verdant kit's amber and the alien's one metal-and-accent colour.
-- **Stance.** A lean: the cap step shifts a quarter stud right of the head, the head an eighth right of the base, the base an eighth left, so the ball slumps like a sleepy sprout (about 18 degrees over its height); the right root foot steps forward and out, the left sits back and under, the hind foot behind; the right leaf up, the left leaf drooping. The head moved an eighth, so the face plate's `at` moved with it (`[0.125, 1.0625]`); the face is unchanged.
-- **Colours.** A Common keeps two to three flat colours: moss and root green (the two-tone base) and amber (accent, the leaves, the spore and the sap, `#FFD45C`, a step lighter than the moss so it reads in greyscale). No glow, so no emissive role: that starts at Rare.
+- **Stance (rest pose `lean`).** The whole ball (head, cap, base, stem, leaves, sap) is rolled 14 degrees about its feet (`rig.rest.lean`, [[Blocky-Style]] section 8 "Rest-pose groups"): a clear slump to its right, the tripod caught mid-step under it. The authored boxes stay axis-aligned; the face plate leans with the head.
+- **One ear up.** One amber leaf stands almost straight up (65 degrees from flat, most of a stud above the cap, the hero), the other droops; the lean takes them to about 79 and 39 degrees.
+- **Kit (one piece).** `sap_run`, amber sap half a stud long (a neck and a fat drop, two blocks, no glow) down the head's right side, leaning with it.
 - **No satellites, backdrop or aura**: they start at Rare, Legendary and Cosmic.
-- Blocks 10 to 12, triangles 214 to 234, height 2.48 (unchanged), moving things 3 (unchanged).
+- Blocks 10 to 12 (v1 12), triangles 214 to 250 (Blender), moving things 3, height 2.87 (v1 2.48: the standing leaf), 2 to 3.5 held.
 
 ## Parts
 
 ```yaml
 parts:
-  # a moss ball in voxel steps, posed: the head is its wide middle, shifted an eighth to its right; the cap step over it slumps a quarter
-  # further right and the base step under it an eighth left, so the whole ball leans like a sleepy sprout (the stance, about 18 degrees)
-  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0.125, 1.125, 0], bevel: true, material: moss}
-  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0.375, 1.875, 0], material: moss}
-  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [-0.125, 0.375, 0], material: moss}
+  # a moss ball in voxel steps, standing in the `lean` rest pose (PILOT-2: the whole ball rolled 14 degrees about its feet, a clear slump to its
+  # right, instead of a quarter stud of shear): the head is its wide middle, the cap step over it and the base step under it
+  - {name: Head, slot: Body, size: [2, 1.25, 1.75], at: [0, 1.125, 0], bevel: true, material: moss, pose: lean}
+  - {name: Cap, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 1.875, 0], material: moss, pose: lean}
+  - {name: Base, slot: Body, size: [1.5, 0.25, 1.25], at: [0, 0.375, 0], material: moss, pose: lean}
   # the tripod, caught mid-step: the right root foot forward and out, the left one back and under, the hind foot behind
   - {name: FootR, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [0.625, 0.125, -0.5], material: wood}
   - {name: FootL, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.5, 0.125, -0.125], material: wood}
   - {name: HindFoot, slot: BodyDark, size: [0.5, 0.25, 0.5], at: [-0.125, 0.125, 0.375], material: wood}
   # alien anatomy: a spore the sprout has let go of, floating beside it (its own moving part), a mote of pollen in the amber accent
-  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.25, -0.75], shape: ico1, moves: float, pivot: [1.125, 2.25, -0.75]}
-  # the sprout grows off the slumped cap: its right leaf reaches up, its left leaf droops (two amber leaves, the hero)
-  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0.375, 2.125, 0], material: wood}
-  - {name: LeafR, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.75, 2.3125, 0], rot: [0, 0, 25], moves: sprout, pivot: [0, 2.25, 0]}
-  - {name: LeafL, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0, 2.25, 0], rot: [0, 0, 15], moves: sprout, pivot: [0, 2.25, 0]}
+  - {name: Spore, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.375, 2.5, -0.75], shape: ico1, moves: float, pivot: [1.375, 2.5, -0.75]}
+  # the sprout grows off the cap: one leaf stands straight up (an ear up, the hero), the other droops (two amber leaves)
+  - {name: Stem, slot: BodyDark, size: [0.25, 0.25, 0.25], at: [0, 2.125, 0], material: wood, pose: lean}
+  - {name: LeafR, slot: Accessory, size: [0.625, 0.125, 0.5], at: [0.4375, 2.125, 0], rot: [0, 0, -25], moves: sprout, pivot: [0, 2.25, 0], pose: lean}
+  - {name: LeafL, slot: Accessory, size: [0.625, 0.125, 0.5], at: [-0.25, 2.5625, 0], rot: [0, 0, -65], moves: sprout, pivot: [0, 2.25, 0], pose: lean}
   # pilot bar: begin (tools/blocky/pilots.py writes this region: the Verdant kit's one piece, a sap drop)
-  # the Verdant kit's one piece (a Common wears one): amber sap running down the head's right side from under the cap
-  - {name: Sapa, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.1875, 1.5625, -0.1875], material: metal}
-  - {name: Sapb, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.1875, 1.375, -0.25], material: metal}
+  # the Verdant kit's one piece (a Common wears one): amber sap, half a stud long, running down the head's right side from under the cap
+  - {name: Sapa, slot: Accessory, size: [0.125, 0.125, 0.25], at: [1.0625, 1.6875, -0.25], pose: lean, material: metal}
+  - {name: Sapb, slot: Accessory, size: [0.125, 0.375, 0.25], at: [1.0625, 1.4375, -0.25], pose: lean, material: metal}
   # pilot bar: end
 ```
 
@@ -106,6 +106,8 @@ The idle ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` writes it into `src/sh
 
 ```yaml
 rig:
+  rest:
+    lean: {rot: [0, 0, -14], pivot: [0, 0.25, 0]}
   clips:
     sprout: [{kind: sway, amp: 10, period: 3.2, axis: z}]
     float: [{kind: bob, amp: 0.12, period: 2.4}, {kind: orbit, amp: 0.06, period: 4.8}]
@@ -144,3 +146,4 @@ The block-cell build ([[Blocky-Style]] "Cells", [[Decisions]] B44): the cell is 
 - 2026-10-17, block-cell worker, three rounds (cells). Round 1: with moss across the whole head the front read as camouflage round the eyes, so below a two-row fringe the face is plain skin cells. Round 2: half-step tufts still read as a soft green ball; full-step tufts in three-cell clumps with a lit, ragged fringe down the sides read as moss (the open item of loop 2). Round 3: with the grout the ball reads as built of little blocks. Overlap with the sheet unchanged (the cells are a texture); hidden faces culled. Status review.
 - 2026-10-21, eyes and rigs worker, the B46 pilot, two rounds. Round 1: the house eye retired for the library's `bean` (7 x 9 pixels at 16 a stud, one square shine) on a 28 x 16 face plate with a small smile and blush cheeks; the head's front is now plain cells (the moss fringe on top). Round 2: the first beans were 6 pixels wide, 19 percent of the head, and read small; at 7 they are 22 percent. Its rig: the sprout sways, the spore bobs and circles, the ball breathes (a 4 percent squash), the face blinks every 4.2 s: three moving things, no flourish. Height 2.48 (in the B45 band), overlap 0.993 to 0.996, 214 triangles. Wanted for: the plainest face on the meadow and still the cutest. Status review.
 - 2026-10-26, character bar pilot worker, two rounds. Round 1: the cap and base shifted a quarter stud and an eighth, the tripod split into a stride, the sprout asymmetric (right leaf up, left drooping), the accent moved from lime to amber so the Verdant metal reads on a Common, and one sap piece hung under the head (it read as a stray block under the chin). Round 2: the sap moved to the head's right side as `sap_run` and the head and its face plate shifted an eighth right so the lean is real. Overlap 0.996 to 0.997, 12 blocks, 234 triangles. Wanted for: the same cutest-thing-on-the-meadow face, now leaning and stepping, the first rung of the bar. Still plain: from 16 studs the lean is a small change of silhouette (the sheet `media/studio/2026-10-26/pilot_bar_v1.jpg`); a Common has no room for more under 12 blocks.
+- 2026-10-26, PILOT-2 (the second pass, bolder), one round after the coordinator's verdict that v1 was too timid (nothing new read at 16 studs): the caps lifted (Epic 4,000, Legendary and up 6,000), rest-pose groups so a head, a leg, a tail or a whole body can turn without a mass leaving its axis, and every addition made big (a body-sized backdrop, satellites of 0.5 to 0.9 stud, metal a quarter stud thick, a stance that changes the outline). See "The character bar" above; sheet `media/studio/2026-10-26/pilot_bar_v2.jpg`.

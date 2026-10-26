@@ -29,6 +29,14 @@
   },
   {
     "slot": 4,
+    "name": "breathL",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 5,
     "name": "chain",
     "hex": "D9E2F5",
     "roughness": 0.55,
@@ -38,7 +46,7 @@
     "pixelated": true
   },
   {
-    "slot": 5,
+    "slot": 6,
     "name": "earL",
     "hex": "4B3D8F",
     "roughness": 0.55,
@@ -48,7 +56,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "earR",
     "hex": "4B3D8F",
     "roughness": 0.55,
@@ -58,18 +66,8 @@
     "pixelated": true
   },
   {
-    "slot": 7,
-    "name": "halo",
-    "hex": "D9E2F5",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 0.0,
-    "colorMap": "Fenripup_atlas.png",
-    "pixelated": true
-  },
-  {
     "slot": 8,
-    "name": "mane",
+    "name": "halo",
     "hex": "1E1A47",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -79,16 +77,8 @@
   },
   {
     "slot": 9,
-    "name": "moon",
-    "hex": "AEB8FF",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
-    "slot": 10,
-    "name": "phases",
-    "hex": "B9C6E0",
+    "name": "mane",
+    "hex": "1E1A47",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -96,7 +86,25 @@
     "pixelated": true
   },
   {
+    "slot": 10,
+    "name": "moon",
+    "hex": "AEB8FF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
     "slot": 11,
+    "name": "phases",
+    "hex": "1E1A47",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Fenripup_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 12,
     "name": "shade",
     "hex": "4B3D8F",
     "roughness": 0.55,
@@ -106,7 +114,7 @@
     "pixelated": true
   },
   {
-    "slot": 12,
+    "slot": 13,
     "name": "stars",
     "hex": "AEB8FF",
     "roughness": 0.55,
@@ -114,7 +122,7 @@
     "emission": 1.5
   },
   {
-    "slot": 13,
+    "slot": 14,
     "name": "tail",
     "hex": "4B3D8F",
     "roughness": 0.55,
@@ -124,7 +132,7 @@
     "pixelated": true
   },
   {
-    "slot": 14,
+    "slot": 15,
     "name": "FacePlate",
     "hex": "4B3D8F",
     "roughness": 0.4,

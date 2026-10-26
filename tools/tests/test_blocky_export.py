@@ -74,8 +74,8 @@ class CheckFolder(unittest.TestCase):
         self.assertEqual(self.problems(), ["missing %s_face.png" % SID])
 
     def test_a_moving_part_renamed(self):
-        repack(self.glb, lambda d: node(d, "sprout").update(name="Sprout"))
-        self.assertNamed("no mesh named sprout")
+        repack(self.glb, lambda d: node(d, "sproutR").update(name="Sprout"))
+        self.assertNamed("no mesh named sproutR")
         self.assertNamed("unexpected mesh Sprout")
 
     def test_a_pivot_off_its_rigs_row(self):
@@ -113,7 +113,7 @@ class CheckFolder(unittest.TestCase):
                     acc["max"][1] *= 2.0
         repack(self.glb, stretch)
         self.assertNamed("outside 2 to 3.5")
-        self.assertNamed("Rigs.luau says 2.475")
+        self.assertNamed("Rigs.luau says 2.873")
 
     def test_a_blurred_texture(self):
         repack(self.glb, lambda d: d["samplers"][0].update(magFilter=9729))

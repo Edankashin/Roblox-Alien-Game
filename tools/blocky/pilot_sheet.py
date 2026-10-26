@@ -6,7 +6,9 @@ Python 3 with Pillow (system Python, not Blender's). The renders come from tools
 folder for each state); the numbers come from the notes (tools/blocky/spec.py), the before ones from a folder of the old notes
 (the 2026-10-21 export's, from commit ceed6b6).
 
-  python3 -I tools/blocky/pilot_sheet.py --before-notes <dir> --before-shots <dir> --after-shots <dir> --out media/studio/2026-10-26/pilot_bar_v1.jpg
+  python3 -I tools/blocky/pilot_sheet.py --before-notes <dir> --before-shots <dir> --after-shots <dir> [--v1-shots <dir>] --out media/studio/2026-10-26/pilot_bar_v2.jpg
+
+`--v1-shots` (PILOT-2) adds a third strip from 16 studs, the first pass's pilots between the before and the after, so the step from v1 to v2 reads.
 """
 from __future__ import annotations
 
@@ -56,11 +58,21 @@ def wrap(draw, text, fnt, width):
     return lines
 
 
-def facts(spec):
+def built_tris(sid):
+    """The triangles Blender built for the exported model (assets/models/<Id>/notes.md), or None."""
+    notes = ROOT / "assets/models" / sid / "notes.md"
+    if notes.is_file():
+        for line in notes.read_text(encoding="utf-8").splitlines():
+            if line.startswith("- Triangles: "):
+                return int(line.split(":")[1].split()[0])
+    return None
+
+
+def facts(spec, measured=False):
     c = S.counts(spec)
     f = spec["front"]
     return {"name": f["name"], "id": f["id"], "tier": f["tier"], "world": int(f.get("world", 1)), "height": c["height"], "blocks": c["blocks"],
-            "tris": int(f.get("tris") or c["tris"]), "objects": c["movers"], "motion": c["motion"], "kit": f.get("bar_kit", 0), "sats": f.get("bar_satellites", 0),
+            "tris": (built_tris(f["id"]) if measured else None) or int(f.get("tris") or c["tris"]), "objects": c["movers"], "motion": c["motion"], "kit": f.get("bar_kit", 0), "sats": f.get("bar_satellites", 0),
             "stance": f.get("bar_stance", "")}
 
 
@@ -69,6 +81,8 @@ def main(argv=None):
     ap.add_argument("--before-notes", required=True)
     ap.add_argument("--before-shots", required=True)
     ap.add_argument("--after-shots", required=True)
+    ap.add_argument("--v1-shots", default=None, help="the first pass's renders: one more 16-stud strip, V1, between BEFORE and AFTER")
+    ap.add_argument("--version", default="v2")
     ap.add_argument("--out", required=True)
     ap.add_argument("--quality", type=int, default=80)
     a = ap.parse_args(argv)
@@ -76,7 +90,7 @@ def main(argv=None):
     rows = []
     for sid in PILOTS:
         b = facts(S.load(pathlib.Path(a.before_notes) / ("%s.md" % sid)))
-        n = facts(S.load(CREATURES / ("%s.md" % sid)))
+        n = facts(S.load(CREATURES / ("%s.md" % sid)), measured=True)
         rows.append((sid, b, n))
     f_title, f_sub, f_name, f_txt, f_small, f_cap = font(40, True), font(20), font(30, True), font(19), font(16), font(17, True)
     text_w = WIDTH - 2 * MARGIN - 4 * IMG_W - 4 * GAP
@@ -84,12 +98,13 @@ def main(argv=None):
     sample = fit(after_dir / "Mossbop_front.png", IMG_W)
     row_h = sample.height + 38
     cam_h = fit(after_dir / "Mossbop_cam.png", 470).height + 34
-    H = 150 + 4 * row_h + 70 + 2 * cam_h + 70 + 40
+    strips = [("BEFORE (2026-10-21)", before_dir, MUTED)] + ([("V1 (the first pass, thin)", pathlib.Path(a.v1_shots), MUTED)] if a.v1_shots else []) + [("AFTER (%s, bold)" % a.version, after_dir, GOOD)]
+    H = 150 + 4 * row_h + 70 + len(strips) * cam_h + 70 + 40
     sheet = Image.new("RGB", (WIDTH, H), PAPER)
     d = ImageDraw.Draw(sheet)
-    d.text((MARGIN, 22), "Character bar pilot v1, 2026-10-26: four aliens, four tiers, one bar (Decision B54)", font=f_title, fill=INK)
-    d.text((MARGIN, 76), "Each alien before (today's 2026-10-21 export) and after: the same face, name and height, rebuilt with its world's accent kit, a posed stance,", font=f_sub, fill=MUTED)
-    d.text((MARGIN, 102), "a satellite orbit on the rig, a backdrop (Cosmic and Secret) and a ground aura that breathes. Every picture beside the 5-stud avatar. Blender, Cycles; nothing uploaded.", font=f_sub, fill=MUTED)
+    d.text((MARGIN, 22), "Character bar pilot %s, 2026-10-26: four aliens, four tiers, one bar (Decision B54)" % a.version, font=f_title, fill=INK)
+    d.text((MARGIN, 76), "Each alien before (the 2026-10-21 export) and after: the same face and name, rebuilt bolder: a backdrop the size of the body, 6 to 8 satellites of 0.5 to 0.9 stud,", font=f_sub, fill=MUTED)
+    d.text((MARGIN, 102), "metal trim a quarter stud thick, energy shaped as cells and a stance that changes the outline (rest poses). Every picture beside the 5-stud avatar. Blender, Cycles; nothing uploaded.", font=f_sub, fill=MUTED)
     y = 146
     cols = ["before, front", "before, three-quarter", "after, front", "after, three-quarter"]
     for ci, label in enumerate(cols):
@@ -106,7 +121,7 @@ def main(argv=None):
             "kit pieces %d to %d" % (b.get("kit", 0), n["kit"]),
         ]
         if n["sats"]:
-            lines.append("satellites 0 to %d on the orbit" % n["sats"])
+            lines.append("satellites 0 to %d, each 0.5 to 0.9 stud" % n["sats"])
         yy = y + 90
         for ln in lines:
             d.text((MARGIN, yy), ln, font=f_small, fill=MUTED)
@@ -124,7 +139,7 @@ def main(argv=None):
     y += 8
     d.text((MARGIN, y), "From the game camera: 16 studs away, slightly above, a 70 degree field of view (the middle of a 1080p frame at 1:1, the avatar beside)", font=f_name, fill=INK)
     y += 44
-    for label, folder, colour in (("BEFORE", before_dir, MUTED), ("AFTER", after_dir, GOOD)):
+    for label, folder, colour in strips:
         d.text((MARGIN, y), label, font=f_cap, fill=colour)
         y += 24
         x = MARGIN

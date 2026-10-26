@@ -495,7 +495,9 @@ export type RigClip = { kind: RigClipKind, amp: number, period: number, phase: n
 export type RigMove = { part: string, kind: RigMoveKind, amp: number, axis: RigAxis, at: number, length: number }
 export type RigFlourish = { every: number, length: number, moves: { RigMove } }
 -- A moving part: its name in the model (the Blender object name), the point it turns about, its clips.
-export type RigPart = { name: string, pivot: { number }, clips: { RigClip } }
+-- `rest` (degrees about x, y, z, absent when 0) is the turn of the rest pose this object's mesh already has baked in (B54: a tail cocked,
+-- a leg lifted): the clips play round it, nothing re-applies it at runtime; it is the record the notes and the checks read.
+export type RigPart = { name: string, pivot: { number }, rest: { number }?, clips: { RigClip } }
 -- The face plate's flipbook: one image (0 until uploaded) of `frames` frames, `columns` a row, frame indices 0-based.
 export type RigFace = {
 	part: string,
