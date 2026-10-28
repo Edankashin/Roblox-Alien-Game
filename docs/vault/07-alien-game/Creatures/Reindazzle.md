@@ -8,8 +8,8 @@ tier: Rare
 status: review
 element: Frost
 height: 3.42
-blocks: 59
-tris: 886
+blocks: 65
+tris: 958
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#A8805A", "#4A3222", "#F2E9DC", "#A8E4FF", "#E0202C", "#1E1510"]
@@ -28,7 +28,7 @@ idle_render: "[[Reindazzle_idle.png]]"
 bar_world: Frostbyte
 bar_kit: 4
 bar_pieces: [frost_rim, silver_band, snowflake_stud]
-bar_stance: "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, an arc of six red lanterns at its sides and back"
+bar_stance: "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, two garlands of three red lanterns rising up its sides"
 bar_satellites: 6
 bar_orbit: lanterns
 ---
@@ -48,14 +48,14 @@ A tan reindeer, 3.2 studs to the antler tips (B45: its height is a deer's, long-
 
 ## Character bar (B54), prompt list
 
-BAR-W2, 2026-10-26 ([[Blocky-Style]] section 10, [[Character-References]]; the plan is `tools/blocky/bar_w2.py` `reindazzle()`). Work paused by Ethan after round 2: a first build is in, no sheet yet.
+BAR-W2, 2026-10-26 and 28 ([[Blocky-Style]] section 10, [[Character-References]]; the plan is `tools/blocky/bar_w2.py` `reindazzle()`).
 
 - **Theme.** The lantern keeper: a reindeer whose red lantern nose is the one light in the snow, with sleigh lanterns of its own.
-- **Parts gained.** (1) Six red sleigh lanterns (dark brown cap and base, lit red heart, 0.5 by 0.625) on an arc at its sides and back, the back higher, nothing in front of the face (one lit colour, the nose's). (2) A silver harness girth over the back and down both sides. (3) Silver snowflake studs on the shoulders (kit, replace the old flank flake). (4) A little ice tiara between the antler posts.
-- **Stance.** The head cocked 10 degrees (a listening tilt, `rig.rest.head`) and the right foreleg lifted 50 degrees mid-step (`rig.rest.fore`).
+- **Parts gained.** (1) Six red sleigh lanterns (a handle, a wide dark roof, a lit red window half a stud across, a dark base: 0.75 by 0.875) in two garlands of three rising up its sides, nothing in front of the face or over the head (one lit colour, the nose's). (2) A silver harness girth over the back and down both sides. (3) Silver snowflake studs on the shoulders (kit, replace the old flank flake). (4) A little ice tiara between the antler posts.
+- **Stance.** The head cocked 10 degrees (a listening tilt, `rig.rest.head`) and the right foreleg lifted 50 degrees mid-step (`rig.rest.fore`). The garlands sway 28 degrees about it (never a full turn, so no lantern crosses the face).
 - **Face intent.** Unchanged: wide amber glimmer eyes and the lit nose are the friendly face; a brow pair was tried and cut (it read as a frown). The head cock makes it curious.
-- **Must-nots.** No lantern in front of the face or flanking the muzzle (round 1 put red blocks beside the cheeks); no pale piece on snow without a dark neighbour; no second lit colour.
-- **Status.** Spec clean, exported (856 triangles, 59 blocks, 3.42 studs). Not yet judged on the 16-stud strip.
+- **Must-nots.** No lantern in front of the face or flanking the muzzle (round 1 put red blocks beside the cheeks); none over the head (round 2's rear ones sat on the antlers); no pale piece on snow without a dark neighbour; no second lit colour.
+- **Rule 8 judged on the 16-stud strip (2026-10-28).** Round 1's lanterns (a red cube under a small dark lid) read as apples and one sat on the antlers; a first redraw with dark posts made a dark clump. Now the body is one value (tan against the snow), the lanterns a third (a dark roof over a lit window, the one lit colour), the ice and silver a pale step; the garlands stand clear of the head. Weakest: the antlers are pale ice on white snow and read only as a light-blue fringe.
 
 ## Parts
 
@@ -101,25 +101,31 @@ parts:
   - {name: Tiarab, slot: Accessory, size: [0.125, 0.25, 0.25], at: [-0.3125, 2.75, -1.125], pose: head, material: ice}
   - {name: Tiarac, slot: Accessory, size: [0.125, 0.25, 0.25], at: [0.0625, 2.75, -1.125], pose: head, material: ice}
   - {name: Tiarad, slot: Accessory, size: [0.125, 0.25, 0.25], at: [0.4375, 2.75, -1.125], pose: head, material: ice}
-  # the satellite set (`lanterns`, an arc at the sides and behind, the back higher, nothing in front of the face): six little sleigh lanterns, dark caps and a lit red heart, facing the viewer
-  - {name: Sat0a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [2.25, 1.8125, -0.1875], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat0b, slot: Glow, size: [0.5, 0.375, 0.25], at: [2.25, 1.5625, -0.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat0c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [2.25, 1.3125, -0.1875], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat1a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [2, 2.0625, 1.3125], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat1b, slot: Glow, size: [0.5, 0.375, 0.25], at: [2, 1.8125, 1.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat1c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [2, 1.5625, 1.3125], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat2a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [0.75, 2.1875, 2.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat2b, slot: Glow, size: [0.5, 0.375, 0.25], at: [0.75, 1.9375, 2.5], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat2c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [0.75, 1.6875, 2.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat3a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-0.75, 2.1875, 2.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat3b, slot: Glow, size: [0.5, 0.375, 0.25], at: [-0.75, 1.9375, 2.5], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat3c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-0.75, 1.6875, 2.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat4a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-2, 2.0625, 1.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat4b, slot: Glow, size: [0.5, 0.375, 0.25], at: [-2, 1.8125, 1.5], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat4c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-2, 1.5625, 1.4375], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat5a, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-2.25, 1.8125, -0.1875], moves: lanterns, pivot: [0, 1.3, 0.25]}
-  - {name: Sat5b, slot: Glow, size: [0.5, 0.375, 0.25], at: [-2.25, 1.5625, -0.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
-  - {name: Sat5c, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-2.25, 1.3125, -0.1875], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  # the satellite set (`lanterns`, two garlands of three rising up the sides and behind the shoulders, nothing in front of the face or over the head): six sleigh lanterns, a dark frame round a lit red heart, three quarters of a stud wide, facing the viewer
+  - {name: Sat0a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [2.125, 1.4375, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat0b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [2.125, 1.3125, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat0c, slot: Glow, size: [0.5, 0.5, 0.25], at: [2.125, 1, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat0d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [2.125, 0.6875, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat1a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [2.625, 1.8125, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat1b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [2.625, 1.6875, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat1c, slot: Glow, size: [0.5, 0.5, 0.25], at: [2.625, 1.375, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat1d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [2.625, 1.0625, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat2a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [2.125, 2.0625, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat2b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [2.125, 1.9375, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat2c, slot: Glow, size: [0.5, 0.5, 0.25], at: [2.125, 1.625, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat2d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [2.125, 1.3125, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat3a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [-2.125, 2.0625, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat3b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [-2.125, 1.9375, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat3c, slot: Glow, size: [0.5, 0.5, 0.25], at: [-2.125, 1.625, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat3d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-2.125, 1.3125, 1.75], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat4a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [-2.625, 1.8125, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat4b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [-2.625, 1.6875, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat4c, slot: Glow, size: [0.5, 0.5, 0.25], at: [-2.625, 1.375, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat4d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-2.625, 1.0625, 0.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat5a, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [-2.125, 1.4375, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat5b, slot: BodyDark, size: [0.75, 0.125, 0.25], at: [-2.125, 1.3125, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
+  - {name: Sat5c, slot: Glow, size: [0.5, 0.5, 0.25], at: [-2.125, 1, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25], material: glow}
+  - {name: Sat5d, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-2.125, 0.6875, -1.25], moves: lanterns, pivot: [0, 1.3, 0.25]}
   # pilot bar: end
 ```
 
@@ -162,7 +168,7 @@ rig:
     chime: [{kind: sway, amp: 8, period: 1.6, axis: x}]
     tail: [{kind: wag, amp: 22, period: 2, axis: y}]
     nose: [{kind: pulse, amp: 0.15, period: 2}]
-    lanterns: [{kind: spin, amp: -360, period: 16, axis: y}, {kind: bob, amp: 0.05, period: 2.4}]
+    lanterns: [{kind: wag, amp: 28, period: 7, axis: y}, {kind: bob, amp: 0.05, period: 2.4}]
     root: [{kind: bob, amp: 0.06, period: 1.5}]
     face: [{kind: blink, period: 4.4}]
   flourish:

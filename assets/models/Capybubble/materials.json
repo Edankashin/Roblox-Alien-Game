@@ -2,7 +2,7 @@
   {
     "slot": 1,
     "name": "Body",
-    "hex": "E0C3A0",
+    "hex": "C49A68",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -11,6 +11,14 @@
   },
   {
     "slot": 2,
+    "name": "Glow",
+    "hex": "5FDCFF",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 3,
     "name": "earL",
     "hex": "5C4A2A",
     "roughness": 0.55,
@@ -20,7 +28,7 @@
     "pixelated": true
   },
   {
-    "slot": 3,
+    "slot": 4,
     "name": "earR",
     "hex": "5C4A2A",
     "roughness": 0.55,
@@ -30,16 +38,8 @@
     "pixelated": true
   },
   {
-    "slot": 4,
-    "name": "floatR",
-    "hex": "5FDCFF",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
     "slot": 5,
-    "name": "leafR",
+    "name": "leafL",
     "hex": "5C4A2A",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -53,12 +53,14 @@
     "hex": "5FDCFF",
     "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 0.0,
+    "colorMap": "Capybubble_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 7,
     "name": "FacePlate",
-    "hex": "E0C3A0",
+    "hex": "C49A68",
     "roughness": 0.4,
     "metallic": 0.0,
     "emission": 0.0,

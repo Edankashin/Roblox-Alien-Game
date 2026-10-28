@@ -37,8 +37,8 @@
   },
   {
     "slot": 5,
-    "name": "footL",
-    "hex": "1F6F68",
+    "name": "flags",
+    "hex": "2ED3F7",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -47,8 +47,8 @@
   },
   {
     "slot": 6,
-    "name": "footR",
-    "hex": "1F6F68",
+    "name": "footL",
+    "hex": "3FBFB0",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -57,16 +57,8 @@
   },
   {
     "slot": 7,
-    "name": "shardsR",
-    "hex": "2ED3F7",
-    "roughness": 0.55,
-    "metallic": 0.0,
-    "emission": 1.5
-  },
-  {
-    "slot": 8,
-    "name": "tail",
-    "hex": "1F6F68",
+    "name": "footR",
+    "hex": "3FBFB0",
     "roughness": 0.55,
     "metallic": 0.0,
     "emission": 0.0,
@@ -74,7 +66,25 @@
     "pixelated": true
   },
   {
+    "slot": 8,
+    "name": "shardsR",
+    "hex": "2ED3F7",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
     "slot": 9,
+    "name": "tail",
+    "hex": "3FBFB0",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Shellberg_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 10,
     "name": "FacePlate",
     "hex": "3FBFB0",
     "roughness": 0.4,

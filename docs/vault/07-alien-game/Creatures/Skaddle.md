@@ -7,15 +7,15 @@ world: 2
 tier: Legendary
 status: review
 element: Blizzard
-height: 3.5
-blocks: 92
-tris: 1210
+height: 3.43
+blocks: 207
+tris: 2670
 bevel_width: 0.0625
 bevel_segments: 2
 palette: ["#F4F7FA", "#5C708A", "#8FD3F4", "#E8B23A", "#4A55E8", "#161B2E"]
 roles: [body, second, accent, trim, glow, ink]
 hero: CrestC
-fx_hooks: {Top: CrestC, Halo: Rune3, Body: Clasp, Runes: Rune, FrontL: SkiCurl, FrontR: SkiCurl}
+fx_hooks: {Top: CrestC, Halo: Sat3a, Body: Clasp, Runes: Sat0a, FrontL: SkiCurl, FrontR: SkiCurl}
 vfx: "touches the ground (Legendary, Effects.luau): a snow flurry of six flakes circles its body (the Orbit at Body), frost ski-tracks trail between its skis (the Trail from FrontL to FrontR), flakes drift down off its crest at 3 a second (the Emitter at Top) and a cold periwinkle light hangs over the crest (pulse 3 s); every 10 s the gust (the flourish): a burst of twenty-two flakes off its skis and a ring of frost rolling out on the ground (the RingPulse at Feet); it hovers a little; in the rig the four wings beat, the crest crystals glimmer, the ear tufts flick and the scarf end swings, and the gust lifts it in a hop and a full turn with every wing flared and the scarf streaming"
 ride: "Hover; the rider sits on the back between the hind wings, behind the quiver"
 artboard: "https://claude.ai/artifact/QkgZkYfF97ua798aJC55AD"
@@ -26,6 +26,13 @@ overlap: [0.996, 0.997, 0.997, 0.996]
 vfx_render: "[[Skaddle_vfx_cells.jpg]]"
 cells_render: "[[Skaddle_tq_cells.jpg]]"
 idle_render: "[[Skaddle_idle.png]]"
+bar_world: Frostbyte
+bar_kit: 8
+bar_pieces: [aurora_wisp, ice_shard, silver_band, snowflake_stud]
+bar_stance: "an owl on skis, looking you over: the head turned 16 degrees and rolled 8, both wings spread 22 degrees more, six rune stones fanned out at head height and a gold-rimmed frost mirror behind it"
+bar_satellites: 6
+bar_orbit: halo
+bar_backdrop: frost
 ---
 # Skaddle (Skadra), Legendary, World 2 Frostbyte
 
@@ -35,11 +42,22 @@ A snow owl on two tiny skis, 3.5 studs to the tip of its crest (B45; it was 6.5,
 
 **Hero block.** `CrestC`, the centre crystal of the crest: five lit periwinkle crystals in a fan on the crown, unique in Frostbyte.
 
-**Moving parts (ten objects and the blink).** `wingR`, `wingL` (they beat), `hindwingR`, `hindwingL` (they flutter), `tuftR`, `tuftL` (they flick), `crest` (the crystals glimmer), `scarf` (its end swings), `halo` (three frost runes circle the crown once every 8 s and bob), `quiverL` (the quiver of arrows sways on its back; the rig calls it `quiver`); the face plate blinks, glints and its rings breathe.
+**Moving parts (twelve objects and the blink; the bar added the mirror and moved the halo to the rune stones).** `wingR`, `wingL` (they beat), `hindwingR`, `hindwingL` (they flutter), `tuftR`, `tuftL` (they flick), `crest` (the crystals glimmer), `scarf` (its end swings), `halo` (six rune stones sway about it and bob), `frost` (the mirror behind it turns once in 20 s), `quiverL` (the quiver of arrows sways on its back; the rig calls it `quiver`); the face plate blinks, glints and its rings breathe.
 
 **Alien anatomy.** Four wings (a second small pair on the back), skis that are its own ice-bone feet, golden eyes that breathe light.
 
 **World motif (Frostbyte).** The six-point frost glyph on the forehead in ice cells; the ice facet in the crest's stepped crystals and the two-step curl of the ski tips.
+
+## Character bar (B54), prompt list
+
+BAR-W2, 2026-10-28 ([[Blocky-Style]] section 10, [[Character-References]]; the plan is `tools/blocky/bar_w2.py` `skaddle()`).
+
+- **Theme.** The Warden of Frostbyte looking you over: a white owl on skis in front of a frost mirror, with rune stones fanned round its head.
+- **Parts gained.** (1) The backdrop: a frost mirror three and a quarter studs across, a slate disc in a gold rim a quarter stud thick with a lit periwinkle snowflake etched on it (a cross of lines, a dot on each diagonal step, a heart), a quarter stud deep, turning once in 20 s behind the tail. (2) Six rune stones (an ice-blue tablet in a slate frame, a gold cap, a lit periwinkle rune on both faces; half a stud across and three quarters tall) in a fan at head height, three a side, nothing in front of the face; they replace the three lit rune gems of the old halo. (3) Eight kit pieces: gold cuffs a quarter stud tall on the legs, gold snowflake studs on the cheeks, ice shards and aurora wisps fanned round the tail. (4) The crest, the scarf, the quiver and the wings stay.
+- **Value and colour (rule 8).** A white owl on white snow was the weakest mass in the world; the dark disc behind it is the step (slate, L* 46, against the owl's 97 and the snow), its gold rim a lighter step that reads as a ring, the satellites light tablets in a dark frame with one lit colour (the crest's periwinkle). The first try, an eight-armed slate star, was hidden by the owl and the wings and the dark satellite tablets merged into it; the disc and the light tablets replace it.
+- **Stance.** The head (with the brow, beak, glyph, crest, tufts, back bars and cheek studs) turned 16 degrees and rolled 8, an owl looking you over (`rig.rest.head`, set 0.05 lower so the crest stays at the height limit); both wings spread 22 degrees more (`rig.rest.wing`, a mirrored group about the shoulder). The rune stones sway 25 degrees about it (never a full turn, so none crosses the face), the mirror turns.
+- **Face intent.** Unchanged: the Legendary `halo` eyes (golden rings that breathe outward, a sparkle travelling round them), star cheeks, a plain ice-blue beak; a calm warden under a slate brow. Its roll makes it look curious, not stern.
+- **Must-nots.** No stone in front of the face; no dark stone on the dark mirror; no second lit colour; the backdrop stays under half a stud deep and behind the tail.
 
 ## Parts
 
@@ -57,7 +75,7 @@ parts:
   - {name: Talon3, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [0.5625, 0.4375, -0.25], mirror: x}
   # the body and the big head over it (two masses)
   - {name: Body, slot: Body, size: [2, 0.75, 1.75], at: [0, 1, 0.125], bevel: true, material: fur}
-  - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2.125, -0.125], bevel: true}
+  - {name: Head, slot: Body, size: [2, 1.5, 1.75], at: [0, 2.125, -0.125], bevel: true, pose: head}
   # the feathered chest: four scalloped rows of ice blue stepping in, slate shadow lines between
   - {name: FeatherA, slot: Accessory, size: [1.5, 0.125, 0.0625], at: [0, 1.25, -0.78125]}
   - {name: BarA, slot: BodyDark, size: [1.25, 0.0625, 0.0625], at: [0, 1.15625, -0.78125]}
@@ -73,47 +91,40 @@ parts:
   - {name: Clasp, slot: Trim, size: [0.25, 0.25, 0.0625], at: [0.625, 1.4375, -1.03125], material: metal}
   - {name: ClaspGem, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 1.4375, -1.09375]}
   # the face: an ice-blue beak with a dark tip between the eyes, a slate brow line over the face plate, a frost glyph on the forehead
-  - {name: Beak, slot: Trim, size: [0.25, 0.25, 0.1875], at: [0, 1.8125, -1.09375], material: metal}
-  - {name: BeakTip, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [0, 1.625, -1.0625]}
-  - {name: Brow, slot: BodyDark, size: [1.75, 0.0625, 0.125], at: [0, 2.46875, -1.0625]}
-  - {name: Glyph, slot: Accessory, size: [0.125, 0.375, 0.0625], at: [0, 2.6875, -1.03125]}
-  - {name: Glyph2, slot: Accessory, size: [0.125, 0.0625, 0.0625], at: [0.1875, 2.78125, -1.03125], mirror: x}
-  - {name: Glyph3, slot: Accessory, size: [0.125, 0.0625, 0.0625], at: [0.1875, 2.59375, -1.03125], mirror: x}
+  - {name: Beak, slot: Trim, size: [0.25, 0.25, 0.1875], at: [0, 1.8125, -1.09375], material: metal, pose: head}
+  - {name: BeakTip, slot: BodyDark, size: [0.125, 0.125, 0.125], at: [0, 1.625, -1.0625], pose: head}
+  - {name: Brow, slot: BodyDark, size: [1.75, 0.0625, 0.125], at: [0, 2.46875, -1.0625], pose: head}
+  - {name: Glyph, slot: Accessory, size: [0.125, 0.375, 0.0625], at: [0, 2.6875, -1.03125], pose: head}
+  - {name: Glyph2, slot: Accessory, size: [0.125, 0.0625, 0.0625], at: [0.1875, 2.78125, -1.03125], mirror: x, pose: head}
+  - {name: Glyph3, slot: Accessory, size: [0.125, 0.0625, 0.0625], at: [0.1875, 2.59375, -1.03125], mirror: x, pose: head}
   # a snowy owl's slate barring (Rare pass w2): four scalloped bars down the back of the head, five specks on the crown behind the crest, two
   # bars on the back half of each side, so the head from behind and from the high camera reads as feathered, not as a white box
-  - {name: BackBar, slot: BodyDark, size: [1.5, 0.125, 0.0625], at: [0, 2.625, 0.78125]}
-  - {name: BackBar2, slot: BodyDark, size: [1, 0.125, 0.0625], at: [0, 2.375, 0.78125]}
-  - {name: BackBar3, slot: BodyDark, size: [1.5, 0.125, 0.0625], at: [0, 2.125, 0.78125]}
-  - {name: BackBar4, slot: BodyDark, size: [1, 0.125, 0.0625], at: [0, 1.875, 0.78125]}
-  - {name: Speck, slot: BodyDark, size: [0.375, 0.0625, 0.125], at: [0.3125, 2.90625, 0.125]}
-  - {name: Speck2, slot: BodyDark, size: [0.375, 0.0625, 0.125], at: [-0.3125, 2.90625, 0.3125]}
-  - {name: Speck3, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [0.0625, 2.90625, 0.5625]}
-  - {name: Speck4, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [0.5625, 2.90625, 0.5]}
-  - {name: Speck5, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [-0.5625, 2.90625, -0.0625]}
-  - {name: SideBar, slot: BodyDark, size: [0.0625, 0.0625, 0.5], at: [1.03125, 2.65625, 0.4375], mirror: x}
-  - {name: SideBar2, slot: BodyDark, size: [0.0625, 0.0625, 0.375], at: [1.03125, 2.40625, 0.5], mirror: x}
+  - {name: BackBar, slot: BodyDark, size: [1.5, 0.125, 0.0625], at: [0, 2.625, 0.78125], pose: head}
+  - {name: BackBar2, slot: BodyDark, size: [1, 0.125, 0.0625], at: [0, 2.375, 0.78125], pose: head}
+  - {name: BackBar3, slot: BodyDark, size: [1.5, 0.125, 0.0625], at: [0, 2.125, 0.78125], pose: head}
+  - {name: BackBar4, slot: BodyDark, size: [1, 0.125, 0.0625], at: [0, 1.875, 0.78125], pose: head}
+  - {name: Speck, slot: BodyDark, size: [0.375, 0.0625, 0.125], at: [0.3125, 2.90625, 0.125], pose: head}
+  - {name: Speck2, slot: BodyDark, size: [0.375, 0.0625, 0.125], at: [-0.3125, 2.90625, 0.3125], pose: head}
+  - {name: Speck3, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [0.0625, 2.90625, 0.5625], pose: head}
+  - {name: Speck4, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [0.5625, 2.90625, 0.5], pose: head}
+  - {name: Speck5, slot: BodyDark, size: [0.25, 0.0625, 0.125], at: [-0.5625, 2.90625, -0.0625], pose: head}
+  - {name: SideBar, slot: BodyDark, size: [0.0625, 0.0625, 0.5], at: [1.03125, 2.65625, 0.4375], mirror: x, pose: head}
+  - {name: SideBar2, slot: BodyDark, size: [0.0625, 0.0625, 0.375], at: [1.03125, 2.40625, 0.5], mirror: x, pose: head}
   # ear tufts that flick
-  - {name: EarTuft, slot: Body, size: [0.25, 0.375, 0.25], at: [0.75, 3.0625, -0.25], rot: [0, 0, -20], mirror: x, moves: tuft, pivot: [0.6875, 2.875, -0.25]}
+  - {name: EarTuft, slot: Body, size: [0.25, 0.375, 0.25], at: [0.75, 3.0625, -0.25], rot: [0, 0, -20], mirror: x, moves: tuft, pivot: [0.6875, 2.875, -0.25], pose: head}
   # the hero: the frosty crest, five crystals of deep periwinkle light in a fan (the pale periwinkle in ice cells washed to white) standing on a frost-blue band across the front of the crown; they glimmer
-  - {name: CrestBand, slot: Trim, size: [1.5, 0.125, 0.375], at: [0, 2.9375, -0.75], material: metal}
-  - {name: CrestC, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 3.25, -0.75], moves: crest, pivot: [0, 3, -0.75]}
-  - {name: Crest2, slot: Glow, size: [0.25, 0.375, 0.25], at: [0.3125, 3.1875, -0.75], rot: [0, 0, -15], mirror: x, moves: crest, pivot: [0, 3, -0.75]}
-  - {name: Crest3, slot: Glow, size: [0.1875, 0.25, 0.1875], at: [0.5625, 3.125, -0.75], rot: [0, 0, -25], mirror: x, moves: crest, pivot: [0, 3, -0.75]}
-  # the signature (Rare pass w2): a halo of frost runes, three lit periwinkle gems set in gold circling the crown at the height of the head's
+  - {name: CrestBand, slot: Trim, size: [1.5, 0.125, 0.375], at: [0, 2.9375, -0.75], material: metal, pose: head}
+  - {name: CrestC, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 3.25, -0.75], moves: crest, pivot: [0, 3, -0.75], pose: head}
+  - {name: Crest2, slot: Glow, size: [0.25, 0.375, 0.25], at: [0.3125, 3.1875, -0.75], rot: [0, 0, -15], mirror: x, moves: crest, pivot: [0, 3, -0.75], pose: head}
+  - {name: Crest3, slot: Glow, size: [0.1875, 0.25, 0.1875], at: [0.5625, 3.125, -0.75], rot: [0, 0, -25], mirror: x, moves: crest, pivot: [0, 3, -0.75], pose: head}
   # top corners (beside the head, never across the face), one moving part that turns once every 8 s and whirls on the gust
-  - {name: Rune, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.1875, 2.875, -0.8125], shape: ico1, moves: halo, pivot: [0, 2.875, -0.125]}
-  - {name: Rune2, slot: Glow, size: [0.375, 0.375, 0.375], at: [-1.1875, 2.875, -0.8125], shape: ico1, moves: halo, pivot: [0, 2.875, -0.125]}
-  - {name: Rune3, slot: Glow, size: [0.375, 0.375, 0.375], at: [0, 2.875, 1.25], shape: ico1, moves: halo, pivot: [0, 2.875, -0.125]}
-  - {name: RuneSet, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.1875, 2.65625, -0.8125], material: metal, moves: halo, pivot: [0, 2.875, -0.125]}
-  - {name: RuneSet2, slot: Trim, size: [0.25, 0.0625, 0.25], at: [-1.1875, 2.65625, -0.8125], material: metal, moves: halo, pivot: [0, 2.875, -0.125]}
-  - {name: RuneSet3, slot: Trim, size: [0.25, 0.0625, 0.25], at: [0, 2.65625, 1.25], material: metal, moves: halo, pivot: [0, 2.875, -0.125]}
   # two stepped wings stretched out and down from the shoulders, twisted 20 degrees about the span (leading edge down) so the front and the
   # high camera see their tops instead of a thin line; white, slate and ice blue, a lit line down each leading edge; each wing one moving part
-  - {name: Wing, slot: Body, size: [0.125, 0.75, 1], at: [1.34375, 1.15625, 0.125], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125]}
-  - {name: Wing2, slot: BodyDark, size: [0.125, 0.625, 0.875], at: [2, 0.96875, 0.1875], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125]}
-  - {name: WingTip, slot: Accessory, size: [0.125, 0.5, 0.625], at: [2.53125, 0.78125, 0.21875], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125]}
-  - {name: WingLine, slot: Glow, size: [0.125, 0.75, 0.125], at: [1.28125, 0.96875, -0.40625], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125]}
-  - {name: WingLine2, slot: Glow, size: [0.125, 0.625, 0.125], at: [1.9375, 0.78125, -0.28125], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125]}
+  - {name: Wing, slot: Body, size: [0.125, 0.75, 1], at: [1.34375, 1.15625, 0.125], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125], pose: wing}
+  - {name: Wing2, slot: BodyDark, size: [0.125, 0.625, 0.875], at: [2, 0.96875, 0.1875], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125], pose: wing}
+  - {name: WingTip, slot: Accessory, size: [0.125, 0.5, 0.625], at: [2.53125, 0.78125, 0.21875], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125], pose: wing}
+  - {name: WingLine, slot: Glow, size: [0.125, 0.75, 0.125], at: [1.28125, 0.96875, -0.40625], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125], pose: wing}
+  - {name: WingLine2, slot: Glow, size: [0.125, 0.625, 0.125], at: [1.9375, 0.78125, -0.28125], rot: [0, -20, -110], mirror: x, moves: wing, pivot: [1, 1.3125, 0.125], pose: wing}
   # alien anatomy: a second, smaller pair of wings on the back, rising up and out
   - {name: HindWing, slot: Body, size: [0.125, 0.5, 0.5], at: [1, 1.75, 1], rot: [0, 0, -20], mirror: x, moves: hindwing, pivot: [0.9375, 1.5, 1]}
   - {name: HindTip, slot: BodyDark, size: [0.125, 0.25, 0.375], at: [1.125, 2.09375, 1], rot: [0, 0, -20], mirror: x, moves: hindwing, pivot: [0.9375, 1.5, 1]}
@@ -130,6 +141,120 @@ parts:
   - {name: Fletch, slot: Accessory, size: [0.125, 0.1875, 0.0625], at: [-0.75, 2.65625, 1.1875], rot: [0, 0, 15], moves: quiver, pivot: [-0.5, 1.25, 1.1875]}
   - {name: Fletch2, slot: Accessory, size: [0.125, 0.1875, 0.0625], at: [-0.625, 2.6875, 1.28125], rot: [0, 0, 15], moves: quiver, pivot: [-0.5, 1.25, 1.1875]}
   - {name: Fletch3, slot: Accessory, size: [0.125, 0.1875, 0.0625], at: [-0.8125, 2.625, 1.09375], rot: [0, 0, 15], moves: quiver, pivot: [-0.5, 1.25, 1.1875]}
+  # pilot bar: begin (tools/blocky/bar_w2.py writes this region: the Frostbyte kit, the rune stones and the frost star)
+  # gold cuffs on the legs: a band a quarter stud tall and an eighth proud above the bindings
+  - {name: CuffF, slot: Trim, size: [0.625, 0.25, 0.125], at: [0.4375, 0.5, -0.25], mirror: x, material: metal}
+  - {name: CuffB, slot: Trim, size: [0.625, 0.25, 0.125], at: [0.4375, 0.5, 0.25], mirror: x, material: metal}
+  - {name: CuffR, slot: Trim, size: [0.125, 0.25, 0.375], at: [0.6875, 0.5, 0], mirror: x, material: metal}
+  - {name: CuffL, slot: Trim, size: [0.125, 0.25, 0.375], at: [0.1875, 0.5, 0], mirror: x, material: metal}
+  # a gold snowflake stud (a plus of sixteenth-stud bars on a lit heart) on each cheek; they turn with the head
+  - {name: Flakea, slot: Trim, size: [0.125, 0.125, 0.5], at: [1.0625, 1.9375, -0.375], mirror: x, pose: head, material: metal}
+  - {name: Flakeb, slot: Trim, size: [0.125, 0.5, 0.125], at: [1.0625, 1.875, -0.3125], mirror: x, pose: head, material: metal}
+  - {name: Flakec, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.1875, 1.9375, -0.3125], mirror: x, pose: head, material: crystal}
+  # ice shards, half again as big, standing on the tail's middle corners and leaning apart (they stand against the dark mirror)
+  - {name: Sharda, slot: Accessory, size: [0.375, 0.75, 0.375], at: [0.4375, 1.1875, 1.75], rot: [14, 0, 0], shape: cone6, mirror: x, material: ice}
+  - {name: Shardb, slot: Accessory, size: [0.1875, 0.375, 0.1875], at: [0.625, 1, 1.75], rot: [0, -16, 0], shape: cone6, mirror: x, material: ice}
+  # aurora wisps, twice as big, rising off the tail's outer corners
+  - {name: Wispa, slot: Glow, size: [0.25, 0.25, 0.125], at: [0.9375, 0.9375, 1.4375], mirror: x, material: crystal}
+  - {name: Wispb, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.0625, 1.1875, 1.4375], mirror: x, material: crystal}
+  - {name: Wispc, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.1875, 1.4375, 1.4375], mirror: x, material: crystal}
+  - {name: Wispd, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.0625, 1.6875, 1.4375], mirror: x, material: crystal}
+  - {name: Wispe, slot: Glow, size: [0.25, 0.25, 0.125], at: [0.9375, 1.9375, 1.4375], mirror: x, material: crystal}
+  - {name: Wispf, slot: Glow, size: [0.25, 0.25, 0.125], at: [0.8125, 2.1875, 1.4375], mirror: x, material: crystal}
+  # the satellite set (`halo`, three a side fanned out at head height, the back higher, nothing in front of the face): six rune stones, an ice-blue tablet in a slate frame with a gold cap and a lit rune on both faces, three quarters of a stud tall, facing the viewer
+  - {name: Sat0a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [1.75, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat0b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [1.75, 1.5625, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat0c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [1.53125, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat0d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [1.96875, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat0e, slot: Trim, size: [0.5, 0.125, 0.25], at: [1.75, 2.1875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat0f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [1.75, 1.84375, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat0g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [1.65625, 1.96875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat0h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [1.84375, 1.96875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat1a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [2.25, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat1b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [2.25, 2, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat1c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [2.03125, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat1d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [2.46875, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat1e, slot: Trim, size: [0.5, 0.125, 0.25], at: [2.25, 2.625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat1f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [2.25, 2.28125, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat1g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [2.15625, 2.40625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat1h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [2.34375, 2.40625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat2a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [1.125, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat2b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [1.125, 2.375, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat2c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [1.34375, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat2d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [0.90625, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat2e, slot: Trim, size: [0.5, 0.125, 0.25], at: [1.125, 3, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat2f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [1.125, 2.65625, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat2g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [1.21875, 2.78125, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat2h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [1.03125, 2.78125, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat3a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [-1.125, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat3b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-1.125, 2.375, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat3c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-0.90625, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat3d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-1.34375, 2.6875, 1.875], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat3e, slot: Trim, size: [0.5, 0.125, 0.25], at: [-1.125, 3, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat3f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [-1.125, 2.65625, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat3g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-1.03125, 2.78125, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat3h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-1.21875, 2.78125, 1.875], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat4a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [-2.25, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat4b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-2.25, 2, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat4c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-2.46875, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat4d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-2.03125, 2.3125, 0.25], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat4e, slot: Trim, size: [0.5, 0.125, 0.25], at: [-2.25, 2.625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat4f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [-2.25, 2.28125, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat4g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-2.34375, 2.40625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat4h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-2.15625, 2.40625, 0.25], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat5a, slot: Accessory, size: [0.5, 0.5, 0.125], at: [-1.75, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat5b, slot: BodyDark, size: [0.5, 0.125, 0.25], at: [-1.75, 1.5625, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat5c, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-1.96875, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat5d, slot: BodyDark, size: [0.0625, 0.5, 0.25], at: [-1.53125, 1.875, -1.625], moves: halo, pivot: [0, 2.2, -0.125]}
+  - {name: Sat5e, slot: Trim, size: [0.5, 0.125, 0.25], at: [-1.75, 2.1875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: metal}
+  - {name: Sat5f, slot: Glow, size: [0.125, 0.3125, 0.375], at: [-1.75, 1.84375, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat5g, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-1.84375, 1.96875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  - {name: Sat5h, slot: Glow, size: [0.0625, 0.1875, 0.375], at: [-1.65625, 1.96875, -1.625], moves: halo, pivot: [0, 2.2, -0.125], material: glow}
+  # the backdrop (`frost`, it turns once in 20 s): a frost mirror three and a quarter studs across behind the tail, a slate disc in a gold rim with a lit periwinkle snowflake etched on it, a quarter stud deep
+  - {name: Mirror0, slot: Trim, size: [1.5, 0.25, 0.25], at: [0, 0.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror1, slot: Trim, size: [0.5, 0.25, 0.25], at: [-1, 0.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror2, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 0.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror3, slot: Trim, size: [0.5, 0.25, 0.25], at: [1, 0.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror4, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.125, 0.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror5, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 0.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror6, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.125, 0.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror7, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 1.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror8, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror9, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 1.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror10, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 1.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror11, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror12, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 1.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror13, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 1.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror14, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror15, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 1.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror16, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 1.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror17, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 1.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror18, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 1.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror19, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 2.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror20, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 2.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror21, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 2.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror22, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.375, 2.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror23, slot: BodyDark, size: [2.5, 0.25, 0.25], at: [0, 2.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror24, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.375, 2.375, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror25, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.125, 2.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror26, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 2.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror27, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.125, 2.625, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror28, slot: Trim, size: [0.5, 0.25, 0.25], at: [-1, 2.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror29, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 2.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375]}
+  - {name: Mirror30, slot: Trim, size: [0.5, 0.25, 0.25], at: [1, 2.875, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror31, slot: Trim, size: [1.5, 0.25, 0.25], at: [0, 3.125, 2.375], moves: frost, pivot: [0, 1.75, 2.375], material: metal}
+  - {name: Mirror32, slot: Glow, size: [0.125, 2.375, 0.0625], at: [0, 1.75, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror33, slot: Glow, size: [2.375, 0.125, 0.0625], at: [0, 1.75, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror34, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.5, 1.25, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror35, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.875, 0.875, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror36, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.5, 2.25, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror37, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.875, 2.625, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror38, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 1.25, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror39, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.875, 0.875, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror40, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.5, 2.25, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror41, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.875, 2.625, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  - {name: Mirror42, slot: Glow, size: [0.25, 0.25, 0.0625], at: [0, 1.75, 2.21875], moves: frost, pivot: [0, 1.75, 2.375], material: glow}
+  # pilot bar: end
 ```
 
 ## Face
@@ -163,13 +288,17 @@ The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` write
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [0, 16, 8], pivot: [0, 1.4, -0.1], move: [0, -0.05, 0]}
+    wing: {rot: [0, 0, 22], pivot: [1, 1.3125, 0.125], mirror: true}
   clips:
+    frost: [{kind: spin, amp: 360, period: 20, axis: z}]
     wing: [{kind: flap, amp: 12, period: 2.4, axis: z}]
     hindwing: [{kind: flap, amp: 15, period: 1.2, axis: z}]
     tuft: [{kind: wag, amp: 12, period: 3, axis: z}]
     crest: [{kind: pulse, amp: 0.08, period: 2}]
     scarf: [{kind: sway, amp: 10, period: 1.8, axis: x}]
-    halo: [{kind: spin, amp: 360, period: 8}, {kind: bob, amp: 0.06, period: 2.4}]
+    halo: [{kind: wag, amp: 25, period: 7, axis: y}, {kind: bob, amp: 0.06, period: 2.4}]
     quiver: [{kind: sway, amp: 4, period: 2.8, axis: z}]
     root: [{kind: bob, amp: 0.08, period: 2.8}]
     face: [{kind: blink, period: 5}]
@@ -181,7 +310,8 @@ rig:
       - {part: wing, kind: flare, amp: 30, at: 0, for: 1.6}
       - {part: hindwing, kind: flare, amp: 25, at: 0.2, for: 1.4}
       - {part: root, kind: turn, amp: 360, at: 0.4, for: 2}
-      - {part: halo, kind: turn, amp: 360, at: 0.4, for: 2.4}
+      - {part: halo, kind: swish, amp: 40, at: 0.4, for: 2.4}
+      - {part: frost, kind: turn, amp: 90, at: 0.3, for: 2.4}
       - {part: tuft, kind: flare, amp: 20, at: 0.6, for: 1}
       - {part: scarf, kind: swish, amp: 25, at: 0.6, for: 1.6}
       - {part: quiver, kind: swish, amp: 10, at: 0.8, for: 1.4}

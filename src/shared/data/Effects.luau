@@ -75,8 +75,8 @@ local pieces: { [string]: Types.FxPiece } = {
 	RingB = { part = "ring", spot = { -0.41, 0, -0.31 }, region = "Halo" },
 	Summit = { part = "shardsR", spot = { 0.43, 0, 0 }, region = "Top" }, -- Floe: the two shard moons
 	SummitB = { part = "shardsR", spot = { -0.43, 0, 0 }, region = "Halo" },
-	Crown = { part = "crown", spot = { 0, 0, 0 }, region = "Top" }, -- Sabrek: the snowflake's middle and a tip
-	CrownTip = { part = "crown", spot = { 0.25, 0.25, 0 }, region = "Halo" },
+	Crown = { part = "crownL", spot = { 0, 0, 0 }, region = "Top" }, -- Sabrek: the snowflake's middle and a tip (the crown rides the turned head, so its pivot is left of the middle: crownL)
+	CrownTip = { part = "crownL", spot = { 0.25, 0.25, 0 }, region = "Halo" },
 	Plume = { part = "tailR", spot = { 0, 0.5, 0 }, region = "Tail" }, -- Aurelyx: the plume's tip and its root (the ribbon's span)
 	PlumeBase = { part = "tailR", spot = { 0, 0.2, 0 }, region = "Back" },
 	Runes = { part = "halo", spot = { 0.43, 0.07, -0.42 }, region = "Halo" }, -- Skadra: two of the three runes

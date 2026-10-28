@@ -54,18 +54,22 @@ def arc(pieces, name, centre, radius, y, angles, moves, pivot, g=0.125, lift=0.0
 
 # ------------------------------------------------------------------------------------------------ Reindazzle (Blinkar), Rare
 def _lantern(g, lite=False):
-    # a little sleigh lantern, half a stud wide and five eighths tall: a dark cap, a lit red body, a dark base; it echoes the lantern nose
-    return [_box(-0.125, 0.125, 0.5, 0.625, 0, 0.125, "BodyDark", None),
-            _box(-0.25, 0.25, 0.125, 0.5, 0, 0.25, "Glow", "glow"),
-            _box(-0.125, 0.125, 0, 0.125, 0, 0.125, "BodyDark", None)]
+    # a sleigh lantern three quarters of a stud wide and seven eighths tall (round 2: round 1's was a red cube with a lid and read as an apple, and the
+    # first redraw's dark posts made a dark clump): a handle, a wide dark roof, a lit red window half a stud across and half a stud tall, a dark base;
+    # it echoes the lantern nose, and from 16 studs the lit window is the mass
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.125, 0.75, 0.875, z0, z1, "BodyDark", None),
+            _box(-0.375, 0.375, 0.625, 0.75, z0, z1, "BodyDark", None),
+            _box(-0.25, 0.25, 0.125, 0.625, z0, z1, "Glow", "glow"),
+            _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None)]
 
 
 def reindazzle():
     """Rare, Frostbyte: a lantern keeper. Silver snowflake studs on the shoulders, a silver harness girth, a little ice tiara between the antlers
-    (3 kit pieces and the stance), the head cocked and one hoof lifted (rest poses), and six red sleigh lanterns on a ring round it (one lit colour, the
-    nose's, over dark brown caps that read on snow)."""
+    (3 kit pieces and the stance), the head cocked and one hoof lifted (rest poses), and six red sleigh lanterns in two garlands up its sides (one lit colour, the
+    nose's, in a dark frame that reads on snow)."""
     Pz = K.PIECES
-    p = P.Plan("Frostbyte", "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, an arc of six red lanterns at its sides and back")
+    p = P.Plan("Frostbyte", "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, two garlands of three red lanterns rising up its sides")
     p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each shoulder, where the old flank flake was",
            K.place(Pz["snowflake_stud"], "Flake", (0.75, 1.125, 0.375), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
     girth = [K.part("GirthT", "Trim", (1.75, 0.125, 0.25), (0, 1.6875, -0.125), material="metal"),
@@ -73,14 +77,211 @@ def reindazzle():
     p.wear("# the harness girth: a silver strap a quarter stud wide and an eighth proud over its back and down both sides behind the front legs", girth, ["silver_band"])
     p.wear("# a little ice tiara between the antler posts (a lip of pale ice with two icicle teeth standing up; it rides the head)",
            K.place(Pz["frost_rim"], "Tiara", (0, 2.5, -1.0), "+y", scale=2, pose="head"), ["frost_rim"])
-    sats = arc([own("lantern", "a red sleigh lantern", _lantern)] * 6, "Sat", (0, 0.25), 2.3, 1.3, [80, 120, 160, 200, 240, 280], "lanterns", [0, 1.3, 0.25], g=0.25,
-               lift=0.4)
-    p.regions.append(("# the satellite set (`lanterns`, an arc at the sides and behind, the back higher, nothing in front of the face): six little sleigh lanterns, dark caps and a lit red heart, facing the viewer", sats))
+    sats = arc([own("lantern", "a red sleigh lantern", _lantern)] * 6, "Sat", (0, 0.25), 2.6, 0.95, [55, 90, 125, 235, 270, 305], "lanterns", [0, 1.3, 0.25], g=0.25,
+               lift=0.5)
+    p.regions.append(("# the satellite set (`lanterns`, two garlands of three rising up the sides and behind the shoulders, nothing in front of the face or over the head): six sleigh lanterns, a dark frame round a lit red heart, three quarters of a stud wide, facing the viewer", sats))
     p.satellites, p.orbit = 6, "lanterns"
     return p
 
 
-PLANS = {"Reindazzle": reindazzle}
+# ------------------------------------------------------------------------------------------------ Shellberg (Floe), Rare
+def _pennant(flip):
+    def build(g, lite=False):
+        # an explorer's flag seven eighths of a stud across and seven eighths tall (the pennant on its own summit, planted six times round it): a dark
+        # pole on a dark foot, a lit cyan pennant between a dark top edge and a dark hem so the light has an outline on snow, and a one-step swallow-tail
+        # point; the same from both sides
+        z0, z1 = -0.125, 0.125
+        s = -1 if flip else 1
+
+        def bx(x0, x1, y0, y1, slot, mat=None):
+            a, b = sorted((s * x0, s * x1))
+            return _box(a, b, y0, y1, z0, z1, slot, mat)
+        return [bx(-0.125, 0, 0.125, 0.875, "BodyDark"), bx(-0.125, 0.125, 0, 0.125, "BodyDark"),
+                bx(0, 0.5, 0.75, 0.875, "BodyDark"), bx(0, 0.5, 0.5, 0.75, "Glow", "glow"), bx(0.5, 0.75, 0.5, 0.625, "Glow", "glow"),
+                bx(0, 0.5, 0.375, 0.5, "BodyDark")]
+    return build
+
+
+def shellberg():
+    """Rare, Frostbyte: an explorer on a summit. Silver snowflake studs on the dark flanks of its berg and a silver skirt round the berg's foot
+    (3 kit pieces and the stance), the head stretched out, tipped and turned to look at its own flag (a rest pose), and six cyan pennants on dark
+    poles in two rows up its sides (the flag it planted on its own summit, six times over; one lit colour, the sea line's)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a proud lookout: the neck stretched, the head tipped up 10 degrees and turned 18 to look at its own flag, six cyan pennants on dark poles standing out to its sides")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each dark flank of the berg",
+           K.place(Pz["snowflake_stud"], "Flake", (1.25, 0.875, 0.625), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    p.wear("# a silver skirt: a band a quarter stud tall and an eighth proud round the foot of the berg, over the flippers",
+           K.band("Skirt", (0, 0.5, 0.625), (2.5, 2.75), t=0.125, h=0.25, slot="Trim", material="metal"), ["silver_band"])
+    fr = own("pennant_r", "a cyan pennant on a dark pole, flying to its right", _pennant(False))
+    fl = own("pennant_l", "a cyan pennant on a dark pole, flying to its left", _pennant(True))
+    sats = arc([fr, fr, fr, fl, fl, fl], "Sat", (0, 0.5), 2.7, 0.95, [50, 90, 130, 230, 270, 310], "flags", [0, 1.3, 0.5], g=0.25, lift=0.4)
+    p.regions.append(("# the satellite set (`flags`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six pennants, a lit cyan flag in a dark frame on a dark pole and foot, seven eighths of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "flags"
+    return p
+
+
+# ------------------------------------------------------------------------------------------------ Capybubble (Snorzo), Rare
+def _bubble(big):
+    def build(g, lite=False):
+        # a soap bubble in pixel art, the same from both sides: a dark umber outline round a lit aqua rim (half a stud across, or three quarters for the
+        # big one, which has a hollow middle), so the lit ring has an edge against snow
+        z0, z1 = -0.125, 0.125
+        if not big:
+            return [_box(-0.125, 0.125, 0.375, 0.5, z0, z1, "BodyDark", None), _box(-0.125, 0.125, 0, 0.125, z0, z1, "BodyDark", None),
+                    _box(-0.25, -0.125, 0.125, 0.375, z0, z1, "BodyDark", None), _box(0.125, 0.25, 0.125, 0.375, z0, z1, "BodyDark", None),
+                    _box(-0.125, 0.125, 0.125, 0.375, z0, z1, "Glow", "glow")]
+        return [_box(-0.25, 0.25, 0.625, 0.75, z0, z1, "BodyDark", None), _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None),
+                _box(-0.375, -0.25, 0.125, 0.625, z0, z1, "BodyDark", None), _box(0.25, 0.375, 0.125, 0.625, z0, z1, "BodyDark", None),
+                _box(-0.25, 0.25, 0.5, 0.625, z0, z1, "Glow", "glow"), _box(-0.25, 0.25, 0.125, 0.25, z0, z1, "Glow", "glow"),
+                _box(-0.25, -0.125, 0.25, 0.5, z0, z1, "Glow", "glow"), _box(0.125, 0.25, 0.25, 0.5, z0, z1, "Glow", "glow")]
+    return build
+
+
+def capybubble():
+    """Rare, Frostbyte: the bath-time capybara. A silver bathrobe belt round its barrel and silver snowflake studs on its flanks (3 kit pieces and the
+    stance), the head nodding and rolled as it dozes, the tangerine tipping with it (a rest pose), and a stream of six outlined aqua bubbles curling up
+    its sides and over its back, small ones low and big ones high (the snores it blows, grown; one lit colour, the aqua of its eyes)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a doze: the head nodding 10 degrees and rolled 8, the tangerine tipped with it, a stream of six outlined bubbles curling up its right side, over its back and down its left")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each flank, above the belt, where the old bubble-ring stamp was",
+           K.place(Pz["snowflake_stud"], "Flake", (1.0, 1.375, 1.0), "+x", mirror=True, lite=True, scale=2, slots={"Trim": "Accessory"}), ["snowflake_stud"] * 2)
+    p.wear("# a silver bathrobe belt: a band a quarter stud tall and an eighth proud round the barrel (the head hides its front)",
+           K.band("Belt", (0, 0.875, 0.875), (2, 2.25), t=0.125, h=0.25, slot="Accessory", material="metal", faces=("+x", "-x", "+z")), ["silver_band"])
+    small, big = own("bubble_s", "a half-stud soap bubble: a lit aqua heart in a dark umber outline", _bubble(False)), own("bubble_b", "a three-quarter-stud soap bubble: a lit aqua ring in a dark umber outline", _bubble(True))
+    heights = [0.5, 0.875, 1.25, 1.625, 2.0, 2.5]
+    sats = arc([small, small, big, big, big, big], "Sat", (0, 0.4), 2.6, 0.0, [50, 95, 140, 220, 265, 310], "ring", [0, 1.3, 0.4], g=0.25, drops=[-h for h in heights])
+    p.regions.append(("# the satellite set (`ring`, one stream climbing from low on its right round the back to high on its left, nothing in front of the face): two half-stud bubbles and four three-quarter ones, each a lit aqua rim in a dark outline, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "ring"
+    return p
+
+
+# ------------------------------------------------------------------------------------------------ Shimmerlynx (Aurelyx), Epic
+def _star(g, lite=False):
+    # a four-point star three quarters of a stud across (the shape of the star in its eyes), the same from both sides: a lit cross (a thin upright bar,
+    # a thin crossbar and a fat middle, an eighth proud) over a dark indigo outline a sixteenth wider all round, so the light has an edge on snow
+    lit, dark = 0.125, 0.0625
+    return [_box(-0.125, 0.125, 0, 0.875, -dark, dark, "BodyDark", None), _box(-0.4375, 0.4375, 0.3125, 0.5625, -dark, dark, "BodyDark", None),
+            _box(-0.25, 0.25, 0.1875, 0.6875, -dark, dark, "BodyDark", None),
+            _box(-0.0625, 0.0625, 0.0625, 0.8125, -lit, lit, "Glow", "glow"), _box(-0.375, 0.375, 0.375, 0.5, -lit, lit, "Glow", "glow"),
+            _box(-0.1875, 0.1875, 0.25, 0.625, -lit, lit, "Glow", "glow")]
+
+
+def shimmerlynx():
+    """Epic, Frostbyte: the night cat. Six kit pieces (silver snowflake studs on the haunches, silver cuffs on the front legs, dark ice shards standing on
+    the haunches), the head turned and rolled and the right paw reaching out to you (rest poses), and a ring of six outlined violet stars (the star in its
+    eyes, grown: one lit colour, the crest's). The body is a mid lilac-grey (L* 63) so it stands off the snow, with a cream chest and paws, dark indigo
+    streaks and whiskers and a pale silver for the metal."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a cat that has decided you may approach: the head turned 14 degrees and rolled 6, the right paw reaching toward you 55 degrees, the tail up, a ring of six outlined violet stars round it")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of sixteenth-stud bars with a lit heart) on each haunch, where the stepped emblem was",
+           K.place(Pz["snowflake_stud"], "Flake", (1.25, 0.75, 0.25), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    cuffs = K.band("CuffL", (-0.5, 0.5, -0.8125), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    cuffs += K.band("CuffR", (0.5, 0.5, -0.8125), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal", pose="reach")
+    p.wear("# silver cuffs: a band a quarter stud tall and an eighth proud round each front leg above the paw (the right one reaches with its leg)", cuffs, ["silver_band"] * 2)
+    p.wear("# dark ice shards, half again as big, standing on the haunches' tops like spines (the dark indigo, so they stand off the snow)",
+           K.place(Pz["ice_shard"], "Shard", (0.75, 1.375, 0.5), "+y", mirror=True, scale=1.5, slots={"Accessory": "BodyDark"}), ["ice_shard"] * 2)
+    star = own("aurora_star", "a three-quarter-stud four-point star: a lit cross in a dark indigo outline (a satellite)", _star, "Epic")
+    sats = arc([star] * 6, "Sat", (0, 0.1), 2.5, 1.2, [45, 85, 125, 235, 275, 315], "sparks", [0, 1.8, 0.1], g=0.125, lift=0.7)
+    p.regions.append(("# the satellite set (`sparks`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six four-point stars, a lit violet cross in a dark outline, three quarters of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "sparks"
+    return p
+
+
+# ------------------------------------------------------------------------------------------------ Frostfang (Sabrek), Epic
+def _flake_big(g, lite=False):
+    # a snowflake seven eighths of a stud across, the same from both sides (the flake in its eyes, on its flanks and over its head, grown to fly round it): a
+    # lit cyan plus of bars an eighth thick and four diagonal dots, an eighth proud, over a dark navy plus and dots a sixteenth wider all round
+    lit, dark = 0.125, 0.0625
+    out = [_box(-0.4375, 0.4375, -0.125, 0.125, -dark, dark, "BodyDark", None), _box(-0.125, 0.125, -0.4375, 0.4375, -dark, dark, "BodyDark", None)]
+    out += [_box(x - 0.125, x + 0.125, y - 0.125, y + 0.125, -dark, dark, "BodyDark", None) for x in (-0.25, 0.25) for y in (-0.25, 0.25)]
+    out += [_box(-0.375, 0.375, -0.0625, 0.0625, -lit, lit, "Glow", "glow"), _box(-0.0625, 0.0625, -0.375, 0.375, -lit, lit, "Glow", "glow")]
+    out += [_box(x - 0.0625, x + 0.0625, y - 0.0625, y + 0.0625, -lit, lit, "Glow", "glow") for x in (-0.25, 0.25) for y in (-0.25, 0.25)]
+    return out
+
+
+def frostfang():
+    """Epic, Frostbyte: the sneezing cub in its play bow. Six kit pieces (silver cuffs a quarter stud tall on all four legs, silver snowflake studs on the
+    flanks), the head up and turned to look at you and the right paw batting (rest poses on top of the bow it already holds), and a flurry of six
+    snowflakes (the flake in its eyes, on its flanks and over its head, grown) in lit cyan over a dark navy outline, on a wide ring round it."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a play bow with attitude: the chest down and the rump up, the head up 8 degrees and turned 14 to look you over, the right paw batting, a flurry of six snowflakes round it")
+    p.wear("# the Frostbyte kit: a silver snowflake stud on each flank, where the stamped flake was",
+           K.place(Pz["snowflake_stud"], "Flake", (0.75, 1.0, 0.25), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    cuffs = K.band("CuffL", (-0.5, 0.375, -0.5), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    cuffs += K.band("CuffR", (0.5, 0.375, -0.5), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal", pose="bat")
+    p.wear("# silver cuffs on the front legs, a quarter stud tall and an eighth proud above the paws (the right one bats with its paw)", cuffs, ["silver_band"] * 2)
+    hind = K.band("HindCuff", (0.5, 0.5, 1.25), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    for q in hind:
+        q["mirror"] = "x"
+    p.wear("# silver cuffs on the hind ankles, the same size", hind, ["silver_band"] * 2)
+    flake = own("flake_big", "a seven-eighths-stud snowflake: a lit cyan plus and four dots over a dark navy outline (a satellite)", _flake_big, "Epic")
+    sats = arc([flake] * 6, "Sat", (0, 0.0), 2.7, 1.3, [45, 85, 125, 235, 275, 315], "flurry", [0, 1.4, 0.0], g=0.125, lift=0.6)
+    p.regions.append(("# the satellite set (`flurry`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six snowflakes, a lit cyan plus and four dots over a dark navy outline, seven eighths of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "flurry"
+    return p
+
+
+# ------------------------------------------------------------------------------------------------ Skaddle (Skadra), Legendary
+def _rune_stone(g, lite=False):
+    # a rune stone three quarters of a stud tall and half a stud across, the same from both sides: an ice-blue tablet in a slate frame (two posts and a
+    # base) with a gold cap and a lit periwinkle rune (a stave and two arms, a Y) proud on both faces; the light plate and the dark frame give it an edge on
+    # snow and against the dark disc, and the lit share stays under half so the ring keeps its cells
+    z0, z1 = -0.125, 0.125
+    p, q = -0.1875, 0.1875
+    return [_box(-0.25, 0.25, 0.125, 0.625, -0.0625, 0.0625, "Accessory", None), _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None),
+            _box(-0.25, -0.1875, 0.125, 0.625, z0, z1, "BodyDark", None), _box(0.1875, 0.25, 0.125, 0.625, z0, z1, "BodyDark", None),
+            _box(-0.25, 0.25, 0.625, 0.75, z0, z1, "Trim", "metal"),
+            _box(-0.0625, 0.0625, 0.1875, 0.5, p, q, "Glow", "glow"), _box(-0.125, -0.0625, 0.375, 0.5625, p, q, "Glow", "glow"),
+            _box(0.0625, 0.125, 0.375, 0.5625, p, q, "Glow", "glow")]
+
+
+def frost_mirror(name, centre, z, moves, pivot):
+    """The backdrop: a frost mirror three and a quarter studs across standing behind the tail: a slate disc in a gold rim a quarter stud thick, a
+    periwinkle lit snowflake etched on it (a cross of lines, a dot on each diagonal step and a heart), a quarter stud deep; one moving object that
+    turns slowly about its heart. Behind a white owl it is the dark the white stands out from."""
+    cx, cy = centre
+    out = K.disc(name, (cx, cy), [(1.6, "Trim", "metal"), (1.35, "BodyDark", None)], z, row=0.25, cell=0.25, thick=0.25, moves=moves, pivot=pivot)
+
+    def add(slot, size, at, mat):
+        out.append(K.part("%s%d" % (name, len(out)), slot, size, at, None, "box", mat, False, moves, pivot))
+    zl = z - 0.03125
+    add("Glow", (0.125, 2.375, 0.0625), (cx, cy, zl), "glow")
+    add("Glow", (2.375, 0.125, 0.0625), (cx, cy, zl), "glow")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            for d in (0.5, 0.875):
+                add("Glow", (0.125, 0.125, 0.0625), (cx + sx * d, cy + sy * d, zl), "glow")
+    add("Glow", (0.25, 0.25, 0.0625), (cx, cy, zl), "glow")
+    return out
+
+
+def skaddle():
+    """Legendary, Frostbyte: the Warden. Eight kit pieces (gold cuffs on the legs, gold snowflake studs on the cheeks, ice shards and aurora wisps fanned
+    round the tail), the head turned and rolled like an owl's and both wings spread (rest poses), six rune stones (an ice-blue tablet in a slate frame, a gold
+    cap and a lit periwinkle rune) in a fan at head height, and behind it all a slate frost mirror in a gold rim three and a quarter studs across, so the
+    white owl stands against a dark disc instead of white snow (rule 8: a white body on white ground needs a value step behind it)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "an owl on skis, looking you over: the head turned 16 degrees and rolled 8, both wings spread 22 degrees more, six rune stones fanned out at head height and a gold-rimmed frost mirror behind it")
+    cuff = K.band("Cuff", (0.4375, 0.5, 0.0), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    for q in cuff:
+        q["mirror"] = "x"
+    p.wear("# gold cuffs on the legs: a band a quarter stud tall and an eighth proud above the bindings", cuff, ["silver_band"] * 2)
+    p.wear("# a gold snowflake stud (a plus of sixteenth-stud bars on a lit heart) on each cheek; they turn with the head",
+           K.place(Pz["snowflake_stud"], "Flake", (1.0, 1.875, -0.375), "+x", mirror=True, lite=True, scale=2, pose="head"), ["snowflake_stud"] * 2)
+    p.wear("# ice shards, half again as big, standing on the tail's middle corners and leaning apart (they stand against the dark mirror)",
+           K.place(Pz["ice_shard"], "Shard", (0.4375, 0.8125, 1.75), "+y", mirror=True, scale=1.5), ["ice_shard"] * 2)
+    p.wear("# aurora wisps, twice as big, rising off the tail's outer corners", K.place(Pz["aurora_wisp"], "Wisp", (0.9375, 0.8125, 1.5), "+y", mirror=True, scale=2), ["aurora_wisp"] * 2)
+    stone = own("rune_stone", "a three-quarter-stud rune stone: an ice-blue tablet in a slate frame, a gold cap and a lit periwinkle rune (a satellite)", _rune_stone, "Legendary")
+    sats = arc([stone] * 6, "Sat", (0, -0.125), 2.3, 1.85, [50, 100, 150, 210, 260, 310], "halo", [0, 2.2, -0.125], g=0.125, lift=0.5)
+    p.regions.append(("# the satellite set (`halo`, three a side fanned out at head height, the back higher, nothing in front of the face): six rune stones, an ice-blue tablet in a slate frame with a gold cap and a lit rune on both faces, three quarters of a stud tall, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "halo"
+    mirror = frost_mirror("Mirror", (0, 1.75), 2.25, "frost", [0, 1.75, 2.375])
+    p.regions.append(("# the backdrop (`frost`, it turns once in 20 s): a frost mirror three and a quarter studs across behind the tail, a slate disc in a gold rim with a lit periwinkle snowflake etched on it, a quarter stud deep", mirror))
+    p.backdrop = "frost"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx, "Frostfang": frostfang, "Skaddle": skaddle}
 
 
 def apply(sid, write=True):
