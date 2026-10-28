@@ -35,6 +35,16 @@
   },
   {
     "slot": 5,
+    "name": "orbiters",
+    "hex": "FFD98A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 6,
     "name": "planetL",
     "hex": "E66BD2",
     "roughness": 0.55,
@@ -44,8 +54,8 @@
     "pixelated": true
   },
   {
-    "slot": 6,
-    "name": "puff",
+    "slot": 7,
+    "name": "puffL",
     "hex": "6B4EC2",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -54,7 +64,17 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
+    "name": "rings",
+    "hex": "2E2166",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
     "name": "starL",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -62,7 +82,7 @@
     "emission": 1.5
   },
   {
-    "slot": 8,
+    "slot": 10,
     "name": "starR",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -70,15 +90,17 @@
     "emission": 1.5
   },
   {
-    "slot": 9,
+    "slot": 11,
     "name": "tailR",
-    "hex": "FFF3B0",
+    "hex": "6B4EC2",
     "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 0.0,
+    "colorMap": "Nebulyn_atlas.png",
+    "pixelated": true
   },
   {
-    "slot": 10,
+    "slot": 12,
     "name": "twinkleR",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -86,7 +108,7 @@
     "emission": 1.5
   },
   {
-    "slot": 11,
+    "slot": 13,
     "name": "twinkle2R",
     "hex": "FFF3B0",
     "roughness": 0.55,
@@ -94,7 +116,7 @@
     "emission": 1.5
   },
   {
-    "slot": 12,
+    "slot": 14,
     "name": "FacePlate",
     "hex": "6B4EC2",
     "roughness": 0.4,

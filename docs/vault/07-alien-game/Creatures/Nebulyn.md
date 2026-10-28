@@ -8,8 +8,8 @@ tier: Legendary
 status: review
 element: Star
 height: 3.5
-blocks: 84
-tris: 1006
+blocks: 165
+tris: 2118
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#6B4EC2", "#2E2166", "#E66BD2", "#FFD98A", "#FFF3B0", "#100A26"]
@@ -24,6 +24,13 @@ overlap: [0.995, 0.996, 0.996, 0.995]
 vfx_render: "[[Nebulyn_vfx_cells.jpg]]"
 cells_render: "[[Nebulyn_tq_cells.jpg]]"
 idle_render: "[[Nebulyn_idle.png]]"
+bar_world: Verdant
+bar_kit: 7
+bar_pieces: [bark_band, blossom_bud, moss_cells]
+bar_stance: "a drift: the whole cloud leaning 8 degrees to its right, its tail swept 20 degrees sideways behind, a planet rising behind it and stars and ringed planets circling"
+bar_satellites: 6
+bar_orbit: orbiters
+bar_backdrop: rings
 ---
 # Nebulyn (Cosmoo), Legendary, World 1 Verdant, the Haunted Nebula event
 
@@ -41,6 +48,17 @@ A small nebula with a face, 3.5 studs to the sparkle at its tail's tip (B45: it 
 
 **Event palette (Haunted Nebula).** Deep violet over indigo with a magenta accent, pale gold trim and a star-cream glow: the deep end of the event's range (Wispkin the cold blue, Grin the ghost white and pumpkin orange).
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`nebulyn()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** A small nebula drifting in its own sky: a violet cloud with a planet rising behind it and a court of stars. Kept: name, anatomy (a cloud round a 2-stud core, the curling tail with its star tip, the pet comet, the shoulder stars, the ringed planet and the fallen star), the `starlit` eyes and the constellation, height 3.5.
+- **Gains (visible parts).** (1) The backdrop: a planet rising behind the cloud, 2.5 studs across (a magenta rim round an indigo face) with a gold ring 4 studs wide across it, under a third of a stud deep, rocking slowly on the `rings` object; only the planet's cap and the ring's two ends show, which is the point (a planet behind a cloud). (2) Six satellites on a wide low ring in front of it (the `orbiters` object, clear of the tail): three four-point stars (long gold points round a lit cream core) and three little ringed planets (a magenta orb, a gold ring, a lit highlight), seven eighths of a stud across. (3) Verdant kit, seven pieces: gold blossom buds on both top bumps and on the tail, magenta stardust moss pads with a lit tuft on the left puff and the back puff, gold bands round the core's waist and the tail's root. (4) The stance below.
+- **Stance (rest groups `lean`, `sweep`).** The whole cloud above the grass (core, puffs, stars, the comet's orbit excepted) leans 8 degrees to its right while the tail is swept 20 degrees sideways behind: a nebula drifting through a turn, not a cube with a tail.
+- **Face intent.** Its own `starlit` eyes kept (layered rings of indigo, magenta and cream round a four-point star pupil, three stars twinkling in turn), a small smile and star cheeks: wide-eyed wonder, the night sky looking back at you. The face is not changed and nothing crosses the plate (the satellites' front arc is low and out at the sides).
+- **Three values (rule 8).** Body violet; the dust lanes, the under steps and the planet's face a step darker (indigo); the planet's rim and the mini planets magenta, the ring, stars and bands gold, the cores lit cream. The backdrop is darker than the sky and has a lit rim and a bright ring, so it separates from the violet cloud by value and colour.
+- **Must-nots.** No fierce face; no solid backdrop bigger than the cloud's silhouette that would hide the planet entirely (the planet sits high so its cap shows); nothing over the face; the comet keeps its own orbit (leaning it pushed its tail to 3.54); height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
@@ -48,92 +66,92 @@ parts:
   # the core of the cloud: a 2-stud soft block in nebula cells, the face plate on its front; puffs step off it on every side at different
   # heights (two of them magenta), so from the front it reads as a cloud: three bumps on top, a bulge low on the right, a higher one on the
   # left, a narrower step underneath, never a square
-  - {name: Core, slot: Body, size: [2, 1.5, 1.75], at: [0, 1.5, 0], bevel: true, material: nebula}
-  - {name: TopL, slot: Body, size: [0.6875, 0.375, 1.25], at: [-0.59375, 2.4375, 0.0625], material: nebula}
-  - {name: TopM, slot: Body, size: [1, 0.625, 1.375], at: [0.25, 2.5625, 0.0625], material: nebula}
-  - {name: TopR, slot: Accessory, size: [0.5, 0.375, 1], at: [0.8125, 2.4375, 0.125], material: nebula}
-  - {name: SideR, slot: Body, size: [0.375, 0.875, 1.25], at: [1.1875, 1.4375, 0.0625], material: nebula}
-  - {name: SideR2, slot: Accessory, size: [0.25, 0.5, 0.75], at: [1.5, 1.25, 0.0625], material: nebula}
-  - {name: SideL, slot: Body, size: [0.3125, 0.625, 1], at: [-1.15625, 1.8125, 0.0625], material: nebula}
-  - {name: SideL2, slot: Body, size: [0.25, 0.375, 0.625], at: [-1.4375, 1.75, 0.0625], material: nebula}
-  - {name: PinkL, slot: Accessory, size: [0.25, 0.375, 0.75], at: [-1.0625, 0.9375, 0.125], material: nebula}
-  - {name: Under, slot: Body, size: [1.625, 0.375, 1.375], at: [0.0625, 0.5625, 0.0625], material: nebula}
-  - {name: Under2, slot: BodyDark, size: [1, 0.25, 0.875], at: [-0.125, 0.25, 0.125], material: nebula}
-  - {name: BackPuff, slot: Body, size: [0.75, 0.875, 0.375], at: [-0.5, 1.5625, 1.0625], material: nebula}
+  - {name: Core, slot: Body, size: [2, 1.5, 1.75], at: [0, 1.5, 0], bevel: true, material: nebula, pose: lean}
+  - {name: TopL, slot: Body, size: [0.6875, 0.375, 1.25], at: [-0.59375, 2.4375, 0.0625], material: nebula, pose: lean}
+  - {name: TopM, slot: Body, size: [1, 0.625, 1.375], at: [0.25, 2.5625, 0.0625], material: nebula, pose: lean}
+  - {name: TopR, slot: Accessory, size: [0.5, 0.375, 1], at: [0.8125, 2.4375, 0.125], material: nebula, pose: lean}
+  - {name: SideR, slot: Body, size: [0.375, 0.875, 1.25], at: [1.1875, 1.4375, 0.0625], material: nebula, pose: lean}
+  - {name: SideR2, slot: Accessory, size: [0.25, 0.5, 0.75], at: [1.5, 1.25, 0.0625], material: nebula, pose: lean}
+  - {name: SideL, slot: Body, size: [0.3125, 0.625, 1], at: [-1.15625, 1.8125, 0.0625], material: nebula, pose: lean}
+  - {name: SideL2, slot: Body, size: [0.25, 0.375, 0.625], at: [-1.4375, 1.75, 0.0625], material: nebula, pose: lean}
+  - {name: PinkL, slot: Accessory, size: [0.25, 0.375, 0.75], at: [-1.0625, 0.9375, 0.125], material: nebula, pose: lean}
+  - {name: Under, slot: Body, size: [1.625, 0.375, 1.375], at: [0.0625, 0.5625, 0.0625], material: nebula, pose: lean}
+  - {name: Under2, slot: BodyDark, size: [1, 0.25, 0.875], at: [-0.125, 0.25, 0.125], material: nebula, pose: lean}
+  - {name: BackPuff, slot: Body, size: [0.75, 0.875, 0.375], at: [-0.5, 1.5625, 1.0625], material: nebula, pose: lean}
   # Polish w1: the face sat on one flat panel; a puff of cloud proud of the front over the eyes (a sparkle cross on it) and a smaller one
   # under the smile, off-centre, so the face sits in a hollow of the cloud
-  - {name: BrowPuff, slot: Body, size: [1.5, 0.25, 0.25], at: [-0.125, 2.125, -1], material: nebula}
-  - {name: ChinPuff, slot: Body, size: [1, 0.25, 0.25], at: [0.375, 0.875, -1], material: nebula}
+  - {name: BrowPuff, slot: Body, size: [1.5, 0.25, 0.25], at: [-0.125, 2.125, -1], material: nebula, pose: lean}
+  - {name: ChinPuff, slot: Body, size: [1, 0.25, 0.25], at: [0.375, 0.875, -1], material: nebula, pose: lean}
   # a dust lane of indigo cells drifting across the top bumps, and three wisps of mist trailing under the cloud
-  - {name: Dust, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [-0.5, 2.65625, -0.375]}
-  - {name: Dust2, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [0.0625, 2.90625, 0.375]}
-  - {name: Dust3, slot: BodyDark, size: [0.1875, 0.0625, 0.25], at: [0.65625, 2.65625, 0.25]}
-  - {name: Wisp, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0.6875, 0.3125, -0.375]}
-  - {name: Wisp2, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [-0.75, 0.3125, -0.25]}
-  - {name: Wisp3, slot: BodyDark, size: [0.25, 0.125, 0.375], at: [0.5, 0.3125, 0.6875]}
+  - {name: Dust, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [-0.5, 2.65625, -0.375], pose: lean}
+  - {name: Dust2, slot: BodyDark, size: [0.25, 0.0625, 0.25], at: [0.0625, 2.90625, 0.375], pose: lean}
+  - {name: Dust3, slot: BodyDark, size: [0.1875, 0.0625, 0.25], at: [0.65625, 2.65625, 0.25], pose: lean}
+  - {name: Wisp, slot: BodyDark, size: [0.375, 0.125, 0.25], at: [0.6875, 0.3125, -0.375], pose: lean}
+  - {name: Wisp2, slot: BodyDark, size: [0.25, 0.125, 0.25], at: [-0.75, 0.3125, -0.25], pose: lean}
+  - {name: Wisp3, slot: BodyDark, size: [0.25, 0.125, 0.375], at: [0.5, 0.3125, 0.6875], pose: lean}
   # the top puff breathes (a moving part) with a star on it
-  - {name: TopM2, slot: Body, size: [0.625, 0.25, 0.875], at: [0.1875, 3, 0.0625], material: nebula, moves: puff, pivot: [0, 2.875, 0.0625]}
-  - {name: PuffStar, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 3.125, -0.125], moves: puff, pivot: [0, 2.875, 0.0625]}
+  - {name: TopM2, slot: Body, size: [0.625, 0.25, 0.875], at: [0.1875, 3, 0.0625], material: nebula, moves: puff, pivot: [0, 2.875, 0.0625], pose: lean}
+  - {name: PuffStar, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 3.125, -0.125], moves: puff, pivot: [0, 2.875, 0.0625], pose: lean}
   # star cells: lit eighth-stud cells half sunk into the cloud's faces, and four sparkle crosses (a cell and four sixteenth-stud arms)
-  - {name: Star1, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.6875, 2.625, -0.25]}
-  - {name: Star2, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.3125, 2.625, 0.4375]}
-  - {name: Star3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 2.625, 0.375]}
-  - {name: Star4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.6875, -0.3125]}
-  - {name: Star5, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.9375, 2.125, -0.875]}
-  - {name: Star6, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 0.9375, -0.875]}
-  - {name: Star7, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 0.5625, -0.625]}
-  - {name: Star8, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.5625, 1.75, -0.125]}
-  - {name: Star9, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.75, 1.25]}
-  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
-  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875], moves: twinkle2, pivot: [0.625, 2.875, -0.375]}
-  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
-  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125]}
-  - {name: SparkleB, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.375, 1.25]}
-  - {name: SparkleBArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.40625, 1.375, 1.25]}
-  - {name: SparkleBArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.59375, 1.375, 1.25]}
-  - {name: SparkleBArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [-0.5, 1.46875, 1.25]}
-  - {name: SparkleBArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [-0.5, 1.28125, 1.25]}
-  - {name: SparkleR, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.25, 0.5]}
-  - {name: SparkleRArm1, slot: Glow, size: [0.125, 0.0625, 0.125], at: [1.375, 1.34375, 0.5]}
-  - {name: SparkleRArm2, slot: Glow, size: [0.125, 0.0625, 0.125], at: [1.375, 1.15625, 0.5]}
-  - {name: SparkleRArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.375, 1.25, 0.59375]}
-  - {name: SparkleRArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.375, 1.25, 0.40625]}
+  - {name: Star1, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.6875, 2.625, -0.25], pose: lean}
+  - {name: Star2, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.3125, 2.625, 0.4375], pose: lean}
+  - {name: Star3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 2.625, 0.375], pose: lean}
+  - {name: Star4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.6875, -0.3125], pose: lean}
+  - {name: Star5, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.9375, 2.125, -0.875], pose: lean}
+  - {name: Star6, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 0.9375, -0.875], pose: lean}
+  - {name: Star7, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 0.5625, -0.625], pose: lean}
+  - {name: Star8, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.5625, 1.75, -0.125], pose: lean}
+  - {name: Star9, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.75, 1.25], pose: lean}
+  - {name: Sparkle, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.625, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375], pose: lean}
+  - {name: SparkleArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.71875, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375], pose: lean}
+  - {name: SparkleArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.53125, 2.875, -0.375], moves: twinkle2, pivot: [0.625, 2.875, -0.375], pose: lean}
+  - {name: SparkleArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.28125], moves: twinkle2, pivot: [0.625, 2.875, -0.375], pose: lean}
+  - {name: SparkleArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [0.625, 2.875, -0.46875], moves: twinkle2, pivot: [0.625, 2.875, -0.375], pose: lean}
+  - {name: SparkleF, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125], pose: lean}
+  - {name: SparkleFArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.59375, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125], pose: lean}
+  - {name: SparkleFArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [0.40625, 2.125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125], pose: lean}
+  - {name: SparkleFArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.21875, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125], pose: lean}
+  - {name: SparkleFArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [0.5, 2.03125, -1.125], moves: twinkle, pivot: [0.5, 2.125, -1.125], pose: lean}
+  - {name: SparkleB, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.5, 1.375, 1.25], pose: lean}
+  - {name: SparkleBArm1, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.40625, 1.375, 1.25], pose: lean}
+  - {name: SparkleBArm2, slot: Glow, size: [0.0625, 0.125, 0.125], at: [-0.59375, 1.375, 1.25], pose: lean}
+  - {name: SparkleBArm3, slot: Glow, size: [0.125, 0.0625, 0.125], at: [-0.5, 1.46875, 1.25], pose: lean}
+  - {name: SparkleBArm4, slot: Glow, size: [0.125, 0.0625, 0.125], at: [-0.5, 1.28125, 1.25], pose: lean}
+  - {name: SparkleR, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.25, 0.5], pose: lean}
+  - {name: SparkleRArm1, slot: Glow, size: [0.125, 0.0625, 0.125], at: [1.375, 1.34375, 0.5], pose: lean}
+  - {name: SparkleRArm2, slot: Glow, size: [0.125, 0.0625, 0.125], at: [1.375, 1.15625, 0.5], pose: lean}
+  - {name: SparkleRArm3, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.375, 1.25, 0.59375], pose: lean}
+  - {name: SparkleRArm4, slot: Glow, size: [0.125, 0.125, 0.0625], at: [1.375, 1.25, 0.40625], pose: lean}
   # a constellation on the right puffs: three stars joined by thin gold lines stepping across the cloud
-  - {name: ConStar, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.375, -0.125]}
-  - {name: ConStar2, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.125, 0.3125]}
-  - {name: ConStar3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.8125, 0.375]}
-  - {name: ConLine, slot: Trim, size: [0.0625, 0.125, 0.125], at: [1.65625, 1.25, -0.125]}
-  - {name: ConLine2, slot: Trim, size: [0.0625, 0.125, 0.3125], at: [1.65625, 1.125, 0.09375]}
-  - {name: ConLine3, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.40625, 1.59375, 0.375]}
-  - {name: ConLine4, slot: Trim, size: [0.25, 0.0625, 0.125], at: [1.5, 1.53125, 0.375]}
+  - {name: ConStar, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.375, -0.125], pose: lean}
+  - {name: ConStar2, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.625, 1.125, 0.3125], pose: lean}
+  - {name: ConStar3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.375, 1.8125, 0.375], pose: lean}
+  - {name: ConLine, slot: Trim, size: [0.0625, 0.125, 0.125], at: [1.65625, 1.25, -0.125], pose: lean}
+  - {name: ConLine2, slot: Trim, size: [0.0625, 0.125, 0.3125], at: [1.65625, 1.125, 0.09375], pose: lean}
+  - {name: ConLine3, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.40625, 1.59375, 0.375], pose: lean}
+  - {name: ConLine4, slot: Trim, size: [0.25, 0.0625, 0.125], at: [1.5, 1.53125, 0.375], pose: lean}
   # the hero: a tail of cloud curling up and back in five tapering steps (the middle one magenta), stars along it and a sparkle cross at its
   # tip (one moving part)
-  - {name: Tail, slot: Body, size: [1, 0.75, 0.625], at: [0.25, 1.375, 1.1875], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: Tail2, slot: Body, size: [0.75, 0.625, 0.5], at: [0.5, 1.8125, 1.6875], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: Tail3, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.6875, 2.3125, 2.0625], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: Tail4, slot: Body, size: [0.375, 0.375, 0.375], at: [0.875, 2.75, 2.3125], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: Tail5, slot: Body, size: [0.25, 0.25, 0.25], at: [1, 3.0625, 2.4375], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TailStar1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 1.75, 1.3125], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TailStar2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 1.875, 1.6875], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TailStar3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.5625, 1.9375], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TailStar4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.0625, 2.6875, 2.3125], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TailStar5, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 2.125, 1.5625], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TipStar, slot: Glow, size: [0.25, 0.25, 0.25], at: [1, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TipStarArm1, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.125, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TipStarArm2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TipStarArm3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 3.4375, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875]}
-  - {name: TipStarArm4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 3.1875, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875]}
+  - {name: Tail, slot: Body, size: [1, 0.75, 0.625], at: [0.25, 1.375, 1.1875], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: Tail2, slot: Body, size: [0.75, 0.625, 0.5], at: [0.5, 1.8125, 1.6875], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: Tail3, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.6875, 2.3125, 2.0625], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: Tail4, slot: Body, size: [0.375, 0.375, 0.375], at: [0.875, 2.75, 2.3125], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: Tail5, slot: Body, size: [0.25, 0.25, 0.25], at: [1, 3.0625, 2.4375], material: nebula, moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TailStar1, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.5, 1.75, 1.3125], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TailStar2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 1.875, 1.6875], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TailStar3, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.8125, 2.5625, 1.9375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TailStar4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.0625, 2.6875, 2.3125], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TailStar5, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 2.125, 1.5625], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TipStar, slot: Glow, size: [0.25, 0.25, 0.25], at: [1, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TipStarArm1, slot: Glow, size: [0.125, 0.125, 0.125], at: [1.125, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TipStarArm2, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.875, 3.3125, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TipStarArm3, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 3.4375, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: TipStarArm4, slot: Glow, size: [0.125, 0.125, 0.125], at: [1, 3.1875, 2.4375], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
   # floating: a star at each shoulder, a ringed planet circling, and a star fallen to the grass behind it
-  - {name: FloatStar, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.5, 2.6875, -0.5], shape: ico1, moves: star, pivot: [1.5, 2.6875, -0.5]}
-  - {name: FloatStarL, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.5625, 2.4375, 0.3125], shape: ico1, moves: star, pivot: [-1.5625, 2.4375, 0.3125]}
-  - {name: Planet, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.25, 2.9375, -0.25], shape: ico1, moves: planet, pivot: [-1.25, 2.9375, -0.25]}
-  - {name: PlanetRing, slot: Trim, size: [0.5, 0.0625, 0.25], at: [-1.25, 2.9375, -0.25], rot: [0, 0, 15], moves: planet, pivot: [-1.25, 2.9375, -0.25]}
+  - {name: FloatStar, slot: Glow, size: [0.25, 0.25, 0.25], at: [1.5, 2.6875, -0.5], shape: ico1, moves: star, pivot: [1.5, 2.6875, -0.5], pose: lean}
+  - {name: FloatStarL, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.5625, 2.4375, 0.3125], shape: ico1, moves: star, pivot: [-1.5625, 2.4375, 0.3125], pose: lean}
+  - {name: Planet, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.25, 2.9375, -0.25], shape: ico1, moves: planet, pivot: [-1.25, 2.9375, -0.25], pose: lean}
+  - {name: PlanetRing, slot: Trim, size: [0.5, 0.0625, 0.25], at: [-1.25, 2.9375, -0.25], rot: [0, 0, 15], moves: planet, pivot: [-1.25, 2.9375, -0.25], pose: lean}
   - {name: Fallen, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 0.125, 1.75], shape: ico1, moves: fallen, pivot: [0.75, 0.125, 1.75]}
   # Rare pass w1, the signature piece: a pet comet that circles the cloud above its brow (at rest over the face's top, flying to its left), a lit head with a magenta spark and a tail of
   # gold and lit glass cells streaming behind it; the whole object turns about the cloud's centre, so the comet flies round it and
@@ -144,6 +162,96 @@ parts:
   - {name: CometTail2, slot: Glow, size: [0.375, 0.125, 0.125], at: [0.25, 3.3125, -2], moves: comet, pivot: [0, 3.25, 0], material: crystal}
   - {name: CometTail3, slot: Trim, size: [0.25, 0.125, 0.125], at: [0.5625, 3.375, -2], moves: comet, pivot: [0, 3.25, 0], material: metal}
   - {name: CometTail4, slot: Glow, size: [0.25, 0.0625, 0.0625], at: [0.8125, 3.40625, -1.96875], moves: comet, pivot: [0, 3.25, 0], material: crystal}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # gold blossom buds on the left and right top bumps (they lean with the cloud)
+  - {name: BudAa, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [-0.4375, 2.75, 0], pose: lean, material: wood}
+  - {name: BudAb, slot: Trim, size: [0.375, 0.125, 0.125], at: [-0.4375, 2.9375, 0], pose: lean}
+  - {name: BudAc, slot: Trim, size: [0.125, 0.125, 0.125], at: [-0.4375, 3.0625, 0], pose: lean}
+  - {name: BudBa, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.875, 2.75, 0.0625], pose: lean, material: wood}
+  - {name: BudBb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.875, 2.9375, 0.0625], pose: lean}
+  - {name: BudBc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.875, 3.0625, 0.0625], pose: lean}
+  # a gold blossom bud on the tail's middle step (it rides the tail)
+  - {name: BudCa, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.75, 2.6875, 2], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep, material: wood}
+  - {name: BudCb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.75, 2.875, 2], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  - {name: BudCc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.75, 3, 2], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep}
+  # stardust moss: magenta pads with a lit tuft on the left side puff and on the back puff
+  - {name: MossLa, slot: Accessory, size: [0.125, 0.5, 0.5], at: [-1.625, 1.75, 0.3125], pose: lean, material: moss}
+  - {name: MossLb, slot: Accessory, size: [0.125, 0.25, 0.375], at: [-1.75, 1.75, 0.25], pose: lean, material: moss}
+  - {name: MossLc, slot: Glow, size: [0.125, 0.125, 0.125], at: [-1.875, 1.8125, 0.375], pose: lean, material: moss}
+  - {name: MossBa, slot: Accessory, size: [0.5, 0.5, 0.125], at: [-0.5, 1.75, 1.3125], pose: lean, material: moss}
+  - {name: MossBb, slot: Accessory, size: [0.375, 0.25, 0.125], at: [-0.5625, 1.75, 1.4375], pose: lean, material: moss}
+  - {name: MossBc, slot: Glow, size: [0.125, 0.125, 0.125], at: [-0.4375, 1.8125, 1.5625], pose: lean, material: moss}
+  # a gold band: a quarter stud tall and an eighth proud, round the core's waist (the face stays clear)
+  - {name: GirthR, slot: Trim, size: [0.125, 0.25, 1.75], at: [1.0625, 0.875, 0], pose: lean, material: metal}
+  - {name: GirthL, slot: Trim, size: [0.125, 0.25, 1.75], at: [-1.0625, 0.875, 0], pose: lean, material: metal}
+  - {name: GirthB, slot: Trim, size: [2.25, 0.25, 0.125], at: [0, 0.875, 0.9375], pose: lean, material: metal}
+  # a gold band round the tail's root (it rides the tail)
+  - {name: TailRingR, slot: Trim, size: [0.125, 0.25, 0.625], at: [0.8125, 1.375, 1.1875], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep, material: metal}
+  - {name: TailRingL, slot: Trim, size: [0.125, 0.25, 0.625], at: [-0.3125, 1.375, 1.1875], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep, material: metal}
+  - {name: TailRingB, slot: Trim, size: [1.25, 0.25, 0.125], at: [0.25, 1.375, 1.5625], moves: tail, pivot: [0.25, 1.375, 0.875], pose: sweep, material: metal}
+  # the backdrop (`rings`, it rocks slowly): a planet rising behind the cloud, 2.5 studs across with a magenta rim round an indigo face, and a gold ring across it 4 studs wide, under a third of a stud deep
+  - {name: Planet0, slot: Accessory, size: [1, 0.25, 0.25], at: [0, 1.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet1, slot: Accessory, size: [0.5, 0.25, 0.25], at: [-0.75, 1.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet2, slot: BodyDark, size: [1, 0.25, 0.25], at: [0, 1.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet3, slot: Accessory, size: [0.5, 0.25, 0.25], at: [0.75, 1.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet4, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-0.875, 1.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet5, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 1.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet6, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.875, 1.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet7, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.125, 1.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet8, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 1.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet9, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 1.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet10, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.125, 2.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet11, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 2.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet12, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet13, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.125, 2.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet14, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 2.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet15, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet16, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.125, 2.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet17, slot: BodyDark, size: [2, 0.25, 0.25], at: [0, 2.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet18, slot: Accessory, size: [0.25, 0.25, 0.25], at: [1.125, 2.625, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet19, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-0.875, 2.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet20, slot: BodyDark, size: [1.5, 0.25, 0.25], at: [0, 2.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet21, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.875, 2.875, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet22, slot: Accessory, size: [0.5, 0.25, 0.25], at: [-0.75, 3.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet23, slot: BodyDark, size: [1, 0.25, 0.25], at: [0, 3.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375]}
+  - {name: Planet24, slot: Accessory, size: [0.5, 0.25, 0.25], at: [0.75, 3.125, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: Planet25, slot: Accessory, size: [1, 0.25, 0.25], at: [0, 3.375, 2.9375], moves: rings, pivot: [0, 2.25, 2.9375], material: nebula}
+  - {name: RingA, slot: Trim, size: [3, 0.125, 0.125], at: [0, 2.0625, 2.75], moves: rings, pivot: [0, 2.25, 2.9375], material: metal}
+  - {name: RingB, slot: Trim, size: [4, 0.125, 0.125], at: [0, 2.1875, 2.75], moves: rings, pivot: [0, 2.25, 2.9375], material: metal}
+  - {name: RingC, slot: Trim, size: [4, 0.125, 0.125], at: [0, 2.3125, 2.75], moves: rings, pivot: [0, 2.25, 2.9375], material: metal}
+  - {name: RingD, slot: Trim, size: [3, 0.125, 0.125], at: [0, 2.4375, 2.75], moves: rings, pivot: [0, 2.25, 2.9375], material: metal}
+  # the satellite set (`orbiters`, one wide ring in front of the planet, the front low, clear of the tail): three four-point stars and three little ringed planets, gold, magenta and lit cream
+  - {name: Sat0a, slot: Trim, size: [0.125, 0.875, 0.125], at: [0.625, 0.875, -2.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat0b, slot: Trim, size: [0.875, 0.125, 0.125], at: [0.625, 0.875, -2.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat0c, slot: Trim, size: [0.375, 0.375, 0.25], at: [0.625, 0.875, -2.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat0d, slot: Glow, size: [0.25, 0.25, 0.0625], at: [0.625, 0.875, -2.59375], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat0e, slot: Glow, size: [0.25, 0.25, 0.0625], at: [0.625, 0.875, -2.28125], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat1a, slot: Accessory, size: [0.5, 0.25, 0.25], at: [2.25, 1.5625, -0.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat1b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [2.25, 1.5625, -0.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat1c, slot: Trim, size: [0.875, 0.125, 0.375], at: [2.25, 1.5625, -0.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat1d, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.1875, 1.75, -0.96875], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat1e, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.1875, 1.75, -0.65625], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat2a, slot: Trim, size: [0.125, 0.875, 0.125], at: [1.625, 2.3125, 1.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat2b, slot: Trim, size: [0.875, 0.125, 0.125], at: [1.625, 2.3125, 1.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat2c, slot: Trim, size: [0.375, 0.375, 0.25], at: [1.625, 2.3125, 1.4375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat2d, slot: Glow, size: [0.25, 0.25, 0.0625], at: [1.625, 2.3125, 1.59375], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat2e, slot: Glow, size: [0.25, 0.25, 0.0625], at: [1.625, 2.3125, 1.28125], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat3a, slot: Accessory, size: [0.5, 0.25, 0.25], at: [-0.625, 2.3125, 2], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat3b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [-0.625, 2.3125, 2], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat3c, slot: Trim, size: [0.875, 0.125, 0.375], at: [-0.625, 2.3125, 2], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat3d, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.5625, 2.5, 2.15625], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat3e, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-0.5625, 2.5, 1.84375], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat4a, slot: Trim, size: [0.125, 0.875, 0.125], at: [-2.25, 1.625, 0.375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat4b, slot: Trim, size: [0.875, 0.125, 0.125], at: [-2.25, 1.625, 0.375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat4c, slot: Trim, size: [0.375, 0.375, 0.25], at: [-2.25, 1.625, 0.375], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat4d, slot: Glow, size: [0.25, 0.25, 0.0625], at: [-2.25, 1.625, 0.21875], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat4e, slot: Glow, size: [0.25, 0.25, 0.0625], at: [-2.25, 1.625, 0.53125], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat5a, slot: Accessory, size: [0.5, 0.25, 0.25], at: [-1.625, 0.875, -1.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat5b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [-1.625, 0.875, -1.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: nebula}
+  - {name: Sat5c, slot: Trim, size: [0.875, 0.125, 0.375], at: [-1.625, 0.875, -1.8125], moves: orbiters, pivot: [0, 1.6, -0.2], material: metal}
+  - {name: Sat5d, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.6875, 1.0625, -1.96875], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  - {name: Sat5e, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.6875, 1.0625, -1.65625], moves: orbiters, pivot: [0, 1.6, -0.2], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -177,6 +285,9 @@ The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` write
 
 ```yaml
 rig:
+  rest:
+    lean: {rot: [0, 0, 8], pivot: [0, 0.5, 0]}
+    sweep: {rot: [0, -20, 0], pivot: [0.25, 1.375, 0.875]}
   clips:
     tail: [{kind: sway, amp: 8, period: 3.2, axis: y}, {kind: sway, amp: 5, period: 4.8, axis: x, phase: 0.3}]
     puff: [{kind: bob, amp: 0.06, period: 3.2, phase: 0.5}]
@@ -188,6 +299,8 @@ rig:
     planetL: [{kind: orbit, amp: 0.15, period: 7}, {kind: spin, amp: 360, period: 4, axis: y}]
     fallenR: [{kind: pulse, amp: 0.25, period: 1.6}]
     root: [{kind: squash, amp: 0.04, period: 3.2}, {kind: bob, amp: 0.05, period: 4, phase: 0.25}]
+    rings: [{kind: sway, amp: 4, period: 6, axis: z}, {kind: bob, amp: 0.05, period: 4.4}]
+    orbiters: [{kind: spin, amp: 360, period: 18, axis: y}, {kind: bob, amp: 0.05, period: 3.4}]
     face: [{kind: blink, period: 4.4}]
   flourish:
     every: 12

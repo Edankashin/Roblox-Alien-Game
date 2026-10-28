@@ -375,5 +375,56 @@ def gaiabloom():
     return p
 
 
+# ------------------------------------------------------------------------------------------------ Cosmoo (Nebulyn)
+def _north_star(g, lite=False):
+    # a four-point star seven eighths of a stud across, the same from both sides: long thin gold points (a darker value than the sky) round a fat lit cream core on both faces
+    z0, z1 = -0.0625, 0.0625
+    return [_box(-0.0625, 0.0625, -0.4375, 0.4375, z0, z1, "Trim", "metal"), _box(-0.4375, 0.4375, -0.0625, 0.0625, z0, z1, "Trim", "metal"),
+            _box(-0.1875, 0.1875, -0.1875, 0.1875, -0.125, 0.125, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.125, 0.125, 0.125, 0.1875, "Glow", "crystal"), _box(-0.125, 0.125, -0.125, 0.125, -0.1875, -0.125, "Glow", "crystal")]
+
+
+def _mini_planet(g, lite=False):
+    # a little ringed planet seven eighths of a stud across, the same from both sides: a magenta octagon orb, a gold ring a bit proud of it and a lit cream highlight
+    return [_box(-0.25, 0.25, -0.125, 0.125, -0.125, 0.125, "Accessory", "nebula"), _box(-0.125, 0.125, -0.25, 0.25, -0.125, 0.125, "Accessory", "nebula"),
+            _box(-0.4375, 0.4375, -0.0625, 0.0625, -0.1875, 0.1875, "Trim", "metal"),
+            _box(-0.125, 0.0, 0.125, 0.25, 0.125, 0.1875, "Glow", "crystal"), _box(-0.125, 0.0, 0.125, 0.25, -0.1875, -0.125, "Glow", "crystal")]
+
+
+own("north_star", "Cosmoo", "a seven-eighths-stud four-point star: long gold points round a lit cream core (a satellite)", _north_star, "Epic")
+own("mini_planet", "Cosmoo", "a seven-eighths-stud ringed planet: a magenta orb, a gold ring and a lit highlight (a satellite)", _mini_planet, "Epic")
+
+
+def nebulyn():
+    """Legendary, Verdant, Cosmic (the Haunted Nebula event): a nebula drifting in a lean. Seven kit pieces (gold blossom buds on the top bumps and the tail, stardust moss pads on the
+    left side and the back, gold bands round the waist and the tail's root), six satellites in one lit gold and cream (three four-point stars, three little ringed planets), and the
+    backdrop: a planet rising behind the cloud (a magenta rim round an indigo face) with a wide gold ring across it; the cloud leaning 8 degrees with its tail swept sideways."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a drift: the whole cloud leaning 8 degrees to its right, its tail swept 20 degrees sideways behind, a planet rising behind it and stars and ringed planets circling")
+    kit = K.place(P_["blossom_bud"], "BudA", (-0.5, 2.625, 0.0625), "+y", slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="lean")
+    kit += K.place(P_["blossom_bud"], "BudB", (0.8125, 2.625, 0.125), "+y", slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="lean")
+    p.wear("# gold blossom buds on the left and right top bumps (they lean with the cloud)", kit, ["blossom_bud"] * 2)
+    kit = K.place(P_["blossom_bud"], "BudC", (0.6875, 2.5625, 2.0625), "+y", slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, moves="tail", pivot=[0.25, 1.375, 0.875], pose="sweep")
+    p.wear("# a gold blossom bud on the tail's middle step (it rides the tail)", kit, ["blossom_bud"])
+    kit = K.place(P_["moss_cells"], "MossL", (-1.5625, 1.75, 0.3125), "-x", slots={"Body": "Accessory", "Accessory": "Glow"}, pose="lean")
+    kit += K.place(P_["moss_cells"], "MossB", (-0.5, 1.75, 1.25), "+z", slots={"Body": "Accessory", "Accessory": "Glow"}, pose="lean")
+    p.wear("# stardust moss: magenta pads with a lit tuft on the left side puff and on the back puff", kit, ["moss_cells"] * 2)
+    belt = K.band("Girth", (0, 0.875, 0), (2, 1.75), t=0.125, h=0.25, slot="Trim", material="metal", faces=("+x", "-x", "+z"), pose="lean")
+    p.wear("# a gold band: a quarter stud tall and an eighth proud, round the core's waist (the face stays clear)", belt, ["bark_band"])
+    ring = K.band("TailRing", (0.25, 1.375, 1.1875), (1, 0.625), t=0.125, h=0.25, slot="Trim", material="metal", faces=("+x", "-x", "+z"), moves="tail", pivot=[0.25, 1.375, 0.875],
+                  pose="sweep")
+    p.wear("# a gold band round the tail's root (it rides the tail)", ring, ["bark_band"])
+    planet = K.disc("Planet", (0, 2.25), [(1.25, "Accessory", "nebula"), (1.0, "BodyDark", None)], 2.8125, thick=0.25, moves="rings", pivot=[0, 2.25, 2.9375])
+    rows = [("RingA", 2.0, 2.125, 1.5), ("RingB", 2.125, 2.25, 2.0), ("RingC", 2.25, 2.375, 2.0), ("RingD", 2.375, 2.5, 1.5)]
+    for name, y0, y1, hw in rows:
+        planet.append(K.part(name, "Trim", (2 * hw, y1 - y0, 0.125), (0, (y0 + y1) / 2, 2.75), material="metal", moves="rings", pivot=[0, 2.25, 2.9375]))
+    p.regions.append(("# the backdrop (`rings`, it rocks slowly): a planet rising behind the cloud, 2.5 studs across with a magenta rim round an indigo face, and a gold ring across it 4 studs wide, under a third of a stud deep", planet))
+    sats = K.orbit([P_["north_star"], P_["mini_planet"]] * 3, "Sat", (0, -0.2), 2.3, 1.6, tilt=0.2, moves="orbiters", pivot=[0, 1.6, -0.2], start=math.radians(15),
+                   lift=0.8, facing="front", g=0.125)
+    p.regions.append(("# the satellite set (`orbiters`, one wide ring in front of the planet, the front low, clear of the tail): three four-point stars and three little ringed planets, gold, magenta and lit cream", sats))
+    p.satellites, p.orbit, p.backdrop = 6, "orbiters", "rings"
+    return p
+
+
 PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth, "Spookum": spookum,
-         "Gaiabloom": gaiabloom}
+         "Gaiabloom": gaiabloom, "Nebulyn": nebulyn}
