@@ -28,6 +28,7 @@ BLOCK_SCREENS = (
     "Toast.luau",
     "NotifyCard.luau",
     "CodexScreen.luau",
+    "FeaturedCard.luau",
     "MailScreen.luau",
     "LeaderboardScreen.luau",
     "PeddlerScreen.luau",

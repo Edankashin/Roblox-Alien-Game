@@ -31,7 +31,10 @@ export type Thumb = {
 	model: Model?,
 	species: string?, -- what the view holds now, so a refill with the same species and shade keeps the clone
 	shadowed: boolean,
+	turns: boolean, -- framed for a model that turns (by the horizontal diagonal of its box)
 	aspect: number, -- the picture's width over its height, which the camera frames the box in
+	center: Vector3, -- the model's box centre at its resting pose: the camera's target and the turn's axis
+	size: Vector3, -- its box
 }
 
 -- A hidden view filling `host` (a plain frame the caller sizes to the card's picture area, `aspect` wide for its height in px) at
@@ -52,13 +55,64 @@ function SpeciesThumb.New(host: Frame, z: number, aspect: number): Thumb
 	camera.FieldOfView = FOV
 	camera.Parent = view
 	view.CurrentCamera = camera
-	return { view = view, camera = camera, model = nil, species = nil, shadowed = false, aspect = aspect }
+	return {
+		view = view,
+		camera = camera,
+		model = nil,
+		species = nil,
+		shadowed = false,
+		turns = false,
+		aspect = aspect,
+		center = Vector3.zero,
+		size = Vector3.zero,
+	}
+end
+
+-- Points the camera at the model's box, at the distance that frames it whole in a picture of the thumb's aspect (a turning model by
+-- the diagonal of its footprint, so no angle clips).
+local function frame(thumb: Thumb)
+	local size = thumb.size
+	local width = if thumb.turns then math.sqrt(size.X * size.X + size.Z * size.Z) else nil
+	local distance = ViewFit.BoxDistance(
+		width or size.X,
+		size.Y,
+		width or size.Z,
+		DIRECTION.X,
+		DIRECTION.Y,
+		DIRECTION.Z,
+		FOV,
+		thumb.aspect,
+		FIT
+	)
+	thumb.camera.CFrame = CFrame.lookAt(thumb.center + DIRECTION.Unit * distance, thumb.center)
+end
+
+-- A new picture shape (the card changed between its side and strip modes): the same model, framed again.
+function SpeciesThumb.Reframe(thumb: Thumb, aspect: number)
+	if math.abs(aspect - thumb.aspect) < 0.01 then
+		return
+	end
+	thumb.aspect = aspect
+	if thumb.model then
+		frame(thumb)
+	end
+end
+
+-- Spins the model by `angle` radians about the vertical axis through its centre (a view made with `turns`).
+function SpeciesThumb.Turn(thumb: Thumb, angle: number)
+	local model = thumb.model
+	if not model then
+		return
+	end
+	local c = thumb.center
+	model:PivotTo(CFrame.new(c.X, 0, c.Z) * CFrame.Angles(0, angle, 0) * CFrame.new(-c.X, 0, -c.Z))
 end
 
 -- Puts `def`'s model in the view (shadowed as an all-black silhouette when `shadowed`: no texture, no decal, no colour), framed whole. Answers whether a model shows; false
 -- (no def, or no model for it) hides the view, and the caller keeps its backdrop and shows the species' display name.
-function SpeciesThumb.Show(thumb: Thumb, def: Types.SpeciesDef?, shadowed: boolean): boolean
-	if def and thumb.model and thumb.species == def.id and thumb.shadowed == shadowed then
+function SpeciesThumb.Show(thumb: Thumb, def: Types.SpeciesDef?, shadowed: boolean, turns: boolean?): boolean
+	local turning = turns == true
+	if def and thumb.model and thumb.species == def.id and thumb.shadowed == shadowed and thumb.turns == turning then
 		thumb.view.Visible = true
 		return true
 	end
@@ -85,11 +139,9 @@ function SpeciesThumb.Show(thumb: Thumb, def: Types.SpeciesDef?, shadowed: boole
 	end
 	model.Parent = thumb.view
 	local box, size = model:GetBoundingBox()
-	local target = box.Position
-	local distance =
-		ViewFit.BoxDistance(size.X, size.Y, size.Z, DIRECTION.X, DIRECTION.Y, DIRECTION.Z, FOV, thumb.aspect, FIT)
-	thumb.camera.CFrame = CFrame.lookAt(target + DIRECTION.Unit * distance, target)
+	thumb.center, thumb.size, thumb.turns = box.Position, size, turning
 	thumb.model, thumb.species, thumb.shadowed = model, def.id, shadowed
+	frame(thumb)
 	thumb.view.Visible = true
 	return true
 end

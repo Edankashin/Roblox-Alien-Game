@@ -1,22 +1,23 @@
 --!strict
--- StarterPlayerScripts.Client.UI.CodexScreen: the codex panel. The left two-thirds is the page for the
--- player's current world: a title with the caught/total count, a purple progress bar, and a scrolling
--- grid of one square card per species (Tiers.Order, then name). Caught species show their model, still, on their
--- colour (UI.SpeciesThumb; the name without a model); uncaught ones are dark silhouettes with the unknown mark, named unless Secret so
--- players know what to chase. The right third is the detail card: a slowly turning ViewportFrame of
--- the species mesh (World.Models; shadowed while uncaught) or, without one, the placeholder part on a
--- pedestal, the name, the tier in its colour, the jobs, and either where it
--- was found, the caught count and the best overlay, or a hint line and the first-catch payout.
--- Everything shown is read from the profile mirror in State and the shared data tables; nothing here
--- decides an outcome.
--- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with the
--- block header and close; a grid card a square edged block whose ink is its tier's colour (Codex purple while selected: the
--- stroke's thickness step is now a colour step), its square a flat block, its count badge a flat block; the progress bar a flat
--- dark block filled cell-true; the detail card a fitted edged block in its tier's ink, the turning view on a flat block in the
--- tier's lighter colour.
--- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the detail card is never an empty pane, it opens on the most
+-- StarterPlayerScripts.Client.UI.CodexScreen: the codex panel. Under the header band (Builder.panelHeader, purple: "Found 12 / 35" and
+-- this page's world, "Verdant 3 / 19") the page for the player's current world is a scrolling grid of one square tile per species, cut
+-- into one section per tier present on the page (Builder.sectionStrip, "Rare" 3 / 4; FeaturedMath.Sections), Common first and then by
+-- name. Caught species show their model, still, on their colour (UI.SpeciesThumb; the name without a model) in the tier's ink with its
+-- studs (Builder.tierFrame); uncaught ones are dark silhouettes with the unknown mark in grey ink, named unless Secret so players know
+-- what to chase. A tap selects a tile (the gold ink) and fills the featured card (UI.FeaturedCard): the species' model turning slowly
+-- (still under Reduced Motion) on its plinth, the tier tag, the name and one flavour line, a few fact lines (jobs, copies caught and
+-- the best overlay, the event), and for a caught species the green button "See in Aliens" (AliensScreen.Select, then Screens.Open);
+-- for an uncaught one the hint line (where and when it appears, or the weekly, vaulted and event line) takes the flavour's room and
+-- there is no button. At a panel of 620 by 330 px or more the card stands left of the grid (side mode); under that (iPhone SE) it is
+-- a strip across the top over the grid (strip mode); Shared/FeaturedMath picks the mode. The tiles are placed in Scale values of the
+-- scroller's canvas from px worked out by FeaturedMath.GridPlan (the Playbook's "Grids inside scrolling frames": no layout objects).
+-- Everything shown is read from the profile mirror in State and the shared data tables; nothing here decides an outcome.
+-- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell under the
+-- band; a grid tile a square edged block whose ink is its tier's colour (grey while uncaught, gold while selected), its square a flat
+-- block, its count badge a flat block.
+-- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the card is never an empty pane, it opens on the most
 -- recently caught species (or the first entry; Shared/PanelQuiet.CodexDefault), and an event species wears a small purple block in
--- its corner instead of the word "Event" (the detail card names the event). "This week" and "Vaulted" stay words: they ask for action.
+-- its corner instead of the word "Event" (the card names the event). "This week" and "Vaulted" stay words: they ask for action.
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,20 +25,24 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
-local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local Tiers = require(Shared:WaitForChild("data"):WaitForChild("Tiers"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local FeaturedMath = require(Shared:WaitForChild("FeaturedMath"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local Builder = require(script.Parent.Builder)
 local SpeciesThumb = require(script.Parent.SpeciesThumb)
+local FeaturedCard = require(script.Parent.FeaturedCard)
+local AliensScreen = require(script.Parent.AliensScreen)
+local Screens = require(script.Parent.Screens)
 local State = require(script.Parent.Parent.State)
-local Models = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("Models"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 
 local CodexScreen = {}
@@ -57,38 +62,17 @@ type Cell = {
 	thumb: SpeciesThumb.Thumb, -- the species' model, still, filling the picture area (hidden without one)
 	speciesId: string,
 	tier: string,
-}
-
--- The detail card on the right.
-type Detail = {
-	card: Frame, -- a fitted edged block plate, its ink the tier's colour
-	prompt: TextLabel,
-	content: Frame,
-	viewport: ViewportFrame,
-	view: Frame, -- the flat block the viewport stands on: its face the tier's lighter colour, its ink the tier's
-	camera: Camera,
-	part: Part, -- the placeholder; hidden while a mesh clone stands on the pedestal
-	model: Model?,
-	mark: TextLabel,
-	name: TextLabel,
-	tier: TextLabel,
-	jobs: TextLabel,
-	lineA: TextLabel,
-	lineB: TextLabel,
-	lineC: TextLabel,
+	caught: boolean,
 }
 
 -- The mark on a silhouette. CODEX_UNKNOWN ("???") until a single-glyph key exists in the strings table.
 local UNKNOWN_MARK = Strings.UI_UNKNOWN_GLYPH
 
-local PAGE_WIDTH = 0.62 -- of the panel; the detail card takes the rest
-local DETAIL_X = 0.66
-local DETAIL_TOP = 0.17 -- below the close button
-local MIN_COLS = 3
-local MAX_COLS = 5
-local MIN_CELL_PX = 80 -- a ten-letter name at the minimum text size needs about this much width
+local PANEL_H = Panels.Shell.Height -- the shell's height, of the screen
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.35, 0.78, PANEL_H) -- the old plate's width in px, at the shell's height
 local CARD_INSET = 0.92 -- the card inside its grid slot; the rest is the gap between cards
 local SCROLLBAR_PX = 4 -- thin dark scrollbar on the right (a thickness, like a stroke)
+local SELECTED_INK = Theme.Colors.Featured -- a selection is an ink colour (the Playbook)
 -- The weekly stamp, in card Scale: inside the card's top-left corner (clear of the count badge, which sits at
 -- 0.48 to 0.64 down the right side), wide enough for "This week" at the minimum text size on the narrowest card.
 local STAMP_X = 0.06
@@ -131,39 +115,31 @@ local function limitedState(speciesId: string, now: number, offset: number, over
 	return nil
 end
 
-local PART_STUDS = 2 -- placeholder part size at scale 1, as the Spawner builds them
-local PEDESTAL_RADIUS = 1.6
-local PEDESTAL_THICKNESS = 0.25
-local PEDESTAL_TOP = -1.2 -- studs; the alien part stands on this
-local ROTATE_SPEED = math.rad(40) -- radians per second while the screen is open
-local CAMERA_FOV = 45
-local CAMERA_DISTANCE = 6 -- studs from the look-at point along the line of sight, for aliens that fit
-local CAMERA_HEIGHT = 1.3 -- camera height at that distance; the line of sight keeps this slope when it pulls back
-local CAMERA_TARGET_Y = 0.1 -- the look-at point, just above the pedestal centre
-local CAMERA_FIT = 1.15 -- margin over the exact fit when a tall mesh pushes the camera back
-
-local SHAPES: { [string]: Enum.PartType } = {
-	Ball = Enum.PartType.Ball,
-	Block = Enum.PartType.Block,
-	Cylinder = Enum.PartType.Cylinder,
-}
+local ROTATE_SPEED = math.rad(40) -- radians per second while the screen is open (the featured card's model; none under Reduced Motion)
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
-local titleLabel: TextLabel? = nil
-local setBar: ((number) -> ())? = nil -- the progress bar's block fill
-local barPercent: TextLabel? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its two pills
+local featured: FeaturedCard.Card? = nil -- the featured card, built once and refilled on every selection
+local layoutMode: FeaturedMath.Mode? = nil -- the shape the body is laid out in now (side or strip)
 local grid: ScrollingFrame? = nil
-local gridLayout: UIGridLayout? = nil
 local cells: { Cell } = {}
-local detail: Detail? = nil
+local strips: { Frame } = {} -- the section strips drawn now (rebuilt with the counts)
+local sections: { FeaturedMath.Section } = {} -- the page's tier sections, in the cells' order
+local laidW, laidH, laidParentH = 0, 0, 0 -- the scroller's window and its parent's px the tiles were last placed for
 local selected: string? = nil
 local open = false
 local render: RBXScriptConnection? = nil
 local angle = 0
-local partBaseY = 0
-local partUpright = false -- cylinders stand on end, as the Spawner places them
 local rosterCache: { [number]: { Types.SpeciesDef } } = {}
+local codexEntries: { FeaturedMath.CodexEntry } = {} -- every species with its world, for the pills
+local builtWorlds: { [number]: boolean } = {}
+for _, def in ipairs(Species.List) do
+	table.insert(codexEntries, { id = def.id, world = def.world })
+end
+for id, world in pairs(Worlds) do
+	builtWorlds[id] = world.built
+end
 
 -- Data -----------------------------------------------------------------------
 
@@ -212,299 +188,181 @@ local function jobsText(def: Types.SpeciesDef): string
 	return Strings.CODEX_JOBS:format(table.concat(parts, ", "))
 end
 
--- Detail card ----------------------------------------------------------------
+-- Featured card -----------------------------------------------------------------------------------------
 
--- Turns whatever stands on the pedestal: the mesh clone by its pivot (its feet, on the pedestal top),
--- or the placeholder part about its centre, upright for cylinders.
-local function placePart(d: Detail)
-	local model = d.model
-	if model then
-		model:PivotTo(CFrame.new(0, PEDESTAL_TOP, 0) * CFrame.Angles(0, angle, 0))
-		return
+-- The card's facts for a caught species: the event it belongs to while its season runs, the jobs, the copies caught with the best
+-- overlay, and the overlay's line when it has one; at most three (the card has room for three), the earlier ones first.
+local function caughtFacts(def: Types.SpeciesDef, count: number, best: string, tierWord: string): { string }
+	local facts: { string } = {}
+	local now, override = State.Now(), State.GetSeasonOverride()
+	local eventSeason = SeasonMath.Current(now, override)
+	if eventSeason and limitedState(def.id, now, State.GetWeeklyOffset(), override) == "event" then
+		table.insert(facts, Strings.CODEX_TIER_EVENT:format(tierWord, Builder.text("SEASON_" .. eventSeason.season.id)))
 	end
-	local cf = CFrame.new(0, partBaseY, 0) * CFrame.Angles(0, angle, 0)
-	if partUpright then
-		cf = cf * CFrame.Angles(0, 0, math.rad(90))
+	table.insert(facts, jobsText(def))
+	if best == "None" then
+		table.insert(facts, Strings.CODEX_CAUGHT:format(count))
+	else
+		table.insert(facts, Strings.FEATURED_CAUGHT_BEST:format(count, Builder.text("OVERLAY_" .. best)))
+		-- an overlay with a `desc` row says what it is ("Caught during launch week.")
+		local overlayRow = Overlays.Overlays[best]
+		if overlayRow and overlayRow.desc then
+			table.insert(facts, Builder.text(overlayRow.desc))
+		end
 	end
-	d.part.CFrame = cf
+	while #facts > 3 do
+		table.remove(facts)
+	end
+	return facts
 end
 
--- The camera keeps its line of sight and pulls back only when something taller than the default
--- framing stands on the pedestal (meshes run to about twice the placeholder height).
-local function frameCamera(d: Detail, height: number)
-	local target = Vector3.new(0, CAMERA_TARGET_Y, 0)
-	local direction = Vector3.new(0, CAMERA_HEIGHT - CAMERA_TARGET_Y, CAMERA_DISTANCE).Unit
-	local halfSpan = math.max(PEDESTAL_TOP + height - CAMERA_TARGET_Y, CAMERA_TARGET_Y - (PEDESTAL_TOP - PEDESTAL_THICKNESS))
-	local distance = math.max(CAMERA_DISTANCE, halfSpan / math.tan(math.rad(CAMERA_FOV) / 2) * CAMERA_FIT)
-	d.camera.CFrame = CFrame.lookAt(target + direction * distance, target)
+-- The hint an uncaught species wears in place of its flavour line: an uncaught Alien of the Week says how long it stays; an uncaught
+-- event alien says its event is on and how long (or, for a returning weekly drop, which event brought it back); an uncaught limited one
+-- out of its window says it is vaulted; an event-track reward says so; any other says where and when it appears.
+local function hintLine(def: Types.SpeciesDef): string
+	local now = State.Now()
+	local override = State.GetSeasonOverride()
+	local state = limitedState(def.id, now, State.GetWeeklyOffset(), override)
+	local weekly = WeeklyMath.Current(now, State.GetWeeklyOffset())
+	local season = SeasonMath.Current(now, override)
+	if state == "week" and weekly then
+		return Strings.CODEX_WEEKLY_HINT:format(daysHoursText(weekly.secondsLeft))
+	elseif state == "event" and season then
+		local timeLeft = daysHoursText(season.secondsLeft)
+		if SeasonMath.IsLimited(def.id) then
+			return Strings.CODEX_EVENT_HINT:format(timeLeft)
+		end
+		return Strings.CODEX_RETURNING_HINT:format(Builder.text("SEASON_" .. season.season.id), timeLeft)
+	elseif state == "vaulted" then
+		return Strings.CODEX_VAULTED_HINT
+	elseif SeasonMath.IsTrackReward(def.id) then
+		return Strings.CODEX_TRACK_HINT -- it never spawns: "by quest" would send players looking
+	end
+	return Strings.CODEX_HINT:format(Builder.text("BIOME_" .. def.biome), Builder.text("COND_PHRASE_" .. def.condition))
 end
 
-local function setPart(d: Detail, def: Types.SpeciesDef, caught: boolean)
-	local previous = d.model
-	if previous then
-		previous:Destroy()
-		d.model = nil
-	end
-	-- Uncaught species stand as silhouettes only while the Silhouettes preference is on.
-	local shadowed = not caught and Prefs.Silhouettes()
-	local model = Models.Clone(def, Config.ModelViewportScale)
-	if model then
-		Models.SetShadow(model, shadowed)
-		model.Parent = d.viewport
-		d.model = model
-		d.part.Transparency = 1
-		frameCamera(d, Models.Height(model))
-		placePart(d)
-		return
-	end
-	d.part.Transparency = 0
-	local size = PART_STUDS * def.placeholder.scale
-	d.part.Shape = SHAPES[def.placeholder.shape] or Enum.PartType.Ball
-	d.part.Size = Vector3.one * size
-	d.part.Color = if shadowed then Theme.Shadow else Color3.fromHex(def.placeholder.color)
-	partUpright = def.placeholder.shape == "Cylinder"
-	partBaseY = PEDESTAL_TOP + size / 2
-	frameCamera(d, size)
-	placePart(d)
-end
-
-local function fillDetail(profile: Types.Profile)
-	local d = detail
-	if not d then
+-- Fills the featured card from the selected species (a caught one: model, tier, name, flavour, facts and "See in Aliens"; an uncaught
+-- one: its silhouette, the hint and what the first catch pays, no button), or with the prompt when the page has no species.
+local function fillFeatured(profile: Types.Profile)
+	local card = featured
+	if not card then
 		return
 	end
 	local id = selected
-	local def: Types.SpeciesDef? = nil
-	if id then
-		def = Species.ById[id]
-	end
+	local def: Types.SpeciesDef? = if id then Species.ById[id] else nil
 	if not def then
-		d.prompt.Visible = true
-		d.content.Visible = false
-		Builder.setBlockInk(d.card, Theme.Rarity.Common)
+		FeaturedCard.Fill(card, nil, Strings.CODEX_SELECT)
 		return
 	end
-
 	local entry = profile.codex[def.id]
 	local count = if entry then entry.count else 0
 	local caught = count > 0
-	local tierColor = Builder.tierColor(def.tier)
-	d.prompt.Visible = false
-	d.content.Visible = true
-	Builder.setBlockInk(d.card, tierColor)
-	Builder.setBlockInk(d.view, tierColor)
-	Builder.setBlockColor(d.view, Builder.lighter(tierColor, 0.55)) -- the backdrop in its rarity colour
-	setPart(d, def, caught)
-	d.mark.Visible = not caught
-	d.name.Text = displayName(def, caught)
-	d.tier.Text = Builder.text("TIER_" .. def.tier)
-	d.tier.TextColor3 = tierColor
-	local eventSeason = SeasonMath.Current(State.Now(), State.GetSeasonOverride())
-	if eventSeason and limitedState(def.id, State.Now(), State.GetWeeklyOffset(), State.GetSeasonOverride()) == "event" then
-		-- an event species: the card says which event brought it
-		d.tier.Text = Strings.CODEX_TIER_EVENT:format(d.tier.Text, Builder.text("SEASON_" .. eventSeason.season.id))
+	local tierId: string = def.tier
+	local tierWord = Builder.text("TIER_" .. tierId)
+	local speciesId = def.id
+	local function has(key: string): boolean
+		return Builder.text(key) ~= key
 	end
-	d.jobs.Text = jobsText(def)
-
-	local biome = Builder.text("BIOME_" .. def.biome)
-	local phrase = Builder.text("COND_PHRASE_" .. def.condition)
+	local content: FeaturedCard.Content = {
+		def = def,
+		shadowed = false,
+		mark = false,
+		name = displayName(def, caught),
+		tier = tierId,
+		tierWord = tierWord,
+		flavour = "",
+		facts = {},
+		main = nil,
+		side = nil,
+	}
 	if caught then
-		d.lineA.Text = Strings.CODEX_FOUND:format(biome, phrase)
-		d.lineB.Text = Strings.CODEX_CAUGHT:format(count)
-		local best = if entry then entry.bestOverlay else "None"
-		d.lineC.Visible = best ~= "None"
-		if best ~= "None" then
-			-- an overlay with a `desc` row says what it is after its name ("Best: Launch Gold. Caught during launch week.")
-			local overlayRow = Overlays.Overlays[best]
-			local bestName = Builder.text("OVERLAY_" .. best)
-			d.lineC.Text = if overlayRow and overlayRow.desc
-				then Strings.CODEX_BEST_DESC:format(bestName, Builder.text(overlayRow.desc))
-				else Strings.CODEX_BEST:format(bestName)
+		content.flavour = Builder.text(FeaturedMath.FlavourKey(def.id, tierId, has))
+		content.facts = caughtFacts(def, count, if entry then entry.bestOverlay else "None", tierWord)
+		local buttons = FeaturedMath.Button({ screen = "Codex", caught = true })
+		local main = buttons.main
+		if main then
+			content.main = {
+				word = Builder.text(main.word),
+				role = main.role,
+				onTap = function()
+					AliensScreen.Select(speciesId) -- the first alien of this species, selected there
+					Screens.Open("Aliens")
+				end,
+			}
 		end
 	else
-		-- An uncaught Alien of the Week says how long it stays; an uncaught event alien says its event is on and how
-		-- long (or, for a returning weekly drop, which event brought it back); an uncaught limited one out of its
-		-- window says it is vaulted.
-		local now = State.Now()
-		local override = State.GetSeasonOverride()
-		local state = limitedState(def.id, now, State.GetWeeklyOffset(), override)
-		local weekly = WeeklyMath.Current(now, State.GetWeeklyOffset())
-		local season = SeasonMath.Current(now, override)
-		if state == "week" and weekly then
-			d.lineA.Text = Strings.CODEX_WEEKLY_HINT:format(daysHoursText(weekly.secondsLeft))
-		elseif state == "event" and season then
-			local timeLeft = daysHoursText(season.secondsLeft)
-			if SeasonMath.IsLimited(def.id) then
-				d.lineA.Text = Strings.CODEX_EVENT_HINT:format(timeLeft)
-			else
-				d.lineA.Text = Strings.CODEX_RETURNING_HINT:format(Builder.text("SEASON_" .. season.season.id), timeLeft)
-			end
-		elseif state == "vaulted" then
-			d.lineA.Text = Strings.CODEX_VAULTED_HINT
-		elseif SeasonMath.IsTrackReward(def.id) then
-			d.lineA.Text = Strings.CODEX_TRACK_HINT -- it never spawns: "by quest" would send players looking
-		else
-			d.lineA.Text = Strings.CODEX_HINT:format(biome, phrase)
-		end
-		d.lineB.Text = Strings.CODEX_FIRST_CATCH:format(Builder.formatNumber(Tiers.Tiers[def.tier].codexScrap))
-		d.lineC.Visible = false
+		-- Uncaught species stand as silhouettes only while the Silhouettes preference is on (a Secret's always: its colours would give
+		-- away what its hidden name keeps), the unknown mark over them.
+		content.shadowed = Prefs.Silhouettes() or tierId == "Secret"
+		content.mark = true
+		content.flavour = hintLine(def)
+		content.facts = { jobsText(def), Strings.CODEX_FIRST_CATCH:format(Builder.formatNumber(Tiers.Tiers[tierId].codexScrap)) }
 	end
+	FeaturedCard.Fill(card, content, nil)
 end
 
--- Purple ink on the selected card, the tier's ink on the rest, then the detail card follows.
+-- Gold ink on the selected tile, the tier's on the other caught ones, grey on the uncaught; then the card follows.
 local function applySelection(profile: Types.Profile)
 	for _, cell in ipairs(cells) do
 		if not cell.slot.Visible then
 			continue
 		end
-		local isSelected = cell.speciesId == selected
-		Builder.setBlockInk(cell.card, if isSelected then Theme.Colors.Codex else Builder.tierColor(cell.tier))
+		local ink = if cell.speciesId == selected
+			then SELECTED_INK
+			elseif cell.caught then Builder.tierColor(cell.tier)
+			else Theme.Rarity.Common
+		Builder.setBlockInk(cell.card, ink)
 	end
-	fillDetail(profile)
-end
-
-local function buildDetail(parent: Frame): Detail
-	local card = Builder.blockPlate({
-		parent = parent,
-		name = "Detail",
-		color = Theme.Colors.White,
-		ink = Theme.Rarity.Common,
-		cells = false,
-		edges = true,
-		position = UDim2.fromScale(DETAIL_X, DETAIL_TOP),
-		size = UDim2.fromScale(1 - DETAIL_X - Theme.Margin, 1 - DETAIL_TOP - Theme.Margin),
-		zIndex = Builder.blockTop(parent),
-	})
-	local top = Builder.blockTop(card)
-
-	local prompt = Builder.label({
-		parent = card,
-		name = "Select",
-		text = Strings.CODEX_SELECT,
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.86, 0.3),
-		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.Rarity.Common,
-		zIndex = top,
-	})
-
-	local content = Builder.frame({
-		parent = card,
-		name = "Content",
-		zIndex = top,
-	})
-	content.Visible = false
-
-	-- The alien on a pedestal, turning slowly. Square, as wide as the card allows: a flat block in the tier's lighter colour
-	-- and ink, the viewport clear on its face.
-	local view = Builder.blockPlate({
-		parent = content,
-		name = "ViewBlock",
-		color = Builder.lighter(Theme.Rarity.Common, 0.55),
-		ink = Theme.Rarity.Common,
-		aspect = 1,
-		rows = FLAT_ROWS,
-		cells = false,
-		position = UDim2.fromScale(0.5, 0.03),
-		size = UDim2.fromScale(0.9, 0.42),
-		anchor = Vector2.new(0.5, 0),
-		zIndex = top + 1,
-	})
-	local viewport = Instance.new("ViewportFrame")
-	viewport.Name = "View"
-	viewport.BorderSizePixel = 0
-	viewport.BackgroundTransparency = 1
-	viewport.Position, viewport.Size = Builder.blockInner(view)
-	viewport.Ambient = Builder.darker(Theme.Colors.White, 0.45) -- soft grey fill light
-	viewport.LightColor = Theme.Colors.White
-	viewport.LightDirection = Vector3.new(-1, -2, -1)
-	viewport.ZIndex = Builder.blockTop(view)
-	viewport.Parent = view
-
-	local camera = Instance.new("Camera")
-	camera.FieldOfView = CAMERA_FOV
-	camera.CFrame = CFrame.lookAt(Vector3.new(0, CAMERA_HEIGHT, CAMERA_DISTANCE), Vector3.new(0, CAMERA_TARGET_Y, 0))
-	camera.Parent = viewport
-	viewport.CurrentCamera = camera
-
-	local pedestal = Instance.new("Part")
-	pedestal.Name = "Pedestal"
-	pedestal.Shape = Enum.PartType.Cylinder
-	pedestal.Size = Vector3.new(PEDESTAL_THICKNESS, PEDESTAL_RADIUS * 2, PEDESTAL_RADIUS * 2)
-	pedestal.CFrame = CFrame.new(0, PEDESTAL_TOP - PEDESTAL_THICKNESS / 2, 0) * CFrame.Angles(0, 0, math.rad(90))
-	pedestal.Color = Builder.darker(Theme.Colors.Panel, 0.15)
-	pedestal.Material = Enum.Material.SmoothPlastic
-	pedestal.Anchored = true
-	pedestal.CanCollide = false
-	pedestal.Parent = viewport
-
-	local part = Instance.new("Part")
-	part.Name = "Alien"
-	part.Material = Enum.Material.SmoothPlastic
-	part.Anchored = true
-	part.CanCollide = false
-	part.Parent = viewport
-
-	local mark = Builder.label({
-		parent = viewport,
-		name = "Mark",
-		text = UNKNOWN_MARK,
-		textSize = Theme.TextSize.Reveal,
-		position = UDim2.fromScale(0.5, 0.45),
-		size = UDim2.fromScale(0.6, 0.4),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = viewport.ZIndex + 1,
-	})
-
-	local function line(name: string, top: number, height: number, textSize: number): TextLabel
-		return Builder.label({
-			parent = content,
-			name = name,
-			text = "",
-			textSize = textSize,
-			position = UDim2.fromScale(0.5, top),
-			size = UDim2.fromScale(0.94, height),
-			anchor = Vector2.new(0.5, 0),
-			zIndex = top + 1,
-		})
-	end
-
-	return {
-		card = card,
-		prompt = prompt,
-		content = content,
-		viewport = viewport,
-		view = view,
-		camera = camera,
-		part = part,
-		model = nil,
-		mark = mark,
-		name = line("Name", 0.46, 0.09, Theme.TextSize.Label),
-		tier = line("Tier", 0.55, 0.06, Theme.TextSize.Body),
-		jobs = line("Jobs", 0.62, 0.1, Theme.TextSize.Body),
-		lineA = line("Where", 0.73, 0.1, Theme.TextSize.Body),
-		lineB = line("Count", 0.84, 0.06, Theme.TextSize.Body),
-		lineC = line("Best", 0.91, 0.06, Theme.TextSize.Body),
-	}
+	fillFeatured(profile)
 end
 
 -- Grid -------------------------------------------------------------------------
 
--- Column count from the grid's width so a ten-letter name still fits under a card at iPhone SE size;
--- cells are Scale, square through the layout's aspect constraint (width-dominant, so the canvas height
--- never feeds back into the cell size).
-local function relayoutGrid()
-	local scroller, layout = grid, gridLayout
-	if not scroller or not layout then
+-- Places the section strips and the tiles in Scale values of the scroller's canvas. The px come from FeaturedMath.GridPlan (square tiles
+-- of at least Codex.MinCellPx in as many columns as fit, a strip over each section when the page has two or more); a canvas child scales
+-- against the canvas, and the canvas is `canvas px / the scroller's parent's px` of the panel (CanvasSize scales against the parent,
+-- UI-Rules), so every Scale below is px over the canvas's px. Sizes are read with the open tween's UIScale taken out. Runs again when
+-- the window, the mode or the sections change.
+local function layoutGrid(force: boolean)
+	local scroller, body = grid, panel
+	if not scroller or not body then
 		return
 	end
-	local width = scroller.AbsoluteWindowSize.X
-	local cols = MAX_COLS
-	if width > 0 then
-		cols = math.clamp(math.floor(width / MIN_CELL_PX), MIN_COLS, MAX_COLS)
+	local bodyAbs = body.AbsoluteSize
+	local window = scroller.AbsoluteWindowSize
+	if bodyAbs.X <= 0 or bodyAbs.Y <= 0 or window.X <= 0 or window.Y <= 0 then
+		return -- not laid out yet: the scroller's AbsoluteSize signal runs this again
 	end
-	layout.CellSize = UDim2.fromScale(1 / cols, 1 / cols)
+	local factor = FeaturedCard.UnscaledSize(body).X / bodyAbs.X
+	local windowW, windowH, parentH = window.X * factor, window.Y * factor, bodyAbs.Y * factor
+	if not force and math.abs(windowW - laidW) < 0.5 and math.abs(windowH - laidH) < 0.5 and math.abs(parentH - laidParentH) < 0.5 then
+		return
+	end
+	laidW, laidH, laidParentH = windowW, windowH, parentH
+	local c = Panels.Featured.Codex
+	local counts: { number } = {}
+	for _, section in ipairs(sections) do
+		table.insert(counts, section.total)
+	end
+	local stripPx = math.max(c.StripPx, c.StripShare * windowH)
+	local plan = FeaturedMath.GridPlan(windowW, FeaturedMath.CodexColumns(windowW), c.GapPx, stripPx, #sections >= 2, counts)
+	local canvasH = math.max(plan.height, windowH)
+	scroller.CanvasSize = UDim2.fromScale(0, canvasH / parentH)
+	for index, section in ipairs(sections) do
+		local planned = plan.sections[index]
+		local strip = strips[index]
+		if strip then
+			strip.Position = UDim2.fromScale(0, planned.stripY / canvasH)
+			strip.Size = UDim2.fromScale(1, stripPx / canvasH)
+		end
+		for offset, item in ipairs(planned.items) do
+			local cell = cells[section.from + offset - 1]
+			if cell then
+				cell.slot.Position = UDim2.fromScale(item.x / windowW, item.y / canvasH)
+				cell.slot.Size = UDim2.fromScale(plan.cell / windowW, plan.cell / canvasH)
+			end
+		end
+	end
 end
 
 local function buildCell(parent: ScrollingFrame, index: number): Cell
@@ -513,7 +371,6 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		name = "Cell" .. index,
 		zIndex = 4,
 	})
-	slot.LayoutOrder = index
 
 	-- A square edged block (the slot is square) whose ink is the tier's colour, set on every fill.
 	local card = Builder.blockPlate({
@@ -640,9 +497,10 @@ local function buildCell(parent: ScrollingFrame, index: number): Cell
 		thumb = thumb,
 		speciesId = "",
 		tier = "Common",
+		caught = false,
 	}
 
-	-- An invisible button over the card: a tap selects the species and fills the detail card.
+	-- An invisible button over the card: a tap selects the species and fills the featured card.
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
 	tap.AutoButtonColor = false
@@ -679,10 +537,13 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 	cell.tier = def.tier
 	cell.slot.Visible = true
 	local caught = count > 0
+	cell.caught = caught
 	if caught then
 		-- The species' model, still, filling the picture area (SpeciesThumb); without a model, the colour square and its name. Never the placeholder
 		-- shape's name (Studio 2026-10-22).
 		Builder.setBlockColor(cell.card, Theme.Colors.White)
+		cell.card:SetAttribute("TierBase", nil) -- tierFrame takes the face as it is now for its tint (a recycled tile has a new face)
+		Builder.tierFrame(cell.card, def.tier) -- the studs and tint of its tier: a Rare one stud up to four from Legendary
 		Builder.setBlockColor(cell.square, Color3.fromHex(def.placeholder.color))
 		local shown = SpeciesThumb.Show(cell.thumb, def, false)
 		cell.square.Visible = not shown
@@ -694,6 +555,8 @@ local function fillCell(cell: Cell, def: Types.SpeciesDef, count: number, now: n
 		-- Secret's always: its colours would give away what its hidden name keeps), the mark over it.
 		local silhouette = Prefs.Silhouettes()
 		Builder.setBlockColor(cell.card, Builder.lighter(Theme.Rarity.Common, 0.6))
+		cell.card:SetAttribute("TierBase", nil)
+		Builder.tierFrame(cell.card, "Common") -- an uncaught tile wears no studs and no tint: it keeps its tier a secret in grey ink
 		Builder.setBlockColor(cell.square, if silhouette then Theme.Shadow else Color3.fromHex(def.placeholder.color))
 		cell.square.Visible = not SpeciesThumb.Show(cell.thumb, def, silhouette or def.tier == "Secret")
 		cell.mark.Text = UNKNOWN_MARK
@@ -724,7 +587,7 @@ end
 -- Refresh ----------------------------------------------------------------------
 
 -- When each species the player owns was last caught: its newest alien's catch time, or its first catch (a released species still
--- counts in the codex). Read only while nothing is selected, to pick the card the detail opens on.
+-- counts in the codex). Read only while nothing is selected, to pick the species the featured card opens on.
 local function recentCatches(profile: Types.Profile): { [string]: number }
 	local recent: { [string]: number } = {}
 	for id, entry in pairs(profile.codex) do
@@ -741,6 +604,44 @@ local function recentCatches(profile: Types.Profile): { [string]: number }
 	return recent
 end
 
+-- The band's pills: "Found 12 / 35" over the species of the built worlds, and this page's world, "Verdant 3 / 19" (short name: its first
+-- word), gone on a page with no species. Both read the same caught set the sections do.
+local function updatePills(worldId: number, caught: { [string]: boolean })
+	local band = header
+	if not band then
+		return
+	end
+	local found, total, pageFound, pageTotal = FeaturedMath.CodexCounts(codexEntries, caught, builtWorlds, worldId)
+	local overall: { any } = { found, total }
+	if pageTotal == 0 then
+		band.setPills({ overall })
+		return
+	end
+	local world = Worlds[worldId]
+	local name = if world then world.name else tostring(worldId)
+	local page: { any } = { name:match("^%S+") or name, pageFound, pageTotal }
+	band.setPills({ overall, page })
+end
+
+-- One strip over each tier section ("RARE" and "3 / 4"), only where the page has two or more; the strips are rebuilt with the counts and
+-- placed by layoutGrid.
+local function rebuildStrips()
+	local scroller = grid
+	if not scroller then
+		return
+	end
+	for _, strip in ipairs(strips) do
+		strip:Destroy()
+	end
+	table.clear(strips)
+	if #sections < 2 then
+		return
+	end
+	for index, section in ipairs(sections) do
+		strips[index] = Builder.sectionStrip(scroller, "TIER_" .. section.tier, Strings.FEATURED_COUNT:format(section.found, section.total))
+	end
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
@@ -753,7 +654,8 @@ local function refresh()
 	local offset = State.GetWeeklyOffset()
 	local override = State.GetSeasonOverride()
 
-	local caught = 0
+	local tiers: { string } = {}
+	local flags: { boolean } = {}
 	for index, cell in ipairs(cells) do
 		local def = list[index]
 		if not def then
@@ -761,11 +663,19 @@ local function refresh()
 			continue
 		end
 		local count = caughtCount(profile, def.id)
-		if count > 0 then
-			caught += 1
-		end
+		tiers[index] = def.tier
+		flags[index] = count > 0
 		fillCell(cell, def, count, now, offset, override)
 	end
+	local caughtSet: { [string]: boolean } = {}
+	for id, entry in pairs(profile.codex) do
+		if entry.count > 0 then
+			caughtSet[id] = true
+		end
+	end
+	sections = FeaturedMath.Sections(tiers, flags)
+	rebuildStrips()
+	layoutGrid(true)
 
 	-- A selection only survives while it belongs to the page on show.
 	local id = selected
@@ -783,20 +693,48 @@ local function refresh()
 		end
 		selected = PanelQuiet.CodexDefault(ids, recentCatches(profile))
 	end
-
-	local world = Worlds[worldId]
-	local worldName = if world then world.name else tostring(worldId)
-	if titleLabel then
-		titleLabel.Text = Strings.CODEX_PAGE:format(worldName, caught, #list)
-	end
-	local p = if #list > 0 then caught / #list else 0
-	if setBar then
-		setBar(p)
-	end
-	if barPercent then
-		barPercent.Text = Strings.UI_PERCENT:format(math.floor(p * 100))
-	end
+	updatePills(worldId, caughtSet)
 	applySelection(profile)
+end
+
+-- The panel's px with the open tween taken out, or the usual window's before it is laid out (a disabled gui measures zero).
+local function panelPx(): (number, number)
+	local body = panel
+	local size = if body then FeaturedCard.UnscaledSize(body) else Vector2.zero
+	if size.X > 0 and size.Y > 0 then
+		return size.X, size.Y
+	end
+	local camera = workspace.CurrentCamera
+	local screen = if camera then camera.ViewportSize else Vector2.new(1154, 663)
+	local w = math.min(PANEL_H * screen.Y * PANEL_ASPECT, 0.8 * screen.X)
+	return w, w / PANEL_ASPECT
+end
+
+-- Lays the body out for the panel's shape (FeaturedMath.Mode): at 620 by 330 px or more the card stands left of the grid, under that it
+-- is a strip over the grid. Runs again when the mode changes.
+local function applyLayout(force: boolean)
+	local card, scroller = featured, grid
+	if not card or not scroller then
+		return
+	end
+	local w, h = panelPx()
+	local mode: FeaturedMath.Mode = FeaturedMath.Mode(w, h)
+	if not force and mode == layoutMode then
+		return
+	end
+	layoutMode = mode
+	local f = Panels.Featured
+	local c = f.Codex
+	if mode == "side" then
+		FeaturedCard.Place(card, mode, UDim2.fromScale(f.Side.CardX, c.SideTop), UDim2.fromScale(f.Side.CardW, c.Bottom - c.SideTop))
+		scroller.Position = UDim2.fromScale(f.Side.GridX, c.SideTop)
+		scroller.Size = UDim2.fromScale(f.Side.GridW, c.Bottom - c.SideTop)
+	else
+		FeaturedCard.Place(card, mode, UDim2.fromScale(f.Wide.X, c.StripTop), UDim2.fromScale(f.Wide.W, c.StripH))
+		scroller.Position = UDim2.fromScale(f.Wide.X, c.StripGridTop)
+		scroller.Size = UDim2.fromScale(f.Wide.W, c.Bottom - c.StripGridTop)
+	end
+	layoutGrid(true)
 end
 
 -- Build ----------------------------------------------------------------------
@@ -828,103 +766,56 @@ local function build()
 		parent = root,
 		name = "Panel",
 		color = Theme.Colors.Panel,
-		aspect = 1.35,
-		rows = Builder.blockPanelRows(0.78), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.8, 0.78),
-		anchor = Vector2.new(0.5, 0.5),
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
+		size = UDim2.fromScale(0.8, PANEL_H),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
+	local top = Builder.blockTop(body)
 
-	-- Header tab straddling the top edge, purple for the codex, title in white outlined text.
-	Builder.blockHeader(body, 1.35, Strings.CODEX_TITLE, Theme.Colors.Codex, Vector2.new(0.42, 0.11))
-
-	Builder.blockClose(body, 0.78, function()
+	-- The header band: purple, the Codex icon, "Found n / 35" and this page's world (refresh), the red X.
+	header = Builder.panelHeader(body, { panelId = "Codex", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		CodexScreen.Close()
 	end)
 
-	-- Page: title line, progress bar, then the grid.
-	local page = Builder.frame({
-		parent = body,
-		name = "Page",
-		position = UDim2.fromScale(Theme.Margin, 0.085),
-		size = UDim2.fromScale(PAGE_WIDTH, 1 - 0.085 - Theme.Margin),
-		zIndex = Builder.blockTop(body),
-	})
-	titleLabel = Builder.label({
-		parent = page,
-		name = "Title",
-		text = "",
-		textSize = Theme.TextSize.Label,
-		size = UDim2.fromScale(1, 0.085),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
-	})
-
-	-- The progress bar: a fitted flat dark block, filled cell-true in Codex purple (Builder.blockBar).
-	local bar = Builder.blockPlate({
-		parent = page,
-		name = "Bar",
-		color = Theme.Block.Trough,
-		rows = FLAT_ROWS,
-		cells = false,
-		position = UDim2.fromScale(0, 0.1),
-		size = UDim2.fromScale(1, 0.06),
-		zIndex = 3,
-	})
-	setBar = Builder.blockBar(bar, Theme.Colors.Codex)
-	barPercent = Builder.label({
-		parent = bar,
-		name = "Percent",
-		text = Strings.UI_PERCENT:format(0),
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.9, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.blockTop(bar),
-	})
-
+	-- The grid: a window over the sections with a thin dark bar. There are no layout objects: layoutGrid puts every strip and tile
+	-- at Scale values of the canvas from px (FeaturedMath.GridPlan), and applyLayout gives it its place for the panel's shape.
 	local scroller = Instance.new("ScrollingFrame")
 	scroller.Name = "Grid"
 	scroller.BackgroundTransparency = 1
 	scroller.BorderSizePixel = 0
-	scroller.Position = UDim2.fromScale(0, 0.18)
-	scroller.Size = UDim2.fromScale(1, 0.82)
-	scroller.CanvasSize = UDim2.fromScale(1, 0)
-	scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	scroller.Position = UDim2.fromScale(Panels.Featured.Side.GridX, Panels.Featured.Codex.SideTop)
+	scroller.Size = UDim2.fromScale(Panels.Featured.Side.GridW, Panels.Featured.Codex.Bottom - Panels.Featured.Codex.SideTop)
+	scroller.CanvasSize = UDim2.fromScale(0, 0)
+	scroller.AutomaticCanvasSize = Enum.AutomaticSize.None
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
+	scroller.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 	scroller.VerticalScrollBarInset = Enum.ScrollBarInset.Always -- a constant window width, so the column count never flaps
 	scroller.ScrollBarThickness = SCROLLBAR_PX
 	scroller.ScrollBarImageColor3 = Theme.Colors.Outline
-	scroller.ZIndex = 3
-	scroller.Parent = page
+	scroller.ZIndex = top
+	scroller.Parent = body
 	grid = scroller
+	scroller:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		layoutGrid(false)
+	end)
 
-	local layout = Instance.new("UIGridLayout")
-	layout.FillDirection = Enum.FillDirection.Horizontal
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	layout.VerticalAlignment = Enum.VerticalAlignment.Top
-	layout.CellPadding = UDim2.fromScale(0, 0) -- the gap is the inset of each card inside its slot
-	layout.CellSize = UDim2.fromScale(1 / MAX_COLS, 1 / MAX_COLS)
-	layout.Parent = scroller
-	gridLayout = layout
-	local squareCells = Instance.new("UIAspectRatioConstraint")
-	squareCells.AspectRatio = 1
-	squareCells.AspectType = Enum.AspectType.ScaleWithParentSize
-	squareCells.DominantAxis = Enum.DominantAxis.Width
-	squareCells.Parent = layout
-	scroller:GetPropertyChangedSignal("AbsoluteSize"):Connect(relayoutGrid)
-
-	detail = buildDetail(body)
+	-- The featured card (UI.FeaturedCard), built once and refilled on every selection; its model turns while the screen is open.
+	featured = FeaturedCard.Build(body, "Featured", top, true)
+	applyLayout(true)
+	body:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		applyLayout(false) -- the mode follows the panel's real size once it is laid out, and when the window changes
+	end)
 
 	-- A catch changes the codex counts; the server pushes aliens with stations (cheap while closed).
 	State.OnChanged("stations", refresh)
 	State.OnChanged("codex", refresh)
-	State.OnChanged("weekly", refresh) -- the week flips or the Studio shift changes: stamps and detail lines follow
-	State.OnChanged("season", refresh) -- a season starts or ends: the Event and Vaulted stamps and the detail hint follow
+	State.OnChanged("weekly", refresh) -- the week flips or the Studio shift changes: stamps and hints follow
+	State.OnChanged("season", refresh) -- a season starts or ends: the Event and Vaulted stamps and the hint follow
 	Prefs.OnChanged(refresh) -- the Silhouettes preference changes how uncaught species draw
 end
 
@@ -941,19 +832,28 @@ function CodexScreen.Open()
 		return
 	end
 	open = true
-	relayoutGrid()
-	refresh()
 	root.Enabled = true
+	applyLayout(true)
+	refresh()
 	Builder.open(body)
 	if render then
 		render:Disconnect()
 	end
+	-- The featured card's model turns slowly while the screen is open; under Reduced Motion it stands still.
 	render = RunService.RenderStepped:Connect(function(dt: number)
-		angle = (angle + dt * ROTATE_SPEED) % (math.pi * 2)
-		local d = detail
-		if d and d.content.Visible then
-			placePart(d)
+		local card = featured
+		if not card then
+			return
 		end
+		if Prefs.ReducedMotion() then
+			if angle ~= 0 then
+				angle = 0
+				FeaturedCard.Spin(card, 0)
+			end
+			return
+		end
+		angle = (angle + dt * ROTATE_SPEED) % (math.pi * 2)
+		FeaturedCard.Spin(card, angle)
 	end)
 end
 

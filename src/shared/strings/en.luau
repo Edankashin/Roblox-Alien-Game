@@ -212,6 +212,55 @@ return {
 	SHIP_PAY = "Pay %s",
 	SHIP_PAID = "Paid",
 	SHIP_ADD = "Add %s",
+	-- Featured plus grid (UI richness pass, package C): the featured card's button words, its fact line, and one flavour line per species
+	-- (at most Panels.Featured.MaxFlavour characters, cute, never fierce: B46). FLAVOUR_TIER_<tier> stands in for a species with none.
+	FEATURED_FOLLOW = "Follow",
+	FEATURED_STOP = "Stop following",
+	FEATURED_SEE_IN_ALIENS = "See in Aliens",
+	FEATURED_CAUGHT_BEST = "Caught x%d, best %s", -- the Codex card: copies caught, then the best overlay
+	FEATURED_COUNT = "%d / %d", -- a section strip's count pill ("Rare" 3 / 4)
+	FLAVOUR_Mossbop = "A fuzzy moss ball that hums when it is happy.",
+	FLAVOUR_Pebblet = "A pebble on tiny legs, shy but very loyal.",
+	FLAVOUR_Glimmo = "A jelly firefly that glows when it is excited.",
+	FLAVOUR_Twiglet = "A stick bug who wears its leaf hat everywhere.",
+	FLAVOUR_Puffpuff = "A dandelion puff that giggles in the breeze.",
+	FLAVOUR_Snailbyte = "A shiny-shelled snail that loves a slow stroll.",
+	FLAVOUR_Buzzlebee = "Hums along with its tiny backpack of pollen.",
+	FLAVOUR_Lanternewt = "Its glowing tail lights the way home at night.",
+	FLAVOUR_Rocklobber = "Proudly waves its boulder claws. Clack clack!",
+	FLAVOUR_Zapfinch = "Its antenna crest tingles when friends are near.",
+	FLAVOUR_Sparkfox = "Paints bright streaks of light with its tail.",
+	FLAVOUR_Thunderhog = "Puffs up its quills and zaps out happy sparks.",
+	FLAVOUR_Gloomoth = "Its crystal wings sparkle in the dark.",
+	FLAVOUR_Gaiabloom = "Flowers bloom wherever its hooves touch down.",
+	FLAVOUR_Radish = "A warm little sun that makes everyone smile.",
+	FLAVOUR_Panpipe = "Plays a soft tune on its reed pipes at night.",
+	FLAVOUR_Wisplet = "A shy little flame that floats beside you.",
+	FLAVOUR_Spookum = "A friendly ghost with a big pumpkin grin.",
+	FLAVOUR_Nebulyn = "A tiny star cloud that twinkles when it giggles.",
+	FLAVOUR_Flufflet = "A snowball in a knitted scarf. Very cuddly.",
+	FLAVOUR_Snowbun = "Its fluffy tail grows bigger every day.",
+	FLAVOUR_Pengoo = "Belly-slides everywhere, backpack bouncing.",
+	FLAVOUR_Reindazzle = "Its nose blinks hello to every friend.",
+	FLAVOUR_Drippo = "A shy icicle drop that drips when nervous.",
+	FLAVOUR_Chipmole = "Digs and chips the ice just to say hello.",
+	FLAVOUR_Flapsicle = "Hangs upside down and giggles at the view.",
+	FLAVOUR_Shellberg = "Most of its iceberg shell is a surprise.",
+	FLAVOUR_Shimmerlynx = "Purrs in all the colours of the aurora.",
+	FLAVOUR_Kettlepuff = "Whistles a happy tune and puffs out steam.",
+	FLAVOUR_Toastoad = "Soaks in the warm pools until all wrinkly.",
+	FLAVOUR_Emberchin = "Hops between hot pools on its glowing quills.",
+	FLAVOUR_Capybubble = "Naps in the warm water and snores bubbles.",
+	FLAVOUR_Frostfang = "A snowflake sneezer with a big soft heart.",
+	FLAVOUR_Skaddle = "Glides about on its tiny skis. Hoo hoo!",
+	FLAVOUR_Fenripup = "Its moon mark glows brighter near its friends.",
+	FLAVOUR_TIER_Common = "A friendly little alien, ready to help.",
+	FLAVOUR_TIER_Uncommon = "A cheerful alien with a knack for helping.",
+	FLAVOUR_TIER_Rare = "A rare find that brightens any camp.",
+	FLAVOUR_TIER_Epic = "An epic friend who lights up the camp.",
+	FLAVOUR_TIER_Legendary = "A legend of the camp, and a good friend.",
+	FLAVOUR_TIER_Cosmic = "A cosmic wonder that glows with joy.",
+	FLAVOUR_TIER_Secret = "A secret friend, full of surprises.",
 	-- Clean UI pass, package C (calm panels; docs/vault/05-ui-design/Clean-UI-Pass.md)
 	SETTINGS_SECTION_Sound = "Sound and motion",
 	SETTINGS_SECTION_Home = "Home",
@@ -710,7 +759,6 @@ return {
 	-- Aliens screen
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
-	ALIENS_COUNT_CAP = "Aliens: %s / %s", -- owned records over the storage cap (data/Storage)
 	-- the Storage Bay button on the Aliens screen and its toasts (data/Storage Bay)
 	STORAGE_BAY_BUY = "+%s storage: %s Scrap", -- the next level: the storage it adds and its price
 	STORAGE_BAY_NEEDS_WORLD = "+%s storage: reach World %d", -- the next level waits for a world
@@ -723,9 +771,6 @@ return {
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
-	ALIENS_FOLLOWING = "Following",
-	ALIENS_TAP_FOLLOW = "Tap to follow",
-	ALIENS_COMPANIONS = "Companions %d/%d",
 	ALIENS_PERKS = "Perks: %s",
 	ALIENS_PERKS_NONE = "Perks: none yet",
 	ALIENS_PERK_SEPARATOR = ", ", -- between the perks on the perks line
@@ -780,13 +825,9 @@ return {
 	STATION_EMPTY_SLOT = "Open",
 	-- Codex screen
 	CODEX_TITLE = "Codex",
-	CODEX_PAGE = "%s: %d/%d",
 	CODEX_UNKNOWN = "???",
-	CODEX_FOUND = "Found: %s, %s",
 	CODEX_HINT = "Appears in the %s %s",
 	CODEX_CAUGHT = "Caught x%d",
-	CODEX_BEST = "Best: %s",
-	CODEX_BEST_DESC = "Best: %s. %s", -- the overlay's name, then its `desc` line (an overlay that has one)
 	CODEX_JOBS = "Jobs: %s",
 	CODEX_FIRST_CATCH = "First catch pays %s Scrap",
 	CODEX_SELECT = "Tap an alien to read about it",
