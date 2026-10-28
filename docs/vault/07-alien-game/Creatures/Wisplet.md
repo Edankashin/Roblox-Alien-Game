@@ -7,9 +7,9 @@ world: 1
 tier: Rare
 status: review
 element: Shadow
-height: 3.5
-blocks: 43
-tris: 584
+height: 3.49
+blocks: 71
+tris: 950
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#8FDCFF", "#2D5C9E", "#7B5CFF", "#6E6A85", "#9466FF", "#141B33"]
@@ -24,6 +24,12 @@ overlap: [0.996, 0.994, 1, 0.996]
 vfx_render: "[[Wisplet_vfx_cells.jpg]]"
 cells_render: "[[Wisplet_tq_cells.jpg]]"
 idle_render: "[[Wisplet_idle.png]]"
+bar_world: Verdant
+bar_kit: 3
+bar_pieces: [moss_cells, vine_wrap]
+bar_stance: "a drift: the flame leaning 14 degrees to its right with its tongue licking the other way, the trail swept out to its left, the lantern glass and little lanterns circling"
+bar_satellites: 6
+bar_orbit: glass
 ---
 # Wisplet (Wispkin), Rare, World 1 Verdant, the Haunted Nebula event
 
@@ -41,6 +47,17 @@ A will-o'-the-wisp, 3.5 studs to the tip of its flame: a cold blue flame the siz
 
 **Event palette (Haunted Nebula).** Sky blue over deep blue, with the event's violet as the accent and a lilac glow: the cold end of the event's purple-and-orange range (Grin carries the warm end, Cosmoo the deep violet).
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`wisplet()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** A will-o'-the-wisp that lives in a lantern's cage, drifting at dusk: the night's own light. Kept: name, anatomy (a flame with a face on its belly, an iron cage, a bail with no lantern), the lilac tip, height 3.49.
+- **Gains (visible parts).** (1) Six satellites on a wide low ring (the `glass` object, replacing the four old panes, so the Effects pieces `Glass` and `GlassB` still hang on it): three iron-framed panes of the lantern's lost glass and three little hanging lanterns, all lit lilac, three quarters of a stud and more. (2) Verdant kit: violet moss pads with a lit tuft on the cage's top corners, a violet vine up the belly's sides and back. (3) The stance below.
+- **Stance (rest groups `flame`, `trail`).** A drift: the flame (its two steps, the lit tip and the licking tongue) leans 14 degrees to its right, and the tapering trail is swept 35 degrees out behind it: the outline is a leaning flame with a tail, not a lantern standing on a plinth. The belly (and its face) stays square to the camera.
+- **Face intent.** Its own `crescent` eyes kept (a violet iris band under an ink drop over a lilac-lit crescent, two glint frames), a small shy smile and blush cheeks: a shy light that peeks out. The face is not changed; it is the brightest-contrast spot of the pale belly and nothing crosses it.
+- **Three values (rule 8).** Body pale blue; the trail, rim and struts a step darker (deep blue and iron grey); the lit lilac (moss tufts, panes, lanterns) one colour and not the body's. No backdrop (a Rare has none).
+- **Must-nots.** No flame satellites (the first try, a flame on a deep-blue base, read as a cupcake: replaced by hanging lanterns); nothing over the face; no piece under a quarter stud added for its own sake; height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
@@ -55,16 +72,16 @@ parts:
   - {name: StrutBack, slot: Trim, size: [0.125, 0.75, 0.125], at: [1.0625, 1.25, 0.8125], mirror: x, material: metal}
   # the flame narrows above the belly in three steps leaning to its right, the top one lit with a flickering tip, and a second tongue
   # licks up to the left with its own lit tip
-  - {name: Flame, slot: Body, size: [1.5, 0.375, 1], at: [0.125, 2.4375, 0], material: ember}
-  - {name: Flame2, slot: Body, size: [1, 0.375, 0.75], at: [0.375, 2.8125, 0], material: ember}
-  - {name: Flame3, slot: Glow, size: [0.5, 0.25, 0.5], at: [0.5, 3.125, 0], moves: tip, pivot: [0.5, 3, 0]}
-  - {name: Tip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.625, 3.375, 0], moves: tip, pivot: [0.5, 3, 0]}
-  - {name: FlameL, slot: Body, size: [0.5, 0.625, 0.5], at: [-0.6875, 2.75, 0], rot: [0, 0, 20], material: ember, moves: tongue, pivot: [-0.5625, 2.4375, 0]}
-  - {name: TongueTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.8125, 3.1875, 0], rot: [0, 0, 20], moves: tongue, pivot: [-0.5625, 2.4375, 0]}
+  - {name: Flame, slot: Body, size: [1.5, 0.375, 1], at: [0.125, 2.4375, 0], material: ember, pose: flame}
+  - {name: Flame2, slot: Body, size: [1, 0.375, 0.75], at: [0.375, 2.8125, 0], material: ember, pose: flame}
+  - {name: Flame3, slot: Glow, size: [0.5, 0.25, 0.5], at: [0.5, 3.125, 0], moves: tip, pivot: [0.5, 3, 0], pose: flame}
+  - {name: Tip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.625, 3.375, 0], moves: tip, pivot: [0.5, 3, 0], pose: flame}
+  - {name: FlameL, slot: Body, size: [0.5, 0.625, 0.5], at: [-0.6875, 2.75, 0], rot: [0, 0, 20], material: ember, moves: tongue, pivot: [-0.5625, 2.4375, 0], pose: flame}
+  - {name: TongueTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [-0.8125, 3.1875, 0], rot: [0, 0, 20], moves: tongue, pivot: [-0.5625, 2.4375, 0], pose: flame}
   # and tapers below it through two deep-blue steps to a wisp that brushes the grass
   - {name: Base, slot: Body, size: [1.5, 0.375, 1], at: [0, 0.5625, 0], material: ember}
-  - {name: Base2, slot: BodyDark, size: [1, 0.25, 0.75], at: [-0.375, 0.25, 0.125], material: ember}
-  - {name: Trail, slot: BodyDark, size: [0.5, 0.125, 0.5], at: [-0.75, 0.0625, 0.25], material: ember}
+  - {name: Base2, slot: BodyDark, size: [1, 0.25, 0.75], at: [-0.375, 0.25, 0.125], material: ember, pose: trail}
+  - {name: Trail, slot: BodyDark, size: [0.5, 0.125, 0.5], at: [-0.75, 0.0625, 0.25], material: ember, pose: trail}
   # the hero: a lantern's iron bail, a quarter stud thick so it reads across the meadow, hinged to a pin on each side of the belly and
   # stepping up behind the flame to a bar over its tip with a hanging ring (it swings)
   - {name: BailPin, slot: Trim, size: [0.5, 0.25, 0.25], at: [1.25, 1.5, 0.75], mirror: x, material: metal, moves: halo, pivot: [0, 1.5, 0.875]}
@@ -83,16 +100,44 @@ parts:
   - {name: Glyph2, slot: Accessory, size: [0.125, 0.25, 0.25], at: [1.0625, 1.25, 0.25]}
   - {name: Glyph3, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 1.4375, 0.1875]}
   - {name: Glyph4, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 1.5625, 0.0625]}
-  # Rare pass w1, the signature piece: the lantern's lost glass, four lit violet panes each under an iron bar, drifting round the flame
-  # at different heights on one slow orbit (it turns, and on the flourish the panes leap and the ring spins round, `glass`)
-  - {name: Pane0, slot: Glow, size: [0.5, 0.5, 0.125], at: [0, 2.5, -1.5625], moves: glass, pivot: [0, 1.875, 0], material: crystal}
-  - {name: PaneBar0, slot: Trim, size: [0.5, 0.125, 0.125], at: [0, 2.8125, -1.5625], moves: glass, pivot: [0, 1.875, 0], material: metal}
-  - {name: Pane1, slot: Glow, size: [0.125, 0.5, 0.5], at: [1.5625, 1.25, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
-  - {name: PaneBar1, slot: Trim, size: [0.125, 0.125, 0.5], at: [1.5625, 1.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
-  - {name: Pane2, slot: Glow, size: [0.125, 0.5, 0.5], at: [-1.5625, 2.25, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
-  - {name: PaneBar2, slot: Trim, size: [0.125, 0.125, 0.5], at: [-1.5625, 2.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
-  - {name: Pane3, slot: Glow, size: [0.5, 0.5, 0.125], at: [0, 1.75, 1.5625], moves: glass, pivot: [0, 1.875, 0], material: crystal}
-  - {name: PaneBar3, slot: Trim, size: [0.5, 0.125, 0.125], at: [0, 2.0625, 1.5625], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # the Verdant kit: violet moss pads with a lit tuft on the cage's top corners, either side of the flame's root
+  - {name: Mossa, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.75, 2.3125, 0.25], mirror: x, material: moss}
+  - {name: Mossb, slot: Accessory, size: [0.375, 0.125, 0.25], at: [0.8125, 2.4375, 0.25], mirror: x, material: moss}
+  - {name: Mossc, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.6875, 2.5625, 0.1875], mirror: x, material: moss}
+  # a violet vine winding up the belly's sides and back in three strips (the face stays clear)
+  - {name: Vine0, slot: Accessory, size: [0.125, 0.5, 1.75], at: [1.0625, 1, 0], material: moss}
+  - {name: Vine1, slot: Accessory, size: [2.25, 0.5, 0.125], at: [0, 1.5, 0.8125], material: moss}
+  - {name: Vine2, slot: Accessory, size: [0.125, 0.5, 1.75], at: [-1.0625, 2, 0], material: moss}
+  # the satellite set (`glass`, one wide ring clear of the bail and the wisps, the front low): three iron-framed panes of the lantern's lost glass and three little hanging lanterns, all lit lilac
+  - {name: Sat0a, slot: Trim, size: [0.75, 0.125, 0.25], at: [1.25, 1.5625, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat0b, slot: Trim, size: [0.75, 0.125, 0.25], at: [1.25, 0.8125, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat0c, slot: Trim, size: [0.125, 0.625, 0.25], at: [0.9375, 1.1875, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat0d, slot: Trim, size: [0.125, 0.625, 0.25], at: [1.5625, 1.1875, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat0e, slot: Glow, size: [0.5, 0.625, 0.25], at: [1.25, 1.1875, -2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat1a, slot: Trim, size: [0.25, 0.125, 0.25], at: [2.375, 2.3125, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat1b, slot: Trim, size: [0.5, 0.125, 0.25], at: [2.375, 2.1875, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat1c, slot: Glow, size: [0.5, 0.625, 0.25], at: [2.375, 1.8125, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat1d, slot: Glow, size: [0.75, 0.375, 0.25], at: [2.375, 1.8125, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat2a, slot: Trim, size: [0.75, 0.125, 0.25], at: [1.25, 2.8125, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat2b, slot: Trim, size: [0.75, 0.125, 0.25], at: [1.25, 2.0625, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat2c, slot: Trim, size: [0.125, 0.625, 0.25], at: [1.5625, 2.4375, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat2d, slot: Trim, size: [0.125, 0.625, 0.25], at: [0.9375, 2.4375, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat2e, slot: Glow, size: [0.5, 0.625, 0.25], at: [1.25, 2.4375, 2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat3a, slot: Trim, size: [0.25, 0.125, 0.25], at: [-1.25, 2.5625, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat3b, slot: Trim, size: [0.5, 0.125, 0.25], at: [-1.25, 2.4375, 2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat3c, slot: Glow, size: [0.5, 0.625, 0.25], at: [-1.25, 2.0625, 2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat3d, slot: Glow, size: [0.75, 0.375, 0.25], at: [-1.25, 2.0625, 2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat4a, slot: Trim, size: [0.75, 0.125, 0.25], at: [-2.375, 1.9375, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat4b, slot: Trim, size: [0.75, 0.125, 0.25], at: [-2.375, 1.1875, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat4c, slot: Trim, size: [0.125, 0.625, 0.25], at: [-2.6875, 1.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat4d, slot: Trim, size: [0.125, 0.625, 0.25], at: [-2.0625, 1.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat4e, slot: Glow, size: [0.5, 0.625, 0.25], at: [-2.375, 1.5625, 0], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat5a, slot: Trim, size: [0.25, 0.125, 0.25], at: [-1.25, 1.4375, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat5b, slot: Trim, size: [0.5, 0.125, 0.25], at: [-1.25, 1.3125, -2.125], moves: glass, pivot: [0, 1.875, 0], material: metal}
+  - {name: Sat5c, slot: Glow, size: [0.5, 0.625, 0.25], at: [-1.25, 0.9375, -2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  - {name: Sat5d, slot: Glow, size: [0.75, 0.375, 0.25], at: [-1.25, 0.9375, -2.125], moves: glass, pivot: [0, 1.875, 0], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -126,6 +171,9 @@ The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` write
 
 ```yaml
 rig:
+  rest:
+    flame: {rot: [0, 0, -14], pivot: [0, 2.25, 0]}
+    trail: {rot: [0, 35, 0], pivot: [0, 0.5, 0]}
   clips:
     tip: [{kind: sway, amp: 10, period: 0.9, axis: z}, {kind: pulse, amp: 0.15, period: 0.7}]
     tongue: [{kind: sway, amp: 12, period: 1.1, axis: z, phase: 0.4}]
@@ -154,7 +202,7 @@ Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' l
 
 | Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
 |---|---|---|---|---|
-| Glass | `Pane0` (glass) | 0.00, 0.71, -0.48 | a lilac sparkle on each pane in turn, a soft light | Body |
+| Glass | `Sat0a` (glass) | 0.00, 0.71, -0.48 | a lilac sparkle on each pane in turn, a soft light | Body |
 
 ## Build
 

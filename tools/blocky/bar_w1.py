@@ -157,4 +157,42 @@ def sparkfox():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox}
+# ------------------------------------------------------------------------------------------------ Wispkin (Wisplet)
+def _lantern_pane(g, lite=False):
+    # a pane of the lantern's lost glass, three quarters of a stud wide and seven eighths tall, the same from both sides: an iron frame round a lit lilac pane
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.375, 0.375, 0.375, 0.5, z0, z1, "Trim", "metal"), _box(-0.375, 0.375, -0.375, -0.25, z0, z1, "Trim", "metal"),
+            _box(-0.375, -0.25, -0.25, 0.375, z0, z1, "Trim", "metal"), _box(0.25, 0.375, -0.25, 0.375, z0, z1, "Trim", "metal"),
+            _box(-0.25, 0.25, -0.25, 0.375, z0, z1, "Glow", "crystal")]
+
+
+def _wisp_orb(g, lite=False):
+    # a little hanging lantern seven eighths of a stud tall, the same from both sides: an iron ring and cap over a lit lilac octagon of light (a round orb, so it is not
+    # read as a pane; the first try, a flame on a blue base, read as a cupcake)
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.125, 0.5, 0.625, z0, z1, "Trim", "metal"), _box(-0.25, 0.25, 0.375, 0.5, z0, z1, "Trim", "metal"),
+            _box(-0.25, 0.25, -0.25, 0.375, z0, z1, "Glow", "crystal"), _box(-0.375, 0.375, -0.125, 0.25, z0, z1, "Glow", "crystal")]
+
+
+own("lantern_pane", "Wispkin", "a three-quarter-stud iron-framed pane of the lantern's lost glass, lit lilac (a satellite)", _lantern_pane)
+own("wisp_orb", "Wispkin", "a three-quarter-stud hanging lantern: an iron ring and cap over a lit lilac octagon (a satellite)", _wisp_orb)
+
+
+def wisplet():
+    """Rare, Verdant, Spirit (the Haunted Nebula event): a will-o'-the-wisp in a lantern's cage. Three kit pieces (violet moss pads with a lit tuft on the
+    cage's top corners, a violet vine round the belly's back and sides), six satellites in one lit lilac (three iron-framed panes of the lost glass and
+    three little flames) on the ring `glass` (it replaces the four old panes), the flame leaning into a drift and the trail swept out behind."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a drift: the flame leaning 14 degrees to its right with its tongue licking the other way, the trail swept out to its left, the lantern glass and little lanterns circling")
+    kit = K.place(P_["moss_cells"], "Moss", (0.75, 2.25, 0.25), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"})
+    p.wear("# the Verdant kit: violet moss pads with a lit tuft on the cage's top corners, either side of the flame's root", kit, ["moss_cells"] * 2)
+    kit = K.vine_wrap("Vine", (0, 0.75, 0), (2, 1.5), 1.5, steps=3, t=0.125, slot="Accessory", faces=("+x", "+z", "-x"))
+    p.wear("# a violet vine winding up the belly's sides and back in three strips (the face stays clear)", kit, ["vine_wrap"])
+    sats = K.orbit([P_["lantern_pane"], P_["wisp_orb"]] * 3, "Sat", (0, 0), 2.4, 1.65, tilt=0.2, moves="glass", pivot=[0, 1.875, 0], start=math.radians(30),
+                   lift=0.7, facing="front", drops=[0.0, 0.125, 0.0, 0.125, 0.0, 0.125], g=0.25)
+    p.regions.append(("# the satellite set (`glass`, one wide ring clear of the bail and the wisps, the front low): three iron-framed panes of the lantern's lost glass and three little hanging lanterns, all lit lilac", sats))
+    p.satellites, p.orbit = 6, "glass"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet}
