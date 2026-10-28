@@ -24,3 +24,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-26]]: the character bar studied (B54, Decide-Now 51); pilot and audit-fix workers.
 - [[2026-10-24]] (Mac): the Launch queue (jobs 67, 46, 47, 43) and the publish dry run.
 - [[2026-10-26]]: the character bar studied (B54, Decide-Now 51); pilot and audit-fix workers.
+- [[2026-10-28]]: the character bar resumed after the pause (BAR-W2: World 2's Rare-and-up aliens, rule 8 on the 16-stud strip).

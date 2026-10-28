@@ -505,13 +505,13 @@ local species: { [string]: Types.RigRow } = {
 	Reindazzle = {
 		height = 3.422,
 		parts = {
-			{ name = "chimeL", pivot = { -1.7377, 2.2167, -1.0625 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
-			{ name = "chimeR", pivot = { 1.2167, 2.7377, -1.0625 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
-			{ name = "earL", pivot = { -1.115, 1.565, -1.5625 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = -18, period = 3.2, phase = 0, axis = "z" } } },
-			{ name = "earR", pivot = { 0.8546, 1.9123, -1.5625 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = 18, period = 3.2, phase = 0, axis = "z" } } },
-			{ name = "lanterns", pivot = { 0, 1.3, 0.0625 }, clips = { { kind = "spin", amp = -360, period = 16, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 2.4, phase = 0, axis = "y" } } },
-			{ name = "noseL", pivot = { -0.0217, 1.1231, -2.3125 }, rest = { 0, 0, 10 }, clips = { { kind = "pulse", amp = 0.15, period = 2, phase = 0, axis = "y" } } },
-			{ name = "tail", pivot = { 0, 1.375, 1.3125 }, clips = { { kind = "wag", amp = 22, period = 2, phase = 0, axis = "y" } } },
+			{ name = "chimeL", pivot = { -1.7377, 2.2167, -0.75 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
+			{ name = "chimeR", pivot = { 1.2167, 2.7377, -0.75 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = 8, period = 1.6, phase = 0, axis = "x" } } },
+			{ name = "earL", pivot = { -1.115, 1.565, -1.25 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = -18, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "earR", pivot = { 0.8546, 1.9123, -1.25 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = 18, period = 3.2, phase = 0, axis = "z" } } },
+			{ name = "lanterns", pivot = { 0, 1.3, 0.375 }, clips = { { kind = "wag", amp = 28, period = 7, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 2.4, phase = 0, axis = "y" } } },
+			{ name = "noseL", pivot = { -0.0217, 1.1231, -2 }, rest = { 0, 0, 10 }, clips = { { kind = "pulse", amp = 0.15, period = 2, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 1.375, 1.625 }, clips = { { kind = "wag", amp = 22, period = 2, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "bob", amp = 0.06, period = 1.5, phase = 0, axis = "y" } },
 		face = {

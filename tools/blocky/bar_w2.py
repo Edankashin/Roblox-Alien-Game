@@ -54,18 +54,22 @@ def arc(pieces, name, centre, radius, y, angles, moves, pivot, g=0.125, lift=0.0
 
 # ------------------------------------------------------------------------------------------------ Reindazzle (Blinkar), Rare
 def _lantern(g, lite=False):
-    # a little sleigh lantern, half a stud wide and five eighths tall: a dark cap, a lit red body, a dark base; it echoes the lantern nose
-    return [_box(-0.125, 0.125, 0.5, 0.625, 0, 0.125, "BodyDark", None),
-            _box(-0.25, 0.25, 0.125, 0.5, 0, 0.25, "Glow", "glow"),
-            _box(-0.125, 0.125, 0, 0.125, 0, 0.125, "BodyDark", None)]
+    # a sleigh lantern three quarters of a stud wide and seven eighths tall (round 2: round 1's was a red cube with a lid and read as an apple, and the
+    # first redraw's dark posts made a dark clump): a handle, a wide dark roof, a lit red window half a stud across and half a stud tall, a dark base;
+    # it echoes the lantern nose, and from 16 studs the lit window is the mass
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.125, 0.75, 0.875, z0, z1, "BodyDark", None),
+            _box(-0.375, 0.375, 0.625, 0.75, z0, z1, "BodyDark", None),
+            _box(-0.25, 0.25, 0.125, 0.625, z0, z1, "Glow", "glow"),
+            _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None)]
 
 
 def reindazzle():
     """Rare, Frostbyte: a lantern keeper. Silver snowflake studs on the shoulders, a silver harness girth, a little ice tiara between the antlers
-    (3 kit pieces and the stance), the head cocked and one hoof lifted (rest poses), and six red sleigh lanterns on a ring round it (one lit colour, the
-    nose's, over dark brown caps that read on snow)."""
+    (3 kit pieces and the stance), the head cocked and one hoof lifted (rest poses), and six red sleigh lanterns in two garlands up its sides (one lit colour, the
+    nose's, in a dark frame that reads on snow)."""
     Pz = K.PIECES
-    p = P.Plan("Frostbyte", "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, an arc of six red lanterns at its sides and back")
+    p = P.Plan("Frostbyte", "a prance: the head cocked 10 degrees as if listening to its antlers chime, the right foreleg lifted 50 degrees mid-step, two garlands of three red lanterns rising up its sides")
     p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each shoulder, where the old flank flake was",
            K.place(Pz["snowflake_stud"], "Flake", (0.75, 1.125, 0.375), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
     girth = [K.part("GirthT", "Trim", (1.75, 0.125, 0.25), (0, 1.6875, -0.125), material="metal"),
@@ -73,9 +77,9 @@ def reindazzle():
     p.wear("# the harness girth: a silver strap a quarter stud wide and an eighth proud over its back and down both sides behind the front legs", girth, ["silver_band"])
     p.wear("# a little ice tiara between the antler posts (a lip of pale ice with two icicle teeth standing up; it rides the head)",
            K.place(Pz["frost_rim"], "Tiara", (0, 2.5, -1.0), "+y", scale=2, pose="head"), ["frost_rim"])
-    sats = arc([own("lantern", "a red sleigh lantern", _lantern)] * 6, "Sat", (0, 0.25), 2.3, 1.3, [80, 120, 160, 200, 240, 280], "lanterns", [0, 1.3, 0.25], g=0.25,
-               lift=0.4)
-    p.regions.append(("# the satellite set (`lanterns`, an arc at the sides and behind, the back higher, nothing in front of the face): six little sleigh lanterns, dark caps and a lit red heart, facing the viewer", sats))
+    sats = arc([own("lantern", "a red sleigh lantern", _lantern)] * 6, "Sat", (0, 0.25), 2.6, 0.95, [55, 90, 125, 235, 270, 305], "lanterns", [0, 1.3, 0.25], g=0.25,
+               lift=0.5)
+    p.regions.append(("# the satellite set (`lanterns`, two garlands of three rising up the sides and behind the shoulders, nothing in front of the face or over the head): six sleigh lanterns, a dark frame round a lit red heart, three quarters of a stud wide, facing the viewer", sats))
     p.satellites, p.orbit = 6, "lanterns"
     return p
 
