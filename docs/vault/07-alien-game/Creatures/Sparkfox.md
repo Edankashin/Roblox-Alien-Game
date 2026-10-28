@@ -7,9 +7,9 @@ world: 1
 tier: Rare
 status: review
 element: Ember
-height: 3
-blocks: 41
-tris: 650
+height: 3.1
+blocks: 84
+tris: 1210
 bevel_width: 0.1
 bevel_segments: 2
 palette: ["#FF7A30", "#FFF1DD", "#4A2433", "#FFC940", "#FFA53D", "#24141A"]
@@ -24,6 +24,12 @@ overlap: [0.996, 0.996, 0.997, 0.996]
 vfx_render: "[[Sparkfox_vfx_cells.jpg]]"
 cells_render: "[[Sparkfox_tq_cells.jpg]]"
 idle_render: "[[Sparkfox_idle.png]]"
+bar_world: Verdant
+bar_kit: 3
+bar_pieces: [bark_band, blossom_bud]
+bar_stance: "a painter's flourish: the head cocked toward its palette, the right forepaw lifted like a brush mid-stroke, the brush tail raised, a ring of paint splats and pots round it"
+bar_satellites: 6
+bar_orbit: paints
 ---
 # Sparkfox (Vixa), Rare, World 1 Verdant
 
@@ -39,35 +45,47 @@ An orange fox painter, 3 studs to its ear tips (B45: a small fox, mid-band): a s
 
 **World motif (Verdant).** The moss cell, here as the half-stud steps of the ears and the brush and the eighth-stud cells of the flame, the beret and the muzzle.
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`sparkfox()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** A fox painter mid-flourish: a studio on four paws. Kept: name, anatomy (the tail is a brush, the paint drop floats free, a palette hangs at its shoulder), the beret, height about 3.1.
+- **Gains (visible parts).** (1) Six satellites on a wide low ring clear of the palette and the brush, in one lit cream, gold and amber: three splats of paint (a stepped cream blob, gold ends, a lit amber dab on both faces) and three paint tins (a straight-sided cream tin, a gold lid ring, lit amber paint domed over it), each three quarters of a stud and more. (2) A gold girth a quarter stud wide round the barrel behind the front legs (real metal, visible at 16 studs). (3) Verdant kit: two gold blossom buds on the head's top behind the ears.
+- **Stance (rest groups `head`, `foreR`, `tail`).** The head cocked 10 degrees toward its palette, the right forepaw lifted 55 degrees like a brush mid-stroke, the brush tail raised 10 degrees more: a three-legged, head-tilted fox with a brush up, not a box on four stumps.
+- **Face intent.** Its own `glimmer` eyes kept (a teal iris ringed deeper against the orange, two shines and a glint), blush cheeks, the cream muzzle and ink nose as blocks: a bright-eyed, mischievous artist, clean and symmetric; the cock of the head carries the "just had an idea" look and the face is not changed.
+- **Three values (rule 8).** Body orange; the muzzle, tufts and every satellite cream (a step lighter); the plum socks, ear tips and beret a step darker; trim one gold and the glow amber. The satellites are never the body's colour.
+- **Must-nots.** No fierce brow; no loose grey boxes; nothing over the face (the first pots had wide rims and read as mushrooms: replaced by tins); no tilted piece under 10 degrees (the beret keeps its tilt from the head's); height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
 parts:
-  - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.5, -0.75], bevel: true}
+  - {name: Head, slot: Body, size: [2, 1.5, 1.5], at: [0, 1.5, -0.75], bevel: true, pose: head}
   - {name: Body, slot: Body, size: [1.5, 1, 2], at: [0, 1, 0.75], bevel: true}
-  - {name: FrontLeg, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, -0.5], mirror: x}
+  - {name: FrontLeg, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, -0.5], pose: foreR}
+  - {name: FrontLegL, slot: Accessory, size: [0.5, 0.5, 0.5], at: [-0.5, 0.25, -0.5]}
   - {name: HindLeg, slot: Accessory, size: [0.5, 0.5, 0.5], at: [0.5, 0.25, 1.5], mirror: x}
   # the fox's face in blocks under the plate: a cream muzzle with an ink nose on its top edge, cream cheek tufts out of the head's sides
-  - {name: Muzzle, slot: BodyDark, size: [0.5, 0.375, 0.125], at: [0, 1.0625, -1.5625]}
-  - {name: Nose, slot: Eye, size: [0.25, 0.125, 0.125], at: [0, 1.1875, -1.6875]}
+  - {name: Muzzle, slot: BodyDark, size: [0.5, 0.375, 0.125], at: [0, 1.0625, -1.5625], pose: head}
+  - {name: Nose, slot: Eye, size: [0.25, 0.125, 0.125], at: [0, 1.1875, -1.6875], pose: head}
   # Polish w1: the tufts sat at the head's bottom corners beside the front legs and read as paws; they now flare out at cheek height
   # beside the eyes, a step out and a smaller step further out and up, so the face widens at the cheeks like a fox's ruff
-  - {name: Tuft, slot: BodyDark, size: [0.125, 0.375, 0.5], at: [1.0625, 1.3125, -1.125], mirror: x}
-  - {name: TuftTip, slot: BodyDark, size: [0.125, 0.125, 0.375], at: [1.1875, 1.4375, -1.1875], mirror: x}
+  - {name: Tuft, slot: BodyDark, size: [0.125, 0.375, 0.5], at: [1.0625, 1.3125, -1.125], mirror: x, pose: head}
+  - {name: TuftTip, slot: BodyDark, size: [0.125, 0.125, 0.375], at: [1.1875, 1.4375, -1.1875], mirror: x, pose: head}
   # stepped fox ears: an orange base, a plum tip and a cream inside, each ear one moving part
-  - {name: Ear, slot: Body, size: [0.5, 0.5, 0.25], at: [0.625, 2.5, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
-  - {name: EarTip, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.625, 2.875, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
-  - {name: InnerEar, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [0.625, 2.375, -1.0625], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875]}
+  - {name: Ear, slot: Body, size: [0.5, 0.5, 0.25], at: [0.625, 2.5, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875], pose: head}
+  - {name: EarTip, slot: Accessory, size: [0.25, 0.25, 0.25], at: [0.625, 2.875, -0.875], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875], pose: head}
+  - {name: InnerEar, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [0.625, 2.375, -1.0625], mirror: x, moves: ear, pivot: [0.625, 2.25, -0.875], pose: head}
   # a painter's beret tipped between the ears, a gold stalk on top
-  - {name: Beret, slot: Accessory, size: [0.75, 0.25, 0.875], at: [0, 2.375, -0.6875], rot: [0, 0, 15]}
-  - {name: BeretStalk, slot: Trim, size: [0.125, 0.125, 0.125], at: [-0.0625, 2.5625, -0.6875], rot: [0, 0, 15], material: metal}
+  - {name: Beret, slot: Accessory, size: [0.75, 0.25, 0.875], at: [0, 2.375, -0.6875], pose: head}
+  - {name: BeretStalk, slot: Trim, size: [0.125, 0.125, 0.125], at: [-0.0625, 2.5625, -0.6875], material: metal, pose: head}
   # the hero: the paintbrush tail, leaning back and out to the right: a plum handle, a glossy gold ferrule, a head of orange fur bristles tapering to a point dipped in glowing paint
-  - {name: Tail, slot: Accessory, size: [0.375, 0.5, 0.375], at: [0.4375, 1.3125, 1.875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
-  - {name: Ferrule, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5625, 1.6875, 2], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], material: metal}
-  - {name: Brush, slot: Body, size: [0.875, 0.5, 0.875], at: [0.6875, 2, 2.1875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
-  - {name: Brush2, slot: Body, size: [0.75, 0.25, 0.75], at: [0.8125, 2.3125, 2.3125], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
-  - {name: BrushTip, slot: Glow, size: [0.5, 0.25, 0.5], at: [0.875, 2.5, 2.4375], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
-  - {name: BrushTip2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.9375, 2.75, 2.5625], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75]}
+  - {name: Tail, slot: Accessory, size: [0.375, 0.5, 0.375], at: [0.4375, 1.3125, 1.875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], pose: tail}
+  - {name: Ferrule, slot: Trim, size: [0.625, 0.25, 0.625], at: [0.5625, 1.6875, 2], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], material: metal, pose: tail}
+  - {name: Brush, slot: Body, size: [0.875, 0.5, 0.875], at: [0.6875, 2, 2.1875], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], pose: tail}
+  - {name: Brush2, slot: Body, size: [0.75, 0.25, 0.75], at: [0.8125, 2.3125, 2.3125], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], pose: tail}
+  - {name: BrushTip, slot: Glow, size: [0.5, 0.25, 0.5], at: [0.875, 2.5, 2.4375], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], pose: tail}
+  - {name: BrushTip2, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.9375, 2.75, 2.5625], rot: [25, 0, -20], moves: tail, pivot: [0.375, 1.125, 1.75], pose: tail}
   # alien anatomy: a drop of glowing paint floating free beside the brush
   - {name: Drop, slot: Glow, size: [0.25, 0.375, 0.25], at: [1.5, 2.1875, 2.75], shape: ico1, moves: float, pivot: [1.5, 2.1875, 2.75]}
   # Rare pass w1, the signature piece: a painter's palette floating at its left shoulder, a plum board held up to face the front, tipped back 20 degrees toward the
@@ -84,6 +102,51 @@ parts:
   - {name: Flame2, slot: Trim, size: [0.125, 0.25, 0.625], at: [0.8125, 0.875, 0.8125], mirror: x}
   - {name: Flame3, slot: Trim, size: [0.125, 0.125, 0.375], at: [0.8125, 1.0625, 0.8125], mirror: x}
   - {name: Flame4, slot: Trim, size: [0.125, 0.25, 0.125], at: [0.8125, 1.25, 0.8125], mirror: x}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # a gold girth: a quarter stud wide, an eighth proud, right round the barrel behind the front legs (the painter's strap)
+  - {name: Girth, slot: Trim, size: [1.75, 1.25, 0.25], at: [0, 1, 0.5], material: metal}
+  # gold blossom buds on the head's top behind the ears (they turn with the cocked head)
+  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.6875, 2.375, -0.3125], mirror: x, pose: head, material: wood}
+  - {name: Budb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.6875, 2.5625, -0.3125], mirror: x, pose: head}
+  - {name: Budc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.6875, 2.6875, -0.3125], mirror: x, pose: head}
+  # the satellite set (`paints`, one wide ring clear of the palette and the brush, the front low): three paint splats and three paint pots, all cream, gold and lit amber
+  - {name: Sat0a, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [1.25, 1, -2], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat0b, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [1.25, 0.75, -2], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat0c, slot: Trim, size: [0.125, 0.25, 0.25], at: [0.9375, 0.75, -2], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat0d, slot: Trim, size: [0.125, 0.25, 0.25], at: [1.5625, 0.75, -2], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat0e, slot: BodyDark, size: [0.375, 0.25, 0.25], at: [1.1875, 0.5, -2], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat0f, slot: Trim, size: [0.25, 0.25, 0.25], at: [1.5, 0.375, -2], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat0g, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.25, 0.75, -2.1875], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat0h, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.25, 0.75, -1.8125], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat1a, slot: BodyDark, size: [0.75, 0.375, 0.75], at: [2.625, 1.4375, 0.25], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat1b, slot: Trim, size: [0.75, 0.125, 0.75], at: [2.625, 1.6875, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat1c, slot: Glow, size: [0.5, 0.125, 0.5], at: [2.625, 1.8125, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat1d, slot: Glow, size: [0.125, 0.375, 0.25], at: [3.0625, 1.5625, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat2a, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [1.25, 2.375, 2.5], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2b, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [1.25, 2.125, 2.5], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2c, slot: Trim, size: [0.125, 0.25, 0.25], at: [1.5625, 2.125, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat2d, slot: Trim, size: [0.125, 0.25, 0.25], at: [0.9375, 2.125, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat2e, slot: BodyDark, size: [0.375, 0.25, 0.25], at: [1.3125, 1.875, 2.5], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat2f, slot: Trim, size: [0.25, 0.25, 0.25], at: [1, 1.75, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat2g, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.25, 2.125, 2.6875], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat2h, slot: Glow, size: [0.25, 0.25, 0.125], at: [1.25, 2.125, 2.3125], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat3a, slot: BodyDark, size: [0.75, 0.375, 0.75], at: [-1.25, 1.9375, 2.5], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat3b, slot: Trim, size: [0.75, 0.125, 0.75], at: [-1.25, 2.1875, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat3c, slot: Glow, size: [0.5, 0.125, 0.5], at: [-1.25, 2.3125, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat3d, slot: Glow, size: [0.125, 0.375, 0.25], at: [-1.6875, 2.0625, 2.5], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat4a, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [-2.625, 1.5, 0.25], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4b, slot: BodyDark, size: [0.5, 0.25, 0.25], at: [-2.625, 1.25, 0.25], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4c, slot: Trim, size: [0.125, 0.25, 0.25], at: [-2.9375, 1.25, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat4d, slot: Trim, size: [0.125, 0.25, 0.25], at: [-2.3125, 1.25, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat4e, slot: BodyDark, size: [0.375, 0.25, 0.25], at: [-2.6875, 1, 0.25], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat4f, slot: Trim, size: [0.25, 0.25, 0.25], at: [-2.375, 0.875, 0.25], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat4g, slot: Glow, size: [0.25, 0.25, 0.125], at: [-2.625, 1.25, 0.0625], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat4h, slot: Glow, size: [0.25, 0.25, 0.125], at: [-2.625, 1.25, 0.4375], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat5a, slot: BodyDark, size: [0.75, 0.375, 0.75], at: [-1.25, 0.5625, -2], moves: paints, pivot: [0, 1.5, 0.25]}
+  - {name: Sat5b, slot: Trim, size: [0.75, 0.125, 0.75], at: [-1.25, 0.8125, -2], moves: paints, pivot: [0, 1.5, 0.25], material: metal}
+  - {name: Sat5c, slot: Glow, size: [0.5, 0.125, 0.5], at: [-1.25, 0.9375, -2], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  - {name: Sat5d, slot: Glow, size: [0.125, 0.375, 0.25], at: [-0.8125, 0.6875, -2], moves: paints, pivot: [0, 1.5, 0.25], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -117,12 +180,17 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the ears twitch, the brush 
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [0, 0, 10], pivot: [0, 1.0, -0.4]}
+    foreR: {rot: [55, 0, 0], pivot: [0.5, 0.5, -0.5]}
+    tail: {rot: [-10, 0, 0], pivot: [0.375, 1.125, 1.75]}
   clips:
     ear: [{kind: wag, amp: 14, period: 4, axis: z}, {kind: sway, amp: 5, period: 2.6, axis: x, phase: 0.3}]
     tail: [{kind: sway, amp: 14, period: 2.2, axis: z}, {kind: sway, amp: 6, period: 3.3, axis: x, phase: 0.25}]
     float: [{kind: bob, amp: 0.12, period: 2}, {kind: orbit, amp: 0.08, period: 4}]
     palette: [{kind: bob, amp: 0.1, period: 2.6, phase: 0.4}, {kind: sway, amp: 8, period: 3.4, axis: y}]
     root: [{kind: squash, amp: 0.03, period: 2.4}]
+    paints: [{kind: spin, amp: 360, period: 20, axis: y}, {kind: bob, amp: 0.05, period: 3.2}]
     face: [{kind: blink, period: 4.4}]
   flourish:
     every: 8

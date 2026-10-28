@@ -7,9 +7,9 @@ world: 1
 tier: Epic
 status: review
 element: Shadow
-height: 3.44
-blocks: 85
-tris: 1032
+height: 3.46
+blocks: 130
+tris: 1658
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#E9E6FF", "#5B4A8A", "#FF9F1C", "#B89B5A", "#9D6BFF", "#1B1430"]
@@ -24,6 +24,12 @@ overlap: [0.994, 0.993, 0.998, 0.994]
 vfx_render: "[[Spookum_vfx_cells.jpg]]"
 cells_render: "[[Spookum_tq_cells.jpg]]"
 idle_render: "[[Spookum_idle.png]]"
+bar_world: Verdant
+bar_kit: 5
+bar_pieces: [bark_band, blossom_bud, moss_cells]
+bar_stance: "a drift: the whole sheet leaning 8 degrees to its right as it floats, the ragged hem twisted 25 degrees behind it, a ring of haunted candles and jack-o'-lanterns circling"
+bar_satellites: 6
+bar_orbit: candles
 ---
 # Spookum (Grin), Epic, World 1 Verdant, the Haunted Nebula event
 
@@ -41,101 +47,155 @@ A round ghost with a pumpkin's grin, 3.44 studs (B45: it was 3.91): a soft lilac
 
 **Event palette (Haunted Nebula).** Ghost white over dusk violet with the event's pumpkin orange as the accent, old brass trim and a violet glow: the warm end of the event's range (Wispkin is the cold blue end, Cosmoo the deep violet).
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`spookum()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** The pumpkin ghost of the Haunted Nebula, drifting in a lean with its own little haunt around it. Kept: name, anatomy (a sheet with a jack-o'-lantern's grin, a brass pumpkin stem, a chain and lock from one hand, a lantern friend at its shoulder, ragged tatters), the hearty eyes, height 3.46.
+- **Gains (visible parts).** (1) Six satellites on a wide low ring (the `candles` object, replacing the three old candles, so the Effects pieces `Candles`, `CandlesB` and `CandlesC` still hang on it): three haunted candles (a brass dish, an orange candle with cream drips, a lit violet flame) and three little jack-o'-lanterns (orange, a brass stem, a lit violet grin and eyes on both faces), three quarters of a stud and more. (2) Verdant kit, five pieces: pumpkin-orange moss pads with a lit tuft on the dome's back corners, brass blossom buds on its front corners, a brass belt a quarter stud tall round the waist. (3) The stance below.
+- **Stance (rest groups `lean`, `trail`).** The whole sheet above the hem leans 8 degrees to its right (the face, the arms, the chain, the crown all together) while the ragged hem is twisted 25 degrees behind it: a ghost drifting through a turn, not a block on a skirt.
+- **Face intent.** Its own `hearty` eyes kept (a lit violet iris with a pumpkin-orange heart pupil, orange lashes) over the built jack-o'-lantern grin: mischievous but warm, a friendly trick-or-treater. The face is not changed; the grin is the only thing under the plate and nothing crosses it.
+- **Three values (rule 8).** Body lilac-white; the hem, tatters, ribs and folds a step darker (dusk violet); the pumpkin orange and brass the warm accents and metal; lit violet the one light. The satellites are never the body's white.
+- **Must-nots.** No fierce teeth beyond the grin that exists; no loose boxes in the ring; nothing over the face; a hem rolled under its pivot dips below the ground (roll 10 sank 0.18: yawed instead); height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
 parts:
   # the body: one soft lilac-white block, the face plate and the grin on its front; a sheet's round from blocks (Polish w1): a flank bulge
   # proud of each side and three narrowing steps on top (the dome, the crown in its brass band, the cap), so it reads as a ghost's dome
-  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true, material: nebula}
-  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x, material: nebula}
-  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0], material: nebula}
-  - {name: CrownBand, slot: Trim, size: [1.25, 0.0625, 1.25], at: [0, 2.53125, 0], material: metal}
-  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0], material: nebula}
-  - {name: Cap, slot: Body, size: [0.625, 0.125, 0.625], at: [0, 2.8125, 0]}
+  - {name: Body, slot: Body, size: [2, 1.5, 2], at: [0, 1.5, 0], bevel: true, material: nebula, pose: lean}
+  - {name: Flank, slot: Body, size: [0.125, 1, 1.5], at: [1.0625, 1.5, 0], mirror: x, material: nebula, pose: lean}
+  - {name: Dome, slot: Body, size: [1.625, 0.25, 1.625], at: [0, 2.375, 0], material: nebula, pose: lean}
+  - {name: CrownBand, slot: Trim, size: [1.25, 0.0625, 1.25], at: [0, 2.53125, 0], material: metal, pose: lean}
+  - {name: Crown, slot: Body, size: [1.125, 0.25, 1.125], at: [0, 2.625, 0], material: nebula, pose: lean}
+  - {name: Cap, slot: Body, size: [0.625, 0.125, 0.625], at: [0, 2.8125, 0], pose: lean}
   # the hero: a brass pumpkin stem with a drooping curl and a dusk-violet leaf on the crown (they sway)
-  - {name: Stem, slot: Trim, size: [0.375, 0.375, 0.375], at: [0.1875, 3.0625, 0], moves: stem, pivot: [0, 2.875, 0]}
-  - {name: StemCurl, slot: Trim, size: [0.4375, 0.1875, 0.1875], at: [0.4375, 3.28125, 0], rot: [0, 0, -20], moves: stem, pivot: [0, 2.875, 0]}
-  - {name: Leaf, slot: BodyDark, size: [0.375, 0.0625, 0.25], at: [-0.15625, 2.96875, 0.0625], rot: [0, 0, 15], moves: stem, pivot: [0, 2.875, 0]}
+  - {name: Stem, slot: Trim, size: [0.375, 0.375, 0.375], at: [0.1875, 3.0625, 0], moves: stem, pivot: [0, 2.875, 0], pose: lean}
+  - {name: StemCurl, slot: Trim, size: [0.4375, 0.1875, 0.1875], at: [0.4375, 3.28125, 0], rot: [0, 0, -20], moves: stem, pivot: [0, 2.875, 0], pose: lean}
+  - {name: Leaf, slot: BodyDark, size: [0.375, 0.0625, 0.25], at: [-0.15625, 2.96875, 0.0625], rot: [0, 0, 15], moves: stem, pivot: [0, 2.875, 0], pose: lean}
   # the jack-o'-lantern grin, built proud of the front under the face plate in sixteenth-stud cells: an orange slit lit from inside with
   # upturned corners, an ink line under it, two white teeth hanging from its top edge and one rising from the bottom
-  - {name: Grin, slot: Accessory, size: [1.25, 0.25, 0.0625], at: [0, 0.9375, -1.03125], material: glow}
-  - {name: GrinCorner, slot: Accessory, size: [0.125, 0.125, 0.0625], at: [0.6875, 1.125, -1.03125], mirror: x, material: glow}
-  - {name: GrinLine, slot: Eye, size: [1.25, 0.0625, 0.0625], at: [0, 0.78125, -1.03125]}
-  - {name: Tooth, slot: Body, size: [0.125, 0.125, 0.0625], at: [0.25, 1, -1.09375], mirror: x}
-  - {name: Tooth2, slot: Body, size: [0.125, 0.125, 0.0625], at: [0, 0.875, -1.09375]}
+  - {name: Grin, slot: Accessory, size: [1.25, 0.25, 0.0625], at: [0, 0.9375, -1.03125], material: glow, pose: lean}
+  - {name: GrinCorner, slot: Accessory, size: [0.125, 0.125, 0.0625], at: [0.6875, 1.125, -1.03125], mirror: x, material: glow, pose: lean}
+  - {name: GrinLine, slot: Eye, size: [1.25, 0.0625, 0.0625], at: [0, 0.78125, -1.03125], pose: lean}
+  - {name: Tooth, slot: Body, size: [0.125, 0.125, 0.0625], at: [0.25, 1, -1.09375], mirror: x, pose: lean}
+  - {name: Tooth2, slot: Body, size: [0.125, 0.125, 0.0625], at: [0, 0.875, -1.09375], pose: lean}
   # the violet hem flares wider than the body like a sheet's skirt, and a ragged fringe of fifteen narrow points of different lengths hangs
   # from its edge all round (Polish w1: no gap under it as wide as a leg), three of them lit violet at the tip; they stir together
-  - {name: Hem, slot: BodyDark, size: [2.25, 0.375, 2.25], at: [0, 0.5625, 0], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-1, 0.3125, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter2, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [-0.5, 0.25, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter3, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [0, 0.28125, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter4, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [0.5, 0.25, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter5, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [1, 0.28125, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter6, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [-0.875, 0.25, 1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter7, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [-0.25, 0.28125, 1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter8, slot: BodyDark, size: [0.25, 0.3125, 0.125], at: [0.375, 0.21875, 1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter9, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [0.875, 0.3125, 1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter10, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [1.0625, 0.25, -0.5], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter11, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [1.0625, 0.25, 0], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter12, slot: BodyDark, size: [0.125, 0.125, 0.25], at: [1.0625, 0.3125, 0.5], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter13, slot: BodyDark, size: [0.125, 0.3125, 0.25], at: [-1.0625, 0.21875, -0.5], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter14, slot: BodyDark, size: [0.125, 0.1875, 0.25], at: [-1.0625, 0.28125, 0], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter15, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [-1.0625, 0.25, 0.5], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter4Tip, slot: Glow, size: [0.25, 0.125, 0.125], at: [0.5, 0.0625, -1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter6Tip, slot: Glow, size: [0.25, 0.125, 0.125], at: [-0.875, 0.0625, 1.0625], moves: hem, pivot: [0, 0.75, 0]}
-  - {name: Tatter11Tip, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.0625, 0.0625, 0], moves: hem, pivot: [0, 0.75, 0]}
+  - {name: Hem, slot: BodyDark, size: [2.25, 0.375, 2.25], at: [0, 0.5625, 0], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [-1, 0.3125, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter2, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [-0.5, 0.25, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter3, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [0, 0.28125, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter4, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [0.5, 0.25, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter5, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [1, 0.28125, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter6, slot: BodyDark, size: [0.25, 0.25, 0.125], at: [-0.875, 0.25, 1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter7, slot: BodyDark, size: [0.25, 0.1875, 0.125], at: [-0.25, 0.28125, 1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter8, slot: BodyDark, size: [0.25, 0.3125, 0.125], at: [0.375, 0.21875, 1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter9, slot: BodyDark, size: [0.25, 0.125, 0.125], at: [0.875, 0.3125, 1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter10, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [1.0625, 0.25, -0.5], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter11, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [1.0625, 0.25, 0], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter12, slot: BodyDark, size: [0.125, 0.125, 0.25], at: [1.0625, 0.3125, 0.5], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter13, slot: BodyDark, size: [0.125, 0.3125, 0.25], at: [-1.0625, 0.21875, -0.5], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter14, slot: BodyDark, size: [0.125, 0.1875, 0.25], at: [-1.0625, 0.28125, 0], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter15, slot: BodyDark, size: [0.125, 0.25, 0.25], at: [-1.0625, 0.25, 0.5], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter4Tip, slot: Glow, size: [0.25, 0.125, 0.125], at: [0.5, 0.0625, -1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter6Tip, slot: Glow, size: [0.25, 0.125, 0.125], at: [-0.875, 0.0625, 1.0625], moves: hem, pivot: [0, 0.75, 0], pose: trail}
+  - {name: Tatter11Tip, slot: Glow, size: [0.125, 0.125, 0.25], at: [1.0625, 0.0625, 0], moves: hem, pivot: [0, 0.75, 0], pose: trail}
   # two stubby arms rising out 20 degrees, a hand on each (they wave); the brass chain of five links hangs from the right hand to a little
   # brass lock with a lit keyhole, and swings with it
-  - {name: Arm, slot: Body, size: [0.625, 0.3125, 0.4375], at: [1.28125, 1.84375, -0.25], rot: [0, 0, 20], mirror: x, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Hand, slot: Body, size: [0.3125, 0.3125, 0.4375], at: [1.71875, 2.03125, -0.25], rot: [0, 0, 20], mirror: x, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Chain, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 1.71875, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Chain2, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.78125, 1.53125, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Chain3, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 1.34375, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Chain4, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.78125, 1.15625, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Chain5, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 0.96875, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Lock, slot: Trim, size: [0.25, 0.25, 0.125], at: [1.75, 0.75, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25]}
-  - {name: Keyhole, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.78125, 0.75, -0.34375], moves: arm, pivot: [1, 1.75, -0.25]}
+  - {name: Arm, slot: Body, size: [0.625, 0.3125, 0.4375], at: [1.28125, 1.84375, -0.25], rot: [0, 0, 20], mirror: x, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Hand, slot: Body, size: [0.3125, 0.3125, 0.4375], at: [1.71875, 2.03125, -0.25], rot: [0, 0, 20], mirror: x, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Chain, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 1.71875, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Chain2, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.78125, 1.53125, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Chain3, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 1.34375, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Chain4, slot: Trim, size: [0.0625, 0.1875, 0.125], at: [1.78125, 1.15625, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Chain5, slot: Trim, size: [0.125, 0.1875, 0.0625], at: [1.75, 0.96875, -0.28125], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Lock, slot: Trim, size: [0.25, 0.25, 0.125], at: [1.75, 0.75, -0.25], material: metal, moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
+  - {name: Keyhole, slot: Glow, size: [0.0625, 0.125, 0.0625], at: [1.78125, 0.75, -0.34375], moves: arm, pivot: [1, 1.75, -0.25], pose: lean}
   # a tiny jack-o'-lantern floating at its left shoulder, its face lit violet (it bobs, circles and turns)
-  - {name: Lantern, slot: Accessory, size: [0.375, 0.375, 0.375], at: [-1.375, 2.375, -0.25], moves: lantern, pivot: [-1.375, 2.375, -0.25]}
-  - {name: LanternStem, slot: Trim, size: [0.125, 0.125, 0.125], at: [-1.375, 2.625, -0.25], moves: lantern, pivot: [-1.375, 2.375, -0.25]}
-  - {name: LanternGrin, slot: Glow, size: [0.25, 0.0625, 0.0625], at: [-1.375, 2.28125, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25]}
-  - {name: LanternEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [-1.46875, 2.40625, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25]}
-  - {name: LanternEye2, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [-1.28125, 2.40625, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25]}
+  - {name: Lantern, slot: Accessory, size: [0.375, 0.375, 0.375], at: [-1.375, 2.375, -0.25], moves: lantern, pivot: [-1.375, 2.375, -0.25], pose: lean}
+  - {name: LanternStem, slot: Trim, size: [0.125, 0.125, 0.125], at: [-1.375, 2.625, -0.25], moves: lantern, pivot: [-1.375, 2.375, -0.25], pose: lean}
+  - {name: LanternGrin, slot: Glow, size: [0.25, 0.0625, 0.0625], at: [-1.375, 2.28125, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25], pose: lean}
+  - {name: LanternEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [-1.46875, 2.40625, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25], pose: lean}
+  - {name: LanternEye2, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [-1.28125, 2.40625, -0.46875], moves: lantern, pivot: [-1.375, 2.375, -0.25], pose: lean}
   # pumpkin ribs: dusk-violet strips proud of the back and the sides by an eighth
-  - {name: Rib, slot: BodyDark, size: [0.25, 1.25, 0.125], at: [0.625, 1.5, 1.0625], mirror: x}
-  - {name: SideRib, slot: BodyDark, size: [0.125, 1.25, 0.25], at: [1.1875, 1.5, 0.375], mirror: x}
+  - {name: Rib, slot: BodyDark, size: [0.25, 1.25, 0.125], at: [0.625, 1.5, 1.0625], mirror: x, pose: lean}
+  - {name: SideRib, slot: BodyDark, size: [0.125, 1.25, 0.25], at: [1.1875, 1.5, 0.375], mirror: x, pose: lean}
   # the stepped emblem: an orange pumpkin of three steps with a violet stem and two lit eyes, between the back ribs
-  - {name: Emblem, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.28125, 1.0625]}
-  - {name: Emblem2, slot: Accessory, size: [0.75, 0.3125, 0.125], at: [0, 1.53125, 1.0625]}
-  - {name: Emblem3, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.78125, 1.0625]}
-  - {name: EmblemStem, slot: BodyDark, size: [0.125, 0.1875, 0.125], at: [0, 1.96875, 1.0625]}
-  - {name: EmblemEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [0.15625, 1.59375, 1.15625], mirror: x}
-  # Rare pass w1, the signature piece: a ring of three floating candles circling the dome, pumpkin-orange wax with cream drips on brass dishes, lit violet
-  # glass flames, like a haunted candelabra that follows it; the ring turns slowly and the flames flare on the flourish (`candles`)
-  - {name: Candle0, slot: Accessory, size: [0.25, 0.375, 0.25], at: [1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: CandleDish0, slot: Trim, size: [0.375, 0.0625, 0.375], at: [1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
-  - {name: CandleDrip0, slot: Body, size: [0.0625, 0.125, 0.0625], at: [1.34375, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: Flame0, slot: Glow, size: [0.125, 0.25, 0.125], at: [1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
-  - {name: Candle1, slot: Accessory, size: [0.25, 0.375, 0.25], at: [-1.1875, 2.75, -0.6875], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: CandleDish1, slot: Trim, size: [0.375, 0.0625, 0.375], at: [-1.1875, 2.53125, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: metal}
-  - {name: CandleDrip1, slot: Body, size: [0.0625, 0.125, 0.0625], at: [-1.03125, 2.875, -0.71875], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: Flame1, slot: Glow, size: [0.125, 0.25, 0.125], at: [-1.1875, 3.0625, -0.6875], moves: candles, pivot: [0, 2.75, 0], material: crystal}
-  - {name: Candle2, slot: Accessory, size: [0.25, 0.375, 0.25], at: [0, 2.75, 1.375], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: CandleDish2, slot: Trim, size: [0.375, 0.0625, 0.375], at: [0, 2.53125, 1.375], moves: candles, pivot: [0, 2.75, 0], material: metal}
-  - {name: CandleDrip2, slot: Body, size: [0.0625, 0.125, 0.0625], at: [0.15625, 2.875, 1.34375], moves: candles, pivot: [0, 2.75, 0]}
-  - {name: Flame2, slot: Glow, size: [0.125, 0.25, 0.125], at: [0, 3.0625, 1.375], moves: candles, pivot: [0, 2.75, 0], material: crystal}
+  - {name: Emblem, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.28125, 1.0625], pose: lean}
+  - {name: Emblem2, slot: Accessory, size: [0.75, 0.3125, 0.125], at: [0, 1.53125, 1.0625], pose: lean}
+  - {name: Emblem3, slot: Accessory, size: [0.5, 0.1875, 0.125], at: [0, 1.78125, 1.0625], pose: lean}
+  - {name: EmblemStem, slot: BodyDark, size: [0.125, 0.1875, 0.125], at: [0, 1.96875, 1.0625], pose: lean}
+  - {name: EmblemEye, slot: Glow, size: [0.0625, 0.0625, 0.0625], at: [0.15625, 1.59375, 1.15625], mirror: x, pose: lean}
   # Rare pass w1: a spectral wisp curling up off the back between the ribs, lit violet glass (it sways like a sheet in a draught)
-  - {name: Wisp, slot: Glow, size: [0.25, 0.25, 0.125], at: [0, 2.125, 1.1875], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
-  - {name: Wisp2, slot: Glow, size: [0.1875, 0.25, 0.125], at: [0.03125, 2.375, 1.3125], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
-  - {name: Wisp3, slot: Glow, size: [0.125, 0.1875, 0.125], at: [0.0625, 2.59375, 1.4375], moves: wisp, pivot: [0, 2, 1.1875], material: crystal}
-  - {name: WispTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.125, 2.75, 1.5625], moves: wisp, pivot: [0, 2, 1.1875]}
+  - {name: Wisp, slot: Glow, size: [0.25, 0.25, 0.125], at: [0, 2.125, 1.1875], moves: wisp, pivot: [0, 2, 1.1875], material: crystal, pose: lean}
+  - {name: Wisp2, slot: Glow, size: [0.1875, 0.25, 0.125], at: [0.03125, 2.375, 1.3125], moves: wisp, pivot: [0, 2, 1.1875], material: crystal, pose: lean}
+  - {name: Wisp3, slot: Glow, size: [0.125, 0.1875, 0.125], at: [0.0625, 2.59375, 1.4375], moves: wisp, pivot: [0, 2, 1.1875], material: crystal, pose: lean}
+  - {name: WispTip, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.125, 2.75, 1.5625], moves: wisp, pivot: [0, 2, 1.1875], pose: lean}
   # Rare pass w1: a band of lit violet glass cells round the sheet's waist over the hem, where the ghost fades into its glow
-  - {name: Waist, slot: Glow, size: [0.0625, 0.125, 1.75], at: [1.03125, 0.8125, 0], mirror: x, material: crystal}
-  - {name: WaistBack, slot: Glow, size: [1.75, 0.125, 0.0625], at: [0, 0.8125, 1.03125], material: crystal}
+  - {name: Waist, slot: Glow, size: [0.0625, 0.125, 1.75], at: [1.03125, 0.8125, 0], mirror: x, material: crystal, pose: lean}
+  - {name: WaistBack, slot: Glow, size: [1.75, 0.125, 0.0625], at: [0, 0.8125, 1.03125], material: crystal, pose: lean}
   # Rare pass w1: two dusk-violet folds down each flank bulge, so the sheet reads as draped cloth from the three-quarter view
-  - {name: Fold, slot: BodyDark, size: [0.0625, 0.75, 0.125], at: [1.15625, 1.375, -0.375], mirror: x}
-  - {name: Fold2, slot: BodyDark, size: [0.0625, 0.5, 0.125], at: [1.15625, 1.25, 0.375], mirror: x}
+  - {name: Fold, slot: BodyDark, size: [0.0625, 0.75, 0.125], at: [1.15625, 1.375, -0.375], mirror: x, pose: lean}
+  - {name: Fold2, slot: BodyDark, size: [0.0625, 0.5, 0.125], at: [1.15625, 1.25, 0.375], mirror: x, pose: lean}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # the Verdant kit: pumpkin-orange moss pads with a lit tuft on the dome's back corners (they lean with the sheet)
+  - {name: Mossa, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.8125, 2.5625, 0.375], mirror: x, pose: lean, material: moss}
+  - {name: Mossb, slot: Accessory, size: [0.375, 0.125, 0.25], at: [0.875, 2.6875, 0.375], mirror: x, pose: lean, material: moss}
+  - {name: Mossc, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.75, 2.8125, 0.3125], mirror: x, pose: lean, material: moss}
+  # brass blossom buds on the dome's front corners, either side of the crown (they lean with the sheet)
+  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.5625, 2.625, -0.5625], mirror: x, pose: lean, material: wood}
+  - {name: Budb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.5625, 2.8125, -0.5625], mirror: x, pose: lean}
+  - {name: Budc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.5625, 2.9375, -0.5625], mirror: x, pose: lean}
+  # a brass belt: a quarter stud tall and three sixteenths proud, round the sheet's waist over the lit band (the grin stays clear)
+  - {name: BeltR, slot: Trim, size: [0.1875, 0.25, 2], at: [1.09375, 1, 0], pose: lean, material: metal}
+  - {name: BeltL, slot: Trim, size: [0.1875, 0.25, 2], at: [-1.09375, 1, 0], pose: lean, material: metal}
+  - {name: BeltB, slot: Trim, size: [2.375, 0.25, 0.1875], at: [0, 1, 1.09375], pose: lean, material: metal}
+  # the satellite set (`candles`, one wide ring clear of the arms and the lantern, the front low): three haunted candles and three jack-o'-lanterns, orange and brass with lit violet
+  - {name: Sat0a, slot: Trim, size: [0.75, 0.125, 0.5], at: [1.25, 0.6875, -2.1875], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat0b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [1.25, 1, -2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat0c, slot: Body, size: [0.125, 0.25, 0.0625], at: [1.1875, 1.125, -2.03125], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat0d, slot: Body, size: [0.125, 0.25, 0.0625], at: [1.3125, 1, -2.34375], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat0e, slot: Glow, size: [0.125, 0.25, 0.125], at: [1.25, 1.375, -2.1875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1a, slot: Accessory, size: [0.75, 0.5, 0.5], at: [2.5, 1.875, 0], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat1b, slot: Accessory, size: [0.5, 0.125, 0.5], at: [2.5, 2.1875, 0], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat1c, slot: Trim, size: [0.125, 0.125, 0.125], at: [2.5, 2.3125, 0], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat1d, slot: Glow, size: [0.5, 0.125, 0.0625], at: [2.5, 1.8125, -0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1e, slot: Glow, size: [0.5, 0.125, 0.0625], at: [2.5, 1.8125, 0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.3125, 2, -0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.6875, 2, -0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1h, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.3125, 2, 0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat1i, slot: Glow, size: [0.125, 0.125, 0.0625], at: [2.6875, 2, 0.28125], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat2a, slot: Trim, size: [0.75, 0.125, 0.5], at: [1.25, 1.9375, 2.1875], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat2b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [1.25, 2.25, 2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat2c, slot: Body, size: [0.125, 0.25, 0.0625], at: [1.3125, 2.375, 2.03125], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat2d, slot: Body, size: [0.125, 0.25, 0.0625], at: [1.1875, 2.25, 2.34375], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat2e, slot: Glow, size: [0.125, 0.25, 0.125], at: [1.25, 2.625, 2.1875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3a, slot: Accessory, size: [0.75, 0.5, 0.5], at: [-1.25, 2.125, 2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat3b, slot: Accessory, size: [0.5, 0.125, 0.5], at: [-1.25, 2.4375, 2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat3c, slot: Trim, size: [0.125, 0.125, 0.125], at: [-1.25, 2.5625, 2.1875], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat3d, slot: Glow, size: [0.5, 0.125, 0.0625], at: [-1.25, 2.0625, 2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3e, slot: Glow, size: [0.5, 0.125, 0.0625], at: [-1.25, 2.0625, 1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.0625, 2.25, 2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.4375, 2.25, 2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3h, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.0625, 2.25, 1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat3i, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.4375, 2.25, 1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat4a, slot: Trim, size: [0.75, 0.125, 0.5], at: [-2.5, 1, 0], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat4b, slot: Accessory, size: [0.25, 0.5, 0.25], at: [-2.5, 1.3125, 0], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat4c, slot: Body, size: [0.125, 0.25, 0.0625], at: [-2.5625, 1.4375, 0.15625], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat4d, slot: Body, size: [0.125, 0.25, 0.0625], at: [-2.4375, 1.3125, -0.15625], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat4e, slot: Glow, size: [0.125, 0.25, 0.125], at: [-2.5, 1.6875, 0], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5a, slot: Accessory, size: [0.75, 0.5, 0.5], at: [-1.25, 0.9375, -2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat5b, slot: Accessory, size: [0.5, 0.125, 0.5], at: [-1.25, 1.25, -2.1875], moves: candles, pivot: [0, 1.65, 0]}
+  - {name: Sat5c, slot: Trim, size: [0.125, 0.125, 0.125], at: [-1.25, 1.375, -2.1875], moves: candles, pivot: [0, 1.65, 0], material: metal}
+  - {name: Sat5d, slot: Glow, size: [0.5, 0.125, 0.0625], at: [-1.25, 0.875, -2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5e, slot: Glow, size: [0.5, 0.125, 0.0625], at: [-1.25, 0.875, -1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.4375, 1.0625, -2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.0625, 1.0625, -2.46875], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5h, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.4375, 1.0625, -1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  - {name: Sat5i, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.0625, 1.0625, -1.90625], moves: candles, pivot: [0, 1.65, 0], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -169,6 +229,9 @@ The idle and the flourish ([[Blocky-Style]] rule 8; `tools/blocky/rigs.py` write
 
 ```yaml
 rig:
+  rest:
+    lean: {rot: [0, 0, 8], pivot: [0, 0.75, 0]}
+    trail: {rot: [0, 25, 0], pivot: [0, 0.75, 0]}
   clips:
     arm: [{kind: flap, amp: 15, period: 1.6, axis: z}]
     hem: [{kind: sway, amp: 5, period: 2, axis: x}, {kind: sway, amp: 4, period: 2.6, axis: z, phase: 0.25}]
@@ -199,7 +262,7 @@ Rare pass w1. Where `Effects.luau` and `Spectacle.luau` can hang this species' l
 
 | Attach point | Part (moving object) | x, y, z | What it is for | Nearest existing region |
 |---|---|---|---|---|
-| Candles | `Flame0` (candles) | 0.31, 0.89, -0.34 | a violet flicker on each flame, a puff on the flourish | Halo |
+| Candles | `Sat0e` (candles) | 0.31, 0.89, -0.34 | a violet flicker on each flame, a puff on the flourish | Halo |
 
 ## Build
 

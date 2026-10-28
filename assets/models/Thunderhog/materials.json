@@ -11,7 +11,7 @@
   },
   {
     "slot": 2,
-    "name": "antennaL",
+    "name": "Glow",
     "hex": "FFF27A",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -19,7 +19,7 @@
   },
   {
     "slot": 3,
-    "name": "antennaR",
+    "name": "antennaL",
     "hex": "FFF27A",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -27,7 +27,7 @@
   },
   {
     "slot": 4,
-    "name": "charge",
+    "name": "antennaR",
     "hex": "FFF27A",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -35,6 +35,14 @@
   },
   {
     "slot": 5,
+    "name": "charge",
+    "hex": "FFF27A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 6,
     "name": "cloudR",
     "hex": "D4C6FF",
     "roughness": 0.55,
@@ -44,7 +52,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "crest",
     "hex": "FFC233",
     "roughness": 0.55,
@@ -54,7 +62,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "sparkR",
     "hex": "FFF27A",
     "roughness": 0.55,
@@ -62,7 +70,17 @@
     "emission": 1.5
   },
   {
-    "slot": 8,
+    "slot": 9,
+    "name": "storm",
+    "hex": "FFC233",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Thunderhog_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 10,
     "name": "tail",
     "hex": "2E1F66",
     "roughness": 0.55,
@@ -72,7 +90,7 @@
     "pixelated": true
   },
   {
-    "slot": 9,
+    "slot": 11,
     "name": "FacePlate",
     "hex": "8B5CF6",
     "roughness": 0.4,

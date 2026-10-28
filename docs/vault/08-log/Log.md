@@ -27,3 +27,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-28]]: the radar rebuilt as a plain paper scroll of silhouettes (B57, RADAR-2 resumed; Mac job 74). Lasting notes: [[UI-Playbook]] "Radar column".
 - [[2026-10-28]]: the UI richness pass, package A resumed and built (panel band, pills, goal card).
 - [[2026-10-28]]: the character bar resumed after the pause (BAR-W2: World 2's Rare-and-up aliens, rule 8 on the 16-stud strip).
+- [[2026-10-28]]: the character bar resumed for World 1's Rare and up (BAR-W1: Zapfinch to Nebulyn).
