@@ -155,7 +155,39 @@ def capybubble():
     return p
 
 
-PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble}
+# ------------------------------------------------------------------------------------------------ Shimmerlynx (Aurelyx), Epic
+def _star(g, lite=False):
+    # a four-point star three quarters of a stud across (the shape of the star in its eyes), the same from both sides: a lit cross (a thin upright bar,
+    # a thin crossbar and a fat middle, an eighth proud) over a dark indigo outline a sixteenth wider all round, so the light has an edge on snow
+    lit, dark = 0.125, 0.0625
+    return [_box(-0.125, 0.125, 0, 0.875, -dark, dark, "BodyDark", None), _box(-0.4375, 0.4375, 0.3125, 0.5625, -dark, dark, "BodyDark", None),
+            _box(-0.25, 0.25, 0.1875, 0.6875, -dark, dark, "BodyDark", None),
+            _box(-0.0625, 0.0625, 0.0625, 0.8125, -lit, lit, "Glow", "glow"), _box(-0.375, 0.375, 0.375, 0.5, -lit, lit, "Glow", "glow"),
+            _box(-0.1875, 0.1875, 0.25, 0.625, -lit, lit, "Glow", "glow")]
+
+
+def shimmerlynx():
+    """Epic, Frostbyte: the night cat. Six kit pieces (silver snowflake studs on the haunches, silver cuffs on the front legs, dark ice shards standing on
+    the haunches), the head turned and rolled and the right paw reaching out to you (rest poses), and a ring of six outlined violet stars (the star in its
+    eyes, grown: one lit colour, the crest's). The body is a mid lilac-grey (L* 63) so it stands off the snow, with a cream chest and paws, dark indigo
+    streaks and whiskers and a pale silver for the metal."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a cat that has decided you may approach: the head turned 14 degrees and rolled 6, the right paw reaching toward you 55 degrees, the tail up, a ring of six outlined violet stars round it")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of sixteenth-stud bars with a lit heart) on each haunch, where the stepped emblem was",
+           K.place(Pz["snowflake_stud"], "Flake", (1.25, 0.75, 0.25), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    cuffs = K.band("CuffL", (-0.5, 0.5, -0.8125), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    cuffs += K.band("CuffR", (0.5, 0.5, -0.8125), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal", pose="reach")
+    p.wear("# silver cuffs: a band a quarter stud tall and an eighth proud round each front leg above the paw (the right one reaches with its leg)", cuffs, ["silver_band"] * 2)
+    p.wear("# dark ice shards, half again as big, standing on the haunches' tops like spines (the dark indigo, so they stand off the snow)",
+           K.place(Pz["ice_shard"], "Shard", (0.75, 1.375, 0.5), "+y", mirror=True, scale=1.5, slots={"Accessory": "BodyDark"}), ["ice_shard"] * 2)
+    star = own("aurora_star", "a three-quarter-stud four-point star: a lit cross in a dark indigo outline (a satellite)", _star, "Epic")
+    sats = arc([star] * 6, "Sat", (0, 0.1), 2.5, 1.2, [45, 85, 125, 235, 275, 315], "sparks", [0, 1.8, 0.1], g=0.125, lift=0.7)
+    p.regions.append(("# the satellite set (`sparks`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six four-point stars, a lit violet cross in a dark outline, three quarters of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "sparks"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx}
 
 
 def apply(sid, write=True):
