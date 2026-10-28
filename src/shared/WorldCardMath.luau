@@ -9,11 +9,12 @@
 local BlockMath = require(script.Parent.BlockMath)
 local Data = require(script.Parent.data.WorldCards)
 local Tiers = require(script.Parent.data.Tiers)
+local Types = require(script.Parent.types.Types)
 local Worlds = require(script.Parent.data.Worlds)
 
 local WorldCardMath = {}
 
-export type Species = { id: string, name: string, tier: string, world: number }
+type Species = Types.SpeciesDef
 export type Tower = { col: number, width: number, height: number } -- cell columns from the left, cell width, cell height above the far band
 export type Block = { col: number, row: number, cells: number } -- the sun, moon or planet
 

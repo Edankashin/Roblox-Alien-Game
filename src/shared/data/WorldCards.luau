@@ -108,7 +108,24 @@ return {
 	LockedFade = 0.45, -- a locked card's face fade (Builder.setBlockFade)
 	LockedImageTint = "7A7F96", -- the picture's tint while locked (it greys)
 	UnknownTint = "2A2F55", -- an uncaught chip's face
-	Ribbon = { Width = 0.2, Height = 0.14 }, -- the NEXT ribbon on the next stop, of the card
+	Ribbon = { Width = 0.2, Height = 0.18 }, -- the NEXT ribbon on the next stop: width of the card's width, height of its height
+	LockedGrey = "8A8FA3", -- a locked card's diorama and picture lean toward this grey ...
+	LockedGreyShare = 0.55, -- ... by this much
+	-- Where a card's pieces sit, as shares of the card (x of its width, y and heights of its height; padX at each side). The normal
+	-- card stacks name, line and the species row on the left over the scrim with the button at the lower right; the compact one (the
+	-- Ship's strip) is one wide row: badge, name over a line, the button.
+	Layout = {
+		PadX = 0.035,
+		BadgeY = 0.07,
+		LevelWidth = 0.18, LevelHeight = 0.18, -- the outpost's "Lv 2" chip, top right
+		NameYNoLine = 0.52, NameYLine = 0.30, NameHeight = 0.22,
+		LineY = 0.52, LineHeight = 0.28,
+		RowY = 0.81, -- the species chips' top
+		ButtonWidth = 0.32, ButtonHeight = 0.34, ButtonBottom = 0.94,
+		TextWidthButton = 0.6, TextWidthFull = 0.92,
+		CompactBadge = 0.7, CompactNameY = 0.06, CompactNameHeight = 0.46, CompactLineY = 0.54, CompactLineHeight = 0.4,
+		CompactButtonWidth = 0.2, CompactButtonHeight = 0.7,
+	},
 	NearScreens = 1, -- a picture loads once its card is within this many screens of the viewport
 	OutpostTray = { Height = 0.16, Gap = 0.015 }, -- the Star Chart's outpost tray: its height of the panel, and the gap above it
 	Compact = { Height = 0.17 }, -- the Ship's next-stop strip: its height of the panel
