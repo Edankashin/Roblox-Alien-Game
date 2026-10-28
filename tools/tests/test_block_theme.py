@@ -133,5 +133,92 @@ class BlockTheme(unittest.TestCase):
                 self.assertIn(colour, names, colour)
 
 
+# The nine screens package A of the UI richness pass moved to Builder.panelHeader (docs/vault/05-ui-design/UI-Richness-Pass.md section 7).
+BAND_SCREENS = {
+    "QuestsScreen.luau": "Quests",
+    "GiftsScreen.luau": "Gifts",
+    "PlaytimeScreen.luau": "Playtime",
+    "SettingsScreen.luau": "Settings",
+    "MailScreen.luau": "Mail",
+    "VisitScreen.luau": "Visit",
+    "LeaderboardScreen.luau": "Ranks",
+    "PeddlerScreen.luau": "Peddler",
+    "ShopScreen.luau": "Shop",
+}
+
+
+class PanelBand(unittest.TestCase):
+    def setUp(self):
+        self.theme = lint_data.uncomment((ROOT / "src/shared/Theme.luau").read_text())
+        self.panels = lint_data.uncomment((ROOT / "src/shared/data/Panels.luau").read_text())
+
+    def colour_names(self):
+        block = re.search(r"Theme\.Colors\s*=\s*\{(.*?)\n\}", self.theme, re.S)
+        self.assertTrue(block, "Theme.Colors not found")
+        return set(re.findall(r"^\s*(\w+)\s*=", block[1], re.M))
+
+    def test_the_band_numbers_are_in_the_theme_on_one_line(self):
+        found = re.search(r"^\s*Band = \{(.*)\},\s*$", self.theme, re.M)
+        self.assertTrue(found, "Theme.Block.Band moved or is no longer one line")
+        keys = dict(re.findall(r"(\w+) = ([\d.]+)", found[1]))
+        for key in ("Pad", "Icon", "Pill", "Close", "PillPad", "PillCorner", "PillGap", "TitleGap", "CloseOverlap", "TitleStep"):
+            self.assertIn(key, keys, key)
+        # the one line is read by block_numbers() as a nested table: it must not shadow a Block key the spec checks
+        for key in keys:
+            self.assertNotIn(key, ("Cell", "Ink", "MinRows", "Grout", "Seed", "PanelCell"), key)
+        self.assertEqual(float(keys["Close"]), 0.8)
+        self.assertEqual(float(keys["Pill"]), 0.56)
+        self.assertEqual(float(keys["Icon"]), 0.7)
+        self.assertEqual(float(keys["CloseOverlap"]), 0.25)
+
+    def test_robux_is_clear_of_legendary(self):
+        robux = re.search(r'Robux = Color3\.fromHex\("(\w{6})"\)', self.theme)
+        legendary = re.search(r'Legendary = Color3\.fromHex\("(\w{6})"\)', self.theme)
+        self.assertTrue(robux and legendary)
+        self.assertEqual(robux[1].upper(), "FF7A1A")
+        self.assertNotEqual(robux[1].upper(), legendary[1].upper())
+
+    def test_every_header_names_a_theme_colour_and_the_roles_resolve(self):
+        names = self.colour_names()
+        rarities = set(re.findall(r"^\s*(\w+) = Color3", re.search(r"Theme\.Rarity = \{(.*?)\n\}", self.theme, re.S)[1], re.M))
+        colours = re.findall(r'color = "(\w+)", icon = "(\w+)"', self.panels)
+        self.assertEqual(len(colours), 13)
+        for colour, _ in colours:
+            self.assertIn(colour, names, colour)
+        accents = re.search(r"Accent = \{(.*?)\}", self.panels, re.S)
+        self.assertTrue(accents)
+        for band, accent in re.findall(r'(\w+) = "(\w+)"', accents[1]):
+            self.assertIn(band, names, band)
+            self.assertIn(accent, names, accent)
+        roles = re.search(r"Panels\.Roles = \{(.*?)\}", self.panels, re.S)
+        for role, colour in re.findall(r'(\w+) = "(\w+)"', roles[1]):
+            self.assertTrue(colour in names or colour in rarities, f"{role} -> {colour}")
+
+    def test_the_nine_screens_call_panel_header_and_not_the_old_tab(self):
+        for name, panel in BAND_SCREENS.items():
+            source = lint_data.uncomment((ROOT / "src/client/UI" / name).read_text())
+            self.assertIn("Builder.panelHeader(", source, name)
+            self.assertIn(f'panelId = "{panel}"', source, name)
+            self.assertNotIn("Builder.blockHeader(", source, name)
+            if name != "ShopScreen.luau":  # the Shop is a full-screen takeover with a fitted band (panelAspect 0), not a shell panel
+                self.assertRegex(source, r"Panels\.Shell\.(Top|Height)", name)
+
+    def test_the_panel_anatomy_is_built_in_the_builder_and_screens_make_no_rounded_pills(self):
+        builder = lint_data.uncomment((ROOT / "src/client/UI/Builder.luau").read_text())
+        for function in ("panelHeader", "sectionStrip", "stamp", "tierFrame", "tint", "roleColor", "setButtonMark"):
+            self.assertIn(f"function Builder.{function}(", builder, function)
+        for name in BAND_SCREENS:
+            source = lint_data.uncomment((ROOT / "src/client/UI" / name).read_text())
+            self.assertNotIn("UICorner", source, name)
+
+    def test_the_goal_card_reads_the_shared_rules(self):
+        hint = lint_data.uncomment((ROOT / "src/client/UI/TutorialHint.luau").read_text())
+        for call in ("HudStages.Fraction(", "HudStages.NotesProgress(", "HudStages.GoalReward(", "HudStages.GoalShares(", "Builder.blockBar("):
+            self.assertIn(call, hint, call)
+        hud = lint_data.uncomment((ROOT / "src/shared/data/Hud.luau").read_text())
+        for key in ("TextShareReward", "RewardShare", "CounterShare"):
+            self.assertRegex(hud, rf"\b{key}\s*=", key)
+
+
 if __name__ == "__main__":
     unittest.main()
