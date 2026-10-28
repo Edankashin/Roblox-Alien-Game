@@ -73,7 +73,7 @@ export type Card = {
 	dirty: boolean,
 }
 
-local FLAT_ROWS = 3 -- a flat block's rows: the plinth, the tag, the fallback square
+local FLAT_ROWS = 3 -- a small flat block's rows: the tag and the fallback square (the plinth is fitted and picks its own)
 
 -- A panel's (or any gui's) size in px with every open-tween UIScale on its ancestors and itself taken out, so a pop or an open does not
 -- change what mode it is in or move a child in and out.
@@ -227,8 +227,7 @@ function FeaturedCard.Build(parent: Instance, name: string, zIndex: number, turn
 		name = "Plinth",
 		color = Builder.lighter(Theme.Rarity.Common, Panels.Featured.PlinthTint),
 		ink = Theme.Rarity.Common,
-		rows = FLAT_ROWS,
-		cells = false,
+		cells = false, -- a fitted flat block: its rows follow its height (three rows on a plinth this big would cut a plus shape)
 		zIndex = top,
 	})
 	local viewTop = Builder.blockTop(view)

@@ -587,7 +587,7 @@ end
 -- Refresh ----------------------------------------------------------------------
 
 -- When each species the player owns was last caught: its newest alien's catch time, or its first catch (a released species still
--- counts in the codex). Read only while nothing is selected, to pick the card the detail opens on.
+-- counts in the codex). Read only while nothing is selected, to pick the species the featured card opens on.
 local function recentCatches(profile: Types.Profile): { [string]: number }
 	local recent: { [string]: number } = {}
 	for id, entry in pairs(profile.codex) do

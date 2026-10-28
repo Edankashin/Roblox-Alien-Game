@@ -118,7 +118,7 @@ end
 
 -- Codex ----------------------------------------------------------------------
 
--- The species the detail card shows on open: the most recently caught of `roster` (ids in display order), where `recent` maps a
+-- The species the Codex's featured card shows on open: the most recently caught of `roster` (ids in display order), where `recent` maps a
 -- species id to when it was last caught (the newest alien of it, or its first catch); the first entry of the roster when nothing
 -- on the page is caught. Ties go to the earlier entry. Nil only for an empty roster.
 function PanelQuiet.CodexDefault(roster: { string }, recent: { [string]: number }): string?
