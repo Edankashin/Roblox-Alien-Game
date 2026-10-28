@@ -324,4 +324,56 @@ def spookum():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth, "Spookum": spookum}
+# ------------------------------------------------------------------------------------------------ Gaira (Gaiabloom)
+def _glass_tulip(g, lite=False):
+    # a tulip of pink glass seven eighths of a stud tall, the same from both sides: a green stem and leaf, a lit pink cup in two steps with two tips and a gold stamen proud of both faces
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.0625, 0.0625, -0.25, 0.0, -0.0625, 0.0625, "Accessory", "moss"), _box(0.0625, 0.25, -0.25, -0.125, -0.0625, 0.0625, "Accessory", "moss"),
+            _box(-0.25, 0.25, 0.0, 0.25, z0, z1, "Glow", "crystal"), _box(-0.375, 0.375, 0.25, 0.5, z0, z1, "Glow", "crystal"),
+            _box(-0.375, -0.125, 0.5, 0.625, z0, z1, "Glow", "crystal"), _box(0.125, 0.375, 0.5, 0.625, z0, z1, "Glow", "crystal"),
+            _box(-0.0625, 0.0625, 0.125, 0.4375, 0.125, 0.1875, "Trim", "metal"), _box(-0.0625, 0.0625, 0.125, 0.4375, -0.1875, -0.125, "Trim", "metal")]
+
+
+def _gilded_seed(g, lite=False):
+    # a gilded seed-jewel three quarters of a stud across, the same from both sides: a gold diamond in five rows with a lit pink core proud of both faces
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.125, 0.25, 0.375, z0, z1, "Trim", "metal"), _box(-0.25, 0.25, 0.125, 0.25, z0, z1, "Trim", "metal"),
+            _box(-0.375, 0.375, -0.125, 0.125, z0, z1, "Trim", "metal"), _box(-0.25, 0.25, -0.25, -0.125, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.375, -0.25, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.125, 0.125, 0.125, 0.1875, "Glow", "crystal"), _box(-0.125, 0.125, -0.125, 0.125, -0.1875, -0.125, "Glow", "crystal")]
+
+
+own("glass_tulip", "Gaira", "a seven-eighths-stud tulip of lit pink glass on a green stem, a gold stamen on both faces (a satellite)", _glass_tulip, "Epic")
+own("gilded_seed", "Gaira", "a three-quarter-stud gold diamond seed with a lit pink core on both faces (a satellite)", _gilded_seed, "Epic")
+
+
+def gaiabloom():
+    """Legendary, Verdant, Nature: a blossoming stag. Ten kit pieces (green moss pads on the ground beside the hind hooves, gold blossom buds on the head's top corners,
+    amber sap drops under the ruff, gold cuffs on all four legs), seven satellites in one lit pink and gold (four glass tulips, three gilded seeds) on a ring clear of the
+    backdrop, and the backdrop: a bloom 3 studs across behind the rump (a gold rim, a moss wreath, a dark bark heart) with eight lit pink petals; the head lifted, the right
+    foreleg raised, the tail cocked."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a prancing stag: the head lifted 8 degrees as it scents the breeze, the right foreleg raised mid-step, the tail cocked, a great bloom opening behind it and tulips and gilded seeds circling")
+    kit = K.place(P_["moss_cells"], "Moss", (1.0, 0.0, 1.5), "+y", mirror=True)
+    p.wear("# the Verdant kit: moss pads on the ground beside the hind hooves", kit, ["moss_cells"] * 2)
+    kit = K.place(P_["blossom_bud"], "Bud", (0.875, 2.5, -1.375), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Glow"}, pose="head")
+    p.wear("# lit pink blossom buds on the head's top front corners (they turn with the lifted head)", kit, ["blossom_bud"] * 2)
+    kit = K.place(P_["sap_drop"], "Sap", (0.5, 0.75, -1.25), "-y", g=0.125, mirror=True, pose="head")
+    p.wear("# amber sap drops hanging from under the ruff (they go with the head)", kit, ["sap_drop"] * 2)
+    cuffs = [K.part("CuffH", "Trim", (0.5, 0.25, 0.5), (0.5, 0.4375, 1.5), material="metal", mirror=True),
+             K.part("CuffFL", "Trim", (0.5, 0.25, 0.5), (-0.5, 0.4375, -0.125), material="metal"),
+             K.part("CuffFR", "Trim", (0.5, 0.25, 0.5), (0.5, 0.4375, -0.125), material="metal", pose="foreR")]
+    p.wear("# gold cuffs, a quarter stud tall and an eighth proud, round all four legs (the raised foreleg's goes with it)", cuffs, ["bark_band"] * 4)
+    disc = K.disc("Bloom", (0, 1.75), [(1.5, "Trim", "metal"), (1.25, "Accessory", "moss"), (0.75, "BodyDark", None)], 2.5, thick=0.25, moves="bloom", pivot=[0, 1.75, 2.625])
+    disc += K.corona("Ray", (0, 1.75), 1.5, 2.5, angles=(0, 45, 90, 135, 180, 225, 270, 315), long=3, thick=0.25, material="crystal", moves="bloom", pivot=[0, 1.75, 2.625],
+                     cut=0.0, top=3.5)
+    p.regions.append(("# the backdrop (`bloom`, it turns once in 20 s): a flower 3 studs across behind the rump, a gold rim, a moss wreath round a dark bark heart (so the ivory fawn stands out against it), eight stepped lit pink petals round it, a quarter stud deep", disc))
+    sats = K.orbit([P_["glass_tulip"], P_["gilded_seed"], P_["glass_tulip"], P_["gilded_seed"], P_["glass_tulip"], P_["gilded_seed"], P_["glass_tulip"]], "Sat", (0, 0.1), 2.3, 1.6,
+                   tilt=0.15, moves="blooms", pivot=[0, 1.6, 0.1], start=math.radians(25), lift=0.8, facing="front", g=0.125)
+    p.regions.append(("# the satellite set (`blooms`, one wide ring in front of the backdrop, the front low): four glass tulips and three gilded seeds, all lit pink and gold", sats))
+    p.satellites, p.orbit, p.backdrop = 7, "blooms", "bloom"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth, "Spookum": spookum,
+         "Gaiabloom": gaiabloom}
