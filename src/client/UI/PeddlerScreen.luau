@@ -52,12 +52,11 @@ type Card = {
 -- Panel layout, as fractions of the panel. The header band (Builder.panelHeader) fills the top 0.149 and carries the "Leaves in"
 -- countdown as its pill, so the offers row starts under it and the three cards sit centred in what is left. The shell makes the
 -- panel taller, not wider: the aspect is the old 1.35 at the old height 0.78 held at the shell's, and the cards keep their px size.
-local ROW_Y = Panels.Shell.BodyTop
-local ROW_H = 1 - Theme.Margin - ROW_Y
 local CARD_ASPECT = 0.52 -- width / height; three fit across the 1.35 panel with the gaps
 local PANEL_H = Panels.Shell.Height -- the panel's height, of the screen
 local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.35, 0.78, PANEL_H)
-local CARD_H = 0.72 * 0.78 / PANEL_H -- a card's height as a share of the panel (the old 0.72 of 0.78): its rows come from it
+local ROW_H = 0.72 * 0.78 / PANEL_H -- the offers row, and so a card (it is as tall as the row): the old 0.72 of 0.78, so three still fit across
+local ROW_Y = Panels.Shell.BodyTop + (1 - Theme.Margin - Panels.Shell.BodyTop - ROW_H) / 2 -- centred in what the band leaves
 local CARD_GAP = 0.03 -- of the row width
 local REFRESH_SECONDS = 1 -- the countdown line (and the visit-over check) refresh this often
 
@@ -213,7 +212,7 @@ local function buildCard(parent: Frame, index: number): Card
 		cells = false,
 		edges = true,
 		aspect = CARD_ASPECT,
-		rows = Builder.blockRows(CARD_H * PANEL_H), -- the HUD's cell on a card as tall as the offers row
+		rows = Builder.blockRows(ROW_H * PANEL_H), -- the HUD's cell on a card as tall as the offers row
 		zIndex = 3,
 	})
 	frame.LayoutOrder = index
