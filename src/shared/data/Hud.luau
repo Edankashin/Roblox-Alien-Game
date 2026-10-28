@@ -22,7 +22,17 @@ local Hud = {
 		LineEm = 1.15, -- a line of text is this many ems tall
 		PadPx = 8, -- the plate's ink and air above and below the lines
 		TextShare = 0.92, -- the share of the plate's width the hint's text takes with no counter chip
-		TextShareCounter = 0.72, -- and with the "1/3" chip
+		TextShareCounter = 0.72, -- and with the "1/3" chip alone
+		-- UI richness pass, package A (the goal card): a Field Notes step has a reward, and the plate is its own bar. With the reward chip
+		-- the text takes TextShareReward; the chips share the rest from the plate's right edge (ChipRight), the counter CounterShare wide
+		-- (a tutorial step has no reward and keeps the wider CounterWide), the reward RewardShare, ChipGap between them.
+		TextShareReward = 0.5,
+		RewardShare = 0.2,
+		CounterShare = 0.17,
+		CounterWide = 0.2,
+		ChipGap = 0.01,
+		ChipRight = 0.97,
+		RewardAspect = 3.2, -- the reward chip's width over its height: the pixel icon and "+300" in green
 		StepPopSeconds = 1.2, -- the objective's face is gold this long when the step changes, then the dark trough
 	},
 	-- The top-right stack, from `Right` in from the screen's edge, each under the last by `Gap`: the place chip (where and when), the

@@ -36,6 +36,8 @@ local Gifts = require(Shared:WaitForChild("data"):WaitForChild("Gifts"))
 local Spins = require(Shared:WaitForChild("data"):WaitForChild("Spins"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local RewardIcon = require(Shared:WaitForChild("RewardIcon"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -78,10 +80,11 @@ type Tile = {
 type Wedge = { block: Frame, name: TextLabel, odds: TextLabel }
 
 -- Panel layout, as fractions of the panel. Two columns sit side by side: Welcome Week and the wheel (the social asks are a button
--- under the wheel). The header tab straddles the top edge and the close button reaches down to 0.155, so both start under it. The
--- calendar's three square tiles a row keep the size they had (about 60 px at iPhone SE), which fixes the panel's shape.
-local PANEL_ASPECT = 1.4
-local PANEL_H = 0.78
+-- under the wheel). The header band (Builder.panelHeader) fills the top 0.149, so both start under it. The calendar's three square
+-- tiles a row keep the size they had (about 60 px at iPhone SE), which fixes the panel's width: the shell makes the panel taller,
+-- so its aspect is the old 1.4 at the old height 0.78 held at the shell's (PanelHeaderMath.ShellAspect).
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.4, 0.78, PANEL_H)
 local BODY_Y = 0.16
 local HEADING_H = 0.065
 local COL_GAP = Theme.Margin
@@ -148,6 +151,7 @@ local SPIN_SECONDS = 3.2
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its pills
 local daysLabel: TextLabel? = nil
 local tiles: { Tile } = {}
 local wheel: Frame? = nil
@@ -407,6 +411,9 @@ local function refresh()
 	local gifts = State.GetGifts()
 	if daysLabel then
 		daysLabel.Text = Strings.GIFTS_DAYS_PLAYED:format(gifts.daysPlayed)
+	end
+	if header then
+		header.setPills({ { gifts.daysPlayed }, { gifts.freeSpins + gifts.bankedSpins } })
 	end
 	for index, tile in ipairs(tiles) do
 		local row = giftRows[index]
@@ -1074,17 +1081,15 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(0.8, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, gold, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.GIFTS_TITLE, Theme.Colors.Featured, Vector2.new(0.34, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: gold, the Gifts icon, "Day n" and "Spins n" pills (refresh), the red X.
+	header = Builder.panelHeader(body, { panelId = "Gifts", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		GiftsScreen.Close()
 	end)
 

@@ -85,6 +85,27 @@ describe("PixelIcons", function()
 		end
 		assert(area >= 8 * 8 / 2 and #lock <= 12, "the padlock covers " .. area .. " pixels in " .. #lock .. " frames")
 	end)
+	it("has the three marks the richness pass adds (StarChart, Robux, Check): 8 by 8, small, and covering enough to read", function()
+		for _, key in ipairs({ "StarChart", "Robux", "Check" }) do
+			local icon = PixelIcons.Icons[key]
+			assert(icon ~= nil, "no " .. key .. " icon")
+			expect(PixelIcons.GridOf(key)).toEqual(PixelIcons.DefaultGrid)
+			local area = 0
+			for _, pixel in ipairs(icon) do
+				area += (pixel[3] :: number) * (pixel[4] :: number)
+			end
+			assert(area >= 8 * 8 / 3 and #icon <= 14, key .. " covers " .. area .. " pixels in " .. #icon .. " frames")
+		end
+	end)
+	it("has an icon for every panel header (data/Panels Headers)", function()
+		local Panels = require(Shared.data.Panels)
+		for id, header in pairs(Panels.Headers) do
+			assert(PixelIcons.Icons[header.icon] ~= nil, id .. " names the icon " .. header.icon .. ", which is not drawn")
+		end
+		for kind, stamp in pairs(Panels.Stamps) do
+			assert(stamp.icon == "" or PixelIcons.Icons[stamp.icon] ~= nil, kind .. " stamp icon " .. stamp.icon)
+		end
+	end)
 end)
 
 return true

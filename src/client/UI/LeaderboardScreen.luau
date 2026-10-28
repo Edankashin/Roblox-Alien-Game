@@ -9,7 +9,7 @@
 -- While open two things run: a countdown thread that redraws the reset line once a minute, and the
 -- row stagger (tweens with a delay). Close cancels the thread and the tweens and puts the rows back.
 -- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with
--- the gold header tab and the close, each row a fitted edged block (gold with navy ink for the player, white in grey ink for
+-- the gold header band (Builder.panelHeader) and the close, each row a fitted edged block (gold with navy ink for the player, white in grey ink for
 -- the rest), the pinned row the same gold edged block.
 
 local Players = game:GetService("Players")
@@ -23,6 +23,8 @@ local LeaderboardMath = require(Shared:WaitForChild("LeaderboardMath"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Leaderboard = require(Shared:WaitForChild("data"):WaitForChild("Leaderboard"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Prefs = require(script.Parent.Parent.Prefs)
@@ -44,25 +46,26 @@ export type Payload = {
 -- the layout never fights the tween), the card's outline and its two labels.
 type Row = { slot: Frame, card: Frame, name: TextLabel, count: TextLabel } -- card: an edged block plate (face and ink recolour)
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the info lines sit between the two and the list starts under the lower one.
-local HEADER_W = 0.62 -- wide enough for the title at the minimum text size on a phone
-local HEADER_H = 0.12
-local COUNTDOWN_Y = 0.075
-local COUNTDOWN_H = 0.065
-local COUNTDOWN_W = 0.68 -- stays clear of the close button on the right
-local NOTE_Y = 0.14
-local NOTE_H = 0.055
-local LIST_Y = 0.15 -- the list's top without the Studio note
-local LIST_Y_NOTE = 0.2 -- and with it
+-- Panel layout, as fractions of the panel. The header band (Builder.panelHeader) fills the top 0.149, so the info lines sit under
+-- it and the list starts under the lower one. The shell makes the panel taller, not wider: the aspect is the old 1.15 at the old
+-- height 0.8 held at the shell's.
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.15, 0.8, PANEL_H)
+local COUNTDOWN_Y = Panels.Shell.BodyTop
+local COUNTDOWN_H = 0.055
+local COUNTDOWN_W = 0.9
+local NOTE_Y = COUNTDOWN_Y + COUNTDOWN_H
+local NOTE_H = 0.05
+local LIST_Y = COUNTDOWN_Y + COUNTDOWN_H + 0.005 -- the list's top without the Studio note
+local LIST_Y_NOTE = NOTE_Y + NOTE_H + 0.005 -- and with it
 local LIST_BOTTOM = 0.875
 local YOU_Y = 0.89
 local YOU_H = 0.085
 local SCROLLBAR_PX = 6
 
 -- Rows are sized in visible-list heights: one row plus its gap is PITCH, so ROWS_VISIBLE of them fill the
--- list with half a row peeking to say it scrolls. On an iPhone SE that is more than ten full rows.
-local ROWS_VISIBLE = 10.5
+-- list with half a row peeking to say it scrolls. On an iPhone SE that is nine full rows (the band took a row's room).
+local ROWS_VISIBLE = 9.5
 local PITCH = 1 / ROWS_VISIBLE
 local ROW_SHARE = 0.9 -- of the pitch; the rest is the gap
 local ROW_H = PITCH * ROW_SHARE
@@ -84,6 +87,7 @@ local STAGGER_FROM_X = 1
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): draw feeds its pill
 local scroller: ScrollingFrame? = nil
 local scrollLayout: UIListLayout? = nil
 local countdownLabel: TextLabel? = nil
@@ -267,6 +271,9 @@ local function draw()
 		rows[index].slot.Visible = false
 	end
 
+	if header then
+		header.setPills(if ownRank then { { ownRank } } else {}) -- "You #12", gone while the player is out of the top list
+	end
 	local isLocal = current ~= nil and current["local"]
 	local frame = scroller
 	if frame then
@@ -441,20 +448,18 @@ local function build()
 		parent = root,
 		name = "Panel",
 		color = Theme.Colors.Panel,
-		aspect = 1.15,
-		rows = Builder.blockPanelRows(0.8), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
+		aspect = PANEL_ASPECT,
+		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
-		size = UDim2.fromScale(0.62, 0.8),
-		anchor = Vector2.new(0.5, 0.5),
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
+		size = UDim2.fromScale(0.62, PANEL_H),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, gold like the Ranks button, title in white outlined text.
-	Builder.blockHeader(body, 1.15, Strings.LB_TITLE, Theme.Colors.Featured, Vector2.new(HEADER_W, HEADER_H))
-
-	Builder.blockClose(body, 0.8, function()
+	-- The header band: gold like the Ranks button, the Ranks icon, the "You #n" pill (draw), the red X.
+	header = Builder.panelHeader(body, { panelId = "Ranks", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		LeaderboardScreen.Close()
 	end)
 

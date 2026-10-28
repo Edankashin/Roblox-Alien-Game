@@ -48,6 +48,8 @@ local SeasonMath = require(Shared:WaitForChild("SeasonMath"))
 local WeeklyMath = require(Shared:WaitForChild("WeeklyMath"))
 local Countdown = require(Shared:WaitForChild("Countdown"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Place = require(Shared:WaitForChild("Place"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
@@ -66,8 +68,8 @@ type ObjectiveLine = { frame: Frame, text: TextLabel, progress: TextLabel }
 -- card (a step, a daily or weekly, an event row) a fitted edged block whose ink carries the state the old stroke did, its badge
 -- and buttons flat blocks, its progress bar a flat dark block filled cell-true (Builder.blockBar). Layout, bindings and string
 -- keys are as before.
-local PANEL_H = 0.78 -- the panel's height, of the screen (its rows and the tabs' come from it)
-local PANEL_ASPECT = 1.35
+local PANEL_H = Panels.Shell.Height -- the panel's height, of the screen (its rows and the tabs' come from it)
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.35, 0.78, PANEL_H) -- the old 1.35 at the old height 0.78, its width held (UI richness pass)
 local FLAT_ROWS = 3 -- a flat block (a badge, a card's button, a progress trough): the fewest rows a stepped corner takes
 
 -- One step row. Children are built once and re-laid-out for the compact or expanded shape.
@@ -125,13 +127,16 @@ type ViewName = "notes" | "daily" | "event"
 -- while a season runs); layoutTabs sets the three, applyView raises the active one.
 type Tab = { frame: Frame, color: Color3, x: number, visible: boolean }
 
--- The body from the top: the header line (the card's title on the left, "Step n of N" on the right), the What's on card,
--- then the list of the current tab. The card is two 15.5 px lines at iPhone SE size (panel 395 x 292): it starts under
--- the Close button (which ends at 0.155) and costs the lists about 34 px, a little over one compact Field Notes row.
-local HEADER_TOP = 0.083
-local HEADER_HEIGHT = 0.058
-local ON_TOP = 0.158
-local ON_HEIGHT = 0.106
+-- The body from the top (UI richness pass): the header band (Builder.panelHeader, to 0.149), the row of tabs under it, the header
+-- line (the What's on card's title), the What's on card, then the list of the current tab. The card is two 15.5 px lines at
+-- iPhone SE size (panel 395 x 315): it costs the lists about 34 px, a little over one compact Field Notes row. "Step n of N" went:
+-- the band's "Field Notes n / m" pill says it once.
+local TAB_TOP = 0.162
+local TAB_H = 0.085
+local HEADER_TOP = TAB_TOP + TAB_H + 0.004
+local HEADER_HEIGHT = 0.048
+local ON_TOP = HEADER_TOP + HEADER_HEIGHT + 0.002
+local ON_HEIGHT = 0.1
 local ON_GAP = 0.006
 local LIST_TOP = ON_TOP + ON_HEIGHT + ON_GAP -- below the card
 local ROW_COMPACT = 0.09 -- of the list height; the list lost 34 px to the What's on card (rows were 0.1 and gaps 0.012), and the current step's card keeps most of its height
@@ -140,20 +145,18 @@ local MIN_EXPANDED = 0.45 -- the current step's card never shrinks below this, w
 local DONE_HEIGHT = 0.3 -- the done line under a finished chain
 local OBJECTIVE_TEXT_WIDTH = 0.78 -- the rest of an objective line is its count
 
--- Header tabs, as fractions of the panel; they straddle the top edge. Two tabs (the usual look) sit left and right
--- of the centre line; while a season runs the Event tab joins and the three take thirds of the span left of the
--- Close button (which starts at 0.875). A third is 0.2767 of the panel: 109 px at iPhone SE size, where the longest
--- label, "Daily & Weekly", is 100.6 px at the minimum text size (Fredoka metrics), so it still fits on one line.
-local TAB_W = 0.33 -- two tabs
-local TAB_CENTRE_GAP = 0.01
-local TAB_SPAN_LEFT = 0.02 -- three tabs: the span they share
-local TAB_SPAN_RIGHT = 0.87
+-- The tabs, as fractions of the panel: a row directly under the band, in the screen's colours, the active one raised. Two tabs (the
+-- usual look) share the span between the margins; while a season runs the Event tab joins and the three take thirds of it. A third
+-- is 0.3133 of the panel: 124 px at iPhone SE size, where the longest label, "Daily & Weekly", is 100.6 px at the minimum text size
+-- (Fredoka metrics), so it still fits on one line. Each tab has the 44 px hit area.
+local TAB_SPAN_LEFT = 0.02
+local TAB_SPAN_RIGHT = 0.98
 local TAB_GAP = 0.01
 local TAB_COUNT_WITH_EVENT = 3
+local TAB_W = (TAB_SPAN_RIGHT - TAB_SPAN_LEFT - TAB_GAP) / 2 -- two tabs
 local TAB_W3 = (TAB_SPAN_RIGHT - TAB_SPAN_LEFT - (TAB_COUNT_WITH_EVENT - 1) * TAB_GAP) / TAB_COUNT_WITH_EVENT
-local TAB_H = 0.12
-local TAB_RAISED = 0 -- the active tab's centre sits on the panel's top edge
-local TAB_LOWERED = 0.02 -- the other one sits a little lower
+local TAB_RAISED = 0 -- the active tab sits at TAB_TOP
+local TAB_LOWERED = 0.01 -- the others a little lower
 local NOTES_COLOR = Theme.Colors.Featured
 local DAILY_COLOR = Theme.Colors.Select
 local EVENT_COLOR = Theme.Colors.Codex
@@ -199,7 +202,7 @@ local DAY = 86400
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
-local stepLabel: TextLabel? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its pills
 local onLines: { TextLabel } = {} -- the What's on card's four lines, in ON_PLACES order
 local onSummary: TextLabel? = nil -- the card's one line while it is closed
 local onExpanded = false -- the card shows its four lines (a tap on it flips this; the screen opens with it closed)
@@ -684,9 +687,6 @@ local function refreshNotes()
 		for _, row in ipairs(rows) do
 			row.card.Visible = false
 		end
-		if stepLabel then
-			stepLabel.Text = ""
-		end
 		if doneLabel then
 			doneLabel.Visible = false
 		end
@@ -696,9 +696,6 @@ local function refreshNotes()
 	local index = quests.fieldNotes[tostring(world)] or 1
 	local finished = index > total
 	ensureRows(total)
-	if stepLabel then
-		stepLabel.Text = Strings.QUESTS_STEP:format(math.min(index, total), total)
-	end
 	local compactCount = if finished then total else total - 1
 	local expandedHeight = math.max(MIN_EXPANDED, 1 - compactCount * (ROW_COMPACT + ROW_GAP))
 
@@ -1181,10 +1178,13 @@ local function refreshEvent()
 	end
 end
 
+local refreshPills: () -> () -- the band's pills (defined with claimableCounts, below)
+
 local function refresh()
 	if not open or not State.Has() then
 		return
 	end
+	refreshPills()
 	if view == "daily" then
 		refreshDaily()
 	elseif view == "event" then
@@ -1250,16 +1250,10 @@ local function layoutTabs()
 		end
 	end
 	for index, tab in ipairs(shown) do
-		if #shown < TAB_COUNT_WITH_EVENT then
-			local left = index == 1
-			tab.x = if left then 0.5 - TAB_CENTRE_GAP / 2 else 0.5 + TAB_CENTRE_GAP / 2
-			tab.frame.AnchorPoint = Vector2.new(if left then 1 else 0, 0.5)
-			tab.frame.Size = UDim2.fromScale(TAB_W, TAB_H)
-		else
-			tab.x = TAB_SPAN_LEFT + (index - 1) * (TAB_W3 + TAB_GAP)
-			tab.frame.AnchorPoint = Vector2.new(0, 0.5)
-			tab.frame.Size = UDim2.fromScale(TAB_W3, TAB_H)
-		end
+		local width = if #shown < TAB_COUNT_WITH_EVENT then TAB_W else TAB_W3
+		tab.x = TAB_SPAN_LEFT + (index - 1) * (width + TAB_GAP)
+		tab.frame.AnchorPoint = Vector2.zero
+		tab.frame.Size = UDim2.fromScale(width, TAB_H)
 	end
 end
 
@@ -1268,9 +1262,6 @@ end
 local function applyView()
 	layoutTabs()
 	local notes = view == "notes"
-	if stepLabel then
-		stepLabel.Visible = notes
-	end
 	if list then
 		list.Visible = notes
 	end
@@ -1284,7 +1275,7 @@ local function applyView()
 		local active = key == view
 		tab.frame.Visible = tab.visible
 		recolorButton(tab.frame, if active then tab.color else Theme.Rarity.Common)
-		tab.frame.Position = UDim2.fromScale(tab.x, if active then TAB_RAISED else TAB_LOWERED)
+		tab.frame.Position = UDim2.fromScale(tab.x, TAB_TOP + (if active then TAB_RAISED else TAB_LOWERED))
 	end
 end
 
@@ -1316,10 +1307,11 @@ local function buildTab(parent: Frame, key: ViewName, text: string, color: Color
 		name = if key == "notes" then "NotesTab" elseif key == "daily" then "DailyTab" else "EventTab",
 		text = text,
 		color = color,
-		position = UDim2.fromScale(0.5, TAB_LOWERED), -- layoutTabs places it
+		position = UDim2.fromScale(0.5, TAB_TOP), -- layoutTabs places it
 		size = UDim2.fromScale(TAB_W, TAB_H),
-		anchor = Vector2.new(0, 0.5),
+		anchor = Vector2.zero,
 		textSize = Theme.TextSize.Label,
+		hit = true,
 		rows = Builder.blockButtonRows(TAB_H * PANEL_H),
 		zIndex = Builder.blockTop(parent),
 	}, function()
@@ -1651,12 +1643,12 @@ local function buildWhatsOn(body: Frame)
 	end)
 end
 
--- Which tabs have something to claim now, from the mirror: Field Notes when the current step's objectives are all met, Daily & Weekly
--- when a dealt quest is done and not taken, Event when a track quest is. The panel opens on the first of them.
-local function claimableTabs(): { [string]: boolean }
-	local ready: { [string]: boolean } = {}
+-- How many things each tab has to claim now, from the mirror: Field Notes 1 when the current step's objectives are all met, Daily &
+-- Weekly the dealt quests that are done and not taken, Event the track quests that are.
+local function claimableCounts(): { notes: number, daily: number, event: number }
+	local counts = { notes = 0, daily = 0, event = 0 }
 	if not State.Has() then
-		return ready
+		return counts
 	end
 	local profile = State.Get()
 	local world = profile.world.current
@@ -1672,7 +1664,9 @@ local function claimableTabs(): { [string]: boolean }
 					break
 				end
 			end
-			ready.notes = allDone
+			if allDone then
+				counts.notes = 1
+			end
 		end
 	end
 	local quests = profile.quests
@@ -1682,7 +1676,7 @@ local function claimableTabs(): { [string]: boolean }
 		for _, id in ipairs(state.ids) do
 			local quest = byId[id]
 			if quest and state.claimed[id] ~= true and (state.progress[id] or 0) >= quest.objective.count then
-				ready.daily = true
+				counts.daily += 1
 			end
 		end
 	end
@@ -1692,12 +1686,39 @@ local function claimableTabs(): { [string]: boolean }
 		if savedId == current.season.id and saved then
 			for _, quest in ipairs(current.season.track) do
 				if saved.claimed[quest.id] ~= true and SeasonMath.TrackDone(quest, saved.progress) then
-					ready.event = true
+					counts.event += 1
 				end
 			end
 		end
 	end
-	return ready
+	return counts
+end
+
+-- Which tabs have something to claim now: the panel opens on the first of them.
+local function claimableTabs(): { [string]: boolean }
+	local counts = claimableCounts()
+	return { notes = counts.notes > 0, daily = counts.daily > 0, event = counts.event > 0 }
+end
+
+-- The band's pills: "To claim n" (everything the three tabs hold; a tap opens the first tab that has something) and "Field Notes
+-- n / m" (this world's chain: the current step over the steps, all of them once the chain is done).
+refreshPills = function()
+	local band = header
+	if not band or not State.Has() then
+		return
+	end
+	local counts = claimableCounts()
+	local total = counts.notes + counts.daily + counts.event
+	local profile = State.Get()
+	local world = profile.world.current
+	local steps: { Quests.Step }? = Quests.FieldNotes[world]
+	local count = if steps then #steps else 0
+	local step = math.min(State.GetQuests().fieldNotes[tostring(world)] or 1, count)
+	local toClaim: any = { total }
+	toClaim.onTap = function()
+		setView(PanelQuiet.QuestTab(claimableTabs(), State.GetSeason() ~= nil) :: ViewName)
+	end
+	band.setPills({ toClaim, { step, count } })
 end
 
 -- Build ----------------------------------------------------------------------
@@ -1733,36 +1754,26 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(0.8, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 	local top = Builder.blockTop(body)
 
-	-- Header tabs straddling the top edge: Field Notes (gold), Daily & Weekly (blue) and, while a season runs,
-	-- Event (Codex purple). The tapped one is raised and bright, the others lower and grey; layoutTabs spaces
-	-- them (applyView).
+	-- The header band: blue, the Quests icon, "To claim n" (a tap opens the tab that has something) and "Field Notes n / m" pills
+	-- (refreshPills), the red X.
+	header = Builder.panelHeader(body, { panelId = "Quests", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
+		QuestsScreen.Close()
+	end)
+
+	-- The tabs, a row directly under the band: Field Notes (gold), Daily & Weekly (blue) and, while a season runs, Event (Codex
+	-- purple). The tapped one is raised and bright, the others lower and grey; layoutTabs spaces them (applyView).
 	buildTab(body, "notes", Strings.DQ_TAB_NOTES, NOTES_COLOR)
 	buildTab(body, "daily", Strings.DQ_TAB_DAILY, DAILY_COLOR)
 	buildTab(body, "event", Strings.DQ_TAB_EVENT, EVENT_COLOR)
 
-	Builder.blockClose(body, PANEL_H, function()
-		QuestsScreen.Close()
-	end)
-
-	-- The header line: the card's title on the left (buildWhatsOn), "Step n of N" on the right of it, clear of Close.
-	stepLabel = Builder.label({
-		parent = body,
-		name = "Step",
-		text = "",
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.46, HEADER_TOP),
-		size = UDim2.fromScale(0.4, HEADER_HEIGHT),
-		xAlign = Enum.TextXAlignment.Right,
-		zIndex = top,
-	})
 	buildWhatsOn(body)
 
 	local stepsFrame = Builder.frame({

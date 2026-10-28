@@ -11,7 +11,7 @@
 -- and a Redeem button (tap or Enter) that ask the server (RedeemCode, one request in flight); the server
 -- decides and pays, the toast names what the code paid or why it did not.
 -- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel a cream block plate at
--- the panel cell with the block header tab and close, each row a fitted edged white block, every control a flat block button
+-- the panel cell with the header band and close (Builder.panelHeader), each row a fitted edged white block, every control a flat block button
 -- (green on, grey off, recoloured in place), the code box a flat block (Builder.textBox). Layout, bindings and keys as before.
 -- The clean pass (docs/vault/05-ui-design/Clean-UI-Pass.md, package C): the list has two section headings, "Sound and motion" and
 -- "Home" (data/Panels.SettingsSections maps each data/Settings key to one; Shared/PanelQuiet.SettingsItems builds the list, so a
@@ -39,19 +39,18 @@ local SettingsScreen = {}
 -- One row: its definition, the level buttons by level (level rows) or the single toggle button.
 type Row = { def: Settings.SettingDef, levelButtons: { Frame }, toggle: Frame? }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the rows start under it; the hint takes the bottom (one line at the 14 px floor). The rows frame
+-- Panel layout, as fractions of the panel. The header band (Builder.panelHeader, UI richness pass) fills the top 0.149 of it, so
+-- the rows start under it; the hint takes the bottom (one line at the 14 px floor). The rows frame
 -- shares its height between the settings, the promo-code row and the two headings (eight rows and two headings once the
 -- Announcements row is in): a row is 23 px and a button 20 px at iPhone SE height, a heading 16 px. tests/PanelQuiet.spec.luau
 -- ("Settings list") checks that a button's text box, inside its ink and padding, keeps the 14 px floor there, with and without it.
 local PANEL_W = 0.64
-local PANEL_H = 0.84
+local PANEL_H = Panels.Shell.Height
 local ROWS_Y = 0.16
 local ROWS_H = 0.765
 local HINT_Y = 0.935
 local HINT_H = 0.05
 local ROW_GAP = Panels.SettingsGap -- of the rows frame, between two items
-local HEADING_INDENT = 0.02 -- of a heading's width
 local LABEL_X = 0.03 -- of a row
 local LABEL_W = 0.35
 local CONTROLS_X = 0.39
@@ -324,23 +323,12 @@ local function buildCodesRow(parent: Frame, index: number, share: number)
 	}, redeem)
 end
 
--- A section heading in the list: a small gold label at the left, the height the share gives it.
+-- A section heading in the list: a section strip (UI richness pass: a plain flat plate in the band's colour a step darker, the
+-- label in caps), the height the share gives it.
 local function buildHeading(parent: Frame, index: number, title: string, share: number)
-	local heading = Builder.label({
-		parent = parent,
-		name = "Heading_" .. title,
-		text = Builder.text(title),
-		textSize = Theme.TextSize.Min,
-		color = Theme.Colors.Heading,
-		strokeColor = Theme.Colors.Black,
-		size = UDim2.fromScale(1, share),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 3,
-	})
-	heading.LayoutOrder = index
-	local indent = Instance.new("UIPadding")
-	indent.PaddingLeft = UDim.new(HEADING_INDENT, 0)
-	indent.Parent = heading
+	local strip = Builder.sectionStrip(parent, title)
+	strip.Size = UDim2.fromScale(1, share)
+	strip.LayoutOrder = index
 end
 
 -- Build ----------------------------------------------------------------------
@@ -376,17 +364,16 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 	local top = Builder.blockTop(body)
 
-	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.SETTINGS_TITLE, Theme.Colors.Select, Vector2.new(0.44, 0.11))
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: icon, title and the red X (no pills on Settings), the body leaning toward its blue.
+	Builder.panelHeader(body, { panelId = "Settings", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		SettingsScreen.Close()
 	end)
 

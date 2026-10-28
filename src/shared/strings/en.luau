@@ -130,6 +130,36 @@ return {
 	TUT_7 = "Thrusters need Glowroot from Starhollow Forest. Follow the marker.",
 	TUT_DONE = "You know the loop: catch, build, fly.",
 	TUT_PROGRESS = "%d/%d",
+	-- UI richness pass, package A (panel anatomy and the goal card): a panel's title, its status pills (one template each, so they
+	-- translate whole), the button and tile role words, and the goal card's claim line.
+	QUESTS_TITLE = "Quests",
+	PILL_ALIENS = "Aliens %d / %d",
+	PILL_COMPANIONS = "Companions %d / %d",
+	PILL_CODEX_FOUND = "Found %d / %d",
+	PILL_CODEX_PAGE = "%s %d / %d",
+	PILL_SHIP_MODULES = "Modules %d / %d",
+	PILL_SHIP_CREW = "Crew x%s",
+	PILL_WORLDS = "Worlds %d / %d",
+	PILL_READY = "Ready %s Scrap",
+	PILL_QUESTS_CLAIM = "To claim %d",
+	PILL_QUESTS_NOTES = "Field Notes %d / %d",
+	PILL_GIFTS_DAY = "Day %d",
+	PILL_GIFTS_SPINS = "Spins %d",
+	PILL_PLAYTIME_TODAY = "Today %d min",
+	PILL_PLAYTIME_GIFTS = "Gifts %d / %d",
+	PILL_SHOP_SCRAP = "Scrap %s",
+	PILL_MAIL_LETTERS = "Letters %d",
+	PILL_MAIL_CLAIM = "To claim %d",
+	PILL_VISIT_ONLINE = "Online %d",
+	PILL_RANKS_YOU = "You #%d",
+	ROLE_HERE = "HERE",
+	ROLE_OWNED = "OWNED",
+	ROLE_EQUIPPED = "EQUIPPED",
+	ROLE_COMPANION = "COMPANION",
+	ROLE_RIDING = "RIDING",
+	ROLE_PRICE_ROBUX = "%s", -- a Robux price: the number beside the pixel Robux mark (Builder.setButtonMark)
+	GOAL_CLAIM = "Claim",
+	GOAL_REWARD = "+%s",
 	HUD_EVENT_LINE = "%s %s", -- the event chip's one line: the event's name, then the time left ("Meteor Shower 4m 12s")
 	HUD_EVENT_LEFT = " left", -- the ending the chip drops from a banner's "4m 12s left" (the chip has no room for the word)
 	WAYPOINT_DISTANCE = "%dm",
@@ -553,7 +583,6 @@ return {
 	ANNOUNCE_NOTICE = "%s", -- a line from the team, shown as typed
 	ADMIN_LUCK_NAME = "the team", -- who gifted a luck window from the developer panel
 	-- Field Notes (quest chain)
-	QUESTS_STEP = "Step %d of %d",
 	QUESTS_CLAIM = "Claim",
 	QUESTS_CLAIMED = "Claimed",
 	QUESTS_DONE = "The Field Notes are complete. The Warden rides with you.",
@@ -864,7 +893,6 @@ return {
 	SHOP_DESC_Spins5 = "Five spins of the prize wheel.",
 	SHOP_ITEM_Spins12 = "12 Spins",
 	SHOP_DESC_Spins12 = "Twelve spins of the prize wheel.",
-	SHOP_ROBUX_PRICE = "R$ %d",
 	SHOP_ABOUT_PRICE = "about %s%s", -- the real-currency estimate under a Robux price: symbol then amount, e.g. "about $2.49" (Shop.RealCurrency, ShopMath.RealPrice)
 	SHOP_OWNED_PASS = "Owned",
 	SHOP_ONCE_DONE = "Claimed",

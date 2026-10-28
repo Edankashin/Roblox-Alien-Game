@@ -60,6 +60,48 @@ local Icons: { [string]: { Pixel } } = {
 		{ 1, 5, 6, 1, "B8BDD0" },
 		{ 3, 6, 2, 1, "Outline" },
 	},
+	-- a gold four-point star with a lit core: the Star Chart's panel icon (UI richness pass, package A)
+	StarChart = {
+		{ 3, 0, 2, 2, "Outline" },
+		{ 2, 2, 4, 1, "Outline" },
+		{ 0, 3, 8, 2, "Outline" },
+		{ 2, 5, 4, 1, "Outline" },
+		{ 3, 6, 2, 2, "Outline" },
+		{ 3, 2, 2, 4, "Featured" },
+		{ 1, 3, 6, 2, "Featured" },
+		{ 3, 3, 1, 1, "White" },
+	},
+	-- an orange octagon coin with a white ring: the Robux mark on a Robux-priced button, so the orange is never the only signal
+	Robux = {
+		{ 2, 0, 4, 1, "Outline" },
+		{ 1, 1, 6, 1, "Outline" },
+		{ 0, 2, 8, 4, "Outline" },
+		{ 1, 6, 6, 1, "Outline" },
+		{ 2, 7, 4, 1, "Outline" },
+		{ 2, 1, 4, 1, "Robux" },
+		{ 1, 2, 6, 4, "Robux" },
+		{ 2, 6, 4, 1, "Robux" },
+		{ 3, 2, 2, 1, "White" },
+		{ 2, 3, 1, 2, "White" },
+		{ 5, 3, 1, 2, "White" },
+		{ 3, 5, 2, 1, "White" },
+	},
+	-- a white tick on a navy edge: the "current" role (HERE, Following, Owned, Equipped)
+	Check = {
+		{ 5, 1, 3, 1, "Outline" },
+		{ 0, 2, 3, 1, "Outline" },
+		{ 4, 2, 4, 1, "Outline" },
+		{ 0, 3, 8, 1, "Outline" },
+		{ 0, 4, 7, 1, "Outline" },
+		{ 1, 5, 5, 1, "Outline" },
+		{ 2, 6, 3, 1, "Outline" },
+		{ 1, 3, 1, 1, "White" },
+		{ 2, 4, 1, 1, "White" },
+		{ 3, 5, 1, 1, "White" },
+		{ 4, 4, 1, 1, "White" },
+		{ 5, 3, 1, 1, "White" },
+		{ 6, 2, 1, 1, "White" },
+	},
 	-- MENU ICONS BEGIN (tools/menu_icons.py writes this block: the Menu's 16 x 16 icons, Decision B53)
 	-- a gold shopping bag with a red heart and a handle
 	Shop = {

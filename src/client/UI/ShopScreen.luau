@@ -142,6 +142,8 @@ local speciesById: { [string]: Types.SpeciesDef } = Species.ById
 local SHELF = Shop.Shelf
 local MOTION = SHELF.Motion
 local DISPLAY_ORDER = 26 -- over the HUD (10), the tutorial hint (15), the modal screens (20) and the HUD's menu column (25); under reveals (30) and toasts (40)
+local HEADER_Z = 12 -- the band over the rail, the fade and the shelf
+local CLOSE_Z = 16 -- and the X over the band
 local DETAIL_Z = 30 -- the detail card's layer inside the stage, over the rail, the header and the shelf
 local FLAT_ROWS = 3 -- a flat block (a chip, a price button, the glow, a thin bar): the fewest rows a stepped corner takes
 -- A card's own layers: the card plate is at 4, so its ink, face and edges take 4 to 7 and everything on it starts at 8 (its body
@@ -159,7 +161,7 @@ local thumb: Frame? = nil
 local leftChevron: Frame? = nil
 local rightChevron: Frame? = nil
 local edgeFade: Frame? = nil
-local scrapLabel: TextLabel? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): the title, the Scrap pill and the X
 local detailLayer: Frame? = nil
 local detailHeader: Frame? = nil
 local detailName: TextLabel? = nil
@@ -870,9 +872,11 @@ end
 
 -- Refresh ----------------------------------------------------------------------
 
-local function setPill(view: CardView, text: string, color: Color3)
+-- A price pill: its words and its role colour (Builder.roleColor), and the pixel mark at its left while it is a Robux price.
+local function setPill(view: CardView, text: string, color: Color3, mark: string?)
 	view.face.Text = text
 	recolorButton(view.button, color)
+	Builder.setButtonMark(view.button, mark)
 end
 
 -- A held item: the chip takes the pill's place and the line under it is cleared.
@@ -917,13 +921,13 @@ local function refreshRobuxCard(view: CardView, state: Types.PurchasesState, sho
 	local robux = LivePrice.Get(item) -- what the purchase dialog will charge, never only the data row
 	local about = ShopMath.AboutLine(robux, Shop.RealCurrency, Strings.SHOP_ABOUT_PRICE)
 	if not ShelfMath.IsLive(item) then
-		setPill(view, Strings.SHOP_SOON, Theme.Rarity.Common)
+		setPill(view, Strings.SHOP_SOON, Builder.roleColor("current"))
 		view.below.Text = ""
 	elseif needsChoice(item.id) and state.starterSpecies == nil then
-		setPill(view, Strings.SHOP_STARTER_PICK, Theme.Rarity.Common)
+		setPill(view, Strings.SHOP_STARTER_PICK, Builder.roleColor("current"))
 		view.below.Text = about
 	else
-		setPill(view, Strings.SHOP_ROBUX_PRICE:format(robux), Theme.Colors.Confirm)
+		setPill(view, Strings.ROLE_PRICE_ROBUX:format(robux), Builder.roleColor("robux"), "Robux") -- orange with the Robux mark: a Robux price is never green
 		view.below.Text = about
 	end
 end
@@ -943,7 +947,7 @@ local function refreshScrapCard(view: CardView, profile: Types.Profile)
 		view.below.Text = Strings.SHOP_HELD:format(profile.inventory.lures[view.id] or 0)
 		view.below.TextColor3 = Theme.Colors.White
 		showPill(view)
-		setPill(view, priceText(def.scrap), if profile.scrap >= def.scrap then Theme.Colors.Confirm else Theme.Rarity.Common)
+		setPill(view, priceText(def.scrap), Builder.roleColor(if profile.scrap >= def.scrap then "main" else "current"))
 		return
 	end
 	local item = view.gearItem
@@ -958,7 +962,7 @@ local function refreshScrapCard(view: CardView, profile: Types.Profile)
 	showPill(view)
 	view.below.Text = ""
 	local affordable = profile.scrap >= item.scrap and not gearLocked(profile, item)
-	setPill(view, priceText(item.scrap), if affordable then Theme.Colors.Confirm else Theme.Rarity.Common)
+	setPill(view, priceText(item.scrap), Builder.roleColor(if affordable then "main" else "current"))
 end
 
 -- Where a tab sits: down the rail in the order of the tabs that show, the active one nudged right (the raised look).
@@ -1217,9 +1221,9 @@ local function refresh()
 		picker.row.Visible = not packDone -- the choice is spent once the pack is claimed
 		recolorButton(picker.button, if picker.species == state.starterSpecies then Theme.Colors.Confirm else Theme.Rarity.Common)
 	end
-	local pill = scrapLabel
-	if pill and profile then
-		pill.Text = Builder.formatNumber(profile.scrap)
+	local band = header
+	if band then
+		band.setPills({ { Builder.formatNumber(if profile then profile.scrap else 0) } })
 	end
 	refreshTabs()
 	if layoutDirty then
@@ -1525,55 +1529,6 @@ local function buildChevron(parent: Frame, forward: boolean): Frame
 	return button
 end
 
--- The currency row: the HUD's Scrap plate (a dark block plate in cells with the pixel Scrap cube) and the count (Roblox does not
--- tell a script the player's Robux, so only Scrap shows).
-local function buildCurrency(parent: Frame)
-	local spec = SHELF.Currency
-	local pill = Builder.blockPlate({
-		parent = parent,
-		name = "ScrapPill",
-		color = Theme.Block.Trough,
-		aspect = spec.Aspect,
-		position = UDim2.fromScale(spec.Right, spec.Y),
-		size = UDim2.fromScale(spec.W, spec.H),
-		anchor = Vector2.new(1, 0),
-		zIndex = 12,
-	})
-	local top = Builder.blockTop(pill)
-	-- The icon square: a gold flat block under the pixel Scrap cube (Builder.blockIcon), which hides it while an icon shows.
-	local square = Builder.frame({
-		parent = pill,
-		name = "Icon",
-		position = pos(spec.Icon),
-		size = siz(spec.Icon),
-		anchor = Vector2.new(0, 0.5),
-		aspect = 1,
-		zIndex = top,
-	})
-	local back = Builder.blockPlate({
-		parent = square,
-		name = "Back",
-		color = Theme.Colors.Featured,
-		aspect = 1,
-		rows = FLAT_ROWS,
-		cells = false,
-		zIndex = top,
-	})
-	local picture = Builder.blockIcon({ parent = square, name = "Picture", key = "Scrap", zIndex = Builder.blockTop(back) })
-	back.Visible = picture == nil
-	scrapLabel = Builder.label({
-		parent = pill,
-		name = "Amount",
-		text = "0",
-		textSize = Theme.TextSize.Label,
-		position = pos(spec.Amount),
-		size = siz(spec.Amount),
-		anchor = Vector2.new(0, 0.5),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = top,
-	})
-end
-
 -- The faint rays behind the shelf: thin bars turned evenly through half a turn, each fading out at both ends in RAY_STEPS steps
 -- (segments, each a step clearer than the one inside it: a stepped fade, no gradient), in a square holder that the open
 -- animation turns slowly.
@@ -1738,23 +1693,14 @@ local function build()
 		end
 	end
 
-	-- The header: the title (clear of Roblox's own buttons at the top left), the currency pill and the red X top right.
-	local title = SHELF.Title
-	Builder.label({
-		parent = layer,
-		name = "Title",
-		text = Strings.SHOP_TITLE,
-		textSize = Theme.TextSize.Title,
-		position = pos(title),
-		size = siz(title),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = 12,
-	})
-	buildCurrency(layer)
-	local close = SHELF.Close
-	Builder.blockClose(layer, 1, function()
+	-- The header band (UI richness pass): the violet takeover's band across the top with the shop icon, the title, the Scrap pill
+	-- ("Scrap 99,936": the only place Scrap shows) and the red X. It has no plate of its own (aspect 0: fitted to the screen).
+	local band = Builder.panelHeader(layer, { panelId = "Shop", panelAspect = 0, panelHeight = 1 }, function()
 		ShopScreen.Close()
-	end, UDim2.fromScale(close.Right, close.Y), Vector2.new(close.W, close.H), 16)
+	end)
+	band.band.ZIndex = HEADER_Z
+	band.close.ZIndex = CLOSE_Z
+	header = band
 
 	-- The tab rail, then the scrollbar and the arrows.
 	tabs = {}
