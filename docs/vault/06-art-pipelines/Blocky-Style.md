@@ -362,6 +362,10 @@ The nine Rare-and-up aliens of World 1, each its own commit on the pilots' machi
 | [[Gaiabloom]] (Gaira) | Legendary | a 3-stud turning bloom backdrop (gold rim, moss wreath, bark heart, eight lit pink petals), seven satellites (four glass tulips, three gilded seeds), ten kit pieces (moss, buds, sap, four gold cuffs) | head lifted, right foreleg raised, tail cocked (`head`, `foreR`, `tail`) | 245, 3,024 |
 | [[Nebulyn]] (Cosmoo) | Legendary | a planet-and-ring backdrop rising behind the cloud, six satellites (three four-point stars, three mini ringed planets), seven kit pieces (buds, moss, two gold bands) | the cloud leaning, the tail swept (`lean`, `sweep`) | 165, 2,118 |
 
+![World 1 bar: the nine, before and after, front, three-quarter and from 16 studs](../../../media/studio/2026-10-26/bar_w1_v1.jpg)
+
+![World 1 bar: the nine faces straight on at 3 studs, before and after](../../../media/studio/2026-10-26/bar_w1_faces.jpg)
+
 What the nine taught, beyond the pilots' lessons:
 
 - **A satellite piece has to read as the thing it is at 0.75 stud.** A flame on a deep blue base read as a cupcake, a lavender puff on a thin stem as a mushroom, a pot with a rim wider than its body as a mushroom again: the fixes were a hanging lantern, a straight-sided tin and a puffed cloud over a fat two-step bolt. If a piece could be a food, change its silhouette before its colour.
