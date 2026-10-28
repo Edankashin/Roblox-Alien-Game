@@ -1,29 +1,31 @@
 --!strict
--- StarterPlayerScripts.Client.UI.AliensScreen: the Aliens panel. A strip of station cards across
--- the top (one per unlocked job: name, slots, rate and a row of slot squares), a scrolling grid of one square card per alien
--- (rarity gradient, the species' model, name, speed chip,
--- overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts a working alien down to
--- its next stage, where it is working or that it follows you; a following mount shows a Ride button in the status
--- slot instead), and a footer: a button row with the Storage Bay button at the left, Optimize and Fuse at the right and a Companion
--- Token button while a token is held, and under it one info line (the aliens owned over the storage cap, the companion slots in
--- use, the perks). The grid is two rows tall at the default window and at iPhone SE (see "Panel layout").
+-- StarterPlayerScripts.Client.UI.AliensScreen: the Aliens panel. Under the header band (Builder.panelHeader: "Aliens 34 / 160" and
+-- "Companions 2 / 4") a strip of station cards across the top (one per unlocked job: name, slots, rate and a row of slot squares),
+-- then the featured card (UI.FeaturedCard) beside a scrolling grid of one square tile per alien (tier-coloured face with the tier's
+-- studs, the species' model, name, speed chip, overlay badge, a level chip on a fused copy, a size chip and a growth chip that counts
+-- a working alien down to its next stage, where it works, a Companion or Riding stamp across its foot), and a footer: a button row
+-- with the Storage Bay button at the left, Optimize and Fuse at the right and a Companion Token button while a token is held, and
+-- under it one info line (the perks). A tap on a tile selects it (the selected tile takes the gold ink) and fills the featured card,
+-- which carries the one main action: Follow, Stop following, Hop off, Bring back, with Ride or Display beside it. At a panel of 620 by
+-- 330 px or more the card stands left of a three-column grid (side mode); under that (iPhone SE) it is a strip across the top of the
+-- body over a five-column grid (strip mode); Shared/FeaturedMath picks the mode and the buttons.
 -- Storage (milestones 50 and 50b, data/Storage): the owned count reads "Aliens: 12 / 60", the cap being what the server last said
 -- (State.GetStorageCap: it grows with the ship's modules, the Storage Bay and the pass), gold from WarnFraction of the cap and red
 -- when full. The Storage Bay button beside it buys the next level with Scrap ("+20 storage: 2,500 Scrap"); it is green while
--- the level can be bought and grey, with the reason in its words or in the toast a tap brings, when the Scrap is short, the
--- level waits for a world or the Bay is maxed out. A Release button at the top left opens the ReleasePanel menu (release all
--- unused Commons or Uncommons), and holding an alien card for Storage.HoldSeconds opens the same panel for that one alien; a
--- plain tap still follows or stops.
--- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot shows a Display button in
--- the status slot, and an alien on display shows a purple "On display" pill in the chip row (in place of the size and
--- growth chips) and, at home, a Bring back button in the status slot; a plain tap on a displayed card does nothing.
+-- level can be bought and grey, with the reason in its words or in the toast a tap brings, when the Scrap is short, the
+-- level waits for a world or the Bay is maxed out. A Release button in the footer opens the ReleasePanel menu (release all
+-- unused Commons or Uncommons), and holding an alien tile for Storage.HoldSeconds opens the same panel for that one alien; a
+-- plain tap selects it. The owned count and the companion slots live in the band's pills now.
+-- Habitats (milestone 42c): at home, a resting alien whose world has a habitat on the plot gets a Display button on the featured card
+-- (beside Follow), and an alien on display shows a purple "On display" pill in the chip row (in place of the size and growth chips)
+-- and, at home, a Bring back button on the featured card; a displayed alien never follows.
 -- Neither button shows while the player is visiting someone else's home (State.IsVisiting, milestone 42e): a guest
 -- never displays or takes back at another's plot, and the cards redraw on the "visit" topic when that changes.
 -- Every value is read from the profile mirror in State and the shared Economy and Growth math; the only taps
 -- that leave the client ask the server (StationOptimize, FuseSpecies, SetCompanion, SetMount, SetDisplay,
--- UseCompanionToken, BuyStorageBay, and through the ReleasePanel ReleaseAliens and ReleaseAllOfTier). Nothing here decides an outcome: Fuse only picks which species to ask about, a card tap only
--- asks to follow or stop (or, on the ridden card, to hop off), the Ride button only asks to ride or hop off, the
--- Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the cards redraw from
+-- UseCompanionToken, BuyStorageBay, and through the ReleasePanel ReleaseAliens and ReleaseAllOfTier). Nothing here decides an outcome: Fuse only picks which species to ask about, a tile tap only
+-- selects, the featured card's Follow and Stop following only ask to follow or stop, Ride and Hop off only ask to ride or hop
+-- off, the Display and Bring back buttons only ask to put an alien in a habitat or take it out, and the tiles redraw from
 -- the camp, companion and home pushes the server sends back.
 -- The look is block cells (UI Playbook "Block cells" and "Screens after the HUD", Decisions B44): the panel is a cream block plate
 -- at the panel cell, the header tab, the close button and every button block plates and block buttons; the station cards and the
@@ -33,6 +35,9 @@
 -- names under the squares are gone, the card keeps "4/4" and the rate); Release moved from the header's left corner into the footer's
 -- button row, left of the Storage Bay button; the footer has one green button at a time (the Bay button, while a level can be
 -- bought). Shared/PanelQuiet.AliensFooter places the row, with and without a Companion Token button.
+-- The richness pass (docs/vault/05-ui-design/UI-Richness-Pass.md section 4, package C): the band replaces the header tab, the featured
+-- card takes the follow, ride and display actions off the tiles (a tile shows the result as a stamp), the grid is one list sorted
+-- companions first and then by tier, and the count and companion lines left the footer for the band's pills ("say it once").
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -57,10 +62,12 @@ local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Storage = require(Shared:WaitForChild("data"):WaitForChild("Storage"))
 local StorageMath = require(Shared:WaitForChild("StorageMath"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local FeaturedMath = require(Shared:WaitForChild("FeaturedMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local ViewFit = require(Shared:WaitForChild("ViewFit"))
 local Builder = require(script.Parent.Builder)
 local SpeciesThumb = require(script.Parent.SpeciesThumb)
+local FeaturedCard = require(script.Parent.FeaturedCard)
 local Toast = require(script.Parent.Toast)
 local ScrapGap = require(script.Parent.ScrapGap)
 local ReleasePanel = require(script.Parent.ReleasePanel)
@@ -81,39 +88,31 @@ type Entry = {
 	name: string,
 	following: boolean,
 	riding: boolean, -- the local player rides this one (State.GetRiding)
+	tierRank: number, -- FeaturedMath.TierRank of its species
 }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
--- button reaches down to 0.155, so the body starts under it. Top to bottom: the station strip, the grid, the footer's button row
--- (the Storage Bay button at the left, the Companion Token button while a token is held, then Fuse and Optimize at the right)
--- and under it one info line (the aliens owned over the cap, the companion slots in use, the perks). The grid is two rows of
--- cards tall (Studio 2026-10-22, second run: the old header took the screen and the grid showed one row at the default window):
--- the counts and the Bay button went down to the footer's two rows, and the panel grew from 0.78 to 0.84 of the screen's height
--- (every fraction below follows it) so that at iPhone SE (667x375: 315 px tall, 425 wide) two rows of 72 px cards fit with a
--- strip of 60 px over them and 22 px buttons under. Tests/BlockMath.spec.luau "Aliens header and grid".
-local STRIP_Y = 0.158
-local STRIP_H = 0.195
-local STRIP_GAP = 0.02 -- between station cards, of the strip width
-local GRID_Y = 0.358
-local GRID_H = 0.50 -- two rows of cards and the gap between: 0.493 of the panel at the default window, 0.4917 at SE
+-- Panel layout, as fractions of the panel. The header band fills the top 0.16 (Panels.Shell.BodyTop). Top to bottom: the station strip,
+-- then the featured card and the grid (data/Panels.Featured.Aliens: side by side at a panel of 620 by 330 px or more, the card as a
+-- strip over the grid under that), then the footer's button row (the Storage Bay button at the left, the Companion Token button while a
+-- token is held, then Fuse and Optimize at the right) and under it one line (the perks). At iPhone SE (667x375: a 425 by 315 px panel)
+-- the strip mode leaves one row of 72 px tiles and a peek of the second under a 54 px station strip and a 50 px card; at the default
+-- window the side mode shows three columns of about 125 px tiles. Tests/BlockMath.spec.luau "Aliens header and grid".
 local FOOTER_Y = 0.864 -- the button row
 local FOOTER_H = 0.072
 local INFO_Y = 0.939 -- one line of 14 px text under the buttons
 local INFO_H = 0.041
+local STRIP_GAP = 0.02 -- between station cards, of the strip width
 -- The footer's button widths and places are data/Panels.AliensFooter, worked out by PanelQuiet.AliensFooter: Release then the Storage
 -- Bay button ("+20 storage: 2,500 Scrap" is about 156 px at the 14 px floor; "+20 for 2,500" while a token button shares the row) at
 -- the left, the Companion Token button (while a token is held, "Use Token (1)" about 86 px), Fuse and Optimize at the right.
-local INFO_COUNT_W = 0.3 -- the owned count, then the companions label, then the perks line takes the rest of the row
-local INFO_COMPANIONS_X = 0.32
-local INFO_PERKS_X = 0.64
+-- The perks line takes the whole row under the buttons (the count and the companions moved to the band's pills).
 local FUSE_BUSY_ALPHA = 0.5 -- the Fuse button's face and text fade by this while a fusion is in flight
 
--- Grid: five square cards per row; the cell width is a fraction of the grid's canvas width and the
--- cell height is derived from it so the cells come out square (see layoutGrid).
-local COLUMNS = 5
-local CELL_W = 0.18
-local CELL_GAP = 0.02
+-- Grid: square tiles, three per row beside the featured card and five across a strip (FeaturedMath.AliensGrid); the cell width is a
+-- fraction of the grid's canvas width and the cell height is derived from it so the cells come out square (see layoutGrid).
 local SCROLLBAR_PX = 6 -- thickness, not a Size: a thin dark bar on the right
+local SELECTED_INK = Theme.Colors.Featured -- a selection is an ink colour (the Playbook): the selected tile's border
+local TILE_INK = Theme.Colors.Outline
 
 -- The alien card's mid band: the shape square in the centre, then a chip row across its lower edge (size
 -- on the left, growth on the right), then the name and the station. A chip is CHIP_W of the card so five
@@ -134,8 +133,6 @@ local NAME_Y = 0.66
 local NAME_H = 0.14
 local STATUS_Y = 0.80
 local STATUS_H = 0.14
-local RIDE_Y = 0.78 -- the Ride button takes the status slot but stands taller (a 21 px tap target at the reference card, not 17)
-local RIDE_H = 0.18
 local CARD_ROWS = 10 -- an alien card is an edged block this many cells tall (about 7.5 px cells on an iPhone SE card of 83 px)
 local SQUARE_ROWS = 3 -- the shape square, a slot square and a chip: flat blocks of the fewest rows a stepped corner takes
 local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (the strip is 0.18 of the screen)
@@ -144,8 +141,8 @@ local STATION_ROWS = 8 -- a station card: an edged block this many rows tall (th
 local SLOTS_X = 0.02
 local SLOTS_W = 0.96
 local SLOT_SQUARE_H = 1
-local PANEL_H = 0.84 -- the panel's height, of the screen (its rows come from it, at the panel cell)
-local PANEL_ASPECT = 1.35
+local PANEL_H = Panels.Shell.Height -- the panel's height, of the screen (its rows come from it, at the panel cell)
+local PANEL_ASPECT = 1.35 -- its width in px was already this at the shell's height, so it keeps it
 
 -- The card's top corners: the speed chip top right, the overlay badge top left, and a fused copy's level chip
 -- (the speed chip's size) in the top-left corner too, or directly under the badge when the badge holds it.
@@ -163,12 +160,8 @@ local CORNER_GAP = 0.01
 local BADGE_FULL_W = 1 - 2 * CORNER_X
 local BADGE_BESIDE_W = BADGE_FULL_W - SPEED_W - CORNER_GAP
 
--- The Ride button of a following mount (a species with `ride`) takes the status label's place exactly: the status
--- row is the card's full width, so "Hop off" (49.5 px at the 14 px minimum, Fredoka) fits one line even on a 78 px
--- card (73 px of button). Its ZIndex sits above the invisible Tap overlay, so a tap on it asks to ride or hop off and
--- never reaches the card.
+-- The invisible Tap overlay sits above every chip and stamp of the tile (a tap selects it, a hold opens its Release panel).
 local TAP_Z = 8
-local RIDE_Z = TAP_Z + 1
 
 -- The perk kinds in the order the perks line lists them (the kinds of data/Companions PerkByJob).
 local PERK_ORDER: { string } = { "catchScrap", "zone", "luck", "radar" }
@@ -179,16 +172,24 @@ local HOUR = 60 * MINUTE
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its two pills
 local strip: Frame? = nil
-local countLabel: TextLabel? = nil
-local companionsLabel: TextLabel? = nil
+local featured: FeaturedCard.Card? = nil -- the featured card, built once and refilled on every selection
+local layoutMode: FeaturedMath.Mode? = nil -- the shape the body is laid out in now (side or strip)
+local selectedUid: string? = nil -- the tile the featured card shows
+local pendingSpecies: string? = nil -- AliensScreen.Select asked for the first alien of this species on the next refresh
+local entriesByUid: { [string]: Entry } = {} -- the tiles drawn now
+local tileByUid: { [string]: Frame } = {}
+local selectTile: (string) -> () = function(_uid: string) end -- a tap on a tile: assigned with the featured card below
+local gridColumns = 3 -- the grid's columns, cell width and gap for the mode (FeaturedMath.AliensGrid)
+local gridCell = 0.31
+local gridGap = 0.035
 local bayButton: Frame? = nil -- the Storage Bay button
 local perksLabel: TextLabel? = nil
 local tokenButton: Frame? = nil
 local grid: ScrollingFrame? = nil
 local gridLayout: UIGridLayout? = nil
 local badgeFits: { (number) -> () } = {} -- one per overlay badge on the cards now drawn; each takes the card's width in px and refits its badge
-local emptyLabel: TextLabel? = nil
 local fuseButton: Frame? = nil
 local releaseButton: Frame? = nil
 local optimizeButton: Frame? = nil
@@ -276,16 +277,17 @@ local function clearChildren(parent: Instance)
 	end
 end
 
--- The owned count over the storage cap the server last said (State.GetStorageCap), in the warning colour from
--- Storage.WarnFraction and the Close colour when full.
-local function setCount(count: number)
-	local label = countLabel
-	if not label then
+-- The band's pills: the owned count over the storage cap the server last said (State.GetStorageCap), its face red from Storage.WarnFraction
+-- of the cap (StorageMath.IsWarning, full included), and the companions in use over the slots (State.GetCompanionSlots).
+local function updatePills()
+	local band = header
+	if not band or not State.Has() then
 		return
 	end
 	local cap = State.GetStorageCap()
-	label.Text = Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(count), Builder.formatNumber(cap))
-	label.TextColor3 = if StorageMath.IsFull(count, cap) then Theme.Colors.Close elseif StorageMath.IsWarning(count, cap) then Theme.Colors.Featured else Theme.Colors.White
+	local owned: any = { cardCount, cap }
+	owned.warn = StorageMath.IsWarning(cardCount, cap)
+	band.setPills({ owned, { #State.Get().companions, State.GetCompanionSlots() } })
 end
 
 -- Server calls -------------------------------------------------------------
@@ -462,30 +464,19 @@ local function displayAlien(uid: string, name: string, world: number)
 	Toast.Show(Strings.TOAST_HABITAT_FULL:format(worldName), Theme.Rarity.Common)
 end
 
--- A tap on an alien card. The ridden card hops off first (the next tap, on a plain follower, unfollows); an alien on
--- display does nothing but click; a follower is asked to stop; a seated alien and a full set of slots are told to the player here (the server would refuse
--- both, so no request is spent); a resting alien with a free slot is asked to follow.
-local function onCardTapped(uid: string, name: string)
-	Builder.playSound(Sounds.Click)
+-- The Follow button of the featured card: a seated alien and a full set of slots are told to the player here (the server would refuse
+-- both, so no request is spent); a resting alien with a free slot is asked to follow. An alien on display never follows.
+local function followTap(uid: string, name: string)
 	if not State.Has() then
-		return
-	end
-	if State.GetRiding() == uid then
-		setMount(nil, name)
 		return
 	end
 	local profile = State.Get()
 	local record = profile.aliens[uid]
-	if not record then
+	if not record or record.habitat ~= nil then
 		return
 	end
-	if record.habitat ~= nil then
-		return -- on display: never follows; the Bring back button is the way off
-	end
 	local slots = State.GetCompanionSlots()
-	if table.find(profile.companions, uid) then
-		setCompanion(uid, false, name)
-	elseif record.station ~= nil then
+	if record.station ~= nil then
 		Toast.Show(Strings.TOAST_COMPANION_SEATED:format(name), Theme.Rarity.Common)
 	elseif #profile.companions >= slots then
 		Toast.Show(Strings.TOAST_COMPANION_FULL:format(slots), Theme.Rarity.Common)
@@ -770,8 +761,8 @@ local function layoutGrid()
 	if abs.X <= 0 or abs.Y <= 0 then
 		return
 	end
-	local cellPx = CELL_W * abs.X
-	local gapPx = CELL_GAP * abs.X
+	local cellPx = gridCell * abs.X
+	local gapPx = gridGap * abs.X
 	-- With pixel cell heights the canvas can follow the content exactly (no feedback), so the page maths
 	-- that ran against a not-yet-final frame height (a 1020 px canvas for 336 px of cards) is gone.
 	frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -780,11 +771,12 @@ local function layoutGrid()
 	-- inside a ScrollingFrame resolves against the canvas, and the canvas grows to hold the grid's content,
 	-- so a Scale cell fed back into a taller canvas until one card sat 150 px down a 565 px canvas (Studio,
 	-- 2026-10-05). Width and padding stay Scale.
-	layout.CellSize = UDim2.new(CELL_W, 0, 0, cellPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
-	layout.CellPadding = UDim2.new(CELL_GAP, 0, 0, gapPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
+	layout.FillDirectionMaxCells = gridColumns
+	layout.CellSize = UDim2.new(gridCell, 0, 0, cellPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
+	layout.CellPadding = UDim2.new(gridGap, 0, 0, gapPx) -- lint: grid-pixel-height (UI Playbook, Grids inside scrolling frames)
 	-- The cards are square, so a cell's width is a card's width. The overlay badges fit their names against it, less the
 	-- scrollbar's thickness (the canvas gives it up once the cards overflow), so the fit is never a pixel short.
-	local cardPx = CELL_W * math.max(0, abs.X - SCROLLBAR_PX)
+	local cardPx = gridCell * math.max(0, abs.X - SCROLLBAR_PX)
 	for _, fit in ipairs(badgeFits) do
 		fit(cardPx)
 	end
@@ -819,6 +811,7 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		parent = parent,
 		name = record.uid,
 		color = tierColor,
+		ink = if record.uid == selectedUid then SELECTED_INK else TILE_INK,
 		aspect = 1,
 		rows = CARD_ROWS,
 		cells = false,
@@ -827,6 +820,14 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	})
 	card.LayoutOrder = index
 	local top = Builder.blockTop(card)
+	Builder.tierFrame(card, if def then def.tier else "Common") -- the ladder's studs and tint (Rare one stud up to four from Legendary)
+	tileByUid[record.uid] = card
+	-- Where it is and what it is doing: a Riding or Companion stamp across its foot (the featured card holds the buttons).
+	if entry.riding then
+		Builder.stamp(card, "Riding")
+	elseif entry.following then
+		Builder.stamp(card, "Companion")
+	end
 
 	-- The placeholder stand-in until art exists: a flat block in the species colour with the shape name.
 	local shape = Builder.blockPlate({
@@ -986,9 +987,10 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
+	local job = record.station
+	local displayed = record.habitat ~= nil
 	-- A band that names itself (Tiny, Big, HUGE: data/Sizes label) gets a small gold chip at the left of
 	-- the chip row; Normal and Small show nothing.
-	local displayed = record.habitat ~= nil
 	local band = Sizes.ById[record.size] or Sizes.ById[Sizes.Default]
 	if band.label and not displayed then
 		local sizeChip = cardChip(
@@ -1015,7 +1017,6 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 	-- The growth chip (data/Growth) mirrors the size chip at the right of the chip row. A seated alien with a
 	-- stage ahead shows the work time left to it in white ("2h", "59m": only a working alien earns time); otherwise
 	-- a stage that names itself (Grown, Elder) shows its name in sky blue, and a resting Hatchling shows nothing.
-	local job = record.station
 	local stage = Growth.StageOf(record)
 	local secondsLeft = Growth.SecondsToNext(record.workedSeconds or 0)
 	local chipText: string? = nil
@@ -1048,33 +1049,9 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
-	-- What it is doing, one line: where it works as the station's name alone ("Picnic Table"; one line at the
-	-- minimum size is all a square card has, and the job verb is the station's), that it follows the player, or
-	-- that a resting one can be tapped to follow. A following mount has a Ride button in this slot instead (below),
-	-- so it gets no status label: "Ride" says it follows, and "Hop off" says it is ridden.
-	local rideable = entry.following and def ~= nil and def.ride ~= nil
-	-- At home an alien whose world has a habitat row in the data gets a Display button when it rests (with none built
-	-- yet the tap says to build one, so the player learns the habitat exists), or a Bring back button when it is on
-	-- display; either takes the status slot like the Ride button. An alien on display shows the purple "On display"
-	-- pill (below) in the chip row instead of a status label.
-	local displayWorld = if def then def.world else nil
-	local canDisplay = Place.IsHome()
-		and not State.IsVisiting() -- a guest never puts an alien on display at someone else's home
-		and displayWorld ~= nil
-		and job == nil
-		and not entry.following
-		and not displayed
-		and habitatExists(displayWorld)
-	local canBringBack = Place.IsHome() and not State.IsVisiting() and displayWorld ~= nil and displayed
-	local statusText = Strings.ALIENS_TAP_FOLLOW
-	local statusColor = Theme.Rarity.Common
-	if job then
-		statusText = Builder.text("STATION_" .. job)
-		statusColor = Theme.Colors.White
-	elseif entry.following then
-		statusText = Strings.ALIENS_FOLLOWING
-		statusColor = Theme.Colors.Confirm
-	end
+	-- What it is doing, one line: where it works as the station's name alone ("Picnic Table"; one line at the minimum size is all a
+	-- square card has). A companion or a mount wears a stamp instead and a resting alien says nothing (a tap selects it; the
+	-- featured card follows, rides and displays). An alien on display shows the purple "On display" pill in the chip row.
 	if displayed then
 		-- The size and growth chips stand aside for a full-width pill (a displayed alien is not working, so it
 		-- has no growth countdown to show).
@@ -1097,13 +1074,13 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			zIndex = Builder.blockTop(pill),
 		})
 	end
-	if not rideable and not canDisplay and not displayed then
+	if job then
 		Builder.label({
 			parent = card,
 			name = "Status",
-			text = statusText,
+			text = Builder.text("STATION_" .. job),
 			textSize = Theme.TextSize.Body,
-			color = statusColor,
+			color = Theme.Colors.White,
 			position = UDim2.fromScale(0.5, STATUS_Y),
 			size = UDim2.fromScale(0.94, STATUS_H),
 			anchor = Vector2.new(0.5, 0),
@@ -1111,70 +1088,8 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 		})
 	end
 
-	-- A following mount gets a Ride button (gold; blue "Hop off" on the ridden card) in the status slot, above the
-	-- Tap overlay. It only asks: the card redraws from the server's push. No other card has one: a resting
-	-- mount shows none until it follows.
-	if rideable then
-		Builder.blockButton({
-			parent = card,
-			name = "Ride",
-			text = if entry.riding then Strings.ALIENS_HOP_OFF else Strings.ALIENS_RIDE,
-			color = if entry.riding then Theme.Colors.Select else Theme.Colors.Featured,
-			position = UDim2.fromScale(0.5, RIDE_Y),
-			size = UDim2.fromScale(0.94, RIDE_H),
-			anchor = Vector2.new(0.5, 0),
-			textSize = Theme.TextSize.Body,
-			rows = SQUARE_ROWS,
-			cells = false, -- one per card: a flat face
-			hit = true, -- 44 px floor
-			zIndex = RIDE_Z,
-		}, function()
-			setMount(if entry.riding then nil else record.uid, entry.name)
-		end)
-	end
-
-	-- Display (Codex purple) and Bring back (Common grey) take the status slot, above the Tap overlay. They only ask:
-	-- the card redraws from the server's push.
-	if canDisplay and def ~= nil then
-		local world = def.world
-		Builder.blockButton({
-			parent = card,
-			name = "Display",
-			text = Strings.ALIENS_DISPLAY,
-			color = Theme.Colors.Codex,
-			position = UDim2.fromScale(0.5, RIDE_Y),
-			size = UDim2.fromScale(0.94, RIDE_H),
-			anchor = Vector2.new(0.5, 0),
-			textSize = Theme.TextSize.Body,
-			rows = SQUARE_ROWS,
-			cells = false, -- one per card: a flat face
-			hit = true, -- 44 px floor
-			zIndex = RIDE_Z,
-		}, function()
-			displayAlien(record.uid, entry.name, world)
-		end)
-	elseif canBringBack and def ~= nil then
-		local worldName = Builder.text("WORLD_" .. def.world)
-		Builder.blockButton({
-			parent = card,
-			name = "BringBack",
-			text = Strings.ALIENS_BRING_BACK,
-			color = Theme.Rarity.Common,
-			position = UDim2.fromScale(0.5, RIDE_Y),
-			size = UDim2.fromScale(0.94, RIDE_H),
-			anchor = Vector2.new(0.5, 0),
-			textSize = Theme.TextSize.Body,
-			rows = SQUARE_ROWS,
-			cells = false, -- one per card: a flat face
-			hit = true, -- 44 px floor
-			zIndex = RIDE_Z,
-		}, function()
-			setDisplay(record.uid, nil, entry.name, worldName)
-		end)
-	end
-
-	-- An invisible button over the whole card, above every chip: a tap asks to follow or stop (onCardTapped), or to
-	-- hop off on the ridden card.
+	-- An invisible button over the whole card, above every chip: a tap selects the tile (the featured card follows), a hold opens
+	-- its Release panel.
 	local tap = Instance.new("TextButton")
 	tap.Name = "Tap"
 	tap.AutoButtonColor = false
@@ -1222,12 +1137,13 @@ local function buildCard(parent: ScrollingFrame, index: number, entry: Entry)
 			held = false
 			return
 		end
-		onCardTapped(record.uid, entry.name)
+		Builder.playSound(Sounds.Click)
+		selectTile(record.uid)
 	end)
 end
 
--- Owned aliens: the ridden one first, then followers, then fastest first, then by name, then by uid so the order is
--- stable between refreshes.
+-- Owned aliens in the grid's order (FeaturedMath.Before): the ridden one first, then the companions, then the rarer tier, then the
+-- faster, then by name and uid so the order is stable between refreshes.
 local function sortedEntries(profile: Types.Profile): { Entry }
 	local ridden = State.GetRiding()
 	local followers: { [string]: boolean } = {}
@@ -1244,24 +1160,40 @@ local function sortedEntries(profile: Types.Profile): { Entry }
 			name = speciesName(def, record.species),
 			following = followers[record.uid] == true,
 			riding = ridden ~= nil and record.uid == ridden,
+			tierRank = FeaturedMath.TierRank(if def then def.tier else "Common"),
 		})
 	end
 	table.sort(entries, function(a: Entry, b: Entry): boolean
-		if a.riding ~= b.riding then
-			return a.riding
-		end
-		if a.following ~= b.following then
-			return a.following
-		end
-		if a.speed ~= b.speed then
-			return a.speed > b.speed
-		end
-		if a.name ~= b.name then
-			return a.name < b.name
-		end
-		return a.record.uid < b.record.uid
+		return FeaturedMath.Before(
+			{ riding = a.riding, following = a.following, tierRank = a.tierRank, speed = a.speed, name = a.name, uid = a.record.uid },
+			{ riding = b.riding, following = b.following, tierRank = b.tierRank, speed = b.speed, name = b.name, uid = b.record.uid }
+		)
 	end)
 	return entries
+end
+
+-- Keeps the selection on a tile that still exists: the first alien of the species Select asked for, else the one already selected,
+-- else the default (the mount you ride, the first companion, the newest alien).
+local function settleSelection(profile: Types.Profile, entries: { Entry })
+	if pendingSpecies ~= nil then
+		local species = pendingSpecies
+		pendingSpecies = nil
+		for _, entry in ipairs(entries) do
+			if entry.record.species == species then
+				selectedUid = entry.record.uid
+				return
+			end
+		end
+	end
+	local current = selectedUid
+	if current ~= nil and entriesByUid[current] ~= nil then
+		return
+	end
+	local caughtAt: { [string]: number } = {}
+	for uid, record in pairs(profile.aliens) do
+		caughtAt[uid] = record.caughtAt
+	end
+	selectedUid = FeaturedMath.AliensDefault(State.GetRiding(), profile.companions, caughtAt)
 end
 
 local function rebuildGrid(profile: Types.Profile)
@@ -1274,15 +1206,18 @@ local function rebuildGrid(profile: Types.Profile)
 	clearChildren(frame)
 	table.clear(badgeFits) -- the old cards' badges are gone with them
 	table.clear(cardViews) -- and their views
+	table.clear(entriesByUid)
+	table.clear(tileByUid)
+	for _, entry in ipairs(entries) do
+		entriesByUid[entry.record.uid] = entry
+	end
+	settleSelection(profile, entries)
 	for index, entry in ipairs(entries) do
 		buildCard(frame, index, entry)
 	end
 	layoutGrid()
 	task.defer(syncCardViews) -- once the grid layout has placed the new cards
-	if emptyLabel then
-		emptyLabel.Visible = cardCount == 0
-	end
-	setCount(cardCount)
+	updatePills()
 end
 
 -- The count row's companion label, the perks line and the Companion Token button: slots in use, the perks they
@@ -1305,9 +1240,7 @@ local function layoutFooter()
 end
 
 local function updateCompanionRows(profile: Types.Profile)
-	if companionsLabel then
-		companionsLabel.Text = Strings.ALIENS_COMPANIONS:format(#profile.companions, State.GetCompanionSlots())
-	end
+	updatePills()
 	if perksLabel then
 		local text, any = perksLine(profile)
 		perksLabel.Text = text
@@ -1344,7 +1277,7 @@ local function refreshStorageRow()
 		return
 	end
 	local profile = State.Get()
-	setCount(cardCount)
+	updatePills()
 	local row, why = StorageMath.NextBayLevel(State.GetBayLevel(), profile.world.unlocked)
 	local perLevel = Builder.formatNumber(Storage.Bay.PerLevel)
 	if not row then
@@ -1410,6 +1343,155 @@ local function buyStorageBay()
 	end)
 end
 
+-- Featured card ---------------------------------------------------------------------------------------------
+
+-- Runs one of the featured card's buttons (FeaturedMath's ids) for an entry. Every one only asks: the server answers and the pushes redraw.
+local function runAction(id: string, entry: Entry)
+	local record, def = entry.record, entry.def
+	local uid, name = record.uid, entry.name
+	if id == "Follow" then
+		followTap(uid, name)
+	elseif id == "Unfollow" then
+		setCompanion(uid, false, name)
+	elseif id == "Ride" then
+		setMount(uid, name)
+	elseif id == "HopOff" then
+		setMount(nil, name)
+	elseif id == "Display" then
+		if def then
+			displayAlien(uid, name, def.world)
+		end
+	elseif id == "BringBack" then
+		if def then
+			setDisplay(uid, nil, name, Builder.text("WORLD_" .. def.world))
+		end
+	end
+end
+
+local function cardAction(action: FeaturedMath.Action?, entry: Entry): FeaturedCard.Action?
+	if not action then
+		return nil
+	end
+	return {
+		word = Builder.text(action.word),
+		role = action.role,
+		onTap = function()
+			runAction(action.id, entry)
+		end,
+	}
+end
+
+-- Fills the featured card from the selected tile: its model, tier tag, name, flavour line and the buttons FeaturedMath.Button gives its
+-- state (riding, following, on display, working at a station, a free companion slot, a habitat at home, a guest). With nothing owned the
+-- card says so. The view keeps its clone while the species stays the same.
+local function refreshFeatured()
+	local card = featured
+	if not card or not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	local selected = selectedUid
+	local entry = if selected then entriesByUid[selected] else nil
+	local def = if entry then entry.def else nil
+	if not entry or not def then
+		FeaturedCard.Fill(card, nil, Strings.ALIENS_EMPTY)
+		return
+	end
+	local record = entry.record
+	local visiting = State.IsVisiting()
+	local atHome = Place.IsHome() and not visiting
+	local displayed = record.habitat ~= nil
+	local resting = record.station == nil and not entry.following and not displayed
+	local buttons = FeaturedMath.Button({
+		screen = "Aliens",
+		visiting = visiting,
+		riding = entry.riding,
+		following = entry.following,
+		displayed = displayed,
+		seated = record.station ~= nil,
+		slotFree = #profile.companions < State.GetCompanionSlots(),
+		canRide = def.ride ~= nil,
+		canDisplay = atHome and resting and habitatExists(def.world),
+		canBringBack = atHome and displayed,
+	})
+	local function has(key: string): boolean
+		return Builder.text(key) ~= key
+	end
+	local tierId: string = def.tier
+	FeaturedCard.Fill(card, {
+		def = def,
+		shadowed = false,
+		mark = false,
+		name = entry.name,
+		tier = tierId,
+		tierWord = Builder.text("TIER_" .. tierId),
+		flavour = Builder.text(FeaturedMath.FlavourKey(def.id, tierId, has)),
+		facts = {},
+		main = cardAction(buttons.main, entry),
+		side = cardAction(buttons.side, entry),
+	}, nil)
+end
+
+-- A tap on a tile: it takes the gold ink, the card follows. One more tap than the old tap-to-follow; the stamps show the result.
+selectTile = function(uid: string)
+	if entriesByUid[uid] == nil then
+		return
+	end
+	selectedUid = uid
+	for id, tile in pairs(tileByUid) do
+		Builder.setBlockInk(tile, if id == uid then SELECTED_INK else TILE_INK)
+	end
+	local tile = tileByUid[uid]
+	if tile then
+		Builder.pop(tile, 1.08)
+	end
+	refreshFeatured()
+end
+
+-- The panel's px with the open tween taken out, or the usual window's before it is laid out (a disabled gui measures zero).
+local function panelPx(): (number, number)
+	local body = panel
+	local size = if body then FeaturedCard.UnscaledSize(body) else Vector2.zero
+	if size.X > 0 and size.Y > 0 then
+		return size.X, size.Y
+	end
+	local camera = workspace.CurrentCamera
+	local screen = if camera then camera.ViewportSize else Vector2.new(1154, 663)
+	local w = math.min(PANEL_H * screen.Y * PANEL_ASPECT, 0.8 * screen.X)
+	return w, w / PANEL_ASPECT
+end
+
+-- Lays the body out for the panel's shape (FeaturedMath.Mode): at 620 by 330 px or more the card stands left of a three-column grid,
+-- under that it is a strip over a five-column grid. The station strip is the same in both. Runs again when the mode changes.
+local function applyLayout(force: boolean)
+	local card, stripFrame, scroller = featured, strip, grid
+	if not card or not stripFrame or not scroller then
+		return
+	end
+	local w, h = panelPx()
+	local mode: FeaturedMath.Mode = FeaturedMath.Mode(w, h)
+	if not force and mode == layoutMode then
+		return
+	end
+	layoutMode = mode
+	local f = Panels.Featured
+	local a = f.Aliens
+	gridColumns, gridCell, gridGap = FeaturedMath.AliensGrid(mode)
+	stripFrame.Position = UDim2.fromScale(f.Wide.X, a.StationY)
+	stripFrame.Size = UDim2.fromScale(f.Wide.W, a.StationH)
+	if mode == "side" then
+		FeaturedCard.Place(card, mode, UDim2.fromScale(f.Side.CardX, a.SideTop), UDim2.fromScale(f.Side.CardW, a.Bottom - a.SideTop))
+		scroller.Position = UDim2.fromScale(f.Side.GridX, a.SideTop)
+		scroller.Size = UDim2.fromScale(f.Side.GridW, a.Bottom - a.SideTop)
+	else
+		FeaturedCard.Place(card, mode, UDim2.fromScale(f.Wide.X, a.StripTop), UDim2.fromScale(f.Wide.W, a.StripH))
+		scroller.Position = UDim2.fromScale(f.Wide.X, a.StripGridTop)
+		scroller.Size = UDim2.fromScale(f.Wide.W, a.Bottom - a.StripGridTop)
+	end
+	layoutGrid()
+	task.defer(syncCardViews)
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
@@ -1419,6 +1501,7 @@ local function refresh()
 	rebuildGrid(profile)
 	updateCompanionRows(profile)
 	refreshStorageRow()
+	refreshFeatured()
 end
 
 -- The inventory and the passes touch the companion rows only (a token arrived, a pass was bought), not the cards.
@@ -1426,6 +1509,7 @@ local function refreshCompanionRows()
 	if open and State.Has() then
 		updateCompanionRows(State.Get())
 		refreshStorageRow() -- the Bay button's words depend on whether the token button is up
+		refreshFeatured() -- and the featured card's Follow on whether a slot is free
 	end
 end
 
@@ -1478,7 +1562,7 @@ local function build()
 		AliensScreen.Close()
 	end)
 
-	-- The panel: a cream block plate at the panel cell (about 26 by 19 cells), the header tab and the close button on it.
+	-- The panel: a cream block plate at the panel cell (about 26 by 19 cells) under the Scrap pill (the shell's top), the header band on it.
 	local body = Builder.blockPlate({
 		parent = root,
 		name = "Panel",
@@ -1486,17 +1570,16 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H),
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.555), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(0.8, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 	local top = Builder.blockTop(body)
 
-	-- Header tab straddling the top edge, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.ALIENS_TITLE, Theme.Colors.Featured)
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: gold, the Aliens icon, "Aliens n / cap" and "Companions n / slots" pills (updatePills), the red X.
+	header = Builder.panelHeader(body, { panelId = "Aliens", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		AliensScreen.Close()
 	end)
 
@@ -1522,8 +1605,8 @@ local function build()
 	local stripFrame = Builder.frame({
 		parent = body,
 		name = "Stations",
-		position = UDim2.fromScale(Theme.Margin, STRIP_Y),
-		size = UDim2.fromScale(1 - Theme.Margin * 2, STRIP_H),
+		position = UDim2.fromScale(Panels.Featured.Wide.X, Panels.Featured.Aliens.StationY), -- applyLayout keeps it
+		size = UDim2.fromScale(Panels.Featured.Wide.W, Panels.Featured.Aliens.StationH),
 		zIndex = top,
 	})
 	local stripLayout = Instance.new("UIListLayout")
@@ -1535,39 +1618,24 @@ local function build()
 	stripLayout.Parent = stripFrame
 	strip = stripFrame
 
-	-- 2. The info line under the footer's buttons: the aliens owned over the storage cap, the companion slots in use and the perks,
-	-- each one line at the 14 px floor (a TextScaled label narrower than its text wraps it mid-word; these end in an ellipsis).
-	local function infoLine(name: string, text: string, x: number, width: number, color: Color3?): TextLabel
-		local line = Builder.label({
-			parent = body,
-			name = name,
-			text = text,
-			textSize = Theme.TextSize.Min,
-			color = color,
-			position = UDim2.fromScale(x, INFO_Y),
-			size = UDim2.fromScale(width, INFO_H),
-			xAlign = Enum.TextXAlignment.Left,
-			zIndex = top,
-		})
-		line.TextScaled = false
-		line.TextWrapped = false
-		line.TextSize = Theme.TextSize.Min
-		line.TextTruncate = Enum.TextTruncate.AtEnd
-		return line
-	end
-	countLabel = infoLine(
-		"Count",
-		Strings.ALIENS_COUNT_CAP:format(Builder.formatNumber(0), Builder.formatNumber(Storage.BaseCap)),
-		Theme.Margin,
-		INFO_COUNT_W
-	)
-	companionsLabel = infoLine(
-		"Companions",
-		Strings.ALIENS_COMPANIONS:format(0, Config.CompanionSlots),
-		INFO_COMPANIONS_X,
-		INFO_COUNT_W
-	)
-	perksLabel = infoLine("Perks", Strings.ALIENS_PERKS_NONE, INFO_PERKS_X, 1 - Theme.Margin - INFO_PERKS_X, Theme.Rarity.Common)
+	-- 2. The info line under the footer's buttons: the perks the companions give, one line at the 14 px floor (a TextScaled label narrower
+	-- than its text wraps it mid-word; this one ends in an ellipsis). The owned count and the companion slots are the band's pills.
+	local perks = Builder.label({
+		parent = body,
+		name = "Perks",
+		text = Strings.ALIENS_PERKS_NONE,
+		textSize = Theme.TextSize.Min,
+		color = Theme.Rarity.Common,
+		position = UDim2.fromScale(Theme.Margin, INFO_Y),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, INFO_H),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
+	})
+	perks.TextScaled = false
+	perks.TextWrapped = false
+	perks.TextSize = Theme.TextSize.Min
+	perks.TextTruncate = Enum.TextTruncate.AtEnd
+	perksLabel = perks
 	bayButton = Builder.blockButton({
 		parent = body,
 		name = "StorageBay",
@@ -1586,8 +1654,8 @@ local function build()
 	scroller.Name = "Grid"
 	scroller.BackgroundTransparency = 1
 	scroller.BorderSizePixel = 0
-	scroller.Position = UDim2.fromScale(Theme.Margin, GRID_Y)
-	scroller.Size = UDim2.fromScale(1 - Theme.Margin * 2, GRID_H)
+	scroller.Position = UDim2.fromScale(Panels.Featured.Side.GridX, Panels.Featured.Aliens.SideTop) -- applyLayout keeps it
+	scroller.Size = UDim2.fromScale(Panels.Featured.Side.GridW, Panels.Featured.Aliens.Bottom - Panels.Featured.Aliens.SideTop)
 	scroller.ZIndex = top
 	scroller.ScrollingDirection = Enum.ScrollingDirection.Y
 	scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -1599,13 +1667,13 @@ local function build()
 	scroller.Parent = body
 	local cells = Instance.new("UIGridLayout")
 	cells.FillDirection = Enum.FillDirection.Horizontal
-	cells.FillDirectionMaxCells = COLUMNS
+	cells.FillDirectionMaxCells = gridColumns
 	cells.SortOrder = Enum.SortOrder.LayoutOrder
 	cells.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	cells.VerticalAlignment = Enum.VerticalAlignment.Top
 	cells.StartCorner = Enum.StartCorner.TopLeft
-	cells.CellSize = UDim2.fromScale(CELL_W, CELL_W)
-	cells.CellPadding = UDim2.fromScale(CELL_GAP, CELL_GAP)
+	cells.CellSize = UDim2.fromScale(gridCell, gridCell)
+	cells.CellPadding = UDim2.fromScale(gridGap, gridGap)
 	cells.Parent = scroller
 	grid = scroller
 	gridLayout = cells
@@ -1615,18 +1683,8 @@ local function build()
 		task.defer(syncCardViews)
 	end)
 
-	local empty = Builder.label({
-		parent = body,
-		name = "Empty",
-		text = Strings.ALIENS_EMPTY,
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, GRID_Y + GRID_H / 2),
-		size = UDim2.fromScale(0.7, 0.1),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = top,
-	})
-	empty.Visible = false
-	emptyLabel = empty
+	-- The featured card (UI.FeaturedCard), built once and refilled on every selection; applyLayout places it for the panel's shape.
+	featured = FeaturedCard.Build(body, "Featured", top, false)
 
 	-- 4. Footer: the button row at the right (Companion Token while one is held, Fuse, then Optimize at the right edge) beside the
 	-- Storage Bay button. Optimize asks the server to reseat the crew; Fuse asks it to fuse every species with spare copies (the
@@ -1672,6 +1730,10 @@ local function build()
 	token.Visible = false -- shown by updateCompanionRows while a token is held
 	tokenButton = token
 	layoutFooter()
+	applyLayout(true)
+	body:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		applyLayout(false) -- the mode follows the panel's real size once it is laid out, and when the window changes
+	end)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
 	for _, topic in ipairs({ "stations", "rate", "companions", "home", "visit" }) do
@@ -1700,9 +1762,20 @@ function AliensScreen.Open()
 		return
 	end
 	open = true
-	refresh()
+	selectedUid = nil -- the default selection on open (the mount you ride, the first companion, the newest alien), or what Select asked for
 	root.Enabled = true
+	applyLayout(true)
+	refresh()
 	Builder.open(body)
+end
+
+-- Opens the panel (or, when it is open, moves it) on the first alien of `speciesId`: the Codex's "See in Aliens". Call it before
+-- Screens.Open("Aliens"); with none owned the default selection stands.
+function AliensScreen.Select(speciesId: string)
+	pendingSpecies = speciesId
+	if open then
+		refresh()
+	end
 end
 
 function AliensScreen.Close()

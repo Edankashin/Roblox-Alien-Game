@@ -129,4 +129,85 @@ Panels.AliensFooter = {
 	Optimize = 0.175,
 }
 
+-- Featured plus grid (UI richness pass, package C; docs/vault/05-ui-design/UI-Richness-Pass.md section 4). Shared/FeaturedMath does the
+-- arithmetic and tests/FeaturedMath.spec.luau checks it; UI/FeaturedCard draws the card and the Aliens and Codex screens place it.
+-- Fractions of the panel (x of its width, y of its height) unless a name says Px. At a panel of MinPanelW by MinPanelH px or more (the
+-- default Studio window and an iPad) the side mode shows: the featured card on the left, the grid on the right. Under that (an iPhone SE
+-- panel is 425 by 315) the strip mode shows: the card as one strip across the top of the body, the grid full width under it.
+Panels.Featured = {
+	MinPanelW = 620,
+	MinPanelH = 330,
+	MaxFlavour = 48, -- characters of one flavour line (strings FLAVOUR_<species>, FLAVOUR_TIER_<tier>)
+	-- Side mode: the card and the grid share the body's width; Wide is a full-width row (the strip mode's card and grid, the station strip).
+	Side = { CardX = 0.02, CardW = 0.30, GridX = 0.34, GridW = 0.64 },
+	Wide = { X = 0.02, W = 0.96 },
+	-- Aliens: the station strip sits across the top in both modes (StationY, StationH); the card and the grid fill the rest down to the footer.
+	Aliens = {
+		StationY = 0.165,
+		StationH = 0.175,
+		SideTop = 0.345,
+		StripTop = 0.345, -- the strip mode's card, StripH tall (0.2 of the body, which is 0.82 of the panel, less a little), then its grid
+		StripH = 0.16,
+		StripGridTop = 0.51,
+		Bottom = 0.854, -- the footer's button row starts at 0.864
+		-- The grid's columns: the cell's width and the gap, of the grid's canvas width (a UIGridLayout cell: the height is the width in px).
+		Columns = { side = 3, strip = 5 },
+		Cell = { side = 0.31, strip = 0.18 },
+		Gap = { side = 0.035, strip = 0.02 },
+	},
+	-- Codex: no station strip, so the card and the grid start under the band. MinCellPx is the narrowest a tile may be (a ten-letter name
+	-- at the 14 px floor needs about 80), Columns the fewest and most across, GapPx the space between tiles and between sections, StripPx
+	-- the section strip's least height (a 14 px label needs 22).
+	Codex = {
+		SideTop = 0.17,
+		Bottom = 0.975,
+		StripTop = 0.17,
+		StripH = 0.16,
+		StripGridTop = 0.335,
+		MinCellPx = 80,
+		MinColumns = 3,
+		MaxColumns = 5,
+		GapPx = 6,
+		StripPx = 22,
+		StripShare = 0.07, -- a section strip's height, of the grid window's, never under StripPx
+	},
+	-- The side card, top to bottom, as fractions of the card's height (FeaturedMath.SideLayout): the model on its plinth takes what the
+	-- rest leaves, then the tier tag, the name, the flavour line (two lines of 14 px at the narrowest card), up to three fact lines (the
+	-- Codex), and the buttons (a second one, Ride or Display, stands under the main one). Pad is the card's margin, Gap the space between.
+	Card = {
+		Pad = 0.035,
+		Gap = 0.012,
+		Tag = 0.07,
+		Name = 0.09,
+		Flavour = 0.13,
+		Fact = 0.062,
+		Button = 0.12,
+		ButtonGap = 0.012,
+		ViewMin = 0.2,
+		InsetX = 0.06, -- the text's margin at each side, of the card's width
+		TagW = 0.62, -- the tier tag's width, of the card's
+	},
+	-- The strip card (FeaturedMath.StripLayout), fractions of the strip's height or width: the plinth is square, PlinthH of the strip tall;
+	-- the main button takes MainW of its width on the right, the second one SideW left of it; the name row and the flavour row stack in
+	-- the column between, the tier tag at the right end of the name row (TagW of the column).
+	StripCard = {
+		Pad = 0.012,
+		Gap = 0.012,
+		PlinthH = 0.84,
+		MainW = 0.27,
+		SideW = 0.19,
+		ButtonH = 0.72,
+		NameY = 0.05,
+		NameH = 0.46,
+		FlavourY = 0.55,
+		FlavourH = 0.4,
+		TagW = 0.34,
+		TagH = 0.4,
+	},
+	ButtonScreenH = 0.06, -- a card button's height, of the screen's (Builder.blockButtonRows), so its cells match a footer button's
+	PlinthTint = 0.55, -- the plinth's face: the tier colour this far toward white
+	ViewInset = 0.04, -- the model's view inside the plinth, of the plinth, at each side
+	FactSize = 14, -- px of a fact line (a quiet line, one line, truncated)
+}
+
 return Panels

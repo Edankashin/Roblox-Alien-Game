@@ -28,6 +28,7 @@ FAMILIES = {
     'LANDMARK_': '@landmarks', 'GIFT_LABEL_': '@gift_labels', 'GIFT_TILE_': '@gift_tiles',
     'SEGMENT_SHORT_': '@segments', 'REVEAL_WORD_': 'Tiers.Tiers',
     'COND_SHORT_': '@Condition', # optional override; consumer falls back to COND_PHRASE_
+    'FLAVOUR_': '@species', 'FLAVOUR_TIER_': 'Tiers.Tiers', # the featured card's one flavour line (FeaturedMath.FlavourKey)
 }
 
 
@@ -59,6 +60,7 @@ def family_ids(tables, source, types):
         'shop_notes': {r['note'] for r in tables['Shop']['Cards'].values() if r.get('note')},
         'shop_cards': launch | {i for c in tables['Shop']['Categories'].values() for i in (c.get('scrap') or {}).values()},
         'segments': {r['id'] for r in tables['Spins']['Segments'].values()}, 'menus': menus,
+        'species': {r['id'] for r in tables['Species']['List'].values()},
         'shapes': {r['placeholder']['shape'] for r in tables['Species']['List'].values()}, 'rewards': rewards,
         'gear': {k for k,v in tables['Gear'].items() if isinstance(v,dict)} | {'Radar'+str(k) for k in tables['Radar'] if type(k) is int and k>0},
         'items': {r['id'] for r in reward_rows if r['kind']=='item'},
