@@ -218,6 +218,7 @@ return {
 	FEATURED_STOP = "Stop following",
 	FEATURED_SEE_IN_ALIENS = "See in Aliens",
 	FEATURED_CAUGHT_BEST = "Caught x%d, best %s", -- the Codex card: copies caught, then the best overlay
+	FEATURED_COUNT = "%d / %d", -- a section strip's count pill ("Rare" 3 / 4)
 	FLAVOUR_Mossbop = "A fuzzy moss ball that hums when it is happy.",
 	FLAVOUR_Pebblet = "A pebble on tiny legs, shy but very loyal.",
 	FLAVOUR_Glimmo = "A jelly firefly that glows when it is excited.",
