@@ -22,23 +22,17 @@ Ethan approved on 2026-10-14, before sleeping: (A) create the six shop items thr
 - Memory: run `tools/mac_memory.sh` first and keep `tools/mac_memory.sh --watch` running in the background all night; one Studio process at all times. A `WARN:` line or notification means close the extra Studio windows (Don't Save, never force-quit) before the next job ([[Setup-and-Tips]], "Memory on the Mac").
 - **Never force-quit Studio** (`kill -9` dropped the saved sign-in on 2026-10-14 and only Ethan can sign in again). To rebuild after a pull that changed `src/`: stop Play, leave the old window open, `open build/world1.rbxl` again and use the new `studio_id`; or skip the rebuild and note which commit the window runs. If Studio is signed out, do every job that needs no Studio (6, 7, the web half of 5) and write the rest as blocked.
 
-## Launch queue (2026-10-22 evening): run these, in this order, and nothing else
+## Launch queue (2026-10-28 evening): run these, in this order, and nothing else
 
-Ethan chose no device emulator (his phone playtest covers phone sizes), so every Studio step runs at the default window; the iPhone SE and iPad steps of the older jobs are dropped. Ethan approves any 3D Importer import these jobs need (B47).
+Ethan (2026-10-28): "lets continue all full throttle and get this play through going and launch the game." Every Studio step at the default window (no emulator; the phone playtest covers phone sizes). Jobs 67, 71, 47 and the publish dry run are done.
 
-0. **Job 68 (one minute, no Studio, run first)**: download Ethan's character-design TikTok of 2026-10-24: `yt-dlp --no-playlist --write-info-json -f "mp4/best" -o "media/tiktok/ZPLAV8hDw.%(ext)s" "https://www.tiktok.com/t/ZPLAV8hDw/"` (a photo post goes in `media/tiktok/ZPLAV8hDw/`). Ethan: "look at these models and be able to replicate these ideas and character design. We want to keep the sort of blocky look but these designs should be what we aim for." Commit only the mp4, info.json or image folder ("Refs: TikTok ZPLAV8hDw"), push, one line in the log (creator, length, title). The cloud coordinator cannot reach tiktok.com, so this unblocks the design work.
-0b. **Job 69 (one minute, no Studio, with job 68)**: the same download for Ethan's UI reference TikTok ZPLAVdpnX: `yt-dlp --no-playlist --write-info-json -f "mp4/best" -o "media/tiktok/ZPLAVdpnX.%(ext)s" "https://www.tiktok.com/t/ZPLAVdpnX/"` (a photo post goes in `media/tiktok/ZPLAVdpnX/`). Ethan: "examine this ui. See how everything seems complete and less basic. There is more going on while also looking clean and easy to navigate around. I want that replicated." Commit only the mp4, info.json or image folder ("Refs: TikTok ZPLAVdpnX"), push, one line in the log.
-1. **Job 67**: the clean UI fixes (default window).
-1b. **Job 71**: the audit fixes (streaming on for World 1 and 2, the Persistent containers; the 203785492 sound traced with `tools/studio/find_asset.luau`). If step 3 or 4 fails, log it and the coordinator turns streaming off for that world.
-2. **Job 46**: the pre-launch audit's Studio checks with Test > Clients and Servers, 2 players (exploit attempts, test purchases, the save lock, the shutdown save). The last safety check before players.
-2b. **Job 71**: the audit fixes (no `ContentId` error; streaming on for World 1 and World 2; the six phone-budget figures). Default window, 20 minutes. TESTING "Audit fixes".
-3. **Job 47**: the loading screen and the home place in block cells (default window).
-4. **Job 43**: walk World 1 and World 2 end to end with the Starhollow Forest, default window, with the F9 frame time.
-4c. **Job 73** (after the upload, `tools/finalize_upload.sh`): the six World 2 rares of the character bar at 16 and 3 studs, with the frame time of six on screen.
-4b. **Job 70** (after the upload, `tools/finalize_upload.sh`): the four character bar pilots at 16 studs, with the frame time of four on screen.
-5. **Publish**: `python3 -I tools/publish.py --dry-run`, then Ethan runs `! python3 -I tools/publish.py --apply` himself (the Mac's permission check blocks it). Private only; Public is Ethan's own click on launch morning.
+1. **Upload**: `tools/finalize_upload.sh` (the 4 pilots and the 15 Rare-and-up aliens re-exported to the character bar, the 2 world crops in `assets/sprites/worlds/`); commit and push the ids. If a model fails moderation, log its name and carry on.
+2. **Job 70** (the four pilots), **72** (World 1 rares), **73** (World 2 rares): import and check the bar in Play; frame time with the world's rares on screen.
+3. **Job 74** (the radar scroll), **75** (panel anatomy and the goal card), **76** (world cards and the arrival title), and **77** when it exists (featured plus grid).
+4. **Job 43** (the world walk) if time allows; job 71 already walked the camp, the Starhollow and the far corner.
+5. **Publish**: `python3 -I tools/publish.py --dry-run`, then Ethan runs `! python3 -I tools/publish.py --apply` himself. Private only; Public is Ethan's own click on launch morning.
 
-Superseded (do not run): 28 to 33, 36 to 38, 42, 44, 45, 48, 49, 53. Their checks were covered by jobs 54 to 66 at the default window, by the B52 radar and B53 menu, and by the clean UI pass, or they need the emulator.
+The queue of 2026-10-22 is done except job 43 (folded in above). Superseded (do not run): 28 to 33, 36 to 38, 42, 44, 45, 48, 49, 53.
 
 ## Jobs (tick `[x]` done, `[b]` blocked with the reason in the log)
 
