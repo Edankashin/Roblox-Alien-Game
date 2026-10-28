@@ -221,7 +221,67 @@ def frostfang():
     return p
 
 
-PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx, "Frostfang": frostfang}
+# ------------------------------------------------------------------------------------------------ Skaddle (Skadra), Legendary
+def _rune_stone(g, lite=False):
+    # a rune stone three quarters of a stud tall and half a stud across, the same from both sides: an ice-blue tablet in a slate frame (two posts and a
+    # base) with a gold cap and a lit periwinkle rune (a stave and two arms, a Y) proud on both faces; the light plate and the dark frame give it an edge on
+    # snow and against the dark disc, and the lit share stays under half so the ring keeps its cells
+    z0, z1 = -0.125, 0.125
+    p, q = -0.1875, 0.1875
+    return [_box(-0.25, 0.25, 0.125, 0.625, -0.0625, 0.0625, "Accessory", None), _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None),
+            _box(-0.25, -0.1875, 0.125, 0.625, z0, z1, "BodyDark", None), _box(0.1875, 0.25, 0.125, 0.625, z0, z1, "BodyDark", None),
+            _box(-0.25, 0.25, 0.625, 0.75, z0, z1, "Trim", "metal"),
+            _box(-0.0625, 0.0625, 0.1875, 0.5, p, q, "Glow", "glow"), _box(-0.125, -0.0625, 0.375, 0.5625, p, q, "Glow", "glow"),
+            _box(0.0625, 0.125, 0.375, 0.5625, p, q, "Glow", "glow")]
+
+
+def frost_mirror(name, centre, z, moves, pivot):
+    """The backdrop: a frost mirror three and a quarter studs across standing behind the tail: a slate disc in a gold rim a quarter stud thick, a
+    periwinkle lit snowflake etched on it (a cross of lines, a dot on each diagonal step and a heart), a quarter stud deep; one moving object that
+    turns slowly about its heart. Behind a white owl it is the dark the white stands out from."""
+    cx, cy = centre
+    out = K.disc(name, (cx, cy), [(1.6, "Trim", "metal"), (1.35, "BodyDark", None)], z, row=0.25, cell=0.25, thick=0.25, moves=moves, pivot=pivot)
+
+    def add(slot, size, at, mat):
+        out.append(K.part("%s%d" % (name, len(out)), slot, size, at, None, "box", mat, False, moves, pivot))
+    zl = z - 0.03125
+    add("Glow", (0.125, 2.375, 0.0625), (cx, cy, zl), "glow")
+    add("Glow", (2.375, 0.125, 0.0625), (cx, cy, zl), "glow")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            for d in (0.5, 0.875):
+                add("Glow", (0.125, 0.125, 0.0625), (cx + sx * d, cy + sy * d, zl), "glow")
+    add("Glow", (0.25, 0.25, 0.0625), (cx, cy, zl), "glow")
+    return out
+
+
+def skaddle():
+    """Legendary, Frostbyte: the Warden. Eight kit pieces (gold cuffs on the legs, gold snowflake studs on the cheeks, ice shards and aurora wisps fanned
+    round the tail), the head turned and rolled like an owl's and both wings spread (rest poses), six rune stones (an ice-blue tablet in a slate frame, a gold
+    cap and a lit periwinkle rune) in a fan at head height, and behind it all a slate frost mirror in a gold rim three and a quarter studs across, so the
+    white owl stands against a dark disc instead of white snow (rule 8: a white body on white ground needs a value step behind it)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "an owl on skis, looking you over: the head turned 16 degrees and rolled 8, both wings spread 22 degrees more, six rune stones fanned out at head height and a gold-rimmed frost mirror behind it")
+    cuff = K.band("Cuff", (0.4375, 0.5, 0.0), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    for q in cuff:
+        q["mirror"] = "x"
+    p.wear("# gold cuffs on the legs: a band a quarter stud tall and an eighth proud above the bindings", cuff, ["silver_band"] * 2)
+    p.wear("# a gold snowflake stud (a plus of sixteenth-stud bars on a lit heart) on each cheek; they turn with the head",
+           K.place(Pz["snowflake_stud"], "Flake", (1.0, 1.875, -0.375), "+x", mirror=True, lite=True, scale=2, pose="head"), ["snowflake_stud"] * 2)
+    p.wear("# ice shards, half again as big, standing on the tail's middle corners and leaning apart (they stand against the dark mirror)",
+           K.place(Pz["ice_shard"], "Shard", (0.4375, 0.8125, 1.75), "+y", mirror=True, scale=1.5), ["ice_shard"] * 2)
+    p.wear("# aurora wisps, twice as big, rising off the tail's outer corners", K.place(Pz["aurora_wisp"], "Wisp", (0.9375, 0.8125, 1.5), "+y", mirror=True, scale=2), ["aurora_wisp"] * 2)
+    stone = own("rune_stone", "a three-quarter-stud rune stone: an ice-blue tablet in a slate frame, a gold cap and a lit periwinkle rune (a satellite)", _rune_stone, "Legendary")
+    sats = arc([stone] * 6, "Sat", (0, -0.125), 2.3, 1.85, [50, 100, 150, 210, 260, 310], "halo", [0, 2.2, -0.125], g=0.125, lift=0.5)
+    p.regions.append(("# the satellite set (`halo`, three a side fanned out at head height, the back higher, nothing in front of the face): six rune stones, an ice-blue tablet in a slate frame with a gold cap and a lit rune on both faces, three quarters of a stud tall, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "halo"
+    mirror = frost_mirror("Mirror", (0, 1.75), 2.25, "frost", [0, 1.75, 2.375])
+    p.regions.append(("# the backdrop (`frost`, it turns once in 20 s): a frost mirror three and a quarter studs across behind the tail, a slate disc in a gold rim with a lit periwinkle snowflake etched on it, a quarter stud deep", mirror))
+    p.backdrop = "frost"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx, "Frostfang": frostfang, "Skaddle": skaddle}
 
 
 def apply(sid, write=True):

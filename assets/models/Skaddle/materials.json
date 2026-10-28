@@ -19,7 +19,7 @@
   },
   {
     "slot": 3,
-    "name": "crest",
+    "name": "crestL",
     "hex": "4A55E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -27,14 +27,26 @@
   },
   {
     "slot": 4,
-    "name": "halo",
-    "hex": "4A55E8",
+    "name": "frost",
+    "hex": "5C708A",
     "roughness": 0.55,
     "metallic": 0.0,
-    "emission": 1.5
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
   },
   {
     "slot": 5,
+    "name": "halo",
+    "hex": "8FD3F4",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Skaddle_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 6,
     "name": "hindwingL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -44,7 +56,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "hindwingR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -54,7 +66,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "quiverL",
     "hex": "5C708A",
     "roughness": 0.55,
@@ -64,7 +76,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 9,
     "name": "scarfR",
     "hex": "8FD3F4",
     "roughness": 0.55,
@@ -74,7 +86,7 @@
     "pixelated": true
   },
   {
-    "slot": 9,
+    "slot": 10,
     "name": "tuftL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -84,7 +96,7 @@
     "pixelated": true
   },
   {
-    "slot": 10,
+    "slot": 11,
     "name": "tuftR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -94,7 +106,7 @@
     "pixelated": true
   },
   {
-    "slot": 11,
+    "slot": 12,
     "name": "wingL",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -104,7 +116,7 @@
     "pixelated": true
   },
   {
-    "slot": 12,
+    "slot": 13,
     "name": "wingR",
     "hex": "F4F7FA",
     "roughness": 0.55,
@@ -114,7 +126,7 @@
     "pixelated": true
   },
   {
-    "slot": 13,
+    "slot": 14,
     "name": "FacePlate",
     "hex": "F4F7FA",
     "roughness": 0.4,
