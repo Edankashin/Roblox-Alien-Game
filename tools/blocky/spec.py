@@ -85,7 +85,9 @@ BAND_HEIGHT = (2.0, 3.5)
 # rule 6 at fixed height: more and smaller blocks as the tier climbs (Blocky-Style section 6)
 # Rare pass (2026-10-21, "make the rare aliens 1000x cooler"): the tops of the Rare to Secret bands rose so a signature piece, lit cells and
 # layered detail fit at the same height (Rare 36 to 56, Epic 64 to 90, Legendary 120 to 150, Cosmic and Secret 200 to 240)
-BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 56), "Epic": (32, 90), "Legendary": (60, 150), "Cosmic": (110, 240),
+# B54 (the roster bar, 2026-10-26): the kit, the satellite set and the metal add 25 to 60 blocks, so the tops of the Rare to Legendary bands rose
+# again (Rare 90, Epic 140, Legendary 200; Cosmic and Secret already held the pilots at 240)
+BANDS_B46 = {"Common": (5, 12), "Uncommon": (10, 20), "Rare": (18, 90), "Epic": (32, 140), "Legendary": (60, 200), "Cosmic": (110, 240),
              "Secret": (110, 240)}
 # rule 2 at fixed height: a detail block's faces lie on the half grid, and from Epic up on the sixteenth grid (smaller blocks, more of them)
 # B54 and B56 (BAR-W1, 2026-10-26): a note that wears the character bar (`bar_kit` in its frontmatter) carries a kit, 6 to 8 satellites of 0.5 to 0.9 stud, metal
@@ -96,7 +98,8 @@ MOVERS_BAR_EXTRA = {"Rare": 2, "Epic": 2, "Legendary": 2}
 DETAIL_GRID = {"Common": 0.125, "Uncommon": 0.125, "Rare": 0.125, "Epic": 0.0625, "Legendary": 0.0625, "Cosmic": 0.0625, "Secret": 0.0625}
 # rule 8, the animation ladder: moving things at least (each moving object with a clip, plus the blink on the face plate), and the object cap
 MOTION_MIN = {"Common": 2, "Uncommon": 3, "Rare": 4, "Epic": 5, "Legendary": 6, "Cosmic": 8, "Secret": 8}
-MOVERS_CAP = {"Common": 4, "Uncommon": 5, "Rare": 6, "Epic": 8, "Legendary": 10, "Cosmic": 12, "Secret": 12}
+# B54: a satellite ring (and a backdrop) is a moving object of its own, so the caps of Rare to Legendary rose by two
+MOVERS_CAP = {"Common": 4, "Uncommon": 5, "Rare": 8, "Epic": 10, "Legendary": 12, "Cosmic": 12, "Secret": 12}
 CLIP_KINDS = ("bob", "sway", "flap", "spin", "wag", "squash", "pulse", "orbit", "blink")
 CLIP_AXIS = {"bob": "y", "sway": "z", "flap": "z", "spin": "y", "wag": "y", "squash": "y", "pulse": "y", "orbit": "y", "blink": "y"}
 CLIP_ROTATES = ("sway", "flap", "wag")          # amp in degrees, at most CLIP_ANGLE_MAX (spin: degrees a period, any)
