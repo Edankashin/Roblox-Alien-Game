@@ -7,6 +7,7 @@
 
 local HudData = require(script.Parent.data.Hud)
 local Tutorial = require(script.Parent.data.Tutorial)
+local RewardIcon = require(script.Parent.RewardIcon)
 
 local HudStages = {}
 
@@ -41,7 +42,67 @@ end
 
 -- ShownWith on the game's data (data/Tutorial HudStages and Steps).
 function HudStages.Shown(element: string, stepIndex: number, done: boolean): boolean
-	return HudStages.ShownWith(Tutorial.HudStages, stepIds, element, stepIndex, done)
+	-- ---------------------------------------------------------------------------
+-- The goal card (UI richness pass, package A): the objective plate is its own bar, with the reward beside the counter
+-- ---------------------------------------------------------------------------
+
+-- The share of a bar that is full: `have` of `need`, 0 to 1. nil when there is nothing to count (an uncounted step: a trough with no
+-- fill, no fake progress).
+function HudStages.Fraction(have: number, need: number): number?
+	if need <= 0 then
+		return nil
+	end
+	return math.clamp(have / need, 0, 1)
+end
+
+export type Counted = { id: string, count: number }
+
+-- A Field Notes step's progress as the sums the bar and the counter chip show: each objective counts at most its own `count` (a
+-- surplus on one never makes up for another), `progress` is the profile's count by objective id. Answers (have, need).
+function HudStages.NotesProgress(objectives: { Counted }, progress: { [string]: number }): (number, number)
+	local have, need = 0, 0
+	for _, objective in ipairs(objectives) do
+		have += math.min(progress[objective.id] or 0, objective.count)
+		need += objective.count
+	end
+	return have, need
+end
+
+export type RewardChip = { key: string, amount: number }
+
+-- The reward the chip shows for a step: the first with a pixel icon (Shared/RewardIcon: scrap, a lure or power-up, an egg, a spin) and
+-- an amount, as "+amount" beside it. A step that pays only gear, an item or an alien shows no chip (nothing is invented; the Quests
+-- card names the reward). nil when there is none.
+function HudStages.GoalReward(rewards: { RewardIcon.Reward }): RewardChip?
+	for _, reward in ipairs(rewards) do
+		local key = RewardIcon.Key(reward)
+		local amount = reward.amount or 0
+		if key and amount > 0 then
+			return { key = key, amount = amount }
+		end
+	end
+	return nil
+end
+
+export type GoalShares = {
+	text: number, -- the hint's share of the plate's width
+	counter: number, -- the "1/3" chip's (0 when there is none)
+	reward: number, -- the reward chip's (0 when there is none)
+}
+
+-- How the objective plate's width is shared: the text, then the counter and reward chips from the right edge. With a reward the text
+-- narrows to TextShareReward and the counter to CounterShare; without one a counted step keeps TextShareCounter and the wider counter.
+function HudStages.GoalShares(counted: boolean, rewarded: boolean): GoalShares
+	local goal = HudData.Goal
+	if rewarded then
+		return { text = goal.TextShareReward, counter = if counted then goal.CounterShare else 0, reward = goal.RewardShare }
+	elseif counted then
+		return { text = goal.TextShareCounter, counter = goal.CounterWide, reward = 0 }
+	end
+	return { text = goal.TextShare, counter = 0, reward = 0 }
+end
+
+return HudStages.ShownWith(Tutorial.HudStages, stepIds, element, stepIndex, done)
 end
 
 -- Whether a tutorial step index is past the last step.
@@ -161,13 +222,14 @@ export type Objective = {
 -- text holds whole at `floorPx` (the 14 px floor): the smallest number of lines that fits the bar's width, else the fewest that fit by
 -- widening the plate up to its maximum, else the most lines allowed at the maximum width. The height is the lines' own, never under the
 -- bar's. An estimate (a letter is CharEm ems wide, WrapSlack for the words that wrap early); the Studio check judges the rest.
-function HudStages.Objective(chars: number, counter: boolean, screenW: number, screenH: number, floorPx: number): Objective
+-- `reward` (a Field Notes step with its reward chip) narrows the text to TextShareReward.
+function HudStages.Objective(chars: number, counter: boolean, screenW: number, screenH: number, floorPx: number, reward: boolean?): Objective
 	local goal = HudData.Goal
 	local lineH = HudStages.AtLeast(goal.LineHeight, goal.MinHeightPx, screenH)
 	if screenW <= 0 or screenH <= 0 then
 		return { width = goal.Width, height = lineH, lines = 1 }
 	end
-	local share = if counter then goal.TextShareCounter else goal.TextShare
+	local share = if reward then goal.TextShareReward elseif counter then goal.TextShareCounter else goal.TextShare
 	local baseW = goal.Width * screenW
 	local maxW = goal.MaxWidth * screenW
 	local textPx = math.max(0, chars) * floorPx * goal.CharEm * goal.WrapSlack

@@ -2,11 +2,14 @@
 -- Shared.HudStages (the quiet HUD, Clean-UI-Pass package A) and the data it reads (data/Hud, data/Tutorial HudStages): the staged
 -- reveal (every element hidden for a fresh profile, each appearing exactly at its step, all shown when the tutorial is done), the
 -- one event chip's source and line, the top-right stack, and the objective line that holds each tutorial hint whole at the 14 px
--- floor on iPhone SE and an iPad.
+-- floor on iPhone SE and an iPad. The goal card (UI richness pass, package A): the bar's fraction for a counted tutorial step and a
+-- Field Notes step, the reward chip, the shares of the plate's width, and the Field Notes titles fitting beside the reward chip.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local HudStages = require(Shared.HudStages)
 local HudData = require(Shared.data.Hud)
 local Tutorial = require(Shared.data.Tutorial)
+local Quests = require(Shared.data.Quests)
+local PixelIcons = require(Shared.data.PixelIcons)
 local Strings = require(Shared.strings.en)
 
 local FLOOR = 14 -- Theme.TextSize.Min (the headless sandbox cannot require Theme; tools/tests/test_menu_hud.py keeps the two equal)
@@ -219,6 +222,94 @@ describe("HudStages objective line", function()
 		local o = HudStages.Objective(40, true, 0, 0, FLOOR)
 		expect(o.lines).toEqual(1)
 		expect(o.width).toEqual(HudData.Goal.Width)
+	end)
+end)
+
+describe("HudStages goal card", function()
+	it("fills a counted step by its counter over its count and leaves an uncounted one empty", function()
+		expect(HudStages.Fraction(1, 3)).toBeClose(1 / 3, 1e-9)
+		expect(HudStages.Fraction(2, 3)).toBeClose(2 / 3, 1e-9)
+		expect(HudStages.Fraction(0, 3)).toEqual(0)
+		expect(HudStages.Fraction(3, 3)).toEqual(1)
+		expect(HudStages.Fraction(5, 3)).toEqual(1) -- a surplus never overfills
+		expect(HudStages.Fraction(-1, 3)).toEqual(0)
+		expect(HudStages.Fraction(0, 0)).toEqual(nil) -- no count: a trough with no fill, no fake progress
+	end)
+	it("sums a Field Notes step's objectives, each capped at its own count", function()
+		local have, need = HudStages.NotesProgress({ { id = "a", count = 5 } }, { a = 3 })
+		expect(have).toEqual(3)
+		expect(need).toEqual(5)
+		have, need = HudStages.NotesProgress({ { id = "a", count = 1 }, { id = "b", count = 1 } }, { a = 4, b = 0 })
+		expect(have).toEqual(1) -- the surplus on a does not make up for b
+		expect(need).toEqual(2)
+		expect(HudStages.Fraction(have, need)).toEqual(0.5)
+		have, need = HudStages.NotesProgress({ { id = "a", count = 2 } }, {})
+		expect(have).toEqual(0)
+		expect(need).toEqual(2)
+		have, need = HudStages.NotesProgress({}, { a = 1 })
+		expect(HudStages.Fraction(have, need)).toEqual(nil)
+	end)
+	it("takes the first reward with a picture and an amount for the chip, and none when a step pays only gear, an item or an alien", function()
+		local chip = HudStages.GoalReward({ { kind = "gear", id = "Radar1" }, { kind = "scrap", amount = 500 }, { kind = "lure", id = "Lure1", amount = 3 } })
+		assert(chip ~= nil, "no chip")
+		expect(chip.key).toEqual("Scrap")
+		expect(chip.amount).toEqual(500)
+		chip = HudStages.GoalReward({ { kind = "spin", amount = 2 } })
+		assert(chip ~= nil, "no chip")
+		expect(chip.key).toEqual("Spin")
+		expect(HudStages.GoalReward({ { kind = "gear", id = "Boots" } })).toEqual(nil)
+		expect(HudStages.GoalReward({ { kind = "item", id = "WardenHorn", amount = 1 } })).toEqual(nil)
+		expect(HudStages.GoalReward({ { kind = "encounter", id = "Gaiabloom" } })).toEqual(nil)
+		expect(HudStages.GoalReward({})).toEqual(nil)
+	end)
+	it("draws a pixel icon for every reward chip a Field Notes step can show", function()
+		for world, steps in pairs(Quests.FieldNotes) do
+			for _, step in ipairs(steps) do
+				local chip = HudStages.GoalReward(step.rewards :: any)
+				if chip then
+					assert(PixelIcons.Icons[chip.key] ~= nil, ("world %d %s: no pixel icon %s"):format(world, step.id, chip.key))
+				end
+			end
+		end
+	end)
+	it("shares the plate's width so the text, the counter and the reward add up inside it", function()
+		local goal = HudData.Goal
+		for _, case in ipairs({ { false, false }, { true, false }, { true, true }, { false, true } }) do
+			local shares = HudStages.GoalShares(case[1], case[2])
+			local used = shares.text + shares.counter + shares.reward
+			assert(used <= goal.ChipRight + 1e-9, ("counted %s rewarded %s uses %.2f"):format(tostring(case[1]), tostring(case[2]), used))
+			if shares.reward > 0 then
+				assert(shares.text + shares.counter + shares.reward + goal.ChipGap <= 1, "the chips run off the plate")
+			end
+		end
+		expect(HudStages.GoalShares(true, true).text).toEqual(goal.TextShareReward)
+		expect(HudStages.GoalShares(true, true).counter).toEqual(goal.CounterShare)
+		expect(HudStages.GoalShares(true, true).reward).toEqual(goal.RewardShare)
+		expect(HudStages.GoalShares(true, false).text).toEqual(goal.TextShareCounter)
+		expect(HudStages.GoalShares(false, false).text).toEqual(goal.TextShare)
+	end)
+	for _, screen in ipairs({ SE, IPAD, WIDE }) do
+		it(screen.w .. "x" .. screen.h .. ": every Field Notes title fits its plate beside the reward chip, within the line and width limits", function()
+			for world, steps in pairs(Quests.FieldNotes) do
+				for _, step in ipairs(steps) do
+					local title = (Strings :: any)["FN_" .. step.id .. "_TITLE"]
+					assert(type(title) == "string", step.id .. " has no title")
+					local o = HudStages.Objective(utf8.len(title) or #title, true, screen.w, screen.h, FLOOR, true)
+					assert(o.lines >= 1 and o.lines <= HudData.Goal.MaxLines, ("world %d %s has %d lines"):format(world, step.id, o.lines))
+					assert(o.width <= HudData.Goal.MaxWidth + 1e-9, step.id .. " is " .. o.width .. " wide")
+				end
+			end
+		end)
+	end
+	it("a reward chip narrows the text: the same hint takes at least as many lines or as much width", function()
+		local plain = HudStages.Objective(30, true, SE.w, SE.h, FLOOR, false)
+		local rewarded = HudStages.Objective(30, true, SE.w, SE.h, FLOOR, true)
+		assert(rewarded.lines >= plain.lines and rewarded.width >= plain.width - 1e-9, "the reward chip gave the text more room")
+	end)
+	it("keeps the goal card inside the Clean pass height: the plate grows in width first, and a one-line title is one bar high", function()
+		local o = HudStages.Objective(14, true, WIDE.w, WIDE.h, FLOOR, true) -- a short title beside the chips
+		expect(o.lines).toEqual(1)
+		expect(o.height).toBeClose(HudData.Goal.LineHeight, 1e-9)
 	end)
 end)
 
