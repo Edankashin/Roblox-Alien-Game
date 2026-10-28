@@ -7,9 +7,9 @@ world: 1
 tier: Epic
 status: review
 element: Crystal
-height: 3.4375
-blocks: 65
-tris: 970
+height: 3.46
+blocks: 120
+tris: 1658
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#8C6FB5", "#3B2454", "#D9C8FF", "#E8C45A", "#B832E8", "#140C21"]
@@ -24,6 +24,12 @@ overlap: [0.995, 0.995, 0.998, 0.995]
 vfx_render: "[[Gloomoth_vfx_cells.jpg]]"
 cells_render: "[[Gloomoth_tq_cells.jpg]]"
 idle_render: "[[Gloomoth_idle.png]]"
+bar_world: Verdant
+bar_kit: 5
+bar_pieces: [bark_band, blossom_bud, moss_cells]
+bar_stance: "a night flutter: the crystal fore wings raised 12 degrees higher, the head cocked 6 degrees, the abdomen curled up 12 degrees behind it, three little moths and three moonflowers circling"
+bar_satellites: 6
+bar_orbit: swarm
 ---
 # Gloomoth (Iridia), Epic, World 1 Verdant
 
@@ -39,6 +45,17 @@ A night moth in mauve and pale lilac whose wings are crystal, 3.44 studs to its 
 
 **World motif (Verdant).** The moss cell as the quarter-stud steps of the ruff and the sixteenth-stud steps of the feathers, the lobes and the diamond.
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`gloomoth()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** A night moth mid-flutter, the keeper of the dusk garden. Kept: name, anatomy (crystal fore and hind wings with lit eyespots and stained-glass panes, feathered antennae with lit tips, the gold crown diamond, a shard of its own crystal), height 3.46.
+- **Gains (visible parts).** (1) Six satellites on a wide low ring clear of the wings, in lit orchid, gold and pale lilac: three little moths (gold body and feelers, lit orchid upper wings over pale lilac lower wings) and three moonflowers (pale lilac petals round a gold heart with a lit dot on both faces), each three quarters of a stud and more. (2) Verdant kit, five pieces: lilac moss pads with a lit tuft on the abdomen, gold blossom buds on the crown between the feelers, a gold girth round the waist. (3) The stance below.
+- **Stance (rest groups `wing`, `head`, `abd`).** The fore wings lifted 12 degrees higher (a mirrored group: both rise), the head cocked 6 degrees, the abdomen curled up 12 degrees behind it with its tuft: the outline is an open V of wings over a curled tail, not a box with panels.
+- **Face intent.** Its own `gem` eyes kept (an amethyst iris with an orchid diamond pupil in a lit gold rim), a small smile and heart cheeks: a gentle, dreamy night creature. The face is not changed and nothing crosses it; the forehead diamond above it is the crown's.
+- **Three values (rule 8).** Body mauve; the plum bands, legs and feelers a step darker; the lilac ruff, wings, petals and moss a step lighter; the lit orchid (eyespots, panes, moth wings) and one gold metal. The satellites are never the body's mauve.
+- **Must-nots.** No fierce brow; nothing over the face; no loose boxes in the ring; the wings stay under the 3.5-stud ceiling (an 18-degree raise reached 3.53: 12); height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
@@ -48,54 +65,109 @@ parts:
   - {name: MidLeg, slot: BodyDark, size: [0.125, 0.5, 0.125], at: [0.8125, 0.25, 0.1875], mirror: x}
   - {name: HindLeg, slot: BodyDark, size: [0.125, 0.5, 0.125], at: [0.8125, 0.25, 0.8125], mirror: x}
   # the abdomen behind, banded in plum, a dark tuft at its end; the big head in front
-  - {name: Abdomen, slot: Body, size: [1.5, 1.25, 2.25], at: [0, 1.125, 1.125], bevel: true}
-  - {name: Band, slot: BodyDark, size: [1.75, 1.5, 0.25], at: [0, 1.125, 1]}
-  - {name: Band2, slot: BodyDark, size: [1.75, 1.5, 0.25], at: [0, 1.125, 1.75]}
-  - {name: Tuft, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1, 2.5]}
-  - {name: Head, slot: Body, size: [2, 1.75, 1.5], at: [0, 1.625, -0.75], bevel: true}
+  - {name: Abdomen, slot: Body, size: [1.5, 1.25, 2.25], at: [0, 1.125, 1.125], bevel: true, pose: abd}
+  - {name: Band, slot: BodyDark, size: [1.75, 1.5, 0.25], at: [0, 1.125, 1], pose: abd}
+  - {name: Band2, slot: BodyDark, size: [1.75, 1.5, 0.25], at: [0, 1.125, 1.75], pose: abd}
+  - {name: Tuft, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1, 2.5], pose: abd}
+  - {name: Head, slot: Body, size: [2, 1.75, 1.5], at: [0, 1.625, -0.75], bevel: true, pose: head}
   # a shaggy lilac ruff round the neck: three steps of wool, widest at the top and proud of the head's sides, a tuft rising at each
   # shoulder, and one step of it on the crown
-  - {name: Ruff, slot: Accessory, size: [2.5, 0.25, 0.75], at: [0, 2, 0.125], material: wool}
-  - {name: Ruff2, slot: Accessory, size: [2.25, 0.375, 0.75], at: [0, 1.6875, 0.125], material: wool}
-  - {name: Ruff3, slot: Accessory, size: [1.75, 0.25, 0.75], at: [0, 1.375, 0.125], material: wool}
-  - {name: RuffTuft, slot: Accessory, size: [0.25, 0.5, 0.5], at: [1.375, 2.25, 0.125], mirror: x, material: wool}
-  - {name: Crest, slot: Accessory, size: [1.25, 0.25, 0.5], at: [0, 2.625, -0.25], material: wool}
+  - {name: Ruff, slot: Accessory, size: [2.5, 0.25, 0.75], at: [0, 2, 0.125], material: wool, pose: head}
+  - {name: Ruff2, slot: Accessory, size: [2.25, 0.375, 0.75], at: [0, 1.6875, 0.125], material: wool, pose: head}
+  - {name: Ruff3, slot: Accessory, size: [1.75, 0.25, 0.75], at: [0, 1.375, 0.125], material: wool, pose: head}
+  - {name: RuffTuft, slot: Accessory, size: [0.25, 0.5, 0.5], at: [1.375, 2.25, 0.125], mirror: x, material: wool, pose: head}
+  - {name: Crest, slot: Accessory, size: [1.25, 0.25, 0.5], at: [0, 2.625, -0.25], material: wool, pose: head}
   # the stepped crystal diamond on the forehead, over the face plate, in sixteenth-stud plates
-  - {name: Emblem, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0, 2.40625, -1.53125], material: crystal}
-  - {name: Emblem2, slot: Trim, size: [0.25, 0.0625, 0.0625], at: [0, 2.34375, -1.53125], material: crystal}
-  - {name: Emblem3, slot: Trim, size: [0.375, 0.0625, 0.0625], at: [0, 2.28125, -1.53125], material: crystal}
-  - {name: Emblem4, slot: Trim, size: [0.25, 0.0625, 0.0625], at: [0, 2.21875, -1.53125], material: crystal}
-  - {name: Emblem5, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0, 2.15625, -1.53125], material: crystal}
+  - {name: Emblem, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0, 2.40625, -1.53125], material: crystal, pose: head}
+  - {name: Emblem2, slot: Trim, size: [0.25, 0.0625, 0.0625], at: [0, 2.34375, -1.53125], material: crystal, pose: head}
+  - {name: Emblem3, slot: Trim, size: [0.375, 0.0625, 0.0625], at: [0, 2.28125, -1.53125], material: crystal, pose: head}
+  - {name: Emblem4, slot: Trim, size: [0.25, 0.0625, 0.0625], at: [0, 2.21875, -1.53125], material: crystal, pose: head}
+  - {name: Emblem5, slot: Trim, size: [0.125, 0.0625, 0.0625], at: [0, 2.15625, -1.53125], material: crystal, pose: head}
   # two slender feathered antennae leaning apart 20 degrees: a stalk, two stepped feather plates on its outer side and a lit tip (they tilt)
-  - {name: Stalk, slot: BodyDark, size: [0.125, 0.75, 0.0625], at: [0.625, 2.875, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
-  - {name: Feather, slot: BodyDark, size: [0.25, 0.5, 0.0625], at: [0.8125, 2.875, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
-  - {name: Feather2, slot: BodyDark, size: [0.1875, 0.25, 0.0625], at: [1.03125, 2.8125, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
-  - {name: AntennaTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 3.3125, -0.5625], shape: ico1, mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625]}
+  - {name: Stalk, slot: BodyDark, size: [0.125, 0.75, 0.0625], at: [0.625, 2.875, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625], pose: head}
+  - {name: Feather, slot: BodyDark, size: [0.25, 0.5, 0.0625], at: [0.8125, 2.875, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625], pose: head}
+  - {name: Feather2, slot: BodyDark, size: [0.1875, 0.25, 0.0625], at: [1.03125, 2.8125, -0.5625], rot: [0, 0, -20], mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625], pose: head}
+  - {name: AntennaTip, slot: Glow, size: [0.25, 0.25, 0.25], at: [0.75, 3.3125, -0.5625], shape: ico1, mirror: x, moves: antenna, pivot: [0.5, 2.5, -0.5625], pose: head}
   # the hero: the crystal fore wings spread wide and lifted 25 degrees, and (Polish w1) pitched 25 degrees about their own span, leading
   # edge down and trailing edge up, so their faces turn to the front and the three-quarter camera sees the eyespots, not an edge; a lobe
   # stepped out behind, a plum edge along the outer rim, a gold-ringed orchid eyespot on each (they beat)
-  - {name: ForeWing, slot: Accessory, size: [2, 0.125, 1.75], at: [1.6875, 2.1875, 0.375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: WingLobe, slot: Accessory, size: [1, 0.125, 0.5], at: [1.84375, 2.78125, 1.40625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: WingEdge, slot: BodyDark, size: [0.125, 0.25, 1.75], at: [2.5, 2.625, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
-  - {name: EyeRing, slot: Trim, size: [0.625, 0.125, 0.625], at: [1.75, 2.375, 0.3125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: metal}
-  - {name: Eyespot, slot: Glow, size: [0.375, 0.125, 0.375], at: [1.75, 2.40625, 0.28125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375]}
+  - {name: ForeWing, slot: Accessory, size: [2, 0.125, 1.75], at: [1.6875, 2.1875, 0.375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: WingLobe, slot: Accessory, size: [1, 0.125, 0.5], at: [1.84375, 2.78125, 1.40625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: WingEdge, slot: BodyDark, size: [0.125, 0.25, 1.75], at: [2.5, 2.625, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], pose: wing}
+  - {name: EyeRing, slot: Trim, size: [0.625, 0.125, 0.625], at: [1.75, 2.375, 0.3125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: metal, pose: wing}
+  - {name: Eyespot, slot: Glow, size: [0.375, 0.125, 0.375], at: [1.75, 2.40625, 0.28125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], pose: wing}
   # the smaller hind wings, low behind, 15 degrees up and pitched 15 degrees the same way, a plum edge on each (they beat a little behind)
   - {name: HindWing, slot: Accessory, size: [1.25, 0.125, 1.5], at: [1.375, 1.6875, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   - {name: HindEdge, slot: BodyDark, size: [0.125, 0.1875, 1.5], at: [1.96875, 1.84375, 1.625], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625]}
   # Rare pass w1, the signature piece: stained-glass wings, panes of lit orchid glass and gold glass laid on each fore wing round its
   # eyespot and on each hind wing, the lilac wing between them the leading; they beat with the wing and flash on the flourish
-  - {name: Pane0, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.1875, 1.8125, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane1, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.09375, 2, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane2, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1, 2.1875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane3, slot: Trim, size: [0.25, 0.0625, 0.25], at: [2.3125, 2.34375, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane4, slot: Glow, size: [0.25, 0.0625, 0.25], at: [2.125, 2.71875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane5, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.875, 2.0625, -0.21875], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
-  - {name: Pane6, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.65625, 2.5625, 0.90625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal}
+  - {name: Pane0, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.1875, 1.8125, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane1, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.09375, 2, 0.34375], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane2, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1, 2.1875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane3, slot: Trim, size: [0.25, 0.0625, 0.25], at: [2.3125, 2.34375, -0.125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane4, slot: Glow, size: [0.25, 0.0625, 0.25], at: [2.125, 2.71875, 0.78125], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane5, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.875, 2.0625, -0.21875], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
+  - {name: Pane6, slot: Trim, size: [0.25, 0.0625, 0.25], at: [1.65625, 2.5625, 0.90625], rot: [-25, 0, 25], mirror: x, moves: wing, pivot: [0.75, 1.75, 0.375], material: crystal, pose: wing}
   - {name: HindPane0, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.625, 1.75, 1.25], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   - {name: HindPane1, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.5625, 1.9375, 1.96875], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   - {name: HindPane2, slot: Glow, size: [0.25, 0.0625, 0.25], at: [1.125, 1.71875, 1.59375], rot: [-15, 0, 15], mirror: x, moves: hindwing, pivot: [0.75, 1.5, 1.625], material: crystal}
   # alien anatomy: a shard of gold crystal circling over its back
   - {name: Shard, slot: Trim, size: [0.25, 0.375, 0.25], at: [0, 3, 0.75], shape: ico1, moves: shard, pivot: [0, 3, 0.75], material: crystal}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # the Verdant kit: lilac moss pads with a lit tuft on the abdomen's top (they curl up with it)
+  - {name: Mossa, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.375, 1.8125, 1.375], mirror: x, pose: abd, material: moss}
+  - {name: Mossb, slot: Accessory, size: [0.375, 0.125, 0.25], at: [0.4375, 1.9375, 1.375], mirror: x, pose: abd, material: moss}
+  - {name: Mossc, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 2.0625, 1.3125], mirror: x, pose: abd, material: moss}
+  # gold blossom buds on the crown's step, between the feelers (they turn with the head)
+  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.4375, 2.875, -0.1875], mirror: x, pose: head, material: wood}
+  - {name: Budb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.4375, 3.0625, -0.1875], mirror: x, pose: head}
+  - {name: Budc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.4375, 3.1875, -0.1875], mirror: x, pose: head}
+  # a gold girth: a quarter stud wide, an eighth proud, round the waist between the head and the abdomen
+  - {name: Girth, slot: Trim, size: [1.75, 1.5, 0.25], at: [0, 1.125, 0.375], material: metal}
+  # the satellite set (`swarm`, one wide ring clear of the wings, the front low): three little moths and three moonflowers, in lit orchid, gold and pale lilac
+  - {name: Sat0a, slot: Trim, size: [0.125, 0.5, 0.25], at: [1.625, 0.875, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat0b, slot: Trim, size: [0.125, 0.125, 0.25], at: [1.5, 1.1875, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat0c, slot: Trim, size: [0.125, 0.125, 0.25], at: [1.75, 1.1875, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat0d, slot: Glow, size: [0.375, 0.25, 0.125], at: [1.375, 1, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat0e, slot: Accessory, size: [0.25, 0.25, 0.125], at: [1.4375, 0.75, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat0f, slot: Glow, size: [0.375, 0.25, 0.125], at: [1.875, 1, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat0g, slot: Accessory, size: [0.25, 0.25, 0.125], at: [1.8125, 0.75, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat1a, slot: Trim, size: [0.25, 0.25, 0.25], at: [3.1875, 1.8125, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat1b, slot: Accessory, size: [0.25, 0.25, 0.25], at: [3.1875, 2.0625, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat1c, slot: Accessory, size: [0.25, 0.25, 0.25], at: [3.1875, 1.5625, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat1d, slot: Accessory, size: [0.25, 0.25, 0.25], at: [2.9375, 1.8125, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat1e, slot: Accessory, size: [0.25, 0.25, 0.25], at: [3.4375, 1.8125, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat1f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [3.1875, 1.8125, 0.34375], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat1g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [3.1875, 1.8125, 0.65625], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat2a, slot: Trim, size: [0.125, 0.5, 0.25], at: [1.625, 2.25, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat2b, slot: Trim, size: [0.125, 0.125, 0.25], at: [1.75, 2.5625, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat2c, slot: Trim, size: [0.125, 0.125, 0.25], at: [1.5, 2.5625, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat2d, slot: Glow, size: [0.375, 0.25, 0.125], at: [1.875, 2.375, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat2e, slot: Accessory, size: [0.25, 0.25, 0.125], at: [1.8125, 2.125, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat2f, slot: Glow, size: [0.375, 0.25, 0.125], at: [1.375, 2.375, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat2g, slot: Accessory, size: [0.25, 0.25, 0.125], at: [1.4375, 2.125, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat3a, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.625, 2.1875, 3.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat3b, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.625, 2.4375, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat3c, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.625, 1.9375, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat3d, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.375, 2.1875, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat3e, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.875, 2.1875, 3.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat3f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.625, 2.1875, 3.40625], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat3g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.625, 2.1875, 3.09375], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat4a, slot: Trim, size: [0.125, 0.5, 0.25], at: [-3.1875, 1.25, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat4b, slot: Trim, size: [0.125, 0.125, 0.25], at: [-3.3125, 1.5625, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat4c, slot: Trim, size: [0.125, 0.125, 0.25], at: [-3.0625, 1.5625, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat4d, slot: Glow, size: [0.375, 0.25, 0.125], at: [-3.4375, 1.375, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat4e, slot: Accessory, size: [0.25, 0.25, 0.125], at: [-3.375, 1.125, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat4f, slot: Glow, size: [0.375, 0.25, 0.125], at: [-2.9375, 1.375, 0.5], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat4g, slot: Accessory, size: [0.25, 0.25, 0.125], at: [-3, 1.125, 0.5], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat5a, slot: Trim, size: [0.25, 0.25, 0.25], at: [-1.625, 0.8125, -2.25], moves: swarm, pivot: [0, 1.6, 0.5], material: metal}
+  - {name: Sat5b, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.625, 1.0625, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat5c, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.625, 0.5625, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat5d, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.875, 0.8125, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat5e, slot: Accessory, size: [0.25, 0.25, 0.25], at: [-1.375, 0.8125, -2.25], moves: swarm, pivot: [0, 1.6, 0.5]}
+  - {name: Sat5f, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.625, 0.8125, -2.40625], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  - {name: Sat5g, slot: Glow, size: [0.125, 0.125, 0.0625], at: [-1.625, 0.8125, -2.09375], moves: swarm, pivot: [0, 1.6, 0.5], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -129,12 +201,17 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the fore wings beat, the hi
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [0, 0, 6], pivot: [0, 0.9, -0.2], move: [0, -0.05, 0]}
+    wing: {rot: [0, 0, 12], pivot: [0.75, 1.75, 0.375], mirror: true}
+    abd: {rot: [-12, 0, 0], pivot: [0, 1.125, 0.1]}
   clips:
     wing: [{kind: flap, amp: 18, period: 1.8, axis: z}, {kind: sway, amp: 4, period: 3.6, axis: x, phase: 0.2}]
     hindwing: [{kind: flap, amp: 12, period: 1.8, axis: z, phase: 0.2}]
     antenna: [{kind: sway, amp: 9, period: 2.8, axis: z}, {kind: sway, amp: 6, period: 3.7, axis: x, phase: 0.35}]
     shard: [{kind: orbit, amp: 0.3, period: 5}, {kind: spin, amp: 360, period: 3, axis: y}, {kind: bob, amp: 0.08, period: 2.5}]
     root: [{kind: squash, amp: 0.03, period: 3}, {kind: bob, amp: 0.05, period: 1.8, phase: 0.3}]
+    swarm: [{kind: spin, amp: 360, period: 20, axis: y}, {kind: bob, amp: 0.05, period: 3}]
     face: [{kind: blink, period: 5}]
   flourish:
     every: 10

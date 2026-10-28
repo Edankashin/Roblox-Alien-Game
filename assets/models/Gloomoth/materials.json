@@ -11,7 +11,7 @@
   },
   {
     "slot": 2,
-    "name": "antennaL",
+    "name": "Glow",
     "hex": "B832E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -19,7 +19,7 @@
   },
   {
     "slot": 3,
-    "name": "antennaR",
+    "name": "antennaL",
     "hex": "B832E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -27,7 +27,7 @@
   },
   {
     "slot": 4,
-    "name": "hindwingL",
+    "name": "antennaR",
     "hex": "B832E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -35,7 +35,7 @@
   },
   {
     "slot": 5,
-    "name": "hindwingR",
+    "name": "hindwingL",
     "hex": "B832E8",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -43,6 +43,14 @@
   },
   {
     "slot": 6,
+    "name": "hindwingR",
+    "hex": "B832E8",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 7,
     "name": "shard",
     "hex": "E8C45A",
     "roughness": 0.55,
@@ -52,7 +60,17 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
+    "name": "swarm",
+    "hex": "E8C45A",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Gloomoth_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 9,
     "name": "wingL",
     "hex": "D9C8FF",
     "roughness": 0.55,
@@ -62,7 +80,7 @@
     "pixelated": true
   },
   {
-    "slot": 8,
+    "slot": 10,
     "name": "wingR",
     "hex": "D9C8FF",
     "roughness": 0.55,
@@ -72,7 +90,7 @@
     "pixelated": true
   },
   {
-    "slot": 9,
+    "slot": 11,
     "name": "FacePlate",
     "hex": "8C6FB5",
     "roughness": 0.4,

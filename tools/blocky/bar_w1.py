@@ -237,4 +237,50 @@ def thunderhog():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog}
+# ------------------------------------------------------------------------------------------------ Iridia (Gloomoth)
+def _mini_moth(g, lite=False):
+    # a little moth seven eighths of a stud across, the same from both sides: a gold body and feelers, lit orchid upper wings over pale lilac lower wings
+    z0, z1 = -0.0625, 0.0625
+    out = [_box(-0.0625, 0.0625, -0.25, 0.25, -0.125, 0.125, "Trim", "metal"), _box(-0.1875, -0.0625, 0.25, 0.375, -0.125, 0.125, "Trim", "metal"),
+           _box(0.0625, 0.1875, 0.25, 0.375, -0.125, 0.125, "Trim", "metal")]
+    for sx in (-1, 1):
+        lo, hi = (-0.4375, -0.0625) if sx < 0 else (0.0625, 0.4375)
+        out.append(_box(lo, hi, 0.0, 0.25, z0, z1, "Glow", "crystal"))
+        lo2, hi2 = (-0.3125, -0.0625) if sx < 0 else (0.0625, 0.3125)
+        out.append(_box(lo2, hi2, -0.25, 0.0, z0, z1, "Accessory", None))
+    return out
+
+
+def _moonflower(g, lite=False):
+    # a night-blooming moonflower three quarters of a stud across, the same from both sides: pale lilac petals round a gold heart with a lit orchid dot on both faces
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.125, 0.125, -0.125, 0.125, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, 0.125, 0.375, z0, z1, "Accessory", None), _box(-0.125, 0.125, -0.375, -0.125, z0, z1, "Accessory", None),
+            _box(-0.375, -0.125, -0.125, 0.125, z0, z1, "Accessory", None), _box(0.125, 0.375, -0.125, 0.125, z0, z1, "Accessory", None),
+            _box(-0.0625, 0.0625, -0.0625, 0.0625, 0.125, 0.1875, "Glow", "crystal"), _box(-0.0625, 0.0625, -0.0625, 0.0625, -0.1875, -0.125, "Glow", "crystal")]
+
+
+own("mini_moth", "Iridia", "a seven-eighths-stud little moth: gold body and feelers, lit orchid wings over a pale lilac base (a satellite)", _mini_moth, "Epic")
+own("moonflower", "Iridia", "a three-quarter-stud moonflower: pale lilac petals round a gold heart with a lit orchid dot (a satellite)", _moonflower, "Epic")
+
+
+def gloomoth():
+    """Epic, Verdant, Spirit: a night moth mid-flutter. Five kit pieces (lilac moss pads with a lit tuft on the abdomen, gold blossom buds on the crown, a gold girth
+    between the head and abdomen), six satellites in one lit orchid, gold and lilac (three little moths and three moonflowers) on a wide ring clear of the wings; the
+    fore wings raised, the head cocked, the abdomen curled up."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a night flutter: the crystal fore wings raised 12 degrees higher, the head cocked 6 degrees, the abdomen curled up 12 degrees behind it, three little moths and three moonflowers circling")
+    kit = K.place(P_["moss_cells"], "Moss", (0.375, 1.75, 1.375), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"}, pose="abd")
+    p.wear("# the Verdant kit: lilac moss pads with a lit tuft on the abdomen's top (they curl up with it)", kit, ["moss_cells"] * 2)
+    kit = K.place(P_["blossom_bud"], "Bud", (0.375, 2.75, -0.125), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="head")
+    p.wear("# gold blossom buds on the crown's step, between the feelers (they turn with the head)", kit, ["blossom_bud"] * 2)
+    p.wear("# a gold girth: a quarter stud wide, an eighth proud, round the waist between the head and the abdomen",
+           [K.part("Girth", "Trim", (1.75, 1.5, 0.25), (0, 1.125, 0.375), material="metal")], ["bark_band"])
+    sats = K.orbit([P_["mini_moth"], P_["moonflower"]] * 3, "Sat", (0, 0.5), 3.2, 1.6, tilt=0.2, moves="swarm", pivot=[0, 1.6, 0.5], start=math.radians(30),
+                   lift=0.8, facing="front", drops=[0.125, 0.0, 0.125, 0.0, 0.125, 0.0], g=0.125)
+    p.regions.append(("# the satellite set (`swarm`, one wide ring clear of the wings, the front low): three little moths and three moonflowers, in lit orchid, gold and pale lilac", sats))
+    p.satellites, p.orbit = 6, "swarm"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth}
