@@ -152,13 +152,12 @@ return {
 	PILL_MAIL_CLAIM = "To claim %d",
 	PILL_VISIT_ONLINE = "Online %d",
 	PILL_RANKS_YOU = "You #%d",
-	PILL_PEDDLER_LEAVES = "Leaves in %s",
 	ROLE_HERE = "HERE",
 	ROLE_OWNED = "OWNED",
 	ROLE_EQUIPPED = "EQUIPPED",
 	ROLE_COMPANION = "COMPANION",
 	ROLE_RIDING = "RIDING",
-	ROLE_PRICE_ROBUX = "%s",
+	ROLE_PRICE_ROBUX = "%s", -- a Robux price: the number beside the pixel Robux mark (Builder.setButtonMark)
 	GOAL_CLAIM = "Claim",
 	GOAL_REWARD = "+%s",
 	HUD_EVENT_LINE = "%s %s", -- the event chip's one line: the event's name, then the time left ("Meteor Shower 4m 12s")
@@ -584,7 +583,6 @@ return {
 	ANNOUNCE_NOTICE = "%s", -- a line from the team, shown as typed
 	ADMIN_LUCK_NAME = "the team", -- who gifted a luck window from the developer panel
 	-- Field Notes (quest chain)
-	QUESTS_STEP = "Step %d of %d",
 	QUESTS_CLAIM = "Claim",
 	QUESTS_CLAIMED = "Claimed",
 	QUESTS_DONE = "The Field Notes are complete. The Warden rides with you.",
@@ -896,7 +894,6 @@ return {
 	SHOP_DESC_Spins5 = "Five spins of the prize wheel.",
 	SHOP_ITEM_Spins12 = "12 Spins",
 	SHOP_DESC_Spins12 = "Twelve spins of the prize wheel.",
-	SHOP_ROBUX_PRICE = "R$ %d",
 	SHOP_ABOUT_PRICE = "about %s%s", -- the real-currency estimate under a Robux price: symbol then amount, e.g. "about $2.49" (Shop.RealCurrency, ShopMath.RealPrice)
 	SHOP_OWNED_PASS = "Owned",
 	SHOP_ONCE_DONE = "Claimed",

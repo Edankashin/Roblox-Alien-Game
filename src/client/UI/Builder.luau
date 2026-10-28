@@ -1414,6 +1414,34 @@ function Builder.blockButton(props: ButtonProps, onClick: () -> ()): Frame
 	return container
 end
 
+-- Puts a pixel icon (a data/PixelIcons key) at the left of a block button's face, beside its text, or takes it away when `key` is nil
+-- or has no drawing: the Robux mark on a Robux price (UI richness pass, button colour roles), so an orange button is never orange
+-- alone. The icon is a child of the face, so it sinks with the press.
+function Builder.setButtonMark(container: Frame?, key: string?)
+	if not container then
+		return
+	end
+	local face = container:FindFirstChild("Face")
+	if not face or not face:IsA("TextButton") then
+		return
+	end
+	local old = face:FindFirstChild("Mark")
+	if old then
+		old:Destroy()
+	end
+	if key then
+		Builder.pixelIcon({
+			parent = face,
+			name = "Mark",
+			key = key,
+			position = UDim2.fromScale(0, 0.5),
+			size = UDim2.fromScale(0.22, 0.8),
+			anchor = Vector2.new(0, 0.5),
+			zIndex = face.ZIndex + 1,
+		})
+	end
+end
+
 -- Restyles a block button: the face and the lip take a new colour, the face a new label (kept blank while it shows an icon), and
 -- `enabled` decides whether it takes taps. The block twin of Builder.restyleButton, for the screens rebuilt in block cells.
 function Builder.restyleBlockButton(container: Frame?, text: string, color: Color3, enabled: boolean)
@@ -1509,11 +1537,13 @@ end
 -- collected keeps the block cells.
 
 local ICON_ROWS = 5 -- the rows of the flat block behind a header's icon
+local FITTED_CLOSE_BOX = 3 -- a fitted band's X is given a box this many times as wide as it is tall; its aspect constraint squares it
 
 export type HeaderSpec = {
 	panelId: string, -- a key of data/Panels.Headers
-	panelAspect: number, -- the panel's width over its height (the aspect its plate keeps)
-	panelHeight: number, -- the panel's height, a Scale of the screen
+	panelAspect: number, -- the panel's width over its height (the aspect its plate keeps); 0 for a takeover with no plate of its own
+	-- (the Shop): the band is then fitted to the screen's width and the X sits at the screen's edge (Panels.Shell.EdgeRight)
+	panelHeight: number, -- the panel's height, a Scale of the screen (1 for a takeover)
 }
 
 export type PanelHeader = {
@@ -1603,6 +1633,7 @@ function Builder.panelHeader(panel: Frame, spec: HeaderSpec, onClose: () -> ()):
 	local accent = namedColor(shell.Accent[row.color] or "Featured")
 	local grid = blockGrid(panel)
 	local inner: BlockMath.Rect = if grid then BlockMath.Inner(grid) else { x = 0, y = 0, w = 1, h = 1 }
+	local fitted = spec.panelAspect <= 0
 	local bandHeight = shell.BandHeight
 	panel:SetAttribute("BandColor", color)
 	Builder.setBlockColor(panel, Builder.tint(Theme.Colors.Panel, color, shell.BodyTint))
@@ -1612,7 +1643,7 @@ function Builder.panelHeader(panel: Frame, spec: HeaderSpec, onClose: () -> ()):
 		parent = panel,
 		name = "Header",
 		color = color,
-		aspect = inner.w * spec.panelAspect / bandHeight,
+		aspect = if fitted then nil else inner.w * spec.panelAspect / bandHeight,
 		rows = Theme.Block.MinRows,
 		position = UDim2.fromScale(inner.x, inner.y),
 		size = UDim2.fromScale(inner.w, bandHeight),
@@ -1659,9 +1690,9 @@ function Builder.panelHeader(panel: Frame, spec: HeaderSpec, onClose: () -> ()):
 	-- The X: a square block button, `Close` of the band tall, its right end hanging `CloseOverlap` of its width past the band's (never
 	-- past the panel), vertically centred on the band.
 	local closeH = metrics.Close * bandHeight
-	local closeW = closeH / spec.panelAspect
 	local bandRight = inner.x + inner.w
-	local closeRight = math.min(1, bandRight + metrics.CloseOverlap * closeW)
+	local closeW = if fitted then closeH * FITTED_CLOSE_BOX else closeH / spec.panelAspect -- a fitted band gives the X a wide box; its aspect squares it
+	local closeRight = if fitted then shell.EdgeRight else math.min(1, bandRight + metrics.CloseOverlap * closeW)
 	local close = Builder.blockClose(
 		panel,
 		spec.panelHeight,
@@ -1728,15 +1759,17 @@ function Builder.panelHeader(panel: Frame, spec: HeaderSpec, onClose: () -> ()):
 			local camera = workspace.CurrentCamera
 			local screen = if camera then camera.ViewportSize else Vector2.new(1154, 663)
 			bandH = bandHeight * spec.panelHeight * screen.Y
-			bandW = inner.w * spec.panelAspect * spec.panelHeight * screen.Y
+			bandW = if fitted then inner.w * screen.X else inner.w * spec.panelAspect * spec.panelHeight * screen.Y
 		end
 		local panelW = bandW / inner.w
 		local pad = metrics.Pad * panelW
+		local left = if fitted then shell.TakeoverLeft * panelW else pad -- a takeover keeps clear of Roblox's own buttons at the top left
 		local iconPx = metrics.Icon * bandH
 		iconBlock.Size = UDim2.fromScale(iconPx / bandW, metrics.Icon)
-		iconBlock.Position = UDim2.fromScale(pad / bandW, 0.5)
-		local titleX = pad + iconPx + metrics.TitleGap * panelW
-		local hang = (closeW - (closeRight - bandRight)) * panelW -- how much of the band's right end the X covers
+		iconBlock.Position = UDim2.fromScale(left / bandW, 0.5)
+		local titleX = left + iconPx + metrics.TitleGap * panelW
+		local closeLeft = closeRight * panelW - metrics.Close * bandH -- the X is a square of Close of the band's height
+		local hang = math.max(0, bandRight * panelW - closeLeft) -- how much of the band's right end the X covers
 		local pillsRight = bandW - hang - metrics.PillGap * panelW
 		local pillH = metrics.Pill * bandH
 		local pillText = math.clamp(0.7 * pillH, Theme.TextSize.Min, Theme.TextSize.Body)

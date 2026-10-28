@@ -35,6 +35,10 @@ Panels.Shell = {
 	-- Where a body's first row may start, as a share of the panel's height: under the band (the panel's ink, about 0.019, plus
 	-- BandHeight) with a little air. Every panel at the shell's height has 20 rows at the panel cell, so this is one number.
 	BodyTop = 0.16,
+	-- A takeover with no plate of its own (the Shop) puts the X this far right, of the screen's width.
+	EdgeRight = 0.99,
+	-- and starts its icon this far from the left, of the screen's width, clear of Roblox's own buttons (the old Shop title stood at 0.16).
+	TakeoverLeft = 0.12,
 	Accent = { Featured = "Select", Select = "Featured", Codex = "Featured", ShopBackdrop = "Featured" },
 }
 
@@ -54,7 +58,7 @@ Panels.Headers = {
 	Mail = { color = "Select", icon = "Mail", title = "MAIL_TITLE", pills = { "PILL_MAIL_LETTERS", "PILL_MAIL_CLAIM" } },
 	Visit = { color = "Select", icon = "Friends", title = "VISIT_TITLE", pills = { "PILL_VISIT_ONLINE" } },
 	Ranks = { color = "Featured", icon = "Ranks", title = "LB_TITLE", pills = { "PILL_RANKS_YOU" } },
-	Peddler = { color = "Featured", icon = "Shop", title = "PEDDLER_TITLE", pills = { "PILL_PEDDLER_LEAVES" } },
+	Peddler = { color = "Featured", icon = "Shop", title = "PEDDLER_TITLE", pills = { "PEDDLER_LEAVES" } },
 	Settings = { color = "Select", icon = "Settings", title = "SETTINGS_TITLE", pills = {} },
 } :: { [string]: Header }
 

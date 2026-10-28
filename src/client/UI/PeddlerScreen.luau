@@ -21,6 +21,8 @@ local Lures = require(Shared:WaitForChild("data"):WaitForChild("Lures"))
 local PowerUps = require(Shared:WaitForChild("data"):WaitForChild("PowerUps"))
 local Peddler = require(Shared:WaitForChild("data"):WaitForChild("Peddler"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -47,20 +49,21 @@ type Card = {
 	sold: Frame,
 }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close
--- button reaches down to 0.155, so the body starts under it.
-local BODY_Y = 0.17
-local COUNTDOWN_H = 0.07
-local ROW_Y = 0.26
+-- Panel layout, as fractions of the panel. The header band (Builder.panelHeader) fills the top 0.149 and carries the "Leaves in"
+-- countdown as its pill, so the offers row starts under it and the three cards sit centred in what is left. The shell makes the
+-- panel taller, not wider: the aspect is the old 1.35 at the old height 0.78 held at the shell's, and the cards keep their px size.
+local ROW_Y = Panels.Shell.BodyTop
 local ROW_H = 1 - Theme.Margin - ROW_Y
 local CARD_ASPECT = 0.52 -- width / height; three fit across the 1.35 panel with the gaps
-local PANEL_H = 0.78 -- the panel's height, of the screen: an offer card's rows come from its share of it
+local PANEL_H = Panels.Shell.Height -- the panel's height, of the screen
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.35, 0.78, PANEL_H)
+local CARD_H = 0.72 * 0.78 / PANEL_H -- a card's height as a share of the panel (the old 0.72 of 0.78): its rows come from it
 local CARD_GAP = 0.03 -- of the row width
 local REFRESH_SECONDS = 1 -- the countdown line (and the visit-over check) refresh this often
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
-local countdown: TextLabel? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): the countdown is its pill
 local cards: { Card } = {}
 local open = false
 local heartbeat: RBXScriptConnection? = nil
@@ -210,7 +213,7 @@ local function buildCard(parent: Frame, index: number): Card
 		cells = false,
 		edges = true,
 		aspect = CARD_ASPECT,
-		rows = Builder.blockRows(ROW_H * PANEL_H), -- the HUD's cell on a card as tall as the offers row
+		rows = Builder.blockRows(CARD_H * PANEL_H), -- the HUD's cell on a card as tall as the offers row
 		zIndex = 3,
 	})
 	frame.LayoutOrder = index
@@ -318,10 +321,10 @@ end
 
 -- Refresh ----------------------------------------------------------------------
 
--- The countdown line; when the visit is over the screen closes and says so.
+-- The countdown pill; when the visit is over the screen closes and says so.
 local function refreshCountdown()
-	local label = countdown
-	if not open or not label then
+	local band = header
+	if not open or not band then
 		return
 	end
 	local visit = State.GetPeddler()
@@ -331,7 +334,7 @@ local function refreshCountdown()
 		Toast.Show(Strings.PEDDLER_GONE, Theme.Rarity.Common)
 		return
 	end
-	label.Text = Strings.PEDDLER_LEAVES:format(formatTime(left))
+	band.setPills({ { formatTime(left) } })
 end
 
 refresh = function()
@@ -395,33 +398,20 @@ local function build()
 		parent = root,
 		name = "Panel",
 		color = Theme.Colors.Panel,
-		aspect = 1.35,
+		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(0.8, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, gold for the Peddler, title in white outlined text.
-	Builder.blockHeader(body, 1.35, Strings.PEDDLER_TITLE, Theme.Colors.Featured, Vector2.new(0.42, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: gold for the Peddler, the shop icon, the "Leaves in 2:30" pill (refreshCountdown), the red X.
+	header = Builder.panelHeader(body, { panelId = "Peddler", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		PeddlerScreen.Close()
 	end)
-
-	countdown = Builder.label({
-		parent = body,
-		name = "Countdown",
-		text = "",
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(0.5, BODY_Y),
-		size = UDim2.fromScale(0.6, COUNTDOWN_H),
-		anchor = Vector2.new(0.5, 0),
-		zIndex = Builder.blockTop(body),
-	})
 
 	-- The offer row: three aspect-fit cards centred, built once and refreshed in place.
 	local row = Builder.frame({
