@@ -362,39 +362,6 @@ describe("Block screens: Compass", function()
 	end
 end)
 
-describe("Block screens: Radar column", function()
-	-- RadarColumn.luau (Decision B52): on the right edge from 0.228 of the height, a head chip 0.05 tall (aspect 3, three rows), 0.008
-	-- under it nine square slots 0.054 tall with 0.005 between (flat blocks of three rows), nearest at the top. The Catch button's top
-	-- is at 0.96 - 0.13 = 0.83 (Hud.luau) and the chip stack (place, event, Friend: data/Hud Chips) ends at 0.025 + 0.075 + 0.008 + 0.048 + 0.008 + 0.055 = 0.219.
-	local TOP, HEAD_H, HEAD_GAP, SLOT_H, SLOT_GAP, SLOTS = 0.228, 0.05, 0.008, 0.054, 0.005, 9
-	local ACTION_TOP, SHOWER_BOTTOM = 0.96 - 0.13, 0.025 + 0.075 + 0.008 + 0.048 + 0.008 + 0.055
-	local bottom = TOP + HEAD_H + HEAD_GAP + SLOTS * SLOT_H + (SLOTS - 1) * SLOT_GAP
-	it("stands under the chip stack and clear of the Catch button, with nine slots", function()
-		assert(TOP >= SHOWER_BOTTOM, "the column starts over the chip stack")
-		assert(bottom <= ACTION_TOP - 0.01, "the column ends at " .. bottom .. ", too near the Catch button at " .. ACTION_TOP)
-	end)
-	for _, screen in ipairs({ SE, IPAD }) do
-		local label = screen.w .. "x" .. screen.h
-		local slot = SLOT_H * screen.h
-		local rows = BlockMath.Rows(SLOT_H, CELL, INK, MIN_ROWS)
-		it(label .. ": a slot is a square of three rows, a px of ink or more, eight frames or fewer", function()
-			expect(rows).toEqual(3)
-			local grid = BlockMath.Grid(1, rows, INK)
-			expect(grid.cols).toEqual(3)
-			local ink = INK * slot * grid.cellY
-			assert(ink >= 1.5, "slot ink is " .. ink .. " px")
-			assert(slot >= 19, "slot is " .. slot .. " px")
-			assert(BlockMath.Frames(grid, false, SEED) <= 8, "slot draws " .. BlockMath.Frames(grid, false, SEED) .. " frames")
-		end)
-		it(label .. ": the head chip's face holds a 14 px line, and the slots are narrower than the holder", function()
-			local grid = BlockMath.Grid(3, MIN_ROWS, INK)
-			local face = HEAD_H * screen.h * (1 - 2 * grid.inkY)
-			assert(face >= TEXT_MIN, "head face is " .. face .. " px, under a 14 px line")
-			assert(slot <= 0.1 * screen.w, "a slot is wider than the holder")
-		end)
-	end
-end)
-
 -- A modal panel: Size (sizeX, height) of the screen at `aspect`, rows from its height at the panel cell. Answers its px box and grid.
 local function panel(screen: { w: number, h: number }, sizeX: number, height: number, aspect: number): (number, number, BlockMath.Grid)
 	local w, h = BlockMath.FitPx(sizeX, height, aspect, screen.w, screen.h)

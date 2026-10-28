@@ -67,4 +67,65 @@ function RadarMath.Offer<T>(distances: { number }, items: { T }, count: number, 
 	return math.min(count + 1, limit)
 end
 
+-- The scroll's layout and motion (Decision B57, data/RadarScroll). Heights are fractions of the screen height. ---------------
+
+-- The sheet's full height for `slots` slots: a roller at each end, a pad of paper inside each, and one pitch per slot. 0 for no slots.
+function RadarMath.ScrollHeight(slots: number, roller: number, pad: number, pitch: number): number
+	if slots <= 0 then
+		return 0
+	end
+	return 2 * roller + 2 * pad + slots * pitch
+end
+
+-- Where slot `index` (1 is the nearest alien, at the top) begins, from the screen's top, for a sheet starting at `top`.
+function RadarMath.SlotTop(index: number, top: number, roller: number, pad: number, pitch: number): number
+	return top + roller + pad + (index - 1) * pitch
+end
+
+-- How much of a slot the open sheet has uncovered, 0 to 1: nothing while the paper ends above the slot, all of it once the paper's
+-- usable bottom (`paperBottom` less the bottom roller and pad) passes the slot's end. The unrolling reveals the slots top-down by it.
+function RadarMath.Reveal(slotTop: number, pitch: number, paperBottom: number, roller: number, pad: number): number
+	if pitch <= 0 then
+		return 1
+	end
+	return math.clamp((paperBottom - roller - pad - slotTop) / pitch, 0, 1)
+end
+
+-- Moves `current` toward `target` by at most `step` (never past it). The unroll and the slot fades are this, so they land exactly.
+function RadarMath.Approach(current: number, target: number, step: number): number
+	if current < target then
+		return math.min(target, current + step)
+	end
+	return math.max(target, current - step)
+end
+
+-- A fade from one end to the other lasting `seconds`: how far a value moves (0 to 1) in `dt`. No time to spend (Reduced Motion) or a
+-- zero length jumps the whole way.
+function RadarMath.FadeStep(dt: number, seconds: number): number
+	if seconds <= 0 then
+		return 1
+	end
+	return math.max(0, dt) / seconds
+end
+
+-- What one slot does this frame. `showing` is the species its picture holds now (nil: nothing), `wanted` the one the order puts there.
+-- Answers the opacity to head for and whether to put `wanted` in the picture now: a picture that must change fades out first and is
+-- swapped only once invisible, then fades in, so the order never pops. `alpha` is the slot's current opacity.
+function RadarMath.SlotPlan(
+	showing: string?,
+	showingShadowed: boolean,
+	wanted: string?,
+	wantedShadowed: boolean,
+	alpha: number
+): (number, boolean)
+	local same = showing == wanted and (wanted == nil or showingShadowed == wantedShadowed)
+	if same then
+		return (if wanted ~= nil then 1 else 0), false
+	end
+	if alpha <= 0 then
+		return (if wanted ~= nil then 1 else 0), true
+	end
+	return 0, false
+end
+
 return RadarMath

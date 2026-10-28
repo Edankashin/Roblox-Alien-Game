@@ -1,25 +1,30 @@
 --!strict
--- StarterPlayerScripts.Client.UI.RadarColumn: the radar (data/Radar, Decision B52, UI Playbook "Radar column"). Ethan, 2026-10-22:
--- "having a map of where the aliens are and what rarities defeats the whole struggle aspect of the game. We want them to search for
--- the aliens like a pokemon game ... a radar which is depicted on the screen by a column of the silhouettes of each alien listed
--- from closest to furthest from you." There is no map, no blip, no rarity colour, no name, no distance and no tap: a narrow column
--- on the right edge under the weather and biome chips, in the slot the minimap used to take, of small square block slots, the
--- NEAREST wild alien at the top and the furthest at the bottom. Each slot is the species' model in a viewport (SpeciesThumb): an
--- all-black silhouette while the player has no catch of that species in the codex, the real model once there is one. The head of
--- the column is a small "Radar" chip.
+-- StarterPlayerScripts.Client.UI.RadarColumn: the radar (data/Radar, data/RadarScroll, Decisions B52 and B57, UI Playbook "Radar
+-- column"). Ethan, 2026-10-22: "having a map of where the aliens are and what rarities defeats the whole struggle aspect of the
+-- game ... a radar which is depicted on the screen by a column of the silhouettes of each alien listed from closest to furthest from
+-- you." Ethan, 2026-10-26: "The radar ui looks very sloppy. It should be one long rectangle ... that shows the silhouette and
+-- shadow of the aliens on a white or something similar background. Almost like if you opened up a scroll vertically. Not everything
+-- has to be that gaming design." So the radar is ONE TALL SCROLL on the right edge: a cream sheet (Theme.Colors.Paper) with a thin
+-- dark edge, a slightly darker rolled end at the top and at the bottom, a soft drop shadow, and nothing else: no block cells, no
+-- chip, no title, no slot frames. Each alien standing in reach is a picture on the paper, the NEAREST at the top and the furthest at
+-- the bottom, with a soft ground shadow under its feet: an all-black silhouette while the player has no catch of that species in the
+-- codex (SpeciesThumb), the real model once there is one. An unused slot is blank paper. No name, no rarity, no distance, no tap.
+--
+-- Motion: the scroll unrolls from the top when it first appears (data/RadarScroll UnrollSeconds) and rolls up when it hides; a
+-- slot's picture fades out and in (FadeSeconds) when the order changes, never pops. Reduced Motion (Prefs) makes both instant.
 --
 -- What is listed: the wild parts under Workspace.World.Wild (the client already sees them; the server owns the spawns) within the
 -- tier's range of the player, flat (data/Radar), nearest first, at most the tier's slot count (Mk1 5, Mk2 7, Mk3 9). Skipped: an
 -- alien reserved for another player, one the Blizzard rule hides (WildRenderer.IsHidden), and every Secret-tier alien (never
--- listed, not even as a shadow; the Mk2 heartbeat that quickened near a Secret went with the minimap, since a sound that quickens
--- as you near it tells a direction). Tier 0 (no radar owned) shows nothing. While a Scanner Pulse runs (WildRenderer.ScannerPulseActive,
--- data/PowerUps) the column also works without a radar and lists the nearest `Pulse.slots` aliens of the player's current biome
--- whatever their range: still shadows and order only, no positions; its head turns Codex purple meanwhile.
+-- listed, not even as a shadow). Tier 0 (no radar owned) shows nothing. While a Scanner Pulse runs (WildRenderer.ScannerPulseActive,
+-- data/PowerUps) the scroll also works without a radar and lists the nearest `Pulse.slots` aliens of the player's current biome
+-- whatever their range: still shadows and order only, no positions. The sheet is as tall as its slot count needs.
 --
 -- Cost: the Wild folder's parts are kept in a list by ChildAdded/ChildRemoved (no GetChildren per refresh), the nearest-first sort
 -- is RadarMath.Offer over two reused arrays (no table per refresh), and the slots are a pool built once for the most any tier or
--- the pulse can show; a refresh every Config.RadarRefreshSeconds rewrites only the slots whose species or shade changed (a clone of
--- the model is made then). The pure choices (range, slot count, order, shadow or face) are Shared/RadarMath, tests/RadarMath.spec.luau.
+-- the pulse can show; a refresh every Config.RadarRefreshSeconds only sets what each slot WANTS, and a Heartbeat that runs only
+-- while something moves (the unroll, a fade) swaps a picture (a clone of the model is made then) once it has faded out. The pure
+-- choices (range, slot count, order, shadow or face, heights, fades) are Shared/RadarMath, tests/RadarMath.spec.luau.
 -- Client-only presentation of wild parts the client already sees: the server owns which tier is held (profile.gear.radar, fed in
 -- with SetTier) and decides every outcome; nothing here can be tapped, so it can neither mark nor catch anything.
 
@@ -32,6 +37,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local RadarTiers = require(Shared:WaitForChild("data"):WaitForChild("Radar"))
+local Look = require(Shared:WaitForChild("data"):WaitForChild("RadarScroll"))
 local Species = require(Shared:WaitForChild("data"):WaitForChild("Species"))
 local RadarMath = require(Shared:WaitForChild("RadarMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
@@ -39,6 +45,7 @@ local HudStages = require(Shared:WaitForChild("HudStages"))
 local Builder = require(script.Parent.Builder)
 local SpeciesThumb = require(script.Parent.SpeciesThumb)
 local State = require(script.Parent.Parent.State)
+local Prefs = require(script.Parent.Parent.Prefs)
 local WildRenderer = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WildRenderer"))
 
 local RadarColumn = {}
@@ -63,42 +70,43 @@ end
 
 local DISPLAY_ORDER = 10 -- the HUD's layer, where the minimap and the Nearby column were
 
--- Layout, all Scale. The column's slot is the old minimap's: right edge 0.985, under the shower chip (which ends near y 0.215), and
--- it ends above the Catch button (top near 0.83). Heights are fractions of the screen height; the holder is as tall as the full
--- nine-slot column, and each square is kept square by an aspect constraint inside the holder's width (an iPhone SE slot is about
--- 20 px, an iPad's 44).
-local COLUMN_X = 0.985
-local COLUMN_TOP = 0.228
-local COLUMN_WIDTH = 0.1 -- of the screen width: wider than any slot, so the squares are limited by their height
-local HEAD_H = 0.05 -- the "Radar" chip
-local HEAD_ASPECT = 3 -- its width over its height
-local HEAD_GAP = 0.008
-local SLOT_H = 0.054
-local SLOT_GAP = 0.005
-local HOLDER_H = HEAD_H + HEAD_GAP + maxSlots * SLOT_H + (maxSlots - 1) * SLOT_GAP
-local EMPTY_FADE = 0.6 -- an unused slot is the same block, fainter
-local SLOT_ROWS = Builder.blockRows(SLOT_H) -- cell rows across a slot (3 at the HUD's cell)
+-- Layout, all Scale and all in screen fractions (data/RadarScroll): every piece is a child of one full-screen holder, so a Scale
+-- there is a fraction of the screen. The holder takes no input.
+local PAPER_CENTRE = Look.X - Look.Width / 2 -- the sheet's centre, of the screen width
+local ROLLER_WIDTH = Look.Width * Look.RollerOverhang
+local ART_OF_SLOT = Look.ArtHeight / Look.SlotPitch -- the picture's box, of its slot's height
+local ZPAPER, ZSLOT, ZROLL = 2, 3, 6 -- ZIndex: the sheet, a slot, the rolled ends (over the pictures that slide under them)
 
 local localPlayer = Players.LocalPlayer
 
 type Slot = {
-	plate: Frame, -- the block the square stands on
-	host: Frame, -- the plate's inner box: the viewport fills it; its colour is the fallback when no model shows
-	thumb: SpeciesThumb.Thumb,
+	frame: Frame, -- the slot's strip of paper (transparent): holds the ground shadow and the picture
+	ground: Frame, -- the soft ellipse under the feet
+	fallback: Frame, -- the plain blob shown while a model is missing (hidden otherwise)
 	mark: TextLabel, -- the "?" of a shadow whose model is missing
-	species: string?, -- what the slot shows now (nil: empty), so an unchanged slot is left alone
-	shadowed: boolean,
+	thumb: SpeciesThumb.Thumb,
+	top: number, -- where the slot begins, of the screen height
+	showing: string?, -- the species the picture holds now (nil: nothing)
+	showingShadowed: boolean,
 	modeled: boolean, -- whether a model showed; a slot without one tries again each refresh (the models load at run time)
+	wanted: string?, -- the species the order puts here
+	wantedShadowed: boolean,
+	alpha: number, -- the picture's own opacity, 0 to 1 (before the unrolling's reveal)
 }
 
 local gui: ScreenGui? = nil
-local head: Frame? = nil
+local paper: Frame? = nil
+local dropInner: Frame? = nil
+local dropOuter: Frame? = nil
+local topRoller: Frame? = nil
+local bottomRoller: Frame? = nil
 local slots: { Slot } = {}
 local wildParts: { Part } = {} -- the parts under the Wild folder, in arrival order, kept by ChildAdded/ChildRemoved
 local watchedWild: Instance? = nil
 local wildConns: { RBXScriptConnection } = {}
 local connections: { RBXScriptConnection } = {}
 local heartbeat: RBXScriptConnection? = nil
+local animator: RBXScriptConnection? = nil
 local accumulator = 0
 local nearDistance: { number } = {} -- the nearest-first list RadarMath.Offer keeps, reused every refresh
 local nearPart: { Part } = {}
@@ -106,12 +114,18 @@ local tier = 0 -- the radar tier the server says the player holds (SetTier); 0 s
 local visible = true -- the bootstrap's SetVisible: captures, reveals and open panels hide the HUD extras
 local stageShown = false -- the staged reveal (SetStage): hidden until the tutorial has earned the column, whatever radar the account owns
 local shown = false
-local pulseLook = false -- whether the head is dressed for a Scanner Pulse
+local limitNow = 0 -- how many slots the sheet has room for now (the tier's or the pulse's)
+local lastLimit = 1 -- the last non-zero count, which sets how fast the sheet rolls up
+local heightNow = 0 -- the sheet's open height, of the screen height: 0 rolled up, ScrollHeight(limit) fully open
 
 -- Helpers ------------------------------------------------------------------
 
 local function tierRow(): TierRow
 	return tiers[tier] or tiers[0]
+end
+
+local function heightFor(count: number): number
+	return RadarMath.ScrollHeight(count, Look.RollerHeight, Look.Pad, Look.SlotPitch)
 end
 
 local function rootPosition(): Vector3?
@@ -181,97 +195,216 @@ local function catches(speciesId: string): number?
 	return if entry then entry.count else nil
 end
 
--- Slots ----------------------------------------------------------------------
+-- Drawing --------------------------------------------------------------------
 
-local function newSlot(parent: Frame, index: number): Slot
-	local top = HEAD_H + HEAD_GAP + (index - 1) * (SLOT_H + SLOT_GAP)
-	local plate = Builder.blockPlate({
-		parent = parent,
-		name = "Slot" .. index,
-		color = Theme.Colors.Panel, -- cream, so a black shadow and a coloured model both read on it
-		aspect = 1,
-		rows = SLOT_ROWS,
-		cells = false, -- a small block stays one flat colour (UI Playbook "Block cells")
-		position = UDim2.fromScale(1, top / HOLDER_H),
-		size = UDim2.fromScale(1, SLOT_H / HOLDER_H),
-		anchor = Vector2.new(1, 0),
-		zIndex = 2,
-	})
-	plate.Visible = false
-	local innerPosition, innerSize = Builder.blockInner(plate)
-	local content = Builder.blockTop(plate)
-	local host = Builder.frame({
-		parent = plate,
-		name = "Host",
-		position = innerPosition,
-		size = innerSize,
-		zIndex = content,
-	})
-	local thumb = SpeciesThumb.New(host, content + 1, 1)
-	local mark = Builder.label({
-		parent = host,
-		name = "Unknown",
-		text = Strings.UI_UNKNOWN_GLYPH,
-		textSize = Theme.TextSize.Min,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(1, 1),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = content + 2,
-	})
-	mark.Visible = false
-	Builder.setBlockFade(plate, EMPTY_FADE) -- a new slot is empty
-	return { plate = plate, host = host, thumb = thumb, mark = mark, species = nil, shadowed = true, modeled = true }
-end
-
--- Shows `speciesId` in a slot as a shadow or as the real model, or empties it (nil). Only touches what changed. A species whose
--- model is not there (none imported in this place, or not loaded yet) shows a plain block: the black shadow with a "?", or the
--- species' placeholder colour once caught; the next refresh tries the model again.
-local function fillSlot(slot: Slot, speciesId: string?, shadowed: boolean)
-	if slot.species == speciesId and slot.shadowed == shadowed and slot.modeled then
+-- Puts the sheet, its drop shadow and its rolled ends at the open height `heightNow`. The top roller stays on the top edge and the
+-- bottom roller rides the sheet's lower edge, so the scroll seems to unroll downward.
+local function layout()
+	local sheet, inner, outer, upper, lower = paper, dropInner, dropOuter, topRoller, bottomRoller
+	if not (sheet and inner and outer and upper and lower) then
 		return
 	end
-	slot.species, slot.shadowed = speciesId, shadowed
+	local open = heightNow > 0
+	sheet.Visible, inner.Visible, outer.Visible, upper.Visible, lower.Visible = open, open, open, open, open
+	if not open then
+		return
+	end
+	sheet.Size = UDim2.fromScale(Look.Width, heightNow)
+	inner.Position = UDim2.fromScale(Look.X + Look.DropOffsetX, Look.Top + Look.DropOffsetY)
+	inner.Size = UDim2.fromScale(Look.Width, heightNow)
+	outer.Position = UDim2.fromScale(Look.X + Look.DropOffsetX + Look.DropGrow, Look.Top + Look.DropOffsetY + Look.DropGrow)
+	outer.Size = UDim2.fromScale(Look.Width + 2 * Look.DropGrow, heightNow + 2 * Look.DropGrow)
+	local roller = math.min(Look.RollerHeight, heightNow / 2)
+	upper.Size = UDim2.fromScale(ROLLER_WIDTH, roller)
+	lower.Size = UDim2.fromScale(ROLLER_WIDTH, roller)
+	lower.Position = UDim2.fromScale(PAPER_CENTRE, Look.Top + heightNow)
+end
+
+-- The slot's picture, ground shadow and fallback at its opacity, held back by how much of the slot the sheet has uncovered.
+local function paintSlot(slot: Slot)
+	local reveal = RadarMath.Reveal(slot.top, Look.SlotPitch, Look.Top + heightNow, Look.RollerHeight, Look.Pad)
+	local alpha = math.min(slot.alpha, reveal)
+	local clear = 1 - alpha
+	slot.thumb.view.ImageTransparency = clear
+	slot.ground.BackgroundTransparency = 1 - alpha * (1 - Look.GroundTransparency)
+	if not slot.modeled then
+		slot.fallback.BackgroundTransparency = clear
+		slot.mark.TextTransparency = clear
+	end
+	slot.frame.Visible = alpha > 0
+end
+
+-- Shows `speciesId` in a slot's picture as a shadow or as the real model, or empties it (nil). Only called while the slot is
+-- invisible (its opacity is 0), so the swap never shows. A species whose model is not there (none imported in this place, or not
+-- loaded yet) shows a plain blob: the shadow colour with a "?" for an uncaught species, the placeholder colour for a caught one; the
+-- next refresh tries the model again.
+local function fillSlot(slot: Slot, speciesId: string?, shadowed: boolean)
+	slot.showing, slot.showingShadowed = speciesId, shadowed
 	local def = if speciesId then Species.ById[speciesId] else nil
 	if not def then
 		slot.modeled = true
 		SpeciesThumb.Show(slot.thumb, nil, false)
-		slot.host.BackgroundTransparency = 1
+		slot.fallback.Visible = false
 		slot.mark.Visible = false
-		Builder.setBlockFade(slot.plate, EMPTY_FADE)
 		return
 	end
-	Builder.setBlockFade(slot.plate, 0)
 	local modeled = SpeciesThumb.Show(slot.thumb, def, shadowed)
 	slot.modeled = modeled
-	if modeled then
-		slot.host.BackgroundTransparency = 1
-		slot.mark.Visible = false
-	else
-		slot.host.BackgroundTransparency = 0
-		slot.host.BackgroundColor3 = if shadowed then Theme.Shadow else Theme.Hex(def.placeholder.color)
-		slot.mark.Visible = shadowed
+	slot.fallback.Visible = not modeled
+	slot.mark.Visible = not modeled and shadowed
+	if not modeled then
+		slot.fallback.BackgroundColor3 = if shadowed then Theme.Shadow else Theme.Hex(def.placeholder.color)
 	end
 end
 
--- The head chip's look: the dark HUD block, or Codex purple while a Scanner Pulse runs.
-local function dressHead(pulse: boolean)
-	if pulse == pulseLook then
+-- One frame of motion for the sheet and the slots; answers whether anything is still moving (the Heartbeat stops itself when not).
+local function step(dt: number): boolean
+	local reduced = Prefs.ReducedMotion()
+	local moving = false
+
+	local target = if shown then heightFor(limitNow) else 0
+	if heightNow ~= target then
+		local rate = heightFor(math.max(limitNow, lastLimit)) / math.max(Look.UnrollSeconds, 0.001)
+		heightNow = if reduced then target else RadarMath.Approach(heightNow, target, rate * dt)
+		layout()
+		if heightNow ~= target then
+			moving = true
+		end
+	end
+
+	local fade = if reduced then 1 else RadarMath.FadeStep(dt, Look.FadeSeconds)
+	for _, slot in ipairs(slots) do
+		local goal, swap = RadarMath.SlotPlan(slot.showing, slot.showingShadowed, slot.wanted, slot.wantedShadowed, slot.alpha)
+		if swap then
+			fillSlot(slot, slot.wanted, slot.wantedShadowed)
+		end
+		slot.alpha = RadarMath.Approach(slot.alpha, goal, fade)
+		-- Still moving while a fade runs or a picture waits for its turn to change (the swap comes the frame after it is invisible).
+		if slot.alpha ~= goal or slot.showing ~= slot.wanted or (slot.wanted ~= nil and slot.showingShadowed ~= slot.wantedShadowed) then
+			moving = true
+		end
+		paintSlot(slot)
+	end
+
+	if heightNow <= 0 and not shown then
+		local root = gui
+		if root and root.Enabled then
+			root.Enabled = false -- rolled up: nothing to draw
+		end
+	end
+	return moving
+end
+
+local function wake()
+	if animator then
 		return
 	end
-	pulseLook = pulse
-	local chip = head
-	if chip then
-		Builder.setBlockColor(chip, if pulse then Theme.Colors.Codex else Theme.Block.Trough)
+	local root = gui
+	if root and not root.Enabled then
+		root.Enabled = true
+	end
+	animator = RunService.Heartbeat:Connect(function(dt: number)
+		if not step(dt) then
+			local connection = animator
+			animator = nil
+			if connection then
+				connection:Disconnect()
+			end
+		end
+	end)
+end
+
+-- Slots ----------------------------------------------------------------------
+
+local function newSlot(parent: Frame, index: number): Slot
+	local top = RadarMath.SlotTop(index, Look.Top, Look.RollerHeight, Look.Pad, Look.SlotPitch)
+	local frame = Builder.frame({
+		parent = parent,
+		name = "Slot" .. index,
+		position = UDim2.fromScale(Look.X, top),
+		size = UDim2.fromScale(Look.Width, Look.SlotPitch),
+		anchor = Vector2.new(1, 0),
+		zIndex = ZSLOT,
+	})
+	frame.Visible = false
+	-- The soft ground shadow: a flat ellipse in the shadow colour, faint, under the feet (below the picture).
+	local ground = Builder.frame({
+		parent = frame,
+		name = "Ground",
+		color = Theme.Shadow,
+		transparency = 1,
+		corner = Theme.Corner.Pill,
+		position = UDim2.fromScale(0.5, Look.GroundCentre),
+		size = UDim2.fromScale(Look.GroundWidth, Look.GroundHeight),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = ZSLOT,
+	})
+	-- The picture's box: a square the picture is framed in, kept square by an aspect constraint inside the slot's width.
+	local art = Builder.frame({
+		parent = frame,
+		name = "Art",
+		position = UDim2.fromScale(0.5, Look.ArtCentre),
+		size = UDim2.fromScale(1, ART_OF_SLOT),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = ZSLOT + 1,
+	})
+	Builder.aspect(art, 1)
+	local fallback = Builder.frame({
+		parent = art,
+		name = "Blob",
+		color = Theme.Shadow,
+		corner = Theme.Corner.Pill,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.8, 0.8),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = ZSLOT + 1,
+	})
+	fallback.Visible = false
+	local mark = Builder.label({
+		parent = art,
+		name = "Unknown",
+		text = Strings.UI_UNKNOWN_GLYPH,
+		textSize = Theme.TextSize.Min,
+		color = Theme.Colors.Paper,
+		stroke = 0,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(1, 1),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = ZSLOT + 2,
+	})
+	mark.Visible = false
+	local thumb = SpeciesThumb.New(art, ZSLOT + 2, 1)
+	return {
+		frame = frame,
+		ground = ground,
+		fallback = fallback,
+		mark = mark,
+		thumb = thumb,
+		top = top,
+		showing = nil,
+		showingShadowed = true,
+		modeled = true,
+		wanted = nil,
+		wantedShadowed = true,
+		alpha = 0,
+	}
+end
+
+-- Sets what a slot should show; the animator fades the old picture out, swaps and fades the new one in.
+local function want(slot: Slot, speciesId: string?, shadowed: boolean)
+	slot.wanted, slot.wantedShadowed = speciesId, shadowed
+	if speciesId ~= nil and slot.showing == speciesId and slot.showingShadowed == shadowed and not slot.modeled then
+		-- Standing on a plain blob: look for the model again now (the models load at run time), without a fade.
+		fillSlot(slot, speciesId, shadowed)
 	end
 end
 
 -- Refresh ------------------------------------------------------------------------
 
--- One pass: reads the wild parts, keeps the nearest few in reach (RadarMath), and sets each slot to the shadow or the face of the
--- one standing at its place in the order.
+-- One pass: reads the wild parts, keeps the nearest few in reach (RadarMath), and tells each slot which one stands at its place in
+-- the order.
 local function refresh()
 	local pulse = WildRenderer.ScannerPulseActive()
-	dressHead(pulse)
 	local row = tierRow()
 	local limit = RadarMath.Slots(row.slots, pulse, pulseSlots)
 	local count = 0
@@ -308,25 +441,26 @@ local function refresh()
 			count = RadarMath.Offer(nearDistance, nearPart, count, limit, flat, child)
 		end
 	end
+	if limit ~= limitNow then
+		limitNow = limit
+		if limit > 0 then
+			lastLimit = limit
+		end
+	end
 	for index, slot in ipairs(slots) do
-		slot.plate.Visible = index <= limit
-		if index > limit then
-			continue
-		end
-		if index <= count then
-			local speciesId = nearPart[index]:GetAttribute("SpeciesId")
-			if type(speciesId) == "string" then
-				fillSlot(slot, speciesId, RadarMath.Shadowed(catches(speciesId)))
-			else
-				fillSlot(slot, nil, true)
+		local speciesId: string? = nil
+		if index <= limit and index <= count then
+			local attribute = nearPart[index]:GetAttribute("SpeciesId")
+			if type(attribute) == "string" then
+				speciesId = attribute
 			end
-		else
-			fillSlot(slot, nil, true)
 		end
+		want(slot, speciesId, if speciesId then RadarMath.Shadowed(catches(speciesId)) else true)
 	end
 	if count == 0 then
 		table.clear(nearPart)
 	end
+	wake()
 end
 
 -- Ticking ----------------------------------------------------------------------
@@ -351,7 +485,7 @@ local function startTicking()
 			return
 		end
 		accumulator = 0
-		applyShown() -- a Scanner Pulse that just ended takes the column away when there is no radar
+		applyShown() -- a Scanner Pulse that just ended takes the scroll away when there is no radar
 		if shown then
 			refresh()
 		end
@@ -367,13 +501,10 @@ local function stopTicking()
 	table.clear(nearPart)
 end
 
--- Shown only while the bootstrap allows it and the tier (or a Scanner Pulse) gives at least one slot; the loop runs only while shown.
+-- Shown only while the bootstrap allows it and the tier (or a Scanner Pulse) gives at least one slot; the loop runs only while
+-- shown. Showing unrolls the sheet; hiding rolls it up, and the sheet's slots fade out with it.
 function applyShown()
-	local root = gui
 	local next = wantShown()
-	if root and root.Enabled ~= next then
-		root.Enabled = next
-	end
 	if next == shown then
 		return
 	end
@@ -383,6 +514,11 @@ function applyShown()
 		startTicking()
 	else
 		stopTicking()
+		for _, slot in ipairs(slots) do
+			slot.wanted, slot.wantedShadowed = nil, true -- rolling up: the pictures go as the paper does
+		end
+		limitNow = 0
+		wake()
 	end
 end
 
@@ -397,41 +533,71 @@ function RadarColumn.Build()
 	root.Enabled = false
 	gui = root
 
-	local column = Builder.frame({
-		parent = root,
-		name = "Column",
-		position = UDim2.fromScale(COLUMN_X, COLUMN_TOP),
-		size = UDim2.fromScale(COLUMN_WIDTH, HOLDER_H),
-		anchor = Vector2.new(1, 0),
-	})
+	-- One full-screen holder: every piece below is positioned in screen fractions (data/RadarScroll). It takes no input.
+	local holder = Builder.frame({ parent = root, name = "Holder", zIndex = 1 })
 
-	-- The head: a small dark block reading "Radar", the column's name (a flat block, as the HUD's chips).
-	local chip = Builder.blockPlate({
-		parent = column,
-		name = "Head",
-		color = Theme.Block.Trough,
-		aspect = HEAD_ASPECT,
-		rows = Theme.Block.MinRows,
-		cells = false,
-		position = UDim2.fromScale(1, 0),
-		size = UDim2.fromScale(1, HEAD_H / HOLDER_H),
+	local function dropLayer(name: string, transparency: number): Frame
+		local layer = Builder.frame({
+			parent = holder,
+			name = name,
+			color = Theme.Colors.Black,
+			transparency = transparency,
+			position = UDim2.fromScale(Look.X, Look.Top),
+			size = UDim2.fromScale(Look.Width, 0),
+			anchor = Vector2.new(1, 0),
+			zIndex = ZPAPER - 1,
+		})
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(Look.CornerScale, 0)
+		corner.Parent = layer
+		layer.Visible = false
+		return layer
+	end
+	dropOuter = dropLayer("DropOuter", Look.DropOuterTransparency)
+	dropInner = dropLayer("DropInner", Look.DropTransparency)
+
+	-- The sheet: cream paper with a thin dark edge and a rounded outline, its height set by `layout`.
+	local sheet = Builder.frame({
+		parent = holder,
+		name = "Paper",
+		color = Theme.Colors.Paper,
+		position = UDim2.fromScale(Look.X, Look.Top),
+		size = UDim2.fromScale(Look.Width, 0),
 		anchor = Vector2.new(1, 0),
-		zIndex = 2,
+		stroke = Look.EdgePx,
+		strokeColor = Theme.Colors.Outline,
+		zIndex = ZPAPER,
 	})
-	head = chip
-	local innerPosition, innerSize = Builder.blockInner(chip)
-	Builder.label({
-		parent = chip,
-		name = "Title",
-		text = Strings.RADAR_COLUMN_TITLE,
-		textSize = Theme.TextSize.Min,
-		position = innerPosition,
-		size = innerSize,
-		zIndex = Builder.blockTop(chip),
-	})
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(Look.CornerScale, 0)
+	corner.Parent = sheet
+	sheet.Visible = false
+	paper = sheet
+
+	-- The rolled ends: a darker capsule across the top and the bottom edge, a little wider than the sheet.
+	local function roller(name: string, anchorY: number, y: number): Frame
+		local band = Builder.frame({
+			parent = holder,
+			name = name,
+			color = Theme.Colors.PaperRoll,
+			position = UDim2.fromScale(PAPER_CENTRE, y),
+			size = UDim2.fromScale(ROLLER_WIDTH, Look.RollerHeight),
+			anchor = Vector2.new(0.5, anchorY),
+			stroke = Look.RollerEdgePx,
+			strokeColor = Theme.Colors.Outline,
+			zIndex = ZROLL,
+		})
+		local round = Instance.new("UICorner")
+		round.CornerRadius = UDim.new(0.5, 0)
+		round.Parent = band
+		band.Visible = false
+		return band
+	end
+	topRoller = roller("RollerTop", 0, Look.Top)
+	bottomRoller = roller("RollerBottom", 1, Look.Top)
 
 	for index = 1, maxSlots do
-		table.insert(slots, newSlot(column, index))
+		table.insert(slots, newSlot(holder, index))
 	end
 
 	table.insert(connections, State.OnChanged("codex", function()
@@ -440,7 +606,7 @@ function RadarColumn.Build()
 		end
 	end))
 	table.insert(connections, State.OnChanged("buffs", function()
-		applyShown() -- a Scanner Pulse starting or ending shows or hides the column, even with no radar
+		applyShown() -- a Scanner Pulse starting or ending shows or hides the scroll, even with no radar
 		if shown then
 			refresh()
 		end
@@ -454,27 +620,21 @@ function RadarColumn.SetTier(next: number)
 	if next ~= next then
 		next = 0
 	end
-	local clamped = math.clamp(math.floor(next), 0, maxTier)
-	local gained = clamped >= 1 and tier < 1
-	tier = clamped
+	tier = math.clamp(math.floor(next), 0, maxTier)
 	applyShown()
 	if shown then
 		refresh() -- the range and the slots changed, so list again now rather than on the next tick
-		local chip = head
-		if gained and chip then
-			Builder.pop(chip, 1.15) -- the chip, not the holder: a scale on the holder would move the layout
-		end
 	end
 end
 
 -- The staged reveal (HudStages "Radar"): UI/TutorialHint calls this with the server's tutorial step on each change. A new player with
--- Radar Mk1 already owned (the Explorer Pack) sees no column until the stage the data names; a finished tutorial shows it at once.
+-- Radar Mk1 already owned (the Explorer Pack) sees no scroll until the stage the data names; a finished tutorial shows it at once.
 function RadarColumn.SetStage(step: number)
 	stageShown = HudStages.Shown("Radar", step, HudStages.IsDone(step))
 	applyShown()
 end
 
--- The bootstrap hides the column during a capture, a reveal or an open panel, like the other HUD extras.
+-- The bootstrap hides the scroll during a capture, a reveal or an open panel, like the other HUD extras.
 function RadarColumn.SetVisible(show: boolean)
 	if visible == show then
 		return
@@ -487,20 +647,25 @@ function RadarColumn.IsShown(): boolean
 	return shown
 end
 
--- Stops the loop, drops every connection and destroys the ScreenGui; Build may run again afterwards.
+-- Stops the loops, drops every connection and destroys the ScreenGui; Build may run again afterwards.
 function RadarColumn.Stop()
 	stopTicking()
+	if animator then
+		animator:Disconnect()
+		animator = nil
+	end
 	for _, connection in ipairs(connections) do
 		connection:Disconnect()
 	end
 	connections = {}
 	shown = false
-	pulseLook = false
+	limitNow = 0
+	heightNow = 0
 	for _, slot in ipairs(slots) do
 		SpeciesThumb.Destroy(slot.thumb)
 	end
 	slots = {}
-	head = nil
+	paper, dropInner, dropOuter, topRoller, bottomRoller = nil, nil, nil, nil, nil
 	local root = gui
 	gui = nil
 	if root then
