@@ -119,4 +119,42 @@ def zapfinch():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch}
+# ------------------------------------------------------------------------------------------------ Vixa (Sparkfox)
+def _paint_splat(g, lite=False):
+    # a splat of cream paint seven eighths of a stud across, the same from both sides: a stepped blob with gold ends and a lit amber dab on both faces
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.25, 0.25, 0.125, 0.375, z0, z1, "BodyDark", None), _box(-0.25, 0.25, -0.125, 0.125, z0, z1, "BodyDark", None),
+            _box(-0.375, -0.25, -0.125, 0.125, z0, z1, "Trim", "metal"), _box(0.25, 0.375, -0.125, 0.125, z0, z1, "Trim", "metal"),
+            _box(-0.25, 0.125, -0.375, -0.125, z0, z1, "BodyDark", None), _box(0.125, 0.375, -0.5, -0.25, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.125, 0.125, 0.125, 0.25, "Glow", "crystal"), _box(-0.125, 0.125, -0.125, 0.125, -0.25, -0.125, "Glow", "crystal")]
+
+
+def _paint_pot(g, lite=False):
+    # a paint tin three quarters of a stud across and five eighths tall, the same from both sides (a straight-sided cream tin with a gold lid ring over it, so it
+    # is not a mushroom): lit amber paint domed on top and one lit drip down its side
+    return [_box(-0.375, 0.375, 0.0, 0.375, -0.375, 0.375, "BodyDark", None), _box(-0.375, 0.375, 0.375, 0.5, -0.375, 0.375, "Trim", "metal"),
+            _box(-0.25, 0.25, 0.5, 0.625, -0.25, 0.25, "Glow", "crystal"), _box(0.375, 0.5, 0.125, 0.5, -0.125, 0.125, "Glow", "crystal")]
+
+
+own("paint_splat", "Vixa", "a seven-eighths-stud splat of cream paint with gold ends and a lit amber dab (a satellite)", _paint_splat)
+own("paint_pot", "Vixa", "a three-quarter-stud cream paint pot with a gold rim and lit amber paint (a satellite)", _paint_pot)
+
+
+def sparkfox():
+    """Rare, Verdant, Ember: a fox painter mid-flourish. Three kit pieces (a gold girth round the barrel, gold blossom buds on the beret), six
+    satellites in one lit cream, gold and amber (three paint splats, three paint pots) on a wide ring clear of the palette and the brush; head cocked toward the
+    palette, the right foreleg lifted, the brush tail raised."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a painter's flourish: the head cocked toward its palette, the right forepaw lifted like a brush mid-stroke, the brush tail raised, a ring of paint splats and pots round it")
+    p.wear("# a gold girth: a quarter stud wide, an eighth proud, right round the barrel behind the front legs (the painter's strap)",
+           [K.part("Girth", "Trim", (1.75, 1.25, 0.25), (0, 1.0, 0.5), material="metal")], ["bark_band"])
+    kit = K.place(P_["blossom_bud"], "Bud", (0.625, 2.25, -0.25), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="head")
+    p.wear("# gold blossom buds on the head's top behind the ears (they turn with the cocked head)", kit, ["blossom_bud"] * 2)
+    sats = K.orbit([P_["paint_splat"], P_["paint_pot"]] * 3, "Sat", (0, 0.25), 2.6, 1.5, tilt=0.15, moves="paints", pivot=[0, 1.5, 0.25], start=math.radians(30),
+                   lift=0.8, facing="front", drops=[0.125, 0.375, 0.125, 0.375, 0.125, 0.375], g=0.25)
+    p.regions.append(("# the satellite set (`paints`, one wide ring clear of the palette and the brush, the front low): three paint splats and three paint pots, all cream, gold and lit amber", sats))
+    p.satellites, p.orbit = 6, "paints"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox}

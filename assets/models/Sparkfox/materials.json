@@ -39,6 +39,16 @@
   },
   {
     "slot": 5,
+    "name": "paints",
+    "hex": "FFF1DD",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Sparkfox_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 6,
     "name": "paletteL",
     "hex": "4A2433",
     "roughness": 0.55,
@@ -48,7 +58,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 7,
     "name": "tailR",
     "hex": "FF7A30",
     "roughness": 0.55,
@@ -58,7 +68,7 @@
     "pixelated": true
   },
   {
-    "slot": 7,
+    "slot": 8,
     "name": "FacePlate",
     "hex": "FF7A30",
     "roughness": 0.4,

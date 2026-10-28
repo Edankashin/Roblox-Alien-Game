@@ -700,13 +700,14 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Sparkfox = {
-		height = 3,
+		height = 3.1,
 		parts = {
-			{ name = "earL", pivot = { -0.4375, 2.25, -1.4287 }, clips = { { kind = "wag", amp = -14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
-			{ name = "earR", pivot = { 0.8125, 2.25, -1.4287 }, clips = { { kind = "wag", amp = 14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
-			{ name = "floatR", pivot = { 1.6875, 2.1875, 2.1963 }, clips = { { kind = "bob", amp = 0.12, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 4, phase = 0, axis = "y" } } },
-			{ name = "paletteL", pivot = { -1.3125, 2.625, -2.0537 }, clips = { { kind = "bob", amp = 0.1, period = 2.6, phase = 0.4, axis = "y" }, { kind = "sway", amp = -8, period = 3.4, phase = 0, axis = "y" } } },
-			{ name = "tailR", pivot = { 0.5625, 1.125, 1.1963 }, clips = { { kind = "sway", amp = 14, period = 2.2, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3.3, phase = 0.25, axis = "x" } } },
+			{ name = "earL", pivot = { -0.8951, 2.1225, -1.125 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = -14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
+			{ name = "earR", pivot = { 0.3359, 2.3395, -1.125 }, rest = { 0, 0, 10 }, clips = { { kind = "wag", amp = 14, period = 4, phase = 0, axis = "z" }, { kind = "sway", amp = 5, period = 2.6, phase = 0.3, axis = "x" } } },
+			{ name = "floatR", pivot = { 1.4375, 2.1875, 2.5 }, clips = { { kind = "bob", amp = 0.12, period = 2, phase = 0, axis = "y" }, { kind = "orbit", amp = 0.08, period = 4, phase = 0, axis = "y" } } },
+			{ name = "paints", pivot = { -0.0625, 1.5, 0 }, clips = { { kind = "spin", amp = 360, period = 20, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 3.2, phase = 0, axis = "y" } } },
+			{ name = "paletteL", pivot = { -1.5625, 2.625, -1.75 }, clips = { { kind = "bob", amp = 0.1, period = 2.6, phase = 0.4, axis = "y" }, { kind = "sway", amp = -8, period = 3.4, phase = 0, axis = "y" } } },
+			{ name = "tailR", pivot = { 0.3125, 1.125, 1.5 }, rest = { -10, 0, 0 }, clips = { { kind = "sway", amp = 14, period = 2.2, phase = 0, axis = "z" }, { kind = "sway", amp = 6, period = 3.3, phase = 0.25, axis = "x" } } },
 		},
 		root = { { kind = "squash", amp = 0.03, period = 2.4, phase = 0, axis = "y" } },
 		face = {
