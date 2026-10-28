@@ -28,11 +28,19 @@ local KeyMaterials = require(Shared:WaitForChild("data"):WaitForChild("KeyMateri
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local WorldCardMath = require(Shared:WaitForChild("WorldCardMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
+local WorldCards = require(Shared:WaitForChild("data"):WaitForChild("WorldCards"))
+local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local ScrapGap = require(script.Parent.ScrapGap)
 local State = require(script.Parent.Parent.State)
 local Screens = require(script.Parent.Screens)
+local WorldCard = require(script.Parent.WorldCard)
+local StarChartScreen = require(script.Parent.StarChartScreen)
 
 local ShipScreen = {}
 
@@ -60,8 +68,17 @@ type Row = {
 
 local REFRESH_SECONDS = 0.25 -- live progress and time-left refresh while open
 local FOOTER_W = 0.24 -- of the panel: the width of the Star Chart and Optimize buttons
--- The panel: PANEL_W of the screen wide and PANEL_H tall at most, kept at PANEL_ASPECT, centred at PANEL_Y.
-local PANEL_W, PANEL_H, PANEL_ASPECT, PANEL_Y = 0.8, 0.78, 1.35, 0.55
+-- The panel: PANEL_W of the screen wide and PANEL_H (the shell's) tall at most, kept at PANEL_ASPECT (the width it had at the old
+-- 0.78 height), its top at the shell's Top under the Scrap pill; the header band (Builder.panelHeader) is inside it.
+local PANEL_W, PANEL_H = 0.8, Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.35, 0.78, PANEL_H)
+-- Down the panel, as shares of it: the intro line under the band (first payment only), the module list (which starts under the line
+-- while it shows), the next-stop strip, the footer's buttons.
+local HELP_Y, HELP_H = 0.165, 0.05
+local LIST_Y_BARE, LIST_Y_HELP, LIST_BOTTOM = 0.17, 0.225, 0.72
+local STRIP_Y = 0.735
+local STRIP_H = WorldCards.Compact.Height
+local STRIP_ASPECT = (1 - 2 * Theme.Margin) * PANEL_ASPECT / STRIP_H -- the strip's width over its height in px
 local ROW_COMPACT = 0.125 -- of the list height
 local ROW_EXPANDED = 0.425
 local ROW_GAP = 0.0175
@@ -82,8 +99,13 @@ end
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil
 local helpLabel: TextLabel? = nil
 local list: Frame? = nil
+local stripSlot: Frame? = nil -- the next-stop strip's box (the card is built into it once, for the world the strip names)
+local stripCard: WorldCard.Card? = nil
+local stripWorld: number? = nil -- the world the strip's card was built for
+local pillKey = "" -- the band's pills as last set, so a refresh that changes nothing sets nothing
 local completeLabel: TextLabel? = nil
 local rows: { Row } = {}
 local open = false
@@ -429,6 +451,85 @@ local function layoutRow(row: Row, expanded: boolean, showBar: boolean, locked: 
 	end
 end
 
+-- The band's pills: "Modules 3 / 5" (the finished ones over all of this world's) and "Crew x1.6" (the Build crew's speed, hidden
+-- while there is none), read from the same Economy rows and rate as the cards.
+local function refreshHeader(profile: Types.Profile, defs: { Modules.ModuleDef })
+	local bar = header
+	if not bar then
+		return
+	end
+	local done = 0
+	for _, def in ipairs(defs) do
+		if Economy.isComplete(Economy.moduleState(profile, profile.world.current, def.id)) then
+			done += 1
+		end
+	end
+	local pills: { { any } } = { { done, #defs } }
+	local speed = State.GetRate().assemblySpeed.Build
+	if speed ~= nil then
+		table.insert(pills, { ("%.1f"):format(speed) })
+	end
+	local key = ("%d/%d|%s"):format(done, #defs, if speed ~= nil then ("%.1f"):format(speed) else "")
+	if key ~= pillKey then
+		pillKey = key
+		bar.setPills(pills)
+	end
+end
+
+-- The next-stop strip: one compact world card (WorldCard, compact) above the footer for the first world past the one the ship stands
+-- on (the way back at the last world); a tap on it or its button opens the Star Chart with that world selected. The card is built
+-- once per world it names, and it redraws from the mirror when the world, the codex or an outpost changes.
+local function refreshStrip()
+	local slot = stripSlot
+	if not slot or not State.Has() then
+		return
+	end
+	local profile = State.Get()
+	local ids = WorldCardMath.Order(#Worlds)
+	local target = WorldCardMath.NextStop(ids, profile.world.current)
+	slot.Visible = target ~= nil
+	if not target then
+		return
+	end
+	if stripWorld ~= target then
+		local old = stripCard
+		if old then
+			old.frame:Destroy()
+		end
+		local function openChart(worldId: number)
+			StarChartScreen.Preselect(worldId)
+			Screens.Open("StarChart") -- closes the Ship screen on the way; the chart asks the server to fly, this screen never does
+		end
+		stripCard = WorldCard.Build(slot, target, true, {
+			aspect = STRIP_ASPECT,
+			heightShare = STRIP_H * PANEL_H,
+			onSelect = openChart,
+			onAction = function(worldId: number, _kind: string)
+				openChart(worldId)
+			end,
+		})
+		stripWorld = target
+	end
+	local card = stripCard
+	if card then
+		local unlocked, highest = WorldCard.OpenWorlds(profile)
+		local nextLocked = WorldCardMath.NextLocked(ids, unlocked, highest)
+		card.Set(WorldCard.ViewFor(profile, target, unlocked, nextLocked, nil, os.time()))
+		card.SetNear(true)
+	end
+end
+
+-- Puts the intro line and the module list where the line's visibility says: the list starts under the line while it shows.
+local function placeList(helpShown: boolean)
+	local frame = list
+	if not frame then
+		return
+	end
+	local y = if helpShown then LIST_Y_HELP else LIST_Y_BARE
+	frame.Position = UDim2.fromScale(Theme.Margin, y)
+	frame.Size = UDim2.fromScale(1 - Theme.Margin * 2, LIST_BOTTOM - y)
+end
+
 local function refresh()
 	if not open or not State.Has() then
 		return
@@ -440,6 +541,7 @@ local function refresh()
 	local speeds = State.GetRate().assemblySpeed
 	local now = State.Now()
 	ensureRows(#defs)
+	refreshHeader(profile, defs)
 
 	for index, row in ipairs(rows) do
 		local def: Modules.ModuleDef? = defs[index]
@@ -511,6 +613,7 @@ local function refresh()
 		if activeDef then
 			help.Text = Strings.SHIP_HELP:format(Builder.text("JOB_" .. activeDef.job))
 		end
+		placeList(help.Visible)
 	end
 	if completeLabel then
 		-- "Walk to the ship and launch": never at home, where the server refuses a launch; the home has no modules,
@@ -533,7 +636,7 @@ local function clearMenu(root: ScreenGui, body: Frame)
 	local half = math.min(PANEL_W, PANEL_H * PANEL_ASPECT * screen.Y / screen.X) / 2 -- the panel's half width, of the screen
 	local covered = Builder.menuRight(screen) + Theme.Menu.Gap - (0.5 - half)
 	local shift = math.clamp(covered, 0, math.max(0, 0.5 - half - Theme.Margin))
-	body.Position = UDim2.fromScale(0.5 + shift, PANEL_Y)
+	body.Position = UDim2.fromScale(0.5 + shift, Panels.Shell.Top)
 end
 
 local function build()
@@ -566,9 +669,9 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, PANEL_Y), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
@@ -576,10 +679,8 @@ local function build()
 		clearMenu(root, body)
 	end)
 
-	-- Header tab straddling the top edge, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.SHIP_TITLE, Theme.Colors.Featured, Vector2.new(0.42, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: gold, the Ship icon, "Modules n / m" and "Crew xn" pills (refresh), the red X.
+	header = Builder.panelHeader(body, { panelId = "Ship", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		ShipScreen.Close()
 	end)
 
@@ -588,17 +689,26 @@ local function build()
 		name = "Help",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(Theme.Margin, 0.085),
-		size = UDim2.fromScale(0.84, 0.065),
+		position = UDim2.fromScale(Theme.Margin, HELP_Y),
+		size = UDim2.fromScale(0.84, HELP_H),
 		xAlign = Enum.TextXAlignment.Left,
+		zIndex = Builder.blockTop(body),
+	})
+
+	-- The next-stop strip's box, above the footer; refreshStrip builds the card into it.
+	stripSlot = Builder.frame({
+		parent = body,
+		name = "NextStop",
+		position = UDim2.fromScale(Theme.Margin, STRIP_Y),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, STRIP_H),
 		zIndex = Builder.blockTop(body),
 	})
 
 	local rowsFrame = Builder.frame({
 		parent = body,
 		name = "Modules",
-		position = UDim2.fromScale(Theme.Margin, 0.16),
-		size = UDim2.fromScale(1 - Theme.Margin * 2, 0.68),
+		position = UDim2.fromScale(Theme.Margin, LIST_Y_BARE),
+		size = UDim2.fromScale(1 - Theme.Margin * 2, LIST_BOTTOM - LIST_Y_BARE),
 		zIndex = Builder.blockTop(body),
 	})
 	local layout = Instance.new("UIListLayout")
@@ -659,6 +769,14 @@ local function build()
 	for _, topic in ipairs({ "modules", "inventory", "scrap", "rate" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
+	-- The strip's card follows the world, the codex, an outpost and the home (cheap while closed: it needs the screen open).
+	for _, topic in ipairs({ "world", "codex", "outposts", "home", "visit" }) do
+		State.OnChanged(topic :: State.Topic, function()
+			if open then
+				refreshStrip()
+			end
+		end)
+	end
 end
 
 -- Public API -------------------------------------------------------------
@@ -675,6 +793,7 @@ function ShipScreen.Open()
 	end
 	open = true
 	refresh()
+	refreshStrip()
 	root.Enabled = true
 	clearMenu(root, body)
 	Builder.open(body)

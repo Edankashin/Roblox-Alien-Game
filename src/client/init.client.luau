@@ -88,6 +88,7 @@ local LaunchSequence = require(script:WaitForChild("World"):WaitForChild("Launch
 local Prefs = require(script:WaitForChild("Prefs"))
 local SettingsScreen = require(script:WaitForChild("UI"):WaitForChild("SettingsScreen"))
 local StarChartScreen = require(script:WaitForChild("UI"):WaitForChild("StarChartScreen"))
+local ArrivalTitle = require(script:WaitForChild("UI"):WaitForChild("ArrivalTitle"))
 local LeaderboardScreen = require(script:WaitForChild("UI"):WaitForChild("LeaderboardScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
@@ -1970,6 +1971,18 @@ local function start(profile: Types.Profile)
 	elseif CinematicMath.IsSeenKey(arrival) and CinematicMath.HasMoment(arrival) and not State.HasSeen(arrival) then
 		if playCinematic(arrival, nil, nil) then
 			markSeenKey(arrival)
+			ArrivalTitle.PlayFirstVisit(Place.WorldId()) -- the name and "now arriving" over the fast shot (data/Cinematics Title)
+		end
+	elseif ArrivalTitle.Flown() then
+		-- A later arrival by flight (no cinematic): the title card plays once the loading screen has handed over; the HUD waits.
+		cinematic = true
+		Hud.SetVisible(false)
+		if not ArrivalTitle.Play(Place.WorldId(), 0, function()
+			cinematic = false
+			Hud.SetVisible(true)
+		end) then
+			cinematic = false
+			Hud.SetVisible(true)
 		end
 	end
 	-- Studio's /cinematic <momentId>: play a moment now (the server only fires this in Studio). The Legendary push-in aims

@@ -1,410 +1,164 @@
 --!strict
--- StarterPlayerScripts.Client.UI.StarChartScreen: the Star Chart, opened from the Ship panel. A drawn
--- orbit map on the left (about 60% of the panel) and the selected world's card on the right:
---   map      a gold star with a soft glow, one thin ring per world (data/Worlds order), and one planet on
---            each ring at a fixed angle (PLANET_ANGLES). A planet's look says its state:
---              current world   Confirm green, a gold ring that pulses (Config.StarChartPulseSeconds; held
---                              still under Reduced Motion)
---              unlocked        Select blue, navy ring, lit; an outpost adds a "Lv 2" chip under the planet
---                              and, while it has production ready (OutpostMath.Pending against os.time()),
---                              a Confirm dot on the planet's corner
---              next stop       the first locked world after the highest unlocked one: dim fill, gold ring
---              locked          faint Trough grey
---            The Home planet (world 0, data/Worlds row 0) is one more planet at the map's centre, over the
---            star and inside the innermost ring, with no ring of its own. It follows the same looks (current
---            green and pulsing, unlocked blue, locked faint; it is never the next stop) and never has an
---            outpost chip or dot.
---            Tapping a planet (its invisible, larger TextButton) selects it: its ring turns thick. Opening
---            selects the current world.
---   card     the selected world's name and what the old list card said, line for line:
---              current world   "You are here"; no buttons (the Home card has a Visit button, below). A guest
---                              (State.IsGuest: visiting someone's home, or a ship that is not on the world this
---                              place runs) has no "here": the card of the world its ship is on reads "Your ship
---                              waits here" with Fly alone, in the blue of an unlocked card. Flying it is the way
---                              home from a visit.
---              unlocked, with an outpost   its level, its output per hour, what it has ready (refreshed
---                              every Config.StarChartTickSeconds while open), and Collect, Upgrade and Fly.
---              unlocked, no outpost   Fly only.
---              locked          a dimmed card reading Locked, or "Next stop" for the next world.
---            The Home card: here, as any current world; unlocked (profile.home.unlocked, or world 0 in
---            world.unlocked, which a launch's WorldChanged push updates first) its line and Fly, never Collect
---            or Upgrade; locked, its name "Home" and the line that says a launch opens it, no buttons.
---            Milestone 42e adds a green Visit button to the unlocked Home card: beside Fly (half the card each),
---            or alone at the home itself, where there is no Fly. It opens the Visit screen (Screens.Open
---            closes the chart). A guest's Home card (the ship waits at home) has Fly alone, no Visit.
--- Every tap asks the server (CollectOutpost, UpgradeOutpost, FlyTo; one request in flight) and toasts
--- the answer; the buttons only dim to hint what a tap would do, they never block it, so the server's
--- reason always reaches the player. The mirror (State: "world", "scrap", "profile") is all the screen
--- reads; OutpostsChanged, ScrapChanged, WorldChanged and HomeView ("visit": a guest's card changes) keep it current.
--- Nothing here decides anything.
--- Both loops stop when the screen closes: the pulse tween is cancelled and the tick thread is
--- task.cancel'ed in Close. Selecting a world restarts the pulse so its swing is measured from the
--- planet's new resting thickness (a selected current planet rests thicker than an unselected one).
+-- StarterPlayerScripts.Client.UI.StarChartScreen: the Star Chart, opened from the Ship panel. UI richness pass, package B
+-- (docs/vault/05-ui-design/UI-Richness-Pass.md section 3): the orbit map is gone; the body is a scrolling grid of world cards, two
+-- columns, the Home planet first and worlds 1 to 7 in order (UI/WorldCard), and it opens scrolled to the current world. Under the
+-- header band (Builder.panelHeader: "Worlds 2 / 3" and, while an outpost has something ready, "Ready 90 Scrap"):
+--   a card     one world's picture, number badge, name, species chips with the found count and one button: HERE (the world you
+--              are on: grey, a toast says "You are here"), TRAVEL (an unlocked world: the same FlyTo request as the old Fly
+--              button, the same refusals and toasts), "Return" (a guest, State.IsGuest: visiting someone's home, or a ship that is
+--              not on the world this place runs, sees it on the world the ship waits on: flying there is the way home), nothing on a
+--              locked card (a padlock and the line that says what opens it; the next stop wears a gold ink and NEXT) or an unbuilt
+--              one ("Opens soon"). A tap on a card (not its button) selects it: its ink turns gold.
+--   the tray   along the bottom while the selected world is unlocked and has an outpost: "Outpost Lv 2, 120 Scrap/h", what is
+--              ready, and Collect (the main green when something is ready, else grey) and Upgrade (blue, grey when unaffordable
+--              or maxed), exactly the old requests, refreshed every Config.StarChartTickSeconds while open. Selecting the unlocked
+--              Home planet shows its Visit button here instead (milestone 42e: it opens the Visit screen; a guest at the home has
+--              none). A card with an outpost also wears "Lv 2" and a green ready dot.
+-- Every tap asks the server (CollectOutpost, UpgradeOutpost, FlyTo; one request in flight) and toasts the answer; the buttons only
+-- dim to hint what a tap would do, they never block it, so the server's reason always reaches the player. The mirror (State: "world",
+-- "scrap", "profile", "codex") is all the screen reads; OutpostsChanged, ScrapChanged, WorldChanged, CodexChanged and HomeView
+-- ("visit": a guest's card changes) keep it current. Nothing here decides anything. The tick thread is task.cancel'ed in Close.
+-- The Ship's next-stop strip (ShipScreen) calls Preselect(worldId) and then Screens.Open("StarChart"): no new server path.
 
-local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Net = require(Shared:WaitForChild("Net"))
 local OutpostMath = require(Shared:WaitForChild("OutpostMath"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local WorldCardMath = require(Shared:WaitForChild("WorldCardMath"))
 local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Worlds = require(Shared:WaitForChild("data"):WaitForChild("Worlds"))
+local WorldCards = require(Shared:WaitForChild("data"):WaitForChild("WorldCards"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local Screens = require(script.Parent.Screens)
+local WorldCard = require(script.Parent.WorldCard)
 local State = require(script.Parent.Parent.State)
-local Prefs = require(script.Parent.Parent.Prefs)
 
 local StarChartScreen = {}
 
--- The look is block cells (UI Playbook "Screens after the HUD", Decisions B44): the panel a cream plate at the panel cell with the
--- blue header and the close; the map is pixel art: each orbit a ring of small square dots, the star, its glow and every planet a
--- stepped pixel octagon (Builder.pixelOctagon) whose ring is its ink (thick while selected, two units), the current planet
--- pulsing in size instead of in stroke; the level chip a flat block, the ready dot a small green octagon; the card a fitted
--- edged block whose ink and face follow the selected world's state; its buttons fitted block buttons.
-
--- One world's planet and the pieces refresh rewrites.
-type Planet = {
-	worldId: number,
-	disc: Frame, -- the octagon's holder (the pulse scales it)
-	octagon: Builder.Octagon,
-	pulse: UIScale,
-	chip: Frame, -- "Lv 2", under the planet; only for an outpost
-	chipText: TextLabel,
-	dot: Frame, -- production is ready; on the planet's top right corner
-}
-
--- The selected world's card and the pieces refresh rewrites.
-type Detail = {
-	frame: Frame, -- an edged block plate: setBlockInk is its ring, setBlockColor and setBlockFade its face
-	name: TextLabel,
-	level: TextLabel, -- "Outpost Lv 2"
-	line: TextLabel, -- the status line, or the outpost's output per hour
-	pending: TextLabel,
+-- The outpost tray and the pieces refresh rewrites.
+type Tray = {
+	frame: Frame, -- an edged block plate
+	title: TextLabel, -- "Outpost Lv 2, 120 Scrap/h", or the Home planet's line
+	line: TextLabel, -- "Ready: 90 Scrap, 1 materials"
 	collect: Frame,
 	upgrade: Frame,
-	fly: Frame,
-	visit: Frame, -- the Home card's Visit button; shares the second button row with Fly
+	visit: Frame,
 }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button
--- reaches down to 0.155, so the map and the card start under it. The panel is wider than the other
--- screens' (1.75 against 1.35) so the card has room for two buttons side by side.
+-- Panel layout, as fractions of the panel. The header band fills the top (Panels.Shell.BodyTop is where a body starts); the grid
+-- runs from there to the tray, or to the bottom while no tray shows. The panel keeps the width it had (1.75 at the old 0.78 height).
 local PANEL_W = 0.84
-local PANEL_H = 0.78
-local PANEL_ASPECT = 1.75
-local BODY_Y = 0.17
-local BODY_H = 0.8
-local MAP_CX = 0.31 -- centre of the left ~60%
-local MAP_W = 0.58
-local CARD_X = 0.62
-local CARD_W = 0.36
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.75, 0.78, PANEL_H)
+local GRID_Y = Panels.Shell.BodyTop + 0.005
+local GRID_BOTTOM = 1 - Theme.Margin
+local HOME_ID = 0 -- data/Worlds row 0: the home planet
+local SCROLLBAR_PX = 6
+local CELL_EPSILON = 0.001 -- a grid cell a hair under 1 / columns, so two always fit a row
 
--- The map, as fractions of the map square. The square is as tall as BODY_H and as wide, whichever of
--- MAP_W and BODY_H is smaller (an aspect constraint), so a planet is PLANET of that: about 28 px at
--- iPhone SE (234 px square) and 47 px on a 4:3 tablet, both above 5% of the screen height.
-local STAR = 0.12
-local GLOW = 0.22
-local PLANET = 0.12
-local HIT = 0.2 -- the invisible tap area around a planet; the planets sit at least 0.23 apart
-local HIT_Z = 9
-local HOME_ID = 0 -- data/Worlds row 0: the home planet, at the centre and on no ring
-local HOME = 0.11 -- its diameter: a touch under a ring planet; it sits inside the innermost ring (the first planet's inner edge is 0.105 from the centre)
-local HOME_HIT_Z = HIT_Z - 1 -- its tap area reaches 0.1 from the centre, so the first planet's wins where they overlap
-local RING_FIRST = 0.33 -- ring diameters run evenly from the first world's to the last's
-local RING_LAST = 0.84
-local CHIP_W = 0.19
-local CHIP_H = 0.08
-local CHIP_GAP = 0.01
-local DOT = 0.42 -- of the planet disc
-
--- Where each world's planet sits on its ring: degrees clockwise from east. Chosen so that no two planets
--- or "Lv" chips touch even when every outpost shows one (a layout constant, not a game number).
-local PLANET_ANGLES: { [number]: number } = { 165, 350, 70, 230, 115, 155, 315 }
-local FALLBACK_ANGLE_STEP = 137.5 -- a world past the table spirals on the golden angle
-
--- Orbits, rings and colours. An orbit is ORBIT_DOTS square dots ORBIT_DOT of the map wide; a planet's ring is its octagon's ink,
--- two units thick while selected; the current planet pulses its size to PULSE_SCALE and back.
-local ORBIT_DOTS = 28
-local ORBIT_DOT = 0.012
-local RING_TRANSPARENCY = 0.75
-local PULSE_SCALE = 1.12
-local NEXT_FILL_TRANSPARENCY = 0.75
-local LOCKED_FILL_TRANSPARENCY = 0.7
-local LOCKED_STROKE_TRANSPARENCY = 0.55
-local LOCKED_TRANSPARENCY = 0.45 -- the locked card's fill
-
--- Inside the card, as fractions of the card.
-local TEXT_X = 0.05
-local TEXT_W = 0.9
-local NAME_Y = 0.03
-local NAME_H = 0.165
-local LEVEL_Y = 0.2
-local LEVEL_H = 0.075
-local LINE_Y = 0.285
-local LINE_H = 0.145
-local HOME_LINE_H = 0.48 -- the home card's line has no outpost rows under it, so it takes their room (its text is long)
-local PENDING_Y = 0.44
-local PENDING_H = 0.145
-local ROW_ONE_Y = 0.6
-local ROW_TWO_Y = 0.79
-local BUTTON_H = 0.17
-local COLLECT_W = 0.43
-local UPGRADE_X = 0.52
-
-local COLLECT_COLOR = Theme.Colors.Featured
-local UPGRADE_COLOR = Theme.Colors.Confirm
-local FLY_COLOR = Theme.Colors.Select
-local VISIT_COLOR = Theme.Colors.Confirm
-local DIM_COLOR = Theme.Rarity.Common
+-- Inside the tray, as fractions of it.
+local TRAY_TEXT_X = 0.03
+local TRAY_TEXT_W = 0.42
+local TRAY_ROW_H = 0.44
+local TRAY_UPGRADE_X = 0.47
+local TRAY_UPGRADE_W = 0.26
+local TRAY_COLLECT_X = 0.74
+local TRAY_COLLECT_W = 0.23
+local TRAY_BUTTON_Y = 0.14
+local TRAY_BUTTON_H = 0.72
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
-local planets: { Planet } = {}
-local detail: Detail? = nil
-local selected = 1 -- the world id the card shows; Open resets it to the current world
+local header: Builder.PanelHeader? = nil
+local scroller: ScrollingFrame? = nil
+local cards: { [number]: WorldCard.Card } = {}
+local slots: { [number]: Frame } = {}
+local cardOptions: WorldCard.Options = {}
+local tray: Tray? = nil
+local selected = 1 -- the world id the tray belongs to; Open resets it to the current world
+local preselect: number? = nil -- a world the Ship's strip asked to open on
 local open = false
 local busy = false -- one request in flight at a time
-local pulseTween: Tween? = nil
-local pulsePlanet: Planet? = nil
 local tickThread: thread? = nil
 
 -- Helpers ----------------------------------------------------------------
-
--- Recolours a block button in place (its face and lip), keeping its text.
-local function recolorButton(container: Frame, color: Color3)
-	Builder.recolorBlockButton(container, color)
-end
-
-local function setButton(container: Frame, text: string, color: Color3)
-	recolorButton(container, color)
-	local face = container:FindFirstChild("Face")
-	if face and face:IsA("TextButton") then
-		face.Text = text
-	end
-end
-
--- The world's name from the strings table (WORLD_<id>), or the Worlds row, or the key itself.
-local function worldName(worldId: number): string
-	local key = "WORLD_" .. tostring(worldId)
-	local text = Builder.text(key)
-	if text ~= key then
-		return text
-	end
-	local def = Worlds[worldId]
-	return if def then def.name else key
-end
 
 local function outpostOf(profile: Types.Profile, worldId: number): Types.OutpostState?
 	local outposts: { [string]: Types.OutpostState }? = profile.world.outposts -- a mirror older than the field reads as none
 	return if outposts then outposts[tostring(worldId)] else nil
 end
 
--- "Lv 2": the last two words of the existing "Outpost Lv 2" line, so the chip needs no string of its own.
--- (A language that writes the level without a space keeps the whole line.)
-local function levelChip(level: number): string
-	return Strings.STARCHART_LEVEL_CHIP:format(level)
+local function worldName(worldId: number): string
+	return WorldCard.WorldName(worldId)
 end
 
--- The ring diameter for a world, as a fraction of the map square.
-local function ringDiameter(worldId: number): number
-	local last = math.max(#Worlds, 2) - 1
-	return RING_FIRST + (RING_LAST - RING_FIRST) * (worldId - 1) / last
-end
-
--- A planet's centre on the map square (0..1 on each axis).
-local function planetCenter(worldId: number): (number, number)
-	if worldId == HOME_ID then
-		return 0.5, 0.5 -- the home sits at the centre, over the star
+-- Recolours a block button in place (its face and lip), keeping its text.
+local function setButton(container: Frame, text: string, color: Color3)
+	Builder.recolorBlockButton(container, color)
+	local face = container:FindFirstChild("Face")
+	if face and face:IsA("TextButton") then
+		face.Text = text
 	end
-	local radius = ringDiameter(worldId) / 2
-	local angle = math.rad(PLANET_ANGLES[worldId] or worldId * FALLBACK_ANGLE_STEP)
-	return 0.5 + radius * math.cos(angle), 0.5 + radius * math.sin(angle)
-end
-
--- The pulse -----------------------------------------------------------------
-
--- The current planet at rest: green in a gold ring, thick while it is the selected one, its size back to 1.
-local function restStroke(planet: Planet)
-	Builder.paintOctagon(planet.octagon, Theme.Colors.Confirm, 0, Theme.Colors.Featured, 0, planet.worldId == selected)
-	planet.pulse.Scale = 1
-end
-
--- Cancels the pulse and puts the planet's ring back to rest.
-local function stopPulse()
-	local tween, planet = pulseTween, pulsePlanet
-	pulseTween = nil
-	pulsePlanet = nil
-	if tween then
-		tween:Cancel()
-		tween:Destroy()
-	end
-	if planet then
-		restStroke(planet)
-	end
-end
-
--- Starts the pulse on `planet` (the current world); a planet already pulsing is left alone. Under
--- Reduced Motion the ring holds still at rest.
-local function startPulse(planet: Planet)
-	if pulsePlanet == planet and (pulseTween ~= nil or Prefs.ReducedMotion()) then
-		return
-	end
-	stopPulse()
-	pulsePlanet = planet
-	restStroke(planet)
-	if Prefs.ReducedMotion() then
-		return
-	end
-	local half = math.max(Config.StarChartPulseSeconds / 2, 0.05)
-	local tween = TweenService:Create(
-		planet.pulse,
-		TweenInfo.new(half, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-		{ Scale = PULSE_SCALE }
-	)
-	pulseTween = tween
-	tween:Play()
 end
 
 -- Refresh ----------------------------------------------------------------
 
--- Which buttons the card shows. The second button row holds Fly and Visit: side by side when both show (the Home
--- card), either one alone takes the whole row.
-local function showOnly(card: Detail, collect: boolean, upgrade: boolean, fly: boolean, visit: boolean)
-	card.collect.Visible = collect
-	card.upgrade.Visible = upgrade
-	card.fly.Visible = fly
-	card.visit.Visible = visit
-	local both = fly and visit
-	card.fly.Position = UDim2.fromScale(TEXT_X, ROW_TWO_Y)
-	card.fly.Size = UDim2.fromScale(if both then COLLECT_W else TEXT_W, BUTTON_H)
-	card.visit.Position = UDim2.fromScale(if both then UPGRADE_X else TEXT_X, ROW_TWO_Y)
-	card.visit.Size = UDim2.fromScale(if both then COLLECT_W else TEXT_W, BUTTON_H)
-end
-
--- Paints a planet that is not the current one; the selected planet's ring is thick (two units of ink).
-local function paintPlanet(planet: Planet, fill: Color3, fillTransparency: number, ring: Color3, ringTransparency: number)
-	Builder.paintOctagon(planet.octagon, fill, fillTransparency, ring, ringTransparency, planet.worldId == selected)
-end
-
-local function refreshPlanet(planet: Planet, profile: Types.Profile, unlocked: { [number]: boolean }, highest: number, now: number)
-	local id = planet.worldId
-	planet.chip.Visible = false
-	planet.dot.Visible = false
-
-	if id == profile.world.current then
-		-- here: green in a gold ring, pulsing (startPulse paints it at rest first)
-		startPulse(planet)
-		return
-	end
-	if pulsePlanet == planet then
-		stopPulse()
-	end
-
-	if not unlocked[id] then
-		if id == highest + 1 then
-			-- the next stop: dim fill, gold ring
-			paintPlanet(planet, Theme.Colors.Featured, NEXT_FILL_TRANSPARENCY, Theme.Colors.Featured, 0)
-		else
-			-- locked: faint
-			paintPlanet(planet, Theme.Colors.Trough, LOCKED_FILL_TRANSPARENCY, Theme.Colors.Trough, LOCKED_STROKE_TRANSPARENCY)
-		end
-		return
-	end
-
-	-- unlocked: lit; an outpost adds its chip, and a dot while it has something ready
-	paintPlanet(planet, Theme.Colors.Select, 0, Theme.Colors.Outline, 0)
-	local state = if id == HOME_ID then nil else outpostOf(profile, id) -- the home is not an outpost
-	if state then
-		planet.chipText.Text = levelChip(state.level)
-		planet.chip.Visible = true
-		local ready = OutpostMath.Pending(state, id, now)
-		planet.dot.Visible = ready.scrap > 0 or ready.materialCount > 0
-	end
-end
-
--- The card for the selected world: the old list card's states, line for line.
-local function refreshDetail(profile: Types.Profile, unlocked: { [number]: boolean }, highest: number, now: number)
-	local card = detail
-	if not card then
-		return
+-- The tray for the selected world: an outpost's level, rate, what is ready and the two buttons; the Home planet's line and Visit.
+local function refreshTray(profile: Types.Profile, unlocked: { [number]: boolean }, now: number): boolean
+	local bar = tray
+	if not bar then
+		return false
 	end
 	local id = selected
-	card.name.Text = if id == HOME_ID and not unlocked[id] then Strings.STARCHART_HOME else worldName(id)
-	card.line.Size = UDim2.fromScale(TEXT_W, if id == HOME_ID then HOME_LINE_H else LINE_H)
-	card.level.Visible = false
-	card.pending.Visible = false
-	Builder.setBlockFade(card.frame, 0)
-	Builder.setBlockColor(card.frame, Theme.Colors.White)
-
-	if id == profile.world.current then
-		if State.IsGuest() then
-			-- (e) a guest: the ship is not here but waits on this world; flying to it is the way back, like state (c)
-			Builder.setBlockInk(card.frame, Theme.Colors.Select)
-			card.line.Text = Strings.STARCHART_RETURN_LINE
-			card.line.TextColor3 = Theme.Colors.White
-			card.line.Size = UDim2.fromScale(TEXT_W, HOME_LINE_H) -- no outpost rows under it, so it takes their room like the home's line
-			setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
-			showOnly(card, false, false, true, false)
-			return
+	local isHome = id == HOME_ID
+	local state = if isHome then nil else outpostOf(profile, id)
+	local guestHome = State.IsGuest() and profile.world.current == id -- the ship waits here: "Return", no Visit
+	local showVisit = isHome and unlocked[HOME_ID] == true and not guestHome
+	local showOutpost = state ~= nil and unlocked[id] == true
+	bar.visit.Visible = showVisit
+	bar.collect.Visible = showOutpost
+	bar.upgrade.Visible = showOutpost
+	bar.title.Visible = showOutpost or showVisit
+	bar.line.Visible = showOutpost
+	if showOutpost and state then
+		local rates = OutpostMath.Level(state.level)
+		local ready = OutpostMath.Pending(state, id, now)
+		bar.title.Text = Strings.WORLDCARD_TRAY:format(state.level, rates.scrapPerHour)
+		bar.line.Text = Strings.STARCHART_PENDING:format(ready.scrap, ready.materialCount)
+		local nothing = ready.scrap <= 0 and ready.materialCount <= 0
+		setButton(bar.collect, Strings.STARCHART_COLLECT, if nothing then Builder.roleColor("current") else Builder.roleColor("main"))
+		local cost = OutpostMath.UpgradeCost(state.level)
+		if cost == nil then
+			setButton(bar.upgrade, Strings.STARCHART_MAXED, Builder.roleColor("current"))
+		else
+			setButton(bar.upgrade, Strings.STARCHART_UPGRADE:format(cost), if profile.scrap < cost then Builder.roleColor("current") else Builder.roleColor("select"))
 		end
-		-- (a) here: gold, no buttons; the home has a Visit button, since this is where its friends are reached from
-		Builder.setBlockInk(card.frame, Theme.Colors.Featured)
-		card.line.Text = Strings.STARCHART_HERE
-		card.line.TextColor3 = Theme.Colors.Heading
-		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
-		showOnly(card, false, false, false, id == HOME_ID)
+	elseif showVisit then
+		bar.title.Text = Strings.STARCHART_HOME_LINE
+		bar.line.Text = ""
+		setButton(bar.visit, Strings.STARCHART_VISIT, Builder.roleColor("main"))
+	end
+	return showOutpost or showVisit
+end
+
+-- Resizes the grid to leave room for the tray.
+local function placeGrid(trayShown: boolean)
+	local grid, bar = scroller, tray
+	if not grid or not bar then
 		return
 	end
-	card.line.TextColor3 = Theme.Colors.White
-
-	if not unlocked[id] then
-		-- (d) locked: dimmed; the next one on the chart says what opens it
-		card.line.Text = if id == HOME_ID
-			then Strings.STARCHART_HOME_LOCKED
-			elseif id == highest + 1 then Strings.STARCHART_NEXT
-			else Strings.STARCHART_LOCKED
-		Builder.setBlockColor(card.frame, DIM_COLOR)
-		Builder.setBlockFade(card.frame, LOCKED_TRANSPARENCY)
-		Builder.setBlockInk(card.frame, DIM_COLOR)
-		showOnly(card, false, false, false, false)
-		return
-	end
-
-	Builder.setBlockInk(card.frame, Theme.Colors.Select)
-	local state = if id == HOME_ID then nil else outpostOf(profile, id)
-	if not state then
-		-- (c) unlocked, no outpost: Fly alone (the home, which never has one, says what it is)
-		card.line.Text = if id == HOME_ID then Strings.STARCHART_HOME_LINE else ""
-		setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
-		setButton(card.visit, Strings.STARCHART_VISIT, VISIT_COLOR)
-		showOnly(card, false, false, true, id == HOME_ID)
-		return
-	end
-
-	-- (b) unlocked, with an outpost
-	local rates = OutpostMath.Level(state.level)
-	local ready = OutpostMath.Pending(state, id, now)
-	card.level.Text = Strings.STARCHART_OUTPOST:format(state.level)
-	card.level.Visible = true
-	card.line.Text = Strings.STARCHART_OUTPUT:format(rates.scrapPerHour, rates.materialsPerHour)
-	card.pending.Text = Strings.STARCHART_PENDING:format(ready.scrap, ready.materialCount)
-	card.pending.Visible = true
-
-	local nothing = ready.scrap <= 0 and ready.materialCount <= 0
-	setButton(card.collect, Strings.STARCHART_COLLECT, if nothing then DIM_COLOR else COLLECT_COLOR)
-	local cost = OutpostMath.UpgradeCost(state.level)
-	if cost == nil then
-		setButton(card.upgrade, Strings.STARCHART_MAXED, DIM_COLOR)
-	else
-		setButton(card.upgrade, Strings.STARCHART_UPGRADE:format(cost), if profile.scrap < cost then DIM_COLOR else UPGRADE_COLOR)
-	end
-	setButton(card.fly, Strings.STARCHART_FLY, FLY_COLOR)
-	showOnly(card, true, true, true, false)
+	bar.frame.Visible = trayShown
+	local bottom = if trayShown then 1 - Theme.Margin - WorldCards.OutpostTray.Height - WorldCards.OutpostTray.Gap else GRID_BOTTOM
+	grid.Size = UDim2.fromScale(1 - 2 * Theme.Margin, bottom - GRID_Y)
 end
 
 local function refresh()
@@ -412,34 +166,85 @@ local function refresh()
 		return
 	end
 	local profile = State.Get()
-	local unlocked: { [number]: boolean } = {}
-	local highest = 0
-	for _, id in ipairs(profile.world.unlocked) do
-		unlocked[id] = true
-		highest = math.max(highest, id)
-	end
-	unlocked[profile.world.current] = true
-	highest = math.max(highest, profile.world.current)
-	local home: Types.HomeState? = profile.home -- a mirror older than the field reads as locked
-	if home and home.unlocked then
-		unlocked[HOME_ID] = true
-	end
+	local unlocked, highest = WorldCard.OpenWorlds(profile)
+	local ids = WorldCardMath.Order(#Worlds)
+	local nextLocked = WorldCardMath.NextLocked(ids, unlocked, highest)
 	local now = os.time()
-	for _, planet in ipairs(planets) do
-		refreshPlanet(planet, profile, unlocked, highest, now)
+	local readyScrap = 0
+	local unlockedBuilt, builtTotal = 0, 0
+	local body = panel
+	cardOptions.panelPx = if body and body.AbsoluteSize.X > 0 then body.AbsoluteSize.X else 0
+	for _, id in ipairs(ids) do
+		local card = cards[id]
+		local def = Worlds[id]
+		if id > 0 and def and def.built then
+			builtTotal += 1
+			if unlocked[id] then
+				unlockedBuilt += 1
+			end
+		end
+		if not card or not def then
+			continue
+		end
+		card.Set(WorldCard.ViewFor(profile, id, unlocked, nextLocked, selected, now))
+		local state = if id == HOME_ID or not unlocked[id] then nil else outpostOf(profile, id)
+		if state then
+			readyScrap += OutpostMath.Pending(state, id, now).scrap
+		end
 	end
-	refreshDetail(profile, unlocked, highest, now)
+	local bar = header
+	if bar then
+		local pills: { { any } } = { { unlockedBuilt, builtTotal } }
+		if readyScrap > 0 then
+			table.insert(pills, { Builder.formatNumber(readyScrap) })
+		end
+		bar.setPills(pills)
+	end
+	placeGrid(refreshTray(profile, unlocked, now))
 end
 
--- Shows `worldId` on the card and thickens its planet's ring. The pulse restarts so its swing is measured
--- from the new resting thickness (stopPulse reads `selected`, so it is set first).
+-- Selects `worldId`: its ink turns gold and the tray follows it.
 local function selectWorld(worldId: number)
 	if worldId == selected then
 		return
 	end
 	selected = worldId
-	stopPulse()
 	refresh()
+end
+
+-- The pictures: a card loads its render once it is within a screen of the viewport (a picture at id 0 draws nothing at all).
+local function updateNear()
+	local grid = scroller
+	if not grid then
+		return
+	end
+	local origin = grid.AbsolutePosition.Y
+	local scrollY = grid.CanvasPosition.Y
+	local window = grid.AbsoluteWindowSize.Y
+	for id, slot in pairs(slots) do
+		local top = slot.AbsolutePosition.Y - origin + scrollY
+		local card = cards[id]
+		if card then
+			card.SetNear(WorldCardMath.Near(top, top + slot.AbsoluteSize.Y, scrollY, window, WorldCards.NearScreens))
+		end
+	end
+end
+
+-- Scrolls the grid to the row of `worldId` (after the layout has run, a frame later).
+local function scrollTo(worldId: number)
+	task.defer(function()
+		local grid, slot = scroller, slots[worldId]
+		if not grid or not slot or not open then
+			return
+		end
+		RunService.Heartbeat:Wait() -- the grid layout resolves its cells a frame after the screen turns on
+		if not open then
+			return
+		end
+		local y = slot.AbsolutePosition.Y - grid.AbsolutePosition.Y + grid.CanvasPosition.Y
+		grid.CanvasPosition = Vector2.new(0, math.max(0, y))
+		updateNear()
+	end)
 end
 
 -- The tick -------------------------------------------------------------------
@@ -452,8 +257,7 @@ local function stopTick()
 	end
 end
 
--- Redraws every Config.StarChartTickSeconds so the ready amounts count up (and the dots appear) while the
--- chart is open.
+-- Redraws every Config.StarChartTickSeconds so the ready amounts count up (and the dots appear) while the chart is open.
 local function startTick()
 	stopTick()
 	tickThread = task.spawn(function()
@@ -545,277 +349,139 @@ local function onFly(worldId: number)
 	end)
 end
 
+-- A card's button: HERE says where you are, TRAVEL and "Return" ask the server to fly.
+local function onAction(worldId: number, kind: string)
+	if kind == "Here" then
+		Toast.Show(Strings.WORLDCARD_TOAST_HERE, Theme.Colors.Select)
+	else
+		onFly(worldId)
+	end
+end
+
 -- Build ----------------------------------------------------------------------
 
--- One world's planet: a disc with its number, a chip and a dot that refresh shows or hides, and the
--- invisible tap area over the top. The home (world 0) is smaller, carries no number and keeps its chip and
--- dot hidden for good.
-local function buildPlanet(map: Frame, worldId: number): Planet
-	local cx, cy = planetCenter(worldId)
-	local isHome = worldId == HOME_ID
-	local diameter = if isHome then HOME else PLANET
-	local octagon = Builder.pixelOctagon({
-		parent = map,
-		name = "Planet_" .. worldId,
-		color = Theme.Colors.Select,
-		position = UDim2.fromScale(cx, cy),
-		size = UDim2.fromScale(diameter, diameter),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 5,
-	})
-	local disc = octagon.holder
-	local pulse = Instance.new("UIScale")
-	pulse.Parent = disc
-	if not isHome then
-		Builder.label({
-			parent = disc,
-			name = "Id", -- the world's number
-			text = tostring(worldId),
-			textSize = Theme.TextSize.Body,
-			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.8, 0.8),
-			anchor = Vector2.new(0.5, 0.5),
-			stroke = 2,
-			zIndex = Builder.octagonTop(octagon),
-		})
-	end
-	local dot = Builder.pixelOctagon({
-		parent = disc,
-		name = "Ready",
-		color = Theme.Colors.Confirm,
-		position = UDim2.fromScale(0.9, 0.12),
-		size = UDim2.fromScale(DOT, DOT),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = Builder.octagonTop(octagon) + 1,
-	}).holder
-	dot.Visible = false
-	local chip = Builder.blockPlate({
-		parent = map,
-		name = "Chip_" .. worldId,
-		color = Theme.Block.Trough,
-		rows = Theme.Block.MinRows,
-		cells = false,
-		position = UDim2.fromScale(cx, cy + diameter / 2 + CHIP_GAP),
-		size = UDim2.fromScale(CHIP_W, CHIP_H),
-		anchor = Vector2.new(0.5, 0),
-		zIndex = 5,
-	})
-	chip.Visible = false
-	local chipText = Builder.label({
-		parent = chip,
-		name = "Level",
-		text = "",
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(0.92, 0.9),
-		anchor = Vector2.new(0.5, 0.5),
-		stroke = 0, -- the chip is dark already; an outline would only blur the text
-		zIndex = Builder.blockTop(chip),
-	})
-
-	local hit = Instance.new("TextButton")
-	hit.Name = "Hit_" .. worldId
-	hit.AutoButtonColor = false
-	hit.Text = ""
-	hit.BackgroundTransparency = 1
-	hit.BorderSizePixel = 0
-	hit.AnchorPoint = Vector2.new(0.5, 0.5)
-	hit.Position = UDim2.fromScale(cx, cy)
-	hit.Size = UDim2.fromScale(HIT, HIT)
-	hit.ZIndex = if isHome then HOME_HIT_Z else HIT_Z
-	hit.Parent = map
-	hit.Activated:Connect(function()
-		Builder.playSound(Sounds.Click)
-		selectWorld(worldId)
-	end)
-
-	return {
-		worldId = worldId,
-		disc = disc,
-		octagon = octagon,
-		pulse = pulse,
-		chip = chip,
-		chipText = chipText,
-		dot = dot,
-	}
-end
-
--- The orbit map: a square on the left, the star and its glow in the middle, a ring and a planet per world.
-local function buildMap(body: Frame)
-	local map = Builder.frame({
-		parent = body,
-		name = "Map",
-		position = UDim2.fromScale(MAP_CX, BODY_Y + BODY_H / 2),
-		size = UDim2.fromScale(MAP_W, BODY_H),
-		anchor = Vector2.new(0.5, 0.5),
-		aspect = 1,
-		zIndex = Builder.blockTop(body),
-	})
-	-- Each orbit: ORBIT_DOTS square dots round its circle (a dotted pixel ring, faint navy).
-	for id = 1, #Worlds do
-		local radius = ringDiameter(id) / 2
-		local ring = Builder.frame({ parent = map, name = "Ring_" .. id, zIndex = 3 })
-		for dot = 0, ORBIT_DOTS - 1 do
-			local angle = 2 * math.pi * dot / ORBIT_DOTS
-			Builder.frame({
-				parent = ring,
-				name = "Dot",
-				position = UDim2.fromScale(0.5 + radius * math.cos(angle), 0.5 + radius * math.sin(angle)),
-				size = UDim2.fromScale(ORBIT_DOT, ORBIT_DOT),
-				anchor = Vector2.new(0.5, 0.5),
-				color = Theme.Colors.Outline,
-				transparency = RING_TRANSPARENCY,
-				zIndex = 3,
-			})
-		end
-	end
-	-- The star's glow: a faint gold octagon with no ring; then the star, a gold octagon in navy ink.
-	local glow = Builder.pixelOctagon({
-		parent = map,
-		name = "Glow",
-		color = Theme.Colors.Featured,
-		ink = Theme.Colors.Featured,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(GLOW, GLOW),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 4,
-	})
-	Builder.paintOctagon(glow, Theme.Colors.Featured, 0.75, Theme.Colors.Featured, 0.75, false)
-	Builder.pixelOctagon({
-		parent = map,
-		name = "Star",
-		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(0.5, 0.5),
-		size = UDim2.fromScale(STAR, STAR),
-		anchor = Vector2.new(0.5, 0.5),
-		zIndex = 6,
-	})
-	planets = {}
-	for id = 1, #Worlds do
-		table.insert(planets, buildPlanet(map, id))
-	end
-	table.insert(planets, buildPlanet(map, HOME_ID)) -- the home planet, built once: Worlds' loops never see row 0
-end
-
--- The card on the right: every piece is built once; refresh decides which show and what they say.
-local function buildDetail(body: Frame)
+-- The tray along the bottom: built once; refresh decides which pieces show and what they say.
+local function buildTray(body: Frame)
 	local frame = Builder.blockPlate({
 		parent = body,
-		name = "Card",
+		name = "Tray",
 		color = Theme.Colors.White,
-		ink = DIM_COLOR,
+		ink = Theme.Rarity.Common,
 		cells = false,
 		edges = true,
-		position = UDim2.fromScale(CARD_X, BODY_Y),
-		size = UDim2.fromScale(CARD_W, BODY_H),
+		position = UDim2.fromScale(Theme.Margin, 1 - Theme.Margin),
+		size = UDim2.fromScale(1 - 2 * Theme.Margin, WorldCards.OutpostTray.Height),
+		anchor = Vector2.new(0, 1),
 		zIndex = Builder.blockTop(body),
 	})
+	frame.Visible = false
 	local top = Builder.blockTop(frame)
-	local buttonRows = Builder.blockButtonRows(BUTTON_H * BODY_H * PANEL_H) -- the buttons are a share of the card
-	local name = Builder.label({
+	local rows = Builder.blockButtonRows(TRAY_BUTTON_H * WorldCards.OutpostTray.Height * PANEL_H)
+	local title = Builder.label({
 		parent = frame,
-		name = "Name",
-		text = "",
-		textSize = Theme.TextSize.Label,
-		position = UDim2.fromScale(TEXT_X, NAME_Y),
-		size = UDim2.fromScale(TEXT_W, NAME_H),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = top,
-	})
-	local level = Builder.label({
-		parent = frame,
-		name = "Level",
+		name = "Title",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(TEXT_X, LEVEL_Y),
-		size = UDim2.fromScale(TEXT_W, LEVEL_H),
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		position = UDim2.fromScale(TRAY_TEXT_X, 0.06),
+		size = UDim2.fromScale(TRAY_TEXT_W, TRAY_ROW_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = top,
 	})
+	title.TextWrapped = true
 	local line = Builder.label({
 		parent = frame,
-		name = "Line",
+		name = "Ready",
 		text = "",
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(TEXT_X, LINE_Y),
-		size = UDim2.fromScale(TEXT_W, LINE_H),
+		color = Theme.Colors.Outline,
+		stroke = 0,
+		position = UDim2.fromScale(TRAY_TEXT_X, 0.5),
+		size = UDim2.fromScale(TRAY_TEXT_W, TRAY_ROW_H),
 		xAlign = Enum.TextXAlignment.Left,
 		zIndex = top,
 	})
-	local pending = Builder.label({
-		parent = frame,
-		name = "Pending",
-		text = "",
-		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(TEXT_X, PENDING_Y),
-		size = UDim2.fromScale(TEXT_W, PENDING_H),
-		xAlign = Enum.TextXAlignment.Left,
-		zIndex = top,
-	})
-	local collect = Builder.blockButton({
-		parent = frame,
-		name = "Collect",
-		text = Strings.STARCHART_COLLECT,
-		color = COLLECT_COLOR,
-		position = UDim2.fromScale(TEXT_X, ROW_ONE_Y),
-		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
-		textSize = Theme.TextSize.Body,
-		rows = buttonRows,
-		zIndex = top,
-	}, function()
+	local function button(name: string, text: string, color: Color3, x: number, w: number, onTap: () -> ()): Frame
+		return Builder.blockButton({
+			parent = frame,
+			name = name,
+			text = text,
+			color = color,
+			position = UDim2.fromScale(x, TRAY_BUTTON_Y),
+			size = UDim2.fromScale(w, TRAY_BUTTON_H),
+			textSize = Theme.TextSize.Body,
+			rows = rows,
+			cells = false,
+			hit = true,
+			zIndex = top,
+		}, onTap)
+	end
+	local collect = button("Collect", Strings.STARCHART_COLLECT, Builder.roleColor("main"), TRAY_COLLECT_X, TRAY_COLLECT_W, function()
 		onCollect(selected)
 	end)
-	local upgrade = Builder.blockButton({
-		parent = frame,
-		name = "Upgrade",
-		text = Strings.STARCHART_UPGRADE,
-		color = UPGRADE_COLOR,
-		position = UDim2.fromScale(UPGRADE_X, ROW_ONE_Y),
-		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
-		textSize = Theme.TextSize.Body,
-		rows = buttonRows,
-		zIndex = top,
-	}, function()
+	local upgrade = button("Upgrade", Strings.STARCHART_UPGRADE, Builder.roleColor("select"), TRAY_UPGRADE_X, TRAY_UPGRADE_W, function()
 		onUpgrade(selected)
 	end)
-	local fly = Builder.blockButton({
-		parent = frame,
-		name = "Fly",
-		text = Strings.STARCHART_FLY,
-		color = FLY_COLOR,
-		position = UDim2.fromScale(TEXT_X, ROW_TWO_Y),
-		size = UDim2.fromScale(TEXT_W, BUTTON_H),
-		textSize = Theme.TextSize.Body,
-		rows = buttonRows,
-		zIndex = top,
-	}, function()
-		onFly(selected)
-	end)
-	local visit = Builder.blockButton({
-		parent = frame,
-		name = "Visit",
-		text = Strings.STARCHART_VISIT,
-		color = VISIT_COLOR,
-		position = UDim2.fromScale(UPGRADE_X, ROW_TWO_Y),
-		size = UDim2.fromScale(COLLECT_W, BUTTON_H),
-		textSize = Theme.TextSize.Body,
-		rows = buttonRows,
-		zIndex = top,
-	}, function()
+	local visit = button("Visit", Strings.STARCHART_VISIT, Builder.roleColor("main"), TRAY_COLLECT_X, TRAY_COLLECT_W, function()
 		Screens.Open("Visit") -- closes the chart; the Visit screen asks the server, the chart decides nothing
 	end)
+	collect.Visible = false
+	upgrade.Visible = false
 	visit.Visible = false
-	detail = {
-		frame = frame,
-		name = name,
-		level = level,
-		line = line,
-		pending = pending,
-		collect = collect,
-		upgrade = upgrade,
-		fly = fly,
-		visit = visit,
+	tray = { frame = frame, title = title, line = line, collect = collect, upgrade = upgrade, visit = visit }
+end
+
+-- The grid: a ScrollingFrame of two columns of slots (a UIGridLayout cell at the card's aspect), one world card in each slot.
+local function buildGrid(body: Frame)
+	local frame = Instance.new("ScrollingFrame")
+	frame.Name = "Worlds"
+	frame.BackgroundTransparency = 1
+	frame.BorderSizePixel = 0
+	frame.Position = UDim2.fromScale(Theme.Margin, GRID_Y)
+	frame.Size = UDim2.fromScale(1 - 2 * Theme.Margin, GRID_BOTTOM - GRID_Y)
+	frame.CanvasSize = UDim2.fromScale(0, 0)
+	frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	frame.ScrollingDirection = Enum.ScrollingDirection.Y
+	frame.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+	frame.VerticalScrollBarInset = Enum.ScrollBarInset.Always -- a constant window width, so the cards never change size as the bar appears
+	frame.ScrollBarThickness = SCROLLBAR_PX
+	frame.ScrollBarImageColor3 = Theme.Colors.Outline
+	frame.ZIndex = Builder.blockTop(body)
+	frame.Parent = body
+	scroller = frame
+
+	local layout = Instance.new("UIGridLayout")
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	layout.CellPadding = UDim2.fromScale(0, 0) -- the gap is the inset of each card inside its slot
+	layout.CellSize = UDim2.fromScale(1 / WorldCards.Columns - CELL_EPSILON, 1 / WorldCards.Columns)
+	layout.Parent = frame
+	local shape = Instance.new("UIAspectRatioConstraint")
+	shape.AspectRatio = WorldCards.Aspect
+	shape.AspectType = Enum.AspectType.ScaleWithParentSize
+	shape.DominantAxis = Enum.DominantAxis.Width
+	shape.Parent = layout
+
+	cardOptions = {
+		aspect = WorldCards.Aspect,
+		heightShare = WorldCards.HeightShare,
+		panelPx = 0,
+		onSelect = selectWorld,
+		onAction = onAction,
 	}
+	cards = {}
+	slots = {}
+	for index, id in ipairs(WorldCardMath.Order(#Worlds)) do
+		local slot = Builder.frame({ parent = frame, name = "Slot" .. tostring(id), zIndex = Builder.blockTop(body) + 1 })
+		slot.LayoutOrder = index
+		slots[id] = slot
+		cards[id] = WorldCard.Build(slot, id, false, cardOptions)
+	end
+	frame:GetPropertyChangedSignal("CanvasPosition"):Connect(updateNear)
+	frame:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(updateNear)
 end
 
 local function build()
@@ -848,34 +514,25 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.STARCHART_TITLE, Theme.Colors.Select, Vector2.new(0.33, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: blue, the Star Chart icon, "Worlds n / m" and "Ready n Scrap" pills (refresh), the red X.
+	header = Builder.panelHeader(body, { panelId = "StarChart", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		StarChartScreen.Close()
 	end)
 
-	buildMap(body)
-	buildDetail(body)
+	buildGrid(body)
+	buildTray(body)
 
 	-- Server pushes: redraw whenever the mirror changes (cheap while closed: refresh returns early).
-	for _, topic in ipairs({ "world", "scrap", "outposts", "visit" }) do
+	for _, topic in ipairs({ "world", "scrap", "outposts", "visit", "codex", "home" }) do
 		State.OnChanged(topic :: State.Topic, refresh)
 	end
-	-- Reduced Motion turned on or off while open: restart the pulse the new way.
-	Prefs.OnChanged(function()
-		if open then
-			stopPulse()
-			refresh()
-		end
-	end)
 end
 
 -- Public API -------------------------------------------------------------
@@ -884,7 +541,12 @@ function StarChartScreen.IsOpen(): boolean
 	return open
 end
 
--- Opens with the current world selected.
+-- The next Open starts with `worldId` selected and scrolled to (the Ship's next-stop strip asks for this before opening the chart).
+function StarChartScreen.Preselect(worldId: number)
+	preselect = worldId
+end
+
+-- Opens with the current world selected, or the world Preselect named.
 function StarChartScreen.Open()
 	build()
 	local root, body = gui, panel
@@ -892,25 +554,27 @@ function StarChartScreen.Open()
 		return
 	end
 	open = true
-	if State.Has() then
+	local focus = preselect
+	preselect = nil
+	if focus and cards[focus] then
+		selected = focus
+	elseif State.Has() then
 		selected = State.Get().world.current
 	end
-	stopPulse() -- the ring rests for the new selection before the pulse starts again
 	refresh()
 	startTick()
 	root.Enabled = true
 	Builder.open(body)
+	scrollTo(selected)
 end
 
--- Stops the pulse tween and the tick thread before the close tween runs, so nothing keeps redrawing
--- (or tweening a stroke) behind a hidden screen.
+-- Stops the tick thread before the close tween runs, so nothing keeps redrawing behind a hidden screen.
 function StarChartScreen.Close()
 	if not open then
 		return
 	end
 	open = false
 	stopTick()
-	stopPulse()
 	local root, body = gui, panel
 	if root and body then
 		Builder.close(body, function()
