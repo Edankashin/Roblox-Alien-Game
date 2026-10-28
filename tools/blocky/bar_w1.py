@@ -283,4 +283,45 @@ def gloomoth():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth}
+# ------------------------------------------------------------------------------------------------ Grin (Spookum)
+def _candle_stick(g, lite=False):
+    # a haunted candle seven eighths of a stud tall, the same from both sides: a brass dish, a pumpkin-orange candle with a cream drip down each face and a lit violet flame
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.375, 0.375, -0.375, -0.25, -0.25, 0.25, "Trim", "metal"), _box(-0.125, 0.125, -0.25, 0.25, -0.125, 0.125, "Accessory", None),
+            _box(-0.125, 0.0, 0.0, 0.25, -0.1875, -0.125, "Body", None), _box(0.0, 0.125, -0.125, 0.125, 0.125, 0.1875, "Body", None),
+            _box(-0.0625, 0.0625, 0.25, 0.5, -0.0625, 0.0625, "Glow", "crystal")]
+
+
+def _grin_pumpkin(g, lite=False):
+    # a little jack-o'-lantern three quarters of a stud across, the same from both sides: an orange pumpkin of two steps, a brass stem and a lit violet grin and eyes on both faces
+    return [_box(-0.375, 0.375, -0.25, 0.25, -0.25, 0.25, "Accessory", None), _box(-0.25, 0.25, 0.25, 0.375, -0.25, 0.25, "Accessory", None),
+            _box(-0.0625, 0.0625, 0.375, 0.5, -0.0625, 0.0625, "Trim", "metal"),
+            _box(-0.25, 0.25, -0.125, 0.0, 0.25, 0.3125, "Glow", "crystal"), _box(-0.25, 0.25, -0.125, 0.0, -0.3125, -0.25, "Glow", "crystal"),
+            _box(-0.25, -0.125, 0.0625, 0.1875, 0.25, 0.3125, "Glow", "crystal"), _box(0.125, 0.25, 0.0625, 0.1875, 0.25, 0.3125, "Glow", "crystal"),
+            _box(-0.25, -0.125, 0.0625, 0.1875, -0.3125, -0.25, "Glow", "crystal"), _box(0.125, 0.25, 0.0625, 0.1875, -0.3125, -0.25, "Glow", "crystal")]
+
+
+own("candle_stick", "Grin", "a seven-eighths-stud haunted candle: a brass dish, an orange candle with cream drips and a lit violet flame (a satellite)", _candle_stick, "Epic")
+own("grin_pumpkin", "Grin", "a three-quarter-stud jack-o'-lantern: an orange pumpkin, a brass stem, a lit violet grin and eyes (a satellite)", _grin_pumpkin, "Epic")
+
+
+def spookum():
+    """Epic, Verdant, Spirit (the Haunted Nebula event): a pumpkin ghost drifting in a lean. Five kit pieces (orange moss pads with a lit tuft and brass blossom buds on the dome, a
+    brass belt round the sheet's waist), six satellites in one lit violet over orange and brass (three haunted candles, three jack-o'-lanterns) on the ring `candles` (it replaces the
+    three old candles), the whole sheet leaning 8 degrees with its hem twisted behind it."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a drift: the whole sheet leaning 8 degrees to its right as it floats, the ragged hem twisted 25 degrees behind it, a ring of haunted candles and jack-o'-lanterns circling")
+    kit = K.place(P_["moss_cells"], "Moss", (0.8125, 2.5, 0.375), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"}, pose="lean")
+    p.wear("# the Verdant kit: pumpkin-orange moss pads with a lit tuft on the dome's back corners (they lean with the sheet)", kit, ["moss_cells"] * 2)
+    kit = K.place(P_["blossom_bud"], "Bud", (0.5, 2.5, -0.5), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="lean")
+    p.wear("# brass blossom buds on the dome's front corners, either side of the crown (they lean with the sheet)", kit, ["blossom_bud"] * 2)
+    belt = K.band("Belt", (0, 1.0, 0), (2, 2), t=0.1875, h=0.25, slot="Trim", material="metal", faces=("+x", "-x", "+z"), pose="lean")
+    p.wear("# a brass belt: a quarter stud tall and three sixteenths proud, round the sheet's waist over the lit band (the grin stays clear)", belt, ["bark_band"])
+    sats = K.orbit([P_["candle_stick"], P_["grin_pumpkin"]] * 3, "Sat", (0, 0), 2.5, 1.65, tilt=0.2, moves="candles", pivot=[0, 1.65, 0], start=math.radians(30),
+                   lift=0.7, facing="front", drops=[0.125, 0.0, 0.125, 0.0, 0.125, 0.0], g=0.125)
+    p.regions.append(("# the satellite set (`candles`, one wide ring clear of the arms and the lantern, the front low): three haunted candles and three jack-o'-lanterns, orange and brass with lit violet", sats))
+    p.satellites, p.orbit = 6, "candles"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog, "Gloomoth": gloomoth, "Spookum": spookum}

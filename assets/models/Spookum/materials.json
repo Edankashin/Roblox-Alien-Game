@@ -67,7 +67,7 @@
   },
   {
     "slot": 8,
-    "name": "stem",
+    "name": "stemL",
     "hex": "B89B5A",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -77,7 +77,7 @@
   },
   {
     "slot": 9,
-    "name": "wisp",
+    "name": "wispL",
     "hex": "9D6BFF",
     "roughness": 0.55,
     "metallic": 0.0,
