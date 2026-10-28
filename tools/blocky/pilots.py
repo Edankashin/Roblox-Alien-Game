@@ -13,6 +13,7 @@ Standard library only.
 """
 from __future__ import annotations
 
+import importlib
 import math
 import pathlib
 import sys
@@ -200,6 +201,20 @@ def fenripup():
 
 
 PLANS = {"Mossbop": moop, "Radish": radish, "Panpipe": panpipe, "Fenripup": fenripup}
+# the roster's plans (B56): one module a world, each with its own PLANS, imported here so `pilots.py` stays the one command
+ROSTER_MODULES = ("bar_w1",)
+
+
+def all_plans():
+    """The pilots' plans and the roster modules' (tools/blocky/bar_w1.py: World 1's Rare and up)."""
+    plans = dict(PLANS)
+    for name in ROSTER_MODULES:
+        try:
+            mod = importlib.import_module(name)
+        except ModuleNotFoundError:
+            continue
+        plans.update(mod.PLANS)
+    return plans
 
 
 def region(plan):
@@ -213,29 +228,36 @@ def region(plan):
 def apply(sid, write=True):
     """Rewrite one note's generated region and bar_* keys; True when it was already up to date."""
     path = CREATURES / ("%s.md" % sid)
-    text = path.read_text(encoding="utf-8")
-    plan = PLANS[sid]()
+    text = orig = path.read_text(encoding="utf-8")
+    plan = all_plans()[sid]()
+    if BEGIN not in text:   # a note that has no generated region yet (a roster note, B56): open one at the end of its parts block
+        i = text.index("## Parts")
+        j = text.index("\n```\n", text.index("parts:", i))
+        text = text[:j + 1] + BEGIN + " (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)\n" + END + "\n" + text[j + 1:]
     a, b = text.index(BEGIN), text.index(END)
     head = text[a:text.index("\n", a) + 1]
     new = text[:a] + head + region(plan) + "\n" + text[b:]
     new = S.set_front(new, plan.front())
     c = S.counts(S.load_text(new, str(path)))   # blocks, triangles and height follow the parts (the build measures the real triangles)
     new = S.set_front(new, {"blocks": c["blocks"], "tris": c["tris"], "height": round(c["height"], 2)})
-    if write and new != text:
+    if write and new != orig:
         path.write_text(new, encoding="utf-8")
-    return new == text
+    return new == orig
 
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
-    stale = [sid for sid in PLANS if not apply(sid, write="--check" not in argv)]
+    plans = all_plans()
+    only = [a for a in argv if not a.startswith("--")]
+    ids = [sid for sid in plans if not only or sid in only]
+    stale = [sid for sid in ids if not apply(sid, write="--check" not in argv)]
     if "--check" in argv:
         if stale:
             print("pilots: out of date: %s (run python3 -I tools/blocky/pilots.py)" % ", ".join(stale))
             return 1
         print("pilots: up to date")
         return 0
-    print("pilots: wrote %s" % ", ".join(PLANS))
+    print("pilots: wrote %s" % ", ".join(ids))
     return 0
 
 
