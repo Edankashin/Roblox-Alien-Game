@@ -29,7 +29,25 @@ Worker CLEAN-A, 2026-10-22 ([[Clean-UI-Pass]] package A, [[UI-Playbook]] "Clean 
 8. Compass line. Walk near the camp with no marker: the diamond for the camp is on the strip and no line names it. Follow the tutorial's marker: the line names it ("Wreck Plate 40m"). After the tutorial a Warden sighting (`/sighting`) names "Warden" on the line; a cave diamond shows with no line.
 9. Phone shapes. Device emulator at iPhone SE and iPad: the goal plate, the chips and the stack under them stay inside the screen and clear of the radar column; every line is 14 px or more; no plate overlaps another.
 
+## The radar scroll (World 1 place)
+
+Worker RADAR-2, 2026-10-28 ([[Decisions]] B57, [[UI-Playbook]] "Radar column"; Mac job 74, default window). Ethan: the radar "looks very sloppy"; it should be one long rectangle, "almost like if you opened up a scroll vertically", the silhouettes on a white-ish background, "not everything has to be that gaming design". The rules of B52 hold (nearest first, a shadow until caught, no name, rarity or distance, Secrets never, slots per tier, Scanner Pulse); the look is new, and it replaces the chip and the square block slots of the "Radar column" section below. Pull, sync (Rojo) and keep the installed models; start from a profile that has finished the tutorial. One `screen_capture` per step to `media/studio/2026-10-28/radar-scroll-<step>-default.png` (under 1 MB each); the intent picture is `media/studio/2026-10-26/radar_scroll_mock.png`.
+
+1. Unrolls. With no radar the right edge holds only the chips and the Catch button. `/scrap 1500`, Shop, Gear, buy Radar Mk1. Pass: a cream scroll appears under the chips and opens from the top to its full height in about a third of a second (the lower roller travels down, the slots uncovered top-down); five slots tall.
+2. Plain paper. Pass: one tall rounded rectangle of cream paper with a thin dark edge, a slightly darker rolled end at the top and at the bottom, a soft shadow behind; no "Radar" chip or label, no block cells or grout, no frame round any slot, nothing tappable. Empty slots are blank paper.
+3. Silhouettes, nearest first. At the camp `/spawn Mossbop`, `/spawn Puffpuff`, `/spawn Sparkfox` and `/spawn Wisplet`, at clearly different distances (10, 30, 60, 90 studs). Pass: four silhouettes down the paper, the nearest at the top, equally spaced, each with a soft ground shadow under its feet, the fifth slot blank; no name, number or rarity colour. Take the camp screenshot with the four near.
+4. The order moves smoothly. Walk past one so two swap places. Pass: the two pictures fade out and in over about a fifth of a second, never pop, and the sheet does not jump.
+5. Shadow, then the face. An uncaught species is an all-black silhouette (no face, colour or glow); catch it (walk up, the Catch button). Pass: after the Reveal its slot fades to the real model in colour with the same ground shadow; a species already caught shows its model from the start.
+6. Rolls up and back. Open any panel (Menu, Shop) and start a catch. Pass: the scroll rolls up while it is open (the lower roller rises to the top) and unrolls again after. `/radar 2` (or buy Mk2 after `/world 2`): the sheet grows to seven slots smoothly. `/week off`, `/spawn Panpipe`: no slot for the Secret.
+7. Scanner Pulse. Use one from the power-up bar (with no radar first): the scroll opens to nine slots of this biome's aliens (some 150 studs or more away), ending clear of the Catch button; after the 60 s it rolls up (or shrinks to five slots with Mk1).
+8. Reduced Motion. Settings, Reduced Motion on: step 1 and step 4 again. Pass: the scroll appears and goes at once and the pictures change without a fade.
+9. Sizes. Default window, and iPhone SE (667x375) and iPad (1080x810) if reachable. Pass: the sheet is about 0.055 of the width (37 px at iPhone SE, 59 on an iPad), its silhouettes 20 px or more and still read as animals, it starts under the chip stack and the nine-slot sheet ends well above the Catch button.
+
+Log per step pass or fail with what you saw, above all (a) whether the silhouettes read as animals on the paper at about 20 px, (b) whether it looks calm and plain, (c) whether the unroll reads as a scroll, (d) the Catch button's clearance, (e) whether the viewport's fade shows the model through the paper or pops.
+
 ## Radar column (World 1 place)
+
+The look below (a dark "Radar" chip, square block slots) was replaced by the radar scroll above ([[Decisions]] B57); the listing rules and steps 3 to 7 still hold, read "slot" as a place on the scroll.
 
 Worker RADAR, 2026-10-22 ([[Decisions]] B52, [[UI-Playbook]] "Radar column"; Mac job 62, default window). Ethan: no map, no rarity; a column of shadows, nearest first. The minimap, the free Nearby panel, tap-to-waypoint, the Secret "???" ping with its heartbeat and the rare-nearby cue are gone. Pull, sync (Rojo) and keep the installed models. Start from a profile with no radar (`gear.radar` 0, a new test profile) that has finished the tutorial. One `screen_capture` per step to `media/studio/2026-10-22/radar-<step>-default.png` (under 1 MB each).
 
