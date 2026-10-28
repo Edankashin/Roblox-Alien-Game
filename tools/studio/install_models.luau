@@ -347,7 +347,7 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	Toastoad = { { "Body", "E8713A", 0.55, 0, 0 }, { "belly", "FFC94D", 0.55, 0, 0 }, { "bumpL", "E8713A", 0.55, 0, 0 }, { "bumpR", "E8713A", 0.55, 0, 0 }, { "pebbleR", "6E4A3C", 0.55, 0, 0 }, { "stoneL", "6E4A3C", 0.55, 0, 0 }, { "FacePlate", "E8713A", 0.4, 0, 0 } },
 	Twiglet = { { "Body", "9C6B3F", 0.55, 0, 0 }, { "antenna", "4A2E1A", 0.55, 0, 0 }, { "hat", "7FC94A", 0.55, 0, 0 }, { "twig", "9C6B3F", 0.55, 0, 0 }, { "FacePlate", "9C6B3F", 0.4, 0, 0 } },
 	Wisplet = { { "Body", "8FDCFF", 0.55, 0, 0 }, { "floatL", "8FDCFF", 0.55, 0, 0 }, { "floatR", "8FDCFF", 0.55, 0, 0 }, { "glass", "9466FF", 0.55, 0, 0 }, { "halo", "6E6A85", 0.55, 0, 0 }, { "tipR", "9466FF", 0.55, 0, 1.5 }, { "tongueL", "8FDCFF", 0.55, 0, 0 }, { "FacePlate", "8FDCFF", 0.4, 0, 0 } },
-	Zapfinch = { { "Body", "4FA8E8", 0.55, 0, 0 }, { "arc", "FFEE55", 0.55, 0, 1.5 }, { "crestL", "FFEE55", 0.55, 0, 1.5 }, { "crestR", "FFEE55", 0.55, 0, 1.5 }, { "tail", "23386B", 0.55, 0, 0 }, { "wingL", "FFEE55", 0.55, 0, 1.5 }, { "wingR", "FFEE55", 0.55, 0, 1.5 }, { "FacePlate", "4FA8E8", 0.4, 0, 0 } },
+	Zapfinch = { { "Body", "4FA8E8", 0.55, 0, 0 }, { "Glow", "FFEE55", 0.55, 0, 1.5 }, { "arc", "FFEE55", 0.55, 0, 1.5 }, { "bolts", "FFEE55", 0.55, 0, 0 }, { "crestL", "FFEE55", 0.55, 0, 1.5 }, { "crestR", "FFEE55", 0.55, 0, 1.5 }, { "tail", "23386B", 0.55, 0, 0 }, { "wingL", "FFEE55", 0.55, 0, 1.5 }, { "wingR", "FFEE55", 0.55, 0, 1.5 }, { "FacePlate", "4FA8E8", 0.4, 0, 0 } },
 }
 -- END PASTE
 
@@ -804,7 +804,9 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 		assetId = 102395774185067, cellMap = 120674569637136, faceMap = 140081956415430,
 		parts = {
 			{ name = "Body", hex = "4FA8E8", neon = false, map = "cell" },
+			{ name = "Glow", hex = "FFEE55", neon = true, map = "" },
 			{ name = "arc", hex = "FFEE55", neon = true, map = "" },
+			{ name = "bolts", hex = "FFEE55", neon = false, map = "cell" },
 			{ name = "crestL", hex = "FFEE55", neon = true, map = "" },
 			{ name = "crestR", hex = "FFEE55", neon = true, map = "" },
 			{ name = "tail", hex = "23386B", neon = false, map = "cell" },

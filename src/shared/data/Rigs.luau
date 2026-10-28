@@ -856,14 +856,15 @@ local species: { [string]: Types.RigRow } = {
 		},
 	},
 	Zapfinch = {
-		height = 3.5,
+		height = 3.458,
 		parts = {
-			{ name = "arc", pivot = { 0, 3.375, -0.8125 }, clips = { { kind = "pulse", amp = 0.2, period = 0.5, phase = 0, axis = "y" }, { kind = "bob", amp = 0.04, period = 0.7, phase = 0.3, axis = "y" } } },
-			{ name = "crestL", pivot = { -0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
-			{ name = "crestR", pivot = { 0.375, 2.625, -0.8125 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
-			{ name = "tail", pivot = { 0, 1.1875, 0.75 }, clips = { { kind = "wag", amp = 14, period = 2.6, phase = 0, axis = "y" } } },
-			{ name = "wingL", pivot = { -0.75, 1.25, 0 }, clips = { { kind = "flap", amp = -15, period = 1.2, phase = 0, axis = "z" } } },
-			{ name = "wingR", pivot = { 0.75, 1.25, 0 }, clips = { { kind = "flap", amp = 15, period = 1.2, phase = 0, axis = "z" } } },
+			{ name = "arc", pivot = { -0.0625, 3.3116, -0.8125 }, rest = { 0, 0, 10 }, clips = { { kind = "pulse", amp = 0.2, period = 0.5, phase = 0, axis = "y" }, { kind = "bob", amp = 0.04, period = 0.7, phase = 0.3, axis = "y" } } },
+			{ name = "bolts", pivot = { -0.0625, 1.55, 0 }, clips = { { kind = "spin", amp = 360, period = 18, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 2.4, phase = 0, axis = "y" } } },
+			{ name = "crestL", pivot = { -0.714, 2.4352, -0.8125 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = -8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "crestR", pivot = { 0.0246, 2.5654, -0.8125 }, rest = { 0, 0, 10 }, clips = { { kind = "sway", amp = 8, period = 2.4, phase = 0, axis = "z" }, { kind = "wag", amp = 6, period = 3, phase = 0.4, axis = "x" } } },
+			{ name = "tail", pivot = { -0.0625, 1.1875, 0.75 }, rest = { -35, 0, 0 }, clips = { { kind = "wag", amp = 14, period = 2.6, phase = 0, axis = "y" } } },
+			{ name = "wingL", pivot = { -0.8125, 1.25, 0 }, rest = { 0, 0, -45 }, clips = { { kind = "flap", amp = -15, period = 1.2, phase = 0, axis = "z" } } },
+			{ name = "wingR", pivot = { 0.6875, 1.25, 0 }, rest = { 0, 0, 45 }, clips = { { kind = "flap", amp = 15, period = 1.2, phase = 0, axis = "z" } } },
 		},
 		root = { { kind = "bob", amp = 0.05, period = 1.1, phase = 0, axis = "y" } },
 		face = {

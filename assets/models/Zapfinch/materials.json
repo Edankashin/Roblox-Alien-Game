@@ -11,7 +11,7 @@
   },
   {
     "slot": 2,
-    "name": "arc",
+    "name": "Glow",
     "hex": "FFEE55",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -19,7 +19,7 @@
   },
   {
     "slot": 3,
-    "name": "crestL",
+    "name": "arc",
     "hex": "FFEE55",
     "roughness": 0.55,
     "metallic": 0.0,
@@ -27,6 +27,24 @@
   },
   {
     "slot": 4,
+    "name": "bolts",
+    "hex": "FFEE55",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 0.0,
+    "colorMap": "Zapfinch_atlas.png",
+    "pixelated": true
+  },
+  {
+    "slot": 5,
+    "name": "crestL",
+    "hex": "FFEE55",
+    "roughness": 0.55,
+    "metallic": 0.0,
+    "emission": 1.5
+  },
+  {
+    "slot": 6,
     "name": "crestR",
     "hex": "FFEE55",
     "roughness": 0.55,
@@ -34,7 +52,7 @@
     "emission": 1.5
   },
   {
-    "slot": 5,
+    "slot": 7,
     "name": "tail",
     "hex": "23386B",
     "roughness": 0.55,
@@ -44,7 +62,7 @@
     "pixelated": true
   },
   {
-    "slot": 6,
+    "slot": 8,
     "name": "wingL",
     "hex": "FFEE55",
     "roughness": 0.55,
@@ -52,7 +70,7 @@
     "emission": 1.5
   },
   {
-    "slot": 7,
+    "slot": 9,
     "name": "wingR",
     "hex": "FFEE55",
     "roughness": 0.55,
@@ -60,7 +78,7 @@
     "emission": 1.5
   },
   {
-    "slot": 8,
+    "slot": 10,
     "name": "FacePlate",
     "hex": "4FA8E8",
     "roughness": 0.4,

@@ -110,13 +110,13 @@ def zapfinch():
     p = Plan("Verdant", "a songbird mid-song: the head cocked to its right, both wings flicked up, the tail cocked high, a ring of lit bolts and sparks round it")
     kit = K.place(P_["moss_cells"], "Moss", (0.375, 1.5, 0.75), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"})
     p.wear("# the Verdant kit: cream moss pads with a lit tuft on its back behind the wings' roots", kit, ["moss_cells"] * 2)
-    kit = K.place(P_["blossom_bud"], "Bud", (0.75, 2.5, 0.0), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Accessory"}, pose="head")
-    p.wear("# cream blossom buds on the crown's back corners (they turn with the cocked head)", kit, ["blossom_bud"] * 2)
-    sats = K.orbit([P_["bolt_zig"], P_["spark_ring"]] * 3, "Sat", (0, 0.25), 2.6, 1.55, tilt=0.15, moves="bolts", pivot=[0, 1.55, 0.25], start=math.radians(30),
+    kit = K.place(P_["blossom_bud"], "Bud", (0.75, 2.5, 0.0), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="head")
+    p.wear("# gold blossom buds on the crown's back corners (they turn with the cocked head)", kit, ["blossom_bud"] * 2)
+    sats = K.orbit([P_["bolt_zig"], P_["spark_ring"]] * 3, "Sat", (0, 0.25), 2.4, 1.55, tilt=0.15, moves="bolts", pivot=[0, 1.55, 0.25], start=math.radians(30),
                    lift=0.9, facing="front", drops=[0.375, 0, 0.375, 0, 0.375, 0], g=0.25)
     p.regions.append(("# the satellite set (`bolts`, one wide ring clear of the wings, the front low): three stepped bolts and three held sparks, all gold with a lit heart", sats))
     p.satellites, p.orbit = 6, "bolts"
     return p
 
 
-PLANS = {"Rocklobber": rocklobber}   # zapfinch() is drafted below but not applied to its note yet (BAR-W1 paused)
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch}
