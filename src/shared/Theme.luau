@@ -18,6 +18,8 @@ Theme.Colors = {
 	White = Color3.new(1, 1, 1),
 	Black = Color3.new(0, 0, 0),
 	StudStripe = Color3.fromHex("7CE977"),
+	Paper = Color3.fromHex("F4EEDC"), -- the radar scroll's sheet (Decision B57): calm cream paper, no game chrome
+	PaperRoll = Color3.fromHex("D9CCA6"), -- its rolled ends, a shade darker
 	ShopBackdrop = Color3.fromHex("6948B9"), -- the Shop's takeover ground: this violet at the top fading to Outline (navy) at the bottom
 }
 

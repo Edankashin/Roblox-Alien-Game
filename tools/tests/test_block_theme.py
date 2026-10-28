@@ -42,7 +42,6 @@ BLOCK_SCREENS = (
     "PowerUpBar.luau",
     "ReleasePanel.luau",
     "BuildScreen.luau",
-    "RadarColumn.luau",
     "CaptureBar.luau",
     "Reveal.luau",
 )

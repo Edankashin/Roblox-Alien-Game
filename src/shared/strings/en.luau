@@ -800,7 +800,6 @@ return {
 	COND_PHRASE_GravityFlip = "when gravity flips",
 	COND_PHRASE_Eclipse = "during an eclipse",
 	-- Radar column (Decision B52): the only word on it is its head; the slots are shadows and faces with no text
-	RADAR_COLUMN_TITLE = "Radar",
 	-- Scrap shop
 	SHOP_TITLE = "Shop",
 	-- The shelf (UI Playbook "Shop shelf"). Every string on a 120 px card is one line of at most 105 px at the 14 px floor, or two lines for a name.
