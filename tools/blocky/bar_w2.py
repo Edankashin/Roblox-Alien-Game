@@ -84,7 +84,43 @@ def reindazzle():
     return p
 
 
-PLANS = {"Reindazzle": reindazzle}
+# ------------------------------------------------------------------------------------------------ Shellberg (Floe), Rare
+def _pennant(flip):
+    def build(g, lite=False):
+        # an explorer's flag seven eighths of a stud across and seven eighths tall (the pennant on its own summit, planted six times round it): a dark
+        # pole on a dark foot, a lit cyan pennant between a dark top edge and a dark hem so the light has an outline on snow, and a one-step swallow-tail
+        # point; the same from both sides
+        z0, z1 = -0.125, 0.125
+        s = -1 if flip else 1
+
+        def bx(x0, x1, y0, y1, slot, mat=None):
+            a, b = sorted((s * x0, s * x1))
+            return _box(a, b, y0, y1, z0, z1, slot, mat)
+        return [bx(-0.125, 0, 0.125, 0.875, "BodyDark"), bx(-0.125, 0.125, 0, 0.125, "BodyDark"),
+                bx(0, 0.5, 0.75, 0.875, "BodyDark"), bx(0, 0.5, 0.5, 0.75, "Glow", "glow"), bx(0.5, 0.75, 0.5, 0.625, "Glow", "glow"),
+                bx(0, 0.5, 0.375, 0.5, "BodyDark")]
+    return build
+
+
+def shellberg():
+    """Rare, Frostbyte: an explorer on a summit. Silver snowflake studs on the dark flanks of its berg and a silver skirt round the berg's foot
+    (3 kit pieces and the stance), the head stretched out, tipped and turned to look at its own flag (a rest pose), and six cyan pennants on dark
+    poles in two rows up its sides (the flag it planted on its own summit, six times over; one lit colour, the sea line's)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a proud lookout: the neck stretched, the head tipped up 10 degrees and turned 18 to look at its own flag, six cyan pennants on dark poles standing out to its sides")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each dark flank of the berg",
+           K.place(Pz["snowflake_stud"], "Flake", (1.25, 0.875, 0.625), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    p.wear("# a silver skirt: a band a quarter stud tall and an eighth proud round the foot of the berg, over the flippers",
+           K.band("Skirt", (0, 0.5, 0.625), (2.5, 2.75), t=0.125, h=0.25, slot="Trim", material="metal"), ["silver_band"])
+    fr = own("pennant_r", "a cyan pennant on a dark pole, flying to its right", _pennant(False))
+    fl = own("pennant_l", "a cyan pennant on a dark pole, flying to its left", _pennant(True))
+    sats = arc([fr, fr, fr, fl, fl, fl], "Sat", (0, 0.5), 2.7, 0.95, [50, 90, 130, 230, 270, 310], "flags", [0, 1.3, 0.5], g=0.25, lift=0.4)
+    p.regions.append(("# the satellite set (`flags`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six pennants, a lit cyan flag in a dark frame on a dark pole and foot, seven eighths of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "flags"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg}
 
 
 def apply(sid, write=True):

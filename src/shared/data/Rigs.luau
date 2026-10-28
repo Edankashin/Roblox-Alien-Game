@@ -570,12 +570,13 @@ local species: { [string]: Types.RigRow } = {
 	Shellberg = {
 		height = 3,
 		parts = {
-			{ name = "dripL", pivot = { -1.6875, 1.875, 0.125 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "x" } } },
-			{ name = "flagL", pivot = { -1, 2.5, 0.3125 }, clips = { { kind = "sway", amp = -10, period = 2.4, phase = 0, axis = "z" } } },
-			{ name = "footL", pivot = { -0.875, 0.375, -0.625 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
-			{ name = "footR", pivot = { 1, 0.375, -0.625 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
-			{ name = "shardsR", pivot = { 0.9375, 2.875, 0.5 }, clips = { { kind = "spin", amp = 360, period = 6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.06, period = 2, phase = 0, axis = "y" } } },
-			{ name = "tail", pivot = { 0.0625, 0.8125, 1.875 }, clips = { { kind = "wag", amp = 20, period = 2.2, phase = 0, axis = "y" } } },
+			{ name = "dripL", pivot = { -1.75, 1.875, 0.3461 }, clips = { { kind = "sway", amp = 8, period = 3.2, phase = 0, axis = "x" } } },
+			{ name = "flagL", pivot = { -1.0625, 2.5, 0.5336 }, clips = { { kind = "sway", amp = -10, period = 2.4, phase = 0, axis = "z" } } },
+			{ name = "flags", pivot = { 0, 1.3, 0.5961 }, clips = { { kind = "wag", amp = 25, period = 7, phase = 0, axis = "y" }, { kind = "bob", amp = 0.05, period = 2.6, phase = 0, axis = "y" } } },
+			{ name = "footL", pivot = { -0.9375, 0.375, -0.4039 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "footR", pivot = { 0.9375, 0.375, -0.4039 }, clips = { { kind = "sway", amp = 10, period = 2.8, phase = 0, axis = "x" } } },
+			{ name = "shardsR", pivot = { 0.875, 2.875, 0.7211 }, clips = { { kind = "spin", amp = 360, period = 6, phase = 0, axis = "y" }, { kind = "bob", amp = 0.06, period = 2, phase = 0, axis = "y" } } },
+			{ name = "tail", pivot = { 0, 0.8125, 2.0961 }, clips = { { kind = "wag", amp = 20, period = 2.2, phase = 0, axis = "y" } } },
 		},
 		root = { { kind = "squash", amp = 0.03, period = 4.5, phase = 0, axis = "y" } },
 		face = {
@@ -595,6 +596,7 @@ local species: { [string]: Types.RigRow } = {
 				{ part = "dripL", kind = "swish", amp = -15, axis = "z", at = 0.6, length = 1.2 },
 				{ part = "tail", kind = "swish", amp = 25, axis = "z", at = 0.8, length = 1 },
 				{ part = "shardsR", kind = "pop", amp = 0.3, axis = "y", at = 1.4, length = 1 },
+				{ part = "flags", kind = "pop", amp = 0.3, axis = "y", at = 0.6, length = 1 },
 			},
 		},
 	},
