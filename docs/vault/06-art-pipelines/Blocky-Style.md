@@ -346,6 +346,33 @@ The satellites are the kit's `leaf_blade` and `frost_shard` plus each alien's ow
 | Check a pale piece on the world's own ground (snow, grass) | Judge a Frostbyte alien on a cream roster sheet |
 | Move the face plate with a head that moves | Tilt a mass (rule 1: only appendages tilt) |
 
+## World 1 bar notes (2026-10-26 and 28, BAR-W1, [[Decisions]] B54 to B56)
+
+The nine Rare-and-up aliens of World 1, each its own commit on the pilots' machinery (`tools/blocky/bar_w1.py` holds the plans and the aliens' own satellite pieces; `kits.py` and `pilots.py` are the pilots'). Sheets: `media/studio/2026-10-26/bar_w1_v1.jpg` (before and after, front, three-quarter and the 16-stud strip) and `bar_w1_faces.jpg` (each face straight on at 3 studs, before and after: no face was changed, the cock of a head does the new expression). Every alien has its prompt list under "Character bar (B54)" in its Creature note. What each gained, one line:
+
+| Alien | Tier | Gains | Stance (rest groups) | Blocks, triangles |
+|---|---|---|---|---|
+| [[Rocklobber]] (Boulden) | Rare | six amber and gold satellites (three open geodes, three cairns), a gold championship belt, moss pads and a vine | right boulder hoisted, left swung low (`clawR`, `clawL`) | 109, 1,336 |
+| [[Zapfinch]] (Zirrit) | Rare | six gold satellites (three stepped bolts, three held sparks), cream moss pads and gold buds | head cocked 10, wings flicked up, tail cocked (`head`, `wing`, `tail`) | 85, 1,202 |
+| [[Sparkfox]] (Vixa) | Rare | six cream, gold and amber satellites (three paint splats, three paint tins), a gold girth, gold buds | head cocked toward the palette, right forepaw lifted, brush tail raised (`head`, `foreR`, `tail`) | 84, 1,166 |
+| [[Wisplet]] (Wispkin) | Rare | six lit lilac satellites (three iron-framed panes, three hanging lanterns) on the old `glass` ring, moss pads, a vine | flame leaning, trail swept (`flame`, `trail`) | 71, 900 |
+| [[Thunderhog]] (Voltus) | Epic | six satellites (three storm batteries, three thunderclouds), six kit pieces (moss, buds, vine, a second gold girth) | head cocked, right foreleg pawing, tail up (`head`, `foreR`, `tail`) | 120, 1,582 |
+| [[Gloomoth]] (Iridia) | Epic | six satellites (three little moths, three moonflowers), five kit pieces (moss, buds, a gold girth) | wings lifted, head cocked, abdomen curled (`wing`, `head`, `abd`) | 120, 1,658 |
+| [[Spookum]] (Grin) | Epic | six satellites on the old `candles` ring (three haunted candles, three jack-o'-lanterns), five kit pieces (moss, buds, a brass belt) | the sheet leaning, the hem twisted (`lean`, `trail`) | 130, 1,658 |
+| [[Gaiabloom]] (Gaira) | Legendary | a 3-stud turning bloom backdrop (gold rim, moss wreath, bark heart, eight lit pink petals), seven satellites (four glass tulips, three gilded seeds), ten kit pieces (moss, buds, sap, four gold cuffs) | head lifted, right foreleg raised, tail cocked (`head`, `foreR`, `tail`) | 245, 3,024 |
+| [[Nebulyn]] (Cosmoo) | Legendary | a planet-and-ring backdrop rising behind the cloud, six satellites (three four-point stars, three mini ringed planets), seven kit pieces (buds, moss, two gold bands) | the cloud leaning, the tail swept (`lean`, `sweep`) | 165, 2,118 |
+
+What the nine taught, beyond the pilots' lessons:
+
+- **A satellite piece has to read as the thing it is at 0.75 stud.** A flame on a deep blue base read as a cupcake, a lavender puff on a thin stem as a mushroom, a pot with a rim wider than its body as a mushroom again: the fixes were a hanging lantern, a straight-sided tin and a puffed cloud over a fat two-step bolt. If a piece could be a food, change its silhouette before its colour.
+- **Satellites in the world's ground colours die.** Green leaves on green grass vanish (the Gaira ring uses pink glass tulips with a gold seed between), so a Verdant ring is gold, cream, pink, violet or orange, never moss. Pale cream stars on a white studio floor are weak too: the north star is gold round a cream core.
+- **A rest pose swings pivots, and the rig key follows.** A moving object whose pivot lands off x = 0 is renamed with a side suffix (`arc` became `arcL` under a head cock, `stem` `stemL`, `puff` `puffL`). Data names part keys: `Effects.Pieces` named `arc`, so the arc's authored pivot is pre-solved (x 0.418777) to land on 0 after the swing. Check `./tools/test.sh` (the effects lint) after every posed note.
+- **Tilt does not compose into the authored 10 to 25.** A part that should lean with a head carries no tilt of its own (the Sparkfox beret was 15 and became a floating plank at 25), and a rolled hem sinks under the ground (a 10-degree roll about the waist dipped 0.18: yaw it).
+- **The height ceiling decides the pose.** A cocked head lifts the antenna tips (Voltus reached 3.62 at 12 degrees: 8 degrees and a 0.1 move), a raised moth wing reached 3.53 at 18 (12), a leaning comet's tail 3.54 (the comet keeps its own orbit). Measure the tallest part after every pose.
+- **A satellite ring behind a solid backdrop is hidden.** Gaira's ring (radius 2.3) keeps its back in front of the bloom's face; Cosmoo is wider (3.2) than the 3-stud backdrop the rule names, so its planet sits high and its ring is wider than the cloud: only a cap and the ring's two ends show, which reads as a planet behind a cloud.
+- **Replace, do not add, when an alien already has a ring.** Wispkin's four panes, Grin's three candles and the Cosmoo comet were already a moving ring: the new set took the old object's name (`glass`, `candles`) so `Effects.Pieces` still hang on it. Rigs, ModelAssets and the installer are regenerated by `export_models.py`, `rigs.py` and `upload_assets.py --fill-blocky`.
+- **`test_blocky_sheet` pinned Voltus's height** (3.375, now 3.45): a test that pins a species' number breaks when the bar changes the pose.
+
 ## Cells: every face is made of little blocks
 
 2026-10-17, after the seven-rung ladder, Ethan: "I think the character designs should be made up of little blocky texture. Let's try that. And make that consistent throughout the whole game." That is [[Decisions]] B44. Every face of every block carries a texture of small square cells, the same rules on creatures, ground and props, so creature and world read as one (his references: the voxel-brick ground of ZPL8MtkYu and the cube-cell creatures of ZPLSHwXqp in `media/tiktok/NOTES.md`). The cells are a texture, not geometry: a creature keeps its blocks and triangles. `tools/blocky/cells.py` holds every number below and makes the texture; `tools/blender/blocky_build.py` box-projects every face onto it. The rules replace B41's "flat colour" for creature surfaces; B41's ban on grain stands, and these rules are how it is kept.
