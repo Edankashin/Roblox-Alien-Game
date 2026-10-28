@@ -12,6 +12,7 @@ Theme.Colors = {
 	Confirm = Color3.fromHex("51DF51"),
 	Close = Color3.fromHex("FF4D4D"),
 	Select = Color3.fromHex("68C9FE"),
+	Robux = Color3.fromHex("FF7A1A"), -- any button whose price is Robux (UI richness pass, button colour roles): clear of Legendary F59E0B
 	Featured = Color3.fromHex("FFC83D"),
 	Heading = Color3.fromHex("FFEF4A"),
 	Codex = Color3.fromHex("A855F7"),
@@ -98,6 +99,12 @@ Theme.Block = {
 	PanelCell = 0.04, -- a modal panel's cell (Builder.blockPanelRows): twice Cell, as the world's cell is twice a creature's (C1)
 	Trough = Color3.fromHex("2A2F55"), -- a dark plate's face (the Scrap plate, the ship bar's trough, the idle Friend chip): the ink a step up
 	Layer = { Ink = 0, Fill = 1, Bar = 2, Cells = 3, Content = 4 },
+	-- A panel's header band (UI richness pass, Builder.panelHeader), all fractions: Pad the band's side margin, of the panel's width;
+	-- Icon the icon block, Pill a status pill's height and Close the X's size, of the band's height; PillPad a pill's text margin at each
+	-- side and PillCorner its softly rounded corner, of the pill's height; PillGap the space between pills and TitleGap the one before the
+	-- title, of the panel's width; CloseOverlap how much of the X hangs over the band's right end, of the X's width; TitleStep the
+	-- title's text, of the band's height. One line on purpose (tools/tests/test_block_theme.py reads this block line by line).
+	Band = { Pad = 0.015, Icon = 0.7, Pill = 0.56, Close = 0.8, PillPad = 0.5, PillCorner = 0.2, PillGap = 0.012, TitleGap = 0.012, CloseOverlap = 0.25, TitleStep = 0.72 },
 	MaxCells = 6000, -- a grid of more cells draws as an edged block (BlockMath.WithinBudget): a whole 21:9 screen at the HUD cell is about 5,600; the start-up measurement asked for millions
 	FitBudget = 0.004, -- seconds of fitted-plate measuring and redrawing per frame; the rest waits for the next frame (Builder fitPlate)
 }

@@ -159,7 +159,9 @@ class QuietHud(unittest.TestCase):
         self.assertNotIn("Caption", source("src/client/UI/PowerUpBar.luau"))
 
     def test_the_new_strings_sit_after_their_anchor(self):
-        self.assertRegex(self.strings, r'TUT_PROGRESS = "%d/%d",\s+HUD_EVENT_LINE = ')
+        # The anchor line is TUT_PROGRESS; the UI richness pass (package A) appends its own block directly after it, so the Hud's lines
+        # follow the anchor, not necessarily the very next line.
+        self.assertRegex(self.strings, r'TUT_PROGRESS = "%d/%d",\s+(?:[^\n]*\n\s*)*?HUD_EVENT_LINE = ')
 
     def test_the_hud_keeps_strings_and_numbers_out_of_logic(self):
         # Scale only, and the layout numbers come from data/Hud
