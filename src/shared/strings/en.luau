@@ -751,7 +751,6 @@ return {
 	-- Aliens screen
 	ALIENS_TITLE = "Your Aliens",
 	ALIENS_EMPTY = "Catch an alien and it will work here",
-	ALIENS_COUNT_CAP = "Aliens: %s / %s", -- owned records over the storage cap (data/Storage)
 	-- the Storage Bay button on the Aliens screen and its toasts (data/Storage Bay)
 	STORAGE_BAY_BUY = "+%s storage: %s Scrap", -- the next level: the storage it adds and its price
 	STORAGE_BAY_NEEDS_WORLD = "+%s storage: reach World %d", -- the next level waits for a world
@@ -764,9 +763,6 @@ return {
 	ALIENS_SPEED = "x%s",
 	ALIENS_LEVEL = "Lv %d", -- a fused copy's level chip (level 1 shows nothing)
 	-- companions (data/Companions)
-	ALIENS_FOLLOWING = "Following",
-	ALIENS_TAP_FOLLOW = "Tap to follow",
-	ALIENS_COMPANIONS = "Companions %d/%d",
 	ALIENS_PERKS = "Perks: %s",
 	ALIENS_PERKS_NONE = "Perks: none yet",
 	ALIENS_PERK_SEPARATOR = ", ", -- between the perks on the perks line
@@ -821,13 +817,9 @@ return {
 	STATION_EMPTY_SLOT = "Open",
 	-- Codex screen
 	CODEX_TITLE = "Codex",
-	CODEX_PAGE = "%s: %d/%d",
 	CODEX_UNKNOWN = "???",
-	CODEX_FOUND = "Found: %s, %s",
 	CODEX_HINT = "Appears in the %s %s",
 	CODEX_CAUGHT = "Caught x%d",
-	CODEX_BEST = "Best: %s",
-	CODEX_BEST_DESC = "Best: %s. %s", -- the overlay's name, then its `desc` line (an overlay that has one)
 	CODEX_JOBS = "Jobs: %s",
 	CODEX_FIRST_CATCH = "First catch pays %s Scrap",
 	CODEX_SELECT = "Tap an alien to read about it",

@@ -7,6 +7,8 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local BlockMath = require(Shared.BlockMath)
 local HudData = require(Shared.data.Hud)
 local HudStages = require(Shared.HudStages)
+local Panels = require(Shared.data.Panels)
+local FeaturedMath = require(Shared.FeaturedMath)
 
 local CELL, INK, MIN_ROWS, GROUT, SEED = 0.02, 0.4, 3, 0.125, 44
 local PANEL_CELL = 0.04 -- Theme.Block.PanelCell: a modal panel's cell, twice CELL (tools/tests/test_block_theme.py checks both)
@@ -397,7 +399,12 @@ describe("Block screens: Aliens", function()
 			shell(screen, w, h, 0.84)
 		end)
 		it(label .. ": an alien card is ten rows of cells near the HUD's, eight frames, its chips a px of ink or more", function()
-			local card = 0.18 * ((1 - 2 * 0.02) * w - 6)
+			-- the grid is 0.64 of the panel beside the featured card (three columns of 0.31) or the whole 0.96 under a strip (five of 0.18)
+			local mode = FeaturedMath.Mode(w, h)
+			local cols, cellW = FeaturedMath.AliensGrid(mode)
+			local gridW = if mode == "side" then Panels.Featured.Side.GridW else Panels.Featured.Wide.W
+			assert(cols == (if mode == "side" then 3 else 5), "the columns follow the mode")
+			local card = cellW * (gridW * w - 6)
 			local cardGrid = BlockMath.Grid(1, 10, INK)
 			local cell = card * cardGrid.cellY
 			assert(cell >= 6 and cell <= 17, "card cell is " .. cell .. " px")
@@ -409,12 +416,13 @@ describe("Block screens: Aliens", function()
 end)
 
 describe("Aliens header and grid", function()
-	-- AliensScreen.luau "Panel layout" (Studio 2026-10-22, second run: one row of cards at the default window). The panel 0.8 x 0.84
-	-- at 1.35; down it the strip, the grid (five cards of 0.18 of its width with 0.02 between, a 6 px bar), the footer's button row
-	-- and the info line, none over another and the last clear of the panel's edge; the grid is two rows of cards tall.
-	local STRIP_Y, STRIP_H, GRID_Y, GRID_H = 0.158, 0.195, 0.358, 0.50
+	-- AliensScreen.luau "Panel layout" and data/Panels.Featured.Aliens. The panel 0.8 x 0.84 at 1.35 (the band fills its top 0.16);
+	-- down it the station strip, then the featured card beside the grid (the side mode, a panel of 620 by 330 px or more) or the card as a
+	-- strip over the grid (the strip mode), the footer's button row and the info line, none over another and the last clear of the
+	-- panel's edge.
+	local A = Panels.Featured.Aliens
+	local W = Panels.Featured.Wide
 	local FOOTER_Y, FOOTER_H, INFO_Y, INFO_H = 0.864, 0.072, 0.939, 0.041
-	local CELL_W, CELL_GAP = 0.18, 0.02
 	local BAY_W, TOKEN_W, FUSE_W, OPTIMIZE_W, FOOTER_GAP, MARGIN = 0.38, 0.21, 0.165, 0.175, 0.01, 0.02
 	-- Widths at the 14 px floor in Fredoka One: "+20 storage: 2,500 Scrap", "Use Token (1)", "Optimize".
 	local BAY_PX, TOKEN_PX, OPTIMIZE_PX = 156, 86, 57
@@ -426,25 +434,37 @@ describe("Aliens header and grid", function()
 		{ name = "844x390", w = 844, h = 390 },
 		{ name = "1920x1080", w = 1920, h = 1080 },
 	}
-	it("the strip, the grid, the buttons and the info line stand one under another inside the panel", function()
-		assert(STRIP_Y >= 0.155, "the strip starts under the close button")
-		assert(STRIP_Y + STRIP_H <= GRID_Y, "strip over grid")
-		assert(GRID_Y + GRID_H <= FOOTER_Y, "grid over buttons")
+	it("the strip, the card, the grid, the buttons and the info line stand one under another inside the panel, in both modes", function()
+		assert(A.StationY >= 0.16, "the strip starts under the band")
+		assert(A.StationY + A.StationH <= A.SideTop, "side mode: strip over the card and the grid")
+		assert(A.Bottom <= FOOTER_Y, "side mode: the grid over the buttons")
+		assert(A.StationY + A.StationH <= A.StripTop, "strip mode: stations over the card")
+		assert(A.StripTop + A.StripH <= A.StripGridTop, "strip mode: card over the grid")
+		assert(A.StripGridTop < A.Bottom, "strip mode: the grid has a window")
 		assert(FOOTER_Y + FOOTER_H <= INFO_Y, "buttons over info line")
-		assert(INFO_Y + INFO_H <= 1 - MARGIN + 1e-9, "the info line is clear of the panel's edge")
-		assert(MARGIN + BAY_W + FOOTER_GAP <= 1 - MARGIN - OPTIMIZE_W - FOOTER_GAP - FUSE_W - FOOTER_GAP - TOKEN_W + 1e-9, "Bay under the token button")
+		assert(INFO_Y + INFO_H <= 1 - MARGIN + EPS, "the info line is clear of the panel's edge")
+		assert(MARGIN + BAY_W + FOOTER_GAP <= 1 - MARGIN - OPTIMIZE_W - FOOTER_GAP - FUSE_W - FOOTER_GAP - TOKEN_W + EPS, "Bay under the token button")
 	end)
 	for _, screen in ipairs(screens) do
 		local w, h = BlockMath.FitPx(0.8, 0.84, 1.35, screen.w, screen.h)
-		it(screen.name .. ": two full rows of cards fit the grid, and each card is 70 px or more wide", function()
-			local gridW = (1 - 2 * MARGIN) * w
-			local cell = CELL_W * gridW -- layoutGrid: the cell's height is CELL_W of the grid's whole width
-			local gap = CELL_GAP * gridW
-			assert(2 * cell + gap <= GRID_H * h, "two rows are " .. 2 * cell + gap .. " px in " .. GRID_H * h)
-			assert(CELL_W * (gridW - 6) >= 70, "a card is " .. CELL_W * (gridW - 6) .. " px wide")
+		local mode = FeaturedMath.Mode(w, h)
+		it(screen.name .. " (" .. mode .. " mode): the grid shows the tiles it promises and each is 70 px or more wide", function()
+			local cols, cellW, gapW = FeaturedMath.AliensGrid(mode)
+			local gridW = (if mode == "side" then Panels.Featured.Side.GridW else W.W) * w
+			local gridTop = if mode == "side" then A.SideTop else A.StripGridTop
+			local window = (A.Bottom - gridTop) * h
+			local cell = cellW * gridW -- layoutGrid: the cell's height is its width of the grid's whole width
+			local gap = gapW * gridW
+			assert(cellW * (gridW - 6) >= 70, "a tile is " .. cellW * (gridW - 6) .. " px wide")
+			assert(cols * cellW + (cols - 1) * gapW <= 1 + EPS, "the columns fit the canvas")
+			if mode == "side" then
+				assert(window >= 1.5 * cell + gap, "the side grid shows " .. window .. " px, a row and a half is " .. 1.5 * cell + gap)
+			else
+				assert(window >= cell + gap + 0.3 * cell, "the strip grid shows " .. window .. " px: one row and a peek is " .. cell + gap + 0.3 * cell)
+			end
 		end)
-		it(screen.name .. ": the strip holds its three lines, the info line a 14 px line, and the buttons their words", function()
-			assert(STRIP_H * h >= 3 * 14 + 12, "strip is " .. STRIP_H * h .. " px")
+		it(screen.name .. ": the station strip holds its three lines, the info line a 14 px line, and the buttons their words", function()
+			assert(A.StationH * h >= 3 * 14 + 12, "strip is " .. A.StationH * h .. " px")
 			assert(INFO_H * h >= 12.5, "info line is " .. INFO_H * h .. " px")
 			assert(BAY_W * w >= BAY_PX and TOKEN_W * w >= TOKEN_PX and OPTIMIZE_W * w >= OPTIMIZE_PX + 12, "a footer button is too narrow")
 			assert(FUSE_W * w >= 60, "Fuse is " .. FUSE_W * w .. " px")
@@ -456,7 +476,25 @@ describe("Aliens header and grid", function()
 			local reach = math.max(0, (44 - face) / 2)
 			assert(FUSE_W * w >= 44 and OPTIMIZE_W * w >= 44 and TOKEN_W * w >= 44 and BAY_W * w >= 44, "a footer button is under 44 px wide")
 			assert(reach <= 12, "the hit area reaches " .. reach .. " px past the face")
-			assert(reach - (FOOTER_Y - (GRID_Y + GRID_H)) * h <= 10, "it overlaps the grid's last row by " .. reach .. " px")
+			assert(reach - (FOOTER_Y - A.Bottom) * h <= 10, "it overlaps the grid's last row by " .. reach .. " px")
+		end)
+		it(screen.name .. ": the featured card's lines fit their boxes at the 14 px floor and its buttons are reachable", function()
+			local c = Panels.Featured.Card
+			if mode == "side" then
+				local cardH = (A.Bottom - A.SideTop) * h
+				assert(c.Flavour * cardH >= 2 * 14, "the flavour box is " .. c.Flavour * cardH .. " px, two lines need 28")
+				assert(c.Tag * cardH >= 17, "the tag is " .. c.Tag * cardH .. " px, its 14 px word needs about 17")
+				assert(c.Name * cardH >= 20, "the name is " .. c.Name * cardH .. " px")
+				assert(c.Button * cardH >= 0.6 * TAP_MIN, "the button face is " .. c.Button * cardH .. " px (the hit area makes 44)")
+			else
+				local stripH = A.StripH * h
+				local s2 = Panels.Featured.StripCard
+				assert(stripH >= 44, "the strip is " .. stripH .. " px tall")
+				assert(s2.NameH * stripH >= 20, "the name row is " .. s2.NameH * stripH .. " px")
+				assert(s2.FlavourH * stripH >= 14, "the flavour row is " .. s2.FlavourH * stripH .. " px")
+				assert(s2.TagH * stripH >= 17, "the tag is " .. s2.TagH * stripH .. " px")
+				assert(s2.ButtonH * stripH >= 0.6 * TAP_MIN, "the button face is " .. s2.ButtonH * stripH .. " px (the hit area makes 44)")
+			end
 		end)
 	end
 end)
