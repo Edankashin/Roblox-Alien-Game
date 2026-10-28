@@ -187,7 +187,41 @@ def shimmerlynx():
     return p
 
 
-PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx}
+# ------------------------------------------------------------------------------------------------ Frostfang (Sabrek), Epic
+def _flake_big(g, lite=False):
+    # a snowflake seven eighths of a stud across, the same from both sides (the flake in its eyes, on its flanks and over its head, grown to fly round it): a
+    # lit cyan plus of bars an eighth thick and four diagonal dots, an eighth proud, over a dark navy plus and dots a sixteenth wider all round
+    lit, dark = 0.125, 0.0625
+    out = [_box(-0.4375, 0.4375, -0.125, 0.125, -dark, dark, "BodyDark", None), _box(-0.125, 0.125, -0.4375, 0.4375, -dark, dark, "BodyDark", None)]
+    out += [_box(x - 0.125, x + 0.125, y - 0.125, y + 0.125, -dark, dark, "BodyDark", None) for x in (-0.25, 0.25) for y in (-0.25, 0.25)]
+    out += [_box(-0.375, 0.375, -0.0625, 0.0625, -lit, lit, "Glow", "glow"), _box(-0.0625, 0.0625, -0.375, 0.375, -lit, lit, "Glow", "glow")]
+    out += [_box(x - 0.0625, x + 0.0625, y - 0.0625, y + 0.0625, -lit, lit, "Glow", "glow") for x in (-0.25, 0.25) for y in (-0.25, 0.25)]
+    return out
+
+
+def frostfang():
+    """Epic, Frostbyte: the sneezing cub in its play bow. Six kit pieces (silver cuffs a quarter stud tall on all four legs, silver snowflake studs on the
+    flanks), the head up and turned to look at you and the right paw batting (rest poses on top of the bow it already holds), and a flurry of six
+    snowflakes (the flake in its eyes, on its flanks and over its head, grown) in lit cyan over a dark navy outline, on a wide ring round it."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a play bow with attitude: the chest down and the rump up, the head up 8 degrees and turned 14 to look you over, the right paw batting, a flurry of six snowflakes round it")
+    p.wear("# the Frostbyte kit: a silver snowflake stud on each flank, where the stamped flake was",
+           K.place(Pz["snowflake_stud"], "Flake", (0.75, 1.0, 0.25), "+x", mirror=True, lite=True, scale=2), ["snowflake_stud"] * 2)
+    cuffs = K.band("CuffL", (-0.5, 0.375, -0.5), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    cuffs += K.band("CuffR", (0.5, 0.375, -0.5), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal", pose="bat")
+    p.wear("# silver cuffs on the front legs, a quarter stud tall and an eighth proud above the paws (the right one bats with its paw)", cuffs, ["silver_band"] * 2)
+    hind = K.band("HindCuff", (0.5, 0.5, 1.25), (0.375, 0.375), t=0.125, h=0.25, slot="Trim", material="metal")
+    for q in hind:
+        q["mirror"] = "x"
+    p.wear("# silver cuffs on the hind ankles, the same size", hind, ["silver_band"] * 2)
+    flake = own("flake_big", "a seven-eighths-stud snowflake: a lit cyan plus and four dots over a dark navy outline (a satellite)", _flake_big, "Epic")
+    sats = arc([flake] * 6, "Sat", (0, 0.0), 2.7, 1.3, [45, 85, 125, 235, 275, 315], "flurry", [0, 1.4, 0.0], g=0.125, lift=0.6)
+    p.regions.append(("# the satellite set (`flurry`, two rows of three standing out to its sides, the back higher, nothing in front of the face): six snowflakes, a lit cyan plus and four dots over a dark navy outline, seven eighths of a stud across, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "flurry"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble, "Shimmerlynx": shimmerlynx, "Frostfang": frostfang}
 
 
 def apply(sid, write=True):
