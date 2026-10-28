@@ -38,6 +38,8 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local VisitingData = require(Shared:WaitForChild("data"):WaitForChild("Visiting"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
 local Screens = require(script.Parent.Screens)
@@ -52,13 +54,13 @@ type Person = { userId: number, name: string, online: boolean, order: number }
 type Entry = { kind: "heading" | "line" | "row", text: string, h: number, person: Person?, chip: boolean }
 type FriendsState = "idle" | "loading" | "ready" | "failed"
 
--- Panel layout, as fractions of the panel (the Mailbox's size and place). The header tab straddles the top edge and
--- the close button reaches down to 0.155, so the list starts under it and takes the rest down to the margin.
+-- Panel layout, as fractions of the panel (the Mailbox's size and place). The header band (Builder.panelHeader) fills the top
+-- 0.149, so the list starts under it (Panels.Shell.BodyTop) and takes the rest down to the margin. The shell makes the panel taller,
+-- not wider: the aspect is the old 1.6 at the old height 0.78 held at the shell's.
 local PANEL_W = 0.8
-local PANEL_H = 0.78
-local PANEL_ASPECT = 1.6
-local HEADER_W = 0.4 -- "Visit a friend" is longer than "Mailbox"
-local LIST_Y = 0.13
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.6, 0.78, PANEL_H)
+local LIST_Y = Panels.Shell.BodyTop
 local LIST_BOTTOM = 0.97
 local SCROLLBAR_PX = 6 -- the thin dark bar's thickness; not a Size
 -- Heights in visible-list heights, and the gap after every element.
@@ -81,6 +83,7 @@ local localPlayer = Players.LocalPlayer
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): Redraw feeds its pill
 local scroller: ScrollingFrame? = nil
 local content: Frame? = nil
 local open = false
@@ -369,6 +372,19 @@ function VisitScreen.Redraw(leaving: Player?)
 		old:Destroy()
 	end
 	local entries, total = plan(leaving)
+	if header then
+		-- "Online n": the people on the list who are online, each counted once (a friend who is also in this server is one).
+		local seen: { [number]: boolean } = {}
+		local online = 0
+		for _, entry in ipairs(entries) do
+			local person = entry.person
+			if person and person.online and not seen[person.userId] then
+				seen[person.userId] = true
+				online += 1
+			end
+		end
+		header.setPills({ { online } })
+	end
 	local pages = math.max(1, total)
 	-- CanvasSize scales against the panel (the list's parent), not the list, so the pages are multiplied by the
 	-- list's share of it (UI-Rules.md); the children below are fractions of the canvas, which is `pages` lists tall.
@@ -427,17 +443,15 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.VISIT_TITLE, Theme.Colors.Select, Vector2.new(HEADER_W, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: blue, the Friends icon, the "Online n" pill (Redraw), the red X.
+	header = Builder.panelHeader(body, { panelId = "Visit", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		VisitScreen.Close()
 	end)
 

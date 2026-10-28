@@ -151,6 +151,13 @@ describe("Panels Shell and Headers", function()
 		assert(SHELL.Top + SHELL.Height <= 1, "the panel leaves the screen")
 		expect(SHELL.BandHeight).toEqual(0.13)
 	end)
+	it("starts a body under the band: the panel's ink plus the band's height is above BodyTop, and BodyTop leaves the panel its room", function()
+		local rows = BlockMath.Rows(SHELL.Height, PANEL_CELL, INK, MIN_ROWS)
+		local grid = BlockMath.Grid(1.3, rows, INK)
+		local bandBottom = BlockMath.Inner(grid).y + SHELL.BandHeight
+		assert(bandBottom < SHELL.BodyTop, "the band reaches " .. bandBottom .. ", the body starts at " .. SHELL.BodyTop)
+		assert(SHELL.BodyTop - bandBottom < 0.03, "more than a sliver of air under the band")
+	end)
 	it("gives every header a real title, real pill templates, a drawn icon and a colour with an accent", function()
 		local strings = Strings :: any
 		local count = 0

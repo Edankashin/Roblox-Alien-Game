@@ -32,8 +32,9 @@ Panels.Shell = {
 	Top = 0.10,
 	BandHeight = 0.13,
 	BodyTint = 0.12,
-	-- The first row of a body under the band: the band's height plus this gap, as a share of the panel's height.
-	BodyGap = 0.015,
+	-- Where a body's first row may start, as a share of the panel's height: under the band (the panel's ink, about 0.019, plus
+	-- BandHeight) with a little air. Every panel at the shell's height has 20 rows at the panel cell, so this is one number.
+	BodyTop = 0.16,
 	Accent = { Featured = "Select", Select = "Featured", Codex = "Featured", ShopBackdrop = "Featured" },
 }
 

@@ -29,6 +29,8 @@ local PlaytimeData = require(Shared:WaitForChild("data"):WaitForChild("Playtime"
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local PlaytimeMath = require(Shared:WaitForChild("PlaytimeMath"))
 local PanelQuiet = require(Shared:WaitForChild("PanelQuiet"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local RewardIcon = require(Shared:WaitForChild("RewardIcon"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
@@ -50,11 +52,11 @@ type Card = {
 }
 
 -- Panel layout, as fractions of the panel. The panel is wide (PANEL_ASPECT) so the row of cards reads on a phone: about
--- 88 x 175 px a card at iPhone SE size. The header tab straddles the top edge and the close button reaches down to
--- 0.155, so the cards start under it.
+-- 88 x 175 px a card at iPhone SE size. The header band (Builder.panelHeader) fills the top 0.149, so the cards start under it.
+-- The shell makes the panel taller, not wider: the aspect is the old 2 at the old height 0.78 held at the shell's.
 local PANEL_W = 0.92
-local PANEL_H = 0.78
-local PANEL_ASPECT = 2
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(2, 0.78, PANEL_H)
 local CARDS_Y = 0.19
 local CARDS_H = 0.6
 local CARD_GAP = 0.012 -- between two cards, of the panel width
@@ -72,6 +74,8 @@ local CLOCK_STEP = 1 -- seconds between two redraws of the countdowns while the 
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its pills
+local shownMinutes = -1 -- the minute the "Today" pill shows, so the once-a-second clock re-sets it only when it moves
 local cards: { Card } = {}
 local open = false
 local pending = false -- one claim in flight at a time
@@ -149,6 +153,22 @@ local function refreshCard(entry: Card, index: number)
 	end
 end
 
+-- The band's pills: minutes played today and the gifts claimed of the day's total.
+local function refreshPills()
+	if not header then
+		return
+	end
+	local claimedCount = 0
+	for index = 1, #gifts do
+		local key = PlaytimeMath.Key(index)
+		if state.claimed[key] == true or claimedLocal[key] == true then
+			claimedCount += 1
+		end
+	end
+	shownMinutes = math.floor(secondsNow() / 60)
+	header.setPills({ { shownMinutes }, { claimedCount, #gifts } })
+end
+
 local function refresh()
 	if not open then
 		return
@@ -156,6 +176,7 @@ local function refresh()
 	for index, entry in ipairs(cards) do
 		refreshCard(entry, index)
 	end
+	refreshPills()
 end
 
 -- Only the countdown lines: runs every CLOCK_STEP while the screen is open.
@@ -164,6 +185,9 @@ local function refreshTimes()
 		if entry.locked.Visible then
 			entry.left.Text = timeLeftText(index)
 		end
+	end
+	if math.floor(secondsNow() / 60) ~= shownMinutes then
+		refreshPills()
 	end
 end
 
@@ -380,19 +404,17 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, gold, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.PLAYTIME_TITLE, Theme.Colors.Featured, Vector2.new(0.3, 0.12))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: gold, the Playtime icon, "Today n min" and "Gifts n / m" pills (refreshPills), the red X.
+	header = Builder.panelHeader(body, { panelId = "Playtime", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		PlaytimeScreen.Close()
-	end, UDim2.fromScale(0.99, 0.02), Vector2.new(0.07, 0.14))
+	end)
 
 	-- The row of cards, side by side inside the 2% margin.
 	local count = #gifts

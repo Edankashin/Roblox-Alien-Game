@@ -25,6 +25,8 @@ local Types = require(Shared:WaitForChild("types"):WaitForChild("Types"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Mail = require(Shared:WaitForChild("data"):WaitForChild("Mail"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 local Builder = require(script.Parent.Builder)
 local Toast = require(script.Parent.Toast)
@@ -36,14 +38,14 @@ local MailScreen = {}
 -- One letter's row. Built once and refreshed in place; `uid` is the letter it shows now (nil while hidden).
 type Row = { slot: Frame, from: TextLabel, text: TextLabel, rewards: TextLabel, uid: string? }
 
--- Panel layout, as fractions of the panel. The header tab straddles the top edge and the close button reaches
--- down to 0.155, so the list starts under it; the Visitor Book takes the bottom. At iPhone SE height the list
--- holds two rows of about 70 px, enough for the "From" line, two lines of the letter's text and the rewards at
--- the minimum text size.
+-- Panel layout, as fractions of the panel. The header band (Builder.panelHeader) fills the top 0.149, so the list starts under it
+-- (Panels.Shell.BodyTop); the Visitor Book takes the bottom. At iPhone SE height the list holds two rows of about 70 px, enough for
+-- the "From" line, two lines of the letter's text and the rewards at the minimum text size. The shell makes the panel taller, not
+-- wider: the aspect is the old 1.6 at the old height 0.78 held at the shell's.
 local PANEL_W = 0.8
-local PANEL_H = 0.78
-local PANEL_ASPECT = 1.6
-local LIST_Y = 0.13
+local PANEL_H = Panels.Shell.Height
+local PANEL_ASPECT = PanelHeaderMath.ShellAspect(1.6, 0.78, PANEL_H)
+local LIST_Y = Panels.Shell.BodyTop
 local LIST_BOTTOM = 0.68
 local BOOK_Y = 0.7
 local BOOK_H = 0.26
@@ -69,6 +71,7 @@ local CLAIM_Y, CLAIM_H = 0.18, 0.64
 
 local gui: ScreenGui? = nil
 local panel: Frame? = nil
+local header: Builder.PanelHeader? = nil -- the band (Builder.panelHeader): refresh feeds its pills
 local scroller: ScrollingFrame? = nil
 local scrollLayout: UIListLayout? = nil
 local emptyLabel: TextLabel? = nil
@@ -142,6 +145,15 @@ local function refresh()
 		end
 	end
 	applyCanvas(shown)
+	if header then
+		local withRewards = 0
+		for _, letter in ipairs(mail) do
+			if #letter.rewards > 0 then
+				withRewards += 1
+			end
+		end
+		header.setPills({ { #mail }, { withRewards } })
+	end
 	local empty = emptyLabel
 	if empty then
 		empty.Visible = shown == 0
@@ -311,17 +323,15 @@ local function build()
 		aspect = PANEL_ASPECT,
 		rows = Builder.blockPanelRows(PANEL_H), -- a cream block plate at the panel cell (UI Playbook "Screens after the HUD")
 		quiet = true, -- one cream surface behind the text (Clean UI pass)
-		position = UDim2.fromScale(0.5, 0.55), -- below the HUD's top row; the header tab straddles the top edge
+		position = UDim2.fromScale(0.5, Panels.Shell.Top), -- below the Scrap pill, which ends at Top; the band is inside the panel
 		size = UDim2.fromScale(PANEL_W, PANEL_H),
-		anchor = Vector2.new(0.5, 0.5),
+		anchor = Vector2.new(0.5, 0),
 		zIndex = 2,
 	})
 	panel = body
 
-	-- Header tab straddling the top edge, sky blue, title in white outlined text.
-	Builder.blockHeader(body, PANEL_ASPECT, Strings.MAIL_TITLE, Theme.Colors.Select, Vector2.new(0.34, 0.11))
-
-	Builder.blockClose(body, PANEL_H, function()
+	-- The header band: blue, the Mail icon, "Letters n" and "To claim n" pills (refresh), the red X.
+	header = Builder.panelHeader(body, { panelId = "Mail", panelAspect = PANEL_ASPECT, panelHeight = PANEL_H }, function()
 		MailScreen.Close()
 	end)
 

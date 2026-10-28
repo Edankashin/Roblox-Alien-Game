@@ -22,6 +22,8 @@ local StrokeMath = require(Shared:WaitForChild("StrokeMath"))
 local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Overlays = require(Shared:WaitForChild("data"):WaitForChild("Overlays"))
+local Panels = require(Shared:WaitForChild("data"):WaitForChild("Panels"))
+local PanelHeaderMath = require(Shared:WaitForChild("PanelHeaderMath"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
 
 local Builder = {}
@@ -1498,6 +1500,477 @@ function Builder.blockClose(panel: Frame, panelHeight: number, onClose: () -> ()
 		hit = true,
 		zIndex = zIndex or Builder.blockTop(panel),
 	}, onClose)
+end
+
+-- Panel anatomy (UI richness pass, package A; docs/vault/05-ui-design/UI-Richness-Pass.md section 2) ---------------------------
+-- A header band with icon, title, status pills and the X; section strips; tile stamps; tier frames; button colour roles. The numbers
+-- are data/Panels (Shell, Headers, Roles, Stamps, TierFrames, Strip) and Theme.Block.Band; Shared/PanelHeaderMath does the arithmetic.
+-- principle 8: pills and strips are plain flat shapes (a softly rounded rectangle, one thin navy edge), everything pressed or
+-- collected keeps the block cells.
+
+local ICON_ROWS = 5 -- the rows of the flat block behind a header's icon
+
+export type HeaderSpec = {
+	panelId: string, -- a key of data/Panels.Headers
+	panelAspect: number, -- the panel's width over its height (the aspect its plate keeps)
+	panelHeight: number, -- the panel's height, a Scale of the screen
+}
+
+export type PanelHeader = {
+	band: Frame,
+	title: TextLabel,
+	setPills: ({ { any } }) -> (),
+	close: Frame,
+}
+
+local textWidths: { [string]: number } = {}
+
+-- A text's width in px at `size` in the theme's font (TextService), cached; a letter-count estimate when TextService cannot answer.
+local function measureText(text: string, size: number): number
+	local key = tostring(size) .. "|" .. text
+	local cached = textWidths[key]
+	if cached then
+		return cached
+	end
+	local ok, width = pcall(function(): number
+		return TextService:GetTextSize(text, size, Theme.Font, Vector2.new(10000, 10000)).X
+	end)
+	local px = if ok then width else #text * size * BADGE_FALLBACK_EM
+	textWidths[key] = px
+	return px
+end
+
+-- A colour named in the data: a Theme.Colors key, else a Theme.Rarity key; the main green when it names neither.
+local function namedColor(name: string): Color3
+	local colors: { [string]: Color3 } = Theme.Colors
+	local rarities: { [string]: Color3 } = Theme.Rarity
+	return colors[name] or rarities[name] or Theme.Colors.Confirm
+end
+
+-- `base` leaning `amount` (0 to 1) toward `toward`: a panel body faintly tinted toward its band, a Legendary card's face.
+function Builder.tint(base: Color3, toward: Color3, amount: number): Color3
+	return base:Lerp(toward, amount)
+end
+
+-- The colour of a button role (data/Panels.Roles: main, robux, current, select, close, featured), so no screen picks its own.
+function Builder.roleColor(role: string): Color3
+	return namedColor(Panels.Roles[role] or Panels.Roles.main)
+end
+
+-- The band colour of the panel `node` sits in (panelHeader sets it on the panel), or the grey when it sits in none.
+local function bandColorOf(node: Instance?): Color3
+	local at = node
+	while at do
+		local value = at:GetAttribute("BandColor")
+		if typeof(value) == "Color3" then
+			return value
+		end
+		at = at.Parent
+	end
+	return Theme.Rarity.Common
+end
+
+-- Runs `place` now and again whenever `frame`'s size changes, through the fitted plates' queue (one batch a frame).
+local function onResize(frame: GuiObject, place: () -> ())
+	frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		scheduleFit(place)
+	end)
+	place()
+end
+
+-- A softly rounded plain rectangle with one thin navy edge (principle 8): a status pill, a section strip, the count on a strip.
+local function plainPlate(parent: Instance, name: string, color: Color3, zIndex: number): Frame
+	local frame = Builder.frame({ parent = parent, name = name, color = color, zIndex = zIndex })
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(Theme.Block.Band.PillCorner, 0)
+	corner.Parent = frame
+	Builder.stroke(frame, Theme.Stroke.Text, Theme.Colors.Outline)
+	return frame
+end
+
+-- The panel header band (section 2): a full-width block plate inside the panel's ink in the screen's colour, `Panels.Shell.BandHeight`
+-- of the panel tall: the screen's pixel icon on a flat block, the title (white outlined Label text, never wrapped), the status pills
+-- at the right (setPills; pill 1 plain, pill 2 the accent; the last drop first when they do not fit) and the red X overlapping the
+-- band's right end. It also leans the panel's cream body toward the band's colour (Shell.BodyTint) and remembers the colour on the
+-- panel for the section strips. Colour, icon, title and the pills' templates are the row `Panels.Headers[spec.panelId]`.
+-- setPills({ { 34, 160 }, { 2, 4 } }) passes each pill's values (formatted by the row's template); an entry may carry `warn = true`
+-- (a red face) or `onTap` (the pill is a button with the 44 px hit area), and a missing entry hides its pill.
+function Builder.panelHeader(panel: Frame, spec: HeaderSpec, onClose: () -> ()): PanelHeader
+	local row = Panels.Headers[spec.panelId] or Panels.Headers.Settings
+	local shell = Panels.Shell
+	local metrics = Theme.Block.Band
+	local color = namedColor(row.color)
+	local accent = namedColor(shell.Accent[row.color] or "Featured")
+	local grid = blockGrid(panel)
+	local inner: BlockMath.Rect = if grid then BlockMath.Inner(grid) else { x = 0, y = 0, w = 1, h = 1 }
+	local bandHeight = shell.BandHeight
+	panel:SetAttribute("BandColor", color)
+	Builder.setBlockColor(panel, Builder.tint(Theme.Colors.Panel, color, shell.BodyTint))
+
+	local z = Builder.blockTop(panel)
+	local band = Builder.blockPlate({
+		parent = panel,
+		name = "Header",
+		color = color,
+		aspect = inner.w * spec.panelAspect / bandHeight,
+		rows = Theme.Block.MinRows,
+		position = UDim2.fromScale(inner.x, inner.y),
+		size = UDim2.fromScale(inner.w, bandHeight),
+		zIndex = z,
+	})
+	local top = Builder.blockTop(band)
+
+	-- The icon: a flat block a share of the band tall, the pixel icon inside it.
+	local iconBlock = Builder.blockPlate({
+		parent = band,
+		name = "IconBlock",
+		color = Builder.darker(color, 0.2),
+		aspect = 1,
+		rows = ICON_ROWS,
+		cells = false,
+		anchor = Vector2.new(0, 0.5),
+		position = UDim2.fromScale(0, 0.5),
+		size = UDim2.fromScale(0.1, metrics.Icon),
+		zIndex = top,
+	})
+	Builder.pixelIcon({
+		parent = iconBlock,
+		name = "Icon",
+		key = row.icon,
+		position = UDim2.fromScale(0.5, 0.5),
+		size = UDim2.fromScale(0.74, 0.74),
+		anchor = Vector2.new(0.5, 0.5),
+		zIndex = Builder.blockTop(iconBlock),
+	})
+
+	local title = Builder.label({
+		parent = band,
+		name = "Title",
+		text = Builder.text(row.title),
+		textSize = Theme.TextSize.Label,
+		position = UDim2.fromScale(0.15, 0.5),
+		size = UDim2.fromScale(0.5, metrics.TitleStep),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = top,
+	})
+	title.TextWrapped = false
+
+	-- The X: a square block button, `Close` of the band tall, its right end hanging `CloseOverlap` of its width past the band's (never
+	-- past the panel), vertically centred on the band.
+	local closeH = metrics.Close * bandHeight
+	local closeW = closeH / spec.panelAspect
+	local bandRight = inner.x + inner.w
+	local closeRight = math.min(1, bandRight + metrics.CloseOverlap * closeW)
+	local close = Builder.blockClose(
+		panel,
+		spec.panelHeight,
+		onClose,
+		UDim2.fromScale(closeRight, inner.y + (bandHeight - closeH) / 2),
+		Vector2.new(closeW, closeH),
+		z + 1
+	)
+
+	-- The pills: built once for the row's templates, filled and placed by setPills.
+	type Pill = { frame: Frame, label: TextLabel, hit: TextButton, tap: (() -> ())?, text: string, shown: boolean }
+	local pills: { Pill } = {}
+	for index = 1, #row.pills do
+		local frame = plainPlate(band, "Pill" .. index, if index == 1 then Theme.Block.Trough else accent, top)
+		frame.Visible = false
+		local label = Builder.label({
+			parent = frame,
+			name = "Text",
+			text = "",
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.9, 0.84),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = top + 1,
+		})
+		label.TextWrapped = false
+		local hit = Instance.new("TextButton")
+		hit.Name = "Hit"
+		hit.Text = ""
+		hit.AutoButtonColor = false
+		hit.BackgroundTransparency = 1
+		hit.BorderSizePixel = 0
+		hit.AnchorPoint = Vector2.new(0.5, 0.5)
+		hit.Position = UDim2.fromScale(0.5, 0.5)
+		hit.Size = UDim2.fromScale(1, 1)
+		hit.ZIndex = top + 3
+		hit.Visible = false
+		local floor = Instance.new("UISizeConstraint")
+		floor.MinSize = Vector2.new(Theme.TapMin, Theme.TapMin)
+		floor.Parent = hit
+		hit.Parent = frame
+		local pill: Pill = { frame = frame, label = label, hit = hit, tap = nil, text = "", shown = false }
+		hit.Activated:Connect(function()
+			local tap = pill.tap
+			if tap then
+				Builder.playSound(Sounds.Click)
+				tap()
+			end
+		end)
+		pills[index] = pill
+	end
+
+	-- Places the icon, the title and the pills from the band's own px size (its UIScale taken out, so the open tween does not move
+	-- a pill in and out). Pills drop from the last when the title and they do not fit (PanelHeaderMath.Fit); the title never wraps.
+	local function place()
+		local size = band.AbsoluteSize
+		local scale = 1
+		local uiScale = panel:FindFirstChildOfClass("UIScale")
+		if uiScale and uiScale.Scale > 0 then
+			scale = uiScale.Scale
+		end
+		local bandW, bandH = size.X / scale, size.Y / scale
+		if bandW <= 0 or bandH <= 0 then
+			local camera = workspace.CurrentCamera
+			local screen = if camera then camera.ViewportSize else Vector2.new(1154, 663)
+			bandH = bandHeight * spec.panelHeight * screen.Y
+			bandW = inner.w * spec.panelAspect * spec.panelHeight * screen.Y
+		end
+		local panelW = bandW / inner.w
+		local pad = metrics.Pad * panelW
+		local iconPx = metrics.Icon * bandH
+		iconBlock.Size = UDim2.fromScale(iconPx / bandW, metrics.Icon)
+		iconBlock.Position = UDim2.fromScale(pad / bandW, 0.5)
+		local titleX = pad + iconPx + metrics.TitleGap * panelW
+		local hang = (closeW - (closeRight - bandRight)) * panelW -- how much of the band's right end the X covers
+		local pillsRight = bandW - hang - metrics.PillGap * panelW
+		local pillH = metrics.Pill * bandH
+		local pillText = math.clamp(0.7 * pillH, Theme.TextSize.Min, Theme.TextSize.Body)
+		local titleText = math.clamp(0.6 * bandH, Theme.TextSize.Min, Theme.TextSize.Label)
+		local titlePx = measureText(title.Text, titleText)
+		local wanted: { number } = {}
+		local indexes: { number } = {}
+		for index, pill in ipairs(pills) do
+			if pill.shown then
+				table.insert(indexes, index)
+				table.insert(wanted, PanelHeaderMath.PillWidth(measureText(pill.text, pillText), pillH, metrics.PillPad))
+			end
+		end
+		local gap = metrics.PillGap * panelW
+		local fits = PanelHeaderMath.Fit(pillsRight - titleX, titlePx, wanted, gap)
+		local right = pillsRight
+		for slot = #indexes, 1, -1 do
+			local pill = pills[indexes[slot]]
+			if slot > fits then
+				pill.frame.Visible = false
+				continue
+			end
+			local width = wanted[slot]
+			pill.frame.Visible = true
+			pill.frame.AnchorPoint = Vector2.new(1, 0.5)
+			pill.frame.Position = UDim2.fromScale(right / bandW, 0.5)
+			pill.frame.Size = UDim2.fromScale(width / bandW, metrics.Pill)
+			pill.label.Size = UDim2.fromScale(1 - metrics.PillPad * pillH / width, 0.84)
+			right -= width + gap
+		end
+		for _, pill in ipairs(pills) do
+			if not pill.shown then
+				pill.frame.Visible = false
+			end
+		end
+		title.Position = UDim2.fromScale(titleX / bandW, 0.5)
+		title.Size = UDim2.fromScale(math.max(0.1, (right - titleX) / bandW), metrics.TitleStep)
+	end
+	onResize(band, place)
+
+	local function setPills(values: { { any } })
+		for index, pill in ipairs(pills) do
+			local entry = values[index]
+			if entry == nil then
+				pill.shown = false
+				pill.tap = nil
+				continue
+			end
+			local fields = entry :: any
+			local text = PanelHeaderMath.Format(Builder.text(row.pills[index]), entry)
+			pill.shown = true
+			pill.text = text
+			pill.label.Text = text
+			pill.frame.BackgroundColor3 = if fields.warn == true then Theme.Colors.Close elseif index == 1 then Theme.Block.Trough else accent
+			local tap = fields.onTap
+			pill.tap = if type(tap) == "function" then tap :: () -> () else nil
+			pill.hit.Visible = pill.tap ~= nil
+		end
+		scheduleFit(place)
+	end
+
+	return { band = band, title = title, setPills = setPills, close = close }
+end
+
+-- A section strip (section 2): a plain flat plate, full width, in the band's colour a step darker, the label in outlined caps at the
+-- left and an optional count pill ("7 / 7 owned", "Rare 3 / 4") at the right. It replaces the centred "- FEATURED -" headings. The
+-- caller sets Position (or LayoutOrder) and, in a list, Size; the default is the full width at `Panels.Strip.Height` of the body.
+-- The band's colour is read from the panel it sits in (panelHeader), or `color` when given.
+function Builder.sectionStrip(body: Instance, text: string, count: string?, color: Color3?): Frame
+	local strip = Panels.Strip
+	local face = Builder.darker(color or bandColorOf(body), strip.Darken)
+	local frame = plainPlate(body, "Strip_" .. text, face, 2)
+	frame.Size = UDim2.fromScale(1, strip.Height)
+	local label = Builder.label({
+		parent = frame,
+		name = "Label",
+		text = string.upper(Builder.text(text)),
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(strip.Pad, 0.5),
+		size = UDim2.fromScale(0.6, 0.84),
+		anchor = Vector2.new(0, 0.5),
+		xAlign = Enum.TextXAlignment.Left,
+		zIndex = 4,
+	})
+	label.TextWrapped = false
+	if count and count ~= "" then
+		local pill = plainPlate(frame, "Count", Theme.Block.Trough, 4)
+		pill.AnchorPoint = Vector2.new(1, 0.5)
+		local countLabel = Builder.label({
+			parent = pill,
+			name = "Text",
+			text = count,
+			textSize = Theme.TextSize.Body,
+			position = UDim2.fromScale(0.5, 0.5),
+			size = UDim2.fromScale(0.9, 0.84),
+			anchor = Vector2.new(0.5, 0.5),
+			zIndex = 5,
+		})
+		countLabel.TextWrapped = false
+		onResize(frame, function()
+			local size = frame.AbsoluteSize
+			if size.X <= 0 or size.Y <= 0 then
+				pill.Position = UDim2.fromScale(1 - strip.Pad, 0.5)
+				pill.Size = UDim2.fromScale(0.25, strip.CountHeight)
+				return
+			end
+			local pillH = strip.CountHeight * size.Y
+			local textPx = measureText(count, math.clamp(0.7 * pillH, Theme.TextSize.Min, Theme.TextSize.Body))
+			local width = PanelHeaderMath.PillWidth(textPx, pillH, strip.CountPad)
+			pill.Position = UDim2.fromScale(1 - strip.Pad, 0.5)
+			pill.Size = UDim2.fromScale(width / size.X, strip.CountHeight)
+		end)
+	end
+	return frame
+end
+
+-- A tile's state stamp (section 2 "Tile states"): a flat block chip across the card's bottom edge, `Panels.StampHeight` of its height,
+-- 14 px caps, the word with its pixel icon, one at a time (a new kind replaces the old one; nil or an unknown kind clears it).
+-- Returns the chip, or nil when there is none. `kind` is a key of data/Panels.Stamps.
+function Builder.stamp(card: Frame, kind: string?): Frame?
+	local old = card:FindFirstChild("Stamp")
+	if old then
+		old:Destroy()
+	end
+	local row = if kind then Panels.Stamps[kind] else nil
+	if not row then
+		return nil
+	end
+	local grid = blockGrid(card)
+	local inkX = if grid then grid.inkX else 0
+	local inkY = if grid then grid.inkY else 0
+	local chip = Builder.blockPlate({
+		parent = card,
+		name = "Stamp",
+		color = namedColor(row.color),
+		cells = false,
+		anchor = Vector2.new(0.5, 1),
+		position = UDim2.fromScale(0.5, 1 - inkY),
+		size = UDim2.fromScale(1 - 2 * (inkX + Panels.StampInset), Panels.StampHeight),
+		zIndex = Builder.blockTop(card) + 2,
+	})
+	local top = Builder.blockTop(chip)
+	local textLeft = 0.06
+	if row.icon ~= "" then
+		local icon = Builder.pixelIcon({
+			parent = chip,
+			name = "Icon",
+			key = row.icon,
+			position = UDim2.fromScale(0.05, 0.5),
+			size = UDim2.fromScale(0.25, 0.8),
+			anchor = Vector2.new(0, 0.5),
+			zIndex = top,
+		})
+		if icon then
+			textLeft = 0.3
+		end
+	end
+	local label = Builder.label({
+		parent = chip,
+		name = "Text",
+		text = Builder.text(row.word),
+		textSize = Theme.TextSize.Min,
+		position = UDim2.fromScale(textLeft, 0.5),
+		size = UDim2.fromScale(0.96 - textLeft, 0.84),
+		anchor = Vector2.new(0, 0.5),
+		zIndex = top,
+	})
+	label.TextWrapped = false
+	return chip
+end
+
+local STUD_NAME = "Stud"
+local STUD_HOOKED = "TierHooked"
+local TIER_BASE = "TierBase"
+
+-- Puts each stud of a card on its corner notch (a cell wide and tall, from the card's current grid).
+local function placeStuds(card: Frame)
+	local grid = blockGrid(card)
+	if not grid then
+		return
+	end
+	for _, stud in ipairs(card:GetChildren()) do
+		if stud.Name == STUD_NAME and stud:IsA("Frame") then
+			local corner = stud:GetAttribute("Corner")
+			local right = corner == "TopRight" or corner == "BottomRight"
+			local bottom = corner == "BottomLeft" or corner == "BottomRight"
+			stud.Position = UDim2.fromScale(if right then 1 - grid.cellX else 0, if bottom then 1 - grid.cellY else 0)
+			stud.Size = UDim2.fromScale(grid.cellX, grid.cellY)
+		end
+	end
+end
+
+-- The tier ladder on a block card (section 2 "Tier frames"): the ink is the tier colour already; this adds the studs (a flat cell
+-- in the tier colour a step lighter filling a corner notch, none for Common and Uncommon, one Rare, two Epic, four from Legendary)
+-- and the face tint (Legendary 0.12, Cosmic and Secret 0.18). Calling it again re-dresses the card (a recycled tile). A fitted card
+-- keeps its studs on its notches when its cells redraw.
+function Builder.tierFrame(card: Frame, tier: string)
+	local row = Panels.TierFrames[tier] or Panels.TierFrames.Common
+	local tierColor = Builder.tierColor(tier)
+	for _, child in ipairs(card:GetChildren()) do
+		if child.Name == STUD_NAME then
+			child:Destroy()
+		end
+	end
+	local base: Color3 = Theme.Colors.White
+	local saved = card:GetAttribute(TIER_BASE)
+	if typeof(saved) == "Color3" then
+		base = saved
+	else
+		local now = card:GetAttribute(BLOCK_COLOR)
+		if typeof(now) == "Color3" then
+			base = now
+		end
+		card:SetAttribute(TIER_BASE, base)
+	end
+	Builder.setBlockColor(card, if row.tint > 0 then Builder.tint(base, tierColor, row.tint) else base)
+	local studColor = Builder.lighter(tierColor, Panels.StudLighten)
+	for index = 1, math.min(row.studs, #Panels.StudOrder) do
+		local stud = Instance.new("Frame")
+		stud.Name = STUD_NAME
+		stud.Active = false
+		stud.BorderSizePixel = 0
+		stud.BackgroundColor3 = studColor
+		stud.ZIndex = card.ZIndex + Theme.Block.Layer.Cells
+		stud:SetAttribute("Corner", Panels.StudOrder[index])
+		stud.Parent = card
+	end
+	placeStuds(card)
+	if card:GetAttribute(STUD_HOOKED) ~= true then
+		card:SetAttribute(STUD_HOOKED, true)
+		onRedraw(card, function()
+			placeStuds(card)
+		end)
+	end
 end
 
 -- A one-line input in the theme's look: panel-coloured box with a navy ink, Fredoka text with the
