@@ -147,7 +147,7 @@ end)
 
 describe("Panels Shell and Headers", function()
 	it("puts the band under the Scrap pill: the panel starts at the pill's end and ends on screen", function()
-		expect(SHELL.Top).toEqual(0.1)
+		expect(SHELL.Top).toEqual(0.11) -- the Hud's Scrap pill ends at 0.025 + 0.085
 		assert(SHELL.Top + SHELL.Height <= 1, "the panel leaves the screen")
 		expect(SHELL.BandHeight).toEqual(0.13)
 	end)

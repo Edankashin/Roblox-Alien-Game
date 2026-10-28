@@ -29,7 +29,7 @@ Panels.QuestTabDefault = "notes"
 -- band's colour (Builder.tint), Accent the colour (a Theme.Colors key) of the second status pill for each band colour.
 Panels.Shell = {
 	Height = 0.84,
-	Top = 0.10,
+	Top = 0.11,
 	BandHeight = 0.13,
 	BodyTint = 0.12,
 	-- Where a body's first row may start, as a share of the panel's height: under the band (the panel's ink, about 0.019, plus
