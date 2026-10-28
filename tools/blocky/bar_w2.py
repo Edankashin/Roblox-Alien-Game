@@ -120,7 +120,42 @@ def shellberg():
     return p
 
 
-PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg}
+# ------------------------------------------------------------------------------------------------ Capybubble (Snorzo), Rare
+def _bubble(big):
+    def build(g, lite=False):
+        # a soap bubble in pixel art, the same from both sides: a dark umber outline round a lit aqua rim (half a stud across, or three quarters for the
+        # big one, which has a hollow middle), so the lit ring has an edge against snow
+        z0, z1 = -0.125, 0.125
+        if not big:
+            return [_box(-0.125, 0.125, 0.375, 0.5, z0, z1, "BodyDark", None), _box(-0.125, 0.125, 0, 0.125, z0, z1, "BodyDark", None),
+                    _box(-0.25, -0.125, 0.125, 0.375, z0, z1, "BodyDark", None), _box(0.125, 0.25, 0.125, 0.375, z0, z1, "BodyDark", None),
+                    _box(-0.125, 0.125, 0.125, 0.375, z0, z1, "Glow", "glow")]
+        return [_box(-0.25, 0.25, 0.625, 0.75, z0, z1, "BodyDark", None), _box(-0.25, 0.25, 0, 0.125, z0, z1, "BodyDark", None),
+                _box(-0.375, -0.25, 0.125, 0.625, z0, z1, "BodyDark", None), _box(0.25, 0.375, 0.125, 0.625, z0, z1, "BodyDark", None),
+                _box(-0.25, 0.25, 0.5, 0.625, z0, z1, "Glow", "glow"), _box(-0.25, 0.25, 0.125, 0.25, z0, z1, "Glow", "glow"),
+                _box(-0.25, -0.125, 0.25, 0.5, z0, z1, "Glow", "glow"), _box(0.125, 0.25, 0.25, 0.5, z0, z1, "Glow", "glow")]
+    return build
+
+
+def capybubble():
+    """Rare, Frostbyte: the bath-time capybara. A silver bathrobe belt round its barrel and silver snowflake studs on its flanks (3 kit pieces and the
+    stance), the head nodding and rolled as it dozes, the tangerine tipping with it (a rest pose), and a stream of six outlined aqua bubbles curling up
+    its sides and over its back, small ones low and big ones high (the snores it blows, grown; one lit colour, the aqua of its eyes)."""
+    Pz = K.PIECES
+    p = P.Plan("Frostbyte", "a doze: the head nodding 10 degrees and rolled 8, the tangerine tipped with it, a stream of six outlined bubbles curling up its right side, over its back and down its left")
+    p.wear("# the Frostbyte kit: a silver snowflake stud (a plus of eighth-stud bars on a lit heart) on each flank, above the belt, where the old bubble-ring stamp was",
+           K.place(Pz["snowflake_stud"], "Flake", (1.0, 1.375, 1.0), "+x", mirror=True, lite=True, scale=2, slots={"Trim": "Accessory"}), ["snowflake_stud"] * 2)
+    p.wear("# a silver bathrobe belt: a band a quarter stud tall and an eighth proud round the barrel (the head hides its front)",
+           K.band("Belt", (0, 0.875, 0.875), (2, 2.25), t=0.125, h=0.25, slot="Accessory", material="metal", faces=("+x", "-x", "+z")), ["silver_band"])
+    small, big = own("bubble_s", "a half-stud soap bubble: a lit aqua heart in a dark umber outline", _bubble(False)), own("bubble_b", "a three-quarter-stud soap bubble: a lit aqua ring in a dark umber outline", _bubble(True))
+    heights = [0.5, 0.875, 1.25, 1.625, 2.0, 2.5]
+    sats = arc([small, small, big, big, big, big], "Sat", (0, 0.4), 2.6, 0.0, [50, 95, 140, 220, 265, 310], "ring", [0, 1.3, 0.4], g=0.25, drops=[-h for h in heights])
+    p.regions.append(("# the satellite set (`ring`, one stream climbing from low on its right round the back to high on its left, nothing in front of the face): two half-stud bubbles and four three-quarter ones, each a lit aqua rim in a dark outline, facing the viewer", sats))
+    p.satellites, p.orbit = 6, "ring"
+    return p
+
+
+PLANS = {"Reindazzle": reindazzle, "Shellberg": shellberg, "Capybubble": capybubble}
 
 
 def apply(sid, write=True):

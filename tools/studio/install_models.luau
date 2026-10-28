@@ -251,7 +251,7 @@ local MATERIALS: { [string]: { { string | number } } } = {
 	CampCrate = { { "Body", "C08A55", 0.55, 0, 0 }, { "BodyDark", "8C5E32", 0.55, 0, 0 }, { "Accessory", "FFC83D", 0.55, 0, 0 }, { "Trim", "68C9FE", 0.55, 0, 0 } },
 	CampFlag = { { "Body", "FFC83D", 0.55, 0, 0 }, { "BodyDark", "6E7690", 0.55, 0, 0 }, { "Accessory", "68C9FE", 0.55, 0, 0 }, { "Trim", "8E8E86", 0.55, 0, 0 }, { "Glow", "FFE36B", 0.55, 0, 1.5 } },
 	Campfire = { { "Body", "FF8A2A", 0.55, 0, 0 }, { "BodyDark", "7B4A2D", 0.55, 0, 0 }, { "Trim", "8E8E86", 0.55, 0, 0 }, { "Glow", "FFD34D", 0.55, 0, 1.5 } },
-	Capybubble = { { "Body", "E0C3A0", 0.55, 0, 0 }, { "earL", "5C4A2A", 0.55, 0, 0 }, { "earR", "5C4A2A", 0.55, 0, 0 }, { "floatR", "5FDCFF", 0.55, 0, 1.5 }, { "leafR", "5C4A2A", 0.55, 0, 0 }, { "ring", "5FDCFF", 0.55, 0, 1.5 }, { "FacePlate", "E0C3A0", 0.4, 0, 0 } },
+	Capybubble = { { "Body", "C49A68", 0.55, 0, 0 }, { "Glow", "5FDCFF", 0.55, 0, 1.5 }, { "earL", "5C4A2A", 0.55, 0, 0 }, { "earR", "5C4A2A", 0.55, 0, 0 }, { "leafL", "5C4A2A", 0.55, 0, 0 }, { "ring", "5FDCFF", 0.55, 0, 0 }, { "FacePlate", "C49A68", 0.4, 0, 0 } },
 	CaveMouth = { { "Body", "7A756E", 0.55, 0, 0 }, { "BodyDark", "15120F", 0.55, 0, 0 }, { "Accessory", "5E9E3A", 0.55, 0, 0 }, { "Trim", "C084FC", 0.55, 0, 0 }, { "Glow", "7FE3FF", 0.55, 0, 1.5 } },
 	Chipmole = { { "Body", "5B6B85", 0.55, 0, 0 }, { "pickL", "3FD3F7", 0.55, 0, 0 }, { "pickR", "3FD3F7", 0.55, 0, 0 }, { "tailR", "3FD3F7", 0.55, 0, 0 }, { "FacePlate", "5B6B85", 0.4, 0, 0 } },
 	CrashWreck = { { "Body", "A4AEBC", 0.55, 0, 0 }, { "BodyDark", "463A31", 0.55, 0, 0 }, { "Accessory", "FFC83D", 0.55, 0, 0 }, { "Trim", "8FE3F5", 0.55, 0, 0 }, { "Glow", "FF8A3D", 0.55, 0, 1.5 } },
@@ -371,13 +371,13 @@ local BLOCK_CELL: { [string]: BlockCellRow } = {
 	Capybubble = {
 		assetId = 107898420617031, cellMap = 101294572473565, faceMap = 82136169363124,
 		parts = {
-			{ name = "Body", hex = "E0C3A0", neon = false, map = "cell" },
+			{ name = "Body", hex = "C49A68", neon = false, map = "cell" },
+			{ name = "Glow", hex = "5FDCFF", neon = true, map = "" },
 			{ name = "earL", hex = "5C4A2A", neon = false, map = "cell" },
 			{ name = "earR", hex = "5C4A2A", neon = false, map = "cell" },
-			{ name = "floatR", hex = "5FDCFF", neon = true, map = "" },
-			{ name = "leafR", hex = "5C4A2A", neon = false, map = "cell" },
-			{ name = "ring", hex = "5FDCFF", neon = true, map = "" },
-			{ name = "FacePlate", hex = "E0C3A0", neon = false, map = "face" },
+			{ name = "leafL", hex = "5C4A2A", neon = false, map = "cell" },
+			{ name = "ring", hex = "5FDCFF", neon = false, map = "cell" },
+			{ name = "FacePlate", hex = "C49A68", neon = false, map = "face" },
 		},
 	},
 	Chipmole = {
