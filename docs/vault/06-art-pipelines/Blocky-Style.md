@@ -714,6 +714,32 @@ What the ten taught:
 - **A chest piece under a sitting cat's chin is hidden from the high camera** (Aurelyx's pendant): it reads in the front view and the reveal only. Put a chest piece where the head does not overhang it.
 - **Hooks for effects in the note.** Each of the seven carries `fx_hooks` in its frontmatter: the Effects.luau attach region (Top, Halo, Mouth, Body, Back, Tail, Feet ...) mapped to a named part, and new points the signature needs (`Ring`, `Antlers`, `Summit`, `Crown`, `Plume`, `Runes`, `Moon`, `Mane`), for a later Effects or Spectacle pass to hang layers on parts instead of bounds fractions.
 
+## World 2 bar notes (2026-10-28, worker BAR-W2, [[Decisions]] B54 to B56)
+
+The six Frostbyte aliens from Rare up, each built to the prompt list in its Creature note ("Character bar (B54), prompt list") and judged on the 16-stud strip against section 10 rule 8 before its commit. The tools: `tools/blocky/bar_w2.py` (the plans and each alien's own satellite piece), `tools/blender/bar_shots.py` (the renders, with a face view), `tools/blocky/bar_sheet.py` (the two sheets), `tools/tests/test_bar_w2.py`. Sheets: `media/studio/2026-10-26/bar_w2_v1.jpg` (every alien before and after, front and three-quarter beside the 5-stud avatar, and the 16-stud strip on snow) and `bar_w2_faces.jpg` (each face straight on at 3 studs, before and after).
+
+![World 2 bar, before and after](../../../media/studio/2026-10-26/bar_w2_v1.jpg)
+
+| Alien | Tier | What it gained | Value fix (rule 8) | Blocks | Triangles |
+|---|---|---|---|---|---|
+| [[Reindazzle]] (Blinkar) | Rare | six red sleigh lanterns in two swaying garlands, silver girth and shoulder studs, an ice tiara, head cocked and a hoof lifted | the lanterns redrawn from red cubes (apples) into a dark roof over a lit window, clear of the head | 65 | 928 |
+| [[Shellberg]] (Floe) | Rare | six cyan pennants on dark poles, silver skirt and flank studs, head stretched and turned toward its flag | the berg's deep step dark teal, the flippers the body teal, the snow accent a step darker | 73 | 934 |
+| [[Capybubble]] (Snorzo) | Rare | a rising stream of six outlined aqua bubbles (replacing the planet ring and snore bubbles), a pale-metal belt and studs, a dozing nod | the body a deeper tan (L* 80 to 66) so the cream and orange step off it | 71 | 1,114 |
+| [[Shimmerlynx]] (Aurelyx) | Epic | six outlined four-point violet stars, silver studs and cuffs, dark ice shards, head turned, a paw reaching | the pale lavender body a mid lilac-grey (L* 80 to 63) | 105 | 1,598 |
+| [[Frostfang]] (Sabrek) | Epic | a flurry of six outlined cyan snowflakes, silver cuffs on all four legs and flank studs, head up and turned, a batting paw | already a step off the snow; the flakes carry the navy outline | 142 | 1,908 |
+| [[Skaddle]] (Skadra) | Legendary | a gold-rimmed frost mirror behind it (3.25 across, 0.25 deep, a lit snowflake etched on it), six rune stones, eight kit pieces, head turned, wings spread | a white owl on white snow: the dark disc behind it is the step | 207 | 2,530 |
+
+Lessons the roster found:
+
+- **A satellite needs a dark edge and a lit part, and the lit part must stay under half.** Every ring is a lit cell in a dark frame (lantern roof, bubble outline, flag hem, star outline, snowflake outline, rune frame). An object over half Glow by faces exports as a flat Neon part with no cell texture, so the dark frames vanish: Skadra's first rune stones (a dark tablet with a proud lit rune on both faces) came out Neon and flat; a light tablet in a slate frame with three lit blocks does not. `test_bar_w2` checks the lit area share.
+- **A red cube under a lid is an apple; a dark post cluster is a clump.** Blinkar's lanterns took three tries: cube, then dark posts (a dark clump), then a handle, a wide dark roof and a lit window. The lit part is the mass; the frame is the outline.
+- **Keep satellites off the head's column from the camera, not only from the front.** From 16 studs at 18 degrees above, a rear ring piece at the head's x lands over the head. Two garlands of three at the sides (never the rear centre) keep every piece clear; a ring that turns is swapped for a sway of 20 to 28 degrees so none crosses the face (the flourish may still whirl it).
+- **A pale body on snow needs a darker body, or a dark backdrop.** Snorzo's tan (L* 80) and Aurelyx's lavender (L* 80) went to L* 63 to 66; Skadra's white (L* 97) stays white and gets a dark disc behind it. The kit then reads as a step on the body (cream belt, silver cuffs, gold studs), which it could not on a pale one.
+- **A flat backdrop shape that the body hides is not a backdrop.** Skadra's first backdrop, an eight-armed slate star 3.25 across, was hidden by the owl, the wings and the stones, and only a gold bead showed; a disc with a rim (a filled shape whose edge shows all round) frames the owl. The art on the disc can be hidden; the rim cannot.
+- **A mover in a posed group gets a side suffix.** Frostfang's crown (its pivot moved by the head's turn) became `crownL`, which broke `Effects.Pieces` (the lint test caught it); the piece rows now name `crownL`. Read the whole `./tools/test.sh` output: a failing Python test is followed by lines that look like a pass.
+- **A raised flipper under a berg shows only a black gap**: Floe's flippers sit under the berg, so lifting one opened a shadow wedge. Its stance is the head. A silver headband level with a head's top reads as a lid.
+- **Two worlds' pieces must not share one silhouette.** The flat icons (Aurelyx's stars, Sabrek's snowflakes, Snorzo's bubbles) share a method but differ in shape, colour and place (a stream, a ring of crosses, a plus with dots); the flags, lanterns and runes are objects.
+
 ## Props and the world tiles in block cells (2026-10-21)
 
 Ethan, 2026-10-21: "Make sure the worlds look amazing too. They should all inhabit the aesthetic and theme of the world very well, and make exploring enjoyable and a super pleasing sight." The props worker moved every scenery and camp prop to block cells (B44) and made the shared ground tiles. The sheet: `media/studio/2026-10-21/props_v1.jpg`; the tiles: `media/studio/2026-10-21/world_tiles_v1.png`.
