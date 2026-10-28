@@ -116,4 +116,45 @@ return {
 	LegendaryBudgetSeconds = 2.5, -- the push-in plus the rumble delay a Legendary catch bar by less than this
 	-- The only keys the MarkSeen remote accepts and profile.seen holds: the arrival of every built world.
 	SeenKeys = { Arrival_0 = true, Arrival_1 = true, Arrival_2 = true },
+	-- The arrival title card (UI richness pass, package B; docs/vault/05-ui-design/UI-Richness-Pass.md section 6; UI/ArrivalTitle):
+	-- the destination's name screen-wide with a bar in its colour and "NOW ARRIVING" under it, over speed lines that streak inward
+	-- from both edges. Seconds unless a name says otherwise; shares are of the screen's width unless it says height. A "cell" is
+	-- CellShare of the screen's height, so a line is a flat block of whole cells (the block look: axis-aligned, no rotation).
+	-- Shared/ArrivalTitleMath does the arithmetic and tests/ArrivalTitleMath.spec.luau checks it.
+	Title = {
+		DisplayOrder = 55, -- over the launch fade (50), under nothing that matters during a flight
+		NameSize = 48, -- Theme.TextSize.Reveal; shrinks to fit NameWidthShare, never wraps
+		NameWidthShare = 0.8,
+		NowSize = 24, -- Theme.TextSize.Label
+		BarWidthShare = 0.3,
+		BarCells = 3, -- the bar's thickness
+		CellShare = 0.012, -- one cell, of the screen's height
+		NameY = 0.44, -- the name's centre, of the screen's height
+		BarY = 0.54,
+		NowY = 0.62,
+		ScaleFrom = 1.15, -- the name grows from this to 1.0 as it fades in
+		InSeconds = 0.25,
+		HoldSeconds = 1.8,
+		OutSeconds = 0.35,
+		TotalSeconds = 2.4, -- in + hold + out; the toasts stay quiet this long (Toast.QuietFor) and the speed lines run inside it
+		AtSeconds = 0.8, -- a first visit starts the card this far into the Arrival moment (the end of its open shot); it is gone at 3.2 s, before the rise
+		ReducedFadeSeconds = 0.2, -- Reduced Motion: no speed lines, no scale: a fade in over this, a hold, a fade out over this
+		ReducedHoldSeconds = 1.2,
+		Lines = {
+			Count = 12,
+			HeightCells = 1,
+			MinCells = 8, -- a line's length in cells, from MinCells to MaxCells
+			MaxCells = 18,
+			InnerCount = 4, -- these reach the middle third (and keep clear of the title's rows); the rest stay in the outer thirds
+			OuterTravel = 0.3, -- how far an outer line streaks in from its edge, of the width
+			InnerTravel = 0.42,
+			MinSeconds = 0.5, -- each line's flight takes MinSeconds to MaxSeconds
+			MaxSeconds = 0.8,
+			StaggerSeconds = 1.2, -- the starts are spread over the first this-many seconds
+			StartTransparency = 0.2, -- fading to 1 as a line ends
+			RowMin = 0.06, -- the rows' vertical span, of the height
+			RowMax = 0.94,
+			Seed = 31,
+		},
+	},
 }

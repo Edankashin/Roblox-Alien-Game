@@ -911,6 +911,19 @@ local Icons: { [string]: { Pixel } } = {
 		{ 5, 4, 1, 1, "111111" },
 		{ 4, 6, 1, 1, "111111" },
 	},
+	-- a little house, red roof over cream walls with a blue door: the Home planet's number badge on its world card (UI richness pass, package B)
+	Home = {
+		{ 3, 0, 2, 1, "Outline" },
+		{ 2, 1, 4, 1, "Outline" },
+		{ 1, 2, 6, 1, "Outline" },
+		{ 0, 3, 8, 1, "Outline" },
+		{ 1, 4, 6, 4, "Outline" },
+		{ 3, 1, 2, 1, "Close" },
+		{ 2, 2, 4, 1, "Close" },
+		{ 1, 3, 6, 1, "Close" },
+		{ 2, 4, 4, 3, "Panel" },
+		{ 3, 5, 2, 2, "Select" },
+	},
 }
 PixelIcons.Icons = Icons
 

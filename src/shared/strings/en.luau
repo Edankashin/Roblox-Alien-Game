@@ -468,6 +468,18 @@ return {
 	VISITOR_REPEAT = "%s x%d", -- a visitor who came more than once in the Visitor Book: "Player2 x2"
 	HANGAR_PLATE = "%s",
 	FLY_LINE = "Flying to %s...",
+	-- UI richness pass, package B: the Star Chart's world cards, the Ship's next stop, the arrival title card
+	WORLDCARD_HERE = "HERE",
+	WORLDCARD_TRAVEL = "TRAVEL",
+	WORLDCARD_RETURN = "Return",
+	WORLDCARD_NEXT = "NEXT",
+	WORLDCARD_UNLOCK = "Finish the ship on %s to unlock",
+	WORLDCARD_SOON = "Opens soon",
+	WORLDCARD_COUNT = "%d / %d",
+	WORLDCARD_UNKNOWN = "?",
+	WORLDCARD_TOAST_HERE = "You are here",
+	WORLDCARD_NEXT_STOP = "Next stop",
+	ARRIVAL_NOW = "NOW ARRIVING",
 	TOAST_OUTPOST_COLLECTED = "Outpost: +%d Scrap, +%d materials",
 	TOAST_OUTPOST_NOTHING = "Nothing to collect yet",
 	TOAST_OUTPOST_TOO_SOON = "The outpost needs a few more minutes",
