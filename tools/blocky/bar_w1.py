@@ -195,4 +195,46 @@ def wisplet():
     return p
 
 
-PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet}
+# ------------------------------------------------------------------------------------------------ Voltus (Thunderhog)
+def _charge_cell(g, lite=False):
+    # a storm battery five eighths of a stud across and three quarters tall, the same from both sides: a gold case, two gold terminals and a lit yellow core on both faces
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.25, 0.25, -0.375, 0.25, z0, z1, "Trim", "metal"), _box(-0.125, 0.125, 0.25, 0.375, z0, z1, "Trim", "metal"),
+            _box(-0.125, 0.125, -0.25, 0.125, 0.125, 0.1875, "Glow", "crystal"), _box(-0.125, 0.125, -0.25, 0.125, -0.1875, -0.125, "Glow", "crystal")]
+
+
+def _thunder_puff(g, lite=False):
+    # a pocket thundercloud seven eighths of a stud across, the same from both sides: a lavender storm cloud with a dark underside and two puffs, and a fat lit yellow bolt of two
+    # quarter-stud steps hanging under it (the first try, a lavender puff on a thin stem, read as a mushroom)
+    z0, z1 = -0.125, 0.125
+    return [_box(-0.4375, 0.4375, 0.0, 0.125, z0, z1, "BodyDark", None), _box(-0.4375, 0.4375, 0.125, 0.25, z0, z1, "Accessory", None),
+            _box(-0.3125, -0.0625, 0.25, 0.375, z0, z1, "Accessory", None), _box(0.0625, 0.3125, 0.25, 0.375, z0, z1, "Accessory", None),
+            _box(0.0, 0.25, -0.25, 0.0, z0, z1, "Glow", "crystal"), _box(-0.125, 0.125, -0.5, -0.25, z0, z1, "Glow", "crystal")]
+
+
+own("charge_cell", "Voltus", "a five-eighths-stud storm battery: a gold case, terminals and a lit yellow core (a satellite)", _charge_cell, "Epic")
+own("thunder_puff", "Voltus", "a seven-eighths-stud lavender thundercloud with a dark underside, two puffs and a fat lit yellow bolt hanging under it (a satellite)", _thunder_puff, "Epic")
+
+
+def thunderhog():
+    """Epic, Verdant, Lightning: a storm hog charging. Six kit pieces (lavender moss pads with a lit tuft on the head top, gold blossom buds behind them, a lavender vine round the head,
+    a gold girth on the rump), six satellites in one lit yellow and gold (three storm batteries, three pocket thunderclouds) on a wide
+    ring; the head cocked, the right foreleg pawing, the tail up."""
+    P_ = K.PIECES
+    p = Plan("Verdant", "a charge: the head cocked 12 degrees as it eyes the sky, the right foreleg pawing the ground, the tail cocked up, a ring of storm batteries and thunderclouds round it")
+    kit = K.place(P_["moss_cells"], "Moss", (0.375, 2.25, -0.625), "+y", mirror=True, slots={"Body": "Accessory", "Accessory": "Glow"}, pose="head")
+    p.wear("# the Verdant kit: lavender moss pads with a lit tuft on the head's top, between the rods (they turn with the cocked head)", kit, ["moss_cells"] * 2)
+    kit = K.vine_wrap("Vine", (0, 0.625, -0.75), (2, 1.75), 1.5, steps=3, t=0.125, slot="Accessory", faces=("+x", "+z", "-x"), pose="head")
+    p.wear("# a lavender vine winding up the head's sides and back in three strips (the face stays clear; it turns with the head)", kit, ["vine_wrap"])
+    kit = K.place(P_["blossom_bud"], "Bud", (0.75, 2.25, -0.25), "+y", mirror=True, slots={"BodyDark": "BodyDark", "Accessory": "Trim"}, pose="head")
+    p.wear("# gold blossom buds on the head's back corners, behind the moss (they turn with the head)", kit, ["blossom_bud"] * 2)
+    p.wear("# a gold girth: a quarter stud wide, an eighth proud, round the rump behind the coat's last quill (the collar's twin)",
+           [K.part("Girth", "Trim", (2.0, 1.75, 0.25), (0, 1.25, 2.25), material="metal")], ["bark_band"])
+    sats = K.orbit([P_["charge_cell"], P_["thunder_puff"]] * 3, "Sat", (0, 0.6), 3.1, 1.6, tilt=0.2, moves="storm", pivot=[0, 1.6, 0.6], start=math.radians(30),
+                   lift=0.8, facing="front", drops=[0.0, 0.125, 0.0, 0.125, 0.0, 0.125], g=0.125)
+    p.regions.append(("# the satellite set (`storm`, one wide ring clear of the cloud and the antennae, the front low): three storm batteries and three pocket thunderclouds, all gold, lavender and lit yellow", sats))
+    p.satellites, p.orbit = 6, "storm"
+    return p
+
+
+PLANS = {"Rocklobber": rocklobber, "Zapfinch": zapfinch, "Sparkfox": sparkfox, "Wisplet": wisplet, "Thunderhog": thunderhog}

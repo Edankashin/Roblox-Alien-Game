@@ -7,9 +7,9 @@ world: 1
 tier: Epic
 status: review
 element: Lightning
-height: 3.375
-blocks: 74
-tris: 1026
+height: 3.45
+blocks: 120
+tris: 1638
 bevel_width: 0.125
 bevel_segments: 2
 palette: ["#8B5CF6", "#2E1F66", "#D4C6FF", "#FFC233", "#FFF27A", "#160F2E"]
@@ -25,6 +25,12 @@ overlap: [0.997, 0.998, 0.998, 0.997]
 vfx_render: "[[Thunderhog_vfx_cells.jpg]]"
 cells_render: "[[Thunderhog_tq_cells.jpg]]"
 idle_render: "[[Thunderhog_idle.png]]"
+bar_world: Verdant
+bar_kit: 6
+bar_pieces: [bark_band, blossom_bud, moss_cells, vine_wrap]
+bar_stance: "a charge: the head cocked 12 degrees as it eyes the sky, the right foreleg pawing the ground, the tail cocked up, a ring of storm batteries and thunderclouds round it"
+bar_satellites: 6
+bar_orbit: storm
 ---
 # Thunderhog (Voltus), Epic, World 1 Verdant
 
@@ -40,18 +46,32 @@ A storm hedgehog on six stubby splayed legs (an alien hexapod), 3.375 studs to t
 
 **World motif (Verdant).** The moss cell, here as the eighth-stud steps of the crest and the quarter-stud steps of the flank bolt, and the eighth-stud toes.
 
+## Character bar (B54)
+
+BAR-W1 (resumed 2026-10-28), [[Decisions]] B54 to B56; the list below was written first and the build follows it. [[Blocky-Style]] section 10 (rule 8: mass clarity and value contrast), [[Character-References]] apply checklist, plan in `tools/blocky/bar_w1.py` (`thunderhog()`), pieces in `tools/blocky/kits.py` and the module.
+
+- **Theme.** A storm hog charging in: a thunderhead on six legs. Kept: name, anatomy (six stubby splayed legs, two lightning-rod antennae instead of ears, the ten-row bolt on its back, the pocket cloud and the charge gauges), the starry eyes, height 3.45.
+- **Gains (visible parts).** (1) Six satellites on a wide low ring clear of the cloud and the rods, in one lit yellow with gold and lavender: three storm batteries (a gold case, terminals, a lit core on both faces) and three pocket thunderclouds (a lavender cloud with a dark underside and two puffs over a fat lit yellow bolt), each three quarters of a stud and more. (2) Verdant kit, six pieces: lavender moss pads with a lit tuft and gold blossom buds on the head's top, a lavender vine up the head's sides and back, and a second gold girth (a quarter stud wide, an eighth proud) round the rump to match the collar. (3) The stance below.
+- **Stance (rest groups `head`, `foreR`, `tail`).** The head cocked 8 degrees (and set a tenth of a stud lower) as it eyes the sky, the right foreleg pawing the ground at 60 degrees, the tail cocked up 25 degrees: a hog about to charge, not a loaf.
+- **Face intent.** Its own `starry` eyes kept (a lit storm-yellow star in a deep indigo iris with gold lashes), an open delighted mouth and blush cheeks: an excited, static-haired friend. The face is not changed; the head's top is dressed (moss, buds) and nothing crosses the plate.
+- **Three values (rule 8).** Body violet; the coat, legs and clouds' undersides a step darker (deep indigo); the belly, moss, vine and cloud tops a step lighter (lavender); one gold metal and one lit yellow (the satellites' only lit colour).
+- **Must-nots.** No sap drops (they dipped under the ground line on the cocked head: cut for buds); no lavender puffs on thin stems in the ring (the first try read as mushrooms); nothing over the face; no piece under a quarter stud added for its own sake; height stays in 2 to 3.5 studs.
+
 ## Parts
 
 ```yaml
 parts:
-  - {name: Head, slot: Body, size: [2, 1.75, 1.75], at: [0, 1.375, -0.75], bevel: true}
+  - {name: Head, slot: Body, size: [2, 1.75, 1.75], at: [0, 1.375, -0.75], bevel: true, pose: head}
   - {name: Torso, slot: Body, size: [1.75, 1.5, 2.5], at: [0, 1.25, 1.125], bevel: true}
   # six legs (the alien hexapod) splayed out under the body's edges, each with two lavender toe cells in front
-  - {name: Leg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.875, 0.25, -0.875], mirror: x}
+  - {name: Leg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.875, 0.25, -0.875], pose: foreR}
+  - {name: LegL, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [-0.875, 0.25, -0.875]}
   - {name: MidLeg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.875, 0.25, 0.75], mirror: x}
   - {name: HindLeg, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0.875, 0.25, 1.875], mirror: x}
-  - {name: Toe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, -1.1875], mirror: x}
-  - {name: Toe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 0.0625, -1.1875], mirror: x}
+  - {name: Toe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, -1.1875], pose: foreR}
+  - {name: ToeL, slot: Accessory, size: [0.125, 0.125, 0.125], at: [-0.6875, 0.0625, -1.1875]}
+  - {name: Toe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 0.0625, -1.1875], pose: foreR}
+  - {name: Toe2L, slot: Accessory, size: [0.125, 0.125, 0.125], at: [-1.0625, 0.0625, -1.1875]}
   - {name: MidToe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, 0.4375], mirror: x}
   - {name: MidToe2, slot: Accessory, size: [0.125, 0.125, 0.125], at: [1.0625, 0.0625, 0.4375], mirror: x}
   - {name: HindToe, slot: Accessory, size: [0.125, 0.125, 0.125], at: [0.6875, 0.0625, 1.5625], mirror: x}
@@ -86,13 +106,13 @@ parts:
   - {name: Quill2, slot: BodyDark, size: [0.375, 0.5, 0.375], at: [0.6875, 2.3125, 1.625], shape: cone6, rot: [0, 0, -20], mirror: x}
   - {name: Quill3, slot: BodyDark, size: [0.375, 0.5, 0.375], at: [0.6875, 2.3125, 2.25], shape: cone6, rot: [0, 0, -20], mirror: x}
   # cheek quills: two dark spikes out of each side of the head, the hedgehog's ruff
-  - {name: Cheek, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1, -1], shape: cone6, rot: [0, 0, -70], mirror: x}
-  - {name: Cheek2, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1.5, -0.75], shape: cone6, rot: [0, 0, -70], mirror: x}
+  - {name: Cheek, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1, -1], shape: cone6, rot: [0, 0, -70], mirror: x, pose: head}
+  - {name: Cheek2, slot: BodyDark, size: [0.25, 0.5, 0.25], at: [1.125, 1.5, -0.75], shape: cone6, rot: [0, 0, -70], mirror: x, pose: head}
   # alien anatomy: two lightning-rod antennae instead of ears, lit bulbs on top; the arcs jump between them and the crest tip
-  - {name: Antenna, slot: BodyDark, size: [0.125, 0.875, 0.125], at: [1.0625, 2.65625, -0.75], rot: [0, 0, -25], mirror: x, moves: antenna, pivot: [0.875, 2.25, -0.75]}
-  - {name: AntennaTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.3125, 3.1875, -0.75], shape: ico1, mirror: x, moves: antenna, pivot: [0.875, 2.25, -0.75]}
-  - {name: Tail, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1.625, 2.75], moves: tail, pivot: [0, 1.625, 2.5]}
-  - {name: TailTip, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 2.125, 2.875], moves: tail, pivot: [0, 1.625, 2.5]}
+  - {name: Antenna, slot: BodyDark, size: [0.125, 0.875, 0.125], at: [1.0625, 2.65625, -0.75], rot: [0, 0, -25], mirror: x, moves: antenna, pivot: [0.875, 2.25, -0.75], pose: head}
+  - {name: AntennaTip, slot: Glow, size: [0.375, 0.375, 0.375], at: [1.3125, 3.1875, -0.75], shape: ico1, mirror: x, moves: antenna, pivot: [0.875, 2.25, -0.75], pose: head}
+  - {name: Tail, slot: BodyDark, size: [0.5, 0.5, 0.5], at: [0, 1.625, 2.75], moves: tail, pivot: [0, 1.625, 2.5], pose: tail}
+  - {name: TailTip, slot: Glow, size: [0.25, 0.5, 0.25], at: [0, 2.125, 2.875], moves: tail, pivot: [0, 1.625, 2.5], pose: tail}
   # Rare pass w1, the signature piece: a pocket thundercloud that follows it over the rump, a lavender puff on a dark underside with a
   # lit zigzag hanging under it; it bobs and drifts, and on the flourish it pops and jumps with the crest (`cloud`)
   - {name: CloudBase, slot: BodyDark, size: [0.875, 0.125, 0.5], at: [0.4375, 2.9375, 2.125], moves: cloud, pivot: [0.4375, 3.0625, 2.125]}
@@ -108,6 +128,53 @@ parts:
   - {name: Charge1, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 1.25], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
   - {name: Charge2, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 1.625], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
   - {name: Charge3, slot: Glow, size: [0.0625, 0.125, 0.25], at: [1.03125, 1.875, 2], mirror: x, moves: charge, pivot: [0, 1.875, 1.5], material: crystal}
+  # pilot bar: begin (tools/blocky/bar_w1.py writes this region: the Verdant kit, the satellite set, the trim and the backdrop)
+  # the Verdant kit: lavender moss pads with a lit tuft on the head's top, between the rods (they turn with the cocked head)
+  - {name: Mossa, slot: Accessory, size: [0.5, 0.125, 0.5], at: [0.375, 2.3125, -0.625], mirror: x, pose: head, material: moss}
+  - {name: Mossb, slot: Accessory, size: [0.375, 0.125, 0.25], at: [0.4375, 2.4375, -0.625], mirror: x, pose: head, material: moss}
+  - {name: Mossc, slot: Glow, size: [0.125, 0.125, 0.125], at: [0.3125, 2.5625, -0.6875], mirror: x, pose: head, material: moss}
+  # a lavender vine winding up the head's sides and back in three strips (the face stays clear; it turns with the head)
+  - {name: Vine0, slot: Accessory, size: [0.125, 0.5, 2], at: [1.0625, 0.875, -0.75], pose: head, material: moss}
+  - {name: Vine1, slot: Accessory, size: [2.25, 0.5, 0.125], at: [0, 1.375, 0.1875], pose: head, material: moss}
+  - {name: Vine2, slot: Accessory, size: [0.125, 0.5, 2], at: [-1.0625, 1.875, -0.75], pose: head, material: moss}
+  # gold blossom buds on the head's back corners, behind the moss (they turn with the head)
+  - {name: Buda, slot: BodyDark, size: [0.125, 0.25, 0.125], at: [0.8125, 2.375, -0.3125], mirror: x, pose: head, material: wood}
+  - {name: Budb, slot: Trim, size: [0.375, 0.125, 0.125], at: [0.8125, 2.5625, -0.3125], mirror: x, pose: head}
+  - {name: Budc, slot: Trim, size: [0.125, 0.125, 0.125], at: [0.8125, 2.6875, -0.3125], mirror: x, pose: head}
+  # a gold girth: a quarter stud wide, an eighth proud, round the rump behind the coat's last quill (the collar's twin)
+  - {name: Girth, slot: Trim, size: [2, 1.75, 0.25], at: [0, 1.25, 2.25], material: metal}
+  # the satellite set (`storm`, one wide ring clear of the cloud and the antennae, the front low): three storm batteries and three pocket thunderclouds, all gold, lavender and lit yellow
+  - {name: Sat0a, slot: Trim, size: [0.5, 0.625, 0.25], at: [1.5625, 0.9375, -2.0625], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat0b, slot: Trim, size: [0.25, 0.125, 0.25], at: [1.5625, 1.3125, -2.0625], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat0c, slot: Glow, size: [0.25, 0.375, 0.0625], at: [1.5625, 0.9375, -2.21875], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat0d, slot: Glow, size: [0.25, 0.375, 0.0625], at: [1.5625, 0.9375, -1.90625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat1a, slot: BodyDark, size: [0.875, 0.125, 0.25], at: [3.125, 1.75, 0.625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat1b, slot: Accessory, size: [0.875, 0.125, 0.25], at: [3.125, 1.875, 0.625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat1c, slot: Accessory, size: [0.25, 0.125, 0.25], at: [2.9375, 2, 0.625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat1d, slot: Accessory, size: [0.25, 0.125, 0.25], at: [3.3125, 2, 0.625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat1e, slot: Glow, size: [0.25, 0.25, 0.25], at: [3.25, 1.5625, 0.625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat1f, slot: Glow, size: [0.25, 0.25, 0.25], at: [3.125, 1.3125, 0.625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat2a, slot: Trim, size: [0.5, 0.625, 0.25], at: [1.5625, 2.3125, 3.3125], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat2b, slot: Trim, size: [0.25, 0.125, 0.25], at: [1.5625, 2.6875, 3.3125], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat2c, slot: Glow, size: [0.25, 0.375, 0.0625], at: [1.5625, 2.3125, 3.46875], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat2d, slot: Glow, size: [0.25, 0.375, 0.0625], at: [1.5625, 2.3125, 3.15625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat3a, slot: BodyDark, size: [0.875, 0.125, 0.25], at: [-1.5625, 2.125, 3.3125], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat3b, slot: Accessory, size: [0.875, 0.125, 0.25], at: [-1.5625, 2.25, 3.3125], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat3c, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-1.375, 2.375, 3.3125], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat3d, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-1.75, 2.375, 3.3125], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat3e, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.6875, 1.9375, 3.3125], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat3f, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.5625, 1.6875, 3.3125], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat4a, slot: Trim, size: [0.5, 0.625, 0.25], at: [-3.125, 1.3125, 0.625], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat4b, slot: Trim, size: [0.25, 0.125, 0.25], at: [-3.125, 1.6875, 0.625], moves: storm, pivot: [0, 1.6, 0.6], material: metal}
+  - {name: Sat4c, slot: Glow, size: [0.25, 0.375, 0.0625], at: [-3.125, 1.3125, 0.46875], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat4d, slot: Glow, size: [0.25, 0.375, 0.0625], at: [-3.125, 1.3125, 0.78125], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat5a, slot: BodyDark, size: [0.875, 0.125, 0.25], at: [-1.5625, 0.75, -2.0625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat5b, slot: Accessory, size: [0.875, 0.125, 0.25], at: [-1.5625, 0.875, -2.0625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat5c, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-1.75, 1, -2.0625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat5d, slot: Accessory, size: [0.25, 0.125, 0.25], at: [-1.375, 1, -2.0625], moves: storm, pivot: [0, 1.6, 0.6]}
+  - {name: Sat5e, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.4375, 0.5625, -2.0625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  - {name: Sat5f, slot: Glow, size: [0.25, 0.25, 0.25], at: [-1.5625, 0.3125, -2.0625], moves: storm, pivot: [0, 1.6, 0.6], material: crystal}
+  # pilot bar: end
 ```
 
 ## Face
@@ -141,6 +208,10 @@ The idle and the flourish ([[Blocky-Style]] rule 8): the bolt pulses and sways, 
 
 ```yaml
 rig:
+  rest:
+    head: {rot: [0, 0, 8], pivot: [0, 0.875, -0.25], move: [0, -0.1, 0]}
+    foreR: {rot: [60, 0, 0], pivot: [0.875, 0.5, -0.875]}
+    tail: {rot: [-25, 0, 0], pivot: [0, 1.625, 2.5]}
   clips:
     crest: [{kind: pulse, amp: 0.05, period: 1.6}, {kind: sway, amp: 4, period: 3.2, axis: z}]
     antenna: [{kind: sway, amp: 8, period: 2.2, axis: z}, {kind: wag, amp: 6, period: 3.5, axis: x, phase: 0.3}]
@@ -149,6 +220,7 @@ rig:
     cloud: [{kind: bob, amp: 0.08, period: 2.6}, {kind: sway, amp: 5, period: 3.3, axis: z, phase: 0.2}, {kind: orbit, amp: 0.06, period: 5.2}]
     charge: [{kind: pulse, amp: 0.03, period: 0.9}]
     root: [{kind: bob, amp: 0.04, period: 1.1}]
+    storm: [{kind: spin, amp: 360, period: 20, axis: y}, {kind: bob, amp: 0.05, period: 3.2}]
     face: [{kind: blink, period: 4.5}]
   flourish:
     every: 8
