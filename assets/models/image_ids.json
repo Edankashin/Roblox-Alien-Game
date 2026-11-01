@@ -99,13 +99,13 @@
     "uploadedAt": "2026-10-22T05:25:45Z"
   },
   "Capybubble/atlas": {
-    "assetId": 82387472794026,
+    "assetId": 83411216664160,
     "file": "assets/models/Capybubble/Capybubble_atlas.png",
     "format": "png",
-    "imageId": 101294572473565,
+    "imageId": 122727720483324,
     "kind": "atlas",
-    "sha256": "64e54b19bda6de7e1184aacd6ce7ff329e2fbd2d8517757d677c4e065774e82e",
-    "uploadedAt": "2026-10-21T20:37:08Z"
+    "sha256": "6848ee9b3769f78600a17cf4a5ebbe396debd2c1a526255b906e7a3d981a1615",
+    "uploadedAt": "2026-11-01T08:11:15Z"
   },
   "Capybubble/face": {
     "assetId": 80779953298400,
@@ -198,13 +198,13 @@
     "uploadedAt": "2026-10-21T20:23:28Z"
   },
   "Fenripup/atlas": {
-    "assetId": 92134453663946,
+    "assetId": 101470159613802,
     "file": "assets/models/Fenripup/Fenripup_atlas.png",
     "format": "png",
-    "imageId": 88604149153432,
+    "imageId": 117802920385124,
     "kind": "atlas",
-    "sha256": "ef663f0cf3f8aad0c69e9a919d8b80b02adcdb190646f15fc28b12717a1ef8dd",
-    "uploadedAt": "2026-10-21T20:37:11Z"
+    "sha256": "e1b4663314712f927b752db7f32b94e8722a070736874f0acb578b11fa56e37e",
+    "uploadedAt": "2026-11-01T08:11:18Z"
   },
   "Fenripup/face": {
     "assetId": 103169273849929,
@@ -279,13 +279,13 @@
     "uploadedAt": "2026-10-21T20:23:45Z"
   },
   "Frostfang/atlas": {
-    "assetId": 116797321786099,
+    "assetId": 139611157645679,
     "file": "assets/models/Frostfang/Frostfang_atlas.png",
     "format": "png",
-    "imageId": 122483013101607,
+    "imageId": 104958309824005,
     "kind": "atlas",
-    "sha256": "6ebffb01c394623f52804fa8ecbf8ee08e9f397d72e751ce4253a716f3435789",
-    "uploadedAt": "2026-10-21T20:37:14Z"
+    "sha256": "8f3cea436120a038eb3e9e821702d2f7c8ac60f5673b55fd5c8792a47c6fcbc4",
+    "uploadedAt": "2026-11-01T08:11:21Z"
   },
   "Frostfang/face": {
     "assetId": 116399865550887,
@@ -306,13 +306,13 @@
     "uploadedAt": "2026-10-21T20:23:51Z"
   },
   "Gaiabloom/atlas": {
-    "assetId": 108970347520736,
+    "assetId": 111573099550671,
     "file": "assets/models/Gaiabloom/Gaiabloom_atlas.png",
     "format": "png",
-    "imageId": 127928382075210,
+    "imageId": 74695350965107,
     "kind": "atlas",
-    "sha256": "238a178289087afe9a6e23959bcc525e4b18013dde9b00caf135286fab1b3c9d",
-    "uploadedAt": "2026-10-21T20:37:17Z"
+    "sha256": "f4f1d6d74f4eb0c0b1456d91ce2077cf0b27e01f2738e690e649db320f5a6c68",
+    "uploadedAt": "2026-11-01T08:11:24Z"
   },
   "Gaiabloom/face": {
     "assetId": 123129260942652,
@@ -369,13 +369,13 @@
     "uploadedAt": "2026-10-22T05:26:40Z"
   },
   "Gloomoth/atlas": {
-    "assetId": 119745925416834,
+    "assetId": 113888968392014,
     "file": "assets/models/Gloomoth/Gloomoth_atlas.png",
     "format": "png",
-    "imageId": 116034763012203,
+    "imageId": 81799581884639,
     "kind": "atlas",
-    "sha256": "ed82b993a7c96adf6b5e585b3cf33ea11b813beca5c5fa1bc3342c456ea88cef",
-    "uploadedAt": "2026-10-21T20:37:20Z"
+    "sha256": "7fbd616ab843256cb8d86604ca72b6cc75f231714bd29db47b6ab55b8cf9dd25",
+    "uploadedAt": "2026-11-01T08:11:27Z"
   },
   "Gloomoth/face": {
     "assetId": 125172583492279,
@@ -693,13 +693,13 @@
     "uploadedAt": "2026-10-21T20:25:33Z"
   },
   "Mossbop/atlas": {
-    "assetId": 85746211754423,
+    "assetId": 74232075891848,
     "file": "assets/models/Mossbop/Mossbop_atlas.png",
     "format": "png",
-    "imageId": 87836738289077,
+    "imageId": 114290358582050,
     "kind": "atlas",
-    "sha256": "7061f117ad6b56d3a728b87cdab26e87096652500d2753344295a1dd5fef89c4",
-    "uploadedAt": "2026-10-21T20:25:36Z"
+    "sha256": "6f77a50284aac5c677ad8181f39bd89e021b4e40d9005fccebb46ae79033e42b",
+    "uploadedAt": "2026-11-01T08:11:30Z"
   },
   "Mossbop/face": {
     "assetId": 122275432429109,
@@ -720,13 +720,13 @@
     "uploadedAt": "2026-10-21T20:25:39Z"
   },
   "Nebulyn/atlas": {
-    "assetId": 81052229072460,
+    "assetId": 108860255542969,
     "file": "assets/models/Nebulyn/Nebulyn_atlas.png",
     "format": "png",
-    "imageId": 124863958086054,
+    "imageId": 132380211894447,
     "kind": "atlas",
-    "sha256": "49052d98a11eb3c0e47e028f1d2aeb05d819ce5eba846935b85239ca7ec4a929",
-    "uploadedAt": "2026-10-21T20:37:23Z"
+    "sha256": "f5a761b297343fd5209ae8a424c36dfba06e9c49d72e9b50d3ecb9897a4c5b96",
+    "uploadedAt": "2026-11-01T08:11:33Z"
   },
   "Nebulyn/face": {
     "assetId": 71304847211704,
@@ -738,13 +738,13 @@
     "uploadedAt": "2026-10-22T05:26:55Z"
   },
   "Panpipe/atlas": {
-    "assetId": 92561501913375,
+    "assetId": 123849956913409,
     "file": "assets/models/Panpipe/Panpipe_atlas.png",
     "format": "png",
-    "imageId": 132372087186562,
+    "imageId": 107293097132736,
     "kind": "atlas",
-    "sha256": "9ca661175c7350011055c84ef89e4dc926cb0e10555c4754376b8f1070e595b5",
-    "uploadedAt": "2026-10-21T20:37:26Z"
+    "sha256": "a8adae15a08faa86af424ee986012a03b7bbf8fa52779997ad919543050bba07",
+    "uploadedAt": "2026-11-01T08:11:36Z"
   },
   "Panpipe/face": {
     "assetId": 86339628586940,
@@ -837,13 +837,13 @@
     "uploadedAt": "2026-10-22T05:27:07Z"
   },
   "Radish/atlas": {
-    "assetId": 73016489074787,
+    "assetId": 101009637767699,
     "file": "assets/models/Radish/Radish_atlas.png",
     "format": "png",
-    "imageId": 111532604962185,
+    "imageId": 99729776297006,
     "kind": "atlas",
-    "sha256": "923bbc026521e24ee609e0dc6f4b9fb1191c84a630bddf771605acbe074227ff",
-    "uploadedAt": "2026-10-21T20:37:29Z"
+    "sha256": "bd404c8260889ab05cd0c4db4def802e1cf6c078cb85adc7c5a01237f401493b",
+    "uploadedAt": "2026-11-01T08:11:39Z"
   },
   "Radish/face": {
     "assetId": 110640810424209,
@@ -864,13 +864,13 @@
     "uploadedAt": "2026-10-21T20:26:08Z"
   },
   "Reindazzle/atlas": {
-    "assetId": 72132504161734,
+    "assetId": 132395452457728,
     "file": "assets/models/Reindazzle/Reindazzle_atlas.png",
     "format": "png",
-    "imageId": 106765933193978,
+    "imageId": 76114445183523,
     "kind": "atlas",
-    "sha256": "44c26bb5553d48254e8d7dc75dff8ea2ed2b2ed8b254c6f8dfb216f55f0e4000",
-    "uploadedAt": "2026-10-21T20:37:32Z"
+    "sha256": "359dc9b4d04578ae4e9ea23619c7fde8d228badae885e9671788c4789a35d5fb",
+    "uploadedAt": "2026-11-01T08:11:41Z"
   },
   "Reindazzle/face": {
     "assetId": 110584374393892,
@@ -882,13 +882,13 @@
     "uploadedAt": "2026-10-22T05:27:13Z"
   },
   "Rocklobber/atlas": {
-    "assetId": 117567668750755,
+    "assetId": 77455351853324,
     "file": "assets/models/Rocklobber/Rocklobber_atlas.png",
     "format": "png",
-    "imageId": 100652787863233,
+    "imageId": 92119089881965,
     "kind": "atlas",
-    "sha256": "0f4a9bf1e32d53d72cf8384a70de98524af6e80d6ecdaa93ed79b878af47a2ab",
-    "uploadedAt": "2026-10-21T20:37:35Z"
+    "sha256": "a112cc97c9214b838ce828cd55cce9a932bae3de5c935e39d708cc4532dc149b",
+    "uploadedAt": "2026-11-01T08:11:44Z"
   },
   "Rocklobber/face": {
     "assetId": 138042887098769,
@@ -927,13 +927,13 @@
     "uploadedAt": "2026-10-21T20:26:22Z"
   },
   "Shellberg/atlas": {
-    "assetId": 73494034650584,
+    "assetId": 91078118287706,
     "file": "assets/models/Shellberg/Shellberg_atlas.png",
     "format": "png",
-    "imageId": 103486202857780,
+    "imageId": 72064852726590,
     "kind": "atlas",
-    "sha256": "faf3da2de6af5193076b2941fa398e9f01dab522adaa8003406a88e8d7381adc",
-    "uploadedAt": "2026-10-21T20:37:37Z"
+    "sha256": "76dab7642fae0998729f243841ed4d73ed45a92a5677c20235cce67675ea1f93",
+    "uploadedAt": "2026-11-01T08:11:47Z"
   },
   "Shellberg/face": {
     "assetId": 131210341321338,
@@ -945,13 +945,13 @@
     "uploadedAt": "2026-10-22T05:27:18Z"
   },
   "Shimmerlynx/atlas": {
-    "assetId": 94962292321450,
+    "assetId": 70548319360531,
     "file": "assets/models/Shimmerlynx/Shimmerlynx_atlas.png",
     "format": "png",
-    "imageId": 100995364175378,
+    "imageId": 72131919514494,
     "kind": "atlas",
-    "sha256": "f6cdd5781add2ac75ab0c060cd0aa0c7a5be4aa45306362341286687ac11ffdc",
-    "uploadedAt": "2026-10-21T20:37:40Z"
+    "sha256": "1974f9cfb46d0712090edeb87e354b656bc81c1f3c090ac480b0e80c615f2b37",
+    "uploadedAt": "2026-11-01T08:11:50Z"
   },
   "Shimmerlynx/face": {
     "assetId": 76620170441965,
@@ -1035,13 +1035,13 @@
     "uploadedAt": "2026-10-21T20:26:40Z"
   },
   "Skaddle/atlas": {
-    "assetId": 122870491522623,
+    "assetId": 130175440125114,
     "file": "assets/models/Skaddle/Skaddle_atlas.png",
     "format": "png",
-    "imageId": 89516848138318,
+    "imageId": 94919451153459,
     "kind": "atlas",
-    "sha256": "125cc18d8f43ad48f6743b91390f9dbfa8280adfbbbbd4bf60c7cb8f52c2f21c",
-    "uploadedAt": "2026-10-21T20:37:43Z"
+    "sha256": "328eaf7b14ab12c4dcbfdf20c434310c973a2cd692fa47f1f3ff7db2390b1b5d",
+    "uploadedAt": "2026-11-01T08:11:53Z"
   },
   "Skaddle/face": {
     "assetId": 108088043001711,
@@ -1134,13 +1134,13 @@
     "uploadedAt": "2026-10-21T20:27:03Z"
   },
   "Sparkfox/atlas": {
-    "assetId": 94964738221230,
+    "assetId": 76103760627589,
     "file": "assets/models/Sparkfox/Sparkfox_atlas.png",
     "format": "png",
-    "imageId": 92155920456472,
+    "imageId": 84743045124677,
     "kind": "atlas",
-    "sha256": "7aaed1297932f5320ebfe758457e9281b97287a7b964d9fb9a1c873d90615a0b",
-    "uploadedAt": "2026-10-21T20:37:46Z"
+    "sha256": "9c2e4259d1f6a79bc1d268e21283bfa0b4a6a23034accc8a8d6c581a10347d7c",
+    "uploadedAt": "2026-11-01T08:11:56Z"
   },
   "Sparkfox/face": {
     "assetId": 86700458196128,
@@ -1152,13 +1152,13 @@
     "uploadedAt": "2026-10-22T05:27:33Z"
   },
   "Spookum/atlas": {
-    "assetId": 133544729131987,
+    "assetId": 105358099045365,
     "file": "assets/models/Spookum/Spookum_atlas.png",
     "format": "png",
-    "imageId": 102578211007674,
+    "imageId": 87810402908662,
     "kind": "atlas",
-    "sha256": "d748a91ad7cc1c5424891c2f2ea4ad2eba2c7f3fdb8028e01a2df7afe049339a",
-    "uploadedAt": "2026-10-21T20:37:49Z"
+    "sha256": "80462a3e914f93634dd1674dcdb6685c80cd8788beaac41054c7dba7591d134b",
+    "uploadedAt": "2026-11-01T08:11:59Z"
   },
   "Spookum/face": {
     "assetId": 102564996282214,
@@ -1188,13 +1188,13 @@
     "uploadedAt": "2026-10-21T20:27:15Z"
   },
   "Thunderhog/atlas": {
-    "assetId": 98622924264876,
+    "assetId": 125790668054125,
     "file": "assets/models/Thunderhog/Thunderhog_atlas.png",
     "format": "png",
-    "imageId": 79789189923150,
+    "imageId": 72543008508911,
     "kind": "atlas",
-    "sha256": "c433096dd38e57bd2d4e19d139ee1af2947a19fa1b4de1a7d17b6c838808e474",
-    "uploadedAt": "2026-10-21T20:37:52Z"
+    "sha256": "488d27a87675d20fd308ad6ab4653a9fe09b68fa68df785f3dc974ca74581bb8",
+    "uploadedAt": "2026-11-01T08:12:02Z"
   },
   "Thunderhog/face": {
     "assetId": 71565516883265,
@@ -1242,13 +1242,13 @@
     "uploadedAt": "2026-10-22T05:27:45Z"
   },
   "Wisplet/atlas": {
-    "assetId": 130872030420788,
+    "assetId": 85220779388412,
     "file": "assets/models/Wisplet/Wisplet_atlas.png",
     "format": "png",
-    "imageId": 86748887022809,
+    "imageId": 107225354794872,
     "kind": "atlas",
-    "sha256": "7c9a1cf102d0c15a92912124e10b92e033f9a86bb7a5e5f6f3353f084ef5d394",
-    "uploadedAt": "2026-10-21T20:37:55Z"
+    "sha256": "a6ea2636cc43ce69ec3c8d78c87d91628ae5f4a936f9eabf07dbb390efdf7116",
+    "uploadedAt": "2026-11-01T08:12:05Z"
   },
   "Wisplet/face": {
     "assetId": 126695978856124,
@@ -1260,13 +1260,13 @@
     "uploadedAt": "2026-10-22T05:27:48Z"
   },
   "Zapfinch/atlas": {
-    "assetId": 133670081274375,
+    "assetId": 102893738784529,
     "file": "assets/models/Zapfinch/Zapfinch_atlas.png",
     "format": "png",
-    "imageId": 120674569637136,
+    "imageId": 95794417167300,
     "kind": "atlas",
-    "sha256": "513e8594a2d888e2b748851650732897762d7d3baabb597be55628886e137b57",
-    "uploadedAt": "2026-10-21T20:37:58Z"
+    "sha256": "3d2a46e023ebf99f16f8086a7b97c7bb057b1b0c1453f8332a6002476f15e476",
+    "uploadedAt": "2026-11-01T08:12:08Z"
   },
   "Zapfinch/face": {
     "assetId": 115714601176985,
