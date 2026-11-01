@@ -18,6 +18,13 @@ export type WorldCardDef = {
 	unlockAfter: number, -- the world id whose ship opens this one (0 where no world does: the Home planet, a launch opens it)
 }
 
+-- The pictures by file stem (assets/sprites/worlds/<Key>.png). `id` is the Image id, 0 until uploaded; tools/upload_assets.py
+-- --blocky fills it (the tile row convention: `<Key> = { id = 0 }`), so these rows keep that exact shape.
+local Pictures = {
+	World1 = { id = 86643680501490 },
+	World2 = { id = 119803920622376 },
+}
+
 local Cards: { [number]: WorldCardDef } = {
 	[0] = {
 		color = "D8B26E",
@@ -29,14 +36,14 @@ local Cards: { [number]: WorldCardDef } = {
 	[1] = {
 		color = "3FBF5A",
 		palette = { sky = "62B3EC", skyLow = "D8EEF5", far = "3F8F4F", ground = "6BCB3F", accent = "FFD84A" },
-		image = 0,
+		image = Pictures.World1.id,
 		unlockLineKey = "STARCHART_LOCKED",
 		unlockAfter = 0,
 	},
 	[2] = {
 		color = "7FD3F7",
 		palette = { sky = "78A8D6", skyLow = "DDE8F2", far = "A9B7C0", ground = "F2F6FA", accent = "BFE9FF" },
-		image = 0,
+		image = Pictures.World2.id,
 		unlockLineKey = "WORLDCARD_UNLOCK",
 		unlockAfter = 1,
 	},

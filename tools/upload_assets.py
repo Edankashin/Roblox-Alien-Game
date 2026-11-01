@@ -102,8 +102,8 @@ What it finds (any of it may be absent; the plan covers what is there):
     `blockCell` true and `replacedAssetId`). Every PNG the entries' `colorMap` fields name (<Name>_atlas.png, <Name>_face.png)
     goes up as a Decal, recorded in assets/models/image_ids.json under "<Name>/<sheet>" (assetId the Decal, imageId the Image).
   - every PNG under assets/sprites/blocky (tools/pixel_sprites.py): a Decal in assets/icons/asset_ids.json, kind "particle".
-  - every PNG under assets/textures/blocky_tiles (the world tiles): a Decal in assets/textures/blocky_tiles/asset_ids.json,
-    kind "tile". A tile's Image id is filled into the one row of any src/shared/data/*.luau that is keyed by the tile key
+  - every PNG under assets/textures/blocky_tiles (the world tiles) and under assets/sprites/worlds (the world cards'
+    pictures, filled the same way): a Decal in assets/textures/blocky_tiles/asset_ids.json, kind "tile". A tile's Image id is filled into the one row of any src/shared/data/*.luau that is keyed by the tile key
     and has an `id` field on the same line (`<Key> = { id = 0, ... }` or `["<Key>"] = { id = 0, ... }`); a key two rows
     match is left alone and the plan says so.
 A file whose id is recorded is skipped (--redo uploads it again), unless its content changed: every upload records the
@@ -193,6 +193,7 @@ BLOCKY_SPRITES_DIR = REPO / "assets" / "sprites" / "blocky"
 BLOCKY_IMAGE_IDS_FILE = MODELS_DIR / "image_ids.json"
 BLOCKY_TILES_DIR = TEXTURES_DIR / "blocky_tiles"
 BLOCKY_TILE_IDS_FILE = BLOCKY_TILES_DIR / "asset_ids.json"
+BLOCKY_WORLDS_DIR = REPO / "assets" / "sprites" / "worlds"   # the world cards' pictures: planned and filled like tiles
 DATA_DIR = REPO / "src" / "shared" / "data"
 INSTALLER_LUAU = REPO / "tools" / "studio" / "install_models.luau"
 KEY_NAMES = ("ROBLOX_OPEN_CLOUD_KEY", "ROBLOX_API_KEY")   # the first one set is the key
@@ -1138,11 +1139,12 @@ class BlockyPaths(typing.NamedTuple):
     tile_ids: pathlib.Path      # assets/textures/blocky_tiles/asset_ids.json
     icons_luau: pathlib.Path    # src/shared/data/Icons.luau
     data_dir: pathlib.Path      # src/shared/data: where a tile's row (`<Key> = { id = 0, ... }`) is looked for
+    worlds: "pathlib.Path | None" = None  # assets/sprites/worlds/*.png: the world cards' pictures, joining the tiles
 
 
 def blocky_paths() -> BlockyPaths:
     return BlockyPaths(MODELS_DIR, BLOCKY_SPRITES_DIR, BLOCKY_TILES_DIR, DEFAULT_IDS_FILE, BLOCKY_IMAGE_IDS_FILE,
-                       IMAGE_IDS_FILE, BLOCKY_TILE_IDS_FILE, ICONS_LUAU, DATA_DIR)
+                       IMAGE_IDS_FILE, BLOCKY_TILE_IDS_FILE, ICONS_LUAU, DATA_DIR, BLOCKY_WORLDS_DIR)
 
 
 class CellFolder(typing.NamedTuple):
@@ -1240,7 +1242,13 @@ def discover_blocky(paths: BlockyPaths) -> "tuple[dict[str, CellFolder], dict[st
             if found.name in folders:
                 problems.append("%s is both a species and a prop folder" % found.name)
             folders[found.name] = found
-    return folders, _pngs(paths.sprites), _pngs(paths.tiles), problems
+    tiles = _pngs(paths.tiles)
+    for key, png in (_pngs(paths.worlds) if paths.worlds else {}).items():
+        if key in tiles:
+            problems.append("%s is both a tile and a world picture" % key)
+        else:
+            tiles[key] = png
+    return folders, _pngs(paths.sprites), tiles, problems
 
 
 _DATA_ROW = re.compile(r'^(\s*\[?"?)(\w+)("?\]?\s*=\s*\{.*?\bid\s*=\s*)(\d+)(.*)$')

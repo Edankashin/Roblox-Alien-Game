@@ -151,5 +151,23 @@
     "kind": "tile",
     "sha256": "94a3cb01b4c20c73f5da0226650169bebcdb2d85d4595fa73ccee74e0916f006",
     "uploadedAt": "2026-10-21T20:30:57Z"
+  },
+  "World1": {
+    "assetId": 119209288382812,
+    "file": "assets/sprites/worlds/World1.png",
+    "format": "png",
+    "imageId": 86643680501490,
+    "kind": "tile",
+    "sha256": "6700fba8f499186b68cbb8d1ec18ed24d423ff8061a5dc08166e65cf0d4d148d",
+    "uploadedAt": "2026-11-01T08:14:50Z"
+  },
+  "World2": {
+    "assetId": 133155021675799,
+    "file": "assets/sprites/worlds/World2.png",
+    "format": "png",
+    "imageId": 119803920622376,
+    "kind": "tile",
+    "sha256": "f35ed12276f084aed7318f0e4d8a5db5ef073ea595b7f44519bd7fcd7c04c1c9",
+    "uploadedAt": "2026-11-01T08:14:53Z"
   }
 }

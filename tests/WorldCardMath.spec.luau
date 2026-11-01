@@ -185,7 +185,11 @@ describe("data/WorldCards", function()
 			for _, hex in ipairs({ card.color, card.palette.sky, card.palette.skyLow, card.palette.far, card.palette.ground, card.palette.accent }) do
 				expect(string.match(hex, "^%x%x%x%x%x%x$") ~= nil).toEqual(true)
 			end
-			expect(card.image).toEqual(0) -- nothing uploaded yet: the diorama draws
+			-- a whole number: 0 (the diorama draws) or the uploaded picture's Image id; the built worlds carry a picture
+			expect(card.image >= 0 and card.image == math.floor(card.image)).toEqual(true)
+			if id == 1 or id == 2 then
+				expect(card.image > 0).toEqual(true)
+			end
 		end
 	end)
 	it("never uses a rarity colour as a place colour", function()

@@ -26,7 +26,7 @@ Ethan approved on 2026-10-14, before sleeping: (A) create the six shop items thr
 
 Ethan (2026-10-28): "lets continue all full throttle and get this play through going and launch the game." Every Studio step at the default window (no emulator; the phone playtest covers phone sizes). Jobs 67, 71, 47 and the publish dry run are done.
 
-1. **Upload**: `tools/finalize_upload.sh` (the 4 pilots and the 15 Rare-and-up aliens re-exported to the character bar, the 2 world crops in `assets/sprites/worlds/`); commit and push the ids. If a model fails moderation, log its name and carry on.
+1. **Upload**: `tools/finalize_upload.sh` (the 4 pilots and the 15 Rare-and-up aliens re-exported to the character bar, the 2 world crops in `assets/sprites/worlds/`); commit and push the ids. If a model fails moderation, log its name and carry on. **Done 2026-11-01** (38 bar assets and the 2 world crops, all approved; see [[2026-11-01]]).
 2. **Job 70** (the four pilots), **72** (World 1 rares), **73** (World 2 rares): import and check the bar in Play; frame time with the world's rares on screen.
 3. **Job 74** (the radar scroll), **75** (panel anatomy and the goal card), **76** (world cards and the arrival title), and **77** when it exists (featured plus grid).
 4. **Job 43** (the world walk) if time allows; job 71 already walked the camp, the Starhollow and the far corner.
