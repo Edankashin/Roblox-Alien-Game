@@ -53,6 +53,7 @@ local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Bu
 local SpeciesFx = require(script.Parent:WaitForChild("SpeciesFx"))
 local RigAnimator = require(script.Parent:WaitForChild("RigAnimator"))
 local CameraDirector = require(script.Parent:WaitForChild("CameraDirector"))
+local SpriteGuard = require(script.Parent:WaitForChild("SpriteGuard"))
 
 local Spectacle = {}
 
@@ -210,7 +211,7 @@ end
 local function dressSprite(emitter: ParticleEmitter, key: string)
 	local id = EffectsMath.SpriteFor(key)
 	if id ~= nil then
-		emitter.Texture = "rbxassetid://" .. id
+		SpriteGuard.Apply(emitter, id)
 	end
 end
 

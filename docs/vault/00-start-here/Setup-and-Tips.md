@@ -96,6 +96,7 @@ Do not run `tools/setup-mac.sh` blind: it installs software machine-wide and tru
 ### Studio and the Studio MCP server
 
 - The Assistant button and the top bar (Home, Model, Avatar, UI, Script, Plugins) only exist once a place is open.
+- A wild alien turns its back on the nearest player within a second or two, so a "from behind" shot is the alien reacting, not the model's facing. For a face-on shot park the player on the far side of the alien, about 34 studs behind it, and it turns to face the camera (`H.reframe` in `tools/studio/mcp_helper.luau`; found on the 2026-11-01 run).
 - The MCP page's green dot is lit only while a Claude Code session is running in the repo.
 - `execute_luau` runs in the Edit, Client or Server datamodel. A `require` from the MCP context gets a **fresh copy** of a module, so read live server state through remotes or events, not by requiring the service.
 - Dev chat commands from the Client datamodel: `TextChatService.TextChannels.RBXGeneral:SendAsync("/scrap 1000")`. Only the first `SendAsync` of a command-bar run is delivered, so send one command per run.

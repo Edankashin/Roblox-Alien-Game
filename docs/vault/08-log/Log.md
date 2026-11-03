@@ -29,3 +29,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-10-28]]: the character bar resumed after the pause (BAR-W2: World 2's Rare-and-up aliens, rule 8 on the 16-stud strip).
 - [[2026-10-28]]: the character bar resumed for World 1's Rare and up (BAR-W1: Zapfinch to Nebulyn).
 - [[2026-11-01]] (Mac): the Launch queue run (the character-bar upload with the world crops, jobs 70 and 72 to 77, the publish dry run).
+- [[2026-11-03]]: the Launch queue findings fixed (SpriteGuard for the failing sprites, the gold Claim plate, CodexChanged after every grant); job 78 queued.

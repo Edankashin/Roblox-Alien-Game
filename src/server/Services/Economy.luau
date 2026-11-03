@@ -825,8 +825,14 @@ local function grantAlien(player: Player, species: string, overlay: Types.Overla
 	end
 	Buffs.OnCatch(player, tier)
 	-- Deferred so the grant's own reply (AlienGranted, or the remote's return value) leaves first and the client opens its Reveal before the server-wide banner arrives.
+	-- The codex entry rides the same deferral: a catch has already mirrored it (State.ApplyCatch) and takes the same values again; a grant
+	-- that is not a catch (an egg, a gift, a shop alien, /dupes) had no other way to reach the client's Codex until a rejoin (Mac, 2026-11-01).
 	task.defer(function()
 		announceCatch(player, species, tier, overlay)
+		local entry = profile.codex[species]
+		if entry then
+			Net.event("CodexChanged"):FireClient(player, species, { count = entry.count, bestOverlay = entry.bestOverlay, firstCaughtAt = entry.firstCaughtAt })
+		end
 	end)
 	Quests.OnCatch(player, species, tier, WorldClock.GetConditions())
 	Tutorial.OnCatch(player, species)

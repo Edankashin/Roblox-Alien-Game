@@ -25,6 +25,7 @@ local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
 local Icons = require(Shared:WaitForChild("data"):WaitForChild("Icons"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local CampRenderer = require(script.Parent:WaitForChild("CampRenderer"))
+local SpriteGuard = require(script.Parent:WaitForChild("SpriteGuard"))
 
 local Vfx = {}
 
@@ -185,7 +186,7 @@ local function emitter(part: Part, props: EmitterProps): ParticleEmitter
 	e.RotSpeed = props.rotSpeed or NumberRange.new(0)
 	local texture = props.texture
 	if texture ~= nil and texture ~= 0 then
-		e.Texture = "rbxassetid://" .. texture
+		SpriteGuard.Apply(e, texture)
 	end
 	if props.orientation then
 		e.Orientation = props.orientation

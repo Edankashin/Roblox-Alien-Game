@@ -492,7 +492,8 @@ local function showNotes()
 		counterChip.Visible = false
 	end
 	setReward(step)
-	setFraction(if ready then 1 else HudStages.Fraction(have, need), not newStep)
+	-- A ready step shows the gold face alone: a full bar would lay the blue fill over it (Mac job 75, 2026-11-01).
+	setFraction(if ready then nil else HudStages.Fraction(have, need), not newStep)
 	if tapButton then
 		tapButton.Visible = true
 	end

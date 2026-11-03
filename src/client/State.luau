@@ -2,7 +2,7 @@
 -- StarterPlayerScripts.Client.State: the client's mirror of its own profile. The server owns the real
 -- one and pushes changes (ScrapChanged, AliensDelta, ModulesChanged, InventoryChanged, RateChanged,
 -- SettingsChanged, PurchasesChanged, ServerLuckChanged, ShowerChanged, CatchRushChanged, CompanionsChanged,
--- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged, SeenChanged);
+-- WeeklyChanged, HomeChanged, MailChanged, HomeView, SeasonChanged, SeasonProgressChanged, StorageChanged, SeenChanged, CodexChanged);
 -- this module applies them to the copy and tells screens which topic changed. Nothing here decides
 -- anything; it only remembers what the server said last. InventoryChanged carries the whole inventory
 -- table (key materials, lures, power-ups); GearChanged carries the gear table.
@@ -748,6 +748,16 @@ function State.Start()
 		Net.event("AliensDelta").OnClientEvent:Connect(function(raw: any)
 			if type(raw) == "table" and type((raw :: any).seq) == "number" then
 				applyAliensDelta(raw :: Types.AliensDelta)
+			end
+		end)
+	end)
+	task.spawn(function()
+		-- The server's codex entry for one species after a grant (a catch, an egg, a gift, a shop alien, a dev grant): the whole entry,
+		-- so it replaces the local copy (ApplyCatch may have mirrored the same catch a moment earlier).
+		Net.event("CodexChanged").OnClientEvent:Connect(function(species: any, entry: any)
+			if profile and type(species) == "string" and type(entry) == "table" and type(entry.count) == "number" then
+				profile.codex[species] = { count = entry.count, bestOverlay = entry.bestOverlay or "None", firstCaughtAt = entry.firstCaughtAt or 0 }
+				fire("codex")
 			end
 		end)
 	end)

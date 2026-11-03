@@ -26,6 +26,7 @@ local Place = require(Shared:WaitForChild("Place"))
 local LightingData = require(Shared:WaitForChild("data"):WaitForChild("Lighting"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
+local SpriteGuard = require(script.Parent:WaitForChild("SpriteGuard"))
 
 local WeatherFx = {}
 
@@ -179,7 +180,7 @@ local function build(name: string, sheet: Weather.Sheet): Live
 	end
 	emitter.RotSpeed = NumberRange.new(sheet.rotationSpeed[1] or 0, sheet.rotationSpeed[2] or sheet.rotationSpeed[1] or 0)
 	if sheet.texture ~= 0 then
-		emitter.Texture = "rbxassetid://" .. tostring(sheet.texture)
+		SpriteGuard.Apply(emitter, sheet.texture)
 	end
 	emitter.Parent = part
 

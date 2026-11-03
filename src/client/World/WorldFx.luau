@@ -26,6 +26,7 @@ local Theme = require(Shared:WaitForChild("Theme"))
 local LightingData = require(Shared:WaitForChild("data"):WaitForChild("Lighting"))
 local State = require(script.Parent.Parent:WaitForChild("State"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
+local SpriteGuard = require(script.Parent:WaitForChild("SpriteGuard"))
 
 local WorldFx = {}
 
@@ -123,7 +124,7 @@ local function buildEmitter(entry: Entry, row: FxData.Particles)
 	emitter.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
 	emitter.EmissionDirection = Enum.NormalId.Top
 	if row.texture ~= 0 then
-		emitter.Texture = "rbxassetid://" .. tostring(row.texture)
+		SpriteGuard.Apply(emitter, row.texture)
 	end
 	local direction = vec(row.direction)
 	if direction.Magnitude > 1e-3 and math.abs(direction.Unit.Y) < 0.999 then

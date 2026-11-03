@@ -60,6 +60,7 @@ local Sounds = require(Shared:WaitForChild("data"):WaitForChild("Sounds"))
 local EffectsMath = require(Shared:WaitForChild("EffectsMath"))
 local Prefs = require(script.Parent.Parent:WaitForChild("Prefs"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
+local SpriteGuard = require(script.Parent:WaitForChild("SpriteGuard"))
 
 local SpeciesFx = {}
 
@@ -345,7 +346,9 @@ local function dressSprite(emitter: ParticleEmitter, key: string?)
 	if id == nil then
 		return
 	end
-	emitter.Texture = "rbxassetid://" .. id
+	if not SpriteGuard.Apply(emitter, id) then
+		return -- the soft sprite stands in for an id Roblox cannot serve; no sheet on it
+	end
 	if sheet then
 		local layout = (Enum.ParticleFlipbookLayout :: any)[sheet.layout]
 		local mode = (Enum.ParticleFlipbookMode :: any)[sheet.mode]
