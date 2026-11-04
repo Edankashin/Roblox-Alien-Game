@@ -32,7 +32,7 @@ Ethan: "I want to be able to launch this game by this week."
 
 ## Live now (private; the playtest release waits on Ethan)
 
-World 1 **v133**, World 2 **v7**, Home **v6**, published 2026-11-01 from the repo by Ethan's `--apply` ([[2026-11-01]]); the repo is one publish ahead (the job 78 and 79 fixes, 9d69841), so the next `! python3 -I tools/publish.py --apply` (Ethan) puts them live. Ethan asked on 2026-11-04 to release it for playtesting ([[Decisions]] B58): the tester brief is [[Playtest-Brief]], the tool is `tools/release.py`, and the switch itself is his (the key cannot write universe or place settings; dashboard steps in [[Launch-Steps]] 6, or the key's two write scopes plus `--apply`). Nobody outside the team can join until then.
+World 1 **v135**, World 2 **v8**, Home **v7**, published 2026-11-04 by Ethan's `--apply` from the repo at 685f4c5, with the job 78 and 79 fixes (9d69841) in. Ethan asked on 2026-11-04 to release it for playtesting ([[Decisions]] B58): the tester brief is [[Playtest-Brief]], the tool is `tools/release.py`, the key got its two write scopes the same evening and `--prepare` set the name, description, 8 a server and VR off; the switch itself is Ethan's one command, `python3 -I tools/release.py --public`. Nobody outside the team can join until then.
 
 ## Built and waiting
 
