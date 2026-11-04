@@ -118,3 +118,11 @@ Creator Dashboard: create.roblox.com > Creations > Alien game (universe 10769415
 ## 6. Known gaps shipping with the launch (fix in week one)
 
 Icons are the flat pack where no pixel icon exists yet; music is a first blind pick; camera anchors are not placed; worlds 3 to 7 are designed only; haptics unverified on a real phone. Five shop items (DirectRare, DirectEpic, AutoCollect, ModuleRush, RadarMk1Unlock) are not sold until their features exist (`docs/vault/04-roblox-engine/Prelaunch-Audit.md`).
+
+## 5e. What went in on 2026-11-04 (the playtest release; Ethan's Chrome driven by the Mac session)
+
+- **Genre:** Adventure; **subgenre:** Exploration (the list offers Exploration, Scavenger Hunt, Story; no Collecting). Roblox locks genre changes until 2026-12-03.
+- **Icon:** `media/store/2026-10-22/icon_A.png` (Moop's face), saved; it went through moderation within minutes.
+- **Thumbnails:** three, all Active, personalization on: `thumb_S3.jpg` (the two-worlds panorama, a quality-88 JPEG of the PNG at 647 KB, kept in the folder), `thumb_2.png` (the catch), `thumb_1.png` (the camp). Order on the page is newest first; Roblox picks per viewer.
+- **Content questionnaire (17 sections), as answered:** violence no; blood no; fear no; crude humor no; unplayable gambling content no; strong language no; romantic themes or adult settings no; alcohol no; social hangout as the primary theme no; free-form user creation no; sensitive issue as the primary theme no; content captured from other experiences no; generative AI interaction no; **paid random items yes** (Server Luck x2 and x4 are on sale and `paidRandom`; the spins return with the paid wheel, B50) and **respects `ArePaidRandomItemsRestricted` yes**; paid item trading no; media sharing no; continuous feeds or autoplay no.
+- **Preview before submit:** Content Maturity Label **Minimal**, descriptors none, non-compliant regions none, age restriction none. The **Submit and publish** click is Ethan's (identity and legal steps stay his, [[Setup-and-Tips]]). Redo the questionnaire when the paid wheel ships (B50) or any answer above changes.
