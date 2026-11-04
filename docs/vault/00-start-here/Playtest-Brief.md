@@ -5,20 +5,20 @@ up: "[[Start-Here]]"
 ---
 # Playtest brief: what testers see, what to send them, what to ask
 
-Written 2026-11-04 on the Mac for Ethan ("set up the game so that I can have people play test it"). The release for playtesting is [[Decisions]] B58. `tools/release.py` is written and tested, but the Open Cloud key on the Mac has no `universe:write` or `universe.place:write` scope (every write answered 403 on 2026-11-04), and a session's auto-mode guard refuses to open a public surface itself anyway. Ethan added the two write scopes to the key the same evening ([[Launch-Steps]] step 2, 3b) and `--prepare` set the store name, the description, 8 players a server and VR off; the public switch through Open Cloud did not take (2026-11-04: Roblox answered 200 to `visibility: PUBLIC` and the universe stayed PRIVATE on three reads), so the switch is the dashboard's Public tab (Creator Hub > the experience > Publish settings > Manage access). The icon and thumbnails are still Ethan's uploads on the dashboard ([[Launch-Steps]] step 6), so until then the page shows Roblox's grey placeholder.
+Written 2026-11-04 on the Mac for Ethan ("set up the game so that I can have people play test it"). The release for playtesting is [[Decisions]] B58. `tools/release.py` is written and tested, but the Open Cloud key on the Mac has no `universe:write` or `universe.place:write` scope (every write answered 403 on 2026-11-04), and a session's auto-mode guard refuses to open a public surface itself anyway. Ethan added the two write scopes to the key the same evening ([[Launch-Steps]] step 2, 3b) and `--prepare` set the store name, the description, 8 players a server and VR off; the public switch through Open Cloud did not take (2026-11-04: Roblox answered 200 to `visibility: PUBLIC` and the universe stayed PRIVATE on three reads), so Ethan released it on the Creator Hub (Publish settings > Manage audience > Release publicly on Roblox) the same evening; Open Cloud read PUBLIC and the public games row answered (start place World 1, 8 players). **Public for playtesting since 2026-11-04.** The icon and thumbnails are still Ethan's uploads on the dashboard ([[Launch-Steps]] step 6), so until then the page shows Roblox's grey placeholder.
 
 ## What a tester sees on Roblox
 
 - **Name:** Catch an Alien. **Link:** https://www.roblox.com/games/93842567264184
 - **Description** (the store blurb, one home: `docs/STORE-PAGE.md` section 2): "You crash-landed on a strange planet built of little blocks. Cute aliens are everywhere! Catch them with a quick timing bar, put them to work at your camp, and watch your ship come together piece by piece. Fill the ship bar, launch, and land on World 2, Frostbyte." Then the seven bullets (35 aliens Common to Secret, rarer means more special eyes and effects, the Starhollow Forest, offline earnings, Meteor Showers and the Peddler, fusion and companions, the home planet) and the line "One thumb, no stress, nothing you did is ever wasted."
-- **Rating 13+** (the questionnaire's answer as it stands). An account under 13, or one whose content-maturity setting excludes 13+ experiences, is bounced to the Roblox home screen with no message (the 2026-11-01 phone bounce, [[2026-11-01]] job 79). Devices: computer, phone, tablet. 8 players per server (`Config.MaxPlayers`).
+- **Rating: not yet rated.** The content-rating questionnaire is still open on the Manage audience checklist (Open Cloud read `AGE_RATING_UNSPECIFIED` after the release; it read 13+ before). The public game page therefore shows "Maturity: Content May Vary, Ages 16+", so until Ethan answers it (the answers are in `docs/STORE-PAGE.md` 5d) only 16+ accounts can play, and an account whose content-maturity setting excludes it is bounced to the Roblox home screen with no message (the 2026-11-01 phone bounce, [[2026-11-01]] job 79). Devices: computer, phone, tablet. 8 players per server (`Config.MaxPlayers`).
 - **Shop prices are real Robux.** Fifteen items are for sale; nothing hands out Scrap for Robux. The LAUNCHWEEK code expired 2026-10-31.
 
 ## The message to send a tester (copy as is)
 
 > I'm playtesting my Roblox game, **Catch an Alien**. You crash-land on a planet made of little blocks, catch cute aliens with a timing bar, and they build your ship so you can fly to the next world.
 >
-> Link: https://www.roblox.com/games/93842567264184 (phone, tablet or computer; your Roblox account needs to be 13+).
+> Link: https://www.roblox.com/games/93842567264184 (phone, tablet or computer; for now your Roblox account needs to be 16+).
 >
 > Play for 10 to 15 minutes without asking me anything. Catch a few aliens, open the Aliens and Shop screens, walk into the forest, and try to fill the ship bar.
 >

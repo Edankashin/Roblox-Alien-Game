@@ -30,9 +30,9 @@ Ethan: "I want to be able to launch this game by this week."
 - [ ] The paid-only prize wheel ([[Decisions]] B50), then the three spin products back on sale
 - [ ] The Scrap ladder ([[Decisions]] B51, [[Decide-Now]] 49a), once the first week's payer numbers are in
 
-## Live now (private; the playtest release waits on Ethan)
+## Live now (public for playtesting since 2026-11-04)
 
-World 1 **v135**, World 2 **v8**, Home **v7**, published 2026-11-04 by Ethan's `--apply` from the repo at 685f4c5, with the job 78 and 79 fixes (9d69841) in. Ethan asked on 2026-11-04 to release it for playtesting ([[Decisions]] B58): the tester brief is [[Playtest-Brief]], the tool is `tools/release.py`, the key got its two write scopes the same evening and `--prepare` set the name, description, 8 a server and VR off; the API write of `visibility: PUBLIC` was accepted and ignored (2026-11-04), so the switch is the dashboard's Public tab under Publish settings > Manage access. Nobody outside the team can join until then.
+World 1 **v135**, World 2 **v8**, Home **v7**, published 2026-11-04 by Ethan's `--apply` from the repo at 685f4c5, with the job 78 and 79 fixes (9d69841) in. Ethan asked on 2026-11-04 to release it for playtesting ([[Decisions]] B58): the tester brief is [[Playtest-Brief]], the tool is `tools/release.py`, the key got its two write scopes the same evening and `--prepare` set the name, description, 8 a server and VR off; the API write of `visibility: PUBLIC` was accepted and ignored (2026-11-04), so Ethan released it on the Creator Hub (Manage audience > Release publicly on Roblox) the same evening; Open Cloud reads PUBLIC and the public row answers (start place World 1, 8 players). Anyone on Roblox can join by https://www.roblox.com/games/93842567264184. Left: the content-rating questionnaire (unrated after the release), icon A and the thumbnails.
 
 ## Built and waiting
 
