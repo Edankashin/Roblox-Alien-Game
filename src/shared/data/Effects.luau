@@ -270,8 +270,8 @@ local tiers: { [string]: Types.TierFxRule } = {
 local extras: { Trail: Types.EffectLayer, Orbit: Types.EffectLayer, GroundRing: Types.EffectLayer, Aura: Types.EffectLayer, Pillar: Types.EffectLayer } = {
 	Trail = { kind = "Trail", color = "FFFFFF", at = "Back", to = "Feet", lifetime = 1.1, width = 0.8 },
 	Orbit = { kind = "Orbit", color = "FFFFFF", at = "Body", count = 3, radius = 0.6, period = 4.5, rate = 8, size = 0.07, lifetime = 0.5, glow = 1, sprite = "PixelMote" },
-	GroundRing = { kind = "RingPulse", color = "FFFFFF", at = "Feet", every = 2.6, count = 1, size = 1.8, lifetime = 1.8, glow = 0.8, sprite = "PixelRing" },
-	Aura = { kind = "Aura", color = "FFFFFF", at = "Body", rate = 1.5, size = 1.25, lifetime = 1.6, glow = 0.6, sprite = "PixelHalo" },
+	GroundRing = { kind = "RingPulse", color = "FFFFFF", at = "Feet", every = 2.6, count = 1, size = 1.1, lifetime = 1.8, glow = 0.8, sprite = "PixelRing" },
+	Aura = { kind = "Aura", color = "FFFFFF", at = "Body", rate = 1.5, size = 0.7, lifetime = 1.6, glow = 0.6, sprite = "PixelHalo" },
 	Pillar = { kind = "Pillar", color = "FFFFFF", at = "Top", reach = 30, width = 0.35, lifetime = 2.2, flourish = true },
 }
 
@@ -721,7 +721,7 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Burst", color = "FFB7D5", at = "Mantle", flourish = true, count = 22, size = 0.07, lifetime = 2, speed = 0.55, spread = 140, rise = -0.12, glow = 0.3, spin = 120, sprite = "PixelPetal" },
 			{ kind = "Light", color = "F0287E", at = "Mantle", brightness = 1.3, range = 3.2, pulse = 3.6 },
 			{ kind = "Orbit", color = "FFB7D5", at = "Top", count = 4, radius = 0.45, period = 5, rate = 6, size = 0.06, lifetime = 0.6, glow = 0.5, spin = 90, sprite = "PixelPetal" },
-			{ kind = "RingPulse", color = "FF8FC0", at = "Feet", flourish = true, count = 1, size = 3, lifetime = 1.6, glow = 0.9, sprite = "PixelRing" },
+			{ kind = "RingPulse", color = "FF8FC0", at = "Feet", flourish = true, count = 1, size = 1.3, lifetime = 1.6, glow = 0.9, sprite = "PixelRing" },
 			-- the gilded medallion glints pink
 			{ kind = "Sparkle", color = "FF8FC0", at = "Medallion", every = 3, count = 1, size = 0.09, lifetime = 0.45, glow = 1, sprite = "PixelSparkle" },
 			-- a flower pops in each footprint
@@ -759,7 +759,7 @@ local species: { [string]: Types.SpeciesFx } = {
 			-- the flourish: the halo whirls and throws rune glints and flakes
 			{ kind = "Burst", color = "FFFFFF", at = "Runes", flourish = true, count = 22, size = 0.07, lifetime = 1.2, speed = 0.9, spread = 180, rise = -0.2, glow = 0.6, spin = 120, sprite = "PixelFlake" },
 			{ kind = "Orbit", color = "FFFFFF", at = "Body", count = 6, radius = 0.6, period = 3, rate = 5, size = 0.06, lifetime = 0.7, glow = 0.4, spin = 90, sprite = "PixelFlake" },
-			{ kind = "RingPulse", color = "CFEFFF", at = "Feet", flourish = true, count = 1, size = 3.2, lifetime = 1.4, glow = 0.8, sprite = "PixelRing" },
+			{ kind = "RingPulse", color = "CFEFFF", at = "Feet", flourish = true, count = 1, size = 1.3, lifetime = 1.4, glow = 0.8, sprite = "PixelRing" },
 			-- gold glints off the rune behind (Legendary's gilded trim)
 			{ kind = "Emitter", color = "E8B23A", at = "RunesB", rate = 4, size = 0.04, lifetime = 0.8, speed = 0.02, spread = 180, glow = 1, sprite = "PixelSparkle" },
 			-- frost ski-tracks behind the skis
@@ -784,7 +784,7 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Pillar", color = "FFF2C0", at = "Top", flourish = true, reach = 40, width = 0.4, lifetime = 2.2 },
 			{ kind = "Burst", color = "FFE9A8", at = "Sunstones", flourish = true, count = 30, size = 0.08, lifetime = 1, speed = 1.2, spread = 180, glow = 1, sprite = "PixelStar" },
 			{ kind = "Orbit", color = "FFB347", at = "Top", count = 5, radius = 0.55, period = 4, rate = 7, size = 0.07, lifetime = 0.5, glow = 1, sprite = "PixelMote" },
-			{ kind = "RingPulse", color = "FFC266", at = "Feet", every = 2.5, count = 1, size = 2.2, lifetime = 1.8, glow = 0.9, spin = 30, sprite = "PixelRing" },
+			{ kind = "RingPulse", color = "FFC266", at = "Feet", every = 2.5, count = 1, size = 1.1, lifetime = 1.8, glow = 0.9, spin = 30, sprite = "PixelRing" },
 		},
 		idle = { kind = "Hover", amplitude = 0.5, period = 3 },
 	},
@@ -805,7 +805,7 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Pillar", color = "E6ECFF", at = "Moon", flourish = true, reach = 45, width = 0.35, lifetime = 2.6 },
 			{ kind = "Burst", color = "E6ECFF", at = "Moon", flourish = true, count = 24, size = 0.07, lifetime = 1.4, speed = 0.8, spread = 120, rise = 0.1, glow = 1, dir = "Back", sprite = "PixelTwinkle" },
 			-- a ground ring of runes, turning once in 12 s
-			{ kind = "RingPulse", color = "8F7BFF", at = "Feet", every = 3, count = 1, size = 2.4, lifetime = 2, glow = 0.9, spin = 30, sprite = "PixelRune" },
+			{ kind = "RingPulse", color = "8F7BFF", at = "Feet", every = 3, count = 1, size = 1.1, lifetime = 2, glow = 0.9, spin = 30, sprite = "PixelRune" },
 			-- the moon phases and frost shards are modelled now (the `phases` ring): frost motes shed off it as it turns
 			{ kind = "Emitter", color = "DDE6FF", at = "Phases", rate = 6, size = 0.06, lifetime = 0.8, speed = 0.03, spread = 180, glow = 1, sprite = "PixelMote" },
 		},
@@ -831,7 +831,7 @@ local species: { [string]: Types.SpeciesFx } = {
 			{ kind = "Burst", color = "B28CFF", at = "Echo", every = 4, count = 5, size = 0.08, lifetime = 2.2, speed = 0.12, spread = 50, rise = -0.08, glow = 0.8, sprite = "PixelNote" },
 			-- the satellites are modelled now (eclipse shards, wool tufts, notes on the `shards` ring): notes drift off the ring and fall
 			{ kind = "Emitter", color = "8E6BFF", at = "Shards", rate = 6, size = 0.07, lifetime = 0.9, speed = 0.03, spread = 180, rise = -0.06, glow = 1, sprite = "PixelNote" },
-			{ kind = "RingPulse", color = "A07BFF", at = "Feet", every = 3.5, count = 1, size = 2.4, lifetime = 2.2, glow = 0.9, spin = -20, sprite = "PixelRing" },
+			{ kind = "RingPulse", color = "A07BFF", at = "Feet", every = 3.5, count = 1, size = 1.1, lifetime = 2.2, glow = 0.9, spin = -20, sprite = "PixelRing" },
 		},
 		idle = { kind = "Breathe", amplitude = 3, period = 3 },
 	},

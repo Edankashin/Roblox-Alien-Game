@@ -60,6 +60,7 @@ export type Card = {
 type Piece = { frame: Frame, base: Color3 }
 
 local IMAGE_LOAD_SECONDS = 6 -- a picture that has not loaded by now stays under the diorama
+local IMAGE_PENDING_TRANSPARENCY = 0.98 -- the picture while it loads: rendered (so fetched), effectively unseen under the diorama
 
 -- The world's name from the strings table (WORLD_<id>), or the Worlds row, or the key itself.
 function WorldCard.WorldName(worldId: number): string
@@ -225,7 +226,7 @@ function WorldCard.Build(parent: Instance, worldId: number, compact: boolean, op
 		label.Size = UDim2.fromScale(1, 1)
 		label.ScaleType = Enum.ScaleType.Crop
 		label.Image = "rbxassetid://" .. tostring(def.image)
-		label.ImageTransparency = 1 -- the diorama shows until it has loaded
+		label.ImageTransparency = IMAGE_PENDING_TRANSPARENCY -- all but invisible, never fully: a label at 1 is not rendered, so its image is never fetched and IsLoaded never turns true (Mac job 78, 2026-11-01)
 		label.ImageColor3 = if locked then Theme.Hex(Data.LockedGrey) else Theme.Colors.White
 		label.ZIndex = top + 1
 		label.Parent = scene

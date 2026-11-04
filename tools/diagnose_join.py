@@ -69,6 +69,8 @@ def public_game(universe, opener=None):
 def verdicts(universe_row, game_row, places):
     """One line per cause, each starting with OK, FIX, DASHBOARD or CHECK. Pure, for the tests."""
     out = []
+    if game_row and not game_row.get('rootPlaceId'):
+        game_row = None  # the placeholder row (id 0, '[TITLE UNAVAILABLE]', maxPlayers 0) a private experience answers an anonymous caller with
     root = game_row.get('rootPlaceId') if game_row else None
     world1 = places.get(1)
     if root and world1 and root != world1:
@@ -150,6 +152,12 @@ class Tests(unittest.TestCase):
     def test_verdicts_without_public_row(self):
         row = {'visibility': 'PRIVATE', 'ageRating': 'AGE_RATING_ALL', 'desktopEnabled': True, 'mobileEnabled': True, 'tabletEnabled': True}
         self.assertTrue(verdicts(row, None, {1: 5})[0].startswith('CHECK'))
+
+    def test_placeholder_public_row_raises_no_server_size_alarm(self):
+        row = {'visibility': 'PRIVATE', 'ageRating': 'AGE_RATING_13_PLUS', 'desktopEnabled': True, 'mobileEnabled': True, 'tabletEnabled': True}
+        lines = verdicts(row, {'rootPlaceId': 0, 'name': '[TITLE UNAVAILABLE]', 'maxPlayers': 0}, {1: 5})
+        self.assertTrue(lines[0].startswith('CHECK'))
+        self.assertFalse(any('0 players' in line for line in lines))
 
     def test_fix_devices_patches_the_three_switches(self):
         calls = []
