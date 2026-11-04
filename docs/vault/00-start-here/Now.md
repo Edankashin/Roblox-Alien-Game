@@ -5,11 +5,11 @@ up: "[[Start-Here]]"
 ---
 # Now
 
-The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-10-20.
+The hot note: read this first on every start, then the notes it points to. Keep it under 500 words and rewrite it when the state changes (newest truth only; history belongs in the log). Last updated 2026-11-04.
 
 **The game.** Catch an Alien (working title AlienGame in code): crash-land on a planet, catch cute aliens with a timing-bar minigame, they work at camp and build a ship, the ship flies to the next themed world. One currency, Scrap, never sold for Robux. Luau strict, Rojo, server authority; Ethan, a collaborator and Claude sessions.
 
-**State today (2026-10-15).** The weekend launch is off. Ethan: "I'm not satisfied with launching the game right now given the designs and UI of the game." No new date. The 32 surfaced bodies stay un-uploaded, the private build stays (v90, v5, v4), and the dashboard, group page and clips wait. The LaunchGold window in [[Decisions]] B21 is dated to the old plan.
+**State today (2026-11-04).** Live, private: World 1 v133, World 2 v7, Home v6, published 2026-11-01 from the repo. Since then the coordinator fixed the four job 78 and 79 findings (9d69841, 2026-11-04: SpriteGuard, WorldCard, Effects, diagnose_join), so the live places are one publish behind the repo. Ethan, 2026-11-04: release it for playtesting ([[Decisions]] B58). Done on the Mac: the tester brief ([[Playtest-Brief]]) and `tools/release.py`. Blocked: the Open Cloud key has no `universe:write` or `universe.place:write`, so the store name (Catch an Alien), the description, 8 a server, VR off and the public switch are Ethan's, on the dashboard ([[Launch-Steps]] 6) or after adding the two write scopes to the key and running `python3 -I tools/release.py --apply`. Still open from the Mac's jobs 78 and 79 ([[2026-11-01]]): SpriteGuard's signal, the WorldCard picture, the Cosmic ground sprites, diagnose_join's placeholder row; the phone bounce is account-side (13+ rating).
 
 **The bar.** Creatures: "seamless, fluid, complete, not shapes mashed together", with the goofy eyes and open mouth kept. UI: one token system (thick outlines, Fredoka One, gloss, standard rarity colours) that passes the phone rules. The seven decisions of this turn are [[Decisions]] B27 to B33.
 

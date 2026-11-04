@@ -30,9 +30,9 @@ Ethan: "I want to be able to launch this game by this week."
 - [ ] The paid-only prize wheel ([[Decisions]] B50), then the three spin products back on sale
 - [ ] The Scrap ladder ([[Decisions]] B51, [[Decide-Now]] 49a), once the first week's payer numbers are in
 
-## Live now (private)
+## Live now (private; the playtest release waits on Ethan)
 
-World 1 **v90**, World 2 **v5**, Home **v4**, published from the repo by the Mac session ([[2026-10-14]], job 21). They carry everything built on 2026-10-14 except the evening fixes; the six shop items are live. Nobody outside the team can join until you set the experience Public.
+World 1 **v133**, World 2 **v7**, Home **v6**, published 2026-11-01 from the repo by Ethan's `--apply` ([[2026-11-01]]); the repo is one publish ahead (the job 78 and 79 fixes, 9d69841), so the next `! python3 -I tools/publish.py --apply` (Ethan) puts them live. Ethan asked on 2026-11-04 to release it for playtesting ([[Decisions]] B58): the tester brief is [[Playtest-Brief]], the tool is `tools/release.py`, and the switch itself is his (the key cannot write universe or place settings; dashboard steps in [[Launch-Steps]] 6, or the key's two write scopes plus `--apply`). Nobody outside the team can join until then.
 
 ## Built and waiting
 

@@ -42,6 +42,7 @@ You already added **universe-places** with **Write**. The rest, on the same key 
 1. In the **universe-places** row, find the experience picker (labelled **Select Experience**, or a **Restrict by Experience** switch). Turn the restriction on and choose **Catch an Alien**. Leave the operation as **Write**.
 2. Make sure there is also an **Assets** row. If not: click **Select API System** (or **Add API System**), choose **Assets**, then in **Select Operations** tick **Read** and **Write**. Assets has no experience picker.
 3. Add one more row, for the uploaded art's image ids: click **Add API System** (or **Select API System**), choose **legacy-asset** (it may read **Legacy Asset**), then in **Select Operations** tick **manage** (the scope is `legacy-asset:manage`; without it every sheet, sprite and tile stays without its image id, Mac job 40). It has no experience picker.
+3b. For `tools/release.py` (the store name, description, players a server, VR, and the public or private switch from the Mac; added 2026-11-04): two more rows, both restricted to **Catch an Alien**: **universe** with **Write** (the scope reads `universe:write`) and **universe.place** with **Write** (`universe.place:write`). Without them every such write answers `403 Scope not authorized` (the publish row **universe-places** does not cover them).
 4. **Security**: leave **Restrict IP addresses** off (your Mac's address changes; Roblox says leave it off if you have no fixed IP).
 5. **Expiration**: pick a date at least two weeks away, or no expiration.
 6. Click **Save Changes** (or **Save & Generate key** if this is a new key).
@@ -93,7 +94,7 @@ Creator Dashboard (create.roblox.com) > **Creations** > **alien game** (the expe
 5. **Monetization > Passes** and **Developer Products**: each shows **For sale**.
 6. **Experience Questionnaire** (left column, under Audience or Maturity): answer from STORE-PAGE 5d: no realistic violence, no fear, no romance, crude humour or alcohol; paid random items **yes** (spins and eggs, odds shown in game); free-form text chat yes. Submit; the rating should come back All ages or 9+.
 7. **Events** (Creator Hub > Events): optional on day 1.
-8. **Privacy**: set **Public**. This is the launch.
+8. **Publish settings > Manage access**, the **Public** tab: on. The **Friends** switch there keeps it to your friends and the Playtest tab's early testers; off means anyone on Roblox. Or, with step 2's two write scopes on the key, `python3 -I tools/release.py --public` on the Mac. This is the launch (or the playtest release, [[Playtest-Brief]]).
 9. Tell the coordinator `public`. It watches the first day's numbers with you (STORE-PAGE 5b).
 
 ## Optional
