@@ -94,7 +94,7 @@ Creator Dashboard (create.roblox.com) > **Creations** > **alien game** (the expe
 5. **Monetization > Passes** and **Developer Products**: each shows **For sale**.
 6. **Experience Questionnaire** (left column, under Audience or Maturity): answer from STORE-PAGE 5d: no realistic violence, no fear, no romance, crude humour or alcohol; paid random items **yes** (spins and eggs, odds shown in game); free-form text chat yes. Submit; the rating should come back All ages or 9+.
 7. **Events** (Creator Hub > Events): optional on day 1.
-8. **Publish settings > Manage access**, the **Public** tab: on. The **Friends** switch there keeps it to your friends and the Playtest tab's early testers; off means anyone on Roblox. Or, with step 2's two write scopes on the key, `python3 -I tools/release.py --public` on the Mac. This is the launch (or the playtest release, [[Playtest-Brief]]).
+8. **Publish settings > Manage access**, the **Public** tab: on. The **Friends** switch there keeps it to your friends and the Playtest tab's early testers; off means anyone on Roblox. (`python3 -I tools/release.py --public` sends the same change through Open Cloud, but on 2026-11-04 Roblox accepted it and left the experience private, so use the tab.) This is the launch (or the playtest release, [[Playtest-Brief]]).
 9. Tell the coordinator `public`. It watches the first day's numbers with you (STORE-PAGE 5b).
 
 ## Optional

@@ -28,9 +28,12 @@ Run from the repo:  python3 -I tools/release.py               (dry run: prints e
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import os
 import sys
+import time
 import unittest
 from pathlib import Path
 
@@ -123,16 +126,26 @@ def shown(body):
 
 
 def send(http, requests, out=print):
+    """Send each request; print it, and for a visibility write also what Roblox answered (the resource as it stands)."""
     for method, path, body in requests:
-        http.request(method, path, json.dumps(body).encode('utf-8'), 'application/json')
-        out(f'{method} {path}  {json.dumps(shown(body))}')
+        reply = http.request(method, path, json.dumps(body).encode('utf-8'), 'application/json')
+        line = f'{method} {path}  {json.dumps(shown(body))}'
+        if 'visibility' in body and isinstance(reply, dict):
+            line += f"  -> Roblox answered visibility {reply.get('visibility', '?')!r}"
+        out(line)
 
 
-def report(http, universe):
+def report(http, universe, wanted=None, wait=time.sleep, games=public_game):
+    """Read the universe back; when a visibility is wanted, read again twice over about ten seconds before giving up."""
     row = http.request('GET', f'/cloud/v2/universes/{positive(universe)}')
+    for _ in range(2):
+        if not wanted or row.get('visibility') == wanted:
+            break
+        wait(5)
+        row = http.request('GET', f'/cloud/v2/universes/{positive(universe)}')
     print(f"universe: {row.get('displayName', '?')!r}  visibility {row.get('visibility', '?')}  ageRating {row.get('ageRating', '?')}  "
           f"vr={'on' if row.get('vrEnabled') else 'off'}")
-    game = public_game(universe)
+    game = games(universe)
     if game:
         print(f"public row: name {game.get('name')!r}  rootPlaceId {game.get('rootPlaceId')}  maxPlayers {game.get('maxPlayers')}")
     else:
@@ -173,10 +186,12 @@ def main(argv=None):
         return 2
     http = HTTP(key)
     send(http, requests)
-    row = report(http, args.universe)
     wanted = 'PRIVATE' if args.private else 'PUBLIC' if (args.public or args.apply) else None
+    row = report(http, args.universe, wanted)
     if wanted and row.get('visibility') != wanted:
-        print(f'visibility is {row.get("visibility")!r}, not {wanted}', file=sys.stderr)
+        print(f'visibility is {row.get("visibility")!r}, not {wanted}: Roblox took the request and left the switch as it was. '
+              'Flip it on the dashboard instead: Creator Hub > the experience > Publish settings > Manage access > the Public tab '
+              '(the Friends switch there keeps it to friends). Log what the dashboard shows.', file=sys.stderr)
         return 1
     return 0
 
@@ -227,16 +242,30 @@ class Tests(unittest.TestCase):
         with self.assertRaises(ToolError):
             visibility_plan('VISIBILITY_UNSPECIFIED', 5)
 
-    def test_send_posts_json_bodies_in_order(self):
-        calls = []
+    def test_send_posts_json_bodies_in_order_and_shows_the_answer(self):
+        calls, lines = [], []
 
         class Fake:
             def request(self, method, path, body=None, content_type=None):
                 calls.append((method, path, json.loads(body), content_type))
-                return {}
+                return {'visibility': 'PRIVATE'}
 
-        send(Fake(), visibility_plan('PRIVATE', 7), out=lambda line: None)
-        self.assertEqual(calls, [('PATCH', '/cloud/v2/universes/7?updateMask=visibility', {'visibility': 'PRIVATE'}, 'application/json')])
+        send(Fake(), visibility_plan('PUBLIC', 7), out=lines.append)
+        self.assertEqual(calls, [('PATCH', '/cloud/v2/universes/7?updateMask=visibility', {'visibility': 'PUBLIC'}, 'application/json')])
+        self.assertIn("Roblox answered visibility 'PRIVATE'", lines[0])
+
+    def test_report_reads_again_while_the_visibility_is_not_the_wanted_one(self):
+        answers = [{'visibility': 'PRIVATE'}, {'visibility': 'PRIVATE'}, {'visibility': 'PUBLIC'}]
+        waits = []
+
+        class Fake:
+            def request(self, method, path, body=None, content_type=None):
+                return answers.pop(0)
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            row = report(Fake(), 7, 'PUBLIC', wait=waits.append, games=lambda universe: None)
+        self.assertEqual(row['visibility'], 'PUBLIC')
+        self.assertEqual(waits, [5, 5])
 
     def test_key_never_in_output(self):
         self.assertNotIn('x-api-key', __doc__)
