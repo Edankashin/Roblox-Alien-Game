@@ -338,6 +338,13 @@ return {
 	STATION_Build = "Treehouse Bench",
 	STATION_Spark = "Glow Flower",
 	STATION_Tinker = "Gadget Nook",
+	-- The station plate's second line (World/CampRenderer): what the station is for while nobody works there (playtest 1, 2026-11-05:
+	-- a bare name and "+540/min" read as "costs 540 minutes to unlock"), then its Scrap rate with the word Scrap in it.
+	STATION_HINT_Gather = "Aliens here gather Scrap",
+	STATION_HINT_Build = "Aliens here build ship parts",
+	STATION_HINT_Spark = "Aliens here spark ship parts",
+	STATION_HINT_Tinker = "Aliens here tinker with gadgets",
+	STATION_RATE = "+%s Scrap/min",
 	JOB_Gather = "Gather",
 	JOB_Build = "Build",
 	JOB_Spark = "Spark",

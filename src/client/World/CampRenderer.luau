@@ -9,7 +9,8 @@
 -- the module being built pulses as a ghost; later modules sit as faint ghosts. Completion is judged
 -- the same way the Ship screen does, by extrapolating progress with Economy.progressAt, so a module
 -- snaps in the moment the clock says it is done, before the server's push arrives.
--- Stations: one block per unlocked job with a nameplate (station name and its Scrap per minute).
+-- Stations: one block per unlocked job with a nameplate (station name, then what it is for until an alien works there, then its
+-- Scrap per minute with the word Scrap in it: playtest 1, 2026-11-05, read "+540/min" as a 540-minute unlock).
 -- Imported meshes (Shared/Props, named in Camp.Props): the ship's hull stands on the slab and each
 -- station has its own model; the part-built slab and station blocks stay as invisible anchors under them
 -- (nameplates, collision and the lift read the parts) and are the visible fallback when a mesh was never
@@ -340,12 +341,13 @@ end
 
 -- Stations ---------------------------------------------------------------------
 
-local function rateText(profile: Types.Profile, job: string): string
+-- The plate's second line: the station's hint (STATION_HINT_<job>, white) while it earns nothing, else its rate (gold).
+local function detailText(profile: Types.Profile, job: string): (string, Color3)
 	local perMinute = Economy.stationRate(profile, job) * 60
 	if perMinute <= 0 then
-		return ""
+		return Builder.text("STATION_HINT_" .. job), Theme.Colors.White
 	end
-	return Builder.text("HUD_SCRAP_PER_MIN"):format(Builder.formatNumber(perMinute))
+	return Builder.text("STATION_RATE"):format(Builder.formatNumber(perMinute)), Theme.Colors.Featured
 end
 
 local function refreshStationRates()
@@ -354,9 +356,10 @@ local function refreshStationRates()
 	end
 	local profile = State.Get()
 	for job, record in pairs(stations) do
-		local text = rateText(profile, job)
+		local text, color = detailText(profile, job)
 		record.rateLabel.Text = text
-		record.rateLabel.Visible = text ~= ""
+		record.rateLabel.TextColor3 = color
+		record.rateLabel.Visible = true
 	end
 end
 
@@ -379,8 +382,7 @@ local function buildStations(parent: Folder, world: number)
 		if propName and Props.Place(propName, CFrame.new(centre.X, centre.Y - layout.size.Y / 2, centre.Z), 1, part, false) then
 			part.Transparency = 1
 		end
-		local _, rateLabel = buildPlate(part, 0, Builder.text("STATION_" .. job), "", Theme.Colors.Featured)
-		rateLabel.Visible = false
+		local _, rateLabel = buildPlate(part, 0, Builder.text("STATION_" .. job), Builder.text("STATION_HINT_" .. job), Theme.Colors.White)
 		stations[job] = { job = job, part = part, rateLabel = rateLabel }
 	end
 	refreshStationRates()

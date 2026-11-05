@@ -15,7 +15,7 @@ FAMILIES = {
     'MATERIAL_': 'KeyMaterials', 'WORLD_': '@built_worlds', 'WEATHER_': '@weather',
     'POWERUP_': 'PowerUps', 'POWERUP_DESC_': 'PowerUps', 'BIOME_': '@Biome',
     'COND_PHRASE_': '@Condition', 'CONDITION_': '@node_conditions',
-    'JOB_': 'Jobs.Jobs', 'STATION_': 'Jobs.Jobs', 'STAGE_': 'Growth.ById',
+    'JOB_': 'Jobs.Jobs', 'STATION_': 'Jobs.Jobs', 'STATION_HINT_': 'Jobs.Jobs', 'STAGE_': 'Growth.ById',
     'SIZE_': 'Sizes.ById', 'OBJ_': '@objectives', 'MODULE_': '@modules',
     'FN_': '@field_notes', 'SHOP_DESC_': '@launch', 'SHOP_ITEM_': '@launch',
     'SHOP_TAB_': '@shop_tabs', 'SHOP_RIBBON_': '@shop_ribbons', 'SHOP_SEAL_': '@shop_seals', 'SHOP_NOTE_': '@shop_notes',
