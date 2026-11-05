@@ -9,7 +9,7 @@ Ethan, 2026-10-15 night: "I want you to lay everything out for me so it's easier
 
 > **Answered 2026-10-17 ([[Decisions]] B43).** Ethan rejected the redesigns: the look becomes blocky, as in popular Roblox games; rarer aliens get more detail, more height and VFX (not a fiercer face); every design goes through Claude Design, Blender and Obsidian. So items **12, 37, 39 and 40 are closed** (the recipe redesigns are not the direction) and **38 is answered yes** (more detail and height with rank). Items 11 (the hero route) and 9 (the hero slate) now wait on the blocky style note. Everything else stands.
 
-**How to answer.** 43 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17, 42 and 43 on 2026-10-19 and 20). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
+**How to answer.** 43 items in six groups (37 to 40 added 2026-10-16, 41 on 2026-10-17, 42 and 43 on 2026-10-19 and 20, 53 to 56 from the first playtest on 2026-11-05). Each has the question, the options (a, b, c), a recommendation in bold with its reason, and what happens right after you answer. Reply with numbers and letters (`1: a, 2: a, 7: d`) or paste the Answer sheet at the bottom. "Use yours" is a valid answer on the picks (7, 8, 12, 13). A recommendation is never an answer: nothing is decided and nothing is spent until you reply. The money items (22 to 28) need their own letter; "all starred" does not cover them. Minutes and dollars come from the notes where they have a source and are estimates where they do not; prices are search snippets, so check the live page before paying. Never paste a key into a reply, a note or a chat.
 
 **Order tonight (about 45 minutes).** Item 1, then 3 and 2 with Studio closed, then reopen one Studio for 4, then 5 and 6 on the phone. Everything after item 6 can wait for tomorrow.
 
@@ -290,6 +290,30 @@ Your three TikToks of 2026-10-21 ("they should definitely be implemented"), note
 
 **52. How far to roll the character bar?** **Answered 2026-10-26: b.** a) all 35 now; b) the 18 Rare-and-up first, Commons and Uncommons after; c) stop at the pilots until after launch.
 
+## Added 2026-11-05: the first playtest
+
+From the first outside playtest ([`docs/playtests/2026-11-05-tester-1.md`](../../playtests/2026-11-05-tester-1.md)). The three fixes that need no decision (direction in the first five minutes, the Scrap pill under Roblox's buttons, landmarks that answer a tap) are a [[Board]] row; these four are yours.
+
+**53. The catch: tighten it?** The tester: "too easy to capture". Commons today: the Good zone is 40% of the bar, Perfect 12%, the ticker at 0.8, catch chance 100%, and two misses grow both zones by 20% (`data/Tiers`, `Config.HiddenKindness*`). Rare is 26% at ticker 1.0. Every number is data; nothing in code changes.
+- Options: a) Commons and Uncommons one step tighter (Good 0.40 to 0.30 and 0.34 to 0.26, ticker 0.8 to 1.0), the rest as is; b) every tier one step tighter; c) keep it, the first catch is meant to be a sure thing.
+- Recommend: **a**, because the tutorial's two trainees are Commons and still catchable at 30%, and the first Rare then feels like a step up instead of the same bar; b risks the Legendary three-rounder becoming unfair on a phone.
+- Then: one data change in `Tiers.luau`, the headless tests re-run, a Studio check of the trainee catch on a fresh profile.
+
+**54. Aliens on the HUD, not in the drop-down?** The tester: "for the more important menus don't make it into the drop down, just put a button on your screen, for example the aliens." B53 put every screen but the Shop into the Menu drop-down.
+- Options: a) Aliens gets its own left-edge button under the Shop, the Menu button moves one slot down, everything else stays in the drop-down (B53 amended); b) Aliens and Ship both; c) keep B53.
+- Recommend: **a**, because Aliens is the screen a collector opens most and one more button keeps the left column at three (Shop, Aliens, Menu), inside the thumb zone; the Ship has the ship bar on the HUD already.
+- Then: a Hud change (one more `AddMenuButton`), the Playbook's Menu section in the same commit, B53's row annotated.
+
+**55. How loud are the first five minutes?** The tester: "the UI is too empty", "put arrows pointing where to go", "make it more obvious what my goal is". The quiet HUD ([[Clean-UI-Pass]]) shows the goal plate at 0.28 of the screen and hides the rest until steps T2 to T7. The Board row builds the arrows and the bigger card either way; this is about how far it goes.
+- Options: a) loud for T1 to T3 only: the goal card at about twice its width with a pointing hand on the target, a world arrow over the node, the trainee and the ship, then the quiet HUD from T4; b) loud through T7; c) keep the quiet HUD and only fix the strings.
+- Recommend: **a**, because the stall was right after the start and the quiet HUD is a decision you made for the rest of the session; a keeps both.
+- Then: the Board row's worker builds to a; the Playbook's "The first five minutes" gets the rule.
+
+**56. Jessica?** The tester asked for "a character or NPC named Jessica". The game has no NPC but the Peddler.
+- Options: a) no, note it; b) an alien nickname: one World 1 species' display name or a shiny's name is Jessica (a strings row); c) a camp NPC who speaks the tutorial lines (a new system, after the fixes above).
+- Recommend: **a** for now, with b as the cheap thank-you if you want one; c would redo the tutorial's delivery and is not what the playtest asked for.
+- Then: nothing, or one strings row.
+
 ## Closed or parked, no answer needed
 
 - **Names v3** is applied (B40, c4ed088): the Board row "Names v3" and item 1 of the owe-list in [[Asks-Ledger]] are out of date.
@@ -305,6 +329,10 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 
 ```
 51: answered (unique per design, never ugly)
+53: a* Commons one step tighter | b every tier | c keep
+54: a* Aliens button under the Shop | b Aliens and Ship | c keep B53
+55: a* loud for T1 to T3 | b loud to T7 | c strings only
+56: a* no | b an alien named Jessica | c a camp NPC
 1: a* quit Studio now | b keep one window | c later
 2: a* macOS app | b browser build | c later
 3: a* CLI and plugin | b CLI only | c later

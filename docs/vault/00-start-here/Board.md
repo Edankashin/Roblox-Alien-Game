@@ -41,6 +41,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 
 | Task | Owner | Notes |
 |---|---|---|
+| Playtest 1 fixes: direction in the first five minutes (a bigger goal card and a world arrow or pointing hand for T1 to T3; the station plate reads "+540 Scrap/min" and says what a station is for), the Scrap pill moved clear of Roblox's top-left buttons, and landmark plates with a legend line and a tap that opens the Quests screen | | Cloud. [`docs/playtests/2026-11-05-tester-1.md`](../../playtests/2026-11-05-tester-1.md) (the tester's words and the check against the code); the four product calls are [[Decide-Now]] 53 to 56. Strings in `strings/en`, numbers in `data/Hud` and `data/Tutorial`; Playbook "The first five minutes" in the same commit; then a Studio check on a fresh profile at iPhone SE |
 | Lighting: `src/shared/data/Lighting.luau` carries `LightingStyle` and `PrioritizeLightingQuality` instead of a Technology value; judge every night and weather look a second time with shadows off and Soft forced | | Cloud. [[Decisions]] B31. Start with a Studio probe: the data header says Lighting.Technology cannot be set from a script (TESTING milestone 22 sets Future by hand), so check whether the two new properties can be set from one; then `LightingDirector`, the TESTING step and [[Look-Plan]] (which still says Future) |
 | HUD rebuilt from the canvas, one screen per change, once Ethan picks a board | | Cloud. [Catch an Alien UI](https://claude.ai/artifact/GsddVfW4nSoBSRpEpCSvi4), [[Claude-Design-Brief]], the phone rules in [[UI-Playbook]]; `Builder` and `Theme`, Scale only; the Playbook changes in the same commit. Waits on Ethan's pick |
 | The reveal's three beats: taps to crack, shards and rays in the rarity colour, the card with "1 in N (x%)" | Cloud worker | Built 2026-10-15 (one WIP commit, see the log); waits on the Mac's Studio check, [[TESTING]] "Reveal beats". `src/client/UI/Reveal.luau`; tap count, growth and durations in a new table under `src/shared/data`; strings keyed; the chance read from the odds table; the day-7 Epic egg first. [[UI-Playbook]] "Phone rules from the design research" |
@@ -51,7 +52,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Mac: after the Obsidian plugin is in, verify the connection (reads only) and set the Tools-Status rows to in use | | Mac. Waits on Ethan's install (Waiting on Ethan); [[Tools-Status]] "Added from the design research" |
 | Collaborator setup: clone, Rokit, Rojo plugin, Claude Code, Studio MCP, Obsidian; analyze clean, tests pass | Collab, Collab-Claude | [[Handoff]] 13.3; Ethan's own setup and the problems he hit in [[Setup-and-Tips]] |
 | Add the collaborator's Roblox user id to `src/shared/data/Admin.luau` `DeveloperUserIds` | Collab-Claude | One line; run the checks; commit |
-| Cold playtest of World 1 from a fresh profile, notes in `docs/playtests/<date>-<name>.md` | Collab | The most valuable input right now: where you were confused in the first 5 minutes, where you waited, what you wanted to tap |
+| Cold playtest of World 1 from a fresh profile, notes in `docs/playtests/<date>-<name>.md` | Collab | The most valuable input right now: where you were confused in the first 5 minutes, where you waited, what you wanted to tap. The first outside tester's note is `docs/playtests/2026-11-05-tester-1.md` (2026-11-05): the start stalls, the catch is too easy, the storage cap and respawn are invisible |
 | Studio queue: milestone 46 re-check (resting, Back to play, menus count as play) | | `docs/STUDIO-QUEUE.md`, TESTING 46 |
 | Studio queue: 49 playtime gifts | | TESTING 49 (step 4 on real saves) |
 | Studio queue: 50 and 50b storage cap and Storage Bay | | TESTING 50, 50b; check the band at iPhone SE and iPad |
@@ -126,6 +127,7 @@ Name **Catch an Alien** (decision 19). Launch from the repo publish, dress in we
 
 | Question | Options and recommendation |
 |---|---|
+| The first playtest's four calls ([[Decide-Now]] 53 to 56): tighten the catch, Aliens as a HUD button, how loud the first five minutes get, Jessica | Recommend 53 a, 54 a, 55 a, 56 a; the tester's note is `docs/playtests/2026-11-05-tester-1.md` |
 | Rejoin notifications (decision 20) | Opt-in card on session 2+, event text only, three a week at most, behind a Config flag |
 | Substance 3D Painter licence (Steam perpetual, Adobe plan, student trial, or not now) | Recommend: the free trial on the Mac first, Painter only for the six or seven hero species, and Blockbench (free) for everyone's textures and animation; buy nothing until the trial shows Painter runs on 8 GB ([[Model-Toolchain]] section 4) |
 | Does a catch at the storage cap also pay its normal catch Scrap on top of the release value? | It does now; one line in `Economy.grantAlien` |
