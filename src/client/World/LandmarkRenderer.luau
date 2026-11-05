@@ -1,10 +1,15 @@
 --!strict
 -- StarterPlayerScripts.Client.World.LandmarkRenderer: nameplates for the world's landmarks under
--- Workspace.World.Landmarks (World 1: the Shrine of Gaiabloom, where the Field Notes finale sounds the
--- horn). The server builds each landmark as a Model whose PrimaryPart carries the string attribute
--- LandmarkId; this module adds a gold nameplate (LANDMARK_<id>, visible within NameplateDistance)
--- above that part and answers where each landmark is, so the bootstrap can offer "Sound the horn"
--- within ShrineInteractDistance. Nothing here decides anything: the horn tap asks the server.
+-- Workspace.World.Landmarks (World 1: the Shrine of Gaira, where the Field Notes finale sounds the
+-- horn; the Crash Site; the Cave Entrance). The server builds each landmark as a Model whose PrimaryPart
+-- carries the string attribute LandmarkId; this module adds a gold nameplate above that part (the name,
+-- LANDMARK_<id>, visible within NameplateDistance) with a white legend line under it that says what the
+-- place is for (LANDMARK_LEGEND_<id>, within data/Landmarks LegendStuds; playtest 1, 2026-11-05: the
+-- plates were names with nothing to tap and nothing explained), and answers where each landmark is, so
+-- the bootstrap can offer "Sound the horn" within ShrineInteractDistance and, at a landmark with a screen
+-- behind it (data/Landmarks `opens`), that screen from LookDistance. A world may rename a landmark
+-- (data/Landmarks ByWorld: World 2's shrine is Skadra's). Nothing here decides anything: the horn tap and
+-- the screen open ask the server or the UI.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -13,14 +18,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Config = require(Shared:WaitForChild("data"):WaitForChild("Config"))
+local Landmarks = require(Shared:WaitForChild("data"):WaitForChild("Landmarks"))
+local Place = require(Shared:WaitForChild("Place"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 
 local LandmarkRenderer = {}
 
 local FOLDER_NAME = "Landmarks"
-local PLATE_LIFT = 7 -- studs above the primary part: clear of the shrine's standing stones from every side
 
-type Record = { id: string, model: Model, part: BasePart, plate: BillboardGui }
+type Record = { id: string, model: Model, part: BasePart, plate: BillboardGui, legend: TextLabel }
 
 local records: { [string]: Record } = {} -- by landmark id
 local byModel: { [Model]: string } = {}
@@ -41,12 +47,25 @@ local function rootPosition(): Vector3?
 	return nil
 end
 
-local function buildPlate(part: BasePart, id: string): BillboardGui
+-- The data row for a landmark id in this world (the world's own row first, then the shared one), or nil for an id the data
+-- does not know: such a landmark gets its name and no legend.
+local function entryFor(id: string): Landmarks.Entry?
+	local world = Landmarks.ByWorld[Place.WorldId()]
+	local own = if world then world[id] else nil
+	return own or Landmarks.ById[id]
+end
+
+local function nameKey(id: string): string
+	local entry = entryFor(id)
+	return if entry and entry.name then entry.name else "LANDMARK_" .. id
+end
+
+local function buildPlate(part: BasePart, id: string): (BillboardGui, TextLabel)
 	local plate = Instance.new("BillboardGui")
 	plate.Name = "Nameplate"
 	plate.Adornee = part
-	plate.Size = UDim2.fromScale(7, 2) -- studs
-	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + PLATE_LIFT, 0)
+	plate.Size = UDim2.fromScale(Landmarks.PlateStuds.width, Landmarks.PlateStuds.height) -- studs
+	plate.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + Landmarks.LiftStuds, 0)
 	plate.MaxDistance = Config.NameplateDistance
 	plate.AlwaysOnTop = true -- a landmark is a destination; it must read through the stones
 	plate.LightInfluence = 0
@@ -54,14 +73,25 @@ local function buildPlate(part: BasePart, id: string): BillboardGui
 	Builder.label({
 		parent = plate,
 		name = "Name",
-		text = Builder.text("LANDMARK_" .. id),
+		text = Builder.text(nameKey(id)),
 		textSize = Theme.TextSize.Label,
 		color = Theme.Colors.Featured,
-		position = UDim2.fromScale(0, 0.2),
-		size = UDim2.fromScale(1, 0.6),
+		position = UDim2.fromScale(0, 0),
+		size = UDim2.fromScale(1, Landmarks.NameShare),
 	})
+	local entry = entryFor(id)
+	local legend = Builder.label({
+		parent = plate,
+		name = "Legend",
+		text = if entry then Builder.text(entry.legend) else "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0, Landmarks.NameShare),
+		size = UDim2.fromScale(1, 1 - Landmarks.NameShare),
+	})
+	legend.TextWrapped = true
+	legend.Visible = false -- within LegendStuds (the poll)
 	plate.Parent = part
-	return plate
+	return plate, legend
 end
 
 local function stopWaiting(model: Model)
@@ -103,7 +133,8 @@ function track(instance: Instance)
 	if records[id] then
 		return -- a duplicate id: the first model keeps the name
 	end
-	records[id] = { id = id, model = instance, part = primary, plate = buildPlate(primary, id) }
+	local plate, legend = buildPlate(primary, id)
+	records[id] = { id = id, model = instance, part = primary, plate = plate, legend = legend }
 	byModel[instance] = id
 end
 
@@ -122,6 +153,20 @@ local function untrack(instance: Instance)
 		records[id] = nil
 		if record.plate.Parent then
 			record.plate:Destroy()
+		end
+	end
+end
+
+-- The legend shows within LegendStuds of the landmark and hides farther away (the name alone reads from NameplateDistance).
+local function refreshLegends()
+	local at = rootPosition()
+	for _, record in pairs(records) do
+		local near = false
+		if at and record.part.Parent and record.legend.Text ~= "" then
+			near = (record.part.Position - at).Magnitude <= Landmarks.LegendStuds
+		end
+		if record.legend.Visible ~= near then
+			record.legend.Visible = near
 		end
 	end
 end
@@ -145,6 +190,10 @@ function LandmarkRenderer.Start()
 		end
 		table.insert(folderConns, landmarks.ChildAdded:Connect(track))
 		table.insert(folderConns, landmarks.ChildRemoved:Connect(untrack))
+		while running do
+			refreshLegends()
+			task.wait(Landmarks.PollSeconds)
+		end
 	end)
 end
 
@@ -165,6 +214,28 @@ function LandmarkRenderer.DistanceTo(id: string): number
 		return math.huge
 	end
 	return (target - at).Magnitude
+end
+
+-- The UI/Screens name a landmark opens from the action button (data/Landmarks `opens`), or nil for a plate alone.
+function LandmarkRenderer.Opens(id: string): string?
+	local entry = entryFor(id)
+	return if entry then entry.opens else nil
+end
+
+-- The nearest landmark within `maxDistance` studs that opens a screen, and its distance; nil and the cap when none is that near.
+function LandmarkRenderer.NearestOpening(maxDistance: number): (string?, number)
+	local best: string? = nil
+	local bestDistance = maxDistance
+	for id in pairs(records) do
+		if LandmarkRenderer.Opens(id) == nil then
+			continue
+		end
+		local distance = LandmarkRenderer.DistanceTo(id)
+		if distance <= bestDistance then
+			best, bestDistance = id, distance
+		end
+	end
+	return best, bestDistance
 end
 
 function LandmarkRenderer.Stop()

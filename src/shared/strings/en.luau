@@ -18,6 +18,7 @@ return {
 	ACTION_SPIN = "Spin",
 	ACTION_MAIL = "Mail",
 	ACTION_WAVE = "Wave",
+	ACTION_NOTES = "Field Notes", -- at a landmark that opens them (data/Landmarks `opens`: the Shrine)
 	TOAST_HEATER_PLACED = "Heater lit: %ds of clear air around it",
 	TOAST_HEATER_NOT_ENOUGH = "A Heater costs %s Scrap",
 	TOAST_HEATER_LIMIT = "Two heaters are burning already",
@@ -713,6 +714,14 @@ return {
 	LANDMARK_CaveMouth = "Cave Entrance",
 	LANDMARK_GreatVent = "Great Vent",
 	LANDMARK_IceCaveMouth = "Ice Cave Entrance",
+	LANDMARK_Shrine_W2 = "Shrine of Skadra", -- data/Landmarks ByWorld: World 2's shrine
+	-- The legend line under a landmark's name (data/Landmarks; playtest 1, 2026-11-05: the plates were names with nothing to tap)
+	LANDMARK_LEGEND_Shrine = "Gaira sleeps here. Finish the Field Notes, then sound the horn at night.",
+	LANDMARK_LEGEND_Shrine_W2 = "Skadra waits on the mountain. Finish the Field Notes, then sound the horn at night.",
+	LANDMARK_LEGEND_CrashSite = "Your ship came down here. Its wreck plates build the hull.",
+	LANDMARK_LEGEND_CaveMouth = "Cave aliens and Cave Crystals inside. Some wake only at night.",
+	LANDMARK_LEGEND_GreatVent = "Geyser aliens and Geyser Pearls live in the steam.",
+	LANDMARK_LEGEND_IceCaveMouth = "Ice cave aliens and Frost Cores inside. Some wake only at night.",
 	FN_W1S1_TITLE = "First Friends",
 	FN_W1S1_LEGEND = "The meadow folk say the earth mother sleeps where the flowers never close. Make some friends first.",
 	FN_W1S2_TITLE = "Night Walk",

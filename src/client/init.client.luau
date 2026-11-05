@@ -91,6 +91,7 @@ local StarChartScreen = require(script:WaitForChild("UI"):WaitForChild("StarChar
 local ArrivalTitle = require(script:WaitForChild("UI"):WaitForChild("ArrivalTitle"))
 local LeaderboardScreen = require(script:WaitForChild("UI"):WaitForChild("LeaderboardScreen"))
 local LandmarkRenderer = require(script:WaitForChild("World"):WaitForChild("LandmarkRenderer"))
+local Landmarks = require(Shared:WaitForChild("data"):WaitForChild("Landmarks"))
 local Quests = require(Shared:WaitForChild("data"):WaitForChild("Quests"))
 local Social = require(Shared:WaitForChild("data"):WaitForChild("Social"))
 local Weekly = require(Shared:WaitForChild("data"):WaitForChild("Weekly"))
@@ -115,7 +116,7 @@ local capturePart: Part? = nil -- the wild part the current catch is for
 local capturePosition: Vector3? = nil -- where it stood when the catch began: the server removes the part before the result lands, so the burst plays here
 local cinematic = false -- the crash-landing opener or a cinematic moment (playCinematic) is running: the HUD, hint and radar stay hidden
 
-type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail" | "Wave"
+type Action = "Catch" | "Collect" | "Build" | "Launch" | "Trade" | "Horn" | "Heater" | "Decorate" | "Spin" | "Mail" | "Wave" | "Notes"
 local currentAction: Action? = nil
 local ACTION_TEXT: { [string]: string } = {
 	Catch = Strings.ACTION_CATCH,
@@ -129,6 +130,7 @@ local ACTION_TEXT: { [string]: string } = {
 	Spin = Strings.ACTION_SPIN,
 	Mail = Strings.ACTION_MAIL,
 	Wave = Strings.ACTION_WAVE,
+	Notes = Strings.ACTION_NOTES,
 }
 local soundHorn = Net.func("SoundHorn")
 local horning = false
@@ -588,6 +590,12 @@ local function decideAction(): Action?
 			end
 		end
 	end
+	-- A landmark with a screen behind it (data/Landmarks `opens`: the Shrine opens the Field Notes) offers it from LookDistance, so
+	-- a plate is never a name with nothing to tap (playtest 1, 2026-11-05). The horn below outranks it once the player holds one.
+	local landmarkId, landmarkDistance = LandmarkRenderer.NearestOpening(Landmarks.LookDistance)
+	if landmarkId and landmarkDistance < bestDistance then
+		best, bestDistance = "Notes", landmarkDistance
+	end
 	-- The horn is offered at the shrine whenever the player holds it; the server judges night and step.
 	local shrineDistance = LandmarkRenderer.DistanceTo("Shrine")
 	if shrineDistance <= Config.ShrineInteractDistance and shrineDistance < bestDistance and (State.Get().inventory.items[Quests.HornItem] or 0) > 0 then
@@ -693,6 +701,13 @@ local function performAction()
 		Screens.Open("Mail")
 	elseif action == "Wave" then
 		tryWave()
+	elseif action == "Notes" then
+		-- Read again here, not from the poll: the screen is the landmark's own (data/Landmarks `opens`).
+		local id = LandmarkRenderer.NearestOpening(Landmarks.LookDistance)
+		local screen = if id then LandmarkRenderer.Opens(id) else nil
+		if screen then
+			Screens.Open(screen)
+		end
 	elseif action == "Horn" and not horning then
 		horning = true
 		task.spawn(function()
