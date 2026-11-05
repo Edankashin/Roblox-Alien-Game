@@ -177,6 +177,48 @@ describe("HudStages layout", function()
 	end)
 end)
 
+describe("HudStages loud steps", function()
+	local ids = { "T1", "T2", "T3", "T4" }
+	it("the steps up to and including LoudUntilStep are loud, the rest and a finished tutorial are not", function()
+		expect(HudStages.LoudWith(ids, "T3", 1, false)).toEqual(true)
+		expect(HudStages.LoudWith(ids, "T3", 3, false)).toEqual(true)
+		expect(HudStages.LoudWith(ids, "T3", 4, false)).toEqual(false)
+		expect(HudStages.LoudWith(ids, "T3", 5, true)).toEqual(false)
+		expect(HudStages.LoudWith(ids, "T3", 0, false)).toEqual(false)
+	end)
+	it("an empty or unknown id is never loud (Decide-Now 55 c), the last id is loud throughout (55 b)", function()
+		expect(HudStages.LoudWith(ids, "", 1, false)).toEqual(false)
+		expect(HudStages.LoudWith(ids, "T9", 1, false)).toEqual(false)
+		expect(HudStages.LoudWith(ids, "T4", 4, false)).toEqual(true)
+	end)
+	it("the data names a real step, and the loud card is wider and taller than the quiet one at the same words", function()
+		local until_ = Tutorial.Script.LoudUntilStep
+		assert(until_ == "" or indexOf(until_) >= 1, "LoudUntilStep names no step")
+		expect(HudStages.Loud(1, false)).toEqual(until_ ~= "")
+		expect(HudStages.Loud(DONE, true)).toEqual(false)
+		local loudPx = HudData.Goal.Loud.TextPx
+		for _, screen in ipairs({ SE, IPAD, WIDE }) do
+			for _, step in ipairs(Tutorial.Steps) do
+				local text = (Strings :: any)[step.hint]
+				local chars = utf8.len(text) or #text
+				local counted = step.trigger.count ~= nil
+				local quiet = HudStages.Objective(chars, counted, screen.w, screen.h, FLOOR)
+				local loud = HudStages.Objective(chars, counted, screen.w, screen.h, loudPx, false, true)
+				assert(loud.lines >= 1 and loud.lines <= HudData.Goal.MaxLines, step.id .. " loud has " .. loud.lines .. " lines")
+				assert(loud.width <= HudData.Goal.Loud.MaxWidth + 1e-9, step.id .. " loud is " .. loud.width .. " wide")
+				assert(loud.width >= quiet.width - 1e-9, step.id .. " loud is narrower than quiet on " .. screen.w)
+				-- bigger words on a wider card may take fewer lines, so the card's area is what grows, never shrinks
+				assert(loud.width * loud.height >= quiet.width * quiet.height - 1e-9, step.id .. " loud card is smaller than quiet on " .. screen.w)
+				-- tall enough for its lines at the loud floor
+				assert(loud.height * screen.h >= loud.lines * loudPx * HudData.Goal.LineEm, step.id .. " loud is " .. loud.height * screen.h .. " px tall")
+				-- and still under the middle of the screen with the ship bar above it
+				local slots = HudStages.GoalSlots(screen.w, screen.h, 4.2)
+				assert(slots.lineTop + loud.height < 0.42, step.id .. " loud card ends at " .. slots.lineTop + loud.height)
+			end
+		end
+	end)
+end)
+
 describe("HudStages left column", function()
 	it("with no inset the stack reads as the data says: the pill, the rate line under it, the column under that", function()
 		local left = HudStages.LeftColumn(0, SE.h)

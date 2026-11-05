@@ -8,6 +8,10 @@
 -- nil, so a target that is collected, caught or not yet spawned hands the marker on without the
 -- caller doing anything. Target() hands the compass strip (UI/Compass) the position the marker last
 -- followed and its label. Pure presentation: nothing here decides what is pointed at.
+-- Playtest 1 (2026-11-05, "put arrows pointing where to go"; numbers in data/Hud Waypoint): through the
+-- loud tutorial steps (Show's `loud`, HudStages.Loud) the billboard is LoudScale bigger; and whenever the
+-- target is off the screen (behind the camera, or outside the Edge rectangle) a screen arrow at the edge
+-- of that rectangle turns toward it with the distance under it, so the way to go is always on screen.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -17,14 +21,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
 local Strings = require(Shared:WaitForChild("strings"):WaitForChild("en"))
+local HudData = require(Shared:WaitForChild("data"):WaitForChild("Hud"))
+local HudStages = require(Shared:WaitForChild("HudStages"))
 local Builder = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Builder"))
 
 local Waypoint = {}
 
 local FOLLOW_SECONDS = 0.25 -- the marker re-reads its target and the distance this often
 local FOLDER_NAME = "ClientWaypoint"
-local LIFT_STUDS = 4 -- the billboard floats this far above the target
-local BILLBOARD_SIZE = UDim2.fromScale(8, 3) -- studs
 local BOB_SECONDS = 0.6 -- half a bob (down or up)
 local BOB_SCALE = 0.1 -- the glyph bobs this far, in billboard height
 local GLYPH_H = 0.42 -- of the billboard; the label and the distance share the rest
@@ -32,6 +36,8 @@ local LABEL_Y = 0.46
 local LABEL_H = 0.32
 local DISTANCE_Y = 0.78
 local DISTANCE_H = 0.22
+local EDGE_DISPLAY_ORDER = 15 -- the screen arrow: over the HUD (10), under the modal screens (20)
+local EDGE_GLYPH_H = 0.7 -- of the arrow's box; the distance line under it
 
 local localPlayer = Players.LocalPlayer
 
@@ -45,6 +51,12 @@ local shown = false
 local followed: Vector3? = nil -- where the marker last stood (nil while the target answers nil)
 local shownLabel: string? = nil -- the label of the current Show
 local generation = 0 -- each Show starts a new follow loop; Clear and a later Show retire the old one
+local loudNow = false -- the current Show is a loud step's
+
+local edgeGui: ScreenGui? = nil
+local edgeBox: Frame? = nil
+local edgeGlyph: TextLabel? = nil
+local edgeDistance: TextLabel? = nil
 
 local function rootPosition(): Vector3?
 	local character = localPlayer.Character
@@ -56,6 +68,13 @@ local function rootPosition(): Vector3?
 		return root.Position
 	end
 	return nil
+end
+
+-- The billboard's size in studs for the current Show (data/Hud Waypoint; LoudScale bigger through the loud steps).
+local function billboardSize(): UDim2
+	local data = HudData.Waypoint
+	local scale = if loudNow then data.LoudScale else 1
+	return UDim2.fromScale(data.WidthStuds * scale, data.HeightStuds * scale)
 end
 
 -- Builds the part and its billboard once; later Shows reuse them.
@@ -84,8 +103,8 @@ local function ensureBuilt(): (Part, BillboardGui)
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Waypoint"
 	gui.Adornee = marker
-	gui.Size = BILLBOARD_SIZE
-	gui.StudsOffsetWorldSpace = Vector3.new(0, LIFT_STUDS, 0)
+	gui.Size = billboardSize()
+	gui.StudsOffsetWorldSpace = Vector3.new(0, HudData.Waypoint.LiftStuds, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = math.huge -- visible from anywhere on the floor
 	gui.LightInfluence = 0
@@ -126,6 +145,40 @@ local function ensureBuilt(): (Part, BillboardGui)
 	})
 	gui.Parent = marker
 	billboard = gui
+
+	-- The screen-edge arrow: a square box (the glyph, turned toward the target) with the distance line under it, hidden until the
+	-- target leaves the screen. Scale only; the box keeps its size through an aspect constraint.
+	local edge = HudData.Waypoint.Edge
+	local screen = Builder.screen("WaypointEdge", EDGE_DISPLAY_ORDER)
+	screen.Enabled = false
+	edgeGui = screen
+	local box = Builder.frame({
+		parent = screen,
+		name = "Arrow",
+		position = UDim2.fromScale(0.5, edge.Top),
+		size = UDim2.fromScale(edge.Size, edge.Size + edge.DistanceHeight),
+		anchor = Vector2.new(0.5, 0.5),
+	})
+	edgeBox = box
+	edgeGlyph = Builder.label({
+		parent = box,
+		name = "Glyph",
+		text = Strings.UI_WAYPOINT_GLYPH,
+		textSize = Theme.TextSize.Reveal,
+		color = Theme.Colors.Featured,
+		position = UDim2.fromScale(0.5, 0),
+		size = UDim2.fromScale(1, EDGE_GLYPH_H),
+		anchor = Vector2.new(0.5, 0),
+	})
+	edgeDistance = Builder.label({
+		parent = box,
+		name = "Distance",
+		text = "",
+		textSize = Theme.TextSize.Body,
+		position = UDim2.fromScale(0.5, EDGE_GLYPH_H),
+		size = UDim2.fromScale(1.6, 1 - EDGE_GLYPH_H),
+		anchor = Vector2.new(0.5, 0),
+	})
 	return marker, gui
 end
 
@@ -155,12 +208,75 @@ local function follow(getPosition: () -> Vector3?)
 	end
 end
 
+-- The screen arrow: where the target projects on the screen, and whether that is on it. Off screen (or behind the camera) the
+-- arrow stands where the ray from the screen's centre toward the target meets the Edge rectangle, turned to point along it; on
+-- screen it hides (the billboard is in view). Camera and gui pixels agree because the gui ignores the inset.
+local function placeEdge()
+	local screen, box, arrow, distanceLabel = edgeGui, edgeBox, edgeGlyph, edgeDistance
+	if not screen or not box or not arrow or not distanceLabel then
+		return
+	end
+	local target = followed
+	local camera = Workspace.CurrentCamera
+	local size = screen.AbsoluteSize
+	if not shown or not target or not camera or size.X <= 0 or size.Y <= 0 then
+		screen.Enabled = false
+		return
+	end
+	local edge = HudData.Waypoint.Edge
+	local point, inFront = camera:WorldToViewportPoint(target)
+	local px, py = point.X / size.X, point.Y / size.Y
+	if inFront and px >= edge.Inset and px <= 1 - edge.Inset and py >= edge.Top and py <= edge.Bottom then
+		screen.Enabled = false
+		return
+	end
+	-- the direction from the rectangle's centre, in pixels (a target behind the camera projects mirrored: flip it)
+	local centreX, centreY = 0.5, (edge.Top + edge.Bottom) / 2
+	local dx, dy = point.X - centreX * size.X, point.Y - centreY * size.Y
+	if not inFront then
+		dx, dy = -dx, -dy
+	end
+	if dx * dx + dy * dy < 1e-6 then
+		dy = 1
+	end
+	-- the ray meets the rectangle: the smaller of the two scales that reach a side
+	local sx, sy = dx / size.X, dy / size.Y
+	local halfW, halfH = 0.5 - edge.Inset, (edge.Bottom - edge.Top) / 2
+	local t = math.huge
+	if math.abs(sx) > 1e-9 then
+		t = math.min(t, halfW / math.abs(sx))
+	end
+	if math.abs(sy) > 1e-9 then
+		t = math.min(t, halfH / math.abs(sy))
+	end
+	if t == math.huge then
+		screen.Enabled = false
+		return
+	end
+	local boxH = HudStages.AtLeast(edge.Size, edge.MinPx, size.Y)
+	box.Position = UDim2.fromScale(centreX + sx * t, centreY + sy * t)
+	box.Size = UDim2.fromScale(boxH * size.Y / size.X, boxH + edge.DistanceHeight)
+	-- the glyph points down at rest; turn it so it points along the direction (clockwise degrees)
+	arrow.Rotation = math.deg(math.atan2(-dx, dy))
+	local at = rootPosition()
+	if at then
+		distanceLabel.Text = Strings.WAYPOINT_DISTANCE:format(math.floor((target - at).Magnitude))
+		distanceLabel.Visible = true
+	else
+		distanceLabel.Visible = false
+	end
+	screen.Enabled = true
+end
+
 -- Public API -------------------------------------------------------------
 
 -- Points the marker at whatever getPosition answers, re-read every FOLLOW_SECONDS (nil hides it),
--- with `label` under the glyph. A second Show replaces the first.
-function Waypoint.Show(getPosition: () -> Vector3?, label: string)
-	ensureBuilt()
+-- with `label` under the glyph. A second Show replaces the first. `loud` (HudStages.Loud: the first
+-- tutorial steps) makes the billboard LoudScale bigger.
+function Waypoint.Show(getPosition: () -> Vector3?, label: string, loud: boolean?)
+	loudNow = loud == true
+	local _, gui = ensureBuilt()
+	gui.Size = billboardSize()
 	generation += 1
 	local mine = generation
 	shown = true
@@ -178,12 +294,20 @@ function Waypoint.Show(getPosition: () -> Vector3?, label: string)
 		tween:Play()
 	end
 	follow(getPosition)
+	placeEdge()
 	task.spawn(function()
 		while generation == mine and shown do
 			task.wait(FOLLOW_SECONDS)
 			if generation == mine and shown then
 				follow(getPosition)
 			end
+		end
+	end)
+	task.spawn(function()
+		local edge = HudData.Waypoint.Edge
+		while generation == mine and shown do
+			placeEdge()
+			task.wait(edge.Seconds)
 		end
 	end)
 end
@@ -196,6 +320,10 @@ function Waypoint.Clear()
 	local gui = billboard
 	if gui then
 		gui.Enabled = false
+	end
+	local screen = edgeGui
+	if screen then
+		screen.Enabled = false
 	end
 	local tween = bob
 	if tween then

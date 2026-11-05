@@ -19,6 +19,10 @@
 -- (the pixel icon and "+300" in green). After the tutorial the plate shows the current Field Notes step (Clean principle 5, one goal
 -- at a time, always visible): a finished step turns it gold with "Claim", a tap on it opens Quests, a finished chain hides it for
 -- good. The fill tweens (none under Reduced Motion). Nothing here decides anything; the pure rules are Shared/HudStages.
+-- The loud steps (playtest 1, 2026-11-05, "unclear what to do or where to go"; data/Tutorial Script.LoudUntilStep, HudStages.Loud):
+-- through them the plate takes data/Hud Goal.Loud (wider, taller, the words fitted at the Body floor with the Label ceiling) and the
+-- world marker is bigger (Waypoint.Show's loud flag), so the first instruction is the biggest thing on the screen; from the next step
+-- the quiet card of the Clean pass.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -80,6 +84,7 @@ local finished = false -- the done message has played (or the tutorial was alrea
 local doneGeneration = 0 -- a done message in flight; a later refresh retires it
 local goldGeneration = 0 -- a gold face in flight; a newer step restarts it and an older one's return to the trough yields
 local pushedStage: number? = nil -- the step last told to the HUD and the compass
+local loud = false -- the step shown is one of the loud ones (HudStages.Loud): the plate and the marker take the loud sizes
 
 -- Visibility ---------------------------------------------------------------
 
@@ -117,17 +122,17 @@ local function applyWaypoint(step: Tutorial.Step?)
 		local materialId = step.waypointTarget or ""
 		Waypoint.Show(function()
 			return nodePosition(materialId)
-		end, Strings.WAYPOINT_node:format(Builder.text("MATERIAL_" .. materialId)))
+		end, Strings.WAYPOINT_node:format(Builder.text("MATERIAL_" .. materialId)), loud)
 	elseif kind == "spawn" then
 		local species = if step.spawn then step.spawn.species else (step.trigger.species or "")
 		local def = Species.ById[species]
 		Waypoint.Show(function()
 			return spawnPosition(species)
-		end, Strings.WAYPOINT_spawn:format(if def then def.name else species))
+		end, Strings.WAYPOINT_spawn:format(if def then def.name else species), loud)
 	elseif kind == "ship" then
 		Waypoint.Show(function()
 			return CampRenderer.ShipPosition()
-		end, Strings.WAYPOINT_ship)
+		end, Strings.WAYPOINT_ship, loud)
 	elseif kind == "biome" then
 		local name = step.waypointTarget or ""
 		local region = Place.Layout().Regions[name]
@@ -137,7 +142,7 @@ local function applyWaypoint(step: Tutorial.Step?)
 		end
 		Waypoint.Show(function()
 			return Vector3.new(region.x, floorTop(), region.z)
-		end, Strings.WAYPOINT_biome:format(Builder.text("BIOME_" .. name)))
+		end, Strings.WAYPOINT_biome:format(Builder.text("BIOME_" .. name)), loud)
 	else
 		Waypoint.Clear()
 	end
@@ -167,7 +172,13 @@ local function layout()
 	local rewardPlate = rewardChip
 	local rewarded = rewardPlate ~= nil and rewardPlate.Visible
 	local slots = HudStages.GoalSlots(screen.X, screen.Y, BAR_MIN_ASPECT)
-	local goal = HudStages.Objective(utf8.len(text.Text) or #text.Text, counted, screen.X, screen.Y, Theme.TextSize.Min, rewarded)
+	local floorPx = if loud then HudData.Goal.Loud.TextPx else Theme.TextSize.Min
+	local goal = HudStages.Objective(utf8.len(text.Text) or #text.Text, counted, screen.X, screen.Y, floorPx, rewarded, loud)
+	-- The words' ceiling: Label through the loud steps, Body otherwise (Builder.label's constraint; the floor stays Min).
+	local sizes = text:FindFirstChildOfClass("UITextSizeConstraint")
+	if sizes then
+		sizes.MaxTextSize = if loud then Theme.TextSize.Label else Theme.TextSize.Body
+	end
 	frame.AnchorPoint = Vector2.new(0.5, 0)
 	frame.Position = UDim2.fromScale(CENTRE, slots.lineTop)
 	frame.Size = UDim2.fromScale(goal.width, goal.height)
@@ -410,6 +421,7 @@ local function showStep(step: Tutorial.Step, index: number, counter: number)
 		tapButton.Visible = false
 	end
 	text.Text = Builder.text(step.hint)
+	loud = HudStages.Loud(index, false)
 	setProgress(step, counter, false)
 	local stepChanged = shownStep ~= index
 	shownStep = index
@@ -464,6 +476,7 @@ local function showNotes()
 		return
 	end
 	local step, have, need = currentNotes()
+	loud = false -- the Field Notes card is the quiet one
 	if not step then
 		notesStepId = nil
 		notesReady = false
@@ -522,6 +535,7 @@ local function showDone()
 		tapButton.Visible = false
 	end
 	text.Text = Strings.TUT_DONE
+	loud = false
 	setProgress(nil, 0, false)
 	shownStep = -1 -- "something shows" for applyVisible while the line is up
 	shownCounter = nil

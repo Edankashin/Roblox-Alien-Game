@@ -34,6 +34,33 @@ local Hud = {
 		ChipRight = 0.97,
 		RewardAspect = 3.2, -- the reward chip's width over its height: the pixel icon and "+300" in green
 		StepPopSeconds = 1.2, -- the objective's face is gold this long when the step changes, then the dark trough
+		-- The loud goal card (data/Tutorial Script.LoudUntilStep; HudStages.Loud): through the first steps the objective line takes
+		-- these in place of Width, MaxWidth, LineHeight, MinHeightPx and the 14 px text floor, so the hint reads as the one thing to
+		-- do. The same arithmetic (HudStages.Objective) fits the words whole.
+		Loud = {
+			Width = 0.4, -- the card's width before it wraps (0.3 to 0.7 of the screen)
+			MaxWidth = 0.6,
+			LineHeight = 0.07,
+			MinHeightPx = 30,
+			TextPx = 18, -- the floor the words are fitted at (Theme.TextSize.Body; the label's ceiling is Label)
+		},
+	},
+	-- The world marker (World/Waypoint): the floating glyph over the tutorial's or a quest's target, in studs, and the screen-edge arrow
+	-- that points at the target while it is off screen (playtest 1, 2026-11-05: "put arrows pointing where to go").
+	Waypoint = {
+		LiftStuds = 4, -- the billboard floats this far above the target
+		WidthStuds = 8,
+		HeightStuds = 3,
+		LoudScale = 1.6, -- the billboard is this much bigger through the loud steps (HudStages.Loud)
+		Edge = {
+			Inset = 0.06, -- the arrow keeps this far inside the screen's left and right edges
+			Top = 0.2, -- and runs no higher than this (under the compass strip and the goal card)...
+			Bottom = 0.82, -- ...nor lower (above the power-up bar and the action button)
+			Size = 0.09, -- the arrow's height, of the screen (square)
+			MinPx = 32,
+			DistanceHeight = 0.04, -- the distance line under it
+			Seconds = 0.05, -- how often the arrow follows the target
+		},
 	},
 	-- The top-right stack, from `Right` in from the screen's edge, each under the last by `Gap`: the place chip (where and when), the
 	-- event chip (only while one of the rules of HudStages.EventSlot holds), the Friend Boost chip (only above +0%). The radar

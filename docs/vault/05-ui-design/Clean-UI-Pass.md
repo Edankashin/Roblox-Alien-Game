@@ -197,6 +197,8 @@ What a new player sees, step by step (steps are `data/Tutorial.luau`; "stage" is
 7. **T6 "Your crew is building the Hull Frame. Watch the ship bar."** (about 4:00): the module burst (a quiet moment), then the Gifts screen pops for the day-1 gift (as now).
 8. **Stage 5, T7 "Thrusters need Glowroot from Starhollow Forest"** (about 5:00): landmark diamonds join the compass; on entering the Forest, `TUT_DONE` shows on the objective line for 2.5 s, the line hides, and held events release under the banner rule (at most one banner). From here the full HUD of the wireframe.
 
+**Loud steps (2026-11-05, playtest 1; [[UI-Playbook]] "Playtest 1: the Scrap pill under Roblox's bar").** The first outside tester stalled right here: "unclear what to do or where to go", "the UI is too empty". Through T1 to T3 (`Script.LoudUntilStep`) the objective card is the loud one (`data/Hud` `Goal.Loud`: wider, taller, bigger words) and the marker is 1.6 times its size; a screen-edge arrow points at the marker's target whenever it is off screen, through every step. Steps 2, 3 and 5 above read with that card; from step 6 (T4) the quiet HUD as written.
+
 `HudStages` (in `data/Tutorial.luau`): `{ Shop = "T2", Menu = "T2", ShipBar = "T3", PlaceChip = "T4", EventChip = "T7", Landmarks = "T7" }`: each element shows once that step is complete. **For Ethan**: the Shop and the Starter Pack wait about 45 seconds for the first catch; if he wants them from the first frame (B51's "show the offer"), set `Shop` to `"T0"` in the data; nothing else changes.
 
 ## Work packages (three, disjoint files)

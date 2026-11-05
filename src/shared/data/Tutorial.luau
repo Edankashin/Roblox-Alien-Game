@@ -43,6 +43,11 @@ local Script = {
 	GiftPopWaitSeconds = 8, -- how long to wait for the module-complete camera pan and any open panel before giving up on the pop
 	GiftPopPollSeconds = 0.25, -- how often that wait re-checks
 	HoldEventBannersWhileActive = true, -- Peddler arrival banner, shower countdown chip and shower banner wait for the tutorial to end
+	-- The loud steps (playtest 1, 2026-11-05: "unclear what to do or where to go", "put arrows pointing where to go"; Decide-Now 55):
+	-- through this step the goal card is bigger with bigger words (data/Hud Goal.Loud), the world marker is bigger (data/Hud
+	-- Waypoint.LoudScale), and the objective reads as an instruction. From the next step the quiet HUD of the Clean pass. "T3" is
+	-- Decide-Now 55 a; the last step's id is b; "" is c (never loud).
+	LoudUntilStep = "T3",
 }
 
 -- The quiet HUD grows with the player (docs/vault/05-ui-design/Clean-UI-Pass.md, "The first five minutes"): an element shows once the

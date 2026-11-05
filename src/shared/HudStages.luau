@@ -40,6 +40,24 @@ for _, step in ipairs(Tutorial.Steps) do
 	table.insert(stepIds, step.id)
 end
 
+-- Whether tutorial step `stepIndex` is one of the loud ones (data/Tutorial Script.LoudUntilStep: the steps up to and including it;
+-- a finished tutorial, an unknown id or an empty id is never loud). UI/TutorialHint and World/Waypoint ask this.
+function HudStages.LoudWith(ids: { string }, loudUntil: string, stepIndex: number, done: boolean): boolean
+	if done or loudUntil == "" then
+		return false
+	end
+	for index, id in ipairs(ids) do
+		if id == loudUntil then
+			return stepIndex >= 1 and stepIndex <= index
+		end
+	end
+	return false
+end
+
+function HudStages.Loud(stepIndex: number, done: boolean): boolean
+	return HudStages.LoudWith(stepIds, Tutorial.Script.LoudUntilStep, stepIndex, done)
+end
+
 -- ShownWith on the game's data (data/Tutorial HudStages and Steps).
 function HudStages.Shown(element: string, stepIndex: number, done: boolean): boolean
 	-- ---------------------------------------------------------------------------
@@ -239,15 +257,18 @@ function HudStages.LeftColumn(insetPx: number, screenH: number): LeftColumn
 	return { pillTop = pillTop, rateTop = rateTop, columnTop = rateTop + left.RateHeight + left.ColumnGap }
 end
 
-function HudStages.Objective(chars: number, counter: boolean, screenW: number, screenH: number, floorPx: number, reward: boolean?): Objective
+-- `loud` (HudStages.Loud): the card takes data/Hud Goal.Loud's width, line height and text floor instead (the caller passes the
+-- loud floor as floorPx too, so the lines are counted at the size the words are drawn).
+function HudStages.Objective(chars: number, counter: boolean, screenW: number, screenH: number, floorPx: number, reward: boolean?, loud: boolean?): Objective
 	local goal = HudData.Goal
-	local lineH = HudStages.AtLeast(goal.LineHeight, goal.MinHeightPx, screenH)
+	local box = if loud then goal.Loud else goal
+	local lineH = HudStages.AtLeast(box.LineHeight, box.MinHeightPx, screenH)
 	if screenW <= 0 or screenH <= 0 then
-		return { width = goal.Width, height = lineH, lines = 1 }
+		return { width = box.Width, height = lineH, lines = 1 }
 	end
 	local share = if reward then goal.TextShareReward elseif counter then goal.TextShareCounter else goal.TextShare
-	local baseW = goal.Width * screenW
-	local maxW = goal.MaxWidth * screenW
+	local baseW = box.Width * screenW
+	local maxW = box.MaxWidth * screenW
 	local textPx = math.max(0, chars) * floorPx * goal.CharEm * goal.WrapSlack
 	local function need(lines: number): number
 		return textPx / lines / share
