@@ -34,7 +34,7 @@ Owners: **Ethan**, **Collab** (the collaborator), **Coord** (Ethan's coordinator
 | Task | Owner | Notes |
 |---|---|---|
 | Handoff to the collaborator: this Board, [[Handoff]], Roblox and GitHub access | Ethan | Steps in [[Handoff]] 13.1 and 13.2 |
-| Launch morning: Studio sign-in, the music listen, the store page, the questionnaire, Public | Ethan | **Public since 2026-11-04** (the playtest release, [[Decisions]] B58, [[Playtest-Brief]]). Icon A, three thumbnails and the genre (Adventure, Exploration) went in on 2026-11-04 through Ethan's Chrome; the questionnaire is filled and previews Minimal, waiting on Ethan's Submit ([[STORE-PAGE]] 5e). Left: that click, the music listen |
+| Launch morning: Studio sign-in, the music listen, the store page, the questionnaire, Public | Ethan | **Public since 2026-11-04** (the playtest release, [[Decisions]] B58, [[Playtest-Brief]]). Icon A, three thumbnails and the genre (Adventure, Exploration) went in on 2026-11-04 through Ethan's Chrome; the questionnaire is submitted, label Minimal ([[STORE-PAGE]] 5e); the page's "Ages 16+" lifts only after 2-step verification and Roblox's 250-player review. Left: 2-step verification (Ethan's account), the music listen |
 | Overnight job 14, the rest: job 8 store shots, job 4 World 2 and Home, job 3's unrun sections (51a, 47, UI fit, deltas, security D1/D4/D6, reduced-motion assembly, real-currency step 2, phone performance, 45, STUDIO-QUEUE World 1 rows), 50b step 7, quiet-moments step 4; plus the retests of 0825880 (Storage Bay with the new Output lines, the first catch on a fresh profile) | Mac | [[Overnight]]; the music load check passed, the Decal-id icon bug is fixed (0c8c2af) |
 
 ## Next (in priority order; take from the top)

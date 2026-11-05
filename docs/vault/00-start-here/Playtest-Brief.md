@@ -11,14 +11,14 @@ Written 2026-11-04 on the Mac for Ethan ("set up the game so that I can have peo
 
 - **Name:** Catch an Alien. **Link:** https://www.roblox.com/games/93842567264184
 - **Description** (the store blurb, one home: `docs/STORE-PAGE.md` section 2): "You crash-landed on a strange planet built of little blocks. Cute aliens are everywhere! Catch them with a quick timing bar, put them to work at your camp, and watch your ship come together piece by piece. Fill the ship bar, launch, and land on World 2, Frostbyte." Then the seven bullets (35 aliens Common to Secret, rarer means more special eyes and effects, the Starhollow Forest, offline earnings, Meteor Showers and the Peddler, fusion and companions, the home planet) and the line "One thumb, no stress, nothing you did is ever wasted."
-- **Rating: Minimal once Ethan presses Submit.** The questionnaire was filled on 2026-11-04 (the 17 answers and the preview are in `docs/STORE-PAGE.md` 5e: label Minimal, no descriptors, no restricted regions); the Submit click is Ethan's. Until it is submitted the public page shows "Maturity: Content May Vary, Ages 16+" and only 16+ accounts can play; afterwards the game is open to all ages that Roblox allows for a Minimal label, and an account whose content-maturity setting excludes it is bounced to the Roblox home screen with no message (the 2026-11-01 phone bounce, [[2026-11-01]] job 79). Devices: computer, phone, tablet. 8 players per server (`Config.MaxPlayers`).
+- **Rating: Minimal, submitted 2026-11-04** (the 17 answers are in `docs/STORE-PAGE.md` 5e; no descriptors, no restricted regions). **The page still says "Ages 16+"**: Roblox holds a new experience to 16+ until the creator has 2-step verification on and the experience has passed its review after 250 highly engaged players (or the refundable fee for an early review), both listed on the Manage audience checklist. So testers need a 16+ account until then, and an account whose content-maturity setting excludes it is bounced to the Roblox home screen with no message (the 2026-11-01 phone bounce, [[2026-11-01]] job 79). Devices: computer, phone, tablet. 8 players per server (`Config.MaxPlayers`).
 - **Shop prices are real Robux.** Fifteen items are for sale; nothing hands out Scrap for Robux. The LAUNCHWEEK code expired 2026-10-31.
 
 ## The message to send a tester (copy as is)
 
 > I'm playtesting my Roblox game, **Catch an Alien**. You crash-land on a planet made of little blocks, catch cute aliens with a timing bar, and they build your ship so you can fly to the next world.
 >
-> Link: https://www.roblox.com/games/93842567264184 (phone, tablet or computer; any age once the rating is submitted, 16+ until then).
+> Link: https://www.roblox.com/games/93842567264184 (phone, tablet or computer; your Roblox account needs to be 16+ for now).
 >
 > Play for 10 to 15 minutes without asking me anything. Catch a few aliens, open the Aliens and Shop screens, walk into the forest, and try to fill the ship bar.
 >
