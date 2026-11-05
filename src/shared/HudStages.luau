@@ -223,6 +223,22 @@ export type Objective = {
 -- widening the plate up to its maximum, else the most lines allowed at the maximum width. The height is the lines' own, never under the
 -- bar's. An estimate (a letter is CharEm ems wide, WrapSlack for the words that wrap early); the Studio check judges the rest.
 -- `reward` (a Field Notes step with its reward chip) narrows the text to TextShareReward.
+-- The top-left stack (data/Hud Left): where the Scrap pill, its rate line and the left button column start, in screen Scale. The
+-- pill keeps the data's Top unless Roblox's top inset (`insetPx`, GuiService:GetGuiInset's Y; the HUD's ScreenGui ignores it)
+-- reaches lower: then it starts InsetGap under the inset, so it never sits inside Roblox's own menu and chat buttons (playtest 1,
+-- 2026-11-05). The rate line and the column follow it down. A zero or unknown screen keeps the data's numbers.
+export type LeftColumn = { pillTop: number, rateTop: number, columnTop: number }
+
+function HudStages.LeftColumn(insetPx: number, screenH: number): LeftColumn
+	local left = HudData.Left
+	local pillTop = left.Top
+	if screenH > 0 and insetPx > 0 then
+		pillTop = math.max(pillTop, insetPx / screenH + left.InsetGap)
+	end
+	local rateTop = pillTop + left.PillHeight + left.RateGap
+	return { pillTop = pillTop, rateTop = rateTop, columnTop = rateTop + left.RateHeight + left.ColumnGap }
+end
+
 function HudStages.Objective(chars: number, counter: boolean, screenW: number, screenH: number, floorPx: number, reward: boolean?): Objective
 	local goal = HudData.Goal
 	local lineH = HudStages.AtLeast(goal.LineHeight, goal.MinHeightPx, screenH)

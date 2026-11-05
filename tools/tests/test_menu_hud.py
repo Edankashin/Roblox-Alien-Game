@@ -32,6 +32,7 @@ class MenuHud(unittest.TestCase):
         self.strings = source("src/shared/strings/en.luau")
         self.icons = (ROOT / "src/shared/data/PixelIcons.luau").read_text()
         self.menu = source("src/shared/data/Menu.luau")
+        self.hud_data = source("src/shared/data/Hud.luau")
 
     def number(self, text: str, name: str) -> float:
         found = re.search(rf"\b{name}\s*=\s*([\d.]+)", text)
@@ -41,7 +42,12 @@ class MenuHud(unittest.TestCase):
     def test_the_spec_mirrors_the_column(self):
         found = re.search(r"local COLUMN_TOP, SLOT_H, SLOT_W, SLOT_ASPECT = ([\d.]+), ([\d.]+), ([\d.]+), ([\d.]+)", self.spec)
         self.assertTrue(found, "the spec's column line moved")
-        self.assertEqual(float(found[1]), self.number(self.hud, "local MENU_TOP"))
+        # The column starts under the Scrap pill and its rate line (data/Hud Left, HudStages.LeftColumn) with no top inset; Roblox's
+        # bar moves the whole stack down at run time, which the spec's flat number does not model.
+        left = re.search(r"\n\tLeft\s*=\s*\{(.*?)\n\t\}", self.hud_data, re.S)
+        self.assertTrue(left, "data/Hud Left not found")
+        column_top = sum(self.number(left[1], name) for name in ("Top", "PillHeight", "RateGap", "RateHeight", "ColumnGap"))
+        self.assertAlmostEqual(float(found[1]), column_top, places=9)
         menu = re.search(r"Theme\.Menu\s*=\s*\{([^}]*)\}", self.theme)
         self.assertTrue(menu, "Theme.Menu not found")
         self.assertEqual(float(found[2]), self.number(menu[1], "SlotH"))
@@ -50,7 +56,7 @@ class MenuHud(unittest.TestCase):
 
     def test_the_menu_slot_is_the_second_and_hangs_the_panel(self):
         self.assertEqual(self.number(self.hud, "local MENU_SLOT_INDEX"), 1)
-        self.assertIn("MENU_TOP + MENU_SLOT * MENU_SLOT_INDEX + slotH", self.hud)
+        self.assertIn("leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX + slotH", self.hud)
 
     def test_the_row_floor_is_the_tap_floor(self):
         self.assertEqual(self.number(self.menu, "MinRowPx"), self.number(self.theme, r"Theme\.TapMin"))

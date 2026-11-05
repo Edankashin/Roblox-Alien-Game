@@ -24,8 +24,8 @@ Panels.QuestTabDefault = "notes"
 
 -- The shell every modal panel wears (UI richness pass, docs/vault/05-ui-design/UI-Richness-Pass.md section 2, package A). Fractions of
 -- the screen unless a name says otherwise. The panel keeps its screen's width (PanelHeaderMath.ShellAspect turns the old aspect into
--- the one that holds it at the new height); the HUD hides all but the Scrap pill while a panel is open and that pill ends at Top, so the
--- band clears it. BandHeight is the header band's height as a share of the panel's, BodyTint how far the cream body leans toward the
+-- the one that holds it at the new height); the HUD hides while a panel is open, the Scrap pill included since 2026-11-05 (under
+-- Roblox's top bar the pill stands where the band is: data/Hud Left), so Top is the band's own margin. BandHeight is the header band's height as a share of the panel's, BodyTint how far the cream body leans toward the
 -- band's colour (Builder.tint), Accent the colour (a Theme.Colors key) of the second status pill for each band colour.
 Panels.Shell = {
 	Height = 0.84,

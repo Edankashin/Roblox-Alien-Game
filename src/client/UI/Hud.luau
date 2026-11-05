@@ -5,8 +5,8 @@
 -- then "Day · Rain") with the one event chip under it (a running Rush or Shower, a countdown, a standing event or luck, by Shared/HudStages.EventSlot; a tap opens
 -- Quests) and the Friend Boost chip under that; and the contextual action button bottom-right that shows "Catch!" near a wild alien.
 -- A dumb view: every value shown is pushed in by the bootstrap from server state; nothing here computes anything that matters.
--- Three rules keep it quiet. (1) While a panel is open (UI/Screens, polled) everything but the Scrap pill hides, and comes back with no
--- pop. (2) SetMenuVisible(false) (a capture, a reveal) hides the goal plate, the chips and the left column, so the capture bar is alone
+-- Three rules keep it quiet. (1) While a panel is open (UI/Screens, polled) the whole HUD hides, the Scrap pill included (the Shop's
+-- band says the balance; a price line says what is missing), and comes back with no pop. (2) SetMenuVisible(false) (a capture, a reveal) hides the goal plate, the chips and the left column, so the capture bar is alone
 -- with the Scrap pill. (3) A new player earns the elements: SetStage(step) shows the Shop, the Menu, the ship bar, the place chip and
 -- the event chip at the steps data/Tutorial HudStages names (Shared/HudStages), each popping once as it appears; a finished tutorial
 -- shows them all, no pops. A line that would read zero (Friend Boost +0%, luck x1.0) is hidden, not dimmed.
@@ -20,6 +20,7 @@
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Theme = require(Shared:WaitForChild("Theme"))
@@ -57,11 +58,14 @@ local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {} -- the left-edge buttons by id: the Shop, and the Menu
 local menuCount = 0 -- standalone buttons added with AddMenuButton (the Shop); the Menu button sits in the slot after them
+local slotIndex: { [Frame]: number } = {} -- each standalone slot's place in the column (layoutLeft moves them under the pill)
+local leftColumn: HudStages.LeftColumn = HudStages.LeftColumn(0, 0) -- where the top-left stack starts (layoutLeft: the inset moves it)
 
 local CLOCK_ASPECT = 4.2 -- the place chip's shape (it was the clock chip's); data/Hud Chips gives its height and where it stands
 
 local MENU_DISPLAY_ORDER = 25 -- above the modal screens (20) and their backdrops, below reveals (30) and toasts (40)
-local MENU_TOP = 0.19 -- the left column starts here, under the Scrap pill and its rate line
+-- The left column starts at leftColumn.columnTop, under the Scrap pill and its rate line (data/Hud Left, HudStages.LeftColumn): with no
+-- inset 0.19, lower under Roblox's top bar.
 local MENU_SLOT = Theme.Menu.SlotH -- vertical space per button: the square button plus its label
 local MENU_BUTTON = 0.095 -- square button height (width follows through the aspect constraint)
 local MENU_BUTTON_ROWS = 6 -- its face is six cells a side: a plain rounded square, not the three-cell plus the corner cuts left
@@ -203,15 +207,16 @@ local function setSquareIcon(square: Frame, key: string?)
 	end
 end
 
--- The Scrap plate: a dark block plate (the board's) with the pixel Scrap cube and the rolling count.
+-- The Scrap plate: a dark block plate (the board's) with the pixel Scrap cube and the rolling count. layoutLeft places it.
 local function buildScrapPill(root: ScreenGui)
+	local left = HudData.Left
 	local pill = Builder.blockPlate({
 		parent = root,
 		name = "ScrapPill",
 		color = Theme.Block.Trough,
 		aspect = SCRAP_ASPECT,
-		position = UDim2.fromScale(0.015, 0.025),
-		size = UDim2.fromScale(0.3, 0.085),
+		position = UDim2.fromScale(left.PillLeft, left.Top),
+		size = UDim2.fromScale(left.PillWidth, left.PillHeight),
 	})
 	scrapPill = pill
 	local top = Builder.blockTop(pill)
@@ -322,11 +327,14 @@ local function buildMenuButton(
 		else Builder.frame({
 			parent = root,
 			name = "Menu_" .. id,
-			position = UDim2.fromScale(MENU_LEFT, MENU_TOP + index * MENU_SLOT),
+			position = UDim2.fromScale(MENU_LEFT, leftColumn.columnTop + index * MENU_SLOT),
 			size = UDim2.fromScale(Theme.Menu.SlotW, MENU_SLOT),
 			aspect = Theme.Menu.Aspect,
 			zIndex = 2, -- over the drop-down's outside-tap layer, under its panel
 		})
+	if not beside then
+		slotIndex[slot] = index
+	end
 	local button = Builder.blockButton({
 		parent = slot,
 		name = "Button",
@@ -361,7 +369,7 @@ end
 -- shorter on a tall one (its aspect keeps it narrow), so this reads the screen.
 local function dropTop(screen: Vector2): number
 	local slotH = MenuMath.SlotHeight(MENU_SLOT, Theme.Menu.SlotW, Theme.Menu.Aspect, screen.X, screen.Y)
-	return MENU_TOP + MENU_SLOT * MENU_SLOT_INDEX + slotH
+	return leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX + slotH
 end
 
 -- The Menu button's red count: the rows' counts added up (a hidden row counts nothing), popped when the total grows.
@@ -516,7 +524,7 @@ local function buildMenuPanel(root: ScreenGui)
 	local holder = Builder.frame({
 		parent = root,
 		name = "MenuDrop",
-		position = UDim2.fromScale(MENU_LEFT, MENU_TOP),
+		position = UDim2.fromScale(MENU_LEFT, leftColumn.columnTop),
 		size = UDim2.fromScale(0.2, 0.2),
 		zIndex = MENU_LAYER,
 	})
@@ -728,20 +736,47 @@ local function buildShipBar(parent: Instance)
 	Hud.SetShipTicks(defaultTicks())
 end
 
--- "+N/min" under the Scrap pill; hidden while the camp earns nothing.
+-- "+N/min" under the Scrap pill; hidden while the camp earns nothing. layoutLeft places it.
 local function buildRateLine(parent: Instance)
+	local left = HudData.Left
 	local label = Builder.label({
 		parent = parent,
 		name = "Rate",
 		text = Strings.HUD_SCRAP_PER_MIN:format(Builder.formatNumber(0)),
 		textSize = Theme.TextSize.Body,
-		position = UDim2.fromScale(0.03, 0.115),
-		size = UDim2.fromScale(0.3, 0.045),
+		position = UDim2.fromScale(left.RateX, left.Top + left.PillHeight + left.RateGap),
+		size = UDim2.fromScale(left.RateWidth, left.RateHeight),
 		color = Theme.Colors.Confirm,
 		xAlign = Enum.TextXAlignment.Left,
 	})
 	label.Visible = false
 	rateLabel = label
+end
+
+-- The top-left stack from the screen and Roblox's top inset (HudStages.LeftColumn): the pill, the rate line and every standalone
+-- slot of the left column move down together when the inset would otherwise put the pill inside Roblox's own buttons. Scale only;
+-- the inset is read in pixels and turned into a fraction of the screen. Called at build and on every resize; the drop-down (dropTop)
+-- reads the same numbers.
+local function layoutLeft()
+	local root = gui
+	if not root then
+		return
+	end
+	local screen = root.AbsoluteSize
+	local inset = GuiService:GetGuiInset()
+	leftColumn = HudStages.LeftColumn(inset.Y, screen.Y)
+	local left = HudData.Left
+	local pill = scrapPill
+	if pill then
+		pill.Position = UDim2.fromScale(left.PillLeft, leftColumn.pillTop)
+	end
+	local rate = rateLabel
+	if rate then
+		rate.Position = UDim2.fromScale(left.RateX, leftColumn.rateTop)
+	end
+	for slot, index in pairs(slotIndex) do
+		slot.Position = UDim2.fromScale(MENU_LEFT, leftColumn.columnTop + index * MENU_SLOT)
+	end
 end
 
 -- The event chip under the place chip: a Codex-purple block plate with one line (the event's name and its time, "Meteor Shower 4m 12s",
@@ -924,7 +959,7 @@ end
 
 local hudOn = true -- SetVisible: the bootstrap hides the whole HUD for the loading screen and the cinematics
 local menuOn = true -- SetMenuVisible: false behind a capture or a reveal, so the capture bar is alone with the Scrap pill
-local panelOpen = false -- a modal panel is up (Screens.IsAnyOpen, polled): everything but the Scrap pill hides
+local panelOpen = false -- a modal panel is up (Screens.IsAnyOpen, polled): the whole HUD hides, the Scrap pill included
 local STAGED = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip" } -- the elements HudStages gates (Landmarks is the compass's)
 local stageShown: { [string]: boolean } = { Shop = true, Menu = true, ShipBar = true, PlaceChip = true, EventChip = true }
 local stageReady = false -- SetStage has run once: a newly shown element pops from then on (the first call only settles)
@@ -936,6 +971,11 @@ local function applyVisibility()
 	end
 	if panelGroup then
 		panelGroup.Visible = not panelOpen
+	end
+	-- The pill goes with the rest under a panel (playtest 1, 2026-11-05: under Roblox's top bar it now stands where a panel's band
+	-- is; the Shop's band says the balance, a price line says what is missing).
+	if scrapPill then
+		scrapPill.Visible = not panelOpen
 	end
 	if edgeGroup then
 		edgeGroup.Visible = menuOn
@@ -1046,9 +1086,12 @@ function Hud.Build()
 		end)
 	end
 	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		layoutLeft()
 		layoutGoal()
 		layoutRight()
+		layoutMenu() -- the drop-down hangs from the column, which the inset may have moved
 	end)
+	layoutLeft()
 	layoutGoal()
 	layoutRight()
 	-- The profile is live when the HUD is built, so a new player never sees the whole HUD flash before UI/TutorialHint tells it the step.

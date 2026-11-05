@@ -51,7 +51,23 @@ local Hud = {
 		FriendMinPx = 28,
 		MaxWidth = 0.4, -- the size bound the aspect fits inside (the width follows from the height)
 	},
-	PanelPollSeconds = 0.1, -- how often the HUD asks whether a panel is open (everything but the Scrap pill hides while one is)
+	PanelPollSeconds = 0.1, -- how often the HUD asks whether a panel is open (the whole HUD hides while one is, the Scrap pill included)
+	-- The top-left stack: the Scrap pill, its rate line under it, then the left button column (the Shop, the Menu). Playtest 1
+	-- (2026-11-05, docs/playtests/2026-11-05-tester-1.md): the pill sat inside Roblox's own menu and chat buttons, which live in the
+	-- top inset every ScreenGui here ignores. So the pill starts at Top, or under the inset plus InsetGap when that is lower
+	-- (GuiService:GetGuiInset, read by UI/Hud; the arithmetic is HudStages.LeftColumn), and the rest of the stack hangs under it.
+	Left = {
+		Top = 0.025, -- the pill's top with no inset (the stack then reads as before: pill 0.025, rate line 0.115, column 0.19)
+		InsetGap = 0.012, -- air between Roblox's bar and the pill when the inset is what places it
+		PillLeft = 0.015,
+		PillHeight = 0.085,
+		PillWidth = 0.3, -- the size bound the pill's aspect fits inside
+		RateGap = 0.005, -- between the pill and the rate line
+		RateX = 0.03,
+		RateHeight = 0.045,
+		RateWidth = 0.3,
+		ColumnGap = 0.03, -- from the rate line's bottom to the first button slot
+	},
 	-- World labels (WildRenderer, NodeRenderer): only what is near wears a name.
 	Plates = {
 		MaxShown = 5, -- a wild alien's plate shows for the nearest this many in range, never more (no "plus any within 15 studs")
