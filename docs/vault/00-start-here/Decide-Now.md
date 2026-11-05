@@ -308,6 +308,7 @@ From the first outside playtest ([`docs/playtests/2026-11-05-tester-1.md`](../..
 - Options: a) loud for T1 to T3 only: the goal card at about twice its width with a pointing hand on the target, a world arrow over the node, the trainee and the ship, then the quiet HUD from T4; b) loud through T7; c) keep the quiet HUD and only fix the strings.
 - Recommend: **a**, because the stall was right after the start and the quiet HUD is a decision you made for the rest of the session; a keeps both.
 - Then: the Board row's worker builds to a; the Playbook's "The first five minutes" gets the rule.
+- **Built 2026-11-05 to a** (Ethan: "Yes, fix them"): `data/Tutorial` `Script.LoudUntilStep = "T3"`. Your b is `"T7"` and c is `""` on that one line; nothing else changes. The screen-edge arrow runs through every step whatever you pick.
 
 **56. Jessica?** The tester asked for "a character or NPC named Jessica". The game has no NPC but the Peddler.
 - Options: a) no, note it; b) an alien nickname: one World 1 species' display name or a shiny's name is Jessica (a strings row); c) a camp NPC who speaks the tutorial lines (a new system, after the fixes above).
