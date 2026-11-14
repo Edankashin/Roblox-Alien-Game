@@ -32,3 +32,4 @@ One note per day. Each session appends a heading and short bullets; anything las
 - [[2026-11-03]]: the Launch queue findings fixed (SpriteGuard for the failing sprites, the gold Claim plate, CodexChanged after every grant); job 78 queued.
 - [[2026-11-04]] (Mac desktop): what carried over from the cloud chat; the transcript gap after 2026-10-16, the stale [[Now]], the two-day clock skew, the four job 78 and 79 findings waiting on the coordinator.
 - [[2026-11-05]] (Mac desktop): the first outside playtest filed (`docs/playtests/2026-11-05-tester-1.md`) and checked against the code; the three fixes on [[Board]], the four calls in [[Decide-Now]] 53 to 56.
+- [[2026-11-14]]: coordinator catch-up after the playtest release; the analyzer and transcript export refused again; [[Now]] corrected.
