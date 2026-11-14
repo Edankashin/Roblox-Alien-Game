@@ -1485,9 +1485,9 @@ local function start(profile: Types.Profile)
 		end
 	end
 	Hud.AddMenuButton("Shop", Theme.Colors.Confirm, menu("Shop"))
+	Hud.AddMenuButton("Aliens", Theme.Colors.Featured, menu("Aliens")) -- on the left edge under the Shop, not a Menu row (Decide-Now 54a)
 	-- The Shop stays on the left edge on its own; every other screen is a row of the Menu drop-down under it (Decision B53), shown
 	-- in the order added. A row's badge counts also add up on the Menu button.
-	Hud.AddMenuRow("Aliens", Theme.Colors.Featured, menu("Aliens"))
 	Hud.AddMenuRow("Codex", Theme.Colors.Codex, menu("Codex"))
 	Hud.AddMenuRow("Ship", Theme.Colors.Select, menu("Ship"))
 	Hud.AddMenuRow("Quests", Theme.Colors.Heading, menu("Quests"))

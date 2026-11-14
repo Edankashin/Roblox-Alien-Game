@@ -16,7 +16,7 @@ local FLOOR = 14 -- Theme.TextSize.Min (the headless sandbox cannot require Them
 local SE = { w = 667, h = 375 }
 local IPAD = { w = 1024, h = 768 }
 local WIDE = { w = 1600, h = 900 }
-local ELEMENTS = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks", "Radar" }
+local ELEMENTS = { "Shop", "Aliens", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks", "Radar" }
 local DONE = #Tutorial.Steps + 1
 
 local function indexOf(id: string): number

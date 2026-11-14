@@ -54,9 +54,11 @@ class MenuHud(unittest.TestCase):
         self.assertEqual(float(found[3]), self.number(menu[1], "SlotW"))
         self.assertEqual(float(found[4]), self.number(menu[1], "Aspect"))
 
-    def test_the_menu_slot_is_the_second_and_hangs_the_panel(self):
-        self.assertEqual(self.number(self.hud, "local MENU_SLOT_INDEX"), 1)
-        self.assertIn("leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX + slotH", self.hud)
+    def test_the_menu_slot_is_the_third_and_hangs_the_panel_beside_it(self):
+        self.assertEqual(self.number(self.hud, "local MENU_SLOT_INDEX"), 2)
+        self.assertEqual(self.number(self.spec, "local MENU_SLOT_INDEX"), 2)
+        self.assertIn("leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX", self.hud)
+        self.assertIn("holder.Position = UDim2.fromScale(dropLeft(screen), top)", self.hud)
 
     def test_the_row_floor_is_the_tap_floor(self):
         self.assertEqual(self.number(self.menu, "MinRowPx"), self.number(self.theme, r"Theme\.TapMin"))
@@ -69,7 +71,7 @@ class MenuHud(unittest.TestCase):
         self.assertLessEqual(self.number(self.menu, "Bottom"), 0.98)
 
     def test_every_row_has_a_name_and_a_sixteen_grid_icon(self):
-        ids = re.findall(r'Hud\.AddMenuRow\("(\w+)"', self.boot) + ["Menu", "Shop"]
+        ids = re.findall(r'Hud\.AddMenuRow\("(\w+)"', self.boot) + ["Menu", "Shop", "Aliens"]
         self.assertGreaterEqual(len(ids), 10)
         grids = re.search(r"local Grids[^{]*\{(.*?)\n\}", self.icons, re.S)
         self.assertTrue(grids, "PixelIcons Grids not found")
@@ -92,8 +94,10 @@ class MenuHud(unittest.TestCase):
             self.assertNotIn(name, self.hud)
             self.assertNotIn(name, self.boot)
 
-    def test_the_left_edge_keeps_only_the_shop_as_a_standalone_button(self):
-        self.assertEqual(re.findall(r'Hud\.AddMenuButton\("(\w+)"', self.boot), ["Shop"])
+    def test_the_left_edge_keeps_the_shop_and_aliens_as_standalone_buttons(self):
+        # B53 as amended by Decide-Now 54a (Ethan, 2026-11-14): the Shop, then Aliens; every other screen is a Menu row
+        self.assertEqual(re.findall(r'Hud\.AddMenuButton\("(\w+)"', self.boot), ["Shop", "Aliens"])
+        self.assertNotIn('Hud.AddMenuRow("Aliens"', self.boot)
 
     def test_the_menu_button_is_a_rounded_square(self):
         # three face rows leave the plus the corner cuts made of a 3 by 3 block; six read as a rounded square
@@ -141,7 +145,7 @@ class QuietHud(unittest.TestCase):
         self.assertIn("TUT_DONE", self.hint)
 
     def test_every_staged_element_has_a_stage_in_data(self):
-        for element in ("Shop", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks"):
+        for element in ("Shop", "Aliens", "Menu", "ShipBar", "PlaceChip", "EventChip", "Landmarks"):
             self.assertRegex(self.tutorial, rf'\b{element}\s*=\s*"T\d"', element)
 
     def test_the_spec_floor_is_the_themes_text_floor(self):

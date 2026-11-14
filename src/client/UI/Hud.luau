@@ -57,7 +57,7 @@ local clockLabel: TextLabel? = nil
 local clockChip: Frame? = nil
 local biomeLabel: TextLabel? = nil
 local menuButtons: { [string]: Frame } = {} -- the left-edge buttons by id: the Shop, and the Menu
-local menuCount = 0 -- standalone buttons added with AddMenuButton (the Shop); the Menu button sits in the slot after them
+local menuCount = 0 -- standalone buttons added with AddMenuButton (the Shop, Aliens); the Menu button sits in the slot after them
 local slotIndex: { [Frame]: number } = {} -- each standalone slot's place in the column (layoutLeft moves them under the pill)
 local leftColumn: HudStages.LeftColumn = HudStages.LeftColumn(0, 0) -- where the top-left stack starts (layoutLeft: the inset moves it)
 
@@ -72,7 +72,7 @@ local MENU_BUTTON_ROWS = 6 -- its face is six cells a side: a plain rounded squa
 local MENU_LEFT = Theme.Menu.Left
 local MENU_BADGE_SIZE = 0.34 -- the left buttons' notification dot, as a fraction of the button
 local MENU_ID = "Menu" -- the drop-down's button: id, label (MENU_Menu) and icon
-local MENU_SLOT_INDEX = 1 -- the Menu button's slot: under the Shop's (slot 0)
+local MENU_SLOT_INDEX = 2 -- the Menu button's slot: under the Shop (slot 0) and Aliens (slot 1, Decide-Now 54a)
 local BESIDE_GAP = 0.15 -- the gap between the Shop and the offer beside it, as a fraction of the Shop slot's width
 local MENU_LAYER = 3 -- the drop-down's panel sits over its outside-tap layer (1) and the left buttons (2)
 local MENU_INK_SLACK = 1.15 -- the panel's scroll window is inset by its ink (Theme.Block.Ink cells) times this, so a row never touches the ink
@@ -365,11 +365,17 @@ end
 
 -- The Menu drop-down ------------------------------------------------------------
 
--- The Menu slot's bottom edge in screen Scale: where the panel hangs from. The slot is Theme.Menu.SlotH tall on a wide screen and
--- shorter on a tall one (its aspect keeps it narrow), so this reads the screen.
-local function dropTop(screen: Vector2): number
+-- Where the panel hangs, in screen Scale: beside the Menu button, its top level with the button's top (Decide-Now 54a, 2026-11-14).
+-- With Aliens in the column the Menu is the third slot, and a panel under it would show two rows on an iPhone SE under Roblox's bar;
+-- beside it, three whole rows fit there (tests/MenuMath.spec.luau). The slot is Theme.Menu.SlotH tall on a wide screen and shorter on
+-- a tall one, and its aspect sets its width, so the left edge reads the screen.
+local function dropTop(_screen: Vector2): number
+	return leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX
+end
+
+local function dropLeft(screen: Vector2): number
 	local slotH = MenuMath.SlotHeight(MENU_SLOT, Theme.Menu.SlotW, Theme.Menu.Aspect, screen.X, screen.Y)
-	return leftColumn.columnTop + MENU_SLOT * MENU_SLOT_INDEX + slotH
+	return MENU_LEFT + MenuMath.SlotWidth(slotH, Theme.Menu.Aspect, screen.X, screen.Y) + Theme.Menu.Gap
 end
 
 -- The Menu button's red count: the rows' counts added up (a hidden row counts nothing), popped when the total grows.
@@ -432,7 +438,7 @@ local function layoutMenu()
 		return
 	end
 	layoutKey = key
-	holder.Position = UDim2.fromScale(MENU_LEFT, top)
+	holder.Position = UDim2.fromScale(dropLeft(screen), top)
 	holder.Size = UDim2.fromScale(width, height)
 	holder.Visible = menuOpen and height > 0
 	if height <= 0 then
@@ -960,8 +966,8 @@ end
 local hudOn = true -- SetVisible: the bootstrap hides the whole HUD for the loading screen and the cinematics
 local menuOn = true -- SetMenuVisible: false behind a capture or a reveal, so the capture bar is alone with the Scrap pill
 local panelOpen = false -- a modal panel is up (Screens.IsAnyOpen, polled): the whole HUD hides, the Scrap pill included
-local STAGED = { "Shop", "Menu", "ShipBar", "PlaceChip", "EventChip" } -- the elements HudStages gates (Landmarks is the compass's)
-local stageShown: { [string]: boolean } = { Shop = true, Menu = true, ShipBar = true, PlaceChip = true, EventChip = true }
+local STAGED = { "Shop", "Aliens", "Menu", "ShipBar", "PlaceChip", "EventChip" } -- the elements HudStages gates (Landmarks is the compass's)
+local stageShown: { [string]: boolean } = { Shop = true, Aliens = true, Menu = true, ShipBar = true, PlaceChip = true, EventChip = true }
 local stageReady = false -- SetStage has run once: a newly shown element pops from then on (the first call only settles)
 
 -- Applies the three rules to the two ScreenGuis and the two groups. Nothing pops: a panel closing brings the HUD back as it was.
@@ -1029,7 +1035,7 @@ end
 -- Shows or hides what the tutorial has not let in yet: the Shop (and the offer beside it, its child) and the Menu slots, the ship
 -- bar, the place chip, the event chip. With `pop`, an element that appears pops once.
 local function applyStage(pop: boolean)
-	for _, id in ipairs({ "Shop", "Menu" }) do
+	for _, id in ipairs({ "Shop", "Aliens", "Menu" }) do
 		local button = menuButtons[id]
 		local slot = if button then button.Parent else nil
 		if button and slot and slot:IsA("Frame") then
@@ -1309,8 +1315,9 @@ function Hud.FlyGain(amount: number)
 	fly:Play()
 end
 
--- Adds a standalone button to the left edge: the Shop, which stays in view because it earns money. Call after Hud.Build; only the
--- slot above the Menu button is free, so a second call does nothing. Every other screen is a row of the Menu (AddMenuRow).
+-- Adds a standalone button to the left edge: the Shop, which stays in view because it earns money, then Aliens, the screen a
+-- collector opens most (Decide-Now 54a, playtest 1). Call after Hud.Build, in that order; only the slots above the Menu button are
+-- free, so a third call does nothing. Every other screen is a row of the Menu (AddMenuRow).
 function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	local root = menuGui
 	if not root or menuButtons[id] or menuCount >= MENU_SLOT_INDEX then
@@ -1318,7 +1325,7 @@ function Hud.AddMenuButton(id: string, color: Color3, onClick: () -> ())
 	end
 	buildMenuButton(root, id, color, menuCount, onClick)
 	menuCount += 1
-	applyStage(false) -- a new player's Shop waits for the first catch
+	applyStage(false) -- a new player's Shop and Aliens wait for the first catch
 end
 
 -- Adds a button beside the Shop (Decide-Now B53a, Ethan 2026-10-22: the Starter Pack offer stays in view, never only a Menu row).

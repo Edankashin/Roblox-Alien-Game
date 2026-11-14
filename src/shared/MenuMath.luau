@@ -26,6 +26,15 @@ function MenuMath.SlotHeight(slotH: number, slotW: number, aspect: number, scree
 	return math.min(slotH, slotW * screenW / aspect / screenH)
 end
 
+-- A slot's width as a fraction of the screen width, from its height (SlotHeight) and its width-over-height aspect: the Menu panel
+-- stands this far right of the column's left edge (Decide-Now 54a).
+function MenuMath.SlotWidth(slotHeight: number, aspect: number, screenW: number, screenH: number): number
+	if screenW <= 0 or screenH <= 0 then
+		return slotHeight * aspect
+	end
+	return slotHeight * screenH * aspect / screenW
+end
+
 -- A row's height as a fraction of the screen height: `frac`, but never fewer than `minPx` pixels on a screen `screenPx` tall.
 function MenuMath.RowHeight(screenPx: number, frac: number, minPx: number): number
 	if screenPx <= 0 then

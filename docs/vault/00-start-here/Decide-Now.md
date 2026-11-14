@@ -298,11 +298,13 @@ From the first outside playtest ([`docs/playtests/2026-11-05-tester-1.md`](../..
 - Options: a) Commons and Uncommons one step tighter (Good 0.40 to 0.30 and 0.34 to 0.26, ticker 0.8 to 1.0), the rest as is; b) every tier one step tighter; c) keep it, the first catch is meant to be a sure thing.
 - Recommend: **a**, because the tutorial's two trainees are Commons and still catchable at 30%, and the first Rare then feels like a step up instead of the same bar; b risks the Legendary three-rounder becoming unfair on a phone.
 - Then: one data change in `Tiers.luau`, the headless tests re-run, a Studio check of the trainee catch on a fresh profile.
+- **Answered 2026-11-14: a, and harder to find too** ([[Decisions]] B59). Built: the Common and Uncommon numbers above, 9 wild aliens a player instead of 14, none within 30 studs.
 
 **54. Aliens on the HUD, not in the drop-down?** The tester: "for the more important menus don't make it into the drop down, just put a button on your screen, for example the aliens." B53 put every screen but the Shop into the Menu drop-down.
 - Options: a) Aliens gets its own left-edge button under the Shop, the Menu button moves one slot down, everything else stays in the drop-down (B53 amended); b) Aliens and Ship both; c) keep B53.
 - Recommend: **a**, because Aliens is the screen a collector opens most and one more button keeps the left column at three (Shop, Aliens, Menu), inside the thumb zone; the Ship has the ship bar on the HUD already.
 - Then: a Hud change (one more `AddMenuButton`), the Playbook's Menu section in the same commit, B53's row annotated.
+- **Answered 2026-11-14: a** ([[Decisions]] B59). Built: Shop, Aliens, Menu down the left edge; the drop-down now stands beside the Menu button so it still fits a small phone.
 
 **55. How loud are the first five minutes?** The tester: "the UI is too empty", "put arrows pointing where to go", "make it more obvious what my goal is". The quiet HUD ([[Clean-UI-Pass]]) shows the goal plate at 0.28 of the screen and hides the rest until steps T2 to T7. The Board row builds the arrows and the bigger card either way; this is about how far it goes.
 - Options: a) loud for T1 to T3 only: the goal card at about twice its width with a pointing hand on the target, a world arrow over the node, the trainee and the ship, then the quiet HUD from T4; b) loud through T7; c) keep the quiet HUD and only fix the strings.
@@ -314,6 +316,7 @@ From the first outside playtest ([`docs/playtests/2026-11-05-tester-1.md`](../..
 - Options: a) no, note it; b) an alien nickname: one World 1 species' display name or a shiny's name is Jessica (a strings row); c) a camp NPC who speaks the tutorial lines (a new system, after the fixes above).
 - Recommend: **a** for now, with b as the cheap thank-you if you want one; c would redo the tutorial's delivery and is not what the playtest asked for.
 - Then: nothing, or one strings row.
+- **Answered 2026-11-14: a, no Jessica** ([[Decisions]] B59).
 
 ## Closed or parked, no answer needed
 
@@ -330,10 +333,10 @@ Paste this back with your letters (a bare letter is enough; `*` marks the recomm
 
 ```
 51: answered (unique per design, never ugly)
-53: a* Commons one step tighter | b every tier | c keep
-54: a* Aliens button under the Shop | b Aliens and Ship | c keep B53
-55: a* loud for T1 to T3 | b loud to T7 | c strings only
-56: a* no | b an alien named Jessica | c a camp NPC
+53: answered a, and harder to find (B59)
+54: answered a (B59)
+55: built to a
+56: answered a, no Jessica (B59)
 1: a* quit Studio now | b keep one window | c later
 2: a* macOS app | b browser build | c later
 3: a* CLI and plugin | b CLI only | c later

@@ -231,9 +231,11 @@ local function findPosition(around: Vector3, size: number): Vector3?
 	local campClear = Meadow.GetCampRadius() + Config.SpawnCampClearance
 	for _ = 1, PLACEMENT_ATTEMPTS do
 		local angle = rng:NextNumber(0, math.pi * 2)
-		-- sqrt keeps the distribution even over the disc instead of bunching at the centre
-		local radius = Config.SpawnRadius * math.sqrt(rng:NextNumber())
-		radius = math.max(radius, Config.SpawnMinDistanceFromPlayer)
+		-- Even over the ring between SpawnMinDistanceFromPlayer and SpawnRadius (the sqrt keeps it from bunching inward). A clamp of
+		-- the disc's draw instead put one spawn in nine on the inner edge once that edge moved out to 30 studs (2026-11-14).
+		local inner = math.min(Config.SpawnMinDistanceFromPlayer, Config.SpawnRadius)
+		local outer = Config.SpawnRadius
+		local radius = math.sqrt(inner * inner + rng:NextNumber() * (outer * outer - inner * inner))
 		local x = math.clamp(around.X + math.cos(angle) * radius, -half, half)
 		local z = math.clamp(around.Z + math.sin(angle) * radius, -half, half)
 		local position = Vector3.new(x, floorTop + Config.WildHoverStuds + size / 2, z)

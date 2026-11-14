@@ -22,13 +22,17 @@ function Capture.position(elapsed: number, tickerSpeed: number): number
 	return 2 - phase * 2
 end
 
+-- Rounding slack on the zone edges, not a gameplay number: an edge is inclusive, and a tap exactly on it must not miss because
+-- 0.37 + 0.15 - 0.37 comes out a hair over 0.15 in floating point (the 0.30 Common zone of Decide-Now 53a, 2026-11-14).
+local EDGE_SLACK = 1e-9
+
 -- Score a ticker position against the zones. Zones are widths (fractions of the bar) centred on zoneCenter.
 function Capture.outcome(pos: number, zoneCenter: number, goodZone: number, perfectZone: number): Outcome
 	local distance = math.abs(pos - zoneCenter)
-	if distance <= perfectZone / 2 then
+	if distance <= perfectZone / 2 + EDGE_SLACK then
 		return "Perfect"
 	end
-	if distance <= goodZone / 2 then
+	if distance <= goodZone / 2 + EDGE_SLACK then
 		return "Good"
 	end
 	return "Miss"
@@ -37,7 +41,7 @@ end
 -- True when a miss landed within `margin` of the Good zone's edge (the near-miss flash).
 function Capture.isNearMiss(pos: number, zoneCenter: number, goodZone: number, margin: number): boolean
 	local distance = math.abs(pos - zoneCenter)
-	return distance > goodZone / 2 and distance <= goodZone / 2 + margin
+	return distance > goodZone / 2 + EDGE_SLACK and distance <= goodZone / 2 + margin + EDGE_SLACK
 end
 
 -- Visible span of a zone along the bar, clamped to [0, 1]. Returns start, width.

@@ -56,6 +56,7 @@ local Script = {
 -- ("T2" is "Catch a Moop"); set Shop to "T0" to show them from the first frame, nothing else changes.
 local HudStages = {
 	Shop = "T2", -- the Shop and the gold Starter Pack beside it
+	Aliens = "T2", -- the Aliens button under the Shop (Decide-Now 54a, 2026-11-14): there is an alien to look at after the first catch
 	Menu = "T2",
 	ShipBar = "T3", -- the ship bar slides in once the Hull Frame is paid
 	PlaceChip = "T4",

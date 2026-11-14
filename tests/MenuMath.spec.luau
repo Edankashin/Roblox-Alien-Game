@@ -7,15 +7,20 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local MenuMath = require(Shared.MenuMath)
 local Menu = require(Shared.data.Menu)
 
--- The drop-down hangs from the Menu slot's bottom: the column starts at 0.19, the Menu slot is the second and each slot is 0.13 tall
--- at most (Theme.Menu: SlotW 0.12, SlotH 0.13, Aspect 0.8). tools/tests/test_menu_hud.py keeps these equal to the HUD's.
-local COLUMN_TOP, SLOT_H, SLOT_W, SLOT_ASPECT = 0.19, 0.13, 0.12, 0.8
+local HudStages = require(Shared.HudStages)
 
-local function dropTop(screen: { w: number, h: number }): number
-	return COLUMN_TOP + SLOT_H + MenuMath.SlotHeight(SLOT_H, SLOT_W, SLOT_ASPECT, screen.w, screen.h)
+-- The drop-down hangs beside the Menu slot, level with its top: the column starts at 0.19 with no inset, the Menu slot is the third
+-- (the Shop, Aliens, the Menu: Decide-Now 54a) and each slot is 0.13 apart (Theme.Menu: SlotW 0.12, SlotH 0.13, Aspect 0.8).
+-- tools/tests/test_menu_hud.py keeps these equal to the HUD's.
+local COLUMN_TOP, SLOT_H, SLOT_W, SLOT_ASPECT = 0.19, 0.13, 0.12, 0.8
+local MENU_SLOT_INDEX = 2
+local ROBLOX_BAR_PX = 36 -- Roblox's top bar on a phone: the whole left stack moves under it (playtest 1)
+
+local function dropTop(screen: { w: number, h: number }, columnTop: number?): number
+	return (columnTop or COLUMN_TOP) + SLOT_H * MENU_SLOT_INDEX
 end
-local ROWS = 8 -- Aliens, Codex, Ship, Quests, Gifts, Mail, Settings, Leaderboard (plus Friends, Playtime and the offer when they show)
-local MOST_ROWS = 11
+local ROWS = 7 -- Codex, Ship, Quests, Gifts, Mail, Settings, Leaderboard (plus Friends, Playtime and the offer when they show); Aliens is a button
+local MOST_ROWS = 10
 
 local SCREENS = {
 	{ name = "iPhone SE", w = 667, h = 375 },
@@ -24,9 +29,9 @@ local SCREENS = {
 	{ name = "phone portrait", w = 375, h = 667 },
 }
 
-local function layout(screen: { name: string, w: number, h: number }, rows: number): MenuMath.Layout
+local function layout(screen: { name: string, w: number, h: number }, rows: number, columnTop: number?): MenuMath.Layout
 	local rowH = MenuMath.RowHeight(screen.h, Menu.RowHeight, Menu.MinRowPx)
-	return MenuMath.Panel(rows, rowH, Menu.RowGap, Menu.Pad, Menu.Bottom - dropTop(screen))
+	return MenuMath.Panel(rows, rowH, Menu.RowGap, Menu.Pad, Menu.Bottom - dropTop(screen, columnTop))
 end
 
 describe("MenuMath.SlotHeight", function()
@@ -83,6 +88,20 @@ describe("MenuMath.Panel", function()
 		for _, screen in ipairs(SCREENS) do
 			local shown = MenuMath.RowsShown(layout(screen, MOST_ROWS))
 			assert(shown >= 3, screen.name .. " shows only " .. shown .. " rows")
+		end
+	end)
+	it("still shows three whole rows on every size with the stack under Roblox's top bar", function()
+		for _, screen in ipairs(SCREENS) do
+			local columnTop = HudStages.LeftColumn(ROBLOX_BAR_PX, screen.h).columnTop
+			local shown = MenuMath.RowsShown(layout(screen, MOST_ROWS, columnTop))
+			assert(shown >= 3, screen.name .. " under the bar shows only " .. shown .. " rows")
+		end
+	end)
+	it("stands the panel right of the column, never over a slot", function()
+		for _, screen in ipairs(SCREENS) do
+			local slotH = MenuMath.SlotHeight(SLOT_H, SLOT_W, SLOT_ASPECT, screen.w, screen.h)
+			local slotW = MenuMath.SlotWidth(slotH, SLOT_ASPECT, screen.w, screen.h)
+			assert(slotW > 0 and slotW <= SLOT_W + 1e-9, screen.name .. " slot width " .. slotW)
 		end
 	end)
 	it("tiles its rows down the canvas without overlap", function()

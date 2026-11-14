@@ -81,7 +81,7 @@ return {
 	FuseRetries = 3, -- at most this many such retries per species before it gives up on it
 
 	-- spawning
-	SpawnDensityTarget = 14,
+	SpawnDensityTarget = 9, -- wild aliens kept around each player (14 until 2026-11-14: Ethan, "harder to find")
 	-- A server-wide ceiling on wild spawns: the density target above is per player, so spread-out players could
 	-- otherwise hold far more. Reserved spawns (a summoned Warden, a trainee) do not count against it and are
 	-- never blocked by it.
@@ -89,7 +89,7 @@ return {
 	SpawnRespawnMinSeconds = 60,
 	SpawnRespawnMaxSeconds = 90,
 	SpawnRadius = 90, -- studs around each player
-	SpawnMinDistanceFromPlayer = 10, -- never spawn right on top of someone
+	SpawnMinDistanceFromPlayer = 30, -- a new spawn lands this far out at least, so a player walks and looks (10 until 2026-11-14)
 	SpawnMinSeparation = 5, -- studs between wild aliens
 	SpawnCampClearance = 20, -- studs beyond the camp pad edge kept free of spawns (the ship and stations sit here)
 	-- Rare spots (the generated worlds' most beautiful places, data/WorldGen<id> Spots): this share of top-ups near a free spot (one
